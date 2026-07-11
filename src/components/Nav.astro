@@ -12,9 +12,9 @@ const links = [
 const current = Astro.url.pathname;
 ---
 
-<header class="border-b border-line bg-paper/90 backdrop-blur sticky top-0 z-10">
+<header class="border-b-2 border-ink bg-paper/90 backdrop-blur sticky top-0 z-10">
   <div class="max-w-4xl mx-auto px-5 py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
-    <a href="/" class="text-xl font-bold tracking-tight lowercase text-ink hover:text-accent transition-colors">
+    <a href="/" class="font-display text-2xl font-bold tracking-tight lowercase text-ink hover:text-accent transition-colors">
       the desk<span class="text-accent">.</span>
     </a>
     <nav class="flex flex-wrap gap-x-5 gap-y-1 text-sm lowercase">
@@ -23,8 +23,10 @@ const current = Astro.url.pathname;
           <a
             href={link.href}
             class:list={[
-              'transition-colors hover:text-accent',
-              current.startsWith(link.href) ? 'text-accent font-semibold' : 'text-ink-soft',
+              'transition-colors hover:text-accent border-b-2 pb-0.5',
+              current.startsWith(link.href)
+                ? 'text-ink font-semibold border-accent'
+                : 'text-ink-soft border-transparent',
             ]}
           >
             {link.label}

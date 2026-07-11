@@ -30,43 +30,48 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
 
 <Base>
   <!-- hero -->
-  <section class="py-10">
-    <h1 class="text-6xl sm:text-7xl font-bold lowercase tracking-tight">
+  <section class="py-12 dot-grid">
+    <span class="pop-ink inline-block bg-accent text-white font-mono text-xs lowercase px-3 py-1.5">
+      ★ now live at grant-desk.com
+    </span>
+    <h1 class="mt-6 font-display text-7xl sm:text-8xl font-bold lowercase tracking-tight">
       the desk<span class="text-accent">.</span>
     </h1>
-    <p class="mt-4 text-lg text-ink-soft max-w-xl">
-      Home base for US History, Economics, and Law. Everything we're doing, playing, and debating — in one place.
+    <p class="mt-5 text-lg text-ink-soft max-w-xl">
+      Home base for US History, Economics, and Law. Everything we're doing, playing, and debating —
+      <span class="text-ink underline decoration-accent decoration-4 underline-offset-4">in one place</span>.
     </p>
   </section>
 
   <!-- classes -->
-  <section class="mt-8 grid gap-4 sm:grid-cols-3">
+  <section class="mt-10 grid gap-6 sm:grid-cols-3">
     {
-      courses.map((c) => (
-        <a
-          href={c.href}
-          class="group rounded-lg border border-line bg-white p-5 hover:border-accent hover:shadow-sm transition-all"
-        >
-          <h2 class="text-xl font-bold lowercase group-hover:text-accent transition-colors">
+      courses.map((c, i) => (
+        <a href={c.href} class="group pop rounded-md bg-white p-5">
+          <span class="font-mono text-xs text-accent">{String(i + 1).padStart(2, '0')}</span>
+          <h2 class="mt-1 font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">
             {c.name}<span class="text-accent">.</span>
           </h2>
           <p class="mt-2 text-sm text-ink-soft leading-relaxed">{c.blurb}</p>
+          <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
         </a>
       ))
     }
   </section>
 
   <!-- latest announcements -->
-  <section class="mt-16">
+  <section class="mt-20">
     <div class="flex items-baseline justify-between">
-      <h2 class="text-2xl font-bold lowercase">on the desk right now</h2>
+      <h2 class="font-display text-3xl font-bold lowercase">on the desk right now</h2>
       <a href="/announcements/" class="text-sm text-accent hover:text-accent-dark lowercase">all announcements →</a>
     </div>
-    <ul class="mt-4 space-y-3">
+    <ul class="mt-6 space-y-3">
       {
         announcements.map((a) => (
-          <li class="flex gap-4 items-baseline border-b border-line pb-3">
-            <span class="font-mono text-xs text-ink-soft shrink-0 w-14">{dateFmt.format(a.data.date)}</span>
+          <li class="flex gap-4 items-baseline border-b-2 border-line pb-3">
+            <span class="font-mono text-xs bg-accent-soft text-accent-dark px-2 py-0.5 shrink-0">
+              {dateFmt.format(a.data.date)}
+            </span>
             <div>
               <span class="font-semibold">{a.data.title}</span>
               {a.data.course && <span class="ml-2 text-xs font-mono lowercase text-accent">{a.data.course}</span>}

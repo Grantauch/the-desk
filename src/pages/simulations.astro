@@ -36,17 +36,17 @@ const sims = [
 ---
 
 <Base title="simulations">
-  <h1 class="text-4xl font-bold lowercase tracking-tight">
+  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
     simulations<span class="text-accent">.</span>
   </h1>
-  <p class="mt-2 text-lg text-ink-soft lowercase">where the class stops taking notes and starts playing for keeps.</p>
+  <p class="mt-3 text-lg text-ink-soft lowercase">where the class stops taking notes and starts playing for keeps.</p>
 
-  <div class="mt-10 space-y-6">
+  <div class="mt-10 space-y-8">
     {
       sims.map((sim) => (
-        <article class="rounded-lg border border-line bg-white p-6">
+        <article class="pop rounded-md bg-white p-6">
           <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2 class="text-2xl font-bold lowercase">{sim.name}</h2>
+            <h2 class="font-display text-2xl font-bold lowercase">{sim.name}</h2>
             <span class="text-xs font-mono lowercase text-accent">{sim.course}</span>
             <span class="text-xs font-mono lowercase text-ink-soft">· {sim.status}</span>
           </div>

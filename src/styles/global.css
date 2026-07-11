@@ -19,6 +19,38 @@
 
   --font-sans: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  /* display font for headings — loaded in Base.astro. Use as: font-display */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+  Signature styles for the bold look.
+  .pop        — hard offset shadow card (electric blue). Add to links/cards.
+  .pop-ink    — same, but ink shadow. For solid-blue panels and badges.
+  .dot-grid   — halftone dot background for the hero.
+*/
+.pop {
+  border: 2px solid var(--color-ink);
+  box-shadow: 5px 5px 0 var(--color-accent);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+a.pop:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--color-accent);
+}
+.pop-ink {
+  border: 2px solid var(--color-ink);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+.dot-grid {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-accent) 16%, transparent) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom, black 40%, transparent);
 }
 
 html {
