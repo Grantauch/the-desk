@@ -1,0 +1,27 @@
+---
+// us-history.astro — edit the data below; the layout comes from CoursePage.
+// Mark exactly one unit `current: true` to feature it in the "right now" box.
+import CoursePage from '../components/CoursePage.astro';
+
+const units = [
+  { name: 'Foundations & the Constitution', blurb: 'How the American experiment got its operating manual.' },
+  { name: 'Expansion & Conflict', blurb: 'Growth, its costs, and the road to disunion.' },
+  { name: 'Civil War & Reconstruction', blurb: 'The union breaks, and the fight over what rebuilding means.' },
+  { name: 'Industrialization & Progressivism', blurb: 'Railroads, robber barons, and reformers.', current: true },
+  { name: 'America on the World Stage', blurb: 'Two world wars and a new global role.' },
+  { name: 'The Modern Era', blurb: 'Civil rights, the Cold War, and the country we live in now.' },
+];
+
+const resources = [
+  { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  // add more: { label: 'Unit 4 study guide', href: '...' },
+];
+---
+
+<CoursePage
+  title="us history"
+  tagline="the american story, argued out loud."
+  intro="This course runs on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
+  units={units}
+  resources={resources}
+/>

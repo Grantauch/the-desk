@@ -1,0 +1,79 @@
+---
+// index.astro — the home page.
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const announcements = (await getCollection('announcements'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const courses = [
+  {
+    href: '/us-history/',
+    name: 'us history',
+    blurb: 'the story of the american experiment — argued over, acted out, and occasionally re-litigated in class.',
+  },
+  {
+    href: '/economics/',
+    name: 'economics',
+    blurb: 'incentives, markets, and why people make weird choices. home of the stock market game.',
+  },
+  {
+    href: '/law/',
+    name: 'law',
+    blurb: 'rights, courts, and mock trials. objection-friendly environment.',
+  },
+];
+
+const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+---
+
+<Base>
+  <!-- hero -->
+  <section class="py-10">
+    <h1 class="text-6xl sm:text-7xl font-bold lowercase tracking-tight">
+      the desk<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 text-lg text-ink-soft max-w-xl">
+      Home base for US History, Economics, and Law. Everything we're doing, playing, and debating — in one place.
+    </p>
+  </section>
+
+  <!-- classes -->
+  <section class="mt-8 grid gap-4 sm:grid-cols-3">
+    {
+      courses.map((c) => (
+        <a
+          href={c.href}
+          class="group rounded-lg border border-line bg-white p-5 hover:border-accent hover:shadow-sm transition-all"
+        >
+          <h2 class="text-xl font-bold lowercase group-hover:text-accent transition-colors">
+            {c.name}<span class="text-accent">.</span>
+          </h2>
+          <p class="mt-2 text-sm text-ink-soft leading-relaxed">{c.blurb}</p>
+        </a>
+      ))
+    }
+  </section>
+
+  <!-- latest announcements -->
+  <section class="mt-16">
+    <div class="flex items-baseline justify-between">
+      <h2 class="text-2xl font-bold lowercase">on the desk right now</h2>
+      <a href="/announcements/" class="text-sm text-accent hover:text-accent-dark lowercase">all announcements →</a>
+    </div>
+    <ul class="mt-4 space-y-3">
+      {
+        announcements.map((a) => (
+          <li class="flex gap-4 items-baseline border-b border-line pb-3">
+            <span class="font-mono text-xs text-ink-soft shrink-0 w-14">{dateFmt.format(a.data.date)}</span>
+            <div>
+              <span class="font-semibold">{a.data.title}</span>
+              {a.data.course && <span class="ml-2 text-xs font-mono lowercase text-accent">{a.data.course}</span>}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>

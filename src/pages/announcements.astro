@@ -1,0 +1,39 @@
+---
+// announcements.astro — lists every announcement, newest first.
+// To post one, add a .md file to src/content/announcements/ — see the examples there.
+import Base from '../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+const announcements = (await getCollection('announcements')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+---
+
+<Base title="announcements">
+  <h1 class="text-4xl font-bold lowercase tracking-tight">
+    announcements<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-2 text-lg text-ink-soft lowercase">everything posted, newest first.</p>
+
+  <div class="mt-10 space-y-8">
+    {
+      announcements.map(async (a) => {
+        const { Content } = await render(a);
+        return (
+          <article class="border-b border-line pb-8">
+            <p class="font-mono text-xs text-ink-soft">
+              {dateFmt.format(a.data.date)}
+              {a.data.course && <span class="ml-2 text-accent lowercase">{a.data.course}</span>}
+            </p>
+            <h2 class="mt-1 text-2xl font-bold">{a.data.title}</h2>
+            <div class="mt-3 leading-relaxed text-ink-soft [&_a]:text-accent [&_a]:underline">
+              <Content />
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+</Base>

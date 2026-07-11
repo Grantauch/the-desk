@@ -1,0 +1,26 @@
+---
+// economics.astro — edit the data below; the layout comes from CoursePage.
+import CoursePage from '../components/CoursePage.astro';
+
+const units = [
+  { name: 'Thinking Like an Economist', blurb: 'Scarcity, incentives, and opportunity cost — the lenses for everything else.' },
+  { name: 'Supply, Demand & Markets', blurb: 'Why prices move and what they secretly tell us.' },
+  { name: 'Behavioral Economics', blurb: 'Where humans stop being rational and start being interesting.', current: true },
+  { name: 'The Stock Market Unit', blurb: 'Portfolios go live. Fortunes are made and lost (on paper).' },
+  { name: 'Money, Banking & the Fed', blurb: 'Where money comes from and who steers the economy.' },
+  { name: 'Personal Finance', blurb: 'Budgets, credit, and not getting ripped off — skills for actual life.' },
+];
+
+const resources = [
+  { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  // add more: { label: 'Stock game leaderboard', href: '...' },
+];
+---
+
+<CoursePage
+  title="economics"
+  tagline="incentives explain almost everything."
+  intro="Economics here is not a textbook subject — it's a contact sport. We run experiments, trade in a simulated market, and use behavioral econ to figure out why people (including us) make the choices they make."
+  units={units}
+  resources={resources}
+/>

@@ -1,0 +1,83 @@
+---
+// CoursePage.astro — shared template for class pages.
+// Each class page (us-history, economics, law) just passes in its data.
+import Base from '../layouts/Base.astro';
+
+interface Unit {
+  name: string;
+  blurb: string;
+  current?: boolean;
+}
+
+interface Resource {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  tagline: string;
+  intro: string;
+  units: Unit[];
+  resources: Resource[];
+}
+
+const { title, tagline, intro, units, resources } = Astro.props;
+const currentUnit = units.find((u) => u.current);
+---
+
+<Base title={title}>
+  <h1 class="text-4xl font-bold lowercase tracking-tight">
+    {title}<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-2 text-lg text-ink-soft lowercase">{tagline}</p>
+
+  <p class="mt-6 max-w-2xl leading-relaxed">{intro}</p>
+
+  {
+    currentUnit && (
+      <div class="mt-8 rounded-lg bg-accent-soft border border-accent/20 p-5">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent">right now</p>
+        <h2 class="mt-1 text-xl font-semibold">{currentUnit.name}</h2>
+        <p class="mt-1 text-ink-soft">{currentUnit.blurb}</p>
+      </div>
+    )
+  }
+
+  <h2 class="mt-12 text-2xl font-bold lowercase">units</h2>
+  <ol class="mt-4 space-y-3">
+    {
+      units.map((unit, i) => (
+        <li class="flex gap-4 items-baseline border-b border-line pb-3">
+          <span class="font-mono text-sm text-accent shrink-0">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <span class="font-semibold">{unit.name}</span>
+            {unit.current && (
+              <span class="ml-2 text-xs font-mono lowercase bg-accent text-white rounded-full px-2 py-0.5">
+                current
+              </span>
+            )}
+            <p class="text-sm text-ink-soft mt-0.5">{unit.blurb}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    resources.length > 0 && (
+      <>
+        <h2 class="mt-12 text-2xl font-bold lowercase">resources</h2>
+        <ul class="mt-4 space-y-2">
+          {resources.map((r) => (
+            <li>
+              <a href={r.href} class="text-accent hover:text-accent-dark underline underline-offset-4">
+                {r.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+</Base>

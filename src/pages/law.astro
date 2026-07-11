@@ -1,0 +1,25 @@
+---
+// law.astro — edit the data below; the layout comes from CoursePage.
+import CoursePage from '../components/CoursePage.astro';
+
+const units = [
+  { name: 'Foundations of Law', blurb: 'Where rules come from and why we agree to follow them.' },
+  { name: 'Constitutional Rights', blurb: 'The Bill of Rights, tested against real cases.', current: true },
+  { name: 'Criminal Law', blurb: 'Elements of a crime, defenses, and the path through the system.' },
+  { name: 'Civil Law & Torts', blurb: 'When people sue each other — and when they should.' },
+  { name: 'Mock Trial', blurb: 'The courtroom comes to class. Full trial, real rules of evidence.' },
+];
+
+const resources = [
+  { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  { label: 'Oyez — Supreme Court cases', href: 'https://www.oyez.org' },
+];
+---
+
+<CoursePage
+  title="law"
+  tagline="objection-friendly environment."
+  intro="This course treats the law as something you do, not just read about. We brief real cases, argue both sides, and end the year with a full mock trial. Strong opinions welcome — as long as you can cite something."
+  units={units}
+  resources={resources}
+/>

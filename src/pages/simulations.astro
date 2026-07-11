@@ -1,0 +1,58 @@
+---
+// simulations.astro — the showcase page for classroom games and simulations.
+// Edit the `sims` array to add, remove, or update entries.
+import Base from '../layouts/Base.astro';
+
+const sims = [
+  {
+    name: 'the stock market game',
+    course: 'economics',
+    status: 'runs every spring',
+    blurb:
+      'Every student manages a live (paper) portfolio for the length of the unit. Daily standings, real market data, and a leaderboard nobody stops checking. Past champions are remembered. Past crashes are, too.',
+  },
+  {
+    name: 'behavioral econ lab',
+    course: 'economics',
+    status: 'ongoing',
+    blurb:
+      'Auctions, ultimatum games, and framing experiments — run on the class itself. We generate the data, then figure out why we all fell for it.',
+  },
+  {
+    name: 'mock trial',
+    course: 'law',
+    status: 'end of year',
+    blurb:
+      'A full trial with attorneys, witnesses, and a jury. Real rules of evidence, real objections, real verdict. The gavel is not decorative.',
+  },
+  {
+    name: 'constitutional convention',
+    course: 'us history',
+    status: 'fall semester',
+    blurb:
+      'Delegates, factions, and compromises — the room where it happened, recreated. Sectional interests included at no extra charge.',
+  },
+];
+---
+
+<Base title="simulations">
+  <h1 class="text-4xl font-bold lowercase tracking-tight">
+    simulations<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-2 text-lg text-ink-soft lowercase">where the class stops taking notes and starts playing for keeps.</p>
+
+  <div class="mt-10 space-y-6">
+    {
+      sims.map((sim) => (
+        <article class="rounded-lg border border-line bg-white p-6">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 class="text-2xl font-bold lowercase">{sim.name}</h2>
+            <span class="text-xs font-mono lowercase text-accent">{sim.course}</span>
+            <span class="text-xs font-mono lowercase text-ink-soft">· {sim.status}</span>
+          </div>
+          <p class="mt-3 leading-relaxed text-ink-soft">{sim.blurb}</p>
+        </article>
+      ))
+    }
+  </div>
+</Base>

@@ -1,0 +1,38 @@
+---
+// about.astro — about the teacher and the site.
+// TODO(Grant): personalize this — name, school, bio. Placeholder text is marked.
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="about">
+  <h1 class="text-4xl font-bold lowercase tracking-tight">
+    about<span class="text-accent">.</span>
+  </h1>
+
+  <div class="mt-8 max-w-2xl space-y-5 leading-relaxed">
+    <h2 class="text-2xl font-bold lowercase">the teacher</h2>
+    <p>
+      I'm Mr. Mauch. I teach US History, Economics, and Law, and I believe the best way to learn any of them is to
+      <em>do</em> them — argue the case, trade the stock, sign the compromise. If class occasionally feels like a
+      game, that's not an accident.
+    </p>
+    <!-- TODO(Grant): add a real bio paragraph — school, years teaching, whatever you want public. -->
+
+    <h2 class="text-2xl font-bold lowercase pt-4">the site</h2>
+    <p>
+      the desk is the home base for my classes — what we're doing now, what's coming, and the simulations that make
+      this classroom what it is. Assignments, grades, and turn-ins still live in Google Classroom; this is everything
+      else.
+    </p>
+    <p>
+      It's also a personal project: built from scratch with Astro and Tailwind, deployed on Netlify, and maintained
+      with an AI assistant. The site itself is proof that the best way to learn something is to build it.
+    </p>
+
+    <h2 class="text-2xl font-bold lowercase pt-4">contact</h2>
+    <p>
+      Students and families: the fastest way to reach me is through Google Classroom or my school email.
+      <!-- TODO(Grant): add school email address if you want it public. -->
+    </p>
+  </div>
+</Base>

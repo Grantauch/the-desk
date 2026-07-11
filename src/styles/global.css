@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/*
+  the desk — design tokens
+  Change a color here and it changes everywhere.
+  Use in HTML as: text-accent, bg-paper, border-ink, etc.
+*/
+@theme {
+  /* deep electric blue — the signature accent */
+  --color-accent: #1f2ce6;
+  --color-accent-dark: #1520b3;
+  --color-accent-soft: #eef0ff;
+
+  /* neutrals */
+  --color-ink: #17171c;
+  --color-ink-soft: #55555f;
+  --color-paper: #fafaf7;
+  --color-line: #e4e4de;
+
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+html {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: white;
+}
