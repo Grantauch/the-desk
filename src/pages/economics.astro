@@ -1,19 +1,101 @@
 ---
 // economics.astro — edit the data below; the layout comes from CoursePage.
+// `topics` per unit → "what's inside" dropdown. `glossary` → "words worth knowing".
 import CoursePage from '../components/CoursePage.astro';
 
 const units = [
-  { name: 'Thinking Like an Economist', blurb: 'Scarcity, incentives, and opportunity cost — the lenses for everything else.' },
-  { name: 'Supply, Demand & Markets', blurb: 'Why prices move and what they secretly tell us.' },
-  { name: 'Behavioral Economics', blurb: 'Where humans stop being rational and start being interesting.', current: true },
-  { name: 'The Stock Market Unit', blurb: 'Portfolios go live. Fortunes are made and lost (on paper).' },
-  { name: 'Money, Banking & the Fed', blurb: 'Where money comes from and who steers the economy.' },
-  { name: 'Personal Finance', blurb: 'Budgets, credit, and not getting ripped off — skills for actual life.' },
+  {
+    name: 'Thinking Like an Economist',
+    blurb: 'Scarcity, incentives, and opportunity cost — the lenses for everything else.',
+    topics: [
+      'Scarcity: why you can’t have everything (sorry)',
+      'Opportunity cost — what you actually paid for that choice',
+      'Incentives, and how to spot them steering people',
+      'Marginal thinking: decisions happen at the edges',
+      'Trade-offs in the wild: a field guide',
+    ],
+  },
+  {
+    name: 'Supply, Demand & Markets',
+    blurb: 'Why prices move and what they secretly tell us.',
+    topics: [
+      'Demand and supply curves — drawn, shifted, and argued over',
+      'Equilibrium: where buyers and sellers stop arguing',
+      'Price ceilings, floors, and the shortages they invite',
+      'Elasticity — why gas and concert tickets behave differently',
+      'A live class auction, so you feel the market work',
+    ],
+  },
+  {
+    name: 'Behavioral Economics',
+    blurb: 'Where humans stop being rational and start being interesting.',
+    current: true,
+    topics: [
+      'Anchoring: the first number you hear owns you',
+      'Loss aversion — losing $10 hurts more than winning $10 feels good',
+      'Sunk costs, and why you finished that terrible movie',
+      'Framing: same facts, different decision',
+      'The lab: we run the experiments on ourselves and read our own data',
+    ],
+  },
+  {
+    name: 'The Stock Market Unit',
+    blurb: 'Portfolios go live. Fortunes are made and lost (on paper).',
+    topics: [
+      'How exchanges actually work — from ticker to trade',
+      'Reading a stock: fundamentals vs. vibes',
+      'Diversification, or why you don’t bet it all on one horse',
+      'Bulls, bears, and bubbles — a brief history of losing money confidently',
+      'The game: live portfolios, daily standings, end-of-unit reckoning',
+    ],
+  },
+  {
+    name: 'Money, Banking & the Fed',
+    blurb: 'Where money comes from and who steers the economy.',
+    topics: [
+      'What money is (weirder than you think)',
+      'Banks: how lending creates money',
+      'The Federal Reserve — the economy’s thermostat',
+      'Interest rates, inflation, and why everyone watches one press conference',
+      'GDP, unemployment, and the dashboard of the economy',
+    ],
+  },
+  {
+    name: 'Personal Finance',
+    blurb: 'Budgets, credit, and not getting ripped off — skills for actual life.',
+    topics: [
+      'Budgeting that survives contact with reality',
+      'Credit scores: the number that follows you around',
+      'Compound interest — the strongest force in your financial life',
+      'Loans, leases, and the fine print that costs you',
+      'Scams and dark patterns: a self-defense course',
+    ],
+  },
 ];
 
 const resources = [
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  { label: 'Marginal Revolution University — free econ videos', href: 'https://mru.org' },
+  { label: 'FRED — real economic data, straight from the Fed', href: 'https://fred.stlouisfed.org' },
+  { label: 'Next Gen Personal Finance', href: 'https://www.ngpf.org' },
   // add more: { label: 'Stock game leaderboard', href: '...' },
+];
+
+const glossary = [
+  { term: 'opportunity cost', def: 'Whatever you gave up to get the thing you chose. There is always something. Yes, always.' },
+  { term: 'incentive', def: 'A reward or penalty that changes behavior. Find the incentive and you’ve usually found the explanation.' },
+  { term: 'supply & demand', def: 'The two forces that set prices: what sellers will offer and what buyers will pay. When they meet, that’s the price.' },
+  { term: 'equilibrium', def: 'The price where the amount people want to buy equals the amount people want to sell. Markets drift toward it like water finding level.' },
+  { term: 'elasticity', def: 'How much buyers react when price changes. Insulin: barely. Movie theater popcorn: watch what happens.' },
+  { term: 'marginal', def: 'Having to do with "one more." The question is never "is pizza good" — it’s "is one more slice worth it."' },
+  { term: 'sunk cost', def: 'Money or time already spent that you can’t get back. Rationally it shouldn’t affect your next choice. It will try to anyway.' },
+  { term: 'inflation', def: 'A general rise in prices — your dollar buying a little less than it used to. A little is normal; a lot is a problem.' },
+  { term: 'GDP', def: 'Gross domestic product: the value of everything a country produces in a year. The economy’s report card, with all the limits of report cards.' },
+  { term: 'monetary policy', def: 'The Federal Reserve steering the economy by making borrowing cheaper or more expensive. The thermostat metaphor holds up well.' },
+  { term: 'fiscal policy', def: 'Congress steering the economy with taxes and spending. The other lever, pulled by the other branch.' },
+  { term: 'diversification', def: 'Spreading your money across many investments so one disaster can’t take you down. The only free lunch in finance.' },
+  { term: 'compound interest', def: 'Interest earning interest on itself. Start early and it works for you; carry debt and it works against you. It does not take sides.' },
+  { term: 'bull / bear market', def: 'Bull: prices rising, everyone’s a genius. Bear: prices falling, everyone’s a philosopher.' },
 ];
 ---
 
@@ -23,4 +105,5 @@ const resources = [
   intro="Economics here is not a textbook subject — it's a contact sport. We run experiments, trade in a simulated market, and use behavioral econ to figure out why people (including us) make the choices they make."
   units={units}
   resources={resources}
+  glossary={glossary}
 />

@@ -20,6 +20,14 @@ It appears on the home page (latest 3) and the announcements page automatically.
 
 Open the class page (`src/pages/us-history.astro`, `economics.astro`, or `law.astro`). Find the `units` array. Move `current: true` to the unit you're on (only one unit should have it). Edit names/blurbs freely.
 
+## Edit a unit's "what's inside" list
+
+Same files — each unit has an optional `topics` array. Add, remove, or reword lines freely. Delete the whole `topics` array to remove the dropdown for that unit.
+
+## Edit a class glossary ("words worth knowing")
+
+`economics.astro` and `law.astro` have a `glossary` array — `{ term, def }` pairs. Add one to `us-history.astro` the same way if you ever want it (pass `glossary={glossary}` to CoursePage).
+
 ## Add a resource link to a class
 
 Same files — add a line to the `resources` array:
@@ -30,7 +38,20 @@ Same files — add a line to the `resources` array:
 
 ## Add or edit a simulation
 
-`src/pages/simulations.astro` — edit the `sims` array.
+`src/pages/simulations.astro` — edit the `sims` array. Each sim can have optional `details` sections (`{ heading, items }`) that render as expandable dropdowns — the mock trial objection cheat sheet lives there.
+
+## The tools page
+
+`src/pages/tools.astro` — timer, group maker, cold call picker. This is deliberately the only page with JavaScript. Nothing typed there is stored anywhere (by design — no student data). Edit button presets or labels directly in the file.
+
+## RSS + sitemap (automatic)
+
+- `/rss.xml` — announcement feed, builds itself from the announcements folder. Zero maintenance.
+- `/sitemap.xml` — built from a path list in `src/pages/sitemap.xml.ts`. **If you add a page, add its path there too.**
+
+## Social sharing image
+
+`public/og.png` — the card shown when the site is shared in texts/social media. Regenerate or replace anytime; keep it 1200×630.
 
 ## Change the accent color or fonts
 

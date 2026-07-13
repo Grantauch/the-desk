@@ -64,3 +64,42 @@ html {
   background-color: var(--color-accent);
   color: white;
 }
+
+/* keyboard users: hidden link that appears on first Tab press */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 50;
+  background: var(--color-accent);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* printing a page (glossary, cheat sheet) drops the chrome.
+   tip: open the dropdowns you want printed before hitting print. */
+@media print {
+  header,
+  footer,
+  .skip-link {
+    display: none;
+  }
+}

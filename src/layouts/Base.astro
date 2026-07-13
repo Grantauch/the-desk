@@ -12,6 +12,8 @@ interface Props {
 
 const { title, description = 'the desk — home base for us history, economics, and law.' } = Astro.props;
 const fullTitle = title ? `${title} · the desk` : 'the desk';
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
 ---
 
 <!doctype html>
@@ -20,6 +22,16 @@ const fullTitle = title ? `${title} · the desk` : 'the desk';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <!-- social sharing cards (og.png lives in public/) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="the desk" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#1f2ce6" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,8 +39,9 @@ const fullTitle = title ? `${title} · the desk` : 'the desk';
     <title>{fullTitle}</title>
   </head>
   <body class="min-h-screen flex flex-col">
+    <a href="#main" class="skip-link">skip to content</a>
     <Nav />
-    <main class="flex-1 w-full max-w-4xl mx-auto px-5 py-10">
+    <main id="main" class="flex-1 w-full max-w-4xl mx-auto px-5 py-10">
       <slot />
     </main>
     <Footer />

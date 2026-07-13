@@ -1,18 +1,90 @@
 ---
 // law.astro — edit the data below; the layout comes from CoursePage.
+// `topics` per unit → "what's inside" dropdown. `glossary` → "words worth knowing".
 import CoursePage from '../components/CoursePage.astro';
 
 const units = [
-  { name: 'Foundations of Law', blurb: 'Where rules come from and why we agree to follow them.' },
-  { name: 'Constitutional Rights', blurb: 'The Bill of Rights, tested against real cases.', current: true },
-  { name: 'Criminal Law', blurb: 'Elements of a crime, defenses, and the path through the system.' },
-  { name: 'Civil Law & Torts', blurb: 'When people sue each other — and when they should.' },
-  { name: 'Mock Trial', blurb: 'The courtroom comes to class. Full trial, real rules of evidence.' },
+  {
+    name: 'Foundations of Law',
+    blurb: 'Where rules come from and why we agree to follow them.',
+    topics: [
+      'Natural law, common law, and other origin stories',
+      'The rule of law: what it means when no one is above it',
+      'How a bill becomes a law vs. how law actually gets made',
+      'Courts, legislatures, and agencies — who makes which rules',
+      'When is breaking the law justified? (Harder than it sounds)',
+    ],
+  },
+  {
+    name: 'Constitutional Rights',
+    blurb: 'The Bill of Rights, tested against real cases.',
+    current: true,
+    topics: [
+      'The First Amendment: speech, and speech you hate',
+      'Students’ rights: Tinker, Hazelwood, and the schoolhouse gate',
+      'The Fourth Amendment: searches, phones, and privacy',
+      'Due process — the government has to play by the rules',
+      'Case briefing: read it, gut it, argue it',
+    ],
+  },
+  {
+    name: 'Criminal Law',
+    blurb: 'Elements of a crime, defenses, and the path through the system.',
+    topics: [
+      'Elements of a crime: act, intent, and everything in between',
+      'Defenses: self-defense, insanity, and "it wasn’t me"',
+      'From arrest to verdict — the map of the system',
+      'Miranda, Gideon, and the rights of the accused',
+      'Sentencing: what punishment is for, and whether it works',
+    ],
+  },
+  {
+    name: 'Civil Law & Torts',
+    blurb: 'When people sue each other — and when they should.',
+    topics: [
+      'Torts: negligence, liability, and the reasonable person',
+      'The McDonald’s coffee case — what actually happened',
+      'Contracts: promises the law will enforce',
+      'Burden of proof: civil vs. criminal, and why OJ lost the second time',
+      'Settlements, damages, and why most cases never see a jury',
+    ],
+  },
+  {
+    name: 'Mock Trial',
+    blurb: 'The courtroom comes to class. Full trial, real rules of evidence.',
+    topics: [
+      'The case file drops — prosecution and defense assigned',
+      'Building a theory of the case',
+      'Direct and cross examination: the craft of the question',
+      'Objections bootcamp (see the simulations page for the cheat sheet)',
+      'Trial week. The gavel is not decorative.',
+    ],
+  },
 ];
 
 const resources = [
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
-  { label: 'Oyez — Supreme Court cases', href: 'https://www.oyez.org' },
+  { label: 'Oyez — Supreme Court cases, argued and explained', href: 'https://www.oyez.org' },
+  { label: 'iCivics — games and simulations', href: 'https://www.icivics.org' },
+  { label: 'Street Law — practical law resources', href: 'https://www.streetlaw.org' },
+  { label: 'US Courts — educational resources', href: 'https://www.uscourts.gov/about-federal-courts/educational-resources' },
+];
+
+const glossary = [
+  { term: 'precedent', def: 'A past court decision that guides future ones. The law’s way of saying "we’ve been over this."' },
+  { term: 'due process', def: 'The government must follow fair procedures before taking your life, liberty, or property. The Constitution’s seatbelt.' },
+  { term: 'plaintiff / defendant', def: 'Plaintiff: the one suing. Defendant: the one being sued (or charged). Know which table you’re sitting at.' },
+  { term: 'tort', def: 'A civil wrong — harm one person does to another that courts will remedy, usually with money. Not a dessert.' },
+  { term: 'negligence', def: 'Failing to act with reasonable care and causing harm. The most common tort, and the reason warning labels exist.' },
+  { term: 'burden of proof', def: 'Who has to prove the case and how convincingly. It’s on the state in criminal court, the plaintiff in civil.' },
+  { term: 'beyond a reasonable doubt', def: 'The criminal standard: near certainty. If the jury has a real, sensible doubt, they must acquit.' },
+  { term: 'preponderance of the evidence', def: 'The civil standard: more likely than not. Fifty percent plus a feather.' },
+  { term: 'hearsay', def: 'Secondhand testimony offered to prove the thing said — "she told me he did it." Usually inadmissible, frequently objected to, endlessly complicated by exceptions.' },
+  { term: 'voir dire', def: 'Jury selection — lawyers questioning potential jurors for bias. French for "to speak the truth," pronounced however your judge pronounces it.' },
+  { term: 'habeas corpus', def: 'The right to make the government justify holding you in custody, in front of a judge. Latin for "produce the body."' },
+  { term: 'judicial review', def: 'Courts’ power to strike down laws that violate the Constitution. Not in the Constitution itself — Marbury v. Madison put it there.' },
+  { term: 'felony / misdemeanor', def: 'Felony: serious crime, over a year of prison possible. Misdemeanor: lesser crime, lesser penalty. The line matters for the rest of your life.' },
+  { term: 'objection', def: 'A lawyer’s formal protest that a question or evidence breaks the rules. Sustained: the judge agrees. Overruled: proceed. See the mock trial cheat sheet.' },
 ];
 ---
 
@@ -22,4 +94,5 @@ const resources = [
   intro="This course treats the law as something you do, not just read about. We brief real cases, argue both sides, and end the year with a full mock trial. Strong opinions welcome — as long as you can cite something."
   units={units}
   resources={resources}
+  glossary={glossary}
 />

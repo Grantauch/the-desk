@@ -34,5 +34,38 @@ import Base from '../layouts/Base.astro';
       Students and families: the fastest way to reach me is through Google Classroom or my school email.
       <!-- TODO(Grant): add school email address if you want it public. -->
     </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">questions families ask</h2>
+    <div class="space-y-3 not-prose">
+      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
+        <summary class="cursor-pointer font-semibold lowercase select-none">are grades posted here?</summary>
+        <p class="mt-2 text-sm text-ink-soft">
+          No — grades, assignments, and turn-ins all live in Google Classroom. This site is the public side of class:
+          what we're doing, where we're headed, and the simulations along the way.
+        </p>
+      </details>
+      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
+        <summary class="cursor-pointer font-semibold lowercase select-none">does this site collect anything about students?</summary>
+        <p class="mt-2 text-sm text-ink-soft">
+          No. There are no accounts, no logins, no forms, and no tracking. Even the classroom tools page keeps
+          everything in the browser — refresh and it's gone.
+        </p>
+      </details>
+      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
+        <summary class="cursor-pointer font-semibold lowercase select-none">how do i keep up with announcements?</summary>
+        <p class="mt-2 text-sm text-ink-soft">
+          Check the <a href="/announcements/" class="text-accent underline underline-offset-4">announcements page</a>,
+          or subscribe to the <a href="/rss.xml" class="text-accent underline underline-offset-4">rss feed</a> with any
+          feed reader and posts will come to you.
+        </p>
+      </details>
+      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
+        <summary class="cursor-pointer font-semibold lowercase select-none">is the stock market game real money?</summary>
+        <p class="mt-2 text-sm text-ink-soft">
+          Paper only. Real market data, imaginary dollars, genuine lessons. Nobody's college fund is at stake — that's
+          what the personal finance unit is for.
+        </p>
+      </details>
+    </div>
   </div>
 </Base>

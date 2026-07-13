@@ -1,5 +1,10 @@
 # START HERE
 
+> **✓ Done — all of this happened on July 10, 2026.** The site is live at grant-desk.com,
+> pushed to GitHub, and auto-deploying via Netlify. This file stays as a reference in case
+> you ever need to set it up again from scratch. The only section you still need is
+> **"Everyday updates"** at the bottom.
+
 The site is fully built. Three stages get it live at **grant-desk.com**: run it locally, push to GitHub, deploy on Netlify. Copy-paste the commands in order.
 
 ## 1. Run it on your computer (5 min)

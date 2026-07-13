@@ -1,0 +1,259 @@
+---
+// tools.astro — classroom utilities: timer, group maker, cold call picker.
+// NOTE: this is deliberately the one page on the site with JavaScript.
+// Nothing typed here is saved or sent anywhere — refresh and it's gone.
+// That's a feature (no student data), not a bug.
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="tools" description="classroom tools — timer, group maker, and cold call picker. nothing is saved, ever.">
+  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+    tools<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-3 text-lg text-ink-soft lowercase">small classroom machines.</p>
+  <p class="mt-2 text-sm font-mono text-ink-soft lowercase">
+    nothing typed here is saved or sent anywhere. refresh the page and it's gone.
+  </p>
+
+  <!-- ============ timer ============ -->
+  <section class="pop mt-10 rounded-md bg-white p-6" id="timer-card">
+    <h2 class="font-display text-2xl font-bold lowercase">timer<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">For discussions, quick-writes, and "you have five minutes" that means it.</p>
+
+    <p class="mt-5 font-mono font-bold text-7xl sm:text-8xl tabular-nums tracking-tight" id="timer-display">05:00</p>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button class="t-preset font-mono text-sm border-2 border-ink px-3 py-1.5 hover:bg-accent hover:text-white hover:border-accent transition-colors" data-min="1">1 min</button>
+      <button class="t-preset font-mono text-sm border-2 border-ink px-3 py-1.5 hover:bg-accent hover:text-white hover:border-accent transition-colors" data-min="2">2 min</button>
+      <button class="t-preset font-mono text-sm border-2 border-ink px-3 py-1.5 hover:bg-accent hover:text-white hover:border-accent transition-colors" data-min="5">5 min</button>
+      <button class="t-preset font-mono text-sm border-2 border-ink px-3 py-1.5 hover:bg-accent hover:text-white hover:border-accent transition-colors" data-min="10">10 min</button>
+      <label class="font-mono text-sm border-2 border-line px-3 py-1.5 flex items-center gap-2">
+        custom:
+        <input type="number" id="timer-custom" min="1" max="180" placeholder="min" class="w-16 outline-none bg-transparent" />
+      </label>
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="timer-start" class="pop-ink bg-accent text-white font-mono lowercase px-5 py-2">start</button>
+      <button id="timer-pause" class="font-mono lowercase border-2 border-ink px-5 py-2 hover:bg-ink hover:text-paper transition-colors">pause</button>
+      <button id="timer-reset" class="font-mono lowercase border-2 border-line text-ink-soft px-5 py-2 hover:border-ink hover:text-ink transition-colors">reset</button>
+    </div>
+  </section>
+
+  <!-- ============ roster (shared by the two tools below) ============ -->
+  <section class="pop mt-8 rounded-md bg-white p-6">
+    <h2 class="font-display text-2xl font-bold lowercase">the roster<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">
+      One name per line. Both tools below read from this box. It is never saved — see above.
+    </p>
+    <textarea
+      id="roster"
+      rows="6"
+      placeholder="ada&#10;benjamin&#10;clara&#10;douglass&#10;eleanor&#10;..."
+      class="mt-4 w-full border-2 border-line focus:border-accent outline-none rounded-md p-3 font-mono text-sm transition-colors"></textarea>
+  </section>
+
+  <!-- ============ group maker ============ -->
+  <section class="pop mt-8 rounded-md bg-white p-6">
+    <h2 class="font-display text-2xl font-bold lowercase">group maker<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">Random groups, zero accusations of favoritism.</p>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3 font-mono text-sm">
+      <label class="flex items-center gap-2">
+        <input type="radio" name="group-mode" value="size" checked class="accent-accent" />
+        groups of
+        <input type="number" id="group-size" value="4" min="2" max="30" class="w-14 border-2 border-line rounded px-2 py-1 outline-none focus:border-accent" />
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="group-mode" value="count" class="accent-accent" />
+        <input type="number" id="group-count" value="4" min="2" max="30" class="w-14 border-2 border-line rounded px-2 py-1 outline-none focus:border-accent" />
+        groups total
+      </label>
+      <button id="make-groups" class="pop-ink bg-accent text-white lowercase px-5 py-2">shuffle</button>
+    </div>
+
+    <div id="groups-out" class="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3"></div>
+  </section>
+
+  <!-- ============ cold call ============ -->
+  <section class="pop mt-8 rounded-md bg-white p-6">
+    <h2 class="font-display text-2xl font-bold lowercase">cold call<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">The fairest unfair thing in the classroom. Uses the roster above.</p>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <button id="pick-name" class="pop-ink bg-accent text-white font-mono lowercase px-5 py-2">pick someone</button>
+      <label class="font-mono text-sm flex items-center gap-2">
+        <input type="checkbox" id="no-repeats" checked class="accent-accent" />
+        no repeats until everyone's been called
+      </label>
+      <button id="reset-picks" class="font-mono text-sm lowercase border-2 border-line text-ink-soft px-3 py-1.5 hover:border-ink hover:text-ink transition-colors">reset</button>
+    </div>
+
+    <p id="picked-name" class="mt-5 font-display font-bold text-4xl sm:text-5xl lowercase min-h-[1.2em]"></p>
+    <p id="picked-log" class="mt-3 font-mono text-xs text-ink-soft lowercase"></p>
+  </section>
+
+  <script>
+    // ---------- helpers ----------
+    const $ = (id: string) => document.getElementById(id)!;
+    const rosterNames = () =>
+      ($('roster') as HTMLTextAreaElement).value
+        .split('\n')
+        .map((n) => n.trim())
+        .filter(Boolean);
+    const shuffle = <T,>(arr: T[]) => {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+
+    // ---------- timer ----------
+    let total = 300; // seconds
+    let remaining = total;
+    let ticking: ReturnType<typeof setInterval> | null = null;
+
+    const display = $('timer-display');
+    const card = $('timer-card');
+
+    const paint = () => {
+      const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const s = String(remaining % 60).padStart(2, '0');
+      display.textContent = `${m}:${s}`;
+      display.classList.toggle('text-accent', ticking !== null);
+    };
+
+    const beep = () => {
+      try {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.8);
+      } catch {
+        /* no audio? the flash still fires */
+      }
+    };
+
+    const stopTicking = () => {
+      if (ticking) clearInterval(ticking);
+      ticking = null;
+    };
+
+    const finish = () => {
+      stopTicking();
+      remaining = 0;
+      paint();
+      beep();
+      // flash the card so it's visible from the back row
+      let flashes = 0;
+      const flash = setInterval(() => {
+        card.classList.toggle('bg-accent-soft');
+        if (++flashes >= 6) clearInterval(flash);
+      }, 250);
+    };
+
+    $('timer-start').addEventListener('click', () => {
+      if (ticking) return;
+      const custom = ($('timer-custom') as HTMLInputElement).value;
+      if (custom && remaining === total) {
+        total = Math.min(180, Math.max(1, Number(custom))) * 60;
+        remaining = total;
+      }
+      if (remaining <= 0) remaining = total; // restart cleanly after hitting zero
+      ticking = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) finish();
+        else paint();
+      }, 1000);
+      paint();
+    });
+
+    $('timer-pause').addEventListener('click', () => {
+      stopTicking();
+      paint();
+    });
+
+    $('timer-reset').addEventListener('click', () => {
+      stopTicking();
+      remaining = total;
+      paint();
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.t-preset').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        stopTicking();
+        ($('timer-custom') as HTMLInputElement).value = '';
+        total = Number(btn.dataset.min) * 60;
+        remaining = total;
+        paint();
+      });
+    });
+
+    // ---------- group maker ----------
+    $('make-groups').addEventListener('click', () => {
+      const names = shuffle(rosterNames());
+      const out = $('groups-out');
+      if (names.length < 2) {
+        out.innerHTML = `<p class="font-mono text-sm text-ink-soft">add at least two names to the roster first.</p>`;
+        return;
+      }
+      const mode = (document.querySelector('input[name="group-mode"]:checked') as HTMLInputElement).value;
+      const size = Math.max(2, Number(($('group-size') as HTMLInputElement).value) || 4);
+      const count = Math.max(2, Number(($('group-count') as HTMLInputElement).value) || 4);
+      const nGroups = mode === 'size' ? Math.max(1, Math.round(names.length / size)) : Math.min(count, names.length);
+
+      const groups: string[][] = Array.from({ length: nGroups }, () => []);
+      names.forEach((n, i) => groups[i % nGroups].push(n));
+
+      out.innerHTML = groups
+        .map(
+          (g, i) => `
+          <div class="border-2 border-ink rounded-md p-4">
+            <p class="font-mono text-xs text-accent">group ${String(i + 1).padStart(2, '0')}</p>
+            <ul class="mt-2 space-y-1 text-sm">${g.map((n) => `<li>${n.replace(/</g, '&lt;')}</li>`).join('')}</ul>
+          </div>`
+        )
+        .join('');
+    });
+
+    // ---------- cold call ----------
+    let alreadyPicked: string[] = [];
+
+    const paintLog = () => {
+      $('picked-log').textContent = alreadyPicked.length ? `already called: ${alreadyPicked.join(', ')}` : '';
+    };
+
+    $('pick-name').addEventListener('click', () => {
+      const names = rosterNames();
+      const nameEl = $('picked-name');
+      if (names.length === 0) {
+        nameEl.textContent = 'the roster is empty.';
+        return;
+      }
+      const noRepeats = ($('no-repeats') as HTMLInputElement).checked;
+      let pool = noRepeats ? names.filter((n) => !alreadyPicked.includes(n)) : names;
+      if (pool.length === 0) {
+        alreadyPicked = [];
+        pool = names;
+      }
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      alreadyPicked.push(pick);
+      nameEl.textContent = pick;
+      paintLog();
+    });
+
+    $('reset-picks').addEventListener('click', () => {
+      alreadyPicked = [];
+      $('picked-name').textContent = '';
+      paintLog();
+    });
+  </script>
+</Base>

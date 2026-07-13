@@ -1,20 +1,101 @@
 ---
 // us-history.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
+// `topics` is optional per unit — it becomes a "what's inside" dropdown.
 import CoursePage from '../components/CoursePage.astro';
 
 const units = [
-  { name: 'Foundations & the Constitution', blurb: 'How the American experiment got its operating manual.' },
-  { name: 'Expansion & Conflict', blurb: 'Growth, its costs, and the road to disunion.' },
-  { name: 'Civil War & Reconstruction', blurb: 'The union breaks, and the fight over what rebuilding means.' },
-  { name: 'Industrialization & Progressivism', blurb: 'Railroads, robber barons, and reformers.', current: true },
-  { name: 'America on the World Stage', blurb: 'Two world wars and a new global role.' },
-  { name: 'The Modern Era', blurb: 'Civil rights, the Cold War, and the country we live in now.' },
+  {
+    name: 'Foundations & the Constitution',
+    blurb: 'How the American experiment got its operating manual.',
+    topics: [
+      'Colonial governments and the habits of self-rule',
+      'The Revolution: grievances, propaganda, and the case for leaving',
+      'Articles of Confederation — the rough draft nobody liked',
+      'The Constitutional Convention (we reenact it — pick your faction wisely)',
+      'Federalists vs. Anti-Federalists, and why we have a Bill of Rights',
+    ],
+  },
+  {
+    name: 'Expansion & Conflict',
+    blurb: 'Growth, its costs, and the road to disunion.',
+    topics: [
+      'Jefferson, Jackson, and what "the people" meant in practice',
+      'Manifest Destiny and who paid for it — Indian Removal on the record',
+      'The market revolution: canals, cotton, and the price of progress',
+      'Slavery and the compromises that kept failing',
+      'Dred Scott, Kansas, and the arguments that stopped working',
+    ],
+  },
+  {
+    name: 'Civil War & Reconstruction',
+    blurb: 'The union breaks, and the fight over what rebuilding means.',
+    topics: [
+      'Secession: the documents they actually wrote',
+      'Total war — the battlefield and the home front',
+      'Emancipation as strategy, promise, and law',
+      'Reconstruction: the amendments, the possibilities, the retreat',
+      'How Reconstruction gets remembered — and misremembered',
+    ],
+  },
+  {
+    name: 'Industrialization & Progressivism',
+    blurb: 'Railroads, robber barons, and reformers.',
+    current: true,
+    topics: [
+      'Captains of industry or robber barons? Argue it with receipts',
+      'Immigration, cities, and the machines that ran them',
+      'Labor vs. capital: strikes, unions, and Pinkertons',
+      'Muckrakers and the power of a well-aimed magazine article',
+      'Progressive fixes: trust-busting, food safety, and the vote',
+    ],
+  },
+  {
+    name: 'America on the World Stage',
+    blurb: 'Two world wars and a new global role.',
+    topics: [
+      'Imperialism: the debate over what America should be abroad',
+      'WWI at home — propaganda, dissent, and civil liberties',
+      'The 1920s: boom, jazz, and backlash',
+      'The Depression and the New Deal argument we still have',
+      'WWII: mobilization, the home front, and the bomb',
+    ],
+  },
+  {
+    name: 'The Modern Era',
+    blurb: 'Civil rights, the Cold War, and the country we live in now.',
+    topics: [
+      'Containment, Korea, and duck-and-cover America',
+      'The Civil Rights Movement: strategy, sacrifice, and law',
+      'Vietnam and the credibility gap',
+      'Watergate and what it did to trust',
+      'The recent past — where the story meets your lifetime',
+    ],
+  },
 ];
 
 const resources = [
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  { label: 'Library of Congress — primary sources', href: 'https://www.loc.gov/classroom-materials/' },
+  { label: 'National Archives — DocsTeach', href: 'https://www.docsteach.org' },
+  { label: 'Digital Inquiry Group — reading like a historian', href: 'https://inquirygroup.org' },
+  { label: 'Avalon Project — founding documents', href: 'https://avalon.law.yale.edu' },
   // add more: { label: 'Unit 4 study guide', href: '...' },
+];
+
+const glossary = [
+  { term: 'primary source', def: 'Evidence from the time itself — a letter, a photo, a law, a receipt. The raw material of history, before anyone put a spin on it. (Everyone puts a spin on it.)' },
+  { term: 'federalism', def: 'Power split between national and state governments. The founders’ compromise, and the reason your driver’s license and your passport come from different places.' },
+  { term: 'checks and balances', def: 'Each branch of government can block the others. Designed on the theory that nobody should be trusted with the whole steering wheel.' },
+  { term: 'manifest destiny', def: 'The 19th-century belief that America was destined to stretch to the Pacific. A slogan for some, a catastrophe for others — we read both accounts.' },
+  { term: 'abolition', def: 'The movement to end slavery — decades of agitation by people told to be patient, who declined.' },
+  { term: 'reconstruction', def: 'The post-Civil War project to rebuild the South and define freedom. Its amendments changed the Constitution; its retreat shaped the next century.' },
+  { term: 'jim crow', def: 'The legal system of racial segregation after Reconstruction — not custom, but law, enforced for generations.' },
+  { term: 'gilded age', def: 'Mark Twain’s name for the late 1800s: gold on the surface, cheaper metal underneath. Railroads, fortunes, and the people who built both.' },
+  { term: 'muckraker', def: 'An investigative journalist of the Progressive Era. Meant as an insult; taken as a job description.' },
+  { term: 'new deal', def: 'FDR’s Depression-era program — relief, recovery, reform. We still argue about whether it worked, which is why it’s a unit and not a footnote.' },
+  { term: 'containment', def: 'The Cold War strategy of stopping Soviet expansion without starting World War III. Simple to state, expensive to run.' },
+  { term: 'civil disobedience', def: 'Deliberately, publicly, nonviolently breaking an unjust law and accepting the consequences. Thoreau theorized it; the Civil Rights Movement mastered it.' },
 ];
 ---
 
@@ -24,4 +105,5 @@ const resources = [
   intro="This course runs on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
   units={units}
   resources={resources}
+  glossary={glossary}
 />

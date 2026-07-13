@@ -10,11 +10,16 @@ Personal classroom website for a social studies teacher (US History, Economics, 
 
 ## Where things live
 
-- `src/pages/` — one file per page; class pages (`us-history`, `economics`, `law`) are thin data wrappers around `src/components/CoursePage.astro`
+- `src/pages/` — one file per page; class pages (`us-history`, `economics`, `law`) are thin data wrappers around `src/components/CoursePage.astro` (units with optional `topics`, resources, optional `glossary`)
 - `src/content/announcements/*.md` — announcements; frontmatter: `title`, `date`, optional `course`
+- `src/pages/tools.astro` — classroom tools (timer, group maker, cold call). The ONE page allowed JavaScript; nothing typed there may ever be persisted or transmitted.
+- `src/pages/simulations.astro` — sims array; each entry can have `details` sections (mock trial objection cheat sheet lives there)
+- `src/pages/sitemap.xml.ts` — manual path list; add new pages here too
+- `src/pages/rss.xml.ts` — announcements feed, builds itself
 - `src/components/Nav.astro` — nav links array (update when adding pages)
-- `src/styles/global.css` — all design tokens in the `@theme` block
-- `src/layouts/Base.astro` — page shell (head, nav, footer)
+- `src/styles/global.css` — design tokens in `@theme`, plus signature classes: `.pop` (offset-shadow card), `.pop-ink`, `.dot-grid` (hero dots)
+- `src/layouts/Base.astro` — page shell (head with OG/social meta, nav, footer)
+- `public/og.png` — social sharing card (1200×630)
 
 ## Conventions
 
@@ -22,7 +27,8 @@ Personal classroom website for a social studies teacher (US History, Economics, 
 - Accent color is deep electric blue (`--color-accent`); use the token, never hardcode hex in components.
 - Voice: playful but not pretentious; confident, dry, concise.
 - No student data, no grading, no assignment submission — Google Classroom handles those. Do not add features that collect student information.
-- Keep the site zero-JS unless a feature truly needs it.
+- Keep the site zero-JS unless a feature truly needs it. Current exception: `tools.astro` (timers must tick). Prefer `<details>/<summary>` for show-hide content.
+- Headings use `font-display` (Space Grotesk, loaded in Base.astro).
 
 ## Common tasks
 

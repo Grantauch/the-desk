@@ -7,11 +7,17 @@ interface Unit {
   name: string;
   blurb: string;
   current?: boolean;
+  topics?: string[]; // optional: shows a "what's inside" dropdown on the unit
 }
 
 interface Resource {
   label: string;
   href: string;
+}
+
+interface GlossaryEntry {
+  term: string;
+  def: string;
 }
 
 interface Props {
@@ -20,9 +26,10 @@ interface Props {
   intro: string;
   units: Unit[];
   resources: Resource[];
+  glossary?: GlossaryEntry[]; // optional: adds a "words worth knowing" section
 }
 
-const { title, tagline, intro, units, resources } = Astro.props;
+const { title, tagline, intro, units, resources, glossary = [] } = Astro.props;
 const currentUnit = units.find((u) => u.current);
 ---
 
@@ -58,11 +65,44 @@ const currentUnit = units.find((u) => u.current);
               </span>
             )}
             <p class="text-sm text-ink-soft mt-0.5">{unit.blurb}</p>
+            {unit.topics && unit.topics.length > 0 && (
+              <details class="mt-1.5 group">
+                <summary class="cursor-pointer text-xs font-mono lowercase text-accent hover:text-accent-dark select-none">
+                  <span class="group-open:hidden">what's inside +</span>
+                  <span class="hidden group-open:inline">what's inside −</span>
+                </summary>
+                <ul class="mt-2 mb-1 space-y-1 text-sm text-ink-soft">
+                  {unit.topics.map((t) => (
+                    <li class="flex gap-2">
+                      <span class="text-accent">·</span>
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </div>
         </li>
       ))
     }
   </ol>
+
+  {
+    glossary.length > 0 && (
+      <>
+        <h2 class="mt-14 font-display text-3xl font-bold lowercase">words worth knowing</h2>
+        <p class="mt-2 text-sm text-ink-soft">Click a term. Definitions in plain English, mostly.</p>
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+          {glossary.map((g) => (
+            <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
+              <summary class="cursor-pointer font-semibold lowercase select-none marker:text-accent">{g.term}</summary>
+              <p class="mt-2 text-sm text-ink-soft leading-relaxed">{g.def}</p>
+            </details>
+          ))}
+        </div>
+      </>
+    )
+  }
 
   {
     resources.length > 0 && (
