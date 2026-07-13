@@ -1,0 +1,109 @@
+---
+// hidden-history.astro — edit the data below; the layout comes from CoursePage.
+// Mark exactly one unit `current: true` to feature it in the "right now" box.
+import CoursePage from '../components/CoursePage.astro';
+
+const units = [
+  {
+    name: 'The Official Story vs. The Rumor',
+    blurb: 'Roswell, Area 51, and the foundations of evidence. Habit of mind: QUESTION.',
+    current: true,
+    topics: [
+      'The 1947 Roswell headline — what the paper said, what the military said, and what changed',
+      'Area 51: what’s actually documented vs. what’s inferred from a fence and a rumor',
+      'What counts as evidence: documents, testimony, physical proof, and the gaps between them',
+      'The Four Verdicts — confirmed, debunked, misleading, unproven — and how to earn one',
+      'Your first fact-check: run a claim to ground before the internet does it for you (badly)',
+    ],
+  },
+  {
+    name: 'Follow the Evidence',
+    blurb: 'Watergate and the "Paul is dead" rumor. Habit of mind: RESEARCH.',
+    topics: [
+      'A third-rate burglary: how two reporters pulled a thread and found a presidency',
+      'Deep Throat, anonymous sources, and the rules that keep them honest',
+      'The tapes: what corroboration looks like when it finally shows up',
+      '"Paul is dead" — the same era, the same media, and a rumor made entirely of clues that weren’t',
+      'Why one story ended in a resignation and the other in a shrug: the evidence did that',
+    ],
+  },
+  {
+    name: 'Reading the Record',
+    blurb: 'The Pentagon Papers and the Pearl Harbor advance-knowledge claims. Habit of mind: ANALYZE.',
+    topics: [
+      'The Pentagon Papers: 7,000 pages of what the government knew while saying otherwise',
+      'Daniel Ellsberg, the New York Times, and the fight over publishing secrets',
+      'Pearl Harbor "advance knowledge" claims — testing hindsight against the actual record',
+      'How to read a declassified document: redactions, dates, distribution lists, and what’s missing',
+      'Cherry-picking: how true documents get assembled into false stories',
+    ],
+  },
+  {
+    name: 'Trust and Verify',
+    blurb: 'MKUltra and the mind-control myths; fact-checking in the social media age. Habit of mind: EVALUATE.',
+    topics: [
+      'MKUltra: the program that sounds fake and is thoroughly documented',
+      'What the destroyed files mean — and what they don’t let you claim',
+      'From MKUltra to mind-control myths: where the documented ends and the invented begins',
+      'The myth stations: three claims, three tables, your verdict with receipts',
+      'Fact-checking at feed speed: lateral reading, reverse image search, and the moon-hoax cards',
+    ],
+  },
+  {
+    name: 'Watching the Watchers',
+    blurb: 'COINTELPRO and shadow-government myths; the surveillance debate. Habit of mind: DEBATE.',
+    topics: [
+      'COINTELPRO: the FBI program exposed by a burglary in 1971',
+      'Who got watched — civil rights leaders, journalists, and ordinary people',
+      'Shadow-government myths vs. documented surveillance: telling the two apart matters',
+      'The Church Committee: what oversight looked like when it finally arrived',
+      'The structured debate: surveillance vs. civil liberties, argued with sources or not at all',
+    ],
+  },
+  {
+    name: 'The Verdict',
+    blurb: 'Iran-Contra, the JFK files, the moon-landing autopsy, and your Case File capstone. Habit of mind: THINK CRITICALLY.',
+    topics: [
+      'Iran-Contra: arms, hostages, and a paper trail that survived the shredder',
+      'The declassified JFK files: what a document release proves — and what it can’t settle',
+      'The moon-landing hoax autopsy: a debunked claim, dissected clue by clue',
+      'The Case File capstone: pick an approved claim, investigate it, and defend your verdict',
+      'Presenting like an investigator: confirmed first, debunked second, unproven last',
+    ],
+  },
+];
+
+const resources = [
+  { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  { label: 'National Security Archive — declassified documents', href: 'https://nsarchive.gwu.edu' },
+  { label: 'National Archives — JFK assassination records', href: 'https://www.archives.gov/research/jfk' },
+  { label: 'FBI Records: The Vault', href: 'https://vault.fbi.gov' },
+  { label: 'Chronicling America — historic newspapers', href: 'https://chroniclingamerica.loc.gov' },
+  { label: 'News Literacy Project', href: 'https://newslit.org' },
+  // add more: { label: 'Unit 2 source packet', href: '...' },
+];
+
+const glossary = [
+  { term: 'primary source', def: 'Evidence from the time itself — a memo, a photo, a tape, a front page. The raw material of every verdict in this class.' },
+  { term: 'corroboration', def: 'A second, independent source saying the same thing. One document is a claim; two unrelated ones are the start of a case.' },
+  { term: 'declassified', def: 'Officially released from secrecy by the government. Proves the document is real — not that every word in it is true.' },
+  { term: 'redaction', def: 'The black bars. What’s hidden can matter as much as what’s shown — but a redaction is a blank, not a confession.' },
+  { term: 'foia', def: 'The Freedom of Information Act — the law that lets anyone request government records. Slow, imperfect, and responsible for half the documents in this course.' },
+  { term: 'misinformation', def: 'False information spread by people who believe it. Wrong, but sincere.' },
+  { term: 'disinformation', def: 'False information spread by people who know better. Wrong, on purpose.' },
+  { term: 'confirmation bias', def: 'The pull toward evidence that agrees with you. Nobody is immune, including historians. The fix is method, not willpower.' },
+  { term: 'burden of proof', def: 'The claim-maker owes the evidence. "Prove it didn’t happen" is not how history — or this class — works.' },
+  { term: 'whistleblower', def: 'An insider who exposes wrongdoing with documents and testimony. The difference between a whistleblower and a rumor is the receipts.' },
+  { term: 'cover-up', def: 'A documented effort to hide the truth — which is exactly why it can be proven. Real cover-ups leave paper trails; imagined ones only leave vibes.' },
+  { term: 'unproven', def: 'The most honest verdict in the deck: not enough reliable evidence either way. Saying it well is a skill; saying it backed by research is a grade.' },
+];
+---
+
+<CoursePage
+  title="hidden history"
+  tagline="coverups, conspiracies, and the evidence. sources or it didn't happen."
+  intro="Some official stories collapsed under the evidence — Watergate, MKUltra, COINTELPRO. Some famous rumors did too. This class is about telling the difference. Every claim we study gets one of four verdicts — confirmed, debunked, misleading, or unproven — and you'll be graded on how you got there, not just where you landed. An honest 'unproven' backed by good research beats a confident answer backed by nothing."
+  units={units}
+  resources={resources}
+  glossary={glossary}
+/>

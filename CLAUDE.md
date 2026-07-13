@@ -1,6 +1,6 @@
 # the desk — grant-desk.com
 
-Personal classroom website for a social studies teacher (US History, Economics, Law). Owner is a beginner — explain briefly what you changed and why, keep diffs small, never refactor without being asked.
+Personal classroom website for a social studies teacher (US History, Hidden History, Beyond the Scoreboard). Owner is a beginner — explain briefly what you changed and why, keep diffs small, never refactor without being asked.
 
 ## Stack
 
@@ -10,7 +10,7 @@ Personal classroom website for a social studies teacher (US History, Economics, 
 
 ## Where things live
 
-- `src/pages/` — one file per page; class pages (`us-history`, `economics`, `law`) are thin data wrappers around `src/components/CoursePage.astro` (units with optional `topics`, resources, optional `glossary`)
+- `src/pages/` — one file per page; class pages (`us-history`, `hidden-history`, `beyond-the-scoreboard`) are thin data wrappers around `src/components/CoursePage.astro` (units with optional `topics`, resources, optional `glossary`)
 - `src/content/announcements/*.md` — announcements; frontmatter: `title`, `date`, optional `course`
 - `src/pages/tools.astro` — classroom tools (timer, group maker, cold call). The ONE page allowed JavaScript; nothing typed there may ever be persisted or transmitted.
 - `src/pages/simulations.astro` — sims array; each entry can have `details` sections (mock trial objection cheat sheet lives there)

@@ -1,0 +1,107 @@
+---
+// beyond-the-scoreboard.astro — edit the data below; the layout comes from CoursePage.
+// Mark exactly one unit `current: true` to feature it in the "right now" box.
+import CoursePage from '../components/CoursePage.astro';
+
+const units = [
+  {
+    name: 'Inventing American Sport, 1860s–1900',
+    blurb: 'Industrial cities build the modern game; the color line is drawn.',
+    current: true,
+    topics: [
+      'Why factories, railroads, and city crowds created professional sports',
+      'Baseball becomes a business: the first leagues and the first labor fights',
+      'The color line: how organized sport chose segregation on purpose',
+      'Boxing, bicycles, and who was allowed to compete for money',
+      'The four threads we follow all semester: business, media, law, and who gets to play',
+    ],
+  },
+  {
+    name: 'The National Stage, 1900–1945',
+    blurb: 'Jack Johnson, the Black Sox, radio, and Detroit’s own Joe Louis.',
+    topics: [
+      'Jack Johnson: the heavyweight title as a national controversy',
+      'The Black Sox scandal and the invention of the commissioner',
+      'Radio turns local games into national events',
+      'The Negro Leagues: a parallel major league built behind the color line',
+      'Jesse Owens in Berlin, Joe Louis vs. Schmeling, and Hank Greenberg in Detroit — sport as world politics',
+    ],
+  },
+  {
+    name: 'Integration and the Cold War, 1945–1963',
+    blurb: 'Jackie Robinson, television, and the Olympics as superpower contest.',
+    topics: [
+      'Jackie Robinson: the plan, the pressure, and what integration actually cost',
+      'Who followed, who stalled — integration team by team, sport by sport',
+      'Television changes everything it touches, starting with the money',
+      'The Olympics as Cold War scoreboard: medals as foreign policy',
+      'The thread chart check-in: business, media, law, and access at mid-century',
+    ],
+  },
+  {
+    name: 'The Athlete Revolt, 1963–1980',
+    blurb: 'Ali and Vietnam, Mexico City 1968, Curt Flood, and Title IX.',
+    topics: [
+      'Muhammad Ali refuses the draft — and pays for it with his prime',
+      'Mexico City 1968: two raised fists and the price of protest',
+      'Curt Flood challenges the reserve clause: "a well-paid slave is nonetheless a slave"',
+      'Title IX: thirty-seven words that rebuilt American sports',
+      'Billie Jean King and the Battle of the Sexes — spectacle with stakes',
+    ],
+  },
+  {
+    name: 'The Money Game, 1980–2004',
+    blurb: 'ESPN, Jordan, steroids, and the college amateurism debate.',
+    topics: [
+      'ESPN: what happens when sports become a 24-hour product',
+      'Michael Jordan and the athlete as global brand',
+      'The steroid era: records, asterisks, and congressional hearings',
+      'College amateurism: everyone gets paid except the players',
+      'The Malice at the Palace — Michigan’s own case study in media, race, and blame',
+    ],
+  },
+  {
+    name: 'The Modern Arena, 2004–today',
+    blurb: 'Social media, concussions, NIL, legalized betting — and your Michigan capstone.',
+    topics: [
+      'Athletes with their own microphones: social media ends the filtered era',
+      'Concussions and the CTE reckoning: what the leagues knew and when',
+      'NIL: the amateurism debate finally breaks open',
+      'The women’s sports boom and the fight over the money that follows it',
+      'Flint’s Claressa Shields — and your Michigan sports history capstone',
+    ],
+  },
+];
+
+const resources = [
+  { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  { label: 'Chronicling America — historic newspapers', href: 'https://chroniclingamerica.loc.gov' },
+  { label: 'Library of Congress — sports collections', href: 'https://www.loc.gov/collections/' },
+  { label: 'Society for American Baseball Research', href: 'https://sabr.org' },
+  { label: 'Michigan History Center', href: 'https://www.michigan.gov/mhc' },
+  // add more: { label: 'Unit 3 source packet', href: '...' },
+];
+
+const glossary = [
+  { term: 'the color line', def: 'The rule — written and unwritten — that kept Black athletes out of white leagues for half a century. Drawn on purpose, defended on purpose, broken on purpose.' },
+  { term: 'reserve clause', def: 'The contract rule that bound a player to one team for life, at whatever the team offered. It took a Supreme Court case and a union to kill it.' },
+  { term: 'free agency', def: 'A player’s right to sell their labor to the highest bidder — standard in every other job, revolutionary in sports.' },
+  { term: 'amateurism', def: 'The rule that athletes shouldn’t be paid, invented by people who were being paid. The college version lasted a century before NIL cracked it.' },
+  { term: 'title ix', def: 'The 1972 law barring sex discrimination in federally funded education — thirty-seven words that transformed who gets to play.' },
+  { term: 'nil', def: 'Name, image, and likeness — a college athlete’s right to earn money from being themselves. The newest chapter in the oldest fight in sports.' },
+  { term: 'barnstorming', def: 'Touring teams playing exhibition games town to town — how the Negro Leagues and early pros reached fans the big leagues ignored.' },
+  { term: 'boycott', def: 'Refusing to play as protest. From the 1968 Olympic project to modern walkouts, the threat of an empty arena is leverage.' },
+  { term: 'broadcast rights', def: 'The money engine of modern sports: leagues sell the right to show games, and everything from realignment to start times follows the checks.' },
+  { term: 'sanctioning body', def: 'The organization that makes the rules and enforces them — leagues, the NCAA, the IOC. Every era’s fights end up on their desk.' },
+  { term: 'mirror or engine', def: 'The course question: does sport reflect American society, or drive it? Every unit adds a tally mark to one side. The final answer is yours.' },
+];
+---
+
+<CoursePage
+  title="beyond the scoreboard"
+  tagline="american history through sports. the games were never just games."
+  intro="This course uses sports as a lens on America from the 1860s to today. Every unit follows four threads — business and labor, media and technology, law and government, and the fight over who gets to play — using real primary sources: newspapers, broadcast footage, court decisions, congressional testimony. We read what people said at the time before deciding what we think now; that's what separates history from hot takes. It ends with a research capstone on a sports story from Michigan's own backyard."
+  units={units}
+  resources={resources}
+  glossary={glossary}
+/>

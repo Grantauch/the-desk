@@ -2,74 +2,119 @@
 // us-history.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
 // `topics` is optional per unit — it becomes a "what's inside" dropdown.
+// 2026-27: this course runs Reconstruction → the present.
 import CoursePage from '../components/CoursePage.astro';
 
 const units = [
   {
-    name: 'Foundations & the Constitution',
-    blurb: 'How the American experiment got its operating manual.',
+    name: 'Reconstruction',
+    blurb: 'The war is over. Now comes the fight over what it meant.',
+    current: true,
     topics: [
-      'Colonial governments and the habits of self-rule',
-      'The Revolution: grievances, propaganda, and the case for leaving',
-      'Articles of Confederation — the rough draft nobody liked',
-      'The Constitutional Convention (we reenact it — pick your faction wisely)',
-      'Federalists vs. Anti-Federalists, and why we have a Bill of Rights',
-    ],
-  },
-  {
-    name: 'Expansion & Conflict',
-    blurb: 'Growth, its costs, and the road to disunion.',
-    topics: [
-      'Jefferson, Jackson, and what "the people" meant in practice',
-      'Manifest Destiny and who paid for it — Indian Removal on the record',
-      'The market revolution: canals, cotton, and the price of progress',
-      'Slavery and the compromises that kept failing',
-      'Dred Scott, Kansas, and the arguments that stopped working',
-    ],
-  },
-  {
-    name: 'Civil War & Reconstruction',
-    blurb: 'The union breaks, and the fight over what rebuilding means.',
-    topics: [
-      'Secession: the documents they actually wrote',
-      'Total war — the battlefield and the home front',
-      'Emancipation as strategy, promise, and law',
-      'Reconstruction: the amendments, the possibilities, the retreat',
+      'What freedom meant on the ground in 1865 — land, labor, family, the vote',
+      'The Reconstruction Amendments: the Constitution gets rewritten',
+      'Black political power in the South — real, elected, and short-lived',
+      'The retreat: terror, the Compromise of 1877, and the rise of Jim Crow',
       'How Reconstruction gets remembered — and misremembered',
     ],
   },
   {
-    name: 'Industrialization & Progressivism',
-    blurb: 'Railroads, robber barons, and reformers.',
-    current: true,
+    name: 'The Gilded Age',
+    blurb: 'Railroads, robber barons, and the price of progress.',
     topics: [
       'Captains of industry or robber barons? Argue it with receipts',
       'Immigration, cities, and the machines that ran them',
       'Labor vs. capital: strikes, unions, and Pinkertons',
-      'Muckrakers and the power of a well-aimed magazine article',
-      'Progressive fixes: trust-busting, food safety, and the vote',
+      'The West: railroads, homesteads, and what they cost Native nations',
+      'Populists, farmers, and the first revolt against the new economy',
     ],
   },
   {
-    name: 'America on the World Stage',
-    blurb: 'Two world wars and a new global role.',
+    name: 'The Progressive Era & Empire',
+    blurb: 'Reformers at home, expansion abroad.',
     topics: [
-      'Imperialism: the debate over what America should be abroad',
-      'WWI at home — propaganda, dissent, and civil liberties',
-      'The 1920s: boom, jazz, and backlash',
-      'The Depression and the New Deal argument we still have',
-      'WWII: mobilization, the home front, and the bomb',
+      'Muckrakers and the power of a well-aimed magazine article',
+      'Progressive fixes: trust-busting, food safety, and the vote for women',
+      'Jim Crow hardens — and the resistance organizes',
+      'The Spanish-American War and the debate over what America should be abroad',
+      'The Great Migration begins: six million people vote with their feet',
     ],
   },
   {
-    name: 'The Modern Era',
-    blurb: 'Civil rights, the Cold War, and the country we live in now.',
+    name: 'WWI & the Twenties',
+    blurb: 'A world war, then a decade with the volume turned up.',
+    topics: [
+      'WWI at home — propaganda, dissent, and civil liberties',
+      'The 1920s boom: cars, credit, and the first mass culture',
+      'Jazz, the Harlem Renaissance, and who the twenties actually roared for',
+      'Prohibition: the experiment and the side effects',
+      'Nativism and the backlash: immigration quotas and the second Klan',
+    ],
+  },
+  {
+    name: 'Depression & the New Deal',
+    blurb: 'The crash, the breadlines, and the argument we still have.',
+    topics: [
+      'The Crash of 1929 and why "it will fix itself" didn’t',
+      'Life in the Depression: Dust Bowl, breadlines, and Hoovervilles',
+      'FDR’s New Deal: relief, recovery, reform — and its critics, left and right',
+      'Who the New Deal reached and who it skipped',
+      'Did it work? The debate that decides how you see government today',
+    ],
+  },
+  {
+    name: 'World War II',
+    blurb: 'Total war, the home front, and the bomb.',
+    topics: [
+      'From neutrality to Pearl Harbor: America argues its way into the war',
+      'Mobilization: the arsenal of democracy runs through Michigan',
+      'The home front: women in the plants, rationing, and war bonds',
+      'Japanese American incarceration — the Constitution in wartime',
+      'The bomb: the decision, the debate, and the world it made',
+    ],
+  },
+  {
+    name: 'Cold War America',
+    blurb: 'Containment abroad, conformity and its cracks at home.',
     topics: [
       'Containment, Korea, and duck-and-cover America',
-      'The Civil Rights Movement: strategy, sacrifice, and law',
-      'Vietnam and the credibility gap',
+      'McCarthyism: the hunt for enemies within',
+      'The suburbs, the Baby Boom, and who the boom left out',
+      'Sputnik, the space race, and science as national security',
+      'Cuba and Vietnam: containment reaches its limits',
+    ],
+  },
+  {
+    name: 'The Civil Rights Movement',
+    blurb: 'Strategy, sacrifice, and law.',
+    topics: [
+      'Brown v. Board and the long game behind it',
+      'Montgomery to Birmingham: nonviolence as strategy, not passivity',
+      'The Civil Rights and Voting Rights Acts — how movements become law',
+      'Malcolm X, Black Power, and the debate inside the movement',
+      'The movement comes north: housing, schools, and Detroit 1967',
+    ],
+  },
+  {
+    name: 'Vietnam to Watergate',
+    blurb: 'The credibility gap years.',
+    topics: [
+      'Vietnam: escalation, the draft, and the living-room war',
+      'The antiwar movement and the country it split',
+      'The Pentagon Papers: what the government knew while saying otherwise',
       'Watergate and what it did to trust',
-      'The recent past — where the story meets your lifetime',
+      'The 1970s hangover: stagflation, oil shocks, and malaise',
+    ],
+  },
+  {
+    name: 'Reagan to Right Now',
+    blurb: 'The recent past — where the story meets your lifetime.',
+    topics: [
+      'The Reagan revolution and the conservative turn',
+      'The Cold War ends — suddenly, and mostly peacefully',
+      '9/11 and the wars that followed',
+      'The Great Recession, and what it did to Michigan in particular',
+      'The internet age: the story you’re living in, examined like history',
     ],
   },
 ];
@@ -79,30 +124,30 @@ const resources = [
   { label: 'Library of Congress — primary sources', href: 'https://www.loc.gov/classroom-materials/' },
   { label: 'National Archives — DocsTeach', href: 'https://www.docsteach.org' },
   { label: 'Digital Inquiry Group — reading like a historian', href: 'https://inquirygroup.org' },
-  { label: 'Avalon Project — founding documents', href: 'https://avalon.law.yale.edu' },
+  { label: 'Chronicling America — historic newspapers', href: 'https://chroniclingamerica.loc.gov' },
   // add more: { label: 'Unit 4 study guide', href: '...' },
 ];
 
 const glossary = [
   { term: 'primary source', def: 'Evidence from the time itself — a letter, a photo, a law, a receipt. The raw material of history, before anyone put a spin on it. (Everyone puts a spin on it.)' },
-  { term: 'federalism', def: 'Power split between national and state governments. The founders’ compromise, and the reason your driver’s license and your passport come from different places.' },
-  { term: 'checks and balances', def: 'Each branch of government can block the others. Designed on the theory that nobody should be trusted with the whole steering wheel.' },
-  { term: 'manifest destiny', def: 'The 19th-century belief that America was destined to stretch to the Pacific. A slogan for some, a catastrophe for others — we read both accounts.' },
-  { term: 'abolition', def: 'The movement to end slavery — decades of agitation by people told to be patient, who declined.' },
   { term: 'reconstruction', def: 'The post-Civil War project to rebuild the South and define freedom. Its amendments changed the Constitution; its retreat shaped the next century.' },
+  { term: 'sharecropping', def: 'Farming someone else’s land for a share of the crop — and usually a growing debt. Freedom’s fine print in the postwar South.' },
   { term: 'jim crow', def: 'The legal system of racial segregation after Reconstruction — not custom, but law, enforced for generations.' },
   { term: 'gilded age', def: 'Mark Twain’s name for the late 1800s: gold on the surface, cheaper metal underneath. Railroads, fortunes, and the people who built both.' },
   { term: 'muckraker', def: 'An investigative journalist of the Progressive Era. Meant as an insult; taken as a job description.' },
+  { term: 'great migration', def: 'Six million Black Americans leaving the South for northern and western cities across the twentieth century. Detroit is a chapter of this story.' },
   { term: 'new deal', def: 'FDR’s Depression-era program — relief, recovery, reform. We still argue about whether it worked, which is why it’s a unit and not a footnote.' },
   { term: 'containment', def: 'The Cold War strategy of stopping Soviet expansion without starting World War III. Simple to state, expensive to run.' },
   { term: 'civil disobedience', def: 'Deliberately, publicly, nonviolently breaking an unjust law and accepting the consequences. Thoreau theorized it; the Civil Rights Movement mastered it.' },
+  { term: 'credibility gap', def: 'The distance between what officials said and what turned out to be true — Vietnam-era vocabulary that never went out of style.' },
+  { term: 'redlining', def: 'Government-backed maps that graded neighborhoods by race and starved the red ones of loans. How segregation got built into cities — including ours.' },
 ];
 ---
 
 <CoursePage
   title="us history"
-  tagline="the american story, argued out loud."
-  intro="This course runs on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
+  tagline="reconstruction to right now — the american story, argued out loud."
+  intro="This course picks up where the Civil War left off and runs to the present. It's built on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
   units={units}
   resources={resources}
   glossary={glossary}

@@ -5,8 +5,8 @@ import type { APIRoute } from 'astro';
 const paths = [
   '/',
   '/us-history/',
-  '/economics/',
-  '/law/',
+  '/hidden-history/',
+  '/beyond-the-scoreboard/',
   '/simulations/',
   '/games/',
   '/tools/',

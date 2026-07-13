@@ -11,17 +11,17 @@ const courses = [
   {
     href: '/us-history/',
     name: 'us history',
-    blurb: 'the story of the american experiment — argued over, acted out, and occasionally re-litigated in class.',
+    blurb: 'reconstruction to right now — the american story, argued over, acted out, and occasionally re-litigated in class.',
   },
   {
-    href: '/economics/',
-    name: 'economics',
-    blurb: 'incentives, markets, and why people make weird choices. home of the stock market game.',
+    href: '/hidden-history/',
+    name: 'hidden history',
+    blurb: 'coverups, conspiracies, and the evidence. every claim gets a verdict — sources or it didn’t happen.',
   },
   {
-    href: '/law/',
-    name: 'law',
-    blurb: 'rights, courts, and mock trials. objection-friendly environment.',
+    href: '/beyond-the-scoreboard/',
+    name: 'beyond the scoreboard',
+    blurb: 'american history through sports. the games were never just games.',
   },
 ];
 
@@ -38,7 +38,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
       the desk<span class="text-accent">.</span>
     </h1>
     <p class="mt-5 text-lg text-ink-soft max-w-xl">
-      Home base for US History, Economics, and Law. Everything we're doing, playing, and debating —
+      Home base for US History, Hidden History, and Beyond the Scoreboard. Everything we're doing, playing, and debating —
       <span class="text-ink underline decoration-accent decoration-4 underline-offset-4">in one place</span>.
     </p>
   </section>
@@ -60,13 +60,20 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
   </section>
 
   <!-- the fun stuff -->
-  <section class="mt-10 grid gap-6 sm:grid-cols-2">
+  <section class="mt-10 grid gap-6 sm:grid-cols-3">
     <a href="/simulations/" class="group pop rounded-md bg-accent text-white p-5">
       <h2 class="font-display text-2xl font-bold lowercase">simulations<span class="text-white/60">.</span></h2>
       <p class="mt-2 text-sm text-white/85 leading-relaxed">
-        Stock market game, mock trial, constitutional convention, behavioral econ lab. Where the class plays for keeps.
+        The Case File investigation, the surveillance debate, the Michigan sports capstone. Where the class plays for keeps.
       </p>
       <span class="mt-3 inline-block transition-transform group-hover:translate-x-1.5">→</span>
+    </a>
+    <a href="/games/" class="group pop rounded-md bg-white p-5">
+      <h2 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">games<span class="text-accent">.</span></h2>
+      <p class="mt-2 text-sm text-ink-soft leading-relaxed">
+        Lessonhubs and review games. No logins, nothing tracked — open one and play.
+      </p>
+      <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
     <a href="/tools/" class="group pop rounded-md bg-ink text-paper p-5">
       <h2 class="font-display text-2xl font-bold lowercase">tools<span class="text-accent">.</span></h2>

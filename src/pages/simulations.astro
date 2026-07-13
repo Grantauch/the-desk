@@ -6,95 +6,81 @@ import Base from '../layouts/Base.astro';
 
 const sims = [
   {
-    name: 'the stock market game',
-    course: 'economics',
-    status: 'runs every spring',
+    name: 'the case file',
+    course: 'hidden history',
+    status: 'semester capstone',
     blurb:
-      'Every student manages a live (paper) portfolio for the length of the unit. Daily standings, real market data, and a leaderboard nobody stops checking. Past champions are remembered. Past crashes are, too.',
+      'Pick an approved claim, investigate it like a professional, and defend your verdict in front of the class. Confirmed, debunked, misleading, or unproven — the grade is in how you got there, not where you landed.',
     details: [
       {
         heading: 'how it works',
         items: [
-          'Everyone starts with the same imaginary bankroll. What you do with it is up to you.',
-          'Trades execute at real market prices. The market does not know you have a quiz Friday and does not care.',
-          'Standings post daily. Trash talk is permitted; insider trading is not (also, you have no inside).',
-          'You keep a trade journal — every buy and sell needs a reason written before you make it.',
-          'Final reckoning: portfolios are judged on returns and on the quality of the reasoning. A lucky gambler can outscore the market and still lose the write-up.',
+          'You draw from the approved claim list — each one has real sources to find and a trap built in.',
+          'Every claim breaks into sub-claims. You run each one to ground separately, with a source log.',
+          'Your verdict must be earned: reliable documents, corroboration, and an honest account of what you couldn’t confirm.',
+          'Presentations run in verdict order: confirmed first, debunked second, unproven last.',
+          'An honest "unproven" backed by good research beats a confident answer backed by nothing. House rule.',
         ],
       },
       {
         heading: 'the fine print',
         items: [
-          'No options, no crypto, no meme-stock all-ins after the first cautionary tale.',
-          'Diversification is not required by the rules. It is required by experience.',
+          'Sources or it didn’t happen — any claim in your presentation can be challenged from the floor.',
+          'We attack claims, never people. Discovering your own belief doesn’t survive the evidence counts as a win.',
         ],
       },
     ],
   },
   {
-    name: 'behavioral econ lab',
-    course: 'economics',
-    status: 'ongoing',
+    name: 'the surveillance debate',
+    course: 'hidden history',
+    status: 'unit 5',
     blurb:
-      'Auctions, ultimatum games, and framing experiments — run on the class itself. We generate the data, then figure out why we all fell for it.',
-    details: [
-      {
-        heading: 'experiments we run',
-        items: [
-          'The anchoring auction: two groups, two starting numbers, wildly different bids for the same object.',
-          'The ultimatum game: free money gets rejected out of spite, every single time.',
-          'Framing flips: the same choice, worded two ways, and the room splits.',
-          'Loss aversion trades: what people demand to give something up vs. pay to get it.',
-          'The results go on the board with your (anonymous) data in them. You are the study.',
-        ],
-      },
-    ],
-  },
-  {
-    name: 'mock trial',
-    course: 'law',
-    status: 'end of year',
-    blurb:
-      'A full trial with attorneys, witnesses, and a jury. Real rules of evidence, real objections, real verdict. The gavel is not decorative.',
-    details: [
-      {
-        heading: 'the roles',
-        items: [
-          'Attorneys — openings, examinations, closings. You will be on your feet and you will be interrupted.',
-          'Witnesses — you get a statement and you stick to it. Improvisation is how cases die.',
-          'Jurors — you decide the verdict and defend it in deliberation. No pressure.',
-          'Bailiff & clerk — the trial runs on time because of you.',
-        ],
-      },
-      {
-        heading: 'objection cheat sheet',
-        items: [
-          'Hearsay — the witness is repeating an out-of-court statement to prove it’s true.',
-          'Leading — counsel is putting words in the witness’s mouth on direct. ("You were home that night, weren’t you?")',
-          'Relevance — interesting, maybe. Related to this case, no.',
-          'Speculation — the witness is guessing about things they didn’t see or can’t know.',
-          'Badgering — counsel is arguing with the witness instead of questioning them.',
-          'Asked and answered — moving on. The jury heard it the first time.',
-          'When in doubt: stand, say "objection," name the reason. The judge will do the rest.',
-        ],
-      },
-    ],
-  },
-  {
-    name: 'constitutional convention',
-    course: 'us history',
-    status: 'fall semester',
-    blurb:
-      'Delegates, factions, and compromises — the room where it happened, recreated. Sectional interests included at no extra charge.',
+      'COINTELPRO is documented. So is the Church Committee that exposed it. Now the class argues the line: how much watching is too much — and who watches the watchers?',
     details: [
       {
         heading: 'how it works',
         items: [
-          'You draw a delegate — a real one, with real interests. Virginia planters and Connecticut merchants do not want the same country.',
-          'Committees draft, the floor debates, and everything needs votes to pass.',
-          'Representation, slavery, executive power — the actual sticking points, argued from your delegate’s chair, not yours.',
-          'The class constitution gets signed (or doesn’t) on the last day, then measured against the real one.',
-          'History grades you on a curve here: the real convention nearly fell apart too.',
+          'Structured format: opening cases, cross-examination, and closing arguments, with assigned sides.',
+          'Every factual claim needs a source you can produce on demand — including the teacher’s.',
+          'You argue the side you draw, not the side you like. Knowing the other side’s best case is the point.',
+          'The audience scores arguments on evidence, not volume.',
+        ],
+      },
+    ],
+  },
+  {
+    name: 'the michigan capstone',
+    course: 'beyond the scoreboard',
+    status: 'end of semester',
+    blurb:
+      'A team research project on a sports story from Michigan’s backyard — Joe Louis, Hank Greenberg, the Malice at the Palace, Claressa Shields, or one you pitch yourself. Real sources, real stakes, local ground.',
+    details: [
+      {
+        heading: 'how it works',
+        items: [
+          'Teams pick a Michigan sports story and trace it through all four course threads: business, media, law, and who gets to play.',
+          'Primary sources required — newspapers of the day, broadcast footage, court records, the stuff historians actually use.',
+          'The deliverable: a documented case for what your story says about America, presented to the class.',
+          'Pitching your own story is encouraged. Michigan has more of them than the syllabus can hold.',
+        ],
+      },
+    ],
+  },
+  {
+    name: 'socratic seminars',
+    course: 'both classes',
+    status: 'every unit',
+    blurb:
+      'A discussion where the evidence sits in the middle of the room and everyone comes armed with a prep ticket. The quietest well-sourced argument beats the loudest unsourced one.',
+    details: [
+      {
+        heading: 'the rules',
+        items: [
+          'Entry requires a completed seminar ticket — your claims, your sources, your questions.',
+          'Build on, push back, or redirect — but address the argument, not the person who made it.',
+          '"What’s your source?" is always in bounds. For everyone. Including the teacher.',
+          'The word wall is fair game: use the unit’s vocabulary and it shows in the score.',
         ],
       },
     ],
