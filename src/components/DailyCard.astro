@@ -1,0 +1,31 @@
+---
+// DailyCard.astro — a card that rotates through `entries` once per day.
+// Everyone sees the same entry all day; tomorrow brings the next one.
+// No storage, no network — just the date, math, and a list.
+interface Entry {
+  tag?: string; // small mono line under the text (a verdict, a source, a year)
+  text: string;
+}
+
+interface Props {
+  label: string;
+  entries: Entry[];
+}
+
+const { label, entries } = Astro.props;
+const first = entries[0];
+---
+
+<article class="pop rounded-md bg-white p-5">
+  <p class="font-mono text-xs lowercase text-accent">{label}</p>
+  <p class="daily-text mt-2 text-sm leading-relaxed">{first.text}</p>
+  <p class="daily-tag mt-2 font-mono text-xs lowercase text-ink-soft">{first.tag ?? ''}</p>
+  <script define:vars={{ entries }}>
+    const card = document.currentScript.closest('article');
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const e = entries[dayOfYear % entries.length];
+    card.querySelector('.daily-text').textContent = e.text;
+    card.querySelector('.daily-tag').textContent = e.tag || '';
+  </script>
+</article>

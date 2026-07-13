@@ -1,0 +1,59 @@
+---
+// TodayCard.astro — "today in history" card.
+// Picks the event matching today's date; if none, falls back to the closest
+// event this month; failing that, rotates through the whole list by day.
+// No storage, no network.
+interface Ev {
+  m: number; // month 1-12
+  d: number; // day of month
+  y: number; // year it happened
+  text: string;
+}
+
+interface Props {
+  label: string;
+  events: Ev[];
+}
+
+const { label, events } = Astro.props;
+const MONTHS = [
+  'january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december',
+];
+const first = events[0];
+const firstWhen = `${MONTHS[first.m - 1]} ${first.d}, ${first.y}`;
+---
+
+<article class="pop rounded-md bg-white p-5">
+  <p class="font-mono text-xs lowercase text-accent">{label}</p>
+  <p class="today-when mt-2 font-mono text-xs lowercase text-ink-soft">{firstWhen}</p>
+  <p class="today-text mt-1 text-sm leading-relaxed">{first.text}</p>
+  <script define:vars={{ events }}>
+    const MONTHS = [
+      'january', 'february', 'march', 'april', 'may', 'june',
+      'july', 'august', 'september', 'october', 'november', 'december',
+    ];
+    const card = document.currentScript.closest('article');
+    const now = new Date();
+    const m = now.getMonth() + 1;
+    const d = now.getDate();
+
+    let pick = events.find((e) => e.m === m && e.d === d);
+    let when;
+    if (pick) {
+      when = `today, in ${pick.y}`;
+    } else {
+      const sameMonth = events.filter((e) => e.m === m);
+      if (sameMonth.length > 0) {
+        pick = sameMonth.reduce((a, b) => (Math.abs(a.d - d) <= Math.abs(b.d - d) ? a : b));
+        when = `this month in ${pick.y} — ${MONTHS[pick.m - 1]} ${pick.d}`;
+      } else {
+        const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+        pick = events[dayOfYear % events.length];
+        when = `from the archive — ${MONTHS[pick.m - 1]} ${pick.d}, ${pick.y}`;
+      }
+    }
+    card.querySelector('.today-when').textContent = when;
+    card.querySelector('.today-text').textContent = pick.text;
+  </script>
+</article>

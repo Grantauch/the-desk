@@ -4,6 +4,76 @@
 // `topics` is optional per unit — it becomes a "what's inside" dropdown.
 // 2026-27: this course runs Reconstruction → the present.
 import CoursePage from '../components/CoursePage.astro';
+import TodayCard from '../components/TodayCard.astro';
+import DailyCard from '../components/DailyCard.astro';
+
+// ---- the daily desk: today in history (m = month, d = day, y = year) ----
+const todayEvents = [
+  { m: 1, d: 1, y: 1863, text: 'The Emancipation Proclamation takes effect. It frees no one it can reach and everyone it can’t — yet — but it turns the war into a war about slavery, on paper and forever.' },
+  { m: 1, d: 15, y: 1929, text: 'Martin Luther King Jr. is born in Atlanta. He gets a federal holiday, a monument, and a unit in this course.' },
+  { m: 1, d: 28, y: 1986, text: 'The space shuttle Challenger breaks apart 73 seconds after launch, with teacher Christa McAuliffe aboard. Millions of students watched it live from their classrooms.' },
+  { m: 2, d: 1, y: 1960, text: 'Four college freshmen sit down at a whites-only lunch counter in Greensboro, North Carolina, and stay. Within two months the sit-ins spread to over fifty cities.' },
+  { m: 2, d: 19, y: 1942, text: 'FDR signs Executive Order 9066. Some 120,000 Japanese Americans — most of them citizens — are removed to incarceration camps. The Constitution in wartime, tested and found bendable.' },
+  { m: 2, d: 20, y: 1962, text: 'John Glenn orbits the Earth three times in under five hours. The space race now has an American in the points column.' },
+  { m: 3, d: 4, y: 1933, text: 'FDR is inaugurated in the pit of the Depression and tells the country the only thing it has to fear is fear itself. The first hundred days start now.' },
+  { m: 3, d: 7, y: 1965, text: 'Bloody Sunday: marchers heading from Selma toward Montgomery are beaten by state troopers on the Edmund Pettus Bridge — on camera. The Voting Rights Act passes within six months.' },
+  { m: 3, d: 25, y: 1911, text: 'The Triangle Shirtwaist Factory fire kills 146 garment workers, most of them young immigrant women, behind locked doors. Workplace safety law starts counting its dead here.' },
+  { m: 4, d: 4, y: 1968, text: 'Martin Luther King Jr. is assassinated in Memphis, where he had come to support striking sanitation workers. He was 39.' },
+  { m: 4, d: 9, y: 1865, text: 'Lee surrenders to Grant at Appomattox Court House. The war ends; the argument over what it meant is the rest of this course.' },
+  { m: 4, d: 18, y: 1906, text: 'An earthquake and three days of fire destroy most of San Francisco. The city rebuilds so fast it hosts a world’s fair nine years later.' },
+  { m: 5, d: 6, y: 1937, text: 'The airship Hindenburg burns in 34 seconds at Lakehurst, New Jersey, on live radio. The age of the zeppelin ends the same evening.' },
+  { m: 5, d: 8, y: 1945, text: 'V-E Day: Germany surrenders unconditionally. Half the war is over; the Pacific half has three months to go.' },
+  { m: 5, d: 17, y: 1954, text: 'Brown v. Board of Education: a unanimous Supreme Court rules that separate is not equal. Enforcing that sentence takes decades — and isn’t finished.' },
+  { m: 6, d: 6, y: 1944, text: 'D-Day. Roughly 160,000 Allied troops cross the Channel into Normandy in the largest seaborne invasion in history. A lot of it was planned to fail elsewhere on purpose.' },
+  { m: 6, d: 19, y: 1865, text: 'Juneteenth: federal troops reach Galveston, Texas, and announce emancipation — two and a half years after the proclamation. Freedom traveled at the speed of the army.' },
+  { m: 6, d: 25, y: 1950, text: 'North Korea invades the South. The Cold War turns hot for the first time, and America learns the term "limited war" the hard way.' },
+  { m: 7, d: 2, y: 1964, text: 'LBJ signs the Civil Rights Act, outlawing segregation in public accommodations. He reportedly told an aide the Democrats had lost the South for a generation. He undercounted.' },
+  { m: 7, d: 16, y: 1945, text: 'Trinity: the first atomic bomb is detonated in the New Mexico desert. Oppenheimer later said he thought of a line from the Bhagavad Gita. The world thought of little else for fifty years.' },
+  { m: 7, d: 20, y: 1969, text: 'Apollo 11 lands on the Moon. About 600 million people watch Armstrong’s first step — the largest audience for anything, ever, to that point.' },
+  { m: 8, d: 6, y: 1945, text: 'Hiroshima. One bomb, one city, and a debate — military necessity or moral catastrophe? — that this class will have with sources on the table.' },
+  { m: 8, d: 18, y: 1920, text: 'Tennessee ratifies the 19th Amendment by one vote — a young legislator switched after a letter from his mother. Women’s suffrage becomes constitutional law.' },
+  { m: 8, d: 28, y: 1963, text: 'The March on Washington. A quarter-million people, and a speech whose most famous section — "I have a dream" — was partly improvised after Mahalia Jackson shouted "Tell them about the dream, Martin!"' },
+  { m: 9, d: 2, y: 1945, text: 'Japan signs the surrender aboard the USS Missouri in Tokyo Bay. World War II ends after six years and roughly sixty million dead.' },
+  { m: 9, d: 11, y: 2001, text: 'The September 11 attacks kill nearly 3,000 people in New York, at the Pentagon, and in a Pennsylvania field. The wars, laws, and airport rituals that followed are your lifetime’s history.' },
+  { m: 9, d: 25, y: 1957, text: 'Soldiers of the 101st Airborne escort nine Black students into Little Rock Central High — federal troops enforcing a federal ruling against a defiant governor.' },
+  { m: 10, d: 1, y: 1908, text: 'The first Model T is ready for customers. Fourteen million follow, and Michigan builds the century that comes with them.' },
+  { m: 10, d: 14, y: 1962, text: 'A U-2 spy plane photographs Soviet missile sites under construction in Cuba. The thirteen most dangerous days of the Cold War start with a roll of film.' },
+  { m: 10, d: 29, y: 1929, text: 'Black Tuesday. The market loses in hours what it took years to gain. The Depression will need a decade and a world war to end.' },
+  { m: 11, d: 9, y: 1989, text: 'The Berlin Wall opens — partly because an official botched a press conference and said "immediately" when he shouldn’t have. Crowds did the rest with hammers.' },
+  { m: 11, d: 11, y: 1918, text: 'The armistice ends World War I on the eleventh hour of the eleventh day of the eleventh month. Fighting continued until the last minute anyway.' },
+  { m: 11, d: 22, y: 1963, text: 'President Kennedy is assassinated in Dallas. If you want to know how evidence, rumor, and released files actually work, Hidden History covers this one.' },
+  { m: 12, d: 1, y: 1955, text: 'Rosa Parks refuses to give up her seat in Montgomery. It wasn’t spontaneous exhaustion — she was a trained activist, and the boycott was organized within days. Strategy, not accident.' },
+  { m: 12, d: 7, y: 1941, text: 'Pearl Harbor. Roughly 2,400 Americans die in under two hours, and the isolation debate ends by lunchtime. "A date which will live in infamy" — FDR, the next day.' },
+  { m: 12, d: 17, y: 1903, text: 'The Wright brothers fly at Kitty Hawk — twelve seconds, 120 feet. Sixty-six years later, humans stand on the Moon. Same century.' },
+];
+
+// ---- myth, busted: rotates daily ----
+const myths = [
+  { tag: 'busted', text: 'Myth: everyone thought the Earth was flat until Columbus. Educated people had known it was round since the ancient Greeks — the argument in 1492 was about the ocean’s width, and Columbus was the one who had it wrong.' },
+  { tag: 'busted', text: 'Myth: George Washington had wooden teeth. His dentures were ivory, metal, and human teeth — including teeth from enslaved people, which is the part the legend leaves out.' },
+  { tag: 'busted', text: 'Myth: Mrs. O’Leary’s cow kicked over a lantern and burned down Chicago in 1871. A reporter admitted decades later he made the cow up. The fire was real; the cow was framed.' },
+  { tag: 'busted', text: 'Myth: Betsy Ross sewed the first American flag. No contemporary evidence — the story surfaced in 1870, told by her grandson, nearly a century after the fact.' },
+  { tag: 'busted', text: 'Myth: independence was declared on July 4, 1776. Congress voted for independence on July 2. July 4 is the date on the paperwork, and most delegates signed in August.' },
+  { tag: 'busted', text: 'Myth: the Salem witch trials burned witches. The condemned were hanged — nineteen of them — and one man was pressed to death with stones. No one was burned in Salem.' },
+  { tag: 'busted', text: 'Myth: the Emancipation Proclamation freed all enslaved people. It applied only to states in rebellion — where Lincoln had no power to enforce it yet. Slavery ended nationally with the 13th Amendment in 1865.' },
+  { tag: 'busted', text: 'Myth: ruined investors leapt from windows en masse after the 1929 crash. Historians have checked; the suicide wave is legend. The despair was real, the raining bankers were not.' },
+  { tag: 'busted', text: 'Myth: Henry Ford invented the automobile. Karl Benz beat him by two decades. Ford’s actual invention was making cars cheap — the moving assembly line changed the world more than the car did.' },
+  { tag: 'busted', text: 'Myth: Thomas Edison invented the lightbulb from scratch. Dozens of inventors made incandescent lamps before him. Edison made one that lasted, and — the real trick — built the power grid to feed it.' },
+];
+
+// ---- exhibit of the day: famous lines, with receipts ----
+const exhibits = [
+  { tag: 'fdr, first inaugural — 1933', text: '"The only thing we have to fear is fear itself." Banks were failing by the thousands that week. The line was a policy argument, not a pep talk.' },
+  { tag: 'fdr to congress — december 8, 1941', text: '"A date which will live in infamy." The draft said "world history." FDR crossed it out and wrote "infamy" — better word, better speech.' },
+  { tag: 'lincoln, second inaugural — 1865', text: '"With malice toward none, with charity for all." Six weeks later he was dead, and Reconstruction had to be run by men who believed in plenty of malice.' },
+  { tag: 'lincoln, gettysburg — 1863', text: '"Four score and seven years ago." 272 words, about two minutes. The featured speaker that day went for two hours; nobody quotes him.' },
+  { tag: 'theodore roosevelt — 1901', text: '"Speak softly and carry a big stick." He said it was a West African proverb. Nobody has ever found the proverb. The aircraft carriers were easier to verify.' },
+  { tag: 'jfk, inaugural — 1961', text: '"Ask not what your country can do for you — ask what you can do for your country." The whole speech is 1,366 words. Brevity is a strategy.' },
+  { tag: 'mlk, march on washington — 1963', text: '"I have a dream." The best-remembered section wasn’t in the prepared text — gospel singer Mahalia Jackson called out "Tell them about the dream," and King pushed his notes aside.' },
+  { tag: 'malcolm x, cleveland — 1964', text: '"The ballot or the bullet." A voting-rights speech, despite the title — his argument was that 1964 had to be the year of the ballot, precisely so it wouldn’t be the other thing.' },
+  { tag: 'reagan, berlin — 1987', text: '"Mr. Gorbachev, tear down this wall!" State Department drafts kept cutting the line as too provocative. Reagan kept putting it back. The wall outlasted the speech by 29 months.' },
+  { tag: 'armstrong, the moon — 1969', text: '"That’s one small step for man, one giant leap for mankind." Armstrong insisted he said "for a man" and the radio ate the word. The tape is ambiguous. Even moon landings have primary-source problems.' },
+];
 
 const units = [
   {
@@ -151,4 +221,14 @@ const glossary = [
   units={units}
   resources={resources}
   glossary={glossary}
-/>
+>
+  <section class="mt-12">
+    <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
+    <p class="mt-2 text-sm text-ink-soft lowercase">new every day. same for everyone — argue about it in class.</p>
+    <div class="mt-6 grid gap-6 md:grid-cols-3">
+      <TodayCard label="today in history" events={todayEvents} />
+      <DailyCard label="myth, busted" entries={myths} />
+      <DailyCard label="exhibit of the day" entries={exhibits} />
+    </div>
+  </section>
+</CoursePage>

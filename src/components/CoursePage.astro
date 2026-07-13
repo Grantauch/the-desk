@@ -1,6 +1,7 @@
 ---
 // CoursePage.astro — shared template for class pages.
-// Each class page (us-history, economics, law) just passes in its data.
+// Each class page (us-history, hidden-history, beyond-the-scoreboard) just passes in its data.
+// Anything placed between <CoursePage>...</CoursePage> tags renders after the "right now" box.
 import Base from '../layouts/Base.astro';
 
 interface Unit {
@@ -50,6 +51,8 @@ const currentUnit = units.find((u) => u.current);
       </div>
     )
   }
+
+  <slot />
 
   <h2 class="mt-14 font-display text-3xl font-bold lowercase">units</h2>
   <ol class="mt-6 space-y-3">

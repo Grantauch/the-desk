@@ -2,6 +2,49 @@
 // hidden-history.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
 import CoursePage from '../components/CoursePage.astro';
+import DailyCard from '../components/DailyCard.astro';
+
+// ---- verdict of the day: real claims, graded the way this class grades them ----
+const verdicts = [
+  { tag: 'verdict: confirmed', text: 'Claim: the CIA secretly dosed unwitting Americans with LSD. Confirmed — Project MKUltra, exposed by the Church Committee in 1975. The CIA director had most of the files destroyed in 1973, which is why we know less than we should.' },
+  { tag: 'verdict: confirmed', text: 'Claim: the FBI bugged and wiretapped Martin Luther King Jr. Confirmed — thoroughly documented, including an anonymous FBI letter urging him to give up. It’s in the National Archives.' },
+  { tag: 'verdict: confirmed', text: 'Claim: the CIA turned a live cat into a listening device. Confirmed — Acoustic Kitty, declassified in 2001. Cost millions, worked once, briefly. The cat had other plans.' },
+  { tag: 'verdict: confirmed', text: 'Claim: the Joint Chiefs proposed staging fake attacks to justify invading Cuba. Confirmed — Operation Northwoods, declassified in 1997. Proposed in 1962 and rejected by the Kennedy administration. Proposed and done are different verdicts.' },
+  { tag: 'verdict: confirmed', text: 'Claim: the US government ran a psychic spying program. Confirmed — Star Gate, which employed "remote viewers" for about two decades before shutting down in 1995. Documented, funded, and by its own review, not useful.' },
+  { tag: 'verdict: confirmed', text: 'Claim: the US Public Health Service studied syphilis in Black men while withholding the cure. Confirmed — Tuskegee, 1932 to 1972, ended only when the press exposed it. When someone asks why medical distrust exists, this is a primary source.' },
+  { tag: 'verdict: debunked', text: 'Claim: Walt Disney is cryogenically frozen. Debunked — he was cremated in 1966, two days after his death, and interred at Forest Lawn. The freezer story appeared years later with no evidence attached.' },
+  { tag: 'verdict: debunked', text: 'Claim: the Moon landings were staged. Debunked — retroreflectors on the lunar surface still bounce lasers back today, independent countries tracked the missions in real time, and 400,000 people kept no secret.' },
+  { tag: 'verdict: debunked', text: 'Claim: Paul McCartney died in 1966 and was replaced. Debunked — by Paul McCartney, repeatedly, in person, on tour. The "clues" were all found after someone decided the conclusion first. That’s the lesson.' },
+  { tag: 'verdict: debunked', text: 'Claim: FDR knew Pearl Harbor was coming and let it happen. Debunked — no reliable evidence in eighty years of digging. What the record actually shows is intelligence scattered across agencies that failed to connect it. Failure isn’t foreknowledge.' },
+  { tag: 'verdict: it’s complicated', text: 'Claim: the government lied about Roswell. Split verdict — the military really did change its story (the debris was a classified balloon project, admitted decades later). Cover-up: confirmed. Aliens: no reliable evidence, ever.' },
+  { tag: 'verdict: it’s complicated', text: 'Claim: Area 51 doesn’t officially exist. Outdated — the CIA acknowledged it in 2013 in declassified U-2 program documents. Secret base: confirmed. What the secrecy covered: spy planes, not saucers.' },
+  { tag: 'verdict: misleading', text: 'Claim: "the Pentagon admitted UFOs are real." Misleading — the Navy confirmed certain videos are genuine and unidentified. Unidentified means unidentified. The leap from "we don’t know" to "aliens" is where the claim smuggles in its conclusion.' },
+  { tag: 'verdict: unproven', text: 'Claim: D.B. Cooper survived the jump. Unproven — the 1971 hijacker was never identified; some ransom cash surfaced in a riverbank in 1980; the FBI shelved the case in 2016. An honest "we don’t know" beats a confident guess.' },
+];
+
+// ---- declassified file of the day ----
+const files = [
+  { tag: 'declassified 1996', text: 'The Ghost Army: a WWII unit of artists and engineers who impersonated entire divisions with inflatable tanks, sound trucks, and fake radio traffic. Classified for fifty years; Congressional Gold Medal in 2022.' },
+  { tag: 'disclosed 1997', text: 'Project Iceworm: a plan to hide hundreds of nuclear missiles under the Greenland ice sheet, with "Camp Century" — a city under the ice, with a reactor — as its cover story. The ice itself refused to cooperate.' },
+  { tag: 'released 1995', text: 'VENONA: American codebreakers spent decades secretly reading Soviet spy cables — confirming real espionage in the Manhattan Project. Kept so secret even presidents weren’t always told.' },
+  { tag: 'the paper trail', text: 'Operation Paperclip: after WWII, the US quietly recruited over a thousand German scientists — including men with Nazi records the files were scrubbed to hide. The space program has footnotes.' },
+  { tag: 'burglary, 1971', text: 'The Media, Pennsylvania break-in: activists picked the night of a big boxing match, robbed an FBI field office of its files, and mailed the proof of COINTELPRO to newspapers. They went unidentified for 43 years — then introduced themselves.' },
+  { tag: 'wwii r&d', text: 'Project Pigeon: behaviorist B.F. Skinner trained pigeons to guide missiles by pecking at a target on a screen. It worked better than expected. It was canceled anyway — some technologies are just too embarrassing to deploy.' },
+  { tag: 'british, 1943', text: 'Operation Mincemeat: British intelligence dressed a corpse as a courier with fake invasion plans and floated him to Spain. Hitler moved divisions the wrong way. Not our file, but too good to skip.' },
+  { tag: 'intercepted 1917', text: 'The Zimmermann Telegram: Germany secretly offered Mexico an alliance — and Texas — if America entered WWI. British codebreakers read it, leaked it carefully, and helped talk the US into the war. Espionage with consequences.' },
+];
+
+// ---- trick of the week: how bad information does its job ----
+const tricks = [
+  { tag: 'watch for it', text: 'Cherry-picking: building a case from the three facts that fit while ignoring the thirty that don’t. The tell: real evidence survives you looking at the rest of the pile.' },
+  { tag: 'watch for it', text: '"Just asking questions": smuggling a claim in a question costume — no evidence offered, deniability included. The tell: the asker never accepts any answer.' },
+  { tag: 'watch for it', text: 'The false dilemma: "either the official story is perfect, or my theory is true." Real investigations usually land on option three: the official story has flaws AND the theory has no evidence.' },
+  { tag: 'watch for it', text: 'The confident percentage: "97% of people don’t know this." Made-up numbers sound like research. The tell: no source, suspiciously round, and unfalsifiable.' },
+  { tag: 'watch for it', text: 'Old photo, new caption: a real image from one event, relabeled as another. The most common trick on your feed. The counter takes ten seconds: reverse image search.' },
+  { tag: 'watch for it', text: 'Moving the goalposts: every debunked claim gets replaced by a new one, but the conclusion never budges. The tell: ask what evidence WOULD change their mind. Silence is your answer.' },
+  { tag: 'watch for it', text: 'Appeal to secret knowledge: "they don’t want you to know this." Flattery disguised as evidence — you’re special for believing. Real documents don’t need you to feel chosen.' },
+  { tag: 'watch for it', text: 'The gish gallop: firing fifty weak claims faster than anyone can check one. Volume impersonating strength. The counter: pick their single best claim and run it to ground. Just one.' },
+];
 
 const units = [
   {
@@ -106,4 +149,14 @@ const glossary = [
   units={units}
   resources={resources}
   glossary={glossary}
-/>
+>
+  <section class="mt-12">
+    <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
+    <p class="mt-2 text-sm text-ink-soft lowercase">new every day. yes, you may fact-check it — that's the point.</p>
+    <div class="mt-6 grid gap-6 md:grid-cols-3">
+      <DailyCard label="verdict of the day" entries={verdicts} />
+      <DailyCard label="declassified file of the day" entries={files} />
+      <DailyCard label="trick of the week" entries={tricks} />
+    </div>
+  </section>
+</CoursePage>

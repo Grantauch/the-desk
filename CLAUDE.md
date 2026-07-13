@@ -27,7 +27,7 @@ Personal classroom website for a social studies teacher (US History, Hidden Hist
 - Accent color is deep electric blue (`--color-accent`); use the token, never hardcode hex in components.
 - Voice: playful but not pretentious; confident, dry, concise.
 - No student data, no grading, no assignment submission — Google Classroom handles those. Do not add features that collect student information.
-- Keep the site zero-JS unless a feature truly needs it. Current exception: `tools.astro` (timers must tick). Prefer `<details>/<summary>` for show-hide content.
+- Keep the site zero-JS unless a feature truly needs it. Current exceptions: `tools.astro` (timers must tick) and the "daily desk" cards on course pages (`DailyCard.astro`, `TodayCard.astro` — a few lines that pick today's entry from a local list; no network, no storage). Prefer `<details>/<summary>` for show-hide content.
 - Headings use `font-display` (Space Grotesk, loaded in Base.astro).
 
 ## Common tasks

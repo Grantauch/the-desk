@@ -36,6 +36,13 @@ Same files — add a line to the `resources` array:
 { label: 'Unit 4 study guide', href: 'https://docs.google.com/...' },
 ```
 
+## Edit the "daily desk" cards on a class page
+
+Each class page has arrays near the top (`todayEvents`/`sportsEvents`, `myths`, `verdicts`, `stats`, etc.).
+Add or edit entries freely — cards rotate one entry per day automatically.
+Dated cards use `{ m: 7, d: 20, y: 1969, text: '...' }` (m = month, d = day, y = year).
+Rotating cards use `{ tag: 'small line under the text', text: 'the main text' }`.
+
 ## Add a game or lessonhub
 
 Two steps:
