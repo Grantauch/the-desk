@@ -36,6 +36,15 @@ Same files — add a line to the `resources` array:
 { label: 'Unit 4 study guide', href: 'https://docs.google.com/...' },
 ```
 
+## Add a game or lessonhub
+
+Two steps:
+
+1. Drop the standalone HTML file into `public/hubs/` (lowercase-with-dashes name, e.g. `market-structures.html`)
+2. Add an entry to the `hubs` array in `src/pages/games.astro` — there's a commented template at the bottom of the array
+
+The file is served as-is at `/hubs/market-structures.html`, so localStorage progress saving works normally.
+
 ## Add or edit a simulation
 
 `src/pages/simulations.astro` — edit the `sims` array. Each sim can have optional `details` sections (`{ heading, items }`) that render as expandable dropdowns — the mock trial objection cheat sheet lives there.

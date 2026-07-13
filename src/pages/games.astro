@@ -1,0 +1,73 @@
+---
+// games.astro — lessonhubs and review games, served as standalone pages from /hubs/.
+// To add one: drop the HTML file in public/hubs/ and add an entry to `hubs` below.
+// Each hub opens in a new tab — they're full-screen apps with their own look.
+import Base from '../layouts/Base.astro';
+
+const hubs = [
+  {
+    name: 'classroom jeopardy',
+    course: 'all classes',
+    kind: 'review game',
+    href: '/hubs/classroom-jeopardy.html',
+    blurb:
+      'The full board — categories, daily doubles, final jeopardy, team scores. Runs on the projector; the class supplies the arguing.',
+  },
+  {
+    name: 'paycheck & taxes',
+    course: 'economics',
+    kind: 'lessonhub',
+    href: '/hubs/paycheck-taxes.html',
+    blurb:
+      'Gross vs. net, withholdings, W-4s, and where your money actually goes. Study modes include flashcards, matching, and a quiz.',
+  },
+  {
+    name: 'lessonhub lab',
+    course: 'experimental',
+    kind: 'idea pack',
+    href: '/hubs/lessonhub-lab.html',
+    blurb:
+      'Playable classroom ideas being tested for future hubs. Enter at your own risk; report bugs for extra credit (not really).',
+  },
+  // Template for the next one — copy, uncomment, fill in:
+  // {
+  //   name: 'market structures',
+  //   course: 'economics',
+  //   kind: 'lessonhub',
+  //   href: '/hubs/market-structures.html',
+  //   blurb: 'One line on what it covers.',
+  // },
+];
+---
+
+<Base title="games">
+  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+    games<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-3 text-lg text-ink-soft lowercase">
+    lessonhubs and review games. no logins, nothing tracked — open one and play.
+  </p>
+
+  <div class="mt-10 space-y-8">
+    {
+      hubs.map((hub) => (
+        <article class="pop rounded-md bg-white p-6">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 class="font-display text-2xl font-bold lowercase">
+              <a href={hub.href} target="_blank" rel="noopener" class="hover:text-accent transition-colors">
+                {hub.name} →
+              </a>
+            </h2>
+            <span class="text-xs font-mono lowercase text-accent">{hub.course}</span>
+            <span class="text-xs font-mono lowercase text-ink-soft">· {hub.kind}</span>
+          </div>
+          <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
+        </article>
+      ))
+    }
+  </div>
+
+  <p class="mt-10 text-sm font-mono lowercase text-ink-soft">
+    more hubs on the way — market structures, great depression, trade logic, and the final reviews.
+  </p>
+</Base>

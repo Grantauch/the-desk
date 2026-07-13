@@ -8,6 +8,7 @@ const paths = [
   '/economics/',
   '/law/',
   '/simulations/',
+  '/games/',
   '/tools/',
   '/announcements/',
   '/about/',

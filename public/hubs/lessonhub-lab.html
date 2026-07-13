@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LessonHub Experimental Lab</title>
+<style>
+:root{
+  --bg:#07090f; --panel:#111827; --panel2:#151a2e; --ink:#f6f7fb; --muted:#a9b0c4;
+  --cyan:#61f5ff; --pink:#ff4fd8; --gold:#ffd166; --green:#7cf29a; --red:#ff5c7a; --line:rgba(255,255,255,.13);
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 15% 10%,rgba(97,245,255,.18),transparent 28%),radial-gradient(circle at 88% 18%,rgba(255,79,216,.17),transparent 31%),linear-gradient(135deg,#05070d,#121729 55%,#07090f);color:var(--ink);min-height:100vh;overflow-x:hidden}.noise:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.17'/%3E%3C/svg%3E");mix-blend-mode:overlay;opacity:.25}.wrap{width:min(1180px,92vw);margin:0 auto;padding:42px 0 54px}.top{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:stretch}.hero,.brief,.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));box-shadow:0 24px 80px rgba(0,0,0,.38);backdrop-filter:blur(10px);border-radius:26px}.hero{padding:34px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border:2px solid rgba(97,245,255,.35);border-radius:50%;box-shadow:0 0 50px rgba(97,245,255,.2)}.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:800}.hero h1{font-size:clamp(42px,6vw,76px);line-height:.92;margin:16px 0 18px;letter-spacing:-.06em}.hero p{color:var(--muted);font-size:18px;line-height:1.6;max-width:680px}.brief{padding:28px}.brief h2{margin:0 0 14px}.brief ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}.brief li{display:flex;gap:11px;align-items:flex-start;color:#d9def0;line-height:1.35}.dot{width:10px;height:10px;border-radius:99px;background:var(--gold);margin-top:5px;box-shadow:0 0 18px var(--gold)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:24px}.card{padding:22px;min-height:315px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:.25s transform,.25s border-color,.25s background}.card:hover{transform:translateY(-6px);border-color:rgba(97,245,255,.55);background:linear-gradient(180deg,rgba(97,245,255,.12),rgba(255,255,255,.035))}.card .icon{font-size:38px;width:62px;height:62px;display:grid;place-items:center;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid var(--line);margin-bottom:18px}.card h3{margin:0;font-size:24px}.type{color:var(--cyan);font-size:13px;margin:7px 0 13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}.card p{color:var(--muted);line-height:1.5;margin:0 0 14px}.features{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}.features span{font-size:12px;color:#e8ebf7;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 9px;background:rgba(0,0,0,.18)}.launch{display:block;margin-top:18px;color:#071018;background:var(--cyan);text-decoration:none;text-align:center;padding:12px 14px;border-radius:14px;font-weight:900;box-shadow:0 0 28px rgba(97,245,255,.25)}.launch:hover{filter:brightness(1.08)}.footer{margin-top:24px;border:1px dashed rgba(255,255,255,.18);border-radius:22px;padding:20px;color:#c9d0e6;background:rgba(0,0,0,.18);line-height:1.55}@media(max-width:980px){.top,.grid{grid-template-columns:1fr 1fr}}@media(max-width:650px){.top,.grid{grid-template-columns:1fr}.hero{padding:26px}.hero h1{font-size:45px}}
+</style>
+</head>
+<body class="noise">
+<div class="wrap">
+  <section class="top">
+    <div class="hero">
+      <div class="eyebrow">LessonHub Prototype Pack</div>
+      <h1>Playable classroom ideas.</h1>
+      <p>Four standalone demos showing what HTML LessonHubs can do when they act more like games than worksheets. Open them, click around, break them, and steal the mechanics for real units.</p>
+    </div>
+    <div class="brief">
+      <h2>What this pack is testing</h2>
+      <ul>
+        <li><span class="dot"></span><span>Game state, scoring, feedback, retries, and end screens without needing student accounts.</span></li>
+        <li><span class="dot" style="background:var(--pink);box-shadow:0 0 18px var(--pink)"></span><span>Drag and drop evidence sorting with a case strength report.</span></li>
+        <li><span class="dot" style="background:var(--green);box-shadow:0 0 18px var(--green)"></span><span>Branching decisions where student choices change meters and outcomes.</span></li>
+        <li><span class="dot" style="background:var(--cyan);box-shadow:0 0 18px var(--cyan)"></span><span>Simulation mechanics, random event cards, resources, and survival goals.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="icon">⚔️</div>
+      <h3>Boss Fight Review</h3>
+      <div class="type">ReviewRoom mechanic</div>
+      <p>Students fight concept bosses by answering scenario questions. Wrong answers damage confidence. Correct answers build combo damage and expose weak spots.</p>
+      <div class="features"><span>health bars</span><span>combo</span><span>weakness report</span></div>
+      <a class="launch" href="boss_fight_review.html">Open demo</a>
+    </article>
+    <article class="card">
+      <div class="icon">🗂️</div>
+      <h3>Evidence Locker</h3>
+      <div class="type">CaseFile mechanic</div>
+      <p>Students drag evidence into competing claims, check source reliability, and build a scored case from primary source style evidence.</p>
+      <div class="features"><span>drag/drop</span><span>source notes</span><span>case score</span></div>
+      <a class="launch" href="evidence_locker.html">Open demo</a>
+    </article>
+    <article class="card">
+      <div class="icon">📡</div>
+      <h3>Situation Room</h3>
+      <div class="type">Decision sim</div>
+      <p>A crisis simulator where each choice changes risk, support, credibility, and trust. Students see why decisions are hard before the answer key exists.</p>
+      <div class="features"><span>branching</span><span>meters</span><span>final debrief</span></div>
+      <a class="launch" href="situation_room.html">Open demo</a>
+    </article>
+    <article class="card">
+      <div class="icon">📈</div>
+      <h3>Market Shock Arena</h3>
+      <div class="type">Econ game</div>
+      <p>A resource survival game with random shocks, pricing choices, inventory pressure, and a simple profit score.</p>
+      <div class="features"><span>random events</span><span>resources</span><span>survival loop</span></div>
+      <a class="launch" href="market_shock_arena.html">Open demo</a>
+    </article>
+  </section>
+  <div class="footer"><strong>Teacher note:</strong> These are rough playable prototypes, not finished curriculum. The goal is to show mechanics that can be reused inside U.S. History, Econ, Civics, and Law LessonHubs.</div>
+</div>
+</body>
+</html>
