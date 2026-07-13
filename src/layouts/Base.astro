@@ -13,7 +13,13 @@ interface Props {
 const { title, description = 'the desk — home base for us history, hidden history, and beyond the scoreboard.' } = Astro.props;
 const fullTitle = title ? `${title} · the desk` : 'the desk';
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL('/og.png', Astro.site);
+// per-course social cards live in public/; anything unlisted falls back to og.png
+const ogMap: Record<string, string> = {
+  '/us-history/': '/og-us-history.png',
+  '/hidden-history/': '/og-hidden-history.png',
+  '/beyond-the-scoreboard/': '/og-beyond-the-scoreboard.png',
+};
+const ogImage = new URL(ogMap[Astro.url.pathname] ?? '/og.png', Astro.site);
 ---
 
 <!doctype html>

@@ -93,6 +93,53 @@ import Base from '../layouts/Base.astro';
     <p id="picked-log" class="mt-3 font-mono text-xs text-ink-soft lowercase"></p>
   </section>
 
+  <!-- ============ dice roller ============ -->
+  <section class="pop mt-8 rounded-md bg-white p-6">
+    <h2 class="font-display text-2xl font-bold lowercase">dice<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">For simulations, review games, and settling who goes first.</p>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3 font-mono text-sm">
+      <label class="flex items-center gap-2">
+        <input type="number" id="dice-count" value="2" min="1" max="12" class="w-14 border-2 border-line rounded px-2 py-1 outline-none focus:border-accent" />
+        ×
+        <select id="die-type" class="border-2 border-line rounded px-2 py-1 outline-none focus:border-accent bg-white">
+          <option value="4">d4</option>
+          <option value="6" selected>d6</option>
+          <option value="8">d8</option>
+          <option value="10">d10</option>
+          <option value="12">d12</option>
+          <option value="20">d20</option>
+        </select>
+      </label>
+      <button id="roll-dice" class="pop-ink bg-accent text-white lowercase px-5 py-2">roll</button>
+    </div>
+
+    <div id="dice-out" class="mt-4"></div>
+  </section>
+
+  <!-- ============ scoreboard ============ -->
+  <section class="pop mt-8 rounded-md bg-white p-6">
+    <h2 class="font-display text-2xl font-bold lowercase">scoreboard<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">For review games and jeopardy days. Refresh the page to reset — nothing is saved.</p>
+
+    <div id="score-teams" class="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3"></div>
+    <button id="add-team" class="mt-4 font-mono text-sm lowercase border-2 border-ink px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors">+ add team</button>
+  </section>
+
+  <!-- ============ topic spinner ============ -->
+  <section class="pop mt-8 rounded-md bg-white p-6">
+    <h2 class="font-display text-2xl font-bold lowercase">topic spinner<span class="text-accent">.</span></h2>
+    <p class="mt-1 text-sm text-ink-soft">One topic per line. Spin to pick the debate, the era, or the review category.</p>
+
+    <textarea
+      id="topics"
+      rows="4"
+      placeholder="the new deal&#10;the gilded age&#10;the cold war&#10;..."
+      class="mt-4 w-full border-2 border-line focus:border-accent outline-none rounded-md p-3 font-mono text-sm transition-colors"></textarea>
+    <button id="spin-topic" class="mt-3 pop-ink bg-accent text-white font-mono lowercase px-5 py-2">spin</button>
+    <p id="topic-out" class="mt-4 font-display font-bold text-3xl sm:text-4xl lowercase min-h-[1.2em]"></p>
+  </section>
+
   <script>
     // ---------- helpers ----------
     const $ = (id: string) => document.getElementById(id)!;
@@ -254,6 +301,62 @@ import Base from '../layouts/Base.astro';
       alreadyPicked = [];
       $('picked-name').textContent = '';
       paintLog();
+    });
+
+    // ---------- dice roller ----------
+    $('roll-dice').addEventListener('click', () => {
+      const sides = Number(($('die-type') as HTMLSelectElement).value);
+      const count = Math.min(12, Math.max(1, Number(($('dice-count') as HTMLInputElement).value) || 2));
+      const rolls = Array.from({ length: count }, () => 1 + Math.floor(Math.random() * sides));
+      const total = rolls.reduce((a, b) => a + b, 0);
+      $('dice-out').innerHTML =
+        rolls
+          .map((r) => `<span class="inline-block border-2 border-ink rounded-md px-3 py-2 font-mono font-bold text-xl mr-2 mb-2">${r}</span>`)
+          .join('') +
+        (count > 1 ? `<p class="mt-2 font-mono text-sm text-ink-soft">total: ${total}</p>` : '');
+    });
+
+    // ---------- scoreboard ----------
+    const board = $('score-teams');
+    let teamCount = 0;
+    const addTeam = () => {
+      if (teamCount >= 6) return;
+      teamCount++;
+      const div = document.createElement('div');
+      div.className = 'border-2 border-ink rounded-md p-4';
+      div.innerHTML = `
+        <input value="team ${teamCount}" class="w-full font-display font-bold text-lg lowercase outline-none bg-transparent" />
+        <p class="score font-mono font-bold text-5xl tabular-nums mt-1">0</p>
+        <div class="mt-2 flex gap-2">
+          <button class="s-minus font-mono text-sm border-2 border-line px-3 py-1 hover:border-ink transition-colors">−1</button>
+          <button class="s-plus font-mono text-sm bg-accent text-white px-3 py-1">+1</button>
+        </div>`;
+      const score = div.querySelector('.score') as HTMLElement;
+      let n = 0;
+      div.querySelector('.s-plus')!.addEventListener('click', () => (score.textContent = String(++n)));
+      div.querySelector('.s-minus')!.addEventListener('click', () => (score.textContent = String(--n)));
+      board.appendChild(div);
+    };
+    addTeam();
+    addTeam();
+    $('add-team').addEventListener('click', addTeam);
+
+    // ---------- topic spinner ----------
+    $('spin-topic').addEventListener('click', () => {
+      const topics = ($('topics') as HTMLTextAreaElement).value
+        .split('\n')
+        .map((t) => t.trim())
+        .filter(Boolean);
+      const out = $('topic-out');
+      if (topics.length < 2) {
+        out.textContent = 'give me at least two topics.';
+        return;
+      }
+      let ticks = 0;
+      const spin = setInterval(() => {
+        out.textContent = topics[Math.floor(Math.random() * topics.length)];
+        if (++ticks >= 15) clearInterval(spin);
+      }, 80);
     });
   </script>
 </Base>

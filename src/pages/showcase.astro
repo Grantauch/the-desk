@@ -1,0 +1,44 @@
+---
+// showcase.astro — end-of-year gallery for capstone work.
+// House rule: team names and project titles only. No student names, ever.
+// Add entries to the array as projects land.
+import Base from '../layouts/Base.astro';
+
+const projects: { course: string; team: string; title: string; verdict?: string; note: string }[] = [
+  // { course: 'hidden history', team: 'the paper trail', title: 'Case File: the Philadelphia Experiment', verdict: 'debunked', note: 'Ran the claim to ground across three archives.' },
+  // { course: 'beyond the scoreboard', team: 'section 113', title: 'The Malice at the Palace: who wrote the story?', note: 'Compared 40 headlines from the same 48 hours.' },
+];
+---
+
+<Base title="showcase" description="capstone work worth remembering — verdicts earned and stories told.">
+  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+    showcase<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-3 text-lg text-ink-soft lowercase">capstone work worth remembering. team names only — the work speaks.</p>
+
+  {
+    projects.length === 0 ? (
+      <div class="pop mt-10 rounded-md bg-white p-8">
+        <p class="font-mono text-xs lowercase text-accent">status: awaiting evidence</p>
+        <p class="mt-3 leading-relaxed text-ink-soft">
+          The first Case File verdicts land in january; the Michigan capstones present the same week. Until then, this
+          gallery is officially <span class="font-semibold text-ink">unproven</span>. Do the work, earn the wall.
+        </p>
+      </div>
+    ) : (
+      <div class="mt-10 space-y-6">
+        {projects.map((p) => (
+          <article class="pop rounded-md bg-white p-6">
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h2 class="font-display text-xl font-bold lowercase">{p.title}</h2>
+              <span class="text-xs font-mono lowercase text-accent">{p.course}</span>
+              {p.verdict && <span class="text-xs font-mono lowercase bg-accent text-white rounded-full px-2 py-0.5">{p.verdict}</span>}
+            </div>
+            <p class="mt-1 text-xs font-mono lowercase text-ink-soft">team: {p.team}</p>
+            <p class="mt-2 text-sm text-ink-soft leading-relaxed">{p.note}</p>
+          </article>
+        ))}
+      </div>
+    )
+  }
+</Base>

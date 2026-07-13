@@ -7,6 +7,33 @@ import CoursePage from '../components/CoursePage.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 
+// ---- argue this: one bellringer a day ----
+const argueThis = [
+  { tag: 'argue it with receipts', text: 'Was the New Deal a success? Defend your answer with one specific program — not vibes.' },
+  { tag: 'argue it with receipts', text: 'Rank them: which changed daily American life more — the Model T, the television, or the smartphone?' },
+  { tag: 'argue it with receipts', text: 'Reconstruction: abandoned or defeated? There’s a difference, and your answer changes who’s responsible.' },
+  { tag: 'argue it with receipts', text: 'Was dropping the atomic bomb the least-bad option available? Steelman the other side before you answer.' },
+  { tag: 'argue it with receipts', text: 'Who did more for civil rights: the courts, the Congress, or the movement in the streets?' },
+  { tag: 'argue it with receipts', text: 'The 1920s or the 1960s — which decade actually changed America more? Pick one and bring evidence.' },
+  { tag: 'argue it with receipts', text: 'Is the internet age more like the printing press, the radio, or something history has never seen?' },
+  { tag: 'argue it with receipts', text: 'Which president of the last hundred years mattered most — for good or ill? Receipts required.' },
+];
+
+// ---- this day in michigan (m = month, d = day, y = year) ----
+const michiganEvents = [
+  { m: 1, d: 5, y: 1914, text: 'Ford announces the $5 day — roughly double the going wage. Workers mob Highland Park; the middle class gets a prototype.' },
+  { m: 1, d: 26, y: 1837, text: 'Michigan becomes the 26th state, after a bloodless "war" with Ohio over Toledo. We got the Upper Peninsula in the deal. Ohio kept Toledo. History has rendered its verdict.' },
+  { m: 2, d: 11, y: 1937, text: 'The Flint Sit-Down Strike ends: GM recognizes the UAW. Forty-four days of workers occupying the plants — and the American labor movement’s biggest win — happened right up the road.' },
+  { m: 3, d: 6, y: 1896, text: 'Charles King drives the first automobile through Detroit — years before Ford. His riding mechanic that day? A young Henry Ford took notes.' },
+  { m: 5, d: 19, y: 1925, text: 'Malcolm X is born. Raised in Lansing, where his family’s house was burned and his story — and his argument with America — began.' },
+  { m: 6, d: 20, y: 1943, text: 'The Detroit race riot of 1943 begins on Belle Isle — 34 dead, wartime production halted. The home front had fronts of its own.' },
+  { m: 7, d: 23, y: 1967, text: 'A police raid on an after-hours club on 12th Street sparks the Detroit uprising — five days, 43 dead, and a turning point this course studies from the documents outward.' },
+  { m: 8, d: 26, y: 1817, text: 'The University of Michigan is founded — in Detroit, twenty years before Michigan is a state. It moved to Ann Arbor later; the head start stayed.' },
+  { m: 9, d: 16, y: 1908, text: 'General Motors is incorporated in Flint. For most of a century, what GM did next was what Flint — and Mt. Morris — did next.' },
+  { m: 12, d: 1, y: 1913, text: 'Ford switches on the first moving assembly line at Highland Park. Build time for a Model T drops from 12 hours to about 90 minutes, and the modern world gets its tempo.' },
+  { m: 12, d: 30, y: 1936, text: 'Workers in Flint sit down at Fisher Body No. 1 and refuse to leave. The strike that built the UAW starts with people simply staying put.' },
+];
+
 // ---- the daily desk: today in history (m = month, d = day, y = year) ----
 const todayEvents = [
   { m: 1, d: 1, y: 1863, text: 'The Emancipation Proclamation takes effect. It frees no one it can reach and everyone it can’t — yet — but it turns the war into a war about slavery, on paper and forever.' },
@@ -229,6 +256,8 @@ const glossary = [
       <TodayCard label="today in history" events={todayEvents} />
       <DailyCard label="myth, busted" entries={myths} />
       <DailyCard label="exhibit of the day" entries={exhibits} />
+      <TodayCard label="this day in michigan" events={michiganEvents} />
+      <DailyCard label="argue this" entries={argueThis} />
     </div>
   </section>
 </CoursePage>

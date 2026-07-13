@@ -9,6 +9,10 @@ const sims = [
     name: 'the case file',
     course: 'hidden history',
     status: 'semester capstone',
+    links: [
+      { label: 'student organizer pack', href: 'https://docs.google.com/document/d/1fgFs8thNR-9nty8G-v7CK5qv2_kieaMPY8u57eGZi28/edit' },
+      { label: 'station sheets & claim cards', href: 'https://docs.google.com/document/d/1-IBhlpcTMofvfwFthAYZelwl9H4FGULBCL9EQoqfclk/edit' },
+    ],
     blurb:
       'Pick an approved claim, investigate it like a professional, and defend your verdict in front of the class. Confirmed, debunked, misleading, or unproven — the grade is in how you got there, not where you landed.',
     details: [
@@ -53,6 +57,9 @@ const sims = [
     name: 'the michigan capstone',
     course: 'beyond the scoreboard',
     status: 'end of semester',
+    links: [
+      { label: 'organizers, capstone & rubrics', href: 'https://docs.google.com/document/d/1f81B7HS1ZqcnBpaZ2tM7wkDbBs3_s-1tXblK4d9fdfw/edit' },
+    ],
     blurb:
       'A team research project on a sports story from Michigan’s backyard — Joe Louis, Hank Greenberg, the Malice at the Palace, Claressa Shields, or one you pitch yourself. Real sources, real stakes, local ground.',
     details: [
@@ -71,6 +78,9 @@ const sims = [
     name: 'socratic seminars',
     course: 'both classes',
     status: 'every unit',
+    links: [
+      { label: 'seminar prep sheet', href: 'https://docs.google.com/document/d/1jM5TPMrQ1IRuMWYRCthb2qpiAhEiFwYmFNPnyN5lObo/edit' },
+    ],
     blurb:
       'A discussion where the evidence sits in the middle of the room and everyone comes armed with a prep ticket. The quietest well-sourced argument beats the loudest unsourced one.',
     details: [
@@ -121,6 +131,20 @@ const sims = [
                 </ul>
               </details>
             ))}
+          {sim.links && (
+            <div class="mt-4 flex flex-wrap gap-2">
+              {sim.links.map((l) => (
+                <a
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener"
+                  class="font-mono text-xs lowercase border-2 border-ink px-3 py-1.5 hover:bg-accent hover:text-white hover:border-accent transition-colors"
+                >
+                  {l.label} ↗
+                </a>
+              ))}
+            </div>
+          )}
         </article>
       ))
     }

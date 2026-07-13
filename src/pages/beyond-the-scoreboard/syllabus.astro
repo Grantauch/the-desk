@@ -1,0 +1,102 @@
+---
+// beyond-the-scoreboard/syllabus.astro — the course syllabus as a clean, printable page.
+// Content mirrors the official syllabus doc. NOTE: this syllabus and hidden history's
+// use different grading scales — verify both against the 2026-27 handbook.
+import Base from '../../layouts/Base.astro';
+
+const units = [
+  { when: 'weeks 1–3', name: 'Inventing American Sport, 1860s–1900', what: 'Industrial cities build the modern game; the color line is drawn.' },
+  { when: 'weeks 3–6', name: 'The National Stage, 1900–1945', what: 'Jack Johnson, the Black Sox, radio, the Negro Leagues, Jesse Owens in Berlin, Detroit’s Joe Louis and Hank Greenberg.' },
+  { when: 'weeks 6–9', name: 'Integration and the Cold War, 1945–1963', what: 'Jackie Robinson, television, the Olympics as superpower contest.' },
+  { when: 'weeks 9–12', name: 'The Athlete Revolt, 1963–1980', what: 'Ali and Vietnam, Mexico City 1968, Curt Flood, Title IX, Billie Jean King.' },
+  { when: 'weeks 12–15', name: 'The Money Game, 1980–2004', what: 'ESPN, Jordan and global branding, steroids, the college amateurism debate, the Malice at the Palace.' },
+  { when: 'weeks 15–18', name: 'The Modern Arena, 2004–today', what: 'Social media, concussions, NIL, the women’s sports boom, legalized betting, Flint’s Claressa Shields — plus your Michigan capstone.' },
+];
+
+const weights = [
+  { part: 'Unit tests', pct: '30%' },
+  { part: 'Thread charts, logs, and document work', pct: '30%' },
+  { part: 'Michigan capstone project', pct: '20%' },
+  { part: 'Debate and seminar participation', pct: '10%' },
+  { part: 'Final exam', pct: '10%' },
+];
+---
+
+<Base title="beyond the scoreboard — syllabus" description="beyond the scoreboard: sports and american society — course syllabus.">
+  <p class="font-mono text-xs lowercase text-ink-soft">semester elective · grades 10–12 · mr. auch · mt. morris schools · 2026-27</p>
+  <h1 class="mt-2 font-display text-4xl sm:text-5xl font-bold lowercase tracking-tight">
+    beyond the scoreboard<span class="text-accent">.</span> <span class="text-ink-soft">the syllabus</span>
+  </h1>
+
+  <div class="mt-8 max-w-2xl space-y-5 leading-relaxed">
+    <h2 class="font-display text-2xl font-bold lowercase">what this course is</h2>
+    <p>
+      This course uses sports as a lens on American history from the 1860s to today. Every unit follows four threads:
+      business and labor, media and technology, law and government, and the fight over who gets to play. You'll work
+      with real primary sources — newspapers, broadcast footage, court decisions, congressional testimony — and finish
+      with a research project on a sports story from Michigan's own backyard.
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">the map</h2>
+    <ul class="space-y-2">
+      {units.map((u) => (
+        <li class="flex gap-3 items-baseline border-b-2 border-line pb-2">
+          <span class="font-mono text-xs text-accent shrink-0 w-24">{u.when}</span>
+          <div>
+            <span class="font-semibold">{u.name}</span>
+            <span class="text-sm text-ink-soft"> — {u.what}</span>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">the spine question</h2>
+    <p>
+      <strong>Sport: mirror or engine?</strong> After each case we study, the class votes — did sport reflect America
+      here, or push it? The tally runs all semester on the classroom wall, and the final exam essay cashes it in.
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">grading</h2>
+    <p class="text-sm text-ink-soft">
+      Grades are calculated with points, weighted as below. Letter grades follow the student handbook
+      (95–100 A, 90–94 A−, 88–89 B+, 84–87 B, 80–83 B−, 78–79 C+, 74–77 C, 70–73 C−, 68–69 D+, 64–67 D, 60–63 D−, 0–59 E).
+    </p>
+    <ul class="space-y-1">
+      {weights.map((w) => (
+        <li class="flex justify-between border-b-2 border-line pb-1 text-sm">
+          <span>{w.part}</span>
+          <span class="font-mono text-accent">{w.pct}</span>
+        </li>
+      ))}
+    </ul>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">the class rule</h2>
+    <p>
+      Every era gets judged by its own evidence first. We read what people said at the time before we decide what we
+      think now — that's what separates history from hot takes.
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">what to bring</h2>
+    <p>
+      A writing utensil, a folder or binder for handouts and your thread charts, and your assigned device on research
+      days.
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">attendance</h2>
+    <p>
+      This course is built on in-class document work, discussion, and a team capstone that cannot be fully made up at
+      home. Poor attendance usually results in poor grades — follow the attendance policy.
+    </p>
+
+    <p class="pt-4 print:hidden">
+      <a href="/beyond-the-scoreboard/" class="text-accent hover:text-accent-dark underline underline-offset-4">← back to beyond the scoreboard</a>
+    </p>
+  </div>
+
+  <style is:global>
+    @media print {
+      header, footer { display: none !important; }
+      main { padding: 0 !important; }
+    }
+  </style>
+</Base>

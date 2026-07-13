@@ -5,6 +5,18 @@ import CoursePage from '../components/CoursePage.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 
+// ---- argue this: one bellringer a day ----
+const argueThis = [
+  { tag: 'mirror or engine — the tally is watching', text: 'Sport: mirror or engine? Take today’s side using any case we’ve studied. You may not say "both" until you’ve earned it.' },
+  { tag: 'mirror or engine — the tally is watching', text: 'Should college athletes have been paid all along? Argue it from 1950 first, then from today. Notice what changed.' },
+  { tag: 'mirror or engine — the tally is watching', text: 'Ali lost his prime years to a principle. Would today’s leagues — and today’s sponsors — survive an athlete like that?' },
+  { tag: 'mirror or engine — the tally is watching', text: 'Are public subsidies for stadiums ever worth it? Bring numbers if you have them; bring skepticism either way.' },
+  { tag: 'mirror or engine — the tally is watching', text: 'Smith and Carlos, 1968: was the podium the right forum or the wrong one? Now answer for a player kneeling in 2016. Same answer?' },
+  { tag: 'mirror or engine — the tally is watching', text: 'Does legalized betting change what sports ARE, or just who profits from them?' },
+  { tag: 'mirror or engine — the tally is watching', text: 'Title IX: finished business or unfinished? Point to the money before you answer.' },
+  { tag: 'mirror or engine — the tally is watching', text: 'The transfer portal and NIL: player freedom, or the end of college sports as we knew them? Why not both?' },
+];
+
 // ---- this day in sports (m = month, d = day, y = year) ----
 const sportsEvents = [
   { m: 1, d: 15, y: 1967, text: 'Super Bowl I: Packers 35, Chiefs 10. Tickets went for $12, the stadium wasn’t full, and two networks broadcast it at once because nobody knew whose game it was yet.' },
@@ -128,6 +140,7 @@ const units = [
 ];
 
 const resources = [
+  { label: 'Course syllabus', href: '/beyond-the-scoreboard/syllabus/' },
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
   { label: 'Chronicling America — historic newspapers', href: 'https://chroniclingamerica.loc.gov' },
   { label: 'Library of Congress — sports collections', href: 'https://www.loc.gov/collections/' },
@@ -148,6 +161,13 @@ const glossary = [
   { term: 'broadcast rights', def: 'The money engine of modern sports: leagues sell the right to show games, and everything from realignment to start times follows the checks.' },
   { term: 'sanctioning body', def: 'The organization that makes the rules and enforces them — leagues, the NCAA, the IOC. Every era’s fights end up on their desk.' },
   { term: 'mirror or engine', def: 'The course question: does sport reflect American society, or drive it? Every unit adds a tally mark to one side. The final answer is yours.' },
+  { term: 'unwritten rule', def: 'A rule everyone enforces and no one wrote down — like the color line for fifty years. The most powerful rules in sports history never appeared in a rulebook.' },
+  { term: 'parallel institution', def: 'What excluded people build when the front door is locked: the Negro Leagues ran their own teams, owners, and All-Star games — a major league behind the color line.' },
+  { term: 'rights fees', def: 'What networks pay leagues to broadcast games. Follow this number through the decades and you can explain most of what changed about sports without mentioning a single game.' },
+  { term: 'conscientious objector', def: 'Someone who refuses military service on moral or religious grounds — the legal status Ali claimed in 1967, at the cost of his title and nearly his freedom. The Supreme Court eventually agreed, 8–0.' },
+  { term: 'ped', def: 'Performance-enhancing drug. The steroid era’s three-letter shadow — and a debate about records, fairness, and what "natural" even means that the leagues still haven’t settled.' },
+  { term: 'commissioner power', def: 'The authority to act "in the best interests of the game" — invented after the Black Sox scandal, tested by every scandal since. Who guards the game from its guardians?' },
+  { term: 'gatekeeper', def: 'Whoever decides what gets seen and who gets in — sportswriters, networks, leagues. Social media didn’t kill the gatekeepers, but it did give the athletes their own gate.' },
 ];
 ---
 
@@ -162,10 +182,11 @@ const glossary = [
   <section class="mt-12">
     <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
     <p class="mt-2 text-sm text-ink-soft lowercase">new every day. settle it at the whiteboard, not in the comments.</p>
-    <div class="mt-6 grid gap-6 md:grid-cols-3">
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
       <TodayCard label="this day in sports" events={sportsEvents} />
       <DailyCard label="the stat that tells a story" entries={stats} />
       <DailyCard label="the rulebook remembers" entries={rules} />
+      <DailyCard label="argue this" entries={argueThis} />
     </div>
   </section>
 </CoursePage>

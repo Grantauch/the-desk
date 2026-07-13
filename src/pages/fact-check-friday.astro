@@ -1,0 +1,52 @@
+---
+// fact-check-friday.astro — a semester of weekly claims for hidden history.
+// One claim goes up each friday; students bring verdicts monday.
+// Edit the `claims` array — `notes` stays hidden behind a dropdown until class has argued it.
+import Base from '../layouts/Base.astro';
+
+const claims = [
+  { week: 1, claim: 'The average person swallows eight spiders a year in their sleep.', notes: 'Debunked — and beautifully: the "fact" is often traced to a piece written about how easily fake facts spread. The perfect week-one claim.' },
+  { week: 2, claim: 'The Great Wall of China is visible from space with the naked eye.', notes: 'Debunked — astronauts, including Chinese astronaut Yang Liwei, report it is not. Cities at night, however, are.' },
+  { week: 3, claim: 'A penny dropped from the Empire State Building could kill a pedestrian.', notes: 'Debunked — terminal velocity of a penny is too low. Physics does the fact-checking here.' },
+  { week: 4, claim: 'The CIA once spent millions training a cat to eavesdrop on the Soviets.', notes: 'Confirmed — Acoustic Kitty, declassified 2001. The lesson: absurd does not mean false. Verify, then laugh.' },
+  { week: 5, claim: 'Humans only use 10% of their brains.', notes: 'Debunked — imaging shows nearly all of the brain is active over a day. A myth with a century of staying power.' },
+  { week: 6, claim: 'Napoleon was unusually short.', notes: 'Misleading — he was average height for his era; the confusion mixes French and English units, plus British propaganda did the rest.' },
+  { week: 7, claim: 'The US government seriously proposed nuking the Moon.', notes: 'Confirmed — Project A119, a Cold War-era study. Documented by physicists who worked on it.' },
+  { week: 8, claim: 'Goldfish have a three-second memory.', notes: 'Debunked — they can be trained and remember for months. Sorry to everyone who used this excuse.' },
+  { week: 9, claim: 'Einstein failed math class.', notes: 'Debunked — he mastered calculus by his early teens and said so himself when shown the claim. Check the primary source: his transcript.' },
+  { week: 10, claim: 'Sugar makes kids hyperactive.', notes: 'Debunked — double-blind studies find no effect; parents rate kids as hyper when TOLD they had sugar. A lesson in expectation bias.' },
+  { week: 11, claim: 'The FBI kept a file on Albert Einstein.', notes: 'Confirmed — over 1,400 pages, released under FOIA. He was watched for his political views for decades.' },
+  { week: 12, claim: 'Medieval people believed the Earth was flat.', notes: 'Debunked — scholars knew it was round since antiquity. The myth was largely invented by 19th-century writers.' },
+  { week: 13, claim: 'Lemmings follow each other off cliffs.', notes: 'Debunked — the famous 1958 documentary footage was staged; the crew drove them. The camera can be the conspiracy.' },
+  { week: 14, claim: 'The Pentagon has acknowledged videos of objects it cannot identify.', notes: 'Confirmed — but watch the leap: unidentified means unidentified. Where the claim goes next is where the grading starts.' },
+  { week: 15, claim: 'You can see the exact moment the Berlin Wall "fell" — one official announcement did it.', notes: 'Confirmed, roughly — a botched press conference answer ("immediately, without delay") opened the gates that night. Accidents make history too.' },
+  { week: 16, claim: 'Water drains the opposite direction in the southern hemisphere.', notes: 'Misleading — the Coriolis effect is real at hurricane scale, negligible in your sink. True physics, false application.' },
+  { week: 17, claim: 'A Michigan town once elected a dog as mayor.', notes: 'Verdict for the class to run down — several US towns have had honorary animal mayors (Rabbit Hash, Kentucky, famously). Michigan? Investigate. Sources or it didn’t happen.' },
+  { week: 18, claim: 'This class made you harder to fool.', notes: 'Unproven — until you cash in your day-one exit ticket this week. Let’s check the evidence.' },
+];
+---
+
+<Base title="fact-check friday" description="one claim a week. bring your verdict monday. sources or it didn't happen.">
+  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+    fact-check friday<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-3 text-lg text-ink-soft lowercase">one claim goes up each friday. bring your verdict monday — with sources.</p>
+  <p class="mt-2 text-sm font-mono lowercase text-ink-soft">verdict options: confirmed · debunked · misleading · unproven. the notes stay shut until we've argued it.</p>
+
+  <ul class="mt-10 space-y-4">
+    {
+      claims.map((c) => (
+        <li class="pop rounded-md bg-white p-5">
+          <div class="flex gap-3 items-baseline">
+            <span class="font-mono text-xs text-accent shrink-0">week {String(c.week).padStart(2, '0')}</span>
+            <p class="font-semibold">"{c.claim}"</p>
+          </div>
+          <details class="mt-2">
+            <summary class="cursor-pointer font-mono text-xs lowercase text-ink-soft hover:text-accent select-none">after we've argued it +</summary>
+            <p class="mt-2 text-sm text-ink-soft leading-relaxed">{c.notes}</p>
+          </details>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
