@@ -9,6 +9,7 @@ interface Unit {
   blurb: string;
   current?: boolean;
   topics?: string[]; // optional: shows a "what's inside" dropdown on the unit
+  materials?: { label: string; href: string }[]; // optional: slides, packets, handouts for this unit
 }
 
 interface Resource {
@@ -83,6 +84,22 @@ const currentUnit = units.find((u) => u.current);
                   ))}
                 </ul>
               </details>
+            )}
+            {unit.materials && unit.materials.length > 0 && (
+              <ul class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                {unit.materials.map((m) => (
+                  <li>
+                    <a
+                      href={m.href}
+                      target="_blank"
+                      rel="noopener"
+                      class="text-xs font-mono lowercase text-accent hover:text-accent-dark underline underline-offset-4"
+                    >
+                      {m.label} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </li>

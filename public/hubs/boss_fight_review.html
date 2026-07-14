@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Boss Fight Review — LessonHub Lab</title>
+<style>
+:root{--ink:#f6f7fb;--muted:#a9b0c4;--cyan:#61f5ff;--pink:#ff4fd8;--gold:#ffd166;--green:#7cf29a;--red:#ff5c7a;--line:rgba(255,255,255,.13)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 20% 10%,rgba(255,92,122,.15),transparent 30%),linear-gradient(135deg,#05070d,#1a1020 55%,#07090f);color:var(--ink);min-height:100vh}
+.wrap{width:min(880px,93vw);margin:0 auto;padding:34px 0 60px}
+.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border-radius:22px;padding:24px;margin-top:18px}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:800}
+h1{font-size:clamp(34px,5vw,54px);margin:10px 0;letter-spacing:-.04em}
+.sub{color:var(--muted);line-height:1.55;margin:0}
+.hpbox{margin-top:14px}
+.hplabel{display:flex;justify-content:space-between;font-size:13px;font-weight:800;letter-spacing:.06em}
+.hpbar{height:14px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;margin-top:5px;border:1px solid var(--line)}
+.hpbar i{display:block;height:100%;transition:width .35s}
+.boss i{background:linear-gradient(90deg,var(--red),var(--pink))}
+.you i{background:linear-gradient(90deg,var(--cyan),var(--green))}
+.bossname{font-size:24px;font-weight:900;margin-top:6px}
+.combo{color:var(--gold);font-family:ui-monospace,monospace;font-weight:800}
+.q{border:1px solid var(--line);border-radius:16px;padding:16px;background:rgba(0,0,0,.25);font-size:17px;line-height:1.5;margin-top:16px}
+.opt{display:block;width:100%;text-align:left;margin-top:9px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;font-size:15px}
+.opt:hover{border-color:var(--red)}
+.opt.correct{border-color:var(--green);background:rgba(124,242,154,.12)}
+.opt.wrong{border-color:var(--red);background:rgba(255,92,122,.12)}
+.note{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;border:1px solid var(--line);display:none}
+.note.show{display:block}
+.end{display:none;text-align:center;padding:24px}
+.end h2{font-size:32px;margin:0 0 10px}
+.weak{list-style:none;padding:0;margin:14px 0 0;text-align:left}
+.weak li{padding:8px 12px;border-left:3px solid var(--gold);margin-top:8px;background:rgba(255,255,255,.04);font-size:14px;line-height:1.45}
+.btn{display:inline-block;font-weight:800;padding:12px 18px;border-radius:13px;border:1px solid var(--line);color:#071018;background:var(--cyan);cursor:pointer;font-size:15px;margin-top:14px}
+.flash{animation:hit .3s}
+@keyframes hit{0%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}100%{transform:translateX(0)}}
+a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="eyebrow">LessonHub Lab · ReviewRoom mechanic</div>
+    <h1>⚔️ Boss Fight Review</h1>
+    <p class="sub">Three concept bosses stand between you and the end screen. Correct answers build combo damage. Wrong answers drain your confidence — and get logged in the weakness report. No saves, no mercy, unlimited retries.</p>
+  </div>
+
+  <div class="card" id="arena">
+    <div class="bossname" id="bossName"></div>
+    <div class="hpbox boss"><div class="hplabel"><span>BOSS HP</span><span id="bossHpTxt"></span></div><div class="hpbar boss"><i id="bossHp" style="width:100%"></i></div></div>
+    <div class="hpbox you"><div class="hplabel"><span>YOUR CONFIDENCE</span><span id="youHpTxt">100</span></div><div class="hpbar you"><i id="youHp" style="width:100%"></i></div></div>
+    <p class="sub" style="margin-top:10px">Combo: <span class="combo" id="combo">×1</span></p>
+    <div class="q" id="qText"></div>
+    <div id="opts"></div>
+    <div class="note" id="note"></div>
+  </div>
+
+  <div class="card end" id="endCard">
+    <h2 id="endTitle"></h2>
+    <p class="sub" id="endText"></p>
+    <ul class="weak" id="weakList"></ul>
+    <button class="btn" onclick="location.reload()">Fight again</button>
+  </div>
+</div>
+
+<script>
+const bosses=[
+ {name:"👑 THE GILDED TYCOON",hp:100,topic:"Gilded Age & economics",qs:[
+  {q:"The Tycoon sneers: 'My railroad empire is a natural monopoly — competition would be wasteful!' What's the real concern with monopoly power?",o:["Monopolies always lower prices","With no competition, one seller can raise prices and stop improving","Monopolies are illegal in all forms","There is no concern"],a:1,w:"No competitor means no pressure on price or quality — the core case for antitrust law."},
+  {q:"He offers you a job paying in 'company scrip' good only at the company store. This shows…",o:["Generous benefits","How employers could control workers beyond wages","An early form of cryptocurrency","Government regulation at work"],a:1,w:"Company towns and scrip locked workers into dependence — a labor-power story, not a wage story."},
+  {q:"'Supply and demand, child!' he bellows. If demand for steel rises while supply stays flat, price will…",o:["Fall","Rise","Stay the same","Become zero"],a:1,w:"More buyers chasing the same amount of steel bids the price up. He's right about this one — that's why he's rich."},
+  {q:"His workers strike for an 8-hour day. Historically, strikes in this era were usually…",o:["Instantly successful","Met with force — private guards, courts, sometimes federal troops","Illegal to report on","Resolved by player unions"],a:1,w:"Homestead, Pullman — the state usually sided with capital. Labor's wins came slowly and expensively."}]},
+ {name:"🕵️ THE CENSOR",hp:100,topic:"evidence & source-checking",qs:[
+  {q:"The Censor slides you a document: no date, no author, no letterhead. Your first move?",o:["Trust it — it looks official","Ask where it came from before believing a word","Share it immediately","Burn it"],a:1,w:"Provenance first. A document without an origin is a claim without a witness."},
+  {q:"He shows a real photo — but from a different event than the caption claims. This trick is…",o:["Old photo, new caption","Deepfake technology","Legal citation","Corroboration"],a:0,w:"The most common trick on any feed. Counter: reverse image search, ten seconds."},
+  {q:"'Two sources say it,' he admits, 'but one copied the other.' Real corroboration requires…",o:["Any two sources","Two INDEPENDENT sources","A government stamp","A viral post"],a:1,w:"If source B copied source A, you have one source wearing two hats."},
+  {q:"The Censor's last stand: 'You can't prove it DIDN'T happen!' You answer…",o:["Fair point, I believe you","The burden of proof is on the claim-maker","Flip a coin","Agree to disagree"],a:1,w:"'Prove it didn't happen' inverts the burden of proof. Claims owe evidence; silence owes nothing."}]},
+ {name:"🏟️ COACH MONEYBAGS",hp:100,topic:"sports & society",qs:[
+  {q:"Coach Moneybags insists 'amateurism keeps college sports pure.' Who historically made money under amateurism?",o:["Everyone equally","Everyone except the athletes","Only the athletes","Nobody"],a:1,w:"Coaches, networks, schools, sponsors — the only unpaid people in the building were wearing the jerseys. NIL (2021) cracked that wall."},
+  {q:"He claims TV 'just shows the games.' Historically, television money actually…",o:["Changed almost nothing","Reshaped schedules, leagues, and who got rich","Made sports less popular","Was refused by the leagues"],a:1,w:"Follow the rights fees and you can explain realignment, prime-time kickoffs, and most of modern sports without mentioning a game."},
+  {q:"'Politics has no place in sports!' Which fact ruins his argument?",o:["Sports have never had political moments","From Jesse Owens in Berlin to Ali to Title IX, the arena has always been political ground","Athletes are legally banned from speaking","The Olympics outlaw nations"],a:1,w:"The 'stick to sports' era never actually existed — that's half the syllabus."},
+  {q:"Final blow: Title IX rebuilt American sports using how many words?",o:["37","3,700","A 900-page rulebook","Zero — it was a court case"],a:0,w:"Thirty-seven words that never mention sports. Girls' participation grew roughly tenfold in a decade."}]}
+];
+let bi=0,qi=0,youHp=100,combo=1,lock=false;
+const missed=[];
+function startBoss(){const b=bosses[bi];b.cur=b.hp;document.getElementById('bossName').textContent=b.name;updateBars();qi=0;renderQ();}
+function updateBars(){const b=bosses[bi];
+ document.getElementById('bossHp').style.width=Math.max(0,b.cur)+'%';document.getElementById('bossHpTxt').textContent=Math.max(0,b.cur);
+ document.getElementById('youHp').style.width=Math.max(0,youHp)+'%';document.getElementById('youHpTxt').textContent=Math.max(0,youHp);
+ document.getElementById('combo').textContent='×'+combo;}
+function renderQ(){const b=bosses[bi];const k=b.qs[qi];document.getElementById('note').className='note';
+ document.getElementById('qText').textContent=k.q;
+ document.getElementById('opts').innerHTML=k.o.map((o,i)=>'<button class="opt" onclick="answer('+i+',this)">'+o+'</button>').join('');lock=false;}
+function answer(i,el){if(lock)return;lock=true;const b=bosses[bi];const k=b.qs[qi];
+ document.querySelectorAll('.opt')[k.a].classList.add('correct');
+ const note=document.getElementById('note');
+ if(i===k.a){const dmg=25*combo;b.cur-=dmg;combo=Math.min(combo+1,4);
+   note.className='note show';note.style.borderColor='rgba(124,242,154,.5)';note.innerHTML='<strong>HIT for '+dmg+'!</strong> '+k.w;}
+ else{el.classList.add('wrong');youHp-=20;combo=1;missed.push(b.topic+' — '+k.w);
+   note.className='note show';note.style.borderColor='rgba(255,92,122,.5)';note.innerHTML='<strong>COUNTERATTACK! −20 confidence.</strong> '+k.w;
+   document.getElementById('arena').classList.add('flash');setTimeout(()=>document.getElementById('arena').classList.remove('flash'),350);}
+ updateBars();
+ setTimeout(()=>{ if(youHp<=0)return endGame(false);
+   if(b.cur<=0){bi++; if(bi>=bosses.length)return endGame(true); startBoss(); return;}
+   qi++; if(qi>=b.qs.length){qi=0;} renderQ(); }, i===k.a?1500:2600);}
+function endGame(won){document.getElementById('arena').style.display='none';const e=document.getElementById('endCard');e.style.display='block';
+ document.getElementById('endTitle').textContent=won?'🏆 ALL BOSSES DEFEATED':'💀 CONFIDENCE DEPLETED';
+ document.getElementById('endText').textContent=won?(missed.length?'Victory — but the weakness report below shows where they landed hits. Study those, then speedrun it.':'A flawless run. The bosses have filed a complaint.'):'The bosses win this round. Read the weakness report, then hit Fight Again — confidence regenerates instantly in this classroom.';
+ document.getElementById('weakList').innerHTML=missed.length?'<li><strong>WEAKNESS REPORT</strong></li>'+missed.map(m=>'<li>'+m+'</li>').join(''):'';}
+startBoss();
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Situation Room — LessonHub Lab</title>
+<style>
+:root{--ink:#f6f7fb;--muted:#a9b0c4;--cyan:#61f5ff;--pink:#ff4fd8;--gold:#ffd166;--green:#7cf29a;--red:#ff5c7a;--line:rgba(255,255,255,.13)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 15% 12%,rgba(255,79,216,.13),transparent 30%),linear-gradient(135deg,#05070d,#141021 55%,#07090f);color:var(--ink);min-height:100vh}
+.wrap{width:min(900px,93vw);margin:0 auto;padding:34px 0 60px}
+.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border-radius:22px;padding:24px;margin-top:18px}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);font-weight:800}
+h1{font-size:clamp(34px,5vw,54px);margin:10px 0;letter-spacing:-.04em}
+.sub{color:var(--muted);line-height:1.55;margin:0}
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.m{border:1px solid var(--line);border-radius:14px;padding:10px}
+.m .lab{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+.m .val{font-family:ui-monospace,monospace;font-weight:800;font-size:18px}
+.mbar{height:8px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;margin-top:6px}
+.mbar i{display:block;height:100%;transition:width .5s}
+#warBar i{background:linear-gradient(90deg,var(--gold),var(--red))}
+#supBar i{background:linear-gradient(90deg,var(--red),var(--green))}
+#credBar i{background:linear-gradient(90deg,var(--red),var(--cyan))}
+#allyBar i{background:linear-gradient(90deg,var(--red),var(--pink))}
+.day{font-family:ui-monospace,monospace;color:var(--gold);font-weight:800;font-size:13px;letter-spacing:.1em}
+.scene{border:1px solid var(--line);border-radius:16px;padding:18px;background:rgba(0,0,0,.28);font-size:16px;line-height:1.6;margin-top:14px}
+.opt{display:block;width:100%;text-align:left;margin-top:10px;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;font-size:15px;line-height:1.45}
+.opt:hover{border-color:var(--pink)}
+.note{margin-top:12px;border-radius:12px;padding:13px 15px;font-size:14px;line-height:1.55;border:1px solid rgba(97,245,255,.35);background:rgba(97,245,255,.06);display:none}
+.note.show{display:block}
+.hist{color:var(--gold);font-weight:700}
+.btn{display:inline-block;font-weight:800;padding:12px 18px;border-radius:13px;border:1px solid var(--line);color:#071018;background:var(--pink);cursor:pointer;font-size:15px;margin-top:14px}
+.end{display:none;text-align:center;padding:20px}
+.end h2{font-size:30px;margin:0 0 10px}
+a{color:var(--cyan)}
+@media(max-width:640px){.meters{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="eyebrow">LessonHub Lab · Decision sim</div>
+    <h1>📡 Situation Room</h1>
+    <p class="sub">October 1962. U-2 photos show Soviet missile sites under construction in Cuba. You are the President. Every choice moves four meters — and if WAR RISK hits 100, nobody wins. After each decision you'll see what was actually chosen in 1962. This is a prototype: one crisis, thirteen days, no saves.</p>
+  </div>
+
+  <div class="card" id="game">
+    <div class="meters">
+      <div class="m"><div class="lab">WAR RISK</div><div class="val" id="warV">35</div><div class="mbar" id="warBar"><i style="width:35%"></i></div></div>
+      <div class="m"><div class="lab">PUBLIC SUPPORT</div><div class="val" id="supV">60</div><div class="mbar" id="supBar"><i style="width:60%"></i></div></div>
+      <div class="m"><div class="lab">CREDIBILITY</div><div class="val" id="credV">60</div><div class="mbar" id="credBar"><i style="width:60%"></i></div></div>
+      <div class="m"><div class="lab">ALLIANCE TRUST</div><div class="val" id="allyV">60</div><div class="mbar" id="allyBar"><i style="width:60%"></i></div></div>
+    </div>
+    <div class="day" id="dayLab" style="margin-top:16px"></div>
+    <div class="scene" id="scene"></div>
+    <div id="opts"></div>
+    <div class="note" id="note"></div>
+  </div>
+
+  <div class="card end" id="endCard">
+    <h2 id="endTitle"></h2>
+    <p class="sub" id="endText"></p>
+    <button class="btn" onclick="location.reload()">Rewind to Day 1</button>
+  </div>
+</div>
+
+<script>
+let war=35,sup=60,cred=60,ally=60,step=0,lock=false;
+const steps=[
+ {day:"DAY 1 — THE PHOTOS",s:"The U-2 photographs are on the table. Only a handful of advisers know. The missiles will be operational within weeks. Your first call:",
+  o:[{t:"Keep it secret while you weigh options with a small team (ExComm)",fx:[0,0,5,0],n:"Secrecy buys thinking time. No leaks, no panic, no forced hand.",h:true,hn:"Kennedy convened ExComm in secret and took six days before telling the public."},
+     {t:"Announce it to the nation immediately",fx:[10,5,0,-5],n:"The country rallies — but you've boxed yourself in before you have a plan.",h:false},
+     {t:"Order an immediate airstrike on the sites",fx:[30,0,-10,-15],n:"The Joint Chiefs approve. Moscow's response is now out of your hands.",h:false}]},
+ {day:"DAY 3 — THE OPTIONS",s:"ExComm has narrowed it to three. The generals want the strike. The doves want a quiet deal. The middle path is a naval 'quarantine' — a blockade by a softer name, since a blockade is legally an act of war.",
+  o:[{t:"Quarantine: ring Cuba with ships, stop Soviet vessels, buy time",fx:[5,10,5,5],n:"Firm but reversible — it forces Khrushchev to make the next move.",h:true,hn:"The quarantine was the historical choice — strong enough to act, soft enough to step back from."},
+     {t:"Full invasion of Cuba",fx:[35,5,-5,-20],n:"What you don't know: Soviet forces in Cuba have tactical nuclear weapons and authority to use them against a landing.",h:false},
+     {t:"Do nothing; missiles in Cuba change little strategically",fx:[-5,-25,-25,-10],n:"Strategically arguable, politically fatal. Allies wonder what else you'll accept.",h:false}]},
+ {day:"DAY 7 — THE LINE AT SEA",s:"Soviet freighters are approaching the quarantine line, submarines alongside. The world is watching the ocean. A ship reaches the line and slows…",
+  o:[{t:"Let the tanker (no weapons aboard) pass; board only suspicious ships",fx:[-5,5,5,5],n:"Restraint at the line. You enforce the rule without firing the first shot.",h:true,hn:"Kennedy let the tanker Bucharest pass — proof the quarantine was about missiles, not humiliation."},
+     {t:"Fire warning shots across the bow",fx:[20,0,0,-5],n:"A shot at sea can become a war by accident — exactly what both capitals fear.",h:false},
+     {t:"Board every ship, force confrontation",fx:[15,5,-5,-5],n:"Each boarding is a coin flip with a submarine watching.",h:false}]},
+ {day:"DAY 11 — TWO LETTERS",s:"Khrushchev sends a private, emotional letter offering to remove the missiles for a US pledge not to invade Cuba. Hours later, a second, harder letter arrives publicly demanding you also pull US missiles from Turkey.",
+  o:[{t:"Answer the FIRST letter; quietly handle Turkey on the side",fx:[-15,5,10,0],n:"You give Khrushchev a door he can walk through and claim a win.",h:true,hn:"The famous 'Trollope ploy' — answer the friendlier offer, ignore the harder one. Plus a secret promise on Turkey."},
+     {t:"Publicly reject both letters",fx:[20,5,-5,-5],n:"Strength on camera, but you've left Khrushchev no exit — cornered leaders do desperate things.",h:false},
+     {t:"Publicly trade Turkey missiles on TV",fx:[-10,-15,-15,-25],n:"NATO allies erupt: their defense just became a bargaining chip on live television.",h:false}]},
+ {day:"DAY 12 — THE SHOOTDOWN",s:"A U-2 is shot down over Cuba; the pilot, Major Anderson, is killed. The Joint Chiefs call it an act of war and demand retaliation by morning. Your standing order says a shootdown triggers a strike.",
+  o:[{t:"Hold the retaliation; assume Khrushchev didn't order it personally",fx:[-10,-5,5,5],n:"You bet the shootdown was a local commander's decision, not Moscow's escalation. You bet right.",h:true,hn:"Kennedy suspected exactly that — and he was correct; a Soviet general on the island had fired without Moscow's approval."},
+     {t:"Follow the standing order: strike the SAM site at dawn",fx:[30,5,0,-5],n:"Proportional on paper. But strikes invite counterstrikes, and there are nuclear warheads on that island.",h:false},
+     {t:"Launch the full invasion plan",fx:[40,0,-10,-15],n:"The plan the Chiefs wanted all along — against an island holding weapons your planners haven't confirmed.",h:false}]},
+ {day:"DAY 13 — THE ANSWER",s:"Radio Moscow announces Khrushchev will dismantle the missiles. Your final act sets the tone for everything after:",
+  o:[{t:"No gloating — order aides to claim no victory, and open a direct hotline to Moscow",fx:[-15,10,10,10],n:"You leave your rival his dignity and build the machinery that keeps the next crisis smaller.",h:true,hn:"Kennedy banned victory talk; the Moscow–Washington hotline and the Limited Test Ban Treaty followed within a year."},
+     {t:"Declare total victory on national television",fx:[5,15,-5,-5],n:"The crowd loves it. Hardliners in Moscow file it away — humiliation compounds like interest.",h:false},
+     {t:"Demand Castro's removal as a condition",fx:[20,0,-10,-10],n:"Reopening the deal at the finish line risks the whole thing collapsing.",h:false}]}
+];
+function clamp(v){return Math.max(0,Math.min(100,v));}
+function paint(){document.getElementById('warV').textContent=war;document.querySelector('#warBar i').style.width=war+'%';
+ document.getElementById('supV').textContent=sup;document.querySelector('#supBar i').style.width=sup+'%';
+ document.getElementById('credV').textContent=cred;document.querySelector('#credBar i').style.width=cred+'%';
+ document.getElementById('allyV').textContent=ally;document.querySelector('#allyBar i').style.width=ally+'%';}
+function render(){const k=steps[step];document.getElementById('dayLab').textContent=k.day;document.getElementById('scene').textContent=k.s;
+ document.getElementById('note').className='note';
+ document.getElementById('opts').innerHTML=k.o.map((o,i)=>'<button class="opt" onclick="choose('+i+')">'+o.t+'</button>').join('');lock=false;}
+function choose(i){if(lock)return;lock=true;const o=steps[step].o[i];
+ war=clamp(war+o.fx[0]);sup=clamp(sup+o.fx[1]);cred=clamp(cred+o.fx[2]);ally=clamp(ally+o.fx[3]);paint();
+ const n=document.getElementById('note');n.className='note show';
+ n.innerHTML=o.n+' <br><span class="hist">HISTORY: '+(o.h?'This is what actually happened. ':'')+(o.hn||steps[step].o.find(x=>x.h).hn)+'</span>';
+ document.getElementById('opts').innerHTML='<button class="btn" onclick="next()">'+(step<steps.length-1?'Continue →':'See the debrief →')+'</button>';
+ if(war>=100){endGame(true);}}
+function next(){step++;if(step>=steps.length){endGame(false);}else{render();}}
+function endGame(nuclear){document.getElementById('game').style.display='none';const e=document.getElementById('endCard');e.style.display='block';
+ const t=document.getElementById('endTitle'),x=document.getElementById('endText');
+ if(nuclear){t.textContent='☢️ THE UNTHINKABLE';x.textContent='War risk hit 100. There is no scoreboard for this outcome — which is the entire lesson of October 1962. Rewind and find the exits you missed.';return;}
+ const score=Math.round((100-war)*.4+sup*.2+cred*.2+ally*.2);
+ if(score>=75){t.textContent='🕊️ THIRTEEN DAYS, WELL PLAYED';x.textContent='Debrief score: '+score+'/100. War risk '+war+', support '+sup+', credibility '+cred+', alliance trust '+ally+'. You threaded it: firm enough to move Moscow, restrained enough to leave every door open. Compare your path to Kennedy\'s — the HISTORY notes show where you matched him.';}
+ else if(score>=55){t.textContent='😮‍💨 CRISIS SURVIVED';x.textContent='Debrief score: '+score+'/100. The missiles are gone, but the meters show the bruises. Where did you trade credibility for applause, or allies for headlines? Run it again with different bets.';}
+ else{t.textContent='🌍 PEACE, BARELY';x.textContent='Debrief score: '+score+'/100. You avoided war more by luck than design — cornered rivals, rattled allies, a public that stopped believing you. The point of the sim: decisions look easy only after someone else made them.';}}
+paint();render();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hidden History — Unit 1 LessonHub: Case File Roswell</title>
+<style>
+:root{--bg:#07090f;--panel:#111827;--ink:#f6f7fb;--muted:#a9b0c4;--cyan:#61f5ff;--pink:#ff4fd8;--gold:#ffd166;--green:#7cf29a;--red:#ff5c7a;--line:rgba(255,255,255,.13)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 15% 10%,rgba(97,245,255,.16),transparent 30%),radial-gradient(circle at 88% 18%,rgba(255,79,216,.14),transparent 32%),linear-gradient(135deg,#05070d,#121729 55%,#07090f);color:var(--ink);min-height:100vh}
+.wrap{width:min(1050px,93vw);margin:0 auto;padding:38px 0 60px}
+.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border-radius:22px;padding:26px;margin-top:22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+h1{font-size:clamp(36px,5.5vw,62px);line-height:.95;margin:12px 0 12px;letter-spacing:-.04em}
+h2{margin:0 0 6px;font-size:26px}
+p.lead{color:var(--muted);font-size:17px;line-height:1.6;max-width:720px;margin:0}
+.btnrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.btn{display:inline-block;text-decoration:none;font-weight:800;padding:12px 18px;border-radius:13px;border:1px solid var(--line);color:var(--ink);background:rgba(255,255,255,.06)}
+.btn.primary{background:var(--cyan);color:#071018;box-shadow:0 0 26px rgba(97,245,255,.25)}
+.btn:hover{filter:brightness(1.12)}
+.sub{color:var(--muted);margin:4px 0 16px;line-height:1.5}
+.claim{border:1px solid var(--line);border-radius:16px;padding:18px;background:rgba(0,0,0,.22);font-size:17px;line-height:1.5;min-height:84px}
+.verdicts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.verdicts button{cursor:pointer;border-radius:12px;border:1px solid var(--line);padding:12px 6px;font-weight:800;font-size:14px;background:rgba(255,255,255,.06);color:var(--ink)}
+.verdicts button:hover{border-color:var(--cyan)}
+.v-confirmed{color:var(--green)}.v-debunked{color:var(--red)}.v-misleading{color:var(--gold)}.v-unproven{color:var(--cyan)}
+.feedback{margin-top:14px;border-radius:12px;padding:13px 15px;font-size:15px;line-height:1.5;display:none;border:1px solid var(--line)}
+.feedback.good{display:block;background:rgba(124,242,154,.1);border-color:rgba(124,242,154,.4)}
+.feedback.bad{display:block;background:rgba(255,92,122,.1);border-color:rgba(255,92,122,.4)}
+.score{font-family:ui-monospace,monospace;color:var(--gold);font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+.flash{perspective:800px;cursor:pointer;height:150px}
+.flash .inner{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flash.flipped .inner{transform:rotateY(180deg)}
+.flash .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:14px;text-align:center}
+.flash .front{background:rgba(97,245,255,.08);font-weight:800;font-size:17px}
+.flash .back{background:rgba(255,255,255,.06);transform:rotateY(180deg);font-size:13px;line-height:1.45;color:var(--muted)}
+.qopt{display:block;width:100%;text-align:left;margin-top:9px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;font-size:15px}
+.qopt:hover{border-color:var(--cyan)}
+.qopt.correct{border-color:var(--green);background:rgba(124,242,154,.12)}
+.qopt.wrong{border-color:var(--red);background:rgba(255,92,122,.12)}
+.end{display:none;text-align:center;padding:26px}
+.end h3{font-size:30px;margin:0 0 8px}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:16px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--pink));width:0%;transition:width .4s}
+.footer{margin-top:26px;color:var(--muted);font-size:13px;line-height:1.5;border-top:1px dashed var(--line);padding-top:16px}
+a{color:var(--cyan)}
+@media(max-width:640px){.verdicts{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="card">
+    <div class="eyebrow">Hidden History · Unit 1 LessonHub</div>
+    <h1>Case File: Roswell.</h1>
+    <p class="lead">The official story vs. the rumor. Work the file: watch the briefing, learn the vocabulary, then earn your verdicts. Nothing here is saved or sent anywhere — the only record of your score is your reputation.</p>
+    <div class="btnrow">
+      <a class="btn primary" href="https://docs.google.com/presentation/d/1YGoXAv5J56enjTtYT_lNlT3kJ3y68nAeXRbClPizARg/present" target="_blank" rel="noopener">▶ Open the Unit 1 slides</a>
+      <a class="btn" href="jeopardy-hidden-history-unit1.html" target="_blank" rel="noopener">Unit 1 Jeopardy board</a>
+      <a class="btn" href="https://grant-desk.com/fact-check-friday/">Fact-check Friday</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1 · The Verdict Machine</h2>
+    <p class="sub">Every claim in this class earns one of four verdicts. Read the claim, deliver the verdict. Score: <span class="score" id="vScore">0</span> / <span class="score" id="vTotal">0</span></p>
+    <div class="claim" id="vClaim">Loading case files…</div>
+    <div class="verdicts">
+      <button class="v-confirmed" onclick="judge('confirmed')">CONFIRMED</button>
+      <button class="v-debunked" onclick="judge('debunked')">DEBUNKED</button>
+      <button class="v-misleading" onclick="judge('misleading')">MISLEADING</button>
+      <button class="v-unproven" onclick="judge('unproven')">UNPROVEN</button>
+    </div>
+    <div class="feedback" id="vFeed"></div>
+  </section>
+
+  <section class="card">
+    <h2>2 · Word Wall</h2>
+    <p class="sub">Click a card to flip it. If you can define it before flipping, it's yours.</p>
+    <div class="cards" id="flashcards"></div>
+  </section>
+
+  <section class="card" id="quizCard">
+    <h2>3 · The Clearance Exam</h2>
+    <p class="sub">Eight questions between you and your investigator badge.</p>
+    <div id="quizBody">
+      <div class="claim" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="bar"><i id="qBar"></i></div>
+    </div>
+    <div class="end" id="quizEnd">
+      <h3 id="endTitle"></h3>
+      <p class="sub" id="endText"></p>
+      <button class="btn primary" onclick="startQuiz()" style="cursor:pointer">Run it back</button>
+    </div>
+  </section>
+
+  <div class="footer">Part of <a href="https://grant-desk.com">the desk</a> · hidden history, unit 1: the official story vs. the rumor. Sources or it didn't happen.</div>
+</div>
+
+<script>
+// ---- Verdict Machine ----
+const cases=[
+ {c:"The CIA secretly dosed unwitting Americans with LSD.",v:"confirmed",w:"MKUltra — exposed by the Church Committee in 1975. The director destroyed most files in 1973, which is why we know less than we should."},
+ {c:"The Moon landings were staged in a studio.",v:"debunked",w:"Retroreflectors on the lunar surface still bounce lasers back today, and rival nations tracked the missions in real time. 400,000 people kept no secret."},
+ {c:"\"The Pentagon admitted UFOs are real.\"",v:"misleading",w:"The Navy confirmed certain videos are genuine and UNIDENTIFIED. Unidentified means unidentified — the leap to 'aliens' is where the claim smuggles in its conclusion."},
+ {c:"D.B. Cooper survived the jump.",v:"unproven",w:"Never identified; some ransom cash surfaced in 1980; the FBI shelved the case in 2016. An honest 'we don't know' beats a confident guess."},
+ {c:"The CIA turned a live cat into a listening device.",v:"confirmed",w:"Acoustic Kitty, declassified in 2001. Cost millions, worked once, briefly. The cat had other plans."},
+ {c:"Paul McCartney died in 1966 and was secretly replaced.",v:"debunked",w:"Debunked by Paul McCartney, repeatedly, in person, on tour. Every 'clue' was found after someone decided the conclusion first. That's the lesson."},
+ {c:"Area 51 doesn't exist and never did.",v:"debunked",w:"The CIA acknowledged the base in 2013 in declassified U-2 documents. Secret base: real. What the secrecy covered: spy planes, not saucers."},
+ {c:"The 1947 Roswell debris was a crashed flying saucer.",v:"unproven",w:"The military DID change its story — the debris was a classified balloon project (Project Mogul), admitted decades later. Cover story: confirmed. Aliens: no reliable evidence, ever."},
+ {c:"The FBI wiretapped Martin Luther King Jr.",v:"confirmed",w:"Thoroughly documented, including an anonymous FBI letter urging him to give up. It's in the National Archives."},
+ {c:"\"97% of people don't know the truth about Roswell.\"",v:"misleading",w:"A made-up statistic wearing a lab coat. No source, suspiciously round, unfalsifiable. Real research shows its work."}
+];
+let vi=0,vscore=0,vdone=0;
+const vClaim=document.getElementById('vClaim'),vFeed=document.getElementById('vFeed');
+document.getElementById('vTotal').textContent=cases.length;
+function showCase(){ if(vi>=cases.length){vClaim.textContent="Case files complete. Final score: "+vscore+"/"+cases.length+(vscore>=8?" — the Bureau is impressed.":" — reopen the file and try again (refresh the page).");vFeed.style.display='none';return;} vClaim.textContent='CLAIM #'+(vi+1)+': '+cases[vi].c; }
+function judge(v){ if(vi>=cases.length)return; const k=cases[vi]; vdone++;
+ if(v===k.v){vscore++;vFeed.className='feedback good';vFeed.innerHTML='<strong>Correct — '+k.v.toUpperCase()+'.</strong> '+k.w;}
+ else{vFeed.className='feedback bad';vFeed.innerHTML='<strong>Verdict: '+k.v.toUpperCase()+'.</strong> '+k.w;}
+ document.getElementById('vScore').textContent=vscore; vi++; setTimeout(showCase,150); }
+showCase();
+
+// ---- Word Wall ----
+const words=[
+ ["primary source","Evidence from the time itself — a memo, a photo, a tape, a front page. The raw material of every verdict."],
+ ["corroboration","A second, independent source saying the same thing. One document is a claim; two unrelated ones are the start of a case."],
+ ["declassified","Officially released from secrecy. Proves the document is real — not that every word in it is true."],
+ ["falsifiability","A claim you could at least imagine disproving with evidence. If nothing could ever count against it, it's a belief wearing a lab coat."],
+ ["burden of proof","The claim-maker owes the evidence. 'Prove it didn't happen' is not how history works."],
+ ["cover story","The explanation issued to hide the real one — Roswell's 'weather balloon.' Real cover stories exist; that's exactly why claims of them need evidence."],
+ ["misinformation","False information spread by people who believe it. Wrong, but sincere."],
+ ["disinformation","False information spread by people who know better. Wrong, on purpose."]
+];
+document.getElementById('flashcards').innerHTML=words.map(w=>'<div class="flash" onclick="this.classList.toggle(\'flipped\')"><div class="inner"><div class="face front">'+w[0]+'</div><div class="face back">'+w[1]+'</div></div></div>').join('');
+
+// ---- Clearance Exam ----
+const quiz=[
+ {q:"July 1947: what did the Roswell Army Air Field's FIRST press release actually say?",o:["Nothing — total silence","That they had recovered a 'flying disc'","That a weather balloon had crashed","That the incident was classified"],a:1,w:"The RAAF really did announce a 'flying disc' — then changed the story within a day. The correction, not the claim, launched fifty years of questions."},
+ {q:"What was the Roswell debris, according to documents declassified decades later?",o:["A crashed experimental jet","Project Mogul — a classified balloon array built to detect Soviet nuclear tests","An actual weather balloon, exactly as stated","Nothing was ever identified"],a:1,w:"Project Mogul: secret enough to lie about, boring enough that nobody wanted to. Real cover-up, no aliens."},
+ {q:"Which of these counts as PHYSICAL evidence?",o:["A neighbor's memory of strange lights","Debris you can put on a table and test","A newspaper's summary of both","An anonymous online post with details"],a:1,w:"Documents, testimony, physical proof — three different kinds of evidence, three different weights. Physical evidence can be tested by anyone."},
+ {q:"A claim can't be tested or disproven even in theory. In this class, that makes it…",o:["More convincing — you can't rule it out","The strongest kind of claim","Unfalsifiable — and outside what evidence can settle","Automatically false"],a:2,w:"If no possible discovery could count against it, it isn't a theory — it's a belief wearing a lab coat. We don't grade beliefs."},
+ {q:"What did the CIA actually admit about Area 51 in 2013?",o:["Alien technology is stored there","It exists, and hosted the U-2 spy plane program","It never existed","It was shut down in 1969"],a:1,w:"Declassified U-2 documents acknowledged the base. The secrecy was real; what it protected was spy planes."},
+ {q:"The four verdicts of this course are…",o:["True, false, maybe, classified","Confirmed, debunked, misleading, unproven","Guilty, innocent, mistrial, appeal","Fact, opinion, theory, law"],a:1,w:"Confirmed, debunked, misleading, unproven — and you're graded on how you got there, not just where you landed."},
+ {q:"Why does an honest 'unproven' beat a confident guess?",o:["It's easier to defend in an argument","Because verdicts are graded on the evidence trail, not the confidence level","It isn't — confidence wins","Because most claims are unproven anyway"],a:1,w:"An honest 'unproven' backed by good research beats a confident answer backed by nothing. That's the course in one sentence."},
+ {q:"The military changing its Roswell story proves…",o:["Aliens crashed and were hidden","Exactly one thing: the first story wasn't true","Nothing at all","Every official story is false"],a:1,w:"A changed story proves a changed story. What replaced it still needs its own evidence — that discipline is the whole class."}
+];
+let qi=0,qscore=0,qlock=false;
+function startQuiz(){qi=0;qscore=0;qlock=false;document.getElementById('quizEnd').style.display='none';document.getElementById('quizBody').style.display='block';renderQ();}
+function renderQ(){const k=quiz[qi];document.getElementById('qText').textContent='Q'+(qi+1)+' · '+k.q;document.getElementById('qBar').style.width=(qi/quiz.length*100)+'%';
+ document.getElementById('qOpts').innerHTML=k.o.map((o,i)=>'<button class="qopt" onclick="answer('+i+',this)">'+o+'</button>').join('');qlock=false;}
+function answer(i,el){if(qlock)return;qlock=true;const k=quiz[qi];const btns=document.querySelectorAll('.qopt');btns[k.a].classList.add('correct');
+ if(i===k.a){qscore++;}else{el.classList.add('wrong');}
+ const note=document.createElement('div');note.className='feedback '+(i===k.a?'good':'bad');note.style.display='block';note.innerHTML=k.w;document.getElementById('qOpts').appendChild(note);
+ setTimeout(()=>{qi++;if(qi<quiz.length){renderQ();}else{endQuiz();}},i===k.a?1400:2600);}
+function endQuiz(){document.getElementById('quizBody').style.display='none';const e=document.getElementById('quizEnd');e.style.display='block';
+ const t=document.getElementById('endTitle'),x=document.getElementById('endText');
+ if(qscore===8){t.textContent='CLEARANCE GRANTED: LEAD INVESTIGATOR';x.textContent='8/8. The file is yours. Try the Jeopardy board before someone revokes it.';}
+ else if(qscore>=6){t.textContent='CLEARANCE GRANTED: FIELD AGENT';x.textContent=qscore+'/8. Solid casework. Review the misses — the answers explain themselves.';}
+ else if(qscore>=4){t.textContent='PROVISIONAL CLEARANCE';x.textContent=qscore+'/8. The evidence room is that way. Flip the word wall and run it back.';}
+ else{t.textContent='CLEARANCE DENIED (FOR NOW)';x.textContent=qscore+'/8. Good news: this file can be reopened an unlimited number of times.';}}
+startQuiz();
+</script>
+</body>
+</html>

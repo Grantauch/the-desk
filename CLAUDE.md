@@ -34,6 +34,8 @@ Personal classroom website for a social studies teacher (US History, Hidden Hist
 
 - **Post announcement**: add `src/content/announcements/YYYY-MM-DD-slug.md`
 - **Change current unit**: move `current: true` within the `units` array in the class page
+- **Attach slides/packets to a unit**: add a `materials: [{ label, href }]` array to that unit in the class page (Drive links must be shared as "anyone with the link — viewer")
+- **Add a lessonhub/game**: drop the HTML file in `public/hubs/` and add an entry to the `hubs` array in `src/pages/games.astro`
 - **Verify before pushing**: `npm run build` must pass
 
 ## Deploy

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Evidence Locker — LessonHub Lab</title>
+<style>
+:root{--ink:#f6f7fb;--muted:#a9b0c4;--cyan:#61f5ff;--pink:#ff4fd8;--gold:#ffd166;--green:#7cf29a;--red:#ff5c7a;--line:rgba(255,255,255,.13)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 80% 10%,rgba(97,245,255,.15),transparent 32%),linear-gradient(135deg,#05070d,#0f1a29 55%,#07090f);color:var(--ink);min-height:100vh}
+.wrap{width:min(1050px,94vw);margin:0 auto;padding:34px 0 60px}
+.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border-radius:22px;padding:24px;margin-top:18px}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+h1{font-size:clamp(34px,5vw,54px);margin:10px 0;letter-spacing:-.04em}
+h2{font-size:20px;margin:0 0 4px}
+.sub{color:var(--muted);line-height:1.55;margin:0}
+.claims{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.claimbox{border:2px dashed var(--line);border-radius:16px;padding:14px;min-height:150px;transition:border-color .2s}
+.claimbox.active{border-color:var(--gold);background:rgba(255,209,102,.05)}
+.claimbox h3{margin:0 0 8px;font-size:16px;line-height:1.4}
+.evidence{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:14px}
+.ev{border:1px solid var(--line);border-radius:13px;padding:12px;background:rgba(0,0,0,.25);cursor:pointer;font-size:14px;line-height:1.45}
+.ev:hover{border-color:var(--cyan)}
+.ev.selected{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.25)}
+.ev.placed{cursor:default;opacity:.95;margin-top:8px}
+.rel{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.08em;border-radius:99px;padding:2px 9px;margin-bottom:7px}
+.rel.high{background:rgba(124,242,154,.15);color:var(--green)}
+.rel.med{background:rgba(255,209,102,.15);color:var(--gold)}
+.rel.low{background:rgba(255,92,122,.15);color:var(--red)}
+.btn{display:inline-block;font-weight:800;padding:12px 18px;border-radius:13px;border:1px solid var(--line);color:#071018;background:var(--cyan);cursor:pointer;font-size:15px;margin-top:16px}
+.btn.ghost{background:rgba(255,255,255,.07);color:var(--ink)}
+.report{display:none;margin-top:16px}
+.meter{height:14px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;border:1px solid var(--line);margin-top:6px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .6s}
+.meter.weak i{background:linear-gradient(90deg,var(--red),var(--pink))}
+.verdictline{margin-top:14px;border-left:3px solid var(--gold);padding:10px 14px;background:rgba(255,255,255,.04);font-size:14px;line-height:1.55}
+a{color:var(--cyan)}
+@media(max-width:700px){.claims{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="eyebrow">LessonHub Lab · CaseFile mechanic</div>
+    <h1>🗂️ Evidence Locker</h1>
+    <p class="sub">Two claims are on the table. Eight pieces of evidence are in the locker. Click a card, then click the claim it supports. When the locker's empty, file the case and read the strength report. Watch what the reliability tags do to your score.</p>
+  </div>
+
+  <div class="card">
+    <div class="claims">
+      <div class="claimbox" id="claimA" onclick="assign('A')">
+        <h3>CLAIM A — "The FBI ran a covert program (COINTELPRO) that surveilled and disrupted civil rights groups."</h3>
+      </div>
+      <div class="claimbox" id="claimB" onclick="assign('B')">
+        <h3>CLAIM B — "A secret committee of elites controls every world government from the shadows."</h3>
+      </div>
+    </div>
+    <h2 style="margin-top:18px">The locker</h2>
+    <p class="sub">Reliability is rated on the card. Sorting a card wrong — or leaning on junk sources — weakens the case.</p>
+    <div class="evidence" id="locker"></div>
+    <button class="btn" id="fileBtn" onclick="fileCase()" disabled>File the case</button>
+    <button class="btn ghost" onclick="location.reload()">Reset locker</button>
+    <div class="report" id="report">
+      <h2>CASE STRENGTH REPORT</h2>
+      <p class="sub" style="margin-top:8px">Claim A — built on documents:</p>
+      <div class="meter" id="mA"><i style="width:0%"></i></div>
+      <p class="sub" style="margin-top:12px">Claim B — built on vibes:</p>
+      <div class="meter weak" id="mB"><i style="width:0%"></i></div>
+      <div class="verdictline" id="verdictText"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cards=[
+ {t:"FBI internal memo (1968) directing field offices to 'disrupt and neutralize' targeted groups — released via FOIA",r:"high",belongs:"A"},
+ {t:"Church Committee final report (1976): a Senate investigation documenting COINTELPRO's scope",r:"high",belongs:"A"},
+ {t:"Files stolen from the Media, PA field office in 1971 and published by newspapers",r:"high",belongs:"A"},
+ {t:"1975 sworn testimony from FBI officials before Congress",r:"med",belongs:"A"},
+ {t:"Anonymous blog post: 'insiders confirm the committee meets twice a year' — no names, no documents",r:"low",belongs:"B"},
+ {t:"YouTube documentary citing 'patterns you can't unsee' as its main source",r:"low",belongs:"B"},
+ {t:"Viral image of a hotel meeting room captioned 'THEY were here' — original photo is from a dental convention",r:"low",belongs:"B"},
+ {t:"A friend of a friend who 'used to work in government' and can't say more",r:"low",belongs:"B"}
+];
+let sel=null,placed=0;
+const locker=document.getElementById('locker');
+const state=cards.map((c,i)=>({...c,id:i,into:null}));
+function renderLocker(){locker.innerHTML=state.filter(c=>c.into===null).map(c=>
+ '<div class="ev'+(sel===c.id?' selected':'')+'" onclick="select('+c.id+',event)"><span class="rel '+c.r+'">'+c.r.toUpperCase()+' RELIABILITY</span><br>'+c.t+'</div>').join('')||'<p class="sub">Locker empty. File the case.</p>';}
+function select(id,e){e.stopPropagation();sel=(sel===id)?null:id;renderLocker();
+ document.getElementById('claimA').classList.toggle('active',sel!==null);
+ document.getElementById('claimB').classList.toggle('active',sel!==null);}
+function assign(claim){if(sel===null)return;const c=state.find(x=>x.id===sel);c.into=claim;sel=null;placed++;
+ const box=document.getElementById('claim'+claim);
+ const d=document.createElement('div');d.className='ev placed';d.innerHTML='<span class="rel '+c.r+'">'+c.r.toUpperCase()+'</span><br>'+c.t;box.appendChild(d);
+ document.getElementById('claimA').classList.remove('active');document.getElementById('claimB').classList.remove('active');
+ renderLocker(); if(placed===cards.length)document.getElementById('fileBtn').disabled=false;}
+function fileCase(){const W={high:3,med:2,low:1};
+ let aScore=0,aMax=0,bJunk=0,misplaced=0;
+ state.forEach(c=>{ if(c.belongs==='A')aMax+=W[c.r];
+  if(c.into===c.belongs){ if(c.belongs==='A')aScore+=W[c.r]; else bJunk++; } else misplaced++; });
+ const aPct=Math.round(aScore/aMax*100);
+ const bPct=Math.min(100,bJunk*8);
+ document.querySelector('#mA i').style.width=aPct+'%';
+ document.querySelector('#mB i').style.width=bPct+'%';
+ const v=document.getElementById('verdictText');
+ let msg='<strong>Claim A files at '+aPct+'% strength'+(misplaced?' ('+misplaced+' card'+(misplaced>1?'s':'')+' misfiled — check the reliability tags and where each card actually points)':' — a clean case built on documents, testimony, and independent corroboration')+'.</strong><br><br>';
+ msg+='<strong>Claim B tops out at '+bPct+'%.</strong> Notice the trick: Claim B attracted every low-reliability card and still went nowhere. That\'s the lesson — real claims attract documents; empty claims attract vibes. COINTELPRO was a real, documented conspiracy exposed by a burglary, a Senate committee, and a paper trail. The shadow committee has never produced a single page.';
+ v.innerHTML=msg;document.getElementById('report').style.display='block';document.getElementById('fileBtn').disabled=true;}
+renderLocker();
+</script>
+</body>
+</html>
