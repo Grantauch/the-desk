@@ -1,0 +1,258 @@
+---
+interface Props {
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab';
+  label: string;
+  eyebrow: string;
+  featured?: boolean;
+}
+
+const { theme, label, eyebrow, featured = false } = Astro.props;
+---
+
+<div class:list={['game-preview', theme, { featured }]} aria-hidden="true">
+  <div class="preview-heading">
+    <span>{eyebrow}</span>
+    <strong>{label}</strong>
+  </div>
+
+  {
+    theme === 'jeopardy' && (
+      <div class="jeopardy-board">
+        {[200, 400, 600, 800, 1000].map((value) => <span>${value}</span>)}
+      </div>
+    )
+  }
+
+  {
+    theme === 'casefile' && (
+      <div class="verdict-row">
+        <span>confirmed</span>
+        <span>debunked</span>
+        <span>unproven</span>
+      </div>
+    )
+  }
+
+  {
+    theme === 'scoreboard' && (
+      <div class="score-strip">
+        <span>home</span>
+        <strong>04</strong>
+        <i>final</i>
+        <strong>03</strong>
+        <span>away</span>
+      </div>
+    )
+  }
+
+  {
+    theme === 'finance' && (
+      <div class="paycheck-lines">
+        <span>gross pay</span><strong>$1,240</strong>
+        <span>withheld</span><strong>− $286</strong>
+        <span>take home</span><strong>$954</strong>
+      </div>
+    )
+  }
+
+  {
+    theme === 'lab' && (
+      <div class="lab-grid">
+        <span>boss fight</span>
+        <span>evidence locker</span>
+        <span>situation room</span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .game-preview {
+    position: relative;
+    min-height: 9rem;
+    overflow: hidden;
+    border-bottom: 2px solid #17171c;
+    padding: 1.15rem;
+    color: white;
+  }
+
+  .game-preview.featured {
+    min-height: 10.5rem;
+  }
+
+  .game-preview::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background-image: radial-gradient(rgb(255 255 255 / 0.16) 1px, transparent 1px);
+    background-size: 18px 18px;
+    mask-image: linear-gradient(to left, black, transparent 70%);
+    pointer-events: none;
+  }
+
+  .preview-heading {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    max-width: 80%;
+    flex-direction: column;
+    text-transform: uppercase;
+  }
+
+  .preview-heading span {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    opacity: 0.78;
+  }
+
+  .preview-heading strong {
+    margin-top: 0.2rem;
+    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.15rem, 4vw, 1.65rem);
+    line-height: 1;
+  }
+
+  .jeopardy {
+    background: linear-gradient(135deg, #06143a, #102e78);
+  }
+
+  .jeopardy .preview-heading strong,
+  .jeopardy-board {
+    color: #ffd65a;
+  }
+
+  .jeopardy-board {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.3rem;
+  }
+
+  .jeopardy-board span {
+    border: 1px solid rgb(255 214 90 / 0.55);
+    border-radius: 0.25rem;
+    background: rgb(0 0 0 / 0.18);
+    padding: 0.35rem 0.2rem;
+    text-align: center;
+    font-family: ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+
+  .casefile {
+    background: radial-gradient(circle at 80% 15%, rgb(72 238 255 / 0.2), transparent 28%), linear-gradient(135deg, #102b34, #281a3c 70%);
+  }
+
+  .casefile .preview-heading span {
+    color: #67e8f9;
+  }
+
+  .verdict-row {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .verdict-row span {
+    border: 1px solid rgb(103 232 249 / 0.45);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    padding: 0.25rem 0.5rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+  }
+
+  .scoreboard {
+    background: repeating-linear-gradient(90deg, transparent 0 34px, rgb(255 255 255 / 0.1) 35px 36px), linear-gradient(135deg, #0d432c, #071f19);
+  }
+
+  .score-strip {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto 1fr;
+    align-items: center;
+    gap: 0.55rem;
+    border: 1px solid rgb(255 255 255 / 0.4);
+    background: rgb(0 0 0 / 0.32);
+    padding: 0.4rem 0.6rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.6rem;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .score-strip strong {
+    color: #facc15;
+    font-size: 1rem;
+  }
+
+  .score-strip i {
+    opacity: 0.65;
+  }
+
+  .finance {
+    background: linear-gradient(135deg, #064e3b, #0f766e);
+  }
+
+  .paycheck-lines {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.8rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.15rem 0.75rem;
+    border-left: 2px solid #6ee7b7;
+    padding-left: 0.75rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+  }
+
+  .paycheck-lines strong {
+    color: #a7f3d0;
+    text-align: right;
+  }
+
+  .lab {
+    background: radial-gradient(circle at 85% 20%, #22d3ee 0 3%, transparent 24%), linear-gradient(135deg, #312e81, #7e22ce);
+  }
+
+  .lab-grid {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+  }
+
+  .lab-grid span {
+    border: 1px solid rgb(255 255 255 / 0.45);
+    border-radius: 0.3rem;
+    background: rgb(255 255 255 / 0.1);
+    padding: 0.35rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.55rem;
+    text-align: center;
+    text-transform: uppercase;
+  }
+</style>

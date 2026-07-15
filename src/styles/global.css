@@ -65,6 +65,12 @@ html {
   color: white;
 }
 
+/* one visible, consistent keyboard focus treatment across the whole site */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
 /* keyboard users: hidden link that appears on first Tab press */
 .skip-link {
   position: absolute;

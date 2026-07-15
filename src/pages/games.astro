@@ -3,12 +3,28 @@
 // To add one: drop the HTML file in public/hubs/ and add an entry to `hubs` below.
 // Each hub opens in a new tab — they're full-screen apps with their own look.
 import Base from '../layouts/Base.astro';
+import GamePreview from '../components/GamePreview.astro';
 
-const hubs = [
+interface Hub {
+  name: string;
+  course: string;
+  kind: string;
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab';
+  previewEyebrow: string;
+  href: string;
+  blurb: string;
+  featured?: boolean;
+  archived?: boolean;
+}
+
+const hubs: Hub[] = [
   {
     name: 'classroom jeopardy',
     course: 'all classes',
     kind: 'review game',
+    theme: 'jeopardy',
+    previewEyebrow: 'editable board · any class',
+    featured: true,
     href: '/hubs/classroom-jeopardy.html',
     blurb:
       'The full board — categories, daily doubles, final jeopardy, team scores. Runs on the projector; the class supplies the arguing.',
@@ -17,6 +33,8 @@ const hubs = [
     name: 'jeopardy: hidden history unit 1',
     course: 'hidden history',
     kind: 'preloaded board',
+    theme: 'jeopardy',
+    previewEyebrow: 'hidden history · ready to play',
     href: '/hubs/jeopardy-hidden-history-unit1.html',
     blurb:
       'The Official Story vs. The Rumor, ready to play: Roswell, the four verdicts, the word wall, and a final question about balloons.',
@@ -25,6 +43,8 @@ const hubs = [
     name: 'jeopardy: scoreboard unit 1',
     course: 'beyond the scoreboard',
     kind: 'preloaded board',
+    theme: 'jeopardy',
+    previewEyebrow: 'scoreboard · ready to play',
     href: '/hubs/jeopardy-scoreboard-unit1.html',
     blurb:
       'Inventing American Sport, ready to play: the first games, the color line, the four threads, and a Michigan category for the home crowd.',
@@ -33,6 +53,8 @@ const hubs = [
     name: 'case file: roswell',
     course: 'hidden history',
     kind: 'lessonhub · unit 1',
+    theme: 'casefile',
+    previewEyebrow: 'evidence lab · unit 1',
     href: '/hubs/hidden-history-unit1.html',
     blurb:
       'The unit 1 hub: launch the slides, flip the word wall, run the verdict machine, and take the clearance exam. Sources or it didn’t happen.',
@@ -41,6 +63,8 @@ const hubs = [
     name: 'opening whistle',
     course: 'beyond the scoreboard',
     kind: 'lessonhub · unit 1',
+    theme: 'scoreboard',
+    previewEyebrow: 'sports history · unit 1',
     href: '/hubs/scoreboard-unit1.html',
     blurb:
       'The unit 1 hub: the four threads drill, a build-the-timeline game, and an eight-question box score. The tally is watching.',
@@ -49,6 +73,9 @@ const hubs = [
     name: 'paycheck & taxes',
     course: 'personal finance',
     kind: 'lessonhub',
+    theme: 'finance',
+    previewEyebrow: 'archive favorite · personal finance',
+    archived: true,
     href: '/hubs/paycheck-taxes.html',
     blurb:
       'Gross vs. net, withholdings, W-4s, and where your money actually goes. Study modes include flashcards, matching, and a quiz.',
@@ -57,18 +84,12 @@ const hubs = [
     name: 'lessonhub lab',
     course: 'experimental',
     kind: 'idea pack',
+    theme: 'lab',
+    previewEyebrow: 'four playable prototypes',
     href: '/hubs/lessonhub-lab.html',
     blurb:
       'Four playable prototypes: boss fight review, the evidence locker, a cuban missile crisis situation room, and the market shock arena. Report bugs for extra credit (not really).',
   },
-  // Template for the next one — copy, uncomment, fill in:
-  // {
-  //   name: 'market structures',
-  //   course: 'economics',
-  //   kind: 'lessonhub',
-  //   href: '/hubs/market-structures.html',
-  //   blurb: 'One line on what it covers.',
-  // },
 ];
 ---
 
@@ -80,26 +101,36 @@ const hubs = [
     lessonhubs and review games. no logins, nothing tracked — open one and play.
   </p>
 
-  <div class="mt-10 space-y-8">
+  <div class="mt-10 grid gap-6 sm:grid-cols-2">
     {
       hubs.map((hub) => (
-        <article class="pop rounded-md bg-white p-6">
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2 class="font-display text-2xl font-bold lowercase">
-              <a href={hub.href} target="_blank" rel="noopener" class="hover:text-accent transition-colors">
-                {hub.name} →
-              </a>
+        <a
+          href={hub.href}
+          target="_blank"
+          rel="noopener"
+          class:list={['group pop block overflow-hidden rounded-md bg-white', hub.featured && 'sm:col-span-2']}
+        >
+          <GamePreview theme={hub.theme} label={hub.name} eyebrow={hub.previewEyebrow} featured={hub.featured} />
+          <div class="p-5 sm:p-6">
+            <div class="flex flex-wrap items-center gap-2 font-mono text-[0.68rem] lowercase">
+              <span class="font-semibold text-accent">{hub.course}</span>
+              <span class="text-ink-soft">· {hub.kind}</span>
+              {hub.archived && <span class="rounded-full bg-accent-soft px-2 py-0.5 text-accent-dark">archive</span>}
+            </div>
+            <h2 class="mt-2 font-display text-2xl font-bold lowercase transition-colors group-hover:text-accent">
+              {hub.name}<span class="text-accent">.</span>
             </h2>
-            <span class="text-xs font-mono lowercase text-accent">{hub.course}</span>
-            <span class="text-xs font-mono lowercase text-ink-soft">· {hub.kind}</span>
+            <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
+            <span class="mt-4 inline-block font-mono text-xs font-semibold lowercase text-accent transition-transform group-hover:translate-x-1.5">
+              open and play ↗
+            </span>
           </div>
-          <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
-        </article>
+        </a>
       ))
     }
   </div>
 
   <p class="mt-10 text-sm font-mono lowercase text-ink-soft">
-    more hubs on the way — including new ones built for hidden history and beyond the scoreboard.
+    the arcade keeps growing — new hubs land here when they are ready for a real classroom.
   </p>
 </Base>
