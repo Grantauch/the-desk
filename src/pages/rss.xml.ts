@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ site }) => {
   <channel>
     <title>the desk — announcements</title>
     <link>${site?.href}</link>
-    <description>announcements from the desk — us history, economics, and law.</description>
+    <description>announcements from the desk — us history, hidden history, and beyond the scoreboard.</description>
     <language>en-us</language>
 ${items}
   </channel>

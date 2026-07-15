@@ -2,6 +2,7 @@
 // index.astro — the home page.
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import resourceLibrary from '../data/resources.json';
 
 const announcements = (await getCollection('announcements'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -25,6 +26,13 @@ const courses = [
   },
 ];
 
+const currentCourseNames = ['US History', 'Hidden History', 'Beyond the Scoreboard'];
+const currentLibraryCourses = currentCourseNames.map((course) => ({
+  course,
+  count: resourceLibrary.resources.filter((resource) => resource.course === course).length,
+}));
+const currentResourceCount = currentLibraryCourses.reduce((total, course) => total + course.count, 0);
+
 const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 ---
 
@@ -43,8 +51,56 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
     </p>
   </section>
 
+  <!-- library search -->
+  <section id="library-search" class="pop scroll-mt-32 rounded-md bg-white p-5 sm:p-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="max-w-xl">
+        <p class="font-mono text-xs font-semibold lowercase text-accent">the whole desk, searchable</p>
+        <h2 class="mt-1 font-display text-3xl font-bold lowercase">
+          find the lesson before the bell<span class="text-accent">.</span>
+        </h2>
+        <p class="mt-2 leading-relaxed text-ink-soft">
+          Search {resourceLibrary.resourceCount} decks, packets, games, readings, and activities — including {currentResourceCount} for the classes on the schedule now.
+        </p>
+      </div>
+      <a href="/resources/" class="font-mono text-xs font-semibold lowercase text-accent hover:text-accent-dark">
+        browse the stacks →
+      </a>
+    </div>
+
+    <form action="/resources/" method="get" class="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+      <input type="hidden" name="scope" value="all" />
+      <label>
+        <span class="sr-only">Search the resource library</span>
+        <input
+          type="search"
+          name="q"
+          required
+          placeholder="try: roswell, reconstruction, d-day…"
+          class="w-full rounded-md border-2 border-ink bg-paper px-4 py-3 outline-none transition-colors focus:border-accent"
+        />
+      </label>
+      <button type="submit" class="rounded-md border-2 border-ink bg-accent px-5 py-3 font-mono text-sm font-semibold lowercase text-white transition-colors hover:bg-accent-dark">
+        search library
+      </button>
+    </form>
+
+    <nav class="mt-4 flex flex-wrap gap-2" aria-label="Current course resource libraries">
+      {
+        currentLibraryCourses.map(({ course, count }) => (
+          <a
+            href={`/resources/?course=${encodeURIComponent(course)}`}
+            class="rounded-md border border-line bg-paper px-2.5 py-1.5 font-mono text-[0.7rem] font-semibold lowercase text-ink-soft transition-colors hover:border-accent hover:text-accent"
+          >
+            {course} · {count}
+          </a>
+        ))
+      }
+    </nav>
+  </section>
+
   <!-- classes -->
-  <section class="mt-10 grid gap-6 sm:grid-cols-3">
+  <section id="courses" class="mt-10 grid scroll-mt-32 gap-6 sm:grid-cols-3">
     {
       courses.map((c, i) => (
         <a href={c.href} class="group pop rounded-md bg-white p-5">
@@ -60,7 +116,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
   </section>
 
   <!-- the fun stuff -->
-  <section class="mt-10 grid gap-6 sm:grid-cols-3">
+  <section class="mt-10 grid gap-6 sm:grid-cols-2">
     <a href="/simulations/" class="group pop rounded-md bg-accent text-white p-5">
       <h2 class="font-display text-2xl font-bold lowercase">simulations<span class="text-white/60">.</span></h2>
       <p class="mt-2 text-sm text-white/85 leading-relaxed">
@@ -75,6 +131,13 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
+    <a href="/rabbit-holes/" class="group pop rounded-md bg-accent-soft p-5">
+      <h2 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">rabbit holes<span class="text-accent">.</span></h2>
+      <p class="mt-2 text-sm text-ink-soft leading-relaxed">
+        Strange stories, historical detours, and big questions that earn the class period.
+      </p>
+      <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
+    </a>
     <a href="/tools/" class="group pop rounded-md bg-ink text-paper p-5">
       <h2 class="font-display text-2xl font-bold lowercase">tools<span class="text-accent">.</span></h2>
       <p class="mt-2 text-sm text-paper/70 leading-relaxed">
@@ -85,7 +148,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
   </section>
 
   <!-- latest announcements -->
-  <section class="mt-20">
+  <section id="today" class="mt-20 scroll-mt-32">
     <div class="flex items-baseline justify-between">
       <h2 class="font-display text-3xl font-bold lowercase">on the desk right now</h2>
       <a href="/announcements/" class="text-sm text-accent hover:text-accent-dark lowercase">all announcements →</a>
