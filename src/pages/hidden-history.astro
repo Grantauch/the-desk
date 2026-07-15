@@ -2,6 +2,8 @@
 // hidden-history.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
 import CoursePage from '../components/CoursePage.astro';
+import FeaturedMedia from '../components/FeaturedMedia.astro';
+import QuickTake from '../components/QuickTake.astro';
 import DailyCard from '../components/DailyCard.astro';
 
 // ---- argue this: one bellringer a day ----
@@ -203,12 +205,45 @@ const glossary = [
 
 <CoursePage
   title="hidden history"
+  theme="classified"
+  identityLabel="evidence desk // clearance required"
+  secret={{
+    trigger: '[ redacted ]',
+    title: 'clearance code: receipts',
+    message: "The black bars are missing text—not proof of whatever you hoped was underneath. Curiosity starts the investigation; evidence finishes it.",
+  }}
   tagline="coverups, conspiracies, and the evidence. sources or it didn't happen."
   intro="Some official stories collapsed under the evidence — Watergate, MKUltra, COINTELPRO. Some famous rumors did too. This class is about telling the difference. Every claim we study gets one of four verdicts — confirmed, debunked, misleading, or unproven — and you'll be graded on how you got there, not just where you landed. An honest 'unproven' backed by good research beats a confident answer backed by nothing."
   units={units}
   resources={resources}
   glossary={glossary}
 >
+  <FeaturedMedia
+    slot="hero"
+    id="hidden-history-media-bay"
+    theme="classified"
+    eyebrow="incoming evidence · media bay 01"
+    title="the next file is waiting"
+    description="This evidence terminal is armed for the clip that opens the next investigation—the kind that makes the room lean in before anyone knows the verdict."
+    reelLabel="incoming signal"
+    cornerLabel="clearance // pending"
+    actionLabel="video slot ready. send the next lead."
+    placeholderLabel="evidence reel incoming"
+    accessibleDescription="A classified-file themed placeholder showing that the Hidden History opening video slot is ready for an upcoming clip."
+  />
+
+  <QuickTake
+    slot="hook"
+    id="hidden-history-opening-take"
+    eyebrow="make the first call. then test it."
+    question="A secret file contradicts the official story. What earns your belief first?"
+    options={[
+      { label: 'the document', response: 'Start with provenance: who made it, when, for whom, and whether the document is authentic. Real paper can still contain bad information.' },
+      { label: 'a witness', response: 'A witness gives detail and perspective—not automatic truth. Check timing, incentives, memory, and independent corroboration.' },
+      { label: 'the pattern', response: 'Patterns can reveal a system or expose our own pattern-hungry brains. Name what evidence would prove your pattern wrong before you trust it.' },
+    ]}
+  />
+
   <section class="mt-12">
     <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
     <p class="mt-2 text-sm text-ink-soft lowercase">new every day. yes, you may fact-check it — that's the point.</p>
