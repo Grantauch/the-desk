@@ -30,19 +30,56 @@
   .dot-grid   — halftone dot background for the hero.
 */
 .pop {
-  border: 2px solid var(--color-ink);
-  box-shadow: 5px 5px 0 var(--color-accent);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+  box-shadow: 0 22px 50px -42px rgb(23 23 28 / 0.8);
   transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 a.pop:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 var(--color-accent);
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-ink));
+  box-shadow: 0 28px 55px -39px color-mix(in srgb, var(--color-accent) 42%, transparent);
 }
 .pop-ink {
-  border: 2px solid var(--color-ink);
-  box-shadow: 4px 4px 0 var(--color-ink);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 35%, transparent);
+  box-shadow: 0 12px 26px -20px rgb(23 23 28 / 0.9);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+a.pop-ink:hover,
+button.pop-ink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px -20px rgb(23 23 28 / 0.95);
+}
+
+.daily-card {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 20px 46px -42px rgb(23 23 28 / 0.75);
+}
+
+.daily-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 18%, transparent) 70%, transparent);
+  content: '';
+}
+
+.daily-card__label {
+  color: var(--color-accent-dark);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 .dot-grid {
   background-image: radial-gradient(

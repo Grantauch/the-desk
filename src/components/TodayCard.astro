@@ -24,8 +24,8 @@ const first = events[0];
 const firstWhen = `${MONTHS[first.m - 1]} ${first.d}, ${first.y}`;
 ---
 
-<article class="pop rounded-md bg-white p-5">
-  <p class="font-mono text-xs lowercase text-accent">{label}</p>
+<article class="daily-card p-5">
+  <p class="daily-card__label">{label}</p>
   <p class="today-when mt-2 font-mono text-xs lowercase text-ink-soft">{firstWhen}</p>
   <p class="today-text mt-1 text-sm leading-relaxed">{first.text}</p>
   <script define:vars={{ events }}>

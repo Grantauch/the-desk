@@ -16,8 +16,8 @@ const { label, entries } = Astro.props;
 const first = entries[0];
 ---
 
-<article class="pop rounded-md bg-white p-5">
-  <p class="font-mono text-xs lowercase text-accent">{label}</p>
+<article class="daily-card p-5">
+  <p class="daily-card__label">{label}</p>
   <p class="daily-text mt-2 text-sm leading-relaxed">{first.text}</p>
   <p class="daily-tag mt-2 font-mono text-xs lowercase text-ink-soft">{first.tag ?? ''}</p>
   <script define:vars={{ entries }}>
