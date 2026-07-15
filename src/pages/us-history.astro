@@ -4,6 +4,7 @@
 // `topics` is optional per unit — it becomes a "what's inside" dropdown.
 // 2026-27: this course runs Reconstruction → the present.
 import CoursePage from '../components/CoursePage.astro';
+import FeaturedMedia from '../components/FeaturedMedia.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 
@@ -278,6 +279,19 @@ const glossary = [
   resources={resources}
   glossary={glossary}
 >
+  <FeaturedMedia
+    slot="hero"
+    id="d-day-field-reel"
+    eyebrow="world war ii · operation overlord"
+    title="d-day starts in the dark"
+    description="Twenty-eight seconds of D-Day energy: paratroopers gearing up, aircraft over Normandy, and a sky full of silk. Press play—then ask what it takes to step out of that door."
+    src="/media/d-day-hype.mp4"
+    poster="/media/d-day-hype-poster.jpg"
+    duration="00:28"
+    credit="@forgottenframes_in4k on TikTok"
+    accessibleDescription="A fast-cut montage of colorized World War II footage showing American paratroopers preparing for flight, riding in transport aircraft, and parachuting over Normandy."
+  />
+
   <section class="mt-12">
     <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
     <p class="mt-2 text-sm text-ink-soft lowercase">new every day. same for everyone — argue about it in class.</p>

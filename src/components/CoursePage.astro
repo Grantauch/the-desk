@@ -33,6 +33,7 @@ interface Props {
 
 const { title, tagline, intro, units, resources, glossary = [] } = Astro.props;
 const currentUnit = units.find((u) => u.current);
+const hasHero = Astro.slots.has('hero');
 ---
 
 <Base title={title}>
@@ -41,7 +42,9 @@ const currentUnit = units.find((u) => u.current);
   </h1>
   <p class="mt-3 text-lg text-ink-soft lowercase">{tagline}</p>
 
-  <p class="mt-6 max-w-2xl leading-relaxed">{intro}</p>
+  {hasHero && <slot name="hero" />}
+
+  <p class:list={[hasHero ? 'mt-10' : 'mt-6', 'max-w-2xl leading-relaxed']}>{intro}</p>
 
   {
     currentUnit && (
