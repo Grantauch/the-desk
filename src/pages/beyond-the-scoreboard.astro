@@ -2,6 +2,8 @@
 // beyond-the-scoreboard.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
 import CoursePage from '../components/CoursePage.astro';
+import FeaturedMedia from '../components/FeaturedMedia.astro';
+import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 
@@ -202,12 +204,45 @@ const glossary = [
 
 <CoursePage
   title="beyond the scoreboard"
+  theme="scoreboard"
+  identityLabel="film room // history in play"
+  secret={{
+    trigger: '0:00 // final?',
+    title: 'overtime rule',
+    message: 'If the argument is tied, bring one more primary source. History has no instant replay, but it does have receipts.',
+  }}
   tagline="american history through sports. the games were never just games."
   intro="This course uses sports as a lens on America from the 1860s to today. Every unit follows four threads — business and labor, media and technology, law and government, and the fight over who gets to play — using real primary sources: newspapers, broadcast footage, court decisions, congressional testimony. We read what people said at the time before deciding what we think now; that's what separates history from hot takes. It ends with a research capstone on a sports story from Michigan's own backyard."
   units={units}
   resources={resources}
   glossary={glossary}
 >
+  <FeaturedMedia
+    slot="hero"
+    id="scoreboard-film-room"
+    theme="scoreboard"
+    eyebrow="pregame · film room 01"
+    title="game tape belongs here"
+    description="The next clip should make the room lean forward before we follow the money, the media, the rules, and the people who changed the game."
+    reelLabel="film room"
+    cornerLabel="game tape // queued"
+    actionLabel="clip slot ready. bring the noise."
+    placeholderLabel="next clip queued"
+    accessibleDescription="A scoreboard and film-room themed placeholder showing that the Beyond the Scoreboard opening video slot is ready for an upcoming clip."
+  />
+
+  <QuickTake
+    slot="hook"
+    id="scoreboard-opening-take"
+    eyebrow="make the call before the replay."
+    question="What moves American sports history fastest?"
+    options={[
+      { label: 'the athletes', response: 'Athletes can force the issue—but prove when talent, protest, or star power actually changed the institution around them.' },
+      { label: 'money + media', response: 'Follow the rights fees, sponsorships, and cameras. Then show whether the audience changed the game or the game changed the audience.' },
+      { label: 'law + rules', response: 'A few lines in a rulebook or law can redraw the field. Your evidence needs to show what changed in real life after the words changed on paper.' },
+    ]}
+  />
+
   <section class="mt-12">
     <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
     <p class="mt-2 text-sm text-ink-soft lowercase">new every day. settle it at the whiteboard, not in the comments.</p>

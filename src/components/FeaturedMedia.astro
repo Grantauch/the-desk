@@ -4,12 +4,17 @@ interface Props {
   eyebrow: string;
   title: string;
   description: string;
-  src: string;
+  src?: string;
   poster?: string;
   duration?: string;
   credit?: string;
   accessibleDescription?: string;
   aspect?: 'portrait' | 'square' | 'landscape';
+  theme?: 'history' | 'classified' | 'scoreboard';
+  reelLabel?: string;
+  cornerLabel?: string;
+  actionLabel?: string;
+  placeholderLabel?: string;
 }
 
 const {
@@ -23,7 +28,19 @@ const {
   credit,
   accessibleDescription = description,
   aspect = 'square',
+  theme = 'history',
+  reelLabel = 'field reel',
+  cornerLabel = 'media // ready',
+  actionLabel = 'press play. turn it up.',
+  placeholderLabel = 'next reel incoming',
 } = Astro.props;
+
+const palettes = {
+  history: { accent: '#ff5c35', soft: '#ff8a6d' },
+  classified: { accent: '#e6b31f', soft: '#f8d36b' },
+  scoreboard: { accent: '#38d996', soft: '#8af0c6' },
+};
+const palette = palettes[theme];
 const mediaId = id ?? `featured-media-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
 const titleId = `${mediaId}-title`;
 const descriptionId = `${mediaId}-description`;
@@ -31,7 +48,9 @@ const descriptionId = `${mediaId}-description`;
 
 <section
   id={mediaId}
-  class="featured-media mt-8 overflow-hidden rounded-md border-2 border-ink bg-ink text-white shadow-[7px_7px_0_0_#ff5c35]"
+  class="featured-media mt-8 overflow-hidden rounded-md border-2 border-ink bg-ink text-white"
+  data-theme={theme}
+  style={`--featured-accent: ${palette.accent}; --featured-soft: ${palette.soft};`}
   aria-labelledby={titleId}
 >
   <div class="grid lg:grid-cols-[minmax(17rem,0.78fr)_minmax(22rem,1.22fr)]">
@@ -40,52 +59,126 @@ const descriptionId = `${mediaId}-description`;
 
       <div class="relative">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/65">
-          <span class="inline-flex items-center gap-2 text-[#ff8a6d]">
-            <span class="featured-media__pulse h-2 w-2 rounded-full bg-[#ff5c35]" aria-hidden="true"></span>
-            field reel
+          <span class="featured-media__soft inline-flex items-center gap-2">
+            <span class="featured-media__pulse h-2 w-2 rounded-full" aria-hidden="true"></span>
+            {reelLabel}
           </span>
           {duration && <span>{duration}</span>}
         </div>
 
-        <p class="mt-8 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-[#ff8a6d]">{eyebrow}</p>
+        <p class="featured-media__soft mt-8 font-mono text-xs font-semibold uppercase tracking-[0.16em]">{eyebrow}</p>
         <h2 id={titleId} class="mt-3 max-w-xl font-display text-4xl font-bold lowercase leading-[0.98] sm:text-5xl">
-          {title}<span class="text-[#ff5c35]">.</span>
+          {title}<span class="featured-media__accent">.</span>
         </h2>
         <p class="mt-5 max-w-lg leading-relaxed text-white/78">{description}</p>
       </div>
 
       <div class="relative mt-8 border-t border-white/15 pt-5">
-        <p class="font-mono text-xs font-bold lowercase tracking-wide text-white">press play. turn it up.</p>
+        <p class="font-mono text-xs font-bold lowercase tracking-wide text-white">{actionLabel}</p>
         {credit && <p class="mt-2 text-xs lowercase text-white/45">credit: {credit}</p>}
       </div>
     </div>
 
-    <div class="relative flex justify-center border-t-2 border-white/10 bg-black lg:border-l-2 lg:border-t-0">
+    <div class="relative flex min-h-[22rem] justify-center border-t-2 border-white/10 bg-black lg:border-l-2 lg:border-t-0">
       <div class="pointer-events-none absolute left-3 top-3 z-10 rounded-sm bg-black/65 px-2 py-1 font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/70 backdrop-blur-sm">
-        normandy // 06.06.44
+        {cornerLabel}
       </div>
-      <video
-        class:list={[
-          'max-h-[42rem] w-full bg-black object-contain',
-          aspect === 'square' && 'aspect-square',
-          aspect === 'portrait' && 'aspect-[9/16] max-w-[24rem]',
-          aspect === 'landscape' && 'aspect-video',
-        ]}
-        controls
-        playsinline
-        preload="metadata"
-        poster={poster}
-        aria-describedby={descriptionId}
-      >
-        <source src={src} type="video/mp4" />
-        Your browser does not support embedded video.
-      </video>
+
+      {
+        src ? (
+          <video
+            class:list={[
+              'max-h-[42rem] w-full bg-black object-contain',
+              aspect === 'square' && 'aspect-square',
+              aspect === 'portrait' && 'aspect-[9/16] max-w-[24rem]',
+              aspect === 'landscape' && 'aspect-video',
+            ]}
+            controls
+            playsinline
+            preload="metadata"
+            poster={poster}
+            aria-describedby={descriptionId}
+          >
+            <source src={src} type="video/mp4" />
+            Your browser does not support embedded video.
+          </video>
+        ) : (
+          <div
+            class="featured-media__placeholder relative flex min-h-[22rem] w-full items-center justify-center overflow-hidden px-6 py-16 text-center"
+            role="img"
+            aria-describedby={descriptionId}
+          >
+            <div class="featured-media__scanlines absolute inset-0" aria-hidden="true"></div>
+            <div class="featured-media__mark absolute inset-0 flex items-center justify-center font-display font-black" aria-hidden="true">
+              {theme === 'classified' ? '?' : '00:00'}
+            </div>
+            <div class="relative z-[1] max-w-sm border-2 border-white/20 bg-black/70 p-6 backdrop-blur-sm">
+              <p class="featured-media__soft font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em]">media bay armed</p>
+              <p class="mt-3 font-display text-3xl font-bold lowercase">{placeholderLabel}<span class="featured-media__accent">.</span></p>
+              <p class="mt-3 font-mono text-[0.65rem] uppercase tracking-[0.13em] text-white/48">portrait · square · widescreen ready</p>
+            </div>
+          </div>
+        )
+      }
       <p id={descriptionId} class="sr-only">{accessibleDescription}</p>
     </div>
   </div>
 </section>
 
 <style>
+  .featured-media {
+    box-shadow: 7px 7px 0 0 var(--featured-accent);
+  }
+
+  .featured-media__accent,
+  .featured-media__soft {
+    color: var(--featured-soft);
+  }
+
+  .featured-media__pulse {
+    background: var(--featured-accent);
+  }
+
+  .featured-media__placeholder {
+    background:
+      radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--featured-accent) 24%, transparent), transparent 45%),
+      #050505;
+  }
+
+  .featured-media[data-theme='classified'] .featured-media__placeholder {
+    background:
+      linear-gradient(115deg, transparent 0 18%, rgb(255 255 255 / 0.03) 18% 20%, transparent 20% 68%, rgb(255 255 255 / 0.025) 68% 70%, transparent 70%),
+      radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--featured-accent) 18%, transparent), transparent 45%),
+      #050505;
+  }
+
+  .featured-media[data-theme='scoreboard'] .featured-media__placeholder {
+    background:
+      linear-gradient(90deg, transparent 49.5%, rgb(255 255 255 / 0.09) 49.5% 50.5%, transparent 50.5%),
+      linear-gradient(0deg, transparent 48%, rgb(255 255 255 / 0.06) 48% 52%, transparent 52%),
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--featured-accent) 18%, transparent), transparent 52%),
+      #050505;
+  }
+
+  .featured-media__scanlines {
+    background: repeating-linear-gradient(0deg, transparent 0 5px, rgb(255 255 255 / 0.025) 5px 6px);
+  }
+
+  .featured-media__mark {
+    color: color-mix(in srgb, var(--featured-accent) 9%, transparent);
+    font-size: clamp(8rem, 24vw, 17rem);
+    letter-spacing: -0.08em;
+    line-height: 1;
+    transform: rotate(-4deg);
+  }
+
+  .featured-media[data-theme='scoreboard'] .featured-media__mark {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(4rem, 13vw, 9rem);
+    letter-spacing: -0.1em;
+    transform: none;
+  }
+
   @keyframes featured-media-pulse {
     0%, 100% {
       opacity: 1;

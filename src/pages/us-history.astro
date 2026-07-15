@@ -5,6 +5,7 @@
 // 2026-27: this course runs Reconstruction → the present.
 import CoursePage from '../components/CoursePage.astro';
 import FeaturedMedia from '../components/FeaturedMedia.astro';
+import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 
@@ -273,6 +274,13 @@ const glossary = [
 
 <CoursePage
   title="us history"
+  theme="history"
+  identityLabel="american archive // 1865 → now"
+  secret={{
+    trigger: 'archive seal // est. 1865',
+    title: 'archive note',
+    message: "Everything in this course is already old enough to be somebody's evidence. The only question is what story we build from it.",
+  }}
   tagline="reconstruction to right now — the american story, argued out loud."
   intro="This course picks up where the Civil War left off and runs to the present. It's built on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
   units={units}
@@ -282,6 +290,10 @@ const glossary = [
   <FeaturedMedia
     slot="hero"
     id="d-day-field-reel"
+    theme="history"
+    reelLabel="field reel"
+    cornerLabel="normandy // 06.06.44"
+    actionLabel="press play. turn it up."
     eyebrow="world war ii · operation overlord"
     title="d-day starts in the dark"
     description="Twenty-eight seconds of D-Day energy: paratroopers gearing up, aircraft over Normandy, and a sky full of silk. Press play—then ask what it takes to step out of that door."
@@ -290,6 +302,18 @@ const glossary = [
     duration="00:28"
     credit="@forgottenframes_in4k on TikTok"
     accessibleDescription="A fast-cut montage of colorized World War II footage showing American paratroopers preparing for flight, riding in transport aircraft, and parachuting over Normandy."
+  />
+
+  <QuickTake
+    slot="hook"
+    id="us-history-opening-take"
+    eyebrow="pick first. receipts second."
+    question="What changes the country faster?"
+    options={[
+      { label: 'a president', response: 'Then your job is to prove how one person moved institutions, laws, or public opinion—and where their power stopped.' },
+      { label: 'a movement', response: 'Strong pick. Now bring evidence that ordinary people changed the terms of the debate before leaders followed.' },
+      { label: 'a crisis', response: 'Crises can unlock change, but they do not choose the direction. Find who used the opening—and who paid for it.' },
+    ]}
   />
 
   <section class="mt-12">
