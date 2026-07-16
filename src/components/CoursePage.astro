@@ -1,6 +1,8 @@
 ---
 // Shared template for the three active course pages.
 import Base from '../layouts/Base.astro';
+import resourceLibrary from '../data/resources.json';
+import unitMaterialAssignments from '../data/unit-materials.json';
 
 interface Material {
   label: string;
@@ -27,6 +29,7 @@ interface Props {
   intro: string;
   units: Unit[];
   resources: Resource[];
+  libraryCourse: 'US History' | 'Hidden History' | 'Beyond the Scoreboard';
   theme?: 'history' | 'classified' | 'scoreboard';
   identityLabel?: string;
 }
@@ -37,11 +40,65 @@ const {
   intro,
   units,
   resources,
+  libraryCourse,
   theme = 'history',
   identityLabel,
 } = Astro.props;
-const currentIndex = units.findIndex((unit) => unit.current);
-const currentUnit = currentIndex >= 0 ? units[currentIndex] : undefined;
+
+interface CatalogResource {
+  id: string;
+  name: string;
+  type: string;
+  href?: string;
+}
+
+const groupForType = (type: string) => {
+  if (type === 'Slides') return 'slides';
+  if (['Activity', 'Game/Sim', 'Review/Game'].includes(type)) return 'activities & games';
+  if (['Reading', 'Packet', 'Study guide', 'Rubric'].includes(type)) return 'readings & packets';
+  return 'more';
+};
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+const catalog = resourceLibrary.resources as CatalogResource[];
+const catalogById = new Map(catalog.map((resource) => [resource.id, resource]));
+const courseAssignments = unitMaterialAssignments.courses[libraryCourse] as Record<string, string[]>;
+const resolvedUnits = units.map((unit, index) => {
+  const assignedMaterials = (courseAssignments?.[unit.name] ?? [])
+    .map((id) => catalogById.get(id))
+    .filter((resource): resource is CatalogResource & { href: string } => Boolean(resource?.href))
+    .map((resource) => ({
+      label: resource.name,
+      href: resource.href,
+      group: groupForType(resource.type),
+    }));
+
+  const seen = new Set<string>();
+  // Catalog names are the cleaned-up display names. Hand-wired links remain as a fallback
+  // for lesson hubs and anything that has not been catalogued yet.
+  const materials = [...assignedMaterials, ...(unit.materials ?? [])].filter((material) => {
+    const key = material.href.trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return {
+    ...unit,
+    materials,
+    materialDialogId: `${slugify(libraryCourse)}-${index + 1}-materials`,
+  };
+});
+
+const currentIndex = resolvedUnits.findIndex((unit) => unit.current);
+const currentUnit = currentIndex >= 0 ? resolvedUnits[currentIndex] : undefined;
 const hasHero = Astro.slots.has('hero');
 const hasHook = Astro.slots.has('hook');
 const courseMapCopy = {
@@ -49,15 +106,27 @@ const courseMapCopy = {
   classified: { status: 'current case', current: 'now investigating', route: 'the case files' },
   scoreboard: { status: 'current season', current: 'now playing', route: 'the schedule' },
 }[theme];
-const progressPercent = currentIndex >= 0 ? ((currentIndex + 1) / units.length) * 100 : 0;
+const progressPercent = currentIndex >= 0 ? ((currentIndex + 1) / resolvedUnits.length) * 100 : 0;
+const normalizeMaterialGroup = (value?: string) => {
+  const group = value?.toLowerCase() ?? '';
+  if (group.includes('slide') || group.includes('deck')) return 'slides';
+  if (group.includes('read') || group.includes('packet') || group.includes('source') || group.includes('study')) return 'readings & packets';
+  if (group.includes('activ') || group.includes('game') || group.includes('review')) return 'activities & games';
+  return group === 'more' ? 'more' : 'materials';
+};
 const groupMaterials = (materials: Material[]) =>
   materials.reduce<{ name: string; items: Material[] }[]>((groups, material) => {
-    const name = material.group ?? 'materials';
+    const name = normalizeMaterialGroup(material.group);
     const existing = groups.find((group) => group.name === name);
     if (existing) existing.items.push(material);
     else groups.push({ name, items: [material] });
     return groups;
-  }, []);
+  }, []).sort((a, b) => {
+    const order = ['slides', 'activities & games', 'readings & packets', 'more', 'materials'];
+    const aIndex = order.indexOf(a.name);
+    const bIndex = order.indexOf(b.name);
+    return (aIndex === -1 ? order.length : aIndex) - (bIndex === -1 ? order.length : bIndex);
+  });
 ---
 
 <Base title={title}>
@@ -83,7 +152,7 @@ const groupMaterials = (materials: Material[]) =>
               {courseMapCopy.status}
             </p>
             <p class="course-map__count">
-              <span>unit</span> {String(currentIndex + 1).padStart(2, '0')} <span>/</span> {String(units.length).padStart(2, '0')}
+              <span>unit</span> {String(currentIndex + 1).padStart(2, '0')} <span>/</span> {String(resolvedUnits.length).padStart(2, '0')}
             </p>
           </header>
 
@@ -97,9 +166,9 @@ const groupMaterials = (materials: Material[]) =>
 
             <div class="course-map__route">
               <p class="course-map__eyebrow">{courseMapCopy.route}</p>
-              <ol class="course-map__units" aria-label={`Course progress: unit ${currentIndex + 1} of ${units.length}`}>
+              <ol class="course-map__units" aria-label={`Course progress: unit ${currentIndex + 1} of ${resolvedUnits.length}`}>
                 {
-                  units.map((unit, i) => (
+                  resolvedUnits.map((unit, i) => (
                     <li
                       class="course-map__unit"
                       data-state={i < currentIndex ? 'complete' : i === currentIndex ? 'current' : 'upcoming'}
@@ -138,10 +207,10 @@ const groupMaterials = (materials: Material[]) =>
     <h2 class="mt-14 font-display text-3xl font-bold lowercase">units</h2>
     <ol class="mt-6 space-y-3">
       {
-        units.map((unit, i) => (
-          <li class="flex items-baseline gap-4 border-b-2 border-line pb-3">
+        resolvedUnits.map((unit, i) => (
+          <li class="unit-row flex items-baseline gap-4 border-b-2 border-line pb-3">
             <span class="shrink-0 font-display font-bold text-accent">{String(i + 1).padStart(2, '0')}</span>
-            <div>
+            <div class="min-w-0 flex-1">
               <span class="font-semibold">{unit.name}</span>
               {unit.current && (
                 <span class="ml-2 rounded-full bg-accent px-2 py-0.5 font-mono text-xs lowercase text-white">
@@ -165,63 +234,65 @@ const groupMaterials = (materials: Material[]) =>
                   </ul>
                 </details>
               )}
-              {unit.materials && unit.materials.length > 0 && (
-                unit.materials.length > 4 ? (
-                  <details class="group/materials mt-3 rounded-md border-2 border-line bg-white open:border-accent">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-3 py-2 font-mono text-xs lowercase text-accent select-none">
-                      <span class="flex items-center gap-2">
-                        <span>unit materials</span>
-                        <span class="rounded-full bg-accent-soft px-2 py-0.5 text-[0.68rem] text-accent">
-                          {unit.materials.length}
-                        </span>
-                      </span>
-                      <span class="group-open/materials:hidden">open +</span>
-                      <span class="hidden group-open/materials:inline">close −</span>
-                    </summary>
-                    <div class="border-t-2 border-line px-3 py-3">
-                      {groupMaterials(unit.materials).map((materialGroup, _groupIndex, materialGroups) => (
-                        <section class:list={['first:mt-0', materialGroups.length > 1 ? 'mt-4' : 'mt-0']}>
-                          {(materialGroups.length > 1 || materialGroup.name !== 'materials') && (
-                            <h3 class="mb-2 font-mono text-[0.68rem] uppercase tracking-widest text-ink-soft">
-                              {materialGroup.name}
-                            </h3>
-                          )}
-                          <ul class="grid gap-2 sm:grid-cols-2">
-                            {materialGroup.items.map((material) => (
-                              <li>
-                                <a
-                                  href={material.href}
-                                  target="_blank"
-                                  rel="noopener"
-                                  class="surface-link flex h-full items-start justify-between gap-3 rounded border border-line bg-paper px-3 py-2 font-mono text-xs lowercase text-ink hover:text-accent"
-                                >
-                                  <span>{material.label}</span>
-                                  <span aria-hidden="true" class="shrink-0 text-accent">↗</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
-                      ))}
+              {unit.materials.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    class="materials-trigger mt-3"
+                    data-materials-open={unit.materialDialogId}
+                    aria-haspopup="dialog"
+                  >
+                    <span>unit materials</span>
+                    <span class="materials-trigger__count">{unit.materials.length}</span>
+                    <span class="materials-trigger__arrow" aria-hidden="true">→</span>
+                  </button>
+
+                  <dialog
+                    id={unit.materialDialogId}
+                    class="materials-dialog"
+                    aria-labelledby={`${unit.materialDialogId}-title`}
+                  >
+                    <div class="materials-sheet">
+                      <header class="materials-sheet__header">
+                        <div>
+                          <p class="materials-sheet__eyebrow">unit {String(i + 1).padStart(2, '0')} materials</p>
+                          <h2 id={`${unit.materialDialogId}-title`} class="materials-sheet__title">{unit.name}</h2>
+                          <p class="materials-sheet__count">{unit.materials.length} ready to open</p>
+                        </div>
+                        <button type="button" class="materials-sheet__close" data-materials-close aria-label="Close materials">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                      </header>
+
+                      <label class="materials-search">
+                        <span class="sr-only">Search {unit.name} materials</span>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17">
+                          <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <input type="search" placeholder="find a slide, reading, or activity" data-materials-search />
+                      </label>
+
+                      <div class="materials-sheet__body" data-materials-list>
+                        {groupMaterials(unit.materials).map((materialGroup) => (
+                          <section class="materials-group" data-material-group>
+                            <h3>{materialGroup.name}</h3>
+                            <ul>
+                              {materialGroup.items.map((material) => (
+                                <li data-material-item data-search-text={material.label.toLowerCase()}>
+                                  <a href={material.href} target="_blank" rel="noopener">
+                                    <span>{material.label}</span>
+                                    <span aria-hidden="true">↗</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
+                        <p class="materials-empty" data-materials-empty hidden>Nothing in this unit matches that search.</p>
+                      </div>
                     </div>
-                  </details>
-                ) : (
-                  <ul class="mt-3 grid gap-2 sm:grid-cols-2">
-                    {unit.materials.map((material) => (
-                      <li>
-                        <a
-                          href={material.href}
-                          target="_blank"
-                          rel="noopener"
-                          class="surface-link flex h-full items-start justify-between gap-3 rounded border border-line bg-white px-3 py-2 font-mono text-xs lowercase text-ink hover:text-accent"
-                        >
-                          <span>{material.label}</span>
-                          <span aria-hidden="true" class="shrink-0 text-accent">↗</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )
+                  </dialog>
+                </>
               )}
             </div>
           </li>
@@ -274,6 +345,56 @@ const groupMaterials = (materials: Material[]) =>
   </div>
 </Base>
 
+<script>
+  const setupMaterialDrawers = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-materials-open]').forEach((button) => {
+      if (button.dataset.materialsReady === 'true') return;
+      button.dataset.materialsReady = 'true';
+      button.addEventListener('click', () => {
+        const dialog = document.getElementById(button.dataset.materialsOpen ?? '');
+        if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      });
+    });
+
+    document.querySelectorAll<HTMLDialogElement>('.materials-dialog').forEach((dialog) => {
+      if (dialog.dataset.materialsReady === 'true') return;
+      dialog.dataset.materialsReady = 'true';
+      dialog.querySelector<HTMLButtonElement>('[data-materials-close]')?.addEventListener('click', () => dialog.close());
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+
+      const search = dialog.querySelector<HTMLInputElement>('[data-materials-search]');
+      const empty = dialog.querySelector<HTMLElement>('[data-materials-empty]');
+      search?.addEventListener('input', () => {
+        const query = search.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        dialog.querySelectorAll<HTMLElement>('[data-material-item]').forEach((item) => {
+          const visible = (item.dataset.searchText ?? '').includes(query);
+          item.hidden = !visible;
+          if (visible) visibleCount += 1;
+        });
+
+        dialog.querySelectorAll<HTMLElement>('[data-material-group]').forEach((group) => {
+          group.hidden = !group.querySelector('[data-material-item]:not([hidden])');
+        });
+
+        if (empty) empty.hidden = visibleCount > 0;
+      });
+
+      dialog.addEventListener('close', () => {
+        if (!search || search.value === '') return;
+        search.value = '';
+        search.dispatchEvent(new Event('input'));
+      });
+    });
+  };
+
+  setupMaterialDrawers();
+  document.addEventListener('astro:page-load', setupMaterialDrawers);
+</script>
+
 <style>
   .course-page--history {
     --color-accent: #a63a2f;
@@ -291,6 +412,251 @@ const groupMaterials = (materials: Material[]) =>
     --color-accent: #08765a;
     --color-accent-dark: #04503d;
     --color-accent-soft: #e4fff5;
+  }
+
+  .materials-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.2rem;
+    padding: 0.42rem 0.58rem 0.42rem 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, var(--color-line));
+    border-radius: 999px;
+    background: white;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    box-shadow: 0 8px 20px -20px var(--color-ink);
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .materials-trigger:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -20px var(--color-accent-dark);
+  }
+
+  .materials-trigger:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 32%, transparent);
+    outline-offset: 3px;
+  }
+
+  .materials-trigger__count {
+    display: inline-flex;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: white;
+    font-size: 0.6rem;
+  }
+
+  .materials-trigger__arrow {
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    transition: transform 150ms ease;
+  }
+
+  .materials-trigger:hover .materials-trigger__arrow {
+    transform: translateX(2px);
+  }
+
+  .materials-dialog {
+    inset: 0 0 0 auto;
+    width: min(39rem, 100%);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .materials-dialog::backdrop {
+    background: rgb(18 18 22 / 0.48);
+    backdrop-filter: blur(3px);
+  }
+
+  .materials-sheet {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background:
+      linear-gradient(150deg, color-mix(in srgb, var(--color-accent-soft) 55%, white) 0%, white 25%),
+      white;
+    box-shadow: -30px 0 70px -42px rgb(0 0 0 / 0.65);
+    animation: materials-enter 190ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes materials-enter {
+    from { transform: translateX(1.25rem); opacity: 0.7; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .materials-sheet__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.55rem 1.55rem 1.2rem;
+    border-top: 4px solid var(--color-accent);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .materials-sheet__eyebrow,
+  .materials-sheet__count,
+  .materials-group h3 {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+  }
+
+  .materials-sheet__eyebrow {
+    color: var(--color-accent-dark);
+    font-size: 0.61rem;
+  }
+
+  .materials-sheet__title {
+    max-width: 30rem;
+    margin-top: 0.28rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 5vw, 2.35rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .materials-sheet__count {
+    margin-top: 0.6rem;
+    color: var(--color-ink-soft);
+    font-size: 0.56rem;
+  }
+
+  .materials-sheet__close {
+    display: inline-flex;
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: white;
+    color: var(--color-ink);
+    font-size: 1.55rem;
+    line-height: 1;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .materials-sheet__close:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    transform: rotate(4deg);
+  }
+
+  .materials-search {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 1.1rem 1.55rem 0;
+    padding: 0.72rem 0.82rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: white;
+    color: var(--color-ink-soft);
+    box-shadow: 0 12px 30px -28px var(--color-ink);
+  }
+
+  .materials-search:focus-within {
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 11%, transparent);
+  }
+
+  .materials-search input {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: 0.86rem;
+  }
+
+  .materials-search input::placeholder {
+    color: var(--color-ink-soft);
+  }
+
+  .materials-sheet__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.35rem 1.55rem 2.75rem;
+    overscroll-behavior: contain;
+  }
+
+  .materials-group + .materials-group {
+    margin-top: 1.6rem;
+  }
+
+  .materials-group h3 {
+    margin-bottom: 0.62rem;
+    color: var(--color-ink-soft);
+    font-size: 0.59rem;
+  }
+
+  .materials-group ul {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .materials-group a {
+    display: flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.72rem;
+    background: rgb(255 255 255 / 0.84);
+    color: var(--color-ink);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.35;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .materials-group a span:last-child {
+    flex: 0 0 auto;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+  }
+
+  .materials-group a:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-line));
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    transform: translateX(2px);
+    box-shadow: 0 12px 28px -25px var(--color-accent-dark);
+  }
+
+  .materials-empty {
+    padding: 2.5rem 1rem;
+    color: var(--color-ink-soft);
+    text-align: center;
+    font-size: 0.86rem;
   }
 
   .course-map {
@@ -521,6 +887,26 @@ const groupMaterials = (materials: Material[]) =>
   }
 
   @media (max-width: 767px) {
+    .materials-dialog {
+      width: 100%;
+    }
+
+    .materials-sheet {
+      border-left: 0;
+    }
+
+    .materials-sheet__header {
+      padding: 1.2rem 1rem 1rem;
+    }
+
+    .materials-search {
+      margin: 0.9rem 1rem 0;
+    }
+
+    .materials-sheet__body {
+      padding: 1.1rem 1rem 2rem;
+    }
+
     .course-map__layout {
       grid-template-columns: 1fr;
     }

@@ -6,6 +6,7 @@ import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 import DailyDesk from '../components/DailyDesk.astro';
+import siteContent from '../data/site-content.json';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
@@ -185,10 +186,11 @@ const resources = [
 
 <CoursePage
   title="beyond the scoreboard"
+  libraryCourse="Beyond the Scoreboard"
   theme="scoreboard"
   identityLabel="film room // history in play"
-  tagline="american history through sports. the games were never just games."
-  intro="Sports are never sealed off from the rest of the country. Money, television, law, race, protest, labor, and politics all walk onto the field with the players. We start with the games, then follow whatever they reveal about America. The class ends close to home with a Michigan sports story you choose."
+  tagline={siteContent.courses.beyondTheScoreboard.tagline}
+  intro={siteContent.courses.beyondTheScoreboard.intro}
   units={units}
   resources={resources}
 >

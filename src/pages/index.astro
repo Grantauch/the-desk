@@ -2,6 +2,7 @@
 // index.astro — the home page.
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import siteContent from '../data/site-content.json';
 
 const announcements = (await getCollection('announcements'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -13,21 +14,21 @@ const courses = [
     name: 'us history',
     theme: 'history',
     identity: 'american archive',
-    blurb: 'reconstruction to right now — the people, choices, disasters, and breakthroughs that still explain the country.',
+    blurb: siteContent.courseCards.usHistory,
   },
   {
     href: '/hidden-history/',
     name: 'hidden history',
     theme: 'classified',
     identity: 'evidence desk',
-    blurb: 'coverups, conspiracies, hoaxes, and the evidence that separates the documented from the nonsense.',
+    blurb: siteContent.courseCards.hiddenHistory,
   },
   {
     href: '/beyond-the-scoreboard/',
     name: 'beyond the scoreboard',
     theme: 'scoreboard',
     identity: 'film room',
-    blurb: 'american history through sports. the games were never just games.',
+    blurb: siteContent.courseCards.beyondTheScoreboard,
   },
 ];
 
@@ -40,10 +41,10 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
   <!-- hero -->
   <section class="py-12 dot-grid">
     <h1 class="font-display text-7xl sm:text-8xl font-bold lowercase tracking-tight">
-      the desk<span class="text-accent">.</span>
+      {siteContent.home.title}<span class="text-accent">.</span>
     </h1>
     <p class="mt-5 text-lg text-ink-soft max-w-xl">
-      Three history classes, one ridiculous pile of stories. Slides, games, sources, and today’s best detours live here.
+      {siteContent.home.intro}
     </p>
   </section>
 
@@ -51,12 +52,12 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
   <section id="library-search" class="home-library scroll-mt-32 p-5 sm:p-6">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div class="max-w-xl">
-        <p class="font-mono text-xs font-semibold lowercase text-accent">the whole desk, searchable</p>
+        <p class="font-mono text-xs font-semibold lowercase text-accent">{siteContent.home.libraryEyebrow}</p>
         <h2 class="mt-1 font-display text-3xl font-bold lowercase">
-          find the lesson before the bell<span class="text-accent">.</span>
+          {siteContent.home.libraryTitle}<span class="text-accent">.</span>
         </h2>
         <p class="mt-2 leading-relaxed text-ink-soft">
-          Search slides, packets, games, readings, and activities from every class.
+          {siteContent.home.libraryIntro}
         </p>
       </div>
       <a href="/resources/" class="font-mono text-xs font-semibold lowercase text-accent hover:text-accent-dark">

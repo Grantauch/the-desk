@@ -9,6 +9,7 @@ import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
 import DailyDesk from '../components/DailyDesk.astro';
+import siteContent from '../data/site-content.json';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
@@ -262,10 +263,11 @@ const resources = [
 
 <CoursePage
   title="us history"
+  libraryCourse="US History"
   theme="history"
   identityLabel="american archive // 1865 → now"
-  tagline="reconstruction to right now — the american story is still being argued over."
-  intro="The Civil War ends; the argument over the country does not. We follow that argument from Reconstruction to right now through the people, choices, disasters, breakthroughs, and strange side stories that made the United States what it is. You will change your mind sometimes. Good."
+  tagline={siteContent.courses.usHistory.tagline}
+  intro={siteContent.courses.usHistory.intro}
   units={units}
   resources={resources}
 >

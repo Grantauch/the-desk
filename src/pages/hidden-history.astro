@@ -5,6 +5,7 @@ import CoursePage from '../components/CoursePage.astro';
 import QuickTake from '../components/QuickTake.astro';
 import DailyCard from '../components/DailyCard.astro';
 import DailyDesk from '../components/DailyDesk.astro';
+import siteContent from '../data/site-content.json';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
@@ -184,10 +185,11 @@ const resources = [
 
 <CoursePage
   title="hidden history"
+  libraryCourse="Hidden History"
   theme="classified"
   identityLabel="evidence desk // clearance required"
-  tagline="coverups, conspiracies, hoaxes, and the evidence that sorts them out."
-  intro="Some of the wildest government stories are true. Plenty aren't. We open the files, check where every claim came from, and learn when the honest answer is ‘we don't know.’ Watergate, MKUltra, COINTELPRO, UFOs, hoaxes—the fun is figuring out which box each one belongs in."
+  tagline={siteContent.courses.hiddenHistory.tagline}
+  intro={siteContent.courses.hiddenHistory.intro}
   units={units}
   resources={resources}
 >
