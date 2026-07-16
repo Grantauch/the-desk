@@ -13,6 +13,7 @@ interface Resource {
   type: string;
   onWebsite: boolean;
   href: string | null;
+  status?: 'restricted';
 }
 
 const library = resourceLibrary as {
@@ -130,7 +131,7 @@ const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
         }
       </nav>
       <p class="mt-3 text-sm leading-relaxed text-ink-soft lowercase">
-        current-course materials open with your mtmorrisschools.org google account. former courses remain preserved in the archive.
+        drive materials may ask for your mtmorrisschools.org google account. former courses remain preserved in the archive.
       </p>
     </div>
 
@@ -234,6 +235,8 @@ const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
                       >
                         open in drive ↗
                       </a>
+                    ) : resource.status === 'restricted' ? (
+                      <span class="font-mono text-xs lowercase text-ink-soft">teacher copy — license restricted</span>
                     ) : (
                       <span class="font-mono text-xs lowercase text-ink-soft">link coming soon</span>
                     )}

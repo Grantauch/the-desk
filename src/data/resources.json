@@ -1,7 +1,7 @@
 {
   "source": "the-desk-resource-inventory.xlsx",
-  "resourceCount": 503,
-  "linkedCount": 502,
+  "resourceCount": 530,
+  "linkedCount": 525,
   "resources": [
     {
       "id": "002-cold-war-timeline-slides",
@@ -60,29 +60,32 @@
     {
       "id": "008-01-roaring-20s-and-harlemrenaissance",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "01 - Roaring 20s and HarlemRenaissance",
+      "unitTopic": "WWI & the Twenties",
+      "name": "Roaring Twenties & Harlem Renaissance — Licensed Teacher Copy",
       "type": "Slides",
       "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1CVIRGuYhT6rUbjye2I7uWXocPx5q3FZu"
+      "href": null,
+      "status": "restricted"
     },
     {
       "id": "009-01-world-war-1-notes",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "01 - World War 1 Notes",
+      "unitTopic": "WWI & the Twenties",
+      "name": "World War I Notes — Licensed Teacher Copy",
       "type": "Slides",
       "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1KJqgghvSU7bQxeOUtVvD2goDZv9srDTc"
+      "href": null,
+      "status": "restricted"
     },
     {
       "id": "010-01-world-war-1-notes-in-3d",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "01 - World War 1 Notes in 3D",
+      "unitTopic": "WWI & the Twenties",
+      "name": "World War I Notes in 3D — Licensed Teacher Copy",
       "type": "Slides",
       "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1kGxgQ1OWTuNeVb6r2R9B9wVBvo8Np3Px"
+      "href": null,
+      "status": "restricted"
     },
     {
       "id": "011-02-3d-railroad-notes",
@@ -204,11 +207,12 @@
     {
       "id": "024-04-spanish-american-war",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "04 - Spanish American War",
+      "unitTopic": "The Progressive Era & Empire",
+      "name": "Spanish-American War — Licensed Teacher Copy",
       "type": "Slides",
       "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1dEM5tTyVTN76J_pBPI3VF4dZjiXR2fAM"
+      "href": null,
+      "status": "restricted"
     },
     {
       "id": "025-04-spanish-american-war-2",
@@ -546,11 +550,11 @@
     {
       "id": "062-detailed-day-1-gilded-age-game-guide",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "Detailed Day 1 Gilded Age Game Guide",
-      "type": "Game/Sim",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1g5ISha5sRnKH96KoYPJB1NmlV5XSY9EN"
+      "unitTopic": "The Gilded Age",
+      "name": "Gilded Age Simulation — Day 1 Guide",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1TJalioP0Z_WJt5lZpM6gltoE2d_8tc9e/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "063-detailed-day-2-gilded-age-game-guide",
@@ -564,11 +568,11 @@
     {
       "id": "064-double-v-movement-presentation",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "Double V Movement Presentation",
+      "unitTopic": "World War II",
+      "name": "Double V Movement — Victory Abroad, Victory at Home",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1gerb7_mk6RAojnYFkEKWOkPAycVYn3_o"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1HCVxmQo_UFWN_z1FDr9qUqQr9Q990VGN/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "065-event-card-system-guide",
@@ -645,11 +649,11 @@
     {
       "id": "073-georges-clemenceau-france-s-father-victory-in-world-war-i",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "Georges-Clemenceau--France-s--Father-Victory--in-World-War-I",
+      "unitTopic": "WWI & the Twenties",
+      "name": "Georges Clemenceau — France in World War I",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1HdMqxV8UIpftYy56NetAnCLXZbJBAeq7"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1lrTkvorKjy5WrUTqi27MFwMzmDYybSDF/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "074-gilded-age-special-event-cards-updated",
@@ -969,11 +973,11 @@
     {
       "id": "109-urbanization-life-in-the-big-city-1",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "Urbanization! Life in the Big City 1",
+      "unitTopic": "The Gilded Age",
+      "name": "Urbanization During the Industrial Revolution",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1hdN7Ore3fNwGizyRIFKfkd_0v4v8KlEB"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/16utRzBLa2oF_9X8W8L608PPFOJS9RDQC/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "110-ushistory21877presentdailywarmupquestions-1",
@@ -1005,11 +1009,11 @@
     {
       "id": "113-woodrow-wilson-progressive-president-and-world-war-i-leader",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "Woodrow-Wilson--Progressive-President-and-World-War-I-Leader",
+      "unitTopic": "WWI & the Twenties",
+      "name": "Woodrow Wilson — Progressive President and WWI Leader",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=147nxdFi4SsMIqpoPLEKzL8uDchCPPN0D"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1OY465TH_Kma3FQ2DctVm9GIof09t0QOo/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "114-world-organizations",
@@ -1032,11 +1036,11 @@
     {
       "id": "116-wwi-people-to-know",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "WWI - People to Know",
+      "unitTopic": "WWI & the Twenties",
+      "name": "World War I — People to Know",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1w6qQQUiExFrDyCRASJMVIs_We0qxJksc"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1mK7Vc0FsIrTjVbx6MmpIKp8i2VLzEVRa/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "117-wwi-air-combat-absurd-evolution-entertaining",
@@ -1203,11 +1207,11 @@
     {
       "id": "135-wwii-pacific-war-lesson-full",
       "course": "US History",
-      "unitTopic": "Topics & lessons",
-      "name": "WWII Pacific War Lesson Full",
+      "unitTopic": "World War II",
+      "name": "World War II — The War in the Pacific",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1tVzCYTvaikpCVlSWQ9EioouBKsaVNTUH"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1FQMYIg1XGSzNPPE3hwY3qzC5seEI3d5w/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "136-wwii-study-guide-digital",
@@ -1527,11 +1531,11 @@
     {
       "id": "171-1-introduction-to-the-legislative-branch",
       "course": "Government / Civics",
-      "unitTopic": "Government",
-      "name": "1 - Introduction to the Legislative Branch",
+      "unitTopic": "Legislative Branch",
+      "name": "Introduction to the Legislative Branch — Article I",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1S-AiNk0kPm7X7sNaW_iMnWEq5tmTG6sW"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1INhqINL5K4ZYKcgz7K7J0NOknlqACCOu/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "172-15-3-visual-info-brief-amendments-to-the-constitution-1",
@@ -1617,11 +1621,11 @@
     {
       "id": "181-bill-of-rights-deepdive",
       "course": "Government / Civics",
-      "unitTopic": "Government",
-      "name": "Bill of Rights DeepDive",
+      "unitTopic": "Constitution & Rights",
+      "name": "The Bill of Rights — Deep Dive",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1_O3jXB_L7cTUY4NP5zd-yYOav3Sp8z0V"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1SlqakJ6rX6NLQcWND3T4mZrxsdtHOXK3/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "182-bill-of-rights-deepdive-mi-updated",
@@ -1824,11 +1828,11 @@
     {
       "id": "204-electoral-college",
       "course": "Government / Civics",
-      "unitTopic": "Government",
-      "name": "Electoral College",
+      "unitTopic": "Executive Branch & Elections",
+      "name": "The Electoral College — How Presidents Are Chosen",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1MhvbRRfmI8jHFueRgmGZK5kum7xkC-Fr"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1q_1vEAfvbph3mZrlPNzNhT-DhctEhl3-/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "205-exam-review-checks-and-balances",
@@ -2102,12 +2106,12 @@
     },
     {
       "id": "235-jeannette-rankin-pioneering-congresswoman-and-peace-advocate",
-      "course": "Government / Civics",
-      "unitTopic": "Government",
-      "name": "Jeannette-Rankin--Pioneering-Congresswoman-and-Peace-Advocate",
+      "course": "US History",
+      "unitTopic": "WWI & the Twenties",
+      "name": "Jeannette Rankin — Congresswoman and Peace Advocate",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=14xjbPnwDiiembOLDq_mS8m5nTrzfA53P"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1V8hygdQS7AVxtPa6dJ4vGb1AqX5y0M_t/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "236-labor-management-scenario-cards-presentation",
@@ -2328,11 +2332,11 @@
     {
       "id": "260-roles-of-the-president",
       "course": "Government / Civics",
-      "unitTopic": "Government",
-      "name": "Roles of the President",
+      "unitTopic": "Executive Branch & Elections",
+      "name": "The Seven Roles of the President",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1FmhszOG70WszXgiU7rTsSui-HTMHa5mw"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/138ATBuF6vwi0aeMWEgyX94el4WMssclg/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "261-separation-of-powers",
@@ -2490,11 +2494,11 @@
     {
       "id": "278-types-of-government",
       "course": "Government / Civics",
-      "unitTopic": "Government",
-      "name": "Types of Government",
+      "unitTopic": "Government Foundations",
+      "name": "Types of Government — Comparative Overview",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1W94Yphdg4XDguCdvd3UiVb-n9FXQCLSC"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1Iy9sCelP0EMUC8GVyKLo8VTWB94HDJKq/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "279-us-presidents-buchanan-to-hayes",
@@ -2661,11 +2665,11 @@
     {
       "id": "297-gideon-v-wainwright-lesson",
       "course": "Law",
-      "unitTopic": "Law",
-      "name": "Gideon v Wainwright Lesson",
+      "unitTopic": "Rights & Cases",
+      "name": "Gideon v. Wainwright — Right to Counsel",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1mpzjDb7_k4ytsFtt2YXnhqBVC-FCNbGm"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1MsWb13O3beJQ2MrSJSA9vfW-cy8KcM5C/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "298-introduction-to-legal-principles-and-history-of-law",
@@ -2706,20 +2710,20 @@
     {
       "id": "302-miranda-rights-assignment",
       "course": "Law",
-      "unitTopic": "Law",
-      "name": "Miranda Rights Assignment",
+      "unitTopic": "Assignments",
+      "name": "Miranda Rights — Research Paper Assignment",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=13luXdpoOePqjhnqqqmKW7TM_jw4C344U"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/18Grtp_b41E3LOb3JZ-0ujqFb7HdGtRI0/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "303-mock-trial-state-of-michigan-vs-hunter-hemingway-1",
       "course": "Law",
-      "unitTopic": "Law",
-      "name": "Mock-Trial--State-of-Michigan-vs--Hunter-Hemingway 1",
+      "unitTopic": "Mock Trial",
+      "name": "Mock Trial — State of Michigan v. Hunter Hemingway",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1GdX6NL6zRaNZSNkKH-gO5hJQEiiWOQ05"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1S7DlKHmCPDes2H-ej4f3XFcB6z1VZ8Nn/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "304-plessy-v-ferguson-and-segregation-presentation-1",
@@ -3030,11 +3034,11 @@
     {
       "id": "338-cognitive-bias",
       "course": "Economics",
-      "unitTopic": "Micro / Behavioral / Games",
-      "name": "Cognitive Bias",
+      "unitTopic": "Behavioral Economics",
+      "name": "Behavioral Economics — Cognitive Bias Vocabulary",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1f0bTLaZFnHjB_IDXJl2oQfpXvni0sl33"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1gIVdVZJIvTgpyt_LhuGYwpMNm1Bd1NCg/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "339-cognitivebias-review",
@@ -3651,11 +3655,11 @@
     {
       "id": "407-why-government-intervenes-in-markets",
       "course": "Economics",
-      "unitTopic": "Micro / Behavioral / Games",
+      "unitTopic": "Market Failure",
       "name": "Why Government Intervenes in Markets",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/open?id=1hQxWLLcWCVr25xfKHb5Boq4ocnqyZPjZ"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/14BmzQ79EULQbdLF_NHVwrn4Lay5Z_7oE/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "408-why-government-intervenes-in-markets-rebuilt",
@@ -3696,11 +3700,11 @@
     {
       "id": "412-market-structures-day-8",
       "course": "Economics",
-      "unitTopic": "Microeconomics",
-      "name": "Market Structures (Day 8)",
+      "unitTopic": "Market Structures",
+      "name": "Market Structures and Competition",
       "type": "Slides",
-      "onWebsite": false,
-      "href": "https://drive.google.com/file/d/15Ji3UrZa5JQ3APjkfs_1pbRr4ByAXbTG/view"
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1DBi7eXeNrXUjr6PL1lU4313FWQfLYD1M/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     },
     {
       "id": "413-price-mechanism-day-3",
@@ -4529,6 +4533,249 @@
       "type": "Activity",
       "onWebsite": true,
       "href": "https://docs.google.com/document/d/1bKlrexLBE7pLyIIHrVYjBoBoSYEFG-rOwJa4SzLlFGM/view"
+    },
+    {
+      "id": "ppt-queen-liliuokalani-hawaii",
+      "course": "US History",
+      "unitTopic": "The Progressive Era & Empire",
+      "name": "Queen Liliuokalani and the Annexation of Hawaii",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1k77eeL7XZNQCpLKQ8tWdA-IFdwkEK2RP/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-progressive-era-review-part-1",
+      "course": "US History",
+      "unitTopic": "The Progressive Era & Empire",
+      "name": "Progressive Era Unit Review — Part 1",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/18ccqbTrREBpmzSAvNnSbTiLAm63F7Qsf/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-wilson-fourteen-points",
+      "course": "US History",
+      "unitTopic": "WWI & the Twenties",
+      "name": "Wilson's Fourteen Points — A Vision for Peace",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1XdatPqdxb0dS3PXN6HcTmclpd9FlwXvi/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-world-war-i-complete",
+      "course": "US History",
+      "unitTopic": "WWI & the Twenties",
+      "name": "World War I — Complete Unit Deck",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1wNbLr4vlc7C8OCafdX9__jgCQBuwKvgw/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-hiroo-onoda",
+      "course": "US History",
+      "unitTopic": "World War II",
+      "name": "Hiroo Onoda — The Soldier Who Surrendered in 1974",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1Mwv3sMbgsV-evx1I2m042ewmtIzpj_3U/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-medal-of-honor",
+      "course": "US History",
+      "unitTopic": "Culture, Service & Seasonal",
+      "name": "The Medal of Honor — America's Highest Military Distinction",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1EfOZBhnxFesHX5J6eG13NerRNGxCMFix/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-origins-cold-war",
+      "course": "US History",
+      "unitTopic": "Cold War America",
+      "name": "Origins of the Cold War — From Allies to Adversaries",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1T-Ssuisi0MGVuswItiIWcPCtMWaxYd5M/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-space-race-sputnik",
+      "course": "US History",
+      "unitTopic": "Cold War America",
+      "name": "The Space Race — Sputnik and America's Response",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1gTNjlP3Z42Tr1J9siTTpDOywnqkrpd_G/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-jfk-lesser-known-facts",
+      "course": "US History",
+      "unitTopic": "Cold War America",
+      "name": "John F. Kennedy — Lesser-Known Facts",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/17U_zcP-NMrUjO1p6iD1b007YCaAbv_4A/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-vietnam-protest-song",
+      "course": "US History",
+      "unitTopic": "Vietnam to Watergate",
+      "name": "Vietnam Protest Song — Lyric Analysis Assignment",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1x32jhGj5iC-k8mjMt2uCSAS4KuZRPkNj/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-gulf-war",
+      "course": "US History",
+      "unitTopic": "Reagan to Right Now",
+      "name": "The Gulf War — Desert Shield and Desert Storm",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1zzDzuxnI48dIxrMVV9jmp56D3RBu143U/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-rock-roll-building-blocks",
+      "course": "US History",
+      "unitTopic": "Culture, Service & Seasonal",
+      "name": "Rock 'n' Roll — Musical Building Blocks",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1PWwQDUNuGz1mr97NAHdGfykSH8wm-4wj/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-history-halloween",
+      "course": "US History",
+      "unitTopic": "Culture, Service & Seasonal",
+      "name": "The History of Halloween — Ancient Festivals to Today",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1y3d2jaQ-p4SYXpaF98XwkGbCSxRG-feb/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-legislative-branch-web",
+      "course": "Government / Civics",
+      "unitTopic": "Legislative Branch",
+      "name": "The Legislative Branch — Complete Web Lesson",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1w3a0iIhMB4gMmprOShdEHI6Ad0HnR6LU/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-constitution-foundations",
+      "course": "Government / Civics",
+      "unitTopic": "Constitution & Rights",
+      "name": "The U.S. Constitution — Structure, Principles, and Fixes",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1QSdMV1_9TqQ_oYyDteO5fZCj5R69QeMU/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-political-parties-project",
+      "course": "Government / Civics",
+      "unitTopic": "Projects",
+      "name": "American Political Parties — Project Guide",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1EOkGtR7elbqYTJnCnbrtbVhLmkZSId2g/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-congress-house-senate",
+      "course": "Government / Civics",
+      "unitTopic": "Legislative Branch",
+      "name": "Congress — House vs. Senate",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1IhN43i0DV1Mhjlx0RG529D_0BPy-fv4p/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-legislative-branch-structure",
+      "course": "Government / Civics",
+      "unitTopic": "Legislative Branch",
+      "name": "The Legislative Branch — Structure and Organization",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/18T5P67B2l6QeX5DluxaeB-nn9WRu_LT3/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-north-korea-vs-us",
+      "course": "Government / Civics",
+      "unitTopic": "Comparative Government",
+      "name": "North Korea vs. the United States — Government Compared",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1LJrJ8QojaTXjxI7S4cJcuMKq07H4sikE/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-political-philosophy",
+      "course": "Government / Civics",
+      "unitTopic": "Government Foundations",
+      "name": "Political Philosophy Through the Ages",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1h0prTk2dFYFGHRg7y7LgVb2sOD9kgyAK/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-business-structures",
+      "course": "Economics",
+      "unitTopic": "Economic Foundations",
+      "name": "Business Structures — Types of Organizations",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1MePTYWAzg6MKVkLnbjZr9C983vFvEQx2/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-wants-needs-scarcity",
+      "course": "Economics",
+      "unitTopic": "Economic Foundations",
+      "name": "Wants, Needs, Scarcity, and Factors of Production",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1eNnpWQuTlacmZL1mhbTKfxD_1RyxvJ4g/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-government-markets-day-1",
+      "course": "Economics",
+      "unitTopic": "Market Failure",
+      "name": "Government in Markets — Day 1 Market Failure Toolkit",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1nATDh7T7CmoLIbUq-KHQSzxUYQ4pp_ze/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-intro-macroeconomics-gdp",
+      "course": "Economics",
+      "unitTopic": "Macroeconomics",
+      "name": "Introduction to Macroeconomics — GDP and Circular Flow",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1Cayjrp2SPKhNPVn4UglXpkhDmzqNxq1m/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-stock-market-basics",
+      "course": "Economics",
+      "unitTopic": "Finance",
+      "name": "Stock Market Basics — Shares and Wall Street",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1lli778Vhn4RsLAyK88ILw2CsDrssMsP-/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-tariffs-trade",
+      "course": "Economics",
+      "unitTopic": "Trade",
+      "name": "Tariffs and International Trade",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/11Ajmtgc1vfC6ghnD33DuZfRfeapGT4gW/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
+    },
+    {
+      "id": "ppt-parts-of-trial",
+      "course": "Law",
+      "unitTopic": "Trial Procedure",
+      "name": "The Parts of a Trial — Step-by-Step Guide",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": "https://docs.google.com/presentation/d/1fLKMWYBXtc7P3nJ99XgzLXJL19oCCMdW/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true"
     }
   ]
 }
