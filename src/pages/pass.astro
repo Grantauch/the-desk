@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import passConfig from '../data/pass-config.json';
+
+const appUrl = passConfig.studentAppUrl.trim();
+const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kiosk` : '';
+---
+
+<Base title="hall pass" description="Mr. Grant's school hall-pass sign-out page.">
+  <div class="pass-page">
+    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">grantdesk // out-of-room pass</p>
+    <h1 class="mt-3 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
+      hall pass<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
+      Sign out when you are actually leaving the room. When you get back, end the pass before you sit down.
+    </p>
+
+    <section class="pass-launch mt-9" aria-labelledby="pass-launch-title">
+      <div>
+        <p class="pass-launch__number">01</p>
+        <p class="pass-launch__eyebrow">school Chromebook</p>
+        <h2 id="pass-launch-title">your Google account does the work.</h2>
+        <p>Open the pass while signed into your school Google account. GrantDesk will recognize you from the class roster.</p>
+      </div>
+      {passConfig.enabled && appUrl ? (
+        <a href={appUrl} target="_blank" rel="noopener" class="pass-button">open hall pass <span aria-hidden="true">→</span></a>
+      ) : (
+        <p class="pass-offline">Use the classroom kiosk or ask Mr. Grant while the online pass is unavailable.</p>
+      )}
+    </section>
+
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      <section class="pass-option">
+        <p class="pass-option__number">02</p>
+        <h2>PIN + kiosk.</h2>
+        <p>If your own account is not available, enter your six-digit student PIN at the classroom kiosk.</p>
+        {passConfig.enabled && kioskUrl && (
+          <a href={kioskUrl} target="_blank" rel="noopener">open kiosk mode →</a>
+        )}
+      </section>
+      <section class="pass-option">
+        <p class="pass-option__number">03</p>
+        <h2>teacher backup.</h2>
+        <p>If the Chromebook and kiosk both fight you, Mr. Grant can start or end the pass from the teacher view.</p>
+      </section>
+    </div>
+
+    <aside class="privacy-note mt-6">
+      <p class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">about the log</p>
+      <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+        Pass history is private. Student screens show only your current pass and whether the pass is available—not another student’s name or previous trips.
+      </p>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .pass-launch {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem;
+    padding: clamp(1.4rem, 4vw, 2.2rem);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    border-radius: 1.15rem;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 64%, white), white 45%),
+      white;
+    box-shadow: 0 24px 55px -46px rgb(23 23 28 / 0.7);
+  }
+
+  .pass-launch__number,
+  .pass-option__number {
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .pass-launch__eyebrow {
+    margin-top: 0.7rem;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .pass-launch h2,
+  .pass-option h2 {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .pass-launch p:not([class]),
+  .pass-option p:not([class]) {
+    max-width: 38rem;
+    margin-top: 0.65rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .pass-button {
+    display: inline-flex;
+    min-height: 3.2rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 0 1.15rem;
+    border: 1px solid var(--color-ink);
+    border-radius: 0.8rem;
+    background: var(--color-ink);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .pass-button:hover {
+    border-color: var(--color-accent-dark);
+    background: var(--color-accent-dark);
+    transform: translateY(-2px);
+  }
+
+  .pass-offline {
+    max-width: 16rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: white;
+    color: var(--color-ink-soft);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .pass-option,
+  .privacy-note {
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    background: white;
+    padding: 1.25rem;
+  }
+
+  .pass-option a {
+    display: inline-block;
+    margin-top: 0.9rem;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  @media (max-width: 640px) {
+    .pass-launch {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+
+    .pass-button,
+    .pass-offline {
+      width: 100%;
+      max-width: none;
+    }
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 // Nav.astro — compact primary navigation with a secondary explore menu.
+import passConfig from '../data/pass-config.json';
 const primaryLinks = [
   { href: '/us-history/', label: 'us history' },
   { href: '/hidden-history/', label: 'hidden history' },
@@ -13,6 +14,7 @@ const exploreLinks = [
   { href: '/games/', label: 'games' },
   { href: '/rabbit-holes/', label: 'rabbit holes' },
   { href: '/tools/', label: 'tools' },
+  ...(passConfig.enabled ? [{ href: '/pass/', label: 'hall pass' }] : []),
   { href: '/calendar/', label: 'calendar' },
   { href: '/announcements/', label: 'announcements' },
   { href: '/about/', label: 'about' },

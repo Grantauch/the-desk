@@ -1,6 +1,7 @@
 // sitemap.xml — built at deploy time from the list below.
 // If you add a page to src/pages/, add its path here too.
 import type { APIRoute } from 'astro';
+import passConfig from '../data/pass-config.json';
 
 const paths = [
   '/',
@@ -15,6 +16,7 @@ const paths = [
   '/glossary/',
   '/rabbit-holes/',
   '/tools/',
+  ...(passConfig.enabled ? ['/pass/'] : []),
   '/calendar/',
   '/fact-check-friday/',
   '/showcase/',

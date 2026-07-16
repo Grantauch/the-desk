@@ -4,6 +4,7 @@
 // Nothing typed here is saved or sent anywhere — refresh and it's gone.
 // That's a feature (no student data), not a bug.
 import Base from '../layouts/Base.astro';
+import passConfig from '../data/pass-config.json';
 ---
 
 <Base title="tools" description="classroom tools — timer, group maker, cold-call picker, dice, and scoreboard.">
@@ -11,6 +12,17 @@ import Base from '../layouts/Base.astro';
     tools<span class="text-accent">.</span>
   </h1>
   <p class="mt-3 text-lg text-ink-soft lowercase">small classroom machines for when class needs to move.</p>
+
+  {passConfig.enabled && (
+    <a href="/pass/" class="surface-link mt-8 flex items-center justify-between gap-5 rounded-xl border border-line bg-accent-soft p-5">
+      <div>
+        <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-accent">school account · PIN · teacher backup</p>
+        <h2 class="mt-1 font-display text-2xl font-bold lowercase">hall pass<span class="text-accent">.</span></h2>
+        <p class="mt-1 text-sm text-ink-soft">Sign out, start the timer, and check back in when you return.</p>
+      </div>
+      <span class="shrink-0 font-mono text-lg text-accent" aria-hidden="true">→</span>
+    </a>
+  )}
 
   <!-- ============ timer ============ -->
   <section class="pop mt-10 rounded-md bg-white p-6" id="timer-card">
