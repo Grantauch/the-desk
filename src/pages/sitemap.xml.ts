@@ -9,6 +9,7 @@ const paths = [
   '/hidden-history/syllabus/',
   '/beyond-the-scoreboard/',
   '/beyond-the-scoreboard/syllabus/',
+  '/resources/',
   '/simulations/',
   '/games/',
   '/tools/',
