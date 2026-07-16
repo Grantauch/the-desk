@@ -64,8 +64,6 @@ const activeCourses = activeCourseNames.map((course) => ({
 }));
 const activeResourceCount = activeCourses.reduce((total, course) => total + course.count, 0);
 const archiveResourceCount = library.resourceCount - activeResourceCount;
-const unlinkedCount = library.resourceCount - library.linkedCount;
-const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
 ---
 
 <Base
@@ -73,10 +71,11 @@ const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
   description="Browse the desk's complete teaching-resource library by course, topic, and resource type."
 >
   <section class="dot-grid -mx-5 px-5 pb-10">
-    <p class="font-mono text-sm lowercase text-accent">
-      {library.resourceCount} total · {activeResourceCount} teaching now · {library.linkedCount} ready to open
-    </p>
-    <h1 class="mt-2 font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+    <nav class="library-switch" aria-label="Library sections">
+      <a href="/resources/" aria-current="page">materials</a>
+      <a href="/glossary/">glossary</a>
+    </nav>
+    <h1 class="mt-4 font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
       resource library<span class="text-accent">.</span>
     </h1>
     <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft lowercase">
@@ -218,7 +217,7 @@ const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
                   data-search={`${resource.name} ${resource.course} ${resource.unitTopic} ${resource.type}`.toLocaleLowerCase(
                     'en',
                   )}
-                  class="rounded-md border-2 border-line bg-paper p-4 transition-colors hover:border-ink"
+                  class="resource-card rounded-lg border border-line bg-paper p-4"
                 >
                   <div class="flex flex-wrap items-center gap-2 font-mono text-[0.7rem] lowercase">
                     <span class="font-semibold text-accent">{resource.type}</span>
@@ -252,11 +251,6 @@ const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
 
   <p id="no-results" class="pop mt-10 rounded-md bg-white p-6 text-center text-ink-soft" hidden>
     nothing matched this shelf. try everything, use a broader search, or clear the filters.
-  </p>
-
-  <p class="mt-10 font-mono text-xs lowercase leading-relaxed text-ink-soft">
-    {library.linkedCount} resources are ready to open. {unlinkedCount} {unlinkedVerb} catalogued while links are being matched.
-    nothing searched here is saved or sent anywhere.
   </p>
 
   <script>
@@ -368,3 +362,46 @@ const unlinkedVerb = unlinkedCount === 1 ? 'is' : 'are';
     });
   </script>
 </Base>
+
+<style>
+  .library-switch {
+    display: inline-flex;
+    padding: 0.2rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: rgb(255 255 255 / 0.8);
+  }
+
+  .library-switch a {
+    padding: 0.45rem 0.8rem;
+    border-radius: 0.55rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .library-switch a:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+  }
+
+  .library-switch a[aria-current='page'] {
+    background: var(--color-accent);
+    color: white;
+    box-shadow: 0 8px 20px -14px var(--color-accent);
+  }
+
+  .resource-card {
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+
+  .resource-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-accent) 44%, var(--color-line));
+    background: white;
+    box-shadow: 0 20px 38px -32px color-mix(in srgb, var(--color-accent) 42%, transparent);
+  }
+</style>

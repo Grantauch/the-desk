@@ -2,7 +2,6 @@
 // index.astro — the home page.
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
-import resourceLibrary from '../data/resources.json';
 
 const announcements = (await getCollection('announcements'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -14,14 +13,14 @@ const courses = [
     name: 'us history',
     theme: 'history',
     identity: 'american archive',
-    blurb: 'reconstruction to right now — the american story, argued over, acted out, and occasionally re-litigated in class.',
+    blurb: 'reconstruction to right now — the people, choices, disasters, and breakthroughs that still explain the country.',
   },
   {
     href: '/hidden-history/',
     name: 'hidden history',
     theme: 'classified',
     identity: 'evidence desk',
-    blurb: 'coverups, conspiracies, and the evidence. every claim gets a verdict — sources or it didn’t happen.',
+    blurb: 'coverups, conspiracies, hoaxes, and the evidence that separates the documented from the nonsense.',
   },
   {
     href: '/beyond-the-scoreboard/',
@@ -33,11 +32,6 @@ const courses = [
 ];
 
 const currentCourseNames = ['US History', 'Hidden History', 'Beyond the Scoreboard'];
-const currentLibraryCourses = currentCourseNames.map((course) => ({
-  course,
-  count: resourceLibrary.resources.filter((resource) => resource.course === course).length,
-}));
-const currentResourceCount = currentLibraryCourses.reduce((total, course) => total + course.count, 0);
 
 const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 ---
@@ -45,16 +39,11 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
 <Base>
   <!-- hero -->
   <section class="py-12 dot-grid">
-    <span class="home-live">
-      <span aria-hidden="true"></span>
-      now live at grant-desk.com
-    </span>
-    <h1 class="mt-6 font-display text-7xl sm:text-8xl font-bold lowercase tracking-tight">
+    <h1 class="font-display text-7xl sm:text-8xl font-bold lowercase tracking-tight">
       the desk<span class="text-accent">.</span>
     </h1>
     <p class="mt-5 text-lg text-ink-soft max-w-xl">
-      Home base for US History, Hidden History, and Beyond the Scoreboard. Everything we're doing, playing, and debating —
-      <span class="text-ink underline decoration-accent decoration-4 underline-offset-4">in one place</span>.
+      Three history classes, one ridiculous pile of stories. Slides, games, sources, and today’s best detours live here.
     </p>
   </section>
 
@@ -67,7 +56,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
           find the lesson before the bell<span class="text-accent">.</span>
         </h2>
         <p class="mt-2 leading-relaxed text-ink-soft">
-          Search {resourceLibrary.resourceCount} decks, packets, games, readings, and activities — including {currentResourceCount} for the classes on the schedule now.
+          Search slides, packets, games, readings, and activities from every class.
         </p>
       </div>
       <a href="/resources/" class="font-mono text-xs font-semibold lowercase text-accent hover:text-accent-dark">
@@ -94,12 +83,12 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
 
     <nav class="mt-4 flex flex-wrap gap-2" aria-label="Current course resource libraries">
       {
-        currentLibraryCourses.map(({ course, count }) => (
+        currentCourseNames.map((course) => (
           <a
             href={`/resources/?course=${encodeURIComponent(course)}`}
             class="rounded-md border border-line bg-paper px-2.5 py-1.5 font-mono text-[0.7rem] font-semibold lowercase text-ink-soft transition-colors hover:border-accent hover:text-accent"
           >
-            {course} · {count}
+            {course}
           </a>
         ))
       }
@@ -117,7 +106,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
             {c.name}<span>.</span>
           </h2>
           <p class="home-course-card__blurb">{c.blurb}</p>
-          <span class="home-course-card__cta">enter course <span aria-hidden="true">→</span></span>
+          <span class="home-course-card__cta">open class <span aria-hidden="true">→</span></span>
         </a>
       ))
     }
@@ -128,14 +117,14 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
     <a href="/simulations/" class="home-feature-card group pop bg-accent p-5 text-white">
       <h2 class="font-display text-2xl font-bold lowercase">simulations<span class="text-white/60">.</span></h2>
       <p class="mt-2 text-sm text-white/85 leading-relaxed">
-        The Case File investigation, the surveillance debate, the Michigan sports capstone. Where the class plays for keeps.
+        Hearings, debates, investigations, and the days the desks start moving.
       </p>
       <span class="mt-3 inline-block transition-transform group-hover:translate-x-1.5">→</span>
     </a>
     <a href="/games/" class="home-feature-card group pop bg-white p-5">
       <h2 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">games<span class="text-accent">.</span></h2>
       <p class="mt-2 text-sm text-ink-soft leading-relaxed">
-        Lessonhubs and review games. No logins, nothing tracked — open one and play.
+        Jeopardy boards, lessonhubs, and review games. Open one and start yelling answers.
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
@@ -149,7 +138,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
     <a href="/tools/" class="home-feature-card group pop bg-ink p-5 text-paper">
       <h2 class="font-display text-2xl font-bold lowercase">tools<span class="text-accent">.</span></h2>
       <p class="mt-2 text-sm text-paper/70 leading-relaxed">
-        Timer, group maker, cold call picker. Small classroom machines — nothing saved, nothing tracked.
+        Timer, group maker, cold-call picker, dice, scoreboard. The stuff that keeps class moving.
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
@@ -180,30 +169,6 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
 </Base>
 
 <style>
-  .home-live {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.45rem 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--color-accent) 24%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--color-accent-soft) 72%, white);
-    color: var(--color-accent-dark);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: lowercase;
-    letter-spacing: 0.04em;
-  }
-
-  .home-live > span {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 999px;
-    background: var(--color-accent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 10%, transparent);
-  }
-
   .home-library {
     position: relative;
     overflow: hidden;

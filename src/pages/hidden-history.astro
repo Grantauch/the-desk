@@ -2,20 +2,20 @@
 // hidden-history.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
 import CoursePage from '../components/CoursePage.astro';
-import FeaturedMedia from '../components/FeaturedMedia.astro';
 import QuickTake from '../components/QuickTake.astro';
 import DailyCard from '../components/DailyCard.astro';
+import DailyDesk from '../components/DailyDesk.astro';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
-  { tag: 'sources or it didn’t happen', text: 'Should everything the government classifies eventually be declassified? Pick your number of years and defend it.' },
-  { tag: 'sources or it didn’t happen', text: 'Which is more dangerous to a democracy: believing too easily, or doubting everything?' },
-  { tag: 'sources or it didn’t happen', text: 'The Media burglars broke the law and exposed COINTELPRO. Heroes, criminals, or both at once?' },
-  { tag: 'sources or it didn’t happen', text: 'Is "do your own research" good advice? Under exactly what conditions?' },
-  { tag: 'sources or it didn’t happen', text: 'Ellsberg leaked 7,000 classified pages. When, if ever, is that justified — and who gets to decide?' },
-  { tag: 'sources or it didn’t happen', text: 'Which verdict takes the most courage to give: confirmed, debunked, misleading, or unproven?' },
-  { tag: 'sources or it didn’t happen', text: 'Would MKUltra have been exposed faster or slower in the smartphone era? Both answers have evidence.' },
-  { tag: 'sources or it didn’t happen', text: 'A claim can’t be tested or disproven, even in theory. Does that make it more interesting — or less?' },
+  { tag: 'what do you think?', text: 'Should everything the government classifies eventually be declassified? Pick your number of years and defend it.' },
+  { tag: 'what do you think?', text: 'Which is more dangerous to a democracy: believing too easily, or doubting everything?' },
+  { tag: 'what do you think?', text: 'The Media burglars broke the law and exposed COINTELPRO. Heroes, criminals, or both at once?' },
+  { tag: 'what do you think?', text: 'Is "do your own research" good advice? Under exactly what conditions?' },
+  { tag: 'what do you think?', text: 'Ellsberg leaked 7,000 classified pages. When, if ever, is that justified — and who gets to decide?' },
+  { tag: 'what do you think?', text: 'Which verdict takes the most courage to give: confirmed, debunked, misleading, or unproven?' },
+  { tag: 'what do you think?', text: 'Would MKUltra have been exposed faster or slower in the smartphone era? Both answers have evidence.' },
+  { tag: 'what do you think?', text: 'A claim can’t be tested or disproven, even in theory. Does that make it more interesting — or less?' },
 ];
 
 // ---- verdict of the day: real claims, graded the way this class grades them ----
@@ -117,7 +117,7 @@ const units = [
       'MKUltra: the program that sounds fake and is thoroughly documented',
       'What the destroyed files mean — and what they don’t let you claim',
       'From MKUltra to mind-control myths: where the documented ends and the invented begins',
-      'The myth stations: three claims, three tables, your verdict with receipts',
+      'The myth stations: three claims, three tables, your verdict and your evidence',
       'Fact-checking at feed speed: lateral reading, reverse image search, and the moon-hoax cards',
     ],
     materials: [
@@ -138,7 +138,7 @@ const units = [
       'Who got watched — civil rights leaders, journalists, and ordinary people',
       'Shadow-government myths vs. documented surveillance: telling the two apart matters',
       'The Church Committee: what oversight looked like when it finally arrived',
-      'The structured debate: surveillance vs. civil liberties, argued with sources or not at all',
+      'The structured debate: surveillance vs. civil liberties',
     ],
     materials: [
       { label: 'unit 5 slides — watching the watchers', href: 'https://docs.google.com/presentation/d/1tAh0mm2dpOWcVHK2KxK4XbrBeRd7arMbEiGOyCIBpCo/present' },
@@ -165,12 +165,13 @@ const units = [
 
 const resources = [
   { label: 'browse the full hidden history library', href: '/resources/?course=Hidden+History' },
+  { label: 'hidden history glossary', href: '/glossary/?course=Hidden+History' },
+  { label: 'Google Classroom', href: 'https://classroom.google.com' },
   { label: 'Course syllabus', href: '/hidden-history/syllabus/' },
   { label: 'Fact-check Friday — this semester’s claims', href: '/fact-check-friday/' },
   { label: 'Student organizer pack — all units', href: 'https://docs.google.com/document/d/1fgFs8thNR-9nty8G-v7CK5qv2_kieaMPY8u57eGZi28/view' },
   { label: 'Course rubrics — how work gets graded', href: 'https://docs.google.com/document/d/1Y_Fe3cKHCzbdWFcfw86L5UdwlFBqvwtI1Mgu3tBOqLQ/view' },
   { label: 'Cold openers — 90 rabbit holes worth taking', href: 'https://docs.google.com/document/d/1bKlrexLBE7pLyIIHrVYjBoBoSYEFG-rOwJa4SzLlFGM/view' },
-  { label: 'Google Classroom', href: 'https://classroom.google.com' },
   { label: 'National Security Archive — declassified documents', href: 'https://nsarchive.gwu.edu' },
   { label: 'National Archives — JFK assassination records', href: 'https://www.archives.gov/research/jfk' },
   { label: 'FBI Records: The Vault', href: 'https://vault.fbi.gov' },
@@ -179,59 +180,17 @@ const resources = [
   // add more: { label: 'Unit 2 source packet', href: '...' },
 ];
 
-const glossary = [
-  { term: 'primary source', def: 'Evidence from the time itself — a memo, a photo, a tape, a front page. The raw material of every verdict in this class.' },
-  { term: 'corroboration', def: 'A second, independent source saying the same thing. One document is a claim; two unrelated ones are the start of a case.' },
-  { term: 'declassified', def: 'Officially released from secrecy by the government. Proves the document is real — not that every word in it is true.' },
-  { term: 'redaction', def: 'The black bars. What’s hidden can matter as much as what’s shown — but a redaction is a blank, not a confession.' },
-  { term: 'foia', def: 'The Freedom of Information Act — the law that lets anyone request government records. Slow, imperfect, and responsible for half the documents in this course.' },
-  { term: 'misinformation', def: 'False information spread by people who believe it. Wrong, but sincere.' },
-  { term: 'disinformation', def: 'False information spread by people who know better. Wrong, on purpose.' },
-  { term: 'confirmation bias', def: 'The pull toward evidence that agrees with you. Nobody is immune, including historians. The fix is method, not willpower.' },
-  { term: 'burden of proof', def: 'The claim-maker owes the evidence. "Prove it didn’t happen" is not how history — or this class — works.' },
-  { term: 'whistleblower', def: 'An insider who exposes wrongdoing with documents and testimony. The difference between a whistleblower and a rumor is the receipts.' },
-  { term: 'cover-up', def: 'A documented effort to hide the truth — which is exactly why it can be proven. Real cover-ups leave paper trails; imagined ones only leave vibes.' },
-  { term: 'unproven', def: 'The most honest verdict in the deck: not enough reliable evidence either way. Saying it well is a skill; saying it backed by research is a grade.' },
-  { term: 'falsifiability', def: 'A claim you could at least imagine disproving with evidence. If no possible discovery could ever count against it, it isn’t a theory — it’s a belief wearing a lab coat.' },
-  { term: 'occam’s razor', def: 'When two explanations fit the evidence, the one requiring fewer moving parts usually wins. Not a law — a starting bet.' },
-  { term: 'apophenia', def: 'The human talent for seeing patterns that aren’t there — faces in clouds, clues in album covers. Your brain does this constantly. This class is the countermeasure.' },
-  { term: 'motivated reasoning', def: 'Working backward from the conclusion you want to the evidence that gets you there. Everyone does it; investigators build methods specifically to catch themselves.' },
-  { term: 'the two-source rule', def: 'Woodward and Bernstein’s standard: no claim runs on a single source. One document can lie or err; two independent ones have to coordinate.' },
-  { term: 'lateral reading', def: 'Fact-checking a source by leaving it — opening new tabs to see what others say about it, instead of judging its own polish. How professionals do it, and faster than it sounds.' },
-  { term: 'hindsight bias', def: 'The past looks obvious once you know the ending — that’s why Pearl Harbor "warnings" seem so loud now and were whispers then. Judge decisions by what was knowable at the time.' },
-  { term: 'cover story', def: 'The explanation issued to hide the real one — Roswell’s "weather balloon," Camp Century’s "research station." Real cover stories exist; that’s exactly why claims of them need evidence.' },
-];
 ---
 
 <CoursePage
   title="hidden history"
   theme="classified"
   identityLabel="evidence desk // clearance required"
-  secret={{
-    trigger: '[ redacted ]',
-    title: 'clearance code: receipts',
-    message: "The black bars are missing text—not proof of whatever you hoped was underneath. Curiosity starts the investigation; evidence finishes it.",
-  }}
-  tagline="coverups, conspiracies, and the evidence. sources or it didn't happen."
-  intro="Some official stories collapsed under the evidence — Watergate, MKUltra, COINTELPRO. Some famous rumors did too. This class is about telling the difference. Every claim we study gets one of four verdicts — confirmed, debunked, misleading, or unproven — and you'll be graded on how you got there, not just where you landed. An honest 'unproven' backed by good research beats a confident answer backed by nothing."
+  tagline="coverups, conspiracies, hoaxes, and the evidence that sorts them out."
+  intro="Some of the wildest government stories are true. Plenty aren't. We open the files, check where every claim came from, and learn when the honest answer is ‘we don't know.’ Watergate, MKUltra, COINTELPRO, UFOs, hoaxes—the fun is figuring out which box each one belongs in."
   units={units}
   resources={resources}
-  glossary={glossary}
 >
-  <FeaturedMedia
-    slot="hero"
-    id="hidden-history-media-bay"
-    theme="classified"
-    eyebrow="incoming evidence · media bay 01"
-    title="the next file is waiting"
-    description="This evidence terminal is armed for the clip that opens the next investigation—the kind that makes the room lean in before anyone knows the verdict."
-    reelLabel="incoming signal"
-    cornerLabel="clearance // pending"
-    actionLabel="video slot ready. send the next lead."
-    placeholderLabel="evidence reel incoming"
-    accessibleDescription="A classified-file themed placeholder showing that the Hidden History opening video slot is ready for an upcoming clip."
-  />
-
   <QuickTake
     slot="hook"
     id="hidden-history-opening-take"
@@ -244,14 +203,10 @@ const glossary = [
     ]}
   />
 
-  <section class="mt-12">
-    <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
-    <p class="mt-2 text-sm text-ink-soft lowercase">new every day. yes, you may fact-check it — that's the point.</p>
-    <div class="mt-6 grid gap-6 md:grid-cols-2">
-      <DailyCard label="verdict of the day" entries={verdicts} />
-      <DailyCard label="declassified file of the day" entries={files} />
-      <DailyCard label="trick of the week" entries={tricks} />
-      <DailyCard label="argue this" entries={argueThis} />
-    </div>
-  </section>
+  <DailyDesk note="a claim, a file, and one way your brain may be messing with you.">
+    <DailyCard label="verdict of the day" entries={verdicts} />
+    <DailyCard label="declassified file of the day" entries={files} />
+    <DailyCard label="trick of the week" entries={tricks} />
+    <DailyCard label="argue this" entries={argueThis} />
+  </DailyDesk>
 </CoursePage>

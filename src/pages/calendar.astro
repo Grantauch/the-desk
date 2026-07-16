@@ -1,44 +1,276 @@
 ---
-// calendar.astro — major classroom milestones. District dates stay on the official calendar.
-// `course` controls the accent tag; use 'all classes' for school-wide dates.
 import Base from '../layouts/Base.astro';
 
-const dates = [
-  { when: 'sept — week 1', course: 'hidden history', what: 'the Roswell headline reveal + day-one exit tickets (you get them back in june)' },
-  { when: 'sept — week 1', course: 'beyond the scoreboard', what: 'the Louis–Schmeling cold open' },
-  { when: 'oct — week 6', course: 'hidden history', what: 'unit 2 test: follow the evidence' },
-  { when: 'oct — week 6', course: 'beyond the scoreboard', what: 'unit 2 test: the national stage' },
-  { when: 'nov — week 12', course: 'hidden history', what: 'trust and verify: the myth stations week' },
-  { when: 'dec — week 15', course: 'hidden history', what: 'the surveillance debate (structured, sourced, scored)' },
-  { when: 'dec — week 15', course: 'beyond the scoreboard', what: 'michigan capstone: topics locked, teams set' },
-  { when: 'jan — week 18', course: 'hidden history', what: 'case file capstone presentations + semester exam' },
-  { when: 'jan — week 18', course: 'beyond the scoreboard', what: 'michigan capstone presentations + final exam' },
-  { when: 'jan — sem 2', course: 'us history', what: 'semester 2 begins — the cold war cometh' },
-  { when: 'june', course: 'all classes', what: 'last week: day-one exit tickets return. see how far you came.' },
+type CourseKey = 'hidden' | 'scoreboard' | 'history' | 'all';
+
+interface Milestone {
+  month: string;
+  when: string;
+  course: CourseKey;
+  title: string;
+  detail: string;
+}
+
+const milestones: Milestone[] = [
+  { month: 'september', when: 'first week', course: 'hidden', title: 'the roswell headline reveal', detail: 'Your first verdict of the year—and an exit ticket worth hanging onto until June.' },
+  { month: 'september', when: 'first week', course: 'scoreboard', title: 'louis vs. schmeling', detail: 'Two minutes of boxing that somehow contains Detroit, Nazi Germany, American race politics, and a heavyweight title.' },
+  { month: 'october', when: 'around week 6', course: 'hidden', title: 'unit 2 test', detail: 'Follow the evidence.' },
+  { month: 'october', when: 'around week 6', course: 'scoreboard', title: 'unit 2 test', detail: 'The national stage.' },
+  { month: 'november', when: 'around week 12', course: 'hidden', title: 'myth stations', detail: 'Three claims. Three tables. Decide what survives the evidence.' },
+  { month: 'december', when: 'around week 15', course: 'hidden', title: 'the surveillance debate', detail: 'How much watching is too much—and who gets to decide?' },
+  { month: 'december', when: 'around week 15', course: 'scoreboard', title: 'michigan capstone launch', detail: 'Topics locked. Teams set. Local history gets the spotlight.' },
+  { month: 'january', when: 'end of semester', course: 'hidden', title: 'case file presentations', detail: 'The semester ends with a verdict.' },
+  { month: 'january', when: 'end of semester', course: 'scoreboard', title: 'michigan capstone presentations', detail: 'One Michigan sports story, followed all the way through.' },
+  { month: 'january', when: 'semester 2', course: 'history', title: 'the cold war begins', detail: 'Two superpowers, one nuclear age, and no clean endings.' },
+  { month: 'june', when: 'final week', course: 'all', title: 'the day-one exit tickets return', detail: 'Same questions. Different answers. That is the point.' },
 ];
+
+const monthOrder = ['september', 'october', 'november', 'december', 'january', 'june'];
+const monthGroups = monthOrder.map((month) => ({ month, milestones: milestones.filter((item) => item.month === month) }));
+const courseLabels: Record<CourseKey, string> = {
+  hidden: 'hidden history',
+  scoreboard: 'beyond the scoreboard',
+  history: 'us history',
+  all: 'all classes',
+};
 ---
 
-<Base title="calendar" description="key dates for every class at the desk.">
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
-    calendar<span class="text-accent">.</span>
-  </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">the dates worth writing down. tests, capstones, and reckonings.</p>
-  <p class="mt-2 text-sm font-mono lowercase leading-relaxed text-ink-soft">
-    assignments and due dates live in google classroom — this is the big picture. school dates live on the
-    <a href="https://www.mtmorrisschools.org/events" target="_blank" rel="noopener" class="text-accent underline underline-offset-4 hover:text-accent-dark">official district calendar ↗</a>.
-  </p>
+<Base title="calendar" description="The major dates and classroom milestones for every class at the desk.">
+  <section class="calendar-hero dot-grid -mx-5 px-5 pb-10">
+    <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent">2026–27 school year</p>
+    <h1 class="mt-2 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
+      calendar<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft lowercase">
+      the big stuff: tests, projects, presentations, and the days people remember.
+    </p>
+  </section>
 
-  <ul class="mt-10 space-y-3">
-    {
-      dates.map((d) => (
-        <li class="flex gap-4 items-baseline border-b-2 border-line pb-3">
-          <span class="font-mono text-xs bg-accent-soft text-accent-dark px-2 py-0.5 shrink-0 lowercase">{d.when}</span>
-          <div>
-            <span>{d.what}</span>
-            <span class="ml-2 text-xs font-mono lowercase text-accent">{d.course}</span>
-          </div>
-        </li>
-      ))
-    }
-  </ul>
+  <section class="calendar-guide pop rounded-xl bg-white p-5 sm:p-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="font-display text-xl font-bold lowercase">need an exact date?</p>
+        <p class="mt-1 text-sm leading-relaxed text-ink-soft">Daily assignments and due dates stay in Google Classroom.</p>
+      </div>
+      <a
+        href="https://www.mtmorrisschools.org/events"
+        target="_blank"
+        rel="noopener"
+        class="surface-link rounded-lg border border-ink bg-paper px-4 py-2 font-mono text-xs font-bold lowercase text-ink hover:text-accent"
+      >
+        district calendar ↗
+      </a>
+    </div>
+  </section>
+
+  <div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="Filter calendar by class">
+    <button type="button" class="calendar-filter" data-calendar-filter="" aria-pressed="true">all classes</button>
+    <button type="button" class="calendar-filter" data-calendar-filter="history" aria-pressed="false">us history</button>
+    <button type="button" class="calendar-filter" data-calendar-filter="hidden" aria-pressed="false">hidden history</button>
+    <button type="button" class="calendar-filter" data-calendar-filter="scoreboard" aria-pressed="false">beyond the scoreboard</button>
+  </div>
+
+  <div class="calendar-timeline mt-10" data-calendar-timeline>
+    {monthGroups.map((group) => (
+      <section class="calendar-month" data-calendar-month>
+        <header class="calendar-month__header">
+          <span aria-hidden="true"></span>
+          <h2>{group.month}</h2>
+        </header>
+        <div class="calendar-month__events">
+          {group.milestones.map((item) => (
+            <article class="calendar-event" data-calendar-event data-course={item.course}>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="calendar-event__when">{item.when}</span>
+                <span class="calendar-event__course">{courseLabels[item.course]}</span>
+              </div>
+              <h3 class="mt-3 font-display text-xl font-bold lowercase">{item.title}</h3>
+              <p class="mt-1 text-sm leading-relaxed text-ink-soft">{item.detail}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <p id="calendar-empty" class="pop mt-10 rounded-xl bg-white p-6 text-center text-ink-soft" hidden>
+    nothing is on this class calendar yet.
+  </p>
 </Base>
+
+<script>
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-calendar-filter]')];
+  const events = [...document.querySelectorAll<HTMLElement>('[data-calendar-event]')];
+  const months = [...document.querySelectorAll<HTMLElement>('[data-calendar-month]')];
+  const empty = document.querySelector<HTMLElement>('#calendar-empty');
+
+  filters.forEach((filter) => {
+    filter.addEventListener('click', () => {
+      const course = filter.dataset.calendarFilter ?? '';
+      filters.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === filter)));
+      events.forEach((event) => {
+        event.hidden = Boolean(course && event.dataset.course !== course && event.dataset.course !== 'all');
+      });
+      months.forEach((month) => {
+        month.hidden = ![...month.querySelectorAll<HTMLElement>('[data-calendar-event]')].some((event) => !event.hidden);
+      });
+      if (empty) empty.hidden = events.some((event) => !event.hidden);
+    });
+  });
+</script>
+
+<style>
+  .calendar-guide {
+    overflow: hidden;
+    background:
+      linear-gradient(125deg, color-mix(in srgb, var(--color-accent-soft) 56%, white), white 45%),
+      white;
+  }
+
+  .calendar-filter {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.65rem;
+    background: rgb(255 255 255 / 0.82);
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+
+  .calendar-filter:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+  }
+
+  .calendar-filter[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .calendar-timeline {
+    position: relative;
+  }
+
+  .calendar-timeline::before {
+    position: absolute;
+    top: 0.55rem;
+    bottom: 0.5rem;
+    left: 0.38rem;
+    width: 2px;
+    background: linear-gradient(var(--color-accent), color-mix(in srgb, var(--color-accent) 10%, transparent));
+    content: '';
+  }
+
+  .calendar-month {
+    position: relative;
+    padding-left: 2.2rem;
+  }
+
+  .calendar-month + .calendar-month {
+    margin-top: 2.2rem;
+  }
+
+  .calendar-month__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .calendar-month__header > span {
+    position: absolute;
+    left: 0;
+    width: 0.82rem;
+    height: 0.82rem;
+    border: 3px solid var(--color-paper);
+    border-radius: 999px;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  .calendar-month__header h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .calendar-month__events {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: 0.9rem;
+  }
+
+  .calendar-event {
+    --event-accent: var(--color-accent);
+    --event-soft: var(--color-accent-soft);
+    position: relative;
+    overflow: hidden;
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.9rem;
+    background: rgb(255 255 255 / 0.88);
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+
+  .calendar-event::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--event-accent), color-mix(in srgb, var(--event-accent) 12%, transparent));
+    content: '';
+  }
+
+  .calendar-event[data-course='history'] {
+    --event-accent: #a63a2f;
+    --event-soft: #fff0ed;
+  }
+
+  .calendar-event[data-course='hidden'] {
+    --event-accent: #8a6100;
+    --event-soft: #fff6ce;
+  }
+
+  .calendar-event[data-course='scoreboard'] {
+    --event-accent: #08765a;
+    --event-soft: #e4fff5;
+  }
+
+  .calendar-event:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--event-accent) 46%, var(--color-line));
+    background: white;
+    box-shadow: 0 22px 42px -34px color-mix(in srgb, var(--event-accent) 48%, transparent);
+  }
+
+  .calendar-event__when,
+  .calendar-event__course {
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .calendar-event__when {
+    color: var(--color-ink-soft);
+  }
+
+  .calendar-event__course {
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: var(--event-soft);
+    color: color-mix(in srgb, var(--event-accent) 86%, var(--color-ink));
+  }
+
+  @media (max-width: 639px) {
+    .calendar-month__events {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

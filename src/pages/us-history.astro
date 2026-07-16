@@ -8,17 +8,18 @@ import FeaturedMedia from '../components/FeaturedMedia.astro';
 import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
+import DailyDesk from '../components/DailyDesk.astro';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
-  { tag: 'argue it with receipts', text: 'Was the New Deal a success? Defend your answer with one specific program — not vibes.' },
-  { tag: 'argue it with receipts', text: 'Rank them: which changed daily American life more — the Model T, the television, or the smartphone?' },
-  { tag: 'argue it with receipts', text: 'Reconstruction: abandoned or defeated? There’s a difference, and your answer changes who’s responsible.' },
-  { tag: 'argue it with receipts', text: 'Was dropping the atomic bomb the least-bad option available? Steelman the other side before you answer.' },
-  { tag: 'argue it with receipts', text: 'Who did more for civil rights: the courts, the Congress, or the movement in the streets?' },
-  { tag: 'argue it with receipts', text: 'The 1920s or the 1960s — which decade actually changed America more? Pick one and bring evidence.' },
-  { tag: 'argue it with receipts', text: 'Is the internet age more like the printing press, the radio, or something history has never seen?' },
-  { tag: 'argue it with receipts', text: 'Which president of the last hundred years mattered most — for good or ill? Receipts required.' },
+  { tag: 'make the case', text: 'Was the New Deal a success? Defend your answer with one specific program.' },
+  { tag: 'make the case', text: 'Rank them: which changed daily American life more — the Model T, the television, or the smartphone?' },
+  { tag: 'make the case', text: 'Reconstruction: abandoned or defeated? There’s a difference, and your answer changes who’s responsible.' },
+  { tag: 'make the case', text: 'Was dropping the atomic bomb the least-bad option available? Give the strongest argument against your answer first.' },
+  { tag: 'make the case', text: 'Who did more for civil rights: the courts, Congress, or the movement in the streets?' },
+  { tag: 'make the case', text: 'The 1920s or the 1960s — which decade actually changed America more?' },
+  { tag: 'make the case', text: 'Is the internet age more like the printing press, the radio, or something history has never seen?' },
+  { tag: 'make the case', text: 'Which president of the last hundred years mattered most — for good or ill?' },
 ];
 
 // ---- this day in michigan (m = month, d = day, y = year) ----
@@ -90,7 +91,7 @@ const myths = [
   { tag: 'busted', text: 'Myth: Thomas Edison invented the lightbulb from scratch. Dozens of inventors made incandescent lamps before him. Edison made one that lasted, and — the real trick — built the power grid to feed it.' },
 ];
 
-// ---- exhibit of the day: famous lines, with receipts ----
+// ---- exhibit of the day: famous lines and primary sources ----
 const exhibits = [
   { tag: 'fdr, first inaugural — 1933', text: '"The only thing we have to fear is fear itself." Banks were failing by the thousands that week. The line was a policy argument, not a pep talk.' },
   { tag: 'fdr to congress — december 8, 1941', text: '"A date which will live in infamy." The draft said "world history." FDR crossed it out and wrote "infamy" — better word, better speech.' },
@@ -121,7 +122,7 @@ const units = [
     name: 'The Gilded Age',
     blurb: 'Railroads, robber barons, and the price of progress.',
     topics: [
-      'Captains of industry or robber barons? Argue it with receipts',
+      'Captains of industry or robber barons? Make the case',
       'Immigration, cities, and the machines that ran them',
       'Labor vs. capital: strikes, unions, and Pinkertons',
       'The West: railroads, homesteads, and what they cost Native nations',
@@ -248,6 +249,7 @@ const units = [
 
 const resources = [
   { label: 'browse the full us history library', href: '/resources/?course=US+History' },
+  { label: 'us history glossary', href: '/glossary/?course=US+History' },
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
   { label: 'Library of Congress — primary sources', href: 'https://www.loc.gov/classroom-materials/' },
   { label: 'National Archives — DocsTeach', href: 'https://www.docsteach.org' },
@@ -256,36 +258,16 @@ const resources = [
   // add more: { label: 'Unit 4 study guide', href: '...' },
 ];
 
-const glossary = [
-  { term: 'primary source', def: 'Evidence from the time itself — a letter, a photo, a law, a receipt. The raw material of history, before anyone put a spin on it. (Everyone puts a spin on it.)' },
-  { term: 'reconstruction', def: 'The post-Civil War project to rebuild the South and define freedom. Its amendments changed the Constitution; its retreat shaped the next century.' },
-  { term: 'sharecropping', def: 'Farming someone else’s land for a share of the crop — and usually a growing debt. Freedom’s fine print in the postwar South.' },
-  { term: 'jim crow', def: 'The legal system of racial segregation after Reconstruction — not custom, but law, enforced for generations.' },
-  { term: 'gilded age', def: 'Mark Twain’s name for the late 1800s: gold on the surface, cheaper metal underneath. Railroads, fortunes, and the people who built both.' },
-  { term: 'muckraker', def: 'An investigative journalist of the Progressive Era. Meant as an insult; taken as a job description.' },
-  { term: 'great migration', def: 'Six million Black Americans leaving the South for northern and western cities across the twentieth century. Detroit is a chapter of this story.' },
-  { term: 'new deal', def: 'FDR’s Depression-era program — relief, recovery, reform. We still argue about whether it worked, which is why it’s a unit and not a footnote.' },
-  { term: 'containment', def: 'The Cold War strategy of stopping Soviet expansion without starting World War III. Simple to state, expensive to run.' },
-  { term: 'civil disobedience', def: 'Deliberately, publicly, nonviolently breaking an unjust law and accepting the consequences. Thoreau theorized it; the Civil Rights Movement mastered it.' },
-  { term: 'credibility gap', def: 'The distance between what officials said and what turned out to be true — Vietnam-era vocabulary that never went out of style.' },
-  { term: 'redlining', def: 'Government-backed maps that graded neighborhoods by race and starved the red ones of loans. How segregation got built into cities — including ours.' },
-];
 ---
 
 <CoursePage
   title="us history"
   theme="history"
   identityLabel="american archive // 1865 → now"
-  secret={{
-    trigger: 'archive seal // est. 1865',
-    title: 'archive note',
-    message: "Everything in this course is already old enough to be somebody's evidence. The only question is what story we build from it.",
-  }}
-  tagline="reconstruction to right now — the american story, argued out loud."
-  intro="This course picks up where the Civil War left off and runs to the present. It's built on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
+  tagline="reconstruction to right now — the american story is still being argued over."
+  intro="The Civil War ends; the argument over the country does not. We follow that argument from Reconstruction to right now through the people, choices, disasters, breakthroughs, and strange side stories that made the United States what it is. You will change your mind sometimes. Good."
   units={units}
   resources={resources}
-  glossary={glossary}
 >
   <FeaturedMedia
     slot="hero"
@@ -307,24 +289,20 @@ const glossary = [
   <QuickTake
     slot="hook"
     id="us-history-opening-take"
-    eyebrow="pick first. receipts second."
+    eyebrow="history is an argument about what the evidence means."
     question="What changes the country faster?"
     options={[
-      { label: 'a president', response: 'Then your job is to prove how one person moved institutions, laws, or public opinion—and where their power stopped.' },
-      { label: 'a movement', response: 'Strong pick. Now bring evidence that ordinary people changed the terms of the debate before leaders followed.' },
-      { label: 'a crisis', response: 'Crises can unlock change, but they do not choose the direction. Find who used the opening—and who paid for it.' },
+      { label: 'a president', response: 'Presidents get the headlines. Congress, courts, states, and public opinion decide how far the change actually reaches.' },
+      { label: 'a movement', response: 'Movements can change what feels possible long before the law catches up.' },
+      { label: 'a crisis', response: 'Crises open doors. They do not decide who walks through them—or who gets pushed aside.' },
     ]}
   />
 
-  <section class="mt-12">
-    <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
-    <p class="mt-2 text-sm text-ink-soft lowercase">new every day. same for everyone — argue about it in class.</p>
-    <div class="mt-6 grid gap-6 md:grid-cols-3">
-      <TodayCard label="today in history" events={todayEvents} />
-      <DailyCard label="myth, busted" entries={myths} />
-      <DailyCard label="exhibit of the day" entries={exhibits} />
-      <TodayCard label="this day in michigan" events={michiganEvents} />
-      <DailyCard label="argue this" entries={argueThis} />
-    </div>
-  </section>
+  <DailyDesk note="one date, one myth, and one thing worth arguing about.">
+    <TodayCard label="today in history" events={todayEvents} />
+    <DailyCard label="myth, busted" entries={myths} />
+    <DailyCard label="exhibit of the day" entries={exhibits} />
+    <TodayCard label="this day in michigan" events={michiganEvents} />
+    <DailyCard label="argue this" entries={argueThis} />
+  </DailyDesk>
 </CoursePage>

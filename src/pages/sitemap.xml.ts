@@ -12,6 +12,7 @@ const paths = [
   '/resources/',
   '/simulations/',
   '/games/',
+  '/glossary/',
   '/rabbit-holes/',
   '/tools/',
   '/calendar/',

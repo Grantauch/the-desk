@@ -21,27 +21,14 @@ interface Resource {
   href: string;
 }
 
-interface GlossaryEntry {
-  term: string;
-  def: string;
-}
-
-interface CourseSecret {
-  trigger: string;
-  title: string;
-  message: string;
-}
-
 interface Props {
   title: string;
   tagline: string;
   intro: string;
   units: Unit[];
   resources: Resource[];
-  glossary?: GlossaryEntry[];
   theme?: 'history' | 'classified' | 'scoreboard';
   identityLabel?: string;
-  secret?: CourseSecret;
 }
 
 const {
@@ -50,20 +37,17 @@ const {
   intro,
   units,
   resources,
-  glossary = [],
   theme = 'history',
   identityLabel,
-  secret,
 } = Astro.props;
 const currentIndex = units.findIndex((unit) => unit.current);
 const currentUnit = currentIndex >= 0 ? units[currentIndex] : undefined;
 const hasHero = Astro.slots.has('hero');
 const hasHook = Astro.slots.has('hook');
-const secretId = `course-secret-${theme}`;
 const courseMapCopy = {
-  history: { status: 'archive position', current: 'current chapter', route: 'course chronology' },
-  classified: { status: 'case status // active', current: 'active investigation', route: 'investigation route' },
-  scoreboard: { status: 'game clock // running', current: 'now playing', route: 'season route' },
+  history: { status: 'where we are', current: 'current unit', route: 'the year' },
+  classified: { status: 'current case', current: 'now investigating', route: 'the case files' },
+  scoreboard: { status: 'current season', current: 'now playing', route: 'the schedule' },
 }[theme];
 const progressPercent = currentIndex >= 0 ? ((currentIndex + 1) / units.length) * 100 : 0;
 const groupMaterials = (materials: Material[]) =>
@@ -144,24 +128,6 @@ const groupMaterials = (materials: Material[]) =>
               </div>
             </div>
 
-            {
-              secret && (
-                <div class="course-map__secret" data-course-secret>
-                  <button
-                    type="button"
-                    aria-expanded="false"
-                    aria-controls={secretId}
-                    data-secret-trigger
-                  >
-                    {secret.trigger}
-                  </button>
-                  <div id={secretId} class="course-map__secret-panel hidden" data-secret-panel>
-                    <p>{secret.title}</p>
-                    <span>{secret.message}</span>
-                  </div>
-                </div>
-              )
-            }
           </footer>
         </section>
       )
@@ -227,7 +193,7 @@ const groupMaterials = (materials: Material[]) =>
                                   href={material.href}
                                   target="_blank"
                                   rel="noopener"
-                                  class="flex h-full items-start justify-between gap-3 rounded border border-line bg-paper px-3 py-2 font-mono text-xs lowercase text-ink transition-colors hover:border-accent hover:text-accent"
+                                  class="surface-link flex h-full items-start justify-between gap-3 rounded border border-line bg-paper px-3 py-2 font-mono text-xs lowercase text-ink hover:text-accent"
                                 >
                                   <span>{material.label}</span>
                                   <span aria-hidden="true" class="shrink-0 text-accent">↗</span>
@@ -247,7 +213,7 @@ const groupMaterials = (materials: Material[]) =>
                           href={material.href}
                           target="_blank"
                           rel="noopener"
-                          class="flex h-full items-start justify-between gap-3 rounded border border-line bg-white px-3 py-2 font-mono text-xs lowercase text-ink transition-colors hover:border-accent hover:text-accent"
+                          class="surface-link flex h-full items-start justify-between gap-3 rounded border border-line bg-white px-3 py-2 font-mono text-xs lowercase text-ink hover:text-accent"
                         >
                           <span>{material.label}</span>
                           <span aria-hidden="true" class="shrink-0 text-accent">↗</span>
@@ -264,54 +230,49 @@ const groupMaterials = (materials: Material[]) =>
     </ol>
 
     {
-      glossary.length > 0 && (
-        <>
-          <h2 class="mt-14 font-display text-3xl font-bold lowercase">words worth knowing</h2>
-          <p class="mt-2 text-sm text-ink-soft">Click a term. Definitions in plain English, mostly.</p>
-          <div class="mt-6 grid gap-3 sm:grid-cols-2">
-            {glossary.map((entry) => (
-              <details class="rounded-md border-2 border-line bg-white px-4 py-3 transition-colors open:border-accent">
-                <summary class="cursor-pointer select-none font-semibold lowercase marker:text-accent">{entry.term}</summary>
-                <p class="mt-2 text-sm leading-relaxed text-ink-soft">{entry.def}</p>
-              </details>
-            ))}
-          </div>
-        </>
-      )
-    }
-
-    {
       resources.length > 0 && (
-        <>
-          <h2 class="mt-14 font-display text-3xl font-bold lowercase">resources</h2>
-          <ul class="mt-4 space-y-2">
-            {resources.map((resource) => (
+        <section class="course-hub mt-14" aria-labelledby="course-hub-title">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-accent">everything for this class</p>
+              <h2 id="course-hub-title" class="mt-1 font-display text-3xl font-bold lowercase">class hub<span class="text-accent">.</span></h2>
+            </div>
+            <p class="max-w-sm text-sm lowercase text-ink-soft">slides, course links, source collections, and whatever we need next.</p>
+          </div>
+
+          <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {resources.slice(0, 3).map((resource) => (
               <li>
-                <a href={resource.href} class="text-accent underline underline-offset-4 hover:text-accent-dark">
-                  {resource.label}
+                <a href={resource.href} class="surface-link group flex min-h-28 h-full flex-col justify-between rounded-xl border border-line bg-white p-4">
+                  <span class="font-display text-lg font-bold leading-snug lowercase group-hover:text-accent">{resource.label}</span>
+                  <span class="mt-4 font-mono text-xs font-semibold lowercase text-accent">open →</span>
                 </a>
               </li>
             ))}
           </ul>
-        </>
+
+          {resources.length > 3 && (
+            <details class="pop mt-3 rounded-xl bg-white">
+              <summary class="cursor-pointer px-4 py-3 font-mono text-xs font-semibold lowercase marker:text-accent">
+                more class links · {resources.length - 3}
+              </summary>
+              <ul class="grid gap-2 border-t border-line p-4 sm:grid-cols-2">
+                {resources.slice(3).map((resource) => (
+                  <li>
+                    <a href={resource.href} class="surface-link flex h-full items-start justify-between gap-3 rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink hover:text-accent">
+                      <span>{resource.label}</span>
+                      <span aria-hidden="true" class="shrink-0 text-accent">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </section>
       )
     }
   </div>
 </Base>
-
-<script>
-  document.querySelectorAll<HTMLElement>('[data-course-secret]').forEach((secret) => {
-    const trigger = secret.querySelector<HTMLButtonElement>('[data-secret-trigger]');
-    const panel = secret.querySelector<HTMLElement>('[data-secret-panel]');
-    if (!trigger || !panel) return;
-
-    trigger.addEventListener('click', () => {
-      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
-      trigger.setAttribute('aria-expanded', String(!isOpen));
-      panel.classList.toggle('hidden', isOpen);
-    });
-  });
-</script>
 
 <style>
   .course-page--history {
@@ -559,51 +520,6 @@ const groupMaterials = (materials: Material[]) =>
     background: var(--color-accent);
   }
 
-  .course-map__secret {
-    max-width: 24rem;
-    text-align: right;
-  }
-
-  .course-map__secret button {
-    color: var(--color-ink-soft);
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.11em;
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    text-underline-offset: 0.3rem;
-  }
-
-  .course-map__secret button:hover {
-    color: var(--color-accent-dark);
-  }
-
-  .course-map__secret-panel {
-    margin-top: 0.8rem;
-    padding: 0.8rem 0.9rem;
-    border-left: 3px solid var(--color-accent);
-    background: var(--color-accent-soft);
-    text-align: left;
-  }
-
-  .course-map__secret-panel p {
-    color: var(--color-accent-dark);
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-
-  .course-map__secret-panel span {
-    display: block;
-    margin-top: 0.35rem;
-    color: var(--color-ink-soft);
-    font-size: 0.76rem;
-    line-height: 1.45;
-  }
-
   @media (max-width: 767px) {
     .course-map__layout {
       grid-template-columns: 1fr;
@@ -628,9 +544,5 @@ const groupMaterials = (materials: Material[]) =>
       width: 100%;
     }
 
-    .course-map__secret {
-      max-width: none;
-      text-align: left;
-    }
   }
 </style>

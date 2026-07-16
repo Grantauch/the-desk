@@ -6,14 +6,11 @@
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="tools" description="classroom tools — timer, group maker, and cold call picker. nothing is saved, ever.">
+<Base title="tools" description="classroom tools — timer, group maker, cold-call picker, dice, and scoreboard.">
   <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
     tools<span class="text-accent">.</span>
   </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">small classroom machines.</p>
-  <p class="mt-2 text-sm font-mono text-ink-soft lowercase">
-    nothing typed here is saved or sent anywhere. refresh the page and it's gone.
-  </p>
+  <p class="mt-3 text-lg text-ink-soft lowercase">small classroom machines for when class needs to move.</p>
 
   <!-- ============ timer ============ -->
   <section class="pop mt-10 rounded-md bg-white p-6" id="timer-card">
@@ -44,7 +41,7 @@ import Base from '../layouts/Base.astro';
   <section class="pop mt-8 rounded-md bg-white p-6">
     <h2 class="font-display text-2xl font-bold lowercase">the roster<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">
-      One name per line. Both tools below read from this box. It is never saved — see above.
+      One name per line. The group maker and cold-call picker both use this list.
     </p>
     <textarea
       id="roster"
@@ -120,7 +117,7 @@ import Base from '../layouts/Base.astro';
   <!-- ============ scoreboard ============ -->
   <section class="pop mt-8 rounded-md bg-white p-6">
     <h2 class="font-display text-2xl font-bold lowercase">scoreboard<span class="text-accent">.</span></h2>
-    <p class="mt-1 text-sm text-ink-soft">For review games and jeopardy days. Refresh the page to reset — nothing is saved.</p>
+    <p class="mt-1 text-sm text-ink-soft">For review games, Jeopardy days, and the occasional disputed point.</p>
 
     <div id="score-teams" class="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3"></div>
     <button id="add-team" class="mt-4 font-mono text-sm lowercase border-2 border-ink px-4 py-1.5 hover:bg-ink hover:text-paper transition-colors">+ add team</button>

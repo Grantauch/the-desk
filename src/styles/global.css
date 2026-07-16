@@ -37,7 +37,10 @@
     border-color 180ms ease,
     box-shadow 180ms ease;
 }
-a.pop:hover {
+a.pop:hover,
+button.pop:hover,
+details.pop:not([open]):hover,
+article.pop:hover {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-ink));
   box-shadow: 0 28px 55px -39px color-mix(in srgb, var(--color-accent) 42%, transparent);
@@ -63,6 +66,23 @@ button.pop-ink:hover {
   border-radius: 1rem;
   background: rgb(255 255 255 / 0.88);
   box-shadow: 0 20px 46px -42px rgb(23 23 28 / 0.75);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+details.pop[open]:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-line));
+  box-shadow: 0 28px 55px -42px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.daily-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-accent) 46%, transparent);
+  background: white;
+  box-shadow: 0 28px 55px -39px color-mix(in srgb, var(--color-accent) 36%, transparent);
 }
 
 .daily-card::before {
@@ -95,6 +115,34 @@ html {
   color: var(--color-ink);
   font-family: var(--font-sans);
   scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(circle at 8% -5%, rgb(31 44 230 / 0.08), transparent 31rem),
+    radial-gradient(circle at 96% 34%, rgb(8 118 90 / 0.045), transparent 28rem),
+    linear-gradient(rgb(23 23 28 / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 23 28 / 0.025) 1px, transparent 1px);
+  background-attachment: fixed;
+  background-size: auto, auto, 42px 42px, 42px 42px;
+}
+
+/* Card-sized links and controls should answer the cursor without shouting. */
+.surface-link {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.surface-link:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-line));
+  background-color: color-mix(in srgb, var(--color-accent-soft) 62%, white);
+  box-shadow: 0 18px 34px -28px color-mix(in srgb, var(--color-accent) 50%, transparent);
 }
 
 ::selection {

@@ -1,0 +1,248 @@
+---
+import Base from '../layouts/Base.astro';
+
+interface Entry {
+  course: 'US History' | 'Hidden History' | 'Beyond the Scoreboard';
+  term: string;
+  definition: string;
+}
+
+const entries: Entry[] = [
+  { course: 'US History', term: 'primary source', definition: 'Evidence created at the time: a letter, photograph, law, speech, map, or newspaper. It gets us close to the moment, but it still has a point of view.' },
+  { course: 'US History', term: 'reconstruction', definition: 'The post–Civil War project to rebuild the South and define freedom. Its amendments changed the Constitution; its retreat shaped the next century.' },
+  { course: 'US History', term: 'sharecropping', definition: 'Farming someone else’s land for a share of the crop, usually while debt kept growing. Freedom with fine print in the postwar South.' },
+  { course: 'US History', term: 'jim crow', definition: 'The legal system of racial segregation built after Reconstruction. It was law and policy, not simply custom.' },
+  { course: 'US History', term: 'gilded age', definition: 'Mark Twain’s name for the late 1800s: gold on the surface, cheaper metal underneath. Railroads, fortunes, political machines, and the people who built all of it.' },
+  { course: 'US History', term: 'muckraker', definition: 'An investigative journalist of the Progressive Era. The word began as an insult and became a job description.' },
+  { course: 'US History', term: 'great migration', definition: 'The movement of roughly six million Black Americans from the South to northern and western cities during the twentieth century. Detroit is one chapter of that story.' },
+  { course: 'US History', term: 'new deal', definition: 'FDR’s response to the Great Depression: relief, recovery, and reform. Historians still argue over how well it worked and whom it left out.' },
+  { course: 'US History', term: 'containment', definition: 'The Cold War strategy of stopping Soviet influence from expanding without starting a direct war between nuclear powers.' },
+  { course: 'US History', term: 'civil disobedience', definition: 'Publicly and nonviolently breaking an unjust law, then accepting the consequences in order to expose the injustice.' },
+  { course: 'US History', term: 'credibility gap', definition: 'The distance between what officials said and what the public learned was true. The phrase became famous during the Vietnam War.' },
+  { course: 'US History', term: 'redlining', definition: 'Government-backed maps and lending rules that denied mortgages and investment to neighborhoods based largely on race.' },
+
+  { course: 'Hidden History', term: 'primary source', definition: 'Evidence from the time itself: a memo, photograph, recording, front page, report, or court record.' },
+  { course: 'Hidden History', term: 'corroboration', definition: 'Independent evidence that supports the same claim. One source begins a case; unrelated sources agreeing make it stronger.' },
+  { course: 'Hidden History', term: 'declassified', definition: 'Officially released from government secrecy. It proves the document is authentic, not that every sentence in it is accurate.' },
+  { course: 'Hidden History', term: 'redaction', definition: 'Information hidden from a released document, usually with black bars. A redaction is missing information, not proof of what was removed.' },
+  { course: 'Hidden History', term: 'foia', definition: 'The Freedom of Information Act, which allows people to request records from the federal government.' },
+  { course: 'Hidden History', term: 'misinformation', definition: 'False information shared by someone who believes it is true.' },
+  { course: 'Hidden History', term: 'disinformation', definition: 'False information spread deliberately by someone who knows it is false.' },
+  { course: 'Hidden History', term: 'confirmation bias', definition: 'The pull toward evidence that agrees with what you already believe and away from evidence that does not.' },
+  { course: 'Hidden History', term: 'burden of proof', definition: 'The person making a claim is responsible for supporting it. Other people do not have to disprove an unsupported claim.' },
+  { course: 'Hidden History', term: 'whistleblower', definition: 'An insider who exposes wrongdoing, often using records or firsthand testimony.' },
+  { course: 'Hidden History', term: 'cover-up', definition: 'A documented effort to hide wrongdoing or information. Real cover-ups leave records, witnesses, contradictions, or other evidence behind.' },
+  { course: 'Hidden History', term: 'unproven', definition: 'A verdict used when reliable evidence is not strong enough to confirm or debunk a claim.' },
+  { course: 'Hidden History', term: 'falsifiability', definition: 'The ability of a claim to be tested and possibly proven wrong. If no discovery could ever count against it, the claim cannot be meaningfully tested.' },
+  { course: 'Hidden History', term: 'occam’s razor', definition: 'When several explanations fit the evidence, begin with the one that requires the fewest unsupported assumptions.' },
+  { course: 'Hidden History', term: 'apophenia', definition: 'The human tendency to see meaningful patterns in unrelated or random information.' },
+  { course: 'Hidden History', term: 'motivated reasoning', definition: 'Starting with the conclusion you want and working backward to find reasons to support it.' },
+  { course: 'Hidden History', term: 'two-source rule', definition: 'The practice of requiring two independent sources before treating an important claim as established.' },
+  { course: 'Hidden History', term: 'lateral reading', definition: 'Checking a source by leaving it and seeing what independent sources say about the author, organization, and claim.' },
+  { course: 'Hidden History', term: 'hindsight bias', definition: 'The feeling that an event was obvious or inevitable after you already know how it ended.' },
+  { course: 'Hidden History', term: 'cover story', definition: 'A false public explanation created to hide a real operation, event, or purpose.' },
+
+  { course: 'Beyond the Scoreboard', term: 'the color line', definition: 'The written and unwritten rules that excluded Black athletes from white leagues for decades.' },
+  { course: 'Beyond the Scoreboard', term: 'reserve clause', definition: 'The contract rule that tied a player to one team, preventing the player from freely negotiating with another club.' },
+  { course: 'Beyond the Scoreboard', term: 'free agency', definition: 'A player’s right to negotiate a contract with other teams after meeting the league’s eligibility rules.' },
+  { course: 'Beyond the Scoreboard', term: 'amateurism', definition: 'The idea that athletes, especially college athletes, should compete without being directly paid for their play.' },
+  { course: 'Beyond the Scoreboard', term: 'title ix', definition: 'The 1972 federal law barring sex discrimination in education programs that receive federal funding.' },
+  { course: 'Beyond the Scoreboard', term: 'nil', definition: 'Name, image, and likeness: a college athlete’s ability to earn money from endorsements, appearances, and other uses of their identity.' },
+  { course: 'Beyond the Scoreboard', term: 'barnstorming', definition: 'Touring from town to town to play exhibition games, often outside an established league schedule.' },
+  { course: 'Beyond the Scoreboard', term: 'boycott', definition: 'Refusing to participate in order to pressure an institution, government, league, or business to change.' },
+  { course: 'Beyond the Scoreboard', term: 'broadcast rights', definition: 'Permission purchased by a network or platform to show games. These deals are one of the largest sources of league revenue.' },
+  { course: 'Beyond the Scoreboard', term: 'sanctioning body', definition: 'An organization that sets and enforces rules for a sport, such as a league, the NCAA, or the IOC.' },
+  { course: 'Beyond the Scoreboard', term: 'mirror or engine', definition: 'The course question: does sport mainly reflect changes already happening in America, or does it help cause those changes?' },
+  { course: 'Beyond the Scoreboard', term: 'unwritten rule', definition: 'A rule enforced by a group even though it does not appear in the official rulebook.' },
+  { course: 'Beyond the Scoreboard', term: 'parallel institution', definition: 'An organization built by excluded people when established institutions shut them out, such as the Negro Leagues.' },
+  { course: 'Beyond the Scoreboard', term: 'rights fees', definition: 'The money a network or platform pays a league for permission to broadcast its games.' },
+  { course: 'Beyond the Scoreboard', term: 'conscientious objector', definition: 'A person who refuses military service on moral or religious grounds. Muhammad Ali claimed this status in 1967.' },
+  { course: 'Beyond the Scoreboard', term: 'ped', definition: 'Performance-enhancing drug: a substance used to improve strength, endurance, recovery, or another part of athletic performance.' },
+  { course: 'Beyond the Scoreboard', term: 'commissioner power', definition: 'The authority of a league commissioner to make decisions in what the office considers the best interests of the sport.' },
+  { course: 'Beyond the Scoreboard', term: 'gatekeeper', definition: 'A person or institution that controls who gets access, attention, or coverage: leagues, owners, sportswriters, networks, and platforms.' },
+];
+
+const courses = ['US History', 'Hidden History', 'Beyond the Scoreboard'] as const;
+const counts = new Map(courses.map((course) => [course, entries.filter((entry) => entry.course === course).length]));
+---
+
+<Base title="glossary" description="Search the terms that keep showing up across classes at the desk.">
+  <section class="dot-grid -mx-5 px-5 pb-10">
+    <nav class="library-switch" aria-label="Library sections">
+      <a href="/resources/">materials</a>
+      <a href="/glossary/" aria-current="page">glossary</a>
+    </nav>
+    <h1 class="mt-4 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
+      glossary<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft lowercase">
+      the terms that keep showing up in class, all in one place.
+    </p>
+  </section>
+
+  <section class="pop rounded-xl bg-white p-5 sm:p-6" aria-label="Glossary filters">
+    <label class="block">
+      <span class="font-mono text-xs font-semibold lowercase text-ink-soft">find a term</span>
+      <input
+        id="glossary-search"
+        type="search"
+        autocomplete="off"
+        placeholder="try: redlining, foia, title ix…"
+        class="mt-1.5 w-full rounded-lg border-2 border-ink bg-paper px-3 py-2.5 text-base outline-none transition-colors focus:border-accent"
+      />
+    </label>
+    <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filter glossary by class">
+      <button type="button" data-course-filter="" aria-pressed="true" class="glossary-filter">all · {entries.length}</button>
+      {courses.map((course) => (
+        <button type="button" data-course-filter={course} aria-pressed="false" class="glossary-filter">
+          {course} · {counts.get(course)}
+        </button>
+      ))}
+    </div>
+    <p class="mt-4 font-mono text-xs lowercase text-ink-soft" aria-live="polite">
+      <span id="glossary-count" class="font-bold text-ink">{entries.length}</span> terms showing
+    </p>
+  </section>
+
+  <div class="mt-10 space-y-10" id="glossary-groups">
+    {courses.map((course) => (
+      <section data-glossary-group data-course={course}>
+        <div class="flex flex-wrap items-end justify-between gap-3 border-b-2 border-ink pb-3">
+          <h2 class="font-display text-2xl font-bold lowercase">{course}</h2>
+          <a href={`/resources/?course=${encodeURIComponent(course)}`} class="font-mono text-xs font-semibold lowercase text-accent hover:text-accent-dark">
+            class materials →
+          </a>
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          {entries.filter((entry) => entry.course === course).map((entry) => (
+            <article
+              data-glossary-card
+              data-course={entry.course}
+              data-search={`${entry.term} ${entry.definition}`.toLocaleLowerCase('en')}
+              class="glossary-card"
+            >
+              <h3 class="font-display text-lg font-bold lowercase">{entry.term}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">{entry.definition}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <p id="glossary-empty" class="pop mt-10 rounded-xl bg-white p-6 text-center text-ink-soft" hidden>
+    no match yet. try a shorter word or switch back to all classes.
+  </p>
+</Base>
+
+<script>
+  const search = document.querySelector<HTMLInputElement>('#glossary-search');
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-course-filter]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-glossary-card]')];
+  const groups = [...document.querySelectorAll<HTMLElement>('[data-glossary-group]')];
+  const count = document.querySelector<HTMLElement>('#glossary-count');
+  const empty = document.querySelector<HTMLElement>('#glossary-empty');
+  let selectedCourse = '';
+
+  const apply = () => {
+    const query = search?.value.trim().toLocaleLowerCase('en') ?? '';
+    let visible = 0;
+    cards.forEach((card) => {
+      const matchesCourse = !selectedCourse || card.dataset.course === selectedCourse;
+      const matchesSearch = !query || card.dataset.search?.includes(query);
+      card.hidden = !(matchesCourse && matchesSearch);
+      if (!card.hidden) visible += 1;
+    });
+    groups.forEach((group) => {
+      group.hidden = ![...group.querySelectorAll<HTMLElement>('[data-glossary-card]')].some((card) => !card.hidden);
+    });
+    if (count) count.textContent = String(visible);
+    if (empty) empty.hidden = visible > 0;
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const initialCourse = params.get('course');
+  if (initialCourse && buttons.some((button) => button.dataset.courseFilter === initialCourse)) selectedCourse = initialCourse;
+  buttons.forEach((button) => {
+    button.setAttribute('aria-pressed', String((button.dataset.courseFilter ?? '') === selectedCourse));
+    button.addEventListener('click', () => {
+      selectedCourse = button.dataset.courseFilter ?? '';
+      buttons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+      apply();
+    });
+  });
+  search?.addEventListener('input', apply);
+  apply();
+</script>
+
+<style>
+  .library-switch {
+    display: inline-flex;
+    padding: 0.2rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: rgb(255 255 255 / 0.8);
+  }
+
+  .library-switch a {
+    padding: 0.45rem 0.8rem;
+    border-radius: 0.55rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .library-switch a:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+  }
+
+  .library-switch a[aria-current='page'] {
+    background: var(--color-accent);
+    color: white;
+    box-shadow: 0 8px 20px -14px var(--color-accent);
+  }
+
+  .glossary-filter {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.6rem;
+    background: var(--color-paper);
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+
+  .glossary-filter:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .glossary-filter[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .glossary-card {
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.85rem;
+    background: rgb(255 255 255 / 0.88);
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+
+  .glossary-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-line));
+    background: white;
+    box-shadow: 0 20px 38px -32px color-mix(in srgb, var(--color-accent) 42%, transparent);
+  }
+</style>
