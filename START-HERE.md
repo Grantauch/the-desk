@@ -64,7 +64,7 @@ Done. grant-desk.com is live.
 
 ## Everyday updates (the workflow you'll actually use)
 
-Edit → check → publish:
+Edit → check → publish. Netlify's current credit-based plans count each production publish as 15 credits, so collect several edits into one batch instead of publishing after every small change:
 
 ```powershell
 cd C:\Users\Grant\GrantDeskSite

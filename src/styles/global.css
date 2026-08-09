@@ -65,6 +65,17 @@ html {
   color: white;
 }
 
+/* Make every interactive control easy to find without adding focus rings to mouse clicks. */
+:where(a, button, summary, input, select, textarea):focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Keep in-page destinations clear of the sticky navigation. */
+:where(h1, h2, h3, [id]) {
+  scroll-margin-top: 6rem;
+}
+
 /* keyboard users: hidden link that appears on first Tab press */
 .skip-link {
   position: absolute;

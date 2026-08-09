@@ -1,6 +1,7 @@
 // sitemap.xml — built at deploy time from the list below.
 // If you add a page to src/pages/, add its path here too.
 import type { APIRoute } from 'astro';
+import { learningHubs } from '../data/learningHubs';
 
 const paths = [
   '/',
@@ -12,12 +13,15 @@ const paths = [
   '/resources/',
   '/simulations/',
   '/games/',
+  '/rabbit-holes/',
   '/tools/',
   '/calendar/',
   '/fact-check-friday/',
   '/showcase/',
   '/announcements/',
   '/about/',
+  '/learning-hubs/',
+  ...learningHubs.map((hub) => `/learn/${hub.courseSlug}/${hub.slug}/`),
 ];
 
 export const GET: APIRoute = ({ site }) => {

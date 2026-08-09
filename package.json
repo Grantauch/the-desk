@@ -6,11 +6,19 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "check": "astro check",
     "preview": "astro preview"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",
-    "astro": "^5.0.0",
+    "astro": "^7.1.1",
     "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^6.0.3"
   }
 }

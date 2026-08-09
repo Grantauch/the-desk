@@ -1,6 +1,8 @@
 ---
 // index.astro — the home page.
 import Base from '../layouts/Base.astro';
+import ArchiveSpotlight from '../components/ArchiveSpotlight.astro';
+import CuriosityDesk from '../components/CuriosityDesk.astro';
 import { getCollection } from 'astro:content';
 
 const announcements = (await getCollection('announcements'))
@@ -43,6 +45,19 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
     </p>
   </section>
 
+  <CuriosityDesk />
+
+  <a href="/learning-hubs/" class="group pop-ink mt-10 grid gap-6 rounded-md bg-ink p-6 text-white sm:grid-cols-[1fr_auto] sm:items-end">
+    <div>
+      <span class="font-mono text-xs font-bold uppercase tracking-widest text-[#f2ff47]">new · 22 unit worlds · progress saved</span>
+      <h2 class="mt-2 font-display text-3xl font-bold lowercase sm:text-4xl">learning hubs<span class="text-[#f2ff47]">.</span></h2>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-white/75">
+        The story, the vocabulary, the timeline, the decisions, and the boss battle for every unit in every class. Earn XP, keep a streak, save your notes, and pick up exactly where you left off.
+      </p>
+    </div>
+    <span class="font-mono text-sm font-bold text-[#f2ff47] transition-transform group-hover:translate-x-1.5">choose a mission →</span>
+  </a>
+
   <!-- classes -->
   <section class="mt-10 grid gap-6 sm:grid-cols-3">
     {
@@ -60,7 +75,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
   </section>
 
   <!-- the fun stuff -->
-  <section class="mt-10 grid gap-6 sm:grid-cols-3">
+  <section class="mt-10 grid gap-6 sm:grid-cols-2">
     <a href="/simulations/" class="group pop rounded-md bg-accent text-white p-5">
       <h2 class="font-display text-2xl font-bold lowercase">simulations<span class="text-white/60">.</span></h2>
       <p class="mt-2 text-sm text-white/85 leading-relaxed">
@@ -75,6 +90,13 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
+    <a href="/rabbit-holes/" class="group pop rounded-md bg-accent-soft p-5">
+      <h2 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">rabbit holes<span class="text-accent">.</span></h2>
+      <p class="mt-2 text-sm text-ink-soft leading-relaxed">
+        Ninety cold openers built for the question that derails the lesson — in the best possible way.
+      </p>
+      <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
+    </a>
     <a href="/tools/" class="group pop rounded-md bg-ink text-paper p-5">
       <h2 class="font-display text-2xl font-bold lowercase">tools<span class="text-accent">.</span></h2>
       <p class="mt-2 text-sm text-paper/70 leading-relaxed">
@@ -83,6 +105,8 @@ const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
   </section>
+
+  <ArchiveSpotlight />
 
   <!-- latest announcements -->
   <section class="mt-20">

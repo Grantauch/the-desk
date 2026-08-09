@@ -1,0 +1,92 @@
+---
+// A deliberately small, hand-checked feed of reusable primary-source images.
+// Images stay on the archive's own delivery service so the desk does not pay
+// to store or serve them. Every card links back to the full catalog record.
+const archiveItems = [
+  {
+    source: 'national archives',
+    date: '1970',
+    title: 'How did Elvis end up in the Oval Office asking for a federal narcotics badge?',
+    image:
+      'https://www.archives.gov/files/publications/prologue/2004/winter/images/nixon-elvis-full-1634221.jpg',
+    alt: 'President Richard Nixon and Elvis Presley shaking hands in the Oval Office in 1970.',
+    href: 'https://catalog.archives.gov/id/1634221',
+    credit: 'Ollie Atkins · Nixon Presidential Library · U.S. government photograph',
+    position: 'object-center',
+  },
+  {
+    source: 'smithsonian open access',
+    date: '1932',
+    title: 'Does the mystery of Amelia Earhart eclipse what she actually accomplished?',
+    image:
+      'https://ids.si.edu/ids/deliveryService?id=NASM-A19670093000-NASM2018-10363-000001&max_w=800',
+    alt: "Amelia Earhart's bright red Lockheed Vega 5B aircraft in the National Air and Space Museum.",
+    href: 'https://www.si.edu/object/lockheed-vega-5b-amelia-earhart%3Anasm_A19670093000',
+    credit: 'National Air and Space Museum · CC0',
+    position: 'object-center',
+  },
+  {
+    source: 'library of congress',
+    date: '1951',
+    title: 'When did Jackie Robinson become more than a baseball player?',
+    image: 'https://tile.loc.gov/storage-services/service/pnp/ppmsc/00100/00133r.jpg',
+    alt: 'Color cover of a 1951 Jackie Robinson comic book with Robinson in a Brooklyn Dodgers cap.',
+    href: 'https://www.loc.gov/item/97519504/',
+    credit: 'Jackie Robinson comic cover · no known restrictions on publication',
+    position: 'object-top',
+  },
+];
+---
+
+<section class="mt-20" aria-labelledby="archive-spotlight-title">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">borrowed pixels · original records</p>
+      <h2 id="archive-spotlight-title" class="mt-1 font-display text-3xl font-bold lowercase">
+        from the archives<span class="text-accent">.</span>
+      </h2>
+      <p class="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
+        Three primary sources worth opening before the bell. The images stay with the institutions that preserve them;
+        the desk supplies the rabbit hole.
+      </p>
+    </div>
+    <span class="rounded-full border-2 border-line bg-white px-3 py-1 font-mono text-[0.68rem] lowercase text-ink-soft">
+      public domain / open access
+    </span>
+  </div>
+
+  <div class="mt-6 grid gap-6 md:grid-cols-3">
+    {
+      archiveItems.map((item) => (
+        <article class="group overflow-hidden rounded-md border-2 border-ink bg-white shadow-[5px_5px_0_var(--color-accent)] transition-transform hover:-translate-y-1">
+          <a href={item.href} target="_blank" rel="noopener" class="block" aria-label={`${item.title} — open the full ${item.source} record`}>
+            <div class="relative aspect-[4/3] overflow-hidden border-b-2 border-ink bg-accent-soft">
+              <img
+                src={item.image}
+                alt={item.alt}
+                loading="lazy"
+                decoding="async"
+                class:list={[
+                  'absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]',
+                  item.position,
+                ]}
+              />
+              <span class="absolute left-3 top-3 rounded-sm border-2 border-ink bg-paper px-2 py-1 font-mono text-[0.64rem] font-semibold uppercase tracking-wider shadow-[2px_2px_0_var(--color-ink)]">
+                {item.date}
+              </span>
+            </div>
+            <div class="p-4">
+              <p class="font-mono text-[0.66rem] uppercase tracking-wider text-accent">{item.source}</p>
+              <h3 class="mt-2 font-display text-lg font-bold leading-snug lowercase transition-colors group-hover:text-accent">
+                {item.title}
+              </h3>
+              <p class="mt-4 border-t border-line pt-3 text-[0.68rem] leading-relaxed text-ink-soft">
+                {item.credit} <span aria-hidden="true" class="text-accent">↗</span>
+              </p>
+            </div>
+          </a>
+        </article>
+      ))
+    }
+  </div>
+</section>

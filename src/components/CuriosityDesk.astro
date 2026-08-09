@@ -1,0 +1,551 @@
+---
+const curiosityItems = [
+  {
+    tags: ['power'],
+    category: 'power + spectacle',
+    source: 'National Archives',
+    date: '1970',
+    question: 'How did Elvis end up in the Oval Office asking for a federal narcotics badge?',
+    clue: 'Start with the handshake: who is performing for whom?',
+    context:
+      'Elvis Presley arrived at the White House with a handwritten letter and a request to become a federal agent-at-large. The meeting produced one of the most requested photographs in the National Archives - and a perfect artifact about celebrity, access, and political theater.',
+    image:
+      'https://www.archives.gov/files/publications/prologue/2004/winter/images/nixon-elvis-full-1634221.jpg',
+    alt: 'President Richard Nixon and Elvis Presley shaking hands in the Oval Office in 1970.',
+    position: 'center',
+    record: 'https://catalog.archives.gov/id/1634221',
+    credit: 'Ollie Atkins / Nixon Presidential Library / U.S. government photograph',
+    related: '/hidden-history/',
+    relatedLabel: 'power, evidence, and official stories',
+    deeper: '/rabbit-holes/',
+    deeperLabel: 'choose another historical detour',
+  },
+  {
+    tags: ['mysteries'],
+    category: 'mystery + memory',
+    source: 'Smithsonian Open Access',
+    date: '1932',
+    question: 'Does the mystery of Amelia Earhart eclipse what she actually accomplished?',
+    clue: 'Look at the machine before thinking about the disappearance.',
+    context:
+      'Earhart flew this Lockheed Vega solo across the Atlantic and then nonstop across the United States. Her disappearance became the larger popular story, but the surviving aircraft restores the scale of what she completed while the whole world was watching.',
+    image:
+      'https://ids.si.edu/ids/deliveryService?id=NASM-A19670093000-NASM2018-10363-000001&max_w=1200',
+    alt: "Amelia Earhart's red Lockheed Vega 5B aircraft at the National Air and Space Museum.",
+    position: 'center',
+    record: 'https://www.si.edu/object/lockheed-vega-5b-amelia-earhart%3Anasm_A19670093000',
+    credit: 'National Air and Space Museum / CC0',
+    related: '/hidden-history/',
+    relatedLabel: 'separate the record from the legend',
+    deeper: '/rabbit-holes/',
+    deeperLabel: 'follow a mystery somewhere else',
+  },
+  {
+    tags: ['sports', 'power'],
+    category: 'sports + citizenship',
+    source: 'Library of Congress',
+    date: '1951',
+    question: 'When did Jackie Robinson become more than a baseball player?',
+    clue: 'This is a comic-book cover, not a box score. Why does that matter?',
+    context:
+      'By 1951, Robinson was being presented as a national hero whose meaning reached far beyond baseball. The cover is evidence of how mass media turned an athlete into a public argument about courage, citizenship, and who could represent America.',
+    image: 'https://tile.loc.gov/storage-services/service/pnp/ppmsc/00100/00133r.jpg',
+    alt: 'Color cover of a 1951 Jackie Robinson comic book with Robinson wearing a Brooklyn Dodgers cap.',
+    position: 'top',
+    record: 'https://www.loc.gov/item/97519504/',
+    credit: 'Jackie Robinson comic cover / no known restrictions on publication',
+    related: '/beyond-the-scoreboard/',
+    relatedLabel: 'the games were never just games',
+    deeper: '/rabbit-holes/',
+    deeperLabel: 'take the next unexpected turn',
+  },
+  {
+    tags: ['power'],
+    category: 'revolution + mythmaking',
+    source: 'The Met Open Access',
+    date: '1851',
+    question: 'What if America\'s most famous Revolutionary image is really about the 1850s?',
+    clue: 'The painting was completed seventy-five years after the crossing.',
+    context:
+      'Emanuel Leutze was not recording an event he witnessed. He was building a national memory: heroic, theatrical, and designed to make viewers feel the Revolution rather than inspect it. That makes the painting useful evidence - just not in the way people first assume.',
+    image: 'https://images.metmuseum.org/CRDImages/ad/web-large/DP215410.jpg',
+    alt: "Emanuel Leutze's painting Washington Crossing the Delaware.",
+    position: 'center',
+    record: 'https://www.metmuseum.org/art/collection/search/11417',
+    credit: 'The Metropolitan Museum of Art / public domain / CC0',
+    related: '/us-history/',
+    relatedLabel: 'read images as historical arguments',
+    deeper: '/hidden-history/',
+    deeperLabel: 'ask what the familiar story leaves out',
+  },
+  {
+    tags: ['michigan'],
+    category: 'Michigan + the future',
+    source: 'Library of Congress',
+    date: '1889',
+    question: 'Is this a map of Detroit - or an advertisement for the city Detroit hoped to become?',
+    clue: 'Notice what the artist makes prominent, orderly, and prosperous.',
+    context:
+      'Bird\'s-eye city views mixed observation with civic promotion. This one captures late-nineteenth-century Detroit as a place of industry, movement, and ambition, while its impossible viewpoint reminds us that every map is also an argument about what deserves attention.',
+    image: 'https://tile.loc.gov/storage-services/service/gmd/gmd411/g4114/g4114d/pm003420.gif',
+    alt: "Bird's-eye map showing central Detroit, Michigan, in 1889.",
+    position: 'center',
+    record: 'https://www.loc.gov/item/76693077/',
+    credit: 'Library of Congress Geography and Map Division / public domain',
+    related: '/us-history/',
+    relatedLabel: 'connect the national story to Michigan',
+    deeper: '/showcase/',
+    deeperLabel: 'see what students uncover',
+  },
+];
+
+const first = curiosityItems[0];
+---
+
+<section id="curiosity-desk" class="curiosity-desk" data-curiosity-desk aria-labelledby="curiosity-title">
+  <div class="curiosity-topline">
+    <div>
+      <p class="curiosity-eyebrow">the curiosity desk / artifact 01</p>
+      <h2 id="curiosity-title">one object. one question. three ways in.</h2>
+    </div>
+    <p class="curiosity-intro">
+      Pick a thread, make a guess, then open the record. History is more interesting before somebody tells you the answer.
+    </p>
+  </div>
+
+  <div class="curiosity-filters" aria-label="Filter curiosity desk artifacts">
+    <button type="button" data-filter="all" aria-pressed="true">all</button>
+    <button type="button" data-filter="power" aria-pressed="false">power</button>
+    <button type="button" data-filter="sports" aria-pressed="false">sports</button>
+    <button type="button" data-filter="mysteries" aria-pressed="false">mysteries</button>
+    <button type="button" data-filter="michigan" aria-pressed="false">Michigan</button>
+  </div>
+
+  <div class="curiosity-stage">
+    <a class="curiosity-image" href={first.record} target="_blank" rel="noopener" data-link="record">
+      <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} data-field="image" />
+      <span class="curiosity-date" data-field="date">{first.date}</span>
+      <span class="curiosity-open">open the original record <span aria-hidden="true">&#8599;</span></span>
+    </a>
+
+    <div class="curiosity-story" aria-live="polite">
+      <div>
+        <p class="curiosity-source"><span data-field="category">{first.category}</span> / <span data-field="source">{first.source}</span></p>
+        <h3 data-field="question">{first.question}</h3>
+        <p class="curiosity-clue" data-field="clue">{first.clue}</p>
+      </div>
+
+      <div class="curiosity-actions">
+        <button type="button" class="curiosity-reveal" data-action="reveal" aria-expanded="false">
+          reveal the context
+        </button>
+        <button type="button" class="curiosity-next" data-action="next">
+          another artifact <span aria-hidden="true">&#8594;</span>
+        </button>
+      </div>
+
+      <div class="curiosity-context" data-field="context-panel" hidden>
+        <p data-field="context">{first.context}</p>
+      </div>
+
+      <p class="curiosity-credit" data-field="credit">{first.credit}</p>
+      <span class="sr-status" data-field="status" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <div class="curiosity-trail" aria-label="Three ways to continue">
+    <a href={first.record} target="_blank" rel="noopener" data-link="record">
+      <span>01 / primary source</span>
+      <strong>inspect the full archive record</strong>
+    </a>
+    <a href={first.related} data-link="related">
+      <span>02 / on the desk</span>
+      <strong data-field="related-label">{first.relatedLabel}</strong>
+    </a>
+    <a href={first.deeper} data-link="deeper">
+      <span>03 / keep digging</span>
+      <strong data-field="deeper-label">{first.deeperLabel}</strong>
+    </a>
+  </div>
+
+  <script is:inline define:vars={{ curiosityItems }}>
+    const root = document.currentScript.closest('[data-curiosity-desk]');
+    const image = root.querySelector('[data-field="image"]');
+    const contextPanel = root.querySelector('[data-field="context-panel"]');
+    const revealButton = root.querySelector('[data-action="reveal"]');
+    const nextButton = root.querySelector('[data-action="next"]');
+    const filterButtons = [...root.querySelectorAll('[data-filter]')];
+    let activeFilter = 'all';
+    let currentIndex = 0;
+
+    const setText = (name, value) => {
+      root.querySelectorAll(`[data-field="${name}"]`).forEach((element) => {
+        element.textContent = value;
+      });
+    };
+
+    const showItem = (index) => {
+      currentIndex = index;
+      const item = curiosityItems[index];
+
+      image.src = item.image;
+      image.alt = item.alt;
+      image.style.objectPosition = item.position;
+      setText('date', item.date);
+      setText('category', item.category);
+      setText('source', item.source);
+      setText('question', item.question);
+      setText('clue', item.clue);
+      setText('context', item.context);
+      setText('credit', item.credit);
+      setText('related-label', item.relatedLabel);
+      setText('deeper-label', item.deeperLabel);
+      setText('status', `Now showing: ${item.question}`);
+
+      root.querySelectorAll('[data-link="record"]').forEach((link) => (link.href = item.record));
+      root.querySelector('[data-link="related"]').href = item.related;
+      root.querySelector('[data-link="deeper"]').href = item.deeper;
+
+      contextPanel.hidden = true;
+      revealButton.setAttribute('aria-expanded', 'false');
+      revealButton.textContent = 'reveal the context';
+    };
+
+    const matchingIndexes = () => curiosityItems
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => activeFilter === 'all' || item.tags.includes(activeFilter))
+      .map(({ index }) => index);
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => {
+          candidate.setAttribute('aria-pressed', String(candidate === button));
+        });
+        showItem(matchingIndexes()[0]);
+      });
+    });
+
+    nextButton.addEventListener('click', () => {
+      const matches = matchingIndexes();
+      const matchPosition = matches.indexOf(currentIndex);
+      showItem(matches[(matchPosition + 1) % matches.length]);
+    });
+
+    revealButton.addEventListener('click', () => {
+      const willOpen = contextPanel.hidden;
+      contextPanel.hidden = !willOpen;
+      revealButton.setAttribute('aria-expanded', String(willOpen));
+      revealButton.textContent = willOpen ? 'hide the context' : 'reveal the context';
+    });
+  </script>
+</section>
+
+<style>
+  .curiosity-desk {
+    --desk-blue: #5366ff;
+    --desk-cream: #f4f1e8;
+    margin-top: 4.5rem;
+    overflow: hidden;
+    border-radius: 1.1rem;
+    background: #111219;
+    color: var(--desk-cream);
+    box-shadow: 0 28px 70px rgb(23 23 28 / 0.18);
+  }
+
+  .curiosity-topline {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(16rem, 0.7fr);
+    gap: 2rem;
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .curiosity-eyebrow,
+  .curiosity-source,
+  .curiosity-credit,
+  .curiosity-trail span {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .curiosity-eyebrow {
+    color: #9ba6ff;
+    font-size: 0.68rem;
+  }
+
+  .curiosity-topline h2 {
+    max-width: 34rem;
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 650;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .curiosity-intro {
+    align-self: end;
+    color: rgb(244 241 232 / 0.68);
+    font-size: 0.86rem;
+    line-height: 1.65;
+  }
+
+  .curiosity-filters {
+    display: flex;
+    gap: 0.45rem;
+    overflow-x: auto;
+    padding: 0.85rem 2rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+    scrollbar-width: thin;
+  }
+
+  .curiosity-filters button {
+    flex: none;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: 999px;
+    padding: 0.4rem 0.75rem;
+    color: rgb(244 241 232 / 0.7);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: lowercase;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+  }
+
+  .curiosity-filters button:hover,
+  .curiosity-filters button[aria-pressed='true'] {
+    border-color: var(--desk-blue);
+    background: var(--desk-blue);
+    color: white;
+  }
+
+  .curiosity-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(19rem, 0.92fr);
+    min-height: 31rem;
+  }
+
+  .curiosity-image {
+    position: relative;
+    min-height: 31rem;
+    overflow: hidden;
+    background: #282a35;
+  }
+
+  .curiosity-image::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(to top, rgb(5 6 10 / 0.72), transparent 42%);
+    pointer-events: none;
+  }
+
+  .curiosity-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms ease, filter 500ms ease;
+  }
+
+  .curiosity-image:hover img {
+    transform: scale(1.025);
+    filter: saturate(1.08);
+  }
+
+  .curiosity-date,
+  .curiosity-open {
+    position: absolute;
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .curiosity-date {
+    top: 1.15rem;
+    left: 1.15rem;
+    border-radius: 999px;
+    background: var(--desk-cream);
+    padding: 0.4rem 0.65rem;
+    color: #111219;
+  }
+
+  .curiosity-open {
+    right: 1.15rem;
+    bottom: 1.15rem;
+    left: 1.15rem;
+    color: white;
+  }
+
+  .curiosity-story {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    border-left: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .curiosity-source {
+    color: #9ba6ff;
+    font-size: 0.65rem;
+    line-height: 1.5;
+  }
+
+  .curiosity-story h3 {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.85rem, 3.6vw, 2.65rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .curiosity-clue {
+    margin-top: 1.15rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--desk-blue);
+    color: rgb(244 241 232 / 0.67);
+    font-size: 0.83rem;
+    line-height: 1.55;
+  }
+
+  .curiosity-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.6rem;
+  }
+
+  .curiosity-actions button {
+    border-radius: 0.35rem;
+    padding: 0.68rem 0.82rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: lowercase;
+  }
+
+  .curiosity-reveal {
+    background: var(--desk-blue);
+    color: white;
+  }
+
+  .curiosity-next {
+    border: 1px solid rgb(255 255 255 / 0.25);
+    color: var(--desk-cream);
+  }
+
+  .curiosity-actions button:hover {
+    filter: brightness(1.12);
+  }
+
+  .curiosity-context {
+    margin-top: 1.25rem;
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+    padding-top: 1.1rem;
+    color: rgb(244 241 232 / 0.8);
+    font-size: 0.82rem;
+    line-height: 1.62;
+  }
+
+  .curiosity-context[hidden] {
+    display: none;
+  }
+
+  .curiosity-credit {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    color: rgb(244 241 232 / 0.42);
+    font-size: 0.55rem;
+    line-height: 1.55;
+  }
+
+  .curiosity-trail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .curiosity-trail a {
+    min-height: 7rem;
+    padding: 1.25rem;
+    transition: background 150ms ease;
+  }
+
+  .curiosity-trail a + a {
+    border-left: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .curiosity-trail a:hover {
+    background: rgb(83 102 255 / 0.16);
+  }
+
+  .curiosity-trail span {
+    display: block;
+    color: #9ba6ff;
+    font-size: 0.58rem;
+  }
+
+  .curiosity-trail strong {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    line-height: 1.3;
+  }
+
+  .sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 700px) {
+    .curiosity-desk {
+      margin-top: 3.5rem;
+      border-radius: 0.75rem;
+    }
+
+    .curiosity-topline,
+    .curiosity-stage {
+      grid-template-columns: 1fr;
+    }
+
+    .curiosity-topline {
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .curiosity-filters {
+      padding-inline: 1.5rem;
+    }
+
+    .curiosity-image {
+      min-height: 22rem;
+    }
+
+    .curiosity-story {
+      min-height: 28rem;
+      padding: 1.5rem;
+      border-top: 1px solid rgb(255 255 255 / 0.15);
+      border-left: 0;
+    }
+
+    .curiosity-trail {
+      grid-template-columns: 1fr;
+    }
+
+    .curiosity-trail a {
+      min-height: 0;
+    }
+
+    .curiosity-trail a + a {
+      border-top: 1px solid rgb(255 255 255 / 0.15);
+      border-left: 0;
+    }
+  }
+</style>

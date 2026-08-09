@@ -1,7 +1,8 @@
 // Content collections — announcements live in src/content/announcements/
 // as plain markdown files. Add a .md file there and it shows up on the site.
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 const announcements = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/announcements' }),

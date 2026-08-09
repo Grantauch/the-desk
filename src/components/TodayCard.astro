@@ -28,7 +28,7 @@ const firstWhen = `${MONTHS[first.m - 1]} ${first.d}, ${first.y}`;
   <p class="font-mono text-xs lowercase text-accent">{label}</p>
   <p class="today-when mt-2 font-mono text-xs lowercase text-ink-soft">{firstWhen}</p>
   <p class="today-text mt-1 text-sm leading-relaxed">{first.text}</p>
-  <script define:vars={{ events }}>
+  <script is:inline define:vars={{ events }}>
     const MONTHS = [
       'january', 'february', 'march', 'april', 'may', 'june',
       'july', 'august', 'september', 'october', 'november', 'december',

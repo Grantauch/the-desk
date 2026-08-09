@@ -1,0 +1,160 @@
+---
+// rabbit-holes.astro — the edu-tainment vault: standalone decks worth a class period.
+// These are the "cold open / rabbit hole" lessons — the fun ones that don't belong to a unit.
+// To add one: drop an entry in `decks` below. `href` is a Drive link (share as
+// "anyone with the link — viewer" so students can open it).
+import Base from '../layouts/Base.astro';
+
+const decks = [
+  {
+    name: 'answering the fermi paradox',
+    tag: 'space & big questions',
+    href: 'https://docs.google.com/presentation/d/1pE8iaq90su-qImSf61MapstEgocWmOvhsA2I_LydDKY/edit',
+    blurb:
+      "if the universe is this big and this old, where is everybody? the great filter, dark forests, and the unsettling silence.",
+  },
+  {
+    name: 'cursed bread',
+    tag: 'medical mystery',
+    href: 'https://drive.google.com/file/d/1b4Y7bhdc704hTxYmH-fcpXE5f_I-gzOh/view',
+    blurb:
+      "in 1951 a french village went mad overnight. mass poisoning, cia mind-control theories, or moldy rye? the receipts are genuinely weird.",
+  },
+  {
+    name: 'the christmas truce, 1914',
+    tag: 'world war i',
+    href: 'https://drive.google.com/file/d/1IRpNMNwa34XHLz-djUi7lka6tsXujgeW/view',
+    blurb:
+      "the night the western front stopped shooting and started singing. football in no-man's-land — then back to the war by morning.",
+  },
+  {
+    name: 'mad jack churchill',
+    tag: 'world war ii',
+    href: 'https://drive.google.com/file/d/11dHdPm_ocaZYvZ4p1dknpnVd84r0ANVJ/view',
+    blurb:
+      "the wwii commando who went into battle with a longbow and a broadsword — and called any officer without a sword 'improperly dressed.'",
+  },
+  {
+    name: 'joseph beyrle',
+    tag: 'world war ii',
+    href: 'https://drive.google.com/file/d/1lbq6AMHb9lUl0fH7CLPbGolfC2Bp2qp0/view',
+    blurb:
+      "the only soldier to fight for both the u.s. and the ussr in wwii — after escaping a pow camp and talking his way into the red army.",
+  },
+  {
+    name: 'tsutomu yamaguchi',
+    tag: 'world war ii',
+    href: 'https://drive.google.com/file/d/1gVhBL-1ChzD75M7epP-WLlJ816B-azOA/view',
+    blurb:
+      "in hiroshima on business, home in nagasaki in time for the second bomb. the man who survived both — and lived to 93.",
+  },
+  {
+    name: 'the göring brothers',
+    tag: 'world war ii',
+    href: 'https://drive.google.com/file/d/1ImxsmbyXx8BBmUPSYAjDizhi35kAnkxL/view',
+    blurb:
+      "one brother ran the luftwaffe. the other smuggled people out of the reich. same last name, opposite verdicts from history.",
+  },
+  {
+    name: 'the mongols',
+    tag: 'world history',
+    href: 'https://drive.google.com/file/d/1diapo7Q0AOXBY17KU67hhUJDWJrC_Yyv/view',
+    blurb:
+      "the largest land empire in history, connected at swordpoint — and the ruthless postal system that actually held it together.",
+  },
+  {
+    name: 'krakatoa',
+    tag: 'science & disaster',
+    href: 'https://drive.google.com/file/d/1Y75Fpwl1X1K2fnX8h7ZNVzckpseRLS9H/view',
+    blurb:
+      "the 1883 eruption heard 3,000 miles away — the loudest sound in recorded history. the sky went strange for years afterward.",
+  },
+  {
+    name: 'the chimp civil war',
+    tag: 'science & human nature',
+    href: 'https://drive.google.com/file/d/1zB4ULLMrTe1mLqE-_7OvsIh4xcmh2lZQ/view',
+    blurb:
+      "jane goodall watched a chimp community split and wage war for four years. the part that says something about us is the uncomfortable part.",
+  },
+  {
+    name: 'wwi air combat: the absurd evolution',
+    tag: 'world war i',
+    href: 'https://drive.google.com/file/d/1nawEuMFRFyevWQiZqPczvhlJhDd4wsql/view',
+    blurb:
+      "from pilots throwing bricks and firing pistols to synchronized machine guns — in about four years. the fastest, deadliest r&d race of the war.",
+  },
+  {
+    name: 'secret services and secret toilets',
+    tag: 'presidents & power',
+    href: 'https://drive.google.com/file/d/1vH9IfmnYZr0aqUJORwzAVpy1jbUnN5yQ/view',
+    blurb:
+      "the strange logistics of guarding a president — including the very real question of what happens to the presidential bathroom on the road.",
+  },
+  {
+    name: 'riot control: ancient tactics',
+    tag: 'history of force',
+    href: 'https://drive.google.com/file/d/1GqDkS_O42MQnQb5Lkw2pOqpbMb3Es2Fj/view',
+    blurb:
+      "crowd control before rubber bullets. what actually worked, what backfired, and why the phalanx keeps coming back around.",
+  },
+  {
+    name: "rock n' roll history",
+    tag: 'culture wars',
+    href: 'https://drive.google.com/file/d/1kpztOk3SoRRLrfn2yfGAxJlOeHjSbPiT/view',
+    blurb:
+      "how a sound scared a country. the birth of rock, the backlash, and a whole culture war fought over a backbeat.",
+  },
+  {
+    name: 'war & bloodshed, by the numbers',
+    tag: 'interactive',
+    href: 'https://drive.google.com/file/d/1wbxqOXtpXfhkCWrVC5F7lVaINgu9XFGy/view',
+    blurb:
+      "an interactive look at the true human cost of history's wars. the metrics are staggering — and hard to look away from.",
+  },
+  {
+    name: 'hidden messages: communication & slavery',
+    tag: 'u.s. history',
+    href: 'https://drive.google.com/file/d/1d6o2rftB5CE3frwGFHLfuNoxJzBRwdsW/view',
+    blurb:
+      "quilts, spirituals, and coded language — how enslaved people passed messages a system was built to prevent.",
+  },
+  {
+    name: 'hedonic adaptation',
+    tag: 'behavioral econ',
+    href: 'https://drive.google.com/file/d/102clCEuqr-y0BjWSSmNgakQ_HRxuZfto/view',
+    blurb:
+      "why the new phone stops thrilling you, why lottery winners level back out, and what that says about the whole game of chasing more.",
+  },
+];
+---
+
+<Base title="rabbit holes">
+  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+    rabbit holes<span class="text-accent">.</span>
+  </h1>
+  <p class="mt-3 text-lg text-ink-soft lowercase">
+    the edu-tainment vault. standalone decks worth a class period — the stories that don't fit a unit but earn the detour.
+  </p>
+
+  <div class="mt-10 space-y-8">
+    {
+      decks.map((deck) => (
+        <article class="pop rounded-md bg-white p-6">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 class="font-display text-2xl font-bold lowercase">
+              <a href={deck.href} target="_blank" rel="noopener" class="hover:text-accent transition-colors">
+                {deck.name} →
+              </a>
+            </h2>
+            <span class="text-xs font-mono lowercase text-accent">{deck.tag}</span>
+          </div>
+          <p class="mt-3 leading-relaxed text-ink-soft">{deck.blurb}</p>
+        </article>
+      ))
+    }
+  </div>
+
+  <p class="mt-10 text-sm font-mono lowercase text-ink-soft">
+    more rabbit holes get dug all the time. bring a question, leave with three.
+  </p>
+</Base>

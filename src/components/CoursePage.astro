@@ -3,6 +3,7 @@
 // Each class page (us-history, hidden-history, beyond-the-scoreboard) just passes in its data.
 // Anything placed between <CoursePage>...</CoursePage> tags renders after the "right now" box.
 import Base from '../layouts/Base.astro';
+import { learningCourses } from '../data/learningHubs';
 
 interface Material {
   label: string;
@@ -39,6 +40,9 @@ interface Props {
 
 const { title, tagline, intro, units, resources, glossary = [] } = Astro.props;
 const currentUnit = units.find((u) => u.current);
+const currentUnitIndex = units.findIndex((u) => u.current);
+const hubCourse = learningCourses.find((course) => course.title.toLowerCase() === title.toLowerCase());
+const currentHub = currentUnitIndex >= 0 ? hubCourse?.units[currentUnitIndex] : undefined;
 
 const groupMaterials = (materials: Material[]) =>
   materials.reduce<{ name: string; items: Material[] }[]>((groups, material) => {
@@ -64,6 +68,14 @@ const groupMaterials = (materials: Material[]) =>
         <p class="text-xs font-mono uppercase tracking-widest text-white/70">right now</p>
         <h2 class="mt-1 font-display text-2xl font-bold">{currentUnit.name}</h2>
         <p class="mt-1 text-white/85">{currentUnit.blurb}</p>
+        {currentHub && (
+          <a
+            href={`/learn/${hubCourse!.slug}/${currentHub.slug}/`}
+            class="mt-4 inline-flex items-center gap-2 rounded border-2 border-white bg-white px-3 py-2 font-mono text-xs font-bold lowercase text-accent shadow-[3px_3px_0_var(--color-ink)] transition-transform hover:-translate-y-0.5"
+          >
+            enter this unit's learning hub <span aria-hidden="true">→</span>
+          </a>
+        )}
       </div>
     )
   }
@@ -84,6 +96,14 @@ const groupMaterials = (materials: Material[]) =>
               </span>
             )}
             <p class="text-sm text-ink-soft mt-0.5">{unit.blurb}</p>
+            {hubCourse?.units[i] && (
+              <a
+                href={`/learn/${hubCourse.slug}/${hubCourse.units[i].slug}/`}
+                class="mt-2 inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 font-mono text-xs font-bold lowercase text-accent transition-colors hover:bg-accent hover:text-white"
+              >
+                open learning hub <span aria-hidden="true">→</span>
+              </a>
+            )}
             {unit.topics && unit.topics.length > 0 && (
               <details class="mt-1.5 group">
                 <summary class="cursor-pointer text-xs font-mono lowercase text-accent hover:text-accent-dark select-none">

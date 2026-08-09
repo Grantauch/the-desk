@@ -1,0 +1,639 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { learningCourses, learningHubs, type LearningHub } from '../../../data/learningHubs';
+
+export function getStaticPaths() {
+  return learningHubs.map((hub) => ({
+    params: { course: hub.courseSlug, unit: hub.slug },
+    props: { hub },
+  }));
+}
+
+interface Props {
+  hub: LearningHub;
+}
+
+const { hub } = Astro.props;
+const course = learningCourses.find((item) => item.slug === hub.courseSlug)!;
+const currentIndex = course.units.findIndex((unit) => unit.slug === hub.slug);
+const previousUnit = currentIndex > 0 ? course.units[currentIndex - 1] : null;
+const nextUnit = currentIndex < course.units.length - 1 ? course.units[currentIndex + 1] : null;
+const permutations = [
+  [2, 0, 3, 1],
+  [1, 3, 0, 2],
+  [3, 1, 2, 0],
+];
+const permutation = permutations[(hub.unitNumber - 1) % permutations.length];
+const scrambledTimeline = permutation.map((eventIndex) => ({
+  ...hub.timeline[eventIndex],
+  answer: eventIndex + 1,
+}));
+const termOrder = [1, 3, 0, 2];
+const quiz = [
+  {
+    question: 'Which event happened first?',
+    options: permutation.map((index) => hub.timeline[index].label),
+    correct: permutation.indexOf(0),
+    explanation: `${hub.timeline[0].date}: ${hub.timeline[0].detail}`,
+  },
+  {
+    question: `Which term matches this definition: “${hub.terms[1].definition}”`,
+    options: termOrder.map((index) => hub.terms[index].term),
+    correct: termOrder.indexOf(1),
+    explanation: `${hub.terms[1].term}: ${hub.terms[1].definition}`,
+  },
+  {
+    question: 'Which claim best captures this unit?',
+    options: [
+      hub.ideas[0].body,
+      hub.misconception,
+      ...hub.quizDistractors,
+    ],
+    correct: 0,
+    explanation: hub.ideas[0].body,
+  },
+];
+---
+
+<Base
+  title={`${hub.title} learning hub`}
+  description={`Interactive ${hub.courseTitle} unit hub for ${hub.title}: mini-chapter, timeline, vocabulary, decision lab, quiz, and saved progress.`}
+  wide
+>
+  <article
+    class="hub-shell"
+    data-learning-hub
+    data-hub-id={`${hub.courseSlug}:${hub.slug}`}
+    data-course={hub.courseSlug}
+    data-unit-number={hub.unitNumber}
+    style={`--hub-color:${hub.courseColor};--hub-soft:${hub.courseSoftColor}`}
+  >
+    <header class="hub-hero dot-grid">
+      <div class="hero-topline">
+        <a href="/learning-hubs/" class="crumb">← all learning hubs</a>
+        <span class="save-state" data-save-state aria-live="polite">progress saves automatically</span>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">{hub.courseLabel} · unit {String(hub.unitNumber).padStart(2, '0')} · {hub.period}</p>
+          <div class="title-row">
+            <span class="unit-icon" aria-hidden="true">{hub.icon}</span>
+            <h1>{hub.title}</h1>
+          </div>
+          <p class="deck">{hub.deck}</p>
+          <div class="question-card">
+            <span>essential question</span>
+            <p>{hub.essentialQuestion}</p>
+          </div>
+        </div>
+        <aside class="mission-control" aria-label="Unit progress">
+          <div class="progress-orbit" data-progress-ring style="--progress:0deg">
+            <div>
+              <strong data-progress-percent>0%</strong>
+              <span>complete</span>
+            </div>
+          </div>
+          <div class="stats-row">
+            <div><strong data-xp>0</strong><span>XP</span></div>
+            <div><strong data-streak>1</strong><span>day streak</span></div>
+            <div><strong data-mission-count>0/6</strong><span>missions</span></div>
+          </div>
+          <p class="save-note">Saved in this browser. No account needed.</p>
+          <a class="resume-button" href="#mission-briefing" data-resume>start mission 01 →</a>
+        </aside>
+      </div>
+    </header>
+
+    <nav class="mission-map" aria-label="Mission map">
+      <a href="#mission-briefing" data-map-mission="briefing"><span>01</span> brief</a>
+      <a href="#mission-timeline" data-map-mission="timeline"><span>02</span> timeline</a>
+      <a href="#mission-vocab" data-map-mission="vocab"><span>03</span> vocab</a>
+      <a href="#mission-decision" data-map-mission="decision"><span>04</span> decide</a>
+      <a href="#mission-quiz" data-map-mission="quiz"><span>05</span> quiz</a>
+      <a href="#mission-exit" data-map-mission="exit"><span>06</span> exit</a>
+    </nav>
+
+    <section id="mission-briefing" class="mission-section" data-mission="briefing">
+      <div class="mission-heading">
+        <div><span class="mission-number">mission 01 · +40 XP</span><h2>The 4-minute briefing</h2></div>
+        <span class="mission-stamp" data-stamp>not cleared</span>
+      </div>
+      <p class="mission-intro">The textbook-sized gap, closed without the textbook-sized reading.</p>
+      <div class="reading-layout">
+        <div class="chapter-copy">
+          {hub.overview.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+        <aside class="margin-note">
+          <span>watch for this</span>
+          <strong>Common shortcut:</strong>
+          <p>{hub.misconception}</p>
+        </aside>
+      </div>
+      <h3 class="subhead">Three ideas that unlock the unit</h3>
+      <div class="idea-grid">
+        {hub.ideas.map((idea, index) => (
+          <article class="idea-card">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h4>{idea.heading}</h4>
+            <p>{idea.body}</p>
+          </article>
+        ))}
+      </div>
+      <button class="clear-button" type="button" data-complete="briefing">I’ve got the big picture <span>+40 XP</span></button>
+    </section>
+
+    <section id="mission-timeline" class="mission-section" data-mission="timeline">
+      <div class="mission-heading">
+        <div><span class="mission-number">mission 02 · +60 XP</span><h2>Chronology scramble</h2></div>
+        <span class="mission-stamp" data-stamp>not cleared</span>
+      </div>
+      <p class="mission-intro">Put the four events in order. Choose 1 for earliest and 4 for latest.</p>
+      <div class="timeline-game" data-timeline-game>
+        {scrambledTimeline.map((event) => (
+          <label class="timeline-game-card">
+            <select aria-label={`Order for ${event.label}`} data-timeline-answer={event.answer}>
+              <option value="">?</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+            <span><strong>{event.label}</strong><small>{event.detail}</small></span>
+          </label>
+        ))}
+      </div>
+      <div class="game-actions">
+        <button class="clear-button" type="button" data-check-timeline>check my order <span>+60 XP</span></button>
+        <p class="feedback" data-timeline-feedback aria-live="polite"></p>
+      </div>
+      <details class="answer-key">
+        <summary>need the timeline as a study tool instead?</summary>
+        <ol>
+          {hub.timeline.map((event) => <li><strong>{event.date} · {event.label}</strong><span>{event.detail}</span></li>)}
+        </ol>
+      </details>
+    </section>
+
+    <section id="mission-vocab" class="mission-section" data-mission="vocab">
+      <div class="mission-heading">
+        <div><span class="mission-number">mission 03 · +40 XP</span><h2>Flip deck</h2></div>
+        <span class="mission-stamp" data-stamp>not cleared</span>
+      </div>
+      <p class="mission-intro">Tap each term to reveal the plain-English meaning. All four clears the mission.</p>
+      <div class="flip-grid">
+        {hub.terms.map((item, index) => (
+          <button class="flip-card" type="button" data-term-card={index} aria-expanded="false">
+            <span class="flip-front"><small>tap to flip</small><strong>{item.term}</strong><em>?</em></span>
+            <span class="flip-back"><small>{item.term}</small><strong>{item.definition}</strong><em>✓ reviewed</em></span>
+          </button>
+        ))}
+      </div>
+      <p class="feedback" data-vocab-feedback aria-live="polite">0 of 4 terms reviewed</p>
+    </section>
+
+    <section id="mission-decision" class="mission-section" data-mission="decision">
+      <div class="mission-heading">
+        <div><span class="mission-number">mission 04 · +50 XP</span><h2>You make the call</h2></div>
+        <span class="mission-stamp" data-stamp>not cleared</span>
+      </div>
+      <div class="decision-setup">
+        <span>scenario</span>
+        <p>{hub.decision.setup}</p>
+        <h3>{hub.decision.prompt}</h3>
+      </div>
+      <div class="decision-grid">
+        {hub.decision.options.map((option, index) => (
+          <button type="button" class="decision-card" data-decision={index} data-feedback={option.feedback}>
+            <span>{String.fromCharCode(65 + index)}</span>
+            <strong>{option.label}</strong>
+          </button>
+        ))}
+      </div>
+      <div class="decision-feedback" data-decision-feedback aria-live="polite">
+        Choose a move to see what it reveals. Historical decisions rarely come with perfect options.
+      </div>
+    </section>
+
+    <section id="mission-quiz" class="mission-section" data-mission="quiz">
+      <div class="mission-heading">
+        <div><span class="mission-number">mission 05 · +100 XP</span><h2>Boss battle</h2></div>
+        <span class="mission-stamp" data-stamp>not cleared</span>
+      </div>
+      <p class="mission-intro">Three questions. Score 2 out of 3 to clear the boss. You can retry.</p>
+      <form data-quiz-form>
+        {quiz.map((item, questionIndex) => (
+          <fieldset class="quiz-question" data-quiz-question data-correct={item.correct} data-explanation={item.explanation}>
+            <legend><span>{questionIndex + 1}</span>{item.question}</legend>
+            <div class="quiz-options">
+              {item.options.map((option, optionIndex) => (
+                <label>
+                  <input type="radio" name={`q${questionIndex}`} value={optionIndex} />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+            <p class="question-feedback" data-question-feedback></p>
+          </fieldset>
+        ))}
+        <div class="game-actions">
+          <button class="clear-button" type="submit">fight the boss <span>up to +100 XP</span></button>
+          <p class="feedback" data-quiz-feedback aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section id="mission-exit" class="mission-section" data-mission="exit">
+      <div class="mission-heading">
+        <div><span class="mission-number">mission 06 · +30 XP</span><h2>Exit ticket</h2></div>
+        <span class="mission-stamp" data-stamp>not cleared</span>
+      </div>
+      <label class="exit-label" for="exit-note">Answer the essential question in 2–4 sentences. Use one specific piece of evidence.</label>
+      <blockquote>{hub.essentialQuestion}</blockquote>
+      <textarea id="exit-note" data-exit-note rows="6" placeholder="My answer is… One piece of evidence that supports it is…"></textarea>
+      <div class="exit-footer">
+        <span data-note-count>0 characters · saved as you type</span>
+        <button class="clear-button" type="button" data-save-exit>lock in my answer <span>+30 XP</span></button>
+      </div>
+    </section>
+
+    <section class="completion-card" data-completion-card hidden>
+      <div class="badge-burst" aria-hidden="true">★</div>
+      <p>unit badge unlocked</p>
+      <h2>{hub.title} cleared.</h2>
+      <p>You finished all six missions and banked 320 XP. Your work is saved on this device.</p>
+      {nextUnit ? (
+        <a href={`/learn/${hub.courseSlug}/${nextUnit.slug}/`}>continue to unit {hub.unitNumber + 1}: {nextUnit.title} →</a>
+      ) : (
+        <a href="/learning-hubs/">see the full course board →</a>
+      )}
+    </section>
+
+    <nav class="unit-pager" aria-label="Unit navigation">
+      {previousUnit ? <a href={`/learn/${hub.courseSlug}/${previousUnit.slug}/`}>← unit {hub.unitNumber - 1}<strong>{previousUnit.title}</strong></a> : <span></span>}
+      {nextUnit ? <a href={`/learn/${hub.courseSlug}/${nextUnit.slug}/`}>unit {hub.unitNumber + 1} →<strong>{nextUnit.title}</strong></a> : <a href="/learning-hubs/">course board →<strong>all learning hubs</strong></a>}
+    </nav>
+  </article>
+</Base>
+
+<script>
+  const STORAGE_KEY = 'grantdesk-learning-v1';
+  const root = document.querySelector<HTMLElement>('[data-learning-hub]');
+
+  if (root) {
+    const hubId = root.dataset.hubId!;
+    const missionOrder = ['briefing', 'timeline', 'vocab', 'decision', 'quiz', 'exit'];
+    const missionXp: Record<string, number> = { briefing: 40, timeline: 60, vocab: 40, decision: 50, quiz: 100, exit: 30 };
+    const readStore = () => {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"hubs":{},"profile":{}}');
+      } catch {
+        return { hubs: {}, profile: {} };
+      }
+    };
+    const store = readStore();
+    store.hubs ||= {};
+    store.profile ||= {};
+    const state = store.hubs[hubId] ||= { completed: [], terms: [], note: '', quizScore: 0, lastSection: 'briefing' };
+    state.completed ||= [];
+    state.terms ||= [];
+
+    const localDate = (date = new Date()) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    const activeDates = new Set<string>(store.profile.activeDates || []);
+    activeDates.add(localDate());
+    store.profile.activeDates = Array.from(activeDates).slice(-45);
+    store.profile.lastHub = hubId;
+    store.profile.lastUrl = location.pathname;
+
+    const getStreak = () => {
+      let streak = 0;
+      const cursor = new Date();
+      while (activeDates.has(localDate(cursor))) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return Math.max(1, streak);
+    };
+
+    const persist = (announce = true) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      if (announce) {
+        const saveState = root.querySelector<HTMLElement>('[data-save-state]');
+        if (saveState) {
+          saveState.textContent = 'saved ✓';
+          window.setTimeout(() => saveState.textContent = 'progress saves automatically', 1200);
+        }
+      }
+    };
+
+    const completeMission = (mission: string) => {
+      if (!state.completed.includes(mission)) state.completed.push(mission);
+      state.lastSection = missionOrder[Math.min(missionOrder.indexOf(mission) + 1, missionOrder.length - 1)];
+      persist();
+      render();
+    };
+
+    const render = () => {
+      const completed = new Set<string>(state.completed);
+      const earnedXp = missionOrder.reduce((total, mission) => total + (completed.has(mission) ? missionXp[mission] : 0), 0);
+      const percent = Math.round((completed.size / missionOrder.length) * 100);
+      root.querySelectorAll<HTMLElement>('[data-mission]').forEach((section) => {
+        const mission = section.dataset.mission!;
+        const isDone = completed.has(mission);
+        section.classList.toggle('is-complete', isDone);
+        const stamp = section.querySelector<HTMLElement>('[data-stamp]');
+        if (stamp) stamp.textContent = isDone ? 'cleared ✓' : 'not cleared';
+      });
+      root.querySelectorAll<HTMLElement>('[data-map-mission]').forEach((link) => {
+        link.classList.toggle('is-complete', completed.has(link.dataset.mapMission!));
+      });
+      const progressRing = root.querySelector<HTMLElement>('[data-progress-ring]');
+      if (progressRing) progressRing.style.setProperty('--progress', `${percent * 3.6}deg`);
+      const progressPercent = root.querySelector<HTMLElement>('[data-progress-percent]');
+      if (progressPercent) progressPercent.textContent = `${percent}%`;
+      const xp = root.querySelector<HTMLElement>('[data-xp]');
+      if (xp) xp.textContent = String(earnedXp);
+      const streak = root.querySelector<HTMLElement>('[data-streak]');
+      if (streak) streak.textContent = String(getStreak());
+      const count = root.querySelector<HTMLElement>('[data-mission-count]');
+      if (count) count.textContent = `${completed.size}/6`;
+      const nextMission = missionOrder.find((mission) => !completed.has(mission));
+      const resume = root.querySelector<HTMLAnchorElement>('[data-resume]');
+      if (resume) {
+        const destination = nextMission || 'exit';
+        resume.href = `#mission-${destination}`;
+        resume.textContent = nextMission ? `resume mission ${String(missionOrder.indexOf(nextMission) + 1).padStart(2, '0')} →` : 'review your exit ticket →';
+      }
+      const completion = root.querySelector<HTMLElement>('[data-completion-card]');
+      if (completion) completion.hidden = completed.size !== missionOrder.length;
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-complete]').forEach((button) => {
+      button.addEventListener('click', () => completeMission(button.dataset.complete!));
+    });
+
+    const timelineButton = root.querySelector<HTMLButtonElement>('[data-check-timeline]');
+    timelineButton?.addEventListener('click', () => {
+      const selects = Array.from(root.querySelectorAll<HTMLSelectElement>('[data-timeline-answer]'));
+      const values = selects.map((select) => select.value);
+      const allFilled = values.every(Boolean);
+      const unique = new Set(values).size === values.length;
+      const correct = selects.every((select) => select.value === select.dataset.timelineAnswer);
+      const feedback = root.querySelector<HTMLElement>('[data-timeline-feedback]');
+      selects.forEach((select) => select.classList.toggle('answer-wrong', Boolean(select.value) && select.value !== select.dataset.timelineAnswer));
+      if (!allFilled || !unique) {
+        if (feedback) feedback.textContent = 'Use each number once: 1, 2, 3, and 4.';
+      } else if (correct) {
+        if (feedback) feedback.textContent = 'Timeline locked. Cause comes before consequence. +60 XP';
+        completeMission('timeline');
+      } else if (feedback) {
+        feedback.textContent = 'Not quite. The outlined cards are out of position—adjust and try again.';
+      }
+    });
+
+    const renderTerms = () => {
+      root.querySelectorAll<HTMLButtonElement>('[data-term-card]').forEach((card) => {
+        const seen = state.terms.includes(Number(card.dataset.termCard));
+        card.classList.toggle('is-flipped', seen);
+        card.setAttribute('aria-expanded', String(seen));
+      });
+      const feedback = root.querySelector<HTMLElement>('[data-vocab-feedback]');
+      if (feedback) feedback.textContent = `${state.terms.length} of 4 terms reviewed${state.terms.length === 4 ? ' · deck cleared +40 XP' : ''}`;
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-term-card]').forEach((card) => {
+      card.addEventListener('click', () => {
+        const term = Number(card.dataset.termCard);
+        if (!state.terms.includes(term)) state.terms.push(term);
+        if (state.terms.length === 4) completeMission('vocab');
+        else persist();
+        renderTerms();
+      });
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-decision]').forEach((button) => {
+      button.addEventListener('click', () => {
+        root.querySelectorAll('[data-decision]').forEach((item) => item.classList.remove('is-selected'));
+        button.classList.add('is-selected');
+        const feedback = root.querySelector<HTMLElement>('[data-decision-feedback]');
+        if (feedback) feedback.innerHTML = `<strong>What this move reveals:</strong> ${button.dataset.feedback}`;
+        state.decision = Number(button.dataset.decision);
+        completeMission('decision');
+      });
+    });
+
+    const quizForm = root.querySelector<HTMLFormElement>('[data-quiz-form]');
+    quizForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      let score = 0;
+      let answered = 0;
+      root.querySelectorAll<HTMLElement>('[data-quiz-question]').forEach((question, index) => {
+        const selected = question.querySelector<HTMLInputElement>(`input[name="q${index}"]:checked`);
+        const feedback = question.querySelector<HTMLElement>('[data-question-feedback]');
+        if (!selected) {
+          if (feedback) feedback.textContent = 'Choose an answer.';
+          return;
+        }
+        answered += 1;
+        const correct = Number(selected.value) === Number(question.dataset.correct);
+        if (correct) score += 1;
+        if (feedback) feedback.textContent = correct ? `Correct. ${question.dataset.explanation}` : `Not yet. ${question.dataset.explanation}`;
+        question.classList.toggle('is-correct', correct);
+        question.classList.toggle('is-wrong', !correct);
+      });
+      const feedback = root.querySelector<HTMLElement>('[data-quiz-feedback]');
+      if (answered < 3) {
+        if (feedback) feedback.textContent = 'Answer all three questions before the boss fight.';
+        return;
+      }
+      state.quizScore = Math.max(state.quizScore || 0, score);
+      if (score >= 2) {
+        if (feedback) feedback.textContent = `${score}/3 — boss cleared. +100 XP`;
+        completeMission('quiz');
+      } else {
+        if (feedback) feedback.textContent = `${score}/3 — study the feedback and take another swing.`;
+        persist();
+      }
+    });
+
+    const note = root.querySelector<HTMLTextAreaElement>('[data-exit-note]');
+    const noteCount = root.querySelector<HTMLElement>('[data-note-count]');
+    if (note) note.value = state.note || '';
+    const updateNote = () => {
+      if (!note) return;
+      state.note = note.value;
+      if (noteCount) noteCount.textContent = `${note.value.trim().length} characters · saved as you type`;
+      persist(false);
+    };
+    note?.addEventListener('input', updateNote);
+    root.querySelector<HTMLButtonElement>('[data-save-exit]')?.addEventListener('click', () => {
+      if (!note || note.value.trim().length < 20) {
+        if (noteCount) noteCount.textContent = 'Add a little more—at least 20 characters so your future self has something useful.';
+        note?.focus();
+        return;
+      }
+      updateNote();
+      completeMission('exit');
+    });
+
+    const sections = root.querySelectorAll<HTMLElement>('.mission-section');
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.find((entry) => entry.isIntersecting);
+      if (visible?.target.id) {
+        state.lastSection = visible.target.id.replace('mission-', '');
+        persist(false);
+      }
+    }, { rootMargin: '-35% 0px -55%', threshold: 0 });
+    sections.forEach((section) => observer.observe(section));
+
+    renderTerms();
+    updateNote();
+    persist(false);
+    render();
+  }
+</script>
+
+<style>
+  .hub-shell { --hub-color: #1f2ce6; --hub-soft: #eef0ff; color: var(--color-ink); }
+  .hub-hero { border: 2px solid var(--color-ink); border-radius: 1rem; background-color: white; box-shadow: 8px 8px 0 var(--hub-color); padding: clamp(1.25rem, 4vw, 3rem); overflow: hidden; }
+  .hero-topline { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 2.5rem; }
+  .crumb, .save-state { font: 700 .72rem/1 var(--font-mono); text-transform: lowercase; }
+  .crumb { color: var(--hub-color); }
+  .save-state { border: 1px solid currentColor; border-radius: 999px; padding: .5rem .7rem; color: var(--color-ink-soft); background: white; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(17rem, .65fr); gap: clamp(2rem, 6vw, 5rem); align-items: end; }
+  .eyebrow, .mission-number { color: var(--hub-color); font: 700 .72rem/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: .12em; }
+  .title-row { display: flex; align-items: center; gap: 1rem; margin-top: .65rem; }
+  .unit-icon { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; flex: 0 0 auto; border: 2px solid var(--color-ink); border-radius: .8rem; background: var(--hub-soft); box-shadow: 4px 4px 0 var(--hub-color); font-size: 1.65rem; }
+  h1 { font: 750 clamp(2.4rem, 6vw, 5.2rem)/.92 var(--font-display); letter-spacing: -.055em; max-width: 12ch; }
+  .deck { margin-top: 1.25rem; max-width: 39rem; color: var(--color-ink-soft); font-size: clamp(1rem, 2vw, 1.22rem); line-height: 1.55; }
+  .question-card { margin-top: 2rem; max-width: 45rem; padding: 1rem 1.15rem; border-left: .4rem solid var(--hub-color); background: var(--hub-soft); }
+  .question-card span { font: 700 .65rem/1 var(--font-mono); color: var(--hub-color); text-transform: uppercase; letter-spacing: .12em; }
+  .question-card p { margin-top: .4rem; font-weight: 700; line-height: 1.45; }
+  .mission-control { border: 2px solid var(--color-ink); border-radius: .9rem; padding: 1.25rem; background: var(--color-ink); color: white; box-shadow: 6px 6px 0 var(--hub-color); }
+  .progress-orbit { --progress: 0deg; width: 9rem; height: 9rem; margin: 0 auto 1.2rem; padding: .65rem; border-radius: 50%; background: conic-gradient(var(--hub-color) var(--progress), #3d3d45 0); }
+  .progress-orbit > div { display: grid; place-content: center; width: 100%; height: 100%; border-radius: 50%; background: var(--color-ink); text-align: center; }
+  .progress-orbit strong { display: block; font: 750 2rem/1 var(--font-display); }
+  .progress-orbit span { display: block; margin-top: .25rem; color: #b7b7c1; font: .65rem/1 var(--font-mono); text-transform: uppercase; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; text-align: center; }
+  .stats-row div { padding: .65rem .25rem; border: 1px solid #3f3f47; border-radius: .5rem; }
+  .stats-row strong, .stats-row span { display: block; }
+  .stats-row strong { font: 750 1.1rem/1 var(--font-display); }
+  .stats-row span { margin-top: .3rem; color: #b7b7c1; font: .58rem/1.1 var(--font-mono); text-transform: uppercase; }
+  .save-note { margin-top: .9rem; color: #b7b7c1; font-size: .72rem; text-align: center; }
+  .resume-button { display: block; margin-top: 1rem; padding: .8rem; border-radius: .45rem; background: var(--hub-color); color: white; font: 700 .76rem/1 var(--font-mono); text-align: center; text-transform: lowercase; transition: transform .15s ease; }
+  .resume-button:hover { transform: translateY(-2px); }
+  .mission-map { position: sticky; top: 4.25rem; z-index: 8; display: grid; grid-template-columns: repeat(6, 1fr); gap: .45rem; margin: 2rem 0; padding: .55rem; border: 2px solid var(--color-ink); border-radius: .75rem; background: color-mix(in srgb, var(--color-paper) 92%, transparent); backdrop-filter: blur(12px); box-shadow: 4px 4px 0 var(--hub-color); }
+  .mission-map a { display: flex; justify-content: center; align-items: center; gap: .45rem; min-height: 2.5rem; border-radius: .4rem; color: var(--color-ink-soft); font: 700 .7rem/1 var(--font-mono); text-transform: lowercase; }
+  .mission-map a:hover { background: var(--hub-soft); color: var(--hub-color); }
+  .mission-map a.is-complete { background: var(--hub-color); color: white; }
+  .mission-map span { font-size: .62rem; }
+  .mission-section { margin-top: 2rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 2px solid var(--color-ink); border-radius: .9rem; background: white; box-shadow: 6px 6px 0 var(--color-line); }
+  .mission-section.is-complete { box-shadow: 6px 6px 0 var(--hub-color); }
+  .mission-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-line); }
+  .mission-heading h2 { margin-top: .35rem; font: 750 clamp(1.8rem, 4vw, 2.8rem)/1 var(--font-display); letter-spacing: -.035em; }
+  .mission-stamp { flex: 0 0 auto; padding: .5rem .7rem; border: 1px solid var(--color-line); border-radius: 999px; color: var(--color-ink-soft); font: 700 .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .is-complete .mission-stamp { border-color: var(--hub-color); background: var(--hub-soft); color: var(--hub-color); }
+  .mission-intro { margin-top: 1rem; color: var(--color-ink-soft); }
+  .reading-layout { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; gap: 2rem; align-items: start; margin-top: 1.75rem; }
+  .chapter-copy p { font-size: 1.04rem; line-height: 1.78; }
+  .chapter-copy p + p { margin-top: 1.15rem; }
+  .margin-note { border: 2px solid var(--color-ink); border-radius: .65rem; padding: 1rem; background: var(--hub-soft); box-shadow: 4px 4px 0 var(--hub-color); }
+  .margin-note span { display: block; margin-bottom: .8rem; color: var(--hub-color); font: 700 .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .margin-note strong { display: block; font-family: var(--font-display); }
+  .margin-note p { margin-top: .35rem; color: var(--color-ink-soft); font-size: .82rem; line-height: 1.5; }
+  .subhead { margin-top: 2rem; font: 750 1.25rem/1 var(--font-display); }
+  .idea-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 1rem; }
+  .idea-card { padding: 1.1rem; border: 1px solid var(--color-line); border-radius: .6rem; background: var(--color-paper); }
+  .idea-card > span { color: var(--hub-color); font: 700 .68rem/1 var(--font-mono); }
+  .idea-card h4 { margin-top: .5rem; font: 750 1rem/1.2 var(--font-display); }
+  .idea-card p { margin-top: .5rem; color: var(--color-ink-soft); font-size: .82rem; line-height: 1.5; }
+  .clear-button { display: inline-flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 1.5rem; min-height: 3rem; padding: .75rem 1rem; border: 2px solid var(--color-ink); border-radius: .5rem; background: var(--hub-color); color: white; box-shadow: 4px 4px 0 var(--color-ink); font: 700 .78rem/1.2 var(--font-mono); text-transform: lowercase; cursor: pointer; }
+  .clear-button:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 var(--color-ink); }
+  .clear-button span { color: rgba(255,255,255,.72); font-size: .65rem; }
+  .timeline-game { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin-top: 1.5rem; }
+  .timeline-game-card { display: flex; gap: .9rem; align-items: start; padding: 1rem; border: 2px solid var(--color-line); border-radius: .65rem; background: var(--color-paper); }
+  .timeline-game-card select { width: 3rem; height: 3rem; flex: 0 0 auto; border: 2px solid var(--color-ink); border-radius: .45rem; background: white; color: var(--hub-color); font: 750 1.1rem/1 var(--font-display); text-align: center; }
+  .timeline-game-card select.answer-wrong { border-color: #c02737; background: #fff0f2; }
+  .timeline-game-card strong, .timeline-game-card small { display: block; }
+  .timeline-game-card small { margin-top: .35rem; color: var(--color-ink-soft); line-height: 1.4; }
+  .game-actions { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; }
+  .feedback { color: var(--color-ink-soft); font-size: .82rem; font-weight: 650; }
+  .answer-key { margin-top: 1.25rem; border-top: 1px solid var(--color-line); padding-top: 1rem; }
+  .answer-key summary { color: var(--hub-color); font: 700 .72rem/1 var(--font-mono); cursor: pointer; }
+  .answer-key ol { margin-top: 1rem; display: grid; gap: .6rem; }
+  .answer-key li { display: grid; grid-template-columns: 12rem 1fr; gap: 1rem; padding-bottom: .6rem; border-bottom: 1px solid var(--color-line); font-size: .82rem; }
+  .answer-key li span { color: var(--color-ink-soft); }
+  .flip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin-top: 1.5rem; }
+  .flip-card { position: relative; min-height: 10rem; border: 2px solid var(--color-ink); border-radius: .7rem; background: var(--hub-soft); text-align: left; cursor: pointer; overflow: hidden; }
+  .flip-card > span { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 1.1rem; transition: transform .3s ease, opacity .2s ease; }
+  .flip-card small { color: var(--hub-color); font: 700 .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .flip-card strong { font: 750 1.35rem/1.2 var(--font-display); }
+  .flip-card em { color: var(--hub-color); font: 700 .68rem/1 var(--font-mono); font-style: normal; }
+  .flip-back { transform: rotateX(90deg); opacity: 0; background: var(--color-ink); color: white; }
+  .flip-back strong { font: 500 .88rem/1.5 var(--font-sans); }
+  .flip-card.is-flipped .flip-front { transform: rotateX(-90deg); opacity: 0; }
+  .flip-card.is-flipped .flip-back { transform: rotateX(0); opacity: 1; }
+  [data-vocab-feedback] { margin-top: 1rem; }
+  .decision-setup { margin-top: 1.5rem; padding: 1.25rem; border-left: .4rem solid var(--hub-color); background: var(--hub-soft); }
+  .decision-setup > span { color: var(--hub-color); font: 700 .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .decision-setup p { margin-top: .45rem; line-height: 1.55; }
+  .decision-setup h3 { margin-top: 1rem; font: 750 1.25rem/1.25 var(--font-display); }
+  .decision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 1rem; }
+  .decision-card { min-height: 7rem; padding: 1rem; border: 2px solid var(--color-line); border-radius: .65rem; background: white; text-align: left; cursor: pointer; }
+  .decision-card:hover, .decision-card.is-selected { border-color: var(--hub-color); background: var(--hub-soft); box-shadow: 4px 4px 0 var(--hub-color); }
+  .decision-card span, .decision-card strong { display: block; }
+  .decision-card span { color: var(--hub-color); font: 700 .7rem/1 var(--font-mono); }
+  .decision-card strong { margin-top: .75rem; line-height: 1.35; }
+  .decision-feedback { margin-top: 1rem; min-height: 4rem; padding: 1rem; border-radius: .6rem; background: var(--color-ink); color: white; font-size: .86rem; line-height: 1.55; }
+  .quiz-question { margin-top: 1.4rem; padding: 1.2rem; border: 2px solid var(--color-line); border-radius: .7rem; }
+  .quiz-question.is-correct { border-color: #078151; }
+  .quiz-question.is-wrong { border-color: #c02737; }
+  .quiz-question legend { padding: 0 .5rem; font: 750 1.02rem/1.35 var(--font-display); }
+  .quiz-question legend span { display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; margin-right: .65rem; border-radius: 50%; background: var(--hub-color); color: white; font: 700 .68rem/1 var(--font-mono); }
+  .quiz-options { display: grid; gap: .55rem; margin-top: .8rem; }
+  .quiz-options label { display: flex; gap: .7rem; align-items: start; padding: .7rem .8rem; border: 1px solid var(--color-line); border-radius: .45rem; cursor: pointer; }
+  .quiz-options label:hover { border-color: var(--hub-color); background: var(--hub-soft); }
+  .quiz-options input { accent-color: var(--hub-color); margin-top: .18rem; }
+  .quiz-options span { font-size: .87rem; line-height: 1.45; }
+  .question-feedback { margin-top: .8rem; color: var(--color-ink-soft); font-size: .8rem; font-weight: 650; }
+  .exit-label { display: block; margin-top: 1.4rem; font-weight: 700; }
+  blockquote { margin-top: .8rem; padding: 1rem; border-left: .4rem solid var(--hub-color); background: var(--hub-soft); font: 700 1rem/1.5 var(--font-display); }
+  textarea { width: 100%; margin-top: 1rem; padding: 1rem; resize: vertical; border: 2px solid var(--color-ink); border-radius: .6rem; background: var(--color-paper); line-height: 1.55; }
+  .exit-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .exit-footer > span { color: var(--color-ink-soft); font: .68rem/1.3 var(--font-mono); }
+  .completion-card { position: relative; margin-top: 2rem; padding: clamp(2rem, 5vw, 4rem); overflow: hidden; border: 2px solid var(--color-ink); border-radius: 1rem; background: var(--hub-color); color: white; box-shadow: 8px 8px 0 var(--color-ink); text-align: center; }
+  .completion-card[hidden] { display: none; }
+  .badge-burst { display: grid; place-items: center; width: 5rem; height: 5rem; margin: 0 auto 1rem; border: 2px solid white; border-radius: 50%; background: var(--color-ink); font-size: 2rem; box-shadow: 0 0 0 .55rem color-mix(in srgb, white 20%, transparent); }
+  .completion-card > p:first-of-type { font: 700 .7rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .15em; }
+  .completion-card h2 { margin-top: .6rem; font: 750 clamp(2rem, 5vw, 3.5rem)/1 var(--font-display); }
+  .completion-card h2 + p { max-width: 38rem; margin: .8rem auto 0; color: rgba(255,255,255,.8); }
+  .completion-card a { display: inline-block; margin-top: 1.4rem; padding: .85rem 1rem; border: 2px solid white; border-radius: .5rem; color: white; font: 700 .75rem/1 var(--font-mono); }
+  .unit-pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .unit-pager a { padding: 1rem; border: 2px solid var(--color-ink); border-radius: .65rem; color: var(--hub-color); font: 700 .7rem/1.2 var(--font-mono); text-transform: lowercase; }
+  .unit-pager a:last-child { text-align: right; }
+  .unit-pager strong { display: block; margin-top: .4rem; color: var(--color-ink); font: 750 .95rem/1.2 var(--font-display); text-transform: none; }
+
+  @media (max-width: 820px) {
+    .hero-grid, .reading-layout { grid-template-columns: 1fr; }
+    .mission-control { max-width: 26rem; }
+    .idea-grid, .decision-grid { grid-template-columns: 1fr; }
+    .mission-map { top: 4rem; overflow-x: auto; grid-template-columns: repeat(6, minmax(5.5rem, 1fr)); }
+    .mission-map a { flex-direction: column; gap: .2rem; }
+    .margin-note { max-width: none; }
+  }
+  @media (max-width: 600px) {
+    .hero-topline { align-items: flex-start; }
+    .save-state { max-width: 10rem; text-align: center; }
+    .title-row { align-items: flex-start; }
+    .unit-icon { width: 2.8rem; height: 2.8rem; font-size: 1.35rem; }
+    .timeline-game, .flip-grid { grid-template-columns: 1fr; }
+    .mission-heading { flex-direction: column; }
+    .answer-key li { grid-template-columns: 1fr; gap: .25rem; }
+    .unit-pager { grid-template-columns: 1fr; }
+    .unit-pager span:empty { display: none; }
+    .unit-pager a:last-child { text-align: left; }
+  }
+</style>

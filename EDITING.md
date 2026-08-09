@@ -80,7 +80,7 @@ The file is served as-is at `/hubs/market-structures.html`, so localStorage prog
 
 ## Personalize the about page
 
-`src/pages/about.astro` — placeholders are marked with `TODO(Grant)` comments. It currently says "Mr. Mauch" — fix if that's not right.
+`src/pages/about.astro` — update the teacher description or contact wording whenever public details change.
 
 ## Using Claude Code for any of this
 

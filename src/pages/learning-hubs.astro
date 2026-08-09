@@ -1,0 +1,352 @@
+---
+import Base from '../layouts/Base.astro';
+import { learningCourses } from '../data/learningHubs';
+
+const totalUnits = learningCourses.reduce((total, course) => total + course.units.length, 0);
+---
+
+<Base
+  title="learning hubs"
+  description="Interactive learning hubs for every GrantDesk unit, with mini-chapters, challenges, quizzes, XP, streaks, notes, and saved progress."
+  wide
+>
+  <div class="hubs-page" data-hubs-page>
+    <header class="hubs-hero dot-grid">
+      <div class="hero-copy">
+        <span class="hero-badge">★ 22 unit worlds · 132 missions</span>
+        <h1>learn it.<br /><em>play it.</em><br />own it.</h1>
+        <p>Every unit now has a home base: the story you need, games that make it stick, and progress that waits for you when you come back.</p>
+        <div class="hero-actions">
+          <a href="#course-board" data-continue-link>pick a class ↓</a>
+          <span>no login · no ads · no textbook required</span>
+        </div>
+      </div>
+      <aside class="player-card" aria-label="Player progress">
+        <div class="player-top">
+          <div class="avatar" aria-hidden="true">GD</div>
+          <div><span>student profile</span><strong>desk explorer</strong></div>
+          <span class="live-dot">auto-saved</span>
+        </div>
+        <div class="overall-progress">
+          <div class="progress-ring" data-overall-ring style="--progress:0deg">
+            <div><strong data-overall-percent>0%</strong><span>journey</span></div>
+          </div>
+          <div class="player-stats">
+            <div><strong data-total-xp>0</strong><span>total XP</span></div>
+            <div><strong data-units-cleared>0/{totalUnits}</strong><span>units cleared</span></div>
+            <div><strong data-overall-streak>1</strong><span>day streak</span></div>
+          </div>
+        </div>
+        <p class="device-note">Progress and writing save privately in this browser. Use a backup code below to move to another device.</p>
+      </aside>
+    </header>
+
+    <section class="how-it-works" aria-labelledby="how-heading">
+      <div><span>01</span><strong>read</strong><p>A clear mini-chapter supplies the context a textbook would.</p></div>
+      <div><span>02</span><strong>play</strong><p>Order events, flip terms, make decisions, and beat a quick quiz boss.</p></div>
+      <div><span>03</span><strong>bank it</strong><p>XP, streaks, notes, scores, and badges are here when you return.</p></div>
+    </section>
+
+    <section id="course-board" class="course-board">
+      <div class="section-heading">
+        <div><span>choose your campaign</span><h2>Three classes. Every unit.</h2></div>
+        <p>Start anywhere. The course bars update as you clear missions.</p>
+      </div>
+
+      {learningCourses.map((course, courseIndex) => (
+        <section
+          class="course-lane"
+          data-course-lane={course.slug}
+          style={`--lane:${course.color};--lane-soft:${course.softColor}`}
+        >
+          <header class="lane-header">
+            <div class="lane-number">0{courseIndex + 1}</div>
+            <div class="lane-copy">
+              <span>{course.label}</span>
+              <h3>{course.title}</h3>
+              <p>{course.description}</p>
+            </div>
+            <div class="lane-score">
+              <strong data-course-percent>0%</strong>
+              <span data-course-count>0/{course.units.length} units</span>
+              <div><i data-course-bar></i></div>
+            </div>
+          </header>
+          <div class="unit-grid">
+            {course.units.map((unit, unitIndex) => (
+              <a
+                href={`/learn/${course.slug}/${unit.slug}/`}
+                class="unit-card"
+                data-unit-card
+                data-hub-id={`${course.slug}:${unit.slug}`}
+                data-hub-url={`/learn/${course.slug}/${unit.slug}/`}
+              >
+                <div class="unit-card-top">
+                  <span>{unit.icon}</span>
+                  <em data-unit-status>ready</em>
+                </div>
+                <span class="unit-kicker">unit {String(unitIndex + 1).padStart(2, '0')} · {unit.period}</span>
+                <h4>{unit.title}</h4>
+                <p>{unit.deck}</p>
+                <div class="unit-progress"><i data-unit-bar></i></div>
+                <div class="unit-card-footer">
+                  <span data-unit-missions>0/6 missions</span>
+                  <strong data-unit-cta>start →</strong>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+    </section>
+
+    <section class="progress-vault" aria-labelledby="vault-heading">
+      <div class="vault-copy">
+        <span>progress vault</span>
+        <h2 id="vault-heading">Take your progress with you.</h2>
+        <p>This site does not need student accounts. A backup code packages mission progress and exit-ticket writing so it can be restored in another browser.</p>
+      </div>
+      <div class="vault-tools">
+        <button type="button" data-make-backup>make my backup code</button>
+        <label for="backup-code">backup / restore code</label>
+        <textarea id="backup-code" rows="4" data-backup-code placeholder="Your code appears here—or paste one from another device."></textarea>
+        <div class="vault-actions">
+          <button type="button" data-copy-backup>copy code</button>
+          <button type="button" data-restore-backup>restore this code</button>
+        </div>
+        <p data-vault-feedback aria-live="polite">Nothing leaves this device unless you copy the code yourself.</p>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const STORAGE_KEY = 'grantdesk-learning-v1';
+  const missionXp: Record<string, number> = { briefing: 40, timeline: 60, vocab: 40, decision: 50, quiz: 100, exit: 30 };
+  const root = document.querySelector<HTMLElement>('[data-hubs-page]');
+
+  if (root) {
+    const readStore = () => {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"hubs":{},"profile":{}}'); }
+      catch { return { hubs: {}, profile: {} }; }
+    };
+    let store = readStore();
+    store.hubs ||= {};
+    store.profile ||= {};
+
+    const localDate = (date = new Date()) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    const getStreak = () => {
+      const dates = new Set<string>(store.profile.activeDates || []);
+      let streak = 0;
+      const cursor = new Date();
+      while (dates.has(localDate(cursor))) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return Math.max(1, streak);
+    };
+    const hubXp = (hub: any) => (hub?.completed || []).reduce((total: number, mission: string) => total + (missionXp[mission] || 0), 0);
+
+    const render = () => {
+      const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-unit-card]'));
+      let totalCompleted = 0;
+      let totalMissions = 0;
+      let totalXp = 0;
+      let unitsCleared = 0;
+      cards.forEach((card) => {
+        const hub = store.hubs[card.dataset.hubId!] || { completed: [] };
+        const completed = new Set<string>(hub.completed || []);
+        const count = completed.size;
+        const percent = Math.round((count / 6) * 100);
+        totalCompleted += count;
+        totalMissions += 6;
+        totalXp += hubXp(hub);
+        if (count === 6) unitsCleared += 1;
+        card.classList.toggle('is-started', count > 0 && count < 6);
+        card.classList.toggle('is-complete', count === 6);
+        const status = card.querySelector<HTMLElement>('[data-unit-status]');
+        if (status) status.textContent = count === 6 ? 'cleared ✓' : count > 0 ? `${percent}%` : 'ready';
+        const bar = card.querySelector<HTMLElement>('[data-unit-bar]');
+        if (bar) bar.style.width = `${percent}%`;
+        const missions = card.querySelector<HTMLElement>('[data-unit-missions]');
+        if (missions) missions.textContent = `${count}/6 missions`;
+        const cta = card.querySelector<HTMLElement>('[data-unit-cta]');
+        if (cta) cta.textContent = count === 6 ? 'review →' : count > 0 ? 'resume →' : 'start →';
+      });
+
+      root.querySelectorAll<HTMLElement>('[data-course-lane]').forEach((lane) => {
+        const courseCards = Array.from(lane.querySelectorAll<HTMLElement>('[data-unit-card]'));
+        const cleared = courseCards.filter((card) => (store.hubs[card.dataset.hubId!]?.completed || []).length === 6).length;
+        const courseCompleted = courseCards.reduce((total, card) => total + (store.hubs[card.dataset.hubId!]?.completed || []).length, 0);
+        const percent = Math.round((courseCompleted / (courseCards.length * 6)) * 100);
+        const percentNode = lane.querySelector<HTMLElement>('[data-course-percent]');
+        if (percentNode) percentNode.textContent = `${percent}%`;
+        const countNode = lane.querySelector<HTMLElement>('[data-course-count]');
+        if (countNode) countNode.textContent = `${cleared}/${courseCards.length} units`;
+        const bar = lane.querySelector<HTMLElement>('[data-course-bar]');
+        if (bar) bar.style.width = `${percent}%`;
+      });
+
+      const overall = totalMissions ? Math.round((totalCompleted / totalMissions) * 100) : 0;
+      const ring = root.querySelector<HTMLElement>('[data-overall-ring]');
+      if (ring) ring.style.setProperty('--progress', `${overall * 3.6}deg`);
+      const overallPercent = root.querySelector<HTMLElement>('[data-overall-percent]');
+      if (overallPercent) overallPercent.textContent = `${overall}%`;
+      const xp = root.querySelector<HTMLElement>('[data-total-xp]');
+      if (xp) xp.textContent = totalXp.toLocaleString();
+      const clearedNode = root.querySelector<HTMLElement>('[data-units-cleared]');
+      if (clearedNode) clearedNode.textContent = `${unitsCleared}/${cards.length}`;
+      const streak = root.querySelector<HTMLElement>('[data-overall-streak]');
+      if (streak) streak.textContent = String(getStreak());
+      const continueLink = root.querySelector<HTMLAnchorElement>('[data-continue-link]');
+      if (continueLink && store.profile.lastUrl) {
+        continueLink.href = store.profile.lastUrl;
+        continueLink.textContent = 'continue where I left off →';
+      }
+    };
+
+    const toBase64 = (value: string) => {
+      const bytes = new TextEncoder().encode(value);
+      let binary = '';
+      bytes.forEach((byte) => binary += String.fromCharCode(byte));
+      return btoa(binary);
+    };
+    const fromBase64 = (value: string) => {
+      const binary = atob(value.replace(/\s/g, ''));
+      const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    };
+    const code = root.querySelector<HTMLTextAreaElement>('[data-backup-code]');
+    const vaultFeedback = root.querySelector<HTMLElement>('[data-vault-feedback]');
+    root.querySelector<HTMLButtonElement>('[data-make-backup]')?.addEventListener('click', () => {
+      if (code) code.value = `GD1.${toBase64(JSON.stringify(store))}`;
+      if (vaultFeedback) vaultFeedback.textContent = 'Backup ready. Copy it and keep it somewhere you can find later.';
+    });
+    root.querySelector<HTMLButtonElement>('[data-copy-backup]')?.addEventListener('click', async () => {
+      if (!code?.value) {
+        if (vaultFeedback) vaultFeedback.textContent = 'Make a backup code first.';
+        return;
+      }
+      await navigator.clipboard.writeText(code.value);
+      if (vaultFeedback) vaultFeedback.textContent = 'Copied. Your progress code is on the clipboard.';
+    });
+    root.querySelector<HTMLButtonElement>('[data-restore-backup]')?.addEventListener('click', () => {
+      try {
+        if (!code?.value.startsWith('GD1.')) throw new Error('format');
+        const restored = JSON.parse(fromBase64(code.value.slice(4)));
+        if (!restored || typeof restored !== 'object' || !restored.hubs) throw new Error('shape');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(restored));
+        store = restored;
+        store.profile ||= {};
+        if (vaultFeedback) vaultFeedback.textContent = 'Progress restored. The course board is updated.';
+        render();
+      } catch {
+        if (vaultFeedback) vaultFeedback.textContent = 'That code could not be read. Copy the entire GD1 code and try again.';
+      }
+    });
+
+    render();
+  }
+</script>
+
+<style>
+  .hubs-page { --electric: #f2ff47; }
+  .hubs-hero { display: grid; grid-template-columns: 1.3fr .75fr; gap: clamp(2rem, 6vw, 5rem); padding: clamp(1.5rem, 5vw, 4rem); overflow: hidden; border: 2px solid var(--color-ink); border-radius: 1rem; background-color: var(--color-ink); color: white; box-shadow: 9px 9px 0 var(--color-accent); }
+  .hero-badge { display: inline-block; padding: .55rem .7rem; border: 1px solid #606068; border-radius: 999px; color: var(--electric); font: 700 .68rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
+  h1 { margin-top: 1.4rem; font: 800 clamp(3.7rem, 9vw, 7.8rem)/.78 var(--font-display); letter-spacing: -.075em; text-transform: lowercase; }
+  h1 em { color: var(--electric); font-style: normal; }
+  .hero-copy > p { max-width: 40rem; margin-top: 2rem; color: #c7c7cf; font-size: clamp(1rem, 2vw, 1.18rem); line-height: 1.6; }
+  .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.8rem; }
+  .hero-actions a { padding: .9rem 1rem; border: 2px solid var(--electric); border-radius: .5rem; background: var(--electric); color: var(--color-ink); box-shadow: 4px 4px 0 white; font: 800 .75rem/1 var(--font-mono); }
+  .hero-actions span { color: #9e9ea8; font: .65rem/1 var(--font-mono); }
+  .player-card { align-self: end; padding: 1.2rem; border: 2px solid white; border-radius: .9rem; background: #232329; box-shadow: 6px 6px 0 var(--electric); }
+  .player-top { display: flex; align-items: center; gap: .7rem; padding-bottom: 1rem; border-bottom: 1px solid #414149; }
+  .avatar { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border-radius: .5rem; background: var(--electric); color: var(--color-ink); font: 800 .8rem/1 var(--font-display); }
+  .player-top > div:nth-child(2) { flex: 1; }
+  .player-top span, .player-top strong { display: block; }
+  .player-top span { color: #92929c; font: .58rem/1.2 var(--font-mono); text-transform: uppercase; }
+  .player-top strong { margin-top: .25rem; font: 750 .95rem/1 var(--font-display); }
+  .player-top .live-dot { color: #7bf1bc; text-transform: lowercase; }
+  .overall-progress { display: grid; grid-template-columns: 8rem 1fr; gap: 1.2rem; align-items: center; margin-top: 1.2rem; }
+  .progress-ring { --progress: 0deg; width: 8rem; height: 8rem; padding: .6rem; border-radius: 50%; background: conic-gradient(var(--electric) var(--progress), #45454e 0); }
+  .progress-ring > div { display: grid; place-content: center; width: 100%; height: 100%; border-radius: 50%; background: #232329; text-align: center; }
+  .progress-ring strong, .progress-ring span { display: block; }
+  .progress-ring strong { font: 800 1.65rem/1 var(--font-display); }
+  .progress-ring span { margin-top: .25rem; color: #92929c; font: .58rem/1 var(--font-mono); text-transform: uppercase; }
+  .player-stats { display: grid; gap: .5rem; }
+  .player-stats div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .45rem; border-bottom: 1px solid #414149; }
+  .player-stats strong { font: 750 1rem/1 var(--font-display); }
+  .player-stats span { color: #92929c; font: .6rem/1 var(--font-mono); text-transform: uppercase; }
+  .device-note { margin-top: 1rem; color: #92929c; font-size: .7rem; line-height: 1.45; }
+  .how-it-works { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 2rem; }
+  .how-it-works div { padding: 1.2rem; border: 2px solid var(--color-ink); border-radius: .7rem; background: white; box-shadow: 4px 4px 0 var(--color-line); }
+  .how-it-works span { display: block; color: var(--color-accent); font: 700 .65rem/1 var(--font-mono); }
+  .how-it-works strong { display: block; margin-top: .6rem; font: 800 1.25rem/1 var(--font-display); }
+  .how-it-works p { margin-top: .4rem; color: var(--color-ink-soft); font-size: .8rem; line-height: 1.5; }
+  .course-board { margin-top: 5rem; }
+  .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 2rem; }
+  .section-heading span, .vault-copy > span { color: var(--color-accent); font: 700 .68rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .12em; }
+  .section-heading h2, .vault-copy h2 { margin-top: .55rem; font: 800 clamp(2rem, 5vw, 3.6rem)/1 var(--font-display); letter-spacing: -.04em; }
+  .section-heading > p { max-width: 22rem; color: var(--color-ink-soft); font-size: .82rem; text-align: right; }
+  .course-lane { margin-top: 3rem; }
+  .lane-header { display: grid; grid-template-columns: 4rem 1fr 12rem; gap: 1.2rem; align-items: center; padding: 1.4rem; border: 2px solid var(--color-ink); border-radius: .8rem; background: var(--lane-soft); box-shadow: 5px 5px 0 var(--lane); }
+  .lane-number { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border: 2px solid var(--color-ink); border-radius: .65rem; background: var(--lane); color: white; font: 800 1rem/1 var(--font-mono); }
+  .lane-copy > span { color: var(--lane); font: 700 .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .lane-copy h3 { margin-top: .35rem; font: 800 1.7rem/1 var(--font-display); }
+  .lane-copy p { margin-top: .4rem; color: var(--color-ink-soft); font-size: .8rem; }
+  .lane-score { text-align: right; }
+  .lane-score strong, .lane-score span { display: block; }
+  .lane-score strong { font: 800 1.5rem/1 var(--font-display); }
+  .lane-score span { margin-top: .3rem; color: var(--color-ink-soft); font: .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .lane-score > div, .unit-progress { height: .4rem; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--lane) 15%, white); }
+  .lane-score > div { margin-top: .75rem; }
+  .lane-score i, .unit-progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--lane); transition: width .4s ease; }
+  .unit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.2rem; }
+  .unit-card { display: flex; flex-direction: column; min-height: 18rem; padding: 1.1rem; border: 2px solid var(--color-ink); border-radius: .75rem; background: white; box-shadow: 4px 4px 0 var(--color-line); transition: transform .15s ease, box-shadow .15s ease; }
+  .unit-card:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--lane); }
+  .unit-card.is-started { box-shadow: 4px 4px 0 var(--lane); }
+  .unit-card.is-complete { background: var(--lane-soft); box-shadow: 4px 4px 0 var(--lane); }
+  .unit-card-top { display: flex; justify-content: space-between; align-items: center; }
+  .unit-card-top > span { font-size: 1.5rem; }
+  .unit-card-top em { padding: .4rem .55rem; border-radius: 999px; background: var(--color-paper); color: var(--color-ink-soft); font: 700 .58rem/1 var(--font-mono); font-style: normal; text-transform: uppercase; }
+  .is-started .unit-card-top em, .is-complete .unit-card-top em { background: var(--lane); color: white; }
+  .unit-kicker { margin-top: 1.2rem; color: var(--lane); font: 700 .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .unit-card h4 { margin-top: .45rem; font: 800 1.25rem/1.05 var(--font-display); }
+  .unit-card p { margin-top: .65rem; color: var(--color-ink-soft); font-size: .78rem; line-height: 1.48; }
+  .unit-progress { margin-top: auto; }
+  .unit-card-footer { display: flex; justify-content: space-between; gap: 1rem; margin-top: .65rem; font: 700 .62rem/1 var(--font-mono); }
+  .unit-card-footer span { color: var(--color-ink-soft); }
+  .unit-card-footer strong { color: var(--lane); }
+  .progress-vault { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(2rem, 6vw, 5rem); margin-top: 5rem; padding: clamp(1.5rem, 5vw, 3rem); border: 2px solid var(--color-ink); border-radius: 1rem; background: var(--color-ink); color: white; box-shadow: 8px 8px 0 var(--color-accent); }
+  .vault-copy h2 { color: white; }
+  .vault-copy p { margin-top: 1rem; color: #b9b9c2; line-height: 1.6; }
+  .vault-tools { display: flex; flex-direction: column; }
+  .vault-tools label { margin: 1rem 0 .4rem; color: #a9a9b2; font: .62rem/1 var(--font-mono); text-transform: uppercase; }
+  .vault-tools textarea { width: 100%; padding: .8rem; border: 1px solid #5b5b64; border-radius: .5rem; background: #2a2a31; color: white; font: .68rem/1.4 var(--font-mono); resize: vertical; }
+  .vault-tools button { padding: .75rem .85rem; border: 1px solid white; border-radius: .45rem; background: white; color: var(--color-ink); font: 700 .68rem/1 var(--font-mono); cursor: pointer; }
+  .vault-tools > button { align-self: flex-start; background: var(--color-accent); color: white; border-color: var(--color-accent); }
+  .vault-actions { display: flex; gap: .6rem; margin-top: .65rem; }
+  .vault-actions button:last-child { background: transparent; color: white; }
+  .vault-tools > p { margin-top: .7rem; color: #a9a9b2; font-size: .7rem; }
+
+  @media (max-width: 900px) {
+    .hubs-hero, .progress-vault { grid-template-columns: 1fr; }
+    .player-card { max-width: 32rem; }
+    .unit-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 650px) {
+    .how-it-works, .unit-grid { grid-template-columns: 1fr; }
+    .section-heading { align-items: start; flex-direction: column; }
+    .section-heading > p { text-align: left; }
+    .lane-header { grid-template-columns: 3rem 1fr; }
+    .lane-number { width: 2.7rem; height: 2.7rem; }
+    .lane-score { grid-column: 1 / -1; text-align: left; }
+    .unit-card { min-height: 15rem; }
+    .vault-actions { flex-direction: column; }
+  }
+</style>
