@@ -1,0 +1,77 @@
+# Curriculum publishing rules
+
+The website has two curriculum routes with different structures.
+
+## Classroom-ready course route
+
+The current public courses use:
+
+`course -> unit -> student materials + learning hub`
+
+- Course and unit copy lives in the three course pages under `src/pages/`.
+- Approved Drive resources live in `src/data/resources.json`.
+- Unit assignments live in `src/data/unit-materials.json`.
+- Interactive practice lives in `src/data/learningHubs.ts`.
+- Every unit uses an explicit `hubSlug`; do not link hubs by array position.
+
+Only a resource with all of the following may render publicly:
+
+- `onWebsite: true`
+- a working `href`
+- no `restricted` status
+- student-safe content and sharing permissions
+
+Hand-wired unit materials must set `materialsAudience: 'student'`. Unclassified fallbacks stay private by default.
+
+## Three-Course Lecture Remix route
+
+The remix must use:
+
+`course -> block -> day/lecture`
+
+`unit/arc` is a tag, not a parent, because several blocks cross unit boundaries.
+
+When a remix block is ready for the website, export one current record per day with:
+
+- `courseSlug`
+- `block`
+- `courseDay`
+- `week`
+- `weekday`
+- `role`
+- `lectureNumber`
+- `title`
+- `unitArc`
+- `courseQuestion`
+- `productionStatus`
+- `audience`
+- `access`
+- `rightsStatus`
+- `href`
+- `localSourcePath`
+- `version`
+- `isCurrent`
+
+Do not publish roadmap-only, rough-scripted, locally complete, or Drive-deferred files. A public remix record requires:
+
+1. content and source QA passed;
+2. the student artifact exists in Google Drive;
+3. image and redistribution rights are cleared;
+4. the intended student/school account can open it;
+5. the record points to the current additive version;
+6. the local build, static check, preview, and link audit pass.
+
+## Never place on the public static site
+
+- teacher keys, scoring editions, confidential guides, or refresh ledgers;
+- pretests, tests, cumulative finals, or timed quiz links before intentional release;
+- Forms-builder scripts;
+- internal QA reports, source registers, sidecars, or production scripts;
+- licensed teacher copies or resources without redistribution clearance;
+- superseded or archive versions in the normal student route.
+
+Google Drive permissions are the access-control boundary. An unlisted site route, `noindex`, or a hidden menu is not security.
+
+## Version rule
+
+Never delete or overwrite a curriculum baseline. Upload and catalog corrections as clearly labeled additive versions, mark exactly one version current, and retain the predecessor in the private archive.

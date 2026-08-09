@@ -271,7 +271,7 @@ const archiveResourceCount = publicResourceCount - activeResourceCount;
     type LibraryScope = 'active' | 'archive' | 'all';
     let selectedScope: LibraryScope = 'active';
 
-    const isScope = (value: string | null): value is LibraryScope =>
+    const isScope = (value: string | null | undefined): value is LibraryScope =>
       value === 'active' || value === 'archive' || value === 'all';
 
     const setScope = (scope: LibraryScope) => {

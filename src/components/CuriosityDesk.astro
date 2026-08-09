@@ -64,7 +64,7 @@ const curiosityItems = [
     category: 'revolution + mythmaking',
     source: 'The Met Open Access',
     date: '1851',
-    question: 'What if America\'s most famous Revolutionary image is really about the 1850s?',
+    question: "What if America's most famous Revolutionary image is really about the 1850s?",
     clue: 'The painting was completed seventy-five years after the crossing.',
     context:
       'Emanuel Leutze was not recording an event he witnessed. He was building a national memory: heroic, theatrical, and designed to make viewers feel the Revolution rather than inspect it. That makes the painting useful evidence - just not in the way people first assume.',
@@ -86,7 +86,7 @@ const curiosityItems = [
     question: 'Is this a map of Detroit - or an advertisement for the city Detroit hoped to become?',
     clue: 'Notice what the artist makes prominent, orderly, and prosperous.',
     context:
-      'Bird\'s-eye city views mixed observation with civic promotion. This one captures late-nineteenth-century Detroit as a place of industry, movement, and ambition, while its impossible viewpoint reminds us that every map is also an argument about what deserves attention.',
+      "Bird's-eye city views mixed observation with civic promotion. This one captures late-nineteenth-century Detroit as a place of industry, movement, and ambition, while its impossible viewpoint reminds us that every map is also an argument about what deserves attention.",
     image: 'https://tile.loc.gov/storage-services/service/gmd/gmd411/g4114/g4114d/pm003420.gif',
     alt: "Bird's-eye map showing central Detroit, Michigan, in 1889.",
     position: 'center',
@@ -103,36 +103,41 @@ const first = curiosityItems[0];
 ---
 
 <section id="curiosity-desk" class="curiosity-desk" data-curiosity-desk aria-labelledby="curiosity-title">
-  <div class="curiosity-topline">
+  <header class="curiosity-header">
     <div>
-      <p class="curiosity-eyebrow">the curiosity desk / artifact 01</p>
-      <h2 id="curiosity-title">one object. one question. three ways in.</h2>
+      <p class="curiosity-eyebrow">open collections / hand-picked at the desk</p>
+      <h2 id="curiosity-title">the curiosity desk<span>.</span></h2>
     </div>
     <p class="curiosity-intro">
-      Pick a thread, make a guess, then open the record. History is more interesting before somebody tells you the answer.
+      One real object. One question worth chasing. Start with a guess, then follow the evidence.
     </p>
-  </div>
+  </header>
 
-  <div class="curiosity-filters" aria-label="Filter curiosity desk artifacts">
-    <button type="button" data-filter="all" aria-pressed="true">all</button>
+  <nav class="curiosity-filters" aria-label="Filter curiosity desk artifacts">
+    <button type="button" data-filter="all" aria-pressed="true">everything</button>
     <button type="button" data-filter="power" aria-pressed="false">power</button>
     <button type="button" data-filter="sports" aria-pressed="false">sports</button>
     <button type="button" data-filter="mysteries" aria-pressed="false">mysteries</button>
     <button type="button" data-filter="michigan" aria-pressed="false">Michigan</button>
-  </div>
+  </nav>
 
   <div class="curiosity-stage">
     <a class="curiosity-image" href={first.record} target="_blank" rel="noopener" data-link="record">
       <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} data-field="image" />
       <span class="curiosity-date" data-field="date">{first.date}</span>
-      <span class="curiosity-open">open the original record <span aria-hidden="true">&#8599;</span></span>
+      <span class="curiosity-record">view the full archive record <span aria-hidden="true">&#8599;</span></span>
     </a>
 
-    <div class="curiosity-story" aria-live="polite">
+    <article class="curiosity-story" aria-live="polite">
       <div>
-        <p class="curiosity-source"><span data-field="category">{first.category}</span> / <span data-field="source">{first.source}</span></p>
+        <p class="curiosity-source">
+          <span data-field="category">{first.category}</span>
+          <span aria-hidden="true">/</span>
+          <span data-field="source">{first.source}</span>
+        </p>
+        <p class="curiosity-count" data-field="count">artifact 01 of {String(curiosityItems.length).padStart(2, '0')}</p>
         <h3 data-field="question">{first.question}</h3>
-        <p class="curiosity-clue" data-field="clue">{first.clue}</p>
+        <p class="curiosity-clue"><strong>before you reveal:</strong> <span data-field="clue">{first.clue}</span></p>
       </div>
 
       <div class="curiosity-actions">
@@ -150,16 +155,16 @@ const first = curiosityItems[0];
 
       <p class="curiosity-credit" data-field="credit">{first.credit}</p>
       <span class="sr-status" data-field="status" aria-live="polite"></span>
-    </div>
+    </article>
   </div>
 
   <div class="curiosity-trail" aria-label="Three ways to continue">
     <a href={first.record} target="_blank" rel="noopener" data-link="record">
-      <span>01 / primary source</span>
-      <strong>inspect the full archive record</strong>
+      <span>01 / inspect</span>
+      <strong>open the primary source</strong>
     </a>
     <a href={first.related} data-link="related">
-      <span>02 / on the desk</span>
+      <span>02 / connect</span>
       <strong data-field="related-label">{first.relatedLabel}</strong>
     </a>
     <a href={first.deeper} data-link="deeper">
@@ -194,6 +199,7 @@ const first = curiosityItems[0];
       setText('date', item.date);
       setText('category', item.category);
       setText('source', item.source);
+      setText('count', `artifact ${String(index + 1).padStart(2, '0')} of ${String(curiosityItems.length).padStart(2, '0')}`);
       setText('question', item.question);
       setText('clue', item.clue);
       setText('context', item.context);
@@ -243,101 +249,131 @@ const first = curiosityItems[0];
 
 <style>
   .curiosity-desk {
-    --desk-blue: #5366ff;
-    --desk-cream: #f4f1e8;
-    margin-top: 4.5rem;
+    --curiosity-blue: #1f2ce6;
+    --curiosity-blue-dark: #1520b3;
+    --curiosity-wash: #f1f3ff;
+    position: relative;
+    isolation: isolate;
+    margin-top: 2.5rem;
     overflow: hidden;
-    border-radius: 1.1rem;
-    background: #111219;
-    color: var(--desk-cream);
-    box-shadow: 0 28px 70px rgb(23 23 28 / 0.18);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+    border-radius: 1.15rem;
+    background: linear-gradient(145deg, white, #f8f8f3 62%);
+    box-shadow: 0 28px 64px -48px rgb(23 23 28 / 0.75);
+    color: var(--color-ink);
   }
 
-  .curiosity-topline {
+  .curiosity-desk::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--curiosity-blue), #7e8aff 58%, transparent);
+    content: '';
+  }
+
+  .curiosity-header {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(16rem, 0.7fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
     gap: 2rem;
-    padding: 2rem 2rem 1.5rem;
-    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+    padding: 1.75rem 1.75rem 1.35rem;
+    border-bottom: 1px solid var(--color-line);
   }
 
   .curiosity-eyebrow,
   .curiosity-source,
+  .curiosity-count,
   .curiosity-credit,
   .curiosity-trail span {
     font-family: var(--font-mono);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
   }
 
   .curiosity-eyebrow {
-    color: #9ba6ff;
-    font-size: 0.68rem;
+    color: var(--curiosity-blue-dark);
+    font-size: 0.64rem;
+    font-weight: 700;
   }
 
-  .curiosity-topline h2 {
-    max-width: 34rem;
-    margin-top: 0.5rem;
+  .curiosity-header h2 {
+    margin-top: 0.35rem;
     font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    font-weight: 650;
-    line-height: 0.98;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1;
     letter-spacing: -0.045em;
+    text-transform: lowercase;
+  }
+
+  .curiosity-header h2 span {
+    color: var(--curiosity-blue);
   }
 
   .curiosity-intro {
     align-self: end;
-    color: rgb(244 241 232 / 0.68);
+    max-width: 27rem;
+    color: #41414a;
     font-size: 0.86rem;
-    line-height: 1.65;
+    line-height: 1.62;
   }
 
   .curiosity-filters {
     display: flex;
     gap: 0.45rem;
     overflow-x: auto;
-    padding: 0.85rem 2rem;
-    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+    padding: 0.8rem 1.75rem;
+    border-bottom: 1px solid var(--color-line);
+    background: rgb(250 250 247 / 0.72);
     scrollbar-width: thin;
   }
 
   .curiosity-filters button {
     flex: none;
-    border: 1px solid rgb(255 255 255 / 0.22);
+    border: 1px solid #c9cbd6;
     border-radius: 999px;
+    background: white;
     padding: 0.4rem 0.75rem;
-    color: rgb(244 241 232 / 0.7);
+    color: #44444d;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.67rem;
+    font-weight: 650;
     text-transform: lowercase;
-    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+    transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
   }
 
-  .curiosity-filters button:hover,
+  .curiosity-filters button:hover {
+    border-color: var(--curiosity-blue);
+    color: var(--curiosity-blue-dark);
+    transform: translateY(-1px);
+  }
+
   .curiosity-filters button[aria-pressed='true'] {
-    border-color: var(--desk-blue);
-    background: var(--desk-blue);
+    border-color: var(--curiosity-blue);
+    background: var(--curiosity-blue);
     color: white;
   }
 
   .curiosity-stage {
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(19rem, 0.92fr);
-    min-height: 31rem;
+    grid-template-columns: minmax(0, 1.04fr) minmax(19rem, 0.96fr);
+    min-height: 30rem;
   }
 
   .curiosity-image {
     position: relative;
-    min-height: 31rem;
+    min-height: 30rem;
     overflow: hidden;
-    background: #282a35;
+    border-right: 1px solid var(--color-line);
+    background: #e4e4de;
   }
 
   .curiosity-image::after {
     position: absolute;
-    inset: 0;
+    inset: auto 0 0;
+    height: 34%;
+    background: linear-gradient(to top, rgb(18 18 24 / 0.74), transparent);
     content: '';
-    background: linear-gradient(to top, rgb(5 6 10 / 0.72), transparent 42%);
     pointer-events: none;
   }
 
@@ -345,106 +381,145 @@ const first = curiosityItems[0];
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 500ms ease, filter 500ms ease;
+    transition: transform 450ms ease, filter 450ms ease;
   }
 
   .curiosity-image:hover img {
     transform: scale(1.025);
-    filter: saturate(1.08);
+    filter: saturate(1.05);
   }
 
   .curiosity-date,
-  .curiosity-open {
+  .curiosity-record {
     position: absolute;
     z-index: 1;
     font-family: var(--font-mono);
-    font-size: 0.66rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
   }
 
   .curiosity-date {
-    top: 1.15rem;
-    left: 1.15rem;
+    top: 1rem;
+    left: 1rem;
+    border: 1px solid rgb(23 23 28 / 0.15);
     border-radius: 999px;
-    background: var(--desk-cream);
-    padding: 0.4rem 0.65rem;
-    color: #111219;
+    background: rgb(255 255 255 / 0.94);
+    padding: 0.38rem 0.62rem;
+    color: var(--color-ink);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
-  .curiosity-open {
-    right: 1.15rem;
-    bottom: 1.15rem;
-    left: 1.15rem;
+  .curiosity-record {
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
     color: white;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
   .curiosity-story {
     display: flex;
     flex-direction: column;
-    padding: 2rem;
-    border-left: 1px solid rgb(255 255 255 / 0.15);
+    padding: 1.75rem;
+    background:
+      radial-gradient(circle at 100% 0%, rgb(31 44 230 / 0.08), transparent 17rem),
+      white;
   }
 
   .curiosity-source {
-    color: #9ba6ff;
-    font-size: 0.65rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    color: var(--curiosity-blue-dark);
+    font-size: 0.62rem;
+    font-weight: 700;
     line-height: 1.5;
   }
 
+  .curiosity-count {
+    margin-top: 0.65rem;
+    color: #6b6b74;
+    font-size: 0.57rem;
+    font-weight: 650;
+  }
+
   .curiosity-story h3 {
-    margin-top: 1rem;
+    margin-top: 0.85rem;
+    color: #15151a;
     font-family: var(--font-display);
-    font-size: clamp(1.85rem, 3.6vw, 2.65rem);
-    font-weight: 600;
-    line-height: 1.05;
-    letter-spacing: -0.035em;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    font-weight: 650;
+    line-height: 1.06;
+    letter-spacing: -0.04em;
   }
 
   .curiosity-clue {
     margin-top: 1.15rem;
-    padding-left: 1rem;
-    border-left: 2px solid var(--desk-blue);
-    color: rgb(244 241 232 / 0.67);
-    font-size: 0.83rem;
+    border-left: 3px solid var(--curiosity-blue);
+    background: var(--curiosity-wash);
+    padding: 0.8rem 0.9rem;
+    color: #3f3f48;
+    font-size: 0.8rem;
     line-height: 1.55;
+  }
+
+  .curiosity-clue strong {
+    color: var(--curiosity-blue-dark);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    text-transform: uppercase;
   }
 
   .curiosity-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1.6rem;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
   }
 
   .curiosity-actions button {
-    border-radius: 0.35rem;
+    border-radius: 0.65rem;
     padding: 0.68rem 0.82rem;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.68rem;
+    font-weight: 700;
     text-transform: lowercase;
-  }
-
-  .curiosity-reveal {
-    background: var(--desk-blue);
-    color: white;
-  }
-
-  .curiosity-next {
-    border: 1px solid rgb(255 255 255 / 0.25);
-    color: var(--desk-cream);
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
   }
 
   .curiosity-actions button:hover {
-    filter: brightness(1.12);
+    transform: translateY(-1px);
+  }
+
+  .curiosity-reveal {
+    border: 1px solid var(--curiosity-blue-dark);
+    background: var(--curiosity-blue);
+    color: white;
+  }
+
+  .curiosity-reveal:hover {
+    background: var(--curiosity-blue-dark);
+  }
+
+  .curiosity-next {
+    border: 1px solid #bfc1cc;
+    background: white;
+    color: #303038;
+  }
+
+  .curiosity-next:hover {
+    border-color: var(--curiosity-blue);
+    color: var(--curiosity-blue-dark);
   }
 
   .curiosity-context {
-    margin-top: 1.25rem;
-    border-top: 1px solid rgb(255 255 255 / 0.15);
-    padding-top: 1.1rem;
-    color: rgb(244 241 232 / 0.8);
+    margin-top: 1.1rem;
+    border-top: 1px solid var(--color-line);
+    padding-top: 1rem;
+    color: #34343c;
     font-size: 0.82rem;
     line-height: 1.62;
   }
@@ -455,44 +530,47 @@ const first = curiosityItems[0];
 
   .curiosity-credit {
     margin-top: auto;
-    padding-top: 1.5rem;
-    color: rgb(244 241 232 / 0.42);
-    font-size: 0.55rem;
-    line-height: 1.55;
+    padding-top: 1.35rem;
+    color: #666670;
+    font-size: 0.54rem;
+    line-height: 1.5;
   }
 
   .curiosity-trail {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-top: 1px solid rgb(255 255 255 / 0.15);
+    border-top: 1px solid var(--color-line);
+    background: #f8f8f4;
   }
 
   .curiosity-trail a {
-    min-height: 7rem;
-    padding: 1.25rem;
-    transition: background 150ms ease;
+    min-height: 6.6rem;
+    padding: 1.15rem 1.25rem;
+    transition: background 160ms ease, color 160ms ease;
   }
 
   .curiosity-trail a + a {
-    border-left: 1px solid rgb(255 255 255 / 0.15);
+    border-left: 1px solid var(--color-line);
   }
 
   .curiosity-trail a:hover {
-    background: rgb(83 102 255 / 0.16);
+    background: var(--curiosity-wash);
+    color: var(--curiosity-blue-dark);
   }
 
   .curiosity-trail span {
     display: block;
-    color: #9ba6ff;
-    font-size: 0.58rem;
+    color: var(--curiosity-blue-dark);
+    font-size: 0.56rem;
+    font-weight: 700;
   }
 
   .curiosity-trail strong {
     display: block;
-    margin-top: 0.6rem;
+    margin-top: 0.5rem;
     font-family: var(--font-display);
-    font-size: 0.92rem;
-    line-height: 1.3;
+    font-size: 0.88rem;
+    line-height: 1.32;
   }
 
   .sr-status {
@@ -505,34 +583,29 @@ const first = curiosityItems[0];
   }
 
   @media (max-width: 700px) {
-    .curiosity-desk {
-      margin-top: 3.5rem;
-      border-radius: 0.75rem;
-    }
-
-    .curiosity-topline,
+    .curiosity-header,
     .curiosity-stage {
       grid-template-columns: 1fr;
     }
 
-    .curiosity-topline {
-      gap: 1rem;
-      padding: 1.5rem;
+    .curiosity-header {
+      gap: 0.9rem;
+      padding: 1.45rem;
     }
 
     .curiosity-filters {
-      padding-inline: 1.5rem;
+      padding-inline: 1.45rem;
     }
 
     .curiosity-image {
       min-height: 22rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-line);
     }
 
     .curiosity-story {
-      min-height: 28rem;
-      padding: 1.5rem;
-      border-top: 1px solid rgb(255 255 255 / 0.15);
-      border-left: 0;
+      min-height: 27rem;
+      padding: 1.45rem;
     }
 
     .curiosity-trail {
@@ -544,7 +617,7 @@ const first = curiosityItems[0];
     }
 
     .curiosity-trail a + a {
-      border-top: 1px solid rgb(255 255 255 / 0.15);
+      border-top: 1px solid var(--color-line);
       border-left: 0;
     }
   }

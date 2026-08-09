@@ -1,5 +1,7 @@
 # EDITING GUIDE — which file to touch
 
+For curriculum organization, public/private boundaries, and the Three-Course Lecture Remix route, read `CURRICULUM-PUBLISHING.md` before adding files or Drive links.
+
 ## Post an announcement
 
 Add a new file in `src/content/announcements/`, named like `2026-08-20-first-day.md`:

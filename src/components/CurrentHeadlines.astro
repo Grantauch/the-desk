@@ -1,0 +1,1134 @@
+---
+import headlineHistory from '../data/headline-history.json';
+
+interface NewsSource {
+  name: string;
+  lens: string;
+  feed: string;
+  home: string;
+  format?: 'rss' | 'news-sitemap';
+  clientMode: 'direct' | 'rss2json';
+}
+
+interface Headline extends NewsSource {
+  title: string;
+  href: string;
+  image?: string;
+  published?: Date;
+}
+
+const sources: NewsSource[] = [
+  {
+    name: 'CNN',
+    lens: 'national',
+    feed: 'https://www.cnn.com/sitemap/news.xml',
+    home: 'https://www.cnn.com/',
+    format: 'news-sitemap',
+    clientMode: 'direct',
+  },
+  {
+    name: 'NPR',
+    lens: 'national',
+    feed: 'https://feeds.npr.org/1001/rss.xml',
+    home: 'https://www.npr.org/sections/news/',
+    clientMode: 'rss2json',
+  },
+  {
+    name: 'Fox News',
+    lens: 'national',
+    feed: 'https://moxie.foxnews.com/google-publisher/us.xml',
+    home: 'https://www.foxnews.com/us',
+    clientMode: 'direct',
+  },
+  {
+    name: 'MLive',
+    lens: 'Michigan',
+    feed: 'https://www.mlive.com/arc/outboundfeeds/rss/?outputType=xml',
+    home: 'https://www.mlive.com/',
+    clientMode: 'rss2json',
+  },
+];
+
+const decodeEntities = (value: string) => value
+  .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+  .replace(/<[^>]+>/g, '')
+  .replace(/&amp;/g, '&')
+  .replace(/&quot;/g, '"')
+  .replace(/&#39;|&apos;/g, "'")
+  .replace(/&lt;/g, '<')
+  .replace(/&gt;/g, '>')
+  .trim();
+
+const readTag = (xml: string, tag: string) => {
+  const match = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return match ? decodeEntities(match[1]) : '';
+};
+
+const readImage = (item: string) => {
+  const mediaMatches = [...item.matchAll(/<media:(?:content|thumbnail)[^>]+url=["']([^"']+)/gi)];
+  const media = mediaMatches.at(-1)?.[1];
+  const enclosure = item.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image\//i)?.[1];
+  const inline = item.match(/<img[^>]+src=["']([^"']+)/i)?.[1];
+  return decodeEntities(media ?? enclosure ?? inline ?? '') || undefined;
+};
+
+const parsePublished = (value: string) => {
+  if (!value) return undefined;
+
+  const date = new Date(value);
+  return Number.isNaN(date.valueOf()) ? undefined : date;
+};
+
+const getLatest = async (source: NewsSource): Promise<Headline[]> => {
+  try {
+    const response = await fetch(source.feed, {
+      headers: { 'User-Agent': 'the-desk-headline-reader/1.0' },
+    });
+    if (!response.ok) throw new Error(`Feed returned ${response.status}`);
+
+    const xml = await response.text();
+    const entryPattern = source.format === 'news-sitemap'
+      ? /<url(?:\s[^>]*)?>([\s\S]*?)<\/url>/gi
+      : /<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi;
+    const entries = [...xml.matchAll(entryPattern)].map((match) => match[1]).slice(0, 20);
+    const seen = new Set<string>();
+    const stories = entries
+      .map((entry): Headline | undefined => {
+        const title = readTag(entry, source.format === 'news-sitemap' ? 'news:title' : 'title');
+        const href = readTag(entry, source.format === 'news-sitemap' ? 'loc' : 'link');
+        const publishedText = readTag(entry, source.format === 'news-sitemap' ? 'news:publication_date' : 'pubDate');
+        const image = source.format === 'news-sitemap' ? readTag(entry, 'image:loc') : readImage(entry);
+
+        if (!title || !href || seen.has(href)) return undefined;
+        seen.add(href);
+
+        return {
+          ...source,
+          title,
+          href,
+          image,
+          published: parsePublished(publishedText),
+        };
+      })
+      .filter((story): story is Headline => Boolean(story))
+      .slice(0, 6);
+
+    if (!stories.length) throw new Error('Feed items were incomplete');
+    return stories;
+  } catch {
+    return [{
+        ...source,
+        title: `Open the latest reporting from ${source.name}`,
+        href: source.home,
+      }];
+  }
+};
+
+const headlineGroups = await Promise.all(sources.map(getLatest));
+const updatedAt = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: 'America/New_York',
+  timeZoneName: 'short',
+}).format(new Date());
+
+const timeFmt = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: 'America/New_York',
+});
+---
+
+<section id="headlines" class="headlines" aria-labelledby="headlines-title">
+  <header class="headlines-header">
+    <div>
+      <p class="headlines-eyebrow">current events / leave the feed, open the source</p>
+      <h2 id="headlines-title">today's headlines<span>.</span></h2>
+    </div>
+    <div class="headlines-note">
+      <p>Four newsrooms. Six top stories each&mdash;use the arrows to browse.</p>
+      <time datetime={new Date().toISOString()} data-headlines-updated>updated {updatedAt}</time>
+    </div>
+  </header>
+
+  <div class="headlines-grid">
+    {
+      headlineGroups.map((stories, index) => {
+        const headline = stories[0];
+
+        return (
+          <article
+            class="headline-card"
+            data-headline-carousel
+            data-feed={headline.feed}
+            data-feed-format={headline.format ?? 'rss'}
+            data-client-mode={headline.clientMode}
+            aria-label={`${headline.name} top stories`}
+          >
+            <a href={headline.href} target="_blank" rel="noopener" class="headline-link" data-story-link>
+              <div class="headline-image">
+                <span data-story-placeholder aria-hidden="true" hidden={Boolean(headline.image)}>{headline.name}</span>
+                <img
+                  src={headline.image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  referrerpolicy="no-referrer"
+                  data-story-image
+                  hidden={!headline.image}
+                />
+              </div>
+              <div class="headline-copy">
+                <div class="headline-meta">
+                  <span>{String(index + 1).padStart(2, '0')} / {headline.name}</span>
+                  <span>{headline.lens}</span>
+                </div>
+                <h3 data-story-title aria-live="polite">{headline.title}</h3>
+                <div class="headline-footer">
+                  <span data-story-time>{headline.published ? timeFmt.format(headline.published) : 'latest edition'}</span>
+                  <span>read at source <span aria-hidden="true">&#8599;</span></span>
+                </div>
+              </div>
+            </a>
+
+            <div class="headline-controls" hidden={stories.length < 2}>
+              <span class="headline-position" data-story-position aria-live="polite">1 / {stories.length}</span>
+              <button type="button" data-direction="previous" aria-label={`Previous ${headline.name} story`}>
+                <span aria-hidden="true">&#8592;</span>
+              </button>
+              <button type="button" data-direction="next" aria-label={`Next ${headline.name} story`}>
+                <span aria-hidden="true">&#8594;</span>
+              </button>
+            </div>
+
+            <div hidden>
+              {
+                stories.map((story) => (
+                  <span
+                    data-story
+                    data-title={story.title}
+                    data-href={story.href}
+                    data-image={story.image ?? ''}
+                    data-published={story.published ? timeFmt.format(story.published) : 'latest edition'}
+                  ></span>
+                ))
+              }
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <aside class="then-now" aria-label="Historical headlines comparison">
+    <div>
+      <p class="then-now-label">headline time machine</p>
+      <h3>the news today / the news then</h3>
+      <p>Choose a year to open four stories that shaped its world. Nothing loads until you ask for it.</p>
+    </div>
+    <ol aria-label="Compare headline years">
+      <li><button type="button" data-history-today aria-pressed="true">today</button></li>
+      {
+        headlineHistory.map((period) => (
+          <li>
+            <button
+              type="button"
+              data-history-offset={period.offset}
+              data-history-year={period.year}
+              aria-controls="history-headlines-panel"
+              aria-expanded="false"
+              aria-pressed="false"
+              aria-label={`Show four stories from ${period.year}`}
+            >-{period.offset}</button>
+          </li>
+        ))
+      }
+    </ol>
+  </aside>
+
+  <section id="history-headlines-panel" class="history-panel" data-history-panel hidden aria-labelledby="history-panel-title">
+    <header class="history-panel__header">
+      <div>
+        <p class="history-panel__eyebrow" data-history-eyebrow>archive snapshot</p>
+        <h3 id="history-panel-title" data-history-title>the news then<span>.</span></h3>
+        <p data-history-description>Four stories selected from open, credited archives.</p>
+      </div>
+      <button type="button" class="history-panel__close" data-history-close>close <span aria-hidden="true">&times;</span></button>
+    </header>
+    <div class="history-grid" data-history-grid></div>
+  </section>
+
+  <div hidden data-history-data>
+    {
+      headlineHistory.map((period) => (
+        <div data-history-period data-history-offset={period.offset} data-history-year={period.year}>
+          {
+            period.stories.map((story) => (
+              <span
+                data-history-story
+                data-lens={story.lens}
+                data-date={story.date}
+                data-source={story.source}
+                data-title={story.title}
+                data-summary={story.summary}
+                data-href={story.href}
+                data-image={story.image}
+                data-alt={story.alt}
+                data-credit={story.credit}
+                data-credit-url={story.creditUrl}
+              ></span>
+            ))
+          }
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script is:inline>
+  const liveHeadlineTime = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'America/New_York',
+  });
+
+  const initializeHeadlineCarousels = () => {
+    document.querySelectorAll('[data-headline-carousel]').forEach((card) => {
+      if (!(card instanceof HTMLElement) || card.dataset.carouselReady === 'true') return;
+
+      let stories = [...card.querySelectorAll('[data-story]')].map((story) => ({
+        title: story.getAttribute('data-title') ?? '',
+        href: story.getAttribute('data-href') ?? '#',
+        image: story.getAttribute('data-image') ?? '',
+        published: story.getAttribute('data-published') ?? 'latest edition',
+      }));
+
+      const link = card.querySelector('[data-story-link]');
+      const image = card.querySelector('[data-story-image]');
+      const placeholder = card.querySelector('[data-story-placeholder]');
+      const title = card.querySelector('[data-story-title]');
+      const time = card.querySelector('[data-story-time]');
+      const position = card.querySelector('[data-story-position]');
+      const controls = card.querySelector('.headline-controls');
+      let current = 0;
+
+      const showStory = (nextIndex) => {
+        if (!stories.length) return;
+        current = (nextIndex + stories.length) % stories.length;
+        const story = stories[current];
+
+        link?.setAttribute('href', story.href);
+        if (title) title.textContent = story.title;
+        if (time) time.textContent = story.published;
+        if (position) position.textContent = `${current + 1} / ${stories.length}`;
+
+        if (image instanceof HTMLImageElement) {
+          if (story.image) {
+            image.src = story.image;
+            image.hidden = false;
+          } else {
+            image.removeAttribute('src');
+            image.hidden = true;
+          }
+        }
+        if (placeholder instanceof HTMLElement) placeholder.hidden = Boolean(story.image);
+      };
+
+      card.addEventListener('headline:update', (event) => {
+        if (!(event instanceof CustomEvent) || !Array.isArray(event.detail) || !event.detail.length) return;
+        stories = event.detail;
+        current = 0;
+        if (controls instanceof HTMLElement) controls.hidden = stories.length < 2;
+        showStory(0);
+      });
+
+      card.querySelector('[data-direction="previous"]')?.addEventListener('click', () => showStory(current - 1));
+      card.querySelector('[data-direction="next"]')?.addEventListener('click', () => showStory(current + 1));
+      if (controls instanceof HTMLElement) controls.hidden = stories.length < 2;
+      card.dataset.carouselReady = 'true';
+    });
+  };
+
+  const textFrom = (element, tagName) => element.getElementsByTagName(tagName)[0]?.textContent?.trim() ?? '';
+
+  const imageFromMarkup = (markup) => {
+    if (!markup) return '';
+    const template = document.createElement('template');
+    template.innerHTML = markup;
+    return template.content.querySelector('img')?.getAttribute('src') ?? '';
+  };
+
+  const formatLiveDate = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.valueOf()) ? 'latest edition' : liveHeadlineTime.format(date);
+  };
+
+  const storiesFromXml = (xml, format) => {
+    const documentXml = new DOMParser().parseFromString(xml, 'application/xml');
+    if (documentXml.querySelector('parsererror')) return [];
+
+    const entries = format === 'news-sitemap'
+      ? [...documentXml.getElementsByTagName('url')]
+      : [...documentXml.getElementsByTagName('item')];
+    const seen = new Set();
+
+    return entries.map((entry) => {
+      const title = textFrom(entry, format === 'news-sitemap' ? 'news:title' : 'title');
+      const href = textFrom(entry, format === 'news-sitemap' ? 'loc' : 'link');
+      const published = textFrom(entry, format === 'news-sitemap' ? 'news:publication_date' : 'pubDate');
+      const media = [...entry.getElementsByTagName('media:content')].at(-1)?.getAttribute('url')
+        ?? [...entry.getElementsByTagName('media:thumbnail')].at(-1)?.getAttribute('url')
+        ?? '';
+      const enclosure = [...entry.getElementsByTagName('enclosure')]
+        .find((node) => node.getAttribute('type')?.startsWith('image/'))
+        ?.getAttribute('url') ?? '';
+      const description = textFrom(entry, 'description');
+      const image = format === 'news-sitemap'
+        ? textFrom(entry, 'image:loc')
+        : media || enclosure || imageFromMarkup(description);
+
+      if (!title || !href || seen.has(href)) return null;
+      seen.add(href);
+      return { title, href, image, published: formatLiveDate(published) };
+    }).filter(Boolean).slice(0, 6);
+  };
+
+  const storiesFromRssJson = (data) => {
+    if (data?.status !== 'ok' || !Array.isArray(data.items)) return [];
+    const seen = new Set();
+
+    return data.items.map((item) => {
+      const title = item.title?.trim() ?? '';
+      const href = item.link?.trim() ?? '';
+      const image = item.thumbnail
+        || item.enclosure?.link
+        || imageFromMarkup(item.description || item.content || '');
+
+      if (!title || !href || seen.has(href)) return null;
+      seen.add(href);
+      return {
+        title,
+        href,
+        image: image ?? '',
+        published: formatLiveDate(item.pubDate),
+      };
+    }).filter(Boolean).slice(0, 6);
+  };
+
+  const fetchLiveStories = async (card) => {
+    const feed = card.dataset.feed;
+    if (!feed) return [];
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10_000);
+
+    try {
+      if (card.dataset.clientMode === 'rss2json') {
+        const endpoint = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`;
+        const response = await fetch(endpoint, { cache: 'no-store', signal: controller.signal });
+        if (!response.ok) throw new Error('Feed refresh failed');
+        return storiesFromRssJson(await response.json());
+      }
+
+      const response = await fetch(feed, { cache: 'no-store', signal: controller.signal });
+      if (!response.ok) throw new Error('Feed refresh failed');
+      return storiesFromXml(await response.text(), card.dataset.feedFormat ?? 'rss');
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  };
+
+  const refreshLiveHeadlines = async (section) => {
+    const cards = [...section.querySelectorAll('[data-headline-carousel]')]
+      .filter((card) => card instanceof HTMLElement);
+    let refreshed = 0;
+
+    await Promise.allSettled(cards.map(async (card) => {
+      const stories = await fetchLiveStories(card);
+      if (!stories.length) return;
+      card.dispatchEvent(new CustomEvent('headline:update', { detail: stories }));
+      refreshed += 1;
+    }));
+
+    if (refreshed > 0) {
+      const updated = section.querySelector('[data-headlines-updated]');
+      const now = new Date();
+      if (updated) {
+        updated.textContent = `live refresh ${liveHeadlineTime.format(now)}`;
+        updated.setAttribute('datetime', now.toISOString());
+      }
+    }
+  };
+
+  const initializeHistoryPanel = (section) => {
+    if (section.dataset.historyReady === 'true') return;
+
+    const panel = section.querySelector('[data-history-panel]');
+    const grid = section.querySelector('[data-history-grid]');
+    const title = section.querySelector('[data-history-title]');
+    const eyebrow = section.querySelector('[data-history-eyebrow]');
+    const description = section.querySelector('[data-history-description]');
+    const todayButton = section.querySelector('[data-history-today]');
+    const periodButtons = [...section.querySelectorAll('[data-history-offset][aria-controls]')];
+    let activeButton = null;
+
+    if (!(panel instanceof HTMLElement) || !(grid instanceof HTMLElement)) return;
+
+    const textElement = (tag, className, text) => {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      element.textContent = text;
+      return element;
+    };
+
+    const buildHistoryCard = (story, index) => {
+      const article = textElement('article', 'history-card', '');
+      const storyLink = textElement('a', 'history-card__story', '');
+      storyLink.href = story.dataset.href ?? '#';
+      storyLink.target = '_blank';
+      storyLink.rel = 'noopener';
+
+      const imageWrap = textElement('div', 'history-card__image', '');
+      const image = document.createElement('img');
+      image.src = story.dataset.image ?? '';
+      image.alt = story.dataset.alt ?? '';
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      image.referrerPolicy = 'no-referrer';
+      imageWrap.append(image);
+
+      const copy = textElement('div', 'history-card__copy', '');
+      const meta = textElement('div', 'history-card__meta', '');
+      meta.append(
+        textElement('span', '', `${String(index + 1).padStart(2, '0')} / ${story.dataset.lens ?? 'archive'}`),
+        textElement('span', '', story.dataset.date ?? ''),
+      );
+      copy.append(
+        meta,
+        textElement('h4', '', story.dataset.title ?? ''),
+        textElement('p', '', story.dataset.summary ?? ''),
+      );
+
+      const footer = textElement('div', 'history-card__footer', '');
+      footer.append(
+        textElement('span', '', story.dataset.source ?? 'archive'),
+        textElement('span', '', 'open archive \u2197'),
+      );
+      copy.append(footer);
+      storyLink.append(imageWrap, copy);
+
+      const credit = textElement('a', 'history-card__credit', `image: ${story.dataset.credit ?? 'source record'}`);
+      credit.href = story.dataset.creditUrl ?? '#';
+      credit.target = '_blank';
+      credit.rel = 'noopener';
+      credit.setAttribute('aria-label', `Image credit: ${story.dataset.credit ?? 'source record'}`);
+      article.append(storyLink, credit);
+      return article;
+    };
+
+    const closePanel = (restoreFocus = false) => {
+      panel.hidden = true;
+      grid.replaceChildren();
+      periodButtons.forEach((button) => {
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('aria-pressed', 'false');
+      });
+      todayButton?.setAttribute('aria-pressed', 'true');
+      if (restoreFocus && activeButton instanceof HTMLElement) activeButton.focus();
+      activeButton = null;
+    };
+
+    const openPanel = (button) => {
+      const offset = button.getAttribute('data-history-offset');
+      const year = button.getAttribute('data-history-year');
+      const period = section.querySelector(`[data-history-period][data-history-offset="${offset}"]`);
+      if (!(period instanceof HTMLElement)) return;
+
+      const cards = [...period.querySelectorAll('[data-history-story]')]
+        .map((story, index) => buildHistoryCard(story, index));
+      grid.replaceChildren(...cards);
+      panel.hidden = false;
+      if (title) title.innerHTML = `${year} headlines<span>.</span>`;
+      if (eyebrow) eyebrow.textContent = `${offset} years back / archive snapshot`;
+      if (description) description.textContent = `Four stories that shaped ${year}. A year snapshot, not an exact replay of today's date.`;
+      periodButtons.forEach((periodButton) => {
+        const selected = periodButton === button;
+        periodButton.setAttribute('aria-expanded', String(selected));
+        periodButton.setAttribute('aria-pressed', String(selected));
+      });
+      todayButton?.setAttribute('aria-pressed', 'false');
+      activeButton = button;
+    };
+
+    periodButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.getAttribute('aria-expanded') === 'true') closePanel();
+        else openPanel(button);
+      });
+    });
+    todayButton?.addEventListener('click', () => closePanel());
+    section.querySelector('[data-history-close]')?.addEventListener('click', () => closePanel(true));
+    section.dataset.historyReady = 'true';
+  };
+
+  const initializeNewsDesk = () => {
+    const section = document.querySelector('#headlines');
+    if (!(section instanceof HTMLElement)) return;
+
+    initializeHeadlineCarousels();
+    initializeHistoryPanel(section);
+
+    if (section.dataset.liveRefreshReady !== 'true') {
+      refreshLiveHeadlines(section);
+      window.setInterval(() => refreshLiveHeadlines(section), 30 * 60_000);
+      section.dataset.liveRefreshReady = 'true';
+    }
+  };
+
+  initializeNewsDesk();
+  document.addEventListener('astro:page-load', initializeNewsDesk);
+</script>
+
+<style>
+  .headlines {
+    margin-top: 2.5rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 17%, transparent);
+    border-radius: 1.15rem;
+    background: #fff;
+    box-shadow: 0 26px 58px -48px rgb(23 23 28 / 0.8);
+  }
+
+  .headlines-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
+    gap: 2rem;
+    padding: 1.6rem 1.7rem 1.35rem;
+    border-top: 4px solid var(--color-ink);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .headlines-eyebrow,
+  .headline-meta,
+  .headline-footer,
+  .headlines-note time,
+  .then-now-label,
+  .then-now button,
+  .history-panel__eyebrow,
+  .history-card__meta,
+  .history-card__footer,
+  .history-card__credit {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .headlines-eyebrow {
+    color: var(--color-accent-dark);
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+
+  .headlines-header h2 {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    text-transform: lowercase;
+  }
+
+  .headlines-header h2 span {
+    color: var(--color-accent);
+  }
+
+  .headlines-note {
+    align-self: end;
+    color: #474750;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .headlines-note time {
+    display: block;
+    margin-top: 0.45rem;
+    color: #6c6c75;
+    font-size: 0.55rem;
+    font-weight: 650;
+  }
+
+  .headlines-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .headline-card {
+    position: relative;
+    min-height: 21rem;
+    overflow: hidden;
+  }
+
+  .headline-link {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    transition: background 170ms ease, color 170ms ease, box-shadow 170ms ease;
+  }
+
+  .headline-card:nth-child(even) {
+    border-left: 1px solid var(--color-line);
+  }
+
+  .headline-card:nth-child(n + 3) {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .headline-link:hover {
+    background: color-mix(in srgb, var(--color-accent-soft) 55%, white);
+  }
+
+  .headline-image {
+    position: relative;
+    aspect-ratio: 16 / 8.5;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-line);
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 75%, white), #f3f3ee);
+  }
+
+  .headline-image::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(17 17 24 / 0.16), transparent 45%);
+    content: '';
+    pointer-events: none;
+  }
+
+  .headline-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease, filter 400ms ease;
+  }
+
+  .headline-link:hover .headline-image img {
+    transform: scale(1.025);
+    filter: saturate(1.06);
+  }
+
+  .headline-image > span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .headline-image > [hidden] {
+    display: none;
+  }
+
+  .headline-controls {
+    position: absolute;
+    z-index: 2;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid rgb(255 255 255 / 0.72);
+    border-radius: 999px;
+    background: rgb(20 20 26 / 0.76);
+    padding: 0.22rem;
+    color: white;
+    box-shadow: 0 8px 20px rgb(10 10 16 / 0.2);
+    backdrop-filter: blur(10px);
+  }
+
+  .headline-controls[hidden] {
+    display: none;
+  }
+
+  .headline-position {
+    min-width: 2.75rem;
+    padding-left: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+  .headline-controls button {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.14);
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+
+  .headline-controls button:hover {
+    background: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  .headline-controls button:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+
+  .headline-copy {
+    display: flex;
+    min-height: 11rem;
+    flex-direction: column;
+    padding: 1.2rem 1.3rem 1.3rem;
+  }
+
+  .headline-meta,
+  .headline-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    color: #666670;
+    font-size: 0.55rem;
+    font-weight: 650;
+  }
+
+  .headline-meta span:first-child {
+    color: var(--color-accent-dark);
+  }
+
+  .headline-link h3 {
+    margin-top: 0.85rem;
+    color: #18181d;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1.18;
+  }
+
+  .headline-footer {
+    margin-top: auto;
+    padding-top: 1.2rem;
+  }
+
+  .headline-footer span:last-child {
+    color: var(--color-accent-dark);
+  }
+
+  .then-now {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.35rem 1.7rem;
+    border-top: 1px solid var(--color-line);
+    background:
+      linear-gradient(105deg, color-mix(in srgb, var(--color-accent-soft) 72%, white), white 68%);
+  }
+
+  .then-now-label {
+    color: var(--color-accent-dark);
+    font-size: 0.58rem;
+    font-weight: 700;
+  }
+
+  .then-now h3 {
+    margin-top: 0.25rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-transform: lowercase;
+  }
+
+  .then-now p:last-child {
+    margin-top: 0.3rem;
+    color: #51515a;
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  .then-now ol {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .then-now button {
+    border: 1px solid #c7c9d4;
+    border-radius: 999px;
+    background: white;
+    padding: 0.38rem 0.55rem;
+    color: #4d4d56;
+    cursor: pointer;
+    font-size: 0.54rem;
+    font-weight: 700;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .then-now button:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+    transform: translateY(-1px);
+  }
+
+  .then-now button[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .history-panel {
+    padding: 1.5rem 1.7rem 1.7rem;
+    border-top: 1px solid var(--color-line);
+    background:
+      radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent-soft) 82%, transparent), transparent 24rem),
+      #f8f8f4;
+  }
+
+  .history-panel[hidden] {
+    display: none;
+  }
+
+  .history-panel__header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .history-panel__eyebrow {
+    color: var(--color-accent-dark);
+    font-size: 0.58rem;
+    font-weight: 700;
+  }
+
+  .history-panel__header h3 {
+    margin-top: 0.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-transform: lowercase;
+  }
+
+  .history-panel__header h3 span {
+    color: var(--color-accent);
+  }
+
+  .history-panel__header p:last-child {
+    max-width: 36rem;
+    margin-top: 0.45rem;
+    color: #55555f;
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  .history-panel__close {
+    flex: none;
+    border: 1px solid #c7c9d4;
+    border-radius: 999px;
+    background: white;
+    padding: 0.42rem 0.7rem;
+    color: #55555f;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: border-color 150ms ease, color 150ms ease;
+  }
+
+  .history-panel__close span {
+    margin-left: 0.2rem;
+    font-size: 0.8rem;
+  }
+
+  .history-panel__close:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .history-grid:empty {
+    display: none;
+  }
+
+  .history-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    border-radius: 0.9rem;
+    background: white;
+    box-shadow: 0 18px 38px -34px rgb(23 23 28 / 0.72);
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .history-card:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 42%, transparent);
+    box-shadow: 0 25px 46px -34px color-mix(in srgb, var(--color-accent) 32%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .history-card__story {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .history-card__image {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-line);
+    background: #ecece7;
+  }
+
+  .history-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.88) contrast(1.03);
+    transition: filter 300ms ease, transform 300ms ease;
+  }
+
+  .history-card:hover .history-card__image img {
+    filter: saturate(1) contrast(1.02);
+    transform: scale(1.02);
+  }
+
+  .history-card__credit {
+    position: absolute;
+    z-index: 2;
+    top: 0.55rem;
+    right: 0.55rem;
+    max-width: calc(100% - 1.1rem);
+    border-radius: 999px;
+    background: rgb(18 18 23 / 0.74);
+    padding: 0.28rem 0.45rem;
+    color: rgb(255 255 255 / 0.9);
+    font-size: 0.43rem;
+    font-weight: 650;
+    line-height: 1.2;
+    text-align: right;
+    backdrop-filter: blur(8px);
+  }
+
+  .history-card__credit:hover {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .history-card__copy {
+    display: flex;
+    min-height: 14rem;
+    flex: 1;
+    flex-direction: column;
+    padding: 1rem 1.05rem 1.1rem;
+  }
+
+  .history-card__meta,
+  .history-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.35rem 0.8rem;
+    color: #686872;
+    font-size: 0.48rem;
+    font-weight: 700;
+  }
+
+  .history-card__meta span:first-child,
+  .history-card__footer span:last-child {
+    color: var(--color-accent-dark);
+  }
+
+  .history-card h4 {
+    margin-top: 0.75rem;
+    color: #18181d;
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.18;
+  }
+
+  .history-card__copy > p {
+    margin-top: 0.55rem;
+    color: #55555f;
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  .history-card__footer {
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+
+  @media (max-width: 700px) {
+    .headlines-header,
+    .then-now {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+
+    .headlines-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .headline-card {
+      min-height: 19rem;
+    }
+
+    .headline-card:nth-child(even) {
+      border-left: 0;
+    }
+
+    .headline-card + .headline-card {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .then-now ol {
+      flex-wrap: wrap;
+    }
+
+    .history-panel {
+      padding: 1.25rem 1rem 1.2rem;
+    }
+
+    .history-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .history-panel__header {
+      align-items: flex-start;
+    }
+  }
+</style>
