@@ -13,7 +13,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
   <div class="hubs-page" data-hubs-page>
     <header class="hubs-hero dot-grid">
       <div class="hero-copy">
-        <span class="hero-badge">★ 22 unit worlds · 132 missions</span>
+        <span class="hero-badge">★ {totalUnits} unit worlds · {totalUnits * 6} missions</span>
         <h1>learn it.<br /><em>play it.</em><br />own it.</h1>
         <p>Every unit now has a home base: the story you need, games that make it stick, and progress that waits for you when you come back.</p>
         <div class="hero-actions">
@@ -25,7 +25,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
         <div class="player-top">
           <div class="avatar" aria-hidden="true">GD</div>
           <div><span>student profile</span><strong>desk explorer</strong></div>
-          <span class="live-dot">auto-saved</span>
+          <span class="live-dot" data-storage-status>auto-saved</span>
         </div>
         <div class="overall-progress">
           <div class="progress-ring" data-overall-ring style="--progress:0deg">
@@ -37,7 +37,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
             <div><strong data-overall-streak>1</strong><span>day streak</span></div>
           </div>
         </div>
-        <p class="device-note">Progress and writing save privately in this browser. Use a backup code below to move to another device.</p>
+        <p class="device-note" data-storage-note>Progress and writing save privately in this browser. Use a backup code below to move to another device.</p>
       </aside>
     </header>
 
@@ -80,6 +80,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
                 data-unit-card
                 data-hub-id={`${course.slug}:${unit.slug}`}
                 data-hub-url={`/learn/${course.slug}/${unit.slug}/`}
+                data-term-count={unit.terms.length}
               >
                 <div class="unit-card-top">
                   <span>{unit.icon}</span>
@@ -126,13 +127,76 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
   const root = document.querySelector<HTMLElement>('[data-hubs-page]');
 
   if (root) {
+    const storageAvailable = (() => {
+      try {
+        const probeKey = `${STORAGE_KEY}-probe`;
+        localStorage.setItem(probeKey, '1');
+        localStorage.removeItem(probeKey);
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+    if (!storageAvailable) {
+      const storageStatus = root.querySelector<HTMLElement>('[data-storage-status]');
+      if (storageStatus) storageStatus.textContent = 'storage unavailable';
+      const storageNote = root.querySelector<HTMLElement>('[data-storage-note]');
+      if (storageNote) storageNote.textContent = 'Missions still work for this visit, but this browser is not allowing saved progress or writing.';
+    }
+    const hubCards = Array.from(root.querySelectorAll<HTMLElement>('[data-unit-card]'));
+    const knownHubUrls = new Map(
+      hubCards
+        .map((card) => [card.dataset.hubId, card.dataset.hubUrl] as const)
+        .filter((entry): entry is readonly [string, string] => Boolean(entry[0] && entry[1])),
+    );
+    const knownUrls = new Set(knownHubUrls.values());
+    const knownTermCounts = new Map(
+      hubCards
+        .map((card) => [card.dataset.hubId, Number(card.dataset.termCount)] as const)
+        .filter((entry): entry is readonly [string, number] => Boolean(entry[0]) && Number.isInteger(entry[1]) && entry[1] > 0),
+    );
+    const knownMissions = new Set(Object.keys(missionXp));
+    const emptyStore = () => ({ hubs: {} as Record<string, any>, profile: {} as Record<string, any> });
+    const normalizeStore = (value: any) => {
+      const safe = emptyStore();
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return safe;
+
+      const sourceHubs = value.hubs && typeof value.hubs === 'object' && !Array.isArray(value.hubs) ? value.hubs : {};
+      knownHubUrls.forEach((_url, hubId) => {
+        const source = sourceHubs[hubId];
+        if (!source || typeof source !== 'object' || Array.isArray(source)) return;
+        const completed = Array.isArray(source.completed)
+          ? Array.from(new Set(source.completed.filter((mission: unknown): mission is string => typeof mission === 'string' && knownMissions.has(mission))))
+          : [];
+        const terms = Array.isArray(source.terms)
+          ? Array.from(new Set(source.terms.filter((term: unknown): term is number => Number.isInteger(term) && Number(term) >= 0 && Number(term) < (knownTermCounts.get(hubId) || 0))))
+          : [];
+        const quizScore = Number.isFinite(source.quizScore) ? Math.max(0, Math.min(3, Math.floor(source.quizScore))) : 0;
+        const lastSection = typeof source.lastSection === 'string' && knownMissions.has(source.lastSection) ? source.lastSection : 'briefing';
+        const hub: Record<string, any> = {
+          completed,
+          terms,
+          note: typeof source.note === 'string' ? source.note.slice(0, 4000) : '',
+          quizScore,
+          lastSection,
+        };
+        if (Number.isInteger(source.decision) && source.decision >= 0 && source.decision <= 2) hub.decision = source.decision;
+        safe.hubs[hubId] = hub;
+      });
+
+      const profile = value.profile && typeof value.profile === 'object' && !Array.isArray(value.profile) ? value.profile : {};
+      if (Array.isArray(profile.activeDates)) {
+        safe.profile.activeDates = Array.from(new Set(profile.activeDates.filter((date: unknown): date is string => typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)))).slice(-45);
+      }
+      if (typeof profile.lastHub === 'string' && knownHubUrls.has(profile.lastHub)) safe.profile.lastHub = profile.lastHub;
+      if (typeof profile.lastUrl === 'string' && knownUrls.has(profile.lastUrl)) safe.profile.lastUrl = profile.lastUrl;
+      return safe;
+    };
     const readStore = () => {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"hubs":{},"profile":{}}'); }
-      catch { return { hubs: {}, profile: {} }; }
+      try { return normalizeStore(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"hubs":{},"profile":{}}')); }
+      catch { return emptyStore(); }
     };
     let store = readStore();
-    store.hubs ||= {};
-    store.profile ||= {};
 
     const localDate = (date = new Date()) => {
       const year = date.getFullYear();
@@ -153,7 +217,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
     const hubXp = (hub: any) => (hub?.completed || []).reduce((total: number, mission: string) => total + (missionXp[mission] || 0), 0);
 
     const render = () => {
-      const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-unit-card]'));
+      const cards = hubCards;
       let totalCompleted = 0;
       let totalMissions = 0;
       let totalXp = 0;
@@ -204,9 +268,14 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
       const streak = root.querySelector<HTMLElement>('[data-overall-streak]');
       if (streak) streak.textContent = String(getStreak());
       const continueLink = root.querySelector<HTMLAnchorElement>('[data-continue-link]');
-      if (continueLink && store.profile.lastUrl) {
-        continueLink.href = store.profile.lastUrl;
-        continueLink.textContent = 'continue where I left off →';
+      if (continueLink) {
+        if (store.profile.lastUrl) {
+          continueLink.href = store.profile.lastUrl;
+          continueLink.textContent = 'continue where I left off →';
+        } else {
+          continueLink.href = '#course-board';
+          continueLink.textContent = 'pick a class ↓';
+        }
       }
     };
 
@@ -232,18 +301,32 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
         if (vaultFeedback) vaultFeedback.textContent = 'Make a backup code first.';
         return;
       }
-      await navigator.clipboard.writeText(code.value);
-      if (vaultFeedback) vaultFeedback.textContent = 'Copied. Your progress code is on the clipboard.';
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
+        await navigator.clipboard.writeText(code.value);
+        if (vaultFeedback) vaultFeedback.textContent = 'Copied. Your progress code is on the clipboard.';
+      } catch {
+        code.focus();
+        code.select();
+        if (vaultFeedback) vaultFeedback.textContent = 'Copy is unavailable here. The code is selected so you can copy it manually.';
+      }
     });
     root.querySelector<HTMLButtonElement>('[data-restore-backup]')?.addEventListener('click', () => {
       try {
         if (!code?.value.startsWith('GD1.')) throw new Error('format');
-        const restored = JSON.parse(fromBase64(code.value.slice(4)));
-        if (!restored || typeof restored !== 'object' || !restored.hubs) throw new Error('shape');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(restored));
+        const parsed = JSON.parse(fromBase64(code.value.slice(4)));
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !parsed.hubs || typeof parsed.hubs !== 'object' || Array.isArray(parsed.hubs)) throw new Error('shape');
+        const restored = normalizeStore(parsed);
         store = restored;
-        store.profile ||= {};
-        if (vaultFeedback) vaultFeedback.textContent = 'Progress restored. The course board is updated.';
+        let saved = true;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(restored));
+        } catch {
+          saved = false;
+        }
+        if (vaultFeedback) vaultFeedback.textContent = saved
+          ? 'Progress restored. The course board is updated.'
+          : 'Progress restored for this visit, but this browser could not save it.';
         render();
       } catch {
         if (vaultFeedback) vaultFeedback.textContent = 'That code could not be read. Copy the entire GD1 code and try again.';

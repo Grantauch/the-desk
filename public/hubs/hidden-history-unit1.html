@@ -48,6 +48,7 @@ a{color:var(--cyan)}
 </style>
 </head>
 <body>
+<main id="main-content">
 <div class="wrap">
   <section class="card">
     <div class="eyebrow">Hidden History · Unit 1 LessonHub</div>
@@ -65,10 +66,10 @@ a{color:var(--cyan)}
     <p class="sub">Every claim in this class earns one of four verdicts. Read the claim, deliver the verdict. Score: <span class="score" id="vScore">0</span> / <span class="score" id="vTotal">0</span></p>
     <div class="claim" id="vClaim">Loading case files…</div>
     <div class="verdicts">
-      <button class="v-confirmed" onclick="judge('confirmed')">CONFIRMED</button>
-      <button class="v-debunked" onclick="judge('debunked')">DEBUNKED</button>
-      <button class="v-misleading" onclick="judge('misleading')">MISLEADING</button>
-      <button class="v-unproven" onclick="judge('unproven')">UNPROVEN</button>
+      <button type="button" class="v-confirmed" onclick="judge('confirmed')">CONFIRMED</button>
+      <button type="button" class="v-debunked" onclick="judge('debunked')">DEBUNKED</button>
+      <button type="button" class="v-misleading" onclick="judge('misleading')">MISLEADING</button>
+      <button type="button" class="v-unproven" onclick="judge('unproven')">UNPROVEN</button>
     </div>
     <div class="feedback" id="vFeed"></div>
   </section>
@@ -90,7 +91,7 @@ a{color:var(--cyan)}
     <div class="end" id="quizEnd">
       <h3 id="endTitle"></h3>
       <p class="sub" id="endText"></p>
-      <button class="btn primary" onclick="startQuiz()" style="cursor:pointer">Run it back</button>
+      <button type="button" class="btn primary" onclick="startQuiz()" style="cursor:pointer">Run it back</button>
     </div>
   </section>
 
@@ -148,7 +149,7 @@ const quiz=[
 let qi=0,qscore=0,qlock=false;
 function startQuiz(){qi=0;qscore=0;qlock=false;document.getElementById('quizEnd').style.display='none';document.getElementById('quizBody').style.display='block';renderQ();}
 function renderQ(){const k=quiz[qi];document.getElementById('qText').textContent='Q'+(qi+1)+' · '+k.q;document.getElementById('qBar').style.width=(qi/quiz.length*100)+'%';
- document.getElementById('qOpts').innerHTML=k.o.map((o,i)=>'<button class="qopt" onclick="answer('+i+',this)">'+o+'</button>').join('');qlock=false;}
+ document.getElementById('qOpts').innerHTML=k.o.map((o,i)=>'<button type="button" class="qopt" onclick="answer('+i+',this)">'+o+'</button>').join('');qlock=false;}
 function answer(i,el){if(qlock)return;qlock=true;const k=quiz[qi];const btns=document.querySelectorAll('.qopt');btns[k.a].classList.add('correct');
  if(i===k.a){qscore++;}else{el.classList.add('wrong');}
  const note=document.createElement('div');note.className='feedback '+(i===k.a?'good':'bad');note.style.display='block';note.innerHTML=k.w;document.getElementById('qOpts').appendChild(note);
@@ -161,5 +162,6 @@ function endQuiz(){document.getElementById('quizBody').style.display='none';cons
  else{t.textContent='CLEARANCE DENIED (FOR NOW)';x.textContent=qscore+'/8. Good news: this file can be reopened an unlimited number of times.';}}
 startQuiz();
 </script>
+</main>
 </body>
 </html>

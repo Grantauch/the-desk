@@ -47,6 +47,7 @@ a{color:var(--cyan)}
 </style>
 </head>
 <body>
+<main id="main-content">
 <div class="wrap">
   <section class="card">
     <div class="eyebrow">Beyond the Scoreboard · Unit 1 LessonHub</div>
@@ -63,10 +64,10 @@ a{color:var(--cyan)}
     <p class="sub">Every story this semester runs on one of four threads. Read the headline, call the thread. Score: <span class="score" id="tScore">0</span> / <span class="score" id="tTotal">0</span></p>
     <div class="item" id="tItem">Loading headlines…</div>
     <div class="threads">
-      <button class="t-biz" onclick="pick('biz')">BUSINESS &amp; LABOR</button>
-      <button class="t-media" onclick="pick('media')">MEDIA &amp; TECH</button>
-      <button class="t-law" onclick="pick('law')">LAW &amp; GOVERNMENT</button>
-      <button class="t-play" onclick="pick('play')">WHO GETS TO PLAY</button>
+      <button type="button" class="t-biz" onclick="pick('biz')">BUSINESS &amp; LABOR</button>
+      <button type="button" class="t-media" onclick="pick('media')">MEDIA &amp; TECH</button>
+      <button type="button" class="t-law" onclick="pick('law')">LAW &amp; GOVERNMENT</button>
+      <button type="button" class="t-play" onclick="pick('play')">WHO GETS TO PLAY</button>
     </div>
     <div class="feedback" id="tFeed"></div>
   </section>
@@ -77,7 +78,7 @@ a{color:var(--cyan)}
     <div id="order"></div>
     <div id="pool"></div>
     <div class="feedback" id="oFeed"></div>
-    <div class="btnrow"><button class="btn" onclick="setupTimeline()">Reset the clock</button></div>
+    <div class="btnrow"><button type="button" class="btn" onclick="setupTimeline()">Reset the clock</button></div>
   </section>
 
   <section class="card" id="quizCard">
@@ -91,7 +92,7 @@ a{color:var(--cyan)}
     <div class="end" id="quizEnd">
       <h3 id="endTitle"></h3>
       <p class="sub" id="endText"></p>
-      <button class="btn primary" onclick="startQuiz()">Rematch</button>
+      <button type="button" class="btn primary" onclick="startQuiz()">Rematch</button>
     </div>
   </section>
 
@@ -154,7 +155,7 @@ const quiz=[
 let qi=0,qscore=0,qlock=false;
 function startQuiz(){qi=0;qscore=0;qlock=false;document.getElementById('quizEnd').style.display='none';document.getElementById('quizBody').style.display='block';renderQ();}
 function renderQ(){const k=quiz[qi];document.getElementById('qText').textContent='Q'+(qi+1)+' · '+k.q;document.getElementById('qBar').style.width=(qi/quiz.length*100)+'%';
- document.getElementById('qOpts').innerHTML=k.o.map((o,i)=>'<button class="qopt" onclick="answer('+i+',this)">'+o+'</button>').join('');qlock=false;}
+ document.getElementById('qOpts').innerHTML=k.o.map((o,i)=>'<button type="button" class="qopt" onclick="answer('+i+',this)">'+o+'</button>').join('');qlock=false;}
 function answer(i,el){if(qlock)return;qlock=true;const k=quiz[qi];const btns=document.querySelectorAll('.qopt');btns[k.a].classList.add('correct');
  if(i===k.a){qscore++;}else{el.classList.add('wrong');}
  const note=document.createElement('div');note.className='feedback '+(i===k.a?'good':'bad');note.style.display='block';note.innerHTML=k.w;document.getElementById('qOpts').appendChild(note);
@@ -167,5 +168,6 @@ function endQuiz(){document.getElementById('quizBody').style.display='none';cons
  else{t.textContent='REMATCH REQUIRED';x.textContent=qscore+'/8. Every champion lost early fights. The deck is one click up.';}}
 startQuiz();
 </script>
+</main>
 </body>
 </html>

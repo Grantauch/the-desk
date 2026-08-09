@@ -72,6 +72,16 @@ const readImage = (item: string) => {
   return decodeEntities(media ?? enclosure ?? inline ?? '') || undefined;
 };
 
+const toHttpsUrl = (value: string | undefined) => {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const parsePublished = (value: string) => {
   if (!value) return undefined;
 
@@ -83,6 +93,7 @@ const getLatest = async (source: NewsSource): Promise<Headline[]> => {
   try {
     const response = await fetch(source.feed, {
       headers: { 'User-Agent': 'the-desk-headline-reader/1.0' },
+      signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) throw new Error(`Feed returned ${response.status}`);
 
@@ -95,9 +106,9 @@ const getLatest = async (source: NewsSource): Promise<Headline[]> => {
     const stories = entries
       .map((entry): Headline | undefined => {
         const title = readTag(entry, source.format === 'news-sitemap' ? 'news:title' : 'title');
-        const href = readTag(entry, source.format === 'news-sitemap' ? 'loc' : 'link');
+        const href = toHttpsUrl(readTag(entry, source.format === 'news-sitemap' ? 'loc' : 'link'));
         const publishedText = readTag(entry, source.format === 'news-sitemap' ? 'news:publication_date' : 'pubDate');
-        const image = source.format === 'news-sitemap' ? readTag(entry, 'image:loc') : readImage(entry);
+        const image = toHttpsUrl(source.format === 'news-sitemap' ? readTag(entry, 'image:loc') : readImage(entry));
 
         if (!title || !href || seen.has(href)) return undefined;
         seen.add(href);
@@ -319,26 +330,37 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
       const controls = card.querySelector('.headline-controls');
       let current = 0;
 
+      const safeHttpsUrl = (value) => {
+        try {
+          const url = new URL(value);
+          return url.protocol === 'https:' ? url.href : '';
+        } catch {
+          return '';
+        }
+      };
+
       const showStory = (nextIndex) => {
         if (!stories.length) return;
         current = (nextIndex + stories.length) % stories.length;
         const story = stories[current];
 
-        link?.setAttribute('href', story.href);
+        const safeHref = safeHttpsUrl(story.href);
+        const safeImage = safeHttpsUrl(story.image);
+        link?.setAttribute('href', safeHref || '#');
         if (title) title.textContent = story.title;
         if (time) time.textContent = story.published;
         if (position) position.textContent = `${current + 1} / ${stories.length}`;
 
         if (image instanceof HTMLImageElement) {
-          if (story.image) {
-            image.src = story.image;
+          if (safeImage) {
+            image.src = safeImage;
             image.hidden = false;
           } else {
             image.removeAttribute('src');
             image.hidden = true;
           }
         }
-        if (placeholder instanceof HTMLElement) placeholder.hidden = Boolean(story.image);
+        if (placeholder instanceof HTMLElement) placeholder.hidden = Boolean(safeImage);
       };
 
       card.addEventListener('headline:update', (event) => {
@@ -370,6 +392,15 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     return Number.isNaN(date.valueOf()) ? 'latest edition' : liveHeadlineTime.format(date);
   };
 
+  const safeFeedUrl = (value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' ? url.href : '';
+    } catch {
+      return '';
+    }
+  };
+
   const storiesFromXml = (xml, format) => {
     const documentXml = new DOMParser().parseFromString(xml, 'application/xml');
     if (documentXml.querySelector('parsererror')) return [];
@@ -381,7 +412,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
 
     return entries.map((entry) => {
       const title = textFrom(entry, format === 'news-sitemap' ? 'news:title' : 'title');
-      const href = textFrom(entry, format === 'news-sitemap' ? 'loc' : 'link');
+      const href = safeFeedUrl(textFrom(entry, format === 'news-sitemap' ? 'loc' : 'link'));
       const published = textFrom(entry, format === 'news-sitemap' ? 'news:publication_date' : 'pubDate');
       const media = [...entry.getElementsByTagName('media:content')].at(-1)?.getAttribute('url')
         ?? [...entry.getElementsByTagName('media:thumbnail')].at(-1)?.getAttribute('url')
@@ -390,9 +421,9 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
         .find((node) => node.getAttribute('type')?.startsWith('image/'))
         ?.getAttribute('url') ?? '';
       const description = textFrom(entry, 'description');
-      const image = format === 'news-sitemap'
+      const image = safeFeedUrl(format === 'news-sitemap'
         ? textFrom(entry, 'image:loc')
-        : media || enclosure || imageFromMarkup(description);
+        : media || enclosure || imageFromMarkup(description));
 
       if (!title || !href || seen.has(href)) return null;
       seen.add(href);
@@ -406,10 +437,10 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
 
     return data.items.map((item) => {
       const title = item.title?.trim() ?? '';
-      const href = item.link?.trim() ?? '';
-      const image = item.thumbnail
+      const href = safeFeedUrl(item.link?.trim() ?? '');
+      const image = safeFeedUrl(item.thumbnail
         || item.enclosure?.link
-        || imageFromMarkup(item.description || item.content || '');
+        || imageFromMarkup(item.description || item.content || ''));
 
       if (!title || !href || seen.has(href)) return null;
       seen.add(href);

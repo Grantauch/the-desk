@@ -10,6 +10,7 @@ The current public courses use:
 
 - Course and unit copy lives in the three course pages under `src/pages/`.
 - Approved Drive resources live in `src/data/resources.json`.
+- The full teacher inventory and original unit mappings belong only in the ignored `src/data/resources.private.json` and `src/data/unit-materials.private.json`; never commit either file to this public repository.
 - Unit assignments live in `src/data/unit-materials.json`.
 - Interactive practice lives in `src/data/learningHubs.ts`.
 - Every unit uses an explicit `hubSlug`; do not link hubs by array position.
@@ -48,9 +49,10 @@ When a remix block is ready for the website, export one current record per day w
 - `access`
 - `rightsStatus`
 - `href`
-- `localSourcePath`
 - `version`
 - `isCurrent`
+
+Keep `localSourcePath` only in the ignored private production manifest. Never place a Windows or OneDrive path in the public export.
 
 Do not publish roadmap-only, rough-scripted, locally complete, or Drive-deferred files. A public remix record requires:
 

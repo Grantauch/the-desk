@@ -12,6 +12,7 @@ const paths = {
   html: path.join(editorDir, 'index.html'),
   resources: path.join(root, 'src', 'data', 'resources.json'),
   materials: path.join(root, 'src', 'data', 'unit-materials.json'),
+  privateMaterials: path.join(root, 'src', 'data', 'unit-materials.private.json'),
   content: path.join(root, 'src', 'data', 'site-content.json'),
   announcements: path.join(root, 'src', 'content', 'announcements'),
 };
@@ -75,6 +76,25 @@ const validateMaterials = async (candidate) => {
   }
 
   return clean;
+};
+
+const updatePrivateMaterials = async (publicMaterials) => {
+  const [privateMaterials, publicLibrary] = await Promise.all([
+    readJson(paths.privateMaterials),
+    readJson(paths.resources),
+  ]);
+  const publicIds = new Set(publicLibrary.resources.map((item) => item.id));
+
+  for (const [course, units] of Object.entries(publicMaterials.courses)) {
+    privateMaterials.courses[course] ||= {};
+    for (const [unit, selectedIds] of Object.entries(units)) {
+      const existingIds = privateMaterials.courses[course][unit];
+      const privateOnlyIds = Array.isArray(existingIds) ? existingIds.filter((id) => !publicIds.has(id)) : [];
+      privateMaterials.courses[course][unit] = [...selectedIds, ...privateOnlyIds];
+    }
+  }
+
+  return privateMaterials;
 };
 
 const validateContent = (template, candidate, trail = []) => {
@@ -141,6 +161,8 @@ const server = http.createServer(async (request, response) => {
 
     if (url.pathname === '/api/materials' && request.method === 'POST') {
       const clean = await validateMaterials(await readBody(request));
+      const privateMaterials = await updatePrivateMaterials(clean);
+      await writeFile(paths.privateMaterials, `${JSON.stringify(privateMaterials, null, 2)}\n`, 'utf8');
       await writeFile(paths.materials, `${JSON.stringify(clean, null, 2)}\n`, 'utf8');
       sendJson(response, 200, { message: 'Material choices saved.' });
       return;
@@ -183,8 +205,12 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === '/api/publish' && request.method === 'POST') {
+      const branch = await run('git', ['branch', '--show-current']);
+      if (branch !== 'main') throw new Error(`Publishing is only allowed from main. Current branch: ${branch || 'detached HEAD'}.`);
+      await run('npm.cmd', ['run', 'resources:sync']);
+      await run('npm.cmd', ['run', 'check']);
       await run('npm.cmd', ['run', 'build']);
-      await run('git', ['add', '--', 'src/data/unit-materials.json', 'src/data/site-content.json', 'src/content/announcements']);
+      await run('git', ['add', '--', 'src/data/resources.json', 'src/data/unit-materials.json', 'src/data/site-content.json', 'src/content/announcements']);
       const changed = await run('git', ['diff', '--cached', '--name-only']);
       if (!changed) {
         sendJson(response, 200, { message: 'Everything is already published.' });

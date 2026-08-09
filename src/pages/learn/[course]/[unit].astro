@@ -23,7 +23,12 @@ const permutations = [
   [1, 3, 0, 2],
   [3, 1, 2, 0],
 ];
-const permutation = permutations[(hub.unitNumber - 1) % permutations.length];
+const permutation = hub.timeline.length === 4
+  ? permutations[(hub.unitNumber - 1) % permutations.length]
+  : Array.from(
+      { length: hub.timeline.length },
+      (_value, index) => (hub.unitNumber + index * (hub.timeline.length - 1)) % hub.timeline.length,
+    );
 const scrambledTimeline = permutation.map((eventIndex) => ({
   ...hub.timeline[eventIndex],
   answer: eventIndex + 1,
@@ -129,7 +134,7 @@ const quiz = [
           <p>{hub.misconception}</p>
         </aside>
       </div>
-      <h3 class="subhead">Three ideas that unlock the unit</h3>
+      <h3 class="subhead">{hub.ideas.length} ideas that unlock the unit</h3>
       <div class="idea-grid">
         {hub.ideas.map((idea, index) => (
           <article class="idea-card">
@@ -147,16 +152,13 @@ const quiz = [
         <div><span class="mission-number">mission 02 · +60 XP</span><h2>Chronology scramble</h2></div>
         <span class="mission-stamp" data-stamp>not cleared</span>
       </div>
-      <p class="mission-intro">Put the four events in order. Choose 1 for earliest and 4 for latest.</p>
+      <p class="mission-intro">Put all {hub.timeline.length} events in order. Choose 1 for earliest and {hub.timeline.length} for latest.</p>
       <div class="timeline-game" data-timeline-game>
         {scrambledTimeline.map((event) => (
           <label class="timeline-game-card">
             <select aria-label={`Order for ${event.label}`} data-timeline-answer={event.answer}>
               <option value="">?</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
+              {hub.timeline.map((_item, index) => <option value={String(index + 1)}>{index + 1}</option>)}
             </select>
             <span><strong>{event.label}</strong><small>{event.detail}</small></span>
           </label>
@@ -179,7 +181,7 @@ const quiz = [
         <div><span class="mission-number">mission 03 · +40 XP</span><h2>Flip deck</h2></div>
         <span class="mission-stamp" data-stamp>not cleared</span>
       </div>
-      <p class="mission-intro">Tap each term to reveal the plain-English meaning. All four clears the mission.</p>
+      <p class="mission-intro">Tap each term to reveal the plain-English meaning. Review all {hub.terms.length} cards to clear the mission.</p>
       <div class="flip-grid">
         {hub.terms.map((item, index) => (
           <button class="flip-card" type="button" data-term-card={index} aria-expanded="false">
@@ -188,7 +190,7 @@ const quiz = [
           </button>
         ))}
       </div>
-      <p class="feedback" data-vocab-feedback aria-live="polite">0 of 4 terms reviewed</p>
+      <p class="feedback" data-vocab-feedback aria-live="polite">0 of {hub.terms.length} terms reviewed</p>
     </section>
 
     <section id="mission-decision" class="mission-section" data-mission="decision">
@@ -285,17 +287,30 @@ const quiz = [
     const missionXp: Record<string, number> = { briefing: 40, timeline: 60, vocab: 40, decision: 50, quiz: 100, exit: 30 };
     const readStore = () => {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"hubs":{},"profile":{}}');
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"hubs":{},"profile":{}}');
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : { hubs: {}, profile: {} };
       } catch {
         return { hubs: {}, profile: {} };
       }
     };
     const store = readStore();
-    store.hubs ||= {};
-    store.profile ||= {};
-    const state = store.hubs[hubId] ||= { completed: [], terms: [], note: '', quizScore: 0, lastSection: 'briefing' };
-    state.completed ||= [];
-    state.terms ||= [];
+    if (!store.hubs || typeof store.hubs !== 'object' || Array.isArray(store.hubs)) store.hubs = {};
+    if (!store.profile || typeof store.profile !== 'object' || Array.isArray(store.profile)) store.profile = {};
+    const termCards = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-term-card]'));
+    const termCount = termCards.length;
+    const storedState = store.hubs[hubId];
+    const state = storedState && typeof storedState === 'object' && !Array.isArray(storedState) ? storedState : {};
+    state.completed = Array.isArray(state.completed)
+      ? Array.from(new Set(state.completed.filter((mission: unknown): mission is string => typeof mission === 'string' && missionOrder.includes(mission))))
+      : [];
+    state.terms = Array.isArray(state.terms)
+      ? Array.from(new Set(state.terms.filter((term: unknown): term is number => Number.isInteger(term) && Number(term) >= 0 && Number(term) < termCount)))
+      : [];
+    state.note = typeof state.note === 'string' ? state.note.slice(0, 4000) : '';
+    state.quizScore = Number.isFinite(state.quizScore) ? Math.max(0, Math.min(3, Math.floor(state.quizScore))) : 0;
+    state.lastSection = typeof state.lastSection === 'string' && missionOrder.includes(state.lastSection) ? state.lastSection : 'briefing';
+    if (!Number.isInteger(state.decision) || state.decision < 0 || state.decision > 2) delete state.decision;
+    store.hubs[hubId] = state;
 
     const localDate = (date = new Date()) => {
       const year = date.getFullYear();
@@ -303,7 +318,11 @@ const quiz = [
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     };
-    const activeDates = new Set<string>(store.profile.activeDates || []);
+    const activeDates = new Set<string>(
+      Array.isArray(store.profile.activeDates)
+        ? store.profile.activeDates.filter((date: unknown): date is string => typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date))
+        : [],
+    );
     activeDates.add(localDate());
     store.profile.activeDates = Array.from(activeDates).slice(-45);
     store.profile.lastHub = hubId;
@@ -320,14 +339,20 @@ const quiz = [
     };
 
     const persist = (announce = true) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      let saved = true;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      } catch {
+        saved = false;
+      }
       if (announce) {
         const saveState = root.querySelector<HTMLElement>('[data-save-state]');
         if (saveState) {
-          saveState.textContent = 'saved ✓';
-          window.setTimeout(() => saveState.textContent = 'progress saves automatically', 1200);
+          saveState.textContent = saved ? 'saved ✓' : 'progress unavailable in this browser';
+          if (saved) window.setTimeout(() => saveState.textContent = 'progress saves automatically', 1200);
         }
       }
+      return saved;
     };
 
     const completeMission = (mission: string) => {
@@ -386,7 +411,7 @@ const quiz = [
       const feedback = root.querySelector<HTMLElement>('[data-timeline-feedback]');
       selects.forEach((select) => select.classList.toggle('answer-wrong', Boolean(select.value) && select.value !== select.dataset.timelineAnswer));
       if (!allFilled || !unique) {
-        if (feedback) feedback.textContent = 'Use each number once: 1, 2, 3, and 4.';
+        if (feedback) feedback.textContent = `Use each number once: ${selects.map((_select, index) => index + 1).join(', ')}.`;
       } else if (correct) {
         if (feedback) feedback.textContent = 'Timeline locked. Cause comes before consequence. +60 XP';
         completeMission('timeline');
@@ -396,19 +421,19 @@ const quiz = [
     });
 
     const renderTerms = () => {
-      root.querySelectorAll<HTMLButtonElement>('[data-term-card]').forEach((card) => {
+      termCards.forEach((card) => {
         const seen = state.terms.includes(Number(card.dataset.termCard));
         card.classList.toggle('is-flipped', seen);
         card.setAttribute('aria-expanded', String(seen));
       });
       const feedback = root.querySelector<HTMLElement>('[data-vocab-feedback]');
-      if (feedback) feedback.textContent = `${state.terms.length} of 4 terms reviewed${state.terms.length === 4 ? ' · deck cleared +40 XP' : ''}`;
+      if (feedback) feedback.textContent = `${state.terms.length} of ${termCount} terms reviewed${state.terms.length === termCount ? ' · deck cleared +40 XP' : ''}`;
     };
-    root.querySelectorAll<HTMLButtonElement>('[data-term-card]').forEach((card) => {
+    termCards.forEach((card) => {
       card.addEventListener('click', () => {
         const term = Number(card.dataset.termCard);
         if (!state.terms.includes(term)) state.terms.push(term);
-        if (state.terms.length === 4) completeMission('vocab');
+        if (state.terms.length === termCount) completeMission('vocab');
         else persist();
         renderTerms();
       });
@@ -465,8 +490,10 @@ const quiz = [
     const updateNote = () => {
       if (!note) return;
       state.note = note.value;
-      if (noteCount) noteCount.textContent = `${note.value.trim().length} characters · saved as you type`;
-      persist(false);
+      const saved = persist(false);
+      if (noteCount) noteCount.textContent = saved
+        ? `${note.value.trim().length} characters · saved as you type`
+        : `${note.value.trim().length} characters · progress unavailable in this browser`;
     };
     note?.addEventListener('input', updateNote);
     root.querySelector<HTMLButtonElement>('[data-save-exit]')?.addEventListener('click', () => {
@@ -508,6 +535,7 @@ const quiz = [
   .title-row { display: flex; align-items: center; gap: 1rem; margin-top: .65rem; }
   .unit-icon { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; flex: 0 0 auto; border: 2px solid var(--color-ink); border-radius: .8rem; background: var(--hub-soft); box-shadow: 4px 4px 0 var(--hub-color); font-size: 1.65rem; }
   h1 { font: 750 clamp(2.4rem, 6vw, 5.2rem)/.92 var(--font-display); letter-spacing: -.055em; max-width: 12ch; }
+  .title-row h1 { min-width: 0; overflow-wrap: anywhere; }
   .deck { margin-top: 1.25rem; max-width: 39rem; color: var(--color-ink-soft); font-size: clamp(1rem, 2vw, 1.22rem); line-height: 1.55; }
   .question-card { margin-top: 2rem; max-width: 45rem; padding: 1rem 1.15rem; border-left: .4rem solid var(--hub-color); background: var(--hub-soft); }
   .question-card span { font: 700 .65rem/1 var(--font-mono); color: var(--hub-color); text-transform: uppercase; letter-spacing: .12em; }
@@ -620,8 +648,9 @@ const quiz = [
     .hero-grid, .reading-layout { grid-template-columns: 1fr; }
     .mission-control { max-width: 26rem; }
     .idea-grid, .decision-grid { grid-template-columns: 1fr; }
-    .mission-map { top: 4rem; overflow-x: auto; grid-template-columns: repeat(6, minmax(5.5rem, 1fr)); }
+    .mission-map { top: 7rem; overflow-x: auto; grid-template-columns: repeat(6, minmax(5.5rem, 1fr)); }
     .mission-map a { flex-direction: column; gap: .2rem; }
+    .mission-section { scroll-margin-top: 11rem; }
     .margin-note { max-width: none; }
   }
   @media (max-width: 600px) {

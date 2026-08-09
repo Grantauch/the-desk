@@ -102,12 +102,26 @@ details.pop[open]:hover {
   letter-spacing: 0.12em;
 }
 .dot-grid {
+  position: relative;
+}
+
+.dot-grid::before {
+  position: absolute;
+  inset: 0;
   background-image: radial-gradient(
     color-mix(in srgb, var(--color-accent) 16%, transparent) 1.5px,
     transparent 1.5px
   );
   background-size: 22px 22px;
+  pointer-events: none;
+  content: '';
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent);
   mask-image: linear-gradient(to bottom, black 40%, transparent);
+}
+
+.dot-grid > * {
+  position: relative;
+  z-index: 1;
 }
 
 html {

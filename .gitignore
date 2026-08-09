@@ -13,6 +13,9 @@ npm-debug.log*
 .env
 .env.production
 
+# local teacher inventory (never publish to the public GitHub repository)
+src/data/*.private.json
+
 # macOS/Windows junk
 .DS_Store
 Thumbs.db

@@ -37,6 +37,7 @@ a{color:var(--cyan)}
 </style>
 </head>
 <body>
+<main id="main-content">
 <div class="wrap">
   <div class="card">
     <div class="eyebrow">LessonHub Lab · Decision sim</div>
@@ -60,7 +61,7 @@ a{color:var(--cyan)}
   <div class="card end" id="endCard">
     <h2 id="endTitle"></h2>
     <p class="sub" id="endText"></p>
-    <button class="btn" onclick="location.reload()">Rewind to Day 1</button>
+    <button type="button" class="btn" onclick="location.reload()">Rewind to Day 1</button>
   </div>
 </div>
 
@@ -99,12 +100,12 @@ function paint(){document.getElementById('warV').textContent=war;document.queryS
  document.getElementById('allyV').textContent=ally;document.querySelector('#allyBar i').style.width=ally+'%';}
 function render(){const k=steps[step];document.getElementById('dayLab').textContent=k.day;document.getElementById('scene').textContent=k.s;
  document.getElementById('note').className='note';
- document.getElementById('opts').innerHTML=k.o.map((o,i)=>'<button class="opt" onclick="choose('+i+')">'+o.t+'</button>').join('');lock=false;}
+ document.getElementById('opts').innerHTML=k.o.map((o,i)=>'<button type="button" class="opt" onclick="choose('+i+')">'+o.t+'</button>').join('');lock=false;}
 function choose(i){if(lock)return;lock=true;const o=steps[step].o[i];
  war=clamp(war+o.fx[0]);sup=clamp(sup+o.fx[1]);cred=clamp(cred+o.fx[2]);ally=clamp(ally+o.fx[3]);paint();
  const n=document.getElementById('note');n.className='note show';
  n.innerHTML=o.n+' <br><span class="hist">HISTORY: '+(o.h?'This is what actually happened. ':'')+(o.hn||steps[step].o.find(x=>x.h).hn)+'</span>';
- document.getElementById('opts').innerHTML='<button class="btn" onclick="next()">'+(step<steps.length-1?'Continue →':'See the debrief →')+'</button>';
+ document.getElementById('opts').innerHTML='<button type="button" class="btn" onclick="next()">'+(step<steps.length-1?'Continue →':'See the debrief →')+'</button>';
  if(war>=100){endGame(true);}}
 function next(){step++;if(step>=steps.length){endGame(false);}else{render();}}
 function endGame(nuclear){document.getElementById('game').style.display='none';const e=document.getElementById('endCard');e.style.display='block';
@@ -116,5 +117,6 @@ function endGame(nuclear){document.getElementById('game').style.display='none';c
  else{t.textContent='🌍 PEACE, BARELY';x.textContent='Debrief score: '+score+'/100. You avoided war more by luck than design — cornered rivals, rattled allies, a public that stopped believing you. The point of the sim: decisions look easy only after someone else made them.';}}
 paint();render();
 </script>
+</main>
 </body>
 </html>

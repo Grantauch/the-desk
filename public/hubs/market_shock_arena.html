@@ -37,6 +37,7 @@ a{color:var(--cyan)}
 </style>
 </head>
 <body>
+<main id="main-content">
 <div class="wrap">
   <div class="card">
     <div class="eyebrow">LessonHub Lab · Econ game</div>
@@ -54,24 +55,24 @@ a{color:var(--cyan)}
     <div class="shock" id="shock"></div>
     <div class="choices">
       <div class="grp"><div class="lab">PRICE PER MEAL</div>
-        <button class="pick" data-g="price" data-v="6" onclick="pick(this)">$6 — undercut everyone</button>
-        <button class="pick" data-g="price" data-v="9" onclick="pick(this)">$9 — market rate</button>
-        <button class="pick" data-g="price" data-v="13" onclick="pick(this)">$13 — premium play</button>
+        <button type="button" class="pick" data-g="price" data-v="6" onclick="pick(this)">$6 — undercut everyone</button>
+        <button type="button" class="pick" data-g="price" data-v="9" onclick="pick(this)">$9 — market rate</button>
+        <button type="button" class="pick" data-g="price" data-v="13" onclick="pick(this)">$13 — premium play</button>
       </div>
       <div class="grp"><div class="lab">INVENTORY (COST $4/MEAL)</div>
-        <button class="pick" data-g="stock" data-v="15" onclick="pick(this)">Prep 15 meals — $60</button>
-        <button class="pick" data-g="stock" data-v="25" onclick="pick(this)">Prep 25 meals — $100</button>
-        <button class="pick" data-g="stock" data-v="40" onclick="pick(this)">Prep 40 meals — $160</button>
+        <button type="button" class="pick" data-g="stock" data-v="15" onclick="pick(this)">Prep 15 meals — $60</button>
+        <button type="button" class="pick" data-g="stock" data-v="25" onclick="pick(this)">Prep 25 meals — $100</button>
+        <button type="button" class="pick" data-g="stock" data-v="40" onclick="pick(this)">Prep 40 meals — $160</button>
       </div>
     </div>
-    <button class="btn" id="openBtn" onclick="openShop()" disabled>Open for business</button>
+    <button type="button" class="btn" id="openBtn" onclick="openShop()" disabled>Open for business</button>
     <div class="result" id="result"></div>
   </div>
 
   <div class="card end" id="endCard">
     <h2 id="endTitle"></h2>
     <p class="sub" id="endText"></p>
-    <button class="btn" onclick="location.reload()">New season</button>
+    <button type="button" class="btn" onclick="location.reload()">New season</button>
   </div>
 </div>
 
@@ -124,5 +125,6 @@ function endGame(broke){document.getElementById('game').style.display='none';con
  else{t.textContent='📉 TUITION PAID';x.textContent='Final cash: $'+cash+' ('+profit+'). Every dollar lost was a lesson about markets, which is the most expensive way to learn them. Again!';}}
 paint();
 </script>
+</main>
 </body>
 </html>

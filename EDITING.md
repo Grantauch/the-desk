@@ -32,11 +32,13 @@ Same files — each unit has an optional `topics` array. Add, remove, or reword 
 
 ## Add a resource link to a class
 
-Same files — add a line to the `resources` array:
+Add or update the record in the ignored private inventory at `src/data/resources.private.json`. Set `onWebsite` to `true` only for a student-safe file with the intended Drive permissions, then run:
 
-```js
-{ label: 'Unit 4 study guide', href: 'https://docs.google.com/...' },
+```powershell
+npm.cmd run resources:sync
 ```
+
+That rebuilds the public catalog without putting teacher-only links in the public GitHub source. Unit-specific hand-wired links are allowed only when the unit explicitly sets `materialsAudience: 'student'`.
 
 ## Edit the "daily desk" cards on a class page
 

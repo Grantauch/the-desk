@@ -216,6 +216,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 </style>
 </head>
 <body class="grain">
+<main id="main-content">
 <div class="wrap">
 
   <div class="masthead">
@@ -227,12 +228,12 @@ input[type=range]{flex:1;accent-color:var(--gold)}
   </div>
 
   <nav class="switch" id="switch">
-    <button class="tab on" data-view="hub"><span class="ic">🏠</span>Hub</button>
-    <button class="tab" data-view="lab"><span class="ic">🧮</span>Paycheck Lab</button>
-    <button class="tab" data-view="cards"><span class="ic">🃏</span>Flashcards</button>
-    <button class="tab" data-view="time"><span class="ic">🗓️</span>Timeline</button>
-    <button class="tab" data-view="match"><span class="ic">🧩</span>Matching</button>
-    <button class="tab" data-view="quiz"><span class="ic">✅</span>Quiz</button>
+    <button type="button" class="tab on" data-view="hub"><span class="ic">🏠</span>Hub</button>
+    <button type="button" class="tab" data-view="lab"><span class="ic">🧮</span>Paycheck Lab</button>
+    <button type="button" class="tab" data-view="cards"><span class="ic">🃏</span>Flashcards</button>
+    <button type="button" class="tab" data-view="time"><span class="ic">🗓️</span>Timeline</button>
+    <button type="button" class="tab" data-view="match"><span class="ic">🧩</span>Matching</button>
+    <button type="button" class="tab" data-view="quiz"><span class="ic">✅</span>Quiz</button>
   </nav>
 
   <!-- ============ HUB ============ -->
@@ -260,12 +261,12 @@ input[type=range]{flex:1;accent-color:var(--gold)}
     <div class="lab">
       <div class="card labcard">
         <div class="field">
-          <label>Annual gross salary <span class="hint">before anything is taken out</span></label>
+          <label for="salary">Annual gross salary <span class="hint">before anything is taken out</span></label>
           <input type="number" id="salary" value="52000" min="0" step="1000" />
         </div>
         <div class="row2">
           <div class="field">
-            <label>Pay schedule</label>
+            <label for="freq">Pay schedule</label>
             <select id="freq">
               <option value="52">Weekly (52/yr)</option>
               <option value="26" selected>Every 2 weeks (26/yr)</option>
@@ -274,7 +275,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
             </select>
           </div>
           <div class="field">
-            <label>Filing status</label>
+            <label for="status">Filing status</label>
             <select id="status">
               <option value="single" selected>Single</option>
               <option value="mfj">Married, joint</option>
@@ -283,15 +284,15 @@ input[type=range]{flex:1;accent-color:var(--gold)}
           </div>
         </div>
         <div class="field">
-          <label>401(k) retirement contribution <span class="hint">pre-tax %</span></label>
+          <label for="ret">401(k) retirement contribution <span class="hint">pre-tax %</span></label>
           <div class="slide"><input type="range" id="ret" min="0" max="15" step="1" value="0"><span class="slideval" id="retVal">0%</span></div>
         </div>
         <div class="field">
-          <label>Health insurance premium <span class="hint">pre-tax, per paycheck</span></label>
+          <label for="health">Health insurance premium <span class="hint">pre-tax, per paycheck</span></label>
           <input type="number" id="health" value="0" min="0" step="5" />
         </div>
         <div class="field">
-          <label>State income tax rate <span class="hint">rough estimate — varies by state</span></label>
+          <label for="state">State income tax rate <span class="hint">rough estimate — varies by state</span></label>
           <div class="slide"><input type="range" id="state" min="0" max="10" step="0.5" value="4"><span class="slideval" id="stateVal">4.0%</span></div>
         </div>
         <div class="takeaway" id="labTakeaway"></div>
@@ -324,10 +325,10 @@ input[type=range]{flex:1;accent-color:var(--gold)}
         </div>
       </div>
       <div class="fcbtns">
-        <button class="btn ghost" id="fcPrev">← Prev</button>
-        <button class="btn green" id="fcKnow">Mark known ✓</button>
-        <button class="btn ghost" id="fcShuffle">Shuffle ⤮</button>
-        <button class="btn ice" id="fcNext">Next →</button>
+        <button type="button" class="btn ghost" id="fcPrev">← Prev</button>
+        <button type="button" class="btn green" id="fcKnow">Mark known ✓</button>
+        <button type="button" class="btn ghost" id="fcShuffle">Shuffle ⤮</button>
+        <button type="button" class="btn ice" id="fcNext">Next →</button>
       </div>
     </div>
   </section>
@@ -348,7 +349,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <div class="matchstats"><span>Moves <b id="mMoves">0</b></span><span>Time <b id="mTime">0s</b></span></div>
-        <button class="btn gold" id="mReset">New game ↻</button>
+        <button type="button" class="btn gold" id="mReset">New game ↻</button>
       </div>
     </div>
     <div id="matchBody"></div>
@@ -633,7 +634,7 @@ function winMatch(){
   $('#matchBody').innerHTML=`<div class="card mwin"><div class="big">Matched! 🎉</div>
     <p style="color:var(--muted);margin:8px 0 4px">All ${LESSON.match.length} pairs in <b class="mono" style="color:var(--gold)">${secs}s</b> · ${mMoves} moves</p>
     <p style="color:var(--green);font-family:'JetBrains Mono';font-size:13px">${bestMsg}</p>
-    <button class="btn gold" style="margin-top:16px" onclick="initMatch()">Play again ↻</button></div>`;
+    <button type="button" class="btn gold" style="margin-top:16px" onclick="initMatch()">Play again ↻</button></div>`;
 }
 $('#mReset').addEventListener('click',initMatch);
 
@@ -651,7 +652,7 @@ function renderQuiz(){
       <div class="explain" id="explain"></div>
       <div class="qfoot">
         <div class="qscore">Score: <b>${qScore}</b> / ${LESSON.quiz.length}</div>
-        <button class="btn ice" id="qNext" disabled>Next →</button>
+        <button type="button" class="btn ice" id="qNext" disabled>Next →</button>
       </div>
     </div>`;
   $$('#quizWrap .opt').forEach(o=>o.addEventListener('click',()=>answer(+o.dataset.i)));
@@ -685,11 +686,12 @@ function quizResults(){
     <div class="pct">${pct}%</div>
     <h3>${qScore} of ${LESSON.quiz.length} correct</h3>
     <p>${msg}</p>
-    <button class="btn gold" onclick="qIdx=0;qScore=0;renderQuiz()">Retake quiz ↻</button>
+    <button type="button" class="btn gold" onclick="qIdx=0;qScore=0;renderQuiz()">Retake quiz ↻</button>
     <div class="best">${bestMsg}</div>
   </div>`;
 }
 renderQuiz();
 </script>
+</main>
 </body>
 </html>

@@ -5,6 +5,9 @@ import CuriosityDesk from '../components/CuriosityDesk.astro';
 import CurrentHeadlines from '../components/CurrentHeadlines.astro';
 import { getCollection } from 'astro:content';
 import siteContent from '../data/site-content.json';
+import { learningCourses } from '../data/learningHubs';
+
+const totalLearningUnits = learningCourses.reduce((total, course) => total + course.units.length, 0);
 
 const announcements = (await getCollection('announcements'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -138,7 +141,7 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
       <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-white/65">student launchpad</p>
       <h2 class="mt-2 font-display text-3xl font-bold lowercase">learning hubs<span class="text-accent">.</span></h2>
       <p class="mt-2 max-w-2xl text-sm leading-relaxed text-white/80">
-        Twenty-two organized unit missions across all three classes: concise readings, timelines, vocabulary, decisions, and open practice with progress saved on this device.
+        {totalLearningUnits} organized unit missions across all three classes: concise readings, timelines, vocabulary, decisions, and open practice with progress saved on this device.
       </p>
     </div>
     <span class="font-mono text-sm font-bold text-white transition-transform group-hover:translate-x-1.5">choose a class →</span>

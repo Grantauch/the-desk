@@ -38,6 +38,7 @@ a{color:var(--cyan)}
 </style>
 </head>
 <body>
+<main id="main-content">
 <div class="wrap">
   <div class="card">
     <div class="eyebrow">LessonHub Lab · ReviewRoom mechanic</div>
@@ -59,7 +60,7 @@ a{color:var(--cyan)}
     <h2 id="endTitle"></h2>
     <p class="sub" id="endText"></p>
     <ul class="weak" id="weakList"></ul>
-    <button class="btn" onclick="location.reload()">Fight again</button>
+    <button type="button" class="btn" onclick="location.reload()">Fight again</button>
   </div>
 </div>
 
@@ -90,7 +91,7 @@ function updateBars(){const b=bosses[bi];
  document.getElementById('combo').textContent='×'+combo;}
 function renderQ(){const b=bosses[bi];const k=b.qs[qi];document.getElementById('note').className='note';
  document.getElementById('qText').textContent=k.q;
- document.getElementById('opts').innerHTML=k.o.map((o,i)=>'<button class="opt" onclick="answer('+i+',this)">'+o+'</button>').join('');lock=false;}
+ document.getElementById('opts').innerHTML=k.o.map((o,i)=>'<button type="button" class="opt" onclick="answer('+i+',this)">'+o+'</button>').join('');lock=false;}
 function answer(i,el){if(lock)return;lock=true;const b=bosses[bi];const k=b.qs[qi];
  document.querySelectorAll('.opt')[k.a].classList.add('correct');
  const note=document.getElementById('note');
@@ -109,5 +110,6 @@ function endGame(won){document.getElementById('arena').style.display='none';cons
  document.getElementById('weakList').innerHTML=missed.length?'<li><strong>WEAKNESS REPORT</strong></li>'+missed.map(m=>'<li>'+m+'</li>').join(''):'';}
 startBoss();
 </script>
+</main>
 </body>
 </html>

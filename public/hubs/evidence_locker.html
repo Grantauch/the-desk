@@ -38,6 +38,7 @@ a{color:var(--cyan)}
 </style>
 </head>
 <body>
+<main id="main-content">
 <div class="wrap">
   <div class="card">
     <div class="eyebrow">LessonHub Lab · CaseFile mechanic</div>
@@ -57,8 +58,8 @@ a{color:var(--cyan)}
     <h2 style="margin-top:18px">The locker</h2>
     <p class="sub">Reliability is rated on the card. Sorting a card wrong — or leaning on junk sources — weakens the case.</p>
     <div class="evidence" id="locker"></div>
-    <button class="btn" id="fileBtn" onclick="fileCase()" disabled>File the case</button>
-    <button class="btn ghost" onclick="location.reload()">Reset locker</button>
+    <button type="button" class="btn" id="fileBtn" onclick="fileCase()" disabled>File the case</button>
+    <button type="button" class="btn ghost" onclick="location.reload()">Reset locker</button>
     <div class="report" id="report">
       <h2>CASE STRENGTH REPORT</h2>
       <p class="sub" style="margin-top:8px">Claim A — built on documents:</p>
@@ -108,5 +109,6 @@ function fileCase(){const W={high:3,med:2,low:1};
  v.innerHTML=msg;document.getElementById('report').style.display='block';document.getElementById('fileBtn').disabled=true;}
 renderLocker();
 </script>
+</main>
 </body>
 </html>

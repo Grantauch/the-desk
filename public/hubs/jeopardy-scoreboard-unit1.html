@@ -441,6 +441,7 @@ body.theme-premium .tile.used{background:#070707;color:#5f5132;opacity:.62;}
 </style>
 </head>
 <body class="theme-showtime">
+<main id="main-content">
 
 <div class="picker" id="picker">
   <div class="pickhead">
@@ -459,9 +460,9 @@ body.theme-premium .tile.used{background:#070707;color:#5f5132;opacity:.62;}
       <option value="comic">Comic Classroom</option>
       <option value="premium">Premium Gold</option>
     </select></label>
-    <button class="btn gold" id="randBtn">Surprise me (5)</button>
-    <button class="btn" id="editBtn">Edit Questions</button>
-    <button class="btn go" id="buildBtn" disabled>Build Board &rarr;</button>
+    <button type="button" class="btn gold" id="randBtn">Surprise me (5)</button>
+    <button type="button" class="btn" id="editBtn">Edit Questions</button>
+    <button type="button" class="btn go" id="buildBtn" disabled>Build Board &rarr;</button>
   </div>
   <div class="footnote">Shareable classroom template. Teachers can edit the category bank, save changes in the browser, and use Export Backup to move a customized question set to another computer.</div>
 </div>
@@ -470,13 +471,13 @@ body.theme-premium .tile.used{background:#070707;color:#5f5132;opacity:.62;}
   <div class="topbar">
     <div><h1 style="font-size:clamp(18px,2.6vw,28px)">Classroom Jeopardy</h1></div>
     <div class="controls">
-      <div class="timewrap">Timer <input id="secInput" type="number" value="30" min="5" max="120"> sec</div>
-      <button class="btn" id="soundBtn">Sound: On</button>
-      <button class="btn" id="addTeamBtn">+ Team</button>
-      <button class="btn go" id="finalBtn">Final Jeopardy</button>
-      <button class="btn warn" id="newBtn">New Game</button>
-      <button class="btn" id="catBtn">Choose Categories</button>
-      <button class="btn" id="editBtn2">Edit Questions</button>
+      <div class="timewrap">Timer <input aria-label="Timer seconds" id="secInput" type="number" value="30" min="5" max="120"> sec</div>
+      <button type="button" class="btn" id="soundBtn">Sound: On</button>
+      <button type="button" class="btn" id="addTeamBtn">+ Team</button>
+      <button type="button" class="btn go" id="finalBtn">Final Jeopardy</button>
+      <button type="button" class="btn warn" id="newBtn">New Game</button>
+      <button type="button" class="btn" id="catBtn">Choose Categories</button>
+      <button type="button" class="btn" id="editBtn2">Edit Questions</button>
     </div>
   </div>
   <div class="teams" id="teams"></div>
@@ -737,8 +738,8 @@ function renderBoard(){
 function leaderIndex(){let mx=-Infinity,idx=-1,tie=false;teams.forEach((t,i)=>{if(t.score>mx){mx=t.score;idx=i;tie=false;}else if(t.score===mx)tie=true;});return(mx>0&&!tie)?idx:-1;}
 function renderTeams(){const box=document.getElementById("teams");box.innerHTML="";const lead=leaderIndex();
   teams.forEach((t,i)=>{const d=document.createElement("div");d.className="team"+(i===lead?" lead":"");
-    d.innerHTML=`<button class="kill" title="Remove">&times;</button><div class="name">${i===lead?'&#128081; ':''}<span>${safeHTML(t.name)}</span></div>
-      <div class="score ${t.score<0?'neg':''}">$${t.score}</div><div class="adj"><button data-d="-100">-100</button><button data-d="100">+100</button></div>`;
+    d.innerHTML=`<button type="button" class="kill" title="Remove">&times;</button><div class="name">${i===lead?'&#128081; ':''}<span>${safeHTML(t.name)}</span></div>
+      <div class="score ${t.score<0?'neg':''}">$${t.score}</div><div class="adj"><button type="button" data-d="-100">-100</button><button type="button" data-d="100">+100</button></div>`;
     d.querySelector(".kill").onclick=()=>{if(teams.length>1){teams.splice(i,1);renderTeams();}};
     d.querySelector(".name").onclick=()=>{const n=prompt("Team name:",t.name);if(n){t.name=n.trim()||t.name;renderTeams();}};
     d.querySelectorAll(".adj button").forEach(b=>b.onclick=()=>{t.score+=parseInt(b.dataset.d,10);renderTeams();});
@@ -754,7 +755,7 @@ const overlay=document.getElementById("overlay"),modal=document.getElementById("
 function close(){stopTimer();overlay.classList.remove("on");modal.innerHTML="";renderBoard();renderTeams();}
 overlay.addEventListener("click",e=>{if(e.target===overlay)close();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")close();});
-function awardRowHTML(v){return `<div class="awardrow">`+teams.map((t,i)=>`<div class="awardteam"><span class="an">${safeHTML(t.name)}</span><button class="plus" data-i="${i}" data-s="1">+$${v}</button><button class="minus" data-i="${i}" data-s="-1">-$${v}</button></div>`).join("")+`</div>`;}
+function awardRowHTML(v){return `<div class="awardrow">`+teams.map((t,i)=>`<div class="awardteam"><span class="an">${safeHTML(t.name)}</span><button type="button" class="plus" data-i="${i}" data-s="1">+$${v}</button><button type="button" class="minus" data-i="${i}" data-s="-1">-$${v}</button></div>`).join("")+`</div>`;}
 function wireAward(v){modal.querySelectorAll(".awardteam button").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,s=+b.dataset.s;teams[i].score+=s*v;if(s>0)ding();else buzz();close();});}
 
 function openClue(ci,r){
@@ -763,9 +764,9 @@ function openClue(ci,r){
   ac();
   modal.innerHTML=`<div class="mhead"><div class="mc">${safeHTML(c.name)}</div><div class="mv">$${safeHTML(cl.v)}</div></div>
     <div class="mbody"><div class="clue">${safeHTML(cl.q)}</div><div class="timer" id="tm"></div><div class="answer" id="ans">${safeHTML(cl.a)}</div></div>
-    <div class="mfoot"><div class="centerrow"><button class="btn go" id="reveal">Reveal Answer</button></div>
+    <div class="mfoot"><div class="centerrow"><button type="button" class="btn go" id="reveal">Reveal Answer</button></div>
       <div id="awardZone" style="display:none"><div class="hint">Tap the team that answered. Another team got the steal? Use their plus.</div>${awardRowHTML(cl.v)}
-        <div class="centerrow" style="margin-top:8px"><button class="btn" id="noOne">No one / Close</button></div></div></div>`;
+        <div class="centerrow" style="margin-top:8px"><button type="button" class="btn" id="noOne">No one / Close</button></div></div></div>`;
   used[k]=true;overlay.classList.add("on");startTimer(sec,"tm");
   modal.querySelector("#reveal").onclick=()=>{stopTimer();modal.querySelector("#ans").classList.add("show");modal.querySelector("#awardZone").style.display="block";ding();};
   modal.querySelector("#noOne").onclick=close;wireAward(cl.v);
@@ -777,7 +778,7 @@ function openDaily(ci,r){
   modal.innerHTML=`<div class="dd-banner">&#11088; DAILY DOUBLE &#11088;</div>
     <div class="mhead"><div class="mc">${safeHTML(c.name)}</div><div class="mv">${safeHTML(c.tag)}</div></div>
     <div class="mbody"><div class="wager"><span style="font-weight:800">Wagering team:</span><select id="ddTeam">${opts}</select>
-      <input id="ddWager" type="number" min="0" placeholder="Wager $" value="${cl.v}"><button class="btn go" id="lock">Lock Wager</button></div>
+      <input id="ddWager" type="number" min="0" placeholder="Wager $" value="${cl.v}"><button type="button" class="btn go" id="lock">Lock Wager</button></div>
       <div class="hint">Max wager is the higher of the team score or $1000.</div>
       <div class="clue" id="ddClue" style="display:none">${safeHTML(cl.q)}</div><div class="timer" id="tm"></div><div class="answer" id="ans">${safeHTML(cl.a)}</div></div>
     <div class="mfoot" id="ddFoot"></div>`;
@@ -787,11 +788,11 @@ function openDaily(ci,r){
     const cap=Math.max(teams[ti].score,1000);if(w<0)w=0;if(w>cap)w=cap;
     modal.querySelector(".wager").style.display="none";modal.querySelector(".hint").style.display="none";
     modal.querySelector("#ddClue").style.display="flex";
-    modal.querySelector("#ddFoot").innerHTML=`<div class="centerrow"><button class="btn go" id="ddReveal">Reveal Answer</button></div>
+    modal.querySelector("#ddFoot").innerHTML=`<div class="centerrow"><button type="button" class="btn go" id="ddReveal">Reveal Answer</button></div>
       <div id="ddZone" style="display:none"><div class="hint">${safeHTML(teams[ti].name)} wagered $${safeHTML(w)}.</div>
-      <div class="centerrow"><button class="plus" id="ddRight" style="padding:9px 16px;border-radius:11px">Correct +$${w}</button>
-      <button class="minus" id="ddWrong" style="padding:9px 16px;border-radius:11px">Incorrect -$${w}</button>
-      <button class="btn" id="ddClose">Close</button></div></div>`;
+      <div class="centerrow"><button type="button" class="plus" id="ddRight" style="padding:9px 16px;border-radius:11px">Correct +$${w}</button>
+      <button type="button" class="minus" id="ddWrong" style="padding:9px 16px;border-radius:11px">Incorrect -$${w}</button>
+      <button type="button" class="btn" id="ddClose">Close</button></div></div>`;
     startTimer(sec,"tm");
     modal.querySelector("#ddReveal").onclick=()=>{stopTimer();modal.querySelector("#ans").classList.add("show");modal.querySelector("#ddZone").style.display="block";ding();};
     modal.querySelector("#ddRight").onclick=()=>{teams[ti].score+=w;ding();close();};
@@ -806,17 +807,17 @@ function openFinal(){
     <div class="mbody"><div class="hint" style="margin-bottom:10px">Every team enters a secret wager, then reveal the clue. Max wager is the higher of team score or $1000.</div>
       <div class="fj-list">${list}</div><div class="clue" id="fjClue" style="display:none;margin-top:14px">${safeHTML(FINAL.q)}</div>
       <div class="timer" id="tm"></div><div class="answer" id="ans">${safeHTML(FINAL.a)}</div></div>
-    <div class="mfoot" id="fjFoot"><div class="centerrow"><button class="btn go" id="fjReveal">Lock Wagers &amp; Reveal Clue</button></div></div>`;
+    <div class="mfoot" id="fjFoot"><div class="centerrow"><button type="button" class="btn go" id="fjReveal">Lock Wagers &amp; Reveal Clue</button></div></div>`;
   overlay.classList.add("on");let wagers=[];
   modal.querySelector("#fjReveal").onclick=()=>{
     wagers=teams.map((t,i)=>{let w=Math.floor(+modal.querySelector("#fw"+i).value||0);const cap=Math.max(t.score,1000);if(w<0)w=0;if(w>cap)w=cap;return w;});
     modal.querySelector(".fj-list").style.display="none";modal.querySelector("#fjClue").style.display="flex";
-    modal.querySelector("#fjFoot").innerHTML=`<div class="centerrow"><button class="btn go" id="fjAns">Reveal Answer</button></div>`;
+    modal.querySelector("#fjFoot").innerHTML=`<div class="centerrow"><button type="button" class="btn go" id="fjAns">Reveal Answer</button></div>`;
     startTimer(clamp(+document.getElementById("secInput").value||30,5,120),"tm");
     modal.querySelector("#fjAns").onclick=()=>{stopTimer();modal.querySelector("#ans").classList.add("show");ding();
       const rows=teams.map((t,i)=>`<div class="fj-team"><span class="fn">${safeHTML(t.name)} &middot; wager $${safeHTML(wagers[i])}</span>
-        <span class="fjbtns"><button class="plus" data-i="${i}">Right +$${wagers[i]}</button><button class="minus" data-i="${i}">Wrong -$${wagers[i]}</button></span></div>`).join("");
-      modal.querySelector("#fjFoot").innerHTML=`<div class="fj-list">${rows}</div><div class="centerrow" style="margin-top:10px"><button class="btn warn" id="fjDone">Finish</button></div>`;
+        <span class="fjbtns"><button type="button" class="plus" data-i="${i}">Right +$${wagers[i]}</button><button type="button" class="minus" data-i="${i}">Wrong -$${wagers[i]}</button></span></div>`).join("");
+      modal.querySelector("#fjFoot").innerHTML=`<div class="fj-list">${rows}</div><div class="centerrow" style="margin-top:10px"><button type="button" class="btn warn" id="fjDone">Finish</button></div>`;
       modal.querySelectorAll("#fjFoot .plus").forEach(b=>b.onclick=()=>{teams[+b.dataset.i].score+=wagers[+b.dataset.i];b.disabled=true;b.style.opacity=.4;renderTeams();});
       modal.querySelectorAll("#fjFoot .minus").forEach(b=>b.onclick=()=>{teams[+b.dataset.i].score-=wagers[+b.dataset.i];b.disabled=true;b.style.opacity=.4;renderTeams();});
       modal.querySelector("#fjDone").onclick=close;};
@@ -853,11 +854,11 @@ function openEditor(){picker.style.display="none";game.classList.remove("on");ov
       <div><label>Clue</label><textarea data-final="q">${edEsc(FINAL.q)}</textarea></div>
       <div><label>Answer</label><textarea data-final="a">${edEsc(FINAL.a)}</textarea></div></div></div>`;
   h+=`<div class="ed-bar">
-      <button class="btn go" id="edSave">Save &amp; Close</button>
-      <button class="btn" id="edCancel">Cancel</button>
-      <button class="btn gold" id="edExport">Export Backup</button>
-      <button class="btn" id="edImport">Import Backup</button>
-      <button class="btn warn" id="edReset">Reset to Original</button>
+      <button type="button" class="btn go" id="edSave">Save &amp; Close</button>
+      <button type="button" class="btn" id="edCancel">Cancel</button>
+      <button type="button" class="btn gold" id="edExport">Export Backup</button>
+      <button type="button" class="btn" id="edImport">Import Backup</button>
+      <button type="button" class="btn warn" id="edReset">Reset to Original</button>
       <input type="file" id="edFile" accept="application/json,.json" style="display:none"></div>`;
   ed.innerHTML=h;
   document.getElementById("edSave").onclick=()=>{readEditor();setData({cats:ALLCATS,final:FINAL});saveData();ed.classList.remove("on");pickSet=new Set();selected=[];renderChips();updateBar();picker.style.display="block";};
@@ -898,5 +899,6 @@ function initThemeSelectors(){
 initThemeSelectors();
 renderChips();updateBar();
 </script>
+</main>
 </body>
 </html>

@@ -64,14 +64,12 @@ Done. grant-desk.com is live.
 
 ## Everyday updates (the workflow you'll actually use)
 
-Edit → check → publish. Netlify's current credit-based plans count each production publish as 15 credits, so collect several edits into one batch instead of publishing after every small change:
+Edit → check → publish. Production publishes use plan credits, so collect several edits into one tested batch instead of publishing after every small change:
 
 ```powershell
-cd C:\Users\Grant\GrantDeskSite
-npm run dev          # look at your change on localhost:4321
-git add .
-git commit -m "what you changed"
-git push             # Netlify redeploys automatically, live in ~1 min
+cd 'C:\Users\Grant\OneDrive\Desktop\Econ\GrantDeskSite'
+npm.cmd run dev      # look at your change on localhost:4321
+.\publish.bat        # checks, builds, and publishes one tested batch from main
 ```
 
 Common edits — see **EDITING.md** for exactly which file to touch. For AI-assisted edits, see the **CLAUDE.md** section at the bottom of EDITING.md.
