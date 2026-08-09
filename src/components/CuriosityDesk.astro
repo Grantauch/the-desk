@@ -113,13 +113,13 @@ const first = curiosityItems[0];
     </p>
   </header>
 
-  <nav class="curiosity-filters" aria-label="Filter curiosity desk artifacts">
+  <div class="curiosity-filters" role="group" aria-label="Filter curiosity desk artifacts">
     <button type="button" data-filter="all" aria-pressed="true">everything</button>
     <button type="button" data-filter="power" aria-pressed="false">power</button>
     <button type="button" data-filter="sports" aria-pressed="false">sports</button>
     <button type="button" data-filter="mysteries" aria-pressed="false">mysteries</button>
     <button type="button" data-filter="michigan" aria-pressed="false">Michigan</button>
-  </nav>
+  </div>
 
   <div class="curiosity-stage">
     <a class="curiosity-image" href={first.record} target="_blank" rel="noopener" data-link="record">
@@ -128,7 +128,7 @@ const first = curiosityItems[0];
       <span class="curiosity-record">view the full archive record <span aria-hidden="true">&#8599;</span></span>
     </a>
 
-    <article class="curiosity-story" aria-live="polite">
+    <article class="curiosity-story">
       <div>
         <p class="curiosity-source">
           <span data-field="category">{first.category}</span>
@@ -141,7 +141,13 @@ const first = curiosityItems[0];
       </div>
 
       <div class="curiosity-actions">
-        <button type="button" class="curiosity-reveal" data-action="reveal" aria-expanded="false">
+        <button
+          type="button"
+          class="curiosity-reveal"
+          data-action="reveal"
+          aria-expanded="false"
+          aria-controls="curiosity-context-panel"
+        >
           reveal the context
         </button>
         <button type="button" class="curiosity-next" data-action="next">
@@ -149,16 +155,16 @@ const first = curiosityItems[0];
         </button>
       </div>
 
-      <div class="curiosity-context" data-field="context-panel" hidden>
+      <div id="curiosity-context-panel" class="curiosity-context" data-field="context-panel" hidden>
         <p data-field="context">{first.context}</p>
       </div>
 
       <p class="curiosity-credit" data-field="credit">{first.credit}</p>
-      <span class="sr-status" data-field="status" aria-live="polite"></span>
+      <span class="sr-status" data-field="status" role="status" aria-live="polite" aria-atomic="true"></span>
     </article>
   </div>
 
-  <div class="curiosity-trail" aria-label="Three ways to continue">
+  <nav class="curiosity-trail" aria-label="Three ways to continue">
     <a href={first.record} target="_blank" rel="noopener" data-link="record">
       <span>01 / inspect</span>
       <strong>open the primary source</strong>
@@ -171,7 +177,7 @@ const first = curiosityItems[0];
       <span>03 / keep digging</span>
       <strong data-field="deeper-label">{first.deeperLabel}</strong>
     </a>
-  </div>
+  </nav>
 
   <script is:inline define:vars={{ curiosityItems }}>
     const root = document.currentScript.closest('[data-curiosity-desk]');
@@ -189,6 +195,44 @@ const first = curiosityItems[0];
       });
     };
 
+    const matchingIndexes = () => curiosityItems
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => activeFilter === 'all' || item.tags.includes(activeFilter))
+      .map(({ index }) => index);
+
+    const filterLabel = () => filterButtons
+      .find((button) => button.dataset.filter === activeFilter)
+      ?.textContent.trim() || 'everything';
+
+    const setActiveFilter = (filter) => {
+      activeFilter = filter;
+      filterButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.filter === activeFilter));
+      });
+    };
+
+    const updateCollectionControls = () => {
+      const matches = matchingIndexes();
+      const matchPosition = Math.max(0, matches.indexOf(currentIndex));
+      const scope = activeFilter === 'all' ? '' : `${filterLabel()} collection / `;
+      setText(
+        'count',
+        `${scope}artifact ${String(matchPosition + 1).padStart(2, '0')} of ${String(matches.length).padStart(2, '0')}`,
+      );
+
+      if (matches.length <= 1 && activeFilter !== 'all') {
+        nextButton.textContent = 'browse all artifacts →';
+        nextButton.setAttribute(
+          'aria-label',
+          `Only one artifact in the ${filterLabel()} collection. Browse all artifacts`,
+        );
+      } else {
+        const label = activeFilter === 'all' ? 'another artifact' : `another ${filterLabel()} artifact`;
+        nextButton.textContent = `${label} →`;
+        nextButton.removeAttribute('aria-label');
+      }
+    };
+
     const showItem = (index) => {
       currentIndex = index;
       const item = curiosityItems[index];
@@ -199,7 +243,6 @@ const first = curiosityItems[0];
       setText('date', item.date);
       setText('category', item.category);
       setText('source', item.source);
-      setText('count', `artifact ${String(index + 1).padStart(2, '0')} of ${String(curiosityItems.length).padStart(2, '0')}`);
       setText('question', item.question);
       setText('clue', item.clue);
       setText('context', item.context);
@@ -215,25 +258,31 @@ const first = curiosityItems[0];
       contextPanel.hidden = true;
       revealButton.setAttribute('aria-expanded', 'false');
       revealButton.textContent = 'reveal the context';
+      updateCollectionControls();
     };
-
-    const matchingIndexes = () => curiosityItems
-      .map((item, index) => ({ item, index }))
-      .filter(({ item }) => activeFilter === 'all' || item.tags.includes(activeFilter))
-      .map(({ index }) => index);
 
     filterButtons.forEach((button) => {
       button.addEventListener('click', () => {
-        activeFilter = button.dataset.filter;
-        filterButtons.forEach((candidate) => {
-          candidate.setAttribute('aria-pressed', String(candidate === button));
-        });
-        showItem(matchingIndexes()[0]);
+        setActiveFilter(button.dataset.filter || 'all');
+        const matches = matchingIndexes();
+        if (!matches.length) return;
+        showItem(matches[0]);
+        setText('status', `Filtered to ${filterLabel()}. Now showing: ${curiosityItems[matches[0]].question}`);
       });
     });
 
     nextButton.addEventListener('click', () => {
       const matches = matchingIndexes();
+      if (!matches.length) return;
+
+      if (matches.length === 1 && activeFilter !== 'all') {
+        const nextIndex = (currentIndex + 1) % curiosityItems.length;
+        setActiveFilter('all');
+        showItem(nextIndex);
+        setText('status', `Showing all artifacts. Now showing: ${curiosityItems[nextIndex].question}`);
+        return;
+      }
+
       const matchPosition = matches.indexOf(currentIndex);
       showItem(matches[(matchPosition + 1) % matches.length]);
     });
