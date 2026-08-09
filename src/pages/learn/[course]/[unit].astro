@@ -166,8 +166,8 @@ const quiz = [
         <button class="clear-button" type="button" data-check-timeline>check my order <span>+60 XP</span></button>
         <p class="feedback" data-timeline-feedback aria-live="polite"></p>
       </div>
-      <details class="answer-key">
-        <summary>need the timeline as a study tool instead?</summary>
+      <details class="study-order">
+        <summary>review the completed timeline</summary>
         <ol>
           {hub.timeline.map((event) => <li><strong>{event.date} · {event.label}</strong><span>{event.detail}</span></li>)}
         </ol>
@@ -219,7 +219,7 @@ const quiz = [
         <div><span class="mission-number">mission 05 · +100 XP</span><h2>Boss battle</h2></div>
         <span class="mission-stamp" data-stamp>not cleared</span>
       </div>
-      <p class="mission-intro">Three questions. Score 2 out of 3 to clear the boss. You can retry.</p>
+      <p class="mission-intro">Three open-practice questions. Score 2 out of 3 to clear the boss. You can retry; graded work stays in Google Classroom.</p>
       <form data-quiz-form>
         {quiz.map((item, questionIndex) => (
           <fieldset class="quiz-question" data-quiz-question data-correct={item.correct} data-explanation={item.explanation}>
@@ -561,11 +561,11 @@ const quiz = [
   .timeline-game-card small { margin-top: .35rem; color: var(--color-ink-soft); line-height: 1.4; }
   .game-actions { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; }
   .feedback { color: var(--color-ink-soft); font-size: .82rem; font-weight: 650; }
-  .answer-key { margin-top: 1.25rem; border-top: 1px solid var(--color-line); padding-top: 1rem; }
-  .answer-key summary { color: var(--hub-color); font: 700 .72rem/1 var(--font-mono); cursor: pointer; }
-  .answer-key ol { margin-top: 1rem; display: grid; gap: .6rem; }
-  .answer-key li { display: grid; grid-template-columns: 12rem 1fr; gap: 1rem; padding-bottom: .6rem; border-bottom: 1px solid var(--color-line); font-size: .82rem; }
-  .answer-key li span { color: var(--color-ink-soft); }
+  .study-order { margin-top: 1.25rem; border-top: 1px solid var(--color-line); padding-top: 1rem; }
+  .study-order summary { color: var(--hub-color); font: 700 .72rem/1 var(--font-mono); cursor: pointer; }
+  .study-order ol { margin-top: 1rem; display: grid; gap: .6rem; }
+  .study-order li { display: grid; grid-template-columns: 12rem 1fr; gap: 1rem; padding-bottom: .6rem; border-bottom: 1px solid var(--color-line); font-size: .82rem; }
+  .study-order li span { color: var(--color-ink-soft); }
   .flip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin-top: 1.5rem; }
   .flip-card { position: relative; min-height: 10rem; border: 2px solid var(--color-ink); border-radius: .7rem; background: var(--hub-soft); text-align: left; cursor: pointer; overflow: hidden; }
   .flip-card > span { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 1.1rem; transition: transform .3s ease, opacity .2s ease; }
@@ -631,7 +631,7 @@ const quiz = [
     .unit-icon { width: 2.8rem; height: 2.8rem; font-size: 1.35rem; }
     .timeline-game, .flip-grid { grid-template-columns: 1fr; }
     .mission-heading { flex-direction: column; }
-    .answer-key li { grid-template-columns: 1fr; gap: .25rem; }
+    .study-order li { grid-template-columns: 1fr; gap: .25rem; }
     .unit-pager { grid-template-columns: 1fr; }
     .unit-pager span:empty { display: none; }
     .unit-pager a:last-child { text-align: left; }

@@ -1,228 +1,411 @@
 ---
+// resources.astro — the searchable front end for the Drive resource inventory.
+// The data is generated from the-desk-resource-inventory.xlsx and lives in
+// src/data/resources.json so every resource has one shared source on the site.
+import resourceLibrary from '../data/resources.json';
 import Base from '../layouts/Base.astro';
 
-interface Deck {
-  title: string;
-  href: string;
-}
-
-interface DeckGroup {
+interface Resource {
+  id: string;
+  course: string;
+  unitTopic: string;
   name: string;
-  decks: Deck[];
+  type: string;
+  onWebsite: boolean;
+  href: string | null;
+  status?: 'restricted';
 }
 
-interface LibrarySection {
-  name: string;
-  blurb: string;
-  groups: DeckGroup[];
-}
-
-const libraries: LibrarySection[] = [
-  {
-    name: 'us history',
-    blurb: 'industrial america through the recent past — organized by the unit where each deck fits best.',
-    groups: [
-      {
-        name: 'gilded age & progressive era',
-        decks: [
-          { title: 'gilded age simulation — day 1 guide', href: 'https://docs.google.com/presentation/d/1TJalioP0Z_WJt5lZpM6gltoE2d_8tc9e/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'urbanization during the industrial revolution', href: 'https://docs.google.com/presentation/d/16utRzBLa2oF_9X8W8L608PPFOJS9RDQC/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'queen liliuokalani and the annexation of hawaii', href: 'https://docs.google.com/presentation/d/1k77eeL7XZNQCpLKQ8tWdA-IFdwkEK2RP/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'progressive era unit review — part 1', href: 'https://docs.google.com/presentation/d/18ccqbTrREBpmzSAvNnSbTiLAm63F7Qsf/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'world war i',
-        decks: [
-          { title: 'woodrow wilson — progressive president and wwi leader', href: 'https://docs.google.com/presentation/d/1OY465TH_Kma3FQ2DctVm9GIof09t0QOo/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'jeannette rankin — congresswoman and peace advocate', href: 'https://docs.google.com/presentation/d/1V8hygdQS7AVxtPa6dJ4vGb1AqX5y0M_t/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'georges clemenceau — france in world war i', href: 'https://docs.google.com/presentation/d/1lrTkvorKjy5WrUTqi27MFwMzmDYybSDF/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: "wilson's fourteen points — a vision for peace", href: 'https://docs.google.com/presentation/d/1XdatPqdxb0dS3PXN6HcTmclpd9FlwXvi/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'world war i — people to know', href: 'https://docs.google.com/presentation/d/1mK7Vc0FsIrTjVbx6MmpIKp8i2VLzEVRa/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'world war i — complete unit deck', href: 'https://docs.google.com/presentation/d/1wNbLr4vlc7C8OCafdX9__jgCQBuwKvgw/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'world war ii',
-        decks: [
-          { title: 'double v movement — victory abroad, victory at home', href: 'https://docs.google.com/presentation/d/1HCVxmQo_UFWN_z1FDr9qUqQr9Q990VGN/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'world war ii — the war in the pacific', href: 'https://docs.google.com/presentation/d/1FQMYIg1XGSzNPPE3hwY3qzC5seEI3d5w/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'hiroo onoda — the soldier who surrendered in 1974', href: 'https://docs.google.com/presentation/d/1Mwv3sMbgsV-evx1I2m042ewmtIzpj_3U/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'cold war & the recent past',
-        decks: [
-          { title: 'origins of the cold war — from allies to adversaries', href: 'https://docs.google.com/presentation/d/1T-Ssuisi0MGVuswItiIWcPCtMWaxYd5M/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: "the space race — sputnik and america's response", href: 'https://docs.google.com/presentation/d/1gTNjlP3Z42Tr1J9siTTpDOywnqkrpd_G/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'john f. kennedy — lesser-known facts', href: 'https://docs.google.com/presentation/d/17U_zcP-NMrUjO1p6iD1b007YCaAbv_4A/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'vietnam protest song — lyric analysis assignment', href: 'https://docs.google.com/presentation/d/1x32jhGj5iC-k8mjMt2uCSAS4KuZRPkNj/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the gulf war — desert shield and desert storm', href: 'https://docs.google.com/presentation/d/1zzDzuxnI48dIxrMVV9jmp56D3RBu143U/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'culture, service & seasonal',
-        decks: [
-          { title: "the medal of honor — america's highest military distinction", href: 'https://docs.google.com/presentation/d/1EfOZBhnxFesHX5J6eG13NerRNGxCMFix/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: "rock 'n' roll — musical building blocks", href: 'https://docs.google.com/presentation/d/1PWwQDUNuGz1mr97NAHdGfykSH8wm-4wj/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the history of halloween — ancient festivals to today', href: 'https://docs.google.com/presentation/d/1y3d2jaQ-p4SYXpaF98XwkGbCSxRG-feb/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'government & civics',
-    blurb: 'foundations, institutions, elections, and the arguments underneath the system.',
-    groups: [
-      {
-        name: 'foundations & systems',
-        decks: [
-          { title: 'political philosophy through the ages', href: 'https://docs.google.com/presentation/d/1h0prTk2dFYFGHRg7y7LgVb2sOD9kgyAK/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'types of government — comparative overview', href: 'https://docs.google.com/presentation/d/1Iy9sCelP0EMUC8GVyKLo8VTWB94HDJKq/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'north korea vs. the united states — government compared', href: 'https://docs.google.com/presentation/d/1LJrJ8QojaTXjxI7S4cJcuMKq07H4sikE/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the u.s. constitution — structure, principles, and fixes', href: 'https://docs.google.com/presentation/d/1QSdMV1_9TqQ_oYyDteO5fZCj5R69QeMU/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the bill of rights — deep dive', href: 'https://docs.google.com/presentation/d/1SlqakJ6rX6NLQcWND3T4mZrxsdtHOXK3/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'the legislative branch',
-        decks: [
-          { title: 'the legislative branch — complete web lesson', href: 'https://docs.google.com/presentation/d/1w3a0iIhMB4gMmprOShdEHI6Ad0HnR6LU/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'introduction to the legislative branch — article i', href: 'https://docs.google.com/presentation/d/1INhqINL5K4ZYKcgz7K7J0NOknlqACCOu/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the legislative branch — structure and organization', href: 'https://docs.google.com/presentation/d/18T5P67B2l6QeX5DluxaeB-nn9WRu_LT3/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'congress — house vs. senate', href: 'https://docs.google.com/presentation/d/1IhN43i0DV1Mhjlx0RG529D_0BPy-fv4p/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'executive branch, elections & parties',
-        decks: [
-          { title: 'the seven roles of the president', href: 'https://docs.google.com/presentation/d/138ATBuF6vwi0aeMWEgyX94el4WMssclg/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the electoral college — how presidents are chosen', href: 'https://docs.google.com/presentation/d/1q_1vEAfvbph3mZrlPNzNhT-DhctEhl3-/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'american political parties — project guide', href: 'https://docs.google.com/presentation/d/1EOkGtR7elbqYTJnCnbrtbVhLmkZSId2g/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'economics',
-    blurb: 'the core ideas, the market failures, and the policy tools — without making students hunt through filenames.',
-    groups: [
-      {
-        name: 'economic foundations',
-        decks: [
-          { title: 'wants, needs, scarcity, and factors of production', href: 'https://docs.google.com/presentation/d/1eNnpWQuTlacmZL1mhbTKfxD_1RyxvJ4g/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'market structures and competition', href: 'https://docs.google.com/presentation/d/1DBi7eXeNrXUjr6PL1lU4313FWQfLYD1M/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'business structures — types of organizations', href: 'https://docs.google.com/presentation/d/1MePTYWAzg6MKVkLnbjZr9C983vFvEQx2/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'macro, finance & trade',
-        decks: [
-          { title: 'introduction to macroeconomics — gdp and circular flow', href: 'https://docs.google.com/presentation/d/1Cayjrp2SPKhNPVn4UglXpkhDmzqNxq1m/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'stock market basics — shares and wall street', href: 'https://docs.google.com/presentation/d/1lli778Vhn4RsLAyK88ILw2CsDrssMsP-/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'tariffs and international trade', href: 'https://docs.google.com/presentation/d/11Ajmtgc1vfC6ghnD33DuZfRfeapGT4gW/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-      {
-        name: 'markets, decisions & government',
-        decks: [
-          { title: 'behavioral economics — cognitive bias vocabulary', href: 'https://docs.google.com/presentation/d/1gIVdVZJIvTgpyt_LhuGYwpMNm1Bd1NCg/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'government in markets — day 1 market failure toolkit', href: 'https://docs.google.com/presentation/d/1nATDh7T7CmoLIbUq-KHQSzxUYQ4pp_ze/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'why government intervenes in markets', href: 'https://docs.google.com/presentation/d/14BmzQ79EULQbdLF_NHVwrn4Lay5Z_7oE/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'law & mock trial',
-    blurb: 'rights, courtroom procedure, and the case files students need before the opening statement.',
-    groups: [
-      {
-        name: 'rights, cases & trial procedure',
-        decks: [
-          { title: 'gideon v. wainwright — right to counsel', href: 'https://docs.google.com/presentation/d/1MsWb13O3beJQ2MrSJSA9vfW-cy8KcM5C/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'miranda rights — research paper assignment', href: 'https://docs.google.com/presentation/d/18Grtp_b41E3LOb3JZ-0ujqFb7HdGtRI0/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'the parts of a trial — step-by-step guide', href: 'https://docs.google.com/presentation/d/1fLKMWYBXtc7P3nJ99XgzLXJL19oCCMdW/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-          { title: 'mock trial — state of michigan v. hunter hemingway', href: 'https://docs.google.com/presentation/d/1S7DlKHmCPDes2H-ej4f3XFcB6z1VZ8Nn/edit?usp=drivesdk&ouid=113812546473931073122&rtpof=true&sd=true' },
-        ],
-      },
-    ],
-  },
-];
-
-const deckCount = libraries.reduce(
-  (total, library) => total + library.groups.reduce((subtotal, group) => subtotal + group.decks.length, 0),
-  0,
+const library = resourceLibrary as {
+  resourceCount: number;
+  linkedCount: number;
+  resources: Resource[];
+};
+const publicResources = library.resources.filter(
+  (resource) => resource.onWebsite === true && resource.status !== 'restricted' && Boolean(resource.href),
 );
+const publicResourceCount = publicResources.length;
+
+const preferredCourseOrder = [
+  'US History',
+  'Hidden History',
+  'Beyond the Scoreboard',
+  'Economics',
+  'Government / Civics',
+  'Law',
+  'World History',
+  'Personal Finance',
+  'Rabbit Holes',
+  'Both Electives',
+  'Other / Misc',
+];
+const courseRank = new Map(preferredCourseOrder.map((course, index) => [course, index]));
+const courses = [...new Set(publicResources.map((resource) => resource.course))].sort(
+  (a, b) =>
+    (courseRank.get(a) ?? preferredCourseOrder.length) -
+    (courseRank.get(b) ?? preferredCourseOrder.length) || a.localeCompare(b),
+);
+const activeCourseNames = ['US History', 'Hidden History', 'Beyond the Scoreboard'];
+const activeCourseSet = new Set(activeCourseNames);
+const archiveCourseNames = courses.filter((course) => !activeCourseSet.has(course));
+const types = [...new Set(publicResources.map((resource) => resource.type))].sort((a, b) =>
+  a.localeCompare(b),
+);
+const courseGroups = courses.map((course) => ({
+  course,
+  active: activeCourseSet.has(course),
+  resources: publicResources
+    .filter((resource) => resource.course === course)
+    .sort(
+      (a, b) =>
+        a.unitTopic.localeCompare(b.unitTopic, 'en', { sensitivity: 'base' }) ||
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+    ),
+}));
+const activeCourses = activeCourseNames.map((course) => ({
+  course,
+  count: publicResources.filter((resource) => resource.course === course).length,
+}));
+const activeResourceCount = activeCourses.reduce((total, course) => total + course.count, 0);
+const archiveResourceCount = publicResourceCount - activeResourceCount;
 ---
 
-<Base title="powerpoint library">
-  <header class="max-w-3xl">
-    <p class="font-mono text-xs uppercase tracking-[0.2em] text-accent">classroom archive</p>
-    <h1 class="mt-2 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
-      powerpoint library<span class="text-accent">.</span>
+<Base
+  title="resource library"
+  description="Browse the desk's student-ready resource library by course, topic, and resource type."
+>
+  <section class="dot-grid -mx-5 px-5 pb-10">
+    <nav class="library-switch" aria-label="Library sections">
+      <a href="/resources/" aria-current="page">materials</a>
+      <a href="/glossary/">glossary</a>
+    </nav>
+    <h1 class="mt-4 font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+      resource library<span class="text-accent">.</span>
     </h1>
-    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
-      {deckCount} decks, sorted by course and topic. Open only the section you need; no filename archaeology required.
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft lowercase">
+      the student-ready shelves, finally findable. search a title, pick a class, or browse the stacks.
     </p>
-    <div class="mt-5 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-white px-3 py-1.5 font-mono text-xs lowercase">
-      <span class="h-2 w-2 rounded-full bg-accent" aria-hidden="true"></span>
-      mt. morris school login required
+  </section>
+
+  <section class="pop rounded-md bg-white p-5 sm:p-6" aria-label="Resource filters">
+    <div class="mb-5 border-b border-line pb-5">
+      <p class="font-mono text-xs font-semibold lowercase text-accent">choose a shelf</p>
+      <div class="mt-2 grid grid-cols-3 gap-2" role="group" aria-label="Library collection">
+        <button
+          type="button"
+          data-scope="active"
+          aria-pressed="true"
+          class="rounded-md border-2 border-ink px-3 py-2 text-left transition-colors hover:border-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+        >
+          <span class="block font-mono text-xs font-semibold lowercase">teaching now</span>
+          <span class="mt-0.5 block text-xs opacity-75">{activeResourceCount} resources</span>
+        </button>
+        <button
+          type="button"
+          data-scope="archive"
+          aria-pressed="false"
+          class="rounded-md border-2 border-line px-3 py-2 text-left transition-colors hover:border-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+        >
+          <span class="block font-mono text-xs font-semibold lowercase">archive & extras</span>
+          <span class="mt-0.5 block text-xs opacity-75">{archiveResourceCount} resources</span>
+        </button>
+        <button
+          type="button"
+          data-scope="all"
+          aria-pressed="false"
+          class="rounded-md border-2 border-line px-3 py-2 text-left transition-colors hover:border-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+        >
+          <span class="block font-mono text-xs font-semibold lowercase">everything</span>
+          <span class="mt-0.5 block text-xs opacity-75">{publicResourceCount} resources</span>
+        </button>
+      </div>
+
+      <p class="mt-5 font-mono text-xs font-semibold lowercase text-accent">current course shortcuts</p>
+      <nav class="mt-2 flex gap-2 overflow-x-auto pb-2" aria-label="Current course libraries">
+        {
+          activeCourses.map(({ course, count }) => (
+            <a
+              href={`/resources/?course=${encodeURIComponent(course)}`}
+              class="shrink-0 rounded-md border-2 border-ink bg-paper px-3 py-1.5 font-mono text-xs font-semibold lowercase transition-colors hover:border-accent hover:text-accent"
+            >
+              {course} · {count}
+            </a>
+          ))
+        }
+      </nav>
+      <p class="mt-3 text-sm leading-relaxed text-ink-soft lowercase">
+        drive materials may ask for your mtmorrisschools.org google account. teacher keys, licensed copies, and development files stay in the private teacher archive.
+      </p>
     </div>
-  </header>
 
-  <div class="mt-10 space-y-5">
-    {libraries.map((library, libraryIndex) => {
-      const count = library.groups.reduce((total, group) => total + group.decks.length, 0);
-      return (
-        <section class="pop rounded-md bg-white">
-          <div class="border-b-2 border-ink px-5 py-5 sm:px-6">
-            <div class="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 class="font-display text-2xl font-bold lowercase">
-                {String(libraryIndex + 1).padStart(2, '0')} / {library.name}
-              </h2>
-              <span class="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-xs lowercase text-accent">
-                {count} decks
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
+      <label class="block">
+        <span class="font-mono text-xs font-semibold lowercase text-ink-soft">search</span>
+        <input
+          id="resource-search"
+          type="search"
+          autocomplete="off"
+          placeholder="try: cold war, taxes, roswell…"
+          class="mt-1.5 w-full rounded-md border-2 border-ink bg-paper px-3 py-2.5 text-base outline-none transition-colors focus:border-accent"
+        />
+      </label>
+
+      <label class="block">
+        <span class="font-mono text-xs font-semibold lowercase text-ink-soft">course</span>
+        <select
+          id="course-filter"
+          class="mt-1.5 w-full rounded-md border-2 border-ink bg-paper px-3 py-2.5 text-base outline-none transition-colors focus:border-accent"
+        >
+          <option value="">all courses in this shelf</option>
+          <optgroup label="teaching now">
+            {activeCourseNames.map((course) => <option value={course}>{course}</option>)}
+          </optgroup>
+          <optgroup label="archive & extras">
+            {archiveCourseNames.map((course) => <option value={course}>{course}</option>)}
+          </optgroup>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="font-mono text-xs font-semibold lowercase text-ink-soft">type</span>
+        <select
+          id="type-filter"
+          class="mt-1.5 w-full rounded-md border-2 border-ink bg-paper px-3 py-2.5 text-base outline-none transition-colors focus:border-accent"
+        >
+          <option value="">all types</option>
+          {types.map((type) => <option value={type}>{type}</option>)}
+        </select>
+      </label>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+      <p class="font-mono text-sm lowercase text-ink-soft" aria-live="polite">
+        <span id="result-count" class="font-bold text-ink">{activeResourceCount}</span> resources showing
+      </p>
+      <button
+        id="clear-filters"
+        type="button"
+        class="rounded-md border-2 border-ink px-3 py-1.5 font-mono text-xs font-semibold lowercase transition-colors hover:border-accent hover:text-accent"
+      >
+        clear filters
+      </button>
+    </div>
+
+    <noscript>
+      <p class="mt-4 text-sm text-ink-soft">Search needs JavaScript, but every course can still be opened below.</p>
+    </noscript>
+  </section>
+
+  <div id="resource-groups" class="mt-10 space-y-5">
+    {
+      courseGroups.map((group) => (
+        <details data-resource-group data-active={group.active ? 'true' : 'false'} class="pop rounded-md bg-white">
+          <summary class="cursor-pointer px-5 py-4 marker:text-accent sm:px-6">
+            <span class="ml-2 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span class="font-display text-xl font-bold lowercase sm:text-2xl">{group.course}</span>
+              <span class="font-mono text-xs lowercase text-ink-soft">
+                <span data-visible-count>{group.resources.length}</span> resources
               </span>
-            </div>
-            <p class="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">{library.blurb}</p>
-          </div>
+            </span>
+          </summary>
 
-          <div class="divide-y-2 divide-line px-5 sm:px-6">
-            {library.groups.map((group) => (
-              <details class="group/library py-4">
-                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 select-none">
-                  <span>
-                    <span class="font-semibold lowercase">{group.name}</span>
-                    <span class="ml-2 font-mono text-xs text-ink-soft">{group.decks.length}</span>
-                  </span>
-                  <span class="font-mono text-xs lowercase text-accent group-open/library:hidden">show +</span>
-                  <span class="hidden font-mono text-xs lowercase text-accent group-open/library:inline">hide −</span>
-                </summary>
-                <ul class="mt-4 grid gap-2 sm:grid-cols-2">
-                  {group.decks.map((deck) => (
-                    <li>
+          <div class="border-t-2 border-ink px-5 py-5 sm:px-6">
+            <div class="grid gap-4 sm:grid-cols-2">
+              {group.resources.map((resource) => (
+                <article
+                  id={resource.id}
+                  data-resource-card
+                  data-course={resource.course}
+                  data-type={resource.type}
+                  data-active={activeCourseSet.has(resource.course) ? 'true' : 'false'}
+                  data-search={`${resource.name} ${resource.course} ${resource.unitTopic} ${resource.type}`.toLocaleLowerCase(
+                    'en',
+                  )}
+                  class="resource-card rounded-lg border border-line bg-paper p-4"
+                >
+                  <div class="flex flex-wrap items-center gap-2 font-mono text-[0.7rem] lowercase">
+                    <span class="font-semibold text-accent">{resource.type}</span>
+                    <span class="text-ink-soft">· {resource.unitTopic}</span>
+                  </div>
+                  <h2 class="mt-2 font-display text-lg font-bold leading-snug">{resource.name}</h2>
+                  <div class="mt-4">
+                    {resource.href ? (
                       <a
-                        href={deck.href}
+                        href={resource.href}
                         target="_blank"
                         rel="noopener"
-                        class="flex h-full items-start justify-between gap-4 rounded border-2 border-line bg-paper px-4 py-3 text-sm lowercase transition-colors hover:border-accent hover:text-accent"
+                        class="font-mono text-xs font-semibold lowercase text-accent hover:text-accent-dark"
                       >
-                        <span>{deck.title}</span>
-                        <span class="shrink-0 font-mono text-xs text-accent" aria-hidden="true">ppt ↗</span>
+                        open in drive ↗
                       </a>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ))}
+                    ) : resource.status === 'restricted' ? (
+                      <span class="font-mono text-xs lowercase text-ink-soft">teacher copy — license restricted</span>
+                    ) : (
+                      <span class="font-mono text-xs lowercase text-ink-soft">link coming soon</span>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
-        </section>
-      );
-    })}
+        </details>
+      ))
+    }
   </div>
 
-  <aside class="mt-10 rounded-md border-2 border-line bg-accent-soft px-5 py-4 text-sm leading-relaxed text-ink-soft">
-    <strong class="text-ink">Why some files are not here:</strong> duplicate drafts, staff-only decks, a personal family file, an incomplete four-slide deck, and purchased resources whose licenses prohibit posting to a webpage were intentionally kept out of the student library.
-  </aside>
+  <p id="no-results" class="pop mt-10 rounded-md bg-white p-6 text-center text-ink-soft" hidden>
+    nothing matched this shelf. try everything, use a broader search, or clear the filters.
+  </p>
+
+  <script>
+    const searchInput = document.querySelector<HTMLInputElement>('#resource-search');
+    const courseFilter = document.querySelector<HTMLSelectElement>('#course-filter');
+    const typeFilter = document.querySelector<HTMLSelectElement>('#type-filter');
+    const scopeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-scope]')];
+    const clearButton = document.querySelector<HTMLButtonElement>('#clear-filters');
+    const resultCount = document.querySelector<HTMLElement>('#result-count');
+    const noResults = document.querySelector<HTMLElement>('#no-results');
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-resource-card]')];
+    const groups = [...document.querySelectorAll<HTMLDetailsElement>('[data-resource-group]')];
+    const activeCourses = new Set(['US History', 'Hidden History', 'Beyond the Scoreboard']);
+    type LibraryScope = 'active' | 'archive' | 'all';
+    let selectedScope: LibraryScope = 'active';
+
+    const isScope = (value: string | null): value is LibraryScope =>
+      value === 'active' || value === 'archive' || value === 'all';
+
+    const setScope = (scope: LibraryScope) => {
+      selectedScope = scope;
+      scopeButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.scope === selectedScope));
+      });
+    };
+
+    const applyFilters = () => {
+      const searchTerm = searchInput?.value.trim().toLocaleLowerCase('en') ?? '';
+      const selectedCourse = courseFilter?.value ?? '';
+      const selectedType = typeFilter?.value ?? '';
+      const filtersActive = Boolean(searchTerm || selectedCourse || selectedType);
+      let visibleTotal = 0;
+
+      cards.forEach((card) => {
+        const matchesScope =
+          selectedScope === 'all' ||
+          (selectedScope === 'active' ? card.dataset.active === 'true' : card.dataset.active === 'false');
+        const matchesSearch = !searchTerm || card.dataset.search?.includes(searchTerm);
+        const matchesCourse = !selectedCourse || card.dataset.course === selectedCourse;
+        const matchesType = !selectedType || card.dataset.type === selectedType;
+        const isVisible = Boolean(matchesScope && matchesSearch && matchesCourse && matchesType);
+        card.hidden = !isVisible;
+        if (isVisible) visibleTotal += 1;
+      });
+
+      groups.forEach((group) => {
+        const visibleInGroup = [...group.querySelectorAll<HTMLElement>('[data-resource-card]')].filter(
+          (card) => !card.hidden,
+        ).length;
+        group.hidden = visibleInGroup === 0;
+        if (filtersActive && visibleInGroup > 0) group.open = true;
+        const groupCount = group.querySelector<HTMLElement>('[data-visible-count]');
+        if (groupCount) groupCount.textContent = String(visibleInGroup);
+      });
+
+      if (resultCount) resultCount.textContent = String(visibleTotal);
+      if (noResults) noResults.hidden = visibleTotal !== 0;
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const initialSearch = params.get('q');
+    const initialCourse = params.get('course');
+    const initialType = params.get('type');
+    const initialScope = params.get('scope');
+    const hasOption = (select: HTMLSelectElement | null, value: string | null) =>
+      Boolean(value && select && [...select.options].some((option) => option.value === value));
+
+    if (searchInput && initialSearch) searchInput.value = initialSearch;
+    const hasInitialCourse = hasOption(courseFilter, initialCourse);
+    if (hasInitialCourse) courseFilter!.value = initialCourse!;
+    if (hasOption(typeFilter, initialType)) typeFilter!.value = initialType!;
+    if (isScope(initialScope)) {
+      setScope(initialScope);
+    } else if (hasInitialCourse && initialCourse) {
+      setScope(activeCourses.has(initialCourse) ? 'active' : 'archive');
+    }
+    applyFilters();
+
+    searchInput?.addEventListener('input', applyFilters);
+    scopeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const nextScope = button.dataset.scope;
+        if (!isScope(nextScope)) return;
+        setScope(nextScope);
+        if (courseFilter?.value) {
+          const selectedCourseIsActive = activeCourses.has(courseFilter.value);
+          const conflictsWithScope =
+            (nextScope === 'active' && !selectedCourseIsActive) ||
+            (nextScope === 'archive' && selectedCourseIsActive);
+          if (conflictsWithScope) courseFilter.value = '';
+        }
+        groups.forEach((group) => (group.open = false));
+        applyFilters();
+      });
+    });
+    courseFilter?.addEventListener('change', () => {
+      if (courseFilter.value) setScope(activeCourses.has(courseFilter.value) ? 'active' : 'archive');
+      applyFilters();
+    });
+    typeFilter?.addEventListener('change', applyFilters);
+    clearButton?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      if (courseFilter) courseFilter.value = '';
+      if (typeFilter) typeFilter.value = '';
+      setScope('active');
+      groups.forEach((group) => (group.open = false));
+      applyFilters();
+      searchInput?.focus();
+    });
+  </script>
 </Base>
+
+<style>
+  .library-switch {
+    display: inline-flex;
+    padding: 0.2rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: rgb(255 255 255 / 0.8);
+  }
+
+  .library-switch a {
+    padding: 0.45rem 0.8rem;
+    border-radius: 0.55rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .library-switch a:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+  }
+
+  .library-switch a[aria-current='page'] {
+    background: var(--color-accent);
+    color: white;
+    box-shadow: 0 8px 20px -14px var(--color-accent);
+  }
+
+  .resource-card {
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+
+  .resource-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-accent) 44%, var(--color-line));
+    background: white;
+    box-shadow: 0 20px 38px -32px color-mix(in srgb, var(--color-accent) 42%, transparent);
+  }
+</style>

@@ -1,0 +1,116 @@
+---
+interface HookOption {
+  label: string;
+  response: string;
+}
+
+interface Props {
+  id: string;
+  eyebrow: string;
+  question: string;
+  options: HookOption[];
+}
+
+const { id, eyebrow, question, options } = Astro.props;
+const questionId = `${id}-question`;
+const responseId = `${id}-response`;
+---
+
+<section class="quick-take p-5 sm:p-6" data-quick-take aria-labelledby={questionId}>
+  <p class="quick-take__eyebrow">{eyebrow}</p>
+  <h2 id={questionId} class="mt-2 max-w-2xl font-display text-2xl font-bold lowercase sm:text-3xl">{question}</h2>
+  <div class="mt-5 flex flex-wrap gap-3" role="group" aria-label="Choose your first take">
+    {
+      options.map((option) => (
+        <button
+          type="button"
+          class="quick-take__option px-4 py-2 text-left font-mono text-xs font-bold lowercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          aria-pressed="false"
+          aria-controls={responseId}
+          data-response={option.response}
+        >
+          {option.label}
+        </button>
+      ))
+    }
+  </div>
+  <p id={responseId} class="quick-take__response mt-5 hidden text-sm leading-relaxed text-ink-soft" aria-live="polite"></p>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-quick-take]').forEach((quickTake) => {
+    const buttons = Array.from(quickTake.querySelectorAll<HTMLButtonElement>('[data-response]'));
+    const response = quickTake.querySelector<HTMLElement>('.quick-take__response');
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        buttons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+        if (!response) return;
+
+        response.textContent = button.dataset.response ?? '';
+        response.classList.remove('hidden');
+      });
+    });
+  });
+</script>
+
+<style>
+  .quick-take {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 17%, transparent);
+    border-radius: 1.1rem;
+    background:
+      linear-gradient(130deg, color-mix(in srgb, var(--color-accent-soft) 62%, white), white 48%),
+      white;
+    box-shadow: 0 24px 55px -46px rgb(23 23 28 / 0.75);
+  }
+
+  .quick-take::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 22%, transparent) 62%, transparent);
+    content: '';
+  }
+
+  .quick-take__eyebrow {
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .quick-take__option {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.82);
+    box-shadow: 0 8px 22px -20px var(--color-ink);
+    transition:
+      transform 170ms ease,
+      border-color 170ms ease,
+      background 170ms ease,
+      color 170ms ease;
+  }
+
+  .quick-take__option:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+
+  .quick-take__option[aria-pressed='true'] {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: white;
+  }
+
+  .quick-take__response {
+    padding: 0.9rem 1rem;
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 0.7rem 0.7rem 0;
+    background: color-mix(in srgb, var(--color-accent-soft) 72%, white);
+  }
+</style>

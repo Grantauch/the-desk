@@ -1,70 +1,62 @@
 ---
-// about.astro — about the teacher and the site.
 import Base from '../layouts/Base.astro';
 ---
 
 <Base title="about">
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
+  <h1 class="font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
     about<span class="text-accent">.</span>
   </h1>
 
-  <div class="mt-8 max-w-2xl space-y-5 leading-relaxed">
-    <h2 class="font-display text-2xl font-bold lowercase">the teacher</h2>
-    <p>
-      I'm Mr. Auch. I teach US History and two electives built from scratch — Hidden History (coverups, conspiracies,
-      and the evidence) and Beyond the Scoreboard (American history through sports). I believe the best way to learn
-      history is to <em>do</em> it — weigh the evidence, argue the verdict, defend your sources. If class occasionally
-      feels like a game, that's not an accident.
-    </p>
-    <h2 class="font-display text-2xl font-bold lowercase pt-4">the site</h2>
-    <p>
-      the desk is the home base for my classes — what we're doing now, what's coming, and the simulations that make
-      this classroom what it is. Assignments, grades, and turn-ins still live in Google Classroom; this is everything
-      else.
-    </p>
-    <p>
-      It's also a personal project: built from scratch with Astro and Tailwind, deployed on Netlify, and maintained
-      with an AI assistant. The site itself is proof that the best way to learn something is to build it.
-    </p>
+  <div class="mt-8 max-w-2xl space-y-6 leading-relaxed">
+    <section>
+      <h2 class="font-display text-2xl font-bold lowercase">the teacher</h2>
+      <p class="mt-3">
+        I'm Mr. Auch. I teach US History, Hidden History, and Beyond the Scoreboard. My room is relaxed on purpose.
+        We joke around, chase strange questions, argue over what really happened, and somehow cover a ridiculous amount
+        of history along the way.
+      </p>
+      <p class="mt-3">
+        The goal is not to make school feel more like school. It is to make the story interesting enough that you want
+        to know what happens next. If you leave class laughing and accidentally remember why Reconstruction failed or
+        how television changed sports, that works for me.
+      </p>
+    </section>
 
-    <h2 class="font-display text-2xl font-bold lowercase pt-4">contact</h2>
-    <p>
-      Students and families: the fastest way to reach me is through Google Classroom or my school email.
-    </p>
+    <section class="pt-2">
+      <h2 class="font-display text-2xl font-bold lowercase">the site</h2>
+      <p class="mt-3">
+        The Desk keeps the slides, games, source packets, class tools, and odd detours in one place. Google Classroom
+        still handles assignments, grades, and turn-ins.
+      </p>
+    </section>
 
-    <h2 class="font-display text-2xl font-bold lowercase pt-4">questions families ask</h2>
-    <div class="space-y-3 not-prose">
-      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
-        <summary class="cursor-pointer font-semibold lowercase select-none">are grades posted here?</summary>
-        <p class="mt-2 text-sm text-ink-soft">
-          No — grades, assignments, and turn-ins all live in Google Classroom. This site is the public side of class:
-          what we're doing, where we're headed, and the simulations along the way.
-        </p>
-      </details>
-      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
-        <summary class="cursor-pointer font-semibold lowercase select-none">does this site collect anything about students?</summary>
-        <p class="mt-2 text-sm text-ink-soft">
-          No. There are no accounts, no logins, no forms, and no tracking. Even the classroom tools page keeps
-          everything in the browser — refresh and it's gone.
-        </p>
-      </details>
-      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
-        <summary class="cursor-pointer font-semibold lowercase select-none">how do i keep up with announcements?</summary>
-        <p class="mt-2 text-sm text-ink-soft">
-          Check the <a href="/announcements/" class="text-accent underline underline-offset-4">announcements page</a>,
-          or subscribe to the <a href="/rss.xml" class="text-accent underline underline-offset-4">rss feed</a> with any
-          feed reader and posts will come to you.
-        </p>
-      </details>
-      <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
-        <summary class="cursor-pointer font-semibold lowercase select-none">is hidden history teaching conspiracy theories?</summary>
-        <p class="mt-2 text-sm text-ink-soft">
-          The opposite — it teaches students how to test claims against evidence. We study documented history
-          (Watergate, MKUltra, COINTELPRO) alongside famous claims that failed under scrutiny, using public archives,
-          original journalism, and established scholarship. The goal is neither cynicism nor blind trust: it's the
-          ability to tell proof from noise. Questions are always welcome.
-        </p>
-      </details>
-    </div>
+    <section class="pt-2">
+      <h2 class="font-display text-2xl font-bold lowercase">contact</h2>
+      <p class="mt-3">Students and families can reach me through Google Classroom or my school email.</p>
+    </section>
+
+    <section class="pt-2">
+      <h2 class="font-display text-2xl font-bold lowercase">quick answers</h2>
+      <div class="mt-4 space-y-3">
+        <details class="surface-link rounded-lg border border-line bg-white px-4 py-3 open:border-accent">
+          <summary class="cursor-pointer select-none font-semibold lowercase">are grades posted here?</summary>
+          <p class="mt-2 text-sm text-ink-soft">No. Grades, assignments, and turn-ins are in Google Classroom.</p>
+        </details>
+        <details class="surface-link rounded-lg border border-line bg-white px-4 py-3 open:border-accent">
+          <summary class="cursor-pointer select-none font-semibold lowercase">is hidden history a conspiracy-theory class?</summary>
+          <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+            It is a class about finding out which extraordinary stories are documented, which fall apart, and which
+            remain honestly unproven. Watergate, MKUltra, and COINTELPRO sit beside famous hoaxes for a reason.
+          </p>
+        </details>
+        <details class="surface-link rounded-lg border border-line bg-white px-4 py-3 open:border-accent">
+          <summary class="cursor-pointer select-none font-semibold lowercase">where are the latest updates?</summary>
+          <p class="mt-2 text-sm text-ink-soft">
+            Check <a href="/announcements/" class="text-accent underline underline-offset-4">announcements</a> for the
+            newest additions to the site.
+          </p>
+        </details>
+      </div>
+    </section>
   </div>
 </Base>

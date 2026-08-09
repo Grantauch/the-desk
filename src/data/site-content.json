@@ -1,0 +1,28 @@
+{
+  "home": {
+    "title": "the desk",
+    "intro": "Three history classes, one ridiculous pile of stories. Slides, games, sources, and today’s best detours live here.",
+    "libraryEyebrow": "the whole desk, searchable",
+    "libraryTitle": "find the lesson before the bell",
+    "libraryIntro": "Search slides, packets, games, readings, and activities from every class."
+  },
+  "courseCards": {
+    "usHistory": "reconstruction to right now — the people, choices, disasters, and breakthroughs that still explain the country.",
+    "hiddenHistory": "coverups, conspiracies, hoaxes, and the evidence that separates the documented from the nonsense.",
+    "beyondTheScoreboard": "american history through sports. the games were never just games."
+  },
+  "courses": {
+    "usHistory": {
+      "tagline": "reconstruction to right now — the american story is still being argued over.",
+      "intro": "The Civil War ends; the argument over the country does not. We follow that argument from Reconstruction to right now through the people, choices, disasters, breakthroughs, and strange side stories that made the United States what it is. You will change your mind sometimes. Good."
+    },
+    "hiddenHistory": {
+      "tagline": "coverups, conspiracies, hoaxes, and the evidence that sorts them out.",
+      "intro": "Some of the wildest government stories are true. Plenty aren't. We open the files, check where every claim came from, and learn when the honest answer is ‘we don't know.’ Watergate, MKUltra, COINTELPRO, UFOs, hoaxes—the fun is figuring out which box each one belongs in."
+    },
+    "beyondTheScoreboard": {
+      "tagline": "american history through sports. the games were never just games.",
+      "intro": "Sports are never sealed off from the rest of the country. Money, television, law, race, protest, labor, and politics all walk onto the field with the players. We start with the games, then follow whatever they reveal about America. The class ends close to home with a Michigan sports story you choose."
+    }
+  }
+}

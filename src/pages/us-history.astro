@@ -4,19 +4,23 @@
 // `topics` is optional per unit — it becomes a "what's inside" dropdown.
 // 2026-27: this course runs Reconstruction → the present.
 import CoursePage from '../components/CoursePage.astro';
+import FeaturedMedia from '../components/FeaturedMedia.astro';
+import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
+import DailyDesk from '../components/DailyDesk.astro';
+import siteContent from '../data/site-content.json';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
-  { tag: 'argue it with receipts', text: 'Was the New Deal a success? Defend your answer with one specific program — not vibes.' },
-  { tag: 'argue it with receipts', text: 'Rank them: which changed daily American life more — the Model T, the television, or the smartphone?' },
-  { tag: 'argue it with receipts', text: 'Reconstruction: abandoned or defeated? There’s a difference, and your answer changes who’s responsible.' },
-  { tag: 'argue it with receipts', text: 'Was dropping the atomic bomb the least-bad option available? Steelman the other side before you answer.' },
-  { tag: 'argue it with receipts', text: 'Who did more for civil rights: the courts, the Congress, or the movement in the streets?' },
-  { tag: 'argue it with receipts', text: 'The 1920s or the 1960s — which decade actually changed America more? Pick one and bring evidence.' },
-  { tag: 'argue it with receipts', text: 'Is the internet age more like the printing press, the radio, or something history has never seen?' },
-  { tag: 'argue it with receipts', text: 'Which president of the last hundred years mattered most — for good or ill? Receipts required.' },
+  { tag: 'make the case', text: 'Was the New Deal a success? Defend your answer with one specific program.' },
+  { tag: 'make the case', text: 'Rank them: which changed daily American life more — the Model T, the television, or the smartphone?' },
+  { tag: 'make the case', text: 'Reconstruction: abandoned or defeated? There’s a difference, and your answer changes who’s responsible.' },
+  { tag: 'make the case', text: 'Was dropping the atomic bomb the least-bad option available? Give the strongest argument against your answer first.' },
+  { tag: 'make the case', text: 'Who did more for civil rights: the courts, Congress, or the movement in the streets?' },
+  { tag: 'make the case', text: 'The 1920s or the 1960s — which decade actually changed America more?' },
+  { tag: 'make the case', text: 'Is the internet age more like the printing press, the radio, or something history has never seen?' },
+  { tag: 'make the case', text: 'Which president of the last hundred years mattered most — for good or ill?' },
 ];
 
 // ---- this day in michigan (m = month, d = day, y = year) ----
@@ -88,7 +92,7 @@ const myths = [
   { tag: 'busted', text: 'Myth: Thomas Edison invented the lightbulb from scratch. Dozens of inventors made incandescent lamps before him. Edison made one that lasted, and — the real trick — built the power grid to feed it.' },
 ];
 
-// ---- exhibit of the day: famous lines, with receipts ----
+// ---- exhibit of the day: famous lines and primary sources ----
 const exhibits = [
   { tag: 'fdr, first inaugural — 1933', text: '"The only thing we have to fear is fear itself." Banks were failing by the thousands that week. The line was a policy argument, not a pep talk.' },
   { tag: 'fdr to congress — december 8, 1941', text: '"A date which will live in infamy." The draft said "world history." FDR crossed it out and wrote "infamy" — better word, better speech.' },
@@ -105,6 +109,7 @@ const exhibits = [
 const units = [
   {
     name: 'Reconstruction',
+    hubSlug: 'reconstruction',
     blurb: 'The war is over. Now comes the fight over what it meant.',
     current: true,
     topics: [
@@ -117,9 +122,10 @@ const units = [
   },
   {
     name: 'The Gilded Age',
+    hubSlug: 'the-gilded-age',
     blurb: 'Railroads, robber barons, and the price of progress.',
     topics: [
-      'Captains of industry or robber barons? Argue it with receipts',
+      'Captains of industry or robber barons? Make the case',
       'Immigration, cities, and the machines that ran them',
       'Labor vs. capital: strikes, unions, and Pinkertons',
       'The West: railroads, homesteads, and what they cost Native nations',
@@ -128,6 +134,7 @@ const units = [
   },
   {
     name: 'The Progressive Era & Empire',
+    hubSlug: 'progressive-era-and-empire',
     blurb: 'Reformers at home, expansion abroad.',
     topics: [
       'Muckrakers and the power of a well-aimed magazine article',
@@ -139,6 +146,7 @@ const units = [
   },
   {
     name: 'WWI & the Twenties',
+    hubSlug: 'wwi-and-the-twenties',
     blurb: 'A world war, then a decade with the volume turned up.',
     topics: [
       'WWI at home — propaganda, dissent, and civil liberties',
@@ -147,6 +155,7 @@ const units = [
       'Prohibition: the experiment and the side effects',
       'Nativism and the backlash: immigration quotas and the second Klan',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'wwi air combat — the absurd evolution', href: 'https://drive.google.com/file/d/1nawEuMFRFyevWQiZqPczvhlJhDd4wsql/view' },
       { label: 'roaring 20s — reading', href: 'https://drive.google.com/file/d/1CQOcownMEefEEXQgdiiHfbOjEDSx25CJ/view' },
@@ -154,6 +163,7 @@ const units = [
   },
   {
     name: 'Depression & the New Deal',
+    hubSlug: 'depression-and-the-new-deal',
     blurb: 'The crash, the breadlines, and the argument we still have.',
     topics: [
       'The Crash of 1929 and why "it will fix itself" didn’t',
@@ -165,6 +175,7 @@ const units = [
   },
   {
     name: 'World War II',
+    hubSlug: 'world-war-ii',
     blurb: 'Total war, the home front, and the bomb.',
     topics: [
       'From neutrality to Pearl Harbor: America argues its way into the war',
@@ -173,6 +184,7 @@ const units = [
       'Japanese American incarceration — the Constitution in wartime',
       'The bomb: the decision, the debate, and the world it made',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'wwii — the beginning', group: 'slides', href: 'https://drive.google.com/file/d/1V_yjjIu6dcRGicEAb26jzIreF-U0vo-g/view' },
       { label: '1938 lecture — the storm gathers', group: 'slides', href: 'https://drive.google.com/file/d/1F-75qLES6MAjMWpQ2Ncp43B1TF-tjcTs/view' },
@@ -196,6 +208,7 @@ const units = [
   },
   {
     name: 'Cold War America',
+    hubSlug: 'cold-war-america',
     blurb: 'Containment abroad, conformity and its cracks at home.',
     topics: [
       'Containment, Korea, and duck-and-cover America',
@@ -204,30 +217,31 @@ const units = [
       'Sputnik, the space race, and science as national security',
       'Cuba and Vietnam: containment reaches its limits',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'cold war timeline slides', href: 'https://drive.google.com/file/d/1j4KN4Vk6FDPHvhpeXVvanhi2MId6n3z2/view' },
       { label: 'situation room — crisis sim', href: '/hubs/situation_room.html' },
     ],
   },
   {
-    name: 'Civil Rights & the Soundtrack of a Movement',
-    blurb: 'Strategy, sacrifice, law — and the fight over who made the music, the money, and the history.',
+    name: 'The Civil Rights Movement',
+    hubSlug: 'the-civil-rights-movement',
+    blurb: 'Strategy, sacrifice, and law.',
     topics: [
       'Brown v. Board and the long game behind it',
       'Montgomery to Birmingham: nonviolence as strategy, not passivity',
       'The Civil Rights and Voting Rights Acts — how movements become law',
       'Malcolm X, Black Power, and the debate inside the movement',
       'The movement comes north: housing, schools, and Detroit 1967',
-      'Rock ’n’ Roll and civil rights: roots, crossover economics, Motown, movement music, and who controlled the credit',
     ],
   },
   {
     name: 'Vietnam to Watergate',
+    hubSlug: 'vietnam-to-watergate',
     blurb: 'The credibility gap years.',
     topics: [
       'Vietnam: escalation, the draft, and the living-room war',
       'The antiwar movement and the country it split',
-      'The protest soundtrack: when music became evidence, organizing, commerce, and counterculture',
       'The Pentagon Papers: what the government knew while saying otherwise',
       'Watergate and what it did to trust',
       'The 1970s hangover: stagflation, oil shocks, and malaise',
@@ -235,6 +249,7 @@ const units = [
   },
   {
     name: 'Reagan to Right Now',
+    hubSlug: 'reagan-to-right-now',
     blurb: 'The recent past — where the story meets your lifetime.',
     topics: [
       'The Reagan revolution and the conservative turn',
@@ -247,9 +262,9 @@ const units = [
 ];
 
 const resources = [
-  { label: '2026–27 complete course release — teacher materials', href: 'https://drive.google.com/drive/folders/1XjYYxog9MX7HTaW4ITy0_b_2qQ-N2rtL' },
-  { label: 'interactive lesson hubs — all ten units', href: '/learning-hubs' },
-  { label: 'Michigan Social Studies Standards — official MDE PDF', href: 'https://www.michigan.gov/mde/-/media/Project/Websites/mde/Academic-Standards/Social_Studies_Standards.pdf' },
+  { label: 'interactive learning hubs — all ten units', href: '/learning-hubs/' },
+  { label: 'browse the full us history library', href: '/resources/?course=US+History' },
+  { label: 'us history glossary', href: '/glossary/?course=US+History' },
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
   { label: 'Library of Congress — primary sources', href: 'https://www.loc.gov/classroom-materials/' },
   { label: 'National Archives — DocsTeach', href: 'https://www.docsteach.org' },
@@ -258,39 +273,52 @@ const resources = [
   // add more: { label: 'Unit 4 study guide', href: '...' },
 ];
 
-const glossary = [
-  { term: 'primary source', def: 'Evidence from the time itself — a letter, a photo, a law, a receipt. The raw material of history, before anyone put a spin on it. (Everyone puts a spin on it.)' },
-  { term: 'reconstruction', def: 'The post-Civil War project to rebuild the South and define freedom. Its amendments changed the Constitution; its retreat shaped the next century.' },
-  { term: 'sharecropping', def: 'Farming someone else’s land for a share of the crop — and usually a growing debt. Freedom’s fine print in the postwar South.' },
-  { term: 'jim crow', def: 'The legal system of racial segregation after Reconstruction — not custom, but law, enforced for generations.' },
-  { term: 'gilded age', def: 'Mark Twain’s name for the late 1800s: gold on the surface, cheaper metal underneath. Railroads, fortunes, and the people who built both.' },
-  { term: 'muckraker', def: 'An investigative journalist of the Progressive Era. Meant as an insult; taken as a job description.' },
-  { term: 'great migration', def: 'Six million Black Americans leaving the South for northern and western cities across the twentieth century. Detroit is a chapter of this story.' },
-  { term: 'new deal', def: 'FDR’s Depression-era program — relief, recovery, reform. We still argue about whether it worked, which is why it’s a unit and not a footnote.' },
-  { term: 'containment', def: 'The Cold War strategy of stopping Soviet expansion without starting World War III. Simple to state, expensive to run.' },
-  { term: 'civil disobedience', def: 'Deliberately, publicly, nonviolently breaking an unjust law and accepting the consequences. Thoreau theorized it; the Civil Rights Movement mastered it.' },
-  { term: 'credibility gap', def: 'The distance between what officials said and what turned out to be true — Vietnam-era vocabulary that never went out of style.' },
-  { term: 'redlining', def: 'Government-backed maps that graded neighborhoods by race and starved the red ones of loans. How segregation got built into cities — including ours.' },
-];
 ---
 
 <CoursePage
   title="us history"
-  tagline="reconstruction to right now — the american story, argued out loud."
-  intro="This course picks up where the Civil War left off and runs to the present. It's built on primary sources, debate, and the occasional reenactment. Expect to defend a position, change your mind at least once, and know why both happened. Below is where we are and where we're headed."
+  libraryCourse="US History"
+  theme="history"
+  identityLabel="american archive // 1865 → now"
+  tagline={siteContent.courses.usHistory.tagline}
+  intro={siteContent.courses.usHistory.intro}
   units={units}
   resources={resources}
-  glossary={glossary}
 >
-  <section class="mt-12">
-    <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
-    <p class="mt-2 text-sm text-ink-soft lowercase">new every day. same for everyone — argue about it in class.</p>
-    <div class="mt-6 grid gap-6 md:grid-cols-3">
-      <TodayCard label="today in history" events={todayEvents} />
-      <DailyCard label="myth, busted" entries={myths} />
-      <DailyCard label="exhibit of the day" entries={exhibits} />
-      <TodayCard label="this day in michigan" events={michiganEvents} />
-      <DailyCard label="argue this" entries={argueThis} />
-    </div>
-  </section>
+  <FeaturedMedia
+    slot="hero"
+    id="d-day-field-reel"
+    theme="history"
+    reelLabel="field reel"
+    cornerLabel="normandy // 06.06.44"
+    actionLabel="press play. turn it up."
+    eyebrow="world war ii · operation overlord"
+    title="d-day starts in the dark"
+    description="Twenty-eight seconds of D-Day energy: paratroopers gearing up, aircraft over Normandy, and a sky full of silk. Press play—then ask what it takes to step out of that door."
+    src="/media/d-day-hype.mp4"
+    poster="/media/d-day-hype-poster.jpg"
+    duration="00:28"
+    credit="@forgottenframes_in4k on TikTok"
+    accessibleDescription="A fast-cut montage of colorized World War II footage showing American paratroopers preparing for flight, riding in transport aircraft, and parachuting over Normandy."
+  />
+
+  <QuickTake
+    slot="hook"
+    id="us-history-opening-take"
+    eyebrow="history is an argument about what the evidence means."
+    question="What changes the country faster?"
+    options={[
+      { label: 'a president', response: 'Presidents get the headlines. Congress, courts, states, and public opinion decide how far the change actually reaches.' },
+      { label: 'a movement', response: 'Movements can change what feels possible long before the law catches up.' },
+      { label: 'a crisis', response: 'Crises open doors. They do not decide who walks through them—or who gets pushed aside.' },
+    ]}
+  />
+
+  <DailyDesk note="one date, one myth, and one thing worth arguing about.">
+    <TodayCard label="today in history" events={todayEvents} />
+    <DailyCard label="myth, busted" entries={myths} />
+    <DailyCard label="exhibit of the day" entries={exhibits} />
+    <TodayCard label="this day in michigan" events={michiganEvents} />
+    <DailyCard label="argue this" entries={argueThis} />
+  </DailyDesk>
 </CoursePage>

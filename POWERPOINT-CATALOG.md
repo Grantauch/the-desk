@@ -1,6 +1,6 @@
 # PowerPoint catalog decisions
 
-The student-facing library contains 46 classroom-ready decks. Each was uploaded to the Google Drive folder `the desk — powerpoint library` under a descriptive filename and shared read-only with the Mt. Morris Schools domain.
+The searchable site library now includes 46 classroom-ready decks from `Found Slide decks from Onedrive`. Each was uploaded to the Google Drive folder `the desk — powerpoint library` under a descriptive filename and shared read-only with the Mt. Morris Schools domain.
 
 ## Files intentionally not published
 

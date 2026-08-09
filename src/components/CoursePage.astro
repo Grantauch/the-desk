@@ -1,9 +1,9 @@
 ---
-// CoursePage.astro — shared template for class pages.
-// Each class page (us-history, hidden-history, beyond-the-scoreboard) just passes in its data.
-// Anything placed between <CoursePage>...</CoursePage> tags renders after the "right now" box.
+// Shared template for the three active course pages.
 import Base from '../layouts/Base.astro';
 import { learningCourses } from '../data/learningHubs';
+import resourceLibrary from '../data/resources.json';
+import unitMaterialAssignments from '../data/unit-materials.json';
 
 interface Material {
   label: string;
@@ -13,20 +13,17 @@ interface Material {
 
 interface Unit {
   name: string;
+  hubSlug?: string;
   blurb: string;
   current?: boolean;
-  topics?: string[]; // optional: shows a "what's inside" dropdown on the unit
-  materials?: Material[]; // optional: slides, packets, handouts for this unit
+  topics?: string[];
+  materialsAudience?: 'student';
+  materials?: Material[];
 }
 
 interface Resource {
   label: string;
   href: string;
-}
-
-interface GlossaryEntry {
-  term: string;
-  def: string;
 }
 
 interface Props {
@@ -35,186 +32,971 @@ interface Props {
   intro: string;
   units: Unit[];
   resources: Resource[];
-  glossary?: GlossaryEntry[]; // optional: adds a "words worth knowing" section
+  libraryCourse: 'US History' | 'Hidden History' | 'Beyond the Scoreboard';
+  theme?: 'history' | 'classified' | 'scoreboard';
+  identityLabel?: string;
 }
 
-const { title, tagline, intro, units, resources, glossary = [] } = Astro.props;
-const currentUnit = units.find((u) => u.current);
-const currentUnitIndex = units.findIndex((u) => u.current);
-const hubCourse = learningCourses.find((course) => course.title.toLowerCase() === title.toLowerCase());
-const currentHub = currentUnitIndex >= 0 ? hubCourse?.units[currentUnitIndex] : undefined;
+const {
+  title,
+  tagline,
+  intro,
+  units,
+  resources,
+  libraryCourse,
+  theme = 'history',
+  identityLabel,
+} = Astro.props;
 
+interface CatalogResource {
+  id: string;
+  name: string;
+  type: string;
+  onWebsite: boolean;
+  status?: 'restricted';
+  href?: string;
+}
+
+const groupForType = (type: string) => {
+  if (type === 'Slides') return 'slides';
+  if (['Activity', 'Game/Sim', 'Review/Game'].includes(type)) return 'activities & games';
+  if (['Reading', 'Packet', 'Study guide', 'Rubric'].includes(type)) return 'readings & packets';
+  return 'more';
+};
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+const catalog = resourceLibrary.resources as CatalogResource[];
+const catalogById = new Map(catalog.map((resource) => [resource.id, resource]));
+const courseAssignments = unitMaterialAssignments.courses[libraryCourse] as Record<string, string[]>;
+const learningCourse = learningCourses.find((course) => course.title === libraryCourse);
+const resolvedUnits = units.map((unit, index) => {
+  const assignedMaterials = (courseAssignments?.[unit.name] ?? [])
+    .map((id) => catalogById.get(id))
+    .filter(
+      (resource): resource is CatalogResource & { href: string } =>
+        resource?.onWebsite === true && resource.status !== 'restricted' && Boolean(resource.href),
+    )
+    .map((resource) => ({
+      label: resource.name,
+      href: resource.href,
+      group: groupForType(resource.type),
+    }));
+
+  const handWiredMaterials = unit.materialsAudience === 'student' ? (unit.materials ?? []) : [];
+  const seen = new Set<string>();
+  // Catalog names are the cleaned-up display names. Hand-wired links remain as a fallback
+  // only when the course page explicitly marks the whole fallback set as student-safe.
+  const materials = [...assignedMaterials, ...handWiredMaterials].filter((material) => {
+    const key = material.href.trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return {
+    ...unit,
+    materials,
+    learningHub: learningCourse?.units.find((hub) => hub.slug === unit.hubSlug),
+    materialDialogId: `${slugify(libraryCourse)}-${index + 1}-materials`,
+  };
+});
+
+const currentIndex = resolvedUnits.findIndex((unit) => unit.current);
+const currentUnit = currentIndex >= 0 ? resolvedUnits[currentIndex] : undefined;
+const hasHero = Astro.slots.has('hero');
+const hasHook = Astro.slots.has('hook');
+const courseMapCopy = {
+  history: { status: 'where we are', current: 'current unit', route: 'the year' },
+  classified: { status: 'current case', current: 'now investigating', route: 'the case files' },
+  scoreboard: { status: 'current season', current: 'now playing', route: 'the schedule' },
+}[theme];
+const progressPercent = currentIndex >= 0 ? ((currentIndex + 1) / resolvedUnits.length) * 100 : 0;
+const normalizeMaterialGroup = (value?: string) => {
+  const group = value?.toLowerCase() ?? '';
+  if (group.includes('slide') || group.includes('deck')) return 'slides';
+  if (group.includes('read') || group.includes('packet') || group.includes('source') || group.includes('study')) return 'readings & packets';
+  if (group.includes('activ') || group.includes('game') || group.includes('review')) return 'activities & games';
+  return group === 'more' ? 'more' : 'materials';
+};
 const groupMaterials = (materials: Material[]) =>
   materials.reduce<{ name: string; items: Material[] }[]>((groups, material) => {
-    const name = material.group ?? 'materials';
+    const name = normalizeMaterialGroup(material.group);
     const existing = groups.find((group) => group.name === name);
     if (existing) existing.items.push(material);
     else groups.push({ name, items: [material] });
     return groups;
-  }, []);
+  }, []).sort((a, b) => {
+    const order = ['slides', 'activities & games', 'readings & packets', 'more', 'materials'];
+    const aIndex = order.indexOf(a.name);
+    const bIndex = order.indexOf(b.name);
+    return (aIndex === -1 ? order.length : aIndex) - (bIndex === -1 ? order.length : bIndex);
+  });
 ---
 
 <Base title={title}>
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
-    {title}<span class="text-accent">.</span>
-  </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">{tagline}</p>
+  <div class:list={['course-page', `course-page--${theme}`]}>
+    {identityLabel && <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em] text-accent">{identityLabel}</p>}
+    <h1 class:list={[identityLabel ? 'mt-3' : '', 'font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl']}>
+      {title}<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-3 text-lg lowercase text-ink-soft">{tagline}</p>
 
-  <p class="mt-6 max-w-2xl leading-relaxed">{intro}</p>
+    {hasHero && <slot name="hero" />}
 
-  {
-    currentUnit && (
-      <div class="pop-ink mt-10 rounded-md bg-accent text-white p-6">
-        <p class="text-xs font-mono uppercase tracking-widest text-white/70">right now</p>
-        <h2 class="mt-1 font-display text-2xl font-bold">{currentUnit.name}</h2>
-        <p class="mt-1 text-white/85">{currentUnit.blurb}</p>
-        {currentHub && (
-          <a
-            href={`/learn/${hubCourse!.slug}/${currentHub.slug}/`}
-            class="mt-4 inline-flex items-center gap-2 rounded border-2 border-white bg-white px-3 py-2 font-mono text-xs font-bold lowercase text-accent shadow-[3px_3px_0_var(--color-ink)] transition-transform hover:-translate-y-0.5"
-          >
-            enter this unit's learning hub <span aria-hidden="true">→</span>
-          </a>
-        )}
-      </div>
-    )
-  }
+    <p class:list={[hasHero ? 'mt-10' : 'mt-6', 'max-w-2xl leading-relaxed']}>{intro}</p>
 
-  <slot />
+    {hasHook && <div class="mt-10"><slot name="hook" /></div>}
 
-  <h2 class="mt-14 font-display text-3xl font-bold lowercase">units</h2>
-  <ol class="mt-6 space-y-3">
     {
-      units.map((unit, i) => (
-        <li class="flex gap-4 items-baseline border-b-2 border-line pb-3">
-          <span class="font-display font-bold text-accent shrink-0">{String(i + 1).padStart(2, '0')}</span>
-          <div>
-            <span class="font-semibold">{unit.name}</span>
-            {unit.current && (
-              <span class="ml-2 text-xs font-mono lowercase bg-accent text-white rounded-full px-2 py-0.5">
-                current
-              </span>
-            )}
-            <p class="text-sm text-ink-soft mt-0.5">{unit.blurb}</p>
-            {hubCourse?.units[i] && (
-              <a
-                href={`/learn/${hubCourse.slug}/${hubCourse.units[i].slug}/`}
-                class="mt-2 inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 font-mono text-xs font-bold lowercase text-accent transition-colors hover:bg-accent hover:text-white"
-              >
-                open learning hub <span aria-hidden="true">→</span>
-              </a>
-            )}
-            {unit.topics && unit.topics.length > 0 && (
-              <details class="mt-1.5 group">
-                <summary class="cursor-pointer text-xs font-mono lowercase text-accent hover:text-accent-dark select-none">
-                  <span class="group-open:hidden">what's inside +</span>
-                  <span class="hidden group-open:inline">what's inside −</span>
-                </summary>
-                <ul class="mt-2 mb-1 space-y-1 text-sm text-ink-soft">
-                  {unit.topics.map((t) => (
-                    <li class="flex gap-2">
-                      <span class="text-accent">·</span>
-                      <span>{t}</span>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-            {unit.materials && unit.materials.length > 0 && (
-              unit.materials.length > 4 ? (
-                <details class="group/materials mt-3 rounded-md border-2 border-line bg-white open:border-accent">
-                  <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-3 py-2 font-mono text-xs lowercase text-accent select-none">
-                    <span class="flex items-center gap-2">
-                      <span>unit materials</span>
-                      <span class="rounded-full bg-accent-soft px-2 py-0.5 text-[0.68rem] text-accent">
-                        {unit.materials.length}
+      currentUnit && (
+        <section class="course-map mt-10" aria-labelledby="right-now-title">
+          <header class="course-map__header">
+            <p class="course-map__status">
+              <span class="course-map__status-dot" aria-hidden="true"></span>
+              {courseMapCopy.status}
+            </p>
+            <p class="course-map__count">
+              <span>unit</span> {String(currentIndex + 1).padStart(2, '0')} <span>/</span> {String(resolvedUnits.length).padStart(2, '0')}
+            </p>
+          </header>
+
+          <div class="course-map__layout">
+            <div class="course-map__now">
+              <span class="course-map__ghost-number" aria-hidden="true">{String(currentIndex + 1).padStart(2, '0')}</span>
+              <p class="course-map__eyebrow">{courseMapCopy.current}</p>
+              <h2 id="right-now-title" class="course-map__title">{currentUnit.name}</h2>
+              <p class="course-map__blurb">{currentUnit.blurb}</p>
+              {currentUnit.learningHub && (
+                <a
+                  class="course-map__hub-link"
+                  href={`/learn/${learningCourse!.slug}/${currentUnit.learningHub.slug}/`}
+                >
+                  enter this unit's learning hub <span aria-hidden="true">→</span>
+                </a>
+              )}
+            </div>
+
+            <div class="course-map__route">
+              <p class="course-map__eyebrow">{courseMapCopy.route}</p>
+              <ol class="course-map__units" aria-label={`Course progress: unit ${currentIndex + 1} of ${resolvedUnits.length}`}>
+                {
+                  resolvedUnits.map((unit, i) => (
+                    <li
+                      class="course-map__unit"
+                      data-state={i < currentIndex ? 'complete' : i === currentIndex ? 'current' : 'upcoming'}
+                      aria-current={i === currentIndex ? 'step' : undefined}
+                    >
+                      <span class="course-map__unit-number">{String(i + 1).padStart(2, '0')}</span>
+                      <span class="course-map__unit-name">
+                        {unit.name}
+                        {i === currentIndex && <span class="sr-only"> (current)</span>}
                       </span>
-                    </span>
-                    <span class="group-open/materials:hidden">open +</span>
-                    <span class="hidden group-open/materials:inline">close −</span>
-                  </summary>
-                  <div class="border-t-2 border-line px-3 py-3">
-                    {groupMaterials(unit.materials).map((group, _groupIndex, groups) => (
-                      <section class:list={['first:mt-0', groups.length > 1 ? 'mt-4' : 'mt-0']}>
-                        {(groups.length > 1 || group.name !== 'materials') && (
-                          <h3 class="mb-2 font-mono text-[0.68rem] uppercase tracking-widest text-ink-soft">
-                            {group.name}
-                          </h3>
-                        )}
-                        <ul class="grid gap-2 sm:grid-cols-2">
-                          {group.items.map((m) => (
-                            <li>
-                              <a
-                                href={m.href}
-                                target="_blank"
-                                rel="noopener"
-                                class="flex h-full items-start justify-between gap-3 rounded border border-line bg-paper px-3 py-2 text-xs font-mono lowercase text-ink transition-colors hover:border-accent hover:text-accent"
-                              >
-                                <span>{m.label}</span>
-                                <span aria-hidden="true" class="shrink-0 text-accent">↗</span>
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
-                    ))}
-                  </div>
-                </details>
-              ) : (
-                <ul class="mt-3 grid gap-2 sm:grid-cols-2">
-                  {unit.materials.map((m) => (
-                    <li>
-                      <a
-                        href={m.href}
-                        target="_blank"
-                        rel="noopener"
-                        class="flex h-full items-start justify-between gap-3 rounded border border-line bg-white px-3 py-2 text-xs font-mono lowercase text-ink transition-colors hover:border-accent hover:text-accent"
-                      >
-                        <span>{m.label}</span>
-                        <span aria-hidden="true" class="shrink-0 text-accent">↗</span>
-                      </a>
                     </li>
-                  ))}
-                </ul>
-              )
-            )}
+                  ))
+                }
+              </ol>
+            </div>
           </div>
-        </li>
-      ))
+
+          <footer class="course-map__footer">
+            <div class="course-map__progress">
+              <div class="course-map__progress-label">
+                <span>position in course</span>
+                <span>{Math.round(progressPercent)}%</span>
+              </div>
+              <div class="course-map__progress-track" aria-hidden="true">
+                <span style={`width: ${progressPercent}%`}></span>
+              </div>
+            </div>
+
+          </footer>
+        </section>
+      )
     }
-  </ol>
 
-  {
-    glossary.length > 0 && (
-      <>
-        <h2 class="mt-14 font-display text-3xl font-bold lowercase">words worth knowing</h2>
-        <p class="mt-2 text-sm text-ink-soft">Click a term. Definitions in plain English, mostly.</p>
-        <div class="mt-6 grid gap-3 sm:grid-cols-2">
-          {glossary.map((g) => (
-            <details class="rounded-md border-2 border-line bg-white px-4 py-3 open:border-accent transition-colors">
-              <summary class="cursor-pointer font-semibold lowercase select-none marker:text-accent">{g.term}</summary>
-              <p class="mt-2 text-sm text-ink-soft leading-relaxed">{g.def}</p>
+    <slot />
+
+    <h2 class="mt-14 font-display text-3xl font-bold lowercase">units</h2>
+    <ol class="mt-6 space-y-3">
+      {
+        resolvedUnits.map((unit, i) => (
+          <li class="unit-row flex items-baseline gap-4 border-b-2 border-line pb-3">
+            <span class="shrink-0 font-display font-bold text-accent">{String(i + 1).padStart(2, '0')}</span>
+            <div class="min-w-0 flex-1">
+              <span class="font-semibold">{unit.name}</span>
+              {unit.current && (
+                <span class="ml-2 rounded-full bg-accent px-2 py-0.5 font-mono text-xs lowercase text-white">
+                  current
+                </span>
+              )}
+              <p class="mt-0.5 text-sm text-ink-soft">{unit.blurb}</p>
+              {unit.topics && unit.topics.length > 0 && (
+                <details class="group mt-1.5">
+                  <summary class="cursor-pointer select-none font-mono text-xs lowercase text-accent hover:text-accent-dark">
+                    <span class="group-open:hidden">what's inside +</span>
+                    <span class="hidden group-open:inline">what's inside −</span>
+                  </summary>
+                  <ul class="mb-1 mt-2 space-y-1 text-sm text-ink-soft">
+                    {unit.topics.map((topic) => (
+                      <li class="flex gap-2">
+                        <span class="text-accent">·</span>
+                        <span>{topic}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              {(unit.learningHub || unit.materials.length > 0) && (
+                <div class="unit-actions">
+                  {unit.learningHub && (
+                    <a class="learning-hub-trigger" href={`/learn/${learningCourse!.slug}/${unit.learningHub.slug}/`}>
+                      <span>learning hub</span>
+                      <span aria-hidden="true">→</span>
+                    </a>
+                  )}
+                  {unit.materials.length > 0 && (
+                    <>
+                  <button
+                    type="button"
+                    class="materials-trigger"
+                    data-materials-open={unit.materialDialogId}
+                    aria-haspopup="dialog"
+                  >
+                    <span>unit materials</span>
+                    <span class="materials-trigger__count">{unit.materials.length}</span>
+                    <span class="materials-trigger__arrow" aria-hidden="true">→</span>
+                  </button>
+
+                  <dialog
+                    id={unit.materialDialogId}
+                    class="materials-dialog"
+                    aria-labelledby={`${unit.materialDialogId}-title`}
+                  >
+                    <div class="materials-sheet">
+                      <header class="materials-sheet__header">
+                        <div>
+                          <p class="materials-sheet__eyebrow">unit {String(i + 1).padStart(2, '0')} materials</p>
+                          <h2 id={`${unit.materialDialogId}-title`} class="materials-sheet__title">{unit.name}</h2>
+                          <p class="materials-sheet__count">{unit.materials.length} ready to open</p>
+                        </div>
+                        <button type="button" class="materials-sheet__close" data-materials-close aria-label="Close materials">
+                          <span aria-hidden="true">×</span>
+                        </button>
+                      </header>
+
+                      <label class="materials-search">
+                        <span class="sr-only">Search {unit.name} materials</span>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17">
+                          <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <input type="search" placeholder="find a slide, reading, or activity" data-materials-search />
+                      </label>
+
+                      <div class="materials-sheet__body" data-materials-list>
+                        {groupMaterials(unit.materials).map((materialGroup) => (
+                          <section class="materials-group" data-material-group>
+                            <h3>{materialGroup.name}</h3>
+                            <ul>
+                              {materialGroup.items.map((material) => (
+                                <li data-material-item data-search-text={material.label.toLowerCase()}>
+                                  <a href={material.href} target="_blank" rel="noopener">
+                                    <span>{material.label}</span>
+                                    <span aria-hidden="true">↗</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
+                        <p class="materials-empty" data-materials-empty hidden>Nothing in this unit matches that search.</p>
+                      </div>
+                    </div>
+                  </dialog>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    {
+      resources.length > 0 && (
+        <section class="course-hub mt-14" aria-labelledby="course-hub-title">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] text-accent">everything for this class</p>
+              <h2 id="course-hub-title" class="mt-1 font-display text-3xl font-bold lowercase">class hub<span class="text-accent">.</span></h2>
+            </div>
+            <p class="max-w-sm text-sm lowercase text-ink-soft">slides, course links, source collections, and whatever we need next.</p>
+          </div>
+
+          <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {resources.slice(0, 3).map((resource) => (
+              <li>
+                <a href={resource.href} class="surface-link group flex min-h-28 h-full flex-col justify-between rounded-xl border border-line bg-white p-4">
+                  <span class="font-display text-lg font-bold leading-snug lowercase group-hover:text-accent">{resource.label}</span>
+                  <span class="mt-4 font-mono text-xs font-semibold lowercase text-accent">open →</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {resources.length > 3 && (
+            <details class="pop mt-3 rounded-xl bg-white">
+              <summary class="cursor-pointer px-4 py-3 font-mono text-xs font-semibold lowercase marker:text-accent">
+                more class links · {resources.length - 3}
+              </summary>
+              <ul class="grid gap-2 border-t border-line p-4 sm:grid-cols-2">
+                {resources.slice(3).map((resource) => (
+                  <li>
+                    <a href={resource.href} class="surface-link flex h-full items-start justify-between gap-3 rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink hover:text-accent">
+                      <span>{resource.label}</span>
+                      <span aria-hidden="true" class="shrink-0 text-accent">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </details>
-          ))}
-        </div>
-      </>
-    )
+          )}
+        </section>
+      )
+    }
+  </div>
+</Base>
+
+<script>
+  const setupMaterialDrawers = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-materials-open]').forEach((button) => {
+      if (button.dataset.materialsReady === 'true') return;
+      button.dataset.materialsReady = 'true';
+      button.addEventListener('click', () => {
+        const dialog = document.getElementById(button.dataset.materialsOpen ?? '');
+        if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      });
+    });
+
+    document.querySelectorAll<HTMLDialogElement>('.materials-dialog').forEach((dialog) => {
+      if (dialog.dataset.materialsReady === 'true') return;
+      dialog.dataset.materialsReady = 'true';
+      dialog.querySelector<HTMLButtonElement>('[data-materials-close]')?.addEventListener('click', () => dialog.close());
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+
+      const search = dialog.querySelector<HTMLInputElement>('[data-materials-search]');
+      const empty = dialog.querySelector<HTMLElement>('[data-materials-empty]');
+      search?.addEventListener('input', () => {
+        const query = search.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        dialog.querySelectorAll<HTMLElement>('[data-material-item]').forEach((item) => {
+          const visible = (item.dataset.searchText ?? '').includes(query);
+          item.hidden = !visible;
+          if (visible) visibleCount += 1;
+        });
+
+        dialog.querySelectorAll<HTMLElement>('[data-material-group]').forEach((group) => {
+          group.hidden = !group.querySelector('[data-material-item]:not([hidden])');
+        });
+
+        if (empty) empty.hidden = visibleCount > 0;
+      });
+
+      dialog.addEventListener('close', () => {
+        if (!search || search.value === '') return;
+        search.value = '';
+        search.dispatchEvent(new Event('input'));
+      });
+    });
+  };
+
+  setupMaterialDrawers();
+  document.addEventListener('astro:page-load', setupMaterialDrawers);
+</script>
+
+<style>
+  .course-page--history {
+    --color-accent: #a63a2f;
+    --color-accent-dark: #72271f;
+    --color-accent-soft: #fff0ed;
   }
 
-  {
-    resources.length > 0 && (
-      <>
-        <h2 class="mt-14 font-display text-3xl font-bold lowercase">resources</h2>
-        <ul class="mt-4 space-y-2">
-          {resources.map((r) => (
-            <li>
-              <a href={r.href} class="text-accent hover:text-accent-dark underline underline-offset-4">
-                {r.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </>
-    )
+  .course-page--classified {
+    --color-accent: #765200;
+    --color-accent-dark: #503800;
+    --color-accent-soft: #fff6ce;
   }
-</Base>
+
+  .course-page--scoreboard {
+    --color-accent: #08765a;
+    --color-accent-dark: #04503d;
+    --color-accent-soft: #e4fff5;
+  }
+
+  .unit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.75rem;
+  }
+
+  .learning-hub-trigger,
+  .course-map__hub-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    transition: transform 150ms ease, background-color 150ms ease;
+  }
+
+  .learning-hub-trigger {
+    min-height: 2.2rem;
+    padding: 0.42rem 0.72rem;
+  }
+
+  .course-map__hub-link {
+    margin-top: 1rem;
+    padding: 0.55rem 0.8rem;
+  }
+
+  .learning-hub-trigger:hover,
+  .course-map__hub-link:hover {
+    background: var(--color-accent-dark);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .materials-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.2rem;
+    padding: 0.42rem 0.58rem 0.42rem 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, var(--color-line));
+    border-radius: 999px;
+    background: white;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    box-shadow: 0 8px 20px -20px var(--color-ink);
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .materials-trigger:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -20px var(--color-accent-dark);
+  }
+
+  .materials-trigger:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 32%, transparent);
+    outline-offset: 3px;
+  }
+
+  .materials-trigger__count {
+    display: inline-flex;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: white;
+    font-size: 0.6rem;
+  }
+
+  .materials-trigger__arrow {
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    transition: transform 150ms ease;
+  }
+
+  .materials-trigger:hover .materials-trigger__arrow {
+    transform: translateX(2px);
+  }
+
+  .materials-dialog {
+    inset: 0 0 0 auto;
+    width: min(39rem, 100%);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .materials-dialog::backdrop {
+    background: rgb(18 18 22 / 0.48);
+    backdrop-filter: blur(3px);
+  }
+
+  .materials-sheet {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background:
+      linear-gradient(150deg, color-mix(in srgb, var(--color-accent-soft) 55%, white) 0%, white 25%),
+      white;
+    box-shadow: -30px 0 70px -42px rgb(0 0 0 / 0.65);
+    animation: materials-enter 190ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes materials-enter {
+    from { transform: translateX(1.25rem); opacity: 0.7; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .materials-sheet__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.55rem 1.55rem 1.2rem;
+    border-top: 4px solid var(--color-accent);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .materials-sheet__eyebrow,
+  .materials-sheet__count,
+  .materials-group h3 {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+  }
+
+  .materials-sheet__eyebrow {
+    color: var(--color-accent-dark);
+    font-size: 0.61rem;
+  }
+
+  .materials-sheet__title {
+    max-width: 30rem;
+    margin-top: 0.28rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 5vw, 2.35rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .materials-sheet__count {
+    margin-top: 0.6rem;
+    color: var(--color-ink-soft);
+    font-size: 0.56rem;
+  }
+
+  .materials-sheet__close {
+    display: inline-flex;
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: white;
+    color: var(--color-ink);
+    font-size: 1.55rem;
+    line-height: 1;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .materials-sheet__close:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    transform: rotate(4deg);
+  }
+
+  .materials-search {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 1.1rem 1.55rem 0;
+    padding: 0.72rem 0.82rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: white;
+    color: var(--color-ink-soft);
+    box-shadow: 0 12px 30px -28px var(--color-ink);
+  }
+
+  .materials-search:focus-within {
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 11%, transparent);
+  }
+
+  .materials-search input {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: 0.86rem;
+  }
+
+  .materials-search input::placeholder {
+    color: var(--color-ink-soft);
+  }
+
+  .materials-sheet__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.35rem 1.55rem 2.75rem;
+    overscroll-behavior: contain;
+  }
+
+  .materials-group + .materials-group {
+    margin-top: 1.6rem;
+  }
+
+  .materials-group h3 {
+    margin-bottom: 0.62rem;
+    color: var(--color-ink-soft);
+    font-size: 0.59rem;
+  }
+
+  .materials-group ul {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .materials-group a {
+    display: flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.72rem;
+    background: rgb(255 255 255 / 0.84);
+    color: var(--color-ink);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.35;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .materials-group a span:last-child {
+    flex: 0 0 auto;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+  }
+
+  .materials-group a:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-line));
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    transform: translateX(2px);
+    box-shadow: 0 12px 28px -25px var(--color-accent-dark);
+  }
+
+  .materials-empty {
+    padding: 2.5rem 1rem;
+    color: var(--color-ink-soft);
+    text-align: center;
+    font-size: 0.86rem;
+  }
+
+  .course-map {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    border-radius: 1.1rem;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 54%, white) 0%, white 42%),
+      white;
+    box-shadow: 0 24px 55px -44px rgb(23 23 28 / 0.7);
+  }
+
+  .course-map::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent) 0 28%, color-mix(in srgb, var(--color-accent) 18%, transparent) 66%, transparent);
+    content: '';
+  }
+
+  .course-map__header,
+  .course-map__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.4rem;
+  }
+
+  .course-map__header {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .course-map__status,
+  .course-map__count,
+  .course-map__eyebrow,
+  .course-map__progress-label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+
+  .course-map__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-accent-dark);
+    font-size: 0.64rem;
+  }
+
+  .course-map__status-dot {
+    width: 0.48rem;
+    height: 0.48rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  .course-map__count {
+    color: var(--color-ink);
+    font-size: 0.68rem;
+  }
+
+  .course-map__count span {
+    color: var(--color-ink-soft);
+    font-weight: 500;
+  }
+
+  .course-map__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .course-map__now,
+  .course-map__route {
+    padding: 1.65rem 1.4rem 1.75rem;
+  }
+
+  .course-map__now {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 15.5rem;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    border-right: 1px solid var(--color-line);
+  }
+
+  .course-map__ghost-number {
+    position: absolute;
+    z-index: -1;
+    right: -0.25rem;
+    bottom: -1.55rem;
+    color: color-mix(in srgb, var(--color-accent) 7%, transparent);
+    font-family: var(--font-display);
+    font-size: clamp(8rem, 14vw, 11rem);
+    font-weight: 700;
+    letter-spacing: -0.1em;
+    line-height: 1;
+  }
+
+  .course-map__eyebrow {
+    color: var(--color-accent-dark);
+    font-size: 0.61rem;
+  }
+
+  .course-map__title {
+    position: relative;
+    max-width: 27rem;
+    margin-top: 0.55rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.03;
+  }
+
+  .course-map__blurb {
+    position: relative;
+    max-width: 29rem;
+    margin-top: 0.8rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .course-map__route {
+    background: rgb(255 255 255 / 0.72);
+  }
+
+  .course-map__units {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-top: 0.8rem;
+  }
+
+  .course-map__unit {
+    display: grid;
+    grid-template-columns: 1.8rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.62rem;
+    min-height: 2.55rem;
+    padding: 0.38rem 0.55rem;
+    border: 1px solid transparent;
+    border-radius: 0.7rem;
+    color: var(--color-ink-soft);
+  }
+
+  .course-map__unit-number {
+    display: flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: white;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+  }
+
+  .course-map__unit-name {
+    min-width: 0;
+    font-size: 0.73rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .course-map__unit[data-state='current'] {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: white;
+    box-shadow: 0 8px 22px -18px var(--color-ink);
+  }
+
+  .course-map__unit[data-state='current'] .course-map__unit-number {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .course-map__unit[data-state='complete'] {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+  }
+
+  .course-map__unit[data-state='complete'] .course-map__unit-number {
+    border-color: color-mix(in srgb, var(--color-accent) 28%, transparent);
+    color: var(--color-accent-dark);
+  }
+
+  .course-map__footer {
+    align-items: flex-start;
+    border-top: 1px solid var(--color-line);
+    background: rgb(250 250 247 / 0.72);
+  }
+
+  .course-map__progress {
+    width: min(100%, 25rem);
+  }
+
+  .course-map__progress-label {
+    display: flex;
+    justify-content: space-between;
+    color: var(--color-ink-soft);
+    font-size: 0.55rem;
+  }
+
+  .course-map__progress-track {
+    height: 0.3rem;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-line);
+  }
+
+  .course-map__progress-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-accent);
+  }
+
+  @media (max-width: 767px) {
+    .materials-dialog {
+      width: 100%;
+    }
+
+    .materials-sheet {
+      border-left: 0;
+    }
+
+    .materials-sheet__header {
+      padding: 1.2rem 1rem 1rem;
+    }
+
+    .materials-search {
+      margin: 0.9rem 1rem 0;
+    }
+
+    .materials-sheet__body {
+      padding: 1.1rem 1rem 2rem;
+    }
+
+    .course-map__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .course-map__now {
+      min-height: 13.5rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-line);
+    }
+
+    .course-map__units {
+      grid-template-columns: 1fr;
+    }
+
+    .course-map__footer {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .course-map__progress {
+      width: 100%;
+    }
+
+  }
+</style>

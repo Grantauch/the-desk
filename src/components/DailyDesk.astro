@@ -1,0 +1,97 @@
+---
+interface Props {
+  note: string;
+}
+
+const { note } = Astro.props;
+---
+
+<section class="daily-desk mt-12" data-daily-desk>
+  <header class="daily-desk__header">
+    <div>
+      <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
+      <p class="mt-2 text-sm lowercase text-ink-soft">{note}</p>
+    </div>
+    <time class="daily-desk__date" data-daily-date>today</time>
+  </header>
+  <div class="daily-desk__grid">
+    <slot />
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-daily-desk]').forEach((desk) => {
+    const date = desk.querySelector<HTMLTimeElement>('[data-daily-date]');
+    if (!date) return;
+    const now = new Date();
+    date.dateTime = now.toISOString().slice(0, 10);
+    date.textContent = new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    }).format(now);
+  });
+</script>
+
+<style>
+  .daily-desk {
+    padding: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--color-paper) 78%, white);
+    box-shadow: 0 26px 58px -50px rgb(23 23 28 / 0.78);
+  }
+
+  .daily-desk__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .daily-desk__date {
+    flex: none;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 24%, transparent);
+    border-radius: 999px;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .daily-desk__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .daily-desk__grid :global(.daily-card:first-child) {
+    grid-column: 1 / -1;
+    min-height: 10.5rem;
+  }
+
+  .daily-desk__grid :global(.daily-card:first-child .daily-text),
+  .daily-desk__grid :global(.daily-card:first-child .today-text) {
+    max-width: 44rem;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 639px) {
+    .daily-desk__header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .daily-desk__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .daily-desk__grid :global(.daily-card:first-child) {
+      grid-column: auto;
+    }
+  }
+</style>

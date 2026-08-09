@@ -2,6 +2,7 @@
 // If you add a page to src/pages/, add its path here too.
 import type { APIRoute } from 'astro';
 import { learningHubs } from '../data/learningHubs';
+import passConfig from '../data/pass-config.json';
 
 const paths = [
   '/',
@@ -11,17 +12,19 @@ const paths = [
   '/beyond-the-scoreboard/',
   '/beyond-the-scoreboard/syllabus/',
   '/resources/',
+  '/learning-hubs/',
+  ...learningHubs.map((hub) => `/learn/${hub.courseSlug}/${hub.slug}/`),
   '/simulations/',
   '/games/',
+  '/glossary/',
   '/rabbit-holes/',
   '/tools/',
+  ...(passConfig.enabled ? ['/pass/'] : []),
   '/calendar/',
   '/fact-check-friday/',
   '/showcase/',
   '/announcements/',
   '/about/',
-  '/learning-hubs/',
-  ...learningHubs.map((hub) => `/learn/${hub.courseSlug}/${hub.slug}/`),
 ];
 
 export const GET: APIRoute = ({ site }) => {

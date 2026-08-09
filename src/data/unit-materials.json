@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "courses": {
+    "US History": {
+      "Reconstruction": [],
+      "The Gilded Age": [
+        "062-detailed-day-1-gilded-age-game-guide",
+        "063-detailed-day-2-gilded-age-game-guide",
+        "011-02-3d-railroad-notes",
+        "022-04-gilded-age-robber-barons",
+        "034-06-gilded-age-images-overview",
+        "066-factors-of-second-industrial-revolution-presentation",
+        "076-improved-gilded-age-bazaar-game-presentation",
+        "079-labors-response-to-industrial-growth-presentation",
+        "092-robber-barons-bazaar-full-game-guide-presentation-continued",
+        "093-robber-barons-bazaar-game-setup-presentation",
+        "096-sherman-anti-trust-act",
+        "107-urbanization-presentation",
+        "108-urbanization-life-in-the-big-city",
+        "109-urbanization-life-in-the-big-city-1"
+      ],
+      "The Progressive Era & Empire": [
+        "ppt-progressive-era-review-part-1",
+        "ppt-queen-liliuokalani-hawaii",
+        "006-01-progressive-era-overview",
+        "018-03-imperialism-progressives-presidents",
+        "025-04-spanish-american-war-2",
+        "026-04-spanish-american-war-in-3d",
+        "075-important-figures-progressive-era-grade9",
+        "083-media-power-spanish-american-war",
+        "086-progressive-era-vocab",
+        "087-progressive-party-presentation",
+        "102-theodore-roosevelt-lesson"
+      ],
+      "WWI & the Twenties": [
+        "ppt-world-war-i-complete",
+        "ppt-wilson-fourteen-points",
+        "073-georges-clemenceau-france-s-father-victory-in-world-war-i",
+        "235-jeannette-rankin-pioneering-congresswoman-and-peace-advocate",
+        "113-woodrow-wilson-progressive-president-and-world-war-i-leader",
+        "116-wwi-people-to-know",
+        "138-roaring-20s-reading",
+        "139-wwi-air-combat-the-absurd-evolution",
+        "061-david-lloyd-george-architect-of-modern-britain",
+        "070-franz-ferdinand-the-archduke-whose-assassination-sparked-world-w",
+        "077-john-j-pershing-america-s-world-war-i-general",
+        "078-kaiser-wilhelm-ii-germany-s-last-emperor",
+        "099-student-version-world-war-1-notes",
+        "106-tsar-nicholas-ii-the-last-emperor-of-russia",
+        "111-vittorio-orlando-italy-s-world-war-i-prime-minister",
+        "114-world-organizations",
+        "115-ww1-map"
+      ],
+      "Depression & the New Deal": [
+        "015-02-depression-and-new-deal",
+        "023-04-great-depression-honors-ap",
+        "068-flint-sit-down-strike-part1",
+        "069-flint-sit-down-strike-part2"
+      ],
+      "World War II": [
+        "157-wwii-the-beginning-intro",
+        "140-1938-activity-the-storm-gathers",
+        "141-1938-lecture-the-storm-gathers",
+        "142-1939-activity-the-world-ignites",
+        "143-1939-lecture-the-world-ignites",
+        "144-1940-activity-britain-stands-alone",
+        "145-1940-lecture-britain-stands-alone",
+        "146-1941-lecture-a-date-which-will-live-in-infamy",
+        "147-1942-activity-turning-tides",
+        "148-1942-lecture-turning-tides",
+        "149-1943-activity-cracking-the-fortress",
+        "150-1943-lecture-cracking-the-fortress",
+        "151-1944-activity-the-great-crusade",
+        "152-1944-lecture-the-great-crusade",
+        "132-wwii-1945-lecture-victory-and-ashes",
+        "135-wwii-pacific-war-lesson-full",
+        "064-double-v-movement-presentation",
+        "154-d-day-through-german-eyes-reading",
+        "ppt-hiroo-onoda",
+        "134-wwii-long-term-impacts",
+        "153-big-sort-wwii-review-game",
+        "155-wwii-study-guide-digital",
+        "156-wwii-study-guide-print",
+        "007-01-rise-of-dictators",
+        "012-02-appeasement-presentation",
+        "019-03-rise-of-the-allies",
+        "021-04-battles-of-world-war-2",
+        "027-05-coloring-map-of-war-in-the-pacific",
+        "035-07-american-homefront-during-ww2",
+        "037-08-world-organizations-events",
+        "038-08-wwii-battles-timeline-review",
+        "042-10-the-holocaust",
+        "045-11-double-v-presentation",
+        "047-12-ww2-jeopardy",
+        "067-finalized-totalitarian-leaders-lesson-ppt",
+        "084-mussolini-lesson-additions-corrected"
+      ],
+      "Cold War America": [
+        "002-cold-war-timeline-slides",
+        "ppt-origins-cold-war",
+        "ppt-space-race-sputnik",
+        "ppt-jfk-lesser-known-facts",
+        "003-01-cold-war-policies",
+        "017-03-communism-in-china",
+        "028-05-containment-in-korea-and-vietnam",
+        "029-05-decolonization-in-africa",
+        "036-07-kennedy-presidency",
+        "041-10-cold-war-overview",
+        "044-11-cold-war-leaders",
+        "103-thespaceracepowerpoint-1"
+      ],
+      "The Civil Rights Movement": [
+        "013-02-civil-rights-overview",
+        "043-11-civil-rights-review"
+      ],
+      "Vietnam to Watergate": [
+        "ppt-vietnam-protest-song",
+        "005-01-nixon-and-watergate-notes",
+        "028-05-containment-in-korea-and-vietnam",
+        "112-watergate-slidedrop"
+      ],
+      "Reagan to Right Now": [
+        "ppt-gulf-war",
+        "016-02-reagan-and-the-80s",
+        "020-04-america-in-the-90s",
+        "031-05-war-in-the-middle-east",
+        "039-09-detente-reagan-and-end-of-the-cold-war",
+        "040-09-modern-immigration",
+        "050-9-11-timeline",
+        "057-citizenship-and-immigration"
+      ]
+    },
+    "Hidden History": {
+      "The Official Story vs. The Rumor": [
+        "456-unit-1-roswell-deck",
+        "487-hidden-history-unit-1-source-packet"
+      ],
+      "Follow the Evidence": [
+        "458-unit-2-follow-the-evidence-deck",
+        "457-unit-2-student-source-packet"
+      ],
+      "Reading the Record": [
+        "462-unit-3-reading-the-record-deck",
+        "459-unit-3-mini-dbq-student",
+        "460-unit-3-mini-dbq-documents-prompt",
+        "461-unit-3-student-source-packet"
+      ],
+      "Trust and Verify": [
+        "466-unit-4-trust-and-verify-deck",
+        "463-unit-4-captured-post-practice-student",
+        "464-unit-4-launch-hearing-mini-packet-student",
+        "465-unit-4-student-source-packet",
+        "488-hidden-history-unit-4-myth-stations-verification-lab",
+        "489-hidden-history-unit-4-mkultra-hearing-source-packet",
+        "490-hidden-history-unit-4-performance-task-claim-bank"
+      ],
+      "Watching the Watchers": [
+        "468-unit-5-watching-the-watchers-deck",
+        "467-unit-5-student-source-packet",
+        "491-hidden-history-unit-5-debate-brief"
+      ],
+      "The Verdict": [
+        "470-unit-6-the-verdict-deck",
+        "469-unit-6-student-source-packet"
+      ]
+    },
+    "Beyond the Scoreboard": {
+      "Inventing American Sport, 1860s–1900": [
+        "473-unit-1-inventing-american-sport-deck"
+      ],
+      "The National Stage, 1900–1945": [
+        "493-scoreboard-unit-2-the-national-stage-deck",
+        "494-scoreboard-unit-2-source-packet"
+      ],
+      "Integration and the Cold War, 1945–1963": [
+        "495-scoreboard-unit-3-integration-cold-war-deck",
+        "496-scoreboard-unit-3-source-packet"
+      ],
+      "The Athlete Revolt, 1963–1980": [
+        "474-unit-4-the-athlete-revolt-deck",
+        "497-scoreboard-unit-4-evidence-packet"
+      ],
+      "The Money Game, 1980–2004": [
+        "498-scoreboard-unit-5-the-money-game-deck",
+        "499-scoreboard-unit-5-source-packet"
+      ],
+      "The Modern Arena, 2004–today": [
+        "500-scoreboard-unit-6-the-modern-arena-deck",
+        "501-scoreboard-unit-6-source-packet"
+      ]
+    }
+  }
+}

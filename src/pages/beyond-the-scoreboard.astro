@@ -2,19 +2,22 @@
 // beyond-the-scoreboard.astro — edit the data below; the layout comes from CoursePage.
 // Mark exactly one unit `current: true` to feature it in the "right now" box.
 import CoursePage from '../components/CoursePage.astro';
+import QuickTake from '../components/QuickTake.astro';
 import TodayCard from '../components/TodayCard.astro';
 import DailyCard from '../components/DailyCard.astro';
+import DailyDesk from '../components/DailyDesk.astro';
+import siteContent from '../data/site-content.json';
 
 // ---- argue this: one bellringer a day ----
 const argueThis = [
-  { tag: 'mirror or engine — the tally is watching', text: 'Sport: mirror or engine? Take today’s side using any case we’ve studied. You may not say "both" until you’ve earned it.' },
-  { tag: 'mirror or engine — the tally is watching', text: 'Should college athletes have been paid all along? Argue it from 1950 first, then from today. Notice what changed.' },
-  { tag: 'mirror or engine — the tally is watching', text: 'Ali lost his prime years to a principle. Would today’s leagues — and today’s sponsors — survive an athlete like that?' },
-  { tag: 'mirror or engine — the tally is watching', text: 'Are public subsidies for stadiums ever worth it? Bring numbers if you have them; bring skepticism either way.' },
-  { tag: 'mirror or engine — the tally is watching', text: 'Smith and Carlos, 1968: was the podium the right forum or the wrong one? Now answer for a player kneeling in 2016. Same answer?' },
-  { tag: 'mirror or engine — the tally is watching', text: 'Does legalized betting change what sports ARE, or just who profits from them?' },
-  { tag: 'mirror or engine — the tally is watching', text: 'Title IX: finished business or unfinished? Point to the money before you answer.' },
-  { tag: 'mirror or engine — the tally is watching', text: 'The transfer portal and NIL: player freedom, or the end of college sports as we knew them? Why not both?' },
+  { tag: 'make the call', text: 'Sport: mirror or engine? Take today’s side using any case we’ve studied. You may not say "both" until you’ve earned it.' },
+  { tag: 'make the call', text: 'Should college athletes have been paid all along? Argue it from 1950 first, then from today. Notice what changed.' },
+  { tag: 'make the call', text: 'Ali lost his prime years to a principle. Would today’s leagues—and today’s sponsors—survive an athlete like that?' },
+  { tag: 'make the call', text: 'Are public subsidies for stadiums ever worth it? Follow the money.' },
+  { tag: 'make the call', text: 'Smith and Carlos, 1968: was the podium the right forum or the wrong one? Now answer for a player kneeling in 2016. Same answer?' },
+  { tag: 'make the call', text: 'Does legalized betting change what sports are, or just who profits from them?' },
+  { tag: 'make the call', text: 'Title IX: finished business or unfinished? Point to the money before you answer.' },
+  { tag: 'make the call', text: 'The transfer portal and NIL: player freedom, or the end of college sports as we knew them?' },
 ];
 
 // ---- this day in sports (m = month, d = day, y = year) ----
@@ -72,6 +75,7 @@ const rules = [
 const units = [
   {
     name: 'Inventing American Sport, 1860s–1900',
+    hubSlug: 'inventing-american-sport',
     blurb: 'Industrial cities build the modern game; the color line is drawn.',
     current: true,
     topics: [
@@ -81,6 +85,7 @@ const units = [
       'Boxing, bicycles, and who was allowed to compete for money',
       'The four threads we follow all semester: business, media, law, and who gets to play',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'unit 1 slides — inventing american sport', href: 'https://docs.google.com/presentation/d/1UG0-kg95DWrJsIEQDcreiqYOLf7R7-qGf34Ha6cTsqE/present' },
       { label: 'unit 1 lessonhub', href: '/hubs/scoreboard-unit1.html' },
@@ -89,6 +94,7 @@ const units = [
   },
   {
     name: 'The National Stage, 1900–1945',
+    hubSlug: 'the-national-stage',
     blurb: 'Jack Johnson, the Black Sox, radio, and Detroit’s own Joe Louis.',
     topics: [
       'Jack Johnson: the heavyweight title as a national controversy',
@@ -97,6 +103,7 @@ const units = [
       'The Negro Leagues: a parallel major league built behind the color line',
       'Jesse Owens in Berlin, Joe Louis vs. Schmeling, and Hank Greenberg in Detroit — sport as world politics',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'unit 2 slides — the national stage', href: 'https://docs.google.com/presentation/d/1W0126sTK0g0KCyLPDDhwK29Q3AAOZnRl-kTSbt3m4VI/present' },
       { label: 'unit 2 source packet', href: 'https://docs.google.com/document/d/1uL3KDBPiMTwfHoRj_cW889KePyTYdbVJnPkrYUNs6G4/view' },
@@ -104,6 +111,7 @@ const units = [
   },
   {
     name: 'Integration and the Cold War, 1945–1963',
+    hubSlug: 'integration-and-the-cold-war',
     blurb: 'Jackie Robinson, television, and the Olympics as superpower contest.',
     topics: [
       'Jackie Robinson: the plan, the pressure, and what integration actually cost',
@@ -112,6 +120,7 @@ const units = [
       'The Olympics as Cold War scoreboard: medals as foreign policy',
       'The thread chart check-in: business, media, law, and access at mid-century',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'unit 3 slides — integration and the cold war', href: 'https://docs.google.com/presentation/d/1lDfFATRutW9jX12nBottE2bas1n0Pdqn7RMZd-u20Po/present' },
       { label: 'unit 3 source packet', href: 'https://docs.google.com/document/d/1Sb_NxsnWKkeMO-SUezAioTJaU5kavsHBGQPLxweAl8s/view' },
@@ -119,6 +128,7 @@ const units = [
   },
   {
     name: 'The Athlete Revolt, 1963–1980',
+    hubSlug: 'the-athlete-revolt',
     blurb: 'Ali and Vietnam, Mexico City 1968, Curt Flood, and Title IX.',
     topics: [
       'Muhammad Ali refuses the draft — and pays for it with his prime',
@@ -127,6 +137,7 @@ const units = [
       'Title IX: thirty-seven words that rebuilt American sports',
       'Billie Jean King and the Battle of the Sexes — spectacle with stakes',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'unit 4 slides — the athlete revolt', href: 'https://docs.google.com/presentation/d/11U3iiF7eyph2c1pBBHbjfKQwQ77V73n6-xdHfPWsmqk/present' },
       { label: 'unit 4 evidence packet', href: 'https://docs.google.com/document/d/1MZul5boFh2BukndI8GnvfFvUvzoAm1HV_IKDpH_TMuo/view' },
@@ -134,6 +145,7 @@ const units = [
   },
   {
     name: 'The Money Game, 1980–2004',
+    hubSlug: 'the-money-game',
     blurb: 'ESPN, Jordan, steroids, and the college amateurism debate.',
     topics: [
       'ESPN: what happens when sports become a 24-hour product',
@@ -142,6 +154,7 @@ const units = [
       'College amateurism: everyone gets paid except the players',
       'The Malice at the Palace — Michigan’s own case study in media, race, and blame',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'unit 5 slides — the money game', href: 'https://docs.google.com/presentation/d/1nMgdDBdEpg_uCX3yA3uYBh_lhn4UPn0TLoJJpwTrZRw/present' },
       { label: 'unit 5 source packet', href: 'https://docs.google.com/document/d/1EthXqxIr_opDehzD8O1EVkBmB49OqIJgpBe4YFIttY4/view' },
@@ -149,6 +162,7 @@ const units = [
   },
   {
     name: 'The Modern Arena, 2004–today',
+    hubSlug: 'the-modern-arena',
     blurb: 'Social media, concussions, NIL, legalized betting — and your Michigan capstone.',
     topics: [
       'Athletes with their own microphones: social media ends the filtered era',
@@ -157,6 +171,7 @@ const units = [
       'The women’s sports boom and the fight over the money that follows it',
       'Flint’s Claressa Shields — and your Michigan sports history capstone',
     ],
+    materialsAudience: 'student',
     materials: [
       { label: 'unit 6 slides — the modern arena', href: 'https://docs.google.com/presentation/d/1SvyW8PB6qtTnGOaDRPKI8c0zaZkK03fMRxbWHxhxt1c/present' },
       { label: 'unit 6 source packet', href: 'https://docs.google.com/document/d/1jaQU2mBU_sCT9Yl_XkqE-cmKNHAK0f5ePGpzAx33mJ4/view' },
@@ -165,8 +180,10 @@ const units = [
 ];
 
 const resources = [
-  { label: 'Course syllabus', href: '/beyond-the-scoreboard/syllabus/' },
+  { label: 'browse the full beyond the scoreboard library', href: '/resources/?course=Beyond+the+Scoreboard' },
+  { label: 'beyond the scoreboard glossary', href: '/glossary/?course=Beyond+the+Scoreboard' },
   { label: 'Google Classroom', href: 'https://classroom.google.com' },
+  { label: 'Course syllabus', href: '/beyond-the-scoreboard/syllabus/' },
   { label: 'Primary source document sets', href: 'https://docs.google.com/document/d/1vlyS-QjUCHPXjOhzAfKKR3VIhviZiUSkn-KPNYL3Szo/view' },
   { label: 'Organizers, capstone & rubrics', href: 'https://docs.google.com/document/d/1f81B7HS1ZqcnBpaZ2tM7wkDbBs3_s-1tXblK4d9fdfw/view' },
   { label: 'Cold openers — 90 rabbit holes worth taking', href: 'https://docs.google.com/document/d/1bKlrexLBE7pLyIIHrVYjBoBoSYEFG-rOwJa4SzLlFGM/view' },
@@ -177,44 +194,34 @@ const resources = [
   // add more: { label: 'Unit 3 source packet', href: '...' },
 ];
 
-const glossary = [
-  { term: 'the color line', def: 'The rule — written and unwritten — that kept Black athletes out of white leagues for half a century. Drawn on purpose, defended on purpose, broken on purpose.' },
-  { term: 'reserve clause', def: 'The contract rule that bound a player to one team for life, at whatever the team offered. It took a Supreme Court case and a union to kill it.' },
-  { term: 'free agency', def: 'A player’s right to sell their labor to the highest bidder — standard in every other job, revolutionary in sports.' },
-  { term: 'amateurism', def: 'The rule that athletes shouldn’t be paid, invented by people who were being paid. The college version lasted a century before NIL cracked it.' },
-  { term: 'title ix', def: 'The 1972 law barring sex discrimination in federally funded education — thirty-seven words that transformed who gets to play.' },
-  { term: 'nil', def: 'Name, image, and likeness — a college athlete’s right to earn money from being themselves. The newest chapter in the oldest fight in sports.' },
-  { term: 'barnstorming', def: 'Touring teams playing exhibition games town to town — how the Negro Leagues and early pros reached fans the big leagues ignored.' },
-  { term: 'boycott', def: 'Refusing to play as protest. From the 1968 Olympic project to modern walkouts, the threat of an empty arena is leverage.' },
-  { term: 'broadcast rights', def: 'The money engine of modern sports: leagues sell the right to show games, and everything from realignment to start times follows the checks.' },
-  { term: 'sanctioning body', def: 'The organization that makes the rules and enforces them — leagues, the NCAA, the IOC. Every era’s fights end up on their desk.' },
-  { term: 'mirror or engine', def: 'The course question: does sport reflect American society, or drive it? Every unit adds a tally mark to one side. The final answer is yours.' },
-  { term: 'unwritten rule', def: 'A rule everyone enforces and no one wrote down — like the color line for fifty years. The most powerful rules in sports history never appeared in a rulebook.' },
-  { term: 'parallel institution', def: 'What excluded people build when the front door is locked: the Negro Leagues ran their own teams, owners, and All-Star games — a major league behind the color line.' },
-  { term: 'rights fees', def: 'What networks pay leagues to broadcast games. Follow this number through the decades and you can explain most of what changed about sports without mentioning a single game.' },
-  { term: 'conscientious objector', def: 'Someone who refuses military service on moral or religious grounds — the legal status Ali claimed in 1967, at the cost of his title and nearly his freedom. The Supreme Court eventually agreed, 8–0.' },
-  { term: 'ped', def: 'Performance-enhancing drug. The steroid era’s three-letter shadow — and a debate about records, fairness, and what "natural" even means that the leagues still haven’t settled.' },
-  { term: 'commissioner power', def: 'The authority to act "in the best interests of the game" — invented after the Black Sox scandal, tested by every scandal since. Who guards the game from its guardians?' },
-  { term: 'gatekeeper', def: 'Whoever decides what gets seen and who gets in — sportswriters, networks, leagues. Social media didn’t kill the gatekeepers, but it did give the athletes their own gate.' },
-];
 ---
 
 <CoursePage
   title="beyond the scoreboard"
-  tagline="american history through sports. the games were never just games."
-  intro="This course uses sports as a lens on America from the 1860s to today. Every unit follows four threads — business and labor, media and technology, law and government, and the fight over who gets to play — using real primary sources: newspapers, broadcast footage, court decisions, congressional testimony. We read what people said at the time before deciding what we think now; that's what separates history from hot takes. It ends with a research capstone on a sports story from Michigan's own backyard."
+  libraryCourse="Beyond the Scoreboard"
+  theme="scoreboard"
+  identityLabel="film room // history in play"
+  tagline={siteContent.courses.beyondTheScoreboard.tagline}
+  intro={siteContent.courses.beyondTheScoreboard.intro}
   units={units}
   resources={resources}
-  glossary={glossary}
 >
-  <section class="mt-12">
-    <h2 class="font-display text-3xl font-bold lowercase">the daily desk<span class="text-accent">.</span></h2>
-    <p class="mt-2 text-sm text-ink-soft lowercase">new every day. settle it at the whiteboard, not in the comments.</p>
-    <div class="mt-6 grid gap-6 md:grid-cols-2">
-      <TodayCard label="this day in sports" events={sportsEvents} />
-      <DailyCard label="the stat that tells a story" entries={stats} />
-      <DailyCard label="the rulebook remembers" entries={rules} />
-      <DailyCard label="argue this" entries={argueThis} />
-    </div>
-  </section>
+  <QuickTake
+    slot="hook"
+    id="scoreboard-opening-take"
+    eyebrow="make the call before the replay."
+    question="What moves American sports history fastest?"
+    options={[
+      { label: 'the athletes', response: 'Talent gets attention. Protest and star power can turn that attention into pressure.' },
+      { label: 'money + media', response: 'Follow the rights fees, sponsors, and cameras. They explain more of the modern game than most box scores do.' },
+      { label: 'law + rules', response: 'A few lines in a law or rulebook can redraw the entire field. Title IX did it in thirty-seven words.' },
+    ]}
+  />
+
+  <DailyDesk note="history, but with a scoreboard.">
+    <TodayCard label="this day in sports" events={sportsEvents} />
+    <DailyCard label="the stat that tells a story" entries={stats} />
+    <DailyCard label="the rulebook remembers" entries={rules} />
+    <DailyCard label="argue this" entries={argueThis} />
+  </DailyDesk>
 </CoursePage>
