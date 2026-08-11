@@ -5,13 +5,11 @@
 // That's a feature (no student data), not a bug.
 import Base from '../layouts/Base.astro';
 import passConfig from '../data/pass-config.json';
+import PageHeader from '../components/PageHeader.astro';
 ---
 
 <Base title="tools" description="classroom tools — timer, group maker, cold-call picker, dice, and scoreboard.">
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
-    tools<span class="text-accent">.</span>
-  </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">small classroom machines for when class needs to move.</p>
+  <PageHeader eyebrow="classroom controls" title="tools" intro="small classroom machines for when class needs to move." />
 
   {passConfig.enabled && (
     <a href="/pass/" class="surface-link mt-8 flex items-center justify-between gap-5 rounded-xl border border-line bg-accent-soft p-5">
@@ -29,7 +27,8 @@ import passConfig from '../data/pass-config.json';
     <h2 class="font-display text-2xl font-bold lowercase">timer<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">For discussions, quick-writes, and "you have five minutes" that means it.</p>
 
-    <p class="mt-5 font-mono font-bold text-7xl sm:text-8xl tabular-nums tracking-tight" id="timer-display">05:00</p>
+    <p class="mt-5 font-mono font-bold tabular-nums tracking-tight" id="timer-display" role="timer">05:00</p>
+    <p id="timer-status" class="sr-only" role="status" aria-live="polite"></p>
 
     <div class="mt-4 flex flex-wrap gap-2">
       <button type="button" class="t-preset font-mono text-sm border-2 border-ink px-3 py-1.5 hover:bg-accent hover:text-white hover:border-accent transition-colors" data-min="1">1 min</button>
@@ -42,7 +41,7 @@ import passConfig from '../data/pass-config.json';
       </label>
     </div>
 
-    <div class="mt-4 flex gap-2">
+    <div class="timer-actions mt-4 flex flex-wrap gap-2">
       <button type="button" id="timer-start" class="pop-ink bg-accent text-white font-mono lowercase px-5 py-2">start</button>
       <button type="button" id="timer-pause" class="font-mono lowercase border-2 border-ink px-5 py-2 hover:bg-ink hover:text-paper transition-colors">pause</button>
       <button type="button" id="timer-reset" class="font-mono lowercase border-2 border-line text-ink-soft px-5 py-2 hover:border-ink hover:text-ink transition-colors">reset</button>
@@ -82,7 +81,7 @@ import passConfig from '../data/pass-config.json';
       <button type="button" id="make-groups" class="pop-ink bg-accent text-white lowercase px-5 py-2">shuffle</button>
     </div>
 
-    <div id="groups-out" class="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3"></div>
+    <div id="groups-out" class="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3" role="status" aria-live="polite"></div>
   </section>
 
   <!-- ============ cold call ============ -->
@@ -99,7 +98,7 @@ import passConfig from '../data/pass-config.json';
       <button type="button" id="reset-picks" class="font-mono text-sm lowercase border-2 border-line text-ink-soft px-3 py-1.5 hover:border-ink hover:text-ink transition-colors">reset</button>
     </div>
 
-    <p id="picked-name" class="mt-5 font-display font-bold text-4xl sm:text-5xl lowercase min-h-[1.2em]"></p>
+    <p id="picked-name" class="mt-5 font-display font-bold text-4xl sm:text-5xl lowercase min-h-[1.2em]" role="status" aria-live="polite"></p>
     <p id="picked-log" class="mt-3 font-mono text-xs text-ink-soft lowercase"></p>
   </section>
 
@@ -124,7 +123,7 @@ import passConfig from '../data/pass-config.json';
       <button type="button" id="roll-dice" class="pop-ink bg-accent text-white lowercase px-5 py-2">roll</button>
     </div>
 
-    <div id="dice-out" class="mt-4"></div>
+    <div id="dice-out" class="mt-4" role="status" aria-live="polite"></div>
   </section>
 
   <!-- ============ scoreboard ============ -->
@@ -149,7 +148,33 @@ import passConfig from '../data/pass-config.json';
       class="mt-4 w-full border-2 border-line focus:border-accent outline-none rounded-md p-3 font-mono text-sm transition-colors"></textarea>
     <button type="button" id="spin-topic" class="mt-3 pop-ink bg-accent text-white font-mono lowercase px-5 py-2">spin</button>
     <p id="topic-out" class="mt-4 font-display font-bold text-3xl sm:text-4xl lowercase min-h-[1.2em]"></p>
+    <p id="topic-status" class="sr-only" role="status" aria-live="polite"></p>
   </section>
+
+  <style>
+    #timer-display {
+      max-width: 100%;
+      font-size: clamp(3.45rem, 18vw, 6rem);
+      line-height: 0.95;
+      white-space: nowrap;
+    }
+
+    #timer-card {
+      transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    #timer-card.timer-finished {
+      border-color: var(--color-accent);
+      background: var(--color-accent-soft);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 14%, transparent), var(--shadow-card);
+    }
+
+    @media (max-width: 360px) {
+      #timer-card {
+        padding: 1rem;
+      }
+    }
+  </style>
 
   <script>
     // ---------- helpers ----------
@@ -175,6 +200,7 @@ import passConfig from '../data/pass-config.json';
 
     const display = $('timer-display');
     const card = $('timer-card');
+    const timerStatus = $('timer-status');
 
     const paint = () => {
       const m = String(Math.floor(remaining / 60)).padStart(2, '0');
@@ -196,7 +222,7 @@ import passConfig from '../data/pass-config.json';
         osc.start();
         osc.stop(ctx.currentTime + 0.8);
       } catch {
-        /* no audio? the flash still fires */
+        /* no audio? the visible and announced finish state still works */
       }
     };
 
@@ -210,16 +236,14 @@ import passConfig from '../data/pass-config.json';
       remaining = 0;
       paint();
       beep();
-      // flash the card so it's visible from the back row
-      let flashes = 0;
-      const flash = setInterval(() => {
-        card.classList.toggle('bg-accent-soft');
-        if (++flashes >= 6) clearInterval(flash);
-      }, 250);
+      card.classList.add('timer-finished');
+      timerStatus.textContent = 'Timer finished.';
     };
 
     $('timer-start').addEventListener('click', () => {
       if (ticking) return;
+      card.classList.remove('timer-finished');
+      timerStatus.textContent = '';
       const custom = ($('timer-custom') as HTMLInputElement).value;
       if (custom && remaining === total) {
         total = Math.min(180, Math.max(1, Number(custom))) * 60;
@@ -232,22 +256,29 @@ import passConfig from '../data/pass-config.json';
         else paint();
       }, 1000);
       paint();
+      timerStatus.textContent = `Timer started at ${display.textContent}.`;
     });
 
     $('timer-pause').addEventListener('click', () => {
+      const wasRunning = ticking !== null;
       stopTicking();
       paint();
+      timerStatus.textContent = wasRunning ? `Timer paused at ${display.textContent}.` : 'Timer is already paused.';
     });
 
     $('timer-reset').addEventListener('click', () => {
       stopTicking();
       remaining = total;
+      card.classList.remove('timer-finished');
+      timerStatus.textContent = 'Timer reset.';
       paint();
     });
 
     document.querySelectorAll<HTMLButtonElement>('.t-preset').forEach((btn) => {
       btn.addEventListener('click', () => {
         stopTicking();
+        card.classList.remove('timer-finished');
+        timerStatus.textContent = '';
         ($('timer-custom') as HTMLInputElement).value = '';
         total = Number(btn.dataset.min) * 60;
         remaining = total;
@@ -336,11 +367,11 @@ import passConfig from '../data/pass-config.json';
       const div = document.createElement('div');
       div.className = 'border-2 border-ink rounded-md p-4';
       div.innerHTML = `
-        <input value="team ${teamCount}" class="w-full font-display font-bold text-lg lowercase outline-none bg-transparent" />
-        <p class="score font-mono font-bold text-5xl tabular-nums mt-1">0</p>
+        <input value="team ${teamCount}" aria-label="Team ${teamCount} name" class="w-full font-display font-bold text-lg lowercase outline-none bg-transparent" />
+        <p class="score font-mono font-bold text-5xl tabular-nums mt-1" role="status" aria-live="polite" aria-label="Team ${teamCount} score">0</p>
         <div class="mt-2 flex gap-2">
-          <button type="button" class="s-minus font-mono text-sm border-2 border-line px-3 py-1 hover:border-ink transition-colors">−1</button>
-          <button type="button" class="s-plus font-mono text-sm bg-accent text-white px-3 py-1">+1</button>
+          <button type="button" aria-label="Subtract one point from team ${teamCount}" class="s-minus min-h-11 min-w-11 font-mono text-sm border-2 border-line px-3 py-1 hover:border-ink transition-colors">−1</button>
+          <button type="button" aria-label="Add one point to team ${teamCount}" class="s-plus min-h-11 min-w-11 font-mono text-sm bg-accent text-white px-3 py-1">+1</button>
         </div>`;
       const score = div.querySelector('.score') as HTMLElement;
       let n = 0;
@@ -353,20 +384,40 @@ import passConfig from '../data/pass-config.json';
     $('add-team').addEventListener('click', addTeam);
 
     // ---------- topic spinner ----------
-    $('spin-topic').addEventListener('click', () => {
+    const spinTopicButton = $('spin-topic') as HTMLButtonElement;
+    let topicSpin: ReturnType<typeof setInterval> | null = null;
+    spinTopicButton.addEventListener('click', () => {
+      if (topicSpin) {
+        clearInterval(topicSpin);
+        topicSpin = null;
+      }
       const topics = ($('topics') as HTMLTextAreaElement).value
         .split('\n')
         .map((t) => t.trim())
         .filter(Boolean);
       const out = $('topic-out');
+      const status = $('topic-status');
       if (topics.length < 2) {
         out.textContent = 'give me at least two topics.';
+        status.textContent = 'Add at least two topics.';
         return;
       }
-      let ticks = 0;
-      const spin = setInterval(() => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         out.textContent = topics[Math.floor(Math.random() * topics.length)];
-        if (++ticks >= 15) clearInterval(spin);
+        status.textContent = `Selected topic: ${out.textContent}`;
+        return;
+      }
+      spinTopicButton.disabled = true;
+      status.textContent = 'Choosing a topic.';
+      let ticks = 0;
+      topicSpin = setInterval(() => {
+        out.textContent = topics[Math.floor(Math.random() * topics.length)];
+        if (++ticks >= 15) {
+          if (topicSpin) clearInterval(topicSpin);
+          topicSpin = null;
+          spinTopicButton.disabled = false;
+          status.textContent = `Selected topic: ${out.textContent}`;
+        }
       }, 80);
     });
   </script>

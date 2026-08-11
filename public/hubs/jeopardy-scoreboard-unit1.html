@@ -380,6 +380,7 @@ body.theme-premium .topbar h1::after{content:none!important;display:none!importa
 .tile:not(.used):hover::after{opacity:.82;transform:scaleX(1);}
 .tile:not(.used):active{transform:translateY(-1px) scale(.992);filter:brightness(.98);}
 .tile:focus-visible{outline:3px solid color-mix(in srgb,var(--gold) 78%,white);outline-offset:3px;z-index:4;}
+.board:focus-visible{outline:3px solid color-mix(in srgb,var(--gold) 78%,white);outline-offset:4px;}
 .tile.used{pointer-events:none;cursor:default;filter:saturate(.5);}
 .tile.used::before{opacity:.35;}
 .tile.used::after{display:none;}
@@ -436,6 +437,12 @@ body.theme-premium .tile.used{background:#070707;color:#5f5132;opacity:.62;}
   body.theme-comic .game.on,
   body.theme-premium .game.on{grid-template-columns:minmax(260px,330px) minmax(740px,1fr);}
 }
+@media (max-width:620px){
+  .board{--board-column-min:6.35rem;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;padding:10px 10px 14px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
+  .cat,.tile{scroll-snap-align:start;}
+  .cat .ct{font-size:12px;overflow-wrap:anywhere;}
+  .tile-value{font-size:30px!important;}
+}
 @media (max-height:760px){.board{--tile-min:64px}.tile-value{font-size:clamp(22px,2.8vw,40px)}}
 
 </style>
@@ -481,7 +488,7 @@ body.theme-premium .tile.used{background:#070707;color:#5f5132;opacity:.62;}
     </div>
   </div>
   <div class="teams" id="teams"></div>
-  <div class="board" id="board"></div>
+  <div class="board" id="board" role="region" aria-label="Jeopardy game board; scroll horizontally to see every category" tabindex="0"></div>
 </div>
 
 <div class="editor" id="editor"></div>
@@ -700,7 +707,7 @@ function startBoard(fresh){if(fresh){used={};pickDD();}renderBoard();renderTeams
 function renderBoard(){
   const b=document.getElementById("board");
   const colCount=Math.max(selected.length,1);
-  b.style.gridTemplateColumns="repeat("+colCount+",minmax(0,1fr))";
+  b.style.gridTemplateColumns="repeat("+colCount+",minmax(var(--board-column-min,0px),1fr))";
   b.style.setProperty("--cols",colCount);
   b.innerHTML="";
   let d=0;

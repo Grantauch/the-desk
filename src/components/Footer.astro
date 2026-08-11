@@ -1,13 +1,45 @@
 ---
 // Footer.astro — bottom of every page.
 const year = new Date().getFullYear();
+
+interface Props {
+  wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
 ---
 
-<footer class="mt-20 bg-ink text-paper">
-  <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-6 px-5 py-8 lowercase">
-    <span class="font-display text-2xl font-bold tracking-tight">
-      the desk<span class="text-accent">.</span>
-    </span>
-    <p class="text-sm text-paper/60">© {year} · grant-desk.com</p>
+<footer class="site-footer mt-20 bg-ink text-paper">
+  <div class:list={['mx-auto grid gap-8 px-5 py-10 lowercase sm:grid-cols-[1fr_auto] sm:items-end', wide ? 'max-w-6xl' : 'max-w-4xl']}>
+    <div>
+      <p class="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-paper/45">built for the room, not the algorithm</p>
+      <span class="mt-2 block font-display text-3xl font-bold tracking-tight">
+        the desk<span class="text-accent">.</span>
+      </span>
+      <p class="mt-2 max-w-md text-sm leading-relaxed text-paper/60">classes, sources, games, and useful detours—kept in one place.</p>
+    </div>
+    <div class="sm:text-right">
+      <nav class="flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs text-paper/70 sm:justify-end" aria-label="Footer navigation">
+        <a href="/" class="hover:text-white">home</a>
+        <a href="/learning-hubs/" class="hover:text-white">learning hubs</a>
+        <a href="/resources/" class="hover:text-white">library</a>
+        <a href="/about/" class="hover:text-white">about</a>
+      </nav>
+      <p class="mt-4 text-xs text-paper/40">© {year} · grant-desk.com</p>
+    </div>
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    position: relative;
+  }
+
+  .site-footer::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 15%, transparent) 65%, transparent);
+    content: '';
+  }
+</style>

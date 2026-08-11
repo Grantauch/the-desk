@@ -4,6 +4,7 @@
 // Each hub opens in a new tab — they're full-screen apps with their own look.
 import Base from '../layouts/Base.astro';
 import GamePreview from '../components/GamePreview.astro';
+import PageHeader from '../components/PageHeader.astro';
 
 interface Hub {
   name: string;
@@ -94,12 +95,7 @@ const hubs: Hub[] = [
 ---
 
 <Base title="games">
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
-    games<span class="text-accent">.</span>
-  </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">
-    lessonhubs, jeopardy boards, and review games. open one and play.
-  </p>
+  <PageHeader eyebrow="the play cabinet" title="games" intro="lessonhubs, jeopardy boards, and review games. open one and play." />
 
   <div class="mt-10 grid gap-6 sm:grid-cols-2">
     {

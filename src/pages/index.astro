@@ -63,7 +63,7 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
       <div class="home-stamp-wrap">
         <img
           src="/mr-grant-approved-transparent.png"
-          alt="Mr. Grant approved stamp"
+          alt=""
           width="517"
           height="517"
           class="home-stamp"
@@ -93,37 +93,49 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
   </section>
 
   <!-- classes -->
-  <section id="courses" class="grid scroll-mt-32 gap-6 sm:grid-cols-3">
-    {
-      courses.map((c, i) => (
-        <a href={c.href} class="home-course-card group p-5" data-course={c.theme}>
-          <span class="home-course-card__ghost" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-          <span class="home-course-card__identity">{String(i + 1).padStart(2, '0')} // {c.identity}</span>
-          <h2 class="home-course-card__title">
-            {c.name}<span>.</span>
-          </h2>
-          <p class="home-course-card__blurb">{c.blurb}</p>
-          <span class="home-course-card__cta">open class <span aria-hidden="true">→</span></span>
-        </a>
-      ))
-    }
+  <section id="courses" class="scroll-mt-32" aria-labelledby="courses-title">
+    <header class="home-section-heading">
+      <div>
+        <p>three classrooms / one front door</p>
+        <h2 id="courses-title">choose your class<span>.</span></h2>
+      </div>
+      <p>Start with the course map, then open the unit, materials, or learning hub you need.</p>
+    </header>
+    <div class="home-course-grid mt-5">
+      {
+        courses.map((c, i) => (
+          <a href={c.href} class="home-course-card group p-5" data-course={c.theme}>
+            <span class="home-course-card__ghost" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="home-course-card__identity">{String(i + 1).padStart(2, '0')} // {c.identity}</span>
+            <h3 class="home-course-card__title">
+              {c.name}<span>.</span>
+            </h3>
+            <p class="home-course-card__blurb">{c.blurb}</p>
+            <span class="home-course-card__cta">open class <span aria-hidden="true">→</span></span>
+          </a>
+        ))
+      }
+    </div>
   </section>
 
   <!-- latest announcements -->
-  <section id="today" class="mt-12 scroll-mt-32">
-    <div class="flex items-baseline justify-between">
-      <h2 class="font-display text-3xl font-bold lowercase">on the desk right now</h2>
-      <a href="/announcements/" class="text-sm text-accent hover:text-accent-dark lowercase">all announcements →</a>
-    </div>
-    <ul class="mt-6 space-y-3">
+  <section id="today" class="mt-14 scroll-mt-32" aria-labelledby="today-title">
+    <header class="home-section-heading">
+      <div>
+        <p>latest dispatches</p>
+        <h2 id="today-title">on the desk right now<span>.</span></h2>
+      </div>
+      <a href="/announcements/">all announcements →</a>
+    </header>
+    <ul class="home-announcements mt-5">
       {
         announcements.map((a) => (
-          <li class="flex gap-4 items-baseline border-b-2 border-line pb-3">
-            <span class="font-mono text-xs bg-accent-soft text-accent-dark px-2 py-0.5 shrink-0">
+          <li>
+            <span class="home-announcements__date">
               {dateFmt.format(a.data.date)}
             </span>
-            <div>
-              <span class="font-semibold">{a.data.title}</span>
+            <div class="min-w-0">
+              <span class="font-display font-semibold leading-snug">{a.data.title}</span>
               {a.data.course && <span class="ml-2 text-xs font-mono lowercase text-accent">{a.data.course}</span>}
             </div>
           </li>
@@ -136,7 +148,7 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
 
   <CurrentHeadlines />
 
-  <a href="/learning-hubs/" class="group pop-ink mt-10 grid gap-6 rounded-md bg-ink p-6 text-white sm:grid-cols-[1fr_auto] sm:items-end">
+  <a href="/learning-hubs/" class="group pop-ink mt-14 grid gap-6 rounded-xl bg-ink p-6 text-white sm:grid-cols-[1fr_auto] sm:items-end">
     <div>
       <p class="font-mono text-xs font-bold uppercase tracking-[0.16em] text-white/65">student launchpad</p>
       <h2 class="mt-2 font-display text-3xl font-bold lowercase">learning hubs<span class="text-accent">.</span></h2>
@@ -148,7 +160,7 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
   </a>
 
   <!-- library search -->
-  <section id="library-search" class="home-library mt-10 scroll-mt-32 p-5 sm:p-6">
+  <section id="library-search" class="home-library mt-14 scroll-mt-32 p-5 sm:p-6">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div class="max-w-xl">
         <p class="font-mono text-xs font-semibold lowercase text-accent">{siteContent.home.libraryEyebrow}</p>
@@ -196,35 +208,44 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
   </section>
 
   <!-- the fun stuff -->
-  <section class="mt-10 grid gap-6 sm:grid-cols-2">
+  <section class="mt-14" aria-labelledby="explore-title">
+    <header class="home-section-heading">
+      <div>
+        <p>open the side drawers</p>
+        <h2 id="explore-title">play & explore<span>.</span></h2>
+      </div>
+      <p>Useful classroom machines, strange stories, and review games that earn their screen time.</p>
+    </header>
+    <div class="mt-5 grid gap-5 sm:grid-cols-2">
     <a href="/simulations/" class="home-feature-card group pop bg-accent p-5 text-white">
-      <h2 class="font-display text-2xl font-bold lowercase">simulations<span class="text-white/60">.</span></h2>
+      <h3 class="font-display text-2xl font-bold lowercase">simulations<span class="text-white/60">.</span></h3>
       <p class="mt-2 text-sm text-white/85 leading-relaxed">
         Hearings, debates, investigations, and the days the desks start moving.
       </p>
       <span class="mt-3 inline-block transition-transform group-hover:translate-x-1.5">→</span>
     </a>
     <a href="/games/" class="home-feature-card group pop bg-white p-5">
-      <h2 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">games<span class="text-accent">.</span></h2>
+      <h3 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">games<span class="text-accent">.</span></h3>
       <p class="mt-2 text-sm text-ink-soft leading-relaxed">
         Jeopardy boards, lessonhubs, and review games. Open one and start yelling answers.
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
     <a href="/rabbit-holes/" class="home-feature-card group pop bg-accent-soft p-5">
-      <h2 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">rabbit holes<span class="text-accent">.</span></h2>
+      <h3 class="font-display text-2xl font-bold lowercase group-hover:text-accent transition-colors">rabbit holes<span class="text-accent">.</span></h3>
       <p class="mt-2 text-sm text-ink-soft leading-relaxed">
         Strange stories, historical detours, and big questions that earn the class period.
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
     <a href="/tools/" class="home-feature-card group pop bg-ink p-5 text-paper">
-      <h2 class="font-display text-2xl font-bold lowercase">tools<span class="text-accent">.</span></h2>
+      <h3 class="font-display text-2xl font-bold lowercase">tools<span class="text-accent">.</span></h3>
       <p class="mt-2 text-sm text-paper/70 leading-relaxed">
         Timer, group maker, cold-call picker, dice, scoreboard. The stuff that keeps class moving.
       </p>
       <span class="mt-3 inline-block text-accent transition-transform group-hover:translate-x-1.5">→</span>
     </a>
+    </div>
   </section>
 
 </Base>
@@ -332,32 +353,34 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
 
   .home-stamp-wrap {
     position: absolute;
-    top: -0.35rem;
-    right: -0.7rem;
+    top: -1.4rem;
+    right: -2.4rem;
     z-index: 1;
     display: grid;
-    width: 9.5rem;
+    width: 10.5rem;
     aspect-ratio: 1;
     place-items: center;
-    opacity: 0.12;
+    opacity: 0.16;
     pointer-events: none;
-    transform: rotate(-4deg);
+    transform: rotate(-7deg);
+    -webkit-mask-image: radial-gradient(circle, black 55%, transparent 82%);
+    mask-image: radial-gradient(circle, black 55%, transparent 82%);
   }
 
   .home-stamp {
     width: 100%;
     height: auto;
-    filter: contrast(1.16);
+    filter: grayscale(1) contrast(1.2);
     mix-blend-mode: multiply;
-    opacity: 0.9;
+    opacity: 1;
   }
 
   @media (min-width: 720px) {
     .home-stamp-wrap {
-      top: -0.8rem;
-      right: -0.65rem;
-      width: clamp(12rem, 22vw, 13.5rem);
-      opacity: 0.88;
+      top: -2rem;
+      right: -1.65rem;
+      width: clamp(13rem, 22vw, 15rem);
+      opacity: 0.24;
     }
 
     .home-hero .home-local-status {
@@ -422,6 +445,95 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
       linear-gradient(130deg, color-mix(in srgb, var(--color-accent-soft) 52%, white), white 42%),
       white;
     box-shadow: 0 26px 58px -48px rgb(23 23 28 / 0.8);
+  }
+
+  .home-section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--color-ink);
+  }
+
+  .home-section-heading > div > p {
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .home-section-heading h2 {
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 5vw, 2.55rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    text-transform: lowercase;
+  }
+
+  .home-section-heading h2 span {
+    color: var(--color-accent);
+  }
+
+  .home-section-heading > p {
+    max-width: 24rem;
+    color: var(--color-ink-soft);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  .home-section-heading > a {
+    flex: none;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .home-section-heading > a:hover {
+    color: var(--color-accent);
+  }
+
+  .home-course-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .home-announcements {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 0.82);
+    box-shadow: var(--shadow-card);
+  }
+
+  .home-announcements li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 0.95rem 1rem;
+  }
+
+  .home-announcements li + li {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .home-announcements__date {
+    flex: none;
+    border-radius: 999px;
+    background: var(--color-accent-soft);
+    padding: 0.28rem 0.52rem;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
   }
 
   .home-library::before {
@@ -550,5 +662,38 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
   .home-feature-card {
     min-height: 10rem;
     border-radius: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .home-course-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .home-course-card:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .home-course-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.15rem;
+    }
+
+    .home-course-card:last-child {
+      grid-column: auto;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .home-section-heading {
+      align-items: start;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .home-section-heading > p {
+      text-align: left;
+    }
   }
 </style>

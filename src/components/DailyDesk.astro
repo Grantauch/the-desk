@@ -69,13 +69,13 @@ const { note } = Astro.props;
     margin-top: 1.25rem;
   }
 
-  .daily-desk__grid :global(.daily-card:first-child) {
+  .daily-desk__grid :global(.daily-card--featured) {
     grid-column: 1 / -1;
     min-height: 10.5rem;
   }
 
-  .daily-desk__grid :global(.daily-card:first-child .daily-text),
-  .daily-desk__grid :global(.daily-card:first-child .today-text) {
+  .daily-desk__grid :global(.daily-card--featured .daily-text),
+  .daily-desk__grid :global(.daily-card--featured .today-text) {
     max-width: 44rem;
     font-size: 1rem;
   }
@@ -90,7 +90,7 @@ const { note } = Astro.props;
       grid-template-columns: 1fr;
     }
 
-    .daily-desk__grid :global(.daily-card:first-child) {
+    .daily-desk__grid :global(.daily-card--featured) {
       grid-column: auto;
     }
   }

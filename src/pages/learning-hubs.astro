@@ -42,9 +42,10 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
     </header>
 
     <section class="how-it-works" aria-labelledby="how-heading">
-      <div><span>01</span><strong>read</strong><p>A clear mini-chapter supplies the context a textbook would.</p></div>
-      <div><span>02</span><strong>play</strong><p>Order events, flip terms, make decisions, and beat a quick quiz boss.</p></div>
-      <div><span>03</span><strong>bank it</strong><p>XP, streaks, notes, scores, and badges are here when you return.</p></div>
+      <h2 id="how-heading" class="sr-only">How the learning hubs work</h2>
+      <div><span>01</span><h3>read</h3><p>A clear mini-chapter supplies the context a textbook would.</p></div>
+      <div><span>02</span><h3>play</h3><p>Order events, flip terms, make decisions, and beat a quick quiz boss.</p></div>
+      <div><span>03</span><h3>bank it</h3><p>XP, streaks, notes, scores, and badges are here when you return.</p></div>
     </section>
 
     <section id="course-board" class="course-board">
@@ -369,7 +370,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
   .how-it-works { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 2rem; }
   .how-it-works div { padding: 1.2rem; border: 2px solid var(--color-ink); border-radius: .7rem; background: white; box-shadow: 4px 4px 0 var(--color-line); }
   .how-it-works span { display: block; color: var(--color-accent); font: 700 .65rem/1 var(--font-mono); }
-  .how-it-works strong { display: block; margin-top: .6rem; font: 800 1.25rem/1 var(--font-display); }
+  .how-it-works h3 { display: block; margin-top: .6rem; font: 800 1.25rem/1 var(--font-display); }
   .how-it-works p { margin-top: .4rem; color: var(--color-ink-soft); font-size: .8rem; line-height: 1.5; }
   .course-board { margin-top: 5rem; }
   .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 2rem; }

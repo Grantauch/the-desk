@@ -223,23 +223,28 @@ const groupMaterials = (materials: Material[]) =>
 
     <slot />
 
-    <h2 class="mt-14 font-display text-3xl font-bold lowercase">units</h2>
-    <ol class="mt-6 space-y-3">
+    <section class="units-section mt-14" aria-labelledby="units-title">
+      <header class="units-heading">
+        <div>
+          <p>course map</p>
+          <h2 id="units-title">units<span>.</span></h2>
+        </div>
+        <p>Open a unit for its topics, learning hub, and student-ready materials.</p>
+      </header>
+    <ol class="unit-list mt-6">
       {
         resolvedUnits.map((unit, i) => (
-          <li class="unit-row flex items-baseline gap-4 border-b-2 border-line pb-3">
-            <span class="shrink-0 font-display font-bold text-accent">{String(i + 1).padStart(2, '0')}</span>
+          <li class="unit-row">
+            <span class="unit-row__number">{String(i + 1).padStart(2, '0')}</span>
             <div class="min-w-0 flex-1">
-              <span class="font-semibold">{unit.name}</span>
-              {unit.current && (
-                <span class="ml-2 rounded-full bg-accent px-2 py-0.5 font-mono text-xs lowercase text-white">
-                  current
-                </span>
-              )}
+              <div class="unit-row__title">
+                <h3>{unit.name}</h3>
+                {unit.current && <span>current</span>}
+              </div>
               <p class="mt-0.5 text-sm text-ink-soft">{unit.blurb}</p>
               {unit.topics && unit.topics.length > 0 && (
                 <details class="group mt-1.5">
-                  <summary class="cursor-pointer select-none font-mono text-xs lowercase text-accent hover:text-accent-dark">
+                  <summary class="flex min-h-11 cursor-pointer select-none items-center font-mono text-xs lowercase text-accent hover:text-accent-dark">
                     <span class="group-open:hidden">what's inside +</span>
                     <span class="hidden group-open:inline">what's inside −</span>
                   </summary>
@@ -328,6 +333,7 @@ const groupMaterials = (materials: Material[]) =>
         ))
       }
     </ol>
+    </section>
 
     {
       resources.length > 0 && (
@@ -441,6 +447,133 @@ const groupMaterials = (materials: Material[]) =>
     --color-accent: #08765a;
     --color-accent-dark: #04503d;
     --color-accent-soft: #e4fff5;
+  }
+
+  .units-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 2px solid var(--color-ink);
+  }
+
+  .units-heading > div > p {
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .units-heading h2 {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    text-transform: lowercase;
+  }
+
+  .units-heading h2 span {
+    color: var(--color-accent);
+  }
+
+  .units-heading > p {
+    max-width: 24rem;
+    color: var(--color-ink-soft);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  .unit-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .unit-row {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 1rem 1.05rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    border-radius: 0.85rem;
+    background: rgb(255 255 255 / 0.82);
+    box-shadow: 0 16px 34px -34px rgb(23 23 28 / 0.75);
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+
+  .unit-row:hover,
+  .unit-row:has(details[open]) {
+    border-color: color-mix(in srgb, var(--color-accent) 38%, transparent);
+    box-shadow: 0 22px 42px -34px color-mix(in srgb, var(--color-accent) 30%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .unit-row__number {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    border-radius: 0.6rem;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
+
+  .unit-row__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .unit-row__title h3 {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .unit-row__title > span {
+    border-radius: 999px;
+    background: var(--color-accent);
+    padding: 0.2rem 0.5rem;
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  @media (max-width: 639px) {
+    .units-heading {
+      align-items: start;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .units-heading > p {
+      text-align: left;
+    }
+
+    .unit-row {
+      grid-template-columns: 1.9rem minmax(0, 1fr);
+      gap: 0.75rem;
+      padding-inline: 0.85rem;
+    }
+
+    .unit-row__number {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
   }
 
   .unit-actions {

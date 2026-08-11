@@ -49,7 +49,7 @@ const courseLabels: Record<CourseKey, string> = {
   <section class="calendar-guide pop rounded-xl bg-white p-5 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <p class="font-display text-xl font-bold lowercase">need an exact date?</p>
+        <h2 class="font-display text-xl font-bold lowercase">need an exact date<span class="text-accent">?</span></h2>
         <p class="mt-1 text-sm leading-relaxed text-ink-soft">Daily assignments and due dates stay in Google Classroom.</p>
       </div>
       <a
@@ -128,6 +128,7 @@ const courseLabels: Record<CourseKey, string> = {
   }
 
   .calendar-filter {
+    min-height: 2.75rem;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-line);
     border-radius: 0.65rem;

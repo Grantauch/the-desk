@@ -48,10 +48,10 @@ const ogImage = new URL(isLearningHub ? '/og-learning-hubs.png' : (ogMap[Astro.u
   </head>
   <body class="min-h-screen flex flex-col">
     <a href="#main" class="skip-link">skip to content</a>
-    <Nav />
-    <main id="main" class:list={['flex-1 w-full mx-auto px-5 py-10', wide ? 'max-w-6xl' : 'max-w-4xl']}>
+    <Nav wide={wide} />
+    <main id="main" class:list={['flex-1 w-full mx-auto px-5 py-8 sm:py-10', wide ? 'max-w-6xl' : 'max-w-4xl']}>
       <slot />
     </main>
-    <Footer />
+    <Footer wide={wide} />
   </body>
 </html>

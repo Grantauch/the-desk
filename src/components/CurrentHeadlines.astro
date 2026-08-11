@@ -255,7 +255,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
               aria-expanded="false"
               aria-pressed="false"
               aria-label={`Show four stories from ${period.year}`}
-            >-{period.offset}</button>
+            >{period.year}</button>
           </li>
         ))
       }
@@ -266,7 +266,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     <header class="history-panel__header">
       <div>
         <p class="history-panel__eyebrow" data-history-eyebrow>archive snapshot</p>
-        <h3 id="history-panel-title" data-history-title>the news then<span>.</span></h3>
+        <h3 id="history-panel-title" data-history-title tabindex="-1">the news then<span>.</span></h3>
         <p data-history-description>Four stories selected from open, credited archives.</p>
       </div>
       <button type="button" class="history-panel__close" data-history-close>close <span aria-hidden="true">&times;</span></button>
@@ -352,15 +352,26 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
         if (position) position.textContent = `${current + 1} / ${stories.length}`;
 
         if (image instanceof HTMLImageElement) {
-          if (safeImage) {
-            image.src = safeImage;
+          const showPlaceholder = () => {
+            image.hidden = true;
+            if (placeholder instanceof HTMLElement) placeholder.hidden = false;
+          };
+          const showImage = () => {
             image.hidden = false;
+            if (placeholder instanceof HTMLElement) placeholder.hidden = true;
+          };
+          image.onload = showImage;
+          image.onerror = showPlaceholder;
+          if (safeImage) {
+            image.hidden = true;
+            if (placeholder instanceof HTMLElement) placeholder.hidden = false;
+            image.src = safeImage;
+            if (image.complete) (image.naturalWidth > 0 ? showImage : showPlaceholder)();
           } else {
             image.removeAttribute('src');
-            image.hidden = true;
+            showPlaceholder();
           }
         }
-        if (placeholder instanceof HTMLElement) placeholder.hidden = Boolean(safeImage);
       };
 
       card.addEventListener('headline:update', (event) => {
@@ -374,6 +385,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
       card.querySelector('[data-direction="previous"]')?.addEventListener('click', () => showStory(current - 1));
       card.querySelector('[data-direction="next"]')?.addEventListener('click', () => showStory(current + 1));
       if (controls instanceof HTMLElement) controls.hidden = stories.length < 2;
+      showStory(0);
       card.dataset.carouselReady = 'true';
     });
   };
@@ -533,7 +545,17 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
       image.loading = 'lazy';
       image.decoding = 'async';
       image.referrerPolicy = 'no-referrer';
-      imageWrap.append(image);
+      const imageFallback = textElement('span', 'history-card__image-fallback', 'archive image');
+      imageFallback.hidden = true;
+      image.addEventListener('load', () => {
+        image.hidden = false;
+        imageFallback.hidden = true;
+      });
+      image.addEventListener('error', () => {
+        image.hidden = true;
+        imageFallback.hidden = false;
+      });
+      imageWrap.append(image, imageFallback);
 
       const copy = textElement('div', 'history-card__copy', '');
       const meta = textElement('div', 'history-card__meta', '');
@@ -596,6 +618,13 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
       });
       todayButton?.setAttribute('aria-pressed', 'false');
       activeButton = button;
+      window.requestAnimationFrame(() => {
+        if (title instanceof HTMLElement) title.focus({ preventScroll: true });
+        panel.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'start',
+        });
+      });
     };
 
     periodButtons.forEach((button) => {
@@ -627,7 +656,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
   document.addEventListener('astro:page-load', initializeNewsDesk);
 </script>
 
-<style>
+<style is:global>
   .headlines {
     margin-top: 2.5rem;
     overflow: hidden;
@@ -692,7 +721,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     display: block;
     margin-top: 0.45rem;
     color: #6c6c75;
-    font-size: 0.55rem;
+    font-size: 0.68rem;
     font-weight: 650;
   }
 
@@ -793,10 +822,10 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   .headline-position {
-    min-width: 2.75rem;
+    min-width: 3.1rem;
     padding-left: 0.45rem;
     font-family: var(--font-mono);
-    font-size: 0.52rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-align: center;
@@ -804,8 +833,8 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
 
   .headline-controls button {
     display: grid;
-    width: 1.9rem;
-    height: 1.9rem;
+    width: 2.75rem;
+    height: 2.75rem;
     place-items: center;
     border: 0;
     border-radius: 50%;
@@ -841,7 +870,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     justify-content: space-between;
     gap: 0.5rem 1rem;
     color: #666670;
-    font-size: 0.55rem;
+    font-size: 0.68rem;
     font-weight: 650;
   }
 
@@ -881,7 +910,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
 
   .then-now-label {
     color: var(--color-accent-dark);
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     font-weight: 700;
   }
 
@@ -907,13 +936,15 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   .then-now button {
+    min-width: 3.75rem;
+    min-height: 2.75rem;
     border: 1px solid #c7c9d4;
     border-radius: 999px;
     background: white;
-    padding: 0.38rem 0.55rem;
+    padding: 0.45rem 0.7rem;
     color: #4d4d56;
     cursor: pointer;
-    font-size: 0.54rem;
+    font-size: 0.67rem;
     font-weight: 700;
     transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
   }
@@ -951,7 +982,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
 
   .history-panel__eyebrow {
     color: var(--color-accent-dark);
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     font-weight: 700;
   }
 
@@ -986,7 +1017,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     color: #55555f;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: lowercase;
     transition: border-color 150ms ease, color 150ms ease;
@@ -1036,6 +1067,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   .history-card__image {
+    position: relative;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     border-bottom: 1px solid var(--color-line);
@@ -1048,6 +1080,25 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     object-fit: cover;
     filter: saturate(0.88) contrast(1.03);
     transition: filter 300ms ease, transform 300ms ease;
+  }
+
+  .history-card__image-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at 25% 20%, color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 45%),
+      #ecece7;
+    color: color-mix(in srgb, var(--color-accent) 32%, transparent);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .history-card__image-fallback[hidden] {
+    display: none;
   }
 
   .history-card:hover .history-card__image img {
@@ -1065,7 +1116,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     background: rgb(18 18 23 / 0.74);
     padding: 0.28rem 0.45rem;
     color: rgb(255 255 255 / 0.9);
-    font-size: 0.43rem;
+    font-size: 0.62rem;
     font-weight: 650;
     line-height: 1.2;
     text-align: right;
@@ -1092,7 +1143,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     justify-content: space-between;
     gap: 0.35rem 0.8rem;
     color: #686872;
-    font-size: 0.48rem;
+    font-size: 0.66rem;
     font-weight: 700;
   }
 

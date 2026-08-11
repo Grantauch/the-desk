@@ -3,6 +3,7 @@
 // House rule: team names and project titles only. No student names, ever.
 // Add entries to the array as projects land.
 import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
 
 const projects: { course: string; team: string; title: string; verdict?: string; note: string }[] = [
   // { course: 'hidden history', team: 'the paper trail', title: 'Case File: the Philadelphia Experiment', verdict: 'debunked', note: 'Ran the claim to ground across three archives.' },
@@ -11,10 +12,7 @@ const projects: { course: string; team: string; title: string; verdict?: string;
 ---
 
 <Base title="showcase" description="capstone work worth remembering — verdicts earned and stories told.">
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
-    showcase<span class="text-accent">.</span>
-  </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">capstone work worth remembering. team names only — the work speaks.</p>
+  <PageHeader eyebrow="the finished wall" title="showcase" intro="capstone work worth remembering. team names only — the work speaks." />
 
   {
     projects.length === 0 ? (

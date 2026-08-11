@@ -23,12 +23,14 @@ const weights = [
 ---
 
 <Base title="hidden history — syllabus" description="hidden history: conspiracies, cover-ups, and historical evidence — course syllabus.">
-  <p class="font-mono text-xs lowercase text-ink-soft">semester elective · grades 10–12 · mr. auch · mt. morris schools · 2026-27</p>
-  <h1 class="mt-2 font-display text-4xl sm:text-5xl font-bold lowercase tracking-tight">
-    hidden history<span class="text-accent">.</span> <span class="text-ink-soft">the syllabus</span>
-  </h1>
+  <header class="syllabus-hero dot-grid">
+    <p class="font-mono text-xs lowercase text-ink-soft">semester elective · grades 10–12 · mr. auch · mt. morris schools · 2026-27</p>
+    <h1 class="mt-2 font-display text-4xl sm:text-5xl font-bold lowercase tracking-tight">
+      hidden history<span class="text-accent">.</span> <span class="text-ink-soft">the syllabus</span>
+    </h1>
+  </header>
 
-  <div class="mt-8 max-w-2xl space-y-5 leading-relaxed">
+  <div class="syllabus-copy mt-8 max-w-2xl space-y-5 leading-relaxed">
     <h2 class="font-display text-2xl font-bold lowercase">what this course is</h2>
     <p>
       History is full of moments when the official story turned out to be wrong — and just as many moments when a
@@ -111,9 +113,52 @@ const weights = [
     </p>
   </div>
 
+  <style>
+    .syllabus-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 1.3rem 1.35rem 1.5rem;
+      border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+      border-radius: 1rem;
+      background: linear-gradient(140deg, color-mix(in srgb, var(--color-accent-soft) 60%, white), white 62%);
+      box-shadow: var(--shadow-card);
+    }
+
+    .syllabus-hero h1 {
+      overflow-wrap: anywhere;
+      line-height: 1;
+    }
+
+    .syllabus-copy h2 {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--color-line);
+      letter-spacing: -0.025em;
+    }
+
+    .syllabus-copy h2:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .syllabus-copy h2::after {
+      color: var(--color-accent);
+      content: '.';
+    }
+
+    .syllabus-copy > ul {
+      overflow: hidden;
+      border: 1px solid var(--color-line);
+      border-radius: 0.85rem;
+      background: rgb(255 255 255 / 0.82);
+      padding: 0.8rem 1rem;
+    }
+  </style>
+
   <style is:global>
     @media print {
-      header, footer { display: none !important; }
+      .site-header, .site-footer { display: none !important; }
       main { padding: 0 !important; }
     }
   </style>

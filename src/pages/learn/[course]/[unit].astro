@@ -184,9 +184,9 @@ const quiz = [
       <p class="mission-intro">Tap each term to reveal the plain-English meaning. Review all {hub.terms.length} cards to clear the mission.</p>
       <div class="flip-grid">
         {hub.terms.map((item, index) => (
-          <button class="flip-card" type="button" data-term-card={index} aria-expanded="false">
-            <span class="flip-front"><small>tap to flip</small><strong>{item.term}</strong><em>?</em></span>
-            <span class="flip-back"><small>{item.term}</small><strong>{item.definition}</strong><em>✓ reviewed</em></span>
+          <button class="flip-card" type="button" data-term-card={index} data-term={item.term} data-definition={item.definition} aria-expanded="false" aria-label={`Reveal definition for ${item.term}`}>
+            <span class="flip-front" aria-hidden="false"><small>tap to flip</small><strong>{item.term}</strong><em>?</em></span>
+            <span class="flip-back" aria-hidden="true"><small>{item.term}</small><strong>{item.definition}</strong><em>✓ reviewed</em></span>
           </button>
         ))}
       </div>
@@ -205,7 +205,7 @@ const quiz = [
       </div>
       <div class="decision-grid">
         {hub.decision.options.map((option, index) => (
-          <button type="button" class="decision-card" data-decision={index} data-feedback={option.feedback}>
+          <button type="button" class="decision-card" data-decision={index} data-feedback={option.feedback} aria-pressed="false">
             <span>{String.fromCharCode(65 + index)}</span>
             <strong>{option.label}</strong>
           </button>
@@ -298,6 +298,7 @@ const quiz = [
     if (!store.profile || typeof store.profile !== 'object' || Array.isArray(store.profile)) store.profile = {};
     const termCards = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-term-card]'));
     const termCount = termCards.length;
+    const decisionCards = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-decision]'));
     const storedState = store.hubs[hubId];
     const state = storedState && typeof storedState === 'object' && !Array.isArray(storedState) ? storedState : {};
     state.completed = Array.isArray(state.completed)
@@ -309,7 +310,7 @@ const quiz = [
     state.note = typeof state.note === 'string' ? state.note.slice(0, 4000) : '';
     state.quizScore = Number.isFinite(state.quizScore) ? Math.max(0, Math.min(3, Math.floor(state.quizScore))) : 0;
     state.lastSection = typeof state.lastSection === 'string' && missionOrder.includes(state.lastSection) ? state.lastSection : 'briefing';
-    if (!Number.isInteger(state.decision) || state.decision < 0 || state.decision > 2) delete state.decision;
+    if (!Number.isInteger(state.decision) || state.decision < 0 || state.decision >= decisionCards.length) delete state.decision;
     store.hubs[hubId] = state;
 
     const localDate = (date = new Date()) => {
@@ -423,8 +424,16 @@ const quiz = [
     const renderTerms = () => {
       termCards.forEach((card) => {
         const seen = state.terms.includes(Number(card.dataset.termCard));
+        const term = card.dataset.term ?? 'term';
+        const definition = card.dataset.definition ?? '';
+        const definitionEnd = /[.!?]$/.test(definition) ? '' : '.';
         card.classList.toggle('is-flipped', seen);
         card.setAttribute('aria-expanded', String(seen));
+        card.setAttribute('aria-label', seen
+          ? `${term}: ${definition}${definitionEnd} Reviewed.`
+          : `Reveal definition for ${term}`);
+        card.querySelector('.flip-front')?.setAttribute('aria-hidden', String(seen));
+        card.querySelector('.flip-back')?.setAttribute('aria-hidden', String(!seen));
       });
       const feedback = root.querySelector<HTMLElement>('[data-vocab-feedback]');
       if (feedback) feedback.textContent = `${state.terms.length} of ${termCount} terms reviewed${state.terms.length === termCount ? ' · deck cleared +40 XP' : ''}`;
@@ -439,13 +448,21 @@ const quiz = [
       });
     });
 
-    root.querySelectorAll<HTMLButtonElement>('[data-decision]').forEach((button) => {
+    const renderDecision = () => {
+      decisionCards.forEach((button) => {
+        const selected = Number(button.dataset.decision) === state.decision;
+        button.classList.toggle('is-selected', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      const selected = decisionCards.find((button) => Number(button.dataset.decision) === state.decision);
+      const feedback = root.querySelector<HTMLElement>('[data-decision-feedback]');
+      if (selected && feedback) feedback.textContent = `What this move reveals: ${selected.dataset.feedback}`;
+    };
+
+    decisionCards.forEach((button) => {
       button.addEventListener('click', () => {
-        root.querySelectorAll('[data-decision]').forEach((item) => item.classList.remove('is-selected'));
-        button.classList.add('is-selected');
-        const feedback = root.querySelector<HTMLElement>('[data-decision-feedback]');
-        if (feedback) feedback.innerHTML = `<strong>What this move reveals:</strong> ${button.dataset.feedback}`;
         state.decision = Number(button.dataset.decision);
+        renderDecision();
         completeMission('decision');
       });
     });
@@ -517,6 +534,7 @@ const quiz = [
     sections.forEach((section) => observer.observe(section));
 
     renderTerms();
+    renderDecision();
     updateNote();
     persist(false);
     render();
@@ -656,8 +674,9 @@ const quiz = [
   @media (max-width: 600px) {
     .hero-topline { align-items: flex-start; }
     .save-state { max-width: 10rem; text-align: center; }
-    .title-row { align-items: flex-start; }
-    .unit-icon { width: 2.8rem; height: 2.8rem; font-size: 1.35rem; }
+    .title-row { display: block; }
+    .unit-icon { width: 2.8rem; height: 2.8rem; margin-bottom: 1rem; font-size: 1.35rem; }
+    .title-row h1 { max-width: 100%; overflow-wrap: normal; font-size: clamp(2.1rem, 10vw, 3rem); word-break: normal; }
     .timeline-game, .flip-grid { grid-template-columns: 1fr; }
     .mission-heading { flex-direction: column; }
     .study-order li { grid-template-columns: 1fr; gap: .25rem; }

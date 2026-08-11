@@ -10,14 +10,15 @@ interface Entry {
 interface Props {
   label: string;
   entries: Entry[];
+  featured?: boolean;
 }
 
-const { label, entries } = Astro.props;
+const { label, entries, featured = false } = Astro.props;
 const first = entries[0];
 ---
 
-<article class="daily-card p-5">
-  <p class="daily-card__label">{label}</p>
+<article class:list={['daily-card p-5', featured && 'daily-card--featured']}>
+  <h3 class="daily-card__label">{label}</h3>
   <p class="daily-text mt-2 text-sm leading-relaxed">{first.text}</p>
   <p class="daily-tag mt-2 font-mono text-xs lowercase text-ink-soft">{first.tag ?? ''}</p>
   <script is:inline define:vars={{ entries }}>

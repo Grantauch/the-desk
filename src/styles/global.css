@@ -23,6 +23,14 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+  --radius-card: 0.9rem;
+  --radius-panel: 1.15rem;
+  --shadow-card: 0 20px 46px -42px rgb(23 23 28 / 0.75);
+  --shadow-panel: 0 26px 58px -48px rgb(23 23 28 / 0.8);
+  --section-gap: clamp(2.5rem, 6vw, 4rem);
+}
+
 /*
   Signature styles for the bold look.
   .pop        — hard offset shadow card (electric blue). Add to links/cards.
@@ -132,6 +140,9 @@ html {
 }
 
 body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   background-color: var(--color-paper);
   background-image:
     radial-gradient(circle at 8% -5%, rgb(31 44 230 / 0.08), transparent 31rem),
@@ -140,6 +151,27 @@ body {
     linear-gradient(90deg, rgb(23 23 28 / 0.025) 1px, transparent 1px);
   background-attachment: fixed;
   background-size: auto, auto, 42px 42px, 42px 42px;
+}
+
+/* Long display words should never force a page wider than the viewport. */
+:where(h1, h2, h3) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* Shared editorial surfaces: calm depth for content, hard edges for play. */
+.panel-surface {
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  border-radius: var(--radius-panel);
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: var(--shadow-panel);
+}
+
+.card-surface {
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  border-radius: var(--radius-card);
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: var(--shadow-card);
 }
 
 /* Card-sized links and controls should answer the cursor without shouting. */
@@ -207,8 +239,8 @@ body {
 /* printing a page (glossary, cheat sheet) drops the chrome.
    tip: open the dropdowns you want printed before hitting print. */
 @media print {
-  header,
-  footer,
+  .site-header,
+  .site-footer,
   .skip-link {
     display: none;
   }

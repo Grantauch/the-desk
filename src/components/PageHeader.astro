@@ -1,0 +1,97 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  compact?: boolean;
+}
+
+const { eyebrow, title, intro, compact = false } = Astro.props;
+---
+
+<header class:list={['page-hero dot-grid', compact && 'page-hero--compact']}>
+  <slot name="before" />
+  {eyebrow && <p class="page-hero__eyebrow">{eyebrow}</p>}
+  <h1 class="page-hero__title">{title}<span>.</span></h1>
+  {intro && <p class="page-hero__intro">{intro}</p>}
+  <slot />
+</header>
+
+<style>
+  .page-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-inline: -1.25rem;
+    padding: 1rem 1.25rem 2.35rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+  }
+
+  .page-hero::after {
+    position: absolute;
+    right: 1.25rem;
+    bottom: -1px;
+    width: min(9rem, 30vw);
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--color-accent));
+    content: '';
+  }
+
+  .page-hero--compact {
+    padding-bottom: 1.75rem;
+  }
+
+  .page-hero__eyebrow {
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .page-hero__title {
+    max-width: 100%;
+    margin-top: 0.55rem;
+    overflow-wrap: anywhere;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 11vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 0.94;
+    text-transform: lowercase;
+  }
+
+  .page-hero__title span {
+    color: var(--color-accent);
+  }
+
+  .page-hero__intro {
+    max-width: 42rem;
+    margin-top: 0.9rem;
+    color: var(--color-ink-soft);
+    font-size: clamp(1rem, 2.5vw, 1.12rem);
+    line-height: 1.6;
+    text-transform: lowercase;
+  }
+
+  :global(.page-hero__meta) {
+    margin-top: 0.65rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.55;
+    text-transform: lowercase;
+  }
+
+  @media (min-width: 640px) {
+    .page-hero {
+      margin-inline: 0;
+      padding: 1.15rem 0 2.55rem;
+    }
+
+    .page-hero::after {
+      right: 0;
+    }
+  }
+</style>

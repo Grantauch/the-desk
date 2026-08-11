@@ -24,7 +24,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
         <p>Open the pass while signed into your school Google account. GrantDesk will recognize you from the class roster.</p>
       </div>
       {passConfig.enabled && appUrl ? (
-        <a href={appUrl} target="_blank" rel="noopener" class="pass-button">open hall pass <span aria-hidden="true">→</span></a>
+        <a href={appUrl} target="_blank" rel="noopener" class="pass-button">open hall pass <span aria-hidden="true">↗</span></a>
       ) : (
         <p class="pass-offline">Use the classroom kiosk or ask Mr. Grant while the online pass is unavailable.</p>
       )}
@@ -36,7 +36,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
         <h2>PIN + kiosk.</h2>
         <p>If your own account is not available, enter your six-digit student PIN at the classroom kiosk.</p>
         {passConfig.enabled && kioskUrl && (
-          <a href={kioskUrl} target="_blank" rel="noopener">open kiosk mode →</a>
+          <a href={kioskUrl} target="_blank" rel="noopener">open kiosk mode ↗</a>
         )}
       </section>
       <section class="pass-option">
@@ -47,7 +47,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
     </div>
 
     <aside class="privacy-note mt-6">
-      <p class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">about the log</p>
+      <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">about the log</h2>
       <p class="mt-2 text-sm leading-relaxed text-ink-soft">
         Pass history is private. Student screens show only your current pass and whether the pass is available—not another student’s name or previous trips.
       </p>

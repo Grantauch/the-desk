@@ -3,6 +3,7 @@
 // One claim goes up each friday; students bring verdicts monday.
 // Edit the `claims` array — `notes` stays hidden behind a dropdown until class has argued it.
 import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
 
 const claims = [
   { week: 1, claim: 'The average person swallows eight spiders a year in their sleep.', notes: 'Debunked — and beautifully: the "fact" is often traced to a piece written about how easily fake facts spread. The perfect week-one claim.' },
@@ -27,26 +28,53 @@ const claims = [
 ---
 
 <Base title="fact-check friday" description="one claim a week. bring your verdict monday.">
-  <h1 class="font-display text-5xl sm:text-6xl font-bold lowercase tracking-tight">
-    fact-check friday<span class="text-accent">.</span>
-  </h1>
-  <p class="mt-3 text-lg text-ink-soft lowercase">one claim goes up each friday. bring your verdict monday — with sources.</p>
-  <p class="mt-2 text-sm font-mono lowercase text-ink-soft">verdict options: confirmed · debunked · misleading · unproven. the notes stay shut until we've argued it.</p>
+  <PageHeader eyebrow="weekly evidence drill" title="fact-check friday" intro="one claim goes up each friday. bring your verdict monday — with sources.">
+    <p class="page-hero__meta">verdicts: confirmed · debunked · misleading · unproven. notes stay shut until we've argued it.</p>
+  </PageHeader>
 
-  <ul class="mt-10 space-y-4">
+  <ol class="claim-grid mt-10">
     {
       claims.map((c) => (
-        <li class="pop rounded-md bg-white p-5">
+        <li class="claim-card">
           <div class="flex gap-3 items-baseline">
             <span class="font-mono text-xs text-accent shrink-0">week {String(c.week).padStart(2, '0')}</span>
             <p class="font-semibold">"{c.claim}"</p>
           </div>
           <details class="mt-2">
-            <summary class="cursor-pointer font-mono text-xs lowercase text-ink-soft hover:text-accent select-none">after we've argued it +</summary>
+            <summary class="flex min-h-11 cursor-pointer select-none items-center font-mono text-xs lowercase text-ink-soft hover:text-accent">after we've argued it +</summary>
             <p class="mt-2 text-sm text-ink-soft leading-relaxed">{c.notes}</p>
           </details>
         </li>
       ))
     }
-  </ul>
+  </ol>
+
+  <style>
+    .claim-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .claim-card {
+      padding: 1.15rem;
+      border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+      border-radius: 0.9rem;
+      background: rgb(255 255 255 / 0.88);
+      box-shadow: 0 18px 40px -38px rgb(23 23 28 / 0.82);
+      transition: border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+    }
+
+    .claim-card:hover,
+    .claim-card:has(details[open]) {
+      border-color: color-mix(in srgb, var(--color-accent) 42%, transparent);
+      box-shadow: 0 24px 48px -38px color-mix(in srgb, var(--color-accent) 38%, transparent);
+      transform: translateY(-2px);
+    }
+
+    @media (min-width: 720px) {
+      .claim-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
 </Base>

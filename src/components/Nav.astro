@@ -1,6 +1,12 @@
 ---
 // Nav.astro — compact primary navigation with a secondary explore menu.
 import passConfig from '../data/pass-config.json';
+
+interface Props {
+  wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
 const primaryLinks = [
   { href: '/us-history/', label: 'us history' },
   { href: '/hidden-history/', label: 'hidden history' },
@@ -22,12 +28,15 @@ const exploreLinks = [
 ];
 
 const current = Astro.url.pathname;
-const isActive = (href: string) => current === href || current.startsWith(href);
+const isActive = (href: string) =>
+  current === href ||
+  current.startsWith(href) ||
+  (href === '/learning-hubs/' && current.startsWith('/learn/'));
 const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
 ---
 
-<header class="border-b-2 border-ink bg-paper/90 backdrop-blur sticky top-0 z-10">
-  <div class="max-w-4xl mx-auto px-5 py-3.5">
+<header class="site-header sticky top-0 z-40 border-b-2 border-ink bg-paper/90 backdrop-blur">
+  <div class:list={['mx-auto px-5 py-3.5', wide ? 'max-w-6xl' : 'max-w-4xl']}>
     <div class="flex items-center justify-between gap-6">
       <a href="/" class="font-display text-2xl font-bold tracking-tight lowercase text-ink hover:text-accent transition-colors">
         the desk<span class="text-accent">.</span>
@@ -38,6 +47,7 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
           primaryLinks.map((link) => (
             <a
               href={link.href}
+              aria-current={isActive(link.href) ? 'page' : undefined}
               class:list={[
                 'rounded-lg border-b-2 px-2 py-1.5 transition-all hover:bg-accent-soft hover:text-accent',
                 isActive(link.href)
@@ -59,11 +69,12 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
           >
             explore <span aria-hidden="true" class="inline-block transition-transform group-open:rotate-45">+</span>
           </summary>
-          <div class="pop absolute right-0 top-[calc(100%+0.75rem)] z-20 w-56 rounded-md bg-white p-2">
+          <div class="pop nav-menu absolute right-0 top-[calc(100%+0.75rem)] z-20 w-56 rounded-xl bg-white p-2">
             {
               exploreLinks.map((link) => (
                 <a
                   href={link.href}
+                  aria-current={isActive(link.href) ? 'page' : undefined}
                   class:list={[
                     'block rounded px-3 py-2 transition-colors hover:bg-accent-soft hover:text-accent',
                     isActive(link.href) ? 'bg-accent-soft font-semibold text-accent' : 'text-ink-soft',
@@ -78,27 +89,33 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
       </nav>
     </div>
 
-    <nav class="mt-3 grid grid-cols-4 gap-1 border-t border-line pt-3 text-center font-mono text-[0.68rem] font-semibold lowercase md:hidden" aria-label="Mobile navigation">
-      <a href="/#courses" class="rounded px-1 py-1.5 text-ink-soft transition-colors hover:bg-accent-soft hover:text-accent">courses</a>
+    <nav class="mt-3 grid grid-cols-4 gap-1 border-t border-line pt-3 text-center font-mono text-[0.72rem] font-semibold lowercase md:hidden" aria-label="Mobile navigation">
+      <a href="/#courses" class="flex min-h-11 items-center justify-center rounded-lg px-1 text-ink-soft transition-colors hover:bg-accent-soft hover:text-accent">courses</a>
       <a
         href="/resources/"
+        aria-current={isActive('/resources/') ? 'page' : undefined}
         class:list={[
-          'rounded px-1 py-1.5 transition-colors hover:bg-accent-soft hover:text-accent',
+          'flex min-h-11 items-center justify-center rounded-lg px-1 transition-colors hover:bg-accent-soft hover:text-accent',
           isActive('/resources/') ? 'bg-accent-soft text-accent' : 'text-ink-soft',
         ]}
       >
         library
       </a>
-      <a href="/#today" class="rounded px-1 py-1.5 text-ink-soft transition-colors hover:bg-accent-soft hover:text-accent">today</a>
+      <a href="/#today" class="flex min-h-11 items-center justify-center rounded-lg px-1 text-ink-soft transition-colors hover:bg-accent-soft hover:text-accent">today</a>
       <details class="group relative">
-        <summary class="cursor-pointer list-none rounded px-1 py-1.5 text-ink-soft transition-colors hover:bg-accent-soft hover:text-accent [&::-webkit-details-marker]:hidden">
+        <summary
+          class:list={[
+            'flex min-h-11 cursor-pointer list-none items-center justify-center rounded-lg px-1 transition-colors hover:bg-accent-soft hover:text-accent [&::-webkit-details-marker]:hidden',
+            exploreIsActive ? 'bg-accent-soft text-accent' : 'text-ink-soft',
+          ]}
+        >
           explore <span aria-hidden="true" class="inline-block transition-transform group-open:rotate-45">+</span>
         </summary>
-        <div class="pop absolute right-0 top-[calc(100%+0.5rem)] z-20 w-56 rounded-md bg-white p-2 text-left font-sans text-sm font-normal">
+        <div class="pop nav-menu absolute right-0 top-[calc(100%+0.5rem)] z-20 w-64 rounded-xl bg-white p-2 text-left font-sans text-sm font-normal">
           <p class="px-3 pb-1 pt-2 font-mono text-[0.65rem] font-semibold text-accent">current classes</p>
           {
             primaryLinks.slice(0, 3).map((link) => (
-              <a href={link.href} class="block rounded px-3 py-2 text-ink-soft hover:bg-accent-soft hover:text-accent">
+              <a href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} class="flex min-h-11 items-center rounded-lg px-3 text-ink-soft hover:bg-accent-soft hover:text-accent">
                 {link.label}
               </a>
             ))
@@ -106,7 +123,7 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
           <div class="my-1 border-t border-line" />
           {
             exploreLinks.map((link) => (
-              <a href={link.href} class="block rounded px-3 py-2 text-ink-soft hover:bg-accent-soft hover:text-accent">
+              <a href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} class="flex min-h-11 items-center rounded-lg px-3 text-ink-soft hover:bg-accent-soft hover:text-accent">
                 {link.label}
               </a>
             ))
@@ -116,3 +133,18 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
     </nav>
   </div>
 </header>
+
+<style>
+  .nav-menu {
+    max-height: calc(100dvh - 7.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-shadow: 0 24px 55px -32px rgb(23 23 28 / 0.72);
+  }
+
+  @media (min-width: 768px) {
+    .nav-menu {
+      max-height: calc(100dvh - 5.5rem);
+    }
+  }
+</style>
