@@ -46,15 +46,18 @@
   const textFrom = (element, names) => {
     const wanted = Array.isArray(names) ? names : [names];
     const descendants = [element, ...element.getElementsByTagName('*')];
-    const node = descendants.find((candidate) => {
-      const qualified = candidate.tagName?.toLowerCase() ?? '';
-      const local = candidate.localName?.toLowerCase() ?? '';
-      return wanted.some((name) => {
-        const lowered = name.toLowerCase();
+
+    for (const name of wanted) {
+      const lowered = name.toLowerCase();
+      const node = descendants.find((candidate) => {
+        const qualified = candidate.tagName?.toLowerCase() ?? '';
+        const local = candidate.localName?.toLowerCase() ?? '';
         return qualified === lowered || local === lowered || qualified.endsWith(`:${lowered}`);
       });
-    });
-    return node?.textContent?.trim() ?? '';
+      if (node?.textContent?.trim()) return node.textContent.trim();
+    }
+
+    return '';
   };
 
   const elementsNamed = (element, names) => {
