@@ -241,10 +241,10 @@ export const coldOpenDecks: RabbitHoleDeck[] = [
     blurb: 'cold open+ #39: the tennis match that lasted 11 hours.',
   },
   {
-    name: 'the waterfall that swallows a river and nobody knows where it goes',
+    name: 'the waterfall that swallows a river',
     tag: 'cold open+',
-    href: 'https://docs.google.com/presentation/d/1abfX4fQrScN689ovsOv3ZUuxhjkdH7Pb/edit',
-    blurb: 'cold open+ #40: the waterfall that swallows a river and nobody knows where it goes.',
+    href: 'https://docs.google.com/presentation/d/1P9KckHPhfsBi_WF7mj6TJs0SkaYMGkWT/edit',
+    blurb: 'cold open+ #40: the waterfall that swallows a river.',
   },
   {
     name: 'the man lightning would not stop hunting',
@@ -365,5 +365,23 @@ export const coldOpenDecks: RabbitHoleDeck[] = [
     tag: 'cold open deluxe',
     href: 'https://docs.google.com/presentation/d/1JCupOM01XTM9zu8bSsKv0JJr0PLeCl1b/edit',
     blurb: 'cold open deluxe #20: the mansion built nonstop for 38 years.',
+  },
+  {
+    name: 'the wall',
+    tag: 'cold open',
+    href: 'https://docs.google.com/presentation/d/1bFXnELom8vh6wkQ7FbBXj8PWx-KR8eyyGxm7arGI5Do/edit',
+    blurb: 'a radioactive capsule disappears into soviet construction and ends up sealed inside an apartment wall.',
+  },
+  {
+    name: 'quantum computing',
+    tag: 'cold open',
+    href: 'https://docs.google.com/presentation/d/1fAquVxmwXaYX8teJ8ak2VJIVGlPaw3PsNyZd6VJgCEk/edit',
+    blurb: 'a standalone cold open exploring quantum computing and what makes it different from ordinary computing.',
+  },
+  {
+    name: 'the computer that sank before caesar ruled',
+    tag: 'cold open',
+    href: 'https://docs.google.com/presentation/d/1GI_aaKkZe_wEHGwJ0T6-r-MfPBmOfv90FPm48_b41PI/edit',
+    blurb: 'divers recover a 2,000-year-old geared machine that tracked astronomical cycles and could predict eclipses.',
   },
 ];
