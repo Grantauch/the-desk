@@ -90,13 +90,7 @@ const toHttpsUrl = (value: string | undefined) => {
 const proxiedNewsImage = (value: string | undefined) => {
   const image = toHttpsUrl(value);
   if (!image) return undefined;
-  const proxy = new URL('https://images.weserv.nl/');
-  proxy.searchParams.set('url', image);
-  proxy.searchParams.set('w', '960');
-  proxy.searchParams.set('h', '510');
-  proxy.searchParams.set('fit', 'cover');
-  proxy.searchParams.set('output', 'webp');
-  return proxy.href;
+  return `/.netlify/functions/news-image?url=${encodeURIComponent(image)}`;
 };
 
 const parsePublished = (value: string) => {
@@ -364,13 +358,9 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
         const safe = safeAssetUrl(value);
         if (!safe) return '';
         const url = new URL(safe);
-        if (url.origin === window.location.origin || url.hostname === 'images.weserv.nl') return url.href;
-        const proxy = new URL('https://images.weserv.nl/');
+        if (url.origin === window.location.origin) return url.href;
+        const proxy = new URL('/.netlify/functions/news-image', window.location.origin);
         proxy.searchParams.set('url', url.href);
-        proxy.searchParams.set('w', '960');
-        proxy.searchParams.set('h', '510');
-        proxy.searchParams.set('fit', 'cover');
-        proxy.searchParams.set('output', 'webp');
         return proxy.href;
       };
 

@@ -1,4 +1,5 @@
 import { handler as headlinesHandler } from '../netlify/functions/headlines.mjs';
+import { handler as newsImageHandler } from '../netlify/functions/news-image.mjs';
 import { handler as curiosityHandler } from '../netlify/functions/curiosity.mjs';
 
 const headlineResponse = await headlinesHandler({});
@@ -17,15 +18,16 @@ const headlineSummary = headlinePayload.groups.map((group) => ({
 const thumbnailSummary = await Promise.all(headlinePayload.groups.map(async (group) => {
   const sourceImage = group.stories?.find((story) => story.image)?.image;
   if (!sourceImage) return { source: group.name, status: 0, type: '', bytes: 0 };
-  const proxy = new URL('https://images.weserv.nl/');
-  proxy.searchParams.set('url', sourceImage);
-  proxy.searchParams.set('w', '960');
-  proxy.searchParams.set('h', '510');
-  proxy.searchParams.set('fit', 'cover');
-  proxy.searchParams.set('output', 'webp');
-  const response = await fetch(proxy, { signal: AbortSignal.timeout(15_000) });
-  const bytes = response.ok ? (await response.arrayBuffer()).byteLength : 0;
-  return { source: group.name, status: response.status, type: response.headers.get('content-type') ?? '', bytes };
+  const response = await newsImageHandler({ queryStringParameters: { url: sourceImage } });
+  const bytes = response.statusCode === 200 && response.isBase64Encoded
+    ? Buffer.from(response.body, 'base64').byteLength
+    : 0;
+  return {
+    source: group.name,
+    status: response.statusCode,
+    type: response.headers?.['Content-Type'] ?? '',
+    bytes,
+  };
 }));
 
 const collections = ['power', 'entertainment', 'sports', 'mysteries', 'michigan'];
