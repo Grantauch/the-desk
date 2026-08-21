@@ -66,15 +66,23 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
 
     <div class="home-hero__grid">
       <div class="home-hero__copy">
-        <div class="home-approval-stamp" aria-label="Grant approved classroom issue">
-          <span>classroom issue</span>
-          <strong>grant approved</strong>
-          <small>MM / 2026—27</small>
+        <div class="home-face-seal">
+          <div class="home-face-seal__plate">
+            <img
+              src="/mr-grant-approved-transparent.png"
+              alt="Mr. Grant Approved"
+              width="548"
+              height="548"
+            />
+          </div>
+          <span class="home-face-seal__caption" aria-hidden="true">classroom issue / 26—27</span>
         </div>
 
         <p class="home-hero__eyebrow">live from the room / built for the room</p>
-        <h1 class="font-display font-bold lowercase tracking-tight">
-          {siteContent.home.title}<span class="text-accent">.</span>
+        <h1 class="home-hero__wordmark" aria-label={`${siteContent.home.title}.`}>
+          <span class="home-wordmark__the" aria-hidden="true">the</span>
+          <span class="home-wordmark__desk" aria-hidden="true">desk</span>
+          <span class="home-wordmark__dot" aria-hidden="true">.</span>
         </h1>
         <p class="home-hero__promise">
           Evidence first. Context always. Curiosity is allowed to change the route.
@@ -534,19 +542,56 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
   .home-hero h1 {
     position: relative;
     z-index: 2;
+    display: flex;
+    gap: 0.1em;
+    align-items: baseline;
     width: fit-content;
     margin-top: clamp(2.8rem, 6vw, 4.4rem);
     color: #fbfbf7;
+    font-family: 'Space Grotesk', var(--font-display);
     font-size: clamp(5rem, 10.5vw, 9.1rem);
+    font-weight: 700;
+    font-variation-settings: 'wght' 700;
     letter-spacing: -0.072em;
     line-height: 0.76;
+    text-transform: lowercase;
     text-shadow:
-      0 0.055em 0 #090a0f,
-      0 0.11em 0.32em rgb(0 0 0 / 0.34);
+      0.025em 0.038em 0 #5a67ff,
+      0.055em 0.075em 0 #08090e,
+      0 0.14em 0.34em rgb(0 0 0 / 0.42);
   }
 
-  .home-hero h1 .text-accent {
+  .home-wordmark__the,
+  .home-wordmark__desk,
+  .home-wordmark__dot {
+    position: relative;
+    display: inline-block;
+  }
+
+  .home-wordmark__the {
+    color: #f2f0e6;
+  }
+
+  .home-wordmark__desk {
+    color: white;
+  }
+
+  .home-wordmark__desk::after {
+    position: absolute;
+    right: 0.02em;
+    bottom: -0.18em;
+    width: 0.68em;
+    height: 0.035em;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6874ff, rgb(104 116 255 / 0));
+    box-shadow: 0 0 1rem rgb(104 116 255 / 0.6);
+    content: '';
+  }
+
+  .home-wordmark__dot {
+    margin-left: -0.16em;
     color: #6874ff;
+    font-size: 1.08em;
     text-shadow: 0 0 1.5rem rgb(80 94 255 / 0.48);
   }
 
@@ -612,65 +657,87 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
     50% { opacity: 0.55; }
   }
 
-  .home-approval-stamp {
+  .home-face-seal {
     position: absolute;
-    top: -0.15rem;
-    right: 0.15rem;
+    top: -0.5rem;
+    right: 0.3rem;
     z-index: 3;
     display: grid;
-    width: clamp(8rem, 14vw, 10rem);
-    gap: 0.12rem;
-    border: 3px double rgb(255 129 100 / 0.82);
-    border-radius: 0.42rem;
-    background:
-      repeating-linear-gradient(-17deg, transparent 0 6px, rgb(255 129 100 / 0.025) 7px 8px),
-      rgb(10 11 16 / 0.3);
-    padding: 0.52rem 0.65rem 0.48rem;
-    color: #ff8c73;
-    text-align: center;
-    text-transform: uppercase;
-    box-shadow: inset 0 0 0 1px rgb(255 129 100 / 0.2);
-    transform: rotate(4.2deg);
+    width: clamp(8.2rem, 14vw, 10rem);
+    justify-items: center;
+    filter: drop-shadow(0 1.2rem 1rem rgb(0 0 0 / 0.24));
+    transform: rotate(-5deg);
   }
 
-  .home-approval-stamp::before,
-  .home-approval-stamp::after {
+  .home-face-seal::before {
     position: absolute;
-    width: 0.24rem;
-    height: 65%;
-    background: #111218;
+    top: -0.22rem;
+    left: 50%;
+    z-index: 2;
+    width: 0.58rem;
+    aspect-ratio: 1;
+    border: 1px solid rgb(23 23 28 / 0.45);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 36% 30%, white 0 6%, transparent 7%),
+      linear-gradient(145deg, #d9d9d2, #777781);
+    box-shadow: 0 0.18rem 0.25rem rgb(0 0 0 / 0.36);
     content: '';
-    opacity: 0.78;
+    transform: translateX(-50%);
   }
 
-  .home-approval-stamp::before {
-    top: 10%;
-    left: 19%;
+  .home-face-seal__plate {
+    position: relative;
+    display: grid;
+    width: 100%;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid rgb(23 23 28 / 0.48);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 36% 30%, white, #f3f0e3 70%, #d9d6c9);
+    padding: 0.42rem;
+    box-shadow:
+      0.48rem 0.52rem 0 #5c69ff,
+      0 0 0 0.28rem #f3f0e3,
+      0 0 0 0.36rem rgb(23 23 28 / 0.72),
+      inset 0 0 0 0.22rem rgb(23 23 28 / 0.055);
   }
 
-  .home-approval-stamp::after {
-    right: 23%;
-    bottom: 8%;
-    height: 0.18rem;
-    width: 32%;
+  .home-face-seal__plate::after {
+    position: absolute;
+    inset: 0.68rem;
+    border: 1px dashed rgb(23 23 28 / 0.2);
+    border-radius: 50%;
+    content: '';
+    pointer-events: none;
   }
 
-  .home-approval-stamp span,
-  .home-approval-stamp small {
+  .home-face-seal img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    filter: contrast(1.18);
+    mix-blend-mode: multiply;
+  }
+
+  .home-face-seal__caption {
+    position: relative;
+    z-index: 3;
+    margin-top: 0.62rem;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: 999px;
+    background: #2431d7;
+    padding: 0.32rem 0.6rem;
+    color: white;
     font-family: var(--font-mono);
-    font-size: 0.42rem;
+    font-size: 0.4rem;
     font-weight: 800;
-    letter-spacing: 0.11em;
-  }
-
-  .home-approval-stamp strong {
-    border-block: 1px solid currentColor;
-    padding-block: 0.22rem;
-    font-family: var(--font-display);
-    font-size: clamp(0.78rem, 1.5vw, 1.02rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
+    letter-spacing: 0.09em;
     line-height: 1;
+    text-transform: uppercase;
+    box-shadow: 0 0.35rem 0.8rem -0.55rem rgb(0 0 0 / 0.9);
   }
 
   .home-hero__sorter {
@@ -1506,10 +1573,15 @@ const homeTime = new Intl.DateTimeFormat('en-US', {
       font-size: clamp(4.2rem, 21vw, 6rem);
     }
 
-    .home-approval-stamp {
-      top: 0;
-      right: 0;
-      width: 7.4rem;
+    .home-face-seal {
+      top: 0.15rem;
+      right: 0.1rem;
+      width: 7rem;
+    }
+
+    .home-face-seal__caption {
+      margin-top: 0.5rem;
+      font-size: 0.34rem;
     }
 
     .home-hero__promise {
