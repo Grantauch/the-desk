@@ -13,7 +13,7 @@ interface Resource {
   type: string;
   onWebsite: boolean;
   href: string | null;
-  status?: 'restricted';
+  status?: 'restricted' | 'coming-soon';
 }
 
 const library = resourceLibrary as {
@@ -22,7 +22,10 @@ const library = resourceLibrary as {
   resources: Resource[];
 };
 const publicResources = library.resources.filter(
-  (resource) => resource.onWebsite === true && resource.status !== 'restricted' && Boolean(resource.href),
+  (resource) =>
+    resource.onWebsite === true &&
+    resource.status !== 'restricted' &&
+    (Boolean(resource.href) || resource.status === 'coming-soon'),
 );
 const publicResourceCount = publicResources.length;
 
@@ -244,7 +247,7 @@ const displayCourse = (course: string) => course === 'Rabbit Holes' ? 'The Detou
                     ) : resource.status === 'restricted' ? (
                       <span class="font-mono text-xs lowercase text-ink-soft">teacher copy — license restricted</span>
                     ) : (
-                      <span class="font-mono text-xs lowercase text-ink-soft">link coming soon</span>
+                      <span class="font-mono text-xs font-semibold lowercase text-accent-dark">teacher preparing · link coming soon</span>
                     )}
                   </div>
                 </article>

@@ -1,6 +1,6 @@
 {
   "source": "the-desk-public-resource-catalog",
-  "resourceCount": 129,
+  "resourceCount": 137,
   "linkedCount": 129,
   "resources": [
     {
@@ -1163,6 +1163,86 @@
       "type": "Packet",
       "onWebsite": true,
       "href": "https://docs.google.com/document/d/1-IBhlpcTMofvfwFthAYZelwl9H4FGULBCL9EQoqfclk/edit"
+    },
+    {
+      "id": "502-scoreboard-unit-2-lesson-07-belt-classroom-deck",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Lesson 07 — The Belt Nobody Wanted Him to Hold",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "503-scoreboard-unit-2-lesson-08-fifteen-rounds-classroom-deck",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Lesson 08 — Fifteen Rounds and the Count That Followed",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "504-scoreboard-unit-2-lesson-09-law-chased-film-classroom-deck",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Lesson 09 — The Law That Chased the Film",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "505-scoreboard-unit-2-lesson-10-statute-broad-enough-classroom-deck",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Lesson 10 — A Statute Broad Enough to Fit",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "506-scoreboard-unit-2-lesson-11-eight-men-two-verdicts-classroom-deck",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Lesson 11 — Eight Men, Two Verdicts",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "507-scoreboard-unit-2-lesson-12-authority-outlived-everyone-classroom-deck",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Lesson 12 — The Authority That Outlived Everyone",
+      "type": "Slides",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "508-scoreboard-unit-2-student-activity-packet-v2",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Block 2 — Student Activity Packet",
+      "type": "Packet",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
+    },
+    {
+      "id": "509-scoreboard-unit-2-open-note-quiz-v2",
+      "course": "Beyond the Scoreboard",
+      "unitTopic": "The National Stage, 1900–1945",
+      "name": "Block 2 — Open-Note Quiz",
+      "type": "Quiz",
+      "onWebsite": true,
+      "href": null,
+      "status": "coming-soon"
     }
   ]
 }

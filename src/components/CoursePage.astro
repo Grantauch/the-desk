@@ -7,8 +7,9 @@ import unitMaterialAssignments from '../data/unit-materials.json';
 
 interface Material {
   label: string;
-  href: string;
+  href: string | null;
   group?: string;
+  status?: 'coming-soon';
 }
 
 interface Unit {
@@ -54,12 +55,13 @@ interface CatalogResource {
   name: string;
   type: string;
   onWebsite: boolean;
-  status?: 'restricted';
-  href?: string;
+  status?: 'restricted' | 'coming-soon';
+  href?: string | null;
 }
 
 const groupForType = (type: string) => {
   if (type === 'Slides') return 'slides';
+  if (['Quiz', 'Assessment'].includes(type)) return 'assessments';
   if (['Activity', 'Game/Sim', 'Review/Game'].includes(type)) return 'activities & games';
   if (['Reading', 'Packet', 'Study guide', 'Rubric'].includes(type)) return 'readings & packets';
   return 'more';
@@ -81,13 +83,16 @@ const resolvedUnits = units.map((unit, index) => {
   const assignedMaterials = (courseAssignments?.[unit.name] ?? [])
     .map((id) => catalogById.get(id))
     .filter(
-      (resource): resource is CatalogResource & { href: string } =>
-        resource?.onWebsite === true && resource.status !== 'restricted' && Boolean(resource.href),
+      (resource): resource is CatalogResource =>
+        resource?.onWebsite === true &&
+        resource.status !== 'restricted' &&
+        (Boolean(resource.href) || resource.status === 'coming-soon'),
     )
     .map((resource) => ({
       label: resource.name,
-      href: resource.href,
+      href: resource.href ?? null,
       group: groupForType(resource.type),
+      status: resource.status === 'coming-soon' ? ('coming-soon' as const) : undefined,
     }));
 
   const handWiredMaterials = unit.materialsAudience === 'student' ? (unit.materials ?? []) : [];
@@ -95,7 +100,7 @@ const resolvedUnits = units.map((unit, index) => {
   // Catalog names are the cleaned-up display names. Hand-wired links remain as a fallback
   // only when the course page explicitly marks the whole fallback set as student-safe.
   const materials = [...assignedMaterials, ...handWiredMaterials].filter((material) => {
-    const key = material.href.trim().toLowerCase();
+    const key = material.href?.trim().toLowerCase() ?? `planned:${material.label.trim().toLowerCase()}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -104,6 +109,8 @@ const resolvedUnits = units.map((unit, index) => {
   return {
     ...unit,
     materials,
+    readyMaterialCount: materials.filter((material) => Boolean(material.href)).length,
+    plannedMaterialCount: materials.filter((material) => !material.href).length,
     learningHub: learningCourse?.units.find((hub) => hub.slug === unit.hubSlug),
     materialDialogId: `${slugify(libraryCourse)}-${index + 1}-materials`,
   };
@@ -297,7 +304,10 @@ const groupMaterials = (materials: Material[]) =>
                         <div>
                           <p class="materials-sheet__eyebrow">unit {String(i + 1).padStart(2, '0')} materials</p>
                           <h2 id={`${unit.materialDialogId}-title`} class="materials-sheet__title">{unit.name}</h2>
-                          <p class="materials-sheet__count">{unit.materials.length} ready to open</p>
+                          <p class="materials-sheet__count">
+                            {unit.readyMaterialCount} ready
+                            {unit.plannedMaterialCount > 0 && ` · ${unit.plannedMaterialCount} preparing`}
+                          </p>
                         </div>
                         <button type="button" class="materials-sheet__close" data-materials-close aria-label="Close materials">
                           <span aria-hidden="true">×</span>
@@ -319,10 +329,17 @@ const groupMaterials = (materials: Material[]) =>
                             <ul>
                               {materialGroup.items.map((material) => (
                                 <li data-material-item data-search-text={material.label.toLowerCase()}>
-                                  <a href={material.href} target="_blank" rel="noopener">
-                                    <span>{material.label}</span>
-                                    <span aria-hidden="true">↗</span>
-                                  </a>
+                                  {material.href ? (
+                                    <a href={material.href} target="_blank" rel="noopener">
+                                      <span>{material.label}</span>
+                                      <span aria-hidden="true">↗</span>
+                                    </a>
+                                  ) : (
+                                    <div class="materials-planned">
+                                      <span>{material.label}</span>
+                                      <span class="materials-planned__status">preparing</span>
+                                    </div>
+                                  )}
                                 </li>
                               ))}
                             </ul>
@@ -943,7 +960,8 @@ const groupMaterials = (materials: Material[]) =>
     gap: 0.45rem;
   }
 
-  .materials-group a {
+  .materials-group a,
+  .materials-planned {
     display: flex;
     min-height: 3.25rem;
     align-items: center;
@@ -958,6 +976,24 @@ const groupMaterials = (materials: Material[]) =>
     font-weight: 600;
     line-height: 1.35;
     transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .materials-planned {
+    border-style: dashed;
+    background: color-mix(in srgb, var(--color-accent-soft) 32%, white);
+  }
+
+  .materials-planned__status {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--color-accent-soft);
+    padding: 0.28rem 0.5rem;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .materials-group a span:last-child {
