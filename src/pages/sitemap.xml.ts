@@ -19,6 +19,7 @@ const paths = [
   '/simulations/',
   '/games/',
   '/glossary/',
+  '/cold-openers/',
   '/rabbit-holes/',
   '/tools/',
   ...(passConfig.enabled ? ['/pass/'] : []),
