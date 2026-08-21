@@ -61,7 +61,7 @@ const curiosityItems = Object.entries(curiosityCollections).map(([collection, se
   credit: 'Live records supplied by the Library of Congress',
   related: settings.related,
   relatedLabel: settings.relatedLabel,
-  deeper: '/cold-openers/',
+  deeper: '/detour-shelf/',
   deeperLabel: 'follow another evidence-first detour',
 }));
 
@@ -231,7 +231,7 @@ const first = curiosityItems[0];
           credit: [creator, rights, 'Library of Congress'].filter(Boolean).join(' / '),
           related: curiosityCollections[collection].related,
           relatedLabel: curiosityCollections[collection].relatedLabel,
-          deeper: '/cold-openers/',
+          deeper: '/detour-shelf/',
           deeperLabel: 'follow another evidence-first detour',
         };
       };
@@ -258,7 +258,7 @@ const first = curiosityItems[0];
           credit: shortText(item.credit, 180) || 'Library of Congress',
           related: curiosityCollections[collection].related,
           relatedLabel: curiosityCollections[collection].relatedLabel,
-          deeper: '/cold-openers/',
+          deeper: '/detour-shelf/',
           deeperLabel: 'follow another evidence-first detour',
         };
       };

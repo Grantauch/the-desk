@@ -1,0 +1,1128 @@
+---
+import Base from '../layouts/Base.astro';
+import coldOpeners from '../data/cold-openers.json';
+import { detourDecks } from '../data/detour-shelf';
+
+const completeCatalog = 'https://docs.google.com/document/d/1bKlrexLBE7pLyIIHrVYjBoBoSYEFG-rOwJa4SzLlFGM/edit';
+const totalItems = detourDecks.length + coldOpeners.length;
+---
+
+<Base
+  title="the detour shelf"
+  description="Ready-to-project decks and ninety opening stories—one searchable shelf for the questions too good to leave in the margins."
+  wide
+>
+  <section class="detour-hero" aria-labelledby="detour-title">
+    <div class="detour-hero__signal">
+      <span>the desk / collection 04</span>
+      <span>{totalItems} ways off the main road</span>
+    </div>
+
+    <div class="detour-hero__layout">
+      <div class="detour-hero__copy">
+        <p class="detour-hero__eyebrow">open a door the lesson plan did not expect</p>
+        <h1 id="detour-title">the detour <span>shelf.</span></h1>
+        <p class="detour-hero__intro">
+          Finished visual decks when you need the screen. Ninety story starters when you only need the question.
+          Search once, choose a shelf, and take the room somewhere worth going.
+        </p>
+
+        <nav class="detour-hero__routes" aria-label="Jump to a Detour Shelf collection">
+          <a href="#ready-decks" data-detour-jump="decks">
+            <span class="detour-hero__route-number">{detourDecks.length}</span>
+            <span><strong>ready to project</strong>finished decks / open and teach</span>
+            <span aria-hidden="true">↘</span>
+          </a>
+          <a href="#story-bank" data-detour-jump="stories">
+            <span class="detour-hero__route-number">{coldOpeners.length}</span>
+            <span><strong>story bank</strong>hooks / questions / rabbit holes</span>
+            <span aria-hidden="true">↘</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="detour-figure" aria-hidden="true">
+        <div class="detour-figure__label">pull any spine</div>
+        <div class="detour-figure__books">
+          <span><b>truth</b><i>01</i></span>
+          <span><b>risk</b><i>17</i></span>
+          <span><b>power</b><i>31</i></span>
+          <span><b>weird</b><i>63</i></span>
+          <span><b>why?</b><i>90</i></span>
+        </div>
+        <div class="detour-figure__shelf"></div>
+        <p>the stories too good to leave in the margins</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="detour-browser" data-detour-browser aria-labelledby="detour-browser-title">
+    <div class="detour-controls">
+      <div class="detour-controls__topline">
+        <div>
+          <p class="detour-kicker">unified shelf index</p>
+          <h2 id="detour-browser-title">find the right turn<span>.</span></h2>
+        </div>
+        <p>Search titles, topics, hooks, and questions across both collections.</p>
+      </div>
+
+      <div class="detour-controls__bar">
+        <label class="detour-search">
+          <span class="sr-only">Search the Detour Shelf</span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            placeholder="try: war, baseball, disaster, mystery…"
+            autocomplete="off"
+            data-detour-search
+          />
+          <kbd>/</kbd>
+        </label>
+
+        <div class="detour-modes" role="group" aria-label="Choose a shelf">
+          <button type="button" data-detour-mode="decks" aria-pressed="true">
+            decks <span>{detourDecks.length}</span>
+          </button>
+          <button type="button" data-detour-mode="stories" aria-pressed="false">
+            stories <span>{coldOpeners.length}</span>
+          </button>
+          <button type="button" data-detour-mode="all" aria-pressed="false">
+            all <span>{totalItems}</span>
+          </button>
+        </div>
+
+        <button class="detour-surprise" type="button" data-detour-surprise>
+          surprise me <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+
+      <div class="detour-controls__readout">
+        <p role="status" aria-live="polite" data-detour-status>
+          showing {detourDecks.length} ready-to-project decks
+        </p>
+        <button type="button" data-detour-clear hidden>clear search</button>
+      </div>
+    </div>
+
+    <section id="ready-decks" class="detour-shelf" data-detour-shelf="decks" aria-labelledby="ready-decks-title">
+      <header class="detour-shelf__header">
+        <div class="detour-shelf__index">01</div>
+        <div>
+          <p class="detour-kicker">finished / linked / classroom ready</p>
+          <h2 id="ready-decks-title">ready to project<span>.</span></h2>
+        </div>
+        <p>Open a finished deck and take the detour now. Search narrows titles, subjects, and descriptions.</p>
+      </header>
+
+      <div class="deck-grid" data-detour-grid="decks">
+        {
+          detourDecks.map((deck, index) => (
+            <article
+              id={`deck-${index + 1}`}
+              class="deck-card"
+              data-detour-card
+              data-detour-kind="decks"
+              data-search={`${deck.name} ${deck.tag} ${deck.blurb}`.toLowerCase()}
+            >
+              <a href={deck.href} target="_blank" rel="noopener">
+                <span class="deck-card__ghost" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <div class="deck-card__topline">
+                  <span>ready deck</span>
+                  <span>{String(index + 1).padStart(2, '0')} / {String(detourDecks.length).padStart(2, '0')}</span>
+                </div>
+                <h3>{deck.name}</h3>
+                <p>{deck.blurb}</p>
+                <footer>
+                  <span>{deck.tag}</span>
+                  <strong>open deck <span aria-hidden="true">↗</span></strong>
+                </footer>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="story-bank" class="detour-shelf" data-detour-shelf="stories" aria-labelledby="story-bank-title" hidden>
+      <header class="detour-shelf__header detour-shelf__header--stories">
+        <div class="detour-shelf__index">02</div>
+        <div>
+          <p class="detour-kicker">ninety opening moves / one good question each</p>
+          <h2 id="story-bank-title">the story bank<span>.</span></h2>
+        </div>
+        <p>Open a card for the hook, the reason it works, and the questions that can carry the room further.</p>
+      </header>
+
+      <div class="story-grid" data-detour-grid="stories">
+        {
+          coldOpeners.map((opener) => (
+            <article
+              id={`story-${opener.day}`}
+              class="story-card"
+              data-detour-card
+              data-detour-kind="stories"
+              data-search={`${opener.title} ${opener.coldOpen} ${opener.whyItWorks} ${opener.rabbitHoles.join(' ')}`.toLowerCase()}
+            >
+              <details>
+                <summary>
+                  <span class="story-card__day">day {String(opener.day).padStart(2, '0')}</span>
+                  <h3>{opener.title}</h3>
+                  <span class="story-card__plus" aria-hidden="true">+</span>
+                </summary>
+                <div class="story-card__body">
+                  <div>
+                    <p class="story-card__label">cold open</p>
+                    <p class="story-card__hook">{opener.coldOpen}</p>
+                  </div>
+                  <div>
+                    <p class="story-card__label">why it works</p>
+                    <p>{opener.whyItWorks}</p>
+                  </div>
+                  <div>
+                    <p class="story-card__label">rabbit holes</p>
+                    <ul>
+                      {opener.rabbitHoles.map((rabbitHole) => <li>{rabbitHole}</li>)}
+                    </ul>
+                  </div>
+                  <p class="story-card__meta">{opener.slideCount} teacher beats in the full catalog</p>
+                </div>
+              </details>
+            </article>
+          ))
+        }
+      </div>
+
+      <a class="teacher-catalog" href={completeCatalog} target="_blank" rel="noopener">
+        <span>
+          <small>teacher reference</small>
+          <strong>open the complete 90-day catalog</strong>
+        </span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+
+    <div class="detour-empty" data-detour-empty hidden>
+      <span aria-hidden="true">∅</span>
+      <strong>nothing on the shelf matched that search.</strong>
+      <p>Try one strong word—or clear the search and ask the shelf to surprise you.</p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  const initializeDetourShelf = () => {
+    document.querySelectorAll('[data-detour-browser]').forEach((browser) => {
+      if (!(browser instanceof HTMLElement) || browser.dataset.ready === 'true') return;
+
+      const search = browser.querySelector('[data-detour-search]');
+      const status = browser.querySelector('[data-detour-status]');
+      const clear = browser.querySelector('[data-detour-clear]');
+      const empty = browser.querySelector('[data-detour-empty]');
+      const surprise = browser.querySelector('[data-detour-surprise]');
+      const jumpLinks = [...document.querySelectorAll('[data-detour-jump]')];
+      const modeButtons = [...browser.querySelectorAll('[data-detour-mode]')];
+      const shelves = [...browser.querySelectorAll('[data-detour-shelf]')];
+      const cards = [...browser.querySelectorAll('[data-detour-card]')];
+      let activeMode = window.location.hash === '#story-bank' ? 'stories' : 'decks';
+
+      const labelForMode = (mode) => mode === 'decks'
+        ? 'ready-to-project decks'
+        : mode === 'stories'
+          ? 'opening stories'
+          : 'detours';
+
+      const applyFilters = () => {
+        const query = search instanceof HTMLInputElement ? search.value.trim().toLowerCase() : '';
+        let visible = 0;
+        const visibleByKind = { decks: 0, stories: 0 };
+
+        cards.forEach((card) => {
+          if (!(card instanceof HTMLElement)) return;
+          const kind = card.dataset.detourKind;
+          const inMode = activeMode === 'all' || kind === activeMode;
+          const matches = !query || (card.dataset.search ?? '').includes(query);
+          card.hidden = !(inMode && matches);
+          if (!card.hidden) {
+            visible += 1;
+            if (kind === 'decks' || kind === 'stories') visibleByKind[kind] += 1;
+          }
+        });
+
+        shelves.forEach((shelf) => {
+          if (!(shelf instanceof HTMLElement)) return;
+          const kind = shelf.dataset.detourShelf;
+          shelf.hidden = activeMode !== 'all' && kind !== activeMode;
+          if (activeMode === 'all' && (kind === 'decks' || kind === 'stories')) {
+            shelf.hidden = visibleByKind[kind] === 0;
+          }
+        });
+
+        modeButtons.forEach((button) => {
+          if (!(button instanceof HTMLButtonElement)) return;
+          button.setAttribute('aria-pressed', String(button.dataset.detourMode === activeMode));
+        });
+
+        if (status) status.textContent = `showing ${visible} ${labelForMode(activeMode)}${query ? ` matching “${query}”` : ''}`;
+        if (clear instanceof HTMLElement) clear.hidden = !query;
+        if (empty instanceof HTMLElement) empty.hidden = visible > 0;
+      };
+
+      modeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeMode = button.dataset.detourMode || 'decks';
+          applyFilters();
+        });
+      });
+
+      jumpLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          activeMode = link.dataset.detourJump || 'decks';
+          applyFilters();
+          const targetId = activeMode === 'stories' ? 'story-bank' : 'ready-decks';
+          window.history.replaceState(null, '', `#${targetId}`);
+          window.requestAnimationFrame(() => document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' }));
+        });
+      });
+
+      search?.addEventListener('input', applyFilters);
+      clear?.addEventListener('click', () => {
+        if (search instanceof HTMLInputElement) {
+          search.value = '';
+          search.focus();
+        }
+        applyFilters();
+      });
+
+      surprise?.addEventListener('click', () => {
+        const visibleCards = cards.filter((card) => card instanceof HTMLElement && !card.hidden);
+        if (!visibleCards.length) return;
+        const selected = visibleCards[Math.floor(Math.random() * visibleCards.length)];
+        selected.querySelector('details')?.setAttribute('open', '');
+        selected.classList.remove('is-picked');
+        window.requestAnimationFrame(() => selected.classList.add('is-picked'));
+        selected.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.setTimeout(() => selected.classList.remove('is-picked'), 1800);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === '/' && document.activeElement !== search) {
+          event.preventDefault();
+          search?.focus();
+        }
+        if (event.key === 'Escape' && search instanceof HTMLInputElement && search.value) {
+          search.value = '';
+          applyFilters();
+        }
+      });
+
+      browser.dataset.ready = 'true';
+      applyFilters();
+    });
+  };
+
+  document.addEventListener('astro:page-load', initializeDetourShelf);
+  initializeDetourShelf();
+</script>
+
+<style>
+  .detour-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid #080910;
+    border-radius: 1.45rem;
+    background:
+      radial-gradient(circle at 78% 16%, rgb(66 83 255 / 0.44), transparent 22rem),
+      linear-gradient(135deg, #10121d 0%, #171824 48%, #0c0d13 100%);
+    color: white;
+    box-shadow: 0 34px 80px -48px rgb(8 9 16 / 0.95);
+  }
+
+  .detour-hero::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+    background-size: 36px 36px;
+    content: '';
+    -webkit-mask-image: linear-gradient(105deg, transparent 5%, black 75%, transparent);
+    mask-image: linear-gradient(105deg, transparent 5%, black 75%, transparent);
+  }
+
+  .detour-hero__signal {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.14);
+    padding: 0.72rem 1rem;
+    color: rgb(255 255 255 / 0.58);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .detour-hero__layout {
+    display: grid;
+    gap: 2rem;
+    padding: clamp(1.5rem, 5vw, 3.5rem);
+  }
+
+  .detour-hero__copy {
+    min-width: 0;
+  }
+
+  .detour-hero__eyebrow,
+  .detour-kicker {
+    color: #9da6ff;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .detour-hero h1 {
+    max-width: 48rem;
+    margin-top: 0.7rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 10vw, 7.4rem);
+    font-weight: 700;
+    letter-spacing: -0.075em;
+    line-height: 0.82;
+    text-transform: lowercase;
+  }
+
+  .detour-hero h1 span {
+    display: block;
+    color: #7180ff;
+  }
+
+  .detour-hero__intro {
+    max-width: 43rem;
+    margin-top: 1.35rem;
+    color: rgb(255 255 255 / 0.72);
+    font-size: clamp(0.95rem, 2vw, 1.08rem);
+    line-height: 1.68;
+  }
+
+  .detour-hero__routes {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1.8rem;
+  }
+
+  .detour-hero__routes a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: center;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    border-radius: 0.9rem;
+    background: rgb(255 255 255 / 0.065);
+    padding: 0.72rem 0.82rem;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+
+  .detour-hero__routes a:hover {
+    transform: translateX(0.25rem);
+    border-color: rgb(157 166 255 / 0.68);
+    background: rgb(113 128 255 / 0.14);
+  }
+
+  .detour-hero__route-number {
+    color: #9da6ff;
+    font-family: var(--font-display);
+    font-size: 1.55rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+  }
+
+  .detour-hero__routes strong,
+  .detour-hero__routes a > span:nth-child(2) {
+    display: block;
+  }
+
+  .detour-hero__routes strong {
+    color: white;
+    font-size: 0.82rem;
+    text-transform: lowercase;
+  }
+
+  .detour-hero__routes a > span:nth-child(2) {
+    color: rgb(255 255 255 / 0.48);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    line-height: 1.45;
+    text-transform: uppercase;
+  }
+
+  .detour-figure {
+    position: relative;
+    align-self: center;
+    min-width: 0;
+    padding: 1rem 0;
+  }
+
+  .detour-figure__label {
+    margin-bottom: 0.65rem;
+    color: rgb(255 255 255 / 0.4);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  .detour-figure__books {
+    display: flex;
+    gap: 0.34rem;
+    align-items: end;
+    justify-content: center;
+    min-height: 17rem;
+  }
+
+  .detour-figure__books span {
+    position: relative;
+    display: flex;
+    width: clamp(2.6rem, 6vw, 4.2rem);
+    height: var(--book-height, 14rem);
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid rgb(0 0 0 / 0.42);
+    border-radius: 0.25rem 0.25rem 0.08rem 0.08rem;
+    background: var(--book-color, #7180ff);
+    padding: 0.8rem 0.45rem;
+    color: #10121d;
+    box-shadow: 10px 14px 25px -18px black;
+    transform: rotate(var(--book-tilt, 0deg));
+    transform-origin: bottom;
+  }
+
+  .detour-figure__books span:nth-child(1) { --book-height: 12rem; --book-color: #f5f0de; --book-tilt: -2deg; }
+  .detour-figure__books span:nth-child(2) { --book-height: 15rem; --book-color: #ff754f; }
+  .detour-figure__books span:nth-child(3) { --book-height: 13.5rem; --book-color: #7180ff; --book-tilt: 1deg; }
+  .detour-figure__books span:nth-child(4) { --book-height: 16.5rem; --book-color: #e1e4ff; }
+  .detour-figure__books span:nth-child(5) { --book-height: 14.5rem; --book-color: #c9ffde; --book-tilt: 3deg; }
+
+  .detour-figure__books b {
+    writing-mode: vertical-rl;
+    font-family: var(--font-display);
+    font-size: clamp(0.8rem, 2vw, 1.1rem);
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    transform: rotate(180deg);
+  }
+
+  .detour-figure__books i {
+    align-self: center;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .detour-figure__shelf {
+    height: 0.8rem;
+    border-radius: 0.1rem;
+    background: #f5f0de;
+    box-shadow: 0 8px 0 #6a6d7f, 0 20px 30px -14px black;
+  }
+
+  .detour-figure > p {
+    margin-top: 1.25rem;
+    color: rgb(255 255 255 / 0.42);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    line-height: 1.5;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  .detour-browser {
+    margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .detour-controls {
+    position: sticky;
+    top: 5.8rem;
+    z-index: 20;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 17%, transparent);
+    border-radius: 1.1rem;
+    background: rgb(250 250 247 / 0.93);
+    box-shadow: 0 24px 54px -40px rgb(23 23 28 / 0.88);
+    backdrop-filter: blur(18px);
+  }
+
+  .detour-controls__topline {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1rem 1.15rem 0.85rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .detour-controls .detour-kicker,
+  .detour-shelf .detour-kicker {
+    color: var(--color-accent-dark);
+  }
+
+  .detour-controls h2,
+  .detour-shelf__header h2 {
+    margin-top: 0.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 4vw, 2.35rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    text-transform: lowercase;
+  }
+
+  .detour-controls h2 span,
+  .detour-shelf__header h2 span {
+    color: var(--color-accent);
+  }
+
+  .detour-controls__topline > p {
+    max-width: 25rem;
+    color: var(--color-ink-soft);
+    font-size: 0.76rem;
+    line-height: 1.45;
+    text-align: right;
+  }
+
+  .detour-controls__bar {
+    display: grid;
+    grid-template-columns: minmax(14rem, 1fr) auto auto;
+    gap: 0.65rem;
+    align-items: center;
+    padding: 0.85rem 1.15rem;
+  }
+
+  .detour-search {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.65rem;
+    align-items: center;
+    min-height: 2.85rem;
+    border: 1px solid #c7c9d2;
+    border-radius: 0.75rem;
+    background: white;
+    padding-inline: 0.8rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .detour-search:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  .detour-search > span {
+    color: var(--color-accent);
+    font-size: 1.15rem;
+  }
+
+  .detour-search input {
+    min-width: 0;
+    outline: none;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: 0.78rem;
+  }
+
+  .detour-search kbd {
+    border: 1px solid var(--color-line);
+    border-bottom-width: 2px;
+    border-radius: 0.3rem;
+    background: #f3f3ef;
+    padding: 0.08rem 0.35rem;
+    color: #777780;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+  }
+
+  .detour-modes {
+    display: flex;
+    border: 1px solid #c7c9d2;
+    border-radius: 0.75rem;
+    background: white;
+    padding: 0.2rem;
+  }
+
+  .detour-modes button,
+  .detour-surprise {
+    min-height: 2.45rem;
+    cursor: pointer;
+    border-radius: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .detour-modes button {
+    color: var(--color-ink-soft);
+  }
+
+  .detour-modes button[aria-pressed='true'] {
+    background: var(--color-ink);
+    color: white;
+  }
+
+  .detour-modes button span {
+    margin-left: 0.22rem;
+    opacity: 0.58;
+  }
+
+  .detour-surprise {
+    border: 1px solid var(--color-accent-dark);
+    background: var(--color-accent);
+    color: white;
+    box-shadow: 0 12px 22px -18px var(--color-accent);
+    transition: transform 160ms ease, background 160ms ease;
+  }
+
+  .detour-surprise:hover {
+    transform: translateY(-1px);
+    background: var(--color-accent-dark);
+  }
+
+  .detour-controls__readout {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--color-line);
+    padding: 0.55rem 1.15rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: lowercase;
+  }
+
+  .detour-controls__readout button {
+    cursor: pointer;
+    color: var(--color-accent-dark);
+    font-weight: 700;
+  }
+
+  .detour-shelf {
+    margin-top: clamp(2.6rem, 6vw, 4.5rem);
+  }
+
+  .detour-shelf[hidden],
+  [data-detour-card][hidden] {
+    display: none;
+  }
+
+  .detour-shelf__header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(16rem, 0.65fr);
+    gap: 1rem;
+    align-items: end;
+    padding: 0 0 1.2rem;
+    border-bottom: 2px solid var(--color-ink);
+  }
+
+  .detour-shelf__index {
+    display: grid;
+    width: 3.2rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 0.8rem;
+    background: var(--color-accent);
+    color: white;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .detour-shelf__header--stories .detour-shelf__index {
+    background: #ff6948;
+  }
+
+  .detour-shelf__header > p {
+    color: var(--color-ink-soft);
+    font-size: 0.77rem;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  .deck-grid {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+
+  .deck-card {
+    --deck-accent: var(--color-accent);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    border-radius: 1rem;
+    background: white;
+    box-shadow: var(--shadow-card);
+    transition: transform 190ms ease, border-color 190ms ease, box-shadow 190ms ease;
+  }
+
+  .deck-card:nth-child(4n + 2) { --deck-accent: #d94b2b; }
+  .deck-card:nth-child(4n + 3) { --deck-accent: #08765a; }
+  .deck-card:nth-child(4n + 4) { --deck-accent: #8a6100; }
+
+  .deck-card::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0.3rem;
+    background: var(--deck-accent);
+    content: '';
+  }
+
+  .deck-card:hover,
+  .deck-card.is-picked {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--deck-accent) 52%, transparent);
+    box-shadow: 0 28px 55px -38px color-mix(in srgb, var(--deck-accent) 42%, transparent);
+  }
+
+  .deck-card a {
+    display: flex;
+    min-height: 15rem;
+    flex-direction: column;
+    padding: 1rem 1rem 1rem 1.2rem;
+  }
+
+  .deck-card__topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    color: color-mix(in srgb, var(--deck-accent) 88%, var(--color-ink));
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .deck-card h3 {
+    position: relative;
+    margin-top: 1.1rem;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    text-transform: lowercase;
+  }
+
+  .deck-card > a > p {
+    position: relative;
+    margin-top: 0.65rem;
+    color: var(--color-ink-soft);
+    font-size: 0.76rem;
+    line-height: 1.55;
+  }
+
+  .deck-card footer {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    align-items: end;
+    margin-top: auto;
+    padding-top: 1.2rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+    text-transform: lowercase;
+  }
+
+  .deck-card footer strong {
+    color: color-mix(in srgb, var(--deck-accent) 88%, var(--color-ink));
+  }
+
+  .deck-card footer strong span {
+    display: inline-block;
+    transition: transform 180ms ease;
+  }
+
+  .deck-card:hover footer strong span {
+    transform: translate(0.15rem, -0.15rem);
+  }
+
+  .deck-card__ghost {
+    position: absolute;
+    z-index: -1;
+    right: -0.2rem;
+    bottom: -1.1rem;
+    color: color-mix(in srgb, var(--deck-accent) 7%, transparent);
+    font-family: var(--font-display);
+    font-size: 7rem;
+    font-weight: 700;
+    letter-spacing: -0.1em;
+    line-height: 1;
+  }
+
+  .story-grid {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
+  }
+
+  .story-card {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 0.88);
+    box-shadow: var(--shadow-card);
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .story-card:hover,
+  .story-card.is-picked {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, #ff6948 54%, transparent);
+    box-shadow: 0 27px 52px -40px rgb(217 75 43 / 0.55);
+  }
+
+  .story-card summary {
+    position: relative;
+    display: grid;
+    gap: 0.7rem;
+    min-height: 8.8rem;
+    align-content: start;
+    padding: 1rem 3rem 1rem 1rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .story-card summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .story-card__day,
+  .story-card__label,
+  .story-card__meta {
+    color: #bf3f23;
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .story-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+
+  .story-card__plus {
+    position: absolute;
+    top: 0.9rem;
+    right: 1rem;
+    color: #ff6948;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: transform 180ms ease;
+  }
+
+  .story-card details[open] .story-card__plus {
+    transform: rotate(45deg);
+  }
+
+  .story-card__body {
+    display: grid;
+    gap: 1rem;
+    border-top: 1px solid var(--color-line);
+    padding: 1rem;
+  }
+
+  .story-card__body p,
+  .story-card__body li {
+    color: var(--color-ink-soft);
+    font-size: 0.77rem;
+    line-height: 1.58;
+  }
+
+  .story-card__hook {
+    margin-top: 0.3rem;
+    color: var(--color-ink) !important;
+    font-size: 0.88rem !important;
+    font-weight: 650;
+  }
+
+  .story-card__body ul {
+    margin-top: 0.35rem;
+    padding-left: 1rem;
+    list-style: disc;
+  }
+
+  .story-card__meta {
+    color: #797981 !important;
+  }
+
+  .teacher-catalog {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    border-radius: 1rem;
+    background: var(--color-ink);
+    padding: 1rem 1.15rem;
+    color: white;
+    box-shadow: var(--shadow-card);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .teacher-catalog:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 48px -36px rgb(23 23 28 / 0.9);
+  }
+
+  .teacher-catalog small,
+  .teacher-catalog strong {
+    display: block;
+  }
+
+  .teacher-catalog small {
+    color: #9da6ff;
+    font-family: var(--font-mono);
+    font-size: 0.59rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .teacher-catalog strong {
+    margin-top: 0.18rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    text-transform: lowercase;
+  }
+
+  .detour-empty {
+    margin-top: 2rem;
+    border: 1px dashed #b7b9c4;
+    border-radius: 1.1rem;
+    background: rgb(255 255 255 / 0.72);
+    padding: 2.5rem 1rem;
+    text-align: center;
+  }
+
+  .detour-empty > span {
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+  }
+
+  .detour-empty strong {
+    display: block;
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    text-transform: lowercase;
+  }
+
+  .detour-empty p {
+    margin-top: 0.35rem;
+    color: var(--color-ink-soft);
+    font-size: 0.76rem;
+  }
+
+  @media (min-width: 720px) {
+    .detour-hero__layout {
+      grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+      align-items: end;
+    }
+
+    .detour-hero__routes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .deck-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .story-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1050px) {
+    .deck-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .detour-controls {
+      position: relative;
+      top: auto;
+    }
+
+    .detour-controls__bar {
+      grid-template-columns: 1fr;
+    }
+
+    .detour-modes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .detour-shelf__header {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .detour-shelf__header > p {
+      grid-column: 1 / -1;
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .detour-hero {
+      margin-inline: -0.25rem;
+      border-radius: 1.15rem;
+    }
+
+    .detour-hero__signal span:last-child,
+    .detour-controls__topline > p,
+    .detour-search kbd {
+      display: none;
+    }
+
+    .detour-figure {
+      display: none;
+    }
+
+    .detour-hero h1 {
+      font-size: clamp(3.55rem, 18vw, 5.2rem);
+    }
+
+    .detour-controls__topline {
+      align-items: start;
+    }
+
+    .detour-controls__bar {
+      padding-inline: 0.85rem;
+    }
+
+    .detour-controls__readout {
+      padding-inline: 0.85rem;
+    }
+
+    .detour-shelf__index {
+      width: 2.75rem;
+    }
+  }
+</style>

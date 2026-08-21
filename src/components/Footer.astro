@@ -10,7 +10,8 @@ const { wide = false } = Astro.props;
 ---
 
 <footer class="site-footer mt-20 bg-ink text-paper">
-  <div class:list={['mx-auto grid gap-8 px-5 py-10 lowercase sm:grid-cols-[1fr_auto] sm:items-end', wide ? 'max-w-6xl' : 'max-w-4xl']}>
+  <span class="site-footer__ghost" aria-hidden="true">the desk.</span>
+  <div class:list={['site-footer__inner mx-auto grid gap-8 px-5 py-12 lowercase sm:grid-cols-[1fr_auto] sm:items-end', wide ? 'max-w-6xl' : 'max-w-4xl']}>
     <div>
       <p class="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-paper/45">built for the room, not the algorithm</p>
       <span class="mt-2 block font-display text-3xl font-bold tracking-tight">
@@ -22,6 +23,7 @@ const { wide = false } = Astro.props;
       <nav class="flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs text-paper/70 sm:justify-end" aria-label="Footer navigation">
         <a href="/" class="hover:text-white">home</a>
         <a href="/learning-hubs/" class="hover:text-white">learning hubs</a>
+        <a href="/detour-shelf/" class="hover:text-white">detour shelf</a>
         <a href="/resources/" class="hover:text-white">library</a>
         <a href="/about/" class="hover:text-white">about</a>
       </nav>
@@ -33,6 +35,8 @@ const { wide = false } = Astro.props;
 <style>
   .site-footer {
     position: relative;
+    isolation: isolate;
+    overflow: hidden;
   }
 
   .site-footer::before {
@@ -41,5 +45,37 @@ const { wide = false } = Astro.props;
     height: 3px;
     background: linear-gradient(90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 15%, transparent) 65%, transparent);
     content: '';
+  }
+
+  .site-footer::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    background-size: 38px 38px;
+    content: '';
+    -webkit-mask-image: linear-gradient(110deg, transparent, black 70%);
+    mask-image: linear-gradient(110deg, transparent, black 70%);
+  }
+
+  .site-footer__inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  .site-footer__ghost {
+    position: absolute;
+    right: -0.04em;
+    bottom: -0.22em;
+    z-index: 0;
+    color: rgb(255 255 255 / 0.035);
+    font-family: var(--font-display);
+    font-size: clamp(6rem, 18vw, 14rem);
+    font-weight: 700;
+    letter-spacing: -0.08em;
+    line-height: 0.75;
+    pointer-events: none;
   }
 </style>

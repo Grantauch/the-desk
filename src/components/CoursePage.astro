@@ -141,13 +141,18 @@ const groupMaterials = (materials: Material[]) =>
   });
 ---
 
-<Base title={title}>
+<Base title={title} wide>
   <div class:list={['course-page', `course-page--${theme}`]}>
-    {identityLabel && <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em] text-accent">{identityLabel}</p>}
-    <h1 class:list={[identityLabel ? 'mt-3' : '', 'font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl']}>
-      {title}<span class="text-accent">.</span>
-    </h1>
-    <p class="mt-3 text-lg lowercase text-ink-soft">{tagline}</p>
+    <header class="course-page__masthead">
+      <div>
+        {identityLabel && <p class="course-page__identity">{identityLabel}</p>}
+        <h1>{title}<span>.</span></h1>
+        <p class="course-page__tagline">{tagline}</p>
+      </div>
+      <span class="course-page__registry" aria-hidden="true">
+        active course file<br />the desk / 26—27
+      </span>
+    </header>
 
     {hasHero && <slot name="hero" />}
 
@@ -450,6 +455,99 @@ const groupMaterials = (materials: Material[]) =>
     --color-accent: #08765a;
     --color-accent-dark: #04503d;
     --color-accent-soft: #e4fff5;
+  }
+
+  .course-page__masthead {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(circle at 86% 12%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 16rem),
+      linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 68%, white), white 64%);
+    padding: clamp(1.35rem, 4vw, 2.5rem);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .course-page__masthead::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0.32rem;
+    background: var(--color-accent);
+    content: '';
+  }
+
+  .course-page__masthead::after {
+    position: absolute;
+    right: -0.08em;
+    bottom: -0.3em;
+    z-index: -1;
+    color: color-mix(in srgb, var(--color-accent) 5%, transparent);
+    font-family: var(--font-display);
+    font-size: clamp(7rem, 18vw, 13rem);
+    font-weight: 700;
+    letter-spacing: -0.1em;
+    line-height: 0.8;
+    content: '01';
+  }
+
+  .course-page__identity {
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 750;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .course-page__masthead h1 {
+    max-width: 50rem;
+    margin-top: 0.65rem;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 0.9;
+    text-transform: lowercase;
+  }
+
+  .course-page__masthead h1 span {
+    color: var(--color-accent);
+  }
+
+  .course-page__tagline {
+    max-width: 40rem;
+    margin-top: 0.85rem;
+    color: var(--color-ink-soft);
+    font-size: clamp(0.95rem, 2vw, 1.12rem);
+    line-height: 1.55;
+    text-transform: lowercase;
+  }
+
+  .course-page__registry {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+    border-radius: 0.65rem;
+    background: rgb(255 255 255 / 0.72);
+    padding: 0.55rem 0.65rem;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    line-height: 1.55;
+    text-align: right;
+    text-transform: uppercase;
+    transform: rotate(1.5deg);
+  }
+
+  @media (max-width: 700px) {
+    .course-page__registry {
+      display: none;
+    }
   }
 
   .units-heading {

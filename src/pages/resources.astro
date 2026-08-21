@@ -68,6 +68,7 @@ const activeCourses = activeCourseNames.map((course) => ({
 }));
 const activeResourceCount = activeCourses.reduce((total, course) => total + course.count, 0);
 const archiveResourceCount = publicResourceCount - activeResourceCount;
+const displayCourse = (course: string) => course === 'Rabbit Holes' ? 'The Detour Shelf' : course;
 ---
 
 <Base
@@ -161,7 +162,7 @@ const archiveResourceCount = publicResourceCount - activeResourceCount;
             {activeCourseNames.map((course) => <option value={course}>{course}</option>)}
           </optgroup>
           <optgroup label="archive & extras">
-            {archiveCourseNames.map((course) => <option value={course}>{course}</option>)}
+            {archiveCourseNames.map((course) => <option value={course}>{displayCourse(course)}</option>)}
           </optgroup>
         </select>
       </label>
@@ -200,11 +201,11 @@ const archiveResourceCount = publicResourceCount - activeResourceCount;
     {
       courseGroups.map((group, groupIndex) => (
         <section data-resource-group aria-labelledby={`resource-course-${groupIndex}`}>
-        <h2 id={`resource-course-${groupIndex}`} class="sr-only">{group.course}</h2>
+        <h2 id={`resource-course-${groupIndex}`} class="sr-only">{displayCourse(group.course)}</h2>
         <details data-active={group.active ? 'true' : 'false'} class="pop rounded-xl bg-white">
           <summary class="cursor-pointer px-5 py-4 marker:text-accent sm:px-6">
             <span class="ml-2 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span class="font-display text-xl font-bold lowercase sm:text-2xl">{group.course}</span>
+              <span class="font-display text-xl font-bold lowercase sm:text-2xl">{displayCourse(group.course)}</span>
               <span class="font-mono text-xs lowercase text-ink-soft">
                 <span data-visible-count>{group.resources.length}</span> resources
               </span>

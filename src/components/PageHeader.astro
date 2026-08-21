@@ -14,6 +14,7 @@ const { eyebrow, title, intro, compact = false } = Astro.props;
   {eyebrow && <p class="page-hero__eyebrow">{eyebrow}</p>}
   <h1 class="page-hero__title">{title}<span>.</span></h1>
   {intro && <p class="page-hero__intro">{intro}</p>}
+  <span class="page-hero__registry" aria-hidden="true">the desk<br />26 / 27</span>
   <slot />
 </header>
 
@@ -22,23 +23,28 @@ const { eyebrow, title, intro, compact = false } = Astro.props;
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    margin-inline: -1.25rem;
-    padding: 1rem 1.25rem 2.35rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    margin-inline: -0.25rem;
+    padding: clamp(1.4rem, 4vw, 2.5rem);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.94), rgb(248 248 244 / 0.82)),
+      white;
+    box-shadow: var(--shadow-panel);
   }
 
   .page-hero::after {
     position: absolute;
-    right: 1.25rem;
+    right: 0;
     bottom: -1px;
-    width: min(9rem, 30vw);
+    width: min(15rem, 42vw);
     height: 3px;
     background: linear-gradient(90deg, transparent, var(--color-accent));
     content: '';
   }
 
   .page-hero--compact {
-    padding-bottom: 1.75rem;
+    padding-block: 1.2rem;
   }
 
   .page-hero__eyebrow {
@@ -55,7 +61,8 @@ const { eyebrow, title, intro, compact = false } = Astro.props;
     margin-top: 0.55rem;
     overflow-wrap: anywhere;
     font-family: var(--font-display);
-    font-size: clamp(2.75rem, 11vw, 4rem);
+    max-width: 48rem;
+    font-size: clamp(3rem, 10vw, 5.3rem);
     font-weight: 700;
     letter-spacing: -0.055em;
     line-height: 0.94;
@@ -75,6 +82,26 @@ const { eyebrow, title, intro, compact = false } = Astro.props;
     text-transform: lowercase;
   }
 
+  .page-hero__registry {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    display: none;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 24%, transparent);
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--color-accent-soft) 78%, white);
+    padding: 0.55rem 0.65rem;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    line-height: 1.55;
+    text-align: right;
+    text-transform: uppercase;
+    transform: rotate(2deg);
+  }
+
   :global(.page-hero__meta) {
     margin-top: 0.65rem;
     color: var(--color-ink-soft);
@@ -87,11 +114,22 @@ const { eyebrow, title, intro, compact = false } = Astro.props;
   @media (min-width: 640px) {
     .page-hero {
       margin-inline: 0;
-      padding: 1.15rem 0 2.55rem;
     }
 
     .page-hero::after {
       right: 0;
+    }
+
+  }
+
+  @media (min-width: 768px) {
+    .page-hero__registry {
+      display: block;
+    }
+
+    .page-hero__title,
+    .page-hero__intro {
+      max-width: calc(100% - 8rem);
     }
   }
 </style>

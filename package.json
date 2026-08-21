@@ -9,6 +9,7 @@
     "check": "astro check",
     "preview": "astro preview",
     "cold-openers:sync": "node scripts/build-cold-opener-catalog.mjs",
+    "detour:validate": "node scripts/validate-detour-shelf.mjs",
     "site:validate": "node scripts/validate-static-site.mjs",
     "resources:sync": "node scripts/sync-public-resources.mjs",
     "remix:validate": "node scripts/validate-remix-public.mjs",

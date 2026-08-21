@@ -62,6 +62,23 @@ for (const htmlFile of htmlFiles) {
   }
 }
 
+const detourPath = join(distRoot, 'detour-shelf', 'index.html');
+if (!(await exists(detourPath))) {
+  failures.push('detour-shelf/index.html -> unified Detour Shelf route was not built');
+} else {
+  const detourHtml = await readFile(detourPath, 'utf8');
+  const readyDecks = [...detourHtml.matchAll(/<article[^>]+data-detour-kind="decks"/gi)].length;
+  const openingStories = [...detourHtml.matchAll(/<article[^>]+data-detour-kind="stories"/gi)].length;
+  if (readyDecks !== 80) failures.push(`detour-shelf/index.html -> expected 80 ready decks, found ${readyDecks}`);
+  if (openingStories !== 90) failures.push(`detour-shelf/index.html -> expected 90 opening stories, found ${openingStories}`);
+}
+
+for (const retiredRoute of ['cold-openers', 'rabbit-holes']) {
+  if (await exists(join(distRoot, retiredRoute, 'index.html'))) {
+    failures.push(`${retiredRoute}/index.html -> retired split route still built instead of the unified Detour Shelf`);
+  }
+}
+
 if (failures.length) {
   console.error(`Static site validation: FAIL (${failures.length} missing or unsafe references)`);
   failures.slice(0, 100).forEach((failure) => console.error(`- ${failure}`));

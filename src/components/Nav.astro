@@ -21,8 +21,7 @@ const exploreLinks = [
   { href: '/glossary/', label: 'glossary' },
   { href: '/simulations/', label: 'simulations' },
   { href: '/games/', label: 'games' },
-  { href: '/cold-openers/', label: 'cold openers' },
-  { href: '/rabbit-holes/', label: 'rabbit holes' },
+  { href: '/detour-shelf/', label: 'the detour shelf' },
   { href: '/tools/', label: 'tools' },
   ...(passConfig.enabled ? [{ href: '/pass/', label: 'hall pass' }] : []),
   { href: '/calendar/', label: 'calendar' },
@@ -38,11 +37,18 @@ const isActive = (href: string) =>
 const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
 ---
 
-<header class="site-header sticky top-0 z-40 border-b-2 border-ink bg-paper/90 backdrop-blur">
+<header class="site-header sticky top-0 z-40">
+  <div class="site-signal">
+    <div class:list={['site-signal__inner', wide ? 'max-w-6xl' : 'max-w-4xl']}>
+      <span>2026—27 / classroom field desk</span>
+      <span>mount morris, michigan / live curriculum hub</span>
+    </div>
+  </div>
   <div class:list={['mx-auto px-5 py-3.5', wide ? 'max-w-6xl' : 'max-w-4xl']}>
     <div class="flex items-center justify-between gap-6">
-      <a href="/" class="font-display text-2xl font-bold tracking-tight lowercase text-ink hover:text-accent transition-colors">
-        the desk<span class="text-accent">.</span>
+      <a href="/" class="site-wordmark">
+        <span class="site-wordmark__mark" aria-hidden="true">t/d</span>
+        <span>the desk<span class="text-accent">.</span></span>
       </a>
 
       <nav class="hidden items-center gap-5 text-sm lowercase md:flex" aria-label="Primary navigation">
@@ -138,6 +144,73 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
 </header>
 
 <style>
+  .site-header {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background: rgb(250 250 247 / 0.9);
+    box-shadow: 0 12px 30px -28px rgb(23 23 28 / 0.8);
+    backdrop-filter: blur(18px) saturate(1.2);
+  }
+
+  .site-signal {
+    background: var(--color-ink);
+    color: rgb(255 255 255 / 0.52);
+  }
+
+  .site-signal__inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-inline: auto;
+    padding: 0.35rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .site-signal__inner span:first-child {
+    color: #9da6ff;
+  }
+
+  .site-wordmark {
+    display: inline-flex;
+    gap: 0.65rem;
+    align-items: center;
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-transform: lowercase;
+    transition: color 160ms ease;
+  }
+
+  .site-wordmark:hover {
+    color: var(--color-accent);
+  }
+
+  .site-wordmark__mark {
+    display: grid;
+    width: 2rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 0.48rem;
+    background: var(--color-accent);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: -0.04em;
+    box-shadow: 0.25rem 0.25rem 0 var(--color-ink);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .site-wordmark:hover .site-wordmark__mark {
+    transform: translate(-0.08rem, -0.08rem);
+    box-shadow: 0.34rem 0.34rem 0 var(--color-ink);
+  }
+
   .nav-menu {
     max-height: calc(100dvh - 7.5rem);
     overflow-y: auto;
@@ -148,6 +221,12 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
   @media (min-width: 768px) {
     .nav-menu {
       max-height: calc(100dvh - 5.5rem);
+    }
+  }
+
+  @media (max-width: 639px) {
+    .site-signal__inner span:last-child {
+      display: none;
     }
   }
 </style>

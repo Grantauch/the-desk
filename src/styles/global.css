@@ -10,6 +10,9 @@
   --color-accent: #1f2ce6;
   --color-accent-dark: #1520b3;
   --color-accent-soft: #eef0ff;
+  --color-coral: #ff6948;
+  --color-mint: #dff9eb;
+  --color-cream: #f5f0de;
 
   /* neutrals */
   --color-ink: #17171c;
@@ -28,6 +31,7 @@
   --radius-panel: 1.15rem;
   --shadow-card: 0 20px 46px -42px rgb(23 23 28 / 0.75);
   --shadow-panel: 0 26px 58px -48px rgb(23 23 28 / 0.8);
+  --shadow-float: 0 34px 80px -52px rgb(23 23 28 / 0.92);
   --section-gap: clamp(2.5rem, 6vw, 4rem);
 }
 
@@ -140,17 +144,36 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
+  min-width: 20rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   background-color: var(--color-paper);
   background-image:
-    radial-gradient(circle at 8% -5%, rgb(31 44 230 / 0.08), transparent 31rem),
-    radial-gradient(circle at 96% 34%, rgb(8 118 90 / 0.045), transparent 28rem),
-    linear-gradient(rgb(23 23 28 / 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(23 23 28 / 0.025) 1px, transparent 1px);
+    radial-gradient(circle at 8% -5%, rgb(31 44 230 / 0.105), transparent 34rem),
+    radial-gradient(circle at 96% 34%, rgb(8 118 90 / 0.06), transparent 30rem),
+    radial-gradient(circle at 72% 95%, rgb(255 105 72 / 0.045), transparent 28rem),
+    linear-gradient(rgb(23 23 28 / 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 23 28 / 0.026) 1px, transparent 1px);
   background-attachment: fixed;
-  background-size: auto, auto, 42px 42px, 42px 42px;
+  background-size: auto, auto, auto, 42px 42px, 42px 42px;
+}
+
+body::before {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--color-accent), transparent 32%, transparent 72%, var(--color-coral));
+  content: '';
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+main {
+  position: relative;
 }
 
 /* Long display words should never force a page wider than the viewport. */
@@ -202,9 +225,36 @@ body {
   outline-offset: 3px;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  main > * {
+    animation: page-rise 520ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  }
+
+  main > *:nth-child(2) { animation-delay: 45ms; }
+  main > *:nth-child(3) { animation-delay: 85ms; }
+  main > *:nth-child(4) { animation-delay: 115ms; }
+
+  @keyframes page-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.7rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
 /* Keep in-page destinations clear of the sticky navigation. */
 :where(h1, h2, h3, [id]) {
   scroll-margin-top: 6rem;
+}
+
+@media (max-width: 767px) {
+  :where(h1, h2, h3, [id]) {
+    scroll-margin-top: 10rem;
+  }
 }
 
 /* keyboard users: hidden link that appears on first Tab press */

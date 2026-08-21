@@ -6,6 +6,26 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[[redirects]]
+  from = "/cold-openers"
+  to = "/detour-shelf/#story-bank"
+  status = 301
+
+[[redirects]]
+  from = "/rabbit-holes"
+  to = "/detour-shelf/#ready-decks"
+  status = 301
+
+[[redirects]]
+  from = "/cold-openers/*"
+  to = "/detour-shelf/#story-bank"
+  status = 301
+
+[[redirects]]
+  from = "/rabbit-holes/*"
+  to = "/detour-shelf/#ready-decks"
+  status = 301
+
 [[headers]]
   for = "/*"
   [headers.values]
