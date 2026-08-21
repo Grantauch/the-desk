@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Fox News source cover</title>
+  <desc id="desc">A labeled source cover used when the publisher feed does not provide a working article photograph.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#071323"/>
+      <stop offset="1" stop-color="#164b87"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <path d="M760-80 340 675M940-80 520 675M1120-80 700 675" stroke="#fff" stroke-opacity=".1" stroke-width="70"/>
+  <rect x="72" y="290" width="830" height="190" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="3"/>
+  <text x="72" y="105" fill="#fff" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5">SOURCE COVER / LIVE EDITION</text>
+  <text x="102" y="423" fill="#fff" font-family="Arial, sans-serif" font-size="116" font-weight="800">FOX NEWS</text>
+  <text x="78" y="535" fill="#fff" fill-opacity=".78" font-family="Arial, sans-serif" font-size="28" letter-spacing="2">PUBLISHER PHOTO UNAVAILABLE</text>
+</svg>

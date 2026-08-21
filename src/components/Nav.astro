@@ -1,6 +1,7 @@
 ---
 // Nav.astro — compact primary navigation with a secondary explore menu.
 import passConfig from '../data/pass-config.json';
+import { remixRecords } from '../data/remixCatalog';
 
 interface Props {
   wide?: boolean;
@@ -15,10 +16,12 @@ const primaryLinks = [
 ];
 
 const exploreLinks = [
+  ...(remixRecords.length ? [{ href: '/remix/', label: 'lecture remix' }] : []),
   { href: '/learning-hubs/', label: 'learning hubs' },
   { href: '/glossary/', label: 'glossary' },
   { href: '/simulations/', label: 'simulations' },
   { href: '/games/', label: 'games' },
+  { href: '/cold-openers/', label: 'cold openers' },
   { href: '/rabbit-holes/', label: 'rabbit holes' },
   { href: '/tools/', label: 'tools' },
   ...(passConfig.enabled ? [{ href: '/pass/', label: 'hall pass' }] : []),

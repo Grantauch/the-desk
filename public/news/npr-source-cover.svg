@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">NPR source cover</title>
+  <desc id="desc">A labeled source cover used when the publisher feed does not provide a working article photograph.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#10131b"/>
+      <stop offset="1" stop-color="#235585"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="7">
+    <path d="M0 340h85l28-70 42 150 45-230 50 310 45-160 40 80 40-80 42 80 50-210 42 285 46-155 36 70 36-70 42 70 45-135 40 135h80l30-70 44 140 38-70 34 40h142"/>
+  </g>
+  <text x="72" y="105" fill="#fff" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5">SOURCE COVER / LIVE EDITION</text>
+  <text x="72" y="420" fill="#fff" font-family="Arial, sans-serif" font-size="150" font-weight="800">NPR</text>
+  <text x="78" y="491" fill="#fff" fill-opacity=".78" font-family="Arial, sans-serif" font-size="28" letter-spacing="2">PUBLISHER PHOTO UNAVAILABLE</text>
+</svg>

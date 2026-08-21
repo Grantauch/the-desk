@@ -1,103 +1,69 @@
 ---
-const curiosityItems = [
-  {
-    tags: ['power'],
-    category: 'power + spectacle',
-    source: 'National Archives',
-    date: '1970',
-    question: 'How did Elvis end up in the Oval Office asking for a federal narcotics badge?',
-    clue: 'Start with the handshake: who is performing for whom?',
-    context:
-      'Elvis Presley arrived at the White House with a handwritten letter and a request to become a federal agent-at-large. The meeting produced one of the most requested photographs in the National Archives - and a perfect artifact about celebrity, access, and political theater.',
-    image:
-      'https://www.archives.gov/files/publications/prologue/2004/winter/images/nixon-elvis-full-1634221.jpg',
-    alt: 'President Richard Nixon and Elvis Presley shaking hands in the Oval Office in 1970.',
-    position: 'center',
-    record: 'https://catalog.archives.gov/id/1634221',
-    credit: 'Ollie Atkins / Nixon Presidential Library / U.S. government photograph',
+const curiosityCollections = {
+  power: {
+    query: 'presidents congress political campaigns',
+    category: 'power + the record',
+    question: 'What does this image reveal about how power wanted to be seen?',
+    clue: 'Begin with the title, date, and creator. Then inspect who controls the frame.',
     related: '/hidden-history/',
     relatedLabel: 'power, evidence, and official stories',
-    deeper: '/rabbit-holes/',
-    deeperLabel: 'choose another historical detour',
   },
-  {
-    tags: ['mysteries'],
-    category: 'mystery + memory',
-    source: 'Smithsonian Open Access',
-    date: '1932',
-    question: 'Does the mystery of Amelia Earhart eclipse what she actually accomplished?',
-    clue: 'Look at the machine before thinking about the disappearance.',
-    context:
-      'Earhart flew this Lockheed Vega solo across the Atlantic and then nonstop across the United States. Her disappearance became the larger popular story, but the surviving aircraft restores the scale of what she completed while the whole world was watching.',
-    image:
-      'https://ids.si.edu/ids/deliveryService?id=NASM-A19670093000-NASM2018-10363-000001&max_w=1200',
-    alt: "Amelia Earhart's red Lockheed Vega 5B aircraft at the National Air and Space Museum.",
-    position: 'center',
-    record: 'https://www.si.edu/object/lockheed-vega-5b-amelia-earhart%3Anasm_A19670093000',
-    credit: 'National Air and Space Museum / CC0',
+  entertainment: {
+    query: 'motion pictures music performers entertainment',
+    category: 'entertainment + memory',
+    question: 'What survives when entertainment becomes part of the historical record?',
+    clue: 'Look past the famous face. What did the photographer, studio, or audience want preserved?',
     related: '/hidden-history/',
-    relatedLabel: 'separate the record from the legend',
-    deeper: '/rabbit-holes/',
-    deeperLabel: 'follow a mystery somewhere else',
+    relatedLabel: 'read popular culture as evidence',
   },
-  {
-    tags: ['sports', 'power'],
+  sports: {
+    query: 'baseball boxing football athletes',
     category: 'sports + citizenship',
-    source: 'Library of Congress',
-    date: '1951',
-    question: 'When did Jackie Robinson become more than a baseball player?',
-    clue: 'This is a comic-book cover, not a box score. Why does that matter?',
-    context:
-      'By 1951, Robinson was being presented as a national hero whose meaning reached far beyond baseball. The cover is evidence of how mass media turned an athlete into a public argument about courage, citizenship, and who could represent America.',
-    image: 'https://tile.loc.gov/storage-services/service/pnp/ppmsc/00100/00133r.jpg',
-    alt: 'Color cover of a 1951 Jackie Robinson comic book with Robinson wearing a Brooklyn Dodgers cap.',
-    position: 'top',
-    record: 'https://www.loc.gov/item/97519504/',
-    credit: 'Jackie Robinson comic cover / no known restrictions on publication',
+    question: 'What was this sporting image asking its audience to believe?',
+    clue: 'Do not start with the score. Start with the people, setting, and intended audience.',
     related: '/beyond-the-scoreboard/',
     relatedLabel: 'the games were never just games',
-    deeper: '/rabbit-holes/',
-    deeperLabel: 'take the next unexpected turn',
   },
-  {
-    tags: ['power'],
-    category: 'revolution + mythmaking',
-    source: 'The Met Open Access',
-    date: '1851',
-    question: "What if America's most famous Revolutionary image is really about the 1850s?",
-    clue: 'The painting was completed seventy-five years after the crossing.',
-    context:
-      'Emanuel Leutze was not recording an event he witnessed. He was building a national memory: heroic, theatrical, and designed to make viewers feel the Revolution rather than inspect it. That makes the painting useful evidence - just not in the way people first assume.',
-    image: 'https://images.metmuseum.org/CRDImages/ad/web-large/DP215410.jpg',
-    alt: "Emanuel Leutze's painting Washington Crossing the Delaware.",
-    position: 'center',
-    record: 'https://www.metmuseum.org/art/collection/search/11417',
-    credit: 'The Metropolitan Museum of Art / public domain / CC0',
-    related: '/us-history/',
-    relatedLabel: 'read images as historical arguments',
-    deeper: '/hidden-history/',
-    deeperLabel: 'ask what the familiar story leaves out',
+  mysteries: {
+    query: 'unidentified mystery strange unusual',
+    category: 'mystery + evidence',
+    question: 'What can this record establish—and what remains genuinely uncertain?',
+    clue: 'Separate what the catalog states from what the image merely seems to suggest.',
+    related: '/hidden-history/',
+    relatedLabel: 'separate the record from the legend',
   },
-  {
-    tags: ['michigan'],
-    category: 'Michigan + the future',
-    source: 'Library of Congress',
-    date: '1889',
-    question: 'Is this a map of Detroit - or an advertisement for the city Detroit hoped to become?',
-    clue: 'Notice what the artist makes prominent, orderly, and prosperous.',
-    context:
-      "Bird's-eye city views mixed observation with civic promotion. This one captures late-nineteenth-century Detroit as a place of industry, movement, and ambition, while its impossible viewpoint reminds us that every map is also an argument about what deserves attention.",
-    image: 'https://tile.loc.gov/storage-services/service/gmd/gmd411/g4114/g4114d/pm003420.gif',
-    alt: "Bird's-eye map showing central Detroit, Michigan, in 1889.",
-    position: 'center',
-    record: 'https://www.loc.gov/item/76693077/',
-    credit: 'Library of Congress Geography and Map Division / public domain',
+  michigan: {
+    query: 'Michigan Detroit Flint',
+    category: 'Michigan + change',
+    question: 'What argument about Michigan is hiding inside this image?',
+    clue: 'Notice what the record centers, what it labels, and what falls outside the frame.',
     related: '/us-history/',
     relatedLabel: 'connect the national story to Michigan',
-    deeper: '/showcase/',
-    deeperLabel: 'see what students uncover',
   },
-];
+};
+
+// The visible fallback is deliberately generic so the desk never pretends a small static
+// story list is the live collection.
+const curiosityItems = Object.entries(curiosityCollections).map(([collection, settings]) => ({
+  collection,
+  tags: [collection],
+  category: settings.category,
+  source: 'Library of Congress',
+  date: 'live collection',
+  question: settings.question,
+  clue: settings.clue,
+  context:
+    'The live catalog is temporarily unavailable. Open the Library of Congress search record to inspect current collection results directly.',
+  image: '/og.png',
+  alt: `The Desk mark shown while the live ${collection} collection loads.`,
+  position: 'center',
+  record: `https://www.loc.gov/photos/?q=${encodeURIComponent(settings.query)}`,
+  credit: 'Live records supplied by the Library of Congress',
+  related: settings.related,
+  relatedLabel: settings.relatedLabel,
+  deeper: '/cold-openers/',
+  deeperLabel: 'follow another evidence-first detour',
+}));
 
 const first = curiosityItems[0];
 ---
@@ -105,17 +71,19 @@ const first = curiosityItems[0];
 <section id="curiosity-desk" class="curiosity-desk" data-curiosity-desk aria-labelledby="curiosity-title">
   <header class="curiosity-header">
     <div>
-      <p class="curiosity-eyebrow">open collections / hand-picked at the desk</p>
+      <p class="curiosity-eyebrow">live collections / Library of Congress</p>
       <h2 id="curiosity-title">the curiosity desk<span>.</span></h2>
     </div>
     <p class="curiosity-intro">
-      One real object. One question worth chasing. Start with a guess, then follow the evidence.
+      Real collection records rotate through five lenses. Start with a guess, then open the catalog evidence.
+      <span class="curiosity-live-status" data-curiosity-live-status role="status" aria-live="polite">connecting to the live catalog…</span>
     </p>
   </header>
 
   <div class="curiosity-filters" role="group" aria-label="Filter curiosity desk artifacts">
     <button type="button" data-filter="all" aria-pressed="true">everything</button>
     <button type="button" data-filter="power" aria-pressed="false">power</button>
+    <button type="button" data-filter="entertainment" aria-pressed="false">entertainment</button>
     <button type="button" data-filter="sports" aria-pressed="false">sports</button>
     <button type="button" data-filter="mysteries" aria-pressed="false">mysteries</button>
     <button type="button" data-filter="michigan" aria-pressed="false">Michigan</button>
@@ -124,6 +92,7 @@ const first = curiosityItems[0];
   <div class="curiosity-stage">
     <a class="curiosity-image" href={first.record} target="_blank" rel="noopener" data-link="record">
       <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} data-field="image" />
+      <span class="curiosity-image-fallback" data-field="image-fallback" hidden>archive image unavailable</span>
       <span class="curiosity-date" data-field="date">{first.date}</span>
       <span class="curiosity-record">view the full archive record <span aria-hidden="true">&#8599;</span></span>
     </a>
@@ -179,120 +148,321 @@ const first = curiosityItems[0];
     </a>
   </nav>
 
-  <script is:inline define:vars={{ curiosityItems }}>
+  <script is:inline define:vars={{ curiosityItems, curiosityCollections }}>
     const root = document.currentScript.closest('[data-curiosity-desk]');
-    const image = root.querySelector('[data-field="image"]');
-    const contextPanel = root.querySelector('[data-field="context-panel"]');
-    const revealButton = root.querySelector('[data-action="reveal"]');
-    const nextButton = root.querySelector('[data-action="next"]');
-    const filterButtons = [...root.querySelectorAll('[data-filter]')];
-    let activeFilter = 'all';
-    let currentIndex = 0;
 
-    const setText = (name, value) => {
-      root.querySelectorAll(`[data-field="${name}"]`).forEach((element) => {
-        element.textContent = value;
-      });
-    };
+    if (root instanceof HTMLElement) {
+      const image = root.querySelector('[data-field="image"]');
+      const imageFallback = root.querySelector('[data-field="image-fallback"]');
+      const contextPanel = root.querySelector('[data-field="context-panel"]');
+      const revealButton = root.querySelector('[data-action="reveal"]');
+      const nextButton = root.querySelector('[data-action="next"]');
+      const liveStatus = root.querySelector('[data-curiosity-live-status]');
+      const filterButtons = [...root.querySelectorAll('[data-filter]')];
+      const seeds = [...curiosityItems];
+      const liveCollections = new Map();
+      const inFlight = new Map();
+      let currentItems = [...seeds];
+      let activeFilter = 'all';
+      let currentIndex = 0;
 
-    const matchingIndexes = () => curiosityItems
-      .map((item, index) => ({ item, index }))
-      .filter(({ item }) => activeFilter === 'all' || item.tags.includes(activeFilter))
-      .map(({ index }) => index);
+      const setText = (name, value) => {
+        root.querySelectorAll(`[data-field="${name}"]`).forEach((element) => {
+          element.textContent = value;
+        });
+      };
 
-    const filterLabel = () => filterButtons
-      .find((button) => button.dataset.filter === activeFilter)
-      ?.textContent.trim() || 'everything';
+      const setLiveStatus = (value) => {
+        if (liveStatus) liveStatus.textContent = value;
+      };
 
-    const setActiveFilter = (filter) => {
-      activeFilter = filter;
-      filterButtons.forEach((button) => {
-        button.setAttribute('aria-pressed', String(button.dataset.filter === activeFilter));
-      });
-    };
+      const asText = (value) => {
+        if (Array.isArray(value)) return value.find((entry) => typeof entry === 'string')?.trim() ?? '';
+        return typeof value === 'string' ? value.trim() : '';
+      };
 
-    const updateCollectionControls = () => {
-      const matches = matchingIndexes();
-      const matchPosition = Math.max(0, matches.indexOf(currentIndex));
-      const scope = activeFilter === 'all' ? '' : `${filterLabel()} collection / `;
-      setText(
-        'count',
-        `${scope}artifact ${String(matchPosition + 1).padStart(2, '0')} of ${String(matches.length).padStart(2, '0')}`,
-      );
+      const shortText = (value, maximum = 420) => {
+        const normalized = asText(value).replace(/\s+/g, ' ');
+        return normalized.length > maximum ? `${normalized.slice(0, maximum - 1).trim()}…` : normalized;
+      };
 
-      if (matches.length <= 1 && activeFilter !== 'all') {
-        nextButton.textContent = 'browse all artifacts →';
-        nextButton.setAttribute(
-          'aria-label',
-          `Only one artifact in the ${filterLabel()} collection. Browse all artifacts`,
-        );
-      } else {
-        const label = activeFilter === 'all' ? 'another artifact' : `another ${filterLabel()} artifact`;
-        nextButton.textContent = `${label} →`;
-        nextButton.removeAttribute('aria-label');
-      }
-    };
+      const trustedLocUrl = (value, imageOnly = false) => {
+        try {
+          const url = new URL(String(value).replace(/^http:/, 'https:'));
+          const trusted = url.hostname === 'loc.gov' || url.hostname.endsWith('.loc.gov');
+          if (url.protocol !== 'https:' || !trusted) return '';
+          if (imageOnly && !/\.(?:avif|gif|jpe?g|png|webp)$/i.test(url.pathname)) return '';
+          url.hash = '';
+          return url.href;
+        } catch {
+          return '';
+        }
+      };
 
-    const showItem = (index) => {
-      currentIndex = index;
-      const item = curiosityItems[index];
+      const normalizeRecord = (record, collection) => {
+        if (!record || record.access_restricted === true || record.unrestricted === false) return null;
+        const title = shortText(record.title || record.item?.title, 150);
+        const recordUrl = trustedLocUrl(record.url || record.id);
+        const imageUrls = Array.isArray(record.image_url) ? [...record.image_url].reverse() : [];
+        const imageUrl = imageUrls.map((value) => trustedLocUrl(value, true)).find(Boolean)
+          || trustedLocUrl(record.item?.service_medium, true);
+        if (!title || !recordUrl || !imageUrl) return null;
 
-      image.src = item.image;
-      image.alt = item.alt;
-      image.style.objectPosition = item.position;
-      setText('date', item.date);
-      setText('category', item.category);
-      setText('source', item.source);
-      setText('question', item.question);
-      setText('clue', item.clue);
-      setText('context', item.context);
-      setText('credit', item.credit);
-      setText('related-label', item.relatedLabel);
-      setText('deeper-label', item.deeperLabel);
-      setText('status', `Now showing: ${item.question}`);
+        const description = shortText(record.item?.summary || record.description || record.item?.notes)
+          || 'The catalog record supplies the date, creator, format, and collection context for this image.';
+        const date = shortText(record.item?.created_published || record.item?.date || record.dates || record.date, 48)
+          || 'catalog date';
+        const creator = shortText(record.contributor || record.item?.contributor_names, 110);
+        const rights = shortText(record.item?.rights_advisory || record.item?.rights_information, 150);
 
-      root.querySelectorAll('[data-link="record"]').forEach((link) => (link.href = item.record));
-      root.querySelector('[data-link="related"]').href = item.related;
-      root.querySelector('[data-link="deeper"]').href = item.deeper;
+        return {
+          collection,
+          tags: [collection],
+          category: curiosityCollections[collection].category,
+          source: 'Library of Congress live catalog',
+          date,
+          question: curiosityCollections[collection].question,
+          clue: curiosityCollections[collection].clue,
+          context: `${description} Open the official record to inspect its full metadata before drawing a conclusion.`,
+          image: imageUrl,
+          alt: title,
+          position: 'center',
+          record: recordUrl,
+          credit: [creator, rights, 'Library of Congress'].filter(Boolean).join(' / '),
+          related: curiosityCollections[collection].related,
+          relatedLabel: curiosityCollections[collection].relatedLabel,
+          deeper: '/cold-openers/',
+          deeperLabel: 'follow another evidence-first detour',
+        };
+      };
 
-      contextPanel.hidden = true;
-      revealButton.setAttribute('aria-expanded', 'false');
-      revealButton.textContent = 'reveal the context';
-      updateCollectionControls();
-    };
+      const normalizeResolvedItem = (item, collection) => {
+        if (!item || !curiosityCollections[collection]) return null;
+        const recordUrl = trustedLocUrl(item.record);
+        const imageUrl = trustedLocUrl(item.image, true);
+        const title = shortText(item.alt, 150);
+        if (!recordUrl || !imageUrl || !title) return null;
+        return {
+          collection,
+          tags: [collection],
+          category: curiosityCollections[collection].category,
+          source: 'Library of Congress live catalog',
+          date: shortText(item.date, 48) || 'catalog date',
+          question: curiosityCollections[collection].question,
+          clue: curiosityCollections[collection].clue,
+          context: shortText(item.context) || 'Open the official record to inspect its full metadata before drawing a conclusion.',
+          image: imageUrl,
+          alt: title,
+          position: 'center',
+          record: recordUrl,
+          credit: shortText(item.credit, 180) || 'Library of Congress',
+          related: curiosityCollections[collection].related,
+          relatedLabel: curiosityCollections[collection].relatedLabel,
+          deeper: '/cold-openers/',
+          deeperLabel: 'follow another evidence-first detour',
+        };
+      };
 
-    filterButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        setActiveFilter(button.dataset.filter || 'all');
+      const rebuildItems = () => {
+        const collectionKeys = Object.keys(curiosityCollections);
+        const live = collectionKeys.flatMap((key) => liveCollections.get(key) ?? []);
+        const fallbacks = seeds.filter((seed) => !liveCollections.has(seed.collection));
+        currentItems = [...live, ...fallbacks];
+      };
+
+      const loadCollection = (collection) => {
+        if (!curiosityCollections[collection]) return Promise.resolve(false);
+        if (liveCollections.has(collection)) return Promise.resolve(true);
+        if (inFlight.has(collection)) return inFlight.get(collection);
+
+        const request = (async () => {
+          try {
+            const functionController = new AbortController();
+            const functionTimeout = window.setTimeout(() => functionController.abort(), 10_000);
+            try {
+              const functionUrl = new URL('/.netlify/functions/curiosity', window.location.origin);
+              functionUrl.searchParams.set('collection', collection);
+              const functionResponse = await fetch(functionUrl, {
+                cache: 'force-cache',
+                headers: { Accept: 'application/json' },
+                signal: functionController.signal,
+              });
+              if (functionResponse.ok) {
+                const functionPayload = await functionResponse.json();
+                const resolved = (Array.isArray(functionPayload?.items) ? functionPayload.items : [])
+                  .map((item) => normalizeResolvedItem(item, collection))
+                  .filter(Boolean);
+                const uniqueResolved = [...new Map(resolved.map((item) => [item.record, item])).values()];
+                if (uniqueResolved.length) {
+                  liveCollections.set(collection, uniqueResolved.slice(0, 5));
+                  rebuildItems();
+                  return true;
+                }
+              }
+            } catch {
+              // Local development has no Netlify function route; the direct LOC request below
+              // keeps the component testable without changing the production data source.
+            } finally {
+              window.clearTimeout(functionTimeout);
+            }
+
+            const params = new URLSearchParams({
+              fo: 'json',
+              at: 'results',
+              c: '18',
+              q: curiosityCollections[collection].query,
+            });
+            const controller = new AbortController();
+            const timeout = window.setTimeout(() => controller.abort(), 9000);
+            let response;
+            try {
+              response = await fetch(`https://www.loc.gov/photos/?${params}`, {
+                cache: 'force-cache',
+                signal: controller.signal,
+              });
+            } finally {
+              window.clearTimeout(timeout);
+            }
+            if (!response.ok) throw new Error(`Catalog returned ${response.status}`);
+            const payload = await response.json();
+            const normalized = (Array.isArray(payload.results) ? payload.results : [])
+              .map((record) => normalizeRecord(record, collection))
+              .filter(Boolean);
+            const unique = [...new Map(normalized.map((item) => [item.record, item])).values()];
+            if (!unique.length) throw new Error('No usable image records');
+
+            const rotation = Math.floor(Date.now() / 604800000) % unique.length;
+            const rotated = [...unique.slice(rotation), ...unique.slice(0, rotation)].slice(0, 5);
+            liveCollections.set(collection, rotated);
+            rebuildItems();
+            return true;
+          } catch {
+            return false;
+          } finally {
+            inFlight.delete(collection);
+          }
+        })();
+
+        inFlight.set(collection, request);
+        return request;
+      };
+
+      const matchingIndexes = () => currentItems
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => activeFilter === 'all' || item.tags.includes(activeFilter))
+        .map(({ index }) => index);
+
+      const filterLabel = () => filterButtons
+        .find((button) => button.dataset.filter === activeFilter)
+        ?.textContent.trim() || 'everything';
+
+      const setActiveFilter = (filter) => {
+        activeFilter = filter;
+        filterButtons.forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.filter === activeFilter));
+        });
+      };
+
+      const updateCollectionControls = () => {
         const matches = matchingIndexes();
-        if (!matches.length) return;
-        showItem(matches[0]);
-        setText('status', `Filtered to ${filterLabel()}. Now showing: ${curiosityItems[matches[0]].question}`);
+        const matchPosition = Math.max(0, matches.indexOf(currentIndex));
+        const scope = activeFilter === 'all' ? '' : `${filterLabel()} collection / `;
+        setText(
+          'count',
+          `${scope}artifact ${String(matchPosition + 1).padStart(2, '0')} of ${String(matches.length).padStart(2, '0')}`,
+        );
+
+        if (nextButton) {
+          const label = activeFilter === 'all' ? 'another artifact' : `another ${filterLabel()} artifact`;
+          nextButton.textContent = `${label} →`;
+          nextButton.toggleAttribute('disabled', matches.length < 2);
+        }
+      };
+
+      const showItem = (index) => {
+        const item = currentItems[index];
+        if (!item) return;
+        currentIndex = index;
+
+        if (image instanceof HTMLImageElement) {
+          const showFallback = () => {
+            image.hidden = true;
+            if (imageFallback instanceof HTMLElement) imageFallback.hidden = false;
+          };
+          const showImage = () => {
+            image.hidden = false;
+            if (imageFallback instanceof HTMLElement) imageFallback.hidden = true;
+          };
+          image.onload = showImage;
+          image.onerror = showFallback;
+          image.src = item.image;
+          image.alt = item.alt;
+          image.style.objectPosition = item.position;
+          if (image.complete) (image.naturalWidth > 0 ? showImage : showFallback)();
+        }
+
+        setText('date', item.date);
+        setText('category', item.category);
+        setText('source', item.source);
+        setText('question', item.question);
+        setText('clue', item.clue);
+        setText('context', item.context);
+        setText('credit', item.credit);
+        setText('related-label', item.relatedLabel);
+        setText('deeper-label', item.deeperLabel);
+        setText('status', `Now showing: ${item.alt}`);
+
+        root.querySelectorAll('[data-link="record"]').forEach((link) => link.setAttribute('href', item.record));
+        root.querySelector('[data-link="related"]')?.setAttribute('href', item.related);
+        root.querySelector('[data-link="deeper"]')?.setAttribute('href', item.deeper);
+
+        if (contextPanel instanceof HTMLElement) contextPanel.hidden = true;
+        revealButton?.setAttribute('aria-expanded', 'false');
+        if (revealButton) revealButton.textContent = 'reveal the context';
+        updateCollectionControls();
+      };
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requested = button.dataset.filter || 'all';
+          setActiveFilter(requested);
+          setLiveStatus(requested === 'all' ? 'loading all five live collections…' : `loading the live ${filterLabel()} collection…`);
+
+          const loaded = requested === 'all'
+            ? await Promise.all(Object.keys(curiosityCollections).map(loadCollection)).then((results) => results.some(Boolean))
+            : await loadCollection(requested);
+          const matches = matchingIndexes();
+          if (matches.length) showItem(matches[0]);
+          setLiveStatus(loaded
+            ? `live Library of Congress records / ${liveCollections.size} of ${Object.keys(curiosityCollections).length} collections ready`
+            : 'live catalog unavailable / showing the preserved fallback');
+        });
       });
-    });
 
-    nextButton.addEventListener('click', () => {
-      const matches = matchingIndexes();
-      if (!matches.length) return;
+      nextButton?.addEventListener('click', () => {
+        const matches = matchingIndexes();
+        if (matches.length < 2) return;
+        const matchPosition = matches.indexOf(currentIndex);
+        showItem(matches[(matchPosition + 1) % matches.length]);
+      });
 
-      if (matches.length === 1 && activeFilter !== 'all') {
-        const nextIndex = (currentIndex + 1) % curiosityItems.length;
-        setActiveFilter('all');
-        showItem(nextIndex);
-        setText('status', `Showing all artifacts. Now showing: ${curiosityItems[nextIndex].question}`);
-        return;
-      }
+      revealButton?.addEventListener('click', () => {
+        if (!(contextPanel instanceof HTMLElement)) return;
+        const willOpen = contextPanel.hidden;
+        contextPanel.hidden = !willOpen;
+        revealButton.setAttribute('aria-expanded', String(willOpen));
+        revealButton.textContent = willOpen ? 'hide the context' : 'reveal the context';
+      });
 
-      const matchPosition = matches.indexOf(currentIndex);
-      showItem(matches[(matchPosition + 1) % matches.length]);
-    });
-
-    revealButton.addEventListener('click', () => {
-      const willOpen = contextPanel.hidden;
-      contextPanel.hidden = !willOpen;
-      revealButton.setAttribute('aria-expanded', String(willOpen));
-      revealButton.textContent = willOpen ? 'hide the context' : 'reveal the context';
-    });
+      Promise.all(Object.keys(curiosityCollections).map(loadCollection)).then((results) => {
+        const matches = matchingIndexes();
+        if (matches.length) showItem(matches[0]);
+        const successful = results.filter(Boolean).length;
+        setLiveStatus(successful
+          ? `live Library of Congress records / ${successful} of ${results.length} collections ready`
+          : 'live catalog unavailable / showing the preserved fallback');
+      });
+    }
   </script>
 </section>
 
@@ -367,6 +537,17 @@ const first = curiosityItems[0];
     line-height: 1.62;
   }
 
+  .curiosity-live-status {
+    display: block;
+    margin-top: 0.55rem;
+    color: var(--curiosity-blue-dark);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
   .curiosity-filters {
     display: flex;
     gap: 0.45rem;
@@ -434,9 +615,34 @@ const first = curiosityItems[0];
     transition: transform 450ms ease, filter 450ms ease;
   }
 
+  .curiosity-image-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at 25% 20%, color-mix(in srgb, var(--curiosity-blue) 16%, transparent), transparent 45%),
+      #e4e4de;
+    color: color-mix(in srgb, var(--curiosity-blue) 45%, transparent);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .curiosity-image-fallback[hidden] {
+    display: none;
+  }
+
   .curiosity-image:hover img {
     transform: scale(1.025);
     filter: saturate(1.05);
+  }
+
+  .curiosity-next:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
   }
 
   .curiosity-date,

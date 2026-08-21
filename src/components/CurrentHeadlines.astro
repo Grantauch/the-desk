@@ -8,6 +8,7 @@ interface NewsSource {
   home: string;
   format?: 'rss' | 'news-sitemap';
   clientMode: 'direct' | 'rss2json';
+  fallbackImage: string;
 }
 
 interface Headline extends NewsSource {
@@ -25,6 +26,7 @@ const sources: NewsSource[] = [
     home: 'https://www.cnn.com/',
     format: 'news-sitemap',
     clientMode: 'direct',
+    fallbackImage: '/news/cnn-source-cover.svg',
   },
   {
     name: 'NPR',
@@ -32,6 +34,7 @@ const sources: NewsSource[] = [
     feed: 'https://feeds.npr.org/1001/rss.xml',
     home: 'https://www.npr.org/sections/news/',
     clientMode: 'rss2json',
+    fallbackImage: '/news/npr-source-cover.svg',
   },
   {
     name: 'Fox News',
@@ -39,6 +42,7 @@ const sources: NewsSource[] = [
     feed: 'https://moxie.foxnews.com/google-publisher/us.xml',
     home: 'https://www.foxnews.com/us',
     clientMode: 'direct',
+    fallbackImage: '/news/fox-news-source-cover.svg',
   },
   {
     name: 'MLive',
@@ -46,6 +50,7 @@ const sources: NewsSource[] = [
     feed: 'https://www.mlive.com/arc/outboundfeeds/rss/?outputType=xml',
     home: 'https://www.mlive.com/',
     clientMode: 'rss2json',
+    fallbackImage: '/news/mlive-source-cover.svg',
   },
 ];
 
@@ -80,6 +85,18 @@ const toHttpsUrl = (value: string | undefined) => {
   } catch {
     return undefined;
   }
+};
+
+const proxiedNewsImage = (value: string | undefined) => {
+  const image = toHttpsUrl(value);
+  if (!image) return undefined;
+  const proxy = new URL('https://images.weserv.nl/');
+  proxy.searchParams.set('url', image);
+  proxy.searchParams.set('w', '960');
+  proxy.searchParams.set('h', '510');
+  proxy.searchParams.set('fit', 'cover');
+  proxy.searchParams.set('output', 'webp');
+  return proxy.href;
 };
 
 const parsePublished = (value: string) => {
@@ -162,7 +179,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
       <h2 id="headlines-title">today's headlines<span>.</span></h2>
     </div>
     <div class="headlines-note">
-      <p>Four newsrooms. Six top stories each&mdash;use the arrows to browse.</p>
+      <p>Four newsrooms. Six top stories each. Publisher photo when available; the source cover appears only when an article has no usable image.</p>
       <time datetime={new Date().toISOString()} data-headlines-updated>updated {updatedAt}</time>
     </div>
   </header>
@@ -179,19 +196,20 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
             data-feed={headline.feed}
             data-feed-format={headline.format ?? 'rss'}
             data-client-mode={headline.clientMode}
+            data-source-name={headline.name}
+            data-fallback-image={headline.fallbackImage}
             aria-label={`${headline.name} top stories`}
           >
             <a href={headline.href} target="_blank" rel="noopener" class="headline-link" data-story-link>
               <div class="headline-image">
-                <span data-story-placeholder aria-hidden="true" hidden={Boolean(headline.image)}>{headline.name}</span>
+                <span data-story-placeholder aria-hidden="true" hidden>{headline.name}</span>
                 <img
-                  src={headline.image}
+                  src={proxiedNewsImage(headline.image) ?? headline.fallbackImage}
                   alt=""
                   loading="lazy"
                   decoding="async"
                   referrerpolicy="no-referrer"
                   data-story-image
-                  hidden={!headline.image}
                 />
               </div>
               <div class="headline-copy">
@@ -328,15 +346,32 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
       const time = card.querySelector('[data-story-time]');
       const position = card.querySelector('[data-story-position]');
       const controls = card.querySelector('.headline-controls');
+      const fallbackImage = card.dataset.fallbackImage ?? '';
       let current = 0;
 
-      const safeHttpsUrl = (value) => {
+      const safeAssetUrl = (value) => {
         try {
-          const url = new URL(value);
+          const url = new URL(value, window.location.href);
+          if (url.protocol !== 'https:' && url.protocol !== 'http:') return '';
+          if (url.origin === window.location.origin) return url.href;
           return url.protocol === 'https:' ? url.href : '';
         } catch {
           return '';
         }
+      };
+
+      const newsImageUrl = (value) => {
+        const safe = safeAssetUrl(value);
+        if (!safe) return '';
+        const url = new URL(safe);
+        if (url.origin === window.location.origin || url.hostname === 'images.weserv.nl') return url.href;
+        const proxy = new URL('https://images.weserv.nl/');
+        proxy.searchParams.set('url', url.href);
+        proxy.searchParams.set('w', '960');
+        proxy.searchParams.set('h', '510');
+        proxy.searchParams.set('fit', 'cover');
+        proxy.searchParams.set('output', 'webp');
+        return proxy.href;
       };
 
       const showStory = (nextIndex) => {
@@ -344,8 +379,9 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
         current = (nextIndex + stories.length) % stories.length;
         const story = stories[current];
 
-        const safeHref = safeHttpsUrl(story.href);
-        const safeImage = safeHttpsUrl(story.image);
+        const safeHref = safeAssetUrl(story.href);
+        const safeImage = newsImageUrl(story.image);
+        const safeFallback = safeAssetUrl(fallbackImage);
         link?.setAttribute('href', safeHref || '#');
         if (title) title.textContent = story.title;
         if (time) time.textContent = story.published;
@@ -360,13 +396,23 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
             image.hidden = false;
             if (placeholder instanceof HTMLElement) placeholder.hidden = true;
           };
+          const loadFallback = () => {
+            if (safeFallback && image.dataset.fallbackActive !== 'true') {
+              image.dataset.fallbackActive = 'true';
+              image.src = safeFallback;
+              return;
+            }
+            showPlaceholder();
+          };
           image.onload = showImage;
-          image.onerror = showPlaceholder;
-          if (safeImage) {
+          image.onerror = loadFallback;
+          image.dataset.fallbackActive = String(!safeImage && Boolean(safeFallback));
+          const chosenImage = safeImage || safeFallback;
+          if (chosenImage) {
             image.hidden = true;
             if (placeholder instanceof HTMLElement) placeholder.hidden = false;
-            image.src = safeImage;
-            if (image.complete) (image.naturalWidth > 0 ? showImage : showPlaceholder)();
+            image.src = chosenImage;
+            if (image.complete) (image.naturalWidth > 0 ? showImage : loadFallback)();
           } else {
             image.removeAttribute('src');
             showPlaceholder();
@@ -433,9 +479,10 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
         .find((node) => node.getAttribute('type')?.startsWith('image/'))
         ?.getAttribute('url') ?? '';
       const description = textFrom(entry, 'description');
+      const encoded = textFrom(entry, 'content:encoded');
       const image = safeFeedUrl(format === 'news-sitemap'
         ? textFrom(entry, 'image:loc')
-        : media || enclosure || imageFromMarkup(description));
+        : media || enclosure || imageFromMarkup(encoded) || imageFromMarkup(description));
 
       if (!title || !href || seen.has(href)) return null;
       seen.add(href);
@@ -488,12 +535,54 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     }
   };
 
+  const fetchResolvedHeadlineGroups = async () => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12_000);
+    try {
+      const response = await fetch('/.netlify/functions/headlines', {
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+      if (!response.ok) return new Map();
+      const payload = await response.json();
+      if (!Array.isArray(payload?.groups)) return new Map();
+      return new Map(payload.groups.map((group) => [group.name, group]));
+    } catch {
+      return new Map();
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  };
+
   const refreshLiveHeadlines = async (section) => {
     const cards = [...section.querySelectorAll('[data-headline-carousel]')]
       .filter((card) => card instanceof HTMLElement);
     let refreshed = 0;
 
-    await Promise.allSettled(cards.map(async (card) => {
+    const resolvedGroups = await fetchResolvedHeadlineGroups();
+    const unresolvedCards = [];
+
+    cards.forEach((card) => {
+      const group = resolvedGroups.get(card.dataset.sourceName ?? '');
+      const stories = Array.isArray(group?.stories)
+        ? group.stories.map((story) => ({
+            title: story.title?.trim() ?? '',
+            href: safeFeedUrl(story.href ?? ''),
+            image: safeFeedUrl(story.image ?? ''),
+            published: formatLiveDate(story.published),
+          })).filter((story) => story.title && story.href).slice(0, 6)
+        : [];
+
+      if (stories.length) {
+        card.dispatchEvent(new CustomEvent('headline:update', { detail: stories }));
+        refreshed += 1;
+      } else {
+        unresolvedCards.push(card);
+      }
+    });
+
+    await Promise.allSettled(unresolvedCards.map(async (card) => {
       const stories = await fetchLiveStories(card);
       if (!stories.length) return;
       card.dispatchEvent(new CustomEvent('headline:update', { detail: stories }));

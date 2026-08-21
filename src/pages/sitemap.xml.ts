@@ -3,6 +3,7 @@
 import type { APIRoute } from 'astro';
 import { learningHubs } from '../data/learningHubs';
 import passConfig from '../data/pass-config.json';
+import { remixPublicRoutes } from '../data/remixCatalog';
 
 const paths = [
   '/',
@@ -12,6 +13,7 @@ const paths = [
   '/beyond-the-scoreboard/',
   '/beyond-the-scoreboard/syllabus/',
   '/resources/',
+  ...remixPublicRoutes,
   '/learning-hubs/',
   ...learningHubs.map((hub) => `/learn/${hub.courseSlug}/${hub.slug}/`),
   '/simulations/',

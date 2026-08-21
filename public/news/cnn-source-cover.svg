@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">CNN source cover</title>
+  <desc id="desc">A labeled source cover used when the publisher feed does not provide a working article photograph.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#160b18"/>
+      <stop offset="1" stop-color="#9d0b24"/>
+    </linearGradient>
+    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
+      <path d="M56 0H0V56" fill="none" stroke="#fff" stroke-opacity=".08"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#grid)"/>
+  <path d="M-80 560 430 190l330 210 520-350v190L765 585 430 380 0 690Z" fill="#fff" fill-opacity=".08"/>
+  <text x="72" y="105" fill="#fff" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5">SOURCE COVER / LIVE EDITION</text>
+  <text x="72" y="395" fill="#fff" font-family="Arial, sans-serif" font-size="150" font-weight="800">CNN</text>
+  <text x="78" y="466" fill="#fff" fill-opacity=".78" font-family="Arial, sans-serif" font-size="28" letter-spacing="2">PUBLISHER PHOTO UNAVAILABLE</text>
+</svg>

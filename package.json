@@ -8,7 +8,11 @@
     "build": "astro build",
     "check": "astro check",
     "preview": "astro preview",
-    "resources:sync": "node scripts/sync-public-resources.mjs"
+    "cold-openers:sync": "node scripts/build-cold-opener-catalog.mjs",
+    "site:validate": "node scripts/validate-static-site.mjs",
+    "resources:sync": "node scripts/sync-public-resources.mjs",
+    "remix:validate": "node scripts/validate-remix-public.mjs",
+    "live-data:check": "node scripts/validate-live-data.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -1,5 +1,10 @@
 # netlify.toml — deploy settings.
-# Netlify auto-detects Astro, so this file just adds security and caching headers.
+# Netlify build, function, security, and caching settings.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
 
 [[headers]]
   for = "/*"

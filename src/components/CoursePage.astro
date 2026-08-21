@@ -16,6 +16,7 @@ interface Unit {
   hubSlug?: string;
   blurb: string;
   current?: boolean;
+  releaseNote?: string;
   topics?: string[];
   materialsAudience?: string;
   materials?: Material[];
@@ -173,6 +174,7 @@ const groupMaterials = (materials: Material[]) =>
               <p class="course-map__eyebrow">{courseMapCopy.current}</p>
               <h2 id="right-now-title" class="course-map__title">{currentUnit.name}</h2>
               <p class="course-map__blurb">{currentUnit.blurb}</p>
+              {currentUnit.releaseNote && <p class="course-map__release-note">{currentUnit.releaseNote}</p>}
               {currentUnit.learningHub && (
                 <a
                   class="course-map__hub-link"
@@ -242,6 +244,7 @@ const groupMaterials = (materials: Material[]) =>
                 {unit.current && <span>current</span>}
               </div>
               <p class="mt-0.5 text-sm text-ink-soft">{unit.blurb}</p>
+              {unit.releaseNote && <p class="unit-row__release-note">{unit.releaseNote}</p>}
               {unit.topics && unit.topics.length > 0 && (
                 <details class="group mt-1.5">
                   <summary class="flex min-h-11 cursor-pointer select-none items-center font-mono text-xs lowercase text-accent hover:text-accent-dark">
@@ -551,6 +554,26 @@ const groupMaterials = (materials: Material[]) =>
     font-size: 0.6rem;
     font-weight: 700;
     text-transform: lowercase;
+  }
+
+  .unit-row__release-note,
+  .course-map__release-note {
+    width: fit-content;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-accent-soft) 74%, white);
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    font-weight: 750;
+    letter-spacing: 0.035em;
+    line-height: 1.25;
+    text-transform: lowercase;
+  }
+
+  .unit-row__release-note {
+    margin-top: 0.55rem;
+    padding: 0.34rem 0.58rem;
   }
 
   @media (max-width: 639px) {
@@ -985,6 +1008,12 @@ const groupMaterials = (materials: Material[]) =>
     color: var(--color-ink-soft);
     font-size: 0.9rem;
     line-height: 1.55;
+  }
+
+  .course-map__release-note {
+    position: relative;
+    margin-top: 0.9rem;
+    padding: 0.42rem 0.68rem;
   }
 
   .course-map__route {
