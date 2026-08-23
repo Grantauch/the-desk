@@ -476,7 +476,7 @@
       let savedContent: SiteContent | null = null;
       let toastTimer = 0;
 
-      const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
+      const copy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
       const getPath = (root: SiteContent, path: string): string => {
         const value = path.split('.').reduce<unknown>((current, key) => {
