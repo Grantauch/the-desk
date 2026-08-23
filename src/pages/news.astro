@@ -1,6 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import CurrentHeadlines from '../components/CurrentHeadlines.astro';
+import siteContent from '../data/site-content.json';
+
+const page = siteContent.pages.news;
+const titleParts = page.title.replace(/[.!?]+$/, '').split(/\s+\+\s+/, 2);
 ---
 
 <Base
@@ -11,14 +15,14 @@ import CurrentHeadlines from '../components/CurrentHeadlines.astro';
   <header class="desk-page-hero desk-page-hero--news">
     <div>
       <a href="/">← back to the front desk</a>
-      <p>current events / historical memory</p>
-      <h1>news today<br /><em>+ then</em><span>.</span></h1>
+      <p>{page.eyebrow}</p>
+      <h1>{titleParts[0]}{titleParts[1] && <><br /><em>+ {titleParts[1]}</em></>}<span>.</span></h1>
     </div>
     <aside>
-      <strong>Four newsrooms. One rule.</strong>
-      <p>Leave the feed. Open the source. Then ask what came before the thing everybody is talking about now.</p>
+      <strong>{page.ruleTitle}</strong>
+      <p>{page.ruleBody}</p>
       <nav aria-label="Related links">
-        <a href="https://classroom.google.com/" target="_blank" rel="noopener">google classroom ↗</a>
+        <a href={siteContent.links.googleClassroom} target="_blank" rel="noopener">google classroom ↗</a>
         <a href="/calendar/">calendar →</a>
       </nav>
     </aside>

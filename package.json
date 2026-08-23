@@ -19,6 +19,7 @@
     "node": ">=22.12.0"
   },
   "dependencies": {
+    "@netlify/identity": "^2.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^7.1.1",
     "tailwindcss": "^4.0.0"

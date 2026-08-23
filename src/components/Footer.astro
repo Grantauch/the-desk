@@ -1,6 +1,9 @@
 ---
 // Footer.astro — bottom of every page.
+import siteContent from '../data/site-content.json';
+
 const year = new Date().getFullYear();
+const footerTitle = siteContent.global.footerTitle.replace(/[.!?]+$/, '');
 
 interface Props {
   wide?: boolean;
@@ -13,11 +16,11 @@ const { wide = false } = Astro.props;
   <span class="site-footer__ghost" aria-hidden="true">the desk.</span>
   <div class:list={['site-footer__inner mx-auto grid gap-8 px-5 py-12 lowercase sm:grid-cols-[1fr_auto] sm:items-end', wide ? 'max-w-6xl' : 'max-w-4xl']}>
     <div>
-      <p class="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-paper/45">built for the room, not the algorithm</p>
+      <p class="font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-paper/45">{siteContent.global.footerEyebrow}</p>
       <span class="mt-2 block font-display text-3xl font-bold tracking-tight">
-        the desk<span class="text-accent">.</span>
+        {footerTitle}<span class="text-accent">.</span>
       </span>
-      <p class="mt-2 max-w-md text-sm leading-relaxed text-paper/60">classes, sources, games, and useful detours—kept in one place.</p>
+      <p class="mt-2 max-w-md text-sm leading-relaxed text-paper/60">{siteContent.global.footerDescription}</p>
     </div>
     <div class="sm:text-right">
       <nav class="flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs text-paper/70 sm:justify-end" aria-label="Footer navigation">

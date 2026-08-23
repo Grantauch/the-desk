@@ -4,18 +4,21 @@
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import { getCollection, render } from 'astro:content';
+import siteContent from '../data/site-content.json';
 
 const announcements = (await getCollection('announcements')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 
 const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+const page = siteContent.pages.announcements;
+const pageTitle = page.title.replace(/[.!?]+$/, '');
 ---
 
 <Base title="announcements">
-  <PageHeader eyebrow="dispatches from the desk" title="announcements" intro="everything posted, newest first.">
+  <PageHeader eyebrow={page.eyebrow} title={pageTitle} intro={page.intro}>
     <p class="page-hero__meta">
-      families: subscribe with any rss reader → <a href="/rss.xml" class="text-accent underline underline-offset-4 hover:text-accent-dark">rss feed</a>
+      {page.rssNote} → <a href="/rss.xml" class="text-accent underline underline-offset-4 hover:text-accent-dark">rss feed</a>
     </p>
   </PageHeader>
 

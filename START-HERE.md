@@ -64,6 +64,10 @@ Done. grant-desk.com is live.
 
 ## Everyday updates (the workflow you'll actually use)
 
+For site wording and announcements, open **https://grant-desk.com/editor/**. Sign in, make the change, and press publish. It works from a Chromebook or any other browser and does not require code. The one-time private connection is documented in `EDITOR-SETUP.md`.
+
+The local workflow below remains the fallback for structural code and curriculum-file changes.
+
 Edit → check → publish. Production publishes use plan credits, so collect several edits into one tested batch instead of publishing after every small change:
 
 ```powershell
