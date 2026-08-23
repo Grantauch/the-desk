@@ -37,8 +37,12 @@ const requireConfiguration = () => {
   const token = process.env.GITHUB_EDITOR_TOKEN?.trim();
   const email = process.env.EDITOR_EMAIL?.trim().toLowerCase();
   if (!token || !email) {
+    const missing = [
+      ...(!email ? ['EDITOR_EMAIL'] : []),
+      ...(!token ? ['GITHUB_EDITOR_TOKEN'] : []),
+    ];
     throw new EditorError(
-      'The editor is installed, but its private publishing connection still needs to be switched on.',
+      `Netlify has not provided ${missing.join(' and ')} to the editor function yet.`,
       503,
       'SETUP_REQUIRED',
     );

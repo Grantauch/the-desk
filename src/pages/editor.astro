@@ -92,7 +92,7 @@
         <div id="setup-view" class="auth-view setup-view" hidden>
           <p class="kicker">almost ready</p>
           <h2>the editor is installed<span>.</span></h2>
-          <p class="auth-copy">Your secure sign-in works. The last private publishing connection still needs its one-time setup before this page can save to the live site.</p>
+          <p id="setup-copy" class="auth-copy">Your secure sign-in works. The last private publishing connection still needs its one-time setup before this page can save to the live site.</p>
           <button id="setup-signout" class="text-button" type="button">sign out</button>
         </div>
 
@@ -464,6 +464,7 @@
       const inviteForm = document.querySelector<HTMLFormElement>('#invite-form')!;
       const recoveryForm = document.querySelector<HTMLFormElement>('#recovery-form')!;
       const setupView = document.querySelector<HTMLElement>('#setup-view')!;
+      const setupCopy = document.querySelector<HTMLElement>('#setup-copy')!;
       const editorApp = document.querySelector<HTMLElement>('#editor-app')!;
       const publishBar = document.querySelector<HTMLElement>('#publish-bar')!;
       const publishWordsButton = document.querySelector<HTMLButtonElement>('#publish-words')!;
@@ -660,6 +661,7 @@
         } catch (error) {
           const code = (error as Error & { code?: string }).code;
           if (code === 'SETUP_REQUIRED') {
+            setupCopy.textContent = error instanceof Error ? error.message : setupCopy.textContent;
             showOnlyAuthView(setupView);
             return;
           }
