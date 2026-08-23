@@ -45,6 +45,11 @@ const ogImage = new URL(isLearningHub ? '/og-learning-hubs.png' : (ogMap[Astro.u
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet" />
     <title>{fullTitle}</title>
+    <script is:inline>
+      if (/^#(?:confirmation_token|recovery_token|invite_token|email_change_token|access_token)=/.test(window.location.hash)) {
+        window.location.replace(`/editor/${window.location.hash}`);
+      }
+    </script>
   </head>
   <body class="min-h-screen flex flex-col">
     <a href="#main" class="skip-link">skip to content</a>

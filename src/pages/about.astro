@@ -1,64 +1,54 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
+import siteContent from '../data/site-content.json';
+
+const about = siteContent.pages.about;
+const withoutTerminal = (value: string) => value.replace(/[.!?]+$/, '');
 ---
 
 <Base title="about">
-  <PageHeader eyebrow="behind the desk" title="about" intro="the teacher, the idea, and where everything on this site belongs." />
+  <PageHeader eyebrow={about.eyebrow} title={withoutTerminal(about.title)} intro={about.intro} />
 
   <div class="about-layout mt-10">
     <div class="about-story">
       <section>
-        <p class="about-section__number">01 / the teacher</p>
-        <h2>relaxed on purpose<span>.</span></h2>
-        <p class="mt-4">
-        I'm Mr. Auch. I teach US History, Hidden History, and Beyond the Scoreboard. My room is relaxed on purpose.
-        We joke around, chase strange questions, argue over what really happened, and somehow cover a ridiculous amount
-        of history along the way.
-        </p>
-        <p class="mt-3">
-        The goal is not to make school feel more like school. It is to make the story interesting enough that you want
-        to know what happens next. If you leave class laughing and accidentally remember why Reconstruction failed or
-        how television changed sports, that works for me.
-        </p>
+        <p class="about-section__number">{about.teacherLabel}</p>
+        <h2>{withoutTerminal(about.teacherHeading)}<span>.</span></h2>
+        <p class="mt-4">{about.teacherBodyOne}</p>
+        <p class="mt-3">{about.teacherBodyTwo}</p>
       </section>
 
       <section>
-        <p class="about-section__number">02 / the site</p>
-        <h2>one useful home base<span>.</span></h2>
-        <p class="mt-4">
-        The Desk keeps the slides, games, source packets, class tools, and odd detours in one place. Google Classroom
-        still handles assignments, grades, and turn-ins.
-        </p>
+        <p class="about-section__number">{about.siteLabel}</p>
+        <h2>{withoutTerminal(about.siteHeading)}<span>.</span></h2>
+        <p class="mt-4">{about.siteBody}</p>
       </section>
     </div>
 
     <aside class="about-sidebar" aria-label="Contact and quick answers">
       <section class="about-contact">
-        <p class="about-section__number">contact</p>
-        <h2>find me where class lives<span>.</span></h2>
-        <p class="mt-3 text-sm leading-relaxed text-ink-soft">Students and families can reach me through Google Classroom or my school email.</p>
+        <p class="about-section__number">{about.contactLabel}</p>
+        <h2>{withoutTerminal(about.contactHeading)}<span>.</span></h2>
+        <p class="mt-3 text-sm leading-relaxed text-ink-soft">{about.contactBody}</p>
+        <a href={siteContent.links.googleClassroom} target="_blank" rel="noopener" class="mt-3 inline-block text-sm text-accent underline underline-offset-4">open google classroom ↗</a>
       </section>
 
       <section class="about-faq">
-        <p class="about-section__number">quick answers</p>
+        <p class="about-section__number">{about.faqLabel}</p>
         <div class="mt-3 space-y-2">
         <details class="surface-link rounded-xl border border-line bg-white px-4 py-3 open:border-accent">
-          <summary class="cursor-pointer select-none font-semibold lowercase">are grades posted here?</summary>
-          <p class="mt-2 text-sm text-ink-soft">No. Grades, assignments, and turn-ins are in Google Classroom.</p>
+          <summary class="cursor-pointer select-none font-semibold lowercase">{about.gradesQuestion}</summary>
+          <p class="mt-2 text-sm text-ink-soft">{about.gradesAnswer}</p>
         </details>
         <details class="surface-link rounded-xl border border-line bg-white px-4 py-3 open:border-accent">
-          <summary class="cursor-pointer select-none font-semibold lowercase">is hidden history a conspiracy-theory class?</summary>
-          <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-            It is a class about finding out which extraordinary stories are documented, which fall apart, and which
-            remain honestly unproven. Watergate, MKUltra, and COINTELPRO sit beside famous hoaxes for a reason.
-          </p>
+          <summary class="cursor-pointer select-none font-semibold lowercase">{about.hiddenQuestion}</summary>
+          <p class="mt-2 text-sm leading-relaxed text-ink-soft">{about.hiddenAnswer}</p>
         </details>
         <details class="surface-link rounded-xl border border-line bg-white px-4 py-3 open:border-accent">
-          <summary class="cursor-pointer select-none font-semibold lowercase">where are the latest updates?</summary>
+          <summary class="cursor-pointer select-none font-semibold lowercase">{about.updatesQuestion}</summary>
           <p class="mt-2 text-sm text-ink-soft">
-            Check <a href="/announcements/" class="text-accent underline underline-offset-4">announcements</a> for the
-            newest additions to the site.
+            {about.updatesAnswer} <a href="/announcements/" class="text-accent underline underline-offset-4">open announcements →</a>
           </p>
         </details>
         </div>

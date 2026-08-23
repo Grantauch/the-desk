@@ -10,6 +10,11 @@ const announcements = (await getCollection('announcements'))
 
 const totalLearningUnits = learningCourses.reduce((total, course) => total + course.units.length, 0);
 const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+const withoutTerminal = (value: string) => value.replace(/[.!?]+$/, '');
+const heroTitleWords = withoutTerminal(siteContent.home.title).trim().split(/\s+/);
+const heroTitleLead = heroTitleWords.length > 1 ? heroTitleWords.shift() : '';
+const heroTitleMain = heroTitleWords.join(' ');
+const newsTitleParts = withoutTerminal(siteContent.home.newsTitle).split(/\s+\+\s+/, 2);
 
 const courses = [
   {
@@ -36,10 +41,10 @@ const courses = [
 ];
 
 const quickLinks = [
-  { href: 'https://classroom.google.com/', label: 'google classroom', note: "today's assignment", external: true },
-  { href: '/pass/', label: 'bathroom / hall pass', note: 'sign out + back in' },
-  { href: '/announcements/', label: 'announcements', note: 'what changed' },
-  { href: '/calendar/', label: 'calendar', note: "what's ahead" },
+  { href: siteContent.links.googleClassroom, label: siteContent.home.classroomLabel, note: siteContent.home.classroomNote, external: true },
+  { href: '/pass/', label: siteContent.home.passLabel, note: siteContent.home.passNote },
+  { href: '/announcements/', label: siteContent.home.announcementsLabel, note: siteContent.home.announcementsNote },
+  { href: '/calendar/', label: siteContent.home.calendarLabel, note: siteContent.home.calendarNote },
 ];
 
 const moreLinks = [
@@ -54,23 +59,23 @@ const moreLinks = [
 <Base wide>
   <section class="home-hero dot-grid" aria-labelledby="home-title">
     <div class="home-hero__rule">
-      <span>classroom field desk / 2026—27</span>
-      <span>mount morris, michigan</span>
+      <span>{siteContent.global.signalLeft}</span>
+      <span>{siteContent.global.location}</span>
     </div>
 
     <div class="home-hero__body">
       <div class="home-hero__copy">
-        <p class="home-kicker">three classes. one front door.</p>
+        <p class="home-kicker">{siteContent.home.kicker}</p>
         <h1 id="home-title">
-          <span>the</span>
-          <strong>desk</strong><em>.</em>
+          {heroTitleLead && <span>{heroTitleLead}</span>}
+          <strong>{heroTitleMain}</strong><em>.</em>
         </h1>
-        <p class="home-hero__promise">Evidence first. Context always. Curiosity is allowed to change the route.</p>
-        <a class="home-hero__start" href="#courses">find your class <span aria-hidden="true">↓</span></a>
+        <p class="home-hero__promise">{siteContent.home.promise}</p>
+        <a class="home-hero__start" href="#courses">{siteContent.home.startLabel} <span aria-hidden="true">↓</span></a>
       </div>
 
       <aside class="maker-mark" aria-label="Made by Mr. Grant">
-        <span class="maker-mark__eyebrow">the actual maker's mark</span>
+        <span class="maker-mark__eyebrow">{siteContent.home.makerEyebrow}</span>
         <div class="maker-mark__seal">
           <img
             src="/mr-grant-approved-transparent.png"
@@ -79,7 +84,7 @@ const moreLinks = [
             height="548"
           />
         </div>
-        <p><strong>Built, taught, and kept alive by Mr. Grant.</strong><br />Not a district template. Not an algorithm.</p>
+        <p><strong>{siteContent.home.makerHeadline}</strong><br />{siteContent.home.makerNote}</p>
       </aside>
     </div>
 
@@ -97,10 +102,10 @@ const moreLinks = [
   <section id="courses" class="home-section" aria-labelledby="courses-title">
     <header class="section-heading">
       <div>
-        <p>start here</p>
-        <h2 id="courses-title">choose your class<span>.</span></h2>
+        <p>{siteContent.home.coursesEyebrow}</p>
+        <h2 id="courses-title">{withoutTerminal(siteContent.home.coursesTitle)}<span>.</span></h2>
       </div>
-      <p>Open the course file. Google Classroom still holds the day’s assignment; the desk holds the map, materials, and ways to go deeper.</p>
+      <p>{siteContent.home.coursesIntro}</p>
     </header>
 
     <div class="course-grid">
@@ -119,49 +124,49 @@ const moreLinks = [
   <section class="home-section" aria-labelledby="live-desks-title">
     <header class="section-heading">
       <div>
-        <p>the good stuff, with room to breathe</p>
-        <h2 id="live-desks-title">open a live desk<span>.</span></h2>
+        <p>{siteContent.home.liveEyebrow}</p>
+        <h2 id="live-desks-title">{withoutTerminal(siteContent.home.liveTitle)}<span>.</span></h2>
       </div>
-      <p>The changing stories still live here. They just have their own pages now, so the homepage stays fast and each feature can work the way it should.</p>
+      <p>{siteContent.home.liveIntro}</p>
     </header>
 
     <div class="feature-grid">
       <a href="/news/" class="feature-card feature-card--news">
-        <span class="feature-card__label">01 / current headlines</span>
+        <span class="feature-card__label">{siteContent.home.newsLabel}</span>
         <span class="feature-card__signal" aria-hidden="true"><i></i> updating live</span>
         <div>
-          <h3>news today<br /><em>+ then</em></h3>
-          <p>What happened, what came before it, and why the history actually matters now.</p>
+          <h3>{newsTitleParts[0]}{newsTitleParts[1] && <><br /><em>+ {newsTitleParts[1]}</em></>}</h3>
+          <p>{siteContent.home.newsIntro}</p>
         </div>
-        <span class="feature-card__action">open today’s desk <b aria-hidden="true">→</b></span>
+        <span class="feature-card__action">{siteContent.home.newsAction} <b aria-hidden="true">→</b></span>
       </a>
 
       <a href="/curiosity-desk/" class="feature-card feature-card--curiosity">
-        <span class="feature-card__label">02 / rotating evidence</span>
+        <span class="feature-card__label">{siteContent.home.curiosityLabel}</span>
         <span class="feature-card__stamp" aria-hidden="true">follow<br />the<br />thread</span>
         <div>
-          <h3>curiosity<br />desk<span>.</span></h3>
-          <p>One strange source, the context around it, and a trail worth following.</p>
+          <h3>{withoutTerminal(siteContent.home.curiosityTitle)}<span>.</span></h3>
+          <p>{siteContent.home.curiosityIntro}</p>
         </div>
-        <span class="feature-card__action">see what surfaced <b aria-hidden="true">→</b></span>
+        <span class="feature-card__action">{siteContent.home.curiosityAction} <b aria-hidden="true">→</b></span>
       </a>
 
       <a href="/learning-hubs/" class="feature-card feature-card--hubs">
-        <span class="feature-card__label">03 / student launchpad</span>
+        <span class="feature-card__label">{siteContent.home.hubsLabel}</span>
         <div>
-          <h3>learning hubs<span>.</span></h3>
-          <p>{totalLearningUnits} unit worlds with short readings, timelines, vocabulary, choices, practice, and saved progress.</p>
+          <h3>{withoutTerminal(siteContent.home.hubsTitle)}<span>.</span></h3>
+          <p>{totalLearningUnits} {siteContent.home.hubsIntro}</p>
         </div>
-        <span class="feature-card__action">choose a unit <b aria-hidden="true">→</b></span>
+        <span class="feature-card__action">{siteContent.home.hubsAction} <b aria-hidden="true">→</b></span>
       </a>
 
       <a href="/detour-shelf/" class="feature-card feature-card--detour">
-        <span class="feature-card__label">04 / sanctioned rabbit holes</span>
+        <span class="feature-card__label">{siteContent.home.detourLabel}</span>
         <div>
-          <h3>the detour shelf<span>.</span></h3>
-          <p>Stories too useful, strange, or revealing to leave buried in the lesson notes.</p>
+          <h3>{withoutTerminal(siteContent.home.detourTitle)}<span>.</span></h3>
+          <p>{siteContent.home.detourIntro}</p>
         </div>
-        <span class="feature-card__action">take the detour <b aria-hidden="true">→</b></span>
+        <span class="feature-card__action">{siteContent.home.detourAction} <b aria-hidden="true">→</b></span>
       </a>
     </div>
   </section>
@@ -169,7 +174,7 @@ const moreLinks = [
   <section id="today" class="home-section today-grid" aria-label="Announcements and library search">
     <div class="dispatches">
       <header class="compact-heading">
-        <div><p>latest dispatches</p><h2>on the desk<span>.</span></h2></div>
+        <div><p>{siteContent.home.dispatchesEyebrow}</p><h2>{withoutTerminal(siteContent.home.dispatchesTitle)}<span>.</span></h2></div>
         <a href="/announcements/">all →</a>
       </header>
       <ul>
@@ -200,7 +205,7 @@ const moreLinks = [
   </section>
 
   <nav class="more-desk" aria-label="More from the desk">
-    <p>more drawers worth opening</p>
+    <p>{siteContent.home.moreTitle}</p>
     <div>
       {moreLinks.map((link) => (
         <a href={link.href}><strong>{link.label}</strong><span>{link.note}</span><b aria-hidden="true">→</b></a>

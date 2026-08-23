@@ -1,0 +1,1024 @@
+---
+// Private, no-code publishing surface. Authentication and writes are handled by Netlify Identity + editor-api.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="theme-color" content="#17171c" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet" />
+    <title>the desk editor · private</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#editor-main">skip to the editor</a>
+
+    <header class="site-bar">
+      <a class="wordmark" href="/" aria-label="The Desk homepage"><span>t/d</span> the desk.</a>
+      <div class="site-bar__actions">
+        <span>private teacher tool</span>
+        <a href="/" target="_blank" rel="noopener">view live site ↗</a>
+      </div>
+    </header>
+
+    <main id="editor-main" class="shell">
+      <header class="editor-hero">
+        <div>
+          <p class="kicker">no code. no terminal. no nonsense.</p>
+          <h1>the desk<br /><strong>editor.</strong></h1>
+        </div>
+        <p class="editor-hero__intro">Change the words students see, post an announcement, and press publish. That is the whole job.</p>
+      </header>
+
+      <section id="auth-panel" class="auth-card" aria-labelledby="auth-title">
+        <div id="auth-loading" class="auth-loading">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>checking the lock…</p>
+        </div>
+
+        <form id="login-form" class="auth-view" hidden>
+          <p class="kicker">teacher sign-in</p>
+          <h2 id="auth-title">open your control panel<span>.</span></h2>
+          <p class="auth-copy">This page is not linked anywhere students can see. Sign in with the private account attached to the site.</p>
+          <label>
+            <span>email</span>
+            <input name="email" type="email" autocomplete="username" required />
+          </label>
+          <label>
+            <span>password</span>
+            <input name="password" type="password" autocomplete="current-password" minlength="8" required />
+          </label>
+          <div class="auth-actions">
+            <button class="button button--primary" type="submit">open the editor →</button>
+            <button id="forgot-button" class="text-button" type="button">forgot password?</button>
+          </div>
+        </form>
+
+        <form id="invite-form" class="auth-view" hidden>
+          <p class="kicker">one-time setup</p>
+          <h2>choose your password<span>.</span></h2>
+          <p class="auth-copy">Your private editor account is ready. Pick the password you will use on your Chromebook or any other device.</p>
+          <label>
+            <span>new password</span>
+            <input name="password" type="password" autocomplete="new-password" minlength="10" required />
+          </label>
+          <label>
+            <span>type it again</span>
+            <input name="confirmation" type="password" autocomplete="new-password" minlength="10" required />
+          </label>
+          <button class="button button--primary" type="submit">finish setup →</button>
+        </form>
+
+        <form id="recovery-form" class="auth-view" hidden>
+          <p class="kicker">password reset</p>
+          <h2>make a new password<span>.</span></h2>
+          <p class="auth-copy">Choose a fresh password. You will go straight into the editor when it is saved.</p>
+          <label>
+            <span>new password</span>
+            <input name="password" type="password" autocomplete="new-password" minlength="10" required />
+          </label>
+          <label>
+            <span>type it again</span>
+            <input name="confirmation" type="password" autocomplete="new-password" minlength="10" required />
+          </label>
+          <button class="button button--primary" type="submit">save new password →</button>
+        </form>
+
+        <div id="setup-view" class="auth-view setup-view" hidden>
+          <p class="kicker">almost ready</p>
+          <h2>the editor is installed<span>.</span></h2>
+          <p class="auth-copy">Your secure sign-in works. The last private publishing connection still needs its one-time setup before this page can save to the live site.</p>
+          <button id="setup-signout" class="text-button" type="button">sign out</button>
+        </div>
+
+        <p id="auth-message" class="form-message" role="alert" hidden></p>
+      </section>
+
+      <section id="editor-app" hidden>
+        <div class="session-bar">
+          <div>
+            <span class="session-dot" aria-hidden="true"></span>
+            <span>signed in as <strong id="user-email"></strong></span>
+          </div>
+          <button id="logout-button" class="text-button" type="button">sign out</button>
+        </div>
+
+        <nav class="tabs" aria-label="Editor sections" role="tablist">
+          <button class="tab" id="tab-home" type="button" role="tab" aria-controls="panel-home" aria-selected="true" data-tab="home">homepage</button>
+          <button class="tab" id="tab-classes" type="button" role="tab" aria-controls="panel-classes" aria-selected="false" data-tab="classes">class pages</button>
+          <button class="tab" id="tab-pages" type="button" role="tab" aria-controls="panel-pages" aria-selected="false" data-tab="pages">other pages</button>
+          <button class="tab tab--announcement" id="tab-announcement" type="button" role="tab" aria-controls="panel-announcement" aria-selected="false" data-tab="announcement">new announcement <span id="announcement-count"></span></button>
+        </nav>
+
+        <section class="panel" id="panel-home" role="tabpanel" aria-labelledby="tab-home" data-panel="home">
+          <div class="panel-head">
+            <div>
+              <p class="kicker">front door + shared site words</p>
+              <h2>homepage<span>.</span></h2>
+              <p>Hero copy, the stamp note, quick links, feature cards, the search block, and the footer.</p>
+            </div>
+            <a href="/" target="_blank" rel="noopener">preview page ↗</a>
+          </div>
+          <div id="home-fields" class="field-groups"></div>
+        </section>
+
+        <section class="panel" id="panel-classes" role="tabpanel" aria-labelledby="tab-classes" data-panel="classes" hidden>
+          <div class="panel-head">
+            <div>
+              <p class="kicker">the three course files</p>
+              <h2>class pages<span>.</span></h2>
+              <p>Change each homepage card, class tagline, and full course introduction.</p>
+            </div>
+            <a href="/#courses" target="_blank" rel="noopener">preview cards ↗</a>
+          </div>
+          <div id="classes-fields" class="field-groups"></div>
+        </section>
+
+        <section class="panel" id="panel-pages" role="tabpanel" aria-labelledby="tab-pages" data-panel="pages" hidden>
+          <div class="panel-head">
+            <div>
+              <p class="kicker">the rest of the public voice</p>
+              <h2>other pages<span>.</span></h2>
+              <p>Announcements, News Today + Then, Curiosity Desk, and the About page.</p>
+            </div>
+            <a href="/about/" target="_blank" rel="noopener">preview about ↗</a>
+          </div>
+          <div id="pages-fields" class="field-groups"></div>
+        </section>
+
+        <section class="panel panel--announcement" id="panel-announcement" role="tabpanel" aria-labelledby="tab-announcement" data-panel="announcement" hidden>
+          <div class="panel-head">
+            <div>
+              <p class="kicker">one message, everywhere it belongs</p>
+              <h2>new announcement<span>.</span></h2>
+              <p>It will appear at the front of the homepage list, on the announcements page, and in the RSS feed.</p>
+            </div>
+            <a href="/announcements/" target="_blank" rel="noopener">view announcements ↗</a>
+          </div>
+
+          <form id="announcement-form" class="announcement-form">
+            <div class="field-row">
+              <label class="field">
+                <span class="field__label">headline</span>
+                <input name="title" maxlength="140" placeholder="school starts Tuesday" required />
+              </label>
+              <label class="field field--date">
+                <span class="field__label">date</span>
+                <input name="date" type="date" required />
+              </label>
+            </div>
+            <label class="field">
+              <span class="field__label">who is this for?</span>
+              <select name="course">
+                <option value="all classes">all classes</option>
+                <option value="us history">us history</option>
+                <option value="hidden history">hidden history</option>
+                <option value="beyond the scoreboard">beyond the scoreboard</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field__label">message</span>
+              <textarea name="body" rows="9" maxlength="12000" placeholder="Say what students or families need to know. Blank lines make new paragraphs. You can use - at the start of a line for a list." required></textarea>
+              <small>Plain writing works. Links and simple bullet lists work too.</small>
+            </label>
+            <div class="announcement-actions">
+              <p><strong>Ready means live.</strong> This button publishes immediately; there is no separate coding step.</p>
+              <button id="announcement-publish" class="button button--coral" type="submit">publish announcement →</button>
+            </div>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <aside id="publish-bar" class="publish-bar" hidden>
+      <div>
+        <span id="save-state">everything saved</span>
+        <small>changes go straight to the live site</small>
+      </div>
+      <button id="publish-words" class="button button--coral" type="button" disabled>publish site words →</button>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <script>
+      import {
+        acceptInvite,
+        getUser,
+        handleAuthCallback,
+        login,
+        logout,
+        requestPasswordRecovery,
+        updateUser,
+      } from '@netlify/identity';
+
+      type Field = {
+        path: string;
+        label: string;
+        help?: string;
+        kind?: 'short' | 'long' | 'paragraph' | 'url';
+      };
+
+      type FieldGroup = {
+        title: string;
+        description: string;
+        fields: Field[];
+      };
+
+      type SiteContent = Record<string, unknown>;
+
+      const FIELD_SECTIONS: Record<'home' | 'classes' | 'pages', FieldGroup[]> = {
+        home: [
+          {
+            title: 'hero + maker stamp',
+            description: 'The first words on the homepage and the note beside your stamp.',
+            fields: [
+              { path: 'home.title', label: 'site title' },
+              { path: 'home.kicker', label: 'small line above the title' },
+              { path: 'home.promise', label: 'main promise', kind: 'long' },
+              { path: 'home.startLabel', label: 'jump link wording' },
+              { path: 'home.makerEyebrow', label: 'stamp label' },
+              { path: 'home.makerHeadline', label: 'maker headline', kind: 'long' },
+              { path: 'home.makerNote', label: 'maker note', kind: 'long' },
+            ],
+          },
+          {
+            title: 'school strip + classroom link',
+            description: 'The narrow signal bar shown across the site and the homepage Classroom destination.',
+            fields: [
+              { path: 'global.signalLeft', label: 'top bar · left side' },
+              { path: 'global.signalRight', label: 'top bar · right side' },
+              { path: 'global.location', label: 'homepage location line' },
+              { path: 'links.googleClassroom', label: 'Google Classroom web address', kind: 'url', help: 'Paste the full https:// link students should open.' },
+            ],
+          },
+          {
+            title: 'four quick links',
+            description: 'The small labels and notes students see under the hero.',
+            fields: [
+              { path: 'home.classroomLabel', label: 'Classroom label' },
+              { path: 'home.classroomNote', label: 'Classroom note' },
+              { path: 'home.passLabel', label: 'hall pass label' },
+              { path: 'home.passNote', label: 'hall pass note' },
+              { path: 'home.announcementsLabel', label: 'announcements label' },
+              { path: 'home.announcementsNote', label: 'announcements note' },
+              { path: 'home.calendarLabel', label: 'calendar label' },
+              { path: 'home.calendarNote', label: 'calendar note' },
+            ],
+          },
+          {
+            title: 'choose your class',
+            description: 'The heading and explanation above the three class cards.',
+            fields: [
+              { path: 'home.coursesEyebrow', label: 'small heading' },
+              { path: 'home.coursesTitle', label: 'section title' },
+              { path: 'home.coursesIntro', label: 'section explanation', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'live desks heading',
+            description: 'The introduction above News, Curiosity, Learning Hubs, and the Detour Shelf.',
+            fields: [
+              { path: 'home.liveEyebrow', label: 'small heading' },
+              { path: 'home.liveTitle', label: 'section title' },
+              { path: 'home.liveIntro', label: 'section explanation', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'News Today + Then card',
+            description: 'The first large feature card on the homepage.',
+            fields: [
+              { path: 'home.newsLabel', label: 'small card label' },
+              { path: 'home.newsTitle', label: 'card title' },
+              { path: 'home.newsIntro', label: 'card explanation', kind: 'long' },
+              { path: 'home.newsAction', label: 'button wording' },
+            ],
+          },
+          {
+            title: 'Curiosity Desk card',
+            description: 'The rotating evidence feature on the homepage.',
+            fields: [
+              { path: 'home.curiosityLabel', label: 'small card label' },
+              { path: 'home.curiosityTitle', label: 'card title' },
+              { path: 'home.curiosityIntro', label: 'card explanation', kind: 'long' },
+              { path: 'home.curiosityAction', label: 'button wording' },
+            ],
+          },
+          {
+            title: 'Learning Hubs card',
+            description: 'The student launchpad card. The live unit count is added automatically.',
+            fields: [
+              { path: 'home.hubsLabel', label: 'small card label' },
+              { path: 'home.hubsTitle', label: 'card title' },
+              { path: 'home.hubsIntro', label: 'words after the live unit count', kind: 'long' },
+              { path: 'home.hubsAction', label: 'button wording' },
+            ],
+          },
+          {
+            title: 'Detour Shelf card',
+            description: 'The sanctioned rabbit-hole card.',
+            fields: [
+              { path: 'home.detourLabel', label: 'small card label' },
+              { path: 'home.detourTitle', label: 'card title' },
+              { path: 'home.detourIntro', label: 'card explanation', kind: 'long' },
+              { path: 'home.detourAction', label: 'button wording' },
+            ],
+          },
+          {
+            title: 'updates + library',
+            description: 'The two blocks near the bottom of the homepage.',
+            fields: [
+              { path: 'home.dispatchesEyebrow', label: 'announcement list · small heading' },
+              { path: 'home.dispatchesTitle', label: 'announcement list · title' },
+              { path: 'home.libraryEyebrow', label: 'library · small heading' },
+              { path: 'home.libraryTitle', label: 'library · title' },
+              { path: 'home.libraryIntro', label: 'library · explanation', kind: 'long' },
+              { path: 'home.moreTitle', label: 'more links heading' },
+            ],
+          },
+          {
+            title: 'footer',
+            description: 'The closing identity block repeated at the bottom of every public page.',
+            fields: [
+              { path: 'global.footerEyebrow', label: 'small footer line' },
+              { path: 'global.footerTitle', label: 'footer title' },
+              { path: 'global.footerDescription', label: 'footer explanation', kind: 'long' },
+            ],
+          },
+        ],
+        classes: [
+          {
+            title: 'US History',
+            description: 'Reconstruction to right now.',
+            fields: [
+              { path: 'courseCards.usHistory', label: 'homepage card', kind: 'paragraph' },
+              { path: 'courses.usHistory.tagline', label: 'class tagline', kind: 'long' },
+              { path: 'courses.usHistory.intro', label: 'class introduction', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'Hidden History',
+            description: 'Coverups, conspiracies, hoaxes, and the evidence.',
+            fields: [
+              { path: 'courseCards.hiddenHistory', label: 'homepage card', kind: 'paragraph' },
+              { path: 'courses.hiddenHistory.tagline', label: 'class tagline', kind: 'long' },
+              { path: 'courses.hiddenHistory.intro', label: 'class introduction', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'Beyond the Scoreboard',
+            description: 'American history through sports.',
+            fields: [
+              { path: 'courseCards.beyondTheScoreboard', label: 'homepage card', kind: 'paragraph' },
+              { path: 'courses.beyondTheScoreboard.tagline', label: 'class tagline', kind: 'long' },
+              { path: 'courses.beyondTheScoreboard.intro', label: 'class introduction', kind: 'paragraph' },
+            ],
+          },
+        ],
+        pages: [
+          {
+            title: 'Announcements page',
+            description: 'The intro above the full archive.',
+            fields: [
+              { path: 'pages.announcements.eyebrow', label: 'small heading' },
+              { path: 'pages.announcements.title', label: 'page title' },
+              { path: 'pages.announcements.intro', label: 'page introduction', kind: 'long' },
+              { path: 'pages.announcements.rssNote', label: 'RSS note' },
+            ],
+          },
+          {
+            title: 'News Today + Then',
+            description: 'The large intro above the current headlines.',
+            fields: [
+              { path: 'pages.news.eyebrow', label: 'small heading' },
+              { path: 'pages.news.title', label: 'page title' },
+              { path: 'pages.news.ruleTitle', label: 'rule headline' },
+              { path: 'pages.news.ruleBody', label: 'rule explanation', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'Curiosity Desk',
+            description: 'The large intro above the rotating source.',
+            fields: [
+              { path: 'pages.curiosity.eyebrow', label: 'small heading' },
+              { path: 'pages.curiosity.title', label: 'page title' },
+              { path: 'pages.curiosity.ruleTitle', label: 'evidence rule headline' },
+              { path: 'pages.curiosity.ruleBody', label: 'evidence rule explanation', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'About · page intro',
+            description: 'The headline at the top of the About page.',
+            fields: [
+              { path: 'pages.about.eyebrow', label: 'small heading' },
+              { path: 'pages.about.title', label: 'page title' },
+              { path: 'pages.about.intro', label: 'page introduction', kind: 'long' },
+            ],
+          },
+          {
+            title: 'About · the teacher',
+            description: 'Your main teacher introduction.',
+            fields: [
+              { path: 'pages.about.teacherLabel', label: 'section label' },
+              { path: 'pages.about.teacherHeading', label: 'section headline' },
+              { path: 'pages.about.teacherBodyOne', label: 'first paragraph', kind: 'paragraph' },
+              { path: 'pages.about.teacherBodyTwo', label: 'second paragraph', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'About · the site + contact',
+            description: 'What The Desk is for and how people reach you.',
+            fields: [
+              { path: 'pages.about.siteLabel', label: 'site section label' },
+              { path: 'pages.about.siteHeading', label: 'site section headline' },
+              { path: 'pages.about.siteBody', label: 'site explanation', kind: 'paragraph' },
+              { path: 'pages.about.contactLabel', label: 'contact label' },
+              { path: 'pages.about.contactHeading', label: 'contact headline' },
+              { path: 'pages.about.contactBody', label: 'contact explanation', kind: 'paragraph' },
+            ],
+          },
+          {
+            title: 'About · quick answers',
+            description: 'The three expandable answers for students and families.',
+            fields: [
+              { path: 'pages.about.faqLabel', label: 'section label' },
+              { path: 'pages.about.gradesQuestion', label: 'grades question' },
+              { path: 'pages.about.gradesAnswer', label: 'grades answer', kind: 'long' },
+              { path: 'pages.about.hiddenQuestion', label: 'Hidden History question' },
+              { path: 'pages.about.hiddenAnswer', label: 'Hidden History answer', kind: 'paragraph' },
+              { path: 'pages.about.updatesQuestion', label: 'updates question' },
+              { path: 'pages.about.updatesAnswer', label: 'updates answer', kind: 'long' },
+            ],
+          },
+        ],
+      };
+
+      const authPanel = document.querySelector<HTMLElement>('#auth-panel')!;
+      const authLoading = document.querySelector<HTMLElement>('#auth-loading')!;
+      const authMessage = document.querySelector<HTMLElement>('#auth-message')!;
+      const loginForm = document.querySelector<HTMLFormElement>('#login-form')!;
+      const inviteForm = document.querySelector<HTMLFormElement>('#invite-form')!;
+      const recoveryForm = document.querySelector<HTMLFormElement>('#recovery-form')!;
+      const setupView = document.querySelector<HTMLElement>('#setup-view')!;
+      const editorApp = document.querySelector<HTMLElement>('#editor-app')!;
+      const publishBar = document.querySelector<HTMLElement>('#publish-bar')!;
+      const publishWordsButton = document.querySelector<HTMLButtonElement>('#publish-words')!;
+      const saveState = document.querySelector<HTMLElement>('#save-state')!;
+      const toast = document.querySelector<HTMLElement>('#toast')!;
+      const announcementForm = document.querySelector<HTMLFormElement>('#announcement-form')!;
+
+      let inviteToken = '';
+      let content: SiteContent | null = null;
+      let savedContent: SiteContent | null = null;
+      let toastTimer = 0;
+
+      const copy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
+      const getPath = (root: SiteContent, path: string): string => {
+        const value = path.split('.').reduce<unknown>((current, key) => {
+          if (!current || typeof current !== 'object') return '';
+          return (current as Record<string, unknown>)[key];
+        }, root);
+        return typeof value === 'string' ? value : '';
+      };
+
+      const setPath = (root: SiteContent, path: string, value: string) => {
+        const keys = path.split('.');
+        let current: Record<string, unknown> = root;
+        keys.slice(0, -1).forEach((key) => {
+          const next = current[key];
+          if (!next || typeof next !== 'object' || Array.isArray(next)) current[key] = {};
+          current = current[key] as Record<string, unknown>;
+        });
+        current[keys.at(-1)!] = value;
+      };
+
+      const showOnlyAuthView = (view?: HTMLElement) => {
+        authLoading.hidden = true;
+        [loginForm, inviteForm, recoveryForm, setupView].forEach((item) => { item.hidden = item !== view; });
+        authPanel.hidden = false;
+        editorApp.hidden = true;
+        publishBar.hidden = true;
+      };
+
+      const showAuthMessage = (message: string, error = false) => {
+        authMessage.textContent = message;
+        authMessage.dataset.error = String(error);
+        authMessage.hidden = false;
+      };
+
+      const clearAuthMessage = () => {
+        authMessage.hidden = true;
+        authMessage.textContent = '';
+      };
+
+      const showToast = (message: string, error = false) => {
+        window.clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.dataset.error = String(error);
+        toast.hidden = false;
+        toastTimer = window.setTimeout(() => { toast.hidden = true; }, error ? 7000 : 5000);
+      };
+
+      const friendlyAuthError = (error: unknown) => {
+        const message = error instanceof Error ? error.message : '';
+        if (error instanceof Error && error.name === 'MissingIdentityError') {
+          return 'Secure sign-in has not been enabled on the live site yet. The control panel is installed and waiting for that one-time switch.';
+        }
+        if (/invalid login|invalid.*credentials|email.*password/i.test(message)) return 'That email and password did not match.';
+        return message || 'Sign-in did not work. Try once more.';
+      };
+
+      const setBusy = (button: HTMLButtonElement, busy: boolean, busyLabel = 'working…') => {
+        if (busy) {
+          button.dataset.label = button.textContent || '';
+          button.textContent = busyLabel;
+          button.disabled = true;
+          button.setAttribute('aria-busy', 'true');
+        } else {
+          button.textContent = button.dataset.label || button.textContent;
+          button.disabled = false;
+          button.removeAttribute('aria-busy');
+        }
+      };
+
+      const api = async (options: RequestInit = {}) => {
+        const response = await fetch('/.netlify/functions/editor-api', {
+          credentials: 'same-origin',
+          ...options,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        });
+        const payload = await response.json().catch(() => ({ error: 'The editor received an unreadable response.' }));
+        if (!response.ok) {
+          const error = new Error(payload.error || 'The editor could not finish that request.') as Error & { code?: string; status?: number };
+          error.code = payload.code;
+          error.status = response.status;
+          throw error;
+        }
+        return payload;
+      };
+
+      const createField = (field: Field) => {
+        const label = document.createElement('label');
+        label.className = 'field';
+
+        const title = document.createElement('span');
+        title.className = 'field__label';
+        title.textContent = field.label;
+        label.append(title);
+
+        const control = field.kind === 'long' || field.kind === 'paragraph'
+          ? document.createElement('textarea')
+          : document.createElement('input');
+        control.dataset.path = field.path;
+        control.required = true;
+        control.maxLength = 4_000;
+        if (control instanceof HTMLTextAreaElement) control.rows = field.kind === 'paragraph' ? 6 : 3;
+        if (control instanceof HTMLInputElement && field.kind === 'url') control.type = 'url';
+        control.value = content ? getPath(content, field.path) : '';
+        control.addEventListener('input', () => {
+          if (!content) return;
+          setPath(content, field.path, control.value);
+          updateDirtyState();
+        });
+        label.append(control);
+
+        if (field.help) {
+          const help = document.createElement('small');
+          help.textContent = field.help;
+          label.append(help);
+        }
+        return label;
+      };
+
+      const renderFields = () => {
+        (Object.entries(FIELD_SECTIONS) as Array<[keyof typeof FIELD_SECTIONS, FieldGroup[]]>).forEach(([section, groups]) => {
+          const root = document.querySelector<HTMLElement>(`#${section}-fields`)!;
+          root.replaceChildren();
+          groups.forEach((group, index) => {
+            const details = document.createElement('details');
+            details.className = 'field-group';
+            details.open = index === 0;
+
+            const summary = document.createElement('summary');
+            const heading = document.createElement('span');
+            heading.textContent = group.title;
+            const description = document.createElement('small');
+            description.textContent = group.description;
+            summary.append(heading, description);
+
+            const fields = document.createElement('div');
+            fields.className = 'fields';
+            group.fields.forEach((field) => fields.append(createField(field)));
+            details.append(summary, fields);
+            root.append(details);
+          });
+        });
+      };
+
+      const changedFields = () => {
+        if (!content || !savedContent) return 0;
+        return Array.from(document.querySelectorAll<HTMLElement>('[data-path]'))
+          .filter((control) => getPath(content!, control.dataset.path!) !== getPath(savedContent!, control.dataset.path!))
+          .length;
+      };
+
+      const updateDirtyState = () => {
+        const changes = changedFields();
+        saveState.textContent = changes ? `${changes} unsaved ${changes === 1 ? 'change' : 'changes'}` : 'everything saved';
+        publishWordsButton.disabled = changes === 0;
+        document.body.dataset.dirty = String(changes > 0);
+      };
+
+      const today = () => {
+        const date = new Date();
+        const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+        return local.toISOString().slice(0, 10);
+      };
+
+      const openEditor = async () => {
+        clearAuthMessage();
+        authLoading.hidden = false;
+        showOnlyAuthView();
+        authLoading.hidden = false;
+        try {
+          const state = await api();
+          content = state.content;
+          savedContent = copy(state.content);
+          document.querySelector('#user-email')!.textContent = state.user.email;
+          document.querySelector('#announcement-count')!.textContent = `(${state.announcementCount})`;
+          (announcementForm.elements.namedItem('date') as HTMLInputElement).value = today();
+          renderFields();
+          updateDirtyState();
+          authPanel.hidden = true;
+          editorApp.hidden = false;
+          publishBar.hidden = false;
+        } catch (error) {
+          const code = (error as Error & { code?: string }).code;
+          if (code === 'SETUP_REQUIRED') {
+            showOnlyAuthView(setupView);
+            return;
+          }
+          if (code === 'SIGNED_OUT' || (error as Error & { status?: number }).status === 401) {
+            showOnlyAuthView(loginForm);
+            return;
+          }
+          showOnlyAuthView(loginForm);
+          showAuthMessage(error instanceof Error ? error.message : 'The editor could not load.', true);
+        }
+      };
+
+      document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const name = tab.dataset.tab!;
+          document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((item) => {
+            item.setAttribute('aria-selected', String(item === tab));
+          });
+          document.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
+            panel.hidden = panel.dataset.panel !== name;
+          });
+          publishBar.dataset.announcement = String(name === 'announcement');
+          document.querySelector<HTMLElement>(`[data-panel="${name}"]`)?.focus({ preventScroll: true });
+        });
+      });
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearAuthMessage();
+        const button = loginForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+        const form = new FormData(loginForm);
+        setBusy(button, true, 'checking…');
+        try {
+          await login(String(form.get('email')), String(form.get('password')));
+          await openEditor();
+        } catch (error) {
+          showAuthMessage(friendlyAuthError(error), true);
+        } finally {
+          setBusy(button, false);
+        }
+      });
+
+      document.querySelector('#forgot-button')!.addEventListener('click', async () => {
+        clearAuthMessage();
+        const email = (loginForm.elements.namedItem('email') as HTMLInputElement).value.trim();
+        if (!email) {
+          showAuthMessage('Type your email first, then press forgot password.', true);
+          return;
+        }
+        try {
+          await requestPasswordRecovery(email);
+          showAuthMessage('Check your email. The reset link will bring you back here.');
+        } catch (error) {
+          showAuthMessage(friendlyAuthError(error), true);
+        }
+      });
+
+      inviteForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearAuthMessage();
+        const password = (inviteForm.elements.namedItem('password') as HTMLInputElement).value;
+        const confirmation = (inviteForm.elements.namedItem('confirmation') as HTMLInputElement).value;
+        if (password !== confirmation) {
+          showAuthMessage('Those two passwords do not match.', true);
+          return;
+        }
+        const button = inviteForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+        setBusy(button, true, 'finishing…');
+        try {
+          await acceptInvite(inviteToken, password);
+          history.replaceState(null, '', '/editor/');
+          await openEditor();
+        } catch (error) {
+          showAuthMessage(friendlyAuthError(error), true);
+        } finally {
+          setBusy(button, false);
+        }
+      });
+
+      recoveryForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearAuthMessage();
+        const password = (recoveryForm.elements.namedItem('password') as HTMLInputElement).value;
+        const confirmation = (recoveryForm.elements.namedItem('confirmation') as HTMLInputElement).value;
+        if (password !== confirmation) {
+          showAuthMessage('Those two passwords do not match.', true);
+          return;
+        }
+        const button = recoveryForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+        setBusy(button, true, 'saving…');
+        try {
+          await updateUser({ password });
+          history.replaceState(null, '', '/editor/');
+          await openEditor();
+        } catch (error) {
+          showAuthMessage(friendlyAuthError(error), true);
+        } finally {
+          setBusy(button, false);
+        }
+      });
+
+      const signOut = async () => {
+        try { await logout(); } catch { /* The local session still gets cleared by the auth library. */ }
+        content = null;
+        savedContent = null;
+        showOnlyAuthView(loginForm);
+        (loginForm.elements.namedItem('password') as HTMLInputElement).value = '';
+      };
+
+      document.querySelector('#logout-button')!.addEventListener('click', signOut);
+      document.querySelector('#setup-signout')!.addEventListener('click', signOut);
+
+      publishWordsButton.addEventListener('click', async () => {
+        if (!content || !changedFields()) return;
+        const invalid = [...document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-path]')]
+          .find((control) => !control.checkValidity());
+        if (invalid) {
+          invalid.reportValidity();
+          invalid.focus();
+          return;
+        }
+
+        setBusy(publishWordsButton, true, 'publishing…');
+        try {
+          const result = await api({
+            method: 'POST',
+            body: JSON.stringify({ action: 'content', content }),
+          });
+          content = result.content;
+          savedContent = copy(result.content);
+          updateDirtyState();
+          showToast(result.message);
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : 'Those words could not be published.', true);
+        } finally {
+          setBusy(publishWordsButton, false);
+          updateDirtyState();
+        }
+      });
+
+      announcementForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = document.querySelector<HTMLButtonElement>('#announcement-publish')!;
+        const form = new FormData(announcementForm);
+        setBusy(button, true, 'publishing…');
+        try {
+          const result = await api({
+            method: 'POST',
+            body: JSON.stringify({ action: 'announcement', ...Object.fromEntries(form.entries()) }),
+          });
+          (announcementForm.elements.namedItem('title') as HTMLInputElement).value = '';
+          (announcementForm.elements.namedItem('body') as HTMLTextAreaElement).value = '';
+          (announcementForm.elements.namedItem('course') as HTMLSelectElement).value = 'all classes';
+          const count = document.querySelector('#announcement-count')!;
+          const currentCount = Number(count.textContent?.replace(/\D/g, '') || 0) + 1;
+          count.textContent = `(${currentCount})`;
+          showToast(result.message);
+          announcementForm.querySelector<HTMLInputElement>('[name="title"]')?.focus();
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : 'That announcement could not be published.', true);
+        } finally {
+          setBusy(button, false);
+        }
+      });
+
+      window.addEventListener('beforeunload', (event) => {
+        if (!changedFields()) return;
+        event.preventDefault();
+      });
+
+      window.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's' && changedFields()) {
+          event.preventDefault();
+          publishWordsButton.click();
+        }
+      });
+
+      (async () => {
+        try {
+          const callback = await handleAuthCallback();
+          if (callback?.type === 'invite' && callback.token) {
+            inviteToken = callback.token;
+            showOnlyAuthView(inviteForm);
+            return;
+          }
+          if (callback?.type === 'recovery') {
+            showOnlyAuthView(recoveryForm);
+            return;
+          }
+          if (callback) history.replaceState(null, '', '/editor/');
+
+          const user = await getUser();
+          if (user) await openEditor();
+          else showOnlyAuthView(loginForm);
+        } catch (error) {
+          showOnlyAuthView(loginForm);
+          showAuthMessage(friendlyAuthError(error), true);
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  :root {
+    color: #17171c;
+    background: #f5f3ed;
+    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-synthesis: none;
+    --ink: #17171c;
+    --ink-soft: #67676f;
+    --paper: #f5f3ed;
+    --line: #d7d3c8;
+    --accent: #4f5cff;
+    --accent-dark: #2530d8;
+    --accent-soft: #eceeff;
+    --coral: #ff6948;
+    --green: #08765a;
+  }
+
+  * { box-sizing: border-box; }
+  body { min-width: 320px; margin: 0; background: radial-gradient(circle at 94% 4%, rgb(79 92 255 / 0.12), transparent 28rem), var(--paper); }
+  button, input, textarea, select { font: inherit; }
+  button, summary { cursor: pointer; }
+  [hidden] { display: none !important; }
+  a { color: inherit; }
+
+  .skip-link {
+    position: fixed;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 20;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.5rem;
+    background: white;
+    color: var(--ink);
+    transform: translateY(-180%);
+  }
+  .skip-link:focus { transform: translateY(0); }
+
+  .site-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.25rem;
+    padding: 0.7rem max(1rem, calc((100vw - 74rem) / 2));
+    border-bottom: 1px solid rgb(255 255 255 / 0.12);
+    background: rgb(23 23 28 / 0.96);
+    color: white;
+    backdrop-filter: blur(16px);
+  }
+
+  .wordmark { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; font-size: 1.2rem; font-weight: 750; letter-spacing: -0.04em; }
+  .wordmark > span { display: grid; width: 2rem; aspect-ratio: 1; place-items: center; border-radius: 0.45rem; background: var(--accent); font: 800 0.55rem/1 ui-monospace, monospace; box-shadow: 0.2rem 0.2rem 0 white; }
+  .site-bar__actions { display: flex; gap: 1rem; align-items: center; font: 700 0.65rem/1 ui-monospace, monospace; text-transform: lowercase; }
+  .site-bar__actions > span { color: rgb(255 255 255 / 0.42); }
+  .site-bar__actions a { color: #b8beff; text-underline-offset: 0.25rem; }
+
+  .shell { width: min(74rem, calc(100% - 2rem)); margin: 0 auto; padding: clamp(2.4rem, 6vw, 5rem) 0 9rem; }
+  .editor-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.45fr); gap: 2rem; align-items: end; }
+  .kicker { margin: 0 0 0.7rem; color: var(--accent-dark); font: 800 0.66rem/1.4 ui-monospace, monospace; letter-spacing: 0.13em; text-transform: uppercase; }
+  h1 { margin: 0; font-size: clamp(4.2rem, 10vw, 8.5rem); font-weight: 700; letter-spacing: -0.09em; line-height: 0.72; text-transform: lowercase; }
+  h1 strong { color: var(--accent); font-weight: 700; }
+  .editor-hero__intro { max-width: 25rem; margin: 0 0 0.3rem; color: var(--ink-soft); font-size: 1rem; line-height: 1.65; }
+
+  .auth-card { width: min(34rem, 100%); margin: 3.5rem auto 0; padding: clamp(1.4rem, 5vw, 2.2rem); border: 1px solid var(--line); border-radius: 1.25rem; background: rgb(255 255 255 / 0.82); box-shadow: 0 26px 60px -48px rgb(23 23 28 / 0.8); }
+  .auth-loading { display: grid; justify-items: center; gap: 0.8rem; padding: 2rem; color: var(--ink-soft); }
+  .spinner { width: 1.6rem; aspect-ratio: 1; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 700ms linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .auth-view h2, .panel h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.055em; line-height: 0.95; text-transform: lowercase; }
+  .auth-view h2 span, .panel h2 span { color: var(--accent); }
+  .auth-copy { margin: 0.9rem 0 1.4rem; color: var(--ink-soft); line-height: 1.6; }
+  .auth-view label { display: grid; gap: 0.42rem; margin-top: 0.9rem; color: var(--ink-soft); font-size: 0.78rem; font-weight: 700; text-transform: lowercase; }
+  .auth-view input { width: 100%; min-height: 3rem; padding: 0.72rem 0.85rem; border: 1px solid var(--line); border-radius: 0.65rem; background: white; color: var(--ink); }
+  .auth-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin-top: 1.3rem; }
+  .setup-view .text-button { margin-top: 1rem; }
+  .form-message { margin: 1rem 0 0; padding: 0.8rem 0.9rem; border-radius: 0.65rem; background: #eef9f5; color: var(--green); font-size: 0.8rem; line-height: 1.5; }
+  .form-message[data-error='true'] { background: #fff0ed; color: #9b2d20; }
+
+  .button { min-height: 2.8rem; padding: 0.72rem 1rem; border: 0; border-radius: 0.65rem; font-weight: 800; text-transform: lowercase; transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease; }
+  .button:not(:disabled):hover { transform: translateY(-2px); }
+  .button:disabled { cursor: not-allowed; opacity: 0.48; }
+  .button--primary { background: var(--ink); color: white; box-shadow: 0.25rem 0.25rem 0 var(--accent); }
+  .button--coral { background: var(--coral); color: var(--ink); box-shadow: 0.25rem 0.25rem 0 white; }
+  .text-button { padding: 0; border: 0; background: transparent; color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-underline-offset: 0.22rem; }
+
+  .session-bar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-top: 3rem; padding: 0.85rem 1rem; border: 1px solid var(--line); border-radius: 0.8rem; background: rgb(255 255 255 / 0.58); color: var(--ink-soft); font-size: 0.75rem; }
+  .session-bar > div { display: flex; align-items: center; gap: 0.55rem; }
+  .session-dot { width: 0.55rem; aspect-ratio: 1; border-radius: 50%; background: #0b9d75; box-shadow: 0 0 0 0.24rem rgb(11 157 117 / 0.12); }
+  .session-bar strong { color: var(--ink); }
+
+  .tabs { display: flex; gap: 0.55rem; margin: 1.25rem 0; padding-bottom: 0.8rem; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: thin; }
+  .tab { flex: 0 0 auto; min-height: 2.7rem; padding: 0.65rem 0.9rem; border: 1px solid var(--line); border-radius: 99rem; background: rgb(255 255 255 / 0.72); color: var(--ink-soft); font-size: 0.8rem; font-weight: 750; text-transform: lowercase; }
+  .tab:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .tab[aria-selected='true'] { border-color: var(--ink); background: var(--ink); color: white; }
+  .tab--announcement[aria-selected='true'] { border-color: #bd3b25; background: var(--coral); color: var(--ink); }
+  .tab span { margin-left: 0.25rem; opacity: 0.62; font-family: ui-monospace, monospace; font-size: 0.68rem; }
+
+  .panel { padding: clamp(1.2rem, 4vw, 2rem); border: 1px solid var(--line); border-radius: 1.2rem; background: rgb(255 255 255 / 0.75); box-shadow: 0 30px 65px -58px rgb(23 23 28 / 0.9); outline: none; }
+  .panel--announcement { background: linear-gradient(145deg, rgb(255 240 237 / 0.82), rgb(255 255 255 / 0.82) 52%); }
+  .panel-head { display: flex; gap: 1.5rem; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
+  .panel-head p:not(.kicker) { max-width: 40rem; margin: 0.65rem 0 0; color: var(--ink-soft); line-height: 1.55; }
+  .panel-head > a { flex: 0 0 auto; color: var(--accent-dark); font: 750 0.68rem/1.4 ui-monospace, monospace; text-transform: lowercase; text-underline-offset: 0.25rem; }
+
+  .field-groups { display: grid; gap: 0.7rem; }
+  .field-group { overflow: hidden; border: 1px solid var(--line); border-radius: 0.85rem; background: rgb(255 255 255 / 0.74); }
+  .field-group[open] { border-color: color-mix(in srgb, var(--accent) 42%, var(--line)); box-shadow: 0 15px 35px -33px rgb(23 23 28 / 0.7); }
+  .field-group summary { position: relative; display: grid; gap: 0.22rem; padding: 1rem 3rem 1rem 1rem; list-style: none; }
+  .field-group summary::-webkit-details-marker { display: none; }
+  .field-group summary::after { position: absolute; top: 50%; right: 1rem; content: '+'; color: var(--accent); font-size: 1.35rem; font-weight: 500; transform: translateY(-50%); }
+  .field-group[open] summary::after { content: '−'; }
+  .field-group summary > span { font-size: 0.95rem; font-weight: 780; text-transform: lowercase; }
+  .field-group summary > small { color: var(--ink-soft); font-size: 0.72rem; line-height: 1.45; }
+  .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding: 0.3rem 1rem 1.1rem; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+  .fields .field:has(textarea), .fields .field:has(input[type='url']) { grid-column: 1 / -1; }
+
+  .field { display: grid; gap: 0.42rem; min-width: 0; color: var(--ink-soft); }
+  .field__label { font-size: 0.72rem; font-weight: 780; text-transform: lowercase; }
+  .field input, .field textarea, .field select { width: 100%; min-height: 2.85rem; padding: 0.72rem 0.8rem; border: 1px solid var(--line); border-radius: 0.58rem; outline: none; background: white; color: var(--ink); line-height: 1.5; transition: border-color 150ms ease, box-shadow 150ms ease; }
+  .field textarea { resize: vertical; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 0.2rem rgb(79 92 255 / 0.12); }
+  .field small { color: var(--ink-soft); font-size: 0.68rem; line-height: 1.45; }
+
+  .announcement-form { display: grid; gap: 1rem; }
+  .field-row { display: grid; grid-template-columns: minmax(0, 1fr) 12rem; gap: 1rem; }
+  .announcement-actions { display: flex; gap: 1.2rem; align-items: center; justify-content: space-between; padding-top: 0.4rem; }
+  .announcement-actions p { max-width: 32rem; margin: 0; color: var(--ink-soft); font-size: 0.74rem; line-height: 1.55; }
+  .announcement-actions strong { color: var(--ink); }
+
+  .publish-bar { position: fixed; right: max(1rem, calc((100vw - 74rem) / 2)); bottom: 1rem; z-index: 12; display: flex; width: min(39rem, calc(100% - 2rem)); gap: 1rem; align-items: center; justify-content: space-between; padding: 0.8rem 0.85rem 0.8rem 1rem; border: 1px solid rgb(255 255 255 / 0.16); border-radius: 0.85rem; background: rgb(23 23 28 / 0.96); color: white; box-shadow: 0 24px 55px -18px rgb(23 23 28 / 0.75); backdrop-filter: blur(16px); }
+  .publish-bar[data-announcement='true'] { transform: translateY(calc(100% + 2rem)); }
+  .publish-bar > div { display: grid; gap: 0.18rem; }
+  .publish-bar #save-state { font-size: 0.76rem; font-weight: 760; text-transform: lowercase; }
+  .publish-bar small { color: rgb(255 255 255 / 0.48); font: 650 0.58rem/1.2 ui-monospace, monospace; text-transform: lowercase; }
+
+  .toast { position: fixed; top: 5rem; right: 1rem; z-index: 30; width: min(25rem, calc(100% - 2rem)); padding: 0.9rem 1rem; border: 1px solid rgb(8 118 90 / 0.28); border-radius: 0.75rem; background: #f0fff9; color: #075f49; box-shadow: 0 20px 48px -32px rgb(23 23 28 / 0.85); font-size: 0.78rem; font-weight: 650; line-height: 1.5; }
+  .toast[data-error='true'] { border-color: rgb(155 45 32 / 0.25); background: #fff0ed; color: #91291c; }
+
+  @media (max-width: 720px) {
+    .site-bar__actions > span { display: none; }
+    .shell { width: min(100% - 1.25rem, 74rem); padding-top: 2rem; }
+    .editor-hero { grid-template-columns: 1fr; }
+    .editor-hero__intro { max-width: 34rem; }
+    .session-bar { align-items: flex-start; }
+    .session-bar > div { align-items: flex-start; overflow-wrap: anywhere; }
+    .panel-head { display: grid; }
+    .panel-head > a { justify-self: start; }
+    .fields, .field-row { grid-template-columns: 1fr; }
+    .fields .field { grid-column: 1; }
+    .announcement-actions { align-items: stretch; flex-direction: column; }
+    .publish-bar { right: 0.65rem; bottom: 0.65rem; width: calc(100% - 1.3rem); }
+    .publish-bar small { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>

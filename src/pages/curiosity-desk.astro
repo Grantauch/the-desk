@@ -1,6 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
 import CuriosityDesk from '../components/CuriosityDesk.astro';
+import siteContent from '../data/site-content.json';
+
+const page = siteContent.pages.curiosity;
+const titleWords = page.title.replace(/[.!?]+$/, '').trim().split(/\s+/);
+const titleLast = titleWords.length > 1 ? titleWords.pop() : '';
+const titleFirst = titleWords.join(' ');
 ---
 
 <Base
@@ -11,12 +17,12 @@ import CuriosityDesk from '../components/CuriosityDesk.astro';
   <header class="desk-page-hero desk-page-hero--curiosity">
     <div>
       <a href="/">← back to the front desk</a>
-      <p>primary sources / useful detours</p>
-      <h1>curiosity<br />desk<span>.</span></h1>
+      <p>{page.eyebrow}</p>
+      <h1>{titleFirst}{titleLast && <><br />{titleLast}</>}<span>.</span></h1>
     </div>
     <aside>
-      <strong>Start with what the record can prove.</strong>
-      <p>Make a guess. Inspect the title, date, creator, and frame. Then reveal the context without pretending uncertainty is a failure.</p>
+      <strong>{page.ruleTitle}</strong>
+      <p>{page.ruleBody}</p>
       <nav aria-label="Related links">
         <a href="/detour-shelf/">detour shelf →</a>
         <a href="/resources/">source library →</a>

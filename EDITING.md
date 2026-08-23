@@ -2,6 +2,12 @@
 
 For curriculum organization, public/private boundaries, and the Three-Course Lecture Remix route, read `CURRICULUM-PUBLISHING.md` before adding files or Drive links.
 
+## Edit public wording without code
+
+Open **https://grant-desk.com/editor/**. The private control panel edits the homepage, shared header and footer, three course introductions, About page, Announcements page, News Today + Then, and Curiosity Desk. Press **publish site words** when the batch is ready.
+
+The same editor posts announcements with a normal headline, date, class dropdown, and message box. No Markdown file or Git command is required. See `EDITOR-SETUP.md` for the one-time secure connection and recovery details.
+
 ## Post an announcement
 
 Add a new file in `src/content/announcements/`, named like `2026-08-20-first-day.md`:
@@ -20,7 +26,7 @@ It appears on the home page (latest 3) and the announcements page automatically.
 
 ## Update what unit a class is on
 
-Open the class page (`src/pages/us-history.astro`, `economics.astro`, or `law.astro`). Find the `units` array. Move `current: true` to the unit you're on (only one unit should have it). Edit names/blurbs freely.
+Open the class page (`src/pages/us-history.astro`, `hidden-history.astro`, or `beyond-the-scoreboard.astro`). Find the `units` array. Move `current: true` to the unit you're on (only one unit should have it). Edit names/blurbs freely.
 
 ## Edit a unit's "what's inside" list
 
@@ -28,7 +34,7 @@ Same files — each unit has an optional `topics` array. Add, remove, or reword 
 
 ## Edit a class glossary ("words worth knowing")
 
-`economics.astro` and `law.astro` have a `glossary` array — `{ term, def }` pairs. Add one to `us-history.astro` the same way if you ever want it (pass `glossary={glossary}` to CoursePage).
+Course glossary terms live in the relevant class page as `{ term, def }` pairs and appear through `CoursePage` when that course supplies a glossary.
 
 ## Add a resource link to a class
 

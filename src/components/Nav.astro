@@ -2,6 +2,7 @@
 // Nav.astro — compact primary navigation with a secondary explore menu.
 import passConfig from '../data/pass-config.json';
 import { remixRecords } from '../data/remixCatalog';
+import siteContent from '../data/site-content.json';
 
 interface Props {
   wide?: boolean;
@@ -42,8 +43,8 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
 <header class="site-header sticky top-0 z-40">
   <div class="site-signal">
     <div class:list={['site-signal__inner', wide ? 'max-w-6xl' : 'max-w-4xl']}>
-      <span>2026—27 / classroom field desk</span>
-      <span>mount morris, michigan / live curriculum hub</span>
+      <span>{siteContent.global.signalLeft}</span>
+      <span>{siteContent.global.signalRight}</span>
     </div>
   </div>
   <div class:list={['mx-auto px-5 py-3.5', wide ? 'max-w-6xl' : 'max-w-4xl']}>
