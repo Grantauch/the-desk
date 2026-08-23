@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import CuriosityDesk from '../components/CuriosityDesk.astro';
+---
+
+<Base
+  title="curiosity desk"
+  description="A rotating desk of real Library of Congress records, evidence questions, source context, and historical trails worth following."
+  wide
+>
+  <header class="desk-page-hero desk-page-hero--curiosity">
+    <div>
+      <a href="/">← back to the front desk</a>
+      <p>primary sources / useful detours</p>
+      <h1>curiosity<br />desk<span>.</span></h1>
+    </div>
+    <aside>
+      <strong>Start with what the record can prove.</strong>
+      <p>Make a guess. Inspect the title, date, creator, and frame. Then reveal the context without pretending uncertainty is a failure.</p>
+      <nav aria-label="Related links">
+        <a href="/detour-shelf/">detour shelf →</a>
+        <a href="/resources/">source library →</a>
+      </nav>
+    </aside>
+  </header>
+
+  <CuriosityDesk />
+
+  <nav class="page-exit" aria-label="Keep exploring">
+    <span>one thread usually leads to another</span>
+    <a href="/news/">news today + then →</a>
+    <a href="/hidden-history/">hidden history →</a>
+    <a href="/">front desk →</a>
+  </nav>
+</Base>
+
+<style>
+  .desk-page-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(17rem, 0.75fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+    overflow: hidden;
+    padding: clamp(1.5rem, 5vw, 3.5rem);
+    border: 1px solid rgb(23 23 28 / 0.14);
+    border-radius: 1.15rem;
+    color: var(--color-ink);
+  }
+
+  .desk-page-hero--curiosity {
+    background:
+      radial-gradient(circle at 92% 12%, rgb(255 105 72 / 0.3), transparent 18rem),
+      linear-gradient(125deg, #f5f0de, #fff 72%);
+  }
+
+  .desk-page-hero::after {
+    position: absolute;
+    right: -5rem;
+    bottom: -7rem;
+    width: 21rem;
+    aspect-ratio: 1;
+    border: 1px solid rgb(23 23 28 / 0.08);
+    border-radius: 50%;
+    content: '';
+    pointer-events: none;
+  }
+
+  .desk-page-hero > * { position: relative; z-index: 1; }
+  .desk-page-hero > div > a,
+  .desk-page-hero > div > p,
+  .desk-page-hero aside nav a,
+  .page-exit { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 750; text-transform: lowercase; }
+  .desk-page-hero > div > a { color: var(--color-ink-soft); }
+  .desk-page-hero > div > a:hover { color: var(--color-accent); }
+  .desk-page-hero > div > p { margin-top: 2.6rem; color: #b93620; letter-spacing: 0.13em; text-transform: uppercase; }
+
+  h1 {
+    margin-top: 0.45rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.7rem, 8vw, 7rem);
+    font-weight: 700;
+    letter-spacing: -0.085em;
+    line-height: 0.78;
+    text-transform: lowercase;
+  }
+
+  h1 span { color: var(--color-accent); }
+  .desk-page-hero aside { padding-top: 1rem; border-top: 1px solid rgb(23 23 28 / 0.2); }
+  .desk-page-hero aside strong { font-family: var(--font-display); font-size: 1rem; }
+  .desk-page-hero aside > p { margin-top: 0.45rem; color: var(--color-ink-soft); font-size: 0.78rem; line-height: 1.6; }
+  .desk-page-hero aside nav { display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; margin-top: 1.2rem; }
+  .desk-page-hero aside nav a { color: var(--color-accent-dark); }
+  .desk-page-hero aside nav a:hover { color: var(--color-ink); }
+
+  .page-exit { display: flex; flex-wrap: wrap; gap: 0.8rem 1.4rem; margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--color-line); }
+  .page-exit span { margin-right: auto; color: var(--color-ink-soft); }
+  .page-exit a { color: var(--color-accent); }
+
+  @media (max-width: 700px) {
+    .desk-page-hero { grid-template-columns: 1fr; gap: 2.5rem; }
+    .desk-page-hero > div > p { margin-top: 2rem; }
+    h1 { font-size: clamp(3.5rem, 18vw, 5.7rem); }
+    .page-exit span { flex-basis: 100%; }
+  }
+</style>

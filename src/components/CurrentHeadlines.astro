@@ -200,9 +200,10 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
                 <img
                   src={proxiedNewsImage(headline.image) ?? headline.fallbackImage}
                   alt=""
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
                   referrerpolicy="no-referrer"
+                  data-image-state="ready"
                   data-story-image
                 />
               </div>
@@ -380,15 +381,19 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
         if (image instanceof HTMLImageElement) {
           const showPlaceholder = () => {
             image.hidden = true;
+            image.dataset.imageState = 'unavailable';
             if (placeholder instanceof HTMLElement) placeholder.hidden = false;
           };
           const showImage = () => {
             image.hidden = false;
+            image.dataset.imageState = 'ready';
             if (placeholder instanceof HTMLElement) placeholder.hidden = true;
           };
           const loadFallback = () => {
             if (safeFallback && image.dataset.fallbackActive !== 'true') {
               image.dataset.fallbackActive = 'true';
+              image.hidden = false;
+              image.dataset.imageState = 'loading';
               image.src = safeFallback;
               return;
             }
@@ -399,7 +404,11 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
           image.dataset.fallbackActive = String(!safeImage && Boolean(safeFallback));
           const chosenImage = safeImage || safeFallback;
           if (chosenImage) {
-            image.hidden = true;
+            // Keep the image eligible for network loading while its source changes.
+            // A hidden lazy image can deadlock: the browser never requests it, so
+            // neither load nor error fires and the source cover remains forever.
+            image.hidden = false;
+            image.dataset.imageState = 'loading';
             if (placeholder instanceof HTMLElement) placeholder.hidden = false;
             image.src = chosenImage;
             if (image.complete) (image.naturalWidth > 0 ? showImage : loadFallback)();
@@ -855,7 +864,12 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 400ms ease, filter 400ms ease;
+    opacity: 1;
+    transition: transform 400ms ease, filter 400ms ease, opacity 180ms ease;
+  }
+
+  .headline-image img[data-image-state='loading'] {
+    opacity: 0;
   }
 
   .headline-link:hover .headline-image img {
