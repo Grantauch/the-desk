@@ -13,6 +13,8 @@ const paths = [
   '/beyond-the-scoreboard/',
   '/beyond-the-scoreboard/syllabus/',
   '/resources/',
+  '/news/',
+  '/curiosity-desk/',
   ...remixPublicRoutes,
   '/learning-hubs/',
   ...learningHubs.map((hub) => `/learn/${hub.courseSlug}/${hub.slug}/`),
