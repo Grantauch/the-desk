@@ -1,4 +1,5 @@
 import { getUser, verifyRequestOrigin } from '@netlify/identity';
+import { createHash } from 'node:crypto';
 
 const REPOSITORY = process.env.EDITOR_REPOSITORY || 'Grantauch/the-desk';
 const BRANCH = process.env.EDITOR_BRANCH || 'main';
@@ -12,6 +13,7 @@ const ALLOWED_COURSES = new Set([
   'hidden history',
   'beyond the scoreboard',
 ]);
+const EDITOR_EMAIL_FINGERPRINT = '5176db8efac24887a62b56c3c3d7ebf71e376913ceb16cf18c65ad9815936b2f';
 
 class EditorError extends Error {
   constructor(message, status = 400, code = 'EDITOR_ERROR') {
@@ -33,16 +35,16 @@ const json = (body, status = 200) => Response.json(body, {
 
 const githubPath = (path) => path.split('/').map(encodeURIComponent).join('/');
 
+const fingerprintEmail = (value) => createHash('sha256')
+  .update(value.trim().toLowerCase())
+  .digest('hex');
+
 const requireConfiguration = () => {
   const token = process.env.GITHUB_EDITOR_TOKEN?.trim();
   const email = process.env.EDITOR_EMAIL?.trim().toLowerCase();
-  if (!token || !email) {
-    const missing = [
-      ...(!email ? ['EDITOR_EMAIL'] : []),
-      ...(!token ? ['GITHUB_EDITOR_TOKEN'] : []),
-    ];
+  if (!token) {
     throw new EditorError(
-      `Netlify has not provided ${missing.join(' and ')} to the editor function yet.`,
+      'Netlify has not provided GITHUB_EDITOR_TOKEN to the editor function yet.',
       503,
       'SETUP_REQUIRED',
     );
@@ -55,7 +57,13 @@ const requireEditor = async () => {
   if (!user) throw new EditorError('Sign in to open the editor.', 401, 'SIGNED_OUT');
 
   const configuration = requireConfiguration();
-  if (!user.email || user.email.toLowerCase() !== configuration.email) {
+  const userEmail = user.email?.trim().toLowerCase();
+  const isAllowedEditor = Boolean(userEmail) && (
+    configuration.email
+      ? userEmail === configuration.email
+      : fingerprintEmail(userEmail) === EDITOR_EMAIL_FINGERPRINT
+  );
+  if (!isAllowedEditor) {
     throw new EditorError('This account does not have permission to publish the site.', 403, 'NOT_EDITOR');
   }
 
