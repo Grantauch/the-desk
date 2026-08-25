@@ -76,17 +76,19 @@ function getBootstrap(mode) {
   }
 
   if (mode === 'checkin') {
-    const student = getStudentByEmail_(activeEmail);
-    if (!student) {
+    const students = getStudentsByEmail_(activeEmail);
+    if (students.length !== 1) {
       return {
         ok: true,
         mode: 'checkin',
         recognized: false,
         appTitle: 'Daily Check-in',
-        message: 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
+        message: students.length > 1
+          ? 'You are enrolled in more than one of Mr. Grant’s classes. Use the six-digit PIN for this period.'
+          : 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
       };
     }
-    return getCheckInState_(student, '', 'google');
+    return getCheckInState_(students[0], '', 'google');
   }
 
   if (mode === 'kiosk') {
@@ -99,18 +101,20 @@ function getBootstrap(mode) {
     };
   }
 
-  const student = getStudentByEmail_(activeEmail);
-  if (!student) {
+  const students = getStudentsByEmail_(activeEmail);
+  if (students.length !== 1) {
     return {
       ok: true,
       mode: 'student',
       recognized: false,
       appTitle: settings.APP_TITLE,
       destination: settings.DESTINATION,
-      message: 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
+      message: students.length > 1
+        ? 'You are enrolled in more than one of Mr. Grant’s classes. Use the six-digit PIN for this period.'
+        : 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
     };
   }
-  return getStudentState_(student, '', 'google');
+  return getStudentState_(students[0], '', 'google');
 }
 
 function identifyWithPin(pin) {
@@ -128,7 +132,7 @@ function identifyWithPin(pin) {
   clearPinAttempts_(activeEmail);
 
   const token = Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ email: student.email }), 21600);
+  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ key: student.key }), 21600);
   return getStudentState_(student, token, 'pin');
 }
 
@@ -147,7 +151,7 @@ function identifyCheckInWithPin(pin) {
   clearPinAttempts_(activeEmail);
 
   const token = Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ email: student.email }), 21600);
+  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ key: student.key }), 21600);
   return getCheckInState_(student, token, 'pin');
 }
 
@@ -181,7 +185,7 @@ function startPass(pinToken) {
     const student = resolved.student;
     const settings = getSettings_();
     const active = getActivePasses_();
-    const existing = active.find((pass) => pass.studentEmail === student.email);
+    const existing = active.find((pass) => pass.studentKey === student.key);
     if (existing) return getStudentState_(student, pinToken || '', resolved.method);
 
     const maxActive = numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1);
@@ -213,7 +217,7 @@ function returnPass(pinToken) {
   lock.waitLock(10000);
   try {
     const resolved = resolveStudent_(pinToken);
-    closePassForStudent_(resolved.student.email, resolved.student.email, '');
+    closePassForStudent_(resolved.student.key, resolved.student.email, '');
     return getStudentState_(resolved.student, pinToken || '', resolved.method);
   } finally {
     lock.releaseLock();
@@ -226,18 +230,18 @@ function refreshTeacherState() {
   return getTeacherState_();
 }
 
-function teacherStartPass(studentEmail) {
+function teacherStartPass(studentKey) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, settings);
-  const student = getStudentByEmail_(studentEmail);
+  const student = getStudentByKey_(studentKey);
   if (!student) throw new Error('That student is not active on the roster.');
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const active = getActivePasses_();
-    if (active.some((pass) => pass.studentEmail === student.email)) return getTeacherState_();
+    if (active.some((pass) => pass.studentKey === student.key)) return getTeacherState_();
     if (active.length >= numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1)) {
       throw new Error('The pass is already in use. End the active pass before starting another.');
     }
@@ -265,11 +269,11 @@ function teacherEndPass(passId, note) {
   }
 }
 
-function teacherCheckInStudent(studentEmail) {
+function teacherCheckInStudent(studentKey) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, settings);
-  const student = getStudentByEmail_(studentEmail);
+  const student = getStudentByKey_(studentKey);
   if (!student) throw new Error('That student is not active on the roster.');
 
   const lock = LockService.getScriptLock();
@@ -285,6 +289,7 @@ function teacherCheckInStudent(studentEmail) {
 function getTeacherState_() {
   const settings = getSettings_();
   const roster = getRoster_().map((student) => ({
+    key: student.key,
     email: student.email,
     name: student.name,
     classPeriod: student.classPeriod,
@@ -294,14 +299,14 @@ function getTeacherState_() {
   const checkInsToday = readCheckIns_()
     .filter((checkIn) => checkIn.dateKey === todayKey && checkIn.status === 'CHECKED_IN')
     .sort((a, b) => a.checkInTime - b.checkInTime);
-  const checkedEmails = new Set(checkInsToday.map((checkIn) => checkIn.studentEmail));
+  const checkedKeys = new Set(checkInsToday.map((checkIn) => checkIn.studentKey));
   const classNames = [...new Set(roster.map((student) => student.classPeriod || 'class'))]
     .sort((a, b) => a.localeCompare(b));
   const checkInSummary = classNames.map((classPeriod) => {
     const classRoster = roster.filter((student) => (student.classPeriod || 'class') === classPeriod);
     return {
       classPeriod,
-      checkedIn: classRoster.filter((student) => checkedEmails.has(student.email)).length,
+      checkedIn: classRoster.filter((student) => checkedKeys.has(student.key)).length,
       roster: classRoster.length,
     };
   });
@@ -322,7 +327,7 @@ function getTeacherState_() {
     roster,
     checkInsToday: checkInsToday.map(clientCheckIn_),
     checkInSummary,
-    notCheckedIn: roster.filter((student) => !checkedEmails.has(student.email)),
+    notCheckedIn: roster.filter((student) => !checkedKeys.has(student.key)),
   };
 }
 
@@ -331,7 +336,7 @@ function getCheckInState_(student, pinToken, method) {
   const todayKey = dateKey_(new Date());
   const checkIn = readCheckIns_().find((entry) => (
     entry.dateKey === todayKey &&
-    entry.studentEmail === student.email &&
+    entry.studentKey === student.key &&
     entry.status === 'CHECKED_IN'
   ));
   return {
@@ -352,7 +357,7 @@ function getCheckInState_(student, pinToken, method) {
 function getStudentState_(student, pinToken, method) {
   const settings = getSettings_();
   const active = getActivePasses_();
-  const ownPass = active.find((pass) => pass.studentEmail === student.email);
+  const ownPass = active.find((pass) => pass.studentKey === student.key);
   return {
     ok: true,
     mode: 'student',
@@ -372,21 +377,25 @@ function resolveStudent_(pinToken) {
   if (pinToken) {
     const cached = CacheService.getScriptCache().get(`pin:${pinToken}`);
     if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
-    const student = getStudentByEmail_(JSON.parse(cached).email);
+    const student = getStudentByKey_(JSON.parse(cached).key);
     if (!student) throw new Error('That student is no longer active on the roster.');
     return { student, method: 'pin' };
   }
   const settings = getSettings_();
   const email = getActiveEmail_();
   assertSchoolAccount_(email, settings);
-  const student = getStudentByEmail_(email);
-  if (!student) throw new Error('Your school account is not on the active roster. Use your PIN or ask Mr. Grant.');
-  return { student, method: 'google' };
+  const students = getStudentsByEmail_(email);
+  if (students.length !== 1) {
+    throw new Error(students.length > 1
+      ? 'Use the six-digit PIN for this class.'
+      : 'Your school account is not on the active roster. Use your PIN or ask Mr. Grant.');
+  }
+  return { student: students[0], method: 'google' };
 }
 
-function closePassForStudent_(studentEmail, endedBy, note) {
+function closePassForStudent_(studentKey, endedBy, note) {
   const active = getActivePasses_();
-  const pass = active.find((item) => item.studentEmail === studentEmail);
+  const pass = active.find((item) => item.studentKey === studentKey);
   if (!pass) return;
   closePassRow_(pass.row, endedBy, note);
 }
@@ -426,6 +435,7 @@ function readPassLog_() {
     studentEmail: normalizeEmail_(row[1]),
     studentName: String(row[2] || ''),
     classPeriod: String(row[3] || ''),
+    studentKey: rosterKey_(row[1], row[3]),
     destination: String(row[4] || ''),
     outDate: row[5] instanceof Date ? row[5] : new Date(row[5]),
     returnDate: row[6] instanceof Date ? row[6] : (row[6] ? new Date(row[6]) : null),
@@ -443,6 +453,7 @@ function clientPass_(pass) {
     studentEmail: pass.studentEmail,
     studentName: pass.studentName,
     classPeriod: pass.classPeriod,
+    studentKey: pass.studentKey,
     destination: pass.destination,
     outTime: pass.outDate && !isNaN(pass.outDate) ? pass.outDate.toISOString() : '',
     returnTime: pass.returnDate && !isNaN(pass.returnDate) ? pass.returnDate.toISOString() : '',
@@ -458,7 +469,7 @@ function recordCheckIn_(student, method, note) {
   const todayKey = dateKey_(new Date());
   const existing = readCheckIns_().find((entry) => (
     entry.dateKey === todayKey &&
-    entry.studentEmail === student.email &&
+    entry.studentKey === student.key &&
     entry.status === 'CHECKED_IN'
   ));
   if (existing) return existing;
@@ -486,6 +497,7 @@ function recordCheckIn_(student, method, note) {
     studentEmail: row[3],
     studentName: row[4],
     classPeriod: row[5],
+    studentKey: rosterKey_(row[3], row[5]),
     method: row[6],
     point: row[7],
     status: row[8],
@@ -505,6 +517,7 @@ function readCheckIns_() {
     studentEmail: normalizeEmail_(row[3]),
     studentName: String(row[4] || ''),
     classPeriod: String(row[5] || ''),
+    studentKey: rosterKey_(row[3], row[5]),
     method: String(row[6] || ''),
     point: Number(row[7] || 0),
     status: String(row[8] || ''),
@@ -520,6 +533,7 @@ function clientCheckIn_(checkIn) {
     studentEmail: checkIn.studentEmail,
     studentName: checkIn.studentName,
     classPeriod: checkIn.classPeriod,
+    studentKey: checkIn.studentKey,
     method: checkIn.method,
     point: checkIn.point,
     status: checkIn.status,
@@ -531,20 +545,34 @@ function getRoster_() {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
   return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.ROSTER.length).getValues()
-    .map((row, index) => ({
-      row: index + 2,
-      email: normalizeEmail_(row[0]),
-      name: String(row[1] || '').trim(),
-      classPeriod: String(row[2] || '').trim(),
-      pinHash: String(row[3] || '').trim(),
-      active: row[4] === true || !['false', 'no', 'inactive', '0'].includes(String(row[4] || '').toLowerCase()),
-    }))
+    .map((row, index) => {
+      const email = normalizeEmail_(row[0]);
+      const classPeriod = String(row[2] || '').trim();
+      return {
+        row: index + 2,
+        key: rosterKey_(email, classPeriod),
+        email,
+        name: String(row[1] || '').trim(),
+        classPeriod,
+        pinHash: String(row[3] || '').trim(),
+        active: row[4] === true || !['false', 'no', 'inactive', '0'].includes(String(row[4] || '').toLowerCase()),
+      };
+    })
     .filter((student) => student.email && student.name && student.active);
 }
 
 function getStudentByEmail_(email) {
+  const matches = getStudentsByEmail_(email);
+  return matches.length === 1 ? matches[0] : null;
+}
+
+function getStudentsByEmail_(email) {
   const normalized = normalizeEmail_(email);
-  return getRoster_().find((student) => student.email === normalized) || null;
+  return getRoster_().filter((student) => student.email === normalized);
+}
+
+function getStudentByKey_(key) {
+  return getRoster_().find((student) => student.key === String(key || '')) || null;
 }
 
 function getStudentByPinHash_(pinHash) {
@@ -664,13 +692,19 @@ function getActiveEmail_() {
   return normalizeEmail_(Session.getActiveUser().getEmail());
 }
 
+function rosterKey_(email, classPeriod) {
+  return `${normalizeEmail_(email)}::${String(classPeriod || '').trim().toLowerCase()}`;
+}
+
 function normalizeEmail_(value) {
   return String(value || '').trim().toLowerCase();
 }
 
 function assertSchoolAccount_(email, settings) {
   const domain = String(settings.SCHOOL_DOMAIN || '').toLowerCase();
-  if (!email || !domain || !email.endsWith(`@${domain}`)) {
+  const emailDomain = normalizeEmail_(email).split('@').pop();
+  const allowed = emailDomain === domain || emailDomain.endsWith(`.${domain}`);
+  if (!email || !domain || !allowed) {
     throw new Error('Open this pass while signed into your school Google account. If that is not available, use the classroom kiosk.');
   }
 }

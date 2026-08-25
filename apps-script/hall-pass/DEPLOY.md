@@ -1,7 +1,7 @@
 # GrantDesk Classroom Log — one-time Google setup
 
 1. Open the **GrantDesk Hall Pass — Private Log** Google Sheet using `gauch@mtmorrisschools.org`.
-2. Paste the active roster into the **Roster** tab. Required columns are school email, student name, and class/period. Leave PIN Hash blank; Active may be blank or TRUE.
+2. Paste the active roster into the **Roster** tab. Required columns are school email, student name, and class/period. A student may appear once per enrolled class; repeated email addresses are class-specific memberships and receive separate PINs. Leave PIN Hash blank; Active may be blank or TRUE.
 3. Open **Extensions → Apps Script**.
 4. Replace `Code.gs` with the local `Code.gs` file, add an HTML file named `Index`, paste `Index.html`, and replace the manifest with `appsscript.json`.
 5. Run `setupProject` once and approve the requested school-Google permissions.

@@ -361,7 +361,7 @@
         const rosterOptions = state.roster
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
-          .map((student) => `<option value="${escapeHtml(student.email)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
+          .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
         const logRows = state.today.length ? state.today.map((pass) => `
           <tr>
             <td>${escapeHtml(pass.studentName)}</td>
@@ -387,7 +387,7 @@
         const notCheckedOptions = state.notCheckedIn
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
-          .map((student) => `<option value="${escapeHtml(student.email)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
+          .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
 
         content.innerHTML = `
           <div class="student-head">
@@ -417,17 +417,17 @@
         timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => { node.textContent = elapsed(node.dataset.liveTime); }), 1000);
         document.querySelector('#refresh-teacher').addEventListener('click', refreshTeacher);
         document.querySelector('#teacher-checkin').addEventListener('click', async (event) => {
-          const email = document.querySelector('#teacher-checkin-student').value;
-          if (!email) { showError('Choose a student first.'); return; }
+          const studentKey = document.querySelector('#teacher-checkin-student').value;
+          if (!studentKey) { showError('Choose a student first.'); return; }
           event.currentTarget.disabled = true;
-          try { state = await call('teacherCheckInStudent', email); renderTeacher(); }
+          try { state = await call('teacherCheckInStudent', studentKey); renderTeacher(); }
           catch (error) { showError(error.message); event.currentTarget.disabled = false; }
         });
         document.querySelector('#teacher-start').addEventListener('click', async (event) => {
-          const email = document.querySelector('#teacher-student').value;
-          if (!email) { showError('Choose a student first.'); return; }
+          const studentKey = document.querySelector('#teacher-student').value;
+          if (!studentKey) { showError('Choose a student first.'); return; }
           event.currentTarget.disabled = true;
-          try { state = await call('teacherStartPass', email); renderTeacher(); }
+          try { state = await call('teacherStartPass', studentKey); renderTeacher(); }
           catch (error) { showError(error.message); event.currentTarget.disabled = false; }
         });
         document.querySelectorAll('[data-end-pass]').forEach((button) => button.addEventListener('click', async () => {
