@@ -47,6 +47,13 @@
       .status-dot.busy { background: var(--accent-soft); color: var(--accent-dark); }
       .status-dot.busy::before { background: var(--accent); }
 
+      .checkin-card { display: grid; gap: 22px; }
+      .checkin-copy { max-width: 610px; }
+      .checkin-confirm { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 20px; border: 1px solid #b9dfd2; border-radius: 15px; background: var(--green-soft); }
+      .checkin-point { display: grid; width: 78px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--green); color: white; font: 900 28px/1 Georgia, serif; }
+      .checkin-confirm h3 { margin: 0; color: #04503d; font: 800 clamp(24px, 5vw, 34px)/1 Georgia, serif; letter-spacing: -.035em; }
+      .checkin-confirm p { margin: 7px 0 0; color: #046049; font-size: 14px; line-height: 1.5; }
+
       .pass-action { display: grid; gap: 14px; margin-top: 28px; }
       .primary { min-height: 70px; padding: 0 24px; border: 1px solid var(--ink); border-radius: 15px; background: var(--ink); color: white; font-size: 19px; font-weight: 900; transition: 140ms ease; }
       .primary:hover { border-color: var(--accent-dark); background: var(--accent-dark); transform: translateY(-1px); }
@@ -67,6 +74,14 @@
       .pin-box .primary { width: min(100%, 290px); min-height: 54px; margin-top: 10px; font-size: 16px; }
 
       .teacher-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; margin-top: 22px; }
+      .checkin-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 18px; }
+      .summary-tile { padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: white; }
+      .summary-tile strong { display: block; font: 800 28px/1 Georgia, serif; letter-spacing: -.04em; }
+      .summary-tile span { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
+      .teacher-section { margin-top: 28px; padding-top: 24px; border-top: 2px solid var(--line); }
+      .teacher-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+      .teacher-section-head h3 { margin: 0; font: 800 clamp(25px, 5vw, 36px)/1 Georgia, serif; letter-spacing: -.04em; }
+      .teacher-section-head p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
       .subcard { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: white; }
       .subcard h3 { margin: 0 0 12px; font: 800 11px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
       .active-pass { padding: 15px; border: 1px solid #e2aaa5; border-radius: 12px; background: var(--accent-soft); }
@@ -90,6 +105,8 @@
         .shell { width: min(100% - 18px, 940px); padding-top: 18px; }
         .top, .student-head { align-items: flex-start; flex-direction: column; }
         .teacher-grid { grid-template-columns: 1fr; }
+        .checkin-confirm { grid-template-columns: 1fr; }
+        .teacher-section-head { align-items: flex-start; flex-direction: column; }
         .card { border-radius: 16px; }
       }
     </style>
@@ -98,7 +115,7 @@
     <main class="shell">
       <header class="top">
         <div>
-          <p class="eyebrow">grantdesk // out-of-room pass</p>
+          <p class="eyebrow" id="app-eyebrow">grantdesk // out-of-room pass</p>
           <h1 id="app-title">hall pass<span>.</span></h1>
           <p class="school">Mt. Morris Consolidated Schools</p>
         </div>
@@ -109,7 +126,7 @@
         <div id="error" class="error" hidden></div>
         <div id="content" class="loading">checking the pass…</div>
       </section>
-      <p class="privacy">Pass history is visible only to the teacher account. Student screens never show another student’s name or previous trips.</p>
+      <p class="privacy" id="privacy-note">Pass history is visible only to the teacher account. Student screens never show another student’s name or previous trips.</p>
     </main>
 
     <script>
@@ -117,17 +134,27 @@
       const content = document.querySelector('#content');
       const errorBox = document.querySelector('#error');
       const modeLabel = document.querySelector('#mode-label');
+      const appEyebrow = document.querySelector('#app-eyebrow');
+      const privacyNote = document.querySelector('#privacy-note');
       let state = null;
       let pinToken = '';
+      let pinPurpose = APP_MODE === 'checkin' ? 'checkin' : 'pass';
       let timerHandle = null;
       let refreshHandle = null;
 
-      modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : 'student pass';
+      modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : APP_MODE === 'checkin' ? 'daily check-in' : 'student pass';
+      if (APP_MODE === 'checkin') {
+        appEyebrow.textContent = 'grantdesk // daily attendance + point';
+        privacyNote.textContent = 'Your check-in is private. Student screens show only your own confirmation; the full daily log is limited to Mr. Grant.';
+      } else if (APP_MODE === 'teacher') {
+        appEyebrow.textContent = 'grantdesk // private classroom controls';
+        privacyNote.textContent = 'Passes and daily check-ins are visible only in this teacher view and the private teacher-owned workbook.';
+      }
 
       const call = (name, ...args) => new Promise((resolve, reject) => {
         google.script.run
           .withSuccessHandler(resolve)
-          .withFailureHandler((failure) => reject(new Error(failure && failure.message ? failure.message : 'The pass could not update.')))[name](...args);
+          .withFailureHandler((failure) => reject(new Error(failure && failure.message ? failure.message : 'The classroom app could not update.')))[name](...args);
       });
 
       const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
@@ -166,7 +193,8 @@
         timerHandle = setInterval(tick, 1000);
       };
 
-      const renderPin = (message) => {
+      const renderPin = (message, purpose = APP_MODE === 'checkin' ? 'checkin' : 'pass') => {
+        pinPurpose = purpose;
         clearInterval(timerHandle);
         content.className = '';
         content.innerHTML = `
@@ -174,7 +202,7 @@
             <h2>enter your PIN.</h2>
             <p class="message">${escapeHtml(message || 'Use the six-digit PIN Mr. Grant gave you.')}</p>
             <input class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN">
-            <button class="primary" type="submit">continue</button>
+            <button class="primary" type="submit">${purpose === 'checkin' ? 'open my check-in' : 'continue'}</button>
           </form>`;
         const input = document.querySelector('#pin');
         input.focus();
@@ -184,9 +212,10 @@
           const button = event.currentTarget.querySelector('button');
           button.disabled = true;
           try {
-            state = await call('identifyWithPin', input.value);
+            state = await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value);
             pinToken = state.pinToken;
-            renderStudent();
+            if (purpose === 'checkin') renderCheckIn();
+            else renderStudent();
           } catch (error) {
             showError(error.message);
             input.select();
@@ -245,6 +274,73 @@
         if (pinButton) pinButton.addEventListener('click', () => renderPin('Use your PIN if this Chromebook is not signed into your own account.'));
       };
 
+      const renderCheckIn = () => {
+        clearError();
+        clearInterval(timerHandle);
+        setTitle('Daily Check-in');
+        const firstName = String(state.student.name || '').split(/\s+/)[0] || state.student.name;
+        const pointLabel = `+${escapeHtml(state.pointValue)}`;
+        content.className = '';
+        content.innerHTML = `
+          <div class="checkin-card">
+            <div class="student-head">
+              <div>
+                <p class="eyebrow">${state.checkedIn ? 'recorded for today' : 'first five minutes'}</p>
+                <h2>${escapeHtml(firstName)}.</h2>
+                <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'student PIN' : 'school Google account')}</p>
+              </div>
+              <span class="status-dot ${state.checkedIn ? '' : 'busy'}">${state.checkedIn ? 'checked in' : 'not checked in yet'}</span>
+            </div>
+            ${state.checkedIn ? `
+              <div class="checkin-confirm" role="status">
+                <span class="checkin-point">${pointLabel}</span>
+                <div>
+                  <h3>you’re in.</h3>
+                  <p>Your attendance check-in was recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Opening this page again today will show this same confirmation—not another point.</p>
+                </div>
+              </div>
+              <div class="pass-action">
+                <button class="secondary" id="checkin-refresh">refresh confirmation</button>
+                ${state.method === 'google' ? '<button class="secondary" id="checkin-pin">use a PIN instead</button>' : ''}
+              </div>` : `
+              <div class="checkin-copy">
+                <p class="message">Press once to record today’s attendance check-in and your daily extra-credit point. The date and time come from the classroom system.</p>
+              </div>
+              <div class="pass-action">
+                <button class="primary" id="checkin-action">check in for today</button>
+                ${state.method === 'google' ? '<button class="secondary" id="checkin-pin">use a PIN instead</button>' : ''}
+              </div>`}
+          </div>`;
+
+        const actionButton = document.querySelector('#checkin-action');
+        if (actionButton) actionButton.addEventListener('click', async () => {
+          actionButton.disabled = true;
+          clearError();
+          try {
+            state = await call('submitDailyCheckIn', pinToken);
+            renderCheckIn();
+          } catch (error) {
+            showError(error.message);
+            actionButton.disabled = false;
+          }
+        });
+
+        const refreshButton = document.querySelector('#checkin-refresh');
+        if (refreshButton) refreshButton.addEventListener('click', async () => {
+          refreshButton.disabled = true;
+          try {
+            state = await call('refreshCheckInState', pinToken);
+            renderCheckIn();
+          } catch (error) {
+            showError(error.message);
+            refreshButton.disabled = false;
+          }
+        });
+
+        const pinButton = document.querySelector('#checkin-pin');
+        if (pinButton) pinButton.addEventListener('click', () => renderPin('Use your six-digit class PIN to record your own check-in.', 'checkin'));
+      };
+
       const resetKiosk = () => {
         pinToken = '';
         state = null;
@@ -275,21 +371,58 @@
             <td>${pass.minutesOut == null ? '—' : `${escapeHtml(pass.minutesOut)} min`}</td>
             <td class="method">${escapeHtml(pass.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No passes logged today.</td></tr>';
+        const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
+          <div class="summary-tile">
+            <strong>${escapeHtml(summary.checkedIn)} / ${escapeHtml(summary.roster)}</strong>
+            <span>${escapeHtml(summary.classPeriod)}</span>
+          </div>`).join('') : '<p class="all-clear">Add students to the roster to begin daily check-ins.</p>';
+        const checkInRows = state.checkInsToday.length ? state.checkInsToday.map((checkIn) => `
+          <tr>
+            <td>${escapeHtml(checkIn.studentName)}</td>
+            <td>${escapeHtml(checkIn.classPeriod)}</td>
+            <td>${formatClock(checkIn.checkInTime)}</td>
+            <td>${escapeHtml(checkIn.point)}</td>
+            <td class="method">${escapeHtml(checkIn.method)}</td>
+          </tr>`).join('') : '<tr><td colspan="5">No students have checked in today.</td></tr>';
+        const notCheckedOptions = state.notCheckedIn
+          .slice()
+          .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
+          .map((student) => `<option value="${escapeHtml(student.email)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
 
         content.innerHTML = `
           <div class="student-head">
-            <div><p class="eyebrow">private teacher controls</p><h2>today’s passes.</h2><p class="student-meta">${state.retentionDays}-day private history · maximum ${state.maxActivePasses} active</p></div>
+            <div><p class="eyebrow">private teacher controls</p><h2>today’s classroom.</h2><p class="student-meta">daily check-ins + hall-pass records · visible only to the teacher account</p></div>
             <button class="secondary" id="refresh-teacher">refresh</button>
           </div>
-          <div class="teacher-grid">
-            <section class="subcard"><h3>out right now</h3>${activeHtml}</section>
-            <section class="subcard"><h3>teacher backup</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
-          </div>
-          <section class="subcard log"><h3>today’s private log</h3><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th></tr></thead><tbody>${logRows}</tbody></table></section>`;
+          <section class="teacher-section">
+            <div class="teacher-section-head">
+              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded today · one point maximum per student per day</p></div>
+            </div>
+            <div class="checkin-summary">${summaryHtml}</div>
+            <div class="teacher-grid">
+              <section class="subcard log"><h3>today’s private check-in log</h3><table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table></section>
+              <section class="subcard"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
+            </div>
+          </section>
+          <section class="teacher-section">
+            <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day private history · maximum ${state.maxActivePasses} active</p></div></div>
+            <div class="teacher-grid">
+              <section class="subcard"><h3>out right now</h3>${activeHtml}</section>
+              <section class="subcard"><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
+            </div>
+            <section class="subcard log"><h3>today’s private pass log</h3><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th></tr></thead><tbody>${logRows}</tbody></table></section>
+          </section>`;
 
         clearInterval(timerHandle);
         timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => { node.textContent = elapsed(node.dataset.liveTime); }), 1000);
         document.querySelector('#refresh-teacher').addEventListener('click', refreshTeacher);
+        document.querySelector('#teacher-checkin').addEventListener('click', async (event) => {
+          const email = document.querySelector('#teacher-checkin-student').value;
+          if (!email) { showError('Choose a student first.'); return; }
+          event.currentTarget.disabled = true;
+          try { state = await call('teacherCheckInStudent', email); renderTeacher(); }
+          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
+        });
         document.querySelector('#teacher-start').addEventListener('click', async (event) => {
           const email = document.querySelector('#teacher-student').value;
           if (!email) { showError('Choose a student first.'); return; }
@@ -321,13 +454,17 @@
           setTitle(state.appTitle);
           if (APP_MODE === 'teacher') renderTeacher();
           else if (APP_MODE === 'kiosk') resetKiosk();
-          else if (!state.recognized) renderPin(state.message);
+          else if (APP_MODE === 'checkin' && !state.recognized) renderPin(state.message, 'checkin');
+          else if (APP_MODE === 'checkin') renderCheckIn();
+          else if (!state.recognized) renderPin(state.message, 'pass');
           else renderStudent();
-          refreshHandle = setInterval(APP_MODE === 'teacher' ? refreshTeacher : refreshStudent, APP_MODE === 'teacher' ? 15000 : 10000);
+          if (APP_MODE !== 'checkin') {
+            refreshHandle = setInterval(APP_MODE === 'teacher' ? refreshTeacher : refreshStudent, APP_MODE === 'teacher' ? 15000 : 10000);
+          }
         } catch (error) {
           content.className = '';
           content.innerHTML = `<p class="message">${escapeHtml(error.message)}</p>`;
-          showError('The hall pass could not verify this account.');
+          showError('The classroom app could not verify this account.');
         }
       })();
     </script>

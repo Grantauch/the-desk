@@ -166,6 +166,10 @@ h2{font-family:var(--f-display); font-weight:700; font-size:clamp(28px,4.6vw,42p
 .perk div{display:flex; flex-direction:column; gap:7px;}
 .perk b{font-family:var(--f-display); font-weight:700; font-size:22px; letter-spacing:-.014em;}
 .perk p{font-size:16.5px; max-width:58ch;}
+.perk-link{display:inline-flex; align-items:center; align-self:flex-start; margin-top:7px; padding:9px 14px;
+  border:1px solid var(--pop); border-radius:7px; background:var(--pop); color:#fff;
+  font-family:var(--f-mono); font-size:12px; font-weight:700; text-decoration:none;}
+.perk-link:hover,.perk-link:focus-visible{background:var(--ink); border-color:var(--ink);}
 
 /* the rule */
 .rule-card{background:var(--ink); color:var(--paper); border-radius:10px;
@@ -383,7 +387,7 @@ footer a{color:var(--pop); font-weight:500;}
     <div class="steps">
       <div class="step"><span class="k">1</span><span class="v"><b>Come in and sit down</b><span>Wherever, unless I've told you different.</span></span></div>
       <div class="step"><span class="k">2</span><span class="v"><b>Grab a Chromebook off the cart</b><span>Go to <a href="https://www.grant-desk.com">grant-desk.com</a>.</span></span></div>
-      <div class="step"><span class="k">3</span><span class="v"><b>Check in</b><span>That's your attendance. It's also worth a point — see below.</span></span></div>
+      <div class="step"><span class="k">3</span><span class="v"><b><a href="/check-in/">Check in</a></b><span>That's your attendance. It's also worth a point — see below.</span></span></div>
       <div class="step"><span class="k">4</span><span class="v"><b>Open today's lesson hub</b><span>Right there on the site. That's what we're doing today. Look at it.</span></span></div>
     </div>
 
@@ -392,6 +396,7 @@ footer a{color:var(--pop); font-weight:500;}
       <div>
         <b>Check in, get a point. Every day.</b>
         <p>Extra credit, free, for about eleven seconds of work. No catch, no limit — log in, check in, that's a point. It adds up to something real by the end of the semester. People who skip it are leaving points on the floor and then asking me about their grade in December. Don't be that guy.</p>
+        <a class="perk-link" href="/check-in/">open daily check-in →</a>
       </div>
     </div>
   </section>

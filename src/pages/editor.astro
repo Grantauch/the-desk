@@ -1,5 +1,9 @@
 ---
 // Private, no-code publishing surface. Authentication and writes are handled by Netlify Identity + editor-api.
+import passConfig from '../data/pass-config.json';
+
+const passAppUrl = passConfig.studentAppUrl.trim();
+const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?') ? '&' : '?'}mode=teacher` : '';
 ---
 
 <!doctype html>
@@ -113,6 +117,7 @@
           <button class="tab" id="tab-classes" type="button" role="tab" aria-controls="panel-classes" aria-selected="false" data-tab="classes">class pages</button>
           <button class="tab" id="tab-pages" type="button" role="tab" aria-controls="panel-pages" aria-selected="false" data-tab="pages">other pages</button>
           <button class="tab tab--announcement" id="tab-announcement" type="button" role="tab" aria-controls="panel-announcement" aria-selected="false" data-tab="announcement">new announcement <span id="announcement-count"></span></button>
+          {teacherClassroomUrl && <a class="tab tab--log" href={teacherClassroomUrl} target="_blank" rel="noopener">daily check-ins ↗</a>}
         </nav>
 
         <section class="panel" id="panel-home" role="tabpanel" aria-labelledby="tab-home" data-panel="home">
@@ -962,6 +967,8 @@
   .tab:hover { border-color: var(--accent); color: var(--accent-dark); }
   .tab[aria-selected='true'] { border-color: var(--ink); background: var(--ink); color: white; }
   .tab--announcement[aria-selected='true'] { border-color: #bd3b25; background: var(--coral); color: var(--ink); }
+  .tab--log { border-color: rgb(8 118 90 / 0.35); color: var(--green); text-decoration: none; }
+  .tab--log:hover { border-color: var(--green); background: #e9f8f2; color: #075f49; }
   .tab span { margin-left: 0.25rem; opacity: 0.62; font-family: ui-monospace, monospace; font-size: 0.68rem; }
 
   .panel { padding: clamp(1.2rem, 4vw, 2rem); border: 1px solid var(--line); border-radius: 1.2rem; background: rgb(255 255 255 / 0.75); box-shadow: 0 30px 65px -58px rgb(23 23 28 / 0.9); outline: none; }

@@ -41,6 +41,7 @@ const courses = [
 ];
 
 const quickLinks = [
+  { href: '/check-in/', label: 'daily check-in', note: 'attendance + your daily point' },
   { href: '/first-day-materials/', label: 'first day materials', note: 'syllabi, routines, notes, and the first month' },
   { href: siteContent.links.googleClassroom, label: siteContent.home.classroomLabel, note: siteContent.home.classroomNote, external: true },
   { href: '/pass/', label: siteContent.home.passLabel, note: siteContent.home.passNote },
@@ -383,7 +384,7 @@ const moreLinks = [
     position: relative;
     z-index: 2;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     border-top: 1px solid rgb(255 255 255 / 0.14);
   }
 
@@ -696,7 +697,7 @@ const moreLinks = [
     .quick-dock { grid-template-columns: repeat(2, 1fr); }
     .quick-dock a:nth-child(2n) { border-right: 0; }
     .quick-dock a:not(:last-child) { border-bottom: 1px solid rgb(255 255 255 / 0.12); }
-    .quick-dock a:last-child { grid-column: 1 / -1; border-right: 0; }
+    .quick-dock a:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; }
     .course-grid { grid-template-columns: 1fr; }
     .course-card { min-height: 15rem; }
     .course-card h3 { margin-top: 2.6rem; }

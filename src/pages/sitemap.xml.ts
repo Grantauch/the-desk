@@ -7,6 +7,7 @@ import { remixPublicRoutes } from '../data/remixCatalog';
 
 const paths = [
   '/',
+  ...(passConfig.checkInEnabled ? ['/check-in/'] : []),
   '/first-day-materials/',
   '/us-history/',
   '/us-history/syllabus/',

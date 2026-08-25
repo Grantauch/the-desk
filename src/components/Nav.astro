@@ -17,6 +17,7 @@ const primaryLinks = [
 ];
 
 const exploreLinks = [
+  ...(passConfig.checkInEnabled ? [{ href: '/check-in/', label: 'daily check-in' }] : []),
   { href: '/first-day-materials/', label: 'first day materials' },
   { href: '/news/', label: 'news today + then' },
   { href: '/curiosity-desk/', label: 'curiosity desk' },

@@ -1,0 +1,169 @@
+---
+import Base from '../layouts/Base.astro';
+import passConfig from '../data/pass-config.json';
+
+const appUrl = passConfig.studentAppUrl.trim();
+const checkInUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=checkin` : '';
+---
+
+<Base title="daily check-in" description="Record today’s private class attendance check-in and daily extra-credit point.">
+  <div class="checkin-page">
+    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">grantdesk // first five minutes</p>
+    <h1 class="mt-3 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
+      daily check-in<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
+      Open the check-in with your school Google account, make sure your name and class are right, and press once. That records today’s attendance check-in and your daily extra-credit point.
+    </p>
+
+    <section class="checkin-launch mt-9" aria-labelledby="checkin-launch-title">
+      <div>
+        <p class="checkin-launch__number">+1</p>
+        <p class="checkin-launch__eyebrow">one check-in · one day · one point</p>
+        <h2 id="checkin-launch-title">eleven seconds. done.</h2>
+        <p>Already checked in today? The system will show your original confirmation instead of adding a duplicate.</p>
+      </div>
+      {passConfig.checkInEnabled && checkInUrl ? (
+        <a href={checkInUrl} target="_blank" rel="noopener" class="checkin-button">check in now <span aria-hidden="true">↗</span></a>
+      ) : (
+        <p class="checkin-offline">Ask Mr. Grant to record your check-in while the online form is unavailable.</p>
+      )}
+    </section>
+
+    <div class="mt-4 grid gap-4 sm:grid-cols-3">
+      <section class="checkin-step">
+        <p class="checkin-step__number">01</p>
+        <h2>school account.</h2>
+        <p>Use your mtmorrisschools.org Google account so the private roster can recognize you.</p>
+      </section>
+      <section class="checkin-step">
+        <p class="checkin-step__number">02</p>
+        <h2>press once.</h2>
+        <p>GrantDesk supplies the date and time. You do not type your name or choose your own class.</p>
+      </section>
+      <section class="checkin-step">
+        <p class="checkin-step__number">03</p>
+        <h2>see the proof.</h2>
+        <p>Wait for the green confirmation before opening today’s lesson hub.</p>
+      </section>
+    </div>
+
+    <aside class="privacy-note mt-6">
+      <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">private by design</h2>
+      <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+        Students see only their own confirmation. The complete daily log stays in Mr. Grant’s private teacher account and is never listed on the public website.
+      </p>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .checkin-launch {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem;
+    padding: clamp(1.4rem, 4vw, 2.2rem);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    border-radius: 1.15rem;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, #e4fff5 74%, white), white 48%),
+      white;
+    box-shadow: 0 24px 55px -46px rgb(23 23 28 / 0.7);
+  }
+
+  .checkin-launch__number,
+  .checkin-step__number {
+    color: #08765a;
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .checkin-launch__eyebrow {
+    margin-top: 0.7rem;
+    color: #075f49;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .checkin-launch h2,
+  .checkin-step h2 {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .checkin-launch p:not([class]),
+  .checkin-step p:not([class]) {
+    max-width: 38rem;
+    margin-top: 0.65rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .checkin-button {
+    display: inline-flex;
+    min-height: 3.4rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 0 1.25rem;
+    border: 1px solid #075f49;
+    border-radius: 0.8rem;
+    background: #08765a;
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    box-shadow: 0.25rem 0.25rem 0 var(--color-ink);
+    transition: transform 150ms ease, background-color 150ms ease;
+  }
+
+  .checkin-button:hover {
+    background: #075f49;
+    transform: translateY(-2px);
+  }
+
+  .checkin-offline {
+    max-width: 17rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: white;
+    color: var(--color-ink-soft);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .checkin-step,
+  .privacy-note {
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    background: white;
+    padding: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .checkin-launch {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+
+    .checkin-button,
+    .checkin-offline {
+      width: 100%;
+      max-width: none;
+    }
+  }
+</style>

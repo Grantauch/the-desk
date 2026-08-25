@@ -1,6 +1,7 @@
 const GD_SHEETS = {
   ROSTER: 'Roster',
   LOG: 'Pass Log',
+  CHECKINS: 'Daily Check-ins',
   SETTINGS: 'Settings',
   PINS: 'PIN Cards',
 };
@@ -8,6 +9,7 @@ const GD_SHEETS = {
 const GD_HEADERS = {
   ROSTER: ['Student Email', 'Student Name', 'Class / Period', 'PIN Hash', 'Active'],
   LOG: ['Pass ID', 'Student Email', 'Student Name', 'Class / Period', 'Destination', 'Out Time', 'Return Time', 'Minutes Out', 'Method', 'Status', 'Ended By', 'Note'],
+  CHECKINS: ['Check-in ID', 'Date', 'Check-in Time', 'Student Email', 'Student Name', 'Class / Period', 'Method', 'Point', 'Status', 'Note'],
   SETTINGS: ['Key', 'Value', 'What it controls'],
   PINS: ['Student Email', 'Student Name', 'Class / Period', 'PIN', 'Generated At'],
 };
@@ -20,6 +22,7 @@ const GD_DEFAULT_SETTINGS = [
   ['RETENTION_DAYS', '180', 'Returned passes older than this are removed by the daily cleanup'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
   ['APP_TITLE', 'Mr. Grant’s Hall Pass', 'Name shown at the top of the pass app'],
+  ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
 ];
 
 function onOpen() {
@@ -29,6 +32,7 @@ function onOpen() {
     .addItem('2. Generate missing student PINs', 'generateMissingPins')
     .addItem('Clear printed PIN cards', 'clearPinCards')
     .addSeparator()
+    .addItem('Open today’s check-in log', 'openTodayCheckIns')
     .addItem('Run privacy cleanup now', 'purgeOldPasses')
     .addToUi();
 }
@@ -51,11 +55,11 @@ function setupProject() {
 function doGet(e) {
   setupWorkbook_();
   const requestedMode = String((e && e.parameter && e.parameter.mode) || 'student').toLowerCase();
-  const mode = ['student', 'kiosk', 'teacher'].includes(requestedMode) ? requestedMode : 'student';
+  const mode = ['student', 'kiosk', 'teacher', 'checkin'].includes(requestedMode) ? requestedMode : 'student';
   const template = HtmlService.createTemplateFromFile('Index');
   template.appMode = mode;
   return template.evaluate()
-    .setTitle('GrantDesk Hall Pass')
+    .setTitle(mode === 'checkin' ? 'GrantDesk Daily Check-in' : 'GrantDesk Hall Pass')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -69,6 +73,20 @@ function getBootstrap(mode) {
   if (mode === 'teacher') {
     assertTeacher_(activeEmail, settings);
     return getTeacherState_();
+  }
+
+  if (mode === 'checkin') {
+    const student = getStudentByEmail_(activeEmail);
+    if (!student) {
+      return {
+        ok: true,
+        mode: 'checkin',
+        recognized: false,
+        appTitle: 'Daily Check-in',
+        message: 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
+      };
+    }
+    return getCheckInState_(student, '', 'google');
   }
 
   if (mode === 'kiosk') {
@@ -112,6 +130,42 @@ function identifyWithPin(pin) {
   const token = Utilities.getUuid().replace(/-/g, '');
   CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ email: student.email }), 21600);
   return getStudentState_(student, token, 'pin');
+}
+
+function identifyCheckInWithPin(pin) {
+  const settings = getSettings_();
+  const activeEmail = getActiveEmail_();
+  assertSchoolAccount_(activeEmail, settings);
+  assertPinAttemptAllowed_(activeEmail);
+  const cleaned = String(pin || '').replace(/\D/g, '');
+  if (!/^\d{6}$/.test(cleaned)) throw new Error('Enter your six-digit PIN.');
+  const student = getStudentByPinHash_(hashPin_(cleaned));
+  if (!student) {
+    recordFailedPinAttempt_(activeEmail);
+    throw new Error('That PIN did not match an active student. Try again or ask Mr. Grant.');
+  }
+  clearPinAttempts_(activeEmail);
+
+  const token = Utilities.getUuid().replace(/-/g, '');
+  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ email: student.email }), 21600);
+  return getCheckInState_(student, token, 'pin');
+}
+
+function refreshCheckInState(pinToken) {
+  const resolved = resolveStudent_(pinToken);
+  return getCheckInState_(resolved.student, pinToken || '', resolved.method);
+}
+
+function submitDailyCheckIn(pinToken) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const resolved = resolveStudent_(pinToken);
+    recordCheckIn_(resolved.student, resolved.method, '');
+    return getCheckInState_(resolved.student, pinToken || '', resolved.method);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function refreshStudentState(pinToken) {
@@ -211,6 +265,23 @@ function teacherEndPass(passId, note) {
   }
 }
 
+function teacherCheckInStudent(studentEmail) {
+  const settings = getSettings_();
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings);
+  const student = getStudentByEmail_(studentEmail);
+  if (!student) throw new Error('That student is not active on the roster.');
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    recordCheckIn_(student, 'teacher', `Recorded by ${teacher}`);
+    return getTeacherState_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function getTeacherState_() {
   const settings = getSettings_();
   const roster = getRoster_().map((student) => ({
@@ -220,6 +291,20 @@ function getTeacherState_() {
   }));
   const log = readPassLog_();
   const todayKey = dateKey_(new Date());
+  const checkInsToday = readCheckIns_()
+    .filter((checkIn) => checkIn.dateKey === todayKey && checkIn.status === 'CHECKED_IN')
+    .sort((a, b) => a.checkInTime - b.checkInTime);
+  const checkedEmails = new Set(checkInsToday.map((checkIn) => checkIn.studentEmail));
+  const classNames = [...new Set(roster.map((student) => student.classPeriod || 'class'))]
+    .sort((a, b) => a.localeCompare(b));
+  const checkInSummary = classNames.map((classPeriod) => {
+    const classRoster = roster.filter((student) => (student.classPeriod || 'class') === classPeriod);
+    return {
+      classPeriod,
+      checkedIn: classRoster.filter((student) => checkedEmails.has(student.email)).length,
+      roster: classRoster.length,
+    };
+  });
   const today = log
     .filter((pass) => dateKey_(pass.outDate) === todayKey)
     .slice(-100)
@@ -235,6 +320,32 @@ function getTeacherState_() {
     active: log.filter((pass) => pass.status === 'OUT').map(clientPass_),
     today,
     roster,
+    checkInsToday: checkInsToday.map(clientCheckIn_),
+    checkInSummary,
+    notCheckedIn: roster.filter((student) => !checkedEmails.has(student.email)),
+  };
+}
+
+function getCheckInState_(student, pinToken, method) {
+  const settings = getSettings_();
+  const todayKey = dateKey_(new Date());
+  const checkIn = readCheckIns_().find((entry) => (
+    entry.dateKey === todayKey &&
+    entry.studentEmail === student.email &&
+    entry.status === 'CHECKED_IN'
+  ));
+  return {
+    ok: true,
+    mode: 'checkin',
+    recognized: true,
+    appTitle: 'Daily Check-in',
+    student: { name: student.name, classPeriod: student.classPeriod },
+    pinToken: pinToken || '',
+    method,
+    dateKey: todayKey,
+    pointValue: numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1),
+    checkedIn: Boolean(checkIn),
+    checkIn: checkIn ? clientCheckIn_(checkIn) : null,
   };
 }
 
@@ -343,6 +454,78 @@ function clientPass_(pass) {
   };
 }
 
+function recordCheckIn_(student, method, note) {
+  const todayKey = dateKey_(new Date());
+  const existing = readCheckIns_().find((entry) => (
+    entry.dateKey === todayKey &&
+    entry.studentEmail === student.email &&
+    entry.status === 'CHECKED_IN'
+  ));
+  if (existing) return existing;
+
+  const now = new Date();
+  const settings = getSettings_();
+  const row = [
+    Utilities.getUuid(),
+    todayKey,
+    now,
+    student.email,
+    student.name,
+    student.classPeriod,
+    method,
+    numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1),
+    'CHECKED_IN',
+    String(note || '').slice(0, 300),
+  ];
+  getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS).appendRow(row);
+  return {
+    row: getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS).getLastRow(),
+    checkInId: row[0],
+    dateKey: row[1],
+    checkInTime: row[2],
+    studentEmail: row[3],
+    studentName: row[4],
+    classPeriod: row[5],
+    method: row[6],
+    point: row[7],
+    status: row[8],
+    note: row[9],
+  };
+}
+
+function readCheckIns_() {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.CHECKINS.length).getValues().map((row, index) => ({
+    row: index + 2,
+    checkInId: String(row[0] || ''),
+    dateKey: String(row[1] || ''),
+    checkInTime: row[2] instanceof Date ? row[2] : new Date(row[2]),
+    studentEmail: normalizeEmail_(row[3]),
+    studentName: String(row[4] || ''),
+    classPeriod: String(row[5] || ''),
+    method: String(row[6] || ''),
+    point: Number(row[7] || 0),
+    status: String(row[8] || ''),
+    note: String(row[9] || ''),
+  })).filter((checkIn) => checkIn.checkInId);
+}
+
+function clientCheckIn_(checkIn) {
+  return {
+    checkInId: checkIn.checkInId,
+    dateKey: checkIn.dateKey,
+    checkInTime: checkIn.checkInTime && !isNaN(checkIn.checkInTime) ? checkIn.checkInTime.toISOString() : '',
+    studentEmail: checkIn.studentEmail,
+    studentName: checkIn.studentName,
+    classPeriod: checkIn.classPeriod,
+    method: checkIn.method,
+    point: checkIn.point,
+    status: checkIn.status,
+  };
+}
+
 function getRoster_() {
   const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
   const lastRow = sheet.getLastRow();
@@ -405,6 +588,15 @@ function clearPinCards() {
   const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
   if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.PINS.length).clearContent();
   sheet.hideSheet();
+}
+
+function openTodayCheckIns() {
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  const spreadsheet = getSpreadsheet_();
+  const sheet = spreadsheet.getSheetByName(GD_SHEETS.CHECKINS);
+  spreadsheet.setActiveSheet(sheet);
+  sheet.getRange(Math.max(2, sheet.getLastRow()), 1).activate();
 }
 
 function hashPin_(pin) {
@@ -540,6 +732,7 @@ function setupWorkbook_() {
   const spreadsheet = getSpreadsheet_();
   ensureSheet_(spreadsheet, GD_SHEETS.ROSTER, GD_HEADERS.ROSTER);
   ensureSheet_(spreadsheet, GD_SHEETS.LOG, GD_HEADERS.LOG);
+  ensureSheet_(spreadsheet, GD_SHEETS.CHECKINS, GD_HEADERS.CHECKINS);
   ensureSheet_(spreadsheet, GD_SHEETS.SETTINGS, GD_HEADERS.SETTINGS);
   ensureSheet_(spreadsheet, GD_SHEETS.PINS, GD_HEADERS.PINS);
 
@@ -552,6 +745,9 @@ function setupWorkbook_() {
 
   spreadsheet.getSheetByName(GD_SHEETS.LOG).getRange('F:G').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.LOG).getRange('H:H').setNumberFormat('0.0');
+  spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange('B:B').setNumberFormat('@');
+  spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange('C:C').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
+  spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange('H:H').setNumberFormat('0');
   spreadsheet.getSheetByName(GD_SHEETS.PINS).getRange('E:E').setNumberFormat('m/d/yyyy h:mm am/pm');
 }
 
