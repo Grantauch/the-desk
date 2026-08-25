@@ -1,0 +1,299 @@
+---
+// us-history/syllabus.astro — student-and-family syllabus for 2026-27.
+// Content follows the official course-release syllabus; the public teacher name is aligned to the rest of GrantDesk.
+import Base from '../../layouts/Base.astro';
+
+const units = [
+  { name: 'Reconstruction', years: '1865–1877', question: 'What did freedom require—and why did the federal commitment to protect it retreat?' },
+  { name: 'The Gilded Age', years: '1870–1900', question: 'Who paid the price for industrial growth—and who gained the power to set the terms?' },
+  { name: 'The Progressive Era & Empire', years: '1890–1920', question: 'How could a nation expand democracy at home while denying self-government abroad?' },
+  { name: 'World War I & the Twenties', years: '1914–1929', question: 'Did war and mass culture make the United States more democratic—or more controlled?' },
+  { name: 'Depression & the New Deal', years: '1929–1941', question: 'What does government owe people when the economy fails?' },
+  { name: 'World War II', years: '1933–1945', question: 'How did a war for freedom expose the limits of freedom at home?' },
+  { name: 'Cold War America', years: '1945–1964', question: 'Can a nation defend freedom abroad while fear narrows freedom at home?' },
+  { name: 'Civil Rights & the Soundtrack of a Movement', years: '1941–1975', question: 'How did ordinary people turn constitutional promises into enforceable power—and who controlled the soundtrack?' },
+  { name: 'Vietnam to Watergate', years: '1964–1977', question: 'What happens when official claims and visible evidence stop matching?' },
+  { name: 'Reagan to Right Now', years: '1980–present', question: 'How should the United States use power in an interconnected and polarized world?' },
+];
+
+const assessment = [
+  { part: 'Investigations and source analysis', pct: '40%' },
+  { part: 'Evidence-based writing, debate, and projects', pct: '30%' },
+  { part: 'Unit assessments and cumulative checks', pct: '20%' },
+  { part: 'Preparation, reflection, and revision', pct: '10%' },
+];
+---
+
+<Base title="us history 9 — syllabus" description="U.S. History 9 student-and-family course syllabus for 2026-27.">
+  <header class="syllabus-hero dot-grid">
+    <p class="font-mono text-xs lowercase text-ink-soft">full-year course · mr. auch · mt. morris schools · 2026-27</p>
+    <h1 class="mt-2 font-display text-4xl font-bold lowercase tracking-tight sm:text-5xl">
+      us history 9<span class="text-accent">.</span> <span class="text-ink-soft">the syllabus</span>
+    </h1>
+    <p class="mt-3 max-w-2xl text-sm text-ink-soft">Michigan-aligned modern U.S. history · Reconstruction to the present</p>
+  </header>
+
+  <div class="syllabus-copy mt-8 max-w-2xl space-y-5 leading-relaxed">
+    <aside class="big-question">
+      <span>big question</span>
+      <strong>Who has been allowed to claim the American promise—and what changed when people challenged the answer?</strong>
+    </aside>
+
+    <h2 class="font-display text-2xl font-bold lowercase">what this class is</h2>
+    <p>
+      U.S. History 9 studies the United States from Reconstruction to the present, with brief foundations review when
+      students need it. We will investigate how law, power, economic systems, social movements, media, culture, and
+      ordinary people shaped the country—and how people argued over who counted in “We the People.”
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">what students will do</h2>
+    <ul class="content-list space-y-2">
+      <li>Ask historical questions and build claims instead of memorizing isolated facts.</li>
+      <li>Analyze laws, speeches, images, maps, music, statistics, oral histories, and other primary and secondary sources.</li>
+      <li>Explain causation, continuity and change, turning points, and competing interpretations.</li>
+      <li>Debate, simulate decisions, collaborate, and revise ideas when evidence requires it.</li>
+      <li>Connect national history to Michigan and to a current public-policy question.</li>
+    </ul>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">the course map</h2>
+    <ol class="course-map space-y-2">
+      {units.map((unit) => (
+        <li>
+          <span class="unit-number" aria-hidden="true"></span>
+          <div>
+            <strong>{unit.name} <span>({unit.years})</span></strong>
+            <p>{unit.question}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">assessment</h2>
+    <ul class="weights space-y-1">
+      {assessment.map((item) => (
+        <li>
+          <span>{item.part}</span>
+          <strong>{item.pct}</strong>
+        </li>
+      ))}
+    </ul>
+    <p class="text-sm text-ink-soft">
+      Reassessment focuses on new evidence of learning. Students complete feedback and revision work before retrying a
+      major target.
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">classroom commitments</h2>
+    <ul class="content-list space-y-2">
+      <li><strong>Evidence before certainty.</strong> We can hold strong views and still test them.</li>
+      <li>Critique ideas and systems; do not attack people in the room.</li>
+      <li>Name uncertainty and missing voices. One source never tells the whole story.</li>
+      <li>Use school technology for the current task. Cite borrowed words, images, and ideas.</li>
+      <li>Ask for help early. Reading, writing, speaking, and planning supports are available.</li>
+    </ul>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">materials and communication</h2>
+    <p>
+      Bring a charged device, writing tool, and course organizer. Current materials and links are posted through the
+      U.S. History lesson hub. Families should contact the teacher through the school’s normal communication channel.
+      Specific due dates and school policies will be posted in the class platform.
+    </p>
+
+    <h2 class="font-display text-2xl font-bold lowercase pt-4">acknowledgment</h2>
+    <div class="acknowledgment">
+      <p><span>Student name</span><i></i><span>Signature</span><i></i></p>
+      <p><span>Family/guardian name</span><i></i><span>Signature</span><i></i></p>
+      <p class="question"><span>Question or information that will help the teacher support this student</span><i></i></p>
+    </div>
+
+    <p class="pt-4 print:hidden">
+      <a href="/us-history/" class="text-accent underline underline-offset-4 hover:text-accent-dark">← back to us history</a>
+    </p>
+  </div>
+
+  <style>
+    .syllabus-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 1.3rem 1.35rem 1.5rem;
+      border: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+      border-radius: 1rem;
+      background: linear-gradient(140deg, color-mix(in srgb, var(--color-accent-soft) 60%, white), white 62%);
+      box-shadow: var(--shadow-card);
+    }
+
+    .syllabus-hero h1 {
+      overflow-wrap: anywhere;
+      line-height: 1;
+    }
+
+    .syllabus-copy h2 {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--color-line);
+      letter-spacing: -0.025em;
+    }
+
+    .syllabus-copy h2:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .syllabus-copy h2::after {
+      color: var(--color-accent);
+      content: '.';
+    }
+
+    .big-question {
+      display: grid;
+      gap: 0.35rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid color-mix(in srgb, var(--color-accent) 32%, var(--color-line));
+      border-left: 0.32rem solid var(--color-accent);
+      border-radius: 0.85rem;
+      background: color-mix(in srgb, var(--color-accent-soft) 62%, white);
+    }
+
+    .big-question span {
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .big-question strong {
+      font-family: var(--font-display);
+      font-size: 1.18rem;
+      line-height: 1.35;
+    }
+
+    .content-list,
+    .weights,
+    .course-map {
+      overflow: hidden;
+      border: 1px solid var(--color-line);
+      border-radius: 0.85rem;
+      background: rgb(255 255 255 / 0.82);
+      padding: 0.9rem 1rem;
+    }
+
+    .content-list {
+      padding-left: 2rem;
+      list-style: disc;
+    }
+
+    .course-map {
+      counter-reset: unit;
+      list-style: none;
+    }
+
+    .course-map li {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 0.75rem;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--color-line);
+      counter-increment: unit;
+    }
+
+    .course-map li:last-child {
+      border-bottom: 0;
+    }
+
+    .unit-number::before {
+      display: grid;
+      width: 1.7rem;
+      height: 1.7rem;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--color-accent-soft);
+      color: var(--color-accent);
+      content: counter(unit, decimal-leading-zero);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+    }
+
+    .course-map strong {
+      display: block;
+      line-height: 1.3;
+    }
+
+    .course-map strong span,
+    .course-map p {
+      color: var(--color-ink-soft);
+    }
+
+    .course-map p {
+      margin-top: 0.15rem;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .weights {
+      list-style: none;
+    }
+
+    .weights li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--color-line);
+      font-size: 0.92rem;
+    }
+
+    .weights li:last-child {
+      border-bottom: 0;
+    }
+
+    .weights strong {
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .acknowledgment {
+      display: grid;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid var(--color-line);
+      border-radius: 0.85rem;
+      background: rgb(255 255 255 / 0.82);
+    }
+
+    .acknowledgment p {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+      gap: 0.55rem;
+      align-items: end;
+      font-size: 0.78rem;
+    }
+
+    .acknowledgment i {
+      min-height: 1.2rem;
+      border-bottom: 1px solid var(--color-ink);
+    }
+
+    .acknowledgment .question {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+
+    @media (max-width: 540px) {
+      .acknowledgment p {
+        grid-template-columns: auto 1fr;
+      }
+    }
+  </style>
+
+  <style is:global>
+    @media print {
+      .site-header, .site-footer { display: none !important; }
+      main { padding: 0 !important; }
+      .syllabus-copy { max-width: none !important; }
+    }
+  </style>
+</Base>

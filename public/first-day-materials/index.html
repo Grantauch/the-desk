@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How This Class Works — Mr. Auch</title>
+<meta name="description" content="Welcome to Mr. Auch's class, 2026-27. U.S. History 9, Hidden History, and Beyond the Scoreboard: syllabi, class routines, note-taking, the first-month schedule, and the archives it all comes from.">
+<meta name="color-scheme" content="light dark">
+<link rel="canonical" href="https://www.grant-desk.com/first-day-materials/">
+<meta property="og:title" content="First Day Materials — Mr. Auch">
+<meta property="og:description" content="Start here for course syllabi, class routines, note-taking, first-month dates, materials, and lesson-hub directions.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.grant-desk.com/first-day-materials/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+
+<style>
+:root{
+  --paper:#FCFBF8; --surface:#FFFFFF; --surface-2:#F3F1EB; --surface-3:#EAE7DE;
+  --ink:#191B2E; --muted:#5C6076; --rule:#E4E1D8; --rule-strong:#CBC7BA;
+  --us9:#2E5E8E; --hh:#6A4C93; --bts:#2A7A5F;
+  --us9-bg:#E9F0F7; --hh-bg:#F0EAF6; --bts-bg:#E5F2EC;
+  --pop:#B4531F; --pop-bg:#FBEFE6; --pop-rule:#EBCFB8;
+  --shadow:0 1px 2px rgba(25,27,46,.05), 0 10px 28px rgba(25,27,46,.05);
+  --shadow-lift:0 2px 4px rgba(25,27,46,.06), 0 18px 40px rgba(25,27,46,.08);
+  --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12131F; --surface:#1A1C2B; --surface-2:#222438; --surface-3:#2A2C42;
+    --ink:#EEEEF4; --muted:#9B9FB4; --rule:#2A2C40; --rule-strong:#3B3E55;
+    --us9:#74A9DA; --hh:#AE90DC; --bts:#5CC198;
+    --us9-bg:#18242F; --hh-bg:#221B2E; --bts-bg:#152520;
+    --pop:#E89A6A; --pop-bg:#2B1D14; --pop-rule:#4A3020;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.28);
+    --shadow-lift:0 2px 4px rgba(0,0,0,.4), 0 18px 40px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12131F; --surface:#1A1C2B; --surface-2:#222438; --surface-3:#2A2C42;
+  --ink:#EEEEF4; --muted:#9B9FB4; --rule:#2A2C40; --rule-strong:#3B3E55;
+  --us9:#74A9DA; --hh:#AE90DC; --bts:#5CC198;
+  --us9-bg:#18242F; --hh-bg:#221B2E; --bts-bg:#152520;
+  --pop:#E89A6A; --pop-bg:#2B1D14; --pop-rule:#4A3020;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.28);
+  --shadow-lift:0 2px 4px rgba(0,0,0,.4), 0 18px 40px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;}
+.topstripe{display:flex; height:7px;}
+.topstripe i{flex:1}
+.topstripe i:nth-child(1){background:var(--us9)}
+.topstripe i:nth-child(2){background:var(--hh)}
+.topstripe i:nth-child(3){background:var(--bts)}
+.wrap{max-width:1000px; margin:0 auto; padding:clamp(26px,5vw,52px) clamp(18px,5vw,32px) 80px;
+  display:flex; flex-direction:column; gap:clamp(42px,6vw,70px);}
+p{margin:0}
+a{color:inherit}
+strong{font-weight:700}
+
+.eyebrow{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted);}
+
+/* hero */
+.hero{display:flex; flex-direction:column; gap:16px;}
+.welcome{display:flex; flex-wrap:wrap; align-items:center; gap:12px;}
+.welcome .w{font-family:var(--f-body); font-weight:800; font-size:clamp(15px,2.3vw,19px);
+  letter-spacing:.03em; text-transform:uppercase; color:var(--pop);}
+.home-link{margin-left:auto; font-family:var(--f-mono); font-size:12px; font-weight:600;
+  color:var(--muted); text-decoration:none; border-bottom:1px solid var(--rule-strong);}
+.home-link:hover,.home-link:focus-visible{color:var(--ink); border-color:var(--ink);}
+.badge{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  border:1.5px solid var(--ink); border-radius:999px; padding:4px 12px; white-space:nowrap;}
+h1{font-family:var(--f-display); font-weight:900; font-size:clamp(46px,10vw,92px);
+  line-height:.95; letter-spacing:-.03em; margin:0; text-wrap:balance;}
+.lede{font-size:clamp(19px,2.4vw,23px); line-height:1.4; max-width:38ch;}
+.courses{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;}
+.course-tag{display:inline-flex; align-items:center; gap:8px; padding:7px 14px 7px 11px;
+  border-radius:999px; border:1px solid var(--rule-strong); background:var(--surface);
+  font-weight:600; font-size:14px;}
+.sw{width:10px; height:10px; border-radius:50%; flex:none;}
+.s-us9{background:var(--us9)} .s-hh{background:var(--hh)} .s-bts{background:var(--bts)}
+@media (prefers-reduced-motion:no-preference){
+  .hero{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+}
+
+section{display:flex; flex-direction:column; gap:20px;}
+h2{font-family:var(--f-display); font-weight:700; font-size:clamp(28px,4.6vw,42px);
+  letter-spacing:-.022em; line-height:1.06; margin:0; text-wrap:balance;}
+.sec-intro{font-size:17.5px; color:var(--muted); max-width:62ch;}
+.callout{border-left:3px solid var(--ink); padding:6px 0 6px 18px;
+  font-size:17px; max-width:64ch;}
+
+/* course cards */
+.classes{display:flex; flex-direction:column; gap:16px;}
+.klass{border:1px solid var(--rule-strong); border-radius:10px; background:var(--surface);
+  overflow:hidden; box-shadow:var(--shadow);}
+.klass .bar{height:6px}
+.klass .inner{padding:clamp(20px,3.2vw,30px); display:flex; flex-direction:column; gap:11px;}
+.klass h3{font-family:var(--f-display); font-weight:700; font-size:clamp(24px,3.4vw,32px);
+  letter-spacing:-.018em; margin:0; line-height:1.05;}
+.klass .kick{font-family:var(--f-mono); font-size:12.5px; letter-spacing:.07em;
+  text-transform:uppercase;}
+.klass p{font-size:17px; line-height:1.55; max-width:70ch;}
+.k-us9 .bar{background:var(--us9)} .k-us9 .kick{color:var(--us9)}
+.k-hh  .bar{background:var(--hh)}  .k-hh  .kick{color:var(--hh)}
+.k-bts .bar{background:var(--bts)} .k-bts .kick{color:var(--bts)}
+
+/* course syllabi */
+.syllabus-grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.syllabus-card{position:relative; overflow:hidden; min-height:205px; padding:22px;
+  border:1px solid var(--rule-strong); border-radius:10px; background:var(--surface);
+  box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px; text-decoration:none;
+  transition:border-color .12s ease,transform .12s ease,box-shadow .12s ease;}
+.syllabus-card::before{content:""; position:absolute; inset:0 auto 0 0; width:5px; background:var(--course);}
+.syllabus-card:hover,.syllabus-card:focus-visible{border-color:var(--course); transform:translateY(-3px); box-shadow:var(--shadow-lift);}
+.syllabus-card:focus-visible{outline:2px solid var(--course); outline-offset:3px;}
+.syllabus-card.us9{--course:var(--us9)} .syllabus-card.hh{--course:var(--hh)} .syllabus-card.bts{--course:var(--bts)}
+.syllabus-card .course{font-family:var(--f-mono); font-size:11.5px; font-weight:500;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--course);}
+.syllabus-card b{font-family:var(--f-display); font-size:24px; line-height:1.1;}
+.syllabus-card .details{color:var(--muted); font-size:15px; line-height:1.45;}
+.syllabus-card .open{margin-top:auto; font-family:var(--f-mono); font-size:12px;
+  font-weight:600; letter-spacing:.05em; color:var(--course);}
+
+/* signature moves */
+.sig{border:1px solid var(--rule-strong); border-radius:10px; padding:clamp(20px,3vw,26px);
+  display:flex; flex-direction:column; gap:11px;}
+.sig .who{display:flex; align-items:center; gap:9px; font-family:var(--f-mono);
+  font-size:12px; letter-spacing:.1em; text-transform:uppercase;}
+.sig h3{font-family:var(--f-display); font-weight:700; font-size:23px; margin:0; letter-spacing:-.014em;}
+.sig p{font-size:16.5px; max-width:68ch}
+.sig.g-us9{background:var(--us9-bg); border-color:transparent} .sig.g-us9 .who{color:var(--us9)}
+.sig.g-hh {background:var(--hh-bg);  border-color:transparent} .sig.g-hh  .who{color:var(--hh)}
+.sig.g-bts{background:var(--bts-bg); border-color:transparent} .sig.g-bts .who{color:var(--bts)}
+.verdicts{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-top:2px;}
+.verdicts div{background:var(--surface); border-radius:7px; padding:14px 16px;
+  display:flex; flex-direction:column; gap:3px;}
+.verdicts b{font-family:var(--f-display); font-weight:700; font-size:18px; letter-spacing:-.01em;}
+.verdicts span{font-size:14.5px; color:var(--muted); line-height:1.45;}
+
+/* first five minutes */
+.steps{display:flex; flex-direction:column; border:1px solid var(--rule-strong);
+  border-radius:10px; overflow:hidden; background:var(--surface); box-shadow:var(--shadow);}
+.step{display:grid; grid-template-columns:52px 1fr; gap:16px; padding:16px 20px;
+  border-bottom:1px solid var(--rule); align-items:baseline;}
+.step:last-child{border-bottom:none}
+.step .k{font-family:var(--f-mono); font-size:20px; color:var(--muted);
+  font-variant-numeric:tabular-nums; line-height:1.2;}
+.step .v b{font-family:var(--f-display); font-weight:700; font-size:19px;
+  letter-spacing:-.012em; display:block;}
+.step .v span{color:var(--muted); font-size:16px;}
+.step .v a{font-weight:700; color:var(--pop); text-underline-offset:3px;}
+
+.perk{background:var(--pop-bg); border:1px solid var(--pop-rule); border-left:5px solid var(--pop);
+  border-radius:10px; padding:24px clamp(18px,3vw,28px); display:flex; gap:22px; align-items:flex-start;}
+.perk .plus{font-family:var(--f-display); font-weight:900; font-size:clamp(38px,7vw,62px);
+  line-height:.85; color:var(--pop); flex:none;}
+.perk div{display:flex; flex-direction:column; gap:7px;}
+.perk b{font-family:var(--f-display); font-weight:700; font-size:22px; letter-spacing:-.014em;}
+.perk p{font-size:16.5px; max-width:58ch;}
+
+/* the rule */
+.rule-card{background:var(--ink); color:var(--paper); border-radius:10px;
+  padding:clamp(26px,4.5vw,42px); display:flex; flex-direction:column; gap:14px;}
+.rule-card .eyebrow{color:var(--paper); opacity:.6}
+.rule-card q{font-family:var(--f-display); font-weight:700; font-size:clamp(26px,4.6vw,42px);
+  line-height:1.12; letter-spacing:-.022em; quotes:none; display:block; max-width:24ch;}
+.rule-card p{font-size:16.5px; opacity:.85; max-width:58ch;}
+.two-q{display:flex; flex-wrap:wrap; gap:10px; margin-top:4px;}
+.two-q span{font-family:var(--f-mono); font-size:14px; padding:9px 15px; border-radius:7px;
+  border:1px solid rgba(128,128,128,.45);}
+
+/* lecture arc */
+.arc{display:flex; flex-direction:column; border-top:1px solid var(--rule);}
+.arc-row{display:grid; grid-template-columns:78px 1fr; gap:20px; align-items:baseline;
+  padding:15px 0; border-bottom:1px solid var(--rule);}
+.arc-row .step-l{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); padding-top:4px;}
+.arc-row .what{display:flex; flex-direction:column; gap:3px;}
+.arc-row .what b{font-family:var(--f-display); font-weight:700; font-size:20px; letter-spacing:-.012em;}
+.arc-row .what span{color:var(--muted); font-size:16px;}
+
+/* notes example */
+.note-pair{display:flex; flex-direction:column; gap:16px;}
+.nope{border:1px dashed var(--rule-strong); border-radius:10px; background:var(--surface-2);
+  padding:20px 22px; display:flex; flex-direction:column; gap:10px;}
+.nope .tag{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted);}
+.nope .sample{font-family:var(--f-mono); font-size:14.5px; line-height:1.65; color:var(--muted);}
+.nope .why{font-size:16px}
+
+.pad{border:1px solid var(--rule-strong); border-radius:10px; background:var(--surface);
+  box-shadow:var(--shadow); overflow:hidden;}
+.pad .tag{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted);
+  padding:13px 22px; background:var(--surface-2); border-bottom:1px solid var(--rule-strong);}
+.pad .sheet{padding:22px 22px 22px 30px; border-left:2px solid var(--pop); margin-left:20px;}
+.pad pre{margin:0; font-family:var(--f-mono); font-size:14px; line-height:1.75;
+  white-space:pre-wrap; word-break:break-word;}
+.pad .below{margin:20px 0 0; padding:18px 0 0; border-top:2px solid var(--ink);}
+.pad .below .lab{font-family:var(--f-mono); font-size:11px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px;}
+.pad .cap{padding:0 22px 20px 30px; margin-left:20px; font-size:16px; color:var(--muted);}
+
+/* card grids */
+.grid3{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.card{background:var(--surface); border:1px solid var(--rule-strong); border-radius:10px;
+  padding:20px; display:flex; flex-direction:column; gap:7px; box-shadow:var(--shadow);}
+.card .n{font-family:var(--f-mono); font-size:12px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted);}
+.card h3{font-family:var(--f-display); font-weight:700; font-size:20px;
+  letter-spacing:-.014em; margin:0;}
+.card p{font-size:15.5px; color:var(--muted); line-height:1.5;}
+.card.flat{background:var(--surface-2); border-color:transparent; box-shadow:none;}
+.card .n.opt{color:var(--pop)}
+
+/* rhythm */
+.rhythm{display:flex; flex-direction:column; border:1px solid var(--rule-strong);
+  border-radius:10px; overflow:hidden; background:var(--surface); box-shadow:var(--shadow);}
+.rr{display:grid; grid-template-columns:92px 1fr; gap:18px; padding:14px 20px;
+  border-bottom:1px solid var(--rule); align-items:center;}
+.rr:last-child{border-bottom:none}
+.rr .dnum{font-family:var(--f-mono); font-size:12.5px; letter-spacing:.06em; color:var(--muted);
+  font-variant-numeric:tabular-nums; white-space:nowrap;}
+.rr .dwhat{font-size:16.5px}
+.rr.hi{background:var(--surface-2)}
+
+/* board */
+.scroller{overflow-x:auto; border:1px solid var(--rule-strong); border-radius:10px;
+  background:var(--surface); box-shadow:var(--shadow);}
+table{border-collapse:collapse; width:100%; min-width:760px;}
+thead th{font-family:var(--f-body); font-size:11.5px; font-weight:700; letter-spacing:.11em;
+  text-transform:uppercase; text-align:left; color:var(--muted);
+  padding:13px 15px; border-bottom:1px solid var(--rule-strong);
+  background:var(--surface-2); white-space:nowrap;}
+thead th.c-us9{color:var(--us9)} thead th.c-hh{color:var(--hh)} thead th.c-bts{color:var(--bts)}
+tbody td{padding:12px 15px; border-bottom:1px solid var(--rule); vertical-align:top; font-size:15px;}
+tbody tr:last-child td{border-bottom:none}
+td.day{font-family:var(--f-mono); font-variant-numeric:tabular-nums;
+  font-size:12.5px; color:var(--muted); white-space:nowrap; width:1%;}
+td.day b{color:var(--ink); font-weight:500; display:block; font-size:15px;}
+.band td{background:var(--surface-2); padding:10px 15px;
+  border-top:1px solid var(--rule-strong); border-bottom:1px solid var(--rule-strong);}
+.band span{font-family:var(--f-mono); font-size:11px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted);}
+.setup td{background:var(--pop-bg); border-bottom:1px solid var(--pop-rule);}
+.setup span{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--pop);}
+.t{font-family:var(--f-display); font-weight:700; font-size:15.5px; line-height:1.26;
+  letter-spacing:-.012em; display:block;}
+tr.workday td:not(.day){font-size:15px; color:var(--muted);}
+.pill{display:inline-block; padding:4px 11px; border-radius:999px;
+  font-weight:700; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; margin-right:8px;}
+.p-packet{background:var(--surface-2); color:var(--ink); border:1px solid var(--rule-strong);}
+.p-flex{background:transparent; color:var(--muted); border:1px dashed var(--rule-strong);}
+.p-quiz{background:var(--ink); color:var(--paper);}
+td.in-us9{border-left:3px solid var(--us9)}
+td.in-hh{border-left:3px solid var(--hh)}
+td.in-bts{border-left:3px solid var(--bts)}
+
+kbd{font-family:var(--f-mono); font-size:13.5px; background:var(--surface-3);
+  border:1px solid var(--rule-strong); border-bottom-width:2px; border-radius:5px;
+  padding:2px 7px; white-space:nowrap;}
+
+/* sources */
+.src-course{display:flex; flex-direction:column; gap:12px; padding-top:22px; border-top:1px solid var(--rule);}
+.src-head{display:flex; align-items:center; gap:10px;}
+.src-head h3{font-family:var(--f-display); font-weight:700; font-size:23px; margin:0; letter-spacing:-.016em;}
+.links{display:grid; gap:9px; grid-template-columns:repeat(auto-fill,minmax(268px,1fr));}
+.links a{display:flex; flex-direction:column; gap:2px; padding:12px 14px;
+  border:1px solid var(--rule); border-radius:7px; background:var(--surface);
+  text-decoration:none; transition:border-color .12s ease, transform .12s ease, box-shadow .12s ease;}
+.links a:hover, .links a:focus-visible{border-color:var(--ink); transform:translateY(-2px); box-shadow:var(--shadow-lift);}
+.links a:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+.links a b{font-weight:600; font-size:15px; line-height:1.3;}
+.links a span{font-family:var(--f-mono); font-size:11px; color:var(--muted); letter-spacing:.04em;}
+
+footer{border-top:1px solid var(--rule); padding-top:20px;
+  font-family:var(--f-mono); font-size:12px; letter-spacing:.04em; color:var(--muted);}
+footer a{color:var(--pop); font-weight:500;}
+
+@media (max-width:620px){
+  .arc-row, .rr, .step{grid-template-columns:1fr; gap:5px}
+  .arc-row .step-l{padding-top:0}
+  .perk{flex-direction:column; gap:12px}
+  .pad .sheet, .pad .cap{margin-left:8px; padding-left:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+</head>
+<body>
+<div class="topstripe" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<main class="wrap">
+
+  <header class="hero">
+    <div class="welcome">
+      <span class="w">Welcome to Mr. Auch's class</span>
+      <span class="badge">2026–27 Edition</span>
+      <a class="home-link" href="/">← the desk</a>
+    </div>
+    <h1>How This Class Works</h1>
+    <p class="lede">Basically everything you'd otherwise have to ask me. Read it once and you're set for the year.</p>
+    <div class="courses">
+      <span class="course-tag"><span class="sw s-us9"></span>U.S. History 9</span>
+      <span class="course-tag"><span class="sw s-hh"></span>Hidden History</span>
+      <span class="course-tag"><span class="sw s-bts"></span>Beyond the Scoreboard</span>
+    </div>
+  </header>
+
+  <section id="course-syllabi">
+    <div class="eyebrow">Start here · student + family</div>
+    <h2>Your course syllabus</h2>
+    <p class="sec-intro">Open the class on your schedule. Each syllabus is ready to read on a phone, print from the browser, or review together at home.</p>
+    <div class="syllabus-grid">
+      <a class="syllabus-card us9" href="/us-history/syllabus/">
+        <span class="course">U.S. History 9</span>
+        <b>Course syllabus</b>
+        <span class="details">Course map, assessment, classroom commitments, materials, and acknowledgment.</span>
+        <span class="open">open syllabus →</span>
+      </a>
+      <a class="syllabus-card hh" href="/hidden-history/syllabus/">
+        <span class="course">Hidden History</span>
+        <b>Course syllabus</b>
+        <span class="details">Course cases, grading, four verdicts, expectations, and family note.</span>
+        <span class="open">open syllabus →</span>
+      </a>
+      <a class="syllabus-card bts" href="/beyond-the-scoreboard/syllabus/">
+        <span class="course">Beyond the Scoreboard</span>
+        <b>Course syllabus</b>
+        <span class="details">Course eras, grading, evidence rule, materials, and attendance.</span>
+        <span class="open">open syllabus →</span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2>The three classes</h2>
+    <p class="sec-intro">One of these is on your schedule. Here's what you actually signed up for.</p>
+    <div class="classes">
+
+      <div class="klass k-us9">
+        <div class="bar"></div>
+        <div class="inner">
+          <span class="kick">1865 → 1900 · Reconstruction to the machine age</span>
+          <h3>U.S. History 9</h3>
+          <p>Everybody's had a U.S. History class. This is not that class. We open in 1865 with four million people who just got free, a country with absolutely no plan for them, and a Constitution that spent seventy-eight years protecting slavery without ever once printing the word. Week one, you go find it in the actual text — it's in there, hiding in plain sight. Then we follow what happens next: who got power, who took it back, who got killed for trying to vote, and how a railroad map quietly turns into a power map. It ends with America becoming an industrial machine. Almost all of it is uglier, stranger, and a lot more interesting than the version you got in middle school.</p>
+        </div>
+      </div>
+
+      <div class="klass k-hh">
+        <div class="bar"></div>
+        <div class="inner">
+          <span class="kick">Roswell, then Watergate · one is a real cover-up</span>
+          <h3>Hidden History</h3>
+          <p>Two of the most argued-about stories in American history, and we're going to do the thing almost nobody bothers to do with them — actually check. Not “believe.” Not “debunk.” Check. What does the July 1947 record really say? What did the FBI put in writing that same week? What was on Nixon's tapes, who tried to bury them, and what happened to the guy who refused to fire the prosecutor? One of these two turns out to be a genuine government cover-up with paperwork. The other one turns out to be something more interesting than a cover-up. By the end you'll be able to tell those apart on your own, which is a skill you will use roughly every day of your life, mostly on your phone.</p>
+        </div>
+      </div>
+
+      <div class="klass k-bts">
+        <div class="bar"></div>
+        <div class="inner">
+          <span class="kick">Sports as money, law, and power</span>
+          <h3>Beyond the Scoreboard</h3>
+          <p>A history class that happens to be about sports. In 1876, eight guys shut themselves in a New York hotel and wrote themselves a monopoly that still runs professional sports today. In 1910 the United States government banned a <em>movie</em> — using shipping law — because a Black man won a boxing match. In 1921 a jury said not guilty, and the next morning a man who wasn't a judge banned eight players for life anyway, and nobody could appeal it. Every one of those is real and every one of them is on paper. If you want to understand how power actually works in this country, watching who gets to play and who writes the rules is a shockingly good way in.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>The first five minutes</h2>
+    <p class="sec-intro">Same thing every single day. You'll have it down by Friday and then you never think about it again.</p>
+    <div class="steps">
+      <div class="step"><span class="k">1</span><span class="v"><b>Come in and sit down</b><span>Wherever, unless I've told you different.</span></span></div>
+      <div class="step"><span class="k">2</span><span class="v"><b>Grab a Chromebook off the cart</b><span>Go to <a href="https://www.grant-desk.com">grant-desk.com</a>.</span></span></div>
+      <div class="step"><span class="k">3</span><span class="v"><b>Check in</b><span>That's your attendance. It's also worth a point — see below.</span></span></div>
+      <div class="step"><span class="k">4</span><span class="v"><b>Open today's lesson hub</b><span>Right there on the site. That's what we're doing today. Look at it.</span></span></div>
+    </div>
+
+    <div class="perk">
+      <span class="plus">+1</span>
+      <div>
+        <b>Check in, get a point. Every day.</b>
+        <p>Extra credit, free, for about eleven seconds of work. No catch, no limit — log in, check in, that's a point. It adds up to something real by the end of the semester. People who skip it are leaving points on the floor and then asking me about their grade in December. Don't be that guy.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Say hi. Just not <em>that</em>.</h2>
+    <p class="sec-intro">Genuinely — say hi when you walk in. I like it, and the room is better when people actually talk to each other.</p>
+    <p class="callout">Just don't lead with <strong>“what are we doing today?”</strong> I know it's not really a question. It's a hello that needed a job. But I answer it about thirty times before the bell, which means I spend the start of class explaining the day one person at a time instead of starting it. It's on the board, it's on the site, and it's on the screen. “Hey” covers it. So does telling me literally anything else that happened to you.</p>
+  </section>
+
+  <div class="rule-card">
+    <div class="eyebrow">The one rule · all three classes</div>
+    <q>A source proves what it proves. Nothing else.</q>
+    <p>Every day, something real goes up on the screen. An actual document — the Constitution, an FBI teletype, a bank record, a photo somebody took in 1910. You look at it before I tell you what it means. Then, every time, two questions:</p>
+    <div class="two-q"><span>What does this prove?</span><span>What can it NOT prove?</span></div>
+    <p>The second one is the whole class. Anybody can read a document and get excited about it. Knowing exactly where the evidence runs out is the actual skill, and most grown adults on the internet do not have it.</p>
+  </div>
+
+  <section>
+    <h2>Every class has a signature move</h2>
+    <p class="sec-intro">The evidence rule above is the same everywhere. But each class has one idea it keeps coming back to, and yours shows up in week one.</p>
+
+    <div class="sig g-hh">
+      <div class="who"><span class="sw s-hh"></span>Hidden History</div>
+      <h3>Four words</h3>
+      <p>Every claim you meet lands in one of four buckets. All three classes use these — Hidden History basically lives on them, because the whole course is about claims people argue over. Picking the right bucket is worth more than knowing the date.</p>
+      <div class="verdicts">
+        <div><b>Confirmed</b><span>The evidence flat out shows it. You can point at the thing.</span></div>
+        <div><b>Supported</b><span>Best explanation we've got, built from a few sources lining up. Strong. Not nailed shut.</span></div>
+        <div><b>Unproven</b><span>Might be true. The record just doesn't settle it. <strong>Not a polite way of saying false.</strong></span></div>
+        <div><b>Misleading</b><span>Something true in there, but it's getting stretched past where the evidence goes.</span></div>
+      </div>
+    </div>
+
+    <div class="sig g-us9">
+      <div class="who"><span class="sw s-us9"></span>U.S. History 9</div>
+      <h3>Claim, detail, limit</h3>
+      <p>Every document gets all three. One thing it proves. One detail worth stealing. One thing it flat-out cannot tell you. Miss that third one and you haven't finished reading — you've just been impressed. Fair warning: Michigan turns up in most of these stories, and not always on the right side of them.</p>
+    </div>
+
+    <div class="sig g-bts">
+      <div class="who"><span class="sw s-bts"></span>Beyond the Scoreboard</div>
+      <h3>Who could say no?</h3>
+      <p>In 1908, four people had to agree before a heavyweight title fight could happen: the champion, the challenger, a promoter with money, and a state willing to allow it. Any one of them could kill the whole thing by doing nothing. That shape — find every single person who could have said no — works on a league, a law, a company, a courtroom, a school. It's the entire class in one question.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What a class looks like</h2>
+    <p class="sec-intro">Same shape every time, so you're never lost and you always know what's coming.</p>
+    <div class="arc">
+      <div class="arc-row"><span class="step-l">Opens</span><span class="what"><b>A person with a problem</b><span>Not a list of dates. Somebody who had to decide something without knowing how it turned out.</span></span></div>
+      <div class="arc-row"><span class="step-l">Then</span><span class="what"><b>The document goes up</b><span>The real one. You read it first, before anybody explains it to you.</span></span></div>
+      <div class="arc-row"><span class="step-l">Then</span><span class="what"><b>How it actually worked</b><span>Who had power, who could say no, and what the rules let them get away with.</span></span></div>
+      <div class="arc-row"><span class="step-l">Then</span><span class="what"><b>The part that wrecks the simple version</b><span>Every clean story leaves something out. We go find it. This is usually the good part.</span></span></div>
+      <div class="arc-row"><span class="step-l">Lands</span><span class="what"><b>The smallest verdict that holds up</b><span>Not the most exciting thing you could say. The strongest thing you could still defend if somebody pushed back hard.</span></span></div>
+      <div class="arc-row"><span class="step-l">Ends</span><span class="what"><b>The repair screen</b><span>Last slide stays up. You fix your own notes before you leave.</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How to actually take notes</h2>
+    <p class="sec-intro">There's no packet in this class. No fill-in-the-blanks. You get blank paper, and whatever you build on it is what you carry into the quiz. That freaks people out, so here's exactly what a good page looks like — and a bad one.</p>
+
+    <div class="note-pair">
+      <div class="nope">
+        <span class="tag">Don't do this</span>
+        <p class="sample">Reconstruction was a time when a lot of things happened. Freed people wanted freedom and there were a lot of problems with the government and it was hard for them.</p>
+        <p class="why">That's a paragraph about how you felt during class. There's nothing in it. No date, no number, no name, nothing you could get asked about. You can't study a vibe.</p>
+      </div>
+
+      <div class="pad">
+        <span class="tag">Do this</span>
+        <div class="sheet">
+<pre>8/31   Freedom on the Ground
+
+4 VERBS:  marry / move / learn / claim
+   each one = defense against a specific threat
+
+MARRY -> Bureau records, tens of thousands, 1861-69
+   why: inheritance, custody, testimony,
+        widow's pension (needed proof)
+   marriage under slavery = no legal force
+
+CLAIM -> Field Order 15.  Jan 16, 1865
+   Sherman. coastal strip. 40-acre plots
+   ~40,000 people farming it by that summer
+   ** NOT a national promise - ONE military order **
+
+TAKEN BACK -> fall 1865. Johnson pardons.
+   land goes back to the former owners
+
+proves:      freedpeople moved first, on their own
+can't prove: that any of it was meant to last</pre>
+          <div class="below">
+            <span class="lab">Under the line — repair</span>
+<pre>the "mule" = army surplus, handed out informally
+never actually written into the order</pre>
+          </div>
+        </div>
+        <p class="cap">That's maybe ninety seconds of writing and it beats a full page of sentences. Every single thing on it is something you could get asked about.</p>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="card"><span class="n">Rule</span><h3>Don't write sentences</h3><p>Write the thing. Arrows instead of “because” and “this led to.” Nobody is grading your grammar. Ever.</p></div>
+      <div class="card"><span class="n">Rule</span><h3>Numbers and dates, always</h3><p>If a number is on the screen it goes on your paper. Jan 16, 1865. Forty acres. Forty thousand people. That's what quizzes are made out of.</p></div>
+      <div class="card"><span class="n">Rule</span><h3>Names go down</h3><p>Sherman. Johnson. Landis. Felt. If I say a name twice, that is not an accident.</p></div>
+      <div class="card"><span class="n">Rule</span><h3>Watch me, not just the slide</h3><p>If I slow down, repeat myself, or say “this part matters” — that's the tell. Write it.</p></div>
+      <div class="card"><span class="n">Rule</span><h3>Leave the bottom empty</h3><p>Draw a line across the bottom third of the page before we start. Don't fill it during class. That space has a job.</p></div>
+      <div class="card"><span class="n">Rule</span><h3>Messy is completely fine</h3><p>Nobody is collecting these. They only have to work for one person and that person is you.</p></div>
+    </div>
+
+    <h3 style="font-family:var(--f-display);font-weight:700;font-size:24px;margin:10px 0 0;letter-spacing:-.016em;">The last five minutes: repair</h3>
+    <div class="grid3">
+      <div class="card flat"><span class="n">Step one</span><h3>Retrieve</h3><p>Close your notes. Write what you remember from memory. Yes it's uncomfortable. That is the entire point.</p></div>
+      <div class="card flat"><span class="n">Step two</span><h3>Check</h3><p>Now look. Find what you missed and what you had flat-out wrong.</p></div>
+      <div class="card flat"><span class="n">Step three</span><h3>Repair</h3><p>Fix it under the line. Everything below that line is something you got wrong once — which makes it the most useful part of the whole page.</p></div>
+    </div>
+    <p class="callout">Being wrong in private, on paper, while it costs you absolutely nothing — that's how you stop being wrong on the quiz. It's the only reason we do this every day.</p>
+  </section>
+
+  <section>
+    <h2>How ten days work</h2>
+    <p class="sec-intro">The month is two ten-day blocks. Both run identically, so the second one has no surprises in it.</p>
+    <div class="rhythm">
+      <div class="rr"><span class="dnum">Days 1–3</span><span class="dwhat"><strong>Three lectures.</strong> New material, blank paper, repair at the end of each one.</span></div>
+      <div class="rr hi"><span class="dnum">Day 4</span><span class="dwhat"><strong>Packet A.</strong> On your own. Sorting evidence, tracing causes, writing limits. It is not a vocab worksheet.</span></div>
+      <div class="rr"><span class="dnum">Day 5</span><span class="dwhat"><strong>Flex day.</strong> Catch up, repair notes, go deeper on something. No new pile of content.</span></div>
+      <div class="rr"><span class="dnum">Days 6–8</span><span class="dwhat"><strong>Three more lectures.</strong> Same shape.</span></div>
+      <div class="rr hi"><span class="dnum">Day 9</span><span class="dwhat"><strong>Packet B</strong>, plus time to fix your notes before the quiz.</span></div>
+      <div class="rr"><span class="dnum">Day 10</span><span class="dwhat"><strong>The quiz.</strong> Whole block, cumulative, open-note.</span></div>
+    </div>
+    <p class="callout"><strong>Open-note means open <em>your</em> note.</strong> Every answer comes from something that was on the screen, in a packet, or that you wrote down. I'm not hiding anything and I'm not trying to trick you. But “open note” does absolutely nothing for a blank page, and somebody finds that out the hard way on Day 10 every single year.</p>
+  </section>
+
+  <section>
+    <h2>The first month, day by day</h2>
+    <p class="sec-intro">Find your course. Labor Day is Monday, September 7 — no school.</p>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th>Day</th><th class="c-us9">U.S. History 9</th><th class="c-hh">Hidden History</th><th class="c-bts">Beyond the Scoreboard</th></tr>
+        </thead>
+        <tbody>
+          <tr class="setup"><td colspan="4"><span>Tue Aug 25 – Wed Aug 26 · getting set up · you're reading this on one of those days</span></td></tr>
+          <tr class="band"><td colspan="4"><span>Block 1 · quiz on Day 10</span></td></tr>
+          <tr><td class="day"><b>01</b>Thu Aug 27</td>
+            <td class="in-us9"><span class="t">Read the Nation in 1865</span></td>
+            <td class="in-hh"><span class="t">Evidence Makes History</span></td>
+            <td class="in-bts"><span class="t">Sport Is a Mirror and an Engine</span></td></tr>
+          <tr><td class="day"><b>02</b>Fri Aug 28</td>
+            <td class="in-us9"><span class="t">The Constitution Before and After the Civil War</span></td>
+            <td class="in-hh"><span class="t">Why Smart People Believe Bad Stories</span></td>
+            <td class="in-bts"><span class="t">The Factory City Invents Modern Sport</span></td></tr>
+          <tr><td class="day"><b>03</b>Mon Aug 31</td>
+            <td class="in-us9"><span class="t">Freedom on the Ground: Family, Movement, Land, School</span></td>
+            <td class="in-hh"><span class="t">The Week Roswell Became Roswell</span></td>
+            <td class="in-bts"><span class="t">Baseball Becomes a Business</span></td></tr>
+          <tr class="workday"><td class="day"><b>04</b>Tue Sep 1</td><td colspan="3"><span class="pill p-packet">Packet A</span>On your own</td></tr>
+          <tr class="workday"><td class="day"><b>05</b>Wed Sep 2</td><td colspan="3"><span class="pill p-flex">Flex</span>Catch up and repair notes</td></tr>
+          <tr><td class="day"><b>06</b>Thu Sep 3</td>
+            <td class="in-us9"><span class="t">The Reconstruction Amendments Rewrite Citizenship</span></td>
+            <td class="in-hh"><span class="t">Project Mogul: The Secret Under the Debris</span></td>
+            <td class="in-bts"><span class="t">Rules, Boxing, and the Respectability Problem</span></td></tr>
+          <tr><td class="day"><b>07</b>Fri Sep 4</td>
+            <td class="in-us9"><span class="t">Black Political Power and Biracial Government</span></td>
+            <td class="in-hh"><span class="t">Bodies, Dummies, and Memory</span></td>
+            <td class="in-bts"><span class="t">Moses Fleetwood Walker and the Source Trail</span></td></tr>
+          <tr><td class="day"><b>08</b>Tue Sep 8</td>
+            <td class="in-us9"><span class="t">Terror and Federal Enforcement</span></td>
+            <td class="in-hh"><span class="t">Area 51: Real Secrecy, Wrong Conclusion</span></td>
+            <td class="in-bts"><span class="t">How Baseball Built a Color Line</span></td></tr>
+          <tr class="workday"><td class="day"><b>09</b>Wed Sep 9</td><td colspan="3"><span class="pill p-packet">Packet B</span>Plus note repair before the quiz</td></tr>
+          <tr class="workday"><td class="day"><b>10</b>Thu Sep 10</td><td colspan="3"><span class="pill p-quiz">Quiz</span>Cumulative, open-note</td></tr>
+
+          <tr class="band"><td colspan="4"><span>Block 2 · quiz on Day 20</span></td></tr>
+          <tr><td class="day"><b>11</b>Fri Sep 11</td>
+            <td class="in-us9"><span class="t">How Reconstruction Collapsed</span></td>
+            <td class="in-hh"><span class="t">The Roswell Verdict</span></td>
+            <td class="in-bts"><span class="t">The Belt Nobody Wanted Him to Hold</span></td></tr>
+          <tr><td class="day"><b>12</b>Mon Sep 14</td>
+            <td class="in-us9"><span class="t">From Redemption to Jim Crow and Plessy</span></td>
+            <td class="in-hh"><span class="t">Five Men Inside the Watergate</span></td>
+            <td class="in-bts"><span class="t">Fifteen Rounds and the Count That Followed</span></td></tr>
+          <tr><td class="day"><b>13</b>Tue Sep 15</td>
+            <td class="in-us9"><span class="t">Evidence Lab: Two Memories of Reconstruction</span></td>
+            <td class="in-hh"><span class="t">Follow the Money</span></td>
+            <td class="in-bts"><span class="t">The Law That Chased the Film</span></td></tr>
+          <tr class="workday"><td class="day"><b>14</b>Wed Sep 16</td><td colspan="3"><span class="pill p-packet">Packet A</span>On your own</td></tr>
+          <tr class="workday"><td class="day"><b>15</b>Thu Sep 17</td><td colspan="3"><span class="pill p-flex">Flex</span>Catch up and repair notes</td></tr>
+          <tr><td class="day"><b>16</b>Fri Sep 18</td>
+            <td class="in-us9"><span class="t">A Railroad Map Becomes a Power Map</span></td>
+            <td class="in-hh"><span class="t">Reporters, Sources, and Corroboration</span></td>
+            <td class="in-bts"><span class="t">A Statute Broad Enough to Fit</span></td></tr>
+          <tr><td class="day"><b>17</b>Mon Sep 21</td>
+            <td class="in-us9"><span class="t">Railroads, Time Zones, and the National Market</span></td>
+            <td class="in-hh"><span class="t">The Taping System Nobody Was Supposed to Mention</span></td>
+            <td class="in-bts"><span class="t">Eight Men, Two Verdicts</span></td></tr>
+          <tr><td class="day"><b>18</b>Tue Sep 22</td>
+            <td class="in-us9"><span class="t">The Second Industrial Revolution</span></td>
+            <td class="in-hh"><span class="t">The Saturday Night Massacre</span></td>
+            <td class="in-bts"><span class="t">The Authority That Outlived Everyone</span></td></tr>
+          <tr class="workday"><td class="day"><b>19</b>Wed Sep 23</td><td colspan="3"><span class="pill p-packet">Packet B</span>Plus note repair before the quiz</td></tr>
+          <tr class="workday"><td class="day"><b>20</b>Thu Sep 24</td><td colspan="3"><span class="pill p-quiz">Quiz</span>Cumulative, open-note</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>About the room</h2>
+    <p class="sec-intro">There's a record player. There are lights. There's a bunch of stuff sitting out where you are instead of locked in a cabinet. That's on purpose — I'd rather this feel like a room than a waiting area.</p>
+    <p class="callout">Here's the deal, though. <strong>None of it gets replaced.</strong> Not next week, not next month, probably not next year. If something breaks it's just gone, and the room is worse for everybody for the rest of the year — including whoever broke it. So treat it like it's yours, because functionally it is. Put things back where they were. If something's already broken or acting weird, tell me. You are not in trouble for reporting it. You'd be in trouble for me finding it in June.</p>
+  </section>
+
+  <section>
+    <h2>Chromebooks and the site</h2>
+    <p class="sec-intro">Small stuff, but it comes up constantly and everything is easier if you already know it.</p>
+    <div class="grid3">
+      <div class="card"><span class="n">Every day</span><h3>Put it back on the charger</h3><p>Chromebooks live on the cart in here — you don't bring one from home. Take one, use it, and when you're done put it <strong>back on the charger</strong>, not just leaning in the cart. An unplugged Chromebook is a dead Chromebook for whoever has this room next hour. Two extra seconds.</p></div>
+      <div class="card"><span class="n">You'll need this</span><h3>Screenshots</h3><p><kbd>Ctrl</kbd> + <kbd>Show Windows</kbd> grabs the whole screen. <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Show Windows</kbd> lets you drag a box around just part of it. Show Windows is the top-row key that looks like a rectangle with two lines next to it.</p></div>
+      <div class="card"><span class="n">Where it goes</span><h3>Finding the file</h3><p>Files → Downloads. Sometimes I'll ask you to grab something off the screen — a document, a chart, one line from a source. Now you know how.</p></div>
+      <div class="card"><span class="n">Passes</span><h3>Bathroom</h3><p>Passes go through <a href="https://www.grant-desk.com" style="color:var(--pop);font-weight:600;">grant-desk.com</a>, not a hand in the air across the room. Go when you need to go — just do it on the site so there's a record and I'm not tracking it in my head.</p></div>
+      <div class="card"><span class="n">Every day</span><h3>Lesson hubs</h3><p>Every day has a hub on the site with what we did and what's coming. It is the answer to most questions before you ask them.</p></div>
+      <div class="card"><span class="n">If you're out</span><h3>Missing a day</h3><p>Site first, then somebody's notes, then me. The hub tells you what we did — but the quiz is open-note and cumulative, so the notes are the part that actually matters.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What to bring</h2>
+    <div class="grid3">
+      <div class="card"><span class="n">Required</span><h3>A 3-ring binder</h3><p>Not a folder. Not a stack in the bottom of your bag. Everything in here is loose paper and the quiz is open-note — the binder is the difference between finding something in ten seconds and never finding it at all.</p></div>
+      <div class="card"><span class="n">Required</span><h3>Something to write with</h3><p>One pen or one pencil. That's the whole ask. Just have it on you.</p></div>
+      <div class="card"><span class="n opt">Optional — but recommended</span><h3>A second color</h3><p>Not required, and one color works completely fine. But if you've got a second pen, use it for everything under the repair line. During an open-note quiz you can spot your own fixes from across the page instead of hunting for them. Cheap upgrade.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where all of this comes from</h2>
+    <p class="sec-intro">None of this is made up and none of it is behind a paywall. These are the actual archives the lectures pull from — the National Archives, the Library of Congress, the House and Senate historians, the CIA and FBI reading rooms. If you think I got something wrong, or you just want to go look at the real thing, go. I'd genuinely rather you did.</p>
+
+    <div class="src-course">
+      <div class="src-head"><span class="sw s-us9"></span><h3>U.S. History 9</h3></div>
+      <div class="links">
+        <a href="https://www.archives.gov/founding-docs/constitution-transcript"><b>The Constitution, full transcript</b><span>National Archives</span></a>
+        <a href="https://www.archives.gov/milestone-documents/13th-amendment"><b>The 13th Amendment</b><span>National Archives</span></a>
+        <a href="https://www.archives.gov/milestone-documents/14th-amendment"><b>The 14th Amendment</b><span>National Archives</span></a>
+        <a href="https://www.archives.gov/research/african-americans/freedmens-bureau"><b>Freedmen's Bureau records</b><span>National Archives</span></a>
+        <a href="https://www.freedmen.umd.edu/sampdocs.htm"><b>Freedpeople's own letters and petitions</b><span>Freedmen &amp; Southern Society Project</span></a>
+        <a href="https://www.loc.gov/classroom-materials/reconstruction/"><b>Reconstruction primary sources</b><span>Library of Congress</span></a>
+        <a href="https://history.house.gov/Exhibitions-and-Publications/BAIC/Historical-Essays/Fifteenth-Amendment/Rising-People/"><b>Black Americans in Congress</b><span>U.S. House historian</span></a>
+        <a href="https://www.archives.gov/milestone-documents/plessy-v-ferguson"><b>Plessy v. Ferguson</b><span>National Archives</span></a>
+        <a href="https://www.archives.gov/milestone-documents/pacific-railway-act"><b>The Pacific Railway Act, 1862</b><span>National Archives</span></a>
+        <a href="https://www.loc.gov/collections/railroad-maps-1828-to-1900/"><b>Railroad maps, 1828–1900</b><span>Library of Congress</span></a>
+        <a href="https://americanhistory.si.edu/ontime/synchronizing/zones.html"><b>How time zones happened</b><span>Smithsonian</span></a>
+        <a href="https://www.archives.gov/milestone-documents/thomas-edisons-patent-application-for-the-light-bulb"><b>Edison's light-bulb patent</b><span>National Archives</span></a>
+      </div>
+    </div>
+
+    <div class="src-course">
+      <div class="src-head"><span class="sw s-hh"></span><h3>Hidden History</h3></div>
+      <div class="links">
+        <a href="https://airandspace.si.edu/stories/editorial/1947-year-flying-saucer"><b>1947: The Year of the Flying Saucer</b><span>Smithsonian Air &amp; Space</span></a>
+        <a href="https://vault.fbi.gov/Roswell%20UFO"><b>The FBI's Roswell file</b><span>FBI Vault</span></a>
+        <a href="https://www.archives.gov/research/military/air-force/ufos"><b>Air Force UFO records</b><span>National Archives</span></a>
+        <a href="https://www.gao.gov/products/nsiad-95-187"><b>The GAO's Roswell records search</b><span>Government Accountability Office</span></a>
+        <a href="https://www.cia.gov/stories/story/area-51-and-the-accidental-test-flight/"><b>Area 51 and the accidental first flight</b><span>CIA</span></a>
+        <a href="https://www.cia.gov/legacy/headquarters/a-12-oxcart/"><b>The A-12 OXCART program</b><span>CIA</span></a>
+        <a href="https://www.senate.gov/about/powers-procedures/investigations/watergate.htm"><b>The Senate Watergate investigation</b><span>U.S. Senate historian</span></a>
+        <a href="https://www.archives.gov/research/investigations/watergate"><b>Watergate records</b><span>National Archives</span></a>
+        <a href="https://www.nixonlibrary.gov/white-house-tapes"><b>The White House tapes</b><span>Nixon Presidential Library</span></a>
+        <a href="https://rediscovering-black-history.blogs.archives.gov/2022/06/17/frank-wills/"><b>Frank Wills, the guard who noticed the tape</b><span>National Archives</span></a>
+        <a href="https://vault.fbi.gov/mark-felt"><b>The Mark Felt file</b><span>FBI Vault</span></a>
+        <a href="https://chroniclingamerica.loc.gov/"><b>Chronicling America: search old newspapers</b><span>Library of Congress</span></a>
+      </div>
+    </div>
+
+    <div class="src-course">
+      <div class="src-head"><span class="sw s-bts"></span><h3>Beyond the Scoreboard</h3></div>
+      <div class="links">
+        <a href="https://library.sfo2.cdn.digitaloceanspaces.com/publications/baseball/guides/CONNL-1876-constitution-national-league-TQYM0.pdf"><b>The 1876 National League constitution</b><span>PDF · the founding document</span></a>
+        <a href="https://sabr.org/journal/article/william-hulbert-and-the-birth-of-the-national-league/"><b>William Hulbert and the birth of the NL</b><span>Society for American Baseball Research</span></a>
+        <a href="https://www.loc.gov/exhibitions/treasures-from-the-library-of-congress/about-this-exhibition/mechanics-of-memory/box-scores/"><b>How the box score was invented</b><span>Library of Congress</span></a>
+        <a href="https://www.loc.gov/collections/jackie-robinson-baseball/articles-and-essays/baseball-the-color-line-and-jackie-robinson/1860s-to-1890s/"><b>Baseball and the color line, 1860s–1890s</b><span>Library of Congress</span></a>
+        <a href="https://baseballhall.org/hall-of-famers/grant-frank"><b>Frank Grant</b><span>Baseball Hall of Fame</span></a>
+        <a href="https://baseballhall.org/discover/pre-negro-leagues-players-paved-the-way-for-integration"><b>The players before the Negro leagues</b><span>Baseball Hall of Fame</span></a>
+        <a href="https://guides.loc.gov/chronicling-america-johnson-vs-jeffries"><b>Johnson vs. Jeffries in the 1910 papers</b><span>Library of Congress</span></a>
+        <a href="https://renohistorical.org/items/show/82"><b>The stadium Reno built in two weeks</b><span>Reno Historical</span></a>
+        <a href="https://firstamendment.mtsu.edu/article/sims-act/"><b>The Sims Act: banning a film with shipping law</b><span>Free Speech Center, MTSU</span></a>
+        <a href="https://www.chicagohistory.org/blacksox100/"><b>The Black Sox, 100 years on</b><span>Chicago History Museum</span></a>
+        <a href="https://sabr.org/bioproj/person/buck-weaver/"><b>Buck Weaver</b><span>Society for American Baseball Research</span></a>
+        <a href="https://www.mlb.com/news/mlb-ineligibility-status-after-death-decision"><b>The 2025 decision that changed the list</b><span>MLB</span></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>Mr. Auch · <a href="https://www.grant-desk.com">grant-desk.com</a> · 2026–27 · Content starts Thursday, Aug 27</footer>
+
+</main>
+</body>
+</html>

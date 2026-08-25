@@ -1,24 +1,23 @@
 ---
 // beyond-the-scoreboard/syllabus.astro — the course syllabus as a clean, printable page.
-// Content mirrors the official syllabus doc. NOTE: this syllabus and hidden history's
-// use different grading scales — verify both against the 2026-27 handbook.
+// Content verified against the official 2026-27 student syllabus on August 24, 2026.
 import Base from '../../layouts/Base.astro';
 
 const units = [
   { when: 'weeks 1–3', name: 'Inventing American Sport, 1860s–1900', what: 'Industrial cities build the modern game; the color line is drawn.' },
   { when: 'weeks 3–6', name: 'The National Stage, 1900–1945', what: 'Jack Johnson, the Black Sox, radio, the Negro Leagues, Jesse Owens in Berlin, Detroit’s Joe Louis and Hank Greenberg.' },
   { when: 'weeks 6–9', name: 'Integration and the Cold War, 1945–1963', what: 'Jackie Robinson, television, the Olympics as superpower contest.' },
-  { when: 'weeks 9–12', name: 'The Athlete Revolt, 1963–1980', what: 'Ali and Vietnam, Mexico City 1968, Curt Flood, Title IX, Billie Jean King.' },
-  { when: 'weeks 12–15', name: 'The Money Game, 1980–2004', what: 'ESPN, Jordan and global branding, steroids, the college amateurism debate, the Malice at the Palace.' },
-  { when: 'weeks 15–18', name: 'The Modern Arena, 2004–today', what: 'Social media, concussions, NIL, the women’s sports boom, legalized betting, Flint’s Claressa Shields — plus your Michigan capstone.' },
+  { when: 'weeks 9–12', name: 'The Athlete Revolt, 1967–1980', what: 'Ali and Vietnam, Mexico City 1968, Curt Flood, Title IX, Billie Jean King.' },
+  { when: 'weeks 12–15', name: 'The Money Game, 1979–2005', what: 'ESPN, Olympic public finance, Jordan and global branding, steroids, and the Malice at the Palace.' },
+  { when: 'weeks 15–18', name: 'The Modern Arena, 2005–today', what: 'Social media, concussions, college compensation after Alston, the women’s sports boom, legalized betting, Flint’s Claressa Shields — plus your Michigan sports history capstone.' },
 ];
 
 const weights = [
-  { part: 'Unit tests', pct: '30%' },
-  { part: 'Thread charts, logs, and document work', pct: '30%' },
+  { part: 'Unit tests and assessments', pct: '25%' },
+  { part: 'Thread charts, logs, and document work', pct: '25%' },
   { part: 'Michigan capstone project', pct: '20%' },
   { part: 'Debate and seminar participation', pct: '10%' },
-  { part: 'Final exam', pct: '10%' },
+  { part: 'Semester exam or equivalent', pct: '20%' },
 ];
 ---
 
@@ -60,8 +59,9 @@ const weights = [
 
     <h2 class="font-display text-2xl font-bold lowercase pt-4">grading</h2>
     <p class="text-sm text-ink-soft">
-      Grades are calculated with points, weighted as below. Letter grades follow the student handbook
-      (95–100 A, 90–94 A−, 88–89 B+, 84–87 B, 80–83 B−, 78–79 C+, 74–77 C, 70–73 C−, 68–69 D+, 64–67 D, 60–63 D−, 0–59 E).
+      School policy controls. This scale and the required 20% semester exam or equivalent were checked against the
+      public MMCS District Student Handbook on July 13, 2026: 93–100 A, 90–92 A−, 87–89 B+, 83–86 B, 80–82 B−,
+      77–79 C+, 73–76 C, 70–72 C−, 67–69 D+, 63–66 D, 60–62 D−, below 60 F.
     </p>
     <ul class="space-y-1">
       {weights.map((w) => (
@@ -75,7 +75,7 @@ const weights = [
     <h2 class="font-display text-2xl font-bold lowercase pt-4">the class rule</h2>
     <p>
       Every era gets judged by its own evidence first. We read what people said at the time before we decide what we
-      think now — then decide what changed and why.
+      think now — that’s what separates history from hot takes.
     </p>
 
     <h2 class="font-display text-2xl font-bold lowercase pt-4">what to bring</h2>
@@ -86,8 +86,8 @@ const weights = [
 
     <h2 class="font-display text-2xl font-bold lowercase pt-4">attendance</h2>
     <p>
-      This course is built on in-class document work, discussion, and a team capstone that cannot be fully made up at
-      home. Poor attendance usually results in poor grades — follow the attendance policy.
+      Students must follow the attendance policy. Poor attendance usually results in poor grades — this course is
+      built on in-class document work, discussion, and a team capstone that cannot be fully made up at home.
     </p>
 
     <p class="pt-4 print:hidden">

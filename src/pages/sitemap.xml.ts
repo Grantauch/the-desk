@@ -7,7 +7,9 @@ import { remixPublicRoutes } from '../data/remixCatalog';
 
 const paths = [
   '/',
+  '/first-day-materials/',
   '/us-history/',
+  '/us-history/syllabus/',
   '/hidden-history/',
   '/hidden-history/syllabus/',
   '/beyond-the-scoreboard/',
