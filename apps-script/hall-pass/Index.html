@@ -66,6 +66,16 @@
       .timer-label { margin: 0; color: #046049; font: 800 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
       .timer-time { margin: 5px 0 0; color: #04503d; font: 800 clamp(42px, 12vw, 68px)/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: -.05em; }
 
+      .queue-card, .streak-card, .notice { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--line); border-radius: 15px; background: #fffaf1; }
+      .queue-card { grid-template-columns: auto 1fr; align-items: center; }
+      .queue-number { display: grid; width: 72px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--ink); color: white; font: 900 27px/1 Georgia, serif; }
+      .queue-card h3, .streak-card h3 { margin: 0; font: 800 24px/1 Georgia, serif; letter-spacing: -.03em; }
+      .queue-card p, .streak-card p, .notice p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+      .streak-card { grid-template-columns: auto 1fr; align-items: center; border-color: #b9dfd2; background: var(--green-soft); }
+      .streak-number { min-width: 72px; color: #04503d; font: 900 44px/1 Georgia, serif; text-align: center; }
+      .notice.success { border-color: #b9dfd2; background: var(--green-soft); color: #04503d; }
+      .notice.warning { border-color: #e8ce96; background: #fff8e8; }
+
       .pin-box { max-width: 430px; margin: 0 auto; text-align: center; }
       .pin-box h2 { margin: 0; font: 800 36px/1 Georgia, serif; letter-spacing: -.04em; }
       .pin-box .message { margin-top: 9px; }
@@ -91,8 +101,15 @@
       .active-pass .secondary { width: 100%; margin-top: 12px; }
       .all-clear { padding: 23px 12px; color: var(--muted); text-align: center; }
       .override { display: grid; gap: 10px; }
-      select { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
-      select:focus { border-color: var(--accent); }
+      select, input[type="number"] { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
+      select:focus, input[type="number"]:focus { border-color: var(--accent); }
+      .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .field-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
+      .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button-row > * { flex: 1 1 180px; }
+      .danger { border-color: #e2aaa5; color: var(--accent-dark); }
+      .queue-entry { border-color: #e8ce96; background: #fff8e8; }
+      .email-preview { margin-top: 12px; white-space: pre-wrap; }
 
       .log { margin-top: 18px; overflow-x: auto; }
       table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -106,6 +123,7 @@
         .top, .student-head { align-items: flex-start; flex-direction: column; }
         .teacher-grid { grid-template-columns: 1fr; }
         .checkin-confirm { grid-template-columns: 1fr; }
+        .queue-card, .streak-card, .field-grid { grid-template-columns: 1fr; }
         .teacher-section-head { align-items: flex-start; flex-direction: column; }
         .card { border-radius: 16px; }
       }
@@ -172,6 +190,12 @@
         document.querySelector('#app-title').innerHTML = `${escapeHtml(clean)}<span>.</span>`;
       };
 
+      const firstNameFromDisplayName = (value) => {
+        const name = String(value || '').trim();
+        const firstSide = name.includes(',') ? name.split(',').slice(1).join(',').trim() : name;
+        return firstSide.split(/\s+/)[0] || name;
+      };
+
       const formatClock = (iso) => {
         if (!iso) return '—';
         return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
@@ -230,7 +254,36 @@
         clearInterval(timerHandle);
         setTitle(state.appTitle);
         const ownPass = state.ownPass;
-        const firstName = String(state.student.name || '').split(/\s+/)[0] || state.student.name;
+        const queued = Number(state.queuePosition || 0) > 0;
+        const firstName = firstNameFromDisplayName(state.student.name);
+        const statusLabel = ownPass
+          ? 'you are out'
+          : queued && state.passAvailable
+            ? 'your turn'
+            : queued
+              ? `#${state.queuePosition} in line`
+              : state.passSession && state.passSession.limitReached
+                ? 'pass limit reached'
+                : state.passAvailable
+                  ? 'pass available'
+                  : 'pass in use';
+        const statusBusy = !ownPass && !state.passAvailable;
+        const waitingHtml = queued ? `
+          <div class="queue-card" role="status">
+            <span class="queue-number">#${escapeHtml(state.queuePosition)}</span>
+            <div>
+              <h3>${state.passAvailable ? 'it’s your turn.' : 'your place is saved.'}</h3>
+              <p>${state.passAvailable ? `Press start when you are actually leaving for the ${escapeHtml(state.destination.toLowerCase())}.` : `${escapeHtml(state.queueLength)} student${Number(state.queueLength) === 1 ? '' : 's'} in line. Your number updates automatically without showing anyone else’s name.`}</p>
+            </div>
+          </div>
+          <button class="primary" id="pass-action" ${state.passAvailable ? '' : 'disabled'}>start pass</button>
+          <button class="secondary" id="leave-queue">leave the line</button>` : '';
+        const readyHtml = !ownPass && !queued ? (state.passSession && state.passSession.limitReached ? `
+          <div class="notice warning"><h3>class pass limit reached.</h3><p>Mr. Grant can reset the pass counter from the teacher dashboard. The line is paused until then.</p></div>` : state.passAvailable ? `
+          <p class="message">Press the button when you are actually leaving for the ${escapeHtml(state.destination.toLowerCase())}.</p>
+          <button class="primary" id="pass-action">start pass</button>` : `
+          <p class="message">The pass is in use. Join the waiting line to save your numbered place; student screens show only their own number.</p>
+          <button class="primary" id="join-queue">join the waiting line</button>`) : '';
         content.className = '';
         content.innerHTML = `
           <div class="student-head">
@@ -239,7 +292,7 @@
               <h2>${escapeHtml(firstName)}.</h2>
               <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'PIN check-in' : 'school Google account')}</p>
             </div>
-            <span class="status-dot ${state.passAvailable ? '' : 'busy'}">${ownPass ? 'you are out' : state.passAvailable ? 'pass available' : 'pass in use'}</span>
+            <span class="status-dot ${statusBusy ? 'busy' : ''}">${escapeHtml(statusLabel)}</span>
           </div>
           <div class="pass-action">
             ${ownPass ? `
@@ -247,14 +300,13 @@
                 <p class="timer-label">time out of class</p>
                 <p class="timer-time" id="student-timer">00:00</p>
               </div>
-              <button class="primary return" id="pass-action">I’m back</button>` : `
-              <p class="message">${state.passAvailable ? `Press the button when you are actually leaving for the ${escapeHtml(state.destination.toLowerCase())}.` : 'Someone else is using the pass. This page checks again automatically.'}</p>
-              <button class="primary" id="pass-action" ${state.passAvailable ? '' : 'disabled'}>start pass</button>`}
+              <button class="primary return" id="pass-action">I’m back</button>` : `${waitingHtml}${readyHtml}`}
             ${(APP_MODE === 'kiosk' || state.method === 'pin') ? '<button class="secondary" id="switch-student">different student</button>' : '<button class="secondary" id="use-pin">use a PIN instead</button>'}
           </div>`;
 
         if (ownPass) startTimer(ownPass.outTime);
-        document.querySelector('#pass-action').addEventListener('click', async (event) => {
+        const passAction = document.querySelector('#pass-action');
+        if (passAction) passAction.addEventListener('click', async (event) => {
           const button = event.currentTarget;
           button.disabled = true;
           clearError();
@@ -268,6 +320,21 @@
           }
         });
 
+        const joinButton = document.querySelector('#join-queue');
+        if (joinButton) joinButton.addEventListener('click', async () => {
+          joinButton.disabled = true;
+          clearError();
+          try { state = await call('joinPassQueue', pinToken); renderStudent(); }
+          catch (error) { showError(error.message); joinButton.disabled = false; }
+        });
+        const leaveButton = document.querySelector('#leave-queue');
+        if (leaveButton) leaveButton.addEventListener('click', async () => {
+          leaveButton.disabled = true;
+          clearError();
+          try { state = await call('leavePassQueue', pinToken); renderStudent(); }
+          catch (error) { showError(error.message); leaveButton.disabled = false; }
+        });
+
         const switchButton = document.querySelector('#switch-student');
         if (switchButton) switchButton.addEventListener('click', resetKiosk);
         const pinButton = document.querySelector('#use-pin');
@@ -278,8 +345,16 @@
         clearError();
         clearInterval(timerHandle);
         setTitle('Daily Check-in');
-        const firstName = String(state.student.name || '').split(/\s+/)[0] || state.student.name;
+        const firstName = firstNameFromDisplayName(state.student.name);
         const pointLabel = `+${escapeHtml(state.pointValue)}`;
+        const streak = state.streak || { current: 0, best: 0, checkedInToday: false, weekendProtected: false, atRiskToday: false };
+        const streakMessage = streak.weekendProtected
+          ? 'Weekend protected—Saturday and Sunday never break the count.'
+          : streak.checkedInToday
+            ? `Today is locked in. Best streak: ${escapeHtml(streak.best)} school day${Number(streak.best) === 1 ? '' : 's'}.`
+            : streak.current
+              ? `Check in today to keep it going. Best streak: ${escapeHtml(streak.best)} school days.`
+              : 'Check in today to begin a school-day streak. Weekends never break it.';
         content.className = '';
         content.innerHTML = `
           <div class="checkin-card">
@@ -290,6 +365,10 @@
                 <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'student PIN' : 'school Google account')}</p>
               </div>
               <span class="status-dot ${state.checkedIn ? '' : 'busy'}">${state.checkedIn ? 'checked in' : 'not checked in yet'}</span>
+            </div>
+            <div class="streak-card" role="status">
+              <span class="streak-number">${escapeHtml(streak.current)}</span>
+              <div><h3>school-day streak.</h3><p>${streakMessage}</p></div>
             </div>
             ${state.checkedIn ? `
               <div class="checkin-confirm" role="status">
@@ -352,12 +431,20 @@
         clearError();
         setTitle(state.appTitle);
         content.className = '';
+        const passSession = state.passSession || { limit: 0, used: 0, remaining: null, limitReached: false, resetAt: '' };
+        const pinEmail = state.pinEmailStatus || { readyRecipients: 0, readyMemberships: 0, sentMemberships: 0, missingMemberships: 0, invalidDomainMemberships: 0 };
         const activeHtml = state.active.length ? state.active.map((pass) => `
           <article class="active-pass">
             <strong>${escapeHtml(pass.studentName)}</strong>
             <small>${escapeHtml(pass.classPeriod)} · out at ${formatClock(pass.outTime)} · <span data-live-time="${escapeHtml(pass.outTime)}">${elapsed(pass.outTime)}</span></small>
             <button class="secondary" data-end-pass="${escapeHtml(pass.passId)}">mark returned</button>
           </article>`).join('') : '<p class="all-clear">Nobody is out right now.</p>';
+        const queueHtml = state.queue && state.queue.length ? state.queue.map((entry) => `
+          <article class="active-pass queue-entry">
+            <strong>#${escapeHtml(entry.position)} · ${escapeHtml(entry.studentName)}</strong>
+            <small>${escapeHtml(entry.classPeriod)} · joined at ${formatClock(entry.joinedAt)}</small>
+            <button class="secondary" data-remove-queue="${escapeHtml(entry.queueId)}">remove from line</button>
+          </article>`).join('') : '<p class="all-clear">Nobody is waiting.</p>';
         const rosterOptions = state.roster
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
@@ -382,12 +469,17 @@
             <td>${escapeHtml(checkIn.classPeriod)}</td>
             <td>${formatClock(checkIn.checkInTime)}</td>
             <td>${escapeHtml(checkIn.point)}</td>
+            <td>${escapeHtml(checkIn.streak && checkIn.streak.current || 0)}</td>
             <td class="method">${escapeHtml(checkIn.method)}</td>
-          </tr>`).join('') : '<tr><td colspan="5">No students have checked in today.</td></tr>';
+          </tr>`).join('') : '<tr><td colspan="6">No students have checked in today.</td></tr>';
         const notCheckedOptions = state.notCheckedIn
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
           .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
+        const pinPreviewHtml = state.pinEmailPreview ? `
+          <div class="notice warning email-preview"><p><strong>${escapeHtml(state.pinEmailPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(state.pinEmailPreview.readyMemberships)} class PINs · ${escapeHtml(state.pinEmailPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(state.pinEmailPreview.subject)}</p><p>${escapeHtml(state.pinEmailPreview.example)}</p></div>` : '';
+        const emailResultHtml = state.emailResult ? `
+          <div class="notice ${state.emailResult.failedRecipients ? 'warning' : 'success'}"><p><strong>${escapeHtml(state.emailResult.message)}</strong></p>${state.emailResult.failures && state.emailResult.failures.length ? `<p>${state.emailResult.failures.map(escapeHtml).join('<br>')}</p>` : ''}</div>` : '';
 
         content.innerHTML = `
           <div class="student-head">
@@ -400,17 +492,43 @@
             </div>
             <div class="checkin-summary">${summaryHtml}</div>
             <div class="teacher-grid">
-              <section class="subcard log"><h3>today’s private check-in log</h3><table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table></section>
+              <section class="subcard log"><h3>today’s private check-in log</h3><table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>streak</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table></section>
               <section class="subcard"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             </div>
           </section>
           <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day private history · maximum ${state.maxActivePasses} active</p></div></div>
+            <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day private history · maximum ${state.maxActivePasses} out at once · ${passSession.used}${passSession.limit ? ` / ${passSession.limit}` : ''} passes used this session</p></div></div>
             <div class="teacher-grid">
               <section class="subcard"><h3>out right now</h3>${activeHtml}</section>
+              <section class="subcard"><h3>waiting line</h3>${queueHtml}</section>
+            </div>
+            <div class="teacher-grid">
+              <section class="subcard"><h3>pass limits</h3><div class="override">
+                <div class="field-grid">
+                  <label>Out at once<input type="number" id="max-active-passes" min="1" max="10" step="1" value="${escapeHtml(state.maxActivePasses)}"></label>
+                  <label>Total before reset<input type="number" id="pass-session-limit" min="0" max="500" step="1" value="${escapeHtml(passSession.limit)}"></label>
+                </div>
+                <p class="message">Use 0 for an unlimited session total. The counter resets automatically each school day or whenever you press reset.</p>
+                <div class="button-row"><button class="secondary" id="save-pass-limits">save limits</button><button class="secondary danger" id="reset-pass-session">reset count + clear line</button></div>
+              </div></section>
               <section class="subcard"><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
             </div>
             <section class="subcard log"><h3>today’s private pass log</h3><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th></tr></thead><tbody>${logRows}</tbody></table></section>
+          </section>
+          <section class="teacher-section">
+            <div class="teacher-section-head"><div><h3>PIN delivery.</h3><p>Private individual emails from your school account; no student sees anyone else’s PIN.</p></div></div>
+            <div class="checkin-summary">
+              <div class="summary-tile"><strong>${escapeHtml(pinEmail.readyRecipients)}</strong><span>student emails ready</span></div>
+              <div class="summary-tile"><strong>${escapeHtml(pinEmail.readyMemberships)}</strong><span>class PINs ready</span></div>
+              <div class="summary-tile"><strong>${escapeHtml(pinEmail.sentMemberships)}</strong><span>class PINs sent</span></div>
+              <div class="summary-tile"><strong>${escapeHtml(pinEmail.missingMemberships)}</strong><span>PIN cards missing</span></div>
+              <div class="summary-tile"><strong>${escapeHtml(pinEmail.invalidDomainMemberships)}</strong><span>email-domain issues</span></div>
+            </div>
+            <div class="subcard" style="margin-top:18px"><h3>email controls</h3><div class="override">
+              <p class="message">Preview checks the exact recipient count and today’s available mail quota. Sending then requires a second confirmation and the phrase EMAIL PINS.</p>
+              <div class="button-row"><button class="secondary" id="preview-pin-emails">preview PIN emails</button><button class="primary" id="send-pin-emails" ${pinEmail.readyRecipients ? '' : 'disabled'}>email unsent PINs</button></div>
+              ${pinPreviewHtml}${emailResultHtml}
+            </div></div>
           </section>`;
 
         clearInterval(timerHandle);
@@ -435,6 +553,60 @@
           try { state = await call('teacherEndPass', button.dataset.endPass, 'Ended from teacher dashboard'); renderTeacher(); }
           catch (error) { showError(error.message); button.disabled = false; }
         }));
+        document.querySelectorAll('[data-remove-queue]').forEach((button) => button.addEventListener('click', async () => {
+          button.disabled = true;
+          try { state = await call('teacherRemoveFromQueue', button.dataset.removeQueue); renderTeacher(); }
+          catch (error) { showError(error.message); button.disabled = false; }
+        }));
+
+        document.querySelector('#save-pass-limits').addEventListener('click', async (event) => {
+          const maxActive = Number(document.querySelector('#max-active-passes').value);
+          const sessionLimit = Number(document.querySelector('#pass-session-limit').value);
+          event.currentTarget.disabled = true;
+          try { state = await call('teacherSetPassLimits', maxActive, sessionLimit); renderTeacher(); }
+          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
+        });
+        document.querySelector('#reset-pass-session').addEventListener('click', async (event) => {
+          if (!window.confirm('Reset the pass counter and clear the waiting line? Active passes will stay open and keep timing.')) return;
+          event.currentTarget.disabled = true;
+          try { state = await call('teacherResetPassSession'); renderTeacher(); }
+          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
+        });
+
+        document.querySelector('#preview-pin-emails').addEventListener('click', async (event) => {
+          event.currentTarget.disabled = true;
+          try {
+            state.pinEmailPreview = await call('previewStudentPinEmails');
+            renderTeacher();
+          } catch (error) {
+            showError(error.message);
+            event.currentTarget.disabled = false;
+          }
+        });
+        document.querySelector('#send-pin-emails').addEventListener('click', async (event) => {
+          event.currentTarget.disabled = true;
+          try {
+            const preview = state.pinEmailPreview || await call('previewStudentPinEmails');
+            if (!preview.readyRecipients) {
+              showError('No unsent PIN emails are ready.');
+              event.currentTarget.disabled = false;
+              return;
+            }
+            const approved = window.confirm(`Send ${preview.readyRecipients} private student emails containing ${preview.readyMemberships} class PINs?`);
+            if (!approved) { event.currentTarget.disabled = false; return; }
+            const phrase = window.prompt('Final confirmation: type EMAIL PINS exactly.');
+            if (phrase !== 'EMAIL PINS') {
+              showError('No messages were sent. The confirmation phrase did not match.');
+              event.currentTarget.disabled = false;
+              return;
+            }
+            state = await call('sendStudentPinEmails', phrase);
+            renderTeacher();
+          } catch (error) {
+            showError(error.message);
+            event.currentTarget.disabled = false;
+          }
+        });
       };
 
       const refreshTeacher = async () => {
@@ -459,7 +631,7 @@
           else if (!state.recognized) renderPin(state.message, 'pass');
           else renderStudent();
           if (APP_MODE !== 'checkin') {
-            refreshHandle = setInterval(APP_MODE === 'teacher' ? refreshTeacher : refreshStudent, APP_MODE === 'teacher' ? 15000 : 10000);
+            refreshHandle = setInterval(APP_MODE === 'teacher' ? refreshTeacher : refreshStudent, APP_MODE === 'teacher' ? 10000 : 5000);
           }
         } catch (error) {
           content.className = '';

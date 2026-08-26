@@ -2,6 +2,7 @@ const GD_SHEETS = {
   ROSTER: 'Roster',
   LOG: 'Pass Log',
   CHECKINS: 'Daily Check-ins',
+  QUEUE: 'Pass Queue',
   SETTINGS: 'Settings',
   PINS: 'PIN Cards',
 };
@@ -10,19 +11,25 @@ const GD_HEADERS = {
   ROSTER: ['Student Email', 'Student Name', 'Class / Period', 'PIN Hash', 'Active'],
   LOG: ['Pass ID', 'Student Email', 'Student Name', 'Class / Period', 'Destination', 'Out Time', 'Return Time', 'Minutes Out', 'Method', 'Status', 'Ended By', 'Note'],
   CHECKINS: ['Check-in ID', 'Date', 'Check-in Time', 'Student Email', 'Student Name', 'Class / Period', 'Method', 'Point', 'Status', 'Note'],
+  QUEUE: ['Queue ID', 'Student Email', 'Student Name', 'Class / Period', 'Joined At', 'Status', 'Resolved At', 'Resolution'],
   SETTINGS: ['Key', 'Value', 'What it controls'],
-  PINS: ['Student Email', 'Student Name', 'Class / Period', 'PIN', 'Generated At'],
+  PINS: ['Student Email', 'Student Name', 'Class / Period', 'PIN', 'Generated At', 'Email Status', 'Emailed At', 'Email Detail'],
 };
 
 const GD_DEFAULT_SETTINGS = [
   ['TEACHER_EMAILS', 'gauch@mtmorrisschools.org', 'Comma-separated staff allowed to open teacher mode'],
   ['SCHOOL_DOMAIN', 'mtmorrisschools.org', 'Only signed-in accounts from this Google Workspace domain may load the app'],
   ['MAX_ACTIVE_PASSES', '1', 'How many students may be out at once'],
+  ['PASS_SESSION_LIMIT', '0', 'How many passes may start before the teacher resets the counter; 0 means unlimited'],
+  ['PASS_SESSION_RESET_AT', '', 'Automatic timestamp written by the teacher reset button'],
   ['LATE_AFTER_MINUTES', '10', 'When an active pass is highlighted for the teacher'],
   ['RETENTION_DAYS', '180', 'Returned passes older than this are removed by the daily cleanup'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
   ['APP_TITLE', 'Mr. Grant’s Hall Pass', 'Name shown at the top of the pass app'],
   ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
+  ['STUDENT_EMAIL_DOMAIN', 'students.mtmorrisschools.org', 'Only roster addresses at this domain receive PIN emails'],
+  ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk class PIN', 'Subject line for student PIN emails'],
+  ['CHECKIN_URL', 'https://grant-desk.com/check-in/', 'Student link included in PIN emails'],
 ];
 
 function onOpen() {
@@ -30,6 +37,8 @@ function onOpen() {
     .createMenu('GrantDesk Pass')
     .addItem('1. Set up / repair workbook', 'setupProject')
     .addItem('2. Generate missing student PINs', 'generateMissingPins')
+    .addItem('Preview PIN email distribution', 'previewPinEmailDistribution')
+    .addItem('Email unsent PINs…', 'emailStudentPinsFromSheet')
     .addItem('Clear printed PIN cards', 'clearPinCards')
     .addSeparator()
     .addItem('Open today’s check-in log', 'openTodayCheckIns')
@@ -177,6 +186,44 @@ function refreshStudentState(pinToken) {
   return getStudentState_(resolved.student, pinToken || '', resolved.method);
 }
 
+function joinPassQueue(pinToken) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const resolved = resolveStudent_(pinToken);
+    const student = resolved.student;
+    if (getActivePasses_().some((pass) => pass.studentKey === student.key)) {
+      return getStudentState_(student, pinToken || '', resolved.method);
+    }
+    const waiting = getWaitingQueue_();
+    if (!waiting.some((entry) => entry.studentKey === student.key)) {
+      const session = getPassSessionState_(getSettings_(), readPassLog_());
+      if (session.limitReached) {
+        throw new Error('This class has reached its pass limit. Mr. Grant can reset the counter when the next pass session begins.');
+      }
+      getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE).appendRow([
+        Utilities.getUuid(), student.email, student.name, student.classPeriod,
+        new Date(), 'WAITING', '', '',
+      ]);
+    }
+    return getStudentState_(student, pinToken || '', resolved.method);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function leavePassQueue(pinToken) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const resolved = resolveStudent_(pinToken);
+    closeWaitingQueueForStudent_(resolved.student.key, 'CANCELLED', 'Student left the line');
+    return getStudentState_(resolved.student, pinToken || '', resolved.method);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function startPass(pinToken) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
@@ -184,12 +231,26 @@ function startPass(pinToken) {
     const resolved = resolveStudent_(pinToken);
     const student = resolved.student;
     const settings = getSettings_();
-    const active = getActivePasses_();
+    const log = readPassLog_();
+    const active = log.filter((pass) => pass.status === 'OUT');
     const existing = active.find((pass) => pass.studentKey === student.key);
     if (existing) return getStudentState_(student, pinToken || '', resolved.method);
 
     const maxActive = numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1);
-    if (active.length >= maxActive) throw new Error('The pass is in use right now. Give it a minute and try again.');
+    const session = getPassSessionState_(settings, log);
+    if (session.limitReached) {
+      throw new Error('This class has reached its pass limit. Mr. Grant can reset the counter when the next pass session begins.');
+    }
+    const openSlots = Math.max(0, maxActive - active.length);
+    const availableStarts = session.limit ? Math.min(openSlots, session.remaining) : openSlots;
+    if (!availableStarts) throw new Error('The pass is in use. Your numbered place in line is saved.');
+
+    const waiting = getWaitingQueue_();
+    const ownQueueIndex = waiting.findIndex((entry) => entry.studentKey === student.key);
+    if (waiting.length && (ownQueueIndex < 0 || ownQueueIndex >= availableStarts)) {
+      const position = ownQueueIndex < 0 ? waiting.length + 1 : ownQueueIndex + 1;
+      throw new Error(`Please wait for your turn. Your current place in line is #${position}.`);
+    }
 
     const now = new Date();
     getSpreadsheet_().getSheetByName(GD_SHEETS.LOG).appendRow([
@@ -206,6 +267,7 @@ function startPass(pinToken) {
       '',
       '',
     ]);
+    if (ownQueueIndex >= 0) closeQueueRow_(waiting[ownQueueIndex].row, 'STARTED', 'Pass started');
     return getStudentState_(student, pinToken || '', resolved.method);
   } finally {
     lock.releaseLock();
@@ -230,6 +292,52 @@ function refreshTeacherState() {
   return getTeacherState_();
 }
 
+function teacherSetPassLimits(maxActivePasses, sessionPassLimit) {
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  const maxActive = Number(maxActivePasses);
+  const sessionLimit = Number(sessionPassLimit);
+  if (!Number.isInteger(maxActive) || maxActive < 1 || maxActive > 10) {
+    throw new Error('Concurrent passes must be a whole number from 1 through 10.');
+  }
+  if (!Number.isInteger(sessionLimit) || sessionLimit < 0 || sessionLimit > 500) {
+    throw new Error('The pass-session limit must be a whole number from 0 through 500. Use 0 for unlimited.');
+  }
+  setSettingValue_('MAX_ACTIVE_PASSES', String(maxActive));
+  setSettingValue_('PASS_SESSION_LIMIT', String(sessionLimit));
+  return getTeacherState_();
+}
+
+function teacherResetPassSession() {
+  const settings = getSettings_();
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    setSettingValue_('PASS_SESSION_RESET_AT', new Date().toISOString());
+    cancelAllWaitingQueue_(`Pass session reset by ${teacher}`);
+    return getTeacherState_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function teacherRemoveFromQueue(queueId) {
+  const settings = getSettings_();
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const entry = getWaitingQueue_().find((item) => item.queueId === String(queueId || ''));
+    if (entry) closeQueueRow_(entry.row, 'REMOVED', `Removed by ${teacher}`);
+    return getTeacherState_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function teacherStartPass(studentKey) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
@@ -240,15 +348,21 @@ function teacherStartPass(studentKey) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const active = getActivePasses_();
+    const log = readPassLog_();
+    const active = log.filter((pass) => pass.status === 'OUT');
     if (active.some((pass) => pass.studentKey === student.key)) return getTeacherState_();
     if (active.length >= numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1)) {
       throw new Error('The pass is already in use. End the active pass before starting another.');
+    }
+    const session = getPassSessionState_(settings, log);
+    if (session.limitReached) {
+      throw new Error('The current pass-session limit has been reached. Reset the pass counter before starting another.');
     }
     getSpreadsheet_().getSheetByName(GD_SHEETS.LOG).appendRow([
       Utilities.getUuid(), student.email, student.name, student.classPeriod, settings.DESTINATION,
       new Date(), '', '', 'teacher', 'OUT', teacher, 'Started by teacher',
     ]);
+    closeWaitingQueueForStudent_(student.key, 'STARTED', 'Pass started by teacher');
     return getTeacherState_();
   } finally {
     lock.releaseLock();
@@ -295,8 +409,12 @@ function getTeacherState_() {
     classPeriod: student.classPeriod,
   }));
   const log = readPassLog_();
+  const active = log.filter((pass) => pass.status === 'OUT');
+  const queue = getWaitingQueue_();
+  const passSession = getPassSessionState_(settings, log);
   const todayKey = dateKey_(new Date());
-  const checkInsToday = readCheckIns_()
+  const allCheckIns = readCheckIns_();
+  const checkInsToday = allCheckIns
     .filter((checkIn) => checkIn.dateKey === todayKey && checkIn.status === 'CHECKED_IN')
     .sort((a, b) => a.checkInTime - b.checkInTime);
   const checkedKeys = new Set(checkInsToday.map((checkIn) => checkIn.studentKey));
@@ -321,20 +439,27 @@ function getTeacherState_() {
     appTitle: settings.APP_TITLE,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     maxActivePasses: numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1),
+    passSession,
     retentionDays: numberSetting_(settings, 'RETENTION_DAYS', 180),
-    active: log.filter((pass) => pass.status === 'OUT').map(clientPass_),
+    active: active.map(clientPass_),
+    queue: queue.map((entry, index) => clientQueue_(entry, index + 1)),
     today,
     roster,
-    checkInsToday: checkInsToday.map(clientCheckIn_),
+    checkInsToday: checkInsToday.map((checkIn) => ({
+      ...clientCheckIn_(checkIn),
+      streak: calculateCheckInStreak_(checkIn.studentKey, allCheckIns, todayKey),
+    })),
     checkInSummary,
     notCheckedIn: roster.filter((student) => !checkedKeys.has(student.key)),
+    pinEmailStatus: getPinEmailStatus_(),
   };
 }
 
 function getCheckInState_(student, pinToken, method) {
   const settings = getSettings_();
   const todayKey = dateKey_(new Date());
-  const checkIn = readCheckIns_().find((entry) => (
+  const allCheckIns = readCheckIns_();
+  const checkIn = allCheckIns.find((entry) => (
     entry.dateKey === todayKey &&
     entry.studentKey === student.key &&
     entry.status === 'CHECKED_IN'
@@ -351,13 +476,25 @@ function getCheckInState_(student, pinToken, method) {
     pointValue: numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1),
     checkedIn: Boolean(checkIn),
     checkIn: checkIn ? clientCheckIn_(checkIn) : null,
+    streak: calculateCheckInStreak_(student.key, allCheckIns, todayKey),
   };
 }
 
 function getStudentState_(student, pinToken, method) {
   const settings = getSettings_();
-  const active = getActivePasses_();
+  const log = readPassLog_();
+  const active = log.filter((pass) => pass.status === 'OUT');
   const ownPass = active.find((pass) => pass.studentKey === student.key);
+  const waiting = getWaitingQueue_();
+  const queueIndex = waiting.findIndex((entry) => entry.studentKey === student.key);
+  const maxActive = numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1);
+  const passSession = getPassSessionState_(settings, log);
+  const openSlots = Math.max(0, maxActive - active.length);
+  const remainingStarts = passSession.limit ? passSession.remaining : openSlots;
+  const usableSlots = Math.min(openSlots, remainingStarts);
+  const passAvailable = Boolean(ownPass) || (!passSession.limitReached && (
+    queueIndex >= 0 ? queueIndex < usableSlots : waiting.length === 0 && usableSlots > 0
+  ));
   return {
     ok: true,
     mode: 'student',
@@ -368,7 +505,12 @@ function getStudentState_(student, pinToken, method) {
     pinToken: pinToken || '',
     method,
     ownPass: ownPass ? clientPass_(ownPass) : null,
-    passAvailable: Boolean(ownPass) || active.length < numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1),
+    passAvailable,
+    queuePosition: queueIndex >= 0 ? queueIndex + 1 : 0,
+    queueLength: waiting.length,
+    queuedAt: queueIndex >= 0 ? clientQueue_(waiting[queueIndex], queueIndex + 1).joinedAt : '',
+    canJoinQueue: !ownPass && queueIndex < 0 && !passSession.limitReached,
+    passSession,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
   };
 }
@@ -423,6 +565,84 @@ function closePassRow_(row, endedBy, note) {
 
 function getActivePasses_() {
   return readPassLog_().filter((pass) => pass.status === 'OUT');
+}
+
+function getWaitingQueue_() {
+  return readPassQueue_()
+    .filter((entry) => entry.status === 'WAITING')
+    .sort((a, b) => a.joinedAt - b.joinedAt || a.row - b.row);
+}
+
+function readPassQueue_() {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.QUEUE.length).getValues().map((row, index) => ({
+    row: index + 2,
+    queueId: String(row[0] || ''),
+    studentEmail: normalizeEmail_(row[1]),
+    studentName: String(row[2] || ''),
+    classPeriod: String(row[3] || ''),
+    studentKey: rosterKey_(row[1], row[3]),
+    joinedAt: row[4] instanceof Date ? row[4] : new Date(row[4]),
+    status: String(row[5] || ''),
+    resolvedAt: row[6] instanceof Date ? row[6] : (row[6] ? new Date(row[6]) : null),
+    resolution: String(row[7] || ''),
+  })).filter((entry) => entry.queueId && entry.joinedAt && !isNaN(entry.joinedAt));
+}
+
+function clientQueue_(entry, position) {
+  return {
+    queueId: entry.queueId,
+    studentName: entry.studentName,
+    classPeriod: entry.classPeriod,
+    studentKey: entry.studentKey,
+    joinedAt: entry.joinedAt && !isNaN(entry.joinedAt) ? entry.joinedAt.toISOString() : '',
+    position,
+  };
+}
+
+function closeWaitingQueueForStudent_(studentKey, status, resolution) {
+  getWaitingQueue_()
+    .filter((entry) => entry.studentKey === studentKey)
+    .forEach((entry) => closeQueueRow_(entry.row, status, resolution));
+}
+
+function closeQueueRow_(row, status, resolution) {
+  getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE).getRange(row, 6, 1, 3).setValues([[
+    status,
+    new Date(),
+    String(resolution || '').slice(0, 300),
+  ]]);
+}
+
+function cancelAllWaitingQueue_(resolution) {
+  getWaitingQueue_().forEach((entry) => closeQueueRow_(entry.row, 'RESET', resolution));
+}
+
+function getPassSessionState_(settings, log) {
+  const todayStart = schoolDayStart_();
+  const configuredReset = new Date(String(settings.PASS_SESSION_RESET_AT || ''));
+  const resetAt = configuredReset instanceof Date && !isNaN(configuredReset) && configuredReset > todayStart
+    ? configuredReset
+    : todayStart;
+  const limit = numberSetting_(settings, 'PASS_SESSION_LIMIT', 0);
+  const used = log.filter((pass) => pass.outDate && !isNaN(pass.outDate) && pass.outDate >= resetAt).length;
+  return {
+    limit,
+    used,
+    remaining: limit ? Math.max(0, limit - used) : null,
+    limitReached: Boolean(limit && used >= limit),
+    resetAt: resetAt.toISOString(),
+  };
+}
+
+function schoolDayStart_() {
+  return Utilities.parseDate(
+    `${dateKey_(new Date())} 00:00:00`,
+    Session.getScriptTimeZone(),
+    'yyyy-MM-dd HH:mm:ss'
+  );
 }
 
 function readPassLog_() {
@@ -540,6 +760,75 @@ function clientCheckIn_(checkIn) {
   };
 }
 
+function calculateCheckInStreak_(studentKey, checkIns, todayKey) {
+  const days = [...new Set(checkIns
+    .filter((entry) => entry.studentKey === studentKey && entry.status === 'CHECKED_IN' && isWeekdayKey_(entry.dateKey))
+    .map((entry) => entry.dateKey))]
+    .sort();
+  const daySet = new Set(days);
+  const checkedInToday = daySet.has(todayKey);
+  const targetKey = checkedInToday && isWeekdayKey_(todayKey)
+    ? todayKey
+    : previousWeekdayKey_(todayKey);
+
+  let current = 0;
+  if (daySet.has(targetKey)) {
+    let cursor = targetKey;
+    while (daySet.has(cursor)) {
+      current += 1;
+      cursor = previousWeekdayKey_(cursor);
+    }
+  }
+
+  let best = 0;
+  let run = 0;
+  let previous = '';
+  days.forEach((key) => {
+    run = previous && nextWeekdayKey_(previous) === key ? run + 1 : 1;
+    best = Math.max(best, run);
+    previous = key;
+  });
+
+  return {
+    current,
+    best,
+    checkedInToday,
+    weekendProtected: !isWeekdayKey_(todayKey),
+    atRiskToday: isWeekdayKey_(todayKey) && !checkedInToday && current > 0,
+  };
+}
+
+function isWeekdayKey_(key) {
+  const date = dateFromKey_(key);
+  const day = date.getUTCDay();
+  return day >= 1 && day <= 5;
+}
+
+function previousWeekdayKey_(key) {
+  let date = dateFromKey_(key);
+  do {
+    date = new Date(date.getTime() - 86400000);
+  } while ([0, 6].includes(date.getUTCDay()));
+  return utcDateKey_(date);
+}
+
+function nextWeekdayKey_(key) {
+  let date = dateFromKey_(key);
+  do {
+    date = new Date(date.getTime() + 86400000);
+  } while ([0, 6].includes(date.getUTCDay()));
+  return utcDateKey_(date);
+}
+
+function dateFromKey_(key) {
+  const parts = String(key || '').split('-').map(Number);
+  return new Date(Date.UTC(parts[0] || 1970, (parts[1] || 1) - 1, parts[2] || 1, 12));
+}
+
+function utcDateKey_(date) {
+  return Utilities.formatDate(date, 'UTC', 'yyyy-MM-dd');
+}
+
 function getRoster_() {
   const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
   const lastRow = sheet.getLastRow();
@@ -609,6 +898,244 @@ function generateMissingPins() {
     cards.length ? 'Print or distribute the PIN Cards tab, then clear it from the GrantDesk Pass menu.' : 'Every active roster row already has a PIN hash.',
     SpreadsheetApp.getUi().ButtonSet.OK
   );
+}
+
+function previewStudentPinEmails() {
+  setupWorkbook_();
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  const status = getPinEmailStatus_();
+  return {
+    ...status,
+    remainingDailyQuota: MailApp.getRemainingDailyQuota(),
+    subject: settings.PIN_EMAIL_SUBJECT,
+    example: [
+      'Hello Jordan,',
+      '',
+      'Here is your private GrantDesk PIN:',
+      'Period 1 — C US History A: 123456',
+      '',
+      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. Keep this PIN private.`,
+      '',
+      '— Mr. Grant',
+    ].join('\n'),
+  };
+}
+
+function previewPinEmailDistribution() {
+  const preview = previewStudentPinEmails();
+  SpreadsheetApp.getUi().alert(
+    'GrantDesk PIN email preview',
+    [
+      `${preview.readyRecipients} student email${preview.readyRecipients === 1 ? '' : 's'} ready`,
+      `${preview.readyMemberships} class PIN${preview.readyMemberships === 1 ? '' : 's'} included`,
+      `${preview.sentMemberships} class PIN${preview.sentMemberships === 1 ? '' : 's'} already marked sent`,
+      `${preview.missingMemberships} active roster row${preview.missingMemberships === 1 ? '' : 's'} missing a printable PIN`,
+      `${preview.invalidDomainMemberships} roster address${preview.invalidDomainMemberships === 1 ? '' : 'es'} outside the student domain`,
+      `${preview.remainingDailyQuota} recipient${preview.remainingDailyQuota === 1 ? '' : 's'} remaining in today’s Apps Script mail quota`,
+      '',
+      'Nothing was sent. Use the teacher dashboard or GrantDesk Pass → Email unsent PINs when ready.',
+    ].join('\n'),
+    SpreadsheetApp.getUi().ButtonSet.OK
+  );
+}
+
+function emailStudentPinsFromSheet() {
+  const ui = SpreadsheetApp.getUi();
+  const response = ui.prompt(
+    'Email student PINs',
+    'This sends one private message to every ready student address. Type EMAIL PINS to confirm.',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (response.getSelectedButton() !== ui.Button.OK) return;
+  const state = sendStudentPinEmails(response.getResponseText());
+  const result = state.emailResult;
+  ui.alert(
+    'PIN email batch finished',
+    `${result.sentRecipients} student email${result.sentRecipients === 1 ? '' : 's'} sent; ${result.sentMemberships} class PIN${result.sentMemberships === 1 ? '' : 's'} delivered; ${result.failedRecipients} recipient${result.failedRecipients === 1 ? '' : 's'} failed.`,
+    ui.ButtonSet.OK
+  );
+}
+
+function sendStudentPinEmails(confirmText) {
+  setupWorkbook_();
+  const settings = getSettings_();
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings);
+  if (String(confirmText || '').trim() !== 'EMAIL PINS') {
+    throw new Error('No messages were sent. Type EMAIL PINS exactly to confirm the batch.');
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const delivery = buildPinEmailGroups_();
+    const groups = delivery.readyGroups;
+    const quota = MailApp.getRemainingDailyQuota();
+    if (!groups.length) {
+      const state = getTeacherState_();
+      state.emailResult = { sentRecipients: 0, sentMemberships: 0, failedRecipients: 0, message: 'No unsent PIN emails were ready.' };
+      return state;
+    }
+    if (quota < groups.length) {
+      throw new Error(`No messages were sent. ${groups.length} recipients are ready, but today’s remaining mail quota is ${quota}.`);
+    }
+
+    let sentRecipients = 0;
+    let sentMemberships = 0;
+    let failedRecipients = 0;
+    const failures = [];
+    groups.forEach((group) => {
+      try {
+        MailApp.sendEmail(buildPinEmailMessage_(group, settings, teacher));
+        markPinEmailRows_(group.memberships.map((membership) => membership.row), 'SENT', settings.PIN_EMAIL_SUBJECT);
+        sentRecipients += 1;
+        sentMemberships += group.memberships.length;
+      } catch (error) {
+        const detail = String(error && error.message ? error.message : error).slice(0, 250);
+        markPinEmailRows_(group.memberships.map((membership) => membership.row), 'ERROR', detail);
+        failedRecipients += 1;
+        failures.push(`${group.email}: ${detail}`);
+      }
+    });
+
+    const state = getTeacherState_();
+    state.emailResult = {
+      sentRecipients,
+      sentMemberships,
+      failedRecipients,
+      failures: failures.slice(0, 10),
+      message: failedRecipients
+        ? `${sentRecipients} student emails sent; ${failedRecipients} need attention.`
+        : `${sentRecipients} student emails sent successfully.`,
+    };
+    return state;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getPinEmailStatus_() {
+  const delivery = buildPinEmailGroups_();
+  return {
+    readyRecipients: delivery.readyGroups.length,
+    readyMemberships: delivery.readyGroups.reduce((sum, group) => sum + group.memberships.length, 0),
+    sentMemberships: delivery.sentMemberships,
+    missingMemberships: delivery.missingMemberships,
+    invalidDomainMemberships: delivery.invalidDomainMemberships,
+  };
+}
+
+function buildPinEmailGroups_() {
+  const settings = getSettings_();
+  const studentDomain = String(settings.STUDENT_EMAIL_DOMAIN || '').toLowerCase();
+  const cardsByKey = new Map();
+  readPinCards_().forEach((card) => cardsByKey.set(card.studentKey, card));
+  const groupsByEmail = new Map();
+  let sentMemberships = 0;
+  let missingMemberships = 0;
+  let invalidDomainMemberships = 0;
+
+  getRoster_().forEach((student) => {
+    const card = cardsByKey.get(student.key);
+    if (!card || !/^\d{6}$/.test(card.pin)) {
+      missingMemberships += 1;
+      return;
+    }
+    if (student.email.split('@').pop() !== studentDomain) {
+      invalidDomainMemberships += 1;
+      return;
+    }
+    if (card.emailStatus === 'SENT') {
+      sentMemberships += 1;
+      return;
+    }
+    if (!groupsByEmail.has(student.email)) {
+      groupsByEmail.set(student.email, { email: student.email, name: student.name, memberships: [] });
+    }
+    groupsByEmail.get(student.email).memberships.push(card);
+  });
+
+  return {
+    readyGroups: [...groupsByEmail.values()].sort((a, b) => a.email.localeCompare(b.email)),
+    sentMemberships,
+    missingMemberships,
+    invalidDomainMemberships,
+  };
+}
+
+function readPinCards_() {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.PINS.length).getValues().map((row, index) => ({
+    row: index + 2,
+    studentEmail: normalizeEmail_(row[0]),
+    studentName: String(row[1] || ''),
+    classPeriod: String(row[2] || ''),
+    studentKey: rosterKey_(row[0], row[2]),
+    pin: String(row[3] || '').replace(/\D/g, ''),
+    generatedAt: row[4] instanceof Date ? row[4] : (row[4] ? new Date(row[4]) : null),
+    emailStatus: String(row[5] || '').trim().toUpperCase(),
+    emailedAt: row[6] instanceof Date ? row[6] : (row[6] ? new Date(row[6]) : null),
+    emailDetail: String(row[7] || ''),
+  })).filter((card) => card.studentEmail && card.studentKey);
+}
+
+function buildPinEmailMessage_(group, settings, teacherEmail) {
+  const firstName = firstNameFromStudentName_(group.name);
+  const membershipLines = group.memberships.map((membership) => `${membership.classPeriod}: ${membership.pin}`);
+  const body = [
+    `Hello ${firstName},`,
+    '',
+    'Here is your private GrantDesk class PIN:',
+    ...membershipLines,
+    '',
+    `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass.`,
+    'Keep this PIN private. If you have more than one Mr. Grant class, use the PIN listed for the class you are attending.',
+    '',
+    '— Mr. Grant',
+  ].join('\n');
+  const htmlRows = group.memberships.map((membership) => (
+    `<li><strong>${escapeHtmlForEmail_(membership.classPeriod)}</strong>: <span style="font-family:monospace;font-size:18px">${escapeHtmlForEmail_(membership.pin)}</span></li>`
+  )).join('');
+  const htmlBody = [
+    `<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,
+    '<p>Here is your private GrantDesk class PIN:</p>',
+    `<ul>${htmlRows}</ul>`,
+    `<p>Open <a href="${escapeHtmlForEmail_(settings.CHECKIN_URL)}">GrantDesk Daily Check-in</a> for Daily Check-in and Hall Pass.</p>`,
+    '<p>Keep this PIN private. If you have more than one Mr. Grant class, use the PIN listed for the class you are attending.</p>',
+    '<p>— Mr. Grant</p>',
+  ].join('');
+  return {
+    to: group.email,
+    subject: settings.PIN_EMAIL_SUBJECT,
+    body,
+    htmlBody,
+    name: 'GrantDesk · Mr. Grant',
+    replyTo: teacherEmail,
+  };
+}
+
+function firstNameFromStudentName_(value) {
+  const name = String(value || 'student').trim();
+  const firstSide = name.includes(',') ? name.split(',').slice(1).join(',').trim() : name;
+  return firstSide.split(/\s+/)[0] || name;
+}
+
+function markPinEmailRows_(rows, status, detail) {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+  rows.forEach((row) => sheet.getRange(row, 6, 1, 3).setValues([[
+    status,
+    new Date(),
+    String(detail || '').slice(0, 250),
+  ]]));
+}
+
+function escapeHtmlForEmail_(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[character]));
 }
 
 function clearPinCards() {
@@ -683,6 +1210,19 @@ function getSettings_() {
   }, {});
 }
 
+function setSettingValue_(key, value) {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.SETTINGS);
+  const lastRow = sheet.getLastRow();
+  const keys = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat().map(String) : [];
+  const index = keys.indexOf(String(key));
+  if (index >= 0) {
+    sheet.getRange(index + 2, 2).setValue(value);
+    return;
+  }
+  const description = (GD_DEFAULT_SETTINGS.find((row) => row[0] === key) || ['', '', ''])[2];
+  sheet.appendRow([key, value, description]);
+}
+
 function numberSetting_(settings, key, fallback) {
   const value = Number(settings[key]);
   return Number.isFinite(value) && value >= 0 ? value : fallback;
@@ -722,8 +1262,9 @@ function dateKey_(date) {
 function purgeOldPasses() {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
-  const removed = purgeOldPasses_();
-  SpreadsheetApp.getUi().alert(`${removed} old returned pass${removed === 1 ? '' : 'es'} removed.`);
+  const removedPasses = purgeOldPasses_();
+  const removedQueueRows = purgeOldQueue_();
+  SpreadsheetApp.getUi().alert(`${removedPasses} old returned pass${removedPasses === 1 ? '' : 'es'} and ${removedQueueRows} resolved queue entr${removedQueueRows === 1 ? 'y' : 'ies'} removed.`);
 }
 
 function purgeIfDue_() {
@@ -731,6 +1272,7 @@ function purgeIfDue_() {
   const today = dateKey_(new Date());
   if (properties.getProperty('LAST_PURGE') === today) return;
   purgeOldPasses_();
+  purgeOldQueue_();
   properties.setProperty('LAST_PURGE', today);
 }
 
@@ -744,6 +1286,19 @@ function purgeOldPasses_() {
     .map((pass) => pass.row)
     .sort((a, b) => b - a);
   const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.LOG);
+  rows.forEach((row) => sheet.deleteRow(row));
+  return rows.length;
+}
+
+function purgeOldQueue_() {
+  const retentionDays = numberSetting_(getSettings_(), 'RETENTION_DAYS', 180);
+  if (!retentionDays) return 0;
+  const cutoff = Date.now() - retentionDays * 86400000;
+  const rows = readPassQueue_()
+    .filter((entry) => entry.status !== 'WAITING' && entry.resolvedAt && entry.resolvedAt.getTime() < cutoff)
+    .map((entry) => entry.row)
+    .sort((a, b) => b - a);
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE);
   rows.forEach((row) => sheet.deleteRow(row));
   return rows.length;
 }
@@ -767,6 +1322,7 @@ function setupWorkbook_() {
   ensureSheet_(spreadsheet, GD_SHEETS.ROSTER, GD_HEADERS.ROSTER);
   ensureSheet_(spreadsheet, GD_SHEETS.LOG, GD_HEADERS.LOG);
   ensureSheet_(spreadsheet, GD_SHEETS.CHECKINS, GD_HEADERS.CHECKINS);
+  ensureSheet_(spreadsheet, GD_SHEETS.QUEUE, GD_HEADERS.QUEUE);
   ensureSheet_(spreadsheet, GD_SHEETS.SETTINGS, GD_HEADERS.SETTINGS);
   ensureSheet_(spreadsheet, GD_SHEETS.PINS, GD_HEADERS.PINS);
 
@@ -782,7 +1338,9 @@ function setupWorkbook_() {
   spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange('B:B').setNumberFormat('@');
   spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange('C:C').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange('H:H').setNumberFormat('0');
+  spreadsheet.getSheetByName(GD_SHEETS.QUEUE).getRange('E:G').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.PINS).getRange('E:E').setNumberFormat('m/d/yyyy h:mm am/pm');
+  spreadsheet.getSheetByName(GD_SHEETS.PINS).getRange('G:G').setNumberFormat('m/d/yyyy h:mm am/pm');
 }
 
 function ensureSheet_(spreadsheet, name, headers) {
@@ -795,6 +1353,17 @@ function ensureSheet_(spreadsheet, name, headers) {
       .setBackground('#eeeeee')
       .setFontWeight('bold')
       .setFontColor('#202127');
+  } else {
+    const existing = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+    headers.forEach((header, index) => {
+      if (!String(existing[index] || '').trim()) {
+        sheet.getRange(1, index + 1)
+          .setValue(header)
+          .setBackground('#eeeeee')
+          .setFontWeight('bold')
+          .setFontColor('#202127');
+      }
+    });
   }
   return sheet;
 }

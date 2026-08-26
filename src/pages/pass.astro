@@ -30,7 +30,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       )}
     </section>
 
-    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+    <div class="mt-4 grid gap-4 sm:grid-cols-3">
       <section class="pass-option">
         <p class="pass-option__number">02</p>
         <h2>PIN + kiosk.</h2>
@@ -41,15 +41,20 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       </section>
       <section class="pass-option">
         <p class="pass-option__number">03</p>
+        <h2>numbered line.</h2>
+        <p>If the pass is busy, join the line. You see your own place—not anyone else’s name—and it updates automatically. Once you leave, the timer runs until you press “I’m back.”</p>
+      </section>
+      <section class="pass-option">
+        <p class="pass-option__number">04</p>
         <h2>teacher backup.</h2>
-        <p>If the Chromebook and kiosk both fight you, Mr. Grant can start or end the pass from the teacher view.</p>
+        <p>If the Chromebook and kiosk both fight you, Mr. Grant can manage the line and start or end the pass from the teacher view.</p>
       </section>
     </div>
 
     <aside class="privacy-note mt-6">
       <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">about the log</h2>
       <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-        Pass history is private. Student screens show only your current pass and whether the pass is available—not another student’s name or previous trips.
+        Pass history is private. Student screens show only your current pass, timer, and your own queue number—not another student’s name or previous trips.
       </p>
     </aside>
   </div>

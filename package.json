@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "check": "astro check",
+    "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "preview": "astro preview",
     "cold-openers:sync": "node scripts/build-cold-opener-catalog.mjs",
     "detour:validate": "node scripts/validate-detour-shelf.mjs",
