@@ -20,15 +20,15 @@ const GD_DEFAULT_SETTINGS = [
   ['TEACHER_EMAILS', 'gauch@mtmorrisschools.org', 'Comma-separated staff allowed to open teacher mode'],
   ['SCHOOL_DOMAIN', 'mtmorrisschools.org', 'Only signed-in accounts from this Google Workspace domain may load the app'],
   ['MAX_ACTIVE_PASSES', '1', 'How many students may be out at once'],
-  ['PASS_SESSION_LIMIT', '0', 'How many passes may start before the teacher resets the counter; 0 means unlimited'],
-  ['PASS_SESSION_RESET_AT', '', 'Automatic timestamp written by the teacher reset button'],
+  ['STUDENT_PASS_LIMIT', '0', 'Passes allowed per student until the teacher starts a new marking period; 0 means unlimited'],
+  ['STUDENT_PASS_RESET_AT', '', 'Timestamp of the teacher-controlled marking-period reset'],
   ['LATE_AFTER_MINUTES', '10', 'When an active pass is highlighted for the teacher'],
   ['RETENTION_DAYS', '180', 'Returned passes older than this are removed by the daily cleanup'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
   ['APP_TITLE', 'Mr. Grant’s Hall Pass', 'Name shown at the top of the pass app'],
   ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
   ['STUDENT_EMAIL_DOMAIN', 'students.mtmorrisschools.org', 'Only roster addresses at this domain receive PIN emails'],
-  ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk class PIN', 'Subject line for student PIN emails'],
+  ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN', 'Subject line for student PIN emails'],
   ['CHECKIN_URL', 'https://grant-desk.com/check-in/', 'Student link included in PIN emails'],
 ];
 
@@ -86,17 +86,16 @@ function getBootstrap(mode) {
 
   if (mode === 'checkin') {
     const students = getStudentsByEmail_(activeEmail);
-    if (students.length !== 1) {
+    if (!students.length) {
       return {
         ok: true,
         mode: 'checkin',
         recognized: false,
         appTitle: 'Daily Check-in',
-        message: students.length > 1
-          ? 'You are enrolled in more than one of Mr. Grant’s classes. Use the six-digit PIN for this period.'
-          : 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
+        message: 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
       };
     }
+    if (students.length > 1) return createClassSelectionState_(students, 'google', 'checkin');
     return getCheckInState_(students[0], '', 'google');
   }
 
@@ -111,18 +110,17 @@ function getBootstrap(mode) {
   }
 
   const students = getStudentsByEmail_(activeEmail);
-  if (students.length !== 1) {
+  if (!students.length) {
     return {
       ok: true,
       mode: 'student',
       recognized: false,
       appTitle: settings.APP_TITLE,
       destination: settings.DESTINATION,
-      message: students.length > 1
-        ? 'You are enrolled in more than one of Mr. Grant’s classes. Use the six-digit PIN for this period.'
-        : 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
+      message: 'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.',
     };
   }
+  if (students.length > 1) return createClassSelectionState_(students, 'google', 'pass');
   return getStudentState_(students[0], '', 'google');
 }
 
@@ -133,16 +131,24 @@ function identifyWithPin(pin) {
   assertPinAttemptAllowed_(activeEmail);
   const cleaned = String(pin || '').replace(/\D/g, '');
   if (!/^\d{6}$/.test(cleaned)) throw new Error('Enter your six-digit PIN.');
-  const student = getStudentByPinHash_(hashPin_(cleaned));
-  if (!student) {
+  const students = getStudentsByPinHash_(hashPin_(cleaned));
+  if (!students.length) {
     recordFailedPinAttempt_(activeEmail);
     throw new Error('That PIN did not match an active student. Try again or ask Mr. Grant.');
   }
+  const emails = [...new Set(students.map((student) => student.email))];
+  if (emails.length !== 1) throw new Error('That PIN is not unique. Ask Mr. Grant to repair the PIN list.');
   clearPinAttempts_(activeEmail);
 
   const token = Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ key: student.key }), 21600);
-  return getStudentState_(student, token, 'pin');
+  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({
+    email: emails[0],
+    key: students.length === 1 ? students[0].key : '',
+    method: 'pin',
+  }), 21600);
+  return students.length > 1
+    ? buildClassSelectionState_(students, token, 'pin', 'pass')
+    : getStudentState_(students[0], token, 'pin');
 }
 
 function identifyCheckInWithPin(pin) {
@@ -152,16 +158,70 @@ function identifyCheckInWithPin(pin) {
   assertPinAttemptAllowed_(activeEmail);
   const cleaned = String(pin || '').replace(/\D/g, '');
   if (!/^\d{6}$/.test(cleaned)) throw new Error('Enter your six-digit PIN.');
-  const student = getStudentByPinHash_(hashPin_(cleaned));
-  if (!student) {
+  const students = getStudentsByPinHash_(hashPin_(cleaned));
+  if (!students.length) {
     recordFailedPinAttempt_(activeEmail);
     throw new Error('That PIN did not match an active student. Try again or ask Mr. Grant.');
   }
+  const emails = [...new Set(students.map((student) => student.email))];
+  if (emails.length !== 1) throw new Error('That PIN is not unique. Ask Mr. Grant to repair the PIN list.');
   clearPinAttempts_(activeEmail);
 
   const token = Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({ key: student.key }), 21600);
-  return getCheckInState_(student, token, 'pin');
+  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({
+    email: emails[0],
+    key: students.length === 1 ? students[0].key : '',
+    method: 'pin',
+  }), 21600);
+  return students.length > 1
+    ? buildClassSelectionState_(students, token, 'pin', 'checkin')
+    : getCheckInState_(students[0], token, 'pin');
+}
+
+function createClassSelectionState_(students, method, purpose) {
+  const token = Utilities.getUuid().replace(/-/g, '');
+  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({
+    email: students[0].email,
+    key: '',
+    method,
+  }), 21600);
+  return buildClassSelectionState_(students, token, method, purpose);
+}
+
+function buildClassSelectionState_(students, token, method, purpose) {
+  const settings = getSettings_();
+  return {
+    ok: true,
+    mode: purpose === 'checkin' ? 'checkin' : 'student',
+    recognized: true,
+    requiresClassSelection: true,
+    appTitle: purpose === 'checkin' ? 'Daily Check-in' : settings.APP_TITLE,
+    purpose,
+    method,
+    pinToken: token,
+    studentName: students[0].name,
+    classes: students
+      .map((student) => ({ key: student.key, classPeriod: student.classPeriod }))
+      .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod)),
+  };
+}
+
+function selectStudentClass(pinToken, studentKey, purpose) {
+  const cached = CacheService.getScriptCache().get(`pin:${String(pinToken || '')}`);
+  if (!cached) throw new Error('That class-selection session expired. Start again.');
+  const session = JSON.parse(cached);
+  const student = getStudentByKey_(studentKey);
+  if (!student || student.email !== normalizeEmail_(session.email)) {
+    throw new Error('Choose one of your own active classes.');
+  }
+  CacheService.getScriptCache().put(`pin:${pinToken}`, JSON.stringify({
+    email: student.email,
+    key: student.key,
+    method: session.method === 'google' ? 'google' : 'pin',
+  }), 21600);
+  return purpose === 'checkin'
+    ? getCheckInState_(student, pinToken, session.method === 'google' ? 'google' : 'pin')
+    : getStudentState_(student, pinToken, session.method === 'google' ? 'google' : 'pin');
 }
 
 function refreshCheckInState(pinToken) {
@@ -192,14 +252,14 @@ function joinPassQueue(pinToken) {
   try {
     const resolved = resolveStudent_(pinToken);
     const student = resolved.student;
-    if (getActivePasses_().some((pass) => pass.studentKey === student.key)) {
+    if (getActivePasses_().some((pass) => pass.studentEmail === student.email)) {
       return getStudentState_(student, pinToken || '', resolved.method);
     }
     const waiting = getWaitingQueue_();
-    if (!waiting.some((entry) => entry.studentKey === student.key)) {
-      const session = getPassSessionState_(getSettings_(), readPassLog_());
-      if (session.limitReached) {
-        throw new Error('This class has reached its pass limit. Mr. Grant can reset the counter when the next pass session begins.');
+    if (!waiting.some((entry) => entry.studentEmail === student.email)) {
+      const allowance = getStudentPassAllowance_(student.email, getSettings_(), readPassLog_());
+      if (allowance.limitReached) {
+        throw new Error(`You have used all ${allowance.limit} passes for this marking period. Mr. Grant can reset everyone when the next marking period begins.`);
       }
       getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE).appendRow([
         Utilities.getUuid(), student.email, student.name, student.classPeriod,
@@ -217,7 +277,7 @@ function leavePassQueue(pinToken) {
   lock.waitLock(10000);
   try {
     const resolved = resolveStudent_(pinToken);
-    closeWaitingQueueForStudent_(resolved.student.key, 'CANCELLED', 'Student left the line');
+    closeWaitingQueueForEmail_(resolved.student.email, 'CANCELLED', 'Student left the line');
     return getStudentState_(resolved.student, pinToken || '', resolved.method);
   } finally {
     lock.releaseLock();
@@ -233,21 +293,20 @@ function startPass(pinToken) {
     const settings = getSettings_();
     const log = readPassLog_();
     const active = log.filter((pass) => pass.status === 'OUT');
-    const existing = active.find((pass) => pass.studentKey === student.key);
+    const existing = active.find((pass) => pass.studentEmail === student.email);
     if (existing) return getStudentState_(student, pinToken || '', resolved.method);
 
     const maxActive = numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1);
-    const session = getPassSessionState_(settings, log);
-    if (session.limitReached) {
-      throw new Error('This class has reached its pass limit. Mr. Grant can reset the counter when the next pass session begins.');
+    const allowance = getStudentPassAllowance_(student.email, settings, log);
+    if (allowance.limitReached) {
+      throw new Error(`You have used all ${allowance.limit} passes for this marking period. Mr. Grant can reset everyone when the next marking period begins.`);
     }
     const openSlots = Math.max(0, maxActive - active.length);
-    const availableStarts = session.limit ? Math.min(openSlots, session.remaining) : openSlots;
-    if (!availableStarts) throw new Error('The pass is in use. Your numbered place in line is saved.');
+    if (!openSlots) throw new Error('The pass is in use. Your numbered place in line is saved.');
 
     const waiting = getWaitingQueue_();
-    const ownQueueIndex = waiting.findIndex((entry) => entry.studentKey === student.key);
-    if (waiting.length && (ownQueueIndex < 0 || ownQueueIndex >= availableStarts)) {
+    const ownQueueIndex = waiting.findIndex((entry) => entry.studentEmail === student.email);
+    if (waiting.length && (ownQueueIndex < 0 || ownQueueIndex >= openSlots)) {
       const position = ownQueueIndex < 0 ? waiting.length + 1 : ownQueueIndex + 1;
       throw new Error(`Please wait for your turn. Your current place in line is #${position}.`);
     }
@@ -279,7 +338,7 @@ function returnPass(pinToken) {
   lock.waitLock(10000);
   try {
     const resolved = resolveStudent_(pinToken);
-    closePassForStudent_(resolved.student.key, resolved.student.email, '');
+    closePassForStudent_(resolved.student.email, resolved.student.email, '');
     return getStudentState_(resolved.student, pinToken || '', resolved.method);
   } finally {
     lock.releaseLock();
@@ -292,31 +351,33 @@ function refreshTeacherState() {
   return getTeacherState_();
 }
 
-function teacherSetPassLimits(maxActivePasses, sessionPassLimit) {
+function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
   const maxActive = Number(maxActivePasses);
-  const sessionLimit = Number(sessionPassLimit);
+  const perStudentLimit = Number(studentPassLimit);
   if (!Number.isInteger(maxActive) || maxActive < 1 || maxActive > 10) {
     throw new Error('Concurrent passes must be a whole number from 1 through 10.');
   }
-  if (!Number.isInteger(sessionLimit) || sessionLimit < 0 || sessionLimit > 500) {
-    throw new Error('The pass-session limit must be a whole number from 0 through 500. Use 0 for unlimited.');
+  if (!Number.isInteger(perStudentLimit) || perStudentLimit < 0 || perStudentLimit > 500) {
+    throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
   }
   setSettingValue_('MAX_ACTIVE_PASSES', String(maxActive));
-  setSettingValue_('PASS_SESSION_LIMIT', String(sessionLimit));
+  setSettingValue_('STUDENT_PASS_LIMIT', String(perStudentLimit));
   return getTeacherState_();
 }
 
-function teacherResetPassSession() {
+function teacherResetStudentPassCounters(confirmText) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, settings);
+  if (String(confirmText || '') !== 'RESET ALL STUDENTS') {
+    throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
+  }
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    setSettingValue_('PASS_SESSION_RESET_AT', new Date().toISOString());
-    cancelAllWaitingQueue_(`Pass session reset by ${teacher}`);
+    setSettingValue_('STUDENT_PASS_RESET_AT', new Date().toISOString());
     return getTeacherState_();
   } finally {
     lock.releaseLock();
@@ -350,19 +411,19 @@ function teacherStartPass(studentKey) {
   try {
     const log = readPassLog_();
     const active = log.filter((pass) => pass.status === 'OUT');
-    if (active.some((pass) => pass.studentKey === student.key)) return getTeacherState_();
+    if (active.some((pass) => pass.studentEmail === student.email)) return getTeacherState_();
     if (active.length >= numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1)) {
       throw new Error('The pass is already in use. End the active pass before starting another.');
     }
-    const session = getPassSessionState_(settings, log);
-    if (session.limitReached) {
-      throw new Error('The current pass-session limit has been reached. Reset the pass counter before starting another.');
+    const allowance = getStudentPassAllowance_(student.email, settings, log);
+    if (allowance.limitReached) {
+      throw new Error(`${student.name} has used all ${allowance.limit} passes for this marking period. Reset all student counters or change the allowance first.`);
     }
     getSpreadsheet_().getSheetByName(GD_SHEETS.LOG).appendRow([
       Utilities.getUuid(), student.email, student.name, student.classPeriod, settings.DESTINATION,
       new Date(), '', '', 'teacher', 'OUT', teacher, 'Started by teacher',
     ]);
-    closeWaitingQueueForStudent_(student.key, 'STARTED', 'Pass started by teacher');
+    closeWaitingQueueForEmail_(student.email, 'STARTED', 'Pass started by teacher');
     return getTeacherState_();
   } finally {
     lock.releaseLock();
@@ -411,7 +472,8 @@ function getTeacherState_() {
   const log = readPassLog_();
   const active = log.filter((pass) => pass.status === 'OUT');
   const queue = getWaitingQueue_();
-  const passSession = getPassSessionState_(settings, log);
+  const passPolicy = getStudentPassPolicy_(settings);
+  const studentPassUsage = getStudentPassUsage_(roster, settings, log);
   const todayKey = dateKey_(new Date());
   const allCheckIns = readCheckIns_();
   const checkInsToday = allCheckIns
@@ -439,7 +501,8 @@ function getTeacherState_() {
     appTitle: settings.APP_TITLE,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     maxActivePasses: numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1),
-    passSession,
+    passPolicy,
+    studentPassUsage,
     retentionDays: numberSetting_(settings, 'RETENTION_DAYS', 180),
     active: active.map(clientPass_),
     queue: queue.map((entry, index) => clientQueue_(entry, index + 1)),
@@ -484,16 +547,14 @@ function getStudentState_(student, pinToken, method) {
   const settings = getSettings_();
   const log = readPassLog_();
   const active = log.filter((pass) => pass.status === 'OUT');
-  const ownPass = active.find((pass) => pass.studentKey === student.key);
+  const ownPass = active.find((pass) => pass.studentEmail === student.email);
   const waiting = getWaitingQueue_();
-  const queueIndex = waiting.findIndex((entry) => entry.studentKey === student.key);
+  const queueIndex = waiting.findIndex((entry) => entry.studentEmail === student.email);
   const maxActive = numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1);
-  const passSession = getPassSessionState_(settings, log);
+  const passAllowance = getStudentPassAllowance_(student.email, settings, log);
   const openSlots = Math.max(0, maxActive - active.length);
-  const remainingStarts = passSession.limit ? passSession.remaining : openSlots;
-  const usableSlots = Math.min(openSlots, remainingStarts);
-  const passAvailable = Boolean(ownPass) || (!passSession.limitReached && (
-    queueIndex >= 0 ? queueIndex < usableSlots : waiting.length === 0 && usableSlots > 0
+  const passAvailable = Boolean(ownPass) || (!passAllowance.limitReached && (
+    queueIndex >= 0 ? queueIndex < openSlots : waiting.length === 0 && openSlots > 0
   ));
   return {
     ok: true,
@@ -509,8 +570,8 @@ function getStudentState_(student, pinToken, method) {
     queuePosition: queueIndex >= 0 ? queueIndex + 1 : 0,
     queueLength: waiting.length,
     queuedAt: queueIndex >= 0 ? clientQueue_(waiting[queueIndex], queueIndex + 1).joinedAt : '',
-    canJoinQueue: !ownPass && queueIndex < 0 && !passSession.limitReached,
-    passSession,
+    canJoinQueue: !ownPass && queueIndex < 0 && !passAllowance.limitReached,
+    passAllowance,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
   };
 }
@@ -519,9 +580,12 @@ function resolveStudent_(pinToken) {
   if (pinToken) {
     const cached = CacheService.getScriptCache().get(`pin:${pinToken}`);
     if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
-    const student = getStudentByKey_(JSON.parse(cached).key);
+    const session = JSON.parse(cached);
+    if (!session.key) throw new Error('Choose your class before continuing.');
+    const student = getStudentByKey_(session.key);
     if (!student) throw new Error('That student is no longer active on the roster.');
-    return { student, method: 'pin' };
+    if (student.email !== normalizeEmail_(session.email)) throw new Error('That class selection is no longer valid.');
+    return { student, method: session.method === 'google' ? 'google' : 'pin' };
   }
   const settings = getSettings_();
   const email = getActiveEmail_();
@@ -535,9 +599,9 @@ function resolveStudent_(pinToken) {
   return { student: students[0], method: 'google' };
 }
 
-function closePassForStudent_(studentKey, endedBy, note) {
+function closePassForStudent_(studentEmail, endedBy, note) {
   const active = getActivePasses_();
-  const pass = active.find((item) => item.studentKey === studentKey);
+  const pass = active.find((item) => item.studentEmail === normalizeEmail_(studentEmail));
   if (!pass) return;
   closePassRow_(pass.row, endedBy, note);
 }
@@ -602,9 +666,9 @@ function clientQueue_(entry, position) {
   };
 }
 
-function closeWaitingQueueForStudent_(studentKey, status, resolution) {
+function closeWaitingQueueForEmail_(studentEmail, status, resolution) {
   getWaitingQueue_()
-    .filter((entry) => entry.studentKey === studentKey)
+    .filter((entry) => entry.studentEmail === normalizeEmail_(studentEmail))
     .forEach((entry) => closeQueueRow_(entry.row, status, resolution));
 }
 
@@ -616,33 +680,46 @@ function closeQueueRow_(row, status, resolution) {
   ]]);
 }
 
-function cancelAllWaitingQueue_(resolution) {
-  getWaitingQueue_().forEach((entry) => closeQueueRow_(entry.row, 'RESET', resolution));
-}
-
-function getPassSessionState_(settings, log) {
-  const todayStart = schoolDayStart_();
-  const configuredReset = new Date(String(settings.PASS_SESSION_RESET_AT || ''));
-  const resetAt = configuredReset instanceof Date && !isNaN(configuredReset) && configuredReset > todayStart
+function getStudentPassPolicy_(settings) {
+  const configuredReset = new Date(String(settings.STUDENT_PASS_RESET_AT || ''));
+  const resetAt = configuredReset instanceof Date && !isNaN(configuredReset)
     ? configuredReset
-    : todayStart;
-  const limit = numberSetting_(settings, 'PASS_SESSION_LIMIT', 0);
-  const used = log.filter((pass) => pass.outDate && !isNaN(pass.outDate) && pass.outDate >= resetAt).length;
+    : new Date(0);
   return {
-    limit,
-    used,
-    remaining: limit ? Math.max(0, limit - used) : null,
-    limitReached: Boolean(limit && used >= limit),
+    limit: numberSetting_(settings, 'STUDENT_PASS_LIMIT', 0),
     resetAt: resetAt.toISOString(),
   };
 }
 
-function schoolDayStart_() {
-  return Utilities.parseDate(
-    `${dateKey_(new Date())} 00:00:00`,
-    Session.getScriptTimeZone(),
-    'yyyy-MM-dd HH:mm:ss'
-  );
+function getStudentPassAllowance_(studentEmail, settings, log) {
+  const policy = getStudentPassPolicy_(settings);
+  const resetAt = new Date(policy.resetAt);
+  const used = log.filter((pass) => (
+    pass.studentEmail === normalizeEmail_(studentEmail) &&
+    pass.outDate && !isNaN(pass.outDate) && pass.outDate >= resetAt
+  )).length;
+  return {
+    ...policy,
+    used,
+    remaining: policy.limit ? Math.max(0, policy.limit - used) : null,
+    limitReached: Boolean(policy.limit && used >= policy.limit),
+  };
+}
+
+function getStudentPassUsage_(roster, settings, log) {
+  const studentsByEmail = new Map();
+  roster.forEach((student) => {
+    if (!studentsByEmail.has(student.email)) {
+      studentsByEmail.set(student.email, { email: student.email, name: student.name, classes: [] });
+    }
+    studentsByEmail.get(student.email).classes.push(student.classPeriod);
+  });
+  return [...studentsByEmail.values()]
+    .map((student) => ({
+      ...student,
+      ...getStudentPassAllowance_(student.email, settings, log),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function readPassLog_() {
@@ -864,40 +941,99 @@ function getStudentByKey_(key) {
   return getRoster_().find((student) => student.key === String(key || '')) || null;
 }
 
-function getStudentByPinHash_(pinHash) {
-  return getRoster_().find((student) => student.pinHash && student.pinHash === pinHash) || null;
+function getStudentsByPinHash_(pinHash) {
+  return getRoster_().filter((student) => student.pinHash && student.pinHash === pinHash);
 }
 
 function generateMissingPins() {
   setupWorkbook_();
   assertTeacher_(getActiveEmail_(), getSettings_());
+  const result = ensureOnePinPerStudent_({ createMissing: true });
+  SpreadsheetApp.getUi().alert(
+    result.createdPins || result.normalizedMemberships
+      ? 'Student PINs are ready'
+      : 'No new PINs were needed',
+    result.createdPins || result.normalizedMemberships
+      ? `${result.createdPins} new student PIN${result.createdPins === 1 ? '' : 's'} created; ${result.normalizedMemberships} class membership${result.normalizedMemberships === 1 ? '' : 's'} synchronized. Every student now uses one PIN in every Mr. Grant class.`
+      : 'Every active student already has one PIN shared across all of their Mr. Grant classes.',
+    SpreadsheetApp.getUi().ButtonSet.OK
+  );
+}
+
+function ensureOnePinPerStudent_(options) {
+  const createMissing = Boolean(options && options.createMissing);
   const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
   const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
   const roster = getRoster_();
-  const usedHashes = new Set(roster.map((student) => student.pinHash).filter(Boolean));
-  const cards = [];
-  roster.forEach((student) => {
-    if (student.pinHash) return;
-    let pin;
-    let pinHash;
-    do {
-      pin = String(Math.floor(100000 + Math.random() * 900000));
-      pinHash = hashPin_(pin);
-    } while (usedHashes.has(pinHash));
-    usedHashes.add(pinHash);
-    rosterSheet.getRange(student.row, 4).setValue(pinHash);
-    if (rosterSheet.getRange(student.row, 5).isBlank()) rosterSheet.getRange(student.row, 5).setValue(true);
-    cards.push([student.email, student.name, student.classPeriod, pin, new Date()]);
+  const cards = readPinCards_();
+  const cardsByEmail = new Map();
+  const rosterByEmail = new Map();
+  cards.forEach((card) => {
+    if (!cardsByEmail.has(card.studentEmail)) cardsByEmail.set(card.studentEmail, []);
+    cardsByEmail.get(card.studentEmail).push(card);
   });
-  if (cards.length) {
-    pinSheet.showSheet();
-    pinSheet.getRange(pinSheet.getLastRow() + 1, 1, cards.length, cards[0].length).setValues(cards);
-  }
-  SpreadsheetApp.getUi().alert(
-    cards.length ? `${cards.length} PIN card${cards.length === 1 ? '' : 's'} created` : 'No new PINs were needed',
-    cards.length ? 'Print or distribute the PIN Cards tab, then clear it from the GrantDesk Pass menu.' : 'Every active roster row already has a PIN hash.',
-    SpreadsheetApp.getUi().ButtonSet.OK
-  );
+  roster.forEach((student) => {
+    if (!rosterByEmail.has(student.email)) rosterByEmail.set(student.email, []);
+    rosterByEmail.get(student.email).push(student);
+  });
+
+  const usedHashes = new Map();
+  let createdPins = 0;
+  let normalizedMemberships = 0;
+  let createdCards = 0;
+  [...rosterByEmail.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([email, memberships]) => {
+    const emailCards = (cardsByEmail.get(email) || []).filter((card) => /^\d{6}$/.test(card.pin));
+    const existingHashes = [...new Set(memberships.map((student) => student.pinHash).filter(Boolean))];
+    const sentCard = emailCards.find((card) => card.emailStatus === 'SENT');
+    const hashMatchedCard = emailCards.find((card) => memberships.some((student) => student.pinHash === hashPin_(card.pin)));
+    let canonicalPin = (sentCard || hashMatchedCard || emailCards[0] || {}).pin || '';
+    let canonicalHash = canonicalPin ? hashPin_(canonicalPin) : '';
+    if (canonicalHash && usedHashes.has(canonicalHash) && usedHashes.get(canonicalHash) !== email) {
+      canonicalPin = '';
+      canonicalHash = '';
+    }
+    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0])) {
+      usedHashes.set(existingHashes[0], email);
+      memberships.forEach((student) => {
+        if (student.pinHash !== existingHashes[0]) {
+          rosterSheet.getRange(student.row, 4).setValue(existingHashes[0]);
+          normalizedMemberships += 1;
+        }
+      });
+      return;
+    }
+    if (!canonicalPin && createMissing) {
+      do {
+        canonicalPin = String(Math.floor(100000 + Math.random() * 900000));
+        canonicalHash = hashPin_(canonicalPin);
+      } while (usedHashes.has(canonicalHash));
+      createdPins += 1;
+    }
+    if (!canonicalPin) return;
+    usedHashes.set(canonicalHash, email);
+
+    memberships.forEach((student) => {
+      if (student.pinHash !== canonicalHash) {
+        rosterSheet.getRange(student.row, 4).setValue(canonicalHash);
+        normalizedMemberships += 1;
+      }
+      if (rosterSheet.getRange(student.row, 5).isBlank()) rosterSheet.getRange(student.row, 5).setValue(true);
+      const card = (cardsByEmail.get(email) || []).find((item) => item.studentKey === student.key);
+      if (card) {
+        if (card.pin !== canonicalPin) {
+          pinSheet.getRange(card.row, 4).setValue(canonicalPin);
+          pinSheet.getRange(card.row, 6, 1, 3).clearContent();
+          normalizedMemberships += 1;
+        }
+      } else {
+        pinSheet.appendRow([student.email, student.name, student.classPeriod, canonicalPin, new Date(), '', '', '']);
+        createdCards += 1;
+      }
+    });
+  });
+
+  if (createdPins || normalizedMemberships || createdCards) pinSheet.showSheet();
+  return { createdPins, normalizedMemberships, createdCards };
 }
 
 function previewStudentPinEmails() {
@@ -913,9 +1049,9 @@ function previewStudentPinEmails() {
       'Hello Jordan,',
       '',
       'Here is your private GrantDesk PIN:',
-      'Period 1 — C US History A: 123456',
+      '123456',
       '',
-      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. Keep this PIN private.`,
+      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. This one PIN works in every Mr. Grant class. Keep it private.`,
       '',
       '— Mr. Grant',
     ].join('\n'),
@@ -928,10 +1064,10 @@ function previewPinEmailDistribution() {
     'GrantDesk PIN email preview',
     [
       `${preview.readyRecipients} student email${preview.readyRecipients === 1 ? '' : 's'} ready`,
-      `${preview.readyMemberships} class PIN${preview.readyMemberships === 1 ? '' : 's'} included`,
-      `${preview.sentMemberships} class PIN${preview.sentMemberships === 1 ? '' : 's'} already marked sent`,
-      `${preview.missingMemberships} active roster row${preview.missingMemberships === 1 ? '' : 's'} missing a printable PIN`,
-      `${preview.invalidDomainMemberships} roster address${preview.invalidDomainMemberships === 1 ? '' : 'es'} outside the student domain`,
+      `${preview.readyPins} unique student PIN${preview.readyPins === 1 ? '' : 's'} included`,
+      `${preview.sentRecipients} student PIN${preview.sentRecipients === 1 ? '' : 's'} already marked sent`,
+      `${preview.missingRecipients} student${preview.missingRecipients === 1 ? '' : 's'} missing a printable PIN`,
+      `${preview.invalidDomainRecipients} student address${preview.invalidDomainRecipients === 1 ? '' : 'es'} outside the student domain`,
       `${preview.remainingDailyQuota} recipient${preview.remainingDailyQuota === 1 ? '' : 's'} remaining in today’s Apps Script mail quota`,
       '',
       'Nothing was sent. Use the teacher dashboard or GrantDesk Pass → Email unsent PINs when ready.',
@@ -952,7 +1088,7 @@ function emailStudentPinsFromSheet() {
   const result = state.emailResult;
   ui.alert(
     'PIN email batch finished',
-    `${result.sentRecipients} student email${result.sentRecipients === 1 ? '' : 's'} sent; ${result.sentMemberships} class PIN${result.sentMemberships === 1 ? '' : 's'} delivered; ${result.failedRecipients} recipient${result.failedRecipients === 1 ? '' : 's'} failed.`,
+    `${result.sentRecipients} student email${result.sentRecipients === 1 ? '' : 's'} sent; ${result.sentRecipients} unique PIN${result.sentRecipients === 1 ? '' : 's'} delivered; ${result.failedRecipients} recipient${result.failedRecipients === 1 ? '' : 's'} failed.`,
     ui.ButtonSet.OK
   );
 }
@@ -974,7 +1110,7 @@ function sendStudentPinEmails(confirmText) {
     const quota = MailApp.getRemainingDailyQuota();
     if (!groups.length) {
       const state = getTeacherState_();
-      state.emailResult = { sentRecipients: 0, sentMemberships: 0, failedRecipients: 0, message: 'No unsent PIN emails were ready.' };
+      state.emailResult = { sentRecipients: 0, sentPins: 0, failedRecipients: 0, message: 'No unsent PIN emails were ready.' };
       return state;
     }
     if (quota < groups.length) {
@@ -982,7 +1118,7 @@ function sendStudentPinEmails(confirmText) {
     }
 
     let sentRecipients = 0;
-    let sentMemberships = 0;
+    let sentPins = 0;
     let failedRecipients = 0;
     const failures = [];
     groups.forEach((group) => {
@@ -990,7 +1126,7 @@ function sendStudentPinEmails(confirmText) {
         MailApp.sendEmail(buildPinEmailMessage_(group, settings, teacher));
         markPinEmailRows_(group.memberships.map((membership) => membership.row), 'SENT', settings.PIN_EMAIL_SUBJECT);
         sentRecipients += 1;
-        sentMemberships += group.memberships.length;
+        sentPins += 1;
       } catch (error) {
         const detail = String(error && error.message ? error.message : error).slice(0, 250);
         markPinEmailRows_(group.memberships.map((membership) => membership.row), 'ERROR', detail);
@@ -1002,7 +1138,7 @@ function sendStudentPinEmails(confirmText) {
     const state = getTeacherState_();
     state.emailResult = {
       sentRecipients,
-      sentMemberships,
+      sentPins,
       failedRecipients,
       failures: failures.slice(0, 10),
       message: failedRecipients
@@ -1019,48 +1155,53 @@ function getPinEmailStatus_() {
   const delivery = buildPinEmailGroups_();
   return {
     readyRecipients: delivery.readyGroups.length,
-    readyMemberships: delivery.readyGroups.reduce((sum, group) => sum + group.memberships.length, 0),
-    sentMemberships: delivery.sentMemberships,
-    missingMemberships: delivery.missingMemberships,
-    invalidDomainMemberships: delivery.invalidDomainMemberships,
+    readyPins: delivery.readyGroups.length,
+    sentRecipients: delivery.sentRecipients,
+    missingRecipients: delivery.missingRecipients,
+    invalidDomainRecipients: delivery.invalidDomainRecipients,
   };
 }
 
 function buildPinEmailGroups_() {
   const settings = getSettings_();
   const studentDomain = String(settings.STUDENT_EMAIL_DOMAIN || '').toLowerCase();
-  const cardsByKey = new Map();
-  readPinCards_().forEach((card) => cardsByKey.set(card.studentKey, card));
-  const groupsByEmail = new Map();
-  let sentMemberships = 0;
-  let missingMemberships = 0;
-  let invalidDomainMemberships = 0;
-
+  const cardsByEmail = new Map();
+  readPinCards_().forEach((card) => {
+    if (!cardsByEmail.has(card.studentEmail)) cardsByEmail.set(card.studentEmail, []);
+    cardsByEmail.get(card.studentEmail).push(card);
+  });
+  const studentsByEmail = new Map();
   getRoster_().forEach((student) => {
-    const card = cardsByKey.get(student.key);
-    if (!card || !/^\d{6}$/.test(card.pin)) {
-      missingMemberships += 1;
+    if (!studentsByEmail.has(student.email)) studentsByEmail.set(student.email, student);
+  });
+  const readyGroups = [];
+  let sentRecipients = 0;
+  let missingRecipients = 0;
+  let invalidDomainRecipients = 0;
+
+  studentsByEmail.forEach((student, email) => {
+    const memberships = cardsByEmail.get(email) || [];
+    const pins = [...new Set(memberships.map((card) => card.pin).filter((pin) => /^\d{6}$/.test(pin)))];
+    if (pins.length !== 1) {
+      missingRecipients += 1;
       return;
     }
-    if (student.email.split('@').pop() !== studentDomain) {
-      invalidDomainMemberships += 1;
+    if (email.split('@').pop() !== studentDomain) {
+      invalidDomainRecipients += 1;
       return;
     }
-    if (card.emailStatus === 'SENT') {
-      sentMemberships += 1;
+    if (memberships.length && memberships.every((card) => card.emailStatus === 'SENT')) {
+      sentRecipients += 1;
       return;
     }
-    if (!groupsByEmail.has(student.email)) {
-      groupsByEmail.set(student.email, { email: student.email, name: student.name, memberships: [] });
-    }
-    groupsByEmail.get(student.email).memberships.push(card);
+    readyGroups.push({ email, name: student.name, pin: pins[0], memberships });
   });
 
   return {
-    readyGroups: [...groupsByEmail.values()].sort((a, b) => a.email.localeCompare(b.email)),
-    sentMemberships,
-    missingMemberships,
-    invalidDomainMemberships,
+    readyGroups: readyGroups.sort((a, b) => a.email.localeCompare(b.email)),
+    sentRecipients,
+    missingRecipients,
+    invalidDomainRecipients,
   };
 }
 
@@ -1084,27 +1225,25 @@ function readPinCards_() {
 
 function buildPinEmailMessage_(group, settings, teacherEmail) {
   const firstName = firstNameFromStudentName_(group.name);
-  const membershipLines = group.memberships.map((membership) => `${membership.classPeriod}: ${membership.pin}`);
   const body = [
     `Hello ${firstName},`,
     '',
-    'Here is your private GrantDesk class PIN:',
-    ...membershipLines,
+    'Here is your private GrantDesk PIN:',
+    group.pin,
     '',
     `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass.`,
-    'Keep this PIN private. If you have more than one Mr. Grant class, use the PIN listed for the class you are attending.',
+    'This one PIN works in every Mr. Grant class. If you are enrolled in more than one, choose the class you are attending after you enter it.',
+    'Keep this PIN private.',
     '',
     '— Mr. Grant',
   ].join('\n');
-  const htmlRows = group.memberships.map((membership) => (
-    `<li><strong>${escapeHtmlForEmail_(membership.classPeriod)}</strong>: <span style="font-family:monospace;font-size:18px">${escapeHtmlForEmail_(membership.pin)}</span></li>`
-  )).join('');
   const htmlBody = [
     `<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,
-    '<p>Here is your private GrantDesk class PIN:</p>',
-    `<ul>${htmlRows}</ul>`,
+    '<p>Here is your private GrantDesk PIN:</p>',
+    `<p style="font-family:monospace;font-size:24px;font-weight:bold;letter-spacing:.12em">${escapeHtmlForEmail_(group.pin)}</p>`,
     `<p>Open <a href="${escapeHtmlForEmail_(settings.CHECKIN_URL)}">GrantDesk Daily Check-in</a> for Daily Check-in and Hall Pass.</p>`,
-    '<p>Keep this PIN private. If you have more than one Mr. Grant class, use the PIN listed for the class you are attending.</p>',
+    '<p>This one PIN works in every Mr. Grant class. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
+    '<p>Keep this PIN private.</p>',
     '<p>— Mr. Grant</p>',
   ].join('');
   return {
@@ -1332,6 +1471,10 @@ function setupWorkbook_() {
     : new Set();
   const missing = GD_DEFAULT_SETTINGS.filter((row) => !existing.has(row[0]));
   if (missing.length) settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
+  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT']);
+  if (getSettings_().PIN_EMAIL_SUBJECT === 'Your private GrantDesk class PIN') {
+    setSettingValue_('PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN');
+  }
 
   spreadsheet.getSheetByName(GD_SHEETS.LOG).getRange('F:G').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.LOG).getRange('H:H').setNumberFormat('0.0');
@@ -1341,6 +1484,18 @@ function setupWorkbook_() {
   spreadsheet.getSheetByName(GD_SHEETS.QUEUE).getRange('E:G').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.PINS).getRange('E:E').setNumberFormat('m/d/yyyy h:mm am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.PINS).getRange('G:G').setNumberFormat('m/d/yyyy h:mm am/pm');
+  ensureOnePinPerStudent_({ createMissing: false });
+}
+
+function removeLegacySettingRows_(sheet, keys) {
+  if (sheet.getLastRow() < 2) return;
+  const legacy = new Set(keys.map(String));
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues()
+    .map((row, index) => ({ row: index + 2, key: String(row[0] || '').trim() }))
+    .filter((entry) => legacy.has(entry.key))
+    .map((entry) => entry.row)
+    .sort((a, b) => b - a);
+  rows.forEach((row) => sheet.deleteRow(row));
 }
 
 function ensureSheet_(spreadsheet, name, headers) {

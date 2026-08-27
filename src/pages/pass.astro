@@ -34,7 +34,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       <section class="pass-option">
         <p class="pass-option__number">02</p>
         <h2>PIN + kiosk.</h2>
-        <p>If your own account is not available, enter your six-digit student PIN at the classroom kiosk.</p>
+        <p>If your own account is not available, enter your one six-digit student PIN at the classroom kiosk. The same PIN works in every Mr. Grant class; multi-class students choose the class after entering it.</p>
         {passConfig.enabled && kioskUrl && (
           <a href={kioskUrl} target="_blank" rel="noopener">open kiosk mode ↗</a>
         )}
