@@ -61,6 +61,7 @@
       .primary:disabled { cursor: not-allowed; opacity: .45; transform: none; }
       .secondary { min-height: 43px; padding: 0 15px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font-weight: 800; }
       .secondary:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+      .secondary:disabled { cursor: not-allowed; opacity: .45; }
 
       .timer { padding: 22px; border: 1px solid #b9dfd2; border-radius: 15px; background: var(--green-soft); text-align: center; }
       .timer-label { margin: 0; color: #046049; font: 800 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
@@ -75,6 +76,7 @@
       .streak-number { min-width: 72px; color: #04503d; font: 900 44px/1 Georgia, serif; text-align: center; }
       .notice.success { border-color: #b9dfd2; background: var(--green-soft); color: #04503d; }
       .notice.warning { border-color: #e8ce96; background: #fff8e8; }
+      .handoff { margin: 0; color: var(--muted); font-size: 12px; text-align: center; }
 
       .pin-box { max-width: 430px; margin: 0 auto; text-align: center; }
       .pin-box h2 { margin: 0; font: 800 36px/1 Georgia, serif; letter-spacing: -.04em; }
@@ -99,22 +101,32 @@
       .active-pass strong { display: block; font-size: 15px; }
       .active-pass small { display: block; margin-top: 4px; color: var(--muted); }
       .active-pass .secondary { width: 100%; margin-top: 12px; }
+      .active-pass.late { border-color: #a63a2f; border-width: 2px; background: #ffe3de; }
+      .late-flag { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 999px; background: var(--accent); color: white; font: 800 9px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .all-clear { padding: 23px 12px; color: var(--muted); text-align: center; }
       .override { display: grid; gap: 10px; }
-      select, input[type="number"] { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
-      select:focus, input[type="number"]:focus { border-color: var(--accent); }
+      select, input[type="number"], input[type="search"] { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
+      select:focus, input[type="number"]:focus, input[type="search"]:focus { border-color: var(--accent); }
       .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
       .field-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
       .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
       .button-row > * { flex: 1 1 180px; }
       .danger { border-color: #e2aaa5; color: var(--accent-dark); }
       .queue-entry { border-color: #e8ce96; background: #fff8e8; }
+      .queue-entry.turn { border-color: var(--green); background: var(--green-soft); }
       .email-preview { margin-top: 12px; white-space: pre-wrap; }
+      .stale { opacity: .55; }
 
       .log { margin-top: 18px; overflow-x: auto; }
       table { width: 100%; border-collapse: collapse; font-size: 12px; }
       th { padding: 9px 8px; border-bottom: 2px solid var(--line); color: var(--muted); text-align: left; text-transform: uppercase; letter-spacing: .06em; }
       td { padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+      td input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--green); }
+      .pass-count-table { table-layout: fixed; }
+      .pass-count-table th:first-child, .pass-count-table .tick { width: 78px; text-align: center; }
+      .pass-count-table .who { width: 34%; white-space: normal; font-weight: 700; }
+      .pass-count-table th:nth-child(3), .pass-count-table th:nth-child(4), .pass-count-table .num { width: 52px; text-align: right; }
+      .pass-count-table .classes { white-space: normal; color: var(--muted); }
       .method { color: var(--muted); font: 700 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .privacy { margin: 16px 2px 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 
@@ -149,16 +161,30 @@
 
     <script>
       const APP_MODE = <?!= JSON.stringify(appMode) ?>;
+      const CALL_TIMEOUT_MS = 45000;
+      const IDLE_RESET_MS = 120000;
+      const HANDOFF_AFTER_START_MS = 7000;
+      const HANDOFF_AFTER_RETURN_MS = 4000;
+      const HANDOFF_AFTER_CHECKIN_MS = 10000;
+
       const content = document.querySelector('#content');
       const errorBox = document.querySelector('#error');
       const modeLabel = document.querySelector('#mode-label');
       const appEyebrow = document.querySelector('#app-eyebrow');
       const privacyNote = document.querySelector('#privacy-note');
+
       let state = null;
       let pinToken = '';
-      let pinPurpose = APP_MODE === 'checkin' ? 'checkin' : 'pass';
+      let screen = 'loading';
+      let inFlight = 0;
+      let clockSkew = 0;
       let timerHandle = null;
       let refreshHandle = null;
+      let idleHandle = null;
+      let handoffHandle = null;
+      let handoffMessage = '';
+      let lastInteraction = Date.now();
+      let pollTick = 0;
 
       modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : APP_MODE === 'checkin' ? 'daily check-in' : 'student pass';
       if (APP_MODE === 'checkin') {
@@ -169,11 +195,43 @@
         privacyNote.textContent = 'Passes and daily check-ins are visible only in this teacher view and the private teacher-owned workbook.';
       }
 
+      /* ---------------------------------------------------------- plumbing */
+
       const call = (name, ...args) => new Promise((resolve, reject) => {
+        let settled = false;
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          reject(new Error('The classroom system did not answer. Check the connection and try once more.'));
+        }, CALL_TIMEOUT_MS);
+        const finish = (handler) => (payload) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          handler(payload);
+        };
         google.script.run
-          .withSuccessHandler(resolve)
-          .withFailureHandler((failure) => reject(new Error(failure && failure.message ? failure.message : 'The classroom app could not update.')))[name](...args);
+          .withSuccessHandler(finish(resolve))
+          .withFailureHandler(finish((failure) => reject(
+            new Error(failure && failure.message ? failure.message : 'The classroom app could not update.')
+          )))[name](...args);
       });
+
+      /** Wraps a button action so polling never overwrites a request in flight. */
+      const act = async (button, work) => {
+        if (button) button.disabled = true;
+        inFlight += 1;
+        clearError();
+        try {
+          await work();
+        } catch (error) {
+          showError(error.message);
+          if (button) button.disabled = false;
+        } finally {
+          inFlight -= 1;
+          armIdleReset();
+        }
+      };
 
       const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -190,6 +248,18 @@
         document.querySelector('#app-title').innerHTML = `${escapeHtml(clean)}<span>.</span>`;
       };
 
+      const adoptState = (next) => {
+        state = next;
+        if (next && next.pinToken) pinToken = next.pinToken;
+        if (next && next.serverNow) {
+          const server = new Date(next.serverNow).getTime();
+          if (!isNaN(server)) clockSkew = server - Date.now();
+        }
+        return next;
+      };
+
+      const now = () => Date.now() + clockSkew;
+
       const firstNameFromDisplayName = (value) => {
         const name = String(value || '').trim();
         const firstSide = name.includes(',') ? name.split(',').slice(1).join(',').trim() : name;
@@ -198,11 +268,19 @@
 
       const formatClock = (iso) => {
         if (!iso) return '—';
-        return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+        const date = new Date(iso);
+        if (isNaN(date)) return '—';
+        return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(date);
+      };
+
+      const elapsedSeconds = (iso) => {
+        const start = new Date(iso).getTime();
+        if (isNaN(start)) return 0;
+        return Math.max(0, Math.floor((now() - start) / 1000));
       };
 
       const elapsed = (iso) => {
-        const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+        const seconds = elapsedSeconds(iso);
         const minutes = Math.floor(seconds / 60);
         return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
       };
@@ -217,9 +295,62 @@
         timerHandle = setInterval(tick, 1000);
       };
 
+      /* -------------------------------------------- shared-device handover */
+
+      const sharedDevice = () => APP_MODE === 'kiosk' || Boolean(state && state.method === 'pin');
+
+      const cancelHandoff = () => {
+        clearTimeout(handoffHandle);
+        handoffHandle = null;
+        handoffMessage = '';
+      };
+
+      const scheduleHandoff = (message, delay) => {
+        cancelHandoff();
+        if (!sharedDevice()) return;
+        handoffMessage = message;
+        showHandoffNote(message);
+        handoffHandle = setTimeout(() => resetToPin('Enter your six-digit PIN.'), delay);
+      };
+
+      const armIdleReset = () => {
+        clearTimeout(idleHandle);
+        idleHandle = null;
+        if (!sharedDevice()) return;
+        if (screen === 'pin') return;
+        idleHandle = setTimeout(() => {
+          if (sharedDevice() && screen !== 'pin') resetToPin('Enter your six-digit PIN.');
+        }, IDLE_RESET_MS);
+      };
+
+      const noteInteraction = () => {
+        lastInteraction = Date.now();
+        armIdleReset();
+      };
+
+      document.addEventListener('click', noteInteraction, true);
+      document.addEventListener('keydown', noteInteraction, true);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') noteInteraction();
+      });
+
+      const resetToPin = (message) => {
+        cancelHandoff();
+        clearTimeout(idleHandle);
+        pinToken = '';
+        state = null;
+        clearError();
+        renderPin(message || 'Enter your six-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
+      };
+
+      /* ------------------------------------------------------------ screens */
+
       const renderPin = (message, purpose = APP_MODE === 'checkin' ? 'checkin' : 'pass') => {
-        pinPurpose = purpose;
+        cancelHandoff();
         clearInterval(timerHandle);
+        state = null;
+        pinToken = '';
+        screen = 'pin';
         content.className = '';
         content.innerHTML = `
           <form class="pin-box" id="pin-form">
@@ -230,37 +361,37 @@
           </form>`;
         const input = document.querySelector('#pin');
         input.focus();
-        document.querySelector('#pin-form').addEventListener('submit', async (event) => {
+        document.querySelector('#pin-form').addEventListener('submit', (event) => {
           event.preventDefault();
-          clearError();
           const button = event.currentTarget.querySelector('button');
-          button.disabled = true;
-          try {
-            state = await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value);
-            pinToken = state.pinToken;
-            renderResolvedState(purpose);
-          } catch (error) {
-            showError(error.message);
-            input.select();
-          } finally {
+          act(button, async () => {
+            try {
+              adoptState(await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value));
+            } catch (error) {
+              input.select();
+              throw error;
+            }
             button.disabled = false;
-          }
+            renderResolvedState(purpose);
+          });
         });
       };
 
-      const renderResolvedState = (purpose = state && state.purpose || (APP_MODE === 'checkin' ? 'checkin' : 'pass')) => {
-        if (state && state.pinToken) pinToken = state.pinToken;
+      const renderResolvedState = (purpose) => {
+        const chosen = purpose || (state && state.purpose) || (APP_MODE === 'checkin' ? 'checkin' : 'pass');
         if (state && state.requiresClassSelection) {
           renderClassSelection();
           return;
         }
-        if (purpose === 'checkin') renderCheckIn();
+        if (chosen === 'checkin') renderCheckIn();
         else renderStudent();
       };
 
       const renderClassSelection = () => {
+        cancelHandoff();
         clearError();
         clearInterval(timerHandle);
+        screen = 'class';
         setTitle(state.appTitle);
         const firstName = firstNameFromDisplayName(state.studentName);
         const options = (state.classes || []).map((entry) => (
@@ -278,30 +409,30 @@
               ${state.method === 'pin' ? '<button class="secondary" id="class-choice-back">enter a different PIN</button>' : ''}
             </div>
           </div>`;
-        document.querySelector('#choose-student-class').addEventListener('click', async (event) => {
+        document.querySelector('#choose-student-class').addEventListener('click', (event) => {
           const studentKey = document.querySelector('#student-class').value;
           if (!studentKey) { showError('Choose the class you are attending.'); return; }
-          event.currentTarget.disabled = true;
-          try {
-            const purpose = state.purpose;
-            state = await call('selectStudentClass', pinToken, studentKey, purpose);
+          const button = event.currentTarget;
+          const purpose = state.purpose;
+          act(button, async () => {
+            adoptState(await call('selectStudentClass', pinToken, studentKey, purpose));
             renderResolvedState(purpose);
-          } catch (error) {
-            showError(error.message);
-            event.currentTarget.disabled = false;
-          }
+          });
         });
         const back = document.querySelector('#class-choice-back');
-        if (back) back.addEventListener('click', () => renderPin('Enter your one student PIN. It works in every Mr. Grant class.', state.purpose));
+        if (back) back.addEventListener('click', () => resetToPin('Enter your one student PIN. It works in every Mr. Grant class.'));
+        armIdleReset();
       };
 
       const renderStudent = () => {
         clearError();
         clearInterval(timerHandle);
+        screen = 'student';
         setTitle(state.appTitle);
         const ownPass = state.ownPass;
         const queued = Number(state.queuePosition || 0) > 0;
-        const allowance = state.passAllowance || { limit: 0, used: 0, remaining: null, limitReached: false };
+        const allowance = state.passAllowance || { limit: 0, used: 0, remaining: null, limitReached: false, unlimited: false };
+        const capped = Boolean(allowance.limit) && !allowance.unlimited;
         const firstName = firstNameFromDisplayName(state.student.name);
         const statusLabel = ownPass
           ? 'you are out'
@@ -320,14 +451,16 @@
             <span class="queue-number">#${escapeHtml(state.queuePosition)}</span>
             <div>
               <h3>${state.passAvailable ? 'it’s your turn.' : 'your place is saved.'}</h3>
-              <p>${state.passAvailable ? `Press start when you are actually leaving for the ${escapeHtml(state.destination.toLowerCase())}.` : `${escapeHtml(state.queueLength)} student${Number(state.queueLength) === 1 ? '' : 's'} in line. Your number updates automatically without showing anyone else’s name.`}</p>
+              <p>${state.passAvailable
+                ? `Press start within ${escapeHtml(state.claimMinutes || 3)} minutes or the line moves on.`
+                : `${escapeHtml(state.queueLength)} student${Number(state.queueLength) === 1 ? '' : 's'} in line. Your number updates automatically without showing anyone else’s name.`}</p>
             </div>
           </div>
           <button class="primary" id="pass-action" ${state.passAvailable ? '' : 'disabled'}>start pass</button>
           <button class="secondary" id="leave-queue">leave the line</button>` : '';
         const readyHtml = !ownPass && !queued ? (allowance.limitReached ? `
-          <div class="notice warning"><h3>marking-period allowance used.</h3><p>You have used ${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes. Mr. Grant resets every student to zero when a new marking period begins.</p></div>` : state.passAvailable ? `
-          <p class="message">Press the button when you are actually leaving for the ${escapeHtml(state.destination.toLowerCase())}.</p>
+          <div class="notice warning"><h3>marking-period allowance used.</h3><p>You have used ${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes. Ask Mr. Grant if you need to leave the room.</p></div>` : state.passAvailable ? `
+          <p class="message">Press the button when you are actually leaving for the ${escapeHtml(String(state.destination || 'restroom').toLowerCase())}.</p>
           <button class="primary" id="pass-action">start pass</button>` : `
           <p class="message">The pass is in use. Join the waiting line to save your numbered place; student screens show only their own number.</p>
           <button class="primary" id="join-queue">join the waiting line</button>`) : '';
@@ -341,7 +474,7 @@
             </div>
             <span class="status-dot ${statusBusy ? 'busy' : ''}">${escapeHtml(statusLabel)}</span>
           </div>
-          ${allowance.limit ? `<div class="notice"><p><strong>${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes used this marking period</strong> · ${escapeHtml(allowance.remaining)} remaining</p></div>` : ''}
+          ${capped ? `<div class="notice"><p><strong>${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes used this marking period</strong> · ${escapeHtml(allowance.remaining)} remaining</p></div>` : ''}
           <div class="pass-action">
             ${ownPass ? `
               <div class="timer">
@@ -349,55 +482,68 @@
                 <p class="timer-time" id="student-timer">00:00</p>
               </div>
               <button class="primary return" id="pass-action">I’m back</button>` : `${waitingHtml}${readyHtml}`}
-            ${(APP_MODE === 'kiosk' || state.method === 'pin') ? '<button class="secondary" id="switch-student">different student</button>' : '<button class="secondary" id="use-pin">use a PIN instead</button>'}
+            ${sharedDevice() ? '<button class="secondary" id="switch-student">different student</button>' : '<button class="secondary" id="use-pin">use a PIN instead</button>'}
           </div>`;
 
         if (ownPass) startTimer(ownPass.outTime);
+
         const passAction = document.querySelector('#pass-action');
-        if (passAction) passAction.addEventListener('click', async (event) => {
+        if (passAction) passAction.addEventListener('click', (event) => {
           const button = event.currentTarget;
-          button.disabled = true;
-          clearError();
-          try {
-            state = ownPass ? await call('returnPass', pinToken) : await call('startPass', pinToken);
+          const wasOut = Boolean(ownPass);
+          act(button, async () => {
+            adoptState(await call(wasOut ? 'returnPass' : 'startPass', pinToken));
             renderStudent();
-            if (APP_MODE === 'kiosk' && !state.ownPass) setTimeout(() => resetKiosk(), 3500);
-          } catch (error) {
-            showError(error.message);
-            button.disabled = false;
-          }
+            if (sharedDevice()) {
+              const goingOut = Boolean(state.ownPass);
+              scheduleHandoff(
+                goingOut
+                  ? 'Head out. This screen clears itself for the next student.'
+                  : 'Welcome back. This screen clears itself for the next student.',
+                goingOut ? HANDOFF_AFTER_START_MS : HANDOFF_AFTER_RETURN_MS
+              );
+            }
+          });
         });
 
         const joinButton = document.querySelector('#join-queue');
-        if (joinButton) joinButton.addEventListener('click', async () => {
-          joinButton.disabled = true;
-          clearError();
-          try { state = await call('joinPassQueue', pinToken); renderStudent(); }
-          catch (error) { showError(error.message); joinButton.disabled = false; }
-        });
+        if (joinButton) joinButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
+          adoptState(await call('joinPassQueue', pinToken));
+          renderStudent();
+        }));
+
         const leaveButton = document.querySelector('#leave-queue');
-        if (leaveButton) leaveButton.addEventListener('click', async () => {
-          leaveButton.disabled = true;
-          clearError();
-          try { state = await call('leavePassQueue', pinToken); renderStudent(); }
-          catch (error) { showError(error.message); leaveButton.disabled = false; }
-        });
+        if (leaveButton) leaveButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
+          adoptState(await call('leavePassQueue', pinToken));
+          renderStudent();
+        }));
 
         const switchButton = document.querySelector('#switch-student');
-        if (switchButton) switchButton.addEventListener('click', resetKiosk);
+        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN.'));
         const pinButton = document.querySelector('#use-pin');
-        if (pinButton) pinButton.addEventListener('click', () => renderPin('Use your PIN if this Chromebook is not signed into your own account.'));
+        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your PIN if this Chromebook is not signed into your own account.'));
+        if (handoffHandle && handoffMessage) showHandoffNote(handoffMessage);
+        armIdleReset();
+      };
+
+      const showHandoffNote = (message) => {
+        const holder = document.querySelector('.pass-action') || content;
+        const note = document.createElement('p');
+        note.className = 'handoff';
+        note.textContent = message;
+        holder.appendChild(note);
       };
 
       const renderCheckIn = () => {
         clearError();
         clearInterval(timerHandle);
+        screen = 'checkin';
         setTitle('Daily Check-in');
         const firstName = firstNameFromDisplayName(state.student.name);
         const pointLabel = `+${escapeHtml(state.pointValue)}`;
         const streak = state.streak || { current: 0, best: 0, checkedInToday: false, weekendProtected: false, atRiskToday: false };
         const streakMessage = streak.weekendProtected
-          ? 'Weekend protected—Saturday and Sunday never break the count.'
+          ? 'Weekend protected. Saturday and Sunday never break the count.'
           : streak.checkedInToday
             ? `Today is locked in. Best streak: ${escapeHtml(streak.best)} school day${Number(streak.best) === 1 ? '' : 's'}.`
             : streak.current
@@ -423,84 +569,141 @@
                 <span class="checkin-point">${pointLabel}</span>
                 <div>
                   <h3>you’re in.</h3>
-                  <p>Your attendance check-in was recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Opening this page again today will show this same confirmation—not another point.</p>
+                  <p>Your attendance check-in was recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Opening this page again today shows this same confirmation, not another point.</p>
                 </div>
               </div>
               <div class="pass-action">
                 <button class="secondary" id="checkin-refresh">refresh confirmation</button>
-                ${state.method === 'google' ? '<button class="secondary" id="checkin-pin">use a PIN instead</button>' : ''}
+                ${sharedDevice()
+                  ? '<button class="primary" id="checkin-next">done — next student</button>'
+                  : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
               </div>` : `
               <div class="checkin-copy">
                 <p class="message">Press once to record today’s attendance check-in and your daily extra-credit point. The date and time come from the classroom system.</p>
               </div>
               <div class="pass-action">
                 <button class="primary" id="checkin-action">check in for today</button>
-                ${state.method === 'google' ? '<button class="secondary" id="checkin-pin">use a PIN instead</button>' : ''}
+                ${sharedDevice()
+                  ? '<button class="secondary" id="checkin-next">different student</button>'
+                  : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
               </div>`}
           </div>`;
 
         const actionButton = document.querySelector('#checkin-action');
-        if (actionButton) actionButton.addEventListener('click', async () => {
-          actionButton.disabled = true;
-          clearError();
-          try {
-            state = await call('submitDailyCheckIn', pinToken);
-            renderCheckIn();
-          } catch (error) {
-            showError(error.message);
-            actionButton.disabled = false;
+        if (actionButton) actionButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
+          adoptState(await call('submitDailyCheckIn', pinToken));
+          renderCheckIn();
+          if (sharedDevice()) {
+            scheduleHandoff('Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
           }
-        });
+        }));
 
         const refreshButton = document.querySelector('#checkin-refresh');
-        if (refreshButton) refreshButton.addEventListener('click', async () => {
-          refreshButton.disabled = true;
-          try {
-            state = await call('refreshCheckInState', pinToken);
-            renderCheckIn();
-          } catch (error) {
-            showError(error.message);
-            refreshButton.disabled = false;
-          }
-        });
+        if (refreshButton) refreshButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
+          adoptState(await call('refreshCheckInState', pinToken));
+          renderCheckIn();
+        }));
+
+        const nextButton = document.querySelector('#checkin-next');
+        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN to check in.'));
 
         const pinButton = document.querySelector('#checkin-pin');
-        if (pinButton) pinButton.addEventListener('click', () => renderPin('Use your one six-digit student PIN. It works in every Mr. Grant class.', 'checkin'));
+        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in every Mr. Grant class.'));
+        armIdleReset();
       };
 
-      const resetKiosk = () => {
-        pinToken = '';
-        state = null;
-        clearError();
-        renderPin('Enter your six-digit PIN to sign out or return.');
+      /* ------------------------------------------------------------ teacher */
+
+      let teacherPinStatus = null;
+      let teacherPinPreview = null;
+      let teacherEmailResult = null;
+
+      const teacherFieldValue = (selector) => {
+        const node = document.querySelector(selector);
+        return node ? node.value : null;
+      };
+
+      const captureTeacherUi = () => ({
+        maxActive: teacherFieldValue('#max-active-passes'),
+        studentLimit: teacherFieldValue('#student-pass-limit'),
+        teacherStudent: teacherFieldValue('#teacher-student'),
+        checkinStudent: teacherFieldValue('#teacher-checkin-student'),
+        passFilter: teacherFieldValue('#pass-count-filter'),
+        detailsOpen: Boolean(document.querySelector('#pass-count-details') && document.querySelector('#pass-count-details').open),
+        scrollY: window.scrollY,
+      });
+
+      const restoreTeacherUi = (snapshot) => {
+        if (!snapshot) return;
+        const apply = (selector, value) => {
+          const node = document.querySelector(selector);
+          if (node && value != null && value !== '') node.value = value;
+        };
+        apply('#max-active-passes', snapshot.maxActive);
+        apply('#student-pass-limit', snapshot.studentLimit);
+        apply('#teacher-student', snapshot.teacherStudent);
+        apply('#teacher-checkin-student', snapshot.checkinStudent);
+        apply('#pass-count-filter', snapshot.passFilter);
+        const details = document.querySelector('#pass-count-details');
+        if (details) details.open = snapshot.detailsOpen;
+        if (snapshot.passFilter) filterPassCounts(snapshot.passFilter);
+        if (snapshot.scrollY) window.scrollTo(0, snapshot.scrollY);
+      };
+
+      const teacherIsEditing = () => {
+        const node = document.activeElement;
+        if (!node) return false;
+        return ['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName);
+      };
+
+      const filterPassCounts = (term) => {
+        const needle = String(term || '').trim().toLowerCase();
+        document.querySelectorAll('[data-pass-row]').forEach((row) => {
+          row.hidden = Boolean(needle) && !row.dataset.passRow.includes(needle);
+        });
       };
 
       const renderTeacher = () => {
+        const snapshot = screen === 'teacher' ? captureTeacherUi() : null;
         clearError();
+        screen = 'teacher';
         setTitle(state.appTitle);
         content.className = '';
+        if (state.pinEmailStatus) teacherPinStatus = state.pinEmailStatus;
+        if (state.emailResult) { teacherEmailResult = state.emailResult; state.emailResult = null; }
+
         const passPolicy = state.passPolicy || { limit: 0, resetAt: '' };
         const resetDate = passPolicy.resetAt ? new Date(passPolicy.resetAt) : null;
-        const resetLabel = resetDate && resetDate.getFullYear() > 1970
+        const resetLabel = resetDate && !isNaN(resetDate) && resetDate.getFullYear() > 1970
           ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(resetDate)
           : 'not reset yet';
-        const pinEmail = state.pinEmailStatus || { readyRecipients: 0, readyPins: 0, sentRecipients: 0, missingRecipients: 0, invalidDomainRecipients: 0 };
-        const activeHtml = state.active.length ? state.active.map((pass) => `
-          <article class="active-pass">
-            <strong>${escapeHtml(pass.studentName)}</strong>
+        const pinEmail = teacherPinStatus || { readyRecipients: 0, sentRecipients: 0, missingRecipients: 0, invalidDomainRecipients: 0 };
+        const lateAfter = Number(state.lateAfterMinutes || 10);
+        const unlimitedCount = (state.studentPassUsage || []).filter((student) => student.unlimited).length;
+
+        const activeHtml = state.active.length ? state.active.map((pass) => {
+          const minutes = Math.floor(elapsedSeconds(pass.outTime) / 60);
+          const late = minutes >= lateAfter;
+          return `
+          <article class="active-pass ${late ? 'late' : ''}">
+            <strong>${escapeHtml(pass.studentName)}${late ? '<span class="late-flag">over ' + escapeHtml(lateAfter) + ' min</span>' : ''}</strong>
             <small>${escapeHtml(pass.classPeriod)} · out at ${formatClock(pass.outTime)} · <span data-live-time="${escapeHtml(pass.outTime)}">${elapsed(pass.outTime)}</span></small>
             <button class="secondary" data-end-pass="${escapeHtml(pass.passId)}">mark returned</button>
-          </article>`).join('') : '<p class="all-clear">Nobody is out right now.</p>';
+          </article>`;
+        }).join('') : '<p class="all-clear">Nobody is out right now.</p>';
+
         const queueHtml = state.queue && state.queue.length ? state.queue.map((entry) => `
-          <article class="active-pass queue-entry">
-            <strong>#${escapeHtml(entry.position)} · ${escapeHtml(entry.studentName)}</strong>
+          <article class="active-pass queue-entry ${entry.isTurn ? 'turn' : ''}">
+            <strong>#${escapeHtml(entry.position)} · ${escapeHtml(entry.studentName)}${entry.isTurn ? '<span class="late-flag">their turn</span>' : ''}</strong>
             <small>${escapeHtml(entry.classPeriod)} · joined at ${formatClock(entry.joinedAt)}</small>
             <button class="secondary" data-remove-queue="${escapeHtml(entry.queueId)}">remove from line</button>
           </article>`).join('') : '<p class="all-clear">Nobody is waiting.</p>';
+
         const rosterOptions = state.roster
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
           .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
+
         const logRows = state.today.length ? state.today.map((pass) => `
           <tr>
             <td>${escapeHtml(pass.studentName)}</td>
@@ -510,35 +713,41 @@
             <td>${pass.minutesOut == null ? '—' : `${escapeHtml(pass.minutesOut)} min`}</td>
             <td class="method">${escapeHtml(pass.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No passes logged today.</td></tr>';
+
         const studentPassRows = state.studentPassUsage && state.studentPassUsage.length ? state.studentPassUsage.map((student) => `
-          <tr>
-            <td>${escapeHtml(student.name)}</td>
-            <td>${escapeHtml((student.classes || []).join(' · '))}</td>
-            <td>${escapeHtml(student.used)}</td>
-            <td>${student.limit ? escapeHtml(student.remaining) : 'unlimited'}</td>
-          </tr>`).join('') : '<tr><td colspan="4">No active students are on the roster.</td></tr>';
+          <tr data-pass-row="${escapeHtml(`${student.name} ${(student.classes || []).join(' ')}`.toLowerCase())}">
+            <td class="tick"><input type="checkbox" data-unlimited-email="${escapeHtml(student.email)}" ${student.unlimited ? 'checked' : ''} aria-label="Unlimited passes for ${escapeHtml(student.name)}"></td>
+            <td class="who">${escapeHtml(student.name)}</td>
+            <td class="num">${escapeHtml(student.used)}</td>
+            <td class="num">${student.unlimited || !student.limit ? '—' : escapeHtml(student.remaining)}</td>
+            <td class="classes">${escapeHtml((student.classes || []).join(' · '))}</td>
+          </tr>`).join('') : '<tr><td colspan="5">No active students are on the roster.</td></tr>';
+
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
           <div class="summary-tile">
             <strong>${escapeHtml(summary.checkedIn)} / ${escapeHtml(summary.roster)}</strong>
             <span>${escapeHtml(summary.classPeriod)}</span>
           </div>`).join('') : '<p class="all-clear">Add students to the roster to begin daily check-ins.</p>';
+
         const checkInRows = state.checkInsToday.length ? state.checkInsToday.map((checkIn) => `
           <tr>
             <td>${escapeHtml(checkIn.studentName)}</td>
             <td>${escapeHtml(checkIn.classPeriod)}</td>
             <td>${formatClock(checkIn.checkInTime)}</td>
             <td>${escapeHtml(checkIn.point)}</td>
-            <td>${escapeHtml(checkIn.streak && checkIn.streak.current || 0)}</td>
+            <td>${escapeHtml((checkIn.streak && checkIn.streak.current) || 0)}</td>
             <td class="method">${escapeHtml(checkIn.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No students have checked in today.</td></tr>';
+
         const notCheckedOptions = state.notCheckedIn
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
           .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
-        const pinPreviewHtml = state.pinEmailPreview ? `
-          <div class="notice warning email-preview"><p><strong>${escapeHtml(state.pinEmailPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(state.pinEmailPreview.readyPins)} unique student PINs · ${escapeHtml(state.pinEmailPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(state.pinEmailPreview.subject)}</p><p>${escapeHtml(state.pinEmailPreview.example)}</p></div>` : '';
-        const emailResultHtml = state.emailResult ? `
-          <div class="notice ${state.emailResult.failedRecipients ? 'warning' : 'success'}"><p><strong>${escapeHtml(state.emailResult.message)}</strong></p>${state.emailResult.failures && state.emailResult.failures.length ? `<p>${state.emailResult.failures.map(escapeHtml).join('<br>')}</p>` : ''}</div>` : '';
+
+        const pinPreviewHtml = teacherPinPreview ? `
+          <div class="notice warning email-preview"><p><strong>${escapeHtml(teacherPinPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(teacherPinPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(teacherPinPreview.subject)}</p><p>${escapeHtml(teacherPinPreview.example)}</p></div>` : '';
+        const emailResultHtml = teacherEmailResult ? `
+          <div class="notice ${teacherEmailResult.failedRecipients ? 'warning' : 'success'}"><p><strong>${escapeHtml(teacherEmailResult.message)}</strong></p>${teacherEmailResult.failures && teacherEmailResult.failures.length ? `<p>${teacherEmailResult.failures.map(escapeHtml).join('<br>')}</p>` : ''}</div>` : '';
 
         content.innerHTML = `
           <div class="student-head">
@@ -559,7 +768,7 @@
             <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day private history · maximum ${state.maxActivePasses} out at once · ${passPolicy.limit ? `${passPolicy.limit} passes allowed per student until reset` : 'unlimited passes per student'}</p></div></div>
             <div class="teacher-grid">
               <section class="subcard"><h3>out right now</h3>${activeHtml}</section>
-              <section class="subcard"><h3>waiting line</h3>${queueHtml}</section>
+              <section class="subcard"><h3>waiting line</h3>${queueHtml}<p class="message" style="margin-top:12px;font-size:12px">A student at the front has ${escapeHtml(state.queueClaimMinutes || 3)} minutes to start before the line moves on.</p></section>
             </div>
             <div class="teacher-grid">
               <section class="subcard"><h3>pass limits</h3><div class="override">
@@ -567,19 +776,23 @@
                   <label>Out at once<input type="number" id="max-active-passes" min="1" max="10" step="1" value="${escapeHtml(state.maxActivePasses)}"></label>
                   <label>Passes per student<input type="number" id="student-pass-limit" min="0" max="500" step="1" value="${escapeHtml(passPolicy.limit)}"></label>
                 </div>
-                <p class="message">Use 0 for unlimited. Counts do not reset automatically; press the reset button at the end of a marking period to return every student to zero. Last reset: ${escapeHtml(resetLabel)}.</p>
+                <p class="message">Use 0 for unlimited. Counts never reset on a date; press the reset button at the end of a marking period to return every student to zero. Last reset: ${escapeHtml(resetLabel)}.</p>
                 <div class="button-row"><button class="secondary" id="save-pass-limits">save limits</button><button class="secondary danger" id="reset-student-pass-counters">reset every student to zero</button></div>
               </div></section>
               <section class="subcard"><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
             </div>
-            <details class="subcard log" style="margin-bottom:18px"><summary><strong>view every student’s marking-period pass count</strong></summary><table><thead><tr><th>student</th><th>classes</th><th>used</th><th>remaining</th></tr></thead><tbody>${studentPassRows}</tbody></table></details>
+            <details class="subcard log" id="pass-count-details" style="margin-bottom:18px">
+              <summary><strong>every student’s pass count and unlimited setting</strong></summary>
+              <p class="message" style="margin:12px 0">${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. A checked box exempts that student from the per-student limit in every one of your classes. This setting lives only in your private workbook and never appears on a student screen.</p>
+              <input type="search" id="pass-count-filter" placeholder="filter by name or class" aria-label="Filter students">
+              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>unlimited</th><th>student</th><th>used</th><th>left</th><th>classes</th></tr></thead><tbody>${studentPassRows}</tbody></table>
+            </details>
             <section class="subcard log"><h3>today’s private pass log</h3><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th></tr></thead><tbody>${logRows}</tbody></table></section>
           </section>
           <section class="teacher-section">
             <div class="teacher-section-head"><div><h3>PIN delivery.</h3><p>Private individual emails from your school account; no student sees anyone else’s PIN.</p></div></div>
             <div class="checkin-summary">
               <div class="summary-tile"><strong>${escapeHtml(pinEmail.readyRecipients)}</strong><span>student emails ready</span></div>
-              <div class="summary-tile"><strong>${escapeHtml(pinEmail.readyPins)}</strong><span>unique student PINs ready</span></div>
               <div class="summary-tile"><strong>${escapeHtml(pinEmail.sentRecipients)}</strong><span>student PINs sent</span></div>
               <div class="summary-tile"><strong>${escapeHtml(pinEmail.missingRecipients)}</strong><span>students missing a PIN card</span></div>
               <div class="summary-tile"><strong>${escapeHtml(pinEmail.invalidDomainRecipients)}</strong><span>email-domain issues</span></div>
@@ -592,111 +805,173 @@
           </section>`;
 
         clearInterval(timerHandle);
-        timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => { node.textContent = elapsed(node.dataset.liveTime); }), 1000);
-        document.querySelector('#refresh-teacher').addEventListener('click', refreshTeacher);
-        document.querySelector('#teacher-checkin').addEventListener('click', async (event) => {
+        timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => {
+          node.textContent = elapsed(node.dataset.liveTime);
+        }), 1000);
+
+        document.querySelector('#refresh-teacher').addEventListener('click', (event) => act(event.currentTarget, async () => {
+          adoptState(await call('refreshTeacherState'));
+          renderTeacher();
+        }));
+
+        document.querySelector('#teacher-checkin').addEventListener('click', (event) => {
           const studentKey = document.querySelector('#teacher-checkin-student').value;
           if (!studentKey) { showError('Choose a student first.'); return; }
-          event.currentTarget.disabled = true;
-          try { state = await call('teacherCheckInStudent', studentKey); renderTeacher(); }
-          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
+          act(event.currentTarget, async () => {
+            adoptState(await call('teacherCheckInStudent', studentKey));
+            renderTeacher();
+          });
         });
-        document.querySelector('#teacher-start').addEventListener('click', async (event) => {
+
+        document.querySelector('#teacher-start').addEventListener('click', (event) => {
           const studentKey = document.querySelector('#teacher-student').value;
           if (!studentKey) { showError('Choose a student first.'); return; }
-          event.currentTarget.disabled = true;
-          try { state = await call('teacherStartPass', studentKey); renderTeacher(); }
-          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
+          act(event.currentTarget, async () => {
+            adoptState(await call('teacherStartPass', studentKey));
+            renderTeacher();
+          });
         });
-        document.querySelectorAll('[data-end-pass]').forEach((button) => button.addEventListener('click', async () => {
-          button.disabled = true;
-          try { state = await call('teacherEndPass', button.dataset.endPass, 'Ended from teacher dashboard'); renderTeacher(); }
-          catch (error) { showError(error.message); button.disabled = false; }
-        }));
-        document.querySelectorAll('[data-remove-queue]').forEach((button) => button.addEventListener('click', async () => {
-          button.disabled = true;
-          try { state = await call('teacherRemoveFromQueue', button.dataset.removeQueue); renderTeacher(); }
-          catch (error) { showError(error.message); button.disabled = false; }
+
+        document.querySelectorAll('[data-end-pass]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
+          adoptState(await call('teacherEndPass', button.dataset.endPass, 'Ended from teacher dashboard'));
+          renderTeacher();
+        })));
+
+        document.querySelectorAll('[data-remove-queue]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
+          adoptState(await call('teacherRemoveFromQueue', button.dataset.removeQueue));
+          renderTeacher();
+        })));
+
+        document.querySelectorAll('[data-unlimited-email]').forEach((box) => box.addEventListener('change', () => {
+          const email = box.dataset.unlimitedEmail;
+          const wanted = box.checked;
+          box.disabled = true;
+          act(null, async () => {
+            try {
+              adoptState(await call('teacherSetStudentUnlimited', email, wanted));
+              renderTeacher();
+            } catch (error) {
+              box.checked = !wanted;
+              box.disabled = false;
+              throw error;
+            }
+          });
         }));
 
-        document.querySelector('#save-pass-limits').addEventListener('click', async (event) => {
+        const filterBox = document.querySelector('#pass-count-filter');
+        if (filterBox) filterBox.addEventListener('input', () => filterPassCounts(filterBox.value));
+
+        document.querySelector('#save-pass-limits').addEventListener('click', (event) => {
           const maxActive = Number(document.querySelector('#max-active-passes').value);
           const studentLimit = Number(document.querySelector('#student-pass-limit').value);
-          event.currentTarget.disabled = true;
-          try { state = await call('teacherSetPassLimits', maxActive, studentLimit); renderTeacher(); }
-          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
-        });
-        document.querySelector('#reset-student-pass-counters').addEventListener('click', async (event) => {
-          if (!window.confirm('Reset every student’s marking-period pass count to zero? This starts a new counting period. Pass history stays in the private log, and active passes and the waiting line are not changed.')) return;
-          event.currentTarget.disabled = true;
-          try { state = await call('teacherResetStudentPassCounters', 'RESET ALL STUDENTS'); renderTeacher(); }
-          catch (error) { showError(error.message); event.currentTarget.disabled = false; }
+          act(event.currentTarget, async () => {
+            adoptState(await call('teacherSetPassLimits', maxActive, studentLimit));
+            renderTeacher();
+          });
         });
 
-        document.querySelector('#preview-pin-emails').addEventListener('click', async (event) => {
-          event.currentTarget.disabled = true;
-          try {
-            state.pinEmailPreview = await call('previewStudentPinEmails');
+        document.querySelector('#reset-student-pass-counters').addEventListener('click', (event) => {
+          if (!window.confirm('Reset every student’s marking-period pass count to zero? This starts a new counting period. Pass history stays in the private log, and active passes and the waiting line are not changed.')) return;
+          act(event.currentTarget, async () => {
+            adoptState(await call('teacherResetStudentPassCounters', 'RESET ALL STUDENTS'));
             renderTeacher();
-          } catch (error) {
-            showError(error.message);
-            event.currentTarget.disabled = false;
-          }
+          });
         });
-        document.querySelector('#send-pin-emails').addEventListener('click', async (event) => {
-          event.currentTarget.disabled = true;
-          try {
-            const preview = state.pinEmailPreview || await call('previewStudentPinEmails');
+
+        document.querySelector('#preview-pin-emails').addEventListener('click', (event) => act(event.currentTarget, async () => {
+          teacherPinPreview = await call('previewStudentPinEmails');
+          teacherPinStatus = teacherPinPreview;
+          renderTeacher();
+        }));
+
+        document.querySelector('#send-pin-emails').addEventListener('click', (event) => {
+          const button = event.currentTarget;
+          act(button, async () => {
+            const preview = teacherPinPreview || await call('previewStudentPinEmails');
+            teacherPinPreview = preview;
             if (!preview.readyRecipients) {
-              showError('No unsent PIN emails are ready.');
-              event.currentTarget.disabled = false;
+              button.disabled = false;
+              throw new Error('No unsent PIN emails are ready.');
+            }
+            if (!window.confirm(`Send ${preview.readyRecipients} private student emails, one unique PIN per student?`)) {
+              button.disabled = false;
               return;
             }
-            const approved = window.confirm(`Send ${preview.readyRecipients} private student emails containing one unique PIN per student?`);
-            if (!approved) { event.currentTarget.disabled = false; return; }
             const phrase = window.prompt('Final confirmation: type EMAIL PINS exactly.');
             if (phrase !== 'EMAIL PINS') {
-              showError('No messages were sent. The confirmation phrase did not match.');
-              event.currentTarget.disabled = false;
-              return;
+              button.disabled = false;
+              throw new Error('No messages were sent. The confirmation phrase did not match.');
             }
-            state = await call('sendStudentPinEmails', phrase);
+            adoptState(await call('sendStudentPinEmails', phrase));
+            teacherPinPreview = null;
             renderTeacher();
-          } catch (error) {
-            showError(error.message);
-            event.currentTarget.disabled = false;
-          }
+          });
         });
+
+        restoreTeacherUi(snapshot);
       };
 
+      /* ------------------------------------------------------------- polling */
+
       const refreshTeacher = async () => {
-        try { state = await call('refreshTeacherState'); renderTeacher(); }
-        catch (error) { showError(error.message); }
+        if (inFlight || screen !== 'teacher' || teacherIsEditing()) return;
+        if (document.visibilityState === 'hidden') return;
+        try {
+          const next = await call('refreshTeacherState');
+          if (inFlight || screen !== 'teacher' || teacherIsEditing()) return;
+          adoptState(next);
+          renderTeacher();
+        } catch (error) {
+          showError(error.message);
+        }
+      };
+
+      /**
+       * A pass page left open on a Chromebook must not poll the classroom
+       * server forever. Poll fast only while the student has something at
+       * stake, slow down otherwise, and stop when the tab is hidden or the
+       * student walked away.
+       */
+      const studentPollDue = () => {
+        pollTick += 1;
+        if (document.visibilityState === 'hidden') return false;
+        if (Date.now() - lastInteraction > 1800000) return false;
+        const invested = Boolean(state && (state.ownPass || Number(state.queuePosition || 0) > 0));
+        return invested || pollTick % 3 === 0;
       };
 
       const refreshStudent = async () => {
-        if (!state || !state.recognized || APP_MODE === 'kiosk' && !pinToken) return;
-        try { state = await call('refreshStudentState', pinToken); renderStudent(); }
-        catch (error) { showError(error.message); }
+        if (inFlight || screen !== 'student') return;
+        if (!state || !state.recognized || state.requiresClassSelection) return;
+        if (!studentPollDue()) return;
+        try {
+          const next = await call('refreshStudentState', pinToken);
+          if (inFlight || screen !== 'student') return;
+          adoptState(next);
+          renderStudent();
+        } catch (error) {
+          if (/expired/i.test(error.message || '')) resetToPin('Enter your six-digit PIN again.');
+        }
       };
+
+      /* ---------------------------------------------------------------- boot */
 
       (async () => {
         try {
-          state = await call('getBootstrap', APP_MODE);
+          adoptState(await call('getBootstrap', APP_MODE));
           setTitle(state.appTitle);
           if (APP_MODE === 'teacher') renderTeacher();
-          else if (APP_MODE === 'kiosk') resetKiosk();
-          else if (APP_MODE === 'checkin' && !state.recognized) renderPin(state.message, 'checkin');
-          else if (APP_MODE === 'checkin') renderResolvedState('checkin');
-          else if (!state.recognized) renderPin(state.message, 'pass');
-          else renderResolvedState('pass');
-          if (APP_MODE !== 'checkin') {
-            refreshHandle = setInterval(APP_MODE === 'teacher' ? refreshTeacher : refreshStudent, APP_MODE === 'teacher' ? 10000 : 5000);
-          }
+          else if (APP_MODE === 'kiosk') resetToPin('Enter your six-digit PIN.');
+          else if (!state.recognized) renderPin(state.message, APP_MODE === 'checkin' ? 'checkin' : 'pass');
+          else renderResolvedState(APP_MODE === 'checkin' ? 'checkin' : 'pass');
+
+          if (APP_MODE === 'teacher') refreshHandle = setInterval(refreshTeacher, 12000);
+          else if (APP_MODE !== 'checkin') refreshHandle = setInterval(refreshStudent, 5000);
         } catch (error) {
+          screen = 'error';
           content.className = '';
           content.innerHTML = `<p class="message">${escapeHtml(error.message)}</p>`;
-          showError('The classroom app could not verify this account.');
+          showError('The classroom app could not start. Reload the page, or tell Mr. Grant if it keeps happening.');
         }
       })();
     </script>
