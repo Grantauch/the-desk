@@ -49,14 +49,20 @@ const readTag = (xml, tag) => {
   return match ? decodeEntities(match[1]) : '';
 };
 
-const PLACEHOLDER_IMAGE_VALUES = new Set(['undefined', 'null', 'none', 'false', 'n/a', 'na']);
+const PLACEHOLDER_URL_VALUES = new Set(['undefined', 'null', 'none', 'false', 'n/a', 'na']);
+
+const isPlaceholderUrlValue = (value = '') => {
+  const clean = decodeEntities(String(value || '')).trim().replace(/^["']|["']$/g, '');
+  const lower = clean.toLowerCase();
+  return !lower ||
+    PLACEHOLDER_URL_VALUES.has(lower) ||
+    /(?:^|\/)(?:undefined|null|none)(?:[?#].*)?$/i.test(lower);
+};
 
 const isPlaceholderImageValue = (value = '') => {
   const clean = decodeEntities(String(value || '')).trim().replace(/^["']|["']$/g, '');
   const lower = clean.toLowerCase();
-  return !lower ||
-    PLACEHOLDER_IMAGE_VALUES.has(lower) ||
-    /(?:^|\/)(?:undefined|null|none)(?:[/?#]|$)/i.test(lower) ||
+  return isPlaceholderUrlValue(lower) ||
     /\/tracking\//i.test(lower) ||
     /(?:^|[/-])(?:pixel|spacer)(?:[./_-]|$)/i.test(lower);
 };
@@ -89,13 +95,19 @@ const readFeedImage = (entry, format) => {
 };
 
 const safeHttpsUrl = (value, base) => {
-  if (isPlaceholderImageValue(value)) return '';
+  if (isPlaceholderUrlValue(value)) return '';
   try {
     const url = new URL(value, base);
-    return url.protocol === 'https:' && !isPlaceholderImageValue(url.href) ? url.href : '';
+    return url.protocol === 'https:' && !isPlaceholderUrlValue(url.href) ? url.href : '';
   } catch {
     return '';
   }
+};
+
+const safeHttpsImageUrl = (value, base) => {
+  if (isPlaceholderImageValue(value)) return '';
+  const url = safeHttpsUrl(value, base);
+  return url && !isPlaceholderImageValue(url) ? url : '';
 };
 
 const fetchText = async (url, timeoutMs = 8_000) => {
@@ -118,7 +130,7 @@ const readOpenGraphImage = (html, articleUrl) => {
   ];
   for (const pattern of candidates) {
     const value = pattern.exec(html)?.[1];
-    const url = safeHttpsUrl(decodeEntities(value ?? ''), articleUrl);
+    const url = safeHttpsImageUrl(decodeEntities(value ?? ''), articleUrl);
     if (url) return url;
   }
   return '';
@@ -145,7 +157,7 @@ export const parseSourceFeed = (xml, source) => {
     const title = readTag(entry, source.format === 'news-sitemap' ? 'news:title' : 'title');
     const href = safeHttpsUrl(readTag(entry, source.format === 'news-sitemap' ? 'loc' : 'link'), source.home);
     const published = readTag(entry, source.format === 'news-sitemap' ? 'news:publication_date' : 'pubDate');
-    const image = safeHttpsUrl(readFeedImage(entry, source.format), href || source.home);
+    const image = safeHttpsImageUrl(readFeedImage(entry, source.format), href || source.home);
     if (!title || !href || seen.has(href)) return null;
     seen.add(href);
     return { title, href, image, published };

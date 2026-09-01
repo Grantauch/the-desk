@@ -2,7 +2,7 @@
 
 ## Release safety
 
-The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder are the merged 2026-09-01 recovery source. They preserve the public Version 9 protections while adding the supplied teacher roster-management controls. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
+The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder build additively on the 2026-09-01 recovery source. They preserve the public Version 9 protections and Version 11 roster-management controls while adding reversible attendance, classroom visibility, pass-abuse controls, sign-out sounds, and prior-day pass rollover. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
 
 Before any deployment:
 
@@ -31,15 +31,23 @@ Post-deployment verification passed for student, kiosk, check-in, and teacher en
 8. Copy the `/exec` URL. Hall-pass student mode is that URL; kiosk mode adds `?mode=kiosk`; daily check-in adds `?mode=checkin`; teacher mode adds `?mode=teacher`.
 9. Put the student `/exec` URL into `src/data/pass-config.json`, then publish GrantDesk.
 
-The first request after this version is installed creates a **Daily Check-ins** tab automatically. Each active roster student can receive only one `CHECKED_IN` row and one point per school date, even if the button is pressed repeatedly. The teacher view combines today’s roster counts, check-in log, backup check-in control, and hall-pass controls.
+The first request after this version is installed creates a **Daily Check-ins** tab automatically. Each active class membership can receive only one `CHECKED_IN` row and one point per school date, even if the button is pressed repeatedly. The teacher view combines today’s roster counts, check-in log, backup check-in control, reversible absent marks, a searchable list of students who remain unmarked, and hall-pass controls. A student cannot erase a teacher absent mark from a student or PIN screen; the teacher can clear it or convert it to a late-arrival check-in while preserving the audit row.
 
-The app also creates a private **Pass Queue** tab. When all concurrent pass slots are occupied, students can join the line and see only their own numbered position. The teacher sees the ordered line, can remove an entry, can set both the number allowed out at once and the number of passes allowed per student during a marking period, and can reset every student’s count to zero with a confirmation button. Counts never reset on hardcoded dates. A reset starts a new counting window while preserving private pass history, active passes, timers, and the waiting line.
+The app also creates a private **Pass Queue** tab. When all concurrent pass slots are occupied, students can join the line and see only their own numbered position. The teacher sees the ordered line, can remove an entry, and can set concurrent passes, marking-period and daily limits, a cooldown after return, and late/forgotten-pass warning times. The dashboard also identifies repeat trips and lets the teacher deliberately override a student cap for a backup pass. Marking-period counts reset only through the confirmed teacher control; the reset preserves private pass history, active passes, timers, and the waiting line.
+
+A pass left `OUT` overnight is retained as a `ROLLED_OVER` audit event but cannot occupy the next school day’s live slot. The next teacher dashboard shows the rollover for review. Within the same day, late and forgotten-pass cards stay visible until the student or teacher records a return.
+
+The teacher can choose chime, bell, tap, beep, or off for new sign-outs. The choice is stored only in that dashboard browser. Use **test sound** once after opening the page if the browser requires a user gesture before audio. The event detector compares both active passes and today’s log, so a short sign-out that begins and ends between dashboard refreshes still produces one alert.
+
+The **sign-in problems** cards can be cleared from the teacher dashboard. Clearing changes the private ledger status to `CLEARED`; it does not delete the evidence. If that same unmatched school account tries again later, the card reopens so an unresolved roster problem cannot be hidden permanently.
 
 The private teacher dashboard can also add, reactivate, and deactivate individual class memberships. Re-adding an existing student preserves that student’s shared PIN and unlimited-pass setting. Deactivating a membership keeps private pass and check-in history and is refused while that class membership has an active pass or waiting-line entry.
 
 Daily check-in confirmations show each student’s current and best school-day streak. Saturday and Sunday are skipped when determining consecutive days, so a Friday-to-Monday check-in remains consecutive.
 
 PIN email distribution sends one shared student PIN in one private message per school email. Students enrolled in multiple classes choose the relevant class after their PIN identifies them. Preview first, then use the exact `EMAIL PINS` confirmation phrase. Already-sent PIN rows are skipped on later runs, delivery status is recorded on the private PIN Cards tab, and the server refuses to begin if the remaining daily recipient quota is below the ready recipient count.
+
+PIN sessions are signed and expire after one hour. Anonymous kiosk failures are throttled per browser/device nonce with a separate high global circuit breaker, so mistakes on one kiosk do not lock every anonymous device. Queue-turn timestamps use durable script properties rather than best-effort cache entries.
 
 For later code updates, replace `Code.gs` and `Index.html`, save, then choose **Deploy → Manage deployments → Edit → New version → Deploy**. Keep the existing web-app URL so GrantDesk links do not change.
 

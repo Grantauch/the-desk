@@ -40,10 +40,12 @@ const dynamicFunctionCandidates = (route) => {
 const files = await walk(distRoot);
 const htmlFiles = files.filter((file) => extname(file).toLowerCase() === '.html');
 const failures = [];
+const htmlByFile = new Map();
 let references = 0;
 
 for (const htmlFile of htmlFiles) {
   const html = await readFile(htmlFile, 'utf8');
+  htmlByFile.set(htmlFile, html);
   const attributes = [...html.matchAll(/\b(?:href|src)=(?:"([^"]+)"|'([^']+)')/gi)];
 
   for (const match of attributes) {
@@ -84,6 +86,90 @@ for (const htmlFile of htmlFiles) {
       failures.push(`${relative(distRoot, htmlFile)} -> missing: ${raw}`);
     }
   }
+}
+
+for (const [htmlFile, html] of htmlByFile) {
+  const route = relative(distRoot, htmlFile).split(sep).join('/');
+  const canonical = html.match(/<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)/i)?.[1]
+    ?? html.match(/<link\b[^>]*\bhref=["']([^"']+)["'][^>]*\brel=["']canonical["']/i)?.[1]
+    ?? '';
+  if (canonical) {
+    try {
+      const url = new URL(canonical);
+      if (url.protocol !== 'https:' || url.hostname !== 'grant-desk.com') {
+        failures.push(`${route} -> canonical must use https://grant-desk.com without www: ${canonical}`);
+      }
+    } catch {
+      failures.push(`${route} -> malformed canonical URL: ${canonical}`);
+    }
+  }
+
+  const h1Count = [...html.matchAll(/<h1\b/gi)].length;
+  if (h1Count > 1) failures.push(`${route} -> expected no more than one h1, found ${h1Count}`);
+}
+
+const classroomHubs = [
+  'boss_fight_review.html',
+  'classroom-jeopardy.html',
+  'evidence_locker.html',
+  'hidden-history-unit1.html',
+  'jeopardy-hidden-history-unit1.html',
+  'jeopardy-scoreboard-unit1.html',
+  'lessonhub-lab.html',
+  'market_shock_arena.html',
+  'paycheck-taxes.html',
+  'scoreboard-unit1.html',
+  'situation_room.html',
+];
+for (const hub of classroomHubs) {
+  const hubPath = join(distRoot, 'hubs', hub);
+  const html = htmlByFile.get(hubPath) ?? (await exists(hubPath) ? await readFile(hubPath, 'utf8') : '');
+  if (!html) {
+    failures.push(`hubs/${hub} -> classroom hub was not built`);
+    continue;
+  }
+  if (!/<meta\b[^>]*\bname=["']robots["'][^>]*\bcontent=["']noindex,\s*follow["']/i.test(html)) {
+    failures.push(`hubs/${hub} -> classroom hub must declare noindex, follow`);
+  }
+  const expectedCanonical = `https://grant-desk.com/hubs/${hub}`;
+  const hubChecks = [
+    [/<meta\b[^>]*\bname=["']description["'][^>]*\bcontent=["'][^"']+["']/i, 'description'],
+    [/<meta\b[^>]*\bproperty=["']og:title["'][^>]*\bcontent=["'][^"']+["']/i, 'Open Graph title'],
+    [/<meta\b[^>]*\bproperty=["']og:description["'][^>]*\bcontent=["'][^"']+["']/i, 'Open Graph description'],
+    [/<meta\b[^>]*\bproperty=["']og:image["'][^>]*\bcontent=["']https:\/\/grant-desk\.com\/[^"']+["']/i, 'Open Graph image'],
+    [/<meta\b[^>]*\bname=["']twitter:card["'][^>]*\bcontent=["']summary_large_image["']/i, 'Twitter card'],
+  ];
+  hubChecks.forEach(([pattern, label]) => {
+    if (!pattern.test(html)) failures.push(`hubs/${hub} -> missing ${label}`);
+  });
+  if (!html.includes(`<link rel="canonical" href="${expectedCanonical}">`)) {
+    failures.push(`hubs/${hub} -> canonical must be ${expectedCanonical}`);
+  }
+  if (!html.includes(`<meta property="og:url" content="${expectedCanonical}">`)) {
+    failures.push(`hubs/${hub} -> Open Graph URL must match its canonical URL`);
+  }
+}
+
+const firstDayPath = join(distRoot, 'first-day-materials', 'index.html');
+if (await exists(firstDayPath)) {
+  const firstDayHtml = htmlByFile.get(firstDayPath) ?? await readFile(firstDayPath, 'utf8');
+  const firstDayChecks = [
+    [/<a\b[^>]*\bhref=["']#main-content["']/i, 'skip link'],
+    [/<main\b[^>]*\bid=["']main-content["']/i, 'main landmark target'],
+    [/<nav\b[^>]*\baria-label=["']Primary navigation["']/i, 'primary navigation landmark'],
+    [/<nav\b[^>]*\baria-label=["']Footer navigation["']/i, 'footer navigation landmark'],
+  ];
+  firstDayChecks.forEach(([pattern, label]) => {
+    if (!pattern.test(firstDayHtml)) failures.push(`first-day-materials/index.html -> missing ${label}`);
+  });
+}
+
+const homeHtml = htmlByFile.get(join(distRoot, 'index.html')) ?? '';
+if (homeHtml.includes('The farther backward you can look, the farther forward you are likely to see.')) {
+  failures.push('index.html -> falsely attributed Churchill wording returned');
+}
+if (!homeHtml.includes('The longer you can look back, the farther you can look forward.')) {
+  failures.push('index.html -> verified Churchill wording is missing');
 }
 
 const detourPath = join(distRoot, 'detour-shelf', 'index.html');

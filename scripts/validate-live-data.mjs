@@ -25,6 +25,22 @@ if (nprFixture[0]?.image) {
   throw new Error(`NPR placeholder fixture resolved an invalid feed image: ${nprFixture[0].image}`);
 }
 
+const articlePathFixture = parseSourceFeed(`
+  <rss><channel><item>
+    <title>Tracking policy is a legitimate story path</title>
+    <link>https://www.npr.org/sections/tracking/2026/09/01/fixture-story</link>
+    <description><![CDATA[<img src="https://media.npr.org/assets/fixture.jpg">]]></description>
+  </item></channel></rss>`, {
+  name: 'NPR',
+  lens: 'national',
+  home: 'https://www.npr.org/sections/news/',
+  format: 'rss',
+});
+
+if (articlePathFixture[0]?.href !== 'https://www.npr.org/sections/tracking/2026/09/01/fixture-story') {
+  throw new Error('Image tracking filters incorrectly rejected a valid article URL.');
+}
+
 const headlineResponse = await headlinesHandler({});
 if (headlineResponse.statusCode !== 200) throw new Error(`Headline function returned ${headlineResponse.statusCode}`);
 const headlinePayload = JSON.parse(headlineResponse.body);

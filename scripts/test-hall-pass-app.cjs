@@ -51,15 +51,25 @@ const functionSource = (name) => {
   throw new Error(`Could not isolate function ${name}`);
 };
 
-assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-01-a'/);
+assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-01-b'/);
 assert.match(code, /UNMATCHED:\s*'Unmatched Sign-ins'/);
 assert.match(code, /function teacherApplyUnmatchedEmail/);
 assert.match(code, /function teacherAddStudentClass/);
 assert.match(code, /function teacherRemoveStudentClass/);
 assert.match(code, /function teacherClearUnmatchedSignIns/);
 assert.match(code, /function readPinSession_/);
+assert.match(code, /function secureEquals_/);
 assert.match(code, /function queueTurnKey_/);
 assert.match(code, /function readRosterRows_/);
+assert.match(code, /function teacherMarkStudentAbsent/);
+assert.match(code, /function teacherClearStudentAbsent/);
+assert.match(code, /function teacherSetPassRules/);
+
+const setupProject = functionSource('setupProject');
+assert.ok(
+  setupProject.indexOf('assertTeacher_') < setupProject.indexOf("setProperty('SPREADSHEET_ID'"),
+  'Project setup must authorize before changing script properties or workbook state'
+);
 
 const studentState = functionSource('getStudentState_');
 assert.match(studentState, /passAllowance:\s*studentAllowanceView_\(allowance\)/);
@@ -73,6 +83,7 @@ assert.ok(
   generatePins.indexOf('assertTeacher_') < generatePins.indexOf('setupWorkbook_'),
   'PIN generation must authorize before workbook mutation'
 );
+assert.match(generatePins, /assertPinEmailBatchIdle_/);
 
 const emailBatch = functionSource('runPinEmailBatch_');
 assert.match(emailBatch, /withLock_\([\s\S]*PIN_EMAIL_RUNNING/);
@@ -80,14 +91,20 @@ assert.match(emailBatch, /withLock_\([\s\S]*PIN_EMAIL_RUNNING/);
 const cleanup = functionSource('dailyCleanup');
 assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
+assert.match(cleanup, /expirePreviousDayPasses_/);
 
 const purgeIfDue = functionSource('purgeIfDue_');
 assert.match(purgeIfDue, /withLock_/);
 assert.ok(
-  purgeIfDue.indexOf('purgeOldPasses_') < purgeIfDue.indexOf("setProperty('LAST_PURGE'") &&
+  purgeIfDue.indexOf('expirePreviousDayPasses_') < purgeIfDue.indexOf("setProperty('LAST_PURGE'") &&
+    purgeIfDue.indexOf('purgeOldPasses_') < purgeIfDue.indexOf("setProperty('LAST_PURGE'") &&
     purgeIfDue.indexOf('purgeOldQueue_') < purgeIfDue.indexOf("setProperty('LAST_PURGE'"),
-  'Automatic purge must write LAST_PURGE only after both cleanup calls finish'
+  'Automatic purge must write LAST_PURGE only after rollover and both cleanup calls finish'
 );
+
+const passSnapshot = functionSource('getPassSnapshot_');
+assert.match(passSnapshot, /safeDateKey_\(pass\.outDate\)\s*===\s*todayKey/);
+assert.match(functionSource('expirePreviousDayPasses_'), /'ROLLED_OVER'/);
 
 const pinIdentify = functionSource('identifyPin_');
 assert.match(pinIdentify, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce\)/);
@@ -96,6 +113,7 @@ assert.match(pinIdentify, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\
 const pinSessionWriter = functionSource('putPinSession_');
 assert.match(pinSessionWriter, /signTokenPart_/);
 assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
+assert.match(functionSource('readPinSession_'), /secureEquals_/);
 
 const queueReader = functionSource('readWaitingQueue_');
 assert.match(queueReader, /getQueueTurnStarted_/);
@@ -104,8 +122,13 @@ assert.doesNotMatch(queueReader, /CacheService\.getScriptCache/);
 
 const unmatchedRecorder = functionSource('recordUnmatchedSignIn_');
 assert.match(unmatchedRecorder, /withLock_/);
+assert.match(unmatchedRecorder, /\['CLEARED',\s*'APPLIED'\]/);
+assert.match(unmatchedRecorder, /\['NEW',\s*reopenedNote\]/, 'A cleared mismatch must return if the account is still unmatched');
 
-for (const name of ['teacherAddStudentClass', 'teacherRemoveStudentClass']) {
+const unmatchedClearer = functionSource('teacherClearUnmatchedSignIns');
+assert.match(unmatchedClearer, /CacheService\.getScriptCache\(\)\.remove/);
+
+for (const name of ['teacherAddStudentClass', 'teacherRemoveStudentClass', 'teacherMarkStudentAbsent', 'teacherClearStudentAbsent']) {
   const source = functionSource(name);
   assert.ok(source.indexOf('assertTeacher_') < source.indexOf('withLock_'), `${name} must authorize before mutation`);
 }
@@ -122,6 +145,11 @@ assert.match(html, /teacherRemoveStudentClass/);
 assert.match(html, /TEACHER_STALE_MS/);
 assert.match(html, /teacher-stamp/);
 assert.match(html, /roster-student-email/);
+assert.match(html, /data-absent-student/);
+assert.match(html, /data-clear-absence/);
+assert.match(html, /daily-pass-limit/);
+assert.match(html, /pass-cooldown-minutes/);
+assert.match(html, /playIfNewPassStarted/);
 
 assert.equal(manifest.runtimeVersion, 'V8');
 assert.equal(manifest.webapp.executeAs, 'USER_DEPLOYING');
@@ -136,11 +164,36 @@ const privateAllowance = context.__gdTest.studentAllowanceView_({
   used: 1,
   remaining: 2,
   limitReached: false,
+  dailyLimit: 2,
+  todayUsed: 1,
+  dailyRemaining: 1,
+  dailyLimitReached: false,
+  cooldownMinutes: 5,
+  cooldownActive: false,
+  cooldownRemainingSeconds: 0,
+  nextAllowedAt: '',
+  blocked: false,
   unlimited: true,
 });
 assert.deepEqual(
   JSON.parse(JSON.stringify(privateAllowance)),
-  { capped: false, limit: 0, used: 0, remaining: null, limitReached: false }
+  {
+    capped: false,
+    limit: 0,
+    used: 0,
+    remaining: null,
+    limitReached: false,
+    dailyCapped: false,
+    dailyLimit: 0,
+    todayUsed: 0,
+    dailyRemaining: null,
+    dailyLimitReached: false,
+    cooldownMinutes: 0,
+    cooldownActive: false,
+    cooldownRemainingSeconds: 0,
+    nextAllowedAt: '',
+    blocked: false,
+  }
 );
 assert.equal(Object.hasOwn(privateAllowance, 'unlimited'), false);
 
@@ -168,7 +221,11 @@ assert.throws(
 // structural assertions above catch security/privacy regressions; these
 // fixtures catch changes to the classroom rules themselves.
 const behaviorContext = {
+  Session: {
+    getScriptTimeZone: () => 'UTC',
+  },
   Utilities: {
+    getUuid: () => 'fixture-uuid',
     formatDate(date, zone, format) {
       assert.equal(zone, 'UTC');
       assert.equal(format, 'yyyy-MM-dd');
@@ -185,7 +242,38 @@ vm.runInContext(`${code}
   getStudentPassAllowance_,
   buildClassSelectionState_,
   ensureOnePinPerStudent_,
+  recordCheckIn_,
+  getPassSnapshot_,
+  expirePreviousDayPasses_,
 };`, behaviorContext);
+
+const snapshotNow = new Date();
+const priorDay = new Date(snapshotNow.getTime() - 86400000);
+behaviorContext.getSettings_ = () => ({ MAX_ACTIVE_PASSES: '1' });
+behaviorContext.readPassLog_ = () => ([
+  { row: 2, passId: 'old-pass', status: 'OUT', outDate: priorDay, studentEmail: 'old@students.mtmorrisschools.org' },
+  { row: 3, passId: 'today-pass', status: 'OUT', outDate: snapshotNow, studentEmail: 'today@students.mtmorrisschools.org' },
+]);
+behaviorContext.readWaitingQueue_ = () => ({ live: [], expired: [] });
+const rolloverSafeSnapshot = behaviorContext.__gdBehavior.getPassSnapshot_();
+assert.equal(rolloverSafeSnapshot.active.length, 1, 'A prior-day OUT row must not consume today’s pass slot');
+assert.equal(rolloverSafeSnapshot.active[0].passId, 'today-pass');
+
+const rolloverWrites = [];
+behaviorContext.getSpreadsheet_ = () => ({
+  getSheetByName: () => ({
+    getRange(row, column) {
+      return { setValues(values) { rolloverWrites.push({ row, column, values }); } };
+    },
+  }),
+});
+behaviorContext.gdForget_ = () => {};
+const rolledOver = behaviorContext.__gdBehavior.expirePreviousDayPasses_(snapshotNow);
+assert.equal(rolledOver, 1);
+assert.ok(
+  rolloverWrites.some((write) => write.column === 10 && write.values[0][0] === 'ROLLED_OVER'),
+  'Prior-day OUT rows must become auditable rollover records'
+);
 
 const checkIn = (dateKey) => ({
   studentKey: 'student::period-1',
@@ -260,6 +348,111 @@ const resetAllowance = behaviorContext.__gdBehavior.getStudentPassAllowance_(
 );
 assert.equal(resetAllowance.used, 0, 'Manual reset timestamp must return the student count to zero');
 
+const dailyGuard = behaviorContext.__gdBehavior.getStudentPassAllowance_(
+  'student@students.mtmorrisschools.org',
+  {
+    STUDENT_PASS_LIMIT: '0',
+    STUDENT_PASS_RESET_AT: '',
+    DAILY_PASS_LIMIT: '2',
+    PASS_COOLDOWN_MINUTES: '10',
+  },
+  [
+    {
+      studentEmail: 'student@students.mtmorrisschools.org',
+      outDate: new Date('2026-09-01T10:00:00Z'),
+      returnDate: new Date('2026-09-01T10:10:00Z'),
+      status: 'RETURNED',
+    },
+    {
+      studentEmail: 'student@students.mtmorrisschools.org',
+      outDate: new Date('2026-09-01T11:45:00Z'),
+      returnDate: new Date('2026-09-01T11:57:00Z'),
+      status: 'RETURNED',
+    },
+  ],
+  new Date('2026-09-01T12:00:00Z')
+);
+assert.equal(dailyGuard.todayUsed, 2);
+assert.equal(dailyGuard.dailyLimitReached, true, 'Daily cap must block repeated same-day passes');
+assert.equal(dailyGuard.cooldownActive, true, 'Cooldown must remain active after a recent return');
+assert.equal(dailyGuard.blocked, true);
+assert.equal(dailyGuard.cooldownRemainingSeconds, 420);
+
+const cooldownOnly = behaviorContext.__gdBehavior.getStudentPassAllowance_(
+  'student@students.mtmorrisschools.org',
+  { STUDENT_PASS_LIMIT: '0', STUDENT_PASS_RESET_AT: '', DAILY_PASS_LIMIT: '0', PASS_COOLDOWN_MINUTES: '5' },
+  [{
+    studentEmail: 'student@students.mtmorrisschools.org',
+    outDate: new Date('2026-09-01T11:40:00Z'),
+    returnDate: new Date('2026-09-01T11:58:00Z'),
+    status: 'RETURNED',
+  }],
+  new Date('2026-09-01T12:00:00Z')
+);
+assert.equal(cooldownOnly.dailyLimitReached, false);
+assert.equal(cooldownOnly.cooldownActive, true);
+assert.equal(cooldownOnly.cooldownRemainingSeconds, 180);
+
+const attendanceStudent = {
+  key: 'student::period-1',
+  email: 'student@students.mtmorrisschools.org',
+  name: 'Jordan Student',
+  classPeriod: 'Period 1',
+};
+const attendanceEntries = [{
+  row: 2,
+  checkInId: 'absence-1',
+  dateKey: new Date().toISOString().slice(0, 10),
+  checkInTime: new Date(),
+  studentEmail: attendanceStudent.email,
+  studentName: attendanceStudent.name,
+  classPeriod: attendanceStudent.classPeriod,
+  studentKey: attendanceStudent.key,
+  method: 'teacher',
+  point: 0,
+  status: 'ABSENT',
+  note: 'Marked absent by teacher',
+}];
+behaviorContext.readCheckIns_ = () => attendanceEntries;
+behaviorContext.getSettings_ = () => ({ CHECKIN_POINT_VALUE: '1' });
+behaviorContext.getSpreadsheet_ = () => ({
+  getSheetByName: () => ({
+    appendRow(row) {
+      attendanceEntries.push({
+        row: attendanceEntries.length + 2,
+        checkInId: row[0],
+        dateKey: row[1],
+        checkInTime: row[2],
+        studentEmail: row[3],
+        studentName: row[4],
+        classPeriod: row[5],
+        studentKey: attendanceStudent.key,
+        method: row[6],
+        point: row[7],
+        status: row[8],
+        note: row[9],
+      });
+    },
+    getRange(row) {
+      return {
+        setValues(values) {
+          attendanceEntries[row - 2].status = values[0][0];
+          attendanceEntries[row - 2].note = values[0][1];
+        },
+      };
+    },
+  }),
+});
+assert.throws(
+  () => behaviorContext.__gdBehavior.recordCheckIn_(attendanceStudent, 'pin', ''),
+  /teacher update/i,
+  'A student may not erase a teacher absence from their own screen'
+);
+const teacherArrival = behaviorContext.__gdBehavior.recordCheckIn_(attendanceStudent, 'teacher', 'Late arrival');
+assert.equal(attendanceEntries[0].status, 'CLEARED');
+assert.equal(teacherArrival.status, 'CHECKED_IN');
+assert.equal(attendanceEntries.filter((entry) => entry.status === 'CHECKED_IN').length, 1);
+
 const queuedStudent = {
   queueId: 'queue-1',
   studentKey: 'student::period-1',
@@ -274,6 +467,8 @@ const baseSettings = {
   MAX_ACTIVE_PASSES: '1',
   STUDENT_PASS_LIMIT: '3',
   STUDENT_PASS_RESET_AT: '2026-08-01T00:00:00Z',
+  DAILY_PASS_LIMIT: '0',
+  PASS_COOLDOWN_MINUTES: '5',
   QUEUE_CLAIM_MINUTES: '3',
   LATE_AFTER_MINUTES: '10',
 };
@@ -387,14 +582,20 @@ for (const required of [
   'joinPassQueue',
   'queuePosition',
   'teacherSetPassLimits',
+  'teacherSetPassRules',
   'teacherResetStudentPassCounters',
   'RESET ALL STUDENTS',
   'STUDENT_PASS_LIMIT',
+  'DAILY_PASS_LIMIT',
+  'PASS_COOLDOWN_MINUTES',
   'ensureOnePinPerStudent_',
   'selectStudentClass',
   'sendStudentPinEmails',
   'EMAIL PINS',
   'teacherClearUnmatchedSignIns',
+  'CLEAR SIGN-IN PROBLEMS',
+  'teacherMarkStudentAbsent',
+  'teacherClearStudentAbsent',
   'getPinAttemptNonce',
   'teacher-pass-sound',
   'students not checked in',
@@ -408,4 +609,12 @@ assert.doesNotMatch(resetFunction, /Queue|closePass|deleteRow/, 'Reset must not 
 assert.match(html, /Reset every student’s marking-period pass count to zero/);
 assert.match(html, /one student · one PIN/);
 
-console.log('GrantDesk hall-pass release: PASS — syntax, Version 9 protections, roster management, student-payload privacy, pass allowances, confirmed reset, one PIN per student, class selection, queue position, weekday streaks, timers, and guarded PIN email flow verified.');
+const checkInRecorder = functionSource('recordCheckIn_');
+assert.match(checkInRecorder, /absence\s*&&\s*method\s*!==\s*'teacher'/, 'A student check-in must not erase a teacher absence');
+assert.match(checkInRecorder, /clearAbsentEntry_/, 'A teacher late check-in must preserve and clear the absence audit row');
+
+const absenceClearer = functionSource('clearAbsentEntry_');
+assert.match(absenceClearer, /'CLEARED'/);
+assert.doesNotMatch(absenceClearer, /deleteRow|clearContent/, 'Clearing an absence must preserve the attendance audit trail');
+
+console.log('GrantDesk hall-pass release: PASS — syntax, signed sessions, authorization-before-mutation, locked cleanup, overnight pass rollover, roster management, reversible attendance, student-payload privacy, daily and marking-period limits, cooldowns, teacher overrides, queue position, weekday streaks, sign-out sounds, timers, and guarded PIN email flow verified.');
