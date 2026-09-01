@@ -6,11 +6,11 @@
 <title>How This Class Works — Mr. Grant</title>
 <meta name="description" content="Welcome to Mr. Grant's class, 2026-27. U.S. History 9, Hidden History, and Beyond the Scoreboard: syllabi, class routines, note-taking, the first-month schedule, and the archives it all comes from.">
 <meta name="color-scheme" content="light dark">
-<link rel="canonical" href="https://www.grant-desk.com/first-day-materials/">
+<link rel="canonical" href="https://grant-desk.com/first-day-materials/">
 <meta property="og:title" content="First Day Materials — Mr. Grant">
 <meta property="og:description" content="Start here for course syllabi, class routines, note-taking, first-month dates, materials, and lesson-hub directions.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://www.grant-desk.com/first-day-materials/">
+<meta property="og:url" content="https://grant-desk.com/first-day-materials/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Public+Sans:wght@400;500;600;700;800&display=swap">
@@ -53,6 +53,15 @@
 body{margin:0; background:var(--paper); color:var(--ink);
   font-family:var(--f-body); font-size:17px; line-height:1.6;
   -webkit-font-smoothing:antialiased;}
+.skip-link{position:absolute; left:18px; top:10px; z-index:20; transform:translateY(-160%);
+  padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper);
+  font-family:var(--f-mono); font-size:12px; font-weight:600; text-decoration:none;}
+.skip-link:focus{transform:none; outline:3px solid var(--pop); outline-offset:2px;}
+.site-nav{max-width:1000px; margin:0 auto; padding:13px clamp(18px,5vw,32px) 0;
+  display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:flex-end;
+  font-family:var(--f-mono); font-size:12px; color:var(--muted);}
+.site-nav a{font-weight:600; text-decoration:none; border-bottom:1px solid var(--rule-strong);}
+.site-nav a:hover,.site-nav a:focus-visible{color:var(--ink); border-color:var(--ink);}
 .topstripe{display:flex; height:7px;}
 .topstripe i{flex:1}
 .topstripe i:nth-child(1){background:var(--us9)}
@@ -301,11 +310,17 @@ footer a{color:var(--pop); font-weight:500;}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topstripe" aria-hidden="true"><i></i><i></i><i></i></div>
+<nav class="site-nav" aria-label="Site">
+  <a href="/">the desk</a>
+  <a href="/learning-hubs/">learning hubs</a>
+  <a href="/resources/">library</a>
+</nav>
 
-<main class="wrap">
+<main class="wrap" id="main-content">
 
-  <header class="hero">
+  <header class="hero" role="banner">
     <div class="welcome">
       <span class="w">Welcome to Mr. Grant's class</span>
       <span class="badge">2026–27 Edition</span>
@@ -386,7 +401,7 @@ footer a{color:var(--pop); font-weight:500;}
     <p class="sec-intro">Same thing every single day. You'll have it down by Friday and then you never think about it again.</p>
     <div class="steps">
       <div class="step"><span class="k">1</span><span class="v"><b>Come in and sit down</b><span>Wherever, unless I've told you different.</span></span></div>
-      <div class="step"><span class="k">2</span><span class="v"><b>Grab a Chromebook off the cart</b><span>Go to <a href="https://www.grant-desk.com">grant-desk.com</a>.</span></span></div>
+      <div class="step"><span class="k">2</span><span class="v"><b>Grab a Chromebook off the cart</b><span>Go to <a href="https://grant-desk.com">grant-desk.com</a>.</span></span></div>
       <div class="step"><span class="k">3</span><span class="v"><b><a href="/check-in/">Check in</a></b><span>That's your attendance. It's also worth a point — see below.</span></span></div>
       <div class="step"><span class="k">4</span><span class="v"><b>Open today's lesson hub</b><span>Right there on the site. That's what we're doing today. Look at it.</span></span></div>
     </div>
@@ -620,7 +635,7 @@ never actually written into the order</pre>
       <div class="card"><span class="n">Every day</span><h3>Put it back on the charger</h3><p>Chromebooks live on the cart in here — you don't bring one from home. Take one, use it, and when you're done put it <strong>back on the charger</strong>, not just leaning in the cart. An unplugged Chromebook is a dead Chromebook for whoever has this room next hour. Two extra seconds.</p></div>
       <div class="card"><span class="n">You'll need this</span><h3>Screenshots</h3><p><kbd>Ctrl</kbd> + <kbd>Show Windows</kbd> grabs the whole screen. <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Show Windows</kbd> lets you drag a box around just part of it. Show Windows is the top-row key that looks like a rectangle with two lines next to it.</p></div>
       <div class="card"><span class="n">Where it goes</span><h3>Finding the file</h3><p>Files → Downloads. Sometimes I'll ask you to grab something off the screen — a document, a chart, one line from a source. Now you know how.</p></div>
-      <div class="card"><span class="n">Passes</span><h3>Bathroom</h3><p>Passes go through <a href="https://www.grant-desk.com" style="color:var(--pop);font-weight:600;">grant-desk.com</a>, not a hand in the air across the room. Go when you need to go — just do it on the site so there's a record and I'm not tracking it in my head.</p></div>
+      <div class="card"><span class="n">Passes</span><h3>Bathroom</h3><p>Passes go through <a href="https://grant-desk.com" style="color:var(--pop);font-weight:600;">grant-desk.com</a>, not a hand in the air across the room. Go when you need to go — just do it on the site so there's a record and I'm not tracking it in my head.</p></div>
       <div class="card"><span class="n">Every day</span><h3>Lesson hubs</h3><p>Every day has a hub on the site with what we did and what's coming. It is the answer to most questions before you ask them.</p></div>
       <div class="card"><span class="n">If you're out</span><h3>Missing a day</h3><p>Site first, then somebody's notes, then me. The hub tells you what we did — but the quiz is open-note and cumulative, so the notes are the part that actually matters.</p></div>
     </div>
@@ -694,7 +709,7 @@ never actually written into the order</pre>
     </div>
   </section>
 
-  <footer>Mr. Grant · <a href="https://www.grant-desk.com">grant-desk.com</a> · 2026–27 · Content starts Thursday, Aug 27</footer>
+  <footer role="contentinfo">Mr. Grant · <a href="https://grant-desk.com">grant-desk.com</a> · 2026–27 · Content starts Thursday, Aug 27</footer>
 
 </main>
 </body>

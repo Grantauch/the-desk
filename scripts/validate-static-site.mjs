@@ -21,6 +21,22 @@ const exists = async (path) => {
   }
 };
 
+const functionRoot = resolve(process.cwd(), 'netlify', 'functions');
+
+const dynamicFunctionCandidates = (route) => {
+  const match = /^\/\.netlify\/functions\/([^/?#]+)/.exec(route);
+  if (!match) return [];
+  const name = match[1];
+  return [
+    join(functionRoot, `${name}.mjs`),
+    join(functionRoot, `${name}.js`),
+    join(functionRoot, `${name}.ts`),
+    join(functionRoot, name, 'index.mjs'),
+    join(functionRoot, name, 'index.js'),
+    join(functionRoot, name, 'index.ts'),
+  ];
+};
+
 const files = await walk(distRoot);
 const htmlFiles = files.filter((file) => extname(file).toLowerCase() === '.html');
 const failures = [];
@@ -44,6 +60,14 @@ for (const htmlFile of htmlFiles) {
     }
 
     if (!clean) continue;
+    const functionCandidates = dynamicFunctionCandidates(clean);
+    if (functionCandidates.length) {
+      if (!(await Promise.all(functionCandidates.map(exists))).some(Boolean)) {
+        failures.push(`${relative(distRoot, htmlFile)} -> missing Netlify Function source: ${raw}`);
+      }
+      continue;
+    }
+
     const target = clean.startsWith('/')
       ? resolve(distRoot, `.${clean}`)
       : resolve(dirname(htmlFile), clean);

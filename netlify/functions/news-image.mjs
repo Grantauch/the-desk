@@ -1,6 +1,7 @@
 const ALLOWED_IMAGE_HOSTS = [
   'cnn.com',
   'brightspotcdn.com',
+  'npr.org',
   'foxnews.com',
   'mlive.com',
 ];

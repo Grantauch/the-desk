@@ -51,11 +51,14 @@ const functionSource = (name) => {
   throw new Error(`Could not isolate function ${name}`);
 };
 
-assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-08-28-a'/);
+assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-01-a'/);
 assert.match(code, /UNMATCHED:\s*'Unmatched Sign-ins'/);
 assert.match(code, /function teacherApplyUnmatchedEmail/);
 assert.match(code, /function teacherAddStudentClass/);
 assert.match(code, /function teacherRemoveStudentClass/);
+assert.match(code, /function teacherClearUnmatchedSignIns/);
+assert.match(code, /function readPinSession_/);
+assert.match(code, /function queueTurnKey_/);
 assert.match(code, /function readRosterRows_/);
 
 const studentState = functionSource('getStudentState_');
@@ -77,6 +80,30 @@ assert.match(emailBatch, /withLock_\([\s\S]*PIN_EMAIL_RUNNING/);
 const cleanup = functionSource('dailyCleanup');
 assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
+
+const purgeIfDue = functionSource('purgeIfDue_');
+assert.match(purgeIfDue, /withLock_/);
+assert.ok(
+  purgeIfDue.indexOf('purgeOldPasses_') < purgeIfDue.indexOf("setProperty('LAST_PURGE'") &&
+    purgeIfDue.indexOf('purgeOldQueue_') < purgeIfDue.indexOf("setProperty('LAST_PURGE'"),
+  'Automatic purge must write LAST_PURGE only after both cleanup calls finish'
+);
+
+const pinIdentify = functionSource('identifyPin_');
+assert.match(pinIdentify, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce\)/);
+assert.match(pinIdentify, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\)/);
+
+const pinSessionWriter = functionSource('putPinSession_');
+assert.match(pinSessionWriter, /signTokenPart_/);
+assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
+
+const queueReader = functionSource('readWaitingQueue_');
+assert.match(queueReader, /getQueueTurnStarted_/);
+assert.match(queueReader, /setQueueTurnStarted_/);
+assert.doesNotMatch(queueReader, /CacheService\.getScriptCache/);
+
+const unmatchedRecorder = functionSource('recordUnmatchedSignIn_');
+assert.match(unmatchedRecorder, /withLock_/);
 
 for (const name of ['teacherAddStudentClass', 'teacherRemoveStudentClass']) {
   const source = functionSource(name);
@@ -126,7 +153,11 @@ const rosterInput = context.__gdTest.normalizeRosterInput_(
 assert.equal(rosterInput.email, 'jordan.student@students.mtmorrisschools.org');
 assert.throws(
   () => context.__gdTest.normalizeRosterInput_('=IMPORTXML()', 'student@students.mtmorrisschools.org', 'Period 1', { STUDENT_EMAIL_DOMAIN: 'students.mtmorrisschools.org' }),
-  /cannot begin with an equals sign/
+  /cannot begin with =, \+, -, or @/
+);
+assert.throws(
+  () => context.__gdTest.normalizeRosterInput_('Student, Jordan', '=cmd@students.mtmorrisschools.org', 'Period 1', { STUDENT_EMAIL_DOMAIN: 'students.mtmorrisschools.org' }),
+  /Student email cannot begin with =, \+, -, or @/
 );
 assert.throws(
   () => context.__gdTest.normalizeRosterInput_('Student, Jordan', 'student@example.com', 'Period 1', { STUDENT_EMAIL_DOMAIN: 'students.mtmorrisschools.org' }),
@@ -363,6 +394,10 @@ for (const required of [
   'selectStudentClass',
   'sendStudentPinEmails',
   'EMAIL PINS',
+  'teacherClearUnmatchedSignIns',
+  'getPinAttemptNonce',
+  'teacher-pass-sound',
+  'students not checked in',
 ]) {
   assert.ok(code.includes(required) || html.includes(required), `Missing ${required}`);
 }

@@ -11,7 +11,7 @@
  *  4. Student screens receive only their own data.
  */
 
-const GD_SCHEMA_VERSION = '2026-08-28-a';
+const GD_SCHEMA_VERSION = '2026-09-01-a';
 
 const GD_SHEETS = {
   ROSTER: 'Roster',
@@ -42,6 +42,7 @@ const GD_DEFAULT_SETTINGS = [
   ['QUEUE_CLAIM_MINUTES', '3', 'How long the student at the front of the line has to start the pass before the line moves on'],
   ['QUEUE_MAX_WAIT_MINUTES', '20', 'A waiting-line entry older than this is dropped so it never carries into the next hour'],
   ['LATE_AFTER_MINUTES', '10', 'When an active pass is highlighted for the teacher'],
+  ['STALE_PASS_MINUTES', '20', 'When an active pass gets a stronger teacher follow-up warning'],
   ['RETENTION_DAYS', '180', 'Returned passes older than this are removed by the daily cleanup'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
   ['APP_TITLE', 'Mr. Grant’s Hall Pass', 'Name shown at the top of the pass app'],
@@ -170,32 +171,32 @@ function unrecognizedState_(settings, purpose, message) {
 
 /* -------------------------------------------------------- identification ---- */
 
-function identifyWithPin(pin) {
-  return identifyPin_(pin, 'pass');
+function identifyWithPin(pin, attemptNonce) {
+  return identifyPin_(pin, 'pass', attemptNonce);
 }
 
-function identifyCheckInWithPin(pin) {
-  return identifyPin_(pin, 'checkin');
+function identifyCheckInWithPin(pin, attemptNonce) {
+  return identifyPin_(pin, 'checkin', attemptNonce);
 }
 
-function identifyPin_(pin, purpose) {
+function identifyPin_(pin, purpose, attemptNonce) {
   ensureWorkbookReady_();
   const settings = getSettings_();
   const activeEmail = getActiveEmail_();
   assertSchoolAccount_(activeEmail, settings);
-  assertPinAttemptAllowed_(activeEmail);
+  assertPinAttemptAllowed_(activeEmail, attemptNonce);
 
   const cleaned = String(pin || '').replace(/\D/g, '');
   if (!/^\d{6}$/.test(cleaned)) throw new Error('Enter your six-digit PIN.');
 
   const students = getStudentsByPinHash_(hashPin_(cleaned));
   if (!students.length) {
-    recordFailedPinAttempt_(activeEmail);
+    recordFailedPinAttempt_(activeEmail, attemptNonce);
     throw new Error('That PIN did not match an active student. Try again or ask Mr. Grant.');
   }
   const emails = [...new Set(students.map((student) => student.email))];
   if (emails.length !== 1) throw new Error('That PIN is not unique. Ask Mr. Grant to repair the PIN list.');
-  clearPinAttempts_(activeEmail);
+  clearPinAttempts_(activeEmail, attemptNonce);
 
   if (students.length > 1) {
     const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), emails[0], '', 'pin');
@@ -208,12 +209,57 @@ function identifyPin_(pin, purpose) {
 }
 
 function putPinSession_(token, email, key, method) {
-  CacheService.getScriptCache().put(`pin:${token}`, JSON.stringify({
+  const issuedAt = Date.now();
+  const body = encodeTokenPart_(JSON.stringify({
+    v: 1,
+    nonce: String(token || '').slice(0, 80),
     email: normalizeEmail_(email),
     key: key || '',
     method: method === 'google' ? 'google' : 'pin',
-  }), GD_PIN_SESSION_SECONDS);
-  return token;
+    iat: issuedAt,
+    exp: issuedAt + GD_PIN_SESSION_SECONDS * 1000,
+  }));
+  return `${body}.${signTokenPart_(body)}`;
+}
+
+function readPinSession_(pinToken) {
+  const token = String(pinToken || '').trim();
+  const parts = token.split('.');
+  if (parts.length === 2 && parts[0] && parts[1]) {
+    try {
+      if (signTokenPart_(parts[0]) !== parts[1]) throw new Error('Bad signature');
+      const session = JSON.parse(decodeTokenPart_(parts[0]));
+      if (!session.exp || Number(session.exp) < Date.now()) throw new Error('Expired token');
+      return {
+        email: normalizeEmail_(session.email),
+        key: String(session.key || ''),
+        method: session.method === 'google' ? 'google' : 'pin',
+      };
+    } catch (error) {
+      throw new Error('That PIN session expired. Enter your PIN again.');
+    }
+  }
+
+  const cached = CacheService.getScriptCache().get(`pin:${token}`);
+  if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
+  return JSON.parse(cached);
+}
+
+function encodeTokenPart_(value) {
+  return Utilities.base64EncodeWebSafe(Utilities.newBlob(String(value), 'text/plain').getBytes()).replace(/=+$/g, '');
+}
+
+function decodeTokenPart_(value) {
+  return Utilities.newBlob(Utilities.base64DecodeWebSafe(String(value))).getDataAsString('UTF-8');
+}
+
+function signTokenPart_(value) {
+  const bytes = Utilities.computeHmacSha256Signature(
+    String(value),
+    ensureSalt_(),
+    Utilities.Charset.UTF_8
+  );
+  return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/g, '');
 }
 
 function createClassSelectionState_(students, method, purpose) {
@@ -241,25 +287,21 @@ function buildClassSelectionState_(students, token, method, purpose) {
 }
 
 function selectStudentClass(pinToken, studentKey, purpose) {
-  const cached = CacheService.getScriptCache().get(`pin:${String(pinToken || '')}`);
-  if (!cached) throw new Error('That class-selection session expired. Start again.');
-  const session = JSON.parse(cached);
+  const session = readPinSession_(pinToken);
   const student = getStudentByKey_(studentKey);
   if (!student || student.email !== normalizeEmail_(session.email)) {
     throw new Error('Choose one of your own active classes.');
   }
   const method = session.method === 'google' ? 'google' : 'pin';
-  putPinSession_(pinToken, student.email, student.key, method);
+  const nextToken = putPinSession_(pinToken, student.email, student.key, method);
   return purpose === 'checkin'
-    ? getCheckInState_(student, pinToken, method)
-    : getStudentState_(student, pinToken, method);
+    ? getCheckInState_(student, nextToken, method)
+    : getStudentState_(student, nextToken, method);
 }
 
 function resolveStudent_(pinToken) {
   if (pinToken) {
-    const cached = CacheService.getScriptCache().get(`pin:${pinToken}`);
-    if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
-    const session = JSON.parse(cached);
+    const session = readPinSession_(pinToken);
     if (!session.key) throw new Error('Choose your class before continuing.');
     const student = getStudentByKey_(session.key);
     if (!student) throw new Error('That student is no longer active on the roster.');
@@ -497,7 +539,6 @@ function readWaitingQueue_(settings, openSlots) {
   const claimMs = Math.max(1, numberSetting_(settings, 'QUEUE_CLAIM_MINUTES', 3)) * 60000;
   const maxWaitMs = Math.max(1, numberSetting_(settings, 'QUEUE_MAX_WAIT_MINUTES', 20)) * 60000;
   const now = Date.now();
-  const cache = CacheService.getScriptCache();
   const entries = readPassQueue_()
     .filter((entry) => entry.status === 'WAITING')
     .sort((a, b) => a.joinedAt - b.joinedAt || a.row - b.row);
@@ -511,10 +552,9 @@ function readWaitingQueue_(settings, openSlots) {
       return;
     }
     if (eligible < openSlots) {
-      const key = `qturn:${entry.queueId}`;
-      const stored = Number(cache.get(key) || 0);
+      const stored = getQueueTurnStarted_(entry.queueId);
       const since = stored > 0 ? stored : now;
-      if (!stored) cache.put(key, String(now), 21600);
+      if (!stored) setQueueTurnStarted_(entry.queueId, now);
       if (now - since > claimMs) {
         expired.push({ row: entry.row, resolution: 'Did not start the pass during their turn' });
         return;
@@ -565,12 +605,35 @@ function closeWaitingQueueForEmail_(studentEmail, status, resolution) {
 }
 
 function closeQueueRow_(row, status, resolution) {
-  getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE).getRange(row, 6, 1, 3).setValues([[
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE);
+  const queueId = String(sheet.getRange(row, 1).getValue() || '');
+  sheet.getRange(row, 6, 1, 3).setValues([[
     status,
     new Date(),
     String(resolution || '').slice(0, 300),
   ]]);
+  clearQueueTurn_(queueId);
   gdForget_('queue');
+}
+
+function queueTurnKey_(queueId) {
+  return `qturn:${String(queueId || '').slice(0, 80)}`;
+}
+
+function getQueueTurnStarted_(queueId) {
+  if (!queueId) return 0;
+  const value = Number(PropertiesService.getScriptProperties().getProperty(queueTurnKey_(queueId)) || 0);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function setQueueTurnStarted_(queueId, timestamp) {
+  if (!queueId) return;
+  PropertiesService.getScriptProperties().setProperty(queueTurnKey_(queueId), String(timestamp));
+}
+
+function clearQueueTurn_(queueId) {
+  if (!queueId) return;
+  PropertiesService.getScriptProperties().deleteProperty(queueTurnKey_(queueId));
 }
 
 /* ------------------------------------------------------- pass allowance ---- */
@@ -666,24 +729,27 @@ function recordUnmatchedSignIn_(email, note) {
   const cache = CacheService.getScriptCache();
   const key = `unmatched:${address}`;
   if (cache.get(key)) return;
-  cache.put(key, '1', 600);
   try {
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.UNMATCHED);
-    if (!sheet) return;
-    const now = new Date();
-    const existing = readUnmatched_().find((entry) => entry.email === address);
-    if (existing) {
-      sheet.getRange(existing.row, 3, 1, 2).setValues([[now, existing.timesSeen + 1]]);
-    } else {
-      const suggestion = suggestRosterMatch_(address);
-      sheet.appendRow([
-        address, now, now, 1,
-        suggestion ? `${suggestion.name} <${suggestion.email}>` : '',
-        'NEW',
-        String(note || ''),
-      ]);
-    }
-    gdForget_('unmatched');
+    withLock_(() => {
+      if (cache.get(key)) return;
+      const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.UNMATCHED);
+      if (!sheet) return;
+      const now = new Date();
+      const existing = readUnmatched_().find((entry) => entry.email === address);
+      if (existing) {
+        sheet.getRange(existing.row, 3, 1, 2).setValues([[now, existing.timesSeen + 1]]);
+      } else {
+        const suggestion = suggestRosterMatch_(address);
+        sheet.appendRow([
+          address, now, now, 1,
+          suggestion ? `${suggestion.name} <${suggestion.email}>` : '',
+          'NEW',
+          String(note || ''),
+        ]);
+      }
+      gdForget_('unmatched');
+      cache.put(key, '1', 600);
+    }, 10000);
   } catch (error) {
     // Never let bookkeeping stop a student from reaching the PIN screen.
   }
@@ -736,6 +802,10 @@ function teacherApplyUnmatchedEmail(rosterEmail, realEmail) {
   const oldEmail = normalizeEmail_(rosterEmail);
   const newEmail = normalizeEmail_(realEmail);
   if (!oldEmail || !newEmail || oldEmail === newEmail) throw new Error('Choose a different address.');
+  assertPlainSheetText_(realEmail, 'Student email');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    throw new Error('Enter the student’s full school email address.');
+  }
   const studentDomain = String(settings.STUDENT_EMAIL_DOMAIN || '').toLowerCase();
   if (studentDomain && newEmail.split('@').pop() !== studentDomain) {
     throw new Error(`That address is not on ${studentDomain}.`);
@@ -784,6 +854,26 @@ function teacherDismissUnmatched(email) {
     gdForget_('unmatched');
   });
   return getTeacherState_({ includePinStatus: false });
+}
+
+function teacherClearUnmatchedSignIns() {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  let cleared = 0;
+  withLock_(() => {
+    const entries = readUnmatched_().filter((entry) => entry.status !== 'APPLIED' && entry.status !== 'IGNORED');
+    if (!entries.length) return;
+    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.UNMATCHED);
+    entries.forEach((entry) => {
+      sheet.getRange(entry.row, 6, 1, 2).setValues([['IGNORED', 'Cleared from teacher dashboard']]);
+      cleared += 1;
+    });
+    gdForget_('unmatched');
+  });
+  const state = getTeacherState_({ includePinStatus: false });
+  state.noticeMessage = cleared
+    ? `Cleared ${cleared} sign-in problem${cleared === 1 ? '' : 's'} from the dashboard.`
+    : 'No sign-in problems needed clearing.';
+  return state;
 }
 
 /* --------------------------------------------------------------- teacher ---- */
@@ -937,11 +1027,13 @@ function normalizeRosterInput_(studentName, studentEmail, classPeriod, settings)
     const text = String(value || '').trim().replace(/\s+/g, ' ');
     if (!text) throw new Error(`${label} is required.`);
     if (text.length > maxLength) throw new Error(`${label} is too long.`);
-    if (text.startsWith('=')) throw new Error(`${label} cannot begin with an equals sign.`);
+    assertPlainSheetText_(text, label);
     return text;
   };
   const name = cleanText(studentName, 'Student name', 120);
-  const email = normalizeEmail_(studentEmail);
+  const emailText = String(studentEmail || '').trim();
+  assertPlainSheetText_(emailText, 'Student email');
+  const email = normalizeEmail_(emailText);
   const className = cleanText(classPeriod, 'Class / period', 120);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error('Enter the student’s full school email address.');
@@ -951,6 +1043,12 @@ function normalizeRosterInput_(studentName, studentEmail, classPeriod, settings)
     throw new Error(`Student email must end in @${studentDomain}.`);
   }
   return { name, email, classPeriod: className, key: rosterKey_(email, className) };
+}
+
+function assertPlainSheetText_(value, label) {
+  if (/^[=+\-@]/.test(String(value || '').trim())) {
+    throw new Error(`${label} cannot begin with =, +, -, or @.`);
+  }
 }
 
 function teacherRemoveFromQueue(queueId) {
@@ -1054,6 +1152,7 @@ function getTeacherState_(options) {
     mode: 'teacher',
     appTitle: settings.APP_TITLE,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
+    stalePassMinutes: numberSetting_(settings, 'STALE_PASS_MINUTES', 20),
     maxActivePasses: snapshot.maxActive,
     passPolicy: getStudentPassPolicy_(settings),
     studentPassUsage: getStudentPassUsage_(roster, settings, log, googleVerified),
@@ -1744,41 +1843,43 @@ function ensureSalt_() {
   return salt;
 }
 
-function assertPinAttemptAllowed_(email) {
+function assertPinAttemptAllowed_(email, attemptNonce) {
   const cache = CacheService.getScriptCache();
-  if (email) {
-    const attempts = Number(cache.get(pinAttemptKey_(email)) || 0);
-    if (attempts >= 10) {
-      throw new Error('Too many incorrect PIN attempts. Wait fifteen minutes or ask Mr. Grant.');
-    }
-    return;
+  const key = pinAttemptKey_(email, attemptNonce);
+  const attempts = Number(cache.get(key) || 0);
+  const limit = email ? 10 : 20;
+  if (attempts >= limit) {
+    throw new Error(email
+      ? 'Too many incorrect PIN attempts. Wait fifteen minutes or ask Mr. Grant.'
+      : 'Too many incorrect PIN attempts on this device. Ask Mr. Grant.');
   }
-  // Shared classroom device with no identifiable account: keep a generous
-  // ceiling so one mistyped PIN can never lock out an entire class.
-  const shared = Number(cache.get('pin-attempts:shared') || 0);
-  if (shared >= 200) {
+
+  const shared = Number(cache.get('pin-attempts:shared-global') || 0);
+  if (!email && shared >= 1000) {
     throw new Error('Too many incorrect PIN attempts on the shared PIN screen. Ask Mr. Grant.');
   }
 }
 
-function recordFailedPinAttempt_(email) {
+function recordFailedPinAttempt_(email, attemptNonce) {
   const cache = CacheService.getScriptCache();
-  const key = email ? pinAttemptKey_(email) : 'pin-attempts:shared';
+  const key = pinAttemptKey_(email, attemptNonce);
   cache.put(key, String(Number(cache.get(key) || 0) + 1), 900);
+  if (!email) {
+    cache.put('pin-attempts:shared-global', String(Number(cache.get('pin-attempts:shared-global') || 0) + 1), 900);
+  }
 }
 
-function clearPinAttempts_(email) {
-  if (!email) return;
-  CacheService.getScriptCache().remove(pinAttemptKey_(email));
+function clearPinAttempts_(email, attemptNonce) {
+  CacheService.getScriptCache().remove(pinAttemptKey_(email, attemptNonce));
 }
 
-function pinAttemptKey_(email) {
+function pinAttemptKey_(email, attemptNonce) {
   const digest = Utilities.computeDigest(
     Utilities.DigestAlgorithm.SHA_256,
-    normalizeEmail_(email),
+    email ? normalizeEmail_(email) : `anonymous:${String(attemptNonce || 'shared').slice(0, 120)}`,
     Utilities.Charset.UTF_8
   );
-  return `pin-attempts:${Utilities.base64EncodeWebSafe(digest).slice(0, 32)}`;
+  return `pin-attempts:${email ? 'email' : 'anon'}:${Utilities.base64EncodeWebSafe(digest).slice(0, 32)}`;
 }
 
 function getActiveEmail_() {
@@ -1985,9 +2086,13 @@ function purgeIfDue_() {
   const properties = PropertiesService.getScriptProperties();
   const today = dateKey_(new Date());
   if (properties.getProperty('LAST_PURGE') === today) return;
-  properties.setProperty('LAST_PURGE', today);
-  purgeOldPasses_();
-  purgeOldQueue_();
+  withLock_(() => {
+    const lockedProperties = PropertiesService.getScriptProperties();
+    if (lockedProperties.getProperty('LAST_PURGE') === today) return;
+    purgeOldPasses_();
+    purgeOldQueue_();
+    lockedProperties.setProperty('LAST_PURGE', today);
+  });
 }
 
 function purgeOldPasses_() {

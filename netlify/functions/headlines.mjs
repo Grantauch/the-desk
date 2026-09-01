@@ -49,7 +49,35 @@ const readTag = (xml, tag) => {
   return match ? decodeEntities(match[1]) : '';
 };
 
-const readImageFromMarkup = (value = '') => value.match(/<img[^>]+src=["']([^"']+)/i)?.[1] ?? '';
+const PLACEHOLDER_IMAGE_VALUES = new Set(['undefined', 'null', 'none', 'false', 'n/a', 'na']);
+
+const isPlaceholderImageValue = (value = '') => {
+  const clean = decodeEntities(String(value || '')).trim().replace(/^["']|["']$/g, '');
+  const lower = clean.toLowerCase();
+  return !lower ||
+    PLACEHOLDER_IMAGE_VALUES.has(lower) ||
+    /(?:^|\/)(?:undefined|null|none)(?:[/?#]|$)/i.test(lower) ||
+    /\/tracking\//i.test(lower) ||
+    /(?:^|[/-])(?:pixel|spacer)(?:[./_-]|$)/i.test(lower);
+};
+
+const markupAttribute = (tag, name) => tag.match(new RegExp(`\\b${name}=["']([^"']+)`, 'i'))?.[1] ?? '';
+
+const readImagesFromMarkup = (value = '') => [...String(value || '').matchAll(/<img\b[^>]*>/gi)]
+  .map((match) => {
+    const tag = match[0];
+    const src = markupAttribute(tag, 'src');
+    const width = Number(markupAttribute(tag, 'width') || 0);
+    const height = Number(markupAttribute(tag, 'height') || 0);
+    if ((width && width <= 2) || (height && height <= 2)) return '';
+    return src;
+  })
+  .filter((src) => src && !isPlaceholderImageValue(src));
+
+const firstImageCandidate = (...values) => values
+  .flat()
+  .map((value) => decodeEntities(value || ''))
+  .find((value) => !isPlaceholderImageValue(value)) ?? '';
 
 const readFeedImage = (entry, format) => {
   if (format === 'news-sitemap') return readTag(entry, 'image:loc');
@@ -57,14 +85,14 @@ const readFeedImage = (entry, format) => {
   const enclosure = entry.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image\//i)?.[1] ?? '';
   const encoded = entry.match(/<content:encoded(?:\s[^>]*)?>([\s\S]*?)<\/content:encoded>/i)?.[1] ?? '';
   const description = entry.match(/<description(?:\s[^>]*)?>([\s\S]*?)<\/description>/i)?.[1] ?? '';
-  return decodeEntities(media || enclosure || readImageFromMarkup(encoded) || readImageFromMarkup(description));
+  return firstImageCandidate(media, enclosure, readImagesFromMarkup(encoded), readImagesFromMarkup(description));
 };
 
 const safeHttpsUrl = (value, base) => {
-  if (!value) return '';
+  if (isPlaceholderImageValue(value)) return '';
   try {
     const url = new URL(value, base);
-    return url.protocol === 'https:' ? url.href : '';
+    return url.protocol === 'https:' && !isPlaceholderImageValue(url.href) ? url.href : '';
   } catch {
     return '';
   }

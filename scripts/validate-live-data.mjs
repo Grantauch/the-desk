@@ -1,6 +1,29 @@
-import { handler as headlinesHandler } from '../netlify/functions/headlines.mjs';
+import { handler as headlinesHandler, parseSourceFeed } from '../netlify/functions/headlines.mjs';
 import { handler as newsImageHandler } from '../netlify/functions/news-image.mjs';
 import { handler as curiosityHandler } from '../netlify/functions/curiosity.mjs';
+
+const nprPlaceholderFixture = `
+  <rss><channel><item>
+    <title>Fixture story</title>
+    <link>https://www.npr.org/2026/09/01/fixture-story</link>
+    <pubDate>Tue, 01 Sep 2026 12:00:00 GMT</pubDate>
+    <description><![CDATA[
+      <p>Story summary.</p>
+      <img src="undefined">
+      <img src="https://tracking.example.test/pixel.gif" width="1" height="1">
+    ]]></description>
+  </item></channel></rss>`;
+
+const nprFixture = parseSourceFeed(nprPlaceholderFixture, {
+  name: 'NPR',
+  lens: 'national',
+  home: 'https://www.npr.org/sections/news/',
+  format: 'rss',
+});
+
+if (nprFixture[0]?.image) {
+  throw new Error(`NPR placeholder fixture resolved an invalid feed image: ${nprFixture[0].image}`);
+}
 
 const headlineResponse = await headlinesHandler({});
 if (headlineResponse.statusCode !== 200) throw new Error(`Headline function returned ${headlineResponse.statusCode}`);

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Classroom Jeopardy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +23,7 @@ body{font-family:'Manrope',sans-serif;color:var(--text);min-height:100vh;
     radial-gradient(1000px 520px at 112% 8%, rgba(52,211,153,.14), transparent 55%),
     linear-gradient(180deg,var(--bg),var(--bg2));
   padding:20px clamp(12px,3vw,38px) 44px;}
-h1{font-family:'Bungee',sans-serif;font-size:clamp(22px,3.5vw,40px);letter-spacing:.5px;line-height:1;
+h1,.topbar h2,.ed-head h2{font-family:'Bungee',sans-serif;font-size:clamp(22px,3.5vw,40px);letter-spacing:.5px;line-height:1;
   background:linear-gradient(90deg,var(--mint),var(--gold),var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{color:var(--muted);font-weight:600;font-size:13px;margin-top:6px}
 button{font-family:'Manrope',sans-serif;font-weight:700;cursor:pointer;border:none;border-radius:12px;color:var(--text)}
@@ -166,9 +167,9 @@ body.theme-premium{background:radial-gradient(700px 420px at 50% -5%,rgba(216,17
 
 body.theme-showtime h1{text-shadow:0 0 18px rgba(242,193,78,.35);background:linear-gradient(180deg,#fff7d1,#f2c14e 58%,#b97822);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:1.2px;}
 body.theme-arcade h1{text-shadow:0 0 20px rgba(24,240,255,.45),0 0 34px rgba(255,46,166,.25);background:linear-gradient(90deg,#18f0ff,#ffffff,#ff2ea6,#b6ff00);-webkit-background-clip:text;background-clip:text;color:transparent;}
-body.theme-broadcast h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:3px;text-shadow:0 0 20px rgba(217,164,65,.32);background:linear-gradient(180deg,#fff5cf,#d9a441 65%,#7a4d13);-webkit-background-clip:text;background-clip:text;color:transparent;}
-body.theme-comic h1{font-family:'Bungee',sans-serif;letter-spacing:.5px;color:#ffd21f;background:none;-webkit-text-stroke:1px #111827;text-shadow:4px 4px 0 #111827,7px 7px 0 rgba(230,33,33,.75);}
-body.theme-premium h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:3px;text-shadow:0 0 24px rgba(216,175,72,.35);background:linear-gradient(180deg,#fff9dc,#d8af48 63%,#7a5516);-webkit-background-clip:text;background-clip:text;color:transparent;}
+body.theme-broadcast h1,.topbar h2,.ed-head h2{font-family:Georgia,'Times New Roman',serif;letter-spacing:3px;text-shadow:0 0 20px rgba(217,164,65,.32);background:linear-gradient(180deg,#fff5cf,#d9a441 65%,#7a4d13);-webkit-background-clip:text;background-clip:text;color:transparent;}
+body.theme-comic h1,.topbar h2,.ed-head h2{font-family:'Bungee',sans-serif;letter-spacing:.5px;color:#ffd21f;background:none;-webkit-text-stroke:1px #111827;text-shadow:4px 4px 0 #111827,7px 7px 0 rgba(230,33,33,.75);}
+body.theme-premium h1,.topbar h2,.ed-head h2{font-family:Georgia,'Times New Roman',serif;letter-spacing:3px;text-shadow:0 0 24px rgba(216,175,72,.35);background:linear-gradient(180deg,#fff9dc,#d8af48 63%,#7a5516);-webkit-background-clip:text;background-clip:text;color:transparent;}
 
 body.theme-showtime .board{border:2px solid var(--gold);border-radius:18px;padding:12px;background:#061b43;box-shadow:0 0 0 5px rgba(242,193,78,.08),0 0 32px rgba(242,193,78,.28),var(--shadow)}
 body.theme-arcade .board{border:2px solid var(--coral);border-radius:18px;padding:12px;background:linear-gradient(135deg,rgba(24,240,255,.06),rgba(255,46,166,.05));box-shadow:0 0 0 2px rgba(182,255,0,.22),0 0 34px rgba(255,46,166,.35),var(--shadow)}
@@ -476,7 +477,7 @@ body.theme-premium .tile.used{background:#070707;color:#5f5132;opacity:.62;}
 
 <div class="game" id="game">
   <div class="topbar">
-    <div><h1 style="font-size:clamp(18px,2.6vw,28px)">Classroom Jeopardy</h1></div>
+    <div><h2 style="font-size:clamp(18px,2.6vw,28px)">Classroom Jeopardy</h2></div>
     <div class="controls">
       <div class="timewrap">Timer <input aria-label="Timer seconds" id="secInput" type="number" value="30" min="5" max="120"> sec</div>
       <button type="button" class="btn" id="soundBtn">Sound: On</button>
@@ -1094,7 +1095,7 @@ document.getElementById("newBtn").onclick=()=>{if(confirm("New game with the sam
 function edEsc(s){return safeHTML(s);}
 function openEditor(){picker.style.display="none";game.classList.remove("on");overlay.classList.remove("on");
   const ed=document.getElementById("editor");ed.classList.add("on");
-  let h=`<div class="ed-head"><h1 style="font-size:clamp(20px,3vw,32px)">Edit Questions</h1></div>
+  let h=`<div class="ed-head"><h2 style="font-size:clamp(20px,3vw,32px)">Edit Questions</h2></div>
    <div class="ed-note">Change any category, question, answer, value, and Final Jeopardy clue below. Save writes to this browser so your edits stay put. Use Export Backup to save a copy or move your edits to another computer.</div>`;
   ALLCATS.forEach((c,ci)=>{
     h+=`<div class="ed-cat"><div class="ed-names">

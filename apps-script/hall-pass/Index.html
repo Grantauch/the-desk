@@ -103,13 +103,16 @@
       .active-pass small { display: block; margin-top: 4px; color: var(--muted); }
       .active-pass .secondary { width: 100%; margin-top: 12px; }
       .active-pass.late { border-color: #a63a2f; border-width: 2px; background: #ffe3de; }
+      .active-pass.stale-pass { border-color: #72271f; border-width: 2px; background: #ffd8cd; }
+      .active-pass.stale-pass small { color: #72271f; }
       .late-flag { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 999px; background: var(--accent); color: white; font: 800 9px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .all-clear { padding: 23px 12px; color: var(--muted); text-align: center; }
       .override { display: grid; gap: 10px; }
+      .sound-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
       select, input[type="number"], input[type="search"], input[type="text"], input[type="email"] { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
       select:focus, input[type="number"]:focus, input[type="search"]:focus, input[type="text"]:focus, input[type="email"]:focus { border-color: var(--accent); }
       .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      .field-grid label, .roster-add-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
+      .field-grid label, .roster-add-grid label, .sound-row label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
       .roster-add-grid { display: grid; grid-template-columns: 1.05fr 1.35fr 1fr; gap: 10px; }
       .roster-add .primary { min-height: 48px; margin-top: 2px; font-size: 15px; }
       .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -146,7 +149,7 @@
         .top, .student-head { align-items: flex-start; flex-direction: column; }
         .teacher-grid { grid-template-columns: 1fr; }
         .checkin-confirm { grid-template-columns: 1fr; }
-        .queue-card, .streak-card, .field-grid, .roster-add-grid { grid-template-columns: 1fr; }
+        .queue-card, .streak-card, .field-grid, .roster-add-grid, .sound-row { grid-template-columns: 1fr; }
         .teacher-section-head { align-items: flex-start; flex-direction: column; }
         .card { border-radius: 16px; }
       }
@@ -196,6 +199,8 @@
       let handoffMessage = '';
       let lastInteraction = Date.now();
       let pollTick = 0;
+      let teacherKnownPassIds = null;
+      let teacherAudioContext = null;
 
       modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : APP_MODE === 'checkin' ? 'daily check-in' : 'student pass';
       if (APP_MODE === 'checkin') {
@@ -270,6 +275,100 @@
       };
 
       const now = () => Date.now() + clockSkew;
+
+      const storageRead = (key, fallback = '') => {
+        try {
+          return window.localStorage.getItem(key) || fallback;
+        } catch (error) {
+          return fallback;
+        }
+      };
+
+      const storageWrite = (key, value) => {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch (error) {
+          // Classroom Chromebooks can block storage; the app still works.
+        }
+      };
+
+      const randomToken = () => {
+        const bytes = new Uint8Array(16);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(bytes);
+          return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+        }
+        return `${Date.now()}-${Math.random()}`;
+      };
+
+      const PIN_DEVICE_KEY = 'grantdesk.pinDeviceNonce.v1';
+      const getPinAttemptNonce = () => {
+        let nonce = storageRead(PIN_DEVICE_KEY);
+        if (/^[a-z0-9-]{12,}$/i.test(nonce)) return nonce;
+        nonce = randomToken();
+        storageWrite(PIN_DEVICE_KEY, nonce);
+        return nonce;
+      };
+
+      const TEACHER_SOUND_KEY = 'grantdesk.teacherPassSound.v1';
+      const TEACHER_SOUND_CHOICES = [
+        ['chime', 'desk chime'],
+        ['bell', 'soft bell'],
+        ['tap', 'door tap'],
+        ['beep', 'quick beep'],
+        ['off', 'off'],
+      ];
+      let teacherPassSound = storageRead(TEACHER_SOUND_KEY, 'chime');
+
+      const setTeacherPassSound = (choice) => {
+        teacherPassSound = TEACHER_SOUND_CHOICES.some(([value]) => value === choice) ? choice : 'chime';
+        storageWrite(TEACHER_SOUND_KEY, teacherPassSound);
+      };
+
+      const getTeacherAudioContext = () => {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return null;
+        if (!teacherAudioContext) teacherAudioContext = new AudioContext();
+        return teacherAudioContext;
+      };
+
+      const playTeacherPassSound = () => {
+        if (teacherPassSound === 'off') return;
+        try {
+          const audio = getTeacherAudioContext();
+          if (!audio) return;
+          if (audio.state === 'suspended') audio.resume();
+          const patterns = {
+            chime: [[740, 0, .1], [990, .12, .13], [1320, .27, .14]],
+            bell: [[660, 0, .18], [880, .2, .22]],
+            tap: [[180, 0, .045], [140, .075, .055]],
+            beep: [[900, 0, .13]],
+          };
+          (patterns[teacherPassSound] || patterns.chime).forEach(([frequency, offset, duration]) => {
+            const oscillator = audio.createOscillator();
+            const gain = audio.createGain();
+            oscillator.type = teacherPassSound === 'tap' ? 'triangle' : 'sine';
+            oscillator.frequency.setValueAtTime(frequency, audio.currentTime + offset);
+            gain.gain.setValueAtTime(.001, audio.currentTime + offset);
+            gain.gain.exponentialRampToValueAtTime(.18, audio.currentTime + offset + .015);
+            gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + offset + duration);
+            oscillator.connect(gain);
+            gain.connect(audio.destination);
+            oscillator.start(audio.currentTime + offset);
+            oscillator.stop(audio.currentTime + offset + duration + .03);
+          });
+        } catch (error) {
+          // Sound is helpful, not required. Browser audio rules vary by device.
+        }
+      };
+
+      const playIfNewPassStarted = () => {
+        const activeIds = new Set(((state && state.active) || []).map((pass) => pass.passId).filter(Boolean));
+        if (teacherKnownPassIds && [...activeIds].some((passId) => !teacherKnownPassIds.has(passId))) {
+          playTeacherPassSound();
+        }
+        teacherKnownPassIds = activeIds;
+      };
 
       const firstNameFromDisplayName = (value) => {
         const name = String(value || '').trim();
@@ -385,7 +484,7 @@
           const button = event.currentTarget.querySelector('button');
           act(button, async () => {
             try {
-              adoptState(await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value));
+              adoptState(await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value, getPinAttemptNonce()));
             } catch (error) {
               input.select();
               throw error;
@@ -764,16 +863,24 @@
           : 'not reset yet';
         const pinEmail = teacherPinStatus || { readyRecipients: 0, sentRecipients: 0, missingRecipients: 0, invalidDomainRecipients: 0 };
         const lateAfter = Number(state.lateAfterMinutes || 10);
+        const staleAfter = Number(state.stalePassMinutes || Math.max(lateAfter + 5, lateAfter * 2));
         const unlimitedCount = (state.studentPassUsage || []).filter((student) => student.unlimited).length;
         const unverifiedCount = (state.studentPassUsage || []).filter((student) => !student.googleVerified).length;
+        const notChecked = state.notCheckedIn || [];
+        const latePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= lateAfter).length;
+        const stalePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= staleAfter).length;
+        const soundOptions = TEACHER_SOUND_CHOICES.map(([value, label]) => (
+          `<option value="${escapeHtml(value)}" ${teacherPassSound === value ? 'selected' : ''}>${escapeHtml(label)}</option>`
+        )).join('');
 
         const activeHtml = state.active.length ? state.active.map((pass) => {
           const minutes = Math.floor(elapsedSeconds(pass.outTime) / 60);
           const late = minutes >= lateAfter;
+          const stale = minutes >= staleAfter;
           return `
-          <article class="active-pass ${late ? 'late' : ''}">
-            <strong>${escapeHtml(pass.studentName)}${late ? '<span class="late-flag">over ' + escapeHtml(lateAfter) + ' min</span>' : ''}</strong>
-            <small>${escapeHtml(pass.classPeriod)} · out at ${formatClock(pass.outTime)} · <span data-live-time="${escapeHtml(pass.outTime)}">${elapsed(pass.outTime)}</span></small>
+          <article class="active-pass ${stale ? 'stale-pass' : late ? 'late' : ''}">
+            <strong>${escapeHtml(pass.studentName)}${stale ? '<span class="late-flag">check now</span>' : late ? '<span class="late-flag">over ' + escapeHtml(lateAfter) + ' min</span>' : ''}</strong>
+            <small>${escapeHtml(pass.classPeriod)} · out at ${formatClock(pass.outTime)} · <span data-live-time="${escapeHtml(pass.outTime)}">${elapsed(pass.outTime)}</span>${stale ? ' · possible forgotten pass' : ''}</small>
             <button class="secondary" data-end-pass="${escapeHtml(pass.passId)}">mark returned</button>
           </article>`;
         }).join('') : '<p class="all-clear">Nobody is out right now.</p>';
@@ -784,6 +891,8 @@
             <small>${escapeHtml(entry.classPeriod)} · joined at ${formatClock(entry.joinedAt)}</small>
             <button class="secondary" data-remove-queue="${escapeHtml(entry.queueId)}">remove from line</button>
           </article>`).join('') : '<p class="all-clear">Nobody is waiting.</p>';
+
+        playIfNewPassStarted();
 
         const rosterOptions = state.roster
           .slice()
@@ -812,7 +921,7 @@
         const unmatched = state.unmatchedSignIns || [];
         const unmatchedHtml = unmatched.length ? `
           <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>sign-in problems.</h3><p>${unmatched.length} school account${unmatched.length === 1 ? '' : 's'} reached the app but no roster row matches. The address on the roster is almost certainly wrong, which locks that student out of both the Google path and their PIN email.</p></div></div>
+            <div class="teacher-section-head"><div><h3>sign-in problems.</h3><p>${unmatched.length} school account${unmatched.length === 1 ? '' : 's'} reached the app but no roster row matches. The address on the roster is almost certainly wrong, which locks that student out of both the Google path and their PIN email.</p></div><button class="secondary danger" id="clear-unmatched">clear sign-in problems</button></div>
             ${unmatched.map((entry) => `
               <article class="active-pass queue-entry" style="margin-top:10px">
                 <strong>${escapeHtml(entry.email)}</strong>
@@ -842,7 +951,17 @@
             <td class="method">${escapeHtml(checkIn.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No students have checked in today.</td></tr>';
 
-        const notCheckedOptions = state.notCheckedIn
+        const notCheckedRows = notChecked.length ? notChecked
+          .slice()
+          .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
+          .map((student) => `
+            <tr>
+              <td class="who">${escapeHtml(student.name)}</td>
+              <td>${escapeHtml(student.classPeriod)}</td>
+              <td class="action"><button class="secondary compact" data-checkin-student="${escapeHtml(student.key)}">mark here</button></td>
+            </tr>`).join('') : '<tr><td colspan="3">Every active roster row is checked in today.</td></tr>';
+
+        const notCheckedOptions = notChecked
           .slice()
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
           .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
@@ -867,6 +986,14 @@
         const emailResultHtml = teacherEmailResult ? `
           <div class="notice ${teacherEmailResult.failedRecipients ? 'warning' : 'success'}"><p><strong>${escapeHtml(teacherEmailResult.message)}</strong></p>${teacherEmailResult.failures && teacherEmailResult.failures.length ? `<p>${teacherEmailResult.failures.map(escapeHtml).join('<br>')}</p>` : ''}</div>` : '';
 
+        const roomStatusHtml = `
+          <div class="checkin-summary">
+            <div class="summary-tile"><strong>${escapeHtml((state.active || []).length)} / ${escapeHtml(state.maxActivePasses)}</strong><span>out right now</span></div>
+            <div class="summary-tile"><strong>${escapeHtml((state.queue || []).length)}</strong><span>waiting in line</span></div>
+            <div class="summary-tile"><strong>${escapeHtml(notChecked.length)}</strong><span>students not checked in</span></div>
+            <div class="summary-tile"><strong>${escapeHtml(stalePassCount || latePassCount)}</strong><span>${stalePassCount ? 'possible forgotten passes' : 'passes over time'}</span></div>
+          </div>`;
+
         content.innerHTML = `
           <div class="student-head">
             <div><p class="eyebrow">private teacher controls</p><h2>today’s classroom.</h2><p class="student-meta">daily check-ins + hall-pass records · visible only to the teacher account</p></div>
@@ -876,6 +1003,7 @@
             </div>
           </div>
           ${noticeHtml}
+          ${roomStatusHtml}
           <section class="teacher-section">
             <div class="teacher-section-head">
               <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded today · one point maximum per student per day</p></div>
@@ -885,6 +1013,7 @@
               <section class="subcard log"><h3>today’s private check-in log</h3><table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>streak</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table></section>
               <section class="subcard"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             </div>
+            <section class="subcard log" style="margin-top:18px"><h3>students not checked in</h3><table><thead><tr><th>student</th><th>class</th><th class="action">attendance helper</th></tr></thead><tbody>${notCheckedRows}</tbody></table></section>
           </section>
           ${unmatchedHtml}
           <section class="teacher-section">
@@ -922,6 +1051,13 @@
                 <div class="button-row"><button class="secondary" id="save-pass-limits">save limits</button><button class="secondary danger" id="reset-student-pass-counters">reset every student to zero</button></div>
               </div></section>
               <section class="subcard"><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
+              <section class="subcard"><h3>sign-out sound</h3><div class="override">
+                <div class="sound-row">
+                  <label>Sound on this teacher device<select id="teacher-pass-sound">${soundOptions}</select></label>
+                  <button class="secondary" id="test-pass-sound">test sound</button>
+                </div>
+                <p class="message">Plays when a new student signs out. Use the test button once after opening the dashboard if the browser needs permission to make sound.</p>
+              </div></section>
             </div>
             <details class="subcard log" id="pass-count-details" style="margin-bottom:18px">
               <summary><strong>every student’s pass count and unlimited setting</strong></summary>
@@ -965,6 +1101,11 @@
             renderTeacher();
           });
         });
+
+        document.querySelectorAll('[data-checkin-student]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
+          adoptState(await call('teacherCheckInStudent', button.dataset.checkinStudent));
+          renderTeacher();
+        })));
 
         document.querySelector('#teacher-start').addEventListener('click', (event) => {
           const studentKey = document.querySelector('#teacher-student').value;
@@ -1024,6 +1165,15 @@
           renderTeacher();
         })));
 
+        const clearUnmatched = document.querySelector('#clear-unmatched');
+        if (clearUnmatched) clearUnmatched.addEventListener('click', (event) => {
+          if (!window.confirm('Clear the current sign-in problem cards from the dashboard? They will be marked ignored in the private workbook.')) return;
+          act(event.currentTarget, async () => {
+            adoptState(await call('teacherClearUnmatchedSignIns'));
+            renderTeacher();
+          });
+        });
+
         document.querySelectorAll('[data-unlimited-email]').forEach((box) => box.addEventListener('change', () => {
           const email = box.dataset.unlimitedEmail;
           const wanted = box.checked;
@@ -1060,6 +1210,14 @@
             adoptState(await call('teacherResetStudentPassCounters', 'RESET ALL STUDENTS'));
             renderTeacher();
           });
+        });
+
+        const soundSelect = document.querySelector('#teacher-pass-sound');
+        if (soundSelect) soundSelect.addEventListener('change', () => setTeacherPassSound(soundSelect.value));
+        const testSound = document.querySelector('#test-pass-sound');
+        if (testSound) testSound.addEventListener('click', () => {
+          if (soundSelect) setTeacherPassSound(soundSelect.value);
+          playTeacherPassSound();
         });
 
         document.querySelector('#preview-pin-emails').addEventListener('click', (event) => act(event.currentTarget, async () => {

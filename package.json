@@ -21,12 +21,17 @@
   },
   "dependencies": {
     "@netlify/identity": "^2.0.0",
-    "@tailwindcss/vite": "^4.0.0",
-    "astro": "^7.1.1",
-    "tailwindcss": "^4.0.0"
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.9",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.9",
+    "@astrojs/check": "^0.9.10",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "fast-uri": "^3.1.5",
+    "nanoid": "^3.3.18",
+    "postcss": "^8.5.26"
   }
 }
