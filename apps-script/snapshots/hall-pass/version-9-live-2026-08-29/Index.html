@@ -106,12 +106,10 @@
       .late-flag { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 999px; background: var(--accent); color: white; font: 800 9px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .all-clear { padding: 23px 12px; color: var(--muted); text-align: center; }
       .override { display: grid; gap: 10px; }
-      select, input[type="number"], input[type="search"], input[type="text"], input[type="email"] { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
-      select:focus, input[type="number"]:focus, input[type="search"]:focus, input[type="text"]:focus, input[type="email"]:focus { border-color: var(--accent); }
+      select, input[type="number"], input[type="search"] { width: 100%; min-height: 46px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: white; outline: none; }
+      select:focus, input[type="number"]:focus, input[type="search"]:focus { border-color: var(--accent); }
       .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      .field-grid label, .roster-add-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
-      .roster-add-grid { display: grid; grid-template-columns: 1.05fr 1.35fr 1fr; gap: 10px; }
-      .roster-add .primary { min-height: 48px; margin-top: 2px; font-size: 15px; }
+      .field-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
       .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
       .button-row > * { flex: 1 1 180px; }
       .danger { border-color: #e2aaa5; color: var(--accent-dark); }
@@ -134,10 +132,6 @@
       .pass-count-table .who { width: 34%; white-space: normal; font-weight: 700; }
       .pass-count-table th:nth-child(3), .pass-count-table th:nth-child(4), .pass-count-table .num { width: 52px; text-align: right; }
       .pass-count-table .classes { white-space: normal; color: var(--muted); }
-      .roster-table .who { white-space: normal; font-weight: 700; }
-      .roster-table .email { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; }
-      .roster-table .action { width: 145px; text-align: right; }
-      .compact { min-height: 34px; padding: 0 10px; font-size: 11px; }
       .method { color: var(--muted); font: 700 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .privacy { margin: 16px 2px 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 
@@ -146,7 +140,7 @@
         .top, .student-head { align-items: flex-start; flex-direction: column; }
         .teacher-grid { grid-template-columns: 1fr; }
         .checkin-confirm { grid-template-columns: 1fr; }
-        .queue-card, .streak-card, .field-grid, .roster-add-grid { grid-template-columns: 1fr; }
+        .queue-card, .streak-card, .field-grid { grid-template-columns: 1fr; }
         .teacher-section-head { align-items: flex-start; flex-direction: column; }
         .card { border-radius: 16px; }
       }
@@ -637,8 +631,6 @@
       let teacherPinPreview = null;
       let teacherEmailResult = null;
       let teacherNotice = '';
-      let teacherRosterResult = null;
-      let clearRosterDraft = false;
 
       const teacherFieldValue = (selector) => {
         const node = document.querySelector(selector);
@@ -651,15 +643,7 @@
        * so they must never hold off a refresh: a cursor left in one used to
        * freeze the whole board silently.
        */
-      const TEACHER_TEXT_FIELDS = [
-        'max-active-passes',
-        'student-pass-limit',
-        'pass-count-filter',
-        'roster-student-name',
-        'roster-student-email',
-        'roster-class-period',
-        'roster-filter',
-      ];
+      const TEACHER_TEXT_FIELDS = ['max-active-passes', 'student-pass-limit', 'pass-count-filter'];
       const TEACHER_STALE_MS = 40000;
       let teacherLastRefresh = Date.now();
 
@@ -676,12 +660,7 @@
           teacherStudent: teacherFieldValue('#teacher-student'),
           checkinStudent: teacherFieldValue('#teacher-checkin-student'),
           passFilter: teacherFieldValue('#pass-count-filter'),
-          rosterName: teacherFieldValue('#roster-student-name'),
-          rosterEmail: teacherFieldValue('#roster-student-email'),
-          rosterClass: teacherFieldValue('#roster-class-period'),
-          rosterFilter: teacherFieldValue('#roster-filter'),
           detailsOpen: Boolean(document.querySelector('#pass-count-details') && document.querySelector('#pass-count-details').open),
-          rosterDetailsOpen: Boolean(document.querySelector('#roster-details') && document.querySelector('#roster-details').open),
           scrollY: window.scrollY,
           focusId,
           caret,
@@ -699,16 +678,9 @@
         apply('#teacher-student', snapshot.teacherStudent);
         apply('#teacher-checkin-student', snapshot.checkinStudent);
         apply('#pass-count-filter', snapshot.passFilter);
-        apply('#roster-student-name', snapshot.rosterName);
-        apply('#roster-student-email', snapshot.rosterEmail);
-        apply('#roster-class-period', snapshot.rosterClass);
-        apply('#roster-filter', snapshot.rosterFilter);
         const details = document.querySelector('#pass-count-details');
         if (details) details.open = snapshot.detailsOpen;
-        const rosterDetails = document.querySelector('#roster-details');
-        if (rosterDetails) rosterDetails.open = snapshot.rosterDetailsOpen;
         if (snapshot.passFilter) filterPassCounts(snapshot.passFilter);
-        if (snapshot.rosterFilter) filterRosterRows(snapshot.rosterFilter);
         if (snapshot.scrollY) window.scrollTo(0, snapshot.scrollY);
         if (snapshot.focusId) {
           const node = document.getElementById(snapshot.focusId);
@@ -735,13 +707,6 @@
         });
       };
 
-      const filterRosterRows = (term) => {
-        const needle = String(term || '').trim().toLowerCase();
-        document.querySelectorAll('[data-roster-row]').forEach((row) => {
-          row.hidden = Boolean(needle) && !row.dataset.rosterRow.includes(needle);
-        });
-      };
-
       const renderTeacher = () => {
         const snapshot = screen === 'teacher' ? captureTeacherUi() : null;
         clearError();
@@ -751,11 +716,6 @@
         if (state.pinEmailStatus) teacherPinStatus = state.pinEmailStatus;
         if (state.emailResult) { teacherEmailResult = state.emailResult; state.emailResult = null; }
         if (state.noticeMessage) { teacherNotice = state.noticeMessage; state.noticeMessage = null; }
-        if (state.rosterResult) {
-          teacherRosterResult = state.rosterResult;
-          clearRosterDraft = ['added', 'reactivated'].includes(state.rosterResult.action);
-          state.rosterResult = null;
-        }
 
         const passPolicy = state.passPolicy || { limit: 0, resetAt: '' };
         const resetDate = passPolicy.resetAt ? new Date(passPolicy.resetAt) : null;
@@ -847,21 +807,6 @@
           .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
           .map((student) => `<option value="${escapeHtml(student.key)}">${escapeHtml(student.name)} · ${escapeHtml(student.classPeriod)}</option>`).join('');
 
-        const classOptions = (state.classNames || [])
-          .map((classPeriod) => `<option value="${escapeHtml(classPeriod)}"></option>`).join('');
-        const rosterRows = state.roster.length ? state.roster
-          .slice()
-          .sort((a, b) => a.classPeriod.localeCompare(b.classPeriod) || a.name.localeCompare(b.name))
-          .map((student) => `
-            <tr data-roster-row="${escapeHtml(`${student.name} ${student.email} ${student.classPeriod}`.toLowerCase())}">
-              <td class="who">${escapeHtml(student.name)}</td>
-              <td>${escapeHtml(student.classPeriod)}</td>
-              <td class="email">${escapeHtml(student.email)}</td>
-              <td class="action"><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></td>
-            </tr>`).join('') : '<tr><td colspan="4">No active students are on the roster.</td></tr>';
-        const rosterResultHtml = teacherRosterResult ? `
-          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new six-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
-
         const pinPreviewHtml = teacherPinPreview ? `
           <div class="notice warning email-preview"><p><strong>${escapeHtml(teacherPinPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(teacherPinPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(teacherPinPreview.subject)}</p><p>${escapeHtml(teacherPinPreview.example)}</p></div>` : '';
         const emailResultHtml = teacherEmailResult ? `
@@ -887,25 +832,6 @@
             </div>
           </section>
           ${unmatchedHtml}
-          <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>class rosters.</h3><p>${state.roster.length} active class enrollment${state.roster.length === 1 ? '' : 's'} · changes immediately update daily check-in and hall pass</p></div></div>
-            <div class="subcard roster-add" style="margin-top:18px"><h3>add or reactivate a student</h3><div class="override">
-              <div class="roster-add-grid">
-                <label>Student name<input type="text" id="roster-student-name" maxlength="120" autocomplete="off" placeholder="Last, First"></label>
-                <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="student@students.mtmorrisschools.org"></label>
-                <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="choose or type a class"><datalist id="teacher-class-options">${classOptions}</datalist></label>
-              </div>
-              <p class="message">Existing students keep the same PIN in every class. A brand-new student gets one PIN automatically and appears in PIN delivery.</p>
-              <button class="primary" id="teacher-add-student">add student to class</button>
-              ${rosterResultHtml}
-            </div></div>
-            <details class="subcard log" id="roster-details">
-              <summary><strong>view or remove active students</strong></summary>
-              <p class="message" style="margin:12px 0">Removing a student turns off only that class membership. Private check-in and pass history stays intact, and re-adding the same student restores their existing PIN.</p>
-              <input type="search" id="roster-filter" placeholder="filter by student, email, or class" aria-label="Filter class roster">
-              <table class="roster-table" style="margin-top:12px"><thead><tr><th>student</th><th>class</th><th>school email</th><th class="action">action</th></tr></thead><tbody>${rosterRows}</tbody></table>
-            </details>
-          </section>
           <section class="teacher-section">
             <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day private history · maximum ${state.maxActivePasses} out at once · ${passPolicy.limit ? `${passPolicy.limit} passes allowed per student until reset` : 'unlimited passes per student'}</p></div></div>
             <div class="teacher-grid">
@@ -975,30 +901,6 @@
           });
         });
 
-        document.querySelector('#teacher-add-student').addEventListener('click', (event) => {
-          const name = document.querySelector('#roster-student-name').value.trim();
-          const email = document.querySelector('#roster-student-email').value.trim();
-          const classPeriod = document.querySelector('#roster-class-period').value.trim();
-          if (!name || !email || !classPeriod) {
-            showError('Enter the student’s name, school email, and class / period.');
-            return;
-          }
-          act(event.currentTarget, async () => {
-            adoptState(await call('teacherAddStudentClass', name, email, classPeriod));
-            renderTeacher();
-          });
-        });
-
-        document.querySelectorAll('[data-remove-student]').forEach((button) => button.addEventListener('click', () => {
-          const name = button.dataset.removeName;
-          const classPeriod = button.dataset.removeClass;
-          if (!window.confirm(`Remove ${name} from ${classPeriod}? They will disappear from check-in and hall-pass choices for this class. Private history will stay intact.`)) return;
-          act(button, async () => {
-            adoptState(await call('teacherRemoveStudentClass', button.dataset.removeStudent));
-            renderTeacher();
-          });
-        }));
-
         document.querySelectorAll('[data-end-pass]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
           adoptState(await call('teacherEndPass', button.dataset.endPass, 'Ended from teacher dashboard'));
           renderTeacher();
@@ -1042,8 +944,6 @@
 
         const filterBox = document.querySelector('#pass-count-filter');
         if (filterBox) filterBox.addEventListener('input', () => filterPassCounts(filterBox.value));
-        const rosterFilter = document.querySelector('#roster-filter');
-        if (rosterFilter) rosterFilter.addEventListener('input', () => filterRosterRows(rosterFilter.value));
 
         document.querySelector('#save-pass-limits').addEventListener('click', (event) => {
           const maxActive = Number(document.querySelector('#max-active-passes').value);
@@ -1094,13 +994,6 @@
 
         stampTeacher();
         restoreTeacherUi(snapshot);
-        if (clearRosterDraft) {
-          ['#roster-student-name', '#roster-student-email', '#roster-class-period'].forEach((selector) => {
-            const node = document.querySelector(selector);
-            if (node) node.value = '';
-          });
-          clearRosterDraft = false;
-        }
       };
 
       /**
@@ -1183,3 +1076,4 @@
     </script>
   </body>
 </html>
+

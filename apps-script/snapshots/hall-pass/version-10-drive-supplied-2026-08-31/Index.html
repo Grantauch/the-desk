@@ -3,7 +3,6 @@
   <head>
     <base target="_top">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>The Desk — Hall Pass</title>
     <style>
       :root {
@@ -119,10 +118,6 @@
       .queue-entry.turn { border-color: var(--green); background: var(--green-soft); }
       .email-preview { margin-top: 12px; white-space: pre-wrap; }
       .stale { opacity: .55; }
-      .refresh-box { display: grid; gap: 5px; justify-items: end; }
-      .stamp { margin: 0; color: var(--muted); font: 700 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; letter-spacing: .06em; }
-      .stamp.is-stale { color: var(--accent); }
-      .tag { display: inline-block; margin-left: 7px; padding: 2px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); font: 800 9px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; letter-spacing: .04em; }
 
       .log { margin-top: 18px; overflow-x: auto; }
       table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -324,22 +319,14 @@
         handoffHandle = setTimeout(() => resetToPin('Enter your six-digit PIN.'), delay);
       };
 
-      /**
-       * The privacy window runs from the last real interaction, not from the
-       * last render. Polling re-renders the student screen every few seconds,
-       * and restarting the countdown on every render held a student's name on
-       * a shared screen for as long as polling continued instead of two
-       * minutes.
-       */
       const armIdleReset = () => {
         clearTimeout(idleHandle);
         idleHandle = null;
         if (!sharedDevice()) return;
         if (screen === 'pin') return;
-        const remaining = Math.max(0, IDLE_RESET_MS - (Date.now() - lastInteraction));
         idleHandle = setTimeout(() => {
           if (sharedDevice() && screen !== 'pin') resetToPin('Enter your six-digit PIN.');
-        }, remaining);
+        }, IDLE_RESET_MS);
       };
 
       const noteInteraction = () => {
@@ -450,8 +437,8 @@
         setTitle(state.appTitle);
         const ownPass = state.ownPass;
         const queued = Number(state.queuePosition || 0) > 0;
-        const allowance = state.passAllowance || { limit: 0, used: 0, remaining: null, limitReached: false, capped: false };
-        const capped = Boolean(allowance.capped);
+        const allowance = state.passAllowance || { limit: 0, used: 0, remaining: null, limitReached: false, unlimited: false };
+        const capped = Boolean(allowance.limit) && !allowance.unlimited;
         const firstName = firstNameFromDisplayName(state.student.name);
         const statusLabel = ownPass
           ? 'you are out'
@@ -636,7 +623,6 @@
       let teacherPinStatus = null;
       let teacherPinPreview = null;
       let teacherEmailResult = null;
-      let teacherNotice = '';
       let teacherRosterResult = null;
       let clearRosterDraft = false;
 
@@ -645,48 +631,20 @@
         return node ? node.value : null;
       };
 
-      /**
-       * Only these three hold text a teacher can be part-way through typing.
-       * Dropdowns and checkboxes survive a re-render through capture/restore,
-       * so they must never hold off a refresh: a cursor left in one used to
-       * freeze the whole board silently.
-       */
-      const TEACHER_TEXT_FIELDS = [
-        'max-active-passes',
-        'student-pass-limit',
-        'pass-count-filter',
-        'roster-student-name',
-        'roster-student-email',
-        'roster-class-period',
-        'roster-filter',
-      ];
-      const TEACHER_STALE_MS = 40000;
-      let teacherLastRefresh = Date.now();
-
-      const captureTeacherUi = () => {
-        const active = document.activeElement;
-        const focusId = active && TEACHER_TEXT_FIELDS.includes(active.id) ? active.id : '';
-        let caret = null;
-        if (focusId) {
-          try { caret = [active.selectionStart, active.selectionEnd]; } catch (error) { caret = null; }
-        }
-        return {
-          maxActive: teacherFieldValue('#max-active-passes'),
-          studentLimit: teacherFieldValue('#student-pass-limit'),
-          teacherStudent: teacherFieldValue('#teacher-student'),
-          checkinStudent: teacherFieldValue('#teacher-checkin-student'),
-          passFilter: teacherFieldValue('#pass-count-filter'),
-          rosterName: teacherFieldValue('#roster-student-name'),
-          rosterEmail: teacherFieldValue('#roster-student-email'),
-          rosterClass: teacherFieldValue('#roster-class-period'),
-          rosterFilter: teacherFieldValue('#roster-filter'),
-          detailsOpen: Boolean(document.querySelector('#pass-count-details') && document.querySelector('#pass-count-details').open),
-          rosterDetailsOpen: Boolean(document.querySelector('#roster-details') && document.querySelector('#roster-details').open),
-          scrollY: window.scrollY,
-          focusId,
-          caret,
-        };
-      };
+      const captureTeacherUi = () => ({
+        maxActive: teacherFieldValue('#max-active-passes'),
+        studentLimit: teacherFieldValue('#student-pass-limit'),
+        teacherStudent: teacherFieldValue('#teacher-student'),
+        checkinStudent: teacherFieldValue('#teacher-checkin-student'),
+        passFilter: teacherFieldValue('#pass-count-filter'),
+        rosterName: teacherFieldValue('#roster-student-name'),
+        rosterEmail: teacherFieldValue('#roster-student-email'),
+        rosterClass: teacherFieldValue('#roster-class-period'),
+        rosterFilter: teacherFieldValue('#roster-filter'),
+        detailsOpen: Boolean(document.querySelector('#pass-count-details') && document.querySelector('#pass-count-details').open),
+        rosterDetailsOpen: Boolean(document.querySelector('#roster-details') && document.querySelector('#roster-details').open),
+        scrollY: window.scrollY,
+      });
 
       const restoreTeacherUi = (snapshot) => {
         if (!snapshot) return;
@@ -710,22 +668,12 @@
         if (snapshot.passFilter) filterPassCounts(snapshot.passFilter);
         if (snapshot.rosterFilter) filterRosterRows(snapshot.rosterFilter);
         if (snapshot.scrollY) window.scrollTo(0, snapshot.scrollY);
-        if (snapshot.focusId) {
-          const node = document.getElementById(snapshot.focusId);
-          if (node) {
-            node.focus();
-            if (snapshot.caret) {
-              try { node.setSelectionRange(snapshot.caret[0], snapshot.caret[1]); } catch (error) { /* number inputs refuse a caret */ }
-            }
-          }
-        }
       };
 
       const teacherIsEditing = () => {
         const node = document.activeElement;
-        if (!node || !TEACHER_TEXT_FIELDS.includes(node.id)) return false;
-        // A cursor parked in a box may delay the board, never strand it.
-        return Date.now() - teacherLastRefresh < TEACHER_STALE_MS;
+        if (!node) return false;
+        return ['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName);
       };
 
       const filterPassCounts = (term) => {
@@ -750,7 +698,6 @@
         content.className = '';
         if (state.pinEmailStatus) teacherPinStatus = state.pinEmailStatus;
         if (state.emailResult) { teacherEmailResult = state.emailResult; state.emailResult = null; }
-        if (state.noticeMessage) { teacherNotice = state.noticeMessage; state.noticeMessage = null; }
         if (state.rosterResult) {
           teacherRosterResult = state.rosterResult;
           clearRosterDraft = ['added', 'reactivated'].includes(state.rosterResult.action);
@@ -765,7 +712,6 @@
         const pinEmail = teacherPinStatus || { readyRecipients: 0, sentRecipients: 0, missingRecipients: 0, invalidDomainRecipients: 0 };
         const lateAfter = Number(state.lateAfterMinutes || 10);
         const unlimitedCount = (state.studentPassUsage || []).filter((student) => student.unlimited).length;
-        const unverifiedCount = (state.studentPassUsage || []).filter((student) => !student.googleVerified).length;
 
         const activeHtml = state.active.length ? state.active.map((pass) => {
           const minutes = Math.floor(elapsedSeconds(pass.outTime) / 60);
@@ -803,28 +749,11 @@
         const studentPassRows = state.studentPassUsage && state.studentPassUsage.length ? state.studentPassUsage.map((student) => `
           <tr data-pass-row="${escapeHtml(`${student.name} ${(student.classes || []).join(' ')}`.toLowerCase())}">
             <td class="tick"><input type="checkbox" data-unlimited-email="${escapeHtml(student.email)}" ${student.unlimited ? 'checked' : ''} aria-label="Unlimited passes for ${escapeHtml(student.name)}"></td>
-            <td class="who">${escapeHtml(student.name)}${student.googleVerified ? '' : '<span class="tag">pin only</span>'}</td>
+            <td class="who">${escapeHtml(student.name)}</td>
             <td class="num">${escapeHtml(student.used)}</td>
             <td class="num">${student.unlimited || !student.limit ? '—' : escapeHtml(student.remaining)}</td>
             <td class="classes">${escapeHtml((student.classes || []).join(' · '))}</td>
           </tr>`).join('') : '<tr><td colspan="5">No active students are on the roster.</td></tr>';
-
-        const unmatched = state.unmatchedSignIns || [];
-        const unmatchedHtml = unmatched.length ? `
-          <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>sign-in problems.</h3><p>${unmatched.length} school account${unmatched.length === 1 ? '' : 's'} reached the app but no roster row matches. The address on the roster is almost certainly wrong, which locks that student out of both the Google path and their PIN email.</p></div></div>
-            ${unmatched.map((entry) => `
-              <article class="active-pass queue-entry" style="margin-top:10px">
-                <strong>${escapeHtml(entry.email)}</strong>
-                <small>seen ${escapeHtml(entry.timesSeen)} time${Number(entry.timesSeen) === 1 ? '' : 's'} · last at ${formatClock(entry.lastSeen)}</small>
-                ${entry.suggestion ? `
-                  <small>Matches <strong>${escapeHtml(entry.suggestion.name)}</strong>, on the roster as ${escapeHtml(entry.suggestion.email)}</small>
-                  <button class="secondary" data-apply-email="${escapeHtml(entry.email)}" data-apply-roster="${escapeHtml(entry.suggestion.email)}">use this address for ${escapeHtml(entry.suggestion.name)}</button>`
-                : '<small>No roster row obviously matches this address. Correct it on the Roster tab, or ignore it.</small>'}
-                <button class="secondary" data-dismiss-email="${escapeHtml(entry.email)}">ignore</button>
-              </article>`).join('')}
-          </section>` : '';
-        const noticeHtml = teacherNotice ? `<div class="notice success" style="margin-top:16px"><p><strong>${escapeHtml(teacherNotice)}</strong></p></div>` : '';
 
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
           <div class="summary-tile">
@@ -870,12 +799,8 @@
         content.innerHTML = `
           <div class="student-head">
             <div><p class="eyebrow">private teacher controls</p><h2>today’s classroom.</h2><p class="student-meta">daily check-ins + hall-pass records · visible only to the teacher account</p></div>
-            <div class="refresh-box">
-              <button class="secondary" id="refresh-teacher">refresh</button>
-              <p class="stamp" id="teacher-stamp"></p>
-            </div>
+            <button class="secondary" id="refresh-teacher">refresh</button>
           </div>
-          ${noticeHtml}
           <section class="teacher-section">
             <div class="teacher-section-head">
               <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded today · one point maximum per student per day</p></div>
@@ -886,7 +811,6 @@
               <section class="subcard"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             </div>
           </section>
-          ${unmatchedHtml}
           <section class="teacher-section">
             <div class="teacher-section-head"><div><h3>class rosters.</h3><p>${state.roster.length} active class enrollment${state.roster.length === 1 ? '' : 's'} · changes immediately update daily check-in and hall pass</p></div></div>
             <div class="subcard roster-add" style="margin-top:18px"><h3>add or reactivate a student</h3><div class="override">
@@ -925,7 +849,7 @@
             </div>
             <details class="subcard log" id="pass-count-details" style="margin-bottom:18px">
               <summary><strong>every student’s pass count and unlimited setting</strong></summary>
-              <p class="message" style="margin:12px 0">${unverifiedCount} student${unverifiedCount === 1 ? ' has' : 's have'} never been recognized by their Google account and can only get in by PIN, which usually means the roster address is wrong. ${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. A checked box exempts that student from the per-student limit in every one of your classes. This setting lives only in your private workbook and never appears on a student screen.</p>
+              <p class="message" style="margin:12px 0">${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. A checked box exempts that student from the per-student limit in every one of your classes. This setting lives only in your private workbook and never appears on a student screen.</p>
               <input type="search" id="pass-count-filter" placeholder="filter by name or class" aria-label="Filter students">
               <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>unlimited</th><th>student</th><th>used</th><th>left</th><th>classes</th></tr></thead><tbody>${studentPassRows}</tbody></table>
             </details>
@@ -953,7 +877,6 @@
 
         document.querySelector('#refresh-teacher').addEventListener('click', (event) => act(event.currentTarget, async () => {
           adoptState(await call('refreshTeacherState'));
-          teacherLastRefresh = Date.now();
           renderTeacher();
         }));
 
@@ -1006,21 +929,6 @@
 
         document.querySelectorAll('[data-remove-queue]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
           adoptState(await call('teacherRemoveFromQueue', button.dataset.removeQueue));
-          renderTeacher();
-        })));
-
-        document.querySelectorAll('[data-apply-email]').forEach((button) => button.addEventListener('click', () => {
-          const real = button.dataset.applyEmail;
-          const roster = button.dataset.applyRoster;
-          if (!window.confirm(`Give ${real} to the student who is on the roster as ${roster}? Their PIN, check-in history and pass history all move with it.`)) return;
-          act(button, async () => {
-            adoptState(await call('teacherApplyUnmatchedEmail', roster, real));
-            renderTeacher();
-          });
-        }));
-
-        document.querySelectorAll('[data-dismiss-email]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
-          adoptState(await call('teacherDismissUnmatched', button.dataset.dismissEmail));
           renderTeacher();
         })));
 
@@ -1092,7 +1000,6 @@
           });
         });
 
-        stampTeacher();
         restoreTeacherUi(snapshot);
         if (clearRosterDraft) {
           ['#roster-student-name', '#roster-student-email', '#roster-class-period'].forEach((selector) => {
@@ -1103,19 +1010,6 @@
         }
       };
 
-      /**
-       * A dashboard that quietly stops updating is worse than one that says so.
-       */
-      const stampTeacher = () => {
-        const node = document.querySelector('#teacher-stamp');
-        if (!node) return;
-        const asOf = state && state.serverNow ? new Date(state.serverNow) : null;
-        if (!asOf || isNaN(asOf)) { node.textContent = ''; return; }
-        const stale = Date.now() - asOf.getTime() > TEACHER_STALE_MS;
-        node.textContent = `updated ${formatClock(state.serverNow)}${stale ? ' · tap refresh' : ''}`;
-        node.classList.toggle('is-stale', stale);
-      };
-
       /* ------------------------------------------------------------- polling */
 
       const refreshTeacher = async () => {
@@ -1123,8 +1017,7 @@
         if (document.visibilityState === 'hidden') return;
         try {
           const next = await call('refreshTeacherState');
-          if (inFlight || screen !== 'teacher') return;
-          teacherLastRefresh = Date.now();
+          if (inFlight || screen !== 'teacher' || teacherIsEditing()) return;
           adoptState(next);
           renderTeacher();
         } catch (error) {
@@ -1183,3 +1076,4 @@
     </script>
   </body>
 </html>
+

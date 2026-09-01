@@ -11,7 +11,7 @@
  *  4. Student screens receive only their own data.
  */
 
-const GD_SCHEMA_VERSION = '2026-08-28-a';
+const GD_SCHEMA_VERSION = '2026-08-27-a';
 
 const GD_SHEETS = {
   ROSTER: 'Roster',
@@ -20,7 +20,6 @@ const GD_SHEETS = {
   QUEUE: 'Pass Queue',
   SETTINGS: 'Settings',
   PINS: 'PIN Cards',
-  UNMATCHED: 'Unmatched Sign-ins',
 };
 
 const GD_HEADERS = {
@@ -30,7 +29,6 @@ const GD_HEADERS = {
   QUEUE: ['Queue ID', 'Student Email', 'Student Name', 'Class / Period', 'Joined At', 'Status', 'Resolved At', 'Resolution'],
   SETTINGS: ['Key', 'Value', 'What it controls'],
   PINS: ['Student Email', 'Student Name', 'Class / Period', 'PIN', 'Generated At', 'Email Status', 'Emailed At', 'Email Detail'],
-  UNMATCHED: ['Signed-in Address', 'First Seen', 'Last Seen', 'Times Seen', 'Likely Match', 'Status', 'Note'],
 };
 
 const GD_DEFAULT_SETTINGS = [
@@ -143,7 +141,6 @@ function getBootstrap(mode) {
 
   const students = getStudentsByEmail_(activeEmail);
   if (!students.length) {
-    recordUnmatchedSignIn_(activeEmail, purpose);
     return unrecognizedState_(
       settings,
       purpose,
@@ -463,7 +460,7 @@ function getStudentState_(student, pinToken, method) {
     queuedAt: queueIndex >= 0 ? isoOrEmpty_(queue[queueIndex].joinedAt) : '',
     claimMinutes: Math.max(1, numberSetting_(settings, 'QUEUE_CLAIM_MINUTES', 3)),
     canJoinQueue: !ownPass && queueIndex < 0 && !allowance.limitReached,
-    passAllowance: studentAllowanceView_(allowance),
+    passAllowance: allowance,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     serverNow: new Date().toISOString(),
   };
@@ -602,29 +599,11 @@ function getStudentPassAllowance_(studentEmail, settings, log) {
   };
 }
 
-/**
- * What a student may see about their own allowance. The unlimited exemption is
- * a teacher setting: an exempt student's payload has to look exactly like a
- * student in a class with no limit set, so nothing in the response names the
- * exemption or lets the browser work it out.
- */
-function studentAllowanceView_(allowance) {
-  const capped = Boolean(allowance.limit) && !allowance.unlimited;
-  return {
-    capped,
-    limit: capped ? allowance.limit : 0,
-    used: capped ? allowance.used : 0,
-    remaining: capped ? allowance.remaining : null,
-    limitReached: Boolean(allowance.limitReached),
-  };
-}
-
 function allowanceMessage_(allowance) {
   return `You have used all ${allowance.limit} of your passes for this marking period. Ask Mr. Grant if you need to leave the room.`;
 }
 
-function getStudentPassUsage_(roster, settings, log, verifiedEmails) {
-  const verified = verifiedEmails || new Set();
+function getStudentPassUsage_(roster, settings, log) {
   const studentsByEmail = new Map();
   roster.forEach((student) => {
     if (!studentsByEmail.has(student.email)) {
@@ -635,7 +614,6 @@ function getStudentPassUsage_(roster, settings, log, verifiedEmails) {
   return [...studentsByEmail.values()]
     .map((student) => ({
       ...student,
-      googleVerified: verified.has(student.email),
       ...getStudentPassAllowance_(student.email, settings, log),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -649,141 +627,6 @@ function getUnlimitedPassEmails_() {
     });
     return emails;
   });
-}
-
-/* ----------------------------------------------- unmatched sign-ins ---- */
-
-/**
- * The roster addresses were generated from a naming rule, not exported from
- * the district, so some of them are wrong: a hyphen dropped from a surname is
- * enough to lock a student out of both the Google path and their PIN email.
- * When a real school account reaches the app and the roster does not know it,
- * write the address down so the roster can be corrected from evidence.
- */
-function recordUnmatchedSignIn_(email, note) {
-  const address = normalizeEmail_(email);
-  if (!address) return;
-  const cache = CacheService.getScriptCache();
-  const key = `unmatched:${address}`;
-  if (cache.get(key)) return;
-  cache.put(key, '1', 600);
-  try {
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.UNMATCHED);
-    if (!sheet) return;
-    const now = new Date();
-    const existing = readUnmatched_().find((entry) => entry.email === address);
-    if (existing) {
-      sheet.getRange(existing.row, 3, 1, 2).setValues([[now, existing.timesSeen + 1]]);
-    } else {
-      const suggestion = suggestRosterMatch_(address);
-      sheet.appendRow([
-        address, now, now, 1,
-        suggestion ? `${suggestion.name} <${suggestion.email}>` : '',
-        'NEW',
-        String(note || ''),
-      ]);
-    }
-    gdForget_('unmatched');
-  } catch (error) {
-    // Never let bookkeeping stop a student from reaching the PIN screen.
-  }
-}
-
-function readUnmatched_() {
-  return gdMemo_('unmatched', () => {
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.UNMATCHED);
-    if (!sheet) return [];
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 2) return [];
-    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.UNMATCHED.length).getValues().map((row, index) => ({
-      row: index + 2,
-      email: normalizeEmail_(row[0]),
-      firstSeen: toDateOrNull_(row[1]),
-      lastSeen: toDateOrNull_(row[2]),
-      timesSeen: Number(row[3] || 0),
-      likelyMatch: String(row[4] || ''),
-      status: String(row[5] || '').trim().toUpperCase(),
-      note: String(row[6] || ''),
-    })).filter((entry) => entry.email);
-  });
-}
-
-/** Punctuation is exactly what the generated addresses got wrong, so ignore it. */
-function normalizeLocalPart_(email) {
-  return normalizeEmail_(email).split('@')[0].replace(/[^a-z0-9]/g, '');
-}
-
-function suggestRosterMatch_(email) {
-  const target = normalizeLocalPart_(email);
-  if (!target) return null;
-  const byEmail = new Map();
-  getRoster_().forEach((student) => {
-    if (!byEmail.has(student.email)) byEmail.set(student.email, student);
-  });
-  const matches = [...byEmail.values()].filter((student) => normalizeLocalPart_(student.email) === target);
-  if (matches.length !== 1) return null;
-  return { key: matches[0].key, name: matches[0].name, email: matches[0].email };
-}
-
-/**
- * Correcting a roster address by hand silently breaks the student: their PIN
- * card, check-in history and pass history are all keyed to the old address.
- * This moves every one of them together.
- */
-function teacherApplyUnmatchedEmail(rosterEmail, realEmail) {
-  const settings = getSettings_();
-  assertTeacher_(getActiveEmail_(), settings);
-  const oldEmail = normalizeEmail_(rosterEmail);
-  const newEmail = normalizeEmail_(realEmail);
-  if (!oldEmail || !newEmail || oldEmail === newEmail) throw new Error('Choose a different address.');
-  const studentDomain = String(settings.STUDENT_EMAIL_DOMAIN || '').toLowerCase();
-  if (studentDomain && newEmail.split('@').pop() !== studentDomain) {
-    throw new Error(`That address is not on ${studentDomain}.`);
-  }
-
-  let moved = 0;
-  withLock_(() => {
-    const roster = getRoster_();
-    const rows = roster.filter((student) => student.email === oldEmail);
-    if (!rows.length) throw new Error('That student is no longer on the roster.');
-    if (roster.some((student) => student.email === newEmail)) {
-      throw new Error('That address already belongs to another student on the roster.');
-    }
-    const spreadsheet = getSpreadsheet_();
-    rows.forEach((student) => {
-      spreadsheet.getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 1).setValue(newEmail);
-      moved += 1;
-    });
-    readPinCards_().filter((card) => card.studentEmail === oldEmail)
-      .forEach((card) => spreadsheet.getSheetByName(GD_SHEETS.PINS).getRange(card.row, 1).setValue(newEmail));
-    readCheckIns_().filter((entry) => entry.studentEmail === oldEmail)
-      .forEach((entry) => spreadsheet.getSheetByName(GD_SHEETS.CHECKINS).getRange(entry.row, 4).setValue(newEmail));
-    readPassLog_().filter((pass) => pass.studentEmail === oldEmail)
-      .forEach((pass) => spreadsheet.getSheetByName(GD_SHEETS.LOG).getRange(pass.row, 2).setValue(newEmail));
-    readPassQueue_().filter((entry) => entry.studentEmail === oldEmail)
-      .forEach((entry) => spreadsheet.getSheetByName(GD_SHEETS.QUEUE).getRange(entry.row, 2).setValue(newEmail));
-    const logged = readUnmatched_().find((entry) => entry.email === newEmail);
-    if (logged) {
-      spreadsheet.getSheetByName(GD_SHEETS.UNMATCHED).getRange(logged.row, 6, 1, 2)
-        .setValues([['APPLIED', `Replaced ${oldEmail}`]]);
-    }
-    gdClearMemo_();
-  });
-  const state = getTeacherState_({ includePinStatus: true });
-  state.noticeMessage = `${newEmail} now belongs to that student. ${moved} roster row${moved === 1 ? '' : 's'} updated, PIN and history moved with it.`;
-  return state;
-}
-
-function teacherDismissUnmatched(email) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  const address = normalizeEmail_(email);
-  withLock_(() => {
-    const entry = readUnmatched_().find((item) => item.email === address);
-    if (!entry) return;
-    getSpreadsheet_().getSheetByName(GD_SHEETS.UNMATCHED).getRange(entry.row, 6).setValue('IGNORED');
-    gdForget_('unmatched');
-  });
-  return getTeacherState_({ includePinStatus: false });
 }
 
 /* --------------------------------------------------------------- teacher ---- */
@@ -1024,11 +867,6 @@ function getTeacherState_(options) {
   const todayKey = dateKey_(new Date());
   const allCheckIns = readCheckIns_();
   const streaks = buildStreakIndex_(allCheckIns);
-  // An address Google has actually handed us is proven; the rest are guesses.
-  const googleVerified = new Set();
-  allCheckIns.forEach((entry) => {
-    if (entry.method === 'google') googleVerified.add(entry.studentEmail);
-  });
   const checkInsToday = allCheckIns
     .filter((checkIn) => checkIn.dateKey === todayKey && checkIn.status === 'CHECKED_IN')
     .sort((a, b) => a.checkInTime - b.checkInTime);
@@ -1056,28 +894,18 @@ function getTeacherState_(options) {
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     maxActivePasses: snapshot.maxActive,
     passPolicy: getStudentPassPolicy_(settings),
-    studentPassUsage: getStudentPassUsage_(roster, settings, log, googleVerified),
-    unmatchedSignIns: readUnmatched_()
-      .filter((entry) => entry.status !== 'APPLIED' && entry.status !== 'IGNORED')
-      .sort((a, b) => (b.lastSeen ? b.lastSeen.getTime() : 0) - (a.lastSeen ? a.lastSeen.getTime() : 0))
-      .slice(0, 25)
-      .map((entry) => ({
-        email: entry.email,
-        lastSeen: isoOrEmpty_(entry.lastSeen),
-        timesSeen: entry.timesSeen,
-        suggestion: suggestRosterMatch_(entry.email),
-      })),
+    studentPassUsage: getStudentPassUsage_(roster, settings, log),
     retentionDays: numberSetting_(settings, 'RETENTION_DAYS', 180),
     queueClaimMinutes: Math.max(1, numberSetting_(settings, 'QUEUE_CLAIM_MINUTES', 3)),
     active: snapshot.active.map(clientPass_),
     queue: snapshot.queue.map((entry, index) => clientQueue_(entry, index + 1)),
     today,
     roster,
-    classNames,
     checkInsToday: checkInsToday.map((checkIn) => ({
       ...clientCheckIn_(checkIn),
       streak: streaks.streakFor(checkIn.studentKey, todayKey),
     })),
+    classNames,
     checkInSummary,
     notCheckedIn: roster.filter((student) => !checkedKeys.has(student.key)),
     serverNow: new Date().toISOString(),
@@ -1356,13 +1184,8 @@ function clientCheckIn_(checkIn) {
 /* ------------------------------------------------------------ PIN cards ---- */
 
 function generateMissingPins() {
-  // Menu action. Refuse a web-app caller and check who is asking before any
-  // repair touches the workbook.
-  if (!SpreadsheetApp.getActiveSpreadsheet()) {
-    throw new Error('Run this from the GrantDesk Pass menu inside the spreadsheet.');
-  }
-  assertTeacher_(getActiveEmail_(), settingsForAuth_());
   setupWorkbook_();
+  assertTeacher_(getActiveEmail_(), getSettings_());
   const result = ensureOnePinPerStudent_({ createMissing: true });
   SpreadsheetApp.getUi().alert(
     result.createdPins || result.normalizedMemberships
@@ -1542,16 +1365,11 @@ function runPinEmailBatch_(confirmText) {
   }
 
   const properties = PropertiesService.getScriptProperties();
-  // Claim the batch while holding the lock so two teacher tabs cannot both
-  // pass the check and mail all 112 students twice. The lock is released
-  // before the send, so a long batch never blocks a student in class.
-  withLock_(() => {
-    const startedAt = Number(properties.getProperty('PIN_EMAIL_RUNNING') || 0);
-    if (startedAt && Date.now() - startedAt < 600000) {
-      throw new Error('A PIN email batch is already running. Wait for it to finish, then refresh.');
-    }
-    properties.setProperty('PIN_EMAIL_RUNNING', String(Date.now()));
-  }, 10000);
+  const startedAt = Number(properties.getProperty('PIN_EMAIL_RUNNING') || 0);
+  if (startedAt && Date.now() - startedAt < 600000) {
+    throw new Error('A PIN email batch is already running. Wait for it to finish, then refresh.');
+  }
+  properties.setProperty('PIN_EMAIL_RUNNING', String(Date.now()));
 
   try {
     const delivery = buildPinEmailGroups_();
@@ -1757,7 +1575,7 @@ function assertPinAttemptAllowed_(email) {
   // ceiling so one mistyped PIN can never lock out an entire class.
   const shared = Number(cache.get('pin-attempts:shared') || 0);
   if (shared >= 200) {
-    throw new Error('Too many incorrect PIN attempts on the shared PIN screen. Ask Mr. Grant.');
+    throw new Error('Too many incorrect PIN attempts on this device. Ask Mr. Grant.');
   }
 }
 
@@ -1801,22 +1619,6 @@ function assertSchoolAccount_(email, settings) {
   const emailDomain = normalizeEmail_(email).split('@').pop();
   if (emailDomain === domain || emailDomain.endsWith(`.${domain}`)) return;
   throw new Error('Open this page while signed into your school Google account.');
-}
-
-/**
- * The teacher list, readable before setupWorkbook_ has built the Settings tab.
- * Authorization has to happen before repair, and repair is what creates the
- * sheet the normal settings read depends on.
- */
-function settingsForAuth_() {
-  try {
-    return getSettings_();
-  } catch (error) {
-    return GD_DEFAULT_SETTINGS.reduce((settings, row) => {
-      settings[row[0]] = row[1];
-      return settings;
-    }, {});
-  }
 }
 
 function assertTeacher_(email, settings) {
@@ -1949,35 +1751,16 @@ function normalizeDateKey_(value) {
 
 /* ------------------------------------------------------------- cleanup ---- */
 
-/**
- * Daily trigger target. Apps Script cannot point a trigger at a private
- * function, so this name stays public, which also means any signed-in account
- * on the school domain can reach it from a page. The teacher check runs first:
- * under the time trigger the active user is the owner, and from the web app it
- * is whoever pressed the button. Deletion then takes the same lock every live
- * pass and queue write takes, so row numbers cannot shift underneath an update
- * already in flight.
- */
-function dailyCleanup(event) {
-  // A time-driven trigger hands the handler its own triggerUid. A page calling
-  // this over google.script.run does not, and a student cannot read the UID of
-  // a trigger they do not own, so anything without one has to be the teacher.
-  const triggerUid = event && event.triggerUid ? String(event.triggerUid) : '';
-  const fromTrigger = Boolean(triggerUid) && ScriptApp.getProjectTriggers()
-    .some((trigger) => trigger.getUniqueId() === triggerUid);
-  if (!fromTrigger) assertTeacher_(getActiveEmail_(), getSettings_());
-  withLock_(() => {
-    purgeOldPasses_();
-    purgeOldQueue_();
-    PropertiesService.getScriptProperties().setProperty('LAST_PURGE', dateKey_(new Date()));
-  });
+function dailyCleanup() {
+  purgeOldPasses_();
+  purgeOldQueue_();
+  PropertiesService.getScriptProperties().setProperty('LAST_PURGE', dateKey_(new Date()));
 }
 
 function purgeOldPasses() {
   assertTeacher_(getActiveEmail_(), getSettings_());
-  const removed = withLock_(() => ({ passes: purgeOldPasses_(), queueRows: purgeOldQueue_() }));
-  const removedPasses = removed.passes;
-  const removedQueueRows = removed.queueRows;
+  const removedPasses = purgeOldPasses_();
+  const removedQueueRows = purgeOldQueue_();
   SpreadsheetApp.getUi().alert(`${removedPasses} old returned pass${removedPasses === 1 ? '' : 'es'} and ${removedQueueRows} resolved queue entr${removedQueueRows === 1 ? 'y' : 'ies'} removed.`);
 }
 
@@ -2077,7 +1860,6 @@ function setupWorkbook_() {
   ensureSheet_(spreadsheet, GD_SHEETS.QUEUE, GD_HEADERS.QUEUE);
   ensureSheet_(spreadsheet, GD_SHEETS.SETTINGS, GD_HEADERS.SETTINGS);
   ensureSheet_(spreadsheet, GD_SHEETS.PINS, GD_HEADERS.PINS);
-  ensureSheet_(spreadsheet, GD_SHEETS.UNMATCHED, GD_HEADERS.UNMATCHED);
   gdClearMemo_();
 
   const settingsSheet = spreadsheet.getSheetByName(GD_SHEETS.SETTINGS);
@@ -2106,7 +1888,6 @@ function setupWorkbook_() {
   const pinSheet = spreadsheet.getSheetByName(GD_SHEETS.PINS);
   pinSheet.getRange('E:E').setNumberFormat('m/d/yyyy h:mm am/pm');
   pinSheet.getRange('G:G').setNumberFormat('m/d/yyyy h:mm am/pm');
-  spreadsheet.getSheetByName(GD_SHEETS.UNMATCHED).getRange('B:C').setNumberFormat('m/d/yyyy h:mm am/pm');
 
   ensureUnlimitedCheckboxes_(spreadsheet.getSheetByName(GD_SHEETS.ROSTER));
   ensureOnePinPerStudent_({ createMissing: false });
@@ -2162,3 +1943,4 @@ function ensureSheet_(spreadsheet, name, headers) {
   });
   return sheet;
 }
+

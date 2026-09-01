@@ -835,124 +835,6 @@ function teacherSetStudentUnlimited(studentEmail, unlimited) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
-  const settings = getSettings_();
-  assertTeacher_(getActiveEmail_(), settings);
-  const input = normalizeRosterInput_(studentName, studentEmail, classPeriod, settings);
-  let result = null;
-
-  withLock_(() => {
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
-    const allRows = readRosterRows_();
-    const sameStudentRows = allRows.filter((student) => student.email === input.email);
-    const sameMembership = sameStudentRows.find((student) => student.key === input.key) || null;
-    if (sameMembership && sameMembership.active) {
-      throw new Error(`${input.name} is already active in ${input.classPeriod}.`);
-    }
-
-    const unlimited = sameStudentRows.some((student) => student.unlimited);
-    const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
-
-    // One school email represents one student. Keep their display name aligned
-    // across every class membership when the teacher corrects or adds it here.
-    sameStudentRows.forEach((student) => {
-      if (student.name !== input.name) sheet.getRange(student.row, 2).setValue(input.name);
-    });
-
-    let rosterRow;
-    let action;
-    if (sameMembership) {
-      rosterRow = sameMembership.row;
-      action = 'reactivated';
-      sheet.getRange(rosterRow, 1, 1, GD_HEADERS.ROSTER.length).setValues([[
-        input.email,
-        input.name,
-        input.classPeriod,
-        sameMembership.pinHash || existingPinHash,
-        true,
-        unlimited,
-      ]]);
-    } else {
-      action = 'added';
-      sheet.appendRow([
-        input.email,
-        input.name,
-        input.classPeriod,
-        existingPinHash,
-        true,
-        unlimited,
-      ]);
-      rosterRow = sheet.getLastRow();
-    }
-    sheet.getRange(rosterRow, 6).insertCheckboxes().setValue(unlimited);
-    gdForget_('roster');
-    gdForget_('unlimited');
-
-    const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
-    result = {
-      action,
-      name: input.name,
-      classPeriod: input.classPeriod,
-      createdPin: pinRepair.createdPins > 0,
-    };
-  });
-
-  const state = getTeacherState_({ includePinStatus: true });
-  state.rosterResult = result;
-  return state;
-}
-
-function teacherRemoveStudentClass(studentKey) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  const key = String(studentKey || '');
-  if (!key) throw new Error('Choose a class membership to remove.');
-  let result = null;
-
-  withLock_(() => {
-    const student = getRoster_().find((entry) => entry.key === key) || null;
-    if (!student) throw new Error('That student is no longer active in this class.');
-
-    const activePass = readPassLog_().find((pass) => pass.status === 'OUT' && pass.studentKey === key);
-    if (activePass) {
-      throw new Error(`Mark ${student.name} returned before removing them from ${student.classPeriod}.`);
-    }
-    const waiting = readPassQueue_().find((entry) => entry.status === 'WAITING' && entry.studentKey === key);
-    if (waiting) {
-      throw new Error(`Remove ${student.name} from the waiting line before removing them from ${student.classPeriod}.`);
-    }
-
-    getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 5).setValue(false);
-    gdForget_('roster');
-    gdForget_('unlimited');
-    result = { action: 'removed', name: student.name, classPeriod: student.classPeriod };
-  });
-
-  const state = getTeacherState_({ includePinStatus: true });
-  state.rosterResult = result;
-  return state;
-}
-
-function normalizeRosterInput_(studentName, studentEmail, classPeriod, settings) {
-  const cleanText = (value, label, maxLength) => {
-    const text = String(value || '').trim().replace(/\s+/g, ' ');
-    if (!text) throw new Error(`${label} is required.`);
-    if (text.length > maxLength) throw new Error(`${label} is too long.`);
-    if (text.startsWith('=')) throw new Error(`${label} cannot begin with an equals sign.`);
-    return text;
-  };
-  const name = cleanText(studentName, 'Student name', 120);
-  const email = normalizeEmail_(studentEmail);
-  const className = cleanText(classPeriod, 'Class / period', 120);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new Error('Enter the student’s full school email address.');
-  }
-  const studentDomain = String((settings && settings.STUDENT_EMAIL_DOMAIN) || '').trim().toLowerCase();
-  if (studentDomain && email.split('@').pop() !== studentDomain) {
-    throw new Error(`Student email must end in @${studentDomain}.`);
-  }
-  return { name, email, classPeriod: className, key: rosterKey_(email, className) };
-}
-
 function teacherRemoveFromQueue(queueId) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
@@ -1073,7 +955,6 @@ function getTeacherState_(options) {
     queue: snapshot.queue.map((entry, index) => clientQueue_(entry, index + 1)),
     today,
     roster,
-    classNames,
     checkInsToday: checkInsToday.map((checkIn) => ({
       ...clientCheckIn_(checkIn),
       streak: streaks.streakFor(checkIn.studentKey, todayKey),
@@ -1181,31 +1062,29 @@ function utcDateKey_(date) {
 
 /* ------------------------------------------------------------ sheet I/O ---- */
 
-function readRosterRows_() {
-  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
-  const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return [];
-  const width = Math.min(GD_HEADERS.ROSTER.length, sheet.getMaxColumns());
-  return sheet.getRange(2, 1, lastRow - 1, width).getValues()
-    .map((row, index) => {
-      const email = normalizeEmail_(row[0]);
-      const classPeriod = String(row[2] || '').trim();
-      return {
-        row: index + 2,
-        key: rosterKey_(email, classPeriod),
-        email,
-        name: String(row[1] || '').trim(),
-        classPeriod,
-        pinHash: String(row[3] || '').trim(),
-        active: isTruthyCell_(row[4], true),
-        unlimited: isTruthyCell_(row[5], false),
-      };
-    })
-    .filter((student) => student.email && student.name);
-}
-
 function getRoster_() {
-  return gdMemo_('roster', () => readRosterRows_().filter((student) => student.active));
+  return gdMemo_('roster', () => {
+    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return [];
+    const width = Math.min(GD_HEADERS.ROSTER.length, sheet.getMaxColumns());
+    return sheet.getRange(2, 1, lastRow - 1, width).getValues()
+      .map((row, index) => {
+        const email = normalizeEmail_(row[0]);
+        const classPeriod = String(row[2] || '').trim();
+        return {
+          row: index + 2,
+          key: rosterKey_(email, classPeriod),
+          email,
+          name: String(row[1] || '').trim(),
+          classPeriod,
+          pinHash: String(row[3] || '').trim(),
+          active: isTruthyCell_(row[4], true),
+          unlimited: isTruthyCell_(row[5], false),
+        };
+      })
+      .filter((student) => student.email && student.name && student.active);
+  });
 }
 
 function getStudentsByEmail_(email) {
@@ -1613,10 +1492,7 @@ function buildPinEmailGroups_() {
   });
   const studentsByEmail = new Map();
   getRoster_().forEach((student) => {
-    if (!studentsByEmail.has(student.email)) {
-      studentsByEmail.set(student.email, { student, activeKeys: new Set() });
-    }
-    studentsByEmail.get(student.email).activeKeys.add(student.key);
+    if (!studentsByEmail.has(student.email)) studentsByEmail.set(student.email, student);
   });
 
   const readyGroups = [];
@@ -1624,10 +1500,8 @@ function buildPinEmailGroups_() {
   let missingRecipients = 0;
   let invalidDomainRecipients = 0;
 
-  studentsByEmail.forEach((record, email) => {
-    const student = record.student;
-    const memberships = (cardsByEmail.get(email) || [])
-      .filter((card) => record.activeKeys.has(card.studentKey));
+  studentsByEmail.forEach((student, email) => {
+    const memberships = cardsByEmail.get(email) || [];
     const pins = [...new Set(memberships.map((card) => card.pin).filter((pin) => /^\d{6}$/.test(pin)))];
     if (pins.length !== 1) {
       missingRecipients += 1;
@@ -2162,3 +2036,4 @@ function ensureSheet_(spreadsheet, name, headers) {
   });
   return sheet;
 }
+
