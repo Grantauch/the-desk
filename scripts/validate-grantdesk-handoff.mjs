@@ -1,0 +1,119 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const failures = [];
+const passes = [];
+
+function ok(condition, label) {
+  if (condition) passes.push(label);
+  else failures.push(label);
+}
+
+function read(relativePath) {
+  const full = path.join(root, relativePath);
+  ok(fs.existsSync(full), `path exists: ${relativePath}`);
+  return fs.existsSync(full) ? fs.readFileSync(full, 'utf8') : '';
+}
+
+const requiredPaths = [
+  'apps-script/hall-pass/Code.gs',
+  'apps-script/hall-pass/Index.html',
+  'apps-script/hall-pass/appsscript.json',
+  'apps-script/hall-pass/DEPLOY.md',
+  'scripts/test-hall-pass-app.cjs',
+  'src/pages/pass.astro',
+  'src/pages/check-in.astro',
+  'src/pages/tools.astro',
+  'src/data/pass-config.json',
+  '.github/workflows/site-check.yml',
+  'package.json',
+];
+
+requiredPaths.forEach((relativePath) => {
+  ok(fs.existsSync(path.join(root, relativePath)), `path exists: ${relativePath}`);
+});
+
+const code = read('apps-script/hall-pass/Code.gs');
+const packageJsonText = read('package.json');
+const passConfigText = read('src/data/pass-config.json');
+
+const criticalFunctions = [
+  'doGet',
+  'getBootstrap',
+  'identifyWithPin',
+  'identifyCheckInWithPin',
+  'identifyPin_',
+  'selectStudentClass',
+  'resolveStudent_',
+  'refreshStudentState',
+  'startPass',
+  'joinPassQueue',
+  'returnPass',
+  'submitDailyCheckIn',
+  'getStudentPassAllowance_',
+  'getTeacherState_',
+  'teacherStartPass',
+  'teacherEndPass',
+  'teacherApplyUnmatchedEmail',
+  'ensureWorkbookReady_',
+  'setupWorkbook_',
+  'closePassForStudent_',
+  'closePassById_',
+  'closePassRow_',
+];
+
+for (const fn of criticalFunctions) {
+  const pattern = new RegExp(`\\bfunction\\s+${fn.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\s*\\(`);
+  ok(pattern.test(code), `mapped backend function exists: ${fn}`);
+}
+
+ok(/const\s+GD_SCHEMA_VERSION\s*=/.test(code), 'schema version constant exists');
+
+let packageJson = null;
+try {
+  packageJson = JSON.parse(packageJsonText);
+  passes.push('package.json parses');
+} catch {
+  failures.push('package.json parses');
+}
+
+if (packageJson) {
+  ok(
+    packageJson.scripts?.['hall-pass:test'] === 'node scripts/test-hall-pass-app.cjs',
+    'hall-pass:test points to expected regression suite'
+  );
+}
+
+let passConfig = null;
+try {
+  passConfig = JSON.parse(passConfigText);
+  passes.push('pass-config.json parses');
+} catch {
+  failures.push('pass-config.json parses');
+}
+
+if (passConfig) {
+  ok(
+    typeof passConfig.studentAppUrl === 'string' &&
+      /^https:\/\/script\.google\.com\/a\/macros\/mtmorrisschools\.org\/.+\/exec$/.test(passConfig.studentAppUrl),
+    'public config points at the domain-restricted Apps Script /exec URL'
+  );
+}
+
+// These checks guard against known documentation/source drift without claiming that
+// CI can inspect private Drive documents or the live Apps Script deployed version.
+ok(!/MIN(?:IMUM)?[_A-Z]*PASS[_A-Z]*SECONDS\s*=\s*10\b/.test(code), 'no active 10-second minimum constant in backend source');
+ok(!/MAX_ACTIVE_PASSES[^\n]*hard.?code[^\n]*1/i.test(code), 'no explicit source comment claiming capacity must be hardcoded to 1');
+
+console.log(`GrantDesk handoff validation: ${passes.length} passed, ${failures.length} failed.`);
+for (const label of passes) console.log(`PASS  ${label}`);
+for (const label of failures) console.error(`FAIL  ${label}`);
+
+if (failures.length) {
+  console.error('\nHandoff map validation failed. Update the map and/or source together; do not silently ignore drift.');
+  process.exit(1);
+}
+
+console.log('\nRepository-side handoff references are internally consistent.');
+console.log('Note: policy agreement with private AI STATE/READ FIRST and exact live Apps Script deployment identity still require the external handoff/release checks.');
