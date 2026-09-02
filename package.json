@@ -8,6 +8,8 @@
     "build": "astro build",
     "check": "astro check",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
+    "handoff:validate": "node scripts/validate-grantdesk-handoff.mjs",
+    "hall-pass:verify": "npm run handoff:validate && npm run hall-pass:test",
     "preview": "astro preview",
     "cold-openers:sync": "node scripts/build-cold-opener-catalog.mjs",
     "detour:validate": "node scripts/validate-detour-shelf.mjs",
