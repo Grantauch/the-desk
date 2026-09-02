@@ -44,18 +44,31 @@ const criticalFunctions = [
   'identifyWithPin',
   'identifyCheckInWithPin',
   'identifyPin_',
+  'verifyStudentPin_',
+  'authorizeStudentAction',
+  'putStudentActionProof_',
+  'consumeStudentActionProof_',
   'selectStudentClass',
   'resolveStudent_',
   'refreshStudentState',
   'startPass',
   'joinPassQueue',
+  'requestBathroomPass',
+  'createBathroomRequest_',
+  'settleWaitingQueue_',
+  'appendPassForStudent_',
   'returnPass',
   'submitDailyCheckIn',
   'getStudentPassAllowance_',
+  'passValidity_',
   'getTeacherState_',
   'teacherStartPass',
   'teacherEndPass',
+  'teacherGetCountablePasses',
+  'teacherVoidPass',
   'teacherApplyUnmatchedEmail',
+  'discoverIdentityReconciliations_',
+  'reconcileKnownIdentityDrift_',
   'ensureWorkbookReady_',
   'setupWorkbook_',
   'closePassForStudent_',
@@ -68,7 +81,10 @@ for (const fn of criticalFunctions) {
   ok(pattern.test(code), `mapped backend function exists: ${fn}`);
 }
 
-ok(/const\s+GD_SCHEMA_VERSION\s*=/.test(code), 'schema version constant exists');
+ok(
+  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-02-a['"]/.test(code),
+  'tracked workbook schema is 2026-09-02-a'
+);
 
 let packageJson = null;
 try {
@@ -83,6 +99,14 @@ if (packageJson) {
     packageJson.scripts?.['hall-pass:test'] === 'node scripts/test-hall-pass-app.cjs',
     'hall-pass:test points to expected regression suite'
   );
+  ok(
+    packageJson.scripts?.['handoff:validate'] === 'node scripts/validate-grantdesk-handoff.mjs',
+    'handoff:validate points to expected validator'
+  );
+  ok(
+    packageJson.scripts?.['hall-pass:verify'] === 'npm run handoff:validate && npm run hall-pass:test',
+    'hall-pass:verify runs handoff validation and Hall Pass regressions'
+  );
 }
 
 let passConfig = null;
@@ -95,14 +119,14 @@ try {
 
 if (passConfig) {
   ok(
-    typeof passConfig.studentAppUrl === 'string' &&
-      /^https:\/\/script\.google\.com\/a\/macros\/mtmorrisschools\.org\/.+\/exec$/.test(passConfig.studentAppUrl),
+    typeof passConfig.studentAppUrl === 'string'
+      && /^https:\/\/script\.google\.com\/a\/macros\/mtmorrisschools\.org\/.+\/exec$/.test(passConfig.studentAppUrl),
     'public config points at the domain-restricted Apps Script /exec URL'
   );
 }
 
-// These checks guard against known documentation/source drift without claiming that
-// CI can inspect private Drive documents or the live Apps Script deployed version.
+// Guard known documentation/source drift without claiming CI can inspect private Drive
+// policy files, production workbook contents, or the exact live Apps Script version.
 ok(!/MIN(?:IMUM)?[_A-Z]*PASS[_A-Z]*SECONDS\s*=\s*10\b/.test(code), 'no active 10-second minimum constant in backend source');
 ok(!/MAX_ACTIVE_PASSES[^\n]*hard.?code[^\n]*1/i.test(code), 'no explicit source comment claiming capacity must be hardcoded to 1');
 
@@ -116,4 +140,4 @@ if (failures.length) {
 }
 
 console.log('\nRepository-side handoff references are internally consistent.');
-console.log('Note: policy agreement with private AI STATE/READ FIRST and exact live Apps Script deployment identity still require the external handoff/release checks.');
+console.log('Note: agreement with private AI STATE/READ FIRST and exact live Apps Script deployment identity still require the external handoff/release checks.');
