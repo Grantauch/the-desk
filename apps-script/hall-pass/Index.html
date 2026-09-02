@@ -77,6 +77,7 @@
       .streak-number { min-width: 72px; color: #04503d; font: 900 44px/1 Georgia, serif; text-align: center; }
       .notice.success { border-color: #b9dfd2; background: var(--green-soft); color: #04503d; }
       .notice.warning { border-color: #e8ce96; background: #fff8e8; }
+      .notice h3 { margin: 0; font: 800 21px/1 Georgia, serif; letter-spacing: -.025em; }
       .handoff { margin: 0; color: var(--muted); font-size: 12px; text-align: center; }
 
       .pin-box { max-width: 430px; margin: 0 auto; text-align: center; }
@@ -97,6 +98,8 @@
       .teacher-section-head p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
       .subcard { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: white; }
       .subcard h3 { margin: 0 0 12px; font: 800 11px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
+      details.subcard > summary { cursor: pointer; font-weight: 900; line-height: 1.4; }
+      details.subcard[open] > summary { margin-bottom: 14px; }
       .active-pass { padding: 15px; border: 1px solid #e2aaa5; border-radius: 12px; background: var(--accent-soft); }
       .active-pass + .active-pass { margin-top: 9px; }
       .active-pass strong { display: block; font-size: 15px; }
@@ -145,6 +148,17 @@
       .compact { min-height: 34px; padding: 0 10px; font-size: 11px; }
       .method { color: var(--muted); font: 700 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .privacy { margin: 16px 2px 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+      dialog { width: min(700px, calc(100% - 24px)); max-height: min(82vh, 760px); padding: 0; border: 1px solid var(--line); border-radius: 17px; background: var(--paper); color: var(--ink); box-shadow: 0 28px 90px rgba(0,0,0,.35); }
+      dialog::backdrop { background: rgba(32,33,39,.58); }
+      .dialog-body { display: grid; gap: 16px; padding: 23px; overflow: auto; }
+      .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+      .dialog-head h2 { margin: 0; font: 800 29px/1 Georgia, serif; letter-spacing: -.035em; }
+      .dialog-close { min-width: 42px; min-height: 42px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: white; font-weight: 900; }
+      .evidence-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+      .evidence-list li { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: white; font-size: 13px; line-height: 1.45; }
+      .review-table { overflow-x: auto; }
+      .review-table td { white-space: normal; }
+      .review-reason { display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; }
 
       @media (max-width: 700px) {
         .shell { width: min(100% - 18px, 940px); padding-top: 18px; }
@@ -172,7 +186,7 @@
         <div id="error" class="error" hidden></div>
         <div id="content" class="loading">checking the pass…</div>
       </section>
-      <p class="privacy" id="privacy-note">Pass history is visible only to the teacher account. Student screens never show another student’s name or previous trips.</p>
+      <p class="privacy" id="privacy-note">Student screens show only the current student’s pass state and, when a limit blocks them, the exact trips counted for that decision. Other students and teacher-only notes stay private.</p>
     </main>
 
     <script>
@@ -191,6 +205,8 @@
 
       let state = null;
       let pinToken = '';
+      let actionProof = '';
+      let authorizedAction = '';
       let screen = 'loading';
       let inFlight = 0;
       let clockSkew = 0;
@@ -269,6 +285,8 @@
       const adoptState = (next) => {
         state = next;
         if (next && next.pinToken) pinToken = next.pinToken;
+        actionProof = next && next.actionProof ? next.actionProof : '';
+        authorizedAction = next && next.authorizedAction ? next.authorizedAction : '';
         if (next && next.serverNow) {
           const server = new Date(next.serverNow).getTime();
           if (!isNaN(server)) clockSkew = server - Date.now();
@@ -388,7 +406,7 @@
         if (!iso) return '—';
         const date = new Date(iso);
         if (isNaN(date)) return '—';
-        return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(date);
+        return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Detroit' }).format(date);
       };
 
       const elapsedSeconds = (iso) => {
@@ -464,6 +482,8 @@
         cancelHandoff();
         clearTimeout(idleHandle);
         pinToken = '';
+        actionProof = '';
+        authorizedAction = '';
         state = null;
         clearError();
         renderPin(message || 'Enter your six-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
@@ -476,6 +496,8 @@
         clearInterval(timerHandle);
         state = null;
         pinToken = '';
+        actionProof = '';
+        authorizedAction = '';
         screen = 'pin';
         content.className = '';
         content.innerHTML = `
@@ -498,15 +520,102 @@
               throw error;
             }
             button.disabled = false;
-            renderResolvedState(purpose);
+            if (state.requiresClassSelection) renderClassSelection();
+            else await completeAuthorizedAction();
           });
         });
+      };
+
+      const completeAuthorizedAction = async () => {
+        const proof = actionProof;
+        const action = authorizedAction;
+        const studentKey = state && state.student ? state.student.key : '';
+        const identityToken = pinToken;
+        if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
+        actionProof = '';
+        authorizedAction = '';
+
+        if (action === 'CHECKIN') {
+          adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
+          renderCheckIn();
+          if (sharedDevice()) scheduleHandoff('Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
+          return;
+        }
+        if (action === 'PASS_REQUEST') {
+          adoptState(await call('requestBathroomPass', proof, studentKey, identityToken));
+          renderStudent();
+          if (sharedDevice()) {
+            const outcome = state.actionOutcome || {};
+            const started = outcome.kind === 'STARTED' || outcome.kind === 'ALREADY_ACTIVE';
+            scheduleHandoff(
+              started
+                ? 'Head out. This screen clears itself for the next student.'
+                : outcome.kind === 'QUEUED'
+                  ? 'Request saved. The line advances automatically; this screen clears for the next student.'
+                  : 'Request checked. This screen clears itself for the next student.',
+              started ? HANDOFF_AFTER_START_MS : HANDOFF_AFTER_RETURN_MS
+            );
+          }
+          return;
+        }
+        if (action === 'RETURN') {
+          adoptState(await call('returnPass', proof, studentKey, identityToken));
+          renderStudent();
+          if (sharedDevice()) scheduleHandoff('Welcome back. This screen clears itself for the next student.', HANDOFF_AFTER_RETURN_MS);
+          return;
+        }
+        throw new Error('Refresh the page before trying that action.');
+      };
+
+      const renderActionPin = (requestedAction, message) => {
+        cancelHandoff();
+        clearInterval(timerHandle);
+        clearError();
+        screen = 'action-pin';
+        const checkIn = requestedAction === 'CHECKIN';
+        const studentKey = state && state.student ? state.student.key : '';
+        const canGoBack = Boolean(state && !state.pinRequired && state.student);
+        content.className = '';
+        content.innerHTML = `
+          <form class="pin-box" id="action-pin-form">
+            <h2>${checkIn ? 'enter PIN to check in.' : 'enter PIN for this action.'}</h2>
+            <p class="message">${escapeHtml(message || (checkIn
+              ? 'A fresh PIN records exactly one daily check-in.'
+              : 'A fresh PIN either requests the bathroom or records your return.'))}</p>
+            <input class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN">
+            <button class="primary" type="submit">${checkIn ? 'check in now' : 'continue'}</button>
+            ${canGoBack ? '<button class="secondary" id="cancel-action-pin" type="button">go back</button>' : ''}
+          </form>`;
+        const input = document.querySelector('#action-pin');
+        input.focus();
+        document.querySelector('#action-pin-form').addEventListener('submit', (event) => {
+          event.preventDefault();
+          const button = event.currentTarget.querySelector('.primary');
+          act(button, async () => {
+            try {
+              adoptState(await call('authorizeStudentAction', input.value, requestedAction, studentKey, getPinAttemptNonce()));
+            } catch (error) {
+              input.select();
+              throw error;
+            }
+            button.disabled = false;
+            if (state.requiresClassSelection) renderClassSelection();
+            else await completeAuthorizedAction();
+          });
+        });
+        const cancel = document.querySelector('#cancel-action-pin');
+        if (cancel) cancel.addEventListener('click', () => (checkIn ? renderCheckIn() : renderStudent()));
+        armIdleReset();
       };
 
       const renderResolvedState = (purpose) => {
         const chosen = purpose || (state && state.purpose) || (APP_MODE === 'checkin' ? 'checkin' : 'pass');
         if (state && state.requiresClassSelection) {
           renderClassSelection();
+          return;
+        }
+        if (state && state.pinRequired) {
+          renderActionPin(chosen === 'checkin' ? 'CHECKIN' : 'AUTO_PASS');
           return;
         }
         if (chosen === 'checkin') renderCheckIn();
@@ -541,8 +650,10 @@
           const button = event.currentTarget;
           const purpose = state.purpose;
           act(button, async () => {
-            adoptState(await call('selectStudentClass', pinToken, studentKey, purpose));
-            renderResolvedState(purpose);
+            adoptState(await call('selectStudentClass', pinToken, studentKey, purpose, actionProof));
+            if (state.requiresClassSelection) renderClassSelection();
+            else if (actionProof) await completeAuthorizedAction();
+            else renderResolvedState(purpose);
           });
         });
         const back = document.querySelector('#class-choice-back');
@@ -563,10 +674,8 @@
         const firstName = firstNameFromDisplayName(state.student.name);
         const statusLabel = ownPass
           ? 'you are out'
-          : queued && state.passAvailable
-            ? 'your turn'
-            : queued
-              ? `#${state.queuePosition} in line`
+          : queued
+              ? `request #${state.queuePosition}`
               : allowance.limitReached
                 ? 'allowance used'
                 : allowance.dailyLimitReached
@@ -581,23 +690,30 @@
           <div class="queue-card" role="status">
             <span class="queue-number">#${escapeHtml(state.queuePosition)}</span>
             <div>
-              <h3>${state.passAvailable ? 'it’s your turn.' : 'your place is saved.'}</h3>
-              <p>${state.passAvailable
-                ? `Press start within ${escapeHtml(state.claimMinutes || 3)} minutes or the line moves on.`
-                : `${escapeHtml(state.queueLength)} student${Number(state.queueLength) === 1 ? '' : 's'} in line. Your number updates automatically without showing anyone else’s name.`}</p>
+              <h3>${state.passAvailable ? 'starting automatically.' : 'your request is saved.'}</h3>
+              <p>${escapeHtml(state.queueLength)} student${Number(state.queueLength) === 1 ? '' : 's'} in line. When a slot opens, your already-verified request starts automatically—no second PIN and no one else’s name shown.</p>
             </div>
           </div>
-          <button class="primary" id="pass-action" ${state.passAvailable ? '' : 'disabled'}>start pass</button>
           <button class="secondary" id="leave-queue">leave the line</button>` : '';
+        const evidence = allowance.blockedEvidence || [];
+        const evidenceRows = evidence.map((pass) => `
+          <li><strong>${escapeHtml(pass.schoolTime || formatClock(pass.outTime))}</strong><br>${pass.status === 'OUT' ? 'Active pass' : pass.durationSeconds == null ? 'Completed pass' : `${escapeHtml(pass.durationSeconds.toFixed ? pass.durationSeconds.toFixed(1) : pass.durationSeconds)} seconds`}</li>`).join('');
+        const evidenceButton = evidence.length
+          ? '<button class="secondary" id="show-allowance-evidence">show the passes counted</button>'
+          : '';
         const blockedHtml = allowance.limitReached ? `
-          <div class="notice warning"><h3>marking-period allowance used.</h3><p>You have used ${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes. Ask Mr. Grant if you need to leave the room.</p></div>` : allowance.dailyLimitReached ? `
-          <div class="notice warning"><h3>today’s allowance used.</h3><p>You have used today’s ${escapeHtml(allowance.dailyLimit)}-pass limit. Ask Mr. Grant if you need to leave the room.</p></div>` : allowance.cooldownActive ? `
-          <div class="notice warning"><h3>wait after returning.</h3><p>Another pass is available in about ${escapeHtml(Math.max(1, Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60)))} minute${Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60) === 1 ? '' : 's'}. Ask Mr. Grant if you need to leave sooner.</p></div>` : '';
+          <div class="notice warning"><h3>marking-period allowance used.</h3><p>You have used ${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes. Ask Mr. Grant if you need to leave the room.</p>${evidenceButton}</div>` : allowance.dailyLimitReached ? `
+          <div class="notice warning"><h3>today’s allowance used.</h3><p>You have used today’s ${escapeHtml(allowance.dailyLimit)}-pass limit. Ask Mr. Grant if you need to leave the room.</p>${evidenceButton}</div>` : allowance.cooldownActive ? `
+          <div class="notice warning"><h3>wait after returning.</h3><p>Another pass is available in about ${escapeHtml(Math.max(1, Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60)))} minute${Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60) === 1 ? '' : 's'}. Ask Mr. Grant if you need to leave sooner.</p>${evidenceButton}</div>` : '';
+        const outcome = state.actionOutcome || null;
+        const outcomeHtml = outcome && outcome.message
+          ? `<div class="notice ${outcome.kind === 'BLOCKED' ? 'warning' : 'success'}" role="status"><p><strong>${escapeHtml(outcome.message)}</strong></p></div>`
+          : '';
         const readyHtml = !ownPass && !queued ? (allowance.blocked ? blockedHtml : state.passAvailable ? `
-          <p class="message">Press the button when you are actually leaving for the ${escapeHtml(String(state.destination || 'restroom').toLowerCase())}.</p>
-          <button class="primary" id="pass-action">start pass</button>` : `
-          <p class="message">The pass is in use. Join the waiting line to save your numbered place; student screens show only their own number.</p>
-          <button class="primary" id="join-queue">join the waiting line</button>`) : '';
+          <p class="message">Enter your PIN when you are actually requesting the ${escapeHtml(String(state.destination || 'restroom').toLowerCase())}. If a slot is open, the pass starts immediately.</p>
+          <button class="primary" id="pass-action">request bathroom</button>` : `
+          <p class="message">The pass is in use. One fresh PIN saves one bathroom request; it will start automatically when a slot opens.</p>
+          <button class="primary" id="pass-action">request bathroom</button>`) : '';
         content.className = '';
         content.innerHTML = `
           <div class="student-head">
@@ -608,6 +724,7 @@
             </div>
             <span class="status-dot ${statusBusy ? 'busy' : ''}">${escapeHtml(statusLabel)}</span>
           </div>
+          ${outcomeHtml}
           ${capped ? `<div class="notice"><p><strong>${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes used this marking period</strong> · ${escapeHtml(allowance.remaining)} remaining</p></div>` : ''}
           ${dailyCapped ? `<div class="notice"><p><strong>${escapeHtml(allowance.todayUsed)} of ${escapeHtml(allowance.dailyLimit)} passes used today</strong> · ${escapeHtml(allowance.dailyRemaining)} remaining</p></div>` : ''}
           <div class="pass-action">
@@ -618,34 +735,18 @@
               </div>
               <button class="primary return" id="pass-action">I’m back</button>` : `${waitingHtml}${queued && allowance.blocked ? blockedHtml : ''}${readyHtml}`}
             ${sharedDevice() ? '<button class="secondary" id="switch-student">different student</button>' : '<button class="secondary" id="use-pin">use a PIN instead</button>'}
-          </div>`;
+          </div>
+          ${evidence.length ? `<dialog id="allowance-evidence-dialog" aria-labelledby="allowance-evidence-title"><div class="dialog-body"><div class="dialog-head"><div><h2 id="allowance-evidence-title">passes counted.</h2><p class="message">These are only your own currently countable trips, using Mt. Morris school time.</p></div><button class="dialog-close" id="close-allowance-evidence" aria-label="Close pass evidence">×</button></div><ul class="evidence-list">${evidenceRows}</ul></div></dialog>` : ''}`;
 
         if (ownPass) startTimer(ownPass.outTime);
 
         const passAction = document.querySelector('#pass-action');
         if (passAction) passAction.addEventListener('click', (event) => {
-          const button = event.currentTarget;
           const wasOut = Boolean(ownPass);
-          act(button, async () => {
-            adoptState(await call(wasOut ? 'returnPass' : 'startPass', pinToken));
-            renderStudent();
-            if (sharedDevice()) {
-              const goingOut = Boolean(state.ownPass);
-              scheduleHandoff(
-                goingOut
-                  ? 'Head out. This screen clears itself for the next student.'
-                  : 'Welcome back. This screen clears itself for the next student.',
-                goingOut ? HANDOFF_AFTER_START_MS : HANDOFF_AFTER_RETURN_MS
-              );
-            }
-          });
+          renderActionPin(wasOut ? 'RETURN' : 'PASS_REQUEST', wasOut
+            ? 'Enter your PIN again to record that you are back.'
+            : 'Enter your PIN once for this bathroom request. If the room is full, the same verified request joins the line automatically.');
         });
-
-        const joinButton = document.querySelector('#join-queue');
-        if (joinButton) joinButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
-          adoptState(await call('joinPassQueue', pinToken));
-          renderStudent();
-        }));
 
         const leaveButton = document.querySelector('#leave-queue');
         if (leaveButton) leaveButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
@@ -657,6 +758,11 @@
         if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN.'));
         const pinButton = document.querySelector('#use-pin');
         if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your PIN if this Chromebook is not signed into your own account.'));
+        const evidenceDialog = document.querySelector('#allowance-evidence-dialog');
+        const evidenceOpen = document.querySelector('#show-allowance-evidence');
+        if (evidenceDialog && evidenceOpen) evidenceOpen.addEventListener('click', () => evidenceDialog.showModal());
+        const evidenceClose = document.querySelector('#close-allowance-evidence');
+        if (evidenceDialog && evidenceClose) evidenceClose.addEventListener('click', () => evidenceDialog.close());
         if (handoffHandle && handoffMessage) showHandoffNote(handoffMessage);
         armIdleReset();
       };
@@ -676,14 +782,14 @@
         setTitle('Daily Check-in');
         const firstName = firstNameFromDisplayName(state.student.name);
         const pointLabel = `+${escapeHtml(state.pointValue)}`;
-        const streak = state.streak || { current: 0, best: 0, checkedInToday: false, weekendProtected: false, atRiskToday: false };
-        const streakMessage = streak.weekendProtected
-          ? 'Weekend protected. Saturday and Sunday never break the count.'
+        const streak = state.streak || { current: 0, best: 0, checkedInToday: false, nonSchoolDayProtected: false, atRiskToday: false };
+        const streakMessage = streak.nonSchoolDayProtected
+          ? 'Non-school day protected. Weekends and official calendar closures never break the count.'
           : streak.checkedInToday
             ? `Today is locked in. Best streak: ${escapeHtml(streak.best)} school day${Number(streak.best) === 1 ? '' : 's'}.`
             : streak.current
               ? `Check in today to keep it going. Best streak: ${escapeHtml(streak.best)} school days.`
-              : 'Check in today to begin a school-day streak. Weekends never break it.';
+              : 'Check in today to begin a school-day streak. Weekends and official no-school days never break it.';
         content.className = '';
         content.innerHTML = `
           <div class="checkin-card">
@@ -734,13 +840,10 @@
           </div>`;
 
         const actionButton = document.querySelector('#checkin-action');
-        if (actionButton) actionButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
-          adoptState(await call('submitDailyCheckIn', pinToken));
-          renderCheckIn();
-          if (sharedDevice()) {
-            scheduleHandoff('Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
-          }
-        }));
+        if (actionButton) actionButton.addEventListener('click', () => renderActionPin(
+          'CHECKIN',
+          'Enter your PIN once to record today’s attendance check-in and point.'
+        ));
 
         const refreshButton = document.querySelector('#checkin-refresh');
         if (refreshButton) refreshButton.addEventListener('click', (event) => act(event.currentTarget, async () => {
@@ -763,6 +866,7 @@
       let teacherEmailResult = null;
       let teacherNotice = '';
       let teacherRosterResult = null;
+      let teacherPassReview = null;
       let clearRosterDraft = false;
 
       const teacherFieldValue = (selector) => {
@@ -789,6 +893,7 @@
         'roster-student-email',
         'roster-class-period',
         'roster-filter',
+        'pass-correction-reason',
       ];
       const TEACHER_STALE_MS = 40000;
       let teacherLastRefresh = Date.now();
@@ -815,8 +920,8 @@
           rosterEmail: teacherFieldValue('#roster-student-email'),
           rosterClass: teacherFieldValue('#roster-class-period'),
           rosterFilter: teacherFieldValue('#roster-filter'),
-          detailsOpen: Boolean(document.querySelector('#pass-count-details') && document.querySelector('#pass-count-details').open),
-          rosterDetailsOpen: Boolean(document.querySelector('#roster-details') && document.querySelector('#roster-details').open),
+          detailsOpen: Object.fromEntries([...document.querySelectorAll('details[data-teacher-details][id]')]
+            .map((details) => [details.id, details.open])),
           scrollY: window.scrollY,
           focusId,
           caret,
@@ -843,10 +948,10 @@
         apply('#roster-student-email', snapshot.rosterEmail);
         apply('#roster-class-period', snapshot.rosterClass);
         apply('#roster-filter', snapshot.rosterFilter);
-        const details = document.querySelector('#pass-count-details');
-        if (details) details.open = snapshot.detailsOpen;
-        const rosterDetails = document.querySelector('#roster-details');
-        if (rosterDetails) rosterDetails.open = snapshot.rosterDetailsOpen;
+        Object.entries(snapshot.detailsOpen || {}).forEach(([id, open]) => {
+          const details = document.getElementById(id);
+          if (details) details.open = Boolean(open);
+        });
         if (snapshot.passFilter) filterPassCounts(snapshot.passFilter);
         if (snapshot.attendanceFilter) filterAttendanceRows(snapshot.attendanceFilter);
         if (snapshot.rosterFilter) filterRosterRows(snapshot.rosterFilter);
@@ -863,6 +968,7 @@
       };
 
       const teacherIsEditing = () => {
+        if (document.querySelector('dialog[open]')) return true;
         const node = document.activeElement;
         if (!node || !TEACHER_TEXT_FIELDS.includes(node.id)) return false;
         // A cursor parked in a box may delay the board, never strand it.
@@ -959,7 +1065,8 @@
             <td>${pass.status === 'OUT' ? 'out now' : formatClock(pass.returnTime)}</td>
             <td>${pass.minutesOut == null ? '—' : `${escapeHtml(pass.minutesOut)} min`}</td>
             <td class="method">${escapeHtml(pass.method)}</td>
-          </tr>`).join('') : '<tr><td colspan="6">No passes logged today.</td></tr>';
+            <td>${pass.voidedAt ? 'corrected · not counted' : pass.status === 'OUT' ? 'provisional' : pass.countability === 'NON_COUNTABLE' ? 'not counted' : 'countable'}</td>
+          </tr>`).join('') : '<tr><td colspan="7">No passes logged today.</td></tr>';
 
         const studentPassRows = state.studentPassUsage && state.studentPassUsage.length ? state.studentPassUsage.map((student) => `
           <tr data-pass-row="${escapeHtml(`${student.name} ${(student.classes || []).join(' ')}`.toLowerCase())}">
@@ -969,7 +1076,8 @@
             <td class="num">${escapeHtml(student.used)}</td>
             <td class="num">${student.unlimited || !student.limit ? '—' : escapeHtml(student.remaining)}</td>
             <td class="classes">${escapeHtml((student.classes || []).join(' · '))}</td>
-          </tr>`).join('') : '<tr><td colspan="6">No active students are on the roster.</td></tr>';
+            <td><button class="secondary compact" data-review-passes="${escapeHtml(student.email)}">review count</button></td>
+          </tr>`).join('') : '<tr><td colspan="7">No active students are on the roster.</td></tr>';
 
         const unmatched = state.unmatchedSignIns || [];
         const unmatchedHtml = unmatched.length ? `
@@ -1049,6 +1157,25 @@
           <div class="notice warning email-preview"><p><strong>${escapeHtml(teacherPinPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(teacherPinPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(teacherPinPreview.subject)}</p><p>${escapeHtml(teacherPinPreview.example)}</p></div>` : '';
         const emailResultHtml = teacherEmailResult ? `
           <div class="notice ${teacherEmailResult.failedRecipients ? 'warning' : 'success'}"><p><strong>${escapeHtml(teacherEmailResult.message)}</strong></p>${teacherEmailResult.failures && teacherEmailResult.failures.length ? `<p>${teacherEmailResult.failures.map(escapeHtml).join('<br>')}</p>` : ''}</div>` : '';
+        const reviewPassRows = teacherPassReview && teacherPassReview.passes && teacherPassReview.passes.length
+          ? teacherPassReview.passes.map((pass) => `
+            <tr>
+              <td><input type="radio" name="pass-correction" value="${escapeHtml(pass.passId)}" ${pass.status === 'OUT' ? 'disabled' : ''} aria-label="Select pass from ${escapeHtml(pass.schoolTime)}"></td>
+              <td>${escapeHtml(pass.schoolTime)}</td>
+              <td>${escapeHtml(pass.classPeriod)}</td>
+              <td>${pass.status === 'OUT' ? 'active now' : pass.minutesOut == null ? 'completed' : `${escapeHtml(pass.minutesOut)} min`}</td>
+              <td class="method">${escapeHtml(pass.authorizationMethod || pass.method || 'legacy')}</td>
+            </tr>`).join('')
+          : '<tr><td colspan="5">No currently countable passes are in this marking-period window.</td></tr>';
+        const passReviewDialogHtml = teacherPassReview ? `
+          <dialog id="pass-review-dialog" aria-labelledby="pass-review-title">
+            <div class="dialog-body">
+              <div class="dialog-head"><div><h2 id="pass-review-title">${escapeHtml(teacherPassReview.studentName)}.</h2><p class="message">${escapeHtml(teacherPassReview.used)} currently countable of ${teacherPassReview.limit ? escapeHtml(teacherPassReview.limit) : 'no set limit'}. Original rows, times, and authorization facts remain preserved after a correction.</p></div><button class="dialog-close" id="close-pass-review" aria-label="Close pass review">×</button></div>
+              <div class="review-table"><table><thead><tr><th>choose</th><th>school time</th><th>class</th><th>duration</th><th>authorized</th></tr></thead><tbody>${reviewPassRows}</tbody></table></div>
+              <label class="review-reason">Reason for correction<input type="text" id="pass-correction-reason" maxlength="300" autocomplete="off" placeholder="Required; stored in the private audit"></label>
+              <button class="primary" id="apply-pass-correction" ${teacherPassReview.passes && teacherPassReview.passes.some((pass) => pass.status !== 'OUT') ? '' : 'disabled'}>mark selected pass not countable</button>
+            </div>
+          </dialog>` : '';
 
         const roomStatusHtml = `
           <div class="checkin-summary">
@@ -1086,44 +1213,50 @@
               <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded · ${absentToday.length} marked absent · one point maximum per class membership each day</p></div>
             </div>
             <div class="checkin-summary">${summaryHtml}</div>
-            <div class="teacher-grid">
-              <section class="subcard log"><h3>today’s private check-in log</h3><table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>streak</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table></section>
-              <section class="subcard"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
-            </div>
-            <div class="subcard" style="margin-top:18px"><label>Find a student or class<input type="search" id="attendance-filter" placeholder="filter both attendance lists" aria-label="Filter attendance lists"></label></div>
-            <div class="teacher-grid" style="margin-top:18px">
-              <section class="subcard log"><h3>students not checked in</h3><p class="message">Look for the student first. Mark here records today’s check-in; mark absent keeps them out of the unmarked list without deleting any history.</p><table><thead><tr><th>student</th><th>class</th><th class="action">attendance helper</th></tr></thead><tbody>${notCheckedRows}</tbody></table></section>
-              <section class="subcard log"><h3>marked absent today</h3><p class="message">If a student arrives late, mark here. That clears the absence and records the actual arrival time. Clear absent returns them to the unmarked list.</p><table><thead><tr><th>student</th><th>class</th><th>marked</th><th class="action">attendance helper</th></tr></thead><tbody>${absentRows}</tbody></table></section>
-            </div>
+            <section class="subcard" style="margin-top:18px"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
+            <details class="subcard log" id="checkin-log-details" data-teacher-details style="margin-top:18px">
+              <summary>today’s private check-in log · ${escapeHtml(state.checkInsToday.length)}</summary>
+              <table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>streak</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table>
+            </details>
+            <details class="subcard log" id="attendance-lists-details" data-teacher-details style="margin-top:18px">
+              <summary>students not checked in (${escapeHtml(notChecked.length)}) and marked absent (${escapeHtml(absentToday.length)})</summary>
+              <label>Find a student or class<input type="search" id="attendance-filter" placeholder="filter both attendance lists" aria-label="Filter attendance lists"></label>
+              <div class="teacher-grid" style="margin-top:18px">
+                <section><h3>students not checked in</h3><p class="message">Mark here records today’s check-in; mark absent keeps the student out of the unmarked list without deleting history.</p><table><thead><tr><th>student</th><th>class</th><th class="action">attendance helper</th></tr></thead><tbody>${notCheckedRows}</tbody></table></section>
+                <section><h3>marked absent today</h3><p class="message">If a student arrives late, mark here. Clear absent returns them to the unmarked list.</p><table><thead><tr><th>student</th><th>class</th><th>marked</th><th class="action">attendance helper</th></tr></thead><tbody>${absentRows}</tbody></table></section>
+              </div>
+            </details>
           </section>
           ${unmatchedHtml}
           <section class="teacher-section">
             <div class="teacher-section-head"><div><h3>class rosters.</h3><p>${state.roster.length} active class enrollment${state.roster.length === 1 ? '' : 's'} · changes immediately update daily check-in and hall pass</p></div></div>
-            <div class="subcard roster-add" style="margin-top:18px"><h3>add or reactivate a student</h3><div class="override">
-              <div class="roster-add-grid">
-                <label>Student name<input type="text" id="roster-student-name" maxlength="120" autocomplete="off" placeholder="Last, First"></label>
-                <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="student@students.mtmorrisschools.org"></label>
-                <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="choose or type a class"><datalist id="teacher-class-options">${classOptions}</datalist></label>
-              </div>
-              <p class="message">Existing students keep the same PIN in every class. A brand-new student gets one PIN automatically and appears in PIN delivery.</p>
-              <button class="primary" id="teacher-add-student">add student to class</button>
-              ${rosterResultHtml}
-            </div></div>
-            <details class="subcard log" id="roster-details">
-              <summary><strong>view or remove active students</strong></summary>
+            <details class="subcard log" id="roster-details" data-teacher-details style="margin-top:18px">
+              <summary>add, reactivate, view, or remove students</summary>
+              <div class="roster-add"><h3>add or reactivate a student</h3><div class="override">
+                <div class="roster-add-grid">
+                  <label>Student name<input type="text" id="roster-student-name" maxlength="120" autocomplete="off" placeholder="Last, First"></label>
+                  <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="student@students.mtmorrisschools.org"></label>
+                  <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="choose or type a class"><datalist id="teacher-class-options">${classOptions}</datalist></label>
+                </div>
+                <p class="message">Existing students keep the same PIN in every class. A brand-new student gets one PIN automatically and appears in PIN delivery.</p>
+                <button class="primary" id="teacher-add-student">add student to class</button>
+                ${rosterResultHtml}
+              </div></div>
               <p class="message" style="margin:12px 0">Removing a student turns off only that class membership. Private check-in and pass history stays intact, and re-adding the same student restores their existing PIN.</p>
               <input type="search" id="roster-filter" placeholder="filter by student, email, or class" aria-label="Filter class roster">
               <table class="roster-table" style="margin-top:12px"><thead><tr><th>student</th><th>class</th><th>school email</th><th class="action">action</th></tr></thead><tbody>${rosterRows}</tbody></table>
             </details>
           </section>
           <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day private history · maximum ${state.maxActivePasses} out at once · ${passPolicy.limit ? `${passPolicy.limit} per marking period` : 'no marking-period cap'} · ${passPolicy.dailyLimit ? `${passPolicy.dailyLimit} per day` : 'no daily cap'} · ${passPolicy.cooldownMinutes ? `${passPolicy.cooldownMinutes}-minute cooldown` : 'no cooldown'}</p></div></div>
+            <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day operational window plus permanent Pass Audit · maximum ${state.maxActivePasses} out at once · ${passPolicy.limit ? `${passPolicy.limit} per marking period` : 'no marking-period cap'} · ${passPolicy.dailyLimit ? `${passPolicy.dailyLimit} per day` : 'no daily cap'} · ${passPolicy.cooldownMinutes ? `${passPolicy.cooldownMinutes}-minute cooldown` : 'no cooldown'}</p></div></div>
             <div class="teacher-grid">
               <section class="subcard"><h3>out right now</h3>${activeHtml}</section>
-              <section class="subcard"><h3>waiting line</h3>${queueHtml}<p class="message" style="margin-top:12px;font-size:12px">A student at the front has ${escapeHtml(state.queueClaimMinutes || 3)} minutes to start before the line moves on.</p></section>
+              <section class="subcard"><h3>waiting line</h3>${queueHtml}<p class="message" style="margin-top:12px;font-size:12px">Each request was already PIN-verified and advances automatically when a slot opens. No second student PIN is needed.</p></section>
             </div>
-            <div class="teacher-grid">
-              <section class="subcard"><h3>pass limits</h3><div class="override">
+            <details class="subcard" id="pass-controls-details" data-teacher-details style="margin-top:18px">
+              <summary>pass rules, teacher backup, and sound</summary>
+              <div class="teacher-grid">
+              <section><h3>pass limits</h3><div class="override">
                 <div class="field-grid">
                   <label>Out at once<input type="number" id="max-active-passes" min="1" max="10" step="1" value="${escapeHtml(state.maxActivePasses)}"></label>
                   <label>Per marking period<input type="number" id="student-pass-limit" min="0" max="500" step="1" value="${escapeHtml(passPolicy.limit)}"></label>
@@ -1135,26 +1268,28 @@
                 <p class="message">Use 0 to turn off the marking-period limit, daily limit, or cooldown. The forgotten-pass warning must be at least the late-warning time. Teacher backup passes can override a student limit when you decide it is appropriate. Last marking-period reset: ${escapeHtml(resetLabel)}.</p>
                 <div class="button-row"><button class="secondary" id="save-pass-limits">save pass rules</button><button class="secondary danger" id="reset-student-pass-counters">reset every student to zero</button></div>
               </div></section>
-              <section class="subcard"><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
-              <section class="subcard"><h3>sign-out sound</h3><div class="override">
+              <section><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
+              <section><h3>sign-out sound</h3><div class="override">
                 <div class="sound-row">
                   <label>Sound on this teacher device<select id="teacher-pass-sound">${soundOptions}</select></label>
                   <button class="secondary" id="test-pass-sound">test sound</button>
                 </div>
                 <p class="message">Plays when a new student signs out. Use the test button once after opening the dashboard if the browser needs permission to make sound.</p>
               </div></section>
-            </div>
+              </div>
+            </details>
             ${repeatTripsHtml}
-            <details class="subcard log" id="pass-count-details" style="margin-bottom:18px">
+            <details class="subcard log" id="pass-count-details" data-teacher-details style="margin:18px 0">
               <summary><strong>every student’s pass count and unlimited setting</strong></summary>
               <p class="message" style="margin:12px 0">${unverifiedCount} student${unverifiedCount === 1 ? ' has' : 's have'} never been recognized by their Google account and can only get in by PIN, which usually means the roster address is wrong. ${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. A checked box exempts that student from the per-student limit in every one of your classes. This setting lives only in your private workbook and never appears on a student screen.</p>
               <input type="search" id="pass-count-filter" placeholder="filter by name or class" aria-label="Filter students">
-              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>unlimited</th><th>student</th><th>today</th><th>period used</th><th>period left</th><th>classes</th></tr></thead><tbody>${studentPassRows}</tbody></table>
+              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>unlimited</th><th>student</th><th>today</th><th>period used</th><th>period left</th><th>classes</th><th>evidence</th></tr></thead><tbody>${studentPassRows}</tbody></table>
             </details>
-            <section class="subcard log"><h3>today’s private pass log</h3><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th></tr></thead><tbody>${logRows}</tbody></table></section>
+            <details class="subcard log" id="pass-log-details" data-teacher-details><summary>today’s private pass log · ${escapeHtml(state.today.length)}</summary><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th><th>countability</th></tr></thead><tbody>${logRows}</tbody></table></details>
           </section>
-          <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>PIN delivery.</h3><p>Private individual emails from your school account; no student sees anyone else’s PIN.</p></div></div>
+          <details class="teacher-section subcard" id="pin-delivery-details" data-teacher-details>
+            <summary>PIN delivery · ${escapeHtml(pinEmail.readyRecipients)} ready · ${escapeHtml(pinEmail.sentRecipients)} sent</summary>
+            <p class="message">Private individual emails from your school account; no student sees anyone else’s PIN.</p>
             <div class="checkin-summary">
               <div class="summary-tile"><strong>${escapeHtml(pinEmail.readyRecipients)}</strong><span>student emails ready</span></div>
               <div class="summary-tile"><strong>${escapeHtml(pinEmail.sentRecipients)}</strong><span>student PINs sent</span></div>
@@ -1166,7 +1301,8 @@
               <div class="button-row"><button class="secondary" id="preview-pin-emails">preview PIN emails</button><button class="primary" id="send-pin-emails" ${pinEmail.readyRecipients ? '' : 'disabled'}>email unsent PINs</button></div>
               ${pinPreviewHtml}${emailResultHtml}
             </div></div>
-          </section>`;
+          </details>
+          ${passReviewDialogHtml}`;
 
         clearInterval(timerHandle);
         timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => {
@@ -1292,6 +1428,11 @@
           });
         }));
 
+        document.querySelectorAll('[data-review-passes]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
+          teacherPassReview = await call('teacherGetCountablePasses', button.dataset.reviewPasses);
+          renderTeacher();
+        })));
+
         const filterBox = document.querySelector('#pass-count-filter');
         if (filterBox) filterBox.addEventListener('input', () => filterPassCounts(filterBox.value));
         const attendanceFilter = document.querySelector('#attendance-filter');
@@ -1358,6 +1499,28 @@
           });
         });
 
+        const passReviewDialog = document.querySelector('#pass-review-dialog');
+        if (passReviewDialog) {
+          passReviewDialog.addEventListener('close', () => { teacherPassReview = null; });
+          document.querySelector('#close-pass-review').addEventListener('click', () => passReviewDialog.close());
+          document.querySelector('#apply-pass-correction').addEventListener('click', (event) => {
+            const selected = document.querySelector('input[name="pass-correction"]:checked');
+            const reason = document.querySelector('#pass-correction-reason').value.trim();
+            if (!selected) { showError('Choose a completed pass to correct.'); return; }
+            if (!reason) { showError('Enter a short reason for the correction.'); document.querySelector('#pass-correction-reason').focus(); return; }
+            act(event.currentTarget, async () => {
+              const next = await call('teacherVoidPass', selected.value, reason);
+              teacherPassReview = null;
+              passReviewDialog.close();
+              adoptState(next);
+              renderTeacher();
+            });
+          });
+          passReviewDialog.showModal();
+          const reasonField = document.querySelector('#pass-correction-reason');
+          if (reasonField) reasonField.focus();
+        }
+
         stampTeacher();
         restoreTeacherUi(snapshot);
         if (clearRosterDraft) {
@@ -1414,6 +1577,7 @@
 
       const refreshStudent = async () => {
         if (inFlight || screen !== 'student') return;
+        if (document.querySelector('dialog[open]')) return;
         if (!state || !state.recognized || state.requiresClassSelection) return;
         if (!studentPollDue()) return;
         try {
