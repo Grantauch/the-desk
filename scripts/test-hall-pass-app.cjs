@@ -7,10 +7,16 @@ const root = path.resolve(__dirname, '..');
 const codePath = path.join(root, 'apps-script', 'hall-pass', 'Code.gs');
 const htmlPath = path.join(root, 'apps-script', 'hall-pass', 'Index.html');
 const manifestPath = path.join(root, 'apps-script', 'hall-pass', 'appsscript.json');
+const passPagePath = path.join(root, 'src', 'pages', 'pass.astro');
+const checkInPagePath = path.join(root, 'src', 'pages', 'check-in.astro');
+const toolsPagePath = path.join(root, 'src', 'pages', 'tools.astro');
 
 const code = fs.readFileSync(codePath, 'utf8');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const passPage = fs.readFileSync(passPagePath, 'utf8');
+const checkInPage = fs.readFileSync(checkInPagePath, 'utf8');
+const toolsPage = fs.readFileSync(toolsPagePath, 'utf8');
 
 new vm.Script(code, { filename: codePath });
 const scriptBlocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
@@ -25,8 +31,19 @@ const functionSource = (name) => {
   let opened = false;
   let quote = '';
   let escaped = false;
+  let lineComment = false;
+  let blockComment = false;
   for (let index = start; index < code.length; index += 1) {
     const char = code[index];
+    const next = code[index + 1];
+    if (lineComment) {
+      if (char === '\n') lineComment = false;
+      continue;
+    }
+    if (blockComment) {
+      if (char === '*' && next === '/') { blockComment = false; index += 1; }
+      continue;
+    }
     if (escaped) {
       escaped = false;
       continue;
@@ -36,6 +53,8 @@ const functionSource = (name) => {
       else if (char === quote) quote = '';
       continue;
     }
+    if (char === '/' && next === '/') { lineComment = true; index += 1; continue; }
+    if (char === '/' && next === '*') { blockComment = true; index += 1; continue; }
     if (char === '"' || char === "'" || char === '`') {
       quote = char;
       continue;
@@ -51,7 +70,12 @@ const functionSource = (name) => {
   throw new Error(`Could not isolate function ${name}`);
 };
 
-assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-01-b'/);
+assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-02-a'/);
+assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
+assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
+assert.match(code, /INSTRUCTIONS:\s*'Instructions'/);
+assert.match(code, /AUDIT:\s*'Pass Audit'/);
+assert.match(code, /CALENDAR:\s*'School Calendar'/);
 assert.match(code, /UNMATCHED:\s*'Unmatched Sign-ins'/);
 assert.match(code, /function teacherApplyUnmatchedEmail/);
 assert.match(code, /function teacherAddStudentClass/);
@@ -70,9 +94,15 @@ assert.ok(
   setupProject.indexOf('assertTeacher_') < setupProject.indexOf("setProperty('SPREADSHEET_ID'"),
   'Project setup must authorize before changing script properties or workbook state'
 );
+assert.match(
+  setupProject,
+  /try\s*\{[\s\S]*SpreadsheetApp\.getUi\(\)[\s\S]*\}\s*catch\s*\(error\)/,
+  'Project setup must finish cleanly when an editor/API run has no spreadsheet UI'
+);
+assert.match(setupProject, /return\s*\{\s*ok:\s*true,\s*schemaVersion:\s*GD_SCHEMA_VERSION\s*\}/);
 
 const studentState = functionSource('getStudentState_');
-assert.match(studentState, /passAllowance:\s*studentAllowanceView_\(allowance\)/);
+assert.match(studentState, /passAllowance:\s*studentAllowanceView_\(allowance,\s*Boolean\(detail\.includeEvidence\)\)/);
 assert.doesNotMatch(studentState, /passAllowance:\s*allowance\b/);
 
 const allowanceView = functionSource('studentAllowanceView_');
@@ -107,8 +137,10 @@ assert.match(passSnapshot, /safeDateKey_\(pass\.outDate\)\s*===\s*todayKey/);
 assert.match(functionSource('expirePreviousDayPasses_'), /'ROLLED_OVER'/);
 
 const pinIdentify = functionSource('identifyPin_');
-assert.match(pinIdentify, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce\)/);
-assert.match(pinIdentify, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\)/);
+assert.match(pinIdentify, /verifyStudentPin_\(pin,\s*activeEmail,\s*attemptNonce\)/);
+const pinVerifier = functionSource('verifyStudentPin_');
+assert.match(pinVerifier, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce\)/);
+assert.match(pinVerifier, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\)/);
 
 const pinSessionWriter = functionSource('putPinSession_');
 assert.match(pinSessionWriter, /signTokenPart_/);
@@ -116,9 +148,56 @@ assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
 assert.match(functionSource('readPinSession_'), /secureEquals_/);
 
 const queueReader = functionSource('readWaitingQueue_');
-assert.match(queueReader, /getQueueTurnStarted_/);
-assert.match(queueReader, /setQueueTurnStarted_/);
+assert.doesNotMatch(queueReader, /getQueueTurnStarted_|setQueueTurnStarted_/);
 assert.doesNotMatch(queueReader, /CacheService\.getScriptCache/);
+assert.match(queueReader, /status\s*===\s*'WAITING'/);
+
+const actionProofWriter = functionSource('putStudentActionProof_');
+const actionProofConsumer = functionSource('consumeStudentActionProof_');
+assert.match(actionProofWriter, /student-action:/);
+assert.match(actionProofWriter, /signTokenPart_/);
+assert.match(actionProofConsumer, /deleteProperty\(propertyKey\)/, 'A protected action must consume its one-use proof');
+assert.match(actionProofConsumer, /proof\.action\s*!==\s*action/);
+for (const [name, action] of [
+  ['submitDailyCheckIn', 'CHECKIN'],
+  ['requestBathroomPass', 'PASS_REQUEST'],
+  ['returnPass', 'RETURN'],
+]) {
+  assert.match(functionSource(name), new RegExp(`consumeStudentActionProof_\\([\\s\\S]*GD_STUDENT_ACTIONS\\.${action}`));
+}
+assert.match(functionSource('startPass'), /page is out of date/i);
+assert.match(functionSource('joinPassQueue'), /page is out of date/i);
+
+const queueSettlement = functionSource('settleWaitingQueue_');
+assert.match(queueSettlement, /appendPassForStudent_/);
+assert.match(queueSettlement, /Verified bathroom request advanced automatically/);
+assert.doesNotMatch(queueSettlement, /verifyStudentPin_|putStudentActionProof_|consumeStudentActionProof_/, 'Queue promotion must not verify or request another PIN');
+
+const purgePasses = functionSource('purgeOldPasses_');
+assert.ok(
+  purgePasses.indexOf('auditSheet.appendRow') < purgePasses.indexOf('sheet.deleteRow'),
+  'A completed hot row must be copied into Pass Audit before it is removed from Pass Log'
+);
+assert.match(purgePasses, /archivedIds/);
+assert.match(functionSource('teacherVoidPass'), /getRange\(pass\.row,\s*19,\s*1,\s*3\)/);
+assert.doesNotMatch(functionSource('teacherVoidPass'), /deleteRow|clearContent/);
+const identityReconciliation = functionSource('reconcileKnownIdentityDrift_');
+assert.match(identityReconciliation, /discoverIdentityReconciliations_/);
+assert.match(identityReconciliation, /IDENTITY_RECONCILIATION_LAST_CHECK/);
+assert.match(identityReconciliation, /previousRepairIsMeaningful/);
+assert.match(functionSource('discoverIdentityReconciliations_'), /hashPin_\(card\.pin\)/);
+assert.match(functionSource('moveStudentIdentity_'), /NEEDS_RESEND/);
+assert.match(functionSource('moveStudentIdentity_'), /GD_SHEETS\.AUDIT/);
+assert.match(functionSource('getSchoolCalendarIndex_'), /GD_SHEETS\.CALENDAR/);
+assert.match(functionSource('seedOfficialSchoolCalendar_'), /GD_OFFICIAL_CALENDAR_2026_27/);
+const workbookSetup = functionSource('setupWorkbook_');
+assert.match(workbookSetup, /setSettingDescription_\([\s\S]*'RETENTION_DAYS'[\s\S]*permanent Pass Audit/);
+assert.match(workbookSetup, /refreshWorkbookInstructions_\(\)/);
+const workbookInstructions = functionSource('refreshWorkbookInstructions_');
+assert.match(workbookInstructions, /fresh student PIN/);
+assert.match(workbookInstructions, /without a second PIN or start button/);
+assert.match(workbookInstructions, /under 3\.0 seconds/);
+assert.match(workbookInstructions, /Preserve the current \/exec URL/);
 
 const unmatchedRecorder = functionSource('recordUnmatchedSignIn_');
 assert.match(unmatchedRecorder, /withLock_/);
@@ -150,6 +229,21 @@ assert.match(html, /data-clear-absence/);
 assert.match(html, /daily-pass-limit/);
 assert.match(html, /pass-cooldown-minutes/);
 assert.match(html, /playIfNewPassStarted/);
+assert.match(html, /authorizeStudentAction/);
+assert.match(html, /requestBathroomPass/);
+assert.match(html, /completeAuthorizedAction/);
+assert.doesNotMatch(html, /call\('startPass'/);
+assert.doesNotMatch(html, /call\('joinPassQueue'/);
+assert.match(html, /advances automatically/);
+assert.match(html, /data-teacher-details/);
+assert.match(html, /pass-review-dialog/);
+assert.match(html, /show the passes counted/);
+assert.match(html, /timeZone:\s*'America\/Detroit'/);
+assert.match(passPage, /fresh PIN/i);
+assert.match(passPage, /no second PIN/i);
+assert.match(checkInPage, /fresh six-digit PIN/i);
+assert.match(checkInPage, /official no-school days/i);
+assert.match(toolsPage, /automatic line/i);
 
 assert.equal(manifest.runtimeVersion, 'V8');
 assert.equal(manifest.webapp.executeAs, 'USER_DEPLOYING');
@@ -193,6 +287,7 @@ assert.deepEqual(
     cooldownRemainingSeconds: 0,
     nextAllowedAt: '',
     blocked: false,
+    blockedReason: '',
   }
 );
 assert.equal(Object.hasOwn(privateAllowance, 'unlimited'), false);
@@ -215,6 +310,51 @@ assert.throws(
 assert.throws(
   () => context.__gdTest.normalizeRosterInput_('Student, Jordan', 'student@example.com', 'Period 1', { STUDENT_EMAIL_DOMAIN: 'students.mtmorrisschools.org' }),
   /must end in/
+);
+
+const proofStore = new Map();
+const proofProperties = {
+  setProperty(key, value) { proofStore.set(key, String(value)); },
+  getProperty(key) { return proofStore.has(key) ? proofStore.get(key) : null; },
+  deleteProperty(key) { proofStore.delete(key); },
+  getProperties() { return Object.fromEntries(proofStore); },
+};
+const proofContext = {
+  PropertiesService: { getScriptProperties: () => proofProperties },
+  Utilities: { getUuid: () => 'proof-nonce-1' },
+};
+vm.createContext(proofContext);
+vm.runInContext(`${code}
+;this.__gdProof = { putStudentActionProof_, consumeStudentActionProof_ };`, proofContext);
+proofContext.encodeTokenPart_ = (value) => Buffer.from(String(value), 'utf8').toString('base64url');
+proofContext.decodeTokenPart_ = (value) => Buffer.from(String(value), 'base64url').toString('utf8');
+proofContext.signTokenPart_ = (value) => `signature-${value}`;
+proofContext.getStudentByKey_ = (key) => (key === 'student::period-1' ? {
+  key,
+  email: 'student@students.mtmorrisschools.org',
+  name: 'Student, Jordan',
+  classPeriod: 'Period 1',
+} : null);
+const oneUseProof = proofContext.__gdProof.putStudentActionProof_(
+  'student@students.mtmorrisschools.org',
+  'student::period-1',
+  'PASS_REQUEST',
+  'pin'
+);
+assert.equal(proofStore.size, 1);
+assert.throws(
+  () => proofContext.__gdProof.consumeStudentActionProof_(oneUseProof, 'RETURN', 'student::period-1'),
+  /different action/,
+  'An action-bound proof must not authorize a different transaction'
+);
+assert.equal(proofStore.size, 1, 'A wrong-action attempt must not consume the valid intended proof');
+const consumedProof = proofContext.__gdProof.consumeStudentActionProof_(oneUseProof, 'PASS_REQUEST', 'student::period-1');
+assert.equal(consumedProof.student.key, 'student::period-1');
+assert.equal(proofStore.size, 0);
+assert.throws(
+  () => proofContext.__gdProof.consumeStudentActionProof_(oneUseProof, 'PASS_REQUEST', 'student::period-1'),
+  /already used or expired/,
+  'A one-use proof must reject replay'
 );
 
 // Preserve the behavioral coverage that predates the Version 9 recovery. The
@@ -245,6 +385,11 @@ vm.runInContext(`${code}
   recordCheckIn_,
   getPassSnapshot_,
   expirePreviousDayPasses_,
+  classifyPassDuration_,
+  passValidity_,
+  readWaitingQueue_,
+  discoverIdentityReconciliations_,
+  reconcileKnownIdentityDrift_,
 };`, behaviorContext);
 
 const snapshotNow = new Date();
@@ -274,36 +419,106 @@ assert.ok(
   rolloverWrites.some((write) => write.column === 10 && write.values[0][0] === 'ROLLED_OVER'),
   'Prior-day OUT rows must become auditable rollover records'
 );
+assert.ok(
+  rolloverWrites.some((write) => write.column === 13 && write.values[0][0] === 'COUNTABLE'),
+  'A valid prior-day rollover must receive explicit countability metadata'
+);
+
+assert.equal(behaviorContext.__gdBehavior.classifyPassDuration_(2999).countable, false);
+assert.equal(behaviorContext.__gdBehavior.classifyPassDuration_(2999).countability, 'NON_COUNTABLE');
+assert.equal(behaviorContext.__gdBehavior.classifyPassDuration_(3000).countable, true);
+assert.equal(behaviorContext.__gdBehavior.classifyPassDuration_(3000).countability, 'COUNTABLE');
+assert.equal(
+  behaviorContext.__gdBehavior.passValidity_({
+    outDate: new Date('2026-08-25T12:00:00Z'),
+    returnDate: new Date('2026-08-25T12:05:00Z'),
+    status: 'RETURNED',
+    countability: '',
+  }).code,
+  'LEGACY_COUNTABLE',
+  'A historical completed row with blank classification must not be threshold-reclassified'
+);
+assert.equal(behaviorContext.__gdBehavior.passValidity_({
+  outDate: new Date('2026-09-02T12:00:00Z'),
+  returnDate: new Date('2026-09-02T12:00:02Z'),
+  status: 'RETURNED',
+  countability: 'NON_COUNTABLE',
+}).countable, false);
+assert.equal(behaviorContext.__gdBehavior.passValidity_({
+  outDate: new Date('2026-09-02T12:00:00Z'),
+  returnDate: new Date('2026-09-02T12:05:00Z'),
+  status: 'RETURNED',
+  countability: 'COUNTABLE',
+  voidedAt: new Date('2026-09-02T13:00:00Z'),
+  voidReason: 'Teacher correction',
+}).code, 'TEACHER_VOID');
+assert.equal(behaviorContext.__gdBehavior.passValidity_({
+  outDate: new Date('2026-09-02T12:00:00Z'),
+  returnDate: new Date('2026-09-02T12:05:00Z'),
+  status: 'RETURNED',
+  countability: 'PROVISIONAL',
+}).countable, false, 'A returned row left provisional must fail safe for teacher review');
+
+behaviorContext.readPassQueue_ = () => ([
+  { queueId: 'q-1', joinedAt: new Date(Date.now() - 2000), status: 'WAITING' },
+  { queueId: 'q-2', joinedAt: new Date(Date.now() - 1000), status: 'WAITING' },
+]);
+const orderedQueue = behaviorContext.__gdBehavior.readWaitingQueue_({ QUEUE_MAX_WAIT_MINUTES: '20' }, 1);
+assert.equal(orderedQueue.live.map((entry) => entry.queueId).join(','), 'q-1,q-2');
+assert.equal(orderedQueue.live[0].isTurn, true);
+assert.equal(orderedQueue.live[1].isTurn, false);
 
 const checkIn = (dateKey) => ({
   studentKey: 'student::period-1',
   dateKey,
   status: 'CHECKED_IN',
 });
+const weekdayCalendar = { startKey: '', endKey: '', overrides: {} };
 
 const fridayMonday = behaviorContext.__gdBehavior.buildStreakIndex_([
   checkIn('2026-08-21'),
   checkIn('2026-08-24'),
-]).streakFor('student::period-1', '2026-08-24');
+], weekdayCalendar).streakFor('student::period-1', '2026-08-24');
 assert.equal(fridayMonday.current, 2, 'Friday-to-Monday must keep the streak');
 assert.equal(fridayMonday.best, 2);
 
 const mondayAtRisk = behaviorContext.__gdBehavior.buildStreakIndex_([
   checkIn('2026-08-21'),
-]).streakFor('student::period-1', '2026-08-24');
+], weekdayCalendar).streakFor('student::period-1', '2026-08-24');
 assert.equal(mondayAtRisk.current, 1, 'Monday morning must preserve Friday while awaiting today');
 assert.equal(mondayAtRisk.atRiskToday, true);
 
 const missedMonday = behaviorContext.__gdBehavior.buildStreakIndex_([
   checkIn('2026-08-21'),
-]).streakFor('student::period-1', '2026-08-25');
+], weekdayCalendar).streakFor('student::period-1', '2026-08-25');
 assert.equal(missedMonday.current, 0, 'A missed weekday must break the current streak');
 
 const weekend = behaviorContext.__gdBehavior.buildStreakIndex_([
   checkIn('2026-08-21'),
-]).streakFor('student::period-1', '2026-08-23');
+], weekdayCalendar).streakFor('student::period-1', '2026-08-23');
 assert.equal(weekend.current, 1);
 assert.equal(weekend.weekendProtected, true);
+
+const officialClosureCalendar = {
+  startKey: '2026-08-25',
+  endKey: '2027-06-08',
+  overrides: {
+    '2026-09-02': true,
+    '2026-09-04': false,
+    '2026-09-07': false,
+  },
+};
+const laborDayProtected = behaviorContext.__gdBehavior.buildStreakIndex_([
+  checkIn('2026-09-03'),
+  checkIn('2026-09-08'),
+], officialClosureCalendar).streakFor('student::period-1', '2026-09-08');
+assert.equal(laborDayProtected.current, 2, 'Official Friday and Monday closures must protect a Thursday-to-Tuesday streak');
+const reducedDayCounts = behaviorContext.__gdBehavior.buildStreakIndex_([
+  checkIn('2026-09-01'),
+  checkIn('2026-09-02'),
+  checkIn('2026-09-03'),
+], officialClosureCalendar).streakFor('student::period-1', '2026-09-03');
+assert.equal(reducedDayCounts.current, 3, 'An official reduced day remains a school day');
 
 const message = behaviorContext.__gdBehavior.buildPinEmailMessage_(
   {
@@ -333,8 +548,8 @@ const allowance = behaviorContext.__gdBehavior.getStudentPassAllowance_(
   'student@students.mtmorrisschools.org',
   { STUDENT_PASS_LIMIT: '2', STUDENT_PASS_RESET_AT: '2026-08-01T00:00:00Z' },
   [
-    { studentEmail: 'student@students.mtmorrisschools.org', outDate: new Date('2026-08-02T12:00:00Z') },
-    { studentEmail: 'other@students.mtmorrisschools.org', outDate: new Date('2026-08-03T12:00:00Z') },
+    { studentEmail: 'student@students.mtmorrisschools.org', outDate: new Date('2026-08-02T12:00:00Z'), returnDate: new Date('2026-08-02T12:05:00Z'), status: 'RETURNED' },
+    { studentEmail: 'other@students.mtmorrisschools.org', outDate: new Date('2026-08-03T12:00:00Z'), returnDate: new Date('2026-08-03T12:05:00Z'), status: 'RETURNED' },
   ]
 );
 assert.equal(allowance.used, 1);
@@ -344,7 +559,7 @@ assert.equal(allowance.limitReached, false);
 const resetAllowance = behaviorContext.__gdBehavior.getStudentPassAllowance_(
   'student@students.mtmorrisschools.org',
   { STUDENT_PASS_LIMIT: '2', STUDENT_PASS_RESET_AT: '2026-08-04T00:00:00Z' },
-  [{ studentEmail: 'student@students.mtmorrisschools.org', outDate: new Date('2026-08-02T12:00:00Z') }]
+  [{ studentEmail: 'student@students.mtmorrisschools.org', outDate: new Date('2026-08-02T12:00:00Z'), returnDate: new Date('2026-08-02T12:05:00Z'), status: 'RETURNED' }]
 );
 assert.equal(resetAllowance.used, 0, 'Manual reset timestamp must return the student count to zero');
 
@@ -516,6 +731,48 @@ assert.equal(classChoice.requiresClassSelection, true);
 assert.equal(classChoice.classes.length, 2);
 assert.equal(classChoice.pinToken, 'token');
 
+behaviorContext.hashPin_ = (pin) => `hash-${pin}`;
+behaviorContext.readRosterRows_ = () => ([
+  { email: 'current@students.mtmorrisschools.org', name: 'Student, Jordan', classPeriod: 'Period 1', pinHash: 'hash-111111', active: true },
+  { email: 'current@students.mtmorrisschools.org', name: 'Student, Jordan', classPeriod: 'Period 3', pinHash: 'hash-111111', active: true },
+  { email: 'first@students.mtmorrisschools.org', name: 'First Student', classPeriod: 'Period 2', pinHash: 'hash-999999', active: true },
+  { email: 'second@students.mtmorrisschools.org', name: 'Second Student', classPeriod: 'Period 2', pinHash: 'hash-999999', active: true },
+]);
+behaviorContext.readPinCards_ = () => ([
+  { studentEmail: 'stale@students.mtmorrisschools.org', classPeriod: 'Period 1', pin: '111111' },
+  { studentEmail: 'ambiguous@students.mtmorrisschools.org', classPeriod: 'Period 2', pin: '999999' },
+]);
+const discoveredRepairs = behaviorContext.__gdBehavior.discoverIdentityReconciliations_();
+assert.equal(discoveredRepairs.length, 1, 'Only a unique credential-backed identity repair may run automatically');
+assert.equal(discoveredRepairs[0].oldEmail, 'stale@students.mtmorrisschools.org');
+assert.equal(discoveredRepairs[0].newEmail, 'current@students.mtmorrisschools.org');
+
+const priorRepairSummary = JSON.stringify({
+  schema: '2026-09-02-a',
+  reconciledStudents: 10,
+  pinRows: 10,
+  checkInRows: 18,
+  passRows: 2,
+});
+const reconciliationProperties = new Map([
+  ['IDENTITY_RECONCILIATION_LAST', priorRepairSummary],
+]);
+behaviorContext.discoverIdentityReconciliations_ = () => [];
+behaviorContext.PropertiesService = {
+  getScriptProperties: () => ({
+    getProperty: (key) => reconciliationProperties.get(key) || null,
+    setProperty: (key, value) => reconciliationProperties.set(key, value),
+  }),
+};
+const noOpReconciliation = behaviorContext.__gdBehavior.reconcileKnownIdentityDrift_();
+assert.equal(noOpReconciliation.reconciledStudents, 0);
+assert.equal(
+  reconciliationProperties.get('IDENTITY_RECONCILIATION_LAST'),
+  priorRepairSummary,
+  'An idempotent no-op check must not erase the last meaningful identity-repair evidence'
+);
+assert.match(reconciliationProperties.get('IDENTITY_RECONCILIATION_LAST_CHECK'), /"reconciledStudents":0/);
+
 const fakeRoster = [
   { row: 2, key: 'student::period-1', email: 'student@students.mtmorrisschools.org', name: 'Student, Jordan', classPeriod: 'Period 1', pinHash: 'hash-111111' },
   { row: 3, key: 'student::period-3', email: 'student@students.mtmorrisschools.org', name: 'Student, Jordan', classPeriod: 'Period 3', pinHash: 'hash-222222' },
@@ -580,6 +837,14 @@ assert.ok(pinMigration.normalizedMemberships >= 1);
 
 for (const required of [
   'joinPassQueue',
+  'requestBathroomPass',
+  'authorizeStudentAction',
+  'consumeStudentActionProof_',
+  'settleWaitingQueue_',
+  'teacherGetCountablePasses',
+  'teacherVoidPass',
+  'Pass Audit',
+  'School Calendar',
   'queuePosition',
   'teacherSetPassLimits',
   'teacherSetPassRules',
@@ -617,4 +882,4 @@ const absenceClearer = functionSource('clearAbsentEntry_');
 assert.match(absenceClearer, /'CLEARED'/);
 assert.doesNotMatch(absenceClearer, /deleteRow|clearContent/, 'Clearing an absence must preserve the attendance audit trail');
 
-console.log('GrantDesk hall-pass release: PASS — syntax, signed sessions, authorization-before-mutation, locked cleanup, overnight pass rollover, roster management, reversible attendance, student-payload privacy, daily and marking-period limits, cooldowns, teacher overrides, queue position, weekday streaks, sign-out sounds, timers, and guarded PIN email flow verified.');
+console.log('GrantDesk hall-pass release: PASS — syntax, one-use action-bound PIN proofs, automatic verified-request queue advancement, 3.0-second countability boundary, legacy-history preservation, teacher corrections, permanent pass audit, credential-backed identity reconciliation, official-calendar streaks, polling-safe collapsible teacher controls, student evidence privacy, roster/attendance safeguards, capacity and cooldown rules, and guarded PIN delivery verified.');

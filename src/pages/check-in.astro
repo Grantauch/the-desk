@@ -13,7 +13,7 @@ const checkInUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=ch
       daily check-in<span class="text-accent">.</span>
     </h1>
     <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
-      Open the check-in with your school Google account, make sure your name and class are right, and press once. That records today’s attendance check-in and your daily extra-credit point.
+      Open the check-in with your school Google account, confirm the class, and enter your fresh six-digit PIN. That records one attendance check-in and one daily extra-credit point.
     </p>
 
     <section class="checkin-launch mt-9" aria-labelledby="checkin-launch-title">
@@ -21,7 +21,7 @@ const checkInUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=ch
         <p class="checkin-launch__number">+1</p>
         <p class="checkin-launch__eyebrow">one check-in · one day · one point</p>
         <h2 id="checkin-launch-title">eleven seconds. done.</h2>
-        <p>Already checked in today? The system will show your original confirmation instead of adding a duplicate.</p>
+        <p>Already checked in today? A fresh PIN returns your original confirmation instead of adding a duplicate.</p>
       </div>
       {passConfig.checkInEnabled && checkInUrl ? (
         <a href={checkInUrl} target="_blank" rel="noopener" class="checkin-button">check in now <span aria-hidden="true">↗</span></a>
@@ -34,17 +34,17 @@ const checkInUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=ch
       <section class="checkin-step">
         <p class="checkin-step__number">01</p>
         <h2>school account.</h2>
-        <p>Use your mtmorrisschools.org Google account so the private roster can recognize you.</p>
+        <p>Use your mtmorrisschools.org Google account so the private roster can recognize you. Recognition alone does not record the check-in.</p>
       </section>
       <section class="checkin-step">
         <p class="checkin-step__number">02</p>
-        <h2>press once.</h2>
-        <p>GrantDesk supplies the date and time. You do not type your name or choose your own class.</p>
+        <h2>fresh PIN.</h2>
+        <p>Enter your one student PIN for today’s check-in. GrantDesk supplies the official date and time.</p>
       </section>
       <section class="checkin-step">
         <p class="checkin-step__number">03</p>
         <h2>protect the streak.</h2>
-        <p>Wait for the green confirmation and check your school-day streak. Saturday and Sunday never break it.</p>
+        <p>Wait for the green confirmation and check your school-day streak. Weekends and official no-school days never break it; reduced and half days still count.</p>
       </section>
     </div>
 

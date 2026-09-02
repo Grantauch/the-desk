@@ -13,15 +13,15 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       hall pass<span class="text-accent">.</span>
     </h1>
     <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
-      Sign out when you are actually leaving the room. When you get back, end the pass before you sit down.
+      Enter your fresh PIN when you request the bathroom. If the room is full, that same verified request joins the line automatically. Enter your PIN again when you return.
     </p>
 
     <section class="pass-launch mt-9" aria-labelledby="pass-launch-title">
       <div>
         <p class="pass-launch__number">01</p>
-        <p class="pass-launch__eyebrow">school Chromebook</p>
-        <h2 id="pass-launch-title">your Google account does the work.</h2>
-        <p>Open the pass while signed into your school Google account. GrantDesk will recognize you from the class roster.</p>
+        <p class="pass-launch__eyebrow">school Chromebook + fresh PIN</p>
+        <h2 id="pass-launch-title">recognized first. authorized each time.</h2>
+        <p>Your school Google account can find your roster row, but a fresh six-digit PIN is still required for each bathroom request and each return.</p>
       </div>
       {passConfig.enabled && appUrl ? (
         <a href={appUrl} target="_blank" rel="noopener" class="pass-button">open hall pass <span aria-hidden="true">↗</span></a>
@@ -34,7 +34,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       <section class="pass-option">
         <p class="pass-option__number">02</p>
         <h2>PIN + kiosk.</h2>
-        <p>If your own account is not available, enter your one six-digit student PIN at the classroom kiosk. The same PIN works in every Mr. Grant class; multi-class students choose the class after entering it.</p>
+        <p>If your own account is not available, use your one six-digit student PIN at the classroom kiosk. The same PIN works in every Mr. Grant class; multi-class students choose the class after entering it.</p>
         {passConfig.enabled && kioskUrl && (
           <a href={kioskUrl} target="_blank" rel="noopener">open kiosk mode ↗</a>
         )}
@@ -42,7 +42,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       <section class="pass-option">
         <p class="pass-option__number">03</p>
         <h2>numbered line.</h2>
-        <p>If the pass is busy, join the line. You see your own place—not anyone else’s name—and it updates automatically. Once you leave, the timer runs until you press “I’m back.”</p>
+        <p>If the pass is busy, your verified bathroom request enters the line automatically. You see only your own place. When a slot opens, the same request starts—there is no second PIN and no “start” button.</p>
       </section>
       <section class="pass-option">
         <p class="pass-option__number">04</p>
@@ -54,7 +54,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
     <aside class="privacy-note mt-6">
       <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">about the log</h2>
       <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-        Pass history is private. Student screens show only your current pass, timer, and your own queue number—not another student’s name or previous trips.
+        Pass history is private. Student screens show only your current pass, timer, queue position, and—if a limit blocks you—the exact trips counted for your own decision. A completed trip under 3.0 seconds stays in the private audit but does not use a pass.
       </p>
     </aside>
   </div>
