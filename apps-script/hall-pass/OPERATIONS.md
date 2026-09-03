@@ -1,8 +1,8 @@
 # GrantDesk Hall Pass — steady-state operations
 
 Issue #14 is closed and the Version 15 contention release is deployed. This file is the
-current operating checklist. Nothing here is a release blocker; these are the ordinary
-production-care checks and the verification work that is still open.
+current operating checklist, tracked as GitHub Issue #16. Nothing here is a release blocker; these
+are the ordinary production-care checks and the verification work that is still open.
 
 Production fingerprint as of 2026-09-02 (Version 16):
 
