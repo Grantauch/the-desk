@@ -91,7 +91,7 @@ const first = curiosityItems[0];
 
   <div class="curiosity-stage">
     <a class="curiosity-image" href={first.record} target="_blank" rel="noopener" data-link="record">
-      <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} data-field="image" />
+      <img src={first.image} alt={first.alt} style={`object-position: ${first.position};`} loading="lazy" decoding="async" data-field="image" />
       <span class="curiosity-image-fallback" data-field="image-fallback" hidden>archive image unavailable</span>
       <span class="curiosity-date" data-field="date">{first.date}</span>
       <span class="curiosity-record">view the full archive record <span aria-hidden="true">&#8599;</span></span>

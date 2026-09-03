@@ -41,6 +41,26 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
+  # Icons and social cards change only when they are redrawn, and a stale one
+  # for a day is harmless. A day of caching with revalidation keeps repeat
+  # visits cheap without pinning a wrong icon for a year.
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/favicon.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  # The manifest is tiny and drives the home-screen install, so keep it fresh.
+  for = "/site.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
   # The editor is intentionally unlisted, uncached, and locked behind Netlify Identity.
   for = "/editor/*"
   [headers.values]
