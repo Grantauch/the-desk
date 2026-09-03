@@ -73,6 +73,8 @@ const functionSource = (name) => {
 assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-02-a'/);
 assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
 assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
+assert.match(code, /GD_STUDENT_LOCK_WAIT_MS\s*=\s*5000/);
+assert.match(code, /GD_BUSY_LOCK_MESSAGE/);
 assert.match(code, /INSTRUCTIONS:\s*'Instructions'/);
 assert.match(code, /AUDIT:\s*'Pass Audit'/);
 assert.match(code, /CALENDAR:\s*'School Calendar'/);
@@ -158,12 +160,14 @@ assert.match(actionProofWriter, /student-action:/);
 assert.match(actionProofWriter, /signTokenPart_/);
 assert.match(actionProofConsumer, /deleteProperty\(propertyKey\)/, 'A protected action must consume its one-use proof');
 assert.match(actionProofConsumer, /proof\.action\s*!==\s*action/);
-for (const [name, action] of [
-  ['submitDailyCheckIn', 'CHECKIN'],
-  ['requestBathroomPass', 'PASS_REQUEST'],
-  ['returnPass', 'RETURN'],
+for (const [name, action, operationLabel] of [
+  ['submitDailyCheckIn', 'CHECKIN', 'daily check-in'],
+  ['requestBathroomPass', 'PASS_REQUEST', 'bathroom request'],
+  ['returnPass', 'RETURN', 'pass return'],
 ]) {
-  assert.match(functionSource(name), new RegExp(`consumeStudentActionProof_\\([\\s\\S]*GD_STUDENT_ACTIONS\\.${action}`));
+  const source = functionSource(name);
+  assert.match(source, new RegExp(`consumeStudentActionProof_\\([\\s\\S]*GD_STUDENT_ACTIONS\\.${action}`));
+  assert.match(source, new RegExp(`GD_STUDENT_LOCK_WAIT_MS,\\s*'${operationLabel}'`));
 }
 assert.match(functionSource('startPass'), /page is out of date/i);
 assert.match(functionSource('joinPassQueue'), /page is out of date/i);
@@ -211,6 +215,73 @@ for (const name of ['teacherAddStudentClass', 'teacherRemoveStudentClass', 'teac
   const source = functionSource(name);
   assert.ok(source.indexOf('assertTeacher_') < source.indexOf('withLock_'), `${name} must authorize before mutation`);
 }
+for (const name of ['teacherApplyUnmatchedEmail', 'teacherAddStudentClass', 'teacherRemoveStudentClass']) {
+  assert.match(functionSource(name), /withLock_\(\(\) => \{\s*assertPinEmailBatchIdle_\(\)/);
+}
+assert.match(functionSource('reconcileKnownIdentityDrift_'), /repairs\.length\) assertPinEmailBatchIdle_\(\)/);
+assert.match(functionSource('ensureOnePinPerStudent_'), /assertPinEmailBatchIdle_\(\)/);
+
+const contentionProperties = new Map();
+let contentionWaitMs = 0;
+let contentionActionCalls = 0;
+let contentionReleases = 0;
+let contentionMemoClears = 0;
+const contentionContext = {
+  LockService: {
+    getScriptLock: () => ({
+      waitLock(milliseconds) {
+        contentionWaitMs = milliseconds;
+        throw new Error('busy');
+      },
+      releaseLock() { contentionReleases += 1; },
+    }),
+  },
+  PropertiesService: {
+    getScriptProperties: () => ({
+      getProperty: (key) => contentionProperties.get(key) || null,
+      setProperty: (key, value) => contentionProperties.set(key, value),
+    }),
+  },
+  Utilities: { formatDate: () => '2026-09-02' },
+  Session: { getScriptTimeZone: () => 'America/Detroit' },
+  gdClearMemo_: () => { contentionMemoClears += 1; },
+};
+vm.createContext(contentionContext);
+vm.runInContext(`
+const GD_BUSY_LOCK_MESSAGE = 'The classroom system is handling other students right now. Press the button once more.';
+const GD_LOCK_CONTENTION_PROPERTY = 'LOCK_CONTENTION_SUMMARY';
+${functionSource('dateKey_')}
+${functionSource('recordLockContention_')}
+${functionSource('getLockContentionSummary_')}
+${functionSource('withLock_')}
+this.__contentionApi = { withLock_, getLockContentionSummary_ };
+`, contentionContext);
+assert.throws(
+  () => contentionContext.__contentionApi.withLock_(() => { contentionActionCalls += 1; }, 5000, 'daily check-in'),
+  /handling other students/
+);
+assert.equal(contentionWaitMs, 5000);
+assert.equal(contentionActionCalls, 0, 'A busy lock must fail before a protected student action begins');
+assert.equal(contentionReleases, 0, 'A lock that was never acquired must not be released');
+const contentionSummary = contentionContext.__contentionApi.getLockContentionSummary_();
+assert.equal(contentionSummary.retrySignals, 1);
+assert.equal(contentionSummary.byOperation['daily check-in'], 1);
+assert.equal(contentionSummary.lastOperation, 'daily check-in');
+
+contentionContext.LockService = {
+  getScriptLock: () => ({
+    waitLock(milliseconds) { contentionWaitMs = milliseconds; },
+    releaseLock() { contentionReleases += 1; },
+  }),
+};
+const contentionResult = contentionContext.__contentionApi.withLock_(() => {
+  contentionActionCalls += 1;
+  return 'recorded';
+}, 5000, 'daily check-in');
+assert.equal(contentionResult, 'recorded');
+assert.equal(contentionActionCalls, 1);
+assert.equal(contentionReleases, 1);
+assert.equal(contentionMemoClears, 2, 'A successful protected action must clear memoized reads before and after its write');
 
 const emailGroups = functionSource('buildPinEmailGroups_');
 assert.match(emailGroups, /activeKeys/);
@@ -232,6 +303,14 @@ assert.match(html, /playIfNewPassStarted/);
 assert.match(html, /authorizeStudentAction/);
 assert.match(html, /requestBathroomPass/);
 assert.match(html, /completeAuthorizedAction/);
+assert.match(html, /STUDENT_BUSY_RETRY_DELAYS_MS/);
+assert.match(html, /const callWithBusyRetry/);
+assert.match(html, /callWithBusyRetry\('submitDailyCheckIn'/);
+assert.match(html, /callWithBusyRetry\('requestBathroomPass'/);
+assert.match(html, /callWithBusyRetry\('returnPass'/);
+assert.match(html, /No check-in or pass change was made/);
+assert.match(html, /automatic traffic recovery was needed/);
+assert.match(functionSource('getTeacherState_'), /lockContention:\s*getLockContentionSummary_\(\)/);
 assert.doesNotMatch(html, /call\('startPass'/);
 assert.doesNotMatch(html, /call\('joinPassQueue'/);
 assert.match(html, /advances automatically/);

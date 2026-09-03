@@ -14,6 +14,9 @@
 const GD_SCHEMA_VERSION = '2026-09-02-a';
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
+const GD_STUDENT_LOCK_WAIT_MS = 5000;
+const GD_BUSY_LOCK_MESSAGE = 'The classroom system is handling other students right now. Press the button once more.';
+const GD_LOCK_CONTENTION_PROPERTY = 'LOCK_CONTENTION_SUMMARY';
 
 const GD_STUDENT_ACTIONS = {
   CHECKIN: 'CHECKIN',
@@ -655,7 +658,7 @@ function submitDailyCheckIn(actionProof, studentKey, identityToken) {
   withLock_(() => {
     resolved = consumeStudentActionProof_(actionProof, GD_STUDENT_ACTIONS.CHECKIN, studentKey);
     recordCheckIn_(resolved.student, resolved.method, 'Fresh PIN verified for this check-in');
-  });
+  }, GD_STUDENT_LOCK_WAIT_MS, 'daily check-in');
   const token = identityTokenForStudent_(identityToken, resolved.student);
   const state = getCheckInState_(resolved.student, token, resolved.method);
   state.actionOutcome = { id: resolved.requestId, kind: 'CHECKED_IN' };
@@ -820,7 +823,7 @@ function requestBathroomPass(actionProof, studentKey, identityToken) {
     resolved = consumeStudentActionProof_(actionProof, GD_STUDENT_ACTIONS.PASS_REQUEST, studentKey);
     expirePreviousDayPasses_();
     outcome = createBathroomRequest_(resolved);
-  });
+  }, GD_STUDENT_LOCK_WAIT_MS, 'bathroom request');
   const token = identityTokenForStudent_(identityToken, resolved.student);
   return getStudentState_(resolved.student, token, resolved.method, {
     includeEvidence: outcome.kind === 'STARTED' || outcome.kind === 'BLOCKED',
@@ -841,7 +844,7 @@ function returnPass(actionProof, studentKey, identityToken) {
     );
     if (!closeResult) throw new Error('No current active pass was found for this student.');
     settleWaitingQueue_();
-  });
+  }, GD_STUDENT_LOCK_WAIT_MS, 'pass return');
   const token = identityTokenForStudent_(identityToken, resolved.student);
   return getStudentState_(resolved.student, token, resolved.method, {
     includeEvidence: true,
@@ -1472,6 +1475,7 @@ function teacherApplyUnmatchedEmail(rosterEmail, realEmail) {
 
   let result = null;
   withLock_(() => {
+    assertPinEmailBatchIdle_();
     const roster = readRosterRows_();
     const rows = roster.filter((student) => student.email === oldEmail);
     if (!rows.length) throw new Error('That student is no longer on the roster.');
@@ -1589,6 +1593,7 @@ function discoverIdentityReconciliations_() {
 /** Idempotent setup-time repair for the known September identity drift. */
 function reconcileKnownIdentityDrift_() {
   const repairs = discoverIdentityReconciliations_();
+  if (repairs.length) assertPinEmailBatchIdle_();
   const summary = {
     schema: GD_SCHEMA_VERSION,
     reconciledStudents: 0,
@@ -1751,6 +1756,7 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
   let result = null;
 
   withLock_(() => {
+    assertPinEmailBatchIdle_();
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
     const allRows = readRosterRows_();
     const sameStudentRows = allRows.filter((student) => student.email === input.email);
@@ -1818,6 +1824,7 @@ function teacherRemoveStudentClass(studentKey) {
   let result = null;
 
   withLock_(() => {
+    assertPinEmailBatchIdle_();
     const student = getRoster_().find((entry) => entry.key === key) || null;
     if (!student) throw new Error('That student is no longer active in this class.');
 
@@ -2120,6 +2127,7 @@ function getTeacherState_(options) {
     absentToday: absencesToday.map(clientCheckIn_),
     checkInSummary,
     notCheckedIn: roster.filter((student) => !checkedKeys.has(student.key) && !absentKeys.has(student.key)),
+    lockContention: getLockContentionSummary_(),
     serverNow: new Date().toISOString(),
   };
   if (includePinStatus) state.pinEmailStatus = getPinEmailStatus_();
@@ -2486,6 +2494,7 @@ function generateMissingPins() {
 }
 
 function ensureOnePinPerStudent_(options) {
+  assertPinEmailBatchIdle_();
   const createMissing = Boolean(options && options.createMissing);
   const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
   const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
@@ -3020,12 +3029,15 @@ function parseSettingDate_(value) {
 
 /* ------------------------------------------------------------ plumbing ---- */
 
-function withLock_(action, waitMs) {
+function withLock_(action, waitMs, operationLabel) {
   const lock = LockService.getScriptLock();
+  const requestedWait = Number(waitMs);
+  const maxWaitMs = Number.isFinite(requestedWait) && requestedWait > 0 ? requestedWait : 25000;
   try {
-    lock.waitLock(waitMs || 25000);
+    lock.waitLock(maxWaitMs);
   } catch (error) {
-    throw new Error('The classroom system is handling other students right now. Press the button once more.');
+    if (operationLabel) recordLockContention_(operationLabel, maxWaitMs);
+    throw new Error(GD_BUSY_LOCK_MESSAGE);
   }
   try {
     gdClearMemo_();
@@ -3033,6 +3045,67 @@ function withLock_(action, waitMs) {
   } finally {
     gdClearMemo_();
     lock.releaseLock();
+  }
+}
+
+/**
+ * Keep a privacy-safe, best-effort count of student writes that met a busy
+ * shared workbook. This intentionally stores no student key, email, PIN,
+ * pass ID, or check-in ID. Property updates can collide during a traffic
+ * burst, so the dashboard describes this as an approximate signal count.
+ */
+function recordLockContention_(operationLabel, waitMs) {
+  const label = String(operationLabel || '').trim().slice(0, 60);
+  if (!label) return;
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    const today = dateKey_(new Date());
+    let summary = null;
+    try {
+      summary = JSON.parse(properties.getProperty(GD_LOCK_CONTENTION_PROPERTY) || 'null');
+    } catch (error) {
+      summary = null;
+    }
+    if (!summary || summary.date !== today) {
+      summary = { date: today, retrySignals: 0, byOperation: {} };
+    }
+    if (!summary.byOperation || typeof summary.byOperation !== 'object' || Array.isArray(summary.byOperation)) {
+      summary.byOperation = {};
+    }
+    summary.retrySignals = Math.max(0, Number(summary.retrySignals) || 0) + 1;
+    summary.byOperation[label] = Math.max(0, Number(summary.byOperation[label]) || 0) + 1;
+    summary.lastAt = new Date().toISOString();
+    summary.lastOperation = label;
+    summary.lastWaitMs = Math.max(0, Number(waitMs) || 0);
+    properties.setProperty(GD_LOCK_CONTENTION_PROPERTY, JSON.stringify(summary));
+  } catch (error) {
+    // Diagnostics must never turn a recoverable traffic collision into an outage.
+  }
+}
+
+function getLockContentionSummary_() {
+  const today = dateKey_(new Date());
+  const empty = { date: today, retrySignals: 0, byOperation: {}, lastAt: '', lastOperation: '', lastWaitMs: 0 };
+  try {
+    const raw = JSON.parse(
+      PropertiesService.getScriptProperties().getProperty(GD_LOCK_CONTENTION_PROPERTY) || 'null'
+    );
+    if (!raw || raw.date !== today) return empty;
+    const byOperation = {};
+    Object.keys(raw.byOperation || {}).slice(0, 10).forEach((key) => {
+      const label = String(key || '').slice(0, 60);
+      if (label) byOperation[label] = Math.max(0, Number(raw.byOperation[key]) || 0);
+    });
+    return {
+      date: today,
+      retrySignals: Math.max(0, Number(raw.retrySignals) || 0),
+      byOperation,
+      lastAt: String(raw.lastAt || '').slice(0, 40),
+      lastOperation: String(raw.lastOperation || '').slice(0, 60),
+      lastWaitMs: Math.max(0, Number(raw.lastWaitMs) || 0),
+    };
+  } catch (error) {
+    return empty;
   }
 }
 

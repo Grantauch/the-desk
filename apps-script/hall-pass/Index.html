@@ -39,6 +39,7 @@
       .loading { padding: 65px 20px; color: var(--muted); text-align: center; }
       .message { margin: 0; color: var(--muted); line-height: 1.55; }
       .error { margin-bottom: 16px; padding: 12px 14px; border: 1px solid #e2aaa5; border-radius: 11px; background: var(--accent-soft); color: var(--accent-dark); font-size: 14px; font-weight: 700; }
+      .error.busy { border-color: #e8ce96; background: #fff8e8; color: #6b4a00; }
 
       .student-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
       .student-head h2, .section-title { margin: 0; font: 800 clamp(28px, 6vw, 43px)/1 Georgia, serif; letter-spacing: -.04em; }
@@ -192,6 +193,8 @@
     <script>
       const APP_MODE = <?!= JSON.stringify(appMode) ?>;
       const CALL_TIMEOUT_MS = 45000;
+      const BUSY_LOCK_TEXT = 'The classroom system is handling other students right now.';
+      const STUDENT_BUSY_RETRY_DELAYS_MS = [650, 1000, 1400, 1900];
       const IDLE_RESET_MS = 120000;
       const HANDOFF_AFTER_START_MS = 7000;
       const HANDOFF_AFTER_RETURN_MS = 4000;
@@ -251,6 +254,35 @@
           )))[name](...args);
       });
 
+      const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+      const isBusyLockError = (error) => String(error && error.message ? error.message : error).includes(BUSY_LOCK_TEXT);
+
+      /**
+       * A busy-lock response is the one server error that proves the protected
+       * action never began and its one-use proof was not consumed. Only that
+       * condition is safe to replay automatically; timeouts and other errors
+       * still stop for a human because their result may be uncertain.
+       */
+      const callWithBusyRetry = async (name, ...args) => {
+        const totalAttempts = STUDENT_BUSY_RETRY_DELAYS_MS.length + 1;
+        for (let attempt = 0; attempt < totalAttempts; attempt += 1) {
+          try {
+            const result = await call(name, ...args);
+            if (attempt > 0) clearError();
+            return result;
+          } catch (error) {
+            if (!isBusyLockError(error)) throw error;
+            if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length) {
+              throw new Error('Several students are updating the shared classroom log at the same time. No check-in or pass change was made. Wait five seconds and press once more; this is traffic, not a bad PIN. Mr. Grant can use the teacher backup controls if needed.');
+            }
+            showBusy(`Another student’s check-in or pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
+            const jitter = Math.floor(Math.random() * 350);
+            await wait(STUDENT_BUSY_RETRY_DELAYS_MS[attempt] + jitter);
+          }
+        }
+        throw new Error('The shared classroom log stayed busy. Wait five seconds and try once more.');
+      };
+
       /** Wraps a button action so polling never overwrites a request in flight. */
       const act = async (button, work) => {
         if (button) button.disabled = true;
@@ -272,10 +304,20 @@
       }[character]));
 
       const showError = (message) => {
+        errorBox.classList.remove('busy');
         errorBox.textContent = message;
         errorBox.hidden = false;
       };
-      const clearError = () => { errorBox.hidden = true; errorBox.textContent = ''; };
+      const showBusy = (message) => {
+        errorBox.classList.add('busy');
+        errorBox.textContent = message;
+        errorBox.hidden = false;
+      };
+      const clearError = () => {
+        errorBox.classList.remove('busy');
+        errorBox.hidden = true;
+        errorBox.textContent = '';
+      };
 
       const setTitle = (title) => {
         const clean = String(title || 'hall pass').replace(/\.$/, '');
@@ -532,17 +574,15 @@
         const studentKey = state && state.student ? state.student.key : '';
         const identityToken = pinToken;
         if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
-        actionProof = '';
-        authorizedAction = '';
 
         if (action === 'CHECKIN') {
-          adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
+          adoptState(await callWithBusyRetry('submitDailyCheckIn', proof, studentKey, identityToken));
           renderCheckIn();
           if (sharedDevice()) scheduleHandoff('Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
           return;
         }
         if (action === 'PASS_REQUEST') {
-          adoptState(await call('requestBathroomPass', proof, studentKey, identityToken));
+          adoptState(await callWithBusyRetry('requestBathroomPass', proof, studentKey, identityToken));
           renderStudent();
           if (sharedDevice()) {
             const outcome = state.actionOutcome || {};
@@ -559,7 +599,7 @@
           return;
         }
         if (action === 'RETURN') {
-          adoptState(await call('returnPass', proof, studentKey, identityToken));
+          adoptState(await callWithBusyRetry('returnPass', proof, studentKey, identityToken));
           renderStudent();
           if (sharedDevice()) scheduleHandoff('Welcome back. This screen clears itself for the next student.', HANDOFF_AFTER_RETURN_MS);
           return;
@@ -1025,6 +1065,7 @@
         const absentToday = state.absentToday || [];
         const repeatPassesToday = state.repeatPassesToday || [];
         const rolloverPassesToday = state.rolloverPassesToday || [];
+        const lockContention = state.lockContention || { retrySignals: 0, lastAt: '', lastOperation: '' };
         const latePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= lateAfter).length;
         const stalePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= staleAfter).length;
         const soundOptions = TEACHER_SOUND_CHOICES.map(([value, label]) => (
@@ -1095,6 +1136,12 @@
               </article>`).join('')}
           </section>` : '';
         const noticeHtml = teacherNotice ? `<div class="notice success" style="margin-top:16px"><p><strong>${escapeHtml(teacherNotice)}</strong></p></div>` : '';
+        const trafficHtml = Number(lockContention.retrySignals || 0) > 0 ? `
+          <section class="notice warning" role="status" style="margin-top:16px">
+            <h3>automatic traffic recovery was needed.</h3>
+            <p><strong>About ${escapeHtml(lockContention.retrySignals)} shared-log retry signal${Number(lockContention.retrySignals) === 1 ? '' : 's'} today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'student update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
+            <p>This means several devices reached the one private workbook at once—not that a PIN was wrong. Student screens now retry these safe collisions automatically. If someone still reaches the final message, wait five seconds or use the teacher backup controls.</p>
+          </section>` : '';
 
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
           <div class="summary-tile">
@@ -1206,6 +1253,7 @@
             </div>
           </div>
           ${noticeHtml}
+          ${trafficHtml}
           ${roomStatusHtml}
           ${rolloverHtml}
           <section class="teacher-section">
