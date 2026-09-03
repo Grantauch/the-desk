@@ -1,5 +1,18 @@
 # GrantDesk website bug audit — 2026-09-01
 
+> **Closed on 2026-09-02. This file is history, not a work queue.**
+>
+> Every finding below was addressed in the commits that followed it, and the results were
+> re-verified on 2026-09-02 against Apps Script Version 15 and repository main `a0a55a1`:
+> the NPR placeholder-image handling, the cleanup locking race, forgotten-pass handling,
+> kiosk throttle isolation, the dependency advisories, the Netlify Function validator false
+> alarm, the Churchill quotation, the first-day metadata and accessibility items, roster
+> email validation, and unmatched-ledger locking. `npm run hall-pass:verify`,
+> `npm run check`, `npm run build`, `npm run site:validate` and `npm run live-data:check`
+> all pass, and the production dependency audit reports no known vulnerabilities.
+>
+> Do not reopen an item from this file without first reproducing it against current `main`.
+> Current operating checks live in `apps-script/hall-pass/OPERATIONS.md`.
 ## Release status at the time of this report
 
 The Google Drive folder supplied on 2026-09-01 contained `Code.gs` and `Index.html` for the GrantDesk Hall Pass Apps Script project. Those files are not safe to publish unchanged: they add teacher roster management, but they also predate protections that are present in the public Version 9 deployment.

@@ -2,6 +2,9 @@
 
 ## Release safety
 
+Ongoing production care, the open verification list, and the standing release gate live in
+`OPERATIONS.md` beside this file. Issue #14 is closed; do not reuse it as a task list.
+
 The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder build additively on the verified 2026-09-02 Version 14 source. They preserve the public Version 9 protections, Version 11 roster-management controls, and Version 14 Issue #14 transaction, queue, countability, calendar, permanent-audit, and identity-reconciliation contract while adding the Version 15 classroom-contention recovery. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
 
 Before any deployment:
