@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090d12">
+  <meta name="description" content="An interactive Beyond the Scoreboard investigation of BS High and the system behind the final score.">
+  <title>BS High: The System Behind the Score</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --night:#090d12;
+      --night-2:#111923;
+      --night-3:#182330;
+      --paper:#f3f0e7;
+      --paper-2:#fffdf7;
+      --ink:#101820;
+      --muted:#607080;
+      --line:#c9c7bd;
+      --white:#f7f8fa;
+      --signal:#ffca28;
+      --signal-2:#f3a712;
+      --red:#e33d48;
+      --red-dark:#951f2b;
+      --cyan:#36c5d7;
+      --green:#2f8f65;
+      --violet:#7668c8;
+      --blue:#275d8c;
+      --shadow:0 26px 70px rgba(0,0,0,.42);
+      --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+      --mono:"IBM Plex Mono",Consolas,monospace;
+      --body:"Inter","Segoe UI",Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--white);
+      background:
+        radial-gradient(circle at 12% -8%,rgba(54,197,215,.18),transparent 28rem),
+        radial-gradient(circle at 91% 4%,rgba(227,61,72,.16),transparent 26rem),
+        linear-gradient(145deg,var(--night),var(--night-2) 58%,#080b0f);
+      font-family:var(--body);
+      font-size:17px;
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.22;
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+      background-size:28px 28px;
+      mask-image:linear-gradient(to bottom,black,transparent 75%);
+    }
+    button,input,textarea,select{font:inherit}
+    button{touch-action:manipulation}
+    a{color:inherit}
+    .skip-link{
+      position:fixed;left:14px;top:-80px;z-index:200;
+      padding:10px 14px;background:var(--signal);color:var(--ink);font-weight:800;
+    }
+    .skip-link:focus{top:12px}
+    .mono{font-family:var(--mono)}
+    .display{font-family:var(--display)}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* top review bar */
+    #reviewBar{
+      position:sticky;top:0;z-index:80;
+      border-bottom:1px solid rgba(255,255,255,.14);
+      background:rgba(7,11,16,.92);
+      backdrop-filter:blur(12px);
+    }
+    .bar-inner{
+      width:min(1120px,calc(100% - 30px));
+      min-height:66px;margin:auto;
+      display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;
+    }
+    .brand{display:flex;align-items:center;gap:11px;min-width:max-content}
+    .live-dot{
+      width:11px;height:11px;border-radius:50%;background:var(--red);
+      box-shadow:0 0 0 5px rgba(227,61,72,.14),0 0 18px rgba(227,61,72,.7);
+    }
+    .brand strong{font:800 22px/1 var(--display);letter-spacing:.04em}
+    .brand small{display:block;margin-top:3px;font:500 10px/1 var(--mono);letter-spacing:.15em;color:#91a2b3;text-transform:uppercase}
+    #meter{display:grid;grid-template-columns:repeat(7,minmax(18px,1fr));gap:5px;max-width:420px;justify-self:center;width:100%}
+    .meter-seg{height:8px;background:#273441;position:relative;overflow:hidden}
+    .meter-seg::after{content:"";position:absolute;inset:0;background:var(--signal);transform:translateX(-105%);transition:transform .28s ease}
+    .meter-seg.done::after,.meter-seg.here::after{transform:translateX(0)}
+    .meter-seg.here{box-shadow:0 0 0 2px rgba(255,202,40,.25)}
+    .bar-status{text-align:right;min-width:max-content}
+    #barStep{font:600 11px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#dbe3ea}
+    #saved{display:block;min-height:16px;margin-top:4px;font:500 10px/1 var(--mono);color:#7f92a3}
+
+    /* page */
+    #app{width:min(1020px,calc(100% - 32px));margin:34px auto 0;padding-bottom:126px;position:relative;z-index:1}
+    .sheet{
+      background:var(--paper);color:var(--ink);box-shadow:var(--shadow);
+      border-top:7px solid var(--signal);position:relative;overflow:hidden;
+    }
+    .sheet::after{content:"";position:absolute;right:-50px;top:-50px;width:180px;height:180px;border:1px solid rgba(16,24,32,.07);transform:rotate(45deg);pointer-events:none}
+    .docket{
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+      padding:10px 28px;background:#172431;color:#dce4eb;
+      font:600 11px/1.3 var(--mono);letter-spacing:.11em;text-transform:uppercase;
+    }
+    .docket b{color:var(--signal)}
+    .docket .time{margin-left:auto;color:#9cb0bf}
+    .sheet-body{padding:30px 34px 38px}
+    .section-no{font:800 13px/1 var(--mono);letter-spacing:.15em;color:var(--red);text-transform:uppercase;margin-bottom:8px}
+    h1,h2,h3,p{margin-top:0}
+    h1,h2,h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.005em}
+    h1{font-size:clamp(54px,9vw,92px);line-height:.84;margin-bottom:13px}
+    h2{font-size:clamp(39px,6vw,62px);line-height:.9;margin-bottom:10px}
+    h3{font-size:27px;line-height:1;margin-bottom:8px}
+    .lead{font-size:17px;color:#465664;max-width:72ch;line-height:1.65;margin-bottom:24px}
+    .lead strong{color:var(--ink)}
+    .ruleline{height:1px;background:var(--line);margin:24px 0}
+    .callout{
+      border-left:5px solid var(--signal);padding:15px 18px;background:#e8e4d8;
+      margin:18px 0;color:#263542;
+    }
+    .callout.red{border-color:var(--red);background:#f0dfde}
+    .callout.cyan{border-color:var(--cyan);background:#dcecef}
+    .callout p:last-child{margin-bottom:0}
+    .eyebrow{font:700 11px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red-dark);margin-bottom:7px}
+    .small{font-size:14px;color:var(--muted)}
+    .source-link{font:600 12px/1.5 var(--mono);color:var(--blue);text-decoration-thickness:1px;text-underline-offset:3px}
+
+    /* cover */
+    .cover-grid{display:grid;grid-template-columns:1.08fr .92fr;min-height:580px}
+    .cover-copy{padding:42px 38px 36px;display:flex;flex-direction:column;justify-content:center}
+    .cover-copy .kicker{font:700 12px/1.3 var(--mono);letter-spacing:.17em;text-transform:uppercase;color:var(--red-dark)}
+    .cover-copy h1 span{display:block;color:var(--red);font-size:.53em;line-height:1;margin-top:8px;letter-spacing:.035em}
+    .cover-copy .thesis{font-size:19px;line-height:1.55;color:#344553;max-width:45ch}
+    .cover-copy .thesis strong{color:var(--ink)}
+    .score-stage{
+      background:
+        linear-gradient(rgba(8,13,18,.6),rgba(8,13,18,.86)),
+        radial-gradient(circle at 50% 15%,rgba(54,197,215,.35),transparent 40%),
+        repeating-linear-gradient(90deg,transparent 0 44px,rgba(255,255,255,.03) 45px 46px),
+        #0c151e;
+      padding:36px 30px;color:var(--white);display:flex;flex-direction:column;justify-content:center;position:relative;
+    }
+    .score-stage::before{content:"REVIEW FEED  •  08.29.21";position:absolute;left:22px;top:18px;font:600 10px var(--mono);letter-spacing:.13em;color:#8fa4b5}
+    .scoreboard{border:1px solid #41515f;background:#080c10;box-shadow:0 18px 45px rgba(0,0,0,.55),inset 0 0 30px rgba(54,197,215,.05);padding:18px}
+    .score-label{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;border-bottom:1px solid #263440;padding:9px 4px}
+    .score-label:last-of-type{border-bottom:0}
+    .team{font:800 clamp(26px,5vw,42px)/.9 var(--display);letter-spacing:.03em}
+    .score{font:800 clamp(54px,8vw,84px)/.75 var(--mono);color:var(--signal);text-shadow:0 0 18px rgba(255,202,40,.28)}
+    .score-meta{display:flex;justify-content:space-between;margin-top:13px;font:600 10px var(--mono);letter-spacing:.1em;color:#91a6b7;text-transform:uppercase}
+    .case-charge{margin-top:24px;border-top:4px solid var(--red);padding-top:15px}
+    .case-charge strong{font:800 27px/1 var(--display);text-transform:uppercase;color:var(--signal)}
+    .case-charge p{font-size:14px;line-height:1.55;color:#c6d0d8;margin:8px 0 0}
+    .identity-grid{display:grid;grid-template-columns:1fr 170px;gap:14px;margin-top:24px}
+
+    /* fields */
+    .field{display:block}
+    .field > span,.field-label{display:block;margin:0 0 6px;font:700 12px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#526473}
+    input[type=text],textarea,select{
+      width:100%;border:1.5px solid #aaa99f;background:var(--paper-2);color:var(--ink);
+      border-radius:0;padding:11px 12px;line-height:1.5;min-height:47px;
+    }
+    textarea{resize:vertical;min-height:92px}
+    input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--signal-2);outline-offset:2px}
+    .wordline{display:flex;justify-content:space-between;gap:10px;margin:5px 0 0;font:500 11px/1.4 var(--mono);color:#6c7a84}
+    .wordline .good{color:var(--green);font-weight:700}
+
+    /* buttons and choices */
+    .btn{
+      border:2px solid #20394c;background:#20394c;color:#fff;padding:11px 18px;
+      min-height:46px;cursor:pointer;font-weight:800;border-radius:0;transition:transform .12s ease,background .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px);background:#142b3d}
+    .btn.primary{background:var(--signal);border-color:var(--signal);color:var(--ink)}
+    .btn.primary:hover{background:#eeb814}
+    .btn.ghost{background:transparent;color:#20394c}
+    .btn.ghost:hover{background:#e2dfd4}
+    .btn.danger{background:transparent;border-color:#b2474f;color:#9a2730}
+    .button-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .pill-row{display:flex;flex-wrap:wrap;gap:8px}
+    .pill{
+      border:1.5px solid #a9aaa2;background:#e2dfd5;color:#273744;padding:8px 13px;
+      min-height:42px;cursor:pointer;font-size:14px;font-weight:700;border-radius:999px;
+    }
+    .pill:hover{border-color:#526b7f;background:#d8d6cd}
+    .pill[aria-pressed=true]{background:#20394c;border-color:#20394c;color:#fff}
+    .pill.correct{background:#dcebe2;border-color:var(--green);color:#195c3d}
+    .pill.wrong{background:#f0dcdd;border-color:var(--red);color:#8e1e28;text-decoration:line-through}
+    .pill.position{border-radius:0;flex:1;min-width:155px;padding:13px;text-align:left}
+    .pill.position strong{display:block;font-family:var(--display);font-size:22px;text-transform:uppercase}
+    .pill.position small{display:block;font-weight:500;line-height:1.4;margin-top:3px}
+    .feedback{display:none;margin-top:12px;padding:12px 14px;border-left:4px solid #7b8993;background:#e6e3da;font-size:14px;line-height:1.55}
+    .feedback.show{display:block}
+    .feedback.good{border-color:var(--green);background:#dfeae3;color:#1d553d}
+    .feedback.warn{border-color:var(--red);background:#f0dfdf;color:#782029}
+    .scoreline{font:700 13px/1.5 var(--mono);color:#485d6d;min-height:22px}
+
+    /* objective rows */
+    .decision-list{border-top:1px solid var(--line)}
+    .decision-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px 0;border-bottom:1px solid var(--line)}
+    .decision-row .num{font:800 25px/1 var(--display);color:#8c8b82}
+    .decision-row .statement{font-size:16px;line-height:1.5;padding-top:1px}
+    .decision-row .answer-cell{min-width:245px}
+    .row-explain{display:none;grid-column:2/-1;font-size:13.5px;line-height:1.55;color:#526370;margin-top:-4px}
+    .decision-row.graded .row-explain{display:block}
+
+    /* threads */
+    .thread-key{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 22px}
+    .thread-key div{padding:11px 12px;background:#172431;color:#fff;border-top:4px solid var(--signal)}
+    .thread-key div:nth-child(2){border-color:var(--cyan)}
+    .thread-key div:nth-child(3){border-color:var(--violet)}
+    .thread-key div:nth-child(4){border-color:var(--green)}
+    .thread-key b{display:block;font:800 17px/1 var(--display);text-transform:uppercase}
+    .thread-key span{display:block;font-size:11px;line-height:1.35;color:#bac7d0;margin-top:5px}
+    .thread-card{padding:17px 0;border-top:1px solid var(--line)}
+    .thread-card:first-of-type{border-top:0}
+    .thread-card .headline{font-weight:600;line-height:1.5;margin-bottom:11px}
+    .thread-card .thread-feedback{font-size:13.5px;color:#526370;margin:8px 0 0;display:none}
+    .thread-card.graded .thread-feedback{display:block}
+
+    /* source audit */
+    .source-card{margin:22px 0;border:1px solid #b9b8af;background:var(--paper-2)}
+    .source-head{display:flex;justify-content:space-between;gap:16px;padding:10px 14px;background:#172431;color:#fff;font:600 10px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase}
+    .source-head span:first-child{color:var(--signal)}
+    .source-body{padding:18px}
+    .source-excerpt{font-family:Georgia,"Times New Roman",serif;font-size:16px;line-height:1.68;color:#273139;border-left:4px solid var(--red);padding-left:16px;margin-bottom:17px}
+    .source-q{font-weight:700;margin-bottom:8px}
+    .option-stack{display:grid;gap:7px}
+    .option{
+      width:100%;text-align:left;border:1.5px solid #b7b7ae;background:#ece9df;color:#263641;
+      padding:10px 12px;cursor:pointer;line-height:1.45;font-size:14.5px;
+    }
+    .option:hover{border-color:#4f697c}
+    .option[aria-pressed=true]{background:#20394c;border-color:#20394c;color:#fff}
+    .option.correct{background:#dcebe2;border-color:var(--green);color:#164e35}
+    .option.wrong{background:#f0dcdd;border-color:var(--red);color:#7d2028}
+    .audit-note{display:none;margin-top:12px;padding-top:11px;border-top:1px dashed #aaa99f;font-size:13.5px;line-height:1.55;color:#50616e}
+    .source-card.graded .audit-note{display:block}
+
+    /* mechanism */
+    .mechanism-board{background:#121c25;color:#fff;padding:20px;margin:18px 0}
+    .mechanism-label{font:600 10px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#91a5b4;margin-bottom:10px}
+    #playChain{display:grid;gap:8px;min-height:62px}
+    .chain-slot{display:grid;grid-template-columns:34px 1fr;gap:11px;align-items:center;padding:10px 12px;background:#1d2b37;border-left:4px solid var(--signal);animation:lockIn .25s ease both}
+    .chain-slot b{font:800 22px/1 var(--display);color:var(--signal)}
+    .chain-slot span{font-size:14px;line-height:1.45;color:#e0e7ec}
+    #playPool{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;min-height:56px;padding:11px;border:1px dashed #536575}
+    .chain-chip{border:1px solid #596b79;background:#20303d;color:#fff;padding:9px 12px;cursor:pointer;font-size:13px;line-height:1.35;text-align:left}
+    .chain-chip:hover{border-color:var(--signal)}
+    .chain-chip.err{animation:flag .38s ease;background:#5c2028;border-color:var(--red)}
+    @keyframes lockIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @keyframes flag{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+    .lesson-lock{display:none;margin-top:18px;padding:16px;background:#dcecef;border-left:5px solid var(--cyan)}
+    .lesson-lock.show{display:block}
+
+    /* allocation */
+    .allocation-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:28px;align-items:start;margin-top:20px}
+    .slider-row{padding:12px 0;border-bottom:1px solid var(--line)}
+    .slider-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+    .slider-top label{font-weight:700;font-size:14px}
+    .slider-value{font:700 17px var(--mono);color:var(--red-dark)}
+    input[type=range]{width:100%;accent-color:#20394c;min-height:36px;cursor:pointer}
+    .alloc-viz{position:sticky;top:96px;text-align:center}
+    #donut{
+      width:210px;height:210px;border-radius:50%;margin:0 auto 16px;position:relative;
+      background:conic-gradient(var(--red) 0 25%,var(--signal-2) 25% 45%,var(--cyan) 45% 65%,var(--violet) 65% 85%,var(--green) 85% 100%);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);
+    }
+    #donut::after{content:"";position:absolute;inset:44px;background:var(--paper);border-radius:50%}
+    .donut-total{position:absolute;z-index:2;inset:0;display:grid;place-content:center;font:800 33px/1 var(--display)}
+    .donut-total span{display:block;font:600 10px/1.4 var(--mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+    .alloc-legend{text-align:left;display:grid;gap:7px;font-size:12px;color:#4a5c69}
+    .alloc-legend div{display:flex;justify-content:space-between;gap:10px}
+    .swatch{display:inline-block;width:9px;height:9px;margin-right:7px}
+    .total-alert{margin-top:10px;font:700 12px var(--mono);color:var(--red-dark)}
+
+    /* safeguards */
+    .budget-panel{display:flex;justify-content:space-between;align-items:center;gap:16px;background:#172431;color:#fff;padding:14px 16px;margin:18px 0}
+    .budget-panel strong{font:800 27px/1 var(--display);color:var(--signal)}
+    .coverage{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+    .coverage span{font:600 10px/1 var(--mono);padding:6px 8px;background:#263744;color:#9eafbb;text-transform:uppercase}
+    .coverage span.on{background:var(--green);color:#fff}
+    .safeguard-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .safeguard{
+      position:relative;text-align:left;border:1.5px solid #b5b4ab;background:var(--paper-2);color:var(--ink);padding:15px;cursor:pointer;min-height:126px;
+    }
+    .safeguard:hover{border-color:#4c6577}
+    .safeguard[aria-pressed=true]{background:#dfe9ee;border-color:#20394c;box-shadow:inset 5px 0 0 #20394c}
+    .safeguard .cost{position:absolute;right:11px;top:10px;font:700 12px var(--mono);color:var(--red-dark)}
+    .safeguard b{display:block;font:800 20px/1 var(--display);text-transform:uppercase;padding-right:48px;margin-bottom:8px}
+    .safeguard span{display:block;font-size:13px;line-height:1.45;color:#5b6973}
+    .safeguard .tag{margin-top:9px;font:700 9px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+    .safeguard.weak .tag{color:var(--red-dark)}
+
+    /* final argument */
+    .argument-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+    .argument-grid .wide{grid-column:1/-1}
+    .brief-check{margin-top:18px;padding:16px;background:#e7e3d8}
+    .checklist{display:grid;grid-template-columns:1fr 1fr;gap:7px 16px;margin:12px 0 0;padding:0;list-style:none}
+    .checklist li{font-size:13px;color:#6f3a3e}
+    .checklist li::before{content:"○";margin-right:7px;font-weight:800}
+    .checklist li.ok{color:#1d6847}
+    .checklist li.ok::before{content:"✓"}
+
+    /* finish */
+    .final-banner{background:#172431;color:#fff;padding:25px 28px;margin:-30px -34px 26px;position:relative;overflow:hidden}
+    .final-banner::after{content:"58—0";position:absolute;right:-8px;bottom:-30px;font:900 120px/1 var(--display);color:rgba(255,255,255,.055)}
+    .final-banner h2{color:var(--signal);margin:0;font-size:50px}
+    .final-banner p{color:#bac8d1;margin:7px 0 0}
+    .readiness{display:flex;align-items:center;gap:12px;margin-top:14px;font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.08em}
+    .ready-dot{width:13px;height:13px;border-radius:50%;background:var(--red)}
+    .ready-dot.yes{background:var(--green)}
+    .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .summary-box{border-top:4px solid #20394c;background:#e7e4db;padding:15px}
+    .summary-box h3{font-size:21px;color:#20394c}
+    .summary-box p{font-size:13.5px;line-height:1.5;margin:5px 0 0;color:#4a5b67}
+    .summary-box.wide{grid-column:1/-1}
+    .mini-bars{display:grid;gap:7px;margin-top:10px}
+    .mini-bar{display:grid;grid-template-columns:130px 1fr 35px;gap:8px;align-items:center;font-size:11px}
+    .mini-track{height:8px;background:#cbc9c0}.mini-track i{display:block;height:100%;background:#20394c}
+    .source-drawer{margin-top:24px;border-top:1px solid var(--line);padding-top:17px}
+    .source-drawer summary{cursor:pointer;font:700 12px var(--mono);text-transform:uppercase;color:var(--blue)}
+    .source-drawer ol{padding-left:20px;font-size:12.5px;color:#53636f;line-height:1.6}
+
+    /* bottom nav */
+    #bottomNav{position:fixed;left:0;right:0;bottom:0;z-index:90;background:rgba(7,11,16,.96);border-top:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px)}
+    .nav-inner{width:min(1020px,calc(100% - 32px));min-height:76px;margin:auto;display:flex;align-items:center;gap:11px}
+    #backBtn,#nextBtn{border-color:#536779}
+    #backBtn{color:#c3d0d9}
+    #nextBtn{margin-left:auto;min-width:180px}
+    #navHint{font:500 11px/1.35 var(--mono);color:#718697;margin-left:6px}
+    #toast{position:fixed;left:50%;bottom:92px;z-index:120;transform:translateX(-50%) translateY(15px);background:var(--green);color:#fff;padding:10px 16px;box-shadow:0 12px 35px rgba(0,0,0,.36);font-weight:700;opacity:0;pointer-events:none;transition:.2s ease;white-space:nowrap}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    @media(max-width:820px){
+      .cover-grid{grid-template-columns:1fr}.score-stage{min-height:430px}
+      .allocation-layout{grid-template-columns:1fr}.alloc-viz{position:static;display:grid;grid-template-columns:210px 1fr;align-items:center;gap:20px}.alloc-legend{max-width:300px}
+      .thread-key{grid-template-columns:1fr 1fr}
+      .bar-inner{grid-template-columns:auto 1fr}.bar-status{display:none}#meter{justify-self:end}
+    }
+    @media(max-width:650px){
+      body{font-size:16px}#app{width:min(100% - 18px,1020px);margin-top:14px;padding-bottom:112px}
+      .sheet-body{padding:23px 18px 30px}.docket{padding:9px 18px}.docket .time{width:100%;margin-left:0}
+      .cover-copy{padding:32px 22px}.score-stage{padding:46px 18px 28px}
+      .identity-grid,.argument-grid,.summary-grid{grid-template-columns:1fr}.argument-grid .wide,.summary-box.wide{grid-column:auto}
+      .decision-row{grid-template-columns:30px 1fr}.decision-row .answer-cell{grid-column:2;min-width:0}.row-explain{grid-column:2}
+      .safeguard-grid{grid-template-columns:1fr}
+      .allocation-layout{gap:12px}.alloc-viz{display:block}.alloc-legend{margin:auto}
+      .checklist{grid-template-columns:1fr}
+      .nav-inner{width:calc(100% - 18px);min-height:68px}.nav-inner .btn{padding:9px 12px;min-height:44px}#nextBtn{min-width:0}#navHint{display:none}
+      #meter{display:none}.bar-inner{grid-template-columns:1fr;width:calc(100% - 24px);min-height:58px}.brand small{display:none}
+      .budget-panel{align-items:flex-start;flex-direction:column}.coverage{justify-content:flex-start}
+      .final-banner{margin:-23px -18px 24px}
+      .mini-bar{grid-template-columns:105px 1fr 32px}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+    @media print{
+      @page{margin:.55in}
+      body{background:#fff;color:#000;font-size:11pt}
+      body::before,#reviewBar,#bottomNav,#toast,.screen-only{display:none!important}
+      #app{width:100%;margin:0;padding:0}
+      .sheet{box-shadow:none;border-top:4px solid #000;overflow:visible}
+      .sheet-body{padding:16px 0}.final-banner{margin:0 0 18px;background:#eee!important;color:#000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .final-banner h2,.final-banner p{color:#000}.summary-grid{display:block}.summary-box{break-inside:avoid;margin:0 0 10px;background:#f4f4f4!important}
+      .source-drawer{display:block}.source-drawer > *{display:block}.button-row{display:none}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#app">Skip to assignment</a>
+
+  <header id="reviewBar">
+    <div class="bar-inner">
+      <div class="brand">
+        <span class="live-dot" aria-hidden="true"></span>
+        <div><strong>THE REVIEW DESK</strong><small>Beyond the Scoreboard · Case 08-29-21</small></div>
+      </div>
+      <div id="meter" aria-label="Assignment progress"></div>
+      <div class="bar-status"><span id="barStep">Case intake</span><span id="saved" aria-live="polite"></span></div>
+    </div>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <nav id="bottomNav" aria-label="Assignment navigation">
+    <div class="nav-inner">
+      <button class="btn ghost" id="backBtn" type="button">Back</button>
+      <span id="navHint">Your work saves on this device.</span>
+      <button class="btn primary" id="nextBtn" type="button">Open the case</button>
+    </div>
+  </nav>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  "use strict";
+
+  /* =========================
+     CASE DATA + STATE
+     ========================= */
+  const STORAGE_KEY="bts_bs_high_review_board_v1";
+  const VERSION=1;
+  const DEFAULT_STATE={
+    version:VERSION,step:0,
+    student:{name:"",hour:""},
+    s1:{answers:{},takeaway:"",checked:false},
+    s2:{answers:{},reason:"",checked:false},
+    s3:{answers:{},checked:false},
+    s4:{order:[],misses:0,mechanism:""},
+    s5:{points:{leaders:25,scheduler:20,broadcaster:20,state:20,opponent:15},touched:false,evidence:"",thread:"",reason:""},
+    s6:{selected:[],reason:"",checked:false},
+    s7:{position:"",claim:"",evidence1:"",reason1:"",evidence2:"",reason2:"",limit:"",prevent:"",checked:false},
+    first:{s1:null,s2:null,s3:null,s6:null}
+  };
+
+  const SCORE_QS=[
+    {id:"result",text:"IMG Academy won by 58 points.",answer:"proves",why:"The final score directly records the margin: 58–0."},
+    {id:"safe",text:"The matchup was safe for every athlete.",answer:"not",why:"A score records points, not medical risk, roster condition, preparation, or recovery time."},
+    {id:"standards",text:"Bishop Sycamore met Ohio’s school standards.",answer:"not",why:"School status requires records about instruction, attendance, staff, courses, and safety—not a result on the field."},
+    {id:"zero",text:"Bishop Sycamore scored zero points.",answer:"proves",why:"That is visible in the game result."},
+    {id:"rest",text:"Its players had enough recovery time before kickoff.",answer:"not",why:"Rest requires a schedule and player-specific evidence. The state report noted a reported game less than 48 hours earlier."},
+    {id:"truth",text:"Everything the program said about itself was true.",answer:"not",why:"The scoreboard cannot verify any organization’s claims about enrollment, academics, facilities, or eligibility."}
+  ];
+
+  const THREADS={
+    biz:"Business + labor",media:"Media + tech",law:"Law + government",play:"Who gets to play"
+  };
+  const THREAD_QS=[
+    {id:"exposure",text:"A program marketed football exposure as a route to college opportunity.",answers:["biz","play"],why:"Primary fit: BUSINESS because attention and opportunity became the product. WHO GETS TO PLAY is also defensible because access to recruiting drove demand."},
+    {id:"broadcast",text:"A national television platform turned one matchup into a nationwide event.",answers:["media"],why:"MEDIA + TECH asks who can follow, how far, and how fast. The broadcast scaled the story—and the appearance of legitimacy."},
+    {id:"filing",text:"In 2021, this type of Ohio school filed a certification, but the state report said filing was not an approval process.",answers:["law"],why:"LAW + GOVERNMENT: the rule defined what paperwork existed, what authority the Department had, and what it could not enforce."},
+    {id:"players",text:"Young athletes looking for another recruiting chance entered a program that promised a pathway forward.",answers:["play"],why:"WHO GETS TO PLAY centers access, barriers, and vulnerability. The players were not gatekeepers; they were the people the system was supposed to protect."},
+    {id:"showcase",text:"A promoter and broadcaster filled a showcase slot by accepting a matchup.",answers:["biz","media"],why:"BUSINESS is the strongest first read because a sports product needed an opponent. MEDIA also works because the televised platform made the event valuable."},
+    {id:"standards",text:"After the game, an official investigation compared the program’s claims with attendance, course, facility, and safety standards.",answers:["law"],why:"LAW + GOVERNMENT is the clearest thread: a public agency tested claims against rules and documented the limits of its own authority."}
+  ];
+
+  const AUDIT_RECORDS=[
+    {
+      id:"schedule",label:"Record 01 · Game + schedule",pages:"Ohio investigation · pp. 17–18",
+      excerpt:"On August 29, 2021, Bishop Sycamore lost 58–0 to IMG Academy on national television. Reports also showed that the team had played near Pittsburgh on August 27—less than 48 hours earlier.",
+      q:"What is the strongest claim this record supports?",answer:1,
+      opts:["Every Bishop Sycamore player was injured.","The schedule created a legitimate player-rest and safety concern.","A 58–0 score by itself proves that the program was not a school."],
+      note:"BOUNDARY: The dates support a rest concern. They do not establish every athlete’s medical condition, and the score alone cannot establish school status."
+    },
+    {
+      id:"filing",label:"Record 02 · The filing rule",pages:"Ohio investigation · pp. 1–6, 35–36",
+      excerpt:"For non-chartered, non-tax supported schools, the report said the required filing was a certification—not an approval. It also said the Department then lacked authority to approve, monitor, or enforce those minimum standards in the usual way.",
+      q:"What is the strongest claim this record supports?",answer:2,
+      opts:["Ohio law forced ESPN to televise the game.","The State of Ohio certified that Bishop Sycamore delivered a high-quality education.","Paperwork could create the appearance of legitimacy even though filing did not equal approval."],
+      note:"BOUNDARY: The rule was an enabling condition, not a command. It left an opening; people and institutions still made choices inside that opening."
+    },
+    {
+      id:"site",label:"Record 03 · Instruction + site visit",pages:"Ohio investigation · pp. 26–28",
+      excerpt:"The Department found the required instructional-hours standard was not met in 2020–21. A site visit also confirmed that the listed athletic facility was not being used for instruction.",
+      q:"Which conclusion stays inside the evidence?",answer:0,
+      opts:["The available records contradicted the claim that a functioning school operated at the listed site for the required hours.","No player ever completed any schoolwork anywhere.","Athletic practice during a school day is always illegal."],
+      note:"BOUNDARY: The report establishes failures and contradictions in the records it examined. It does not let us make a claim about every hour of every player’s life."
+    },
+    {
+      id:"enrollment",label:"Record 04 · Conflicting numbers",pages:"Ohio investigation · pp. 34–35",
+      excerpt:"A school administrator was quoted describing roughly 75–80 students. The school’s own forms disclosed three students for one year and one student for the next.",
+      q:"What should a responsible gatekeeper do with this conflict?",answer:2,
+      opts:["Assume every public statement by every program is false.","Average the numbers and record 40 students.","Treat the conflict as a red flag and independently verify enrollment before approving a game."],
+      note:"BOUNDARY: A contradiction is a reason to investigate. It is not permission to invent a replacement number."
+    },
+    {
+      id:"finding",label:"Record 05 · Official finding",pages:"Ohio investigation · pp. 33–41",
+      excerpt:"The Department found no evidence of compliance with several minimum standards and concluded that Bishop Sycamore was “not a school as it purports on paper to be.”",
+      q:"Which claim is sized to this finding?",answer:1,
+      opts:["The report proves a specific crime by every person connected to the program.","The report supports the conclusion that the organization failed to operate as the school it represented itself to be under the standards examined.","The documentary filmmakers caused the state investigation."],
+      note:"BOUNDARY: An administrative finding is powerful evidence about standards and operations. It is not automatically a criminal verdict against every individual."
+    }
+  ];
+
+  const MECHANISM=[
+    {id:"demand",short:"The dream",text:"Athletes seek exposure and another route to college football."},
+    {id:"claim",short:"The claim",text:"Program leaders assemble a team and represent the operation as a school."},
+    {id:"gap",short:"The opening",text:"A filing and oversight gap leaves that representation insufficiently tested."},
+    {id:"gate",short:"The gate",text:"Event gatekeepers accept the team into a national showcase matchup."},
+    {id:"amp",short:"The amplifier",text:"Television gives the matchup national reach and borrowed legitimacy."},
+    {id:"scrutiny",short:"The trigger",text:"The 58–0 game and on-air concern produce scrutiny, then a state investigation."}
+  ];
+
+  const ALLOCATORS=[
+    {id:"leaders",label:"Program leadership",color:"#e33d48"},
+    {id:"scheduler",label:"Promoter / scheduler",color:"#f3a712"},
+    {id:"broadcaster",label:"Broadcaster / platform",color:"#36c5d7"},
+    {id:"state",label:"State rules / oversight",color:"#7668c8"},
+    {id:"opponent",label:"Opponent / participating institutions",color:"#2f8f65"}
+  ];
+
+  const SAFEGUARDS=[
+    {id:"site",title:"Verify the school exists",text:"Confirm the operating site and contact an accountable school administrator independently.",cost:3,tags:["school"]},
+    {id:"academic",title:"Audit academic records",text:"Check current enrollment, instructional schedule, courses, attendance system, and staff qualifications.",cost:3,tags:["school"]},
+    {id:"roster",title:"Verify every athlete",text:"Independently confirm identity, age, enrollment, eligibility, and guardian information where required.",cost:3,tags:["players"]},
+    {id:"medical",title:"Require a safety file",text:"Verify insurance, certified medical coverage, emergency plan, and responsible adult supervision.",cost:3,tags:["safety"]},
+    {id:"rest",title:"Check the seven-day schedule",text:"Require full game history and a minimum recovery window before kickoff.",cost:2,tags:["safety"]},
+    {id:"match",title:"Review competitive fit",text:"Use verified roster and recent competition to cancel a dangerously mismatched contest.",cost:2,tags:["safety"]},
+    {id:"triple",title:"Use three-way confirmation",text:"Require separate confirmation from the school, state record holder, and event organizer before broadcast.",cost:2,tags:["gatekeeper"]},
+    {id:"social",title:"Trust the highlight reel",text:"Treat social followers, a polished logo, and recruiting clips as proof the program is legitimate.",cost:1,tags:["weak"],weak:true},
+    {id:"form",title:"Treat filing as approval",text:"Accept a self-certified form or appearance on a list as a complete quality check.",cost:1,tags:["weak"],weak:true}
+  ];
+
+  const SOURCE_CHOICES=[
+    ["schedule","Game + schedule record"],
+    ["filing","Filing and oversight rule"],
+    ["site","Instructional hours + site visit"],
+    ["enrollment","Conflicting enrollment numbers"],
+    ["finding","Official standards finding"],
+    ["film","Former-player testimony in BS High"]
+  ];
+
+  const PAGE_LABELS=["Case intake","01 · Scoreboard","02 · Four threads","03 · Record audit","04 · Mechanism","05 · Accountability","06 · Safeguards","07 · Verdict","File review"];
+  const NEXT_LABELS=["Open the case","Next: run the threads","Next: audit the record","Next: build the mechanism","Next: assign accountability","Next: draft safeguards","Next: issue a verdict","Review + export",""];
+
+  function clone(obj){return JSON.parse(JSON.stringify(obj));}
+  function merge(base,extra){
+    if(!extra||typeof extra!=="object")return base;
+    Object.keys(extra).forEach(function(k){
+      if(extra[k]&&typeof extra[k]==="object"&&!Array.isArray(extra[k])&&base[k]&&typeof base[k]==="object"&&!Array.isArray(base[k])) merge(base[k],extra[k]);
+      else base[k]=extra[k];
+    });
+    return base;
+  }
+  function loadState(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(!raw)return clone(DEFAULT_STATE);
+      const parsed=JSON.parse(raw);
+      return parsed&&parsed.version===VERSION?merge(clone(DEFAULT_STATE),parsed):clone(DEFAULT_STATE);
+    }catch(e){return clone(DEFAULT_STATE);}
+  }
+  let S=loadState();
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(S));
+      const el=document.getElementById("saved");
+      if(el){el.textContent="saved on this device";clearTimeout(saveState.t);saveState.t=setTimeout(function(){el.textContent="";},1500);}
+    }catch(e){}
+  }
+  function words(v){return String(v||"").trim().split(/\s+/).filter(Boolean).length;}
+  function selectedCount(obj){return Object.keys(obj||{}).filter(function(k){return obj[k]!==undefined&&obj[k]!==null&&obj[k]!=='';}).length;}
+  function byId(id){return document.getElementById(id);}
+  function toast(msg){
+    const t=byId("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("show");},1800);
+  }
+  function sourceOptions(selected){
+    return '<option value="">Choose a record</option>'+SOURCE_CHOICES.map(function(x){return '<option value="'+x[0]+'" '+(selected===x[0]?'selected':'')+'>'+x[1]+'</option>';}).join("");
+  }
+  function sourceName(id){const f=SOURCE_CHOICES.find(function(x){return x[0]===id;});return f?f[1]:"(not selected)";}
+  function sourcesBlock(){
+    return '<details class="source-drawer"><summary>Sources + evidence rules</summary><ol>'+ 
+      '<li><a class="source-link" target="_blank" rel="noopener" href="https://education.ohio.gov/getattachment/Topics/Ohio-Education-Options/Private-Schools/Non-Chartered-Non-Tax-School-Information/bishop-sycamore-report.pdf">Ohio Department of Education, Investigation of Bishop Sycamore High School</a>, December 17, 2021. Game record: pp. 17–18; operational findings: pp. 26–35; authority and recommendations: pp. 35–41.</li>'+ 
+      '<li><a class="source-link" target="_blank" rel="noopener" href="https://press.wbd.com/us/media-release/hbo-0/bs-high/hbo-original-documentary-bs-high-debuts-august-23"><em>BS High</em></a>, HBO, 2023, directed by Travon Free and Martin Desmond Roe. Use the film for attributed testimony and experience; do not treat every interview statement as an official finding.</li>'+ 
+      '<li><strong>Course rule:</strong> a score is a record of a result. A testimony records what a person says or experienced. An administrative report records an agency’s findings. Each source can answer some questions—not every question.</li>'+ 
+      '</ol></details>';
+  }
+
+  /* =========================
+     COMPLETION RULES
+     ========================= */
+  function safeguardStatus(){
+    const chosen=SAFEGUARDS.filter(function(x){return S.s6.selected.indexOf(x.id)>-1;});
+    const cost=chosen.reduce(function(n,x){return n+x.cost;},0);
+    const coverage={school:false,players:false,safety:false,gatekeeper:false};
+    chosen.forEach(function(x){x.tags.forEach(function(t){if(Object.prototype.hasOwnProperty.call(coverage,t))coverage[t]=true;});});
+    const weak=chosen.some(function(x){return x.weak;});
+    return {chosen:chosen,cost:cost,coverage:coverage,weak:weak,valid:chosen.length===4&&cost<=10&&!weak&&Object.keys(coverage).every(function(k){return coverage[k];})};
+  }
+  function argumentChecks(){
+    return {
+      position:!!S.s7.position,
+      claim:words(S.s7.claim)>=20,
+      sources:!!S.s7.evidence1&&!!S.s7.evidence2&&S.s7.evidence1!==S.s7.evidence2,
+      reasons:words(S.s7.reason1)>=15&&words(S.s7.reason2)>=15,
+      limit:words(S.s7.limit)>=12,
+      prevent:words(S.s7.prevent)>=15
+    };
+  }
+  function sectionDone(n){
+    if(n===1)return S.s1.checked&&SCORE_QS.every(function(q){return S.s1.answers[q.id]===q.answer;})&&words(S.s1.takeaway)>=8;
+    if(n===2)return S.s2.checked&&THREAD_QS.every(function(q){return q.answers.indexOf(S.s2.answers[q.id])>-1;})&&words(S.s2.reason)>=10;
+    if(n===3)return S.s3.checked&&AUDIT_RECORDS.every(function(r){return S.s3.answers[r.id]===r.answer;});
+    if(n===4)return S.s4.order.length===MECHANISM.length&&S.s4.mechanism==="choices";
+    if(n===5){const total=Object.values(S.s5.points).reduce(function(a,b){return a+Number(b);},0);return S.s5.touched&&total===100&&!!S.s5.evidence&&!!S.s5.thread&&words(S.s5.reason)>=15;}
+    if(n===6)return S.s6.checked&&safeguardStatus().valid&&words(S.s6.reason)>=15;
+    if(n===7)return S.s7.checked&&Object.values(argumentChecks()).every(Boolean);
+    return false;
+  }
+  function completedSections(){let n=0;for(let i=1;i<=7;i++)if(sectionDone(i))n++;return n;}
+
+  /* =========================
+     PAGE TEMPLATES
+     ========================= */
+  function docket(section,time,label){return '<div class="docket"><b>'+section+'</b><span>'+label+'</span><span class="time">'+time+'</span></div>';}
+
+  function coverPage(){
+    return '<section class="sheet">'+docket('Special review','48 minutes · individual','Case 08-29-21')+
+      '<div class="cover-grid"><div class="cover-copy">'+
+        '<div class="kicker">Beyond the Scoreboard · Film evidence lab</div>'+ 
+        '<h1>BS HIGH<span>THE SYSTEM BEHIND THE SCORE</span></h1>'+ 
+        '<p class="thesis"><strong>The score tells us who lost.</strong> Your job is to explain how the game became possible—and which institution could have stopped it.</p>'+ 
+        '<div class="callout red"><div class="eyebrow">The ground rule</div><p><strong>The players are not the punchline.</strong> They are the people the system was supposed to protect. Audit the gatekeepers, not the dream.</p></div>'+ 
+        '<div class="identity-grid"><label class="field"><span>Your name</span><input id="studentName" type="text" autocomplete="name" placeholder="First and last name"></label><label class="field"><span>Hour</span><input id="studentHour" type="text" inputmode="numeric" placeholder="3rd"></label></div>'+ 
+        '<p class="small" style="margin:12px 0 0">Seven sections. Objective checks can be corrected; your first-check totals stay in the final record. Written judgment is yours.</p>'+ 
+      '</div><div class="score-stage">'+ 
+        '<div class="scoreboard" aria-label="Final score: IMG Academy 58, Bishop Sycamore 0"><div class="score-label"><span class="team">IMG ACADEMY</span><span class="score">58</span></div><div class="score-label"><span class="team">BISHOP SYCAMORE</span><span class="score">00</span></div><div class="score-meta"><span>Final</span><span>National television</span></div></div>'+ 
+        '<div class="case-charge"><strong>THE QUESTION IS NOT “HOW DID THEY LOSE?”</strong><p>It is: how did a program the state later found was not operating as represented reach a national field—and what does that reveal about sport as a mirror and an engine?</p></div>'+ 
+      '</div></div>'+ 
+      '<div class="sheet-body" style="padding-top:22px"><div class="thread-key"><div><b>Business + labor</b><span>Who profits? Who works? Who controls?</span></div><div><b>Media + tech</b><span>Who can follow? What gets amplified?</span></div><div><b>Law + government</b><span>Who writes rules? Who can enforce?</span></div><div><b>Who gets to play</b><span>Who enters? Who is protected?</span></div></div>'+sourcesBlock()+'</div></section>';
+  }
+
+  function scorePage(){
+    const rows=SCORE_QS.map(function(q,i){
+      const pick=S.s1.answers[q.id]||"";
+      const graded=S.s1.checked?' graded':'';
+      return '<div class="decision-row'+graded+'" data-q="'+q.id+'"><div class="num">'+String(i+1).padStart(2,'0')+'</div><div class="statement">'+q.text+'</div><div class="answer-cell"><div class="pill-row">'+
+        '<button type="button" class="pill '+(S.s1.checked&&pick==='proves'?(q.answer==='proves'?'correct':'wrong'):'')+'" data-score-choice="proves" aria-pressed="'+(pick==='proves')+'">Score proves it</button>'+ 
+        '<button type="button" class="pill '+(S.s1.checked&&pick==='not'?(q.answer==='not'?'correct':'wrong'):'')+'" data-score-choice="not" aria-pressed="'+(pick==='not')+'">Score cannot prove it</button>'+ 
+      '</div></div><div class="row-explain"><strong>'+(pick===q.answer?'IN BOUNDS. ':'REPLAY NEEDED. ')+'</strong>'+q.why+'</div></div>';
+    }).join("");
+    const score=SCORE_QS.filter(function(q){return S.s1.answers[q.id]===q.answer;}).length;
+    return '<section class="sheet">'+docket('Section 01 of 07','4 minutes','Scoreboard limit')+'<div class="sheet-body"><div class="section-no">Start with the surface</div><h2>WHAT 58–0 CANNOT TELL YOU</h2><p class="lead">A scoreboard is a precise record of a very small slice of reality. Judge every statement using <strong>only the final score</strong>—not the film, not hindsight, not what you already know.</p>'+ 
+      '<div class="decision-list">'+rows+'</div><div class="button-row"><button type="button" class="btn ghost" id="checkScore">Check the replay</button><span class="scoreline" aria-live="polite">'+(S.s1.checked?score+' of '+SCORE_QS.length+' in bounds.':'')+'</span></div>'+ 
+      '<label class="field" style="margin-top:22px"><span>One-sentence takeaway</span><textarea id="scoreTakeaway" rows="2" placeholder="Looking beyond the score changed the question from…"></textarea><span class="wordline"><span>Explain what a historian must look for next.</span><span id="takeawayCount">'+words(S.s1.takeaway)+' words</span></span></label>'+ 
+      '<div class="callout cyan"><div class="eyebrow">Course connection · L001</div><p><strong>The games are evidence—but no single record is the whole case.</strong> The score tells who won. The system tells who could enter, who decided, and who was protected.</p></div>'+sourcesBlock()+'</div></section>';
+  }
+
+  function threadsPage(){
+    const cards=THREAD_QS.map(function(q,i){
+      const pick=S.s2.answers[q.id]||"";
+      const good=q.answers.indexOf(pick)>-1;
+      return '<div class="thread-card '+(S.s2.checked?'graded':'')+'" data-thread-q="'+q.id+'"><div class="eyebrow">Evidence '+String(i+1).padStart(2,'0')+'</div><div class="headline">'+q.text+'</div><div class="pill-row">'+Object.keys(THREADS).map(function(k){
+        let cls='pill';if(S.s2.checked&&pick===k)cls+=' '+(good?'correct':'wrong');
+        return '<button type="button" class="'+cls+'" data-thread-choice="'+k+'" aria-pressed="'+(pick===k)+'">'+THREADS[k]+'</button>';
+      }).join('')+'</div><p class="thread-feedback"><strong>'+(good?'DEFENSIBLE READ. ':'LOOK AGAIN. ')+'</strong>'+q.why+'</p></div>';
+    }).join('');
+    const score=THREAD_QS.filter(function(q){return q.answers.indexOf(S.s2.answers[q.id])>-1;}).length;
+    return '<section class="sheet">'+docket('Section 02 of 07','7 minutes','Four-thread film room')+'<div class="sheet-body"><div class="section-no">Tag the machinery</div><h2>RUN THE FOUR THREADS</h2><p class="lead">Choose the <strong>strongest first thread</strong> for each piece of the case. Some evidence can feed a second thread; the feedback will tell you where another defense is possible.</p>'+ 
+      '<div class="thread-key"><div><b>Business + labor</b><span>Who pays, works, owns, or sells?</span></div><div><b>Media + tech</b><span>Who follows—and what looks legitimate?</span></div><div><b>Law + government</b><span>Who writes, verifies, or enforces?</span></div><div><b>Who gets to play</b><span>Who gets access—and who bears risk?</span></div></div>'+cards+
+      '<div class="button-row"><button type="button" class="btn ghost" id="checkThreads">Run the thread check</button><span class="scoreline" aria-live="polite">'+(S.s2.checked?score+' of '+THREAD_QS.length+' defensible first reads.':'')+'</span></div>'+ 
+      '<label class="field" style="margin-top:22px"><span>Which thread hides most easily—and why?</span><textarea id="threadReason" rows="3" placeholder="The easiest thread to miss is… because…"></textarea><span class="wordline"><span>Use one BS High example.</span><span id="threadCount">'+words(S.s2.reason)+' words</span></span></label>'+ 
+      '<div class="callout"><div class="eyebrow">Why this matters</div><p>A televised game can be media, business, law, and access at the same time. <strong>Your job is not to find the one magic label.</strong> It is to defend which mechanism the evidence shows most clearly.</p></div></div></section>';
+  }
+
+  function auditPage(){
+    const cards=AUDIT_RECORDS.map(function(r){
+      const pick=S.s3.answers[r.id];
+      return '<article class="source-card '+(S.s3.checked?'graded':'')+'" data-audit="'+r.id+'"><header class="source-head"><span>'+r.label+'</span><span>'+r.pages+'</span></header><div class="source-body"><div class="source-excerpt">'+r.excerpt+'</div><div class="source-q">'+r.q+'</div><div class="option-stack">'+r.opts.map(function(o,i){
+        let cls='option';if(S.s3.checked&&pick===i)cls+=' '+(i===r.answer?'correct':'wrong');if(S.s3.checked&&i===r.answer&&pick!==i)cls+=' correct';
+        return '<button type="button" class="'+cls+'" data-audit-choice="'+i+'" aria-pressed="'+(pick===i)+'">'+String.fromCharCode(65+i)+'. '+o+'</button>';
+      }).join('')+'</div><div class="audit-note"><strong>'+((pick===r.answer)?'BOUNDED CLAIM. ':'THE RECORD SUPPORTS A NARROWER CLAIM. ')+'</strong>'+r.note+'</div></div></article>';
+    }).join('');
+    const score=AUDIT_RECORDS.filter(function(r){return S.s3.answers[r.id]===r.answer;}).length;
+    return '<section class="sheet">'+docket('Section 03 of 07','9 minutes','Claim-size audit')+'<div class="sheet-body"><div class="section-no">Official record enters the booth</div><h2>WHAT THE FILE CAN PROVE</h2><p class="lead">The film gave you testimony and a narrative. Now test five claims against the December 17, 2021 Ohio investigation. Choose the <strong>strongest conclusion that does not outrun the record.</strong></p>'+ 
+      '<div class="callout red"><div class="eyebrow">Source discipline</div><p><strong>“Unable to confirm” is not the same phrase as “proved the opposite.”</strong> A careful investigator preserves that difference—even when the larger pattern is damning.</p></div>'+cards+
+      '<div class="button-row"><button type="button" class="btn ghost" id="checkAudit">Audit my claims</button><span class="scoreline" aria-live="polite">'+(S.s3.checked?score+' of '+AUDIT_RECORDS.length+' claims sized correctly.':'')+'</span></div>'+sourcesBlock()+'</div></section>';
+  }
+
+  function mechanismPage(){
+    const orderHtml=S.s4.order.map(function(id,i){const m=MECHANISM.find(function(x){return x.id===id;});return '<div class="chain-slot"><b>'+String(i+1).padStart(2,'0')+'</b><span><strong>'+m.short+':</strong> '+m.text+'</span></div>';}).join('');
+    const pool=MECHANISM.filter(function(m){return S.s4.order.indexOf(m.id)===-1;});
+    const shuffled=pool.slice().sort(function(a,b){return hashOrder(a.id,S.s4.order.length)-hashOrder(b.id,S.s4.order.length);});
+    return '<section class="sheet">'+docket('Section 04 of 07','7 minutes','Mechanism builder')+'<div class="sheet-body"><div class="section-no">Conditions are not commands</div><h2>BUILD THE PLAY THAT MADE THE GAME POSSIBLE</h2><p class="lead">Click the tiles in logical order. You are building a mechanism: <strong>an incentive, a representation, an opening, a gatekeeping choice, an amplifier, and a trigger.</strong></p>'+ 
+      '<div class="mechanism-board"><div class="mechanism-label">Locked sequence · '+S.s4.order.length+' of '+MECHANISM.length+'</div><div id="playChain">'+(orderHtml||'<div class="small" style="color:#91a5b4">No steps locked yet.</div>')+'</div><div id="playPool">'+shuffled.map(function(m){return '<button type="button" class="chain-chip" data-chain="'+m.id+'"><strong>'+m.short+':</strong> '+m.text+'</button>';}).join('')+'</div></div>'+ 
+      '<div class="button-row"><button type="button" class="btn ghost" id="resetChain">Reset the play</button><span class="scoreline">Replay flags: '+S.s4.misses+'</span></div>'+ 
+      '<div class="lesson-lock '+(S.s4.order.length===MECHANISM.length?'show':'')+'"><div class="eyebrow">The L002 distinction</div><h3>AN OPENING IS NOT A CAUSE</h3><p>The recruiting dream and the oversight gap made the outcome <em>possible</em>. They did not make it inevitable. Leaders, schedulers, and broadcasters still made decisions.</p><div class="pill-row">'+ 
+        '<button class="pill" type="button" data-mech-answer="forced" aria-pressed="'+(S.s4.mechanism==='forced')+'">The conditions forced the game to happen.</button>'+ 
+        '<button class="pill" type="button" data-mech-answer="one" aria-pressed="'+(S.s4.mechanism==='one')+'">One person explains the entire system.</button>'+ 
+        '<button class="pill '+(S.s4.mechanism==='choices'?'correct':'')+'" type="button" data-mech-answer="choices" aria-pressed="'+(S.s4.mechanism==='choices')+'">Conditions opened doors; institutions chose to walk through them.</button>'+ 
+      '</div><div class="feedback '+(S.s4.mechanism&&S.s4.mechanism!=='choices'?'show warn':S.s4.mechanism==='choices'?'show good':'')+'">'+(S.s4.mechanism==='choices'?'<strong>Mechanism secured.</strong> This names both the enabling conditions and the actors who converted them into an outcome.':S.s4.mechanism?'<strong>Too simple.</strong> Return agency to every institution that made a preventable choice.':'')+'</div></div>'+ 
+      '<div class="callout cyan"><div class="eyebrow">Course connection · L002</div><p>Industrial cities did not <em>command</em> modern sport into existence; they supplied conditions that organizers harvested. The same causal discipline applies here.</p></div></div></section>';
+  }
+
+  function hashOrder(id,n){let h=n*31;for(let i=0;i<id.length;i++)h=(h*33+id.charCodeAt(i))%997;return h;}
+
+  function allocationPage(){
+    const total=Object.values(S.s5.points).reduce(function(a,b){return a+Number(b);},0);
+    const rows=ALLOCATORS.map(function(a){return '<div class="slider-row"><div class="slider-top"><label for="alloc_'+a.id+'">'+a.label+'</label><span class="slider-value" id="val_'+a.id+'">'+S.s5.points[a.id]+'%</span></div><input id="alloc_'+a.id+'" data-alloc="'+a.id+'" type="range" min="0" max="100" step="5" value="'+S.s5.points[a.id]+'"></div>';}).join('');
+    const legend=ALLOCATORS.map(function(a){return '<div><span><i class="swatch" style="background:'+a.color+'"></i>'+a.label+'</span><strong id="leg_'+a.id+'">'+S.s5.points[a.id]+'%</strong></div>';}).join('');
+    return '<section class="sheet">'+docket('Section 05 of 07','6 minutes','Accountability board')+'<div class="sheet-body"><div class="section-no">Allocate preventable responsibility</div><h2>YOU HAVE 100 ACCOUNTABILITY POINTS</h2><p class="lead">Distribute all 100 across the institutional gatekeepers. This is <strong>not a legal verdict</strong>; it is your evidence-based argument about who had power to prevent the game or reduce the harm.</p>'+ 
+      '<div class="callout red"><div class="eyebrow">Players receive zero points</div><p>They did not control school verification, scheduling, regulation, or broadcasting. <strong>Do not confuse vulnerability with responsibility.</strong></p></div>'+ 
+      '<div class="allocation-layout"><div>'+rows+'</div><aside class="alloc-viz"><div id="donut" role="img" aria-label="Accountability allocation chart"><div class="donut-total" id="donutTotal">'+total+'%<span>allocated</span></div></div><div class="alloc-legend">'+legend+'</div><div class="total-alert" id="totalAlert" aria-live="polite">'+(total===100?(S.s5.touched?'All 100 assigned.':'Move at least one slider to make this yours.'):(total<100?(100-total)+' points remain.':(total-100)+' points over budget.'))+'</div></aside></div>'+ 
+      '<div class="ruleline"></div><div class="argument-grid"><label class="field"><span>Best evidence for your largest share</span><select id="allocEvidence">'+sourceOptions(S.s5.evidence)+'</select></label><label class="field"><span>Thread most visible in your allocation</span><select id="allocThread"><option value="">Choose a thread</option>'+Object.keys(THREADS).map(function(k){return '<option value="'+k+'" '+(S.s5.thread===k?'selected':'')+'>'+THREADS[k]+'</option>';}).join('')+'</select></label><label class="field wide"><span>Defend your allocation</span><textarea id="allocReason" rows="4" placeholder="I gave the largest share to… because… The record shows…"></textarea><span class="wordline"><span>Name power, choice, and evidence.</span><span id="allocCount">'+words(S.s5.reason)+' words</span></span></label></div>'+ 
+      '<div class="callout"><div class="eyebrow">Mirror or engine?</div><p>If sport only mirrored the surrounding world, these gatekeepers would be passive. Your allocation tests whether sports institutions also <strong>created rules, legitimacy, markets, and risk of their own.</strong></p></div></div></section>';
+  }
+
+  function safeguardPage(){
+    const st=safeguardStatus();
+    const cards=SAFEGUARDS.map(function(g){const on=S.s6.selected.indexOf(g.id)>-1;return '<button type="button" class="safeguard '+(g.weak?'weak':'')+'" data-safe="'+g.id+'" aria-pressed="'+on+'"><span class="cost">'+g.cost+' flags</span><b>'+g.title+'</b><span>'+g.text+'</span><span class="tag">'+(g.weak?'weak check':g.tags.join(' + '))+'</span></button>';}).join('');
+    const cov=st.coverage;
+    return '<section class="sheet">'+docket('Section 06 of 07','7 minutes','Safeguard draft')+'<div class="sheet-body"><div class="section-no">Redesign the gate</div><h2>STOP THE NEXT ONE BEFORE KICKOFF</h2><p class="lead">You control the national showcase’s verification office. Select <strong>exactly four safeguards</strong> with a budget of <strong>10 review flags</strong>. Cover all four jobs: school, players, safety, gatekeeper.</p>'+ 
+      '<div class="budget-panel"><div><span class="mono" style="font-size:11px;color:#9eb0bd">REVIEW BUDGET USED</span><br><strong id="budgetUsed">'+st.cost+' / 10 FLAGS</strong></div><div class="coverage" aria-label="Required coverage"><span data-cover="school" class="'+(cov.school?'on':'')+'">School</span><span data-cover="players" class="'+(cov.players?'on':'')+'">Players</span><span data-cover="safety" class="'+(cov.safety?'on':'')+'">Safety</span><span data-cover="gatekeeper" class="'+(cov.gatekeeper?'on':'')+'">Gatekeeper</span></div></div>'+ 
+      '<div class="safeguard-grid">'+cards+'</div>'+ 
+      '<div class="button-row"><button type="button" class="btn ghost" id="checkSafeguards">Stress-test my rules</button><span class="scoreline" id="safeScore" aria-live="polite">'+(S.s6.checked?(st.valid?'Plan clears review.':'Plan does not clear review yet.'):'')+'</span></div>'+ 
+      '<div class="feedback '+(S.s6.checked?(st.valid?'show good':'show warn'):'')+'" id="safeFeedback">'+(S.s6.checked?(st.valid?'<strong>Four checks. Four jobs. Budget respected.</strong> Your office tests the institution, protects people, and makes the media gatekeeper verify instead of assume.':'<strong>Revise the plan.</strong> You need exactly four checks, no weak substitutes, all four coverage jobs, and no more than 10 flags.'):'')+'</div>'+ 
+      '<label class="field" style="margin-top:22px"><span>Which safeguard would have stopped this case earliest—and how?</span><textarea id="safeReason" rows="4" placeholder="The earliest effective check is… It would force… to verify… before…"></textarea><span class="wordline"><span>Name the actor and the moment.</span><span id="safeCount">'+words(S.s6.reason)+' words</span></span></label>'+ 
+      '<div class="callout cyan"><div class="eyebrow">Design rule</div><p>A polished logo, a highlight reel, and a filed form can all look official. <strong>A real safeguard verifies a claim through a source the claimant does not control.</strong></p></div></div></section>';
+  }
+
+  function checklistHtml(){
+    const c=argumentChecks();
+    const items=[['position','Mirror / engine position chosen'],['claim','Claim reaches 20 words'],['sources','Two different source families selected'],['reasons','Both evidence explanations reach 15 words'],['limit','Limitation reaches 12 words'],['prevent','Prevention judgment reaches 15 words']];
+    return items.map(function(x){return '<li class="'+(c[x[0]]?'ok':'')+'">'+x[1]+'</li>';}).join('');
+  }
+  function verdictPage(){
+    const pos=[
+      ['mirror','Mirror','Sport mostly reflected pressures already in education, media, inequality, and recruiting.'],
+      ['both','Both','Sport absorbed outside pressures and built its own machinery that amplified them.'],
+      ['engine','Engine','Sports institutions actively created the pathway, legitimacy, incentives, and risk.']
+    ];
+    return '<section class="sheet">'+docket('Section 07 of 07','8 minutes','Bounded verdict')+'<div class="sheet-body"><div class="section-no">Issue the finding</div><h2>MIRROR, ENGINE—OR BOTH?</h2><p class="lead">There is no answer-key position. There <strong>is</strong> an evidence standard: name institutions, explain a mechanism, use two different records, and state what your evidence cannot prove.</p>'+ 
+      '<div class="pill-row">'+pos.map(function(p){return '<button type="button" class="pill position" data-position="'+p[0]+'" aria-pressed="'+(S.s7.position===p[0])+'"><strong>'+p[1]+'</strong><small>'+p[2]+'</small></button>';}).join('')+'</div>'+ 
+      '<div class="argument-grid">'+ 
+        '<label class="field wide"><span>1 · Claim</span><textarea id="finalClaim" rows="3" placeholder="The BS High case shows that organized sport was a mirror / engine / both because…"></textarea><span class="wordline"><span>Make one arguable, bounded claim.</span><span id="claimCount">'+words(S.s7.claim)+' / 20+ words</span></span></label>'+ 
+        '<label class="field"><span>2A · Evidence record</span><select id="finalEvidence1">'+sourceOptions(S.s7.evidence1)+'</select></label>'+ 
+        '<label class="field"><span>2B · Explain how it proves your claim</span><textarea id="finalReason1" rows="4" placeholder="This record matters because…"></textarea><span class="wordline"><span>Connect record → mechanism → claim.</span><span id="reason1Count">'+words(S.s7.reason1)+' / 15+ words</span></span></label>'+ 
+        '<label class="field"><span>3A · Different evidence record</span><select id="finalEvidence2">'+sourceOptions(S.s7.evidence2)+'</select></label>'+ 
+        '<label class="field"><span>3B · Explain how it corroborates</span><textarea id="finalReason2" rows="4" placeholder="A different source family adds…"></textarea><span class="wordline"><span>Do not merely repeat Evidence 1.</span><span id="reason2Count">'+words(S.s7.reason2)+' / 15+ words</span></span></label>'+ 
+        '<label class="field wide"><span>4 · Claim boundary</span><textarea id="finalLimit" rows="3" placeholder="This evidence does not prove…"></textarea><span class="wordline"><span>Show where your claim stops.</span><span id="limitCount">'+words(S.s7.limit)+' / 12+ words</span></span></label>'+ 
+        '<label class="field wide"><span>5 · Earliest effective intervention</span><textarea id="finalPrevent" rows="3" placeholder="The earliest institution that could have interrupted this chain was… It should have… because…"></textarea><span class="wordline"><span>Name who should verify what, and when.</span><span id="preventCount">'+words(S.s7.prevent)+' / 15+ words</span></span></label>'+ 
+      '</div><div class="brief-check"><div class="eyebrow">Argument audit</div><h3>DOES YOUR BRIEF HOLD UP?</h3><ul class="checklist" id="argumentChecklist">'+checklistHtml()+'</ul><div class="button-row"><button class="btn ghost" id="checkArgument" type="button">Audit my argument</button><span class="scoreline" id="argStatus" aria-live="polite">'+(S.s7.checked?(Object.values(argumentChecks()).every(Boolean)?'Brief clears review.':'Brief needs revision.'):'')+'</span></div></div>'+ 
+      '<div class="callout red"><div class="eyebrow">Final discipline</div><p>“One liar fooled everyone” is not a system explanation. A system explanation identifies <strong>the opening, the decision, the amplifier, and the preventable check.</strong></p></div>'+sourcesBlock()+'</div></section>';
+  }
+
+  function finishPage(){
+    const done=completedSections();
+    const ready=done===7&&S.student.name.trim()&&S.student.hour.trim();
+    const alloc=ALLOCATORS.slice().sort(function(a,b){return S.s5.points[b.id]-S.s5.points[a.id];});
+    const safe=safeguardStatus();
+    const firsts=['s1','s2','s3','s6'].map(function(k){return S.first[k]||'not checked';});
+    return '<section class="sheet"><div class="sheet-body"><div class="final-banner"><div class="eyebrow" style="color:#ffca28">Emergency review board · final record</div><h2>THE CASE BEYOND THE SCORE</h2><p id="finalIdentity"></p><div class="readiness"><span class="ready-dot '+(ready?'yes':'')+'"></span><span>'+(ready?'READY TO FILE':'NOT READY · '+done+' OF 7 SECTIONS COMPLETE')+'</span></div></div>'+ 
+      '<div class="summary-grid">'+ 
+        '<div class="summary-box"><h3>Objective record</h3><p>First checks — Scoreboard: '+firsts[0]+' · Threads: '+firsts[1]+' · Claim audit: '+firsts[2]+' · Safeguard plan: '+firsts[3]+'</p></div>'+ 
+        '<div class="summary-box"><h3>Final position</h3><p id="finalPosition"></p></div>'+ 
+        '<div class="summary-box"><h3>Accountability allocation</h3><div class="mini-bars">'+alloc.map(function(a){return '<div class="mini-bar"><span>'+a.label+'</span><span class="mini-track"><i style="width:'+S.s5.points[a.id]+'%"></i></span><strong>'+S.s5.points[a.id]+'%</strong></div>';}).join('')+'</div><p id="finalAllocationReason"></p></div>'+ 
+        '<div class="summary-box"><h3>Safeguards drafted</h3><p id="finalSafeguards"></p><p id="finalSafeguardReason"></p></div>'+ 
+        '<div class="summary-box wide"><h3>Bounded claim</h3><p id="finalClaimText"></p><p><strong>Evidence 1 — <span id="finalSource1"></span>:</strong> <span id="finalReason1Text"></span></p><p><strong>Evidence 2 — <span id="finalSource2"></span>:</strong> <span id="finalReason2Text"></span></p><p><strong>Boundary:</strong> <span id="finalLimitText"></span></p></div>'+ 
+        '<div class="summary-box wide"><h3>Earliest intervention</h3><p id="finalPreventText"></p></div>'+ 
+      '</div>'+ 
+      (!ready?'<div class="callout red screen-only"><div class="eyebrow">Before you file</div><p>'+missingMessage()+'</p></div>':'<div class="callout screen-only"><div class="eyebrow">Ready</div><p>Your full record includes your answers, first-check totals, allocation, safeguards, evidence reasoning, and source list.</p></div>')+
+      '<div class="button-row screen-only"><button class="btn primary" type="button" id="copyBrief">Copy full brief</button><button class="btn" type="button" id="downloadBrief">Download .txt</button><button class="btn ghost" type="button" id="printBrief">Print / save PDF</button><button class="btn danger" type="button" id="resetAll">Start a new case</button></div>'+ 
+      '<p class="small screen-only" style="margin-top:12px">Attach the downloaded text file in Google Classroom, or use Print / save PDF if your teacher requests a PDF.</p>'+sourcesBlock()+'</div></section>';
+  }
+
+  function missingMessage(){
+    const miss=[];if(!S.student.name.trim())miss.push('add your name');if(!S.student.hour.trim())miss.push('add your hour');for(let i=1;i<=7;i++)if(!sectionDone(i))miss.push('finish Section '+i);return 'Please '+miss.join(', ')+'. You may still export a draft.';
+  }
+
+  const PAGES=[coverPage,scorePage,threadsPage,auditPage,mechanismPage,allocationPage,safeguardPage,verdictPage,finishPage];
+
+  /* =========================
+     RENDER + BIND
+     ========================= */
+  function render(preserveScroll){
+    const y=window.scrollY;
+    byId('app').innerHTML=PAGES[S.step]();
+    bindPage();
+    updateChrome();
+    if(preserveScroll){requestAnimationFrame(function(){window.scrollTo(0,y);});}
+    else window.scrollTo(0,0);
+  }
+  function updateChrome(){
+    const meter=byId('meter');meter.innerHTML='';
+    for(let i=1;i<=7;i++){
+      const seg=document.createElement('span');seg.className='meter-seg';
+      if(sectionDone(i))seg.classList.add('done');
+      if(S.step===i)seg.classList.add('here');
+      seg.setAttribute('aria-label','Section '+i+(sectionDone(i)?' complete':S.step===i?' current':' incomplete'));
+      meter.appendChild(seg);
+    }
+    byId('barStep').textContent=PAGE_LABELS[S.step];
+    const back=byId('backBtn'),next=byId('nextBtn');
+    back.style.visibility=S.step===0?'hidden':'visible';
+    next.style.display=S.step===PAGES.length-1?'none':'inline-block';
+    next.textContent=NEXT_LABELS[S.step]||'Next';
+    byId('navHint').textContent=S.step===0?'Work saves only on this device.':completedSections()+' of 7 sections complete';
+  }
+  function bindText(id,getter,setter,countId,min){
+    const el=byId(id);if(!el)return;el.value=getter()||'';
+    el.addEventListener('input',function(){setter(el.value);if(countId){const c=byId(countId);if(c){const n=words(el.value);c.textContent=n+(min?' / '+min+'+ words':' words');c.classList.toggle('good',!min||n>=min);}}saveState();updateChrome();});
+  }
+  function bindSelect(id,setter){const el=byId(id);if(!el)return;el.addEventListener('change',function(){setter(el.value);saveState();updateChrome();});}
+  function bindPage(){
+    if(S.step===0)bindCover();
+    if(S.step===1)bindScore();
+    if(S.step===2)bindThreads();
+    if(S.step===3)bindAudit();
+    if(S.step===4)bindMechanism();
+    if(S.step===5)bindAllocation();
+    if(S.step===6)bindSafeguards();
+    if(S.step===7)bindVerdict();
+    if(S.step===8)bindFinish();
+  }
+  function bindCover(){
+    const n=byId('studentName'),h=byId('studentHour');n.value=S.student.name;h.value=S.student.hour;
+    n.addEventListener('input',function(){S.student.name=n.value;saveState();});h.addEventListener('input',function(){S.student.hour=h.value;saveState();});
+  }
+  function bindScore(){
+    document.querySelectorAll('[data-score-choice]').forEach(function(btn){btn.addEventListener('click',function(){
+      const row=btn.closest('[data-q]');S.s1.answers[row.dataset.q]=btn.dataset.scoreChoice;S.s1.checked=false;saveState();render(true);
+    });});
+    byId('checkScore').addEventListener('click',function(){
+      const score=SCORE_QS.filter(function(q){return S.s1.answers[q.id]===q.answer;}).length;
+      if(!selectedCount(S.s1.answers)){toast('Make at least one call first.');return;}
+      if(S.first.s1===null)S.first.s1=score+' / '+SCORE_QS.length;
+      S.s1.checked=true;saveState();render(true);
+    });
+    bindText('scoreTakeaway',function(){return S.s1.takeaway;},function(v){S.s1.takeaway=v;},'takeawayCount',0);
+  }
+  function bindThreads(){
+    document.querySelectorAll('[data-thread-choice]').forEach(function(btn){btn.addEventListener('click',function(){
+      const card=btn.closest('[data-thread-q]');S.s2.answers[card.dataset.threadQ]=btn.dataset.threadChoice;S.s2.checked=false;saveState();render(true);
+    });});
+    byId('checkThreads').addEventListener('click',function(){
+      const score=THREAD_QS.filter(function(q){return q.answers.indexOf(S.s2.answers[q.id])>-1;}).length;
+      if(!selectedCount(S.s2.answers)){toast('Tag at least one piece of evidence first.');return;}
+      if(S.first.s2===null)S.first.s2=score+' / '+THREAD_QS.length;S.s2.checked=true;saveState();render(true);
+    });
+    bindText('threadReason',function(){return S.s2.reason;},function(v){S.s2.reason=v;},'threadCount',0);
+  }
+  function bindAudit(){
+    document.querySelectorAll('[data-audit-choice]').forEach(function(btn){btn.addEventListener('click',function(){
+      const card=btn.closest('[data-audit]');S.s3.answers[card.dataset.audit]=Number(btn.dataset.auditChoice);S.s3.checked=false;saveState();render(true);
+    });});
+    byId('checkAudit').addEventListener('click',function(){
+      if(selectedCount(S.s3.answers)===0){toast('Choose at least one bounded claim first.');return;}
+      const score=AUDIT_RECORDS.filter(function(r){return S.s3.answers[r.id]===r.answer;}).length;
+      if(S.first.s3===null)S.first.s3=score+' / '+AUDIT_RECORDS.length;S.s3.checked=true;saveState();render(true);
+    });
+  }
+  function bindMechanism(){
+    document.querySelectorAll('[data-chain]').forEach(function(btn){btn.addEventListener('click',function(){
+      const expected=MECHANISM[S.s4.order.length];
+      if(expected&&btn.dataset.chain===expected.id){S.s4.order.push(btn.dataset.chain);saveState();render(true);}
+      else{S.s4.misses++;saveState();btn.classList.add('err');setTimeout(function(){btn.classList.remove('err');},430);}
+    });});
+    byId('resetChain').addEventListener('click',function(){if(!S.s4.order.length)return;S.s4.order=[];S.s4.misses=0;S.s4.mechanism='';saveState();render(true);});
+    document.querySelectorAll('[data-mech-answer]').forEach(function(btn){btn.addEventListener('click',function(){S.s4.mechanism=btn.dataset.mechAnswer;saveState();render(true);});});
+  }
+  function bindAllocation(){
+    document.querySelectorAll('[data-alloc]').forEach(function(r){r.addEventListener('input',function(){S.s5.points[r.dataset.alloc]=Number(r.value);S.s5.touched=true;saveState();updateAllocation();updateChrome();});});
+    bindSelect('allocEvidence',function(v){S.s5.evidence=v;});bindSelect('allocThread',function(v){S.s5.thread=v;});
+    bindText('allocReason',function(){return S.s5.reason;},function(v){S.s5.reason=v;},'allocCount',0);
+    updateAllocation();
+  }
+  function updateAllocation(){
+    let total=0,start=0,parts=[];
+    ALLOCATORS.forEach(function(a){const v=Number(S.s5.points[a.id]);total+=v;const end=start+v;parts.push(a.color+' '+start+'% '+end+'%');start=end;const val=byId('val_'+a.id),leg=byId('leg_'+a.id);if(val)val.textContent=v+'%';if(leg)leg.textContent=v+'%';});
+    const donut=byId('donut');if(donut)donut.style.background='conic-gradient('+parts.join(',')+')';
+    const dt=byId('donutTotal');if(dt)dt.innerHTML=total+'%<span>allocated</span>';
+    const alert=byId('totalAlert');if(alert)alert.textContent=total===100?(S.s5.touched?'All 100 assigned.':'Move at least one slider to make this yours.'):(total<100?(100-total)+' points remain.':(total-100)+' points over budget.');
+  }
+  function bindSafeguards(){
+    document.querySelectorAll('[data-safe]').forEach(function(btn){btn.addEventListener('click',function(){
+      const id=btn.dataset.safe,i=S.s6.selected.indexOf(id);if(i>-1)S.s6.selected.splice(i,1);else S.s6.selected.push(id);S.s6.checked=false;saveState();render(true);
+    });});
+    byId('checkSafeguards').addEventListener('click',function(){
+      const st=safeguardStatus();S.s6.checked=true;if(S.first.s6===null)S.first.s6=st.valid?'cleared':'revise';saveState();render(true);
+    });
+    bindText('safeReason',function(){return S.s6.reason;},function(v){S.s6.reason=v;},'safeCount',0);
+  }
+  function bindVerdict(){
+    document.querySelectorAll('[data-position]').forEach(function(btn){btn.addEventListener('click',function(){S.s7.position=btn.dataset.position;S.s7.checked=false;saveState();render(true);});});
+    bindText('finalClaim',function(){return S.s7.claim;},function(v){S.s7.claim=v;S.s7.checked=false;refreshChecklist();},'claimCount',20);
+    bindText('finalReason1',function(){return S.s7.reason1;},function(v){S.s7.reason1=v;S.s7.checked=false;refreshChecklist();},'reason1Count',15);
+    bindText('finalReason2',function(){return S.s7.reason2;},function(v){S.s7.reason2=v;S.s7.checked=false;refreshChecklist();},'reason2Count',15);
+    bindText('finalLimit',function(){return S.s7.limit;},function(v){S.s7.limit=v;S.s7.checked=false;refreshChecklist();},'limitCount',12);
+    bindText('finalPrevent',function(){return S.s7.prevent;},function(v){S.s7.prevent=v;S.s7.checked=false;refreshChecklist();},'preventCount',15);
+    const e1=byId('finalEvidence1'),e2=byId('finalEvidence2');
+    e1.addEventListener('change',function(){S.s7.evidence1=e1.value;S.s7.checked=false;saveState();refreshChecklist();updateChrome();});
+    e2.addEventListener('change',function(){S.s7.evidence2=e2.value;S.s7.checked=false;saveState();refreshChecklist();updateChrome();});
+    byId('checkArgument').addEventListener('click',function(){S.s7.checked=true;saveState();const ok=Object.values(argumentChecks()).every(Boolean);byId('argStatus').textContent=ok?'Brief clears review.':'Brief needs revision.';refreshChecklist();updateChrome();toast(ok?'Brief clears review.':'Use the checklist to revise.');});
+  }
+  function refreshChecklist(){const ul=byId('argumentChecklist');if(ul)ul.innerHTML=checklistHtml();}
+  function bindFinish(){
+    byId('finalIdentity').textContent=(S.student.name.trim()||'Name missing')+' · '+(S.student.hour.trim()||'Hour missing');
+    byId('finalPosition').textContent=S.s7.position?S.s7.position.toUpperCase()+': '+S.s7.claim:'No final position filed.';
+    const sg=safeguardStatus().chosen.map(function(x){return x.title;});byId('finalSafeguards').textContent=sg.length?sg.join(' · '):'No safeguards filed.';
+    byId('finalAllocationReason').textContent=S.s5.reason||'No allocation defense filed.';
+    byId('finalSafeguardReason').textContent=S.s6.reason||'No safeguard defense filed.';
+    byId('finalClaimText').textContent=S.s7.claim||'No claim filed.';
+    byId('finalSource1').textContent=sourceName(S.s7.evidence1);
+    byId('finalReason1Text').textContent=S.s7.reason1||'No explanation filed.';
+    byId('finalSource2').textContent=sourceName(S.s7.evidence2);
+    byId('finalReason2Text').textContent=S.s7.reason2||'No explanation filed.';
+    byId('finalLimitText').textContent=S.s7.limit||'No claim boundary filed.';
+    byId('finalPreventText').textContent=S.s7.prevent||'No intervention filed.';
+    byId('copyBrief').addEventListener('click',function(){copyText(buildBrief());});
+    byId('downloadBrief').addEventListener('click',function(){downloadText(buildBrief());});
+    byId('printBrief').addEventListener('click',function(){window.print();});
+    byId('resetAll').addEventListener('click',function(){if(confirm('Clear every answer on this device and start a new case?')){localStorage.removeItem(STORAGE_KEY);S=clone(DEFAULT_STATE);render(false);toast('New case opened.');}});
+  }
+
+  /* =========================
+     NAVIGATION + EXPORT
+     ========================= */
+  byId('backBtn').addEventListener('click',function(){if(S.step>0){S.step--;saveState();render(false);}});
+  byId('nextBtn').addEventListener('click',function(){
+    if(S.step===0&&(!S.student.name.trim()||!S.student.hour.trim()))toast('Add your name and hour before you begin.');
+    else if(S.step>0&&S.step<8&&!sectionDone(S.step))toast('Section saved as a draft—you can return before filing.');
+    if(S.step<PAGES.length-1){S.step++;saveState();render(false);}
+  });
+
+  function buildBrief(){
+    const L=[],safe=safeguardStatus();
+    L.push('BS HIGH: THE SYSTEM BEHIND THE SCORE');
+    L.push('Beyond the Scoreboard · Emergency Review Board · Case 08-29-21');
+    L.push('Name: '+(S.student.name||'(blank)')+'    Hour: '+(S.student.hour||'(blank)'));
+    L.push('Completed sections: '+completedSections()+' / 7');L.push('');
+    L.push('== SECTION 1 · WHAT THE SCORE CAN PROVE ==');
+    SCORE_QS.forEach(function(q,i){L.push((i+1)+'. '+q.text+' — '+(S.s1.answers[q.id]==='proves'?'SCORE PROVES':S.s1.answers[q.id]==='not'?'SCORE CANNOT PROVE':'(blank)'));});
+    L.push('First check: '+(S.first.s1||'not checked'));
+    L.push('Takeaway: '+(S.s1.takeaway||'(blank)'));L.push('');
+    L.push('== SECTION 2 · FOUR THREADS ==');
+    THREAD_QS.forEach(function(q,i){L.push((i+1)+'. '+q.text+' — '+(THREADS[S.s2.answers[q.id]]||'(blank)'));});
+    L.push('First check: '+(S.first.s2||'not checked'));
+    L.push('Thread reflection: '+(S.s2.reason||'(blank)'));L.push('');
+    L.push('== SECTION 3 · RECORD AUDIT ==');
+    AUDIT_RECORDS.forEach(function(r,i){const pick=S.s3.answers[r.id];L.push((i+1)+'. '+r.label+' — '+(pick===undefined?'(blank)':r.opts[pick]));});
+    L.push('First check: '+(S.first.s3||'not checked'));L.push('');
+    L.push('== SECTION 4 · MECHANISM ==');
+    S.s4.order.forEach(function(id,i){const m=MECHANISM.find(function(x){return x.id===id;});L.push((i+1)+'. '+m.short+': '+m.text);});
+    L.push('Replay flags: '+S.s4.misses);
+    L.push('Mechanism verdict: '+(S.s4.mechanism==='choices'?'Conditions opened doors; institutions chose to walk through them.':S.s4.mechanism||'(blank)'));L.push('');
+    L.push('== SECTION 5 · ACCOUNTABILITY ==');
+    ALLOCATORS.forEach(function(a){L.push(a.label+': '+S.s5.points[a.id]+'%');});
+    L.push('Strongest evidence: '+sourceName(S.s5.evidence));
+    L.push('Most visible thread: '+(THREADS[S.s5.thread]||'(blank)'));
+    L.push('Defense: '+(S.s5.reason||'(blank)'));L.push('');
+    L.push('== SECTION 6 · SAFEGUARDS ==');
+    safe.chosen.forEach(function(g,i){L.push((i+1)+'. '+g.title+' ('+g.cost+' flags) — '+g.text);});
+    L.push('Budget: '+safe.cost+' / 10');L.push('First check: '+(S.first.s6||'not checked'));
+    L.push('Earliest safeguard: '+(S.s6.reason||'(blank)'));L.push('');
+    L.push('== SECTION 7 · BOUNDED VERDICT ==');
+    L.push('Position: '+(S.s7.position||'(blank)').toUpperCase());
+    L.push('Claim: '+(S.s7.claim||'(blank)'));
+    L.push('Evidence 1: '+sourceName(S.s7.evidence1));L.push('Reasoning 1: '+(S.s7.reason1||'(blank)'));
+    L.push('Evidence 2: '+sourceName(S.s7.evidence2));L.push('Reasoning 2: '+(S.s7.reason2||'(blank)'));
+    L.push('Claim boundary: '+(S.s7.limit||'(blank)'));
+    L.push('Earliest intervention: '+(S.s7.prevent||'(blank)'));L.push('');
+    L.push('== SOURCES ==');
+    L.push('Ohio Department of Education, Investigation of Bishop Sycamore High School, Dec. 17, 2021: https://education.ohio.gov/getattachment/Topics/Ohio-Education-Options/Private-Schools/Non-Chartered-Non-Tax-School-Information/bishop-sycamore-report.pdf');
+    L.push('BS High, HBO, 2023, directed by Travon Free and Martin Desmond Roe.');
+    return L.join('\n');
+  }
+  function copyText(txt){
+    const done=function(){toast('Full brief copied.');};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,function(){legacyCopy(txt,done);});else legacyCopy(txt,done);
+  }
+  function legacyCopy(txt,done){const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){toast('Use Download instead.');}document.body.removeChild(ta);}
+  function downloadText(txt){
+    try{const blob=new Blob([txt],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='BS High Review - '+((S.student.name||'student').replace(/[^a-z0-9 _-]/gi,'').trim()||'student')+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);toast('Case brief downloaded.');}catch(e){toast('Use Copy full brief instead.');}
+  }
+
+  render(false);
+  </script>
+</body>
+</html>
