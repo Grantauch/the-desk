@@ -13,4 +13,8 @@ These folders preserve the inputs and live baselines used for additive GrantDesk
   student write holds the shared script lock: a day-scoped Daily Check-ins read, a once-per-school-day prior-day pass
   rollover, and a forty-second client recovery budget. No workbook schema change was required.
 
+Line endings are normalized by Git on checkout, so compare a snapshot to the deployable source or to the live
+Apps Script editor after stripping carriage returns. Apps Script also omits the final newline. A hash mismatch that
+disappears under that normalization is not a source difference.
+
 The deployable source remains in `apps-script/hall-pass/`. These snapshots are evidence and rollback references only; do not copy an entire snapshot over the active source without repeating the comparison and tests.
