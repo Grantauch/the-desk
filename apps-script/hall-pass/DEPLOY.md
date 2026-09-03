@@ -2,7 +2,7 @@
 
 ## Release safety
 
-The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder build additively on the 2026-09-01 recovery source. They preserve the public Version 9 protections and Version 11 roster-management controls while implementing the September 2 Issue #14 transaction, queue, countability, calendar, permanent-audit, and identity-reconciliation contract. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
+The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder build additively on the verified 2026-09-02 Version 14 source. They preserve the public Version 9 protections, Version 11 roster-management controls, and Version 14 Issue #14 transaction, queue, countability, calendar, permanent-audit, and identity-reconciliation contract while adding the Version 15 classroom-contention recovery. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
 
 Before any deployment:
 
@@ -13,9 +13,26 @@ Before any deployment:
 
 The Drive-supplied Version 10 snapshot must not be deployed by itself: it removes the unmatched-sign-in ledger and regresses student-payload privacy, cleanup authorization/locking, atomic PIN-email claiming, and teacher-dashboard refresh behavior.
 
-### 2026-09-02 Issue #14 release candidate
+### 2026-09-02 Version 15 classroom-contention release record
 
-This source is ready for local verification before a production version is created. It has not been declared live merely because the repository copy exists.
+The source at Git commit `0cb1a4a` was saved and released as Apps Script **Version 15** by updating the existing deployment in place. The deployment URL, deploying-teacher execution identity, and Mt. Morris Consolidated Schools-only access setting were preserved. No workbook schema change or migration was required.
+
+Drive's saved `Code.gs`, `Index.html`, and `appsscript.json` were read back independently and matched the tested Version 15 source before deployment. Post-deployment checks passed for student, kiosk, daily check-in, and private teacher entry paths without using a real student PIN. Each path loaded its expected controls with no visible error banner.
+
+This release reduces the student-facing “classroom system is handling other students” interruption in four ways:
+
+- Student check-ins, pass requests, and returns now wait up to five seconds for the one shared workbook lock instead of failing immediately during a brief collision.
+- The browser automatically retries only the exact, known-safe busy-lock response, with four short staggered delays after the first attempt. Unknown timeouts and generic errors are not retried because their outcomes may be uncertain.
+- A student's one-use action proof remains available while the request waits and is consumed only after the server actually acquires the lock.
+- The private teacher view records an approximate, identity-free daily count of busy-lock retry signals plus the latest operation type and time. It never stores a student name, email, PIN, token, pass ID, or check-in ID in that diagnostic.
+
+Roster and PIN-address repair paths now refuse to overlap an active PIN-email batch, closing a separate shared-workbook race that could lengthen student waits. Local release checks passed the Hall Pass runtime suite, all 58 handoff validations, Astro/TypeScript checks, the 51-page production build, 63-page static-route validation, live-data validation, and the public-content shelf checks.
+
+If a student still reaches the final busy message, it means several devices reached the private workbook at nearly the same time. The protected change did not begin, and the message does not mean the PIN is wrong. Wait five seconds and press once more, briefly stagger that group, or use the private teacher backup control.
+
+### 2026-09-02 Version 14 Issue #14 release record
+
+After local validation and workbook migration, the Issue #14 source at Git commit `b628bc0` was released as Apps Script **Version 14** by updating the existing deployment. The deployment URL did not change, and the configuration was verified as executing as the deploying teacher with access limited to Mt. Morris Consolidated Schools. This Version 14 source was read back immediately before the Version 15 contention release and preserved as its exact rollback baseline.
 
 - Every daily check-in, bathroom request, and return consumes its own short-lived, signed, server-tracked, one-use PIN proof. A prior identity session cannot authorize a later transaction.
 - One verified bathroom request either starts immediately or enters the ordered line. The same request advances automatically when capacity opens; the student does not enter a second PIN or press a later start button.
