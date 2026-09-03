@@ -95,14 +95,19 @@ const ogImage = new URL(isLearningHub ? '/og-learning-hubs.png' : (ogMap[Astro.u
       // closed <details> prints as a heading with nothing under it. Open them
       // for the print job only, then put every one back exactly as it was.
       (() => {
-        let reopened = [];
+        // null means no print is in flight. Browsers can fire beforeprint more
+        // than once for a single job, and a second capture would record an empty
+        // list and strand every dropdown open, so only the first one counts.
+        let reopened = null;
         addEventListener('beforeprint', () => {
+          if (reopened) return;
           reopened = [...document.querySelectorAll('details:not([open])')];
           reopened.forEach((node) => node.setAttribute('open', ''));
         });
         addEventListener('afterprint', () => {
+          if (!reopened) return;
           reopened.forEach((node) => node.removeAttribute('open'));
-          reopened = [];
+          reopened = null;
         });
       })();
     </script>
