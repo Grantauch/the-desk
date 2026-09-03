@@ -17,6 +17,8 @@ const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
 const GD_BUSY_LOCK_MESSAGE = 'The classroom system is handling other students right now. Press the button once more.';
 const GD_LOCK_CONTENTION_PROPERTY = 'LOCK_CONTENTION_SUMMARY';
+const GD_ROLLOVER_PROPERTY = 'LAST_ROLLOVER';
+const GD_CHECKIN_TAIL_ROWS = 600;
 
 const GD_STUDENT_ACTIONS = {
   CHECKIN: 'CHECKIN',
@@ -699,8 +701,7 @@ function getCheckInState_(student, pinToken, method) {
 
 function recordCheckIn_(student, method, note) {
   const todayKey = dateKey_(new Date());
-  const todayEntries = readCheckIns_().filter((entry) => (
-    entry.dateKey === todayKey &&
+  const todayEntries = readCheckInsForDate_(todayKey).filter((entry) => (
     entry.studentKey === student.key
   ));
   const existing = todayEntries.find((entry) => entry.status === 'CHECKED_IN');
@@ -746,8 +747,8 @@ function recordCheckIn_(student, method, note) {
 
 function recordAbsence_(student, teacher) {
   const todayKey = dateKey_(new Date());
-  const todayEntries = readCheckIns_().filter((entry) => (
-    entry.dateKey === todayKey && entry.studentKey === student.key
+  const todayEntries = readCheckInsForDate_(todayKey).filter((entry) => (
+    entry.studentKey === student.key
   ));
   if (todayEntries.some((entry) => entry.status === 'CHECKED_IN')) {
     throw new Error(`${student.name} is already checked in today.`);
@@ -821,7 +822,7 @@ function requestBathroomPass(actionProof, studentKey, identityToken) {
   let outcome = null;
   withLock_(() => {
     resolved = consumeStudentActionProof_(actionProof, GD_STUDENT_ACTIONS.PASS_REQUEST, studentKey);
-    expirePreviousDayPasses_();
+    expirePreviousDayPassesIfDue_();
     outcome = createBathroomRequest_(resolved);
   }, GD_STUDENT_LOCK_WAIT_MS, 'bathroom request');
   const token = identityTokenForStudent_(identityToken, resolved.student);
@@ -836,7 +837,7 @@ function returnPass(actionProof, studentKey, identityToken) {
   let closeResult = null;
   withLock_(() => {
     resolved = consumeStudentActionProof_(actionProof, GD_STUDENT_ACTIONS.RETURN, studentKey);
-    expirePreviousDayPasses_();
+    expirePreviousDayPassesIfDue_();
     closeResult = closePassForStudent_(
       resolved.student.email,
       resolved.student.email,
@@ -2372,26 +2373,65 @@ function readPassQueue_() {
   });
 }
 
+function mapCheckInRow_(row, rowNumber) {
+  return {
+    row: rowNumber,
+    checkInId: String(row[0] || ''),
+    dateKey: normalizeDateKey_(row[1]),
+    checkInTime: toDateOrNull_(row[2]),
+    studentEmail: normalizeEmail_(row[3]),
+    studentName: String(row[4] || ''),
+    classPeriod: String(row[5] || ''),
+    studentKey: rosterKey_(row[3], row[5]),
+    method: String(row[6] || ''),
+    point: Number(row[7] || 0),
+    status: String(row[8] || ''),
+    note: String(row[9] || ''),
+  };
+}
+
 function readCheckIns_() {
   return gdMemo_('checkins', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return [];
-    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.CHECKINS.length).getValues().map((row, index) => ({
-      row: index + 2,
-      checkInId: String(row[0] || ''),
-      dateKey: normalizeDateKey_(row[1]),
-      checkInTime: toDateOrNull_(row[2]),
-      studentEmail: normalizeEmail_(row[3]),
-      studentName: String(row[4] || ''),
-      classPeriod: String(row[5] || ''),
-      studentKey: rosterKey_(row[3], row[5]),
-      method: String(row[6] || ''),
-      point: Number(row[7] || 0),
-      status: String(row[8] || ''),
-      note: String(row[9] || ''),
-    })).filter((checkIn) => checkIn.checkInId);
+    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.CHECKINS.length).getValues()
+      .map((row, index) => mapCheckInRow_(row, index + 2))
+      .filter((checkIn) => checkIn.checkInId);
   });
+}
+
+/**
+ * Read only the rows one school day needs. Daily Check-ins is append-only and is
+ * never purged, so scanning the whole sheet inside the shared write lock made
+ * every student's check-in hold that lock longer as the year grew. Rows arrive in
+ * chronological order, so the day being written is always at the tail. The window
+ * widens until it has actually passed an earlier day, and it falls back to the
+ * full read whenever that proof is not available, so the answer is never narrower
+ * than the whole-sheet scan it replaces.
+ */
+function readCheckInsForDate_(targetDateKey) {
+  const dateKey = String(targetDateKey || '').trim();
+  if (!dateKey) return [];
+  if (Object.prototype.hasOwnProperty.call(GD_MEMO, 'checkins')) {
+    return readCheckIns_().filter((entry) => entry.dateKey === dateKey);
+  }
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  const totalRows = lastRow - 1;
+  let windowRows = GD_CHECKIN_TAIL_ROWS;
+  while (windowRows < totalRows) {
+    const startRow = lastRow - windowRows + 1;
+    const scanned = sheet.getRange(startRow, 1, windowRows, GD_HEADERS.CHECKINS.length).getValues()
+      .map((row, index) => mapCheckInRow_(row, startRow + index))
+      .filter((entry) => entry.checkInId);
+    if (scanned.some((entry) => entry.dateKey && entry.dateKey < dateKey)) {
+      return scanned.filter((entry) => entry.dateKey === dateKey);
+    }
+    windowRows = Math.min(totalRows, windowRows * 4);
+  }
+  return readCheckIns_().filter((entry) => entry.dateKey === dateKey);
 }
 
 function readPinCards_() {
@@ -3208,7 +3248,10 @@ function expirePreviousDayPasses_(nowValue) {
   const stale = readPassLog_().filter((pass) => (
     pass.status === 'OUT' && safeDateKey_(pass.outDate) !== todayKey
   ));
-  if (!stale.length) return 0;
+  if (!stale.length) {
+    markRolloverChecked_(todayKey);
+    return 0;
+  }
 
   const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.LOG);
   stale.forEach((pass) => {
@@ -3230,7 +3273,35 @@ function expirePreviousDayPasses_(nowValue) {
     ]]);
   });
   gdForget_('passlog');
+  markRolloverChecked_(todayKey);
   return stale.length;
+}
+
+function markRolloverChecked_(todayKey) {
+  try {
+    PropertiesService.getScriptProperties().setProperty(GD_ROLLOVER_PROPERTY, String(todayKey || ''));
+  } catch (error) {
+    // A missing marker only costs one extra scan later; it must never fail a student write.
+  }
+}
+
+/**
+ * Prior-day rollover has work to do at most once per school day. Running the full
+ * Pass Log scan inside every student's bathroom-request and return lock made each
+ * of those requests hold the one shared lock longer than it needed to, which is
+ * what a class saw as the busy message during a bell rush. Whichever action comes
+ * first that day still performs the rollover; everyone after it skips the scan.
+ */
+function expirePreviousDayPassesIfDue_(nowValue) {
+  const todayKey = dateKey_(toDateOrNull_(nowValue) || new Date());
+  let marker = '';
+  try {
+    marker = String(PropertiesService.getScriptProperties().getProperty(GD_ROLLOVER_PROPERTY) || '');
+  } catch (error) {
+    marker = '';
+  }
+  if (marker === todayKey) return 0;
+  return expirePreviousDayPasses_(nowValue);
 }
 
 function purgeOldPasses_() {

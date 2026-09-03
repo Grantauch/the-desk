@@ -194,7 +194,8 @@
       const APP_MODE = <?!= JSON.stringify(appMode) ?>;
       const CALL_TIMEOUT_MS = 45000;
       const BUSY_LOCK_TEXT = 'The classroom system is handling other students right now.';
-      const STUDENT_BUSY_RETRY_DELAYS_MS = [650, 1000, 1400, 1900];
+      const STUDENT_BUSY_RETRY_DELAYS_MS = [600, 900, 1300, 1800, 2400, 3000, 3600];
+      const STUDENT_BUSY_RETRY_BUDGET_MS = 40000;
       const IDLE_RESET_MS = 120000;
       const HANDOFF_AFTER_START_MS = 7000;
       const HANDOFF_AFTER_RETURN_MS = 4000;
@@ -264,6 +265,7 @@
        * still stop for a human because their result may be uncertain.
        */
       const callWithBusyRetry = async (name, ...args) => {
+        const startedAt = Date.now();
         const totalAttempts = STUDENT_BUSY_RETRY_DELAYS_MS.length + 1;
         for (let attempt = 0; attempt < totalAttempts; attempt += 1) {
           try {
@@ -272,7 +274,8 @@
             return result;
           } catch (error) {
             if (!isBusyLockError(error)) throw error;
-            if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length) {
+            const spent = Date.now() - startedAt;
+            if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length || spent >= STUDENT_BUSY_RETRY_BUDGET_MS) {
               throw new Error('Several students are updating the shared classroom log at the same time. No check-in or pass change was made. Wait five seconds and press once more; this is traffic, not a bad PIN. Mr. Grant can use the teacher backup controls if needed.');
             }
             showBusy(`Another student’s check-in or pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);

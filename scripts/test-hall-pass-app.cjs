@@ -283,6 +283,148 @@ assert.equal(contentionActionCalls, 1);
 assert.equal(contentionReleases, 1);
 assert.equal(contentionMemoClears, 2, 'A successful protected action must clear memoized reads before and after its write');
 
+/* ---------- bounded shared-lock work (Version 16 contention reduction) ---------- */
+
+assert.match(code, /GD_CHECKIN_TAIL_ROWS\s*=\s*600/);
+assert.match(code, /GD_ROLLOVER_PROPERTY\s*=\s*'LAST_ROLLOVER'/);
+assert.match(code, /function mapCheckInRow_/);
+assert.match(code, /function readCheckInsForDate_/);
+assert.match(code, /function expirePreviousDayPassesIfDue_/);
+assert.match(code, /function markRolloverChecked_/);
+
+for (const name of ['recordCheckIn_', 'recordAbsence_']) {
+  const source = functionSource(name);
+  assert.match(source, /readCheckInsForDate_\(todayKey\)/, `${name} must read only the day it writes`);
+  assert.doesNotMatch(source, /readCheckIns_\(\)/, `${name} must not scan the whole check-in sheet under the lock`);
+}
+for (const name of ['requestBathroomPass', 'returnPass']) {
+  const source = functionSource(name);
+  assert.match(source, /expirePreviousDayPassesIfDue_\(\)/, `${name} must not rescan the pass log on every request`);
+  assert.doesNotMatch(source, /expirePreviousDayPasses_\(\)/, `${name} must call the once-per-day rollover guard`);
+}
+assert.match(functionSource('expirePreviousDayPasses_'), /markRolloverChecked_\(todayKey\)/);
+assert.match(functionSource('getCheckInState_'), /readCheckIns_\(\)/, 'Streaks still need full history, read outside the lock');
+
+const buildCheckInSheet = (rows) => {
+  let readRows = 0;
+  let readCalls = 0;
+  const sheet = {
+    getLastRow: () => rows.length + 1,
+    getRange(startRow, startColumn, numRows) {
+      readRows += numRows;
+      readCalls += 1;
+      return { getValues: () => rows.slice(startRow - 2, startRow - 2 + numRows) };
+    },
+  };
+  return { sheet, stats: () => ({ readRows, readCalls }) };
+};
+const checkInRow = (dateKey, index) => [
+  `id-${dateKey}-${index}`, dateKey, new Date(), `s${index}@mtmorrisschools.org`,
+  `Student ${index}`, '2nd Hour', 'student', 1, 'CHECKED_IN', '',
+];
+const runWindowedRead = (rows, targetDateKey) => {
+  const built = buildCheckInSheet(rows);
+  const context = {
+    GD_SHEETS: { CHECKINS: 'Daily Check-ins' },
+    GD_HEADERS: { CHECKINS: new Array(10).fill('') },
+    getSpreadsheet_: () => ({ getSheetByName: () => built.sheet }),
+    Utilities: { formatDate: () => targetDateKey },
+    Session: { getScriptTimeZone: () => 'America/Detroit' },
+  };
+  vm.createContext(context);
+  vm.runInContext(`
+let GD_MEMO = {};
+const GD_CHECKIN_TAIL_ROWS = 600;
+${functionSource('gdMemo_')}
+${functionSource('dateKey_')}
+${functionSource('normalizeDateKey_')}
+${functionSource('toDateOrNull_')}
+${functionSource('normalizeEmail_')}
+${functionSource('rosterKey_')}
+${functionSource('mapCheckInRow_')}
+${functionSource('readCheckIns_')}
+${functionSource('readCheckInsForDate_')}
+this.__api = { readCheckInsForDate_ };
+`, context);
+  const result = context.__api.readCheckInsForDate_(targetDateKey);
+  return { result, ...built.stats(), total: rows.length };
+};
+
+// A large sheet whose day being written sits at the tail must not be fully scanned.
+const largeHistory = [
+  ...Array.from({ length: 4900 }, (unused, index) => checkInRow('2026-05-11', index)),
+  ...Array.from({ length: 100 }, (unused, index) => checkInRow('2026-09-03', index)),
+];
+const windowed = runWindowedRead(largeHistory, '2026-09-03');
+assert.equal(windowed.result.length, 100, 'Every row for the requested day must be returned');
+assert.ok(windowed.result.every((entry) => entry.dateKey === '2026-09-03'));
+assert.equal(windowed.readRows, 600, 'A tail read must not grow with the school year');
+assert.ok(windowed.readRows < windowed.total / 4, 'The windowed read must be far cheaper than the full scan');
+
+// Row numbers must stay correct so an in-place absence clear edits the right row.
+assert.equal(windowed.result[0].row, largeHistory.length + 2 - 100);
+assert.equal(windowed.result.at(-1).row, largeHistory.length + 1);
+
+// A day larger than the first window must widen until it proves it passed an earlier day.
+const busyDay = [
+  ...Array.from({ length: 2000 }, (unused, index) => checkInRow('2026-05-11', index)),
+  ...Array.from({ length: 900 }, (unused, index) => checkInRow('2026-09-03', index)),
+];
+const widened = runWindowedRead(busyDay, '2026-09-03');
+assert.equal(widened.result.length, 900, 'Widening must not lose rows from the requested day');
+assert.ok(widened.readCalls > 1, 'A day larger than the first window must trigger a wider read');
+
+// With no earlier day to prove the window is complete, fall back to the whole sheet.
+const singleDay = Array.from({ length: 1500 }, (unused, index) => checkInRow('2026-09-03', index));
+const fallback = runWindowedRead(singleDay, '2026-09-03');
+assert.equal(fallback.result.length, 1500, 'The fallback must read the whole sheet rather than guess');
+
+// A sheet small enough to read whole must behave exactly as before.
+const smallSheet = Array.from({ length: 40 }, (unused, index) => checkInRow('2026-09-03', index));
+const small = runWindowedRead(smallSheet, '2026-09-03');
+assert.equal(small.result.length, 40);
+assert.equal(small.readCalls, 1);
+
+// The rollover guard must run once for a school day and then stop rescanning.
+const rolloverProperties = new Map();
+let rolloverScans = 0;
+const rolloverContext = {
+  PropertiesService: {
+    getScriptProperties: () => ({
+      getProperty: (key) => (rolloverProperties.has(key) ? rolloverProperties.get(key) : null),
+      setProperty: (key, value) => rolloverProperties.set(key, value),
+    }),
+  },
+  Utilities: { formatDate: () => '2026-09-03' },
+  Session: { getScriptTimeZone: () => 'America/Detroit' },
+  toDateOrNull_: (value) => (value instanceof Date ? value : null),
+  expirePreviousDayPasses_: () => 0,
+};
+vm.createContext(rolloverContext);
+vm.runInContext(`
+const GD_ROLLOVER_PROPERTY = 'LAST_ROLLOVER';
+${functionSource('dateKey_')}
+${functionSource('markRolloverChecked_')}
+${functionSource('expirePreviousDayPassesIfDue_')}
+this.__api = { expirePreviousDayPassesIfDue_, markRolloverChecked_ };
+`, rolloverContext);
+rolloverContext.expirePreviousDayPasses_ = () => {
+  rolloverScans += 1;
+  rolloverContext.__api.markRolloverChecked_('2026-09-03');
+  return 0;
+};
+rolloverContext.__api.expirePreviousDayPassesIfDue_();
+rolloverContext.__api.expirePreviousDayPassesIfDue_();
+rolloverContext.__api.expirePreviousDayPassesIfDue_();
+assert.equal(rolloverScans, 1, 'Prior-day rollover must scan the pass log once per school day, not once per request');
+rolloverProperties.set('LAST_ROLLOVER', '2026-09-02');
+rolloverContext.__api.expirePreviousDayPassesIfDue_();
+assert.equal(rolloverScans, 2, 'A new school day must rescan for forgotten passes');
+
+assert.match(html, /STUDENT_BUSY_RETRY_BUDGET_MS\s*=\s*40000/);
+assert.match(html, /STUDENT_BUSY_RETRY_DELAYS_MS = \[600, 900, 1300, 1800, 2400, 3000, 3600\]/);
+assert.match(html, /spent >= STUDENT_BUSY_RETRY_BUDGET_MS/);
+
 const emailGroups = functionSource('buildPinEmailGroups_');
 assert.match(emailGroups, /activeKeys/);
 assert.match(emailGroups, /filter\(\(card\) => record\.activeKeys\.has\(card\.studentKey\)\)/);
@@ -708,6 +850,7 @@ const attendanceEntries = [{
   note: 'Marked absent by teacher',
 }];
 behaviorContext.readCheckIns_ = () => attendanceEntries;
+behaviorContext.readCheckInsForDate_ = (dateKey) => attendanceEntries.filter((entry) => entry.dateKey === dateKey);
 behaviorContext.getSettings_ = () => ({ CHECKIN_POINT_VALUE: '1' });
 behaviorContext.getSpreadsheet_ = () => ({
   getSheetByName: () => ({
@@ -961,4 +1104,4 @@ const absenceClearer = functionSource('clearAbsentEntry_');
 assert.match(absenceClearer, /'CLEARED'/);
 assert.doesNotMatch(absenceClearer, /deleteRow|clearContent/, 'Clearing an absence must preserve the attendance audit trail');
 
-console.log('GrantDesk hall-pass release: PASS — syntax, one-use action-bound PIN proofs, automatic verified-request queue advancement, 3.0-second countability boundary, legacy-history preservation, teacher corrections, permanent pass audit, credential-backed identity reconciliation, official-calendar streaks, polling-safe collapsible teacher controls, student evidence privacy, roster/attendance safeguards, capacity and cooldown rules, and guarded PIN delivery verified.');
+console.log('GrantDesk hall-pass release: PASS — syntax, one-use action-bound PIN proofs, automatic verified-request queue advancement, 3.0-second countability boundary, legacy-history preservation, teacher corrections, permanent pass audit, credential-backed identity reconciliation, official-calendar streaks, polling-safe collapsible teacher controls, student evidence privacy, roster/attendance safeguards, capacity and cooldown rules, guarded PIN delivery, and bounded shared-lock work verified.');

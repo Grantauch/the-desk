@@ -74,6 +74,8 @@ const criticalFunctions = [
   'closePassForStudent_',
   'closePassById_',
   'closePassRow_',
+  'readCheckInsForDate_',
+  'expirePreviousDayPassesIfDue_',
 ];
 
 for (const fn of criticalFunctions) {
