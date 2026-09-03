@@ -1,0 +1,1434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071112">
+  <meta name="description" content="An immersive Hidden History investigation that teaches the first week of the Roswell record and the Project Mogul explanation.">
+  <title>The Roswell Signal · Hidden History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --void:#050b0d;
+      --night:#071112;
+      --night-2:#0c1b1c;
+      --night-3:#132627;
+      --panel:#102021;
+      --panel-2:#162b2c;
+      --paper:#e9e2cb;
+      --paper-2:#f4eedb;
+      --ink:#17201d;
+      --white:#f1f6ef;
+      --mist:#b7c8c2;
+      --dim:#7f9891;
+      --signal:#92f29e;
+      --signal-2:#4fc66e;
+      --amber:#f2b84b;
+      --amber-2:#d99022;
+      --red:#ff6666;
+      --blue:#65b8d7;
+      --violet:#aa91e8;
+      --line:rgba(202,231,220,.18);
+      --paper-line:rgba(34,43,38,.22);
+      --shadow:0 30px 90px rgba(0,0,0,.48);
+      --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+      --mono:"IBM Plex Mono",Consolas,monospace;
+      --body:"Inter","Segoe UI",Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--white);
+      background:
+        radial-gradient(circle at 18% -10%,rgba(79,198,110,.14),transparent 35rem),
+        radial-gradient(circle at 88% 10%,rgba(101,184,215,.10),transparent 28rem),
+        linear-gradient(150deg,var(--void),var(--night) 48%,#081517);
+      font-family:var(--body);
+      font-size:17px;
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.28;
+      background-image:
+        linear-gradient(rgba(146,242,158,.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(146,242,158,.025) 1px,transparent 1px);
+      background-size:34px 34px;
+      mask-image:linear-gradient(to bottom,#000,transparent 92%);
+      z-index:-1;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.035;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      z-index:100;
+      mix-blend-mode:screen;
+    }
+    button,input,textarea,select{font:inherit}
+    button{touch-action:manipulation}
+    a{color:inherit}
+    .skip-link{
+      position:fixed;left:16px;top:-80px;z-index:200;
+      background:var(--signal);color:#071112;padding:10px 16px;border-radius:0 0 8px 8px;font-weight:800;
+    }
+    .skip-link:focus{top:0}
+    #topbar{
+      position:fixed;inset:0 0 auto 0;z-index:70;
+      min-height:74px;
+      border-bottom:1px solid rgba(146,242,158,.25);
+      background:rgba(5,11,13,.92);
+      backdrop-filter:blur(16px);
+    }
+    .top-inner{
+      width:min(1260px,calc(100% - 30px));
+      min-height:74px;margin:auto;
+      display:grid;grid-template-columns:270px 1fr 270px;align-items:center;gap:22px;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .scope{
+      position:relative;width:34px;height:34px;border:1px solid rgba(146,242,158,.6);border-radius:50%;
+      box-shadow:0 0 18px rgba(146,242,158,.12) inset;
+      flex:0 0 auto;overflow:hidden;
+    }
+    .scope::before,.scope::after{content:"";position:absolute;background:rgba(146,242,158,.35)}
+    .scope::before{width:1px;height:100%;left:50%;top:0}
+    .scope::after{height:1px;width:100%;left:0;top:50%}
+    .scope i{
+      position:absolute;width:50%;height:1px;left:50%;top:50%;transform-origin:left center;
+      background:linear-gradient(90deg,var(--signal),transparent);
+      animation:sweep 3.8s linear infinite;
+    }
+    .brand strong{display:block;font-family:var(--display);font-size:20px;line-height:1;letter-spacing:.08em}
+    .brand small{display:block;margin-top:4px;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.08em}
+    #meter{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+    .meter-seg{height:5px;background:#18302e;border:1px solid rgba(146,242,158,.08);position:relative;overflow:hidden}
+    .meter-seg.done{background:var(--signal);box-shadow:0 0 11px rgba(146,242,158,.3)}
+    .meter-seg.current::after{content:"";position:absolute;inset:0;background:var(--amber);animation:pulse 1.5s ease-in-out infinite}
+    .top-status{display:flex;justify-content:flex-end;align-items:center;gap:13px;min-width:0}
+    .top-status-copy{text-align:right;min-width:0}
+    #stepLabel{display:block;color:var(--mist);font-family:var(--mono);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #saveLabel{display:block;height:14px;color:var(--signal);font-family:var(--mono);font-size:9px}
+    .sound-btn{
+      border:1px solid var(--line);background:transparent;color:var(--dim);
+      padding:8px 9px;border-radius:4px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.05em;cursor:pointer;
+    }
+    .sound-btn[aria-pressed="true"]{border-color:var(--signal);color:var(--signal)}
+    #stage{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:108px 0 118px;outline:none}
+    .sheet{
+      position:relative;min-height:640px;
+      border:1px solid rgba(191,224,212,.18);
+      background:
+        linear-gradient(145deg,rgba(17,35,35,.98),rgba(8,19,20,.98));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .sheet::before{
+      content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;
+      background:linear-gradient(90deg,transparent 49.92%,rgba(146,242,158,.06) 50%,transparent 50.08%);
+    }
+    .sheet.paper{
+      color:var(--ink);
+      border-top:7px solid var(--amber);
+      background:
+        linear-gradient(rgba(83,68,35,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(83,68,35,.025) 1px,transparent 1px),
+        var(--paper);
+      background-size:27px 27px,27px 27px,auto;
+    }
+    .docket{
+      min-height:48px;padding:0 28px;
+      display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center;
+      border-bottom:1px solid var(--line);
+      color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+    }
+    .paper .docket{border-color:var(--paper-line);color:#675f4e}
+    .docket b{color:var(--signal);font-weight:600}
+    .paper .docket b{color:#946213}
+    .sheet-body{position:relative;padding:44px 50px 52px;z-index:1}
+    .case-head{display:grid;grid-template-columns:1fr auto;gap:26px;align-items:start;margin-bottom:30px}
+    .eyebrow{
+      color:var(--signal);font-family:var(--mono);font-size:11px;font-weight:600;
+      letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;
+    }
+    .paper .eyebrow{color:#986719}
+    h1,h2,h3,h4{margin:0;font-family:var(--display);line-height:.96;text-transform:uppercase}
+    h1{font-size:clamp(66px,9.6vw,132px);letter-spacing:-.045em}
+    h2{font-size:clamp(46px,6vw,76px);letter-spacing:-.032em;max-width:890px}
+    h3{font-size:31px;letter-spacing:-.015em}
+    h4{font-size:22px;letter-spacing:.01em}
+    p{margin:0 0 14px}
+    .lead{max-width:860px;color:#c4d2cd;font-size:20px;line-height:1.55}
+    .paper .lead{color:#37433f}
+    .time-chip{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid var(--line);padding:8px 11px;color:var(--mist);
+      font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+    }
+    .paper .time-chip{border-color:var(--paper-line);color:#695f4c}
+    .time-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--amber)}
+    .lesson-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:28px;align-items:start}
+    .lesson-grid.equal{grid-template-columns:1fr 1fr}
+    .briefing{
+      padding:22px 24px;border-left:4px solid var(--signal);
+      background:rgba(146,242,158,.06);color:#dce8e3;
+    }
+    .paper .briefing{border-color:#ad7418;background:rgba(146,105,30,.08);color:#2b3833}
+    .briefing strong{color:var(--white)}
+    .paper .briefing strong{color:#18231f}
+    .rule{
+      margin-top:22px;padding:16px 18px;border:1px dashed rgba(242,184,75,.55);
+      color:#eadbb5;background:rgba(242,184,75,.06);
+    }
+    .paper .rule{color:#4d402a;background:rgba(170,112,20,.08)}
+    .rule b{font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:var(--amber);text-transform:uppercase}
+    .paper .rule b{color:#8f5f12}
+    .figure{
+      position:relative;margin:0;background:#05090a;border:1px solid rgba(255,255,255,.16);
+      overflow:hidden;box-shadow:0 18px 36px rgba(0,0,0,.28);
+    }
+    .paper .figure{border-color:rgba(31,41,36,.24);box-shadow:0 16px 30px rgba(65,48,22,.16)}
+    .figure img{display:block;width:100%;height:100%;object-fit:cover;filter:contrast(1.04) saturate(.82)}
+    .figure figcaption{
+      position:absolute;left:0;right:0;bottom:0;padding:34px 14px 11px;
+      color:#e8efe9;background:linear-gradient(transparent,rgba(0,0,0,.88));
+      font-family:var(--mono);font-size:9px;letter-spacing:.03em;
+    }
+    .paper .figure figcaption{color:#fff}
+    .img-tall{height:470px}
+    .img-wide{height:330px}
+    .stamp{
+      display:inline-block;border:2px solid currentColor;padding:4px 9px;
+      font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      transform:rotate(-2deg);
+    }
+    .stamp.green{color:var(--signal)}
+    .stamp.amber{color:var(--amber)}
+    .stamp.red{color:var(--red)}
+    .challenge{
+      margin-top:30px;border:1px solid rgba(242,184,75,.38);background:rgba(4,10,11,.54);
+    }
+    .paper .challenge{border-color:rgba(128,88,24,.32);background:rgba(255,251,235,.62)}
+    .challenge-head{
+      display:flex;justify-content:space-between;gap:18px;align-items:center;padding:12px 17px;
+      border-bottom:1px solid rgba(242,184,75,.22);
+      color:var(--amber);font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    }
+    .challenge-body{padding:19px}
+    .question{font-size:18px;font-weight:700;margin-bottom:14px}
+    .options{display:grid;gap:9px}
+    .options.inline{grid-template-columns:repeat(3,1fr)}
+    .choice{
+      width:100%;border:1px solid rgba(200,227,216,.22);background:rgba(255,255,255,.035);
+      color:var(--white);padding:13px 15px;text-align:left;cursor:pointer;transition:.18s ease;
+    }
+    .paper .choice{border-color:rgba(31,42,36,.22);background:rgba(255,255,255,.48);color:var(--ink)}
+    .choice:hover,.choice:focus-visible{border-color:var(--signal);transform:translateY(-1px);outline:none}
+    .choice[aria-pressed="true"]{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset;background:rgba(242,184,75,.10)}
+    .choice.correct{border-color:var(--signal);background:rgba(79,198,110,.13)}
+    .choice.wrong{border-color:var(--red);background:rgba(255,102,102,.10)}
+    .feedback{
+      display:none;margin-top:14px;padding:14px 16px;border-left:3px solid var(--signal);
+      background:rgba(79,198,110,.08);color:#dce8e3;
+    }
+    .paper .feedback{color:#28352f;background:rgba(70,130,76,.09)}
+    .feedback.show{display:block;animation:rise .24s ease-out}
+    .feedback.no{border-color:var(--red);background:rgba(255,102,102,.08)}
+    .button-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .btn{
+      min-height:44px;border:1px solid rgba(189,220,208,.22);background:#172a2a;color:var(--white);
+      padding:10px 17px;border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:600;
+      letter-spacing:.065em;text-transform:uppercase;cursor:pointer;transition:.18s ease;
+    }
+    .btn:hover,.btn:focus-visible{transform:translateY(-1px);border-color:var(--signal);outline:none}
+    .btn.primary{background:var(--signal);border-color:var(--signal);color:#061008}
+    .btn.amber{background:var(--amber);border-color:var(--amber);color:#211500}
+    .btn.ghost{background:transparent}
+    .btn.danger{background:transparent;color:#ff9b9b;border-color:rgba(255,102,102,.48)}
+    .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+    .field{display:grid;gap:7px}
+    .field label{color:var(--mist);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+    .paper .field label{color:#625a49}
+    .field input,.field textarea,.field select{
+      width:100%;border:1px solid rgba(193,222,211,.26);background:rgba(1,8,8,.5);
+      color:var(--white);padding:12px 13px;border-radius:2px;outline:none;
+    }
+    .paper .field input,.paper .field textarea,.paper .field select{
+      border-color:rgba(35,47,40,.26);background:rgba(255,255,255,.54);color:var(--ink);
+    }
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--signal);box-shadow:0 0 0 2px rgba(146,242,158,.12)}
+    .field textarea{min-height:104px;resize:vertical}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .word-count{text-align:right;color:var(--dim);font:10px var(--mono)}
+    .word-count.good{color:var(--signal-2)}
+    .micro{color:var(--dim);font:11px var(--mono);line-height:1.5}
+    .paper .micro{color:#746b58}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      border:1px solid var(--line);background:transparent;color:var(--mist);padding:8px 11px;
+      font:600 10px var(--mono);letter-spacing:.045em;text-transform:uppercase;cursor:pointer;
+    }
+    .paper .chip{border-color:var(--paper-line);color:#5c5445}
+    .chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(242,184,75,.09)}
+    .paper .chip[aria-pressed="true"]{color:#84570f}
+    #bottomNav{
+      position:fixed;inset:auto 0 0 0;z-index:75;min-height:76px;
+      border-top:1px solid rgba(146,242,158,.22);background:rgba(5,11,13,.94);backdrop-filter:blur(16px);
+    }
+    .nav-inner{
+      width:min(1180px,calc(100% - 32px));min-height:76px;margin:auto;
+      display:grid;grid-template-columns:170px 1fr 230px;gap:20px;align-items:center;
+    }
+    #navHint{text-align:center;color:var(--dim);font:10px var(--mono);letter-spacing:.055em}
+    #nextBtn{justify-self:end;min-width:220px}
+    #toast{
+      position:fixed;left:50%;bottom:91px;z-index:120;transform:translate(-50%,20px);
+      opacity:0;pointer-events:none;max-width:min(520px,calc(100% - 30px));
+      background:var(--signal);color:#07110a;padding:11px 17px;border-radius:3px;
+      box-shadow:0 14px 34px rgba(0,0,0,.35);font:700 12px var(--mono);transition:.2s ease;
+    }
+    #toast.show{opacity:1;transform:translate(-50%,0)}
+
+    /* cover */
+    .cover{min-height:720px}
+    .cover .sheet-body{padding:56px 58px 46px}
+    .cover-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:42px;align-items:center}
+    .cover h1 span{display:block;color:var(--signal);text-shadow:0 0 26px rgba(146,242,158,.16)}
+    .cover-deck{max-width:710px;margin:20px 0 28px;color:#c7d6d0;font-size:23px;line-height:1.45}
+    .mission-line{
+      display:flex;flex-wrap:wrap;gap:7px;margin:22px 0 28px;color:var(--amber);
+      font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;
+    }
+    .mission-line span{border:1px solid rgba(242,184,75,.32);padding:7px 9px;background:rgba(242,184,75,.04)}
+    .intake{display:grid;gap:14px;max-width:720px;padding-top:6px}
+    .initial-pick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .confidence{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .confidence input{grid-column:1/-1;width:100%;accent-color:var(--signal)}
+    .confidence strong{color:var(--signal);font:700 13px var(--mono)}
+    .hero-visual{position:relative;height:570px}
+    .radar{
+      position:absolute;width:390px;height:390px;right:5px;top:8px;border:1px solid rgba(146,242,158,.36);border-radius:50%;
+      background:
+        radial-gradient(circle,transparent 18%,rgba(146,242,158,.11) 18.4%,transparent 18.8%,transparent 38%,rgba(146,242,158,.09) 38.4%,transparent 38.8%,transparent 59%,rgba(146,242,158,.08) 59.4%,transparent 59.8%),
+        linear-gradient(90deg,transparent 49.8%,rgba(146,242,158,.15) 50%,transparent 50.2%),
+        linear-gradient(transparent 49.8%,rgba(146,242,158,.15) 50%,transparent 50.2%),
+        radial-gradient(circle,rgba(39,91,60,.26),rgba(5,12,12,.1) 65%);
+      box-shadow:0 0 80px rgba(146,242,158,.08) inset,0 0 42px rgba(0,0,0,.5);
+      overflow:hidden;
+    }
+    .radar::before{
+      content:"";position:absolute;inset:50% 50% 50% 50%;width:50%;height:50%;transform-origin:0 0;
+      background:conic-gradient(from -20deg,rgba(146,242,158,.36),transparent 28deg);
+      animation:sweepRadar 5s linear infinite;
+    }
+    .radar .blip{position:absolute;width:7px;height:7px;background:var(--signal);border-radius:50%;box-shadow:0 0 16px var(--signal);animation:blip 2.5s infinite}
+    .radar .b1{left:32%;top:28%}.radar .b2{left:68%;top:56%;animation-delay:.8s}.radar .b3{left:43%;top:71%;animation-delay:1.5s}
+    .hero-card{position:absolute;overflow:hidden;border:1px solid rgba(255,255,255,.18);box-shadow:0 26px 50px rgba(0,0,0,.4);background:#101514}
+    .hero-card img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1)}
+    .hero-card.news{width:330px;height:232px;right:78px;bottom:10px;transform:rotate(-3deg)}
+    .hero-card.mogul{width:210px;height:235px;left:4px;top:190px;transform:rotate(4deg)}
+    .hero-card::after{content:attr(data-tag);position:absolute;left:10px;bottom:10px;background:#08110f;color:var(--signal);padding:6px 8px;font:600 9px var(--mono);letter-spacing:.08em}
+    .redacted{display:inline-block;background:#07100e;color:#07100e;transform:rotate(-1deg);padding:0 4px;box-shadow:0 0 0 1px rgba(146,242,158,.07)}
+
+    /* Page 1 */
+    .phrase-lab{margin-top:20px;padding:20px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+    .phrase-track{display:grid;grid-template-columns:1fr 42px 1fr 42px 1fr;align-items:center;gap:10px}
+    .phrase-card{min-height:128px;padding:17px;border:1px solid rgba(185,219,206,.22);display:flex;flex-direction:column;justify-content:center}
+    .phrase-card b{color:var(--signal);font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+    .phrase-card strong{font-size:19px;line-height:1.35}
+    .phrase-arrow{text-align:center;color:var(--amber);font-size:28px}
+    .phrase-card.dimmed{opacity:.42;filter:blur(1.8px)}
+    .phrase-card.revealed{animation:tune .45s ease both}
+
+    /* Page 2 */
+    .timeline-wrap{display:grid;grid-template-columns:1.25fr .75fr;gap:24px}
+    .timeline{position:relative;display:grid;gap:10px;padding-left:25px}
+    .timeline::before{content:"";position:absolute;left:8px;top:13px;bottom:13px;width:1px;background:rgba(146,242,158,.28)}
+    .timeline-event{
+      position:relative;border:1px solid var(--paper-line);padding:13px 15px;background:rgba(255,255,255,.42);
+      opacity:.28;filter:blur(1px);transform:translateX(6px);transition:.28s ease;
+    }
+    .timeline-event::before{content:"";position:absolute;left:-22px;top:20px;width:9px;height:9px;background:#958d77;border:3px solid var(--paper)}
+    .timeline-event.revealed{opacity:1;filter:none;transform:none}
+    .timeline-event.revealed::before{background:#9a6816;box-shadow:0 0 0 3px rgba(154,104,22,.12)}
+    .timeline-event b{display:block;color:#885a10;font:700 11px var(--mono);letter-spacing:.08em;margin-bottom:4px}
+    .timeline-event strong{font-size:15px}
+    .map-panel{
+      position:sticky;top:100px;min-height:365px;border:1px solid var(--paper-line);overflow:hidden;
+      background:
+        radial-gradient(circle at 25% 28%,rgba(167,113,27,.16),transparent 25%),
+        linear-gradient(28deg,transparent 48%,rgba(78,71,55,.10) 49%,transparent 50%),
+        #d9cfb3;
+    }
+    .map-panel::before{content:"NEW MEXICO · NOT TO SCALE";position:absolute;top:14px;left:14px;color:#6f6654;font:600 9px var(--mono);letter-spacing:.1em}
+    .map-road{position:absolute;left:18%;top:18%;width:63%;height:68%;border-right:2px dashed rgba(89,74,43,.34);transform:rotate(17deg)}
+    .map-dot{position:absolute}
+    .map-dot i{display:block;width:13px;height:13px;border-radius:50%;background:#273a31;border:3px solid #d9cfb3;box-shadow:0 0 0 1px #273a31}
+    .map-dot b{display:block;margin-top:7px;font:700 10px var(--mono);letter-spacing:.04em}
+    .map-dot.ranch{left:20%;top:27%;color:#8a5910}.map-dot.ranch i{background:#a56d15;box-shadow:0 0 0 1px #a56d15}
+    .map-dot.corona{left:47%;top:18%}.map-dot.roswell{right:13%;bottom:18%}
+    .distance{position:absolute;left:30%;top:54%;transform:rotate(21deg);color:#785d2f;font:600 10px var(--mono)}
+    .debris-box{position:absolute;left:16px;right:16px;bottom:16px;padding:12px;background:rgba(246,239,216,.86);border:1px solid rgba(77,65,43,.22);font-size:13px}
+
+    /* Page 3 */
+    .signal-chain{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:28px 0}
+    .chain-node{
+      position:relative;min-height:125px;border:1px solid rgba(192,222,210,.2);background:rgba(255,255,255,.025);
+      color:var(--white);padding:15px 12px;text-align:left;cursor:pointer;transition:.2s ease;
+    }
+    .chain-node::after{content:"›";position:absolute;right:-9px;top:45%;color:var(--amber);z-index:2;font-size:24px}
+    .chain-node:last-child::after{display:none}
+    .chain-node b{display:block;color:var(--dim);font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+    .chain-node strong{display:block;margin-top:8px;font-family:var(--display);font-size:21px;line-height:1}
+    .chain-node span{display:block;margin-top:7px;color:var(--dim);font-size:11px;line-height:1.35}
+    .chain-node.open{border-color:var(--signal);background:rgba(79,198,110,.08)}
+    .chain-node.open b,.chain-node.open span{color:var(--signal)}
+    .access-panel{min-height:150px;border-left:4px solid var(--amber);padding:18px 20px;background:rgba(242,184,75,.06)}
+    .access-panel .access-label{color:var(--amber);font:600 10px var(--mono);letter-spacing:.09em;text-transform:uppercase}
+    .access-panel h3{margin:8px 0 10px}
+    .atomic-callout{display:grid;grid-template-columns:90px 1fr;gap:18px;align-items:center;margin-top:20px;border:1px dashed rgba(255,102,102,.48);padding:16px}
+    .atomic-callout strong{font:900 48px var(--display);color:var(--red);text-align:center}
+
+    /* Page 4 */
+    .reversal{
+      display:grid;grid-template-columns:1fr 72px 1fr;gap:15px;align-items:stretch;margin:24px 0;
+    }
+    .release-card{padding:22px;border:1px solid var(--line);background:rgba(255,255,255,.035)}
+    .release-card.late{border-color:rgba(242,184,75,.45);background:rgba(242,184,75,.06)}
+    .release-card time{display:block;color:var(--signal);font:600 10px var(--mono);letter-spacing:.09em;text-transform:uppercase}
+    .release-card.late time{color:var(--amber)}
+    .release-card h3{margin:8px 0 12px}
+    .clock-flip{align-self:center;text-align:center;color:var(--red);font:900 36px var(--display);line-height:.8}
+    .clock-flip span{display:block;margin-top:7px;color:var(--dim);font:600 9px var(--mono);letter-spacing:.08em}
+    .fact-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:18px}
+    .fact-chip{padding:13px;border:1px solid var(--line);color:var(--mist);font-size:13px}
+    .fact-chip b{display:block;color:var(--signal);font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+    .classify-list{display:grid;gap:10px}
+    .classify-row{display:grid;grid-template-columns:1fr 390px;gap:16px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(160,133,76,.22)}
+    .classify-row:last-child{border-bottom:0}
+    .pill-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .pill{
+      border:1px solid rgba(46,55,49,.23);background:rgba(255,255,255,.5);color:#3d463f;
+      padding:8px 7px;font:600 9px var(--mono);text-transform:uppercase;cursor:pointer;
+    }
+    .pill[aria-pressed="true"]{border-color:#8b5d14;color:#754b0b;background:rgba(194,137,45,.12)}
+    .pill.correct{border-color:#34784b;color:#245f39;background:rgba(61,143,82,.12)}
+    .pill.wrong{border-color:#ad4545;color:#8b2929;background:rgba(183,65,65,.10)}
+
+    /* Page 5 */
+    .source-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .source-card{position:relative;min-height:355px;border:1px solid var(--line);background:#0d1718;overflow:hidden}
+    .source-image{height:188px;position:relative;overflow:hidden;background:#060909}
+    .source-image img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08);transition:.35s ease}
+    .source-card.scanned .source-image img{filter:grayscale(.25) contrast(1.04)}
+    .source-image::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,#0d1718)}
+    .scan-line{position:absolute;left:0;right:0;top:-3px;height:2px;background:var(--signal);box-shadow:0 0 12px var(--signal);opacity:0}
+    .source-card.scanning .scan-line{opacity:1;animation:scan 1s ease-in-out}
+    .source-copy{padding:14px 17px 17px}
+    .source-copy .source-no{color:var(--signal);font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+    .source-copy h3{margin:5px 0 8px}
+    .scan-result{display:none;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+    .source-card.scanned .scan-result{display:grid;animation:rise .25s ease}
+    .scan-box{padding:10px;border:1px solid rgba(181,215,202,.16);color:#b8c8c2;font-size:12px;line-height:1.42}
+    .scan-box b{display:block;color:var(--amber);font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+    .scan-btn{position:absolute;right:13px;top:152px;z-index:3}
+
+    /* Page 6 */
+    .logic-board{padding:24px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+    .logic-line{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:10px}
+    .logic-claim{padding:18px;border:1px solid rgba(196,225,214,.2);min-height:118px;display:flex;align-items:center;font-weight:700}
+    .logic-symbol{text-align:center;font:900 34px var(--display);color:var(--red)}
+    .hypotheses{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:17px}
+    .hypothesis{min-height:105px;padding:12px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+    .hypothesis b{color:var(--amber);font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+    .hypothesis span{display:block;margin-top:7px;font-size:13px;line-height:1.35}
+    .verdict-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+    .verdict-box{padding:16px;border-top:4px solid var(--signal);background:rgba(79,198,110,.07)}
+    .verdict-box:nth-child(2){border-color:var(--violet);background:rgba(170,145,232,.07)}
+    .verdict-box:nth-child(3){border-color:var(--amber);background:rgba(242,184,75,.07)}
+    .verdict-box b{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+    .verdict-box span{display:block;margin-top:7px;color:var(--mist);font-size:13px}
+
+    /* Page 7 */
+    .declass-banner{
+      position:relative;margin:-44px -50px 34px;padding:38px 50px 32px;
+      background:
+        linear-gradient(90deg,rgba(146,242,158,.07),transparent 55%),
+        #08110f;border-bottom:1px solid rgba(146,242,158,.22);overflow:hidden;
+    }
+    .declass-banner::after{
+      content:"DECLASSIFIED";position:absolute;right:46px;top:32px;color:rgba(146,242,158,.22);
+      border:4px solid currentColor;padding:5px 12px;font:800 28px var(--mono);letter-spacing:.14em;transform:rotate(-5deg);
+    }
+    .mission-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
+    .mission-step{min-height:155px;border:1px solid var(--paper-line);padding:15px;background:rgba(255,255,255,.35);cursor:pointer;text-align:left;color:var(--ink)}
+    .mission-step b{display:block;color:#8b5b10;font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+    .mission-step strong{display:block;font-family:var(--display);font-size:23px;line-height:1;margin-top:8px;text-transform:uppercase}
+    .mission-step span{display:none;margin-top:9px;font-size:12px;line-height:1.4;color:#4e574f}
+    .mission-step.open{border-color:#a56b11;background:rgba(255,248,222,.8)}
+    .mission-step.open span{display:block;animation:rise .2s ease}
+    .people-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+    .person{padding:11px;border:1px solid var(--paper-line);background:rgba(255,255,255,.38)}
+    .person b{display:block;font-family:var(--display);font-size:18px;text-transform:uppercase}
+    .person span{font-size:11px;color:#5d6258}
+    .balloon-lab{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px;margin-top:24px}
+    .balloon-visual{height:440px}
+    .component-list{display:grid;gap:9px}
+    .component{
+      border:1px solid var(--paper-line);background:rgba(255,255,255,.45);color:var(--ink);padding:13px;text-align:left;cursor:pointer;
+    }
+    .component b{display:block;font:700 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#76511a}
+    .component span{display:block;margin-top:5px;font-size:13px}
+    .component.open{border-color:#3e7d50;background:rgba(77,149,94,.11)}
+    .cover-story{margin-top:20px;display:grid;grid-template-columns:1fr auto 1fr;gap:13px;align-items:stretch}
+    .cover-box{padding:18px;border:1px solid var(--paper-line);background:rgba(255,255,255,.46)}
+    .cover-box b{font:700 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#7b5415}
+    .cover-box h3{margin:7px 0}
+    .cover-arrow{align-self:center;font:900 28px var(--display);color:#9a6816}
+
+    /* Page 8 */
+    .match-lab{display:grid;grid-template-columns:1fr 70px 1fr;gap:12px;align-items:start}
+    .match-col{display:grid;gap:9px}
+    .match-title{color:#6b624f;font:700 10px var(--mono);letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px}
+    .material{
+      min-height:82px;border:1px solid var(--paper-line);background:rgba(255,255,255,.47);color:var(--ink);
+      padding:12px 14px;text-align:left;cursor:pointer;transition:.18s ease;
+    }
+    .material b{display:block;color:#8a5b11;font:700 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+    .material span{display:block;margin-top:5px;font-size:14px}
+    .material.selected{border-color:#9b6410;box-shadow:0 0 0 2px rgba(155,100,16,.12)}
+    .material.matched{border-color:#4f8a5d;background:rgba(74,139,91,.12)}
+    .material.wrong{animation:shake .28s ease;border-color:#a84949}
+    .match-beam{min-height:350px;display:flex;align-items:center;justify-content:center;color:#9a6816;font:900 36px var(--display)}
+    .evidence-ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:22px}
+    .rung{padding:14px;border-top:5px solid #8b5d15;background:rgba(255,255,255,.44)}
+    .rung b{display:block;font:700 10px var(--mono);color:#744b0e;text-transform:uppercase}
+    .rung span{display:block;margin-top:5px;font-size:13px}
+    .flight-box{margin-top:18px;padding:20px;border:1px dashed rgba(150,96,15,.48);background:rgba(255,248,220,.52)}
+    .flight-box h3{margin-bottom:9px}
+
+    /* Page 9 */
+    .records-grid{display:grid;grid-template-columns:.72fr 1.28fr;gap:24px}
+    .gao-cover{height:500px}
+    .records-stack{display:grid;gap:13px}
+    .record-card{border:1px solid var(--line);padding:18px;background:rgba(255,255,255,.025)}
+    .record-card b{color:var(--signal);font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+    .record-card h3{margin:7px 0 10px}
+    .record-card ul{margin:8px 0 0;padding-left:20px;color:var(--mist)}
+    .record-card li{margin:6px 0}
+    .missing-rule{padding:18px;border:2px solid var(--amber);color:#f0e0b9;background:rgba(242,184,75,.07)}
+    .missing-rule strong{display:block;color:var(--amber);font:900 31px var(--display);text-transform:uppercase}
+    .prediction-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:13px}
+    .prediction{padding:12px;border:1px solid var(--line);text-align:center;color:var(--mist);font-size:12px}
+    .prediction b{display:block;color:var(--signal);font:900 20px var(--display);text-transform:uppercase}
+
+    /* Page 10 */
+    .label-board{display:grid;gap:9px}
+    .label-row{display:grid;grid-template-columns:1fr 560px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-line)}
+    .label-row:last-child{border-bottom:0}
+    .label-options{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+    .label-btn{border:1px solid var(--paper-line);background:rgba(255,255,255,.48);color:#4b5149;padding:9px 5px;font:600 8.5px var(--mono);text-transform:uppercase;cursor:pointer}
+    .label-btn[aria-pressed="true"]{border-color:#956111;color:#71470a;background:rgba(183,127,36,.12)}
+    .label-btn.correct{border-color:#3f8050;color:#2b6c3e;background:rgba(67,142,84,.12)}
+    .label-btn.wrong{border-color:#ad4545;color:#8e2e2e}
+    .thresholds{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+    .threshold{padding:15px;border:1px solid var(--paper-line);background:rgba(255,255,255,.42)}
+    .threshold b{display:block;color:#8c5d12;font:700 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+    .threshold span{display:block;margin-top:7px;font-size:13px}
+    .argument-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+    .argument-grid .wide{grid-column:1/-1}
+    .checklist{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+    .check-item{padding:9px;border:1px solid var(--paper-line);color:#756d5b;font:600 9px var(--mono);text-transform:uppercase}
+    .check-item.ok{border-color:#4b865a;color:#316c41;background:rgba(76,142,91,.1)}
+    .check-item::before{content:"○";margin-right:7px}.check-item.ok::before{content:"●"}
+
+    /* Final */
+    .final-banner{
+      margin:-44px -50px 32px;padding:45px 50px 38px;
+      background:
+        radial-gradient(circle at 82% 20%,rgba(146,242,158,.16),transparent 22rem),
+        #071211;border-bottom:1px solid rgba(146,242,158,.24);
+    }
+    .final-banner h2{color:var(--white)}
+    .ready-line{display:flex;align-items:center;gap:10px;margin-top:18px;color:var(--mist);font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+    .ready-dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 12px rgba(255,102,102,.4)}
+    .ready-dot.yes{background:var(--signal);box-shadow:0 0 14px rgba(146,242,158,.55)}
+    .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .summary-box{padding:18px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+    .summary-box.wide{grid-column:1/-1}
+    .summary-box b{display:block;color:var(--signal);font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+    .summary-box p{color:var(--mist)}
+    .shift-meter{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+    .shift-card{padding:15px;border:1px solid var(--line)}
+    .shift-card strong{display:block;font-family:var(--display);font-size:24px;text-transform:uppercase}
+    .shift-card span{color:var(--dim);font:10px var(--mono)}
+    .shift-arrow{color:var(--amber);font:900 30px var(--display)}
+    details.sources{margin-top:22px;border:1px solid var(--line)}
+    details.sources summary{padding:13px 16px;cursor:pointer;color:var(--signal);font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+    details.sources .sources-body{padding:0 18px 16px;color:var(--dim);font-size:12px}
+    details.sources li{margin:7px 0}
+    details.sources a{color:var(--mist)}
+
+    @keyframes sweep{to{transform:rotate(360deg)}}
+    @keyframes sweepRadar{to{transform:rotate(360deg)}}
+    @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+    @keyframes blip{0%,65%,100%{opacity:.18}70%,82%{opacity:1}}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @keyframes tune{from{opacity:.25;filter:blur(2px);transform:scale(.98)}to{opacity:1;filter:none;transform:none}}
+    @keyframes scan{0%{top:0}50%{top:99%}100%{top:0}}
+    @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+    @media(max-width:980px){
+      .top-inner{grid-template-columns:220px 1fr 160px}.top-status-copy{display:none}
+      .lesson-grid,.lesson-grid.equal,.cover-grid,.timeline-wrap,.balloon-lab,.records-grid{grid-template-columns:1fr}
+      .cover .sheet-body{padding:42px 35px}.hero-visual{height:460px}.map-panel{position:relative;top:auto}
+      .signal-chain{grid-template-columns:repeat(3,1fr)}.chain-node:nth-child(3)::after{display:none}
+      .reversal{grid-template-columns:1fr}.clock-flip{padding:7px}.fact-strip{grid-template-columns:1fr 1fr}
+      .hypotheses{grid-template-columns:repeat(3,1fr)}.mission-steps{grid-template-columns:1fr 1fr}
+      .label-row{grid-template-columns:1fr}.label-options{grid-template-columns:repeat(5,1fr)}
+    }
+    @media(max-width:720px){
+      body{font-size:16px}
+      #topbar{min-height:66px}.top-inner{min-height:66px;grid-template-columns:1fr auto}.brand small,#meter{display:none}
+      #stage{width:calc(100% - 18px);padding-top:84px}.sheet{min-height:0}.sheet-body{padding:30px 20px 36px}
+      .docket{padding:0 18px;grid-template-columns:1fr auto}.docket span:nth-child(2){display:none}
+      h1{font-size:58px}h2{font-size:45px}.lead{font-size:18px}.case-head{grid-template-columns:1fr}
+      .cover .sheet-body{padding:35px 20px}.cover-deck{font-size:19px}.hero-visual{height:410px;margin-top:10px}
+      .radar{width:310px;height:310px;right:-20px}.hero-card.news{width:285px;height:200px;right:16px}.hero-card.mogul{width:165px;height:190px}
+      .field-grid,.initial-pick,.source-grid,.argument-grid,.summary-grid{grid-template-columns:1fr}
+      .argument-grid .wide,.summary-box.wide{grid-column:auto}
+      .options.inline{grid-template-columns:1fr}
+      .phrase-track{grid-template-columns:1fr}.phrase-arrow{transform:rotate(90deg)}.phrase-card{min-height:92px}
+      .timeline-wrap{grid-template-columns:1fr}
+      .signal-chain{grid-template-columns:1fr 1fr}.chain-node:nth-child(2n)::after{display:none}.chain-node:nth-child(3)::after{display:block}
+      .reversal{grid-template-columns:1fr}.classify-row{grid-template-columns:1fr}.pill-options{grid-template-columns:repeat(3,1fr)}
+      .hypotheses,.verdict-trio,.people-strip,.evidence-ladder,.prediction-grid,.thresholds,.checklist{grid-template-columns:1fr 1fr}
+      .mission-steps{grid-template-columns:1fr}.cover-story{grid-template-columns:1fr}.cover-arrow{transform:rotate(90deg);text-align:center}
+      .match-lab{grid-template-columns:1fr}.match-beam{min-height:25px;transform:rotate(90deg)}
+      .label-options{grid-template-columns:1fr 1fr}.shift-meter{grid-template-columns:1fr}.shift-arrow{transform:rotate(90deg);text-align:center}
+      #bottomNav{min-height:68px}.nav-inner{min-height:68px;grid-template-columns:auto 1fr auto;gap:8px}
+      #navHint{display:none}.nav-inner .btn{min-width:0;padding:9px 12px;font-size:9px}#nextBtn{min-width:0}
+      .declass-banner,.final-banner{margin:-30px -20px 28px;padding:32px 20px}.declass-banner::after{font-size:15px;right:17px;top:20px}
+    }
+    @media(max-width:440px){
+      .fact-strip,.hypotheses,.verdict-trio,.people-strip,.evidence-ladder,.prediction-grid,.thresholds,.checklist{grid-template-columns:1fr}
+      .signal-chain{grid-template-columns:1fr}.chain-node::after{display:none!important}
+      .source-card{min-height:390px}.scan-result{grid-template-columns:1fr}
+      .hero-card.mogul{display:none}.hero-card.news{right:-2px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}
+    }
+    @media print{
+      @page{margin:.55in}
+      body{background:#fff;color:#000;font-size:10.5pt}
+      body::before,body::after,#topbar,#bottomNav,#toast,.screen-only{display:none!important}
+      #stage{width:100%;margin:0;padding:0}.sheet{box-shadow:none;border:0;background:#fff;color:#000;min-height:0}
+      .sheet::before{display:none}.sheet-body{padding:0}.final-banner{margin:0 0 20px;padding:18px;background:#eee!important;color:#000!important}
+      .final-banner h2{color:#000}.summary-grid{display:block}.summary-box{break-inside:avoid;margin:0 0 10px;border:1px solid #888;background:#fff}
+      .summary-box p,.ready-line{color:#000}.summary-box b{color:#000}details.sources{display:block}details.sources .sources-body{display:block;color:#000}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#stage">Skip to investigation</a>
+  <header id="topbar">
+    <div class="top-inner">
+      <div class="brand">
+        <span class="scope" aria-hidden="true"><i></i></span>
+        <div><strong>ROSWELL SIGNAL ROOM</strong><small>HIDDEN HISTORY · FILE 07-47</small></div>
+      </div>
+      <div id="meter" aria-label="Investigation progress"></div>
+      <div class="top-status">
+        <div class="top-status-copy"><span id="stepLabel">Case intake</span><span id="saveLabel" aria-live="polite"></span></div>
+        <button class="sound-btn" id="soundBtn" type="button" aria-pressed="false">SOUND OFF</button>
+      </div>
+    </div>
+  </header>
+  <main id="stage" tabindex="-1"></main>
+  <nav id="bottomNav" aria-label="Investigation navigation">
+    <div class="nav-inner">
+      <button class="btn ghost" id="backBtn" type="button">Back</button>
+      <span id="navHint">Your case file saves on this device.</span>
+      <button class="btn primary" id="nextBtn" type="button">Enter the signal room</button>
+    </div>
+  </nav>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  "use strict";
+
+  const STORAGE_KEY="hidden_history_roswell_signal_v1";
+  const VERSION=1;
+  const DEFAULT_STATE={
+    version:VERSION,page:0,sound:false,
+    student:{name:"",hour:""},
+    intake:{hypothesis:"",confidence:50},
+    p1:{tuned:false,answer:"",checked:false},
+    p2:{revealed:0,answer:"",checked:false},
+    p3:{opened:[],active:"",answer:"",checked:false},
+    p4:{answers:{},checked:false},
+    p5:{scanned:[],answer:"",checked:false},
+    p6:{answer:"",checked:false},
+    p7:{steps:[],components:[],answer:"",checked:false},
+    p8:{selected:"",matches:[],answer:"",checked:false},
+    p9:{answer:"",checked:false},
+    p10:{
+      labels:{},checked:false,change:[],
+      postHypothesis:"",postConfidence:50,
+      claim:"",evidence1:"",reason1:"",evidence2:"",reason2:"",
+      limit:"",reversal:""
+    },
+    first:{}
+  };
+
+  const HYPOTHESES={
+    weather:"Ordinary weather balloon",
+    mogul:"Classified research / Project Mogul",
+    alien:"Extraterrestrial craft",
+    undecided:"Something else / undecided"
+  };
+  const PAGE_LABELS=[
+    "Case intake","01 · The label","02 · The debris","03 · The chain","04 · The reversal",
+    "05 · Source X-ray","06 · Logic gap","07 · Project Mogul","08 · Material match",
+    "09 · Missing files","10 · Bounded verdict","Filed report"
+  ];
+  const NEXT_LABELS=[
+    "Enter the signal room","Next: find the debris","Next: trace the chain","Next: open July 8",
+    "Next: scan the sources","Next: test the logic","Next: unlock Mogul","Next: match the debris",
+    "Next: inspect the missing files","Next: issue your verdict","Review the filed report",""
+  ];
+
+  const TIMELINE=[
+    {date:"JUNE 14",text:"W. W. “Mac” Brazel sees scattered lightweight debris on the J. B. Foster ranch and initially leaves it alone."},
+    {date:"JUNE 24",text:"Pilot Kenneth Arnold reports nine fast, shiny objects near Mount Rainier. The “flying saucer” label races through the press."},
+    {date:"JULY 4",text:"Brazel gathers some of the ranch debris after it has remained in the open for roughly two weeks."},
+    {date:"JULY 5",text:"He hears the national flying-disc stories and wonders whether his ordinary-looking debris belongs to the new category."},
+    {date:"JULY 7",text:"Brazel takes material to Chaves County Sheriff George Wilcox. The Army is notified, and Major Jesse Marcel enters the recovery chain."},
+    {date:"JULY 8",text:"Roswell Army Air Field announces a recovered “flying disc.” Higher headquarters replaces that account with a weather-balloon explanation the same day."},
+    {date:"JULY 9",text:"A published account attributes to Brazel rubber, foil-like material, tough paper, and sticks—a few pounds that could fit in a small package."}
+  ];
+
+  const CHAIN=[
+    {id:"brazel",role:"Finder",name:"Mac Brazel",short:"Saw and handled ranch debris.",detail:"Brazel was foreman of the J. B. Foster ranch, not its owner. He had direct access to the field and material, but no access to military programs or later decisions."},
+    {id:"wilcox",role:"Local link",name:"Sheriff Wilcox",short:"Received Brazel’s report.",detail:"George Wilcox connected the ranch find to Roswell Army Air Field. His role matters because he moved the story into military channels; he did not investigate the object’s origin."},
+    {id:"marcel",role:"Recovery",name:"Jesse Marcel",short:"Recovered and transported debris.",detail:"Major Jesse Marcel, the 509th intelligence officer, handled material and helped recover more from the ranch. He had strong physical access, but not total access to every later decision."},
+    {id:"base",role:"Base command",name:"Blanchard + Haut",short:"Approved and distributed the release.",detail:"Colonel William Blanchard approved the release. Public information officer Walter Haut distributed it. The release used “flying disc” but offered almost no construction detail."},
+    {id:"ramey",role:"Higher HQ",name:"Roger Ramey",short:"Drove the Fort Worth correction.",detail:"Brigadier General Roger Ramey at Eighth Air Force headquarters received the material and drove the weather-balloon correction. Warrant officer Irving Newton identified the displayed device."},
+    {id:"press",role:"Amplifier",name:"National press",short:"Turned a local release into a legend.",detail:"Reporters could document what officials said and how the story changed. They had little independent access to the physical debris, yet their headlines gave the label national reach."}
+  ];
+
+  const REVERSAL=[
+    {id:"disc",text:"Roswell Army Air Field announced recovery of a “flying disc.”",answer:"established"},
+    {id:"bodies",text:"The July 8 release described alien bodies, propulsion, or an intact spacecraft.",answer:"notstated"},
+    {id:"why",text:"The surviving first-week record fully explains why the release was issued and reversed.",answer:"unresolved"},
+    {id:"weather",text:"Fort Worth offered a weather-balloon and radar-reflector explanation that same day.",answer:"established"}
+  ];
+  const REV_LABELS={established:"Established",notstated:"Not stated",unresolved:"Unresolved"};
+
+  const SOURCE_CARDS=[
+    {
+      id:"paper",no:"Source 01 · July 8, 1947",title:"Local front page",image:"/hubs/roswell-signal-assets/roswell-daily-record.webp",
+      alt:"Roswell Daily Record front page with the headline RAAF Captures Flying Saucer on Ranch in Roswell Region",
+      caption:"Roswell Daily Record · National Archives copy",
+      value:"Same-day evidence of what the Army announced and how the claim was framed.",
+      limit:"The newspaper did not independently inspect or test the debris."
+    },
+    {
+      id:"photo",no:"Source 02 · Fort Worth",title:"Debris photographs",image:"/hubs/roswell-signal-assets/ramey-debris.webp",
+      alt:"General Roger Ramey and Colonel Thomas DuBose looking at lightweight debris in Fort Worth",
+      caption:"Ramey and DuBose with displayed debris · public-domain press photograph",
+      value:"Shows officials with foil, paper, rubber, and stick-like material useful for comparison.",
+      limit:"Cannot prove the room contained every object recovered or establish an unbroken chain of custody."
+    },
+    {
+      id:"fbi",no:"Source 03 · July 8 teletype",title:"FBI message",image:"/hubs/roswell-signal-assets/fbi-teletype.webp",
+      alt:"Scan of a July 8, 1947 FBI teletype about the Roswell object",
+      caption:"FBI Dallas Field Office teletype · FBI Vault",
+      value:"A near-contemporary independent-agency record of what the military was reporting that day.",
+      limit:"The FBI did not inspect the material or conduct a laboratory test."
+    },
+    {
+      id:"brazel",no:"Source 04 · July 9 account",title:"Brazel’s description",image:"/hubs/roswell-signal-assets/roswell-daily-record.webp",
+      alt:"Roswell Daily Record front page used as the setting for Brazel’s published debris account",
+      caption:"Published contemporary account · Roswell Daily Record",
+      value:"Records rubber strips, foil-like material, tough paper, sticks, and a small overall amount.",
+      limit:"Silence about bodies is not proof none existed—but later additions now carry the burden of proof."
+    }
+  ];
+
+  const MISSION_STEPS=[
+    {id:"problem",label:"01 · Problem",title:"Listen across the world",text:"The United States wanted warning of a Soviet atomic test without access to Soviet territory. The first Soviet test came in August 1949, but the search for detection methods had already become urgent."},
+    {id:"science",label:"02 · Science",title:"Find a sound channel",text:"Maurice Ewing and colleagues explored whether low-frequency sound from a huge explosion could travel through an upper-atmosphere channel over vast distances."},
+    {id:"flight",label:"03 · Field work",title:"Lift the instruments",text:"NYU teams in New Mexico launched long balloon trains carrying experimental gear. The system was difficult, expendable, and far larger than one party balloon."},
+    {id:"mission",label:"04 · Secret",title:"Hide the purpose",text:"The visible hardware could look ordinary while its acoustic nuclear-detection purpose remained classified. That made an incomplete cover description plausible."}
+  ];
+  const COMPONENTS=[
+    {id:"balloons",title:"Balloon array",text:"Clusters of balloons kept a train aloft; the entire system could stretch hundreds of feet."},
+    {id:"instruments",title:"Instruments + radio",text:"Microphones and related equipment sought low-frequency signals and relayed information."},
+    {id:"parachutes",title:"Parachutes",text:"Recoverable components and expendable hardware hung below the balloon line."},
+    {id:"reflectors",title:"Radar reflectors",text:"Foil-and-paper corner reflectors on wood or balsa supports helped ground teams track the train."}
+  ];
+  const MATERIAL_PAIRS=[
+    {left:"rubber",leftText:"Rubber strips",right:"neoprene",rightText:"Neoprene balloon rubber"},
+    {left:"foil",leftText:"Foil-like material + tough paper",right:"reflector",rightText:"Foil-and-paper radar reflector"},
+    {left:"sticks",leftText:"Light sticks",right:"balsa",rightText:"Wood or balsa supports"},
+    {left:"patterns",leftText:"Purple / flowered printed tape",right:"novelty",rightText:"Novelty tape used in reflector manufacture"}
+  ];
+  const FINAL_LABELS={
+    confirmed:"Confirmed",best:"Best-supported",inference:"Reasoned inference",misleading:"Misleading / incomplete",unproven:"Unproven"
+  };
+  const FINAL_CLAIMS=[
+    {id:"program",text:"Project Mogul existed and pursued long-range detection of Soviet atomic tests.",answer:"confirmed"},
+    {id:"debris",text:"Project Mogul is the strongest documented explanation for the Roswell debris.",answer:"best"},
+    {id:"flight",text:"The debris came from the exact June test train often called Flight 4.",answer:"inference"},
+    {id:"cover",text:"Calling it only a weather balloon fully explained the hardware’s actual mission.",answer:"misleading"},
+    {id:"alien",text:"An extraterrestrial craft and bodies were recovered in July 1947.",answer:"unproven"}
+  ];
+  const EVIDENCE_OPTIONS=[
+    ["paper","July 8 Army release / front page"],
+    ["brazel","July 9 Brazel debris description"],
+    ["photo","Fort Worth debris photographs"],
+    ["fbi","July 8 FBI teletype"],
+    ["mogul","Mogul records, diaries, chronology, and hardware"],
+    ["gao","1995 GAO records search"]
+  ];
+
+  function clone(v){return JSON.parse(JSON.stringify(v));}
+  function merge(base,extra){
+    if(!extra||typeof extra!=="object")return base;
+    Object.keys(extra).forEach(function(k){
+      if(extra[k]&&typeof extra[k]==="object"&&!Array.isArray(extra[k])&&base[k]&&typeof base[k]==="object"&&!Array.isArray(base[k]))merge(base[k],extra[k]);
+      else base[k]=extra[k];
+    });
+    return base;
+  }
+  function loadState(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(!raw)return clone(DEFAULT_STATE);
+      const parsed=JSON.parse(raw);
+      return parsed&&parsed.version===VERSION?merge(clone(DEFAULT_STATE),parsed):clone(DEFAULT_STATE);
+    }catch(e){return clone(DEFAULT_STATE);}
+  }
+  let S=loadState();
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(S));
+      const x=document.getElementById("saveLabel");
+      if(x){x.textContent="CASE FILE SAVED";clearTimeout(saveState.t);saveState.t=setTimeout(function(){x.textContent="";},1300);}
+    }catch(e){}
+  }
+  function byId(id){return document.getElementById(id);}
+  function words(v){return String(v||"").trim().split(/\s+/).filter(Boolean).length;}
+  function esc(v){
+    return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});
+  }
+  function toast(msg){
+    const t=byId("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);
+    toast.t=setTimeout(function(){t.classList.remove("show");},2100);
+  }
+  let audioContext=null;
+  function tone(kind){
+    if(!S.sound)return;
+    try{
+      audioContext=audioContext||new (window.AudioContext||window.webkitAudioContext)();
+      const o=audioContext.createOscillator(),g=audioContext.createGain();
+      const good=kind!=="wrong";o.type=good?"sine":"sawtooth";o.frequency.value=good?620:155;
+      g.gain.setValueAtTime(.045,audioContext.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+(good?.11:.18));
+      o.connect(g);g.connect(audioContext.destination);o.start();o.stop(audioContext.currentTime+(good?.12:.19));
+    }catch(e){}
+  }
+  function choiceButtons(group,options,current,checked,correct){
+    return "<div class='options'>"+options.map(function(o){
+      let cls="choice";
+      if(checked&&current===o[0])cls+=current===correct?" correct":" wrong";
+      return "<button type='button' class='"+cls+"' data-pick='"+esc(group)+"' data-value='"+esc(o[0])+"' aria-pressed='"+(current===o[0])+"'>"+o[1]+"</button>";
+    }).join("")+"</div>";
+  }
+  function feedback(checked,ok,yes,no){
+    if(!checked)return "";
+    return "<div class='feedback show "+(ok?"":"no")+"'><strong>"+(ok?"Signal cleared. ":"Revise the signal. ")+"</strong>"+(ok?yes:no)+"</div>";
+  }
+  function shell(num,label,time,title,lead,body,paper){
+    return "<section class='sheet "+(paper?"paper":"")+"'>"+
+      "<div class='docket'><b>Transmission "+String(num).padStart(2,"0")+" / 10</b><span>"+label+"</span><span>"+time+"</span></div>"+
+      "<div class='sheet-body'><div class='case-head'><div><div class='eyebrow'>"+label+"</div><h2>"+title+"</h2></div><span class='time-chip'>"+time+"</span></div>"+
+      (lead?"<p class='lead'>"+lead+"</p>":"")+body+"</div></section>";
+  }
+  function fieldOptions(selected){
+    return "<option value=''>Choose one record</option>"+EVIDENCE_OPTIONS.map(function(o){return "<option value='"+o[0]+"' "+(selected===o[0]?"selected":"")+">"+o[1]+"</option>";}).join("");
+  }
+  function evidenceName(id){
+    const x=EVIDENCE_OPTIONS.find(function(o){return o[0]===id;});return x?x[1]:"(not selected)";
+  }
+
+  function coverPage(){
+    const picks=Object.keys(HYPOTHESES).map(function(k){
+      return "<button type='button' class='choice' data-intake='"+k+"' aria-pressed='"+(S.intake.hypothesis===k)+"'>"+HYPOTHESES[k]+"</button>";
+    }).join("");
+    return "<section class='sheet cover'><div class='docket'><b>Hidden History · Block 1</b><span>Lessons 003 + 004</span><span>50–60 minutes</span></div>"+
+      "<div class='sheet-body'><div class='cover-grid'><div><div class='eyebrow'>Case 07-47 · Debris / message / secret</div>"+
+      "<h1>THE ROSWELL <span>SIGNAL</span></h1>"+
+      "<p class='cover-deck'>Debris. A “flying disc.” A same-day reversal. One real secret hiding underneath the story.</p>"+
+      "<div class='mission-line'><span>Read</span><span>Reveal</span><span>Test</span><span>File the smallest verdict</span></div>"+
+      "<div class='briefing'><strong>Your mission:</strong> enter July 1947 with no automatic trust and no automatic disbelief. Track what each source can prove, then decide whether Project Mogul explains the debris and the bad public story.</div>"+
+      "<div class='intake'><div class='field-grid'><div class='field'><label for='studentName'>Investigator name</label><input id='studentName' autocomplete='name' placeholder='First and last name'></div>"+
+      "<div class='field'><label for='studentHour'>Class / hour</label><input id='studentHour' placeholder='Example: Hour 3'></div></div>"+
+      "<div class='field'><label>Before you open the file: what seems most plausible?</label><div class='initial-pick'>"+picks+"</div></div>"+
+      "<div class='field confidence'><label for='preConfidence'>How confident are you?</label><strong id='preConfidenceValue'>"+S.intake.confidence+"%</strong><input id='preConfidence' type='range' min='0' max='100' step='5' value='"+S.intake.confidence+"'></div>"+
+      "<p class='micro'>There is no penalty for changing your mind. A changed mind with a reason is evidence of thinking.</p></div></div>"+
+      "<div class='hero-visual' aria-hidden='true'><div class='radar'><span class='blip b1'></span><span class='blip b2'></span><span class='blip b3'></span></div>"+
+      "<div class='hero-card mogul' data-tag='FILE: MOGUL'><img src='/hubs/roswell-signal-assets/mogul-balloon-train.webp' alt=''></div>"+
+      "<div class='hero-card news' data-tag='JULY 8, 1947'><img src='/hubs/roswell-signal-assets/roswell-daily-record.webp' alt=''></div></div></div></div></section>";
+  }
+
+  function page1(){
+    const qok=S.p1.answer==="category";
+    const body="<div class='lesson-grid'><div><div class='briefing'>"+
+      "<p>On <strong>June 24, 1947</strong>—exactly two weeks before the Roswell announcement—experienced pilot Kenneth Arnold reported nine fast, shiny objects near Mount Rainier.</p>"+
+      "<p>What he saw remains unresolved. What happened to his words is easier to trace: Arnold compared the objects’ <strong>motion</strong> to a saucer skipping across water. Newspaper language turned that comparison into a thing: a <strong>“flying saucer.”</strong></p>"+
+      "</div><div class='rule'><b>Evidence habit</b><br>A headline can manufacture a category. Once the category exists, later evidence gets sorted into it.</div></div>"+
+      "<figure class='figure img-tall'><img src='/hubs/roswell-signal-assets/kenneth-arnold.webp' alt='Kenneth Arnold standing in front of the airplane he flew on June 24, 1947'><figcaption>Kenneth A. Arnold with his CallAir A-2 · Smithsonian National Air and Space Museum</figcaption></figure></div>"+
+      "<div class='phrase-lab'><div class='phrase-track'>"+
+      "<div class='phrase-card'><b>Witness comparison</b><strong>Moved “like a saucer skipped across water”</strong></div><div class='phrase-arrow'>→</div>"+
+      "<div class='phrase-card "+(S.p1.tuned?"revealed":"dimmed")+"'><b>Press shortcut</b><strong>“Flying saucers”</strong></div><div class='phrase-arrow'>→</div>"+
+      "<div class='phrase-card "+(S.p1.tuned?"revealed":"dimmed")+"'><b>Public category</b><strong>A shape everyone starts looking for</strong></div></div>"+
+      "<div class='button-row'><button class='btn amber' id='tunePhrase' type='button'>"+(S.p1.tuned?"Transmission decoded":"Tune the transmission")+"</button></div></div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 01</span><span>Headline ≠ object</span></div><div class='challenge-body'>"+
+      "<div class='question'>Which conclusion fits the record without outrunning it?</div>"+
+      choiceButtons("p1",[
+        ["proof","Arnold’s report proved saucer-shaped extraterrestrial craft existed."],
+        ["category","The press label shaped the category people used to interpret later reports."],
+        ["roswell","The Roswell announcement caused Arnold’s June sighting."]
+      ],S.p1.answer,S.p1.checked,"category")+
+      "<div class='button-row'><button class='btn primary' id='checkP1' type='button'>Check the signal</button></div>"+
+      feedback(S.p1.checked,qok,"The historical result we can prove is the label’s rapid spread—not the identity of what Arnold saw.","Separate the unresolved sighting from the documented effect of the newspaper wording.")+
+      "</div></div>";
+    return shell(1,"The label arrives first","4 minutes","AMERICA WAS ALREADY LOOKING UP","Before Roswell entered the news, the country already had a name—and a mental picture—for mysterious objects in the sky.",body,false);
+  }
+
+  function page2(){
+    const shown=Math.min(S.p2.revealed,TIMELINE.length),qok=S.p2.answer==="category";
+    const events=TIMELINE.map(function(e,i){
+      return "<div class='timeline-event "+(i<shown?"revealed":"")+"' aria-hidden='"+(i>=shown)+"'><b>"+e.date+"</b><strong>"+(i<shown?e.text:"RECORD ENCRYPTED")+"</strong></div>";
+    }).join("");
+    const body="<div class='timeline-wrap'><div><div class='timeline'>"+events+"</div>"+
+      "<div class='button-row'><button class='btn amber' id='revealTimeline' type='button' "+(shown===TIMELINE.length?"disabled":"")+">"+(shown===TIMELINE.length?"Chronology complete":"Reveal next dated record")+"</button></div></div>"+
+      "<div class='map-panel' aria-label='Stylized map showing the Foster ranch northwest of Roswell and nearer Corona'><div class='map-road'></div>"+
+      "<div class='map-dot ranch'><i></i><b>FOSTER RANCH</b></div><div class='map-dot corona'><i></i><b>CORONA</b></div><div class='map-dot roswell'><i></i><b>ROSWELL AAF</b></div>"+
+      "<div class='distance'>ABOUT 75 MILES NORTHWEST →</div><div class='debris-box'><strong>Why the name drifts:</strong> the debris was nearer Corona. “Roswell” came from the Army air field and press dateline.</div></div></div>"+
+      "<div class='rule'><b>Do not erase the boundary</b><br>No engine, metal structure, wiring, or bodies appeared in the published first-week debris account. That silence is not proof those things never existed—but later claims must bring later, independent support.</div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 02</span><span>Context changes meaning</span></div><div class='challenge-body'><div class='question'>Why did debris that had sat in the open suddenly become “flying disc” news?</div>"+
+      choiceButtons("p2",[
+        ["changed","The material physically transformed after two weeks."],
+        ["category","A national “flying disc” category now existed, so Brazel interpreted the find through it."],
+        ["owner","The ranch owner ordered Brazel to invent a story."]
+      ],S.p2.answer,S.p2.checked,"category")+
+      "<div class='button-row'><button class='btn primary' id='checkP2' type='button'>Check the chronology</button></div>"+
+      feedback(S.p2.checked,qok,"The debris did not need to change. The information environment around it did.","The dated sequence matters: the label circulated before Brazel reported the material.")+"</div></div>";
+    return shell(2,"The story before the headline","6 minutes","DEBRIS WAITS. THE STORY DOESN’T.","Open the first-week chronology one record at a time. Watch the public category catch up to material that was already on the ground.",body,true);
+  }
+
+  function page3(){
+    const active=CHAIN.find(function(n){return n.id===S.p3.active;});
+    const qok=S.p3.answer==="none";
+    const nodes=CHAIN.map(function(n){
+      const open=S.p3.opened.indexOf(n.id)>-1;
+      return "<button class='chain-node "+(open?"open":"")+"' type='button' data-node='"+n.id+"' aria-pressed='"+open+"'><b>"+n.role+"</b><strong>"+n.name+"</strong><span>"+(open?n.short:"Open access file")+"</span></button>";
+    }).join("");
+    const body="<div class='signal-chain'>"+nodes+"</div>"+
+      "<div class='access-panel' id='accessPanel'>"+(active?"<div class='access-label'>"+active.role+" · access audit</div><h3>"+active.name+"</h3><p>"+active.detail+"</p>":"<div class='access-label'>Access audit</div><h3>OPEN A PERSON FILE</h3><p>Click each link in the chain. Track what that person could know—and what remained outside their view.</p>")+"</div>"+
+      "<div class='atomic-callout'><strong>509</strong><div><h3>THE SECURITY-SENSITIVE BASE</h3><p>In 1947, the 509th Bomb Group at Roswell was the world’s only atomic-strike-capable bomb group. An unusual recovery would move upward quickly, and information would be tightly controlled.</p></div></div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 03</span><span>Access ≠ title</span></div><div class='challenge-body'><div class='question'>Who in this chain clearly saw the debris field, every piece recovered, every command decision, and every public message?</div>"+
+      choiceButtons("p3",[["marcel","Major Marcel"],["ramey","General Ramey"],["none","No single person in the surviving chain"],["press","The national press"]],S.p3.answer,S.p3.checked,"none")+
+      "<div class='button-row'><button class='btn primary' id='checkP3' type='button'>Audit access</button></div>"+
+      feedback(S.p3.checked,qok,"Exactly. Rank access by the part of the event a source actually encountered; no title grants total knowledge.","Open every file, then distinguish physical access, command access, and reporting access.")+"</div></div>";
+    return shell(3,"Who moved the story?","5 minutes","FOLLOW THE STORY—AND ITS HANDOFFS","A famous name is not the same thing as total access. Each person handled a different slice of the event.",body,false);
+  }
+
+  function page4(){
+    const rows=REVERSAL.map(function(r){
+      const current=S.p4.answers[r.id]||"";
+      return "<div class='classify-row' data-row='"+r.id+"'><strong>"+r.text+"</strong><div class='pill-options'>"+
+        Object.keys(REV_LABELS).map(function(k){
+          let cls="pill";
+          if(S.p4.checked&&current===k)cls+=k===r.answer?" correct":" wrong";
+          return "<button type='button' class='"+cls+"' data-classify='"+r.id+"' data-value='"+k+"' aria-pressed='"+(current===k)+"'>"+REV_LABELS[k]+"</button>";
+        }).join("")+"</div></div>";
+    }).join("");
+    const all=REVERSAL.every(function(r){return S.p4.answers[r.id]===r.answer;});
+    const body="<div class='reversal'><div class='release-card'><time>July 8 · Roswell AAF</time><h3>“FLYING DISC”</h3><p>The base announcement was real, approved by Colonel Blanchard, and distributed by Walter Haut. It described no occupants, propulsion, extraterrestrial origin, or intact craft.</p></div>"+
+      "<div class='clock-flip'>↯<span>HOURS</span></div><div class='release-card late'><time>July 8 · Fort Worth</time><h3>WEATHER BALLOON</h3><p>General Ramey’s headquarters replaced the first account. Irving Newton identified the displayed material as balloon-and-reflector hardware.</p></div></div>"+
+      "<div class='lesson-grid equal'><figure class='figure img-wide'><img src='/hubs/roswell-signal-assets/roswell-daily-record.webp' alt='Roswell Daily Record front page showing the flying saucer headline'><figcaption>Same-day Army claim, reproduced by the Roswell Daily Record</figcaption></figure>"+
+      "<div><div class='briefing'><p><strong>The contradiction is real.</strong> A nuclear-sensitive command made a sensational claim and replaced it within hours. That deserves an explanation.</p><p>The honest limit: the first-week record does not fully explain why the release happened. Strange institutional behavior is a reason to investigate—not a finding about what was concealed.</p></div>"+
+      "<div class='rule'><b>Keep two explanations separate</b><br>“Weather balloon” was the thin public explanation in 1947. <strong>Project Mogul</strong> did not enter the public account until Air Force research in the 1990s.</div></div></div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 04</span><span>Sort exact claims</span></div><div class='challenge-body'><div class='classify-list'>"+rows+"</div>"+
+      "<div class='button-row'><button class='btn primary' id='checkP4' type='button'>Lock the July 8 record</button></div>"+
+      feedback(S.p4.checked,all,"You preserved both halves: the reversal is documented, and its full cause remains unresolved in the first-week record.","A real contradiction can be established without importing alien bodies or pretending the reason for the reversal is settled.")+"</div></div>";
+    return shell(4,"The same-day reversal","6 minutes","THE ARMY SAYS “DISC”—THEN DOESN’T","This is the strangest feature of the first-week record. Look directly at what changed and what the release never claimed.",body,false);
+  }
+
+  function page5(){
+    const cards=SOURCE_CARDS.map(function(c){
+      const scanned=S.p5.scanned.indexOf(c.id)>-1;
+      return "<article class='source-card "+(scanned?"scanned":"")+"' data-source='"+c.id+"'><div class='source-image'><img s"+"rc='"+c.image+"' alt='"+c.alt+"'><div class='scan-line'></div></div>"+
+        "<button class='btn scan-btn "+(scanned?"ghost":"amber")+"' type='button' data-scan='"+c.id+"'>"+(scanned?"Scanned ✓":"X-ray source")+"</button>"+
+        "<div class='source-copy'><div class='source-no'>"+c.no+"</div><h3>"+c.title+"</h3><p class='micro'>"+c.caption+"</p><div class='scan-result'><div class='scan-box'><b>Can carry</b>"+c.value+"</div><div class='scan-box'><b>Hard limit</b>"+c.limit+"</div></div></div></article>";
+    }).join("");
+    const qok=S.p5.answer==="reporting";
+    const body="<div class='source-grid'>"+cards+"</div>"+
+      "<div class='rule'><b>Source X-ray formula</b><br><strong>Creator + timing + access + limit.</strong> A source can be excellent evidence that a claim was made while remaining weak evidence that the claim was true.</div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 05</span><span>Institution ≠ inspection</span></div><div class='challenge-body'><div class='question'>The July 8 FBI teletype is strongest evidence for what?</div>"+
+      choiceButtons("p5",[
+        ["test","That FBI scientists tested the debris and proved it was a weather balloon."],
+        ["reporting","What the military was relaying to another agency on July 8."],
+        ["bodies","That investigators recovered alien bodies."]
+      ],S.p5.answer,S.p5.checked,"reporting")+
+      "<div class='button-row'><button class='btn primary' id='checkP5' type='button'>Rate the evidence</button></div>"+
+      feedback(S.p5.checked,qok,"The FBI name sounds powerful, but the document’s evidentiary weight comes from timing and what it records—not from a test that never happened.","Institutional weight and evidentiary weight are different. Ask what the FBI actually did here.")+"</div></div>";
+    return shell(5,"Primary-source laboratory","8 minutes","PUT EACH SOURCE UNDER X-RAY","Scan all four records. Your goal is not to crown a perfect source; it is to identify the exact job each source can perform.",body,false);
+  }
+
+  function page6(){
+    const qok=S.p6.answer==="evaluate";
+    const body="<div class='logic-board'><div class='logic-line'><div class='logic-claim'>CLAIM A: The first “weather balloon” explanation was incomplete or misleading.</div><div class='logic-symbol'>≠</div><div class='logic-claim'>CLAIM B: Therefore, an extraterrestrial craft was recovered.</div></div>"+
+      "<div class='hypotheses'>"+
+      "<div class='hypothesis'><b>Hypothesis 01</b><span>Ordinary weather hardware</span></div><div class='hypothesis'><b>Hypothesis 02</b><span>Classified research balloon</span></div>"+
+      "<div class='hypothesis'><b>Hypothesis 03</b><span>Hoax or planted material</span></div><div class='hypothesis'><b>Hypothesis 04</b><span>Misidentification of something else</span></div>"+
+      "<div class='hypothesis'><b>Hypothesis 05</b><span>Extraterrestrial craft</span></div></div></div>"+
+      "<div class='verdict-trio'><div class='verdict-box'><b>Confirmed in the first week</b><span>Debris recovery · Army “disc” release · rapid correction</span></div>"+
+      "<div class='verdict-box'><b>Unproven in the first week</b><span>Alien craft · bodies · recovered technology</span></div>"+
+      "<div class='verdict-box'><b>Misleading move</b><span>Projecting later body stories backward into July 1947</span></div></div>"+
+      "<div class='rule'><b>Transferable logic</b><br>Evidence against Claim A lowers confidence in A. It supplies no positive evidence for Claim B unless A and B are the only possible options. Here, they are not.</div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 06</span><span>Escape the false dilemma</span></div><div class='challenge-body'><div class='question'>If the first explanation fails, what logically follows?</div>"+
+      choiceButtons("p6",[
+        ["alien","The biggest alternative claim becomes true."],
+        ["nothing","Nothing about the event can ever be known."],
+        ["evaluate","Confidence in that explanation drops; every remaining hypothesis still needs its own evidence."],
+        ["allfalse","Every later government statement must also be false."]
+      ],S.p6.answer,S.p6.checked,"evaluate")+
+      "<div class='button-row'><button class='btn primary' id='checkP6' type='button'>Test the inference</button></div>"+
+      feedback(S.p6.checked,qok,"Right. “Unproven” is not a polite synonym for “false.” It means the record does not settle the claim.","Weakening one explanation does not award evidence to a rival explanation. Test each one independently.")+"</div></div>";
+    return shell(6,"Reasoning under uncertainty","5 minutes","DON’T JUMP THE GAP","The government can tell an incomplete story without the largest alternative automatically becoming true.",body,false);
+  }
+
+  function page7(){
+    const steps=MISSION_STEPS.map(function(s){
+      const open=S.p7.steps.indexOf(s.id)>-1;
+      return "<button type='button' class='mission-step "+(open?"open":"")+"' data-mission='"+s.id+"' aria-pressed='"+open+"'><b>"+s.label+"</b><strong>"+s.title+"</strong><span>"+s.text+"</span></button>";
+    }).join("");
+    const comps=COMPONENTS.map(function(c){
+      const open=S.p7.components.indexOf(c.id)>-1;
+      return "<button type='button' class='component "+(open?"open":"")+"' data-component='"+c.id+"' aria-pressed='"+open+"'><b>"+(open?"Installed ✓":"Install component")+"</b><span><strong>"+c.title+":</strong> "+c.text+"</span></button>";
+    }).join("");
+    const qok=S.p7.answer==="cover";
+    const body="<div class='declass-banner'><div class='eyebrow'>The real secret under the debris</div><h2>PROJECT MOGUL</h2><p class='lead'>A real national-security program used balloon arrays to search for evidence of Soviet atomic tests.</p></div>"+
+      "<div class='mission-steps'>"+steps+"</div>"+
+      "<div class='people-strip'><div class='person'><b>Maurice Ewing</b><span>Scientific sound-channel idea</span></div><div class='person'><b>NYU team</b><span>New Mexico field work</span></div>"+
+      "<div class='person'><b>Albert Crary</b><span>Dated project diary</span></div><div class='person'><b>Charles B. Moore</b><span>Balloon engineer; later witness</span></div></div>"+
+      "<p class='micro' style='margin-top:9px'>Strong history overlaps sources. A diary made during operations and later recollections are both useful, but they are not the same kind of evidence.</p>"+
+      "<div class='balloon-lab'><figure class='figure balloon-visual'><img src='/hubs/roswell-signal-assets/mogul-balloon-train.webp' alt='Project Mogul balloon train components pictured in an Air Force report'><figcaption>Project Mogul balloon-train components · U.S. Air Force report</figcaption></figure>"+
+      "<div><h3>BUILD THE BALLOON TRAIN</h3><p>A “balloon” here was not one party balloon. Unlock every component to reconstruct the system.</p><div class='component-list'>"+comps+"</div></div></div>"+
+      "<figure class='figure img-wide' style='margin-top:18px'><img src='/hubs/roswell-signal-assets/mogul-corner-reflectors.webp' alt='A New York University crew preparing Project Mogul corner reflectors for launch'><figcaption>NYU launch crew and ML-307 corner reflectors · Holloman AFB, 1948</figcaption></figure>"+
+      "<div class='cover-story'><div class='cover-box'><b>Visible hardware</b><h3>“WEATHER BALLOON”</h3><p>Contained some true material facts: balloons and tracking hardware.</p></div><div class='cover-arrow'>→</div><div class='cover-box'><b>Hidden mission</b><h3>ATOMIC-TEST DETECTION</h3><p>Concealed the classified purpose that made the equipment sensitive.</p></div></div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 07</span><span>Cover description ≠ alien cover-up</span></div><div class='challenge-body'><div class='question'>Why could officials use ordinary “weather balloon” language even if the debris came from Mogul?</div>"+
+      choiceButtons("p7",[
+        ["alien","Because “weather balloon” was a code word for alien spacecraft."],
+        ["cover","The hardware could look ordinary while the program’s actual mission remained classified."],
+        ["fake","Because Project Mogul itself was invented in the 1990s."]
+      ],S.p7.answer,S.p7.checked,"cover")+
+      "<div class='button-row'><button class='btn primary' id='checkP7' type='button'>Clear the classified layer</button></div>"+
+      feedback(S.p7.checked,qok,"A cover description can be incomplete without inventing a crashed alien craft. Use precise words: classification, cover story, deception, and inference.","Project Mogul existed in dated records. The secrecy concerned its purpose, not proof of extraterrestrial custody.")+"</div></div>";
+    return shell(7,"Declassified mission file","7 minutes","A SECRET THAT ACTUALLY EXISTED","Unlock the Cold War problem, the science, the hardware, and the people behind the paper trail.",body,true);
+  }
+
+  function page8(){
+    const rightOrder=["balsa","novelty","neoprene","reflector"];
+    const leftHtml=MATERIAL_PAIRS.map(function(p){
+      const matched=S.p8.matches.indexOf(p.left)>-1,sel=S.p8.selected===p.left;
+      return "<button type='button' class='material "+(matched?"matched":sel?"selected":"")+"' data-left='"+p.left+"' "+(matched?"disabled":"")+" aria-pressed='"+sel+"'><b>1947 description</b><span>"+p.leftText+"</span></button>";
+    }).join("");
+    const rightHtml=rightOrder.map(function(id){
+      const p=MATERIAL_PAIRS.find(function(x){return x.right===id;});
+      const matched=S.p8.matches.indexOf(p.left)>-1;
+      return "<button type='button' class='material "+(matched?"matched":"")+"' data-right='"+p.right+"' "+(matched?"disabled":"")+"><b>Mogul component</b><span>"+p.rightText+"</span></button>";
+    }).join("");
+    const qok=S.p8.answer==="converge";
+    const body="<div class='match-lab'><div class='match-col'><div class='match-title'>Recovered / published description</div>"+leftHtml+"</div><div class='match-beam'>↔</div><div class='match-col'><div class='match-title'>Documented Mogul hardware</div>"+rightHtml+"</div></div>"+
+      "<p class='micro' style='margin-top:10px'>Select a 1947 description, then its matching Mogul component. The flowered or purple tape comparison is useful, but it is not a magical fingerprint.</p>"+
+      "<div class='evidence-ladder'><div class='rung'><b>Layer 01</b><span>The program existed.</span></div><div class='rung'><b>Layer 02</b><span>Flights occurred in New Mexico.</span></div>"+
+      "<div class='rung'><b>Layer 03</b><span>Materials fit the early descriptions.</span></div><div class='rung'><b>Layer 04</b><span>Location and timing fit.</span></div></div>"+
+      "<div class='flight-box'><span class='stamp amber'>Inference boundary</span><h3>THE SPECIFIC-FLIGHT QUESTION</h3><p>The Air Force connected the debris to a June 1947 Mogul test train, often identified as <strong>Flight 4</strong>, using project chronology, Crary’s diary, geography, and material comparison.</p>"+
+      "<p>The program’s existence is documented. The exact flight-to-debris identification was reconstructed decades later from incomplete records. Critics dispute whether that particular train launched as later described and warn about confirmation bias.</p></div>"+
+      "<div class='rule'><b>Strongest fair wording</b><br>Later publication is not the same as late invention when the underlying records are older. The Mogul explanation gains strength because it predicts several independent features of the earlier record with fewer unsupported additions.</div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 08</span><span>Convergence, not magic certainty</span></div><div class='challenge-body'><div class='question'>Why is the Mogul explanation historically strong even though no single surviving record is perfect?</div>"+
+      choiceButtons("p8",[
+        ["government","Because the government said it, which ends the question."],
+        ["converge","Multiple independent layers—program, flights, materials, place, and timing—converge."],
+        ["memory","Because every later witness remembered exactly the same thing."]
+      ],S.p8.answer,S.p8.checked,"converge")+
+      "<div class='button-row'><button class='btn primary' id='checkP8' type='button'>Test the material case</button></div>"+
+      feedback(S.p8.checked,qok,"That is the evidence ladder. None of its rungs is perfect alone; together they make Mogul the best-supported documented explanation.","“The government said so” is weak reasoning. Name the independent features the explanation accounts for.")+"</div></div>";
+    return shell(8,"Material-comparison laboratory","7 minutes","DOES THE DEBRIS FIT?","Pair the first-week material descriptions with documented balloon-train components, then stop exactly where the record stops.",body,true);
+  }
+
+  function page9(){
+    const qok=S.p9.answer==="gap";
+    const body="<div class='records-grid'><figure class='figure gao-cover'><img src='/hubs/roswell-signal-assets/gao-cover.webp' alt='Cover of the 1995 GAO report about government records concerning the 1947 Roswell crash'><figcaption>Government Records: Results of a Search for Records Concerning the 1947 Crash Near Roswell, New Mexico · GAO</figcaption></figure>"+
+      "<div class='records-stack'><div class='record-card'><b>Air Force review · 1994</b><h3>ASKED: WHAT EXPLAINS THE INCIDENT?</h3><p>Researchers assembled launch records, diaries, photographs, interviews, maps, and examples of hardware. The review had valuable record access—and an institutional purpose that deserves scrutiny: explain the incident and defend credibility.</p></div>"+
+      "<div class='record-card'><b>GAO review · 1995</b><h3>ASKED: WHAT RECORDS EXIST, AND HOW WERE THEY HANDLED?</h3><ul><li>No documentation was found establishing extraterrestrial recovery.</li><li>Two relevant groups of Roswell base records had been destroyed, and the disposal paperwork did not properly identify the authority.</li><li>The inquiry did not find evidence that destruction was ordered to hide Roswell.</li></ul></div>"+
+      "<div class='missing-rule'><strong>MISSING RECORDS DO NOT WRITE THEIR OWN CONTENTS.</strong>A gap deserves notice. It does not tell you whether the missing page helped, hurt, or had nothing to do with your preferred claim.</div></div></div>"+
+      "<div class='prediction-grid'><div class='prediction'><b>Materials</b>Rubber, foil-paper, sticks, tape</div><div class='prediction'><b>Mission</b>A real reason for secrecy</div>"+
+      "<div class='prediction'><b>Location</b>New Mexico operations</div><div class='prediction'><b>Timing</b>1947 flight activity</div></div>"+
+      "<div class='rule'><b>Why a late explanation can still be strong</b><br>Historians reconstruct events from surviving evidence. Ask whether the explanation rests on independent, dated records and successfully predicts earlier facts—not merely whether it was published late.</div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Signal check 09</span><span>Notice the gap; do not fill it</span></div><div class='challenge-body'><div class='question'>What is the strongest conclusion the missing Roswell base records support?</div>"+
+      choiceButtons("p9",[
+        ["aliens","They prove alien evidence was deliberately destroyed."],
+        ["nothing","Missing records are irrelevant and should be ignored."],
+        ["gap","There is a real documentary gap worth reporting; the contents and motive remain unknown."]
+      ],S.p9.answer,S.p9.checked,"gap")+
+      "<div class='button-row'><button class='btn primary' id='checkP9' type='button'>Close the records search</button></div>"+
+      feedback(S.p9.checked,qok,"That is the disciplined conclusion: name the loss, preserve its significance, and refuse to invent its contents.","The gap matters, but neither side gets to use an absent file as a blank check.")+"</div></div>";
+    return shell(9,"The records behind the record","5 minutes","WHAT CAN A MISSING FILE PROVE?","Two official investigations asked different questions. Read their value and their institutional limits without turning absence into evidence.",body,false);
+  }
+
+  function argumentChecks(){
+    const labels=FINAL_CLAIMS.every(function(c){return S.p10.labels[c.id]===c.answer;});
+    return {
+      labels:labels,
+      change:S.p10.change.length>=2,
+      position:!!S.p10.postHypothesis,
+      claim:words(S.p10.claim)>=25,
+      sources:!!S.p10.evidence1&&!!S.p10.evidence2&&S.p10.evidence1!==S.p10.evidence2,
+      reasons:words(S.p10.reason1)>=12&&words(S.p10.reason2)>=12,
+      limit:words(S.p10.limit)>=12,
+      reversal:words(S.p10.reversal)>=15
+    };
+  }
+  function checklistHtml(){
+    const c=argumentChecks();
+    const items=[
+      ["labels","Five exact claims correctly labeled"],["change","Two verdict-changing records selected"],["position","Final hypothesis selected"],
+      ["claim","Claim reaches 25 words"],["sources","Two different records selected"],["reasons","Both evidence explanations reach 12 words"],
+      ["limit","Limitation reaches 12 words"],["reversal","Reversal analysis reaches 15 words"]
+    ];
+    return items.map(function(x){return "<div class='check-item "+(c[x[0]]?"ok":"")+"'>"+x[1]+"</div>";}).join("");
+  }
+  function page10(){
+    const rows=FINAL_CLAIMS.map(function(c){
+      const current=S.p10.labels[c.id]||"";
+      return "<div class='label-row'><strong>"+c.text+"</strong><div class='label-options'>"+
+        Object.keys(FINAL_LABELS).map(function(k){
+          let cls="label-btn";
+          if(S.p10.checked&&current===k)cls+=k===c.answer?" correct":" wrong";
+          return "<button type='button' class='"+cls+"' data-final-label='"+c.id+"' data-value='"+k+"' aria-pressed='"+(current===k)+"'>"+FINAL_LABELS[k]+"</button>";
+        }).join("")+"</div></div>";
+    }).join("");
+    const changes=[
+      ["material","Chain-of-custody material unlike Mogul hardware"],
+      ["records","Dated records placing a different craft at the site"],
+      ["occupants","Independent contemporary evidence of occupants or technology"]
+    ].map(function(x){return "<button class='chip' type='button' data-change='"+x[0]+"' aria-pressed='"+(S.p10.change.indexOf(x[0])>-1)+"'>"+x[1]+"</button>";}).join("");
+    const hyp=Object.keys(HYPOTHESES).map(function(k){return "<button class='choice' type='button' data-post-hyp='"+k+"' aria-pressed='"+(S.p10.postHypothesis===k)+"'>"+HYPOTHESES[k]+"</button>";}).join("");
+    const c=argumentChecks(),all=Object.keys(c).every(function(k){return c[k];});
+    const body="<div class='label-board'>"+rows+"</div><div class='button-row'><button class='btn amber' id='checkLabels' type='button'>Check the five labels</button></div>"+
+      feedback(S.p10.checked,c.labels,"Your labels preserve the crucial difference between a documented program, a best-supported explanation, an inferred exact flight, an incomplete cover story, and an unproven alien claim.","Verdicts attach to exact claims. “Confirmed” does not belong on every part of the Mogul explanation, and “unproven” does not mean false.")+
+      "<div class='thresholds'><div class='threshold'><b>New physical evidence</b><span>Material with a documented chain of custody and properties unlike Mogul hardware.</span></div>"+
+      "<div class='threshold'><b>New dated record</b><span>A contemporary document placing a different craft at the recovery site.</span></div>"+
+      "<div class='threshold'><b>New corroboration</b><span>Independent contemporary evidence of occupants or extraordinary technology.</span></div></div>"+
+      "<div class='field' style='margin-top:14px'><label>Select at least two discoveries that could change the verdict</label><div class='chips'>"+changes+"</div></div>"+
+      "<div class='rule'><b>The smallest verdict the record earns</b><br>Roswell’s first week proves contradictory messaging around recovered debris. Project Mogul is the best-supported documented explanation. The exact flight match remains an inference. Extraterrestrial recovery remains unproven.</div>"+
+      "<div class='challenge'><div class='challenge-head'><span>Final field report</span><span>Make the judgment yours</span></div><div class='challenge-body'>"+
+      "<div class='field'><label>After the investigation, what now seems most plausible?</label><div class='initial-pick'>"+hyp+"</div></div>"+
+      "<div class='field confidence' style='margin-top:13px'><label for='postConfidence'>How confident are you now?</label><strong id='postConfidenceValue'>"+S.p10.postConfidence+"%</strong><input id='postConfidence' type='range' min='0' max='100' step='5' value='"+S.p10.postConfidence+"'></div>"+
+      "<div class='argument-grid' style='margin-top:18px'><div class='field wide'><label for='finalClaim'>Your bounded claim · 25+ words</label><textarea id='finalClaim' placeholder='Roswell’s first week establishes... Project Mogul is... However, the record does not establish...'>"+esc(S.p10.claim)+"</textarea><span class='word-count' id='countClaim'></span></div>"+
+      "<div class='field'><label for='evidence1'>Evidence record 1</label><select id='evidence1'>"+fieldOptions(S.p10.evidence1)+"</select></div><div class='field'><label for='evidence2'>Evidence record 2</label><select id='evidence2'>"+fieldOptions(S.p10.evidence2)+"</select></div>"+
+      "<div class='field'><label for='reason1'>How record 1 supports your claim · 12+ words</label><textarea id='reason1'>"+esc(S.p10.reason1)+"</textarea><span class='word-count' id='countReason1'></span></div>"+
+      "<div class='field'><label for='reason2'>How record 2 supports your claim · 12+ words</label><textarea id='reason2'>"+esc(S.p10.reason2)+"</textarea><span class='word-count' id='countReason2'></span></div>"+
+      "<div class='field wide'><label for='finalLimit'>Fairest limitation or uncertainty · 12+ words</label><textarea id='finalLimit' placeholder='A fair limitation is...'>"+esc(S.p10.limit)+"</textarea><span class='word-count' id='countLimit'></span></div>"+
+      "<div class='field wide'><label for='reversalAnswer'>Why does the same-day reversal matter without proving alien recovery? · 15+ words</label><textarea id='reversalAnswer'>"+esc(S.p10.reversal)+"</textarea><span class='word-count' id='countReversal'></span></div></div>"+
+      "<div class='checklist' id='argumentChecklist'>"+checklistHtml()+"</div><div class='button-row'><button class='btn primary' id='checkArgument' type='button'>Run final evidence check</button></div>"+
+      feedback(S.p10.checked&&c.labels,all,"Your field report is complete. You did not have to choose certainty; you had to show disciplined reasoning.","Use the checklist. A strong verdict names evidence, explains its use, and states what the evidence cannot prove.")+
+      "</div></div>";
+    return shell(10,"Verdict calibration","8 minutes","FILE ONLY WHAT THE RECORD CAN CARRY","Sort five exact claims, identify what could change your mind, and write a verdict that neither trusts nor distrusts automatically.",body,true);
+  }
+
+  function sourcesBlock(){
+    return "<details class='sources'><summary>Source trail + image credits</summary><div class='sources-body'><ol>"+
+      "<li><a href='https://airandspace.si.edu/stories/editorial/1947-year-flying-saucer' target='_blank' rel='noopener'>Smithsonian National Air and Space Museum, “1947: Year of the Flying Saucer”</a> — Kenneth Arnold context and photograph.</li>"+
+      "<li><a href='https://text-message.blogs.archives.gov/2017/07/05/see-something-say-something-ufo-reporting-requirements-office-of-military-government-for-bavaria-germany-may-1948/' target='_blank' rel='noopener'>National Archives, “See Something, Say Something”</a> — first-week chronology and Roswell Daily Record image.</li>"+
+      "<li><a href='https://vault.fbi.gov/Roswell%20UFO/Roswell%20UFO%20Part%2001%20%28Final%29/view' target='_blank' rel='noopener'>FBI Vault, Roswell UFO Part 01</a> — July 8, 1947 teletype.</li>"+
+      "<li><a href='https://www.gao.gov/products/nsiad-95-187' target='_blank' rel='noopener'>U.S. Government Accountability Office, NSIAD-95-187</a> — records search and destruction findings.</li>"+
+      "<li><a href='https://www.af.mil/The-Roswell-Report/' target='_blank' rel='noopener'>U.S. Air Force, The Roswell Report</a> — official investigation context.</li>"+
+      "<li><a href='https://commons.wikimedia.org/wiki/File:Mogul_balloon_train_USAF_1995.png' target='_blank' rel='noopener'>USAF Mogul balloon train image</a>, <a href='https://commons.wikimedia.org/wiki/File:Mogul_corner_reflectors_USAF_1995.png' target='_blank' rel='noopener'>corner-reflector image</a>, and <a href='https://commons.wikimedia.org/wiki/File:Ramey-dubose-debris.jpg' target='_blank' rel='noopener'>Ramey–DuBose debris photograph</a> — public-domain reproductions via Wikimedia Commons.</li>"+
+      "</ol><p>Course content follows the supplied Hidden History L003 and L004 classroom-ready decks and their presenter notes. Visuals are embedded so the assignment remains usable if image sites are blocked.</p></div></details>";
+  }
+
+  function finalPage(){
+    const done=completedSections(),ready=done===10&&S.student.name.trim()&&S.student.hour.trim();
+    const pre=HYPOTHESES[S.intake.hypothesis]||"(not selected)",post=HYPOTHESES[S.p10.postHypothesis]||"(not selected)";
+    return "<section class='sheet'><div class='sheet-body'><div class='final-banner'><div class='eyebrow'>Signal room · filed record</div><h2>THE CASE UNDER THE LEGEND</h2>"+
+      "<p class='lead' id='finalIdentity'>"+esc(S.student.name||"Unnamed investigator")+" · "+esc(S.student.hour||"No class entered")+"</p>"+
+      "<div class='ready-line'><span class='ready-dot "+(ready?"yes":"")+"'></span><span>"+(ready?"CASE FILE COMPLETE":"DRAFT · "+done+" OF 10 TRANSMISSIONS CLEARED")+"</span></div></div>"+
+      "<div class='shift-meter'><div class='shift-card'><span>Before the evidence · "+S.intake.confidence+"% confidence</span><strong>"+esc(pre)+"</strong></div><div class='shift-arrow'>→</div>"+
+      "<div class='shift-card'><span>After the evidence · "+S.p10.postConfidence+"% confidence</span><strong>"+esc(post)+"</strong></div></div>"+
+      "<div class='summary-grid' style='margin-top:16px'><div class='summary-box wide'><b>Bounded verdict</b><p>"+esc(S.p10.claim||"No final claim filed.")+"</p></div>"+
+      "<div class='summary-box'><b>Evidence 1 · "+esc(evidenceName(S.p10.evidence1))+"</b><p>"+esc(S.p10.reason1||"No explanation filed.")+"</p></div>"+
+      "<div class='summary-box'><b>Evidence 2 · "+esc(evidenceName(S.p10.evidence2))+"</b><p>"+esc(S.p10.reason2||"No explanation filed.")+"</p></div>"+
+      "<div class='summary-box'><b>Fairest limitation</b><p>"+esc(S.p10.limit||"No limitation filed.")+"</p></div>"+
+      "<div class='summary-box'><b>Why the reversal matters</b><p>"+esc(S.p10.reversal||"No analysis filed.")+"</p></div></div>"+
+      "<div class='rule'><b>Historian’s discipline</b><br>Confirmed: the program and the first-week messaging. Best-supported: Mogul as the debris explanation. Inferred: the exact flight match. Misleading: the incomplete weather-balloon story. Unproven: extraterrestrial recovery.</div>"+
+      "<div class='button-row screen-only'><button class='btn primary' id='copyReport' type='button'>Copy full report</button><button class='btn amber' id='downloadReport' type='button'>Download .txt</button>"+
+      "<button class='btn ghost' id='printReport' type='button'>Print / save PDF</button><button class='btn danger' id='resetAll' type='button'>Start a new case</button></div>"+
+      "<p class='micro screen-only' style='margin-top:12px'>Attach the downloaded text file in Google Classroom, or use Print / save PDF if your teacher requests a PDF.</p>"+sourcesBlock()+"</div></section>";
+  }
+
+  const PAGES=[coverPage,page1,page2,page3,page4,page5,page6,page7,page8,page9,page10,finalPage];
+
+  function sectionDone(n){
+    if(n===1)return S.p1.tuned&&S.p1.checked&&S.p1.answer==="category";
+    if(n===2)return S.p2.revealed>=TIMELINE.length&&S.p2.checked&&S.p2.answer==="category";
+    if(n===3)return S.p3.opened.length>=CHAIN.length&&S.p3.checked&&S.p3.answer==="none";
+    if(n===4)return S.p4.checked&&REVERSAL.every(function(r){return S.p4.answers[r.id]===r.answer;});
+    if(n===5)return S.p5.scanned.length>=SOURCE_CARDS.length&&S.p5.checked&&S.p5.answer==="reporting";
+    if(n===6)return S.p6.checked&&S.p6.answer==="evaluate";
+    if(n===7)return S.p7.steps.length>=MISSION_STEPS.length&&S.p7.components.length>=COMPONENTS.length&&S.p7.checked&&S.p7.answer==="cover";
+    if(n===8)return S.p8.matches.length>=MATERIAL_PAIRS.length&&S.p8.checked&&S.p8.answer==="converge";
+    if(n===9)return S.p9.checked&&S.p9.answer==="gap";
+    if(n===10){const c=argumentChecks();return S.p10.checked&&Object.keys(c).every(function(k){return c[k];});}
+    return false;
+  }
+  function completedSections(){let n=0;for(let i=1;i<=10;i++)if(sectionDone(i))n++;return n;}
+  function missingForPage(n){
+    if(n===1)return !S.p1.tuned?"Tune the three-part phrase transmission first.":"Check and revise the signal question.";
+    if(n===2)return S.p2.revealed<TIMELINE.length?"Reveal the complete dated chronology first.":"Check and revise the chronology question.";
+    if(n===3)return S.p3.opened.length<CHAIN.length?"Open all six access files first.":"Complete the access audit.";
+    if(n===4)return "Classify all four July 8 claims correctly.";
+    if(n===5)return S.p5.scanned.length<SOURCE_CARDS.length?"X-ray all four sources first.":"Complete the source-weight question.";
+    if(n===6)return "Complete the false-dilemma signal check.";
+    if(n===7)return S.p7.steps.length<MISSION_STEPS.length?"Unlock all four mission layers.":S.p7.components.length<COMPONENTS.length?"Install all four balloon-train components.":"Complete the cover-story check.";
+    if(n===8)return S.p8.matches.length<MATERIAL_PAIRS.length?"Match all four debris descriptions.":"Complete the convergence check.";
+    if(n===9)return "Complete the missing-records check.";
+    if(n===10)return "Use the final checklist to complete every part of the field report.";
+    return "Complete this transmission.";
+  }
+
+  function updateChrome(){
+    const meter=byId("meter");meter.innerHTML="";
+    for(let i=1;i<=10;i++){
+      const s=document.createElement("span");s.className="meter-seg";
+      if(sectionDone(i))s.classList.add("done");
+      if(S.page===i&&!sectionDone(i))s.classList.add("current");
+      s.title="Transmission "+i+(sectionDone(i)?" complete":"");
+      meter.appendChild(s);
+    }
+    byId("stepLabel").textContent=PAGE_LABELS[S.page]||"Filed report";
+    const back=byId("backBtn"),next=byId("nextBtn");
+    back.disabled=S.page===0;
+    next.style.display=S.page===PAGES.length-1?"none":"inline-block";
+    next.textContent=NEXT_LABELS[S.page]||"Next";
+    const sound=byId("soundBtn");sound.setAttribute("aria-pressed",String(S.sound));sound.textContent=S.sound?"SOUND ON":"SOUND OFF";
+  }
+
+  function bindPick(group,setter){
+    document.querySelectorAll("[data-pick='"+group+"']").forEach(function(btn){
+      btn.addEventListener("click",function(){setter(btn.dataset.value);tone("tap");saveState();render(true);});
+    });
+  }
+  function bindText(id,key,countId,min){
+    const el=byId(id);if(!el)return;
+    const update=function(){
+      S.p10[key]=el.value;
+      if(countId){const n=words(el.value),c=byId(countId);c.textContent=n+" / "+min+"+ words";c.classList.toggle("good",n>=min);}
+      saveState();refreshChecklist();updateChrome();
+    };
+    el.addEventListener("input",update);update();
+  }
+  function refreshChecklist(){const e=byId("argumentChecklist");if(e)e.innerHTML=checklistHtml();}
+
+  function bindCover(){
+    const name=byId("studentName"),hour=byId("studentHour"),range=byId("preConfidence");
+    name.value=S.student.name;hour.value=S.student.hour;
+    name.addEventListener("input",function(){S.student.name=name.value;saveState();});
+    hour.addEventListener("input",function(){S.student.hour=hour.value;saveState();});
+    document.querySelectorAll("[data-intake]").forEach(function(btn){btn.addEventListener("click",function(){S.intake.hypothesis=btn.dataset.intake;tone("tap");saveState();render(true);});});
+    range.addEventListener("input",function(){S.intake.confidence=Number(range.value);byId("preConfidenceValue").textContent=range.value+"%";saveState();});
+  }
+  function bindP1(){
+    byId("tunePhrase").addEventListener("click",function(){S.p1.tuned=true;tone("good");saveState();render(true);});
+    bindPick("p1",function(v){S.p1.answer=v;S.p1.checked=false;});
+    byId("checkP1").addEventListener("click",function(){S.p1.checked=true;tone(S.p1.answer==="category"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP2(){
+    byId("revealTimeline").addEventListener("click",function(){if(S.p2.revealed<TIMELINE.length)S.p2.revealed++;tone("tap");saveState();render(true);});
+    bindPick("p2",function(v){S.p2.answer=v;S.p2.checked=false;});
+    byId("checkP2").addEventListener("click",function(){S.p2.checked=true;tone(S.p2.answer==="category"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP3(){
+    document.querySelectorAll("[data-node]").forEach(function(btn){btn.addEventListener("click",function(){
+      const id=btn.dataset.node;if(S.p3.opened.indexOf(id)<0)S.p3.opened.push(id);S.p3.active=id;tone("tap");saveState();render(true);
+    });});
+    bindPick("p3",function(v){S.p3.answer=v;S.p3.checked=false;});
+    byId("checkP3").addEventListener("click",function(){S.p3.checked=true;tone(S.p3.answer==="none"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP4(){
+    document.querySelectorAll("[data-classify]").forEach(function(btn){btn.addEventListener("click",function(){S.p4.answers[btn.dataset.classify]=btn.dataset.value;S.p4.checked=false;tone("tap");saveState();render(true);});});
+    byId("checkP4").addEventListener("click",function(){S.p4.checked=true;const ok=REVERSAL.every(function(r){return S.p4.answers[r.id]===r.answer;});tone(ok?"good":"wrong");saveState();render(true);});
+  }
+  function bindP5(){
+    document.querySelectorAll("[data-scan]").forEach(function(btn){btn.addEventListener("click",function(){
+      const id=btn.dataset.scan;if(S.p5.scanned.indexOf(id)>-1)return;
+      const card=btn.closest(".source-card");card.classList.add("scanning");tone("tap");
+      setTimeout(function(){S.p5.scanned.push(id);saveState();render(true);},520);
+    });});
+    bindPick("p5",function(v){S.p5.answer=v;S.p5.checked=false;});
+    byId("checkP5").addEventListener("click",function(){S.p5.checked=true;tone(S.p5.answer==="reporting"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP6(){
+    bindPick("p6",function(v){S.p6.answer=v;S.p6.checked=false;});
+    byId("checkP6").addEventListener("click",function(){S.p6.checked=true;tone(S.p6.answer==="evaluate"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP7(){
+    document.querySelectorAll("[data-mission]").forEach(function(btn){btn.addEventListener("click",function(){const id=btn.dataset.mission;if(S.p7.steps.indexOf(id)<0)S.p7.steps.push(id);tone("tap");saveState();render(true);});});
+    document.querySelectorAll("[data-component]").forEach(function(btn){btn.addEventListener("click",function(){const id=btn.dataset.component;if(S.p7.components.indexOf(id)<0)S.p7.components.push(id);tone("tap");saveState();render(true);});});
+    bindPick("p7",function(v){S.p7.answer=v;S.p7.checked=false;});
+    byId("checkP7").addEventListener("click",function(){S.p7.checked=true;tone(S.p7.answer==="cover"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP8(){
+    document.querySelectorAll("[data-left]").forEach(function(btn){btn.addEventListener("click",function(){S.p8.selected=btn.dataset.left;tone("tap");saveState();render(true);});});
+    document.querySelectorAll("[data-right]").forEach(function(btn){btn.addEventListener("click",function(){
+      if(!S.p8.selected){toast("Select a 1947 description on the left first.");tone("wrong");return;}
+      const p=MATERIAL_PAIRS.find(function(x){return x.left===S.p8.selected;});
+      if(p&&p.right===btn.dataset.right){S.p8.matches.push(p.left);S.p8.selected="";tone("good");saveState();render(true);}
+      else{btn.classList.add("wrong");tone("wrong");toast("That material pair does not fit. Try another component.");setTimeout(function(){btn.classList.remove("wrong");},350);}
+    });});
+    bindPick("p8",function(v){S.p8.answer=v;S.p8.checked=false;});
+    byId("checkP8").addEventListener("click",function(){S.p8.checked=true;tone(S.p8.answer==="converge"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP9(){
+    bindPick("p9",function(v){S.p9.answer=v;S.p9.checked=false;});
+    byId("checkP9").addEventListener("click",function(){S.p9.checked=true;tone(S.p9.answer==="gap"?"good":"wrong");saveState();render(true);});
+  }
+  function bindP10(){
+    document.querySelectorAll("[data-final-label]").forEach(function(btn){btn.addEventListener("click",function(){S.p10.labels[btn.dataset.finalLabel]=btn.dataset.value;S.p10.checked=false;tone("tap");saveState();render(true);});});
+    byId("checkLabels").addEventListener("click",function(){S.p10.checked=true;const ok=FINAL_CLAIMS.every(function(c){return S.p10.labels[c.id]===c.answer;});tone(ok?"good":"wrong");saveState();render(true);});
+    document.querySelectorAll("[data-change]").forEach(function(btn){btn.addEventListener("click",function(){const id=btn.dataset.change,i=S.p10.change.indexOf(id);if(i>-1)S.p10.change.splice(i,1);else S.p10.change.push(id);S.p10.checked=false;tone("tap");saveState();render(true);});});
+    document.querySelectorAll("[data-post-hyp]").forEach(function(btn){btn.addEventListener("click",function(){S.p10.postHypothesis=btn.dataset.postHyp;S.p10.checked=false;tone("tap");saveState();render(true);});});
+    const range=byId("postConfidence");range.addEventListener("input",function(){S.p10.postConfidence=Number(range.value);byId("postConfidenceValue").textContent=range.value+"%";S.p10.checked=false;saveState();});
+    const e1=byId("evidence1"),e2=byId("evidence2");
+    e1.addEventListener("change",function(){S.p10.evidence1=e1.value;S.p10.checked=false;saveState();refreshChecklist();});
+    e2.addEventListener("change",function(){S.p10.evidence2=e2.value;S.p10.checked=false;saveState();refreshChecklist();});
+    bindText("finalClaim","claim","countClaim",25);bindText("reason1","reason1","countReason1",12);bindText("reason2","reason2","countReason2",12);
+    bindText("finalLimit","limit","countLimit",12);bindText("reversalAnswer","reversal","countReversal",15);
+    byId("checkArgument").addEventListener("click",function(){
+      S.p10.checked=true;const c=argumentChecks(),ok=Object.keys(c).every(function(k){return c[k];});tone(ok?"good":"wrong");saveState();render(true);toast(ok?"Field report cleared.":"Use the checklist to finish the report.");
+    });
+  }
+  function bindFinal(){
+    byId("copyReport").addEventListener("click",function(){copyText(buildReport());});
+    byId("downloadReport").addEventListener("click",function(){downloadText(buildReport());});
+    byId("printReport").addEventListener("click",function(){window.print();});
+    byId("resetAll").addEventListener("click",function(){
+      if(confirm("Clear every answer on this device and open a new Roswell case?")){localStorage.removeItem(STORAGE_KEY);S=clone(DEFAULT_STATE);render(false);toast("New case opened.");}
+    });
+  }
+  function bindPage(){
+    if(S.page===0)bindCover();
+    else if(S.page===1)bindP1();
+    else if(S.page===2)bindP2();
+    else if(S.page===3)bindP3();
+    else if(S.page===4)bindP4();
+    else if(S.page===5)bindP5();
+    else if(S.page===6)bindP6();
+    else if(S.page===7)bindP7();
+    else if(S.page===8)bindP8();
+    else if(S.page===9)bindP9();
+    else if(S.page===10)bindP10();
+    else if(S.page===11)bindFinal();
+  }
+
+  function render(preserveScroll){
+    const y=window.scrollY;
+    byId("stage").innerHTML=PAGES[S.page]();
+    bindPage();updateChrome();
+    if(preserveScroll)window.scrollTo(0,y);else{window.scrollTo(0,0);byId("stage").focus({preventScroll:true});}
+  }
+
+  function buildReport(){
+    const c=argumentChecks(),L=[];
+    L.push("THE ROSWELL SIGNAL — HIDDEN HISTORY FIELD REPORT");
+    L.push("Investigator: "+(S.student.name||"(blank)"));
+    L.push("Class / hour: "+(S.student.hour||"(blank)"));
+    L.push("Transmissions cleared: "+completedSections()+" of 10");
+    L.push("");
+    L.push("EVIDENCE SHIFT");
+    L.push("Before: "+(HYPOTHESES[S.intake.hypothesis]||"(blank)")+" · "+S.intake.confidence+"% confidence");
+    L.push("After: "+(HYPOTHESES[S.p10.postHypothesis]||"(blank)")+" · "+S.p10.postConfidence+"% confidence");
+    L.push("");
+    L.push("BOUNDED VERDICT");
+    L.push(S.p10.claim||"(blank)");
+    L.push("");
+    L.push("EVIDENCE 1 — "+evidenceName(S.p10.evidence1));
+    L.push(S.p10.reason1||"(blank)");
+    L.push("");
+    L.push("EVIDENCE 2 — "+evidenceName(S.p10.evidence2));
+    L.push(S.p10.reason2||"(blank)");
+    L.push("");
+    L.push("FAIREST LIMITATION");
+    L.push(S.p10.limit||"(blank)");
+    L.push("");
+    L.push("WHY THE SAME-DAY REVERSAL MATTERS");
+    L.push(S.p10.reversal||"(blank)");
+    L.push("");
+    L.push("CLAIM CALIBRATION");
+    FINAL_CLAIMS.forEach(function(x){L.push("- "+x.text+" — "+(FINAL_LABELS[S.p10.labels[x.id]]||"(blank)"));});
+    L.push("");
+    L.push("WHAT COULD CHANGE THE VERDICT");
+    const changeNames={material:"Chain-of-custody material unlike Mogul hardware",records:"Dated records placing a different craft at the site",occupants:"Independent contemporary evidence of occupants or technology"};
+    if(S.p10.change.length)S.p10.change.forEach(function(x){L.push("- "+changeNames[x]);});else L.push("(blank)");
+    L.push("");
+    L.push("FINAL CHECK: "+(Object.keys(c).every(function(k){return c[k];})?"CLEARED":"DRAFT"));
+    L.push("Generated in The Roswell Signal interactive Hidden History hub.");
+    return L.join("\n");
+  }
+  function copyText(txt){
+    const done=function(){toast("Full field report copied.");tone("good");};
+    if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(done).catch(function(){legacyCopy(txt,done);});
+    else legacyCopy(txt,done);
+  }
+  function legacyCopy(txt,done){
+    const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}catch(e){toast("Use Download instead.");}document.body.removeChild(ta);
+  }
+  function downloadText(txt){
+    try{
+      const blob=new Blob([txt],{type:"text/plain;charset=utf-8"}),a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);a.download="Roswell Signal Report - "+((S.student.name||"student").replace(/[^a-z0-9 _-]/gi,"").trim()||"student")+".txt";
+      document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);toast("Field report downloaded.");tone("good");
+    }catch(e){toast("Use Copy full report instead.");}
+  }
+
+  byId("soundBtn").addEventListener("click",function(){S.sound=!S.sound;saveState();updateChrome();tone("good");});
+  byId("backBtn").addEventListener("click",function(){if(S.page>0){S.page--;saveState();render(false);}});
+  byId("nextBtn").addEventListener("click",function(){
+    if(S.page===0){
+      if(!S.student.name.trim()||!S.student.hour.trim()||!S.intake.hypothesis){toast("Add your name, class, and opening hypothesis before entering.");tone("wrong");return;}
+    }else if(S.page>=1&&S.page<=10&&!sectionDone(S.page)){toast(missingForPage(S.page));tone("wrong");return;}
+    if(S.page<PAGES.length-1){S.page++;saveState();tone("good");render(false);}
+  });
+  render(false);
+  </script>
+</body>
+</html>
