@@ -8,4 +8,9 @@ These folders preserve the inputs and live baselines used for additive GrantDesk
 - `version-14-live-2026-09-02/` is the exact tracked source and manifest from commit `b628bc0`, independently matched to the Apps Script project immediately before the Version 15 update. It is the verified Issue #14 rollback baseline after the workbook migration and in-place Version 14 deployment.
 - `version-15-live-2026-09-02/` is the exact tracked source and manifest from commit `0cb1a4a`, independently matched to Drive's saved Apps Script source before the in-place Version 15 deployment. It adds bounded student lock waits, safe automatic retries, privacy-safe contention diagnostics, and PIN-email batch guards without changing the workbook schema or public URL.
 
+- `version-16-live-2026-09-02/` is the exact tracked source and manifest from commit `005ac93`, read back from the live
+  Apps Script project after the in-place Version 16 update and matched character for character. It bounds the work each
+  student write holds the shared script lock: a day-scoped Daily Check-ins read, a once-per-school-day prior-day pass
+  rollover, and a forty-second client recovery budget. No workbook schema change was required.
+
 The deployable source remains in `apps-script/hall-pass/`. These snapshots are evidence and rollback references only; do not copy an entire snapshot over the active source without repeating the comparison and tests.

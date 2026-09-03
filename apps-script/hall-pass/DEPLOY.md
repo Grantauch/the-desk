@@ -5,7 +5,7 @@
 Ongoing production care, the open verification list, and the standing release gate live in
 `OPERATIONS.md` beside this file. Issue #14 is closed; do not reuse it as a task list.
 
-The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder build additively on the verified 2026-09-02 Version 14 source. They preserve the public Version 9 protections, Version 11 roster-management controls, and Version 14 Issue #14 transaction, queue, countability, calendar, permanent-audit, and identity-reconciliation contract while adding the Version 15 classroom-contention recovery. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
+The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder build additively on the verified 2026-09-02 Version 14 source. They preserve the public Version 9 protections, Version 11 roster-management controls, and Version 14 Issue #14 transaction, queue, countability, calendar, permanent-audit, and identity-reconciliation contract while adding the Version 15 classroom-contention recovery and the Version 16 shared-lock reduction. The exact live and supplied inputs are retained under `apps-script/snapshots/hall-pass/`.
 
 Before any deployment:
 
@@ -15,6 +15,36 @@ Before any deployment:
 4. Verify student, kiosk, check-in, and teacher modes after deployment without using or reproducing a real student PIN.
 
 The Drive-supplied Version 10 snapshot must not be deployed by itself: it removes the unmatched-sign-in ledger and regresses student-payload privacy, cleanup authorization/locking, atomic PIN-email claiming, and teacher-dashboard refresh behavior.
+
+### 2026-09-02 Version 16 shared-lock reduction release record
+
+The source at Git commit `005ac93` was saved and released as Apps Script **Version 16** by updating the existing
+deployment in place. Deployment ID `AKfycby2cAUsc1T0tTQkIWTrGwdOrfD2p5cX3EKBG3obW-QY2Ndd8T-cpjoT8bXU__on-qWa`,
+the `/exec` URL, the execute-as-teacher identity and the Mt. Morris Consolidated Schools-only access setting were all
+preserved. No workbook schema change or migration was required; the schema remains `2026-09-02-a`.
+
+Before the update, the live editor's `Code.gs` was read back and matched the Version 14 through Version 15 baseline
+character for character, proving there were no untracked live edits to overwrite. After saving, the project was
+reloaded from the server and all three files were read back again and matched the tested source exactly.
+
+Version 15 made the busy message recover by itself. Version 16 reduces how often it can happen at all, by cutting the
+work each student write does while holding the one shared script lock:
+
+- Daily Check-ins is append-only and is never purged, so every check-in used to scan the whole sheet inside the lock and
+  got slower as the school year grew. `readCheckInsForDate_` now reads only the day being written. Rows arrive in
+  chronological order, so the day is always at the tail; the window widens until it has actually passed an earlier day,
+  and falls back to the full scan whenever that proof is unavailable, so the answer is never narrower than before.
+- Prior-day pass rollover has work to do at most once per school day, but it rescanned the entire Pass Log inside every
+  bathroom request and every return. `expirePreviousDayPassesIfDue_` records a rollover marker so the first student
+  action of the day still does the scan and everyone after it skips it.
+- The browser now has a forty-second recovery budget with a longer staggered retry schedule, so a whole class checking in
+  at the bell is absorbed rather than surfacing as the busy message to whoever is last in line.
+
+Local release checks passed: 60 handoff validations with zero failures, the full Hall Pass runtime suite including new
+windowed-read and rollover-guard behavior tests, Astro and TypeScript checks with zero errors, the 51-page production
+build, and 63-page static-route validation. Post-deployment checks passed for student, kiosk, daily check-in and private
+teacher entry paths without using a real student PIN; the teacher dashboard returned inside ten seconds with no error
+banner.
 
 ### 2026-09-02 Version 15 classroom-contention release record
 

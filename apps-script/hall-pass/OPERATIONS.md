@@ -4,15 +4,15 @@ Issue #14 is closed and the Version 15 contention release is deployed. This file
 current operating checklist. Nothing here is a release blocker; these are the ordinary
 production-care checks and the verification work that is still open.
 
-Production fingerprint as of 2026-09-02:
+Production fingerprint as of 2026-09-02 (Version 16):
 
 | Fact | Value |
 | --- | --- |
-| Repository head | `a0a55a14651114aeebcef7fa358287493955bfb2` (main) |
-| Deployed application source | `0cb1a4a14c829378c1327a2f86f81e6ceb692a3d` |
-| Apps Script version | 15, existing deployment updated in place |
+| Repository head | `005ac93` merged to main |
+| Deployed application source | `005ac93` |
+| Apps Script version | 16, existing deployment updated in place |
 | Workbook schema | `2026-09-02-a` (no migration pending) |
-| Rollback baseline | `apps-script/snapshots/hall-pass/version-14-live-2026-09-02` |
+| Rollback baseline | `apps-script/snapshots/hall-pass/version-15-live-2026-09-02` |
 
 ## Daily and weekly checks
 
