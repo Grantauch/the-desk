@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reconstruction Case File</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --field:#0E1B2A;
+  --field-2:#152639;
+  --paper:#E6E4D9;
+  --paper-lit:#F2F0E7;
+  --ink:#16202C;
+  --ink-soft:#4A5563;
+  --rule:#1B4A6B;
+  --stamp:#8C1D18;
+  --gold:#C08A2E;
+  --good:#2E6A4E;
+  --warn:#9A5B12;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--field);
+  background-image:
+    radial-gradient(ellipse at 50% -10%, #1D3550 0%, rgba(29,53,80,0) 60%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.014) 0 1px, rgba(0,0,0,0) 1px 3px);
+  color:var(--paper);
+  font-family:"Public Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:17px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.display{font-family:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;letter-spacing:.01em}
+.doc-type{font-family:"Libre Baskerville",Georgia,"Times New Roman",serif}
+
+/* ---------- top bar ---------- */
+#bar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:16px;
+  padding:10px 20px;
+  background:rgba(11,22,35,.94);
+  border-bottom:2px solid var(--rule);
+  backdrop-filter:blur(6px);
+}
+#bar .tag{
+  font-family:"Big Shoulders Display","Arial Narrow",sans-serif;
+  font-weight:800;font-size:23px;line-height:1;letter-spacing:.04em;
+  color:var(--paper);
+}
+#bar .case{font-size:13px;color:#7E93AB;letter-spacing:.06em;margin-left:2px}
+#meter{margin-left:auto;display:flex;gap:5px;align-items:center}
+#meter .seg{
+  width:30px;height:9px;background:#22374E;border:1px solid #33506D;border-radius:1px;
+  transition:background .18s ease;
+}
+#meter .seg.on{background:var(--gold);border-color:var(--gold)}
+#meter .seg.here{box-shadow:0 0 0 2px rgba(192,138,46,.35)}
+#counter{font-size:13px;color:#8FA5BD;margin-left:10px;white-space:nowrap}
+
+/* ---------- stage ---------- */
+#stage{max-width:860px;margin:0 auto;padding:30px 20px 140px}
+.sheet{
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:2px;
+  box-shadow:0 18px 40px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.docket{
+  display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  background:var(--rule);color:#DCE7F1;
+  padding:9px 24px;
+  font-size:13px;letter-spacing:.12em;text-transform:uppercase;
+}
+.docket b{font-weight:700;color:#fff}
+.docket .min{margin-left:auto;letter-spacing:.08em;color:#B9CFE3}
+.body{padding:26px 30px 32px}
+h2.part{
+  font-family:"Big Shoulders Display","Arial Narrow",sans-serif;
+  font-weight:800;font-size:40px;line-height:1.02;margin:0 0 6px;color:var(--ink);
+}
+p.lead{margin:0 0 20px;color:var(--ink-soft);font-size:16.5px;max-width:64ch}
+
+/* ---------- document inset ---------- */
+.doc{
+  background:var(--paper-lit);
+  border:1px solid #CFCBBB;
+  border-left:5px solid var(--rule);
+  padding:16px 20px 12px;
+  margin:0 0 16px;
+}
+.doc .cite{font-size:12.5px;color:#6D6957;margin-top:10px;letter-spacing:.03em}
+.doc .txt{font-family:"Libre Baskerville",Georgia,serif;font-size:16px;line-height:1.72;color:#221F16}
+.doc .hd{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--rule);font-weight:700;margin-bottom:8px}
+
+/* ---------- choice pills ---------- */
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}
+.pill{
+  font:inherit;font-size:15px;
+  background:#DAD7C9;border:1.5px solid #B6B2A0;color:#2A2E28;
+  padding:7px 13px;border-radius:999px;cursor:pointer;
+  transition:background .12s ease,border-color .12s ease,color .12s ease;
+}
+.pill:hover{background:#CFCBBA}
+.pill[aria-pressed="true"]{background:var(--rule);border-color:var(--rule);color:#fff}
+.pill.ok{background:var(--good);border-color:var(--good);color:#fff}
+.pill.no{background:#E4D2C8;border-color:var(--stamp);color:#6E1712;text-decoration:line-through}
+
+/* ---------- sort rows ---------- */
+.row{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:11px 0;border-bottom:1px solid #D0CCBC;
+}
+.row:last-of-type{border-bottom:0}
+.row .n{
+  font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:21px;
+  color:#96917E;min-width:22px;line-height:1.35;
+}
+.row .q{flex:1;min-width:220px;font-size:16.5px}
+.row .opts{display:flex;gap:6px;flex-wrap:wrap}
+.row .pill{font-size:13.5px;padding:5px 11px}
+
+/* ---------- markup tool ---------- */
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+.tool{
+  font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;
+  padding:8px 14px;border-radius:2px;border:2px solid transparent;background:#DAD7C9;color:#2A2E28;
+}
+.tool[data-t="ban"]{border-color:var(--gold)}
+.tool[data-t="exception"]{border-color:var(--stamp)}
+.tool[data-t="enforcer"]{border-color:var(--rule)}
+.tool[aria-pressed="true"][data-t="ban"]{background:var(--gold);color:#1C1403}
+.tool[aria-pressed="true"][data-t="exception"]{background:var(--stamp);color:#fff}
+.tool[aria-pressed="true"][data-t="enforcer"]{background:var(--rule);color:#fff}
+.tk{
+  cursor:pointer;border-radius:2px;padding:1px 2px;
+  box-shadow:inset 0 -2px 0 rgba(27,74,107,.18);
+  transition:background .12s ease;
+}
+.tk:hover{background:rgba(27,74,107,.12)}
+.tk.ban{background:rgba(192,138,46,.55);box-shadow:none}
+.tk.exception{background:rgba(140,29,24,.28);box-shadow:inset 0 0 0 2px var(--stamp)}
+.tk.enforcer{background:rgba(27,74,107,.24);box-shadow:inset 0 0 0 2px var(--rule)}
+.tk.graded-ok{outline:2px solid var(--good);outline-offset:1px}
+.tk.graded-no{outline:2px dashed var(--stamp);outline-offset:1px}
+
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:16px}
+th{
+  background:var(--rule);color:#fff;text-align:left;padding:9px 12px;
+  font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+}
+td{border-bottom:1px solid #CFCBBB;padding:9px 12px;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+select{
+  font:inherit;font-size:15px;width:100%;
+  padding:7px 9px;border:1.5px solid #B6B2A0;background:#F2F0E7;color:var(--ink);border-radius:2px;
+}
+td.g-ok select{border-color:var(--good);background:#E6F0EA}
+td.g-no select{border-color:var(--stamp);background:#F4E3DE}
+
+/* ---------- writing ---------- */
+textarea,input[type=text]{
+  font:inherit;font-size:16px;width:100%;
+  background:var(--paper-lit);color:var(--ink);
+  border:1.5px solid #B6B2A0;border-radius:2px;padding:10px 12px;
+  line-height:1.6;resize:vertical;
+}
+textarea:focus,input[type=text]:focus,select:focus,.pill:focus-visible,.tool:focus-visible,.btn:focus-visible{
+  outline:3px solid var(--gold);outline-offset:2px;
+}
+label.fld{display:block;font-size:14.5px;font-weight:600;color:var(--ink-soft);margin:14px 0 5px}
+.frame{font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:26px;color:var(--ink);margin:18px 0 4px}
+
+/* ---------- scenario cards ---------- */
+.scn{border-left:4px solid #B6B2A0;padding:12px 0 12px 16px;margin:0 0 6px}
+.scn:hover{border-left-color:var(--rule)}
+.scn p{margin:0 0 10px;font-size:16.5px}
+
+/* ---------- buttons ---------- */
+.btn{
+  font:inherit;font-weight:700;font-size:15.5px;cursor:pointer;
+  padding:11px 20px;border-radius:2px;border:2px solid var(--rule);
+  background:var(--rule);color:#fff;
+}
+.btn.ghost{background:transparent;color:var(--rule)}
+.btn.ghost:hover{background:rgba(27,74,107,.1)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.check-out{margin:12px 0 0;font-size:15.5px;font-weight:600;color:var(--ink-soft);min-height:1.4em}
+.check-out.good{color:var(--good)}
+.check-out.part{color:var(--warn)}
+
+/* ---------- nav ---------- */
+#nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;
+  background:rgba(11,22,35,.96);border-top:2px solid var(--rule);
+}
+#nav .inner{max-width:860px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+#nav .btn{border-color:#3A5C7C}
+#nav .btn.ghost{color:#B9CFE3;border-color:#3A5C7C}
+#nav .btn.ghost:hover{background:rgba(255,255,255,.07)}
+#saved{margin-left:auto;font-size:13px;color:#6E869F}
+
+/* ---------- cover ---------- */
+#cover .body{padding:0}
+.cover-doc{
+  position:relative;
+  padding:40px 34px 30px;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0) 30%),
+    var(--paper);
+}
+.cover-doc .kicker{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#7A7563}
+.cover-doc h1{
+  font-family:"Big Shoulders Display",sans-serif;font-weight:800;
+  font-size:clamp(46px,9vw,86px);line-height:.9;margin:8px 0 4px;color:var(--ink);
+}
+.cover-doc .years{
+  font-family:"Big Shoulders Display",sans-serif;font-weight:600;
+  font-size:clamp(22px,4vw,34px);color:var(--rule);letter-spacing:.1em;margin-bottom:22px;
+}
+.stamp{
+  position:absolute;top:26px;right:22px;
+  border:3px solid var(--stamp);color:var(--stamp);
+  padding:8px 12px;transform:rotate(-9deg);
+  font-family:"Big Shoulders Display",sans-serif;font-weight:800;
+  font-size:19px;letter-spacing:.08em;line-height:1.05;text-align:center;
+  opacity:.9;
+  animation:press .7s cubic-bezier(.2,.9,.25,1) both;
+}
+.stamp span{display:block;font-size:13px;font-weight:600;letter-spacing:.14em}
+@keyframes press{
+  0%{opacity:0;transform:rotate(-9deg) scale(2.1)}
+  70%{opacity:.95;transform:rotate(-9deg) scale(.96)}
+  100%{opacity:.9;transform:rotate(-9deg) scale(1)}
+}
+@media (prefers-reduced-motion:reduce){.stamp{animation:none}}
+.name-row{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.name-row .f{flex:1;min-width:180px}
+
+/* ---------- finish ---------- */
+.summary{background:var(--paper-lit);border:1px solid #CFCBBB;padding:18px 20px;margin:16px 0}
+.summary h4{font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:22px;margin:16px 0 6px;color:var(--rule)}
+.summary h4:first-child{margin-top:0}
+.summary .a{font-size:15.5px;margin:0 0 4px;color:var(--ink)}
+.summary .a b{color:#6D6957;font-weight:600}
+.toast{
+  position:fixed;left:50%;bottom:86px;transform:translateX(-50%);
+  background:var(--good);color:#fff;padding:10px 18px;border-radius:2px;font-weight:700;
+  z-index:80;
+}
+@media (max-width:620px){
+  .body{padding:20px 18px 26px}
+  h2.part{font-size:32px}
+  .row{flex-direction:column;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<header id="bar">
+  <div>
+    <div class="tag">RECONSTRUCTION CASE FILE</div>
+    <div class="case">U.S. History 9 &nbsp;/&nbsp; Unit 1 &nbsp;/&nbsp; 1865 to 1877</div>
+  </div>
+  <div id="meter" aria-hidden="true"></div>
+  <div id="counter">Cover</div>
+</header>
+
+<main id="stage"></main>
+
+<nav id="nav">
+  <div class="inner">
+    <button class="btn ghost" id="back">Back</button>
+    <button class="btn" id="next">Start the file</button>
+    <span id="saved"></span>
+  </div>
+</nav>
+
+<script>
+"use strict";
+
+/* ============ state ============ */
+var S = {
+  name:"", hour:"",
+  p1:{}, p2:{clause:{},why:{}}, p3:{}, p4:{}, p5:{}, p6:{a:"",b:"",e1:"",e2:""},
+  first:{}
+};
+var KEY = "rcf1865";
+
+function save(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify(S));
+    var s=document.getElementById("saved");
+    s.textContent="Saved";
+    clearTimeout(save._t);
+    save._t=setTimeout(function(){ s.textContent=""; },1400);
+  }catch(e){}
+}
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(raw){ var o=JSON.parse(raw); if(o&&typeof o==="object"){ for(var k in o){ S[k]=o[k]; } } }
+  }catch(e){}
+}
+
+/* ============ content ============ */
+var P1 = [
+ "Owning another human being became illegal under the Constitution.",
+ "A couple who lived together under slavery could record a legal marriage.",
+ "The word slavery appeared in the Constitution for the first time.",
+ "News of freedom reached people living far from Union soldiers.",
+ "Paid work and written contracts replaced forced labor on farms.",
+ "Schools for freedpeople opened across the South.",
+ "Whether freedpeople counted as citizens of the United States.",
+ "Whether Black men could vote in the former Confederate states.",
+ "Whether freedpeople would own land of their own."
+];
+var P1KEY = ["now","now","now","slow","slow","slow","open","open","open"];
+var P1OPT = [["now","Right away"],["slow","Slowly, some places"],["open","Not yet settled"]];
+
+var P2 = [
+ {id:"a", head:"Article I, Section 2",
+  txt:"\u201Cthree fifths of all other Persons\u201D",
+  cite:"Constitution of the United States, 1787. National Archives transcript."},
+ {id:"b", head:"Article I, Section 9",
+  txt:"\u201CThe Migration or Importation of such Persons as any of the States now existing shall think proper to admit, shall not be prohibited by the Congress prior to the Year one thousand eight hundred and eight\u201D",
+  cite:"Constitution of the United States, 1787. National Archives transcript."},
+ {id:"c", head:"Article IV, Section 2",
+  txt:"\u201CNo Person held to Service or Labour in one State, under the Laws thereof, escaping into another, shall, in Consequence of any Law or Regulation therein, be discharged from such Service or Labour, but shall be delivered up on Claim of the Party to whom such Service or Labour may be due.\u201D",
+  cite:"Constitution of the United States, 1787. National Archives transcript."}
+];
+var P2OPT = [["tf","Three Fifths Clause"],["st","Slave Trade Clause"],["fg","Fugitive Clause"]];
+
+var TOK = [
+ {t:"Neither "},
+ {k:"t1", w:"slavery", a:"ban"},
+ {t:" nor "},
+ {k:"t2", w:"involuntary servitude", a:"ban"},
+ {t:", "},
+ {k:"t3", w:"except as a punishment for crime whereof the party shall have been duly convicted", a:"exception"},
+ {t:", "},
+ {k:"t4", w:"shall exist within the United States", a:""},
+ {t:", or "},
+ {k:"t5", w:"any place subject to their jurisdiction", a:""},
+ {t:"."},
+ {br:true},
+ {k:"t6", w:"Congress", a:"enforcer"},
+ {t:" "},
+ {k:"t7", w:"shall have power to enforce this article", a:""},
+ {t:" "},
+ {k:"t8", w:"by appropriate legislation", a:""},
+ {t:"."}
+];
+
+var P4 = [
+ {id:"cit", blank:"Citizenship", ans:"Fourteenth Amendment", yr:"1868"},
+ {id:"vot", blank:"Voting rights for Black men", ans:"Fifteenth Amendment", yr:"1870"},
+ {id:"pro", blank:"Protection from political violence", ans:"Enforcement Acts", yr:"1871"},
+ {id:"lnd", blank:"Land ownership", ans:"No federal law ever passed", yr:"Never"},
+ {id:"lab", blank:"Paid labor on farms", ans:"Sharecropping contracts", yr:"Late 1860s"}
+];
+var P4FILL = ["Fourteenth Amendment","Fifteenth Amendment","Enforcement Acts","Sharecropping contracts","No federal law ever passed"];
+var P4YR = ["1868","1870","1871","Late 1860s","Never"];
+
+var P5 = [
+ {id:"s1", ans:"Black Codes", txt:"A Mississippi law passed in 1865 applied only to formerly enslaved people. Anyone over eighteen without proof of a job could be arrested as a vagrant and fined up to one hundred fifty dollars."},
+ {id:"s2", ans:"Sharecropping", txt:"A family works land they do not own and pays the landowner with part of the cotton crop. Their debt to the store is larger at the end of every year."},
+ {id:"s3", ans:"Freedpeople", txt:"A man enslaved in 1860 registers his marriage at a federal office in 1866 and walks his daughter to a new school built by his church."},
+ {id:"s4", ans:"Equal protection", txt:"The Fourteenth Amendment says no state may deny any person the same treatment under the law."},
+ {id:"s5", ans:"Redemption", txt:"White politicians in a Southern state use violence and election fraud to remove the government elected after the war and take back control."},
+ {id:"s6", ans:"Reconstruction", txt:"The twelve years when Americans argued in courts, at the ballot box, and with violence over what the end of slavery would actually mean."}
+];
+var P5TERMS = ["Reconstruction","Freedpeople","Black Codes","Sharecropping","Equal protection","Redemption"];
+
+/* ============ helpers ============ */
+function el(tag, cls, txt){
+  var e=document.createElement(tag);
+  if(cls) e.className=cls;
+  if(txt!==undefined && txt!==null) e.textContent=txt;
+  return e;
+}
+function sheet(num, label, mins, title, lead){
+  var sh=el("section","sheet");
+  var d=el("div","docket");
+  var b=el("b", label); d.appendChild(b);
+  if(num){ var sp=el("span","", "File section "+num+" of 6"); d.appendChild(sp); }
+  var m=el("span","min", mins); d.appendChild(m);
+  sh.appendChild(d);
+  var bd=el("div","body");
+  if(title){ var h=el("h2","part",title); bd.appendChild(h); }
+  if(lead){ var p=el("p","lead",lead); bd.appendChild(p); }
+  sh.appendChild(bd);
+  sh.bodyEl=bd;
+  return sh;
+}
+function docBox(head, text, cite){
+  var d=el("div","doc");
+  if(head) d.appendChild(el("div","hd",head));
+  var t=el("div","txt",text); d.appendChild(t);
+  if(cite) d.appendChild(el("div","cite",cite));
+  return d;
+}
+function pillRow(opts, current, onPick){
+  var wrap=el("div","pills");
+  opts.forEach(function(o){
+    var v=o[0], lab=o[1];
+    var b=el("button","pill",lab);
+    b.type="button";
+    b.setAttribute("aria-pressed", current===v ? "true":"false");
+    b.addEventListener("click",function(){
+      Array.prototype.forEach.call(wrap.children,function(c){ c.setAttribute("aria-pressed","false"); c.classList.remove("ok","no"); });
+      b.setAttribute("aria-pressed","true");
+      onPick(v);
+      save();
+    });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+function checkBtn(label, fn){
+  var b=el("button","btn ghost",label);
+  b.type="button";
+  b.addEventListener("click",fn);
+  return b;
+}
+
+/* ============ pages ============ */
+var pages=[];
+
+/* --- cover --- */
+pages.push(function(){
+  var sh=el("section","sheet"); sh.id="cover";
+  var bd=el("div","body");
+  var c=el("div","cover-doc");
+
+  var st=el("div","stamp"); st.innerHTML='RATIFIED<span>DEC 6 1865</span>';
+  c.appendChild(st);
+
+  c.appendChild(el("div","kicker","United States History 9 \u2022 Unit One"));
+  var h=el("h1"); h.textContent="RECONSTRUCTION CASE FILE"; c.appendChild(h);
+  c.appendChild(el("div","years","1865 \u2014 1877"));
+
+  c.appendChild(docBox("The record on the screen",
+    "Neither slavery nor involuntary servitude, except as a punishment for crime whereof the party shall have been duly convicted, shall exist within the United States, or any place subject to their jurisdiction.",
+    "Thirteenth Amendment, Section 1. Ratified December 6, 1865. National Archives."));
+
+  var p=el("p","lead","Forty three words ended slavery. They did not say who counted as a citizen, who could vote, who owned land, or who would keep anyone safe. Six sections. About forty minutes. Work on your own and use your notes.");
+  c.appendChild(p);
+
+  var nr=el("div","name-row");
+  var f1=el("div","f");
+  var l1=el("label","fld","Your name"); l1.setAttribute("for","nm"); f1.appendChild(l1);
+  var i1=document.createElement("input"); i1.type="text"; i1.id="nm"; i1.value=S.name||"";
+  i1.addEventListener("input",function(){ S.name=i1.value; save(); });
+  f1.appendChild(i1);
+  var f2=el("div","f");
+  var l2=el("label","fld","Hour"); l2.setAttribute("for","hr"); f2.appendChild(l2);
+  var i2=document.createElement("input"); i2.type="text"; i2.id="hr"; i2.value=S.hour||"";
+  i2.addEventListener("input",function(){ S.hour=i2.value; save(); });
+  f2.appendChild(i2);
+  nr.appendChild(f1); nr.appendChild(f2);
+  c.appendChild(nr);
+
+  bd.appendChild(c);
+  sh.appendChild(bd);
+  return sh;
+});
+
+/* --- part 1 --- */
+pages.push(function(){
+  var sh=sheet(1,"Section one","5 minutes","What actually changed",
+    "Slavery ended in 1865. Not everything about freedom moved at the same speed. Choose the speed for each one.");
+  P1.forEach(function(q,i){
+    var r=el("div","row");
+    r.appendChild(el("div","n",String(i+1)));
+    r.appendChild(el("div","q",q));
+    var o=el("div","opts");
+    var key="q"+i;
+    o.appendChild(pillRow(P1OPT, S.p1[key], function(v){ S.p1[key]=v; }));
+    r.appendChild(o);
+    sh.bodyEl.appendChild(r);
+  });
+  var out=el("div","check-out");
+  var btn=checkBtn("Check my answers", function(){
+    var right=0, done=0;
+    var rows=sh.bodyEl.querySelectorAll(".row");
+    for(var i=0;i<P1.length;i++){
+      var key="q"+i, v=S.p1[key];
+      if(!v) continue;
+      done++;
+      var pills=rows[i].querySelectorAll(".pill");
+      for(var j=0;j<pills.length;j++){
+        if(pills[j].getAttribute("aria-pressed")==="true"){
+          if(v===P1KEY[i]){ pills[j].classList.add("ok"); right++; }
+          else { pills[j].classList.add("no"); }
+        }
+      }
+    }
+    if(done===0){ out.className="check-out"; out.textContent="Choose a speed for each statement first."; return; }
+    if(S.first.p1===undefined) { S.first.p1=right+" of 9"; save(); }
+    out.className="check-out "+(right===9?"good":"part");
+    out.textContent = right===9 ? "All nine correct." : right+" of 9 correct. Fix the crossed out ones and check again.";
+  });
+  sh.bodyEl.appendChild(el("div","",""));
+  sh.bodyEl.appendChild(btn);
+  sh.bodyEl.appendChild(out);
+  return sh;
+});
+
+/* --- part 2 --- */
+pages.push(function(){
+  var sh=sheet(2,"Section two","8 minutes","The words that hid slavery",
+    "These three passages come from the Constitution written in 1787. Not one of them uses the word slavery. Name each passage, then write what it protected.");
+  P2.forEach(function(d){
+    sh.bodyEl.appendChild(docBox(d.head, d.txt, d.cite));
+    sh.bodyEl.appendChild(pillRow(P2OPT, S.p2.clause[d.id], function(v){ S.p2.clause[d.id]=v; }));
+    var lab=el("label","fld","What did this passage protect?");
+    lab.setAttribute("for","why_"+d.id);
+    sh.bodyEl.appendChild(lab);
+    var ta=document.createElement("textarea");
+    ta.id="why_"+d.id; ta.rows=2; ta.value=S.p2.why[d.id]||"";
+    ta.addEventListener("input",function(){ S.p2.why[d.id]=ta.value; save(); });
+    sh.bodyEl.appendChild(ta);
+    sh.bodyEl.appendChild(el("div","","\u00A0"));
+  });
+  var lab=el("label","fld","The men who wrote the Constitution refused to print the word slavery. Write the words they used instead.");
+  lab.setAttribute("for","why_d");
+  sh.bodyEl.appendChild(lab);
+  var ta=document.createElement("textarea");
+  ta.id="why_d"; ta.rows=2; ta.value=S.p2.why.d||"";
+  ta.addEventListener("input",function(){ S.p2.why.d=ta.value; save(); });
+  sh.bodyEl.appendChild(ta);
+  return sh;
+});
+
+/* --- part 3 --- */
+pages.push(function(){
+  var sh=sheet(3,"Section three","8 minutes","Forty three words",
+    "Pick a marker, then click the words in the amendment that it belongs on. Click a marked phrase again to clear it.");
+
+  var mode={v:"ban"};
+  var tools=el("div","tools");
+  [["ban","Mark what it bans"],["exception","Mark the exception"],["enforcer","Mark who enforces it"]].forEach(function(t){
+    var b=el("button","tool",t[1]);
+    b.type="button"; b.dataset.t=t[0];
+    b.setAttribute("aria-pressed", t[0]===mode.v ? "true":"false");
+    b.addEventListener("click",function(){
+      mode.v=t[0];
+      Array.prototype.forEach.call(tools.children,function(c){ c.setAttribute("aria-pressed", c===b?"true":"false"); });
+    });
+    tools.appendChild(b);
+  });
+  sh.bodyEl.appendChild(tools);
+
+  var d=el("div","doc");
+  d.appendChild(el("div","hd","Thirteenth Amendment"));
+  var txt=el("div","txt");
+  var s1=el("p"); s1.style.margin="0 0 12px";
+  var s2=el("p"); s2.style.margin="0";
+  var target=s1;
+  TOK.forEach(function(t){
+    if(t.br){ target=s2; return; }
+    if(t.t){ target.appendChild(document.createTextNode(t.t)); return; }
+    var sp=el("span","tk",t.w);
+    sp.tabIndex=0; sp.setAttribute("role","button");
+    if(S.p3[t.k]) sp.classList.add(S.p3[t.k]);
+    function hit(){
+      var cur=S.p3[t.k];
+      sp.classList.remove("ban","exception","enforcer","graded-ok","graded-no");
+      if(cur===mode.v){ delete S.p3[t.k]; }
+      else { S.p3[t.k]=mode.v; sp.classList.add(mode.v); }
+      save();
+    }
+    sp.addEventListener("click",hit);
+    sp.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); hit(); } });
+    target.appendChild(sp);
+  });
+  txt.appendChild(s1);
+  var s2h=el("div","hd","Section 2"); s2h.style.marginTop="4px";
+  txt.appendChild(s2);
+  d.appendChild(txt);
+  d.appendChild(el("div","cite","Thirteenth Amendment, Sections 1 and 2. Ratified December 6, 1865. National Archives."));
+  sh.bodyEl.appendChild(d);
+
+  var out=el("div","check-out");
+  sh.bodyEl.appendChild(checkBtn("Check my markup", function(){
+    var right=0, wrong=0;
+    TOK.forEach(function(t){
+      if(!t.k) return;
+      var sp=Array.prototype.filter.call(sh.bodyEl.querySelectorAll(".tk"),function(x){ return x.textContent===t.w; })[0];
+      if(!sp) return;
+      sp.classList.remove("graded-ok","graded-no");
+      var got=S.p3[t.k]||"";
+      if(got===t.a){ if(t.a){ sp.classList.add("graded-ok"); right++; } }
+      else { sp.classList.add("graded-no"); wrong++; }
+    });
+    if(S.first.p3===undefined){ S.first.p3=right+" of 4"; save(); }
+    out.className="check-out "+(right===4&&wrong===0?"good":"part");
+    out.textContent = (right===4&&wrong===0)
+      ? "All four marked correctly."
+      : right+" of 4 targets found. Dashed outlines are wrong. Clear them and try again.";
+  }));
+  sh.bodyEl.appendChild(out);
+
+  var lab1=el("label","fld","Write one thing this document proves.");
+  lab1.setAttribute("for","p3a"); sh.bodyEl.appendChild(lab1);
+  var t1=document.createElement("textarea"); t1.id="p3a"; t1.rows=2; t1.value=S.p3.proves||"";
+  t1.addEventListener("input",function(){ S.p3.proves=t1.value; save(); });
+  sh.bodyEl.appendChild(t1);
+
+  var lab2=el("label","fld","Write one thing this document does not prove.");
+  lab2.setAttribute("for","p3b"); sh.bodyEl.appendChild(lab2);
+  var t2=document.createElement("textarea"); t2.id="p3b"; t2.rows=2; t2.value=S.p3.notproves||"";
+  t2.addEventListener("input",function(){ S.p3.notproves=t2.value; save(); });
+  sh.bodyEl.appendChild(t2);
+  return sh;
+});
+
+/* --- part 4 --- */
+pages.push(function(){
+  var sh=sheet(4,"Section four","8 minutes","The five blanks of 1865",
+    "Freedom became law before anyone settled what it included. Fill in what closed each gap and when.");
+  var tb=document.createElement("table");
+  var thead=document.createElement("thead");
+  var hr=document.createElement("tr");
+  ["The gap left in 1865","What closed it","When"].forEach(function(h){
+    var th=document.createElement("th"); th.textContent=h; hr.appendChild(th);
+  });
+  thead.appendChild(hr); tb.appendChild(thead);
+  var tbody=document.createElement("tbody");
+  P4.forEach(function(r){
+    var tr=document.createElement("tr");
+    var td0=document.createElement("td"); td0.textContent=r.blank; tr.appendChild(td0);
+    var td1=document.createElement("td");
+    var s1=document.createElement("select");
+    s1.appendChild(new Option("Choose",""));
+    P4FILL.forEach(function(o){ s1.appendChild(new Option(o,o)); });
+    s1.value=(S.p4[r.id]&&S.p4[r.id].f)||"";
+    s1.addEventListener("change",function(){ S.p4[r.id]=S.p4[r.id]||{}; S.p4[r.id].f=s1.value; save(); });
+    td1.appendChild(s1); tr.appendChild(td1);
+    var td2=document.createElement("td");
+    var s2=document.createElement("select");
+    s2.appendChild(new Option("Year",""));
+    P4YR.forEach(function(o){ s2.appendChild(new Option(o,o)); });
+    s2.value=(S.p4[r.id]&&S.p4[r.id].y)||"";
+    s2.addEventListener("change",function(){ S.p4[r.id]=S.p4[r.id]||{}; S.p4[r.id].y=s2.value; save(); });
+    td2.appendChild(s2); tr.appendChild(td2);
+    tbody.appendChild(tr);
+  });
+  tb.appendChild(tbody);
+  sh.bodyEl.appendChild(tb);
+
+  var out=el("div","check-out");
+  sh.bodyEl.appendChild(checkBtn("Check my table", function(){
+    var right=0, any=false;
+    var rows=tbody.querySelectorAll("tr");
+    P4.forEach(function(r,i){
+      var cells=rows[i].querySelectorAll("td");
+      var g=S.p4[r.id]||{};
+      [[1,g.f,r.ans],[2,g.y,r.yr]].forEach(function(c){
+        cells[c[0]].classList.remove("g-ok","g-no");
+        if(!c[1]) return;
+        any=true;
+        if(c[1]===c[2]){ cells[c[0]].classList.add("g-ok"); right++; }
+        else { cells[c[0]].classList.add("g-no"); }
+      });
+    });
+    if(!any){ out.className="check-out"; out.textContent="Make your choices first."; return; }
+    if(S.first.p4===undefined){ S.first.p4=right+" of 10"; save(); }
+    out.className="check-out "+(right===10?"good":"part");
+    out.textContent = right===10 ? "All ten correct." : right+" of 10 correct.";
+  }));
+  sh.bodyEl.appendChild(out);
+
+  var lab=el("label","fld","One gap was never closed by a federal law. Which one, and what did that mean for families trying to build wealth?");
+  lab.setAttribute("for","p4w"); sh.bodyEl.appendChild(lab);
+  var ta=document.createElement("textarea"); ta.id="p4w"; ta.rows=3; ta.value=S.p4.write||"";
+  ta.addEventListener("input",function(){ S.p4.write=ta.value; save(); });
+  sh.bodyEl.appendChild(ta);
+  return sh;
+});
+
+/* --- part 5 --- */
+pages.push(function(){
+  var sh=sheet(5,"Section five","6 minutes","Name the term",
+    "Every situation below actually happened. Choose the term that names it.");
+  var opts=P5TERMS.map(function(t){ return [t,t]; });
+  P5.forEach(function(s){
+    var c=el("div","scn");
+    var p=document.createElement("p"); p.textContent=s.txt; c.appendChild(p);
+    c.appendChild(pillRow(opts, S.p5[s.id], function(v){ S.p5[s.id]=v; }));
+    sh.bodyEl.appendChild(c);
+  });
+  var out=el("div","check-out");
+  sh.bodyEl.appendChild(checkBtn("Check my answers", function(){
+    var right=0, done=0;
+    var cards=sh.bodyEl.querySelectorAll(".scn");
+    P5.forEach(function(s,i){
+      var v=S.p5[s.id];
+      if(!v) return;
+      done++;
+      var pills=cards[i].querySelectorAll(".pill");
+      for(var j=0;j<pills.length;j++){
+        pills[j].classList.remove("ok","no");
+        if(pills[j].getAttribute("aria-pressed")==="true"){
+          if(v===s.ans){ pills[j].classList.add("ok"); right++; }
+          else { pills[j].classList.add("no"); }
+        }
+      }
+    });
+    if(done===0){ out.className="check-out"; out.textContent="Choose a term for each situation first."; return; }
+    if(S.first.p5===undefined){ S.first.p5=right+" of 6"; save(); }
+    out.className="check-out "+(right===6?"good":"part");
+    out.textContent = right===6 ? "All six correct." : right+" of 6 correct.";
+  }));
+  sh.bodyEl.appendChild(out);
+  return sh;
+});
+
+/* --- part 6 --- */
+pages.push(function(){
+  var sh=sheet(6,"Section six","5 minutes","One sentence, sized honestly",
+    "Finish both halves of the sentence. Your claim cannot be bigger than the evidence you can name. Then name two pieces of evidence from this file that back it up.");
+  var f1=el("div","frame","In 1865, freedom meant"); sh.bodyEl.appendChild(f1);
+  var t1=document.createElement("textarea"); t1.rows=2; t1.value=S.p6.a||""; t1.id="p6a";
+  t1.addEventListener("input",function(){ S.p6.a=t1.value; save(); });
+  sh.bodyEl.appendChild(t1);
+  var f2=el("div","frame","but it did not yet mean"); sh.bodyEl.appendChild(f2);
+  var t2=document.createElement("textarea"); t2.rows=2; t2.value=S.p6.b||""; t2.id="p6b";
+  t2.addEventListener("input",function(){ S.p6.b=t2.value; save(); });
+  sh.bodyEl.appendChild(t2);
+
+  [["e1","Evidence 1"],["e2","Evidence 2"]].forEach(function(e){
+    var lab=el("label","fld",e[1]); lab.setAttribute("for","p6"+e[0]); sh.bodyEl.appendChild(lab);
+    var i=document.createElement("input"); i.type="text"; i.id="p6"+e[0]; i.value=S.p6[e[0]]||"";
+    i.addEventListener("input",function(){ S.p6[e[0]]=i.value; save(); });
+    sh.bodyEl.appendChild(i);
+  });
+  return sh;
+});
+
+/* --- finish --- */
+pages.push(function(){
+  var sh=el("section","sheet");
+  var d=el("div","docket");
+  d.appendChild(el("b","Turn it in"));
+  d.appendChild(el("span","","File complete"));
+  sh.appendChild(d);
+  var bd=el("div","body");
+
+  var wrap=el("div","cover-doc"); wrap.style.padding="26px 0 0";
+  var st=el("div","stamp"); st.style.top="-6px"; st.style.right="0";
+  st.innerHTML='FILED<span>'+(S.name? String(S.name).slice(0,18).toUpperCase() : "NAME MISSING")+'</span>';
+  wrap.appendChild(st);
+  var h=el("h2","part","Your answers"); h.style.marginBottom="6px"; wrap.appendChild(h);
+  wrap.appendChild(el("p","lead","Read it over. Copy it or download it, then attach it in Google Classroom."));
+  bd.appendChild(wrap);
+
+  var sum=el("div","summary");
+  sum.innerHTML="";
+  var text = buildText();
+  text.split("\n").forEach(function(line){
+    if(line.indexOf("== ")===0){ sum.appendChild(el("h4","",line.replace(/=/g,"").trim())); }
+    else if(line.trim()!==""){ sum.appendChild(el("p","a",line)); }
+  });
+  bd.appendChild(sum);
+
+  var btns=el("div","pills");
+  var b1=el("button","btn","Copy my answers"); b1.type="button";
+  b1.addEventListener("click",function(){ copyText(buildText()); });
+  var b2=el("button","btn ghost","Download my answers"); b2.type="button";
+  b2.addEventListener("click",function(){ downloadText(buildText()); });
+  btns.appendChild(b1); btns.appendChild(b2);
+  bd.appendChild(btns);
+
+  sh.appendChild(bd);
+  return sh;
+});
+
+/* ============ export ============ */
+function nameOf(list, v){
+  for(var i=0;i<list.length;i++){ if(list[i][0]===v) return list[i][1]; }
+  return "(blank)";
+}
+function buildText(){
+  var L=[];
+  L.push("RECONSTRUCTION CASE FILE");
+  L.push("Name: "+(S.name||"(blank)")+"   Hour: "+(S.hour||"(blank)"));
+  L.push("");
+  L.push("== Section 1: What actually changed ==");
+  P1.forEach(function(q,i){
+    L.push((i+1)+". "+nameOf(P1OPT, S.p1["q"+i])+"  \u2014  "+q);
+  });
+  if(S.first.p1) L.push("First check: "+S.first.p1);
+  L.push("");
+  L.push("== Section 2: The words that hid slavery ==");
+  P2.forEach(function(d){
+    L.push(d.head+": "+nameOf(P2OPT, S.p2.clause[d.id]));
+    L.push("What it protected: "+((S.p2.why[d.id]||"").trim()||"(blank)"));
+  });
+  L.push("Words used instead of slavery: "+((S.p2.why.d||"").trim()||"(blank)"));
+  L.push("");
+  L.push("== Section 3: Forty three words ==");
+  L.push("Markup first check: "+(S.first.p3||"not checked"));
+  L.push("Proves: "+((S.p3.proves||"").trim()||"(blank)"));
+  L.push("Does not prove: "+((S.p3.notproves||"").trim()||"(blank)"));
+  L.push("");
+  L.push("== Section 4: The five blanks of 1865 ==");
+  P4.forEach(function(r){
+    var g=S.p4[r.id]||{};
+    L.push(r.blank+": "+(g.f||"(blank)")+", "+(g.y||"(blank)"));
+  });
+  if(S.first.p4) L.push("First check: "+S.first.p4);
+  L.push("The gap never closed: "+((S.p4.write||"").trim()||"(blank)"));
+  L.push("");
+  L.push("== Section 5: Name the term ==");
+  P5.forEach(function(s,i){ L.push((i+1)+". "+(S.p5[s.id]||"(blank)")); });
+  if(S.first.p5) L.push("First check: "+S.first.p5);
+  L.push("");
+  L.push("== Section 6: One sentence ==");
+  L.push("In 1865, freedom meant "+((S.p6.a||"").trim()||"(blank)"));
+  L.push("but it did not yet mean "+((S.p6.b||"").trim()||"(blank)"));
+  L.push("Evidence 1: "+((S.p6.e1||"").trim()||"(blank)"));
+  L.push("Evidence 2: "+((S.p6.e2||"").trim()||"(blank)"));
+  return L.join("\n");
+}
+function toast(msg){
+  var t=el("div","toast",msg);
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },1800);
+}
+function copyText(txt){
+  var done=function(){ toast("Copied. Paste it into Google Classroom."); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done, function(){ legacyCopy(txt, done); });
+  } else { legacyCopy(txt, done); }
+}
+function legacyCopy(txt, done){
+  var ta=document.createElement("textarea");
+  ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }
+  catch(e){ toast("Select the text above and copy it."); }
+  document.body.removeChild(ta);
+}
+function downloadText(txt){
+  try{
+    var blob=new Blob([txt],{type:"text/plain"});
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="Reconstruction Case File - "+((S.name||"student").replace(/[^\w \-]/g,""))+".txt";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toast("Downloaded. Attach it in Google Classroom.");
+  }catch(e){ toast("Use Copy my answers instead."); }
+}
+
+/* ============ nav ============ */
+var idx=0;
+var stage=document.getElementById("stage");
+var meter=document.getElementById("meter");
+var counter=document.getElementById("counter");
+var backBtn=document.getElementById("back");
+var nextBtn=document.getElementById("next");
+
+for(var i=0;i<6;i++){ meter.appendChild(el("div","seg")); }
+
+var LABELS=["Cover","Section 1 of 6","Section 2 of 6","Section 3 of 6","Section 4 of 6","Section 5 of 6","Section 6 of 6","Turn it in"];
+var NEXTLBL=["Start the file","Next: the 1787 words","Next: the amendment","Next: the five gaps","Next: name the term","Next: your sentence","Finish and turn in",""];
+
+function render(){
+  stage.innerHTML="";
+  stage.appendChild(pages[idx]());
+  var segs=meter.querySelectorAll(".seg");
+  for(var i=0;i<6;i++){
+    segs[i].classList.toggle("on", idx>i);
+    segs[i].classList.toggle("here", idx===i+1);
+  }
+  counter.textContent=LABELS[idx];
+  backBtn.style.visibility = idx===0 ? "hidden":"visible";
+  if(idx===pages.length-1){ nextBtn.style.display="none"; }
+  else { nextBtn.style.display=""; nextBtn.textContent=NEXTLBL[idx]; }
+  window.scrollTo(0,0);
+  save();
+}
+backBtn.addEventListener("click",function(){ if(idx>0){ idx--; render(); } });
+nextBtn.addEventListener("click",function(){ if(idx<pages.length-1){ idx++; render(); } });
+
+load();
+render();
+</script>
+</body>
+</html>
