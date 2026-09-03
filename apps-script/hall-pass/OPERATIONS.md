@@ -8,8 +8,8 @@ Production fingerprint as of 2026-09-02 (Version 16):
 
 | Fact | Value |
 | --- | --- |
-| Repository head | `005ac93` merged to main |
-| Deployed application source | `005ac93` |
+| Repository head | `0a062d8` (main) |
+| Deployed application source | `005ac939619a316831478ef7d196d1b288c10e6a` |
 | Apps Script version | 16, existing deployment updated in place |
 | Workbook schema | `2026-09-02-a` (no migration pending) |
 | Rollback baseline | `apps-script/snapshots/hall-pass/version-15-live-2026-09-02` |
