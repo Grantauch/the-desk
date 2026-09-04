@@ -578,6 +578,85 @@ assert.throws(
   'A one-use proof must reject replay'
 );
 
+// --- The client's AUTO_PASS sentinel must survive authorization. ---
+// Every bathroom sign-out and return sends AUTO_PASS, and the server has to
+// resolve it to a real action BEFORE validating it. Validating first rejected
+// every bathroom request in production with "Refresh this page before trying
+// that student action" while daily check-in kept working, because CHECKIN is a
+// literal member of GD_STUDENT_ACTIONS and AUTO_PASS deliberately is not.
+// Release smoke never caught it: smoke was always run without submitting a real
+// student PIN, and this path only executes after one is accepted.
+const authorizeContext = {
+  Utilities: { getUuid: () => 'authorize-uuid' },
+};
+vm.createContext(authorizeContext);
+vm.runInContext(`${code}
+;this.__gdAuthorize = { authorizeStudentAction };`, authorizeContext);
+
+const authorizeStudent = {
+  key: 'student::period-1',
+  email: 'student@students.mtmorrisschools.org',
+  name: 'Student, Jordan',
+  classPeriod: 'Period 1',
+};
+let inferredPassAction = 'PASS_REQUEST';
+authorizeContext.ensureWorkbookReady_ = () => {};
+authorizeContext.getSettings_ = () => ({});
+authorizeContext.getActiveEmail_ = () => '';
+authorizeContext.assertSchoolAccount_ = () => {};
+authorizeContext.verifyStudentPin_ = () => [authorizeStudent];
+authorizeContext.inferPassAction_ = () => inferredPassAction;
+authorizeContext.getStudentByKey_ = (key) => (key === authorizeStudent.key ? authorizeStudent : null);
+authorizeContext.putPinSession_ = () => 'pin-session-token';
+authorizeContext.putStudentActionProof_ = (_email, _key, action) => `proof:${action}`;
+authorizeContext.getStudentState_ = () => ({ screen: 'student' });
+authorizeContext.getCheckInState_ = () => ({ screen: 'checkin' });
+
+const authorizeWith = (requestedAction) => authorizeContext.__gdAuthorize.authorizeStudentAction(
+  '123456',
+  requestedAction,
+  authorizeStudent.key,
+  'attempt-nonce'
+);
+
+const autoPassRequest = authorizeWith('AUTO_PASS');
+assert.equal(autoPassRequest.authorizedAction, 'PASS_REQUEST', 'AUTO_PASS must resolve to a real pass request');
+assert.equal(autoPassRequest.actionProof, 'proof:PASS_REQUEST', 'The proof must be bound to the resolved action');
+
+inferredPassAction = 'RETURN';
+const autoPassReturn = authorizeWith('AUTO_PASS');
+assert.equal(autoPassReturn.authorizedAction, 'RETURN', 'AUTO_PASS must resolve to a return when the student is already out');
+assert.equal(autoPassReturn.actionProof, 'proof:RETURN');
+assert.equal(authorizeWith('auto_pass').authorizedAction, 'RETURN', 'The sentinel must be case-insensitive');
+assert.equal(authorizeWith('  AUTO_PASS  ').authorizedAction, 'RETURN', 'The sentinel must tolerate surrounding whitespace');
+
+assert.equal(authorizeWith('CHECKIN').authorizedAction, 'CHECKIN');
+assert.equal(authorizeWith('PASS_REQUEST').authorizedAction, 'PASS_REQUEST');
+assert.equal(authorizeWith('RETURN').authorizedAction, 'RETURN');
+assert.throws(
+  () => authorizeWith('NOT_A_REAL_ACTION'),
+  /Refresh this page/,
+  'A genuinely unknown action must still fail closed'
+);
+
+// Guard the whole class of bug rather than this one instance: every action
+// literal the client is able to send must be one the server accepts. A future
+// sentinel added to the client without a matching server branch fails here
+// instead of in a classroom.
+const literalRequestedActions = [...clientScript.matchAll(/renderActionPin\(\s*'([A-Z_]+)'/g)]
+  .map((match) => match[1]);
+const ternaryRequestedActions = [...clientScript.matchAll(/renderActionPin\([^)]*\?\s*'([A-Z_]+)'\s*:\s*'([A-Z_]+)'/g)]
+  .flatMap((match) => [match[1], match[2]]);
+const requestedActions = [...new Set([...literalRequestedActions, ...ternaryRequestedActions])];
+assert.ok(requestedActions.length >= 4, 'The client must still request its named actions');
+assert.ok(requestedActions.includes('AUTO_PASS'), 'The client still sends the AUTO_PASS sentinel');
+for (const requested of requestedActions) {
+  assert.doesNotThrow(
+    () => authorizeWith(requested),
+    `The server must accept the client action ${requested}`
+  );
+}
+
 // Preserve the behavioral coverage that predates the Version 9 recovery. The
 // structural assertions above catch security/privacy regressions; these
 // fixtures catch changes to the classroom rules themselves.

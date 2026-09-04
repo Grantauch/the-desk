@@ -329,8 +329,13 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
   assertSchoolAccount_(activeEmail, settings);
   const students = verifyStudentPin_(pin, activeEmail, attemptNonce);
   const email = students[0].email;
-  let action = normalizeStudentAction_(requestedAction);
-  if (String(requestedAction || '').trim().toUpperCase() === 'AUTO_PASS') action = inferPassAction_(email);
+  // AUTO_PASS is the client's "decide for me" sentinel, not a stored action, so
+  // it must be resolved to a real GD_STUDENT_ACTIONS value BEFORE validation.
+  // Normalizing first throws on every student pass request and return.
+  const requested = String(requestedAction || '').trim().toUpperCase();
+  const action = requested === 'AUTO_PASS'
+    ? inferPassAction_(email)
+    : normalizeStudentAction_(requestedAction);
 
   const selected = studentKey ? getStudentByKey_(studentKey) : null;
   if (selected && selected.email !== email) {
