@@ -12,9 +12,55 @@ Before any deployment:
 1. Run `npm.cmd run hall-pass:test` from the site repository.
 2. Compare the Apps Script editor against these tracked files. Do not deploy a stale snapshot.
 3. Preserve the existing public deployment ID and domain-only manifest settings. Create a new version of the existing deployment; do not create a replacement public URL.
-4. Verify student, kiosk, check-in, and teacher modes after deployment without using or reproducing a real student PIN.
+4. Verify student, kiosk, check-in, and teacher modes after deployment.
+5. Submit one PIN through a synthetic test roster entry and complete a full pass request and return.
+   Never a real student's PIN, and never a real student's record. Add a throwaway roster membership,
+   read its plaintext PIN from the PIN Cards tab, run the round trip, then void the test pass and
+   deactivate the membership.
+
+Step 5 is not optional. Every release through Version 16 was smoked without submitting any PIN at
+all, on the reasoning that no real student credential should be reproduced. That reasoning is sound
+and stays, but it left the entire protected-action path unverified, because nothing past
+`authorizeStudentAction` executes until a PIN is accepted. Version 16 consequently shipped a fault
+that rejected every bathroom request in production with "Refresh this page before trying that
+student action" while daily check-in kept working, and it survived a full release smoke plus a
+public-site verification. A synthetic credential satisfies both requirements at once.
 
 The Drive-supplied Version 10 snapshot must not be deployed by itself: it removes the unmatched-sign-in ledger and regresses student-payload privacy, cleanup authorization/locking, atomic PIN-email claiming, and teacher-dashboard refresh behavior.
+
+### 2026-09-03 Version 17 student pass authorization fix
+
+Apps Script **Version 17** was created on the existing deployment at 9:33 PM on September 3, 2026.
+Deployment ID `AKfycby2cAUsc1T0tTQkIWTrGwdOrfD2p5cX3EKBG3obW-QY2Ndd8T-cpjoT8bXU__on-qWa`, the `/exec`
+URL, execute-as `gauch@mtmorrisschools.org` and the Mt. Morris Consolidated Schools-only access
+setting were read back in the deployment dialog before deploying and are unchanged. No workbook
+schema change or migration was required; the schema remains `2026-09-02-a`.
+
+**What was wrong.** `authorizeStudentAction` called `normalizeStudentAction_(requestedAction)` before
+the line that translated the client's `AUTO_PASS` sentinel. `AUTO_PASS` is deliberately not a member
+of `GD_STUDENT_ACTIONS`, so validation threw *"Refresh this page before trying that student action"*
+and the translating line below it was unreachable. Every student bathroom request and every student
+return failed for the life of Version 14 through Version 16. Daily check-in was unaffected, because
+the client sends the literal `CHECKIN`, which is a real enum member. The teacher dashboard for
+September 3 recorded 98 check-ins and zero student passes, which is the fault's exact signature.
+
+**Why the gate missed it.** The path is reachable only after a real student PIN is accepted, and
+every release smoke through Version 16 was deliberately run without submitting one. The structural
+regression suite asserted that `authorizeStudentAction` appeared in the source; it never called it.
+
+**The fix.** Resolve the sentinel first, then validate anything else. Git commit `5fe9670`.
+
+**Verification before deploying.** The live editor's `Code.gs` was read back and matched the tracked
+source byte for byte at 145,587 characters, SHA-256 prefix `b7af0b1c1a7afc00`, after accounting for
+Apps Script's stripped final newline. `Index.html` was unchanged at 104,686 characters. Local gates
+were 64 handoff validations, the structural suite, 89 behavioral checks across 15 areas, astro check
+with 0 errors and 0 warnings across 68 files, a 51-page build, and static validation of 66 HTML
+files and 2,709 local references.
+
+**Verification after deploying.** Student, kiosk, check-in and teacher modes were each loaded against
+the live deployment. Teacher mode returned in roughly fifteen seconds with no cold-start timeout,
+which closes the September 3 recheck carried over from Version 16. The shared-log retry card read two
+signals for the whole day against 98 check-ins, so the Version 15 and 16 contention work is holding.
 
 ### 2026-09-02 Version 16 shared-lock reduction release record
 

@@ -22,6 +22,9 @@ const requiredPaths = [
   'apps-script/hall-pass/appsscript.json',
   'apps-script/hall-pass/DEPLOY.md',
   'scripts/test-hall-pass-app.cjs',
+  'scripts/test-hall-pass-runtime.cjs',
+  'scripts/lib/gas-harness.cjs',
+  'scripts/lib/hall-pass-fixtures.cjs',
   'src/pages/pass.astro',
   'src/pages/check-in.astro',
   'src/pages/tools.astro',
@@ -106,8 +109,13 @@ if (packageJson) {
     'handoff:validate points to expected validator'
   );
   ok(
-    packageJson.scripts?.['hall-pass:verify'] === 'npm run handoff:validate && npm run hall-pass:test',
-    'hall-pass:verify runs handoff validation and Hall Pass regressions'
+    packageJson.scripts?.['hall-pass:runtime'] === 'node scripts/test-hall-pass-runtime.cjs',
+    'hall-pass:runtime points to expected behavioral suite'
+  );
+  ok(
+    packageJson.scripts?.['hall-pass:verify']
+      === 'npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime',
+    'hall-pass:verify runs handoff validation, structural regressions and the behavioral suite'
   );
 }
 
