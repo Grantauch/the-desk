@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "storyId": "COURSE-LESSON",
+  "course": "COURSE",
+  "lessonCode": "LESSON",
+  "title": "Lesson title",
+  "audience": "students",
+  "narrativeQuestion": "",
+  "chapters": [
+    {
+      "id": "01-opening",
+      "title": "Opening",
+      "claim": "",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": []
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "COURSE-LESSON",
+  "title": "Lesson title",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [],
+    "paletteIntent": "",
+    "typographyIntent": "",
+    "textureLanguage": [],
+    "shapeLanguage": "",
+    "motionGrammar": [],
+    "interactionSignature": [],
+    "densityRhythm": "",
+    "archivalBehavior": "",
+    "endingLanguage": ""
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "approved asset set",
+    "edgeTreatment": "",
+    "controlLanguage": "",
+    "spacingLanguage": "",
+    "transitionLanguage": ""
+  }
+}

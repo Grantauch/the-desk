@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "COURSE-LESSON",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-opening",
+      "type": "",
+      "teaches": "",
+      "studentAction": "",
+      "feedback": "",
+      "staticFallback": "",
+      "identityFit": "",
+      "status": "planned"
+    }
+  ]
+}
