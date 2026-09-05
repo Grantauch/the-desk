@@ -2,7 +2,7 @@
 
 Updated 2026-09-05. Authority: revised launch capsule. Baseline: `4513ae7543ef42aa6c2152b34a443e5ff0e28cd7`. The [machine-readable ledger](repair-status.json) records all 73 IDs, dependencies, and current evidence.
 
-Batch 0.5 is complete. Problems 14 and 19 are implemented locally; the final canonical gate passed and publication is pending. The nineteen previously completed items remain PUSHED pending exact Netlify deployment correlation; they have not been reopened or reimplemented. Baseline GitHub Actions passed. Live first-day and tax pages match the baseline after line-ending normalization.
+Batch 0.5 is complete. Problems 14 and 19 are VERIFIED at implementation commit `e5297d2fe4a116ef78559faf1dfffbaade6abe57`, pushed to `main` with matching remote SHA. [GitHub Actions canonical verify passed](https://github.com/Grantauch/the-desk/actions/runs/33983159223). Problem 40 is also VERIFIED by that successful push. The nineteen previously completed items remain PUSHED pending exact Netlify deployment correlation; they have not been reopened or reimplemented. Baseline GitHub Actions passed. Live first-day and tax pages match the baseline after line-ending normalization.
 
 PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 hints; build 51 routes; 66 HTML files and 2709 local references. Final verification preserved all 172 tracked and new source/document paths byte-for-byte, including the dependency preflight. All four dependency-availability scenarios passed.
 
@@ -23,12 +23,12 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are 
 | 11 | OPEN | Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch. |
 | 12 | OPEN | Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected. |
 | 13 | PUSHED | Editor save/rebuild/confirm copy. Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement. |
-| 14 | FIXED_LOCAL | Canonical six-stage verify implemented; GitHub Actions calls it once; check dependency preflight added. START-HERE and CLAUDE document the command. Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums. |
+| 14 | VERIFIED | Canonical six-stage verify implemented; GitHub Actions calls it once; check dependency preflight added. START-HERE and CLAUDE document the command. Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums. Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223 |
 | 15 | VERIFIED | Policy settled in specification: live-data:check remains a separate health check, excluded from deterministic verification. |
 | 16 | OPEN | Open per revised capsule. |
 | 17 | OPEN | Open per revised capsule. |
 | 18 | OPEN | Open per revised capsule. |
-| 19 | FIXED_LOCAL | Read-only catalog/assignment validator and shared eligibility helper implemented, without private inventories. Archived unapproved resource removed only from public JSON; baseline history and Drive source preserved. 136 resources, 128 links, 8 placeholders. Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums. |
+| 19 | VERIFIED | Read-only catalog/assignment validator and shared eligibility helper implemented, without private inventories. Archived unapproved resource removed only from public JSON; baseline history and Drive source preserved. 136 resources, 128 links, 8 placeholders. Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums. Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223 |
 | 20 | PUSHED | First-day instructional dates and no-school rows. Launch capsule reports implementation and tests at 002b302; site:validate negative-tested; included in baseline 4513ae7. Do not reimplement. |
 | 21 | PUSHED | US History 9 scope reaches the present. Launch capsule reports implementation and tests at 002b302; site:validate; included in baseline 4513ae7. Do not reimplement. |
 | 22 | PUSHED | BTS September milestone: inventing american sport. Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement. |
@@ -48,8 +48,8 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are 
 | 36 | PUSHED | Versions 14-16 unsafe rollback warnings. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
 | 37 | OPEN | Open per revised capsule. |
 | 38 | OPEN | Open per revised capsule. |
-| 39 | OPEN | Open per revised capsule. |
-| 40 | OPEN | GitHub permission read verified admin and push access once on 2026-09-05. Actual push still pending for this batch. |
+| 39 | BLOCKED_EXTERNAL | No exact Netlify deployment fingerprint exposed by current GitHub status/deployment APIs. Existing browser tab listed at Netlify login; UI inspection timed out. Stop fingerprint pursuit and continue independent Batch 1 work. |
+| 40 | VERIFIED | Windows Git push to main succeeded at e5297d2fe4a116ef78559faf1dfffbaade6abe57 and git ls-remote confirmed the same SHA. Current GitHub API reports admin and push permission. Write authority tested once; do not re-diagnose historical setup. |
 | 41 | OPEN | Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected. |
 | 42 | PUSHED | Group sizes use Math.ceil. Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement. |
 | 43 | PUSHED | Cold call identifies roster slots. Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement. |
@@ -86,4 +86,4 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are 
 
 Next executable task: Problem 10: adopt the canonical verify command in Netlify, then continue shared resource eligibility and publishing-path repairs (16, 17, 18, 58).
 
-Problem 11 is now OPEN because administrator access is available; main currently has no branch protection. The START-HERE follow-up is complete. Remove the documented curriculum gaps only after Problems 16–18 land. Problem 23 still requires Grant's content mapping. Netlify exact-SHA correlation remains unavailable through the checked GitHub APIs; this does not block local release work.
+Problem 11 is now OPEN because administrator access is available; main currently has no branch protection. The START-HERE follow-up is complete. Remove the documented curriculum gaps only after Problems 16–18 land. Problem 23 still requires Grant's content mapping. Problem 39 is BLOCKED_EXTERNAL: no deployment fingerprint exposed by GitHub, and the existing Netlify login tab could not be inspected because the browser request timed out. No exact deployment is inferred. This does not block independent release work.

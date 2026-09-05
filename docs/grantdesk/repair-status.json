@@ -94,15 +94,17 @@
     "summary": "Editor save/rebuild/confirm copy"
   },
   "14": {
-    "status": "FIXED_LOCAL",
+    "status": "VERIFIED",
     "depends_on": [
       19
     ],
     "evidence": [
       "Canonical six-stage verify implemented; GitHub Actions calls it once; check dependency preflight added. START-HERE and CLAUDE document the command.",
-      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums."
+      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums.",
+      "Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223"
     ],
-    "batch": "1"
+    "batch": "1",
+    "commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57"
   },
   "15": {
     "status": "VERIFIED",
@@ -139,13 +141,15 @@
     "batch": "1"
   },
   "19": {
-    "status": "FIXED_LOCAL",
+    "status": "VERIFIED",
     "depends_on": [],
     "evidence": [
       "Read-only catalog/assignment validator and shared eligibility helper implemented, without private inventories. Archived unapproved resource removed only from public JSON; baseline history and Drive source preserved. 136 resources, 128 links, 8 placeholders.",
-      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums."
+      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums.",
+      "Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223"
     ],
-    "batch": "1"
+    "batch": "1",
+    "commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57"
   },
   "20": {
     "status": "PUSHED",
@@ -278,18 +282,21 @@
     "batch": "3"
   },
   "39": {
-    "status": "OPEN",
+    "status": "BLOCKED_EXTERNAL",
     "depends_on": [],
-    "evidence": [],
+    "evidence": [
+      "No exact Netlify deployment fingerprint exposed by current GitHub status/deployment APIs. Existing browser tab listed at Netlify login; UI inspection timed out. Stop fingerprint pursuit and continue independent Batch 1 work."
+    ],
     "batch": "3"
   },
   "40": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
     "evidence": [
-      "GitHub permission read verified admin and push access once on 2026-09-05. Actual push still pending for this batch."
+      "Windows Git push to main succeeded at e5297d2fe4a116ef78559faf1dfffbaade6abe57 and git ls-remote confirmed the same SHA. Current GitHub API reports admin and push permission. Write authority tested once; do not re-diagnose historical setup."
     ],
-    "batch": "3"
+    "batch": "3",
+    "commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57"
   },
   "41": {
     "status": "OPEN",
@@ -551,13 +558,23 @@
     "updated": "2026-09-05",
     "baseline": "4513ae7543ef42aa6c2152b34a443e5ff0e28cd7",
     "authority": "Revised GrantDesk Astra launch capsule, 2026-09-05",
-    "scope": "Batch 0.5 and Problems 14/19 complete locally; publication pending",
+    "scope": "Batch 0.5 and Problems 14/19 complete; GitHub push authority (40) verified during publication",
     "baseline_deployment": "Baseline GitHub Actions succeeded. Live first-day materials and tax calculator matched baseline source after CRLF normalization. No Netlify deployment SHA exposed through available GitHub status/deployment APIs.",
     "next_task": "Problem 10: adopt the canonical verify command in Netlify, then continue shared resource eligibility and publishing-path repairs (16, 17, 18, 58).",
     "validation": {
       "full_gate": "PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 existing hints; build 51 routes; 66 HTML files and 2709 local references",
       "read_only": "Final verify preserved all 172 tracked and new source/document paths byte-for-byte; aggregate SHA256 90369f867334c2c1b8713d915e7bb0cebcd0e802a312bcfef8d91a0ca428899e before and after.",
       "final_dependency_guard": "PASS: neither dependency, each single dependency, and both dependencies tested in isolated temporary projects; final guarded verify passed."
+    },
+    "release": {
+      "implementation_commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57",
+      "remote": "main confirmed at implementation commit after push",
+      "github_actions": {
+        "status": "success",
+        "url": "https://github.com/Grantauch/the-desk/actions/runs/33983159223"
+      },
+      "netlify": "BLOCKED_EXTERNAL: exact deployment fingerprint not exposed by GitHub APIs; existing browser tab listed at Netlify login, and dashboard inspection timed out. No deployment SHA inferred.",
+      "apps_script": "No source changes or deployment; no workbook migration, student PIN, or classroom field test."
     }
   }
 }
