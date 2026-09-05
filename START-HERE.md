@@ -77,7 +77,9 @@ There are two supported routes and they do not overlap.
 ```powershell
 cd C:\Users\Grant\GrantDeskSite
 npm.cmd run dev      # look at your change on localhost:4321
-.\publish.bat        # checks, builds, and publishes one tested batch from main
+npm.cmd run verify  # canonical release gate, including build; must pass before publishing
 ```
 
 Common edits are listed in **EDITING.md**, which says exactly which file to touch. For AI assisted edits, see the section at the bottom of EDITING.md.
+
+After verification, stage only intended paths, inspect `git diff --cached`, commit, and push the tested batch to `main`; confirm Netlify's deployment separately. `publish.bat` still needs the Batch 1 publishing-path repairs before it is the recommended wrapper.

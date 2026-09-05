@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "check": "astro check",
+    "check": "node scripts/check-verification-deps.mjs && astro check",
+    "verify": "npm run hall-pass:verify && npm run tools:test && npm run resources:validate && npm run check && npm run build && npm run site:validate",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "tools:test": "node scripts/test-classroom-tools.mjs",
     "handoff:validate": "node scripts/validate-grantdesk-handoff.mjs",
@@ -16,6 +17,7 @@
     "detour:validate": "node scripts/validate-detour-shelf.mjs",
     "site:validate": "node scripts/validate-static-site.mjs",
     "resources:sync": "node scripts/sync-public-resources.mjs",
+    "resources:validate": "node scripts/test-public-resources.mjs && node scripts/validate-public-resources.mjs",
     "remix:validate": "node scripts/validate-remix-public.mjs",
     "live-data:check": "node scripts/validate-live-data.mjs",
     "hall-pass:runtime": "node scripts/test-hall-pass-runtime.cjs"

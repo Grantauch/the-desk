@@ -1,7 +1,7 @@
 {
   "source": "the-desk-public-resource-catalog",
-  "resourceCount": 137,
-  "linkedCount": 129,
+  "resourceCount": 136,
+  "linkedCount": 128,
   "resources": [
     {
       "id": "002-cold-war-timeline-slides",
@@ -713,15 +713,6 @@
       "type": "Slides",
       "onWebsite": true,
       "href": "https://docs.google.com/presentation/d/1DZ-Q0tCSq6PPvKV6t1kCgJx1H77dZtru5XCBCacphgI/present"
-    },
-    {
-      "id": "473-unit-1-inventing-american-sport-deck",
-      "course": "Beyond the Scoreboard",
-      "unitTopic": "Unit 1",
-      "name": "ARCHIVE — Unit 1 — Inventing American Sport (deck)",
-      "type": "Slides",
-      "onWebsite": false,
-      "href": "https://docs.google.com/presentation/d/1UG0-kg95DWrJsIEQDcreiqYOLf7R7-qGf34Ha6cTsqE/present"
     },
     {
       "id": "474-unit-4-the-athlete-revolt-deck",

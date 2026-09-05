@@ -6,6 +6,9 @@ dist/
 # dependencies
 node_modules/
 
+# unrelated local presentation outputs
+Claude outputs/
+
 # logs
 npm-debug.log*
 

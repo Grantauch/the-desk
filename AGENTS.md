@@ -1,0 +1,8 @@
+# GrantDesk agent navigation
+
+- Start with [CLAUDE.md](CLAUDE.md) for the stack, file map, and editing conventions.
+- Read [docs/grantdesk/repair-status.json](docs/grantdesk/repair-status.json) for current problem status and dependencies; [REPAIR-STATUS.md](docs/grantdesk/REPAIR-STATUS.md) carries the evidence summary. The revised September 5 launch capsule overrides the older specification. Read only the specification IDs being worked on.
+- Follow [CURRICULUM-PUBLISHING.md](CURRICULUM-PUBLISHING.md) for public eligibility and source preservation. Keep private inventories, identifiers, student records, PINs, and credentials out of this repository and its ledgers.
+- Use Windows native Git. Stage intended paths only, inspect `git diff --cached`, and confirm the remote SHA after a push. Never use `git add .`, reset, clean, force checkout, or blindly remove an index lock. Check whitespace before believing a whole-repository diff. Preserve `recovery/aug29-version8-local`; never merge its superseded Version 8 commits.
+- Use the canonical verification command documented in CLAUDE.md. Resource sync is intentional authoring, never verification. Update both repair ledgers after each coherent batch; keep commit, deployment, and field evidence separate.
+- For Apps Script releases, read [DEPLOY.md](apps-script/hall-pass/DEPLOY.md) and the [snapshot index](apps-script/snapshots/hall-pass/README.md). Preserve the existing deployment and stable `/exec`; never roll bathroom service back to Versions 14–16 or test with a real student PIN. Field verification remains pending until an actual class cycle.

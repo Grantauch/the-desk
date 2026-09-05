@@ -1,0 +1,563 @@
+{
+  "1": {
+    "status": "OPEN",
+    "depends_on": [
+      5
+    ],
+    "evidence": [],
+    "batch": "2"
+  },
+  "2": {
+    "status": "OPEN",
+    "depends_on": [
+      5
+    ],
+    "evidence": [],
+    "batch": "2"
+  },
+  "3": {
+    "status": "OPEN",
+    "depends_on": [
+      5
+    ],
+    "evidence": [],
+    "batch": "2"
+  },
+  "4": {
+    "status": "OPEN",
+    "depends_on": [
+      5
+    ],
+    "evidence": [],
+    "batch": "2"
+  },
+  "5": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "6": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "7": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "8": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "9": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+    ]
+  },
+  "10": {
+    "status": "OPEN",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [],
+    "batch": "1"
+  },
+  "11": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch."
+    ]
+  },
+  "12": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+    ]
+  },
+  "13": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Editor save/rebuild/confirm copy"
+  },
+  "14": {
+    "status": "FIXED_LOCAL",
+    "depends_on": [
+      19
+    ],
+    "evidence": [
+      "Canonical six-stage verify implemented; GitHub Actions calls it once; check dependency preflight added. START-HERE and CLAUDE document the command.",
+      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums."
+    ],
+    "batch": "1"
+  },
+  "15": {
+    "status": "VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Policy settled in specification: live-data:check remains a separate health check, excluded from deterministic verification."
+    ]
+  },
+  "16": {
+    "status": "OPEN",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [],
+    "batch": "1"
+  },
+  "17": {
+    "status": "OPEN",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [],
+    "batch": "1"
+  },
+  "18": {
+    "status": "OPEN",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [],
+    "batch": "1"
+  },
+  "19": {
+    "status": "FIXED_LOCAL",
+    "depends_on": [],
+    "evidence": [
+      "Read-only catalog/assignment validator and shared eligibility helper implemented, without private inventories. Archived unapproved resource removed only from public JSON; baseline history and Drive source preserved. 136 resources, 128 links, 8 placeholders.",
+      "Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums."
+    ],
+    "batch": "1"
+  },
+  "20": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; site:validate negative-tested; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "First-day instructional dates and no-school rows"
+  },
+  "21": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; site:validate; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "US History 9 scope reaches the present"
+  },
+  "22": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "BTS September milestone: inventing american sport"
+  },
+  "23": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Grant must decide the claim-specific mapping from Supported and complicated labels to the fixed verdict vocabulary before implementation."
+    ],
+    "batch": "4"
+  },
+  "24": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "25": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Syllabus-aligned periods and BTS unit names"
+  },
+  "26": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Civil Rights & the Soundtrack of a Movement"
+  },
+  "27": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "28": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "29": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "30": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "4"
+  },
+  "31": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "32": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "33": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "34": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "2"
+  },
+  "35": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Version 17 source snapshot and fingerprint"
+  },
+  "36": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Versions 14-16 unsafe rollback warnings"
+  },
+  "37": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "3"
+  },
+  "38": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "3"
+  },
+  "39": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "3"
+  },
+  "40": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "GitHub permission read verified admin and push access once on 2026-09-05. Actual push still pending for this batch."
+    ],
+    "batch": "3"
+  },
+  "41": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [
+      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+    ]
+  },
+  "42": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Group sizes use Math.ceil"
+  },
+  "43": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Cold call identifies roster slots"
+  },
+  "44": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; tools:test fixtures; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Timer uses wall clock"
+  },
+  "45": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "46": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "47": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "GD1 packed-text and private-note copy"
+  },
+  "48": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 002b302; site:validate; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "2026 head-of-household tax bound"
+  },
+  "49": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "50": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "51": {
+    "status": "OPEN",
+    "depends_on": [],
+    "evidence": [],
+    "batch": "5"
+  },
+  "52": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "README courses and commands"
+  },
+  "53": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "CLAUDE stack and maintenance rules"
+  },
+  "54": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "EDITING conventions corrected"
+  },
+  "55": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "START-HERE publishing routes",
+    "follow_up": "Completed: START-HERE names npm.cmd run verify; publish.bat remains explicitly pending Problems 10/18/58."
+  },
+  "56": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Curriculum eligibility and documented href-only gap",
+    "follow_up": "After Problems 16, 17 and 18, remove the resolved href-only and publish-sync gap paragraphs."
+  },
+  "57": {
+    "status": "PUSHED",
+    "depends_on": [],
+    "evidence": [
+      "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
+    ],
+    "summary": "Stale root jeopardy copies removed; canonical hubs retained"
+  },
+  "58": {
+    "status": "OPEN",
+    "depends_on": [
+      14,
+      19
+    ],
+    "evidence": [],
+    "batch": "1"
+  },
+  "59": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "60": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "61": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "62": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "63": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "64": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "65": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "66": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "67": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "68": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "69": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "70": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "71": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "72": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "73": {
+    "status": "PRESERVE_VERIFIED",
+    "depends_on": [],
+    "evidence": [
+      "Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim."
+    ],
+    "batch": "7"
+  },
+  "_meta": {
+    "updated": "2026-09-05",
+    "baseline": "4513ae7543ef42aa6c2152b34a443e5ff0e28cd7",
+    "authority": "Revised GrantDesk Astra launch capsule, 2026-09-05",
+    "scope": "Batch 0.5 and Problems 14/19 complete locally; publication pending",
+    "baseline_deployment": "Baseline GitHub Actions succeeded. Live first-day materials and tax calculator matched baseline source after CRLF normalization. No Netlify deployment SHA exposed through available GitHub status/deployment APIs.",
+    "next_task": "Problem 10: adopt the canonical verify command in Netlify, then continue shared resource eligibility and publishing-path repairs (16, 17, 18, 58).",
+    "validation": {
+      "full_gate": "PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 existing hints; build 51 routes; 66 HTML files and 2709 local references",
+      "read_only": "Final verify preserved all 172 tracked and new source/document paths byte-for-byte; aggregate SHA256 90369f867334c2c1b8713d915e7bb0cebcd0e802a312bcfef8d91a0ca428899e before and after.",
+      "final_dependency_guard": "PASS: neither dependency, each single dependency, and both dependencies tested in isolated temporary projects; final guarded verify passed."
+    }
+  }
+}
