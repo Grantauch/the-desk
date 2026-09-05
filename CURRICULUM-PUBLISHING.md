@@ -15,12 +15,17 @@ The current public courses use:
 - Interactive practice lives in `src/data/learningHubs.ts`.
 - Every unit uses an explicit `hubSlug`; do not link hubs by array position.
 
-Only a resource with all of the following may render publicly:
+Public eligibility for a catalog resource is one contract:
 
 - `onWebsite: true`
-- a working `href`
-- no `restricted` status
-- student-safe content and sharing permissions
+- `status` is not `restricted`
+- either a non-empty `href`, or `status: 'coming-soon'` with no `href`
+
+A `coming-soon` record is a deliberate placeholder. It appears on the site as announced but not yet linked, and it has no `href` on purpose. Anything with content and sharing permissions that are not student-safe stays `restricted` and never reaches the public catalog.
+
+Two places still filter on `href` alone rather than on this contract, so a `coming-soon` record can be silently dropped: `scripts/sync-public-resources.mjs` and the local editor in `editor/server.mjs`. Until both use the shared contract, do not rely on `resources:sync` to carry a `coming-soon` entry through.
+
+`resources:sync` is an authoring step. It rewrites the public catalog from the ignored private inventory, which means running it during an ordinary publish can overwrite catalog state nobody meant to touch. `publish.bat` and the editor's publish route both still call it, which is a known defect. Run it only when you intend to republish the catalog.
 
 Hand-wired unit materials must set `materialsAudience: 'student'`. Unclassified fallbacks stay private by default.
 

@@ -68,12 +68,16 @@ For site wording and announcements, open **https://grant-desk.com/editor/**. Sig
 
 The local workflow below remains the fallback for structural code and curriculum-file changes.
 
-Edit → check → publish. Production publishes use plan credits, so collect several edits into one tested batch instead of publishing after every small change:
+There are two supported routes and they do not overlap.
+
+**Words and announcements** go through the browser editor above. Nothing is installed and no Git command is involved.
+
+**Structural code and curriculum files** go through the local checkout. Collect several edits into one tested batch instead of publishing after every small change:
 
 ```powershell
-cd 'C:\Users\Grant\OneDrive\Desktop\Econ\GrantDeskSite'
+cd C:\Users\Grant\GrantDeskSite
 npm.cmd run dev      # look at your change on localhost:4321
 .\publish.bat        # checks, builds, and publishes one tested batch from main
 ```
 
-Common edits — see **EDITING.md** for exactly which file to touch. For AI-assisted edits, see the **CLAUDE.md** section at the bottom of EDITING.md.
+Common edits are listed in **EDITING.md**, which says exactly which file to touch. For AI assisted edits, see the section at the bottom of EDITING.md.

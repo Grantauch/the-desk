@@ -16,7 +16,7 @@ Add a new file in `src/content/announcements/`, named like `2026-08-20-first-day
 ---
 title: "first day of school"
 date: 2026-08-20
-course: "economics"        # optional — omit for all-class announcements
+course: "us history"       # optional. "hidden history" and "beyond the scoreboard" also work. Omit for all classes
 ---
 
 Write the announcement text here. Markdown works: **bold**, [links](https://example.com), lists.
@@ -26,7 +26,9 @@ It appears on the home page (latest 3) and the announcements page automatically.
 
 ## Update what unit a class is on
 
-Open the class page (`src/pages/us-history.astro`, `hidden-history.astro`, or `beyond-the-scoreboard.astro`). Find the `units` array. Move `current: true` to the unit you're on (only one unit should have it). Edit names/blurbs freely.
+Open the class page (`src/pages/us-history.astro`, `hidden-history.astro`, or `beyond-the-scoreboard.astro`). Find the `units` array. Move `current: true` to the unit you're on (only one unit should have it). Blurbs can be edited freely.
+
+Renaming a unit is different. A unit's `name` is also the key that `src/data/unit-materials.json` uses to attach resources, so a rename has to change both in the same commit or the unit quietly loses its materials. Leave `hubSlug` alone either way, since that is what links the unit to its learning hub and to its public URL.
 
 ## Edit a unit's "what's inside" list
 
@@ -68,7 +70,7 @@ The file is served as-is at `/hubs/market-structures.html`, so localStorage prog
 
 ## The tools page
 
-`src/pages/tools.astro` — timer, group maker, cold call picker. This is deliberately the only page with JavaScript. Nothing typed there is stored anywhere (by design — no student data). Edit button presets or labels directly in the file.
+`src/pages/tools.astro` — timer, group maker, cold call picker. Nothing typed there is saved or sent anywhere. The roster lives in memory and disappears when the tab closes. Edit button presets or labels directly in the file.
 
 ## RSS + sitemap (automatic)
 
@@ -96,9 +98,9 @@ The file is served as-is at `/hubs/market-structures.html`, so localStorage prog
 
 Once you have Claude Code set up (see CLAUDE.md), you can skip all of the above and just say things like:
 
-- "post an announcement that the stock market game starts monday"
-- "move economics to the personal finance unit"
-- "add a resources link to us history for the unit 5 study guide: [paste url]"
+- "post an announcement that the reconstruction case file is due friday"
+- "move us history to the gilded age unit"
+- "add a resources link to hidden history for the unit 2 evidence packet: [paste url]"
 - "change the accent color to a darker blue"
 
-Then: `git add . && git commit -m "..." && git push` (or ask Claude Code to do that too).
+Then stage only the files that actually changed, read the staged diff, and commit and push those. Do not run `git add .` while other work is sitting uncommitted, because it sweeps that work into your commit too.
