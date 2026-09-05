@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L014",
+  "title": "Unions & Collective Bargaining",
+  "referenceImplementation": true,
+  "identity": {
+    "tone": ["tactile", "industrial", "human", "editorial", "consequential"],
+    "paletteIntent": "Near-black navy and soot, warm off-white, faded indigo/electric blue accents, restrained rust around coercion and defeat; sampled and tuned against approved artwork rather than treated as a permanent StoryHub palette.",
+    "typographyIntent": "Condensed display headlines with restrained readable historical context; scale shifts should behave like editorial composition rather than application UI.",
+    "textureLanguage": ["paper tooth", "dry brush", "ink bleed", "halftone", "industrial grime", "imperfect print registration"],
+    "shapeLanguage": "Rail lines, industrial frames, broad fields of negative space, hard vertical factory geometry, and occasional print-like interruptions.",
+    "motionGrammar": ["stoppage for leverage", "movement for defeat", "expansion for membership scale", "branching for consequences", "compression for backlash"],
+    "interactionSignature": ["collective-power scale model", "stopped-versus-moving railroad logic", "broad-coalition versus craft-federation pathway comparison"],
+    "densityRhythm": "Alternate intimate human scenes with huge sparse data/consequence moments; allow silence and empty space before moments of expansion.",
+    "archivalBehavior": "Prefer real period portraits and industrial/rail visual evidence, then source-derived stylization; use clearly interpretive reconstruction when no direct source survives.",
+    "endingLanguage": "Strip away most flourish into a highly legible note-repair and synthesis ending."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Approved L014 asset packs, with colors sampled from soot/navy shadows, dirty cream paper/light, faded indigo, iron, and rust.",
+    "edgeTreatment": "Use print-worn or environmental boundaries where helpful; avoid making every section a pristine rectangular web panel.",
+    "controlLanguage": "Controls should feel like instruments of scale, stoppage, pathways, or labor/industrial systems rather than generic buttons.",
+    "spacingLanguage": "Follow each asset's safe zones and emotional composition; use large voids for isolation and tighter density for organization/crowd scenes.",
+    "transitionLanguage": "Let trains, tracks, newspaper darkness, crowd buildup, and industrial fields bridge image and HTML so the interface appears to grow from the artwork."
+  }
+}

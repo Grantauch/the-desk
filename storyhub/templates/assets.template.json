@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "storyId": "COURSE-LESSON",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "planned",
+      "type": "scene",
+      "role": "opening visual",
+      "sourceMode": "reconstruction",
+      "subject": "",
+      "namedPeople": [],
+      "sourceUrl": null,
+      "rightsStatus": "review-needed",
+      "provenance": "",
+      "htmlSafeZone": "",
+      "responsiveCrop": "",
+      "deployPath": null
+    }
+  ]
+}

@@ -22,6 +22,7 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - `src/styles/global.css` — design tokens in `@theme`, plus signature classes: `.pop` (offset shadow card), `.pop-ink`, `.dot-grid` (hero dots)
 - `src/layouts/Base.astro` — page shell (head with OG and social meta, nav, footer)
 - `public/hubs/` — standalone HTML games and lessonhubs, served as written
+- `storyhub/` — StoryHub production manifests, templates, and agent skills. Start at `docs/storyhub/README.md`; L014 is Reference Implementation 001, not a visual template.
 - `apps-script/hall-pass/` — the Hall Pass and Daily Check-In app. This is Google Apps Script, not part of the Astro build
 - `apps-script/snapshots/hall-pass/` — exact source of released versions, with fingerprints
 - `public/og.png` — social sharing card (1200x630)
@@ -35,6 +36,18 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - The site does not host grades, submissions, or rosters. Google Classroom handles those. `/pass/` and `/check-in/` only link out to the Apps Script app, which is where student check-ins actually live.
 - Headings use `font-display` (Space Grotesk, loaded in Base.astro).
 
+## StoryHub workflow
+
+StoryHub is a quality standard and production system, not a visible template. Each StoryHub defines Story DNA before asset generation or interface design: tone, palette, typography, texture, shape language, motion grammar, interaction signature, density rhythm, archival behavior, and ending language. The approved assets then drive an asset-to-interface translation pass so the HTML feels born from the artwork.
+
+- Create a new scaffold: `npm run storyhub:new -- <COURSE> <LESSON> "Title"`
+- Validate all StoryHub manifests: `npm run storyhub:validate`
+- Read `docs/storyhub/GOLD_STANDARD.md` before changing visible StoryHub design.
+- Prefer source-first stylization where strong real historical visual evidence exists.
+- Named people introduced materially in a main section should have an explicit visual-anchor decision in `story.json`.
+- Every interaction must declare what it teaches, what changes, what feedback appears, and its static/reduced-motion fallback.
+- Keep master/reference imagery and private source registers outside the public repo. Commit only student-safe optimized public derivatives and public provenance notes.
+
 ## Common tasks
 
 - **Post announcement**: add `src/content/announcements/YYYY-MM-DD-slug.md`
@@ -42,6 +55,7 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - **Rename a unit**: change `name` on the class page and the matching key in `src/data/unit-materials.json` together, and leave `hubSlug` alone. `npm run site:validate` checks the pairs that have already been renamed
 - **Attach slides or packets to a unit**: add a `materials: [{ label, href }]` array to that unit in the class page. Drive links must be shared as anyone with the link, viewer
 - **Add a lessonhub or game**: drop the HTML file in `public/hubs/` and add an entry to the `hubs` array in `src/pages/games.astro`
+- **Start a StoryHub**: run `npm run storyhub:new -- COURSE LESSON "Title"`, author Story DNA and narrative manifests, then build only after the manifests describe a distinct identity and asset plan.
 
 ## Verification
 
@@ -50,6 +64,7 @@ Install dependencies with `npm install --include=dev` (`npm.cmd` in PowerShell),
 - `hall-pass:verify` — handoff map, structural suite, and runtime harness
 - `tools:test` — group maker, cold call, and timer fixtures
 - `resources:validate` — public-resource validator fixtures, then read-only catalog and assignment validation; no private inventory required
+- `storyhub:validate` — read-only StoryHub manifest, identity, provenance, visual-anchor, interaction-value, and local-path checks
 - `check` — dependency preflight, then Astro and TypeScript diagnostics with 0 errors required; missing development dependencies fail without an install prompt
 - `build` — production site generation
 - `site:validate` — link and content assertions against the new `dist`
