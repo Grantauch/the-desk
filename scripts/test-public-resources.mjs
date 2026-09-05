@@ -101,7 +101,7 @@ try {
   // Execute the actual package verify chain with synthetic stage commands.
   // A failure in each stage must prevent all subsequent stages from running.
   const realPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-  const stages = ['hall-pass:verify', 'tools:test', 'resources:validate', 'check', 'build', 'site:validate'];
+  const stages = ['hall-pass:verify', 'tools:test', 'resources:validate', 'storyhub:validate', 'check', 'build', 'site:validate'];
   assert.equal(realPackage.scripts.verify, stages.map((stage) => `npm run ${stage}`).join(' && '));
   const npmPath = process.env.npm_execpath;
   assert.ok(npmPath, 'Run these fixtures via npm run resources:validate so npm is available for gate tests.');
@@ -138,7 +138,7 @@ try {
     if (installed.length !== 2) assert.match(result.stderr, /npm install --include=dev/);
     passed++;
   }
-  console.log(`Public-resource and release-gate fixtures: ${passed} passed. Success/failure inputs unchanged; all six stages stop on failure.`);
+  console.log(`Public-resource and release-gate fixtures: ${passed} passed. Success/failure inputs unchanged; all seven stages stop on failure.`);
 } finally {
   // Only this process's mkdtemp-created synthetic fixture directory is removed.
   rmSync(scratch, { recursive: true, force: true });
