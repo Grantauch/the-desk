@@ -218,7 +218,7 @@ const saveContent = async (token, candidate) => {
   return {
     content: clean,
     commitUrl: result.commit?.html_url,
-    message: 'Published. The new words should be live in a minute or two.',
+    message: 'Saved to the site. The rebuild usually takes a minute or two. Reload the page to confirm the new words are showing.',
   };
 };
 

@@ -177,6 +177,8 @@ import PageHeader from '../components/PageHeader.astro';
   </style>
 
   <script>
+    import { groupCount, dealGroups, rosterSlots, secondsUntil } from '../lib/classroom-tools.js';
+
     // ---------- helpers ----------
     const $ = (id: string) => document.getElementById(id)!;
     const rosterNames = () =>
@@ -196,7 +198,10 @@ import PageHeader from '../components/PageHeader.astro';
     // ---------- timer ----------
     let total = 300; // seconds
     let remaining = total;
+    let deadline = 0; // wall clock ms at which a running timer reaches zero
     let ticking: ReturnType<typeof setInterval> | null = null;
+
+    const secondsLeft = () => secondsUntil(deadline, Date.now());
 
     const display = $('timer-display');
     const card = $('timer-card');
@@ -250,17 +255,19 @@ import PageHeader from '../components/PageHeader.astro';
         remaining = total;
       }
       if (remaining <= 0) remaining = total; // restart cleanly after hitting zero
+      deadline = Date.now() + remaining * 1000;
       ticking = setInterval(() => {
-        remaining--;
+        remaining = secondsLeft();
         if (remaining <= 0) finish();
         else paint();
-      }, 1000);
+      }, 250);
       paint();
       timerStatus.textContent = `Timer started at ${display.textContent}.`;
     });
 
     $('timer-pause').addEventListener('click', () => {
       const wasRunning = ticking !== null;
+      if (wasRunning) remaining = secondsLeft();
       stopTicking();
       paint();
       timerStatus.textContent = wasRunning ? `Timer paused at ${display.textContent}.` : 'Timer is already paused.';
@@ -297,10 +304,8 @@ import PageHeader from '../components/PageHeader.astro';
       const mode = (document.querySelector('input[name="group-mode"]:checked') as HTMLInputElement).value;
       const size = Math.max(2, Number(($('group-size') as HTMLInputElement).value) || 4);
       const count = Math.max(2, Number(($('group-count') as HTMLInputElement).value) || 4);
-      const nGroups = mode === 'size' ? Math.max(1, Math.round(names.length / size)) : Math.min(count, names.length);
-
-      const groups: string[][] = Array.from({ length: nGroups }, () => []);
-      names.forEach((n, i) => groups[i % nGroups].push(n));
+      const nGroups = mode === 'size' ? groupCount(names.length, size) : Math.min(count, names.length);
+      const groups = dealGroups(names, nGroups);
 
       out.innerHTML = groups
         .map(
@@ -314,28 +319,35 @@ import PageHeader from '../components/PageHeader.astro';
     });
 
     // ---------- cold call ----------
-    let alreadyPicked: string[] = [];
+    // Identity is the roster slot, not the display string, so two students who
+    // share a name stay separately callable.
+    type RosterSlot = { name: string; key: string };
+
+    let alreadyPicked: RosterSlot[] = [];
 
     const paintLog = () => {
-      $('picked-log').textContent = alreadyPicked.length ? `already called: ${alreadyPicked.join(', ')}` : '';
+      $('picked-log').textContent = alreadyPicked.length
+        ? `already called: ${alreadyPicked.map((slot) => slot.name).join(', ')}`
+        : '';
     };
 
     $('pick-name').addEventListener('click', () => {
-      const names = rosterNames();
+      const slots = rosterSlots(rosterNames());
       const nameEl = $('picked-name');
-      if (names.length === 0) {
+      if (slots.length === 0) {
         nameEl.textContent = 'the roster is empty.';
         return;
       }
       const noRepeats = ($('no-repeats') as HTMLInputElement).checked;
-      let pool = noRepeats ? names.filter((n) => !alreadyPicked.includes(n)) : names;
+      const calledKeys = new Set(alreadyPicked.map((slot) => slot.key));
+      let pool = noRepeats ? slots.filter((slot) => !calledKeys.has(slot.key)) : slots;
       if (pool.length === 0) {
         alreadyPicked = [];
-        pool = names;
+        pool = slots;
       }
       const pick = pool[Math.floor(Math.random() * pool.length)];
       alreadyPicked.push(pick);
-      nameEl.textContent = pick;
+      nameEl.textContent = pick.name;
       paintLog();
     });
 

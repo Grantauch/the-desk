@@ -189,6 +189,68 @@ for (const retiredRoute of ['cold-openers', 'rabbit-holes']) {
   }
 }
 
+// --- first-day calendar dates (repair item 20) ---
+const instructionalDays = [
+  ['01', 'Thu Aug 27'], ['02', 'Fri Aug 28'], ['03', 'Mon Aug 31'],
+  ['04', 'Tue Sep 1'],  ['05', 'Wed Sep 2'],  ['06', 'Thu Sep 3'],
+  ['07', 'Tue Sep 8'],  ['08', 'Wed Sep 9'],  ['09', 'Thu Sep 10'],
+  ['10', 'Fri Sep 11'], ['11', 'Mon Sep 14'], ['12', 'Tue Sep 15'],
+  ['13', 'Wed Sep 16'], ['14', 'Thu Sep 17'], ['15', 'Fri Sep 18'],
+  ['16', 'Mon Sep 21'], ['17', 'Tue Sep 22'], ['18', 'Wed Sep 23'],
+  ['19', 'Thu Sep 24'], ['20', 'Fri Sep 25'],
+];
+if (await exists(firstDayPath)) {
+  const firstDayHtml = htmlByFile.get(firstDayPath) ?? await readFile(firstDayPath, 'utf8');
+  for (const [day, date] of instructionalDays) {
+    if (!firstDayHtml.includes(`<b>${day}</b>${date}<`)) {
+      failures.push(`first-day-materials/index.html -> day ${day} must be dated ${date}`);
+    }
+  }
+  const dayCells = [...firstDayHtml.matchAll(/<td class="day"><b>\d\d<\/b>/g)].length;
+  if (dayCells !== instructionalDays.length) {
+    failures.push(`first-day-materials/index.html -> expected ${instructionalDays.length} instructional day cells, found ${dayCells}`);
+  }
+  if (!firstDayHtml.includes('Fri Sep 4 and Mon Sep 7 · no school')) {
+    failures.push('first-day-materials/index.html -> missing the explicit no-school row for Sep 4 and Sep 7');
+  }
+  if (/<td class="day"><b>\d\d<\/b>(?:Fri Sep 4|Mon Sep 7)</.test(firstDayHtml)) {
+    failures.push('first-day-materials/index.html -> a lesson is scheduled on a no-school date');
+  }
+  if (firstDayHtml.includes('1865 → 1900')) {
+    failures.push('first-day-materials/index.html -> U.S. History scope still ends at 1900 (repair item 21)');
+  }
+}
+
+// --- paycheck and taxes annual constants (repair item 48) ---
+const taxPath = join(distRoot, 'hubs', 'paycheck-taxes.html');
+if (await exists(taxPath)) {
+  const taxHtml = htmlByFile.get(taxPath) ?? await readFile(taxPath, 'utf8');
+  if (!taxHtml.includes('hoh:[[17700,.10],[67450,.12],[105700,.22],[201750,.24],[256200,.32],[640600,.35],[Infinity,.37]]')) {
+    failures.push('hubs/paycheck-taxes.html -> 2026 head-of-household brackets do not match the published IRS table');
+  }
+  if (!taxHtml.includes('single:[[12400,.10],[50400,.12],[105700,.22],[201775,.24],[256225,.32],[640600,.35],[Infinity,.37]]')) {
+    failures.push('hubs/paycheck-taxes.html -> 2026 single-filer brackets do not match the published IRS table');
+  }
+}
+
+// --- unit names and their material assignment keys stay in step (repair items 25, 26) ---
+const renamedUnits = [
+  ['Beyond the Scoreboard', 'The Athlete Revolt, 1967–1980', 'The Athlete Revolt, 1963–1980'],
+  ['Beyond the Scoreboard', 'The Money Game, 1979–2005', 'The Money Game, 1980–2004'],
+  ['Beyond the Scoreboard', 'The Modern Arena, 2005–today', 'The Modern Arena, 2004–today'],
+  ['US History', 'Civil Rights & the Soundtrack of a Movement', 'The Civil Rights Movement'],
+];
+const unitMaterials = JSON.parse(await readFile(resolve(process.cwd(), 'src', 'data', 'unit-materials.json'), 'utf8'));
+for (const [course, current, retired] of renamedUnits) {
+  const assignments = unitMaterials.courses?.[course] ?? {};
+  if (!Object.prototype.hasOwnProperty.call(assignments, current)) {
+    failures.push(`unit-materials.json -> ${course} is missing an assignment key for "${current}"`);
+  }
+  if (Object.prototype.hasOwnProperty.call(assignments, retired)) {
+    failures.push(`unit-materials.json -> ${course} still carries the retired key "${retired}"`);
+  }
+}
+
 if (failures.length) {
   console.error(`Static site validation: FAIL (${failures.length} missing or unsafe references)`);
   failures.slice(0, 100).forEach((failure) => console.error(`- ${failure}`));

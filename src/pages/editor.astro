@@ -192,7 +192,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
               <small>Plain writing works. Links and simple bullet lists work too.</small>
             </label>
             <div class="announcement-actions">
-              <p><strong>Ready means live.</strong> This button publishes immediately; there is no separate coding step.</p>
+              <p><strong>Ready to send.</strong> This button saves the announcement and starts a site rebuild. There is no separate coding step. Give it a minute, then load the page to confirm it is there.</p>
               <button id="announcement-publish" class="button button--coral" type="submit">publish announcement →</button>
             </div>
           </form>
@@ -203,7 +203,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
     <aside id="publish-bar" class="publish-bar" hidden>
       <div>
         <span id="save-state">everything saved</span>
-        <small>changes go straight to the live site</small>
+        <small>saved changes start a rebuild, usually a minute before the site shows them</small>
       </div>
       <button id="publish-words" class="button button--coral" type="button" disabled>publish site words →</button>
     </aside>

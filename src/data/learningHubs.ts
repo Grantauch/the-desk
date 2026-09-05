@@ -103,7 +103,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'the-gilded-age',
         title: 'The Gilded Age',
-        period: '1877–1900',
+        period: '1870–1900',
         icon: '🚂',
         deck: 'America got richer, faster—and the bill was not divided evenly.',
         essentialQuestion: 'When does rapid economic growth count as progress, and who gets to decide?',
@@ -189,7 +189,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'wwi-and-the-twenties',
         title: 'WWI & the Twenties',
-        period: '1917–1929',
+        period: '1914–1929',
         icon: '📻',
         deck: 'A world war remade federal power; mass culture turned up the volume.',
         essentialQuestion: 'Did the 1920s represent a break with the past—or old conflicts in modern packaging?',
@@ -275,7 +275,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'world-war-ii',
         title: 'World War II',
-        period: '1939–1945',
+        period: '1933–1945',
         icon: '🌍',
         deck: 'A total war mobilized whole societies—and forced choices that still resist easy verdicts.',
         essentialQuestion: 'How should a democracy balance military necessity, rights, and human cost in total war?',
@@ -318,7 +318,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'cold-war-america',
         title: 'Cold War America',
-        period: '1945–1968',
+        period: '1945–1964',
         icon: '☢️',
         deck: 'Two superpowers avoided direct war by making nearly everywhere else part of the contest.',
         essentialQuestion: 'Did containment make the United States safer, or trap it in an endless series of risks?',
@@ -411,7 +411,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'vietnam-to-watergate',
         title: 'Vietnam to Watergate',
-        period: '1964–1974',
+        period: '1964–1977',
         icon: '📺',
         deck: 'The credibility gap widened until official words could no longer carry their own weight.',
         essentialQuestion: 'What happens to democratic government when leaders repeatedly hide the costs and limits of policy?',
@@ -637,7 +637,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'the-athlete-revolt',
         title: 'The Athlete Revolt',
-        period: '1963–1980',
+        period: '1967–1980',
         icon: '✊',
         deck: 'Athletes challenged war, owners, gender barriers, and the demand to stay silent.',
         essentialQuestion: 'When athletes use the platform sport gives them, do they violate the game—or reveal what it already represents?',
@@ -680,7 +680,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'the-money-game',
         title: 'The Money Game',
-        period: '1980–2004',
+        period: '1979–2005',
         icon: '💸',
         deck: 'Cable, sneakers, sponsorship, and scandal turned attention into a twenty-four-hour industry.',
         essentialQuestion: 'Who captures the value when athletes, media, leagues, and brands build a sports spectacle together?',
@@ -723,7 +723,7 @@ export const learningCourses: LearningCourse[] = [
       {
         slug: 'the-modern-arena',
         title: 'The Modern Arena',
-        period: '2004–today',
+        period: '2005–today',
         icon: '📱',
         deck: 'Athletes gained their own microphones while data, betting, health, and ownership created new fights.',
         essentialQuestion: 'Who should control an athlete’s body, identity, voice, and economic value in the modern sports system?',
