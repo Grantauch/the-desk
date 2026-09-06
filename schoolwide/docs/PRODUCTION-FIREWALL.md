@@ -8,10 +8,13 @@ Grant's existing Version 18 classroom Hall Pass/Daily Check-In system remains th
 
 - `schoolwide/**`
 - `.github/workflows/schoolwide-ci.yml`
+- `tsconfig.json` only to exclude `schoolwide/` from the existing Astro website type-check boundary
 
 The `npm run firewall` check compares the current branch with `origin/main` (or another explicitly supplied base) and fails if this batch changes files outside those paths.
 
-It also scans Schoolwide source code for direct references to protected legacy runtime mechanisms. Documentation may describe the migration boundary; application source may not call into it.
+The root TypeScript configuration change is isolation plumbing: the existing website used `**/*`, which caused Astro to type-check the separate Schoolwide application without its independent dependencies. Excluding `schoolwide/` keeps both applications' compilers and dependencies separate and does not change runtime website/Hall Pass behavior.
+
+The firewall also scans Schoolwide source code for direct references to protected legacy runtime mechanisms. Documentation may describe the migration boundary; application source may not call into it.
 
 ## Legacy integration contract
 

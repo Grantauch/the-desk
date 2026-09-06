@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-const allowedChangedPaths = ['schoolwide/', '.github/workflows/schoolwide-ci.yml'];
+const allowedChangedPaths = ['schoolwide/', '.github/workflows/schoolwide-ci.yml', 'tsconfig.json'];
 const forbiddenSourceReferences = [
   'apps-script/hall-pass',
   'google.script.run',
