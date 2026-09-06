@@ -6,18 +6,18 @@ Batch 0.5 is complete. Problems 14 and 19 are VERIFIED at implementation commit 
 
 PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 hints; build 51 routes; 66 HTML files and 2709 local references. Final verification preserved all 172 tracked and new source/document paths byte-for-byte, including the dependency preflight. All four dependency-availability scenarios passed.
 
-No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are OPEN. Preserve the Version 8 recovery branch. The foundation release did not migrate or deploy Apps Script. The current Hall Pass repair is locally verified; its release checks are in progress. No real student PIN is used.
+No older checkout work was recovered or merged. Former VERIFY_LOCAL entries without subsequent repair evidence remain OPEN. Preserve the Version 8 recovery branch. The foundation release did not migrate or deploy Apps Script. The Hall Pass repair is deployed and synthetically verified as Version 18. No real student PIN is used.
 
 | ID | Status | Evidence / next action |
 | --- | --- | --- |
-| 1 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 2 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 3 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 4 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 5 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 6 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 7 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 8 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 1 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 2 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 3 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 4 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 5 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 6 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 7 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 8 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
 | 9 | OPEN | Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected. |
 | 10 | OPEN | Open per revised capsule. |
 | 11 | OPEN | Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch. |
@@ -40,13 +40,13 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are 
 | 28 | OPEN | Open per revised capsule. |
 | 29 | OPEN | Open per revised capsule. |
 | 30 | OPEN | Open per revised capsule. |
-| 31 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 32 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 33 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
-| 34 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 31 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 32 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 33 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
+| 34 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
 | 35 | PUSHED | Version 17 source snapshot and fingerprint. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
 | 36 | PUSHED | Versions 14-16 unsafe rollback warnings. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
-| 37 | OPEN | Open per revised capsule. |
+| 37 | VERIFIED | OPERATIONS.md reflects Version 18, current policy, safe recovery and pending classroom observation. |
 | 38 | OPEN | Open per revised capsule. |
 | 39 | BLOCKED_EXTERNAL | No exact Netlify deployment fingerprint exposed by current GitHub status/deployment APIs. Existing browser tab listed at Netlify login; UI inspection timed out. Stop fingerprint pursuit and continue independent Batch 1 work. |
 | 40 | VERIFIED | Windows Git push to main succeeded at e5297d2fe4a116ef78559faf1dfffbaade6abe57 and git ls-remote confirmed the same SHA. Current GitHub API reports admin and push permission. Write authority tested once; do not re-diagnose historical setup. |
@@ -88,6 +88,14 @@ Next executable task: Problem 10: adopt the canonical verify command in Netlify,
 
 Problem 11 is now OPEN because administrator access is available; main currently has no branch protection. The START-HERE follow-up is complete. Remove the documented curriculum gaps only after Problems 16–18 land. Problem 23 still requires Grant's content mapping. Problem 39 is BLOCKED_EXTERNAL: no deployment fingerprint exposed by GitHub, and the existing Netlify login tab could not be inspected because the browser request timed out. No exact deployment is inferred. This does not block independent release work.
 
-### Hall Pass release checkpoint — September 6
+### Hall Pass release complete — September 6
 
-Problems 1–8 and 31–34 are implemented and locally verified. The full canonical gate passed with 298 runtime checks, 67 handoff checks, structural checks, tools/resources/StoryHub validation, Astro checks, production build and static-site validation. The prior saved Apps Script draft was preserved privately before source replacement. Live Version 17 remains the production baseline until migration and deployment checks pass. Field verification remains FIELD_PENDING.
+Released September 6, 2026 at 1:00 AM America/Detroit on the existing deployment, from source commit a7ea2b25358ba9dc686a299730b32b492e4da339. All five files were saved, the editor reloaded, and each file read back and matched to tested source. The manifest, stable /exec, owner execution and school-domain-only access were preserved.
+
+The native synthetic migration rehearsal passed twice without further changes. The focused live migration preserved original facts in six existing sheets and all prior setting values. Schema: 2026-09-05-session-a.
+
+The Version 18 web-app synthetic smoke completed at 1:01:44 AM: STARTED, RETURNED_COUNTABLE, evidenceUsed 1; test pass voided, synthetic membership deactivated, production facts unchanged. The result was recovered from the execution log after a browser interruption, without repeating the test. No real student PIN or email was used. Synthetic workbook URLs remain private.
+
+Full canonical verify and GitHub Actions passed, including 298 behavioral checks. Real classroom field verification remains FIELD_PENDING. Versions 14-16 remain unsafe to redeploy.
+
+[GitHub Actions passed](https://github.com/Grantauch/the-desk/actions/runs/34012833475). [Release fingerprint](../../apps-script/snapshots/hall-pass/version-18-live-2026-09-06/FINGERPRINT.md). Student, kiosk, daily check-in and teacher entry checks passed after deployment.

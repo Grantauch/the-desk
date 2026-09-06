@@ -1,5 +1,13 @@
 # GrantDesk Classroom Log — one-time Google setup
 
+## Current release — Version 18, September 6, 2026
+
+Source commit: `a7ea2b25358ba9dc686a299730b32b492e4da339`. The existing deployment was updated at 1:00 AM America/Detroit. Schema: `2026-09-05-session-a`. The stable /exec, owner execution, school-only access and manifest were preserved. All five files were read back after reloading the editor and matched the tested source. Full canonical verification and [GitHub Actions passed](https://github.com/Grantauch/the-desk/actions/runs/34012833475), including 298 Hall Pass behavior checks.
+
+The native synthetic migration rehearsal and repeated migration passed. The focused live migration preserved original facts in six sheets and all previous setting values. The deployed fresh-PIN request/return test passed at 1:01:44 AM: STARTED, RETURNED_COUNTABLE, class evidenceUsed 1, synthetic pass voided, synthetic membership deactivated, production facts unchanged. The execution log preserved this result after a browser interruption; the test was not repeated. No real student PIN or student email was used. Field verification remains FIELD_PENDING.
+
+The matching source is retained in `../snapshots/hall-pass/version-18-live-2026-09-06/` with its fingerprint. Versions 14, 15 and 16 are unsafe to redeploy.
+
 ## Release safety
 
 Ongoing production care, the open verification list, and the standing release gate live in
@@ -9,14 +17,11 @@ The deployable `Code.gs`, `Index.html`, and `appsscript.json` in this folder bui
 
 Before any deployment:
 
-1. Run `npm.cmd run hall-pass:test` from the site repository.
-2. Compare the Apps Script editor against these tracked files. Do not deploy a stale snapshot.
+1. Run `npm.cmd run verify` from the site repository.
+2. Preserve any editor draft, then compare all five files: Code.gs, Index.html, appsscript.json, ReleaseChecks.gs and ReleaseCheck.html. Save, reload and read back the tested source. For this session schema, run `releaseRehearseSessionMigration` before `releaseMigrateLiveSessionWorkbook`; the focused migration must preserve existing credentials, history and settings. Do not substitute a broad setup or PIN repair.
 3. Preserve the existing public deployment ID and domain-only manifest settings. Create a new version of the existing deployment; do not create a replacement public URL.
 4. Verify student, kiosk, check-in, and teacher modes after deployment.
-5. Submit one PIN through a synthetic test roster entry and complete a full pass request and return.
-   Never a real student's PIN, and never a real student's record. Add a throwaway roster membership,
-   read its plaintext PIN from the PIN Cards tab, run the round trip, then void the test pass and
-   deactivate the membership.
+5. Open the same /exec with `?mode=releasecheck` as the teacher and run the synthetic release check once. It uses a random synthetic PIN and isolated private workbook for the real authorization, request, return and class evidence functions, then voids the test pass and deactivates the membership. It verifies production records are unchanged and sends no email. If interrupted, inspect the releaseRunSyntheticSmoke execution log before retrying. Never use a real student's PIN or record.
 
 Step 5 is not optional. Every release through Version 16 was smoked without submitting any PIN at
 all, on the reasoning that no real student credential should be reproduced. That reasoning is sound
