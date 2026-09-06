@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L014",
+  "note": "Content-addressed extraction map. Each key is the sha256 of a decoded image embedded in the approved Gold Standard source. Extraction is keyed by content, not by document order, so re-running against the approved source is deterministic.",
+  "sourceFile": "USH9_L014_Gold_Standard_FINAL.html",
+  "sourceBytes": 6071166,
+  "sourceSha256": "c4ed70abf568eb1cbb8861d3d5de75534fa3596ebd216ed40cdf8ecd4606d3e0",
+  "outputDir": "storyhub/ush9/l014/assets",
+  "images": {
+    "255a29ccde59ff51374deab3b4f3b72a4406b8930d493c6b065564fde6ce34f2": {
+      "assetId": "A01",
+      "file": "a01-founding-room.webp",
+      "bytes": 261096
+    },
+    "1a4db4afb679cb32ca3603a23f51ef4340046f4f8f5c324591b6f302f40597bb": {
+      "assetId": "A02",
+      "file": "a02-factory-repetition.webp",
+      "bytes": 362722
+    },
+    "fa6b9c2300f62a7482ad417a82435f75bd937679ae4d29d6732e22a3db50f25e": {
+      "assetId": "A03",
+      "file": "a03-locked-gate.webp",
+      "bytes": 344854
+    },
+    "89defe5a91c895784c4f28f91db2b80a55cb499e4655b88484a04e66a4c0290a": {
+      "assetId": "A04",
+      "file": "a04-powderly-portrait.webp",
+      "bytes": 306494
+    },
+    "a7a6e1b53a2b0184eca0d3c954e6abbb3738e42ae25305a1ef9cdcb6818f1b0a": {
+      "assetId": "A05",
+      "file": "a05-meeting-hall.webp",
+      "bytes": 256594
+    },
+    "0dc49dc64320d424b981e7e4d2022c7201d31f84d090defd015430cdfa865445": {
+      "assetId": "A06",
+      "file": "a06-cooperative-store.webp",
+      "bytes": 416602
+    },
+    "cf5c76679273fbe239c5c85df8b783b42d6ae7c0efce7c3717e1e61f1e405adb": {
+      "assetId": "A07",
+      "file": "a07-wabash-stopped-train.webp",
+      "bytes": 287868
+    },
+    "09664d51afe9e3a361b7808273093b33299f3e76a60d2a09f1e7c7a3c77047bc": {
+      "assetId": "A10",
+      "file": "a10-crowd-texture.webp",
+      "bytes": 179614
+    },
+    "64489f9807eb287d7c83d887d52c3bf4aea8c57b1ae10d2ce32a2f4559af7dd4": {
+      "assetId": "A08",
+      "file": "a08-hall-marshall-wide.webp",
+      "bytes": 395940
+    },
+    "6b68de214ab5bec3ded9d1091462a5209647d8b126d15ea70fe59329ac457e0a": {
+      "assetId": "A08B",
+      "file": "a08b-hall-marshall-closer.webp",
+      "bytes": 308058
+    },
+    "7bf3d4ccb4c387c59071a363f310dbb612f7d424827f190647f3fecac5816612": {
+      "assetId": "A09",
+      "file": "a09-moving-train.webp",
+      "bytes": 316498
+    },
+    "dd7ce23f1e079b984c18c1442751dcf830130c6a035a9e831dc930c55fadba11": {
+      "assetId": "A11",
+      "file": "a11-haymarket-newspaper.webp",
+      "bytes": 294760
+    },
+    "06bc5da9bd1d8c5f209cc199c3d3da0aba5431775182f9d251d76019621422f6": {
+      "assetId": "A12",
+      "file": "a12-two-doors.webp",
+      "bytes": 366638
+    },
+    "d3f0754395c30ff29e08af7c8f7f52eea58bb14e6a03378b61ff9252ecaf3bce": {
+      "assetId": "A13",
+      "file": "a13-note-repair-board.webp",
+      "bytes": 157984
+    }
+  }
+}
