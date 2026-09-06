@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l014-unions.html",
-      "bytes": 61828,
-      "sha256": "61b3260645a3511706558f3af86d68fe872a5a44fc8f9c113ba56c62769a3a27"
+      "bytes": 62492,
+      "sha256": "9d347bec07926ceef07763c8f982432eb434d0c8ee06c2db99ab7d53357963a3"
     },
     {
       "path": "/storyhub/runtime/storyhub-runtime.js",
@@ -148,6 +148,6 @@
       "height": 960
     }
   ],
-  "totalBytes": 4469274,
+  "totalBytes": 4469938,
   "sealedAt": "2026-09-06"
 }
