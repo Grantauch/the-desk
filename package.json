@@ -15,14 +15,16 @@
     "preview": "astro preview",
     "cold-openers:sync": "node scripts/build-cold-opener-catalog.mjs",
     "detour:validate": "node scripts/validate-detour-shelf.mjs",
-    "site:validate": "node scripts/validate-static-site.mjs",
+    "site:validate": "node scripts/validate-static-site.mjs && node scripts/storyhub-verify-assets.mjs --dist",
     "resources:sync": "node scripts/sync-public-resources.mjs",
     "resources:validate": "node scripts/test-public-resources.mjs && node scripts/test-publishing.mjs && node scripts/validate-public-resources.mjs",
     "remix:validate": "node scripts/validate-remix-public.mjs",
     "live-data:check": "node scripts/validate-live-data.mjs",
     "hall-pass:runtime": "node scripts/test-hall-pass-runtime.cjs",
     "storyhub:new": "node scripts/storyhub-new.mjs",
-    "storyhub:validate": "node scripts/storyhub-validate.mjs"
+    "storyhub:validate": "node scripts/storyhub-validate.mjs && node scripts/storyhub-verify-assets.mjs",
+    "storyhub:seal": "node scripts/storyhub-seal-release.mjs",
+    "storyhub:extract": "node scripts/storyhub-extract-assets.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
