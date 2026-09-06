@@ -11,6 +11,7 @@ const paths = [
   '/first-day-materials/',
   '/us-history/',
   '/us-history/syllabus/',
+  '/hubs/ush9-l014-unions.html',
   '/hidden-history/',
   '/hidden-history/syllabus/',
   '/beyond-the-scoreboard/',

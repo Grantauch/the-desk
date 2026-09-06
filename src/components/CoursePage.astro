@@ -21,6 +21,13 @@ interface Unit {
   topics?: string[];
   materialsAudience?: string;
   materials?: Material[];
+  storyhub?: StoryHub;
+}
+
+interface StoryHub {
+  title: string;
+  href: string;
+  blurb: string;
 }
 
 interface Resource {
@@ -272,6 +279,14 @@ const groupMaterials = (materials: Material[]) =>
                     ))}
                   </ul>
                 </details>
+              )}
+              {unit.storyhub && (
+                <a class="storyhub-strip" href={unit.storyhub.href}>
+                  <span class="storyhub-strip__eyebrow">grantdesk story</span>
+                  <span class="storyhub-strip__title">{unit.storyhub.title}</span>
+                  <span class="storyhub-strip__blurb">{unit.storyhub.blurb}</span>
+                  <span class="storyhub-strip__go">enter the story <span aria-hidden="true">→</span></span>
+                </a>
               )}
               {(unit.learningHub || unit.materials.length > 0) && (
                 <div class="unit-actions">
@@ -712,6 +727,58 @@ const groupMaterials = (materials: Material[]) =>
       width: 1.9rem;
       height: 1.9rem;
     }
+  }
+
+  /* A StoryHub is a different medium from a lesson hub, so it gets its own
+     surface here instead of another card. The palette quotes the story itself. */
+  .storyhub-strip {
+    display: grid;
+    gap: 0.3rem;
+    margin-top: 0.85rem;
+    padding: 0.95rem 1.1rem 1rem;
+    border-left: 3px solid #4b76ff;
+    border-radius: 0.25rem;
+    background: linear-gradient(115deg, #071019 0%, #0d1b27 100%);
+    color: #f0eadf;
+    text-decoration: none;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .storyhub-strip:hover,
+  .storyhub-strip:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px -14px rgba(7, 16, 25, 0.9);
+  }
+
+  .storyhub-strip__eyebrow {
+    color: #9aadff;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 750;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .storyhub-strip__title {
+    font-family: var(--font-display);
+    font-size: 1.28rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .storyhub-strip__blurb {
+    color: #b9c2c9;
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  .storyhub-strip__go {
+    margin-top: 0.3rem;
+    color: #9aadff;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
   }
 
   .unit-actions {
