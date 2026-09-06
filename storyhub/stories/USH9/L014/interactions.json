@@ -2,11 +2,74 @@
   "schemaVersion": 1,
   "storyId": "USH9-L014",
   "interactions": [
-    {"id":"I01","chapterId":"02-collective-power","type":"scale-control","teaches":"Collective leverage changes as more workers coordinate, but scale alone is not enough; what matters is whether coordination can interrupt production.","studentAction":"Move among 1, 10, 100, 1,000, and 10,000 workers.","feedback":"Update operational consequences, employer problem, worker/union problem, and a historical connection at every state.","staticFallback":"Show the five states as a readable stepped comparison with the same explanatory text.","identityFit":"Treat the control as an industrial/workforce instrument rather than a generic slider.","status":"implemented-reference"},
-    {"id":"I02","chapterId":"07-wabash","type":"motion-contrast","teaches":"Worker leverage in the railroad story is visible through whether trains stop or keep moving.","studentAction":"Scroll through the Wabash victory and later defeat sequence.","feedback":"Stopped motion represents effective leverage; returning train motion reverses the logic during defeat.","staticFallback":"Use paired still images and explicit captions explaining stopped versus moving trains.","identityFit":"Rail movement is native to the industrial subject and becomes part of L014's motion grammar.","status":"implemented-reference"},
-    {"id":"I03","chapterId":"08-growth","type":"data-transformation","teaches":"Knights membership expanded extraordinarily quickly between 1885 and July 1886, creating both power and organizational strain.","studentAction":"Scroll through the membership growth moment.","feedback":"110,000 expands into approximately 720,000 against a growing crowd field, followed by the management problem created by rapid expansion.","staticFallback":"Show both membership figures at large scale with a direct explanation of roughly 6.5× growth.","identityFit":"Growth uses crowd accumulation and stripped-back editorial scale rather than a generic chart widget.","status":"implemented-reference"},
-    {"id":"I04","chapterId":"09-hall","type":"consequence-expansion","teaches":"A local firing could become the trigger for a multi-state conflict because labor and railroad systems were networked.","studentAction":"Scroll from Hall's isolated scene into the five-state consequence.","feedback":"The visual field expands/branches from one worker and one firing to a much larger strike network.","staticFallback":"Show a cause-and-consequence sequence from Hall's firing to the multi-state strike.","identityFit":"Expansion uses empty Texas space and network growth rather than generic arrows.","status":"implemented-reference"},
-    {"id":"I05","chapterId":"12-afl","type":"pathway-comparison","teaches":"The Knights and AFL organized labor around different membership structures and priorities, creating different trade-offs.","studentAction":"Explore the broad-coalition and craft-federation pathways.","feedback":"Reveal who each model organized, what each prioritized, and the strengths/limits of each structure without treating either as a simple moral binary.","staticFallback":"Present a readable side-by-side comparison with the same trade-offs.","identityFit":"The two-door editorial image becomes the interface rather than placing generic comparison cards on top of it.","status":"implemented-reference"},
-    {"id":"I06","chapterId":"13-language","type":"contextual-glossary","teaches":"Labor vocabulary is easier to understand when attached to events students have already experienced.","studentAction":"Select a term.","feedback":"Definition appears alongside the exact prior StoryHub moment that demonstrates the term.","staticFallback":"List terms, definitions, and historical examples together.","identityFit":"Reference mode intentionally changes visual rhythm near the end of the story.","status":"implemented-reference"}
+    {
+      "id": "I01",
+      "chapterId": "02-collective-power",
+      "type": "scale-control",
+      "teaches": "Collective leverage changes as more workers coordinate, but scale alone is not enough; what matters is whether coordination can interrupt production.",
+      "studentAction": "Move among 1, 10, 100, 1,000, and 10,000 workers.",
+      "feedback": "Each of the five states rewrites four fields: what happens operationally, the employer problem, the workers problem, and the historical connection — ending on the Great Southwest strike, which reached ten thousand workers across five states and still lost. Scale creates leverage; it does not by itself stop production.",
+      "staticFallback": "Without scripting, all five states render stacked as a readable comparison with the same four fields and their own headings. The control is not motion-dependent, so reduced motion changes nothing except the meter transition.",
+      "identityFit": "Treat the control as an industrial/workforce instrument rather than a generic slider.",
+      "status": "implemented-reference"
+    },
+    {
+      "id": "I02",
+      "chapterId": "07-wabash",
+      "type": "motion-contrast",
+      "teaches": "Worker leverage in the railroad story is visible through whether trains stop or keep moving.",
+      "studentAction": "Scroll through the Wabash victory and later defeat sequence.",
+      "feedback": "Stopped motion represents effective leverage; returning train motion reverses the logic during defeat.",
+      "staticFallback": "Use paired still images and explicit captions explaining stopped versus moving trains.",
+      "identityFit": "Rail movement is native to the industrial subject and becomes part of L014's motion grammar.",
+      "status": "implemented-reference",
+      "reducedMotion": "Scroll-driven train movement is skipped entirely and the transform is reset, leaving the paired still images and their explicit stopped-versus-moving captions."
+    },
+    {
+      "id": "I03",
+      "chapterId": "08-growth",
+      "type": "data-transformation",
+      "teaches": "Knights membership expanded extraordinarily quickly between 1885 and July 1886, creating both power and organizational strain.",
+      "studentAction": "Scroll through the membership growth moment.",
+      "feedback": "110,000 expands into approximately 720,000 against a growing crowd field, followed by the management problem created by rapid expansion.",
+      "staticFallback": "Show both membership figures at large scale with a direct explanation of roughly 6.5× growth.",
+      "identityFit": "Growth uses crowd accumulation and stripped-back editorial scale rather than a generic chart widget.",
+      "status": "implemented-reference",
+      "reducedMotion": "Purely typographic; the two membership figures and the growth explanation are static text at every setting."
+    },
+    {
+      "id": "I04",
+      "chapterId": "09-hall",
+      "type": "consequence-expansion",
+      "teaches": "A local firing could become the trigger for a multi-state conflict because labor and railroad systems were networked.",
+      "studentAction": "Scroll from Hall's isolated scene into the five-state consequence.",
+      "feedback": "The visual field expands/branches from one worker and one firing to a much larger strike network.",
+      "staticFallback": "Show a cause-and-consequence sequence from Hall's firing to the multi-state strike.",
+      "identityFit": "Expansion uses empty Texas space and network growth rather than generic arrows.",
+      "status": "implemented-reference",
+      "reducedMotion": "The sticky crossfade collapses to the static stacked sequence used at small widths: the wide Hall scene, then the five-state consequence copy. The closer alternate crop is hidden rather than animated."
+    },
+    {
+      "id": "I05",
+      "chapterId": "12-afl",
+      "type": "pathway-comparison",
+      "teaches": "The Knights and AFL organized labor around different membership structures and priorities, creating different trade-offs.",
+      "studentAction": "Explore the broad-coalition and craft-federation pathways.",
+      "feedback": "Reveal who each model organized, what each prioritized, and the strengths/limits of each structure without treating either as a simple moral binary.",
+      "staticFallback": "Without scripting, a full side-by-side comparison of both models renders with all four rows for each, replacing the single-model interactive panel.",
+      "identityFit": "The two-door editorial image becomes the interface rather than placing generic comparison cards on top of it.",
+      "status": "implemented-reference"
+    },
+    {
+      "id": "I06",
+      "chapterId": "13-language",
+      "type": "contextual-glossary",
+      "teaches": "Labor vocabulary is easier to understand when attached to events students have already experienced.",
+      "studentAction": "Select a term.",
+      "feedback": "Definition appears alongside the exact prior StoryHub moment that demonstrates the term.",
+      "staticFallback": "Without scripting, every definition and its story connection render open together as a plain reference list.",
+      "identityFit": "Reference mode intentionally changes visual rhythm near the end of the story.",
+      "status": "implemented-reference"
+    }
   ]
 }

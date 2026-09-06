@@ -7,20 +7,191 @@
   "audience": "students",
   "narrativeQuestion": "How did workers try to turn individual vulnerability into collective power, and why did one national labor model collapse while another endured?",
   "chapters": [
-    {"id":"01-origins","title":"Origins","claim":"Nine Philadelphia garment cutters formed the Knights of Labor in 1869 from a position of weakness and secrecy.","namedPeople":[],"visualAnchorIds":["A01"],"interactionIds":[]},
-    {"id":"02-collective-power","title":"Collective power","claim":"A worker who can be replaced alone may gain leverage when enough workers can stop the system together.","namedPeople":[],"visualAnchorIds":["A02"],"interactionIds":["I01"]},
-    {"id":"03-legal-vacuum","title":"Nothing protected them","claim":"Late nineteenth-century workers lacked the federal organizing and bargaining protections that would come decades later.","namedPeople":[],"visualAnchorIds":["A03"],"interactionIds":[]},
-    {"id":"04-powderly","title":"Terence V. Powderly","claim":"Powderly led the Knights during their rise while favoring broad reform and often approaching strikes cautiously.","namedPeople":[{"name":"Terence V. Powderly","role":"Grand Master Workman","anchorStatus":"anchored","visualAnchorId":"A04"}],"visualAnchorIds":["A04"],"interactionIds":[]},
-    {"id":"05-membership","title":"Who was in, and who was out","claim":"The Knights organized unusually broadly for their era, including many women and Black workers, while equality remained inconsistent and important exclusions persisted.","namedPeople":[],"visualAnchorIds":["A05"],"interactionIds":[]},
-    {"id":"06-cooperation","title":"What they actually wanted","claim":"The Knights imagined education, mutual aid, and cooperation as alternatives to dependence on wages alone.","namedPeople":[],"visualAnchorIds":["A06"],"interactionIds":[]},
-    {"id":"07-wabash","title":"They beat Jay Gould","claim":"The 1885 Wabash strike showed that coordinated workers could force a powerful railroad system to stop and negotiate.","namedPeople":[{"name":"Jay Gould","role":"railroad financier","anchorStatus":"planned","visualAnchorId":null}],"visualAnchorIds":["A07"],"interactionIds":["I02"]},
-    {"id":"08-growth","title":"110,000 to 720,000","claim":"Victory helped drive explosive growth, but rapid expansion also created organizational strain.","namedPeople":[],"visualAnchorIds":["A10"],"interactionIds":["I03"]},
-    {"id":"09-hall","title":"One firing becomes a five-state strike","claim":"The firing of C. A. Hall in Marshall, Texas became a trigger in a much larger railroad conflict.","namedPeople":[{"name":"C. A. Hall","role":"railroad worker","anchorStatus":"anchored","visualAnchorId":"A08"}],"visualAnchorIds":["A08"],"interactionIds":["I04"]},
-    {"id":"10-defeat","title":"The train moves again","claim":"The Great Southwest Railroad Strike failed as trains kept moving under replacement labor, legal pressure, and armed enforcement.","namedPeople":[],"visualAnchorIds":["A09"],"interactionIds":["I02"]},
-    {"id":"11-haymarket","title":"Haymarket backlash","claim":"The Knights did not organize the Haymarket meeting, but public backlash damaged organized labor broadly and intensified the Knights' decline.","namedPeople":[],"visualAnchorIds":["A11"],"interactionIds":[]},
-    {"id":"12-afl","title":"The other model","claim":"The AFL's narrower craft-federation model made different trade-offs and proved more institutionally durable.","namedPeople":[{"name":"Samuel Gompers","role":"first AFL president","anchorStatus":"planned","visualAnchorId":null}],"visualAnchorIds":["A12"],"interactionIds":["I05"]},
-    {"id":"13-language","title":"The words for what you saw","claim":"Labor vocabulary becomes easier to retain when attached to conflicts and choices students have already experienced.","namedPeople":[],"visualAnchorIds":[],"interactionIds":["I06"]},
-    {"id":"14-repair","title":"Note repair","claim":"The ending compresses the narrative into a corrected, readable reference students can use after the experience.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]}
+    {
+      "id": "01-origins",
+      "title": "Origins",
+      "claim": "Nine Philadelphia garment cutters formed the Knights of Labor in 1869 from a position of weakness and secrecy.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "02-collective-power",
+      "title": "Collective power",
+      "claim": "A worker who can be replaced alone may gain leverage when enough workers can stop the system together.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "03-legal-vacuum",
+      "title": "Nothing protected them",
+      "claim": "Late nineteenth-century workers lacked the federal organizing and bargaining protections that would come decades later.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "04-powderly",
+      "title": "Terence V. Powderly",
+      "claim": "Powderly led the Knights during their rise while favoring broad reform and often approaching strikes cautiously.",
+      "namedPeople": [
+        {
+          "name": "Terence V. Powderly",
+          "role": "Grand Master Workman",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A04"
+        }
+      ],
+      "visualAnchorIds": [
+        "A04"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "05-membership",
+      "title": "Who was in, and who was out",
+      "claim": "The Knights organized unusually broadly for their era, including many women and Black workers, while equality remained inconsistent and important exclusions persisted.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "06-cooperation",
+      "title": "What they actually wanted",
+      "claim": "The Knights imagined education, mutual aid, and cooperation as alternatives to dependence on wages alone.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A06"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "07-wabash",
+      "title": "They beat Jay Gould",
+      "claim": "The 1885 Wabash strike showed that coordinated workers could force a powerful railroad system to stop and negotiate.",
+      "namedPeople": [
+        {
+          "name": "Jay Gould",
+          "role": "railroad financier",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A14",
+          "anchorNote": "Verified public-domain Library of Congress photograph, tonally graded and credited on the page as an archival photograph."
+        }
+      ],
+      "visualAnchorIds": [
+        "A07",
+        "A14"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "08-growth",
+      "title": "110,000 to 720,000",
+      "claim": "Victory helped drive explosive growth, but rapid expansion also created organizational strain.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A10"
+      ],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "09-hall",
+      "title": "One firing becomes a five-state strike",
+      "claim": "The firing of C. A. Hall in Marshall, Texas became a trigger in a much larger railroad conflict.",
+      "namedPeople": [
+        {
+          "name": "C. A. Hall",
+          "role": "railroad worker",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A08"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08",
+        "A08B"
+      ],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "10-defeat",
+      "title": "The train moves again",
+      "claim": "The Great Southwest Railroad Strike failed as trains kept moving under replacement labor, legal pressure, and armed enforcement.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A09"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "11-haymarket",
+      "title": "Haymarket backlash",
+      "claim": "The Knights did not organize the Haymarket meeting, but public backlash damaged organized labor broadly and intensified the Knights' decline.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A11"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "12-afl",
+      "title": "The other model",
+      "claim": "The AFL's narrower craft-federation model made different trade-offs and proved more institutionally durable.",
+      "namedPeople": [
+        {
+          "name": "Samuel Gompers",
+          "role": "first AFL president",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A15",
+          "anchorNote": "Verified public-domain Library of Congress photograph, c1902 during his AFL presidency rather than at the 1886 founding; the page states the date."
+        }
+      ],
+      "visualAnchorIds": [
+        "A12",
+        "A15"
+      ],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "13-language",
+      "title": "The words for what you saw",
+      "claim": "Labor vocabulary becomes easier to retain when attached to conflicts and choices students have already experienced.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I06"
+      ]
+    },
+    {
+      "id": "14-repair",
+      "title": "Note repair",
+      "claim": "The ending compresses the narrative into a corrected, readable reference students can use after the experience.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A13"
+      ],
+      "interactionIds": []
+    }
   ],
   "accuracyNotes": [
     "Use nine Philadelphia garment cutters for the December 1869 founding group.",
@@ -28,6 +199,12 @@
     "Women and Black workers participated in substantial numbers, but local segregation, inconsistent enforcement, anti-Chinese politics, and occupational exclusions complicate any simple inclusiveness claim.",
     "C. A. Hall was fired after attending a Knights meeting on company time according to major historical accounts; the union regarded the firing as violating the 1885 agreement.",
     "Do not imply that violating every labor injunction automatically produced jail without a jury; explain judicial contempt power more carefully.",
-    "The standalone AFL existed from 1886 until the 1955 AFL-CIO merger; describe durability as institutional/model continuity, not an unchanged century-long organization."
-  ]
+    "The standalone AFL existed from 1886 until the 1955 AFL-CIO merger; describe durability as institutional/model continuity, not an unchanged century-long organization.",
+    "Named-person visual anchors: Powderly is a source-derived stylization and is labelled as such; Gould and Gompers are unaltered Library of Congress photographs under a tonal grade and are credited as archival photographs; C. A. Hall is an interpretive reconstruction and must never be presented as a likeness."
+  ],
+  "release": {
+    "route": "/hubs/ush9-l014-unions.html",
+    "manifest": "storyhub/releases/USH9-L014.json",
+    "referenceImplementation": "001"
+  }
 }
