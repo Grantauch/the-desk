@@ -19,6 +19,10 @@ const checkInPage = fs.readFileSync(checkInPagePath, 'utf8');
 const toolsPage = fs.readFileSync(toolsPagePath, 'utf8');
 
 new vm.Script(code, { filename: codePath });
+const releasePath = path.join(root, 'apps-script', 'hall-pass', 'ReleaseChecks.gs');
+new vm.Script(fs.readFileSync(releasePath, 'utf8'), { filename: releasePath });
+const releaseHtml = fs.readFileSync(path.join(root, 'apps-script', 'hall-pass', 'ReleaseCheck.html'), 'utf8');
+for (const block of releaseHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)) new vm.Script(block[1]);
 const scriptBlocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.ok(scriptBlocks.length, 'Index.html must contain an application script');
 const clientScript = scriptBlocks.at(-1)[1].replace('<?!= JSON.stringify(appMode) ?>', '"student"');
@@ -70,7 +74,7 @@ const functionSource = (name) => {
   throw new Error(`Could not isolate function ${name}`);
 };
 
-assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-02-a'/);
+assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-05-session-a'/);
 assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
 assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
 assert.match(code, /GD_STUDENT_LOCK_WAIT_MS\s*=\s*5000/);
@@ -604,6 +608,8 @@ authorizeContext.ensureWorkbookReady_ = () => {};
 authorizeContext.getSettings_ = () => ({});
 authorizeContext.getActiveEmail_ = () => '';
 authorizeContext.assertSchoolAccount_ = () => {};
+// Isolate the sentinel unit test; the full runtime suite exercises real session eligibility.
+authorizeContext.assertStudentActionEligible_ = () => {};
 authorizeContext.verifyStudentPin_ = () => [authorizeStudent];
 authorizeContext.inferPassAction_ = () => inferredPassAction;
 authorizeContext.getStudentByKey_ = (key) => (key === authorizeStudent.key ? authorizeStudent : null);
@@ -759,6 +765,9 @@ assert.equal(behaviorContext.__gdBehavior.passValidity_({
   countability: 'PROVISIONAL',
 }).countable, false, 'A returned row left provisional must fail safe for teacher review');
 
+// Queue ordering is isolated here; session boundaries run against the full workbook harness.
+behaviorContext.getStudentByKey_ = () => ({ classPeriod: 'Period 1' });
+behaviorContext.getClassSession_ = () => ({ schoolDay: true, classEnd: new Date(Date.now() + 60000).toISOString() });
 behaviorContext.readPassQueue_ = () => ([
   { queueId: 'q-1', joinedAt: new Date(Date.now() - 2000), status: 'WAITING' },
   { queueId: 'q-2', joinedAt: new Date(Date.now() - 1000), status: 'WAITING' },
@@ -843,12 +852,13 @@ assert.match(message.body, /one PIN works in every Mr\. Grant class/i);
 assert.match(message.body, /Keep this PIN private/);
 assert.match(message.body, /^Hello Jordan,/);
 
-behaviorContext.getUnlimitedPassEmails_ = () => new Set();
+behaviorContext.getStudentPassAccess_ = () => 'STANDARD';
+behaviorContext.studentActionEligibility_ = () => ({ allowed: true, blockReason: '', message: '' });
 const allowance = behaviorContext.__gdBehavior.getStudentPassAllowance_(
-  'student@students.mtmorrisschools.org',
+  { email: 'student@students.mtmorrisschools.org', key: 'student::period-1', classPeriod: 'Period 1' },
   { STUDENT_PASS_LIMIT: '2', STUDENT_PASS_RESET_AT: '2026-08-01T00:00:00Z' },
   [
-    { studentEmail: 'student@students.mtmorrisschools.org', outDate: new Date('2026-08-02T12:00:00Z'), returnDate: new Date('2026-08-02T12:05:00Z'), status: 'RETURNED' },
+    { studentEmail: 'student@students.mtmorrisschools.org', studentKey: 'student::period-1', outDate: new Date('2026-08-02T12:00:00Z'), returnDate: new Date('2026-08-02T12:05:00Z'), status: 'RETURNED' },
     { studentEmail: 'other@students.mtmorrisschools.org', outDate: new Date('2026-08-03T12:00:00Z'), returnDate: new Date('2026-08-03T12:05:00Z'), status: 'RETURNED' },
   ]
 );
@@ -857,14 +867,14 @@ assert.equal(allowance.remaining, 1);
 assert.equal(allowance.limitReached, false);
 
 const resetAllowance = behaviorContext.__gdBehavior.getStudentPassAllowance_(
-  'student@students.mtmorrisschools.org',
+  { email: 'student@students.mtmorrisschools.org', key: 'student::period-1', classPeriod: 'Period 1' },
   { STUDENT_PASS_LIMIT: '2', STUDENT_PASS_RESET_AT: '2026-08-04T00:00:00Z' },
-  [{ studentEmail: 'student@students.mtmorrisschools.org', outDate: new Date('2026-08-02T12:00:00Z'), returnDate: new Date('2026-08-02T12:05:00Z'), status: 'RETURNED' }]
+  [{ studentEmail: 'student@students.mtmorrisschools.org', studentKey: 'student::period-1', outDate: new Date('2026-08-02T12:00:00Z'), returnDate: new Date('2026-08-02T12:05:00Z'), status: 'RETURNED' }]
 );
 assert.equal(resetAllowance.used, 0, 'Manual reset timestamp must return the student count to zero');
 
 const dailyGuard = behaviorContext.__gdBehavior.getStudentPassAllowance_(
-  'student@students.mtmorrisschools.org',
+  { email: 'student@students.mtmorrisschools.org', key: 'student::period-1', classPeriod: 'Period 1' },
   {
     STUDENT_PASS_LIMIT: '0',
     STUDENT_PASS_RESET_AT: '',
@@ -894,7 +904,7 @@ assert.equal(dailyGuard.blocked, true);
 assert.equal(dailyGuard.cooldownRemainingSeconds, 420);
 
 const cooldownOnly = behaviorContext.__gdBehavior.getStudentPassAllowance_(
-  'student@students.mtmorrisschools.org',
+  { email: 'student@students.mtmorrisschools.org', key: 'student::period-1', classPeriod: 'Period 1' },
   { STUDENT_PASS_LIMIT: '0', STUDENT_PASS_RESET_AT: '', DAILY_PASS_LIMIT: '0', PASS_COOLDOWN_MINUTES: '5' },
   [{
     studentEmail: 'student@students.mtmorrisschools.org',
@@ -1049,7 +1059,7 @@ assert.equal(discoveredRepairs[0].oldEmail, 'stale@students.mtmorrisschools.org'
 assert.equal(discoveredRepairs[0].newEmail, 'current@students.mtmorrisschools.org');
 
 const priorRepairSummary = JSON.stringify({
-  schema: '2026-09-02-a',
+  schema: '2026-09-05-session-a',
   reconciledStudents: 10,
   pinRows: 10,
   checkInRows: 18,

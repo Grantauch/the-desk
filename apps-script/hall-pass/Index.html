@@ -192,6 +192,7 @@
 
     <script>
       const APP_MODE = <?!= JSON.stringify(appMode) ?>;
+      const TEACHER_CONTRACT = '2026-09-05-memberships';
       const CALL_TIMEOUT_MS = 45000;
       const BUSY_LOCK_TEXT = 'The classroom system is handling other students right now.';
       const STUDENT_BUSY_RETRY_DELAYS_MS = [600, 900, 1300, 1800, 2400, 3000, 3600];
@@ -236,6 +237,7 @@
       /* ---------------------------------------------------------- plumbing */
 
       const call = (name, ...args) => new Promise((resolve, reject) => {
+        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent'].includes(name)) args.push(TEACHER_CONTRACT);
         let settled = false;
         const timer = setTimeout(() => {
           if (settled) return;
@@ -328,6 +330,7 @@
       };
 
       const adoptState = (next) => {
+        if (next && next.mode === 'teacher' && next.clientContract !== TEACHER_CONTRACT) throw new Error('Refresh this teacher page before continuing. The class pass rules have changed.');
         state = next;
         if (next && next.pinToken) pinToken = next.pinToken;
         actionProof = next && next.actionProof ? next.actionProof : '';
@@ -710,6 +713,7 @@
         screen = 'student';
         setTitle(state.appTitle);
         const ownPass = state.ownPass;
+        const sessionBlocked = !ownPass && state.sessionEligibility && !state.sessionEligibility.allowed;
         const queued = Number(state.queuePosition || 0) > 0;
         const allowance = state.passAllowance || { limit: 0, used: 0, remaining: null, limitReached: false, capped: false, blocked: false };
         const capped = Boolean(allowance.capped);
@@ -727,7 +731,7 @@
                     ? 'cooldown active'
                 : state.passAvailable
                   ? 'pass available'
-                  : 'pass in use';
+                  : sessionBlocked ? 'ask Mr. Grant' : 'pass in use';
         const statusBusy = !ownPass && !state.passAvailable;
         const waitingHtml = queued ? `
           <div class="queue-card" role="status">
@@ -752,7 +756,7 @@
         const outcomeHtml = outcome && outcome.message
           ? `<div class="notice ${outcome.kind === 'BLOCKED' ? 'warning' : 'success'}" role="status"><p><strong>${escapeHtml(outcome.message)}</strong></p></div>`
           : '';
-        const readyHtml = !ownPass && !queued ? (allowance.blocked ? blockedHtml : state.passAvailable ? `
+        const readyHtml = !ownPass && !queued ? (sessionBlocked ? `<div class="notice warning" role="status"><p>${escapeHtml(state.sessionEligibility.message)}</p></div>` : allowance.blocked ? blockedHtml : state.passAvailable ? `
           <p class="message">Enter your PIN when you are actually requesting the ${escapeHtml(String(state.destination || 'restroom').toLowerCase())}. If a slot is open, the pass starts immediately.</p>
           <button class="primary" id="pass-action">request bathroom</button>` : `
           <p class="message">The pass is in use. One fresh PIN saves one bathroom request; it will start automatically when a slot opens.</p>
@@ -768,7 +772,7 @@
             <span class="status-dot ${statusBusy ? 'busy' : ''}">${escapeHtml(statusLabel)}</span>
           </div>
           ${outcomeHtml}
-          ${capped ? `<div class="notice"><p><strong>${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes used this marking period</strong> · ${escapeHtml(allowance.remaining)} remaining</p></div>` : ''}
+          ${capped ? `<div class="notice"><p><strong>${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes used this marking period in ${escapeHtml(state.student.classPeriod)}</strong> · ${escapeHtml(allowance.remaining)} remaining</p></div>` : ''}
           ${dailyCapped ? `<div class="notice"><p><strong>${escapeHtml(allowance.todayUsed)} of ${escapeHtml(allowance.dailyLimit)} passes used today</strong> · ${escapeHtml(allowance.dailyRemaining)} remaining</p></div>` : ''}
           <div class="pass-action">
             ${ownPass ? `
@@ -872,10 +876,10 @@
                   : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
               </div>` : `
               <div class="checkin-copy">
-                <p class="message">Press once to record today’s attendance check-in and your daily extra-credit point. The date and time come from the classroom system.</p>
+                <p class="message">${state.sessionEligibility && !state.sessionEligibility.allowed ? escapeHtml(state.sessionEligibility.message) : 'Press once to record today’s attendance check-in and your daily extra-credit point. The date and time come from the classroom system.'}</p>
               </div>
               <div class="pass-action">
-                <button class="primary" id="checkin-action">check in for today</button>
+                <button class="primary" id="checkin-action" ${state.sessionEligibility && !state.sessionEligibility.allowed ? 'disabled' : ''}>check in for today</button>
                 ${sharedDevice()
                   ? '<button class="secondary" id="checkin-next">different student</button>'
                   : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
@@ -1062,8 +1066,8 @@
         const pinEmail = teacherPinStatus || { readyRecipients: 0, sentRecipients: 0, missingRecipients: 0, invalidDomainRecipients: 0 };
         const lateAfter = Number(state.lateAfterMinutes || 10);
         const staleAfter = Number(state.stalePassMinutes || Math.max(lateAfter + 5, lateAfter * 2));
-        const unlimitedCount = (state.studentPassUsage || []).filter((student) => student.unlimited).length;
-        const unverifiedCount = (state.studentPassUsage || []).filter((student) => !student.googleVerified).length;
+        const unlimitedCount = new Set((state.studentPassUsage || []).filter((student) => student.unlimited).map((student) => student.email)).size;
+        const unverifiedCount = new Set((state.studentPassUsage || []).filter((student) => !student.googleVerified).map((student) => student.email)).size;
         const notChecked = state.notCheckedIn || [];
         const absentToday = state.absentToday || [];
         const repeatPassesToday = state.repeatPassesToday || [];
@@ -1114,13 +1118,13 @@
 
         const studentPassRows = state.studentPassUsage && state.studentPassUsage.length ? state.studentPassUsage.map((student) => `
           <tr data-pass-row="${escapeHtml(`${student.name} ${(student.classes || []).join(' ')}`.toLowerCase())}">
-            <td class="tick"><input type="checkbox" data-unlimited-email="${escapeHtml(student.email)}" ${student.unlimited ? 'checked' : ''} aria-label="Unlimited passes for ${escapeHtml(student.name)}"></td>
+            <td><select data-pass-access-email="${escapeHtml(student.email)}" data-previous="${escapeHtml(student.accessMode)}" aria-label="Pass access for ${escapeHtml(student.name)}">${[['STANDARD', 'Standard'], ['UNLIMITED', 'No pass limit'], ['ESCORT_ONLY', 'Teacher escort only']].map(([value, label]) => `<option value="${value}" ${student.accessMode === value ? 'selected' : ''}>${label}</option>`).join('')}</select></td>
             <td class="who">${escapeHtml(student.name)}${student.googleVerified ? '' : '<span class="tag">pin only</span>'}${student.todayUsed >= 2 ? `<span class="tag">${escapeHtml(student.todayUsed)} today</span>` : ''}${student.cooldownActive ? '<span class="tag">cooldown</span>' : ''}</td>
             <td class="num">${escapeHtml(student.todayUsed)}</td>
             <td class="num">${escapeHtml(student.used)}</td>
             <td class="num">${student.unlimited || !student.limit ? '—' : escapeHtml(student.remaining)}</td>
             <td class="classes">${escapeHtml((student.classes || []).join(' · '))}</td>
-            <td><button class="secondary compact" data-review-passes="${escapeHtml(student.email)}">review count</button></td>
+            <td><button class="secondary compact" data-review-passes="${escapeHtml(student.studentKey)}">review class count</button></td>
           </tr>`).join('') : '<tr><td colspan="7">No active students are on the roster.</td></tr>';
 
         const unmatched = state.unmatchedSignIns || [];
@@ -1220,7 +1224,7 @@
         const passReviewDialogHtml = teacherPassReview ? `
           <dialog id="pass-review-dialog" aria-labelledby="pass-review-title">
             <div class="dialog-body">
-              <div class="dialog-head"><div><h2 id="pass-review-title">${escapeHtml(teacherPassReview.studentName)}.</h2><p class="message">${escapeHtml(teacherPassReview.used)} currently countable of ${teacherPassReview.limit ? escapeHtml(teacherPassReview.limit) : 'no set limit'}. Original rows, times, and authorization facts remain preserved after a correction.</p></div><button class="dialog-close" id="close-pass-review" aria-label="Close pass review">×</button></div>
+              <div class="dialog-head"><div><h2 id="pass-review-title">${escapeHtml(teacherPassReview.studentName)} · ${escapeHtml(teacherPassReview.classPeriod)}.</h2><p class="message">${escapeHtml(teacherPassReview.used)} currently countable of ${teacherPassReview.limit ? escapeHtml(teacherPassReview.limit) : 'no set limit'}. Original rows, times, and authorization facts remain preserved after a correction.</p></div><button class="dialog-close" id="close-pass-review" aria-label="Close pass review">×</button></div>
               <div class="review-table"><table><thead><tr><th>choose</th><th>school time</th><th>class</th><th>duration</th><th>authorized</th></tr></thead><tbody>${reviewPassRows}</tbody></table></div>
               <label class="review-reason">Reason for correction<input type="text" id="pass-correction-reason" maxlength="300" autocomplete="off" placeholder="Required; stored in the private audit"></label>
               <button class="primary" id="apply-pass-correction" ${teacherPassReview.passes && teacherPassReview.passes.some((pass) => pass.status !== 'OUT') ? '' : 'disabled'}>mark selected pass not countable</button>
@@ -1331,10 +1335,10 @@
             </details>
             ${repeatTripsHtml}
             <details class="subcard log" id="pass-count-details" data-teacher-details style="margin:18px 0">
-              <summary><strong>every student’s pass count and unlimited setting</strong></summary>
-              <p class="message" style="margin:12px 0">${unverifiedCount} student${unverifiedCount === 1 ? ' has' : 's have'} never been recognized by their Google account and can only get in by PIN, which usually means the roster address is wrong. ${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. A checked box exempts that student from the per-student limit in every one of your classes. This setting lives only in your private workbook and never appears on a student screen.</p>
+              <summary><strong>class pass counts and student access</strong></summary>
+              <p class="message" style="margin:12px 0">${unverifiedCount} student${unverifiedCount === 1 ? ' has' : 's have'} never been recognized by their Google account and can only get in by PIN, which usually means the roster address is wrong. ${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. Marking-period counts belong to the class shown on each row. Daily limits and return cooldowns follow the student across classes. Access changes apply to all of that student’s memberships and are recorded privately with your reason. No pass limit bypasses numeric limits and cooldowns; class timing still applies. Teacher escort only requires your backup control.</p>
               <input type="search" id="pass-count-filter" placeholder="filter by name or class" aria-label="Filter students">
-              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>unlimited</th><th>student</th><th>today</th><th>period used</th><th>period left</th><th>classes</th><th>evidence</th></tr></thead><tbody>${studentPassRows}</tbody></table>
+              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>student access</th><th>student</th><th>today</th><th>period used</th><th>period left</th><th>class</th><th>evidence</th></tr></thead><tbody>${studentPassRows}</tbody></table>
             </details>
             <details class="subcard log" id="pass-log-details" data-teacher-details><summary>today’s private pass log · ${escapeHtml(state.today.length)}</summary><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th><th>countability</th></tr></thead><tbody>${logRows}</tbody></table></details>
           </section>
@@ -1370,13 +1374,17 @@
           const studentKey = document.querySelector('#teacher-checkin-student').value;
           if (!studentKey) { showError('Choose a student first.'); return; }
           act(event.currentTarget, async () => {
-            adoptState(await call('teacherCheckInStudent', studentKey));
+            const reason = window.prompt('Private attendance reason (required outside the check-in window):');
+            if (reason === null) return;
+            adoptState(await call('teacherCheckInStudent', studentKey, reason));
             renderTeacher();
           });
         });
 
         document.querySelectorAll('[data-checkin-student]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
-          adoptState(await call('teacherCheckInStudent', button.dataset.checkinStudent));
+          const reason = window.prompt('Private attendance reason (required outside the check-in window):');
+          if (reason === null) return;
+          adoptState(await call('teacherCheckInStudent', button.dataset.checkinStudent, reason));
           renderTeacher();
         })));
 
@@ -1400,7 +1408,9 @@
           const studentKey = document.querySelector('#teacher-student').value;
           if (!studentKey) { showError('Choose a student first.'); return; }
           act(event.currentTarget, async () => {
-            adoptState(await call('teacherStartPass', studentKey));
+            const reason = window.prompt('Private reason for this backup pass (required when overriding a restriction):');
+            if (reason === null) return;
+            adoptState(await call('teacherStartPass', studentKey, reason));
             renderTeacher();
           });
         });
@@ -1463,16 +1473,18 @@
           });
         });
 
-        document.querySelectorAll('[data-unlimited-email]').forEach((box) => box.addEventListener('change', () => {
-          const email = box.dataset.unlimitedEmail;
-          const wanted = box.checked;
+        document.querySelectorAll('[data-pass-access-email]').forEach((box) => box.addEventListener('change', () => {
+          const email = box.dataset.passAccessEmail;
+          const wanted = box.value;
+          const reason = window.prompt('Private reason for changing this student’s pass access in all classes:');
+          if (!reason || !reason.trim()) { box.value = box.dataset.previous; return; }
           box.disabled = true;
           act(null, async () => {
             try {
-              adoptState(await call('teacherSetStudentUnlimited', email, wanted));
+              adoptState(await call('teacherSetStudentPassAccess', email, wanted, reason));
               renderTeacher();
             } catch (error) {
-              box.checked = !wanted;
+              box.value = box.dataset.previous;
               box.disabled = false;
               throw error;
             }
@@ -1480,7 +1492,7 @@
         }));
 
         document.querySelectorAll('[data-review-passes]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
-          teacherPassReview = await call('teacherGetCountablePasses', button.dataset.reviewPasses);
+          teacherPassReview = await call('teacherGetMembershipPasses', button.dataset.reviewPasses);
           renderTeacher();
         })));
 

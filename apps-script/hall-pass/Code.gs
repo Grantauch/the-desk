@@ -11,7 +11,8 @@
  *  4. Student screens receive only their own data.
  */
 
-const GD_SCHEMA_VERSION = '2026-09-02-a';
+const GD_SCHEMA_VERSION = '2026-09-05-session-a';
+const GD_TEACHER_CONTRACT = '2026-09-05-memberships';
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
@@ -37,10 +38,12 @@ const GD_SHEETS = {
   PINS: 'PIN Cards',
   UNMATCHED: 'Unmatched Sign-ins',
   CALENDAR: 'School Calendar',
+  BELLS: 'Bell Schedule',
+  TEACHER_AUDIT: 'Teacher Actions',
 };
 
 const GD_HEADERS = {
-  ROSTER: ['Student Email', 'Student Name', 'Class / Period', 'PIN Hash', 'Active', 'Unlimited Passes'],
+  ROSTER: ['Student Email', 'Student Name', 'Class / Period', 'PIN Hash', 'Active', 'Unlimited Passes', 'Pass Access'],
   LOG: [
     'Pass ID', 'Student Email', 'Student Name', 'Class / Period', 'Destination',
     'Out Time', 'Return Time', 'Minutes Out', 'Method', 'Status', 'Ended By', 'Note',
@@ -64,7 +67,17 @@ const GD_HEADERS = {
   SETTINGS: ['Key', 'Value', 'What it controls'],
   PINS: ['Student Email', 'Student Name', 'Class / Period', 'PIN', 'Generated At', 'Email Status', 'Emailed At', 'Email Detail'],
   UNMATCHED: ['Signed-in Address', 'First Seen', 'Last Seen', 'Times Seen', 'Likely Match', 'Status', 'Note'],
-  CALENDAR: ['Date', 'School Day', 'Label', 'Source', 'Source Revision'],
+  CALENDAR: ['Date', 'School Day', 'Label', 'Source', 'Source Revision', 'Schedule Key'],
+  BELLS: ['Schedule Key', 'Period', 'Start Time', 'End Time', 'Source', 'Source Revision'],
+  TEACHER_AUDIT: ['Action ID', 'At', 'Actor', 'Student Email', 'Student Name', 'Class / Period', 'Action', 'Restrictions Bypassed', 'Reason', 'Reference ID'],
+};
+
+// Initial seed only. Runtime timing comes from the editable Bell Schedule sheet.
+// Period 4 uses this teacher's B Lunch; REDUCED P5 precedes P4.
+const GD_BELL_SEED = {
+  NORMAL: [['07:30', '08:25'], ['08:30', '09:25'], ['10:05', '11:00'], ['11:05', '12:00'], ['12:35', '13:30'], ['13:35', '14:30']],
+  REDUCED: [['07:30', '08:08'], ['08:13', '08:51'], ['08:56', '09:34'], ['10:22', '11:00'], ['09:39', '10:17'], ['11:35', '12:10']],
+  HALF: [['07:30', '08:01'], ['08:06', '08:33'], ['08:38', '09:05'], ['09:10', '09:37'], ['09:42', '10:09'], ['10:14', '10:41']],
 };
 
 /**
@@ -133,6 +146,9 @@ const GD_DEFAULT_SETTINGS = [
   ['STUDENT_PASS_RESET_AT', '', 'Timestamp of the teacher-controlled marking-period reset'],
   ['DAILY_PASS_LIMIT', '0', 'Passes allowed per student each school day; 0 means unlimited'],
   ['PASS_COOLDOWN_MINUTES', '5', 'Minutes a student must wait after returning before starting or joining another pass'],
+  ['PASS_PROTECT_FIRST_MINUTES', '10', 'Student requests open this many minutes after the selected class starts'],
+  ['PASS_PROTECT_LAST_MINUTES', '10', 'Student requests close this many minutes before the selected class ends'],
+  ['CHECKIN_WINDOW_MINUTES', '5', 'Student check-in window from the selected class start; end is exclusive'],
   ['QUEUE_MAX_WAIT_MINUTES', '20', 'A waiting-line entry older than this is dropped so it never carries into the next hour'],
   ['LATE_AFTER_MINUTES', '10', 'When an active pass is highlighted for the teacher'],
   ['STALE_PASS_MINUTES', '20', 'When an active pass gets a stronger teacher follow-up warning'],
@@ -167,6 +183,169 @@ function gdMemo_(key, producer) {
 
 function gdForget_(key) {
   delete GD_MEMO[key];
+}
+
+/* ----------------------------------------------- shared class sessions ---- */
+
+function periodNumberFromClass_(classPeriod) {
+  const match = /^Period\s+([1-6])(?:\b|\s|$)/i.exec(String(classPeriod || '').trim());
+  return match ? Number(match[1]) : null;
+}
+
+function bellMinutes_(value) {
+  const text = value instanceof Date
+    ? Utilities.formatDate(value, Session.getScriptTimeZone() || 'America/Detroit', 'HH:mm')
+    : String(value == null ? '' : value).trim();
+  const match = /^(\d{1,2}):(\d{2})$/.exec(text);
+  if (!match || Number(match[1]) > 23 || Number(match[2]) > 59) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function getBellScheduleIndex_() {
+  return gdMemo_('bell-schedules', () => {
+    const profiles = {};
+    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.BELLS);
+    if (!sheet || sheet.getLastRow() < 2) return profiles;
+    sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.BELLS.length).getValues().forEach((row) => {
+      const key = String(row[0] || '').trim().toUpperCase();
+      if (!key) return;
+      const profile = profiles[key] || (profiles[key] = { periods: {}, valid: true });
+      const period = /^[1-6]$/.test(String(row[1]).trim()) ? Number(row[1]) : null;
+      const start = bellMinutes_(row[2]);
+      const end = bellMinutes_(row[3]);
+      if (!period || start === null || end === null || start >= end || profile.periods[period]) {
+        profile.valid = false;
+        return;
+      }
+      profile.periods[period] = { period, start, end };
+    });
+    Object.values(profiles).forEach((profile) => {
+      const ordered = Object.values(profile.periods).sort((a, b) => a.start - b.start);
+      if (ordered.some((entry, index) => index && entry.start < ordered[index - 1].end)) profile.valid = false;
+    });
+    return profiles;
+  });
+}
+
+function getSchoolDaySchedule_(nowValue) {
+  const now = toDateOrNull_(nowValue) || new Date();
+  const dateKey = dateKey_(now);
+  const calendar = getSchoolCalendarIndex_();
+  const schoolDay = isSchoolDayKey_(dateKey, calendar);
+  const scheduleKey = schoolDay
+    ? (Object.prototype.hasOwnProperty.call(calendar.schedules, dateKey) ? calendar.schedules[dateKey] : 'NORMAL')
+    : '';
+  return { dateKey, schoolDay, scheduleKey };
+}
+
+function getClassSession_(student, nowValue) {
+  const now = toDateOrNull_(nowValue) || new Date();
+  const day = getSchoolDaySchedule_(now);
+  const selectedPeriod = periodNumberFromClass_(student && student.classPeriod);
+  const result = { ...day, selectedPeriod, currentPeriod: null, classStart: '', classEnd: '', checkInAllowed: false, passRequestAllowed: false, blockReason: '', checkInMessage: '', passMessage: '' };
+  if (!day.schoolDay) {
+    result.blockReason = 'NO_SCHOOL';
+    result.checkInMessage = result.passMessage = 'There is no student session today. Ask Mr. Grant if you need help.';
+    return result;
+  }
+  const profile = getBellScheduleIndex_()[day.scheduleKey];
+  const period = profile && profile.valid && profile.periods[selectedPeriod];
+  const settings = getSettings_();
+  const timingKeys = ['PASS_PROTECT_FIRST_MINUTES', 'PASS_PROTECT_LAST_MINUTES', 'CHECKIN_WINDOW_MINUTES'];
+  const values = timingKeys.map((key) => String(settings[key] == null ? '' : settings[key]).trim());
+  const timing = values.map(Number);
+  if (!period || values.some((value) => value === '') || timing.some((value) => !Number.isFinite(value) || value < 0) || timing[2] <= 0) {
+    result.blockReason = 'SCHEDULE_UNKNOWN';
+    result.checkInMessage = result.passMessage = 'The class schedule needs a teacher update. Ask Mr. Grant.';
+    return result;
+  }
+  const clock = Utilities.formatDate(now, Session.getScriptTimeZone() || 'America/Detroit', 'HH:mm:ss').split(':').map(Number);
+  const seconds = clock[0] * 3600 + clock[1] * 60 + clock[2] + now.getMilliseconds() / 1000;
+  const dayOrigin = now.getTime() - seconds * 1000;
+  const classStart = dayOrigin + period.start * 60000;
+  const classEnd = dayOrigin + period.end * 60000;
+  const current = Object.values(profile.periods).find((entry) => seconds >= entry.start * 60 && seconds < entry.end * 60);
+  result.currentPeriod = current ? current.period : null;
+  result.classStart = new Date(classStart).toISOString();
+  result.classEnd = new Date(classEnd).toISOString();
+  result.checkInAllowed = now.getTime() >= classStart && now.getTime() < Math.min(classEnd, classStart + timing[2] * 60000);
+  result.passRequestAllowed = now.getTime() >= classStart + timing[0] * 60000 && now.getTime() < classEnd - timing[1] * 60000;
+  result.blockReason = now.getTime() < classStart ? 'CLASS_NOT_STARTED' : now.getTime() >= classEnd ? 'CLASS_ENDED' : 'PROTECTED_WINDOW';
+  result.checkInMessage = result.checkInAllowed ? '' : 'Check in during the first five minutes of your selected class. Ask Mr. Grant if you arrived late.';
+  result.passMessage = result.passRequestAllowed ? '' : 'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask Mr. Grant if you need to leave.';
+  return result;
+}
+
+function studentActionEligibility_(student, action, nowValue) {
+  if (action === GD_STUDENT_ACTIONS.RETURN) return { allowed: true, blockReason: '', message: '' };
+  const session = getClassSession_(student, nowValue);
+  if (action === GD_STUDENT_ACTIONS.CHECKIN) return { allowed: session.checkInAllowed, blockReason: session.checkInAllowed ? '' : session.blockReason, message: session.checkInMessage };
+  if (getStudentPassAccess_(student.email) === 'ESCORT_ONLY') return { allowed: false, blockReason: 'TEACHER_REQUIRED', message: 'Ask Mr. Grant before leaving the room.' };
+  return { allowed: session.passRequestAllowed, blockReason: session.passRequestAllowed ? '' : session.blockReason, message: session.passMessage };
+}
+
+function assertStudentActionEligible_(student, action) {
+  const eligibility = studentActionEligibility_(student, action);
+  if (!eligibility.allowed) throw new Error(eligibility.message);
+}
+
+function getStudentPassAccess_(emailValue) {
+  const index = gdMemo_('pass-access', () => {
+    const modes = {};
+    readRosterRows_().forEach((student) => {
+      const raw = String(student.passAccess || '').trim().toUpperCase();
+      const mode = raw || (student.unlimited ? 'UNLIMITED' : 'STANDARD');
+      const safeMode = ['STANDARD', 'UNLIMITED', 'ESCORT_ONLY'].includes(mode) ? mode : 'ESCORT_ONLY';
+      const rank = { STANDARD: 0, UNLIMITED: 1, ESCORT_ONLY: 2 };
+      if (!modes[student.email] || rank[safeMode] > rank[modes[student.email]]) modes[student.email] = safeMode;
+    });
+    return modes;
+  });
+  return index[normalizeEmail_(emailValue)] || 'STANDARD';
+}
+
+function assertTeacherClient_(contract) {
+  if (contract !== GD_TEACHER_CONTRACT) throw new Error('Refresh this teacher page before continuing. The class pass rules have changed.');
+}
+
+function auditTeacherAction_(teacher, student, action, restrictions, reason, referenceId) {
+  const cleanReason = String(reason || '').trim().slice(0, 300);
+  assertPlainSheetText_(cleanReason, 'Private action reason');
+  getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT).appendRow([
+    Utilities.getUuid(), new Date(), teacher, student.email, student.name, student.classPeriod,
+    action, (restrictions || []).join(', '), cleanReason, referenceId || '',
+  ]);
+}
+
+function migrateSessionPolicy_() {
+  const spreadsheet = getSpreadsheet_();
+  const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
+  const existing = new Set(bells.getLastRow() > 1 ? bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues().map((row) => String(row[0]).trim().toUpperCase()) : []);
+  const seed = [];
+  Object.entries(GD_BELL_SEED).forEach(([key, periods]) => periods.forEach(([start, end], index) => {
+    if (!existing.has(key)) seed.push([key, index + 1, start, end, 'EAJ 2026-27 Bell Schedule; Period 4 B Lunch', 'Verified 2026-09-05']);
+  }));
+  if (seed.length) {
+    bells.getRange(bells.getLastRow() + 1, 3, seed.length, 2).setNumberFormat('@');
+    bells.getRange(bells.getLastRow() + 1, 1, seed.length, GD_HEADERS.BELLS.length).setValues(seed);
+  }
+  const calendar = spreadsheet.getSheetByName(GD_SHEETS.CALENDAR);
+  if (calendar.getLastRow() > 1) calendar.getRange(2, 1, calendar.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues().forEach((row, index) => {
+    if (!isTruthyCell_(row[1], false) || String(row[5] || '').trim()) return;
+    const key = normalizeDateKey_(row[0]);
+    const official = GD_OFFICIAL_CALENDAR_2026_27.find((entry) => entry[0] === key);
+    const label = String(row[2] || '');
+    const sameOfficialLabel = official && label === official[2];
+    const schedule = sameOfficialLabel ? (/half day/i.test(label) ? 'HALF' : /reduced/i.test(label) ? 'REDUCED' : 'NORMAL') : 'UNCONFIGURED';
+    if (schedule) calendar.getRange(index + 2, 6).setValue(schedule);
+  });
+  gdClearMemo_();
+  const roster = spreadsheet.getSheetByName(GD_SHEETS.ROSTER);
+  readRosterRows_().forEach((student) => {
+    const mode = getStudentPassAccess_(student.email);
+    if (student.passAccess !== mode) roster.getRange(student.row, 7).setValue(mode);
+  });
+  gdClearMemo_();
 }
 
 /* ---------------------------------------------------------------- menu ---- */
@@ -226,6 +405,10 @@ function setupProject() {
 function doGet(e) {
   ensureWorkbookReady_();
   const requestedMode = String((e && e.parameter && e.parameter.mode) || 'student').toLowerCase();
+  if (requestedMode === 'releasecheck') {
+    assertTeacher_(getActiveEmail_(), getSettings_());
+    return HtmlService.createHtmlOutputFromFile('ReleaseCheck').setTitle('GrantDesk private release check');
+  }
   const mode = ['student', 'kiosk', 'teacher', 'checkin'].includes(requestedMode) ? requestedMode : 'student';
   const template = HtmlService.createTemplateFromFile('Index');
   template.appMode = mode;
@@ -234,7 +417,7 @@ function doGet(e) {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-function getBootstrap(mode) {
+function getBootstrap(mode, clientContract) {
   ensureWorkbookReady_();
   const settings = getSettings_();
   const activeEmail = getActiveEmail_();
@@ -242,6 +425,7 @@ function getBootstrap(mode) {
 
   if (mode === 'teacher') {
     assertTeacher_(activeEmail, settings);
+    assertTeacherClient_(clientContract);
     purgeIfDue_();
     return getTeacherState_({ includePinStatus: true });
   }
@@ -309,6 +493,7 @@ function identifyPin_(pin, purpose, attemptNonce) {
     const actionProof = putStudentActionProof_(email, '', action, 'pin');
     return buildClassSelectionState_(students, token, 'pin', purpose, actionProof, action);
   }
+  assertStudentActionEligible_(students[0], action);
   const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, students[0].key, 'pin', true);
   const actionProof = putStudentActionProof_(email, students[0].key, action, 'pin');
   const next = purpose === 'checkin'
@@ -357,6 +542,7 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
   }
 
   const student = selected || studentForReturn_(students, email) || students[0];
+  assertStudentActionEligible_(student, action);
   const identityMethod = activeEmail && normalizeEmail_(activeEmail) === email ? 'google' : 'pin';
   const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, student.key, identityMethod, true);
   const actionProof = putStudentActionProof_(email, student.key, action, identityMethod);
@@ -517,6 +703,15 @@ function selectStudentClass(pinToken, studentKey, purpose, actionProof) {
     actionSession = readStudentActionProof_(actionProof);
     if (actionSession.email !== student.email) throw new Error('That PIN proof belongs to a different student.');
     purpose = actionSession.action === GD_STUDENT_ACTIONS.CHECKIN ? 'checkin' : 'pass';
+    if (actionSession.key && actionSession.key !== student.key) throw new Error('That PIN proof was issued for a different class.');
+    assertStudentActionEligible_(student, actionSession.action);
+    if (!actionSession.key) {
+      actionProof = withLock_(() => {
+        const resolved = consumeStudentActionProof_(actionProof, actionSession.action, student.key);
+        assertStudentActionEligible_(resolved.student, actionSession.action);
+        return putStudentActionProof_(student.email, student.key, actionSession.action, method);
+      }, GD_STUDENT_LOCK_WAIT_MS, 'class selection');
+    }
   }
   const nextToken = putPinSession_(pinToken, student.email, student.key, method, session.pinVerified);
   const next = actionSession
@@ -664,6 +859,7 @@ function submitDailyCheckIn(actionProof, studentKey, identityToken) {
   let resolved = null;
   withLock_(() => {
     resolved = consumeStudentActionProof_(actionProof, GD_STUDENT_ACTIONS.CHECKIN, studentKey);
+    assertStudentActionEligible_(resolved.student, GD_STUDENT_ACTIONS.CHECKIN);
     recordCheckIn_(resolved.student, resolved.method, 'Fresh PIN verified for this check-in');
   }, GD_STUDENT_LOCK_WAIT_MS, 'daily check-in');
   const token = identityTokenForStudent_(identityToken, resolved.student);
@@ -698,6 +894,7 @@ function getCheckInState_(student, pinToken, method) {
     pointValue: numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1),
     checkedIn: Boolean(checkIn),
     attendanceLocked: Boolean(absence && !checkIn),
+    sessionEligibility: studentActionEligibility_(student, GD_STUDENT_ACTIONS.CHECKIN),
     checkIn: checkIn ? clientCheckIn_(checkIn) : null,
     streak: buildStreakIndex_(allCheckIns).streakFor(student.key, todayKey),
     serverNow: new Date().toISOString(),
@@ -802,6 +999,7 @@ function clearAbsentEntry_(entry, detail) {
 
 function refreshStudentState(pinToken) {
   const resolved = resolveStudent_(pinToken, true);
+  expireClassQueuesIfNeeded_();
   return getStudentState_(resolved.student, pinToken || '', resolved.method);
 }
 
@@ -827,6 +1025,7 @@ function requestBathroomPass(actionProof, studentKey, identityToken) {
   let outcome = null;
   withLock_(() => {
     resolved = consumeStudentActionProof_(actionProof, GD_STUDENT_ACTIONS.PASS_REQUEST, studentKey);
+    assertStudentActionEligible_(resolved.student, GD_STUDENT_ACTIONS.PASS_REQUEST);
     expirePreviousDayPassesIfDue_();
     outcome = createBathroomRequest_(resolved);
   }, GD_STUDENT_LOCK_WAIT_MS, 'bathroom request');
@@ -866,6 +1065,7 @@ function returnPass(actionProof, studentKey, identityToken) {
 
 function createBathroomRequest_(authorization) {
   const student = authorization.student;
+  assertStudentActionEligible_(student, GD_STUDENT_ACTIONS.PASS_REQUEST);
   settleWaitingQueue_();
   let snapshot = getPassSnapshot_();
   reapExpiredQueue_(snapshot.expiredQueue);
@@ -878,17 +1078,19 @@ function createBathroomRequest_(authorization) {
     return { kind: 'QUEUED', queueId: existingQueue.queueId, message: 'The existing bathroom request is still in line.' };
   }
 
-  const allowance = getStudentPassAllowance_(student.email, snapshot.settings, snapshot.log);
+  const allowance = getStudentPassAllowance_(student, snapshot.settings, snapshot.log);
   if (allowance.blocked) {
     return { kind: 'BLOCKED', message: allowanceMessage_(allowance), blockedReason: allowance.blockedReason };
   }
 
   if (snapshot.openSlots > 0 && snapshot.queue.length === 0) {
+    assertStudentActionEligible_(student, GD_STUDENT_ACTIONS.PASS_REQUEST);
     const passId = appendPassForStudent_(student, snapshot.settings, authorization);
     return { kind: 'STARTED', passId, message: 'Bathroom pass started.' };
   }
 
   const queueId = Utilities.getUuid();
+  assertStudentActionEligible_(student, GD_STUDENT_ACTIONS.PASS_REQUEST);
   getSpreadsheet_().getSheetByName(GD_SHEETS.QUEUE).appendRow([
     queueId,
     student.email,
@@ -956,11 +1158,17 @@ function settleWaitingQueue_() {
       closeQueueRow_(entry.row, 'STARTED', 'An active pass already exists for this student');
       continue;
     }
-    const allowance = getStudentPassAllowance_(student.email, snapshot.settings, snapshot.log);
+    const eligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.PASS_REQUEST);
+    if (!eligibility.allowed) {
+      closeQueueRow_(entry.row, eligibility.blockReason === 'CLASS_ENDED' ? 'CLASS_ENDED' : 'INELIGIBLE', eligibility.blockReason || 'Teacher review required');
+      continue;
+    }
+    const allowance = getStudentPassAllowance_(student, snapshot.settings, snapshot.log);
     if (allowance.blocked) {
       closeQueueRow_(entry.row, 'INELIGIBLE', `No longer eligible: ${allowance.blockedReason || 'pass policy changed'}`);
       continue;
     }
+    assertStudentActionEligible_(student, GD_STUDENT_ACTIONS.PASS_REQUEST);
     const passId = appendPassForStudent_(student, snapshot.settings, {
       method: entry.identityMethod || 'pin',
       authorizationMethod: entry.authorizationMethod || 'PIN',
@@ -980,9 +1188,10 @@ function getStudentState_(student, pinToken, method, options) {
   const ownPass = snapshot.active.find((pass) => pass.studentEmail === student.email) || null;
   const queue = snapshot.queue;
   const queueIndex = queue.findIndex((entry) => entry.studentEmail === student.email);
-  const allowance = getStudentPassAllowance_(student.email, settings, snapshot.log);
+  const allowance = getStudentPassAllowance_(student, settings, snapshot.log);
+  const eligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.PASS_REQUEST);
   const openSlots = snapshot.openSlots;
-  const passAvailable = Boolean(ownPass) || (!allowance.blocked && (
+  const passAvailable = Boolean(ownPass) || (eligibility.allowed && !allowance.blocked && (
     queueIndex >= 0 ? queueIndex < openSlots : queue.length === 0 && openSlots > 0
   ));
   const state = {
@@ -994,12 +1203,13 @@ function getStudentState_(student, pinToken, method, options) {
     student: { key: student.key, name: student.name, classPeriod: student.classPeriod },
     pinToken: pinToken || '',
     method,
-    ownPass: ownPass ? clientPass_(ownPass) : null,
+    ownPass: ownPass ? studentPassView_(ownPass) : null,
     passAvailable,
     queuePosition: queueIndex >= 0 ? queueIndex + 1 : 0,
     queueLength: queue.length,
     queuedAt: queueIndex >= 0 ? isoOrEmpty_(queue[queueIndex].joinedAt) : '',
-    canJoinQueue: !ownPass && queueIndex < 0 && !allowance.blocked,
+    canJoinQueue: !ownPass && queueIndex < 0 && !allowance.blocked && eligibility.allowed,
+    sessionEligibility: eligibility,
     passAllowance: studentAllowanceView_(allowance, Boolean(detail.includeEvidence)),
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     serverNow: new Date().toISOString(),
@@ -1044,6 +1254,16 @@ function readWaitingQueue_(settings, openSlots) {
   const live = [];
   const expired = [];
   entries.forEach((entry) => {
+    const student = getStudentByKey_(entry.studentKey);
+    const session = getClassSession_(student || { classPeriod: entry.classPeriod });
+    if (safeDateKey_(entry.joinedAt) !== dateKey_(new Date()) || (session.classEnd && now >= new Date(session.classEnd).getTime())) {
+      expired.push({ row: entry.row, status: 'CLASS_ENDED', resolution: 'Selected class session ended' });
+      return;
+    }
+    if (!student || !session.schoolDay || !session.classEnd) {
+      expired.push({ row: entry.row, status: 'INELIGIBLE', resolution: 'Class schedule or membership needs teacher review' });
+      return;
+    }
     if (now - entry.joinedAt.getTime() > maxWaitMs) {
       expired.push({ row: entry.row, resolution: 'Waited past the maximum line time' });
       return;
@@ -1056,7 +1276,19 @@ function readWaitingQueue_(settings, openSlots) {
 
 function reapExpiredQueue_(expired) {
   if (!expired || !expired.length) return;
-  expired.forEach((item) => closeQueueRow_(item.row, 'EXPIRED', item.resolution));
+  expired.forEach((item) => closeQueueRow_(item.row, item.status || 'EXPIRED', item.resolution));
+}
+
+/** Polls only take a write lock when there are expired rows to persist. */
+function expireClassQueuesIfNeeded_() {
+  if (!getPassSnapshot_().expiredQueue.length) return;
+  withLock_(() => reapExpiredQueue_(getPassSnapshot_().expiredQueue));
+}
+
+function studentPassView_(pass) {
+  return { passId: pass.passId, studentName: pass.studentName, classPeriod: pass.classPeriod,
+    outTime: isoOrEmpty_(pass.outDate), returnTime: isoOrEmpty_(pass.returnDate),
+    destination: pass.destination, status: pass.status, minutesOut: pass.minutesOut };
 }
 
 function closePassForStudent_(studentEmail, endedBy, note) {
@@ -1165,16 +1397,18 @@ function getStudentPassPolicy_(settings) {
   };
 }
 
-function getStudentPassAllowance_(studentEmail, settings, log, nowValue) {
-  const email = normalizeEmail_(studentEmail);
+function getStudentPassAllowance_(student, settings, log, nowValue) {
+  if (!student || typeof student !== 'object' || !student.email || !student.key || !student.classPeriod) throw new Error('Pass allowance requires a class membership. Refresh this teacher page.');
+  const email = normalizeEmail_(student.email);
   const policy = getStudentPassPolicy_(settings);
   const now = toDateOrNull_(nowValue) || new Date();
   const todayKey = dateKey_(now);
   const resetAt = new Date(policy.resetAt);
-  const unlimited = getUnlimitedPassEmails_().has(email);
+  const accessMode = getStudentPassAccess_(email);
+  const unlimited = accessMode === 'UNLIMITED';
   const studentPasses = log.filter((pass) => pass.studentEmail === email);
   const passes = studentPasses.filter((pass) => passValidity_(pass).countable);
-  const periodPasses = passes.filter((pass) => pass.outDate.getTime() > resetAt.getTime());
+  const periodPasses = passes.filter((pass) => pass.studentKey === student.key && pass.outDate.getTime() > resetAt.getTime());
   const todayPasses = passes.filter((pass) => safeDateKey_(pass.outDate) === todayKey);
   const used = periodPasses.length;
   const todayUsed = todayPasses.length;
@@ -1193,7 +1427,8 @@ function getStudentPassAllowance_(studentEmail, settings, log, nowValue) {
   const limitReached = capped && used >= policy.limit;
   const dailyLimitReached = dailyCapped && todayUsed >= policy.dailyLimit;
   const cooldownActive = cooldownEnabled && cooldownRemainingSeconds > 0;
-  const blockedReason = limitReached
+  const escortOnly = accessMode === 'ESCORT_ONLY';
+  const blockedReason = escortOnly ? 'TEACHER_REQUIRED' : limitReached
     ? 'MARKING_PERIOD_LIMIT'
     : dailyLimitReached
       ? 'DAILY_LIMIT'
@@ -1206,6 +1441,9 @@ function getStudentPassAllowance_(studentEmail, settings, log, nowValue) {
     cooldownMinutes: policy.cooldownMinutes,
     resetAt: policy.resetAt,
     unlimited,
+    accessMode,
+    classPeriod: student.classPeriod,
+    studentKey: student.key,
     used,
     todayUsed,
     remaining: capped ? Math.max(0, policy.limit - used) : null,
@@ -1216,7 +1454,7 @@ function getStudentPassAllowance_(studentEmail, settings, log, nowValue) {
     cooldownRemainingSeconds,
     nextAllowedAt: nextAllowedAt ? nextAllowedAt.toISOString() : '',
     blockedReason,
-    blocked: limitReached || dailyLimitReached || cooldownActive,
+    blocked: escortOnly || limitReached || dailyLimitReached || cooldownActive,
     periodPasses,
     todayPasses,
     blockedPasses: limitReached ? periodPasses : dailyLimitReached ? todayPasses : [],
@@ -1321,8 +1559,9 @@ function studentAllowanceView_(allowance, includeEvidence) {
 }
 
 function allowanceMessage_(allowance) {
+  if (allowance.blockedReason === 'TEACHER_REQUIRED') return 'Ask Mr. Grant before leaving the room.';
   if (allowance.limitReached) {
-    return `You have used all ${allowance.limit} of your passes for this marking period. Ask Mr. Grant if you need to leave the room.`;
+    return `You have used all ${allowance.limit} passes for ${allowance.classPeriod} this marking period. Ask Mr. Grant if you need to leave the room.`;
   }
   if (allowance.dailyLimitReached) {
     return `You have used today’s ${allowance.dailyLimit}-pass limit. Ask Mr. Grant if you need to leave the room.`;
@@ -1333,18 +1572,13 @@ function allowanceMessage_(allowance) {
 
 function getStudentPassUsage_(roster, settings, log, verifiedEmails) {
   const verified = verifiedEmails || new Set();
-  const studentsByEmail = new Map();
-  roster.forEach((student) => {
-    if (!studentsByEmail.has(student.email)) {
-      studentsByEmail.set(student.email, { email: student.email, name: student.name, classes: [] });
-    }
-    studentsByEmail.get(student.email).classes.push(student.classPeriod);
-  });
-  return [...studentsByEmail.values()]
+  return roster
     .map((student) => {
-      const allowance = getStudentPassAllowance_(student.email, settings, log);
+      const allowance = getStudentPassAllowance_(student, settings, log);
       return {
-        ...student,
+        email: student.email, name: student.name, studentKey: student.key,
+        classPeriod: student.classPeriod, classes: [student.classPeriod],
+        accessMode: allowance.accessMode,
         googleVerified: verified.has(student.email),
         limit: allowance.limit,
         dailyLimit: allowance.dailyLimit,
@@ -1675,8 +1909,10 @@ function teacherClearUnmatchedSignIns(confirmText) {
 
 /* --------------------------------------------------------------- teacher ---- */
 
-function refreshTeacherState() {
+function refreshTeacherState(clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  expireClassQueuesIfNeeded_();
   return getTeacherState_({ includePinStatus: false });
 }
 
@@ -1741,16 +1977,27 @@ function teacherResetStudentPassCounters(confirmText) {
 
 function teacherSetStudentUnlimited(studentEmail, unlimited) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  throw new Error('Refresh the teacher dashboard to change pass access.');
+}
+
+function teacherSetStudentPassAccess(studentEmail, accessMode, reason, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const email = normalizeEmail_(studentEmail);
-  if (!email) throw new Error('Choose a student first.');
-  const flag = unlimited === true || String(unlimited).toLowerCase() === 'true';
+  const mode = String(accessMode || '').toUpperCase();
+  const cleanReason = String(reason || '').trim().slice(0, 300);
+  if (!email || !['STANDARD', 'UNLIMITED', 'ESCORT_ONLY'].includes(mode)) throw new Error('Choose a student and valid pass access.');
+  if (!cleanReason) throw new Error('Enter a short private reason for this access change.');
+  assertPlainSheetText_(cleanReason, 'Access reason');
   withLock_(() => {
-    const rows = getRoster_().filter((student) => student.email === email);
-    if (!rows.length) throw new Error('That student is not active on the roster.');
+    const rows = readRosterRows_().filter((student) => student.email === email);
+    if (!rows.some((student) => student.active)) throw new Error('That student is not active on the roster.');
+    const previous = getStudentPassAccess_(email);
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
-    rows.forEach((student) => sheet.getRange(student.row, 6).setValue(flag));
-    gdForget_('roster');
-    gdForget_('unlimited');
+    rows.forEach((student) => sheet.getRange(student.row, 6, 1, 2).setValues([[mode === 'UNLIMITED', mode]]));
+    gdClearMemo_();
+    rows.forEach((student) => auditTeacherAction_(getActiveEmail_(), student, 'PASS_ACCESS_CHANGED', [previous + ' -> ' + mode], cleanReason, ''));
+    if (mode === 'ESCORT_ONLY') closeWaitingQueueForEmail_(email, 'INELIGIBLE', 'Ask your teacher.');
   });
   return getTeacherState_({ includePinStatus: false });
 }
@@ -1771,7 +2018,8 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
       throw new Error(`${input.name} is already active in ${input.classPeriod}.`);
     }
 
-    const unlimited = sameStudentRows.some((student) => student.unlimited);
+    const accessMode = getStudentPassAccess_(input.email);
+    const unlimited = accessMode === 'UNLIMITED';
     const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
 
     // One school email represents one student. Keep their display name aligned
@@ -1792,6 +2040,7 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
         sameMembership.pinHash || existingPinHash,
         true,
         unlimited,
+        accessMode,
       ]]);
     } else {
       action = 'added';
@@ -1802,6 +2051,7 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
         existingPinHash,
         true,
         unlimited,
+        accessMode,
       ]);
       rosterRow = sheet.getLastRow();
     }
@@ -1899,62 +2149,86 @@ function teacherRemoveFromQueue(queueId) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherStartPass(studentKey) {
+function teacherStartPass(studentKey, reason, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
-  const student = getStudentByKey_(studentKey);
-  if (!student) throw new Error('That student is not active on the roster.');
+  assertTeacherClient_(clientContract);
+  const cleanReason = String(reason || '').trim().slice(0, 300);
+  assertPlainSheetText_(cleanReason, 'Override reason');
 
   let overrideReason = '';
   withLock_(() => {
+    const student = getStudentByKey_(studentKey);
+    if (!student) throw new Error('That student is not active on the roster.');
     const snapshot = getPassSnapshot_();
     reapExpiredQueue_(snapshot.expiredQueue);
     if (snapshot.active.some((pass) => pass.studentEmail === student.email)) return;
     if (!snapshot.openSlots) {
       throw new Error('Every pass slot is in use. End an active pass or raise the limit first.');
     }
-    const allowance = getStudentPassAllowance_(student.email, snapshot.settings, snapshot.log);
-    if (allowance.limitReached) overrideReason = 'marking-period limit';
-    else if (allowance.dailyLimitReached) overrideReason = 'daily limit';
-    else if (allowance.cooldownActive) overrideReason = 'return cooldown';
+    const allowance = getStudentPassAllowance_(student, snapshot.settings, snapshot.log);
+    const session = getClassSession_(student);
+    const restrictions = [];
+    if (!session.passRequestAllowed) restrictions.push(session.blockReason);
+    if (allowance.accessMode === 'ESCORT_ONLY') restrictions.push('ESCORT_ONLY');
+    if (allowance.limitReached) restrictions.push('marking-period limit');
+    if (allowance.dailyLimitReached) restrictions.push('daily limit');
+    if (allowance.cooldownActive) restrictions.push('return cooldown');
+    overrideReason = restrictions.join(', ');
+    if (restrictions.length && !cleanReason) throw new Error('Enter a short private reason for this teacher override.');
+    const passId = Utilities.getUuid();
     getSpreadsheet_().getSheetByName(GD_SHEETS.LOG).appendRow([
-      Utilities.getUuid(), student.email, student.name, student.classPeriod, snapshot.settings.DESTINATION,
+      passId, student.email, student.name, student.classPeriod, snapshot.settings.DESTINATION,
       new Date(), '', '', 'teacher', 'OUT', teacher,
       overrideReason ? `Started by teacher override: ${overrideReason}` : 'Started by teacher',
       'PROVISIONAL', 'Active pass; final duration is not known yet', new Date(),
       'TEACHER', new Date(), Utilities.getUuid(), '', '', '',
     ]);
     gdForget_('passlog');
+    auditTeacherAction_(teacher, student, allowance.accessMode === 'ESCORT_ONLY' ? 'ESCORTED_PASS_STARTED' : 'PASS_STARTED', restrictions, cleanReason, passId);
     closeWaitingQueueForEmail_(student.email, 'STARTED', 'Pass started by teacher');
     settleWaitingQueue_();
   });
   const state = getTeacherState_({ includePinStatus: false });
-  if (overrideReason) state.noticeMessage = `${student.name} was given a teacher override for the ${overrideReason}.`;
+  if (overrideReason) state.noticeMessage = `Teacher override recorded: ${overrideReason}.`;
   return state;
 }
 
-function teacherEndPass(passId, note) {
+function teacherEndPass(passId, note, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
+  const cleanNote = String(note || '').trim().slice(0, 300);
+  assertPlainSheetText_(cleanNote, 'Return note');
   withLock_(() => {
-    closePassById_(String(passId || ''), teacher, String(note || '').slice(0, 300));
+    const pass = readPassLog_().find((entry) => entry.passId === String(passId || '') && entry.status === 'OUT');
+    if (!pass) throw new Error('That pass is no longer active. Refresh the teacher dashboard.');
+    closePassById_(String(passId || ''), teacher, cleanNote);
+    auditTeacherAction_(teacher, { email: pass.studentEmail, name: pass.studentName, classPeriod: pass.classPeriod }, 'PASS_RETURNED', [], cleanNote, pass.passId);
     settleWaitingQueue_();
   });
   return getTeacherState_({ includePinStatus: false });
 }
 
 function teacherGetCountablePasses(studentEmail) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  throw new Error('Refresh the teacher dashboard and choose a class membership to review its pass count.');
+}
+
+function teacherGetMembershipPasses(studentKey, clientContract) {
   const teacher = getActiveEmail_();
   const settings = getSettings_();
   assertTeacher_(teacher, settings);
-  const email = normalizeEmail_(studentEmail);
-  const studentRows = readRosterRows_().filter((student) => student.email === email);
-  if (!studentRows.length) throw new Error('That student is not in the retained roster history.');
-  const allowance = getStudentPassAllowance_(email, settings, readPassLog_());
+  assertTeacherClient_(clientContract);
+  const student = readRosterRows_().find((entry) => entry.key === String(studentKey || ''));
+  if (!student) throw new Error('That class membership is not in the retained roster history.');
+  const allowance = getStudentPassAllowance_(student, settings, readPassLog_());
   return {
     ok: true,
-    studentEmail: email,
-    studentName: studentRows[0].name,
+    studentEmail: student.email,
+    studentName: student.name,
+    studentKey: student.key,
+    classPeriod: student.classPeriod,
     used: allowance.used,
     limit: allowance.limit,
     passes: allowance.periodPasses
@@ -2004,12 +2278,20 @@ function teacherVoidPass(passId, reason) {
   return state;
 }
 
-function teacherCheckInStudent(studentKey) {
+function teacherCheckInStudent(studentKey, reason, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
-  const student = getStudentByKey_(studentKey);
-  if (!student) throw new Error('That student is not active on the roster.');
-  withLock_(() => recordCheckIn_(student, 'teacher', `Recorded by ${teacher}`));
+  assertTeacherClient_(clientContract);
+  const cleanReason = String(reason || '').trim().slice(0, 300);
+  assertPlainSheetText_(cleanReason, 'Attendance reason');
+  withLock_(() => {
+    const student = getStudentByKey_(studentKey);
+    if (!student) throw new Error('That student is not active on the roster.');
+    const eligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.CHECKIN);
+    if (!eligibility.allowed && !cleanReason) throw new Error('Enter a short private reason for recording attendance outside the check-in window.');
+    const entry = recordCheckIn_(student, 'teacher', `Recorded by ${teacher}`);
+    auditTeacherAction_(teacher, student, 'CHECKIN_RECORDED', eligibility.allowed ? [] : [eligibility.blockReason], cleanReason, entry.checkInId);
+  });
   return getTeacherState_({ includePinStatus: false });
 }
 
@@ -2055,7 +2337,8 @@ function getTeacherState_(options) {
     email: student.email,
     name: student.name,
     classPeriod: student.classPeriod,
-    unlimited: student.unlimited,
+    unlimited: getStudentPassAccess_(student.email) === 'UNLIMITED',
+    accessMode: getStudentPassAccess_(student.email),
   }));
   const snapshot = getPassSnapshot_();
   const log = snapshot.log;
@@ -2100,6 +2383,7 @@ function getTeacherState_(options) {
   const state = {
     ok: true,
     mode: 'teacher',
+    clientContract: GD_TEACHER_CONTRACT,
     appTitle: settings.APP_TITLE,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     stalePassMinutes: numberSetting_(settings, 'STALE_PASS_MINUTES', 20),
@@ -2107,6 +2391,7 @@ function getTeacherState_(options) {
     passPolicy: getStudentPassPolicy_(settings),
     studentPassUsage,
     repeatPassesToday: studentPassUsage
+      .filter((student, index, rows) => rows.findIndex((entry) => entry.email === student.email) === index)
       .filter((student) => student.todayUsed >= 2)
       .map((student) => ({ name: student.name, classes: student.classes, todayUsed: student.todayUsed })),
     unmatchedSignIns: readUnmatched_()
@@ -2210,17 +2495,22 @@ function getSchoolCalendarIndex_() {
     const settings = getSettings_();
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CALENDAR);
     const overrides = {};
+    const schedules = {};
     if (sheet && sheet.getLastRow() > 1) {
       sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues()
         .forEach((row) => {
           const key = normalizeDateKey_(row[0]);
-          if (key) overrides[key] = isTruthyCell_(row[1], false);
+          if (key) {
+            overrides[key] = isTruthyCell_(row[1], false);
+            schedules[key] = String(row[5] || '').trim().toUpperCase();
+          }
         });
     }
     return {
       startKey: String(settings.SCHOOL_YEAR_START || '').trim(),
       endKey: String(settings.SCHOOL_YEAR_END || '').trim(),
       overrides,
+      schedules,
     };
   });
 }
@@ -2298,6 +2588,7 @@ function readRosterRows_() {
         pinHash: String(row[3] || '').trim(),
         active: isTruthyCell_(row[4], true),
         unlimited: isTruthyCell_(row[5], false),
+        passAccess: String(row[6] || '').trim().toUpperCase(),
       };
     })
     .filter((student) => student.email && student.name);
@@ -3429,6 +3720,8 @@ function setupWorkbook_() {
   ensureSheet_(spreadsheet, GD_SHEETS.PINS, GD_HEADERS.PINS);
   ensureSheet_(spreadsheet, GD_SHEETS.UNMATCHED, GD_HEADERS.UNMATCHED);
   ensureSheet_(spreadsheet, GD_SHEETS.CALENDAR, GD_HEADERS.CALENDAR);
+  ensureSheet_(spreadsheet, GD_SHEETS.BELLS, GD_HEADERS.BELLS);
+  ensureSheet_(spreadsheet, GD_SHEETS.TEACHER_AUDIT, GD_HEADERS.TEACHER_AUDIT);
   gdClearMemo_();
 
   const settingsSheet = spreadsheet.getSheetByName(GD_SHEETS.SETTINGS);
@@ -3455,6 +3748,7 @@ function setupWorkbook_() {
     setSettingValue_('PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN');
   }
   seedOfficialSchoolCalendar_();
+  migrateSessionPolicy_();
   refreshWorkbookInstructions_();
 
   const logSheet = spreadsheet.getSheetByName(GD_SHEETS.LOG);
@@ -3523,7 +3817,7 @@ function seedOfficialSchoolCalendar_() {
   const revision = 'Revised 08/14/26; verified 2026-09-02';
   const rows = GD_OFFICIAL_CALENDAR_2026_27
     .filter((entry) => !existing.has(entry[0]))
-    .map((entry) => [entry[0], entry[1], entry[2], source, revision]);
+    .map((entry) => [entry[0], entry[1], entry[2], source, revision, entry[1] ? (/half day/i.test(entry[2]) ? 'HALF' : /reduced/i.test(entry[2]) ? 'REDUCED' : 'NORMAL') : '']);
   if (rows.length) sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, GD_HEADERS.CALENDAR.length).setValues(rows);
   gdForget_('school-calendar');
 }

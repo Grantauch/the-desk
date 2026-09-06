@@ -1,59 +1,91 @@
 {
   "1": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "2": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "3": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "4": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "5": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "6": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "7": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "8": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "9": {
     "status": "OPEN",
@@ -230,28 +262,44 @@
     "batch": "4"
   },
   "31": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "32": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "33": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "34": {
-    "status": "OPEN",
+    "status": "LOCAL_VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Session-policy repair implemented in Code.gs and Index.html; 298 behavioral checks pass, including all six periods on NORMAL/REDUCED/HALF, timing races, membership allowances, private access modes and audited teacher overrides.",
+      "Full canonical verify passed 2026-09-06. Synthetic native workbook migration and protected deployed action smoke pending."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "35": {
     "status": "PUSHED",
@@ -555,12 +603,12 @@
     "batch": "7"
   },
   "_meta": {
-    "updated": "2026-09-05",
+    "updated": "2026-09-06",
     "baseline": "4513ae7543ef42aa6c2152b34a443e5ff0e28cd7",
     "authority": "Revised GrantDesk Astra launch capsule, 2026-09-05",
-    "scope": "Batch 0.5 and Problems 14/19 complete; GitHub push authority (40) verified during publication",
+    "scope": "Hall Pass Problems 1-8 and 31-34 locally verified; release in progress",
     "baseline_deployment": "Baseline GitHub Actions succeeded. Live first-day materials and tax calculator matched baseline source after CRLF normalization. No Netlify deployment SHA exposed through available GitHub status/deployment APIs.",
-    "next_task": "Problem 10: adopt the canonical verify command in Netlify, then continue shared resource eligibility and publishing-path repairs (16, 17, 18, 58).",
+    "next_task": "Finish synthetic migration rehearsal, focused live migration, existing Apps Script deployment update, protected synthetic smoke and release evidence.",
     "validation": {
       "full_gate": "PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 existing hints; build 51 routes; 66 HTML files and 2709 local references",
       "read_only": "Final verify preserved all 172 tracked and new source/document paths byte-for-byte; aggregate SHA256 90369f867334c2c1b8713d915e7bb0cebcd0e802a312bcfef8d91a0ca428899e before and after.",
@@ -575,6 +623,12 @@
       },
       "netlify": "BLOCKED_EXTERNAL: exact deployment fingerprint not exposed by GitHub APIs; existing browser tab listed at Netlify login, and dashboard inspection timed out. No deployment SHA inferred.",
       "apps_script": "No source changes or deployment; no workbook migration, student PIN, or classroom field test."
+    },
+    "hall_pass_release": {
+      "status": "LOCAL_VERIFIED",
+      "schema": "2026-09-05-session-a",
+      "runtime_checks": 298,
+      "field_status": "FIELD_PENDING"
     }
   }
 }

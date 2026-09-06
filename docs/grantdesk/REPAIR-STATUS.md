@@ -1,23 +1,23 @@
 # GrantDesk repair status
 
-Updated 2026-09-05. Authority: revised launch capsule. Baseline: `4513ae7543ef42aa6c2152b34a443e5ff0e28cd7`. The [machine-readable ledger](repair-status.json) records all 73 IDs, dependencies, and current evidence.
+Updated 2026-09-06. Authority: revised launch capsule. Baseline: `4513ae7543ef42aa6c2152b34a443e5ff0e28cd7`. The [machine-readable ledger](repair-status.json) records all 73 IDs, dependencies, and current evidence.
 
 Batch 0.5 is complete. Problems 14 and 19 are VERIFIED at implementation commit `e5297d2fe4a116ef78559faf1dfffbaade6abe57`, pushed to `main` with matching remote SHA. [GitHub Actions canonical verify passed](https://github.com/Grantauch/the-desk/actions/runs/33983159223). Problem 40 is also VERIFIED by that successful push. The nineteen previously completed items remain PUSHED pending exact Netlify deployment correlation; they have not been reopened or reimplemented. Baseline GitHub Actions passed. Live first-day and tax pages match the baseline after line-ending normalization.
 
 PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 hints; build 51 routes; 66 HTML files and 2709 local references. Final verification preserved all 172 tracked and new source/document paths byte-for-byte, including the dependency preflight. All four dependency-availability scenarios passed.
 
-No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are OPEN. Preserve the Version 8 recovery branch. No workbook migration, Apps Script deployment, real student PIN use, or classroom field verification occurred.
+No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are OPEN. Preserve the Version 8 recovery branch. The foundation release did not migrate or deploy Apps Script. The current Hall Pass repair is locally verified; its release checks are in progress. No real student PIN is used.
 
 | ID | Status | Evidence / next action |
 | --- | --- | --- |
-| 1 | OPEN | Open per revised capsule. |
-| 2 | OPEN | Open per revised capsule. |
-| 3 | OPEN | Open per revised capsule. |
-| 4 | OPEN | Open per revised capsule. |
-| 5 | OPEN | Open per revised capsule. |
-| 6 | OPEN | Open per revised capsule. |
-| 7 | OPEN | Open per revised capsule. |
-| 8 | OPEN | Open per revised capsule. |
+| 1 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 2 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 3 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 4 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 5 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 6 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 7 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 8 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
 | 9 | OPEN | Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected. |
 | 10 | OPEN | Open per revised capsule. |
 | 11 | OPEN | Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch. |
@@ -40,10 +40,10 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are 
 | 28 | OPEN | Open per revised capsule. |
 | 29 | OPEN | Open per revised capsule. |
 | 30 | OPEN | Open per revised capsule. |
-| 31 | OPEN | Open per revised capsule. |
-| 32 | OPEN | Open per revised capsule. |
-| 33 | OPEN | Open per revised capsule. |
-| 34 | OPEN | Open per revised capsule. |
+| 31 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 32 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 33 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
+| 34 | LOCAL_VERIFIED | Session-policy repair and 298 runtime checks pass; full verify passed September 6. Deployment pending; FIELD_PENDING. |
 | 35 | PUSHED | Version 17 source snapshot and fingerprint. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
 | 36 | PUSHED | Versions 14-16 unsafe rollback warnings. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
 | 37 | OPEN | Open per revised capsule. |
@@ -87,3 +87,7 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries are 
 Next executable task: Problem 10: adopt the canonical verify command in Netlify, then continue shared resource eligibility and publishing-path repairs (16, 17, 18, 58).
 
 Problem 11 is now OPEN because administrator access is available; main currently has no branch protection. The START-HERE follow-up is complete. Remove the documented curriculum gaps only after Problems 16–18 land. Problem 23 still requires Grant's content mapping. Problem 39 is BLOCKED_EXTERNAL: no deployment fingerprint exposed by GitHub, and the existing Netlify login tab could not be inspected because the browser request timed out. No exact deployment is inferred. This does not block independent release work.
+
+### Hall Pass release checkpoint — September 6
+
+Problems 1–8 and 31–34 are implemented and locally verified. The full canonical gate passed with 298 runtime checks, 67 handoff checks, structural checks, tools/resources/StoryHub validation, Astro checks, production build and static-site validation. The prior saved Apps Script draft was preserved privately before source replacement. Live Version 17 remains the production baseline until migration and deployment checks pass. Field verification remains FIELD_PENDING.

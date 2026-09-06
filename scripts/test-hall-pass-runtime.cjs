@@ -22,7 +22,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { classroom, PEOPLE, TEACHER, setNoSchoolDays } = require('./lib/hall-pass-fixtures.cjs');
+const { classroom, PEOPLE, TEACHER, TEACHER_CONTRACT, setNoSchoolDays } = require('./lib/hall-pass-fixtures.cjs');
 
 /* ------------------------------------------------------------------ runner -- */
 
@@ -84,7 +84,7 @@ test('a fresh project builds every sheet the app depends on', () => {
 
 test('the schema version is recorded so later requests skip the repair', () => {
   const c = classroom();
-  assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-02-a');
+  assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-05-session-a');
 });
 
 test('repair runs once, not on every request', () => {
@@ -209,7 +209,7 @@ test('an action proof is single use and cannot be replayed', () => {
 });
 
 test('a check-in proof cannot authorize a bathroom pass', () => {
-  const c = classroom();
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   const key = c.key(PEOPLE.ada, 'Period 1');
   c.harness.newRequest();
   const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'n');
@@ -257,7 +257,7 @@ test('a signed-in Google identity alone cannot start a pass', () => {
 section('Daily check-in and streaks');
 
 test('a fresh PIN records exactly one check-in', () => {
-  const c = classroom();
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
   const rows = c.checkIns();
   assert.equal(rows.length, 1);
@@ -266,7 +266,7 @@ test('a fresh PIN records exactly one check-in', () => {
 });
 
 test('checking in twice in one day does not add a second row or a second point', () => {
-  const c = classroom();
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
   c.checkIn(PEOPLE.ada, 'Period 1');
   const rows = c.checkIns().filter((row) => row['Student Email'] === PEOPLE.ada.email);
@@ -276,9 +276,11 @@ test('checking in twice in one day does not add a second row or a second point',
 
 test('attendance is per class, so two classes each record their own check-in', () => {
   const c = classroom({
+    now: new Date('2026-09-10T11:30:00Z'),
     memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3']],
   });
   c.checkIn(PEOPLE.ada, 'Period 1');
+  c.harness.clock.set(new Date('2026-09-10T14:05:00Z'));
   c.checkIn(PEOPLE.ada, 'Period 3');
   const periods = c.checkIns().map((row) => String(row['Class / Period'])).sort();
   assert.deepEqual(periods, ['Period 1', 'Period 3']);
@@ -286,7 +288,7 @@ test('attendance is per class, so two classes each record their own check-in', (
 
 test('a check-in on the next school day extends the streak', () => {
   // Tue Sep 8 into Wed Sep 9. Both are school days on the seeded district calendar.
-  const c = classroom({ now: new Date('2026-09-08T14:30:00Z') });
+  const c = classroom({ now: new Date('2026-09-08T11:30:00Z') });
   const first = c.checkIn(PEOPLE.ada, 'Period 1');
   assert.equal(first.state.streak.current, 1);
   c.harness.clock.advanceDays(1);
@@ -297,9 +299,9 @@ test('a check-in on the next school day extends the streak', () => {
 
 test('a weekend gap does not break the streak', () => {
   // Friday Sep 11 into Monday Sep 14.
-  const c = classroom({ now: new Date('2026-09-11T14:30:00Z') });
+  const c = classroom({ now: new Date('2026-09-11T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
-  c.harness.clock.set(new Date('2026-09-14T14:30:00Z'));
+  c.harness.clock.set(new Date('2026-09-14T11:30:00Z'));
   const monday = c.checkIn(PEOPLE.ada, 'Period 1');
   assert.equal(monday.state.streak.current, 2, 'Saturday and Sunday are not required days');
 });
@@ -307,29 +309,29 @@ test('a weekend gap does not break the streak', () => {
 test('an official no-school weekday does not break the streak', () => {
   // Thu Sep 10, then the district calendar is told Fri Sep 11 is closed,
   // so returning on Mon Sep 14 must still read as consecutive.
-  const c = classroom({ now: new Date('2026-09-10T14:30:00Z') });
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
   setNoSchoolDays(c.harness, ['2026-09-11']);
-  c.harness.clock.set(new Date('2026-09-14T14:30:00Z'));
+  c.harness.clock.set(new Date('2026-09-14T11:30:00Z'));
   const monday = c.checkIn(PEOPLE.ada, 'Period 1');
   assert.equal(monday.state.streak.current, 2, 'a calendar no-school day must not break a streak');
 });
 
 test('a streak is reported as protected, not at risk, on a no-school day', () => {
-  const c = classroom({ now: new Date('2026-09-11T14:30:00Z') }); // Friday
+  const c = classroom({ now: new Date('2026-09-11T11:30:00Z') }); // Friday
   c.checkIn(PEOPLE.ada, 'Period 1');
-  c.harness.clock.set(new Date('2026-09-12T14:30:00Z')); // Saturday
+  c.harness.clock.set(new Date('2026-09-12T11:30:00Z')); // Saturday
   c.harness.newRequest();
-  const state = c.harness.call('identifyCheckInWithPin', c.pin(PEOPLE.ada), 'n');
+  const state = c.harness.call('getCheckInState_', c.harness.call('getStudentByKey_', c.key(PEOPLE.ada, 'Period 1')), '', 'pin');
   assert.equal(state.streak.nonSchoolDayProtected, true, 'a closed day must read as protected');
   assert.equal(state.streak.atRiskToday, false, 'a closed day must never be at risk');
   assert.equal(state.streak.current, 1);
 });
 
 test('a streak is flagged at risk on a school day before the student checks in', () => {
-  const c = classroom({ now: new Date('2026-09-08T14:30:00Z') });
+  const c = classroom({ now: new Date('2026-09-08T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
-  c.harness.clock.set(new Date('2026-09-09T14:30:00Z'));
+  c.harness.clock.set(new Date('2026-09-09T11:30:00Z'));
   c.harness.newRequest();
   const state = c.harness.call('identifyCheckInWithPin', c.pin(PEOPLE.ada), 'n');
   assert.equal(state.streak.atRiskToday, true, 'an open day with no check-in yet is at risk');
@@ -338,9 +340,9 @@ test('a streak is flagged at risk on a school day before the student checks in',
 
 test('a missed school day does break the streak', () => {
   // Tue Sep 8, nothing on Wed Sep 9, back on Thu Sep 10. All three are school days.
-  const c = classroom({ now: new Date('2026-09-08T14:30:00Z') });
+  const c = classroom({ now: new Date('2026-09-08T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
-  c.harness.clock.set(new Date('2026-09-10T14:30:00Z'));
+  c.harness.clock.set(new Date('2026-09-10T11:30:00Z'));
   const thursday = c.checkIn(PEOPLE.ada, 'Period 1');
   assert.equal(thursday.state.streak.current, 1, 'a skipped school day must reset the streak');
   assert.equal(thursday.state.streak.best, 1);
@@ -348,15 +350,15 @@ test('a missed school day does break the streak', () => {
 
 test('a reduced day still counts as a school day', () => {
   // Wed Sep 16 is marked "Reduced day" on the official calendar.
-  const c = classroom({ now: new Date('2026-09-15T14:30:00Z') });
+  const c = classroom({ now: new Date('2026-09-15T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
-  c.harness.clock.set(new Date('2026-09-16T14:30:00Z'));
+  c.harness.clock.set(new Date('2026-09-16T11:30:00Z'));
   const reduced = c.checkIn(PEOPLE.ada, 'Period 1');
   assert.equal(reduced.state.streak.current, 2, 'a reduced day is still a required day');
 });
 
 test('the seeded calendar carries the official district dates', () => {
-  const c = classroom();
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   const rows = c.calendar();
   const laborDay = rows.find((row) => String(row.Date) === '2026-09-07');
   assert.ok(laborDay, 'Labor Day must be present on the calendar');
@@ -430,14 +432,15 @@ test('a student already out cannot open a second concurrent pass', () => {
   assert.equal(c.passLog().filter((row) => String(row.Status) === 'OUT').length, 1);
 });
 
-test('one pass allowance follows the student across classes', () => {
+test('each class membership has its own marking-period allowance', () => {
   const c = classroom({
     memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3']],
     settings: { MAX_ACTIVE_PASSES: 2, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 1 },
   });
   c.trip(PEOPLE.ada, 'Period 1', 60);
+  c.harness.clock.set(new Date('2026-09-10T14:30:00Z'));
   const secondClass = c.requestPass(PEOPLE.ada, 'Period 3');
-  assert.notEqual(outcomeOf(secondClass).kind, 'STARTED', 'the limit is student-level, not per class');
+  assert.equal(outcomeOf(secondClass).kind, 'STARTED', 'each class has its own allowance');
 });
 
 /* ------------------------------------- 6. cooldown, limits, lockout ---------- */
@@ -501,13 +504,13 @@ test('a blocked student is shown the exact trips responsible', () => {
 
 test('lockout evidence is stamped in school time, not UTC', () => {
   const c = classroom({
-    now: new Date('2026-09-10T14:30:00Z'), // 10:30 AM in Detroit
+    now: new Date('2026-09-10T11:50:00Z'), // 7:50 AM in Detroit
     settings: { MAX_ACTIVE_PASSES: 2, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 1 },
   });
   c.trip(PEOPLE.ada, 'Period 1', 60);
   const blocked = c.requestPass(PEOPLE.ada, 'Period 1');
   const first = blocked.state.passAllowance.blockedEvidence[0];
-  assert.match(String(first.schoolTime), /10:30 AM/, 'a UTC clock would read 2:30 PM and confuse the student');
+  assert.match(String(first.schoolTime), /7:50 AM/, 'a UTC clock would read 11:50 AM and confuse the student');
 });
 
 test('remaining never displays as a negative number', () => {
@@ -636,13 +639,13 @@ test('a voided trip stops counting toward the marking period', () => {
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  const before = c.harness.call('teacherGetCountablePasses', PEOPLE.ada.email);
+  const before = c.harness.call('teacherGetMembershipPasses', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
   assert.equal(before.used, 2);
 
   c.harness.newRequest();
   c.harness.call('teacherVoidPass', String(before.passes[0].passId), 'Correction');
   c.harness.newRequest();
-  const after = c.harness.call('teacherGetCountablePasses', PEOPLE.ada.email);
+  const after = c.harness.call('teacherGetMembershipPasses', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
   assert.equal(after.used, 1, 'the voided trip must drop out of the count');
 });
 
@@ -664,7 +667,7 @@ test('teacher history is available on demand and matches the log', () => {
   c.trip(PEOPLE.ada, 'Period 1', 60);
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  const history = c.harness.call('teacherGetCountablePasses', PEOPLE.ada.email);
+  const history = c.harness.call('teacherGetMembershipPasses', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
   assert.equal(history.passes.length, 2);
   history.passes.forEach((entry) => {
     assert.equal(entry.countability, 'COUNTABLE');
@@ -679,7 +682,7 @@ test('a teacher override starts a pass past the limit', () => {
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherStartPass', c.key(PEOPLE.ada, 'Period 1'));
+  c.harness.call('teacherStartPass', c.key(PEOPLE.ada, 'Period 1'), 'Synthetic teacher backup', TEACHER_CONTRACT);
   const out = c.passLog().filter((row) => String(row.Status) === 'OUT');
   assert.equal(out.length, 1, 'the teacher can always let a student leave');
 });
@@ -688,12 +691,12 @@ test('an overridden trip still obeys the countability rules', () => {
   const c = classroom({ settings: { MAX_ACTIVE_PASSES: 2, PASS_COOLDOWN_MINUTES: 0 } });
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherStartPass', c.key(PEOPLE.ada, 'Period 1'));
+  c.harness.call('teacherStartPass', c.key(PEOPLE.ada, 'Period 1'), 'Synthetic teacher backup', TEACHER_CONTRACT);
   const started = c.passLog().find((row) => String(row.Status) === 'OUT');
 
   c.harness.clock.advanceSeconds(1);
   c.harness.newRequest();
-  c.harness.call('teacherEndPass', String(started['Pass ID']), 'ended by teacher');
+  c.harness.call('teacherEndPass', String(started['Pass ID']), 'ended by teacher', TEACHER_CONTRACT);
 
   const row = c.passLog().find((entry) => String(entry['Pass ID']) === String(started['Pass ID']));
   assert.equal(String(row.Countability), 'NON_COUNTABLE', 'a one-second override trip is still under the minimum');
@@ -789,6 +792,7 @@ test('the dashboard reports the room, the line and today at a glance', () => {
 test('a routine teacher poll does not ship the permanent lifetime audit', () => {
   const c = classroom({ settings: { MAX_ACTIVE_PASSES: 2, PASS_COOLDOWN_MINUTES: 0, RETENTION_DAYS: 1 } });
   for (let day = 0; day < 4; day += 1) {
+    c.harness.clock.set(new Date(['2026-09-10', '2026-09-11', '2026-09-14', '2026-09-15'][day] + 'T11:50:00Z'));
     c.trip(PEOPLE.ada, 'Period 1', 60);
     c.harness.clock.advanceDays(1);
   }
@@ -821,6 +825,7 @@ test('the dashboard surfaces lock contention without identifying anyone', () => 
 
 test('per-class check-in summaries are reported for each period', () => {
   const c = classroom({
+    now: new Date('2026-09-10T11:30:00Z'),
     memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.alan, 'Period 1'], [PEOPLE.grace, 'Period 3']],
   });
   c.checkIn(PEOPLE.ada, 'Period 1');
@@ -890,14 +895,15 @@ test('adding a student to a second class does not create a second identity', () 
   assert.equal(hashes.size, 1, 'one credential across both');
 });
 
-test('pass allowance stays student-level after a class is added', () => {
+test('adding a class gives that membership its own marking-period allowance', () => {
   const c = classroom({ settings: { MAX_ACTIVE_PASSES: 2, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 1 } });
   c.trip(PEOPLE.ada, 'Period 1', 60);
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
   c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 3');
+  c.harness.clock.set(new Date('2026-09-10T14:30:00Z'));
   const inOtherClass = c.requestPass(PEOPLE.ada, 'Period 3');
-  assert.notEqual(outcomeOf(inOtherClass).kind, 'STARTED', 'a new class must not hand out a fresh allowance');
+  assert.equal(outcomeOf(inOtherClass).kind, 'STARTED', 'the new membership has its own allowance');
 });
 
 /* ---------------------------------------------------------- 12. privacy ----- */
@@ -1037,6 +1043,7 @@ test('every action literal the client can send is accepted by the server', () =>
   assert.ok(actions.length >= 4, `expected the client's four action literals, found ${actions.join(',')}`);
 
   actions.forEach((action) => {
+    c.harness.clock.set(new Date(action === 'CHECKIN' ? '2026-09-10T11:30:00Z' : '2026-09-10T11:50:00Z'));
     c.harness.newRequest();
     const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), action, key, `n-${action}`);
     assert.ok(
@@ -1082,7 +1089,7 @@ test('capacity, limits and cooldown all read from Settings rather than the sourc
   const c = classroom({ settings: { MAX_ACTIVE_PASSES: 3, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 0 } });
   assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED');
   assert.equal(outcomeOf(c.requestPass(PEOPLE.alan, 'Period 1')).kind, 'STARTED');
-  assert.equal(outcomeOf(c.requestPass(PEOPLE.grace, 'Period 3')).kind, 'STARTED');
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.grace, 'Period 1')).kind, 'STARTED');
   assert.equal(Number(c.teacherState().maxActivePasses), 3, 'the dashboard must reflect the configured capacity');
 });
 
@@ -1100,4 +1107,5 @@ test('a daily limit is enforced independently of the marking-period limit', () =
 });
 
 
+require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();

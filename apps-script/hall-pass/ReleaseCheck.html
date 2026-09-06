@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="en"><head><base target="_top"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GrantDesk private release check</title>
+<style>body{font:18px system-ui;max-width:720px;margin:50px auto;padding:24px;line-height:1.6;color:#202127}button{font:inherit;background:#184ae8;color:white;padding:12px 20px;border:0;border-radius:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}</style></head>
+<body><h1>Private release check</h1><p>This checks a fresh synthetic PIN, pass request, return, and class evidence in a separate private test workbook. Real student records are preserved. No email is sent.</p><button id="run">Run synthetic release check</button><pre id="result" role="status">Ready.</pre>
+<script>
+const button=document.querySelector('#run'),result=document.querySelector('#result');
+button.addEventListener('click',()=>{button.disabled=true;result.textContent='Running the protected action check…';google.script.run.withSuccessHandler(value=>{result.textContent=JSON.stringify(value,null,2);}).withFailureHandler(error=>{result.textContent='FAILED: '+error.message;button.disabled=false;}).releaseRunSyntheticSmoke('2026-09-05-memberships');});
+</script></body></html>
