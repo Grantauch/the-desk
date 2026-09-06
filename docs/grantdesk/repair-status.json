@@ -107,19 +107,20 @@
     "status": "OPEN",
     "depends_on": [],
     "evidence": [
-      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+      "Canonical checks now cover local publishers and are configured at the Netlify boundary. Keep this umbrella open until production execution is verified; branch-protection Problem 11 remains separate."
     ]
   },
   "10": {
-    "status": "LOCAL_VERIFIED",
+    "status": "PUSHED",
     "depends_on": [
       14,
       19
     ],
     "evidence": [
-      "Netlify now calls the canonical npm run verify command, matching GitHub Actions and local publishing. Exact Netlify production execution remains unverified until dashboard access is available.",
+      "Netlify is configured to call the canonical npm run verify command, matching GitHub Actions and local publishing. Exact Netlify production execution remains unverified until dashboard access is available.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
-      "Commit/push and GitHub Actions verification are the next release steps. Apps Script/workbook unchanged."
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
     ],
     "batch": "1"
   },
@@ -134,7 +135,7 @@
     "status": "OPEN",
     "depends_on": [],
     "evidence": [
-      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+      "Authenticated web editor still writes narrow changes to main by design. The Netlify verify backstop is pushed at adb14b472bf7d57eed1d1218558eda5e732acf5b; production execution remains unverified."
     ]
   },
   "13": {
@@ -166,7 +167,7 @@
     ]
   },
   "16": {
-    "status": "LOCAL_VERIFIED",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
@@ -174,12 +175,13 @@
     "evidence": [
       "Resource sync uses the shared eligibility helper, preserves linked and null/empty/absent-href coming-soon resources and assignments, validates both outputs before writes, exports only public fields, and preserves private source files.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
-      "Commit/push and GitHub Actions verification are the next release steps. Apps Script/workbook unchanged."
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
     ],
     "batch": "1"
   },
   "17": {
-    "status": "LOCAL_VERIFIED",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
@@ -187,12 +189,13 @@
     "evidence": [
       "Local editor listing and assignment validation use shared eligibility. Coming-soon status is visible; an actual HTTP save/publish fixture preserves placeholders and private-only assignment history while rejecting concurrent mutations.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
-      "Commit/push and GitHub Actions verification are the next release steps. Apps Script/workbook unchanged."
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
     ],
     "batch": "1"
   },
   "18": {
-    "status": "LOCAL_VERIFIED",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
@@ -200,7 +203,8 @@
     "evidence": [
       "Ordinary local/editor publishing never runs resources:sync. The full gate and synthetic editor publication pass without private inventories; public catalog and private source bytes are preserved.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
-      "Commit/push and GitHub Actions verification are the next release steps. Apps Script/workbook unchanged."
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
     ],
     "batch": "1"
   },
@@ -516,7 +520,7 @@
     "summary": "Stale root jeopardy copies removed; canonical hubs retained"
   },
   "58": {
-    "status": "LOCAL_VERIFIED",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
@@ -524,7 +528,8 @@
     "evidence": [
       "Both legacy batch scripts delegate to publish.bat and the shared publisher. No automatic all-files staging or index-lock deletion. Intended batches, failure stops, source stability, upload retry and remote SHA confirmation are covered with synthetic repositories.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
-      "Commit/push and GitHub Actions verification are the next release steps. Apps Script/workbook unchanged."
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
     ],
     "batch": "1"
   },
@@ -652,9 +657,9 @@
     "updated": "2026-09-06",
     "baseline": "4513ae7543ef42aa6c2152b34a443e5ff0e28cd7",
     "authority": "Revised GrantDesk Astra launch capsule, 2026-09-05",
-    "scope": "Publishing/resource safeguards locally verified for Problems 10, 16, 17, 18 and 58; Hall Pass Version 18 release unchanged.",
+    "scope": "Publishing/resource fixes 16,17,18,58 verified in local and GitHub checks; Netlify gate 10 pushed with production verification pending. Hall Pass Version 18 unchanged.",
     "baseline_deployment": "Baseline GitHub Actions succeeded. Live first-day materials and tax calculator matched baseline source after CRLF normalization. No Netlify deployment SHA exposed through available GitHub status/deployment APIs.",
-    "next_task": "Push this verified publishing batch and check GitHub Actions. Exact Netlify deployment requires authenticated dashboard access. Other website repairs and the Hall Pass classroom field cycle remain separate.",
+    "next_task": "Continue independent website/content/accessibility work or repository protection (11). Netlify production verification (10/39) requires authenticated dashboard access; Hall Pass ordinary classroom field verification remains pending.",
     "validation": {
       "full_gate": "PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 existing hints; build 51 routes; 66 HTML files and 2709 local references",
       "read_only": "Final verify preserved all 172 tracked and new source/document paths byte-for-byte; aggregate SHA256 90369f867334c2c1b8713d915e7bb0cebcd0e802a312bcfef8d91a0ca428899e before and after.",
@@ -682,7 +687,7 @@
       "field_status": "FIELD_PENDING"
     },
     "publishing_release": {
-      "status": "LOCAL_VERIFIED",
+      "status": "PUSHED_AND_CI_VERIFIED_NETLIFY_UNVERIFIED",
       "problems": [
         10,
         16,
@@ -692,7 +697,14 @@
       ],
       "validation": "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
       "netlify": "Deployment verification blocked by dashboard sign-in; GitHub exposes no deployment record.",
-      "apps_script": "Unchanged: Version 18; no workbook operations or student traffic tests in this batch."
+      "apps_script": "Unchanged: Version 18; no workbook operations or student traffic tests in this batch.",
+      "implementation_commit": "adb14b472bf7d57eed1d1218558eda5e732acf5b",
+      "remote": "main SHA matched implementation immediately after push",
+      "github_actions": {
+        "status": "success",
+        "url": "https://github.com/Grantauch/the-desk/actions/runs/34054617391"
+      },
+      "public_routes": "Homepage, resources, editor, pass and check-in returned HTTP 200 after push. Route availability does not identify the deployed commit."
     }
   }
 }

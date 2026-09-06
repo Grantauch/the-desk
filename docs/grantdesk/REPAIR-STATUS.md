@@ -18,16 +18,16 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries with
 | 6 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
 | 7 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
 | 8 | VERIFIED | Version 18; 298 runtime checks and full gate pass; native migration and deployed protected synthetic smoke pass. FIELD_PENDING. |
-| 9 | OPEN | Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected. |
-| 10 | LOCAL_VERIFIED | Netlify now calls the canonical npm run verify command, matching GitHub Actions and local publishing. Exact Netlify production execution remains unverified until dashboard access is available. |
+| 9 | OPEN | Shared verification is implemented; production execution remains unverified. Branch protection (11) is separate. |
+| 10 | PUSHED | Netlify is configured to call the canonical npm run verify command, matching GitHub Actions and local publishing. Exact Netlify production execution remains unverified until dashboard access is available. |
 | 11 | OPEN | Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch. |
-| 12 | OPEN | Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected. |
+| 12 | OPEN | Narrow authenticated editor writes remain intentional. Netlify verification backstop is pushed; production execution remains unverified. |
 | 13 | PUSHED | Editor save/rebuild/confirm copy. Launch capsule reports implementation and tests at 002b302; included in baseline 4513ae7. Do not reimplement. |
 | 14 | VERIFIED | Canonical six-stage verify implemented; GitHub Actions calls it once; check dependency preflight added. START-HERE and CLAUDE document the command. Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums. Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223 |
 | 15 | VERIFIED | Policy settled in specification: live-data:check remains a separate health check, excluded from deterministic verification. |
-| 16 | LOCAL_VERIFIED | Resource sync uses the shared eligibility helper, preserves linked and null/empty/absent-href coming-soon resources and assignments, validates both outputs before writes, exports only public fields, and preserves private source files. |
-| 17 | LOCAL_VERIFIED | Local editor listing and assignment validation use shared eligibility. Coming-soon status is visible; an actual HTTP save/publish fixture preserves placeholders and private-only assignment history while rejecting concurrent mutations. |
-| 18 | LOCAL_VERIFIED | Ordinary local/editor publishing never runs resources:sync. The full gate and synthetic editor publication pass without private inventories; public catalog and private source bytes are preserved. |
+| 16 | VERIFIED | Resource sync uses the shared eligibility helper, preserves linked and null/empty/absent-href coming-soon resources and assignments, validates both outputs before writes, exports only public fields, and preserves private source files. |
+| 17 | VERIFIED | Local editor listing and assignment validation use shared eligibility. Coming-soon status is visible; an actual HTTP save/publish fixture preserves placeholders and private-only assignment history while rejecting concurrent mutations. |
+| 18 | VERIFIED | Ordinary local/editor publishing never runs resources:sync. The full gate and synthetic editor publication pass without private inventories; public catalog and private source bytes are preserved. |
 | 19 | VERIFIED | Read-only catalog/assignment validator and shared eligibility helper implemented, without private inventories. Archived unapproved resource removed only from public JSON; baseline history and Drive source preserved. 136 resources, 128 links, 8 placeholders. Final canonical verify passed with 46 resource/release fixture groups and unchanged source/data checksums. Pushed to main and remote SHA confirmed. GitHub Actions canonical verify passed: https://github.com/Grantauch/the-desk/actions/runs/33983159223 |
 | 20 | PUSHED | First-day instructional dates and no-school rows. Launch capsule reports implementation and tests at 002b302; site:validate negative-tested; included in baseline 4513ae7. Do not reimplement. |
 | 21 | PUSHED | US History 9 scope reaches the present. Launch capsule reports implementation and tests at 002b302; site:validate; included in baseline 4513ae7. Do not reimplement. |
@@ -67,7 +67,7 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries with
 | 55 | PUSHED | START-HERE publishing routes. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
 | 56 | PUSHED | Curriculum eligibility and documented href-only gap. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
 | 57 | PUSHED | Stale root jeopardy copies removed; canonical hubs retained. Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement. |
-| 58 | LOCAL_VERIFIED | Both legacy batch scripts delegate to publish.bat and the shared publisher. No automatic all-files staging or index-lock deletion. Intended batches, failure stops, source stability, upload retry and remote SHA confirmation are covered with synthetic repositories. |
+| 58 | VERIFIED | Both legacy batch scripts delegate to publish.bat and the shared publisher. No automatic all-files staging or index-lock deletion. Intended batches, failure stops, source stability, upload retry and remote SHA confirmation are covered with synthetic repositories. |
 | 59 | PRESERVE_VERIFIED | Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim. |
 | 60 | PRESERVE_VERIFIED | Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim. |
 | 61 | PRESERVE_VERIFIED | Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim. |
@@ -84,9 +84,9 @@ No older checkout work was recovered or merged. Former VERIFY_LOCAL entries with
 | 72 | PRESERVE_VERIFIED | Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim. |
 | 73 | PRESERVE_VERIFIED | Preserved per revised capsule; existing handoff, structural Hall Pass, and runtime regression suites passed locally. No reimplementation and no new classroom field claim. |
 
-Next executable task: push the locally verified publishing/resource batch and check GitHub Actions; exact Netlify deployment needs authenticated dashboard access.
+Next executable task: continue independent website/content/accessibility repairs or repository protection (11). Exact Netlify production verification (10/39) needs authenticated dashboard access.
 
-Problem 11 is now OPEN because administrator access is available; main currently has no branch protection. The START-HERE follow-up is complete. The curriculum publishing gaps are resolved in the current batch. Problem 23 still requires Grant's content mapping. Problem 39 is BLOCKED_EXTERNAL: no deployment fingerprint exposed by GitHub, and the existing Netlify login tab could not be inspected because the browser request timed out. No exact deployment is inferred. This does not block independent release work.
+Problem 11 is now OPEN because administrator access is available; main currently has no branch protection. The START-HERE follow-up is complete. The curriculum publishing gaps are resolved in the current batch. Problem 23 still requires Grant's content mapping. Problem 39 is BLOCKED_EXTERNAL: no deployment fingerprint exposed by GitHub, and the currently available Netlify/GitHub browser session requires sign-in. No exact deployment is inferred. This does not block independent release work.
 
 ### Hall Pass release complete — September 6
 
@@ -102,8 +102,8 @@ Full canonical verify and GitHub Actions passed, including 298 behavioral checks
 
 ### Publishing/resource safeguards — September 6
 
-Problems 10, 16–18 and 58 are locally verified. Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.
+Problems 16–18 and 58 are verified in local and GitHub checks. Problem 10 is pushed, with Netlify production execution unverified. Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.
 
 The new integration checks use temporary local repositories and a local editor HTTP fixture, with no external test uploads. They cover failed checks, unchanged source/private inventories, preserved coming-soon assignments, unrelated changes, Git locks, concurrent saves, remote divergence, cancelled confirmation and failed-upload recovery. The ordinary authoring inventory was not synced.
 
-Production source commit/push and GitHub Actions are the next release steps. Netlify dashboard sign-in is required for an exact deployment fingerprint; no success is inferred. Apps Script Version 18 and the private workbook are unchanged.
+Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and the remote SHA matched. [Canonical GitHub Actions verification passed](https://github.com/Grantauch/the-desk/actions/runs/34054617391). The homepage, resources, editor, pass and check-in routes returned HTTP 200 after the push; availability does not prove the deployed source version. Netlify dashboard sign-in is required for the exact deployment fingerprint and production gate verification. Apps Script Version 18 and the private workbook are unchanged.
