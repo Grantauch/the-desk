@@ -251,6 +251,45 @@ for (const [course, current, retired] of renamedUnits) {
   }
 }
 
+// --- StoryHub releases: every declared route must ship as an indexable, shareable page ---
+const storyhubReleaseDir = resolve(process.cwd(), 'storyhub', 'releases');
+if (await exists(storyhubReleaseDir)) {
+  for (const entry of await readdir(storyhubReleaseDir)) {
+    if (!entry.endsWith('.json')) continue;
+    const release = JSON.parse(await readFile(join(storyhubReleaseDir, entry), 'utf8'));
+    const route = String(release.route ?? '').replace(/^\/+/, '');
+    if (!route) continue;
+    const routePath = join(distRoot, route);
+    const html = htmlByFile.get(routePath) ?? ((await exists(routePath)) ? await readFile(routePath, 'utf8') : '');
+    if (!html) {
+      failures.push(`${route} -> StoryHub release ${release.storyId} was not built`);
+      continue;
+    }
+    const expectedCanonical = `https://grant-desk.com/${route}`;
+    const storyChecks = [
+      [/<meta\b[^>]*\bname=["']description["'][^>]*\bcontent=["'][^"']+["']/i, 'description'],
+      [/<meta\b[^>]*\bproperty=["']og:title["'][^>]*\bcontent=["'][^"']+["']/i, 'Open Graph title'],
+      [/<meta\b[^>]*\bproperty=["']og:image["'][^>]*\bcontent=["']https:\/\/grant-desk\.com\/[^"']+["']/i, 'Open Graph image'],
+      [/<meta\b[^>]*\bname=["']twitter:card["'][^>]*\bcontent=["']summary_large_image["']/i, 'Twitter card'],
+      [/<a\b[^>]*\bclass=["']skip["'][^>]*\bhref=["']#main-content["']/i, 'skip link'],
+      [/<main\b[^>]*\bid=["']main-content["']/i, 'main landmark target'],
+      [/prefers-reduced-motion/i, 'reduced-motion handling'],
+    ];
+    storyChecks.forEach(([pattern, label]) => {
+      if (!pattern.test(html)) failures.push(`${route} -> StoryHub page missing ${label}`);
+    });
+    if (!html.includes(`<link rel="canonical" href="${expectedCanonical}">`)) {
+      failures.push(`${route} -> StoryHub canonical must be ${expectedCanonical}`);
+    }
+    if (/<meta\b[^>]*\bname=["']robots["'][^>]*\bcontent=["'][^"']*noindex/i.test(html)) {
+      failures.push(`${route} -> StoryHub pages are public lesson content and must not be noindex`);
+    }
+    if (/data:image\/(?:webp|png|jpe?g|gif)/i.test(html)) {
+      failures.push(`${route} -> StoryHub page still embeds data: image URIs instead of cacheable asset files`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(`Static site validation: FAIL (${failures.length} missing or unsafe references)`);
   failures.slice(0, 100).forEach((failure) => console.error(`- ${failure}`));
