@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L014",
+  "note": "Verified public-domain archival photographs used as named-person visual anchors. Each record was checked on the Library of Congress item API for subject identity and an explicit rights statement before use. The grade is a tonal/palette treatment only: crop, grayscale normalisation, duotone mapping sampled from the approved L014 artwork, and light grain. No photographic content is added, removed, or repainted, and the page credits each as an archival photograph.",
+  "gradeIntent": "Duotone endpoints sampled from approved asset A04 (shadow #141518, highlight #cebaa1) so archival plates sit inside the L014 palette instead of reading as foreign stock imagery.",
+  "portraits": [
+    {
+      "assetId": "A14",
+      "person": "Jay Gould",
+      "file": "a14-jay-gould-loc.webp",
+      "recordUrl": "https://www.loc.gov/pictures/item/91482972/",
+      "recordId": "91482972",
+      "recordTitle": "[Jay Gould, half-length portrait, facing left]",
+      "recordDate": "[between 1865 and 1892]",
+      "recordSubject": "Gould, Jay,--1836-1892.",
+      "rightsStatement": "No known restrictions on publication.",
+      "sourceImage": "https://cdn.loc.gov/service/pnp/cph/3c00000/3c04000/3c04400/3c04428v.jpg",
+      "crop": "640x780+55+150",
+      "tone": [
+        "-contrast-stretch",
+        "0.5%x0.6%"
+      ]
+    },
+    {
+      "assetId": "A15",
+      "person": "Samuel Gompers",
+      "file": "a15-samuel-gompers-loc.webp",
+      "recordUrl": "https://www.loc.gov/pictures/item/2002717893/",
+      "recordId": "2002717893",
+      "recordTitle": "Samuel Gompers, 1850-1924",
+      "recordDate": "c1902.",
+      "recordSubject": "Samuel Gompers, 1850-1924 (life dates carried in the Library of Congress record title)",
+      "rightsStatement": "No known restrictions on publication.",
+      "sourceImage": "https://cdn.loc.gov/service/pnp/cph/3b30000/3b34000/3b34900/3b34933r.jpg",
+      "crop": "395x570+22+28",
+      "tone": [
+        "-auto-level",
+        "-gamma",
+        "1.18",
+        "-contrast-stretch",
+        "0.4%x0.5%"
+      ]
+    }
+  ],
+  "output": {
+    "dir": "storyhub/ush9/l014/assets",
+    "size": "720x960",
+    "duotone": [
+      "#141518",
+      "#cebaa1"
+    ],
+    "grain": "0.20",
+    "quality": "86"
+  }
+}
