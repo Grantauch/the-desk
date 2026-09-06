@@ -43,7 +43,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all four ordered migrations are recorded', async () => {
+    await t.test('all five ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>(
         'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
       );
@@ -51,7 +51,8 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         '001_identity_and_tenancy.sql',
         '002_organization_academics.sql',
         '003_schedule_calendar_policy.sql',
-        '004_idempotency_outbox_audit.sql'
+        '004_idempotency_outbox_audit.sql',
+        '005_policy_actor_tenant_integrity.sql'
       ]);
     });
 
@@ -182,18 +183,18 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         await expectPgConstraint(
           client,
           `INSERT INTO school_policy_sets
-             (school_id, academic_year_id, name, effective_from, effective_until)
-           VALUES ($1, $2, 'Broken Policy', DATE '2026-10-10', DATE '2026-10-01')`,
-          [ids.schoolA, ids.yearA],
+             (organization_id, school_id, academic_year_id, name, effective_from, effective_until)
+           VALUES ($1, $2, $3, 'Broken Policy', DATE '2026-10-10', DATE '2026-10-01')`,
+          [ids.orgA, ids.schoolA, ids.yearA],
           ['23514']
         );
 
         await expectPgConstraint(
           client,
           `INSERT INTO student_access_rules
-             (school_id, student_id, access_mode, valid_from, valid_until)
-           VALUES ($1, $2, 'STANDARD', TIMESTAMPTZ '2026-09-07 12:00:00Z', TIMESTAMPTZ '2026-09-07 11:00:00Z')`,
-          [ids.schoolA, ids.studentA],
+             (organization_id, school_id, student_id, access_mode, valid_from, valid_until)
+           VALUES ($1, $2, $3, 'STANDARD', TIMESTAMPTZ '2026-09-07 12:00:00Z', TIMESTAMPTZ '2026-09-07 11:00:00Z')`,
+          [ids.orgA, ids.schoolA, ids.studentA],
           ['23514']
         );
       });
@@ -205,17 +206,59 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         await expectPgConstraint(
           client,
           `INSERT INTO section_policy_overrides
-             (school_id, section_id, policy_key, typed_value_json)
-           VALUES ($1, $2, 'DAILY_LIMIT', '2'::jsonb)`,
-          [ids.schoolA, ids.sectionB1],
+             (organization_id, school_id, section_id, policy_key, typed_value_json)
+           VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb)`,
+          [ids.orgA, ids.schoolA, ids.sectionB1],
           ['23503']
         );
         await expectPgConstraint(
           client,
           `INSERT INTO student_access_rules
-             (school_id, student_id, section_id, access_mode)
-           VALUES ($1, $2, $3, 'STANDARD')`,
-          [ids.schoolA, ids.studentA, ids.sectionB1],
+             (organization_id, school_id, student_id, section_id, access_mode)
+           VALUES ($1, $2, $3, $4, 'STANDARD')`,
+          [ids.orgA, ids.schoolA, ids.studentA, ids.sectionB1],
+          ['23503']
+        );
+      });
+    });
+
+    await t.test('configuration provenance actors cannot cross organization boundaries', async () => {
+      await withRollback(pool, async (client) => {
+        const ids = await seedTwoSchoolFixture(client);
+
+        await expectPgConstraint(
+          client,
+          `INSERT INTO school_calendar_days
+             (organization_id, school_id, academic_date, is_school_day, updated_by_user_id)
+           VALUES ($1, $2, DATE '2026-09-08', false, $3)`,
+          [ids.orgA, ids.schoolA, ids.teacherB],
+          ['23503']
+        );
+
+        await expectPgConstraint(
+          client,
+          `INSERT INTO school_policy_sets
+             (organization_id, school_id, academic_year_id, name, effective_from, created_by_user_id)
+           VALUES ($1, $2, $3, 'Cross Org Policy', DATE '2026-09-08', $4)`,
+          [ids.orgA, ids.schoolA, ids.yearA, ids.teacherB],
+          ['23503']
+        );
+
+        await expectPgConstraint(
+          client,
+          `INSERT INTO section_policy_overrides
+             (organization_id, school_id, section_id, policy_key, typed_value_json, set_by_user_id)
+           VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb, $4)`,
+          [ids.orgA, ids.schoolA, ids.sectionA1, ids.teacherB],
+          ['23503']
+        );
+
+        await expectPgConstraint(
+          client,
+          `INSERT INTO student_access_rules
+             (organization_id, school_id, student_id, access_mode, set_by_user_id)
+           VALUES ($1, $2, $3, 'STANDARD', $4)`,
+          [ids.orgA, ids.schoolA, ids.studentA, ids.teacherB],
           ['23503']
         );
       });
