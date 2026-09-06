@@ -9,6 +9,7 @@ Status: SW-020 relational foundation. This document describes storage ownership 
 - Internal UUIDs are canonical. Email, display name, Google IDs, Classroom IDs and legacy keys are attributes or aliases, never person primary keys.
 - School-owned joins use composite school keys where a cross-tenant reference would otherwise be possible.
 - Staff users belong to an organization and receive school roles/section assignments separately.
+- Configuration provenance actors may act across schools only inside their own organization; raw SQL cannot attach another organization's user as creator/updater/setter.
 - Deactivation preserves rows. Institutional history is not cascade-deleted.
 - School-local calendar facts use `date`; event timestamps use `timestamptz`.
 - Provider-specific behavior is intentionally absent. The schema is standard PostgreSQL.
@@ -56,6 +57,7 @@ The following relationships are protected by composite keys rather than applicat
 - policy value -> policy set in the same school
 - section override -> section in the same school
 - student access rule -> student and optional section in the same school
+- calendar/policy/override/access provenance actor -> user in the same organization as the owning school
 - audit actor student -> student in the same school
 - audit/idempotency/outbox organization -> school in the same organization
 
@@ -77,6 +79,7 @@ SW-020 only stores the inputs. SW-040 owns effective-session and effective-polic
 - `ordinal_by_time` exists so period labels do not imply chronological order.
 - `school_calendar_days` is the explicit school-day record and may point to a schedule profile only on a school day.
 - `school_policy_sets`, `policy_values`, `section_policy_overrides`, and `student_access_rules` retain provenance/effective intervals.
+- Configuration actor references are organization-bound but intentionally not school-bound, allowing a future district administrator to configure multiple schools inside their organization when SW-030/SW-120 authorizes it.
 - The database guarantees ownership and valid interval shape; it does not yet decide override precedence, eligibility, cooldown or pass limits.
 
 ## Audit, idempotency and outbox
@@ -94,5 +97,8 @@ SW-020 only stores the inputs. SW-040 owns effective-session and effective-polic
 1. `002_organization_academics.sql`
 2. `003_schedule_calendar_policy.sql`
 3. `004_idempotency_outbox_audit.sql`
+4. `005_policy_actor_tenant_integrity.sql`
+
+Migration 005 is an additive hardening migration discovered during SW-020 review. It backfills organization ownership from the already-validated school relationship before making the new keys NOT NULL, so it is safe for disposable or future synthetic development rows created after migration 003.
 
 The current application has no persistent Schoolwide environment or real Schoolwide data, so SW-020 can safely introduce new NOT NULL tenant keys without a legacy Schoolwide backfill. Real legacy classroom migration is a separate later read-only/shadow process beginning at SW-140.
