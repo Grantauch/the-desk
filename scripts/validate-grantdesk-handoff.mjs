@@ -68,6 +68,9 @@ const criticalFunctions = [
   'teacherStartPass',
   'teacherEndPass',
   'teacherGetCountablePasses',
+  'teacherGetMembershipPasses',
+  'getClassSession_',
+  'teacherSetStudentPassAccess',
   'teacherVoidPass',
   'teacherApplyUnmatchedEmail',
   'discoverIdentityReconciliations_',
@@ -87,8 +90,8 @@ for (const fn of criticalFunctions) {
 }
 
 ok(
-  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-02-a['"]/.test(code),
-  'tracked workbook schema is 2026-09-02-a'
+  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-05-session-a['"]/.test(code),
+  'tracked workbook schema is 2026-09-05-session-a'
 );
 
 let packageJson = null;

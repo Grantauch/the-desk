@@ -253,6 +253,16 @@ class FakeSpreadsheet {
   }
 
   getId() { return this.id; }
+  getUrl() { return 'https://example.invalid/synthetic-workbook/' + encodeURIComponent(this.id); }
+  copy(name) {
+    const copy = new FakeSpreadsheet(name);
+    this.sheets.forEach(sheet => {
+      const target = copy.insertSheet(sheet.getName());
+      target.rows = sheet.rows.map(row => row.slice());
+      target.maxColumns = sheet.maxColumns;
+    });
+    return copy;
+  }
   getName() { return 'GrantDesk Hall Pass — Test Workbook'; }
   getSheets() { return [...this.sheets]; }
   getSheetByName(name) { return this.sheets.find((sheet) => sheet.getName() === name) || null; }
@@ -439,6 +449,7 @@ function createHarness(options = {}) {
     Date: HarnessDate,
 
     SpreadsheetApp: {
+      create: (name) => new FakeSpreadsheet(name),
       getActiveSpreadsheet: () => spreadsheet,
       openById: () => spreadsheet,
       getUi: () => {
@@ -530,7 +541,7 @@ function createHarness(options = {}) {
       ),
 
       formatDate: (date, zone, pattern) => formatDateInZone(date, zone, pattern),
-      sleep: () => {},
+      sleep: (milliseconds) => clock.advanceSeconds(milliseconds / 1000),
     },
 
     MailApp: {
@@ -584,6 +595,8 @@ function createHarness(options = {}) {
 
   const source = fs.readFileSync(CODE_PATH, 'utf8').replace(/\r\n/g, '\n');
   vm.runInContext(source, sandbox, { filename: CODE_PATH });
+  const releasePath = path.join(path.dirname(CODE_PATH), 'ReleaseChecks.gs');
+  vm.runInContext(fs.readFileSync(releasePath, 'utf8'), sandbox, { filename: releasePath });
 
   /** Call any top-level function in Code.gs by name. */
   const call = (name, ...args) => {

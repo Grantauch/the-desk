@@ -1,74 +1,127 @@
 {
   "1": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "2": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "3": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "4": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       5
     ],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "5": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "6": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "7": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "8": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "9": {
     "status": "OPEN",
     "depends_on": [],
     "evidence": [
-      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+      "Canonical checks now cover local publishers and are configured at the Netlify boundary. Keep this umbrella open until production execution is verified; branch-protection Problem 11 remains separate."
     ]
   },
   "10": {
-    "status": "OPEN",
+    "status": "PUSHED",
     "depends_on": [
       14,
       19
     ],
-    "evidence": [],
+    "evidence": [
+      "Netlify is configured to call the canonical npm run verify command, matching GitHub Actions and local publishing. Exact Netlify production execution remains unverified until dashboard access is available.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
     "batch": "1"
   },
   "11": {
@@ -82,7 +135,7 @@
     "status": "OPEN",
     "depends_on": [],
     "evidence": [
-      "Not assigned in the revised remaining register; no closure claimed. Read this specification ID only when selected."
+      "Authenticated web editor still writes narrow changes to main by design. The Netlify verify backstop is pushed at adb14b472bf7d57eed1d1218558eda5e732acf5b; production execution remains unverified."
     ]
   },
   "13": {
@@ -114,30 +167,45 @@
     ]
   },
   "16": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
     ],
-    "evidence": [],
+    "evidence": [
+      "Resource sync uses the shared eligibility helper, preserves linked and null/empty/absent-href coming-soon resources and assignments, validates both outputs before writes, exports only public fields, and preserves private source files.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
     "batch": "1"
   },
   "17": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
     ],
-    "evidence": [],
+    "evidence": [
+      "Local editor listing and assignment validation use shared eligibility. Coming-soon status is visible; an actual HTTP save/publish fixture preserves placeholders and private-only assignment history while rejecting concurrent mutations.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
     "batch": "1"
   },
   "18": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
     ],
-    "evidence": [],
+    "evidence": [
+      "Ordinary local/editor publishing never runs resources:sync. The full gate and synthetic editor publication pass without private inventories; public catalog and private source bytes are preserved.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
     "batch": "1"
   },
   "19": {
@@ -230,28 +298,52 @@
     "batch": "4"
   },
   "31": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "32": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "33": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "34": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
-    "batch": "2"
+    "evidence": [
+      "Implemented at a7ea2b25358ba9dc686a299730b32b492e4da339; pushed to main and remote SHA confirmed. Full canonical verification and GitHub Actions passed with 298 Hall Pass behavioral checks.",
+      "Apps Script Version 18 released on the existing deployment September 6, 2026. All five editor files matched tested source after reload. Native synthetic migration rehearsal, repeatability and focused live migration passed with existing facts/settings preserved.",
+      "Deployed protected smoke passed: fresh PIN request STARTED, fresh PIN return RETURNED_COUNTABLE, membership evidenceUsed 1, synthetic pass voided, membership deactivated, production facts unchanged. See version-18-live-2026-09-06/FINGERPRINT.md.",
+      "Real classroom cycle remains FIELD_PENDING; no real student PIN or email used."
+    ],
+    "batch": "2",
+    "field_status": "FIELD_PENDING"
   },
   "35": {
     "status": "PUSHED",
@@ -270,9 +362,11 @@
     "summary": "Versions 14-16 unsafe rollback warnings"
   },
   "37": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
-    "evidence": [],
+    "evidence": [
+      "OPERATIONS.md updated for Version 18, canonical verify, private access controls, release evidence and explicit pending classroom verification; unsafe rollback advice removed."
+    ],
     "batch": "3"
   },
   "38": {
@@ -285,7 +379,7 @@
     "status": "BLOCKED_EXTERNAL",
     "depends_on": [],
     "evidence": [
-      "No exact Netlify deployment fingerprint exposed by current GitHub status/deployment APIs. Existing browser tab listed at Netlify login; UI inspection timed out. Stop fingerprint pursuit and continue independent Batch 1 work."
+      "September 6: GitHub commit statuses expose no Netlify status and the deployments API returns no records. The available browser requires Netlify/GitHub sign-in. Exact deployment identity remains unverified; no live deployment inferred."
     ],
     "batch": "3"
   },
@@ -406,7 +500,7 @@
       "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
     ],
     "summary": "START-HERE publishing routes",
-    "follow_up": "Completed: START-HERE names npm.cmd run verify; publish.bat remains explicitly pending Problems 10/18/58."
+    "follow_up": "Complete: START-HERE documents the checked publisher and the separate Netlify deployment confirmation."
   },
   "56": {
     "status": "PUSHED",
@@ -415,7 +509,7 @@
       "Launch capsule reports implementation and tests at 4513ae7; included in baseline 4513ae7. Do not reimplement."
     ],
     "summary": "Curriculum eligibility and documented href-only gap",
-    "follow_up": "After Problems 16, 17 and 18, remove the resolved href-only and publish-sync gap paragraphs."
+    "follow_up": "Complete: removed the resolved href-only and publish-time-sync gaps; shared eligibility and explicit authoring are documented."
   },
   "57": {
     "status": "PUSHED",
@@ -426,12 +520,17 @@
     "summary": "Stale root jeopardy copies removed; canonical hubs retained"
   },
   "58": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
     ],
-    "evidence": [],
+    "evidence": [
+      "Both legacy batch scripts delegate to publish.bat and the shared publisher. No automatic all-files staging or index-lock deletion. Intended batches, failure stops, source stability, upload retry and remote SHA confirmation are covered with synthetic repositories.",
+      "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+    ],
     "batch": "1"
   },
   "59": {
@@ -555,18 +654,18 @@
     "batch": "7"
   },
   "_meta": {
-    "updated": "2026-09-05",
+    "updated": "2026-09-06",
     "baseline": "4513ae7543ef42aa6c2152b34a443e5ff0e28cd7",
     "authority": "Revised GrantDesk Astra launch capsule, 2026-09-05",
-    "scope": "Batch 0.5 and Problems 14/19 complete; GitHub push authority (40) verified during publication",
+    "scope": "Publishing/resource fixes 16,17,18,58 verified in local and GitHub checks; Netlify gate 10 pushed with production verification pending. Hall Pass Version 18 unchanged.",
     "baseline_deployment": "Baseline GitHub Actions succeeded. Live first-day materials and tax calculator matched baseline source after CRLF normalization. No Netlify deployment SHA exposed through available GitHub status/deployment APIs.",
-    "next_task": "Problem 10: adopt the canonical verify command in Netlify, then continue shared resource eligibility and publishing-path repairs (16, 17, 18, 58).",
+    "next_task": "Continue independent website/content/accessibility work or repository protection (11). Netlify production verification (10/39) requires authenticated dashboard access; Hall Pass ordinary classroom field verification remains pending.",
     "validation": {
       "full_gate": "PASS: 64 handoff checks; structural Hall Pass suite; 89 runtime checks; 11 tools fixtures; 46 resource/release fixtures; Astro 0 errors, 0 warnings, 8 existing hints; build 51 routes; 66 HTML files and 2709 local references",
       "read_only": "Final verify preserved all 172 tracked and new source/document paths byte-for-byte; aggregate SHA256 90369f867334c2c1b8713d915e7bb0cebcd0e802a312bcfef8d91a0ca428899e before and after.",
       "final_dependency_guard": "PASS: neither dependency, each single dependency, and both dependencies tested in isolated temporary projects; final guarded verify passed."
     },
-    "release": {
+    "foundation_release": {
       "implementation_commit": "e5297d2fe4a116ef78559faf1dfffbaade6abe57",
       "remote": "main confirmed at implementation commit after push",
       "github_actions": {
@@ -575,6 +674,37 @@
       },
       "netlify": "BLOCKED_EXTERNAL: exact deployment fingerprint not exposed by GitHub APIs; existing browser tab listed at Netlify login, and dashboard inspection timed out. No deployment SHA inferred.",
       "apps_script": "No source changes or deployment; no workbook migration, student PIN, or classroom field test."
+    },
+    "hall_pass_release": {
+      "status": "VERIFIED",
+      "schema": "2026-09-05-session-a",
+      "apps_script_version": 18,
+      "implementation_commit": "a7ea2b25358ba9dc686a299730b32b492e4da339",
+      "runtime_checks": 298,
+      "github_actions": "https://github.com/Grantauch/the-desk/actions/runs/34012833475",
+      "migration": "Native synthetic copy and repeated migration PASS; focused live migration preserved existing facts and settings",
+      "protected_smoke": "PASS: STARTED, RETURNED_COUNTABLE, evidenceUsed 1; synthetic cleanup complete; production facts unchanged",
+      "field_status": "FIELD_PENDING"
+    },
+    "publishing_release": {
+      "status": "PUSHED_AND_CI_VERIFIED_NETLIFY_UNVERIFIED",
+      "problems": [
+        10,
+        16,
+        17,
+        18,
+        58
+      ],
+      "validation": "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
+      "netlify": "Deployment verification blocked by dashboard sign-in; GitHub exposes no deployment record.",
+      "apps_script": "Unchanged: Version 18; no workbook operations or student traffic tests in this batch.",
+      "implementation_commit": "adb14b472bf7d57eed1d1218558eda5e732acf5b",
+      "remote": "main SHA matched implementation immediately after push",
+      "github_actions": {
+        "status": "success",
+        "url": "https://github.com/Grantauch/the-desk/actions/runs/34054617391"
+      },
+      "public_routes": "Homepage, resources, editor, pass and check-in returned HTTP 200 after push. Route availability does not identify the deployed commit."
     }
   }
 }

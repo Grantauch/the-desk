@@ -1,13 +1,17 @@
 import http from 'node:http';
 import { randomBytes } from 'node:crypto';
-import { execFile, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { editorResources, validateMaterials } from './materials.mjs';
+import { publishSite } from '../scripts/publish-site.mjs';
 
 const editorDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(editorDir, '..');
 const token = randomBytes(24).toString('hex');
+let publishing = false;
+let editing = false;
 const paths = {
   html: path.join(editorDir, 'index.html'),
   resources: path.join(root, 'src', 'data', 'resources.json'),
@@ -43,40 +47,6 @@ const readBody = (request) => new Promise((resolve, reject) => {
   });
   request.on('error', reject);
 });
-
-const run = (command, args) => new Promise((resolve, reject) => {
-  execFile(command, args, { cwd: root, windowsHide: true, maxBuffer: 10_000_000 }, (error, stdout, stderr) => {
-    if (error) {
-      error.friendlyMessage = (stderr || stdout || error.message).trim();
-      reject(error);
-      return;
-    }
-    resolve((stdout || '').trim());
-  });
-});
-
-const validateMaterials = async (candidate) => {
-  const template = await readJson(paths.materials);
-  const library = (await readJson(paths.resources)).resources;
-  const resourcesById = new Map(library.filter((item) => item.href).map((item) => [item.id, item]));
-  const clean = { version: 1, courses: {} };
-
-  for (const [course, units] of Object.entries(template.courses)) {
-    clean.courses[course] = {};
-    for (const unit of Object.keys(units)) {
-      const ids = candidate?.courses?.[course]?.[unit];
-      if (!Array.isArray(ids)) throw new Error(`The ${unit} choices are incomplete.`);
-      const unique = [...new Set(ids)];
-      for (const id of unique) {
-        const resource = resourcesById.get(id);
-        if (!resource || resource.course !== course) throw new Error(`One ${unit} item no longer matches this library.`);
-      }
-      clean.courses[course][unit] = unique;
-    }
-  }
-
-  return clean;
-};
 
 const updatePrivateMaterials = async (publicMaterials) => {
   const [privateMaterials, publicLibrary] = await Promise.all([
@@ -144,6 +114,12 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  const mutation = request.method === 'POST';
+  if (mutation && (publishing || editing)) {
+    sendJson(response, 409, { error: 'Another save or publish is in progress. Wait for it to finish, then try again.' });
+    return;
+  }
+  if (mutation) editing = true;
   try {
     if (url.pathname === '/api/state' && request.method === 'GET') {
       const [library, materials, content, announcementFiles] = await Promise.all([
@@ -152,15 +128,13 @@ const server = http.createServer(async (request, response) => {
         readJson(paths.content),
         readdir(paths.announcements),
       ]);
-      const resources = library.resources
-        .filter((item) => item.href && Object.hasOwn(materials.courses, item.course))
-        .map(({ id, course, unitTopic, name, type }) => ({ id, course, unitTopic, name, type }));
+      const resources = editorResources(library.resources, materials);
       sendJson(response, 200, { resources, materials, content, announcementCount: announcementFiles.filter((file) => file.endsWith('.md')).length });
       return;
     }
 
     if (url.pathname === '/api/materials' && request.method === 'POST') {
-      const clean = await validateMaterials(await readBody(request));
+      const clean = validateMaterials(await readJson(paths.materials), (await readJson(paths.resources)).resources, await readBody(request));
       const privateMaterials = await updatePrivateMaterials(clean);
       await writeFile(paths.privateMaterials, `${JSON.stringify(privateMaterials, null, 2)}\n`, 'utf8');
       await writeFile(paths.materials, `${JSON.stringify(clean, null, 2)}\n`, 'utf8');
@@ -205,26 +179,19 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === '/api/publish' && request.method === 'POST') {
-      const branch = await run('git', ['branch', '--show-current']);
-      if (branch !== 'main') throw new Error(`Publishing is only allowed from main. Current branch: ${branch || 'detached HEAD'}.`);
-      await run('npm.cmd', ['run', 'resources:sync']);
-      await run('npm.cmd', ['run', 'check']);
-      await run('npm.cmd', ['run', 'build']);
-      await run('git', ['add', '--', 'src/data/resources.json', 'src/data/unit-materials.json', 'src/data/site-content.json', 'src/content/announcements']);
-      const changed = await run('git', ['diff', '--cached', '--name-only']);
-      if (!changed) {
-        sendJson(response, 200, { message: 'Everything is already published.' });
-        return;
-      }
-      await run('git', ['commit', '-m', 'update the desk from site editor']);
-      await run('git', ['push', 'origin', 'HEAD:main']);
-      sendJson(response, 200, { message: 'Published. The live site will update in a minute or two.' });
+      publishing = true;
+      try {
+        const result = await publishSite(root, { editor: true });
+        sendJson(response, 200, result);
+      } finally { publishing = false; }
       return;
     }
 
     sendJson(response, 404, { error: 'Not found.' });
   } catch (error) {
     sendJson(response, 400, { error: error.friendlyMessage || error.message || 'That change could not be saved.' });
+  } finally {
+    if (mutation) editing = false;
   }
 });
 

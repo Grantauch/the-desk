@@ -39,3 +39,5 @@ Apps Script editor after stripping carriage returns. Apps Script also omits the 
 disappears under that normalization is not a source difference.
 
 The deployable source remains in `apps-script/hall-pass/`. These snapshots are evidence and rollback references only; do not copy an entire snapshot over the active source without repeating the comparison and tests.
+
+- `version-18-live-2026-09-06/` preserves the five files matched before the September 6 in-place release. It adds class sessions, membership allowances, private access policy, teacher action audit and synthetic release checks. See FINGERPRINT.md for hashes and migration/protected-action evidence. Preserve the additive workbook schema during recovery.

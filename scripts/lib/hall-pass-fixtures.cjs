@@ -11,8 +11,9 @@ const { createHarness } = require('./gas-harness.cjs');
 const STUDENT_DOMAIN = 'students.mtmorrisschools.org';
 const TEACHER = 'gauch@mtmorrisschools.org';
 
-/** A Thursday during the 2026-27 school year, mid-morning in Detroit. */
-const DEFAULT_NOW = new Date('2026-09-10T14:30:00Z');
+/** A Thursday at 7:50 AM in Detroit, inside Period 1's pass window. */
+const DEFAULT_NOW = new Date('2026-09-10T11:50:00Z');
+const TEACHER_CONTRACT = '2026-09-05-memberships';
 
 const PEOPLE = {
   ada: { email: `ada.byron@${STUDENT_DOMAIN}`, name: 'Byron, Ada' },
@@ -31,7 +32,7 @@ function classroom(options = {}) {
     memberships = [
       [PEOPLE.ada, 'Period 1'],
       [PEOPLE.alan, 'Period 1'],
-      [PEOPLE.grace, 'Period 3'],
+      [PEOPLE.grace, 'Period 1'],
     ],
     settings = {},
     now = DEFAULT_NOW,
@@ -50,6 +51,7 @@ function classroom(options = {}) {
       '',
       extra.active === false ? false : true,
       Boolean(extra.unlimited),
+      extra.passAccess || '',
     ]);
   });
 
@@ -116,7 +118,7 @@ function classroom(options = {}) {
     teacherState() {
       h.newRequest();
       h.signInAs(TEACHER);
-      return h.call('refreshTeacherState');
+      return h.call('refreshTeacherState', TEACHER_CONTRACT);
     },
 
     passLog() { return h.sheet('Pass Log').records(); },
@@ -166,4 +168,4 @@ function setSchoolDays(h, dates) {
   h.newRequest();
 }
 
-module.exports = { classroom, PEOPLE, TEACHER, STUDENT_DOMAIN, DEFAULT_NOW, setNoSchoolDays, setSchoolDays };
+module.exports = { classroom, PEOPLE, TEACHER, TEACHER_CONTRACT, STUDENT_DOMAIN, DEFAULT_NOW, setNoSchoolDays, setSchoolDays };
