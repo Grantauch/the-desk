@@ -23,9 +23,9 @@ Public eligibility for a catalog resource is one contract:
 
 A `coming-soon` record is a deliberate placeholder. It appears on the site as announced but not yet linked, and it has no `href` on purpose. Anything with content and sharing permissions that are not student-safe stays `restricted` and never reaches the public catalog.
 
-Two places still filter on `href` alone rather than on this contract, so a `coming-soon` record can be silently dropped: `scripts/sync-public-resources.mjs` and the local editor in `editor/server.mjs`. Until both use the shared contract, do not rely on `resources:sync` to carry a `coming-soon` entry through.
+Resource sync, the local editor, and the public validator use the shared eligibility contract in `src/lib/public-resources.js`. Coming-soon entries remain available for unit assignment. Authoring sync validates both public outputs before writing and leaves the private source files unchanged.
 
-`resources:sync` is an authoring step. It rewrites the public catalog from the ignored private inventory, which means running it during an ordinary publish can overwrite catalog state nobody meant to touch. `publish.bat` and the editor's publish route both still call it, which is a known defect. Run it only when you intend to republish the catalog.
+`resources:sync` is an explicit authoring step that rewrites the public catalog from the ignored private inventory. Run it only when you intend to republish the catalog, then inspect the resulting catalog and assignment changes. Ordinary verification and publishing never run sync and do not need the private inventory.
 
 Hand-wired unit materials must set `materialsAudience: 'student'`. Unclassified fallbacks stay private by default.
 

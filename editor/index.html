@@ -264,7 +264,7 @@
         resourceList.innerHTML = resources.length ? resources.map((item) => `
           <label class="resource">
             <input type="checkbox" value="${item.id}" ${assigned.has(item.id) ? 'checked' : ''} />
-            <span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.unitTopic)} · ${escapeHtml(item.type)}</small></span>
+            <span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.unitTopic)} · ${escapeHtml(item.type)}${item.status === 'coming-soon' ? ' · coming soon' : ''}</small></span>
           </label>`).join('') : '<p class="empty">Nothing in this class matches that search.</p>';
 
         resourceList.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {

@@ -63,13 +63,13 @@ Install dependencies with `npm install --include=dev` (`npm.cmd` in PowerShell),
 
 - `hall-pass:verify` — handoff map, structural suite, and runtime harness
 - `tools:test` — group maker, cold call, and timer fixtures
-- `resources:validate` — public-resource validator fixtures, then read-only catalog and assignment validation; no private inventory required
+- `resources:validate` — public-resource fixtures, synthetic local publishing/editor integration tests, then read-only catalog and assignment validation; no private inventory required and no external test uploads
 - `storyhub:validate` — read-only StoryHub manifest, identity, provenance, visual-anchor, interaction-value, and local-path checks
 - `check` — dependency preflight, then Astro and TypeScript diagnostics with 0 errors required; missing development dependencies fail without an install prompt
 - `build` — production site generation
 - `site:validate` — link and content assertions against the new `dist`
 
-Verification must not change tracked source or data. `live-data:check` remains a separate network health check. Current release-path adoption and remaining repairs are recorded in `docs/grantdesk/REPAIR-STATUS.md`.
+Verification must not change tracked source or data. Netlify, GitHub Actions, and local publishing use this same gate. `live-data:check` remains a separate network health check. Current release-path adoption and remaining repairs are recorded in `docs/grantdesk/REPAIR-STATUS.md`.
 
 `npm run resources:sync` is an authoring step and not part of verification. It rewrites the public catalog from the ignored private inventory, so it must never run as part of a routine publish.
 

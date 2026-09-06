@@ -46,7 +46,7 @@ git config --global user.email "gmauch22@gmail.com"
 
 1. Go to https://app.netlify.com and sign up/log in **with your GitHub account**.
 2. Click **Add new project → Import an existing project → GitHub**, authorize, pick `the-desk`.
-3. Netlify auto-detects Astro. Confirm: build command `npm run build`, publish directory `dist`. Click **Deploy**.
+3. Use the repository's Netlify configuration: build command `npm run verify`, publish directory `dist`. Click **Deploy**.
 4. In a minute you'll have a live URL like `something-random.netlify.app`. The site is on the internet.
 
 From now on, every `git push` automatically redeploys the site.
@@ -82,4 +82,4 @@ npm.cmd run verify  # canonical release gate, including build; must pass before 
 
 Common edits are listed in **EDITING.md**, which says exactly which file to touch. For AI assisted edits, see the section at the bottom of EDITING.md.
 
-After verification, stage only intended paths, inspect `git diff --cached`, commit, and push the tested batch to `main`; confirm Netlify's deployment separately. `publish.bat` still needs the Batch 1 publishing-path repairs before it is the recommended wrapper.
+On `main`, stage only intended paths and inspect `git diff --cached`. Run `publish.bat`: it requires a fully selected batch, runs the complete verification, shows the batch for confirmation, commits, uploads, and checks the remote commit. It does not stage unrelated files or run resource sync. The two older publish shortcuts delegate to this same path. A failed upload leaves the commit locally so it can be checked and retried. Confirm Netlify's deployment separately; upload success alone does not establish that the site is live.
