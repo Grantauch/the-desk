@@ -7,13 +7,14 @@
     <title>The Desk — Hall Pass</title>
     <style>
       :root {
-        --ink: #202127;
-        --muted: #6a6b72;
-        --paper: #f5f3ed;
-        --line: #d9d5ca;
-        --accent: #a63a2f;
-        --accent-dark: #72271f;
-        --accent-soft: #fff0ed;
+        --display: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+        --ink: #181a26;
+        --muted: #616777;
+        --paper: #f5f6fb;
+        --line: #e0e3ec;
+        --accent: #3434ed;
+        --accent-dark: #2424b8;
+        --accent-soft: #efefff;
         --green: #08765a;
         --green-soft: #e4fff5;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -30,7 +31,7 @@
       .shell { width: min(940px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 70px; }
       .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
       .eyebrow { margin: 0 0 7px; color: var(--accent); font: 800 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .13em; text-transform: uppercase; }
-      h1 { margin: 0; font: 800 clamp(38px, 8vw, 64px)/.92 Georgia, serif; letter-spacing: -.055em; text-transform: lowercase; }
+      h1 { margin: 0; font: 800 clamp(38px, 8vw, 64px)/.92 var(--display); letter-spacing: -.055em; text-transform: lowercase; }
       h1 span { color: var(--accent); }
       .school { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
       .mode { flex: 0 0 auto; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--muted); font: 800 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
@@ -42,7 +43,7 @@
       .error.busy { border-color: #e8ce96; background: #fff8e8; color: #6b4a00; }
 
       .student-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
-      .student-head h2, .section-title { margin: 0; font: 800 clamp(28px, 6vw, 43px)/1 Georgia, serif; letter-spacing: -.04em; }
+      .student-head h2, .section-title { margin: 0; font: 800 clamp(28px, 6vw, 43px)/1 var(--display); letter-spacing: -.04em; }
       .student-meta { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
       .status-dot { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border-radius: 999px; background: var(--green-soft); color: #04503d; font: 800 10px/1 ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
       .status-dot::before { width: 7px; height: 7px; border-radius: 50%; background: var(--green); content: ''; }
@@ -52,8 +53,8 @@
       .checkin-card { display: grid; gap: 22px; }
       .checkin-copy { max-width: 610px; }
       .checkin-confirm { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 20px; border: 1px solid #b9dfd2; border-radius: 15px; background: var(--green-soft); }
-      .checkin-point { display: grid; width: 78px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--green); color: white; font: 900 28px/1 Georgia, serif; }
-      .checkin-confirm h3 { margin: 0; color: #04503d; font: 800 clamp(24px, 5vw, 34px)/1 Georgia, serif; letter-spacing: -.035em; }
+      .checkin-point { display: grid; width: 78px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--green); color: white; font: 900 28px/1 var(--display); }
+      .checkin-confirm h3 { margin: 0; color: #04503d; font: 800 clamp(24px, 5vw, 34px)/1 var(--display); letter-spacing: -.035em; }
       .checkin-confirm p { margin: 7px 0 0; color: #046049; font-size: 14px; line-height: 1.5; }
 
       .pass-action { display: grid; gap: 14px; margin-top: 28px; }
@@ -71,18 +72,18 @@
 
       .queue-card, .streak-card, .notice { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--line); border-radius: 15px; background: #fffaf1; }
       .queue-card { grid-template-columns: auto 1fr; align-items: center; }
-      .queue-number { display: grid; width: 72px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--ink); color: white; font: 900 27px/1 Georgia, serif; }
-      .queue-card h3, .streak-card h3 { margin: 0; font: 800 24px/1 Georgia, serif; letter-spacing: -.03em; }
+      .queue-number { display: grid; width: 72px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--ink); color: white; font: 900 27px/1 var(--display); }
+      .queue-card h3, .streak-card h3 { margin: 0; font: 800 24px/1 var(--display); letter-spacing: -.03em; }
       .queue-card p, .streak-card p, .notice p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
       .streak-card { grid-template-columns: auto 1fr; align-items: center; border-color: #b9dfd2; background: var(--green-soft); }
-      .streak-number { min-width: 72px; color: #04503d; font: 900 44px/1 Georgia, serif; text-align: center; }
+      .streak-number { min-width: 72px; color: #04503d; font: 900 44px/1 var(--display); text-align: center; }
       .notice.success { border-color: #b9dfd2; background: var(--green-soft); color: #04503d; }
       .notice.warning { border-color: #e8ce96; background: #fff8e8; }
-      .notice h3 { margin: 0; font: 800 21px/1 Georgia, serif; letter-spacing: -.025em; }
+      .notice h3 { margin: 0; font: 800 21px/1 var(--display); letter-spacing: -.025em; }
       .handoff { margin: 0; color: var(--muted); font-size: 12px; text-align: center; }
 
       .pin-box { max-width: 430px; margin: 0 auto; text-align: center; }
-      .pin-box h2 { margin: 0; font: 800 36px/1 Georgia, serif; letter-spacing: -.04em; }
+      .pin-box h2 { margin: 0; font: 800 36px/1 var(--display); letter-spacing: -.04em; }
       .pin-box .message { margin-top: 9px; }
       .pin-input { width: min(100%, 290px); min-height: 62px; margin-top: 20px; padding: 0 16px; border: 1px solid var(--line); border-radius: 13px; background: white; color: var(--ink); font: 800 29px/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .22em; text-align: center; outline: none; }
       .pin-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(166,58,47,.1); }
@@ -91,11 +92,11 @@
       .teacher-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; margin-top: 22px; }
       .checkin-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 18px; }
       .summary-tile { padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: white; }
-      .summary-tile strong { display: block; font: 800 28px/1 Georgia, serif; letter-spacing: -.04em; }
+      .summary-tile strong { display: block; font: 800 28px/1 var(--display); letter-spacing: -.04em; }
       .summary-tile span { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.35; text-transform: uppercase; }
       .teacher-section { margin-top: 28px; padding-top: 24px; border-top: 2px solid var(--line); }
       .teacher-section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
-      .teacher-section-head h3 { margin: 0; font: 800 clamp(25px, 5vw, 36px)/1 Georgia, serif; letter-spacing: -.04em; }
+      .teacher-section-head h3 { margin: 0; font: 800 clamp(25px, 5vw, 36px)/1 var(--display); letter-spacing: -.04em; }
       .teacher-section-head p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
       .subcard { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: white; }
       .subcard h3 { margin: 0 0 12px; font: 800 11px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
@@ -153,7 +154,7 @@
       dialog::backdrop { background: rgba(32,33,39,.58); }
       .dialog-body { display: grid; gap: 16px; padding: 23px; overflow: auto; }
       .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-      .dialog-head h2 { margin: 0; font: 800 29px/1 Georgia, serif; letter-spacing: -.035em; }
+      .dialog-head h2 { margin: 0; font: 800 29px/1 var(--display); letter-spacing: -.035em; }
       .dialog-close { min-width: 42px; min-height: 42px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: white; font-weight: 900; }
       .evidence-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
       .evidence-list li { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: white; font-size: 13px; line-height: 1.45; }
@@ -170,22 +171,150 @@
         .teacher-section-head { align-items: flex-start; flex-direction: column; }
         .card { border-radius: 16px; }
       }
+
+      /* Hall Pass workspace: shared visual language across every private role. */
+      body { background: radial-gradient(ellipse at 8% 0%, #e9eaff 0, transparent 42%), var(--paper); }
+      :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+      button, a, summary, input, select { -webkit-tap-highlight-color: transparent; }
+      button { touch-action: manipulation; }
+      .shell { width: min(1180px, calc(100% - 64px)); padding: 26px 0 40px; }
+      body:not(.teacher-mode) .shell { max-width: 760px; padding-top: 40px; }
+      .brandbar { display:flex; align-items:center; gap:11px; margin-bottom:38px; font-size:20px; font-weight:750; letter-spacing:-.8px; }
+      .brandmark { display:grid; place-items:center; width:34px; height:34px; color:white; background:var(--accent); border-radius:10px; box-shadow:3px 3px 0 #1c1d39; font:750 12px/1 ui-monospace,monospace; letter-spacing:-1px; }
+      .brandbar small { margin-left:auto; font-size:11px; letter-spacing:.06em; color:var(--muted); font-weight:600; }
+      .top { align-items:center; margin-bottom:26px; }
+      h1 { font-size:clamp(38px,5vw,58px); line-height:1.04; font-weight:750; }
+      .school { line-height:1.6; }
+      .mode { padding:10px 13px; font-size:10px; letter-spacing:.06em; border-color:#d7dbeb; }
+      .card { padding:32px; border-radius:22px; background:white; box-shadow:0 8px 35px -22px #34345844; }
+      .teacher-mode .card { padding:0; background:transparent; border:0; box-shadow:none; }
+      .teacher-mode .student-head h2 { font-size:30px; line-height:1.15; font-weight:720; }
+      .teacher-mode .student-head { padding:8px 0 22px; }
+      .teacher-mode .student-head .eyebrow { display:none; }
+      .primary { min-height:54px; border-color:var(--accent); background:var(--accent); font-weight:700; font-size:15px; border-radius:12px; box-shadow:0 4px 10px #3434ed17; }
+      .primary:hover { background:var(--accent-dark); border-color:var(--accent-dark); }
+      .primary.return:hover { background:#05644c; border-color:#05644c; }
+      .secondary { min-height:44px; font-size:13px; font-weight:650; transition:background .15s,border-color .15s; }
+      .danger { color:#a12933; border-color:#eccbd0; }
+      .danger:hover { color:#8b1824; background:#fff1f2; border-color:#bc4652; }
+      .error { background:#fff1f2; color:#912333; border-color:#ebc5cb; }
+      .workspace-nav { display:flex; gap:5px; padding:6px; margin:0 0 26px; border:1px solid var(--line); background:#fff; border-radius:14px; }
+      .workspace-tab { display:flex; justify-content:center; align-items:center; gap:8px; flex:1; min-height:46px; padding:10px 14px; color:var(--muted); border:0; border-radius:9px; background:transparent; font-size:13px; font-weight:650; white-space:nowrap; }
+      .workspace-tab:hover { background:#f4f5fa; color:var(--ink); }
+      .workspace-tab[aria-selected="true"] { background:var(--ink); color:white; box-shadow:0 3px 7px #181a261c; }
+      .workspace-tab svg { width:17px; height:17px; flex-shrink:0; }
+      .nav-count { display:inline-grid; place-items:center; min-width:21px; height:21px; padding:0 5px; border-radius:6px; background:var(--accent-soft); color:var(--accent-dark); font-size:11px; }
+      .workspace-panel { min-width:0; }
+      .panel-intro { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 20px; }
+      .panel-intro h3 { margin:0; font-size:24px; font-weight:700; letter-spacing:-.7px; }
+      .panel-intro p { margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.6; }
+      .teacher-section { margin:24px 0 0; padding:0; border:0; }
+      .teacher-section-head { margin-bottom:18px; }
+      .teacher-section-head h3 { font-size:23px; line-height:1.25; font-weight:700; }
+      .teacher-section-head p { max-width:850px; line-height:1.6; }
+      .subcard { padding:22px; border-radius:16px; border:1px solid var(--line); box-shadow:0 3px 10px #20244003; }
+      .subcard h3 { font:650 14px/1.4 var(--display); letter-spacing:0; text-transform:none; }
+      .teacher-grid { grid-template-columns:1fr 1fr; gap:20px; margin-top:18px; }
+      .teacher-grid > *, .field-grid > *, .roster-add-grid > * { min-width:0; }
+      .checkin-summary { gap:12px; }
+      .room-summary { grid-template-columns:repeat(4,1fr); margin:0 0 24px; }
+      .summary-tile { padding:20px; border-radius:15px; }
+      .summary-tile strong { font-size:32px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.2; }
+      .summary-tile span { font-size:12px; font-weight:550; text-transform:none; margin-top:8px; }
+      .room-summary .summary-tile:first-child { background:var(--accent); color:white; border-color:var(--accent); }
+      .room-summary .summary-tile:first-child span { color:#eeeeff; }
+      .room-summary .summary-tile.attention { background:#fff7ea; border-color:#ebd4a9; }
+      .active-pass { padding:18px; border-color:#dce0f2; background:#f7f8ff; border-left:3px solid var(--accent); }
+      .active-pass small { font-size:12px; line-height:1.65; }
+      .active-pass strong { font-weight:700; }
+      .active-pass [data-live-time] { font-weight:750; color:var(--ink); font-variant-numeric:tabular-nums; }
+      .active-pass .secondary { width:auto; margin-top:14px; background:white; }
+      .active-pass.late { border:1px solid #e9c788; border-left:3px solid #b87812; background:#fff8eb; }
+      .active-pass.stale-pass { border:1px solid #edb5bd; border-left:3px solid #b33142; background:#fff1f3; }
+      .late-flag { background:#923945; font-size:10px; letter-spacing:0; text-transform:none; }
+      .queue-entry { border-color:#e4e5ed; border-left-color:#a3a9bd; background:#fafbfe; }
+      .all-clear { padding:30px 16px; line-height:1.65; font-size:14px; }
+      .all-clear::before { content:'✓'; display:grid; place-items:center; margin:0 auto 12px; width:38px; height:38px; border-radius:50%; background:#edf5f2; color:var(--green); font-weight:700; }
+      .backup-card { margin:20px 0 0; }
+      .backup-card .override { grid-template-columns:1fr auto; }
+      .backup-card .primary { min-height:46px; }
+      .message { font-size:14px; }
+      .field-grid label, .roster-add-grid label, .sound-row label { text-transform:none; font-size:12px; color:#505667; font-weight:600; }
+      input, select { color:var(--ink); }
+      input[type="search"] { background:#fafbfe; }
+      details.subcard > summary { font-size:14px; font-weight:650; padding:2px; }
+      details.subcard[open] > summary { padding-bottom:16px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+      table { font-size:13px; }
+      th { background:#f5f6fb; font-size:11px; letter-spacing:.02em; text-transform:none; color:#575f73; }
+      td { padding-top:14px; padding-bottom:14px; }
+      tbody tr:hover { background:#f9faff; }
+      .log, .review-table { scrollbar-width:thin; }
+      .pass-count-table select { min-width:160px; }
+      .notification-list { display:grid; gap:12px; }
+      .notification-card { display:grid; grid-template-columns:38px 1fr auto; gap:14px; align-items:start; padding:20px; background:white; border:1px solid var(--line); border-radius:15px; }
+      .notification-icon { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:var(--accent-dark); background:var(--accent-soft); font-weight:750; }
+      .notification-card.warning .notification-icon { background:#fff0d8; color:#8b5409; }
+      .notification-card.urgent .notification-icon { background:#ffe5e9; color:#922539; }
+      .notification-card h4 { margin:0 0 6px; font-size:14px; }
+      .notification-card p { margin:0; font-size:13px; color:var(--muted); line-height:1.6; max-width:690px; }
+      .attention-banner { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 20px; padding:14px 18px; border:1px solid #ecd7ac; border-radius:13px; background:#fff8eb; color:#785015; font-size:13px; }
+      .attention-banner button { flex-shrink:0; }
+      .help-trigger { display:inline-grid; place-items:center; margin-left:7px; width:25px; height:25px; padding:0; vertical-align:middle; border:1px solid #d5d9e5; border-radius:50%; color:#697086; background:#fafbfe; font:600 12px/1 var(--display); }
+      .help-trigger:hover, .help-trigger[aria-expanded="true"] { color:var(--accent-dark); border-color:var(--accent); background:var(--accent-soft); }
+      .help-tooltip { position:fixed; z-index:100; max-width:min(310px,calc(100vw - 24px)); padding:13px 15px; border:1px solid #3c4056; background:#202437; color:#fff; border-radius:11px; font:400 12px/1.6 var(--display); box-shadow:0 8px 24px #17182726; }
+      .privacy { max-width:780px; margin:26px auto 0; font-size:11px; line-height:1.7; color:#6a7181; text-align:center; }
+      .pin-box { max-width:480px; padding:28px 0; }
+      .pin-box::before { content:'↗'; display:grid; place-items:center; width:62px; height:62px; margin:0 auto 24px; border-radius:19px; background:var(--accent-soft); color:var(--accent); font-size:35px; font-weight:600; }
+      .pin-box h2 { font-size:34px; line-height:1.15; font-weight:720; }
+      .pin-box .message { max-width:380px; margin:14px auto 0; }
+      .pin-input { margin-top:26px; min-height:64px; border:1px solid #cdd3e5; background:#fafbff; letter-spacing:.28em; }
+      .pin-input:focus { border-color:var(--accent); box-shadow:0 0 0 4px #3434ed12; }
+      .pin-box .primary { display:block; margin:14px auto 0; }
+      .pin-box .secondary { margin-top:12px; }
+      .pin-help { margin-top:22px; color:var(--muted); font-size:12px; line-height:1.7; }
+      .pin-help summary { cursor:pointer; color:var(--accent-dark); font-weight:600; }
+      .timer { padding:32px 20px; background:linear-gradient(145deg,#edf9f4,#e2f4ed); }
+      .timer-time { font-weight:700; }
+      .notice h3, .queue-card h3, .streak-card h3 { font-size:22px; line-height:1.2; }
+      .loading::before { content:''; display:block; width:26px; height:26px; margin:0 auto 18px; border:3px solid #e7e8f7; border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; }
+      @keyframes spin { to { transform:rotate(360deg); } }
+      @media (prefers-reduced-motion:reduce) { *, *::before { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+      @media (max-width:760px) {
+        .shell { width:calc(100% - 32px); padding-top:20px; }
+        .brandbar { margin-bottom:28px; }
+        .workspace-nav { overflow-x:auto; justify-content:flex-start; }
+        .workspace-tab { flex:0 0 auto; padding:9px 12px; }
+        .teacher-grid, .roster-add-grid { grid-template-columns:1fr; }
+        .room-summary { grid-template-columns:repeat(2,1fr); }
+        .notification-card { grid-template-columns:32px 1fr; padding:16px; }
+        .notification-card > button { grid-column:2; justify-self:start; }
+        .backup-card .override { grid-template-columns:1fr; }
+        .teacher-section-head { align-items:flex-start; }
+        .card { padding:22px; }
+        .brandbar small { font-size:9px; }
+        .top { gap:12px; }
+        .mode { font-size:9px; padding:8px; }
+        .field-grid { grid-template-columns:1fr 1fr; }
+        .attention-banner { align-items:flex-start; }
+      }
+      @media (max-width:380px) { .field-grid { grid-template-columns:1fr; } .brandbar small { display:none; } }
     </style>
   </head>
   <body>
     <main class="shell">
+      <div class="brandbar"><span class="brandmark" aria-hidden="true">t/d</span><span>the desk<span style="color:var(--accent)">.</span></span><small>CLASSROOM TOOLS</small></div>
       <header class="top">
         <div>
           <p class="eyebrow" id="app-eyebrow">grantdesk // out-of-room pass</p>
           <h1 id="app-title">hall pass<span>.</span></h1>
-          <p class="school">Mt. Morris Consolidated Schools</p>
+          <p class="school">A little more order. A little less interruption.</p>
         </div>
         <span class="mode" id="mode-label"></span>
       </header>
 
       <section class="card">
-        <div id="error" class="error" hidden></div>
-        <div id="content" class="loading">checking the pass…</div>
+        <div id="error" class="error" role="alert" hidden></div>
+        <div id="content" class="loading">Getting your classroom ready…</div>
       </section>
       <p class="privacy" id="privacy-note">Student screens show only the current student’s pass state and, when a limit blocks them, the exact trips counted for that decision. Other students and teacher-only notes stay private.</p>
     </main>
@@ -225,10 +354,11 @@
       let teacherKnownPassIds = null;
       let teacherAudioContext = null;
 
+      document.body.classList.toggle('teacher-mode', APP_MODE === 'teacher');
       modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : APP_MODE === 'checkin' ? 'daily check-in' : 'student pass';
       if (APP_MODE === 'checkin') {
         appEyebrow.textContent = 'grantdesk // daily attendance + point';
-        privacyNote.textContent = 'Your check-in is private. Student screens show only your own confirmation; the full daily log is limited to Mr. Grant.';
+        privacyNote.textContent = 'Your check-in is private. Student screens show only your own confirmation; the full daily log is limited to your teacher.';
       } else if (APP_MODE === 'teacher') {
         appEyebrow.textContent = 'grantdesk // private classroom controls';
         privacyNote.textContent = 'Passes and daily check-ins are visible only in this teacher view and the private teacher-owned workbook.';
@@ -278,7 +408,7 @@
             if (!isBusyLockError(error)) throw error;
             const spent = Date.now() - startedAt;
             if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length || spent >= STUDENT_BUSY_RETRY_BUDGET_MS) {
-              throw new Error('Several students are updating the shared classroom log at the same time. No check-in or pass change was made. Wait five seconds and press once more; this is traffic, not a bad PIN. Mr. Grant can use the teacher backup controls if needed.');
+              throw new Error('Several students are updating the shared classroom log at the same time. No check-in or pass change was made. Wait five seconds and press once more; this is traffic, not a bad PIN. your teacher can use the teacher backup controls if needed.');
             }
             showBusy(`Another student’s check-in or pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
             const jitter = Math.floor(Math.random() * 350);
@@ -550,10 +680,12 @@
         content.className = '';
         content.innerHTML = `
           <form class="pin-box" id="pin-form">
-            <h2>enter your PIN.</h2>
-            <p class="message">${escapeHtml(message || 'Use the six-digit PIN Mr. Grant gave you.')}</p>
-            <input class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN">
-            <button class="primary" type="submit">${purpose === 'checkin' ? 'open my check-in' : 'continue'}</button>
+            <p class="eyebrow">${APP_MODE === 'kiosk' ? 'shared classroom kiosk' : 'your private classroom pass'}</p>
+            <h2>you’re in the right place.</h2>
+            <p class="message">${escapeHtml(message || 'Use the six-digit PIN your teacher gave you.')}</p>
+            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN">
+            <button class="primary" type="submit">${purpose === 'checkin' ? 'check in' : 'continue with PIN'} →</button>
+            <details class="pin-help"><summary>Need a hand?</summary><p>Use the six-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
           </form>`;
         const input = document.querySelector('#pin');
         input.focus();
@@ -624,11 +756,11 @@
         content.className = '';
         content.innerHTML = `
           <form class="pin-box" id="action-pin-form">
-            <h2>${checkIn ? 'enter PIN to check in.' : 'enter PIN for this action.'}</h2>
+            <h2>${checkIn ? 'ready for class.' : 'let’s get you on your way.'}</h2>
             <p class="message">${escapeHtml(message || (checkIn
               ? 'A fresh PIN records exactly one daily check-in.'
               : 'A fresh PIN either requests the bathroom or records your return.'))}</p>
-            <input class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN">
+            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN">
             <button class="primary" type="submit">${checkIn ? 'check in now' : 'continue'}</button>
             ${canGoBack ? '<button class="secondary" id="cancel-action-pin" type="button">go back</button>' : ''}
           </form>`;
@@ -703,7 +835,7 @@
           });
         });
         const back = document.querySelector('#class-choice-back');
-        if (back) back.addEventListener('click', () => resetToPin('Enter your one student PIN. It works in every Mr. Grant class.'));
+        if (back) back.addEventListener('click', () => resetToPin('Enter your one student PIN. It works in all your classes.'));
         armIdleReset();
       };
 
@@ -731,7 +863,7 @@
                     ? 'cooldown active'
                 : state.passAvailable
                   ? 'pass available'
-                  : sessionBlocked ? 'ask Mr. Grant' : 'pass in use';
+                  : sessionBlocked ? 'ask your teacher' : 'pass in use';
         const statusBusy = !ownPass && !state.passAvailable;
         const waitingHtml = queued ? `
           <div class="queue-card" role="status">
@@ -749,9 +881,9 @@
           ? '<button class="secondary" id="show-allowance-evidence">show the passes counted</button>'
           : '';
         const blockedHtml = allowance.limitReached ? `
-          <div class="notice warning"><h3>marking-period allowance used.</h3><p>You have used ${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes. Ask Mr. Grant if you need to leave the room.</p>${evidenceButton}</div>` : allowance.dailyLimitReached ? `
-          <div class="notice warning"><h3>today’s allowance used.</h3><p>You have used today’s ${escapeHtml(allowance.dailyLimit)}-pass limit. Ask Mr. Grant if you need to leave the room.</p>${evidenceButton}</div>` : allowance.cooldownActive ? `
-          <div class="notice warning"><h3>wait after returning.</h3><p>Another pass is available in about ${escapeHtml(Math.max(1, Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60)))} minute${Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60) === 1 ? '' : 's'}. Ask Mr. Grant if you need to leave sooner.</p>${evidenceButton}</div>` : '';
+          <div class="notice warning"><h3>marking-period allowance used.</h3><p>You have used ${escapeHtml(allowance.used)} of ${escapeHtml(allowance.limit)} passes. Ask your teacher if you need to leave the room.</p>${evidenceButton}</div>` : allowance.dailyLimitReached ? `
+          <div class="notice warning"><h3>today’s allowance used.</h3><p>You have used today’s ${escapeHtml(allowance.dailyLimit)}-pass limit. Ask your teacher if you need to leave the room.</p>${evidenceButton}</div>` : allowance.cooldownActive ? `
+          <div class="notice warning"><h3>wait after returning.</h3><p>Another pass is available in about ${escapeHtml(Math.max(1, Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60)))} minute${Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60) === 1 ? '' : 's'}. Ask your teacher if you need to leave sooner.</p>${evidenceButton}</div>` : '';
         const outcome = state.actionOutcome || null;
         const outcomeHtml = outcome && outcome.message
           ? `<div class="notice ${outcome.kind === 'BLOCKED' ? 'warning' : 'success'}" role="status"><p><strong>${escapeHtml(outcome.message)}</strong></p></div>`
@@ -783,7 +915,7 @@
               <button class="primary return" id="pass-action">I’m back</button>` : `${waitingHtml}${queued && allowance.blocked ? blockedHtml : ''}${readyHtml}`}
             ${sharedDevice() ? '<button class="secondary" id="switch-student">different student</button>' : '<button class="secondary" id="use-pin">use a PIN instead</button>'}
           </div>
-          ${evidence.length ? `<dialog id="allowance-evidence-dialog" aria-labelledby="allowance-evidence-title"><div class="dialog-body"><div class="dialog-head"><div><h2 id="allowance-evidence-title">passes counted.</h2><p class="message">These are only your own currently countable trips, using Mt. Morris school time.</p></div><button class="dialog-close" id="close-allowance-evidence" aria-label="Close pass evidence">×</button></div><ul class="evidence-list">${evidenceRows}</ul></div></dialog>` : ''}`;
+          ${evidence.length ? `<dialog id="allowance-evidence-dialog" aria-labelledby="allowance-evidence-title"><div class="dialog-body"><div class="dialog-head"><div><h2 id="allowance-evidence-title">passes counted.</h2><p class="message">These are only your own currently countable trips, using the school’s local time.</p></div><button class="dialog-close" id="close-allowance-evidence" aria-label="Close pass evidence">×</button></div><ul class="evidence-list">${evidenceRows}</ul></div></dialog>` : ''}`;
 
         if (ownPass) startTimer(ownPass.outTime);
 
@@ -846,7 +978,7 @@
                 <h2>${escapeHtml(firstName)}.</h2>
                 <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'student PIN' : 'school Google account')}</p>
               </div>
-              <span class="status-dot ${state.checkedIn ? '' : 'busy'}">${state.checkedIn ? 'checked in' : state.attendanceLocked ? 'see Mr. Grant' : 'not checked in yet'}</span>
+              <span class="status-dot ${state.checkedIn ? '' : 'busy'}">${state.checkedIn ? 'checked in' : state.attendanceLocked ? 'see your teacher' : 'not checked in yet'}</span>
             </div>
             <div class="streak-card" role="status">
               <span class="streak-number">${escapeHtml(streak.current)}</span>
@@ -868,7 +1000,7 @@
               </div>` : state.attendanceLocked ? `
               <div class="notice warning" role="status">
                 <h3>teacher update needed.</h3>
-                <p>Mr. Grant needs to update today’s attendance before this check-in can be recorded. If you arrived late, show him that you are here.</p>
+                <p>Your teacher needs to update today’s attendance before this check-in can be recorded. If you arrived late, let your teacher know you are here.</p>
               </div>
               <div class="pass-action">
                 ${sharedDevice()
@@ -902,7 +1034,7 @@
         if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN to check in.'));
 
         const pinButton = document.querySelector('#checkin-pin');
-        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in every Mr. Grant class.'));
+        if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in all your classes.'));
         armIdleReset();
       };
 
@@ -1043,6 +1175,236 @@
         });
       };
 
+      // Native dialog provides focus containment and Escape cancellation. It is
+      // outside the rerendered content, and polling pauses while it is open.
+      const teacherDialog = (message, wantsInput) => new Promise((resolve) => {
+        const previous = document.activeElement;
+        const previousId = previous && previous.id;
+        const dialog = document.createElement('dialog');
+        dialog.className = 'teacher-action-dialog';
+        dialog.id = 'teacher-action-dialog';
+        dialog.setAttribute('aria-labelledby', 'teacher-action-title');
+        dialog.setAttribute('aria-describedby', 'teacher-action-message');
+        dialog.innerHTML = '<form><p class="eyebrow">PRIVATE TEACHER ACTION</p><h2 id="teacher-action-title"></h2><p id="teacher-action-message"></p><label id="teacher-action-label" hidden><span></span><textarea id="teacher-action-input" maxlength="300" autocomplete="off"></textarea></label><div class="button-row"><button class="secondary" type="button" id="teacher-action-cancel">Cancel</button><button class="primary" type="submit" id="teacher-action-confirm">Continue</button></div></form>';
+        const phrase = message.includes('EMAIL PINS');
+        dialog.querySelector('h2').textContent = wantsInput ? (phrase ? 'Confirm PIN delivery.' : 'Add a private note.') : 'Confirm this change.';
+        dialog.querySelector('#teacher-action-message').textContent = message;
+        const input = dialog.querySelector('textarea');
+        const label = dialog.querySelector('label');
+        label.hidden = !wantsInput;
+        label.querySelector('span').textContent = phrase ? 'Confirmation phrase' : 'Private reason';
+        label.htmlFor = input.id;
+        let value = null;
+        dialog.querySelector('form').addEventListener('submit', (event) => {
+          event.preventDefault(); value = wantsInput ? input.value : true; dialog.close();
+        });
+        dialog.querySelector('#teacher-action-cancel').addEventListener('click', () => dialog.close());
+        dialog.addEventListener('close', () => {
+          dialog.remove();
+          const focus = previous?.isConnected ? previous : previousId ? document.getElementById(previousId) : null;
+          if (focus) focus.focus({preventScroll:true});
+          resolve(value);
+        }, {once:true});
+        document.body.append(dialog); dialog.showModal();
+        (wantsInput ? input : dialog.querySelector('#teacher-action-cancel')).focus();
+      });
+      const teacherConfirm = (message) => teacherDialog(message, false);
+      const teacherPrompt = (message) => teacherDialog(message, true);
+
+      let teacherView = 'overview';
+      const WORKSPACE_VIEWS = [
+        ['overview', 'Overview', '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'],
+        ['attendance', 'Attendance', '<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16m-11 5 2 2 4-4"/>'],
+        ['students', 'Students', '<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2m1-16a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5v2"/>'],
+        ['settings', 'Settings', '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/>'],
+        ['notifications', 'Notifications', '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M9 21h6"/>'],
+      ];
+
+      // Counts come only from the authorized teacher response. Informational
+      // account observations are separate from actionable access failures.
+      const getTeacherNotifications = (data, pinStatus) => {
+        const items = [];
+        const active = data.active || [];
+        const late = active.filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= Number(data.lateAfterMinutes || 10)).length;
+        const unmatched = (data.unmatchedSignIns || []).length;
+        const rollovers = (data.rolloverPassesToday || []).length;
+        const usage = data.studentPassUsage || [];
+        const unrecognized = new Set(usage.filter((student) => !student.googleVerified).map((student) => student.email)).size;
+        const unlimited = new Set(usage.filter((student) => student.unlimited).map((student) => student.email)).size;
+        const pins = pinStatus || {};
+        const add = (tone, title, message, view, target, action) => items.push({ tone, title, message, view, target, action });
+        if (late) add('urgent', `${late} overdue ${late === 1 ? 'pass' : 'passes'}`, 'Review the students who are still out. Mark returned only after confirming they are back.', 'overview', 'live-pass-section', 'View passes');
+        if (unmatched) add('warning', `${unmatched} unmatched school ${unmatched === 1 ? 'account' : 'accounts'}`, 'These accounts reached the app without a matching class enrollment. Review the account and roster before changing an address.', 'notifications', 'sign-in-problems', 'Review accounts');
+        if (Number(pins.missingRecipients)) add('warning', `${pins.missingRecipients} students need a PIN card`, 'Review PIN delivery before distributing credentials to these students.', 'settings', 'pin-delivery-details', 'Review PINs');
+        if (Number(pins.invalidDomainRecipients)) add('warning', `${pins.invalidDomainRecipients} email addresses need review`, 'These addresses do not match the configured student email domain.', 'students', 'roster-details', 'Review roster');
+        if (Number(pins.readyRecipients)) add('info', `${pins.readyRecipients} PIN emails ready`, 'Preview the recipients and available quota before sending. No email is sent by opening this notification.', 'settings', 'pin-delivery-details', 'Preview options');
+        if (rollovers) add('warning', `${rollovers} overnight ${rollovers === 1 ? 'pass was' : 'passes were'} closed`, 'Yesterday’s unfinished passes were released automatically. The original records remain available for review.', 'overview', 'pass-log-details', 'Review activity');
+        if (unrecognized) add('info', `${unrecognized} students have not used Google sign-in`, 'They can still use their PIN. This observation does not mean their email address is wrong; check the roster if a student reports trouble.', 'students', 'pass-count-details', 'View students');
+        if (unlimited) add('info', `${unlimited} ${unlimited === 1 ? 'student has' : 'students have'} no pass limit`, 'This private access setting applies across the student’s classes. Class timing still applies. Students never see this setting or your reason.', 'students', 'pass-count-details', 'Review access');
+        if (Number((data.lockContention || {}).retrySignals)) add('info', 'Automatic traffic recovery was used today', 'Several requests reached the shared log at once. Safe retries are automatic. Use your backup controls if a student still needs help.', 'overview', 'teacher-student', 'Open backup');
+        return items;
+      };
+
+      const selectTeacherView = (view, focusTab = false) => {
+        teacherView = WORKSPACE_VIEWS.some(([id]) => id === view) ? view : 'overview';
+        document.querySelectorAll('[data-workspace-view]').forEach((button) => {
+          const selected = button.dataset.workspaceView === teacherView;
+          button.setAttribute('aria-selected', String(selected));
+          button.tabIndex = selected ? 0 : -1;
+          if (selected && focusTab) button.focus({ preventScroll: true });
+        });
+        document.querySelectorAll('[data-workspace-panel]').forEach((panel) => { panel.hidden = panel.dataset.workspacePanel !== teacherView; });
+      };
+
+      const openTeacherDestination = (view, target) => {
+        selectTeacherView(view);
+        const node = document.getElementById(target);
+        if (!node) return;
+        let parent = node;
+        while (parent && parent !== content) {
+          if (parent.tagName === 'DETAILS') parent.open = true;
+          parent = parent.parentElement;
+        }
+        const focus = node.tagName === 'DETAILS' ? node.querySelector('summary') : node;
+        if (!focus.matches('input, select, button, summary')) focus.tabIndex = -1;
+        focus.focus({ preventScroll: true });
+        node.scrollIntoView({ block: 'nearest' });
+      };
+
+      let helpAnchor = null;
+      const closeHelp = () => {
+        document.querySelector('#workspace-help-tooltip')?.remove();
+        if (helpAnchor) { helpAnchor.setAttribute('aria-expanded', 'false'); helpAnchor.removeAttribute('aria-describedby'); }
+        helpAnchor = null;
+      };
+      const showHelp = (button) => {
+        closeHelp();
+        const tip = document.createElement('div');
+        tip.id = 'workspace-help-tooltip'; tip.className = 'help-tooltip'; tip.setAttribute('role', 'tooltip');
+        tip.textContent = button.dataset.help;
+        document.body.append(tip);
+        const rect = button.getBoundingClientRect();
+        tip.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - tip.offsetWidth - 12))}px`;
+        tip.style.top = `${rect.bottom + tip.offsetHeight + 12 > window.innerHeight ? Math.max(12, rect.top - tip.offsetHeight - 8) : rect.bottom + 8}px`;
+        button.setAttribute('aria-expanded', 'true'); button.setAttribute('aria-describedby', tip.id); helpAnchor = button;
+      };
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeHelp(); });
+      document.addEventListener('click', (event) => { if (!event.target.closest('.help-trigger, .help-tooltip')) closeHelp(); });
+      window.addEventListener('scroll', closeHelp, { passive:true });
+      window.addEventListener('resize', closeHelp);
+
+      const addTeacherHelp = () => {
+        const help = {
+          'max-active-passes': 'Maximum students out at the same time. Additional eligible requests join the waiting line automatically.',
+          'student-pass-limit': 'Counted separately for each class in the marking period. Enter 0 for no numeric limit.',
+          'daily-pass-limit': 'Daily limit follows a student across classes. Enter 0 for no daily limit.',
+          'pass-cooldown-minutes': 'Minutes a student waits after returning before requesting again. Enter 0 to turn off this wait.',
+          'late-pass-minutes': 'Show an overdue warning after this many minutes. This does not automatically return the student.',
+          'stale-pass-minutes': 'Show a stronger check-on-student warning. Must be at least the overdue-warning time. This does not end a pass.',
+          'teacher-pass-sound': 'Applies only to this teacher device. Test once to enable browser audio. Choose Off for a quiet classroom.',
+          'teacher-student': 'Start a pass using teacher authority. A private reason is required when overriding a restriction.',
+          'teacher-checkin-student': 'Record attendance for a student who is here. A private reason is required outside the check-in window.',
+          'pass-count-filter': 'Each row is one class membership. Used and remaining refer to that class for this marking period.',
+          'roster-class-period': 'Choose an existing class or enter a new class label. Existing students keep their current PIN.',
+        };
+        Object.entries(help).forEach(([id, text]) => {
+          const field = document.getElementById(id);
+          if (!field) return;
+          if (!field.getAttribute('aria-label') && !field.closest('label')) field.setAttribute('aria-label', id === 'teacher-student' ? 'Student for a teacher-started pass' : 'Student to mark present');
+          const label = field.closest('label');
+          let host = label;
+          if (label) {
+            const heading = document.createElement('span');
+            while (label.firstChild && label.firstChild !== field) heading.append(label.firstChild);
+            label.prepend(heading); host = heading;
+          } else host = field.closest('section')?.querySelector('h3');
+          if (!host) return;
+          const button = document.createElement('button');
+          button.type = 'button'; button.className = 'help-trigger'; button.textContent = '?'; button.dataset.help = text;
+          button.id = `help-${id}`;
+          button.setAttribute('aria-label', `Help: ${label ? host.textContent.trim() : field.getAttribute('aria-label')}`);
+          button.setAttribute('aria-expanded', 'false');
+          button.addEventListener('mouseenter', () => showHelp(button));
+          button.addEventListener('mouseleave', () => { if (document.activeElement !== button) closeHelp(); });
+          button.addEventListener('focus', () => showHelp(button));
+          button.addEventListener('blur', closeHelp);
+          button.addEventListener('click', (event) => { event.preventDefault(); showHelp(button); });
+          host.append(button);
+        });
+        const hints = {
+          '[data-end-pass]': 'Confirm the student is back, then close their active pass.',
+          '[data-remove-queue]': 'Cancel this waiting request. This does not end an active pass.',
+          '[data-review-passes]': 'View the trips counted for this student in this class and correct a completed pass if needed.',
+          '[data-remove-student]': 'Remove only this class enrollment. Existing history and the student’s PIN are preserved.',
+          '#reset-student-pass-counters': 'Begin a new marking-period counting window for all classes. Historical pass records are preserved.',
+          '[data-pass-access]': 'Teacher-private access setting. Applies across this student’s memberships and requires an audit reason.',
+        };
+        Object.entries(hints).forEach(([selector, text]) => document.querySelectorAll(selector).forEach((node) => node.title = text));
+      };
+
+      const buildTeacherWorkspace = () => {
+        closeHelp();
+        const notifications = getTeacherNotifications(state, teacherPinStatus);
+        const actionable = notifications.filter((item) => item.tone !== 'info').length;
+        const nav = document.createElement('div');
+        nav.className = 'workspace-nav'; nav.setAttribute('role', 'tablist'); nav.setAttribute('aria-label', 'Teacher workspace');
+        nav.innerHTML = WORKSPACE_VIEWS.map(([id, label, paths]) => `<button type="button" class="workspace-tab" id="tab-${id}" role="tab" aria-controls="panel-${id}" data-workspace-view="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${paths}</svg>${label}${id === 'notifications' && notifications.length ? `<span class="nav-count">${notifications.length}</span>` : ''}</button>`).join('');
+        const panels = {};
+        WORKSPACE_VIEWS.forEach(([id]) => {
+          const panel = document.createElement('section');
+          panel.id = `panel-${id}`; panel.className = 'workspace-panel'; panel.dataset.workspacePanel = id;
+          panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', `tab-${id}`); panel.tabIndex = 0;
+          panels[id] = panel;
+        });
+        const move = (selector, view) => { const node = content.querySelector(selector); if (node) panels[view].append(node); return node; };
+        const intro = (view, title, description) => { panels[view].innerHTML = `<div class="panel-intro"><div><h3>${title}</h3><p>${description}</p></div></div>`; };
+        intro('attendance', 'attendance.', 'See check-ins by class and help students who need a manual attendance update.');
+        intro('students', 'students & access.', 'Class memberships, pass allowances, and private access settings in one place.');
+        intro('settings', 'make it work for your classroom.', 'Set your pass rules, choose an alert sound, and manage PIN delivery.');
+        intro('notifications', 'your classroom inbox.', 'Current observations from your classroom. Resolved items disappear when the data refreshes.');
+        move('.room-summary', 'overview');
+        if (actionable) {
+          const banner = document.createElement('div'); banner.className = 'attention-banner';
+          banner.innerHTML = `<span><strong>${actionable} ${actionable === 1 ? 'item needs' : 'items need'} your attention.</strong> Your classroom inbox has the details.</span><button class="secondary" data-open-inbox>Review</button>`;
+          panels.overview.append(banner);
+          banner.querySelector('button').addEventListener('click', () => selectTeacherView('notifications', true));
+        }
+        move('#attendance-section', 'attendance');
+        move('#roster-section', 'students');
+        move('#pass-count-details', 'students');
+        const backup = content.querySelector('#teacher-student')?.closest('section');
+        if (backup) { backup.classList.add('subcard', 'backup-card'); panels.overview.append(backup); }
+        const rules = move('#pass-controls-details', 'settings');
+        if (rules) rules.open = true;
+        move('#pin-delivery-details', 'settings');
+        const live = move('#live-pass-section', 'overview');
+        if (live && backup) panels.overview.insertBefore(live, backup);
+        const list = document.createElement('div'); list.className = 'notification-list';
+        list.innerHTML = notifications.length ? notifications.map((item, index) => `<article class="notification-card ${item.tone}"><span class="notification-icon" aria-hidden="true">${item.tone === 'info' ? 'i' : '!'}</span><div><h4>${escapeHtml(item.title)}</h4><p>${escapeHtml(item.message)}</p></div><button class="secondary" data-notification="${index}">${item.action}</button></article>`).join('') : '<div class="subcard all-clear">You’re all caught up. No notifications from your current classroom data.</div>';
+        panels.notifications.append(list);
+        move('#sign-in-problems', 'notifications');
+        list.querySelectorAll('[data-notification]').forEach((button) => button.addEventListener('click', () => {
+          const item = notifications[Number(button.dataset.notification)]; openTeacherDestination(item.view, item.target);
+        }));
+        // Keep operation feedback visible on every tab, but place recurring
+        // traffic/rollover details in the inbox instead of permanent top banners.
+        [...content.children].filter((node) => node.classList.contains('notice') && !node.classList.contains('success')).forEach((node) => panels.notifications.append(node));
+        content.querySelector('.student-head').after(nav);
+        Object.values(panels).forEach((panel) => content.append(panel));
+        nav.querySelectorAll('button').forEach((button) => {
+          button.addEventListener('click', () => selectTeacherView(button.dataset.workspaceView));
+          button.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const ids = WORKSPACE_VIEWS.map(([id]) => id); const index = ids.indexOf(teacherView);
+            const next = event.key === 'Home' ? 0 : event.key === 'End' ? ids.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length;
+            selectTeacherView(ids[next], true);
+          });
+        });
+        selectTeacherView(teacherView);
+        addTeacherHelp();
+      };
+
       const renderTeacher = () => {
         const snapshot = screen === 'teacher' ? captureTeacherUi() : null;
         clearError();
@@ -1129,8 +1491,8 @@
 
         const unmatched = state.unmatchedSignIns || [];
         const unmatchedHtml = unmatched.length ? `
-          <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>sign-in problems.</h3><p>${unmatched.length} school account${unmatched.length === 1 ? '' : 's'} reached the app but no roster row matches. The address on the roster is almost certainly wrong, which locks that student out of both the Google path and their PIN email. Cleared cards stay out of the way unless the same unmatched account tries again.</p></div><button class="secondary danger" id="clear-unmatched">clear sign-in problems</button></div>
+          <section class="teacher-section" id="sign-in-problems">
+            <div class="teacher-section-head"><div><h3>sign-in problems.</h3><p>${unmatched.length} school account${unmatched.length === 1 ? '' : 's'} reached the app but no roster row matches. Check whether each account belongs to a student in your class before updating a roster address. An unmatched account does not by itself prove an address is wrong. Cleared cards stay out of the way unless the same unmatched account tries again.</p></div><button class="secondary danger" id="clear-unmatched">clear sign-in problems</button></div>
             ${unmatched.map((entry) => `
               <article class="active-pass queue-entry" style="margin-top:10px">
                 <strong>${escapeHtml(entry.email)}</strong>
@@ -1232,13 +1594,11 @@
           </dialog>` : '';
 
         const roomStatusHtml = `
-          <div class="checkin-summary">
+          <div class="checkin-summary room-summary">
             <div class="summary-tile"><strong>${escapeHtml((state.active || []).length)} / ${escapeHtml(state.maxActivePasses)}</strong><span>out right now</span></div>
             <div class="summary-tile"><strong>${escapeHtml((state.queue || []).length)}</strong><span>waiting in line</span></div>
-            <div class="summary-tile"><strong>${escapeHtml(notChecked.length)}</strong><span>students not checked in</span></div>
-            <div class="summary-tile"><strong>${escapeHtml(absentToday.length)}</strong><span>marked absent</span></div>
-            <div class="summary-tile"><strong>${escapeHtml(stalePassCount || latePassCount)}</strong><span>${stalePassCount ? 'possible forgotten passes' : 'passes over time'}</span></div>
-            <div class="summary-tile"><strong>${escapeHtml(repeatPassesToday.length)}</strong><span>students with repeat trips today</span></div>
+            <div class="summary-tile"><strong>${escapeHtml(state.checkInsToday.length)}</strong><span>class check-ins today</span></div>
+            <div class="summary-tile ${latePassCount ? 'attention' : ''}"><strong>${escapeHtml(latePassCount)}</strong><span>overdue passes</span></div>
           </div>`;
         const repeatTripsHtml = repeatPassesToday.length ? `
           <section class="subcard" style="margin-bottom:18px"><h3>repeat trips today</h3>
@@ -1253,7 +1613,7 @@
 
         content.innerHTML = `
           <div class="student-head">
-            <div><p class="eyebrow">private teacher controls</p><h2>today’s classroom.</h2><p class="student-meta">daily check-ins + hall-pass records · visible only to the teacher account</p></div>
+            <div><p class="eyebrow">private teacher controls</p><h2>today’s classroom.</h2><p class="student-meta">Your live classroom overview. Everything you need, a little easier to find.</p></div>
             <div class="refresh-box">
               <button class="secondary" id="refresh-teacher">refresh</button>
               <p class="stamp" id="teacher-stamp"></p>
@@ -1263,12 +1623,12 @@
           ${trafficHtml}
           ${roomStatusHtml}
           ${rolloverHtml}
-          <section class="teacher-section">
+          <section class="teacher-section" id="attendance-section">
             <div class="teacher-section-head">
               <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded · ${absentToday.length} marked absent · one point maximum per class membership each day</p></div>
             </div>
             <div class="checkin-summary">${summaryHtml}</div>
-            <section class="subcard" style="margin-top:18px"><h3>teacher backup check-in</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
+            <section class="subcard" style="margin-top:18px"><h3>record a student’s attendance</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             <details class="subcard log" id="checkin-log-details" data-teacher-details style="margin-top:18px">
               <summary>today’s private check-in log · ${escapeHtml(state.checkInsToday.length)}</summary>
               <table><thead><tr><th>student</th><th>class</th><th>time</th><th>point</th><th>streak</th><th>method</th></tr></thead><tbody>${checkInRows}</tbody></table>
@@ -1283,14 +1643,14 @@
             </details>
           </section>
           ${unmatchedHtml}
-          <section class="teacher-section">
+          <section class="teacher-section" id="roster-section">
             <div class="teacher-section-head"><div><h3>class rosters.</h3><p>${state.roster.length} active class enrollment${state.roster.length === 1 ? '' : 's'} · changes immediately update daily check-in and hall pass</p></div></div>
             <details class="subcard log" id="roster-details" data-teacher-details style="margin-top:18px">
               <summary>add, reactivate, view, or remove students</summary>
               <div class="roster-add"><h3>add or reactivate a student</h3><div class="override">
                 <div class="roster-add-grid">
                   <label>Student name<input type="text" id="roster-student-name" maxlength="120" autocomplete="off" placeholder="Last, First"></label>
-                  <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="student@students.mtmorrisschools.org"></label>
+                  <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="Student’s school email"></label>
                   <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="choose or type a class"><datalist id="teacher-class-options">${classOptions}</datalist></label>
                 </div>
                 <p class="message">Existing students keep the same PIN in every class. A brand-new student gets one PIN automatically and appears in PIN delivery.</p>
@@ -1302,28 +1662,28 @@
               <table class="roster-table" style="margin-top:12px"><thead><tr><th>student</th><th>class</th><th>school email</th><th class="action">action</th></tr></thead><tbody>${rosterRows}</tbody></table>
             </details>
           </section>
-          <section class="teacher-section">
-            <div class="teacher-section-head"><div><h3>hall pass.</h3><p>${state.retentionDays}-day operational window plus permanent Pass Audit · maximum ${state.maxActivePasses} out at once · ${passPolicy.limit ? `${passPolicy.limit} per marking period` : 'no marking-period cap'} · ${passPolicy.dailyLimit ? `${passPolicy.dailyLimit} per day` : 'no daily cap'} · ${passPolicy.cooldownMinutes ? `${passPolicy.cooldownMinutes}-minute cooldown` : 'no cooldown'}</p></div></div>
+          <section class="teacher-section" id="live-pass-section">
+            <div class="teacher-section-head"><div><h3>live pass board.</h3><p>${state.retentionDays}-day operational window plus permanent Pass Audit · maximum ${state.maxActivePasses} out at once · ${passPolicy.limit ? `${passPolicy.limit} per marking period` : 'no marking-period cap'} · ${passPolicy.dailyLimit ? `${passPolicy.dailyLimit} per day` : 'no daily cap'} · ${passPolicy.cooldownMinutes ? `${passPolicy.cooldownMinutes}-minute cooldown` : 'no cooldown'}</p></div></div>
             <div class="teacher-grid">
               <section class="subcard"><h3>out right now</h3>${activeHtml}</section>
               <section class="subcard"><h3>waiting line</h3>${queueHtml}<p class="message" style="margin-top:12px;font-size:12px">Each request was already PIN-verified and advances automatically when a slot opens. No second student PIN is needed.</p></section>
             </div>
             <details class="subcard" id="pass-controls-details" data-teacher-details style="margin-top:18px">
-              <summary>pass rules, teacher backup, and sound</summary>
+              <summary>Pass rules & alerts</summary>
               <div class="teacher-grid">
               <section><h3>pass limits</h3><div class="override">
                 <div class="field-grid">
                   <label>Out at once<input type="number" id="max-active-passes" min="1" max="10" step="1" value="${escapeHtml(state.maxActivePasses)}"></label>
-                  <label>Per marking period<input type="number" id="student-pass-limit" min="0" max="500" step="1" value="${escapeHtml(passPolicy.limit)}"></label>
+                  <label>Passes per class / marking period<input type="number" id="student-pass-limit" min="0" max="500" step="1" value="${escapeHtml(passPolicy.limit)}"></label>
                   <label>Per school day<input type="number" id="daily-pass-limit" min="0" max="25" step="1" value="${escapeHtml(passPolicy.dailyLimit)}"></label>
-                  <label>Cooldown after return<input type="number" id="pass-cooldown-minutes" min="0" max="180" step="1" value="${escapeHtml(passPolicy.cooldownMinutes)}"></label>
+                  <label>Wait after return (minutes)<input type="number" id="pass-cooldown-minutes" min="0" max="180" step="1" value="${escapeHtml(passPolicy.cooldownMinutes)}"></label>
                   <label>Late warning (minutes)<input type="number" id="late-pass-minutes" min="1" max="120" step="1" value="${escapeHtml(lateAfter)}"></label>
-                  <label>Forgotten-pass warning<input type="number" id="stale-pass-minutes" min="1" max="240" step="1" value="${escapeHtml(staleAfter)}"></label>
+                  <label>Check on student after (minutes)<input type="number" id="stale-pass-minutes" min="1" max="240" step="1" value="${escapeHtml(staleAfter)}"></label>
                 </div>
                 <p class="message">Use 0 to turn off the marking-period limit, daily limit, or cooldown. The forgotten-pass warning must be at least the late-warning time. Teacher backup passes can override a student limit when you decide it is appropriate. Last marking-period reset: ${escapeHtml(resetLabel)}.</p>
-                <div class="button-row"><button class="secondary" id="save-pass-limits">save pass rules</button><button class="secondary danger" id="reset-student-pass-counters">reset every student to zero</button></div>
+                <div class="button-row"><button class="secondary" id="save-pass-limits">save pass rules</button><button class="secondary danger" id="reset-student-pass-counters">start a new marking period</button></div>
               </div></section>
-              <section><h3>teacher backup pass</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
+              <section><h3>start a pass for a student</h3><div class="override"><select id="teacher-student"><option value="">choose a student…</option>${rosterOptions}</select><button class="primary" id="teacher-start">start pass for student</button></div></section>
               <section><h3>sign-out sound</h3><div class="override">
                 <div class="sound-row">
                   <label>Sound on this teacher device<select id="teacher-pass-sound">${soundOptions}</select></label>
@@ -1336,9 +1696,9 @@
             ${repeatTripsHtml}
             <details class="subcard log" id="pass-count-details" data-teacher-details style="margin:18px 0">
               <summary><strong>class pass counts and student access</strong></summary>
-              <p class="message" style="margin:12px 0">${unverifiedCount} student${unverifiedCount === 1 ? ' has' : 's have'} never been recognized by their Google account and can only get in by PIN, which usually means the roster address is wrong. ${unlimitedCount} student${unlimitedCount === 1 ? '' : 's'} set to unlimited. Marking-period counts belong to the class shown on each row. Daily limits and return cooldowns follow the student across classes. Access changes apply to all of that student’s memberships and are recorded privately with your reason. No pass limit bypasses numeric limits and cooldowns; class timing still applies. Teacher escort only requires your backup control.</p>
+              <p class="message" style="margin:12px 0">Marking-period counts belong to the class shown on each row. Daily limits and return cooldowns follow the student across classes. Access changes apply to all of that student’s memberships and are recorded privately with your reason. No pass limit bypasses numeric limits and cooldowns; class timing still applies. Teacher escort only requires your backup control.</p>
               <input type="search" id="pass-count-filter" placeholder="filter by name or class" aria-label="Filter students">
-              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>student access</th><th>student</th><th>today</th><th>period used</th><th>period left</th><th>class</th><th>evidence</th></tr></thead><tbody>${studentPassRows}</tbody></table>
+              <table class="pass-count-table" style="margin-top:12px"><thead><tr><th>student access</th><th>student</th><th>today</th><th>used this marking period</th><th>remaining</th><th>class</th><th>evidence</th></tr></thead><tbody>${studentPassRows}</tbody></table>
             </details>
             <details class="subcard log" id="pass-log-details" data-teacher-details><summary>today’s private pass log · ${escapeHtml(state.today.length)}</summary><table><thead><tr><th>student</th><th>class</th><th>out</th><th>returned</th><th>time</th><th>method</th><th>countability</th></tr></thead><tbody>${logRows}</tbody></table></details>
           </section>
@@ -1370,11 +1730,11 @@
           renderTeacher();
         }));
 
-        document.querySelector('#teacher-checkin').addEventListener('click', (event) => {
+        document.querySelector('#teacher-checkin').addEventListener('click', async (event) => {
           const studentKey = document.querySelector('#teacher-checkin-student').value;
           if (!studentKey) { showError('Choose a student first.'); return; }
           act(event.currentTarget, async () => {
-            const reason = window.prompt('Private attendance reason (required outside the check-in window):');
+            const reason = await teacherPrompt('Private attendance reason (required outside the check-in window):');
             if (reason === null) return;
             adoptState(await call('teacherCheckInStudent', studentKey, reason));
             renderTeacher();
@@ -1382,40 +1742,40 @@
         });
 
         document.querySelectorAll('[data-checkin-student]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
-          const reason = window.prompt('Private attendance reason (required outside the check-in window):');
+          const reason = await teacherPrompt('Private attendance reason (required outside the check-in window):');
           if (reason === null) return;
           adoptState(await call('teacherCheckInStudent', button.dataset.checkinStudent, reason));
           renderTeacher();
         })));
 
-        document.querySelectorAll('[data-absent-student]').forEach((button) => button.addEventListener('click', () => {
-          if (!window.confirm(`Mark ${button.dataset.absentName} absent for ${button.dataset.absentClass}? This is saved in the private attendance log and can be cleared or changed to a late check-in.`)) return;
+        document.querySelectorAll('[data-absent-student]').forEach((button) => button.addEventListener('click', async () => {
+          if (!await teacherConfirm(`Mark ${button.dataset.absentName} absent for ${button.dataset.absentClass}? This is saved in the private attendance log and can be cleared or changed to a late check-in.`)) return;
           act(button, async () => {
             adoptState(await call('teacherMarkStudentAbsent', button.dataset.absentStudent));
             renderTeacher();
           });
         }));
 
-        document.querySelectorAll('[data-clear-absence]').forEach((button) => button.addEventListener('click', () => {
-          if (!window.confirm(`Clear today’s absent mark for ${button.dataset.absentName}? They will return to the not-checked-in list.`)) return;
+        document.querySelectorAll('[data-clear-absence]').forEach((button) => button.addEventListener('click', async () => {
+          if (!await teacherConfirm(`Clear today’s absent mark for ${button.dataset.absentName}? They will return to the not-checked-in list.`)) return;
           act(button, async () => {
             adoptState(await call('teacherClearStudentAbsent', button.dataset.clearAbsence));
             renderTeacher();
           });
         }));
 
-        document.querySelector('#teacher-start').addEventListener('click', (event) => {
+        document.querySelector('#teacher-start').addEventListener('click', async (event) => {
           const studentKey = document.querySelector('#teacher-student').value;
           if (!studentKey) { showError('Choose a student first.'); return; }
           act(event.currentTarget, async () => {
-            const reason = window.prompt('Private reason for this backup pass (required when overriding a restriction):');
+            const reason = await teacherPrompt('Private reason for this backup pass (required when overriding a restriction):');
             if (reason === null) return;
             adoptState(await call('teacherStartPass', studentKey, reason));
             renderTeacher();
           });
         });
 
-        document.querySelector('#teacher-add-student').addEventListener('click', (event) => {
+        document.querySelector('#teacher-add-student').addEventListener('click', async (event) => {
           const name = document.querySelector('#roster-student-name').value.trim();
           const email = document.querySelector('#roster-student-email').value.trim();
           const classPeriod = document.querySelector('#roster-class-period').value.trim();
@@ -1429,10 +1789,10 @@
           });
         });
 
-        document.querySelectorAll('[data-remove-student]').forEach((button) => button.addEventListener('click', () => {
+        document.querySelectorAll('[data-remove-student]').forEach((button) => button.addEventListener('click', async () => {
           const name = button.dataset.removeName;
           const classPeriod = button.dataset.removeClass;
-          if (!window.confirm(`Remove ${name} from ${classPeriod}? They will disappear from check-in and hall-pass choices for this class. Private history will stay intact.`)) return;
+          if (!await teacherConfirm(`Remove ${name} from ${classPeriod}? They will disappear from check-in and hall-pass choices for this class. Private history will stay intact.`)) return;
           act(button, async () => {
             adoptState(await call('teacherRemoveStudentClass', button.dataset.removeStudent));
             renderTeacher();
@@ -1449,10 +1809,10 @@
           renderTeacher();
         })));
 
-        document.querySelectorAll('[data-apply-email]').forEach((button) => button.addEventListener('click', () => {
+        document.querySelectorAll('[data-apply-email]').forEach((button) => button.addEventListener('click', async () => {
           const real = button.dataset.applyEmail;
           const roster = button.dataset.applyRoster;
-          if (!window.confirm(`Give ${real} to the student who is on the roster as ${roster}? Their PIN, check-in history and pass history all move with it.`)) return;
+          if (!await teacherConfirm(`Give ${real} to the student who is on the roster as ${roster}? Their PIN, check-in history and pass history all move with it.`)) return;
           act(button, async () => {
             adoptState(await call('teacherApplyUnmatchedEmail', roster, real));
             renderTeacher();
@@ -1465,18 +1825,19 @@
         })));
 
         const clearUnmatched = document.querySelector('#clear-unmatched');
-        if (clearUnmatched) clearUnmatched.addEventListener('click', (event) => {
-          if (!window.confirm('Clear the current sign-in problem cards from the dashboard? They will be marked cleared in the private workbook so the audit trail remains.')) return;
-          act(event.currentTarget, async () => {
+        if (clearUnmatched) clearUnmatched.addEventListener('click', async (event) => {
+          const button = event.currentTarget;
+          if (!await teacherConfirm('Clear the current sign-in problem cards from the dashboard? They will be marked cleared in the private workbook so the audit trail remains.')) return;
+          act(button, async () => {
             adoptState(await call('teacherClearUnmatchedSignIns', 'CLEAR SIGN-IN PROBLEMS'));
             renderTeacher();
           });
         });
 
-        document.querySelectorAll('[data-pass-access-email]').forEach((box) => box.addEventListener('change', () => {
+        document.querySelectorAll('[data-pass-access-email]').forEach((box) => box.addEventListener('change', async () => {
           const email = box.dataset.passAccessEmail;
           const wanted = box.value;
-          const reason = window.prompt('Private reason for changing this student’s pass access in all classes:');
+          const reason = await teacherPrompt('Private reason for changing this student’s pass access in all classes:');
           if (!reason || !reason.trim()) { box.value = box.dataset.previous; return; }
           box.disabled = true;
           act(null, async () => {
@@ -1503,7 +1864,7 @@
         const rosterFilter = document.querySelector('#roster-filter');
         if (rosterFilter) rosterFilter.addEventListener('input', () => filterRosterRows(rosterFilter.value));
 
-        document.querySelector('#save-pass-limits').addEventListener('click', (event) => {
+        document.querySelector('#save-pass-limits').addEventListener('click', async (event) => {
           const maxActive = Number(document.querySelector('#max-active-passes').value);
           const studentLimit = Number(document.querySelector('#student-pass-limit').value);
           const dailyLimit = Number(document.querySelector('#daily-pass-limit').value);
@@ -1516,9 +1877,10 @@
           });
         });
 
-        document.querySelector('#reset-student-pass-counters').addEventListener('click', (event) => {
-          if (!window.confirm('Reset every student’s marking-period pass count to zero? This starts a new counting period. Pass history stays in the private log, and active passes and the waiting line are not changed.')) return;
-          act(event.currentTarget, async () => {
+        document.querySelector('#reset-student-pass-counters').addEventListener('click', async (event) => {
+          const button = event.currentTarget;
+          if (!await teacherConfirm('Reset every student’s marking-period pass count to zero? This starts a new counting period. Pass history stays in the private log, and active passes and the waiting line are not changed.')) return;
+          act(button, async () => {
             adoptState(await call('teacherResetStudentPassCounters', 'RESET ALL STUDENTS'));
             renderTeacher();
           });
@@ -1527,7 +1889,7 @@
         const soundSelect = document.querySelector('#teacher-pass-sound');
         if (soundSelect) soundSelect.addEventListener('change', () => setTeacherPassSound(soundSelect.value));
         const testSound = document.querySelector('#test-pass-sound');
-        if (testSound) testSound.addEventListener('click', () => {
+        if (testSound) testSound.addEventListener('click', async () => {
           if (soundSelect) setTeacherPassSound(soundSelect.value);
           playTeacherPassSound();
         });
@@ -1538,7 +1900,7 @@
           renderTeacher();
         }));
 
-        document.querySelector('#send-pin-emails').addEventListener('click', (event) => {
+        document.querySelector('#send-pin-emails').addEventListener('click', async (event) => {
           const button = event.currentTarget;
           act(button, async () => {
             const preview = teacherPinPreview || await call('previewStudentPinEmails');
@@ -1547,11 +1909,11 @@
               button.disabled = false;
               throw new Error('No unsent PIN emails are ready.');
             }
-            if (!window.confirm(`Send ${preview.readyRecipients} private student emails, one unique PIN per student?`)) {
+            if (!await teacherConfirm(`Send ${preview.readyRecipients} private student emails, one unique PIN per student?`)) {
               button.disabled = false;
               return;
             }
-            const phrase = window.prompt('Final confirmation: type EMAIL PINS exactly.');
+            const phrase = await teacherPrompt('Final confirmation: type EMAIL PINS exactly.');
             if (phrase !== 'EMAIL PINS') {
               button.disabled = false;
               throw new Error('No messages were sent. The confirmation phrase did not match.');
@@ -1566,7 +1928,7 @@
         if (passReviewDialog) {
           passReviewDialog.addEventListener('close', () => { teacherPassReview = null; });
           document.querySelector('#close-pass-review').addEventListener('click', () => passReviewDialog.close());
-          document.querySelector('#apply-pass-correction').addEventListener('click', (event) => {
+          document.querySelector('#apply-pass-correction').addEventListener('click', async (event) => {
             const selected = document.querySelector('input[name="pass-correction"]:checked');
             const reason = document.querySelector('#pass-correction-reason').value.trim();
             if (!selected) { showError('Choose a completed pass to correct.'); return; }
@@ -1585,6 +1947,7 @@
         }
 
         stampTeacher();
+        buildTeacherWorkspace();
         restoreTeacherUi(snapshot);
         if (clearRosterDraft) {
           ['#roster-student-name', '#roster-student-email', '#roster-class-period'].forEach((selector) => {
@@ -1670,7 +2033,7 @@
           screen = 'error';
           content.className = '';
           content.innerHTML = `<p class="message">${escapeHtml(error.message)}</p>`;
-          showError('The classroom app could not start. Reload the page, or tell Mr. Grant if it keeps happening.');
+          showError('The classroom app could not start. Reload the page, or tell your teacher if it keeps happening.');
         }
       })();
     </script>

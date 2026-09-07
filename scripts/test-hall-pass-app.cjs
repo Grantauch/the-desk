@@ -848,7 +848,7 @@ const message = behaviorContext.__gdBehavior.buildPinEmailMessage_(
 assert.equal(message.to, 'student@students.mtmorrisschools.org');
 assert.match(message.body, /123456/);
 assert.doesNotMatch(message.body, /654321/);
-assert.match(message.body, /one PIN works in every Mr\. Grant class/i);
+assert.match(message.body, /one PIN works in all your classes/i);
 assert.match(message.body, /Keep this PIN private/);
 assert.match(message.body, /^Hello Jordan,/);
 
