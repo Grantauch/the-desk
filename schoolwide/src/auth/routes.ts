@@ -6,7 +6,7 @@ import { StaffAuthenticationService } from './service.js';
 import { AuthenticationError, AuthorizationError } from './types.js';
 
 const signInBodySchema = z.object({ assertion: z.string().min(1).max(16_384) }).strict();
-const idSchema = z.uuid();
+const idSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 
 function correlationIdFor(request: FastifyRequest, reply: FastifyReply): string {
   const supplied = request.headers['x-correlation-id'];
