@@ -76,7 +76,7 @@ const first = curiosityItems[0];
     </div>
     <p class="curiosity-intro">
       Real collection records rotate through five lenses. Start with a guess, then open the catalog evidence.
-      <span class="curiosity-live-status" data-curiosity-live-status role="status" aria-live="polite">connecting to the live catalog…</span>
+      <span class="curiosity-live-status" data-curiosity-live-status role="status" aria-live="polite">loading the first live collection…</span>
     </p>
   </header>
 
@@ -422,28 +422,53 @@ const first = curiosityItems[0];
         updateCollectionControls();
       };
 
+      const liveSummary = () => {
+        const ready = liveCollections.size;
+        const total = Object.keys(curiosityCollections).length;
+        return ready
+          ? `live Library of Congress records / ${ready} of ${total} collections ready / more load as you browse`
+          : 'live catalog unavailable / showing the preserved fallback';
+      };
+
       filterButtons.forEach((button) => {
         button.addEventListener('click', async () => {
           const requested = button.dataset.filter || 'all';
           setActiveFilter(requested);
-          setLiveStatus(requested === 'all' ? 'loading all five live collections…' : `loading the live ${filterLabel()} collection…`);
 
-          const loaded = requested === 'all'
-            ? await Promise.all(Object.keys(curiosityCollections).map(loadCollection)).then((results) => results.some(Boolean))
-            : await loadCollection(requested);
+          if (requested === 'all') {
+            const matches = matchingIndexes();
+            if (matches.length) showItem(matches.includes(currentIndex) ? currentIndex : matches[0]);
+            setLiveStatus(liveSummary());
+            return;
+          }
+
+          setLiveStatus(`loading the live ${filterLabel()} collection…`);
+          const loaded = await loadCollection(requested);
           const matches = matchingIndexes();
           if (matches.length) showItem(matches[0]);
-          setLiveStatus(loaded
-            ? `live Library of Congress records / ${liveCollections.size} of ${Object.keys(curiosityCollections).length} collections ready`
-            : 'live catalog unavailable / showing the preserved fallback');
+          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
         });
       });
 
-      nextButton?.addEventListener('click', () => {
+      nextButton?.addEventListener('click', async () => {
         const matches = matchingIndexes();
         if (matches.length < 2) return;
         const matchPosition = matches.indexOf(currentIndex);
-        showItem(matches[(matchPosition + 1) % matches.length]);
+        const nextIndex = matches[(matchPosition + 1) % matches.length];
+        const nextItem = currentItems[nextIndex];
+        if (!nextItem) return;
+
+        if (!liveCollections.has(nextItem.collection)) {
+          setLiveStatus(`loading the live ${nextItem.collection} collection…`);
+          const loaded = await loadCollection(nextItem.collection);
+          const refreshedMatches = matchingIndexes();
+          const refreshedIndex = refreshedMatches.find((index) => currentItems[index]?.collection === nextItem.collection);
+          if (refreshedIndex !== undefined) showItem(refreshedIndex);
+          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
+          return;
+        }
+
+        showItem(nextIndex);
       });
 
       revealButton?.addEventListener('click', () => {
@@ -454,14 +479,17 @@ const first = curiosityItems[0];
         revealButton.textContent = willOpen ? 'hide the context' : 'reveal the context';
       });
 
-      Promise.all(Object.keys(curiosityCollections).map(loadCollection)).then((results) => {
-        const matches = matchingIndexes();
-        if (matches.length) showItem(matches[0]);
-        const successful = results.filter(Boolean).length;
-        setLiveStatus(successful
-          ? `live Library of Congress records / ${successful} of ${results.length} collections ready`
-          : 'live catalog unavailable / showing the preserved fallback');
-      });
+      const initialCollection = seeds[0]?.collection;
+      if (initialCollection) {
+        setLiveStatus('loading the first live collection…');
+        loadCollection(initialCollection).then((loaded) => {
+          const matches = matchingIndexes();
+          if (matches.length) showItem(matches[0]);
+          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
+        });
+      } else {
+        setLiveStatus('live catalog unavailable / showing the preserved fallback');
+      }
     }
   </script>
 </section>
