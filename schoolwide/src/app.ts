@@ -6,6 +6,8 @@ import { StaffAuthenticationService } from './auth/service.js';
 import type { StaffIdentityProvider } from './auth/types.js';
 import type { AppConfig } from './config.js';
 import type { Database } from './db/database.js';
+import { registerSchedulePolicyRoutes } from './schedule-policy/routes.js';
+import { SchedulePolicyService } from './schedule-policy/service.js';
 
 export type BuildAppOptions = {
   config: AppConfig;
@@ -29,12 +31,14 @@ export function buildApp({
   const authenticationOptions = sessionTtlMs === undefined ? {} : { sessionTtlMs };
   const authentication = new StaffAuthenticationService(database, identityProvider, authenticationOptions);
   const authorization = new StaffAuthorizationService(database);
+  const schedulePolicy = new SchedulePolicyService(database);
   registerStaffAuthRoutes(app, { authentication, authorization });
+  registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-030',
-    status: 'staff-auth-rbac',
+    version: 'sw-040',
+    status: 'schedule-policy-services',
   }));
 
   app.get('/health/live', async () => ({
