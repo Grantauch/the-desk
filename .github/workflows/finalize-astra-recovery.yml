@@ -25,6 +25,9 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Normalize one-time recovery helper
+        run: node scripts/normalize-recovery-script.mjs
+
       - name: Reconstruct interrupted Astra changes
         run: node scripts/recover-astra-batch.mjs
 
@@ -44,7 +47,7 @@ jobs:
         run: npm run browser:test
 
       - name: Remove one-time recovery machinery
-        run: rm scripts/recover-astra-batch.mjs .github/workflows/finalize-astra-recovery.yml
+        run: rm scripts/recover-astra-batch.mjs scripts/normalize-recovery-script.mjs .github/workflows/finalize-astra-recovery.yml
 
       - name: Commit verified recovery batch
         run: |
