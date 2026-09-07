@@ -135,24 +135,32 @@ async function seedSchedulePolicyFixture(client: PoolClient): Promise<Fixture> {
 
   await client.query(
     `INSERT INTO school_calendar_days
-       (school_id, academic_date, is_school_day, schedule_profile_id, label, source, source_revision)
+       (organization_id, school_id, academic_date, is_school_day, schedule_profile_id, label, source, source_revision)
      VALUES
-       ($1, DATE '2026-09-08', true, $2, 'Normal Tuesday', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-09-09', true, $3, 'Reduced Wednesday', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-09-10', true, $4, 'Half Thursday', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-09-11', false, NULL, 'No School Friday', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-09-14', true, $5, 'Special Monday', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-09-15', true, NULL, 'Schedule Missing', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-09-16', true, $6, 'Inactive Schedule', 'MANUAL', 'fixture-1'),
-       ($1, DATE '2026-11-02', true, $2, 'DST Standard Time', 'MANUAL', 'fixture-1')`,
-    [base.schoolA, ids.normalProfile, ids.reducedProfile, ids.halfProfile, ids.specialProfile, ids.inactiveProfile],
+       ($1, $2, DATE '2026-09-08', true, $3, 'Normal Tuesday', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-09-09', true, $4, 'Reduced Wednesday', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-09-10', true, $5, 'Half Thursday', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-09-11', false, NULL, 'No School Friday', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-09-14', true, $6, 'Special Monday', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-09-15', true, NULL, 'Schedule Missing', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-09-16', true, $7, 'Inactive Schedule', 'MANUAL', 'fixture-1'),
+       ($1, $2, DATE '2026-11-02', true, $3, 'DST Standard Time', 'MANUAL', 'fixture-1')`,
+    [
+      base.orgA,
+      base.schoolA,
+      ids.normalProfile,
+      ids.reducedProfile,
+      ids.halfProfile,
+      ids.specialProfile,
+      ids.inactiveProfile,
+    ],
   );
 
   await client.query(
     `INSERT INTO school_policy_sets
-       (id, school_id, academic_year_id, name, effective_from, effective_until, active)
-     VALUES ($1, $2, $3, '2026-27 Baseline', DATE '2026-09-01', DATE '2027-06-15', true)`,
-    [ids.policySet, base.schoolA, base.yearA],
+       (id, organization_id, school_id, academic_year_id, name, effective_from, effective_until, active)
+     VALUES ($1, $2, $3, $4, '2026-27 Baseline', DATE '2026-09-01', DATE '2027-06-15', true)`,
+    [ids.policySet, base.orgA, base.schoolA, base.yearA],
   );
 
   await client.query(
@@ -177,20 +185,20 @@ async function seedSchedulePolicyFixture(client: PoolClient): Promise<Fixture> {
 
   await client.query(
     `INSERT INTO section_policy_overrides
-       (id, school_id, section_id, policy_key, typed_value_json, valid_from, valid_until, reason)
+       (id, organization_id, school_id, section_id, policy_key, typed_value_json, valid_from, valid_until, reason)
      VALUES
-       ($1, $3, $4, 'MAX_ACTIVE_PER_SECTION', '3'::jsonb, TIMESTAMPTZ '2026-09-01T00:00:00Z', NULL, 'Synthetic allowed override'),
-       ($2, $3, $4, 'DAILY_LIMIT', '99'::jsonb, TIMESTAMPTZ '2026-09-01T00:00:00Z', NULL, 'Synthetic disallowed override')`,
-    [ids.allowedOverride, ids.disallowedOverride, base.schoolA, base.sectionA1],
+       ($1, $3, $4, $5, 'MAX_ACTIVE_PER_SECTION', '3'::jsonb, TIMESTAMPTZ '2026-09-01T00:00:00Z', NULL, 'Synthetic allowed override'),
+       ($2, $3, $4, $5, 'DAILY_LIMIT', '99'::jsonb, TIMESTAMPTZ '2026-09-01T00:00:00Z', NULL, 'Synthetic disallowed override')`,
+    [ids.allowedOverride, ids.disallowedOverride, base.orgA, base.schoolA, base.sectionA1],
   );
 
   await client.query(
     `INSERT INTO student_access_rules
-       (id, school_id, student_id, section_id, access_mode, reason_private, valid_from, status)
+       (id, organization_id, school_id, student_id, section_id, access_mode, reason_private, valid_from, status)
      VALUES
-       ($1, $3, $4, NULL, 'STANDARD', 'private school reason', TIMESTAMPTZ '2026-09-01T00:00:00Z', 'ACTIVE'),
-       ($2, $3, $4, $5, 'UNLIMITED', 'private section reason', TIMESTAMPTZ '2026-09-01T00:00:00Z', 'ACTIVE')`,
-    [ids.schoolAccess, ids.sectionAccess, base.schoolA, base.studentA, base.sectionA1],
+       ($1, $3, $4, $5, NULL, 'STANDARD', 'private school reason', TIMESTAMPTZ '2026-09-01T00:00:00Z', 'ACTIVE'),
+       ($2, $3, $4, $5, $6, 'UNLIMITED', 'private section reason', TIMESTAMPTZ '2026-09-01T00:00:00Z', 'ACTIVE')`,
+    [ids.schoolAccess, ids.sectionAccess, base.orgA, base.schoolA, base.studentA, base.sectionA1],
   );
 
   return base;
@@ -210,7 +218,6 @@ async function withFixture(pool: Pool, fn: (context: FixtureContext) => Promise<
 }
 
 function localDetroitIso(date: string, localHour: number, minute = 0): string {
-  // All fixture dates in September are EDT (UTC-04:00).
   return `${date}T${String(localHour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00-04:00`;
 }
 
@@ -331,9 +338,9 @@ test('SW-040 schedule and policy services', { skip: !databaseUrl }, async (t) =>
         await assert.rejects(
           client.query(
             `INSERT INTO school_calendar_days
-               (school_id, academic_date, is_school_day, schedule_profile_id, label)
-             VALUES ($1, DATE '2026-09-18', false, $2, 'Invalid no-school profile')`,
-            [base.schoolA, ids.normalProfile],
+               (organization_id, school_id, academic_date, is_school_day, schedule_profile_id, label)
+             VALUES ($1, $2, DATE '2026-09-18', false, $3, 'Invalid no-school profile')`,
+            [base.orgA, base.schoolA, ids.normalProfile],
           ),
           /school_calendar_days_check/,
         );
@@ -388,9 +395,9 @@ test('SW-040 schedule and policy services', { skip: !databaseUrl }, async (t) =>
 
         await client.query(
           `INSERT INTO school_policy_sets
-             (school_id, academic_year_id, name, effective_from, effective_until, active)
-           VALUES ($1, $2, 'Conflicting Set', DATE '2026-09-05', DATE '2026-09-20', true)`,
-          [base.schoolA, base.yearA],
+             (organization_id, school_id, academic_year_id, name, effective_from, effective_until, active)
+           VALUES ($1, $2, $3, 'Conflicting Set', DATE '2026-09-05', DATE '2026-09-20', true)`,
+          [base.orgA, base.schoolA, base.yearA],
         );
         const conflict = await service.resolvePolicy({
           schoolId: base.schoolA,
@@ -434,9 +441,9 @@ test('SW-040 schedule and policy services', { skip: !databaseUrl }, async (t) =>
         );
         await client.query(
           `INSERT INTO section_policy_overrides
-             (school_id, section_id, policy_key, typed_value_json, valid_from, reason)
-           VALUES ($1, $2, 'MAX_ACTIVE_PER_SECTION', '7'::jsonb, TIMESTAMPTZ '2026-09-20T00:00:00Z', 'Future fixture')`,
-          [base.schoolA, base.sectionA1],
+             (organization_id, school_id, section_id, policy_key, typed_value_json, valid_from, reason)
+           VALUES ($1, $2, $3, 'MAX_ACTIVE_PER_SECTION', '7'::jsonb, TIMESTAMPTZ '2026-09-20T00:00:00Z', 'Future fixture')`,
+          [base.orgA, base.schoolA, base.sectionA1],
         );
         const result = await service.resolvePolicy({
           schoolId: base.schoolA,
@@ -456,9 +463,9 @@ test('SW-040 schedule and policy services', { skip: !databaseUrl }, async (t) =>
       await withFixture(pool, async ({ client, service, base }) => {
         await client.query(
           `INSERT INTO student_access_rules
-             (school_id, student_id, section_id, access_mode, reason_private, valid_from, status)
-           VALUES ($1, $2, $3, 'ESCORT_ONLY', 'second private section reason', TIMESTAMPTZ '2026-09-01T00:00:00Z', 'ACTIVE')`,
-          [base.schoolA, base.studentA, base.sectionA1],
+             (organization_id, school_id, student_id, section_id, access_mode, reason_private, valid_from, status)
+           VALUES ($1, $2, $3, $4, 'ESCORT_ONLY', 'second private section reason', TIMESTAMPTZ '2026-09-01T00:00:00Z', 'ACTIVE')`,
+          [base.orgA, base.schoolA, base.studentA, base.sectionA1],
         );
         const result = await service.resolvePolicy({
           schoolId: base.schoolA,
