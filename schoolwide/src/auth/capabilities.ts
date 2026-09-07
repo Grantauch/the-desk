@@ -18,6 +18,8 @@ const teacherCapabilities: readonly Capability[] = [
 const securityCapabilities: readonly Capability[] = [
   'security.live.read',
   'security.student.lookup_live',
+  'security.pass.mark_located',
+  'security.pass.request_return',
   'security.destination.read'
 ];
 
