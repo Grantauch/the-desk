@@ -79,12 +79,12 @@ jobs:
           assert old in text, 'Expected teacher-specific PIN-email assertion was not found'
           app_test.write_text(text.replace(old, new), encoding='utf-8')
 
-          runtime_test = Path('scripts/test-hall-pass-runtime.cjs')
-          text = runtime_test.read_text(encoding='utf-8')
-          old = '/Ask Mr. Grant/'
-          new = '/Ask your teacher/'
+          session_test = Path('scripts/lib/hall-pass-session-tests.cjs')
+          text = session_test.read_text(encoding='utf-8')
+          old = "/Ask Mr. Grant/"
+          new = "/Ask your teacher/"
           assert old in text, 'Expected teacher-specific escort assertion was not found'
-          runtime_test.write_text(text.replace(old, new), encoding='utf-8')
+          session_test.write_text(text.replace(old, new), encoding='utf-8')
           PY
 
       - name: Install repository dependencies
@@ -112,7 +112,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add apps-script/hall-pass/Index.html apps-script/hall-pass/Code.gs scripts/test-hall-pass-app.cjs scripts/test-hall-pass-runtime.cjs
+          git add apps-script/hall-pass/Index.html apps-script/hall-pass/Code.gs scripts/test-hall-pass-app.cjs scripts/lib/hall-pass-session-tests.cjs
           if git diff --cached --quiet; then
             echo 'No generated Hall Pass source changes to commit.'
             exit 0
