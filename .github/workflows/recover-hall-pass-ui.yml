@@ -1,0 +1,100 @@
+name: Recover Hall Pass UI
+
+on:
+  push:
+    branches:
+      - recover/hall-pass-ui-redesign
+    paths:
+      - '.recovery/**'
+      - '.github/workflows/recover-hall-pass-ui.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    if: contains(github.event.head_commit.message, '[run-hall-pass-recovery]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out recovery branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Reassemble Astra recovery kit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .recovery/hall-pass-recovery.part.* | base64 --decode > .recovery/hall-pass-recovery.zip
+          echo '4f1bcf7471ce810a892086d6762aa73e48c56cb31f2fda2ffe9a132947b72f2d  .recovery/hall-pass-recovery.zip' | sha256sum --check
+          rm -rf .recovery/recovered
+          mkdir -p .recovery/recovered
+          unzip -q .recovery/hall-pass-recovery.zip -d .recovery/recovered
+          ln -s "$GITHUB_WORKSPACE" .recovery/recovered/the-desk-repair-20260905
+
+      - name: Apply requested overdue-pass wording
+        working-directory: .recovery/recovered
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          build = Path('hall-pass-ui-build.cjs')
+          text = build.read_text(encoding='utf-8')
+          old = 'passes needing a check'
+          assert old in text, 'Expected summary-tile wording was not found'
+          build.write_text(text.replace(old, 'overdue passes'), encoding='utf-8')
+
+          workspace = Path('hall-pass-workspace.txt')
+          text = workspace.read_text(encoding='utf-8')
+          old = "`${late} ${late === 1 ? 'pass needs' : 'passes need'} a check`"
+          new = "`${late} overdue ${late === 1 ? 'pass' : 'passes'}`"
+          assert old in text, 'Expected notification wording was not found'
+          workspace.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+
+      - name: Apply saved Hall Pass redesign
+        working-directory: .recovery/recovered
+        run: |
+          node hall-pass-ui-build.cjs
+          node hall-pass-dialog-polish.cjs
+          node hall-pass-copy-cleanup.cjs
+
+      - name: Install repository dependencies
+        run: npm ci
+
+      - name: Verify Hall Pass release behavior
+        run: npm run hall-pass:verify
+
+      - name: Verify recovered UI markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'workspace-nav' apps-script/hall-pass/Index.html
+          grep -q 'overdue passes' apps-script/hall-pass/Index.html
+          grep -q 'overdue.*pass' apps-script/hall-pass/Index.html
+          grep -q 'type="password" class="pin-input"' apps-script/hall-pass/Index.html
+          if grep -q 'passes needing a check' apps-script/hall-pass/Index.html; then
+            echo 'Old overdue-pass wording is still present.' >&2
+            exit 1
+          fi
+
+      - name: Commit recovered tested source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps-script/hall-pass/Index.html apps-script/hall-pass/Code.gs
+          if git diff --cached --quiet; then
+            echo 'No generated Hall Pass source changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Recover tested Hall Pass UI redesign'
+          git push
