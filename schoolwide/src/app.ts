@@ -9,6 +9,9 @@ import { CheckInService } from './checkins/service.js';
 import type { CheckInServiceOptions } from './checkins/types.js';
 import type { AppConfig } from './config.js';
 import type { Database } from './db/database.js';
+import { registerHallPassRoutes } from './hall-pass/routes.js';
+import { HallPassService } from './hall-pass/service.js';
+import type { HallPassServiceOptions } from './hall-pass/types.js';
 import { registerSchedulePolicyRoutes } from './schedule-policy/routes.js';
 import { SchedulePolicyService } from './schedule-policy/service.js';
 import { DisabledStudentIdentityProvider } from './student-credentials/provider.js';
@@ -24,6 +27,7 @@ export type BuildAppOptions = {
   studentIdentityProvider?: StudentIdentityProvider;
   studentCredentialOptions?: StudentCredentialServiceOptions;
   checkInOptions?: CheckInServiceOptions;
+  hallPassOptions?: HallPassServiceOptions;
 };
 
 export function buildApp({
@@ -34,6 +38,7 @@ export function buildApp({
   studentIdentityProvider = new DisabledStudentIdentityProvider(),
   studentCredentialOptions,
   checkInOptions,
+  hallPassOptions,
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -47,15 +52,17 @@ export function buildApp({
   const schedulePolicy = new SchedulePolicyService(database);
   const studentCredentials = new StudentCredentialService(database, studentIdentityProvider, studentCredentialOptions ?? {});
   const checkins = new CheckInService(database, checkInOptions ?? {});
+  const hallPass = new HallPassService(database, hallPassOptions ?? {});
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
   registerStudentCredentialRoutes(app, studentCredentials);
   registerCheckInRoutes(app, { authentication, authorization, checkins });
+  registerHallPassRoutes(app, { hallPass, studentIdentityProvider });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-060',
-    status: 'checkin',
+    version: 'sw-070',
+    status: 'hall-pass-core',
   }));
 
   app.get('/health/live', async () => ({
