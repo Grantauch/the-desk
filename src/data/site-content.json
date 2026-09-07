@@ -13,7 +13,7 @@
   "home": {
     "title": "the desk",
     "kicker": "Welcome to Mr. Grant's",
-    "promise": "Stuff you need for class.\nAnd tons of stuff you dont",
+    "promise": "Stuff you need for class.\nAnd tons of stuff you don't",
     "startLabel": "find your class",
     "makerEyebrow": "Here, \"Bums\" is a term of endearment.",
     "makerHeadline": "This is designed to make class a little easier.",
@@ -78,7 +78,7 @@
     "announcements": {
       "eyebrow": "dispatches from the desk",
       "title": "announcements",
-      "intro": "everything posted, newest first.",
+      "intro": "classroom notices and site changes worth knowing about, newest first.",
       "rssNote": "families: subscribe with any rss reader"
     },
     "news": {
