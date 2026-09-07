@@ -26,7 +26,8 @@ export function buildApp({
     trustProxy: false,
   });
 
-  const authentication = new StaffAuthenticationService(database, identityProvider, { sessionTtlMs });
+  const authenticationOptions = sessionTtlMs === undefined ? {} : { sessionTtlMs };
+  const authentication = new StaffAuthenticationService(database, identityProvider, authenticationOptions);
   const authorization = new StaffAuthorizationService(database);
   registerStaffAuthRoutes(app, { authentication, authorization });
 
