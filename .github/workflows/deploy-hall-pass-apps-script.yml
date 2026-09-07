@@ -42,10 +42,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out proposed bridge
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Use repository Node version
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -102,13 +102,13 @@ jobs:
           echo "Resolved Hall Pass release mode: $mode"
 
       - name: Check out current main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 1
 
       - name: Use repository Node version
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
