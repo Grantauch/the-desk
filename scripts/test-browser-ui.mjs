@@ -36,6 +36,21 @@ const pass = (condition, label) => {
   console.log(`PASS  ${label}`);
 };
 
+const reportAxeViolations = (label, result) => {
+  if (!result.violations.length) return;
+  console.error(`${label} accessibility details:`);
+  console.error(JSON.stringify(result.violations.map((violation) => ({
+    id: violation.id,
+    impact: violation.impact,
+    description: violation.description,
+    nodes: violation.nodes.map((node) => ({
+      target: node.target,
+      html: node.html,
+      failureSummary: node.failureSummary,
+    })),
+  })), null, 2));
+};
+
 const routes = ['/', '/us-history/', '/tools/', '/calendar/'];
 const viewports = [
   { name: 'phone 360', width: 360, height: 800 },
@@ -119,6 +134,7 @@ try {
     .include('.featured-media')
     .withRules(['color-contrast'])
     .analyze();
+  reportAxeViolations('featured-media', mediaA11y);
   pass(mediaA11y.violations.length === 0, 'featured U.S. History media passes contrast scan');
 
   await page.goto(`${origin}/tools/`, { waitUntil: 'domcontentloaded' });
@@ -126,6 +142,7 @@ try {
     .include('.tools-jump')
     .withRules(['color-contrast'])
     .analyze();
+  reportAxeViolations('tools-jump', toolsA11y);
   pass(toolsA11y.violations.length === 0, 'tools jump menu passes contrast scan');
 
   await context.close();
