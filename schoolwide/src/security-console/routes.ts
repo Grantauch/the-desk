@@ -88,7 +88,13 @@ export function registerSecurityConsoleRoutes(
       const principal = await authentication.authenticate(bearerToken(request));
       const schoolId = securityConsole.resolveSchoolId(principal, 'security.live.read');
       authorization.requireSchoolCapability(principal, schoolId, 'security.live.read');
-      const board = await securityConsole.liveBoard({ principal, ...query.data });
+      const board = await securityConsole.liveBoard({
+        principal,
+        ...(query.data.destinationId === undefined ? {} : { destinationId: query.data.destinationId }),
+        ...(query.data.sectionId === undefined ? {} : { sectionId: query.data.sectionId }),
+        ...(query.data.teacherUserId === undefined ? {} : { teacherUserId: query.data.teacherUserId }),
+        ...(query.data.warning === undefined ? {} : { warning: query.data.warning }),
+      });
       return { ...board, requestId };
     } catch (error) {
       if (sendError(reply, error, requestId)) return;
