@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro';
 import { learningHubs } from '../data/learningHubs';
 import passConfig from '../data/pass-config.json';
 import { remixPublicRoutes } from '../data/remixCatalog';
+import { storyHubs } from '../data/storyhubs';
 
 const paths = [
   '/',
@@ -11,7 +12,8 @@ const paths = [
   '/first-day-materials/',
   '/us-history/',
   '/us-history/syllabus/',
-  '/hubs/ush9-l014-unions.html',
+  '/storyhubs/',
+  ...storyHubs.map((hub) => hub.href),
   '/hidden-history/',
   '/hidden-history/syllabus/',
   '/beyond-the-scoreboard/',

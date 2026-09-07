@@ -1,0 +1,231 @@
+---
+// storyhubs.astro — the landing page for StoryHub lessons.
+// Entries come from src/data/storyhubs.ts. Add a StoryHub there, not here.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { storyHubs } from '../data/storyhubs';
+---
+
+<Base
+  title="storyhubs"
+  description="Scrollytelling history lessons built from primary sources and original artwork. One story, told the whole way through."
+  wide
+>
+  <PageHeader
+    eyebrow="scrollytelling lessons"
+    title="storyhubs"
+    intro="a full class period told as one story you scroll through, built from real sources and original artwork."
+  >
+    <p class="page-hero__meta">{storyHubs.length} published · more arriving through the year</p>
+  </PageHeader>
+
+  <section class="mt-8 storyhub-note" aria-labelledby="storyhub-note-title">
+    <h2 id="storyhub-note-title">what a storyhub is</h2>
+    <p>
+      Not a slideshow and not a worksheet. You scroll, the story moves, and the evidence shows up where
+      the argument needs it. Every figure and date on the screen traces back to a source listed at the
+      bottom of the page, and every photograph of a real person is a real photograph.
+    </p>
+  </section>
+
+  <div class="mt-8 space-y-8">
+    {
+      storyHubs.map((hub) => (
+        <article class="pop rounded-md bg-white overflow-hidden storyhub-card">
+          <a class="storyhub-card__cover" href={hub.href}>
+            <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
+          </a>
+
+          <div class="storyhub-card__body">
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span class="text-xs font-mono lowercase text-accent">{hub.course}</span>
+              <span class="text-xs font-mono lowercase text-ink-soft">· {hub.unit}</span>
+              <span class="text-xs font-mono lowercase text-ink-soft">· {hub.period}</span>
+              <span class="storyhub-card__status">{hub.status}</span>
+            </div>
+
+            <h2 class="mt-2 font-display text-3xl font-bold lowercase leading-none">
+              <a href={hub.href}>{hub.title}</a>
+            </h2>
+
+            <p class="storyhub-card__question">{hub.question}</p>
+            <p class="mt-3 leading-relaxed text-ink-soft">{hub.blurb}</p>
+
+            <ul class="storyhub-card__inside">
+              {hub.inside.map((item) => (
+                <li>
+                  <span class="text-accent shrink-0" aria-hidden="true">·</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+              <a class="storyhub-card__open" href={hub.href}>open the story →</a>
+              <ul class="storyhub-card__topics">
+                {hub.topics.map((topic) => (
+                  <li>{topic}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .storyhub-note {
+    border-left: 3px solid var(--color-accent);
+    padding: 0.1rem 0 0.1rem 1rem;
+  }
+
+  .storyhub-note h2 {
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .storyhub-note p {
+    max-width: 46rem;
+    margin-top: 0.5rem;
+    color: var(--color-ink-soft);
+    line-height: 1.65;
+  }
+
+  .storyhub-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .storyhub-card__cover {
+    display: block;
+    overflow: hidden;
+    background: #0b1219;
+  }
+
+  .storyhub-card__cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 13rem;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .storyhub-card__cover:hover img,
+  .storyhub-card__cover:focus-visible img {
+    transform: scale(1.03);
+  }
+
+  .storyhub-card__body {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+  }
+
+  .storyhub-card__status {
+    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-accent-soft) 70%, white);
+    padding: 0.15rem 0.55rem;
+    color: var(--color-accent-dark);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .storyhub-card__body h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .storyhub-card__body h2 a:hover {
+    color: var(--color-accent);
+  }
+
+  .storyhub-card__question {
+    max-width: 44rem;
+    margin-top: 0.6rem;
+    color: var(--color-ink);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .storyhub-card__inside {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.5rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .storyhub-card__inside li {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .storyhub-card__open {
+    border: 2px solid var(--color-ink);
+    padding: 0.45rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: lowercase;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .storyhub-card__open:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .storyhub-card__topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: lowercase;
+  }
+
+  .storyhub-card__topics li::after {
+    content: ' /';
+    opacity: 0.45;
+  }
+
+  .storyhub-card__topics li:last-child::after {
+    content: '';
+  }
+
+  @media (min-width: 900px) {
+    .storyhub-card {
+      grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    }
+
+    .storyhub-card__cover img {
+      min-height: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .storyhub-card__cover img {
+      transition: none;
+    }
+
+    .storyhub-card__cover:hover img,
+    .storyhub-card__cover:focus-visible img {
+      transform: none;
+    }
+  }
+</style>
