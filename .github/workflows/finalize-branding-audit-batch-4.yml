@@ -1,0 +1,69 @@
+name: finalize branding audit batch 4
+
+on:
+  push:
+    branches:
+      - maintenance/branding-audit-batch-4
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: maintenance/branding-audit-batch-4
+          fetch-depth: 0
+      - name: Apply branding and low-risk maintenance fixes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_required(path, old, new, minimum=1):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count < minimum:
+                  raise SystemExit(f'{path}: expected at least {minimum} matches for {old!r}, found {count}')
+              p.write_text(text.replace(old, new), encoding='utf-8')
+
+          # Canonical student-facing teacher name.
+          replace_required('src/data/site-content.json', "I'm Mr. Auch.", "I'm Mr. Grant.")
+          for syllabus in (
+              'src/pages/us-history/syllabus.astro',
+              'src/pages/hidden-history/syllabus.astro',
+              'src/pages/beyond-the-scoreboard/syllabus.astro',
+          ):
+              replace_required(syllabus, 'mr. auch', 'mr. grant')
+
+          # Remove a stale date-specific editor placeholder found by the audit.
+          replace_required('src/pages/editor.astro', 'placeholder="school starts Tuesday"', 'placeholder="class update title"')
+
+          # Clean safe diagnostics noise in test-only code; no behavior changes.
+          replace_required('scripts/test-classroom-tools.mjs', '(unused, index)', '(_unused, index)')
+          replace_required('scripts/test-hall-pass-app.cjs', '(unused, index)', '(_unused, index)', minimum=1)
+          replace_required('scripts/test-hall-pass-app.cjs', 'getRange(startRow, startColumn, numRows)', 'getRange(startRow, _startColumn, numRows)')
+
+          # Guard the branding decision in the permanent regression suite.
+          test_path = Path('scripts/test-browser-ui.mjs')
+          test = test_path.read_text(encoding='utf-8')
+          marker = """  pass(\n    deskObjectSource.includes('/face-stamp-no-words.svg')\n      && !deskObjectSource.includes('/mr-grant-approved-transparent.png')\n      && !deskObjectSource.includes('width: 440%'),\n    'desk seal uses the dedicated face-only asset without crop hacks',\n  );\n\n  await context.close();\n\n  if (checks !== 43) throw new Error(`Expected 43 browser checks, ran ${checks}.`);\n"""
+          replacement = """  pass(\n    deskObjectSource.includes('/face-stamp-no-words.svg')\n      && !deskObjectSource.includes('/mr-grant-approved-transparent.png')\n      && !deskObjectSource.includes('width: 440%'),\n    'desk seal uses the dedicated face-only asset without crop hacks',\n  );\n\n  const brandingSources = await Promise.all([\n    '../src/data/site-content.json',\n    '../src/pages/us-history/syllabus.astro',\n    '../src/pages/hidden-history/syllabus.astro',\n    '../src/pages/beyond-the-scoreboard/syllabus.astro',\n  ].map((path) => readFile(new URL(path, import.meta.url), 'utf8')));\n  pass(\n    brandingSources.every((source) => !/mr\\.?\\s+auch/i.test(source))\n      && brandingSources.every((source) => /mr\\.?\\s+grant/i.test(source)),\n    'student-facing teacher branding is consistently Mr. Grant',\n  );\n\n  await context.close();\n\n  if (checks !== 44) throw new Error(`Expected 44 browser checks, ran ${checks}.`);\n"""
+          if marker not in test:
+              raise SystemExit('browser branding marker not found')
+          test_path.write_text(test.replace(marker, replacement, 1), encoding='utf-8')
+          PY
+      - name: Remove one-time audit workflows and commit
+        shell: bash
+        run: |
+          rm -f .github/workflows/audit-branding-batch-4.yml .github/workflows/finalize-branding-audit-batch-4.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src scripts .github/workflows/audit-branding-batch-4.yml .github/workflows/finalize-branding-audit-batch-4.yml
+          git commit -m "Standardize Mr. Grant branding and clean audit findings"
+          git push origin HEAD:maintenance/branding-audit-batch-4
