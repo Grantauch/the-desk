@@ -1,5 +1,20 @@
 # GrantDesk repair status
 
+## Current checkpoint — September 7 acceptance corrections
+
+This checkpoint supersedes older unprotected-main, direct-main editor, and Netlify sign-in blockers below. Earlier sections and evidence are retained as history.
+
+- Main protection is verified through GitHub: required `build` check from GitHub Actions, strict up-to-date checks, required PR, admin enforcement, no force pushes or branch deletion (problem 11).
+- The recovered Sol release is production-ready at exact commit `f2d4daff1cc7d7c5bd731d4989a4fe75688f58dd`, Netlify deploy `6a9f151117ec3f000812b557`, published September 7 at 19:49:17 UTC. Authenticated Netlify read closes the old fingerprint blocker (10/39). This is the baseline, not evidence that the new corrections are live.
+- Local publishers now upload the exact verified commit to a review branch and preserve the checkout, including later edits and commits made during upload. Same-commit retries reuse the branch. The web editor already follows the review flow; no new production editor write was made (12/58).
+- Current calendar titles derive from each course's `currentUnit`; valid later teaching months are supported. Changing the unit requires one title edit, and missing or duplicate course units fail verification.
+- Browser acceptance covers nine routes at 320, 390 and 1440 pixels, full-page WCAG A/AA including contrast, keyboard search/focus/Enter, course/calendar agreement, timer pause/reset/fullscreen, and first-screen daily actions with normal and reduced motion. **42 browser cases passed**, plus **5 separate source checks**. External services are stubbed offline; this is not live student-service validation. CI keeps screenshots and scan reports, plus traces on failure.
+- Canonical local verification passed: 298 Hall Pass behavior checks, 11 tools checks, 3 classroom-state checks, 48 resource/gate fixtures, 21 publishing integration checks; Astro 0 errors/0 warnings/2 existing hints; 52 routes, 68 HTML files and 3851 local references. Sealed StoryHub assets passed. Local phone and desktop screenshots inspected.
+
+Correction PR, GitHub checks, and the exact production fingerprint will be recorded in the release task after publication. Hall Pass runtime and private data are unchanged; real-class validation remains `FIELD_PENDING`.
+
+## Historical checkpoints
+
 Updated 2026-09-06. Authority: revised launch capsule. Baseline: `4513ae7543ef42aa6c2152b34a443e5ff0e28cd7`. The [machine-readable ledger](repair-status.json) records all 73 IDs, dependencies, and current evidence.
 
 Batch 0.5 is complete. Problems 14 and 19 are VERIFIED at implementation commit `e5297d2fe4a116ef78559faf1dfffbaade6abe57`, pushed to `main` with matching remote SHA. [GitHub Actions canonical verify passed](https://github.com/Grantauch/the-desk/actions/runs/33983159223). Problem 40 is also VERIFIED by that successful push. The nineteen previously completed items remain PUSHED pending exact Netlify deployment correlation; they have not been reopened or reimplemented. Baseline GitHub Actions passed. Live first-day and tax pages match the baseline after line-ending normalization.

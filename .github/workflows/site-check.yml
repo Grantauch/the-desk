@@ -39,3 +39,12 @@ jobs:
 
       - name: Check key pages in a real browser
         run: npm run browser:test
+
+      - name: Save browser screenshots and accessibility reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-acceptance
+          path: browser-results/
+          retention-days: 7
+          if-no-files-found: ignore

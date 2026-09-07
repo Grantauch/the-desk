@@ -22,3 +22,6 @@ src/data/*.private.json
 # macOS/Windows junk
 .DS_Store
 Thumbs.db
+
+# browser acceptance evidence (uploaded by CI)
+browser-results/

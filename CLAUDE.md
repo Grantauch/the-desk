@@ -51,7 +51,7 @@ StoryHub is a quality standard and production system, not a visible template. Ea
 ## Common tasks
 
 - **Post announcement**: add `src/content/announcements/YYYY-MM-DD-slug.md`
-- **Change current unit**: move `current: true` within the `units` array in the class page
+- **Change current unit**: set `currentUnit` in `src/data/classroom-state.ts` to an existing course unit; current calendar titles derive from that same value
 - **Rename a unit**: change `name` on the class page and the matching key in `src/data/unit-materials.json` together, and leave `hubSlug` alone. `npm run site:validate` checks the pairs that have already been renamed
 - **Attach slides or packets to a unit**: add a `materials: [{ label, href }]` array to that unit in the class page. Drive links must be shared as anyone with the link, viewer
 - **Add a lessonhub or game**: drop the HTML file in `public/hubs/` and add an entry to the `hubs` array in `src/pages/games.astro`
@@ -63,6 +63,7 @@ Install dependencies with `npm install --include=dev` (`npm.cmd` in PowerShell),
 
 - `hall-pass:verify` — handoff map, structural suite, and runtime harness
 - `tools:test` — group maker, cold call, and timer fixtures
+- `classroom:test` — current course/calendar parity, invalid unit and month checks
 - `resources:validate` — public-resource fixtures, synthetic local publishing/editor integration tests, then read-only catalog and assignment validation; no private inventory required and no external test uploads
 - `storyhub:validate` — read-only StoryHub manifest, identity, provenance, visual-anchor, interaction-value, and local-path checks
 - `check` — dependency preflight, then Astro and TypeScript diagnostics with 0 errors required; missing development dependencies fail without an install prompt
@@ -75,6 +76,8 @@ Verification must not change tracked source or data. Netlify, GitHub Actions, an
 
 ## Deploy
 
-Stage only the paths you actually changed, read `git diff --cached` before committing, then push. Do not use `git add .` while unrelated files are dirty. Netlify rebuilds from `main` in about a minute.
+Stage only the paths you actually changed and read `git diff --cached` before committing. Upload a review branch and open a pull request; protected main requires the GitHub `build` check, which also runs `browser:test`. Never bypass protection. Local publishing shortcuts upload the verified commit to a review branch and preserve local work, including edits made during upload. Merge with a merge commit so the authoring checkout can later fast-forward; never reset it to discard pending work. Confirm the exact Netlify production commit separately.
+
+`npm run browser:test` uses the built site: nine routes at 320, 390, and 1440 pixels; full-page WCAG A/AA and contrast; search focus/Enter/Escape; course/calendar agreement; timer pause/reset/fullscreen; first-screen daily actions with ordinary and reduced motion. External services are stubbed offline, so no student service is contacted. Screenshots and accessibility reports are in `browser-results/`, with traces on failure; GitHub retains these artifacts for seven days.
 
 A push to GitHub is not an Apps Script deployment. Changes under `apps-script/hall-pass/` reach students only when a new version is created on the existing Apps Script deployment. `apps-script/hall-pass/DEPLOY.md` carries that procedure and the release records.

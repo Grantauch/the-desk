@@ -8,9 +8,9 @@ export interface ClassroomCalendarHighlight {
   detail: string;
 }
 
-interface ClassroomCourseState {
+export interface ClassroomCourseState {
   currentUnit: string;
-  calendarHighlights: ClassroomCalendarHighlight[];
+  calendarHighlights: Omit<ClassroomCalendarHighlight, 'title'>[];
 }
 
 /**
@@ -28,7 +28,6 @@ export const classroomState: Record<ClassroomCourse, ClassroomCourseState> = {
         month: 'september',
         when: 'right now',
         course: 'history',
-        title: 'the gilded age',
         detail: 'Railroads, robber barons, unions, and the price of progress.',
       },
     ],
@@ -40,7 +39,6 @@ export const classroomState: Record<ClassroomCourse, ClassroomCourseState> = {
         month: 'september',
         when: 'first week',
         course: 'hidden',
-        title: 'the roswell headline reveal',
         detail: 'Your first verdict of the year—and an exit ticket worth hanging onto until June.',
       },
     ],
@@ -52,23 +50,35 @@ export const classroomState: Record<ClassroomCourse, ClassroomCourseState> = {
         month: 'september',
         when: 'first week',
         course: 'scoreboard',
-        title: 'inventing american sport',
         detail: 'Factories, leagues, the color line, and the system behind the score.',
       },
     ],
   },
 };
 
-export const currentUnitFor = (course: ClassroomCourse, availableUnits: string[]) => {
-  const current = classroomState[course]?.currentUnit;
+export const currentUnitFor = (course: ClassroomCourse, availableUnits: string[], state = classroomState) => {
+  const current = state[course]?.currentUnit;
   if (!current) throw new Error(`Classroom state is missing a current unit for ${course}.`);
-  if (!availableUnits.includes(current)) {
+  if (availableUnits.filter(unit => unit === current).length !== 1) {
     throw new Error(
-      `Classroom state says "${current}" is current for ${course}, but that unit does not exist on the course page.`,
+      `Classroom state says "${current}" is current for ${course}, but that unit must exist exactly once on the course page.`,
     );
   }
   return current;
 };
 
-export const classroomCalendarHighlights = Object.values(classroomState)
-  .flatMap((course) => course.calendarHighlights);
+export const academicMonths = ['august', 'september', 'october', 'november', 'december', 'january', 'february', 'march', 'april', 'may', 'june', 'july'];
+
+export const calendarHighlightsFor = (state = classroomState): ClassroomCalendarHighlight[] =>
+  Object.values(state).flatMap(({ currentUnit, calendarHighlights }) => {
+    if (!currentUnit?.trim()) throw new Error('Classroom state is missing a current unit.');
+    return calendarHighlights.map(highlight => {
+      if (!academicMonths.includes(highlight.month) || !highlight.when.trim() || !highlight.detail.trim()) {
+        throw new Error('Classroom state has an invalid calendar highlight.');
+      }
+      // A current-unit calendar title is derived, never a second editable copy.
+      return { ...highlight, title: currentUnit };
+    });
+  });
+
+export const classroomCalendarHighlights = calendarHighlightsFor();
