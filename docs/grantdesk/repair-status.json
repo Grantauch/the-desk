@@ -111,7 +111,7 @@
     ]
   },
   "10": {
-    "status": "PUSHED",
+    "status": "VERIFIED",
     "depends_on": [
       14,
       19
@@ -120,22 +120,25 @@
       "Netlify is configured to call the canonical npm run verify command, matching GitHub Actions and local publishing. Exact Netlify production execution remains unverified until dashboard access is available.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
       "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
-      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes.",
+      "September 7 authenticated Netlify check: production main f2d4daff1cc7d7c5bd731d4989a4fe75688f58dd is ready, published 2026-09-07T19:49:17.296Z, deploy 6a9f151117ec3f000812b557. This closes the earlier dashboard/fingerprint blocker for the recovered Sol batch. The acceptance correction batch has local checks only until its separate PR/production fingerprint is recorded."
     ],
     "batch": "1"
   },
   "11": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
     "evidence": [
-      "Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch."
+      "Live GitHub API reports admin and push permission. main branch-protection endpoint reports Branch not protected (404). Earlier external authority blocker cleared; no settings changed in this batch.",
+      "September 7 current API: main requires the GitHub Actions build check (app 15368), strict up-to-date checks and pull requests; admin enforcement enabled; force pushes and deletion disabled. Earlier unprotected evidence is historical."
     ]
   },
   "12": {
-    "status": "OPEN",
+    "status": "VERIFIED",
     "depends_on": [],
     "evidence": [
-      "Authenticated web editor still writes narrow changes to main by design. The Netlify verify backstop is pushed at adb14b472bf7d57eed1d1218558eda5e732acf5b; production execution remains unverified."
+      "Authenticated web editor still writes narrow changes to main by design. The Netlify verify backstop is pushed at adb14b472bf7d57eed1d1218558eda5e732acf5b; production execution remains unverified.",
+      "September 7 correction: the recovered web editor source already saves to review branches, with review links for words and announcements. The earlier direct-main description is historical. Local publisher now follows the same review requirement. Synthetic editor HTTP integration passes; no new authenticated production save was exercised in this correction batch."
     ]
   },
   "13": {
@@ -376,10 +379,11 @@
     "batch": "3"
   },
   "39": {
-    "status": "BLOCKED_EXTERNAL",
+    "status": "VERIFIED",
     "depends_on": [],
     "evidence": [
-      "September 6: GitHub commit statuses expose no Netlify status and the deployments API returns no records. The available browser requires Netlify/GitHub sign-in. Exact deployment identity remains unverified; no live deployment inferred."
+      "September 6: GitHub commit statuses expose no Netlify status and the deployments API returns no records. The available browser requires Netlify/GitHub sign-in. Exact deployment identity remains unverified; no live deployment inferred.",
+      "September 7 authenticated Netlify check: production main f2d4daff1cc7d7c5bd731d4989a4fe75688f58dd is ready, published 2026-09-07T19:49:17.296Z, deploy 6a9f151117ec3f000812b557. This closes the earlier dashboard/fingerprint blocker for the recovered Sol batch. The acceptance correction batch has local checks only until its separate PR/production fingerprint is recorded."
     ],
     "batch": "3"
   },
@@ -529,7 +533,8 @@
       "Both legacy batch scripts delegate to publish.bat and the shared publisher. No automatic all-files staging or index-lock deletion. Intended batches, failure stops, source stability, upload retry and remote SHA confirmation are covered with synthetic repositories.",
       "Full canonical verify PASS: 64 handoff checks, structural suite, 298 Hall Pass behavioral checks, 11 classroom-tool checks, 47 resource/gate fixtures, 17 publishing/resource integration checks, StoryHub validation, Astro 0 errors/0 warnings (8 existing hints), 51 built routes, 66 HTML files/2709 references. All 202 source/document paths retained identical checksums.",
       "Implementation adb14b472bf7d57eed1d1218558eda5e732acf5b pushed to main and remote SHA confirmed. Canonical GitHub Actions verification PASS: https://github.com/Grantauch/the-desk/actions/runs/34054617391.",
-      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes."
+      "Netlify production execution/fingerprint remains unverified. No Apps Script or private workbook changes.",
+      "September 7 acceptance correction: all local publishing entry points upload the verified SHA to a deterministic review branch, leave local HEAD/work intact and print a review link. 21 synthetic integration checks include rejected main writes, retries and edits/new commits during upload. Full canonical verify passed locally: 298 Hall Pass behavior checks, 11 tools checks, 3 classroom-state checks, 48 resource/gate fixtures, 52 routes, 68 HTML files/3851 links, Astro 0 errors/0 warnings/2 existing hints. Browser acceptance: 42 cases across 320/390/1440 widths plus 5 separate source regressions. PR, CI and exact correction deployment are recorded separately after release."
     ],
     "batch": "1"
   },

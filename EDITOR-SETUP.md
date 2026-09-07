@@ -7,7 +7,8 @@ Once the one-time setup below is finished, the everyday workflow is:
 1. Open `/editor/` on any device.
 2. Sign in.
 3. Change site words or write an announcement.
-4. Press **publish**. Netlify rebuilds the public site automatically.
+4. Press **publish** and open the returned review link.
+5. Merge the pull request after its required checks pass. Netlify then rebuilds the public site.
 
 No local copy, terminal, Git command, or code edit is required.
 

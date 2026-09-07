@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync, readlinkSync, openSync, closeSync, unlinkSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -23,7 +23,7 @@ export function run(command, args, cwd, log = () => {}) {
   });
 }
 
-export async function publishSite(projectRoot = root, { editor = false, reviewBranch = false, confirm = async () => true, log = () => {} } = {}) {
+export async function publishSite(projectRoot = root, { editor = false, confirm = async () => true, log = () => {} } = {}) {
   const git = (...args) => run('git', args, projectRoot);
   const gitPath = async (name) => resolve(projectRoot, (await git('rev-parse', '--git-path', name)).trim());
   const checkIndexLock = async () => {
@@ -114,29 +114,28 @@ export async function publishSite(projectRoot = root, { editor = false, reviewBr
       || (await git('status', '--porcelain=v1', '--untracked-files=all')).trim()) {
       throw new Error('The commit or working files changed after verification. The local commit was preserved; review it before uploading.');
     }
-    const reviewName = reviewBranch
-      ? `editor/review-local-${Date.now()}-${randomBytes(3).toString('hex')}`
-      : null;
-    const targetRef = reviewName ? `refs/heads/${reviewName}` : 'refs/heads/main';
+    // The verified SHA is immutable even if another tool advances HEAD during upload.
+    // Reusing it makes retries idempotent; never rewind or overwrite the working tree.
+    const reviewName = `editor/review-local-${commit}`;
+    const beforeUploadFiles = await snapshot();
     let pushError;
-    try { await git('push', 'origin', `HEAD:${targetRef}`); } catch (error) { pushError = error; }
+    try { await git('push', 'origin', `${commit}:refs/heads/${reviewName}`); } catch (error) { pushError = error; }
     let uploaded;
-    try { uploaded = reviewName ? await remoteRef(reviewName) : await remoteHead(); }
-    catch { throw new Error('Upload status could not be confirmed. Your commit is safe locally. Check GitHub before retrying.'); }
+    try { uploaded = await remoteRef(reviewName); }
+    catch { throw new Error(`Upload was not confirmed. Your work is preserved locally. Check review branch ${reviewName} before retrying. ${pushError?.message || ''}`); }
     if (uploaded !== commit) {
-      throw new Error(`Upload was not confirmed. Your commit is safe locally. ${pushError?.message || 'The remote branch does not match the tested commit.'}`);
+      throw new Error(`Upload was not confirmed. Your work is preserved locally. ${pushError?.message || 'The review branch does not match the tested commit.'}`);
     }
-    if (reviewName) {
-      await git('reset', '--hard', beforeRemote);
-      return {
-        status: 'review',
-        commit,
-        branch: reviewName,
-        reviewUrl: `https://github.com/Grantauch/the-desk/compare/main...${encodeURIComponent(reviewName)}?expand=1`,
-        message: 'Saved for review. This is not live yet; open the review link and merge it after the checks pass.',
-      };
-    }
-    return { status: 'pushed', commit, message: 'Saved to GitHub and remote commit confirmed. Netlify will check and rebuild the site; confirm the deployment before calling it live.' };
+    const localChanges = (await git('rev-parse', 'HEAD')).trim() !== commit || await snapshot() !== beforeUploadFiles;
+    return {
+      status: 'review',
+      commit,
+      branch: reviewName,
+      localChanges,
+      reviewUrl: `https://github.com/Grantauch/the-desk/compare/main...${encodeURIComponent(reviewName)}?expand=1`,
+      message: 'Saved for review. This is not live yet; open the review link and merge it after the checks pass.'
+        + (localChanges ? ' Newer local changes were preserved and need a separate review.' : ''),
+    };
   } finally {
     closeSync(lock);
     // This function owns this separate lock. It never deletes Git's index.lock.
@@ -156,6 +155,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       },
     });
     console.log(result.message);
+    if (result.reviewUrl) console.log(result.reviewUrl);
   } catch (error) {
     console.error(`STOP: ${error.message}`);
     process.exitCode = 1;

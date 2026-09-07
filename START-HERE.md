@@ -64,7 +64,7 @@ Done. grant-desk.com is live.
 
 ## Everyday updates (the workflow you'll actually use)
 
-For site wording and announcements, open **https://grant-desk.com/editor/**. Sign in, make the change, and press publish. It works from a Chromebook or any other browser and does not require code. The one-time private connection is documented in `EDITOR-SETUP.md`.
+For site wording and announcements, open **https://grant-desk.com/editor/**. Sign in, make the change, press publish, and open the review link. Merge the review after its required checks pass; Netlify then deploys it. It works from a Chromebook or any other browser and does not require code. The one-time private connection is documented in `EDITOR-SETUP.md`.
 
 The local workflow below remains the fallback for structural code and curriculum-file changes.
 
@@ -82,4 +82,4 @@ npm.cmd run verify  # canonical release gate, including build; must pass before 
 
 Common edits are listed in **EDITING.md**, which says exactly which file to touch. For AI assisted edits, see the section at the bottom of EDITING.md.
 
-On `main`, stage only intended paths and inspect `git diff --cached`. Run `publish.bat`: it requires a fully selected batch, runs the complete verification, shows the batch for confirmation, commits, uploads, and checks the remote commit. It does not stage unrelated files or run resource sync. The two older publish shortcuts delegate to this same path. A failed upload leaves the commit locally so it can be checked and retried. Confirm Netlify's deployment separately; upload success alone does not establish that the site is live.
+On `main`, stage only intended paths and inspect `git diff --cached`. Run `publish.bat`: it requires a fully selected batch, runs the complete verification, shows the batch for confirmation, commits, uploads the exact verified commit to a review branch, and prints the review link. Open a pull request and merge it after the required checks pass. It does not stage unrelated files or run resource sync. The two older publish shortcuts delegate to this same path. Both successful and failed uploads preserve the local commit and any newer edits. Retrying the same commit reuses its review branch. Use a merge commit when merging the review; later synchronize a clean authoring checkout with a fast-forward-only pull. If histories diverge, preserve the work and reconcile it deliberately; never reset it. Confirm Netlify's deployment separately; upload success alone does not establish that the site is live.

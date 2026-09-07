@@ -1,145 +1,129 @@
-import { spawn } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { preview } from 'astro';
 import AxeBuilder from '@axe-core/playwright';
 import { chromium } from 'playwright';
 
-const port = 4391;
-const origin = `http://127.0.0.1:${port}`;
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const server = spawn(npm, ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port)], {
-  stdio: ['ignore', 'pipe', 'pipe'],
-  windowsHide: true,
-  detached: process.platform !== 'win32',
-});
-
-let serverOutput = '';
-server.stdout.on('data', (chunk) => { serverOutput += chunk; });
-server.stderr.on('data', (chunk) => { serverOutput += chunk; });
-
-const stopServer = () => {
-  if (!server.pid) return;
-  if (process.platform === 'win32') {
-    spawn('taskkill', ['/pid', String(server.pid), '/T', '/F'], {
-      stdio: 'ignore',
-      windowsHide: true,
-    }).unref();
-  } else {
-    try { process.kill(-server.pid, 'SIGTERM'); }
-    catch { server.kill('SIGTERM'); }
-  }
-  server.stdout.destroy();
-  server.stderr.destroy();
-};
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const waitForServer = async () => {
-  const until = Date.now() + 20_000;
-  while (Date.now() < until) {
-    try {
-      const response = await fetch(origin);
-      if (response.ok) return;
-    } catch {
-      // Preview is still starting.
-    }
-    await sleep(200);
-  }
-  throw new Error(`Astro preview did not start.\n${serverOutput}`);
-};
-
-let checks = 0;
-const pass = (condition, label) => {
-  if (!condition) throw new Error(`Browser check failed: ${label}`);
-  checks += 1;
-  console.log(`PASS  ${label}`);
-};
-
-const routes = ['/', '/us-history/', '/tools/', '/calendar/'];
+const origin = 'http://127.0.0.1:4391';
+const artifacts = new URL('../browser-results/', import.meta.url);
+const artifact = name => fileURLToPath(new URL(name, artifacts));
+const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/check-in/', '/pass/'];
 const viewports = [
-  { name: 'phone 360', width: 360, height: 800 },
-  { name: 'phone 390', width: 390, height: 844 },
-  { name: 'desktop', width: 1440, height: 900 },
+  { name: 'phone-320', width: 320, height: 740 },
+  { name: 'phone-390', width: 390, height: 844 },
+  { name: 'desktop', width: 1440, height: 1000 },
 ];
-
+const results = [];
+let sourceChecks = 0;
+const pass = (condition, label) => { assert.ok(condition, label); sourceChecks++; };
+const visit = async (page, route) => {
+  const response = await page.goto(`${origin}${route}`, { waitUntil: 'load' });
+  assert.equal(response.status(), 200);
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all(document.getAnimations().filter(a => Number.isFinite(a.effect?.getComputedTiming().endTime)).map(a => a.finished.catch(() => {})));
+  });
+};
 let browser;
-try {
-  await waitForServer();
-  browser = await chromium.launch({ headless: true });
-
-  for (const viewport of viewports) {
-    const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height } });
-    const page = await context.newPage();
-    const pageErrors = [];
-    page.on('pageerror', (error) => pageErrors.push(error.message));
-
-    for (const route of routes) {
-      pageErrors.length = 0;
-      await page.goto(`${origin}${route}`, { waitUntil: 'domcontentloaded' });
-      await page.waitForTimeout(900);
-      const overflow = await page.evaluate(() =>
-        document.documentElement.scrollWidth - document.documentElement.clientWidth
-      );
-      pass(overflow <= 1, `${viewport.name}: ${route} has no horizontal overflow`);
-      pass(pageErrors.length === 0, `${viewport.name}: ${route} has no JavaScript page error`);
-    }
-
-    await page.goto(origin, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(300);
-    const dailyActions = (await page.locator('.class-entry strong').allTextContents()).join(' ').toLowerCase();
-    pass(
-      dailyActions.includes('daily check-in') && dailyActions.includes('hall pass'),
-      `${viewport.name}: everyday Check-In and Hall Pass remain prominent`,
-    );
-
-    await page.goto(`${origin}/us-history/`, { waitUntil: 'domcontentloaded' });
-    const current = (await page.locator('#right-now-title').textContent())?.trim().toLowerCase() ?? '';
-    pass(current === 'the gilded age', `${viewport.name}: U.S. History current unit is the Gilded Age`);
-
-    await context.close();
-  }
-
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+let server;
+await mkdir(artifacts, { recursive: true });
+const runCase = async (name, viewport, check, reducedMotion = 'no-preference') => {
+  const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, reducedMotion });
+  // Never contact student services or external feeds from automated acceptance tests.
+  await context.route('**/*', route => {
+    const url = new URL(route.request().url());
+    return url.origin !== origin || url.pathname.startsWith('/.netlify/')
+      ? route.fulfill({ status: 503, body: 'Offline browser fixture' }) : route.continue();
+  });
+  await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
   const page = await context.newPage();
-
-  await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  await page.keyboard.press('Control+k');
-  pass(await page.locator('#desk-search-dialog').evaluate((dialog) => dialog.open), 'page finder opens from Ctrl+K');
-  await page.locator('#desk-search-input').fill('timer');
-  pass(await page.locator('.desk-search-results a[href="/tools/"]:visible').count() === 1, 'page finder filters timer to classroom tools');
-  await page.keyboard.press('Escape');
-  pass(!(await page.locator('#desk-search-dialog').evaluate((dialog) => dialog.open)), 'page finder closes with Escape');
-
-  await page.goto(`${origin}/calendar/`, { waitUntil: 'domcontentloaded' });
-  await page.locator('[data-calendar-filter="history"]').click();
-  const visibleHistoryTitles = await page.locator('[data-calendar-event]:visible h3').allTextContents();
-  pass(visibleHistoryTitles.some((title) => title.trim().toLowerCase() === 'the gilded age'), 'calendar history filter shows the Gilded Age');
-  const wrongCourseVisible = await page.locator('[data-calendar-event]:visible').evaluateAll((events) =>
-    events.some((event) => !['history', 'all'].includes(event.dataset.course || ''))
-  );
-  pass(!wrongCourseVisible, 'calendar history filter hides unrelated course milestones');
-
-  await page.goto(`${origin}/tools/`, { waitUntil: 'domcontentloaded' });
-  await page.locator('.t-preset[data-min="1"]').click();
-  await page.locator('#timer-start').click();
-  await page.waitForTimeout(1150);
-  pass((await page.locator('#timer-display').textContent()) !== '01:00', 'classroom timer advances using wall-clock time');
-  const focusButton = page.locator('#timer-focus');
-  const focusOkay = await focusButton.count() === 1 && (
-    !(await focusButton.isVisible()) ||
-    ((await focusButton.textContent()) ?? '').toLowerCase().includes('classroom screen')
-  );
-  pass(focusOkay, 'timer fullscreen control is available when the browser supports it');
-
-  const toolsContrast = await new AxeBuilder({ page })
-    .include('.tools-jump')
-    .withRules(['color-contrast'])
-    .analyze();
-  pass(toolsContrast.violations.length === 0, 'tools jump menu passes contrast scan');
-
-  await page.goto(`${origin}/us-history/`, { waitUntil: 'domcontentloaded' });
-  const featuredMedia = page.locator('.featured-media');
-  const mediaOkay = await featuredMedia.count() === 1 && (await featuredMedia.locator('h2').textContent())?.trim().length > 0;
-  pass(mediaOkay, 'featured U.S. History media renders with a labelled heading');
-
+  page.setDefaultTimeout(10_000);
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  const slug = `${viewport.name}-${name.replace(/[^a-z0-9]+/gi, '-')}`;
+  try {
+    await check(page);
+    assert.deepEqual(errors, [], 'No uncaught browser errors');
+    await page.screenshot({ path: artifact(`${slug}.png`), fullPage: name.startsWith('page ') });
+    results.push({ name, viewport: viewport.name, status: 'passed' });
+    console.log(`PASS ${viewport.name}: ${name}`);
+    await context.tracing.stop();
+  } catch (error) {
+    results.push({ name, viewport: viewport.name, status: 'failed', error: error.stack });
+    console.error(`FAIL ${viewport.name}: ${name}\n${error.message}`);
+    await page.screenshot({ path: artifact(`${slug}-failed.png`), fullPage: true }).catch(() => {});
+    await context.tracing.stop({ path: artifact(`${slug}-trace.zip`) });
+  } finally { await context.close(); }
+};
+try {
+  // API keeps preview in this process on Windows and Linux, with reliable cleanup.
+  server = await preview({ server: { host: '127.0.0.1', port: 4391 } });
+  browser = await chromium.launch({ headless: true });
+  for (const viewport of viewports) {
+    for (const route of routes) await runCase(`page ${route}`, viewport, async page => {
+      await visit(page, route);
+      assert.ok(await page.locator('h1').first().isVisible(), 'Visible page heading');
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), 'No horizontal overflow');
+      const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      await writeFile(artifact(`${viewport.name}-${route.replace(/\//g, '') || 'home'}-axe.json`), JSON.stringify(axe, null, 2));
+      assert.deepEqual(axe.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })) })), [], 'Full-page WCAG A/AA including contrast');
+    });
+    await runCase('course and calendar agree', viewport, async page => {
+      for (const [route, course] of [['/us-history/', 'history'], ['/hidden-history/', 'hidden'], ['/beyond-the-scoreboard/', 'scoreboard']]) {
+        await visit(page, route);
+        const current = (await page.locator('#right-now-title').textContent()).trim().toLowerCase();
+        await visit(page, '/calendar/');
+        await page.locator(`[data-calendar-filter="${course}"]`).click();
+        const titles = await page.locator('[data-calendar-event]:visible h3').allTextContents();
+        assert.ok(titles.some(title => title.trim().toLowerCase() === current), `${course} calendar matches course`);
+        assert.ok(await page.locator('[data-calendar-event]:visible').evaluateAll((events, course) => events.every(event => ['all', course].includes(event.dataset.course)), course), 'Unrelated milestones hidden');
+      }
+    });
+    await runCase('keyboard page finder', viewport, async page => {
+      await visit(page, '/');
+      await page.keyboard.press('Control+k');
+      assert.ok(await page.locator('#desk-search-input').evaluate(input => input === document.activeElement));
+      await page.locator('#desk-search-input').fill('zzzznoresults');
+      assert.equal(await page.locator('.desk-search-results a:visible').count(), 0);
+      assert.match(await page.locator('#desk-search-count').textContent(), /No matching pages/);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.activeElement === document.querySelector('.desk-search-trigger')); // dialog close restores focus asynchronously
+      assert.equal(await page.locator('#desk-search-dialog').evaluate(dialog => dialog.open), false);
+      await page.keyboard.press('Control+k');
+      await page.locator('#desk-search-input').fill('timer');
+      assert.equal(await page.locator('.desk-search-results a:visible').count(), 1);
+      await page.keyboard.press('Enter');
+      await page.waitForURL(`${origin}/tools/`);
+    });
+    await runCase('timer pause reset and fullscreen', viewport, async page => {
+      await visit(page, '/tools/');
+      await page.locator('.t-preset[data-min="1"]').click();
+      await page.locator('#timer-start').click();
+      await page.waitForFunction(() => document.querySelector('#timer-display').textContent !== '01:00');
+      await page.locator('#timer-pause').click();
+      const paused = await page.locator('#timer-display').textContent();
+      await page.waitForTimeout(1200); // Longer than a timer tick proves pause holds.
+      assert.equal(await page.locator('#timer-display').textContent(), paused);
+      await page.locator('#timer-reset').click();
+      assert.equal(await page.locator('#timer-display').textContent(), '01:00');
+      await page.locator('#timer-focus').click();
+      await page.waitForFunction(() => document.fullscreenElement?.id === 'timer-card');
+      await page.locator('#timer-focus').click();
+      await page.waitForFunction(() => document.fullscreenElement === null);
+    });
+    for (const motion of ['no-preference', 'reduce']) await runCase(`first screen actions motion ${motion}`, viewport, async page => {
+      await visit(page, '/');
+      for (const href of ['/check-in/', '/pass/']) {
+        const action = page.locator(`.class-entry a[href="${href}"]`);
+        assert.ok(await action.isVisible());
+        const r = await action.boundingBox();
+        assert.ok(r.x >= 0 && r.y >= 0 && r.width > 0 && r.height > 0 && r.x + r.width <= viewport.width && r.y + r.height <= viewport.height, `${href} entirely in first viewport`);
+      }
+      if (motion === 'reduce') assert.ok(await page.evaluate(() => document.getAnimations().every(a => a.playState !== 'running')), 'Reduced motion disables page animations');
+    }, motion);
+  }
+  // Source regressions supplement and are counted separately from browser cases.
   const hiddenHistorySource = (await readFile(new URL('../src/pages/hidden-history.astro', import.meta.url), 'utf8')).toLowerCase();
   pass(
     hiddenHistorySource.includes('the four verdicts — confirmed, debunked, misleading, unproven')
@@ -178,11 +162,12 @@ try {
     'student-facing teacher branding is consistently Mr. Grant',
   );
 
-  await context.close();
 
-  if (checks !== 44) throw new Error(`Expected 44 browser checks, ran ${checks}.`);
-  console.log(`Browser UI: PASS — ${checks} checks across two phone sizes and desktop.`);
+  const failed = results.filter(result => result.status === 'failed').length;
+  console.log(`Browser UI: ${results.length - failed}/${results.length} cases passed; ${sourceChecks} separate source checks. External services stubbed offline. Artifacts: browser-results/`);
+  if (failed) process.exitCode = 1;
 } finally {
-  if (browser) await browser.close();
-  stopServer();
+  await writeFile(artifact('report.json'), JSON.stringify({ results, sourceChecks, externalServices: 'offline fixtures' }, null, 2));
+  await browser?.close();
+  await server?.stop();
 }

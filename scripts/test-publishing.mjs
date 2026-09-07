@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, copyFileSync, rmSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -95,18 +95,64 @@ try {
       assert.equal(read(base, 'src/data/unit-materials.json'), priorMaterials);
     }
   });
-  await test('manual publish verifies selected files, preserves private sources, confirms remote and handles no-op', async () => {
+  await test('manual publish preserves local HEAD and production and reuses its verified review branch', async () => {
     const f = await fixture();
     write(f.base, 'new file.txt', 'intended');
     await git(f.base, 'add', '--', 'new file.txt');
     const result = await publishSite(f.base, { confirm: async (review) => { assert.match(review, /new file/); return true; } });
-    assert.equal(result.status, 'pushed');
+    assert.equal(result.status, 'review');
     assert.equal(read(f.base, 'gate-result.txt'), 'verify\n');
     assert.equal(read(f.base, 'src/data/resources.private.json'), 'private synthetic source unchanged\n');
     assert.equal(read(f.base, 'src/data/unit-materials.private.json'), 'private synthetic assignments unchanged\n');
-    assert.equal((await git(f.remote, 'rev-parse', 'main')).trim(), result.commit);
+    await sameRemote(f);
+    assert.equal((await git(f.remote, 'rev-parse', result.branch)).trim(), result.commit);
+    assert.equal((await git(f.base, 'rev-parse', 'HEAD')).trim(), result.commit);
+    assert.equal((await publishSite(f.base)).branch, result.branch);
+    assert.equal(read(f.base, 'gate-result.txt'), 'verify\nverify\n');
+  });
+  await test('unchanged work does not create a review branch', async () => {
+    const f = await fixture();
     assert.equal((await publishSite(f.base)).status, 'unchanged');
-    assert.equal(read(f.base, 'gate-result.txt'), 'verify\n');
+    assert.equal(existsSync(join(f.base, 'gate-result.txt')), false);
+    await sameRemote(f);
+  });
+  await test('manual publisher succeeds with production writes explicitly rejected', async () => {
+    const f = await fixture(); change(f.base);
+    write(f.remote, 'hooks/pre-receive', '#!/bin/sh\nwhile read old new ref; do\n  if [ "$ref" = "refs/heads/main" ]; then exit 1; fi\ndone\n');
+    chmodSync(join(f.remote, 'hooks/pre-receive'), 0o755);
+    await git(f.base, 'add', '--', 'src/data/site-content.json');
+    const result = await publishSite(f.base);
+    assert.equal(result.status, 'review');
+    await sameRemote(f);
+    assert.equal((await git(f.remote, 'rev-parse', result.branch)).trim(), result.commit);
+  });
+  for (const advanceHead of [false, true]) await test(`upload preserves newer local work (HEAD advances: ${advanceHead})`, async () => {
+    const f = await fixture(); change(f.base);
+    write(f.base, '.git/upload-edit.cjs', `
+      const fs = require('node:fs');
+      fs.writeFileSync('src/data/site-content.json', 'newer local edit');
+      if (${advanceHead}) {
+        const cp = require('node:child_process');
+        cp.execFileSync('git', ['add', '--', 'src/data/site-content.json']);
+        cp.execFileSync('git', ['commit', '-m', 'newer local work during upload']);
+      }
+      fs.writeFileSync('later-notes.txt', 'new untracked work');
+      fs.writeFileSync('src/data/resources.private.json', 'newer private source');
+    `);
+    write(f.base, '.git/hooks/pre-push', '#!/bin/sh\nnode .git/upload-edit.cjs\n');
+    chmodSync(join(f.base, '.git/hooks/pre-push'), 0o755);
+    const result = await publishSite(f.base, { editor: true });
+    assert.equal(result.status, 'review');
+    assert.equal(result.localChanges, true);
+    assert.equal(read(f.base, 'src/data/site-content.json'), 'newer local edit');
+    assert.equal(read(f.base, 'later-notes.txt'), 'new untracked work');
+    assert.equal(read(f.base, 'src/data/resources.private.json'), 'newer private source');
+    assert.equal((await git(f.remote, 'rev-parse', result.branch)).trim(), result.commit);
+    assert.equal(await git(f.remote, 'show', `${result.branch}:src/data/site-content.json`), '{"title":"after"}\n');
+    const localHead = (await git(f.base, 'rev-parse', 'HEAD')).trim();
+    if (advanceHead) assert.notEqual(localHead, result.commit);
+    else assert.equal(localHead, result.commit);
+    await sameRemote(f);
   });
   await test('editor publishes only its saved files and does not require private inventories', async () => {
     const f = await fixture();
@@ -120,7 +166,7 @@ try {
     change(clean);
     write(clean, 'src/content/announcements/2026-09-06-fixture.md', 'synthetic announcement');
     const result = await publishSite(clean, { editor: true });
-    assert.equal(result.status, 'pushed');
+    assert.equal(result.status, 'review');
     assert.equal(read(clean, 'src/data/resources.json'), catalogBefore);
     assert.deepEqual((await git(clean, 'diff', '--name-only', `${f.head}..HEAD`)).trim().split('\n').sort(), [
       'src/content/announcements/2026-09-06-fixture.md', 'src/data/site-content.json',
@@ -190,7 +236,8 @@ try {
     await git(f.base, 'config', '--unset', 'remote.origin.pushurl');
     const retry = await publishSite(f.base, { editor: true });
     assert.equal(retry.commit, local);
-    assert.equal((await git(f.remote, 'rev-parse', 'main')).trim(), local);
+    await sameRemote(f);
+    assert.equal((await git(f.remote, 'rev-parse', retry.branch)).trim(), local);
   });
   await test('remote advancement prevents stale publication', async () => {
     const f = await fixture();
@@ -267,7 +314,7 @@ try {
       assert.doesNotMatch(read(root, name), /git add|git push|\bdel\s/i);
     }
     assert.doesNotMatch(read(root, 'editor/server.mjs'), /resources:sync|git', \['add'/);
-    assert.match(read(root, 'editor/server.mjs'), /publishSite\(root, \{ editor: true, reviewBranch: true \}\)/);
+    assert.match(read(root, 'editor/server.mjs'), /publishSite\(root, \{ editor: true \}\)/);
     assert.match(read(root, 'netlify/functions/editor-api.mjs'), /createReviewBranch/);
     assert.match(read(root, 'netlify/functions/editor-api.mjs'), /Saved for review/);
   });

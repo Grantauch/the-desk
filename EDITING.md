@@ -4,7 +4,7 @@ For curriculum organization, public/private boundaries, and the Three-Course Lec
 
 ## Edit public wording without code
 
-Open **https://grant-desk.com/editor/**. The private control panel edits the homepage, shared header and footer, three course introductions, About page, Announcements page, News Today + Then, and Curiosity Desk. Press **publish site words** when the batch is ready.
+Open **https://grant-desk.com/editor/**. The private control panel edits the homepage, shared header and footer, three course introductions, About page, Announcements page, News Today + Then, and Curiosity Desk. Press **publish site words** when the batch is ready, then open its review link. The change goes live only after the pull request checks pass, the review is merged, and Netlify finishes deploying.
 
 The same editor posts announcements with a normal headline, date, class dropdown, and message box. No Markdown file or Git command is required. See `EDITOR-SETUP.md` for the one-time secure connection and recovery details.
 
@@ -26,7 +26,7 @@ It appears on the home page (latest 3) and the announcements page automatically.
 
 ## Update what unit a class is on
 
-Open the class page (`src/pages/us-history.astro`, `hidden-history.astro`, or `beyond-the-scoreboard.astro`). Find the `units` array. Move `current: true` to the unit you're on (only one unit should have it). Blurbs can be edited freely.
+Open `src/data/classroom-state.ts` and change that course's `currentUnit` to an existing unit name. The course page and current calendar title both derive from this value. Update the calendar month, timing, and description there when class moves; do not add a separate calendar title. Publishing new materials does not advance the class. Unit blurbs remain in the course page.
 
 Renaming a unit is different. A unit's `name` is also the key that `src/data/unit-materials.json` uses to attach resources, so a rename has to change both in the same commit or the unit quietly loses its materials. Leave `hubSlug` alone either way, since that is what links the unit to its learning hub and to its public URL.
 

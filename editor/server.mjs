@@ -181,7 +181,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/publish' && request.method === 'POST') {
       publishing = true;
       try {
-        const result = await publishSite(root, { editor: true, reviewBranch: true });
+        const result = await publishSite(root, { editor: true });
         sendJson(response, 200, result);
       } finally { publishing = false; }
       return;

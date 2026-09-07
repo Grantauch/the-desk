@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { classroomCalendarHighlights } from '../data/classroom-state';
+import { classroomCalendarHighlights, academicMonths } from '../data/classroom-state';
 
 type CourseKey = 'hidden' | 'scoreboard' | 'history' | 'all';
 
@@ -25,8 +25,8 @@ const milestones: Milestone[] = [
   { month: 'june', when: 'final week', course: 'all', title: 'the day-one exit tickets return', detail: 'Same questions. Different answers. That is the point.' },
 ];
 
-const monthOrder = ['september', 'october', 'november', 'december', 'january', 'june'];
-const monthGroups = monthOrder.map((month) => ({ month, milestones: milestones.filter((item) => item.month === month) }));
+const monthOrder = academicMonths;
+const monthGroups = monthOrder.map((month) => ({ month, milestones: milestones.filter((item) => item.month === month) })).filter(group => group.milestones.length);
 const courseLabels: Record<CourseKey, string> = {
   hidden: 'hidden history',
   scoreboard: 'beyond the scoreboard',
