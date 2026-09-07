@@ -224,10 +224,28 @@ export class HallPassService {
     const terms = await transaction.query<MarkingPeriodRow>(`SELECT id,starts_on,ends_on FROM academic_terms WHERE school_id=$1 AND academic_year_id=$2 AND type='MARKING_PERIOD' AND starts_on<=$3::date AND ends_on>=$3::date ORDER BY ordinal`, [context.session.schoolId, context.session.academicYearId, context.session.clock.academicDate]);
     const term = terms[0]; if (!term || terms.length !== 1) throw new HallPassError('PASS_POLICY_UNAVAILABLE', 'Current marking period is unavailable.', 503, true);
     const usage = await transaction.query<UsageRow>(
-      `SELECT count(*) FILTER (WHERE p.enrollment_id=$3 AND (p.started_at AT TIME ZONE $4)::date BETWEEN $5::date AND $6::date)::int AS term_used,
+      `WITH effective_passes AS (
+         SELECT p.*,
+                CASE
+                  WHEN p.status='OUT' THEN p.countability
+                  ELSE COALESCE(latest.resulting_countability, p.countability)
+                END AS effective_countability
+           FROM passes p
+           LEFT JOIN LATERAL (
+             SELECT pc.resulting_countability
+               FROM pass_corrections pc
+              WHERE pc.school_id=p.school_id AND pc.pass_id=p.id
+              ORDER BY pc.created_at DESC, pc.id DESC
+              LIMIT 1
+           ) latest ON true
+          WHERE p.school_id=$1 AND p.student_id=$2
+       )
+       SELECT count(*) FILTER (WHERE p.enrollment_id=$3 AND (p.started_at AT TIME ZONE $4)::date BETWEEN $5::date AND $6::date)::int AS term_used,
               count(*) FILTER (WHERE (p.started_at AT TIME ZONE $4)::date=$7::date)::int AS daily_used,
-              max(p.returned_at) FILTER (WHERE p.status IN ('RETURNED','ROLLED_OVER') AND p.countability='COUNTABLE') AS last_countable_return
-         FROM passes p WHERE p.school_id=$1 AND p.student_id=$2 AND ((p.status='OUT' AND p.countability='PROVISIONAL') OR (p.status IN ('RETURNED','ROLLED_OVER') AND p.countability='COUNTABLE'))`,
+              max(p.returned_at) FILTER (WHERE p.status IN ('RETURNED','ROLLED_OVER') AND p.effective_countability='COUNTABLE') AS last_countable_return
+         FROM effective_passes p
+        WHERE (p.status='OUT' AND p.effective_countability='PROVISIONAL')
+           OR (p.status IN ('RETURNED','ROLLED_OVER') AND p.effective_countability='COUNTABLE')`,
       [context.session.schoolId, studentId, enrollmentId, context.session.clock.timezone, term.starts_on, term.ends_on, context.session.clock.academicDate],
     );
     const row: UsageRow | { term_used: number; daily_used: number; last_countable_return: null } = usage[0] ?? { term_used: 0, daily_used: 0, last_countable_return: null };
