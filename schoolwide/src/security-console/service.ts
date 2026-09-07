@@ -82,6 +82,12 @@ interface CountRow extends QueryResultRow {
   count: string | number;
 }
 
+interface PassSummaryRow extends QueryResultRow {
+  out_count: string | number;
+  late_count: string | number;
+  stale_count: string | number;
+}
+
 interface SearchRow extends QueryResultRow {
   student_id: string;
   student_name: string;
@@ -320,9 +326,9 @@ export class SecurityConsoleService {
         WHERE q.school_id=$1 AND q.status='WAITING'
         ORDER BY q.order_token, q.id
         LIMIT $2`,
-      [schoolId, this.#waitingLimit],
+      [schoolId, this.#waitingLimit + 1],
     );
-    const waiting: SecurityWaitingEntry[] = waitingRows.map((row) => ({
+    const waiting: SecurityWaitingEntry[] = waitingRows.slice(0, this.#waitingLimit).map((row) => ({
       requestId: row.request_id,
       queueEntryId: row.queue_entry_id,
       studentId: row.student_id,
@@ -336,9 +342,33 @@ export class SecurityConsoleService {
       waitingMs: elapsedMs(row.joined_at, at),
     }));
 
-    const [outCountRows, waitingCountRows, destinationRows] = await Promise.all([
-      this.#database.query<CountRow>(`SELECT count(*) AS count FROM passes WHERE school_id=$1 AND status='OUT'`, [schoolId]),
-      this.#database.query<CountRow>(`SELECT count(*) AS count FROM queue_entries WHERE school_id=$1 AND status='WAITING'`, [schoolId]),
+    const lateThreshold = warningPolicy.lateMinutes === null ? null : new Date(at.getTime() - warningPolicy.lateMinutes * 60_000).toISOString();
+    const staleThreshold = warningPolicy.staleMinutes === null ? null : new Date(at.getTime() - warningPolicy.staleMinutes * 60_000).toISOString();
+    const [passSummaryRows, waitingCountRows, destinationRows] = await Promise.all([
+      this.#database.query<PassSummaryRow>(
+        `SELECT count(*) AS out_count,
+                count(*) FILTER (
+                  WHERE $2::timestamptz IS NOT NULL
+                    AND p.started_at <= $2::timestamptz
+                    AND ($3::timestamptz IS NULL OR p.started_at > $3::timestamptz)
+                ) AS late_count,
+                count(*) FILTER (
+                  WHERE $3::timestamptz IS NOT NULL
+                    AND p.started_at <= $3::timestamptz
+                ) AS stale_count
+           FROM passes p
+           JOIN destinations d ON d.school_id=p.school_id AND d.id=p.destination_id AND d.security_visible=true
+          WHERE p.school_id=$1 AND p.status='OUT'`,
+        [schoolId, lateThreshold, staleThreshold],
+      ),
+      this.#database.query<CountRow>(
+        `SELECT count(*) AS count
+           FROM queue_entries q
+           JOIN pass_requests pr ON pr.school_id=q.school_id AND pr.id=q.pass_request_id
+           JOIN destinations d ON d.school_id=q.school_id AND d.id=pr.destination_id AND d.security_visible=true
+          WHERE q.school_id=$1 AND q.status='WAITING'`,
+        [schoolId],
+      ),
       this.#database.query<{ id: string; name: string; category: string } & QueryResultRow>(
         `SELECT id, name, category FROM destinations
           WHERE school_id=$1 AND active=true AND security_visible=true
@@ -346,16 +376,17 @@ export class SecurityConsoleService {
         [schoolId],
       ),
     ]);
+    const passSummary = passSummaryRows[0];
     const destinations: SecurityDestination[] = destinationRows.map((row) => ({ destinationId: row.id, name: row.name, category: row.category }));
 
     return {
       schoolId,
       generatedAt: at.toISOString(),
       summary: {
-        out: Number(outCountRows[0]?.count ?? 0),
+        out: Number(passSummary?.out_count ?? 0),
         waiting: Number(waitingCountRows[0]?.count ?? 0),
-        late: mappedPasses.filter((pass) => pass.warningState === 'LATE').length,
-        stale: mappedPasses.filter((pass) => pass.warningState === 'STALE').length,
+        late: Number(passSummary?.late_count ?? 0),
+        stale: Number(passSummary?.stale_count ?? 0),
       },
       passes,
       waiting,
@@ -370,7 +401,7 @@ export class SecurityConsoleService {
         pollAfterMs: this.#pollAfterMs,
         schoolChannel: `school:${schoolId}:security-live`,
       },
-      truncated: liveRows.length > this.#liveLimit || waitingRows.length >= this.#waitingLimit,
+      truncated: liveRows.length > this.#liveLimit || waitingRows.length > this.#waitingLimit,
     };
   }
 
@@ -515,7 +546,6 @@ export class SecurityConsoleService {
       if (pass.organization_id !== input.organizationId || pass.school_id !== input.schoolId) {
         throw new SecurityConsoleError('SECURITY_SCHOOL_SCOPE_DENIED', 'Pass is outside the authorized Security school.', 403);
       }
-      if (pass.status !== 'OUT') throw new SecurityConsoleError('SECURITY_PASS_NOT_ACTIVE', 'Only an active OUT pass can receive a Security operational action.', 409);
 
       const state = await this.#startIdempotent(transaction, {
         organizationId: input.organizationId,
@@ -527,6 +557,7 @@ export class SecurityConsoleService {
         at,
       });
       if (state.kind === 'COMPLETED') return state.response;
+      if (pass.status !== 'OUT') throw new SecurityConsoleError('SECURITY_PASS_NOT_ACTIVE', 'Only an active OUT pass can receive a Security operational action.', 409);
 
       const actions = await transaction.query<{ id: string } & QueryResultRow>(
         `INSERT INTO staff_actions
