@@ -110,7 +110,7 @@ export class ActionProofService {
         consumedAt: row.consumed_at.toISOString(),
       };
     }
-    await this.#throwFailure(tokenHash, input.studentId, input.action, sectionId, input.at);
+    return this.#throwFailure(tokenHash, input.studentId, input.action, sectionId, input.at);
   }
 
   async #throwFailure(tokenHash: string, studentId: string, action: StudentAction, sectionId: string | null, at: Date): Promise<never> {
