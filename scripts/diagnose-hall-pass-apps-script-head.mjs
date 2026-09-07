@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { readFile, writeFile, unlink } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 
 const API_BASE = 'https://script.googleapis.com/v1';
@@ -87,6 +89,33 @@ function info(file) {
   };
 }
 
+async function printIndexDiff(headIndex, repoIndex) {
+  if (!headIndex || !repoIndex || relation(headIndex, repoIndex) === 'MATCH') return;
+  const tempPath = path.join(os.tmpdir(), `hall-pass-head-index-${process.pid}.html`);
+  const repoPath = path.join(process.cwd(), 'apps-script', 'hall-pass', 'Index.html');
+  await writeFile(tempPath, `${headIndex.source}\n`, 'utf8');
+  try {
+    let output = '';
+    try {
+      output = execFileSync('diff', ['-u', '--label', 'repository/Index.html', '--label', 'apps-script-HEAD/Index.html', repoPath, tempPath], {
+        encoding: 'utf8',
+        maxBuffer: 1024 * 1024,
+      });
+    } catch (error) {
+      if (error.status !== 1) throw error;
+      output = String(error.stdout || '');
+    }
+    const lines = output.split('\n');
+    const capped = lines.slice(0, 350);
+    console.log('\n=== INDEX.HTML HEAD VS REPOSITORY DIFF ===');
+    console.log(capped.join('\n'));
+    if (lines.length > capped.length) console.log(`\n[diff truncated after ${capped.length} lines; total ${lines.length}]`);
+    console.log('=== END INDEX DIFF ===\n');
+  } finally {
+    await unlink(tempPath).catch(() => {});
+  }
+}
+
 async function main() {
   const scriptId = required('GAS_SCRIPT_ID');
   const deploymentId = required('GAS_DEPLOYMENT_ID');
@@ -106,7 +135,7 @@ async function main() {
 
   console.log('\n=== HALL PASS UNPUBLISHED HEAD DIAGNOSTIC ===');
   console.log(`Currently deployed Apps Script version: ${versionNumber}`);
-  console.log('This diagnostic prints hashes/size/equality only; it does not expose source text or secrets.');
+  console.log('This diagnostic prints file equality metadata and the Index.html UI diff; OAuth credentials remain masked by GitHub Actions.');
 
   for (const descriptor of SOURCE_FILES) {
     const name = descriptor.name;
@@ -124,6 +153,7 @@ async function main() {
     console.log(`  Repository ${repoInfo.lines} lines / ${repoInfo.bytes} bytes / ${repoInfo.sha256}`);
   }
 
+  await printIndexDiff(h.get('Index'), r.get('Index'));
   console.log('\n=== END DIAGNOSTIC ===\n');
 }
 
