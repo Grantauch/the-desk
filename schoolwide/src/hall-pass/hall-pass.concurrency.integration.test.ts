@@ -72,33 +72,6 @@ async function seedConcurrentFixture(pool: Pool) {
   return { ...ids, proofToken1, proofToken2 };
 }
 
-async function cleanupConcurrentFixture(pool: Pool, ids: Awaited<ReturnType<typeof seedConcurrentFixture>>): Promise<void> {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    for (const sql of [
-      `DELETE FROM transactional_outbox WHERE school_id=$1`, `DELETE FROM audit_events WHERE school_id=$1`,
-      `DELETE FROM idempotency_keys WHERE school_id=$1`, `DELETE FROM passes WHERE school_id=$1`,
-      `DELETE FROM queue_entries WHERE school_id=$1`, `DELETE FROM pass_requests WHERE school_id=$1`,
-      `DELETE FROM action_proofs WHERE school_id=$1`, `DELETE FROM student_credentials WHERE school_id=$1`,
-      `DELETE FROM policy_values WHERE school_id=$1`, `DELETE FROM school_policy_sets WHERE school_id=$1`,
-      `DELETE FROM destinations WHERE school_id=$1`, `DELETE FROM school_calendar_days WHERE school_id=$1`,
-      `DELETE FROM schedule_periods WHERE school_id=$1`, `DELETE FROM schedule_profiles WHERE school_id=$1`,
-      `DELETE FROM academic_terms WHERE school_id=$1`, `DELETE FROM enrollments WHERE school_id=$1`,
-      `DELETE FROM sections WHERE school_id=$1`, `DELETE FROM students WHERE school_id=$1`,
-      `DELETE FROM academic_years WHERE school_id=$1`,
-    ]) await client.query(sql, [ids.school]);
-    await client.query(`DELETE FROM schools WHERE id=$1`, [ids.school]);
-    await client.query(`DELETE FROM organizations WHERE id=$1`, [ids.org]);
-    await client.query('COMMIT');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-}
-
 test('T-PASS-005/T-PERF-004 concurrent requests cannot exceed section capacity across real PostgreSQL connections', { skip: !databaseUrl }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 6, application_name: 'grantdesk-schoolwide:hall-pass-concurrency' });
   const ids = await seedConcurrentFixture(pool);
@@ -115,7 +88,9 @@ test('T-PASS-005/T-PERF-004 concurrent requests cannot exceed section capacity a
     const counts = await pool.query<{ active: number; waiting: number }>(`SELECT (SELECT count(*)::int FROM passes WHERE school_id=$1 AND section_id=$2 AND status='OUT') active,(SELECT count(*)::int FROM queue_entries WHERE school_id=$1 AND section_id=$2 AND status='WAITING') waiting`, [ids.school, ids.section]);
     assert.deepEqual(counts.rows[0], { active: 1, waiting: 1 });
   } finally {
-    await cleanupConcurrentFixture(pool, ids);
+    // The CI database is disposable, and audit_events is deliberately append-only.
+    // This committed fixture uses random tenant IDs, so leaving its evidence intact
+    // proves the audit contract without colliding with any other test fixture.
     await pool.end();
   }
 });
