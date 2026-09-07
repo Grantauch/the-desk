@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -22,9 +23,9 @@ function arg(name) {
 async function credentialsFromFile(filePath) {
   const absolute = path.resolve(filePath);
   const raw = JSON.parse(await readFile(absolute, 'utf8'));
-  const credentials = raw.installed || raw.web;
+  const credentials = raw.installed;
   if (!credentials?.client_id || !credentials?.client_secret) {
-    fail('OAuth credential file must contain an installed or web client_id and client_secret. A Desktop app OAuth client is recommended.');
+    fail('OAuth credential file must be a Google Desktop app client and contain installed.client_id plus installed.client_secret.');
   }
   return { client_id: credentials.client_id, client_secret: credentials.client_secret };
 }
@@ -44,7 +45,7 @@ async function exchangeCode(credentials, code) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) fail(`Google token exchange failed (${response.status}): ${data.error_description || data.error || 'unknown error'}`);
-  if (!data.refresh_token) fail('Google did not return a refresh token. Revoke the test authorization for this OAuth client and run again so Google presents consent with offline access.');
+  if (!data.refresh_token) fail('Google did not return a refresh token. Revoke the authorization for this OAuth client and run again so Google presents consent with offline access.');
   return data;
 }
 
@@ -57,7 +58,7 @@ async function main() {
   }
 
   const credentials = await credentialsFromFile(credentialPath);
-  const state = crypto.randomUUID();
+  const state = randomUUID();
   const auth = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   auth.searchParams.set('client_id', credentials.client_id);
   auth.searchParams.set('redirect_uri', REDIRECT_URI);
