@@ -9,7 +9,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
-    "test": "node scripts/run-tests.mjs",
+    "test": "node --import tsx --test src/hall-pass/hall-pass.integration.test.ts",
     "firewall": "node scripts/verify-production-firewall.mjs",
     "verify": "npm run firewall && npm run check && npm test",
     "db:migrate": "tsx src/db/migrate.ts",
