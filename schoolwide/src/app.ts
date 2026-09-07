@@ -8,12 +8,18 @@ import type { AppConfig } from './config.js';
 import type { Database } from './db/database.js';
 import { registerSchedulePolicyRoutes } from './schedule-policy/routes.js';
 import { SchedulePolicyService } from './schedule-policy/service.js';
+import { DisabledStudentIdentityProvider } from './student-credentials/provider.js';
+import { registerStudentCredentialRoutes } from './student-credentials/routes.js';
+import { StudentCredentialService, type StudentCredentialServiceOptions } from './student-credentials/service.js';
+import type { StudentIdentityProvider } from './student-credentials/types.js';
 
 export type BuildAppOptions = {
   config: AppConfig;
   database: Database;
   identityProvider?: StaffIdentityProvider;
   sessionTtlMs?: number;
+  studentIdentityProvider?: StudentIdentityProvider;
+  studentCredentialOptions?: StudentCredentialServiceOptions;
 };
 
 export function buildApp({
@@ -21,6 +27,8 @@ export function buildApp({
   database,
   identityProvider = new DisabledStaffIdentityProvider(),
   sessionTtlMs,
+  studentIdentityProvider = new DisabledStudentIdentityProvider(),
+  studentCredentialOptions,
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -32,13 +40,15 @@ export function buildApp({
   const authentication = new StaffAuthenticationService(database, identityProvider, authenticationOptions);
   const authorization = new StaffAuthorizationService(database);
   const schedulePolicy = new SchedulePolicyService(database);
+  const studentCredentials = new StudentCredentialService(database, studentIdentityProvider, studentCredentialOptions ?? {});
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
+  registerStudentCredentialRoutes(app, studentCredentials);
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-040',
-    status: 'schedule-policy-services',
+    version: 'sw-050',
+    status: 'student-credentials-action-proofs',
   }));
 
   app.get('/health/live', async () => ({
