@@ -25,7 +25,7 @@ export type ClassroomPerson = {
 
 export type ClassroomPage<T> = {
   items: readonly T[];
-  nextPageToken?: string | undefined;
+  nextPageToken?: string;
 };
 
 export type ClassroomConnectionResult = {
