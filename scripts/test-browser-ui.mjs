@@ -166,9 +166,21 @@ try {
     'desk seal uses the dedicated face-only asset without crop hacks',
   );
 
+  const brandingSources = await Promise.all([
+    '../src/data/site-content.json',
+    '../src/pages/us-history/syllabus.astro',
+    '../src/pages/hidden-history/syllabus.astro',
+    '../src/pages/beyond-the-scoreboard/syllabus.astro',
+  ].map((path) => readFile(new URL(path, import.meta.url), 'utf8')));
+  pass(
+    brandingSources.every((source) => !/mr\.?\s+auch/i.test(source))
+      && brandingSources.every((source) => /mr\.?\s+grant/i.test(source)),
+    'student-facing teacher branding is consistently Mr. Grant',
+  );
+
   await context.close();
 
-  if (checks !== 43) throw new Error(`Expected 43 browser checks, ran ${checks}.`);
+  if (checks !== 44) throw new Error(`Expected 44 browser checks, ran ${checks}.`);
   console.log(`Browser UI: PASS — ${checks} checks across two phone sizes and desktop.`);
 } finally {
   if (browser) await browser.close();

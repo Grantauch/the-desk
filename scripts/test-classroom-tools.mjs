@@ -12,7 +12,7 @@ const check = (label, fn) => {
   }
 };
 
-const roster = (n) => Array.from({ length: n }, (unused, index) => `student ${index + 1}`);
+const roster = (n) => Array.from({ length: n }, (_unused, index) => `student ${index + 1}`);
 
 // --- group maker: a request for groups of N must never produce a group of N+1 ---
 check('9 names in groups of 4 makes 3 groups', () => assert.equal(groupCount(9, 4), 3));
