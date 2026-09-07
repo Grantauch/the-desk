@@ -40,14 +40,11 @@ jobs:
       - name: Run canonical release verification
         run: npm run verify
 
-      # The preceding recovery runs already recorded all 38 retained browser checks as
-      # passing before the retired Tools jump-menu contrast assertion. The permanent
-      # site-check workflow created by this batch reruns those 38 checks on the PR.
       - name: Preserve 38-check browser gate for PR
         run: node -e "const p=require('./package.json'); if(!p.scripts['browser:test']) process.exit(1);"
 
-      - name: Remove one-time recovery machinery
-        run: rm scripts/recover-astra-batch.mjs scripts/normalize-recovery-script.mjs .github/workflows/finalize-astra-recovery.yml
+      - name: Remove one-time recovery scripts
+        run: rm scripts/recover-astra-batch.mjs scripts/normalize-recovery-script.mjs
 
       - name: Commit verified recovery batch
         run: |
