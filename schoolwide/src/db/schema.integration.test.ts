@@ -43,7 +43,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all eleven ordered migrations are recorded', async () => {
+    await t.test('all thirteen ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>(
         'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
       );
@@ -58,7 +58,9 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         '008_checkins.sql',
         '009_hall_pass_core.sql',
         '010_audit_corrections.sql',
-        '011_teacher_application.sql'
+        '011_teacher_application.sql',
+        '012_classroom_integration.sql',
+        '013_classroom_oauth_redirect_binding.sql'
       ]);
     });
 
@@ -334,6 +336,18 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
       });
     });
 
+    await t.test('Classroom storage keeps OAuth token material outside PostgreSQL', async () => {
+      const result = await pool.query<{ column_name: string }>(
+        `SELECT column_name
+           FROM information_schema.columns
+          WHERE table_schema='public'
+            AND table_name IN ('classroom_oauth_states','classroom_connections')
+            AND column_name = ANY($1::text[])`,
+        [['access_token', 'refresh_token', 'client_secret', 'code_verifier']]
+      );
+      assert.deepEqual(result.rows, []);
+    });
+
     await t.test('required hot-path indexes exist', async () => {
       const expectedIndexes = [
         'enrollments_current_section_student_idx',
@@ -349,7 +363,12 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         'passes_section_status_idx',
         'pass_events_resource_idx',
         'pass_corrections_pass_time_idx',
-        'staff_actions_school_time_idx'
+        'staff_actions_school_time_idx',
+        'classroom_connections_health_idx',
+        'section_external_links_due_idx',
+        'classroom_sync_runs_link_time_idx',
+        'classroom_roster_members_link_user_idx',
+        'integration_review_items_open_idx'
       ];
       const result = await pool.query<{ indexname: string }>(
         `SELECT indexname FROM pg_indexes

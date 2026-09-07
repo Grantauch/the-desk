@@ -7,6 +7,10 @@ import { DisabledStaffIdentityProvider } from './auth/provider.js';
 import { registerStaffAuthRoutes } from './auth/routes.js';
 import { StaffAuthenticationService } from './auth/service.js';
 import type { StaffIdentityProvider } from './auth/types.js';
+import { DisabledClassroomProvider } from './classroom/provider.js';
+import { registerClassroomRoutes } from './classroom/routes.js';
+import { ClassroomIntegrationService, type ClassroomIntegrationServiceOptions } from './classroom/service.js';
+import type { ClassroomProvider } from './classroom/types.js';
 import { registerCheckInRoutes } from './checkins/routes.js';
 import { CheckInService } from './checkins/service.js';
 import type { CheckInServiceOptions } from './checkins/types.js';
@@ -36,6 +40,8 @@ export type BuildAppOptions = {
   hallPassOptions?: HallPassServiceOptions;
   auditCorrectionOptions?: AuditCorrectionServiceOptions;
   teacherApplicationOptions?: TeacherApplicationServiceOptions;
+  classroomProvider?: ClassroomProvider;
+  classroomOptions?: ClassroomIntegrationServiceOptions;
 };
 
 export function buildApp({
@@ -49,6 +55,8 @@ export function buildApp({
   hallPassOptions,
   auditCorrectionOptions,
   teacherApplicationOptions,
+  classroomProvider = new DisabledClassroomProvider(),
+  classroomOptions,
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -65,6 +73,8 @@ export function buildApp({
   const hallPass = new HallPassService(database, hallPassOptions ?? {});
   const corrections = new AuditCorrectionService(database, auditCorrectionOptions ?? {});
   const teacherApp = new TeacherApplicationService(database, schedulePolicy, teacherApplicationOptions ?? {});
+  const classroom = new ClassroomIntegrationService(database, classroomProvider, classroomOptions ?? {});
+
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
   registerStudentCredentialRoutes(app, studentCredentials);
@@ -72,11 +82,12 @@ export function buildApp({
   registerHallPassRoutes(app, { hallPass, studentIdentityProvider });
   registerAuditCorrectionRoutes(app, { authentication, authorization, corrections });
   registerTeacherApplicationRoutes(app, { authentication, authorization, teacherApp, hallPass });
+  registerClassroomRoutes(app, { authentication, authorization, classroom });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-090',
-    status: 'teacher-application',
+    version: 'sw-100',
+    status: 'classroom-integration',
   }));
 
   app.get('/health/live', async () => ({
