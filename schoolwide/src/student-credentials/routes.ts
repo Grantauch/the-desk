@@ -4,17 +4,18 @@ import { z } from 'zod';
 import { StudentCredentialService } from './service.js';
 import { StudentCredentialError, studentActionValues } from './types.js';
 
-const idSchema = z.string().uuid();
+const correlationIdSchema = z.string().uuid();
+const databaseIdSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 const bodySchema = z.object({
   pin: z.string().regex(/^\d{6}$/),
   action: z.enum(studentActionValues),
-  sectionId: idSchema.optional(),
+  sectionId: databaseIdSchema.optional(),
   clientAttemptNonce: z.string().min(1).max(256).optional(),
 }).strict();
 
 function correlationIdFor(request: FastifyRequest, reply: FastifyReply): string {
   const supplied = request.headers['x-correlation-id'];
-  const parsed = typeof supplied === 'string' ? idSchema.safeParse(supplied) : null;
+  const parsed = typeof supplied === 'string' ? correlationIdSchema.safeParse(supplied) : null;
   const correlationId = parsed?.success ? parsed.data : randomUUID();
   reply.header('x-correlation-id', correlationId);
   return correlationId;
