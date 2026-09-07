@@ -35,6 +35,18 @@ The browser-based synthetic `?mode=releasecheck` remains the required final prot
 
 Do this only with the school Google account that owns/deploys the production Hall Pass project. Never send the generated OAuth secret through ChatGPT, email, Drive, an issue, or a repository file.
 
+### 0. Allow Apps Script API management for the owner account
+
+Google blocks applications from modifying Apps Script projects and deployments by default even after OAuth consent. While signed in to the school account that owns/deploys Hall Pass:
+
+1. Open the **Apps Script dashboard**.
+2. Open **Settings**.
+3. Turn on the setting that allows the **Google Apps Script API** to access/manage your script projects.
+
+This account-level switch allows authorized applications to manage Apps Script projects; it does not by itself authorize the GrantDesk bridge. The OAuth grant below is still required. You can revoke this Apps Script API access later from the same dashboard.
+
+If the setting is unavailable or blocked by Workspace policy, stop and ask the district Google administrator to allow it. Do not work around a domain restriction.
+
 ### 1. Create a Google Cloud OAuth client
 
 In Google Cloud Console:
