@@ -1,23 +1,40 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import { StaffAuthorizationService } from './auth/authorization.js';
+import { DisabledStaffIdentityProvider } from './auth/provider.js';
+import { registerStaffAuthRoutes } from './auth/routes.js';
+import { StaffAuthenticationService } from './auth/service.js';
+import type { StaffIdentityProvider } from './auth/types.js';
 import type { AppConfig } from './config.js';
 import type { Database } from './db/database.js';
 
 export type BuildAppOptions = {
   config: AppConfig;
   database: Database;
+  identityProvider?: StaffIdentityProvider;
+  sessionTtlMs?: number;
 };
 
-export function buildApp({ config, database }: BuildAppOptions): FastifyInstance {
+export function buildApp({
+  config,
+  database,
+  identityProvider = new DisabledStaffIdentityProvider(),
+  sessionTtlMs,
+}: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
     bodyLimit: 1_048_576,
     trustProxy: false,
   });
 
+  const authenticationOptions = sessionTtlMs === undefined ? {} : { sessionTtlMs };
+  const authentication = new StaffAuthenticationService(database, identityProvider, authenticationOptions);
+  const authorization = new StaffAuthorizationService(database);
+  registerStaffAuthRoutes(app, { authentication, authorization });
+
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-010',
-    status: 'foundation',
+    version: 'sw-030',
+    status: 'staff-auth-rbac',
   }));
 
   app.get('/health/live', async () => ({
