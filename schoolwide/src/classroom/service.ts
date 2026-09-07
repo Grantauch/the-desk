@@ -591,7 +591,7 @@ export class ClassroomIntegrationService {
       runId: string;
       type: string;
       externalKey: string;
-      candidateStudentId?: string;
+      candidateStudentId?: string | undefined;
       reason: string;
     },
   ): Promise<void> {
