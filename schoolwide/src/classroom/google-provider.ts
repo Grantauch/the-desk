@@ -45,7 +45,7 @@ function challenge(verifier: string): string {
 
 export class GoogleClassroomProvider implements ClassroomProvider {
   readonly #clientId: string;
-  readonly #clientSecret?: string;
+  readonly #clientSecret: string | undefined;
   readonly #vault: GoogleClassroomSecretVault;
   readonly #fetch: typeof fetch;
   readonly #now: () => number;
