@@ -22,6 +22,7 @@ on:
       - '.github/workflows/deploy-hall-pass-apps-script.yml'
       - 'scripts/deploy-hall-pass-apps-script.mjs'
       - 'scripts/get-hall-pass-google-oauth-token.mjs'
+      - 'scripts/diagnose-hall-pass-apps-script-head.mjs'
       - 'apps-script/hall-pass/AUTOMATED-DEPLOY.md'
       - 'apps-script/hall-pass/OPERATIONS.md'
 
@@ -52,6 +53,7 @@ jobs:
         run: |
           node --check scripts/deploy-hall-pass-apps-script.mjs
           node --check scripts/get-hall-pass-google-oauth-token.mjs
+          node --check scripts/diagnose-hall-pass-apps-script-head.mjs
 
       - name: Verify exact five-file release contract
         run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
@@ -121,6 +123,7 @@ jobs:
         run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
 
       - name: ${{ steps.release.outputs.mode == 'deploy' && 'Update existing Apps Script deployment' || 'Verify Apps Script credentials and production identity' }}
+        id: apps_script_release
         env:
           GAS_DEPLOY_MODE: ${{ steps.release.outputs.mode }}
           GAS_SCRIPT_ID: ${{ vars.GAS_SCRIPT_ID }}
@@ -129,6 +132,14 @@ jobs:
           GAS_EXPECTED_ACCESS: DOMAIN
           GAS_EXPECTED_EXECUTE_AS: USER_DEPLOYING
         run: node scripts/deploy-hall-pass-apps-script.mjs
+
+      - name: Diagnose unpublished Apps Script HEAD
+        if: failure() && steps.release.outputs.mode == 'preflight' && steps.apps_script_release.outcome == 'failure'
+        env:
+          GAS_SCRIPT_ID: ${{ vars.GAS_SCRIPT_ID }}
+          GAS_DEPLOYMENT_ID: ${{ vars.GAS_DEPLOYMENT_ID }}
+          GAS_OAUTH_JSON: ${{ secrets.GAS_OAUTH_JSON }}
+        run: node scripts/diagnose-hall-pass-apps-script-head.mjs
 
       - name: Write release evidence to job summary
         if: always()
