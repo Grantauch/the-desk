@@ -7,11 +7,27 @@ const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const server = spawn(npm, ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port)], {
   stdio: ['ignore', 'pipe', 'pipe'],
   windowsHide: true,
+  detached: process.platform !== 'win32',
 });
 
 let serverOutput = '';
 server.stdout.on('data', (chunk) => { serverOutput += chunk; });
 server.stderr.on('data', (chunk) => { serverOutput += chunk; });
+
+const stopServer = () => {
+  if (!server.pid) return;
+  if (process.platform === 'win32') {
+    spawn('taskkill', ['/pid', String(server.pid), '/T', '/F'], {
+      stdio: 'ignore',
+      windowsHide: true,
+    }).unref();
+  } else {
+    try { process.kill(-server.pid, 'SIGTERM'); }
+    catch { server.kill('SIGTERM'); }
+  }
+  server.stdout.destroy();
+  server.stderr.destroy();
+};
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const waitForServer = async () => {
@@ -122,5 +138,5 @@ try {
   console.log(`Browser UI: PASS — ${checks} checks across two phone sizes and desktop.`);
 } finally {
   if (browser) await browser.close();
-  server.kill('SIGTERM');
+  stopServer();
 }
