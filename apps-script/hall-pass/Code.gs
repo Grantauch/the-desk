@@ -154,7 +154,7 @@ const GD_DEFAULT_SETTINGS = [
   ['STALE_PASS_MINUTES', '20', 'When an active pass gets a stronger teacher follow-up warning'],
   ['RETENTION_DAYS', '180', 'Completed passes older than this move from the hot Pass Log into permanent Pass Audit'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
-  ['APP_TITLE', 'Mr. Grant’s Hall Pass', 'Name shown at the top of the pass app'],
+  ['APP_TITLE', 'Hall Pass', 'Name shown at the top of the pass app'],
   ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
   ['STUDENT_EMAIL_DOMAIN', 'students.mtmorrisschools.org', 'Only roster addresses at this domain receive PIN emails'],
   ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN', 'Subject line for student PIN emails'],
@@ -245,7 +245,7 @@ function getClassSession_(student, nowValue) {
   const result = { ...day, selectedPeriod, currentPeriod: null, classStart: '', classEnd: '', checkInAllowed: false, passRequestAllowed: false, blockReason: '', checkInMessage: '', passMessage: '' };
   if (!day.schoolDay) {
     result.blockReason = 'NO_SCHOOL';
-    result.checkInMessage = result.passMessage = 'There is no student session today. Ask Mr. Grant if you need help.';
+    result.checkInMessage = result.passMessage = 'There is no student session today. Ask your teacher if you need help.';
     return result;
   }
   const profile = getBellScheduleIndex_()[day.scheduleKey];
@@ -256,7 +256,7 @@ function getClassSession_(student, nowValue) {
   const timing = values.map(Number);
   if (!period || values.some((value) => value === '') || timing.some((value) => !Number.isFinite(value) || value < 0) || timing[2] <= 0) {
     result.blockReason = 'SCHEDULE_UNKNOWN';
-    result.checkInMessage = result.passMessage = 'The class schedule needs a teacher update. Ask Mr. Grant.';
+    result.checkInMessage = result.passMessage = 'The class schedule needs a teacher update. Ask your teacher.';
     return result;
   }
   const clock = Utilities.formatDate(now, Session.getScriptTimeZone() || 'America/Detroit', 'HH:mm:ss').split(':').map(Number);
@@ -271,8 +271,8 @@ function getClassSession_(student, nowValue) {
   result.checkInAllowed = now.getTime() >= classStart && now.getTime() < Math.min(classEnd, classStart + timing[2] * 60000);
   result.passRequestAllowed = now.getTime() >= classStart + timing[0] * 60000 && now.getTime() < classEnd - timing[1] * 60000;
   result.blockReason = now.getTime() < classStart ? 'CLASS_NOT_STARTED' : now.getTime() >= classEnd ? 'CLASS_ENDED' : 'PROTECTED_WINDOW';
-  result.checkInMessage = result.checkInAllowed ? '' : 'Check in during the first five minutes of your selected class. Ask Mr. Grant if you arrived late.';
-  result.passMessage = result.passRequestAllowed ? '' : 'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask Mr. Grant if you need to leave.';
+  result.checkInMessage = result.checkInAllowed ? '' : 'Check in during the first five minutes of your selected class. Ask your teacher if you arrived late.';
+  result.passMessage = result.passRequestAllowed ? '' : 'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask your teacher if you need to leave.';
   return result;
 }
 
@@ -280,7 +280,7 @@ function studentActionEligibility_(student, action, nowValue) {
   if (action === GD_STUDENT_ACTIONS.RETURN) return { allowed: true, blockReason: '', message: '' };
   const session = getClassSession_(student, nowValue);
   if (action === GD_STUDENT_ACTIONS.CHECKIN) return { allowed: session.checkInAllowed, blockReason: session.checkInAllowed ? '' : session.blockReason, message: session.checkInMessage };
-  if (getStudentPassAccess_(student.email) === 'ESCORT_ONLY') return { allowed: false, blockReason: 'TEACHER_REQUIRED', message: 'Ask Mr. Grant before leaving the room.' };
+  if (getStudentPassAccess_(student.email) === 'ESCORT_ONLY') return { allowed: false, blockReason: 'TEACHER_REQUIRED', message: 'Ask your teacher before leaving the room.' };
   return { allowed: session.passRequestAllowed, blockReason: session.passRequestAllowed ? '' : session.blockReason, message: session.passMessage };
 }
 
@@ -450,7 +450,7 @@ function getBootstrap(mode, clientContract) {
     return unrecognizedState_(
       settings,
       purpose,
-      'Your school account is signed in, but it is not on this class roster. Try your PIN or ask Mr. Grant.'
+      'Your school account is signed in, but it is not on this class roster. Try your PIN or ask your teacher.'
     );
   }
   if (students.length > 1) return createClassSelectionState_(students, 'google', purpose);
@@ -559,10 +559,10 @@ function verifyStudentPin_(pin, activeEmail, attemptNonce) {
   const students = getStudentsByPinHash_(hashPin_(cleaned));
   if (!students.length) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
-    throw new Error('That PIN did not match an active student. Try again or ask Mr. Grant.');
+    throw new Error('That PIN did not match an active student. Try again or ask your teacher.');
   }
   const emails = [...new Set(students.map((student) => student.email))];
-  if (emails.length !== 1) throw new Error('That PIN is not unique. Ask Mr. Grant to repair the PIN list.');
+  if (emails.length !== 1) throw new Error('That PIN is not unique. Ask your teacher to repair the PIN list.');
   clearPinAttempts_(activeEmail, attemptNonce);
   return students;
 }
@@ -831,7 +831,7 @@ function resolveStudent_(pinToken, requireFreshPinIdentity) {
   if (students.length !== 1) {
     throw new Error(students.length > 1
       ? 'Use the six-digit PIN for this class.'
-      : 'Your school account is not on the active roster. Use your PIN or ask Mr. Grant.');
+      : 'Your school account is not on the active roster. Use your PIN or ask your teacher.');
   }
   return { student: students[0], method: 'google' };
 }
@@ -913,7 +913,7 @@ function recordCheckIn_(student, method, note) {
     return existing;
   }
   if (absence && method !== 'teacher') {
-    throw new Error('Your attendance needs a teacher update today. Ask Mr. Grant to mark you here.');
+    throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');
   }
   if (absence) clearAbsentEntry_(absence, `Cleared when ${method} check-in was recorded`);
 
@@ -1559,15 +1559,15 @@ function studentAllowanceView_(allowance, includeEvidence) {
 }
 
 function allowanceMessage_(allowance) {
-  if (allowance.blockedReason === 'TEACHER_REQUIRED') return 'Ask Mr. Grant before leaving the room.';
+  if (allowance.blockedReason === 'TEACHER_REQUIRED') return 'Ask your teacher before leaving the room.';
   if (allowance.limitReached) {
-    return `You have used all ${allowance.limit} passes for ${allowance.classPeriod} this marking period. Ask Mr. Grant if you need to leave the room.`;
+    return `You have used all ${allowance.limit} passes for ${allowance.classPeriod} this marking period. Ask your teacher if you need to leave the room.`;
   }
   if (allowance.dailyLimitReached) {
-    return `You have used today’s ${allowance.dailyLimit}-pass limit. Ask Mr. Grant if you need to leave the room.`;
+    return `You have used today’s ${allowance.dailyLimit}-pass limit. Ask your teacher if you need to leave the room.`;
   }
   const minutes = Math.max(1, Math.ceil(Number(allowance.cooldownRemainingSeconds || 0) / 60));
-  return `Wait ${minutes} more minute${minutes === 1 ? '' : 's'} after your last return before taking another pass. Ask Mr. Grant if you need to leave sooner.`;
+  return `Wait ${minutes} more minute${minutes === 1 ? '' : 's'} after your last return before taking another pass. Ask your teacher if you need to leave sooner.`;
 }
 
 function getStudentPassUsage_(roster, settings, log, verifiedEmails) {
@@ -2823,8 +2823,8 @@ function generateMissingPins() {
       ? 'Student PINs are ready'
       : 'No new PINs were needed',
     result.createdPins || result.normalizedMemberships
-      ? `${result.createdPins} new student PIN${result.createdPins === 1 ? '' : 's'} created; ${result.normalizedMemberships} class membership${result.normalizedMemberships === 1 ? '' : 's'} synchronized. Every student now uses one PIN in every Mr. Grant class.`
-      : 'Every active student already has one PIN shared across all of their Mr. Grant classes.',
+      ? `${result.createdPins} new student PIN${result.createdPins === 1 ? '' : 's'} created; ${result.normalizedMemberships} class membership${result.normalizedMemberships === 1 ? '' : 's'} synchronized. Every student now uses one PIN in all your classes.`
+      : 'Every active student already has one PIN shared across all of their classes.',
     SpreadsheetApp.getUi().ButtonSet.OK
   );
 }
@@ -2937,9 +2937,9 @@ function previewStudentPinEmails() {
       'Here is your private GrantDesk PIN:',
       '123456',
       '',
-      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. This one PIN works in every Mr. Grant class. Keep it private.`,
+      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. This one PIN works in all your classes. Keep it private.`,
       '',
-      '— Mr. Grant',
+      '— Your teacher',
     ].join('\n'),
   };
 }
@@ -3116,26 +3116,26 @@ function buildPinEmailMessage_(group, settings, teacherEmail) {
     group.pin,
     '',
     `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass.`,
-    'This one PIN works in every Mr. Grant class. If you are enrolled in more than one, choose the class you are attending after you enter it.',
+    'This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.',
     'Keep this PIN private.',
     '',
-    '— Mr. Grant',
+    '— Your teacher',
   ].join('\n');
   const htmlBody = [
     `<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,
     '<p>Here is your private GrantDesk PIN:</p>',
     `<p style="font-family:monospace;font-size:24px;font-weight:bold;letter-spacing:.12em">${escapeHtmlForEmail_(group.pin)}</p>`,
     `<p>Open <a href="${escapeHtmlForEmail_(settings.CHECKIN_URL)}">GrantDesk Daily Check-in</a> for Daily Check-in and Hall Pass.</p>`,
-    '<p>This one PIN works in every Mr. Grant class. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
+    '<p>This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
     '<p>Keep this PIN private.</p>',
-    '<p>— Mr. Grant</p>',
+    '<p>— Your teacher</p>',
   ].join('');
   return {
     to: group.email,
     subject: settings.PIN_EMAIL_SUBJECT,
     body,
     htmlBody,
-    name: 'GrantDesk · Mr. Grant',
+    name: settings.APP_TITLE || 'Hall Pass',
     replyTo: teacherEmail,
   };
 }
@@ -3216,13 +3216,13 @@ function assertPinAttemptAllowed_(email, attemptNonce) {
   const limit = email ? 10 : 20;
   if (attempts >= limit) {
     throw new Error(email
-      ? 'Too many incorrect PIN attempts. Wait fifteen minutes or ask Mr. Grant.'
-      : 'Too many incorrect PIN attempts on this device. Ask Mr. Grant.');
+      ? 'Too many incorrect PIN attempts. Wait fifteen minutes or ask your teacher.'
+      : 'Too many incorrect PIN attempts on this device. Ask your teacher.');
   }
 
   const shared = Number(cache.get('pin-attempts:shared-global') || 0);
   if (!email && shared >= 1000) {
-    throw new Error('Too many incorrect PIN attempts on the shared PIN screen. Ask Mr. Grant.');
+    throw new Error('Too many incorrect PIN attempts on the shared PIN screen. Ask your teacher.');
   }
 }
 

@@ -209,7 +209,7 @@ module.exports = function registerSessionTests(test, section) {
   });
   test('escort-only blocks self-start and teacher backup records every restriction privately', () => {
     const c=classroom({memberships:[[PEOPLE.ada,'Period 1',{passAccess:'ESCORT_ONLY'}]]});
-    assert.throws(()=>c.requestPass(PEOPLE.ada,'Period 1'),/Ask Mr. Grant/); assert.deepEqual(counts(c),[0,0,0]);
+    assert.throws(()=>c.requestPass(PEOPLE.ada,'Period 1'),/Ask your teacher/); assert.deepEqual(counts(c),[0,0,0]);
     at(c,'2026-09-10T08:20:00-04:00');
     assert.throws(()=>teacher(c,'teacherStartPass',c.key(PEOPLE.ada,'Period 1'),''),/reason/);
     teacher(c,'teacherStartPass',c.key(PEOPLE.ada,'Period 1'),'Synthetic private explanation');
