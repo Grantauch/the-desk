@@ -1,0 +1,42 @@
+---
+import siteContent from '../data/site-content.json';
+---
+<aside class="desk-object" aria-label="Made by Mr. Grant">
+  <div class="desk-object__scene" aria-hidden="true">
+    <div class="desk-object__orbit"></div>
+    <div class="desk-object__stack">
+      <div class="desk-object__sheet desk-object__sheet--back"><span>FIELD NOTES / 03</span></div>
+      <div class="desk-object__sheet desk-object__sheet--middle"><span>THE QUESTIONS MATTER.</span></div>
+      <div class="desk-object__sheet desk-object__sheet--front">
+        <div class="desk-object__label">THE DESK <span>26 / 27</span></div>
+        <p>look<br />closer<span>.</span></p>
+        <div class="desk-object__lines"></div>
+        <img src="/mr-grant-approved-transparent.png" alt="" width="548" height="548" />
+        <span class="desk-object__foot">HISTORY. EVIDENCE. GOOD QUESTIONS.</span>
+      </div>
+    </div>
+    <span class="desk-object__tag">a little outside the textbook ↗</span>
+  </div>
+  <p class="desk-object__credit"><strong>{siteContent.home.makerHeadline}</strong> · {siteContent.home.makerNote}</p>
+</aside>
+<style>
+  .desk-object { min-width: 0; text-align: center; }
+  .desk-object__scene { position: relative; height: 305px; perspective: 1000px; }
+  .desk-object__stack { position: absolute; inset: 18px 20px 25px; transform: rotateX(12deg) rotateY(-15deg) rotateZ(8deg); transform-style: preserve-3d; transition: transform 650ms cubic-bezier(.2,.7,.2,1); }
+  .desk-object__scene:hover .desk-object__stack { transform: rotateX(3deg) rotateY(8deg) rotateZ(2deg) translateY(-8px); }
+  .desk-object__sheet { position: absolute; inset: 0; border-radius: 5px 17px 17px 5px; text-align: left; box-shadow: 12px 22px 35px #0005; }
+  .desk-object__sheet--back { transform: translateZ(-35px) rotate(-14deg); background: #ff815f; padding: 16px; color: #452719; font: 9px var(--font-mono); }
+  .desk-object__sheet--middle { transform: translateZ(-18px) rotate(-7deg); background: #b7bafa; padding: 16px; color: #222461; font: 9px var(--font-mono); }
+  .desk-object__sheet--front { background: #f5f0de; color: #23232c; padding: 22px; border: 1px solid #fff9; background-image: linear-gradient(90deg, transparent 12px, #c4bbae55 13px, transparent 14px); }
+  .desk-object__label { display: flex; justify-content: space-between; border-bottom: 1px solid #23232c44; padding-bottom: 10px; font: 9px var(--font-mono); letter-spacing: .12em; }
+  .desk-object__sheet p { margin-top: 18px; font: 700 clamp(2.5rem,4vw,3.7rem)/.9 var(--font-display); letter-spacing: -.065em; }
+  .desk-object__sheet p span { color: var(--color-accent); }
+  .desk-object__lines { margin-top: 18px; width: 48%; height: 32px; background: repeating-linear-gradient(transparent 0 7px,#23232c22 7px 8px); }
+  .desk-object__sheet img { position: absolute; width: 84px; height: 84px; right: 8px; bottom: 22px; transform: rotate(-14deg); }
+  .desk-object__foot { position: absolute; bottom: 13px; left: 22px; font: 7px var(--font-mono); letter-spacing: .05em; }
+  .desk-object__orbit { position: absolute; inset: -5px -22px; border: 1px solid #ffffff18; border-radius: 50%; transform: rotate(-30deg); }
+  .desk-object__tag { position: absolute; bottom: 0; left: 0; background: var(--color-accent); color: white; border: 1px solid #a5acff77; box-shadow: 0 8px 20px #0003; padding: 9px 13px; transform: rotate(-4deg); font: 10px var(--font-mono); }
+  .desk-object__credit { margin-top: 19px; color: #c2c4d5; font-size: 10px; line-height: 1.5; }
+  @media(max-width: 640px) { .desk-object { width: 270px; margin: 5px auto 0; } .desk-object__scene { height: 260px; } .desk-object__sheet p { font-size: 2.7rem; } }
+  @media(prefers-reduced-motion: reduce) { .desk-object__stack { transition: none; } .desk-object__scene:hover .desk-object__stack { transform: rotateX(12deg) rotateY(-15deg) rotateZ(8deg); } }
+</style>

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import DeskObject from '../components/DeskObject.astro';
 import { getCollection } from 'astro:content';
 import siteContent from '../data/site-content.json';
 import { learningCourses } from '../data/learningHubs';
@@ -59,6 +60,10 @@ const moreLinks = [
 ---
 
 <Base wide>
+  <nav class="class-entry" aria-label="Everyday classroom actions">
+    <a href="/check-in/"><span class="class-entry__icon" aria-hidden="true">✓</span><span><small>START HERE · EVERY DAY</small><strong>daily check-in</strong><span>check in for class →</span></span></a>
+    <a href="/pass/"><span class="class-entry__icon" aria-hidden="true">⇄</span><span><small>HEADING OUT OR BACK?</small><strong>hall pass</strong><span>request a pass or sign back in →</span></span></a>
+  </nav>
   <section class="home-hero dot-grid" aria-labelledby="home-title">
     <div class="home-hero__rule">
       <span>{siteContent.global.signalLeft}</span>
@@ -76,24 +81,13 @@ const moreLinks = [
         <a class="home-hero__start" href="#courses">{siteContent.home.startLabel} <span aria-hidden="true">↓</span></a>
       </div>
 
-      <aside class="maker-mark" aria-label="Made by Mr. Grant">
-        <span class="maker-mark__eyebrow">{siteContent.home.makerEyebrow}</span>
-        <div class="maker-mark__seal">
-          <img
-            src="/mr-grant-approved-transparent.png"
-            alt="Mr. Grant Approved"
-            width="548"
-            height="548"
-          />
-        </div>
-        <p><strong>{siteContent.home.makerHeadline}</strong><br />{siteContent.home.makerNote}</p>
-      </aside>
+      <DeskObject />
     </div>
 
     <nav class="quick-dock" aria-label="Quick student links">
-      {quickLinks.map((link, index) => (
+      {quickLinks.slice(2).map((link, index) => (
         <a href={link.href} class={`quick-dock__link quick-dock__link--${link.tone}${link.everyday ? ' quick-dock__link--everyday' : ''}`} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener' : undefined}>
-          <span class="quick-dock__number">0{index + 1}</span>
+          <span class="quick-dock__number">0{index + 3}</span>
           <span>{link.everyday && <span class="quick-dock__cue">every day</span>}<strong>{link.label}</strong><small>{link.note}</small></span>
           <b aria-hidden="true">{link.external ? '↗' : '→'}</b>
         </a>
@@ -328,59 +322,7 @@ const moreLinks = [
   }
 
   .home-hero__start:hover { gap: 1.1rem; color: #aeb4ff; }
-
-  .maker-mark {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .maker-mark__eyebrow {
-    position: absolute;
-    top: -0.15rem;
-    right: -0.1rem;
-    z-index: 2;
-    padding: 0.42rem 0.65rem;
-    border: 1px solid rgb(255 255 255 / 0.3);
-    border-radius: 0.28rem;
-    background: var(--color-coral);
-    color: var(--color-ink);
-    font-family: var(--font-mono);
-    font-size: 0.54rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transform: rotate(4deg);
-  }
-
-  .maker-mark__seal {
-    display: grid;
-    width: min(100%, 13rem);
-    aspect-ratio: 1;
-    place-items: center;
-    padding: 0.7rem;
-    border: 2px solid rgb(255 255 255 / 0.24);
-    border-radius: 50%;
-    background: var(--color-cream);
-    box-shadow: 0 15px 35px -20px rgb(0 0 0 / 0.9), 0 0 0 0.45rem rgb(255 255 255 / 0.055);
-    transform: rotate(-3deg);
-  }
-
-  .maker-mark__seal img { width: 100%; height: 100%; object-fit: contain; }
-
-  .maker-mark p {
-    max-width: 16rem;
-    margin-top: 1.15rem;
-    color: rgb(255 255 255 / 0.55);
-    font-size: 0.72rem;
-    line-height: 1.55;
-  }
-
-  .maker-mark p strong { color: rgb(255 255 255 / 0.86); }
-
-  .quick-dock {
+.quick-dock {
   position: relative;
   z-index: 2;
   display: grid;
@@ -758,10 +700,7 @@ const moreLinks = [
     .home-hero__rule span:last-child { display: none; }
     .home-hero__body { grid-template-columns: 1fr; padding-bottom: 1.5rem; }
     .home-hero h1 { font-size: clamp(4.4rem, 24vw, 7rem); }
-    .maker-mark { grid-template-columns: 7rem minmax(0, 1fr); gap: 1rem; justify-items: start; padding: 1rem 0 0; border-top: 1px solid rgb(255 255 255 / 0.12); text-align: left; }
-    .maker-mark__seal { width: 7rem; grid-row: 1 / span 2; }
-    .maker-mark__eyebrow { top: 0.5rem; right: auto; left: 5.2rem; }
-    .maker-mark p { align-self: end; margin-top: 1.5rem; }
+.maker-mark p { align-self: end; margin-top: 1.5rem; }
     .section-heading { grid-template-columns: 1fr; gap: 0.7rem; }
     .section-heading > p { font-size: 0.78rem; }
     .feature-grid { grid-template-columns: 1fr; }
@@ -780,10 +719,7 @@ const moreLinks = [
   .quick-dock a:nth-child(2n),
   .quick-dock a:nth-child(3n) { grid-column: auto; border-right: 0; border-bottom: 1px solid rgb(255 255 255 / 0.12); }
   .quick-dock a:last-child { border-bottom: 0; }
-    .maker-mark { grid-template-columns: 5.8rem minmax(0, 1fr); }
-    .maker-mark__seal { width: 5.8rem; }
-    .maker-mark__eyebrow { left: 4.1rem; font-size: 0.48rem; }
-    .feature-card__signal { position: static; margin-top: 0.55rem; }
+.feature-card__signal { position: static; margin-top: 0.55rem; }
     .feature-card--curiosity > .feature-card__stamp { width: 4.4rem; font-size: 0.5rem; }
     .library-search form { grid-template-columns: 1fr; }
     .more-desk > div { grid-template-columns: 1fr; }

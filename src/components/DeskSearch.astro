@@ -1,0 +1,62 @@
+---
+const pages = [
+  ['daily check-in','/check-in/','everyday · attendance'], ['hall pass','/pass/','everyday · bathroom'],
+  ['us history','/us-history/','courses · american archive'], ['hidden history','/hidden-history/','courses · evidence desk'],
+  ['beyond the scoreboard','/beyond-the-scoreboard/','courses · sports'], ['resource library','/resources/','materials · slides · notes'],
+  ['classroom tools','/tools/','timer · groups · dice · scoreboard'], ['storyhubs','/storyhubs/','interactive stories'],
+  ['first day materials','/first-day-materials/','syllabi · routines'], ['calendar','/calendar/','dates · schedule'],
+  ['news today + then','/news/','current events'], ['curiosity desk','/curiosity-desk/','explore'],
+  ['learning hubs','/learning-hubs/','review · practice'], ['games','/games/','play · review'],
+  ['simulations','/simulations/','decisions'], ['glossary','/glossary/','vocabulary · definitions'],
+  ['the detour shelf','/detour-shelf/','stories · rabbit holes'], ['announcements','/announcements/','class updates'], ['about the desk','/about/','mr. grant']
+];
+---
+<button class="desk-search-trigger" type="button" aria-haspopup="dialog" aria-controls="desk-search-dialog">find a page <span aria-hidden="true">↗</span></button>
+<dialog id="desk-search-dialog" aria-labelledby="desk-search-title">
+  <div class="desk-search-heading"><div><p>WHERE TO?</p><h2 id="desk-search-title">find your way<span>.</span></h2></div><button type="button" class="desk-search-close" aria-label="Close page finder">✕</button></div>
+  <label class="sr-only" for="desk-search-input">Search website pages</label>
+  <input id="desk-search-input" type="search" placeholder="try: timer, history, hall pass…" autocomplete="off" />
+  <p id="desk-search-count" role="status" aria-live="polite">{pages.length} pages · choose your next stop</p>
+  <nav class="desk-search-results" aria-label="Matching pages">{pages.map(([label,href,tags]) => <a href={href} data-search={`${label} ${tags}`}><span><strong>{label}</strong><small>{tags}</small></span><span aria-hidden="true">↗</span></a>)}</nav>
+  <p class="desk-search-help">Esc to close · Ctrl / ⌘ K to open</p>
+</dialog>
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#desk-search-dialog')!;
+  const input = document.querySelector<HTMLInputElement>('#desk-search-input')!;
+  const links = [...dialog.querySelectorAll<HTMLAnchorElement>('[data-search]')];
+  const trigger = document.querySelector<HTMLButtonElement>('.desk-search-trigger')!;
+  const filter = () => {
+    const terms = input.value.trim().toLowerCase().split(/\s+/);
+    let count = 0;
+    links.forEach(link => { link.hidden = !terms.every(term => link.dataset.search!.includes(term)); if (!link.hidden) count++; });
+    document.querySelector('#desk-search-count')!.textContent = count ? `${count} ${count === 1 ? 'page' : 'pages'} · choose your next stop` : 'No matching pages. Try a course name or “tools”.';
+  };
+  const open = () => { if (!dialog.open) { dialog.showModal(); input.value = ''; filter(); input.focus(); } };
+  trigger.addEventListener('click', open);
+  dialog.addEventListener('close', () => trigger.focus());
+  dialog.querySelector('.desk-search-close')!.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
+  input.addEventListener('input', filter);
+  input.addEventListener('keydown', event => { if (event.key === 'ArrowDown') { event.preventDefault(); links.find(link => !link.hidden)?.focus(); } if (event.key === 'Enter') { event.preventDefault(); links.find(link => !link.hidden)?.click(); } });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && dialog.open) { event.preventDefault(); dialog.close(); }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); dialog.open ? dialog.close() : open(); }
+  });
+</script>
+<style>
+  .desk-search-trigger { cursor:pointer; color:inherit; padding:4px 9px; border:1px solid currentColor; border-radius:5px; font:inherit; letter-spacing:.03em; }
+  .desk-search-trigger:hover { background:var(--color-accent); color:white; }
+  dialog { position:fixed; inset:0; margin:auto; width:min(560px,calc(100vw - 28px)); max-height: min(760px,85dvh); padding:24px; border:1px solid var(--color-line); border-radius:20px; background:var(--color-paper); color:var(--color-ink); box-shadow:0 30px 100px #0005; text-transform:none; letter-spacing:normal; }
+  dialog::backdrop { background:#11132199; backdrop-filter:blur(7px); }
+  .desk-search-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  .desk-search-heading p { font:10px var(--font-mono); color:var(--color-accent); letter-spacing:.13em; }
+  h2 { margin-top:5px; font:700 32px/1.1 var(--font-display); letter-spacing:-.05em; } h2 span { color:var(--color-accent); }
+  .desk-search-close { width:44px; height:44px; border:1px solid var(--color-line); border-radius:50%; cursor:pointer; }
+  input { display:block; width:100%; margin-top:22px; background:white; border:1px solid #a6a6b2; padding:15px; border-radius:10px; font:16px var(--font-sans); }
+  #desk-search-count,.desk-search-help { margin:13px 0; color:var(--color-ink-soft); font:11px var(--font-mono); }
+  .desk-search-results { max-height:43dvh; overflow-y:auto; overscroll-behavior:contain; }
+  .desk-search-results a { display:flex; justify-content:space-between; align-items:center; gap:15px; padding:12px; border-bottom:1px solid var(--color-line); border-radius:7px; }
+  .desk-search-results a[hidden] { display:none; }
+  .desk-search-results a:hover,.desk-search-results a:focus-visible { background:var(--color-accent-soft); color:var(--color-accent); }
+  strong { display:block; font:600 16px var(--font-display); } small { display:block; margin-top:3px; color:var(--color-ink-soft); font:11px var(--font-mono); }
+</style>

@@ -706,5 +706,18 @@
       },
       "public_routes": "Homepage, resources, editor, pass and check-in returned HTTP 200 after push. Route availability does not identify the deployed commit."
     }
+  },
+  "website_design_20260907": {
+    "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
+    "scope": "Public website presentation and navigation only",
+    "changes": [
+      "Dimensional field-note homepage centerpiece retaining Mr. Grant artwork",
+      "Course-cover depth and shared page surfaces",
+      "Searchable page finder with keyboard access",
+      "Tools jump navigation and fullscreen classroom timer",
+      "Prominent green hall-pass and check-in cards above the homepage hero; notebook reads look closer"
+    ],
+    "validation": "Browser checked at 390, 768, and 1440 pixels on homepage, tools, US History, resources, check-in, and pass: no overflow or page errors. Search filtering, Escape dismissal, running timer, and fullscreen entry/exit passed. Canonical npm run verify PASS: 52 built routes, 68 HTML files, 3851 local references, Astro 0 errors and 0 warnings.",
+    "production": "Awaiting push and live confirmation at authoring time; no Apps Script or private data changes."
   }
 }

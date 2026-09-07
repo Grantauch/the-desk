@@ -1,6 +1,7 @@
 ---
 // Nav.astro — compact primary navigation with a secondary explore menu.
 import passConfig from '../data/pass-config.json';
+import DeskSearch from './DeskSearch.astro';
 import { remixRecords } from '../data/remixCatalog';
 import siteContent from '../data/site-content.json';
 
@@ -47,7 +48,7 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
   <div class="site-signal">
     <div class:list={['site-signal__inner', wide ? 'max-w-6xl' : 'max-w-4xl']}>
       <span>{siteContent.global.signalLeft}</span>
-      <span>{siteContent.global.signalRight}</span>
+      <DeskSearch />
     </div>
   </div>
   <div class:list={['mx-auto px-5 py-3.5', wide ? 'max-w-6xl' : 'max-w-4xl']}>

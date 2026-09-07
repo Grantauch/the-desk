@@ -11,6 +11,15 @@ import PageHeader from '../components/PageHeader.astro';
 <Base title="tools" description="classroom tools — timer, group maker, cold-call picker, dice, and scoreboard.">
   <PageHeader eyebrow="classroom controls" title="tools" intro="small classroom machines for when class needs to move." />
 
+  <nav class="tools-jump" aria-label="Jump to a classroom tool">
+    <a href="#timer-card"><span>01</span> timer</a>
+    <a href="#roster-card"><span>02</span> roster</a>
+    <a href="#groups-card"><span>03</span> groups</a>
+    <a href="#picker-card"><span>04</span> cold call</a>
+    <a href="#dice-card"><span>05</span> dice</a>
+    <a href="#scoreboard-card"><span>06</span> scoreboard</a>
+    <a href="#topics-card"><span>07</span> topics</a>
+  </nav>
   {passConfig.enabled && (
     <a href="/pass/" class="surface-link mt-8 flex items-center justify-between gap-5 rounded-xl border border-line bg-accent-soft p-5">
       <div>
@@ -28,6 +37,7 @@ import PageHeader from '../components/PageHeader.astro';
     <p class="mt-1 text-sm text-ink-soft">For discussions, quick-writes, and "you have five minutes" that means it.</p>
 
     <p class="mt-5 font-mono font-bold tabular-nums tracking-tight" id="timer-display" role="timer">05:00</p>
+    <button type="button" id="timer-focus">↗ classroom screen</button>
     <p id="timer-status" class="sr-only" role="status" aria-live="polite"></p>
 
     <div class="mt-4 flex flex-wrap gap-2">
@@ -49,7 +59,7 @@ import PageHeader from '../components/PageHeader.astro';
   </section>
 
   <!-- ============ roster (shared by the two tools below) ============ -->
-  <section class="pop mt-8 rounded-md bg-white p-6">
+  <section class="pop mt-8 rounded-md bg-white p-6" id="roster-card">
     <h2 class="font-display text-2xl font-bold lowercase">the roster<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">
       One name per line. The group maker and cold-call picker both use this list.
@@ -63,7 +73,7 @@ import PageHeader from '../components/PageHeader.astro';
   </section>
 
   <!-- ============ group maker ============ -->
-  <section class="pop mt-8 rounded-md bg-white p-6">
+  <section class="pop mt-8 rounded-md bg-white p-6" id="groups-card">
     <h2 class="font-display text-2xl font-bold lowercase">group maker<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">Random groups, zero accusations of favoritism.</p>
 
@@ -85,7 +95,7 @@ import PageHeader from '../components/PageHeader.astro';
   </section>
 
   <!-- ============ cold call ============ -->
-  <section class="pop mt-8 rounded-md bg-white p-6">
+  <section class="pop mt-8 rounded-md bg-white p-6" id="picker-card">
     <h2 class="font-display text-2xl font-bold lowercase">cold call<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">The fairest unfair thing in the classroom. Uses the roster above.</p>
 
@@ -103,7 +113,7 @@ import PageHeader from '../components/PageHeader.astro';
   </section>
 
   <!-- ============ dice roller ============ -->
-  <section class="pop mt-8 rounded-md bg-white p-6">
+  <section class="pop mt-8 rounded-md bg-white p-6" id="dice-card">
     <h2 class="font-display text-2xl font-bold lowercase">dice<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">For simulations, review games, and settling who goes first.</p>
 
@@ -127,7 +137,7 @@ import PageHeader from '../components/PageHeader.astro';
   </section>
 
   <!-- ============ scoreboard ============ -->
-  <section class="pop mt-8 rounded-md bg-white p-6">
+  <section class="pop mt-8 rounded-md bg-white p-6" id="scoreboard-card">
     <h2 class="font-display text-2xl font-bold lowercase">scoreboard<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">For review games, Jeopardy days, and the occasional disputed point.</p>
 
@@ -136,7 +146,7 @@ import PageHeader from '../components/PageHeader.astro';
   </section>
 
   <!-- ============ topic spinner ============ -->
-  <section class="pop mt-8 rounded-md bg-white p-6">
+  <section class="pop mt-8 rounded-md bg-white p-6" id="topics-card">
     <h2 class="font-display text-2xl font-bold lowercase">topic spinner<span class="text-accent">.</span></h2>
     <p class="mt-1 text-sm text-ink-soft">One topic per line. Spin to pick the debate, the era, or the review category.</p>
 
@@ -206,6 +216,19 @@ import PageHeader from '../components/PageHeader.astro';
     const display = $('timer-display');
     const card = $('timer-card');
     const timerStatus = $('timer-status');
+    const focusButton = $('timer-focus');
+    if (!document.fullscreenEnabled) focusButton.hidden = true;
+    focusButton.addEventListener('click', async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await card.requestFullscreen();
+      } catch {
+        timerStatus.textContent = 'Your browser could not open the classroom screen. The timer still works here.';
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      focusButton.textContent = document.fullscreenElement === card ? '↙ exit classroom screen' : '↗ classroom screen';
+    });
 
     const paint = () => {
       const m = String(Math.floor(remaining / 60)).padStart(2, '0');
