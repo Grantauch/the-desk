@@ -311,16 +311,16 @@ test('SW-060 Check-In', { skip: !databaseUrl }, async (t) => {
         const response = await studentCheckIn(app, base.sectionA1, proof, 'ci-append-only');
         assert.equal(response.statusCode, 201, response.body);
         const id = (response.json() as { checkInId: string }).checkInId;
+        const before = await client.query<{ status: string; note_private: string | null }>(
+          'SELECT status, note_private FROM checkins WHERE id = $1',
+          [id],
+        );
+        assert.deepEqual(before.rows[0], { status: 'CHECKED_IN', note_private: null });
 
         await assert.rejects(
           client.query('UPDATE checkins SET note_private = $1 WHERE id = $2', ['erase history', id]),
           (error: unknown) => typeof error === 'object' && error !== null && 'code' in error && (error as { code?: string }).code === 'P0001',
         );
-        const row = await client.query<{ status: string; note_private: string | null }>(
-          'SELECT status, note_private FROM checkins WHERE id = $1',
-          [id],
-        );
-        assert.deepEqual(row.rows[0], { status: 'CHECKED_IN', note_private: null });
       });
     });
 
