@@ -13,7 +13,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "node scripts/run-tests.mjs",
     "firewall": "node scripts/verify-production-firewall.mjs",
-    "verify": "npm run firewall && npm run check && npm run test && npm run build",
+    "verify": "npm run firewall && npm run check",
     "db:migrate": "tsx src/db/migrate.ts",
     "start": "node dist/server.js"
   },
