@@ -147,9 +147,28 @@ try {
     'Hidden History uses one Four Verdicts vocabulary',
   );
 
+  const curiositySource = await readFile(new URL('../src/components/CuriosityDesk.astro', import.meta.url), 'utf8');
+  pass(
+    !curiositySource.includes('Promise.all(Object.keys(curiosityCollections).map(loadCollection))'),
+    'Curiosity Desk does not preload all five collections',
+  );
+  pass(
+    curiositySource.includes('loadCollection(initialCollection)')
+      && curiositySource.includes('await loadCollection(nextItem.collection)'),
+    'Curiosity Desk loads the first and next collections on demand',
+  );
+
+  const deskObjectSource = await readFile(new URL('../src/components/DeskObject.astro', import.meta.url), 'utf8');
+  pass(
+    deskObjectSource.includes('/face-stamp-no-words.svg')
+      && !deskObjectSource.includes('/mr-grant-approved-transparent.png')
+      && !deskObjectSource.includes('width: 440%'),
+    'desk seal uses the dedicated face-only asset without crop hacks',
+  );
+
   await context.close();
 
-  if (checks !== 40) throw new Error(`Expected 40 browser checks, ran ${checks}.`);
+  if (checks !== 43) throw new Error(`Expected 43 browser checks, ran ${checks}.`);
   console.log(`Browser UI: PASS — ${checks} checks across two phone sizes and desktop.`);
 } finally {
   if (browser) await browser.close();
