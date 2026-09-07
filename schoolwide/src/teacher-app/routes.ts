@@ -10,7 +10,7 @@ import { TeacherApplicationService } from './service.js';
 import { TeacherApplicationError } from './types.js';
 import { teacherAppHtml } from './ui.js';
 
-const idSchema = z.string().uuid();
+const idSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 const sectionParamsSchema = z.object({ sectionId: idSchema }).strict();
 const passParamsSchema = z.object({ passId: idSchema }).strict();
 const studentParamsSchema = z.object({ sectionId: idSchema, studentId: idSchema }).strict();
