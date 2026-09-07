@@ -81,6 +81,7 @@
       .publish-bar { position: fixed; z-index: 5; left: 50%; bottom: 18px; display: flex; width: min(760px,calc(100% - 28px)); align-items: center; justify-content: space-between; gap: 16px; padding: 13px 14px 13px 18px; border: 1px solid rgba(255,255,255,.15); border-radius: 15px; background: rgba(32,33,39,.96); color: white; box-shadow: 0 24px 60px -20px rgba(0,0,0,.7); backdrop-filter: blur(8px); }
       .publish-bar p { margin: 0; font-size: 13px; line-height: 1.35; }
       .publish-bar small { display: block; margin-top: 2px; color: rgba(255,255,255,.6); }
+      #local-review-link { display: inline-block; margin-top: 4px; color: #c9cdff; font-size: 12px; font-weight: 800; text-underline-offset: 3px; }
       .publish { flex: 0 0 auto; min-height: 43px; padding: 0 17px; border: 0; border-radius: 10px; background: #f6f3ea; color: var(--ink); font-weight: 900; }
       .publish:hover { background: var(--accent-soft); color: var(--accent-dark); }
       button:disabled { cursor: wait; opacity: .6; transform: none !important; }
@@ -108,7 +109,7 @@
           <h1>site editor<span>.</span></h1>
           <p class="intro">Choose what belongs in each unit, change the words people actually see, or put a new announcement on the desk.</p>
         </div>
-        <p class="local-note">Changes stay on this computer until you press <strong>publish changes</strong>. Students cannot see this editor.</p>
+        <p class="local-note">Changes stay on this computer until you press <strong>save for review</strong>. Students cannot see this editor, and nothing goes live until the review is merged.</p>
       </div>
 
       <nav class="tabs" aria-label="Editor sections">
@@ -182,7 +183,7 @@
         <div class="panel-head">
           <div>
             <h2>new announcement.</h2>
-            <p class="panel-copy">Write it once. It will appear on the home page, the announcements page, and the RSS feed after you publish.</p>
+            <p class="panel-copy">Write it once. After its review passes and is merged, it will appear on the home page, the announcements page, and the RSS feed.</p>
           </div>
           <span class="count" id="announcement-count"></span>
         </div>
@@ -197,8 +198,8 @@
     </main>
 
     <aside class="publish-bar">
-      <p><strong>Ready for students?</strong><small>Saved edits reach the site only after this step, and only once the rebuild finishes.</small></p>
-      <button id="publish" type="button" class="publish">publish changes →</button>
+      <p><strong>Ready for review?</strong><small>This creates a review branch. Nothing is live until its checks pass and it is merged.</small><a id="local-review-link" href="#" target="_blank" rel="noopener" hidden>open latest review ↗</a></p>
+      <button id="publish" type="button" class="publish">save for review →</button>
     </aside>
     <div id="toast" class="toast" role="status" hidden></div>
 
@@ -206,6 +207,7 @@
       const token = new URLSearchParams(location.search).get('token');
       const loading = document.querySelector('#loading');
       const toast = document.querySelector('#toast');
+      const localReviewLink = document.querySelector('#local-review-link');
       let state;
 
       const api = async (path, options = {}) => {
@@ -325,6 +327,10 @@
 
       document.querySelector('#publish').addEventListener('click', (event) => busy(event.currentTarget, async () => {
         const result = await api('/api/publish', { method: 'POST', body: '{}' });
+        if (result.reviewUrl) {
+          localReviewLink.href = result.reviewUrl;
+          localReviewLink.hidden = false;
+        }
         notice(result.message);
       }));
 

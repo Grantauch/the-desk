@@ -36,7 +36,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
           <p class="kicker">no code. no terminal. no nonsense.</p>
           <h1>the desk<br /><strong>editor.</strong></h1>
         </div>
-        <p class="editor-hero__intro">Change the words students see, post an announcement, and press publish. That is the whole job.</p>
+        <p class="editor-hero__intro">Change the words students see, post an announcement, and save the change for review. It goes live only after the checks pass and the review is merged.</p>
       </header>
 
       <section id="auth-panel" class="auth-card" aria-labelledby="auth-title">
@@ -192,8 +192,8 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
               <small>Plain writing works. Links and simple bullet lists work too.</small>
             </label>
             <div class="announcement-actions">
-              <p><strong>Ready to send.</strong> This button saves the announcement and starts a site rebuild. There is no separate coding step. Give it a minute, then load the page to confirm it is there.</p>
-              <button id="announcement-publish" class="button button--coral" type="submit">publish announcement →</button>
+              <p><strong>Ready to review.</strong> This saves the announcement on a review branch. It is not live until the review is merged after the checks pass.</p>
+              <button id="announcement-publish" class="button button--coral" type="submit">save announcement for review →</button>
             </div>
           </form>
         </section>
@@ -203,9 +203,10 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
     <aside id="publish-bar" class="publish-bar" hidden>
       <div>
         <span id="save-state">everything saved</span>
-        <small>saved changes start a rebuild, usually a minute before the site shows them</small>
+        <small>saved changes are not live until their review passes and is merged</small>
+        <a id="review-link" href="#" target="_blank" rel="noopener" hidden>open latest review ↗</a>
       </div>
-      <button id="publish-words" class="button button--coral" type="button" disabled>publish site words →</button>
+      <button id="publish-words" class="button button--coral" type="button" disabled>save site words for review →</button>
     </aside>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
@@ -476,6 +477,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
       const saveState = document.querySelector<HTMLElement>('#save-state')!;
       const toast = document.querySelector<HTMLElement>('#toast')!;
       const announcementForm = document.querySelector<HTMLFormElement>('#announcement-form')!;
+      const reviewLink = document.querySelector<HTMLAnchorElement>('#review-link')!;
 
       let inviteToken = '';
       let content: SiteContent | null = null;
@@ -528,6 +530,12 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
         toast.dataset.error = String(error);
         toast.hidden = false;
         toastTimer = window.setTimeout(() => { toast.hidden = true; }, error ? 7000 : 5000);
+      };
+
+      const showReviewLink = (result: { reviewUrl?: string }) => {
+        if (!result.reviewUrl) return;
+        reviewLink.href = result.reviewUrl;
+        reviewLink.hidden = false;
       };
 
       const friendlyAuthError = (error: unknown) => {
@@ -789,7 +797,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
           return;
         }
 
-        setBusy(publishWordsButton, true, 'publishing…');
+        setBusy(publishWordsButton, true, 'saving for review…');
         try {
           const result = await api({
             method: 'POST',
@@ -798,9 +806,10 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
           content = result.content;
           savedContent = copy(result.content);
           updateDirtyState();
+          showReviewLink(result);
           showToast(result.message);
         } catch (error) {
-          showToast(error instanceof Error ? error.message : 'Those words could not be published.', true);
+          showToast(error instanceof Error ? error.message : 'Those words could not be saved for review.', true);
         } finally {
           setBusy(publishWordsButton, false);
           updateDirtyState();
@@ -811,7 +820,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
         event.preventDefault();
         const button = document.querySelector<HTMLButtonElement>('#announcement-publish')!;
         const form = new FormData(announcementForm);
-        setBusy(button, true, 'publishing…');
+        setBusy(button, true, 'saving for review…');
         try {
           const result = await api({
             method: 'POST',
@@ -820,13 +829,11 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
           (announcementForm.elements.namedItem('title') as HTMLInputElement).value = '';
           (announcementForm.elements.namedItem('body') as HTMLTextAreaElement).value = '';
           (announcementForm.elements.namedItem('course') as HTMLSelectElement).value = 'all classes';
-          const count = document.querySelector('#announcement-count')!;
-          const currentCount = Number(count.textContent?.replace(/\D/g, '') || 0) + 1;
-          count.textContent = `(${currentCount})`;
+          showReviewLink(result);
           showToast(result.message);
           announcementForm.querySelector<HTMLInputElement>('[name="title"]')?.focus();
         } catch (error) {
-          showToast(error instanceof Error ? error.message : 'That announcement could not be published.', true);
+          showToast(error instanceof Error ? error.message : 'That announcement could not be saved for review.', true);
         } finally {
           setBusy(button, false);
         }
@@ -1006,6 +1013,7 @@ const teacherClassroomUrl = passAppUrl ? `${passAppUrl}${passAppUrl.includes('?'
   .publish-bar[data-announcement='true'] { transform: translateY(calc(100% + 2rem)); }
   .publish-bar > div { display: grid; gap: 0.18rem; }
   .publish-bar #save-state { font-size: 0.76rem; font-weight: 760; text-transform: lowercase; }
+  #review-link { display:inline-block; margin-top:.25rem; color:#c9cdff; font-size:.72rem; font-weight:750; text-underline-offset:.2rem; }
   .publish-bar small { color: rgb(255 255 255 / 0.48); font: 650 0.58rem/1.2 ui-monospace, monospace; text-transform: lowercase; }
 
   .toast { position: fixed; top: 5rem; right: 1rem; z-index: 30; width: min(25rem, calc(100% - 2rem)); padding: 0.9rem 1rem; border: 1px solid rgb(8 118 90 / 0.28); border-radius: 0.75rem; background: #f0fff9; color: #075f49; box-shadow: 0 20px 48px -32px rgb(23 23 28 / 0.85); font-size: 0.78rem; font-weight: 650; line-height: 1.5; }

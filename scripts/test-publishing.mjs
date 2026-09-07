@@ -218,6 +218,7 @@ try {
     write(f.base, 'gate.cjs', "const f=require('node:fs'); f.appendFileSync('gate-result.txt','verify\\n'); setTimeout(()=>{},1500);\n");
     await commit(f.base, 'editor/server.mjs', 'editor/materials.mjs', 'editor/index.html', 'scripts/publish-site.mjs', 'src/lib/public-resources.js', 'src/data/resources.json', 'src/data/unit-materials.json', 'gate.cjs');
     await git(f.base, 'push', 'origin', 'main');
+    const editorBaseHead = (await git(f.base, 'rev-parse', 'HEAD')).trim();
     const child = spawn(process.execPath, ['editor/server.mjs'], { cwd: f.base, windowsHide: true, env: { ...process.env, DESK_EDITOR_NO_OPEN: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
     try {
       const url = await new Promise((resolveUrl, reject) => {
@@ -248,8 +249,10 @@ try {
       const uploaded = await publication;
       assert.equal(uploaded.status, 200);
       const release = await uploaded.json();
-      assert.equal(release.status, 'pushed');
-      assert.equal((await git(f.remote, 'rev-parse', 'main')).trim(), release.commit);
+      assert.equal(release.status, 'review');
+      assert.match(release.branch, /^editor\/review-local-/);
+      assert.equal((await git(f.remote, 'rev-parse', 'main')).trim(), editorBaseHead);
+      assert.equal((await git(f.remote, 'rev-parse', `refs/heads/${release.branch}`)).trim(), release.commit);
       assert.deepEqual(JSON.parse(read(f.base, 'src/data/unit-materials.json')), materials);
       assert.deepEqual(JSON.parse(read(f.base, 'src/data/unit-materials.private.json')).courses['US History'].Unit, ['preparing', 'private']);
     } finally {
@@ -264,7 +267,9 @@ try {
       assert.doesNotMatch(read(root, name), /git add|git push|\bdel\s/i);
     }
     assert.doesNotMatch(read(root, 'editor/server.mjs'), /resources:sync|git', \['add'/);
-    assert.match(read(root, 'editor/server.mjs'), /publishSite\(root, \{ editor: true \}\)/);
+    assert.match(read(root, 'editor/server.mjs'), /publishSite\(root, \{ editor: true, reviewBranch: true \}\)/);
+    assert.match(read(root, 'netlify/functions/editor-api.mjs'), /createReviewBranch/);
+    assert.match(read(root, 'netlify/functions/editor-api.mjs'), /Saved for review/);
   });
   console.log(`Publishing/resource integration: ${passed} checks passed using synthetic local repositories and an editor HTTP fixture. No external uploads.`);
 } finally {

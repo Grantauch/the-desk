@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync, readlinkSync, openSync, closeSync, unlinkSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -23,7 +23,7 @@ export function run(command, args, cwd, log = () => {}) {
   });
 }
 
-export async function publishSite(projectRoot = root, { editor = false, confirm = async () => true, log = () => {} } = {}) {
+export async function publishSite(projectRoot = root, { editor = false, reviewBranch = false, confirm = async () => true, log = () => {} } = {}) {
   const git = (...args) => run('git', args, projectRoot);
   const gitPath = async (name) => resolve(projectRoot, (await git('rev-parse', '--git-path', name)).trim());
   const checkIndexLock = async () => {
@@ -38,12 +38,13 @@ export async function publishSite(projectRoot = root, { editor = false, confirm 
     const branch = (await git('branch', '--show-current')).trim();
     if (branch !== 'main') throw new Error(`Publishing is only allowed from main. Current branch: ${branch || 'detached HEAD'}.`);
     const beforeHead = (await git('rev-parse', 'HEAD')).trim();
-    const remoteHead = async () => {
-      const output = (await git('ls-remote', '--exit-code', 'origin', 'refs/heads/main')).trim();
+    const remoteRef = async (name) => {
+      const output = (await git('ls-remote', '--exit-code', 'origin', `refs/heads/${name}`)).trim();
       const sha = output.split(/\s+/)[0];
-      if (!/^[0-9a-f]{40}$/.test(sha)) throw new Error('Could not confirm the remote main commit. Nothing was published.');
+      if (!/^[0-9a-f]{40}$/.test(sha)) throw new Error(`Could not confirm remote branch ${name}. Nothing was published.`);
       return sha;
     };
+    const remoteHead = () => remoteRef('main');
     const beforeRemote = await remoteHead();
     // No automatic pull/merge and no force push. A pending local commit can be
     // retried after a failed upload, but remote divergence must be resolved first.
@@ -113,13 +114,27 @@ export async function publishSite(projectRoot = root, { editor = false, confirm 
       || (await git('status', '--porcelain=v1', '--untracked-files=all')).trim()) {
       throw new Error('The commit or working files changed after verification. The local commit was preserved; review it before uploading.');
     }
+    const reviewName = reviewBranch
+      ? `editor/review-local-${Date.now()}-${randomBytes(3).toString('hex')}`
+      : null;
+    const targetRef = reviewName ? `refs/heads/${reviewName}` : 'refs/heads/main';
     let pushError;
-    try { await git('push', 'origin', 'HEAD:refs/heads/main'); } catch (error) { pushError = error; }
+    try { await git('push', 'origin', `HEAD:${targetRef}`); } catch (error) { pushError = error; }
     let uploaded;
-    try { uploaded = await remoteHead(); }
-    catch { throw new Error('Upload status could not be confirmed. Your commit is safe locally. Check remote main before retrying.'); }
+    try { uploaded = reviewName ? await remoteRef(reviewName) : await remoteHead(); }
+    catch { throw new Error('Upload status could not be confirmed. Your commit is safe locally. Check GitHub before retrying.'); }
     if (uploaded !== commit) {
-      throw new Error(`Upload was not confirmed. Your commit is safe locally. ${pushError?.message || 'Remote main does not match the tested commit.'}`);
+      throw new Error(`Upload was not confirmed. Your commit is safe locally. ${pushError?.message || 'The remote branch does not match the tested commit.'}`);
+    }
+    if (reviewName) {
+      await git('reset', '--hard', beforeRemote);
+      return {
+        status: 'review',
+        commit,
+        branch: reviewName,
+        reviewUrl: `https://github.com/Grantauch/the-desk/compare/main...${encodeURIComponent(reviewName)}?expand=1`,
+        message: 'Saved for review. This is not live yet; open the review link and merge it after the checks pass.',
+      };
     }
     return { status: 'pushed', commit, message: 'Saved to GitHub and remote commit confirmed. Netlify will check and rebuild the site; confirm the deployment before calling it live.' };
   } finally {

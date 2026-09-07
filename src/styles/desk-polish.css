@@ -53,7 +53,8 @@ html:root body .home-section { margin-top:clamp(45px,6vw,72px); }
 .tools-jump { display:flex; flex-wrap:wrap; gap:8px; padding:18px 0 0; }
 .tools-jump a { display:flex; align-items:center; gap:10px; min-height:44px; padding:9px 15px; border:1px solid var(--color-line); border-radius:9px; background:white; font:12px var(--font-mono); box-shadow:0 2px 0 #17171c08; }
 .tools-jump a:hover { background:var(--color-accent); border-color:var(--color-accent); color:white; }
-.tools-jump a span { opacity:.55; }
+.tools-jump a span { color:var(--color-ink); opacity:1; font-weight:800; }
+.tools-jump a:hover span { color:white; }
 html:root body:has(.tools-jump) main > section.pop { border-radius:17px; padding:clamp(20px,4vw,32px); }
 html:root body:has(.tools-jump) main > section.pop:hover { transform:none; }
 html:root body:has(.tools-jump) main > section.pop > h2 { letter-spacing:-.04em; }
