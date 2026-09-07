@@ -17,16 +17,45 @@ on:
         type: string
   issue_comment:
     types: [created]
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-hall-pass-apps-script.yml'
+      - 'scripts/deploy-hall-pass-apps-script.mjs'
+      - 'scripts/get-hall-pass-google-oauth-token.mjs'
+      - 'apps-script/hall-pass/AUTOMATED-DEPLOY.md'
+      - 'apps-script/hall-pass/OPERATIONS.md'
 
 permissions:
   contents: read
   issues: write
 
 concurrency:
-  group: hall-pass-production-deployment
+  group: hall-pass-production-deployment-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'production' }}
   cancel-in-progress: false
 
 jobs:
+  self-test:
+    if: github.event_name == 'pull_request'
+    name: Validate Hall Pass release bridge
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out proposed bridge
+        uses: actions/checkout@v4
+
+      - name: Use repository Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax-check deployment helpers
+        run: |
+          node --check scripts/deploy-hall-pass-apps-script.mjs
+          node --check scripts/get-hall-pass-google-oauth-token.mjs
+
+      - name: Verify exact five-file release contract
+        run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
+
   deploy:
     if: >-
       github.event_name == 'workflow_dispatch' ||
