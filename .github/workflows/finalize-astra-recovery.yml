@@ -1,0 +1,56 @@
+name: finalize Astra recovery
+
+on:
+  push:
+    branches:
+      - maintenance/astra-recovery-20260907
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out recovery branch
+        uses: actions/checkout@v4
+        with:
+          ref: maintenance/astra-recovery-20260907
+
+      - name: Use site Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Reconstruct interrupted Astra changes
+        run: node scripts/recover-astra-batch.mjs
+
+      - name: Refresh locked dependencies
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+
+      - name: Install Chromium for browser verification
+        run: npx playwright install --with-deps chromium
+
+      - name: Run canonical release verification
+        run: npm run verify
+
+      - name: Run 39 real-browser checks
+        run: npm run browser:test
+
+      - name: Remove one-time recovery machinery
+        run: rm scripts/recover-astra-batch.mjs .github/workflows/finalize-astra-recovery.yml
+
+      - name: Commit verified recovery batch
+        run: |
+          git config user.name "GrantDesk Recovery"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "Recover classroom state and protected publishing batch"
+          git push origin HEAD:maintenance/astra-recovery-20260907
