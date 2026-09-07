@@ -1,0 +1,68 @@
+name: Schoolwide CI
+
+on:
+  push:
+    branches:
+      - 'schoolwide/**'
+    paths:
+      - 'schoolwide/**'
+      - '.github/workflows/schoolwide-ci.yml'
+  pull_request:
+    paths:
+      - 'schoolwide/**'
+      - '.github/workflows/schoolwide-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: grantdesk_schoolwide
+          POSTGRES_USER: grantdesk
+          POSTGRES_PASSWORD: grantdesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U grantdesk -d grantdesk_schoolwide"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: schoolwide
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide
+      LEGACY_PRODUCTION_WRITES: forbidden
+      SCHOOLWIDE_INSTANCE_ID: ci
+      SCHOOLWIDE_BASE_REF: origin/main
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Schoolwide dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Apply database migrations
+        run: npm run db:migrate
+
+      - name: Prove migration repeatability
+        run: npm run db:migrate
+
+      - name: Verify Schoolwide foundation
+        run: npm run verify
