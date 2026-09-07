@@ -66,6 +66,19 @@ jobs:
           node hall-pass-dialog-polish.cjs
           node hall-pass-copy-cleanup.cjs
 
+      - name: Align regression copy with teacher-neutral release wording
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/test-hall-pass-app.cjs')
+          text = path.read_text(encoding='utf-8')
+          old = "assert.match(message.body, /one PIN works in every Mr\\. Grant class/i);"
+          new = "assert.match(message.body, /one PIN works in all your classes/i);"
+          assert old in text, 'Expected teacher-specific PIN-email assertion was not found'
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+
       - name: Install repository dependencies
         run: npm ci
 
@@ -91,7 +104,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add apps-script/hall-pass/Index.html apps-script/hall-pass/Code.gs
+          git add apps-script/hall-pass/Index.html apps-script/hall-pass/Code.gs scripts/test-hall-pass-app.cjs
           if git diff --cached --quiet; then
             echo 'No generated Hall Pass source changes to commit.'
             exit 0
