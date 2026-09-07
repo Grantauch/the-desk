@@ -1,0 +1,3 @@
+# StoryHub releases are checksum-sealed; do not rewrite their committed line endings.
+public/hubs/ush9-l014-unions.html -text
+public/storyhub/runtime/storyhub-runtime.js -text
