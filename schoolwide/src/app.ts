@@ -4,6 +4,9 @@ import { DisabledStaffIdentityProvider } from './auth/provider.js';
 import { registerStaffAuthRoutes } from './auth/routes.js';
 import { StaffAuthenticationService } from './auth/service.js';
 import type { StaffIdentityProvider } from './auth/types.js';
+import { registerCheckInRoutes } from './checkins/routes.js';
+import { CheckInService } from './checkins/service.js';
+import type { CheckInServiceOptions } from './checkins/types.js';
 import type { AppConfig } from './config.js';
 import type { Database } from './db/database.js';
 import { registerSchedulePolicyRoutes } from './schedule-policy/routes.js';
@@ -20,6 +23,7 @@ export type BuildAppOptions = {
   sessionTtlMs?: number;
   studentIdentityProvider?: StudentIdentityProvider;
   studentCredentialOptions?: StudentCredentialServiceOptions;
+  checkInOptions?: CheckInServiceOptions;
 };
 
 export function buildApp({
@@ -29,6 +33,7 @@ export function buildApp({
   sessionTtlMs,
   studentIdentityProvider = new DisabledStudentIdentityProvider(),
   studentCredentialOptions,
+  checkInOptions,
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -41,14 +46,16 @@ export function buildApp({
   const authorization = new StaffAuthorizationService(database);
   const schedulePolicy = new SchedulePolicyService(database);
   const studentCredentials = new StudentCredentialService(database, studentIdentityProvider, studentCredentialOptions ?? {});
+  const checkins = new CheckInService(database, checkInOptions ?? {});
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
   registerStudentCredentialRoutes(app, studentCredentials);
+  registerCheckInRoutes(app, { authentication, authorization, checkins });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-050',
-    status: 'student-credentials-action-proofs',
+    version: 'sw-060',
+    status: 'checkin',
   }));
 
   app.get('/health/live', async () => ({

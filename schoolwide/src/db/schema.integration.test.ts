@@ -43,7 +43,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all seven ordered migrations are recorded', async () => {
+    await t.test('all eight ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>(
         'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
       );
@@ -54,7 +54,8 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         '004_idempotency_outbox_audit.sql',
         '005_policy_actor_tenant_integrity.sql',
         '006_staff_sessions.sql',
-        '007_student_credentials_action_proofs.sql'
+        '007_student_credentials_action_proofs.sql',
+        '008_checkins.sql'
       ]);
     });
 
@@ -331,28 +332,24 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
     });
 
     await t.test('required hot-path indexes exist', async () => {
-      const result = await pool.query<{ indexname: string }>(
-        `SELECT indexname FROM pg_indexes
-          WHERE schemaname = 'public'
-            AND indexname = ANY($1::text[])`,
-        [[
-          'enrollments_current_section_student_idx',
-          'section_staff_current_lookup_idx',
-          'school_calendar_days_lookup_idx',
-          'school_policy_sets_effective_idx',
-          'audit_events_school_time_idx',
-          'transactional_outbox_pending_idx'
-        ]]
-      );
-      const names = new Set(result.rows.map((row) => row.indexname));
-      for (const expected of [
+      const expectedIndexes = [
         'enrollments_current_section_student_idx',
         'section_staff_current_lookup_idx',
         'school_calendar_days_lookup_idx',
         'school_policy_sets_effective_idx',
         'audit_events_school_time_idx',
-        'transactional_outbox_pending_idx'
-      ]) {
+        'transactional_outbox_pending_idx',
+        'checkins_section_date_idx',
+        'checkins_student_date_idx'
+      ];
+      const result = await pool.query<{ indexname: string }>(
+        `SELECT indexname FROM pg_indexes
+          WHERE schemaname = 'public'
+            AND indexname = ANY($1::text[])`,
+        [expectedIndexes]
+      );
+      const names = new Set(result.rows.map((row) => row.indexname));
+      for (const expected of expectedIndexes) {
         assert.ok(names.has(expected), `Missing required index ${expected}.`);
       }
     });
