@@ -89,7 +89,6 @@ function parseDatabaseTime(value: string): number | null {
 
 function localClock(instant: Date, timezone: string): SchoolLocalClock {
   if (Number.isNaN(instant.getTime())) throw new RangeError('Invalid instant.');
-
   const formatter = new Intl.DateTimeFormat('en-US-u-ca-gregory', {
     timeZone: timezone,
     year: 'numeric',
@@ -109,17 +108,15 @@ function localClock(instant: Date, timezone: string): SchoolLocalClock {
   const second = values.get('second');
   if (!year || !month || !day || !hour || !minute || !second) throw new RangeError('Timezone conversion failed.');
 
-  const localSecondOfDay = Number(hour) * 3600
-    + Number(minute) * 60
-    + Number(second)
-    + instant.getUTCMilliseconds() / 1000;
-
   return {
     instant: instant.toISOString(),
     timezone,
     academicDate: `${year}-${month}-${day}`,
     localTime: `${hour}:${minute}:${second}`,
-    localSecondOfDay,
+    localSecondOfDay: Number(hour) * 3600
+      + Number(minute) * 60
+      + Number(second)
+      + instant.getUTCMilliseconds() / 1000,
   };
 }
 
@@ -258,7 +255,6 @@ export class SchedulePolicyService {
         reason: 'NO_SCHOOL',
       };
     }
-
     if (!calendarRow.schedule_profile_id) {
       return {
         status: 'NO_ACTIVE_SESSION',
@@ -270,7 +266,6 @@ export class SchedulePolicyService {
         reason: 'SCHEDULE_PROFILE_MISSING',
       };
     }
-
     if (calendarRow.schedule_profile_status !== 'ACTIVE') {
       return {
         status: 'NO_ACTIVE_SESSION',
@@ -282,7 +277,6 @@ export class SchedulePolicyService {
         reason: 'SCHEDULE_PROFILE_INACTIVE',
       };
     }
-
     if (!section.period_code) {
       return {
         status: 'NO_ACTIVE_SESSION',
@@ -332,7 +326,6 @@ export class SchedulePolicyService {
         reason: 'SECTION_PERIOD_NOT_IN_PROFILE',
       };
     }
-
     if (clock.localSecondOfDay < startsAt || clock.localSecondOfDay >= endsAt) {
       return {
         status: 'NO_ACTIVE_SESSION',
@@ -405,7 +398,6 @@ export class SchedulePolicyService {
         ORDER BY policy_key`,
       [input.schoolId, policySet.id],
     );
-
     if (policyValues.some((row) => row.validation_schema_version !== 1 || !isUsablePolicyValue(row.typed_value_json))) {
       return {
         status: 'UNRESOLVED',
@@ -455,31 +447,19 @@ export class SchedulePolicyService {
       }
       if (!schoolDefault.teacher_override_allowed) {
         for (const override of group) {
-          rejectedSectionOverrides.push({
-            overrideId: override.id,
-            policyKey,
-            reason: 'TEACHER_OVERRIDE_NOT_ALLOWED',
-          });
+          rejectedSectionOverrides.push({ overrideId: override.id, policyKey, reason: 'TEACHER_OVERRIDE_NOT_ALLOWED' });
         }
         continue;
       }
       if (group.length !== 1) {
         for (const override of group) {
-          rejectedSectionOverrides.push({
-            overrideId: override.id,
-            policyKey,
-            reason: 'CONFLICTING_ACTIVE_OVERRIDES',
-          });
+          rejectedSectionOverrides.push({ overrideId: override.id, policyKey, reason: 'CONFLICTING_ACTIVE_OVERRIDES' });
         }
         continue;
       }
       const override = group[0]!;
       if (!isUsablePolicyValue(override.typed_value_json)) {
-        rejectedSectionOverrides.push({
-          overrideId: override.id,
-          policyKey,
-          reason: 'MALFORMED_OVERRIDE_VALUE',
-        });
+        rejectedSectionOverrides.push({ overrideId: override.id, policyKey, reason: 'MALFORMED_OVERRIDE_VALUE' });
         continue;
       }
       values[policyKey] = {
@@ -491,12 +471,13 @@ export class SchedulePolicyService {
       };
     }
 
-    const studentAccess = await this.#resolveStudentAccess({
+    const accessInput: { schoolId: string; sectionId: string; at: Date; studentId?: string } = {
       schoolId: input.schoolId,
       sectionId: input.sectionId,
-      studentId: input.studentId,
       at: input.at,
-    });
+    };
+    if (input.studentId !== undefined) accessInput.studentId = input.studentId;
+    const studentAccess = await this.#resolveStudentAccess(accessInput);
 
     return {
       status: 'RESOLVED',
@@ -518,9 +499,7 @@ export class SchedulePolicyService {
 
   async resolveContext(input: { sectionId: string; at: Date; studentId?: string }): Promise<SchedulePolicyContext> {
     const session = await this.resolveSectionSession(input.sectionId, input.at);
-    if (!session.schoolId || !session.academicYearId || !session.clock) {
-      return { session, policy: null };
-    }
+    if (!session.schoolId || !session.academicYearId || !session.clock) return { session, policy: null };
 
     const policyInput: {
       schoolId: string;
@@ -537,9 +516,7 @@ export class SchedulePolicyService {
       at: input.at,
     };
     if (input.studentId !== undefined) policyInput.studentId = input.studentId;
-
-    const policy = await this.resolvePolicy(policyInput);
-    return { session, policy };
+    return { session, policy: await this.resolvePolicy(policyInput) };
   }
 
   async #resolveStudentAccess(input: {
@@ -596,7 +573,6 @@ export class SchedulePolicyService {
       const rule = schoolRules[0]!;
       return { status: 'RESOLVED', mode: rule.access_mode, source: 'SCHOOL', ruleId: rule.id };
     }
-
     return { status: 'NONE' };
   }
 }
