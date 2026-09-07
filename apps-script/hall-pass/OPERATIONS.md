@@ -63,3 +63,5 @@ npm.cmd run verify
 Then follow the gates in `DEPLOY.md`: verify the Apps Script editor against the tracked source,
 update the existing deployment rather than creating a new URL, and smoke student, kiosk, check-in
 and teacher modes without using a real student PIN.
+
+Once the one-time Google OAuth environment is configured, `AUTOMATED-DEPLOY.md` is the preferred source/deployment path. Its GitHub Actions bridge performs the same five-file draft/read-back/deployment-identity checks, runs the canonical release gate itself, and can be invoked through the owner-only release-control commands on GitHub issue #28. It does **not** replace the required post-deployment `?mode=releasecheck` synthetic protected-action smoke.

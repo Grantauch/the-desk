@@ -1,0 +1,173 @@
+name: Deploy Hall Pass Apps Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preflight checks Google access without changing production. Deploy updates the existing Hall Pass deployment.
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - deploy
+      confirmation:
+        description: For deploy only, type exactly DEPLOY HALL PASS
+        required: false
+        type: string
+  issue_comment:
+    types: [created]
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-hall-pass-apps-script.yml'
+      - 'scripts/deploy-hall-pass-apps-script.mjs'
+      - 'scripts/get-hall-pass-google-oauth-token.mjs'
+      - 'apps-script/hall-pass/AUTOMATED-DEPLOY.md'
+      - 'apps-script/hall-pass/OPERATIONS.md'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: hall-pass-production-deployment-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  self-test:
+    if: github.event_name == 'pull_request'
+    name: Validate Hall Pass release bridge
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out proposed bridge
+        uses: actions/checkout@v4
+
+      - name: Use repository Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax-check deployment helpers
+        run: |
+          node --check scripts/deploy-hall-pass-apps-script.mjs
+          node --check scripts/get-hall-pass-google-oauth-token.mjs
+
+      - name: Verify exact five-file release contract
+        run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
+
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.actor == 'Grantauch' &&
+       github.event.issue.number == 28 &&
+       (github.event.comment.body == '/preflight-hall-pass' || github.event.comment.body == '/deploy-hall-pass'))
+    name: Hall Pass production release bridge
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: hall-pass-production
+    steps:
+      - name: Resolve authorized release mode
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "issue_comment" ]]; then
+            case "$COMMENT_BODY" in
+              /preflight-hall-pass) mode="preflight" ;;
+              /deploy-hall-pass) mode="deploy" ;;
+              *) echo "Unsupported release-control command." >&2; exit 1 ;;
+            esac
+          else
+            if [[ "$REF_NAME" != "main" ]]; then
+              echo "Manual production release bridge may run only from main; got $REF_NAME." >&2
+              exit 1
+            fi
+            mode="$INPUT_MODE"
+            if [[ "$mode" == "deploy" && "$INPUT_CONFIRMATION" != "DEPLOY HALL PASS" ]]; then
+              echo "Deployment confirmation did not match exactly: DEPLOY HALL PASS" >&2
+              exit 1
+            fi
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Resolved Hall Pass release mode: $mode"
+
+      - name: Check out current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Use repository Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run canonical GrantDesk release gate
+        run: npm run verify
+
+      - name: Run Apps Script bridge self-test
+        run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
+
+      - name: ${{ steps.release.outputs.mode == 'deploy' && 'Update existing Apps Script deployment' || 'Verify Apps Script credentials and production identity' }}
+        env:
+          GAS_DEPLOY_MODE: ${{ steps.release.outputs.mode }}
+          GAS_SCRIPT_ID: ${{ vars.GAS_SCRIPT_ID }}
+          GAS_DEPLOYMENT_ID: ${{ vars.GAS_DEPLOYMENT_ID }}
+          GAS_OAUTH_JSON: ${{ secrets.GAS_OAUTH_JSON }}
+          GAS_EXPECTED_ACCESS: DOMAIN
+          GAS_EXPECTED_EXECUTE_AS: USER_DEPLOYING
+        run: node scripts/deploy-hall-pass-apps-script.mjs
+
+      - name: Write release evidence to job summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f artifacts/hall-pass-apps-script-release.json ]]; then
+            echo '## Hall Pass Apps Script release evidence' >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/hall-pass-apps-script-release.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Preserve release evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hall-pass-apps-script-release-${{ github.run_id }}
+          path: artifacts/hall-pass-apps-script-release.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Report result back to release-control issue
+        if: always() && github.event_name == 'issue_comment'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+          RELEASE_MODE: ${{ steps.release.outputs.mode }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "$JOB_STATUS" == "success" ]]; then
+            if [[ -f artifacts/hall-pass-apps-script-release.json ]]; then
+              release_status=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('artifacts/hall-pass-apps-script-release.json','utf8')); process.stdout.write(String(x.status||'SUCCESS'));" )
+              version=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('artifacts/hall-pass-apps-script-release.json','utf8')); process.stdout.write(String(x.deploymentAfter?.versionNumber||x.deploymentBefore?.versionNumber||''));" )
+            else
+              release_status="SUCCESS"
+              version=""
+            fi
+            gh issue comment 28 --repo "$GITHUB_REPOSITORY" --body "Hall Pass release bridge **${RELEASE_MODE}** completed successfully: **${release_status}**${version:+ — Apps Script version ${version}}. [Open workflow run](${RUN_URL})"
+          else
+            gh issue comment 28 --repo "$GITHUB_REPOSITORY" --body "Hall Pass release bridge **${RELEASE_MODE:-unknown}** failed or was stopped. Production safety checks refuse partial/unsafe releases and the bridge attempts rollback after mutations. [Open workflow run](${RUN_URL})"
+          fi
