@@ -22,11 +22,11 @@ jobs:
       - name: Use repository Node version
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version: 24
           cache: npm
 
       - name: Install locked dependencies
-        run: npm ci
+        run: npm ci --include=dev
 
       - name: Apply everyday-tools homepage hierarchy
         shell: bash
