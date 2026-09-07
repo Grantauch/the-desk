@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016",
+  "title": "The One That Passed",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["documentary", "still", "procedural", "plainspoken", "consequential"],
+    "paletteIntent": "Oxidized pine and charcoal near-black ground; pale sepia card stock; silver-gelatin grays; warm bone. Vermilion seal ink is reserved only for a stamp landing on a document or a name being struck from a list. No navy, electric blue, L015 newsprint ground, or L015 oxide red.",
+    "typographyIntent": "Heavy photographic-era gothic for section headers, clerk's serif for prose, monospace for statutes, sworn testimony, registry entries, interrogations, and source text. Chinese characters, where used for Angel Island poetry, appear at full readable size with English directly beneath.",
+    "textureLanguage": ["albumen print surface", "cut card-stock edges", "rubber-stamp bleed", "wood grain under old paint", "ruled registry lines"],
+    "shapeLanguage": "Mounted-photograph rectangles and hard square card corners. A seal is the only curve in the visual language.",
+    "motionGrammar": ["stamp: a mark lands once and remains", "strike: an entry is removed and the record closes over the gap"],
+    "interactionSignature": ["outcome stamp register", "proportional census field", "counterfactual census gap", "roundup record filter", "voyage timeline with unavoidable statute", "certificate application with impossible final requirement", "sixty-one-year repetition column"],
+    "densityRhythm": "Long quiet narrative runs interrupted by one hard block of figures, then quiet again.",
+    "archivalBehavior": "Use credited real photographs untouched when reliable public-use evidence survives. Authored scenes are explicitly labeled as reconstructions. Statute, court, testimony, and poem language is visibly source text.",
+    "endingLanguage": "The lesson ends on December 17, 1943 and the quota number 105. No reflection prompt or summary follows."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Dark oxidized wood, charcoal mounting boards, pale sepia certificates, silver-gelatin photographic tones, and vermilion only for the two allowed record actions.",
+    "edgeTreatment": "Hard mounted-photo edges, card-stock cut lines, registry rules, stamp impressions, and worn document corners. Nothing floats or rounds.",
+    "controlLanguage": "Controls resemble record-room actions: stamp, census selector, ledger filter, travel rail, application field, file strike, and year-column advance.",
+    "spacingLanguage": "Photographic rectangles sit with generous dark margins while document interactions become denser and more clerical. Every scene preserves the master-designated safe zones.",
+    "transitionLanguage": "Only stamp and strike behaviors. Reduced motion shows the completed or stepped state without animation."
+  }
+}
