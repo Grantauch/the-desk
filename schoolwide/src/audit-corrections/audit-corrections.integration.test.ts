@@ -167,7 +167,7 @@ test('SW-080 Audit + Corrections', { skip: !databaseUrl }, async (t) => {
           `SELECT
              (SELECT count(*)::int FROM pass_corrections WHERE pass_id=$1::uuid) corrections,
              (SELECT count(*)::int FROM staff_actions WHERE pass_id=$1::uuid AND action_type='PASS_CORRECTION') actions,
-             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::uuid AND action='PASS_CORRECTED') audits,
+             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::text AND action='PASS_CORRECTED') audits,
              (SELECT count(*)::int FROM pass_events WHERE resource_id=$1::uuid AND event_type='PASS_CORRECTED') events,
              (SELECT count(*)::int FROM transactional_outbox WHERE aggregate_id=$1::uuid AND event_type='PASS_CORRECTED') outbox`, [passId]);
         assert.deepEqual(counts.rows[0], { corrections:1, actions:1, audits:1, events:1, outbox:1 });
@@ -233,7 +233,7 @@ test('SW-080 Audit + Corrections', { skip: !databaseUrl }, async (t) => {
         });
         assert.equal(admin.statusCode, 201, admin.body);
         const audit = await context.client.query<{ actor_user_id:string; actor_kind:string }>(
-          `SELECT actor_user_id,actor_kind FROM audit_events WHERE target_id=$1::uuid AND action='PASS_CORRECTED'`, [passId]);
+          `SELECT actor_user_id,actor_kind FROM audit_events WHERE target_id=$1::text AND action='PASS_CORRECTED'`, [passId]);
         assert.deepEqual(audit.rows[0], { actor_user_id:context.base.teacherA, actor_kind:'USER' });
       });
     });
@@ -253,7 +253,7 @@ test('SW-080 Audit + Corrections', { skip: !databaseUrl }, async (t) => {
         });
         const counts = await context.client.query<{ audits:number; events:number; outbox:number }>(
           `SELECT
-             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::uuid AND action='STAFF_OVERRIDE_RECORDED') audits,
+             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::text AND action='STAFF_OVERRIDE_RECORDED') audits,
              (SELECT count(*)::int FROM pass_events WHERE resource_id=$1::uuid AND event_type='STAFF_OVERRIDE_RECORDED') events,
              (SELECT count(*)::int FROM transactional_outbox WHERE aggregate_id=$1::uuid AND event_type='STAFF_OVERRIDE_RECORDED') outbox`, [result.actionId]);
         assert.deepEqual(counts.rows[0], { audits:1, events:1, outbox:1 });
@@ -273,7 +273,7 @@ test('SW-080 Audit + Corrections', { skip: !databaseUrl }, async (t) => {
           `SELECT
              (SELECT count(*)::int FROM pass_corrections WHERE pass_id=$1::uuid) corrections,
              (SELECT count(*)::int FROM staff_actions WHERE pass_id=$1::uuid) actions,
-             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::uuid AND action='PASS_CORRECTED') audits,
+             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::text AND action='PASS_CORRECTED') audits,
              (SELECT count(*)::int FROM pass_events WHERE resource_id=$1::uuid AND event_type='PASS_CORRECTED') events,
              (SELECT count(*)::int FROM idempotency_keys WHERE school_id=$2::uuid AND key='atomic-correction') idem`,
           [passId,context.base.schoolA]);
@@ -298,7 +298,7 @@ test('SW-080 Audit + Corrections', { skip: !databaseUrl }, async (t) => {
         const durable = await context.client.query<{ corrections:number; audits:number; events:number; failed:number }>(
           `SELECT
              (SELECT count(*)::int FROM pass_corrections WHERE pass_id=$1::uuid) corrections,
-             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::uuid AND action='PASS_CORRECTED') audits,
+             (SELECT count(*)::int FROM audit_events WHERE target_id=$1::text AND action='PASS_CORRECTED') audits,
              (SELECT count(*)::int FROM pass_events WHERE resource_id=$1::uuid AND event_type='PASS_CORRECTED') events,
              (SELECT count(*)::int FROM transactional_outbox WHERE aggregate_id=$1::uuid AND event_type='PASS_CORRECTED' AND status='FAILED') failed`, [passId]);
         assert.deepEqual(durable.rows[0], { corrections:1, audits:1, events:1, failed:1 });
