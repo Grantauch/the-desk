@@ -1,0 +1,154 @@
+name: finalize medium batch 3
+
+on:
+  push:
+    branches:
+      - maintenance/medium-batch-3-stamp-curiosity
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: maintenance/medium-batch-3-stamp-curiosity
+          fetch-depth: 0
+      - name: Apply the lazy-loading and regression contracts
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              if text.count(old) != 1:
+                  raise SystemExit(f'{label}: expected exactly one match, found {text.count(old)}')
+              return text.replace(old, new, 1)
+
+          curiosity_path = Path('src/components/CuriosityDesk.astro')
+          curiosity = curiosity_path.read_text(encoding='utf-8')
+          curiosity = replace_once(
+              curiosity,
+              'connecting to the live catalog…',
+              'loading the first live collection…',
+              'initial curiosity status',
+          )
+
+          old_filters = '''      filterButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requested = button.dataset.filter || 'all';
+          setActiveFilter(requested);
+          setLiveStatus(requested === 'all' ? 'loading all five live collections…' : `loading the live ${filterLabel()} collection…`);
+
+          const loaded = requested === 'all'
+            ? await Promise.all(Object.keys(curiosityCollections).map(loadCollection)).then((results) => results.some(Boolean))
+            : await loadCollection(requested);
+          const matches = matchingIndexes();
+          if (matches.length) showItem(matches[0]);
+          setLiveStatus(loaded
+            ? `live Library of Congress records / ${liveCollections.size} of ${Object.keys(curiosityCollections).length} collections ready`
+            : 'live catalog unavailable / showing the preserved fallback');
+        });
+      });
+'''
+          new_filters = '''      const liveSummary = () => {
+        const ready = liveCollections.size;
+        const total = Object.keys(curiosityCollections).length;
+        return ready
+          ? `live Library of Congress records / ${ready} of ${total} collections ready / more load as you browse`
+          : 'live catalog unavailable / showing the preserved fallback';
+      };
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const requested = button.dataset.filter || 'all';
+          setActiveFilter(requested);
+
+          if (requested === 'all') {
+            const matches = matchingIndexes();
+            if (matches.length) showItem(matches.includes(currentIndex) ? currentIndex : matches[0]);
+            setLiveStatus(liveSummary());
+            return;
+          }
+
+          setLiveStatus(`loading the live ${filterLabel()} collection…`);
+          const loaded = await loadCollection(requested);
+          const matches = matchingIndexes();
+          if (matches.length) showItem(matches[0]);
+          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
+        });
+      });
+'''
+          curiosity = replace_once(curiosity, old_filters, new_filters, 'curiosity filter loader')
+
+          old_next = '''      nextButton?.addEventListener('click', () => {
+        const matches = matchingIndexes();
+        if (matches.length < 2) return;
+        const matchPosition = matches.indexOf(currentIndex);
+        showItem(matches[(matchPosition + 1) % matches.length]);
+      });
+'''
+          new_next = '''      nextButton?.addEventListener('click', async () => {
+        const matches = matchingIndexes();
+        if (matches.length < 2) return;
+        const matchPosition = matches.indexOf(currentIndex);
+        const nextIndex = matches[(matchPosition + 1) % matches.length];
+        const nextItem = currentItems[nextIndex];
+        if (!nextItem) return;
+
+        if (!liveCollections.has(nextItem.collection)) {
+          setLiveStatus(`loading the live ${nextItem.collection} collection…`);
+          const loaded = await loadCollection(nextItem.collection);
+          const refreshedMatches = matchingIndexes();
+          const refreshedIndex = refreshedMatches.find((index) => currentItems[index]?.collection === nextItem.collection);
+          if (refreshedIndex !== undefined) showItem(refreshedIndex);
+          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
+          return;
+        }
+
+        showItem(nextIndex);
+      });
+'''
+          curiosity = replace_once(curiosity, old_next, new_next, 'curiosity next loader')
+
+          old_mount = '''      Promise.all(Object.keys(curiosityCollections).map(loadCollection)).then((results) => {
+        const matches = matchingIndexes();
+        if (matches.length) showItem(matches[0]);
+        const successful = results.filter(Boolean).length;
+        setLiveStatus(successful
+          ? `live Library of Congress records / ${successful} of ${results.length} collections ready`
+          : 'live catalog unavailable / showing the preserved fallback');
+      });
+'''
+          new_mount = '''      const initialCollection = seeds[0]?.collection;
+      if (initialCollection) {
+        setLiveStatus('loading the first live collection…');
+        loadCollection(initialCollection).then((loaded) => {
+          const matches = matchingIndexes();
+          if (matches.length) showItem(matches[0]);
+          setLiveStatus(loaded ? liveSummary() : 'live catalog unavailable / showing the preserved fallback');
+        });
+      } else {
+        setLiveStatus('live catalog unavailable / showing the preserved fallback');
+      }
+'''
+          curiosity = replace_once(curiosity, old_mount, new_mount, 'curiosity initial loader')
+          curiosity_path.write_text(curiosity, encoding='utf-8')
+
+          test_path = Path('scripts/test-browser-ui.mjs')
+          test = test_path.read_text(encoding='utf-8')
+          marker = """  pass(\n    hiddenHistorySource.includes('the four verdicts — confirmed, debunked, misleading, unproven')\n      && !hiddenHistorySource.includes('verdict: it’s complicated'),\n    'Hidden History uses one Four Verdicts vocabulary',\n  );\n\n  await context.close();\n\n  if (checks !== 40) throw new Error(`Expected 40 browser checks, ran ${checks}.`);\n"""
+          replacement = """  pass(\n    hiddenHistorySource.includes('the four verdicts — confirmed, debunked, misleading, unproven')\n      && !hiddenHistorySource.includes('verdict: it’s complicated'),\n    'Hidden History uses one Four Verdicts vocabulary',\n  );\n\n  const curiositySource = await readFile(new URL('../src/components/CuriosityDesk.astro', import.meta.url), 'utf8');\n  pass(\n    !curiositySource.includes('Promise.all(Object.keys(curiosityCollections).map(loadCollection))'),\n    'Curiosity Desk does not preload all five collections',\n  );\n  pass(\n    curiositySource.includes('loadCollection(initialCollection)')\n      && curiositySource.includes('await loadCollection(nextItem.collection)'),\n    'Curiosity Desk loads the first and next collections on demand',\n  );\n\n  const deskObjectSource = await readFile(new URL('../src/components/DeskObject.astro', import.meta.url), 'utf8');\n  pass(\n    deskObjectSource.includes('/face-stamp-no-words.svg')\n      && !deskObjectSource.includes('/mr-grant-approved-transparent.png')\n      && !deskObjectSource.includes('width: 440%'),\n    'desk seal uses the dedicated face-only asset without crop hacks',\n  );\n\n  await context.close();\n\n  if (checks !== 43) throw new Error(`Expected 43 browser checks, ran ${checks}.`);\n"""
+          test = replace_once(test, marker, replacement, 'browser maintenance contracts')
+          test_path.write_text(test, encoding='utf-8')
+          PY
+
+          rm .github/workflows/finalize-medium-batch-3.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/CuriosityDesk.astro scripts/test-browser-ui.mjs .github/workflows/finalize-medium-batch-3.yml
+          git commit -m "Lazy-load Curiosity Desk collections and guard stamp integration"
+          git push origin HEAD:maintenance/medium-batch-3-stamp-curiosity
