@@ -61,18 +61,24 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
 </Base>
 
 <style>
+  .pass-page {
+    --color-accent: #1b7a52;
+    --color-accent-dark: #10583a;
+    --color-accent-soft: #e8f5ee;
+  }
+
   .pass-launch {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 2rem;
     padding: clamp(1.4rem, 4vw, 2.2rem);
-    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
     border-radius: 1.15rem;
     background:
-      linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 64%, white), white 45%),
-      white;
-    box-shadow: 0 24px 55px -46px rgb(23 23 28 / 0.7);
+      radial-gradient(circle at 92% 12%, rgb(27 122 82 / 0.12), transparent 16rem),
+      linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 78%, white), white 52%);
+    box-shadow: 0 24px 55px -46px rgb(16 88 58 / 0.55);
   }
 
   .pass-launch__number,
@@ -121,10 +127,11 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
     justify-content: center;
     gap: 0.7rem;
     padding: 0 1.15rem;
-    border: 1px solid var(--color-ink);
+    border: 1px solid var(--color-accent-dark);
     border-radius: 0.8rem;
-    background: var(--color-ink);
+    background: var(--color-accent);
     color: white;
+    box-shadow: 0 10px 20px -14px rgb(16 88 58 / 0.8);
     font-family: var(--font-mono);
     font-size: 0.76rem;
     font-weight: 700;
@@ -141,9 +148,9 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
   .pass-offline {
     max-width: 16rem;
     padding: 0.8rem 0.9rem;
-    border: 1px solid var(--color-line);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 22%, var(--color-line));
     border-radius: 0.75rem;
-    background: white;
+    background: var(--color-accent-soft);
     color: var(--color-ink-soft);
     font-size: 0.78rem;
     line-height: 1.45;
@@ -151,9 +158,11 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
 
   .pass-option,
   .privacy-note {
-    border: 1px solid var(--color-line);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 16%, var(--color-line));
     border-radius: 1rem;
-    background: white;
+    background:
+      linear-gradient(180deg, rgb(232 245 238 / 0.38), transparent 4rem),
+      white;
     padding: 1.25rem;
   }
 
@@ -165,6 +174,10 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: lowercase;
+  }
+
+  .pass-option a:hover {
+    color: var(--color-accent-dark);
   }
 
   @media (max-width: 640px) {

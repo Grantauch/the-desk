@@ -15,9 +15,20 @@ html:root body .site-header { box-shadow:0 4px 30px rgb(23 23 28 / .055); }
 html:root body .page-hero { border-radius:20px; border-color:rgb(23 23 28 / .13); background:radial-gradient(ellipse at 100% 0%,var(--color-accent-soft),transparent 65%),linear-gradient(120deg,#fff,#fafaf7); box-shadow:0 8px 0 -5px #e4e4de,0 14px 0 -9px #ecece6,0 25px 50px -38px #17171c66; }
 html:root body .page-hero::after { width:34%; height:4px; }
 html:root body .page-hero__registry { transform:rotate(5deg); background:white; box-shadow:3px 4px 0 var(--color-accent-soft); }
-html:root body .home-hero { border-radius:24px; background:radial-gradient(ellipse at 90% 20%,#454ea366,transparent 60%),linear-gradient(120deg,#12131f,#20233d); box-shadow:0 28px 55px -28px #11132977; }
+html:root body .home-hero {
+  border-radius:24px;
+  background:
+    linear-gradient(105deg,transparent 0 61%,rgb(255 255 255 / .026) 61% 61.4%,transparent 61.4%),
+    repeating-linear-gradient(90deg,rgb(255 255 255 / .018) 0 1px,transparent 1px 54px),
+    repeating-linear-gradient(0deg,rgb(255 255 255 / .012) 0 1px,transparent 1px 54px),
+    radial-gradient(ellipse at 88% 16%,#5964c955,transparent 42%),
+    radial-gradient(ellipse at 8% 100%,#5a86a724,transparent 36%),
+    linear-gradient(125deg,#11131d 0%,#171a2b 55%,#252846 100%);
+  box-shadow:0 28px 55px -28px #11132977,inset 0 1px rgb(255 255 255 / .05);
+}
 html:root body .home-hero__body { grid-template-columns:minmax(0,1.2fr) minmax(250px,.8fr); gap:clamp(20px,4vw,55px); padding-block:46px; }
 html:root body .home-hero__rule { padding:14px 25px; }
+html:root body .home-hero__promise { white-space:pre-line; }
 html:root body .home-hero__start { border:1px solid #ffffff4d; background:#ffffff0d; border-radius:8px; padding:12px 17px; }
 html:root body .quick-dock { border-top:1px solid #ffffff24; }
 html:root body .quick-dock .quick-dock__link { transition:background 180ms ease; }
