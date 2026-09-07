@@ -1,4 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import { AuditCorrectionService } from './audit-corrections/service.js';
+import { registerAuditCorrectionRoutes } from './audit-corrections/routes.js';
+import type { AuditCorrectionServiceOptions } from './audit-corrections/types.js';
 import { StaffAuthorizationService } from './auth/authorization.js';
 import { DisabledStaffIdentityProvider } from './auth/provider.js';
 import { registerStaffAuthRoutes } from './auth/routes.js';
@@ -28,6 +31,7 @@ export type BuildAppOptions = {
   studentCredentialOptions?: StudentCredentialServiceOptions;
   checkInOptions?: CheckInServiceOptions;
   hallPassOptions?: HallPassServiceOptions;
+  auditCorrectionOptions?: AuditCorrectionServiceOptions;
 };
 
 export function buildApp({
@@ -39,6 +43,7 @@ export function buildApp({
   studentCredentialOptions,
   checkInOptions,
   hallPassOptions,
+  auditCorrectionOptions,
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -53,16 +58,18 @@ export function buildApp({
   const studentCredentials = new StudentCredentialService(database, studentIdentityProvider, studentCredentialOptions ?? {});
   const checkins = new CheckInService(database, checkInOptions ?? {});
   const hallPass = new HallPassService(database, hallPassOptions ?? {});
+  const corrections = new AuditCorrectionService(database, auditCorrectionOptions ?? {});
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
   registerStudentCredentialRoutes(app, studentCredentials);
   registerCheckInRoutes(app, { authentication, authorization, checkins });
   registerHallPassRoutes(app, { hallPass, studentIdentityProvider });
+  registerAuditCorrectionRoutes(app, { authentication, authorization, corrections });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-070',
-    status: 'hall-pass-core',
+    version: 'sw-080',
+    status: 'audit-corrections',
   }));
 
   app.get('/health/live', async () => ({
