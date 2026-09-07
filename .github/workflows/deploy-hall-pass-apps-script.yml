@@ -1,0 +1,95 @@
+name: Deploy Hall Pass Apps Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preflight checks Google access without changing production. Deploy updates the existing Hall Pass deployment.
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - deploy
+      confirmation:
+        description: For deploy only, type exactly DEPLOY HALL PASS
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hall-pass-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: ${{ inputs.mode == 'deploy' && 'Deploy existing Hall Pass web app' || 'Preflight Hall Pass release bridge' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: hall-pass-production
+    steps:
+      - name: Require main and explicit production confirmation
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_NAME}" != "main" ]]; then
+            echo "Production Hall Pass release bridge may run only from main; got ${GITHUB_REF_NAME}." >&2
+            exit 1
+          fi
+          if [[ "${{ inputs.mode }}" == "deploy" && "${{ inputs.confirmation }}" != "DEPLOY HALL PASS" ]]; then
+            echo "Deployment confirmation did not match exactly: DEPLOY HALL PASS" >&2
+            exit 1
+          fi
+
+      - name: Check out exact main commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Use repository Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run canonical GrantDesk release gate
+        run: npm run verify
+
+      - name: Run Apps Script bridge self-test
+        run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
+
+      - name: ${{ inputs.mode == 'deploy' && 'Update existing Apps Script deployment' || 'Verify Apps Script credentials and production identity' }}
+        env:
+          GAS_DEPLOY_MODE: ${{ inputs.mode }}
+          GAS_SCRIPT_ID: ${{ vars.GAS_SCRIPT_ID }}
+          GAS_DEPLOYMENT_ID: ${{ vars.GAS_DEPLOYMENT_ID }}
+          GAS_OAUTH_JSON: ${{ secrets.GAS_OAUTH_JSON }}
+          GAS_EXPECTED_ACCESS: DOMAIN
+          GAS_EXPECTED_EXECUTE_AS: USER_DEPLOYING
+        run: node scripts/deploy-hall-pass-apps-script.mjs
+
+      - name: Write release evidence to job summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f artifacts/hall-pass-apps-script-release.json ]]; then
+            echo '## Hall Pass Apps Script release evidence' >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/hall-pass-apps-script-release.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Preserve release evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hall-pass-apps-script-release-${{ github.run_id }}
+          path: artifacts/hall-pass-apps-script-release.json
+          if-no-files-found: ignore
+          retention-days: 30
