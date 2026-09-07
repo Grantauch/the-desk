@@ -16,6 +16,8 @@ const SOURCE_FILES = [
 ];
 const EXPECTED_REMOTE_NAMES = SOURCE_FILES.map((file) => file.name).sort();
 const API_BASE = 'https://script.googleapis.com/v1';
+const AUDITED_OLD_OVERDUE_COPY = "`${late} ${late === 1 ? 'pass needs' : 'passes need'} a check`";
+const AUDITED_NEW_OVERDUE_COPY = "`${late} overdue ${late === 1 ? 'pass' : 'passes'}`";
 
 function fail(message) {
   throw new Error(message);
@@ -69,6 +71,52 @@ function assertExpectedFileSet(files, label) {
   if (JSON.stringify(names) !== JSON.stringify(EXPECTED_REMOTE_NAMES)) {
     fail(`${label} file set is not the five-file Hall Pass release set. Expected ${EXPECTED_REMOTE_NAMES.join(', ')}; got ${names.join(', ') || '(none)'}. Refusing to overwrite Apps Script.`);
   }
+}
+
+function classifyAuditedHead(headFiles, localFiles) {
+  if (sameContent(headFiles, localFiles)) {
+    return { safe: true, kind: 'REPOSITORY_SOURCE' };
+  }
+
+  const head = canonicalFiles(headFiles);
+  const local = canonicalFiles(localFiles);
+  if (head.length !== local.length) return { safe: false, kind: 'UNKNOWN' };
+
+  let differingFile = null;
+  for (let index = 0; index < head.length; index += 1) {
+    const remote = head[index];
+    const repository = local[index];
+    if (remote.name !== repository.name || remote.type !== repository.type) {
+      return { safe: false, kind: 'UNKNOWN' };
+    }
+    if (remote.source !== repository.source) {
+      if (differingFile) return { safe: false, kind: 'UNKNOWN' };
+      differingFile = { remote, repository };
+    }
+  }
+
+  if (!differingFile || differingFile.remote.name !== 'Index') {
+    return { safe: false, kind: 'UNKNOWN' };
+  }
+
+  const remoteIndex = differingFile.remote.source;
+  const repositoryIndex = differingFile.repository.source;
+  const oldCount = remoteIndex.split(AUDITED_OLD_OVERDUE_COPY).length - 1;
+  const newCount = repositoryIndex.split(AUDITED_NEW_OVERDUE_COPY).length - 1;
+  if (oldCount !== 1 || newCount !== 1) {
+    return { safe: false, kind: 'UNKNOWN' };
+  }
+
+  const reconciled = remoteIndex.replace(AUDITED_OLD_OVERDUE_COPY, AUDITED_NEW_OVERDUE_COPY);
+  if (reconciled !== repositoryIndex) {
+    return { safe: false, kind: 'UNKNOWN' };
+  }
+
+  return {
+    safe: true,
+    kind: 'AUDITED_OVERDUE_COPY_RECONCILIATION',
+    detail: 'Apps Script HEAD matches the tested repository source except for the previously audited overdue-pass wording regression.',
+  };
 }
 
 async function readLocalFiles() {
@@ -199,7 +247,28 @@ async function selfTest() {
   assertExpectedFileSet(local, 'Self-test');
   const manifest = local.find((file) => file.name === 'appsscript');
   JSON.parse(manifest.source);
-  console.log('Hall Pass Apps Script deploy bridge: self-test PASS — five-file release set, manifest JSON, hashing, and normalized source comparison verified.');
+
+  const repositoryClassification = classifyAuditedHead(local, local);
+  if (!repositoryClassification.safe || repositoryClassification.kind !== 'REPOSITORY_SOURCE') {
+    fail('Repository-source editor draft classification self-test failed.');
+  }
+
+  const stagedOldCopy = local.map((file) => file.name === 'Index'
+    ? { ...file, source: file.source.replace(AUDITED_NEW_OVERDUE_COPY, AUDITED_OLD_OVERDUE_COPY) }
+    : { ...file });
+  const auditedClassification = classifyAuditedHead(stagedOldCopy, local);
+  if (!auditedClassification.safe || auditedClassification.kind !== 'AUDITED_OVERDUE_COPY_RECONCILIATION') {
+    fail('Audited overdue-copy editor draft classification self-test failed.');
+  }
+
+  const unknownDraft = local.map((file) => file.name === 'Index'
+    ? { ...file, source: `${file.source}\n<!-- unexpected editor draft -->` }
+    : { ...file });
+  if (classifyAuditedHead(unknownDraft, local).safe) {
+    fail('Unknown editor draft must not pass reconciliation safety classification.');
+  }
+
+  console.log('Hall Pass Apps Script deploy bridge: self-test PASS — five-file release set, manifest JSON, hashing, normalized source comparison, and audited editor-draft reconciliation verified.');
 }
 
 async function main() {
@@ -235,8 +304,14 @@ async function main() {
   const deployedContent = await google(token, `/projects/${encodedScript}/content?versionNumber=${oldVersion}`);
   assertExpectedFileSet(head.files, 'Apps Script HEAD');
   assertExpectedFileSet(deployedContent.files, `Apps Script deployed version ${oldVersion}`);
+
+  let headDisposition = 'DEPLOYED_VERSION';
   if (!sameContent(head.files, deployedContent.files)) {
-    fail('Apps Script HEAD contains an unpublished editor change that differs from the currently deployed version. Refusing to overwrite it. Save/reconcile that draft first.');
+    const classification = classifyAuditedHead(head.files, localFiles);
+    if (!classification.safe) {
+      fail('Apps Script HEAD contains an unpublished editor change that is neither the exact tested repository source nor the specifically audited overdue-copy draft. Refusing to overwrite it.');
+    }
+    headDisposition = classification.kind;
   }
 
   const evidence = {
@@ -247,6 +322,7 @@ async function main() {
     scriptId,
     deploymentId,
     projectTitle: project.title,
+    headDisposition,
     deploymentBefore: {
       versionNumber: oldVersion,
       url: entryBefore.url,
@@ -260,7 +336,12 @@ async function main() {
   await writeEvidence(evidence);
 
   if (mode === 'preflight') {
-    console.log(`Preflight PASS — project ${project.title}; deployment ${deploymentId}; current version ${oldVersion}; URL and domain/execute-as settings preserved; no unpublished editor draft.`);
+    const draftNote = headDisposition === 'DEPLOYED_VERSION'
+      ? 'no unpublished editor draft'
+      : headDisposition === 'REPOSITORY_SOURCE'
+        ? 'editor HEAD already equals the exact tested repository source'
+        : 'the only editor/repository difference is the specifically audited overdue-pass wording regression, which deploy will replace with tested repository source';
+    console.log(`Preflight PASS — project ${project.title}; deployment ${deploymentId}; current version ${oldVersion}; URL and domain/execute-as settings preserved; ${draftNote}.`);
     return;
   }
 
