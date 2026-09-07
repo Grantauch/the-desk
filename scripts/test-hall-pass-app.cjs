@@ -314,7 +314,7 @@ const buildCheckInSheet = (rows) => {
   let readCalls = 0;
   const sheet = {
     getLastRow: () => rows.length + 1,
-    getRange(startRow, startColumn, numRows) {
+    getRange(startRow, _startColumn, numRows) {
       readRows += numRows;
       readCalls += 1;
       return { getValues: () => rows.slice(startRow - 2, startRow - 2 + numRows) };
@@ -356,8 +356,8 @@ this.__api = { readCheckInsForDate_ };
 
 // A large sheet whose day being written sits at the tail must not be fully scanned.
 const largeHistory = [
-  ...Array.from({ length: 4900 }, (unused, index) => checkInRow('2026-05-11', index)),
-  ...Array.from({ length: 100 }, (unused, index) => checkInRow('2026-09-03', index)),
+  ...Array.from({ length: 4900 }, (_unused, index) => checkInRow('2026-05-11', index)),
+  ...Array.from({ length: 100 }, (_unused, index) => checkInRow('2026-09-03', index)),
 ];
 const windowed = runWindowedRead(largeHistory, '2026-09-03');
 assert.equal(windowed.result.length, 100, 'Every row for the requested day must be returned');
@@ -371,20 +371,20 @@ assert.equal(windowed.result.at(-1).row, largeHistory.length + 1);
 
 // A day larger than the first window must widen until it proves it passed an earlier day.
 const busyDay = [
-  ...Array.from({ length: 2000 }, (unused, index) => checkInRow('2026-05-11', index)),
-  ...Array.from({ length: 900 }, (unused, index) => checkInRow('2026-09-03', index)),
+  ...Array.from({ length: 2000 }, (_unused, index) => checkInRow('2026-05-11', index)),
+  ...Array.from({ length: 900 }, (_unused, index) => checkInRow('2026-09-03', index)),
 ];
 const widened = runWindowedRead(busyDay, '2026-09-03');
 assert.equal(widened.result.length, 900, 'Widening must not lose rows from the requested day');
 assert.ok(widened.readCalls > 1, 'A day larger than the first window must trigger a wider read');
 
 // With no earlier day to prove the window is complete, fall back to the whole sheet.
-const singleDay = Array.from({ length: 1500 }, (unused, index) => checkInRow('2026-09-03', index));
+const singleDay = Array.from({ length: 1500 }, (_unused, index) => checkInRow('2026-09-03', index));
 const fallback = runWindowedRead(singleDay, '2026-09-03');
 assert.equal(fallback.result.length, 1500, 'The fallback must read the whole sheet rather than guess');
 
 // A sheet small enough to read whole must behave exactly as before.
-const smallSheet = Array.from({ length: 40 }, (unused, index) => checkInRow('2026-09-03', index));
+const smallSheet = Array.from({ length: 40 }, (_unused, index) => checkInRow('2026-09-03', index));
 const small = runWindowedRead(smallSheet, '2026-09-03');
 assert.equal(small.result.length, 40);
 assert.equal(small.readCalls, 1);
