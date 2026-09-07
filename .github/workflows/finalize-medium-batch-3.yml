@@ -10,32 +10,30 @@ permissions:
 
 jobs:
   patch:
-    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the batch branch
+        uses: actions/checkout@v4
         with:
           ref: maintenance/medium-batch-3-stamp-curiosity
           fetch-depth: 0
-      - name: Apply the lazy-loading and regression contracts
+
+      - name: Apply lazy-loading and regression contracts
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
 
           def replace_once(text, old, new, label):
-              if text.count(old) != 1:
-                  raise SystemExit(f'{label}: expected exactly one match, found {text.count(old)}')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected exactly one match, found {count}')
               return text.replace(old, new, 1)
 
           curiosity_path = Path('src/components/CuriosityDesk.astro')
           curiosity = curiosity_path.read_text(encoding='utf-8')
-          curiosity = replace_once(
-              curiosity,
-              'connecting to the live catalog…',
-              'loading the first live collection…',
-              'initial curiosity status',
-          )
+          curiosity = replace_once(curiosity, 'connecting to the live catalog…', 'loading the first live collection…', 'initial curiosity status')
 
           old_filters = '''      filterButtons.forEach((button) => {
         button.addEventListener('click', async () => {
@@ -146,6 +144,9 @@ jobs:
           test_path.write_text(test, encoding='utf-8')
           PY
 
+      - name: Commit the final batch source
+        shell: bash
+        run: |
           rm .github/workflows/finalize-medium-batch-3.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
