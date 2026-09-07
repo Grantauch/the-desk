@@ -11,21 +11,21 @@ export type ClassroomApprovedScope = (typeof classroomApprovedScopes)[number];
 export type ClassroomCourse = {
   id: string;
   name: string;
-  section?: string;
-  room?: string;
-  ownerId?: string;
+  section?: string | undefined;
+  room?: string | undefined;
+  ownerId?: string | undefined;
   courseState: string;
 };
 
 export type ClassroomPerson = {
   id: string;
   displayName: string;
-  email?: string;
+  email?: string | undefined;
 };
 
 export type ClassroomPage<T> = {
   items: readonly T[];
-  nextPageToken?: string;
+  nextPageToken?: string | undefined;
 };
 
 export type ClassroomConnectionResult = {
@@ -81,7 +81,7 @@ export class ClassroomIntegrationError extends Error {
 
 export type CourseSelection = {
   courseId: string;
-  sectionId?: string;
+  sectionId?: string | undefined;
 };
 
 export type ImportPreview = {
@@ -89,7 +89,7 @@ export type ImportPreview = {
   courses: Array<{
     courseId: string;
     courseName: string;
-    sectionId?: string;
+    sectionId?: string | undefined;
     rosterCount: number;
     teacherCount: number;
     existingMatches: number;
@@ -117,7 +117,7 @@ export type SyncRunSummary = {
   deactivations: number;
   pendingRemovals: number;
   reviewsRequired: number;
-  errorCategory?: string;
+  errorCategory?: string | undefined;
 };
 
 export type ClassroomServicePrincipal = Pick<StaffPrincipal, 'userId' | 'organizationId'>;
