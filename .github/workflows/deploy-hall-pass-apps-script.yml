@@ -15,9 +15,12 @@ on:
         description: For deploy only, type exactly DEPLOY HALL PASS
         required: false
         type: string
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: hall-pass-production-deployment
@@ -25,28 +28,52 @@ concurrency:
 
 jobs:
   deploy:
-    name: ${{ inputs.mode == 'deploy' && 'Deploy existing Hall Pass web app' || 'Preflight Hall Pass release bridge' }}
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.actor == 'Grantauch' &&
+       github.event.issue.number == 28 &&
+       (github.event.comment.body == '/preflight-hall-pass' || github.event.comment.body == '/deploy-hall-pass'))
+    name: Hall Pass production release bridge
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: hall-pass-production
     steps:
-      - name: Require main and explicit production confirmation
+      - name: Resolve authorized release mode
+        id: release
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_CONFIRMATION: ${{ inputs.confirmation }}
         run: |
           set -euo pipefail
-          if [[ "${GITHUB_REF_NAME}" != "main" ]]; then
-            echo "Production Hall Pass release bridge may run only from main; got ${GITHUB_REF_NAME}." >&2
-            exit 1
+          if [[ "$EVENT_NAME" == "issue_comment" ]]; then
+            case "$COMMENT_BODY" in
+              /preflight-hall-pass) mode="preflight" ;;
+              /deploy-hall-pass) mode="deploy" ;;
+              *) echo "Unsupported release-control command." >&2; exit 1 ;;
+            esac
+          else
+            if [[ "$REF_NAME" != "main" ]]; then
+              echo "Manual production release bridge may run only from main; got $REF_NAME." >&2
+              exit 1
+            fi
+            mode="$INPUT_MODE"
+            if [[ "$mode" == "deploy" && "$INPUT_CONFIRMATION" != "DEPLOY HALL PASS" ]]; then
+              echo "Deployment confirmation did not match exactly: DEPLOY HALL PASS" >&2
+              exit 1
+            fi
           fi
-          if [[ "${{ inputs.mode }}" == "deploy" && "${{ inputs.confirmation }}" != "DEPLOY HALL PASS" ]]; then
-            echo "Deployment confirmation did not match exactly: DEPLOY HALL PASS" >&2
-            exit 1
-          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Resolved Hall Pass release mode: $mode"
 
-      - name: Check out exact main commit
+      - name: Check out current main
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: main
           fetch-depth: 1
 
       - name: Use repository Node version
@@ -64,9 +91,9 @@ jobs:
       - name: Run Apps Script bridge self-test
         run: node scripts/deploy-hall-pass-apps-script.mjs --self-test
 
-      - name: ${{ inputs.mode == 'deploy' && 'Update existing Apps Script deployment' || 'Verify Apps Script credentials and production identity' }}
+      - name: ${{ steps.release.outputs.mode == 'deploy' && 'Update existing Apps Script deployment' || 'Verify Apps Script credentials and production identity' }}
         env:
-          GAS_DEPLOY_MODE: ${{ inputs.mode }}
+          GAS_DEPLOY_MODE: ${{ steps.release.outputs.mode }}
           GAS_SCRIPT_ID: ${{ vars.GAS_SCRIPT_ID }}
           GAS_DEPLOYMENT_ID: ${{ vars.GAS_DEPLOYMENT_ID }}
           GAS_OAUTH_JSON: ${{ secrets.GAS_OAUTH_JSON }}
@@ -93,3 +120,25 @@ jobs:
           path: artifacts/hall-pass-apps-script-release.json
           if-no-files-found: ignore
           retention-days: 30
+
+      - name: Report result back to release-control issue
+        if: always() && github.event_name == 'issue_comment'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+          RELEASE_MODE: ${{ steps.release.outputs.mode }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "$JOB_STATUS" == "success" ]]; then
+            if [[ -f artifacts/hall-pass-apps-script-release.json ]]; then
+              release_status=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('artifacts/hall-pass-apps-script-release.json','utf8')); process.stdout.write(String(x.status||'SUCCESS'));" )
+              version=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('artifacts/hall-pass-apps-script-release.json','utf8')); process.stdout.write(String(x.deploymentAfter?.versionNumber||x.deploymentBefore?.versionNumber||''));" )
+            else
+              release_status="SUCCESS"
+              version=""
+            fi
+            gh issue comment 28 --repo "$GITHUB_REPOSITORY" --body "Hall Pass release bridge **${RELEASE_MODE}** completed successfully: **${release_status}**${version:+ — Apps Script version ${version}}. [Open workflow run](${RUN_URL})"
+          else
+            gh issue comment 28 --repo "$GITHUB_REPOSITORY" --body "Hall Pass release bridge **${RELEASE_MODE:-unknown}** failed or was stopped. Production safety checks refuse partial/unsafe releases and the bridge attempts rollback after mutations. [Open workflow run](${RUN_URL})"
+          fi
