@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import AxeBuilder from '@axe-core/playwright';
 import { chromium } from 'playwright';
 
 const port = 4391;
@@ -127,14 +129,27 @@ try {
   );
   pass(focusOkay, 'timer fullscreen control is available when the browser supports it');
 
+  const toolsContrast = await new AxeBuilder({ page })
+    .include('.tools-jump')
+    .withRules(['color-contrast'])
+    .analyze();
+  pass(toolsContrast.violations.length === 0, 'tools jump menu passes contrast scan');
+
   await page.goto(`${origin}/us-history/`, { waitUntil: 'domcontentloaded' });
   const featuredMedia = page.locator('.featured-media');
   const mediaOkay = await featuredMedia.count() === 1 && (await featuredMedia.locator('h2').textContent())?.trim().length > 0;
   pass(mediaOkay, 'featured U.S. History media renders with a labelled heading');
 
+  const hiddenHistorySource = (await readFile(new URL('../src/pages/hidden-history.astro', import.meta.url), 'utf8')).toLowerCase();
+  pass(
+    hiddenHistorySource.includes('the four verdicts — confirmed, debunked, misleading, unproven')
+      && !hiddenHistorySource.includes('verdict: it’s complicated'),
+    'Hidden History uses one Four Verdicts vocabulary',
+  );
+
   await context.close();
 
-  if (checks !== 38) throw new Error(`Expected 38 browser checks, ran ${checks}.`);
+  if (checks !== 40) throw new Error(`Expected 40 browser checks, ran ${checks}.`);
   console.log(`Browser UI: PASS — ${checks} checks across two phone sizes and desktop.`);
 } finally {
   if (browser) await browser.close();
