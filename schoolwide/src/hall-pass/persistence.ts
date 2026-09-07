@@ -114,6 +114,24 @@ export async function writePassEvidence(
     ],
   );
   await executor.query(
+    `INSERT INTO pass_events
+       (organization_id, school_id, event_type, resource_type, resource_id, student_id,
+        actor_kind, actor_user_id, actor_student_id, correlation_id, metadata_json_sanitized)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8, $9, $10::jsonb)`,
+    [
+      input.organizationId,
+      input.schoolId,
+      input.eventType,
+      input.targetType,
+      input.targetId,
+      input.studentId,
+      actorKind,
+      actorKind === 'STUDENT' ? input.studentId : null,
+      input.correlationId,
+      JSON.stringify(input.metadata),
+    ],
+  );
+  await executor.query(
     `INSERT INTO transactional_outbox
        (organization_id, school_id, topic, event_type, aggregate_type, aggregate_id,
         correlation_id, payload_json_sanitized)
