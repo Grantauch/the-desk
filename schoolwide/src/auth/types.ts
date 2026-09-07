@@ -16,6 +16,8 @@ export const capabilityValues = [
   'teacher.classroom.sync',
   'security.live.read',
   'security.student.lookup_live',
+  'security.pass.mark_located',
+  'security.pass.request_return',
   'security.destination.read',
   'admin.school.read_all_operational',
   'admin.staff.roles.manage',
