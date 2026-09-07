@@ -18,6 +18,8 @@ const EXPECTED_REMOTE_NAMES = SOURCE_FILES.map((file) => file.name).sort();
 const API_BASE = 'https://script.googleapis.com/v1';
 const AUDITED_OLD_OVERDUE_COPY = "`${late} ${late === 1 ? 'pass needs' : 'passes need'} a check`";
 const AUDITED_NEW_OVERDUE_COPY = "`${late} overdue ${late === 1 ? 'pass' : 'passes'}`";
+const AUDITED_REPOSITORY_FILTER_SEPARATOR = "      };\n\n      const filterPassCounts = (term) => {";
+const AUDITED_HEAD_FILTER_SEPARATOR = "      };\n      const filterPassCounts = (term) => {";
 
 function fail(message) {
   throw new Error(message);
@@ -107,15 +109,23 @@ function classifyAuditedHead(headFiles, localFiles) {
     return { safe: false, kind: 'UNKNOWN' };
   }
 
-  const reconciled = remoteIndex.replace(AUDITED_OLD_OVERDUE_COPY, AUDITED_NEW_OVERDUE_COPY);
+  let reconciled = remoteIndex.replace(AUDITED_OLD_OVERDUE_COPY, AUDITED_NEW_OVERDUE_COPY);
+  if (reconciled !== repositoryIndex) {
+    const headSeparatorCount = reconciled.split(AUDITED_HEAD_FILTER_SEPARATOR).length - 1;
+    const repositorySeparatorCount = repositoryIndex.split(AUDITED_REPOSITORY_FILTER_SEPARATOR).length - 1;
+    if (headSeparatorCount !== 1 || repositorySeparatorCount !== 1) {
+      return { safe: false, kind: 'UNKNOWN' };
+    }
+    reconciled = reconciled.replace(AUDITED_HEAD_FILTER_SEPARATOR, AUDITED_REPOSITORY_FILTER_SEPARATOR);
+  }
   if (reconciled !== repositoryIndex) {
     return { safe: false, kind: 'UNKNOWN' };
   }
 
   return {
     safe: true,
-    kind: 'AUDITED_OVERDUE_COPY_RECONCILIATION',
-    detail: 'Apps Script HEAD matches the tested repository source except for the previously audited overdue-pass wording regression.',
+    kind: 'AUDITED_EDITOR_DRAFT_RECONCILIATION',
+    detail: 'Apps Script HEAD matches the tested repository source after only the previously audited overdue-pass wording correction and, when present, the exact known formatting-only blank-line restoration.',
   };
 }
 
@@ -257,8 +267,21 @@ async function selfTest() {
     ? { ...file, source: file.source.replace(AUDITED_NEW_OVERDUE_COPY, AUDITED_OLD_OVERDUE_COPY) }
     : { ...file });
   const auditedClassification = classifyAuditedHead(stagedOldCopy, local);
-  if (!auditedClassification.safe || auditedClassification.kind !== 'AUDITED_OVERDUE_COPY_RECONCILIATION') {
+  if (!auditedClassification.safe || auditedClassification.kind !== 'AUDITED_EDITOR_DRAFT_RECONCILIATION') {
     fail('Audited overdue-copy editor draft classification self-test failed.');
+  }
+
+  const stagedOldCopyAndWhitespace = local.map((file) => file.name === 'Index'
+    ? {
+        ...file,
+        source: file.source
+          .replace(AUDITED_NEW_OVERDUE_COPY, AUDITED_OLD_OVERDUE_COPY)
+          .replace(AUDITED_REPOSITORY_FILTER_SEPARATOR, AUDITED_HEAD_FILTER_SEPARATOR),
+      }
+    : { ...file });
+  const auditedWhitespaceClassification = classifyAuditedHead(stagedOldCopyAndWhitespace, local);
+  if (!auditedWhitespaceClassification.safe || auditedWhitespaceClassification.kind !== 'AUDITED_EDITOR_DRAFT_RECONCILIATION') {
+    fail('Audited overdue-copy plus exact whitespace editor draft classification self-test failed.');
   }
 
   const unknownDraft = local.map((file) => file.name === 'Index'
@@ -309,7 +332,7 @@ async function main() {
   if (!sameContent(head.files, deployedContent.files)) {
     const classification = classifyAuditedHead(head.files, localFiles);
     if (!classification.safe) {
-      fail('Apps Script HEAD contains an unpublished editor change that is neither the exact tested repository source nor the specifically audited overdue-copy draft. Refusing to overwrite it.');
+      fail('Apps Script HEAD contains an unpublished editor change that is neither the exact tested repository source nor the specifically audited UI draft. Refusing to overwrite it.');
     }
     headDisposition = classification.kind;
   }
@@ -340,7 +363,7 @@ async function main() {
       ? 'no unpublished editor draft'
       : headDisposition === 'REPOSITORY_SOURCE'
         ? 'editor HEAD already equals the exact tested repository source'
-        : 'the only editor/repository difference is the specifically audited overdue-pass wording regression, which deploy will replace with tested repository source';
+        : 'the editor/repository differences are limited to the specifically audited overdue-pass wording regression and known formatting-only blank line, which deploy will replace with tested repository source';
     console.log(`Preflight PASS — project ${project.title}; deployment ${deploymentId}; current version ${oldVersion}; URL and domain/execute-as settings preserved; ${draftNote}.`);
     return;
   }
