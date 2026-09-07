@@ -43,7 +43,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all eight ordered migrations are recorded', async () => {
+    await t.test('all nine ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>(
         'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
       );
@@ -55,7 +55,8 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         '005_policy_actor_tenant_integrity.sql',
         '006_staff_sessions.sql',
         '007_student_credentials_action_proofs.sql',
-        '008_checkins.sql'
+        '008_checkins.sql',
+        '009_hall_pass_core.sql'
       ]);
     });
 
@@ -340,7 +341,10 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         'audit_events_school_time_idx',
         'transactional_outbox_pending_idx',
         'checkins_section_date_idx',
-        'checkins_student_date_idx'
+        'checkins_student_date_idx',
+        'pass_requests_section_status_idx',
+        'queue_entries_fifo_idx',
+        'passes_section_status_idx'
       ];
       const result = await pool.query<{ indexname: string }>(
         `SELECT indexname FROM pg_indexes
