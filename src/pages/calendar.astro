@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { classroomCalendarHighlights } from '../data/classroom-state';
 
 type CourseKey = 'hidden' | 'scoreboard' | 'history' | 'all';
 
@@ -12,8 +13,7 @@ interface Milestone {
 }
 
 const milestones: Milestone[] = [
-  { month: 'september', when: 'first week', course: 'hidden', title: 'the roswell headline reveal', detail: 'Your first verdict of the year—and an exit ticket worth hanging onto until June.' },
-  { month: 'september', when: 'first week', course: 'scoreboard', title: 'inventing american sport', detail: 'Factories, leagues, the color line, and the system behind the score.' },
+  ...classroomCalendarHighlights,
   { month: 'october', when: 'around week 6', course: 'hidden', title: 'unit 2 test', detail: 'Follow the evidence.' },
   { month: 'october', when: 'around week 6', course: 'scoreboard', title: 'unit 2 test', detail: 'The national stage.' },
   { month: 'november', when: 'around week 12', course: 'hidden', title: 'myth stations', detail: 'Three claims. Three tables. Decide what survives the evidence.' },

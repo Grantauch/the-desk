@@ -1,5 +1,5 @@
 import { getUser, verifyRequestOrigin } from '@netlify/identity';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 
 const REPOSITORY = process.env.EDITOR_REPOSITORY || 'Grantauch/the-desk';
 const BRANCH = process.env.EDITOR_BRANCH || 'main';
@@ -97,9 +97,9 @@ const githubRequest = async (token, path, options = {}) => {
   return payload;
 };
 
-const readRepositoryFile = async (token, path, allowMissing = false) => {
+const readRepositoryFile = async (token, path, allowMissing = false, ref = BRANCH) => {
   const payload = await githubRequest(token, path, {
-    query: `?ref=${encodeURIComponent(BRANCH)}`,
+    query: `?ref=${encodeURIComponent(ref)}`,
     allowMissing,
   });
   if (!payload) return null;
@@ -112,15 +112,55 @@ const readRepositoryFile = async (token, path, allowMissing = false) => {
   };
 };
 
-const writeRepositoryFile = async (token, path, text, message, sha) => githubRequest(token, path, {
+const writeRepositoryFile = async (token, path, text, message, sha, branch = BRANCH) => githubRequest(token, path, {
   method: 'PUT',
   body: {
-    branch: BRANCH,
+    branch,
     message,
     content: Buffer.from(text, 'utf8').toString('base64'),
     ...(sha ? { sha } : {}),
   },
 });
+
+const githubRepositoryRequest = async (token, path, options = {}) => {
+  const response = await fetch(`https://api.github.com/repos/${REPOSITORY}/${path}`, {
+    method: options.method || 'GET',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json; charset=utf-8',
+      'User-Agent': 'GrantDesk-site-editor/1.0',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+    signal: AbortSignal.timeout(12_000),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = response.status === 401 || response.status === 403
+      ? 'The private publishing connection cannot create a review branch. Its access key may need to be renewed.'
+      : 'GitHub could not prepare that review right now. Nothing was published.';
+    throw new EditorError(message, response.status === 409 || response.status === 422 ? 409 : 502, 'REVIEW_FAILED');
+  }
+  return payload;
+};
+
+const createReviewBranch = async (token, purpose) => {
+  const base = await githubRepositoryRequest(token, `git/ref/heads/${encodeURIComponent(BRANCH)}`);
+  const baseSha = base?.object?.sha;
+  if (!/^[0-9a-f]{40}$/.test(baseSha || '')) {
+    throw new EditorError('GitHub could not identify the current live revision.', 502, 'REVIEW_FAILED');
+  }
+  const branch = `editor/review-${purpose}-${Date.now()}-${randomBytes(3).toString('hex')}`;
+  await githubRepositoryRequest(token, 'git/refs', {
+    method: 'POST',
+    body: { ref: `refs/heads/${branch}`, sha: baseSha },
+  });
+  return branch;
+};
+
+const reviewUrlFor = (branch) =>
+  `https://github.com/${REPOSITORY}/compare/${encodeURIComponent(BRANCH)}...${encodeURIComponent(branch)}?expand=1`;
 
 const isPlainObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
@@ -207,27 +247,31 @@ const saveContent = async (token, candidate) => {
 
   const clean = validateContent(template, candidate);
   validateLinks(clean);
+  const reviewBranch = await createReviewBranch(token, 'site-words');
   const result = await writeRepositoryFile(
     token,
     CONTENT_PATH,
     `${JSON.stringify(clean, null, 2)}\n`,
-    'update site words from the desk editor',
+    'review site words from the desk editor',
     currentFile.sha,
+    reviewBranch,
   );
 
   return {
     content: clean,
     commitUrl: result.commit?.html_url,
-    message: 'Saved to the site. The rebuild usually takes a minute or two. Reload the page to confirm the new words are showing.',
+    branch: reviewBranch,
+    reviewUrl: reviewUrlFor(reviewBranch),
+    message: 'Saved for review. This is not live yet; open the review link and merge it after the checks pass.',
   };
 };
 
-const findAnnouncementPath = async (token, date, title) => {
+const findAnnouncementPath = async (token, date, title, ref = BRANCH) => {
   const stem = `${date}-${slugify(title)}`;
   for (let version = 1; version <= 20; version += 1) {
     const suffix = version === 1 ? '' : `-${version}`;
     const path = `${ANNOUNCEMENTS_PATH}/${stem}${suffix}.md`;
-    const existing = await readRepositoryFile(token, path, true);
+    const existing = await readRepositoryFile(token, path, true, ref);
     if (!existing) return path;
   }
   throw new EditorError('There are too many announcements with that exact title and date. Change one of them slightly.');
@@ -247,7 +291,8 @@ const publishAnnouncement = async (token, candidate) => {
     throw new EditorError('That announcement includes web code the editor cannot publish.');
   }
 
-  const path = await findAnnouncementPath(token, date, title);
+  const reviewBranch = await createReviewBranch(token, 'announcement');
+  const path = await findAnnouncementPath(token, date, title, reviewBranch);
   const markdown = [
     '---',
     `title: ${JSON.stringify(title)}`,
@@ -262,12 +307,16 @@ const publishAnnouncement = async (token, candidate) => {
     token,
     path,
     markdown,
-    `post announcement: ${title.slice(0, 72)}`,
+    `review announcement: ${title.slice(0, 72)}`,
+    undefined,
+    reviewBranch,
   );
 
   return {
     commitUrl: result.commit?.html_url,
-    message: 'Announcement published. It should appear on the homepage in a minute or two.',
+    branch: reviewBranch,
+    reviewUrl: reviewUrlFor(reviewBranch),
+    message: 'Announcement saved for review. It is not live until the review is merged and the site deploy finishes.',
   };
 };
 

@@ -1,6 +1,7 @@
 ---
 // Shared template for the three active course pages.
 import Base from '../layouts/Base.astro';
+import { currentUnitFor } from '../data/classroom-state';
 import { learningCourses } from '../data/learningHubs';
 import resourceLibrary from '../data/resources.json';
 import unitMaterialAssignments from '../data/unit-materials.json';
@@ -86,7 +87,7 @@ const catalog = resourceLibrary.resources as CatalogResource[];
 const catalogById = new Map(catalog.map((resource) => [resource.id, resource]));
 const courseAssignments = unitMaterialAssignments.courses[libraryCourse] as Record<string, string[]>;
 const learningCourse = learningCourses.find((course) => course.title === libraryCourse);
-const resolvedUnits = units.map((unit, index) => {
+const resolvedUnitsBase = units.map((unit, index) => {
   const assignedMaterials = (courseAssignments?.[unit.name] ?? [])
     .map((id) => catalogById.get(id))
     .filter(
@@ -123,6 +124,11 @@ const resolvedUnits = units.map((unit, index) => {
   };
 });
 
+const currentUnitName = currentUnitFor(libraryCourse, resolvedUnitsBase.map((unit) => unit.name));
+const resolvedUnits = resolvedUnitsBase.map((unit) => ({
+  ...unit,
+  current: unit.name === currentUnitName,
+}));
 const currentIndex = resolvedUnits.findIndex((unit) => unit.current);
 const currentUnit = currentIndex >= 0 ? resolvedUnits[currentIndex] : undefined;
 const hasHero = Astro.slots.has('hero');
