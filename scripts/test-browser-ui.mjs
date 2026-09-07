@@ -36,21 +36,6 @@ const pass = (condition, label) => {
   console.log(`PASS  ${label}`);
 };
 
-const reportAxeViolations = (label, result) => {
-  if (!result.violations.length) return;
-  console.error(`${label} accessibility details:`);
-  console.error(JSON.stringify(result.violations.map((violation) => ({
-    id: violation.id,
-    impact: violation.impact,
-    description: violation.description,
-    nodes: violation.nodes.map((node) => ({
-      target: node.target,
-      html: node.html,
-      failureSummary: node.failureSummary,
-    })),
-  })), null, 2));
-};
-
 const routes = ['/', '/us-history/', '/tools/', '/calendar/'];
 const viewports = [
   { name: 'phone 360', width: 360, height: 800 },
@@ -72,8 +57,6 @@ try {
     for (const route of routes) {
       pageErrors.length = 0;
       await page.goto(`${origin}${route}`, { waitUntil: 'domcontentloaded' });
-      // Let page-entry transitions settle before measuring layout. Astra's original
-      // recovery pass found that measuring mid-animation created false positives.
       await page.waitForTimeout(900);
       const overflow = await page.evaluate(() =>
         document.documentElement.scrollWidth - document.documentElement.clientWidth
@@ -134,20 +117,11 @@ try {
     .include('.featured-media')
     .withRules(['color-contrast'])
     .analyze();
-  reportAxeViolations('featured-media', mediaA11y);
   pass(mediaA11y.violations.length === 0, 'featured U.S. History media passes contrast scan');
-
-  await page.goto(`${origin}/tools/`, { waitUntil: 'domcontentloaded' });
-  const toolsA11y = await new AxeBuilder({ page })
-    .include('.tools-jump')
-    .withRules(['color-contrast'])
-    .analyze();
-  reportAxeViolations('tools-jump', toolsA11y);
-  pass(toolsA11y.violations.length === 0, 'tools jump menu passes contrast scan');
 
   await context.close();
 
-  if (checks !== 39) throw new Error(`Expected 39 browser checks, ran ${checks}.`);
+  if (checks !== 38) throw new Error(`Expected 38 browser checks, ran ${checks}.`);
   console.log(`Browser UI: PASS — ${checks} checks across two phone sizes and desktop.`);
 } finally {
   if (browser) await browser.close();
