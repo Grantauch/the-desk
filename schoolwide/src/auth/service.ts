@@ -82,9 +82,11 @@ export class StaffAuthenticationService {
       [identity.subject],
     );
 
-    if (users.length !== 1) throw new AuthenticationError('Verified staff identity is not active in Schoolwide.');
-
     const user = users[0];
+    if (users.length !== 1 || !user) {
+      throw new AuthenticationError('Verified staff identity is not active in Schoolwide.');
+    }
+
     const token = createOpaqueSessionToken();
     const tokenHash = hashOpaqueSessionToken(token);
     const expiresAt = new Date(Date.now() + this.#sessionTtlMs);
@@ -138,8 +140,10 @@ export class StaffAuthenticationService {
       [tokenHash],
     );
 
-    if (sessions.length !== 1) throw new AuthenticationError('Staff session is invalid or expired.');
     const session = sessions[0];
+    if (sessions.length !== 1 || !session) {
+      throw new AuthenticationError('Staff session is invalid or expired.');
+    }
 
     const roleRows = await this.#database.query<RoleRow>(
       `SELECT ur.school_id, ur.role
