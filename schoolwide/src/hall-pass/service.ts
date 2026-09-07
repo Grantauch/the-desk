@@ -13,6 +13,7 @@ const DEFAULT_IDEMPOTENCY_TTL_MS = 24 * 60 * 60_000;
 const MIN_COUNTABLE_DURATION_MS = 3_000;
 const REQUEST_OPERATION = 'STUDENT_PASS_REQUEST';
 const RETURN_OPERATION = 'STUDENT_PASS_RETURN';
+const TEACHER_RETURN_OPERATION = 'TEACHER_PASS_RETURN';
 const CANCEL_OPERATION = 'STUDENT_PASS_QUEUE_CANCEL';
 
 type ResolvedContext = SchedulePolicyContext & { session: ResolvedSession; policy: ResolvedPolicy };
@@ -195,6 +196,62 @@ export class HallPassService {
       await writePassEvidence(transaction, { organizationId: proof.organization_id, schoolId: proof.school_id, studentId: proof.student_id, action: 'PASS_RETURNED', targetType: 'PASS', targetId: pass.id, correlationId: input.correlationId, metadata: { sectionId: pass.section_id, durationMs, countability, authorizationMethod: 'STUDENT_PIN_PROOF' }, eventType: 'PASS_RETURNED', aggregateType: 'PASS', aggregateId: pass.id, payload: { passId: pass.id, studentId: proof.student_id, sectionId: pass.section_id, returnedAt: at.toISOString(), durationMs, countability } });
       const promotedRequestId = await this.#settleQueue(transaction, proof.organization_id, proof.school_id, pass.section_id, at, input.correlationId);
       const response: PassReturnResult = { passId: pass.id, status: 'RETURNED', studentId: proof.student_id, sectionId: pass.section_id, returnedAt: at.toISOString(), durationMs, countability, counted, message: counted ? 'Pass returned.' : 'Pass returned. This pass did not count because it was under 3.0 seconds.', promotedRequestId };
+      await completeIdempotent(transaction, idempotency.id, response, at, 200); return response;
+    });
+  }
+
+  async teacherReturnPass(input: { actorUserId: string; passId: string; sectionId: string; reasonPrivate: string; idempotencyKey: string; correlationId: string }): Promise<PassReturnResult> {
+    const database = this.#transactionalDatabase(); const at = this.#now();
+    return database.transaction(async (transaction) => {
+      const rows = await transaction.query<PassRow>(`SELECT * FROM passes WHERE id=$1 AND section_id=$2 FOR UPDATE`, [input.passId, input.sectionId]);
+      const pass = rows[0]; if (!pass) throw new HallPassError('ACTIVE_PASS_NOT_FOUND', 'No active pass is available in this section.', 404);
+      const idempotency = await startIdempotent(transaction, {
+        organizationId: pass.organization_id, schoolId: pass.school_id, key: input.idempotencyKey, operation: TEACHER_RETURN_OPERATION,
+        fingerprint: hashOpaqueValue(`${TEACHER_RETURN_OPERATION}\u0000${input.passId}\u0000${input.sectionId}\u0000${input.actorUserId}\u0000${input.reasonPrivate}`),
+        correlationId: input.correlationId, at, ttlMs: this.#idempotencyTtlMs, validateResponse: isPassReturnResult,
+      });
+      if (idempotency.kind === 'COMPLETED') return idempotency.response;
+      if (pass.status !== 'OUT') throw new HallPassError('ACTIVE_PASS_NOT_FOUND', 'That pass is no longer active.', 409);
+      const schoolRows = await transaction.query<{ timezone: string } & QueryResultRow>(`SELECT timezone FROM schools WHERE id=$1 AND status='ACTIVE'`, [pass.school_id]);
+      const school = schoolRows[0]; if (!school) throw new HallPassError('PASS_SERVICE_UNAVAILABLE', 'School context is unavailable.', 503, true);
+      const academicDate = academicDateAt(at, school.timezone);
+      if (academicDateAt(pass.started_at, school.timezone) !== academicDate) {
+        await this.#rollOverStalePasses(transaction, pass.organization_id, pass.school_id, school.timezone, academicDate, at, input.correlationId);
+        throw new HallPassError('ACTIVE_PASS_NOT_FOUND', 'That pass belongs to a prior school day and was rolled over.', 409);
+      }
+      await lockSection(transaction, pass.school_id, pass.section_id);
+      const durationMs = Math.max(0, at.getTime() - pass.started_at.getTime()); const counted = durationMs >= MIN_COUNTABLE_DURATION_MS; const countability = counted ? 'COUNTABLE' : 'NON_COUNTABLE';
+      const classificationReason = counted ? 'Duration met the 3.0-second countability boundary.' : 'Duration was under the 3.0-second countability boundary.';
+      await transaction.query(
+        `UPDATE passes SET returned_at=$2::timestamptz,status='RETURNED',countability=$3,countability_reason=$4,classified_at=$2::timestamptz,duration_ms=$5,
+                authorization_method_return='TEACHER_STAFF_ACTION',return_action_proof_id=NULL,return_actor_user_id=$6,return_request_id=$7,updated_at=$2::timestamptz
+          WHERE id=$1 AND status='OUT'`,
+        [pass.id, at.toISOString(), countability, classificationReason, durationMs, input.actorUserId, input.correlationId],
+      );
+      const metadata = { sectionId: pass.section_id, durationMs, countability, authorizationMethod: 'TEACHER_STAFF_ACTION' };
+      const staffActions = await transaction.query<{ id: string } & QueryResultRow>(
+        `INSERT INTO staff_actions (organization_id,school_id,actor_user_id,action_type,student_id,section_id,pass_id,restrictions_bypassed_json,reason_private,occurred_at,correlation_id)
+         VALUES ($1,$2,$3,'TEACHER_PASS_RETURN',$4,$5,$6,'[]'::jsonb,$7,$8::timestamptz,$9) RETURNING id`,
+        [pass.organization_id, pass.school_id, input.actorUserId, pass.student_id, pass.section_id, pass.id, input.reasonPrivate, at.toISOString(), input.correlationId],
+      );
+      const staffAction = staffActions[0]; if (!staffAction) throw new Error('Teacher pass return evidence insert failed.');
+      await transaction.query(
+        `INSERT INTO audit_events (organization_id,school_id,actor_user_id,actor_student_id,actor_kind,action,target_type,target_id,request_id,correlation_id,source,reason,metadata)
+         VALUES ($1,$2,$3,NULL,'USER','PASS_RETURNED_BY_TEACHER','PASS',$4,$5,$5,'APPLICATION',$6,$7::jsonb)`,
+        [pass.organization_id, pass.school_id, input.actorUserId, pass.id, input.correlationId, input.reasonPrivate, JSON.stringify({ ...metadata, staffActionId: staffAction.id })],
+      );
+      await transaction.query(
+        `INSERT INTO pass_events (organization_id,school_id,event_type,resource_type,resource_id,student_id,actor_kind,actor_user_id,occurred_at,correlation_id,metadata_json_sanitized)
+         VALUES ($1,$2,'PASS_RETURNED_BY_TEACHER','PASS',$3,$4,'USER',$5,$6::timestamptz,$7,$8::jsonb)`,
+        [pass.organization_id, pass.school_id, pass.id, pass.student_id, input.actorUserId, at.toISOString(), input.correlationId, JSON.stringify({ ...metadata, staffActionId: staffAction.id })],
+      );
+      await transaction.query(
+        `INSERT INTO transactional_outbox (organization_id,school_id,topic,event_type,aggregate_type,aggregate_id,correlation_id,payload_json_sanitized)
+         VALUES ($1,$2,'schoolwide.passes','PASS_RETURNED_BY_TEACHER','PASS',$3,$4,$5::jsonb)`,
+        [pass.organization_id, pass.school_id, pass.id, input.correlationId, JSON.stringify({ passId: pass.id, studentId: pass.student_id, sectionId: pass.section_id, returnedAt: at.toISOString(), durationMs, countability })],
+      );
+      const promotedRequestId = await this.#settleQueue(transaction, pass.organization_id, pass.school_id, pass.section_id, at, input.correlationId);
+      const response: PassReturnResult = { passId: pass.id, status: 'RETURNED', studentId: pass.student_id, sectionId: pass.section_id, returnedAt: at.toISOString(), durationMs, countability, counted, message: counted ? 'Pass returned by teacher.' : 'Pass returned by teacher. This pass did not count because it was under 3.0 seconds.', promotedRequestId };
       await completeIdempotent(transaction, idempotency.id, response, at, 200); return response;
     });
   }
