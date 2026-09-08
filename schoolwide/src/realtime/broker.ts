@@ -11,9 +11,25 @@ export function realtimeLaneKey(lane: RealtimeLane): string {
 
 export class InProcessRealtimeBroker implements RealtimeBroker {
   readonly #listeners = new Map<string, Set<RealtimeListener>>();
+  readonly #recentEventIds = new Map<string, string[]>();
+  readonly #recentLimit: number;
+
+  constructor(recentLimit = 256) {
+    if (!Number.isInteger(recentLimit) || recentLimit < 16 || recentLimit > 4096) {
+      throw new Error('Realtime broker recent-event limit is invalid.');
+    }
+    this.#recentLimit = recentLimit;
+  }
 
   async publish(event: RealtimeEnvelope): Promise<void> {
-    const listeners = this.#listeners.get(realtimeLaneKey(event.lane));
+    const key = realtimeLaneKey(event.lane);
+    const recent = this.#recentEventIds.get(key) ?? [];
+    if (recent.includes(event.id)) return;
+    recent.push(event.id);
+    if (recent.length > this.#recentLimit) recent.splice(0, recent.length - this.#recentLimit);
+    this.#recentEventIds.set(key, recent);
+
+    const listeners = this.#listeners.get(key);
     if (!listeners) return;
     for (const listener of [...listeners]) listener(event);
   }
