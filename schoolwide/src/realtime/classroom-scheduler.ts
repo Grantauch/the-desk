@@ -90,13 +90,27 @@ export class ClassroomScheduledSyncWorker {
       }
 
       const finishedAt = this.#now();
-      const status = failed === 0 ? 'SUCCESS' : (succeeded > 0 || skippedUnauthorized > 0 ? 'PARTIAL' : 'FAILED');
+      const status = failed === 0 && skippedUnauthorized === 0
+        ? 'SUCCESS'
+        : (succeeded > 0 || skippedUnauthorized > 0 ? 'PARTIAL' : 'FAILED');
+      const errorCategory = failed > 0
+        ? 'CLASSROOM_SCHEDULED_SYNC_FAILED'
+        : (skippedUnauthorized > 0 ? 'CLASSROOM_SYNC_AUTHORITY_SKIPPED' : null);
       await this.#database.query(
         `UPDATE operations_job_runs
             SET status=$2,items_claimed=$3,items_succeeded=$4,items_failed=$5,finished_at=$6::timestamptz,
                 error_category=$7,error_summary_sanitized=$8
           WHERE id=$1`,
-        [jobId, status, claimed, succeeded, failed + skippedUnauthorized, finishedAt.toISOString(), failed ? 'CLASSROOM_SCHEDULED_SYNC_FAILED' : (skippedUnauthorized ? 'CLASSROOM_SYNC_AUTHORITY_SKIPPED' : null), failed || skippedUnauthorized ? 'One or more due Classroom links were not successfully synchronized.' : null],
+        [
+          jobId,
+          status,
+          claimed,
+          succeeded,
+          failed + skippedUnauthorized,
+          finishedAt.toISOString(),
+          errorCategory,
+          failed || skippedUnauthorized ? 'One or more due Classroom links were not successfully synchronized.' : null,
+        ],
       );
       return { claimed, succeeded, failed, skippedUnauthorized };
     } catch (error) {
