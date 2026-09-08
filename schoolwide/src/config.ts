@@ -10,6 +10,11 @@ const configSchema = z.object({
   SCHOOLWIDE_INSTANCE_ID: z.string().min(1).max(100).default('local'),
   LEGACY_READ_ADAPTER_MODE: z.enum(['disabled', 'shadow-read']).default('disabled'),
   LEGACY_PRODUCTION_WRITES: z.literal('forbidden').default('forbidden'),
+  OPERATIONS_WORKERS_ENABLED: z.enum(['true', 'false']).default('false'),
+  OUTBOX_WORKER_INTERVAL_MS: z.coerce.number().int().min(500).max(60_000).default(1_000),
+  CLASSROOM_SYNC_INTERVAL_MS: z.coerce.number().int().min(30_000).max(3_600_000).default(300_000),
+  OUTBOX_WORKER_BATCH_SIZE: z.coerce.number().int().min(1).max(200).default(50),
+  CLASSROOM_SYNC_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 export type AppConfig = {
@@ -22,6 +27,11 @@ export type AppConfig = {
   instanceId: string;
   legacyReadAdapterMode: z.infer<typeof configSchema>['LEGACY_READ_ADAPTER_MODE'];
   legacyProductionWrites: 'forbidden';
+  operationsWorkersEnabled?: boolean;
+  outboxWorkerIntervalMs?: number;
+  classroomSyncIntervalMs?: number;
+  outboxWorkerBatchSize?: number;
+  classroomSyncBatchSize?: number;
 };
 
 export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -36,5 +46,10 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     instanceId: parsed.SCHOOLWIDE_INSTANCE_ID,
     legacyReadAdapterMode: parsed.LEGACY_READ_ADAPTER_MODE,
     legacyProductionWrites: parsed.LEGACY_PRODUCTION_WRITES,
+    operationsWorkersEnabled: parsed.OPERATIONS_WORKERS_ENABLED === 'true',
+    outboxWorkerIntervalMs: parsed.OUTBOX_WORKER_INTERVAL_MS,
+    classroomSyncIntervalMs: parsed.CLASSROOM_SYNC_INTERVAL_MS,
+    outboxWorkerBatchSize: parsed.OUTBOX_WORKER_BATCH_SIZE,
+    classroomSyncBatchSize: parsed.CLASSROOM_SYNC_BATCH_SIZE,
   };
 }
