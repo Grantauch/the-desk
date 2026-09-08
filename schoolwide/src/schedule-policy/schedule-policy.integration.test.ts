@@ -411,14 +411,25 @@ test('SW-040 schedule and policy services', { skip: !databaseUrl }, async (t) =>
       });
     });
 
-    await t.test('JSON null policy value is treated as malformed typed policy and fails closed', async () => {
+    await t.test('known runtime policy JSON null is rejected at the database boundary and valid policy remains intact', async () => {
       await withFixture(pool, async ({ client, service, base }) => {
-        await client.query(
-          `UPDATE policy_values
-              SET typed_value_json = 'null'::jsonb
-            WHERE id = $1`,
-          [ids.cooldownValue],
-        );
+        await client.query('SAVEPOINT malformed_policy_value');
+        try {
+          await assert.rejects(
+            client.query(
+              `UPDATE policy_values
+                  SET typed_value_json = 'null'::jsonb
+                WHERE id = $1`,
+              [ids.cooldownValue],
+            ),
+            (error: unknown) => typeof error === 'object' && error !== null && 'code' in error
+              && String((error as { code?: unknown }).code) === '23514',
+          );
+        } finally {
+          await client.query('ROLLBACK TO SAVEPOINT malformed_policy_value');
+          await client.query('RELEASE SAVEPOINT malformed_policy_value');
+        }
+
         const result = await service.resolvePolicy({
           schoolId: base.schoolA,
           sectionId: base.sectionA1,
@@ -426,8 +437,8 @@ test('SW-040 schedule and policy services', { skip: !databaseUrl }, async (t) =>
           academicDate: '2026-09-08',
           at: new Date(localDetroitIso('2026-09-08', 8, 20)),
         });
-        assert.equal(result.status, 'UNRESOLVED');
-        if (result.status === 'UNRESOLVED') assert.equal(result.reason, 'MALFORMED_POLICY_VALUE');
+        assert.equal(result.status, 'RESOLVED');
+        if (result.status === 'RESOLVED') assert.equal(result.values.COOLDOWN_MINUTES?.value, 5);
       });
     });
 
