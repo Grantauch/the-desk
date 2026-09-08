@@ -43,7 +43,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all fourteen ordered migrations are recorded', async () => {
+    await t.test('all fifteen ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>(
         'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
       );
@@ -61,7 +61,8 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         '011_teacher_application.sql',
         '012_classroom_integration.sql',
         '013_classroom_oauth_redirect_binding.sql',
-        '014_admin_policy_value_validation.sql'
+        '014_admin_policy_value_validation.sql',
+        '015_realtime_operations.sql'
       ]);
     });
 
@@ -289,7 +290,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
           `INSERT INTO section_policy_overrides
              (organization_id, school_id, section_id, policy_key, typed_value_json, set_by_user_id)
            VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb, $4)`,
-          [ids.orgA, ids.schoolA, ids.sectionA1, ids.teacherB],
+          [ids.orgA, ids.schoolA, ids.sectionA1, '2', ids.teacherB],
           ['23503']
         );
 
@@ -380,6 +381,31 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
       assert.deepEqual(result.rows, []);
     });
 
+    await t.test('outbox processing leases are structurally complete', async () => {
+      await withRollback(pool, async (client) => {
+        const ids = await seedTwoSchoolFixture(client);
+        const inserted = await client.query<{ id: string }>(
+          `INSERT INTO transactional_outbox
+             (organization_id,school_id,topic,event_type,aggregate_type,correlation_id)
+           VALUES ($1,$2,'schoolwide.synthetic','LEASE_TEST','SCHEMA_TEST',$3)
+           RETURNING id`,
+          [ids.orgA, ids.schoolA, randomUUID()]
+        );
+        await expectPgConstraint(
+          client,
+          `UPDATE transactional_outbox SET status='PROCESSING' WHERE id=$1`,
+          [inserted.rows[0]?.id],
+          ['23514']
+        );
+        await client.query(
+          `UPDATE transactional_outbox
+              SET status='PROCESSING',lease_owner='schema-test',lease_expires_at=now()+interval '30 seconds'
+            WHERE id=$1`,
+          [inserted.rows[0]?.id]
+        );
+      });
+    });
+
     await t.test('required hot-path indexes exist', async () => {
       const expectedIndexes = [
         'enrollments_current_section_student_idx',
@@ -388,6 +414,10 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         'school_policy_sets_effective_idx',
         'audit_events_school_time_idx',
         'transactional_outbox_pending_idx',
+        'transactional_outbox_delivery_ready_idx',
+        'transactional_outbox_processing_lease_idx',
+        'operations_job_runs_type_time_idx',
+        'operations_job_runs_school_time_idx',
         'checkins_section_date_idx',
         'checkins_student_date_idx',
         'pass_requests_section_status_idx',
