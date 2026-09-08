@@ -26,6 +26,8 @@
     "storyhub:validate": "node scripts/storyhub-validate.mjs && node scripts/storyhub-verify-assets.mjs",
     "storyhub:art:integrate": "node scripts/integrate-subday-art.mjs",
     "storyhub:art:test": "node scripts/test-subday-storyhubs-art.mjs",
+    "storyhub:gold:integrate": "node scripts/enrich-storyhubs-gold.mjs && node scripts/enrich-hidden-history-gold.mjs && node scripts/enrich-us-history-gold.mjs && node scripts/install-storyhub-guides.mjs",
+    "storyhub:gold:test": "node scripts/test-storyhubs-gold.mjs",
     "storyhub:seal": "node scripts/storyhub-seal-release.mjs",
     "storyhub:extract": "node scripts/storyhub-extract-assets.mjs",
     "classroom:test": "node --experimental-strip-types scripts/test-classroom-state.mjs"

@@ -57,7 +57,7 @@
         ['09-1910.webp', 'New rules attack mass momentum more directly.'],
         ['10-who-was-actually-dying.webp', 'Many victims were outside elite college football.'],
         ['11-what-the-organization-became.webp', 'The reform organization becomes the NCAA.'],
-        ['12-six.webp', 'Six years of pressure changed more than one famous rule.'],
+        ['12-six.webp', 'Six reported deaths in 1905 were attributed to concussion.'],
       ],
     },
   };
