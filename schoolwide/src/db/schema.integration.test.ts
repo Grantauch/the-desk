@@ -43,7 +43,7 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all thirteen ordered migrations are recorded', async () => {
+    await t.test('all fourteen ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>(
         'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
       );
@@ -60,7 +60,8 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
         '010_audit_corrections.sql',
         '011_teacher_application.sql',
         '012_classroom_integration.sql',
-        '013_classroom_oauth_redirect_binding.sql'
+        '013_classroom_oauth_redirect_binding.sql',
+        '014_admin_policy_value_validation.sql'
       ]);
     });
 
@@ -204,6 +205,37 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
            VALUES ($1, $2, $3, 'STANDARD', TIMESTAMPTZ '2026-09-07 12:00:00Z', TIMESTAMPTZ '2026-09-07 11:00:00Z')`,
           [ids.orgA, ids.schoolA, ids.studentA],
           ['23514']
+        );
+      });
+    });
+
+    await t.test('known runtime policy values reject malformed types and impossible bounds at the database boundary', async () => {
+      await withRollback(pool, async (client) => {
+        const ids = await seedTwoSchoolFixture(client);
+        const policySet = await client.query<{ id: string }>(
+          `INSERT INTO school_policy_sets
+             (organization_id, school_id, academic_year_id, name, effective_from)
+           VALUES ($1,$2,$3,'Policy validation proof',DATE '2026-09-08') RETURNING id`,
+          [ids.orgA, ids.schoolA, ids.yearA]
+        );
+        await expectPgConstraint(
+          client,
+          `INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json)
+           VALUES ($1,$2,'DAILY_LIMIT',$3::jsonb)`,
+          [ids.schoolA, policySet.rows[0]?.id, JSON.stringify('three')],
+          ['23514']
+        );
+        await expectPgConstraint(
+          client,
+          `INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json)
+           VALUES ($1,$2,'MAX_ACTIVE_PER_SECTION',$3::jsonb)`,
+          [ids.schoolA, policySet.rows[0]?.id, JSON.stringify(0)],
+          ['23514']
+        );
+        await client.query(
+          `INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json)
+           VALUES ($1,$2,'FUTURE_EXTENSIBLE_POLICY',$3::jsonb)`,
+          [ids.schoolA, policySet.rows[0]?.id, JSON.stringify({ mode: 'future' })]
         );
       });
     });
