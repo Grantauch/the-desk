@@ -1,9 +1,11 @@
 import Fastify, { type FastifyInstance } from 'fastify';
-import { AdminConsoleService } from './admin-console/service.js';
 import { registerAdminConsoleRoutes } from './admin-console/routes.js';
+import { AdminConsoleService } from './admin-console/service.js';
+import { registerAdminStructureRoutes } from './admin-console/structure-routes.js';
+import { AdminStructureService } from './admin-console/structure.js';
 import type { AdminConsoleServiceOptions } from './admin-console/types.js';
-import { AuditCorrectionService } from './audit-corrections/service.js';
 import { registerAuditCorrectionRoutes } from './audit-corrections/routes.js';
+import { AuditCorrectionService } from './audit-corrections/service.js';
 import type { AuditCorrectionServiceOptions } from './audit-corrections/types.js';
 import { StaffAuthorizationService } from './auth/authorization.js';
 import { DisabledStaffIdentityProvider } from './auth/provider.js';
@@ -86,6 +88,8 @@ export function buildApp({
   const classroom = new ClassroomIntegrationService(database, classroomProvider, classroomOptions ?? {});
   const securityConsole = new SecurityConsoleService(database, securityConsoleOptions ?? {});
   const adminConsole = new AdminConsoleService(database, adminConsoleOptions ?? {});
+  const adminNow = adminConsoleOptions?.now ?? (() => new Date());
+  const adminStructure = new AdminStructureService(database, adminNow);
 
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
@@ -97,6 +101,7 @@ export function buildApp({
   registerClassroomRoutes(app, { authentication, authorization, classroom });
   registerSecurityConsoleRoutes(app, { authentication, authorization, securityConsole });
   registerAdminConsoleRoutes(app, { authentication, authorization, adminConsole });
+  registerAdminStructureRoutes(app, { authentication, authorization, adminConsole, structure: adminStructure });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
