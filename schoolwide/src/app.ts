@@ -25,6 +25,7 @@ import { registerHallPassRoutes } from './hall-pass/routes.js';
 import { HallPassService } from './hall-pass/service.js';
 import type { HallPassServiceOptions } from './hall-pass/types.js';
 import { InProcessRealtimeBroker } from './realtime/broker.js';
+import { registerRealtimeBrowserAcceleration } from './realtime/browser-acceleration.js';
 import { ClassroomScheduledSyncWorker } from './realtime/classroom-scheduler.js';
 import { OperationsHealthService } from './realtime/operations-service.js';
 import { OutboxDeliveryWorker } from './realtime/outbox-worker.js';
@@ -45,122 +46,52 @@ import { TeacherApplicationService } from './teacher-app/service.js';
 import type { TeacherApplicationServiceOptions } from './teacher-app/types.js';
 
 export type BuildAppOptions = {
-  config: AppConfig;
-  database: Database;
-  identityProvider?: StaffIdentityProvider;
-  sessionTtlMs?: number;
-  studentIdentityProvider?: StudentIdentityProvider;
-  studentCredentialOptions?: StudentCredentialServiceOptions;
-  checkInOptions?: CheckInServiceOptions;
-  hallPassOptions?: HallPassServiceOptions;
-  auditCorrectionOptions?: AuditCorrectionServiceOptions;
-  teacherApplicationOptions?: TeacherApplicationServiceOptions;
-  classroomProvider?: ClassroomProvider;
-  classroomOptions?: ClassroomIntegrationServiceOptions;
-  securityConsoleOptions?: SecurityConsoleServiceOptions;
-  adminConsoleOptions?: AdminConsoleServiceOptions;
-  realtimeBroker?: RealtimeBroker;
+  config: AppConfig; database: Database; identityProvider?: StaffIdentityProvider; sessionTtlMs?: number;
+  studentIdentityProvider?: StudentIdentityProvider; studentCredentialOptions?: StudentCredentialServiceOptions;
+  checkInOptions?: CheckInServiceOptions; hallPassOptions?: HallPassServiceOptions; auditCorrectionOptions?: AuditCorrectionServiceOptions;
+  teacherApplicationOptions?: TeacherApplicationServiceOptions; classroomProvider?: ClassroomProvider; classroomOptions?: ClassroomIntegrationServiceOptions;
+  securityConsoleOptions?: SecurityConsoleServiceOptions; adminConsoleOptions?: AdminConsoleServiceOptions; realtimeBroker?: RealtimeBroker;
 };
 
-export function buildApp({
-  config,
-  database,
-  identityProvider = new DisabledStaffIdentityProvider(),
-  sessionTtlMs,
-  studentIdentityProvider = new DisabledStudentIdentityProvider(),
-  studentCredentialOptions,
-  checkInOptions,
-  hallPassOptions,
-  auditCorrectionOptions,
-  teacherApplicationOptions,
-  classroomProvider = new DisabledClassroomProvider(),
-  classroomOptions,
-  securityConsoleOptions,
-  adminConsoleOptions,
-  realtimeBroker = new InProcessRealtimeBroker(),
-}: BuildAppOptions): FastifyInstance {
-  const app = Fastify({
-    logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
-    bodyLimit: 1_048_576,
-    trustProxy: false,
-  });
+export function buildApp({config,database,identityProvider=new DisabledStaffIdentityProvider(),sessionTtlMs,studentIdentityProvider=new DisabledStudentIdentityProvider(),studentCredentialOptions,checkInOptions,hallPassOptions,auditCorrectionOptions,teacherApplicationOptions,classroomProvider=new DisabledClassroomProvider(),classroomOptions,securityConsoleOptions,adminConsoleOptions,realtimeBroker=new InProcessRealtimeBroker()}:BuildAppOptions):FastifyInstance {
+  const app=Fastify({logger:config.nodeEnv==='test'?false:{level:config.logLevel},bodyLimit:1_048_576,trustProxy:false});
+  const authenticationOptions=sessionTtlMs===undefined?{}:{sessionTtlMs};
+  const authentication=new StaffAuthenticationService(database,identityProvider,authenticationOptions);
+  const authorization=new StaffAuthorizationService(database);
+  const schedulePolicy=new SchedulePolicyService(database);
+  const studentCredentials=new StudentCredentialService(database,studentIdentityProvider,studentCredentialOptions??{});
+  const checkins=new CheckInService(database,checkInOptions??{});
+  const hallPass=new HallPassService(database,hallPassOptions??{});
+  const corrections=new AuditCorrectionService(database,auditCorrectionOptions??{});
+  const teacherApp=new TeacherApplicationService(database,schedulePolicy,teacherApplicationOptions??{});
+  const classroom=new ClassroomIntegrationService(database,classroomProvider,classroomOptions??{});
+  const securityConsole=new SecurityConsoleService(database,securityConsoleOptions??{});
+  const adminConsole=new AdminConsoleService(database,adminConsoleOptions??{});
+  const adminNow=adminConsoleOptions?.now??(()=>new Date());
+  const adminStructure=new AdminStructureService(database,adminNow);
+  const operationsHealth=new OperationsHealthService(database);
+  const outboxWorker=new OutboxDeliveryWorker(database,realtimeBroker,{instanceId:config.instanceId,batchSize:config.outboxWorkerBatchSize??50});
+  const classroomWorker=new ClassroomScheduledSyncWorker(database,classroom,{instanceId:config.instanceId,batchSize:config.classroomSyncBatchSize??20});
+  const operationsRuntime=new OperationsRuntime(outboxWorker,classroomWorker,{outboxIntervalMs:config.outboxWorkerIntervalMs??1_000,classroomIntervalMs:config.classroomSyncIntervalMs??300_000});
 
-  const authenticationOptions = sessionTtlMs === undefined ? {} : { sessionTtlMs };
-  const authentication = new StaffAuthenticationService(database, identityProvider, authenticationOptions);
-  const authorization = new StaffAuthorizationService(database);
-  const schedulePolicy = new SchedulePolicyService(database);
-  const studentCredentials = new StudentCredentialService(database, studentIdentityProvider, studentCredentialOptions ?? {});
-  const checkins = new CheckInService(database, checkInOptions ?? {});
-  const hallPass = new HallPassService(database, hallPassOptions ?? {});
-  const corrections = new AuditCorrectionService(database, auditCorrectionOptions ?? {});
-  const teacherApp = new TeacherApplicationService(database, schedulePolicy, teacherApplicationOptions ?? {});
-  const classroom = new ClassroomIntegrationService(database, classroomProvider, classroomOptions ?? {});
-  const securityConsole = new SecurityConsoleService(database, securityConsoleOptions ?? {});
-  const adminConsole = new AdminConsoleService(database, adminConsoleOptions ?? {});
-  const adminNow = adminConsoleOptions?.now ?? (() => new Date());
-  const adminStructure = new AdminStructureService(database, adminNow);
-  const operationsHealth = new OperationsHealthService(database);
-  const outboxWorker = new OutboxDeliveryWorker(database, realtimeBroker, {
-    instanceId: config.instanceId,
-    batchSize: config.outboxWorkerBatchSize ?? 50,
-  });
-  const classroomWorker = new ClassroomScheduledSyncWorker(database, classroom, {
-    instanceId: config.instanceId,
-    batchSize: config.classroomSyncBatchSize ?? 20,
-  });
-  const operationsRuntime = new OperationsRuntime(outboxWorker, classroomWorker, {
-    outboxIntervalMs: config.outboxWorkerIntervalMs ?? 1_000,
-    classroomIntervalMs: config.classroomSyncIntervalMs ?? 300_000,
-  });
+  registerRealtimeBrowserAcceleration(app);
+  registerStaffAuthRoutes(app,{authentication,authorization});
+  registerSchedulePolicyRoutes(app,{authentication,authorization,schedulePolicy});
+  registerStudentCredentialRoutes(app,studentCredentials);
+  registerCheckInRoutes(app,{authentication,authorization,checkins});
+  registerHallPassRoutes(app,{hallPass,studentIdentityProvider});
+  registerAuditCorrectionRoutes(app,{authentication,authorization,corrections});
+  registerTeacherApplicationRoutes(app,{authentication,authorization,teacherApp,hallPass});
+  registerClassroomRoutes(app,{authentication,authorization,classroom});
+  registerSecurityConsoleRoutes(app,{authentication,authorization,securityConsole});
+  registerAdminConsoleRoutes(app,{authentication,authorization,adminConsole});
+  registerAdminStructureRoutes(app,{authentication,authorization,adminConsole,structure:adminStructure,database});
+  registerRealtimeRoutes(app,{authentication,authorization,studentIdentityProvider,database,broker:realtimeBroker,health:operationsHealth});
 
-  registerStaffAuthRoutes(app, { authentication, authorization });
-  registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
-  registerStudentCredentialRoutes(app, studentCredentials);
-  registerCheckInRoutes(app, { authentication, authorization, checkins });
-  registerHallPassRoutes(app, { hallPass, studentIdentityProvider });
-  registerAuditCorrectionRoutes(app, { authentication, authorization, corrections });
-  registerTeacherApplicationRoutes(app, { authentication, authorization, teacherApp, hallPass });
-  registerClassroomRoutes(app, { authentication, authorization, classroom });
-  registerSecurityConsoleRoutes(app, { authentication, authorization, securityConsole });
-  registerAdminConsoleRoutes(app, { authentication, authorization, adminConsole });
-  registerAdminStructureRoutes(app, { authentication, authorization, adminConsole, structure: adminStructure, database });
-  registerRealtimeRoutes(app, {
-    authentication,
-    authorization,
-    studentIdentityProvider,
-    database,
-    broker: realtimeBroker,
-    health: operationsHealth,
-  });
-
-  app.get('/', async () => ({
-    service: 'grantdesk-schoolwide',
-    version: 'sw-130',
-    status: 'realtime-operations',
-  }));
-
-  app.get('/health/live', async () => ({
-    status: 'ok',
-    service: 'grantdesk-schoolwide',
-    instanceId: config.instanceId,
-  }));
-
-  app.get('/health/ready', async (_request, reply) => {
-    try {
-      await database.query('SELECT 1 AS ready');
-      return { status: 'ready', service: 'grantdesk-schoolwide' };
-    } catch {
-      reply.code(503);
-      return { status: 'not-ready', service: 'grantdesk-schoolwide' };
-    }
-  });
-
-  if (config.operationsWorkersEnabled === true) operationsRuntime.start();
-
-  app.addHook('onClose', async () => {
-    operationsRuntime.stop();
-    await database.close();
-  });
-
+  app.get('/',async()=>({service:'grantdesk-schoolwide',version:'sw-130',status:'realtime-operations'}));
+  app.get('/health/live',async()=>({status:'ok',service:'grantdesk-schoolwide',instanceId:config.instanceId}));
+  app.get('/health/ready',async(_request,reply)=>{try{await database.query('SELECT 1 AS ready');return{status:'ready',service:'grantdesk-schoolwide'};}catch{reply.code(503);return{status:'not-ready',service:'grantdesk-schoolwide'};}});
+  if(config.operationsWorkersEnabled===true)operationsRuntime.start();
+  app.addHook('onClose',async()=>{operationsRuntime.stop();await database.close();});
   return app;
 }
