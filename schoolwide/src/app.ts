@@ -1,6 +1,11 @@
 import Fastify, { type FastifyInstance } from 'fastify';
-import { AuditCorrectionService } from './audit-corrections/service.js';
+import { registerAdminConsoleRoutes } from './admin-console/routes.js';
+import { AdminConsoleService } from './admin-console/service.js';
+import { registerAdminStructureRoutes } from './admin-console/structure-routes.js';
+import { AdminStructureService } from './admin-console/structure.js';
+import type { AdminConsoleServiceOptions } from './admin-console/types.js';
 import { registerAuditCorrectionRoutes } from './audit-corrections/routes.js';
+import { AuditCorrectionService } from './audit-corrections/service.js';
 import type { AuditCorrectionServiceOptions } from './audit-corrections/types.js';
 import { StaffAuthorizationService } from './auth/authorization.js';
 import { DisabledStaffIdentityProvider } from './auth/provider.js';
@@ -46,6 +51,7 @@ export type BuildAppOptions = {
   classroomProvider?: ClassroomProvider;
   classroomOptions?: ClassroomIntegrationServiceOptions;
   securityConsoleOptions?: SecurityConsoleServiceOptions;
+  adminConsoleOptions?: AdminConsoleServiceOptions;
 };
 
 export function buildApp({
@@ -62,6 +68,7 @@ export function buildApp({
   classroomProvider = new DisabledClassroomProvider(),
   classroomOptions,
   securityConsoleOptions,
+  adminConsoleOptions,
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -80,6 +87,9 @@ export function buildApp({
   const teacherApp = new TeacherApplicationService(database, schedulePolicy, teacherApplicationOptions ?? {});
   const classroom = new ClassroomIntegrationService(database, classroomProvider, classroomOptions ?? {});
   const securityConsole = new SecurityConsoleService(database, securityConsoleOptions ?? {});
+  const adminConsole = new AdminConsoleService(database, adminConsoleOptions ?? {});
+  const adminNow = adminConsoleOptions?.now ?? (() => new Date());
+  const adminStructure = new AdminStructureService(database, adminNow);
 
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
@@ -90,11 +100,13 @@ export function buildApp({
   registerTeacherApplicationRoutes(app, { authentication, authorization, teacherApp, hallPass });
   registerClassroomRoutes(app, { authentication, authorization, classroom });
   registerSecurityConsoleRoutes(app, { authentication, authorization, securityConsole });
+  registerAdminConsoleRoutes(app, { authentication, authorization, adminConsole });
+  registerAdminStructureRoutes(app, { authentication, authorization, adminConsole, structure: adminStructure, database });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-110',
-    status: 'security-console',
+    version: 'sw-120',
+    status: 'admin-console',
   }));
 
   app.get('/health/live', async () => ({
