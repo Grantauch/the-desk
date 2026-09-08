@@ -24,6 +24,13 @@ import type { Database } from './db/database.js';
 import { registerHallPassRoutes } from './hall-pass/routes.js';
 import { HallPassService } from './hall-pass/service.js';
 import type { HallPassServiceOptions } from './hall-pass/types.js';
+import { InProcessRealtimeBroker } from './realtime/broker.js';
+import { ClassroomScheduledSyncWorker } from './realtime/classroom-scheduler.js';
+import { OperationsHealthService } from './realtime/operations-service.js';
+import { OutboxDeliveryWorker } from './realtime/outbox-worker.js';
+import { registerRealtimeRoutes } from './realtime/routes.js';
+import { OperationsRuntime } from './realtime/runtime.js';
+import type { RealtimeBroker } from './realtime/types.js';
 import { registerSchedulePolicyRoutes } from './schedule-policy/routes.js';
 import { SchedulePolicyService } from './schedule-policy/service.js';
 import { registerSecurityConsoleRoutes } from './security-console/routes.js';
@@ -52,6 +59,7 @@ export type BuildAppOptions = {
   classroomOptions?: ClassroomIntegrationServiceOptions;
   securityConsoleOptions?: SecurityConsoleServiceOptions;
   adminConsoleOptions?: AdminConsoleServiceOptions;
+  realtimeBroker?: RealtimeBroker;
 };
 
 export function buildApp({
@@ -69,6 +77,7 @@ export function buildApp({
   classroomOptions,
   securityConsoleOptions,
   adminConsoleOptions,
+  realtimeBroker = new InProcessRealtimeBroker(),
 }: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: config.nodeEnv === 'test' ? false : { level: config.logLevel },
@@ -90,6 +99,19 @@ export function buildApp({
   const adminConsole = new AdminConsoleService(database, adminConsoleOptions ?? {});
   const adminNow = adminConsoleOptions?.now ?? (() => new Date());
   const adminStructure = new AdminStructureService(database, adminNow);
+  const operationsHealth = new OperationsHealthService(database);
+  const outboxWorker = new OutboxDeliveryWorker(database, realtimeBroker, {
+    instanceId: config.instanceId,
+    batchSize: config.outboxWorkerBatchSize ?? 50,
+  });
+  const classroomWorker = new ClassroomScheduledSyncWorker(database, classroom, {
+    instanceId: config.instanceId,
+    batchSize: config.classroomSyncBatchSize ?? 20,
+  });
+  const operationsRuntime = new OperationsRuntime(outboxWorker, classroomWorker, {
+    outboxIntervalMs: config.outboxWorkerIntervalMs ?? 1_000,
+    classroomIntervalMs: config.classroomSyncIntervalMs ?? 300_000,
+  });
 
   registerStaffAuthRoutes(app, { authentication, authorization });
   registerSchedulePolicyRoutes(app, { authentication, authorization, schedulePolicy });
@@ -102,11 +124,19 @@ export function buildApp({
   registerSecurityConsoleRoutes(app, { authentication, authorization, securityConsole });
   registerAdminConsoleRoutes(app, { authentication, authorization, adminConsole });
   registerAdminStructureRoutes(app, { authentication, authorization, adminConsole, structure: adminStructure, database });
+  registerRealtimeRoutes(app, {
+    authentication,
+    authorization,
+    studentIdentityProvider,
+    database,
+    broker: realtimeBroker,
+    health: operationsHealth,
+  });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
-    version: 'sw-120',
-    status: 'admin-console',
+    version: 'sw-130',
+    status: 'realtime-operations',
   }));
 
   app.get('/health/live', async () => ({
@@ -125,7 +155,10 @@ export function buildApp({
     }
   });
 
+  if (config.operationsWorkersEnabled === true) operationsRuntime.start();
+
   app.addHook('onClose', async () => {
+    operationsRuntime.stop();
     await database.close();
   });
 
