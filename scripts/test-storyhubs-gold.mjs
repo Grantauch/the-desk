@@ -45,22 +45,24 @@ for (const page of pages) {
   console.log(`PASS depth ${page.path} (${visibleWordCount(html)} words, ${count(html, 'class="context-card')} context cards)`);
 }
 
-const server = await preview({ server: { host: '127.0.0.1', port: 4394 } });
+const externalOrigin = process.env.STORYHUB_BASE_URL?.replace(/\/$/, '');
+const origin = externalOrigin || 'http://127.0.0.1:4394';
+const server = externalOrigin ? null : await preview({ server: { host: '127.0.0.1', port: 4394 } });
 let browser;
 try {
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
-  await page.goto('http://127.0.0.1:4394/hubs/bts-s01-the-death-harvest.html', { waitUntil: 'networkidle' });
+  await page.goto(`${origin}/hubs/bts-s01-the-death-harvest.html`, { waitUntil: 'networkidle' });
   const allEntries = await page.locator('.record-entry:not([hidden])').count();
   if (allEntries !== 20) throw new Error(`BTS audit expected 20 entries, found ${allEntries}.`);
   await page.getByRole('button', { name: /college/i }).click();
   const collegeEntries = await page.locator('.record-entry:not([hidden])').count();
   if (collegeEntries !== 2) throw new Error(`BTS college filter expected 2 entries, found ${collegeEntries}.`);
 
-  await page.goto('http://127.0.0.1:4394/hubs/hh-s01-the-desk-it-stopped-at.html', { waitUntil: 'networkidle' });
+  await page.goto(`${origin}/hubs/hh-s01-the-desk-it-stopped-at.html`, { waitUntil: 'networkidle' });
   if (await page.locator('button.claim').count() !== 5) throw new Error('Hidden History claim ladder does not have five rungs.');
 
-  await page.goto('http://127.0.0.1:4394/hubs/ush9-s01-the-margin.html', { waitUntil: 'networkidle' });
+  await page.goto(`${origin}/hubs/ush9-s01-the-margin.html`, { waitUntil: 'networkidle' });
   await page.locator('[data-gold-guide-open]').click();
   if (!(await page.locator('[data-gold-guide]').getAttribute('class')).includes('is-open')) throw new Error('Lesson guide did not open.');
   if (await page.locator('[data-gold-guide] nav a').count() < 10) throw new Error('Lesson guide is missing section links.');
@@ -74,7 +76,7 @@ try {
   console.log('PASS evidence instruments');
 } finally {
   if (browser) await browser.close();
-  await server.stop();
+  if (server) await server.stop();
 }
 
-console.log('Gold Standard StoryHub content gate: PASS');
+console.log(`Gold Standard StoryHub content gate: PASS (${externalOrigin ? 'hosted' : 'local'})`);
