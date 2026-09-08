@@ -44,35 +44,20 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
 
   try {
     await t.test('all fifteen ordered migrations are recorded', async () => {
-      const result = await pool.query<{ version: string }>(
-        'SELECT version FROM grantdesk_schema_migrations ORDER BY version'
-      );
+      const result = await pool.query<{ version: string }>('SELECT version FROM grantdesk_schema_migrations ORDER BY version');
       assert.deepEqual(result.rows.map((row) => row.version), [
-        '001_identity_and_tenancy.sql',
-        '002_organization_academics.sql',
-        '003_schedule_calendar_policy.sql',
-        '004_idempotency_outbox_audit.sql',
-        '005_policy_actor_tenant_integrity.sql',
-        '006_staff_sessions.sql',
-        '007_student_credentials_action_proofs.sql',
-        '008_checkins.sql',
-        '009_hall_pass_core.sql',
-        '010_audit_corrections.sql',
-        '011_teacher_application.sql',
-        '012_classroom_integration.sql',
-        '013_classroom_oauth_redirect_binding.sql',
-        '014_admin_policy_value_validation.sql',
-        '015_realtime_operations.sql'
+        '001_identity_and_tenancy.sql','002_organization_academics.sql','003_schedule_calendar_policy.sql',
+        '004_idempotency_outbox_audit.sql','005_policy_actor_tenant_integrity.sql','006_staff_sessions.sql',
+        '007_student_credentials_action_proofs.sql','008_checkins.sql','009_hall_pass_core.sql',
+        '010_audit_corrections.sql','011_teacher_application.sql','012_classroom_integration.sql',
+        '013_classroom_oauth_redirect_binding.sql','014_admin_policy_value_validation.sql','015_realtime_operations.sql'
       ]);
     });
 
     await t.test('same display name remains legal while canonical students stay distinct', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        const result = await client.query<{ id: string }>(
-          'SELECT id FROM students WHERE school_id = $1 AND display_name = $2 ORDER BY id',
-          [ids.schoolA, 'Student Same']
-        );
+        const result = await client.query<{ id: string }>('SELECT id FROM students WHERE school_id = $1 AND display_name = $2 ORDER BY id',[ids.schoolA, 'Student Same']);
         assert.deepEqual(result.rows.map((row) => row.id), [ids.studentA, ids.studentA2]);
       });
     });
@@ -80,15 +65,8 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
     await t.test('one canonical student can hold multiple section enrollments', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        await client.query(
-          `INSERT INTO enrollments (school_id, section_id, student_id)
-           VALUES ($1, $2, $3), ($1, $4, $3)`,
-          [ids.schoolA, ids.sectionA1, ids.studentA, ids.sectionA2]
-        );
-        const result = await client.query<{ section_id: string }>(
-          'SELECT section_id FROM enrollments WHERE school_id = $1 AND student_id = $2 ORDER BY section_id',
-          [ids.schoolA, ids.studentA]
-        );
+        await client.query(`INSERT INTO enrollments (school_id, section_id, student_id) VALUES ($1, $2, $3), ($1, $4, $3)`,[ids.schoolA, ids.sectionA1, ids.studentA, ids.sectionA2]);
+        const result = await client.query<{ section_id: string }>('SELECT section_id FROM enrollments WHERE school_id = $1 AND student_id = $2 ORDER BY section_id',[ids.schoolA, ids.studentA]);
         assert.deepEqual(result.rows.map((row) => row.section_id), [ids.sectionA1, ids.sectionA2]);
       });
     });
@@ -96,69 +74,33 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
     await t.test('raw SQL cannot cross school boundaries for enrollment', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        await expectPgConstraint(
-          client,
-          'INSERT INTO enrollments (school_id, section_id, student_id) VALUES ($1, $2, $3)',
-          [ids.schoolA, ids.sectionB1, ids.studentA],
-          ['23503']
-        );
+        await expectPgConstraint(client,'INSERT INTO enrollments (school_id, section_id, student_id) VALUES ($1, $2, $3)',[ids.schoolA, ids.sectionB1, ids.studentA],['23503']);
       });
     });
 
     await t.test('raw SQL cannot attach an organization A user to an organization B school role', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        await expectPgConstraint(
-          client,
-          `INSERT INTO user_roles (organization_id, school_id, user_id, role)
-           VALUES ($1, $2, $3, 'TEACHER')`,
-          [ids.orgA, ids.schoolB, ids.teacherA],
-          ['23503']
-        );
+        await expectPgConstraint(client,`INSERT INTO user_roles (organization_id, school_id, user_id, role) VALUES ($1, $2, $3, 'TEACHER')`,[ids.orgA, ids.schoolB, ids.teacherA],['23503']);
       });
     });
 
     await t.test('authoritative identity aliases cannot collide within one school namespace', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        await client.query(
-          `INSERT INTO student_identity_aliases
-             (school_id, student_id, kind, value, normalized_value, source)
-           VALUES ($1, $2, 'EMAIL', 'learner@north.example.invalid', 'learner@north.example.invalid', 'MANUAL')`,
-          [ids.schoolA, ids.studentA]
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO student_identity_aliases
-             (school_id, student_id, kind, value, normalized_value, source)
-           VALUES ($1, $2, 'EMAIL', 'LEARNER@north.example.invalid', 'learner@north.example.invalid', 'MANUAL')`,
-          [ids.schoolA, ids.studentA2],
-          ['23505']
-        );
+        await client.query(`INSERT INTO student_identity_aliases (school_id, student_id, kind, value, normalized_value, source) VALUES ($1, $2, 'EMAIL', 'learner@north.example.invalid', 'learner@north.example.invalid', 'MANUAL')`,[ids.schoolA, ids.studentA]);
+        await expectPgConstraint(client,`INSERT INTO student_identity_aliases (school_id, student_id, kind, value, normalized_value, source) VALUES ($1, $2, 'EMAIL', 'LEARNER@north.example.invalid', 'learner@north.example.invalid', 'MANUAL')`,[ids.schoolA, ids.studentA2],['23505']);
       });
     });
 
     await t.test('inactive enrollment is retained instead of deleted', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        const inserted = await client.query<{ id: string }>(
-          `INSERT INTO enrollments (school_id, section_id, student_id)
-           VALUES ($1, $2, $3) RETURNING id`,
-          [ids.schoolA, ids.sectionA1, ids.studentA]
-        );
+        const inserted = await client.query<{ id: string }>(`INSERT INTO enrollments (school_id, section_id, student_id) VALUES ($1, $2, $3) RETURNING id`,[ids.schoolA, ids.sectionA1, ids.studentA]);
         const enrollmentId = inserted.rows[0]?.id;
         assert.ok(enrollmentId);
-        await client.query(
-          `UPDATE enrollments
-             SET status = 'INACTIVE', left_at = now(), updated_at = now()
-           WHERE id = $1`,
-          [enrollmentId]
-        );
-        const result = await client.query<{ status: string; student_exists: boolean }>(
-          `SELECT e.status, EXISTS(SELECT 1 FROM students s WHERE s.id = e.student_id) AS student_exists
-             FROM enrollments e WHERE e.id = $1`,
-          [enrollmentId]
-        );
+        await client.query(`UPDATE enrollments SET status = 'INACTIVE', left_at = now(), updated_at = now() WHERE id = $1`,[enrollmentId]);
+        const result = await client.query<{ status: string; student_exists: boolean }>(`SELECT e.status, EXISTS(SELECT 1 FROM students s WHERE s.id = e.student_id) AS student_exists FROM enrollments e WHERE e.id = $1`,[enrollmentId]);
         assert.equal(result.rows[0]?.status, 'INACTIVE');
         assert.equal(result.rows[0]?.student_exists, true);
       });
@@ -167,141 +109,39 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
     await t.test('invalid academic, schedule, policy and access intervals fail at the database boundary', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        await expectPgConstraint(
-          client,
-          `INSERT INTO academic_terms
-             (school_id, academic_year_id, name, ordinal, starts_on, ends_on)
-           VALUES ($1, $2, 'Broken Term', 1, DATE '2027-01-10', DATE '2027-01-01')`,
-          [ids.schoolA, ids.yearA],
-          ['23514']
-        );
-
-        const profile = await client.query<{ id: string }>(
-          `INSERT INTO schedule_profiles (school_id, name, key)
-           VALUES ($1, 'Normal Day', 'NORMAL') RETURNING id`,
-          [ids.schoolA]
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO schedule_periods
-             (school_id, schedule_profile_id, period_code, starts_at_local, ends_at_local, ordinal_by_time)
-           VALUES ($1, $2, 'P1', TIME '10:00', TIME '09:00', 1)`,
-          [ids.schoolA, profile.rows[0]?.id],
-          ['23514']
-        );
-
-        await expectPgConstraint(
-          client,
-          `INSERT INTO school_policy_sets
-             (organization_id, school_id, academic_year_id, name, effective_from, effective_until)
-           VALUES ($1, $2, $3, 'Broken Policy', DATE '2026-10-10', DATE '2026-10-01')`,
-          [ids.orgA, ids.schoolA, ids.yearA],
-          ['23514']
-        );
-
-        await expectPgConstraint(
-          client,
-          `INSERT INTO student_access_rules
-             (organization_id, school_id, student_id, access_mode, valid_from, valid_until)
-           VALUES ($1, $2, $3, 'STANDARD', TIMESTAMPTZ '2026-09-07 12:00:00Z', TIMESTAMPTZ '2026-09-07 11:00:00Z')`,
-          [ids.orgA, ids.schoolA, ids.studentA],
-          ['23514']
-        );
+        await expectPgConstraint(client,`INSERT INTO academic_terms (school_id, academic_year_id, name, ordinal, starts_on, ends_on) VALUES ($1, $2, 'Broken Term', 1, DATE '2027-01-10', DATE '2027-01-01')`,[ids.schoolA, ids.yearA],['23514']);
+        const profile = await client.query<{ id: string }>(`INSERT INTO schedule_profiles (school_id, name, key) VALUES ($1, 'Normal Day', 'NORMAL') RETURNING id`,[ids.schoolA]);
+        await expectPgConstraint(client,`INSERT INTO schedule_periods (school_id, schedule_profile_id, period_code, starts_at_local, ends_at_local, ordinal_by_time) VALUES ($1, $2, 'P1', TIME '10:00', TIME '09:00', 1)`,[ids.schoolA, profile.rows[0]?.id],['23514']);
+        await expectPgConstraint(client,`INSERT INTO school_policy_sets (organization_id, school_id, academic_year_id, name, effective_from, effective_until) VALUES ($1, $2, $3, 'Broken Policy', DATE '2026-10-10', DATE '2026-10-01')`,[ids.orgA, ids.schoolA, ids.yearA],['23514']);
+        await expectPgConstraint(client,`INSERT INTO student_access_rules (organization_id, school_id, student_id, access_mode, valid_from, valid_until) VALUES ($1, $2, $3, 'STANDARD', TIMESTAMPTZ '2026-09-07 12:00:00Z', TIMESTAMPTZ '2026-09-07 11:00:00Z')`,[ids.orgA, ids.schoolA, ids.studentA],['23514']);
       });
     });
 
     await t.test('known runtime policy values reject malformed types and impossible bounds at the database boundary', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        const policySet = await client.query<{ id: string }>(
-          `INSERT INTO school_policy_sets
-             (organization_id, school_id, academic_year_id, name, effective_from)
-           VALUES ($1,$2,$3,'Policy validation proof',DATE '2026-09-08') RETURNING id`,
-          [ids.orgA, ids.schoolA, ids.yearA]
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json)
-           VALUES ($1,$2,'DAILY_LIMIT',$3::jsonb)`,
-          [ids.schoolA, policySet.rows[0]?.id, JSON.stringify('three')],
-          ['23514']
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json)
-           VALUES ($1,$2,'MAX_ACTIVE_PER_SECTION',$3::jsonb)`,
-          [ids.schoolA, policySet.rows[0]?.id, JSON.stringify(0)],
-          ['23514']
-        );
-        await client.query(
-          `INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json)
-           VALUES ($1,$2,'FUTURE_EXTENSIBLE_POLICY',$3::jsonb)`,
-          [ids.schoolA, policySet.rows[0]?.id, JSON.stringify({ mode: 'future' })]
-        );
+        const policySet = await client.query<{ id: string }>(`INSERT INTO school_policy_sets (organization_id, school_id, academic_year_id, name, effective_from) VALUES ($1,$2,$3,'Policy validation proof',DATE '2026-09-08') RETURNING id`,[ids.orgA, ids.schoolA, ids.yearA]);
+        await expectPgConstraint(client,`INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json) VALUES ($1,$2,'DAILY_LIMIT',$3::jsonb)`,[ids.schoolA, policySet.rows[0]?.id, JSON.stringify('three')],['23514']);
+        await expectPgConstraint(client,`INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json) VALUES ($1,$2,'MAX_ACTIVE_PER_SECTION',$3::jsonb)`,[ids.schoolA, policySet.rows[0]?.id, JSON.stringify(0)],['23514']);
+        await client.query(`INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json) VALUES ($1,$2,'FUTURE_EXTENSIBLE_POLICY',$3::jsonb)`,[ids.schoolA, policySet.rows[0]?.id, JSON.stringify({ mode: 'future' })]);
       });
     });
 
     await t.test('policy and student-access rows cannot reference another school section', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        await expectPgConstraint(
-          client,
-          `INSERT INTO section_policy_overrides
-             (organization_id, school_id, section_id, policy_key, typed_value_json)
-           VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb)`,
-          [ids.orgA, ids.schoolA, ids.sectionB1],
-          ['23503']
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO student_access_rules
-             (organization_id, school_id, student_id, section_id, access_mode)
-           VALUES ($1, $2, $3, $4, 'STANDARD')`,
-          [ids.orgA, ids.schoolA, ids.studentA, ids.sectionB1],
-          ['23503']
-        );
+        await expectPgConstraint(client,`INSERT INTO section_policy_overrides (organization_id, school_id, section_id, policy_key, typed_value_json) VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb)`,[ids.orgA, ids.schoolA, ids.sectionB1],['23503']);
+        await expectPgConstraint(client,`INSERT INTO student_access_rules (organization_id, school_id, student_id, section_id, access_mode) VALUES ($1, $2, $3, $4, 'STANDARD')`,[ids.orgA, ids.schoolA, ids.studentA, ids.sectionB1],['23503']);
       });
     });
 
     await t.test('configuration provenance actors cannot cross organization boundaries', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-
-        await expectPgConstraint(
-          client,
-          `INSERT INTO school_calendar_days
-             (organization_id, school_id, academic_date, is_school_day, updated_by_user_id)
-           VALUES ($1, $2, DATE '2026-09-08', false, $3)`,
-          [ids.orgA, ids.schoolA, ids.teacherB],
-          ['23503']
-        );
-
-        await expectPgConstraint(
-          client,
-          `INSERT INTO school_policy_sets
-             (organization_id, school_id, academic_year_id, name, effective_from, created_by_user_id)
-           VALUES ($1, $2, $3, 'Cross Org Policy', DATE '2026-09-08', $4)`,
-          [ids.orgA, ids.schoolA, ids.yearA, ids.teacherB],
-          ['23503']
-        );
-
-        await expectPgConstraint(
-          client,
-          `INSERT INTO section_policy_overrides
-             (organization_id, school_id, section_id, policy_key, typed_value_json, set_by_user_id)
-           VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb, $4)`,
-          [ids.orgA, ids.schoolA, ids.sectionA1, '2', ids.teacherB],
-          ['23503']
-        );
-
-        await expectPgConstraint(
-          client,
-          `INSERT INTO student_access_rules
-             (organization_id, school_id, student_id, access_mode, set_by_user_id)
-           VALUES ($1, $2, $3, 'STANDARD', $4)`,
-          [ids.orgA, ids.schoolA, ids.studentA, ids.teacherB],
-          ['23503']
-        );
+        await expectPgConstraint(client,`INSERT INTO school_calendar_days (organization_id, school_id, academic_date, is_school_day, updated_by_user_id) VALUES ($1, $2, DATE '2026-09-08', false, $3)`,[ids.orgA, ids.schoolA, ids.teacherB],['23503']);
+        await expectPgConstraint(client,`INSERT INTO school_policy_sets (organization_id, school_id, academic_year_id, name, effective_from, created_by_user_id) VALUES ($1, $2, $3, 'Cross Org Policy', DATE '2026-09-08', $4)`,[ids.orgA, ids.schoolA, ids.yearA, ids.teacherB],['23503']);
+        await expectPgConstraint(client,`INSERT INTO section_policy_overrides (organization_id, school_id, section_id, policy_key, typed_value_json, set_by_user_id) VALUES ($1, $2, $3, 'DAILY_LIMIT', '2'::jsonb, $4)`,[ids.orgA, ids.schoolA, ids.sectionA1, ids.teacherB],['23503']);
+        await expectPgConstraint(client,`INSERT INTO student_access_rules (organization_id, school_id, student_id, access_mode, set_by_user_id) VALUES ($1, $2, $3, 'STANDARD', $4)`,[ids.orgA, ids.schoolA, ids.studentA, ids.teacherB],['23503']);
       });
     });
 
@@ -309,34 +149,11 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
         const correlationId = randomUUID();
-        const audit = await client.query<{ id: string }>(
-          `INSERT INTO audit_events
-             (organization_id, school_id, actor_kind, action, target_type, correlation_id, source)
-           VALUES ($1, $2, 'SYSTEM', 'SYNTHETIC_EVENT', 'SCHEMA_TEST', $3, 'SYSTEM')
-           RETURNING id`,
-          [ids.orgA, ids.schoolA, correlationId]
-        );
-        await client.query(
-          `INSERT INTO transactional_outbox
-             (organization_id, school_id, topic, event_type, aggregate_type, correlation_id)
-           VALUES ($1, $2, 'schoolwide.synthetic', 'SYNTHETIC_EVENT', 'SCHEMA_TEST', $3)`,
-          [ids.orgA, ids.schoolA, correlationId]
-        );
-        const count = await client.query<{ count: string }>(
-          `SELECT count(*)::text AS count FROM (
-             SELECT correlation_id FROM audit_events WHERE school_id = $1 AND correlation_id = $2
-             UNION ALL
-             SELECT correlation_id FROM transactional_outbox WHERE school_id = $1 AND correlation_id = $2
-           ) correlated`,
-          [ids.schoolA, correlationId]
-        );
+        const audit = await client.query<{ id: string }>(`INSERT INTO audit_events (organization_id, school_id, actor_kind, action, target_type, correlation_id, source) VALUES ($1, $2, 'SYSTEM', 'SYNTHETIC_EVENT', 'SCHEMA_TEST', $3, 'SYSTEM') RETURNING id`,[ids.orgA, ids.schoolA, correlationId]);
+        await client.query(`INSERT INTO transactional_outbox (organization_id, school_id, topic, event_type, aggregate_type, correlation_id) VALUES ($1, $2, 'schoolwide.synthetic', 'SYNTHETIC_EVENT', 'SCHEMA_TEST', $3)`,[ids.orgA, ids.schoolA, correlationId]);
+        const count = await client.query<{ count: string }>(`SELECT count(*)::text AS count FROM (SELECT correlation_id FROM audit_events WHERE school_id = $1 AND correlation_id = $2 UNION ALL SELECT correlation_id FROM transactional_outbox WHERE school_id = $1 AND correlation_id = $2) correlated`,[ids.schoolA, correlationId]);
         assert.equal(count.rows[0]?.count, '2');
-        await expectPgConstraint(
-          client,
-          'UPDATE audit_events SET reason = $1 WHERE id = $2',
-          ['mutation should fail', audit.rows[0]?.id],
-          ['P0001']
-        );
+        await expectPgConstraint(client,'UPDATE audit_events SET reason = $1 WHERE id = $2',['mutation should fail', audit.rows[0]?.id],['P0001']);
       });
     });
 
@@ -344,104 +161,31 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
         const correlationId = randomUUID();
-        await client.query(
-          `INSERT INTO idempotency_keys
-             (organization_id, school_id, key, operation, request_fingerprint, expires_at, correlation_id)
-           VALUES ($1, $2, 'request-1', 'SYNTHETIC', 'fingerprint-a', now() + interval '5 minutes', $3)`,
-          [ids.orgA, ids.schoolA, correlationId]
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO idempotency_keys
-             (organization_id, school_id, key, operation, request_fingerprint, expires_at, correlation_id)
-           VALUES ($1, $2, 'request-1', 'SYNTHETIC', 'fingerprint-b', now() + interval '5 minutes', $3)`,
-          [ids.orgA, ids.schoolA, randomUUID()],
-          ['23505']
-        );
-        await expectPgConstraint(
-          client,
-          `INSERT INTO idempotency_keys
-             (organization_id, school_id, key, operation, request_fingerprint, expires_at, correlation_id)
-           VALUES ($1, $2, 'cross-org', 'SYNTHETIC', 'fingerprint-c', now() + interval '5 minutes', $3)`,
-          [ids.orgA, ids.schoolB, randomUUID()],
-          ['23503']
-        );
+        await client.query(`INSERT INTO idempotency_keys (organization_id, school_id, key, operation, request_fingerprint, expires_at, correlation_id) VALUES ($1, $2, 'request-1', 'SYNTHETIC', 'fingerprint-a', now() + interval '5 minutes', $3)`,[ids.orgA, ids.schoolA, correlationId]);
+        await expectPgConstraint(client,`INSERT INTO idempotency_keys (organization_id, school_id, key, operation, request_fingerprint, expires_at, correlation_id) VALUES ($1, $2, 'request-1', 'SYNTHETIC', 'fingerprint-b', now() + interval '5 minutes', $3)`,[ids.orgA, ids.schoolA, randomUUID()],['23505']);
+        await expectPgConstraint(client,`INSERT INTO idempotency_keys (organization_id, school_id, key, operation, request_fingerprint, expires_at, correlation_id) VALUES ($1, $2, 'cross-org', 'SYNTHETIC', 'fingerprint-c', now() + interval '5 minutes', $3)`,[ids.orgA, ids.schoolB, randomUUID()],['23503']);
       });
     });
 
     await t.test('Classroom storage keeps OAuth token material outside PostgreSQL', async () => {
-      const result = await pool.query<{ column_name: string }>(
-        `SELECT column_name
-           FROM information_schema.columns
-          WHERE table_schema='public'
-            AND table_name IN ('classroom_oauth_states','classroom_connections')
-            AND column_name = ANY($1::text[])`,
-        [['access_token', 'refresh_token', 'client_secret', 'code_verifier']]
-      );
+      const result = await pool.query<{ column_name: string }>(`SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('classroom_oauth_states','classroom_connections') AND column_name = ANY($1::text[])`,[['access_token', 'refresh_token', 'client_secret', 'code_verifier']]);
       assert.deepEqual(result.rows, []);
     });
 
     await t.test('outbox processing leases are structurally complete', async () => {
       await withRollback(pool, async (client) => {
         const ids = await seedTwoSchoolFixture(client);
-        const inserted = await client.query<{ id: string }>(
-          `INSERT INTO transactional_outbox
-             (organization_id,school_id,topic,event_type,aggregate_type,correlation_id)
-           VALUES ($1,$2,'schoolwide.synthetic','LEASE_TEST','SCHEMA_TEST',$3)
-           RETURNING id`,
-          [ids.orgA, ids.schoolA, randomUUID()]
-        );
-        await expectPgConstraint(
-          client,
-          `UPDATE transactional_outbox SET status='PROCESSING' WHERE id=$1`,
-          [inserted.rows[0]?.id],
-          ['23514']
-        );
-        await client.query(
-          `UPDATE transactional_outbox
-              SET status='PROCESSING',lease_owner='schema-test',lease_expires_at=now()+interval '30 seconds'
-            WHERE id=$1`,
-          [inserted.rows[0]?.id]
-        );
+        const inserted = await client.query<{ id: string }>(`INSERT INTO transactional_outbox (organization_id,school_id,topic,event_type,aggregate_type,correlation_id) VALUES ($1,$2,'schoolwide.synthetic','LEASE_TEST','SCHEMA_TEST',$3) RETURNING id`,[ids.orgA, ids.schoolA, randomUUID()]);
+        await expectPgConstraint(client,`UPDATE transactional_outbox SET status='PROCESSING' WHERE id=$1`,[inserted.rows[0]?.id],['23514']);
+        await client.query(`UPDATE transactional_outbox SET status='PROCESSING',lease_owner='schema-test',lease_expires_at=now()+interval '30 seconds' WHERE id=$1`,[inserted.rows[0]?.id]);
       });
     });
 
     await t.test('required hot-path indexes exist', async () => {
-      const expectedIndexes = [
-        'enrollments_current_section_student_idx',
-        'section_staff_current_lookup_idx',
-        'school_calendar_days_lookup_idx',
-        'school_policy_sets_effective_idx',
-        'audit_events_school_time_idx',
-        'transactional_outbox_pending_idx',
-        'transactional_outbox_delivery_ready_idx',
-        'transactional_outbox_processing_lease_idx',
-        'operations_job_runs_type_time_idx',
-        'operations_job_runs_school_time_idx',
-        'checkins_section_date_idx',
-        'checkins_student_date_idx',
-        'pass_requests_section_status_idx',
-        'queue_entries_fifo_idx',
-        'passes_section_status_idx',
-        'pass_events_resource_idx',
-        'pass_corrections_pass_time_idx',
-        'staff_actions_school_time_idx',
-        'classroom_connections_health_idx',
-        'section_external_links_due_idx',
-        'classroom_sync_runs_link_time_idx',
-        'classroom_roster_members_link_user_idx',
-        'integration_review_items_open_idx'
-      ];
-      const result = await pool.query<{ indexname: string }>(
-        `SELECT indexname FROM pg_indexes
-          WHERE schemaname = 'public'
-            AND indexname = ANY($1::text[])`,
-        [expectedIndexes]
-      );
+      const expectedIndexes = ['enrollments_current_section_student_idx','section_staff_current_lookup_idx','school_calendar_days_lookup_idx','school_policy_sets_effective_idx','audit_events_school_time_idx','transactional_outbox_pending_idx','transactional_outbox_delivery_ready_idx','transactional_outbox_processing_lease_idx','operations_job_runs_type_time_idx','operations_job_runs_school_time_idx','checkins_section_date_idx','checkins_student_date_idx','pass_requests_section_status_idx','queue_entries_fifo_idx','passes_section_status_idx','pass_events_resource_idx','pass_corrections_pass_time_idx','staff_actions_school_time_idx','classroom_connections_health_idx','section_external_links_due_idx','classroom_sync_runs_link_time_idx','classroom_roster_members_link_user_idx','integration_review_items_open_idx'];
+      const result = await pool.query<{ indexname: string }>(`SELECT indexname FROM pg_indexes WHERE schemaname = 'public' AND indexname = ANY($1::text[])`,[expectedIndexes]);
       const names = new Set(result.rows.map((row) => row.indexname));
-      for (const expected of expectedIndexes) {
-        assert.ok(names.has(expected), `Missing required index ${expected}.`);
-      }
+      for (const expected of expectedIndexes) assert.ok(names.has(expected), `Missing required index ${expected}.`);
     });
   } finally {
     await pool.end();
