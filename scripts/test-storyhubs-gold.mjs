@@ -3,9 +3,16 @@ import { preview } from 'astro';
 import { chromium } from 'playwright';
 
 const pages = [
-  { path: '/hubs/bts-s01-the-death-harvest.html', marker: 'bts-v2', cards: 30, words: 3000, terms: 9, repairs: 6 },
-  { path: '/hubs/hh-s01-the-desk-it-stopped-at.html', marker: 'hh-v2', cards: 28, words: 2800, terms: 10, repairs: 6 },
-  { path: '/hubs/ush9-s01-the-margin.html', marker: 'ush9-v2', cards: 28, words: 3000, terms: 9, repairs: 6 },
+  { path: '/hubs/bts-s01-the-death-harvest.html', marker: 'bts-v2', mapId: 'story-map-title', cards: 30, words: 3000, terms: 9, repairs: 6 },
+  { path: '/hubs/hh-s01-the-desk-it-stopped-at.html', marker: 'hh-v2', mapId: 'desk-map-title', cards: 28, words: 2800, terms: 10, repairs: 6 },
+  { path: '/hubs/ush9-s01-the-margin.html', marker: 'ush9-v2', mapId: 'margin-map-title', cards: 28, words: 3000, terms: 9, repairs: 6 },
+];
+
+const plainLanguageChecks = [
+  ['/hubs/ush9-s01-the-margin.html', 'Think of a bathtub with an overflow drain and a plug you can pull.'],
+  ['/hubs/hh-s01-the-desk-it-stopped-at.html', 'Drawing it on the whiteboard is one step.'],
+  ['/hubs/bts-s01-the-death-harvest.html', 'Picture a goal-line push on almost every important snap.'],
+  ['/hubs/ush9-l014-unions.html', 'A railroad makes money by moving. In 1885, the trains stopped.'],
 ];
 
 function count(haystack, needle) {
@@ -27,6 +34,7 @@ for (const page of pages) {
   const html = await readFile(new URL(`../public${page.path}`, import.meta.url), 'utf8');
   const checks = [
     [html.includes(`data-gold-context="${page.marker}"`), 'version marker'],
+    [count(html, `aria-labelledby="${page.mapId}"`) === 1, 'one opening context map'],
     [html.includes('/storyhub/subday-20260908/storyhub-context.css'), 'shared context stylesheet'],
     [count(html, 'class="context-card') >= page.cards, `${page.cards}+ context cards`],
     [visibleWordCount(html) >= page.words, `${page.words}+ visible words`],
@@ -43,6 +51,17 @@ for (const page of pages) {
     if (!ok) throw new Error(`${page.path}: missing ${label}`);
   }
   console.log(`PASS depth ${page.path} (${visibleWordCount(html)} words, ${count(html, 'class="context-card')} context cards)`);
+}
+
+for (const [path, anchor] of plainLanguageChecks) {
+  const html = await readFile(new URL(`../public${path}`, import.meta.url), 'utf8');
+  if (!html.includes(anchor)) throw new Error(`${path}: missing plain-language teaching anchor`);
+  console.log(`PASS plain-language context ${path}`);
+}
+
+if (process.env.STORYHUB_CONTENT_ONLY === '1') {
+  console.log('Gold Standard StoryHub content gate: PASS (content-only)');
+  process.exit(0);
 }
 
 const externalOrigin = process.env.STORYHUB_BASE_URL?.replace(/\/$/, '');
