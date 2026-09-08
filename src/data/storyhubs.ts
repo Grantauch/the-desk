@@ -30,8 +30,8 @@ export const storyHubs: StoryHub[] = [
     question: 'how many ordinary decisions can a safety margin survive before there is no margin left?',
     blurb:
       'The South Fork dam begins as a state engineering project, is breached and abandoned, then returns as the centerpiece of a private club. Students follow the missing pipes, lowered crest, warnings, storm, flood path, liability fight, and the engineering disagreement that still matters.',
-    cover: '/storyhub/subday/margin-cover.svg',
-    coverAlt: 'Blueprint style cross section of the South Fork dam above a valley',
+    cover: '/storyhub/subday-20260908/margin/13-the-road.webp',
+    coverAlt: 'Generated cyanotype-style reconstruction of the road across the South Fork dam',
     topics: ['johnstown flood', 'south fork dam', 'gilded age wealth', 'liability', 'safety margin'],
     inside: [
       'A subtraction instrument that shows how safety features disappeared without inventing unsupported capacity percentages.',
@@ -51,8 +51,8 @@ export const storyHubs: StoryHub[] = [
     question: 'what can a real declassified document prove — and where does the evidence stop?',
     blurb:
       'Operation Northwoods is real, signed, declassified, and routinely misused online. Students keep proposal, approval, and execution separate while following the paper from the Joint Chiefs to the desk where the released record stops.',
-    cover: '/storyhub/subday/desk-cover.svg',
-    coverAlt: 'Dark archival desk with a declassified 1962 memorandum',
+    cover: '/storyhub/subday-20260908/desk/05-the-desk-it-stopped-at.webp',
+    coverAlt: 'Generated reconstruction of a Cold War planning map stopped on an official desk',
     topics: ['operation northwoods', 'declassified records', 'primary sources', 'claim scope', 'corroboration'],
     inside: [
       'An annex instrument that separates what was proposed from what was approved or carried out.',
@@ -72,8 +72,8 @@ export const storyHubs: StoryHub[] = [
     question: 'did the forward pass save football, or did the rule book need a deeper rewrite?',
     blurb:
       'Newspapers turn football deaths into a national tally, Roosevelt brings college leaders to the White House, and the sport rewrites its rules. Then the counts rise again. Students test the famous forward-pass story against the rule book and the messy newspaper series.',
-    cover: '/storyhub/subday/death-harvest-cover.svg',
-    coverAlt: 'Dark green football field with a 1905 program ledger and football',
+    cover: '/storyhub/subday-20260908/harvest/01-the-tally.webp',
+    coverAlt: 'Generated sepia reconstruction of a 1905 football death tally on a wooden desk',
     topics: ['1905 football crisis', 'theodore roosevelt', 'forward pass', 'ncaa origins', 'sports safety'],
     inside: [
       'A 1905 rule constraint test showing why mass plays made strategic sense under five yards in three downs.',
