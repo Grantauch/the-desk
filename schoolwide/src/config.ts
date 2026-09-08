@@ -27,11 +27,11 @@ export type AppConfig = {
   instanceId: string;
   legacyReadAdapterMode: z.infer<typeof configSchema>['LEGACY_READ_ADAPTER_MODE'];
   legacyProductionWrites: 'forbidden';
-  operationsWorkersEnabled: boolean;
-  outboxWorkerIntervalMs: number;
-  classroomSyncIntervalMs: number;
-  outboxWorkerBatchSize: number;
-  classroomSyncBatchSize: number;
+  operationsWorkersEnabled?: boolean;
+  outboxWorkerIntervalMs?: number;
+  classroomSyncIntervalMs?: number;
+  outboxWorkerBatchSize?: number;
+  classroomSyncBatchSize?: number;
 };
 
 export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppConfig {
