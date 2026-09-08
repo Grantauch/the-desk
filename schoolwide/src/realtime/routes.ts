@@ -51,7 +51,7 @@ function openStream(
   });
   reply.raw.write('retry: 5000\n\n');
   let closed = false;
-  let unsubscribe = () => undefined;
+  let unsubscribe: () => void = () => undefined;
   const close = () => {
     if (closed) return;
     closed = true;
