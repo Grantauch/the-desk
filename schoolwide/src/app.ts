@@ -101,7 +101,7 @@ export function buildApp({
   registerClassroomRoutes(app, { authentication, authorization, classroom });
   registerSecurityConsoleRoutes(app, { authentication, authorization, securityConsole });
   registerAdminConsoleRoutes(app, { authentication, authorization, adminConsole });
-  registerAdminStructureRoutes(app, { authentication, authorization, adminConsole, structure: adminStructure });
+  registerAdminStructureRoutes(app, { authentication, authorization, adminConsole, structure: adminStructure, database });
 
   app.get('/', async () => ({
     service: 'grantdesk-schoolwide',
