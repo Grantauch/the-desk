@@ -288,7 +288,6 @@ const groupMaterials = (materials: Material[]) =>
               )}
               {unit.storyhub && (
                 <a class="storyhub-strip" href={unit.storyhub.href}>
-                  <span class="storyhub-strip__eyebrow">grantdesk story</span>
                   <span class="storyhub-strip__title">{unit.storyhub.title}</span>
                   <span class="storyhub-strip__blurb">{unit.storyhub.blurb}</span>
                   <span class="storyhub-strip__go">enter the story <span aria-hidden="true">→</span></span>
@@ -754,15 +753,6 @@ const groupMaterials = (materials: Material[]) =>
   .storyhub-strip:focus-visible {
     transform: translateY(-2px);
     box-shadow: 0 10px 22px -14px rgba(7, 16, 25, 0.9);
-  }
-
-  .storyhub-strip__eyebrow {
-    color: #9aadff;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    font-weight: 750;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
   }
 
   .storyhub-strip__title {

@@ -8,7 +8,7 @@ import { chromium } from 'playwright';
 const origin = 'http://127.0.0.1:4391';
 const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = name => fileURLToPath(new URL(name, artifacts));
-const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/check-in/', '/pass/'];
+const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/check-in/', '/pass/', '/hubs/ush9-l015-who-showed-up.html', '/hubs/bts-l03-not-in-the-room.html', '/hubs/hh-l06-two-sources.html'];
 const viewports = [
   { name: 'phone-320', width: 320, height: 740 },
   { name: 'phone-390', width: 390, height: 844 },
@@ -68,6 +68,28 @@ try {
       const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
       await writeFile(artifact(`${viewport.name}-${route.replace(/\//g, '') || 'home'}-axe.json`), JSON.stringify(axe, null, 2));
       assert.deepEqual(axe.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })) })), [], 'Full-page WCAG A/AA including contrast');
+    });
+    await runCase('tomorrow storyhubs teach', viewport, async page => {
+      await visit(page, '/hubs/ush9-l015-who-showed-up.html');
+      assert.equal(await page.locator('.plain-talk').count(), 6, 'USH9 has six visible teaching bridges');
+      assert.equal(await page.locator('summary').filter({ hasText: /CORE IDEA|FULL STORY/ }).count(), 0, 'USH9 removes generic AI-style summary labels');
+      await page.locator('#dateRange').fill('10');
+      assert.equal(await page.locator('#cCities').textContent(), '11', 'USH9 rail network reaches the final evidence state');
+
+      await visit(page, '/hubs/bts-l03-not-in-the-room.html');
+      assert.equal(await page.locator('.plain-talk').count(), 5, 'BTS has five visible teaching bridges');
+      assert.equal(await page.locator('#wageOut').textContent(), '$1,500', 'BTS open market follows the strongest offer');
+      await page.locator('#reserveSwitch').click();
+      assert.equal(await page.locator('#reserveSwitch').getAttribute('aria-pressed'), 'true', 'BTS reserve rule enters the reserved state');
+      assert.ok(await page.locator('#bid2').isDisabled(), 'BTS reserve rule disables rival bids');
+      assert.equal(await page.locator('#wageOut').textContent(), '$1,200', 'BTS reserved market leaves one offer');
+
+      await visit(page, '/hubs/hh-l06-two-sources.html');
+      assert.equal(await page.locator('.plain-talk').count(), 7, 'Hidden History has seven visible teaching bridges');
+      await page.locator('#traceBack').click();
+      await page.locator('#traceBack').click();
+      await page.locator('#traceBack').click();
+      assert.equal(await page.locator('#originCount').textContent(), '1', 'Hidden History trace collapses repetition to one origin');
     });
     await runCase('course and calendar agree', viewport, async page => {
       for (const [route, course] of [['/us-history/', 'history'], ['/hidden-history/', 'hidden'], ['/beyond-the-scoreboard/', 'scoreboard']]) {

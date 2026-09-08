@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#d8c9a7">
+  <title>Not In The Room | GrantDesk StoryHub</title>
+  <meta name="description" content="How baseball club owners built a modern sports industry between 1876 and 1880, one rule at a time.">
+  <link rel="canonical" href="https://grant-desk.com/hubs/bts-l03-not-in-the-room.html">
+  <meta property="og:title" content="Not In The Room | GrantDesk StoryHub">
+  <meta property="og:description" content="How baseball owners built a league and closed the labor market while players were missing from the room.">
+  <meta property="og:image" content="https://grant-desk.com/storyhub/bts/l03/assets/cover-ledger.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root{--paper:#d8c9a7;--paper-light:#eadfc4;--ink:#241f19;--faded:#6f5c48;--rule:#964e45;--marble:#274f50;--marble-soft:#3f6a68;--signal:#27356c;--white:#fffaf0;--shadow:#20160f33}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;color:var(--ink);background:var(--paper);font-family:Georgia,'Times New Roman',serif;line-height:1.62;background-image:linear-gradient(90deg,transparent 0 7.2%,rgba(150,78,69,.26) 7.25% 7.38%,transparent 7.45%),repeating-linear-gradient(0deg,transparent 0 31px,rgba(39,79,80,.13) 32px 33px)}
+    button,input{font:inherit}
+    button{color:inherit}
+    a{color:inherit}
+    :focus-visible{outline:3px solid var(--marble);outline-offset:4px}
+    .skip{position:absolute;left:1rem;top:-5rem;background:var(--ink);color:var(--white);padding:.7rem 1rem;z-index:100}.skip:focus{top:1rem}
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(36,31,25,.96);color:var(--white);border-bottom:3px solid var(--rule)}
+    .topbar__in{width:min(1180px,calc(100% - 30px));min-height:48px;margin:auto;display:flex;align-items:center;gap:1rem}
+    .topbar a{text-decoration:none}.brand{font-family:Arial,sans-serif;font-weight:900;letter-spacing:.08em}.crumb{flex:1;color:#d9cfbd;font-size:.83rem}.toplink{border-left:1px solid #ffffff33;padding-left:1rem;font:700 .76rem/1 Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+    .progress{height:3px;background:var(--marble-soft);width:0}
+    .page{width:min(1120px,calc(100% - 34px));margin:auto}
+    .hero{min-height:88vh;display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(2rem,7vw,6rem);align-items:center;padding:8rem 0 6rem}
+    .locator{font:800 .76rem/1.4 ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faded);border-bottom:1px solid var(--rule);padding-bottom:.7rem;display:inline-block}
+    h1,h2,h3{font-family:Georgia,'Times New Roman',serif}
+    h1{font-size:clamp(4.5rem,11vw,9.8rem);line-height:.78;letter-spacing:-.075em;margin:.2em 0 .25em;max-width:8ch;font-style:italic}
+    .deck{font-size:clamp(1.15rem,2vw,1.48rem);max-width:40rem}
+    .hero-ledger{border:2px solid var(--ink);background:var(--paper-light);box-shadow:16px 16px 0 var(--marble);transform:rotate(1.2deg)}
+    .hero-ledger__head{font:900 .72rem/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid var(--ink);padding:1rem;display:flex;justify-content:space-between}
+    .hero-ledger__row{display:grid;grid-template-columns:5.2rem 1fr;border-bottom:1px solid var(--rule)}.hero-ledger__row:last-child{border-bottom:0}.hero-ledger__row b,.hero-ledger__row span{padding:.85rem}.hero-ledger__row b{border-right:1px solid var(--rule);font-family:ui-monospace,monospace}.hero-ledger__row span{font-weight:700}
+    .chapter{position:relative;padding:clamp(5rem,9vw,8.5rem) 0;border-top:2px solid var(--ink)}
+    .chapter--dark{width:100%;max-width:none;background:var(--ink);color:var(--white);padding-inline:max(17px,calc((100vw - 1120px)/2));border-color:var(--rule)}
+    .chapter-number{font:900 clamp(3rem,10vw,8rem)/.75 ui-monospace,monospace;color:rgba(36,31,25,.1);position:absolute;right:0;top:2rem;pointer-events:none}.chapter--dark .chapter-number{display:none}
+    h2{font-size:clamp(2.5rem,6vw,5.8rem);line-height:.9;letter-spacing:-.055em;margin:0 0 1.4rem;max-width:12ch}
+    .story{font-size:clamp(1.04rem,1.5vw,1.22rem);max-width:46rem}.story p{margin:0 0 1.15rem}
+    .lead{font-size:1.24em;line-height:1.48}
+    .plain-talk{margin:2.4rem 0 0 9%;max-width:48rem;padding:1.5rem 1.7rem 1.6rem;border-left:7px double var(--marble);background:rgba(234,223,196,.78);box-shadow:8px 8px 0 var(--shadow)}
+    .plain-talk h3{font:900 .85rem/1.2 Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;margin:0 0 .75rem;color:var(--marble)}.plain-talk p{margin:.6rem 0}.chapter--dark .plain-talk{color:var(--ink);background:var(--paper-light)}
+    .identity-placeholder{margin-top:2rem;max-width:42rem;border:3px double var(--ink);background:var(--paper-light);display:grid;grid-template-columns:9rem 1fr;box-shadow:10px 10px 0 var(--shadow)}
+    .identity-placeholder__mark{display:grid;place-items:center;min-height:9rem;background:var(--marble);color:var(--white);font:italic 900 3.5rem Georgia,serif}.identity-placeholder__copy{padding:1.1rem;color:var(--ink)}.identity-placeholder__copy small{font:800 .68rem/1.2 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--faded)}.identity-placeholder__copy strong{display:block;font-size:1.45rem;margin:.2rem 0}.identity-placeholder__copy p{font-size:.88rem;margin:.35rem 0;color:var(--faded)}
+    .instrument{margin:3rem 0;background:var(--paper-light);color:var(--ink);border:3px double var(--ink);box-shadow:14px 14px 0 var(--marble);padding:clamp(1rem,3vw,2rem)}
+    .instrument__head{display:flex;align-items:start;justify-content:space-between;gap:1rem;padding-bottom:1rem;border-bottom:2px solid var(--ink)}
+    .instrument h3{font-size:clamp(1.7rem,4vw,3rem);line-height:1;margin:0}.instrument__head p{margin:.5rem 0 0;color:var(--faded)}
+    .reset,.tab,.advance{border:1px solid var(--ink);background:transparent;padding:.72rem .85rem;font:800 .72rem/1 Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}.reset:hover,.tab:hover,.advance:hover,.tab[aria-pressed="true"]{background:var(--ink);color:var(--white)}
+    .audit-row{border-bottom:1px solid var(--rule)}.audit-row button{width:100%;border:0;background:transparent;padding:1rem 0;display:grid;grid-template-columns:2rem 1fr auto;text-align:left;gap:.7rem;cursor:pointer;font-weight:800}.audit-row button span:first-child{font-family:ui-monospace,monospace;color:var(--rule)}.audit-row__body{display:none;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--rule)}.audit-row.open .audit-row__body{display:grid}.audit-cell{padding:1rem;border-right:1px solid var(--rule)}.audit-cell:last-child{border-right:0;background:rgba(39,79,80,.11)}.audit-cell b{display:block;font:800 .63rem/1.3 ui-monospace,monospace;letter-spacing:.06em;margin-bottom:.45rem;color:var(--faded)}
+    .finding{margin-top:1rem;padding:1rem;border-left:5px solid var(--marble);font-weight:800;min-height:3.7rem}
+    .bid-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0}.bid{border:1px solid var(--rule);padding:1rem}.bid label{display:block;font:800 .65rem/1.3 ui-monospace,monospace;letter-spacing:.06em}.bid output{display:block;font-size:2rem;font-weight:900}.bid input{width:100%;accent-color:var(--marble)}.bid.inert{opacity:.38}.bid.inert input{pointer-events:none}.bid--home{border:2px solid var(--ink)}
+    .wage{display:grid;grid-template-columns:1fr auto;align-items:end;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);padding:1rem 0}.wage strong{font-size:clamp(3rem,8vw,6rem);line-height:.8}.market-switch{display:flex;gap:.7rem;flex-wrap:wrap;margin:1.25rem 0}.market-state{font:800 .78rem/1.5 ui-monospace,monospace}
+    .axes{margin-top:1.5rem;display:grid;grid-template-columns:12rem 1fr;gap:1rem}.occupation-list{display:grid;gap:.5rem}.occupation-list button{text-align:left}.plot{position:relative;min-height:420px;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);background:linear-gradient(90deg,transparent 49.8%,rgba(150,78,69,.3) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(150,78,69,.3) 50%,transparent 50.2%)}
+    .axis-label{position:absolute;font:800 .62rem/1.2 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.05em}.axis-label--x{right:0;bottom:-2rem}.axis-label--y{left:-2rem;top:0;writing-mode:vertical-rl;transform:rotate(180deg)}
+    .point{position:absolute;transform:translate(-50%,-50%) scale(.6);opacity:0;background:var(--ink);color:var(--white);padding:.4rem .55rem;border:2px solid var(--paper-light);font:800 .67rem/1.2 Arial,sans-serif;max-width:10rem;transition:.2s}.point.show{opacity:1;transform:translate(-50%,-50%) scale(1)}.point[data-id="reserved"]{background:var(--rule)}
+    .evidence{margin-top:2.5rem;border-top:1px solid var(--rule);padding-top:1rem;min-height:5rem}
+    .document{max-width:50rem;margin:2rem 0;padding:1.3rem 1.5rem;background:var(--paper-light);border:1px solid var(--ink);transform:rotate(-.35deg);box-shadow:9px 9px 0 var(--shadow);font-family:ui-monospace,Consolas,monospace}.document cite{display:block;margin-top:.8rem;color:var(--faded);font-size:.78rem}
+    .five-rules{display:grid;grid-template-columns:repeat(5,1fr);border:2px solid var(--ink);margin:2rem 0}.five-rules div{padding:1rem;border-right:1px solid var(--ink);min-height:8rem}.five-rules div:last-child{border-right:0}.five-rules b{display:block;font-family:ui-monospace,monospace;font-size:.7rem;color:var(--rule)}.five-rules strong{display:block;margin-top:.5rem;font-size:1.2rem}
+    .ending{background:var(--ink);color:var(--white);padding:9rem 0}.ending .page{display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:end}.ending p{max-width:46rem;font-size:clamp(1.25rem,2.4vw,1.8rem)}.year{font:900 clamp(5rem,16vw,12rem)/.75 Georgia,serif;color:#aeb9ff}
+    .appendix{padding:6rem 0;border-top:2px solid var(--ink)}.appendix h2{max-width:none;font-size:clamp(2.4rem,5vw,4.5rem)}.table-scroll{overflow:auto;border:2px solid var(--ink);background:var(--paper-light)}table{border-collapse:collapse;width:100%;min-width:720px}th,td{text-align:left;vertical-align:top;padding:.85rem;border:1px solid var(--rule)}th{font:800 .68rem/1.3 ui-monospace,monospace;text-transform:uppercase;background:rgba(39,79,80,.12)}
+    .sources{max-width:52rem}.sources li{margin:.7rem 0}.source-note{font:700 .78rem/1.4 ui-monospace,monospace;color:var(--faded)}
+    .notes{position:fixed;z-index:50;right:1rem;bottom:1rem;width:min(430px,calc(100vw - 2rem));background:var(--paper-light);border:2px solid var(--ink);box-shadow:12px 12px 0 #0005;transform:translateY(calc(100% - 48px));transition:.2s}.notes.open{transform:none}.notes__head{height:48px;width:100%;border:0;background:var(--ink);color:var(--white);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;cursor:pointer;font:800 .72rem/1 ui-monospace,monospace;letter-spacing:.05em}.notes textarea{width:100%;height:240px;resize:vertical;border:0;border-bottom:1px solid var(--ink);padding:1rem;background:var(--paper-light);color:var(--ink)}.notes__actions{display:flex;gap:.5rem;padding:.7rem}
+    noscript .script-only{display:none}
+    .noscript-state{display:none}
+    @media(max-width:780px){body{background-image:linear-gradient(90deg,transparent 0 4%,rgba(150,78,69,.22) 4.1% 4.4%,transparent 4.5%),repeating-linear-gradient(0deg,transparent 0 31px,rgba(39,79,80,.13) 32px 33px)}.hero{grid-template-columns:1fr;min-height:auto;padding:5rem 0}.hero-ledger{transform:none;box-shadow:8px 8px 0 var(--marble)}.plain-talk{margin-left:0}.bid-grid{grid-template-columns:1fr 1fr}.axes{grid-template-columns:1fr}.occupation-list{grid-template-columns:1fr 1fr}.plot{min-height:360px}.axis-label--y{left:-1.2rem}.five-rules{grid-template-columns:1fr}.five-rules div{border-right:0;border-bottom:1px solid var(--ink);min-height:auto}.five-rules div:last-child{border-bottom:0}.ending .page{grid-template-columns:1fr}.audit-row__body{grid-template-columns:1fr}.audit-cell{border-right:0;border-bottom:1px solid var(--rule)}.audit-cell:last-child{border-bottom:0}}
+    @media(max-width:480px){.crumb{display:none}.bid-grid,.occupation-list{grid-template-columns:1fr}.instrument__head{display:block}.instrument__head .reset{margin-top:1rem}.identity-placeholder{grid-template-columns:1fr}.identity-placeholder__mark{min-height:6rem}.hero-ledger__row{grid-template-columns:4.2rem 1fr}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.notes{transition:none}.point{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+    @media print{.topbar,.notes,.reset,.advance,.market-switch,.occupation-list{display:none!important}body{background:#fff}.chapter,.appendix{break-inside:avoid}.instrument,.hero-ledger,.plain-talk{box-shadow:none}.point{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main-content">Skip to the story</a>
+  <header class="topbar">
+    <div class="topbar__in"><a class="brand" href="/">the desk</a><span class="crumb">Beyond the Scoreboard · Not In The Room</span><a class="toplink" href="/storyhubs/">all stories</a></div>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero page" aria-labelledby="title">
+      <div>
+        <p class="locator">Beyond the Scoreboard · Lesson 03 · 1876–1885</p>
+        <h1 id="title">Not In The Room</h1>
+        <p class="deck">Between 1876 and 1880, club owners wrote the operating system for modern American sports. The players whose work made the product were not asked to sign it.</p>
+      </div>
+      <div class="hero-ledger" aria-label="Five-part industry ledger">
+        <div class="hero-ledger__head"><span>industry ledger</span><span>1876–1880</span></div>
+        <div class="hero-ledger__row"><b>01</b><span>charter</span></div>
+        <div class="hero-ledger__row"><b>02</b><span>exclusive territory</span></div>
+        <div class="hero-ledger__row"><b>03</b><span>standard schedule</span></div>
+        <div class="hero-ledger__row"><b>04</b><span>enforcement</span></div>
+        <div class="hero-ledger__row"><b>05</b><span>labor control</span></div>
+      </div>
+    </section>
+
+    <section class="chapter page" id="mess">
+      <span class="chapter-number" aria-hidden="true">01</span>
+      <h2>The mess was real.</h2>
+      <div class="story">
+        <p class="lead">Professional baseball already existed. What it did not have was a system sturdy enough to make anybody trust next month's schedule.</p>
+        <p>Players jumped to whichever club paid more, sometimes in the middle of a season. Clubs ran out of money and disappeared with games left to play and wages still owed. Two teams could split one city's audience. Gambling rumors hung over results.</p>
+        <p>The National League did not invent professional baseball. Its narrower achievement was making club-owner control durable.</p>
+      </div>
+      <aside class="plain-talk" aria-labelledby="plain-1">
+        <h3 id="plain-1">Why would anybody pay to watch a league that might vanish?</h3>
+        <p>Imagine buying a season pass when you do not know whether the team will still exist next month. Imagine following a standings table when clubs use different rules, skip promised games, or lose their best players halfway through the schedule. The game can be exciting and still be a terrible product.</p>
+        <p>That distinction matters. The owners did not sit down to fix an imaginary crisis. Unpaid players and broken schedules hurt everybody. The harder question is who got to design the solution. A fair fix for instability could have included the people doing the work. This one did not. Keep both facts in your head: the problems were genuine, and the rules that solved them concentrated power.</p>
+      </aside>
+    </section>
+
+    <section class="chapter chapter--dark" id="meeting">
+      <span class="chapter-number" aria-hidden="true">02</span>
+      <h2>February 2, 1876.</h2>
+      <div class="story">
+        <p class="lead">William Hulbert, a Chicago coal merchant who controlled the White Stockings, called club owners to the Grand Central Hotel in New York.</p>
+        <p>The meeting and date are documented. A later story says Hulbert locked the door until the deal was finished. That detail comes from memoir, written down long after the winners had won. It may be true. The surviving record does not let us treat it like the meeting itself.</p>
+        <p>Out of the room came the National League of Professional Base Ball Clubs. Hulbert became league president in 1877 and held the job until his death in 1882.</p>
+      </div>
+      <div class="identity-placeholder" role="img" aria-label="Text identity marker for William Hulbert; an archival portrait will be added later">
+        <div class="identity-placeholder__mark" aria-hidden="true">WH</div>
+        <div class="identity-placeholder__copy"><small>visual source slot · clearly not archival</small><strong>William Hulbert</strong><p>Organizer, club executive, and league president. An approved period portrait can replace this labeled text marker without changing the lesson.</p></div>
+      </div>
+    </section>
+
+    <section class="chapter page" id="charter">
+      <span class="chapter-number" aria-hidden="true">03</span>
+      <h2>Read it like an accountant.</h2>
+      <div class="story"><p class="lead">The 1876 constitution looks like housekeeping. Read every rule as a decision about money or control and it becomes a business plan.</p></div>
+      <aside class="plain-talk" aria-labelledby="plain-2">
+        <h3 id="plain-2">A rule always moves something.</h3>
+        <p>A rule can sound neutral because it never names a winner. “One club per city” does not say “protect the owner already inside.” It still does exactly that. “Every club follows the same playing rules” sounds like common sense, and fans genuinely benefit from it. It also gives the league control over what counts as its official product.</p>
+        <p>That is why you read a rule twice. First ask what problem it solves. Then ask who gains the power to make the next decision. A rule can solve a real problem and still transfer control. Those are not opposite findings. The ledger below keeps both columns visible so you do not have to pick a cartoon story where every rule was either noble or evil.</p>
+      </aside>
+      <div class="instrument" id="charterAudit">
+        <div class="instrument__head"><div><h3>Four problems, four clauses</h3><p>Open a row. Watch the third column.</p></div><button class="reset" id="auditReset">close the audit</button></div>
+        <div class="audit-row"><button aria-expanded="false"><span>01</span><span>Anybody can enter the market</span><span aria-hidden="true">+</span></button><div class="audit-row__body"><div class="audit-cell"><b>THE PROBLEM</b>Anyone could start a club and call it major league.</div><div class="audit-cell"><b>THE DOCUMENT'S FIX</b>A membership gate decides who may join and on what terms.</div><div class="audit-cell"><b>WHO GAINS CONTROL</b>Existing owners decide who else may sell the product.</div></div></div>
+        <div class="audit-row"><button aria-expanded="false"><span>02</span><span>Two clubs split one city's audience</span><span aria-hidden="true">+</span></button><div class="audit-row__body"><div class="audit-cell"><b>THE PROBLEM</b>Competing clubs could divide a market that supported one.</div><div class="audit-cell"><b>THE DOCUMENT'S FIX</b>One member club per city, above a population floor.</div><div class="audit-cell"><b>WHO GAINS CONTROL</b>The owner holding that city gets protected territory.</div></div></div>
+        <div class="audit-row"><button aria-expanded="false"><span>03</span><span>Different rules make schedules meaningless</span><span aria-hidden="true">+</span></button><div class="audit-row__body"><div class="audit-cell"><b>THE PROBLEM</b>Different products cannot build one trusted championship.</div><div class="audit-cell"><b>THE DOCUMENT'S FIX</b>Common playing rules and a declared national champion.</div><div class="audit-cell"><b>WHO GAINS CONTROL</b>The league owns the standardized product and its title.</div></div></div>
+        <div class="audit-row"><button aria-expanded="false"><span>04</span><span>Clubs abandon schedules</span><span aria-hidden="true">+</span></button><div class="audit-row__body"><div class="audit-cell"><b>THE PROBLEM</b>One failed club leaves every other schedule with holes.</div><div class="audit-cell"><b>THE DOCUMENT'S FIX</b>Membership duties backed by league discipline.</div><div class="audit-cell"><b>WHO GAINS CONTROL</b>League leadership, if it is willing to punish a member.</div></div></div>
+        <p class="source-note">Constitution of the National League of Professional Base Ball Clubs, 1876. This is an explanatory audit, not a document facsimile.</p>
+        <div class="finding" id="auditFinding" aria-live="polite">Players appear nowhere in the governance structure of this document.</div>
+      </div>
+    </section>
+
+    <section class="chapter page" id="territory">
+      <span class="chapter-number" aria-hidden="true">04</span>
+      <h2>Territory is the product.</h2>
+      <div class="story"><p class="lead">One club per city meant no other member could sell major-league baseball inside your market. That licensed exclusive territory is the franchise.</p><p>The word did not begin in sports. It names a granted right: a royal charter, a restaurant license, or a ball club's exclusive city. The team plays games. The franchise holds the protected market.</p><p>Common rules also standardized what spectators were buying. A game in Chicago and a game in Boston now belonged to one product and one standings table.</p></div>
+    </section>
+
+    <section class="chapter chapter--dark" id="reserve">
+      <span class="chapter-number" aria-hidden="true">05</span>
+      <h2>Then the bidding stopped.</h2>
+      <div class="story"><p class="lead">After the 1879 season, owners agreed that each club could reserve a limited number of players. Every other club promised not to bid for a reserved man.</p><p>The first agreement was smaller than the system it became. It covered only a handful of players per club, then hardened into contract language over the following years.</p></div>
+      <aside class="plain-talk" aria-labelledby="plain-3">
+        <h3 id="plain-3">What the reserve rule actually did</h3>
+        <p>Your pay is not just a number your boss chooses. In an open market, another employer can offer more. Even if you stay, that outside offer changes what your current employer must pay to keep you.</p>
+        <p>The reserve rule removed that pressure without needing every owner to cut wages. Your club put your name on a list. Every rival promised not to hire you. You could accept the one offer left, stop playing in the league, or hope the owner agreed to trade your contract. Notice who never gets a switch in that system: the player. This was an agreement among employers about workers who were not parties to it.</p>
+      </aside>
+      <div class="instrument" id="biddingFloor">
+        <div class="instrument__head"><div><h3>What a player was worth</h3><p>Move the bids. Then apply the reserve list.</p></div><button class="reset" id="bidReset">clear the list</button></div>
+        <div class="bid-grid">
+          <div class="bid bid--home"><label for="homeBid">CURRENT CLUB OFFER</label><output id="homeBidOut">$1,200</output><input id="homeBid" type="range" min="700" max="1800" step="50" value="1200"></div>
+          <div class="bid rival"><label for="bid2">RIVAL CLUB TWO</label><output id="bid2Out">$1,350</output><input id="bid2" type="range" min="700" max="1800" step="50" value="1350"></div>
+          <div class="bid rival"><label for="bid3">RIVAL CLUB THREE</label><output id="bid3Out">$1,500</output><input id="bid3" type="range" min="700" max="1800" step="50" value="1500"></div>
+          <div class="bid rival"><label for="bid4">RIVAL CLUB FOUR</label><output id="bid4Out">$1,100</output><input id="bid4" type="range" min="700" max="1800" step="50" value="1100"></div>
+        </div>
+        <div class="market-switch"><button class="tab" id="reserveSwitch" aria-pressed="false">apply the reserve list</button><span class="market-state" id="marketState">Four clubs may bid. The wage follows the strongest offer.</span></div>
+        <div class="wage"><span><b>THE WAGE</b><br><small>THE PLAYER WAS NOT A PARTY TO THIS AGREEMENT</small></span><strong id="wageOut" aria-live="polite">$1,500</strong></div>
+      </div>
+    </section>
+
+    <section class="chapter page" id="enforcement">
+      <span class="chapter-number" aria-hidden="true">06</span>
+      <h2>A charter nobody enforces is stationery.</h2>
+      <div class="story"><p class="lead">Under Hulbert, the league expelled clubs that broke its rules. Cincinnati was forced out after conflict over beer sales and Sunday games.</p><p>The exact year gets compressed differently in accounts, so this page does not pretend the date is cleaner than the record. The mechanism is clear. Expelling a paying member costs the league money. Doing it anyway told every remaining owner that the charter was real.</p></div>
+      <div class="document">RULE → MEMBER BREAKS IT → LEAGUE IMPOSES A COST<cite>Mechanism reconstructed from the documented enforcement record. Not a quotation.</cite></div>
+    </section>
+
+    <section class="chapter page" id="respectability">
+      <span class="chapter-number" aria-hidden="true">07</span>
+      <h2>What they refused to sell.</h2>
+      <div class="story"><p class="lead">No beer. No Sunday games. Both could make money. Both were declined on purpose.</p><p>The league wanted middle-class families and city authorities to read its rules as proof that baseball was respectable. It spent possible revenue to buy legitimacy.</p><p>Rules can change an image before they change the action underneath it. That question carries into boxing next: when does a rule make violence acceptable, and when does it merely make violence easier to sell?</p></div>
+    </section>
+
+    <section class="chapter page" id="fan">
+      <span class="chapter-number" aria-hidden="true">08</span>
+      <h2>The fan became a number.</h2>
+      <div class="story"><p class="lead">A scored program was a product. A sports weekly sold a game to readers who never entered the park. A turnstile counted each customer.</p><p>By the 1880s, baseball's audience was measured in attendance, circulation, subscriptions, and box scores. Countable audiences could be priced and sold to.</p></div>
+      <aside class="plain-talk" aria-labelledby="plain-4">
+        <h3 id="plain-4">Why measuring the audience changes the business</h3>
+        <p>A crowd is a feeling until somebody counts it. Once the turnstile says 6,200 people came through, an owner can set a ticket price, compare Tuesday with Saturday, and show an advertiser exactly how many eyes are in the park. Once a sports paper knows its circulation, it can sell readers who live hundreds of miles from the nearest club.</p>
+        <p>This does not mean the fans became fake or stopped loving the game. It means their attention became inventory. The modern version is a view count under a highlight clip. The number does not tell you why people care. It tells the business how much caring it has available to sell.</p>
+      </aside>
+    </section>
+
+    <section class="chapter chapter--dark" id="axes-section">
+      <span class="chapter-number" aria-hidden="true">09</span>
+      <h2>Higher pay. Less freedom.</h2>
+      <div class="story"><p class="lead">A reserved ballplayer could earn more than most industrial workers and have less freedom to change employers than a machinist across the street.</p></div>
+      <aside class="plain-talk" aria-labelledby="plain-5">
+        <h3 id="plain-5">A good job can still have a bad power arrangement</h3>
+        <p>Students usually ask whether the players had it good. That question jams two different facts into one word. Pay answers how much money the job returns. Freedom answers what choices you have if the employer treats you badly.</p>
+        <p>A factory operative might be legally free to leave but too poor to miss a paycheck. A reserved ballplayer might be famous and well paid but unable to accept a rival offer at any price. Neither fact cancels the other. Put pay and freedom on different axes and the argument becomes something you can actually see.</p>
+      </aside>
+      <div class="instrument" id="axesTool">
+        <div class="instrument__head"><div><h3>Pay and freedom are not the same axis</h3><p>Reveal the evidence. Watch where each job lands.</p></div><button class="reset" id="axesReset">clear the plot</button></div>
+        <div class="axes">
+          <div class="occupation-list">
+            <button class="advance" data-point="reserved">reserved ballplayer</button><button class="advance" data-point="open">ballplayer before 1879</button><button class="advance" data-point="machinist">skilled machinist</button><button class="advance" data-point="factory">factory operative</button><button class="advance" data-point="farm">farm laborer</button>
+          </div>
+          <div>
+            <div class="plot" aria-label="Plot comparing relative pay and freedom to change employers">
+              <span class="axis-label axis-label--x">more freedom to change employers →</span><span class="axis-label axis-label--y">higher pay →</span>
+              <span class="point" data-id="reserved" style="left:12%;top:22%">reserved player</span><span class="point" data-id="open" style="left:86%;top:16%">player before 1879</span><span class="point" data-id="machinist" style="left:78%;top:45%">machinist</span><span class="point" data-id="factory" style="left:56%;top:78%">factory worker</span><span class="point" data-id="farm" style="left:70%;top:88%">farm laborer</span>
+            </div>
+            <div class="evidence" id="axisEvidence" aria-live="polite">Choose an occupation. Each position comes with the evidence behind it.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter page" id="verdicts">
+      <span class="chapter-number" aria-hidden="true">10</span>
+      <h2>Two easy stories. Neither is enough.</h2>
+      <div class="story"><p class="lead"><b>“The owners were greedy villains.”</b> That notices the power transfer and misses the instability the rules genuinely fixed.</p><p><b>“The market naturally found its price.”</b> That misses the documents. A natural market has open entry, territorial competition, and rival bids for labor. The rule set restricted all three.</p><p>The bounded finding is stronger: between 1876 and 1880, club owners wrote rules that made franchises durable and shifted labor-market power toward themselves. That statement survives even if every man in the room believed he was saving the game.</p></div>
+      <div class="five-rules" aria-label="Five-part industry stack"><div><b>01</b><strong>charter</strong></div><div><b>02</b><strong>territory</strong></div><div><b>03</b><strong>schedule</strong></div><div><b>04</b><strong>enforcement</strong></div><div><b>05</b><strong>labor control</strong></div></div>
+    </section>
+
+    <section class="ending" id="ending"><div class="page"><p>It was written by owners, about owners, in rooms the players were not in. They became parties to an agreement about themselves only when they built an organization of their own.</p><div class="year" aria-label="1885">1885</div></div></section>
+
+    <section class="appendix page" id="terms"><h2>Nine words you already used.</h2><p>These are names for mechanisms you have already watched operate.</p><div class="table-scroll"><table><thead><tr><th>term</th><th>what it means here</th><th>where it happened</th></tr></thead><tbody>
+      <tr><td>charter</td><td>The founding document that sets who belongs and on what terms.</td><td>The 1876 constitution.</td></tr><tr><td>franchise</td><td>A licensed exclusive right. In sport, an exclusive territory.</td><td>One club per city.</td></tr><tr><td>territorial monopoly</td><td>Being the only permitted seller in a defined place.</td><td>The protected city market.</td></tr><tr><td>standardization</td><td>Making a product comparable and schedulable everywhere.</td><td>Common playing rules and one championship.</td></tr><tr><td>enforcement</td><td>Imposing a real cost on a rule breaker.</td><td>Expelling a member club.</td></tr><tr><td>reserve rule</td><td>Employers agreeing not to bid for each other's listed workers.</td><td>The post-1879 labor market.</td></tr><tr><td>cartel</td><td>Competitors agreeing not to compete on price or territory.</td><td>Owner agreements about cities and players.</td></tr><tr><td>respectability</td><td>Image treated as an asset worth giving up revenue to buy.</td><td>No beer and no Sunday games.</td></tr><tr><td>bounded verdict</td><td>Saying what evidence confirms and what it cannot establish.</td><td>The two easy stories.</td></tr>
+    </tbody></table></div></section>
+
+    <section class="appendix page" id="repair"><h2>Repair the notes before they harden.</h2><p>Each first version below is common, memorable, and wrong.</p><div class="table-scroll"><table><thead><tr><th>the quick version</th><th>the version the record supports</th><th>check</th></tr></thead><tbody>
+      <tr><td>The National League invented professional baseball.</td><td>Professional baseball came first. The League made club-owner control durable.</td><td>Section 1</td></tr><tr><td>Hulbert locked the door until the deal was done.</td><td>The meeting and date are documented. The locked door comes from later memoir.</td><td>Section 2</td></tr><tr><td>The constitution was about playing rules.</td><td>It also set entry, territory, product standards, a national title, and owner governance.</td><td>Section 3</td></tr><tr><td>Players signed the reserve rule.</td><td>Owners agreed among themselves not to bid for listed players.</td><td>Section 5</td></tr><tr><td>The owners were simply villains.</td><td>The instability was real and the fixes worked. The documented finding is the direction of the power transfer.</td><td>Section 10</td></tr><tr><td>Sports leagues naturally became closed franchises.</td><td>The documents restrict entry, territory, and labor bidding. Other structures were possible.</td><td>Section 10</td></tr>
+    </tbody></table></div></section>
+
+    <section class="appendix page sources" id="sources"><h2>Where the record comes from.</h2><ul><li><i>Constitution of the National League of Professional Base Ball Clubs</i>, 1876.</li><li>Society for American Baseball Research material on William Hulbert, the founding meeting, enforcement, and the reserve agreement.</li><li>National Baseball Hall of Fame material on Hulbert's presidency and league expulsions.</li><li>Period scored programs and <i>Sporting Life</i> advertising for the measured-audience section.</li><li>Library of Congress material on box scores and the sporting press.</li></ul><p class="source-note">The text identity marker and all interactive diagrams are native HTML explanations, not archival evidence. Exact Cincinnati expulsion dating and broad salary comparisons remain deliberately bounded where accounts differ.</p></section>
+  </main>
+
+  <aside class="notes" id="notes" aria-label="Private notes saved on this device">
+    <button class="notes__head" id="notesToggle" aria-expanded="false"><span>your notes · saved on this device</span><span aria-hidden="true">↑</span></button>
+    <textarea id="notesText" aria-label="StoryHub notes" placeholder="Write the detail you would want tomorrow..."></textarea>
+    <div class="notes__actions"><button class="reset" id="copyNotes">copy notes</button><button class="reset" id="downloadNotes">download</button></div>
+  </aside>
+
+  <noscript><style>.audit-row__body{display:grid}.point{opacity:1;transform:translate(-50%,-50%) scale(1)}.notes{display:none}</style></noscript>
+  <script>
+    const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+    $$('.table-scroll').forEach(table=>{table.tabIndex=0;table.setAttribute('role','region');table.setAttribute('aria-label','Scrollable evidence table')});
+    const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+    const progress=$('#progress');
+    addEventListener('scroll',()=>{const d=document.documentElement;progress.style.width=`${Math.min(100,(d.scrollTop/(d.scrollHeight-d.clientHeight))*100)}%`},{passive:true});
+
+    const auditRows=$$('.audit-row');
+    const auditFinding=$('#auditFinding');
+    auditRows.forEach(row=>$('button',row).addEventListener('click',()=>{row.classList.toggle('open');const open=row.classList.contains('open');$('button',row).setAttribute('aria-expanded',String(open));$('button span:last-child',row).textContent=open?'−':'+';const count=auditRows.filter(r=>r.classList.contains('open')).length;auditFinding.textContent=count===4?'Four sensible fixes. One direction: control moves toward the owners already inside.':'Players appear nowhere in the governance structure of this document.';}));
+    $('#auditReset').addEventListener('click',()=>auditRows.forEach(row=>{row.classList.remove('open');$('button',row).setAttribute('aria-expanded','false');$('button span:last-child',row).textContent='+';auditFinding.textContent='Players appear nowhere in the governance structure of this document.';}));
+
+    const bidIds=['homeBid','bid2','bid3','bid4']; let reserved=false;
+    function updateMarket(){const values=bidIds.map(id=>Number($('#'+id).value));bidIds.forEach((id,i)=>$('#'+id+'Out').value=money(values[i]));$$('.rival').forEach(card=>card.classList.toggle('inert',reserved));bidIds.slice(1).forEach(id=>$('#'+id).disabled=reserved);const wage=reserved?values[0]:Math.max(...values);$('#wageOut').textContent=money(wage);$('#reserveSwitch').setAttribute('aria-pressed',String(reserved));$('#reserveSwitch').textContent=reserved?'remove the reserve list':'apply the reserve list';$('#marketState').textContent=reserved?'Reserved. Rival clubs honor the list. One employer, one offer.': 'Four clubs may bid. The wage follows the strongest offer.';}
+    bidIds.forEach(id=>$('#'+id).addEventListener('input',updateMarket));
+    $('#reserveSwitch').addEventListener('click',()=>{reserved=!reserved;updateMarket()});
+    $('#bidReset').addEventListener('click',()=>{reserved=false;const defaults=[1200,1350,1500,1100];bidIds.forEach((id,i)=>$('#'+id).value=defaults[i]);updateMarket()});updateMarket();
+
+    const pointCopy={reserved:'Reserved ballplayer: high pay for the period, but no rival employer may bid without the current owner\'s consent.',open:'Ballplayer before the reserve agreement: high and rising pay with an open market used frequently.',machinist:'Skilled machinist: moderate pay and an open market. A rival shop could hire the worker.',factory:'Factory operative: low pay and legally free to leave, although missing a paycheck could make that freedom unusable.',farm:'Farm laborer: low seasonal pay, with an open but insecure labor market.'};
+    $$('.occupation-list button').forEach(button=>button.addEventListener('click',()=>{const id=button.dataset.point;const point=$(`.point[data-id="${id}"]`);point.classList.add('show');$('#axisEvidence').textContent=pointCopy[id];}));
+    $('#axesReset').addEventListener('click',()=>{$$('.point').forEach(p=>p.classList.remove('show'));$('#axisEvidence').textContent='Choose an occupation. Each position comes with the evidence behind it.'});
+
+    const notes=$('#notes'), notesText=$('#notesText'), key='grantdesk:bts-l03:notes';
+    try{notesText.value=localStorage.getItem(key)||''}catch{}
+    notesText.addEventListener('input',()=>{try{localStorage.setItem(key,notesText.value)}catch{}});
+    $('#notesToggle').addEventListener('click',()=>{notes.classList.toggle('open');const open=notes.classList.contains('open');$('#notesToggle').setAttribute('aria-expanded',String(open));if(open)notesText.focus()});
+    $('#copyNotes').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(notesText.value);$('#copyNotes').textContent='copied';setTimeout(()=>$('#copyNotes').textContent='copy notes',1200)}catch{notesText.select()}});
+    $('#downloadNotes').addEventListener('click',()=>{const blob=new Blob([`NOT IN THE ROOM — NOTES\n\n${notesText.value}`],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='not-in-the-room-notes.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+  </script>
+</body>
+</html>

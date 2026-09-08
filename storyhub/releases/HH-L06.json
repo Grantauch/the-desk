@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L06",
+  "title": "Two Sources",
+  "route": "/hubs/hh-l06-two-sources.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/L06/story.json",
+    "sha256": "8001eb037d01703816484216e97cb5355609265b5d1d660fbadba8431a1810f1",
+    "note": "The story manifest was distilled from the approved HH L06 classroom content master; named-person panels are labeled placeholders pending teacher-supplied imagery."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-l06-two-sources.html",
+      "bytes": 39781,
+      "sha256": "055764e722d7dcfc80f1027ee091e009687a15a38fd263990f1db25e815d580c"
+    },
+    {
+      "assetId": "A00",
+      "path": "/storyhub/hh/l06/assets/cover-signal.svg",
+      "bytes": 1383,
+      "sha256": "97c652fea8ef3ee7e1e198f934b5579ea06cbd5c256a0ba7e8c17d36aaacde26"
+    }
+  ],
+  "totalBytes": 41164,
+  "sealedAt": "2026-09-08"
+}

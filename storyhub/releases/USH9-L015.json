@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L015",
+  "title": "Who Showed Up",
+  "route": "/hubs/ush9-l015-who-showed-up.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/USH9/L015/story.json",
+    "sha256": "f989109fc5fff8131ac851e858ff39ad554f8dc998eb77e3f9ad314f19085ab3",
+    "note": "The story manifest was distilled from the approved USH9 L015 classroom content master and the page was revised with visible plain-language teaching bridges."
+  },
+  "files": [
+    {
+      "path": "/hubs/ush9-l015-who-showed-up.html",
+      "bytes": 78047,
+      "sha256": "bfaba2fe6857eedf85b5c4f7d20f1cc512a12389b610bc543e968ef2a8d70c4e"
+    },
+    {
+      "assetId": "A01",
+      "path": "/storyhub/ush9/l015/assets/a01-rail-yard.svg",
+      "bytes": 1572,
+      "sha256": "59ca8272972475b1450167c47fd98353341d53d573e7a176c8dc97bf5b160661"
+    },
+    {
+      "assetId": "A02",
+      "path": "/storyhub/ush9/l015/assets/a02-martinsburg.svg",
+      "bytes": 1375,
+      "sha256": "9b5d68ea867717c7f79329c76fd3e804aac13d85c1157262fe8fd2e1279da5f6"
+    },
+    {
+      "assetId": "A03",
+      "path": "/storyhub/ush9/l015/assets/a03-telegraph-network.svg",
+      "bytes": 1859,
+      "sha256": "4596e8e362d6950c3ef3479621155f6b6f96c4489f2d2a7f61b16949501fefec"
+    },
+    {
+      "assetId": "A04",
+      "path": "/storyhub/ush9/l015/assets/a04-pittsburgh-aftermath.svg",
+      "bytes": 1468,
+      "sha256": "ab1232876284d9bd72d194ca5c5d83600e11ef5c5e76b993a29c86c06468b544"
+    },
+    {
+      "assetId": "A05",
+      "path": "/storyhub/ush9/l015/assets/a05-armory.svg",
+      "bytes": 1518,
+      "sha256": "afa5f320c438bf07bb0fb9eee5a2db6c5b0b21ab12b84fcae372aa260b6646ae"
+    },
+    {
+      "assetId": "A06",
+      "path": "/storyhub/ush9/l015/assets/a06-factory-clock.svg",
+      "bytes": 1616,
+      "sha256": "9cebd0d97b7dfcd069bd56377186b4cb8a78627a692ae2ed9a3d23b747215409"
+    },
+    {
+      "assetId": "A07",
+      "path": "/storyhub/ush9/l015/assets/a07-haymarket-square.svg",
+      "bytes": 1714,
+      "sha256": "6d2e1bea428d64caad7a1ea3358f1b470c2c4fbe2bd93cf63f3dceda21e0bbe1"
+    },
+    {
+      "assetId": "A08",
+      "path": "/storyhub/ush9/l015/assets/a08-court-record.svg",
+      "bytes": 1614,
+      "sha256": "3d71425cde18cc09a70b409ef5794f97787334926a83d05798467377ba88d6e1"
+    },
+    {
+      "assetId": "A09",
+      "path": "/storyhub/ush9/l015/assets/a09-jail-corridor.svg",
+      "bytes": 1440,
+      "sha256": "a8a5f8687d0e0c2868ef5b8d458962ecfb7ad0d6aac76ac9add1439ef5d36518"
+    },
+    {
+      "assetId": "A10",
+      "path": "/storyhub/ush9/l015/assets/a10-fort-frick.svg",
+      "bytes": 1944,
+      "sha256": "e376022958abeab5f93d88feba3293ca0af4bdb71f6cb4477b62cce8b2b2a377"
+    },
+    {
+      "assetId": "A11",
+      "path": "/storyhub/ush9/l015/assets/a11-monongahela.svg",
+      "bytes": 1426,
+      "sha256": "34f343387bd7506a192c40078ddc2ed6a27331bfa7580610facae92d7fc425cd"
+    },
+    {
+      "assetId": "A12",
+      "path": "/storyhub/ush9/l015/assets/a12-pullman-houses.svg",
+      "bytes": 1797,
+      "sha256": "6d9fe4cf19bad6f9629bb46ecd41c3a11a485764696943a0a171d420ab56b363"
+    },
+    {
+      "assetId": "A13",
+      "path": "/storyhub/ush9/l015/assets/a13-injunction-paper.svg",
+      "bytes": 1413,
+      "sha256": "545a1bd0217f22d6cbba0f095a5be2f82d955fbd82e7d3a9f50418d5db6612d2"
+    },
+    {
+      "assetId": "A14",
+      "path": "/storyhub/ush9/l015/assets/a14-ladder.svg",
+      "bytes": 1189,
+      "sha256": "e44a19b0de7112c8ef0c7bfb0e25e41c355e6fecf89e12956614927f573a730a"
+    }
+  ],
+  "totalBytes": 99992,
+  "sealedAt": "2026-09-08"
+}

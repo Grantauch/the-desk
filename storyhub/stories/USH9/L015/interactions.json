@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L015",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "03-fourteen-days",
+      "type": "date-scrubber-network",
+      "teaches": "The Great Railroad Strike spread in the shape and sequence of the railroad network rather than through a single national command structure.",
+      "studentAction": "Drag or arrow-step a date rail from July 16 through August 1, 1877.",
+      "feedback": "Cities activate permanently in date order, stamped event cards accumulate, rail connections fill, and four counters update for days elapsed, cities, deaths, and federal troops committed. At August 1 the final fourteen-day statement appears.",
+      "staticFallback": "Render the eleven dated event cards in a fixed vertical sequence and show the network once in its final filled state.",
+      "identityFit": "A ruled date rail, telegraph/rail network, stamped city cards, and accumulating ledger counters belong to the paper-and-ink record room.",
+      "status": "planned",
+      "reducedMotion": "Replace spread animation with discrete date stepping and static activation states; screen readers receive the current date and newly included records as text."
+    },
+    {
+      "id": "I02",
+      "chapterId": "04-pittsburgh",
+      "type": "stacking-order-ledger",
+      "teaches": "The Pittsburgh dispute began as a sequence of arithmetic decisions and ended in a second, catastrophic column of arithmetic.",
+      "studentAction": "Advance the company order one line at a time with NEXT ORDER, then optionally START OVER.",
+      "feedback": "Each order line stacks without replacing the previous one. When the fifth line lands, the full aftermath column appears at once: buildings, locomotives, cars, area, and deaths.",
+      "staticFallback": "Render both complete ledger panels side by side with the forward control removed.",
+      "identityFit": "Cause and consequence are printed as two rigid ledger columns; the order accumulates while the result clamps into place all at once.",
+      "status": "planned",
+      "reducedMotion": "Render both panels complete with no progressive stacking animation."
+    },
+    {
+      "id": "I03",
+      "chapterId": "06-eight-hours",
+      "type": "quantity-dial",
+      "teaches": "The eight-hour demand becomes understandable as the amount of a twenty-four-hour day that remains after work and fixed life requirements consume it.",
+      "studentAction": "Set the working day on a twenty-four-hour dial among six, eight, ten, twelve, and fourteen hours.",
+      "feedback": "The ring reallocates WORK, GETTING THERE AND BACK, SLEEP, MEALS, and YOURS; the exact state labels from the master appear, including NOTHING LEFT and YOU ARE BORROWING FROM SLEEP.",
+      "staticFallback": "Show four static rings at six, eight, ten, and twelve hours with each YOURS state labeled.",
+      "identityFit": "The dial behaves like a factory time instrument rather than a generic app slider and uses only ruled ink and paper.",
+      "status": "planned",
+      "reducedMotion": "State changes snap without animated arc interpolation; all labels remain textual."
+    },
+    {
+      "id": "I04",
+      "chapterId": "08-eight-men-one-bomb",
+      "type": "sortable-record-table",
+      "teaches": "The Haymarket defendants' locations, the conduct the state proved, and the sentences imposed do not correlate no matter which column the reader uses to order the record.",
+      "studentAction": "Sort any of the four table columns by keyboard, touch, or pointer; reset to ORIGINAL ORDER.",
+      "feedback": "The same eight complete records reorder without hiding information. After any two sorts, the page states that four defendants were not at Haymarket and two of those four were sentenced to hang.",
+      "staticFallback": "Render the original table followed by a second copy pre-sorted by location.",
+      "identityFit": "This is the lesson's centerpiece: a legal record that makes its argument by refusing to line up, not by revealing a verdict or awarding a score.",
+      "status": "planned",
+      "reducedMotion": "Rows reorder instantly without transition; headers remain real buttons with aria-sort state."
+    },
+    {
+      "id": "I05",
+      "chapterId": "10-fort-frick",
+      "type": "chain-of-custody",
+      "teaches": "The armed force at Homestead was initially procured through a sequence of private business decisions rather than deployed by a government.",
+      "studentAction": "Open the five linked records from Carnegie to the two barges; CLOSE ALL resets the chain.",
+      "feedback": "Each opened link exposes the documented role of Carnegie, Frick, the fence, the Pinkerton agency, and the three hundred armed men on two barges while preserving the fixed top-to-bottom chain.",
+      "staticFallback": "Render all five links open in the same vertical order.",
+      "identityFit": "The instrument looks like a custody/procurement record with one ruled line running through five square docket cards.",
+      "status": "planned",
+      "reducedMotion": "Cards open immediately with no accordion animation; the chain rule remains static."
+    },
+    {
+      "id": "I06",
+      "chapterId": "12-pullman-arithmetic",
+      "type": "toggle-ledger",
+      "teaches": "A wage cut inside a company town becomes structurally different when the employer also controls housing and essential living costs.",
+      "studentAction": "Switch the ledger between IN PULLMAN and NEXT NEIGHBORHOOD; BACK TO PULLMAN restores the first state.",
+      "feedback": "Every row changes together, beginning with fifteen-dollar versus eight-dollar rent and continuing through ownership, wage-setting, and what happens to housing after a firing.",
+      "staticFallback": "Render both complete columns side by side with no toggle.",
+      "identityFit": "The comparison is a real ledger operation in the page's paper-and-ink grammar rather than a card carousel or decorative switch.",
+      "status": "planned",
+      "reducedMotion": "Values switch instantly without sliding or fading."
+    },
+    {
+      "id": "I07",
+      "chapterId": "13-piece-of-paper",
+      "type": "stepped-document-sequence",
+      "teaches": "The Pullman boycott's defeat can be read as a sequence in which two legal signatures acquired a reach that twelve thousand troops could not physically duplicate across twenty-seven states.",
+      "studentAction": "Advance through seven dated acts with NEXT; BACK TO JUNE 26 resets the record.",
+      "feedback": "Each real order or action stacks beneath the previous one while the fixed MEN and SIGNATURES counter updates. The final panel contrasts twelve thousand soldiers with two signatures and carries the story forward to Norris-LaGuardia in 1932.",
+      "staticFallback": "Render all seven steps as a numbered document column with the counter at its final value.",
+      "identityFit": "The sequence is built from docket sheets, stamps, signatures, and a counter that never decorates the facts; clamp motion lands when legal orders are issued.",
+      "status": "planned",
+      "reducedMotion": "Each NEXT action appends a document with no transitional animation; the counter is announced as text after every step."
+    },
+    {
+      "id": "I08",
+      "chapterId": "14-the-ladder",
+      "type": "fixed-field-ladder",
+      "teaches": "Reading identical fields across 1877, 1886, 1892, and 1894 reveals a pattern of increasingly remote, fast, scalable, and legal strikebreaking instruments.",
+      "studentAction": "Move among the four year rungs while the five field positions remain fixed; BACK TO 1877 resets the view.",
+      "feedback": "WHO CAME, WHO SIGNED, WHO PAID, DAYS FROM START TO FORCE, and WHAT ACTUALLY ENDED IT update in the same locations. After all four rungs have been visited, the Labor Day closing panel appears.",
+      "staticFallback": "Render one static comparison table with the five fields as rows and the four years as columns.",
+      "identityFit": "The synthesis behaves like a fixed government ledger laid onto four iron-stair landings, not a dashboard or progress stepper.",
+      "status": "planned",
+      "reducedMotion": "Rungs switch instantly; the final comparison remains available as text with no movement requirement."
+    }
+  ]
+}
