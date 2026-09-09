@@ -713,8 +713,8 @@
     }
   },
   "hall_pass_checkin_inbox_20260909": {
-    "status": "VERIFY_LOCAL",
-    "production_status": "VERSION_18_UNCHANGED",
+    "status": "DEPLOYED_FIELD_PENDING",
+    "production_status": "VERSION_23_LIVE",
     "schema": "2026-09-05-session-a",
     "scope": "Replace Daily Check-In's synchronous shared-workbook lock with a durable, idempotent per-student/date inbox while preserving Hall Pass capacity serialization and the existing workbook.",
     "changes": [
@@ -724,13 +724,19 @@
       "Workbook flush completes before inbox properties are removed",
       "Hall Pass retains bounded lock retries; the new contention counter excludes legacy Daily Check-In collisions"
     ],
-    "validation": "PASS: 73 handoff mappings; structural Hall Pass suite; 311 behavioral checks across 20 areas, including refused-lock recording, interrupted-response replay, thirty-student burst visibility, flush deduplication, late review, absence preservation, trigger authorization, and existing Hall Pass policy. Full gate passed release-lane, classroom-tool, classroom-state, public-resource/publishing, and StoryHub stages, then stopped at dependency preflight because @astrojs/check and typescript are unavailable in this clean checkout.",
+    "validation": "PASS: 73 handoff mappings; structural Hall Pass suite; 311 behavioral checks across 20 areas, including refused-lock recording, interrupted-response replay, thirty-student burst visibility, flush deduplication, late review, absence preservation, trigger authorization, and existing Hall Pass policy. Dependency-complete GitHub verification, browser checks, five-file source replacement/read-back, stable deployment verification, protected synthetic smoke, and all four live modes passed.",
+    "release": {
+      "pull_request": "https://github.com/Grantauch/the-desk/pull/71",
+      "implementation_commit": "47ce8b0ae085528ba7c6cef36a1d2c4c7ccfaa42",
+      "workflow": "https://github.com/Grantauch/the-desk/actions/runs/34375381483",
+      "apps_script_version": 23,
+      "deployment_id_preserved": true,
+      "access": "DOMAIN",
+      "execute_as": "USER_DEPLOYING",
+      "synthetic_smoke": "PASS: STARTED, RETURNED_COUNTABLE, evidenceUsed 1, test pass voided, membership deactivated, production facts unchanged, ok true",
+      "live_modes": "PASS: student, kiosk, check-in, and teacher initialized without visible error"
+    },
     "pending": [
-      "Dependency-complete canonical npm run verify",
-      "Protected review branch and pull request",
-      "Owner-authorized in-place Apps Script deployment",
-      "Five-file source read-back and stable deployment verification",
-      "One synthetic protected-action release smoke",
       "Real classroom field cycle"
     ]
   },
