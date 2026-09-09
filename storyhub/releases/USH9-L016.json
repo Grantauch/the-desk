@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l016-the-one-that-passed.html",
-      "bytes": 109825,
-      "sha256": "fc58d16b465f6abb02986491120567dd4e793305ee945a3ade04ce21a7869f4d"
+      "bytes": 110006,
+      "sha256": "5d9d43e3450114bfdad499179919c7c14f370b88ede28cf48fb3886c93c94e06"
     },
     {
       "path": "/storyhub/ush9/l016/assets/sierra.webp",
@@ -50,6 +50,6 @@
       "height": 782
     }
   ],
-  "totalBytes": 750957,
+  "totalBytes": 751138,
   "sealedAt": "2026-09-09"
 }
