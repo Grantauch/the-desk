@@ -34,7 +34,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
           <div class="player-stats">
             <div><strong data-total-xp>0</strong><span>total XP</span></div>
             <div><strong data-units-cleared>0/{totalUnits}</strong><span>units cleared</span></div>
-            <div><strong data-overall-streak>1</strong><span>day streak</span></div>
+            <div><strong data-overall-streak>0</strong><span>day streak</span></div>
           </div>
         </div>
         <p class="device-note" data-storage-note>Progress and writing save privately in this browser. Use a backup code below to move to another device.</p>
@@ -213,7 +213,7 @@ const totalUnits = learningCourses.reduce((total, course) => total + course.unit
         streak += 1;
         cursor.setDate(cursor.getDate() - 1);
       }
-      return Math.max(1, streak);
+      return streak;
     };
     const hubXp = (hub: any) => (hub?.completed || []).reduce((total: number, mission: string) => total + (missionXp[mission] || 0), 0);
 
