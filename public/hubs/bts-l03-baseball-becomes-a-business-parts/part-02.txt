@@ -1,0 +1,138 @@
+    </section><section class="scene" id="s3" data-index="3">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-03.b64" alt="Lesson artwork for Before the league, it was kind of a mess" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">03 / 17</div>
+        <div class="eyebrow">WHY CHANGE ANYTHING?</div>
+        <h1>Before the league, it was kind of a mess</h1>
+        <p class="lead">Professional baseball existed before the National League. Stability did not.</p>
+        <p class="bodycopy">Players could jump to whoever paid more. Clubs could fold in the middle of a season. Schedules could fall apart. Gambling rumors made fans wonder whether the result was even real. The game had demand, but the business around it was shaky.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>The National League’s rules make more sense once you see the problems they were trying to solve.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>If you owned a club in 1875, which problem would scare you the most?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1870s professional-baseball context · SABR / period press</div>
+      </div>
+    </section><section class="scene" id="s4" data-index="4">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-04.b64" alt="Lesson artwork for One room. A handful of owners. A new system." class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">04 / 17</div>
+        <div class="eyebrow">FEBRUARY 2, 1876</div>
+        <h1>One room. A handful of owners. A new system.</h1>
+        <p class="lead">William Hulbert gathered club owners at New York’s Grand Central Hotel.</p>
+        <p class="bodycopy">Out of that meeting came the National League. Hulbert was a Chicago coal merchant and baseball executive—not a guy who accidentally stumbled into sports history. He wanted a league with rules strong enough to keep clubs, schedules, and money under control.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>The meeting is well documented. The famous story that Hulbert locked the door until everyone agreed comes from later memoir material, so treat it as a great story—not the same thing as a document from that night.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Why does the locked-door story feel memorable even though it is weaker evidence?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: SABR + National Baseball Hall of Fame</div>
+      </div>
+    </section><section class="scene" id="s5" data-index="5">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-05.b64" alt="Lesson artwork for Read the rulebook like a business plan" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">05 / 17</div>
+        <div class="eyebrow">THE DOCUMENT THAT BUILT THE SYSTEM</div>
+        <h1>Read the rulebook like a business plan</h1>
+        <p class="lead">The 1876 constitution looks like sports paperwork. Read it differently.</p>
+        <p class="bodycopy">Membership rules decide who gets into the market. The population minimum asks whether a city is big enough to support a club. One club per city protects territory. Common playing rules standardize the product. A national championship gives the whole thing a brand.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>A rulebook can tell you what a sport is trying to become.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Which rule would matter most to someone investing money in a team?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: Constitution and Playing Rules of the National League, 1876</div>
+      </div>
+    </section><section class="scene" id="s6" data-index="6">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-06.b64" alt="Lesson artwork for A city becomes part of the product" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">06 / 17</div>
+        <div class="eyebrow">ONE CLUB PER CITY</div>
+        <h1>A city becomes part of the product</h1>
+        <p class="lead">This is bigger than “where the team plays.”</p>
+        <p class="bodycopy">If your club is the league’s only club in a city, no other member can set up a competing major-league team next door. Your team now comes with something valuable: protected access to a market.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>That is the beginning of the franchise idea—value comes from the right to operate in a protected territory, not just from winning games.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Why can a bad team still be a valuable business?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1876 NL constitution · territorial membership rules</div>
+      </div>
+    </section><section class="scene" id="s7" data-index="7">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-07.b64" alt="Lesson artwork for Then the owners locked down the players" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">07 / 17</div>
+        <div class="eyebrow">THE RESERVE RULE · 1879</div>
+        <h1>Then the owners locked down the players</h1>
+        <p class="lead">Owners had another problem: players could create bidding wars by moving to whoever paid more.</p>
+        <p class="bodycopy">The reserve system changed that. A club could list certain players as “reserved,” and the other clubs agreed not to negotiate with them. If nobody else is allowed to bid, the player loses most of his leverage.</p>
+        <div class="reserve-flow">
+          <span>Club reserves player</span><i>→</i><span>Other clubs back off</span><i>→</i><span>No bidding war</span><i>→</i><span>Owner has leverage</span>
+        </div>
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>The rule helped owners control payroll. It did that by limiting workers’ freedom to change employers.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>A rule can solve one problem and create another. What problem did this solve, and what new problem did it create?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: SABR institutional history · reserve-rule development</div>
+      </div>
+    </section><section class="scene" id="s8" data-index="8">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-08.b64" alt="Lesson artwork for Rules only matter if somebody enforces them" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">08 / 17</div>
+        <div class="eyebrow">THIS IS WHERE THE LEAGUE GETS TEETH</div>
+        <h1>Rules only matter if somebody enforces them</h1>
+        <p class="lead">A constitution nobody obeys is just paper.</p>
+        <p class="bodycopy">Under Hulbert, the league actually punished member clubs that broke league policy. Cincinnati was expelled after clashes over beer sales and Sunday baseball. That was expensive—and that is exactly why the punishment mattered.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>Once clubs see that the league will punish a paying member, every other rule becomes more believable.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Why would enforcing a rule against your own member make the whole league stronger?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: SABR + National Baseball Hall of Fame</div>
+      </div>
+    </section><section class="scene" id="s9" data-index="9">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-09.b64" alt="Lesson artwork for And who pays for all of this? Fans." class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">09 / 17</div>
+        <div class="eyebrow">THE CUSTOMER SHOWS UP</div>
+        <h1>And who pays for all of this? Fans.</h1>
+        <p class="lead">The fan was not just “someone who liked baseball.” The fan became a customer you could count.</p>
+        <p class="bodycopy">Turnstiles counted attendance. Scorecards and programs were sold. Sports newspapers sold subscriptions and advertising. Once the audience becomes measurable, businesses can start asking: how many people are watching, what will they pay, and what else can we sell them?</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>This is an early version of the attention economy: the audience itself becomes something valuable.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>What changes when a crowd becomes a number on a ledger?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1880s programs + period sports press</div>
+      </div>
+    </section><section class="scene" id="s10" data-index="10">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-10.b64" alt="Lesson artwork for The player is a worker too" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">10 / 17</div>
+        <div class="eyebrow">HIGHER PAY DOES NOT ALWAYS MEAN MORE FREEDOM</div>
+        <h1>The player is a worker too</h1>
+        <p class="lead">A reserved ballplayer could make more than many factory workers—and still have less freedom to switch employers.</p>
