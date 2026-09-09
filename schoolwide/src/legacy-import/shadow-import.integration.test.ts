@@ -81,10 +81,10 @@ if(!databaseUrl){test('SW-150 shadow migration tests require DATABASE_URL',{skip
 
     await t.test('shadow projection stores identity hashes and excludes names/emails/settings values',async()=>{
       const source=snapshot();const validation=await app.inject({method:'POST',url:'/api/v1/internal/migration/legacy/validate',headers:auth(adminToken),payload:{snapshot:source}});const fingerprint=validation.json<{fingerprint:{value:string}}>().fingerprint.value;const imported=await app.inject({method:'POST',url:'/api/v1/internal/migration/legacy/import-shadow',headers:auth(adminToken),payload:{snapshot:source,sourceFingerprint:fingerprint}});const runId=imported.json<{importRunId:string}>().importRunId;
-      const rows=await client.query<{identity_key_hash:string|null;state_json:Record<string,unknown>}>(`SELECT identity_key_hash,state_json FROM migration_shadow_records WHERE import_run_id=$1 ORDER BY source_surface,source_ordinal`,[runId]);
-      assert.ok(rows.some((row)=>typeof row.identity_key_hash==='string'&&/^[0-9a-f]{64}$/.test(row.identity_key_hash)));
-      const serialized=JSON.stringify(rows);assert.doesNotMatch(serialized,/example\.invalid|Synthetic Learner|studentEmail|displayName|PIN Hash|PIN_SALT/i);
-      const settings=rows.map((row)=>row.state_json).filter((state)=>Object.hasOwn(state,'valueHash'));assert.ok(settings.length>0);assert.ok(settings.every((state)=>typeof state.valueHash==='string'&&/^[0-9a-f]{64}$/.test(String(state.valueHash))));
+      const result=await client.query<{identity_key_hash:string|null;state_json:Record<string,unknown>}>(`SELECT identity_key_hash,state_json FROM migration_shadow_records WHERE import_run_id=$1 ORDER BY source_surface,source_ordinal`,[runId]);
+      assert.ok(result.rows.some((row)=>typeof row.identity_key_hash==='string'&&/^[0-9a-f]{64}$/.test(row.identity_key_hash)));
+      const serialized=JSON.stringify(result.rows);assert.doesNotMatch(serialized,/example\.invalid|Synthetic Learner|studentEmail|displayName|PIN Hash|PIN_SALT/i);
+      const settings=result.rows.map((row)=>row.state_json).filter((state)=>Object.hasOwn(state,'valueHash'));assert.ok(settings.length>0);assert.ok(settings.every((state)=>typeof state.valueHash==='string'&&/^[0-9a-f]{64}$/.test(String(state.valueHash))));
     });
 
     await app.close();
