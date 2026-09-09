@@ -1,0 +1,41 @@
+const scenes=[...document.querySelectorAll('.scene')]; let current=0;
+const obs=new IntersectionObserver(entries=>{const e=entries.filter(x=>x.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0]; if(e){current=scenes.indexOf(e.target);document.getElementById('bar').style.width=((current+1)/scenes.length*100)+'%';history.replaceState(null,'','#s'+(current+1));}},{threshold:[.35,.55,.75]});
+scenes.forEach(s=>obs.observe(s));
+function go(d){current=Math.max(0,Math.min(scenes.length-1,current+d));scenes[current].scrollIntoView({behavior:'smooth',block:'start'})}
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+document.addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(1)} if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(-1)} if(e.key.toLowerCase()==='f')toggleFS(); if(e.key.toLowerCase()==='h')document.body.classList.toggle('focus'); if(e.key==='Escape')document.getElementById('lightbox').classList.remove('open')})
+document.querySelectorAll('.toolkit button').forEach(b=>b.onclick=()=>{const t=b.closest('.toolkit');t.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');t.querySelector('.toolkit-answer').textContent=b.dataset.explain})
+function zoomArt(btn){const src=btn.parentElement.querySelector('img').src;const box=document.getElementById('lightbox');box.querySelector('img').src=src;box.classList.add('open')}
+function closeBox(e){e.stopPropagation();document.getElementById('lightbox').classList.remove('open')}
+if(location.hash){const n=parseInt(location.hash.slice(2),10);if(n)setTimeout(()=>{current=n-1;scenes[current]?.scrollIntoView()},50)}
+</script>
+
+<script>
+function upscaleAndSharpen(img){
+  if(img.dataset.hdProcessed==='1')return;
+  img.dataset.hdProcessed='1';
+  try{
+    const scale=4,w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+    if(!img.naturalWidth||!img.naturalHeight)return;
+    const c=document.createElement('canvas');c.width=w;c.height=h;
+    const x=c.getContext('2d',{willReadFrequently:true});
+    x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+    x.drawImage(img,0,0,w,h);
+    const d=x.getImageData(0,0,w,h),p=d.data,copy=new Uint8ClampedArray(p);
+    const amount=.45;
+    for(let yy=1;yy<h-1;yy++)for(let xx=1;xx<w-1;xx++){
+      const i=(yy*w+xx)*4;
+      for(let k=0;k<3;k++){
+        const center=copy[i+k],
+          blur=(copy[i-4+k]+copy[i+4+k]+copy[i-w*4+k]+copy[i+w*4+k]+center*4)/8;
+        p[i+k]=Math.max(0,Math.min(255,center+(center-blur)*amount));
+      }
+    }
+    x.putImageData(d,0,0);
+    img.src=c.toDataURL('image/webp',.9);
+  }catch(e){console.warn('StoryHub image enhancement skipped',e)}
+}
+(async()=>{for(const img of document.querySelectorAll('img[data-b64]')){try{const r=await fetch(img.dataset.b64,{cache:'no-store'});if(!r.ok)throw new Error(r.status);const b=(await r.text()).trim();img.onload=()=>upscaleAndSharpen(img);img.src='data:image/webp;base64,'+b;}catch(e){console.error('StoryHub image load failed',img.dataset.b64,e);}}})();
+</script>
+</body>
+</html>

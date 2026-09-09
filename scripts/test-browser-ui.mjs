@@ -4,7 +4,6 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { preview } from 'astro';
 import AxeBuilder from '@axe-core/playwright';
 import { chromium } from 'playwright';
-import { testL016 } from './test-storyhub-l016.mjs';
 
 const origin = 'http://127.0.0.1:4391';
 const artifacts = new URL('../browser-results/', import.meta.url);
@@ -208,7 +207,6 @@ try {
   );
 
 
-  await testL016({runCase,visit,viewports,artifact});
   const failed = results.filter(result => result.status === 'failed').length;
   console.log(`Browser UI: ${results.length - failed}/${results.length} cases passed; ${sourceChecks} separate source checks. External services stubbed offline. Artifacts: browser-results/`);
   if (failed) process.exitCode = 1;

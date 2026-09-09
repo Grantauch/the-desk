@@ -1,15 +1,28 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. Version 18 is deployed and synthetically verified. This file is the current operating checklist; GitHub Issue #16 is a separate historical operations record. Classroom observation remains FIELD_PENDING.
+Issue #14 is closed. Version 23 is deployed and synthetically verified. This file is the current operating checklist; GitHub Issue #16 is a separate historical operations record. Classroom observation remains FIELD_PENDING.
 
-Production fingerprint as of 2026-09-06 (Version 18):
+Production fingerprint as of 2026-09-09 (Version 23):
 
 | Fact | Value |
 | --- | --- |
-| Deployed application source | `a7ea2b25358ba9dc686a299730b32b492e4da339`, pushed to main; GitHub Actions passed |
-| Apps Script version | 18, existing deployment and stable URL preserved |
-| Workbook schema | `2026-09-05-session-a`; native rehearsal and focused live migration passed |
-| Recovery source | `apps-script/snapshots/hall-pass/version-18-live-2026-09-06`; preserve the additive schema |
+| Deployed application source | `47ce8b0ae085528ba7c6cef36a1d2c4c7ccfaa42`, merged through PR #71; full GitHub and browser gates passed |
+| Apps Script version | 23, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
+| Workbook schema | `2026-09-05-session-a`; unchanged by the inbox release |
+| Release evidence | GitHub Actions run `34375381483`; five-file replacement/read-back and protected synthetic smoke passed |
+
+## September 9 Daily Check-In inbox release
+
+Version 23 removes Daily Check-In from the shared workbook lock without changing Hall Pass capacity behavior or the workbook schema.
+
+- A student check-in is first stored under one private, student/date-specific Script Properties key. The one-use PIN proof is deleted only after that durable write succeeds.
+- Repeated submissions resolve to the same logical student/date event. The workbook flusher also deduplicates against rows already present before deleting inbox entries.
+- Student and teacher responses merge unflushed inbox entries with the workbook, so a busy Sheet cannot make a recorded arrival disappear from either screen.
+- An idle request flushes immediately without waiting. A one-minute owner trigger and the existing daily cleanup provide background recovery, using one `setValues` batch followed by `SpreadsheetApp.flush()`.
+- Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
+- Local evidence: 73 handoff mappings, structural suite, and 311 behavioral checks pass, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences, and Hall Pass regressions.
+
+The dependency-complete canonical gate, protected PR, in-place deploy bridge, five-file source read-back, protected synthetic smoke, and four-mode live initialization all passed. Real-class observation remains the only release-specific field evidence still pending. Do not create a new deployment or URL.
 
 ## Session and teacher policy
 
@@ -22,9 +35,10 @@ Production fingerprint as of 2026-09-06 (Version 18):
 
 ## Daily and weekly checks
 
-- Watch the private teacher dashboard's retry-signal card during first-hour traffic. A small
-  non-zero count means automatic recovery absorbed a collision. A large or climbing count on a
-  normal day is worth investigating; it is never evidence of a PIN or roster problem.
+- Watch the private teacher dashboard's Hall Pass retry card during pass traffic. Daily Check-In
+  does not use that lock in Version 23. A separate inbox warning appears only when
+  a recorded check-in has waited more than two minutes for workbook synchronization; the dashboard
+  totals already include it, and students must not submit again.
 - Confirm `/pass/`, `/check-in/` and the Hall Pass card in `/tools/` still load and still point at
   the current `/exec` deployment.
 - Watch Pass Log growth against the 180-day retention window, and confirm rows are moving into
@@ -40,7 +54,7 @@ Production fingerprint as of 2026-09-06 (Version 18):
    or email correction made after a delivery batch assembled its recipients cannot send a credential to
    a stale address, and that the recorded delivery status matches the address actually used. Never
    exercise this against the live roster or by sending real mail.
-3. **Synthetic release evidence — passed.** Version 18's deployed protected check completed with fresh-PIN STARTED, fresh-PIN RETURNED_COUNTABLE, membership evidenceUsed 1, test pass voided, test membership deactivated and production facts unchanged. Native migration on a synthetic copy also passed, including repeatability. The 298 local behavior checks cover schedule boundaries, queue promotion/expiry, replay, stale clients, countability, privacy and teacher overrides. No real student PIN or email was used.
+3. **Synthetic release evidence — passed.** Version 23's deployed protected check completed with fresh-PIN STARTED, fresh-PIN RETURNED_COUNTABLE, membership evidenceUsed 1, test pass voided, test membership deactivated, production facts unchanged and `ok: true`. The 311 behavioral checks cover the thirty-student check-in burst, refused-lock recording, interrupted-response replay, duplicate flush recovery, schedule boundaries, queue promotion/expiry, stale clients, countability, privacy and teacher overrides. No real student PIN or email was used.
 4. **`NEEDS_RESEND` credential records.** Ten PIN-card records were repointed to corrected addresses
    during the identity migration, and their delivery status was set to `NEEDS_RESEND` because a prior
    `SENT` marker could not prove delivery to the corrected address. All ten students had already used

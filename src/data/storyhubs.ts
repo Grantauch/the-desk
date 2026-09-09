@@ -209,4 +209,25 @@ export const storyHubs: StoryHub[] = [
       'Seven teaching interactions, a note-repair ending, and a source panel that separates generated narrative art from historical evidence.',
     ],
   },
+  {
+    slug: 'hh-l03-week-roswell-became-roswell',
+    href: '/hubs/hh-l03-week-roswell-became-roswell.html',
+    title: 'the week roswell became roswell',
+    course: 'hidden history',
+    unit: 'unit 01 / the official story vs. the rumor',
+    period: 'june–july 1947',
+    status: 'ready to teach',
+    question: 'what can the first week of the roswell record actually establish?',
+    blurb:
+      'Students stay inside the first-week evidence boundary: Kenneth Arnold, Brazel, the Army “flying disc” release, the same-day correction, the Fort Worth debris photographs, and the FBI teletype. The lesson separates what is confirmed, what is unproven, and what later retellings project backward into 1947.',
+    cover: '/hubs/roswell-signal-assets/roswell-daily-record.webp',
+    coverAlt: 'July 1947 Roswell Daily Record front page used as the entry image for the first-week evidence StoryHub',
+    topics: ['roswell', '1947', 'flying disc', 'source limits', 'claim scope', 'evidence'],
+    inside: [
+      'A strict first-week timeline that keeps later body testimony out of the 1947 evidence set.',
+      'Creator, timing, access, and limit lenses for reading the front page and FBI teletype.',
+      'A false-dilemma test showing why weakening one explanation does not prove the largest alternative.',
+      'A final evidence audit: confirmed, unproven, misleading, followed by a student note-repair ending.',
+    ],
+  },
 ];

@@ -1,0 +1,143 @@
+        <p class="bodycopy">A machinist might be able to quit and take a job at another shop. A reserved player could not simply sign with another National League club. That gives us a useful distinction: pay and freedom are not the same thing.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>You can be well paid and still have weak bargaining power.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Which matters more to a worker: higher pay or the ability to leave?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: Reserve-rule labor structure · SABR</div>
+      </div>
+    </section><section class="scene" id="s11" data-index="11">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-11.b64" alt="Lesson artwork for Why would a business turn down money?" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">11 / 17</div>
+        <div class="eyebrow">NO BEER. NO SUNDAY GAMES.</div>
+        <h1>Why would a business turn down money?</h1>
+        <p class="lead">At first glance, this makes no business sense.</p>
+        <p class="bodycopy">But the league was also selling an image. It wanted baseball to look respectable to middle-class fans and public officials. That meant sometimes giving up immediate revenue in order to protect the brand.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>Businesses do not only sell products. They also sell a version of what the product means.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Can refusing money now make you more money later?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: Hulbert-era league policy · SABR / Hall of Fame</div>
+      </div>
+    </section><section class="scene" id="s12" data-index="12">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-12.b64" alt="Lesson artwork for So… were the owners just greedy?" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">12 / 17</div>
+        <div class="eyebrow">THE EASY ANSWER IS NOT THE BEST ONE</div>
+        <h1>So… were the owners just greedy?</h1>
+        <p class="lead">It is tempting to turn this into a story with obvious villains.</p>
+        <p class="bodycopy">Owners absolutely built rules that concentrated money and power in their hands. But the instability they were responding to was also real. Clubs folded. Schedules failed. Fans got an unreliable product. The strongest historical claim is not about what was inside someone’s soul—it is about what the structure did.</p>
+        <div class="compare">
+          <div><small>TOO SIMPLE</small><strong>“The owners were greedy villains.”</strong></div>
+          <div><small>BETTER</small><strong>The rules created a more stable product AND gave owners more power.</strong></div>
+        </div>
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>Better claim: these rules made franchises more stable and shifted labor-market power toward owners.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Which can a document prove better: “Hulbert was greedy” or “the rules shifted power”?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1876 constitution + reserve-rule history</div>
+      </div>
+    </section><section class="scene" id="s13" data-index="13">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-13.b64" alt="Lesson artwork for But it did not just “naturally” happen either" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">13 / 17</div>
+        <div class="eyebrow">THE OTHER EASY ANSWER</div>
+        <h1>But it did not just “naturally” happen either</h1>
+        <p class="lead">Markets do not write constitutions.</p>
+        <p class="bodycopy">The membership gate, protected territories, common rules, and reserve system were choices. People decided to build the market this way. Other sports systems made different choices.</p>
+        <div class="compare">
+          <div><small>TOO SIMPLE</small><strong>“That is just how sports markets work.”</strong></div>
+          <div><small>BETTER</small><strong>No: this particular market was designed through specific rules.</strong></div>
+        </div>
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>If somebody had to write the rule, the result was not just nature taking its course.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Why does calling something “natural” make the people who designed it disappear from the story?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1876 constitution + reserve-rule history</div>
+      </div>
+    </section><section class="scene" id="s14" data-index="14">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-14.b64" alt="Lesson artwork for section 14" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">14 / 17</div>
+        <div class="eyebrow">FIVE PARTS · ONE SYSTEM</div>
+        <h1>Now put the machine together</h1>
+        <p class="lead">By 1880, the pieces fit together.</p>
+        <p class="bodycopy">A charter says who belongs. Territory protects each club’s market. A shared schedule and rules create a reliable product. Enforcement makes the system credible. Labor control limits competition for players.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>That is the shift we are tracking: same game, much more organized machine around it.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Which piece collapses first if the other four stop supporting it?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1876 constitution + reserve-rule institutional history</div>
+      </div>
+    </section><section class="scene" id="s15" data-index="15">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-15.b64" alt="Lesson artwork for section 15" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">15 / 17</div>
+        <div class="eyebrow">KEEP THE CLAIM AS SMALL AS THE EVIDENCE</div>
+        <h1>What can we actually say for sure?</h1>
+        <p class="lead">By 1880, National League baseball was operating like a deliberately built industry.</p>
+        <p class="bodycopy">That much is well supported: owners created rules governing membership, territory, competition, enforcement, and labor. What we cannot prove is that this exact model was inevitable, that every kind of baseball worked this way, or that every person involved had one simple motive.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>Good history is not the biggest claim you can make. It is the strongest claim the evidence can actually carry.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>What is one thing the evidence proves—and one thing it does not?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1876 constitution · SABR · National Baseball Hall of Fame</div>
+      </div>
+    </section><section class="scene" id="s16" data-index="16">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-16.b64" alt="Lesson artwork for section 16" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">16 / 17</div>
+        <div class="eyebrow">RULES CAN CHANGE MORE THAN THE GAME</div>
+        <h1>Tomorrow: boxing tries its own makeover</h1>
+        <p class="lead">Baseball used rules to organize a market. Boxing had an even bigger problem: in much of America, prizefighting was illegal.</p>
+        <p class="bodycopy">The Marquis of Queensberry rules gave boxing a new language—rounds, rests, gloves, a ten-count—and helped promoters present it as something controlled and respectable instead of just a brawl.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>Tomorrow’s question: can rules make a violent sport look legitimate?</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Who benefits when a sport becomes “respectable”: the athletes, the promoters, the audience—or all three?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: Queensberry-rules preview · Library of Congress context</div>
+      </div>
+    </section><section class="scene" id="s17" data-index="17">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-17.b64" alt="Lesson artwork for section 17" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">17 / 17</div>
+        <div class="eyebrow">60-SECOND NOTE REPAIR</div>
+        <h1>Before you leave, rebuild the story</h1>
+        <p class="lead">Do not copy a paragraph. Rebuild the chain.</p>
+        <p class="bodycopy">February 2, 1876 → Hulbert → National League → charter → territory → schedule → enforcement → reserve rule. The owners wrote the system. The players were not in the room.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>The point is not “owners bad” or “business good.” The point is that structures are built—and once built, they shape what everyone inside them can do.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Can you name the five-part toolkit without looking?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: Lesson synthesis</div>
+      </div>
+    </section></main>
+<div id="lightbox" onclick="closeBox(event)"><button class="close" onclick="closeBox(event)">×</button><img alt=""></div>
+<script>

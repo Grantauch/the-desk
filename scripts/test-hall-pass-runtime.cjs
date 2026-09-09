@@ -107,6 +107,21 @@ test('the daily cleanup trigger is installed', () => {
   assert.ok(c.harness.state.triggers.some((trigger) => trigger.handler === 'dailyCleanup'));
 });
 
+test('the durable check-in inbox has one minute flusher trigger', () => {
+  const c = classroom();
+  assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1);
+  c.harness.call('ensureCheckInFlushTrigger_');
+  assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1);
+});
+
+test('only the owned minute trigger or teacher can invoke a manual inbox flush', () => {
+  const c = classroom();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(() => c.harness.call('flushPendingCheckIns', {}), /limited to the teacher/);
+  const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  assert.doesNotThrow(() => c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id }));
+});
+
 /* ------------------------------------------------------- 2. credentials ----- */
 
 section('Credentials: one student, one PIN');
@@ -265,6 +280,101 @@ test('a fresh PIN records exactly one check-in', () => {
   assert.equal(String(rows[0].Status), 'CHECKED_IN');
 });
 
+
+test('the teacher-configured on-time window changes when a check-in becomes late', () => {
+  const c = classroom({
+    now: new Date('2026-09-10T11:40:00Z'),
+    settings: { CHECKIN_WINDOW_MINUTES: 15 },
+  });
+  const result = c.checkIn(PEOPLE.ada, 'Period 1');
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'CHECKED_IN');
+  assert.equal(Number(row.Point), 1);
+  assert.equal(outcomeOf(result).kind, 'CHECKED_IN');
+});
+
+test('a student after the on-time window is recorded late instead of denied', () => {
+  const c = classroom({
+    now: new Date('2026-09-10T11:40:00Z'),
+    settings: { CHECKIN_WINDOW_MINUTES: 5 },
+  });
+  const result = c.checkIn(PEOPLE.ada, 'Period 1');
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_PENDING');
+  assert.equal(Number(row.Point), 0);
+  assert.equal(outcomeOf(result).kind, 'LATE_CHECK_IN_RECORDED');
+  assert.equal(result.state.checkedIn, true);
+  assert.equal(result.state.lateCheckIn, true);
+});
+
+test('a student can still record a late sign-in after the selected class has ended', () => {
+  const c = classroom({ now: new Date('2026-09-10T13:00:00Z') });
+  const result = c.checkIn(PEOPLE.ada, 'Period 1');
+  assert.equal(outcomeOf(result).kind, 'LATE_CHECK_IN_RECORDED');
+  assert.equal(String(c.checkIns()[0].Status), 'LATE_PENDING');
+});
+
+test('a late sign-in is recorded alongside an earlier teacher absence', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherMarkStudentAbsent', key);
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const rows = c.checkIns();
+  assert.equal(rows.length, 2);
+  assert.equal(String(rows[0].Status), 'ABSENT');
+  assert.equal(String(rows[1].Status), 'LATE_PENDING');
+});
+
+test('the teacher can award the point for a late sign-in and it then counts for the streak', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const state = c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_APPROVED');
+  assert.equal(Number(row.Point), 1);
+  const teacherRow = state.lateCheckInsToday.find((entry) => entry.checkInId === id);
+  assert.equal(teacherRow.status, 'LATE_APPROVED');
+  assert.equal(teacherRow.streak.current, 1);
+});
+
+test('the teacher can keep a late sign-in at zero without removing the arrival record', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const state = c.harness.call('teacherReviewLateCheckIn', id, 'KEEP_NO_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_NO_POINT');
+  assert.equal(Number(row.Point), 0);
+  const teacherRow = state.lateCheckInsToday.find((entry) => entry.checkInId === id);
+  assert.equal(teacherRow.status, 'LATE_NO_POINT');
+  assert.equal(teacherRow.streak.current, 0);
+});
+
+test('the teacher can change a reviewed late decision while the original sign-in time remains', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const first = c.checkIns()[0];
+  const id = String(first['Check-in ID']);
+  const originalTime = first['Check-in Time'].getTime();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'KEEP_NO_POINT', TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_APPROVED');
+  assert.equal(Number(row.Point), 1);
+  assert.equal(row['Check-in Time'].getTime(), originalTime);
+});
+
 test('checking in twice in one day does not add a second row or a second point', () => {
   const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');
@@ -272,6 +382,104 @@ test('checking in twice in one day does not add a second row or a second point',
   const rows = c.checkIns().filter((row) => row['Student Email'] === PEOPLE.ada.email);
   assert.equal(rows.length, 1, 'a repeated PIN must not create a duplicate check-in');
   assert.equal(Number(rows[0].Point), 1);
+});
+
+test('a busy workbook lock cannot block or lose a daily check-in', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'busy-checkin');
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  const state = c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+
+  assert.equal(state.checkedIn, true, 'the student must receive a recorded result immediately');
+  assert.equal(outcomeOf({ state }).kind, 'CHECKED_IN');
+  assert.equal(c.checkIns().length, 0, 'a busy workbook must be skipped, not waited on');
+  assert.equal(c.harness.call('getPendingCheckInSummary_').pendingCount, 1, 'the durable inbox must retain the arrival');
+  assert.equal(c.harness.call('getLockContentionSummary_').retrySignals, 0, 'check-in must not become a shared-lock retry signal');
+
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+  assert.equal(c.checkIns().length, 1, 'the next idle lock must batch the saved arrival into the workbook');
+  assert.equal(c.harness.call('getPendingCheckInSummary_').pendingCount, 0);
+});
+
+test('an interrupted check-in response can safely replay the same consumed proof', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'timeout-replay');
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  const first = c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  const replay = c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+  assert.equal(first.actionOutcome.id, replay.actionOutcome.id);
+  assert.equal(replay.checkedIn, true);
+  assert.equal(c.harness.call('getPendingCheckInSummary_').pendingCount, 1);
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+  assert.equal(c.checkIns().length, 1);
+});
+
+test('a thirty-student burst remains visible to the teacher before the workbook catches up', () => {
+  const students = Array.from({ length: 30 }, (_, index) => ({
+    email: `burst.student.${String(index + 1).padStart(2, '0')}@students.mtmorrisschools.org`,
+    name: `Student, Burst ${String(index + 1).padStart(2, '0')}`,
+  }));
+  const c = classroom({
+    now: new Date('2026-09-10T11:30:00Z'),
+    memberships: students.map((person) => [person, 'Period 1']),
+  });
+  students.forEach((person) => {
+    const key = c.key(person, 'Period 1');
+    c.harness.newRequest();
+    c.harness.signInAs(person.email);
+    const authorized = c.harness.call('authorizeStudentAction', c.pin(person), 'CHECKIN', key, `burst-${person.name}`);
+    c.harness.newRequest();
+    c.harness.refuseLocks(1);
+    const state = c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+    assert.equal(state.checkedIn, true);
+  });
+
+  assert.equal(c.checkIns().length, 0);
+  assert.equal(c.harness.call('getPendingCheckInSummary_').pendingCount, 30);
+  c.harness.refuseLocks(1);
+  const teacher = c.teacherState();
+  assert.equal(teacher.checkInsToday.length, 30, 'dashboard totals must merge the durable inbox');
+  assert.equal(teacher.checkInSummary[0].checkedIn, 30);
+
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+  assert.equal(c.checkIns().length, 30);
+  assert.equal(c.harness.call('getPendingCheckInSummary_').pendingCount, 0);
+});
+
+test('inbox flushing is idempotent even if an already-written event reappears', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'idempotent-checkin');
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+  const pending = Object.entries(c.harness.properties.getProperties())
+    .find(([propertyKey]) => propertyKey.startsWith('pending-checkin:'));
+  assert.ok(pending, 'the synthetic check-in must be staged');
+
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+  assert.equal(c.checkIns().length, 1);
+  c.harness.properties.setProperty(pending[0], pending[1]);
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+  assert.equal(c.checkIns().length, 1, 'a replayed inbox event must not append a duplicate row');
+  assert.equal(c.harness.call('getPendingCheckInSummary_').pendingCount, 0);
 });
 
 test('attendance is per class, so two classes each record their own check-in', () => {
@@ -1104,6 +1312,61 @@ test('a daily limit is enforced independently of the marking-period limit', () =
   c.harness.clock.advanceDays(1);
   const tomorrow = c.requestPass(PEOPLE.ada, 'Period 1');
   assert.equal(outcomeOf(tomorrow).kind, 'STARTED', 'and it must reset with the school day');
+});
+
+
+section('Issue 73 duplicate-action guard');
+
+test('a duplicate generic PIN submit cannot turn a just-started pass into a return', () => {
+  const c = classroom();
+  const nonce = 'same-device-issue-73';
+  c.harness.newRequest();
+  const first = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), nonce);
+  const key = first.student.key;
+  assert.equal(first.authorizedAction, 'PASS_REQUEST');
+  c.harness.newRequest();
+  const started = c.harness.call('requestBathroomPass', first.actionProof, key, first.pinToken);
+  assert.equal((started.actionOutcome || {}).kind, 'STARTED');
+  c.harness.newRequest();
+  const duplicate = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), nonce);
+  assert.equal(duplicate.authorizedAction, 'PASS_REQUEST');
+  c.harness.newRequest();
+  const replayedIntent = c.harness.call('requestBathroomPass', duplicate.actionProof, key, duplicate.pinToken);
+  assert.equal((replayedIntent.actionOutcome || {}).kind, 'ALREADY_ACTIVE');
+  const rows = c.passLog();
+  assert.equal(rows.length, 1);
+  assert.equal(String(rows[0].Status), 'OUT');
+});
+
+test('an explicit return still works immediately while generic intent is stabilized', () => {
+  const c = classroom();
+  const nonce = 'same-device-explicit-return';
+  c.harness.newRequest();
+  const first = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), nonce);
+  const key = first.student.key;
+  c.harness.newRequest();
+  c.harness.call('requestBathroomPass', first.actionProof, key, first.pinToken);
+  c.harness.newRequest();
+  const returning = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'RETURN', key, nonce);
+  assert.equal(returning.authorizedAction, 'RETURN');
+  c.harness.newRequest();
+  c.harness.call('returnPass', returning.actionProof, key, returning.pinToken);
+  assert.equal(String(c.passLog()[0].Status), 'RETURNED');
+});
+
+test('replaying the same late-attendance decision is idempotent', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_APPROVED');
+  assert.equal((String(row.Note).match(/Late check-in point awarded by/g) || []).length, 1);
 });
 
 

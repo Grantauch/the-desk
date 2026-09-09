@@ -578,6 +578,7 @@ function createHarness(options = {}) {
           timeBased: () => builder,
           everyDays: () => builder,
           everyHours: () => builder,
+          everyMinutes: () => builder,
           atHour: () => builder,
           create: () => {
             const trigger = { handler, id: `trigger-${state.triggers.length + 1}` };

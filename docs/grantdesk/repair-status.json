@@ -712,6 +712,34 @@
       "public_routes": "Homepage, resources, editor, pass and check-in returned HTTP 200 after push. Route availability does not identify the deployed commit."
     }
   },
+  "hall_pass_checkin_inbox_20260909": {
+    "status": "DEPLOYED_FIELD_PENDING",
+    "production_status": "VERSION_23_LIVE",
+    "schema": "2026-09-05-session-a",
+    "scope": "Replace Daily Check-In's synchronous shared-workbook lock with a durable, idempotent per-student/date inbox while preserving Hall Pass capacity serialization and the existing workbook.",
+    "changes": [
+      "Check-in proof is consumed only after the durable inbox event is stored",
+      "Student and teacher reads merge queued and persisted arrivals",
+      "Idle requests, teacher polling, a one-minute owner trigger, and daily cleanup flush one workbook batch",
+      "Workbook flush completes before inbox properties are removed",
+      "Hall Pass retains bounded lock retries; the new contention counter excludes legacy Daily Check-In collisions"
+    ],
+    "validation": "PASS: 73 handoff mappings; structural Hall Pass suite; 311 behavioral checks across 20 areas, including refused-lock recording, interrupted-response replay, thirty-student burst visibility, flush deduplication, late review, absence preservation, trigger authorization, and existing Hall Pass policy. Dependency-complete GitHub verification, browser checks, five-file source replacement/read-back, stable deployment verification, protected synthetic smoke, and all four live modes passed.",
+    "release": {
+      "pull_request": "https://github.com/Grantauch/the-desk/pull/71",
+      "implementation_commit": "47ce8b0ae085528ba7c6cef36a1d2c4c7ccfaa42",
+      "workflow": "https://github.com/Grantauch/the-desk/actions/runs/34375381483",
+      "apps_script_version": 23,
+      "deployment_id_preserved": true,
+      "access": "DOMAIN",
+      "execute_as": "USER_DEPLOYING",
+      "synthetic_smoke": "PASS: STARTED, RETURNED_COUNTABLE, evidenceUsed 1, test pass voided, membership deactivated, production facts unchanged, ok true",
+      "live_modes": "PASS: student, kiosk, check-in, and teacher initialized without visible error"
+    },
+    "pending": [
+      "Real classroom field cycle"
+    ]
+  },
   "website_design_20260907": {
     "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
     "scope": "Public website presentation and navigation only",

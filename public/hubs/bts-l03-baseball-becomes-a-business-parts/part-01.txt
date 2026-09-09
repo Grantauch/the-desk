@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Baseball Becomes a Business · StoryHub</title>
+<style>
+:root{--bg:#091217;--panel:#0f1d23;--paper:#efe3ca;--muted:#b8ae9b;--gold:#d2a354;--red:#9f4739;--line:rgba(239,227,202,.14);}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;color:var(--paper);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:
+radial-gradient(circle at 10% 5%,rgba(210,163,84,.09),transparent 27%),
+linear-gradient(180deg,#071015,#0a171d 50%,#071015);}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.33'/%3E%3C/svg%3E")}
+.topbar{position:fixed;z-index:100;top:0;left:0;right:0;height:58px;display:flex;align-items:center;gap:16px;padding:0 17px;background:rgba(5,12,16,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.logo{font-size:12px;letter-spacing:.12em;font-weight:950;white-space:nowrap} .logo b{color:var(--gold)}
+.track{height:4px;flex:1;background:rgba(255,255,255,.11);border-radius:999px;overflow:hidden} #bar{width:6%;height:100%;background:var(--gold);transition:.2s}
+.controls{display:flex;gap:6px} .controls button{background:#12232b;border:1px solid var(--line);color:var(--paper);border-radius:8px;padding:7px 10px;font-weight:900;cursor:pointer}
+.scene{min-height:100vh;padding:84px 4vw 42px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(350px,.85fr);gap:clamp(30px,4vw,72px);align-items:center;border-bottom:1px solid var(--line)}
+.visual{min-width:0} .art-shell{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(239,227,202,.16);box-shadow:0 28px 75px rgba(0,0,0,.42);background:#070b0d}
+.art{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+.zoom{position:absolute;right:12px;bottom:12px;border:1px solid rgba(255,255,255,.25);background:rgba(5,10,12,.76);color:#fff;border-radius:999px;padding:8px 11px;font-size:9px;letter-spacing:.12em;font-weight:950;cursor:pointer}
+.words{max-width:680px} .scene-count{font-size:11px;letter-spacing:.16em;font-weight:950;color:#8f887b}
+.eyebrow{margin-top:20px;color:var(--gold);font-size:11px;letter-spacing:.16em;font-weight:950}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,4.4vw,70px);line-height:.97;letter-spacing:-.035em;margin:.19em 0 .42em;text-wrap:balance}
+.lead{font-size:clamp(19px,1.55vw,25px);line-height:1.4;color:#f2e9d7;font-weight:750;margin:0 0 16px}
+.bodycopy{font-size:16px;line-height:1.65;color:#c7bfaf;margin:0}
+.bottom-line{display:grid;grid-template-columns:1fr;gap:10px;margin-top:25px}
+.takeaway{border-left:3px solid var(--gold);padding:12px 15px;background:rgba(210,163,84,.065);line-height:1.45;font-weight:700}
+.takeaway span,.ask span{display:block;color:var(--gold);font-size:9px;letter-spacing:.16em;font-weight:1000;margin-bottom:5px}
+.ask{text-align:left;border:1px solid rgba(210,163,84,.3);background:#13262e;color:var(--paper);padding:14px 15px;border-radius:12px;font:700 15px/1.35 inherit;cursor:pointer;transition:.18s}
+.ask.hot{transform:scale(1.018);box-shadow:0 0 0 2px var(--gold),0 18px 45px rgba(0,0,0,.32);background:#213943}
+.source-note{margin-top:15px;color:#7f796f;font-size:10px;line-height:1.4}
+.toolkit{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:21px}
+.toolkit button{min-height:56px;border:1px solid rgba(210,163,84,.35);background:#11242b;color:#eee2cc;border-radius:9px;font-size:9px;line-height:1.2;font-weight:1000;cursor:pointer;padding:7px}
+.toolkit button.active{background:var(--gold);color:#111} .toolkit-answer{grid-column:1/-1;margin:2px 0 0;color:#bdb4a5;font-size:13px;min-height:20px}
+.reserve-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:5px;margin:22px 0}
+.reserve-flow span{padding:10px 7px;border:1px solid var(--line);border-radius:9px;background:#11242b;font-size:10px;font-weight:900;text-align:center} .reserve-flow i{color:var(--gold);font-style:normal;font-weight:1000}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px} .compare div{background:#102129;border:1px solid var(--line);padding:13px;border-radius:11px} .compare small{display:block;color:var(--gold);letter-spacing:.14em;font-size:9px;font-weight:1000;margin-bottom:7px} .compare strong{font-family:Georgia,serif;font-size:16px;line-height:1.3}
+.graphic-panel{min-height:520px;border-radius:22px;border:1px solid rgba(239,227,202,.16);box-shadow:0 28px 75px rgba(0,0,0,.4);background:
+linear-gradient(160deg,rgba(210,163,84,.09),transparent 37%),#0e1d23;padding:clamp(24px,4vw,52px);display:flex;flex-direction:column;justify-content:center}
+.machine-title{font:900 clamp(28px,4vw,55px)/.95 Georgia,serif;text-align:center;margin-bottom:28px} .machine-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px} .machine-grid div{min-height:150px;border:1px solid rgba(210,163,84,.4);background:#13272f;border-radius:13px;padding:14px 8px;display:flex;flex-direction:column;justify-content:center;text-align:center} .machine-grid b{color:var(--gold);font-size:28px} .machine-grid span{font-weight:1000;font-size:11px;letter-spacing:.05em;margin:8px 0} .machine-grid small{color:#aaa193;line-height:1.3} .machine-foot{text-align:center;margin-top:24px;color:#c8bfaf;font:700 18px/1.4 Georgia,serif}
+.verdict-card .stamp{align-self:flex-start;border:2px solid var(--gold);color:var(--gold);padding:7px 11px;border-radius:5px;font-size:12px;letter-spacing:.15em;font-weight:1000;transform:rotate(-2deg)} .verdict-card .ghost{opacity:.55;margin-top:12px} .verdict-card h3{font:800 clamp(32px,4vw,58px)/1 Georgia,serif;margin:24px 0 10px} .verdict-card p{font-size:18px;color:#c8bfaf;line-height:1.5} .verdict-card hr{border:0;border-top:1px solid var(--line);width:100%;margin:20px 0}
+.bridge-card{align-items:center;text-align:center} .sport{font:900 clamp(42px,6vw,85px)/.9 Georgia,serif} .bridge-arrow{margin:14px 0 24px;color:var(--gold);font-weight:1000;letter-spacing:.1em} .vs{margin:12px 0;color:#867f73;font-size:10px;letter-spacing:.2em;font-weight:1000}
+.repair-card{align-items:center;text-align:center} .repair-line{display:flex;align-items:center;gap:13px;font:900 clamp(23px,3vw,42px)/1 Georgia,serif} .repair-line i{color:var(--gold);font-style:normal} .five-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:100%;margin:34px 0} .five-row b{padding:16px 6px;border:1px solid rgba(210,163,84,.4);border-radius:10px;background:#13272f;font-size:10px} .repair-bottom{font:900 clamp(30px,5vw,64px)/1 Georgia,serif;color:var(--gold)}
+#lightbox{position:fixed;z-index:200;inset:0;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:18px} #lightbox.open{display:flex} #lightbox img{max-width:97vw;max-height:94vh;object-fit:contain;box-shadow:0 0 0 1px rgba(255,255,255,.12)} #lightbox .close{position:absolute;right:18px;top:18px;background:#111;color:#fff;border:1px solid #555;border-radius:999px;width:42px;height:42px;font-size:19px;cursor:pointer}
+body.focus .topbar{opacity:0;pointer-events:none} body.focus .scene{padding-top:38px}
+@media(max-width:980px){.scene{grid-template-columns:1fr;padding:78px 20px 38px;align-content:center} .words{max-width:none} h1{font-size:44px} .machine-grid,.five-row{grid-template-columns:1fr 1fr} .reserve-flow{grid-template-columns:1fr;gap:5px} .reserve-flow i{transform:rotate(90deg)}}
+@media(max-width:620px){.logo{display:none} .toolkit{grid-template-columns:1fr 1fr} .compare{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">STORY<b>HUB</b> · BASEBALL BECOMES A BUSINESS</div>
+  <div class="track"><div id="bar"></div></div>
+  <div class="controls"><button onclick="go(-1)">←</button><button onclick="go(1)">→</button><button onclick="toggleFS()">⛶</button></div>
+</div>
+<main><section class="scene" id="s1" data-index="1">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-01.b64" alt="Lesson artwork for So when did baseball become a business?" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">01 / 17</div>
+        <div class="eyebrow">START HERE</div>
+        <h1>So when did baseball become a business?</h1>
+        <p class="lead">Baseball was already popular. That is not the story.</p>
+        <p class="bodycopy">The big change was that owners started building a system around the game: rules for who could join, where teams could operate, how the season worked, what happened when a club broke the rules, and eventually where players were allowed to work.</p>
+        
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>Today’s question is simple: what has to be built before a game can start acting like an industry?</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>What is one thing a business needs that a pickup game does not?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: Grand Central Hotel founding context · SABR</div>
+      </div>
+    </section><section class="scene" id="s2" data-index="2">
+      <div class="visual"><div class="art-shell">
+          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-b64="./bts-l03-baseball-business-assets/scene-02.b64" alt="Lesson artwork for Here’s the big idea" class="art">
+          <button class="zoom" onclick="zoomArt(this)" aria-label="Enlarge artwork">EXPLORE IMAGE</button>
+        </div></div>
+      <div class="words">
+        <div class="scene-count">02 / 17</div>
+        <div class="eyebrow">THE WHOLE LESSON IN 20 SECONDS</div>
+        <h1>Here’s the big idea</h1>
+        <p class="lead">Between 1876 and 1880, owners built the basic machinery of a sports business.</p>
+        <p class="bodycopy">Think of it like five switches on a machine: a charter makes the league official, territory protects each club’s market, a schedule standardizes what is being sold, enforcement makes the rules real, and labor control limits where players can go.</p>
+        <div class="toolkit">
+          <button data-explain="Who gets into the league and under what rules?">CHARTER</button>
+          <button data-explain="Each club gets a protected city market.">TERRITORY</button>
+          <button data-explain="Common rules and a championship make the product predictable.">SCHEDULE</button>
+          <button data-explain="Punishment makes the rules more than suggestions.">ENFORCEMENT</button>
+          <button data-explain="The reserve system limits competition for players.">LABOR CONTROL</button>
+          <p class="toolkit-answer">Click one of the five pieces.</p>
+        </div>
+        <div class="bottom-line">
+          <div class="takeaway"><span>WHAT MATTERS</span>None of those things just “happened.” People wrote them down and agreed to enforce them.</div>
+          <button class="ask" onclick="this.classList.toggle('hot')"><span>ASK THE ROOM</span>Which of the five sounds most obviously like a business decision?</button>
+        </div>
+        <div class="source-note">Evidence / visual basis: 1876 NL constitution + later institutional rules</div>
+      </div>

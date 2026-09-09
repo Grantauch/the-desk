@@ -56,6 +56,10 @@
       .checkin-point { display: grid; width: 78px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: var(--green); color: white; font: 900 28px/1 var(--display); }
       .checkin-confirm h3 { margin: 0; color: #04503d; font: 800 clamp(24px, 5vw, 34px)/1 var(--display); letter-spacing: -.035em; }
       .checkin-confirm p { margin: 7px 0 0; color: #046049; font-size: 14px; line-height: 1.5; }
+      .checkin-confirm.late { border-color: #e8ce96; background: #fff8e8; }
+      .checkin-confirm.late .checkin-point { background: #795300; font-size: 15px; letter-spacing: .03em; text-transform: uppercase; }
+      .checkin-confirm.late h3 { color: #5e4100; }
+      .checkin-confirm.late p { color: #6b4a00; }
 
       .pass-action { display: grid; gap: 14px; margin-top: 28px; }
       .primary { min-height: 70px; padding: 0 24px; border: 1px solid var(--ink); border-radius: 15px; background: var(--ink); color: white; font-size: 19px; font-weight: 900; transition: 140ms ease; }
@@ -397,7 +401,7 @@
       /* ---------------------------------------------------------- plumbing */
 
       const call = (name, ...args) => new Promise((resolve, reject) => {
-        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent'].includes(name)) args.push(TEACHER_CONTRACT);
+        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent', 'teacherSetCheckInWindow', 'teacherReviewLateCheckIn'].includes(name)) args.push(TEACHER_CONTRACT);
         let settled = false;
         const timer = setTimeout(() => {
           if (settled) return;
@@ -420,12 +424,7 @@
       const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
       const isBusyLockError = (error) => String(error && error.message ? error.message : error).includes(BUSY_LOCK_TEXT);
 
-      /**
-       * A busy-lock response is the one server error that proves the protected
-       * action never began and its one-use proof was not consumed. Only that
-       * condition is safe to replay automatically; timeouts and other errors
-       * still stop for a human because their result may be uncertain.
-       */
+      /** Pass requests and returns still serialize the room-capacity decision. */
       const callWithBusyRetry = async (name, ...args) => {
         const startedAt = Date.now();
         const totalAttempts = STUDENT_BUSY_RETRY_DELAYS_MS.length + 1;
@@ -438,9 +437,9 @@
             if (!isBusyLockError(error)) throw error;
             const spent = Date.now() - startedAt;
             if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length || spent >= STUDENT_BUSY_RETRY_BUDGET_MS) {
-              throw new Error('Several students are updating the shared classroom log at the same time. No check-in or pass change was made. Wait five seconds and press once more; this is traffic, not a bad PIN. Your teacher can use the teacher backup controls if needed.');
+              throw new Error('Several hall-pass changes reached the room at the same time. Your pass was not changed. Wait five seconds and press once more; this is traffic, not a bad PIN. Your teacher can use the backup controls if needed.');
             }
-            showBusy(`Another student’s check-in or pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
+            showBusy(`Another hall-pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
             const jitter = Math.floor(Math.random() * 350);
             await wait(STUDENT_BUSY_RETRY_DELAYS_MS[attempt] + jitter);
           }
@@ -448,18 +447,25 @@
         throw new Error('The shared classroom log stayed busy. Wait five seconds and try once more.');
       };
 
-      /** Wraps a button action so polling never overwrites a request in flight. */
+      /**
+       * Run at most one classroom mutation at a time in this page. A second
+       * submit while the first is unresolved is ignored, so a PASS_REQUEST can
+       * never race itself and become a RETURN after the OUT row appears.
+       */
       const act = async (button, work) => {
+        if (inFlight) return false;
         if (button) button.disabled = true;
-        inFlight += 1;
+        inFlight = 1;
         clearError();
         try {
           await work();
+          return true;
         } catch (error) {
           showError(error.message);
-          if (button) button.disabled = false;
+          return false;
         } finally {
-          inFlight -= 1;
+          inFlight = 0;
+          if (button && document.contains(button)) button.disabled = false;
           armIdleReset();
         }
       };
@@ -730,7 +736,6 @@
               input.select();
               throw error;
             }
-            button.disabled = false;
             if (state.requiresClassSelection) renderClassSelection();
             else await completeAuthorizedAction();
           });
@@ -745,9 +750,9 @@
         if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
 
         if (action === 'CHECKIN') {
-          adoptState(await callWithBusyRetry('submitDailyCheckIn', proof, studentKey, identityToken));
+          adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
           renderCheckIn();
-          if (sharedDevice()) scheduleHandoff('Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
+          if (sharedDevice()) scheduleHandoff(state.actionOutcome && state.actionOutcome.kind === 'LATE_CHECK_IN_RECORDED' ? 'Late sign-in recorded. This screen clears itself for the next student.' : 'Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
           return;
         }
         if (action === 'PASS_REQUEST') {
@@ -808,7 +813,6 @@
               input.select();
               throw error;
             }
-            button.disabled = false;
             if (state.requiresClassSelection) renderClassSelection();
             else await completeAuthorizedAction();
           });
@@ -992,36 +996,53 @@
         screen = 'checkin';
         setTitle('Daily Check-in');
         const firstName = firstNameFromDisplayName(state.student.name);
-        const pointLabel = `+${escapeHtml(state.pointValue)}`;
+        const checkInStatus = String((state.checkIn && state.checkIn.status) || '');
+        const late = Boolean(state.lateCheckIn);
+        const lateApproved = checkInStatus === 'LATE_APPROVED';
+        const lateNoPoint = checkInStatus === 'LATE_NO_POINT';
+        const recordedPoint = state.checkIn ? Number(state.checkIn.point || 0) : Number(state.pointValue || 0);
+        const pointLabel = late ? (lateApproved ? `+${escapeHtml(recordedPoint)}` : lateNoPoint ? '0' : 'late') : `+${escapeHtml(state.pointValue)}`;
         const streak = state.streak || { current: 0, best: 0, checkedInToday: false, nonSchoolDayProtected: false, atRiskToday: false };
-        const streakMessage = streak.nonSchoolDayProtected
-          ? 'Non-school day protected. Weekends and official calendar closures never break the count.'
-          : streak.checkedInToday
-            ? `Today is locked in. Best streak: ${escapeHtml(streak.best)} school day${Number(streak.best) === 1 ? '' : 's'}.`
-            : streak.current
-              ? `Check in today to keep it going. Best streak: ${escapeHtml(streak.best)} school days.`
-              : 'Check in today to begin a school-day streak. Weekends and official no-school days never break it.';
+        const streakMessage = late && !lateApproved
+          ? `Your late sign-in is recorded. Today joins the streak only if your teacher awards the point. Best streak: ${escapeHtml(streak.best)} school day${Number(streak.best) === 1 ? '' : 's'}.`
+          : streak.nonSchoolDayProtected
+            ? 'Non-school day protected. Weekends and official calendar closures never break the count.'
+            : streak.checkedInToday
+              ? `Today is locked in. Best streak: ${escapeHtml(streak.best)} school day${Number(streak.best) === 1 ? '' : 's'}.`
+              : streak.current
+                ? `Check in today to keep it going. Best streak: ${escapeHtml(streak.best)} school days.`
+                : 'Check in today to begin a school-day streak. Weekends and official no-school days never break it.';
+        const eligibility = state.sessionEligibility || { allowed: false, late: false, message: '' };
+        const actionIsLate = !state.checkedIn && Boolean(eligibility.late);
+        const recordedMessage = late
+          ? lateApproved
+            ? `Late sign-in recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Your teacher awarded ${escapeHtml(recordedPoint)} point${recordedPoint === 1 ? '' : 's'}; the original sign-in time stays recorded.`
+            : lateNoPoint
+              ? `Late sign-in recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Your teacher reviewed it and kept today at 0 points.`
+              : `Late sign-in recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. No point has been added yet; your teacher can review it.`
+          : `Your attendance check-in was recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Opening this page again today shows this same confirmation, not another point.`;
+
         content.className = '';
         content.innerHTML = `
           <div class="checkin-card">
             <div class="student-head">
               <div>
-                <p class="eyebrow">${state.checkedIn ? 'recorded for today' : state.attendanceLocked ? 'teacher attendance review' : 'first five minutes'}</p>
+                <p class="eyebrow">${state.checkedIn ? late ? 'late sign-in' : 'recorded for today' : state.attendanceLocked ? 'teacher attendance review' : actionIsLate ? 'late check-in available' : 'on-time check-in'}</p>
                 <h2>${escapeHtml(firstName)}.</h2>
                 <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'student PIN' : 'school Google account')}</p>
               </div>
-              <span class="status-dot ${state.checkedIn ? '' : 'busy'}">${state.checkedIn ? 'checked in' : state.attendanceLocked ? 'see your teacher' : 'not checked in yet'}</span>
+              <span class="status-dot ${state.checkedIn && !late ? '' : 'busy'}">${state.checkedIn ? late ? 'late recorded' : 'checked in' : state.attendanceLocked ? 'see your teacher' : actionIsLate ? 'late window' : 'not checked in yet'}</span>
             </div>
             <div class="streak-card" role="status">
               <span class="streak-number">${escapeHtml(streak.current)}</span>
               <div><h3>school-day streak.</h3><p>${streakMessage}</p></div>
             </div>
             ${state.checkedIn ? `
-              <div class="checkin-confirm" role="status">
+              <div class="checkin-confirm ${late ? 'late' : ''}" role="status">
                 <span class="checkin-point">${pointLabel}</span>
                 <div>
-                  <h3>you’re in.</h3>
-                  <p>Your attendance check-in was recorded at ${formatClock(state.checkIn && state.checkIn.checkInTime)}. Opening this page again today shows this same confirmation, not another point.</p>
+                  <h3>${late ? 'Late sign-in recorded' : 'you’re in.'}</h3>
+                  <p>${recordedMessage}</p>
                 </div>
               </div>
               <div class="pass-action">
@@ -1032,7 +1053,7 @@
               </div>` : state.attendanceLocked ? `
               <div class="notice warning" role="status">
                 <h3>teacher update needed.</h3>
-                <p>Your teacher needs to update today’s attendance before this check-in can be recorded. If you arrived late, let your teacher know you are here.</p>
+                <p>Your teacher already entered today’s attendance. Ask your teacher to update it. If the on-time window passes before that happens, this screen will allow a separate late sign-in instead of deleting the teacher’s record.</p>
               </div>
               <div class="pass-action">
                 ${sharedDevice()
@@ -1040,10 +1061,14 @@
                   : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
               </div>` : `
               <div class="checkin-copy">
-                <p class="message">${state.sessionEligibility && !state.sessionEligibility.allowed ? escapeHtml(state.sessionEligibility.message) : 'Press once to record today’s attendance check-in and your daily extra-credit point. The date and time come from the classroom system.'}</p>
+                <p class="message">${!eligibility.allowed
+                  ? escapeHtml(eligibility.message)
+                  : actionIsLate
+                    ? `The on-time window was ${escapeHtml(eligibility.windowMinutes || 5)} minutes. You can still sign in now. It will be recorded as late with 0 points until your teacher reviews it.`
+                    : 'Press once to record today’s attendance check-in and your daily extra-credit point. The date and time come from the classroom system.'}</p>
               </div>
               <div class="pass-action">
-                <button class="primary" id="checkin-action" ${state.sessionEligibility && !state.sessionEligibility.allowed ? 'disabled' : ''}>check in for today</button>
+                <button class="primary" id="checkin-action" ${!eligibility.allowed ? 'disabled' : ''}>${actionIsLate ? 'record late sign-in' : 'check in for today'}</button>
                 ${sharedDevice()
                   ? '<button class="secondary" id="checkin-next">different student</button>'
                   : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
@@ -1053,7 +1078,9 @@
         const actionButton = document.querySelector('#checkin-action');
         if (actionButton) actionButton.addEventListener('click', () => renderActionPin(
           'CHECKIN',
-          'Enter your PIN once to record today’s attendance check-in and point.'
+          actionIsLate
+            ? 'Enter your PIN once. Your late sign-in will be recorded for your teacher to review.'
+            : 'Enter your PIN once to record today’s attendance check-in and point.'
         ));
 
         const refreshButton = document.querySelector('#checkin-refresh');
@@ -1098,6 +1125,7 @@
         'pass-cooldown-minutes',
         'late-pass-minutes',
         'stale-pass-minutes',
+        'checkin-window-minutes',
         'attendance-filter',
         'pass-count-filter',
         'roster-student-name',
@@ -1123,6 +1151,7 @@
           cooldownMinutes: teacherFieldValue('#pass-cooldown-minutes'),
           lateMinutes: teacherFieldValue('#late-pass-minutes'),
           staleMinutes: teacherFieldValue('#stale-pass-minutes'),
+          checkInWindowMinutes: teacherFieldValue('#checkin-window-minutes'),
           teacherStudent: teacherFieldValue('#teacher-student'),
           checkinStudent: teacherFieldValue('#teacher-checkin-student'),
           attendanceFilter: teacherFieldValue('#attendance-filter'),
@@ -1151,6 +1180,7 @@
         apply('#pass-cooldown-minutes', snapshot.cooldownMinutes);
         apply('#late-pass-minutes', snapshot.lateMinutes);
         apply('#stale-pass-minutes', snapshot.staleMinutes);
+        apply('#checkin-window-minutes', snapshot.checkInWindowMinutes);
         apply('#teacher-student', snapshot.teacherStudent);
         apply('#teacher-checkin-student', snapshot.checkinStudent);
         apply('#attendance-filter', snapshot.attendanceFilter);
@@ -1276,13 +1306,16 @@
         const active = data.active || [];
         const late = active.filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= Number(data.lateAfterMinutes || 10)).length;
         const unmatched = (data.unmatchedSignIns || []).length;
+        const pendingLateCheckIns = (data.lateCheckInsToday || []).filter((checkIn) => checkIn.status === 'LATE_PENDING').length;
         const rollovers = (data.rolloverPassesToday || []).length;
         const usage = data.studentPassUsage || [];
         const unrecognized = new Set(usage.filter((student) => !student.googleVerified).map((student) => student.email)).size;
         const unlimited = new Set(usage.filter((student) => student.unlimited).map((student) => student.email)).size;
+        const checkInInbox = data.checkInInbox || {};
         const pins = pinStatus || {};
         const add = (tone, title, message, view, target, action) => items.push({ tone, title, message, view, target, action });
         if (late) add('urgent', `${late} overdue ${late === 1 ? 'pass' : 'passes'}`, 'Review the students who are still out. Mark returned only after confirming they are back.', 'overview', 'live-pass-section', 'View passes');
+        if (pendingLateCheckIns) add('warning', `${pendingLateCheckIns} late ${pendingLateCheckIns === 1 ? 'sign-in needs' : 'sign-ins need'} point review`, 'Students were allowed to sign in after your on-time window. Decide whether each one earns the daily point.', 'attendance', 'late-checkins-details', 'Review late sign-ins');
         if (unmatched) add('warning', `${unmatched} unmatched school ${unmatched === 1 ? 'account' : 'accounts'}`, 'These accounts reached the app without a matching class enrollment. Review the account and roster before changing an address.', 'notifications', 'sign-in-problems', 'Review accounts');
         if (Number(pins.missingRecipients)) add('warning', `${pins.missingRecipients} students need a PIN card`, 'Review PIN delivery before distributing credentials to these students.', 'settings', 'pin-delivery-details', 'Review PINs');
         if (Number(pins.invalidDomainRecipients)) add('warning', `${pins.invalidDomainRecipients} email addresses need review`, 'These addresses do not match the configured student email domain.', 'students', 'roster-details', 'Review roster');
@@ -1290,7 +1323,8 @@
         if (rollovers) add('warning', `${rollovers} overnight ${rollovers === 1 ? 'pass was' : 'passes were'} closed`, 'Yesterday’s unfinished passes were released automatically. The original records remain available for review.', 'overview', 'pass-log-details', 'Review activity');
         if (unrecognized) add('info', `${unrecognized} students have not used Google sign-in`, 'They can still use their PIN. This observation does not mean their email address is wrong; check the roster if a student reports trouble.', 'students', 'pass-count-details', 'View students');
         if (unlimited) add('info', `${unlimited} ${unlimited === 1 ? 'student has' : 'students have'} no pass limit`, 'This private access setting applies across the student’s classes. Class timing still applies. Students never see this setting or your reason.', 'students', 'pass-count-details', 'Review access');
-        if (Number((data.lockContention || {}).retrySignals)) add('info', 'Automatic traffic recovery was used today', 'Several requests reached the shared log at once. Safe retries are automatic. Use your backup controls if a student still needs help.', 'overview', 'teacher-student', 'Open backup');
+        if (checkInInbox.delayed) add('warning', 'Check-in workbook sync is delayed', `${checkInInbox.pendingCount || 0} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safely recorded in the inbox and still appear on this dashboard. Refresh after a minute; the workbook will catch up in one batch.`, 'attendance', 'attendance-section', 'View attendance');
+        if (Number((data.lockContention || {}).retrySignals)) add('info', 'Hall-pass traffic was recovered today', 'Several pass changes reached the capacity lock together. Safe retries were automatic; Daily Check-In no longer uses this lock.', 'overview', 'teacher-student', 'Open backup');
         return items;
       };
 
@@ -1350,6 +1384,7 @@
           'pass-cooldown-minutes': 'Minutes a student waits after returning before requesting again. Enter 0 to turn off this wait.',
           'late-pass-minutes': 'Show an overdue warning after this many minutes. This does not automatically return the student.',
           'stale-pass-minutes': 'Show a stronger check-on-student warning. Must be at least the overdue-warning time. This does not end a pass.',
+          'checkin-window-minutes': 'Minutes after class starts that count as on-time. Students can still sign in afterward; late sign-ins begin at 0 points until you review them.',
           'teacher-pass-sound': 'Applies only to this teacher device. Test once to enable browser audio. Choose Off for a quiet classroom.',
           'teacher-student': 'Start a pass using teacher authority. A private reason is required when overriding a restriction.',
           'teacher-checkin-student': 'Record attendance for a student who is here. A private reason is required outside the check-in window.',
@@ -1481,9 +1516,13 @@
         const unverifiedCount = new Set((state.studentPassUsage || []).filter((student) => !student.googleVerified).map((student) => student.email)).size;
         const notChecked = state.notCheckedIn || [];
         const absentToday = state.absentToday || [];
+        const lateCheckInsToday = state.lateCheckInsToday || [];
+        const pendingLateCheckIns = lateCheckInsToday.filter((checkIn) => checkIn.status === 'LATE_PENDING');
+        const checkInWindowMinutes = Number(state.checkInWindowMinutes || 5);
         const repeatPassesToday = state.repeatPassesToday || [];
         const rolloverPassesToday = state.rolloverPassesToday || [];
         const lockContention = state.lockContention || { retrySignals: 0, lastAt: '', lastOperation: '' };
+        const checkInInbox = state.checkInInbox || { pendingCount: 0, oldestAt: '', delayed: false };
         const latePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= lateAfter).length;
         const stalePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= staleAfter).length;
         const soundOptions = TEACHER_SOUND_CHOICES.map(([value, label]) => (
@@ -1556,9 +1595,15 @@
         const noticeHtml = teacherNotice ? `<div class="notice success" style="margin-top:16px"><p><strong>${escapeHtml(teacherNotice)}</strong></p></div>` : '';
         const trafficHtml = Number(lockContention.retrySignals || 0) > 0 ? `
           <section class="notice warning" role="status" style="margin-top:16px">
-            <h3>automatic traffic recovery was needed.</h3>
-            <p><strong>About ${escapeHtml(lockContention.retrySignals)} shared-log retry signal${Number(lockContention.retrySignals) === 1 ? '' : 's'} today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'student update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
-            <p>This means several devices reached the one private workbook at once—not that a PIN was wrong. Student screens now retry these safe collisions automatically. If someone still reaches the final message, wait five seconds or use the teacher backup controls.</p>
+            <h3>hall-pass traffic was automatically recovered.</h3>
+            <p><strong>About ${escapeHtml(lockContention.retrySignals)} pass collision${Number(lockContention.retrySignals) === 1 ? '' : 's'} were automatically retried today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'pass update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
+            <p>This is the capacity rule protecting the one-student-out decision. It is not a PIN error. Daily Check-In no longer waits on this lock.</p>
+          </section>` : '';
+        const checkInInboxHtml = checkInInbox.delayed ? `
+          <section class="notice warning" role="status" style="margin-top:16px">
+            <h3>check-ins are recorded; workbook sync is catching up.</h3>
+            <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}</p>
+            <p>GrantDesk will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
           </section>` : '';
 
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
@@ -1576,6 +1621,22 @@
             <td>${escapeHtml((checkIn.streak && checkIn.streak.current) || 0)}</td>
             <td class="method">${escapeHtml(checkIn.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No students have checked in today.</td></tr>';
+
+        const lateCheckInRows = lateCheckInsToday.length ? lateCheckInsToday
+          .slice()
+          .sort((a, b) => new Date(a.checkInTime) - new Date(b.checkInTime))
+          .map((checkIn) => {
+            const pending = checkIn.status === 'LATE_PENDING';
+            const approved = checkIn.status === 'LATE_APPROVED';
+            const decision = approved ? 'point awarded' : checkIn.status === 'LATE_NO_POINT' ? 'no point' : 'needs review';
+            const actions = pending
+              ? `<div class="table-actions"><button class="secondary compact" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="AWARD_POINT">award point</button><button class="secondary compact danger" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="KEEP_NO_POINT">keep no point</button></div>`
+              : approved
+                ? `<button class="secondary compact danger" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="KEEP_NO_POINT">change to no point</button>`
+                : `<button class="secondary compact" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="AWARD_POINT">award point</button>`;
+            return `<tr><td class="who">${escapeHtml(checkIn.studentName)}</td><td>${escapeHtml(checkIn.classPeriod)}</td><td>${formatClock(checkIn.checkInTime)}</td><td>${escapeHtml(checkIn.point)}</td><td>${escapeHtml(decision)}</td><td class="action">${actions}</td></tr>`;
+          }).join('')
+          : '<tr><td colspan="6">No late sign-ins today.</td></tr>';
 
         const notCheckedRows = notChecked.length ? notChecked
           .slice()
@@ -1670,13 +1731,27 @@
           </div>
           ${noticeHtml}
           ${trafficHtml}
+          ${checkInInboxHtml}
           ${roomStatusHtml}
           ${rolloverHtml}
           <section class="teacher-section" id="attendance-section">
             <div class="teacher-section-head">
-              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded · ${absentToday.length} marked absent · one point maximum per class membership each day</p></div>
+              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded · ${lateCheckInsToday.length} late · ${pendingLateCheckIns.length} need point review · ${absentToday.length} marked absent</p></div>
             </div>
             <div class="checkin-summary">${summaryHtml}</div>
+            <section class="subcard" id="checkin-timing" style="margin-top:18px">
+              <h3>on-time window</h3>
+              <div class="override">
+                <label>Minutes after class starts<input type="number" id="checkin-window-minutes" min="1" max="240" step="1" value="${escapeHtml(checkInWindowMinutes)}"></label>
+                <p class="message">After this many minutes, students are not blocked. Their sign-in is saved as late with 0 points until you decide whether to award the daily point.</p>
+                <button class="secondary" id="save-checkin-window">save check-in timing</button>
+              </div>
+            </section>
+            <details class="subcard log" id="late-checkins-details" data-teacher-details style="margin-top:18px" ${pendingLateCheckIns.length ? 'open' : ''}>
+              <summary>late sign-ins · ${escapeHtml(lateCheckInsToday.length)} today · ${escapeHtml(pendingLateCheckIns.length)} need review</summary>
+              <p class="message" style="margin:12px 0">Late students are recorded immediately instead of being denied. Awarding the point also counts the day toward the student’s check-in streak; keeping no point preserves the late record at zero.</p>
+              <table><thead><tr><th>student</th><th>class</th><th>signed in</th><th>point</th><th>review</th><th class="action">decision</th></tr></thead><tbody>${lateCheckInRows}</tbody></table>
+            </details>
             <section class="subcard" style="margin-top:18px"><h3>record a student’s attendance</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             <details class="subcard log" id="checkin-log-details" data-teacher-details style="margin-top:18px">
               <summary>today’s private check-in log · ${escapeHtml(state.checkInsToday.length)}</summary>
@@ -1913,6 +1988,24 @@
         if (attendanceFilter) attendanceFilter.addEventListener('input', () => filterAttendanceRows(attendanceFilter.value));
         const rosterFilter = document.querySelector('#roster-filter');
         if (rosterFilter) rosterFilter.addEventListener('input', () => filterRosterRows(rosterFilter.value));
+
+        document.querySelector('#save-checkin-window').addEventListener('click', async (event) => {
+          const minutes = Number(document.querySelector('#checkin-window-minutes').value);
+          act(event.currentTarget, async () => {
+            adoptState(await call('teacherSetCheckInWindow', minutes));
+            renderTeacher();
+          });
+        });
+
+        document.querySelectorAll('[data-late-checkin-review]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
+          const decision = button.dataset.lateDecision;
+          const prompt = decision === 'AWARD_POINT'
+            ? 'Award the daily point for this late sign-in? The original late time will remain in the private log.'
+            : 'Keep this late sign-in at 0 points? The original late time will remain in the private log.';
+          if (!await teacherConfirm(prompt)) return;
+          adoptState(await call('teacherReviewLateCheckIn', button.dataset.lateCheckinReview, decision));
+          renderTeacher();
+        })));
 
         document.querySelector('#save-pass-limits').addEventListener('click', async (event) => {
           const maxActive = Number(document.querySelector('#max-active-passes').value);
