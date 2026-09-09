@@ -1,0 +1,32 @@
+name: live data health
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-data-health
+  cancel-in-progress: true
+
+jobs:
+  production-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v7
+
+      - name: Use the site Node version
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Check production News and Curiosity feeds
+        env:
+          GRANTDESK_ORIGIN: https://grant-desk.com
+          LIVE_DATA_TIMEOUT_MS: '15000'
+        run: node scripts/validate-production-live-data.mjs
