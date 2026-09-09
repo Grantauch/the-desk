@@ -1,4 +1,3 @@
-# StoryHub releases are checksum-sealed; do not rewrite their committed line endings.
-public/hubs/ush9-l014-unions.html -text
-public/hubs/ush9-l015-who-showed-up.html -text
+# Standalone HTML releases may be checksum-sealed; do not rewrite their committed line endings.
+public/hubs/*.html -text
 public/storyhub/runtime/storyhub-runtime.js -text
