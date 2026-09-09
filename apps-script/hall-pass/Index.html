@@ -447,18 +447,25 @@
         throw new Error('The shared classroom log stayed busy. Wait five seconds and try once more.');
       };
 
-      /** Wraps a button action so polling never overwrites a request in flight. */
+      /**
+       * Run at most one classroom mutation at a time in this page. A second
+       * submit while the first is unresolved is ignored, so a PASS_REQUEST can
+       * never race itself and become a RETURN after the OUT row appears.
+       */
       const act = async (button, work) => {
+        if (inFlight) return false;
         if (button) button.disabled = true;
-        inFlight += 1;
+        inFlight = 1;
         clearError();
         try {
           await work();
+          return true;
         } catch (error) {
           showError(error.message);
-          if (button) button.disabled = false;
+          return false;
         } finally {
-          inFlight -= 1;
+          inFlight = 0;
+          if (button && document.contains(button)) button.disabled = false;
           armIdleReset();
         }
       };
@@ -729,7 +736,6 @@
               input.select();
               throw error;
             }
-            button.disabled = false;
             if (state.requiresClassSelection) renderClassSelection();
             else await completeAuthorizedAction();
           });
@@ -807,7 +813,6 @@
               input.select();
               throw error;
             }
-            button.disabled = false;
             if (state.requiresClassSelection) renderClassSelection();
             else await completeAuthorizedAction();
           });
@@ -1992,17 +1997,15 @@
           });
         });
 
-        document.querySelectorAll('[data-late-checkin-review]').forEach((button) => button.addEventListener('click', async () => {
+        document.querySelectorAll('[data-late-checkin-review]').forEach((button) => button.addEventListener('click', () => act(button, async () => {
           const decision = button.dataset.lateDecision;
           const prompt = decision === 'AWARD_POINT'
             ? 'Award the daily point for this late sign-in? The original late time will remain in the private log.'
             : 'Keep this late sign-in at 0 points? The original late time will remain in the private log.';
           if (!await teacherConfirm(prompt)) return;
-          act(button, async () => {
-            adoptState(await call('teacherReviewLateCheckIn', button.dataset.lateCheckinReview, decision));
-            renderTeacher();
-          });
-        }));
+          adoptState(await call('teacherReviewLateCheckIn', button.dataset.lateCheckinReview, decision));
+          renderTeacher();
+        })));
 
         document.querySelector('#save-pass-limits').addEventListener('click', async (event) => {
           const maxActive = Number(document.querySelector('#max-active-passes').value);

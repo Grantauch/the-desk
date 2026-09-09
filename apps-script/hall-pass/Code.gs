@@ -24,6 +24,7 @@ const GD_CHECKIN_TAIL_ROWS = 600;
 const GD_PENDING_CHECKIN_PREFIX = 'pending-checkin:';
 const GD_CHECKIN_INBOX_STALE_MS = 120000;
 const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
+const GD_INFERRED_PASS_ACTION_STABILITY_SECONDS = 8;
 
 const GD_STUDENT_ACTIONS = {
   CHECKIN: 'CHECKIN',
@@ -525,7 +526,9 @@ function identifyPin_(pin, purpose, attemptNonce) {
   assertSchoolAccount_(activeEmail, settings);
   const students = verifyStudentPin_(pin, activeEmail, attemptNonce);
   const email = students[0].email;
-  const action = purpose === 'checkin' ? GD_STUDENT_ACTIONS.CHECKIN : inferPassAction_(email);
+  const action = purpose === 'checkin'
+    ? GD_STUDENT_ACTIONS.CHECKIN
+    : stabilizeInferredPassAction_(email, attemptNonce, inferPassAction_(email));
 
   if (students.length > 1) {
     const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, '', 'pin', true);
@@ -558,7 +561,7 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
   // Normalizing first throws on every student pass request and return.
   const requested = String(requestedAction || '').trim().toUpperCase();
   const action = requested === 'AUTO_PASS'
-    ? inferPassAction_(email)
+    ? stabilizeInferredPassAction_(email, attemptNonce, inferPassAction_(email))
     : normalizeStudentAction_(requestedAction);
 
   const selected = studentKey ? getStudentByKey_(studentKey) : null;
@@ -620,6 +623,40 @@ function inferPassAction_(email) {
   return readPassLog_().some((pass) => (
     pass.studentEmail === normalized && pass.status === 'OUT' && safeDateKey_(pass.outDate) === todayKey
   )) ? GD_STUDENT_ACTIONS.RETURN : GD_STUDENT_ACTIONS.PASS_REQUEST;
+}
+
+
+/**
+ * Keep a generic PIN submission bound to the action it first inferred for a
+ * few seconds. This is defense in depth for rapid duplicate submits: if the
+ * first request starts a pass, a near-simultaneous duplicate cannot observe
+ * that new OUT row and reinterpret itself as a RETURN. Explicit PASS_REQUEST
+ * and RETURN buttons bypass this helper and remain immediate.
+ */
+function stabilizeInferredPassAction_(email, attemptNonce, inferredAction) {
+  const action = normalizeStudentAction_(inferredAction);
+  const nonce = String(attemptNonce || '').trim();
+  if (!nonce) return action;
+  try {
+    const cache = CacheService.getScriptCache();
+    const key = `pass-intent:${nonce.slice(0, 80)}`;
+    const cached = cache.get(key);
+    if (cached) {
+      const prior = JSON.parse(cached);
+      if (
+        normalizeEmail_(prior.email) === normalizeEmail_(email) &&
+        [GD_STUDENT_ACTIONS.PASS_REQUEST, GD_STUDENT_ACTIONS.RETURN].includes(prior.action)
+      ) return prior.action;
+    }
+    cache.put(
+      key,
+      JSON.stringify({ email: normalizeEmail_(email), action }),
+      GD_INFERRED_PASS_ACTION_STABILITY_SECONDS
+    );
+  } catch (error) {
+    // Browser-side non-reentrancy remains authoritative if cache is unavailable.
+  }
+  return action;
 }
 
 function studentForReturn_(students, email) {
@@ -2673,14 +2710,6 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
     const award = choice === 'AWARD_POINT';
     const point = award ? numberSetting_(getSettings_(), 'CHECKIN_POINT_VALUE', 1) : 0;
     const status = award ? 'LATE_APPROVED' : 'LATE_NO_POINT';
-    const detail = award
-      ? `Late check-in point awarded by ${teacher}`
-      : `Late check-in kept at zero points by ${teacher}`;
-    const note = [String(entry.note || '').trim(), detail].filter(Boolean).join(' · ').slice(0, 300);
-    getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS)
-      .getRange(entry.row, 8, 1, 3)
-      .setValues([[point, status, note]]);
-    gdForget_('checkins');
     const student = getStudentByKey_(entry.studentKey) || {
       email: entry.studentEmail,
       name: entry.studentName,
@@ -2688,6 +2717,23 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
     };
     studentName = student.name;
     outcome = award ? `Awarded ${point} point${point === 1 ? '' : 's'}` : 'Kept at 0 points';
+
+    // Double-clicking the same decision is an idempotent no-op.
+    if (String(entry.status || '').toUpperCase() === status && Number(entry.point || 0) === point) return;
+
+    const detail = award
+      ? `Late check-in point awarded by ${teacher}`
+      : `Late check-in kept at zero points by ${teacher}`;
+    const baseNote = String(entry.note || '')
+      .split(' · ')
+      .filter((part) => !/^Late check-in (point awarded|kept at zero points) by /.test(part))
+      .join(' · ')
+      .trim();
+    const note = [baseNote, detail].filter(Boolean).join(' · ').slice(0, 300);
+    getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS)
+      .getRange(entry.row, 8, 1, 3)
+      .setValues([[point, status, note]]);
+    gdForget_('checkins');
     auditTeacherAction_(
       teacher,
       student,

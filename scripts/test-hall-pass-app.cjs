@@ -690,6 +690,26 @@ for (const requested of requestedActions) {
   );
 }
 
+
+// --- Issue 73: protected UI actions must be non-reentrant. ---
+const clientActMatch = clientScript.match(/const act = async \(button, work\) => \{([\s\S]*?)\n      \};/);
+assert.ok(clientActMatch, 'The client action wrapper must still exist');
+assert.match(clientActMatch[1], /if \(inFlight\) return false;/);
+assert.match(clientActMatch[1], /inFlight = 1;/);
+assert.match(clientActMatch[1], /inFlight = 0;/);
+assert.match(clientActMatch[1], /document\.contains\(button\)/);
+const initialPinHandler = clientScript.match(/#pin-form'[\s\S]*?const completeAuthorizedAction/);
+assert.ok(initialPinHandler);
+assert.doesNotMatch(initialPinHandler[0], /button\.disabled = false/);
+const actionPinHandler = clientScript.match(/#action-pin-form'[\s\S]*?const renderResolvedState/);
+assert.ok(actionPinHandler);
+assert.doesNotMatch(actionPinHandler[0], /button\.disabled = false/);
+assert.match(clientScript, /data-late-checkin-review[\s\S]*?addEventListener\('click', \(\) => act\(button, async \(\) => \{/);
+assert.match(functionSource('identifyPin_'), /stabilizeInferredPassAction_/);
+assert.match(functionSource('authorizeStudentAction'), /stabilizeInferredPassAction_/);
+const lateReviewSource = functionSource('teacherReviewLateCheckIn');
+assert.match(lateReviewSource, /String\(entry\.status \|\| ''\)\.toUpperCase\(\) === status/);
+
 // Preserve the behavioral coverage that predates the Version 9 recovery. The
 // structural assertions above catch security/privacy regressions; these
 // fixtures catch changes to the classroom rules themselves.
