@@ -104,4 +104,25 @@ export const storyHubs: StoryHub[] = [
       'A note repair board and a source list students can check for themselves.',
     ],
   },
+  {
+    slug: 'ush9-l018-the-debt-didnt-move',
+    href: '/hubs/ush9-l018-the-debt-didnt-move.html',
+    title: 'the debt didn’t move',
+    course: 'us history 9',
+    unit: 'unit 02 / the gilded age',
+    period: '1870s–1896',
+    status: 'ready to teach',
+    question: 'what happens when the price of what you sell falls while the number you owe refuses to change?',
+    blurb:
+      'Wheat gets cheaper. The mortgage does not. A farm problem widens into rail regulation, cooperative organizing, the Colored Farmers’ Alliance, the Omaha Platform, free silver, and the strange 1896 bargain that helped swallow the party while leaving parts of its argument behind.',
+    cover: '/storyhub/ush9/l018/assets/01-the-number-that-didnt-move.webp',
+    coverAlt: 'Generated interpretive StoryHub art of an 1890s farmer facing a fixed debt while crop value falls',
+    topics: ['populism', 'farm debt', 'railroad rates', 'free silver', 'farmers alliance', 'omaha platform'],
+    inside: [
+      'A wheat-price model that makes a fixed debt harder to pay as crop prices fall from 1891 to 1894.',
+      'A two-sided railroad-rate field that keeps higher western freight rates and lower traffic density visible at the same time.',
+      'The Colored Farmers’ Alliance as a main part of the agrarian story, including the collision between economic cooperation and racial power.',
+      'Seven teaching interactions, a note-repair ending, and a source panel that separates generated narrative art from historical evidence.',
+    ],
+  },
 ];
