@@ -86,7 +86,7 @@ try {
           `${route} passes WCAG A/AA including contrast`,
         );
         assert.deepEqual(errors, [], `${route} has no uncaught browser errors`);
-        await page.screenshot({ path: artifact(`extended-${viewport.name}-${slug}.png`), fullPage: true });
+        await page.screenshot({ path: artifact(`extended-${viewport.name}-${slug}.png`) });
         results.push({ route, viewport: viewport.name, status: 'passed' });
         console.log(`PASS ${viewport.name}: ${route}`);
       } catch (error) {
