@@ -34,7 +34,8 @@ export const capabilityValues = [
   'admin.classroom.domain_config',
   'admin.credentials.rotate_deliver',
   'admin.migration.validate',
-  'admin.migration.dry_run'
+  'admin.migration.dry_run',
+  'admin.migration.import_shadow'
 ] as const;
 
 export type Capability = (typeof capabilityValues)[number];
