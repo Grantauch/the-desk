@@ -1,0 +1,17 @@
+const scenes=[...document.querySelectorAll('.scene')]; let current=0;
+const obs=new IntersectionObserver(entries=>{const e=entries.filter(x=>x.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0]; if(e){current=scenes.indexOf(e.target);document.getElementById('bar').style.width=((current+1)/scenes.length*100)+'%';history.replaceState(null,'','#s'+(current+1));}},{threshold:[.35,.55,.75]});
+scenes.forEach(s=>obs.observe(s));
+function go(d){current=Math.max(0,Math.min(scenes.length-1,current+d));scenes[current].scrollIntoView({behavior:'smooth',block:'start'})}
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+document.addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(1)} if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(-1)} if(e.key.toLowerCase()==='f')toggleFS(); if(e.key.toLowerCase()==='h')document.body.classList.toggle('focus'); if(e.key==='Escape')document.getElementById('lightbox').classList.remove('open')})
+document.querySelectorAll('.toolkit button').forEach(b=>b.onclick=()=>{const t=b.closest('.toolkit');t.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');t.querySelector('.toolkit-answer').textContent=b.dataset.explain})
+function zoomArt(btn){const src=btn.parentElement.querySelector('img').src;const box=document.getElementById('lightbox');box.querySelector('img').src=src;box.classList.add('open')}
+function closeBox(e){e.stopPropagation();document.getElementById('lightbox').classList.remove('open')}
+if(location.hash){const n=parseInt(location.hash.slice(2),10);if(n)setTimeout(()=>{current=n-1;scenes[current]?.scrollIntoView()},50)}
+</script>
+
+<script>
+(async()=>{for(const img of document.querySelectorAll('img[data-b64]')){try{const r=await fetch(img.dataset.b64);if(!r.ok)throw new Error(r.status);const b=(await r.text()).trim();img.src='data:image/webp;base64,'+b;}catch(e){console.error('StoryHub image load failed',img.dataset.b64,e);}}})();
+</script>
+</body>
+</html>
