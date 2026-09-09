@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016",
+  "title": "The One That Passed",
+  "route": "/hubs/ush9-l016-the-one-that-passed.html",
+  "files": [
+    {
+      "path": "/hubs/ush9-l016-the-one-that-passed.html",
+      "bytes": 110006,
+      "sha256": "5d9d43e3450114bfdad499179919c7c14f370b88ede28cf48fb3886c93c94e06"
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/sierra.webp",
+      "assetId": "sierra",
+      "bytes": 204572,
+      "sha256": "5d27668bb32df758503875ad6ac46768662512f5d7fc9f795d1b22d57abc9687",
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/sea.webp",
+      "assetId": "sea",
+      "bytes": 143532,
+      "sha256": "6e103b7d83073b371dadd78dee4cadd63d5676b8cbc3e78dfb767f64a344df93",
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/camp.webp",
+      "assetId": "camp",
+      "bytes": 185954,
+      "sha256": "15f9a8135f2b3186bda52c811cf4e62979713254cfd366e4bd7564f9f49816d4",
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/act.webp",
+      "assetId": "act",
+      "bytes": 60862,
+      "sha256": "990b625e2bf8008a3c9685e31ddd8c709d9fe72f84483047f77efb8fc0862ada",
+      "width": 500,
+      "height": 682
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/wong.webp",
+      "assetId": "wong",
+      "bytes": 46212,
+      "sha256": "a54f89b523c9e37e33dc35a470bb03e795ce8e614b38d5943af0d57f12ba5c57",
+      "width": 497,
+      "height": 782
+    }
+  ],
+  "totalBytes": 751138,
+  "sealedAt": "2026-09-09"
+}

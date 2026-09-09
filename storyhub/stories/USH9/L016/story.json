@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016",
+  "course": "USH9",
+  "lessonCode": "L016",
+  "title": "The One That Passed",
+  "audience": "students",
+  "narrativeQuestion": "Why did a demand to exclude Chinese workers become federal law, and how did Chinese communities challenge it?",
+  "chapters": [
+    {
+      "id": "s1",
+      "title": "The Sierra",
+      "claim": "Nineteen years before Haymarket, three thousand Chinese workers made the same demand American labor would build a movement around, and they were already part of the labor struggle. They lost it in a week because their employer controlled the road that carried their food. This is who these workers were before any law was written about them.",
+      "namedPeople": [
+        {
+          "name": "Charles Crocker",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative acquired for this release; the page uses attributed documents, names, and events, not an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [
+        "sierra"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s2",
+      "title": "The Sandlot",
+      "claim": "This is the same July students already watched in Lecture 15. The Great Railroad Strike reached San Francisco as a sympathy rally and turned into three nights of attacks on Chinese homes and businesses. The man who came out of it with a movement had been on the other side of the line, carrying a pick handle for the committee that broke up the riot.",
+      "namedPeople": [
+        {
+          "name": "Denis Kearney",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative acquired for this release; the page uses attributed documents, names, and events, not an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "s3",
+      "title": "The One That Passed",
+      "claim": "Five selected labor records contrast workplace defeats with federal exclusion; this is not a claim that labor never won other campaigns.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "outcome"
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "The First Law",
+      "claim": "The Page Act is the first restrictive federal immigration law in American history, and on paper it is about trafficking. In practice it was the instrument that kept Chinese women out. A population that cannot form families does not replace itself, which is why the law that came seven years later did not need to be permanent in order to be permanent.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "ratio"
+      ]
+    },
+    {
+      "id": "s5",
+      "title": "May 6, 1882",
+      "claim": "Exclusion passed by more than five to one in the House and more than two to one in the Senate.",
+      "namedPeople": [
+        {
+          "name": "Chester A. Arthur",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative acquired for this release; the page uses attributed documents, names, and events, not an invented likeness."
+        },
+        {
+          "name": "James G. Blaine",
+          "anchorStatus": "not-needed",
+          "anchorNote": "Supporting figure in the expanded documentary account, not a portrait-led narrative introduction."
+        },
+        {
+          "name": "George Frisbie Hoar",
+          "anchorStatus": "not-needed",
+          "anchorNote": "Supporting figure in the expanded documentary account, not a portrait-led narrative introduction."
+        }
+      ],
+      "visualAnchorIds": [
+        "act"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s6",
+      "title": "What The Law Did",
+      "claim": "Between 1890 and 1920 the Chinese population of the United States fell by nearly half while the population of the country grew sharply. The law did not merely stop growth. It reversed it, and it kept reversing it for thirty years.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "gap"
+      ]
+    },
+    {
+      "id": "s7",
+      "title": "Rock Springs",
+      "claim": "Exclusion did not calm the West. It ratified the position that Chinese workers did not belong, and the three years after 1882 were the most violent in the entire history of Chinese settlement in America. Rock Springs was one of the deadliest attacks, and its aftermath showed how the people responsible could escape prosecution.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "camp"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s8",
+      "title": "The Method",
+      "claim": "Rock Springs was a massacre. Tacoma was a procedure, run by elected officials, with a published deadline and an orderly march. It was copied across the West because it worked and because nobody involved was punished. Killing was not the common method. Paperwork and a deadline were.",
+      "namedPeople": [
+        {
+          "name": "Jacob Weisbach",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative acquired for this release; the page uses attributed documents, names, and events, not an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "roundup"
+      ]
+    },
+    {
+      "id": "s9",
+      "title": "Six Days",
+      "claim": "The government issued a document, then cancelled the document, then refused to honor it, and the Supreme Court held unanimously that it was entitled to do all three. The case became a foundation of the broad congressional authority known as plenary power.",
+      "namedPeople": [
+        {
+          "name": "Chae Chan Ping",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative acquired for this release; the page uses attributed documents, names, and events, not an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [
+        "sea"
+      ],
+      "interactionIds": [
+        "voyage"
+      ]
+    },
+    {
+      "id": "s10",
+      "title": "The Certificate",
+      "claim": "The registration law imposed a racial witness condition in its court exception after missed registration.",
+      "namedPeople": [
+        {
+          "name": "Thomas J. Geary",
+          "anchorStatus": "not-needed",
+          "anchorNote": "Supporting figure in the expanded documentary account, not a portrait-led narrative introduction."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "proof"
+      ]
+    },
+    {
+      "id": "s11",
+      "title": "The Other Record",
+      "claim": "The record of this period runs in two directions at once. Everything so far has been done to Chinese immigrants. From here the hour follows what they did, and what they did was sue. Chinese residents brought thousands of cases in American courts during exclusion, and some of what they won protects everyone in the country now.",
+      "namedPeople": [
+        {
+          "name": "Lee Yick",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative acquired for this release; the page uses attributed documents, names, and events, not an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "s12",
+      "title": "One Hundred Thousand Said No",
+      "claim": "This was one of the largest organized acts of civil disobedience in nineteenth century America, and almost nobody has heard of it. It was funded, coordinated, and carried out by people who were barred from citizenship, and it was a genuine gamble that failed in court.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "s13",
+      "title": "The Boy From Sacramento Street",
+      "claim": "Wong Kim Ark won citizenship at birth under the Fourteenth Amendment.",
+      "namedPeople": [
+        {
+          "name": "Wong Kim Ark",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "wong",
+          "anchorNote": "The original 1894 departure statement includes his photograph."
+        }
+      ],
+      "visualAnchorIds": [
+        "wong"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s14",
+      "title": "Sixty One Years",
+      "claim": "Exclusion persisted for 61 elapsed years before repeal introduced a quota of 105.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "ledger"
+      ]
+    },
+    {
+      "id": "s15",
+      "title": "Terms",
+      "claim": "TEN WORDS YOU ALREADY MET\n\nEvery term below appeared in something you just read. Each one names a thing you already watched happen.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "s16",
+      "title": "Note Repair",
+      "claim": "CHECK WHAT YOU WROTE DOWN\n\nSix statements. Each one is the version people usually leave with. Each one is wrong.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "Compare five selected struggles, not every labor demand of the Gilded Age.",
+    "The Geary certificate requirement covered laborers; the white-witness condition shown is the missed-registration court exception. Photographs were added in 1893.",
+    "Wong Kim Ark is taught as the 1898 holding, not an unqualified claim about every present-day legal situation.",
+    "Plenary power does not mean that all judicial review is impossible.",
+    "Angel Island uses the foundation’s revised estimate of 100,000 Chinese detainees and a documented 756-day detention.",
+    "The growth comparison is arithmetic, not a prediction or a count of people causally missing.",
+    "1882 through 1943 produces 62 annual labels across 61 elapsed years."
+  ],
+  "release": {
+    "route": "/hubs/ush9-l016-the-one-that-passed.html",
+    "manifest": "storyhub/releases/USH9-L016.json"
+  }
+}

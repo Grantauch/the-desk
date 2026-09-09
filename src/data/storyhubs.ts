@@ -20,6 +20,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'ush9-l016-the-one-that-passed',
+    href: '/hubs/ush9-l016-the-one-that-passed.html',
+    title: 'the one that passed',
+    course: 'us history 9',
+    unit: 'unit 02 / the gilded age',
+    period: '1867–1943',
+    status: 'ready to teach',
+    question: 'what happened when a labor demand became a law against other workers?',
+    blurb:
+      'Begin with Chinese railroad workers on strike in the Sierra Nevada. Handle the records of exclusion, cancelled return papers, and unequal proof — then follow the people who organized, refused, and fought back in court.',
+    cover: '/storyhub/ush9/l016/assets/sierra.webp',
+    coverAlt: 'AI-authored reconstruction of an empty railroad cut in the Sierra Nevada',
+    topics: ['chinese exclusion', 'nativism', 'labor', 'equal protection', 'wong kim ark'],
+    inside: [
+      'Seven document-led interactions, including a fixed-outcome stamp register and a crossing that cannot outrun a law.',
+      'The original exclusion statute and Wong Kim Ark’s photographed departure statement from the National Archives.',
+      'A year-by-year record of exclusion from 1882 to repeal in 1943 and an annual quota of 105.',
+      'Fourteen narrative sections, ten terms, six note repairs, source transparency, and a complete reduced-motion reading view.',
+    ],
+  },
+  {
     slug: 'ush9-s01-the-margin',
     href: '/hubs/ush9-s01-the-margin.html',
     title: 'the margin',

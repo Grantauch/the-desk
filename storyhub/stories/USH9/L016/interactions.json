@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016",
+  "interactions": [
+    {
+      "id": "outcome",
+      "chapterId": "s3",
+      "type": "document stamping",
+      "teaches": "Contrast the five selected outcomes.",
+      "studentAction": "Stamp each record.",
+      "feedback": "Four defeats and a federal law appear in the historical order.",
+      "staticFallback": "Completed register, no draggable stamp.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    },
+    {
+      "id": "ratio",
+      "chapterId": "s4",
+      "type": "census sample",
+      "teaches": "Notice severe sex imbalance.",
+      "studentAction": "Choose a census year.",
+      "feedback": "The proportional 200-person sample, rounded counts and ratio change.",
+      "staticFallback": "All four labeled fields together.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    },
+    {
+      "id": "gap",
+      "chapterId": "s6",
+      "type": "arithmetic comparison",
+      "teaches": "Distinguish census evidence from a counterfactual calculation.",
+      "studentAction": "Choose a geometric growth rate.",
+      "feedback": "A dashed comparison and 1940 arithmetic difference appear, with explicit caveat.",
+      "staticFallback": "Fixed historical-rate comparison and census table.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    },
+    {
+      "id": "roundup",
+      "chapterId": "s8",
+      "type": "document filter",
+      "teaches": "Compare methods and the lack of lasting convictions in these cases.",
+      "studentAction": "Filter by method.",
+      "feedback": "Matching records, count, and actual case outcomes appear.",
+      "staticFallback": "All six records visible.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    },
+    {
+      "id": "voyage",
+      "chapterId": "s9",
+      "type": "constrained timeline",
+      "teaches": "A government certificate could be cancelled while its holder was at sea.",
+      "studentAction": "Move the ship.",
+      "feedback": "An independent timer voids the certificate before arrival; rushing cannot avoid the statute.",
+      "staticFallback": "Both dates, cancellation, and arrival finding shown.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    },
+    {
+      "id": "proof",
+      "chapterId": "s10",
+      "type": "file assembly",
+      "teaches": "Recognize a racial legal condition outside an applicant’s control.",
+      "studentAction": "Attach three sample records.",
+      "feedback": "The fixed white-witness requirement remains unavailable for self-certification.",
+      "staticFallback": "Completed first three fields plus the fixed fourth condition.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    },
+    {
+      "id": "ledger",
+      "chapterId": "s14",
+      "type": "virtual annual ledger",
+      "teaches": "Experience the duration of exclusion alongside national events.",
+      "studentAction": "Scroll or step through years.",
+      "feedback": "The status repeats until the last annual row changes to the quota.",
+      "staticFallback": "Every annual row in a semantic HTML table.",
+      "identityFit": "A handled document or recorded series in the pine-and-sepia registry system.",
+      "status": "implemented"
+    }
+  ]
+}
