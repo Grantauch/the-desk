@@ -187,7 +187,7 @@ export function classifyRelease({ projectRoot = root, baseRef, headRef = 'HEAD',
   };
 }
 
-export const verificationScriptFor = classification => classification.mode === 'storyhub' ? 'verify:storyhub-fast' : 'verify';
+export const verificationScriptFor = classification => classification.mode === 'storyhub' ? 'verify:storyhub-fast' : 'verify:full';
 
 const parseArgs = argv => {
   const options = { headRef: 'HEAD', index: false, json: false, githubOutput: false };
