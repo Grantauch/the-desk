@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Two-source radio signal</title>
+  <desc id="desc">An editorial receiver dial with repeated signals collapsing to one origin while two independent lines remain separate.</desc>
+  <rect width="1600" height="900" fill="#101718"/><circle cx="800" cy="450" r="330" fill="#d9cbb0" stroke="#d44d36" stroke-width="22"/><circle cx="800" cy="450" r="225" fill="#1b2829" stroke="#101718" stroke-width="18"/><circle cx="800" cy="450" r="45" fill="#d44d36"/>
+  <g fill="none" stroke="#79c8c6" stroke-width="13" opacity=".9"><path d="M760 420C590 240 410 205 175 195"/><path d="M760 430C590 340 390 335 145 350"/><path d="M760 445C560 445 390 475 120 500"/><path d="M760 460C575 550 390 610 170 665"/><path d="M760 475C610 650 440 740 250 785"/></g>
+  <g fill="none" stroke="#f1ba62" stroke-width="16"><path d="M840 420C1010 255 1195 205 1435 220"/><path d="M840 480C1020 650 1200 710 1445 690"/></g>
+  <g fill="#d44d36"><circle cx="175" cy="195" r="25"/><circle cx="145" cy="350" r="25"/><circle cx="120" cy="500" r="25"/><circle cx="170" cy="665" r="25"/><circle cx="250" cy="785" r="25"/></g><g fill="#f1ba62"><circle cx="1435" cy="220" r="29"/><circle cx="1445" cy="690" r="29"/></g>
+  <path d="M0 0h1600v900H0z" fill="none" stroke="#d9cbb0" stroke-width="28"/>
+</svg>

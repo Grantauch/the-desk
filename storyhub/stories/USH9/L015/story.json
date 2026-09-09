@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L015",
+  "course": "USH9",
+  "lessonCode": "L015",
+  "title": "Who Showed Up",
+  "audience": "students",
+  "narrativeQuestion": "When workers stopped the trains between 1877 and 1894, who showed up to make them move again, and how did the instrument of force change?",
+  "chapters": [
+    {
+      "id": "01-the-week",
+      "title": "The Week",
+      "claim": "In the same seven-day window that Grover Cleveland signed Labor Day into federal law, his administration moved toward breaking the Pullman boycott.",
+      "namedPeople": [{"name":"Grover Cleveland","role":"President of the United States","anchorStatus":"planned"}],
+      "visualAnchorIds": ["A01"],
+      "interactionIds": []
+    },
+    {
+      "id": "02-martinsburg",
+      "title": "Martinsburg",
+      "claim": "Local militia proved unreliable when the people under arms were neighbors of the strikers, prompting the first federal troop deployment in an American labor dispute.",
+      "namedPeople": [{"name":"Henry M. Mathews","role":"Governor of West Virginia","anchorStatus":"not-needed"}],
+      "visualAnchorIds": ["A02"],
+      "interactionIds": []
+    },
+    {
+      "id": "03-fourteen-days",
+      "title": "Fourteen Days",
+      "claim": "The Great Railroad Strike spread through the geometry of the rail and telegraph network rather than through a single national command structure.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A03"],
+      "interactionIds": ["I01"]
+    },
+    {
+      "id": "04-pittsburgh",
+      "title": "Pittsburgh",
+      "claim": "When Pittsburgh's own militia would not act, Pennsylvania imported troops from Philadelphia; the immediate tactical workaround helped produce a much larger catastrophe.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A04"],
+      "interactionIds": ["I02"]
+    },
+    {
+      "id": "05-what-1877-settled",
+      "title": "What 1877 Settled",
+      "claim": "The strike produced no durable worker victory, but it did establish a repeatable method in which force could be moved away from local loyalties and toward state and federal authority.",
+      "namedPeople": [{"name":"Rutherford B. Hayes","role":"President of the United States","anchorStatus":"planned"}],
+      "visualAnchorIds": ["A05"],
+      "interactionIds": []
+    },
+    {
+      "id": "06-eight-hours",
+      "title": "Eight Hours",
+      "claim": "The eight-hour demand was a fight over the measurable amount of life left after work, travel, sleep, and meals consumed the day.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A06"],
+      "interactionIds": ["I03"]
+    },
+    {
+      "id": "07-haymarket",
+      "title": "Haymarket",
+      "claim": "An unidentified bomb and a burst of police gunfire transformed a peaceful, thinning meeting into a mass-casualty event whose central factual uncertainty was never resolved.",
+      "namedPeople": [
+        {"name":"Carter Harrison Sr.","role":"Mayor of Chicago","anchorStatus":"not-needed"},
+        {"name":"Samuel Fielden","role":"speaker at Haymarket","anchorStatus":"planned"}
+      ],
+      "visualAnchorIds": ["A07"],
+      "interactionIds": []
+    },
+    {
+      "id": "08-eight-men-one-bomb",
+      "title": "Eight Men, One Bomb",
+      "claim": "The Haymarket prosecution did not claim the defendants threw the bomb; sorting the record shows that location, proven conduct, and sentence do not align.",
+      "namedPeople": [
+        {"name":"August Spies","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"Samuel Fielden","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"Albert Parsons","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"Adolph Fischer","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"George Engel","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"Louis Lingg","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"Michael Schwab","role":"Haymarket defendant","anchorStatus":"planned"},
+        {"name":"Oscar Neebe","role":"Haymarket defendant","anchorStatus":"planned"}
+      ],
+      "visualAnchorIds": ["A08"],
+      "interactionIds": ["I04"]
+    },
+    {
+      "id": "09-november-six-years-later",
+      "title": "November, and Six Years Later",
+      "claim": "Executions in 1887 and Altgeld's 1893 pardon exposed how much the Haymarket verdict outlived the evidence and how thoroughly association with the bombing damaged organized labor.",
+      "namedPeople": [
+        {"name":"Richard J. Oglesby","role":"Governor of Illinois","anchorStatus":"not-needed"},
+        {"name":"John Peter Altgeld","role":"Governor of Illinois","anchorStatus":"planned"},
+        {"name":"August Spies","role":"Haymarket defendant","anchorStatus":"planned"}
+      ],
+      "visualAnchorIds": ["A09"],
+      "interactionIds": []
+    },
+    {
+      "id": "10-fort-frick",
+      "title": "Fort Frick",
+      "claim": "At Homestead, armed force was first procured through a private business chain before state troops entered the dispute.",
+      "namedPeople": [
+        {"name":"Andrew Carnegie","role":"owner of Carnegie Steel","anchorStatus":"planned"},
+        {"name":"Henry Clay Frick","role":"chairman of Carnegie Steel","anchorStatus":"planned"}
+      ],
+      "visualAnchorIds": ["A10"],
+      "interactionIds": ["I05"]
+    },
+    {
+      "id": "11-twelve-hours-monongahela",
+      "title": "Twelve Hours on the Monongahela",
+      "claim": "Homestead workers defeated the Pinkertons at the landing but could not defeat the state militia that reopened the mill under armed protection six days later.",
+      "namedPeople": [
+        {"name":"Robert E. Pattison","role":"Governor of Pennsylvania","anchorStatus":"not-needed"},
+        {"name":"Alexander Berkman","role":"anarchist outsider who attacked Frick","anchorStatus":"not-needed"}
+      ],
+      "visualAnchorIds": ["A11"],
+      "interactionIds": []
+    },
+    {
+      "id": "12-pullman-arithmetic",
+      "title": "The Arithmetic at Pullman",
+      "claim": "Because Pullman's company set both wages and many essential living costs, a wage cut without a rent cut transferred pressure through the entire household ledger.",
+      "namedPeople": [{"name":"George Pullman","role":"industrialist and company-town owner","anchorStatus":"planned"}],
+      "visualAnchorIds": ["A12"],
+      "interactionIds": ["I06"]
+    },
+    {
+      "id": "13-piece-of-paper",
+      "title": "The Piece of Paper",
+      "claim": "The Pullman boycott demonstrated that a federal injunction could reach a national union faster and more comprehensively than troops could reach each strike site.",
+      "namedPeople": [
+        {"name":"Eugene V. Debs","role":"American Railway Union leader","anchorStatus":"planned"},
+        {"name":"Richard Olney","role":"United States Attorney General","anchorStatus":"planned"},
+        {"name":"Peter S. Grosscup","role":"federal judge","anchorStatus":"not-needed"},
+        {"name":"William A. Woods","role":"federal judge","anchorStatus":"not-needed"},
+        {"name":"Grover Cleveland","role":"President of the United States","anchorStatus":"planned"},
+        {"name":"Nelson A. Miles","role":"Brigadier General commanding federal troops","anchorStatus":"not-needed"}
+      ],
+      "visualAnchorIds": ["A13"],
+      "interactionIds": ["I07"]
+    },
+    {
+      "id": "14-the-ladder",
+      "title": "The Ladder",
+      "claim": "Across seventeen years the machinery used against large strikes became less local, faster, more scalable, and increasingly legal in form.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A14"],
+      "interactionIds": ["I08"]
+    },
+    {
+      "id": "15-terms",
+      "title": "Ten Words You Already Met",
+      "claim": "Labor vocabulary becomes durable when each term is attached to the moment in the record where students already watched it operate.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "16-note-repair",
+      "title": "Check What You Wrote Down",
+      "claim": "The note-repair board corrects six common distortions by pointing students back to the evidence they just encountered.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "Anchor the Great Railroad Strike chronology on the July 16, 1877 B&O wage-cut effective date while acknowledging that accounts differ about the exact first walkout.",
+    "Use about one hundred for the 1877 national death toll while preserving the documented range of roughly one hundred to one hundred sixty in teacher/source notes only.",
+    "Use about forty deaths for Pittsburgh and at least ten for Reading, reflecting the content master's conservative treatment of disputed figures.",
+    "Attribute the conclusion that most Haymarket police deaths came from police gunfire to historian Paul Avrich rather than presenting it as an uncontested contemporaneous finding.",
+    "Do not identify the Haymarket bomb thrower. No one was ever tried for throwing the bomb.",
+    "Do not imply the Knights of Labor organized the Haymarket meeting or bombing; the lesson uses the backlash to explain organizational damage by association.",
+    "Use roughly eight thousand for the Homestead militia and three Pinkerton deaths, matching the content master's stated choices amid source disagreement.",
+    "Do not claim Pullman paid workers in scrip. The company paid cash and deducted rent before workers received the balance.",
+    "Treat the Pullman ledger figures as the Pullman workers' own statement as printed in the federal Strike Commission report, not as neutral measurements produced by the company.",
+    "Preserve the distinction between striking and contempt of court: Debs was jailed for violating the injunction, not simply for leading a strike.",
+    "Do not claim Labor Day was created to appease the Pullman strikers. The bill predated the boycott; the significance is the compression of the calendar.",
+    "The narrative's synthesis is a comparison of instruments and response systems, not a claim that every strike had identical causes or that government and employer actions were legally equivalent."
+  ],
+  "release": {
+    "route": "/hubs/ush9-l015-who-showed-up.html",
+    "manifest": "storyhub/releases/USH9-L015.json"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-L03",
+  "title": "Not In The Room",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["auditor", "unhurried", "specific", "structural"],
+    "paletteIntent": "Ledger buff paper, iron gall black, dull ruling red, marbled blue green at the page edge, and one deep indigo signal used only for 1885, when players first organized on their own behalf.",
+    "typographyIntent": "A legal serif for the story, engraved commercial lettering for headings, and monospace for clauses, rule language, and source records.",
+    "textureLanguage": ["ruled ledger paper", "marbled endpaper", "browned ink", "tipped-in charter"],
+    "shapeLanguage": "Straight ruled columns, full-width entry lines, square document hinges, and no floating or rounded card system.",
+    "motionGrammar": ["rule a line across the page", "enter a fact into a column and leave it there"],
+    "interactionSignature": ["charter audit by beneficiary", "labor market with competition removed", "two-axis pay and freedom plot"],
+    "densityRhythm": "Measured narrative alternates with working ledgers, then stops on a single date rather than a recap prompt.",
+    "archivalBehavior": "Quoted rules are visibly marked and attributed. Later memoir is labeled as memoir. Native HTML diagrams stand in for unfinished scene images and never pretend to be archival evidence.",
+    "endingLanguage": "Five rules, four years, one room the players were not in, followed by the first year they organized for themselves."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The 1876 charter, scored programs, account books, and marbled bindings named in the approved content master.",
+    "edgeTreatment": "Ruled page boundaries, ink lines, document hinges, and buckram edges replace generic cards and soft shadows.",
+    "controlLanguage": "Buttons behave like ledger tabs, clause rows, owner bids, and plotted evidence points.",
+    "spacingLanguage": "Wide account-book margins alternate with compressed columns so the page reads like a working file, not a uniform component stack.",
+    "transitionLanguage": "Facts are entered or ruled into place. Reduced motion shows the same completed records without animation."
+  }
+}
