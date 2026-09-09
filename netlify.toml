@@ -2,7 +2,7 @@
 # Netlify build, function, security, and caching settings.
 
 [build]
-  command = "npm run verify"
+  command = "npm run verify:release"
   publish = "dist"
   functions = "netlify/functions"
 
