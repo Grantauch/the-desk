@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L018",
+  "title": "The Debt Didn’t Move",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "human",
+      "plainspoken",
+      "economic",
+      "agrarian",
+      "politically accelerating",
+      "intellectually complicated"
+    ],
+    "paletteIntent": "Material color should grow from harvest straw, soil, dark ink, bruised agricultural greens, weathered wood, dull metal, banknote tones, and pale silver; campaign scenes can become louder.",
+    "typographyIntent": "Let consequential numbers become enormous while explanatory prose stays exceptionally readable; campaign sections may borrow broadside energy without turning the page into fake period ephemera.",
+    "textureLanguage": [
+      "grain dust",
+      "cotton fiber",
+      "ledger pencil",
+      "printer ink",
+      "creased banknotes",
+      "rusted rail",
+      "dry soil",
+      "worn wood"
+    ],
+    "shapeLanguage": "Weights, columns, ratios, price lines, rail lines, sacks, stacks, scales, and fixed objects surrounded by moving systems.",
+    "motionGrammar": [
+      "WEIGHT — fixed obligations feel heavier as prices fall",
+      "FLOW — crops, money, freight, and votes move through systems",
+      "CONVERGENCE — grievances become organizations and a platform",
+      "FUSION — political streams combine while identity becomes less distinct"
+    ],
+    "interactionSignature": [
+      "one variable moves while another stays fixed",
+      "paired evidence held in the same field",
+      "jurisdiction crossing a state line",
+      "grievance-to-platform assembly",
+      "monetary perspective switching",
+      "fusion tradeoff",
+      "legacy ledger"
+    ],
+    "densityRhythm": "Sparse numerical opening; widening system through rail and organization; slower human complication in the Colored Farmers’ Alliance; dense acceleration from Omaha through 1896; stripped-down legacy ending.",
+    "archivalBehavior": "Use verified historical data and real source material for evidence. Generated narrative imagery is interpretive StoryHub art and must never masquerade as authentic documentary photography.",
+    "endingLanguage": "The party fades; a ledger separates reforms that later moved into law from demands that did not, then the story stops."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The generated L018 art pack and its agricultural materials, not a fixed StoryHub house palette.",
+    "edgeTreatment": "Prefer fields, ledger rules, rail lines, crop stacks, paper tears, and changing image-to-page boundaries over repeated pristine cards.",
+    "controlLanguage": "Controls behave like price rails, balances, tracks, planks, perspective switches, converging political streams, and a reform ledger.",
+    "spacingLanguage": "Keep the opening sparse, let systems widen through the middle, give Section 07 breathing room, accelerate 1892–1896, and remove noise in the ending.",
+    "transitionLanguage": "Move through weight, flow, convergence, and fusion so interface behavior carries the same economic argument as the narrative art."
+  }
+}
