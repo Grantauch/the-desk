@@ -1,23 +1,19 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Current release — Version 18, September 6, 2026
+## Current release — Version 23, September 9, 2026
 
-Source commit: `a7ea2b25358ba9dc686a299730b32b492e4da339`. The existing deployment was updated at 1:00 AM America/Detroit. Schema: `2026-09-05-session-a`. The stable /exec, owner execution, school-only access and manifest were preserved. All five files were read back after reloading the editor and matched the tested source. Full canonical verification and [GitHub Actions passed](https://github.com/Grantauch/the-desk/actions/runs/34012833475), including 298 Hall Pass behavior checks.
+Source commit: `47ce8b0ae085528ba7c6cef36a1d2c4c7ccfaa42`, merged through [PR #71](https://github.com/Grantauch/the-desk/pull/71). The existing deployment was updated in place at 12:14 PM America/Detroit. Schema: `2026-09-05-session-a`. The stable `/exec`, deployment ID, owner execution, school-only access and five-file manifest were preserved. The dependency-complete canonical gate, 311 Hall Pass behavioral checks, source replacement/read-back, and deployment verification passed in [GitHub Actions](https://github.com/Grantauch/the-desk/actions/runs/34375381483).
 
-The native synthetic migration rehearsal and repeated migration passed. The focused live migration preserved original facts in six sheets and all previous setting values. The deployed fresh-PIN request/return test passed at 1:01:44 AM: STARTED, RETURNED_COUNTABLE, class evidenceUsed 1, synthetic pass voided, synthetic membership deactivated, production facts unchanged. The execution log preserved this result after a browser interruption; the test was not repeated. No real student PIN or student email was used. Field verification remains FIELD_PENDING.
+The deployed protected-action smoke passed after release: STARTED, RETURNED_COUNTABLE, class `evidenceUsed` 1, synthetic pass voided, synthetic membership deactivated, production facts unchanged, and `ok: true`. Student, kiosk, check-in, and teacher modes then fully initialized without error on the preserved URL. The teacher dashboard showed the current attendance total with no legacy 202-count card and no delayed inbox warning. No real student PIN or student email was used. Field verification remains FIELD_PENDING.
 
-The matching source is retained in `../snapshots/hall-pass/version-18-live-2026-09-06/` with its fingerprint. Versions 14, 15 and 16 are unsafe to redeploy.
-
-## Next release candidate — durable Daily Check-In inbox
-
-The September 9 candidate is not yet a production release. It keeps schema `2026-09-05-session-a` and the existing five-file deployment contract, but changes the check-in write path:
+Version 23 keeps schema `2026-09-05-session-a` and the existing five-file deployment contract while changing the check-in write path:
 
 - `submitDailyCheckIn` validates the fresh one-use proof, writes one durable idempotent inbox event, then consumes the proof. It does not wait on `LockService` or append directly to the workbook.
 - Opportunistic, teacher-poll, one-minute-trigger, and daily-cleanup paths flush queued arrivals with one Sheet batch. The batch is explicitly flushed before its private inbox records are removed.
 - Student and teacher state merge pending and persisted arrivals. A workbook delay therefore cannot turn a recorded check-in into a student resubmission or an empty teacher total.
 - The old shared-log counter is replaced with a fresh Hall Pass-only contention counter. Pass/return retries remain because capacity and queue transitions still require serialization.
 
-Local release evidence currently passes: 73 handoff checks, the structural suite, and 311 behavioral checks. The full gate also passed its release-lane, Hall Pass, classroom-tool, classroom-state, public-resource/publishing, and StoryHub stages, then stopped at the dependency preflight because this clean checkout does not have `@astrojs/check` or `typescript`. The canonical gate must complete in a dependency-complete checkout before the branch is uploaded. Then follow the normal protected PR and owner-only `/deploy-hall-pass` flow, preserve the existing deployment ID, and run `?mode=releasecheck` once. Do not describe the inbox as live until those steps and source read-back succeed.
+Local release evidence passed 73 handoff checks, the structural suite, and 311 behavioral checks. The dependency-complete GitHub gate then passed release-lane, Hall Pass, classroom-tool, classroom-state, public-resource/publishing, StoryHub, Astro/TypeScript, build, static validation, and browser stages. The source at the merged commit is now live as Version 23. Versions 14, 15 and 16 remain unsafe to redeploy.
 
 ## Release safety
 
