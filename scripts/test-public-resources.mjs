@@ -98,21 +98,21 @@ try {
     passed++;
   }
 
-  // Execute the actual package verify chain with synthetic stage commands.
+  // Execute the explicit full verification chain with synthetic stage commands.
   // A failure in each stage must prevent all subsequent stages from running.
   const realPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   const stages = ['release:test', 'hall-pass:verify', 'tools:test', 'classroom:test', 'resources:validate', 'storyhub:validate', 'check', 'build', 'site:validate'];
-  assert.equal(realPackage.scripts.verify, stages.map((stage) => `npm run ${stage}`).join(' && '));
+  assert.equal(realPackage.scripts['verify:full'], stages.map((stage) => `npm run ${stage}`).join(' && '));
   const npmPath = process.env.npm_execpath;
   assert.ok(npmPath, 'Run these fixtures via npm run resources:validate so npm is available for gate tests.');
   writeFileSync(join(scratch, 'stage.cjs'), "require('node:fs').appendFileSync('stages.txt', process.argv[2]+'\\n'); process.exit(process.argv[2]===process.env.FAIL_STAGE ? 1 : 0);\n");
   writeFileSync(join(scratch, 'package.json'), JSON.stringify({ private: true, scripts: {
-    verify: realPackage.scripts.verify,
+    'verify:full': realPackage.scripts['verify:full'],
     ...Object.fromEntries(stages.map((stage) => [stage, `node stage.cjs ${stage}`])),
   } }));
   for (const failStage of ['', ...stages]) {
     writeFileSync(join(scratch, 'stages.txt'), '');
-    const result = spawnSync(process.execPath, [npmPath, 'run', 'verify'], {
+    const result = spawnSync(process.execPath, [npmPath, 'run', 'verify:full'], {
       cwd: scratch, encoding: 'utf8', env: { ...process.env, FAIL_STAGE: failStage },
     });
     assert.ifError(result.error);
@@ -138,7 +138,7 @@ try {
     if (installed.length !== 2) assert.match(result.stderr, /npm install --include=dev/);
     passed++;
   }
-  console.log(`Public-resource and release-gate fixtures: ${passed} passed. Success/failure inputs unchanged; all nine stages stop on failure.`);
+  console.log(`Public-resource and release-gate fixtures: ${passed} passed. Success/failure inputs unchanged; all nine full-gate stages stop on failure.`);
 } finally {
   // Only this process's mkdtemp-created synthetic fixture directory is removed.
   rmSync(scratch, { recursive: true, force: true });
