@@ -165,13 +165,15 @@ assert.doesNotMatch(queueReader, /CacheService\.getScriptCache/);
 assert.match(queueReader, /status\s*===\s*'WAITING'/);
 
 const actionProofWriter = functionSource('putStudentActionProof_');
+const actionProofValidator = functionSource('validateStoredStudentActionProof_');
 const actionProofConsumer = functionSource('consumeStudentActionProof_');
 assert.match(actionProofWriter, /student-action:/);
 assert.match(actionProofWriter, /signTokenPart_/);
-assert.match(actionProofConsumer, /deleteProperty\(propertyKey\)/, 'A protected action must consume its one-use proof');
-assert.match(actionProofConsumer, /proof\.action\s*!==\s*action/);
+assert.match(actionProofValidator, /proof\.action\s*!==\s*action/);
+assert.equal((actionProofValidator.match(/deleteProperty/g) || []).length, 1, 'Validation may delete only an already-expired proof');
+assert.ok(actionProofValidator.indexOf('deleteProperty') < actionProofValidator.indexOf('return {'), 'A valid proof must reach the non-consuming return path');
+assert.match(actionProofConsumer, /deleteProperty\(resolved\.proofPropertyKey\)/, 'Capacity-sensitive actions must consume their one-use proof');
 for (const [name, action, operationLabel] of [
-  ['submitDailyCheckIn', 'CHECKIN', 'daily check-in'],
   ['requestBathroomPass', 'PASS_REQUEST', 'bathroom request'],
   ['returnPass', 'RETURN', 'pass return'],
 ]) {
@@ -179,6 +181,22 @@ for (const [name, action, operationLabel] of [
   assert.match(source, new RegExp(`consumeStudentActionProof_\\([\\s\\S]*GD_STUDENT_ACTIONS\\.${action}`));
   assert.match(source, new RegExp(`GD_STUDENT_LOCK_WAIT_MS,\\s*'${operationLabel}'`));
 }
+const checkInSubmit = functionSource('submitDailyCheckIn');
+const checkInSubmissionProof = functionSource('validateCheckInSubmissionProof_');
+assert.match(checkInSubmit, /validateCheckInSubmissionProof_/);
+assert.match(checkInSubmissionProof, /validateStoredStudentActionProof_/);
+assert.match(checkInSubmissionProof, /readCheckInsIncludingPending_/);
+assert.match(checkInSubmit, /stageCheckIn_/);
+assert.match(checkInSubmit, /deleteProperty\(resolved\.proofPropertyKey\)/);
+assert.match(checkInSubmit, /tryFlushPendingCheckIns_/);
+assert.doesNotMatch(checkInSubmit, /withLock_|recordCheckIn_|appendRow/, 'Daily Check-In must not wait on or append to the shared workbook');
+const checkInFlusher = functionSource('flushPendingCheckInsLocked_');
+assert.match(checkInFlusher, /setValues\(toWrite\.map\(checkInEntryRow_\)\)/);
+assert.doesNotMatch(checkInFlusher, /appendRow/, 'Inbox flushing must write one workbook batch');
+assert.ok(
+  checkInFlusher.indexOf('SpreadsheetApp.flush()') < checkInFlusher.indexOf('deleteProperty(entry.pendingPropertyKey)'),
+  'The workbook batch must finish before durable inbox entries are removed'
+);
 assert.match(functionSource('startPass'), /page is out of date/i);
 assert.match(functionSource('joinPassQueue'), /page is out of date/i);
 
@@ -226,7 +244,7 @@ for (const name of ['teacherAddStudentClass', 'teacherRemoveStudentClass', 'teac
   assert.ok(source.indexOf('assertTeacher_') < source.indexOf('withLock_'), `${name} must authorize before mutation`);
 }
 for (const name of ['teacherApplyUnmatchedEmail', 'teacherAddStudentClass', 'teacherRemoveStudentClass']) {
-  assert.match(functionSource(name), /withLock_\(\(\) => \{\s*assertPinEmailBatchIdle_\(\)/);
+  assert.match(functionSource(name), /withLock_\(\(\) => \{\s*(?:flushPendingCheckInsLocked_\(\);\s*)?assertPinEmailBatchIdle_\(\)/);
 }
 assert.match(functionSource('reconcileKnownIdentityDrift_'), /repairs\.length\) assertPinEmailBatchIdle_\(\)/);
 assert.match(functionSource('ensureOnePinPerStudent_'), /assertPinEmailBatchIdle_\(\)/);
@@ -267,7 +285,7 @@ ${functionSource('withLock_')}
 this.__contentionApi = { withLock_, getLockContentionSummary_ };
 `, contentionContext);
 assert.throws(
-  () => contentionContext.__contentionApi.withLock_(() => { contentionActionCalls += 1; }, 5000, 'daily check-in'),
+  () => contentionContext.__contentionApi.withLock_(() => { contentionActionCalls += 1; }, 5000, 'bathroom request'),
   /handling other students/
 );
 assert.equal(contentionWaitMs, 5000);
@@ -275,8 +293,8 @@ assert.equal(contentionActionCalls, 0, 'A busy lock must fail before a protected
 assert.equal(contentionReleases, 0, 'A lock that was never acquired must not be released');
 const contentionSummary = contentionContext.__contentionApi.getLockContentionSummary_();
 assert.equal(contentionSummary.retrySignals, 1);
-assert.equal(contentionSummary.byOperation['daily check-in'], 1);
-assert.equal(contentionSummary.lastOperation, 'daily check-in');
+assert.equal(contentionSummary.byOperation['bathroom request'], 1);
+assert.equal(contentionSummary.lastOperation, 'bathroom request');
 
 contentionContext.LockService = {
   getScriptLock: () => ({
@@ -313,7 +331,7 @@ for (const name of ['requestBathroomPass', 'returnPass']) {
   assert.doesNotMatch(source, /expirePreviousDayPasses_\(\)/, `${name} must call the once-per-day rollover guard`);
 }
 assert.match(functionSource('expirePreviousDayPasses_'), /markRolloverChecked_\(todayKey\)/);
-assert.match(functionSource('getCheckInState_'), /readCheckIns_\(\)/, 'Streaks still need full history, read outside the lock');
+assert.match(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Streaks must include full persisted history plus the durable inbox');
 
 const buildCheckInSheet = (rows) => {
   let readRows = 0;
@@ -457,12 +475,15 @@ assert.match(html, /requestBathroomPass/);
 assert.match(html, /completeAuthorizedAction/);
 assert.match(html, /STUDENT_BUSY_RETRY_DELAYS_MS/);
 assert.match(html, /const callWithBusyRetry/);
-assert.match(html, /callWithBusyRetry\('submitDailyCheckIn'/);
+assert.match(html, /call\('submitDailyCheckIn'/);
+assert.doesNotMatch(html, /callWithBusyRetry\('submitDailyCheckIn'/);
 assert.match(html, /callWithBusyRetry\('requestBathroomPass'/);
 assert.match(html, /callWithBusyRetry\('returnPass'/);
-assert.match(html, /No check-in or pass change was made/);
-assert.match(html, /automatic traffic recovery was needed/);
+assert.match(html, /Your pass was not changed/);
+assert.match(html, /hall-pass traffic was automatically recovered/);
+assert.match(html, /check-ins are recorded; workbook sync is catching up/);
 assert.match(functionSource('getTeacherState_'), /lockContention:\s*getLockContentionSummary_\(\)/);
+assert.match(functionSource('getTeacherState_'), /checkInInbox:\s*getPendingCheckInSummary_\(\)/);
 assert.doesNotMatch(html, /call\('startPass'/);
 assert.doesNotMatch(html, /call\('joinPassQueue'/);
 assert.match(html, /advances automatically/);
@@ -1194,9 +1215,10 @@ assert.match(html, /one student · one PIN/);
 const checkInRecorder = functionSource('recordCheckIn_');
 assert.match(checkInRecorder, /absence\s*&&\s*method\s*!==\s*'teacher'/, 'A student check-in must not erase a teacher absence');
 assert.match(checkInRecorder, /clearAbsentEntry_/, 'A teacher late check-in must preserve and clear the absence audit row');
+assert.match(functionSource('stageCheckIn_'), /absence\s*&&\s*!late/, 'The durable inbox must preserve a teacher absence during the on-time window');
 
 const absenceClearer = functionSource('clearAbsentEntry_');
 assert.match(absenceClearer, /'CLEARED'/);
 assert.doesNotMatch(absenceClearer, /deleteRow|clearContent/, 'Clearing an absence must preserve the attendance audit trail');
 
-console.log('GrantDesk hall-pass release: PASS — syntax, one-use action-bound PIN proofs, automatic verified-request queue advancement, 3.0-second countability boundary, legacy-history preservation, teacher corrections, permanent pass audit, credential-backed identity reconciliation, official-calendar streaks, polling-safe collapsible teacher controls, student evidence privacy, roster/attendance safeguards, capacity and cooldown rules, guarded PIN delivery, and bounded shared-lock work verified.');
+console.log('GrantDesk hall-pass release: PASS — syntax, one-use action-bound PIN proofs, durable idempotent check-in inbox, automatic verified-request queue advancement, 3.0-second countability boundary, legacy-history preservation, teacher corrections, permanent pass audit, credential-backed identity reconciliation, official-calendar streaks, polling-safe collapsible teacher controls, student evidence privacy, roster/attendance safeguards, capacity and cooldown rules, guarded PIN delivery, and bounded shared-lock work verified.');
