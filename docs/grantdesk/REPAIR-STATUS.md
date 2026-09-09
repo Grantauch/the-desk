@@ -1,5 +1,13 @@
 # GrantDesk repair status
 
+## Current checkpoint — September 9 Daily Check-In contention repair
+
+The review checkout now contains a targeted replacement for the shared-lock Daily Check-In write path. Each arrival is stored first as a private, student/date-specific, idempotent inbox event; student and teacher state include pending events immediately; an idle request, teacher poll, one-minute owner trigger, or daily cleanup writes the inbox to `Daily Check-ins` in one batch. Pass capacity and queue mutations keep their existing shared lock.
+
+The change preserves the Version 18 schema, five-file Apps Script project, stable `/exec`, school-domain access, existing workbook, late-sign-in review, teacher absences, streaks, and Hall Pass rules. The old 202-count card will not carry forward because the new contention counter covers Hall Pass operations only; Daily Check-In no longer retries that lock.
+
+Local evidence: 73 handoff mappings, structural suite PASS, and 311 behavioral checks across 20 areas PASS. New cases prove that a refused workbook lock still returns a recorded student state, an interrupted response can safely replay its consumed proof, a thirty-student burst remains visible to the teacher before Sheet flush, replayed inbox data cannot duplicate a row, and only the teacher or owned trigger can invoke the public flusher. The full gate also passed release-lane, classroom-tool, classroom-state, public-resource/publishing, and StoryHub stages before the dependency preflight stopped it: this clean checkout lacks `@astrojs/check` and `typescript`. Dependency-complete canonical verification, protected PR, Apps Script deployment, source read-back, synthetic smoke, and real-class field evidence remain pending. Production is still Version 18.
+
 ## Current checkpoint — September 7 acceptance corrections
 
 This checkpoint supersedes older unprotected-main, direct-main editor, and Netlify sign-in blockers below. Earlier sections and evidence are retained as history.

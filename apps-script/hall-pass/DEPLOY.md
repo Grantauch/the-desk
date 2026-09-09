@@ -8,6 +8,17 @@ The native synthetic migration rehearsal and repeated migration passed. The focu
 
 The matching source is retained in `../snapshots/hall-pass/version-18-live-2026-09-06/` with its fingerprint. Versions 14, 15 and 16 are unsafe to redeploy.
 
+## Next release candidate — durable Daily Check-In inbox
+
+The September 9 candidate is not yet a production release. It keeps schema `2026-09-05-session-a` and the existing five-file deployment contract, but changes the check-in write path:
+
+- `submitDailyCheckIn` validates the fresh one-use proof, writes one durable idempotent inbox event, then consumes the proof. It does not wait on `LockService` or append directly to the workbook.
+- Opportunistic, teacher-poll, one-minute-trigger, and daily-cleanup paths flush queued arrivals with one Sheet batch. The batch is explicitly flushed before its private inbox records are removed.
+- Student and teacher state merge pending and persisted arrivals. A workbook delay therefore cannot turn a recorded check-in into a student resubmission or an empty teacher total.
+- The old shared-log counter is replaced with a fresh Hall Pass-only contention counter. Pass/return retries remain because capacity and queue transitions still require serialization.
+
+Local release evidence currently passes: 73 handoff checks, the structural suite, and 311 behavioral checks. The full gate also passed its release-lane, Hall Pass, classroom-tool, classroom-state, public-resource/publishing, and StoryHub stages, then stopped at the dependency preflight because this clean checkout does not have `@astrojs/check` or `typescript`. The canonical gate must complete in a dependency-complete checkout before the branch is uploaded. Then follow the normal protected PR and owner-only `/deploy-hall-pass` flow, preserve the existing deployment ID, and run `?mode=releasecheck` once. Do not describe the inbox as live until those steps and source read-back succeed.
+
 ## Release safety
 
 Ongoing production care, the open verification list, and the standing release gate live in

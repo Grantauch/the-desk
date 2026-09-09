@@ -11,6 +11,19 @@ Production fingerprint as of 2026-09-06 (Version 18):
 | Workbook schema | `2026-09-05-session-a`; native rehearsal and focused live migration passed |
 | Recovery source | `apps-script/snapshots/hall-pass/version-18-live-2026-09-06`; preserve the additive schema |
 
+## September 9 Daily Check-In inbox candidate — not deployed
+
+The current review branch removes Daily Check-In from the shared workbook lock without changing Hall Pass capacity behavior or the workbook schema.
+
+- A student check-in is first stored under one private, student/date-specific Script Properties key. The one-use PIN proof is deleted only after that durable write succeeds.
+- Repeated submissions resolve to the same logical student/date event. The workbook flusher also deduplicates against rows already present before deleting inbox entries.
+- Student and teacher responses merge unflushed inbox entries with the workbook, so a busy Sheet cannot make a recorded arrival disappear from either screen.
+- An idle request flushes immediately without waiting. A one-minute owner trigger and the existing daily cleanup provide background recovery, using one `setValues` batch followed by `SpreadsheetApp.flush()`.
+- Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
+- Local evidence: 73 handoff mappings, structural suite, and 311 behavioral checks pass, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences, and Hall Pass regressions.
+
+This is source/test evidence only. Production remains Apps Script Version 18 until the protected PR, deploy bridge, source read-back, and synthetic protected-action smoke succeed. Do not create a new deployment or URL.
+
 ## Session and teacher policy
 
 - Student check-in opens at the selected class start and closes five minutes later. Teacher late attendance requires a private reason.
@@ -22,9 +35,10 @@ Production fingerprint as of 2026-09-06 (Version 18):
 
 ## Daily and weekly checks
 
-- Watch the private teacher dashboard's retry-signal card during first-hour traffic. A small
-  non-zero count means automatic recovery absorbed a collision. A large or climbing count on a
-  normal day is worth investigating; it is never evidence of a PIN or roster problem.
+- Watch the private teacher dashboard's Hall Pass retry card during pass traffic. Daily Check-In
+  does not use that lock in the September 9 candidate. A separate inbox warning appears only when
+  a recorded check-in has waited more than two minutes for workbook synchronization; the dashboard
+  totals already include it, and students must not submit again.
 - Confirm `/pass/`, `/check-in/` and the Hall Pass card in `/tools/` still load and still point at
   the current `/exec` deployment.
 - Watch Pass Log growth against the 180-day retention window, and confirm rows are moving into

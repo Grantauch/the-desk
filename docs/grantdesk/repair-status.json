@@ -712,6 +712,28 @@
       "public_routes": "Homepage, resources, editor, pass and check-in returned HTTP 200 after push. Route availability does not identify the deployed commit."
     }
   },
+  "hall_pass_checkin_inbox_20260909": {
+    "status": "VERIFY_LOCAL",
+    "production_status": "VERSION_18_UNCHANGED",
+    "schema": "2026-09-05-session-a",
+    "scope": "Replace Daily Check-In's synchronous shared-workbook lock with a durable, idempotent per-student/date inbox while preserving Hall Pass capacity serialization and the existing workbook.",
+    "changes": [
+      "Check-in proof is consumed only after the durable inbox event is stored",
+      "Student and teacher reads merge queued and persisted arrivals",
+      "Idle requests, teacher polling, a one-minute owner trigger, and daily cleanup flush one workbook batch",
+      "Workbook flush completes before inbox properties are removed",
+      "Hall Pass retains bounded lock retries; the new contention counter excludes legacy Daily Check-In collisions"
+    ],
+    "validation": "PASS: 73 handoff mappings; structural Hall Pass suite; 311 behavioral checks across 20 areas, including refused-lock recording, interrupted-response replay, thirty-student burst visibility, flush deduplication, late review, absence preservation, trigger authorization, and existing Hall Pass policy. Full gate passed release-lane, classroom-tool, classroom-state, public-resource/publishing, and StoryHub stages, then stopped at dependency preflight because @astrojs/check and typescript are unavailable in this clean checkout.",
+    "pending": [
+      "Dependency-complete canonical npm run verify",
+      "Protected review branch and pull request",
+      "Owner-authorized in-place Apps Script deployment",
+      "Five-file source read-back and stable deployment verification",
+      "One synthetic protected-action release smoke",
+      "Real classroom field cycle"
+    ]
+  },
   "website_design_20260907": {
     "base": "d18e7c126e53b187713dc9bb83e31c2eaea5f424",
     "scope": "Public website presentation and navigation only",

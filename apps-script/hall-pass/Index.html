@@ -424,12 +424,7 @@
       const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
       const isBusyLockError = (error) => String(error && error.message ? error.message : error).includes(BUSY_LOCK_TEXT);
 
-      /**
-       * A busy-lock response is the one server error that proves the protected
-       * action never began and its one-use proof was not consumed. Only that
-       * condition is safe to replay automatically; timeouts and other errors
-       * still stop for a human because their result may be uncertain.
-       */
+      /** Pass requests and returns still serialize the room-capacity decision. */
       const callWithBusyRetry = async (name, ...args) => {
         const startedAt = Date.now();
         const totalAttempts = STUDENT_BUSY_RETRY_DELAYS_MS.length + 1;
@@ -442,9 +437,9 @@
             if (!isBusyLockError(error)) throw error;
             const spent = Date.now() - startedAt;
             if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length || spent >= STUDENT_BUSY_RETRY_BUDGET_MS) {
-              throw new Error('Several students are updating the shared classroom log at the same time. No check-in or pass change was made. Wait five seconds and press once more; this is traffic, not a bad PIN. Your teacher can use the teacher backup controls if needed.');
+              throw new Error('Several hall-pass changes reached the room at the same time. Your pass was not changed. Wait five seconds and press once more; this is traffic, not a bad PIN. Your teacher can use the backup controls if needed.');
             }
-            showBusy(`Another student’s check-in or pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
+            showBusy(`Another hall-pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
             const jitter = Math.floor(Math.random() * 350);
             await wait(STUDENT_BUSY_RETRY_DELAYS_MS[attempt] + jitter);
           }
@@ -749,7 +744,7 @@
         if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
 
         if (action === 'CHECKIN') {
-          adoptState(await callWithBusyRetry('submitDailyCheckIn', proof, studentKey, identityToken));
+          adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
           renderCheckIn();
           if (sharedDevice()) scheduleHandoff(state.actionOutcome && state.actionOutcome.kind === 'LATE_CHECK_IN_RECORDED' ? 'Late sign-in recorded. This screen clears itself for the next student.' : 'Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
           return;
@@ -1311,6 +1306,7 @@
         const usage = data.studentPassUsage || [];
         const unrecognized = new Set(usage.filter((student) => !student.googleVerified).map((student) => student.email)).size;
         const unlimited = new Set(usage.filter((student) => student.unlimited).map((student) => student.email)).size;
+        const checkInInbox = data.checkInInbox || {};
         const pins = pinStatus || {};
         const add = (tone, title, message, view, target, action) => items.push({ tone, title, message, view, target, action });
         if (late) add('urgent', `${late} overdue ${late === 1 ? 'pass' : 'passes'}`, 'Review the students who are still out. Mark returned only after confirming they are back.', 'overview', 'live-pass-section', 'View passes');
@@ -1322,7 +1318,8 @@
         if (rollovers) add('warning', `${rollovers} overnight ${rollovers === 1 ? 'pass was' : 'passes were'} closed`, 'Yesterday’s unfinished passes were released automatically. The original records remain available for review.', 'overview', 'pass-log-details', 'Review activity');
         if (unrecognized) add('info', `${unrecognized} students have not used Google sign-in`, 'They can still use their PIN. This observation does not mean their email address is wrong; check the roster if a student reports trouble.', 'students', 'pass-count-details', 'View students');
         if (unlimited) add('info', `${unlimited} ${unlimited === 1 ? 'student has' : 'students have'} no pass limit`, 'This private access setting applies across the student’s classes. Class timing still applies. Students never see this setting or your reason.', 'students', 'pass-count-details', 'Review access');
-        if (Number((data.lockContention || {}).retrySignals)) add('info', 'Automatic traffic recovery was used today', 'Several requests reached the shared log at once. Safe retries are automatic. Use your backup controls if a student still needs help.', 'overview', 'teacher-student', 'Open backup');
+        if (checkInInbox.delayed) add('warning', 'Check-in workbook sync is delayed', `${checkInInbox.pendingCount || 0} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safely recorded in the inbox and still appear on this dashboard. Refresh after a minute; the workbook will catch up in one batch.`, 'attendance', 'attendance-section', 'View attendance');
+        if (Number((data.lockContention || {}).retrySignals)) add('info', 'Hall-pass traffic was recovered today', 'Several pass changes reached the capacity lock together. Safe retries were automatic; Daily Check-In no longer uses this lock.', 'overview', 'teacher-student', 'Open backup');
         return items;
       };
 
@@ -1520,6 +1517,7 @@
         const repeatPassesToday = state.repeatPassesToday || [];
         const rolloverPassesToday = state.rolloverPassesToday || [];
         const lockContention = state.lockContention || { retrySignals: 0, lastAt: '', lastOperation: '' };
+        const checkInInbox = state.checkInInbox || { pendingCount: 0, oldestAt: '', delayed: false };
         const latePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= lateAfter).length;
         const stalePassCount = (state.active || []).filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= staleAfter).length;
         const soundOptions = TEACHER_SOUND_CHOICES.map(([value, label]) => (
@@ -1592,9 +1590,15 @@
         const noticeHtml = teacherNotice ? `<div class="notice success" style="margin-top:16px"><p><strong>${escapeHtml(teacherNotice)}</strong></p></div>` : '';
         const trafficHtml = Number(lockContention.retrySignals || 0) > 0 ? `
           <section class="notice warning" role="status" style="margin-top:16px">
-            <h3>automatic traffic recovery was needed.</h3>
-            <p><strong>About ${escapeHtml(lockContention.retrySignals)} shared-log retry signal${Number(lockContention.retrySignals) === 1 ? '' : 's'} today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'student update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
-            <p>This means several devices reached the one private workbook at once—not that a PIN was wrong. Student screens now retry these safe collisions automatically. If someone still reaches the final message, wait five seconds or use the teacher backup controls.</p>
+            <h3>hall-pass traffic was automatically recovered.</h3>
+            <p><strong>About ${escapeHtml(lockContention.retrySignals)} pass collision${Number(lockContention.retrySignals) === 1 ? '' : 's'} were automatically retried today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'pass update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
+            <p>This is the capacity rule protecting the one-student-out decision. It is not a PIN error. Daily Check-In no longer waits on this lock.</p>
+          </section>` : '';
+        const checkInInboxHtml = checkInInbox.delayed ? `
+          <section class="notice warning" role="status" style="margin-top:16px">
+            <h3>check-ins are recorded; workbook sync is catching up.</h3>
+            <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}</p>
+            <p>GrantDesk will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
           </section>` : '';
 
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
@@ -1722,6 +1726,7 @@
           </div>
           ${noticeHtml}
           ${trafficHtml}
+          ${checkInInboxHtml}
           ${roomStatusHtml}
           ${rolloverHtml}
           <section class="teacher-section" id="attendance-section">
