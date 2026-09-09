@@ -94,6 +94,12 @@ assert.match(code, /function readRosterRows_/);
 assert.match(code, /function teacherMarkStudentAbsent/);
 assert.match(code, /function teacherClearStudentAbsent/);
 assert.match(code, /function teacherSetPassRules/);
+assert.match(code, /function teacherSetCheckInWindow/);
+assert.match(code, /function teacherReviewLateCheckIn/);
+assert.match(code, /LATE_PENDING/);
+assert.match(code, /LATE_APPROVED/);
+assert.match(code, /LATE_NO_POINT/);
+assert.match(html, /Late sign-in recorded/);
 
 const setupProject = functionSource('setupProject');
 assert.ok(

@@ -265,6 +265,101 @@ test('a fresh PIN records exactly one check-in', () => {
   assert.equal(String(rows[0].Status), 'CHECKED_IN');
 });
 
+
+test('the teacher-configured on-time window changes when a check-in becomes late', () => {
+  const c = classroom({
+    now: new Date('2026-09-10T11:40:00Z'),
+    settings: { CHECKIN_WINDOW_MINUTES: 15 },
+  });
+  const result = c.checkIn(PEOPLE.ada, 'Period 1');
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'CHECKED_IN');
+  assert.equal(Number(row.Point), 1);
+  assert.equal(outcomeOf(result).kind, 'CHECKED_IN');
+});
+
+test('a student after the on-time window is recorded late instead of denied', () => {
+  const c = classroom({
+    now: new Date('2026-09-10T11:40:00Z'),
+    settings: { CHECKIN_WINDOW_MINUTES: 5 },
+  });
+  const result = c.checkIn(PEOPLE.ada, 'Period 1');
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_PENDING');
+  assert.equal(Number(row.Point), 0);
+  assert.equal(outcomeOf(result).kind, 'LATE_CHECK_IN_RECORDED');
+  assert.equal(result.state.checkedIn, true);
+  assert.equal(result.state.lateCheckIn, true);
+});
+
+test('a student can still record a late sign-in after the selected class has ended', () => {
+  const c = classroom({ now: new Date('2026-09-10T13:00:00Z') });
+  const result = c.checkIn(PEOPLE.ada, 'Period 1');
+  assert.equal(outcomeOf(result).kind, 'LATE_CHECK_IN_RECORDED');
+  assert.equal(String(c.checkIns()[0].Status), 'LATE_PENDING');
+});
+
+test('a late sign-in is recorded alongside an earlier teacher absence', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherMarkStudentAbsent', key);
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const rows = c.checkIns();
+  assert.equal(rows.length, 2);
+  assert.equal(String(rows[0].Status), 'ABSENT');
+  assert.equal(String(rows[1].Status), 'LATE_PENDING');
+});
+
+test('the teacher can award the point for a late sign-in and it then counts for the streak', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const state = c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_APPROVED');
+  assert.equal(Number(row.Point), 1);
+  const teacherRow = state.lateCheckInsToday.find((entry) => entry.checkInId === id);
+  assert.equal(teacherRow.status, 'LATE_APPROVED');
+  assert.equal(teacherRow.streak.current, 1);
+});
+
+test('the teacher can keep a late sign-in at zero without removing the arrival record', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const state = c.harness.call('teacherReviewLateCheckIn', id, 'KEEP_NO_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_NO_POINT');
+  assert.equal(Number(row.Point), 0);
+  const teacherRow = state.lateCheckInsToday.find((entry) => entry.checkInId === id);
+  assert.equal(teacherRow.status, 'LATE_NO_POINT');
+  assert.equal(teacherRow.streak.current, 0);
+});
+
+test('the teacher can change a reviewed late decision while the original sign-in time remains', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const first = c.checkIns()[0];
+  const id = String(first['Check-in ID']);
+  const originalTime = first['Check-in Time'].getTime();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'KEEP_NO_POINT', TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_APPROVED');
+  assert.equal(Number(row.Point), 1);
+  assert.equal(row['Check-in Time'].getTime(), originalTime);
+});
+
 test('checking in twice in one day does not add a second row or a second point', () => {
   const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   c.checkIn(PEOPLE.ada, 'Period 1');

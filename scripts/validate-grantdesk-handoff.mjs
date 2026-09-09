@@ -72,6 +72,8 @@ const criticalFunctions = [
   'getClassSession_',
   'teacherSetStudentPassAccess',
   'teacherVoidPass',
+  'teacherSetCheckInWindow',
+  'teacherReviewLateCheckIn',
   'teacherApplyUnmatchedEmail',
   'discoverIdentityReconciliations_',
   'reconcileKnownIdentityDrift_',
