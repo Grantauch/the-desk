@@ -30,11 +30,11 @@ export async function startIdempotent<T>(
   const expiresAt = new Date(input.at.getTime() + input.ttlMs);
   const inserted = await executor.query<{ id: string } & QueryResultRow>(
     `INSERT INTO idempotency_keys
-       (organization_id, school_id, key, operation, request_fingerprint, status, expires_at, correlation_id)
-     VALUES ($1, $2, $3, $4, $5, 'IN_PROGRESS', $6::timestamptz, $7)
+       (organization_id, school_id, key, operation, request_fingerprint, status, created_at, expires_at, correlation_id)
+     VALUES ($1, $2, $3, $4, $5, 'IN_PROGRESS', $6::timestamptz, $7::timestamptz, $8)
      ON CONFLICT (school_id, key) DO NOTHING
      RETURNING id`,
-    [input.organizationId, input.schoolId, input.key, input.operation, input.fingerprint, expiresAt.toISOString(), input.correlationId],
+    [input.organizationId, input.schoolId, input.key, input.operation, input.fingerprint, input.at.toISOString(), expiresAt.toISOString(), input.correlationId],
   );
   if (inserted[0]) return { kind: 'NEW', id: inserted[0].id };
 
@@ -52,9 +52,9 @@ export async function startIdempotent<T>(
       `UPDATE idempotency_keys
           SET organization_id = $1, operation = $2, request_fingerprint = $3,
               status = 'IN_PROGRESS', response_status = NULL, response_json_sanitized = NULL,
-              completed_at = NULL, expires_at = $4::timestamptz, correlation_id = $5
-        WHERE id = $6`,
-      [input.organizationId, input.operation, input.fingerprint, expiresAt.toISOString(), input.correlationId, row.id],
+              completed_at = NULL, created_at = $4::timestamptz, expires_at = $5::timestamptz, correlation_id = $6
+        WHERE id = $7`,
+      [input.organizationId, input.operation, input.fingerprint, input.at.toISOString(), expiresAt.toISOString(), input.correlationId, row.id],
     );
     return { kind: 'NEW', id: row.id };
   }
