@@ -28,6 +28,28 @@ jobs:
       - name: Apply hotfix
         shell: bash
         run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/hotfix-73.py')
+          s = p.read_text()
+          old = '''for label in ["initial PIN early re-enable", "action PIN early re-enable"]:
+    html = replace_once(
+        html,
+        "            button.disabled = false;\\n            if (state.requiresClassSelection) renderClassSelection();\\n            else await completeAuthorizedAction();\\n",
+        "            if (state.requiresClassSelection) renderClassSelection();\\n            else await completeAuthorizedAction();\\n",
+        label,
+    )
+'''
+          new = '''pin_early_enable = "            button.disabled = false;\\n            if (state.requiresClassSelection) renderClassSelection();\\n            else await completeAuthorizedAction();\\n"
+pin_locked = "            if (state.requiresClassSelection) renderClassSelection();\\n            else await completeAuthorizedAction();\\n"
+if html.count(pin_early_enable) != 2:
+    raise SystemExit(f"PIN early re-enable: expected exactly 2 matches, found {html.count(pin_early_enable)}")
+html = html.replace(pin_early_enable, pin_locked, 2)
+'''
+          if old not in s:
+              raise SystemExit('builder loop not found')
+          p.write_text(s.replace(old, new, 1))
+          PY
           set +e
           python3 scripts/hotfix-73.py > /tmp/hotfix-73.log 2>&1
           status=$?
