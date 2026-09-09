@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { classifyRelease, verificationScriptFor } from './release-lane.mjs';
 
@@ -19,6 +18,7 @@ const commit = (base, message) => {
   git(base, 'commit', '-m', message);
   return git(base, 'rev-parse', 'HEAD').trim();
 };
+const coursePage = ({ name = 'The Gilded Age', title = 'L015', href = '/hubs/ush9-l015.html' } = {}) => `const units = [\n  {\n    name: '${name}',\n    storyhub: {\n      title: '${title}',\n      href: '${href}',\n      blurb: 'fixture',\n    },\n  },\n];\n`;
 const createFixture = () => {
   const base = join(scratch, `case-${passed + 1}-${Math.random().toString(16).slice(2)}`);
   mkdirSync(base);
@@ -30,7 +30,7 @@ const createFixture = () => {
   write(base, 'public/hubs/ush9-l015.html', '<!doctype html><h1>L015</h1>\n');
   write(base, 'public/storyhub/ush9/l015/assets/a.svg', '<svg/>\n');
   write(base, 'storyhub/stories/USH9/L015/story.json', '{}\n');
-  write(base, 'src/pages/us-history.astro', "const units = [{ name: 'The Gilded Age', storyhub: { title: 'L015', href: '/hubs/ush9-l015.html' } }];\n");
+  write(base, 'src/pages/us-history.astro', coursePage());
   write(base, 'src/pages/hidden-history.astro', "const units = [{ name: 'Evidence' }];\n");
   write(base, 'src/pages/beyond-the-scoreboard.astro', "const units = [{ name: 'Sport' }];\n");
   write(base, 'src/components/Nav.astro', '<nav>core</nav>\n');
@@ -50,7 +50,7 @@ await test('new catalogued StoryHub, assets, manifests, and course pointer use f
   write(f.base, 'public/hubs/ush9-l016.html', '<!doctype html><h1>L016</h1><img src="/storyhub/ush9/l016/assets/a.svg">\n');
   write(f.base, 'public/storyhub/ush9/l016/assets/a.svg', '<svg/>\n');
   write(f.base, 'storyhub/stories/USH9/L016/story.json', '{}\n');
-  write(f.base, 'src/pages/us-history.astro', "const units = [{ name: 'The Gilded Age', storyhub: { title: 'L016', href: '/hubs/ush9-l016.html' } }];\n");
+  write(f.base, 'src/pages/us-history.astro', coursePage({ title: 'L016', href: '/hubs/ush9-l016.html' }));
   const head = commit(f.base, 'storyhub release');
   const result = classifyRelease({ projectRoot: f.base, baseRef: f.initial, headRef: head });
   assert.equal(result.mode, 'storyhub');
@@ -94,7 +94,7 @@ await test('core component or workflow change requires full lane', () => {
 
 await test('course page changes beyond the StoryHub block require full lane', () => {
   const f = createFixture();
-  write(f.base, 'src/pages/us-history.astro', "const units = [{ name: 'Renamed Gilded Age', storyhub: { title: 'L015', href: '/hubs/ush9-l015.html' } }];\n");
+  write(f.base, 'src/pages/us-history.astro', coursePage({ name: 'Renamed Gilded Age' }));
   const head = commit(f.base, 'course content');
   assert.equal(classifyRelease({ projectRoot: f.base, baseRef: f.initial, headRef: head }).mode, 'full');
 });
