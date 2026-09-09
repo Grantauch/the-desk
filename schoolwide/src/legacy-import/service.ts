@@ -44,6 +44,20 @@ function duplicateCount(rows: readonly LegacyRow[], keys: readonly string[]): nu
   return duplicates;
 }
 
+function duplicateMembershipCount(rows: readonly LegacyRow[]): number {
+  const seen = new Set<string>();
+  let duplicates = 0;
+  for (const row of rows) {
+    const studentKey = text(row,'studentKey','legacyStudentKey','studentId');
+    const sectionKey = text(row,'sectionKey','classKey','sectionId','class');
+    if (!studentKey || !sectionKey) continue;
+    const membership = `${sectionKey}\u0000${studentKey}`;
+    if (seen.has(membership)) duplicates += 1;
+    else seen.add(membership);
+  }
+  return duplicates;
+}
+
 function overall(findings: readonly MigrationFinding[]): LegacyReconciliationReport['overallStatus'] {
   if (findings.some((finding) => finding.status === 'FAIL')) return 'FAIL';
   if (findings.some((finding) => finding.status === 'REVIEW')) return 'REVIEW';
@@ -129,7 +143,7 @@ function reconcile(snapshot: LegacySnapshot): LegacyReconciliationReport {
 
   const credentialCoverageCount = snapshot.surfaces.credentialCoverage.filter((row) => row.hasCredential === true).length;
   const duplicateLegacyIds =
-    duplicateCount(snapshot.surfaces.roster,['studentKey','legacyStudentKey','studentId']) +
+    duplicateMembershipCount(snapshot.surfaces.roster) +
     duplicateCount(snapshot.surfaces.checkins,['checkinId','legacyId','id']) +
     duplicateCount(snapshot.surfaces.passLog,['passId','legacyId','id']) +
     duplicateCount(snapshot.surfaces.passAudit,['passId','legacyId','id']) +
@@ -141,7 +155,7 @@ function reconcile(snapshot: LegacySnapshot): LegacyReconciliationReport {
   findings.push(finding('T-MIG-001','PASS','READ_ONLY',0,'Snapshot validation and dry-run operate only on supplied structured data and expose no legacy write adapter.'));
   findings.push(finding('T-MIG-002','PASS','FINGERPRINT',0,'Canonical SHA-256 fingerprint and deterministic plan make identical source snapshots idempotent.'));
   findings.push(finding('T-MIG-003','PASS','PASS_DEDUP',0,'Pass Audit rows sharing a Pass ID with Pass Log are represented once in proposed pass mappings/counts.'));
-  findings.push(finding('T-MIG-004', duplicateLegacyIds === 0 ? 'PASS' : 'FAIL','LEGACY_IDS',duplicateLegacyIds,duplicateLegacyIds === 0 ? 'Stable legacy identifiers are unique within their source surfaces.' : 'Duplicate stable legacy identifiers require correction before import commit.'));
+  findings.push(finding('T-MIG-004', duplicateLegacyIds === 0 ? 'PASS' : 'FAIL','LEGACY_IDS',duplicateLegacyIds,duplicateLegacyIds === 0 ? 'Stable legacy identifiers are unique within their source surfaces; repeated students in different sections remain distinct memberships.' : 'Duplicate stable legacy entity/membership identifiers require correction before import commit.'));
   findings.push(finding('T-MIG-005', settingsPresent ? 'PASS' : 'FAIL','SETTINGS',settingsPresent ? 0 : 1,settingsPresent ? 'Snapshot contains explicit exported settings; no code defaults are substituted.' : 'Explicit exported Settings key/value rows are required; code defaults are never substituted.'));
   findings.push(finding('T-MIG-006', ambiguousIdentityCount === 0 ? 'PASS' : 'FAIL','IDENTITY',ambiguousIdentityCount,ambiguousIdentityCount === 0 ? 'Roster rows provide stable student identity keys and membership counts can reconcile.' : 'Roster rows without stable student keys are ambiguous and block a PASS result.'));
   findings.push(finding('T-MIG-007','PASS','CHECKINS',0,'Check-ins are grouped by section/date/status from the supplied snapshot.'));
