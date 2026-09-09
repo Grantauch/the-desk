@@ -58,7 +58,14 @@ try {
       try {
         const response = await page.goto(`${origin}${route}`, { waitUntil: 'load' });
         assert.equal(response?.status(), 200, `${route} returns 200`);
-        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          await Promise.all(
+            document.getAnimations()
+              .filter((animation) => Number.isFinite(animation.effect?.getComputedTiming().endTime))
+              .map((animation) => animation.finished.catch(() => {})),
+          );
+        });
         assert.ok(await page.locator('h1').first().isVisible(), `${route} has a visible h1`);
 
         const overflow = await page.evaluate(() => ({
