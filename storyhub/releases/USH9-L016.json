@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l016-the-one-that-passed.html",
-      "bytes": 109943,
-      "sha256": "3401f7d98653ca47de39c0cb7ccacfb3ff2661d854218980851d9a8d980b5706"
+      "bytes": 110045,
+      "sha256": "37f1cff5c17dd8be46bebc585da4a00e5e8f41828aad02cb5253e338eece8fb3"
     },
     {
       "path": "/storyhub/ush9/l016/assets/sierra.webp",
@@ -52,14 +52,14 @@
     {
       "path": "/storyhub/ush9/l016/assets/gothic.woff",
       "bytes": 58280,
-      "sha256": "39d1ff64ac20c87da98e794d3ee6d79effc36186361f8c031e8ac0a7cadf0629"
+      "sha256": "1f951758f4dbcc786ae714487d8e59af1df56315b2e90ce6422fede7d30e939c"
     },
     {
       "path": "/storyhub/ush9/l016/assets/clerk.woff",
       "bytes": 83428,
-      "sha256": "4d068879644bf0b390ba85895ebaa5c334acb60f5d88a696303a761c010deda3"
+      "sha256": "34a0ab30cafc2df05f49385fb5f9bca97377f97f23566c95a17125e9dc6383e4"
     }
   ],
-  "totalBytes": 892783,
+  "totalBytes": 892885,
   "sealedAt": "2026-09-09"
 }
