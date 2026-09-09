@@ -35,7 +35,7 @@ class FixtureIdentityProvider implements StaffIdentityProvider {
 }
 
 function emptySurfaces():Record<LegacySurfaceName,Record<string,unknown>[]> {
-  return Object.fromEntries(legacySurfaceNames.map((name)=>[name,[]])) as Record<LegacySurfaceName,Record<string,unknown>[]>;
+  return Object.fromEntries(legacySurfaceNames.map((name)=>[name,[]])) as unknown as Record<LegacySurfaceName,Record<string,unknown>[]>;
 }
 
 function validSnapshot():Record<string,unknown>{
