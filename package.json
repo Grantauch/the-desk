@@ -15,7 +15,7 @@
     "release:test": "node scripts/test-release-lane.mjs",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "tools:test": "node scripts/test-classroom-tools.mjs",
-    "browser:test": "node scripts/test-browser-ui.mjs",
+    "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs",
     "storyhub:browser:test": "node scripts/test-storyhub-release-browser.mjs",
     "handoff:validate": "node scripts/validate-grantdesk-handoff.mjs",
     "hall-pass:verify": "npm run handoff:validate && npm run hall-pass:test && npm run hall-pass:runtime",
@@ -27,6 +27,8 @@
     "resources:validate": "node scripts/test-public-resources.mjs && node scripts/test-publishing.mjs && node scripts/validate-public-resources.mjs",
     "remix:validate": "node scripts/validate-remix-public.mjs",
     "live-data:check": "node scripts/validate-live-data.mjs",
+    "live-data:production": "node scripts/validate-production-live-data.mjs",
+    "security:audit:report": "node scripts/report-dependency-audit.mjs",
     "hall-pass:runtime": "node scripts/test-hall-pass-runtime.cjs",
     "storyhub:new": "node scripts/storyhub-new.mjs",
     "storyhub:validate": "node scripts/storyhub-validate.mjs && node scripts/storyhub-verify-assets.mjs",
@@ -57,7 +59,8 @@
   "overrides": {
     "fast-uri": "^3.1.5",
     "nanoid": "^3.3.18",
-    "postcss": "^8.5.26"
+    "postcss": "^8.5.26",
+    "svgo": "^4.1.0"
   },
   "allowScripts": {
     "esbuild@0.28.1": true
