@@ -1,7 +1,9 @@
 name: Hall Pass Issue 73 Hotfix Builder
 
 on:
-  pull_request:
+  push:
+    branches:
+      - hotfix/hall-pass-issue-73-builder
     paths:
       - '.github/workflows/hall-pass-hotfix-73.yml'
 
@@ -10,13 +12,12 @@ permissions:
 
 jobs:
   build-hotfix:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: hotfix/hall-pass-issue-73-builder
           fetch-depth: 0
 
       - uses: actions/setup-node@v7
@@ -101,7 +102,7 @@ function stabilizeInferredPassAction_(email, attemptNonce, inferredAction) {
       GD_INFERRED_PASS_ACTION_STABILITY_SECONDS
     );
   } catch (error) {
-    // The browser non-reentrancy guard remains authoritative if cache is unavailable.
+    // Browser-side non-reentrancy remains authoritative if cache is unavailable.
   }
   return action;
 }
@@ -146,6 +147,7 @@ function stabilizeInferredPassAction_(email, attemptNonce, inferredAction) {
     studentName = student.name;
     outcome = award ? `Awarded ${point} point${point === 1 ? '' : 's'}` : 'Kept at 0 points';
 
+    // Double-clicking the same decision is an idempotent no-op.
     if (String(entry.status || '').toUpperCase() === status && Number(entry.point || 0) === point) return;
 
     const detail = award
@@ -346,7 +348,7 @@ test('replaying the same late-attendance decision is idempotent', () => {
       - name: Run canonical release verification
         run: npm run verify
 
-      - name: Commit hotfix into PR branch
+      - name: Commit verified hotfix
         shell: bash
         run: |
           set -euo pipefail
@@ -354,4 +356,4 @@ test('replaying the same late-attendance decision is idempotent', () => {
           git config user.email 'actions@users.noreply.github.com'
           git add apps-script/hall-pass/Code.gs apps-script/hall-pass/Index.html scripts/test-hall-pass-app.cjs scripts/test-hall-pass-runtime.cjs
           git commit -m 'Fix Hall Pass duplicate action race (#73)'
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git push origin HEAD:hotfix/hall-pass-issue-73-builder
