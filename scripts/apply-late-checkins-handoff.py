@@ -57,8 +57,16 @@ code = replace_once(
 code = replace_once(
     code,
     "  const existing = todayEntries.find((entry) => checkInStatusIsRecorded_(entry.status));\n  const absence = todayEntries.find((entry) => entry.status === 'ABSENT');\n  if (existing) {\n    if (absence) clearAbsentEntry_(absence, 'Cleared automatically because a check-in was already recorded');\n    return existing;\n  }\n  if (absence) clearAbsentEntry_(absence, `Cleared when ${method} check-in was recorded`);\n\n  const settings = getSettings_();\n  const session = method === 'teacher' ? null : getClassSession_(student);\n  const late = Boolean(session && session.checkInLate);",
-    "  const existing = todayEntries.find((entry) => checkInStatusIsRecorded_(entry.status));\n  const absence = todayEntries.find((entry) => entry.status === 'ABSENT');\n  if (existing) return existing;\n\n  const settings = getSettings_();\n  const late = method !== 'teacher' && Boolean(lateOverride);\n  if (absence && method !== 'teacher' && !late) {\n    throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');\n  }\n  if (absence && method === 'teacher') {\n    clearAbsentEntry_(absence, `Cleared when ${method} check-in was recorded`);\n  }",
+    "  const existing = todayEntries.find((entry) => checkInStatusIsRecorded_(entry.status));\n  const absence = todayEntries.find((entry) => entry.status === 'ABSENT');\n  if (existing) return existing;\n\n  const settings = getSettings_();\n  const session = method === 'teacher' ? null : getClassSession_(student);\n  const late = method !== 'teacher' && Boolean(lateOverride);\n  if (absence && method !== 'teacher' && !late) {\n    throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');\n  }\n  if (absence && method === 'teacher') {\n    clearAbsentEntry_(absence, `Cleared when ${method} check-in was recorded`);\n  }",
     'teacher absence compatibility',
+)
+# Teacher manual attendance after the on-time boundary remains an audited
+# override: require a reason even though student self-check-in remains available.
+code = replace_once(
+    code,
+    "    const eligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.CHECKIN);\n    if (!eligibility.allowed && !cleanReason) throw new Error('Enter a short private reason for recording attendance outside the check-in window.');\n    const entry = recordCheckIn_(student, 'teacher', `Recorded by ${teacher}`);\n    auditTeacherAction_(teacher, student, 'CHECKIN_RECORDED', eligibility.allowed ? [] : [eligibility.blockReason], cleanReason, entry.checkInId);",
+    "    const eligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.CHECKIN);\n    const restrictions = [];\n    if (!eligibility.allowed) restrictions.push(eligibility.blockReason);\n    if (eligibility.late) restrictions.push('LATE_CHECKIN_WINDOW');\n    if (restrictions.length && !cleanReason) throw new Error('Enter a short private reason for recording attendance outside the on-time check-in window.');\n    const entry = recordCheckIn_(student, 'teacher', `Recorded by ${teacher}`);\n    auditTeacherAction_(teacher, student, 'CHECKIN_RECORDED', restrictions, cleanReason, entry.checkInId);",
+    'teacher late attendance audit',
 )
 code_path.write_text(code)
 
@@ -93,9 +101,8 @@ runtime = replace_once(
     "assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-05-session-a');",
     'runtime schema assertion',
 )
-
-# Update the new behavioral expectation: a late student arrival is evidence in
-# addition to a teacher absence, not a student-side erasure of that absence.
+# A late student arrival is evidence in addition to a teacher absence, not a
+# student-side erasure of that absence.
 runtime = replace_once(
     runtime,
     "test('a late sign-in clears an earlier absent mark without deleting either audit fact', () => {\n  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });\n  const key = c.key(PEOPLE.ada, 'Period 1');\n  c.harness.newRequest();\n  c.harness.signInAs(TEACHER);\n  c.harness.call('teacherMarkStudentAbsent', key);\n  c.checkIn(PEOPLE.ada, 'Period 1');\n  const rows = c.checkIns();\n  assert.equal(rows.length, 2);\n  assert.equal(String(rows[0].Status), 'CLEARED');\n  assert.equal(String(rows[1].Status), 'LATE_PENDING');\n});",
@@ -103,6 +110,38 @@ runtime = replace_once(
     'runtime absence-plus-late test',
 )
 runtime_path.write_text(runtime)
+
+# The original session matrix treated the five-minute cutoff as a hard lockout.
+# It should now verify two separate facts: check-in remains available after class
+# begins, while the cutoff flips the record from on-time to late. Pass timing is
+# unchanged and remains independently asserted.
+session_path = root / 'scripts/lib/hall-pass-session-tests.cjs'
+session_tests = session_path.read_text()
+session_tests = replace_once(
+    session_tests,
+    "      const cases = [\n        ['before start', startMs - 1, false, false],\n        ['at start', startMs, true, false],\n        ['before five minutes', startMs + 300000 - 1, true, false],\n        ['at five minutes', startMs + 300000, false, false],\n        ['before ten minutes', startMs + 600000 - 1, false, false],\n        ['at ten minutes', startMs + 600000, false, true],\n        ['before final ten', endMs - 600000 - 1, false, true],\n        ['at final ten', endMs - 600000, false, false],\n        ['at bell', endMs, false, false],\n      ];\n      for (const [label, time, checkInAllowed, passRequestAllowed] of cases) {",
+    "      const cases = [\n        ['before start', startMs - 1, false, false, false],\n        ['at start', startMs, true, false, false],\n        ['before five minutes', startMs + 300000 - 1, true, false, false],\n        ['at five minutes', startMs + 300000, true, true, false],\n        ['before ten minutes', startMs + 600000 - 1, true, true, false],\n        ['at ten minutes', startMs + 600000, true, true, true],\n        ['before final ten', endMs - 600000 - 1, true, true, true],\n        ['at final ten', endMs - 600000, true, true, false],\n        ['at bell', endMs, true, true, false],\n      ];\n      for (const [label, time, checkInAllowed, checkInLate, passRequestAllowed] of cases) {",
+    'session timing cases',
+)
+session_tests = replace_once(
+    session_tests,
+    "          assert.equal(session.checkInAllowed, checkInAllowed);\n          assert.equal(session.passRequestAllowed, passRequestAllowed);",
+    "          assert.equal(session.checkInAllowed, checkInAllowed);\n          assert.equal(Boolean(session.checkInLate), checkInLate);\n          assert.equal(session.passRequestAllowed, passRequestAllowed);",
+    'session late assertion',
+)
+session_tests = replace_once(
+    session_tests,
+    "  test('wrong-time PIN identification issues no action proof', () => {\n    const c = classroom();\n    const before = Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length;\n    assert.throws(() => c.harness.call('identifyCheckInWithPin', c.pin(PEOPLE.ada), 'test'), /first five/);\n    assert.equal(Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length, before);\n    assert.deepEqual(counts(c), [0,0,0]);\n  });",
+    "  test('late-time PIN identification still issues a protected check-in proof', () => {\n    const c = classroom();\n    const before = Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length;\n    const identified = c.harness.call('identifyCheckInWithPin', c.pin(PEOPLE.ada), 'test');\n    assert.ok(identified.actionProof);\n    assert.equal(Boolean(identified.sessionEligibility && identified.sessionEligibility.late), true);\n    assert.equal(Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length, before + 1);\n    assert.deepEqual(counts(c), [0,0,0]);\n  });",
+    'late identification proof test',
+)
+session_tests = replace_once(
+    session_tests,
+    "  for (const [action, time, endpoint] of [['CHECKIN','07:34:59','submitDailyCheckIn'], ['PASS_REQUEST','08:14:59','requestBathroomPass']]) {\n    test(`${action} is checked again under the lock after its boundary`, () => {\n      const c = classroom({now:new Date(`2026-09-10T${time}-04:00`)});\n      const key = c.key(PEOPLE.ada, 'Period 1');\n      const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), action, key, 'boundary');\n      c.harness.clock.advanceSeconds(1); c.harness.newRequest();\n      assert.throws(() => c.harness.call(endpoint, proof.actionProof, key, proof.pinToken), /first five|first and last ten/);\n      assert.deepEqual(counts(c), [0,0,0]);\n    });\n  }",
+    "  test('CHECKIN is reclassified as late under the lock when the cutoff passes', () => {\n    const c = classroom({now:new Date('2026-09-10T07:34:59-04:00')});\n    const key = c.key(PEOPLE.ada, 'Period 1');\n    const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'boundary');\n    c.harness.clock.advanceSeconds(1); c.harness.newRequest();\n    const state = c.harness.call('submitDailyCheckIn', proof.actionProof, key, proof.pinToken);\n    assert.equal(state.lateCheckIn, true);\n    assert.equal(String(c.checkIns()[0].Status), 'LATE_PENDING');\n  });\n  test('PASS_REQUEST is still checked again under the lock after its boundary', () => {\n    const c = classroom({now:new Date('2026-09-10T08:14:59-04:00')});\n    const key = c.key(PEOPLE.ada, 'Period 1');\n    const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'PASS_REQUEST', key, 'boundary');\n    c.harness.clock.advanceSeconds(1); c.harness.newRequest();\n    assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /first and last ten/);\n    assert.deepEqual(counts(c), [0,0,0]);\n  });",
+    'boundary race tests',
+)
+session_path.write_text(session_tests)
 
 # Preserve the existing public promise about weekends and official no-school days.
 page_path = root / 'src/pages/check-in.astro'
@@ -145,4 +184,4 @@ html = replace_once(
 )
 html_path.write_text(html)
 
-print('late check-in implementation aligned without a workbook schema migration')
+print('late check-in timing, audit, and regression expectations aligned')
