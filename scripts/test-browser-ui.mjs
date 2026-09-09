@@ -73,7 +73,18 @@ try {
           })
           .filter(box => box.left < -1 || box.right > root.clientWidth + 1)
           .slice(0, 8);
-        return { clientWidth: root.clientWidth, scrollWidth: root.scrollWidth, offenders };
+        const textOffenders = [...document.querySelectorAll('body *')]
+          .flatMap(element => [...element.childNodes]
+            .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim())
+            .map(node => {
+              const range = document.createRange();
+              range.selectNodeContents(node);
+              const box = range.getBoundingClientRect();
+              return { parent: element.tagName.toLowerCase(), text: node.textContent.trim().slice(0, 80), left: Math.round(box.left), right: Math.round(box.right), width: Math.round(box.width) };
+            }))
+          .filter(box => box.left < -1 || box.right > root.clientWidth + 1)
+          .slice(0, 8);
+        return { clientWidth: root.clientWidth, scrollWidth: root.scrollWidth, offenders, textOffenders };
       });
       assert.ok(overflow.scrollWidth <= overflow.clientWidth + 1, `No horizontal overflow: ${JSON.stringify(overflow)}`);
       const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
