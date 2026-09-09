@@ -43,14 +43,15 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
   const pool = new Pool({ connectionString: databaseUrl, max: 4, application_name: 'grantdesk-schoolwide:schema-test' });
 
   try {
-    await t.test('all fifteen ordered migrations are recorded', async () => {
+    await t.test('all sixteen ordered migrations are recorded', async () => {
       const result = await pool.query<{ version: string }>('SELECT version FROM grantdesk_schema_migrations ORDER BY version');
       assert.deepEqual(result.rows.map((row) => row.version), [
         '001_identity_and_tenancy.sql','002_organization_academics.sql','003_schedule_calendar_policy.sql',
         '004_idempotency_outbox_audit.sql','005_policy_actor_tenant_integrity.sql','006_staff_sessions.sql',
         '007_student_credentials_action_proofs.sql','008_checkins.sql','009_hall_pass_core.sql',
         '010_audit_corrections.sql','011_teacher_application.sql','012_classroom_integration.sql',
-        '013_classroom_oauth_redirect_binding.sql','014_admin_policy_value_validation.sql','015_realtime_operations.sql'
+        '013_classroom_oauth_redirect_binding.sql','014_admin_policy_value_validation.sql','015_realtime_operations.sql',
+        '016_legacy_readonly_importer.sql'
       ]);
     });
 
@@ -181,8 +182,19 @@ test('SW-020 PostgreSQL relational foundation', { skip: !databaseUrl }, async (t
       });
     });
 
+    await t.test('migration evidence tables are tenant-bound and fingerprint/mode idempotent', async () => {
+      await withRollback(pool, async (client) => {
+        const ids = await seedTwoSchoolFixture(client);
+        const fingerprint='a'.repeat(64);
+        const inserted=await client.query<{id:string}>(`INSERT INTO migration_import_runs (organization_id,school_id,source_snapshot_fingerprint,source_alias,source_schema_version,source_exported_at,mode,status,finished_at) VALUES ($1,$2,$3,'synthetic-v18','2026-09-05-session-a',TIMESTAMPTZ '2026-09-08 20:00:00Z','DRY_RUN','PASS',now()) RETURNING id`,[ids.orgA,ids.schoolA,fingerprint]);
+        assert.ok(inserted.rows[0]?.id);
+        await expectPgConstraint(client,`INSERT INTO migration_import_runs (organization_id,school_id,source_snapshot_fingerprint,source_alias,source_schema_version,source_exported_at,mode,status,finished_at) VALUES ($1,$2,$3,'synthetic-v18','2026-09-05-session-a',now(),'DRY_RUN','PASS',now())`,[ids.orgA,ids.schoolA,fingerprint],['23505']);
+        await expectPgConstraint(client,`INSERT INTO migration_import_runs (organization_id,school_id,source_snapshot_fingerprint,source_alias,source_schema_version,source_exported_at,mode,status,finished_at) VALUES ($1,$2,$3,'synthetic-v18','2026-09-05-session-a',now(),'VALIDATE','PASS',now())`,[ids.orgA,ids.schoolB,'b'.repeat(64)],['23503']);
+      });
+    });
+
     await t.test('required hot-path indexes exist', async () => {
-      const expectedIndexes = ['enrollments_current_section_student_idx','section_staff_current_lookup_idx','school_calendar_days_lookup_idx','school_policy_sets_effective_idx','audit_events_school_time_idx','transactional_outbox_pending_idx','transactional_outbox_delivery_ready_idx','transactional_outbox_processing_lease_idx','operations_job_runs_type_time_idx','operations_job_runs_school_time_idx','checkins_section_date_idx','checkins_student_date_idx','pass_requests_section_status_idx','queue_entries_fifo_idx','passes_section_status_idx','pass_events_resource_idx','pass_corrections_pass_time_idx','staff_actions_school_time_idx','classroom_connections_health_idx','section_external_links_due_idx','classroom_sync_runs_link_time_idx','classroom_roster_members_link_user_idx','integration_review_items_open_idx'];
+      const expectedIndexes = ['enrollments_current_section_student_idx','section_staff_current_lookup_idx','school_calendar_days_lookup_idx','school_policy_sets_effective_idx','audit_events_school_time_idx','transactional_outbox_pending_idx','transactional_outbox_delivery_ready_idx','transactional_outbox_processing_lease_idx','operations_job_runs_type_time_idx','operations_job_runs_school_time_idx','checkins_section_date_idx','checkins_student_date_idx','pass_requests_section_status_idx','queue_entries_fifo_idx','passes_section_status_idx','pass_events_resource_idx','pass_corrections_pass_time_idx','staff_actions_school_time_idx','classroom_connections_health_idx','section_external_links_due_idx','classroom_sync_runs_link_time_idx','classroom_roster_members_link_user_idx','integration_review_items_open_idx','migration_import_runs_school_time_idx','migration_import_runs_fingerprint_idx','legacy_id_mappings_schoolwide_idx','migration_reconciliation_findings_run_idx'];
       const result = await pool.query<{ indexname: string }>(`SELECT indexname FROM pg_indexes WHERE schemaname = 'public' AND indexname = ANY($1::text[])`,[expectedIndexes]);
       const names = new Set(result.rows.map((row) => row.indexname));
       for (const expected of expectedIndexes) assert.ok(names.has(expected), `Missing required index ${expected}.`);
