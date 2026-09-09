@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016",
+  "assets": [
+    {
+      "id": "sierra",
+      "status": "approved",
+      "type": "authored-scene",
+      "role": "historical visual anchor",
+      "sourceMode": "interpretive reconstruction",
+      "subject": "Sierra railroad cut",
+      "rightsStatus": "AI-authored original illustration",
+      "provenance": "AI-authored illustration of a deserted railroad grade, not archival evidence.",
+      "htmlSafeZone": "Dark left-hand zone for live HTML copy",
+      "responsiveCrop": "Cover crop with subject retained on right",
+      "deployPath": "/storyhub/ush9/l016/assets/sierra.webp"
+    },
+    {
+      "id": "sea",
+      "status": "approved",
+      "type": "authored-scene",
+      "role": "historical visual anchor",
+      "sourceMode": "interpretive reconstruction",
+      "subject": "Steamship arrival",
+      "rightsStatus": "AI-authored original illustration",
+      "provenance": "AI-authored illustration of an 1880s steamship deck and coastline, not a specific surviving photograph.",
+      "htmlSafeZone": "Dark left-hand zone for live HTML copy",
+      "responsiveCrop": "Cover crop with subject retained on right",
+      "deployPath": "/storyhub/ush9/l016/assets/sea.webp"
+    },
+    {
+      "id": "camp",
+      "status": "approved",
+      "type": "authored-scene",
+      "role": "historical visual anchor",
+      "sourceMode": "interpretive reconstruction",
+      "subject": "Destroyed mining settlement",
+      "rightsStatus": "AI-authored original illustration",
+      "provenance": "AI-authored illustration of the aftermath of anti-Chinese violence, not an archival photograph.",
+      "htmlSafeZone": "Dark left-hand zone for live HTML copy",
+      "responsiveCrop": "Cover crop with subject retained on right",
+      "deployPath": "/storyhub/ush9/l016/assets/camp.webp"
+    },
+    {
+      "id": "act",
+      "status": "approved",
+      "type": "archival-document",
+      "role": "historical visual anchor",
+      "sourceMode": "source-first",
+      "subject": "Chinese Exclusion Act",
+      "rightsStatus": "U.S. government public archival record",
+      "provenance": "National Archives, General Records of the United States Government, RG 11. https://www.archives.gov/milestone-documents/chinese-exclusion-act",
+      "htmlSafeZone": "Document captions beside the entire uncropped scan",
+      "responsiveCrop": "Full document preserved",
+      "deployPath": "/storyhub/ush9/l016/assets/act.webp"
+    },
+    {
+      "id": "wong",
+      "status": "approved",
+      "type": "archival-document",
+      "role": "historical visual anchor",
+      "sourceMode": "source-first",
+      "subject": "Wong Kim Ark departure statement",
+      "rightsStatus": "U.S. government public archival record",
+      "provenance": "National Archives, San Francisco, RG 85, identifier 2641490. https://www.archives.gov/exhibits/documented-rights/exhibit/section2/detail/departure-statement.html",
+      "htmlSafeZone": "Document captions beside the entire uncropped scan",
+      "responsiveCrop": "Full document preserved",
+      "deployPath": "/storyhub/ush9/l016/assets/wong.webp"
+    }
+  ]
+}
