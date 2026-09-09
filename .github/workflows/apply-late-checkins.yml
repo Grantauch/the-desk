@@ -6,6 +6,7 @@ on:
       - feature/late-checkin-review-20260909
     paths:
       - scripts/apply-late-checkins.py
+      - scripts/apply-late-checkins-handoff.py
       - .github/workflows/apply-late-checkins.yml
 
 permissions:
@@ -29,7 +30,9 @@ jobs:
           cache: npm
 
       - name: Apply late check-in implementation
-        run: python scripts/apply-late-checkins.py
+        run: |
+          python scripts/apply-late-checkins.py
+          python scripts/apply-late-checkins-handoff.py
 
       - name: Install locked dependencies
         run: npm ci
@@ -41,7 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm scripts/apply-late-checkins.py .github/workflows/apply-late-checkins.yml
+          rm scripts/apply-late-checkins.py scripts/apply-late-checkins-handoff.py .github/workflows/apply-late-checkins.yml
           git add -A
           git diff --cached --check
           git config user.name "github-actions[bot]"
