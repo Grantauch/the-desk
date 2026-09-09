@@ -65,7 +65,7 @@ jobs:
 
       - name: Verify full release
         if: steps.lane.outputs.mode != 'storyhub'
-        run: npm run verify
+        run: npm run verify:full
 
       - name: Install Chromium for browser checks
         run: npx playwright install --with-deps chromium
