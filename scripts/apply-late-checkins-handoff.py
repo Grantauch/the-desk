@@ -10,38 +10,20 @@ def replace_once(text, old, new, label):
     return text.replace(old, new, 1)
 
 
-# Keep the repository handoff map aligned with the intentional schema/API change.
-path = root / 'scripts/validate-grantdesk-handoff.mjs'
-text = path.read_text()
-text = replace_once(
-    text,
-    "  'teacherVoidPass',\n  'teacherApplyUnmatchedEmail',",
-    "  'teacherVoidPass',\n  'teacherSetCheckInWindow',\n  'teacherReviewLateCheckIn',\n  'teacherApplyUnmatchedEmail',",
-    'critical-function map',
+# This feature reuses existing Daily Check-ins columns and the existing
+# CHECKIN_WINDOW_MINUTES setting. Keep the workbook schema identity unchanged;
+# a schema bump would unnecessarily rerun migration/reconciliation logic.
+code_path = root / 'apps-script/hall-pass/Code.gs'
+code = code_path.read_text()
+code = replace_once(
+    code,
+    "const GD_SCHEMA_VERSION = '2026-09-09-late-checkins';",
+    "const GD_SCHEMA_VERSION = '2026-09-05-session-a';",
+    'schema neutrality',
 )
-text = replace_once(
-    text,
-    "  /const\\s+GD_SCHEMA_VERSION\\s*=\\s*['\"]2026-09-05-session-a['\"]/.test(code),\n  'tracked workbook schema is 2026-09-05-session-a'",
-    "  /const\\s+GD_SCHEMA_VERSION\\s*=\\s*['\"]2026-09-09-late-checkins['\"]/.test(code),\n  'tracked workbook schema is 2026-09-09-late-checkins'",
-    'schema handoff map',
-)
-path.write_text(text)
-
-# Preserve the existing public promise about weekends and official no-school days.
-page_path = root / 'src/pages/check-in.astro'
-page = page_path.read_text()
-page = replace_once(
-    page,
-    'Wait for the confirmation and check your school-day streak. On-time check-ins count automatically; if you are late, your teacher decides whether that day earns the point and joins the streak.',
-    'Wait for the confirmation and check your school-day streak. On-time check-ins count automatically; if you are late, your teacher decides whether that day earns the point and joins the streak. Weekends and official no-school days never break it.',
-    'public streak guidance',
-)
-page_path.write_text(page)
 
 # Preserve teacher-entered absences while still allowing a student to create a
 # separate late-arrival fact after the configured on-time window has elapsed.
-code_path = root / 'apps-script/hall-pass/Code.gs'
-code = code_path.read_text()
 code = replace_once(
     code,
     "function assertStudentActionEligible_(student, action) {\n  const eligibility = studentActionEligibility_(student, action);\n  if (!eligibility.allowed) throw new Error(eligibility.message);\n}",
@@ -80,6 +62,59 @@ code = replace_once(
 )
 code_path.write_text(code)
 
+# Keep the repository handoff map aligned with the new teacher-facing API while
+# retaining the existing workbook schema version.
+path = root / 'scripts/validate-grantdesk-handoff.mjs'
+text = path.read_text()
+text = replace_once(
+    text,
+    "  'teacherVoidPass',\n  'teacherApplyUnmatchedEmail',",
+    "  'teacherVoidPass',\n  'teacherSetCheckInWindow',\n  'teacherReviewLateCheckIn',\n  'teacherApplyUnmatchedEmail',",
+    'critical-function map',
+)
+path.write_text(text)
+
+# Undo schema-only test edits from the implementation script; no schema changed.
+static_path = root / 'scripts/test-hall-pass-app.cjs'
+static_test = static_path.read_text()
+static_test = replace_once(
+    static_test,
+    "assert.match(code, /GD_SCHEMA_VERSION\\s*=\\s*'2026-09-09-late-checkins'/);",
+    "assert.match(code, /GD_SCHEMA_VERSION\\s*=\\s*'2026-09-05-session-a'/);",
+    'static schema assertion',
+)
+static_path.write_text(static_test)
+
+runtime_path = root / 'scripts/test-hall-pass-runtime.cjs'
+runtime = runtime_path.read_text()
+runtime = replace_once(
+    runtime,
+    "assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-09-late-checkins');",
+    "assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-05-session-a');",
+    'runtime schema assertion',
+)
+
+# Update the new behavioral expectation: a late student arrival is evidence in
+# addition to a teacher absence, not a student-side erasure of that absence.
+runtime = replace_once(
+    runtime,
+    "test('a late sign-in clears an earlier absent mark without deleting either audit fact', () => {\n  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });\n  const key = c.key(PEOPLE.ada, 'Period 1');\n  c.harness.newRequest();\n  c.harness.signInAs(TEACHER);\n  c.harness.call('teacherMarkStudentAbsent', key);\n  c.checkIn(PEOPLE.ada, 'Period 1');\n  const rows = c.checkIns();\n  assert.equal(rows.length, 2);\n  assert.equal(String(rows[0].Status), 'CLEARED');\n  assert.equal(String(rows[1].Status), 'LATE_PENDING');\n});",
+    "test('a late sign-in is recorded alongside an earlier teacher absence', () => {\n  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });\n  const key = c.key(PEOPLE.ada, 'Period 1');\n  c.harness.newRequest();\n  c.harness.signInAs(TEACHER);\n  c.harness.call('teacherMarkStudentAbsent', key);\n  c.checkIn(PEOPLE.ada, 'Period 1');\n  const rows = c.checkIns();\n  assert.equal(rows.length, 2);\n  assert.equal(String(rows[0].Status), 'ABSENT');\n  assert.equal(String(rows[1].Status), 'LATE_PENDING');\n});",
+    'runtime absence-plus-late test',
+)
+runtime_path.write_text(runtime)
+
+# Preserve the existing public promise about weekends and official no-school days.
+page_path = root / 'src/pages/check-in.astro'
+page = page_path.read_text()
+page = replace_once(
+    page,
+    'Wait for the confirmation and check your school-day streak. On-time check-ins count automatically; if you are late, your teacher decides whether that day earns the point and joins the streak.',
+    'Wait for the confirmation and check your school-day streak. On-time check-ins count automatically; if you are late, your teacher decides whether that day earns the point and joins the streak. Weekends and official no-school days never break it.',
+    'public streak guidance',
+)
+page_path.write_text(page)
+
 # The student interface should retain the old teacher-attendance warning while
 # still switching to the late-recording action once the configured cutoff passes.
 html_path = root / 'apps-script/hall-pass/Index.html'
@@ -110,16 +145,4 @@ html = replace_once(
 )
 html_path.write_text(html)
 
-# Update the new behavioral expectation: a late student arrival is evidence in
-# addition to a teacher absence, not a student-side erasure of that absence.
-runtime_path = root / 'scripts/test-hall-pass-runtime.cjs'
-runtime = runtime_path.read_text()
-runtime = replace_once(
-    runtime,
-    "test('a late sign-in clears an earlier absent mark without deleting either audit fact', () => {\n  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });\n  const key = c.key(PEOPLE.ada, 'Period 1');\n  c.harness.newRequest();\n  c.harness.signInAs(TEACHER);\n  c.harness.call('teacherMarkStudentAbsent', key);\n  c.checkIn(PEOPLE.ada, 'Period 1');\n  const rows = c.checkIns();\n  assert.equal(rows.length, 2);\n  assert.equal(String(rows[0].Status), 'CLEARED');\n  assert.equal(String(rows[1].Status), 'LATE_PENDING');\n});",
-    "test('a late sign-in is recorded alongside an earlier teacher absence', () => {\n  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });\n  const key = c.key(PEOPLE.ada, 'Period 1');\n  c.harness.newRequest();\n  c.harness.signInAs(TEACHER);\n  c.harness.call('teacherMarkStudentAbsent', key);\n  c.checkIn(PEOPLE.ada, 'Period 1');\n  const rows = c.checkIns();\n  assert.equal(rows.length, 2);\n  assert.equal(String(rows[0].Status), 'ABSENT');\n  assert.equal(String(rows[1].Status), 'LATE_PENDING');\n});",
-    'runtime absence-plus-late test',
-)
-runtime_path.write_text(runtime)
-
-print('handoff map, public guidance, and teacher-absence compatibility aligned')
+print('late check-in implementation aligned without a workbook schema migration')
