@@ -64,7 +64,18 @@ try {
     for (const route of routes) await runCase(`page ${route}`, viewport, async page => {
       await visit(page, route);
       assert.ok(await page.locator('h1').first().isVisible(), 'Visible page heading');
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), 'No horizontal overflow');
+      const overflow = await page.evaluate(() => {
+        const root = document.documentElement;
+        const offenders = [...document.querySelectorAll('body *')]
+          .map(element => {
+            const box = element.getBoundingClientRect();
+            return { element: element.tagName.toLowerCase(), id: element.id, className: String(element.className || ''), left: Math.round(box.left), right: Math.round(box.right), width: Math.round(box.width) };
+          })
+          .filter(box => box.left < -1 || box.right > root.clientWidth + 1)
+          .slice(0, 8);
+        return { clientWidth: root.clientWidth, scrollWidth: root.scrollWidth, offenders };
+      });
+      assert.ok(overflow.scrollWidth <= overflow.clientWidth + 1, `No horizontal overflow: ${JSON.stringify(overflow)}`);
       const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
       await writeFile(artifact(`${viewport.name}-${route.replace(/\//g, '') || 'home'}-axe.json`), JSON.stringify(axe, null, 2));
       assert.deepEqual(axe.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })) })), [], 'Full-page WCAG A/AA including contrast');
