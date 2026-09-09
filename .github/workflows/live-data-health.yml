@@ -1,6 +1,10 @@
 name: live data health
 
 on:
+  pull_request:
+    paths:
+      - scripts/validate-production-live-data.mjs
+      - .github/workflows/live-data-health.yml
   schedule:
     - cron: '17 */6 * * *'
   workflow_dispatch:
@@ -9,13 +13,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-data-health
+  group: live-data-health-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   production-health:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: Check out the site
         uses: actions/checkout@v7
