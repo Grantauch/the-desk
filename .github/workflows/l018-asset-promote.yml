@@ -1,0 +1,89 @@
+name: L018 asset promotion
+
+on:
+  push:
+    branches:
+      - storyhub/ush9-l018-post-publish-qa
+    paths:
+      - .github/workflows/l018-asset-promote.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: storyhub/ush9-l018-post-publish-qa
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image promotion dependencies
+        run: python -m pip install --disable-pip-version-check gdown pillow
+      - name: Download Drive masters and encode production WebP assets
+        shell: python
+        run: |
+          from pathlib import Path
+          from PIL import Image
+          import gdown
+
+          assets = [
+            ('1dKz24iM8Hb4EaqjQOh9Siv-Cwh61exOn', '01-the-number-that-didnt-move'),
+            ('1Hg9eXOMfetGRs1wbFHccu3oAyVwHbRkb', '02-more'),
+            ('1dtjky2gqrEK3tGA7t_uNesaTAiPwGlRb', '03-one-way-out'),
+            ('1jFO_iRFzYSnod3QjIfZh13bomxM9Al6R', '04-two-true-things'),
+            ('1dmo8my76KuuqJIVcuuu72WKnaTb_xksl', '05-the-state-line'),
+            ('1q1vf7aqXcutY95UOHvKcrH3dIqwsrYuD', '06-first-help-each-other'),
+            ('1fgoOTWiD7qY4JCqvhKRnyk4IRHqVEU0f', '07-the-other-alliance'),
+            ('1CtJ87-8SL3Cg0O0FFowGcB5l5U8-yfVB', '08-wall-street'),
+            ('1Cz94ieVWbe7Ns5cU5bRzRO4f4vsro1u0', '09-omaha'),
+            ('1yPUTqRA86WiLlQcv7pU3Q3GIWIdiNFAP', '10-sixteen-to-one'),
+            ('1Of-pFK_ze9LzgixZb9x98333LPW79zM_', '11-twenty-two'),
+            ('1ONnMcLRVvJh_ssp66TMO2Zv7hJzIai0j', '12-the-deal'),
+            ('14A5WWEmrVvRcDXb5TnZ5iYwLvJq94UP6', '13-november-3'),
+            ('1AlTNqNxI6Zvj6rz8p2vd7vpGD_QI8wlP', '14-some-numbers-moved'),
+          ]
+          outdir = Path('public/storyhub/ush9/l018/assets')
+          outdir.mkdir(parents=True, exist_ok=True)
+          tmp = Path('.l018-drive-masters')
+          tmp.mkdir(exist_ok=True)
+          for file_id, name in assets:
+              source = tmp / f'{name}.png'
+              target = outdir / f'{name}.webp'
+              result = gdown.download(id=file_id, output=str(source), quiet=False)
+              if not result or not source.exists():
+                  raise SystemExit(f'Failed to download Drive master {name}')
+              with Image.open(source) as im:
+                  if im.size != (1672, 941):
+                      raise SystemExit(f'{name}: expected 1672x941, got {im.size}')
+                  im.convert('RGB').save(target, 'WEBP', quality=82, method=6)
+                  print(f'{name}: {im.size} -> {target.stat().st_size:,} bytes')
+      - name: Verify promoted assets are production sized
+        shell: python
+        run: |
+          from pathlib import Path
+          from PIL import Image
+          files = sorted(Path('public/storyhub/ush9/l018/assets').glob('*.webp'))
+          if len(files) != 14:
+              raise SystemExit(f'Expected 14 assets, found {len(files)}')
+          for path in files:
+              with Image.open(path) as im:
+                  assert im.size == (1672, 941), (path, im.size)
+              if path.stat().st_size < 100_000:
+                  raise SystemExit(f'{path} is suspiciously small: {path.stat().st_size}')
+      - name: Commit promoted assets back to QA branch
+        run: |
+          rm -rf .l018-drive-masters
+          git config user.name 'GrantDesk StoryHub QA'
+          git config user.email 'actions@users.noreply.github.com'
+          git add public/storyhub/ush9/l018/assets/*.webp
+          if git diff --cached --quiet; then
+            echo 'No asset changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Promote L018 full-resolution production art'
+          git push origin HEAD:storyhub/ush9-l018-post-publish-qa
