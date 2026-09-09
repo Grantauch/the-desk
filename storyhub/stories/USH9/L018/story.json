@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L018",
+  "course": "USH9",
+  "lessonCode": "L018",
+  "title": "The Debt Didn’t Move",
+  "audience": "students",
+  "narrativeQuestion": "What happens when the price of what you sell falls while the number you owe refuses to change?",
+  "chapters": [
+    {"id":"01-the-number-that-didn-t-move","title":"The Number That Didn’t Move","claim":"Falling crop prices made a fixed nominal debt harder to repay in real terms.","namedPeople":[],"visualAnchorIds":["A01"],"interactionIds":["I01"]},
+    {"id":"02-more","title":"More","claim":"Greater agricultural productivity could coexist with falling unit prices and financial pressure.","namedPeople":[],"visualAnchorIds":["A02"],"interactionIds":[]},
+    {"id":"03-one-way-out","title":"One Way Out","claim":"Railroads connected farmers to national markets while creating dependence on a narrow transportation chokepoint.","namedPeople":[],"visualAnchorIds":["A03"],"interactionIds":[]},
+    {"id":"04-two-true-things","title":"Two True Things","claim":"Higher western freight rates and lower western traffic density were both real, making the rate dispute an economic conflict rather than a cartoon.","namedPeople":[],"visualAnchorIds":["A04"],"interactionIds":["I02"]},
+    {"id":"05-they-tried-regulation-first","title":"They Tried Regulation First","claim":"Interstate commerce outgrew state regulation and helped drive the creation of federal railroad regulation in 1887.","namedPeople":[],"visualAnchorIds":["A05"],"interactionIds":["I03"]},
+    {"id":"06-first-help-each-other","title":"First, Help Each Other","claim":"Farm organizations first tried cooperation, information sharing, and collective buying and selling before turning fully to party politics.","namedPeople":[],"visualAnchorIds":["A06"],"interactionIds":[]},
+    {"id":"07-the-other-alliance","title":"The Other Alliance","claim":"Black farmers built the Colored Farmers’ Alliance because white southern Alliances excluded them, showing both agrarian agency and the limits of interracial coalition.","namedPeople":[],"visualAnchorIds":["A07"],"interactionIds":[]},
+    {"id":"08-wall-street","title":"Wall Street","claim":"Mary Elizabeth Lease gave farmers a systemic explanation connecting local debt and rail problems to concentrated national finance.","namedPeople":[{"name":"Mary Elizabeth Lease","role":"Kansas Populist speaker and organizer","anchorStatus":"anchored","visualAnchorId":"A08","anchorNote":"Generated source-informed interpretive portrait; not an archival photograph."}],"visualAnchorIds":["A08"],"interactionIds":[]},
+    {"id":"09-omaha","title":"Omaha","claim":"The 1892 Omaha Platform assembled separate grievances into a coherent national political program.","namedPeople":[],"visualAnchorIds":["A09"],"interactionIds":["I04"]},
+    {"id":"10-sixteen-to-one","title":"Sixteen to One","claim":"Free silver appealed differently to debtors, creditors, and wage earners because inflation changes real burdens and purchasing power unevenly.","namedPeople":[],"visualAnchorIds":["A10"],"interactionIds":["I05"]},
+    {"id":"11-twenty-two","title":"Twenty-Two","claim":"James B. Weaver’s 1892 campaign won 22 electoral votes and made the People’s Party a visible national third force.","namedPeople":[{"name":"James B. Weaver","role":"People’s Party presidential nominee, 1892","anchorStatus":"anchored","visualAnchorId":"A11","anchorNote":"Generated source-informed interpretive portrait; not an archival photograph."}],"visualAnchorIds":["A11"],"interactionIds":[]},
+    {"id":"12-the-deal","title":"The Deal","claim":"Populist fusion behind Democrat William Jennings Bryan in 1896 traded independent party identity for a larger free-silver coalition.","namedPeople":[{"name":"William Jennings Bryan","role":"Democratic presidential nominee endorsed by Populists, 1896","anchorStatus":"anchored","visualAnchorId":"A12","anchorNote":"Generated source-informed interpretive portrait; not an archival photograph."}],"visualAnchorIds":["A12"],"interactionIds":["I06"]},
+    {"id":"13-november-3","title":"November 3","claim":"Bryan’s defeat in 1896 ended the campaign’s immediate path to power without erasing the ideas Populists had pushed into national politics.","namedPeople":[{"name":"William Jennings Bryan","role":"Democratic presidential nominee, 1896","anchorStatus":"anchored","visualAnchorId":"A13"},{"name":"William McKinley","role":"Republican presidential nominee and winner, 1896","anchorStatus":"anchored","visualAnchorId":"A13"}],"visualAnchorIds":["A13"],"interactionIds":[]},
+    {"id":"14-some-numbers-moved","title":"Some Numbers Moved","claim":"Some Populist demands later entered mainstream law while other major demands did not.","namedPeople":[],"visualAnchorIds":["A14"],"interactionIds":["I07"]},
+    {"id":"15-the-words-make-more-sense-now","title":"The Words Make More Sense Now","claim":"Vocabulary becomes meaningful after students have experienced the economic relationships the words describe.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"16-before-you-leave-fix-the-story","title":"Before You Leave, Fix the Story","claim":"Note repair preserves the complicated version: monetary pressure, two-sided rail economics, Black agrarian organization, and a mixed legacy.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]}
+  ],
+  "accuracyNotes": [
+    "The $500 debt is illustrative and must never be presented as an average farm mortgage.",
+    "Do not reduce the farm crisis to overproduction alone; productivity, world markets, credit, monetary conditions, transportation, tariffs, weather, and depression all mattered.",
+    "Western freight rates were higher, while western rail traffic density was also lower; preserve both sides of the rate conflict.",
+    "The ICC was historically significant, but its early enforcement power was limited.",
+    "Free silver was expected by supporters to expand money and ease debtor pressure; do not present it as a guaranteed cure.",
+    "Do not use ‘raise less corn and more hell’ as a verified Mary Elizabeth Lease quotation.",
+    "Black farmers were political organizers with their own institutions; white southern Alliances excluded them and interracial cooperation had serious limits.",
+    "Bryan remained a Democrat in 1896; Populists endorsed him through fusion.",
+    "Later reforms echo Populist demands but were not single-handedly caused by the Populist Party."
+  ],
+  "release": {"route":"/hubs/ush9-l018-the-debt-didnt-move.html","manifest":"planned after first-live QA","referenceImplementation":false}
+}

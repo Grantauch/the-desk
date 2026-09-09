@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L018",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-the-number-that-didn-t-move",
+      "type": "historical price rail",
+      "teaches": "A fixed nominal debt becomes harder to pay when the debtor’s crop price falls.",
+      "studentAction": "Choose 1891–1894 and compare wheat price with the bushels required to gross a fixed illustrative $500.",
+      "feedback": "The price and required bushels update while the $500 block stays fixed.",
+      "staticFallback": "Four historical year/price/bushel values remain readable in the content and can be shown simultaneously when motion is reduced.",
+      "identityFit": "The interaction makes the title’s central idea physical: one number moves and the other refuses to.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "04-two-true-things",
+      "type": "paired indexed data field",
+      "teaches": "Higher western freight rates and lower western traffic density can both be true.",
+      "studentAction": "Move through 1890–1895 and inspect both indexed measures against national average = 100.",
+      "feedback": "Both measures update together; the interpretation keeps the farmer and railroad claims in the same field.",
+      "staticFallback": "An accessible data table provides all six years and both measures.",
+      "identityFit": "It prevents a cartoon villain by forcing the evidence to stay paired.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "05-they-tried-regulation-first",
+      "type": "jurisdiction track",
+      "teaches": "Interstate rail commerce created a regulatory problem larger than one state.",
+      "studentAction": "Move a shipment from intrastate regulation through the Wabash interstate gap and then apply the 1887 federal layer.",
+      "feedback": "Train position, authority label, and explanation change at each stage.",
+      "staticFallback": "The three stage buttons and explanatory text remain complete without animation.",
+      "identityFit": "The railroad keeps moving while legal authority changes underneath it.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "09-omaha",
+      "type": "platform assembly",
+      "teaches": "The Omaha Platform connected separate economic grievances to proposed changes in national rules.",
+      "studentAction": "Open six grievance planks to reveal the associated Populist demand.",
+      "feedback": "Each plank exposes a grievance-to-policy relationship and the connected-count rises.",
+      "staticFallback": "Every grievance and policy pair is present in semantic buttons and visible when expanded.",
+      "identityFit": "Convergence turns scattered kitchen-table problems into a national political mechanism.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "10-sixteen-to-one",
+      "type": "monetary perspective switch",
+      "teaches": "Debtors, creditors, and wage workers can rationally want different outcomes from inflation and monetary expansion.",
+      "studentAction": "Switch among an indebted farmer, a creditor/banker, and a wage worker.",
+      "feedback": "The same proposed monetary change is explained from each position without declaring one universally correct.",
+      "staticFallback": "All three perspective buttons expose text and work without animation.",
+      "identityFit": "Money behaves as a relationship between people rather than a good/evil coin graphic.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "12-the-deal",
+      "type": "political fusion tradeoff",
+      "teaches": "Backing Bryan in 1896 offered Populists more scale while making independent party identity harder to preserve.",
+      "studentAction": "Compare staying independent with fusing behind Bryan.",
+      "feedback": "The two political streams change relative emphasis and the strategic tradeoff is stated.",
+      "staticFallback": "Both choices have complete textual explanations.",
+      "identityFit": "Fusion is represented as two political currents combining, not as a candidate trivia question.",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "14-some-numbers-moved",
+      "type": "legacy reform ledger",
+      "teaches": "Some Populist demands later entered mainstream law while other major demands did not.",
+      "studentAction": "Inspect the final ledger of moved and unmoved demands.",
+      "feedback": "Each later reform names what changed and avoids equating partial echoes with total Populist victory.",
+      "staticFallback": "Semantic cards present all outcomes with text labels, not color alone.",
+      "identityFit": "The ending returns to the lesson’s core language of numbers and rules that moved or did not.",
+      "status": "implemented"
+    }
+  ]
+}
