@@ -186,13 +186,11 @@ act_new = """      /**
 """
 html = replace_once(html, act_old, act_new, "client non-reentrant act")
 
-for label in ["initial PIN early re-enable", "action PIN early re-enable"]:
-    html = replace_once(
-        html,
-        "            button.disabled = false;\n            if (state.requiresClassSelection) renderClassSelection();\n            else await completeAuthorizedAction();\n",
-        "            if (state.requiresClassSelection) renderClassSelection();\n            else await completeAuthorizedAction();\n",
-        label,
-    )
+pin_early_enable = "            button.disabled = false;\n            if (state.requiresClassSelection) renderClassSelection();\n            else await completeAuthorizedAction();\n"
+pin_locked = "            if (state.requiresClassSelection) renderClassSelection();\n            else await completeAuthorizedAction();\n"
+if html.count(pin_early_enable) != 2:
+    raise SystemExit(f"PIN early re-enable: expected exactly 2 matches, found {html.count(pin_early_enable)}")
+html = html.replace(pin_early_enable, pin_locked, 2)
 
 late_handler_old = """        document.querySelectorAll('[data-late-checkin-review]').forEach((button) => button.addEventListener('click', async () => {
           const decision = button.dataset.lateDecision;
