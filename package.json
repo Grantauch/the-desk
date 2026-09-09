@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "check": "node scripts/check-verification-deps.mjs && astro check",
-    "verify": "npm run hall-pass:verify && npm run tools:test && npm run classroom:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
+    "verify": "npm run release:test && npm run hall-pass:verify && npm run tools:test && npm run classroom:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:storyhub-fast": "npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:release": "node scripts/run-release-verification.mjs",
     "release:classify": "node scripts/release-lane.mjs",
