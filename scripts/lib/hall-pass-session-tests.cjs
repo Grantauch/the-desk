@@ -19,17 +19,17 @@ module.exports = function registerSessionTests(test, section) {
       const startMs = new Date(`${day}T${start}:00${offset}`).getTime();
       const endMs = new Date(`${day}T${end}:00${offset}`).getTime();
       const cases = [
-        ['before start', startMs - 1, false, false],
-        ['at start', startMs, true, false],
-        ['before five minutes', startMs + 300000 - 1, true, false],
-        ['at five minutes', startMs + 300000, false, false],
-        ['before ten minutes', startMs + 600000 - 1, false, false],
-        ['at ten minutes', startMs + 600000, false, true],
-        ['before final ten', endMs - 600000 - 1, false, true],
-        ['at final ten', endMs - 600000, false, false],
-        ['at bell', endMs, false, false],
+        ['before start', startMs - 1, false, false, false],
+        ['at start', startMs, true, false, false],
+        ['before five minutes', startMs + 300000 - 1, true, false, false],
+        ['at five minutes', startMs + 300000, true, true, false],
+        ['before ten minutes', startMs + 600000 - 1, true, true, false],
+        ['at ten minutes', startMs + 600000, true, true, true],
+        ['before final ten', endMs - 600000 - 1, true, true, true],
+        ['at final ten', endMs - 600000, true, true, false],
+        ['at bell', endMs, true, true, false],
       ];
-      for (const [label, time, checkInAllowed, passRequestAllowed] of cases) {
+      for (const [label, time, checkInAllowed, checkInLate, passRequestAllowed] of cases) {
         test(`${profile} P${index + 1}: ${label}`, () => {
           const c = classroom({ now: new Date(time), memberships: [[PEOPLE.ada, period]] });
           const session = c.harness.call('getClassSession_', member(c, PEOPLE.ada, period));
@@ -37,6 +37,7 @@ module.exports = function registerSessionTests(test, section) {
           assert.equal(session.classStart, new Date(startMs).toISOString());
           assert.equal(session.classEnd, new Date(endMs).toISOString());
           assert.equal(session.checkInAllowed, checkInAllowed);
+          assert.equal(Boolean(session.checkInLate), checkInLate);
           assert.equal(session.passRequestAllowed, passRequestAllowed);
         });
       }
@@ -108,23 +109,32 @@ module.exports = function registerSessionTests(test, section) {
   }
 
   section('Fresh proofs, bell races and queue expiry');
-  test('wrong-time PIN identification issues no action proof', () => {
+  test('late-time PIN identification still issues a protected check-in proof', () => {
     const c = classroom();
     const before = Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length;
-    assert.throws(() => c.harness.call('identifyCheckInWithPin', c.pin(PEOPLE.ada), 'test'), /first five/);
-    assert.equal(Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length, before);
+    const identified = c.harness.call('identifyCheckInWithPin', c.pin(PEOPLE.ada), 'test');
+    assert.ok(identified.actionProof);
+    assert.equal(Boolean(identified.sessionEligibility && identified.sessionEligibility.late), true);
+    assert.equal(Object.keys(c.harness.properties.getProperties()).filter(k=>k.startsWith('student-action:')).length, before + 1);
     assert.deepEqual(counts(c), [0,0,0]);
   });
-  for (const [action, time, endpoint] of [['CHECKIN','07:34:59','submitDailyCheckIn'], ['PASS_REQUEST','08:14:59','requestBathroomPass']]) {
-    test(`${action} is checked again under the lock after its boundary`, () => {
-      const c = classroom({now:new Date(`2026-09-10T${time}-04:00`)});
-      const key = c.key(PEOPLE.ada, 'Period 1');
-      const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), action, key, 'boundary');
-      c.harness.clock.advanceSeconds(1); c.harness.newRequest();
-      assert.throws(() => c.harness.call(endpoint, proof.actionProof, key, proof.pinToken), /first five|first and last ten/);
-      assert.deepEqual(counts(c), [0,0,0]);
-    });
-  }
+  test('CHECKIN is reclassified as late under the lock when the cutoff passes', () => {
+    const c = classroom({now:new Date('2026-09-10T07:34:59-04:00')});
+    const key = c.key(PEOPLE.ada, 'Period 1');
+    const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'boundary');
+    c.harness.clock.advanceSeconds(1); c.harness.newRequest();
+    const state = c.harness.call('submitDailyCheckIn', proof.actionProof, key, proof.pinToken);
+    assert.equal(state.lateCheckIn, true);
+    assert.equal(String(c.checkIns()[0].Status), 'LATE_PENDING');
+  });
+  test('PASS_REQUEST is still checked again under the lock after its boundary', () => {
+    const c = classroom({now:new Date('2026-09-10T08:14:59-04:00')});
+    const key = c.key(PEOPLE.ada, 'Period 1');
+    const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'PASS_REQUEST', key, 'boundary');
+    c.harness.clock.advanceSeconds(1); c.harness.newRequest();
+    assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /first and last ten/);
+    assert.deepEqual(counts(c), [0,0,0]);
+  });
   test('multi-class PIN cannot select an upcoming or ended class', () => {
     const c = classroom({memberships:[[PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 3']]});
     const initial = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), 'multi');
