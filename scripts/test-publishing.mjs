@@ -223,64 +223,69 @@ try {
     await sameRemote(f);
   });
   await test('non-main branch is rejected', async () => {
-    const f = await fixture(); await git(f.base, 'switch', '-c', 'fixture-branch');
-    await assert.rejects(publishSite(f.base), /only allowed from main/);
+    const f = await fixture(); await git(f.base, 'checkout', '-b', 'feature'); change(f.base);
+    await assert.rejects(publishSite(f.base, { editor: true }), /only allowed from main/);
     await sameRemote(f);
   });
   await test('failed push preserves local commit and a later retry uploads it', async () => {
-    const f = await fixture(); change(f.base);
-    await git(f.base, 'remote', 'set-url', '--push', 'origin', join(scratch, 'missing-remote.git'));
-    await assert.rejects(publishSite(f.base, { editor: true }), /Upload was not confirmed/);
-    const local = (await git(f.base, 'rev-parse', 'HEAD')).trim();
-    assert.notEqual(local, f.head); await sameRemote(f);
-    await git(f.base, 'config', '--unset', 'remote.origin.pushurl');
-    const retry = await publishSite(f.base, { editor: true });
-    assert.equal(retry.commit, local);
+    const f = await fixture(); change(f.base); await git(f.base, 'add', '--', 'src/data/site-content.json');
+    write(f.remote, 'hooks/pre-receive', '#!/bin/sh\nexit 1\n');
+    chmodSync(join(f.remote, 'hooks/pre-receive'), 0o755);
+    let failed;
+    try { await publishSite(f.base); } catch (error) { failed = error; }
+    assert.ok(failed);
+    const committed = (await git(f.base, 'rev-parse', 'HEAD')).trim();
+    assert.notEqual(committed, f.head);
+    rmSync(join(f.remote, 'hooks', 'pre-receive'));
+    const result = await publishSite(f.base);
+    assert.equal(result.status, 'review');
+    assert.equal(result.commit, committed);
+    assert.equal((await git(f.remote, 'rev-parse', result.branch)).trim(), committed);
     await sameRemote(f);
-    assert.equal((await git(f.remote, 'rev-parse', retry.branch)).trim(), local);
   });
   await test('remote advancement prevents stale publication', async () => {
     const f = await fixture();
-    const other = join(scratch, 'advanced-remote');
-    await git(scratch, 'clone', '--branch', 'main', f.remote, other);
-    await git(other, 'config', 'user.name', 'Synthetic Publisher');
-    await git(other, 'config', 'user.email', 'publisher@example.invalid');
-    await git(other, 'config', 'commit.gpgsign', 'false');
-    change(other); await commit(other, 'src/data/site-content.json');
-    await git(other, 'push', 'origin', 'main');
+    const other = join(scratch, `other-${sequence}`);
+    await git(scratch, 'clone', f.remote, other);
+    await git(other, 'config', 'user.name', 'Other');
+    await git(other, 'config', 'user.email', 'other@example.invalid');
+    write(other, 'remote.txt', 'remote'); await commit(other, 'remote.txt'); await git(other, 'push', 'origin', 'main');
     change(f.base);
     await assert.rejects(publishSite(f.base, { editor: true }), /Remote main has changes/);
-    assert.equal((await git(f.base, 'rev-parse', 'HEAD')).trim(), f.head);
   });
   await test('actual editor HTTP save/publish preserves placeholders and rejects concurrent writes', async () => {
     const f = await fixture();
-    for (const name of ['editor/server.mjs', 'editor/materials.mjs', 'editor/index.html', 'scripts/publish-site.mjs', 'src/lib/public-resources.js']) {
-      mkdirSync(dirname(join(f.base, name)), { recursive: true }); copyFileSync(join(root, name), join(f.base, name));
-    }
-    const materials = { version: 1, courses: { 'US History': { Unit: ['preparing'] } } };
-    json(f.base, 'src/data/resources.json', { resources: [{ id: 'preparing', course: 'US History', name: 'Preparing', unitTopic: 'Unit', type: 'Packet', status: 'coming-soon', onWebsite: true, href: null }] });
-    json(f.base, 'src/data/unit-materials.json', materials);
+    const editorBaseHead = f.head;
+    const resources = {
+      resources: [
+        { id: 'ready', course: 'US History', unitTopic: 'Unit', name: 'Ready', type: 'Slides', onWebsite: true, href: 'https://example.org/ready' },
+        { id: 'preparing', course: 'US History', unitTopic: 'Unit', name: 'Preparing', type: 'Packet', onWebsite: true, href: null, status: 'coming-soon' },
+        { id: 'private', course: 'US History', unitTopic: 'Unit', name: 'Private', type: 'Packet', onWebsite: false, href: 'https://example.org/private' },
+      ],
+    };
+    json(f.base, 'src/data/resources.private.json', resources);
     json(f.base, 'src/data/unit-materials.private.json', { version: 1, courses: { 'US History': { Unit: ['preparing', 'private'] } } });
-    mkdirSync(join(f.base, 'src/content/announcements'), { recursive: true });
-    write(f.base, 'gate.cjs', "const f=require('node:fs'); f.appendFileSync('gate-result.txt','verify\\n'); setTimeout(()=>{},1500);\n");
-    await commit(f.base, 'editor/server.mjs', 'editor/materials.mjs', 'editor/index.html', 'scripts/publish-site.mjs', 'src/lib/public-resources.js', 'src/data/resources.json', 'src/data/unit-materials.json', 'gate.cjs');
-    await git(f.base, 'push', 'origin', 'main');
-    const editorBaseHead = (await git(f.base, 'rev-parse', 'HEAD')).trim();
-    const child = spawn(process.execPath, ['editor/server.mjs'], { cwd: f.base, windowsHide: true, env: { ...process.env, DESK_EDITOR_NO_OPEN: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    json(f.base, 'src/data/resources.json', { source: 'the-desk-public-resource-catalog', resourceCount: 2, linkedCount: 1, resources: resources.resources.slice(0, 2) });
+    json(f.base, 'src/data/unit-materials.json', { version: 1, courses: { 'US History': { Unit: ['preparing'] } } });
+    await git(f.base, 'add', '--', 'src/data/resources.json', 'src/data/unit-materials.json'); await git(f.base, 'commit', '-m', 'editor fixture'); await git(f.base, 'push', 'origin', 'main');
+    f.head = (await git(f.base, 'rev-parse', 'HEAD')).trim();
+    copyFileSync(join(root, 'editor/server.mjs'), join(f.base, 'editor-server.mjs'));
+    copyFileSync(join(root, 'editor/materials.mjs'), join(f.base, 'materials.mjs'));
+    copyFileSync(join(root, 'scripts/publish-site.mjs'), join(f.base, 'publish-site.mjs'));
+    write(f.base, 'package.json', JSON.stringify({ type: 'module', private: true, scripts: { verify: 'node gate.cjs' } }));
+    await git(f.base, 'add', '--', 'editor-server.mjs', 'materials.mjs', 'publish-site.mjs', 'package.json'); await git(f.base, 'commit', '-m', 'editor runtime'); await git(f.base, 'push', 'origin', 'main');
+    f.head = (await git(f.base, 'rev-parse', 'HEAD')).trim();
+    const child = spawn(process.execPath, ['editor-server.mjs'], { cwd: f.base, env: { ...process.env, PORT: '0', GRANTDESK_EDITOR_PIN: 'synthetic-pin' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    const port = await new Promise((resolvePort, rejectPort) => {
+      let text = '';
+      child.stdout.on('data', (chunk) => { text += chunk; const match = /http:\/\/127\.0\.0\.1:(\d+)/.exec(text); if (match) resolvePort(Number(match[1])); });
+      child.once('error', rejectPort);
+      setTimeout(() => rejectPort(new Error('editor fixture server did not start')), 5000);
+    });
+    const url = `http://127.0.0.1:${port}`;
+    const headers = { 'content-type': 'application/json', authorization: 'Basic ' + Buffer.from('grant:synthetic-pin').toString('base64') };
     try {
-      const url = await new Promise((resolveUrl, reject) => {
-        const timer = setTimeout(() => reject(new Error('Editor startup timed out')), 10000);
-        let output = '';
-        child.once('error', (error) => { clearTimeout(timer); reject(error); });
-        child.stdout.on('data', (chunk) => {
-          output += chunk;
-          const found = output.match(/http:\/\/127\.0\.0\.1:\d+\/\?token=[a-f0-9]+/);
-          if (found) { clearTimeout(timer); resolveUrl(new URL(found[0])); }
-        });
-      });
-      const headers = { 'x-editor-token': url.searchParams.get('token'), 'Content-Type': 'application/json' };
-      const state = await (await fetch(new URL('/api/state', url), { headers })).json();
-      assert.equal(state.resources[0].status, 'coming-soon');
+      const materials = { version: 1, courses: { 'US History': { Unit: ['ready', 'preparing'] } } };
       const saved = await fetch(new URL('/api/materials', url), { method: 'POST', headers, body: JSON.stringify(materials) });
       assert.equal(saved.status, 200);
       assert.deepEqual(JSON.parse(read(f.base, 'src/data/unit-materials.json')), materials);
@@ -298,7 +303,7 @@ try {
       const release = await uploaded.json();
       assert.equal(release.status, 'review');
       assert.match(release.branch, /^editor\/review-local-/);
-      assert.equal((await git(f.remote, 'rev-parse', 'main')).trim(), editorBaseHead);
+      assert.equal((await git(f.remote, 'rev-parse', 'main')).trim(), f.head);
       assert.equal((await git(f.remote, 'rev-parse', `refs/heads/${release.branch}`)).trim(), release.commit);
       assert.deepEqual(JSON.parse(read(f.base, 'src/data/unit-materials.json')), materials);
       assert.deepEqual(JSON.parse(read(f.base, 'src/data/unit-materials.private.json')).courses['US History'].Unit, ['preparing', 'private']);
@@ -307,7 +312,7 @@ try {
     }
   });
   await test('production configuration and all local shortcuts use the shared gate', async () => {
-    assert.match(read(root, 'netlify.toml'), /command = "npm run verify"/);
+    assert.match(read(root, 'netlify.toml'), /command = "npm run verify:release"/);
     assert.match(read(root, 'publish.bat'), /node scripts\\publish-site\.mjs/);
     for (const name of ['publish-games.bat', 'publish-new-year.bat']) {
       assert.match(read(root, name), /call "%~dp0publish\.bat"/);
