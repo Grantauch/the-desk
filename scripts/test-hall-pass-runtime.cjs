@@ -1315,5 +1315,60 @@ test('a daily limit is enforced independently of the marking-period limit', () =
 });
 
 
+section('Issue 73 duplicate-action guard');
+
+test('a duplicate generic PIN submit cannot turn a just-started pass into a return', () => {
+  const c = classroom();
+  const nonce = 'same-device-issue-73';
+  c.harness.newRequest();
+  const first = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), nonce);
+  const key = first.student.key;
+  assert.equal(first.authorizedAction, 'PASS_REQUEST');
+  c.harness.newRequest();
+  const started = c.harness.call('requestBathroomPass', first.actionProof, key, first.pinToken);
+  assert.equal((started.actionOutcome || {}).kind, 'STARTED');
+  c.harness.newRequest();
+  const duplicate = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), nonce);
+  assert.equal(duplicate.authorizedAction, 'PASS_REQUEST');
+  c.harness.newRequest();
+  const replayedIntent = c.harness.call('requestBathroomPass', duplicate.actionProof, key, duplicate.pinToken);
+  assert.equal((replayedIntent.actionOutcome || {}).kind, 'ALREADY_ACTIVE');
+  const rows = c.passLog();
+  assert.equal(rows.length, 1);
+  assert.equal(String(rows[0].Status), 'OUT');
+});
+
+test('an explicit return still works immediately while generic intent is stabilized', () => {
+  const c = classroom();
+  const nonce = 'same-device-explicit-return';
+  c.harness.newRequest();
+  const first = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), nonce);
+  const key = first.student.key;
+  c.harness.newRequest();
+  c.harness.call('requestBathroomPass', first.actionProof, key, first.pinToken);
+  c.harness.newRequest();
+  const returning = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'RETURN', key, nonce);
+  assert.equal(returning.authorizedAction, 'RETURN');
+  c.harness.newRequest();
+  c.harness.call('returnPass', returning.actionProof, key, returning.pinToken);
+  assert.equal(String(c.passLog()[0].Status), 'RETURNED');
+});
+
+test('replaying the same late-attendance decision is idempotent', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  const row = c.checkIns()[0];
+  assert.equal(String(row.Status), 'LATE_APPROVED');
+  assert.equal((String(row.Note).match(/Late check-in point awarded by/g) || []).length, 1);
+});
+
+
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();

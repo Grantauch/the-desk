@@ -67,17 +67,55 @@ jobs:
         if: steps.lane.outputs.mode != 'storyhub'
         run: npm run verify:full
 
+      - name: Classify browser acceptance scope
+        id: browser
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE: ${{ github.event.before }}
+          PUSH_HEAD: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$PR_BASE" ] && [ -n "$PR_HEAD" ]; then
+            base="$PR_BASE"
+            head="$PR_HEAD"
+          elif [ "$EVENT_NAME" = "push" ] && [ -n "$PUSH_BASE" ] && [ "$PUSH_BASE" != "0000000000000000000000000000000000000000" ]; then
+            base="$PUSH_BASE"
+            head="$PUSH_HEAD"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "reason=No trustworthy comparison base; browser acceptance retained." >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed="$(git diff --name-only "$base" "$head")"
+          relevant="$(printf '%s\n' "$changed" | grep -Ev '^(apps-script/hall-pass/|scripts/test-hall-pass-(app|runtime)\.cjs$|\.github/workflows/site-check\.yml$)' || true)"
+          if [ -z "$relevant" ]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "reason=Only Hall Pass Apps Script, its regression tests, or this CI scope rule changed." >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "reason=Browser-rendered or otherwise unclassified files changed." >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Show browser acceptance scope
+        run: |
+          echo "Browser checks needed: ${{ steps.browser.outputs.needed }}"
+          echo "Reason: ${{ steps.browser.outputs.reason }}"
+
       - name: Install Chromium for browser checks
+        if: steps.browser.outputs.needed == 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Check changed StoryHub pages in a real browser
-        if: steps.lane.outputs.mode == 'storyhub'
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode == 'storyhub'
         env:
           STORYHUB_TEST_ROUTES: ${{ steps.lane.outputs.routes }}
         run: npm run storyhub:browser:test
 
       - name: Check key site pages in a real browser
-        if: steps.lane.outputs.mode != 'storyhub'
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test
 
       - name: Save browser screenshots and accessibility reports
