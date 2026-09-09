@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-L03",
+  "course": "BTS",
+  "lessonCode": "L03",
+  "title": "Not In The Room",
+  "audience": "students",
+  "narrativeQuestion": "How did club owners turn a popular game into an industry, and what changed when the workers were not parties to the rules?",
+  "chapters": [
+    {"id":"01-the-mess","title":"The Mess","claim":"Professional baseball's real instability made durable rules valuable to owners, players, and fans.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"02-february-2-1876","title":"February 2, 1876","claim":"A documented New York meeting created the National League; the locked-door detail comes from later memoir.","namedPeople":[{"name":"William Hulbert","role":"National League organizer and president","anchorStatus":"planned"}],"visualAnchorIds":["A01"],"interactionIds":[]},
+    {"id":"03-charter-audit","title":"Read It Like An Accountant","claim":"Four sensible charter clauses all moved control toward existing club owners and league leadership.","namedPeople":[],"visualAnchorIds":["A02"],"interactionIds":["I01"]},
+    {"id":"04-territory","title":"Territory Is The Product","claim":"One club per city turned territory into a licensed exclusive right: a franchise.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"05-reserve-rule","title":"1879","claim":"The reserve agreement removed rival bids from the player labor market even though players were not parties to it.","namedPeople":[],"visualAnchorIds":["A03"],"interactionIds":["I02"]},
+    {"id":"06-enforcement","title":"A Charter Nobody Enforces Is Stationery","claim":"The league became durable because it imposed real costs on members that broke its rules.","namedPeople":[{"name":"William Hulbert","role":"National League president","anchorStatus":"planned"}],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"07-respectability","title":"What They Refused To Sell","claim":"Beer and Sunday-game restrictions show the league spending revenue to buy legitimacy.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"08-the-fan","title":"Who Pays For All This","claim":"Programs, subscriptions, and turnstiles made the fan a measured customer.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"09-two-axes","title":"Higher Pay, Less Freedom","claim":"Compensation and freedom to change employers are different axes, placing reserved players in an unusual position.","namedPeople":[],"visualAnchorIds":[],"interactionIds":["I03"]},
+    {"id":"10-two-stories","title":"The Two Stories That Go Too Far","claim":"Both the greedy-villain story and the natural-market story fail when tested against the documents.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"11-not-in-the-room","title":"Not In The Room","claim":"By 1880 owners had assembled a durable five-part industry stack without players participating in its governance.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"12-terms","title":"Terms","claim":"The terms board attaches business vocabulary to mechanisms students already watched operate.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"13-note-repair","title":"Note Repair","claim":"The repair board replaces six common oversimplifications with bounded evidence statements.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]}
+  ],
+  "accuracyNotes": [
+    "Professional baseball predated the National League; the narrower claim is that the League made club-owner control durable.",
+    "The February 2, 1876 meeting is documented. The locked-door detail comes from later memoir and is labeled that way.",
+    "The first 1879 reserve agreement covered only a limited number of players per club and hardened later.",
+    "Do not place an exact Cincinnati expulsion year on the student page because accounts compress the 1879 to 1880 sequence differently.",
+    "Player wages are described as generally above most industrial wages without using a single unsupported comparison figure.",
+    "The lesson claims that the franchise, schedule, enforcement, and labor-control architecture recurs, not that every later league copied every clause."
+  ],
+  "release": {"route":"/hubs/bts-l03-not-in-the-room.html","manifest":"storyhub/releases/BTS-L03.json"}
+}

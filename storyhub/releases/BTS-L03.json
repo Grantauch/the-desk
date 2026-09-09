@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-L03",
+  "title": "Not In The Room",
+  "route": "/hubs/bts-l03-not-in-the-room.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/L03/story.json",
+    "sha256": "f0ac1c44a33157c12c6dbb2a108a06f8bda192c4de56cb6137f2e9720b2926a5",
+    "note": "The story manifest was distilled from the approved BTS L03 classroom content master; the named-person panel is a labeled placeholder pending teacher-supplied imagery."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-l03-not-in-the-room.html",
+      "bytes": 41057,
+      "sha256": "5ffda471c4af52a65a3f8c1b71115bfd1bf8efed0bdd45e21313f5a4a8fce64b"
+    },
+    {
+      "assetId": "A00",
+      "path": "/storyhub/bts/l03/assets/cover-ledger.svg",
+      "bytes": 1141,
+      "sha256": "44f46a8a23ae71cb6bd5d9c40d9b70f82149feacc2e7bdd29914385723147885"
+    }
+  ],
+  "totalBytes": 42198,
+  "sealedAt": "2026-09-08"
+}

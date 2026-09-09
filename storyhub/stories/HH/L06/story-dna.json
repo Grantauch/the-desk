@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L06",
+  "title": "Two Sources",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["signal report", "calm", "technical about transmission", "plainspoken about method"],
+    "paletteIntent": "Warm dial-glass ivory, receiver charcoal, brass measurement marks, and one magenta signal reserved only for claims that collapse to a single source.",
+    "typographyIntent": "Technical gothic faceplate headings, newspaper serif narrative, and monospace for broadcast, editorial, and record language.",
+    "textureLanguage": ["etched dial glass", "brushed receiver metal", "woven speaker grille", "coarse newsprint screen"],
+    "shapeLanguage": "Horizontal frequency scales, one moving needle, and concentric tuning knobs as the page's only curves.",
+    "motionGrammar": ["tune a needle across a scale", "lock a verified signal into place"],
+    "interactionSignature": ["collapse a rumor network to origin", "deduplicate source statements", "apply the same disproof test to both cases"],
+    "densityRhythm": "The rumor half moves quickly and the Watergate half deliberately slows; the pace itself carries the difference between repetition and confirmation.",
+    "archivalBehavior": "Broadcast, newspaper, hearing, and court material is labeled by source and date. Album artwork is not reproduced, and the clue hunt is studied rather than recreated as a game.",
+    "endingLanguage": "The page states the independent-source standard once, then stops."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "1960s receiver glass, tuning scales, speaker cloth, and newsroom records named in the approved content master.",
+    "edgeTreatment": "Lit glass, metal bezels, speaker-grille fields, and etched scales replace generic web cards.",
+    "controlLanguage": "Controls are tuning keys, source switches, trace steps, and locked readouts rather than decorative toggles.",
+    "spacingLanguage": "Fast short rumor transmissions give way to wider, slower documentary records after the Watergate pivot.",
+    "transitionLanguage": "Networks collapse toward origins and verified claims lock steady. Reduced motion uses discrete labeled states."
+  }
+}

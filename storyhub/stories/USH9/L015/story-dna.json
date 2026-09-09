@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L015",
+  "title": "Who Showed Up",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["procedural", "cold", "documentary", "measured", "consequential"],
+    "paletteIntent": "Paper and ink only: bone white, aged newsprint cream, iron gray, and black. One stamped oxide red is reserved exclusively for an order being issued or a person being killed. No navy and no electric blue.",
+    "typographyIntent": "Heavy condensed period wood-type headlines; a sober legal serif for body text; monospace for telegraph wire, court language, source text, and casualty records; large unornamented numerals.",
+    "textureLanguage": ["newsprint tooth", "rubber-stamp bleed", "carbon-paper ghosting", "telegraph ribbon", "ruled ledger lines"],
+    "shapeLanguage": "Rules and columns, hairline dividers, square boxed stamps, ledger cells, docket blocks, and press-bed alignment. Nothing rounded and nothing visually floating.",
+    "motionGrammar": ["spread outward at network speed", "clamp shut when an order lands", "force accumulates by stacking rather than growing"],
+    "interactionSignature": ["date scrubber over a rail network", "stacking order ledger", "quantity dial", "sortable legal record", "chain of custody", "toggle ledger", "stepped injunction sequence", "fixed-field comparison ladder"],
+    "densityRhythm": "Long quiet narrative stretches interrupted by hard columns of figures. Data is allowed to become the argument without decorative treatment.",
+    "archivalBehavior": "Use untouched credited period photographs when reliable visual evidence survives. When no photograph survives, use a clearly authored historical reconstruction and say so in provenance. Court, diary, newspaper, telegraph, and worker language is visibly marked as source text.",
+    "endingLanguage": "No summary and no reflection prompt. The narrative ends on the Labor Day date/signature recurrence; terms and note repair follow as appendix-like reference boards rather than a new conclusion."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Bone paper, aged newsprint, iron-gray printing surfaces, black ink, and the single oxide-red stamp specified by the content master.",
+    "edgeTreatment": "Use ruled paper boundaries, press rules, crop marks, docket boxes, carbon ghosting, and hard square edges instead of cards or floating panels.",
+    "controlLanguage": "Controls should resemble reading instruments from a record room: date rails, ledger advances, table headings, file tabs, stamped toggles, document chains, and fixed comparison fields.",
+    "spacingLanguage": "Compose type into each scene's named safe zone. Alternate broad blank paper/sky fields with compressed records and columns so the page breathes like a file being opened and read.",
+    "transitionLanguage": "Spread sections propagate along rails, telegraph lines, or repeated entries; clamp sections resolve with a completed rule, stamp, signature, or locked column. Do not add generic fades, parallax, or ornamental easing."
+  }
+}

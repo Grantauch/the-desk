@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L06",
+  "interactions": [
+    {"id":"I01","chapterId":"03-trace-it-back","type":"backward-collapse-source-network","teaches":"A large number of repeaters can still amount to only a small number of actual origins.","studentAction":"Trace the network backward through four labeled stages.","feedback":"The crowd of reports reduces to reprints, then two Michigan events, while a distinct-origin counter falls without hiding any step.","staticFallback":"All four stages render as a readable sequence with their counts.","identityFit":"A tuning needle moving backward through a signal chain belongs to the receiver-and-frequency register.","status":"implemented"},
+    {"id":"I02","chapterId":"05-the-rule","type":"source-stack-deduplication","teaches":"Independent source count depends on origin, not the number of people repeating a statement.","studentAction":"Switch between a rumor claim and a Watergate claim, then group statements by where they came from.","feedback":"The rumor stack collapses to one shared origin while the documented claim retains independently failing records or witnesses.","staticFallback":"Both grouped cases remain visible as labeled tables.","identityFit":"The readout tunes out duplicate signals and locks only distinct origins.","status":"implemented"},
+    {"id":"I03","chapterId":"07-disproof","type":"symmetric-falsifiability-test","teaches":"A claim is checkable only when disconfirming evidence could change the conclusion.","studentAction":"Open the same three questions for the rumor and the Watergate case.","feedback":"Each case reveals what would end the claim, whether that evidence existed, and whether the claim was held so the evidence could matter.","staticFallback":"Both complete three-field records render in a comparison table.","identityFit":"The same fixed test is tuned to two different signals, keeping the procedure neutral.","status":"implemented"}
+  ]
+}

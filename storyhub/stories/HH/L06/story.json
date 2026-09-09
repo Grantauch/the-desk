@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L06",
+  "course": "HH",
+  "lessonCode": "L06",
+  "title": "Two Sources",
+  "audience": "students",
+  "narrativeQuestion": "What separated a rumor investigated by thousands from reporting by two people that helped end a presidency?",
+  "chapters": [
+    {"id":"01-october-12","title":"October 12, 1969","claim":"A phone call to one trusted Detroit radio voice gave a rumor national transmission power.","namedPeople":[{"name":"Russ Gibb","role":"WKNR disc jockey","anchorStatus":"planned"}],"visualAnchorIds":["A01"],"interactionIds":[]},
+    {"id":"02-october-14","title":"October 14, 1969","claim":"A Michigan Daily satire supplied most of the shared clue list after its original context fell away.","namedPeople":[{"name":"Fred LaBour","role":"Michigan Daily student writer","anchorStatus":"planned"}],"visualAnchorIds":["A02"],"interactionIds":[]},
+    {"id":"03-trace-it-back","title":"Ten Thousand People, One Source","claim":"Apparent corroboration collapses when thousands of downstream checks trace to the same origins.","namedPeople":[],"visualAnchorIds":["A03"],"interactionIds":["I01"]},
+    {"id":"04-june-17","title":"June 17, 1972","claim":"A small burglary report became a presidential crisis only after twenty-six months of confirmation.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"05-the-rule","title":"The Rule","claim":"The Washington Post's two-independent-source rule traded speed for claims that could survive official attack.","namedPeople":[{"name":"Ben Bradlee","role":"Washington Post executive editor","anchorStatus":"planned"}],"visualAnchorIds":[],"interactionIds":["I02"]},
+    {"id":"06-paper-work","title":"What The Work Actually Was","claim":"Records held facts steady and made later witness questions more exact.","namedPeople":[{"name":"Alexander Butterfield","role":"White House staffer who confirmed the taping system","anchorStatus":"planned"}],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"07-disproof","title":"What Would Have Killed Each One","claim":"A checkable claim names in advance what evidence would end it and allows that evidence to matter.","namedPeople":[{"name":"Paul McCartney","role":"musician falsely rumored dead","anchorStatus":"not-needed"}],"visualAnchorIds":[],"interactionIds":["I03"]},
+    {"id":"08-two-shapes","title":"The Two Shapes","claim":"Investigator count mattered less than a procedure that separated independent origins from repetition.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"09-the-method","title":"What The Unit Will Ask","claim":"Trace origin, test independence, and name disproof before searching.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"10-terms","title":"Terms","claim":"The terms board names evidence operations students already performed.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"11-note-repair","title":"Note Repair","claim":"The repair board corrects six durable misunderstandings about both investigations.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]}
+  ],
+  "accuracyNotes": [
+    "Describe national reach as about three weeks; accounts differ on the exact station-by-station spread.",
+    "State that Fred LaBour says he wrote satire and invented most of the famous clues; do not turn the page into a clue hunt.",
+    "Use November 7, 1969 for the Life issue only with the source note that exact cover dating should be checked against a scan before projection.",
+    "State the Washington Post standard as anonymous information requiring a second independent confirmation, while acknowledging formulations vary by account.",
+    "Do not reduce Watergate reporting to a garage informant; records, repeat interviews, editorial rules, hearings, and the tapes all matter.",
+    "Do not assign a single event or date to the rumor's end; it faded through loss of interest despite available disproof."
+  ],
+  "release": {"route":"/hubs/hh-l06-two-sources.html","manifest":"storyhub/releases/HH-L06.json"}
+}
