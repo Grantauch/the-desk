@@ -26,7 +26,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Apply hotfix
-        run: python3 scripts/hotfix-73.py
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/hotfix-73.py > /tmp/hotfix-73.log 2>&1
+          status=$?
+          cat /tmp/hotfix-73.log
+          if [ "$status" -ne 0 ]; then
+            cp /tmp/hotfix-73.log scripts/hotfix-73-error.txt
+            git config user.name 'GrantDesk Hotfix Bot'
+            git config user.email 'actions@users.noreply.github.com'
+            git add scripts/hotfix-73-error.txt
+            git commit -m 'Capture Issue 73 builder diagnostic'
+            git push origin HEAD:hotfix/hall-pass-issue-73-builder
+            exit "$status"
+          fi
       - name: Verify Hall Pass
         run: npm run hall-pass:verify
       - name: Verify repository
