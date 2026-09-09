@@ -36,3 +36,5 @@ This StoryHub follows four major labor conflicts from 1877 through 1894 and comp
 ## Visual provenance policy
 
 Narrative scene images for this lesson are planned separately in `assets.json`. Where strong historical visual evidence survives, production should begin from a verified period photograph, engraving, document, building, or artifact. When a direct visual source does not survive or does not fit the required composition, the page may use a clearly identified interpretive reconstruction. Generated or reconstructed scenes are never presented as archival photographs, and all readable historical language remains native HTML rather than fabricated inside images.
+
+<!-- StoryHub fast-lane smoke test: source-note-only change on a temporary branch. -->
