@@ -35,7 +35,8 @@ export const capabilityValues = [
   'admin.credentials.rotate_deliver',
   'admin.migration.validate',
   'admin.migration.dry_run',
-  'admin.migration.import_shadow'
+  'admin.migration.import_shadow',
+  'admin.migration.credential_continuity'
 ] as const;
 
 export type Capability = (typeof capabilityValues)[number];
