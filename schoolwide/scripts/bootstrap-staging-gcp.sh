@@ -4,6 +4,7 @@ set -euo pipefail
 PROJECT_ID="${PROJECT_ID:-grantdesk-deployment}"
 REGION="${REGION:-us-central1}"
 GITHUB_REPO="${GITHUB_REPO:-Grantauch/the-desk}"
+GITHUB_RELEASE_REF="${GITHUB_RELEASE_REF:-refs/heads/schoolwide/sw-170-staging-release-readiness}"
 ARTIFACT_REPO="${ARTIFACT_REPO:-grantdesk-schoolwide}"
 SQL_INSTANCE="${SQL_INSTANCE:-grantdesk-schoolwide-staging}"
 DB_NAME="${DB_NAME:-grantdesk_schoolwide}"
@@ -25,6 +26,7 @@ GrantDesk Schoolwide — SW-170 staging bootstrap
 Project:      ${PROJECT_ID}
 Region:       ${REGION}
 GitHub repo:  ${GITHUB_REPO}
+Release ref:  ${GITHUB_RELEASE_REF}
 
 This creates ONLY isolated staging infrastructure.
 It does NOT deploy to the live Hall Pass, change the Apps Script workbook,
@@ -187,8 +189,8 @@ if ! exists gcloud iam workload-identity-pools providers describe "$WIF_PROVIDER
     --workload-identity-pool="$WIF_POOL_ID" \
     --display-name='GrantDesk the-desk GitHub' \
     --issuer-uri='https://token.actions.githubusercontent.com' \
-    --attribute-mapping='google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner' \
-    --attribute-condition="assertion.repository == '${GITHUB_REPO}'"
+    --attribute-mapping='google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner,attribute.ref=assertion.ref' \
+    --attribute-condition="assertion.repository == '${GITHUB_REPO}' && assertion.ref == '${GITHUB_RELEASE_REF}'"
 fi
 
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')"
