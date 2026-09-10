@@ -6,6 +6,7 @@ const configSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(8787),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DATABASE_URL: z.string().min(1),
+  DATABASE_SOCKET_PATH: z.string().min(1).optional(),
   DB_POOL_MAX: z.coerce.number().int().min(1).max(50).default(10),
   SCHOOLWIDE_INSTANCE_ID: z.string().min(1).max(100).default('local'),
   DEPLOYMENT_TIER: z.enum(['local', 'staging', 'production']).default('local'),
@@ -25,6 +26,7 @@ export type AppConfig = {
   port: number;
   logLevel: z.infer<typeof configSchema>['LOG_LEVEL'];
   databaseUrl: string;
+  databaseSocketPath?: string;
   dbPoolMax: number;
   instanceId: string;
   deploymentTier?: z.infer<typeof configSchema>['DEPLOYMENT_TIER'];
@@ -43,12 +45,16 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
   if (parsed.DEPLOYMENT_TIER !== 'local' && parsed.RELEASE_SHA === 'local') {
     throw new Error('Staging/production Schoolwide deployments require an exact RELEASE_SHA.');
   }
+  if (parsed.DEPLOYMENT_TIER === 'staging' && !parsed.DATABASE_SOCKET_PATH?.startsWith('/cloudsql/')) {
+    throw new Error('Schoolwide staging requires DATABASE_SOCKET_PATH through the Cloud SQL Unix socket mount.');
+  }
   return {
     nodeEnv: parsed.NODE_ENV,
     host: parsed.HOST,
     port: parsed.PORT,
     logLevel: parsed.LOG_LEVEL,
     databaseUrl: parsed.DATABASE_URL,
+    databaseSocketPath: parsed.DATABASE_SOCKET_PATH,
     dbPoolMax: parsed.DB_POOL_MAX,
     instanceId: parsed.SCHOOLWIDE_INSTANCE_ID,
     deploymentTier: parsed.DEPLOYMENT_TIER,
