@@ -1,6 +1,6 @@
 # SW-170 — Staging & Release Readiness
 
-Status: IN PROGRESS
+Status: IN PROGRESS — repository package built; external staging deployment pending
 
 ## Purpose
 
@@ -20,15 +20,16 @@ The staging environment must be safe to leave running without changing the curre
 
 ## Chosen staging architecture
 
-The first serious staging target is Google Cloud:
+The first serious staging target is the approved Google Cloud project `grantdesk-deployment` in `us-central1`:
 
 - Cloud Run for the containerized Schoolwide service;
 - Cloud SQL for PostgreSQL;
-- Secret Manager for database and future provider secrets;
+- the Cloud Run/Cloud SQL Unix-socket integration for the application database connection;
+- Secret Manager for the database URL and future provider secrets;
 - Artifact Registry for immutable container images;
 - Cloud Logging / Cloud Monitoring for service health and failure evidence;
 - GitHub Actions with Workload Identity Federation for short-lived deployment authentication;
-- a GitHub Environment named `schoolwide-staging` as the release boundary.
+- a GitHub Environment named `schoolwide-staging` as an additional release boundary.
 
 This follows ADR-0001's portable runtime decision. Google Cloud is an operational deployment choice, not a domain dependency.
 
@@ -44,85 +45,100 @@ SW-170 MUST NOT:
 - migrate or reveal real PINs, PIN hashes, salts, peppers, OAuth tokens, or other credentials;
 - create a production Schoolwide environment;
 - make Schoolwide authoritative;
-- deploy automatically from a push or merge.
+- deploy from an ordinary push, merge, or generic click-to-deploy action.
 
-Repository staging qualification may run automatically on pull requests because it only verifies code, migrations, tests, and the deployable container image. Any future action that actually changes Google Cloud staging must remain a separate manual release step and fail closed if required environment configuration is missing.
+Repository staging qualification may run automatically on pull requests because it only verifies code, migrations, tests, and the deployable container image.
+
+The actual staging deployment has a separate guarded trigger: a release-request commit that changes exactly one file. That request can deploy only the already-qualified parent commit, must explicitly say `STAGING_ONLY`, and must explicitly prohibit real data.
 
 ## Staging release gates
 
 A staged release is acceptable only when all of these pass on the exact commit being deployed:
 
 1. Schoolwide production firewall.
-2. TypeScript check.
-3. Complete Schoolwide automated test suite.
-4. Production build.
-5. Clean PostgreSQL migration run.
-6. Immediate second migration run with no failure.
-7. Deployable container image build.
-8. Immutable staged image tagged with the exact Git commit SHA.
-9. Cloud migration job completes successfully before the service is updated.
-10. `/health/live` returns healthy.
-11. `/health/ready` proves database readiness.
-12. Root service fingerprint reports the expected Schoolwide release.
-13. Protected/private routes continue to fail closed while real identity providers are intentionally disabled.
+2. Staging-release machinery guard.
+3. TypeScript check.
+4. Complete Schoolwide automated test suite.
+5. Production build.
+6. Clean PostgreSQL migration run.
+7. Immediate second migration run with no failure.
+8. Deployable container image build.
+9. Cloud SQL automated-backup, point-in-time-recovery and deletion-protection checks.
+10. Immutable staged image tagged with the exact qualified Git commit SHA.
+11. Cloud migration job completes successfully before the service is updated.
+12. `/health/live` returns healthy.
+13. `/health/ready` proves database readiness.
+14. Root service fingerprint reports the expected Schoolwide release SHA.
+15. Protected/private routes continue to fail closed while real identity providers are intentionally disabled.
 
-## GitHub environment configuration
+## No-code cloud handoff
 
-A future manual cloud deployment consumes configuration from the GitHub Environment `schoolwide-staging`. No long-lived Google service-account JSON key is permitted.
+The one-time Google Cloud setup is scripted in `scripts/bootstrap-staging-gcp.sh`.
 
-Required repository/environment variables:
+Grant's intended interaction is deliberately small:
 
-- `GCP_PROJECT_ID`
-- `GCP_REGION`
-- `GCP_WORKLOAD_IDENTITY_PROVIDER`
-- `GCP_DEPLOY_SERVICE_ACCOUNT`
-- `GCP_ARTIFACT_REPOSITORY`
-- `GCP_CLOUD_RUN_SERVICE`
-- `GCP_CLOUD_RUN_MIGRATION_JOB`
-- `GCP_CLOUD_SQL_CONNECTION`
-- `GCP_RUNTIME_SERVICE_ACCOUNT`
-- `GCP_DATABASE_URL_SECRET`
+1. Open Google Cloud Shell while `GrantDesk Deployment` is the selected project.
+2. Run the approved bootstrap command.
+3. Read the staging-only warning and type `CREATE-STAGING` to authorize creation of the isolated staging resources.
+4. Copy the final `SW170_CLOUD_READY` block back to the release agent.
 
-These are identifiers, not application secrets. `GCP_DATABASE_URL_SECRET` names a Secret Manager secret; the database URL value itself must never be stored in GitHub source.
+The bootstrap generates the database password itself and stores it directly in Secret Manager. It does not print that password in the completion block.
+
+The returned completion block contains only non-secret resource identifiers. The release agent records those identifiers in `schoolwide/release/staging-cloud.json`; no database password, OAuth secret, service-account key, or student credential belongs in GitHub.
+
+## Passwordless GitHub → Google trust
+
+The bootstrap creates a Workload Identity Federation provider instead of a downloadable Google service-account JSON key.
+
+The trust condition is restricted to:
+
+- repository: `Grantauch/the-desk`;
+- Git ref: `refs/heads/schoolwide/sw-170-staging-release-readiness`.
+
+The Schoolwide verification gate tests that this branch restriction, keyless-auth design and release ordering remain present.
 
 ## Cloud SQL minimum operating policy
 
 Before a staging deployment is considered complete, the Cloud SQL PostgreSQL instance must have:
 
 - automated backups enabled;
-- point-in-time recovery enabled where the selected Cloud SQL tier supports it;
+- point-in-time recovery enabled;
 - deletion protection enabled;
-- no public database password committed to the repository;
-- a documented restore rehearsal plan;
-- a bounded database user dedicated to Schoolwide.
+- a bounded Schoolwide database/user;
+- application access through the Cloud Run-mounted `/cloudsql/...` socket;
+- no database credential committed to the repository;
+- zero real student/staff/PIN/OAuth/Classroom data during SW-170.
 
 ## Human release model
 
-Grant does not need to know Docker, PostgreSQL, Cloud Run, or `gcloud` commands to operate Schoolwide.
+Grant does not need to know Docker, PostgreSQL, Cloud Run, IAM, or `gcloud` commands to operate Schoolwide.
 
-Normal release behavior should be:
+Normal release behavior is:
 
-- GitHub automatically proves whether the Schoolwide code/migrations/container qualify for staging;
-- an authorized person or connected release agent manually starts the actual cloud staging release;
-- the release path migrates, deploys, and smoke-tests the exact certified commit;
-- the release record captures the staging URL and release SHA;
-- failures stop the release rather than partially declaring success.
+- GitHub automatically proves whether the Schoolwide code, migrations, release guards and container qualify for staging;
+- the one-time Google Cloud bootstrap creates the isolated resources and passwordless trust boundary;
+- the safe resource identifiers are recorded in the Schoolwide branch;
+- that exact resource-config commit must pass the full qualification gates;
+- the release agent creates one staging request file naming the already-qualified parent commit;
+- the deployment workflow builds that exact commit, migrates first, deploys second, and smoke-tests the result;
+- the workflow records the staging URL and exact release SHA;
+- any failed gate stops certification.
 
 ## Certification target
 
 SW-170 is complete only when:
 
-- this branch passes Schoolwide CI;
+- the final pre-release parent commit passes Schoolwide CI;
 - automatic staging qualification passes, including the deployable container build;
-- a real `schoolwide-staging` environment has been configured with short-lived Google authentication;
-- an exact SW-170 commit has been deployed to staging through a manual release action;
-- migration + service smoke checks pass against that deployed staging environment;
-- Cloud SQL backup settings are recorded;
+- `grantdesk-deployment` contains the isolated staging resources with branch-restricted Workload Identity Federation;
+- an exact qualified SW-170 commit has been deployed to Cloud Run staging;
+- migration + live + ready + exact-release + private-route smoke checks all pass;
+- Cloud SQL backup/PITR/deletion protection are verified;
 - no real student/staff data has been introduced;
-- production remains unchanged.
+- the existing Apps Script Hall Pass remains unchanged and authoritative.
 
-Until those conditions are met, label evidence `STAGING_SETUP_PENDING`, not production-ready.
+Until those conditions are met, evidence must say `STAGING_SETUP_PENDING`, not production-ready.
 
 ## What comes next
 
-After SW-170 is certified, SW-180 should wire real staff/student identity and finish ordinary-user UX against staging. Real data migration and classroom pilots remain later stages.
+After SW-170 is certified and frozen, SW-180 should wire real staff/student identity and finish ordinary-user UX against staging. Real data migration and classroom pilots remain later stages.
