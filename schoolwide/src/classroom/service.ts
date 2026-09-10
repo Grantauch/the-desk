@@ -467,9 +467,9 @@ export class ClassroomIntegrationService {
     return this.#database.transaction(async (tx) => {
       await tx.query(
         `INSERT INTO idempotency_keys
-           (organization_id,school_id,key,operation,request_fingerprint,expires_at,correlation_id)
-         VALUES ($1,$2,$3,'CLASSROOM_IMPORT_COMMIT',$4,$5::timestamptz,$6)`,
-        [input.principal.organizationId, input.schoolId, input.idempotencyKey, requestFingerprint, new Date(now.getTime() + 24 * 60 * 60_000).toISOString(), input.correlationId],
+           (organization_id,school_id,key,operation,request_fingerprint,created_at,expires_at,correlation_id)
+         VALUES ($1,$2,$3,'CLASSROOM_IMPORT_COMMIT',$4,$5::timestamptz,$6::timestamptz,$7)`,
+        [input.principal.organizationId, input.schoolId, input.idempotencyKey, requestFingerprint, now.toISOString(), new Date(now.getTime() + 24 * 60 * 60_000).toISOString(), input.correlationId],
       );
       const links: Array<{ linkId: string; sectionId: string; courseId: string; syncRun: SyncRunSummary }> = [];
       for (let index = 0; index < snapshots.length; index++) {
@@ -892,9 +892,9 @@ export class ClassroomIntegrationService {
     const now = this.#now();
     await this.#database.query(
       `INSERT INTO idempotency_keys
-         (organization_id,school_id,key,operation,request_fingerprint,expires_at,correlation_id)
-       VALUES ($1,$2,$3,'CLASSROOM_LINK_SYNC',$4,$5::timestamptz,$6)`,
-      [link.organization_id, link.school_id, input.idempotencyKey, requestFingerprint, new Date(now.getTime() + 24 * 60 * 60_000).toISOString(), input.correlationId],
+         (organization_id,school_id,key,operation,request_fingerprint,created_at,expires_at,correlation_id)
+       VALUES ($1,$2,$3,'CLASSROOM_LINK_SYNC',$4,$5::timestamptz,$6::timestamptz,$7)`,
+      [link.organization_id, link.school_id, input.idempotencyKey, requestFingerprint, now.toISOString(), new Date(now.getTime() + 24 * 60 * 60_000).toISOString(), input.correlationId],
     );
 
     try {

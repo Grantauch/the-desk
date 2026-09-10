@@ -71,7 +71,7 @@ export function buildApp({config,database,identityProvider=new DisabledStaffIden
   const adminConsole=new AdminConsoleService(database,adminConsoleOptions??{});
   const adminNow=adminConsoleOptions?.now??(()=>new Date());
   const adminStructure=new AdminStructureService(database,adminNow);
-  const legacyImporter=new LegacyReadOnlyImporterService();
+  const legacyImporter=new LegacyReadOnlyImporterService(database);
   const operationsHealth=new OperationsHealthService(database);
   const outboxWorker=new OutboxDeliveryWorker(database,realtimeBroker,{instanceId:config.instanceId,batchSize:config.outboxWorkerBatchSize??50});
   const classroomWorker=new ClassroomScheduledSyncWorker(database,classroom,{instanceId:config.instanceId,batchSize:config.classroomSyncBatchSize??20});
@@ -92,7 +92,7 @@ export function buildApp({config,database,identityProvider=new DisabledStaffIden
   registerRealtimeRoutes(app,{authentication,authorization,studentIdentityProvider,database,broker:realtimeBroker,health:operationsHealth});
   registerLegacyImportRoutes(app,{authentication,authorization,importer:legacyImporter});
 
-  app.get('/',async()=>({service:'grantdesk-schoolwide',version:'sw-140',status:'legacy-readonly-importer'}));
+  app.get('/',async()=>({service:'grantdesk-schoolwide',version:'sw-150',status:'shadow-migration-parity'}));
   app.get('/health/live',async()=>({status:'ok',service:'grantdesk-schoolwide',instanceId:config.instanceId}));
   app.get('/health/ready',async(_request,reply)=>{try{await database.query('SELECT 1 AS ready');return{status:'ready',service:'grantdesk-schoolwide'};}catch{reply.code(503);return{status:'not-ready',service:'grantdesk-schoolwide'};}});
   if(config.operationsWorkersEnabled===true)operationsRuntime.start();

@@ -10,7 +10,7 @@ import { LegacyImportError } from './types.js';
 const uuidSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 const fingerprintSchema = z.string().regex(/^[0-9a-f]{64}$/);
 const validateBody = z.object({ snapshot: z.unknown() }).strict();
-const dryRunBody = z.object({ snapshot: z.unknown(), sourceFingerprint: fingerprintSchema }).strict();
+const fingerprintBody = z.object({ snapshot: z.unknown(), sourceFingerprint: fingerprintSchema }).strict();
 
 function bearerToken(request: FastifyRequest): string {
   const header = request.headers.authorization;
@@ -63,16 +63,30 @@ export function registerLegacyImportRoutes(app: FastifyInstance, { authenticatio
 
   app.post('/api/v1/internal/migration/legacy/dry-run', async (request, reply) => {
     const requestId = requestIdFor(request, reply);
-    const parsed = dryRunBody.safeParse(request.body);
+    const parsed = fingerprintBody.safeParse(request.body);
     if (!parsed.success) return reply.code(400).send({ code: 'LEGACY_DRY_RUN_INVALID', message: 'A structured snapshot and validated source fingerprint are required.', requestId, retryable: false });
     try {
       const principal = await authentication.authenticate(bearerToken(request));
       const schoolId = importer.resolveSchoolId(principal, 'admin.migration.dry_run');
       authorization.requireSchoolCapability(principal, schoolId, 'admin.migration.dry_run');
       const result = importer.dryRun(parsed.data.snapshot);
-      if (result.fingerprint.value !== parsed.data.sourceFingerprint) {
-        throw new LegacyImportError('LEGACY_FINGERPRINT_MISMATCH', 'The supplied source fingerprint does not match this snapshot. Validate the exact snapshot again before dry-run.', 409);
-      }
+      if (result.fingerprint.value !== parsed.data.sourceFingerprint) throw new LegacyImportError('LEGACY_FINGERPRINT_MISMATCH', 'The supplied source fingerprint does not match this snapshot. Validate the exact snapshot again before dry-run.', 409);
+      return { ...result, schoolId, requestId };
+    } catch (error) {
+      if (sendError(reply, error, requestId)) return;
+      throw error;
+    }
+  });
+
+  app.post('/api/v1/internal/migration/legacy/import-shadow', async (request, reply) => {
+    const requestId = requestIdFor(request, reply);
+    const parsed = fingerprintBody.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ code: 'LEGACY_SHADOW_IMPORT_INVALID', message: 'A structured snapshot and validated source fingerprint are required.', requestId, retryable: false });
+    try {
+      const principal = await authentication.authenticate(bearerToken(request));
+      const schoolId = importer.resolveSchoolId(principal, 'admin.migration.import_shadow');
+      authorization.requireSchoolCapability(principal, schoolId, 'admin.migration.import_shadow');
+      const result = await importer.importShadow(principal, schoolId, parsed.data.snapshot, parsed.data.sourceFingerprint);
       return { ...result, schoolId, requestId };
     } catch (error) {
       if (sendError(reply, error, requestId)) return;

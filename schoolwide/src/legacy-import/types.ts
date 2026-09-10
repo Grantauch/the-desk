@@ -91,6 +91,17 @@ export type LegacyValidateResult = {
   report: LegacyReconciliationReport;
 };
 
+export type LegacyShadowImportResult = {
+  mode: 'IMPORT_SHADOW';
+  importRunId: string;
+  replayed: boolean;
+  fingerprint: LegacySnapshotFingerprint;
+  shadowRecordCount: number;
+  legacyWrites: 0;
+  schoolwideOperationalWrites: 0;
+  report: LegacyReconciliationReport;
+};
+
 export type LegacyMigrationPrincipal = StaffPrincipal;
 
 export class LegacyImportError extends Error {
