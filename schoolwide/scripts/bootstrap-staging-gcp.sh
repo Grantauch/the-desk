@@ -78,13 +78,14 @@ if ! exists gcloud sql instances describe "$SQL_INSTANCE" --project "$PROJECT_ID
   gcloud sql instances create "$SQL_INSTANCE" \
     --project "$PROJECT_ID" \
     --database-version=POSTGRES_18 \
-    --edition=enterprise \
+    --edition=ENTERPRISE \
     --tier=db-f1-micro \
     --region="$REGION" \
     --availability-type=ZONAL \
     --storage-type=SSD \
     --storage-size=10 \
     --storage-auto-increase \
+    --storage-auto-increase-limit=20 \
     --backup-start-time=07:00 \
     --retained-backups-count=7 \
     --enable-point-in-time-recovery \
