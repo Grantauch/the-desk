@@ -48,12 +48,21 @@ requireText(workflow, "google-github-actions/auth@v3", 'short-lived Google authe
 forbidText(workflow, 'credentials_json:', 'long-lived Google service-account JSON authentication');
 forbidText(workflow, 'workflow_dispatch:', 'unguarded click-to-deploy trigger');
 
+const qualifiedCheckoutIndex = workflow.indexOf('Checkout the already-qualified release commit');
+const authIndex = workflow.indexOf('Authenticate to Google Cloud with short-lived GitHub identity');
+if (qualifiedCheckoutIndex < 0 || authIndex < 0 || qualifiedCheckoutIndex > authIndex) {
+  throw new Error('SW-170 staging release guard: qualified release checkout must happen before Google authentication.');
+}
+
 requireText(bootstrap, 'PROJECT_ID="${PROJECT_ID:-grantdesk-deployment}"', 'bootstrap project default');
+requireText(bootstrap, 'GITHUB_RELEASE_REF="${GITHUB_RELEASE_REF:-refs/heads/schoolwide/sw-170-staging-release-readiness}"', 'exact SW-170 release-ref default');
 requireText(bootstrap, '--enable-point-in-time-recovery', 'Cloud SQL point-in-time recovery');
 requireText(bootstrap, '--deletion-protection', 'Cloud SQL deletion protection');
 requireText(bootstrap, "roles/cloudsql.client", 'runtime Cloud SQL permission');
 requireText(bootstrap, "roles/iam.workloadIdentityUser", 'GitHub Workload Identity Federation binding');
-requireText(bootstrap, "assertion.repository == '${GITHUB_REPO}'", 'GitHub repository trust restriction');
+requireText(bootstrap, 'attribute.ref=assertion.ref', 'GitHub ref attribute mapping');
+requireText(bootstrap, "assertion.repository == '${GITHUB_REPO}' && assertion.ref == '${GITHUB_RELEASE_REF}'", 'repository + branch WIF trust restriction');
+requireText(bootstrap, "--issuer-uri='https://token.actions.githubusercontent.com'", 'official GitHub OIDC issuer');
 forbidText(bootstrap, 'service-account-key', 'service-account key creation');
 forbidText(bootstrap, 'keys create', 'service-account key creation');
 
@@ -74,4 +83,4 @@ if (await exists(releaseRequestPath)) {
   if (request.real_data_allowed !== false) throw new Error('SW-170 release request must prohibit real data.');
 }
 
-console.log('SW-170 staging release machinery PASS · bootstrap syntax, keyless auth, private DB path, staging-only trigger, and real-data prohibition verified.');
+console.log('SW-170 staging release machinery PASS · bootstrap syntax, branch-restricted keyless auth, private DB path, staged parent release, and real-data prohibition verified.');
