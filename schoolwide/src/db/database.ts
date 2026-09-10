@@ -39,6 +39,7 @@ export class PostgresDatabase implements TransactionalDatabase {
   constructor(config: AppConfig) {
     this.#pool = new Pool({
       connectionString: config.databaseUrl,
+      ...(config.databaseSocketPath ? { host: config.databaseSocketPath } : {}),
       max: config.dbPoolMax,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,
