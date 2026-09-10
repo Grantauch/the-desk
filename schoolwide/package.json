@@ -11,8 +11,10 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "node scripts/run-tests.mjs",
     "firewall": "node scripts/verify-production-firewall.mjs",
-    "verify": "npm run firewall && npm run check && npm test && npm run build",
+    "staging:guard": "node scripts/verify-staging-release.mjs",
+    "verify": "npm run firewall && npm run staging:guard && npm run check && npm test && npm run build",
     "db:migrate": "tsx src/db/migrate.ts",
+    "staging:smoke": "node scripts/staging-smoke.mjs",
     "start": "node dist/server.js"
   },
   "dependencies": { "fastify": "^5.12.3", "pg": "^8.23.0", "zod": "^4.5.4" },

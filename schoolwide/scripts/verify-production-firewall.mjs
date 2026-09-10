@@ -2,7 +2,13 @@ import { execFileSync } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-const allowedChangedPaths = ['schoolwide/', '.github/workflows/schoolwide-ci.yml', 'tsconfig.json'];
+const allowedChangedPaths = [
+  'schoolwide/',
+  '.github/workflows/schoolwide-ci.yml',
+  '.github/workflows/schoolwide-staging.yml',
+  '.github/workflows/schoolwide-staging-deploy.yml',
+  'tsconfig.json',
+];
 const forbiddenSourceReferences = [
   'apps-script/hall-pass',
   'google.script.run',
@@ -41,7 +47,7 @@ async function walk(directory) {
 const changes = changedPaths();
 const outside = changes.filter((path) => !allowedChangedPaths.some((allowed) => path === allowed || path.startsWith(allowed)));
 if (outside.length) {
-  throw new Error(`SW-010 production firewall: changes outside the isolated Schoolwide lane: ${outside.join(', ')}`);
+  throw new Error(`Schoolwide production firewall: changes outside the isolated Schoolwide lane: ${outside.join(', ')}`);
 }
 
 const trackedEnvironmentFile = changes.find((path) => /^schoolwide\/\.env(?:\.|$)/.test(path) && path !== 'schoolwide/.env.example');
@@ -51,7 +57,7 @@ for (const file of await walk(join(process.cwd(), 'src'))) {
   const content = await readFile(file, 'utf8');
   for (const forbidden of forbiddenSourceReferences) {
     if (content.includes(forbidden)) {
-      throw new Error(`SW-010 production firewall: ${relative(process.cwd(), file)} references protected legacy runtime token ${forbidden}.`);
+      throw new Error(`Schoolwide production firewall: ${relative(process.cwd(), file)} references protected legacy runtime token ${forbidden}.`);
     }
   }
 }
