@@ -2,10 +2,15 @@ name: Schoolwide Staging Qualification
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'schoolwide/**'
+      - '.github/workflows/schoolwide-staging.yml'
+      - '.github/workflows/schoolwide-ci.yml'
 
 concurrency:
-  group: schoolwide-staging-qualification
-  cancel-in-progress: false
+  group: schoolwide-staging-qualification-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
