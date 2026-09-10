@@ -56,6 +56,11 @@ if (qualifiedCheckoutIndex < 0 || authIndex < 0 || qualifiedCheckoutIndex > auth
 
 requireText(bootstrap, 'PROJECT_ID="${PROJECT_ID:-grantdesk-deployment}"', 'bootstrap project default');
 requireText(bootstrap, 'GITHUB_RELEASE_REF="${GITHUB_RELEASE_REF:-refs/heads/schoolwide/sw-170-staging-release-readiness}"', 'exact SW-170 release-ref default');
+requireText(bootstrap, '--database-version=POSTGRES_18', 'PostgreSQL 18 staging database');
+requireText(bootstrap, '--edition=ENTERPRISE', 'low-cost Cloud SQL Enterprise edition');
+requireText(bootstrap, '--tier=db-f1-micro', 'shared-core staging database tier');
+requireText(bootstrap, '--storage-size=10', '10 GB initial staging storage');
+requireText(bootstrap, '--storage-auto-increase-limit=20', '20 GB staging storage-growth ceiling');
 requireText(bootstrap, '--enable-point-in-time-recovery', 'Cloud SQL point-in-time recovery');
 requireText(bootstrap, '--deletion-protection', 'Cloud SQL deletion protection');
 requireText(bootstrap, "roles/cloudsql.client", 'runtime Cloud SQL permission');
@@ -83,4 +88,4 @@ if (await exists(releaseRequestPath)) {
   if (request.real_data_allowed !== false) throw new Error('SW-170 release request must prohibit real data.');
 }
 
-console.log('SW-170 staging release machinery PASS · bootstrap syntax, branch-restricted keyless auth, private DB path, staged parent release, and real-data prohibition verified.');
+console.log('SW-170 staging release machinery PASS · bootstrap syntax, bounded database cost, branch-restricted keyless auth, private DB path, staged parent release, and real-data prohibition verified.');
