@@ -9,7 +9,7 @@ const securityCapabilities: readonly Capability[] = [
 ];
 
 const adminCapabilities: readonly Capability[] = [
-  'admin.school.read_all_operational','admin.staff.roles.manage','admin.sections.manage','admin.roster.review_manage','admin.policies.manage','admin.destinations.manage','admin.calendar.manage','admin.student_access.manage','admin.pass.correct','admin.audit.read_bounded','admin.reports.read_export','admin.integrations.review','admin.classroom.domain_config','admin.credentials.rotate_deliver','admin.migration.validate','admin.migration.dry_run','admin.migration.import_shadow'
+  'admin.school.read_all_operational','admin.staff.roles.manage','admin.sections.manage','admin.roster.review_manage','admin.policies.manage','admin.destinations.manage','admin.calendar.manage','admin.student_access.manage','admin.pass.correct','admin.audit.read_bounded','admin.reports.read_export','admin.integrations.review','admin.classroom.domain_config','admin.credentials.rotate_deliver','admin.migration.validate','admin.migration.dry_run','admin.migration.import_shadow','admin.migration.credential_continuity'
 ];
 
 const roleCapabilities: Readonly<Record<StaffRole, readonly Capability[]>> = { TEACHER: teacherCapabilities, SECURITY: securityCapabilities, ADMIN: adminCapabilities, SYSTEM: [] };
