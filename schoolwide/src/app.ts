@@ -79,6 +79,8 @@ export function buildApp({config,database,identityProvider=new DisabledStaffIden
   const outboxWorker=new OutboxDeliveryWorker(database,realtimeBroker,{instanceId:config.instanceId,batchSize:config.outboxWorkerBatchSize??50});
   const classroomWorker=new ClassroomScheduledSyncWorker(database,classroom,{instanceId:config.instanceId,batchSize:config.classroomSyncBatchSize??20});
   const operationsRuntime=new OperationsRuntime(outboxWorker,classroomWorker,{outboxIntervalMs:config.outboxWorkerIntervalMs??1_000,classroomIntervalMs:config.classroomSyncIntervalMs??300_000});
+  const deploymentTier=config.deploymentTier??'local';
+  const releaseSha=config.releaseSha??'local';
 
   registerRealtimeBrowserAcceleration(app);
   registerStaffAuthRoutes(app,{authentication,authorization});
@@ -96,9 +98,9 @@ export function buildApp({config,database,identityProvider=new DisabledStaffIden
   registerLegacyImportRoutes(app,{authentication,authorization,importer:legacyImporter});
   registerCredentialContinuityRoutes(app,{authentication,authorization,continuity:credentialContinuity});
 
-  app.get('/',async()=>({service:'grantdesk-schoolwide',version:'sw-160',status:'credential-continuity-recovery'}));
-  app.get('/health/live',async()=>({status:'ok',service:'grantdesk-schoolwide',instanceId:config.instanceId}));
-  app.get('/health/ready',async(_request,reply)=>{try{await database.query('SELECT 1 AS ready');return{status:'ready',service:'grantdesk-schoolwide'};}catch{reply.code(503);return{status:'not-ready',service:'grantdesk-schoolwide'};}});
+  app.get('/',async()=>({service:'grantdesk-schoolwide',version:'sw-170',status:'staging-release-readiness',deploymentTier,releaseSha}));
+  app.get('/health/live',async()=>({status:'ok',service:'grantdesk-schoolwide',instanceId:config.instanceId,deploymentTier,releaseSha}));
+  app.get('/health/ready',async(_request,reply)=>{try{await database.query('SELECT 1 AS ready');return{status:'ready',service:'grantdesk-schoolwide',deploymentTier,releaseSha};}catch{reply.code(503);return{status:'not-ready',service:'grantdesk-schoolwide',deploymentTier,releaseSha};}});
   if(config.operationsWorkersEnabled===true)operationsRuntime.start();
   app.addHook('onClose',async()=>{operationsRuntime.stop();await database.close();});
   return app;
