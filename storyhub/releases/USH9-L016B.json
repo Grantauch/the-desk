@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016B",
+  "title": "They Said No",
+  "route": "/hubs/ush9-l016b-they-said-no.html",
+  "files": [
+    {
+      "path": "/hubs/ush9-l016b-they-said-no.html",
+      "bytes": 76318,
+      "sha256": "aaae88cad8a1e75ac97cc94227b8596b6967c6d6d717b116232f9e4c6343d7f2"
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/sea.webp",
+      "assetId": "sea",
+      "bytes": 143532,
+      "sha256": "6e103b7d83073b371dadd78dee4cadd63d5676b8cbc3e78dfb767f64a344df93",
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "path": "/storyhub/ush9/l016/assets/wong.webp",
+      "assetId": "wong",
+      "bytes": 46212,
+      "sha256": "a54f89b523c9e37e33dc35a470bb03e795ce8e614b38d5943af0d57f12ba5c57",
+      "width": 497,
+      "height": 782
+    }
+  ],
+  "totalBytes": 266062,
+  "sealedAt": "2026-09-09"
+}

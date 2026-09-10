@@ -7,6 +7,16 @@ const errors = [];
 const warnings = [];
 let storyCount = 0;
 
+const studentVoiceLeaks = [
+  [/\bstudents should\b/i, 'talks about students instead of to them'],
+  [/\bstudents already\b/i, 'assumes prior student behavior in teacher voice'],
+  [/\bstudents have spent\b/i, 'describes the lesson sequence in teacher voice'],
+  [/\bstudents usually\b/i, 'describes the audience in teacher voice'],
+  [/\bstudents know today\b/i, 'describes the audience in teacher voice'],
+  [/\b(?:lesson|curriculum) source master\b/i, 'exposes a production source'],
+  [/\bthe argument of the entire hour\b/i, 'exposes teacher-facing lesson architecture'],
+];
+
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const array = (value) => Array.isArray(value);
 const readJson = (file) => {
@@ -111,6 +121,25 @@ for (const dir of storyDirs) {
   const combined = requiredFiles.map((file) => fs.readFileSync(path.join(dir, file), 'utf8')).join('\n');
   if (/[A-Za-z]:\\Users\\/i.test(combined)) errors.push(`${rel}: local user filesystem path detected`);
   if (/resources\.private\.json|unit-materials\.private\.json/i.test(combined)) errors.push(`${rel}: private curriculum inventory reference detected`);
+  for (const [pattern, reason] of studentVoiceLeaks) {
+    if (pattern.test(combined)) errors.push(`${rel}: ${reason} (${pattern.source})`);
+  }
+}
+
+const catalogPath = path.join(process.cwd(), 'src', 'data', 'storyhubs.ts');
+if (fs.existsSync(catalogPath)) {
+  const catalog = fs.readFileSync(catalogPath, 'utf8');
+  const routes = [...catalog.matchAll(/href:\s*['"](\/hubs\/[^'"]+\.html)['"]/g)].map((match) => match[1]);
+  for (const route of routes) {
+    const pagePath = path.join(process.cwd(), 'public', route);
+    if (!fs.existsSync(pagePath)) continue;
+    const studentText = fs.readFileSync(pagePath, 'utf8')
+      .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<script\b[\s\S]*?<\/script>/gi, ' ');
+    for (const [pattern, reason] of studentVoiceLeaks) {
+      if (pattern.test(studentText)) errors.push(`${path.relative(process.cwd(), pagePath)}: ${reason} (${pattern.source})`);
+    }
+  }
 }
 
 if (storyCount === 0) warnings.push('No StoryHub stories found');

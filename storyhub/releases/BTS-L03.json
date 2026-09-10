@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/bts-l03-not-in-the-room.html",
-      "bytes": 41057,
-      "sha256": "5ffda471c4af52a65a3f8c1b71115bfd1bf8efed0bdd45e21313f5a4a8fce64b"
+      "bytes": 41055,
+      "sha256": "f5b6147f1df96e4ead20ff64679409c0e69f17c2d7bfa2010b1a360735f17f31"
     },
     {
       "assetId": "A00",
@@ -21,6 +21,6 @@
       "sha256": "44f46a8a23ae71cb6bd5d9c40d9b70f82149feacc2e7bdd29914385723147885"
     }
   ],
-  "totalBytes": 42198,
-  "sealedAt": "2026-09-08"
+  "totalBytes": 42196,
+  "sealedAt": "2026-09-09"
 }

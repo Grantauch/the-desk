@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016B",
+  "title": "They Said No",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "documentary",
+      "defiant",
+      "answer-led"
+    ],
+    "paletteIntent": "Oxidized pine and charcoal continue the connected two-part story; pale document surfaces carry laws and court records, while vermilion marks cancellation and refusal.",
+    "typographyIntent": "Photographic-era gothic for clear answer headings, clerk serif narration, and monospace evidence labels.",
+    "textureLanguage": [
+      "steamship paper",
+      "residence files",
+      "court records",
+      "annual ledger"
+    ],
+    "shapeLanguage": "Hard documentary rectangles interrupted by struck certificates and open court records.",
+    "motionGrammar": [
+      "crossing interrupted by law",
+      "proof assembled under constraint",
+      "years accumulating until repeal"
+    ],
+    "interactionSignature": [
+      "follow a procedure",
+      "discover an unequal condition",
+      "watch resistance change the legal record"
+    ],
+    "densityRhythm": "Cold open, three mechanisms of exclusion, a host turn, three acts of resistance, then a compact answer recap.",
+    "archivalBehavior": "Real records remain unaltered and credited; authored scenes are identified as illustrations rather than evidence.",
+    "endingLanguage": "They organized. They refused. They sued. The record changed."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The steamship scene, Wong Kim Ark departure statement, and federal record surfaces shared with Episode One.",
+    "edgeTreatment": "Squared paper edges, thin ledger rules, and cancellation marks.",
+    "controlLanguage": "Filters, a constrained crossing, file attachments, and an annual ledger.",
+    "spacingLanguage": "Large answer scenes alternate with concentrated documentary instruments and one direct host interruption.",
+    "transitionLanguage": "Natural scrolling carries the sequence from exclusion machinery to organized resistance; no scroll-jacking or scoring."
+  }
+}

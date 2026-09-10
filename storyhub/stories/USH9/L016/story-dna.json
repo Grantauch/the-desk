@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "storyId": "USH9-L016",
-  "title": "The One That Passed",
+  "title": "The One That Passed — Episode One",
   "referenceImplementation": false,
   "identity": {
     "tone": [
       "documentary",
-      "restrained",
-      "record-led"
+      "direct",
+      "answer-led"
     ],
     "paletteIntent": "Oxidized pine and charcoal grounds, pale sepia inset documents; vermilion reserved for stamp impressions and a struck name.",
     "typographyIntent": "Heavy photographic-era gothic, clerk serif narration, monospace evidence.",
@@ -27,15 +27,15 @@
       "apply fixed historical outcomes",
       "discover a condition the reader cannot control"
     ],
-    "densityRhythm": "Quiet narrative, concentrated document instruments, then quiet again.",
+    "densityRhythm": "Cold open with the answer, three labor scenes, one direct host turn, four scenes showing the federal system, then a compact answer recap.",
     "archivalBehavior": "Real records retained without compositional alteration and credited; authored scenes identified explicitly.",
-    "endingLanguage": "December 17, 1943. Annual quota: 105."
+    "endingLanguage": "The law did not fix low wages. It excluded workers."
   },
   "assetToInterfaceTranslation": {
     "paletteSource": "Sierra, steamship, and mining-camp authored scenes; original federal documents.",
     "edgeTreatment": "Squared paper edges and thin ledger rules.",
     "controlLanguage": "Stamps, register columns, file attachments, census controls.",
     "spacingLanguage": "Large shadowed copy zones alternate with inset documentary surfaces.",
-    "transitionLanguage": "Natural page scrolling; no fades, floating elements, scroll-jacking, scoring, or progress bar."
+    "transitionLanguage": "Natural page scrolling with one explicit host interruption; no fades, floating elements, scroll-jacking, scoring, or hidden-answer pacing."
   }
 }

@@ -16,19 +16,6 @@
       "deployPath": "/storyhub/ush9/l016/assets/sierra.webp"
     },
     {
-      "id": "sea",
-      "status": "approved",
-      "type": "authored-scene",
-      "role": "historical visual anchor",
-      "sourceMode": "interpretive reconstruction",
-      "subject": "Steamship arrival",
-      "rightsStatus": "AI-authored original illustration",
-      "provenance": "AI-authored illustration of an 1880s steamship deck and coastline, not a specific surviving photograph.",
-      "htmlSafeZone": "Dark left-hand zone for live HTML copy",
-      "responsiveCrop": "Cover crop with subject retained on right",
-      "deployPath": "/storyhub/ush9/l016/assets/sea.webp"
-    },
-    {
       "id": "camp",
       "status": "approved",
       "type": "authored-scene",
@@ -53,19 +40,6 @@
       "htmlSafeZone": "Document captions beside the entire uncropped scan",
       "responsiveCrop": "Full document preserved",
       "deployPath": "/storyhub/ush9/l016/assets/act.webp"
-    },
-    {
-      "id": "wong",
-      "status": "approved",
-      "type": "archival-document",
-      "role": "historical visual anchor",
-      "sourceMode": "source-first",
-      "subject": "Wong Kim Ark departure statement",
-      "rightsStatus": "U.S. government public archival record",
-      "provenance": "National Archives, San Francisco, RG 85, identifier 2641490. https://www.archives.gov/exhibits/documented-rights/exhibit/section2/detail/departure-statement.html",
-      "htmlSafeZone": "Document captions beside the entire uncropped scan",
-      "responsiveCrop": "Full document preserved",
-      "deployPath": "/storyhub/ush9/l016/assets/wong.webp"
     }
   ]
 }
