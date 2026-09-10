@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { readFile, access } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -28,11 +29,14 @@ async function exists(path) {
   }
 }
 
+execFileSync('bash', ['-n', bootstrapPath], { stdio: 'inherit' });
+
 const workflow = await readFile(deploymentWorkflowPath, 'utf8');
 const bootstrap = await readFile(bootstrapPath, 'utf8');
 
 requireText(workflow, "schoolwide/sw-170-staging-release-readiness", 'branch lock');
 requireText(workflow, "schoolwide/release/staging-deploy-request.json", 'explicit release-request trigger');
+requireText(workflow, "git rev-parse HEAD^", 'already-qualified parent release selection');
 requireText(workflow, "grantdesk-deployment", 'staging project lock');
 requireText(workflow, "us-central1", 'staging region lock');
 requireText(workflow, "STAGING_ONLY", 'staging-only authority assertion');
@@ -70,4 +74,4 @@ if (await exists(releaseRequestPath)) {
   if (request.real_data_allowed !== false) throw new Error('SW-170 release request must prohibit real data.');
 }
 
-console.log('SW-170 staging release machinery PASS · keyless auth, private DB path, staging-only trigger, and real-data prohibition verified.');
+console.log('SW-170 staging release machinery PASS · bootstrap syntax, keyless auth, private DB path, staging-only trigger, and real-data prohibition verified.');
