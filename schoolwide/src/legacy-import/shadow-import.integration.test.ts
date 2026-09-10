@@ -37,7 +37,7 @@ function snapshot():Record<string,unknown>{
   surfaces.passQueue.push({requestId:'request-shadow-1',studentKey:'sha256-student-a',sectionKey:'P2',status:'WAITING'});
   surfaces.teacherActions.push({actionId:'action-shadow-1',studentKey:'sha256-student-b',sectionKey:'P1',actionType:'VOID_COUNTABILITY'});
   surfaces.credentialCoverage.push({studentKey:'sha256-student-a',hasCredential:true,algorithm:'LEGACY_GD_SHA256_V1',credentialVersion:1},{studentKey:'sha256-student-b',hasCredential:true,algorithm:'LEGACY_GD_SHA256_V1',credentialVersion:1});
-  return{metadata:{sourceAlias:'approved-shadow-v18',schemaVersion:'2026-09-05-session-a',exportedAt:'2026-09-09T12:00:00.000Z',highWaterMark:'approved-shadow-hwm'},surfaces};
+  return{metadata:{sourceAlias:'approved-shadow-v24',schemaVersion:'2026-09-05-session-a',exportedAt:'2026-09-09T12:00:00.000Z',highWaterMark:'approved-shadow-hwm'},surfaces};
 }
 
 async function signIn(app:ReturnType<typeof buildApp>,assertion:string):Promise<string>{const response=await app.inject({method:'POST',url:'/auth/session',payload:{assertion}});assert.equal(response.statusCode,201,response.body);return response.json<{token:string}>().token;}
