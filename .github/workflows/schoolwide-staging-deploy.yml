@@ -1,0 +1,220 @@
+name: Schoolwide Staging Deploy
+
+on:
+  push:
+    branches:
+      - 'schoolwide/sw-170-staging-release-readiness'
+    paths:
+      - 'schoolwide/release/staging-deploy-request.json'
+
+concurrency:
+  group: schoolwide-staging-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy exact SW-170 commit to isolated staging
+    runs-on: ubuntu-latest
+    environment: schoolwide-staging
+    steps:
+      - name: Checkout exact release request commit
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Read and validate non-secret staging resource configuration
+        id: cloud
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f schoolwide/release/staging-cloud.json
+          test -f schoolwide/release/staging-deploy-request.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          cfg = json.loads(Path('schoolwide/release/staging-cloud.json').read_text())
+          request = json.loads(Path('schoolwide/release/staging-deploy-request.json').read_text())
+          required = [
+              'project_id', 'region', 'workload_identity_provider', 'deploy_service_account',
+              'artifact_repository', 'cloud_run_service', 'migration_job',
+              'cloud_sql_connection', 'runtime_service_account', 'database_url_secret'
+          ]
+          missing = [key for key in required if not cfg.get(key)]
+          if missing:
+              raise SystemExit('Missing staging cloud configuration: ' + ', '.join(missing))
+          if cfg['project_id'] != 'grantdesk-deployment':
+              raise SystemExit('SW-170 deploy is locked to grantdesk-deployment.')
+          if cfg['region'] != 'us-central1':
+              raise SystemExit('SW-170 deploy is locked to us-central1.')
+          if request.get('release_sha') != '${{ github.sha }}':
+              raise SystemExit('Release request SHA does not equal the commit being deployed.')
+          if request.get('authority') != 'STAGING_ONLY':
+              raise SystemExit('Release request must explicitly remain STAGING_ONLY.')
+          if request.get('real_data_allowed') is not False:
+              raise SystemExit('SW-170 does not permit real school data.')
+          for key, value in cfg.items():
+              print(f"{key}={value}")
+          PY
+
+      - name: Authenticate to Google Cloud with short-lived GitHub identity
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ steps.cloud.outputs.project_id }}
+          workload_identity_provider: ${{ steps.cloud.outputs.workload_identity_provider }}
+          service_account: ${{ steps.cloud.outputs.deploy_service_account }}
+
+      - name: Install Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ steps.cloud.outputs.project_id }}
+
+      - name: Verify isolated staging resources and data protection
+        shell: bash
+        env:
+          PROJECT_ID: ${{ steps.cloud.outputs.project_id }}
+          REGION: ${{ steps.cloud.outputs.region }}
+          ARTIFACT_REPO: ${{ steps.cloud.outputs.artifact_repository }}
+          SQL_CONNECTION: ${{ steps.cloud.outputs.cloud_sql_connection }}
+          DB_SECRET: ${{ steps.cloud.outputs.database_url_secret }}
+        run: |
+          set -euo pipefail
+          SQL_INSTANCE="${SQL_CONNECTION##*:}"
+          gcloud artifacts repositories describe "$ARTIFACT_REPO" --location "$REGION" --project "$PROJECT_ID" >/dev/null
+          gcloud secrets describe "$DB_SECRET" --project "$PROJECT_ID" >/dev/null
+          gcloud sql instances describe "$SQL_INSTANCE" --project "$PROJECT_ID" --format=json > "$RUNNER_TEMP/sql.json"
+          python3 - "$RUNNER_TEMP/sql.json" <<'PY'
+          import json, sys
+          with open(sys.argv[1], encoding='utf-8') as handle:
+              instance = json.load(handle)
+          settings = instance.get('settings') or {}
+          backup = settings.get('backupConfiguration') or {}
+          failures = []
+          if backup.get('enabled') is not True:
+              failures.append('automated backups disabled')
+          if backup.get('pointInTimeRecoveryEnabled') is not True:
+              failures.append('point-in-time recovery disabled')
+          if settings.get('deletionProtectionEnabled') is not True:
+              failures.append('deletion protection disabled')
+          if failures:
+              raise SystemExit('Cloud SQL staging protection gate failed: ' + '; '.join(failures))
+          print('Cloud SQL staging protection gate PASS')
+          PY
+
+      - name: Build immutable Schoolwide image
+        id: image
+        shell: bash
+        env:
+          PROJECT_ID: ${{ steps.cloud.outputs.project_id }}
+          REGION: ${{ steps.cloud.outputs.region }}
+          ARTIFACT_REPO: ${{ steps.cloud.outputs.artifact_repository }}
+        run: |
+          set -euo pipefail
+          REGISTRY="${REGION}-docker.pkg.dev"
+          IMAGE="${REGISTRY}/${PROJECT_ID}/${ARTIFACT_REPO}/grantdesk-schoolwide:${GITHUB_SHA}"
+          gcloud auth configure-docker "$REGISTRY" --quiet
+          docker build --pull --file schoolwide/Dockerfile --tag "$IMAGE" schoolwide
+          docker push "$IMAGE"
+          echo "uri=$IMAGE" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy migration job using the exact image
+        shell: bash
+        env:
+          PROJECT_ID: ${{ steps.cloud.outputs.project_id }}
+          REGION: ${{ steps.cloud.outputs.region }}
+          SQL_CONNECTION: ${{ steps.cloud.outputs.cloud_sql_connection }}
+          RUNTIME_SA: ${{ steps.cloud.outputs.runtime_service_account }}
+          DB_SECRET: ${{ steps.cloud.outputs.database_url_secret }}
+          MIGRATION_JOB: ${{ steps.cloud.outputs.migration_job }}
+          IMAGE: ${{ steps.image.outputs.uri }}
+        run: |
+          set -euo pipefail
+          gcloud run jobs deploy "$MIGRATION_JOB" \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$RUNTIME_SA" \
+            --set-cloudsql-instances "$SQL_CONNECTION" \
+            --set-secrets "DATABASE_URL=${DB_SECRET}:latest" \
+            --set-env-vars "DATABASE_SOCKET_PATH=/cloudsql/${SQL_CONNECTION},NODE_ENV=production,DEPLOYMENT_TIER=staging,RELEASE_SHA=${GITHUB_SHA},SCHOOLWIDE_INSTANCE_ID=staging-migration,LEGACY_READ_ADAPTER_MODE=disabled,LEGACY_PRODUCTION_WRITES=forbidden,OPERATIONS_WORKERS_ENABLED=false" \
+            --command node \
+            --args dist/db/migrate.js \
+            --max-retries 0 \
+            --task-timeout 10m \
+            --quiet
+
+      - name: Apply staging migrations before updating the service
+        shell: bash
+        env:
+          PROJECT_ID: ${{ steps.cloud.outputs.project_id }}
+          REGION: ${{ steps.cloud.outputs.region }}
+          MIGRATION_JOB: ${{ steps.cloud.outputs.migration_job }}
+        run: |
+          set -euo pipefail
+          gcloud run jobs execute "$MIGRATION_JOB" --project "$PROJECT_ID" --region "$REGION" --wait
+
+      - name: Deploy Schoolwide staging service
+        id: service
+        shell: bash
+        env:
+          PROJECT_ID: ${{ steps.cloud.outputs.project_id }}
+          REGION: ${{ steps.cloud.outputs.region }}
+          SQL_CONNECTION: ${{ steps.cloud.outputs.cloud_sql_connection }}
+          RUNTIME_SA: ${{ steps.cloud.outputs.runtime_service_account }}
+          DB_SECRET: ${{ steps.cloud.outputs.database_url_secret }}
+          CLOUD_RUN_SERVICE: ${{ steps.cloud.outputs.cloud_run_service }}
+          IMAGE: ${{ steps.image.outputs.uri }}
+        run: |
+          set -euo pipefail
+          gcloud run deploy "$CLOUD_RUN_SERVICE" \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$RUNTIME_SA" \
+            --set-cloudsql-instances "$SQL_CONNECTION" \
+            --set-secrets "DATABASE_URL=${DB_SECRET}:latest" \
+            --set-env-vars "DATABASE_SOCKET_PATH=/cloudsql/${SQL_CONNECTION},NODE_ENV=production,DEPLOYMENT_TIER=staging,RELEASE_SHA=${GITHUB_SHA},SCHOOLWIDE_INSTANCE_ID=staging,LEGACY_READ_ADAPTER_MODE=disabled,LEGACY_PRODUCTION_WRITES=forbidden,OPERATIONS_WORKERS_ENABLED=false" \
+            --port 8787 \
+            --cpu 1 \
+            --memory 512Mi \
+            --concurrency 80 \
+            --timeout 30s \
+            --min 0 \
+            --max 2 \
+            --allow-unauthenticated \
+            --quiet
+          URL="$(gcloud run services describe "$CLOUD_RUN_SERVICE" --project "$PROJECT_ID" --region "$REGION" --format='value(status.url)')"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Prove exact deployed release and fail-closed private access
+        working-directory: schoolwide
+        env:
+          STAGING_URL: ${{ steps.service.outputs.url }}
+          EXPECTED_RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/staging-smoke.mjs
+
+      - name: Record SW-170 staging release evidence
+        shell: bash
+        env:
+          STAGING_URL: ${{ steps.service.outputs.url }}
+          IMAGE: ${{ steps.image.outputs.uri }}
+        run: |
+          {
+            echo '## SW-170 isolated staging deployment PASS'
+            echo
+            echo "- Exact commit: \`${GITHUB_SHA}\`"
+            echo "- Immutable image: \`${IMAGE}\`"
+            echo "- Staging URL: ${STAGING_URL}"
+            echo '- Cloud SQL backup/PITR/deletion-protection gate: PASS'
+            echo '- Migration-before-service gate: PASS'
+            echo '- Exact release fingerprint smoke check: PASS'
+            echo '- Private teacher route fail-closed check: PASS'
+            echo '- Legacy production writes: forbidden'
+            echo '- Real school data: prohibited by SW-170 release request'
+            echo '- Schoolwide production authority: NOT ENABLED'
+          } >> "$GITHUB_STEP_SUMMARY"
