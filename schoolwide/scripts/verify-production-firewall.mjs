@@ -6,6 +6,7 @@ const allowedChangedPaths = [
   'schoolwide/',
   '.github/workflows/schoolwide-ci.yml',
   '.github/workflows/schoolwide-staging.yml',
+  '.github/workflows/schoolwide-staging-deploy.yml',
   'tsconfig.json',
 ];
 const forbiddenSourceReferences = [
