@@ -17,28 +17,42 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy exact SW-170 commit to isolated staging
+    name: Deploy exact qualified SW-170 commit to isolated staging
     runs-on: ubuntu-latest
     environment: schoolwide-staging
     steps:
-      - name: Checkout exact release request commit
+      - name: Checkout release request commit
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Read and validate non-secret staging resource configuration
+      - name: Validate release request and non-secret cloud configuration
         id: cloud
         shell: bash
         run: |
           set -euo pipefail
           test -f schoolwide/release/staging-cloud.json
           test -f schoolwide/release/staging-deploy-request.json
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+
+          CHANGED="$(git diff --name-only HEAD^ HEAD)"
+          if [ "$CHANGED" != 'schoolwide/release/staging-deploy-request.json' ]; then
+            echo 'The staging release-request commit must change only schoolwide/release/staging-deploy-request.json.' >&2
+            printf 'Changed paths:\n%s\n' "$CHANGED" >&2
+            exit 1
+          fi
+
+          RELEASE_SHA="$(git rev-parse HEAD^)"
+          echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "request_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
+          RELEASE_SHA="$RELEASE_SHA" python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
+          import os
           from pathlib import Path
 
           cfg = json.loads(Path('schoolwide/release/staging-cloud.json').read_text())
           request = json.loads(Path('schoolwide/release/staging-deploy-request.json').read_text())
+          release_sha = os.environ['RELEASE_SHA']
           required = [
               'project_id', 'region', 'workload_identity_provider', 'deploy_service_account',
               'artifact_repository', 'cloud_run_service', 'migration_job',
@@ -51,8 +65,8 @@ jobs:
               raise SystemExit('SW-170 deploy is locked to grantdesk-deployment.')
           if cfg['region'] != 'us-central1':
               raise SystemExit('SW-170 deploy is locked to us-central1.')
-          if request.get('release_sha') != '${{ github.sha }}':
-              raise SystemExit('Release request SHA does not equal the commit being deployed.')
+          if request.get('release_sha') != release_sha:
+              raise SystemExit('Release request must name its already-qualified parent commit.')
           if request.get('authority') != 'STAGING_ONLY':
               raise SystemExit('Release request must explicitly remain STAGING_ONLY.')
           if request.get('real_data_allowed') is not False:
@@ -105,6 +119,12 @@ jobs:
           print('Cloud SQL staging protection gate PASS')
           PY
 
+      - name: Checkout the already-qualified release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.cloud.outputs.release_sha }}
+          fetch-depth: 0
+
       - name: Build immutable Schoolwide image
         id: image
         shell: bash
@@ -112,10 +132,11 @@ jobs:
           PROJECT_ID: ${{ steps.cloud.outputs.project_id }}
           REGION: ${{ steps.cloud.outputs.region }}
           ARTIFACT_REPO: ${{ steps.cloud.outputs.artifact_repository }}
+          RELEASE_SHA: ${{ steps.cloud.outputs.release_sha }}
         run: |
           set -euo pipefail
           REGISTRY="${REGION}-docker.pkg.dev"
-          IMAGE="${REGISTRY}/${PROJECT_ID}/${ARTIFACT_REPO}/grantdesk-schoolwide:${GITHUB_SHA}"
+          IMAGE="${REGISTRY}/${PROJECT_ID}/${ARTIFACT_REPO}/grantdesk-schoolwide:${RELEASE_SHA}"
           gcloud auth configure-docker "$REGISTRY" --quiet
           docker build --pull --file schoolwide/Dockerfile --tag "$IMAGE" schoolwide
           docker push "$IMAGE"
@@ -131,6 +152,7 @@ jobs:
           DB_SECRET: ${{ steps.cloud.outputs.database_url_secret }}
           MIGRATION_JOB: ${{ steps.cloud.outputs.migration_job }}
           IMAGE: ${{ steps.image.outputs.uri }}
+          RELEASE_SHA: ${{ steps.cloud.outputs.release_sha }}
         run: |
           set -euo pipefail
           gcloud run jobs deploy "$MIGRATION_JOB" \
@@ -140,7 +162,7 @@ jobs:
             --service-account "$RUNTIME_SA" \
             --set-cloudsql-instances "$SQL_CONNECTION" \
             --set-secrets "DATABASE_URL=${DB_SECRET}:latest" \
-            --set-env-vars "DATABASE_SOCKET_PATH=/cloudsql/${SQL_CONNECTION},NODE_ENV=production,DEPLOYMENT_TIER=staging,RELEASE_SHA=${GITHUB_SHA},SCHOOLWIDE_INSTANCE_ID=staging-migration,LEGACY_READ_ADAPTER_MODE=disabled,LEGACY_PRODUCTION_WRITES=forbidden,OPERATIONS_WORKERS_ENABLED=false" \
+            --set-env-vars "DATABASE_SOCKET_PATH=/cloudsql/${SQL_CONNECTION},NODE_ENV=production,DEPLOYMENT_TIER=staging,RELEASE_SHA=${RELEASE_SHA},SCHOOLWIDE_INSTANCE_ID=staging-migration,LEGACY_READ_ADAPTER_MODE=disabled,LEGACY_PRODUCTION_WRITES=forbidden,OPERATIONS_WORKERS_ENABLED=false" \
             --command node \
             --args dist/db/migrate.js \
             --max-retries 0 \
@@ -168,6 +190,7 @@ jobs:
           DB_SECRET: ${{ steps.cloud.outputs.database_url_secret }}
           CLOUD_RUN_SERVICE: ${{ steps.cloud.outputs.cloud_run_service }}
           IMAGE: ${{ steps.image.outputs.uri }}
+          RELEASE_SHA: ${{ steps.cloud.outputs.release_sha }}
         run: |
           set -euo pipefail
           gcloud run deploy "$CLOUD_RUN_SERVICE" \
@@ -177,7 +200,7 @@ jobs:
             --service-account "$RUNTIME_SA" \
             --set-cloudsql-instances "$SQL_CONNECTION" \
             --set-secrets "DATABASE_URL=${DB_SECRET}:latest" \
-            --set-env-vars "DATABASE_SOCKET_PATH=/cloudsql/${SQL_CONNECTION},NODE_ENV=production,DEPLOYMENT_TIER=staging,RELEASE_SHA=${GITHUB_SHA},SCHOOLWIDE_INSTANCE_ID=staging,LEGACY_READ_ADAPTER_MODE=disabled,LEGACY_PRODUCTION_WRITES=forbidden,OPERATIONS_WORKERS_ENABLED=false" \
+            --set-env-vars "DATABASE_SOCKET_PATH=/cloudsql/${SQL_CONNECTION},NODE_ENV=production,DEPLOYMENT_TIER=staging,RELEASE_SHA=${RELEASE_SHA},SCHOOLWIDE_INSTANCE_ID=staging,LEGACY_READ_ADAPTER_MODE=disabled,LEGACY_PRODUCTION_WRITES=forbidden,OPERATIONS_WORKERS_ENABLED=false" \
             --port 8787 \
             --cpu 1 \
             --memory 512Mi \
@@ -195,7 +218,7 @@ jobs:
         working-directory: schoolwide
         env:
           STAGING_URL: ${{ steps.service.outputs.url }}
-          EXPECTED_RELEASE_SHA: ${{ github.sha }}
+          EXPECTED_RELEASE_SHA: ${{ steps.cloud.outputs.release_sha }}
         run: node scripts/staging-smoke.mjs
 
       - name: Record SW-170 staging release evidence
@@ -203,11 +226,14 @@ jobs:
         env:
           STAGING_URL: ${{ steps.service.outputs.url }}
           IMAGE: ${{ steps.image.outputs.uri }}
+          RELEASE_SHA: ${{ steps.cloud.outputs.release_sha }}
+          REQUEST_SHA: ${{ steps.cloud.outputs.request_sha }}
         run: |
           {
             echo '## SW-170 isolated staging deployment PASS'
             echo
-            echo "- Exact commit: \`${GITHUB_SHA}\`"
+            echo "- Qualified release commit: \`${RELEASE_SHA}\`"
+            echo "- Release-request commit: \`${REQUEST_SHA}\`"
             echo "- Immutable image: \`${IMAGE}\`"
             echo "- Staging URL: ${STAGING_URL}"
             echo '- Cloud SQL backup/PITR/deletion-protection gate: PASS'
