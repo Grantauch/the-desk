@@ -1,0 +1,81 @@
+name: Schoolwide Staging Qualification
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: schoolwide-staging-qualification
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    name: Qualify exact commit for staging
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: grantdesk_schoolwide
+          POSTGRES_USER: grantdesk
+          POSTGRES_PASSWORD: grantdesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U grantdesk -d grantdesk_schoolwide"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: schoolwide
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://grantdesk:grantdesk@127.0.0.1:5432/grantdesk_schoolwide
+      LEGACY_PRODUCTION_WRITES: forbidden
+      SCHOOLWIDE_INSTANCE_ID: staging-qualification
+      SCHOOLWIDE_BASE_REF: origin/main
+    steps:
+      - name: Checkout exact requested commit
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Use Node 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Install Schoolwide dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Apply database migrations
+        run: npm run db:migrate
+
+      - name: Prove migration repeatability
+        run: npm run db:migrate
+
+      - name: Run complete Schoolwide verification
+        run: npm run verify
+
+      - name: Build deployable container image locally
+        working-directory: .
+        run: docker build --pull --file schoolwide/Dockerfile --tag grantdesk-schoolwide:${GITHUB_SHA} schoolwide
+
+      - name: Record qualification result
+        working-directory: .
+        shell: bash
+        run: |
+          {
+            echo '## Schoolwide staging qualification PASS'
+            echo
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Container tag: \`grantdesk-schoolwide:${GITHUB_SHA}\`"
+            echo '- PostgreSQL migrations: applied + repeat run'
+            echo '- Full Schoolwide verification: passed'
+            echo '- Legacy production writes: forbidden'
+            echo '- External cloud deployment: not performed by this workflow'
+          } >> "$GITHUB_STEP_SUMMARY"
