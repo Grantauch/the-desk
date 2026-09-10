@@ -8,6 +8,8 @@ const configSchema = z.object({
   DATABASE_URL: z.string().min(1),
   DB_POOL_MAX: z.coerce.number().int().min(1).max(50).default(10),
   SCHOOLWIDE_INSTANCE_ID: z.string().min(1).max(100).default('local'),
+  DEPLOYMENT_TIER: z.enum(['local', 'staging', 'production']).default('local'),
+  RELEASE_SHA: z.string().regex(/^(local|[0-9a-f]{40})$/).default('local'),
   LEGACY_READ_ADAPTER_MODE: z.enum(['disabled', 'shadow-read']).default('disabled'),
   LEGACY_PRODUCTION_WRITES: z.literal('forbidden').default('forbidden'),
   OPERATIONS_WORKERS_ENABLED: z.enum(['true', 'false']).default('false'),
@@ -25,6 +27,8 @@ export type AppConfig = {
   databaseUrl: string;
   dbPoolMax: number;
   instanceId: string;
+  deploymentTier?: z.infer<typeof configSchema>['DEPLOYMENT_TIER'];
+  releaseSha?: string;
   legacyReadAdapterMode: z.infer<typeof configSchema>['LEGACY_READ_ADAPTER_MODE'];
   legacyProductionWrites: 'forbidden';
   operationsWorkersEnabled?: boolean;
@@ -36,6 +40,9 @@ export type AppConfig = {
 
 export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppConfig {
   const parsed = configSchema.parse(environment);
+  if (parsed.DEPLOYMENT_TIER !== 'local' && parsed.RELEASE_SHA === 'local') {
+    throw new Error('Staging/production Schoolwide deployments require an exact RELEASE_SHA.');
+  }
   return {
     nodeEnv: parsed.NODE_ENV,
     host: parsed.HOST,
@@ -44,6 +51,8 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     databaseUrl: parsed.DATABASE_URL,
     dbPoolMax: parsed.DB_POOL_MAX,
     instanceId: parsed.SCHOOLWIDE_INSTANCE_ID,
+    deploymentTier: parsed.DEPLOYMENT_TIER,
+    releaseSha: parsed.RELEASE_SHA,
     legacyReadAdapterMode: parsed.LEGACY_READ_ADAPTER_MODE,
     legacyProductionWrites: parsed.LEGACY_PRODUCTION_WRITES,
     operationsWorkersEnabled: parsed.OPERATIONS_WORKERS_ENABLED === 'true',
