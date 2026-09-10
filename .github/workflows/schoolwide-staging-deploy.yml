@@ -75,6 +75,12 @@ jobs:
               print(f"{key}={value}")
           PY
 
+      - name: Checkout the already-qualified release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.cloud.outputs.release_sha }}
+          fetch-depth: 0
+
       - name: Authenticate to Google Cloud with short-lived GitHub identity
         uses: google-github-actions/auth@v3
         with:
@@ -118,12 +124,6 @@ jobs:
               raise SystemExit('Cloud SQL staging protection gate failed: ' + '; '.join(failures))
           print('Cloud SQL staging protection gate PASS')
           PY
-
-      - name: Checkout the already-qualified release commit
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ steps.cloud.outputs.release_sha }}
-          fetch-depth: 0
 
       - name: Build immutable Schoolwide image
         id: image
