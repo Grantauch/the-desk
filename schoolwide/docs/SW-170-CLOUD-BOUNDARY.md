@@ -1,132 +1,143 @@
 # SW-170 — Google Cloud Staging Boundary
 
-This file is written so the Schoolwide staging environment can be configured without requiring Grant to become the system administrator or understand the application code.
+This file defines the one-time cloud setup and ongoing release boundary without requiring Grant to become the system administrator or understand application code.
 
 ## Grant's role
 
-Grant is the product owner. His required decisions should be limited to:
+Grant is the product owner. His required decisions are limited to:
 
 - which approved Google Cloud project/account may host Schoolwide staging;
 - whether the school/district permits the proposed staging data boundary;
-- when a staged release may be promoted into later real-identity and pilot work.
+- when a staged release may advance into later real-identity and pilot work.
 
-Grant should not be expected to manage containers, database commands, credentials, migrations, or server restarts.
+Grant should not be expected to manage containers, databases, IAM roles, credentials, migrations, or server restarts.
+
+## Approved SW-170 target
+
+- Google Cloud project: `grantdesk-deployment`
+- region: `us-central1`
+- environment: staging only
+- real school data: prohibited
+- production authority: unchanged
 
 ## Required staging resources
 
-Create these inside one dedicated Google Cloud project:
+The guarded bootstrap creates or preserves:
 
 1. **Cloud Run service** — `grantdesk-schoolwide-staging`
 2. **Cloud Run migration job** — `grantdesk-schoolwide-staging-migrate`
-3. **Cloud SQL for PostgreSQL** — dedicated staging instance and database
-4. **Secret Manager secret** — contains the runtime database URL; never store the value in GitHub source
-5. **Artifact Registry repository** — stores immutable Schoolwide container images
-6. **Runtime service account** — used only by the Cloud Run service/job
-7. **Deployment service account** — used only by the GitHub staging release lane
-8. **Workload Identity Federation provider** — trusts GitHub's short-lived OIDC identity for `Grantauch/the-desk`; do not create a downloadable service-account key
-9. **Cloud Logging / Monitoring** — retain service errors, restart evidence and readiness failures
-
-Resource names may differ if the hosting organization has naming standards. Record the final identifiers as GitHub Environment variables rather than application source.
+3. **Cloud SQL PostgreSQL instance** — `grantdesk-schoolwide-staging`
+4. **Schoolwide database** — `grantdesk_schoolwide`
+5. **Secret Manager secret** — `grantdesk-schoolwide-staging-db-url`
+6. **Artifact Registry repository** — `grantdesk-schoolwide`
+7. **Runtime service account** — `grantdesk-sw-runtime`
+8. **Deployment service account** — `grantdesk-sw-deploy`
+9. **Workload Identity Federation pool/provider** — passwordless GitHub deployment identity
+10. Cloud platform logging/health evidence used by the release gate.
 
 ## Database protection gate
 
 The Cloud SQL staging instance is not acceptable until all of the following are true:
 
-- PostgreSQL is supported by the Schoolwide migration suite;
 - automated backups are enabled;
 - point-in-time recovery is enabled;
 - deletion protection is enabled;
 - a dedicated Schoolwide database/user is used;
-- the database is not treated as an extension of the current classroom workbook;
-- no real student, staff, PIN, OAuth, or Classroom data is loaded during SW-170.
+- the application connects through Cloud Run's mounted `/cloudsql/...` Unix socket;
+- no database password is committed to GitHub;
+- no real student, staff, PIN, OAuth, Classroom, or legacy-export data is loaded during SW-170.
 
-## Identity / secret rule
+## Secret rule
 
-GitHub-to-Google deployment authentication must use Workload Identity Federation and short-lived credentials.
+GitHub-to-Google deployment authentication uses Workload Identity Federation and short-lived credentials.
 
-Do not store:
+Never store in repository source:
 
 - Google service-account JSON keys;
-- database passwords/URLs;
+- database passwords or full database URLs;
 - OAuth client secrets;
 - student credentials;
-- legacy workbook IDs or export payloads
+- PIN material;
+- legacy workbook IDs or export payloads.
 
-in repository source or normal GitHub variables.
-
-Actual runtime secrets belong in Secret Manager. GitHub variables may contain only resource identifiers needed to locate the approved staging resources.
+The bootstrap generates the staging database password and writes its database URL directly to Secret Manager. The completion block deliberately returns only safe resource identifiers.
 
 ## Minimum IAM shape
 
-Keep the two service accounts separate.
+Keep the runtime and deployment identities separate.
 
 ### Runtime service account
 
-It needs only what the running service/job requires, including:
+It may:
 
 - connect to the assigned Cloud SQL instance;
-- read the specific Secret Manager secret(s) assigned to Schoolwide staging;
-- write normal service logs/metrics through the platform.
+- read the specific Schoolwide staging database secret;
+- use normal Cloud Run platform logging/metrics.
 
-It should not administer Cloud Run, create databases, alter IAM, or write to the legacy Apps Script system.
+It should not administer Cloud Run, alter IAM, own the project, or access the legacy Apps Script system.
 
 ### Deployment service account
 
-It needs only what the staging release lane requires, including:
+It may perform the bounded staging release work, including:
 
-- push images to the staging Artifact Registry repository;
 - update the named staging Cloud Run service and migration job;
-- act as the approved runtime service account when deploying those resources;
-- inspect the staging Cloud SQL/secret/resource configuration needed for release preflight.
+- push images to the staging Artifact Registry;
+- inspect the staging Cloud SQL/secret configuration used by release preflight;
+- act as the approved runtime account while deploying those named resources.
 
-It should not own the Google Cloud project and should not have organization-wide authority.
+It should not own the project or receive organization-wide authority.
 
-The Workload Identity Federation trust must be restricted to the `Grantauch/the-desk` repository and, when configured through a GitHub Environment, the `schoolwide-staging` release boundary.
+## GitHub trust boundary
 
-## GitHub Environment
+The Workload Identity Federation provider is restricted to both:
 
-Create a GitHub Environment named:
+- `Grantauch/the-desk`; and
+- `refs/heads/schoolwide/sw-170-staging-release-readiness`.
 
-`schoolwide-staging`
+No downloadable service-account key is created.
 
-Record these identifiers as environment/repository variables:
+The deployment workflow also requires a one-file release-request commit. That request can deploy only its already-qualified parent commit and must assert:
 
-- `GCP_PROJECT_ID`
-- `GCP_REGION`
-- `GCP_WORKLOAD_IDENTITY_PROVIDER`
-- `GCP_DEPLOY_SERVICE_ACCOUNT`
-- `GCP_ARTIFACT_REPOSITORY`
-- `GCP_CLOUD_RUN_SERVICE`
-- `GCP_CLOUD_RUN_MIGRATION_JOB`
-- `GCP_CLOUD_SQL_CONNECTION`
-- `GCP_RUNTIME_SERVICE_ACCOUNT`
-- `GCP_DATABASE_URL_SECRET`
+- `authority: STAGING_ONLY`
+- `real_data_allowed: false`
 
-No value in this list should itself contain a database password or application credential.
+## Resource configuration
+
+After the bootstrap finishes, it prints a block beginning `SW170_CLOUD_READY`.
+
+Those returned values are resource identifiers, not credentials. The release agent records them in:
+
+`schoolwide/release/staging-cloud.json`
+
+The staging-release guard rejects known secret-bearing fields from that file.
 
 ## Deployment sequence
 
-When cloud access is connected, the release agent should perform this sequence on one exact Git commit:
+Once the cloud foundation exists:
 
-1. pass Schoolwide CI;
-2. pass staging qualification and build the container;
-3. verify the Cloud SQL backup/PITR/deletion-protection gate;
-4. build and push an immutable container image tagged with the exact Git SHA;
-5. run migrations as a one-off staging migration job;
-6. update the staging service only if migrations succeed;
-7. run `scripts/staging-smoke.mjs` against the resulting staging URL;
-8. record the exact Git SHA, image identifier and staging URL;
-9. leave staff identity, student identity, Classroom synchronization and legacy writes disabled in SW-170.
+1. record the safe cloud resource identifiers in `staging-cloud.json`;
+2. allow that commit to pass Schoolwide CI, staging qualification, and site check;
+3. create `staging-deploy-request.json` as the only file changed in the next commit;
+4. require the request to name its already-qualified parent SHA and remain `STAGING_ONLY` with real data prohibited;
+5. authenticate to Google through short-lived Workload Identity Federation;
+6. verify Cloud SQL backups/PITR/deletion protection;
+7. check out and build the exact qualified parent commit;
+8. push its immutable image tagged with that SHA;
+9. run database migrations as a one-off Cloud Run job;
+10. update the staging service only if migrations succeed;
+11. run `scripts/staging-smoke.mjs` against the resulting staging URL;
+12. record the exact release SHA, request SHA, image identifier and URL.
 
-A failed step stops the release. Do not call a partially updated environment certified.
+A failed step stops certification.
 
 ## SW-170 exit evidence
 
-The release checkpoint needs evidence for:
+The final checkpoint needs evidence for:
 
 - repository CI PASS;
-- exact container build PASS;
-- staging Cloud SQL protection PASS;
+- staging qualification + container build PASS;
+- branch-restricted keyless Google authentication PASS;
+- Cloud SQL backup/PITR/deletion protection PASS;
 - staging migration PASS;
 - live/readiness PASS;
 - exact release SHA PASS;
