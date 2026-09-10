@@ -46,7 +46,7 @@ SW-170 MUST NOT:
 - make Schoolwide authoritative;
 - deploy automatically from a push or merge.
 
-The staging workflow is manual-only and must fail closed if required environment configuration is missing.
+Repository staging qualification may run automatically on pull requests because it only verifies code, migrations, tests, and the deployable container image. Any future action that actually changes Google Cloud staging must remain a separate manual release step and fail closed if required environment configuration is missing.
 
 ## Staging release gates
 
@@ -58,16 +58,17 @@ A staged release is acceptable only when all of these pass on the exact commit b
 4. Production build.
 5. Clean PostgreSQL migration run.
 6. Immediate second migration run with no failure.
-7. Immutable container image build and push tagged with the exact Git commit SHA.
-8. Cloud Run migration job completes successfully before the service is updated.
-9. `/health/live` returns healthy.
-10. `/health/ready` proves database readiness.
-11. Root service fingerprint reports the expected Schoolwide release.
-12. Protected/private routes continue to fail closed while real identity providers are intentionally disabled.
+7. Deployable container image build.
+8. Immutable staged image tagged with the exact Git commit SHA.
+9. Cloud migration job completes successfully before the service is updated.
+10. `/health/live` returns healthy.
+11. `/health/ready` proves database readiness.
+12. Root service fingerprint reports the expected Schoolwide release.
+13. Protected/private routes continue to fail closed while real identity providers are intentionally disabled.
 
 ## GitHub environment configuration
 
-The manual staging workflow consumes configuration from the GitHub Environment `schoolwide-staging`. No long-lived Google service-account JSON key is permitted.
+A future manual cloud deployment consumes configuration from the GitHub Environment `schoolwide-staging`. No long-lived Google service-account JSON key is permitted.
 
 Required repository/environment variables:
 
@@ -101,10 +102,10 @@ Grant does not need to know Docker, PostgreSQL, Cloud Run, or `gcloud` commands 
 
 Normal release behavior should be:
 
-- GitHub shows whether the Schoolwide verification gate passed;
-- an authorized person manually starts the staging release workflow;
-- the workflow builds, migrates, deploys, and smoke-tests the exact certified commit;
-- the workflow records the staging URL and release SHA in its summary;
+- GitHub automatically proves whether the Schoolwide code/migrations/container qualify for staging;
+- an authorized person or connected release agent manually starts the actual cloud staging release;
+- the release path migrates, deploys, and smoke-tests the exact certified commit;
+- the release record captures the staging URL and release SHA;
 - failures stop the release rather than partially declaring success.
 
 ## Certification target
@@ -112,9 +113,9 @@ Normal release behavior should be:
 SW-170 is complete only when:
 
 - this branch passes Schoolwide CI;
-- the staging release workflow is structurally verified and remains manual-only;
+- automatic staging qualification passes, including the deployable container build;
 - a real `schoolwide-staging` environment has been configured with short-lived Google authentication;
-- an exact SW-170 commit has been deployed to staging;
+- an exact SW-170 commit has been deployed to staging through a manual release action;
 - migration + service smoke checks pass against that deployed staging environment;
 - Cloud SQL backup settings are recorded;
 - no real student/staff data has been introduced;
