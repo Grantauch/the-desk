@@ -54,7 +54,7 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     port: parsed.PORT,
     logLevel: parsed.LOG_LEVEL,
     databaseUrl: parsed.DATABASE_URL,
-    databaseSocketPath: parsed.DATABASE_SOCKET_PATH,
+    ...(parsed.DATABASE_SOCKET_PATH ? { databaseSocketPath: parsed.DATABASE_SOCKET_PATH } : {}),
     dbPoolMax: parsed.DB_POOL_MAX,
     instanceId: parsed.SCHOOLWIDE_INSTANCE_ID,
     deploymentTier: parsed.DEPLOYMENT_TIER,
