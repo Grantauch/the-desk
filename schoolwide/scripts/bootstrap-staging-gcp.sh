@@ -43,7 +43,7 @@ say 'Selecting Google Cloud project'
 gcloud config set project "$PROJECT_ID" >/dev/null
 
 say 'Checking that billing is enabled'
-BILLING_ENABLED="$(gcloud beta billing projects describe "$PROJECT_ID" --format='value(billingEnabled)' 2>/dev/null || true)"
+BILLING_ENABLED="$(gcloud billing projects describe "$PROJECT_ID" --format='value(billingEnabled)' 2>/dev/null || true)"
 if [[ "$BILLING_ENABLED" != "True" && "$BILLING_ENABLED" != "true" ]]; then
   echo "Billing is not reported as enabled for ${PROJECT_ID}. Stop here and link the paid billing account first." >&2
   exit 1
@@ -186,7 +186,7 @@ if ! exists gcloud iam workload-identity-pools providers describe "$WIF_PROVIDER
     --location=global \
     --workload-identity-pool="$WIF_POOL_ID" \
     --display-name='GrantDesk the-desk GitHub' \
-    --issuer-uri='https://token.actions.githubusercontent.com/' \
+    --issuer-uri='https://token.actions.githubusercontent.com' \
     --attribute-mapping='google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner' \
     --attribute-condition="assertion.repository == '${GITHUB_REPO}'"
 fi
