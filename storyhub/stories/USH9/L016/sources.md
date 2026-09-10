@@ -1,4 +1,4 @@
-# The One That Passed — public provenance
+# The One That Passed — Episode One public provenance
 
 - [Chinese Exclusion Act, National Archives](https://www.archives.gov/milestone-documents/chinese-exclusion-act), May 6, 1882, 22 Stat. 58. The page includes the original first-page scan.
 - [Geary Act text](https://loveman.sdsu.edu/docs/1892GearyAct.pdf), May 5, 1892, 27 Stat. 25. Sections 3, 4, 6 and 7; photograph amendment, November 1893.

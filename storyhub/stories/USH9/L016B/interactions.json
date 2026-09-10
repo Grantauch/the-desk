@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016B",
+  "interactions": [
+    {
+      "id": "roundup",
+      "chapterId": "s8",
+      "type": "document filter",
+      "teaches": "Compare the methods used to expel Chinese communities and the lack of lasting convictions in the selected cases.",
+      "studentAction": "Filter the historical log by method.",
+      "feedback": "Matching records, counts, and case outcomes appear.",
+      "staticFallback": "All six records remain visible together.",
+      "identityFit": "A handled record series in the pine-and-sepia documentary system.",
+      "status": "implemented"
+    },
+    {
+      "id": "voyage",
+      "chapterId": "s9",
+      "type": "constrained timeline",
+      "teaches": "A government certificate could be cancelled while its holder was at sea.",
+      "studentAction": "Move the ship toward San Francisco.",
+      "feedback": "An independent timer voids the certificate before arrival; moving faster cannot outrun the statute.",
+      "staticFallback": "Both dates, the cancellation, and the denied arrival are shown.",
+      "identityFit": "The student handles the timeline while the federal record controls its outcome.",
+      "status": "implemented"
+    },
+    {
+      "id": "proof",
+      "chapterId": "s10",
+      "type": "file assembly",
+      "teaches": "Recognize a racial legal condition outside an applicant’s control.",
+      "studentAction": "Attach three sample records.",
+      "feedback": "The fixed white-witness requirement remains unavailable for self-certification.",
+      "staticFallback": "The first three fields and the fixed fourth condition appear together.",
+      "identityFit": "The interaction behaves like an unequal residence file rather than a decorative quiz.",
+      "status": "implemented"
+    },
+    {
+      "id": "ledger",
+      "chapterId": "s14",
+      "type": "virtual annual ledger",
+      "teaches": "Experience the duration of exclusion alongside recognizable national events.",
+      "studentAction": "Scroll or step through the years.",
+      "feedback": "The exclusion status repeats until the final annual row changes to repeal and a quota.",
+      "staticFallback": "Every annual row remains available in a semantic HTML table.",
+      "identityFit": "Accumulating ledger rows make duration physical within the documentary identity.",
+      "status": "implemented"
+    }
+  ]
+}

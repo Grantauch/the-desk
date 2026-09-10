@@ -16,7 +16,7 @@
     {"id":"07-disproof","title":"What Would Have Killed Each One","claim":"A checkable claim names in advance what evidence would end it and allows that evidence to matter.","namedPeople":[{"name":"Paul McCartney","role":"musician falsely rumored dead","anchorStatus":"not-needed"}],"visualAnchorIds":[],"interactionIds":["I03"]},
     {"id":"08-two-shapes","title":"The Two Shapes","claim":"Investigator count mattered less than a procedure that separated independent origins from repetition.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
     {"id":"09-the-method","title":"What The Unit Will Ask","claim":"Trace origin, test independence, and name disproof before searching.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
-    {"id":"10-terms","title":"Terms","claim":"The terms board names evidence operations students already performed.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
+    {"id":"10-terms","title":"Terms","claim":"The terms board names evidence operations already performed in the story.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]},
     {"id":"11-note-repair","title":"Note Repair","claim":"The repair board corrects six durable misunderstandings about both investigations.","namedPeople":[],"visualAnchorIds":[],"interactionIds":[]}
   ],
   "accuracyNotes": [

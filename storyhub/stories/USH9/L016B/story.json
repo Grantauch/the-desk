@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-L016B",
+  "course": "USH9",
+  "lessonCode": "L016B",
+  "title": "They Said No",
+  "audience": "students",
+  "narrativeQuestion": "How did Chinese Americans resist exclusion?",
+  "answerPromise": "Chinese Americans organized mass resistance and fought exclusion in court. Some of what they won now protects everyone in the United States.",
+  "chapters": [
+    {
+      "id": "s8",
+      "title": "How a City Forced People Out",
+      "claim": "Tacoma turned exclusion into a public procedure run by elected officials, police, deadlines, and a forced march. Other communities copied it because it worked and nobody involved was punished.",
+      "namedPeople": [
+        {
+          "name": "Jacob Weisbach",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative was acquired; the page uses attributed documents and events rather than an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "roundup"
+      ]
+    },
+    {
+      "id": "s9",
+      "title": "The Government Cancels His Return",
+      "claim": "The government issued Chae Chan Ping a return certificate, cancelled it while he was at sea, refused to honor it, and won unanimous approval from the Supreme Court.",
+      "namedPeople": [
+        {
+          "name": "Chae Chan Ping",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative was acquired; the page uses attributed records rather than an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [
+        "sea"
+      ],
+      "interactionIds": [
+        "voyage"
+      ]
+    },
+    {
+      "id": "s10",
+      "title": "The Geary Act Demands Proof",
+      "claim": "The registration law forced Chinese laborers to document their right to remain and imposed a racial witness condition in the court exception for missed registration.",
+      "namedPeople": [
+        {
+          "name": "Thomas J. Geary",
+          "anchorStatus": "not-needed",
+          "anchorNote": "Supporting lawmaker rather than the narrative subject of the scene."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "proof"
+      ]
+    },
+    {
+      "id": "s11",
+      "title": "Yick Wo Wins Equal Protection",
+      "claim": "Lee Yick proved that a law fair on its face can still violate equal protection when officials enforce it with an unequal hand.",
+      "namedPeople": [
+        {
+          "name": "Lee Yick",
+          "anchorStatus": "not-available",
+          "anchorNote": "No verified redistributable likeness derivative was acquired; the page uses the original court holding rather than an invented likeness."
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "s12",
+      "title": "One Hundred Thousand Refuse",
+      "claim": "Chinese community organizations coordinated one of the largest acts of civil disobedience in nineteenth-century America, funding lawyers and urging laborers not to register.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "s13",
+      "title": "Wong Kim Ark Wins Citizenship",
+      "claim": "Wong Kim Ark won citizenship at birth under the Fourteenth Amendment for U.S.-born children of resident immigrant parents.",
+      "namedPeople": [
+        {
+          "name": "Wong Kim Ark",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "wong",
+          "anchorNote": "The original 1894 departure statement includes his photograph."
+        }
+      ],
+      "visualAnchorIds": [
+        "wong"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "s14",
+      "title": "Exclusion Lasts Sixty-One Years",
+      "claim": "Exclusion persisted for 61 elapsed years before repeal made Chinese immigrants eligible for naturalization and introduced an annual quota of 105.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "ledger"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "The Geary certificate requirement covered laborers; the white-witness condition shown is the missed-registration court exception. Photographs were added in 1893.",
+    "Wong Kim Ark is taught as the 1898 holding for a U.S.-born child of resident immigrant parents, not as an unqualified statement about every present-day legal situation.",
+    "Plenary power does not mean that all judicial review is impossible.",
+    "Angel Island uses the foundation’s revised estimate of 100,000 Chinese detainees and a documented 756-day detention.",
+    "1882 through 1943 produces 62 annual labels across 61 elapsed years."
+  ],
+  "release": {
+    "route": "/hubs/ush9-l016b-they-said-no.html",
+    "manifest": "storyhub/releases/USH9-L016B.json"
+  }
+}
