@@ -595,6 +595,27 @@ test('the room fills to the configured capacity', () => {
   assert.equal(c.passLog().filter((row) => String(row.Status) === 'OUT').length, 2);
 });
 
+
+test('an unresolved earlier-period pass stays visible without blocking the current class', () => {
+  const c = classroom({
+    now: new Date('2026-09-10T11:50:00Z'),
+    settings: { MAX_ACTIVE_PASSES: 1 },
+    memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.alan, 'Period 3']],
+  });
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED');
+  c.harness.clock.advanceSeconds(146 * 60); // 7:50 AM -> 10:16 AM local; Period 3 requests are open.
+  c.harness.newRequest();
+  const before = c.teacherState();
+  assert.equal(before.active.length, 1, 'the forgotten pass must remain visible for follow-up');
+  assert.equal(before.active[0].blocksCurrentCapacity, false, 'the earlier class must release current-room capacity');
+  assert.equal(before.capacityUsed, 0);
+  assert.equal(before.currentPeriod, 3);
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.alan, 'Period 3')).kind, 'STARTED');
+  assert.equal(c.passLog().filter((row) => String(row.Status) === 'OUT').length, 2, 'audit state preserves both unresolved/current passes');
+  const after = c.teacherState();
+  assert.equal(after.capacityUsed, 1, 'only the current-period pass consumes the configured slot');
+});
+
 test('a request past capacity queues automatically instead of failing', () => {
   const c = classroom({ settings: { MAX_ACTIVE_PASSES: 1 } });
   c.requestPass(PEOPLE.ada, 'Period 1');

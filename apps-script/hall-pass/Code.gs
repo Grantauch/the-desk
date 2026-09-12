@@ -197,6 +197,38 @@ function periodNumberFromClass_(classPeriod) {
   return match ? Number(match[1]) : null;
 }
 
+/** Return the period physically meeting in this room right now. */
+function currentScheduledPeriod_(nowValue) {
+  const now = toDateOrNull_(nowValue) || new Date();
+  const day = getSchoolDaySchedule_(now);
+  if (!day.schoolDay || !day.scheduleKey) return null;
+  const profile = getBellScheduleIndex_()[day.scheduleKey];
+  if (!profile || !profile.valid) return null;
+  const localTime = Utilities.formatDate(
+    now,
+    Session.getScriptTimeZone() || 'America/Detroit',
+    'HH:mm'
+  );
+  const minute = bellMinutes_(localTime);
+  if (minute === null) return null;
+  const current = Object.values(profile.periods)
+    .find((entry) => minute >= entry.start && minute < entry.end);
+  return current ? current.period : null;
+}
+
+/**
+ * An unresolved pass remains an active/auditable fact until it is returned or
+ * rolled over. Capacity is a different question: once that student's class is
+ * no longer the class physically meeting here, the forgotten return must not
+ * consume a later period's bathroom slot.
+ */
+function passBlocksCurrentCapacity_(pass, nowValue) {
+  if (!pass || pass.status !== 'OUT') return false;
+  const currentPeriod = currentScheduledPeriod_(nowValue);
+  if (!currentPeriod) return false;
+  return periodNumberFromClass_(pass.classPeriod) === currentPeriod;
+}
+
 function bellMinutes_(value) {
   const text = value instanceof Date
     ? Utilities.formatDate(value, Session.getScriptTimeZone() || 'America/Detroit', 'HH:mm')
@@ -1603,13 +1635,17 @@ function getPassSnapshot_() {
   const active = log.filter((pass) => (
     pass.status === 'OUT' && safeDateKey_(pass.outDate) === todayKey
   ));
+  const currentPeriod = currentScheduledPeriod_();
+  const capacityActive = active.filter((pass) => passBlocksCurrentCapacity_(pass));
   const maxActive = Math.max(1, Math.round(numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1)));
-  const openSlots = Math.max(0, maxActive - active.length);
+  const openSlots = Math.max(0, maxActive - capacityActive.length);
   const queueState = readWaitingQueue_(settings, openSlots);
   return {
     settings,
     log,
     active,
+    capacityActive,
+    currentPeriod,
     maxActive,
     openSlots,
     queue: queueState.live,
@@ -2868,7 +2904,12 @@ function getTeacherState_(options) {
         suggestion: suggestRosterMatch_(entry.email),
       })),
     retentionDays: numberSetting_(settings, 'RETENTION_DAYS', 180),
-    active: snapshot.active.map(clientPass_),
+    currentPeriod: snapshot.currentPeriod,
+    capacityUsed: snapshot.capacityActive.length,
+    active: snapshot.active.map((pass) => ({
+      ...clientPass_(pass),
+      blocksCurrentCapacity: snapshot.capacityActive.some((activePass) => activePass.passId === pass.passId),
+    })),
     queue: snapshot.queue.map((entry, index) => clientQueue_(entry, index + 1)),
     today,
     rolloverPassesToday,

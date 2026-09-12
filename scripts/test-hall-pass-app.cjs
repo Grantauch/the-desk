@@ -146,7 +146,14 @@ assert.ok(
 
 const passSnapshot = functionSource('getPassSnapshot_');
 assert.match(passSnapshot, /safeDateKey_\(pass\.outDate\)\s*===\s*todayKey/);
+assert.match(passSnapshot, /capacityActive/);
+assert.match(passSnapshot, /passBlocksCurrentCapacity_/);
+assert.match(functionSource('currentScheduledPeriod_'), /getBellScheduleIndex_/);
+assert.match(functionSource('passBlocksCurrentCapacity_'), /periodNumberFromClass_/);
 assert.match(functionSource('expirePreviousDayPasses_'), /'ROLLED_OVER'/);
+assert.match(html, /earlier class · not blocking/);
+assert.match(html, /award all pending points/);
+assert.match(html, /I’m back — end my pass/);
 
 const pinIdentify = functionSource('identifyPin_');
 assert.match(pinIdentify, /verifyStudentPin_\(pin,\s*activeEmail,\s*attemptNonce\)/);
@@ -753,6 +760,9 @@ behaviorContext.readPassLog_ = () => ([
   { row: 3, passId: 'today-pass', status: 'OUT', outDate: snapshotNow, studentEmail: 'today@students.mtmorrisschools.org' },
 ]);
 behaviorContext.readWaitingQueue_ = () => ({ live: [], expired: [] });
+// This isolated structural harness intentionally has no workbook services.
+// Stub the room period so the snapshot test stays focused on prior-day rollover.
+behaviorContext.currentScheduledPeriod_ = () => null;
 const rolloverSafeSnapshot = behaviorContext.__gdBehavior.getPassSnapshot_();
 assert.equal(rolloverSafeSnapshot.active.length, 1, 'A prior-day OUT row must not consume today’s pass slot');
 assert.equal(rolloverSafeSnapshot.active[0].passId, 'today-pass');

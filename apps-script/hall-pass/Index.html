@@ -948,7 +948,8 @@
                 <p class="timer-label">time out of class</p>
                 <p class="timer-time" id="student-timer">00:00</p>
               </div>
-              <button class="primary return" id="pass-action">I’m back</button>` : `${waitingHtml}${queued && allowance.blocked ? blockedHtml : ''}${readyHtml}`}
+              <div class="notice success" role="status"><h3>when you walk back in, end the pass.</h3><p>Your pass stays open until you tap the green button and enter your PIN again. That final tap keeps Who’s Out and the waiting line accurate for everyone.</p></div>
+              <button class="primary return" id="pass-action">I’m back — end my pass</button>` : `${waitingHtml}${queued && allowance.blocked ? blockedHtml : ''}${readyHtml}`}
             ${sharedDevice() ? '<button class="secondary" id="switch-student">different student</button>' : '<button class="secondary" id="use-pin">use a PIN instead</button>'}
           </div>
           ${evidence.length ? `<dialog id="allowance-evidence-dialog" aria-labelledby="allowance-evidence-title"><div class="dialog-body"><div class="dialog-head"><div><h2 id="allowance-evidence-title">passes counted.</h2><p class="message">These are only your own currently countable trips, using the school’s local time.</p></div><button class="dialog-close" id="close-allowance-evidence" aria-label="Close pass evidence">×</button></div><ul class="evidence-list">${evidenceRows}</ul></div></dialog>` : ''}`;
@@ -959,7 +960,7 @@
         if (passAction) passAction.addEventListener('click', (event) => {
           const wasOut = Boolean(ownPass);
           renderActionPin(wasOut ? 'RETURN' : 'PASS_REQUEST', wasOut
-            ? 'Enter your PIN again to record that you are back.'
+            ? 'One last step: enter your PIN to mark yourself back in and free the classroom pass slot.'
             : 'Enter your PIN once for this bathroom request. If the room is full, the same verified request joins the line automatically.');
         });
 
@@ -1305,6 +1306,7 @@
         const items = [];
         const active = data.active || [];
         const late = active.filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= Number(data.lateAfterMinutes || 10)).length;
+        const carryover = active.filter((pass) => pass.blocksCurrentCapacity === false).length;
         const unmatched = (data.unmatchedSignIns || []).length;
         const pendingLateCheckIns = (data.lateCheckInsToday || []).filter((checkIn) => checkIn.status === 'LATE_PENDING').length;
         const rollovers = (data.rolloverPassesToday || []).length;
@@ -1315,6 +1317,7 @@
         const pins = pinStatus || {};
         const add = (tone, title, message, view, target, action) => items.push({ tone, title, message, view, target, action });
         if (late) add('urgent', `${late} overdue ${late === 1 ? 'pass' : 'passes'}`, 'Review the students who are still out. Mark returned only after confirming they are back.', 'overview', 'live-pass-section', 'View passes');
+        if (carryover) add('warning', `${carryover} unresolved ${carryover === 1 ? 'pass is' : 'passes are'} from an earlier class`, 'The pass records stay open for follow-up and audit, but they no longer consume the current class’s bathroom capacity.', 'overview', 'live-pass-section', 'Resolve passes');
         if (pendingLateCheckIns) add('warning', `${pendingLateCheckIns} late ${pendingLateCheckIns === 1 ? 'sign-in needs' : 'sign-ins need'} point review`, 'Students were allowed to sign in after your on-time window. Decide whether each one earns the daily point.', 'attendance', 'late-checkins-details', 'Review late sign-ins');
         if (unmatched) add('warning', `${unmatched} unmatched school ${unmatched === 1 ? 'account' : 'accounts'}`, 'These accounts reached the app without a matching class enrollment. Review the account and roster before changing an address.', 'notifications', 'sign-in-problems', 'Review accounts');
         if (Number(pins.missingRecipients)) add('warning', `${pins.missingRecipients} students need a PIN card`, 'Review PIN delivery before distributing credentials to these students.', 'settings', 'pin-delivery-details', 'Review PINs');
@@ -1533,11 +1536,19 @@
           const minutes = Math.floor(elapsedSeconds(pass.outTime) / 60);
           const late = minutes >= lateAfter;
           const stale = minutes >= staleAfter;
+          const carryover = pass.blocksCurrentCapacity === false;
+          const flag = carryover
+            ? '<span class="late-flag">earlier class · not blocking</span>'
+            : stale
+              ? '<span class="late-flag">check now</span>'
+              : late
+                ? '<span class="late-flag">over ' + escapeHtml(lateAfter) + ' min</span>'
+                : '';
           return `
-          <article class="active-pass ${stale ? 'stale-pass' : late ? 'late' : ''}">
-            <strong>${escapeHtml(pass.studentName)}${stale ? '<span class="late-flag">check now</span>' : late ? '<span class="late-flag">over ' + escapeHtml(lateAfter) + ' min</span>' : ''}</strong>
-            <small>${escapeHtml(pass.classPeriod)} · out at ${formatClock(pass.outTime)} · <span data-live-time="${escapeHtml(pass.outTime)}">${elapsed(pass.outTime)}</span>${stale ? ' · possible forgotten pass' : ''}</small>
-            <button class="secondary" data-end-pass="${escapeHtml(pass.passId)}">mark returned</button>
+          <article class="active-pass ${carryover || stale ? 'stale-pass' : late ? 'late' : ''}">
+            <strong>${escapeHtml(pass.studentName)}${flag}</strong>
+            <small>${escapeHtml(pass.classPeriod)} · out at ${formatClock(pass.outTime)} · <span data-live-time="${escapeHtml(pass.outTime)}">${elapsed(pass.outTime)}</span>${carryover ? ' · unresolved from an earlier class; current-class capacity is already released' : stale ? ' · possible forgotten pass' : ''}</small>
+            <button class="secondary" data-end-pass="${escapeHtml(pass.passId)}">${carryover || stale ? 'mark returned now' : 'mark returned'}</button>
           </article>`;
         }).join('') : '<p class="all-clear">Nobody is out right now.</p>';
 
@@ -1703,12 +1714,14 @@
             </div>
           </dialog>` : '';
 
+        const unresolvedEarlier = (state.active || []).filter((pass) => pass.blocksCurrentCapacity === false).length;
         const roomStatusHtml = `
           <div class="checkin-summary room-summary">
-            <div class="summary-tile"><strong>${escapeHtml((state.active || []).length)} / ${escapeHtml(state.maxActivePasses)}</strong><span>out right now</span></div>
+            <div class="summary-tile"><strong>${escapeHtml(Number(state.capacityUsed || 0))} / ${escapeHtml(state.maxActivePasses)}</strong><span>current-class slots used</span></div>
             <div class="summary-tile"><strong>${escapeHtml((state.queue || []).length)}</strong><span>waiting in line</span></div>
             <div class="summary-tile"><strong>${escapeHtml(state.checkInsToday.length)}</strong><span>class check-ins today</span></div>
             <div class="summary-tile ${latePassCount ? 'attention' : ''}"><strong>${escapeHtml(latePassCount)}</strong><span>overdue passes</span></div>
+            <div class="summary-tile ${unresolvedEarlier ? 'attention' : ''}"><strong>${escapeHtml(unresolvedEarlier)}</strong><span>earlier-class passes to resolve</span></div>
           </div>`;
         const repeatTripsHtml = repeatPassesToday.length ? `
           <section class="subcard" style="margin-bottom:18px"><h3>repeat trips today</h3>
@@ -1750,6 +1763,12 @@
             <details class="subcard log" id="late-checkins-details" data-teacher-details style="margin-top:18px" ${pendingLateCheckIns.length ? 'open' : ''}>
               <summary>late sign-ins · ${escapeHtml(lateCheckInsToday.length)} today · ${escapeHtml(pendingLateCheckIns.length)} need review</summary>
               <p class="message" style="margin:12px 0">Late students are recorded immediately instead of being denied. Awarding the point also counts the day toward the student’s check-in streak; keeping no point preserves the late record at zero.</p>
+              ${pendingLateCheckIns.length ? `
+                <div class="notice warning" style="margin:12px 0">
+                  <h3>${escapeHtml(pendingLateCheckIns.length)} arrivals need review.</h3>
+                  <p>Use the individual buttons below when decisions differ, or resolve every currently pending late sign-in at once.</p>
+                  <div class="button-row"><button class="secondary" id="award-all-late">award all pending points</button><button class="secondary danger" id="zero-all-late">keep all pending at 0</button></div>
+                </div>` : ''}
               <table><thead><tr><th>student</th><th>class</th><th>signed in</th><th>point</th><th>review</th><th class="action">decision</th></tr></thead><tbody>${lateCheckInRows}</tbody></table>
             </details>
             <section class="subcard" style="margin-top:18px"><h3>record a student’s attendance</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
@@ -2006,6 +2025,24 @@
           adoptState(await call('teacherReviewLateCheckIn', button.dataset.lateCheckinReview, decision));
           renderTeacher();
         })));
+
+        [['award-all-late', 'AWARD_POINT'], ['zero-all-late', 'KEEP_NO_POINT']].forEach(([id, decision]) => {
+          const button = document.querySelector(`#${id}`);
+          if (!button) return;
+          button.addEventListener('click', () => act(button, async () => {
+            const count = pendingLateCheckIns.length;
+            const prompt = decision === 'AWARD_POINT'
+              ? `Award the daily point to all ${count} currently pending late sign-ins? Each original late time stays in the private log.`
+              : `Keep all ${count} currently pending late sign-ins at 0 points? Each original late time stays in the private log.`;
+            if (!await teacherConfirm(prompt)) return;
+            let nextState = null;
+            for (const checkIn of pendingLateCheckIns) {
+              nextState = await call('teacherReviewLateCheckIn', checkIn.checkInId, decision);
+            }
+            if (nextState) adoptState(nextState);
+            renderTeacher();
+          }));
+        });
 
         document.querySelector('#save-pass-limits').addEventListener('click', async (event) => {
           const maxActive = Number(document.querySelector('#max-active-passes').value);
