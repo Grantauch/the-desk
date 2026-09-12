@@ -28,7 +28,9 @@ jobs:
         run: npm ci
 
       - name: Apply Friday field-use hardening
-        run: node scripts/apply-hall-pass-friday-hardening.mjs
+        run: |
+          node scripts/apply-hall-pass-friday-hardening.mjs
+          node scripts/fix-hall-pass-friday-hardening.mjs
 
       - name: Verify Hall Pass
         run: npm run hall-pass:verify
@@ -36,9 +38,10 @@ jobs:
       - name: Commit verified implementation
         run: |
           rm scripts/apply-hall-pass-friday-hardening.mjs
+          rm scripts/fix-hall-pass-friday-hardening.mjs
           rm .github/workflows/apply-hall-pass-friday-hardening.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps-script/hall-pass/Code.gs apps-script/hall-pass/Index.html scripts/test-hall-pass-runtime.cjs scripts/test-hall-pass-app.cjs scripts/apply-hall-pass-friday-hardening.mjs .github/workflows/apply-hall-pass-friday-hardening.yml
+          git add apps-script/hall-pass/Code.gs apps-script/hall-pass/Index.html scripts/test-hall-pass-runtime.cjs scripts/test-hall-pass-app.cjs scripts/apply-hall-pass-friday-hardening.mjs scripts/fix-hall-pass-friday-hardening.mjs .github/workflows/apply-hall-pass-friday-hardening.yml
           git commit -m "Harden Hall Pass after Friday field use"
           git push origin HEAD:hall-pass/friday-field-hardening
