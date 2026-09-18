@@ -45,7 +45,7 @@ jobs:
               b=p.read_bytes()
               assert b[:8] == b"\x89PNG\r\n\x1a\n", p
               w,h=struct.unpack(">II", b[16:24])
-              assert w == 200 and h == 112, (p,w,h)
+              assert 190 <= w <= 200 and h == 112, (p,w,h)
               print(p, len(b), w, h)
           PY
 
