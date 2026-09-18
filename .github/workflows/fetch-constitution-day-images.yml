@@ -1,0 +1,51 @@
+name: Fetch Constitution Day images
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/fetch-constitution-day-images.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download generated images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/images/constitution-day
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2F2424a0ae-2a7a-4710-b88d-716f4a681436/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAANeBJfBApw5nZR4YiyhDH1na0VyEwaK1iCdL2hVjrUNo&exp=1789730740&osig=AAAAAAAAAAAAAAAAAAAAAMEn7gYwjck3u_0ffQkVlc_-CVKuuIR39gQW-yfECl89&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/01-constitution-day.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2F3cea3e29-ff1a-4830-8d52-b1567c5629ba/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAAAUy324xjYksnmlFr5eGXyqRe4Dcd-AdE4WdMn3tjqsW&exp=1789732362&osig=AAAAAAAAAAAAAAAAAAAAAKt-gzq2yl6TlOXXQ-fsIOXVxhcy6uNFmeRDxLhE2LLw&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/02-preamble.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2Fe954f3bf-b962-4b10-95bc-159170665629/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAAC1EnWseiv0g-N6ALe-WOUbbdeO3NCOKxPrC5whN_ewj&exp=1789730126&osig=AAAAAAAAAAAAAAAAAAAAAO49k8inldGrw6jR1Mdfe9AVsB08eDQucVIKdaNimBCT&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/03-philadelphia-1787.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2F219b9a80-8209-4720-ba01-c61e42e06466/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAAFssxcRGs5h0EEtXY1qql9fIvJYuI_hgvrzGtWSSPhCg&exp=1789730191&osig=AAAAAAAAAAAAAAAAAAAAAN4FgXkvkba2z8LYV26EfKed2_lSG9YQVaeCaHVAald4&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/04-separation-of-powers.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2Ffc01180d-6863-4f5a-9607-b65081141716/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAAB4TPZ-2o7JhA4Yuif6QaBVIHnkDVHmZJ1bVkpZutQXW&exp=1789730587&osig=AAAAAAAAAAAAAAAAAAAAAF59Fhn2mL1h9cRg2oMe9uL63yDJaC6_CzdGi23VSIA-&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/05-checks-and-balances.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2Fc81a7c47-308a-49cd-93c2-ecbb0b10ddc1/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAABtczCpsN8WYx4W01xeecu2fBuLqP_rIRqBBuTbalQw0&exp=1789730108&osig=AAAAAAAAAAAAAAAAAAAAAOHmAoSqwePVN8qDDZZU_aLKKbaEzxlx-LkoLW49gyKr&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/06-federalism.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2F0ee94b2c-f5e9-4716-82e5-dd824ea46d99/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAADEx0SRC4YTgf6NfavMvDbAHFboaqTqI_BI5mYHKD0ZV&exp=1789731261&osig=AAAAAAAAAAAAAAAAAAAAAEiuqMhfmmoxtEXCDFNpUyjWzmYIeNs6GG11oYhcyb_u&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/07-bill-of-rights.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2F42e9703e-d5e2-403d-9942-9cffdaf73b1a/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAAB3zMdCDBOzKq-sAbIp649-y2K9ol4P2th3bLL2kf63c&exp=1789733045&osig=AAAAAAAAAAAAAAAAAAAAABfo0wpHTxZfaTDEZRCvJDpnMTVQzPdzDdaYdD9l2z1i&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/08-amending.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2Fa6b8859c-810e-492e-9ced-1b108d0b0176/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAACHaOersKFgknr7ZrnS1Ip5979rW42ey-Vvep_61tuU9&exp=1789731010&osig=AAAAAAAAAAAAAAAAAAAAAHT6OYb0psns_lo54DCiiPRrDEmm9G6hmqUFQxhkjT3O&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/09-presidents-not-kings.png
+          curl -L --fail --retry 3 'https://media.canva.com/v2/image-resize/format:PNG/height:941/quality:100/uri:ifs%3A%2F%2FM%2F4400cf06-fd5f-45b0-a90b-31bb4c7cf240/watermark:F/width:1672?csig=AAAAAAAAAAAAAAAAAAAAAGhI-EC-b9EZ9ehr7p3Vg3IFuMSUJhahprUbuFf4PU-G&exp=1789730810&osig=AAAAAAAAAAAAAAAAAAAAADI7RlK3BHVpIxFgPHWjufbydHsdXOv3XZFn4bXzTAI7&signer=media-rpc&x-canva-quality=thumbnail' -o public/images/constitution-day/10-assignment.png
+      - name: Verify image dimensions
+        run: |
+          python - <<'PY'
+          import glob, struct
+          files=glob.glob("public/images/constitution-day/*.png")
+          assert len(files)==10, len(files)
+          for path in files:
+              with open(path,"rb") as f:
+                  sig=f.read(24)
+              assert sig[:8] == b"\x89PNG\r\n\x1a\n", path
+              w,h=struct.unpack(">II",sig[16:24])
+              print(path,w,h)
+              assert w >= 1200 and h >= 650, (path,w,h)
+          PY
+      - name: Commit images
+        run: |
+          git config user.name "GrantDesk Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/images/constitution-day
+          git diff --cached --quiet || git commit -m "Add Constitution Day visual assets"
+          git push
