@@ -101,7 +101,7 @@ try {
   // Execute the explicit full verification chain with synthetic stage commands.
   // A failure in each stage must prevent all subsequent stages from running.
   const realPackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-  const stages = ['release:test', 'hall-pass:verify', 'tools:test', 'classroom:test', 'audit:test', 'resources:validate', 'storyhub:validate', 'check', 'build', 'site:validate'];
+  const stages = ['release:test', 'hall-pass:verify', 'tools:test', 'classroom:test', 'ready:test', 'audit:test', 'resources:validate', 'storyhub:validate', 'check', 'build', 'site:validate'];
   assert.equal(realPackage.scripts['verify:full'], stages.map((stage) => `npm run ${stage}`).join(' && '));
   const npmPath = process.env.npm_execpath;
   assert.ok(npmPath, 'Run these fixtures via npm run resources:validate so npm is available for gate tests.');

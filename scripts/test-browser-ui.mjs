@@ -8,7 +8,7 @@ import { chromium } from 'playwright';
 const origin = 'http://127.0.0.1:4391';
 const artifacts = new URL('../browser-results/', import.meta.url);
 const artifact = name => fileURLToPath(new URL(name, artifacts));
-const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/check-in/', '/pass/', '/hubs/ush9-l015-who-showed-up.html', '/hubs/bts-l03-not-in-the-room.html', '/hubs/hh-l06-two-sources.html'];
+const routes = ['/', '/us-history/', '/hidden-history/', '/beyond-the-scoreboard/', '/calendar/', '/resources/', '/tools/', '/ready/', '/check-in/', '/pass/', '/hubs/ush9-l015-who-showed-up.html', '/hubs/bts-l03-not-in-the-room.html', '/hubs/hh-l06-two-sources.html'];
 const viewports = [
   { name: 'phone-320', width: 320, height: 740 },
   { name: 'phone-390', width: 390, height: 844 },
@@ -123,6 +123,16 @@ try {
         assert.ok(titles.some(title => title.trim().toLowerCase() === current), `${course} calendar matches course`);
         assert.ok(await page.locator('[data-calendar-event]:visible').evaluateAll((events, course) => events.every(event => ['all', course].includes(event.dataset.course)), course), 'Unrelated milestones hidden');
       }
+    });
+    await runCase('ready sample preflight', viewport, async page => {
+      await visit(page, '/ready/');
+      await page.locator('#load-sample').click();
+      assert.equal(await page.locator('#overall-status .ready-status__label').textContent(), 'blocked');
+      assert.equal(await page.locator('#count-block').textContent(), '1');
+      assert.equal(await page.locator('#count-warning').textContent(), '1');
+      assert.ok(await page.locator('#ready-results').isVisible());
+      assert.equal(await page.locator('#exception-list .ready-exception').count(), 2);
+      assert.match(await page.locator('#ready-message').textContent(), /demonstration data/i);
     });
     await runCase('keyboard page finder', viewport, async page => {
       await visit(page, '/');

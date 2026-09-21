@@ -1,0 +1,766 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+---
+
+<Base
+  title="ready"
+  description="GrantDesk Ready — a read-only classroom preflight that turns tomorrow's problems into a short exception list."
+>
+  <PageHeader
+    eyebrow="grantdesk // teacher operations"
+    title="ready"
+    intro="Check tomorrow before tomorrow checks you."
+  />
+
+  <section class="ready-hero mt-8" aria-labelledby="ready-status-heading">
+    <div>
+      <p class="ready-kicker">classroom preflight // v1</p>
+      <h2 id="ready-status-heading">Is tomorrow actually ready?</h2>
+      <p>
+        Ready turns a GoClassroom preflight snapshot into one short list: what passed, what needs attention,
+        and what will block class if you leave it alone.
+      </p>
+    </div>
+    <div class="ready-status ready-status--idle" id="overall-status" aria-live="polite">
+      <span class="ready-status__dot" aria-hidden="true"></span>
+      <div>
+        <p class="ready-status__label">waiting for a scan</p>
+        <p class="ready-status__detail">Load a Ready Snapshot JSON file or use the sample preview.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ready-controls mt-5" aria-labelledby="ready-load-heading">
+    <div>
+      <p class="ready-step">01</p>
+      <h2 id="ready-load-heading">load a preflight.</h2>
+      <p>
+        V1 reads a sanitized JSON snapshot in this browser tab. The page does not upload the file or send student data anywhere.
+      </p>
+    </div>
+    <div class="ready-control-actions">
+      <label class="ready-file-button" for="ready-file">
+        choose snapshot
+        <input id="ready-file" type="file" accept=".json,application/json" />
+      </label>
+      <button type="button" id="load-sample" class="ready-secondary-button">preview sample</button>
+      <button type="button" id="clear-ready" class="ready-quiet-button" disabled>clear</button>
+    </div>
+    <p id="ready-message" class="ready-message" role="status" aria-live="polite">
+      No classroom data loaded.
+    </p>
+  </section>
+
+  <section id="ready-results" class="mt-6 ready-hidden" aria-labelledby="ready-results-heading">
+    <div class="ready-results-head">
+      <div>
+        <p class="ready-step">02</p>
+        <h2 id="ready-results-heading">exceptions first.</h2>
+        <p id="snapshot-meta" class="ready-meta"></p>
+      </div>
+      <div class="ready-summary" aria-label="Ready check totals">
+        <div><strong id="count-block">0</strong><span>blocking</span></div>
+        <div><strong id="count-warning">0</strong><span>warning</span></div>
+        <div><strong id="count-pass">0</strong><span>passed</span></div>
+      </div>
+    </div>
+
+    <section class="ready-queue mt-4" aria-labelledby="ready-queue-heading">
+      <div class="ready-section-heading">
+        <h3 id="ready-queue-heading">teacher exception queue</h3>
+        <p id="queue-caption">Only things that need you appear here.</p>
+      </div>
+      <div id="exception-list" class="ready-exception-list"></div>
+      <div id="all-clear" class="ready-all-clear ready-hidden">
+        <strong>No exceptions.</strong>
+        <span>Every check in this snapshot passed.</span>
+      </div>
+    </section>
+
+    <section class="mt-5" aria-labelledby="ready-courses-heading">
+      <div class="ready-section-heading">
+        <h3 id="ready-courses-heading">class-by-class checks</h3>
+        <p>Open a class to see everything Ready checked, including passes.</p>
+      </div>
+      <div id="course-list" class="ready-course-list mt-3"></div>
+    </section>
+  </section>
+
+  <aside class="ready-boundary mt-6">
+    <p class="ready-kicker">v1 safety boundary</p>
+    <h2>read first. change nothing.</h2>
+    <p>
+      Ready V1 is diagnostic only. It does not change due dates, repair permissions, edit assignments, grade work,
+      submit anything, or publish anything. A later version can add teacher-approved repairs after the read-only scanner is proven.
+    </p>
+  </aside>
+
+  <style is:global>
+    .ready-hero,
+    .ready-controls,
+    .ready-queue,
+    .ready-boundary {
+      border: 1px solid color-mix(in srgb, var(--color-accent) 17%, var(--color-line));
+      border-radius: 1rem;
+      background: white;
+      box-shadow: 0 20px 50px -44px rgb(23 23 28 / 0.55);
+    }
+
+    .ready-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.72fr);
+      gap: 1.2rem;
+      padding: clamp(1.25rem, 4vw, 2rem);
+      background:
+        radial-gradient(circle at 88% 18%, rgb(31 44 230 / 0.09), transparent 15rem),
+        white;
+    }
+
+    .ready-hero h2,
+    .ready-controls h2,
+    .ready-boundary h2 {
+      margin-top: 0.35rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.65rem, 5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .ready-hero > div > p:not(.ready-kicker),
+    .ready-controls > div > p,
+    .ready-boundary > p:not(.ready-kicker) {
+      margin-top: 0.7rem;
+      max-width: 44rem;
+      color: var(--color-ink-soft);
+      line-height: 1.6;
+    }
+
+    .ready-kicker,
+    .ready-step,
+    .ready-meta {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .ready-kicker,
+    .ready-step {
+      color: var(--color-accent);
+    }
+
+    .ready-step {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .ready-status {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+      min-height: 8.4rem;
+      padding: 1rem;
+      border: 1px solid var(--color-line);
+      border-radius: 0.9rem;
+      background: rgb(250 250 247 / 0.8);
+    }
+
+    .ready-status__dot {
+      width: 0.8rem;
+      height: 0.8rem;
+      margin-top: 0.25rem;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--color-ink-soft);
+      box-shadow: 0 0 0 0.28rem rgb(23 23 28 / 0.08);
+    }
+
+    .ready-status__label {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      text-transform: lowercase;
+    }
+
+    .ready-status__detail {
+      margin-top: 0.35rem;
+      color: var(--color-ink-soft);
+      font-size: 0.83rem;
+      line-height: 1.45;
+    }
+
+    .ready-status--ready {
+      border-color: #a9c5ad;
+      background: #f4faf5;
+    }
+
+    .ready-status--ready .ready-status__dot {
+      background: #21753a;
+      box-shadow: 0 0 0 0.28rem rgb(33 117 58 / 0.1);
+    }
+
+    .ready-status--attention {
+      border-color: #dec27a;
+      background: #fffaf0;
+    }
+
+    .ready-status--attention .ready-status__dot {
+      background: #a46b00;
+      box-shadow: 0 0 0 0.28rem rgb(164 107 0 / 0.1);
+    }
+
+    .ready-status--blocked {
+      border-color: #e3a4a4;
+      background: #fff6f6;
+    }
+
+    .ready-status--blocked .ready-status__dot {
+      background: #a42a2a;
+      box-shadow: 0 0 0 0.28rem rgb(164 42 42 / 0.1);
+    }
+
+    .ready-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1.2rem 2rem;
+      align-items: center;
+      padding: 1.25rem;
+    }
+
+    .ready-control-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.55rem;
+    }
+
+    .ready-file-button,
+    .ready-secondary-button,
+    .ready-quiet-button {
+      display: inline-flex;
+      min-height: 2.85rem;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.95rem;
+      border-radius: 0.72rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: lowercase;
+      cursor: pointer;
+      transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease;
+    }
+
+    .ready-file-button {
+      border: 1px solid var(--color-accent-dark);
+      background: var(--color-accent);
+      color: white;
+    }
+
+    .ready-file-button:hover,
+    .ready-secondary-button:hover,
+    .ready-quiet-button:not(:disabled):hover {
+      transform: translateY(-1px);
+    }
+
+    .ready-file-button input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .ready-secondary-button {
+      border: 1px solid var(--color-ink);
+      background: white;
+      color: var(--color-ink);
+    }
+
+    .ready-quiet-button {
+      border: 1px solid var(--color-line);
+      background: transparent;
+      color: var(--color-ink-soft);
+    }
+
+    .ready-quiet-button:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+
+    .ready-message {
+      grid-column: 1 / -1;
+      margin-top: -0.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--color-line);
+      color: var(--color-ink-soft);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .ready-message[data-error="true"] {
+      color: #8d2323;
+      font-weight: 700;
+    }
+
+    .ready-results-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1.2rem;
+    }
+
+    .ready-results-head h2 {
+      margin-top: 0.25rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .ready-meta {
+      margin-top: 0.55rem;
+      color: var(--color-ink-soft);
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+
+    .ready-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(4.7rem, 1fr));
+      min-width: min(100%, 17rem);
+      overflow: hidden;
+      border: 1px solid var(--color-line);
+      border-radius: 0.8rem;
+      background: white;
+    }
+
+    .ready-summary > div {
+      padding: 0.75rem 0.65rem;
+      text-align: center;
+    }
+
+    .ready-summary > div + div {
+      border-left: 1px solid var(--color-line);
+    }
+
+    .ready-summary strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      line-height: 1;
+    }
+
+    .ready-summary span {
+      display: block;
+      margin-top: 0.28rem;
+      color: var(--color-ink-soft);
+      font-family: var(--font-mono);
+      font-size: 0.61rem;
+      text-transform: uppercase;
+    }
+
+    .ready-queue,
+    .ready-boundary {
+      padding: 1.25rem;
+    }
+
+    .ready-section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .ready-section-heading h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-transform: lowercase;
+    }
+
+    .ready-section-heading p {
+      color: var(--color-ink-soft);
+      font-size: 0.78rem;
+    }
+
+    .ready-exception-list {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .ready-exception {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.8rem;
+      padding: 0.9rem;
+      border: 1px solid var(--color-line);
+      border-radius: 0.8rem;
+      background: rgb(250 250 247 / 0.65);
+    }
+
+    .ready-exception[data-status="block"] {
+      border-color: #e3a4a4;
+      background: #fff8f8;
+    }
+
+    .ready-exception[data-status="warning"] {
+      border-color: #dec27a;
+      background: #fffbf3;
+    }
+
+    .ready-badge {
+      display: inline-flex;
+      min-width: 4.6rem;
+      height: 1.75rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.61rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .ready-badge[data-status="block"] {
+      background: #f3d8d8;
+      color: #842222;
+    }
+
+    .ready-badge[data-status="warning"] {
+      background: #f3e6bd;
+      color: #755000;
+    }
+
+    .ready-badge[data-status="pass"] {
+      background: #dcecdf;
+      color: #1d6833;
+    }
+
+    .ready-exception h4,
+    .ready-check-copy strong {
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .ready-exception__course {
+      margin-top: 0.18rem;
+      color: var(--color-ink-soft);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+    }
+
+    .ready-exception__detail,
+    .ready-check-copy p {
+      margin-top: 0.45rem;
+      color: var(--color-ink-soft);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .ready-exception__action {
+      margin-top: 0.55rem;
+      font-size: 0.8rem;
+      font-weight: 650;
+    }
+
+    .ready-all-clear {
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid #a9c5ad;
+      border-radius: 0.8rem;
+      background: #f4faf5;
+    }
+
+    .ready-all-clear strong,
+    .ready-all-clear span {
+      display: block;
+    }
+
+    .ready-all-clear span {
+      margin-top: 0.2rem;
+      color: var(--color-ink-soft);
+      font-size: 0.82rem;
+    }
+
+    .ready-course-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .ready-course {
+      overflow: hidden;
+      border: 1px solid var(--color-line);
+      border-radius: 0.9rem;
+      background: white;
+    }
+
+    .ready-course summary {
+      display: flex;
+      min-height: 3.6rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      list-style: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+
+    .ready-course summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .ready-course__counts {
+      color: var(--color-ink-soft);
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+    }
+
+    .ready-course__checks {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .ready-check {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+    }
+
+    .ready-check + .ready-check {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .ready-boundary {
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 72%, white), white 60%);
+    }
+
+    .ready-hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .ready-hero,
+      .ready-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .ready-control-actions {
+        justify-content: flex-start;
+      }
+
+      .ready-results-head,
+      .ready-section-heading {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .ready-summary {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <script>
+    import {
+      sampleReadySnapshot,
+      summarizeReadySnapshot,
+      validateReadySnapshot,
+      type ReadyCheck,
+      type ReadySnapshot,
+    } from '../lib/ready-engine';
+
+    const fileInput = document.querySelector<HTMLInputElement>('#ready-file')!;
+    const sampleButton = document.querySelector<HTMLButtonElement>('#load-sample')!;
+    const clearButton = document.querySelector<HTMLButtonElement>('#clear-ready')!;
+    const message = document.querySelector<HTMLElement>('#ready-message')!;
+    const results = document.querySelector<HTMLElement>('#ready-results')!;
+    const statusCard = document.querySelector<HTMLElement>('#overall-status')!;
+    const statusLabel = statusCard.querySelector<HTMLElement>('.ready-status__label')!;
+    const statusDetail = statusCard.querySelector<HTMLElement>('.ready-status__detail')!;
+    const snapshotMeta = document.querySelector<HTMLElement>('#snapshot-meta')!;
+    const exceptionList = document.querySelector<HTMLElement>('#exception-list')!;
+    const allClear = document.querySelector<HTMLElement>('#all-clear')!;
+    const courseList = document.querySelector<HTMLElement>('#course-list')!;
+    const queueCaption = document.querySelector<HTMLElement>('#queue-caption')!;
+
+    const countBlock = document.querySelector<HTMLElement>('#count-block')!;
+    const countWarning = document.querySelector<HTMLElement>('#count-warning')!;
+    const countPass = document.querySelector<HTMLElement>('#count-pass')!;
+
+    const make = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string) => {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    };
+
+    const badge = (status: ReadyCheck['status']) => {
+      const element = make('span', 'ready-badge', status === 'block' ? 'blocking' : status);
+      element.dataset.status = status;
+      return element;
+    };
+
+    const formatTime = (iso: string) => {
+      const date = new Date(iso);
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(date);
+    };
+
+    const renderException = (courseName: string, check: ReadyCheck) => {
+      const row = make('article', 'ready-exception');
+      row.dataset.status = check.status;
+      row.append(badge(check.status));
+
+      const copy = make('div');
+      copy.append(make('h4', '', check.assignmentTitle ? `${check.label} — ${check.assignmentTitle}` : check.label));
+      copy.append(make('p', 'ready-exception__course', courseName));
+      copy.append(make('p', 'ready-exception__detail', check.detail));
+      if (check.suggestedAction) copy.append(make('p', 'ready-exception__action', `Next: ${check.suggestedAction}`));
+      row.append(copy);
+      return row;
+    };
+
+    const renderCourse = (course: ReadySnapshot['courses'][number]) => {
+      const details = make('details', 'ready-course');
+      const summary = make('summary');
+      const title = make('span', '', course.windowLabel ? `${course.courseName} · ${course.windowLabel}` : course.courseName);
+      const blocked = course.checks.filter(check => check.status === 'block').length;
+      const warnings = course.checks.filter(check => check.status === 'warning').length;
+      const passed = course.checks.filter(check => check.status === 'pass').length;
+      summary.append(title);
+      summary.append(make('span', 'ready-course__counts', `${blocked} block · ${warnings} warn · ${passed} pass`));
+      details.append(summary);
+
+      const checks = make('div', 'ready-course__checks');
+      for (const check of course.checks) {
+        const row = make('div', 'ready-check');
+        row.append(badge(check.status));
+        const copy = make('div', 'ready-check-copy');
+        copy.append(make('strong', '', check.assignmentTitle ? `${check.label} — ${check.assignmentTitle}` : check.label));
+        copy.append(make('p', '', check.detail));
+        if (check.suggestedAction) copy.append(make('p', '', `Next: ${check.suggestedAction}`));
+        row.append(copy);
+        checks.append(row);
+      }
+      details.append(checks);
+      return details;
+    };
+
+    const setStatus = (status: 'READY' | 'NEEDS_ATTENTION' | 'BLOCKED' | 'IDLE', detail: string) => {
+      statusCard.className = 'ready-status';
+      if (status === 'READY') statusCard.classList.add('ready-status--ready');
+      else if (status === 'NEEDS_ATTENTION') statusCard.classList.add('ready-status--attention');
+      else if (status === 'BLOCKED') statusCard.classList.add('ready-status--blocked');
+      else statusCard.classList.add('ready-status--idle');
+
+      statusLabel.textContent =
+        status === 'READY' ? 'ready' :
+        status === 'NEEDS_ATTENTION' ? 'needs attention' :
+        status === 'BLOCKED' ? 'blocked' :
+        'waiting for a scan';
+      statusDetail.textContent = detail;
+    };
+
+    const render = (raw: unknown, label: string) => {
+      const snapshot = validateReadySnapshot(raw);
+      const summary = summarizeReadySnapshot(snapshot);
+      const exceptions = snapshot.courses.flatMap(course =>
+        course.checks
+          .filter(check => check.status !== 'pass')
+          .map(check => ({ courseName: course.courseName, check })),
+      );
+
+      countBlock.textContent = String(summary.block);
+      countWarning.textContent = String(summary.warning);
+      countPass.textContent = String(summary.pass);
+      snapshotMeta.textContent =
+        `${snapshot.source} ${snapshot.sourceVersion} · ${snapshot.courses.length} class${snapshot.courses.length === 1 ? '' : 'es'} · generated ${formatTime(snapshot.generatedAt)}`;
+
+      exceptionList.replaceChildren();
+      courseList.replaceChildren();
+      for (const item of exceptions) exceptionList.append(renderException(item.courseName, item.check));
+      for (const course of snapshot.courses) courseList.append(renderCourse(course));
+
+      allClear.classList.toggle('ready-hidden', exceptions.length !== 0);
+      queueCaption.textContent = exceptions.length
+        ? `${exceptions.length} item${exceptions.length === 1 ? '' : 's'} need teacher attention.`
+        : 'Nothing needs teacher attention in this snapshot.';
+
+      const detail =
+        summary.status === 'READY'
+          ? `All ${summary.total} checks passed.`
+          : summary.status === 'NEEDS_ATTENTION'
+            ? `${summary.warning} warning${summary.warning === 1 ? '' : 's'} need a look; nothing is blocking.`
+            : `${summary.block} blocking check${summary.block === 1 ? '' : 's'} should be fixed before class.`;
+      setStatus(summary.status, detail);
+
+      results.classList.remove('ready-hidden');
+      clearButton.disabled = false;
+      message.dataset.error = 'false';
+      message.textContent = `${label} loaded. Validation passed.`;
+    };
+
+    const reset = () => {
+      fileInput.value = '';
+      results.classList.add('ready-hidden');
+      exceptionList.replaceChildren();
+      courseList.replaceChildren();
+      clearButton.disabled = true;
+      message.dataset.error = 'false';
+      message.textContent = 'No classroom data loaded.';
+      setStatus('IDLE', 'Load a Ready Snapshot JSON file or use the sample preview.');
+    };
+
+    sampleButton.addEventListener('click', () => {
+      try {
+        render(structuredClone(sampleReadySnapshot), 'Sample snapshot');
+        message.textContent = 'Sample preview loaded — this is demonstration data, not a live classroom scan.';
+      } catch (error) {
+        message.dataset.error = 'true';
+        message.textContent = error instanceof Error ? error.message : 'The sample snapshot could not be loaded.';
+      }
+    });
+
+    clearButton.addEventListener('click', reset);
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      if (file.size > 2_000_000) {
+        message.dataset.error = 'true';
+        message.textContent = 'That snapshot is larger than 2 MB. Ready stopped before reading it.';
+        fileInput.value = '';
+        return;
+      }
+
+      try {
+        const raw = JSON.parse(await file.text());
+        render(raw, file.name);
+      } catch (error) {
+        results.classList.add('ready-hidden');
+        clearButton.disabled = true;
+        setStatus('IDLE', 'The snapshot did not pass validation. Nothing was changed.');
+        message.dataset.error = 'true';
+        message.textContent = error instanceof Error ? error.message : 'That file is not a valid Ready Snapshot JSON file.';
+      }
+    });
+  </script>
+</Base>
