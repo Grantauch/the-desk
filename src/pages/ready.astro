@@ -52,7 +52,7 @@ import PageHeader from '../components/PageHeader.astro';
     </p>
   </section>
 
-  <section id="ready-results" class="mt-6 hidden" aria-labelledby="ready-results-heading">
+  <section id="ready-results" class="mt-6 ready-hidden" aria-labelledby="ready-results-heading">
     <div class="ready-results-head">
       <div>
         <p class="ready-step">02</p>
@@ -72,7 +72,7 @@ import PageHeader from '../components/PageHeader.astro';
         <p id="queue-caption">Only things that need you appear here.</p>
       </div>
       <div id="exception-list" class="ready-exception-list"></div>
-      <div id="all-clear" class="ready-all-clear hidden">
+      <div id="all-clear" class="ready-all-clear ready-hidden">
         <strong>No exceptions.</strong>
         <span>Every check in this snapshot passed.</span>
       </div>
@@ -550,7 +550,7 @@ import PageHeader from '../components/PageHeader.astro';
         linear-gradient(135deg, color-mix(in srgb, var(--color-accent-soft) 72%, white), white 60%);
     }
 
-    .hidden {
+    .ready-hidden {
       display: none !important;
     }
 
@@ -699,7 +699,7 @@ import PageHeader from '../components/PageHeader.astro';
       for (const item of exceptions) exceptionList.append(renderException(item.courseName, item.check));
       for (const course of snapshot.courses) courseList.append(renderCourse(course));
 
-      allClear.classList.toggle('hidden', exceptions.length !== 0);
+      allClear.classList.toggle('ready-hidden', exceptions.length !== 0);
       queueCaption.textContent = exceptions.length
         ? `${exceptions.length} item${exceptions.length === 1 ? '' : 's'} need teacher attention.`
         : 'Nothing needs teacher attention in this snapshot.';
@@ -712,7 +712,7 @@ import PageHeader from '../components/PageHeader.astro';
             : `${summary.block} blocking check${summary.block === 1 ? '' : 's'} should be fixed before class.`;
       setStatus(summary.status, detail);
 
-      results.classList.remove('hidden');
+      results.classList.remove('ready-hidden');
       clearButton.disabled = false;
       message.dataset.error = 'false';
       message.textContent = `${label} loaded. Validation passed.`;
@@ -720,7 +720,7 @@ import PageHeader from '../components/PageHeader.astro';
 
     const reset = () => {
       fileInput.value = '';
-      results.classList.add('hidden');
+      results.classList.add('ready-hidden');
       exceptionList.replaceChildren();
       courseList.replaceChildren();
       clearButton.disabled = true;
@@ -755,7 +755,7 @@ import PageHeader from '../components/PageHeader.astro';
         const raw = JSON.parse(await file.text());
         render(raw, file.name);
       } catch (error) {
-        results.classList.add('hidden');
+        results.classList.add('ready-hidden');
         clearButton.disabled = true;
         setStatus('IDLE', 'The snapshot did not pass validation. Nothing was changed.');
         message.dataset.error = 'true';
