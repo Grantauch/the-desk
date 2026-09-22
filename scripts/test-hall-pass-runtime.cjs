@@ -148,6 +148,19 @@ test('duplicate active roster memberships fail closed instead of selecting an ar
   );
 });
 
+test('workbook setup refuses an active PIN email batch before mutating workbook state', () => {
+  const c = classroom();
+  const settings = c.harness.sheet('Settings');
+  const before = JSON.stringify(settings.records());
+  c.harness.properties.setProperty('PIN_EMAIL_RUNNING', String(new Date('2026-09-10T11:50:00Z').getTime()));
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('setupWorkbook_'),
+    /PIN records cannot be changed while a PIN email batch is running/
+  );
+  assert.equal(JSON.stringify(settings.records()), before, 'setup must fail before changing workbook state');
+});
+
 test('setup removes obsolete calendar-source settings that never controlled runtime', () => {
   const c = classroom();
   const settings = c.harness.sheet('Settings');
