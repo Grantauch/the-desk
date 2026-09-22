@@ -122,6 +122,9 @@ assert.match(setupWorkbook, /rebuildCheckInOperationalIndex_\(\)/);
 assert.match(functionSource('ensureSheet_'), /unexpected column/);
 assert.match(functionSource('ensureSheet_'), /Restore the GrantDesk column order/);
 assert.match(setupWorkbook, /'TIME_ZONE'.*'DESTINATIONS'.*'QUEUE_CLAIM_MINUTES'/s, 'Stale fake settings must be removed during migration');
+assert.match(setupWorkbook, /SCHOOL_CALENDAR_FILE_ID/);
+assert.match(setupWorkbook, /SCHOOL_CALENDAR_FALLBACK_URL/);
+assert.doesNotMatch(code.match(/const GD_DEFAULT_SETTINGS = \[[\s\S]*?\n\];/)?.[0] || '', /SCHOOL_CALENDAR_FILE_ID|SCHOOL_CALENDAR_FALLBACK_URL/, 'Calendar source references must not masquerade as runtime settings');
 
 const studentState = functionSource('getStudentState_');
 assert.match(studentState, /passAllowance:\s*studentAllowanceView_\(allowance,\s*Boolean\(detail\.includeEvidence\)\)/);
