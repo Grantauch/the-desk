@@ -1799,6 +1799,128 @@ test('reversing a late-review decision preserves each distinct audit transition'
 
 
 
+section('Teacher action partial-commit recovery');
+
+test('teacher backup Check-In does not claim a student-originated arrival', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.checkIn(PEOPLE.ada, 'Period 1');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherCheckInStudent', key, '', TEACHER_CONTRACT);
+
+  const audits = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry.Action) === 'CHECKIN_RECORDED' && String(entry['Reference ID']) === String(c.checkIns()[0]['Check-in ID']));
+  assert.equal(audits.length, 0, 'teacher must not be credited for a student-originated Check-In');
+});
+
+test('teacher Check-In retry repairs audit evidence after the attendance row committed', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  const originalAudit = c.harness.sandbox.auditTeacherAction_;
+  c.harness.sandbox.auditTeacherAction_ = () => { throw new Error('synthetic teacher-audit outage'); };
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(
+    () => c.harness.call('teacherCheckInStudent', key, '', TEACHER_CONTRACT),
+    /synthetic teacher-audit outage/
+  );
+  c.harness.sandbox.auditTeacherAction_ = originalAudit;
+  assert.equal(c.checkIns().length, 1);
+  assert.equal(String(c.checkIns()[0].Method), 'teacher');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherCheckInStudent', key, '', TEACHER_CONTRACT);
+  const audits = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry.Action) === 'CHECKIN_RECORDED' && String(entry['Reference ID']) === String(c.checkIns()[0]['Check-in ID']));
+  assert.equal(audits.length, 1, 'retry must restore exactly one teacher Check-In audit');
+  assert.equal(c.checkIns().length, 1, 'retry must not duplicate attendance');
+});
+
+test('teacher pass-start retry repairs audit and stale queue after a partial commit', () => {
+  const c = classroom({ settings: { MAX_ACTIVE_PASSES: 1, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 5 } });
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED');
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.alan, 'Period 1')).kind, 'QUEUED');
+  const adaPass = c.passLog().find((row) => row['Student Email'] === PEOPLE.ada.email && String(row.Status) === 'OUT');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('closePassById_', String(adaPass['Pass ID']), TEACHER, 'Synthetic setup close');
+  assert.ok(c.passQueue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'));
+
+  const originalAudit = c.harness.sandbox.auditTeacherAction_;
+  c.harness.sandbox.auditTeacherAction_ = () => { throw new Error('synthetic pass-start audit outage'); };
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('teacherStartPass', c.key(PEOPLE.alan, 'Period 1'), 'Synthetic teacher recovery', TEACHER_CONTRACT),
+    /synthetic pass-start audit outage/
+  );
+  c.harness.sandbox.auditTeacherAction_ = originalAudit;
+
+  const alanPass = c.passLog().find((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'OUT');
+  assert.ok(alanPass, 'teacher-started pass must already be authoritative after the injected failure');
+  assert.ok(c.passQueue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'),
+    'queue cleanup was intentionally skipped by the injected failure');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherStartPass', c.key(PEOPLE.alan, 'Period 1'), 'Synthetic teacher recovery', TEACHER_CONTRACT);
+
+  const audits = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry['Reference ID']) === String(alanPass['Pass ID']) && /PASS_STARTED/.test(String(entry.Action)));
+  assert.equal(audits.length, 1, 'retry must restore exactly one pass-start audit');
+  assert.equal(c.passLog().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'OUT').length, 1);
+  assert.equal(c.passQueue().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING').length, 0,
+    'retry must finish stale queue cleanup');
+});
+
+test('teacher pass-return retry repairs audit and resumes queue settlement', () => {
+  const c = classroom({ settings: { MAX_ACTIVE_PASSES: 1, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 5 } });
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED');
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.alan, 'Period 1')).kind, 'QUEUED');
+  const adaPass = c.passLog().find((row) => row['Student Email'] === PEOPLE.ada.email && String(row.Status) === 'OUT');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('closePassById_', String(adaPass['Pass ID']), TEACHER, 'Persisted teacher return');
+  assert.ok(c.passQueue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'));
+
+  c.harness.newRequest();
+  c.harness.call('teacherEndPass', String(adaPass['Pass ID']), 'Retry after partial commit', TEACHER_CONTRACT);
+
+  const audits = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry.Action) === 'PASS_RETURNED' && String(entry['Reference ID']) === String(adaPass['Pass ID']));
+  assert.equal(audits.length, 1, 'retry must restore missing pass-return audit');
+  assert.equal(c.passQueue().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING').length, 0);
+  assert.ok(c.passLog().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'OUT'),
+    'retry must resume queue settlement into the newly open slot');
+});
+
+test('absence mark and clear retries preserve exactly one audit transition each', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherMarkStudentAbsent', key, TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.call('teacherMarkStudentAbsent', key, TEACHER_CONTRACT);
+  const absenceId = String(c.checkIns().find((row) => String(row.Status) === 'ABSENT')['Check-in ID']);
+
+  c.harness.newRequest();
+  c.harness.call('teacherClearStudentAbsent', key, TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.call('teacherClearStudentAbsent', key, TEACHER_CONTRACT);
+
+  const actions = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry['Reference ID']) === absenceId)
+    .map((entry) => String(entry.Action));
+  assert.deepEqual(actions, ['ABSENCE_MARKED', 'ABSENCE_CLEARED']);
+  assert.equal(String(c.checkIns()[0].Status), 'CLEARED');
+});
+
 section('Configured session messaging');
 
 test('pass-window denial text reflects configured first/last protection values', () => {
