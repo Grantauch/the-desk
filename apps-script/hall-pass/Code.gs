@@ -403,7 +403,6 @@ function onOpen() {
     .addItem('2. Generate missing student PINs', 'generateMissingPins')
     .addItem('Preview PIN email distribution', 'previewPinEmailDistribution')
     .addItem('Email unsent PINs…', 'emailStudentPinsFromSheet')
-    .addItem('Clear printed PIN cards', 'clearPinCards')
     .addSeparator()
     .addItem('Open today’s check-in log', 'openTodayCheckIns')
     .addItem('Archive old operational rows now', 'purgeOldPasses')
@@ -2203,65 +2202,52 @@ function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
   );
 }
 
-function teacherSetPassRules(maxActivePasses, studentPassLimit, dailyPassLimit, cooldownMinutes, lateMinutes, staleMinutes) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  const maxActive = Number(maxActivePasses);
-  const perStudentLimit = Number(studentPassLimit);
-  const perDayLimit = Number(dailyPassLimit);
-  const cooldown = Number(cooldownMinutes);
-  const late = Number(lateMinutes);
-  const stale = Number(staleMinutes);
-  if (!Number.isInteger(maxActive) || maxActive < 1 || maxActive > 10) {
-    throw new Error('Concurrent passes must be a whole number from 1 through 10.');
-  }
-  if (!Number.isInteger(perStudentLimit) || perStudentLimit < 0 || perStudentLimit > 500) {
-    throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
-  }
-  if (!Number.isInteger(perDayLimit) || perDayLimit < 0 || perDayLimit > 25) {
-    throw new Error('The daily pass limit must be a whole number from 0 through 25. Use 0 for unlimited.');
-  }
-  if (!Number.isInteger(cooldown) || cooldown < 0 || cooldown > 180) {
-    throw new Error('The return cooldown must be a whole number from 0 through 180 minutes.');
-  }
-  if (!Number.isInteger(late) || late < 1 || late > 120) {
-    throw new Error('The late-pass warning must be a whole number from 1 through 120 minutes.');
-  }
-  if (!Number.isInteger(stale) || stale < late || stale > 240) {
-    throw new Error('The forgotten-pass warning must be a whole number at least as large as the late warning and no more than 240 minutes.');
-  }
-  withLock_(() => {
-    setSettingValue_('MAX_ACTIVE_PASSES', String(maxActive));
-    setSettingValue_('STUDENT_PASS_LIMIT', String(perStudentLimit));
-    setSettingValue_('DAILY_PASS_LIMIT', String(perDayLimit));
-    setSettingValue_('PASS_COOLDOWN_MINUTES', String(cooldown));
-    setSettingValue_('LATE_AFTER_MINUTES', String(late));
-    setSettingValue_('STALE_PASS_MINUTES', String(stale));
-    settleWaitingQueue_();
+function teacherSetPassRules(maxActivePasses,studentPassLimit,dailyPassLimit,cooldownMinutes,lateMinutes,staleMinutes){
+  const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before);
+  const maxActive=Number(maxActivePasses),perStudentLimit=Number(studentPassLimit),perDayLimit=Number(dailyPassLimit),
+    cooldown=Number(cooldownMinutes),late=Number(lateMinutes),stale=Number(staleMinutes);
+  if(!Number.isInteger(maxActive)||maxActive<1||maxActive>10) throw new Error('Concurrent passes must be a whole number from 1 through 10.');
+  if(!Number.isInteger(perStudentLimit)||perStudentLimit<0||perStudentLimit>500) throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
+  if(!Number.isInteger(perDayLimit)||perDayLimit<0||perDayLimit>25) throw new Error('The daily pass limit must be a whole number from 0 through 25. Use 0 for unlimited.');
+  if(!Number.isInteger(cooldown)||cooldown<0||cooldown>180) throw new Error('The return cooldown must be a whole number from 0 through 180 minutes.');
+  if(!Number.isInteger(late)||late<1||late>120) throw new Error('The late-pass warning must be a whole number from 1 through 120 minutes.');
+  if(!Number.isInteger(stale)||stale<late||stale>240) throw new Error('The forgotten-pass warning must be a whole number at least as large as the late warning and no more than 240 minutes.');
+  withLock_(()=>{
+    setSettingValue_('MAX_ACTIVE_PASSES',String(maxActive)); setSettingValue_('STUDENT_PASS_LIMIT',String(perStudentLimit));
+    setSettingValue_('DAILY_PASS_LIMIT',String(perDayLimit)); setSettingValue_('PASS_COOLDOWN_MINUTES',String(cooldown));
+    setSettingValue_('LATE_AFTER_MINUTES',String(late)); setSettingValue_('STALE_PASS_MINUTES',String(stale)); settleWaitingQueue_();
+    const detail=[`capacity ${before.MAX_ACTIVE_PASSES||''}->${maxActive}`,`class limit ${before.STUDENT_PASS_LIMIT||''}->${perStudentLimit}`,
+      `daily limit ${before.DAILY_PASS_LIMIT||''}->${perDayLimit}`,`cooldown ${before.PASS_COOLDOWN_MINUTES||''}->${cooldown}`,
+      `late ${before.LATE_AFTER_MINUTES||''}->${late}`,`stale ${before.STALE_PASS_MINUTES||''}->${stale}`].join('; ');
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'PASS_RULES_CHANGED',[],detail,'');
   });
-  return getTeacherState_({ includePinStatus: false });
+  return getTeacherState_({includePinStatus:false});
 }
 
-function teacherSetCheckInWindow(checkInWindowMinutes, clientContract) {
-  const teacher = getActiveEmail_();
-  assertTeacher_(teacher, getSettings_());
-  assertTeacherClient_(clientContract);
-  const minutes = Number(checkInWindowMinutes);
-  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 240) {
-    throw new Error('The on-time check-in window must be a whole number from 1 through 240 minutes.');
-  }
-  withLock_(() => setSettingValue_('CHECKIN_WINDOW_MINUTES', String(minutes)));
-  const state = getTeacherState_({ includePinStatus: false });
-  state.noticeMessage = `On-time check-ins now run for ${minutes} minute${minutes === 1 ? '' : 's'} after each class begins. Later student sign-ins will still be recorded for your point review.`;
+function teacherSetCheckInWindow(checkInWindowMinutes,clientContract){
+  const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before); assertTeacherClient_(clientContract);
+  const minutes=Number(checkInWindowMinutes);
+  if(!Number.isInteger(minutes)||minutes<1||minutes>240) throw new Error('The on-time check-in window must be a whole number from 1 through 240 minutes.');
+  withLock_(()=>{
+    setSettingValue_('CHECKIN_WINDOW_MINUTES',String(minutes));
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'CHECKIN_WINDOW_CHANGED',[],
+      `${before.CHECKIN_WINDOW_MINUTES||''} -> ${minutes} minutes`,'');
+  });
+  const state=getTeacherState_({includePinStatus:false});
+  state.noticeMessage=`On-time check-ins now run for ${minutes} minute${minutes===1?'':'s'} after each class begins. Later student sign-ins are accepted only until that class ends.`;
   return state;
 }
 
-function teacherResetStudentPassCounters(confirmText) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  if (String(confirmText || '') !== 'RESET ALL STUDENTS') {
-    throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
-  }
-  withLock_(() => setSettingValue_('STUDENT_PASS_RESET_AT', new Date().toISOString()));
-  return getTeacherState_({ includePinStatus: false });
+function teacherResetStudentPassCounters(confirmText){
+  const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings);
+  if(String(confirmText||'')!=='RESET ALL STUDENTS') throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
+  const resetAt=new Date().toISOString();
+  withLock_(()=>{
+    setSettingValue_('STUDENT_PASS_RESET_AT',resetAt);
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'PASS_MARKING_PERIOD_RESET',[],
+      `Previous reset ${settings.STUDENT_PASS_RESET_AT||'none'}; new reset ${resetAt}`,'');
+  });
+  return getTeacherState_({includePinStatus:false});
 }
 
 function teacherSetStudentUnlimited(studentEmail, unlimited) {
@@ -2350,6 +2336,8 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
     gdForget_('unlimited');
 
     const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    auditTeacherAction_(getActiveEmail_(), { email: input.email, name: input.name, classPeriod: input.classPeriod },
+      sameMembership ? 'ROSTER_MEMBERSHIP_REACTIVATED' : 'ROSTER_MEMBERSHIP_ADDED', [], '', input.key);
     result = {
       action,
       name: input.name,
@@ -2388,6 +2376,7 @@ function teacherRemoveStudentClass(studentKey) {
     }
 
     getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 5).setValue(false);
+    auditTeacherAction_(getActiveEmail_(), student, 'ROSTER_MEMBERSHIP_REMOVED', [], '', student.key);
     gdForget_('roster');
     gdForget_('unlimited');
     result = { action: 'removed', name: student.name, classPeriod: student.classPeriod };
@@ -3464,7 +3453,9 @@ function previewStudentPinEmails() {
       'Here is your private GrantDesk PIN:',
       '123456',
       '',
-      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. This one PIN works in all your classes. Keep it private.`,
+      `Daily Check-in: ${settings.CHECKIN_URL}`,
+      `Hall Pass: ${settings.PASS_URL}`,
+      'This one PIN works in all your classes. Keep it private.',
       '',
       '— Your teacher',
     ].join('\n'),
@@ -3634,37 +3625,19 @@ function buildPinEmailGroups_() {
   };
 }
 
-function buildPinEmailMessage_(group, settings, teacherEmail) {
-  const firstName = firstNameFromStudentName_(group.name);
-  const body = [
-    `Hello ${firstName},`,
-    '',
-    'Here is your private GrantDesk PIN:',
-    group.pin,
-    '',
-    `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass.`,
+function buildPinEmailMessage_(group,settings,teacherEmail){
+  const firstName=firstNameFromStudentName_(group.name),checkInUrl=settings.CHECKIN_URL||'https://grant-desk.com/check-in/',
+    passUrl=settings.PASS_URL||'https://grant-desk.com/pass/';
+  const body=[`Hello ${firstName},`,'','Here is your private GrantDesk PIN:',group.pin,'',
+    `Daily Check-in: ${checkInUrl}`,`Hall Pass: ${passUrl}`,
     'This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.',
-    'Keep this PIN private.',
-    '',
-    '— Your teacher',
-  ].join('\n');
-  const htmlBody = [
-    `<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,
-    '<p>Here is your private GrantDesk PIN:</p>',
+    'Keep this PIN private.','','— Your teacher'].join('\n');
+  const htmlBody=[`<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,'<p>Here is your private GrantDesk PIN:</p>',
     `<p style="font-family:monospace;font-size:24px;font-weight:bold;letter-spacing:.12em">${escapeHtmlForEmail_(group.pin)}</p>`,
-    `<p>Open <a href="${escapeHtmlForEmail_(settings.CHECKIN_URL)}">GrantDesk Daily Check-in</a> for Daily Check-in and Hall Pass.</p>`,
+    `<p><a href="${escapeHtmlForEmail_(checkInUrl)}">Daily Check-in</a><br><a href="${escapeHtmlForEmail_(passUrl)}">Hall Pass</a></p>`,
     '<p>This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
-    '<p>Keep this PIN private.</p>',
-    '<p>— Your teacher</p>',
-  ].join('');
-  return {
-    to: group.email,
-    subject: settings.PIN_EMAIL_SUBJECT,
-    body,
-    htmlBody,
-    name: settings.APP_TITLE || 'Hall Pass',
-    replyTo: teacherEmail,
-  };
+    '<p>Keep this PIN private.</p>','<p>— Your teacher</p>'].join('');
+  return {to:group.email,subject:settings.PIN_EMAIL_SUBJECT,body,htmlBody,name:settings.APP_TITLE||'Hall Pass',replyTo:teacherEmail};
 }
 
 function firstNameFromStudentName_(value) {
@@ -3689,15 +3662,42 @@ function escapeHtmlForEmail_(value) {
   }[character]));
 }
 
-function clearPinCards() {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  withLock_(() => {
+function teacherResetStudentPin(studentEmail,reason,clientContract){
+  const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings); assertTeacherClient_(clientContract);
+  const email=normalizeEmail_(studentEmail),cleanReason=String(reason||'').trim().slice(0,300);
+  if(!email) throw new Error('Choose a student whose PIN needs to be reset.');
+  if(!cleanReason) throw new Error('Enter a short private reason for resetting this PIN.');
+  assertPlainSheetText_(cleanReason,'PIN reset reason');
+  let studentName='';
+  withLock_(()=>{
     assertPinEmailBatchIdle_();
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
-    if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.PINS.length).clearContent();
-    sheet.hideSheet();
-    gdForget_('pincards');
+    const rosterRows=readRosterRows_().filter((student)=>student.email===email);
+    if(!rosterRows.some((student)=>student.active)) throw new Error('That student is not active on the roster.');
+    studentName=rosterRows[0].name;
+    const usedHashes=new Set(readRosterRows_().filter((student)=>student.email!==email).map((student)=>student.pinHash).filter(Boolean));
+    rosterRows.map((student)=>student.pinHash).filter(Boolean).forEach((hash)=>usedHashes.add(hash));
+    let newPin='',newHash='';
+    do{newPin=String(Math.floor(100000+Math.random()*900000));newHash=hashPin_(newPin);}while(usedHashes.has(newHash));
+    const rosterSheet=getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    rosterRows.forEach((student)=>rosterSheet.getRange(student.row,4).setValue(newHash));
+    const pinSheet=getSpreadsheet_().getSheetByName(GD_SHEETS.PINS),cards=readPinCards_().filter((card)=>card.studentEmail===email);
+    const byKey=new Map(cards.map((card)=>[card.studentKey,card]));
+    rosterRows.forEach((student)=>{
+      const card=byKey.get(student.key),detail='PIN reset by teacher; delivery of the new PIN is not yet confirmed';
+      if(card) pinSheet.getRange(card.row,4,1,5).setValues([[newPin,new Date(),'NEEDS_RESEND','',detail]]);
+      else pinSheet.appendRow([student.email,student.name,student.classPeriod,newPin,new Date(),'NEEDS_RESEND','',detail]);
+    });
+    gdClearMemo_();
+    auditTeacherAction_(teacher,rosterRows[0],'STUDENT_PIN_RESET',[],cleanReason,'');
   });
+  const state=getTeacherState_({includePinStatus:true});
+  state.noticeMessage=`${studentName}'s PIN was reset. The new PIN is ready for private delivery and the old PIN no longer works.`;
+  return state;
+}
+
+function clearPinCards(){
+  assertTeacher_(getActiveEmail_(),getSettings_());
+  throw new Error('GrantDesk no longer deletes PIN recovery records. Reset an individual student PIN from the teacher dashboard instead.');
 }
 
 function assertPinEmailBatchIdle_() {
@@ -4295,12 +4295,7 @@ function setupWorkbook_() {
   if (missing.length) {
     settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
   }
-  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT']);
-  setSettingDescription_(
-    settingsSheet,
-    'QUEUE_CLAIM_MINUTES',
-    'Legacy inert setting retained for audit; verified requests now advance automatically'
-  );
+  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES']);
   setSettingDescription_(
     settingsSheet,
     'RETENTION_DAYS',
@@ -4328,6 +4323,7 @@ function setupWorkbook_() {
   auditSheet.getRange('S:S').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   auditSheet.getRange('V:V').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   const checkInSheet = spreadsheet.getSheetByName(GD_SHEETS.CHECKINS);
+  ensureRowCapacity_(checkInSheet, Math.max(GD_CHECKIN_MIN_ROWS, checkInSheet.getLastRow() + GD_CHECKIN_ROW_GROWTH));
   checkInSheet.getRange('B:B').setNumberFormat('@');
   checkInSheet.getRange('C:C').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   checkInSheet.getRange('H:H').setNumberFormat('0');
@@ -4343,6 +4339,7 @@ function setupWorkbook_() {
   ensureUnlimitedCheckboxes_(spreadsheet.getSheetByName(GD_SHEETS.ROSTER));
   reconcileKnownIdentityDrift_();
   ensureOnePinPerStudent_({ createMissing: false });
+  rebuildCheckInOperationalIndex_();
 }
 
 function refreshWorkbookInstructions_() {
@@ -4358,9 +4355,9 @@ function refreshWorkbookInstructions_() {
     ['5', 'Completed trips under 3.0 seconds remain in the private audit but do not count toward the student limit. Teacher corrections require a reason and preserve the original row.'],
     ['6', 'Pass Log is the recent operational window. Older completed rows move into permanent Pass Audit before leaving Pass Log.'],
     ['7', 'School Calendar is seeded from the official 2026-27 Drive calendar. Reduced and half days are school days; listed closures are not. Record official amendments on that tab.'],
-    ['8', 'PIN Cards are private credential and delivery records. Preserve existing credentials; a reconciled address stays NEEDS_RESEND until delivery is confirmed.'],
+    ['8', 'PIN Cards are private credential recovery and delivery records. Never clear the whole table; reset only the affected student PIN and privately deliver the replacement.'],
     ['9', 'Update the existing Apps Script deployment in place. Preserve the current /exec URL, domain-only access, and execute-as-deploying-user setting.'],
-    ['10', 'Student screens show only that student\'s current state and decision evidence. Names, full logs, corrections, and delivery details stay in teacher-only surfaces.'],
+    ['10', 'Daily Check-ins expands automatically. Unresolved late sign-ins stay in teacher review across school days until you decide them; student screens still show only that student\'s own state.'],
   ];
   sheet.getRange(1, 1).setValue('GrantDesk Hall Pass — private teacher log');
   sheet.getRange(2, 1).setValue(`Operational instructions · schema ${GD_SCHEMA_VERSION}`);
