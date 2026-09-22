@@ -32,9 +32,24 @@ Version 28 is the current single-classroom production release. It preserves the 
 
 The authenticated `?mode=releasecheck` synthetic smoke is still required and has not been claimed complete. It must be run as the teacher; do not substitute a real student PIN or record.
 
+## September 22 Version 28 recovery and contract-alignment release
+
+Version 28 is the current single-classroom production release. It updates the existing Apps Script deployment in place from source `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` and keeps the same private workbook, stable `/exec` URL, domain-only access, and deploying-user execution model.
+
+- The teacher browser contract and private synthetic release-check contract now exactly match the server contract `2026-09-22-all-teacher-rpcs`; regression coverage compares those three contract values so the Version 27 mismatch cannot silently recur.
+- Teacher bootstrap repairs both the daily-cleanup trigger and one-minute Check-In flush trigger when either is missing.
+- Routine teacher polling audits trigger installation at most once per hour instead of enumerating Apps Script project triggers on every refresh.
+- Empty Check-In polling returns before taking the shared Hall Pass transaction lock.
+- The one-minute durability trigger can resume waiting-line settlement after a pass return committed but queue promotion did not finish.
+- Workbook setup is serialized against live classroom writes, restores the previous workbook target on failure, and refuses setup while a PIN-email batch is active.
+- The optimized Check-In date-tail reader detects out-of-order delayed rows and falls back to the authoritative full ledger instead of risking an incomplete day.
+- The protected merge gate passed the full release suite and real-browser acceptance before production deployment.
+- Production preflight returned `PREFLIGHT_OK` on Version 27 immediately before the in-place update, and release run `35754589935` reported `DEPLOYED` as Apps Script Version 28.
+- Netlify production deploy `6ab2acfb9d374c000715447c` published commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` to `https://grant-desk.com` successfully; its enhanced secret scan reported no matches.
+
 ## September 22 Version 27 commercial-hardening release
 
-Version 27 is the current single-classroom production release. It preserves the existing Apps Script deployment URL and private workbook while closing the backend/recovery issues found during the September 21–22 commercial-readiness audit.
+Version 27 was the prior single-classroom production release. It preserves the existing Apps Script deployment URL and private workbook while closing the backend/recovery issues found during the September 21–22 commercial-readiness audit.
 
 - Daily Check-ins grows automatically beyond the former 1,000-row grid ceiling.
 - Check-In partial-commit recovery repairs secondary streak/late-review state before durable inbox evidence is cleared.
