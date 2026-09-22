@@ -13,7 +13,7 @@
  */
 
 const GD_SCHEMA_VERSION = '2026-09-21-backend-b';
-const GD_TEACHER_CONTRACT = '2026-09-05-memberships';
+const GD_TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
@@ -2054,9 +2054,10 @@ function suggestRosterMatch_(email) {
  * card, check-in history and pass history are all keyed to the old address.
  * This moves every one of them together.
  */
-function teacherApplyUnmatchedEmail(rosterEmail, realEmail) {
+function teacherApplyUnmatchedEmail(rosterEmail, realEmail, clientContract) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
+  assertTeacherClient_(clientContract);
   const oldEmail = normalizeEmail_(rosterEmail);
   const newEmail = normalizeEmail_(realEmail);
   if (!oldEmail || !newEmail || oldEmail === newEmail) throw new Error('Choose a different address.');
@@ -2229,8 +2230,9 @@ function reconcileKnownIdentityDrift_() {
   return summary;
 }
 
-function teacherDismissUnmatched(email) {
+function teacherDismissUnmatched(email, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const address = normalizeEmail_(email);
   withLock_(() => {
     const entry = readUnmatched_().find((item) => item.email === address);
@@ -2241,8 +2243,9 @@ function teacherDismissUnmatched(email) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherClearUnmatchedSignIns(confirmText) {
+function teacherClearUnmatchedSignIns(confirmText, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   if (String(confirmText || '') !== 'CLEAR SIGN-IN PROBLEMS') {
     throw new Error('No sign-in problems were cleared. Confirm the action from the teacher dashboard.');
   }
@@ -2274,7 +2277,7 @@ function refreshTeacherState(clientContract) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
+function teacherSetPassLimits(maxActivePasses, studentPassLimit, clientContract) {
   const settings = getSettings_();
   return teacherSetPassRules(
     maxActivePasses,
@@ -2282,12 +2285,14 @@ function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
     numberSetting_(settings, 'DAILY_PASS_LIMIT', 0),
     numberSetting_(settings, 'PASS_COOLDOWN_MINUTES', 5),
     numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
-    numberSetting_(settings, 'STALE_PASS_MINUTES', 20)
+    numberSetting_(settings, 'STALE_PASS_MINUTES', 20),
+    clientContract
   );
 }
 
-function teacherSetPassRules(maxActivePasses,studentPassLimit,dailyPassLimit,cooldownMinutes,lateMinutes,staleMinutes){
+function teacherSetPassRules(maxActivePasses,studentPassLimit,dailyPassLimit,cooldownMinutes,lateMinutes,staleMinutes, clientContract){
   const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before);
+  assertTeacherClient_(clientContract);
   const maxActive=Number(maxActivePasses),perStudentLimit=Number(studentPassLimit),perDayLimit=Number(dailyPassLimit),
     cooldown=Number(cooldownMinutes),late=Number(lateMinutes),stale=Number(staleMinutes);
   if(!Number.isInteger(maxActive)||maxActive<1||maxActive>10) throw new Error('Concurrent passes must be a whole number from 1 through 10.');
@@ -2322,8 +2327,9 @@ function teacherSetCheckInWindow(checkInWindowMinutes,clientContract){
   return state;
 }
 
-function teacherResetStudentPassCounters(confirmText){
+function teacherResetStudentPassCounters(confirmText, clientContract){
   const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings);
+  assertTeacherClient_(clientContract);
   if(String(confirmText||'')!=='RESET ALL STUDENTS') throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
   const resetAt=new Date().toISOString();
   withLock_(()=>{
@@ -2334,8 +2340,9 @@ function teacherResetStudentPassCounters(confirmText){
   return getTeacherState_({includePinStatus:false});
 }
 
-function teacherSetStudentUnlimited(studentEmail, unlimited) {
+function teacherSetStudentUnlimited(studentEmail, unlimited, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   throw new Error('Refresh the teacher dashboard to change pass access.');
 }
 
@@ -2361,9 +2368,10 @@ function teacherSetStudentPassAccess(studentEmail, accessMode, reason, clientCon
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
+function teacherAddStudentClass(studentName, studentEmail, classPeriod, clientContract) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
+  assertTeacherClient_(clientContract);
   const input = normalizeRosterInput_(studentName, studentEmail, classPeriod, settings);
   let result = null;
 
@@ -2435,8 +2443,9 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
   return state;
 }
 
-function teacherRemoveStudentClass(studentKey) {
+function teacherRemoveStudentClass(studentKey, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const key = String(studentKey || '');
   if (!key) throw new Error('Choose a class membership to remove.');
   let result = null;
@@ -2503,9 +2512,10 @@ function assertPlainSheetText_(value, label) {
   }
 }
 
-function teacherRemoveFromQueue(queueId) {
+function teacherRemoveFromQueue(queueId, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   withLock_(() => {
     const entry = readPassQueue_().find((item) => (
       item.status === 'WAITING' && item.queueId === String(queueId || '')
@@ -2577,8 +2587,9 @@ function teacherEndPass(passId, note, clientContract) {
   return getTeacherState_({ includePinStatus: false });
 }
 
-function teacherGetCountablePasses(studentEmail) {
+function teacherGetCountablePasses(studentEmail, clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   throw new Error('Refresh the teacher dashboard and choose a class membership to review its pass count.');
 }
 
@@ -2616,9 +2627,10 @@ function teacherGetMembershipPasses(studentKey, clientContract) {
   };
 }
 
-function teacherVoidPass(passId, reason) {
+function teacherVoidPass(passId, reason, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   const cleanReason = String(reason || '').trim().replace(/\s+/g, ' ');
   if (!cleanReason) throw new Error('Enter a short reason for this correction.');
   if (cleanReason.length > 300) throw new Error('Keep the correction reason to 300 characters or fewer.');
@@ -2728,9 +2740,10 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
   return state;
 }
 
-function teacherMarkStudentAbsent(studentKey) {
+function teacherMarkStudentAbsent(studentKey, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   const student = getStudentByKey_(studentKey);
   if (!student) throw new Error('That student is not active on the roster.');
   withLock_(() => {
@@ -2742,9 +2755,10 @@ function teacherMarkStudentAbsent(studentKey) {
   return state;
 }
 
-function teacherClearStudentAbsent(studentKey) {
+function teacherClearStudentAbsent(studentKey, clientContract) {
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, getSettings_());
+  assertTeacherClient_(clientContract);
   const student = getStudentByKey_(studentKey);
   if (!student) throw new Error('That student is not active on the roster.');
   let cleared = false;
@@ -2872,8 +2886,9 @@ function getTeacherState_(options) {
   return state;
 }
 
-function teacherPinEmailStatus() {
+function teacherPinEmailStatus(clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   return getPinEmailStatus_();
 }
 
@@ -3537,7 +3552,13 @@ function ensureOnePinPerStudent_(options) {
 
 /* --------------------------------------------------------- PIN delivery ---- */
 
-function previewStudentPinEmails() {
+function previewStudentPinEmails(clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
+  return previewStudentPinEmails_();
+}
+
+function previewStudentPinEmails_() {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
   const status = getPinEmailStatus_();
@@ -3561,7 +3582,7 @@ function previewStudentPinEmails() {
 }
 
 function previewPinEmailDistribution() {
-  const preview = previewStudentPinEmails();
+  const preview = previewStudentPinEmails_();
   SpreadsheetApp.getUi().alert(
     'GrantDesk PIN email preview',
     [
@@ -3593,7 +3614,9 @@ function emailStudentPinsFromSheet() {
   );
 }
 
-function sendStudentPinEmails(confirmText) {
+function sendStudentPinEmails(confirmText, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  assertTeacherClient_(clientContract);
   const result = runPinEmailBatch_(confirmText);
   const state = getTeacherState_({ includePinStatus: true });
   state.emailResult = result;
