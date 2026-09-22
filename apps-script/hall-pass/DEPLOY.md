@@ -1,19 +1,35 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Current release — Version 23, September 9, 2026
+## Current release — Version 27, September 22, 2026
 
-Source commit: `47ce8b0ae085528ba7c6cef36a1d2c4c7ccfaa42`, merged through [PR #71](https://github.com/Grantauch/the-desk/pull/71). The existing deployment was updated in place at 12:14 PM America/Detroit. Schema: `2026-09-05-session-a`. The stable `/exec`, deployment ID, owner execution, school-only access and five-file manifest were preserved. The dependency-complete canonical gate, 311 Hall Pass behavioral checks, source replacement/read-back, and deployment verification passed in [GitHub Actions](https://github.com/Grantauch/the-desk/actions/runs/34375381483).
+Source commit: `021ea741a89a8579217aebcc28b9fd35b80e2a26`. The existing Apps Script web-app deployment was updated **in place** through the guarded release bridge in [GitHub Actions run 35730498425](https://github.com/Grantauch/the-desk/actions/runs/35730498425). The stable `/exec` URL, deployment identity, execute-as-deploying-user behavior, school-domain access, and five-file Apps Script contract were preserved.
 
-The deployed protected-action smoke passed after release: STARTED, RETURNED_COUNTABLE, class `evidenceUsed` 1, synthetic pass voided, synthetic membership deactivated, production facts unchanged, and `ok: true`. Student, kiosk, check-in, and teacher modes then fully initialized without error on the preserved URL. The teacher dashboard showed the current attendance total with no legacy 202-count card and no delayed inbox warning. No real student PIN or student email was used. Field verification remains FIELD_PENDING.
+Current workbook schema: `2026-09-21-backend-b`. Current teacher browser contract: `2026-09-22-all-teacher-rpcs`.
 
-Version 23 keeps schema `2026-09-05-session-a` and the existing five-file deployment contract while changing the check-in write path:
+The exact merged commit passed the canonical GrantDesk release gate and real-browser acceptance on `main`, then passed the production preflight bridge before deployment. Preflight verified Apps Script credentials, project/deployment identity, the existing production target, bridge self-tests, and unpublished-editor state before the deployment command was allowed to run.
 
-- `submitDailyCheckIn` validates the fresh one-use proof, writes one durable idempotent inbox event, then consumes the proof. It does not wait on `LockService` or append directly to the workbook.
-- Opportunistic, teacher-poll, one-minute-trigger, and daily-cleanup paths flush queued arrivals with one Sheet batch. The batch is explicitly flushed before its private inbox records are removed.
-- Student and teacher state merge pending and persisted arrivals. A workbook delay therefore cannot turn a recorded check-in into a student resubmission or an empty teacher total.
-- The old shared-log counter is replaced with a fresh Hall Pass-only contention counter. Pass/return retries remain because capacity and queue transitions still require serialization.
+Version 27 includes the accumulated September 21–22 backend hardening:
 
-Local release evidence passed 73 handoff checks, the structural suite, and 311 behavioral checks. The dependency-complete GitHub gate then passed release-lane, Hall Pass, classroom-tool, classroom-state, public-resource/publishing, StoryHub, Astro/TypeScript, build, static validation, and browser stages. The source at the merged commit is now live as Version 23. Versions 14, 15 and 16 remain unsafe to redeploy.
+- Daily Check-ins automatically expands and no longer has the former 1,000-row hard ceiling.
+- durable Check-In recovery repairs secondary streak/late-review state after a partial commit before inbox recovery state is cleared;
+- active Check-In summary properties are limited to active roster memberships and rebuild when roster/calendar inputs change;
+- unresolved late reviews persist across school days instead of disappearing from the normal teacher workflow;
+- student self-check-in closes at the selected class end;
+- late self-check-in clears an earlier active absence while preserving the original attendance audit row;
+- prior-period forgotten passes remain visible/auditable but do not consume the current period's capacity;
+- PIN rotation invalidates outstanding signed student sessions and one-use action proofs;
+- obsolete cache-only PIN sessions are rejected;
+- independent Check-In submissions converge on one canonical student/class/date event ID;
+- fixed-position workbook header drift fails closed instead of silently reading shifted columns;
+- duplicate Settings keys, School Calendar dates, and active roster memberships fail closed instead of using an arbitrary row;
+- student polling is jittered to reduce synchronized Chromebook bursts, and teacher/student screens surface stale refresh state;
+- daily-cleanup trigger authorization is bound to the actual cleanup trigger and duplicate cleanup triggers are collapsed;
+- every browser-exposed teacher mutation/read-control RPC validates the current teacher client contract, so stale open dashboard tabs cannot mutate a newer server contract;
+- inert `SCHOOL_CALENDAR_FILE_ID` and `SCHOOL_CALENDAR_FALLBACK_URL` settings were removed from source because they never controlled runtime.
+
+Because the workbook schema version did not change for the final settings cleanup, the live private workbook was reconciled explicitly after Version 27 deployment: only the two inert calendar-source Settings rows were deleted. Existing roster, PIN, pass, queue, attendance, calendar, audit, and teacher-policy facts were preserved. Post-deploy verification showed no active stuck pass and no waiting queue.
+
+The production release remains the single-classroom Apps Script/workbook system. The isolated `schoolwide/**` PostgreSQL application remains non-authoritative and must not be treated as production until its separate staging/cutover gates are completed.
 
 ## Release safety
 
