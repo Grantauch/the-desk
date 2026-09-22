@@ -24,6 +24,10 @@ const GD_CHECKIN_TAIL_ROWS = 600;
 const GD_PENDING_CHECKIN_PREFIX = 'pending-checkin:';
 const GD_CHECKIN_INBOX_STALE_MS = 120000;
 const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
+const GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_ID';
+const GD_CLEANUP_TRIGGER_ID_PROPERTY = 'DAILY_CLEANUP_TRIGGER_ID';
+const GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY = 'BACKGROUND_TRIGGER_AUDIT_AT';
+const GD_BACKGROUND_TRIGGER_AUDIT_MS = 60 * 60 * 1000;
 const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
 const GD_LATE_REVIEW_PREFIX = 'late-review:';
 const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
@@ -483,6 +487,7 @@ function getBootstrap(mode, clientContract) {
   if (mode === 'teacher') {
     assertTeacher_(activeEmail, settings);
     assertTeacherClient_(clientContract);
+    ensureBackgroundTriggers_(true);
     purgeIfDue_();
     return getTeacherState_({ includePinStatus: true });
   }
@@ -1319,6 +1324,9 @@ function flushPendingCheckInsLocked_() {
 
 /** Try once without waiting. A busy pass transaction leaves the inbox intact. */
 function tryFlushPendingCheckIns_() {
+  // Teacher/student refreshes should not touch the shared transaction lock
+  // unless the durable Check-In inbox actually contains work.
+  if (!readPendingCheckIns_().length) return { written: 0, deduplicated: 0, idle: true };
   const lock = LockService.getScriptLock();
   try {
     if (!lock.tryLock(1)) return { written: 0, deferred: true };
@@ -2819,7 +2827,7 @@ function teacherClearStudentAbsent(studentKey, clientContract) {
 function getTeacherState_(options) {
   // The dashboard is already polling. Let an idle lock turn the durable inbox
   // into one workbook batch, while a live hall-pass transaction simply defers.
-  ensureCheckInFlushTrigger_();
+  ensureBackgroundTriggers_(false);
   tryFlushPendingCheckIns_();
   const includePinStatus = Boolean(options && options.includePinStatus);
   const settings = getSettings_();
@@ -4248,11 +4256,8 @@ function normalizeDateKey_(value) {
  * pass and queue write takes, so row numbers cannot shift underneath an update
  * already in flight.
  */
-function dailyCleanup(event){
-  const triggerUid=event&&event.triggerUid?String(event.triggerUid):'';
-  const fromTrigger=Boolean(triggerUid)&&ScriptApp.getProjectTriggers().some((trigger)=>(
-    trigger.getUniqueId()===triggerUid && trigger.getHandlerFunction()==='dailyCleanup'
-  ));
+function dailyCleanup(event) {
+  const fromTrigger=ownedTriggerEvent_(event,'dailyCleanup',GD_CLEANUP_TRIGGER_ID_PROPERTY);
   if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
   withLock_(()=>{
     try{flushPendingCheckInsLocked_();}catch(error){
@@ -4424,12 +4429,42 @@ function purgeExpiredActionProofs_() {
  * Minute trigger target. A direct web call must be the teacher; a real trigger
  * is accepted only when its private trigger ID still belongs to this project.
  */
+function ownedTriggerEvent_(event, handlerName, propertyKey) {
+  const triggerUid = event && event.triggerUid ? String(event.triggerUid) : '';
+  if (!triggerUid) return false;
+  const properties = PropertiesService.getScriptProperties();
+  const expected = String(properties.getProperty(propertyKey) || '');
+  if (expected && expected === triggerUid) return true;
+
+  const match = ScriptApp.getProjectTriggers().find((trigger) => (
+    trigger.getUniqueId() === triggerUid && trigger.getHandlerFunction() === handlerName
+  ));
+  if (!match) return false;
+  properties.setProperty(propertyKey, triggerUid);
+  return true;
+}
+
 function flushPendingCheckIns(event){
-  const triggerUid=event&&event.triggerUid?String(event.triggerUid):'';
-  const fromTrigger=Boolean(triggerUid)&&ScriptApp.getProjectTriggers().some((trigger)=>trigger.getUniqueId()===triggerUid&&trigger.getHandlerFunction()==='flushPendingCheckIns');
+  const fromTrigger=ownedTriggerEvent_(event,'flushPendingCheckIns',GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY);
   if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
+
+  // The fallback trigger fires once per minute for durability. Most minutes
+  // have no inbox work and no live queue, so avoid Pass Log/settings/schedule
+  // reads and the shared lock entirely on the common idle path.
+  gdClearMemo_();
+  const hasPending=readPendingCheckIns_().length>0;
+  const hasWaiting=readPassQueue_().some((entry)=>entry.status==='WAITING');
+  if(!hasPending&&!hasWaiting) return {written:0,deduplicated:0,idle:true};
+
   return withLock_(()=>{
-    const snapshot=getPassSnapshot_(); reapExpiredQueue_(snapshot.expiredQueue);
+    gdClearMemo_();
+    if(readPassQueue_().some((entry)=>entry.status==='WAITING')){
+      // The timer is also the recovery path for a return that committed before
+      // queue settlement finished. Under the shared lock, settling is safe and
+      // promotes the oldest still-eligible verified request into an open slot.
+      settleWaitingQueue_();
+    }
+    if(!readPendingCheckIns_().length) return {written:0,deduplicated:0,idle:true};
     try{return flushPendingCheckInsLocked_();}
     catch(error){
       PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
@@ -4443,15 +4478,43 @@ function installCheckInFlushTrigger_() {
   const triggers = ScriptApp.getProjectTriggers();
   const matches = triggers.filter((trigger) => trigger.getHandlerFunction() === 'flushPendingCheckIns');
   matches.slice(1).forEach((trigger) => ScriptApp.deleteTrigger(trigger));
-  if (!matches.length) ScriptApp.newTrigger('flushPendingCheckIns').timeBased().everyMinutes(1).create();
-  PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY, '1');
+  const retained = matches[0] || ScriptApp.newTrigger('flushPendingCheckIns').timeBased().everyMinutes(1).create();
+  const properties = PropertiesService.getScriptProperties();
+  properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY, '1');
+  properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY, retained.getUniqueId());
 }
 
 function ensureCheckInFlushTrigger_(){
   const properties=PropertiesService.getScriptProperties();
   const matches=ScriptApp.getProjectTriggers().filter((trigger)=>trigger.getHandlerFunction()==='flushPendingCheckIns');
-  if(matches.length===1){properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY,'1');return;}
-  try{installCheckInFlushTrigger_();}catch(error){properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);}
+  if(matches.length===1){
+    properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY,'1');
+    properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY,matches[0].getUniqueId());
+    return;
+  }
+  try{installCheckInFlushTrigger_();}
+  catch(error){
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY);
+  }
+}
+
+function ensureBackgroundTriggers_(force) {
+  const properties = PropertiesService.getScriptProperties();
+  const now = Date.now();
+  const lastAudit = Number(properties.getProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY) || 0);
+  if (!force && lastAudit && now - lastAudit < GD_BACKGROUND_TRIGGER_AUDIT_MS) return;
+
+  try {
+    installCleanupTrigger_();
+    installCheckInFlushTrigger_();
+    properties.setProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY, String(now));
+  } catch (error) {
+    properties.deleteProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY);
+    properties.deleteProperty(GD_CLEANUP_TRIGGER_ID_PROPERTY);
+  }
 }
 
 function installCleanupTrigger_() {
@@ -4460,7 +4523,8 @@ function installCleanupTrigger_() {
   legacy.forEach((trigger) => ScriptApp.deleteTrigger(trigger));
   const matches = triggers.filter((trigger) => trigger.getHandlerFunction() === 'dailyCleanup');
   matches.slice(1).forEach((trigger) => ScriptApp.deleteTrigger(trigger));
-  if (!matches.length) ScriptApp.newTrigger('dailyCleanup').timeBased().everyDays(1).atHour(3).create();
+  const retained = matches[0] || ScriptApp.newTrigger('dailyCleanup').timeBased().everyDays(1).atHour(3).create();
+  PropertiesService.getScriptProperties().setProperty(GD_CLEANUP_TRIGGER_ID_PROPERTY, retained.getUniqueId());
 }
 
 /* -------------------------------------------------------------- workbook ---- */

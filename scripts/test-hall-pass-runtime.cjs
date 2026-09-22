@@ -241,6 +241,41 @@ test('daily cleanup rejects a trigger UID owned by a different handler', () => {
   assert.doesNotThrow(() => c.harness.call('dailyCleanup', { triggerUid: cleanup.id }));
 });
 
+test('teacher bootstrap repairs a missing daily cleanup trigger', () => {
+  const c = classroom();
+  c.harness.state.triggers = c.harness.state.triggers.filter((trigger) => trigger.handler !== 'dailyCleanup');
+  c.harness.signInAs(TEACHER);
+  c.harness.newRequest();
+  c.harness.call('getBootstrap', 'teacher', TEACHER_CONTRACT);
+  assert.equal(
+    c.harness.state.triggers.filter((trigger) => trigger.handler === 'dailyCleanup').length,
+    1,
+    'opening Teacher mode must restore the daily cleanup trigger'
+  );
+});
+
+test('routine teacher polling audits project triggers at most once per hour', () => {
+  const c = classroom();
+  c.harness.signInAs(TEACHER);
+  c.harness.newRequest();
+  c.harness.call('getBootstrap', 'teacher', TEACHER_CONTRACT);
+  const afterBootstrap = c.harness.state.triggerReads;
+  assert.ok(afterBootstrap >= 2, 'bootstrap should verify both background trigger classes');
+
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  assert.equal(c.harness.state.triggerReads, afterBootstrap,
+    'dashboard polling inside the audit window must not enumerate project triggers again');
+
+  c.harness.clock.advanceMinutes(61);
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  assert.ok(c.harness.state.triggerReads > afterBootstrap,
+    'the background trigger audit should run again after the one-hour window');
+});
+
 test('the durable check-in inbox has one minute flusher trigger', () => {
   const c = classroom();
   assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1);
@@ -254,6 +289,70 @@ test('only the owned minute trigger or teacher can invoke a manual inbox flush',
   assert.throws(() => c.harness.call('flushPendingCheckIns', {}), /limited to the teacher/);
   const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
   assert.doesNotThrow(() => c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id }));
+});
+
+
+test('owned background trigger IDs authenticate without enumerating project triggers', () => {
+  const c = classroom();
+  const flush = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  const cleanup = c.harness.state.triggers.find((entry) => entry.handler === 'dailyCleanup');
+  const beforeFlush = c.harness.state.triggerReads;
+  const flushResult = c.harness.call('flushPendingCheckIns', { triggerUid: flush.id });
+  assert.equal(c.harness.state.triggerReads, beforeFlush,
+    'known minute trigger ID should validate from Script Properties');
+  assert.equal(flushResult.idle, true);
+
+  const beforeCleanup = c.harness.state.triggerReads;
+  assert.doesNotThrow(() => c.harness.call('dailyCleanup', { triggerUid: cleanup.id }));
+  assert.equal(c.harness.state.triggerReads, beforeCleanup,
+    'known daily cleanup trigger ID should validate from Script Properties');
+});
+
+test('empty teacher polling does not acquire the shared transaction lock', () => {
+  const c = classroom();
+  c.harness.signInAs(TEACHER);
+  c.harness.newRequest();
+  c.harness.call('getBootstrap', 'teacher', TEACHER_CONTRACT);
+  const before = c.harness.state.lock.acquisitions;
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  assert.equal(c.harness.state.lock.acquisitions, before,
+    'an empty durable Check-In inbox must not touch the shared transaction lock');
+});
+
+test('idle minute flusher returns before shared lock or Pass Log work', () => {
+  const c = classroom();
+  const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  const beforeLocks = c.harness.state.lock.acquisitions;
+  const originalSnapshot = c.harness.sandbox.getPassSnapshot_;
+  c.harness.sandbox.getPassSnapshot_ = () => { throw new Error('Pass snapshot should not be read on idle minute tick'); };
+  try {
+    const result = c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id });
+    assert.equal(result.idle, true);
+    assert.equal(c.harness.state.lock.acquisitions, beforeLocks);
+  } finally {
+    c.harness.sandbox.getPassSnapshot_ = originalSnapshot;
+  }
+});
+
+
+test('minute durability trigger resumes queue settlement after a committed return', () => {
+  const c = classroom({ settings: { MAX_ACTIVE_PASSES: 1, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 5 } });
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED');
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.alan, 'Period 1')).kind, 'QUEUED');
+  const adaPass = c.passLog().find((row) => row['Student Email'] === PEOPLE.ada.email && String(row.Status) === 'OUT');
+
+  c.harness.newRequest();
+  c.harness.call('closePassById_', String(adaPass['Pass ID']), PEOPLE.ada.email, 'Synthetic committed return before settlement');
+  assert.ok(c.queue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'));
+
+  const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  c.harness.newRequest();
+  c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id });
+
+  assert.equal(c.queue().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING').length, 0);
+  assert.ok(c.passLog().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'OUT'),
+    'the timer must promote the waiting verified request into the newly open slot');
 });
 
 

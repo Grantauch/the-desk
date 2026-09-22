@@ -163,10 +163,22 @@ assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
 assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
 const cleanupHandler = functionSource('dailyCleanup');
-assert.match(cleanupHandler, /getHandlerFunction\(\)===['"]dailyCleanup['"]/);
+assert.match(cleanupHandler, /ownedTriggerEvent_\(event,'dailyCleanup',GD_CLEANUP_TRIGGER_ID_PROPERTY\)/);
+assert.match(code, /GD_BACKGROUND_TRIGGER_AUDIT_MS\s*=\s*60\s*\*\s*60\s*\*\s*1000/);
+const backgroundTriggerAudit = functionSource('ensureBackgroundTriggers_');
+assert.match(backgroundTriggerAudit, /GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY/);
+assert.match(backgroundTriggerAudit, /installCleanupTrigger_/);
+assert.match(backgroundTriggerAudit, /installCheckInFlushTrigger_/);
+assert.match(functionSource('getBootstrap'), /ensureBackgroundTriggers_\(true\)/);
 const cleanupInstaller = functionSource('installCleanupTrigger_');
 assert.match(cleanupInstaller, /matches\.slice\(1\)\.forEach/);
 assert.match(cleanupInstaller, /dailyCleanup/);
+assert.match(cleanupInstaller, /GD_CLEANUP_TRIGGER_ID_PROPERTY/);
+const flushInstaller = functionSource('installCheckInFlushTrigger_');
+assert.match(flushInstaller, /GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY/);
+const ownedTriggerEvent = functionSource('ownedTriggerEvent_');
+assert.match(ownedTriggerEvent, /getProperty\(propertyKey\)/);
+assert.match(ownedTriggerEvent, /getProjectTriggers\(\)/);
 
 const purgeIfDue = functionSource('purgeIfDue_');
 assert.match(purgeIfDue, /withLock_/);
@@ -395,6 +407,26 @@ assert.match(functionSource('getCheckInState_'), /readCheckInsForDateIncludingPe
 assert.match(functionSource('getCheckInState_'), /readCheckInSummaryMap_\(\)/, 'Student streak state must use the compact operational index');
 assert.doesNotMatch(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Student state must not scan the full school-year check-in log');
 assert.doesNotMatch(functionSource('getTeacherState_'), /readCheckInsIncludingPending_\(\)/, 'Teacher polling must not scan the full school-year check-in log');
+assert.match(functionSource('getTeacherState_'), /ensureBackgroundTriggers_\(false\)/);
+assert.doesNotMatch(functionSource('getTeacherState_'), /ensureCheckInFlushTrigger_\(\)/, 'Teacher polling must not enumerate project triggers every refresh');
+const opportunisticFlush = functionSource('tryFlushPendingCheckIns_');
+assert.ok(
+  opportunisticFlush.indexOf('readPendingCheckIns_') < opportunisticFlush.indexOf('getScriptLock'),
+  'Empty teacher/student Check-In refreshes must return before acquiring the shared lock'
+);
+const minuteFlush = functionSource('flushPendingCheckIns');
+assert.match(minuteFlush, /hasPending/);
+assert.match(minuteFlush, /hasWaiting/);
+assert.ok(
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('withLock_'),
+  'Idle minute trigger must return before the shared lock'
+);
+assert.ok(
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('settleWaitingQueue_'),
+  'Idle minute trigger must return before queue settlement or full pass/schedule state'
+);
+assert.match(minuteFlush, /if\(readPassQueue_\(\)\.some[\s\S]*settleWaitingQueue_\(\)/,
+  'A non-idle WAITING queue must use the minute trigger as a settlement recovery path');
 assert.match(code, /function checkInOperationalIndexVersion_/);
 assert.match(functionSource('checkInOperationalIndexVersion_'), /getSchoolCalendarIndex_/);
 assert.match(functionSource('checkInOperationalIndexVersion_'), /getRoster_/);
@@ -533,6 +565,15 @@ assert.match(html, /class rosters\./);
 assert.match(html, /data-remove-student/);
 assert.match(html, /teacherAddStudentClass/);
 assert.match(code, /GD_TEACHER_CONTRACT\s*=\s*'2026-09-22-all-teacher-rpcs'/);
+const serverTeacherContract = code.match(/const GD_TEACHER_CONTRACT\s*=\s*'([^']+)'/);
+const browserTeacherContract = html.match(/const TEACHER_CONTRACT\s*=\s*'([^']+)'/);
+const releaseTeacherContract = releaseHtml.match(/releaseRunSyntheticSmoke\('([^']+)'\)/);
+assert.ok(serverTeacherContract && browserTeacherContract && releaseTeacherContract,
+  'Teacher contract literals must exist in server, browser, and private release check');
+assert.equal(browserTeacherContract[1], serverTeacherContract[1],
+  'Teacher browser contract must exactly match the server contract');
+assert.equal(releaseTeacherContract[1], serverTeacherContract[1],
+  'Private release check must exactly match the server contract');
 [
   'teacherApplyUnmatchedEmail','teacherDismissUnmatched','teacherClearUnmatchedSignIns',
   'teacherSetPassRules','teacherResetStudentPassCounters','teacherAddStudentClass',
