@@ -373,6 +373,11 @@ assert.match(functionSource('getCheckInState_'), /readCheckInsForDateIncludingPe
 assert.match(functionSource('getCheckInState_'), /readCheckInSummaryMap_\(\)/, 'Student streak state must use the compact operational index');
 assert.doesNotMatch(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Student state must not scan the full school-year check-in log');
 assert.doesNotMatch(functionSource('getTeacherState_'), /readCheckInsIncludingPending_\(\)/, 'Teacher polling must not scan the full school-year check-in log');
+assert.match(code, /GD_CHECKIN_INDEX_VERSION/);
+assert.match(functionSource('rebuildCheckInOperationalIndex_'), /activeKeys/);
+assert.match(functionSource('rebuildCheckInOperationalIndex_'), /!activeKeys\.has\(entry\.studentKey\)/);
+assert.match(functionSource('rebuildCheckInSummaryForStudent_'), /!getStudentByKey_\(key\)/);
+assert.match(functionSource('teacherRemoveStudentClass'), /deleteProperty\(checkInSummaryPropertyKey_\(student\.key\)\)/);
 
 const buildCheckInSheet = (rows) => {
   let readRows = 0;
