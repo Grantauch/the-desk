@@ -1,6 +1,6 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. **Version 29 is deployed.** The tracked source, protected `main`, canonical release gate, production preflight, in-place Apps Script deployment, and Netlify production deploy are aligned to the same release commit. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
+Issue #14 is closed. **Version 29 is deployed.** The production Apps Script source, canonical release gate, production preflight, in-place Apps Script deployment, and matching Netlify application deploy are recorded below. Protected `main` may contain later documentation-only commits without changing the deployed Apps Script version. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
 
 Production fingerprint as of 2026-09-22 (Version 29):
 
@@ -31,7 +31,7 @@ The authenticated `?mode=releasecheck` synthetic protected-action smoke remains 
 
 ## September 22 Version 28 production catch-up release
 
-Version 28 is the current single-classroom production release. It preserves the stable Apps Script URL, private workbook, school-domain access and deploying-teacher execution identity while bringing production fully up to the current Hall Pass/Check-In source on protected `main`.
+Version 28 was the prior single-classroom production release. It preserved the stable Apps Script URL, private workbook, school-domain access and deploying-teacher execution identity while bringing production fully up to the Hall Pass/Check-In source then on protected `main`.
 
 - The teacher browser contract now exactly matches the server contract, fixing the Version 27 stale-client mismatch that blocked teacher bootstrap/RPCs.
 - The private `?mode=releasecheck` client now uses that same contract, so the required synthetic protected-action smoke can execute instead of being rejected before the test begins.
