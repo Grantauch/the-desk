@@ -422,12 +422,25 @@ function setupProject() {
     });
   }
   assertTeacher_(getActiveEmail_(), authSettings);
-  PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', active.getId());
-  ensureSalt_();
-  setupWorkbook_();
-  installCleanupTrigger_();
-  installCheckInFlushTrigger_();
-  PropertiesService.getScriptProperties().setProperty('WORKBOOK_SCHEMA', GD_SCHEMA_VERSION);
+
+  const result = withLock_(() => {
+    const properties = PropertiesService.getScriptProperties();
+    const previousSpreadsheetId = properties.getProperty('SPREADSHEET_ID');
+    try {
+      properties.setProperty('SPREADSHEET_ID', active.getId());
+      ensureSalt_();
+      setupWorkbook_();
+      installCleanupTrigger_();
+      installCheckInFlushTrigger_();
+      properties.setProperty('WORKBOOK_SCHEMA', GD_SCHEMA_VERSION);
+      return { ok: true, schemaVersion: GD_SCHEMA_VERSION };
+    } catch (error) {
+      if (previousSpreadsheetId) properties.setProperty('SPREADSHEET_ID', previousSpreadsheetId);
+      else properties.deleteProperty('SPREADSHEET_ID');
+      throw error;
+    }
+  }, 30000, 'workbook setup');
+
   try {
     const ui = SpreadsheetApp.getUi();
     ui.alert(
@@ -441,7 +454,7 @@ function setupProject() {
     // instead of making the controlled release run appear to have failed.
     console.log(`GrantDesk Pass is ready · workbook schema ${GD_SCHEMA_VERSION}`);
   }
-  return { ok: true, schemaVersion: GD_SCHEMA_VERSION };
+  return result;
 }
 
 /* ------------------------------------------------------------ web entry ---- */
