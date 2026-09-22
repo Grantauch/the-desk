@@ -752,10 +752,7 @@ function readPinSession_(pinToken) {
     }
   }
 
-  const cached = CacheService.getScriptCache().get(`pin:${token}`);
-  if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
-  return JSON.parse(cached);
-}
+  throw new Error('That PIN session expired. Enter your current PIN again.');
 
 function encodeTokenPart_(value) {
   return Utilities.base64EncodeWebSafe(Utilities.newBlob(String(value), 'text/plain').getBytes()).replace(/=+$/g, '');
