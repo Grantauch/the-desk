@@ -1,4 +1,4 @@
-export function securityConsoleHtml(): string {
+export function securityConsoleHtml(scriptNonce: string): string {
   return String.raw`<!doctype html>
 <html lang="en">
 <head>
@@ -47,7 +47,7 @@ export function securityConsoleHtml(): string {
     <div id="dialogStatus" role="status" aria-live="polite"></div>
   </form>
 </dialog>
-<script>
+<script nonce="${scriptNonce}">
 (function(){
   'use strict';
   var storageKey='grantdesk.schoolwide.staffToken';
