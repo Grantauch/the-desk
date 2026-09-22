@@ -386,6 +386,7 @@
       let pollTick = 0;
       let teacherKnownPassIds = null;
       let teacherAudioContext = null;
+      let studentRefreshFailures = 0;
 
       document.body.classList.toggle('teacher-mode', APP_MODE === 'teacher');
       document.body.classList.toggle('checkin-mode', APP_MODE === 'checkin');
@@ -1864,9 +1865,12 @@
           ${passReviewDialogHtml}`;
 
         clearInterval(timerHandle);
-        timerHandle = setInterval(() => document.querySelectorAll('[data-live-time]').forEach((node) => {
-          node.textContent = elapsed(node.dataset.liveTime);
-        }), 1000);
+        timerHandle = setInterval(() => {
+          document.querySelectorAll('[data-live-time]').forEach((node) => {
+            node.textContent = elapsed(node.dataset.liveTime);
+          });
+          stampTeacher();
+        }, 1000);
 
         document.querySelector('#refresh-teacher').addEventListener('click', (event) => act(event.currentTarget, async () => {
           adoptState(await call('refreshTeacherState'));
@@ -2202,10 +2206,20 @@
         try {
           const next = await call('refreshStudentState', pinToken);
           if (inFlight || screen !== 'student') return;
+          if (studentRefreshFailures) clearError();
+          studentRefreshFailures = 0;
           adoptState(next);
           renderStudent();
         } catch (error) {
-          if (/expired/i.test(error.message || '')) resetToPin('Enter your six-digit PIN again.');
+          if (/expired/i.test(error.message || '')) {
+            studentRefreshFailures = 0;
+            resetToPin('Enter your six-digit PIN again.');
+            return;
+          }
+          studentRefreshFailures += 1;
+          if (studentRefreshFailures >= 2) {
+            showError('Live pass status could not refresh. The last confirmed state is still on screen; reconnect or reload before relying on a queue position or return status.');
+          }
         }
       };
 
@@ -2220,8 +2234,23 @@
           else if (!state.recognized) renderPin(state.message, APP_MODE === 'checkin' ? 'checkin' : 'pass');
           else renderResolvedState(APP_MODE === 'checkin' ? 'checkin' : 'pass');
 
-          if (APP_MODE === 'teacher') refreshHandle = setInterval(refreshTeacher, 12000);
-          else if (APP_MODE !== 'checkin') refreshHandle = setInterval(refreshStudent, 5000);
+          const jitteredDelay = (base, spread) => base + Math.floor(Math.random() * spread);
+          const scheduleTeacherPoll = () => {
+            clearTimeout(refreshHandle);
+            refreshHandle = setTimeout(async () => {
+              await refreshTeacher();
+              if (APP_MODE === 'teacher') scheduleTeacherPoll();
+            }, jitteredDelay(10000, 4000));
+          };
+          const scheduleStudentPoll = () => {
+            clearTimeout(refreshHandle);
+            refreshHandle = setTimeout(async () => {
+              await refreshStudent();
+              if (APP_MODE !== 'teacher' && APP_MODE !== 'checkin') scheduleStudentPoll();
+            }, jitteredDelay(4200, 1600));
+          };
+          if (APP_MODE === 'teacher') scheduleTeacherPoll();
+          else if (APP_MODE !== 'checkin') scheduleStudentPoll();
         } catch (error) {
           screen = 'error';
           content.className = '';
