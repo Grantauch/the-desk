@@ -1657,6 +1657,30 @@ test('removing a class membership prunes its live Check-In summary but preserves
     'unresolved late evidence must survive membership removal');
 });
 
+test('a calendar amendment invalidates and rebuilds cached streak summaries', () => {
+  const c = classroom({ now: new Date('2026-09-09T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.checkIn(PEOPLE.ada, 'Period 1');
+
+  c.harness.clock.advanceDays(1);
+  c.checkIn(PEOPLE.ada, 'Period 1');
+
+  const summaryKey = c.harness.call('checkInSummaryPropertyKey_', key);
+  let summary = JSON.parse(c.harness.properties.getProperty(summaryKey));
+  assert.equal(summary.current, 2, 'the two recorded school days initially form a two-day streak');
+  const beforeVersion = c.harness.properties.getProperty('CHECKIN_INDEX_SCHEMA');
+
+  setNoSchoolDays(c.harness, ['2026-09-10']);
+  c.harness.newRequest();
+  c.harness.call('readCheckInSummaryMap_');
+
+  const afterVersion = c.harness.properties.getProperty('CHECKIN_INDEX_SCHEMA');
+  summary = JSON.parse(c.harness.properties.getProperty(summaryKey));
+  assert.notEqual(afterVersion, beforeVersion, 'calendar changes must invalidate the compact index fingerprint');
+  assert.equal(summary.current, 1, 'a date later declared no-school must be removed from the streak count');
+  assert.equal(summary.lastCountedDate, '2026-09-09');
+});
+
 test('rebuilding the operational index ignores historical inactive memberships and reactivation restores history', () => {
   const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   const key = c.key(PEOPLE.ada, 'Period 1');
