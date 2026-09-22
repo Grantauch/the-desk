@@ -135,6 +135,18 @@ test('cleanup trigger repair collapses duplicate daily cleanup triggers to one',
   );
 });
 
+test('daily cleanup rejects a trigger UID owned by a different handler', () => {
+  const c = classroom();
+  const wrong = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(
+    () => c.harness.call('dailyCleanup', { triggerUid: wrong.id }),
+    /limited to the teacher/
+  );
+  const cleanup = c.harness.state.triggers.find((entry) => entry.handler === 'dailyCleanup');
+  assert.doesNotThrow(() => c.harness.call('dailyCleanup', { triggerUid: cleanup.id }));
+});
+
 test('the durable check-in inbox has one minute flusher trigger', () => {
   const c = classroom();
   assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1);
@@ -263,6 +275,22 @@ test('resetting a compromised PIN immediately revokes previously issued session 
     'the one-hour identity token must die when the PIN rotates'
   );
   assert.equal(c.passLog().length, 0);
+});
+
+test('legacy cache-only PIN sessions are rejected even if a stale cache entry still exists', () => {
+  const c = classroom();
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.cache.put('pin:legacy-session-token', JSON.stringify({
+    email: PEOPLE.ada.email,
+    key,
+    method: 'pin',
+    pinVerified: true,
+  }), 3600);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('refreshStudentState', 'legacy-session-token'),
+    /expired|current PIN/i
+  );
 });
 
 test('the obsolete clear-PIN command fails closed without deleting recovery records', () => {

@@ -145,6 +145,8 @@ assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
 assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
+const cleanupHandler = functionSource('dailyCleanup');
+assert.match(cleanupHandler, /getHandlerFunction\(\)===['"]dailyCleanup['"]/);
 const cleanupInstaller = functionSource('installCleanupTrigger_');
 assert.match(cleanupInstaller, /matches\.slice\(1\)\.forEach/);
 assert.match(cleanupInstaller, /dailyCleanup/);
@@ -184,6 +186,7 @@ assert.match(pinSessionWriter, /signTokenPart_/);
 assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
 assert.match(functionSource('readPinSession_'), /secureEquals_/);
 assert.match(functionSource('readPinSession_'), /assertCredentialVersion_/);
+assert.doesNotMatch(functionSource('readPinSession_'), /CacheService\.getScriptCache\(\)/, 'Legacy cache-only PIN sessions must not remain an authentication path');
 assert.match(functionSource('credentialVersionForEmail_'), /pinHash/);
 assert.match(functionSource('credentialVersionForEmail_'), /computeHmacSha256Signature/);
 

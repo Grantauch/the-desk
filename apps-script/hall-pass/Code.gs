@@ -752,9 +752,7 @@ function readPinSession_(pinToken) {
     }
   }
 
-  const cached = CacheService.getScriptCache().get(`pin:${token}`);
-  if (!cached) throw new Error('That PIN session expired. Enter your PIN again.');
-  return JSON.parse(cached);
+  throw new Error('That PIN session expired. Enter your current PIN again.');
 }
 
 function encodeTokenPart_(value) {
@@ -4087,7 +4085,9 @@ function normalizeDateKey_(value) {
  */
 function dailyCleanup(event){
   const triggerUid=event&&event.triggerUid?String(event.triggerUid):'';
-  const fromTrigger=Boolean(triggerUid)&&ScriptApp.getProjectTriggers().some((trigger)=>trigger.getUniqueId()===triggerUid);
+  const fromTrigger=Boolean(triggerUid)&&ScriptApp.getProjectTriggers().some((trigger)=>(
+    trigger.getUniqueId()===triggerUid && trigger.getHandlerFunction()==='dailyCleanup'
+  ));
   if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
   withLock_(()=>{
     try{flushPendingCheckInsLocked_();}catch(error){
