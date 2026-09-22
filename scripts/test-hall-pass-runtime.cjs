@@ -201,7 +201,8 @@ test('teacher PIN reset rotates one student across every class and preserves rec
   const newPin = [...pins][0];
   assert.notEqual(newPin, oldPin);
   assert.ok(cards.every((card) => String(card['Email Status']) === 'NEEDS_RESEND'));
-  assert.equal(state.pinEmailStatus.readyRecipients, 1);
+  const ready = c.harness.call('buildPinEmailGroups_').readyGroups;
+  assert.ok(ready.some((group) => group.email === PEOPLE.ada.email), 'the reset student must be ready for private PIN redelivery');
   const key = c.key(PEOPLE.ada, 'Period 1');
   c.harness.newRequest();
   c.harness.signInAs(PEOPLE.ada.email);
@@ -433,6 +434,20 @@ test('the teacher can keep a late sign-in at zero without removing the arrival r
   const teacherRow = state.lateCheckInsToday.find((entry) => entry.checkInId === id);
   assert.equal(teacherRow.status, 'LATE_NO_POINT');
   assert.equal(teacherRow.streak.current, 0);
+});
+
+test('changing an awarded late point back to zero also removes that date from the compact streak index', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  let state = c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  assert.equal(state.lateCheckInsToday.find((entry) => entry.checkInId === id).streak.current, 1);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  state = c.harness.call('teacherReviewLateCheckIn', id, 'KEEP_NO_POINT', TEACHER_CONTRACT);
+  assert.equal(state.lateCheckInsToday.find((entry) => entry.checkInId === id).streak.current, 0);
 });
 
 test('the teacher can change a reviewed late decision while the original sign-in time remains', () => {
