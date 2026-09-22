@@ -265,6 +265,22 @@ test('resetting a compromised PIN immediately revokes previously issued session 
   assert.equal(c.passLog().length, 0);
 });
 
+test('legacy cache-only PIN sessions are rejected even if a stale cache entry still exists', () => {
+  const c = classroom();
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.cache.put('pin:legacy-session-token', JSON.stringify({
+    email: PEOPLE.ada.email,
+    key,
+    method: 'pin',
+    pinVerified: true,
+  }), 3600);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('refreshStudentState', 'legacy-session-token'),
+    /expired|current PIN/i
+  );
+});
+
 test('the obsolete clear-PIN command fails closed without deleting recovery records', () => {
   const c = classroom();
   const before = c.pinCards().length;
