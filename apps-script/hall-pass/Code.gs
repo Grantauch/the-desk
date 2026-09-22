@@ -173,8 +173,6 @@ const GD_DEFAULT_SETTINGS = [
   ['PASS_URL', 'https://grant-desk.com/pass/', 'Hall Pass link included in PIN emails'],
   ['SCHOOL_YEAR_START', '2026-08-25', 'First student day from the official 2026-27 district calendar'],
   ['SCHOOL_YEAR_END', '2027-06-08', 'Last student day from the official 2026-27 district calendar'],
-  ['SCHOOL_CALENDAR_FILE_ID', '1Gd3ZENe41b1AWRLdbpQ2kdsZj0mEsgoz', 'Official student-calendar file in connected My Drive'],
-  ['SCHOOL_CALENDAR_FALLBACK_URL', 'https://www.mtmorrisschools.org/', 'Official district website fallback when the needed Drive calendar is unavailable'],
 ];
 
 /** Session token lifetime for PIN sign-in, in seconds. One class period plus slack. */
@@ -2969,14 +2967,19 @@ function getSchoolCalendarIndex_() {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CALENDAR);
     const overrides = {};
     const schedules = {};
+    const seenRows = new Map();
     if (sheet && sheet.getLastRow() > 1) {
       sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues()
-        .forEach((row) => {
+        .forEach((row, index) => {
           const key = normalizeDateKey_(row[0]);
-          if (key) {
-            overrides[key] = isTruthyCell_(row[1], false);
-            schedules[key] = String(row[5] || '').trim().toUpperCase();
+          if (!key) return;
+          const rowNumber = index + 2;
+          if (seenRows.has(key)) {
+            throw new Error(`School Calendar contains duplicate date ${key} on rows ${seenRows.get(key)} and ${rowNumber}. Keep one row for each date before continuing.`);
           }
+          seenRows.set(key, rowNumber);
+          overrides[key] = isTruthyCell_(row[1], false);
+          schedules[key] = String(row[5] || '').trim().toUpperCase();
         });
     }
     return {
@@ -3068,7 +3071,17 @@ function readRosterRows_() {
 }
 
 function getRoster_() {
-  return gdMemo_('roster', () => readRosterRows_().filter((student) => student.active));
+  return gdMemo_('roster', () => {
+    const active = readRosterRows_().filter((student) => student.active);
+    const seen = new Map();
+    active.forEach((student) => {
+      if (seen.has(student.key)) {
+        throw new Error(`Roster contains duplicate active membership for ${student.email} / ${student.classPeriod} on rows ${seen.get(student.key)} and ${student.row}. Keep one active row for that class membership.`);
+      }
+      seen.set(student.key, student.row);
+    });
+    return active;
+  });
 }
 
 function getStudentsByEmail_(email) {
@@ -3989,13 +4002,20 @@ function getSettings_() {
   return gdMemo_('settings', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.SETTINGS);
     const values = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues() : [];
-    return values.reduce((settings, row) => {
+    const settings = {};
+    const seen = new Map();
+    values.forEach((row, index) => {
       const key = String(row[0] || '').trim();
-      if (!key) return settings;
+      if (!key) return;
+      const rowNumber = index + 2;
+      if (seen.has(key)) {
+        throw new Error(`Settings contains duplicate key "${key}" on rows ${seen.get(key)} and ${rowNumber}. Keep one row for each setting before continuing.`);
+      }
+      seen.set(key, rowNumber);
       const value = row[1];
       settings[key] = value instanceof Date ? value.toISOString() : String(value == null ? '' : value).trim();
-      return settings;
-    }, {});
+    });
+    return settings;
   });
 }
 
@@ -4461,7 +4481,7 @@ function setupWorkbook_() {
   if (missing.length) {
     settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
   }
-  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES']);
+  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES', 'SCHOOL_CALENDAR_FILE_ID', 'SCHOOL_CALENDAR_FALLBACK_URL']);
   setSettingDescription_(
     settingsSheet,
     'RETENTION_DAYS',
