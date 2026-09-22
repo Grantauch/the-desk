@@ -135,6 +135,18 @@ test('cleanup trigger repair collapses duplicate daily cleanup triggers to one',
   );
 });
 
+test('daily cleanup rejects a trigger UID owned by a different handler', () => {
+  const c = classroom();
+  const wrong = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(
+    () => c.harness.call('dailyCleanup', { triggerUid: wrong.id }),
+    /limited to the teacher/
+  );
+  const cleanup = c.harness.state.triggers.find((entry) => entry.handler === 'dailyCleanup');
+  assert.doesNotThrow(() => c.harness.call('dailyCleanup', { triggerUid: cleanup.id }));
+});
+
 test('the durable check-in inbox has one minute flusher trigger', () => {
   const c = classroom();
   assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1);
