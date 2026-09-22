@@ -14,6 +14,7 @@
 
 const GD_SCHEMA_VERSION = '2026-09-21-backend-b';
 const GD_TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
+const GD_ROSTER_SYNC_CONTRACT = '2026-09-22-roster-sync-v1';
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
@@ -2312,6 +2313,35 @@ function teacherClearUnmatchedSignIns(confirmText, clientContract) {
 }
 
 /* --------------------------------------------------------------- teacher ---- */
+
+/**
+ * Read-only roster bridge for the installed GoClassroom agent.
+ *
+ * This intentionally returns only active class membership identity fields.
+ * It never returns PIN material, pass/check-in history, access overrides, or
+ * any workbook row number. It also avoids setup/repair and background trigger
+ * work so a roster comparison cannot mutate operational state.
+ */
+function getRosterSyncSnapshot(bridgeContract) {
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  if (bridgeContract !== GD_ROSTER_SYNC_CONTRACT) {
+    throw new Error('Update GoClassroom before reading this roster. The roster sync contract has changed.');
+  }
+  const roster = getRoster_().map((student) => ({
+    studentEmail: student.email,
+    studentName: student.name,
+    classPeriod: student.classPeriod,
+    active: true,
+  }));
+  return {
+    ok: true,
+    schemaVersion: 1,
+    bridgeContract: GD_ROSTER_SYNC_CONTRACT,
+    serverNow: new Date().toISOString(),
+    roster,
+  };
+}
 
 function refreshTeacherState(clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
