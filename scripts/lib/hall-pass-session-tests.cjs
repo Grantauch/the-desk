@@ -27,7 +27,7 @@ module.exports = function registerSessionTests(test, section) {
         ['at ten minutes', startMs + 600000, true, true, true],
         ['before final ten', endMs - 600000 - 1, true, true, true],
         ['at final ten', endMs - 600000, true, true, false],
-        ['at bell', endMs, true, true, false],
+        ['at bell', endMs, false, false, false],
       ];
       for (const [label, time, checkInAllowed, checkInLate, passRequestAllowed] of cases) {
         test(`${profile} P${index + 1}: ${label}`, () => {
@@ -208,7 +208,9 @@ module.exports = function registerSessionTests(test, section) {
       c.rosterRows().forEach(row=>assert.equal(row['Pass Access'],mode));
       c.harness.call('teacherAddStudentClass',PEOPLE.ada.name,PEOPLE.ada.email,'Period 4');
       c.rosterRows().forEach(row=>assert.equal(row['Pass Access'],mode));
-      assert.equal(c.harness.sheet('Teacher Actions').records().length,2);
+      const actions=c.harness.sheet('Teacher Actions').records();
+      assert.equal(actions.length,3);
+      assert.ok(actions.some(row=>row.Action==='ROSTER_MEMBERSHIP_ADDED'));
     });
   }
   test('unlimited bypasses numeric limits and cooldown, but not timing', () => {
