@@ -2420,6 +2420,7 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
     gdForget_('unlimited');
 
     const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    rebuildCheckInSummaryForStudent_(input.key);
     auditTeacherAction_(getActiveEmail_(), { email: input.email, name: input.name, classPeriod: input.classPeriod },
       sameMembership ? 'ROSTER_MEMBERSHIP_REACTIVATED' : 'ROSTER_MEMBERSHIP_ADDED', [], '', input.key);
     result = {
@@ -2461,6 +2462,7 @@ function teacherRemoveStudentClass(studentKey) {
 
     getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 5).setValue(false);
     auditTeacherAction_(getActiveEmail_(), student, 'ROSTER_MEMBERSHIP_REMOVED', [], '', student.key);
+    PropertiesService.getScriptProperties().deleteProperty(checkInSummaryPropertyKey_(student.key));
     gdForget_('roster');
     gdForget_('unlimited');
     result = { action: 'removed', name: student.name, classPeriod: student.classPeriod };
@@ -3201,37 +3203,76 @@ function buildCheckInSummaryForEntries_(studentKey, entries, calendarValue) {
   return summary;
 }
 
+function checkInOperationalIndexVersion_() {
+  const calendar = getSchoolCalendarIndex_();
+  const activeKeys = getRoster_().map((student) => student.key).sort();
+  const calendarRows = Object.keys(calendar.overrides || {}).sort().map((key) => [
+    key,
+    Boolean(calendar.overrides[key]),
+    String((calendar.schedules || {})[key] || ''),
+  ]);
+  const payload = JSON.stringify([
+    GD_SCHEMA_VERSION,
+    String(calendar.startKey || ''),
+    String(calendar.endKey || ''),
+    activeKeys,
+    calendarRows,
+  ]);
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    payload,
+    Utilities.Charset.UTF_8
+  );
+  return `${GD_SCHEMA_VERSION}:index:${Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 24)}`;
+}
+
 function rebuildCheckInOperationalIndex_() {
   const properties=PropertiesService.getScriptProperties();
   const allProperties=properties.getProperties();
   Object.keys(allProperties).forEach((key)=>{
     if(key.startsWith(GD_CHECKIN_SUMMARY_PREFIX)||key.startsWith(GD_LATE_REVIEW_PREFIX)) properties.deleteProperty(key);
   });
-  const entries=readCheckInsIncludingPending_(); const byStudent=new Map();
+
+  const activeKeys=new Set(getRoster_().map((student)=>student.key));
+  const entries=readCheckInsIncludingPending_();
+  const byStudent=new Map();
   entries.forEach((entry)=>{
     if(!entry.studentKey) return;
+    if(String(entry.status||'').toUpperCase()==='LATE_PENDING') setLateReviewIndex_(entry);
+    if(!activeKeys.has(entry.studentKey)) return;
     if(!byStudent.has(entry.studentKey)) byStudent.set(entry.studentKey,[]);
     byStudent.get(entry.studentKey).push(entry);
-    if(String(entry.status||'').toUpperCase()==='LATE_PENDING') setLateReviewIndex_(entry);
   });
+
   const calendar=getSchoolCalendarIndex_();
   byStudent.forEach((studentEntries,studentKey)=>writeCheckInSummary_(buildCheckInSummaryForEntries_(studentKey,studentEntries,calendar)));
-  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,GD_SCHEMA_VERSION);
+  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,checkInOperationalIndexVersion_());
   return {students:byStudent.size,entries:entries.length};
 }
 
 function ensureCheckInOperationalIndex_() {
   const properties=PropertiesService.getScriptProperties();
-  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===GD_SCHEMA_VERSION) return;
+  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===checkInOperationalIndexVersion_()) return;
   rebuildCheckInOperationalIndex_();
 }
 
 function rebuildCheckInSummaryForStudent_(studentKey) {
   const key = String(studentKey || '');
   if (!key) return emptyCheckInSummary_('');
+  const properties = PropertiesService.getScriptProperties();
+  const propertyKey = checkInSummaryPropertyKey_(key);
+  if (!getStudentByKey_(key)) {
+    properties.deleteProperty(propertyKey);
+    return emptyCheckInSummary_(key);
+  }
   const historical = readCheckIns_().filter((item) => item.studentKey === key);
   const pending = readPendingCheckIns_().filter((item) => item.studentKey === key);
-  const summary = buildCheckInSummaryForEntries_(key, historical.concat(pending));
+  const entries = historical.concat(pending);
+  if (!entries.length) {
+    properties.deleteProperty(propertyKey);
+    return emptyCheckInSummary_(key);
+  }
+  const summary = buildCheckInSummaryForEntries_(key, entries);
   writeCheckInSummary_(summary);
   return summary;
 }
