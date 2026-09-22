@@ -4495,6 +4495,7 @@ function ensureWorkbookReady_() {
 }
 
 function setupWorkbook_() {
+  assertPinEmailBatchIdle_();
   const spreadsheet = getSpreadsheet_();
   ensureSheet_(spreadsheet, GD_SHEETS.ROSTER, GD_HEADERS.ROSTER);
   ensureSheet_(spreadsheet, GD_SHEETS.LOG, GD_HEADERS.LOG);
