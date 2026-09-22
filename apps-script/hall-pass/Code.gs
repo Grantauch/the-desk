@@ -15,6 +15,10 @@
 const GD_SCHEMA_VERSION = '2026-09-21-backend-b';
 const GD_TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
 const GD_ROSTER_SYNC_CONTRACT = '2026-09-22-roster-sync-v1';
+const GD_ROSTER_SYNC_WRITE_CONTRACT = '2026-09-22-roster-write-v1';
+const GD_ROSTER_SYNC_CONFIRMATION = 'APPLY SAFE ROSTER CHANGES';
+const GD_ROSTER_SYNC_MAX_WRITES = 200;
+const GD_ROSTER_SYNC_REQUEST_PREFIX = 'roster-sync-request:';
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
@@ -2322,13 +2326,138 @@ function teacherClearUnmatchedSignIns(confirmText, clientContract) {
  * any workbook row number. It also avoids setup/repair and background trigger
  * work so a roster comparison cannot mutate operational state.
  */
+function rosterSyncRevision_(rosterValue) {
+  const rows = (Array.isArray(rosterValue) ? rosterValue : getRoster_()).map((student) => ([
+    normalizeEmail_(student.email || student.studentEmail),
+    String(student.name || student.studentName || '').trim().replace(/\s+/g, ' '),
+    String(student.classPeriod || '').trim(),
+  ])).filter((row) => row[0] && row[1] && row[2])
+    .sort((a, b) => a[0].localeCompare(b[0]) || a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    JSON.stringify(rows),
+    Utilities.Charset.UTF_8
+  );
+  return Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 43);
+}
+
+function rosterSyncRequestKey_(requestId) {
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(requestId || ''),
+    Utilities.Charset.UTF_8
+  );
+  return GD_ROSTER_SYNC_REQUEST_PREFIX + Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 43);
+}
+
+function rosterSyncPayloadDigest_(value) {
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    JSON.stringify(value),
+    Utilities.Charset.UTF_8
+  );
+  return Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 43);
+}
+
+function cleanRosterSyncName_(value, label) {
+  const text = String(value || '').trim().replace(/\s+/g, ' ');
+  if (!text) throw new Error(`${label} is required.`);
+  if (text.length > 120) throw new Error(`${label} is too long.`);
+  assertPlainSheetText_(text, label);
+  return text;
+}
+
+function normalizeRosterSyncWriteRequest_(request, settings) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) {
+    throw new Error('The GoClassroom roster change request is invalid. Compare rosters again.');
+  }
+  if (String(request.confirmation || '') !== GD_ROSTER_SYNC_CONFIRMATION) {
+    throw new Error('No roster changes were applied. Confirm the safe roster changes in GoClassroom first.');
+  }
+  const requestId = String(request.requestId || '').trim();
+  if (!/^[A-Za-z0-9._:-]{8,120}$/.test(requestId)) {
+    throw new Error('The GoClassroom roster request ID is invalid. Compare rosters again.');
+  }
+  const baseRevision = String(request.baseRevision || '').trim();
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(baseRevision)) {
+    throw new Error('The GoClassroom roster comparison is missing its roster revision. Compare rosters again.');
+  }
+  if ((Array.isArray(request.deactivate) && request.deactivate.length) ||
+      (Array.isArray(request.remove) && request.remove.length) ||
+      (Array.isArray(request.delete) && request.delete.length)) {
+    throw new Error('GoClassroom roster sync does not remove students automatically. Review removals separately.');
+  }
+
+  const addRows = Array.isArray(request.add) ? request.add : [];
+  const updateRows = Array.isArray(request.updateName) ? request.updateName : [];
+  if (addRows.length + updateRows.length > GD_ROSTER_SYNC_MAX_WRITES) {
+    throw new Error(`GoClassroom requested too many roster changes at once. Limit one approved batch to ${GD_ROSTER_SYNC_MAX_WRITES} changes.`);
+  }
+
+  const add = [];
+  const updateName = [];
+  const addKeys = new Set();
+  const updateKeys = new Set();
+  const desiredNameByEmail = new Map();
+
+  addRows.forEach((raw) => {
+    const input = normalizeRosterInput_(raw && raw.studentName, raw && raw.studentEmail, raw && raw.classPeriod, settings);
+    if (addKeys.has(input.key)) throw new Error(`The GoClassroom roster request contains duplicate additions for ${input.email} / ${input.classPeriod}.`);
+    addKeys.add(input.key);
+    const priorDesired = desiredNameByEmail.get(input.email);
+    if (priorDesired && priorDesired !== input.name) throw new Error(`GoClassroom reported conflicting names for ${input.email}. Compare rosters again.`);
+    desiredNameByEmail.set(input.email, input.name);
+    add.push(input);
+  });
+
+  updateRows.forEach((raw) => {
+    const input = normalizeRosterInput_(raw && (raw.studentName || raw.afterName), raw && raw.studentEmail, raw && raw.classPeriod, settings);
+    const beforeName = cleanRosterSyncName_(raw && (raw.beforeName || (raw.before && raw.before.studentName)), 'Previous student name');
+    if (updateKeys.has(input.key)) throw new Error(`The GoClassroom roster request contains duplicate name updates for ${input.email} / ${input.classPeriod}.`);
+    updateKeys.add(input.key);
+    const priorDesired = desiredNameByEmail.get(input.email);
+    if (priorDesired && priorDesired !== input.name) throw new Error(`GoClassroom reported conflicting names for ${input.email}. Compare rosters again.`);
+    desiredNameByEmail.set(input.email, input.name);
+    updateName.push({ ...input, beforeName });
+  });
+
+  return { requestId, baseRevision, add, updateName };
+}
+
+function rosterSyncRequestReplay_(normalizedRequest) {
+  const properties = PropertiesService.getScriptProperties();
+  const key = rosterSyncRequestKey_(normalizedRequest.requestId);
+  const raw = properties.getProperty(key);
+  if (!raw) return null;
+  let stored;
+  try { stored = JSON.parse(raw); } catch (error) { stored = null; }
+  const digest = rosterSyncPayloadDigest_(normalizedRequest);
+  if (!stored || stored.payloadDigest !== digest || !stored.result) {
+    throw new Error('That GoClassroom roster request ID was already used for different data. Compare rosters again.');
+  }
+  return stored.result;
+}
+
+function rememberRosterSyncRequest_(normalizedRequest, result) {
+  PropertiesService.getScriptProperties().setProperty(
+    rosterSyncRequestKey_(normalizedRequest.requestId),
+    JSON.stringify({
+      v: 1,
+      at: new Date().toISOString(),
+      payloadDigest: rosterSyncPayloadDigest_(normalizedRequest),
+      result,
+    })
+  );
+}
+
 function getRosterSyncSnapshot(bridgeContract) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
   if (bridgeContract !== GD_ROSTER_SYNC_CONTRACT) {
     throw new Error('Update GoClassroom before reading this roster. The roster sync contract has changed.');
   }
-  const roster = getRoster_().map((student) => ({
+  const activeRoster = getRoster_();
+  const roster = activeRoster.map((student) => ({
     studentEmail: student.email,
     studentName: student.name,
     classPeriod: student.classPeriod,
@@ -2338,9 +2467,146 @@ function getRosterSyncSnapshot(bridgeContract) {
     ok: true,
     schemaVersion: 1,
     bridgeContract: GD_ROSTER_SYNC_CONTRACT,
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    revision: rosterSyncRevision_(activeRoster),
     serverNow: new Date().toISOString(),
     roster,
   };
+}
+
+function applyRosterSyncChanges(request, writeContract) {
+  const settings = getSettings_();
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings);
+  if (writeContract !== GD_ROSTER_SYNC_WRITE_CONTRACT) {
+    throw new Error('Update GoClassroom before applying roster changes. The roster write contract has changed.');
+  }
+
+  const normalized = normalizeRosterSyncWriteRequest_(request, settings);
+  const replay = rosterSyncRequestReplay_(normalized);
+  if (replay) return replay;
+
+  let result = null;
+  withLock_(() => {
+    const replayInsideLock = rosterSyncRequestReplay_(normalized);
+    if (replayInsideLock) {
+      result = replayInsideLock;
+      return;
+    }
+
+    flushPendingCheckInsLocked_();
+    assertPinEmailBatchIdle_();
+
+    const allRows = readRosterRows_();
+    const activeRows = allRows.filter((student) => student.active);
+    const currentRevision = rosterSyncRevision_(activeRows);
+    if (currentRevision !== normalized.baseRevision) {
+      throw new Error('The roster changed after GoClassroom compared it. Compare rosters again before applying anything.');
+    }
+
+    const byKey = new Map(allRows.map((student) => [student.key, student]));
+    normalized.add.forEach((input) => {
+      const current = byKey.get(input.key);
+      if (current && current.active) {
+        throw new Error(`${input.name} is already active in ${input.classPeriod}. Compare rosters again.`);
+      }
+    });
+    normalized.updateName.forEach((input) => {
+      const current = byKey.get(input.key);
+      if (!current || !current.active) {
+        throw new Error(`The ${input.classPeriod} membership for ${input.email} changed after comparison. Compare rosters again.`);
+      }
+      if (current.name !== input.beforeName) {
+        throw new Error(`The name for ${input.email} changed after comparison. Compare rosters again.`);
+      }
+    });
+
+    const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+    const nameUpdates = [];
+    normalized.updateName.forEach((input) => {
+      const student = byKey.get(input.key);
+      if (!student || student.name === input.name) return;
+      rosterSheet.getRange(student.row, 2).setValue(input.name);
+      const card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (card && card.studentName !== input.name) pinSheet.getRange(card.row, 2).setValue(input.name);
+      nameUpdates.push({
+        email: input.email,
+        classPeriod: input.classPeriod,
+        beforeName: student.name,
+        afterName: input.name,
+      });
+    });
+    if (nameUpdates.length) {
+      gdForget_('roster');
+      gdForget_('pincards');
+    }
+
+    const added = [];
+    const reactivated = [];
+    normalized.add.forEach((input) => {
+      const refreshedRows = readRosterRows_();
+      const sameStudentRows = refreshedRows.filter((student) => student.email === input.email);
+      const sameMembership = sameStudentRows.find((student) => student.key === input.key) || null;
+      const accessMode = getStudentPassAccess_(input.email);
+      const unlimited = accessMode === 'UNLIMITED';
+      const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
+      let rosterRow;
+      if (sameMembership) {
+        rosterRow = sameMembership.row;
+        rosterSheet.getRange(rosterRow, 1, 1, GD_HEADERS.ROSTER.length).setValues([[
+          input.email, input.name, input.classPeriod, sameMembership.pinHash || existingPinHash,
+          true, unlimited, accessMode,
+        ]]);
+        reactivated.push({ email: input.email, name: input.name, classPeriod: input.classPeriod, key: input.key });
+      } else {
+        rosterSheet.appendRow([
+          input.email, input.name, input.classPeriod, existingPinHash,
+          true, unlimited, accessMode,
+        ]);
+        rosterRow = rosterSheet.getLastRow();
+        added.push({ email: input.email, name: input.name, classPeriod: input.classPeriod, key: input.key });
+      }
+      rosterSheet.getRange(rosterRow, 6).insertCheckboxes().setValue(unlimited);
+      gdForget_('roster');
+      gdForget_('unlimited');
+    });
+
+    const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    const affectedKeys = new Set([
+      ...normalized.add.map((input) => input.key),
+      ...normalized.updateName.map((input) => input.key),
+    ]);
+    affectedKeys.forEach((studentKey) => rebuildCheckInSummaryForStudent_(studentKey));
+
+    added.forEach((student) => auditTeacherAction_(teacher, student, 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED', [], 'Approved in GoClassroom roster sync', normalized.requestId));
+    reactivated.forEach((student) => auditTeacherAction_(teacher, student, 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED', [], 'Approved in GoClassroom roster sync', normalized.requestId));
+    nameUpdates.forEach((change) => auditTeacherAction_(teacher, {
+      email: change.email, name: change.afterName, classPeriod: change.classPeriod,
+    }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', [], 'Approved GoClassroom name correction', normalized.requestId));
+
+    const newRevision = rosterSyncRevision_(getRoster_());
+    result = {
+      ok: true,
+      schemaVersion: 1,
+      requestId: normalized.requestId,
+      appliedAt: new Date().toISOString(),
+      writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+      previousRevision: normalized.baseRevision,
+      revision: newRevision,
+      counts: {
+        added: added.length,
+        reactivated: reactivated.length,
+        nameRowsUpdated: nameUpdates.length,
+        requestedNameUpdates: normalized.updateName.length,
+        createdPins: Number(pinRepair.createdPins || 0),
+        createdPinCards: Number(pinRepair.createdCards || 0),
+      },
+    };
+    rememberRosterSyncRequest_(normalized, result);
+  }, 30000, 'GoClassroom roster sync');
+
+  return result;
 }
 
 function refreshTeacherState(clientContract) {
