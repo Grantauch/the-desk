@@ -2596,7 +2596,28 @@ function teacherStartPass(studentKey, reason, clientContract) {
     if (!student) throw new Error('That student is not active on the roster.');
     const snapshot = getPassSnapshot_();
     reapExpiredQueue_(snapshot.expiredQueue);
-    if (snapshot.active.some((pass) => pass.studentEmail === student.email)) return;
+
+    const existingPass = snapshot.active.find((pass) => pass.studentEmail === student.email);
+    if (existingPass) {
+      // If a prior teacher start committed the pass but failed during audit or
+      // queue cleanup, replay repairs those secondary effects from the
+      // authoritative active pass instead of creating a second pass.
+      if (existingPass.method === 'teacher' && normalizeEmail_(existingPass.endedBy) === normalizeEmail_(teacher)) {
+        const prefix = 'Started by teacher override:';
+        const persistedRestrictions = String(existingPass.note || '').startsWith(prefix)
+          ? String(existingPass.note || '').slice(prefix.length).trim().split(',').map((item) => item.trim()).filter(Boolean)
+          : [];
+        const auditAction = persistedRestrictions.includes('ESCORT_ONLY') ? 'ESCORTED_PASS_STARTED' : 'PASS_STARTED';
+        overrideReason = persistedRestrictions.join(', ');
+        ensureTeacherActionMatchesState_(
+          teacher, student, auditAction, persistedRestrictions, cleanReason, existingPass.passId
+        );
+      }
+      closeWaitingQueueForEmail_(student.email, 'STARTED', 'An active pass already exists for this student');
+      settleWaitingQueue_();
+      return;
+    }
+
     if (!snapshot.openSlots) {
       throw new Error('Every pass slot is in use. End an active pass or raise the limit first.');
     }
@@ -2610,6 +2631,7 @@ function teacherStartPass(studentKey, reason, clientContract) {
     if (allowance.cooldownActive) restrictions.push('return cooldown');
     overrideReason = restrictions.join(', ');
     if (restrictions.length && !cleanReason) throw new Error('Enter a short private reason for this teacher override.');
+
     const passId = Utilities.getUuid();
     getSpreadsheet_().getSheetByName(GD_SHEETS.LOG).appendRow([
       passId, student.email, student.name, student.classPeriod, snapshot.settings.DESTINATION,
@@ -2619,7 +2641,14 @@ function teacherStartPass(studentKey, reason, clientContract) {
       'TEACHER', new Date(), Utilities.getUuid(), '', '', '',
     ]);
     gdForget_('passlog');
-    auditTeacherAction_(teacher, student, allowance.accessMode === 'ESCORT_ONLY' ? 'ESCORTED_PASS_STARTED' : 'PASS_STARTED', restrictions, cleanReason, passId);
+    ensureTeacherActionMatchesState_(
+      teacher,
+      student,
+      allowance.accessMode === 'ESCORT_ONLY' ? 'ESCORTED_PASS_STARTED' : 'PASS_STARTED',
+      restrictions,
+      cleanReason,
+      passId
+    );
     closeWaitingQueueForEmail_(student.email, 'STARTED', 'Pass started by teacher');
     settleWaitingQueue_();
   });
@@ -2635,10 +2664,22 @@ function teacherEndPass(passId, note, clientContract) {
   const cleanNote = String(note || '').trim().slice(0, 300);
   assertPlainSheetText_(cleanNote, 'Return note');
   withLock_(() => {
-    const pass = readPassLog_().find((entry) => entry.passId === String(passId || '') && entry.status === 'OUT');
-    if (!pass) throw new Error('That pass is no longer active. Refresh the teacher dashboard.');
-    closePassById_(String(passId || ''), teacher, cleanNote);
-    auditTeacherAction_(teacher, { email: pass.studentEmail, name: pass.studentName, classPeriod: pass.classPeriod }, 'PASS_RETURNED', [], cleanNote, pass.passId);
+    let pass = readPassLog_().find((entry) => entry.passId === String(passId || ''));
+    if (!pass) throw new Error('That pass is no longer available. Refresh the teacher dashboard.');
+
+    if (pass.status === 'OUT') {
+      closePassById_(pass.passId, teacher, cleanNote);
+      pass = readPassLog_().find((entry) => entry.passId === String(passId || '')) || pass;
+    } else if (!(pass.status === 'RETURNED' && normalizeEmail_(pass.endedBy) === normalizeEmail_(teacher))) {
+      throw new Error('That pass is no longer active. Refresh the teacher dashboard.');
+    }
+
+    const student = { email: pass.studentEmail, name: pass.studentName, classPeriod: pass.classPeriod };
+    ensureTeacherActionMatchesState_(
+      teacher, student, 'PASS_RETURNED', [], String(pass.note || cleanNote), pass.passId
+    );
+    // A retry after the pass row committed must also resume any queue
+    // settlement that was skipped by a later failure in the original request.
     settleWaitingQueue_();
   });
   return getTeacherState_({ includePinStatus: false });
@@ -2730,7 +2771,13 @@ function teacherCheckInStudent(studentKey, reason, clientContract) {
     if (eligibility.late) restrictions.push('LATE_CHECKIN_WINDOW');
     if (restrictions.length && !cleanReason) throw new Error('Enter a short private reason for recording attendance outside the on-time check-in window.');
     const entry = recordCheckIn_(student, 'teacher', `Recorded by ${teacher}`);
-    auditTeacherAction_(teacher, student, 'CHECKIN_RECORDED', restrictions, cleanReason, entry.checkInId);
+    // If the student beat the teacher to the write, do not create false
+    // teacher-attribution evidence for a student-originated Check-In.
+    if (String(entry.method || '').toLowerCase() === 'teacher') {
+      ensureTeacherActionMatchesState_(
+        teacher, student, 'CHECKIN_RECORDED', restrictions, cleanReason, entry.checkInId
+      );
+    }
   });
   return getTeacherState_({ includePinStatus: false });
 }
@@ -2807,7 +2854,10 @@ function teacherMarkStudentAbsent(studentKey, clientContract) {
   if (!student) throw new Error('That student is not active on the roster.');
   withLock_(() => {
     flushPendingCheckInsLocked_();
-    recordAbsence_(student, teacher);
+    const entry = recordAbsence_(student, teacher);
+    ensureTeacherActionMatchesState_(
+      teacher, student, 'ABSENCE_MARKED', [], '', entry.checkInId
+    );
   });
   const state = getTeacherState_({ includePinStatus: false });
   state.noticeMessage = `${student.name} was marked absent for ${student.classPeriod}.`;
@@ -2824,11 +2874,20 @@ function teacherClearStudentAbsent(studentKey, clientContract) {
   withLock_(() => {
     flushPendingCheckInsLocked_();
     const todayKey = dateKey_(new Date());
-    const absence = readCheckIns_().find((entry) => (
-      entry.dateKey === todayKey && entry.studentKey === student.key && entry.status === 'ABSENT'
-    ));
+    const absence = readCheckIns_()
+      .filter((entry) => (
+        entry.dateKey === todayKey &&
+        entry.studentKey === student.key &&
+        ['ABSENT', 'CLEARED'].includes(String(entry.status || '').toUpperCase())
+      ))
+      .sort((a, b) => (b.checkInTime ? b.checkInTime.getTime() : 0) - (a.checkInTime ? a.checkInTime.getTime() : 0))[0];
     if (!absence) return;
-    clearAbsentEntry_(absence, `Cleared by ${teacher}`);
+    if (String(absence.status || '').toUpperCase() === 'ABSENT') {
+      clearAbsentEntry_(absence, `Cleared by ${teacher}`);
+    }
+    ensureTeacherActionMatchesState_(
+      teacher, student, 'ABSENCE_CLEARED', [], '', absence.checkInId
+    );
     cleared = true;
   });
   const state = getTeacherState_({ includePinStatus: false });
