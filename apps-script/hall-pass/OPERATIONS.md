@@ -1,17 +1,36 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. **Version 27 is deployed.** The tracked source, protected `main`, canonical release gate, production preflight, in-place deployment, and live workbook reconciliation are verified. This file is the current operating checklist; older version sections below are historical records. Classroom observation remains FIELD_PENDING.
+Issue #14 is closed. **Version 28 is deployed.** The tracked source, protected `main`, canonical release gate, production preflight, in-place Apps Script deployment, and Netlify production deploy are aligned to the same release commit. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
 
-Production fingerprint as of 2026-09-22 (Version 27):
+Production fingerprint as of 2026-09-22 (Version 28):
 
 | Fact | Value |
 | --- | --- |
-| Deployed application source | `021ea741a89a8579217aebcc28b9fd35b80e2a26` |
-| Apps Script version | 27, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
+| Deployed application source | `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` |
+| Apps Script version | 28, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
 | Workbook schema | `2026-09-21-backend-b` |
-| Teacher client contract | `2026-09-22-all-teacher-rpcs` |
-| Release evidence | GitHub Actions run `35730498425`; canonical gate, bridge self-test and in-place deployment passed |
-| Post-deploy workbook | two inert calendar-source Settings rows removed explicitly; operational data preserved |
+| Teacher client contract | `2026-09-22-all-teacher-rpcs` in server, teacher browser and private release-check client |
+| Release evidence | preflight run `35754508635`; deploy run `35754589935`; canonical gate, bridge self-test and in-place deployment passed |
+| Netlify production | deploy `6ab2acfb9d374c000715447c`, status `ready`, commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` |
+| Post-deploy workbook | no Version 28 schema migration required; existing operational facts preserved by the guarded deployment path |
+
+## September 22 Version 28 production catch-up release
+
+Version 28 is the current single-classroom production release. It preserves the stable Apps Script URL, private workbook, school-domain access and deploying-teacher execution identity while bringing production fully up to the current Hall Pass/Check-In source on protected `main`.
+
+- The teacher browser contract now exactly matches the server contract, fixing the Version 27 stale-client mismatch that blocked teacher bootstrap/RPCs.
+- The private `?mode=releasecheck` client now uses that same contract, so the required synthetic protected-action smoke can execute instead of being rejected before the test begins.
+- Regression coverage now compares the server, teacher browser and release-check contract values so a future contract bump cannot silently ship only one side.
+- Teacher bootstrap audits and repairs both background trigger classes. Routine dashboard polling throttles that trigger audit to once per hour.
+- Owned background trigger IDs are cached in Script Properties, avoiding repeated project-trigger enumeration during normal trigger execution.
+- Empty Check-In refreshes and idle minute-trigger ticks avoid the shared transaction lock.
+- The one-minute durability trigger can resume waiting-line settlement if a return committed before normal queue advancement completed.
+- The deployed source also includes the post-Version-27 safeguards that serialize workbook setup against live classroom/PIN-email writes and fall back to the authoritative attendance ledger when tail rows are out of chronological order.
+- PR #118 passed the full release gate and browser acceptance after being brought to zero commits behind `main`.
+- Production preflight run `35754508635` passed against Version 27, then deploy run `35754589935` updated the existing deployment in place to Version 28.
+- Netlify production is `ready` on deploy `6ab2acfb9d374c000715447c` from the same source commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`.
+
+The authenticated `?mode=releasecheck` synthetic smoke is still required and has not been claimed complete. It must be run as the teacher; do not substitute a real student PIN or record.
 
 ## September 22 Version 27 commercial-hardening release
 
@@ -54,7 +73,7 @@ Version 23 removed Daily Check-In from the shared workbook lock without changing
 - Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
 - Version 23 local evidence reached 311 behavioral checks, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences and Hall Pass regressions.
 
-The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 27. Real-class observation remains pending evidence. Do not create a new deployment or URL.
+The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 28. Real-class observation and the authenticated synthetic release smoke remain pending evidence. Do not create a new deployment or URL.
 
 ## Session and teacher policy
 
@@ -81,17 +100,14 @@ The dependency-complete canonical gate, protected merge, production preflight an
    or email correction made after a delivery batch assembled its recipients cannot send a credential to
    a stale address, and that the recorded delivery status matches the address actually used. Never
    exercise this against the live roster or by sending real mail.
-3. **Version 27 release evidence.** GitHub Actions run `35730498425` deployed Version 27 in place from source `021ea741a89a8579217aebcc28b9fd35b80e2a26` after the canonical gate and production preflight passed. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. Keep any protected synthetic smoke isolated from real student PINs/emails and record it separately when performed.
+3. **Version 28 protected release smoke.** Preflight run `35754508635` passed and deploy run `35754589935` deployed Version 28 in place from source `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. The separate authenticated `?mode=releasecheck` synthetic smoke is still pending; run it as the teacher with only the isolated synthetic credential and record the result separately.
 4. **`NEEDS_RESEND` credential records.** Ten PIN-card records were repointed to corrected addresses
    during the identity migration, and their delivery status was set to `NEEDS_RESEND` because a prior
    `SENT` marker could not prove delivery to the corrected address. All ten students had already used
    their PINs successfully, so this is not a reason for a roster-wide reset. Review each record, decide
    whether that student actually needs another delivery, and keep any real send a separate,
    teacher-confirmed action.
-5. **Netlify deploy fingerprint.** Read the successful Netlify deployment record and tie its deploy ID,
-   timestamp and production URL to the relevant release commit, so the public-release proof is as
-   recoverable as the Apps Script and workbook fingerprints.
-6. **Recovery rehearsal.** Use preserved Version 18 source and its additive schema on a synthetic copy. Never roll bathroom service back to Versions 14, 15 or 16: all carry the AUTO_PASS defect. Version 17 remains a historical safe authorization baseline, not an automatic rollback for the newer session policy.
+5. **Recovery rehearsal.** Use preserved Version 18 source and its additive schema on a synthetic copy. Never roll bathroom service back to Versions 14, 15 or 16: all carry the AUTO_PASS defect. Version 17 remains a historical safe authorization baseline, not an automatic rollback for the newer session policy.
 
 ## Release gate
 
