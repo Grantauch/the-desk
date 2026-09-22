@@ -12,7 +12,7 @@
  *  4. Student screens receive only their own data.
  */
 
-const GD_SCHEMA_VERSION = '2026-09-05-session-a';
+const GD_SCHEMA_VERSION = '2026-09-21-backend-b';
 const GD_TEACHER_CONTRACT = '2026-09-05-memberships';
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
@@ -24,6 +24,12 @@ const GD_CHECKIN_TAIL_ROWS = 600;
 const GD_PENDING_CHECKIN_PREFIX = 'pending-checkin:';
 const GD_CHECKIN_INBOX_STALE_MS = 120000;
 const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
+const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
+const GD_LATE_REVIEW_PREFIX = 'late-review:';
+const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
+const GD_CHECKIN_FLUSH_ERROR_PROPERTY = 'CHECKIN_FLUSH_LAST_ERROR';
+const GD_CHECKIN_MIN_ROWS = 5000;
+const GD_CHECKIN_ROW_GROWTH = 2000;
 const GD_INFERRED_PASS_ACTION_STABILITY_SECONDS = 8;
 
 const GD_STUDENT_ACTIONS = {
@@ -163,7 +169,8 @@ const GD_DEFAULT_SETTINGS = [
   ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
   ['STUDENT_EMAIL_DOMAIN', 'students.mtmorrisschools.org', 'Only roster addresses at this domain receive PIN emails'],
   ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN', 'Subject line for student PIN emails'],
-  ['CHECKIN_URL', 'https://grant-desk.com/check-in/', 'Student link included in PIN emails'],
+  ['CHECKIN_URL', 'https://grant-desk.com/check-in/', 'Daily Check-in link included in PIN emails'],
+  ['PASS_URL', 'https://grant-desk.com/pass/', 'Hall Pass link included in PIN emails'],
   ['SCHOOL_YEAR_START', '2026-08-25', 'First student day from the official 2026-27 district calendar'],
   ['SCHOOL_YEAR_END', '2027-06-08', 'Last student day from the official 2026-27 district calendar'],
   ['SCHOOL_CALENDAR_FILE_ID', '1Gd3ZENe41b1AWRLdbpQ2kdsZj0mEsgoz', 'Official student-calendar file in connected My Drive'],
@@ -279,61 +286,29 @@ function getClassSession_(student, nowValue) {
   const now = toDateOrNull_(nowValue) || new Date();
   const day = getSchoolDaySchedule_(now);
   const selectedPeriod = periodNumberFromClass_(student && student.classPeriod);
-  const result = {
-    ...day,
-    selectedPeriod,
-    currentPeriod: null,
-    classStart: '',
-    classEnd: '',
-    checkInAllowed: false,
-    checkInLate: false,
-    checkInCutoff: '',
-    checkInWindowMinutes: 0,
-    passRequestAllowed: false,
-    blockReason: '',
-    checkInMessage: '',
-    passMessage: '',
-  };
-  if (!day.schoolDay) {
-    result.blockReason = 'NO_SCHOOL';
-    result.checkInMessage = result.passMessage = 'There is no student session today. Ask your teacher if you need help.';
-    return result;
+  const result = {...day,selectedPeriod,currentPeriod:null,classStart:'',classEnd:'',checkInAllowed:false,checkInLate:false,
+    checkInCutoff:'',checkInWindowMinutes:0,passRequestAllowed:false,blockReason:'',checkInMessage:'',passMessage:''};
+  if(!day.schoolDay){ result.blockReason='NO_SCHOOL'; result.checkInMessage=result.passMessage='There is no student session today. Ask your teacher if you need help.'; return result; }
+  const profile=getBellScheduleIndex_()[day.scheduleKey]; const period=profile&&profile.valid&&profile.periods[selectedPeriod]; const settings=getSettings_();
+  const timingKeys=['PASS_PROTECT_FIRST_MINUTES','PASS_PROTECT_LAST_MINUTES','CHECKIN_WINDOW_MINUTES'];
+  const values=timingKeys.map((key)=>String(settings[key]==null?'':settings[key]).trim()); const timing=values.map(Number);
+  if(!period||values.some((value)=>value==='')||timing.some((value)=>!Number.isFinite(value)||value<0)||timing[2]<=0){
+    result.blockReason='SCHEDULE_UNKNOWN'; result.checkInMessage=result.passMessage='The class schedule needs a teacher update. Ask your teacher.'; return result;
   }
-  const profile = getBellScheduleIndex_()[day.scheduleKey];
-  const period = profile && profile.valid && profile.periods[selectedPeriod];
-  const settings = getSettings_();
-  const timingKeys = ['PASS_PROTECT_FIRST_MINUTES', 'PASS_PROTECT_LAST_MINUTES', 'CHECKIN_WINDOW_MINUTES'];
-  const values = timingKeys.map((key) => String(settings[key] == null ? '' : settings[key]).trim());
-  const timing = values.map(Number);
-  if (!period || values.some((value) => value === '') || timing.some((value) => !Number.isFinite(value) || value < 0) || timing[2] <= 0) {
-    result.blockReason = 'SCHEDULE_UNKNOWN';
-    result.checkInMessage = result.passMessage = 'The class schedule needs a teacher update. Ask your teacher.';
-    return result;
-  }
-  const clock = Utilities.formatDate(now, Session.getScriptTimeZone() || 'America/Detroit', 'HH:mm:ss').split(':').map(Number);
-  const seconds = clock[0] * 3600 + clock[1] * 60 + clock[2] + now.getMilliseconds() / 1000;
-  const dayOrigin = now.getTime() - seconds * 1000;
-  const classStart = dayOrigin + period.start * 60000;
-  const classEnd = dayOrigin + period.end * 60000;
-  const checkInCutoff = classStart + timing[2] * 60000;
-  const current = Object.values(profile.periods).find((entry) => seconds >= entry.start * 60 && seconds < entry.end * 60);
-  result.currentPeriod = current ? current.period : null;
-  result.classStart = new Date(classStart).toISOString();
-  result.classEnd = new Date(classEnd).toISOString();
-  result.checkInCutoff = new Date(checkInCutoff).toISOString();
-  result.checkInWindowMinutes = timing[2];
-  // The window is now a grading boundary, not a lockout. Once this class begins,
-  // a student may still record today's arrival; anything after the cutoff is late.
-  result.checkInAllowed = now.getTime() >= classStart;
-  result.checkInLate = result.checkInAllowed && now.getTime() >= checkInCutoff;
-  result.passRequestAllowed = now.getTime() >= classStart + timing[0] * 60000 && now.getTime() < classEnd - timing[1] * 60000;
-  result.blockReason = now.getTime() < classStart ? 'CLASS_NOT_STARTED' : now.getTime() >= classEnd ? 'CLASS_ENDED' : 'PROTECTED_WINDOW';
-  result.checkInMessage = !result.checkInAllowed
-    ? 'Check-in opens when your selected class begins.'
-    : result.checkInLate
-      ? `The ${timing[2]}-minute on-time window has ended. You can still sign in; it will be recorded as late for your teacher to review.`
-      : '';
-  result.passMessage = result.passRequestAllowed ? '' : 'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask your teacher if you need to leave.';
+  const clock=Utilities.formatDate(now,Session.getScriptTimeZone()||'America/Detroit','HH:mm:ss').split(':').map(Number);
+  const seconds=clock[0]*3600+clock[1]*60+clock[2]+now.getMilliseconds()/1000; const dayOrigin=now.getTime()-seconds*1000;
+  const classStart=dayOrigin+period.start*60000; const classEnd=dayOrigin+period.end*60000; const checkInCutoff=classStart+timing[2]*60000;
+  const current=Object.values(profile.periods).find((entry)=>seconds>=entry.start*60&&seconds<entry.end*60);
+  result.currentPeriod=current?current.period:null; result.classStart=new Date(classStart).toISOString(); result.classEnd=new Date(classEnd).toISOString();
+  result.checkInCutoff=new Date(checkInCutoff).toISOString(); result.checkInWindowMinutes=timing[2];
+  result.checkInAllowed=now.getTime()>=classStart&&now.getTime()<classEnd;
+  result.checkInLate=result.checkInAllowed&&now.getTime()>=checkInCutoff;
+  result.passRequestAllowed=now.getTime()>=classStart+timing[0]*60000&&now.getTime()<classEnd-timing[1]*60000;
+  result.blockReason=now.getTime()<classStart?'CLASS_NOT_STARTED':now.getTime()>=classEnd?'CLASS_ENDED':'PROTECTED_WINDOW';
+  result.checkInMessage=now.getTime()<classStart?'Check-in opens when your selected class begins.':
+    now.getTime()>=classEnd?'This class has ended. Ask your teacher if today’s attendance needs to be corrected.':
+    result.checkInLate?`The ${timing[2]}-minute on-time window has ended. You can still sign in while class is meeting; it will be recorded as late for your teacher to review.`:'';
+  result.passMessage=result.passRequestAllowed?'':'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask your teacher if you need to leave.';
   return result;
 }
 
@@ -428,7 +403,6 @@ function onOpen() {
     .addItem('2. Generate missing student PINs', 'generateMissingPins')
     .addItem('Preview PIN email distribution', 'previewPinEmailDistribution')
     .addItem('Email unsent PINs…', 'emailStudentPinsFromSheet')
-    .addItem('Clear printed PIN cards', 'clearPinCards')
     .addSeparator()
     .addItem('Open today’s check-in log', 'openTodayCheckIns')
     .addItem('Archive old operational rows now', 'purgeOldPasses')
@@ -1043,44 +1017,17 @@ function submitDailyCheckIn(actionProof, studentKey, identityToken) {
   return state;
 }
 
-function getCheckInState_(student, pinToken, method) {
-  const settings = getSettings_();
-  const todayKey = dateKey_(new Date());
-  const allCheckIns = readCheckInsIncludingPending_();
-  const checkIn = allCheckIns.find((entry) => (
-    entry.dateKey === todayKey &&
-    entry.studentKey === student.key &&
-    checkInStatusIsRecorded_(entry.status)
-  ));
-  const absence = allCheckIns.find((entry) => (
-    entry.dateKey === todayKey &&
-    entry.studentKey === student.key &&
-    entry.status === 'ABSENT'
-  ));
-  const sessionEligibility = studentActionEligibility_(student, GD_STUDENT_ACTIONS.CHECKIN);
-  return {
-    ok: true,
-    mode: 'checkin',
-    recognized: true,
-    appTitle: 'Daily Check-in',
-    student: { key: student.key, name: student.name, classPeriod: student.classPeriod },
-    pinToken: pinToken || '',
-    method,
-    dateKey: todayKey,
-    pointValue: numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1),
-    checkedIn: Boolean(checkIn),
-    lateCheckIn: Boolean(checkIn && checkInStatusIsLate_(checkIn.status)),
-    lateReviewStatus: checkIn && checkInStatusIsLate_(checkIn.status) ? checkIn.status : '',
-    // A teacher-entered absence stays authoritative while the student is still
-    // inside the on-time window. After the cutoff, a separate late-arrival record
-    // may be added without silently clearing the teacher's attendance decision.
-    attendanceLocked: Boolean(absence && !checkIn && !sessionEligibility.late),
-    priorAbsence: Boolean(absence && !checkIn),
-    sessionEligibility,
-    checkIn: checkIn ? clientCheckIn_(checkIn) : null,
-    streak: buildStreakIndex_(allCheckIns).streakFor(student.key, todayKey),
-    serverNow: new Date().toISOString(),
-  };
+function getCheckInState_(student,pinToken,method) {
+  const settings=getSettings_(); const todayKey=dateKey_(new Date()); const todayCheckIns=readCheckInsForDateIncludingPending_(todayKey);
+  const checkIn=todayCheckIns.find((entry)=>entry.studentKey===student.key&&checkInStatusIsRecorded_(entry.status));
+  const absence=todayCheckIns.find((entry)=>entry.studentKey===student.key&&entry.status==='ABSENT');
+  const sessionEligibility=studentActionEligibility_(student,GD_STUDENT_ACTIONS.CHECKIN);
+  const summary=readCheckInSummaryMap_().get(student.key)||emptyCheckInSummary_(student.key);
+  return {ok:true,mode:'checkin',recognized:true,appTitle:'Daily Check-in',student:{key:student.key,name:student.name,classPeriod:student.classPeriod},
+    pinToken:pinToken||'',method,dateKey:todayKey,pointValue:numberSetting_(settings,'CHECKIN_POINT_VALUE',1),checkedIn:Boolean(checkIn),
+    lateCheckIn:Boolean(checkIn&&checkInStatusIsLate_(checkIn.status)),lateReviewStatus:checkIn&&checkInStatusIsLate_(checkIn.status)?checkIn.status:'',
+    attendanceLocked:Boolean(absence&&!checkIn&&!sessionEligibility.late),priorAbsence:Boolean(absence&&!checkIn),sessionEligibility,
+    checkIn:checkIn?clientCheckIn_(checkIn):null,streak:streakFromCheckInSummary_(summary,todayKey),serverNow:new Date().toISOString()};
 }
 
 function checkInLogicalKey_(checkIn) {
@@ -1215,6 +1162,7 @@ function stageCheckIn_(student, method, note, lateOverride, requestId) {
   }));
   entry.pendingPropertyKey = propertyKey;
   gdForget_('pending-checkins');
+  updateCheckInOperationalIndex_(entry);
   return entry;
 }
 
@@ -1235,38 +1183,20 @@ function checkInEntryRow_(entry) {
 
 /** Must be called while the shared script lock is held. */
 function flushPendingCheckInsLocked_() {
-  const pending = readPendingCheckIns_()
-    .slice()
-    .sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.checkInTime - b.checkInTime);
-  if (!pending.length) return { written: 0, deduplicated: 0 };
-
-  const existing = [];
-  [...new Set(pending.map((entry) => entry.dateKey))].forEach((dateKey) => {
-    existing.push(...readCheckInsForDate_(dateKey));
-  });
-  const recorded = new Set(
-    existing.filter((entry) => checkInStatusIsRecorded_(entry.status)).map(checkInLogicalKey_)
-  );
-  const toWrite = [];
-  pending.forEach((entry) => {
-    const key = checkInLogicalKey_(entry);
-    if (recorded.has(key)) return;
-    toWrite.push(entry);
-    recorded.add(key);
-  });
-
-  if (toWrite.length) {
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
-    sheet.getRange(sheet.getLastRow() + 1, 1, toWrite.length, GD_HEADERS.CHECKINS.length)
-      .setValues(toWrite.map(checkInEntryRow_));
-    SpreadsheetApp.flush();
+  const pending=readPendingCheckIns_().slice().sort((a,b)=>a.dateKey.localeCompare(b.dateKey)||a.checkInTime-b.checkInTime);
+  if(!pending.length){ PropertiesService.getScriptProperties().deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY); return {written:0,deduplicated:0}; }
+  const existing=[]; [...new Set(pending.map((entry)=>entry.dateKey))].forEach((dateKey)=>existing.push(...readCheckInsForDate_(dateKey)));
+  const recorded=new Set(existing.filter((entry)=>checkInStatusIsRecorded_(entry.status)).map(checkInLogicalKey_)); const toWrite=[];
+  pending.forEach((entry)=>{ const key=checkInLogicalKey_(entry); if(recorded.has(key))return; toWrite.push(entry); recorded.add(key); });
+  if(toWrite.length){
+    const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); const startRow=sheet.getLastRow()+1;
+    ensureRowCapacity_(sheet,startRow+toWrite.length-1);
+    sheet.getRange(startRow,1,toWrite.length,GD_HEADERS.CHECKINS.length).setValues(toWrite.map(checkInEntryRow_)); SpreadsheetApp.flush();
+    toWrite.forEach(updateCheckInOperationalIndex_);
   }
-
-  const properties = PropertiesService.getScriptProperties();
-  pending.forEach((entry) => properties.deleteProperty(entry.pendingPropertyKey));
-  gdForget_('pending-checkins');
-  gdForget_('checkins');
-  return { written: toWrite.length, deduplicated: pending.length - toWrite.length };
+  const properties=PropertiesService.getScriptProperties(); pending.forEach((entry)=>properties.deleteProperty(entry.pendingPropertyKey));
+  properties.deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY); gdForget_('pending-checkins'); gdForget_('checkins');
+  return {written:toWrite.length,deduplicated:pending.length-toWrite.length};
 }
 
 /** Try once without waiting. A busy pass transaction leaves the inbox intact. */
@@ -1288,109 +1218,42 @@ function tryFlushPendingCheckIns_() {
   }
 }
 
-function getPendingCheckInSummary_() {
-  const pending = readPendingCheckIns_();
-  const oldest = pending
-    .map((entry) => entry.checkInTime)
-    .filter(Boolean)
-    .sort((a, b) => a - b)[0] || null;
-  return {
-    pendingCount: pending.length,
-    oldestAt: isoOrEmpty_(oldest),
-    delayed: Boolean(oldest && Date.now() - oldest.getTime() >= GD_CHECKIN_INBOX_STALE_MS),
-  };
+function getPendingCheckInSummary_(){
+  const pending=readPendingCheckIns_(); const oldest=pending.map((entry)=>entry.checkInTime).filter(Boolean).sort((a,b)=>a-b)[0]||null;
+  let lastError=null; try{lastError=JSON.parse(PropertiesService.getScriptProperties().getProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY)||'null');}catch(error){lastError=null;}
+  return {pendingCount:pending.length,oldestAt:isoOrEmpty_(oldest),
+    delayed:Boolean(oldest&&Date.now()-oldest.getTime()>=GD_CHECKIN_INBOX_STALE_MS),lastError};
 }
 
-function recordCheckIn_(student, method, note, lateOverride) {
-  const todayKey = dateKey_(new Date());
-  const todayEntries = readCheckInsForDate_(todayKey).filter((entry) => (
-    entry.studentKey === student.key
-  ));
-  const existing = todayEntries.find((entry) => checkInStatusIsRecorded_(entry.status));
-  const absence = todayEntries.find((entry) => entry.status === 'ABSENT');
-  if (existing) return existing;
-
-  const settings = getSettings_();
-  const session = method === 'teacher' ? null : getClassSession_(student);
-  const late = method !== 'teacher' && Boolean(lateOverride);
-  if (absence && method !== 'teacher' && !late) {
-    throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');
-  }
-  if (absence && method === 'teacher') {
-    clearAbsentEntry_(absence, `Cleared when ${method} check-in was recorded`);
-  }
-  const point = late ? 0 : numberSetting_(settings, 'CHECKIN_POINT_VALUE', 1);
-  const status = late ? 'LATE_PENDING' : 'CHECKED_IN';
-  const lateDetail = late
-    ? `Late sign-in after the ${session.checkInWindowMinutes}-minute on-time window; teacher point review pending`
-    : '';
-  const row = [
-    Utilities.getUuid(),
-    todayKey,
-    new Date(),
-    student.email,
-    student.name,
-    student.classPeriod,
-    method,
-    point,
-    status,
-    [String(note || '').trim(), lateDetail].filter(Boolean).join(' · ').slice(0, 300),
-  ];
-  getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS).appendRow(row);
-  gdForget_('checkins');
-  return {
-    checkInId: row[0],
-    dateKey: row[1],
-    checkInTime: row[2],
-    studentEmail: row[3],
-    studentName: row[4],
-    classPeriod: row[5],
-    studentKey: rosterKey_(row[3], row[5]),
-    method: row[6],
-    point: row[7],
-    status: row[8],
-    note: row[9],
-  };
+function recordCheckIn_(student,method,note,lateOverride){
+  const todayKey=dateKey_(new Date());
+  const todayEntries=readCheckInsForDate_(todayKey).filter((entry)=>entry.studentKey===student.key);
+  const existing=todayEntries.find((entry)=>checkInStatusIsRecorded_(entry.status));
+  const absence=todayEntries.find((entry)=>entry.status==='ABSENT');
+  if(existing)return existing;
+  const settings=getSettings_(); const session=method==='teacher'?null:getClassSession_(student); const late=method!=='teacher'&&Boolean(lateOverride);
+  if(absence&&method!=='teacher'&&!late) throw new Error('Your attendance needs a teacher update today. Ask your teacher to mark you here.');
+  if(absence&&method==='teacher') clearAbsentEntry_(absence,`Cleared when ${method} check-in was recorded`);
+  const point=late?0:numberSetting_(settings,'CHECKIN_POINT_VALUE',1); const status=late?'LATE_PENDING':'CHECKED_IN';
+  const lateDetail=late?`Late sign-in after the ${session.checkInWindowMinutes}-minute on-time window; teacher point review pending`:'';
+  const row=[Utilities.getUuid(),todayKey,new Date(),student.email,student.name,student.classPeriod,method,point,status,
+    [String(note||'').trim(),lateDetail].filter(Boolean).join(' · ').slice(0,300)];
+  const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); ensureRowCapacity_(sheet,sheet.getLastRow()+1); sheet.appendRow(row); gdForget_('checkins');
+  const entry={checkInId:row[0],dateKey:row[1],checkInTime:row[2],studentEmail:row[3],studentName:row[4],classPeriod:row[5],
+    studentKey:rosterKey_(row[3],row[5]),method:row[6],point:row[7],status:row[8],note:row[9]};
+  updateCheckInOperationalIndex_(entry); return entry;
 }
 
-function recordAbsence_(student, teacher) {
-  const todayKey = dateKey_(new Date());
-  const todayEntries = readCheckInsForDate_(todayKey).filter((entry) => (
-    entry.studentKey === student.key
-  ));
-  if (todayEntries.some((entry) => checkInStatusIsRecorded_(entry.status))) {
-    throw new Error(`${student.name} already has a check-in recorded today.`);
-  }
-  const existing = todayEntries.find((entry) => entry.status === 'ABSENT');
-  if (existing) return existing;
-
-  const row = [
-    Utilities.getUuid(),
-    todayKey,
-    new Date(),
-    student.email,
-    student.name,
-    student.classPeriod,
-    'teacher',
-    0,
-    'ABSENT',
-    `Marked absent by ${teacher}`.slice(0, 300),
-  ];
-  getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS).appendRow(row);
-  gdForget_('checkins');
-  return {
-    checkInId: row[0],
-    dateKey: row[1],
-    checkInTime: row[2],
-    studentEmail: row[3],
-    studentName: row[4],
-    classPeriod: row[5],
-    studentKey: rosterKey_(row[3], row[5]),
-    method: row[6],
-    point: row[7],
-    status: row[8],
-    note: row[9],
-  };
+function recordAbsence_(student,teacher){
+  const todayKey=dateKey_(new Date()); const todayEntries=readCheckInsForDate_(todayKey).filter((entry)=>entry.studentKey===student.key);
+  if(todayEntries.some((entry)=>checkInStatusIsRecorded_(entry.status))) throw new Error(`${student.name} already has a check-in recorded today.`);
+  const existing=todayEntries.find((entry)=>entry.status==='ABSENT'); if(existing)return existing;
+  const row=[Utilities.getUuid(),todayKey,new Date(),student.email,student.name,student.classPeriod,'teacher',0,'ABSENT',
+    `Marked absent by ${teacher}`.slice(0,300)];
+  const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); ensureRowCapacity_(sheet,sheet.getLastRow()+1); sheet.appendRow(row); gdForget_('checkins');
+  const entry={checkInId:row[0],dateKey:row[1],checkInTime:row[2],studentEmail:row[3],studentName:row[4],classPeriod:row[5],
+    studentKey:rosterKey_(row[3],row[5]),method:row[6],point:row[7],status:row[8],note:row[9]};
+  updateCheckInOperationalIndex_(entry); return entry;
 }
 
 function clearAbsentEntry_(entry, detail) {
@@ -2188,6 +2051,7 @@ function moveStudentIdentity_(oldEmailValue, newEmailValue, options) {
       .setValues([['APPLIED', String((options && options.unmatchedNote) || 'Matched to retained student identity').slice(0, 300)]]);
   }
   gdClearMemo_();
+  rebuildCheckInOperationalIndex_();
   return result;
 }
 
@@ -2339,65 +2203,52 @@ function teacherSetPassLimits(maxActivePasses, studentPassLimit) {
   );
 }
 
-function teacherSetPassRules(maxActivePasses, studentPassLimit, dailyPassLimit, cooldownMinutes, lateMinutes, staleMinutes) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  const maxActive = Number(maxActivePasses);
-  const perStudentLimit = Number(studentPassLimit);
-  const perDayLimit = Number(dailyPassLimit);
-  const cooldown = Number(cooldownMinutes);
-  const late = Number(lateMinutes);
-  const stale = Number(staleMinutes);
-  if (!Number.isInteger(maxActive) || maxActive < 1 || maxActive > 10) {
-    throw new Error('Concurrent passes must be a whole number from 1 through 10.');
-  }
-  if (!Number.isInteger(perStudentLimit) || perStudentLimit < 0 || perStudentLimit > 500) {
-    throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
-  }
-  if (!Number.isInteger(perDayLimit) || perDayLimit < 0 || perDayLimit > 25) {
-    throw new Error('The daily pass limit must be a whole number from 0 through 25. Use 0 for unlimited.');
-  }
-  if (!Number.isInteger(cooldown) || cooldown < 0 || cooldown > 180) {
-    throw new Error('The return cooldown must be a whole number from 0 through 180 minutes.');
-  }
-  if (!Number.isInteger(late) || late < 1 || late > 120) {
-    throw new Error('The late-pass warning must be a whole number from 1 through 120 minutes.');
-  }
-  if (!Number.isInteger(stale) || stale < late || stale > 240) {
-    throw new Error('The forgotten-pass warning must be a whole number at least as large as the late warning and no more than 240 minutes.');
-  }
-  withLock_(() => {
-    setSettingValue_('MAX_ACTIVE_PASSES', String(maxActive));
-    setSettingValue_('STUDENT_PASS_LIMIT', String(perStudentLimit));
-    setSettingValue_('DAILY_PASS_LIMIT', String(perDayLimit));
-    setSettingValue_('PASS_COOLDOWN_MINUTES', String(cooldown));
-    setSettingValue_('LATE_AFTER_MINUTES', String(late));
-    setSettingValue_('STALE_PASS_MINUTES', String(stale));
-    settleWaitingQueue_();
+function teacherSetPassRules(maxActivePasses,studentPassLimit,dailyPassLimit,cooldownMinutes,lateMinutes,staleMinutes){
+  const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before);
+  const maxActive=Number(maxActivePasses),perStudentLimit=Number(studentPassLimit),perDayLimit=Number(dailyPassLimit),
+    cooldown=Number(cooldownMinutes),late=Number(lateMinutes),stale=Number(staleMinutes);
+  if(!Number.isInteger(maxActive)||maxActive<1||maxActive>10) throw new Error('Concurrent passes must be a whole number from 1 through 10.');
+  if(!Number.isInteger(perStudentLimit)||perStudentLimit<0||perStudentLimit>500) throw new Error('The per-student marking-period limit must be a whole number from 0 through 500. Use 0 for unlimited.');
+  if(!Number.isInteger(perDayLimit)||perDayLimit<0||perDayLimit>25) throw new Error('The daily pass limit must be a whole number from 0 through 25. Use 0 for unlimited.');
+  if(!Number.isInteger(cooldown)||cooldown<0||cooldown>180) throw new Error('The return cooldown must be a whole number from 0 through 180 minutes.');
+  if(!Number.isInteger(late)||late<1||late>120) throw new Error('The late-pass warning must be a whole number from 1 through 120 minutes.');
+  if(!Number.isInteger(stale)||stale<late||stale>240) throw new Error('The forgotten-pass warning must be a whole number at least as large as the late warning and no more than 240 minutes.');
+  withLock_(()=>{
+    setSettingValue_('MAX_ACTIVE_PASSES',String(maxActive)); setSettingValue_('STUDENT_PASS_LIMIT',String(perStudentLimit));
+    setSettingValue_('DAILY_PASS_LIMIT',String(perDayLimit)); setSettingValue_('PASS_COOLDOWN_MINUTES',String(cooldown));
+    setSettingValue_('LATE_AFTER_MINUTES',String(late)); setSettingValue_('STALE_PASS_MINUTES',String(stale)); settleWaitingQueue_();
+    const detail=[`capacity ${before.MAX_ACTIVE_PASSES||''}->${maxActive}`,`class limit ${before.STUDENT_PASS_LIMIT||''}->${perStudentLimit}`,
+      `daily limit ${before.DAILY_PASS_LIMIT||''}->${perDayLimit}`,`cooldown ${before.PASS_COOLDOWN_MINUTES||''}->${cooldown}`,
+      `late ${before.LATE_AFTER_MINUTES||''}->${late}`,`stale ${before.STALE_PASS_MINUTES||''}->${stale}`].join('; ');
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'PASS_RULES_CHANGED',[],detail,'');
   });
-  return getTeacherState_({ includePinStatus: false });
+  return getTeacherState_({includePinStatus:false});
 }
 
-function teacherSetCheckInWindow(checkInWindowMinutes, clientContract) {
-  const teacher = getActiveEmail_();
-  assertTeacher_(teacher, getSettings_());
-  assertTeacherClient_(clientContract);
-  const minutes = Number(checkInWindowMinutes);
-  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 240) {
-    throw new Error('The on-time check-in window must be a whole number from 1 through 240 minutes.');
-  }
-  withLock_(() => setSettingValue_('CHECKIN_WINDOW_MINUTES', String(minutes)));
-  const state = getTeacherState_({ includePinStatus: false });
-  state.noticeMessage = `On-time check-ins now run for ${minutes} minute${minutes === 1 ? '' : 's'} after each class begins. Later student sign-ins will still be recorded for your point review.`;
+function teacherSetCheckInWindow(checkInWindowMinutes,clientContract){
+  const teacher=getActiveEmail_(); const before=getSettings_(); assertTeacher_(teacher,before); assertTeacherClient_(clientContract);
+  const minutes=Number(checkInWindowMinutes);
+  if(!Number.isInteger(minutes)||minutes<1||minutes>240) throw new Error('The on-time check-in window must be a whole number from 1 through 240 minutes.');
+  withLock_(()=>{
+    setSettingValue_('CHECKIN_WINDOW_MINUTES',String(minutes));
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'CHECKIN_WINDOW_CHANGED',[],
+      `${before.CHECKIN_WINDOW_MINUTES||''} -> ${minutes} minutes`,'');
+  });
+  const state=getTeacherState_({includePinStatus:false});
+  state.noticeMessage=`On-time check-ins now run for ${minutes} minute${minutes===1?'':'s'} after each class begins. Later student sign-ins are accepted only until that class ends.`;
   return state;
 }
 
-function teacherResetStudentPassCounters(confirmText) {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  if (String(confirmText || '') !== 'RESET ALL STUDENTS') {
-    throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
-  }
-  withLock_(() => setSettingValue_('STUDENT_PASS_RESET_AT', new Date().toISOString()));
-  return getTeacherState_({ includePinStatus: false });
+function teacherResetStudentPassCounters(confirmText){
+  const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings);
+  if(String(confirmText||'')!=='RESET ALL STUDENTS') throw new Error('No counters were reset. Confirm the marking-period reset from the teacher dashboard.');
+  const resetAt=new Date().toISOString();
+  withLock_(()=>{
+    setSettingValue_('STUDENT_PASS_RESET_AT',resetAt);
+    auditTeacherAction_(teacher,{email:'',name:'Classroom policy',classPeriod:'All classes'},'PASS_MARKING_PERIOD_RESET',[],
+      `Previous reset ${settings.STUDENT_PASS_RESET_AT||'none'}; new reset ${resetAt}`,'');
+  });
+  return getTeacherState_({includePinStatus:false});
 }
 
 function teacherSetStudentUnlimited(studentEmail, unlimited) {
@@ -2486,6 +2337,8 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
     gdForget_('unlimited');
 
     const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    auditTeacherAction_(getActiveEmail_(), { email: input.email, name: input.name, classPeriod: input.classPeriod },
+      sameMembership ? 'ROSTER_MEMBERSHIP_REACTIVATED' : 'ROSTER_MEMBERSHIP_ADDED', [], '', input.key);
     result = {
       action,
       name: input.name,
@@ -2524,6 +2377,7 @@ function teacherRemoveStudentClass(studentKey) {
     }
 
     getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 5).setValue(false);
+    auditTeacherAction_(getActiveEmail_(), student, 'ROSTER_MEMBERSHIP_REMOVED', [], '', student.key);
     gdForget_('roster');
     gdForget_('unlimited');
     result = { action: 'removed', name: student.name, classPeriod: student.classPeriod };
@@ -2547,6 +2401,9 @@ function normalizeRosterInput_(studentName, studentEmail, classPeriod, settings)
   assertPlainSheetText_(emailText, 'Student email');
   const email = normalizeEmail_(emailText);
   const className = cleanText(classPeriod, 'Class / period', 120);
+  if (!periodNumberFromClass_(className)) {
+    throw new Error('Class / period must begin with Period 1 through Period 6 so GrantDesk can apply the bell schedule.');
+  }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error('Enter the student’s full school email address.');
   }
@@ -2770,6 +2627,10 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
       .getRange(entry.row, 8, 1, 3)
       .setValues([[point, status, note]]);
     gdForget_('checkins');
+    entry.point = point;
+    entry.status = status;
+    entry.note = note;
+    updateCheckInOperationalIndex_(entry);
     auditTeacherAction_(
       teacher,
       student,
@@ -2840,21 +2701,14 @@ function getTeacherState_(options) {
   const snapshot = getPassSnapshot_();
   const log = snapshot.log;
   const todayKey = dateKey_(new Date());
-  const allCheckIns = readCheckInsIncludingPending_();
-  const streaks = buildStreakIndex_(allCheckIns);
-  // An address Google has actually handed us is proven; the rest are guesses.
-  const googleVerified = new Set();
-  allCheckIns.forEach((entry) => {
-    if (entry.method === 'google') googleVerified.add(entry.studentEmail);
-  });
-  const checkInsToday = allCheckIns
-    .filter((checkIn) => checkIn.dateKey === todayKey && checkInStatusIsRecorded_(checkIn.status))
-    .sort((a, b) => a.checkInTime - b.checkInTime);
+  const todayEntries = readCheckInsForDateIncludingPending_(todayKey);
+  const summaryMap = readCheckInSummaryMap_();
+  const googleVerified = new Set([...summaryMap.values()].filter((summary) => summary.googleVerified).map((summary) => summary.studentEmail));
+  const checkInsToday = todayEntries.filter((checkIn) => checkInStatusIsRecorded_(checkIn.status)).sort((a, b) => a.checkInTime - b.checkInTime);
   const lateCheckInsToday = checkInsToday.filter((checkIn) => checkInStatusIsLate_(checkIn.status));
+  const pendingLateCheckIns = readPendingLateReviews_();
   const checkedKeys = new Set(checkInsToday.map((checkIn) => checkIn.studentKey));
-  const absencesToday = allCheckIns
-    .filter((entry) => entry.dateKey === todayKey && entry.status === 'ABSENT')
-    .sort((a, b) => a.studentName.localeCompare(b.studentName));
+  const absencesToday = todayEntries.filter((entry) => entry.status === 'ABSENT').sort((a, b) => a.studentName.localeCompare(b.studentName));
   const absentKeys = new Set(absencesToday.map((entry) => entry.studentKey));
   const classNames = [...new Set(roster.map((student) => student.classPeriod || 'class'))]
     .sort((a, b) => a.localeCompare(b));
@@ -2917,12 +2771,13 @@ function getTeacherState_(options) {
     classNames,
     checkInsToday: checkInsToday.map((checkIn) => ({
       ...clientCheckIn_(checkIn),
-      streak: streaks.streakFor(checkIn.studentKey, todayKey),
+      streak: streakFromCheckInSummary_(summaryMap.get(checkIn.studentKey), todayKey),
     })),
     lateCheckInsToday: lateCheckInsToday.map((checkIn) => ({
       ...clientCheckIn_(checkIn),
-      streak: streaks.streakFor(checkIn.studentKey, todayKey),
+      streak: streakFromCheckInSummary_(summaryMap.get(checkIn.studentKey), todayKey),
     })),
+    pendingLateCheckIns: pendingLateCheckIns.map(clientCheckIn_),
     absentToday: absencesToday.map(clientCheckIn_),
     checkInSummary,
     notCheckedIn: roster.filter((student) => !checkedKeys.has(student.key) && !absentKeys.has(student.key)),
@@ -3195,6 +3050,173 @@ function mapCheckInRow_(row, rowNumber) {
   };
 }
 
+function ensureRowCapacity_(sheet, requiredLastRow) {
+  const needed = Math.max(1, Number(requiredLastRow || 1));
+  const current = sheet.getMaxRows();
+  if (current >= needed) return current;
+  const target = Math.max(needed, current + GD_CHECKIN_ROW_GROWTH, GD_CHECKIN_MIN_ROWS);
+  sheet.insertRowsAfter(current, target - current);
+  return target;
+}
+
+function checkInSummaryPropertyKey_(studentKey) { return GD_CHECKIN_SUMMARY_PREFIX + String(studentKey || ''); }
+
+function lateReviewPropertyKey_(checkInId) { return GD_LATE_REVIEW_PREFIX + String(checkInId || ''); }
+
+function emptyCheckInSummary_(studentKey) {
+  return { v:1, studentKey:String(studentKey||''), studentEmail:'', studentName:'', classPeriod:'',
+    current:0, best:0, lastCountedDate:'', googleVerified:false };
+}
+
+function parseCheckInSummary_(studentKey, raw) {
+  try {
+    const parsed=JSON.parse(String(raw||''));
+    if(!parsed || parsed.v!==1 || String(parsed.studentKey||'')!==String(studentKey||'')) return null;
+    return {...emptyCheckInSummary_(studentKey),...parsed,current:Math.max(0,Number(parsed.current||0)),
+      best:Math.max(0,Number(parsed.best||0)),googleVerified:Boolean(parsed.googleVerified)};
+  } catch(error){ return null; }
+}
+
+function writeCheckInSummary_(summary) {
+  if(!summary || !summary.studentKey) return;
+  PropertiesService.getScriptProperties().setProperty(checkInSummaryPropertyKey_(summary.studentKey),JSON.stringify(summary));
+}
+
+function checkInEntryForProperty_(entry) {
+  return {v:1,checkInId:entry.checkInId,dateKey:entry.dateKey,checkInTime:isoOrEmpty_(entry.checkInTime),
+    studentEmail:entry.studentEmail,studentName:entry.studentName,classPeriod:entry.classPeriod,
+    studentKey:entry.studentKey,method:entry.method,point:Number(entry.point||0),status:entry.status};
+}
+
+function setLateReviewIndex_(entry) {
+  const properties=PropertiesService.getScriptProperties();
+  const key=lateReviewPropertyKey_(entry.checkInId);
+  if(String(entry.status||'').toUpperCase()==='LATE_PENDING') properties.setProperty(key,JSON.stringify(checkInEntryForProperty_(entry)));
+  else properties.deleteProperty(key);
+}
+
+function buildCheckInSummaryForEntries_(studentKey, entries, calendarValue) {
+  const calendar=calendarValue||getSchoolCalendarIndex_();
+  const summary=emptyCheckInSummary_(studentKey);
+  const ordered=(entries||[]).filter((entry)=>entry&&entry.studentKey===studentKey).slice()
+    .sort((a,b)=>String(a.dateKey||'').localeCompare(String(b.dateKey||''))||a.checkInTime-b.checkInTime);
+  if(ordered.length){
+    const latest=ordered[ordered.length-1];
+    summary.studentEmail=latest.studentEmail||''; summary.studentName=latest.studentName||''; summary.classPeriod=latest.classPeriod||'';
+    summary.googleVerified=ordered.some((entry)=>String(entry.method||'').toLowerCase()==='google');
+  }
+  const days=[...new Set(ordered.filter((entry)=>checkInStatusCountsForStreak_(entry.status)&&isSchoolDayKey_(entry.dateKey,calendar))
+    .map((entry)=>entry.dateKey))].sort();
+  let previous='',run=0;
+  days.forEach((key)=>{ run=previous&&nextSchoolDayKey_(previous,calendar)===key?run+1:1; summary.best=Math.max(summary.best,run); previous=key; });
+  if(days.length){
+    summary.lastCountedDate=days[days.length-1];
+    let cursor=summary.lastCountedDate,current=0; const daySet=new Set(days);
+    while(daySet.has(cursor)){ current+=1; cursor=previousSchoolDayKey_(cursor,calendar); }
+    summary.current=current; summary.best=Math.max(summary.best,current);
+  }
+  return summary;
+}
+
+function rebuildCheckInOperationalIndex_() {
+  const properties=PropertiesService.getScriptProperties();
+  const allProperties=properties.getProperties();
+  Object.keys(allProperties).forEach((key)=>{
+    if(key.startsWith(GD_CHECKIN_SUMMARY_PREFIX)||key.startsWith(GD_LATE_REVIEW_PREFIX)) properties.deleteProperty(key);
+  });
+  const entries=readCheckInsIncludingPending_(); const byStudent=new Map();
+  entries.forEach((entry)=>{
+    if(!entry.studentKey) return;
+    if(!byStudent.has(entry.studentKey)) byStudent.set(entry.studentKey,[]);
+    byStudent.get(entry.studentKey).push(entry);
+    if(String(entry.status||'').toUpperCase()==='LATE_PENDING') setLateReviewIndex_(entry);
+  });
+  const calendar=getSchoolCalendarIndex_();
+  byStudent.forEach((studentEntries,studentKey)=>writeCheckInSummary_(buildCheckInSummaryForEntries_(studentKey,studentEntries,calendar)));
+  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,GD_SCHEMA_VERSION);
+  return {students:byStudent.size,entries:entries.length};
+}
+
+function ensureCheckInOperationalIndex_() {
+  const properties=PropertiesService.getScriptProperties();
+  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===GD_SCHEMA_VERSION) return;
+  rebuildCheckInOperationalIndex_();
+}
+
+function rebuildCheckInSummaryForStudent_(studentKey) {
+  const key = String(studentKey || '');
+  if (!key) return emptyCheckInSummary_('');
+  const historical = readCheckIns_().filter((item) => item.studentKey === key);
+  const pending = readPendingCheckIns_().filter((item) => item.studentKey === key);
+  const summary = buildCheckInSummaryForEntries_(key, historical.concat(pending));
+  writeCheckInSummary_(summary);
+  return summary;
+}
+
+function updateCheckInOperationalIndex_(entry) {
+  if(!entry||!entry.studentKey) return;
+  ensureCheckInOperationalIndex_();
+  const properties=PropertiesService.getScriptProperties();
+  const summary=parseCheckInSummary_(entry.studentKey,properties.getProperty(checkInSummaryPropertyKey_(entry.studentKey)))||emptyCheckInSummary_(entry.studentKey);
+  summary.studentEmail=entry.studentEmail||summary.studentEmail; summary.studentName=entry.studentName||summary.studentName;
+  summary.classPeriod=entry.classPeriod||summary.classPeriod;
+  if(String(entry.method||'').toLowerCase()==='google') summary.googleVerified=true;
+  const normalizedStatus = String(entry.status || '').toUpperCase();
+  if (normalizedStatus === 'LATE_APPROVED' || normalizedStatus === 'LATE_NO_POINT') {
+    rebuildCheckInSummaryForStudent_(entry.studentKey);
+    setLateReviewIndex_(entry);
+    return;
+  }
+  if(checkInStatusCountsForStreak_(entry.status)&&isSchoolDayKey_(entry.dateKey)){
+    if(!summary.lastCountedDate||entry.dateKey>summary.lastCountedDate){
+      const consecutive=summary.lastCountedDate&&nextSchoolDayKey_(summary.lastCountedDate)===entry.dateKey;
+      summary.current=consecutive?summary.current+1:1; summary.lastCountedDate=entry.dateKey; summary.best=Math.max(summary.best,summary.current);
+    } else if(entry.dateKey<summary.lastCountedDate){
+      rebuildCheckInSummaryForStudent_(entry.studentKey);
+      setLateReviewIndex_(entry); return;
+    }
+  }
+  writeCheckInSummary_(summary); setLateReviewIndex_(entry);
+}
+
+function readCheckInSummaryMap_() {
+  ensureCheckInOperationalIndex_();
+  const map=new Map(); const properties=PropertiesService.getScriptProperties().getProperties();
+  Object.entries(properties).forEach(([key,raw])=>{
+    if(!key.startsWith(GD_CHECKIN_SUMMARY_PREFIX)) return;
+    const studentKey=key.slice(GD_CHECKIN_SUMMARY_PREFIX.length); const parsed=parseCheckInSummary_(studentKey,raw);
+    if(parsed) map.set(studentKey,parsed);
+  }); return map;
+}
+
+function streakFromCheckInSummary_(summaryValue,todayKey,calendarValue) {
+  const calendar=calendarValue||getSchoolCalendarIndex_(); const summary=summaryValue||emptyCheckInSummary_('');
+  const todayIsSchoolDay=isSchoolDayKey_(todayKey,calendar); const checkedInToday=Boolean(summary.lastCountedDate===todayKey);
+  let current=Number(summary.current||0);
+  if(todayIsSchoolDay&&!checkedInToday&&summary.lastCountedDate){
+    const expected=previousSchoolDayKey_(todayKey,calendar); if(summary.lastCountedDate!==expected) current=0;
+  }
+  return {current,best:Math.max(Number(summary.best||0),current),checkedInToday,weekendProtected:!todayIsSchoolDay,
+    nonSchoolDayProtected:!todayIsSchoolDay,atRiskToday:todayIsSchoolDay&&!checkedInToday&&current>0};
+}
+
+function readPendingLateReviews_() {
+  ensureCheckInOperationalIndex_();
+  const properties=PropertiesService.getScriptProperties().getProperties();
+  return Object.entries(properties).filter(([key])=>key.startsWith(GD_LATE_REVIEW_PREFIX)).map(([,raw])=>{
+    try { const value=JSON.parse(String(raw||'')); return {...value,checkInTime:toDateOrNull_(value.checkInTime),point:Number(value.point||0)}; }
+    catch(error){ return null; }
+  }).filter((entry)=>entry&&entry.checkInId&&entry.status==='LATE_PENDING').sort((a,b)=>a.checkInTime-b.checkInTime);
+}
+
+function readCheckInsForDateIncludingPending_(targetDateKey) {
+  const dateKey=String(targetDateKey||'').trim(); const combined=readCheckInsForDate_(dateKey).slice();
+  const recorded=new Set(combined.filter((entry)=>checkInStatusIsRecorded_(entry.status)).map(checkInLogicalKey_));
+  readPendingCheckIns_().filter((entry)=>entry.dateKey===dateKey).sort((a,b)=>a.checkInTime-b.checkInTime).forEach((entry)=>{
+    const key=checkInLogicalKey_(entry); if(recorded.has(key)) return; combined.push(entry); recorded.add(key);
+  }); return combined;
+}
+
 function readCheckIns_() {
   return gdMemo_('checkins', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS);
@@ -3446,7 +3468,9 @@ function previewStudentPinEmails() {
       'Here is your private GrantDesk PIN:',
       '123456',
       '',
-      `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass. This one PIN works in all your classes. Keep it private.`,
+      `Daily Check-in: ${settings.CHECKIN_URL}`,
+      `Hall Pass: ${settings.PASS_URL}`,
+      'This one PIN works in all your classes. Keep it private.',
       '',
       '— Your teacher',
     ].join('\n'),
@@ -3616,37 +3640,19 @@ function buildPinEmailGroups_() {
   };
 }
 
-function buildPinEmailMessage_(group, settings, teacherEmail) {
-  const firstName = firstNameFromStudentName_(group.name);
-  const body = [
-    `Hello ${firstName},`,
-    '',
-    'Here is your private GrantDesk PIN:',
-    group.pin,
-    '',
-    `Open ${settings.CHECKIN_URL} for Daily Check-in and Hall Pass.`,
+function buildPinEmailMessage_(group,settings,teacherEmail){
+  const firstName=firstNameFromStudentName_(group.name),checkInUrl=settings.CHECKIN_URL||'https://grant-desk.com/check-in/',
+    passUrl=settings.PASS_URL||'https://grant-desk.com/pass/';
+  const body=[`Hello ${firstName},`,'','Here is your private GrantDesk PIN:',group.pin,'',
+    `Daily Check-in: ${checkInUrl}`,`Hall Pass: ${passUrl}`,
     'This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.',
-    'Keep this PIN private.',
-    '',
-    '— Your teacher',
-  ].join('\n');
-  const htmlBody = [
-    `<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,
-    '<p>Here is your private GrantDesk PIN:</p>',
+    'Keep this PIN private.','','— Your teacher'].join('\n');
+  const htmlBody=[`<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,'<p>Here is your private GrantDesk PIN:</p>',
     `<p style="font-family:monospace;font-size:24px;font-weight:bold;letter-spacing:.12em">${escapeHtmlForEmail_(group.pin)}</p>`,
-    `<p>Open <a href="${escapeHtmlForEmail_(settings.CHECKIN_URL)}">GrantDesk Daily Check-in</a> for Daily Check-in and Hall Pass.</p>`,
+    `<p><a href="${escapeHtmlForEmail_(checkInUrl)}">Daily Check-in</a><br><a href="${escapeHtmlForEmail_(passUrl)}">Hall Pass</a></p>`,
     '<p>This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
-    '<p>Keep this PIN private.</p>',
-    '<p>— Your teacher</p>',
-  ].join('');
-  return {
-    to: group.email,
-    subject: settings.PIN_EMAIL_SUBJECT,
-    body,
-    htmlBody,
-    name: settings.APP_TITLE || 'Hall Pass',
-    replyTo: teacherEmail,
-  };
+    '<p>Keep this PIN private.</p>','<p>— Your teacher</p>'].join('');
+  return {to:group.email,subject:settings.PIN_EMAIL_SUBJECT,body,htmlBody,name:settings.APP_TITLE||'Hall Pass',replyTo:teacherEmail};
 }
 
 function firstNameFromStudentName_(value) {
@@ -3671,15 +3677,42 @@ function escapeHtmlForEmail_(value) {
   }[character]));
 }
 
-function clearPinCards() {
-  assertTeacher_(getActiveEmail_(), getSettings_());
-  withLock_(() => {
+function teacherResetStudentPin(studentEmail,reason,clientContract){
+  const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings); assertTeacherClient_(clientContract);
+  const email=normalizeEmail_(studentEmail),cleanReason=String(reason||'').trim().slice(0,300);
+  if(!email) throw new Error('Choose a student whose PIN needs to be reset.');
+  if(!cleanReason) throw new Error('Enter a short private reason for resetting this PIN.');
+  assertPlainSheetText_(cleanReason,'PIN reset reason');
+  let studentName='';
+  withLock_(()=>{
     assertPinEmailBatchIdle_();
-    const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
-    if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, GD_HEADERS.PINS.length).clearContent();
-    sheet.hideSheet();
-    gdForget_('pincards');
+    const rosterRows=readRosterRows_().filter((student)=>student.email===email);
+    if(!rosterRows.some((student)=>student.active)) throw new Error('That student is not active on the roster.');
+    studentName=rosterRows[0].name;
+    const usedHashes=new Set(readRosterRows_().filter((student)=>student.email!==email).map((student)=>student.pinHash).filter(Boolean));
+    rosterRows.map((student)=>student.pinHash).filter(Boolean).forEach((hash)=>usedHashes.add(hash));
+    let newPin='',newHash='';
+    do{newPin=String(Math.floor(100000+Math.random()*900000));newHash=hashPin_(newPin);}while(usedHashes.has(newHash));
+    const rosterSheet=getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    rosterRows.forEach((student)=>rosterSheet.getRange(student.row,4).setValue(newHash));
+    const pinSheet=getSpreadsheet_().getSheetByName(GD_SHEETS.PINS),cards=readPinCards_().filter((card)=>card.studentEmail===email);
+    const byKey=new Map(cards.map((card)=>[card.studentKey,card]));
+    rosterRows.forEach((student)=>{
+      const card=byKey.get(student.key),detail='PIN reset by teacher; delivery of the new PIN is not yet confirmed';
+      if(card) pinSheet.getRange(card.row,4,1,5).setValues([[newPin,new Date(),'NEEDS_RESEND','',detail]]);
+      else pinSheet.appendRow([student.email,student.name,student.classPeriod,newPin,new Date(),'NEEDS_RESEND','',detail]);
+    });
+    gdClearMemo_();
+    auditTeacherAction_(teacher,rosterRows[0],'STUDENT_PIN_RESET',[],cleanReason,'');
   });
+  const state=getTeacherState_({includePinStatus:true});
+  state.noticeMessage=`${studentName}'s PIN was reset. The new PIN is ready for private delivery and the old PIN no longer works.`;
+  return state;
+}
+
+function clearPinCards(){
+  assertTeacher_(getActiveEmail_(),getSettings_());
+  throw new Error('GrantDesk no longer deletes PIN recovery records. Reset an individual student PIN from the teacher dashboard instead.');
 }
 
 function assertPinEmailBatchIdle_() {
@@ -3998,21 +4031,19 @@ function normalizeDateKey_(value) {
  * pass and queue write takes, so row numbers cannot shift underneath an update
  * already in flight.
  */
-function dailyCleanup(event) {
-  // A time-driven trigger hands the handler its own triggerUid. A page calling
-  // this over google.script.run does not, and a student cannot read the UID of
-  // a trigger they do not own, so anything without one has to be the teacher.
-  const triggerUid = event && event.triggerUid ? String(event.triggerUid) : '';
-  const fromTrigger = Boolean(triggerUid) && ScriptApp.getProjectTriggers()
-    .some((trigger) => trigger.getUniqueId() === triggerUid);
-  if (!fromTrigger) assertTeacher_(getActiveEmail_(), getSettings_());
-  withLock_(() => {
-    flushPendingCheckInsLocked_();
+function dailyCleanup(event){
+  const triggerUid=event&&event.triggerUid?String(event.triggerUid):'';
+  const fromTrigger=Boolean(triggerUid)&&ScriptApp.getProjectTriggers().some((trigger)=>trigger.getUniqueId()===triggerUid);
+  if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
+  withLock_(()=>{
+    try{flushPendingCheckInsLocked_();}catch(error){
+      PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
+        at:new Date().toISOString(),message:String(error&&error.message?error.message:error).slice(0,500)}));
+    }
     expirePreviousDayPasses_();
-    purgeOldPasses_();
-    purgeOldQueue_();
-    purgeExpiredActionProofs_();
-    PropertiesService.getScriptProperties().setProperty('LAST_PURGE', dateKey_(new Date()));
+    const snapshot=getPassSnapshot_(); reapExpiredQueue_(snapshot.expiredQueue);
+    purgeOldPasses_(); purgeOldQueue_(); purgeExpiredActionProofs_();
+    PropertiesService.getScriptProperties().setProperty('LAST_PURGE',dateKey_(new Date()));
   });
 }
 
@@ -4031,19 +4062,17 @@ function purgeOldPasses() {
   SpreadsheetApp.getUi().alert(`${removed.rolledOver} prior-day OUT pass${removed.rolledOver === 1 ? '' : 'es'} rolled over, ${removedPasses} old completed pass${removedPasses === 1 ? '' : 'es'} moved into permanent Pass Audit, and ${removedQueueRows} resolved queue entr${removedQueueRows === 1 ? 'y' : 'ies'} removed.`);
 }
 
-function purgeIfDue_() {
-  const properties = PropertiesService.getScriptProperties();
-  const today = dateKey_(new Date());
-  if (properties.getProperty('LAST_PURGE') === today) return;
-  withLock_(() => {
-    const lockedProperties = PropertiesService.getScriptProperties();
-    if (lockedProperties.getProperty('LAST_PURGE') === today) return;
-    flushPendingCheckInsLocked_();
-    expirePreviousDayPasses_();
-    purgeOldPasses_();
-    purgeOldQueue_();
-    purgeExpiredActionProofs_();
-    lockedProperties.setProperty('LAST_PURGE', today);
+function purgeIfDue_(){
+  const properties=PropertiesService.getScriptProperties(); const today=dateKey_(new Date());
+  if(properties.getProperty('LAST_PURGE')===today)return;
+  withLock_(()=>{
+    const lockedProperties=PropertiesService.getScriptProperties(); if(lockedProperties.getProperty('LAST_PURGE')===today)return;
+    try{flushPendingCheckInsLocked_();}catch(error){
+      lockedProperties.setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
+        at:new Date().toISOString(),message:String(error&&error.message?error.message:error).slice(0,500)}));
+    }
+    expirePreviousDayPasses_(); const snapshot=getPassSnapshot_(); reapExpiredQueue_(snapshot.expiredQueue);
+    purgeOldPasses_(); purgeOldQueue_(); purgeExpiredActionProofs_(); lockedProperties.setProperty('LAST_PURGE',today);
   });
 }
 
@@ -4176,12 +4205,19 @@ function purgeExpiredActionProofs_() {
  * Minute trigger target. A direct web call must be the teacher; a real trigger
  * is accepted only when its private trigger ID still belongs to this project.
  */
-function flushPendingCheckIns(event) {
-  const triggerUid = event && event.triggerUid ? String(event.triggerUid) : '';
-  const fromTrigger = Boolean(triggerUid) && ScriptApp.getProjectTriggers()
-    .some((trigger) => trigger.getUniqueId() === triggerUid && trigger.getHandlerFunction() === 'flushPendingCheckIns');
-  if (!fromTrigger) assertTeacher_(getActiveEmail_(), getSettings_());
-  return withLock_(() => flushPendingCheckInsLocked_());
+function flushPendingCheckIns(event){
+  const triggerUid=event&&event.triggerUid?String(event.triggerUid):'';
+  const fromTrigger=Boolean(triggerUid)&&ScriptApp.getProjectTriggers().some((trigger)=>trigger.getUniqueId()===triggerUid&&trigger.getHandlerFunction()==='flushPendingCheckIns');
+  if(!fromTrigger) assertTeacher_(getActiveEmail_(),getSettings_());
+  return withLock_(()=>{
+    const snapshot=getPassSnapshot_(); reapExpiredQueue_(snapshot.expiredQueue);
+    try{return flushPendingCheckInsLocked_();}
+    catch(error){
+      PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY,JSON.stringify({
+        at:new Date().toISOString(),message:String(error&&error.message?error.message:error).slice(0,500)}));
+      throw error;
+    }
+  });
 }
 
 function installCheckInFlushTrigger_() {
@@ -4192,14 +4228,11 @@ function installCheckInFlushTrigger_() {
   PropertiesService.getScriptProperties().setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY, '1');
 }
 
-function ensureCheckInFlushTrigger_() {
-  const properties = PropertiesService.getScriptProperties();
-  if (properties.getProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY) === '1') return;
-  try {
-    installCheckInFlushTrigger_();
-  } catch (error) {
-    // Opportunistic student and teacher flushing still preserves every event.
-  }
+function ensureCheckInFlushTrigger_(){
+  const properties=PropertiesService.getScriptProperties();
+  const matches=ScriptApp.getProjectTriggers().filter((trigger)=>trigger.getHandlerFunction()==='flushPendingCheckIns');
+  if(matches.length===1){properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY,'1');return;}
+  try{installCheckInFlushTrigger_();}catch(error){properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);}
 }
 
 function installCleanupTrigger_() {
@@ -4277,16 +4310,16 @@ function setupWorkbook_() {
   if (missing.length) {
     settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
   }
-  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT']);
-  setSettingDescription_(
-    settingsSheet,
-    'QUEUE_CLAIM_MINUTES',
-    'Legacy inert setting retained for audit; verified requests now advance automatically'
-  );
+  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES']);
   setSettingDescription_(
     settingsSheet,
     'RETENTION_DAYS',
     'Completed passes older than this move from the hot Pass Log into permanent Pass Audit'
+  );
+  setSettingDescription_(
+    settingsSheet,
+    'CHECKIN_WINDOW_MINUTES',
+    'Minutes after class starts that count as on-time; late self-check-in remains open only until that class ends'
   );
   gdForget_('settings');
   if (getSettings_().PIN_EMAIL_SUBJECT === 'Your private GrantDesk class PIN') {
@@ -4310,6 +4343,7 @@ function setupWorkbook_() {
   auditSheet.getRange('S:S').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   auditSheet.getRange('V:V').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   const checkInSheet = spreadsheet.getSheetByName(GD_SHEETS.CHECKINS);
+  ensureRowCapacity_(checkInSheet, Math.max(GD_CHECKIN_MIN_ROWS, checkInSheet.getLastRow() + GD_CHECKIN_ROW_GROWTH));
   checkInSheet.getRange('B:B').setNumberFormat('@');
   checkInSheet.getRange('C:C').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   checkInSheet.getRange('H:H').setNumberFormat('0');
@@ -4325,6 +4359,7 @@ function setupWorkbook_() {
   ensureUnlimitedCheckboxes_(spreadsheet.getSheetByName(GD_SHEETS.ROSTER));
   reconcileKnownIdentityDrift_();
   ensureOnePinPerStudent_({ createMissing: false });
+  rebuildCheckInOperationalIndex_();
 }
 
 function refreshWorkbookInstructions_() {
@@ -4340,9 +4375,9 @@ function refreshWorkbookInstructions_() {
     ['5', 'Completed trips under 3.0 seconds remain in the private audit but do not count toward the student limit. Teacher corrections require a reason and preserve the original row.'],
     ['6', 'Pass Log is the recent operational window. Older completed rows move into permanent Pass Audit before leaving Pass Log.'],
     ['7', 'School Calendar is seeded from the official 2026-27 Drive calendar. Reduced and half days are school days; listed closures are not. Record official amendments on that tab.'],
-    ['8', 'PIN Cards are private credential and delivery records. Preserve existing credentials; a reconciled address stays NEEDS_RESEND until delivery is confirmed.'],
+    ['8', 'PIN Cards are private credential recovery and delivery records. Never clear the whole table; reset only the affected student PIN and privately deliver the replacement.'],
     ['9', 'Update the existing Apps Script deployment in place. Preserve the current /exec URL, domain-only access, and execute-as-deploying-user setting.'],
-    ['10', 'Student screens show only that student\'s current state and decision evidence. Names, full logs, corrections, and delivery details stay in teacher-only surfaces.'],
+    ['10', 'Daily Check-ins expands automatically. Unresolved late sign-ins stay in teacher review across school days until you decide them; student screens still show only that student\'s own state.'],
   ];
   sheet.getRange(1, 1).setValue('GrantDesk Hall Pass — private teacher log');
   sheet.getRange(2, 1).setValue(`Operational instructions · schema ${GD_SCHEMA_VERSION}`);

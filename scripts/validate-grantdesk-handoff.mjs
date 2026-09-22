@@ -96,8 +96,8 @@ for (const fn of criticalFunctions) {
 }
 
 ok(
-  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-05-session-a['"]/.test(code),
-  'tracked workbook schema is 2026-09-05-session-a'
+  /const\s+GD_SCHEMA_VERSION\s*=\s*['"]2026-09-21-backend-b['"]/.test(code),
+  'tracked workbook schema is 2026-09-21-backend-b'
 );
 
 let packageJson = null;

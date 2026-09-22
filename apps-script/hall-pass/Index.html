@@ -401,7 +401,7 @@
       /* ---------------------------------------------------------- plumbing */
 
       const call = (name, ...args) => new Promise((resolve, reject) => {
-        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent', 'teacherSetCheckInWindow', 'teacherReviewLateCheckIn'].includes(name)) args.push(TEACHER_CONTRACT);
+        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent', 'teacherSetCheckInWindow', 'teacherReviewLateCheckIn', 'teacherResetStudentPin'].includes(name)) args.push(TEACHER_CONTRACT);
         let settled = false;
         const timer = setTimeout(() => {
           if (settled) return;
@@ -1308,7 +1308,7 @@
         const late = active.filter((pass) => Math.floor(elapsedSeconds(pass.outTime) / 60) >= Number(data.lateAfterMinutes || 10)).length;
         const carryover = active.filter((pass) => pass.blocksCurrentCapacity === false).length;
         const unmatched = (data.unmatchedSignIns || []).length;
-        const pendingLateCheckIns = (data.lateCheckInsToday || []).filter((checkIn) => checkIn.status === 'LATE_PENDING').length;
+        const pendingLateCheckIns = (data.pendingLateCheckIns || []).length;
         const rollovers = (data.rolloverPassesToday || []).length;
         const usage = data.studentPassUsage || [];
         const unrecognized = new Set(usage.filter((student) => !student.googleVerified).map((student) => student.email)).size;
@@ -1387,12 +1387,12 @@
           'pass-cooldown-minutes': 'Minutes a student waits after returning before requesting again. Enter 0 to turn off this wait.',
           'late-pass-minutes': 'Show an overdue warning after this many minutes. This does not automatically return the student.',
           'stale-pass-minutes': 'Show a stronger check-on-student warning. Must be at least the overdue-warning time. This does not end a pass.',
-          'checkin-window-minutes': 'Minutes after class starts that count as on-time. Students can still sign in afterward; late sign-ins begin at 0 points until you review them.',
+          'checkin-window-minutes': 'Minutes after class starts that count as on-time. Students can still sign in late while that class is meeting; self-check-in closes when class ends.',
           'teacher-pass-sound': 'Applies only to this teacher device. Test once to enable browser audio. Choose Off for a quiet classroom.',
           'teacher-student': 'Start a pass using teacher authority. A private reason is required when overriding a restriction.',
           'teacher-checkin-student': 'Record attendance for a student who is here. A private reason is required outside the check-in window.',
           'pass-count-filter': 'Each row is one class membership. Used and remaining refer to that class for this marking period.',
-          'roster-class-period': 'Choose an existing class or enter a new class label. Existing students keep their current PIN.',
+          'roster-class-period': 'Use a class label beginning with Period 1 through Period 6 so GrantDesk can apply the correct bell schedule. Existing students keep their current PIN.',
         };
         Object.entries(help).forEach(([id, text]) => {
           const field = document.getElementById(id);
@@ -1520,7 +1520,8 @@
         const notChecked = state.notCheckedIn || [];
         const absentToday = state.absentToday || [];
         const lateCheckInsToday = state.lateCheckInsToday || [];
-        const pendingLateCheckIns = lateCheckInsToday.filter((checkIn) => checkIn.status === 'LATE_PENDING');
+        const pendingLateCheckIns = state.pendingLateCheckIns || [];
+        const lateReviewRows = [...new Map([...lateCheckInsToday, ...pendingLateCheckIns].map((checkIn) => [checkIn.checkInId, checkIn])).values()];
         const checkInWindowMinutes = Number(state.checkInWindowMinutes || 5);
         const repeatPassesToday = state.repeatPassesToday || [];
         const rolloverPassesToday = state.rolloverPassesToday || [];
@@ -1610,10 +1611,10 @@
             <p><strong>About ${escapeHtml(lockContention.retrySignals)} pass collision${Number(lockContention.retrySignals) === 1 ? '' : 's'} were automatically retried today.</strong>${lockContention.lastAt ? ` Latest: ${escapeHtml(lockContention.lastOperation || 'pass update')} at ${formatClock(lockContention.lastAt)}.` : ''}</p>
             <p>This is the capacity rule protecting the one-student-out decision. It is not a PIN error. Daily Check-In no longer waits on this lock.</p>
           </section>` : '';
-        const checkInInboxHtml = checkInInbox.delayed ? `
+        const checkInInboxHtml = (checkInInbox.delayed || checkInInbox.lastError) ? `
           <section class="notice warning" role="status" style="margin-top:16px">
             <h3>check-ins are recorded; workbook sync is catching up.</h3>
-            <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}</p>
+            <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}${checkInInbox.lastError && checkInInbox.lastError.at ? ` Last workbook error: ${formatClock(checkInInbox.lastError.at)}.` : ''}</p>
             <p>GrantDesk will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
           </section>` : '';
 
@@ -1633,7 +1634,7 @@
             <td class="method">${escapeHtml(checkIn.method)}</td>
           </tr>`).join('') : '<tr><td colspan="6">No students have checked in today.</td></tr>';
 
-        const lateCheckInRows = lateCheckInsToday.length ? lateCheckInsToday
+        const lateCheckInRows = lateReviewRows.length ? lateReviewRows
           .slice()
           .sort((a, b) => new Date(a.checkInTime) - new Date(b.checkInTime))
           .map((checkIn) => {
@@ -1645,9 +1646,9 @@
               : approved
                 ? `<button class="secondary compact danger" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="KEEP_NO_POINT">change to no point</button>`
                 : `<button class="secondary compact" data-late-checkin-review="${escapeHtml(checkIn.checkInId)}" data-late-decision="AWARD_POINT">award point</button>`;
-            return `<tr><td class="who">${escapeHtml(checkIn.studentName)}</td><td>${escapeHtml(checkIn.classPeriod)}</td><td>${formatClock(checkIn.checkInTime)}</td><td>${escapeHtml(checkIn.point)}</td><td>${escapeHtml(decision)}</td><td class="action">${actions}</td></tr>`;
+            return `<tr><td class="who">${escapeHtml(checkIn.studentName)}</td><td>${escapeHtml(checkIn.classPeriod)}</td><td>${escapeHtml(checkIn.dateKey || '')}</td><td>${formatClock(checkIn.checkInTime)}</td><td>${escapeHtml(checkIn.point)}</td><td>${escapeHtml(decision)}</td><td class="action">${actions}</td></tr>`;
           }).join('')
-          : '<tr><td colspan="6">No late sign-ins today.</td></tr>';
+          : '<tr><td colspan="7">No late sign-ins need review.</td></tr>';
 
         const notCheckedRows = notChecked.length ? notChecked
           .slice()
@@ -1685,7 +1686,7 @@
               <td class="who">${escapeHtml(student.name)}</td>
               <td>${escapeHtml(student.classPeriod)}</td>
               <td class="email">${escapeHtml(student.email)}</td>
-              <td class="action"><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></td>
+              <td class="action"><div class="table-actions"><button class="secondary compact" data-reset-pin-email="${escapeHtml(student.email)}" data-reset-pin-name="${escapeHtml(student.name)}">reset PIN</button><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></div></td>
             </tr>`).join('') : '<tr><td colspan="4">No active students are on the roster.</td></tr>';
         const rosterResultHtml = teacherRosterResult ? `
           <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new six-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
@@ -1749,27 +1750,27 @@
           ${rolloverHtml}
           <section class="teacher-section" id="attendance-section">
             <div class="teacher-section-head">
-              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded · ${lateCheckInsToday.length} late · ${pendingLateCheckIns.length} need point review · ${absentToday.length} marked absent</p></div>
+              <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded today · ${lateCheckInsToday.length} late today · ${pendingLateCheckIns.length} unresolved late reviews · ${absentToday.length} marked absent today</p></div>
             </div>
             <div class="checkin-summary">${summaryHtml}</div>
             <section class="subcard" id="checkin-timing" style="margin-top:18px">
               <h3>on-time window</h3>
               <div class="override">
                 <label>Minutes after class starts<input type="number" id="checkin-window-minutes" min="1" max="240" step="1" value="${escapeHtml(checkInWindowMinutes)}"></label>
-                <p class="message">After this many minutes, students are not blocked. Their sign-in is saved as late with 0 points until you decide whether to award the daily point.</p>
+                <p class="message">After this many minutes, students can still sign in while their class is meeting. The sign-in is saved as late with 0 points until you decide whether to award the daily point. Student self-check-in closes when that class ends.</p>
                 <button class="secondary" id="save-checkin-window">save check-in timing</button>
               </div>
             </section>
             <details class="subcard log" id="late-checkins-details" data-teacher-details style="margin-top:18px" ${pendingLateCheckIns.length ? 'open' : ''}>
-              <summary>late sign-ins · ${escapeHtml(lateCheckInsToday.length)} today · ${escapeHtml(pendingLateCheckIns.length)} need review</summary>
-              <p class="message" style="margin:12px 0">Late students are recorded immediately instead of being denied. Awarding the point also counts the day toward the student’s check-in streak; keeping no point preserves the late record at zero.</p>
+              <summary>late sign-ins · ${escapeHtml(lateCheckInsToday.length)} today · ${escapeHtml(pendingLateCheckIns.length)} unresolved across all days</summary>
+              <p class="message" style="margin:12px 0">Late students are recorded immediately while their class is meeting. Unresolved late arrivals stay here across school days until you decide them. Awarding the point also counts that date toward the student’s check-in streak; keeping no point preserves the late record at zero.</p>
               ${pendingLateCheckIns.length ? `
                 <div class="notice warning" style="margin:12px 0">
                   <h3>${escapeHtml(pendingLateCheckIns.length)} arrivals need review.</h3>
                   <p>Use the individual buttons below when decisions differ, or resolve every currently pending late sign-in at once.</p>
                   <div class="button-row"><button class="secondary" id="award-all-late">award all pending points</button><button class="secondary danger" id="zero-all-late">keep all pending at 0</button></div>
                 </div>` : ''}
-              <table><thead><tr><th>student</th><th>class</th><th>signed in</th><th>point</th><th>review</th><th class="action">decision</th></tr></thead><tbody>${lateCheckInRows}</tbody></table>
+              <table><thead><tr><th>student</th><th>class</th><th>date</th><th>signed in</th><th>point</th><th>review</th><th class="action">decision</th></tr></thead><tbody>${lateCheckInRows}</tbody></table>
             </details>
             <section class="subcard" style="margin-top:18px"><h3>record a student’s attendance</h3><div class="override"><select id="teacher-checkin-student"><option value="">choose a student who is here…</option>${notCheckedOptions}</select><button class="primary" id="teacher-checkin" ${notCheckedOptions ? '' : 'disabled'}>record check-in</button></div></section>
             <details class="subcard log" id="checkin-log-details" data-teacher-details style="margin-top:18px">
@@ -1794,9 +1795,9 @@
                 <div class="roster-add-grid">
                   <label>Student name<input type="text" id="roster-student-name" maxlength="120" autocomplete="off" placeholder="Last, First"></label>
                   <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="Student’s school email"></label>
-                  <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="choose or type a class"><datalist id="teacher-class-options">${classOptions}</datalist></label>
+                  <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="Period 1 — class name"><datalist id="teacher-class-options">${classOptions}</datalist></label>
                 </div>
-                <p class="message">Existing students keep the same PIN in every class. A brand-new student gets one PIN automatically and appears in PIN delivery.</p>
+                <p class="message">Class labels must begin with Period 1 through Period 6 so the bell schedule can be applied. Existing students keep the same PIN in every class; a brand-new student gets one PIN automatically and appears in PIN delivery.</p>
                 <button class="primary" id="teacher-add-student">add student to class</button>
                 ${rosterResultHtml}
               </div></div>
@@ -1932,6 +1933,18 @@
             renderTeacher();
           });
         });
+
+        document.querySelectorAll('[data-reset-pin-email]').forEach((button) => button.addEventListener('click', async () => {
+          const name = button.dataset.resetPinName;
+          const reason = await teacherPrompt(`Private reason for resetting ${name}'s PIN. The old PIN will stop working and the replacement will be marked for private redelivery:`);
+          if (!reason || !reason.trim()) return;
+          if (!await teacherConfirm(`Reset ${name}'s PIN now? This changes the PIN in every one of this student's classes.`)) return;
+          act(button, async () => {
+            adoptState(await call('teacherResetStudentPin', button.dataset.resetPinEmail, reason));
+            teacherPinStatus = state.pinEmailStatus || teacherPinStatus;
+            renderTeacher();
+          });
+        }));
 
         document.querySelectorAll('[data-remove-student]').forEach((button) => button.addEventListener('click', async () => {
           const name = button.dataset.removeName;
