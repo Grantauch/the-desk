@@ -7,6 +7,7 @@ import { AuthenticationError, AuthorizationError, staffRoleValues } from '../aut
 import { AdminConsoleService } from './service.js';
 import { AdminConsoleError } from './types.js';
 import { adminConsoleHtml } from './ui.js';
+import { secureStaffHtml } from '../http/security-headers.js';
 
 const idSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -65,7 +66,7 @@ async function principalFor(request:FastifyRequest,authentication:StaffAuthentic
 export type RegisterAdminConsoleRoutesOptions={authentication:StaffAuthenticationService;authorization:StaffAuthorizationService;adminConsole:AdminConsoleService};
 
 export function registerAdminConsoleRoutes(app:FastifyInstance,{authentication,authorization,adminConsole}:RegisterAdminConsoleRoutesOptions):void {
-  app.get('/admin',async(_request,reply)=>{reply.header('content-type','text/html; charset=utf-8');reply.header('cache-control','no-store');reply.header('content-security-policy',"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");return adminConsoleHtml();});
+  app.get('/admin',async(_request,reply)=>{const scriptNonce=secureStaffHtml(reply);return adminConsoleHtml(scriptNonce);});
 
   app.get('/api/v1/admin/overview',async(request,reply)=>{const requestId=correlationIdFor(request,reply);try{const principal=await principalFor(request,authentication);const schoolId=adminConsole.resolveSchoolId(principal,'admin.school.read_all_operational');authorization.requireSchoolCapability(principal,schoolId,'admin.school.read_all_operational');return {...await adminConsole.overview(principal),requestId};}catch(error){if(sendError(reply,error,requestId))return;throw error;}});
   app.get('/api/v1/admin/staff',async(request,reply)=>{const requestId=correlationIdFor(request,reply);const parsed=z.object({limit:limitSchema}).strict().safeParse(request.query);if(!parsed.success)return reply.code(400).send({code:'ADMIN_REQUEST_INVALID',message:'Staff query is invalid.',requestId,retryable:false});try{const principal=await principalFor(request,authentication);const schoolId=adminConsole.resolveSchoolId(principal,'admin.school.read_all_operational');authorization.requireSchoolCapability(principal,schoolId,'admin.school.read_all_operational');return {...await adminConsole.listStaff(principal,parsed.data.limit),requestId};}catch(error){if(sendError(reply,error,requestId))return;throw error;}});
