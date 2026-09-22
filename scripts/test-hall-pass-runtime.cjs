@@ -204,6 +204,41 @@ test('daily cleanup rejects a trigger UID owned by a different handler', () => {
   assert.doesNotThrow(() => c.harness.call('dailyCleanup', { triggerUid: cleanup.id }));
 });
 
+test('teacher bootstrap repairs a missing daily cleanup trigger', () => {
+  const c = classroom();
+  c.harness.state.triggers = c.harness.state.triggers.filter((trigger) => trigger.handler !== 'dailyCleanup');
+  c.harness.signInAs(TEACHER);
+  c.harness.newRequest();
+  c.harness.call('getBootstrap', 'teacher', TEACHER_CONTRACT);
+  assert.equal(
+    c.harness.state.triggers.filter((trigger) => trigger.handler === 'dailyCleanup').length,
+    1,
+    'opening Teacher mode must restore the daily cleanup trigger'
+  );
+});
+
+test('routine teacher polling audits project triggers at most once per hour', () => {
+  const c = classroom();
+  c.harness.signInAs(TEACHER);
+  c.harness.newRequest();
+  c.harness.call('getBootstrap', 'teacher', TEACHER_CONTRACT);
+  const afterBootstrap = c.harness.state.triggerReads;
+  assert.ok(afterBootstrap >= 2, 'bootstrap should verify both background trigger classes');
+
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  assert.equal(c.harness.state.triggerReads, afterBootstrap,
+    'dashboard polling inside the audit window must not enumerate project triggers again');
+
+  c.harness.clock.advanceMinutes(61);
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  assert.ok(c.harness.state.triggerReads > afterBootstrap,
+    'the background trigger audit should run again after the one-hour window');
+});
+
 test('the durable check-in inbox has one minute flusher trigger', () => {
   const c = classroom();
   assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1);
