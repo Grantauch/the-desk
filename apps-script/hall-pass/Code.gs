@@ -622,6 +622,18 @@ function verifyStudentPin_(pin, activeEmail, attemptNonce) {
   }
   const emails = [...new Set(students.map((student) => student.email))];
   if (emails.length !== 1) throw new Error('That PIN is not unique. Ask your teacher to repair the PIN list.');
+
+  const email = emails[0];
+  const activeMemberships = getRoster_().filter((student) => student.email === email);
+  const activeHashes = new Set(activeMemberships.map((student) => student.pinHash).filter(Boolean));
+  if (
+    activeMemberships.some((student) => !student.pinHash)
+    || activeHashes.size !== 1
+    || !activeHashes.has(hashPin_(cleaned))
+  ) {
+    throw new Error('That student’s active PIN records do not agree. Ask your teacher to repair the PIN list.');
+  }
+
   clearPinAttempts_(activeEmail, attemptNonce);
   return students;
 }
@@ -695,7 +707,7 @@ function credentialVersionForEmail_(emailValue) {
   if (!email) return '';
   const versions = gdMemo_('credential-versions', () => {
     const byEmail = {};
-    readRosterRows_().forEach((student) => {
+    getRoster_().forEach((student) => {
       if (!student.email || !student.pinHash) return;
       if (!byEmail[student.email]) byEmail[student.email] = new Set();
       byEmail[student.email].add(student.pinHash);
