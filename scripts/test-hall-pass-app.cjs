@@ -804,6 +804,14 @@ assert.match(functionSource('identifyPin_'), /stabilizeInferredPassAction_/);
 assert.match(functionSource('authorizeStudentAction'), /stabilizeInferredPassAction_/);
 const lateReviewSource = functionSource('teacherReviewLateCheckIn');
 assert.match(lateReviewSource, /String\(entry\.status \|\| ''\)\.toUpperCase\(\) === status/);
+assert.match(lateReviewSource, /ensureTeacherActionMatchesState_/);
+assert.match(lateReviewSource, /auditAction/);
+const lateAuditRepair = functionSource('ensureTeacherActionMatchesState_');
+assert.match(lateAuditRepair, /latestTeacherActionForReference_/);
+assert.match(lateAuditRepair, /auditTeacherAction_/);
+const latestLateAudit = functionSource('latestTeacherActionForReference_');
+assert.match(latestLateAudit, /for \(let index = rows\.length - 1; index >= 0; index -= 1\)/);
+assert.match(latestLateAudit, /Reference ID|rows\[index\]\[3\]/);
 
 // Preserve the behavioral coverage that predates the Version 9 recovery. The
 // structural assertions above catch security/privacy regressions; these
