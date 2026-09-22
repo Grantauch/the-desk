@@ -36,14 +36,9 @@ Version 28 retains the accumulated Version 27 September 21–22 backend hardenin
 - student polling is jittered to reduce synchronized Chromebook bursts, and teacher/student screens surface stale refresh state;
 - daily-cleanup trigger authorization is bound to the actual cleanup trigger and duplicate cleanup triggers are collapsed;
 - every browser-exposed teacher mutation/read-control RPC validates the current teacher client contract, so stale open dashboard tabs cannot mutate a newer server contract;
-- the teacher browser and private synthetic release-check now use that exact server contract, with a regression test comparing all three values;
-- teacher bootstrap self-heals the daily-cleanup and one-minute Check-In flush triggers, while routine dashboard polling audits them at most once per hour;
-- empty Check-In refreshes avoid the shared transaction lock, and the minute durability trigger can finish queue settlement after an interrupted post-return handoff;
-- workbook setup is serialized against live classroom writes and PIN-email batches;
-- delayed out-of-order Check-In tail rows fall back to the authoritative full ledger instead of risking an incomplete day;
 - inert `SCHOOL_CALENDAR_FILE_ID` and `SCHOOL_CALENDAR_FALLBACK_URL` settings were removed from source because they never controlled runtime.
 
-No workbook schema migration was required for Version 28. The Version 27 workbook reconciliation remains in effect: only the two inert calendar-source Settings rows were removed, and existing roster, PIN, pass, queue, attendance, calendar, audit, and teacher-policy facts were preserved. Version 28 changed application/recovery behavior without replacing the production workbook.
+No workbook schema migration was required for Version 28. The Version 27 workbook reconciliation remains in effect: only the two inert calendar-source Settings rows were removed, and existing roster, PIN, pass, queue, attendance, calendar, audit, and teacher-policy facts were preserved. A post-deploy workbook read confirmed the established policy values remained intact, the obsolete calendar-source settings remained absent, and there was no active stuck pass or waiting queue.
 
 The production release remains the single-classroom Apps Script/workbook system. The isolated `schoolwide/**` PostgreSQL application remains non-authoritative and must not be treated as production until its separate staging/cutover gates are completed.
 
