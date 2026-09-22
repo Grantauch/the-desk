@@ -115,8 +115,18 @@ assert.match(
   /try\s*\{[\s\S]*SpreadsheetApp\.getUi\(\)[\s\S]*\}\s*catch\s*\(error\)/,
   'Project setup must finish cleanly when an editor/API run has no spreadsheet UI'
 );
+assert.match(setupProject, /withLock_\(\(\)\s*=>\s*\{/,
+  'Project setup must serialize workbook migration against live classroom writes');
+assert.match(setupProject, /previousSpreadsheetId/);
+assert.match(setupProject, /deleteProperty\('SPREADSHEET_ID'\)/);
+assert.match(setupProject, /setProperty\('SPREADSHEET_ID',\s*previousSpreadsheetId\)/,
+  'Failed setup must restore the previous workbook target');
 assert.match(setupProject, /return\s*\{\s*ok:\s*true,\s*schemaVersion:\s*GD_SCHEMA_VERSION\s*\}/);
 const setupWorkbook = functionSource('setupWorkbook_');
+assert.ok(
+  setupWorkbook.indexOf('assertPinEmailBatchIdle_') < setupWorkbook.indexOf('ensureSheet_'),
+  'Workbook setup must refuse a live PIN email batch before any sheet mutation'
+);
 assert.match(setupWorkbook, /ensureRowCapacity_\(checkInSheet/);
 assert.match(setupWorkbook, /rebuildCheckInOperationalIndex_\(\)/);
 assert.match(functionSource('ensureSheet_'), /unexpected column/);
