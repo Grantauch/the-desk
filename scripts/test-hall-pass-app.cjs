@@ -619,6 +619,7 @@ vm.runInContext(`${code}
 proofContext.encodeTokenPart_ = (value) => Buffer.from(String(value), 'utf8').toString('base64url');
 proofContext.decodeTokenPart_ = (value) => Buffer.from(String(value), 'base64url').toString('utf8');
 proofContext.signTokenPart_ = (value) => `signature-${value}`;
+proofContext.credentialVersionForEmail_ = () => 'credential-test-v1';
 proofContext.getStudentByKey_ = (key) => (key === 'student::period-1' ? {
   key,
   email: 'student@students.mtmorrisschools.org',
