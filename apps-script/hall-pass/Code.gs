@@ -753,6 +753,7 @@ function readPinSession_(pinToken) {
   }
 
   throw new Error('That PIN session expired. Enter your current PIN again.');
+}
 
 function encodeTokenPart_(value) {
   return Utilities.base64EncodeWebSafe(Utilities.newBlob(String(value), 'text/plain').getBytes()).replace(/=+$/g, '');
