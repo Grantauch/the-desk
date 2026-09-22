@@ -308,7 +308,7 @@ function getClassSession_(student, nowValue) {
   result.checkInMessage=now.getTime()<classStart?'Check-in opens when your selected class begins.':
     now.getTime()>=classEnd?'This class has ended. Ask your teacher if today’s attendance needs to be corrected.':
     result.checkInLate?`The ${timing[2]}-minute on-time window has ended. You can still sign in while class is meeting; it will be recorded as late for your teacher to review.`:'';
-  result.passMessage=result.passRequestAllowed?'':'New bathroom requests are closed outside your selected class or during its first and last ten minutes. Ask your teacher if you need to leave.';
+  result.passMessage=result.passRequestAllowed?'':`New bathroom requests are closed outside your selected class or outside its configured pass window (${timing[0]} minute${timing[0]===1?'':'s'} after class starts through ${timing[1]} minute${timing[1]===1?'':'s'} before class ends). Ask your teacher if you need to leave.`;
   return result;
 }
 
@@ -679,15 +679,51 @@ function attachStudentAction_(state, actionProof, action) {
   return state;
 }
 
+function credentialVersionForEmail_(emailValue) {
+  const email = normalizeEmail_(emailValue);
+  if (!email) return '';
+  const versions = gdMemo_('credential-versions', () => {
+    const byEmail = {};
+    readRosterRows_().forEach((student) => {
+      if (!student.email || !student.pinHash) return;
+      if (!byEmail[student.email]) byEmail[student.email] = new Set();
+      byEmail[student.email].add(student.pinHash);
+    });
+    const resolved = {};
+    Object.entries(byEmail).forEach(([studentEmail, hashes]) => {
+      if (hashes.size !== 1) return;
+      const [pinHash] = [...hashes];
+      const bytes = Utilities.computeHmacSha256Signature(
+        `credential:${pinHash}`,
+        ensureSalt_(),
+        Utilities.Charset.UTF_8
+      );
+      resolved[studentEmail] = Utilities.base64EncodeWebSafe(bytes).replace(/=+$/g, '').slice(0, 24);
+    });
+    return resolved;
+  });
+  return versions[email] || '';
+}
+
+function assertCredentialVersion_(emailValue, tokenVersion) {
+  const current = credentialVersionForEmail_(emailValue);
+  const supplied = String(tokenVersion || '');
+  if (!current || !supplied || !secureEquals_(current, supplied)) {
+    throw new Error('Student credentials changed. Enter the current PIN again.');
+  }
+}
+
 function putPinSession_(token, email, key, method, pinVerified) {
   const issuedAt = Date.now();
+  const normalizedEmail = normalizeEmail_(email);
   const body = encodeTokenPart_(JSON.stringify({
-    v: 1,
+    v: 2,
     nonce: String(token || '').slice(0, 80),
-    email: normalizeEmail_(email),
+    email: normalizedEmail,
     key: key || '',
     method: method === 'google' ? 'google' : 'pin',
     pinVerified: Boolean(pinVerified),
+    credentialVersion: credentialVersionForEmail_(normalizedEmail),
     iat: issuedAt,
     exp: issuedAt + GD_PIN_SESSION_SECONDS * 1000,
   }));
@@ -701,15 +737,18 @@ function readPinSession_(pinToken) {
     try {
       if (!secureEquals_(signTokenPart_(parts[0]), parts[1])) throw new Error('Bad signature');
       const session = JSON.parse(decodeTokenPart_(parts[0]));
+      if (Number(session.v) !== 2) throw new Error('Legacy credential');
       if (!session.exp || Number(session.exp) < Date.now()) throw new Error('Expired token');
+      const email = normalizeEmail_(session.email);
+      assertCredentialVersion_(email, session.credentialVersion);
       return {
-        email: normalizeEmail_(session.email),
+        email,
         key: String(session.key || ''),
         method: session.method === 'google' ? 'google' : 'pin',
         pinVerified: Boolean(session.pinVerified),
       };
     } catch (error) {
-      throw new Error('That PIN session expired. Enter your PIN again.');
+      throw new Error('That PIN session expired or the student PIN changed. Enter the current PIN again.');
     }
   }
 
@@ -807,13 +846,15 @@ function selectStudentClass(pinToken, studentKey, purpose, actionProof) {
 function putStudentActionProof_(email, key, action, identityMethod) {
   const issuedAt = Date.now();
   const nonce = Utilities.getUuid().replace(/-/g, '');
+  const normalizedEmail = normalizeEmail_(email);
   const body = encodeTokenPart_(JSON.stringify({
-    v: 2,
+    v: 3,
     nonce,
-    email: normalizeEmail_(email),
+    email: normalizedEmail,
     key: String(key || ''),
     action: normalizeStudentAction_(action),
     identityMethod: identityMethod === 'google' ? 'google' : 'pin',
+    credentialVersion: credentialVersionForEmail_(normalizedEmail),
     iat: issuedAt,
     exp: issuedAt + GD_ACTION_PROOF_SECONDS * 1000,
   }));
@@ -830,11 +871,13 @@ function readStudentActionProof_(actionProof) {
   try {
     if (!secureEquals_(signTokenPart_(parts[0]), parts[1])) throw new Error('Bad signature');
     const proof = JSON.parse(decodeTokenPart_(parts[0]));
-    if (Number(proof.v) !== 2 || !proof.nonce) throw new Error('Legacy proof');
+    if (Number(proof.v) !== 3 || !proof.nonce) throw new Error('Legacy proof');
     if (!proof.exp || Number(proof.exp) < Date.now()) throw new Error('Expired proof');
+    const email = normalizeEmail_(proof.email);
+    assertCredentialVersion_(email, proof.credentialVersion);
     return {
       nonce: String(proof.nonce),
-      email: normalizeEmail_(proof.email),
+      email,
       key: String(proof.key || ''),
       action: normalizeStudentAction_(proof.action),
       identityMethod: proof.identityMethod === 'google' ? 'google' : 'pin',
@@ -842,7 +885,7 @@ function readStudentActionProof_(actionProof) {
       expiresAt: new Date(Number(proof.exp || 0)),
     };
   } catch (error) {
-    throw new Error('That one-time PIN proof expired. Enter your PIN again.');
+    throw new Error('That one-time PIN proof expired or the student PIN changed. Enter the current PIN again.');
   }
 }
 
@@ -976,8 +1019,12 @@ function validateCheckInSubmissionProof_(actionProof, studentKey) {
     if (proof.action !== GD_STUDENT_ACTIONS.CHECKIN) throw originalError;
     const student = getStudentByKey_(studentKey || proof.key);
     if (!student || student.email !== proof.email || (proof.key && proof.key !== student.key)) throw originalError;
+    const todayKey = dateKey_(new Date());
+    const logicalId = logicalCheckInId_(todayKey, student.key);
     const recorded = readCheckInsIncludingPending_().find((entry) => (
-      entry.checkInId === proof.nonce && entry.studentKey === student.key
+      entry.studentKey === student.key &&
+      entry.dateKey === todayKey &&
+      (entry.checkInId === proof.nonce || entry.checkInId === logicalId)
     ));
     if (!recorded) throw originalError;
     return {
@@ -985,7 +1032,7 @@ function validateCheckInSubmissionProof_(actionProof, studentKey) {
       method: proof.identityMethod,
       authorizationMethod: 'PIN',
       authorizedAt: proof.issuedAt,
-      requestId: proof.nonce,
+      requestId: recorded.checkInId,
       alreadyRecorded: recorded,
     };
   }
@@ -1002,17 +1049,15 @@ function submitDailyCheckIn(actionProof, studentKey, identityToken) {
       resolved.requestId
     );
   if (!resolved.alreadyRecorded) {
-    // The arrival is durable before its proof becomes unusable. A request that
-    // is interrupted before staging can still be retried; an interrupted reply
-    // is handled by validateCheckInSubmissionProof_ above.
     PropertiesService.getScriptProperties().deleteProperty(resolved.proofPropertyKey);
   }
   tryFlushPendingCheckIns_();
   const token = identityTokenForStudent_(identityToken, resolved.student);
   const state = getCheckInState_(resolved.student, token, resolved.method);
+  const canonical = state.checkIn || (recorded ? clientCheckIn_(recorded) : null);
   state.actionOutcome = {
-    id: resolved.requestId,
-    kind: recorded && checkInStatusIsLate_(recorded.status) ? 'LATE_CHECK_IN_RECORDED' : 'CHECKED_IN',
+    id: canonical && canonical.checkInId ? canonical.checkInId : resolved.requestId,
+    kind: canonical && checkInStatusIsLate_(canonical.status) ? 'LATE_CHECK_IN_RECORDED' : 'CHECKED_IN',
   };
   return state;
 }
@@ -1032,6 +1077,15 @@ function getCheckInState_(student,pinToken,method) {
 
 function checkInLogicalKey_(checkIn) {
   return `${String(checkIn && checkIn.dateKey || '')}::${String(checkIn && checkIn.studentKey || '')}`;
+}
+
+function logicalCheckInId_(dateKey, studentKey) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    `checkin:${String(dateKey || '')}:${String(studentKey || '')}`,
+    Utilities.Charset.UTF_8
+  );
+  return `CI-${String(dateKey || '').replace(/-/g, '')}-${Utilities.base64EncodeWebSafe(bytes).replace(/=+$/g, '').slice(0, 22)}`;
 }
 
 function pendingCheckInPropertyKey_(dateKey, studentKey) {
@@ -1131,7 +1185,7 @@ function stageCheckIn_(student, method, note, lateOverride, requestId) {
     : '';
   const entry = {
     row: 0,
-    checkInId: String(requestId || Utilities.getUuid()),
+    checkInId: logicalCheckInId_(todayKey, student.key),
     dateKey: todayKey,
     checkInTime: now,
     studentEmail: student.email,
@@ -4236,11 +4290,12 @@ function ensureCheckInFlushTrigger_(){
 }
 
 function installCleanupTrigger_() {
-  ScriptApp.getProjectTriggers().forEach((trigger) => {
-    if (trigger.getHandlerFunction() === 'purgeIfDue_') ScriptApp.deleteTrigger(trigger);
-  });
-  const exists = ScriptApp.getProjectTriggers().some((trigger) => trigger.getHandlerFunction() === 'dailyCleanup');
-  if (!exists) ScriptApp.newTrigger('dailyCleanup').timeBased().everyDays(1).atHour(3).create();
+  const triggers = ScriptApp.getProjectTriggers();
+  const legacy = triggers.filter((trigger) => trigger.getHandlerFunction() === 'purgeIfDue_');
+  legacy.forEach((trigger) => ScriptApp.deleteTrigger(trigger));
+  const matches = triggers.filter((trigger) => trigger.getHandlerFunction() === 'dailyCleanup');
+  matches.slice(1).forEach((trigger) => ScriptApp.deleteTrigger(trigger));
+  if (!matches.length) ScriptApp.newTrigger('dailyCleanup').timeBased().everyDays(1).atHour(3).create();
 }
 
 /* -------------------------------------------------------------- workbook ---- */
@@ -4449,12 +4504,17 @@ function ensureSheet_(spreadsheet, name, headers) {
   }
   const existing = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
   headers.forEach((header, index) => {
-    if (!String(existing[index] || '').trim()) {
+    const actual = String(existing[index] || '').trim();
+    if (!actual) {
       sheet.getRange(1, index + 1)
         .setValue(header)
         .setBackground('#eeeeee')
         .setFontWeight('bold')
         .setFontColor('#202127');
+      return;
+    }
+    if (actual !== header) {
+      throw new Error(`${name} has an unexpected column ${index + 1} header ("${actual}" instead of "${header}"). Restore the GrantDesk column order before continuing; no data was moved automatically.`);
     }
   });
   return sheet;
