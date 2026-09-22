@@ -1746,7 +1746,56 @@ test('replaying the same late-attendance decision is idempotent', () => {
   const row = c.checkIns()[0];
   assert.equal(String(row.Status), 'LATE_APPROVED');
   assert.equal((String(row.Note).match(/Late check-in point awarded by/g) || []).length, 1);
+  const audits = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry['Reference ID']) === id && String(entry.Action) === 'LATE_CHECKIN_POINT_AWARDED');
+  assert.equal(audits.length, 1, 'identical retry must not duplicate teacher audit evidence');
 });
+
+test('retry repairs missing late-review audit evidence after the attendance row already committed', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  assert.equal(String(c.checkIns()[0].Status), 'LATE_APPROVED');
+
+  const auditSheet = c.harness.sheet('Teacher Actions');
+  const matchingRow = auditSheet.records()
+    .map((entry, index) => ({ entry, row: index + 2 }))
+    .find(({ entry }) => String(entry['Reference ID']) === id && String(entry.Action) === 'LATE_CHECKIN_POINT_AWARDED');
+  assert.ok(matchingRow);
+  auditSheet.deleteRow(matchingRow.row);
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+
+  const repaired = auditSheet.records()
+    .filter((entry) => String(entry['Reference ID']) === id && String(entry.Action) === 'LATE_CHECKIN_POINT_AWARDED');
+  assert.equal(repaired.length, 1, 'retry must recreate the missing audit evidence exactly once');
+  assert.equal(String(c.checkIns()[0].Status), 'LATE_APPROVED');
+});
+
+test('reversing a late-review decision preserves each distinct audit transition', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'KEEP_NO_POINT', TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+
+  const actions = c.harness.sheet('Teacher Actions').records()
+    .filter((entry) => String(entry['Reference ID']) === id)
+    .map((entry) => String(entry.Action));
+  assert.deepEqual(actions, ['LATE_CHECKIN_NO_POINT', 'LATE_CHECKIN_POINT_AWARDED']);
+});
+
 
 
 
