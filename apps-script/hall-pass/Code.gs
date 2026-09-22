@@ -27,7 +27,6 @@ const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
 const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
 const GD_LATE_REVIEW_PREFIX = 'late-review:';
 const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
-const GD_CHECKIN_INDEX_VERSION = `${GD_SCHEMA_VERSION}:active-memberships-v2`;
 const GD_CHECKIN_FLUSH_ERROR_PROPERTY = 'CHECKIN_FLUSH_LAST_ERROR';
 const GD_CHECKIN_MIN_ROWS = 5000;
 const GD_CHECKIN_ROW_GROWTH = 2000;
@@ -3204,6 +3203,29 @@ function buildCheckInSummaryForEntries_(studentKey, entries, calendarValue) {
   return summary;
 }
 
+function checkInOperationalIndexVersion_() {
+  const calendar = getSchoolCalendarIndex_();
+  const activeKeys = getRoster_().map((student) => student.key).sort();
+  const calendarRows = Object.keys(calendar.overrides || {}).sort().map((key) => [
+    key,
+    Boolean(calendar.overrides[key]),
+    String((calendar.schedules || {})[key] || ''),
+  ]);
+  const payload = JSON.stringify([
+    GD_SCHEMA_VERSION,
+    String(calendar.startKey || ''),
+    String(calendar.endKey || ''),
+    activeKeys,
+    calendarRows,
+  ]);
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    payload,
+    Utilities.Charset.UTF_8
+  );
+  return `${GD_SCHEMA_VERSION}:index:${Utilities.base64EncodeWebSafe(digest).replace(/=+$/g, '').slice(0, 24)}`;
+}
+
 function rebuildCheckInOperationalIndex_() {
   const properties=PropertiesService.getScriptProperties();
   const allProperties=properties.getProperties();
@@ -3224,13 +3246,13 @@ function rebuildCheckInOperationalIndex_() {
 
   const calendar=getSchoolCalendarIndex_();
   byStudent.forEach((studentEntries,studentKey)=>writeCheckInSummary_(buildCheckInSummaryForEntries_(studentKey,studentEntries,calendar)));
-  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,GD_CHECKIN_INDEX_VERSION);
+  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,checkInOperationalIndexVersion_());
   return {students:byStudent.size,entries:entries.length};
 }
 
 function ensureCheckInOperationalIndex_() {
   const properties=PropertiesService.getScriptProperties();
-  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===GD_CHECKIN_INDEX_VERSION) return;
+  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===checkInOperationalIndexVersion_()) return;
   rebuildCheckInOperationalIndex_();
 }
 
