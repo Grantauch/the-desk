@@ -27,6 +27,7 @@ const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
 const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
 const GD_LATE_REVIEW_PREFIX = 'late-review:';
 const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
+const GD_CHECKIN_INDEX_VERSION = `${GD_SCHEMA_VERSION}:active-memberships-v2`;
 const GD_CHECKIN_FLUSH_ERROR_PROPERTY = 'CHECKIN_FLUSH_LAST_ERROR';
 const GD_CHECKIN_MIN_ROWS = 5000;
 const GD_CHECKIN_ROW_GROWTH = 2000;
@@ -2420,6 +2421,7 @@ function teacherAddStudentClass(studentName, studentEmail, classPeriod) {
     gdForget_('unlimited');
 
     const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    rebuildCheckInSummaryForStudent_(input.key);
     auditTeacherAction_(getActiveEmail_(), { email: input.email, name: input.name, classPeriod: input.classPeriod },
       sameMembership ? 'ROSTER_MEMBERSHIP_REACTIVATED' : 'ROSTER_MEMBERSHIP_ADDED', [], '', input.key);
     result = {
@@ -2461,6 +2463,7 @@ function teacherRemoveStudentClass(studentKey) {
 
     getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER).getRange(student.row, 5).setValue(false);
     auditTeacherAction_(getActiveEmail_(), student, 'ROSTER_MEMBERSHIP_REMOVED', [], '', student.key);
+    PropertiesService.getScriptProperties().deleteProperty(checkInSummaryPropertyKey_(student.key));
     gdForget_('roster');
     gdForget_('unlimited');
     result = { action: 'removed', name: student.name, classPeriod: student.classPeriod };
@@ -3207,31 +3210,47 @@ function rebuildCheckInOperationalIndex_() {
   Object.keys(allProperties).forEach((key)=>{
     if(key.startsWith(GD_CHECKIN_SUMMARY_PREFIX)||key.startsWith(GD_LATE_REVIEW_PREFIX)) properties.deleteProperty(key);
   });
-  const entries=readCheckInsIncludingPending_(); const byStudent=new Map();
+
+  const activeKeys=new Set(getRoster_().map((student)=>student.key));
+  const entries=readCheckInsIncludingPending_();
+  const byStudent=new Map();
   entries.forEach((entry)=>{
     if(!entry.studentKey) return;
+    if(String(entry.status||'').toUpperCase()==='LATE_PENDING') setLateReviewIndex_(entry);
+    if(!activeKeys.has(entry.studentKey)) return;
     if(!byStudent.has(entry.studentKey)) byStudent.set(entry.studentKey,[]);
     byStudent.get(entry.studentKey).push(entry);
-    if(String(entry.status||'').toUpperCase()==='LATE_PENDING') setLateReviewIndex_(entry);
   });
+
   const calendar=getSchoolCalendarIndex_();
   byStudent.forEach((studentEntries,studentKey)=>writeCheckInSummary_(buildCheckInSummaryForEntries_(studentKey,studentEntries,calendar)));
-  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,GD_SCHEMA_VERSION);
+  properties.setProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY,GD_CHECKIN_INDEX_VERSION);
   return {students:byStudent.size,entries:entries.length};
 }
 
 function ensureCheckInOperationalIndex_() {
   const properties=PropertiesService.getScriptProperties();
-  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===GD_SCHEMA_VERSION) return;
+  if(properties.getProperty(GD_CHECKIN_INDEX_SCHEMA_PROPERTY)===GD_CHECKIN_INDEX_VERSION) return;
   rebuildCheckInOperationalIndex_();
 }
 
 function rebuildCheckInSummaryForStudent_(studentKey) {
   const key = String(studentKey || '');
   if (!key) return emptyCheckInSummary_('');
+  const properties = PropertiesService.getScriptProperties();
+  const propertyKey = checkInSummaryPropertyKey_(key);
+  if (!getStudentByKey_(key)) {
+    properties.deleteProperty(propertyKey);
+    return emptyCheckInSummary_(key);
+  }
   const historical = readCheckIns_().filter((item) => item.studentKey === key);
   const pending = readPendingCheckIns_().filter((item) => item.studentKey === key);
-  const summary = buildCheckInSummaryForEntries_(key, historical.concat(pending));
+  const entries = historical.concat(pending);
+  if (!entries.length) {
+    properties.deleteProperty(propertyKey);
+    return emptyCheckInSummary_(key);
+  }
+  const summary = buildCheckInSummaryForEntries_(key, entries);
   writeCheckInSummary_(summary);
   return summary;
 }
