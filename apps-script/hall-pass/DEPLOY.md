@@ -1,14 +1,25 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Current release — Version 27, September 22, 2026
+## Current release — Version 28, September 22, 2026
 
-Source commit: `021ea741a89a8579217aebcc28b9fd35b80e2a26`. The existing Apps Script web-app deployment was updated **in place** through the guarded release bridge in [GitHub Actions run 35730498425](https://github.com/Grantauch/the-desk/actions/runs/35730498425). The stable `/exec` URL, deployment identity, execute-as-deploying-user behavior, school-domain access, and five-file Apps Script contract were preserved.
+Source commit: `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`. The existing Apps Script web-app deployment was updated **in place** through the guarded release bridge in [GitHub Actions run 35754589935](https://github.com/Grantauch/the-desk/actions/runs/35754589935), after production preflight run `35754508635` passed. The stable `/exec` URL, deployment identity, execute-as-deploying-user behavior, school-domain access, and five-file Apps Script contract were preserved.
 
-Current workbook schema: `2026-09-21-backend-b`. Current teacher browser contract: `2026-09-22-all-teacher-rpcs`.
+Current workbook schema: `2026-09-21-backend-b`. Current teacher browser/server/release-check contract: `2026-09-22-all-teacher-rpcs`.
 
-The exact merged commit passed the canonical GrantDesk release gate and real-browser acceptance on `main`, then passed the production preflight bridge before deployment. Preflight verified Apps Script credentials, project/deployment identity, the existing production target, bridge self-tests, and unpublished-editor state before the deployment command was allowed to run.
+The exact merged commit passed the canonical GrantDesk release gate and real-browser acceptance, then passed the production preflight bridge before deployment. Netlify production deploy `6ab2acfb9d374c000715447c` is also `ready` on the same commit, so the public GrantDesk site and Apps Script source record are aligned.
 
-Version 27 includes the accumulated September 21–22 backend hardening:
+Version 28 adds the final production catch-up hardening:
+
+- teacher browser and private release-check contract values are aligned with the server contract;
+- regression tests compare all three contract surfaces so version skew fails CI;
+- teacher bootstrap self-heals both background trigger classes while routine polling audits them at most hourly;
+- owned trigger IDs are retained in Script Properties to avoid repeated project-trigger enumeration;
+- empty Check-In refreshes and idle minute ticks avoid the shared transaction lock;
+- the minute durability trigger can recover waiting-line settlement after a committed return;
+- workbook setup is serialized against live classroom/PIN-email writes;
+- out-of-order recent Check-In rows fall back to the authoritative full attendance ledger.
+
+Version 28 retains the accumulated Version 27 September 21–22 backend hardening:
 
 - Daily Check-ins automatically expands and no longer has the former 1,000-row hard ceiling.
 - durable Check-In recovery repairs secondary streak/late-review state after a partial commit before inbox recovery state is cleared;
@@ -27,9 +38,11 @@ Version 27 includes the accumulated September 21–22 backend hardening:
 - every browser-exposed teacher mutation/read-control RPC validates the current teacher client contract, so stale open dashboard tabs cannot mutate a newer server contract;
 - inert `SCHOOL_CALENDAR_FILE_ID` and `SCHOOL_CALENDAR_FALLBACK_URL` settings were removed from source because they never controlled runtime.
 
-Because the workbook schema version did not change for the final settings cleanup, the live private workbook was reconciled explicitly after Version 27 deployment: only the two inert calendar-source Settings rows were deleted. Existing roster, PIN, pass, queue, attendance, calendar, audit, and teacher-policy facts were preserved. Post-deploy verification showed no active stuck pass and no waiting queue.
+No workbook schema migration was required for Version 28. The Version 27 workbook reconciliation remains in effect: only the two inert calendar-source Settings rows were removed, and existing roster, PIN, pass, queue, attendance, calendar, audit, and teacher-policy facts were preserved. Version 28 changed application/recovery behavior without replacing the production workbook.
 
 The production release remains the single-classroom Apps Script/workbook system. The isolated `schoolwide/**` PostgreSQL application remains non-authoritative and must not be treated as production until its separate staging/cutover gates are completed.
+
+The authenticated post-deployment `?mode=releasecheck` synthetic protected-action smoke remains required for Version 28 and is not recorded as complete in this release record.
 
 ## Release safety
 
