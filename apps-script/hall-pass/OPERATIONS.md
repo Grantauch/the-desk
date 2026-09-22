@@ -1,15 +1,36 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. Version 24 is deployed. The tracked source, in-place deployment and synthetic runtime suite are verified; the separate Version 24 protected post-deployment `?mode=releasecheck` result is not yet recorded here. This file is the current operating checklist; GitHub Issue #16 is a separate historical operations record. Classroom observation remains FIELD_PENDING.
+Issue #14 is closed. **Version 27 is deployed.** The tracked source, protected `main`, canonical release gate, production preflight, in-place deployment, and live workbook reconciliation are verified. This file is the current operating checklist; older version sections below are historical records. Classroom observation remains FIELD_PENDING.
 
-Production fingerprint as of 2026-09-09 (Version 24):
+Production fingerprint as of 2026-09-22 (Version 27):
 
 | Fact | Value |
 | --- | --- |
-| Deployed application source | `afde2972782bcd1626efc1ee1de7bc5dede42c7c`, merged through PR #73; duplicate-action race guard included |
-| Apps Script version | 24, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
-| Workbook schema | `2026-09-05-session-a`; unchanged by Versions 23–24 |
-| Release evidence | GitHub Actions run `34385311732`; canonical gate, five-file replacement/read-back and 314 runtime behavior checks passed |
+| Deployed application source | `021ea741a89a8579217aebcc28b9fd35b80e2a26` |
+| Apps Script version | 27, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
+| Workbook schema | `2026-09-21-backend-b` |
+| Teacher client contract | `2026-09-22-all-teacher-rpcs` |
+| Release evidence | GitHub Actions run `35730498425`; canonical gate, bridge self-test and in-place deployment passed |
+| Post-deploy workbook | two inert calendar-source Settings rows removed explicitly; operational data preserved |
+
+## September 22 Version 27 commercial-hardening release
+
+Version 27 is the current single-classroom production release. It preserves the existing Apps Script deployment URL and private workbook while closing the backend/recovery issues found during the September 21–22 commercial-readiness audit.
+
+- Daily Check-ins grows automatically beyond the former 1,000-row grid ceiling.
+- Check-In partial-commit recovery repairs secondary streak/late-review state before durable inbox evidence is cleared.
+- Live Check-In summaries are limited to active memberships and rebuild when roster/calendar inputs change.
+- Student self-check-in closes at class end; unresolved late reviews persist until teacher action.
+- Late self-check-in clears a prior active absence while preserving the original attendance fact as a CLEARED audit row.
+- Prior-period unresolved passes remain visible but do not consume current-period capacity.
+- PIN rotation revokes outstanding signed student sessions/proofs; obsolete cache-only sessions are rejected.
+- Independent submissions converge on a canonical logical Check-In ID.
+- Workbook header drift and duplicate Settings/calendar/active-roster keys fail closed.
+- Polling is jittered and stale live-state failures are visible to teacher/student screens.
+- Teacher browser RPCs require the current client contract, preventing stale open dashboard tabs from mutating a newer server.
+- The live workbook no longer carries the inert `SCHOOL_CALENDAR_FILE_ID` or `SCHOOL_CALENDAR_FALLBACK_URL` settings.
+
+Release run `35730498425` verified Version 27 deployment on the existing deployment ID with `DOMAIN` access and `USER_DEPLOYING` execution. No new Apps Script deployment URL was created.
 
 ## September 9 Version 24 duplicate-action release
 
@@ -33,7 +54,7 @@ Version 23 removed Daily Check-In from the shared workbook lock without changing
 - Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
 - Version 23 local evidence reached 311 behavioral checks, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences and Hall Pass regressions.
 
-The dependency-complete canonical gate, protected PR, in-place deploy bridge and five-file source read-back have passed for Version 24. Real-class observation and the Version 24 protected post-deployment releasecheck remain pending evidence. Do not create a new deployment or URL.
+The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 27. Real-class observation remains pending evidence. Do not create a new deployment or URL.
 
 ## Session and teacher policy
 
@@ -60,7 +81,7 @@ The dependency-complete canonical gate, protected PR, in-place deploy bridge and
    or email correction made after a delivery batch assembled its recipients cannot send a credential to
    a stale address, and that the recorded delivery status matches the address actually used. Never
    exercise this against the live roster or by sending real mail.
-3. **Version 24 release evidence — partial until protected smoke is recorded.** GitHub Actions run `34385311732` deployed Version 24 in place after the canonical gate and 314 runtime checks passed, including the Issue #73 duplicate-action guard. The last protected post-deployment `?mode=releasecheck` result recorded in the prior operating state belongs to Version 23. Rerun and record the protected smoke for Version 24 before marking this item fully passed. No real student PIN or email should be used.
+3. **Version 27 release evidence.** GitHub Actions run `35730498425` deployed Version 27 in place from source `021ea741a89a8579217aebcc28b9fd35b80e2a26` after the canonical gate and production preflight passed. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. Keep any protected synthetic smoke isolated from real student PINs/emails and record it separately when performed.
 4. **`NEEDS_RESEND` credential records.** Ten PIN-card records were repointed to corrected addresses
    during the identity migration, and their delivery status was set to `NEEDS_RESEND` because a prior
    `SENT` marker could not prove delivery to the corrected address. All ten students had already used
