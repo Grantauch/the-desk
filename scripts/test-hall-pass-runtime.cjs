@@ -526,7 +526,7 @@ test('a late self-check-in clears an earlier teacher absence while preserving bo
   assert.match(String(rows[0].Note), /Cleared when late student check-in was recorded/);
   assert.equal(String(rows[1].Status), 'LATE_PENDING');
   const state = c.teacherState();
-  assert.equal(state.absencesToday.length, 0, 'a late-present student must not remain in the active absence list');
+  assert.equal(state.absentToday.length, 0, 'a late-present student must not remain in the active absence list');
   assert.ok(state.pendingLateCheckIns.some((entry) => entry.checkInId === String(rows[1]['Check-in ID'])));
 });
 
