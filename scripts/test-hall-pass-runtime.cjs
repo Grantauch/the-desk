@@ -87,6 +87,21 @@ test('the schema version is recorded so later requests skip the repair', () => {
   assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-21-backend-b');
 });
 
+test('setup removes inert legacy calendar source settings without changing the real calendar table', () => {
+  const c = classroom();
+  const settings = c.harness.sheet('Settings');
+  const calendarBefore = JSON.stringify(c.calendar());
+  settings.appendRow(['SCHOOL_CALENDAR_FILE_ID', 'legacy-file-id', 'obsolete']);
+  settings.appendRow(['SCHOOL_CALENDAR_FALLBACK_URL', 'https://example.invalid/', 'obsolete']);
+  c.harness.properties.deleteProperty('WORKBOOK_SCHEMA');
+  c.harness.newRequest();
+  c.harness.call('ensureWorkbookReady_');
+  const keys = settings.records().map((row) => String(row.Key || '').trim());
+  assert.ok(!keys.includes('SCHOOL_CALENDAR_FILE_ID'));
+  assert.ok(!keys.includes('SCHOOL_CALENDAR_FALLBACK_URL'));
+  assert.equal(JSON.stringify(c.calendar()), calendarBefore, 'removing inert reference settings must not rewrite School Calendar facts');
+});
+
 test('repair runs once, not on every request', () => {
   const c = classroom();
   const before = c.harness.state.lock.acquisitions;
