@@ -1932,6 +1932,54 @@ test('rebuilding the operational index ignores historical inactive memberships a
   assert.equal(restored.lastCountedDate, '2026-09-10');
 });
 
+section('GoClassroom roster bridge');
+
+test('authorized teacher can read only active roster identity fields through the bridge', () => {
+  const c = classroom({
+    memberships: [
+      [PEOPLE.ada, 'Period 1'],
+      [PEOPLE.alan, 'Period 1', { active: false }],
+      [PEOPLE.grace, 'Period 3'],
+    ],
+  });
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const beforeRoster = JSON.stringify(c.rosterRows());
+  const beforePins = JSON.stringify(c.pinCards());
+  const beforeCheckIns = JSON.stringify(c.checkIns());
+  const beforePasses = JSON.stringify(c.passLog());
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+
+  assert.equal(snapshot.ok, true);
+  assert.equal(snapshot.schemaVersion, 1);
+  assert.equal(snapshot.bridgeContract, '2026-09-22-roster-sync-v1');
+  assert.deepEqual(snapshot.roster.map((row) => row.studentEmail).sort(), [PEOPLE.ada.email, PEOPLE.grace.email].sort());
+  snapshot.roster.forEach((row) => {
+    assert.deepEqual(Object.keys(row).sort(), ['active', 'classPeriod', 'studentEmail', 'studentName'].sort());
+    assert.equal(row.active, true);
+  });
+  assert.equal(JSON.stringify(c.rosterRows()), beforeRoster, 'bridge read must not change roster rows');
+  assert.equal(JSON.stringify(c.pinCards()), beforePins, 'bridge read must not change PIN records');
+  assert.equal(JSON.stringify(c.checkIns()), beforeCheckIns, 'bridge read must not change Check-In history');
+  assert.equal(JSON.stringify(c.passLog()), beforePasses, 'bridge read must not change pass history');
+});
+
+test('roster bridge rejects students and stale GoClassroom contracts', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(
+    () => c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1'),
+    /limited to the teacher/i
+  );
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(
+    () => c.harness.call('getRosterSyncSnapshot', 'old-roster-contract'),
+    /Update GoClassroom/i
+  );
+});
+
 section('Backend repair guardrails');
 
 test('teacher roster entry rejects a class label the bell engine cannot schedule', () => {
