@@ -13,7 +13,7 @@ const principal = (roles: StaffPrincipal['roleGrants']): StaffPrincipal => ({
 
 test('SW-130 browser realtime acceleration', async (t) => {
   await t.test('teacher uses authenticated fetch streaming while bounded polling remains authoritative fallback', () => {
-    const html = injectRealtimeAcceleration('/teacher', teacherAppHtml());
+    const html = injectRealtimeAcceleration('/teacher', teacherAppHtml('test-nonce'));
     assert.match(html, /data-sw130-realtime/);
     assert.match(html, /authorization:'Bearer '\+auth/);
     assert.match(html, /\/api\/v1\/realtime\/teacher\/sections\//);
@@ -25,7 +25,7 @@ test('SW-130 browser realtime acceleration', async (t) => {
   });
 
   await t.test('Security keeps five-second polling and gains server-resolved school stream', () => {
-    const html = injectRealtimeAcceleration('/security', securityConsoleHtml());
+    const html = injectRealtimeAcceleration('/security', securityConsoleHtml('test-nonce'));
     assert.match(html, /\/api\/v1\/realtime\/security\/events/);
     assert.match(html, /pollAfterMs=5000/);
     assert.match(html, /setTimeout\(refresh,pollAfterMs\)/);
@@ -34,7 +34,7 @@ test('SW-130 browser realtime acceleration', async (t) => {
   });
 
   await t.test('Admin refresh is focus-safe and uses server-resolved school stream', () => {
-    const html = injectRealtimeAcceleration('/admin', adminConsoleHtml());
+    const html = injectRealtimeAcceleration('/admin', adminConsoleHtml('test-nonce'));
     assert.match(html, /\/api\/v1\/realtime\/admin\/events/);
     assert.match(html, /focusBusy/);
     assert.match(html, /dialog\[open\]/);
