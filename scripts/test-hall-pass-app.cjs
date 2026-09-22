@@ -121,6 +121,13 @@ assert.match(setupWorkbook, /ensureRowCapacity_\(checkInSheet/);
 assert.match(setupWorkbook, /rebuildCheckInOperationalIndex_\(\)/);
 assert.match(functionSource('ensureSheet_'), /unexpected column/);
 assert.match(functionSource('ensureSheet_'), /Restore the GrantDesk column order/);
+assert.match(functionSource('getSettings_'), /duplicate key/);
+assert.match(functionSource('getSchoolCalendarIndex_'), /duplicate date/);
+assert.match(functionSource('getRoster_'), /duplicate active membership/);
+assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FILE_ID'/);
+assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FALLBACK_URL'/);
+assert.match(functionSource('setupWorkbook_'), /SCHOOL_CALENDAR_FILE_ID/);
+assert.match(functionSource('setupWorkbook_'), /SCHOOL_CALENDAR_FALLBACK_URL/);
 assert.match(setupWorkbook, /'TIME_ZONE'.*'DESTINATIONS'.*'QUEUE_CLAIM_MINUTES'/s, 'Stale fake settings must be removed during migration');
 
 const studentState = functionSource('getStudentState_');
