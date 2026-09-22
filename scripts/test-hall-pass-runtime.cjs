@@ -84,7 +84,7 @@ test('a fresh project builds every sheet the app depends on', () => {
 
 test('the schema version is recorded so later requests skip the repair', () => {
   const c = classroom();
-  assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-05-session-a');
+  assert.equal(c.harness.properties.getProperty('WORKBOOK_SCHEMA'), '2026-09-21-backend-b');
 });
 
 test('repair runs once, not on every request', () => {
@@ -122,6 +122,36 @@ test('only the owned minute trigger or teacher can invoke a manual inbox flush',
   assert.doesNotThrow(() => c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id }));
 });
 
+
+test('Daily Check-ins starts with safe row headroom and repairs a stale flusher flag', () => {
+  const c = classroom();
+  assert.ok(c.harness.sheet('Daily Check-ins').getMaxRows() >= 5000, 'setup must pre-grow the check-in sheet');
+  c.harness.state.triggers = c.harness.state.triggers.filter((trigger) => trigger.handler !== 'flushPendingCheckIns');
+  assert.equal(c.harness.properties.getProperty('CHECKIN_FLUSH_TRIGGER_INSTALLED'), '1', 'the stale flag should still exist');
+  c.harness.call('ensureCheckInFlushTrigger_');
+  assert.equal(c.harness.state.triggers.filter((trigger) => trigger.handler === 'flushPendingCheckIns').length, 1,
+    'the trigger must be recreated even when the property flag was stale');
+});
+
+test('a full 1000-row check-in grid grows before the next inbox flush', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const sheet = c.harness.sheet('Daily Check-ins');
+  sheet.maxRows = 1000;
+  sheet.getRange(1000, 1).setValue('synthetic-legacy-tail');
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'row-capacity');
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  const state = c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+  assert.equal(state.checkedIn, true);
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+  assert.ok(sheet.getMaxRows() > 1000, 'flush must expand the grid rather than fail at row 1001');
+  assert.ok(sheet.getLastRow() >= 1001, 'the staged arrival must be persisted after expansion');
+});
+
 /* ------------------------------------------------------- 2. credentials ----- */
 
 section('Credentials: one student, one PIN');
@@ -155,6 +185,38 @@ test('no plaintext PIN is ever written to the Roster', () => {
   const plain = [c.pin(PEOPLE.ada), c.pin(PEOPLE.alan), c.pin(PEOPLE.grace)];
   const rosterText = JSON.stringify(c.rosterRows());
   plain.forEach((pin) => assert.ok(!rosterText.includes(pin), 'a plaintext PIN reached the Roster'));
+});
+
+
+test('teacher PIN reset rotates one student across every class and preserves recovery cards', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3'], [PEOPLE.alan, 'Period 1']] });
+  const oldPin = c.pin(PEOPLE.ada);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const state = c.harness.call('teacherResetStudentPin', PEOPLE.ada.email, 'Student reported a compromised PIN', TEACHER_CONTRACT);
+  const cards = c.pinCards().filter((card) => card['Student Email'] === PEOPLE.ada.email);
+  const pins = new Set(cards.map((card) => String(card.PIN)));
+  assert.equal(cards.length, 2);
+  assert.equal(pins.size, 1, 'all memberships must receive the same replacement PIN');
+  const newPin = [...pins][0];
+  assert.notEqual(newPin, oldPin);
+  assert.ok(cards.every((card) => String(card['Email Status']) === 'NEEDS_RESEND'));
+  assert.equal(state.pinEmailStatus.readyRecipients, 1);
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(() => c.harness.call('authorizeStudentAction', oldPin, 'AUTO_PASS', key, 'old-pin'), /did not match/);
+  c.harness.newRequest();
+  assert.doesNotThrow(() => c.harness.call('authorizeStudentAction', newPin, 'AUTO_PASS', key, 'new-pin'));
+});
+
+test('the obsolete clear-PIN command fails closed without deleting recovery records', () => {
+  const c = classroom();
+  const before = c.pinCards().length;
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(() => c.harness.call('clearPinCards'), /no longer deletes PIN recovery records/);
+  assert.equal(c.pinCards().length, before);
 });
 
 /* ------------------------------------------- 3. authorization and proofs ---- */
@@ -307,11 +369,10 @@ test('a student after the on-time window is recorded late instead of denied', ()
   assert.equal(result.state.lateCheckIn, true);
 });
 
-test('a student can still record a late sign-in after the selected class has ended', () => {
+test('student self-check-in closes when the selected class ends', () => {
   const c = classroom({ now: new Date('2026-09-10T13:00:00Z') });
-  const result = c.checkIn(PEOPLE.ada, 'Period 1');
-  assert.equal(outcomeOf(result).kind, 'LATE_CHECK_IN_RECORDED');
-  assert.equal(String(c.checkIns()[0].Status), 'LATE_PENDING');
+  assert.throws(() => c.checkIn(PEOPLE.ada, 'Period 1'), /class has ended|not available right now/i);
+  assert.equal(c.checkIns().length, 0);
 });
 
 test('a late sign-in is recorded alongside an earlier teacher absence', () => {
@@ -340,6 +401,23 @@ test('the teacher can award the point for a late sign-in and it then counts for 
   const teacherRow = state.lateCheckInsToday.find((entry) => entry.checkInId === id);
   assert.equal(teacherRow.status, 'LATE_APPROVED');
   assert.equal(teacherRow.streak.current, 1);
+});
+
+
+test('an unresolved late arrival remains in teacher review on the next school day', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  c.checkIn(PEOPLE.ada, 'Period 1');
+  const id = String(c.checkIns()[0]['Check-in ID']);
+  c.harness.clock.advanceDays(1);
+  const nextDay = c.teacherState();
+  assert.ok(nextDay.pendingLateCheckIns.some((entry) => entry.checkInId === id),
+    'yesterday\'s LATE_PENDING row must remain actionable');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const reviewed = c.harness.call('teacherReviewLateCheckIn', id, 'AWARD_POINT', TEACHER_CONTRACT);
+  assert.ok(!reviewed.pendingLateCheckIns.some((entry) => entry.checkInId === id),
+    'the review index must clear only after a teacher decision');
+  assert.equal(String(c.checkIns().find((row) => String(row['Check-in ID']) === id).Status), 'LATE_APPROVED');
 });
 
 test('the teacher can keep a late sign-in at zero without removing the arrival record', () => {
@@ -1390,6 +1468,31 @@ test('replaying the same late-attendance decision is idempotent', () => {
   assert.equal((String(row.Note).match(/Late check-in point awarded by/g) || []).length, 1);
 });
 
+
+
+section('Backend repair guardrails');
+
+test('teacher roster entry rejects a class label the bell engine cannot schedule', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(
+    () => c.harness.call('teacherAddStudentClass', 'Example, Student', 'example.student@students.mtmorrisschools.org', 'American History'),
+    /Period 1 through Period 6/
+  );
+});
+
+test('teacher policy changes leave central audit evidence', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherSetCheckInWindow', 10, TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.call('teacherSetPassRules', 2, 3, 1, 5, 8, 15);
+  const actions = c.harness.sheet('Teacher Actions').records().map((row) => String(row.Action));
+  assert.ok(actions.includes('CHECKIN_WINDOW_CHANGED'));
+  assert.ok(actions.includes('PASS_RULES_CHANGED'));
+});
 
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();
