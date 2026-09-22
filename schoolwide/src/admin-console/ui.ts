@@ -1,4 +1,4 @@
-export function adminConsoleHtml(): string {
+export function adminConsoleHtml(scriptNonce: string): string {
   return String.raw`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GrantDesk Admin</title>
 <style>
@@ -13,7 +13,7 @@ export function adminConsoleHtml(): string {
 <div id="controls"></div><div class="table-wrap" id="content"><div class="empty">Connect an administrator staff session to load school configuration.</div></div></section>
 </main>
 <dialog id="reasonDialog" aria-labelledby="dialogTitle"><form method="dialog" id="reasonForm"><h2 id="dialogTitle">Confirm administrator action</h2><p id="dialogDescription"></p><div class="field"><label for="reason">Private administrative reason</label><textarea id="reason" maxlength="1000" required></textarea></div><div class="actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="confirm" value="default">Confirm</button></div><div id="dialogStatus" role="status" aria-live="polite"></div></form></dialog>
-<script>(function(){'use strict';
+<script nonce="${scriptNonce}">(function(){'use strict';
 var key='grantdesk.schoolwide.staffToken',token=sessionStorage.getItem(key)||'',view='staff',returnFocus=null,pending=null;
 var e={connection:document.getElementById('connection'),status:document.getElementById('status'),content:document.getElementById('content'),controls:document.getElementById('controls'),staff:document.getElementById('staffCount'),sections:document.getElementById('sectionCount'),students:document.getElementById('studentCount'),reviews:document.getElementById('reviewCount'),destinations:document.getElementById('destinationCount'),health:document.getElementById('health'),dialog:document.getElementById('reasonDialog'),description:document.getElementById('dialogDescription'),reason:document.getElementById('reason'),dialogStatus:document.getElementById('dialogStatus'),confirm:document.getElementById('confirm')};
 function headers(extra){var h={authorization:'Bearer '+token};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k]});return h}function text(tag,value,cls){var n=document.createElement(tag);n.textContent=value;if(cls)n.className=cls;return n}function button(label,fn){var b=text('button',label,'btn');b.type='button';b.addEventListener('click',fn);return b}function rid(){return crypto.randomUUID()}function dateOnly(d){return d.toISOString().slice(0,10)}
