@@ -206,7 +206,7 @@ module.exports = function registerSessionTests(test, section) {
       const c=classroom({memberships:[[PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 3',{active:false}]]});
       teacher(c,'teacherSetStudentPassAccess',PEOPLE.ada.email,mode,'Synthetic policy change');
       c.rosterRows().forEach(row=>assert.equal(row['Pass Access'],mode));
-      c.harness.call('teacherAddStudentClass',PEOPLE.ada.name,PEOPLE.ada.email,'Period 4');
+      c.harness.call('teacherAddStudentClass',PEOPLE.ada.name,PEOPLE.ada.email,'Period 4',TEACHER_CONTRACT);
       c.rosterRows().forEach(row=>assert.equal(row['Pass Access'],mode));
       const actions=c.harness.sheet('Teacher Actions').records();
       assert.equal(actions.length,3);
