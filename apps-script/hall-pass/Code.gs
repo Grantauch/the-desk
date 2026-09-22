@@ -4459,8 +4459,10 @@ function flushPendingCheckIns(event){
   return withLock_(()=>{
     gdClearMemo_();
     if(readPassQueue_().some((entry)=>entry.status==='WAITING')){
-      const snapshot=getPassSnapshot_();
-      reapExpiredQueue_(snapshot.expiredQueue);
+      // The timer is also the recovery path for a return that committed before
+      // queue settlement finished. Under the shared lock, settling is safe and
+      // promotes the oldest still-eligible verified request into an open slot.
+      settleWaitingQueue_();
     }
     if(!readPendingCheckIns_().length) return {written:0,deduplicated:0,idle:true};
     try{return flushPendingCheckInsLocked_();}
