@@ -13,7 +13,7 @@ const runAudit = (args) => {
 const summarize = (label, audit) => {
   const vulnerabilities = audit.vulnerabilities || {};
   const important = Object.entries(vulnerabilities)
-    .filter(([, value]) => ['high', 'critical'].includes(value?.severity))
+    .filter(([, value]) => ['moderate', 'high', 'critical'].includes(value?.severity))
     .map(([name, value]) => ({
       package: name,
       severity: value.severity,
@@ -29,9 +29,9 @@ const summarize = (label, audit) => {
     }));
 
   console.log(`\n${label}`);
-  console.log(`high=${audit.metadata?.vulnerabilities?.high || 0} critical=${audit.metadata?.vulnerabilities?.critical || 0}`);
+  console.log(`moderate=${audit.metadata?.vulnerabilities?.moderate || 0} high=${audit.metadata?.vulnerabilities?.high || 0} critical=${audit.metadata?.vulnerabilities?.critical || 0}`);
   if (important.length) console.table(important);
-  else console.log('No high/critical advisories reported.');
+  else console.log('No moderate/high/critical advisories reported.');
   return important;
 };
 
@@ -40,5 +40,5 @@ const full = runAudit([]);
 const productionImportant = summarize('Production dependency audit', production);
 const fullImportant = summarize('Full dependency audit', full);
 
-console.log(`\nDependency audit report: ${productionImportant.length} production and ${fullImportant.length} total high/critical package entries.`);
+console.log(`\nDependency audit report: ${productionImportant.length} production and ${fullImportant.length} total moderate/high/critical package entries.`);
 console.log('This CI step is diagnostic; release blocking remains handled by the explicit dependency policy rather than transient registry state.');
