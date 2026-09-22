@@ -2584,7 +2584,7 @@ function applyRosterSyncChanges(request, writeContract) {
     reactivated.forEach((student) => auditTeacherAction_(teacher, student, 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED', [], 'Approved in GoClassroom roster sync', normalized.requestId));
     nameUpdates.forEach((change) => auditTeacherAction_(teacher, {
       email: change.email, name: change.afterName, classPeriod: change.classPeriod,
-    }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', [], `${change.beforeName} -> ${change.afterName}`, normalized.requestId));
+    }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', [], 'Approved GoClassroom name correction', normalized.requestId));
 
     const newRevision = rosterSyncRevision_(getRoster_());
     result = {
