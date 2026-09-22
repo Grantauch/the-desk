@@ -417,8 +417,8 @@ test('two independently authorized check-in submissions converge on one canonica
   const rows = c.checkIns().filter((row) => row['Student Email'] === PEOPLE.ada.email);
   assert.equal(rows.length, 1);
   assert.match(String(rows[0]['Check-in ID']), /^CI-20260910-/);
-  assert.equal(outcomeOf(firstState).id, String(rows[0]['Check-in ID']));
-  assert.equal(outcomeOf(secondState).id, String(rows[0]['Check-in ID']));
+  assert.equal(firstState.actionOutcome.id, String(rows[0]['Check-in ID']));
+  assert.equal(secondState.actionOutcome.id, String(rows[0]['Check-in ID']));
 });
 
 
