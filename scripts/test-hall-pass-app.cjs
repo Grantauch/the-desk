@@ -74,7 +74,7 @@ const functionSource = (name) => {
   throw new Error(`Could not isolate function ${name}`);
 };
 
-assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-05-session-a'/);
+assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-21-backend-b'/);
 assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
 assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
 assert.match(code, /GD_STUDENT_LOCK_WAIT_MS\s*=\s*5000/);
@@ -96,6 +96,10 @@ assert.match(code, /function teacherClearStudentAbsent/);
 assert.match(code, /function teacherSetPassRules/);
 assert.match(code, /function teacherSetCheckInWindow/);
 assert.match(code, /function teacherReviewLateCheckIn/);
+assert.match(code, /function teacherResetStudentPin/);
+assert.match(code, /GD_CHECKIN_MIN_ROWS\s*=\s*5000/);
+assert.match(code, /function ensureRowCapacity_/);
+assert.match(code, /function readPendingLateReviews_/);
 assert.match(code, /LATE_PENDING/);
 assert.match(code, /LATE_APPROVED/);
 assert.match(code, /LATE_NO_POINT/);
@@ -112,6 +116,10 @@ assert.match(
   'Project setup must finish cleanly when an editor/API run has no spreadsheet UI'
 );
 assert.match(setupProject, /return\s*\{\s*ok:\s*true,\s*schemaVersion:\s*GD_SCHEMA_VERSION\s*\}/);
+const setupWorkbook = functionSource('setupWorkbook_');
+assert.match(setupWorkbook, /ensureRowCapacity_\(checkInSheet/);
+assert.match(setupWorkbook, /rebuildCheckInOperationalIndex_\(\)/);
+assert.match(setupWorkbook, /'TIME_ZONE'.*'DESTINATIONS'.*'QUEUE_CLAIM_MINUTES'/s, 'Stale fake settings must be removed during migration');
 
 const studentState = functionSource('getStudentState_');
 assert.match(studentState, /passAllowance:\s*studentAllowanceView_\(allowance,\s*Boolean\(detail\.includeEvidence\)\)/);
@@ -134,6 +142,7 @@ const cleanup = functionSource('dailyCleanup');
 assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
+assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
 
 const purgeIfDue = functionSource('purgeIfDue_');
 assert.match(purgeIfDue, /withLock_/);
@@ -338,7 +347,10 @@ for (const name of ['requestBathroomPass', 'returnPass']) {
   assert.doesNotMatch(source, /expirePreviousDayPasses_\(\)/, `${name} must call the once-per-day rollover guard`);
 }
 assert.match(functionSource('expirePreviousDayPasses_'), /markRolloverChecked_\(todayKey\)/);
-assert.match(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Streaks must include full persisted history plus the durable inbox');
+assert.match(functionSource('getCheckInState_'), /readCheckInsForDateIncludingPending_\(todayKey\)/, 'Student Check-In state must read only today\'s attendance rows');
+assert.match(functionSource('getCheckInState_'), /readCheckInSummaryMap_\(\)/, 'Student streak state must use the compact operational index');
+assert.doesNotMatch(functionSource('getCheckInState_'), /readCheckInsIncludingPending_\(\)/, 'Student state must not scan the full school-year check-in log');
+assert.doesNotMatch(functionSource('getTeacherState_'), /readCheckInsIncludingPending_\(\)/, 'Teacher polling must not scan the full school-year check-in log');
 
 const buildCheckInSheet = (rows) => {
   let readRows = 0;
@@ -898,6 +910,7 @@ const message = behaviorContext.__gdBehavior.buildPinEmailMessage_(
   },
   {
     CHECKIN_URL: 'https://grant-desk.com/check-in/',
+    PASS_URL: 'https://grant-desk.com/pass/',
     PIN_EMAIL_SUBJECT: 'Your private GrantDesk PIN',
   },
   'teacher@mtmorrisschools.org'
@@ -907,6 +920,8 @@ assert.match(message.body, /123456/);
 assert.doesNotMatch(message.body, /654321/);
 assert.match(message.body, /one PIN works in all your classes/i);
 assert.match(message.body, /Keep this PIN private/);
+assert.match(message.body, /Daily Check-in: https:\/\/grant-desk\.com\/check-in\//);
+assert.match(message.body, /Hall Pass: https:\/\/grant-desk\.com\/pass\//);
 assert.match(message.body, /^Hello Jordan,/);
 
 behaviorContext.getStudentPassAccess_ = () => 'STANDARD';
@@ -1116,7 +1131,7 @@ assert.equal(discoveredRepairs[0].oldEmail, 'stale@students.mtmorrisschools.org'
 assert.equal(discoveredRepairs[0].newEmail, 'current@students.mtmorrisschools.org');
 
 const priorRepairSummary = JSON.stringify({
-  schema: '2026-09-05-session-a',
+  schema: '2026-09-21-backend-b',
   reconciledStudents: 10,
   pinRows: 10,
   checkInRows: 18,
@@ -1229,6 +1244,8 @@ for (const required of [
   'CLEAR SIGN-IN PROBLEMS',
   'teacherMarkStudentAbsent',
   'teacherClearStudentAbsent',
+  'teacherResetStudentPin',
+  'pendingLateCheckIns',
   'getPinAttemptNonce',
   'teacher-pass-sound',
   'students not checked in',
@@ -1241,6 +1258,10 @@ const resetFunction = functionSource('teacherResetStudentPassCounters');
 assert.doesNotMatch(resetFunction, /Queue|closePass|deleteRow/, 'Reset must not alter the queue, active passes, or private history');
 assert.match(html, /Reset every student’s marking-period pass count to zero/);
 assert.match(html, /one student · one PIN/);
+assert.match(functionSource('clearPinCards'), /no longer deletes PIN recovery records/);
+assert.doesNotMatch(functionSource('clearPinCards'), /clearContent/);
+assert.match(html, /data-reset-pin-email/);
+assert.match(html, /unresolved across all days/);
 
 const checkInRecorder = functionSource('recordCheckIn_');
 assert.match(checkInRecorder, /absence\s*&&\s*method\s*!==\s*'teacher'/, 'A student check-in must not erase a teacher absence');
