@@ -24,6 +24,8 @@ const GD_CHECKIN_TAIL_ROWS = 600;
 const GD_PENDING_CHECKIN_PREFIX = 'pending-checkin:';
 const GD_CHECKIN_INBOX_STALE_MS = 120000;
 const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
+const GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY = 'BACKGROUND_TRIGGER_AUDIT_AT';
+const GD_BACKGROUND_TRIGGER_AUDIT_MS = 60 * 60 * 1000;
 const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
 const GD_LATE_REVIEW_PREFIX = 'late-review:';
 const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
@@ -483,6 +485,7 @@ function getBootstrap(mode, clientContract) {
   if (mode === 'teacher') {
     assertTeacher_(activeEmail, settings);
     assertTeacherClient_(clientContract);
+    ensureBackgroundTriggers_(true);
     purgeIfDue_();
     return getTeacherState_({ includePinStatus: true });
   }
@@ -2819,7 +2822,7 @@ function teacherClearStudentAbsent(studentKey, clientContract) {
 function getTeacherState_(options) {
   // The dashboard is already polling. Let an idle lock turn the durable inbox
   // into one workbook batch, while a live hall-pass transaction simply defers.
-  ensureCheckInFlushTrigger_();
+  ensureBackgroundTriggers_(false);
   tryFlushPendingCheckIns_();
   const includePinStatus = Boolean(options && options.includePinStatus);
   const settings = getSettings_();
@@ -4452,6 +4455,22 @@ function ensureCheckInFlushTrigger_(){
   const matches=ScriptApp.getProjectTriggers().filter((trigger)=>trigger.getHandlerFunction()==='flushPendingCheckIns');
   if(matches.length===1){properties.setProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY,'1');return;}
   try{installCheckInFlushTrigger_();}catch(error){properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);}
+}
+
+function ensureBackgroundTriggers_(force) {
+  const properties = PropertiesService.getScriptProperties();
+  const now = Date.now();
+  const lastAudit = Number(properties.getProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY) || 0);
+  if (!force && lastAudit && now - lastAudit < GD_BACKGROUND_TRIGGER_AUDIT_MS) return;
+
+  try {
+    installCleanupTrigger_();
+    installCheckInFlushTrigger_();
+    properties.setProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY, String(now));
+  } catch (error) {
+    properties.deleteProperty(GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY);
+    properties.deleteProperty(GD_CHECKIN_FLUSH_TRIGGER_PROPERTY);
+  }
 }
 
 function installCleanupTrigger_() {
