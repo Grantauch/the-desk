@@ -132,7 +132,7 @@ module.exports = function registerSessionTests(test, section) {
     const key = c.key(PEOPLE.ada, 'Period 1');
     const proof = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'PASS_REQUEST', key, 'boundary');
     c.harness.clock.advanceSeconds(1); c.harness.newRequest();
-    assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /first and last ten/);
+    assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /configured pass window/);
     assert.deepEqual(counts(c), [0,0,0]);
   });
   test('multi-class PIN cannot select an upcoming or ended class', () => {
@@ -217,7 +217,7 @@ module.exports = function registerSessionTests(test, section) {
     const c=classroom({memberships:[[PEOPLE.ada,'Period 1',{passAccess:'UNLIMITED'}]],settings:{STUDENT_PASS_LIMIT:1,DAILY_PASS_LIMIT:1,PASS_COOLDOWN_MINUTES:5}});
     c.trip(PEOPLE.ada,'Period 1',60); assert.equal(c.requestPass(PEOPLE.ada,'Period 1').state.actionOutcome.kind,'STARTED');
     c.returnPass(PEOPLE.ada,'Period 1');at(c,'2026-09-10T08:15:00-04:00');
-    assert.throws(()=>c.requestPass(PEOPLE.ada,'Period 1'),/first and last ten/);
+    assert.throws(()=>c.requestPass(PEOPLE.ada,'Period 1'),/configured pass window/);
   });
   test('escort-only blocks self-start and teacher backup records every restriction privately', () => {
     const c=classroom({memberships:[[PEOPLE.ada,'Period 1',{passAccess:'ESCORT_ONLY'}]]});
