@@ -102,9 +102,37 @@ test('Pass Log carries the full expanded column set', () => {
     .forEach((column) => assert.ok(headers.includes(column), `Pass Log is missing ${column}`));
 });
 
+test('schema repair refuses a nonblank shifted or renamed fixed-position header', () => {
+  const c = classroom();
+  const roster = c.harness.sheet('Roster');
+  const originalStudent = roster.getRange(2, 2).getValue();
+  roster.getRange(1, 2).setValue('Display Name');
+  c.harness.properties.deleteProperty('WORKBOOK_SCHEMA');
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('ensureWorkbookReady_'),
+    /unexpected column 2 header.*Student Name/i
+  );
+  assert.equal(roster.getRange(2, 2).getValue(), originalStudent, 'failed repair must not move roster data');
+});
+
 test('the daily cleanup trigger is installed', () => {
   const c = classroom();
   assert.ok(c.harness.state.triggers.some((trigger) => trigger.handler === 'dailyCleanup'));
+});
+
+test('cleanup trigger repair collapses duplicate daily cleanup triggers to one', () => {
+  const c = classroom();
+  c.harness.state.triggers.push(
+    { handler: 'dailyCleanup', id: 'duplicate-cleanup-1' },
+    { handler: 'dailyCleanup', id: 'duplicate-cleanup-2' },
+  );
+  c.harness.call('installCleanupTrigger_');
+  assert.equal(
+    c.harness.state.triggers.filter((trigger) => trigger.handler === 'dailyCleanup').length,
+    1,
+    'repair must leave exactly one daily cleanup trigger'
+  );
 });
 
 test('the durable check-in inbox has one minute flusher trigger', () => {
@@ -209,6 +237,32 @@ test('teacher PIN reset rotates one student across every class and preserves rec
   assert.throws(() => c.harness.call('authorizeStudentAction', oldPin, 'AUTO_PASS', key, 'old-pin'), /did not match/);
   c.harness.newRequest();
   assert.doesNotThrow(() => c.harness.call('authorizeStudentAction', newPin, 'AUTO_PASS', key, 'new-pin'));
+});
+
+test('resetting a compromised PIN immediately revokes previously issued session and action proof', () => {
+  const c = classroom();
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const stale = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'AUTO_PASS', key, 'before-reset');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherResetStudentPin', PEOPLE.ada.email, 'Compromised credential', TEACHER_CONTRACT);
+
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('requestBathroomPass', stale.actionProof, key, stale.pinToken),
+    /PIN changed|current PIN|credentials changed/i,
+    'an outstanding one-use proof must die when the PIN rotates'
+  );
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('refreshStudentState', stale.pinToken),
+    /PIN changed|current PIN|credentials changed/i,
+    'the one-hour identity token must die when the PIN rotates'
+  );
+  assert.equal(c.passLog().length, 0);
 });
 
 test('the obsolete clear-PIN command fails closed without deleting recovery records', () => {
@@ -341,6 +395,30 @@ test('a fresh PIN records exactly one check-in', () => {
   assert.equal(rows.length, 1);
   assert.equal(rows[0]['Student Email'], PEOPLE.ada.email);
   assert.equal(String(rows[0].Status), 'CHECKED_IN');
+});
+
+test('two independently authorized check-in submissions converge on one canonical event ID', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+
+  c.harness.newRequest();
+  const first = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'device-a');
+  c.harness.newRequest();
+  const second = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'device-b');
+
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  const firstState = c.harness.call('submitDailyCheckIn', first.actionProof, key, first.pinToken);
+  c.harness.newRequest();
+  const secondState = c.harness.call('submitDailyCheckIn', second.actionProof, key, second.pinToken);
+  c.harness.newRequest();
+  c.harness.call('tryFlushPendingCheckIns_');
+
+  const rows = c.checkIns().filter((row) => row['Student Email'] === PEOPLE.ada.email);
+  assert.equal(rows.length, 1);
+  assert.match(String(rows[0]['Check-in ID']), /^CI-20260910-/);
+  assert.equal(outcomeOf(firstState).id, String(rows[0]['Check-in ID']));
+  assert.equal(outcomeOf(secondState).id, String(rows[0]['Check-in ID']));
 });
 
 
@@ -1484,6 +1562,21 @@ test('replaying the same late-attendance decision is idempotent', () => {
 });
 
 
+
+section('Configured session messaging');
+
+test('pass-window denial text reflects configured first/last protection values', () => {
+  const c = classroom({
+    now: new Date('2026-09-10T11:31:00Z'),
+    settings: { PASS_PROTECT_FIRST_MINUTES: 5, PASS_PROTECT_LAST_MINUTES: 7 },
+  });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'AUTO_PASS', key, 'custom-window'),
+    /configured pass window.*5 minutes after class starts.*7 minutes before class ends/i
+  );
+});
 
 section('Backend repair guardrails');
 
