@@ -2044,6 +2044,45 @@ test('approved roster sync adds a membership, corrects a name, creates a PIN, au
   assert.equal(c.rosterRows().length, beforeRosterCount + 1, 'replay must not add the membership twice');
 });
 
+test('roster sync name correction changes only the explicitly approved class membership', () => {
+  const c = classroom({
+    memberships: [
+      [PEOPLE.ada, 'Period 1'],
+      [PEOPLE.ada, 'Period 3'],
+      [PEOPLE.grace, 'Period 1'],
+    ],
+  });
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-exact-membership-001',
+    baseRevision: snapshot.revision,
+    add: [],
+    updateName: [{
+      studentEmail: PEOPLE.ada.email,
+      studentName: 'Byron, Ada Period One',
+      beforeName: PEOPLE.ada.name,
+      classPeriod: 'Period 1',
+    }],
+  };
+
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.counts.requestedNameUpdates, 1);
+  assert.equal(result.counts.nameRowsUpdated, 1);
+
+  const memberships = c.rosterRows().filter((row) => String(row['Student Email']) === PEOPLE.ada.email);
+  assert.equal(String(memberships.find((row) => String(row['Class / Period']) === 'Period 1')['Student Name']), 'Byron, Ada Period One');
+  assert.equal(String(memberships.find((row) => String(row['Class / Period']) === 'Period 3')['Student Name']), PEOPLE.ada.name,
+    'a name correction approved for Period 1 must not silently rewrite Period 3');
+
+  const cards = c.pinCards().filter((row) => String(row['Student Email']) === PEOPLE.ada.email);
+  assert.equal(String(cards.find((row) => String(row['Class / Period']) === 'Period 1')['Student Name']), 'Byron, Ada Period One');
+  assert.equal(String(cards.find((row) => String(row['Class / Period']) === 'Period 3')['Student Name']), PEOPLE.ada.name,
+    'PIN Card display names must change only for the approved membership');
+});
+
 test('roster sync rejects a stale comparison before applying any requested change', () => {
   const c = classroom();
   c.harness.newRequest();
