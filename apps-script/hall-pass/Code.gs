@@ -2051,6 +2051,7 @@ function moveStudentIdentity_(oldEmailValue, newEmailValue, options) {
       .setValues([['APPLIED', String((options && options.unmatchedNote) || 'Matched to retained student identity').slice(0, 300)]]);
   }
   gdClearMemo_();
+  rebuildCheckInOperationalIndex_();
   return result;
 }
 
@@ -3142,6 +3143,16 @@ function ensureCheckInOperationalIndex_() {
   rebuildCheckInOperationalIndex_();
 }
 
+function rebuildCheckInSummaryForStudent_(studentKey) {
+  const key = String(studentKey || '');
+  if (!key) return emptyCheckInSummary_('');
+  const historical = readCheckIns_().filter((item) => item.studentKey === key);
+  const pending = readPendingCheckIns_().filter((item) => item.studentKey === key);
+  const summary = buildCheckInSummaryForEntries_(key, historical.concat(pending));
+  writeCheckInSummary_(summary);
+  return summary;
+}
+
 function updateCheckInOperationalIndex_(entry) {
   if(!entry||!entry.studentKey) return;
   ensureCheckInOperationalIndex_();
@@ -3150,14 +3161,18 @@ function updateCheckInOperationalIndex_(entry) {
   summary.studentEmail=entry.studentEmail||summary.studentEmail; summary.studentName=entry.studentName||summary.studentName;
   summary.classPeriod=entry.classPeriod||summary.classPeriod;
   if(String(entry.method||'').toLowerCase()==='google') summary.googleVerified=true;
+  const normalizedStatus = String(entry.status || '').toUpperCase();
+  if (normalizedStatus === 'LATE_APPROVED' || normalizedStatus === 'LATE_NO_POINT') {
+    rebuildCheckInSummaryForStudent_(entry.studentKey);
+    setLateReviewIndex_(entry);
+    return;
+  }
   if(checkInStatusCountsForStreak_(entry.status)&&isSchoolDayKey_(entry.dateKey)){
     if(!summary.lastCountedDate||entry.dateKey>summary.lastCountedDate){
       const consecutive=summary.lastCountedDate&&nextSchoolDayKey_(summary.lastCountedDate)===entry.dateKey;
       summary.current=consecutive?summary.current+1:1; summary.lastCountedDate=entry.dateKey; summary.best=Math.max(summary.best,summary.current);
     } else if(entry.dateKey<summary.lastCountedDate){
-      const historical=readCheckIns_().filter((item)=>item.studentKey===entry.studentKey);
-      const pending=readPendingCheckIns_().filter((item)=>item.studentKey===entry.studentKey);
-      writeCheckInSummary_(buildCheckInSummaryForEntries_(entry.studentKey,historical.concat(pending)));
+      rebuildCheckInSummaryForStudent_(entry.studentKey);
       setLateReviewIndex_(entry); return;
     }
   }
