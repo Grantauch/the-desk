@@ -6,6 +6,7 @@ import { StaffAuthenticationService } from '../auth/service.js';
 import { AuthenticationError, AuthorizationError } from '../auth/types.js';
 import { HallPassService } from '../hall-pass/service.js';
 import { HallPassError } from '../hall-pass/types.js';
+import { secureStaffHtml } from '../http/security-headers.js';
 import { TeacherApplicationService } from './service.js';
 import { TeacherApplicationError } from './types.js';
 import { teacherAppHtml } from './ui.js';
@@ -73,10 +74,8 @@ export function registerTeacherApplicationRoutes(
   { authentication, authorization, teacherApp, hallPass }: RegisterTeacherApplicationRoutesOptions,
 ): void {
   app.get('/teacher', async (_request, reply) => {
-    reply.header('content-type', 'text/html; charset=utf-8');
-    reply.header('cache-control', 'no-store');
-    reply.header('content-security-policy', "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
-    return teacherAppHtml();
+    const scriptNonce = secureStaffHtml(reply);
+    return teacherAppHtml(scriptNonce);
   });
 
   app.get('/api/v1/teacher/sections', async (request, reply) => {
