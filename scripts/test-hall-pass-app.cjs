@@ -422,9 +422,11 @@ assert.ok(
   'Idle minute trigger must return before the shared lock'
 );
 assert.ok(
-  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('getPassSnapshot_'),
-  'Idle minute trigger must not build full pass/schedule state'
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('settleWaitingQueue_'),
+  'Idle minute trigger must return before queue settlement or full pass/schedule state'
 );
+assert.match(minuteFlush, /if\(readPassQueue_\(\)\.some[\s\S]*settleWaitingQueue_\(\)/,
+  'A non-idle WAITING queue must use the minute trigger as a settlement recovery path');
 assert.match(code, /function checkInOperationalIndexVersion_/);
 assert.match(functionSource('checkInOperationalIndexVersion_'), /getSchoolCalendarIndex_/);
 assert.match(functionSource('checkInOperationalIndexVersion_'), /getRoster_/);
