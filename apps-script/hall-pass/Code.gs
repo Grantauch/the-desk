@@ -3442,6 +3442,19 @@ function readCheckInsForDate_(targetDateKey) {
     const scanned = sheet.getRange(startRow, 1, windowRows, GD_HEADERS.CHECKINS.length).getValues()
       .map((row, index) => mapCheckInRow_(row, startRow + index))
       .filter((entry) => entry.checkInId);
+
+    let previousDateKey = '';
+    const outOfOrder = scanned.some((entry) => {
+      const currentDateKey = String(entry.dateKey || '');
+      if (!currentDateKey) return false;
+      const reversed = Boolean(previousDateKey && currentDateKey < previousDateKey);
+      previousDateKey = currentDateKey;
+      return reversed;
+    });
+    if (outOfOrder) {
+      return readCheckIns_().filter((entry) => entry.dateKey === dateKey);
+    }
+
     if (scanned.some((entry) => entry.dateKey && entry.dateKey < dateKey)) {
       return scanned.filter((entry) => entry.dateKey === dateKey);
     }

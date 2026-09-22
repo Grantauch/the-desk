@@ -372,6 +372,11 @@ assert.match(code, /GD_CHECKIN_TAIL_ROWS\s*=\s*600/);
 assert.match(code, /GD_ROLLOVER_PROPERTY\s*=\s*'LAST_ROLLOVER'/);
 assert.match(code, /function mapCheckInRow_/);
 assert.match(code, /function readCheckInsForDate_/);
+const dateReader = functionSource('readCheckInsForDate_');
+assert.match(dateReader, /outOfOrder/);
+assert.match(dateReader, /currentDateKey\s*<\s*previousDateKey/);
+assert.match(dateReader, /outOfOrder[\s\S]*readCheckIns_\(\)/,
+  'Out-of-order Check-In tails must fall back to the authoritative full ledger');
 assert.match(code, /function expirePreviousDayPassesIfDue_/);
 assert.match(code, /function markRolloverChecked_/);
 

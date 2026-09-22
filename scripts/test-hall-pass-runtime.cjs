@@ -173,6 +173,43 @@ test('setup removes obsolete calendar-source settings that never controlled runt
   assert.ok(!keys.includes('SCHOOL_CALENDAR_FALLBACK_URL'));
 });
 
+test('date-tail reader falls back to the full ledger when a delayed older row breaks chronological order', () => {
+  const c = classroom();
+  const sheet = c.harness.sheet('Daily Check-ins');
+  const rows = [];
+  for (let i = 0; i < 650; i += 1) {
+    rows.push([
+      `today-${i}`,
+      '2026-09-10',
+      new Date('2026-09-10T11:30:00Z'),
+      `student-${i}@students.mtmorrisschools.org`,
+      `Student ${i}`,
+      'Period 1',
+      'PIN',
+      1,
+      'CHECKED_IN',
+      '',
+    ]);
+  }
+  rows.push([
+    'delayed-yesterday',
+    '2026-09-09',
+    new Date('2026-09-09T11:30:00Z'),
+    'delayed@students.mtmorrisschools.org',
+    'Delayed Student',
+    'Period 1',
+    'PIN',
+    1,
+    'CHECKED_IN',
+    '',
+  ]);
+  sheet.getRange(2, 1, rows.length, 10).setValues(rows);
+  c.harness.newRequest();
+
+  const today = c.harness.call('readCheckInsForDate_', '2026-09-10');
+  assert.equal(today.length, 650, 'out-of-order tail rows must not truncate the target date');
+});
+
 test('the daily cleanup trigger is installed', () => {
   const c = classroom();
   assert.ok(c.harness.state.triggers.some((trigger) => trigger.handler === 'dailyCleanup'));
