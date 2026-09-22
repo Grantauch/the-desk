@@ -36,12 +36,14 @@ function tokenHash(token: string): string { return createHash('sha256').update(t
 async function seedConcurrentFixture(pool: Pool) {
   const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
   const ids = {
-    org: randomUUID(), school: randomUUID(), year: randomUUID(), section: randomUUID(), profile: randomUUID(), period: randomUUID(),
+    org: randomUUID(), school: randomUUID(), year: randomUUID(), section: randomUUID(), section2: randomUUID(), profile: randomUUID(), period: randomUUID(),
     term: randomUUID(), destination: randomUUID(), policy: randomUUID(), student1: randomUUID(), student2: randomUUID(),
-    enrollment1: randomUUID(), enrollment2: randomUUID(), credential1: randomUUID(), credential2: randomUUID(), proof1: randomUUID(), proof2: randomUUID(),
+    enrollment1: randomUUID(), enrollment1b: randomUUID(), enrollment2: randomUUID(), credential1: randomUUID(), credential2: randomUUID(),
+    proof1: randomUUID(), proof2: randomUUID(), proof3: randomUUID(),
   };
   const proofToken1 = `concurrent-proof-1-${suffix}`;
   const proofToken2 = `concurrent-proof-2-${suffix}`;
+  const proofToken3 = `concurrent-proof-3-${suffix}`;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -50,7 +52,12 @@ async function seedConcurrentFixture(pool: Pool) {
     await client.query(`INSERT INTO academic_years (id,school_id,label,starts_on,ends_on) VALUES ($1,$2,'2026-27',DATE '2026-08-20',DATE '2027-06-15')`, [ids.year, ids.school]);
     await client.query(`INSERT INTO students (id,school_id,local_student_number,display_name) VALUES ($1,$3,$4,'Concurrent One'),($2,$3,$5,'Concurrent Two')`, [ids.student1, ids.student2, ids.school, `C1-${suffix}`, `C2-${suffix}`]);
     await client.query(`INSERT INTO sections (id,school_id,academic_year_id,name,code,period_code,period_label) VALUES ($1,$2,$3,'Concurrent Section',$4,'P1','1')`, [ids.section, ids.school, ids.year, `SEC-${suffix}`]);
-    await client.query(`INSERT INTO enrollments (id,school_id,section_id,student_id,source) VALUES ($1,$3,$4,$5,'MANUAL'),($2,$3,$4,$6,'MANUAL')`, [ids.enrollment1, ids.enrollment2, ids.school, ids.section, ids.student1, ids.student2]);
+    await client.query(`INSERT INTO sections (id,school_id,academic_year_id,name,code,period_code,period_label) VALUES ($1,$2,$3,'Concurrent Section Two',$4,'P1','1')`, [ids.section2, ids.school, ids.year, `SEC2-${suffix}`]);
+    await client.query(
+      `INSERT INTO enrollments (id,school_id,section_id,student_id,source)
+       VALUES ($1,$4,$5,$6,'MANUAL'),($2,$4,$7,$6,'MANUAL'),($3,$4,$5,$8,'MANUAL')`,
+      [ids.enrollment1, ids.enrollment1b, ids.enrollment2, ids.school, ids.section, ids.student1, ids.section2, ids.student2],
+    );
     await client.query(`INSERT INTO schedule_profiles (id,school_id,name,key,status) VALUES ($1,$2,'Normal','NORMAL','ACTIVE')`, [ids.profile, ids.school]);
     await client.query(`INSERT INTO schedule_periods (id,school_id,schedule_profile_id,period_code,starts_at_local,ends_at_local,ordinal_by_time) VALUES ($1,$2,$3,'P1',TIME '08:00',TIME '08:50',1)`, [ids.period, ids.school, ids.profile]);
     await client.query(`INSERT INTO school_calendar_days (organization_id,school_id,academic_date,is_school_day,schedule_profile_id,label,source) VALUES ($1,$2,DATE '2026-09-08',true,$3,'Concurrent Day','MANUAL')`, [ids.org, ids.school, ids.profile]);
@@ -61,7 +68,19 @@ async function seedConcurrentFixture(pool: Pool) {
       await client.query(`INSERT INTO policy_values (school_id,policy_set_id,policy_key,typed_value_json,teacher_override_allowed) VALUES ($1,$2,$3,$4::jsonb,false)`, [ids.school, ids.policy, key, JSON.stringify(value)]);
     }
     await client.query(`INSERT INTO student_credentials (id,school_id,student_id,verifier_scheme,secret_hash,secret_salt,verifier_params,credential_version,status) VALUES ($1,$3,$4,'SCRYPT_PEPPER_V1',$5,$6,'{}'::jsonb,1,'ACTIVE'),($2,$3,$7,'SCRYPT_PEPPER_V1',$5,$6,'{}'::jsonb,1,'ACTIVE')`, [ids.credential1, ids.credential2, ids.school, ids.student1, 'a'.repeat(64), 'synthetic-salt-0001', ids.student2]);
-    await client.query(`INSERT INTO action_proofs (id,school_id,student_id,action_type,context_section_id,credential_id,credential_version,token_hash,issued_at,expires_at,request_id) VALUES ($1,$3,$4,'PASS_REQUEST',$5,$6,1,$7,TIMESTAMPTZ '2026-09-08 12:04:00Z',TIMESTAMPTZ '2026-09-08 12:20:00Z',$8),($2,$3,$9,'PASS_REQUEST',$5,$10,1,$11,TIMESTAMPTZ '2026-09-08 12:04:00Z',TIMESTAMPTZ '2026-09-08 12:20:00Z',$12)`, [ids.proof1, ids.proof2, ids.school, ids.student1, ids.section, ids.credential1, tokenHash(proofToken1), randomUUID(), ids.student2, ids.credential2, tokenHash(proofToken2), randomUUID()]);
+    await client.query(
+      `INSERT INTO action_proofs
+         (id,school_id,student_id,action_type,context_section_id,credential_id,credential_version,token_hash,issued_at,expires_at,request_id)
+       VALUES
+         ($1,$4,$5,'PASS_REQUEST',$6,$7,1,$8,TIMESTAMPTZ '2026-09-08 12:04:00Z',TIMESTAMPTZ '2026-09-08 12:20:00Z',$9),
+         ($2,$4,$10,'PASS_REQUEST',$6,$11,1,$12,TIMESTAMPTZ '2026-09-08 12:04:00Z',TIMESTAMPTZ '2026-09-08 12:20:00Z',$13),
+         ($3,$4,$5,'PASS_REQUEST',$14,$7,1,$15,TIMESTAMPTZ '2026-09-08 12:04:00Z',TIMESTAMPTZ '2026-09-08 12:20:00Z',$16)`,
+      [
+        ids.proof1, ids.proof2, ids.proof3, ids.school, ids.student1, ids.section, ids.credential1,
+        tokenHash(proofToken1), randomUUID(), ids.student2, ids.credential2, tokenHash(proofToken2),
+        randomUUID(), ids.section2, tokenHash(proofToken3), randomUUID(),
+      ],
+    );
     await client.query('COMMIT');
   } catch (error) {
     await client.query('ROLLBACK');
@@ -69,7 +88,7 @@ async function seedConcurrentFixture(pool: Pool) {
   } finally {
     client.release();
   }
-  return { ...ids, proofToken1, proofToken2 };
+  return { ...ids, proofToken1, proofToken2, proofToken3 };
 }
 
 test('T-PASS-005/T-PERF-004 concurrent requests cannot exceed section capacity across real PostgreSQL connections', { skip: !databaseUrl }, async () => {
@@ -91,6 +110,48 @@ test('T-PASS-005/T-PERF-004 concurrent requests cannot exceed section capacity a
     // The CI database is disposable, and audit_events is deliberately append-only.
     // This committed fixture uses random tenant IDs, so leaving its evidence intact
     // proves the audit contract without colliding with any other test fixture.
+    await pool.end();
+  }
+});
+
+test('T-PASS-006 concurrent requests for one student across different sections serialize to one live state', { skip: !databaseUrl }, async () => {
+  const pool = new Pool({ connectionString: databaseUrl, max: 6, application_name: 'grantdesk-schoolwide:hall-pass-student-race' });
+  const ids = await seedConcurrentFixture(pool);
+  try {
+    const database = new PoolTransactionalDatabase(pool);
+    const at = new Date('2026-09-08T12:05:00Z');
+    const serviceA = new HallPassService(database, { now: () => at });
+    const serviceB = new HallPassService(database, { now: () => at });
+    const results = await Promise.allSettled([
+      serviceA.requestPass({
+        actionProof: ids.proofToken1,
+        sectionId: ids.section,
+        destinationId: ids.destination,
+        idempotencyKey: `student-race-a-${ids.school}`,
+        correlationId: randomUUID(),
+      }),
+      serviceB.requestPass({
+        actionProof: ids.proofToken3,
+        sectionId: ids.section2,
+        destinationId: ids.destination,
+        idempotencyKey: `student-race-b-${ids.school}`,
+        correlationId: randomUUID(),
+      }),
+    ]);
+
+    assert.equal(results.filter((result) => result.status === 'fulfilled').length, 1);
+    const rejected = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+    assert.ok(rejected);
+    assert.equal(rejected.reason?.code, 'CONFLICT_ACTIVE_PASS');
+
+    const counts = await pool.query<{ active: number; waiting: number }>(
+      `SELECT
+         (SELECT count(*)::int FROM passes WHERE school_id=$1 AND student_id=$2 AND status='OUT') active,
+         (SELECT count(*)::int FROM queue_entries WHERE school_id=$1 AND student_id=$2 AND status='WAITING') waiting`,
+      [ids.school, ids.student1],
+    );
+    assert.deepEqual(counts.rows[0], { active: 1, waiting: 0 });
+  } finally {
     await pool.end();
   }
 });

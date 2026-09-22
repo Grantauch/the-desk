@@ -105,7 +105,7 @@ async function insertSyntheticActivePass(client: PoolClient, fixture: HallPassFi
 
 test('SW-090 Teacher Application', { skip: !databaseUrl }, async (t) => {
   await t.test('T-AX-001/002/003/004/005/006 dashboard shell preserves keyboard, dialog, warning, live-region, responsive and focus-safe refresh affordances', () => {
-    const html = teacherAppHtml();
+    const html = teacherAppHtml('test-nonce');
     assert.match(html, /<main class="shell"/);
     assert.match(html, /<dialog id="return-dialog"/);
     assert.match(html, /aria-live="polite"/);

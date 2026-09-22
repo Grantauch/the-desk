@@ -61,7 +61,18 @@ if(!databaseUrl){test('SW-120 Admin Console integration tests require DATABASE_U
     const app=buildApp({config,database:db,identityProvider:new FixtureIdentityProvider(),adminConsoleOptions:{now:()=>NOW}});await app.ready();
 
     await t.test('T-AX-001..006 admin shell is keyboard/focus/live-region/responsive and exposes no unsafe governance surfaces',()=>{
-      const html=adminConsoleHtml();assert.match(html,/role="tablist"/);assert.match(html,/focus-visible/);assert.match(html,/aria-live="polite"/);assert.match(html,/@media\(max-width:/);assert.match(html,/private administrative reason/i);assert.doesNotMatch(html,/force close/i);assert.doesNotMatch(html,/export all/i);assert.doesNotMatch(html,/show pin/i);assert.doesNotMatch(html,/oauth token/i);
+      const html=adminConsoleHtml('test-nonce');assert.match(html,/<script nonce="test-nonce">/);assert.match(html,/role="tablist"/);assert.match(html,/focus-visible/);assert.match(html,/aria-live="polite"/);assert.match(html,/@media\(max-width:/);assert.match(html,/private administrative reason/i);assert.doesNotMatch(html,/force close/i);assert.doesNotMatch(html,/export all/i);assert.doesNotMatch(html,/show pin/i);assert.doesNotMatch(html,/oauth token/i);
+    });
+
+    await t.test('Admin HTTP shell uses nonce-only script CSP and nonce-preserving realtime injection',async()=>{
+      const response=await app.inject({method:'GET',url:'/admin'});
+      assert.equal(response.statusCode,200,response.body);
+      const csp=String(response.headers['content-security-policy']||'');
+      assert.match(csp,/script-src 'nonce-[^']+'/);
+      assert.doesNotMatch(csp,/script-src[^;]*'unsafe-inline'/);
+      const nonce=response.body.match(/<script nonce="([^"]+)"/)?.[1];
+      assert.ok(nonce);
+      assert.match(response.body,new RegExp('<script nonce="'+nonce+'" data-sw130-realtime>'));
     });
 
     await t.test('T-AUTH-006/012 administrator reads only its current school and teacher/security cannot enter admin APIs',async()=>withSavepoint(client,'scope',async()=>{

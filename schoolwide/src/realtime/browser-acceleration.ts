@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 
-const bootstrap = String.raw`<script data-sw130-realtime>(function(){'use strict';
+const bootstrap = (scriptNonce: string) => String.raw`<script nonce="${scriptNonce}" data-sw130-realtime>(function(){'use strict';
 var tokenKey='grantdesk.schoolwide.staffToken',controller=null,reconnect=null,refreshTimer=null;
 function token(){return sessionStorage.getItem(tokenKey)||''}
 function focusBusy(){var a=document.activeElement;return !!document.querySelector('dialog[open]')||!!(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))}
@@ -12,6 +12,9 @@ window.addEventListener('storage',function(e){if(e.key===tokenKey)connect()});wi
 })();</script>`;
 
 export function injectRealtimeAcceleration(path: string, html: string): string {
+  const nonceMatch = html.match(/<script\s+nonce="([^"]+)"/);
+  if (!nonceMatch?.[1]) return html;
+  const scriptNonce = nonceMatch[1];
   let transformed = html;
   if (path === '/teacher') {
     transformed = transformed.replace(
@@ -29,7 +32,7 @@ export function injectRealtimeAcceleration(path: string, html: string): string {
   } else {
     return html;
   }
-  return transformed.replace('</body>', `${bootstrap}</body>`);
+  return transformed.replace('</body>', `${bootstrap(scriptNonce)}</body>`);
 }
 
 export function registerRealtimeBrowserAcceleration(app: FastifyInstance): void {

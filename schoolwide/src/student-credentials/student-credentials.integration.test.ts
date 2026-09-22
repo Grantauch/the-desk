@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, scryptSync } from 'node:crypto';
 import test from 'node:test';
 import { Pool, type PoolClient, type QueryResultRow } from 'pg';
 import { buildApp } from '../app.js';
@@ -271,6 +271,51 @@ test('SW-050 student credential and action proof service', { skip: !databaseUrl 
         await expectCode(service.authorizeAction({ identityAssertion: 'student-a', pin: PIN_A, action: 'RETURN', correlationId: randomUUID() }), 'PIN_THROTTLED');
         const other = await service.authorizeAction({ identityAssertion: 'student-a2', pin: PIN_A2, action: 'RETURN', correlationId: randomUUID() });
         assert.equal(other.studentId, base.studentA2);
+      });
+    });
+
+    await t.test('new strong credentials use the current OWASP-equivalent scrypt p=5 profile', async () => {
+      await withFixture(pool, async ({ service, client, base }) => {
+        await service.provisionPin(base.studentA, PIN_A);
+        const rows = await client.query<{ verifier_params: { N?: number; r?: number; p?: number; keyLength?: number } }>(
+          'SELECT verifier_params FROM student_credentials WHERE student_id = $1',
+          [base.studentA],
+        );
+        assert.deepEqual(rows.rows[0]?.verifier_params, { N: 16384, r: 8, p: 5, keyLength: 32 });
+      });
+    });
+
+    await t.test('successful authentication upgrades an older p=1 scrypt verifier and bumps credential version', async () => {
+      await withFixture(pool, async ({ service, client, base }) => {
+        const salt = Buffer.alloc(16, 7);
+        const hash = scryptSync(
+          `${PIN_A}\u0000${TEST_PEPPER}`,
+          salt,
+          32,
+          { N: 16_384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 },
+        ).toString('hex');
+        await client.query(
+          `INSERT INTO student_credentials
+             (school_id,student_id,verifier_scheme,secret_hash,secret_salt,verifier_params,credential_version,status)
+           VALUES ($1,$2,'SCRYPT_PEPPER_V1',$3,$4,$5::jsonb,1,'ACTIVE')`,
+          [base.schoolA, base.studentA, hash, salt.toString('base64url'), JSON.stringify({ N: 16384, r: 8, p: 1, keyLength: 32 })],
+        );
+
+        const issued = await service.authorizeAction({
+          identityAssertion: 'student-a',
+          pin: PIN_A,
+          action: 'RETURN',
+          correlationId: randomUUID(),
+        });
+
+        const after = await client.query<{ credential_version: number; verifier_params: { p?: number } }>(
+          'SELECT credential_version,verifier_params FROM student_credentials WHERE student_id=$1',
+          [base.studentA],
+        );
+        assert.equal(after.rows[0]?.credential_version, 2);
+        assert.equal(after.rows[0]?.verifier_params.p, 5);
+        assert.equal(issued.credentialVersion, 2);
+        await service.consumeActionProof({ proof: issued.proof, studentId: base.studentA, action: 'RETURN' });
       });
     });
 

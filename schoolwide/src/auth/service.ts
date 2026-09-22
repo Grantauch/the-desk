@@ -162,7 +162,11 @@ export class StaffAuthenticationService {
     );
 
     await this.#database.query(
-      'UPDATE staff_sessions SET last_used_at = now() WHERE id = $1 AND revoked_at IS NULL',
+      `UPDATE staff_sessions
+          SET last_used_at = now()
+        WHERE id = $1
+          AND revoked_at IS NULL
+          AND (last_used_at IS NULL OR last_used_at < now() - interval '5 minutes')`,
       [session.id],
     );
 

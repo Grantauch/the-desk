@@ -89,7 +89,7 @@ async function insertActivePass(client: PoolClient, fixture: HallPassFixture): P
 
 test('SW-110 hardening regressions', { skip: !databaseUrl }, async (t) => {
   await t.test('Security shell exposes teacher filtering and never force-close', () => {
-    const html = securityConsoleHtml();
+    const html = securityConsoleHtml('test-nonce');
     assert.match(html, /id="teacherFilter"/);
     assert.match(html, /teacherUserId/);
     assert.doesNotMatch(html, /force[ -]?close/i);

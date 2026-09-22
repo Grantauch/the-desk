@@ -5,6 +5,7 @@ import {
   createStrongPinVerifier,
   LEGACY_VERIFIER_SCHEME,
   STRONG_VERIFIER_SCHEME,
+  strongVerifierNeedsUpgrade,
   verifyLegacyCompatibilityHash,
   verifyStrongPin,
 } from './crypto.js';
@@ -25,6 +26,7 @@ interface CredentialRow extends QueryResultRow {
   secret_hash: string;
   secret_salt: string | null;
   credential_version: number;
+  verifier_params: unknown;
 }
 
 export class StudentPinCredentialStore {
@@ -73,7 +75,7 @@ export class StudentPinCredentialStore {
 
   async verify(studentId: string, schoolId: string, pin: string, at: Date): Promise<CredentialRef | null> {
     const rows = await this.#database.query<CredentialRow>(
-      `SELECT id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version
+      `SELECT id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version, verifier_params
          FROM student_credentials
         WHERE school_id = $1 AND student_id = $2 AND credential_type = 'PIN' AND status = 'ACTIVE'`,
       [schoolId, studentId],
@@ -82,12 +84,20 @@ export class StudentPinCredentialStore {
     if (rows.length !== 1 || !row) return null;
 
     const valid = row.verifier_scheme === STRONG_VERIFIER_SCHEME
-      ? row.secret_salt !== null && await verifyStrongPin(pin, this.#requirePepper(), row.secret_salt, row.secret_hash)
+      ? row.secret_salt !== null && await verifyStrongPin(
+          pin,
+          this.#requirePepper(),
+          row.secret_salt,
+          row.secret_hash,
+          row.verifier_params,
+        )
       : verifyLegacyCompatibilityHash(pin, this.#requireLegacySalt(), row.secret_hash);
     if (!valid) return null;
 
     if (row.verifier_scheme === LEGACY_VERIFIER_SCHEME) {
       row = await this.#upgradeLegacy(row, pin, at);
+    } else if (strongVerifierNeedsUpgrade(row.verifier_params)) {
+      row = await this.#upgradeStrong(row, pin, at);
     }
     return { id: row.id, schoolId: row.school_id, studentId: row.student_id, version: row.credential_version };
   }
@@ -108,6 +118,30 @@ export class StudentPinCredentialStore {
     return { id: row.id, schoolId, studentId, version: row.credential_version };
   }
 
+  async #upgradeStrong(row: CredentialRow, pin: string, at: Date): Promise<CredentialRow> {
+    const strong = await createStrongPinVerifier(pin, this.#requirePepper());
+    const upgraded = await this.#database.query<CredentialRow>(
+      `UPDATE student_credentials
+          SET secret_hash = $4, secret_salt = $5, verifier_params = $6::jsonb,
+              credential_version = credential_version + 1, rotated_at = $7::timestamptz
+        WHERE school_id = $1 AND id = $2 AND student_id = $3
+          AND credential_version = $8 AND verifier_scheme = $9 AND status = 'ACTIVE'
+        RETURNING id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version, verifier_params`,
+      [row.school_id, row.id, row.student_id, strong.hash, strong.salt, JSON.stringify(strong.params),
+        at.toISOString(), row.credential_version, STRONG_VERIFIER_SCHEME],
+    );
+    if (upgraded[0]) return upgraded[0];
+    const current = await this.#database.query<CredentialRow>(
+      `SELECT id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version, verifier_params
+         FROM student_credentials WHERE school_id = $1 AND id = $2 AND student_id = $3 AND status = 'ACTIVE'`,
+      [row.school_id, row.id, row.student_id],
+    );
+    if (!current[0] || current[0].verifier_scheme !== STRONG_VERIFIER_SCHEME) {
+      throw new StudentCredentialError('CREDENTIAL_SERVICE_UNAVAILABLE', 'Credential upgrade could not be completed.', 503, true);
+    }
+    return current[0];
+  }
+
   async #upgradeLegacy(row: CredentialRow, pin: string, at: Date): Promise<CredentialRow> {
     const strong = await createStrongPinVerifier(pin, this.#requirePepper());
     const upgraded = await this.#database.query<CredentialRow>(
@@ -117,13 +151,13 @@ export class StudentPinCredentialStore {
               rotated_at = $8::timestamptz
         WHERE school_id = $1 AND id = $2 AND student_id = $3
           AND credential_version = $9 AND verifier_scheme = $10 AND status = 'ACTIVE'
-        RETURNING id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version`,
+        RETURNING id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version, verifier_params`,
       [row.school_id, row.id, row.student_id, STRONG_VERIFIER_SCHEME, strong.hash, strong.salt,
         JSON.stringify(strong.params), at.toISOString(), row.credential_version, LEGACY_VERIFIER_SCHEME],
     );
     if (upgraded[0]) return upgraded[0];
     const current = await this.#database.query<CredentialRow>(
-      `SELECT id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version
+      `SELECT id, school_id, student_id, verifier_scheme, secret_hash, secret_salt, credential_version, verifier_params
          FROM student_credentials WHERE school_id = $1 AND id = $2 AND student_id = $3 AND status = 'ACTIVE'`,
       [row.school_id, row.id, row.student_id],
     );
