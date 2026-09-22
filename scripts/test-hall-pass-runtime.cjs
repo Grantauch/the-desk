@@ -518,7 +518,7 @@ test('a late sign-in is recorded alongside an earlier teacher absence', () => {
   const key = c.key(PEOPLE.ada, 'Period 1');
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherMarkStudentAbsent', key);
+  c.harness.call('teacherMarkStudentAbsent', key, TEACHER_CONTRACT);
   c.checkIn(PEOPLE.ada, 'Period 1');
   const rows = c.checkIns();
   assert.equal(rows.length, 2);
@@ -1056,7 +1056,7 @@ test('voiding preserves the original transaction rather than deleting it', () =>
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherVoidPass', passId, 'Nurse visit, not a bathroom trip');
+  c.harness.call('teacherVoidPass', passId, 'Nurse visit, not a bathroom trip', TEACHER_CONTRACT);
 
   const after = c.passLog();
   assert.equal(after.length, 1, 'Delete Pass must never destroy the row');
@@ -1070,7 +1070,7 @@ test('a void records who corrected it, when and why', () => {
   c.trip(PEOPLE.ada, 'Period 1', 60);
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherVoidPass', String(c.passLog()[0]['Pass ID']), 'Nurse visit');
+  c.harness.call('teacherVoidPass', String(c.passLog()[0]['Pass ID']), 'Nurse visit', TEACHER_CONTRACT);
 
   const row = c.passLog()[0];
   assert.equal(String(row['Voided By']), TEACHER);
@@ -1085,7 +1085,7 @@ test('a void immediately returns the allowance to the student', () => {
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherVoidPass', String(c.passLog()[0]['Pass ID']), 'Correcting a mistake');
+  c.harness.call('teacherVoidPass', String(c.passLog()[0]['Pass ID']), 'Correcting a mistake', TEACHER_CONTRACT);
 
   const afterVoid = c.requestPass(PEOPLE.ada, 'Period 1');
   assert.equal(outcomeOf(afterVoid).kind, 'STARTED', 'voiding must unlock the student at once');
@@ -1102,7 +1102,7 @@ test('a voided trip stops counting toward the marking period', () => {
   assert.equal(before.used, 2);
 
   c.harness.newRequest();
-  c.harness.call('teacherVoidPass', String(before.passes[0].passId), 'Correction');
+  c.harness.call('teacherVoidPass', String(before.passes[0].passId), 'Correction', TEACHER_CONTRACT);
   c.harness.newRequest();
   const after = c.harness.call('teacherGetMembershipPasses', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
   assert.equal(after.used, 1, 'the voided trip must drop out of the count');
@@ -1115,7 +1115,7 @@ test('a void clears the cooldown it had created', () => {
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherVoidPass', String(c.passLog()[0]['Pass ID']), 'Correction');
+  c.harness.call('teacherVoidPass', String(c.passLog()[0]['Pass ID']), 'Correction', TEACHER_CONTRACT);
 
   assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED', 'a voided return must not hold a cooldown');
 });
@@ -1307,7 +1307,7 @@ test('removing a class membership never destroys pass history', () => {
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherRemoveStudentClass', c.key(PEOPLE.ada, 'Period 1'));
+  c.harness.call('teacherRemoveStudentClass', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
 
   assert.equal(c.passLog().length, before, 'history must survive a roster removal');
   assert.ok(c.passLog()[0]['Out Time'], 'the original trip is intact');
@@ -1317,7 +1317,7 @@ test('a removed membership is deactivated, not deleted', () => {
   const c = classroom();
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherRemoveStudentClass', c.key(PEOPLE.ada, 'Period 1'));
+  c.harness.call('teacherRemoveStudentClass', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
   const row = c.rosterRows().find((entry) => String(entry['Student Email']) === PEOPLE.ada.email);
   assert.ok(row, 'the roster row must remain for continuity');
   assert.equal(row.Active === false || String(row.Active).toUpperCase() === 'FALSE', true);
@@ -1330,9 +1330,9 @@ test('re-adding a student keeps the PIN they already have', () => {
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherRemoveStudentClass', c.key(PEOPLE.ada, 'Period 1'));
+  c.harness.call('teacherRemoveStudentClass', c.key(PEOPLE.ada, 'Period 1'), TEACHER_CONTRACT);
   c.harness.newRequest();
-  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 1');
+  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 1', TEACHER_CONTRACT);
 
   const row = c.rosterRows().find((r) => String(r['Student Email']) === PEOPLE.ada.email);
   assert.equal(String(row['PIN Hash']), String(originalHash), 'a returning student keeps their credential');
@@ -1347,7 +1347,7 @@ test('adding a student to a second class does not create a second identity', () 
   const c = classroom();
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 3');
+  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 3', TEACHER_CONTRACT);
   const rows = c.rosterRows().filter((r) => String(r['Student Email']) === PEOPLE.ada.email);
   assert.equal(rows.length, 2, 'two memberships');
   const hashes = new Set(rows.map((r) => String(r['PIN Hash'])));
@@ -1359,7 +1359,7 @@ test('adding a class gives that membership its own marking-period allowance', ()
   c.trip(PEOPLE.ada, 'Period 1', 60);
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
-  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 3');
+  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 3', TEACHER_CONTRACT);
   c.harness.clock.set(new Date('2026-09-10T14:30:00Z'));
   const inOtherClass = c.requestPass(PEOPLE.ada, 'Period 3');
   assert.equal(outcomeOf(inOtherClass).kind, 'STARTED', 'the new membership has its own allowance');
@@ -1644,7 +1644,7 @@ test('teacher roster entry rejects a class label the bell engine cannot schedule
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
   assert.throws(
-    () => c.harness.call('teacherAddStudentClass', 'Example, Student', 'example.student@students.mtmorrisschools.org', 'American History'),
+    () => c.harness.call('teacherAddStudentClass', 'Example, Student', 'example.student@students.mtmorrisschools.org', 'American History', TEACHER_CONTRACT),
     /Period 1 through Period 6/
   );
 });
@@ -1655,7 +1655,7 @@ test('teacher policy changes leave central audit evidence', () => {
   c.harness.signInAs(TEACHER);
   c.harness.call('teacherSetCheckInWindow', 10, TEACHER_CONTRACT);
   c.harness.newRequest();
-  c.harness.call('teacherSetPassRules', 2, 3, 1, 5, 8, 15);
+  c.harness.call('teacherSetPassRules', 2, 3, 1, 5, 8, 15, TEACHER_CONTRACT);
   const actions = c.harness.sheet('Teacher Actions').records().map((row) => String(row.Action));
   assert.ok(actions.includes('CHECKIN_WINDOW_CHANGED'));
   assert.ok(actions.includes('PASS_RULES_CHANGED'));
