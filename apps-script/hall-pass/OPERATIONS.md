@@ -12,7 +12,7 @@ Production fingerprint as of 2026-09-22 (Version 28):
 | Teacher client contract | `2026-09-22-all-teacher-rpcs` in server, teacher browser and private release-check client |
 | Release evidence | preflight run `35754508635`; deploy run `35754589935`; canonical gate, bridge self-test and in-place deployment passed |
 | Netlify production | deploy `6ab2acfb9d374c000715447c`, status `ready`, commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` |
-| Post-deploy workbook | no Version 28 schema migration required; existing operational facts preserved by the guarded deployment path |
+| Post-deploy workbook | no Version 28 schema migration required; post-deploy read confirmed established policy values, obsolete calendar-source settings absent, and no active stuck pass or waiting queue |
 
 ## September 22 Version 28 production catch-up release
 
@@ -28,24 +28,9 @@ Version 28 is the current single-classroom production release. It preserves the 
 - The deployed source also includes the post-Version-27 safeguards that serialize workbook setup against live classroom/PIN-email writes and fall back to the authoritative attendance ledger when tail rows are out of chronological order.
 - PR #118 passed the full release gate and browser acceptance after being brought to zero commits behind `main`.
 - Production preflight run `35754508635` passed against Version 27, then deploy run `35754589935` updated the existing deployment in place to Version 28.
-- Netlify production is `ready` on deploy `6ab2acfb9d374c000715447c` from the same source commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`.
+- Netlify production is `ready` on deploy `6ab2acfb9d374c000715447c` from the same source commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`; its enhanced secret scan reported no matches.
 
 The authenticated `?mode=releasecheck` synthetic smoke is still required and has not been claimed complete. It must be run as the teacher; do not substitute a real student PIN or record.
-
-## September 22 Version 28 recovery and contract-alignment release
-
-Version 28 is the current single-classroom production release. It updates the existing Apps Script deployment in place from source `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` and keeps the same private workbook, stable `/exec` URL, domain-only access, and deploying-user execution model.
-
-- The teacher browser contract and private synthetic release-check contract now exactly match the server contract `2026-09-22-all-teacher-rpcs`; regression coverage compares those three contract values so the Version 27 mismatch cannot silently recur.
-- Teacher bootstrap repairs both the daily-cleanup trigger and one-minute Check-In flush trigger when either is missing.
-- Routine teacher polling audits trigger installation at most once per hour instead of enumerating Apps Script project triggers on every refresh.
-- Empty Check-In polling returns before taking the shared Hall Pass transaction lock.
-- The one-minute durability trigger can resume waiting-line settlement after a pass return committed but queue promotion did not finish.
-- Workbook setup is serialized against live classroom writes, restores the previous workbook target on failure, and refuses setup while a PIN-email batch is active.
-- The optimized Check-In date-tail reader detects out-of-order delayed rows and falls back to the authoritative full ledger instead of risking an incomplete day.
-- The protected merge gate passed the full release suite and real-browser acceptance before production deployment.
-- Production preflight returned `PREFLIGHT_OK` on Version 27 immediately before the in-place update, and release run `35754589935` reported `DEPLOYED` as Apps Script Version 28.
-- Netlify production deploy `6ab2acfb9d374c000715447c` published commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` to `https://grant-desk.com` successfully; its enhanced secret scan reported no matches.
 
 ## September 22 Version 27 commercial-hardening release
 
