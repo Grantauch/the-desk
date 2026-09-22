@@ -513,7 +513,7 @@ test('student self-check-in closes when the selected class ends', () => {
   assert.equal(c.checkIns().length, 0);
 });
 
-test('a late sign-in is recorded alongside an earlier teacher absence', () => {
+test('a late self-check-in clears an earlier teacher absence while preserving both audit rows', () => {
   const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
   const key = c.key(PEOPLE.ada, 'Period 1');
   c.harness.newRequest();
@@ -522,8 +522,42 @@ test('a late sign-in is recorded alongside an earlier teacher absence', () => {
   c.checkIn(PEOPLE.ada, 'Period 1');
   const rows = c.checkIns();
   assert.equal(rows.length, 2);
-  assert.equal(String(rows[0].Status), 'ABSENT');
+  assert.equal(String(rows[0].Status), 'CLEARED');
+  assert.match(String(rows[0].Note), /Cleared when late student check-in was recorded/);
   assert.equal(String(rows[1].Status), 'LATE_PENDING');
+  const state = c.teacherState();
+  assert.equal(state.absencesToday.length, 0, 'a late-present student must not remain in the active absence list');
+  assert.ok(state.pendingLateCheckIns.some((entry) => entry.checkInId === String(rows[1]['Check-in ID'])));
+});
+
+test('deduplicated recovery clears an old absence after the late Check-In row committed first', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherMarkStudentAbsent', key);
+
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'absence-recovery');
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+
+  const pending = c.harness.call('readPendingCheckIns_')[0];
+  assert.ok(pending, 'late arrival must remain in the durable inbox when the immediate flush is busy');
+  c.harness.sheet('Daily Check-ins').appendRow(Array.from(c.harness.call('checkInEntryRow_', pending)));
+
+  c.harness.newRequest();
+  c.harness.call('flushPendingCheckInsLocked_');
+
+  const rows = c.checkIns();
+  assert.equal(rows.filter((row) => String(row.Status) === 'LATE_PENDING').length, 1);
+  assert.equal(rows.filter((row) => String(row.Status) === 'CLEARED').length, 1);
+  assert.equal(rows.filter((row) => String(row.Status) === 'ABSENT').length, 0);
+  assert.equal(c.harness.properties.getProperty(pending.pendingPropertyKey), null,
+    'recovery state clears only after absence and secondary-state repair complete');
 });
 
 test('the teacher can award the point for a late sign-in and it then counts for the streak', () => {
