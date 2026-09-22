@@ -119,6 +119,8 @@ assert.match(setupProject, /return\s*\{\s*ok:\s*true,\s*schemaVersion:\s*GD_SCHE
 const setupWorkbook = functionSource('setupWorkbook_');
 assert.match(setupWorkbook, /ensureRowCapacity_\(checkInSheet/);
 assert.match(setupWorkbook, /rebuildCheckInOperationalIndex_\(\)/);
+assert.match(functionSource('ensureSheet_'), /unexpected column/);
+assert.match(functionSource('ensureSheet_'), /Restore the GrantDesk column order/);
 assert.match(setupWorkbook, /'TIME_ZONE'.*'DESTINATIONS'.*'QUEUE_CLAIM_MINUTES'/s, 'Stale fake settings must be removed during migration');
 
 const studentState = functionSource('getStudentState_');
@@ -143,6 +145,9 @@ assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
 assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
+const cleanupInstaller = functionSource('installCleanupTrigger_');
+assert.match(cleanupInstaller, /matches\.slice\(1\)\.forEach/);
+assert.match(cleanupInstaller, /dailyCleanup/);
 
 const purgeIfDue = functionSource('purgeIfDue_');
 assert.match(purgeIfDue, /withLock_/);
@@ -159,6 +164,8 @@ assert.match(passSnapshot, /capacityActive/);
 assert.match(passSnapshot, /passBlocksCurrentCapacity_/);
 assert.match(functionSource('currentScheduledPeriod_'), /getBellScheduleIndex_/);
 assert.match(functionSource('passBlocksCurrentCapacity_'), /periodNumberFromClass_/);
+assert.match(functionSource('getClassSession_'), /configured pass window/);
+assert.doesNotMatch(functionSource('getClassSession_'), /first and last ten minutes/);
 assert.match(functionSource('expirePreviousDayPasses_'), /'ROLLED_OVER'/);
 assert.match(html, /earlier class · not blocking/);
 assert.match(html, /award all pending points/);
@@ -171,9 +178,14 @@ assert.match(pinVerifier, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce
 assert.match(pinVerifier, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\)/);
 
 const pinSessionWriter = functionSource('putPinSession_');
+assert.match(pinSessionWriter, /v:\s*2/);
+assert.match(pinSessionWriter, /credentialVersionForEmail_/);
 assert.match(pinSessionWriter, /signTokenPart_/);
 assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
 assert.match(functionSource('readPinSession_'), /secureEquals_/);
+assert.match(functionSource('readPinSession_'), /assertCredentialVersion_/);
+assert.match(functionSource('credentialVersionForEmail_'), /pinHash/);
+assert.match(functionSource('credentialVersionForEmail_'), /computeHmacSha256Signature/);
 
 const queueReader = functionSource('readWaitingQueue_');
 assert.doesNotMatch(queueReader, /getQueueTurnStarted_|setQueueTurnStarted_/);
@@ -184,7 +196,10 @@ const actionProofWriter = functionSource('putStudentActionProof_');
 const actionProofValidator = functionSource('validateStoredStudentActionProof_');
 const actionProofConsumer = functionSource('consumeStudentActionProof_');
 assert.match(actionProofWriter, /student-action:/);
+assert.match(actionProofWriter, /v:\s*3/);
+assert.match(actionProofWriter, /credentialVersionForEmail_/);
 assert.match(actionProofWriter, /signTokenPart_/);
+assert.match(functionSource('readStudentActionProof_'), /assertCredentialVersion_/);
 assert.match(actionProofValidator, /proof\.action\s*!==\s*action/);
 assert.equal((actionProofValidator.match(/deleteProperty/g) || []).length, 1, 'Validation may delete only an already-expired proof');
 assert.ok(actionProofValidator.indexOf('deleteProperty') < actionProofValidator.indexOf('return {'), 'A valid proof must reach the non-consuming return path');
@@ -203,6 +218,10 @@ assert.match(checkInSubmit, /validateCheckInSubmissionProof_/);
 assert.match(checkInSubmissionProof, /validateStoredStudentActionProof_/);
 assert.match(checkInSubmissionProof, /readCheckInsIncludingPending_/);
 assert.match(checkInSubmit, /stageCheckIn_/);
+assert.match(functionSource('stageCheckIn_'), /logicalCheckInId_\(todayKey,\s*student\.key\)/);
+assert.match(functionSource('logicalCheckInId_'), /checkin:/);
+assert.match(checkInSubmissionProof, /logicalCheckInId_/);
+assert.match(checkInSubmit, /canonical/);
 assert.match(checkInSubmit, /deleteProperty\(resolved\.proofPropertyKey\)/);
 assert.match(checkInSubmit, /tryFlushPendingCheckIns_/);
 assert.doesNotMatch(checkInSubmit, /withLock_|recordCheckIn_|appendRow/, 'Daily Check-In must not wait on or append to the shared workbook');
