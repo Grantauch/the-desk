@@ -1,18 +1,33 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. **Version 28 is deployed.** The tracked source, protected `main`, canonical release gate, production preflight, in-place Apps Script deployment, and Netlify production deploy are aligned to the same release commit. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
+Issue #14 is closed. **Version 29 is deployed.** The tracked source, protected `main`, canonical release gate, production preflight, in-place Apps Script deployment, and Netlify production deploy are aligned to the same release commit. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
 
-Production fingerprint as of 2026-09-22 (Version 28):
+Production fingerprint as of 2026-09-22 (Version 29):
 
 | Fact | Value |
 | --- | --- |
-| Deployed application source | `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` |
-| Apps Script version | 28, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
-| Workbook schema | `2026-09-21-backend-b` |
+| Deployed application source | `d64bec5fd0ed8f3ddae2f9eb141979ce03d7926f` |
+| Apps Script version | 29, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
+| Workbook schema | `2026-09-21-backend-b` (unchanged) |
 | Teacher client contract | `2026-09-22-all-teacher-rpcs` in server, teacher browser and private release-check client |
-| Release evidence | preflight run `35754508635`; deploy run `35754589935`; canonical gate, bridge self-test and in-place deployment passed |
-| Netlify production | deploy `6ab2acfb9d374c000715447c`, status `ready`, commit `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e` |
-| Post-deploy workbook | no Version 28 schema migration required; post-deploy read confirmed established policy values, obsolete calendar-source settings absent, and no active stuck pass or waiting queue |
+| GoClassroom roster bridge contract | `2026-09-22-roster-sync-v1`; teacher-authorized read-only active membership snapshot only |
+| Release evidence | preflight run `35772765535`; deploy run `35772904099`; canonical gate, bridge self-test and in-place deployment passed |
+| Netlify production | deploy `6ab2d417f8e303000839704b`, status `ready`, commit `d64bec5fd0ed8f3ddae2f9eb141979ce03d7926f`; enhanced secret scan reported no matches |
+| Data/schema impact | no workbook schema migration; Version 29 adds no roster mutation path and exposes no PIN, pass-history or Check-In-history fields through the GoClassroom bridge |
+
+## September 22 Version 29 GoClassroom read-only roster bridge
+
+Version 29 is the current single-classroom production release. It preserves all Version 28 Hall Pass/Check-In behavior and adds one narrowly scoped integration surface for GoClassroom.
+
+- `getRosterSyncSnapshot` requires an authorized teacher and the exact roster bridge contract `2026-09-22-roster-sync-v1`.
+- The bridge returns only active membership identity fields: student email, student name, class/period and active status.
+- The bridge does not return PIN material, pass history, Check-In history, pass-access overrides or workbook row numbers.
+- The bridge does not run workbook setup/repair, background-trigger maintenance or a transaction lock and contains no roster write path.
+- PR #122 passed the protected full release gate before merge.
+- Production preflight run `35772765535` passed against Version 28, then deploy run `35772904099` updated the existing deployment in place to Version 29.
+- Netlify production deploy `6ab2d417f8e303000839704b` is `ready` on the matching source commit and reported no secret-scan matches.
+
+The authenticated `?mode=releasecheck` synthetic protected-action smoke remains separate FIELD_PENDING evidence; Version 29 does not claim that smoke complete.
 
 ## September 22 Version 28 production catch-up release
 
@@ -73,7 +88,7 @@ Version 23 removed Daily Check-In from the shared workbook lock without changing
 - Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
 - Version 23 local evidence reached 311 behavioral checks, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences and Hall Pass regressions.
 
-The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 28. Real-class observation and the authenticated synthetic release smoke remain pending evidence. Do not create a new deployment or URL.
+The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 29. Real-class observation and the authenticated synthetic release smoke remain pending evidence. Do not create a new deployment or URL.
 
 ## Session and teacher policy
 
@@ -100,7 +115,7 @@ The dependency-complete canonical gate, protected merge, production preflight an
    or email correction made after a delivery batch assembled its recipients cannot send a credential to
    a stale address, and that the recorded delivery status matches the address actually used. Never
    exercise this against the live roster or by sending real mail.
-3. **Version 28 protected release smoke.** Preflight run `35754508635` passed and deploy run `35754589935` deployed Version 28 in place from source `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. The separate authenticated `?mode=releasecheck` synthetic smoke is still pending; run it as the teacher with only the isolated synthetic credential and record the result separately.
+3. **Version 29 protected release smoke.** Preflight run `35772765535` passed and deploy run `35772904099` deployed Version 29 in place from source `d64bec5fd0ed8f3ddae2f9eb141979ce03d7926f`. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. The separate authenticated `?mode=releasecheck` synthetic smoke is still pending; run it as the teacher with only the isolated synthetic credential and record the result separately.
 4. **`NEEDS_RESEND` credential records.** Ten PIN-card records were repointed to corrected addresses
    during the identity migration, and their delivery status was set to `NEEDS_RESEND` because a prior
    `SENT` marker could not prove delivery to the corrected address. All ten students had already used
