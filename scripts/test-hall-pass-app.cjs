@@ -1013,8 +1013,11 @@ const attendanceEntries = [{
 behaviorContext.readCheckIns_ = () => attendanceEntries;
 behaviorContext.readCheckInsForDate_ = (dateKey) => attendanceEntries.filter((entry) => entry.dateKey === dateKey);
 behaviorContext.getSettings_ = () => ({ CHECKIN_POINT_VALUE: '1' });
+behaviorContext.ensureRowCapacity_ = () => 5000;
+behaviorContext.updateCheckInOperationalIndex_ = () => {};
 behaviorContext.getSpreadsheet_ = () => ({
   getSheetByName: () => ({
+    getLastRow: () => attendanceEntries.length + 1,
     appendRow(row) {
       attendanceEntries.push({
         row: attendanceEntries.length + 2,
