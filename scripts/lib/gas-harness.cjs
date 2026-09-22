@@ -120,10 +120,11 @@ class FakeRange {
 }
 
 class FakeSheet {
-  constructor(name, maxColumns = 26) {
+  constructor(name, maxColumns = 26, maxRows = 1000) {
     this.name = name;
     this.rows = [];
     this.maxColumns = maxColumns;
+    this.maxRows = maxRows;
     this.hidden = false;
     this.frozenRows = 0;
   }
@@ -131,9 +132,10 @@ class FakeSheet {
   getName() { return this.name; }
   setName(name) { this.name = name; return this; }
   getMaxColumns() { return this.maxColumns; }
-  getMaxRows() { return Math.max(this.rows.length, 1000); }
+  getMaxRows() { return this.maxRows; }
 
   ensureRow(row) {
+    if (row > this.maxRows) throw new Error(`${this.name}: row ${row} exceeds grid limit ${this.maxRows}`);
     while (this.rows.length < row) this.rows.push(new Array(this.maxColumns).fill(''));
     return this.rows[row - 1];
   }
@@ -208,6 +210,13 @@ class FakeSheet {
     return this;
   }
 
+  insertRowsAfter(afterPosition, count) {
+    if (!Number.isInteger(count) || count < 0) throw new Error('insertRowsAfter requires a nonnegative row count');
+    if (afterPosition < 0 || afterPosition > this.maxRows) throw new Error(`${this.name}: invalid insert position ${afterPosition}`);
+    this.maxRows += count;
+    return this;
+  }
+
   insertColumnsAfter(_column, count) {
     this.maxColumns += count;
     this.rows.forEach((row) => {
@@ -260,6 +269,7 @@ class FakeSpreadsheet {
       const target = copy.insertSheet(sheet.getName());
       target.rows = sheet.rows.map(row => row.slice());
       target.maxColumns = sheet.maxColumns;
+      target.maxRows = sheet.maxRows;
     });
     return copy;
   }
