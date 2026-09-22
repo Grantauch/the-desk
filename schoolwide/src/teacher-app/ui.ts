@@ -1,4 +1,4 @@
-export function teacherAppHtml(): string {
+export function teacherAppHtml(scriptNonce: string): string {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -38,7 +38,7 @@ header{position:sticky;top:0;z-index:20;background:#172033;color:white;padding:1
 </main>
 <dialog id="return-dialog" aria-labelledby="return-title"><form method="dialog" class="dialog-body" id="return-form"><h2 id="return-title">End active pass</h2><input type="hidden" id="return-pass-id"><div class="field"><label for="return-reason">Private staff reason</label><input id="return-reason" maxlength="1000" required autocomplete="off"><span class="subtle">Recorded in staff/audit evidence.</span></div><div class="dialog-actions"><button value="cancel" type="button" data-dialog-cancel>Cancel</button><button value="confirm" type="submit">End pass</button></div></form></dialog>
 <dialog id="correction-dialog" aria-labelledby="correction-title"><form method="dialog" class="dialog-body" id="correction-form"><h2 id="correction-title">Void pass countability</h2><input type="hidden" id="correction-pass-id"><div class="field"><label for="correction-reason">Private correction reason</label><input id="correction-reason" maxlength="1000" required autocomplete="off"></div><div class="dialog-actions"><button value="cancel" type="button" data-dialog-cancel>Cancel</button><button value="confirm" type="submit">Void countability</button></div></form></dialog>
-<script>
+<script nonce="${scriptNonce}">
 (()=>{
 'use strict';
 const tokenKey='grantdesk.schoolwide.staffToken';
