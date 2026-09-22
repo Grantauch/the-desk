@@ -76,6 +76,9 @@ const functionSource = (name) => {
 
 assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-21-backend-b'/);
 assert.match(code, /GD_ROSTER_SYNC_CONTRACT\s*=\s*'2026-09-22-roster-sync-v1'/);
+assert.match(code, /GD_ROSTER_SYNC_WRITE_CONTRACT\s*=\s*'2026-09-22-roster-write-v1'/);
+assert.match(code, /GD_ROSTER_SYNC_CONFIRMATION\s*=\s*'APPLY SAFE ROSTER CHANGES'/);
+assert.match(code, /GD_ROSTER_SYNC_MAX_WRITES\s*=\s*200/);
 assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
 assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
 assert.match(code, /GD_STUDENT_LOCK_WAIT_MS\s*=\s*5000/);
@@ -87,6 +90,7 @@ assert.match(code, /UNMATCHED:\s*'Unmatched Sign-ins'/);
 assert.match(code, /function teacherApplyUnmatchedEmail/);
 assert.match(code, /function teacherAddStudentClass/);
 assert.match(code, /function getRosterSyncSnapshot/);
+assert.match(code, /function applyRosterSyncChanges/);
 assert.match(code, /function teacherRemoveStudentClass/);
 assert.match(code, /function teacherClearUnmatchedSignIns/);
 assert.match(code, /function readPinSession_/);
@@ -146,6 +150,28 @@ assert.doesNotMatch(rosterSyncSnapshot, /pinHash|PIN Cards|readPassLog_|readChec
   'GoClassroom roster bridge must expose membership identity only');
 assert.doesNotMatch(rosterSyncSnapshot, /ensureWorkbookReady_|setupWorkbook_|ensureBackgroundTriggers_|withLock_|appendRow|setValue|setValues|deleteRow|deleteProperty|setProperty/,
   'GoClassroom roster bridge must remain read-only');
+assert.match(rosterSyncSnapshot, /rosterSyncRevision_/);
+assert.match(rosterSyncSnapshot, /GD_ROSTER_SYNC_WRITE_CONTRACT/);
+
+const rosterSyncApply = functionSource('applyRosterSyncChanges');
+assert.match(rosterSyncApply, /assertTeacher_/);
+assert.match(rosterSyncApply, /GD_ROSTER_SYNC_WRITE_CONTRACT/);
+assert.match(rosterSyncApply, /normalizeRosterSyncWriteRequest_/);
+assert.match(rosterSyncApply, /rosterSyncRequestReplay_/);
+assert.match(rosterSyncApply, /withLock_/);
+assert.match(rosterSyncApply, /rosterSyncRevision_/);
+assert.match(rosterSyncApply, /assertPinEmailBatchIdle_/);
+assert.match(rosterSyncApply, /ensureOnePinPerStudent_\(\{ createMissing: true \}\)/);
+assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED/);
+assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_NAME_UPDATED/);
+assert.doesNotMatch(rosterSyncApply, /teacherRemoveStudentClass|setValue\(false\)|deleteRow/,
+  'GoClassroom roster write bridge must not contain a student-removal path');
+const rosterSyncNormalize = functionSource('normalizeRosterSyncWriteRequest_');
+assert.match(rosterSyncNormalize, /GD_ROSTER_SYNC_CONFIRMATION/);
+assert.match(rosterSyncNormalize, /GD_ROSTER_SYNC_MAX_WRITES/);
+assert.match(rosterSyncNormalize, /does not remove students automatically/);
+assert.match(functionSource('rosterSyncRequestReplay_'), /payloadDigest/);
+assert.match(functionSource('rememberRosterSyncRequest_'), /GD_ROSTER_SYNC_REQUEST_PREFIX/);
 assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FILE_ID'/);
 assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FALLBACK_URL'/);
 assert.match(functionSource('setupWorkbook_'), /SCHOOL_CALENDAR_FILE_ID/);
