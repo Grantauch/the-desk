@@ -4301,6 +4301,11 @@ function setupWorkbook_() {
     'RETENTION_DAYS',
     'Completed passes older than this move from the hot Pass Log into permanent Pass Audit'
   );
+  setSettingDescription_(
+    settingsSheet,
+    'CHECKIN_WINDOW_MINUTES',
+    'Minutes after class starts that count as on-time; late self-check-in remains open only until that class ends'
+  );
   gdForget_('settings');
   if (getSettings_().PIN_EMAIL_SUBJECT === 'Your private GrantDesk class PIN') {
     setSettingValue_('PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN');
