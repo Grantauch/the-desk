@@ -1953,6 +1953,11 @@ test('authorized teacher can read only active roster identity fields through the
   assert.equal(snapshot.ok, true);
   assert.equal(snapshot.schemaVersion, 1);
   assert.equal(snapshot.bridgeContract, '2026-09-22-roster-sync-v1');
+  assert.equal(snapshot.writeContract, '2026-09-22-roster-write-v1');
+  assert.match(snapshot.revision, /^[A-Za-z0-9_-]{20,80}$/);
+  c.harness.newRequest();
+  const repeated = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  assert.equal(repeated.revision, snapshot.revision, 'unchanged active roster must have a stable sync revision');
   assert.deepEqual(snapshot.roster.map((row) => row.studentEmail).sort(), [PEOPLE.ada.email, PEOPLE.grace.email].sort());
   snapshot.roster.forEach((row) => {
     assert.deepEqual(Object.keys(row).sort(), ['active', 'classPeriod', 'studentEmail', 'studentName'].sort());
@@ -1978,6 +1983,192 @@ test('roster bridge rejects students and stale GoClassroom contracts', () => {
     () => c.harness.call('getRosterSyncSnapshot', 'old-roster-contract'),
     /Update GoClassroom/i
   );
+});
+
+test('approved roster sync adds a membership, corrects a name, creates a PIN, audits the work, and replays safely', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-safe-apply-001',
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: 'new.student@students.mtmorrisschools.org',
+      studentName: 'Student, New',
+      classPeriod: 'Period 3',
+    }],
+    updateName: [{
+      studentEmail: PEOPLE.ada.email,
+      studentName: 'Byron, Ada Updated',
+      beforeName: PEOPLE.ada.name,
+      classPeriod: 'Period 1',
+    }],
+  };
+
+  const beforeRosterCount = c.rosterRows().length;
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.requestId, request.requestId);
+  assert.equal(result.counts.added, 1);
+  assert.equal(result.counts.reactivated, 0);
+  assert.ok(result.counts.nameRowsUpdated >= 1);
+  assert.equal(result.counts.requestedNameUpdates, 1);
+  assert.equal(result.counts.createdPins, 1);
+  assert.match(result.revision, /^[A-Za-z0-9_-]{20,80}$/);
+  assert.notEqual(result.revision, snapshot.revision);
+
+  const roster = c.rosterRows();
+  assert.equal(roster.length, beforeRosterCount + 1);
+  assert.ok(roster.some((row) => String(row['Student Email']) === 'new.student@students.mtmorrisschools.org' &&
+    String(row['Class / Period']) === 'Period 3' && String(row.Active).toLowerCase() !== 'false'));
+  assert.ok(roster.filter((row) => String(row['Student Email']) === PEOPLE.ada.email)
+    .every((row) => String(row['Student Name']) === 'Byron, Ada Updated'));
+
+  const newCards = c.pinCards().filter((row) => String(row['Student Email']) === 'new.student@students.mtmorrisschools.org');
+  assert.equal(newCards.length, 1);
+  assert.match(String(newCards[0].PIN), /^\d{6}$/);
+  assert.notEqual(String(newCards[0]['Email Status'] || '').toUpperCase(), 'SENT',
+    'roster sync may create a credential but must never email it automatically');
+
+  const actions = c.harness.sheet('Teacher Actions').records();
+  assert.ok(actions.some((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED' &&
+    String(row['Reference ID']) === request.requestId));
+  assert.ok(actions.some((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED' &&
+    String(row['Reference ID']) === request.requestId));
+
+  c.harness.newRequest();
+  const replay = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.deepEqual(replay, result, 'a retry after an uncertain browser response must return the stored result');
+  assert.equal(c.rosterRows().length, beforeRosterCount + 1, 'replay must not add the membership twice');
+});
+
+test('roster sync rejects a stale comparison before applying any requested change', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  c.harness.sheet('Roster').appendRow([
+    'drift.student@students.mtmorrisschools.org', 'Student, Drift', 'Period 2', '', true, false, 'STANDARD',
+  ]);
+  c.harness.newRequest();
+
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-stale-001',
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: 'should.not.apply@students.mtmorrisschools.org',
+      studentName: 'Student, Blocked',
+      classPeriod: 'Period 3',
+    }],
+    updateName: [],
+  };
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /roster changed after GoClassroom compared it/i
+  );
+  assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === 'should.not.apply@students.mtmorrisschools.org'));
+});
+
+test('roster sync prevalidates the whole batch so one stale name prevents an otherwise valid addition', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-atomic-validation-001',
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: 'held.student@students.mtmorrisschools.org',
+      studentName: 'Student, Held',
+      classPeriod: 'Period 4',
+    }],
+    updateName: [{
+      studentEmail: PEOPLE.ada.email,
+      studentName: 'Byron, Ada Updated',
+      beforeName: 'Wrong Previous Name',
+      classPeriod: 'Period 1',
+    }],
+  };
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /name .* changed after comparison/i
+  );
+  assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === 'held.student@students.mtmorrisschools.org'),
+    'valid additions must remain unapplied when any request item fails prevalidation');
+});
+
+test('roster sync refuses removals, wrong contracts, missing approval, wrong-domain students, and non-teachers', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const base = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-guardrails-001',
+    baseRevision: snapshot.revision,
+    add: [],
+    updateName: [],
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', { ...base, deactivate: [{ studentEmail: PEOPLE.ada.email }] }, '2026-09-22-roster-write-v1'),
+    /does not remove students automatically/i
+  );
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', base, 'old-write-contract'),
+    /write contract has changed/i
+  );
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', { ...base, requestId: 'sync-guardrails-002', confirmation: '' }, '2026-09-22-roster-write-v1'),
+    /Confirm the safe roster changes/i
+  );
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', {
+      ...base,
+      requestId: 'sync-guardrails-003',
+      add: [{ studentEmail: 'student@outside.example', studentName: 'Outside, Student', classPeriod: 'Period 2' }],
+    }, '2026-09-22-roster-write-v1'),
+    /Student email must end in/i
+  );
+
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', { ...base, requestId: 'sync-guardrails-004' }, '2026-09-22-roster-write-v1'),
+    /limited to the teacher/i
+  );
+});
+
+test('a roster sync request ID cannot be reused for different changes', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const first = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-reuse-001',
+    baseRevision: snapshot.revision,
+    add: [],
+    updateName: [],
+  };
+  c.harness.call('applyRosterSyncChanges', first, '2026-09-22-roster-write-v1');
+
+  c.harness.newRequest();
+  const latest = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const changed = {
+    ...first,
+    baseRevision: latest.revision,
+    add: [{ studentEmail: 'other.student@students.mtmorrisschools.org', studentName: 'Student, Other', classPeriod: 'Period 2' }],
+  };
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', changed, '2026-09-22-roster-write-v1'),
+    /request ID was already used for different data/i
+  );
+  assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === 'other.student@students.mtmorrisschools.org'));
 });
 
 section('Backend repair guardrails');
