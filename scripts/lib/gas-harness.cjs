@@ -357,6 +357,7 @@ function createHarness(options = {}) {
     properties: new Map(),
     cache: new Map(),
     triggers: [],
+    triggerReads: 0,
     sentMail: [],
     mailQuota,
     lock: {
@@ -575,10 +576,10 @@ function createHarness(options = {}) {
     },
 
     ScriptApp: {
-      getProjectTriggers: () => state.triggers.map((trigger) => ({
+      getProjectTriggers: () => { state.triggerReads += 1; return state.triggers.map((trigger) => ({
         getHandlerFunction: () => trigger.handler,
         getUniqueId: () => trigger.id,
-      })),
+      })); },
       deleteTrigger: (trigger) => {
         const id = trigger.getUniqueId();
         state.triggers = state.triggers.filter((entry) => entry.id !== id);
