@@ -19,6 +19,8 @@ const GD_ROSTER_SYNC_WRITE_CONTRACT = '2026-09-22-roster-write-v1';
 const GD_ROSTER_SYNC_CONFIRMATION = 'APPLY SAFE ROSTER CHANGES';
 const GD_ROSTER_SYNC_MAX_WRITES = 200;
 const GD_ROSTER_SYNC_REQUEST_PREFIX = 'roster-sync-request:';
+const GD_ROSTER_SYNC_REQUEST_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const GD_ROSTER_SYNC_REQUEST_MAX_RECORDS = 100;
 const GD_MIN_COUNTABLE_PASS_SECONDS = 3;
 const GD_ACTION_PROOF_SECONDS = 180;
 const GD_STUDENT_LOCK_WAIT_MS = 5000;
@@ -2438,7 +2440,28 @@ function rosterSyncRequestReplay_(normalizedRequest) {
   return stored.result;
 }
 
+function pruneRosterSyncRequests_(reserveSlots) {
+  const properties = PropertiesService.getScriptProperties();
+  const all = properties.getProperties();
+  const now = Date.now();
+  const retained = [];
+  Object.entries(all).forEach(([key, raw]) => {
+    if (!key.startsWith(GD_ROSTER_SYNC_REQUEST_PREFIX)) return;
+    let parsed = null;
+    try { parsed = JSON.parse(String(raw || '')); } catch (error) { parsed = null; }
+    const at = parsed && toDateOrNull_(parsed.at);
+    if (!at || now - at.getTime() > GD_ROSTER_SYNC_REQUEST_TTL_MS) {
+      properties.deleteProperty(key);
+      return;
+    }
+    retained.push({ key, at: at.getTime() });
+  });
+  const keep = Math.max(0, GD_ROSTER_SYNC_REQUEST_MAX_RECORDS - Math.max(0, Number(reserveSlots || 0)));
+  retained.sort((a, b) => b.at - a.at).slice(keep).forEach((entry) => properties.deleteProperty(entry.key));
+}
+
 function rememberRosterSyncRequest_(normalizedRequest, result) {
+  pruneRosterSyncRequests_(1);
   PropertiesService.getScriptProperties().setProperty(
     rosterSyncRequestKey_(normalizedRequest.requestId),
     JSON.stringify({
