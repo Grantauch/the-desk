@@ -361,6 +361,26 @@ function auditTeacherAction_(teacher, student, action, restrictions, reason, ref
   ]);
 }
 
+function latestTeacherActionForReference_(referenceId) {
+  const reference = String(referenceId || '').trim();
+  if (!reference) return '';
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return '';
+  const rows = sheet.getRange(2, 7, lastRow - 1, 4).getValues();
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    if (String(rows[index][3] || '').trim() !== reference) continue;
+    return String(rows[index][0] || '').trim();
+  }
+  return '';
+}
+
+function ensureTeacherActionMatchesState_(teacher, student, action, restrictions, reason, referenceId) {
+  if (latestTeacherActionForReference_(referenceId) === String(action || '').trim()) return false;
+  auditTeacherAction_(teacher, student, action, restrictions, reason, referenceId);
+  return true;
+}
+
 function migrateSessionPolicy_() {
   const spreadsheet = getSpreadsheet_();
   const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
@@ -2735,6 +2755,7 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
     const award = choice === 'AWARD_POINT';
     const point = award ? numberSetting_(getSettings_(), 'CHECKIN_POINT_VALUE', 1) : 0;
     const status = award ? 'LATE_APPROVED' : 'LATE_NO_POINT';
+    const auditAction = award ? 'LATE_CHECKIN_POINT_AWARDED' : 'LATE_CHECKIN_NO_POINT';
     const student = getStudentByKey_(entry.studentKey) || {
       email: entry.studentEmail,
       name: entry.studentName,
@@ -2743,8 +2764,14 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
     studentName = student.name;
     outcome = award ? `Awarded ${point} point${point === 1 ? '' : 's'}` : 'Kept at 0 points';
 
-    // Double-clicking the same decision is an idempotent no-op.
-    if (String(entry.status || '').toUpperCase() === status && Number(entry.point || 0) === point) return;
+    // A retry after the attendance row committed but the audit append failed
+    // must repair the missing decision evidence before returning as idempotent.
+    if (String(entry.status || '').toUpperCase() === status && Number(entry.point || 0) === point) {
+      ensureTeacherActionMatchesState_(
+        teacher, student, auditAction, ['LATE_CHECKIN'], '', entry.checkInId
+      );
+      return;
+    }
 
     const detail = award
       ? `Late check-in point awarded by ${teacher}`
@@ -2763,13 +2790,8 @@ function teacherReviewLateCheckIn(checkInId, decision, clientContract) {
     entry.status = status;
     entry.note = note;
     updateCheckInOperationalIndex_(entry);
-    auditTeacherAction_(
-      teacher,
-      student,
-      award ? 'LATE_CHECKIN_POINT_AWARDED' : 'LATE_CHECKIN_NO_POINT',
-      ['LATE_CHECKIN'],
-      '',
-      entry.checkInId
+    ensureTeacherActionMatchesState_(
+      teacher, student, auditAction, ['LATE_CHECKIN'], '', entry.checkInId
     );
   });
   const state = getTeacherState_({ includePinStatus: false });
