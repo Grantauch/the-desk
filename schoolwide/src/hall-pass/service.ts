@@ -126,6 +126,14 @@ export class HallPassService {
       if (idempotency.kind === 'COMPLETED') return idempotency.response;
       validateActionProof(proof, 'PASS_REQUEST', at, input.sectionId);
       const enrollment = await requireActiveEnrollment(transaction, proof.school_id, proof.student_id, input.sectionId);
+      // A student can belong to more than one section. Serialize pass-request
+      // decisions on the canonical student row before taking the section lock
+      // so different-section requests cannot race into an OUT + WAITING split.
+      const studentLock = await transaction.query<{ id: string } & QueryResultRow>(
+        `SELECT id FROM students WHERE school_id=$1 AND id=$2 FOR UPDATE`,
+        [proof.school_id, proof.student_id],
+      );
+      if (!studentLock[0]) throw new HallPassError('ACTION_WRONG_CONTEXT', 'Student context is unavailable.', 403);
       await requireDestination(transaction, proof.school_id, input.destinationId);
       const context = resolvedContext(await new SchedulePolicyService(new TransactionReadDatabase(transaction)).resolveContext({ sectionId: input.sectionId, studentId: proof.student_id, at }));
       if (context.session.schoolId !== proof.school_id) throw new HallPassError('ACTION_WRONG_CONTEXT', 'Action proof does not match this school context.', 403);
