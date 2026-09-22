@@ -348,9 +348,10 @@ test('inactive historical PIN hashes do not invalidate active signed sessions', 
     ],
   });
   const roster = c.harness.sheet('Roster');
-  const inactive = c.rosterRows().find((row) => row['Student Email'] === PEOPLE.ada.email && row['Class / Period'] === 'Period 3');
-  const inactiveRow = c.rosterRows().findIndex((row) => row === inactive) + 2;
-  roster.getRange(inactiveRow, 4).setValue(c.harness.call('hashPin_', '999999'));
+  const rows = c.rosterRows();
+  const inactiveIndex = rows.findIndex((row) => row['Student Email'] === PEOPLE.ada.email && row['Class / Period'] === 'Period 3');
+  assert.ok(inactiveIndex >= 0, 'inactive membership fixture must exist');
+  roster.getRange(inactiveIndex + 2, 4).setValue(c.harness.call('hashPin_', '999999'));
 
   const key = c.key(PEOPLE.ada, 'Period 1');
   c.harness.newRequest();
