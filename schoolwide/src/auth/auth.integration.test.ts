@@ -452,6 +452,44 @@ test('SW-030 staff authentication and RBAC boundary', { skip: !databaseUrl }, as
       });
     });
 
+    await t.test('authenticated polling throttles last_used_at writes to a five-minute activity interval', async () => {
+      await withFixture(pool, async ({ app, client, ids }) => {
+        const token = await signIn(app, 'teacher-a');
+        await client.query(
+          `UPDATE staff_sessions SET last_used_at = now() WHERE user_id = $1`,
+          [ids.teacherA],
+        );
+        const before = await client.query<{ last_used_at: Date }>(
+          'SELECT last_used_at FROM staff_sessions WHERE user_id = $1',
+          [ids.teacherA],
+        );
+
+        const immediate = await app.inject({ method: 'GET', url: '/api/me', headers: bearer(token) });
+        assert.equal(immediate.statusCode, 200, immediate.body);
+        const still = await client.query<{ last_used_at: Date }>(
+          'SELECT last_used_at FROM staff_sessions WHERE user_id = $1',
+          [ids.teacherA],
+        );
+        assert.equal(still.rows[0]?.last_used_at.getTime(), before.rows[0]?.last_used_at.getTime());
+
+        await client.query(
+          `UPDATE staff_sessions SET last_used_at = now() - interval '6 minutes' WHERE user_id = $1`,
+          [ids.teacherA],
+        );
+        const stale = await client.query<{ last_used_at: Date }>(
+          'SELECT last_used_at FROM staff_sessions WHERE user_id = $1',
+          [ids.teacherA],
+        );
+        const refreshed = await app.inject({ method: 'GET', url: '/api/me', headers: bearer(token) });
+        assert.equal(refreshed.statusCode, 200, refreshed.body);
+        const after = await client.query<{ last_used_at: Date }>(
+          'SELECT last_used_at FROM staff_sessions WHERE user_id = $1',
+          [ids.teacherA],
+        );
+        assert.ok((after.rows[0]?.last_used_at.getTime() ?? 0) > (stale.rows[0]?.last_used_at.getTime() ?? 0));
+      });
+    });
+
     await t.test('expired server-side session fails closed', async () => {
       await withFixture(pool, async ({ app, client, ids }) => {
         const token = await signIn(app, 'teacher-a');
