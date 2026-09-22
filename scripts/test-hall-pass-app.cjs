@@ -145,6 +145,8 @@ assert.match(cleanup, /assertTeacher_/);
 assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
 assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
+const cleanupHandler = functionSource('dailyCleanup');
+assert.match(cleanupHandler, /getHandlerFunction\(\)===['"]dailyCleanup['"]/);
 const cleanupInstaller = functionSource('installCleanupTrigger_');
 assert.match(cleanupInstaller, /matches\.slice\(1\)\.forEach/);
 assert.match(cleanupInstaller, /dailyCleanup/);
