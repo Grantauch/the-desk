@@ -2521,22 +2521,21 @@ function applyRosterSyncChanges(request, writeContract) {
       }
     });
 
-    const desiredNameByEmail = new Map();
-    normalized.add.forEach((input) => desiredNameByEmail.set(input.email, input.name));
-    normalized.updateName.forEach((input) => desiredNameByEmail.set(input.email, input.name));
-
     const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
     const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
     const nameUpdates = [];
-    desiredNameByEmail.forEach((desiredName, email) => {
-      allRows.filter((student) => student.email === email).forEach((student) => {
-        if (student.name !== desiredName) {
-          rosterSheet.getRange(student.row, 2).setValue(desiredName);
-          nameUpdates.push({ email, classPeriod: student.classPeriod, beforeName: student.name, afterName: desiredName });
-        }
+    normalized.updateName.forEach((input) => {
+      const student = byKey.get(input.key);
+      if (!student || student.name === input.name) return;
+      rosterSheet.getRange(student.row, 2).setValue(input.name);
+      const card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (card && card.studentName !== input.name) pinSheet.getRange(card.row, 2).setValue(input.name);
+      nameUpdates.push({
+        email: input.email,
+        classPeriod: input.classPeriod,
+        beforeName: student.name,
+        afterName: input.name,
       });
-      readPinCards_().filter((card) => card.studentEmail === email && card.studentName !== desiredName)
-        .forEach((card) => pinSheet.getRange(card.row, 2).setValue(desiredName));
     });
     if (nameUpdates.length) {
       gdForget_('roster');
