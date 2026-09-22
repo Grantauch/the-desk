@@ -184,6 +184,7 @@ assert.match(pinSessionWriter, /signTokenPart_/);
 assert.doesNotMatch(pinSessionWriter, /CacheService\.getScriptCache\(\)\.put/);
 assert.match(functionSource('readPinSession_'), /secureEquals_/);
 assert.match(functionSource('readPinSession_'), /assertCredentialVersion_/);
+assert.doesNotMatch(functionSource('readPinSession_'), /CacheService\.getScriptCache\(\)/, 'Legacy cache-only PIN sessions must not remain an authentication path');
 assert.match(functionSource('credentialVersionForEmail_'), /pinHash/);
 assert.match(functionSource('credentialVersionForEmail_'), /computeHmacSha256Signature/);
 
