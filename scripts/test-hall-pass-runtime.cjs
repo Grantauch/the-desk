@@ -336,6 +336,26 @@ test('idle minute flusher returns before shared lock or Pass Log work', () => {
 });
 
 
+test('minute durability trigger resumes queue settlement after a committed return', () => {
+  const c = classroom({ settings: { MAX_ACTIVE_PASSES: 1, PASS_COOLDOWN_MINUTES: 0, STUDENT_PASS_LIMIT: 5 } });
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.ada, 'Period 1')).kind, 'STARTED');
+  assert.equal(outcomeOf(c.requestPass(PEOPLE.alan, 'Period 1')).kind, 'QUEUED');
+  const adaPass = c.passLog().find((row) => row['Student Email'] === PEOPLE.ada.email && String(row.Status) === 'OUT');
+
+  c.harness.newRequest();
+  c.harness.call('closePassById_', String(adaPass['Pass ID']), PEOPLE.ada.email, 'Synthetic committed return before settlement');
+  assert.ok(c.passQueue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'));
+
+  const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  c.harness.newRequest();
+  c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id });
+
+  assert.equal(c.passQueue().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING').length, 0);
+  assert.ok(c.passLog().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'OUT'),
+    'the timer must promote the waiting verified request into the newly open slot');
+});
+
+
 test('Daily Check-ins starts with safe row headroom and repairs a stale flusher flag', () => {
   const c = classroom();
   assert.ok(c.harness.sheet('Daily Check-ins').getMaxRows() >= 5000, 'setup must pre-grow the check-in sheet');
