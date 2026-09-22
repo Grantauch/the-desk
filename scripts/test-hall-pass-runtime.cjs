@@ -173,6 +173,37 @@ test('Daily Check-ins starts with safe row headroom and repairs a stale flusher 
     'the trigger must be recreated even when the property flag was stale');
 });
 
+test('a deduplicated recovery flush repairs the secondary Check-In index before clearing the inbox', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'CHECKIN', key, 'index-recovery');
+
+  c.harness.newRequest();
+  c.harness.refuseLocks(1);
+  c.harness.call('submitDailyCheckIn', authorized.actionProof, key, authorized.pinToken);
+
+  const pending = c.harness.call('readPendingCheckIns_')[0];
+  assert.ok(pending, 'the simulated failed flush must leave a durable inbox entry');
+
+  const row = Array.from(c.harness.call('checkInEntryRow_', pending));
+  c.harness.sheet('Daily Check-ins').appendRow(row);
+  c.harness.newRequest();
+
+  const summaryKey = c.harness.call('checkInSummaryPropertyKey_', key);
+  c.harness.properties.deleteProperty(summaryKey);
+  assert.equal(c.harness.properties.getProperty(summaryKey), null, 'the secondary index is intentionally missing');
+
+  c.harness.call('flushPendingCheckInsLocked_');
+
+  assert.ok(c.harness.properties.getProperty(summaryKey), 'deduplicated recovery must rebuild the missing student summary');
+  assert.equal(c.harness.properties.getProperty(pending.pendingPropertyKey), null, 'the durable inbox clears only after index repair');
+  assert.equal(c.checkIns().filter((entry) => entry['Student Email'] === PEOPLE.ada.email).length, 1,
+    'recovery must not duplicate the authoritative attendance row');
+});
+
 test('a full 1000-row check-in grid grows before the next inbox flush', () => {
   const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
   const sheet = c.harness.sheet('Daily Check-ins');

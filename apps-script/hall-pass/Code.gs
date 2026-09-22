@@ -1237,17 +1237,48 @@ function checkInEntryRow_(entry) {
 function flushPendingCheckInsLocked_() {
   const pending=readPendingCheckIns_().slice().sort((a,b)=>a.dateKey.localeCompare(b.dateKey)||a.checkInTime-b.checkInTime);
   if(!pending.length){ PropertiesService.getScriptProperties().deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY); return {written:0,deduplicated:0}; }
-  const existing=[]; [...new Set(pending.map((entry)=>entry.dateKey))].forEach((dateKey)=>existing.push(...readCheckInsForDate_(dateKey)));
-  const recorded=new Set(existing.filter((entry)=>checkInStatusIsRecorded_(entry.status)).map(checkInLogicalKey_)); const toWrite=[];
-  pending.forEach((entry)=>{ const key=checkInLogicalKey_(entry); if(recorded.has(key))return; toWrite.push(entry); recorded.add(key); });
+
+  const existing=[];
+  [...new Set(pending.map((entry)=>entry.dateKey))].forEach((dateKey)=>existing.push(...readCheckInsForDate_(dateKey)));
+  const existingByLogicalKey=new Map(
+    existing
+      .filter((entry)=>checkInStatusIsRecorded_(entry.status))
+      .map((entry)=>[checkInLogicalKey_(entry),entry])
+  );
+  const recorded=new Set(existingByLogicalKey.keys());
+  const toWrite=[];
+  const deduplicatedCanonical=[];
+
+  pending.forEach((entry)=>{
+    const key=checkInLogicalKey_(entry);
+    if(recorded.has(key)){
+      const canonical=existingByLogicalKey.get(key);
+      if(canonical) deduplicatedCanonical.push(canonical);
+      return;
+    }
+    toWrite.push(entry);
+    recorded.add(key);
+  });
+
   if(toWrite.length){
     const sheet=getSpreadsheet_().getSheetByName(GD_SHEETS.CHECKINS); const startRow=sheet.getLastRow()+1;
     ensureRowCapacity_(sheet,startRow+toWrite.length-1);
-    sheet.getRange(startRow,1,toWrite.length,GD_HEADERS.CHECKINS.length).setValues(toWrite.map(checkInEntryRow_)); SpreadsheetApp.flush();
+    sheet.getRange(startRow,1,toWrite.length,GD_HEADERS.CHECKINS.length).setValues(toWrite.map(checkInEntryRow_));
+    SpreadsheetApp.flush();
     toWrite.forEach(updateCheckInOperationalIndex_);
   }
-  const properties=PropertiesService.getScriptProperties(); pending.forEach((entry)=>properties.deleteProperty(entry.pendingPropertyKey));
-  properties.deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY); gdForget_('pending-checkins'); gdForget_('checkins');
+
+  // A prior attempt can commit the authoritative Sheet row and then fail while
+  // updating the secondary streak/late-review index. Do not discard the
+  // durable inbox entry until the canonical persisted row has repaired that
+  // secondary index too.
+  deduplicatedCanonical.forEach(updateCheckInOperationalIndex_);
+
+  const properties=PropertiesService.getScriptProperties();
+  pending.forEach((entry)=>properties.deleteProperty(entry.pendingPropertyKey));
+  properties.deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY);
+  gdForget_('pending-checkins');
+  gdForget_('checkins');
   return {written:toWrite.length,deduplicated:pending.length-toWrite.length};
 }
 
