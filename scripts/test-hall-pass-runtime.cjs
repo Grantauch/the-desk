@@ -1637,6 +1637,50 @@ test('pass-window denial text reflects configured first/last protection values',
   );
 });
 
+section('Operational index lifecycle');
+
+test('removing a class membership prunes its live Check-In summary but preserves unresolved late review', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:40:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.checkIn(PEOPLE.ada, 'Period 1');
+
+  const lateId = String(c.checkIns()[0]['Check-in ID']);
+  const summaryKey = c.harness.call('checkInSummaryPropertyKey_', key);
+  assert.ok(c.harness.properties.getProperty(summaryKey), 'active membership should have a live summary');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const state = c.harness.call('teacherRemoveStudentClass', key);
+
+  assert.equal(c.harness.properties.getProperty(summaryKey), null, 'inactive membership should release its live summary property');
+  assert.ok(state.pendingLateCheckIns.some((entry) => entry.checkInId === lateId),
+    'unresolved late evidence must survive membership removal');
+});
+
+test('rebuilding the operational index ignores historical inactive memberships and reactivation restores history', () => {
+  const c = classroom({ now: new Date('2026-09-10T11:30:00Z') });
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.checkIn(PEOPLE.ada, 'Period 1');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherRemoveStudentClass', key);
+
+  const summaryKey = c.harness.call('checkInSummaryPropertyKey_', key);
+  c.harness.properties.deleteProperty('CHECKIN_INDEX_SCHEMA');
+  c.harness.newRequest();
+  c.harness.call('rebuildCheckInOperationalIndex_');
+  assert.equal(c.harness.properties.getProperty(summaryKey), null,
+    'historical inactive memberships must not be recreated in the live summary index');
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherAddStudentClass', PEOPLE.ada.name, PEOPLE.ada.email, 'Period 1');
+  const restored = JSON.parse(c.harness.properties.getProperty(summaryKey));
+  assert.equal(restored.current, 1, 'reactivation should rebuild the student summary from authoritative attendance history');
+  assert.equal(restored.lastCountedDate, '2026-09-10');
+});
+
 section('Backend repair guardrails');
 
 test('teacher roster entry rejects a class label the bell engine cannot schedule', () => {
