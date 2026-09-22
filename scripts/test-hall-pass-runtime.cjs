@@ -339,6 +339,46 @@ test('both memberships store the same hash on the roster', () => {
   assert.notEqual([...hashes][0], '');
 });
 
+test('inactive historical PIN hashes do not invalidate active signed sessions', () => {
+  const c = classroom({
+    memberships: [
+      [PEOPLE.ada, 'Period 1'],
+      [PEOPLE.ada, 'Period 3', { active: false }],
+      [PEOPLE.alan, 'Period 1'],
+    ],
+  });
+  const roster = c.harness.sheet('Roster');
+  const inactive = c.rosterRows().find((row) => row['Student Email'] === PEOPLE.ada.email && row['Class / Period'] === 'Period 3');
+  const inactiveRow = c.rosterRows().findIndex((row) => row === inactive) + 2;
+  roster.getRange(inactiveRow, 4).setValue(c.harness.call('hashPin_', '999999'));
+
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const authorized = c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'AUTO_PASS', key, 'inactive-history');
+  c.harness.newRequest();
+  assert.doesNotThrow(() => c.harness.call('refreshStudentState', authorized.pinToken));
+});
+
+test('conflicting active PIN hashes fail before a signed action proof is issued', () => {
+  const c = classroom({
+    memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3'], [PEOPLE.alan, 'Period 1']],
+  });
+  const roster = c.harness.sheet('Roster');
+  const rows = c.rosterRows();
+  const secondIndex = rows.findIndex((row) => row['Student Email'] === PEOPLE.ada.email && row['Class / Period'] === 'Period 3');
+  roster.getRange(secondIndex + 2, 4).setValue(c.harness.call('hashPin_', '999999'));
+
+  const beforeProofs = Object.keys(c.harness.properties.getProperties()).filter((key) => key.startsWith('student-action:')).length;
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('authorizeStudentAction', c.pin(PEOPLE.ada), 'AUTO_PASS', c.key(PEOPLE.ada, 'Period 1'), 'active-conflict'),
+    /active PIN records do not agree/i
+  );
+  const afterProofs = Object.keys(c.harness.properties.getProperties()).filter((key) => key.startsWith('student-action:')).length;
+  assert.equal(afterProofs, beforeProofs, 'conflicting active credentials must fail before issuing a one-use proof');
+});
+
 test('different students never share a PIN', () => {
   const c = classroom();
   const pins = new Set([c.pin(PEOPLE.ada), c.pin(PEOPLE.alan), c.pin(PEOPLE.grace)]);
