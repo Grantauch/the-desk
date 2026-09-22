@@ -565,6 +565,10 @@ assert.match(html, /class rosters\./);
 assert.match(html, /data-remove-student/);
 assert.match(html, /teacherAddStudentClass/);
 assert.match(code, /GD_TEACHER_CONTRACT\s*=\s*'2026-09-22-all-teacher-rpcs'/);
+assert.match(html, /const TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';/,
+  'Teacher browser contract must exactly match the server contract');
+assert.match(releaseHtml, /releaseRunSyntheticSmoke\('2026-09-22-all-teacher-rpcs'\)/,
+  'Private release check must exactly match the server contract');
 [
   'teacherApplyUnmatchedEmail','teacherDismissUnmatched','teacherClearUnmatchedSignIns',
   'teacherSetPassRules','teacherResetStudentPassCounters','teacherAddStudentClass',
