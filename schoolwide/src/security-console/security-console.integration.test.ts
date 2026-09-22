@@ -176,7 +176,7 @@ async function insertWaiting(client: PoolClient, fixture: HallPassFixture): Prom
 
 test('SW-110 Security Console', { skip: !databaseUrl }, async (t) => {
   await t.test('T-AX-001/002/003/004/005/006 shell is keyboard/focus/live-region/mobile safe and exposes no force-close control', () => {
-    const html = securityConsoleHtml();
+    const html = securityConsoleHtml('test-nonce');
     assert.match(html, /<main class="wrap">/);
     assert.match(html, /<dialog id="actionDialog"/);
     assert.match(html, /aria-live="polite"/);
