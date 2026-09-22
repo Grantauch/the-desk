@@ -132,7 +132,7 @@ function releaseRunSyntheticSmoke(clientContract) {
     releaseAssert_(returned.actionOutcome.kind === 'RETURNED_COUNTABLE','fresh PIN did not return countable pass');
     const evidence = teacherGetMembershipPasses(student.key,GD_TEACHER_CONTRACT);
     releaseAssert_(evidence.used === 1 && evidence.passes.length === 1,'membership evidence disagrees');
-    teacherVoidPass(evidence.passes[0].passId,'Synthetic release check completed');
+    teacherVoidPass(evidence.passes[0].passId,'Synthetic release check completed',GD_TEACHER_CONTRACT);
     book.getSheetByName(GD_SHEETS.ROSTER).getRange(student.row,5).setValue(false);
     releaseAssertPreserved_(before,production);
     const result = { ok: true, schema: GD_SCHEMA_VERSION, clientContract: GD_TEACHER_CONTRACT,
