@@ -1234,6 +1234,24 @@ function checkInEntryRow_(entry) {
 }
 
 /** Must be called while the shared script lock is held. */
+function clearConflictingAbsenceForCheckIn_(checkIn, existingEntries) {
+  if (!checkIn || !checkIn.studentKey || !checkIn.dateKey) return false;
+  const absence = (existingEntries || []).find((entry) => (
+    entry.status === 'ABSENT'
+    && entry.dateKey === checkIn.dateKey
+    && entry.studentKey === checkIn.studentKey
+  ));
+  if (!absence) return false;
+  clearAbsentEntry_(
+    absence,
+    checkInStatusIsLate_(checkIn.status)
+      ? 'Cleared when late student check-in was recorded'
+      : 'Cleared when student check-in was recorded'
+  );
+  absence.status = 'CLEARED';
+  return true;
+}
+
 function flushPendingCheckInsLocked_() {
   const pending=readPendingCheckIns_().slice().sort((a,b)=>a.dateKey.localeCompare(b.dateKey)||a.checkInTime-b.checkInTime);
   if(!pending.length){ PropertiesService.getScriptProperties().deleteProperty(GD_CHECKIN_FLUSH_ERROR_PROPERTY); return {written:0,deduplicated:0}; }
@@ -1265,14 +1283,20 @@ function flushPendingCheckInsLocked_() {
     ensureRowCapacity_(sheet,startRow+toWrite.length-1);
     sheet.getRange(startRow,1,toWrite.length,GD_HEADERS.CHECKINS.length).setValues(toWrite.map(checkInEntryRow_));
     SpreadsheetApp.flush();
-    toWrite.forEach(updateCheckInOperationalIndex_);
+    toWrite.forEach((entry) => {
+      clearConflictingAbsenceForCheckIn_(entry, existing);
+      updateCheckInOperationalIndex_(entry);
+    });
   }
 
   // A prior attempt can commit the authoritative Sheet row and then fail while
   // updating the secondary streak/late-review index. Do not discard the
   // durable inbox entry until the canonical persisted row has repaired that
   // secondary index too.
-  deduplicatedCanonical.forEach(updateCheckInOperationalIndex_);
+  deduplicatedCanonical.forEach((entry) => {
+    clearConflictingAbsenceForCheckIn_(entry, existing);
+    updateCheckInOperationalIndex_(entry);
+  });
 
   const properties=PropertiesService.getScriptProperties();
   pending.forEach((entry)=>properties.deleteProperty(entry.pendingPropertyKey));
@@ -2793,7 +2817,7 @@ function getTeacherState_(options) {
   const lateCheckInsToday = checkInsToday.filter((checkIn) => checkInStatusIsLate_(checkIn.status));
   const pendingLateCheckIns = readPendingLateReviews_();
   const checkedKeys = new Set(checkInsToday.map((checkIn) => checkIn.studentKey));
-  const absencesToday = todayEntries.filter((entry) => entry.status === 'ABSENT').sort((a, b) => a.studentName.localeCompare(b.studentName));
+  const absencesToday = todayEntries.filter((entry) => entry.status === 'ABSENT' && !checkedKeys.has(entry.studentKey)).sort((a, b) => a.studentName.localeCompare(b.studentName));
   const absentKeys = new Set(absencesToday.map((entry) => entry.studentKey));
   const classNames = [...new Set(roster.map((student) => student.classPeriod || 'class'))]
     .sort((a, b) => a.localeCompare(b));
