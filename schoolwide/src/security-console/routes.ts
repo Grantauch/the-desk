@@ -5,6 +5,7 @@ import { StaffAuthorizationService } from '../auth/authorization.js';
 import { StaffAuthenticationService } from '../auth/service.js';
 import { AuthenticationError, AuthorizationError } from '../auth/types.js';
 import { SecurityConsoleService } from './service.js';
+import { secureStaffHtml } from '../http/security-headers.js';
 import { SecurityConsoleError } from './types.js';
 import { securityConsoleHtml } from './ui.js';
 
@@ -72,10 +73,8 @@ export function registerSecurityConsoleRoutes(
   { authentication, authorization, securityConsole }: RegisterSecurityConsoleRoutesOptions,
 ): void {
   app.get('/security', async (_request, reply) => {
-    reply.header('content-type', 'text/html; charset=utf-8');
-    reply.header('cache-control', 'no-store');
-    reply.header('content-security-policy', "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
-    return securityConsoleHtml();
+    const scriptNonce = secureStaffHtml(reply);
+    return securityConsoleHtml(scriptNonce);
   });
 
   app.get('/api/v1/security/live-passes', async (request, reply) => {
