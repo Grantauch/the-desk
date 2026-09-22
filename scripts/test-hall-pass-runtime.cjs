@@ -2210,6 +2210,32 @@ test('a roster sync request ID cannot be reused for different changes', () => {
   assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === 'other.student@students.mtmorrisschools.org'));
 });
 
+test('roster sync replay records are age-pruned and count-bounded', () => {
+  const c = classroom();
+  const properties = c.harness.properties;
+  const oldKey = c.harness.call('rosterSyncRequestKey_', 'old-roster-sync-request');
+  properties.setProperty(oldKey, JSON.stringify({
+    v: 1,
+    at: '2026-08-01T12:00:00.000Z',
+    payloadDigest: 'old',
+    result: { ok: true },
+  }));
+  for (let index = 0; index < 105; index += 1) {
+    const key = c.harness.call('rosterSyncRequestKey_', `fresh-roster-sync-${index}`);
+    properties.setProperty(key, JSON.stringify({
+      v: 1,
+      at: new Date(2026, 8, 10, 7, 30, index % 60).toISOString(),
+      payloadDigest: `fresh-${index}`,
+      result: { ok: true },
+    }));
+  }
+
+  c.harness.call('pruneRosterSyncRequests_', 0);
+  const retained = Object.keys(properties.getProperties()).filter((key) => key.startsWith('roster-sync-request:'));
+  assert.ok(retained.length <= 100, 'replay retention must stay within its configured record cap');
+  assert.equal(properties.getProperty(oldKey), null, 'expired replay evidence must be removed');
+});
+
 section('Backend repair guardrails');
 
 test('teacher roster entry rejects a class label the bell engine cannot schedule', () => {
