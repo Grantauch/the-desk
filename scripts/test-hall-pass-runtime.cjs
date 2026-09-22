@@ -344,13 +344,13 @@ test('minute durability trigger resumes queue settlement after a committed retur
 
   c.harness.newRequest();
   c.harness.call('closePassById_', String(adaPass['Pass ID']), PEOPLE.ada.email, 'Synthetic committed return before settlement');
-  assert.ok(c.passQueue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'));
+  assert.ok(c.queue().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING'));
 
   const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
   c.harness.newRequest();
   c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id });
 
-  assert.equal(c.passQueue().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING').length, 0);
+  assert.equal(c.queue().filter((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'WAITING').length, 0);
   assert.ok(c.passLog().some((row) => row['Student Email'] === PEOPLE.alan.email && String(row.Status) === 'OUT'),
     'the timer must promote the waiting verified request into the newly open slot');
 });
