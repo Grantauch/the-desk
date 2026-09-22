@@ -20,6 +20,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'bts-whats-my-name',
+    href: '/hubs/bts-whats-my-name.html',
+    title: 'what’s my name',
+    course: 'beyond the scoreboard',
+    unit: 'unit 04 / the athlete revolt',
+    period: '1964–1971',
+    status: 'ready to teach',
+    question: 'who gets to decide what a person is called—and what can that decision cost?',
+    blurb:
+      'Muhammad Ali changes his name, refuses the draft, loses his title and the best years of his athletic prime, then wins at the Supreme Court. Students use six sources to decide what the stand cost him and whether it was worth it.',
+    cover: '/storyhub/bts/whats-my-name/assets/a01-ali-portrait.jpg',
+    coverAlt: 'Muhammad Ali raising a gloved fist beside the words What’s My Name',
+    topics: ['muhammad ali', 'identity', 'vietnam war', 'draft resistance', 'athlete protest'],
+    inside: [
+      'Six source-based sections covering the name change, the draft, the Terrell fight, the press, and the Supreme Court case.',
+      'A visual timeline of the 1,277 days Ali lost during his athletic prime.',
+      'A cost-versus-gain evidence ledger followed by a 250-word argument using at least three sources.',
+      'Student answers save in the browser and can be copied into the Classroom assignment.',
+    ],
+  },
+  {
     slug: 'ush9-l016-the-one-that-passed',
     href: '/hubs/ush9-l016-the-one-that-passed.html',
     title: 'the one that passed · episode one',

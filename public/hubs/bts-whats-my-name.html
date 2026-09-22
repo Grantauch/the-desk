@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="index, follow">
+<title>What&#39;s My Name &middot; Beyond the Scoreboard</title>
+<meta name="description" content="A six source investigation into Muhammad Ali&#39;s name change and his refusal of the draft, 1964 to 1971.">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-whats-my-name.html">
+<meta property="og:title" content="What&#39;s My Name · Muhammad Ali and the Price of a Name">
+<meta property="og:description" content="A six-source investigation into Muhammad Ali&#39;s name change, draft refusal, and the price he paid from 1964 to 1971.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-whats-my-name.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/whats-my-name/assets/a01-ali-portrait.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  --ink:#100d0b;
+  --paper:#d9d5c8;
+  --paper2:#cfcabb;
+  --card:#e4e0d4;
+  --red:#b0131c;
+  --red-dk:#7d0d13;
+  --gold:#8a6a1f;
+  --rule:#9c9685;
+  --dim:#4a4640;
+  --focus:#b0131c;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:Spectral,Georgia,'Times New Roman',serif;
+  font-size:17px;
+  line-height:1.62;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(16,13,11,.022) 0 1px,transparent 1px 3px),
+    radial-gradient(ellipse at 20% 0%,rgba(16,13,11,.06),transparent 60%);
+}
+.wrap{max-width:860px;margin:0 auto;padding-inline:20px;padding-block:34px 72px}
+
+/* ---------- POSTER HEAD ---------- */
+.poster{
+  background:var(--ink);
+  color:var(--paper);
+  margin-inline:-20px;
+  padding:34px 20px 26px;
+  border-bottom:7px solid var(--red);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.poster::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(217,213,200,.5) .9px,transparent 1px);
+  background-size:5px 5px;
+  opacity:.16;pointer-events:none;
+  mask-image:radial-gradient(ellipse at 50% 120%,#000 10%,transparent 72%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 120%,#000 10%,transparent 72%);
+}
+.poster > *{position:relative}
+.poster .kicker{
+  font-family:Oswald,'Arial Narrow',sans-serif;
+  font-weight:600;font-size:.72rem;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--red);
+  border-top:1px solid #35302b;border-bottom:1px solid #35302b;
+  padding:7px 0;margin-bottom:22px;
+}
+.poster h1{
+  font-family:Anton,'Arial Black',sans-serif;
+  font-weight:400;
+  font-size:clamp(3.1rem,15vw,7.4rem);
+  line-height:.84;
+  letter-spacing:-.015em;
+  margin:0;
+  text-transform:uppercase;
+  text-wrap:balance;
+}
+.poster h1 em{font-style:normal;color:var(--red);display:block}
+.poster .sub{
+  font-family:Oswald,'Arial Narrow',sans-serif;
+  font-weight:400;font-size:clamp(.82rem,3vw,1.02rem);
+  letter-spacing:.2em;text-transform:uppercase;
+  margin-top:20px;color:#b8b2a4;
+}
+.poster .bout{
+  display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;
+  margin-top:24px;
+  font-family:Oswald,'Arial Narrow',sans-serif;
+  font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:#7d766a;
+}
+.poster .bout span{white-space:nowrap}
+.poster .bout i{font-style:normal;color:var(--red)}
+
+/* ---------- IDENTITY BAR ---------- */
+.idbar{
+  display:flex;gap:0;flex-wrap:wrap;
+  border:2px solid var(--ink);
+  background:var(--card);
+  margin-inline:-20px;
+}
+.idbar label{
+  flex:1 1 180px;display:flex;align-items:center;gap:10px;
+  padding:11px 16px;border-right:1px solid var(--rule);
+  font-family:Oswald,'Arial Narrow',sans-serif;
+  font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+.idbar label:last-child{border-right:0}
+.idbar input{
+  flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--rule);
+  background:transparent;font-family:Oswald,sans-serif;font-size:.95rem;
+  color:var(--ink);padding:2px 4px;
+}
+.idbar input:focus{outline:0;border-bottom-color:var(--red)}
+
+/* ---------- OPENER ---------- */
+.opener{
+  margin-top:34px;padding:26px 26px 22px;
+  background:var(--card);
+  border-left:7px solid var(--red);
+  box-shadow:3px 3px 0 rgba(16,13,11,.16);
+}
+.opener p{margin:0 0 13px}
+.opener p:last-child{margin-bottom:0}
+.opener .lead::first-letter{
+  font-family:Anton,sans-serif;float:left;font-size:3.5rem;line-height:.78;
+  padding:5px 10px 0 0;color:var(--red);
+}
+.opener strong{font-weight:600}
+
+/* ---------- SECTION HEADS ---------- */
+.parthead{
+  margin:56px 0 0;
+  border-top:3px solid var(--ink);
+  padding-top:10px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
+  font-family:Oswald,'Arial Narrow',sans-serif;
+  text-transform:uppercase;
+}
+.parthead b{font-size:1.32rem;letter-spacing:.1em;font-weight:700}
+.parthead span{font-size:.7rem;letter-spacing:.2em;color:var(--dim)}
+
+/* ---------- SOURCE CARDS ---------- */
+.src{
+  margin-top:30px;background:var(--card);
+  border:1.5px solid var(--rule);
+  box-shadow:4px 4px 0 rgba(16,13,11,.13);
+}
+.src > header{
+  display:flex;align-items:stretch;gap:0;
+  background:var(--ink);color:var(--paper);
+}
+.src .letter{
+  font-family:Anton,sans-serif;font-size:2.15rem;line-height:1;
+  background:var(--red);color:#fff;
+  padding:12px 18px;display:flex;align-items:center;
+}
+.src .htxt{padding:10px 16px;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
+.src .htxt b{
+  font-family:Oswald,sans-serif;font-weight:600;font-size:1.02rem;
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.src .htxt span{
+  font-family:Oswald,sans-serif;font-size:.66rem;letter-spacing:.2em;
+  text-transform:uppercase;color:#9a9385;
+}
+.src .body{padding:22px 24px 6px}
+.src .body > p{margin:0 0 14px}
+
+blockquote{
+  margin:22px 0;padding:20px 22px;
+  background:var(--ink);color:var(--paper);
+  border-left:7px solid var(--red);
+}
+blockquote p{
+  margin:0;
+  font-family:Anton,'Arial Black',sans-serif;
+  font-size:clamp(1.25rem,4.4vw,1.85rem);
+  line-height:1.2;letter-spacing:.004em;
+  text-transform:uppercase;
+}
+blockquote.plain p{
+  font-family:Spectral,Georgia,serif;text-transform:none;
+  font-size:clamp(1.02rem,2.9vw,1.16rem);line-height:1.55;font-weight:400;
+}
+blockquote cite{
+  display:block;margin-top:14px;font-style:normal;
+  font-family:Oswald,sans-serif;font-size:.65rem;
+  letter-spacing:.2em;text-transform:uppercase;color:#9a9385;
+}
+
+/* ---------- QUESTIONS ---------- */
+.q{border-top:1px solid var(--rule);padding:18px 0 4px}
+.q:first-of-type{border-top:2px solid var(--ink);margin-top:6px}
+.q .qlab{
+  display:flex;gap:11px;align-items:baseline;margin-bottom:10px;
+}
+.q .qnum{
+  font-family:Anton,sans-serif;color:var(--red);font-size:1rem;
+  letter-spacing:.06em;flex:none;
+}
+.q .qtxt{font-size:1rem;line-height:1.5}
+textarea{
+  width:100%;background:#efece2;color:var(--ink);
+  border:1.5px solid var(--rule);border-bottom:2.5px solid var(--ink);
+  font-family:Spectral,Georgia,serif;font-size:1rem;line-height:1.75;
+  padding:11px 13px;resize:vertical;
+  background-image:repeating-linear-gradient(transparent 0 calc(1.75em - 1px),rgba(156,150,133,.4) calc(1.75em - 1px) 1.75em);
+  background-attachment:local;
+}
+textarea:focus{outline:0;border-color:var(--red);border-bottom-color:var(--red);background-color:#f5f2e9}
+.mini{min-height:76px}
+
+/* ---------- STICKY COVER ---------- */
+.predrop{display:none}
+.hero{
+  position:sticky;top:0;z-index:0;
+  height:76vh;min-height:420px;max-height:780px;
+  overflow:hidden;background:#070605;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.heroimg{position:absolute;inset:0;background-size:cover;background-position:50% 10%}
+.heroscrim{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(rgba(217,213,200,.5) .9px,transparent 1px) 0 0/5px 5px,
+    linear-gradient(180deg,rgba(7,6,5,.80) 0%,rgba(7,6,5,.18) 30%,rgba(7,6,5,.55) 62%,rgba(7,6,5,.95) 92%,#070605 100%);
+}
+.herotype{position:relative;width:100%;text-align:center;padding:74px 20px 34px;color:var(--paper);
+  background:linear-gradient(180deg,rgba(7,6,5,0) 0%,rgba(7,6,5,.58) 22%,rgba(7,6,5,.88) 52%,rgba(7,6,5,.97) 100%)}
+.herotype .kicker{
+  font-family:Oswald,'Arial Narrow',sans-serif;font-weight:600;font-size:.7rem;
+  letter-spacing:.32em;text-transform:uppercase;color:#e0555c;
+  border-top:1px solid rgba(176,19,28,.55);border-bottom:1px solid rgba(176,19,28,.55);
+  padding:7px 0;margin:0 auto 20px;max-width:520px;
+}
+.herotype h1{
+  font-family:Anton,'Arial Black',sans-serif;font-weight:400;
+  font-size:clamp(3rem,13.5vw,6.8rem);line-height:.84;letter-spacing:-.015em;
+  margin:0;text-transform:uppercase;text-wrap:balance;
+  text-shadow:0 4px 26px rgba(7,6,5,.85);
+}
+.herotype h1 em{font-style:normal;color:var(--red);display:block}
+.herotype .sub{
+  font-family:Oswald,'Arial Narrow',sans-serif;font-size:clamp(.8rem,3vw,1rem);
+  letter-spacing:.2em;text-transform:uppercase;margin-top:18px;color:#c3bcae;
+  text-shadow:0 2px 12px rgba(7,6,5,.9);
+}
+.herotype .bout{
+  display:flex;gap:13px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:18px;
+  font-family:Oswald,'Arial Narrow',sans-serif;font-size:.66rem;
+  letter-spacing:.22em;text-transform:uppercase;color:#8f887b;
+}
+.herotype .bout i{font-style:normal;color:var(--red)}
+.cue{margin-top:24px;height:26px;display:flex;justify-content:center}
+.cue span{
+  width:11px;height:11px;border-right:2px solid var(--red);border-bottom:2px solid var(--red);
+  transform:rotate(45deg);animation:drop 1.9s ease-in-out infinite;
+}
+@keyframes drop{0%,100%{transform:translateY(-4px) rotate(45deg);opacity:.35}50%{transform:translateY(4px) rotate(45deg);opacity:1}}
+@media(prefers-reduced-motion:reduce){.cue span{animation:none;opacity:.8}}
+
+.wrap{position:relative;z-index:1;background:var(--paper);box-shadow:0 -30px 70px rgba(7,6,5,.62)}
+
+/* ---------- PHOTOGRAPHS ---------- */
+figure.photo{background:var(--ink);border-left:7px solid var(--red);padding:0;margin:26px 0}
+figure.photo img{display:block;width:100%;height:auto;background:#070605}
+figure.photo figcaption{margin:0;padding:15px 20px 17px;border-top:0}
+figure.photo .credit{
+  display:block;margin-top:9px;font-family:Oswald,sans-serif;font-size:.6rem;
+  letter-spacing:.18em;text-transform:uppercase;color:#b8b2a4;
+}
+.photopair{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:26px 0;border-left:7px solid var(--red);background:var(--ink)}
+.photopair figure{margin:0;border-left:0;background:transparent}
+.photopair figure:first-child{border-right:1px solid #2b2724}
+.photopair img{height:370px;object-fit:contain;object-position:center}
+@media(max-width:620px){
+  .photopair{grid-template-columns:1fr}
+  .photopair figure:first-child{border-right:0;border-bottom:1px solid #2b2724}
+  .photopair img{height:300px}
+}
+figure.photo.tall img{max-height:470px;object-fit:contain}
+figure.photo.narrow img{max-width:420px;margin:0 auto}
+figure.photo.clip video{display:block;width:100%;max-width:330px;margin:0 auto;background:#070605}
+
+/* ---------- FIGURES ---------- */
+figure{
+  margin:26px 0;background:var(--ink);border-left:7px solid var(--red);
+  padding:20px 22px 16px;
+}
+figure .figtop{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;
+  font-family:Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;margin-bottom:16px;
+}
+figure .figtop b{color:var(--paper);font-size:1.02rem;font-weight:600;letter-spacing:.16em}
+figure .figtop span{color:#8b8477;font-size:.62rem;letter-spacing:.2em}
+figure .plot{overflow-x:auto}
+figure svg{display:block;width:100%;height:auto;min-width:440px}
+figcaption{
+  margin-top:14px;padding-top:12px;border-top:1px solid #35302b;
+  color:#a7a094;font-size:.88rem;line-height:1.55;
+}
+figcaption b{color:var(--paper);font-weight:600}
+.figsplit{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:26px 0;border:2px solid var(--ink)}
+@media(max-width:620px){.figsplit{grid-template-columns:1fr}}
+
+/* ---------- THE BILL ---------- */
+.tablewrap{overflow-x:auto;margin-top:22px;border:2px solid var(--ink)}
+table{border-collapse:collapse;width:100%;background:var(--card);min-width:520px}
+th{
+  background:var(--ink);color:var(--paper);text-align:left;
+  font-family:Oswald,sans-serif;font-weight:600;font-size:.66rem;
+  letter-spacing:.2em;text-transform:uppercase;padding:11px 14px;
+}
+td{padding:11px 14px;border-top:1px solid var(--rule);font-size:.95rem;vertical-align:top}
+td:first-child{
+  font-family:Oswald,sans-serif;font-weight:600;font-size:.82rem;
+  white-space:nowrap;color:var(--red-dk);letter-spacing:.04em;
+}
+tr.pivot td{background:#ded9c9;font-weight:600}
+
+/* ---------- LEDGER ---------- */
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:26px;border:2px solid var(--ink)}
+.ledger > div{padding:20px 20px 22px;background:var(--card)}
+.ledger > div:first-child{border-right:2px solid var(--ink);background:#e7e2d5}
+.ledger h3{
+  font-family:Anton,sans-serif;font-weight:400;font-size:1.12rem;
+  letter-spacing:.05em;text-transform:uppercase;margin:0 0 4px;
+}
+.ledger .cost h3{color:var(--red)}
+.ledger .gain h3{color:#5f4814}
+.ledger .note{font-family:Oswald,sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.lrow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.lrow em{
+  font-style:normal;font-family:Anton,sans-serif;font-size:.82rem;
+  color:var(--rule);flex:none;width:15px;
+}
+.lrow input{
+  flex:1;min-width:0;background:transparent;border:0;border-bottom:1.5px solid var(--rule);
+  font-family:Spectral,serif;font-size:.95rem;color:var(--ink);padding:4px 2px;
+}
+.lrow input:focus{outline:0;border-bottom-color:var(--red)}
+@media(max-width:620px){
+  .ledger{grid-template-columns:1fr}
+  .ledger > div:first-child{border-right:0;border-bottom:2px solid var(--ink)}
+}
+
+/* ---------- PROMPTS ---------- */
+.prompts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+@media(max-width:680px){.prompts{grid-template-columns:1fr}}
+.prompt{
+  background:var(--card);border:2px solid var(--ink);padding:0;
+  cursor:pointer;display:flex;flex-direction:column;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.prompt:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(16,13,11,.2)}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph{
+  background:#e7e2d5;border-bottom:2px solid var(--ink);
+  padding:11px 16px;display:flex;align-items:center;gap:11px;
+  font-family:Oswald,sans-serif;font-weight:600;font-size:.72rem;
+  letter-spacing:.2em;text-transform:uppercase;
+}
+.prompt .dot{
+  width:15px;height:15px;border:2px solid var(--ink);border-radius:50%;
+  flex:none;background:transparent;
+}
+.prompt .pb{padding:16px;font-size:.97rem;line-height:1.55}
+.prompt .pb b{font-weight:600}
+.prompt:has(input:checked){background:var(--ink);color:var(--paper);box-shadow:5px 5px 0 var(--red)}
+.prompt:has(input:checked) .ph{background:var(--red);color:#fff;border-bottom-color:var(--red-dk)}
+.prompt:has(input:checked) .dot{background:#fff;border-color:#fff}
+.prompt:has(input:focus-visible){outline:3px solid var(--red);outline-offset:3px}
+
+.essaybox{margin-top:22px}
+.essaymeta{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;
+  font-family:Oswald,sans-serif;font-size:.68rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:8px;
+}
+#wc{font-weight:700;color:var(--red)}
+#wc.ok{color:#2e6b34}
+
+/* ---------- ACTION BAR ---------- */
+.actions{
+  margin-top:40px;padding:24px;background:var(--ink);color:var(--paper);
+  display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  border-bottom:7px solid var(--red);
+}
+.actions p{margin:0;font-size:.92rem;color:#a7a094;max-width:44ch}
+button{
+  font-family:Anton,sans-serif;font-size:1.02rem;letter-spacing:.09em;text-transform:uppercase;
+  background:var(--red);color:#fff;border:0;padding:15px 30px;cursor:pointer;
+  transition:background .12s ease,transform .1s ease;
+}
+button:hover{background:#d0181f;transform:translateY(-1px)}
+button:focus-visible{outline:3px solid var(--paper);outline-offset:3px}
+button.done{background:#2e6b34}
+
+.refs{
+  margin-top:48px;border-top:2px solid var(--ink);padding-top:18px;
+  font-size:.83rem;line-height:1.7;color:var(--dim);
+}
+.refs b{
+  display:block;font-family:Oswald,sans-serif;font-weight:600;font-size:.66rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;
+}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px}
+.refs i{font-style:italic}
+
+.saved{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);color:var(--paper);
+  font-family:Oswald,sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:9px 18px;border-left:4px solid var(--red);
+  opacity:0;transition:opacity .3s ease;pointer-events:none;z-index:40;
+}
+.saved.show{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="predrop"></div>
+
+<div class="hero">
+  <div class="heroimg" style="background-image:url(/storyhub/bts/whats-my-name/assets/a01-ali-portrait.jpg)"></div>
+  <div class="heroscrim"></div>
+  <div class="herotype">
+    <div class="kicker">Beyond the Scoreboard &nbsp;·&nbsp; Source Investigation</div>
+    <h1>What's<br><em>My Name</em></h1>
+    <div class="sub">Muhammad Ali and the Price of a Name</div>
+    <div class="bout">
+      <span>Louisville <i>1942</i></span><span>·</span>
+      <span>Houston <i>1967</i></span><span>·</span>
+      <span>Washington <i>1971</i></span>
+    </div>
+    <div class="cue" aria-hidden="true"><span></span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+
+  <section class="opener">
+    <p class="lead">A name is the cheapest thing a person owns. Nobody pays for it. Nobody can see it. It weighs nothing.</p>
+    <p>In 1964 a 22 year old heavyweight champion changed his, and it cost him his title, his license to work, his passport, and three and a half years of the best athletic prime any fighter has ever had. Newspapers refused to print the new name. Another fighter refused to say it in the ring.</p>
+    <p><strong>Read every source. Answer in complete sentences. Cite sources by letter.</strong></p>
+  </section>
+
+  <div class="parthead"><b>Part One · The Sources</b><span>Six documents, 1964 to 1971</span></div>
+
+  <!-- A -->
+  <article class="src">
+    <header><div class="letter">A</div><div class="htxt"><b>The Name</b><span>March 6, 1964</span></div></header>
+    <div class="body">
+      <p>On March 6, 1964, Elijah Muhammad announced over the radio that the new heavyweight champion would be known as Muhammad Ali. The fighter had been born Cassius Marcellus Clay Jr. in Louisville, Kentucky, on January 17, 1942. He was named after his father, who was named after a white Kentucky politician who had owned enslaved people before turning against slavery.</p>
+      <blockquote>
+        <p>Cassius Clay is a slave name. I didn't choose it, and I didn't want it. I am Muhammad Ali, a free name.</p>
+        <cite>Muhammad Ali, 1964</cite>
+      </blockquote>
+      <div class="photopair"><figure class="photo"><img src="/storyhub/bts/whats-my-name/assets/a02-clay-louisville.jpg" alt="Cassius Clay as a boy in boxing stance, wearing Louisville trunks."><figcaption>The trunks say Louisville. The name on the birth certificate came from a Kentucky politician whose family had owned enslaved people.<span class="credit">Cassius Clay, Louisville, around age twelve · photographer unknown, later colorized</span></figcaption></figure><figure class="photo"><img src="/storyhub/bts/whats-my-name/assets/a03-malcolm-x.jpg" alt="Malcolm X and Muhammad Ali standing together in a crowd."><figcaption>Malcolm X brought him into the Nation of Islam and was beside him in Miami the week he took the title. Within a year Ali cut him off, after Malcolm broke with Elijah Muhammad. Ali later called it one of the deepest regrets of his life.<span class="credit">Malcolm X and Muhammad Ali, 1964 · colorization credited to jecinci</span></figcaption></figure></div>
+      <div class="q"><div class="qlab"><span class="qnum">A1</span><span class="qtxt">According to Ali, what is wrong with the name Cassius Clay? Quote the phrase he uses.</span></div><textarea class="mini" data-q="A1" aria-label="Answer to question A1"></textarea></div>
+      <div class="q"><div class="qlab"><span class="qnum">A2</span><span class="qtxt">Ali said he would <em>insist</em> that people use the new name. Why does insisting matter more than simply changing it on paper?</span></div><textarea class="mini" data-q="A2" aria-label="Answer to question A2"></textarea></div>
+    </div>
+  </article>
+
+  <!-- B -->
+  <article class="src">
+    <header><div class="letter">B</div><div class="htxt"><b>The Draft</b><span>February 17, 1966</span></div></header>
+    <div class="body">
+      <p>On February 17, 1966, Ali learned his draft status had changed to 1A, which meant he was eligible to be called into the Army. He had failed the qualifying test twice in 1964 and been classified 1Y, or not qualified. The Army lowered the passing score in 1965 and roughly 100,000 men who had previously failed became eligible.</p>
+      <p>Reporters came to his house in Miami that afternoon and asked him about it over and over. Late in the day he said:</p>
+      <blockquote>
+        <p>I ain't got no quarrel with them Viet Cong.</p>
+        <cite>Muhammad Ali, February 17, 1966, to reporters in Miami</cite>
+      </blockquote>
+      <div class="q"><div class="qlab"><span class="qnum">B1</span><span class="qtxt">What does the word "quarrel" mean here, and what is Ali saying he does not have?</span></div><textarea class="mini" data-q="B1" aria-label="Answer to question B1"></textarea></div>
+      <div class="q"><div class="qlab"><span class="qnum">B2</span><span class="qtxt">He said this off the cuff on his front lawn. It ran on front pages across the country the next morning. Why would one sentence from a boxer become national news in February 1966?</span></div><textarea class="mini" data-q="B2" aria-label="Answer to question B2"></textarea></div>
+    </div>
+  </article>
+
+  <!-- C -->
+  <article class="src">
+    <header><div class="letter">C</div><div class="htxt"><b>The Reasoning</b><span>1967</span></div></header>
+    <div class="body">
+      <p>In 1967, as his induction date approached, Ali explained his position at greater length:</p>
+      <blockquote class="plain">
+        <p>Why should they ask me to put on a uniform and go 10,000 miles from home and drop bombs and bullets on brown people in Vietnam while so called Negro people in Louisville are treated like dogs and denied simple human rights? No, I am not going 10,000 miles from home to help murder and burn another poor nation simply to continue the domination of white slave masters of the darker people the world over. This is the day when such evils must come to an end.</p>
+        <cite>Muhammad Ali, 1967</cite>
+      </blockquote>
+      <figure class="photo"><img src="/storyhub/bts/whats-my-name/assets/a04-ali-children.jpg" alt="Muhammad Ali crouching and talking with a group of Black children outdoors."><figcaption>The people in the second half of that sentence were not an abstraction to him.<span class="credit">Still from CBS News footage</span></figcaption></figure>
+      <div class="q"><div class="qlab"><span class="qnum">C1</span><span class="qtxt">Ali compares two places. Name both and explain what he says they have in common.</span></div><textarea class="mini" data-q="C1" aria-label="Answer to question C1"></textarea></div>
+      <div class="q"><div class="qlab"><span class="qnum">C2</span><span class="qtxt">Ali was a minister in the Nation of Islam and applied for conscientious objector status, a legal category for people whose religion forbids them to fight. Based on this source, is his argument religious, political, or both? Defend your answer with a quote.</span></div><textarea class="mini" data-q="C2" aria-label="Answer to question C2"></textarea></div>
+    </div>
+  </article>
+
+  <!-- D -->
+  <article class="src">
+    <header><div class="letter">D</div><div class="htxt"><b>The Fight</b><span>February 6, 1967 · Houston Astrodome</span></div></header>
+    <div class="body">
+      <p>Ali fought Ernie Terrell, who held a share of the heavyweight title and had spent the buildup calling him Clay in press conferences and interviews. Ali told reporters a knockout would be too easy. He wanted the fight to last.</p>
+      <figure class="photo narrow"><img src="/storyhub/bts/whats-my-name/assets/a05-ali-terrell.jpg" alt="Muhammad Ali and Ernie Terrell standing side by side in boxing trunks and gloves."><figcaption>Terrell stood three inches taller and held a share of the title. He spent the buildup calling him Clay.<span class="credit">Muhammad Ali and Ernie Terrell, 1967</span></figcaption></figure>
+      <p>It lasted 15 rounds. Ali won a unanimous decision. He hurt Terrell badly and never finished him. Ringside reporters described Ali landing combinations and shouting the same question into Terrell's face round after round:</p>
+      <blockquote>
+        <p>What's my name? What's my name?</p>
+        <cite>Ringside accounts, February 6, 1967</cite>
+      </blockquote>
+      <figure>
+        <div class="figtop"><b>The Long Way</b><span>Houston Astrodome · 15 rounds</span></div>
+        <div class="plot" role="region" aria-label="Fifteen-round fight chart" tabindex="0">
+          <svg viewBox="0 0 820 150" role="img" aria-label="Fifteen round bars, one for each round Ali extended the fight, each topped with a question mark.">
+            <g fill="#b0131c">
+              <rect x="40" y="46" width="44" height="58"/><rect x="90" y="46" width="44" height="58"/>
+              <rect x="140" y="46" width="44" height="58"/><rect x="190" y="46" width="44" height="58"/>
+              <rect x="240" y="46" width="44" height="58"/><rect x="290" y="46" width="44" height="58"/>
+              <rect x="340" y="46" width="44" height="58"/><rect x="390" y="46" width="44" height="58"/>
+              <rect x="440" y="46" width="44" height="58"/><rect x="490" y="46" width="44" height="58"/>
+              <rect x="540" y="46" width="44" height="58"/><rect x="590" y="46" width="44" height="58"/>
+              <rect x="640" y="46" width="44" height="58"/><rect x="690" y="46" width="44" height="58"/>
+              <rect x="740" y="46" width="44" height="58"/>
+            </g>
+            <g fill="#d9d5c8" font-family="Anton, sans-serif" font-size="26" text-anchor="middle">
+              <text x="62" y="36">?</text><text x="112" y="36">?</text><text x="162" y="36">?</text>
+              <text x="212" y="36">?</text><text x="262" y="36">?</text><text x="312" y="36">?</text>
+              <text x="362" y="36">?</text><text x="412" y="36">?</text><text x="462" y="36">?</text>
+              <text x="512" y="36">?</text><text x="562" y="36">?</text><text x="612" y="36">?</text>
+              <text x="662" y="36">?</text><text x="712" y="36">?</text><text x="762" y="36">?</text>
+            </g>
+            <g fill="#f0ece1" font-family="Oswald, sans-serif" font-size="18" font-weight="600" text-anchor="middle">
+              <text x="62" y="84">1</text><text x="112" y="84">2</text><text x="162" y="84">3</text>
+              <text x="212" y="84">4</text><text x="262" y="84">5</text><text x="312" y="84">6</text>
+              <text x="362" y="84">7</text><text x="412" y="84">8</text><text x="462" y="84">9</text>
+              <text x="512" y="84">10</text><text x="562" y="84">11</text><text x="612" y="84">12</text>
+              <text x="662" y="84">13</text><text x="712" y="84">14</text><text x="762" y="84">15</text>
+            </g>
+            <line x1="40" y1="118" x2="784" y2="118" stroke="#35302b" stroke-width="2"/>
+            <text x="40" y="140" fill="#8b8477" font-family="Oswald, sans-serif" font-size="14" letter-spacing="2.5">NO KNOCKDOWN · NO STOPPAGE · UNANIMOUS DECISION</text>
+          </svg>
+        </div>
+        <figcaption>A knockout asks the question once. <b>Ali asked it fifteen times.</b></figcaption>
+      </figure>
+      <p>Terrell's face was damaged badly enough that he needed surgery on his eye afterward. Some sportswriters who had defended Ali for years turned on him after this fight. Jimmy Cannon, one of the most widely read columnists in America, called it "a kind of lynching."</p>
+      <div class="q"><div class="qlab"><span class="qnum">D1</span><span class="qtxt">Ali had the ability to knock Terrell out. He chose not to. What was he trying to accomplish by extending the fight to 15 rounds?</span></div><textarea class="mini" data-q="D1" aria-label="Answer to question D1"></textarea></div>
+      <div class="q"><div class="qlab"><span class="qnum">D2</span><span class="qtxt">Explain why a columnist might watch this fight and call it cruel. Then explain why someone else might watch the same fight and call it justified. You must give both readings.</span></div><textarea class="mini" data-q="D2" aria-label="Answer to question D2"></textarea></div>
+    </div>
+  </article>
+
+  <!-- E -->
+  <article class="src">
+    <header><div class="letter">E</div><div class="htxt"><b>The Press</b><span>1964 to the 1970s</span></div></header>
+    <div class="body">
+      <p>Most American newspapers kept printing "Cassius Clay" for years after 1964. The New York Times held out until the 1970s. Editors argued that Clay was his legal name and that the paper should not take sides in a religious dispute.</p>
+      <p>Howard Cosell, a broadcaster at ABC, used Muhammad Ali from the start. He took years of hate mail for it. Cosell later said the decision was simple to him, because a man gets to say what he is called.</p>
+      <figure class="photo"><img src="/storyhub/bts/whats-my-name/assets/a06-ali-cosell.jpg" alt="Muhammad Ali reaching over to lift Howard Cosell's hairpiece while Cosell speaks into an ABC microphone."><figcaption>Cosell used the name from the first week and absorbed years of hate mail for it. The two of them turned that into an act that ran for twenty years on live television.<span class="credit">Muhammad Ali and Howard Cosell, ABC Wide World of Sports</span></figcaption></figure>
+      <div class="q"><div class="qlab"><span class="qnum">E1</span><span class="qtxt">Editors said they were staying neutral by printing Clay. Was that actually neutral? Explain your reasoning.</span></div><textarea class="mini" data-q="E1" aria-label="Answer to question E1"></textarea></div>
+      <div class="q"><div class="qlab"><span class="qnum">E2</span><span class="qtxt">What was the cost to Cosell of using the name Ali, and what does that cost tell you about how ordinary Americans felt in 1967?</span></div><textarea class="mini" data-q="E2" aria-label="Answer to question E2"></textarea></div>
+    </div>
+  </article>
+
+  <!-- F -->
+  <article class="src">
+    <header><div class="letter">F</div><div class="htxt"><b>The Bill</b><span>April 28, 1967 to June 28, 1971</span></div></header>
+    <div class="body">
+
+      <figure class="photo"><img src="/storyhub/bts/whats-my-name/assets/a07-press-1967.jpg" alt="Muhammad Ali in a suit speaking in front of a bank of newsreel cameras and microphones."><figcaption>Every camera in the country was pointed at a 25 year old deciding whether to step forward.<span class="credit">Muhammad Ali facing reporters, 1967</span></figcaption></figure>
+      <p>At the induction center in Houston on April 28, 1967, an officer read the roll. The name he called was Cassius Clay. Ali did not step forward. An officer took him aside and warned him that refusing was a felony carrying five years. The name was called again. He did not move.</p>
+      <figure class="photo clip">
+        <video controls preload="none" playsinline poster="/storyhub/bts/whats-my-name/assets/a11-induction-poster.jpg">
+          <source src="/storyhub/bts/whats-my-name/assets/a11-induction.mp4" type="video/mp4">
+        </video>
+        <figcaption>Listen for the name the officer uses.<span class="credit">Newsreel footage, Houston, April 28, 1967</span></figcaption>
+      </figure>
+      <div class="tablewrap" role="region" aria-label="Timeline of legal and boxing consequences" tabindex="0">
+        <table>
+          <thead><tr><th>Date</th><th>What happened</th></tr></thead>
+          <tbody>
+            <tr><td>Apr 28, 1967</td><td>The New York State Athletic Commission suspended his boxing license within hours</td></tr>
+            <tr><td>Apr 28, 1967</td><td>The World Boxing Association stripped him of the heavyweight title</td></tr>
+            <tr><td>1967</td><td>His passport was taken. Every state commission denied him a license</td></tr>
+            <tr><td>Jun 20, 1967</td><td>Convicted in federal court in Houston of refusing induction. Sentenced to five years in prison and a $10,000 fine. The jury was six men and six women, all of them white</td></tr>
+            <tr class="pivot"><td>1967 to 1970</td><td>Did not fight. Ages 25 through 28</td></tr>
+            <tr><td>Oct 26, 1970</td><td>Fought again for the first time, against Jerry Quarry in Atlanta</td></tr>
+            <tr><td>Jun 28, 1971</td><td>The Supreme Court reversed the conviction 8 to 0 in <i>Clay v. United States</i></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure>
+        <div class="figtop"><b>The Stolen Years</b><span>Pro career, 1960 to 1981</span></div>
+        <div class="plot" role="region" aria-label="Timeline of Ali's professional career and lost years" tabindex="0">
+          <svg viewBox="0 0 820 242" role="img" aria-label="Timeline of Ali's professional career from 1960 to 1981, with the period from April 1967 to October 1970 marked as taken from him.">
+            <defs>
+              <pattern id="hatch" width="9" height="9" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                <rect width="9" height="9" fill="#b0131c"/>
+                <line x1="0" y1="0" x2="0" y2="9" stroke="#5e0a0f" stroke-width="4"/>
+              </pattern>
+            </defs>
+
+            <rect x="86" y="95" width="671" height="26" fill="#4a4640"/>
+            <rect x="293" y="95" width="111" height="26" fill="url(#hatch)"/>
+            <rect x="293" y="95" width="111" height="26" fill="none" stroke="#b0131c" stroke-width="2"/>
+
+            <g stroke="#6b6459" stroke-width="1.5">
+              <line x1="192" y1="95" x2="192" y2="62"/>
+              <line x1="404" y1="95" x2="404" y2="62"/>
+              <line x1="86" y1="95" x2="86" y2="88"/>
+              <line x1="293" y1="95" x2="293" y2="88"/>
+              <line x1="757" y1="95" x2="757" y2="88"/>
+            </g>
+
+            <g font-family="Oswald, sans-serif" font-size="12" font-weight="600" letter-spacing="1.6">
+              <text x="192" y="44" fill="#d9d5c8" text-anchor="middle">WINS THE TITLE</text>
+              <text x="192" y="58" fill="#8b8477" text-anchor="middle">FEB 1964</text>
+              <text x="404" y="44" fill="#b0131c" text-anchor="middle">RETURNS</text>
+              <text x="404" y="58" fill="#8b8477" text-anchor="middle">OCT 26 1970</text>
+              <text x="86" y="72" fill="#d9d5c8" text-anchor="middle">FIRST PRO FIGHT</text>
+              <text x="86" y="86" fill="#8b8477" text-anchor="middle">OCT 1960</text>
+              <text x="293" y="72" fill="#b0131c" text-anchor="middle">STRIPPED</text>
+              <text x="293" y="86" fill="#8b8477" text-anchor="middle">APR 28 1967</text>
+              <text x="757" y="72" fill="#d9d5c8" text-anchor="end">LAST FIGHT</text>
+              <text x="757" y="86" fill="#8b8477" text-anchor="end">1981</text>
+            </g>
+
+            <line x1="60" y1="140" x2="790" y2="140" stroke="#35302b" stroke-width="2"/>
+            <g font-family="Oswald, sans-serif" font-size="12" fill="#6b6459" text-anchor="middle" letter-spacing="1.4">
+              <text x="60" y="158">1960</text><text x="219" y="158">1965</text>
+              <text x="378" y="158">1970</text><text x="537" y="158">1975</text>
+              <text x="696" y="158">1980</text>
+            </g>
+
+            <g stroke="#b0131c" stroke-width="2">
+              <line x1="293" y1="180" x2="404" y2="180"/>
+              <line x1="293" y1="174" x2="293" y2="186"/>
+              <line x1="404" y1="174" x2="404" y2="186"/>
+            </g>
+            <text x="348" y="212" fill="#b0131c" font-family="Anton, sans-serif" font-size="25" text-anchor="middle">1,277 DAYS</text>
+            <text x="348" y="232" fill="#8b8477" font-family="Oswald, sans-serif" font-size="12" letter-spacing="2.2" text-anchor="middle">AGES 25 THROUGH 28</text>
+          </svg>
+        </div>
+        <figcaption>The hatched block is the part of his career that was taken. <b>He never got those rounds back.</b></figcaption>
+      </figure>
+
+      <p>He was not idle, and he was not quiet. He lectured on college campuses for fees. In February 1969 he filmed a fake fight. A promoter fed punch statistics into an NCR 315 computer and staged a simulated bout between Ali and Rocky Marciano, who came out of retirement at 45, lost over 50 pounds, and wore a toupee. The two men sparred roughly 75 rounds in a Miami studio for the cameras. Two endings were filmed. American theaters saw Marciano knock Ali out in the 13th round. European audiences saw Ali win. Marciano died in a plane crash three weeks after filming and never saw it released.</p>
+      <figure class="photo"><img src="/storyhub/bts/whats-my-name/assets/a09-ledge-1981.jpg" alt="Muhammad Ali leaning out of a high window with his arm around a young man seated on a ledge."><figcaption>January 1981, ninth floor of the Dominguez Wilshire building in Los Angeles. A 21 year old man had been out on the ledge for hours and the police could not reach him. Ali lived a mile away, drove over, leaned out the window and talked to him for about twenty minutes. <b>I am your brother, I want to help you.</b> The man came inside and wept. Fourteen years after the country took his title for refusing to fight, the name was worth enough to a stranger on a ledge that he listened to it.<span class="credit">Los Angeles, January 1981</span></figcaption></figure>
+
+  <figure class="photo tall"><img src="/storyhub/bts/whats-my-name/assets/a08-super-fight.jpg" alt="Rocky Marciano landing a punch on Muhammad Ali during filming."><figcaption>A 45 year old retired champion throwing a punch that counted for nothing, at a 27 year old who was not allowed to throw one that did.<span class="credit">The Super Fight, Miami, February 1969 · Marciano died in a plane crash three weeks later</span></figcaption></figure>
+
+      <blockquote class="plain">
+        <p>The best heavyweight of his generation spent his exile acting out a fight a machine had already decided, because no state in the country would license him to have a real one.</p>
+        <cite>The Super Fight, filmed February 1969, released January 20, 1970</cite>
+      </blockquote>
+
+      <figure>
+        <div class="figtop"><b>The Vote</b><span>Clay v. United States · June 28, 1971</span></div>
+        <div class="plot" role="region" aria-label="Supreme Court vote chart" tabindex="0">
+          <svg viewBox="0 0 820 132" role="img" aria-label="Eight justices voted to reverse the conviction, none voted against, and one justice recused himself.">
+            <g>
+              <circle cx="46" cy="52" r="22" fill="#b0131c"/><circle cx="102" cy="52" r="22" fill="#b0131c"/>
+              <circle cx="158" cy="52" r="22" fill="#b0131c"/><circle cx="214" cy="52" r="22" fill="#b0131c"/>
+              <circle cx="270" cy="52" r="22" fill="#b0131c"/><circle cx="326" cy="52" r="22" fill="#b0131c"/>
+              <circle cx="382" cy="52" r="22" fill="#b0131c"/><circle cx="438" cy="52" r="22" fill="#b0131c"/>
+              <circle cx="530" cy="52" r="22" fill="none" stroke="#4a4640" stroke-width="2.5" stroke-dasharray="5 4"/>
+            </g>
+            <text x="46" y="100" fill="#d9d5c8" font-family="Anton, sans-serif" font-size="21">8 TO REVERSE</text>
+            <text x="46" y="122" fill="#8b8477" font-family="Oswald, sans-serif" font-size="12" letter-spacing="2">0 AGAINST · 1 RECUSED</text>
+            <text x="508" y="100" fill="#6b6459" font-family="Oswald, sans-serif" font-size="12" letter-spacing="1.6">THURGOOD MARSHALL</text>
+            <text x="508" y="118" fill="#4a4640" font-family="Oswald, sans-serif" font-size="11" letter-spacing="1.4">HE HAD PROSECUTED THE CASE</text>
+          </svg>
+        </div>
+        <figcaption>Not one justice voted against him. Marshall stepped aside because he had been Solicitor General when the government built the case. <b>The ruling came four years and two months after they took his license.</b></figcaption>
+      </figure>
+
+      <div class="q"><div class="qlab"><span class="qnum">F1</span><span class="qtxt">Ali was never sent to prison, but he still paid. List three specific costs from this chart that are not prison.</span></div><textarea class="mini" data-q="F1" aria-label="Answer to question F1"></textarea></div>
+      <div class="q"><div class="qlab"><span class="qnum">F2</span><span class="qtxt">The Supreme Court ruled in his favor in 1971. Did that ruling give him back what he lost? Explain.</span></div><textarea class="mini" data-q="F2" aria-label="Answer to question F2"></textarea></div>
+    </div>
+  </article>
+
+  <div class="parthead"><b>Part Two · The Ledger</b><span>Four entries minimum per side</span></div>
+
+  <div class="ledger">
+    <div class="cost">
+      <h3>What the name cost him</h3>
+      <div class="note">Evidence from the sources</div>
+      <div class="lrow"><em>1</em><input type="text" data-q="COST1" autocomplete="off" aria-label="Cost evidence 1"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="COST2" autocomplete="off" aria-label="Cost evidence 2"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="COST3" autocomplete="off" aria-label="Cost evidence 3"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="COST4" autocomplete="off" aria-label="Cost evidence 4"></div>
+    </div>
+    <div class="gain">
+      <h3>What he got for it</h3>
+      <div class="note">Evidence from the sources</div>
+      <div class="lrow"><em>1</em><input type="text" data-q="GAIN1" autocomplete="off" aria-label="Gain evidence 1"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="GAIN2" autocomplete="off" aria-label="Gain evidence 2"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="GAIN3" autocomplete="off" aria-label="Gain evidence 3"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="GAIN4" autocomplete="off" aria-label="Gain evidence 4"></div>
+    </div>
+  </div>
+
+  <figure class="photo tall"><img src="/storyhub/bts/whats-my-name/assets/a10-ali-later.jpg" alt="Muhammad Ali in later life, wearing dark sunglasses against a black background."><figcaption>He fought until 1981. Three years later he was diagnosed with Parkinson's syndrome. He lived another thirty two years, and he never once said the name had not been worth it.<span class="credit">Muhammad Ali, later life</span></figcaption></figure>
+
+  <div class="parthead"><b>Part Three · Take a Side</b><span>250 words minimum · three sources minimum</span></div>
+
+  <div class="prompts">
+    <label class="prompt">
+      <input type="radio" name="prompt" value="Prompt 1" id="p1">
+      <span class="ph"><span class="dot"></span>Prompt 1</span>
+      <span class="pb">Terrell called him Clay. Editors printed Clay. The government called him Cassius Clay on the induction list. <b>Argue whether a person has the right to decide what other people call him, and whether Ali was right to use his fists to enforce it.</b> Use Source D and at least two others.</span>
+    </label>
+    <label class="prompt">
+      <input type="radio" name="prompt" value="Prompt 2" id="p2">
+      <span class="ph"><span class="dot"></span>Prompt 2</span>
+      <span class="pb">He lost the title, his license, his passport, and more than three years of his prime. <b>Argue whether the stand was worth the cost.</b> Not what you would have done. Evaluate his decision using what the sources show about what he believed and what he lost. Use Source C, Source F, and one other.</span>
+    </label>
+  </div>
+
+  <div class="essaybox">
+    <div class="essaymeta"><span>Your argument</span><span>Word count <span id="wc">0</span> / 250</span></div>
+    <textarea id="essay" data-q="ESSAY" rows="16" placeholder="Pick a side in your first sentence. Then prove it."></textarea>
+  </div>
+
+  <div class="actions">
+    <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+    <button id="copy" type="button">Copy my answers</button>
+  </div>
+
+  <div class="refs">
+    <b>References</b>
+    <div><i>Clay v. United States</i>, 403 U.S. 698 (1971).</div>
+    <div>Ezra, M. (2009). <i>Muhammad Ali: The making of an icon</i>. Temple University Press.</div>
+    <div>Hauser, T. (1991). <i>Muhammad Ali: His life and times</i>. Simon &amp; Schuster.</div>
+    <div>Remnick, D. (1998). <i>King of the world: Muhammad Ali and the rise of an American hero</i>. Random House.</div>
+  </div>
+</div>
+
+<div class="saved" id="toast">Saved</div>
+
+<script>
+(function(){
+  var KEY='ali-whats-my-name-v1';
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var toast=document.getElementById('toast');
+  var essay=document.getElementById('essay');
+  var wc=document.getElementById('wc');
+  var tTimer,sTimer;
+
+  function keyOf(el){return el.dataset.q||el.id;}
+
+  function load(){
+    var raw=null;
+    try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;
+    var data;
+    try{data=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(el){
+      var v=data[keyOf(el)];
+      if(typeof v==='string')el.value=v;
+    });
+    if(data.__prompt){
+      var r=document.querySelector('input[name="prompt"][value="'+data.__prompt+'"]');
+      if(r)r.checked=true;
+    }
+  }
+
+  function save(){
+    var data={};
+    fields.forEach(function(el){data[keyOf(el)]=el.value;});
+    var r=document.querySelector('input[name="prompt"]:checked');
+    data.__prompt=r?r.value:'';
+    try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){return;}
+    clearTimeout(tTimer);
+    toast.classList.add('show');
+    tTimer=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+
+  function count(){
+    var n=essay.value.trim().split(/\s+/).filter(Boolean).length;
+    wc.textContent=n;
+    wc.classList.toggle('ok',n>=250);
+  }
+
+  function queueSave(){clearTimeout(sTimer);sTimer=setTimeout(save,700);}
+
+  load();
+  count();
+
+  fields.forEach(function(el){el.addEventListener('input',queueSave);});
+  [].forEach.call(document.querySelectorAll('input[name="prompt"]'),function(r){
+    r.addEventListener('change',queueSave);
+  });
+  essay.addEventListener('input',count);
+
+  document.getElementById('copy').addEventListener('click',function(){
+    var btn=this;
+    var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+    var out=[];
+    out.push("WHAT'S MY NAME — Muhammad Ali and the Price of a Name");
+    out.push('Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'));
+    out.push('');
+    out.push('PART ONE — SOURCE ANALYSIS');
+    ['A1','A2','B1','B2','C1','C2','D1','D2','E1','E2','F1','F2'].forEach(function(q){
+      var el=document.querySelector('[data-q="'+q+'"]');
+      out.push(q+'. '+((el&&el.value.trim())||'[no answer]'));
+      out.push('');
+    });
+    out.push('PART TWO — THE LEDGER');
+    out.push('What the name cost him:');
+    [1,2,3,4].forEach(function(i){
+      var el=document.querySelector('[data-q="COST'+i+'"]');
+      out.push('  '+i+'. '+((el&&el.value.trim())||'[blank]'));
+    });
+    out.push('What he got for it:');
+    [1,2,3,4].forEach(function(i){
+      var el=document.querySelector('[data-q="GAIN'+i+'"]');
+      out.push('  '+i+'. '+((el&&el.value.trim())||'[blank]'));
+    });
+    out.push('');
+    var r=document.querySelector('input[name="prompt"]:checked');
+    out.push('PART THREE — '+(r?r.value.toUpperCase():'NO PROMPT SELECTED'));
+    out.push('Word count: '+wc.textContent);
+    out.push('');
+    out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+
+    var done=function(ok){
+      btn.textContent=ok?'Copied — now paste it':'Press Ctrl and C';
+      btn.classList.toggle('done',ok);
+      setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);
+    };
+
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){done(true);},function(){fallback();});
+    }else{fallback();}
+
+    function fallback(){
+      var ta=document.createElement('textarea');
+      ta.value=text;
+      ta.style.position='fixed';ta.style.top='0';ta.style.left='0';ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.focus();ta.select();
+      var ok=false;
+      try{ok=document.execCommand('copy');}catch(e){ok=false;}
+      document.body.removeChild(ta);
+      done(ok);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
