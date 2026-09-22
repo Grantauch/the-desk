@@ -116,6 +116,50 @@ test('schema repair refuses a nonblank shifted or renamed fixed-position header'
   assert.equal(roster.getRange(2, 2).getValue(), originalStudent, 'failed repair must not move roster data');
 });
 
+test('duplicate Settings keys fail closed instead of silently using the last row', () => {
+  const c = classroom();
+  c.harness.sheet('Settings').appendRow(['MAX_ACTIVE_PASSES', '9', 'synthetic duplicate']);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('getSettings_'),
+    /duplicate key "MAX_ACTIVE_PASSES"/i
+  );
+});
+
+test('duplicate School Calendar dates fail closed instead of silently overriding a day', () => {
+  const c = classroom();
+  c.harness.sheet('School Calendar').appendRow(['2026-09-02', false, 'synthetic duplicate', 'test', 'test', '']);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('getSchoolCalendarIndex_'),
+    /duplicate date 2026-09-02/i
+  );
+});
+
+test('duplicate active roster memberships fail closed instead of selecting an arbitrary row', () => {
+  const c = classroom();
+  const roster = c.harness.sheet('Roster');
+  const duplicate = roster.getRange(2, 1, 1, 7).getValues()[0];
+  roster.appendRow(duplicate);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('getRoster_'),
+    /duplicate active membership/i
+  );
+});
+
+test('setup removes obsolete calendar-source settings that never controlled runtime', () => {
+  const c = classroom();
+  const settings = c.harness.sheet('Settings');
+  settings.appendRow(['SCHOOL_CALENDAR_FILE_ID', 'legacy-file', 'obsolete']);
+  settings.appendRow(['SCHOOL_CALENDAR_FALLBACK_URL', 'https://example.invalid/', 'obsolete']);
+  c.harness.newRequest();
+  c.harness.call('setupWorkbook_');
+  const keys = settings.records().map((row) => String(row.Key || ''));
+  assert.ok(!keys.includes('SCHOOL_CALENDAR_FILE_ID'));
+  assert.ok(!keys.includes('SCHOOL_CALENDAR_FALLBACK_URL'));
+});
+
 test('the daily cleanup trigger is installed', () => {
   const c = classroom();
   assert.ok(c.harness.state.triggers.some((trigger) => trigger.handler === 'dailyCleanup'));
