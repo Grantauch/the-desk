@@ -15,6 +15,7 @@ test('SW-130 browser realtime acceleration', async (t) => {
   await t.test('teacher uses authenticated fetch streaming while bounded polling remains authoritative fallback', () => {
     const html = injectRealtimeAcceleration('/teacher', teacherAppHtml('test-nonce'));
     assert.match(html, /data-sw130-realtime/);
+    assert.match(html, /<script nonce="test-nonce" data-sw130-realtime>/);
     assert.match(html, /authorization:'Bearer '\+auth/);
     assert.match(html, /\/api\/v1\/realtime\/teacher\/sections\//);
     assert.match(html, /schedulePoll/);
@@ -27,6 +28,7 @@ test('SW-130 browser realtime acceleration', async (t) => {
   await t.test('Security keeps five-second polling and gains server-resolved school stream', () => {
     const html = injectRealtimeAcceleration('/security', securityConsoleHtml('test-nonce'));
     assert.match(html, /\/api\/v1\/realtime\/security\/events/);
+    assert.match(html, /<script nonce="test-nonce" data-sw130-realtime>/);
     assert.match(html, /pollAfterMs=5000/);
     assert.match(html, /setTimeout\(refresh,pollAfterMs\)/);
     assert.match(html, /grantDeskRealtimeRefresh/);
@@ -36,6 +38,7 @@ test('SW-130 browser realtime acceleration', async (t) => {
   await t.test('Admin refresh is focus-safe and uses server-resolved school stream', () => {
     const html = injectRealtimeAcceleration('/admin', adminConsoleHtml('test-nonce'));
     assert.match(html, /\/api\/v1\/realtime\/admin\/events/);
+    assert.match(html, /<script nonce="test-nonce" data-sw130-realtime>/);
     assert.match(html, /focusBusy/);
     assert.match(html, /dialog\[open\]/);
     assert.match(html, /grantDeskRealtimeRefresh/);
@@ -44,6 +47,11 @@ test('SW-130 browser realtime acceleration', async (t) => {
 
   await t.test('unrelated HTML is unchanged', () => {
     assert.equal(injectRealtimeAcceleration('/unrelated', '<html><body>x</body></html>'), '<html><body>x</body></html>');
+  });
+
+  await t.test('protected staff HTML without a nonce is left unchanged', () => {
+    const html = '<html><body><main>teacher</main></body></html>';
+    assert.equal(injectRealtimeAcceleration('/teacher', html), html);
   });
 
   await t.test('single-school resolver fails closed for zero or multiple eligible schools', () => {
