@@ -75,6 +75,7 @@ const functionSource = (name) => {
 };
 
 assert.match(code, /GD_SCHEMA_VERSION\s*=\s*'2026-09-21-backend-b'/);
+assert.match(code, /GD_ROSTER_SYNC_CONTRACT\s*=\s*'2026-09-22-roster-sync-v1'/);
 assert.match(code, /GD_MIN_COUNTABLE_PASS_SECONDS\s*=\s*3/);
 assert.match(code, /GD_ACTION_PROOF_SECONDS\s*=\s*180/);
 assert.match(code, /GD_STUDENT_LOCK_WAIT_MS\s*=\s*5000/);
@@ -85,6 +86,7 @@ assert.match(code, /CALENDAR:\s*'School Calendar'/);
 assert.match(code, /UNMATCHED:\s*'Unmatched Sign-ins'/);
 assert.match(code, /function teacherApplyUnmatchedEmail/);
 assert.match(code, /function teacherAddStudentClass/);
+assert.match(code, /function getRosterSyncSnapshot/);
 assert.match(code, /function teacherRemoveStudentClass/);
 assert.match(code, /function teacherClearUnmatchedSignIns/);
 assert.match(code, /function readPinSession_/);
@@ -134,6 +136,16 @@ assert.match(functionSource('ensureSheet_'), /Restore the GrantDesk column order
 assert.match(functionSource('getSettings_'), /duplicate key/);
 assert.match(functionSource('getSchoolCalendarIndex_'), /duplicate date/);
 assert.match(functionSource('getRoster_'), /duplicate active membership/);
+const rosterSyncSnapshot = functionSource('getRosterSyncSnapshot');
+assert.match(rosterSyncSnapshot, /assertTeacher_/);
+assert.match(rosterSyncSnapshot, /GD_ROSTER_SYNC_CONTRACT/);
+assert.match(rosterSyncSnapshot, /studentEmail/);
+assert.match(rosterSyncSnapshot, /studentName/);
+assert.match(rosterSyncSnapshot, /classPeriod/);
+assert.doesNotMatch(rosterSyncSnapshot, /pinHash|PIN Cards|readPassLog_|readCheckIns|studentPassUsage|accessMode|unlimited/i,
+  'GoClassroom roster bridge must expose membership identity only');
+assert.doesNotMatch(rosterSyncSnapshot, /ensureWorkbookReady_|setupWorkbook_|ensureBackgroundTriggers_|withLock_|appendRow|setValue|setValues|deleteRow|deleteProperty|setProperty/,
+  'GoClassroom roster bridge must remain read-only');
 assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FILE_ID'/);
 assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FALLBACK_URL'/);
 assert.match(functionSource('setupWorkbook_'), /SCHOOL_CALENDAR_FILE_ID/);
