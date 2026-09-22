@@ -195,6 +195,8 @@ assert.match(pinIdentify, /verifyStudentPin_\(pin,\s*activeEmail,\s*attemptNonce
 const pinVerifier = functionSource('verifyStudentPin_');
 assert.match(pinVerifier, /assertPinAttemptAllowed_\(activeEmail,\s*attemptNonce\)/);
 assert.match(pinVerifier, /recordFailedPinAttempt_\(activeEmail,\s*attemptNonce\)/);
+assert.match(pinVerifier, /activeMemberships/);
+assert.match(pinVerifier, /active PIN records do not agree/);
 
 const pinSessionWriter = functionSource('putPinSession_');
 assert.match(pinSessionWriter, /v:\s*2/);
@@ -205,6 +207,10 @@ assert.match(functionSource('readPinSession_'), /secureEquals_/);
 assert.match(functionSource('readPinSession_'), /assertCredentialVersion_/);
 assert.doesNotMatch(functionSource('readPinSession_'), /CacheService\.getScriptCache\(\)/, 'Legacy cache-only PIN sessions must not remain an authentication path');
 assert.match(functionSource('credentialVersionForEmail_'), /pinHash/);
+assert.match(functionSource('credentialVersionForEmail_'), /getRoster_\(\)/,
+  'Signed credential versions must be derived from active memberships only');
+assert.doesNotMatch(functionSource('credentialVersionForEmail_'), /readRosterRows_\(\)/,
+  'Inactive historical memberships must not poison active signed credentials');
 assert.match(functionSource('credentialVersionForEmail_'), /computeHmacSha256Signature/);
 
 const queueReader = functionSource('readWaitingQueue_');
