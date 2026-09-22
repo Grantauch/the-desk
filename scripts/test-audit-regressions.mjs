@@ -35,12 +35,14 @@ const checks = [
     'A fresh Learning Hub profile starts at a real zero-day streak',
   ],
   [
-    hallPassOps.includes('Version 27 is deployed.')
-      && hallPassOps.includes('021ea741a89a8579217aebcc28b9fd35b80e2a26')
-      && hallPassOps.includes('35730498425')
+    hallPassOps.includes('Version 28 is deployed.')
+      && hallPassOps.includes('f366947cc36b98ec5e82d9e7d26dcdd84c69b55e')
+      && hallPassOps.includes('35754508635')
+      && hallPassOps.includes('35754589935')
+      && hallPassOps.includes('6ab2acfb9d374c000715447c')
       && hallPassOps.includes('2026-09-21-backend-b')
       && hallPassOps.includes('2026-09-22-all-teacher-rpcs'),
-    'Hall Pass operations identifies the verified Version 27 production fingerprint',
+    'Hall Pass operations identifies the verified Version 28 production fingerprint',
   ],
   [
     hallPassOps.includes('Students are not blocked afterward: a late sign-in is recorded immediately at 0 points until the teacher reviews whether to award the daily point.'),
