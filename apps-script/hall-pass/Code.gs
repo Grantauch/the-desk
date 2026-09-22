@@ -2426,7 +2426,7 @@ function normalizeRosterSyncWriteRequest_(request, settings) {
   return { requestId, baseRevision, add, updateName };
 }
 
-function rosterSyncRequestReplay_(normalizedRequest) {
+function readRosterSyncRequestState_(normalizedRequest) {
   const properties = PropertiesService.getScriptProperties();
   const key = rosterSyncRequestKey_(normalizedRequest.requestId);
   const raw = properties.getProperty(key);
@@ -2434,10 +2434,18 @@ function rosterSyncRequestReplay_(normalizedRequest) {
   let stored;
   try { stored = JSON.parse(raw); } catch (error) { stored = null; }
   const digest = rosterSyncPayloadDigest_(normalizedRequest);
-  if (!stored || stored.payloadDigest !== digest || !stored.result) {
+  if (!stored || stored.payloadDigest !== digest) {
     throw new Error('That GoClassroom roster request ID was already used for different data. Compare rosters again.');
   }
-  return stored.result;
+  return stored;
+}
+
+function rosterSyncRequestReplay_(normalizedRequest) {
+  const stored = readRosterSyncRequestState_(normalizedRequest);
+  if (!stored) return null;
+  if (stored.status === 'DONE' && stored.result) return stored.result;
+  if (stored.status === 'PENDING' && stored.plan) return null;
+  throw new Error('That GoClassroom roster request could not be recovered safely. Compare rosters again.');
 }
 
 function pruneRosterSyncRequests_(reserveSlots) {
@@ -2460,17 +2468,57 @@ function pruneRosterSyncRequests_(reserveSlots) {
   retained.sort((a, b) => b.at - a.at).slice(keep).forEach((entry) => properties.deleteProperty(entry.key));
 }
 
-function rememberRosterSyncRequest_(normalizedRequest, result) {
+function beginRosterSyncRequest_(normalizedRequest, plan) {
+  pruneRosterSyncRequests_(1);
+  const record = {
+    v: 2,
+    status: 'PENDING',
+    at: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    payloadDigest: rosterSyncPayloadDigest_(normalizedRequest),
+    plan,
+  };
+  PropertiesService.getScriptProperties().setProperty(
+    rosterSyncRequestKey_(normalizedRequest.requestId),
+    JSON.stringify(record)
+  );
+  return record;
+}
+
+function rememberRosterSyncRequest_(normalizedRequest, result, plan) {
   pruneRosterSyncRequests_(1);
   PropertiesService.getScriptProperties().setProperty(
     rosterSyncRequestKey_(normalizedRequest.requestId),
     JSON.stringify({
-      v: 1,
+      v: 2,
+      status: 'DONE',
       at: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       payloadDigest: rosterSyncPayloadDigest_(normalizedRequest),
+      plan: plan || null,
       result,
     })
   );
+}
+
+function rosterSyncAuditExists_(requestId, action, student) {
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return false;
+  const rows = sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.TEACHER_AUDIT.length).getValues();
+  const email = normalizeEmail_(student && student.email);
+  const classPeriod = String(student && student.classPeriod || '').trim();
+  return rows.some((row) => (
+    String(row[6] || '') === String(action || '') &&
+    normalizeEmail_(row[3]) === email &&
+    String(row[5] || '').trim() === classPeriod &&
+    String(row[9] || '') === String(requestId || '')
+  ));
+}
+
+function auditRosterSyncActionOnce_(teacher, student, action, reason, requestId) {
+  if (rosterSyncAuditExists_(requestId, action, student)) return;
+  auditTeacherAction_(teacher, student, action, [], reason, requestId);
 }
 
 function getRosterSyncSnapshot(bridgeContract) {
@@ -2520,93 +2568,145 @@ function applyRosterSyncChanges(request, writeContract) {
     flushPendingCheckInsLocked_();
     assertPinEmailBatchIdle_();
 
-    const allRows = readRosterRows_();
-    const activeRows = allRows.filter((student) => student.active);
-    const currentRevision = rosterSyncRevision_(activeRows);
-    if (currentRevision !== normalized.baseRevision) {
-      throw new Error('The roster changed after GoClassroom compared it. Compare rosters again before applying anything.');
+    let requestState = readRosterSyncRequestState_(normalized);
+    let plan = requestState && requestState.status === 'PENDING' ? requestState.plan : null;
+
+    if (!plan) {
+      const allRows = readRosterRows_();
+      const activeRows = allRows.filter((student) => student.active);
+      const currentRevision = rosterSyncRevision_(activeRows);
+      if (currentRevision !== normalized.baseRevision) {
+        throw new Error('The roster changed after GoClassroom compared it. Compare rosters again before applying anything.');
+      }
+
+      const byKey = new Map(allRows.map((student) => [student.key, student]));
+      normalized.add.forEach((input) => {
+        const current = byKey.get(input.key);
+        if (current && current.active) {
+          throw new Error(`${input.name} is already active in ${input.classPeriod}. Compare rosters again.`);
+        }
+      });
+      normalized.updateName.forEach((input) => {
+        const current = byKey.get(input.key);
+        if (!current || !current.active) {
+          throw new Error(`The ${input.classPeriod} membership for ${input.email} changed after comparison. Compare rosters again.`);
+        }
+        if (current.name !== input.beforeName) {
+          throw new Error(`The name for ${input.email} changed after comparison. Compare rosters again.`);
+        }
+      });
+
+      const pinCards = readPinCards_();
+      plan = {
+        v: 1,
+        addActions: normalized.add.map((input) => {
+          const current = byKey.get(input.key);
+          return { key: input.key, action: current ? 'reactivated' : 'added' };
+        }),
+        missingPinEmails: [...new Set(normalized.add.map((input) => input.email))]
+          .filter((email) => !pinCards.some((card) => card.studentEmail === email && /^\d{6}$/.test(card.pin))),
+        missingPinCardKeys: normalized.add.map((input) => input.key)
+          .filter((key) => !pinCards.some((card) => card.studentKey === key)),
+      };
+      requestState = beginRosterSyncRequest_(normalized, plan);
     }
 
-    const byKey = new Map(allRows.map((student) => [student.key, student]));
-    normalized.add.forEach((input) => {
-      const current = byKey.get(input.key);
-      if (current && current.active) {
-        throw new Error(`${input.name} is already active in ${input.classPeriod}. Compare rosters again.`);
-      }
-    });
-    normalized.updateName.forEach((input) => {
-      const current = byKey.get(input.key);
-      if (!current || !current.active) {
-        throw new Error(`The ${input.classPeriod} membership for ${input.email} changed after comparison. Compare rosters again.`);
-      }
-      if (current.name !== input.beforeName) {
-        throw new Error(`The name for ${input.email} changed after comparison. Compare rosters again.`);
-      }
-    });
-
+    const plannedActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), String(entry.action || '')]));
     const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
     const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
-    const nameUpdates = [];
-    normalized.updateName.forEach((input) => {
-      const student = byKey.get(input.key);
-      if (!student || student.name === input.name) return;
-      rosterSheet.getRange(student.row, 2).setValue(input.name);
-      const card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
-      if (card && card.studentName !== input.name) pinSheet.getRange(card.row, 2).setValue(input.name);
-      nameUpdates.push({
-        email: input.email,
-        classPeriod: input.classPeriod,
-        beforeName: student.name,
-        afterName: input.name,
-      });
-    });
-    if (nameUpdates.length) {
-      gdForget_('roster');
-      gdForget_('pincards');
-    }
 
-    const added = [];
-    const reactivated = [];
+    normalized.updateName.forEach((input) => {
+      const current = readRosterRows_().find((student) => student.key === input.key) || null;
+      if (!current || !current.active) {
+        throw new Error(`The ${input.classPeriod} membership for ${input.email} cannot be recovered safely. Compare rosters again.`);
+      }
+      if (current.name !== input.name && current.name !== input.beforeName) {
+        throw new Error(`The name for ${input.email} changed while GoClassroom was applying the approved batch. Compare rosters again.`);
+      }
+      if (current.name !== input.name) {
+        rosterSheet.getRange(current.row, 2).setValue(input.name);
+        gdForget_('roster');
+      }
+      const card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (card && card.studentName !== input.name) {
+        pinSheet.getRange(card.row, 2).setValue(input.name);
+        gdForget_('pincards');
+      }
+    });
+
     normalized.add.forEach((input) => {
+      const expectedAction = plannedActionByKey.get(input.key);
+      if (!['added', 'reactivated'].includes(expectedAction)) {
+        throw new Error('The saved GoClassroom roster recovery plan is invalid. Compare rosters again.');
+      }
+
       const refreshedRows = readRosterRows_();
       const sameStudentRows = refreshedRows.filter((student) => student.email === input.email);
       const sameMembership = sameStudentRows.find((student) => student.key === input.key) || null;
+      if (sameMembership && sameMembership.active) {
+        if (sameMembership.name !== input.name) {
+          throw new Error(`The active membership for ${input.email} changed while GoClassroom was applying the approved batch. Compare rosters again.`);
+        }
+        return;
+      }
+
       const accessMode = getStudentPassAccess_(input.email);
       const unlimited = accessMode === 'UNLIMITED';
       const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
       let rosterRow;
       if (sameMembership) {
+        if (expectedAction !== 'reactivated') {
+          throw new Error(`The retained membership for ${input.email} changed while GoClassroom was applying the approved batch. Compare rosters again.`);
+        }
         rosterRow = sameMembership.row;
         rosterSheet.getRange(rosterRow, 1, 1, GD_HEADERS.ROSTER.length).setValues([[
           input.email, input.name, input.classPeriod, sameMembership.pinHash || existingPinHash,
           true, unlimited, accessMode,
         ]]);
-        reactivated.push({ email: input.email, name: input.name, classPeriod: input.classPeriod, key: input.key });
       } else {
+        if (expectedAction !== 'added') {
+          throw new Error(`The retained membership for ${input.email} is missing during recovery. Compare rosters again.`);
+        }
         rosterSheet.appendRow([
           input.email, input.name, input.classPeriod, existingPinHash,
           true, unlimited, accessMode,
         ]);
         rosterRow = rosterSheet.getLastRow();
-        added.push({ email: input.email, name: input.name, classPeriod: input.classPeriod, key: input.key });
       }
       rosterSheet.getRange(rosterRow, 6).insertCheckboxes().setValue(unlimited);
       gdForget_('roster');
       gdForget_('unlimited');
     });
 
-    const pinRepair = ensureOnePinPerStudent_({ createMissing: true });
+    ensureOnePinPerStudent_({ createMissing: true });
     const affectedKeys = new Set([
       ...normalized.add.map((input) => input.key),
       ...normalized.updateName.map((input) => input.key),
     ]);
     affectedKeys.forEach((studentKey) => rebuildCheckInSummaryForStudent_(studentKey));
 
-    added.forEach((student) => auditTeacherAction_(teacher, student, 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED', [], 'Approved in GoClassroom roster sync', normalized.requestId));
-    reactivated.forEach((student) => auditTeacherAction_(teacher, student, 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED', [], 'Approved in GoClassroom roster sync', normalized.requestId));
-    nameUpdates.forEach((change) => auditTeacherAction_(teacher, {
-      email: change.email, name: change.afterName, classPeriod: change.classPeriod,
-    }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', [], 'Approved GoClassroom name correction', normalized.requestId));
+    normalized.add.forEach((input) => {
+      const action = plannedActionByKey.get(input.key);
+      const auditAction = action === 'reactivated'
+        ? 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED'
+        : 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED';
+      auditRosterSyncActionOnce_(teacher, {
+        email: input.email, name: input.name, classPeriod: input.classPeriod,
+      }, auditAction, 'Approved in GoClassroom roster sync', normalized.requestId);
+    });
+    normalized.updateName.forEach((input) => auditRosterSyncActionOnce_(teacher, {
+      email: input.email, name: input.name, classPeriod: input.classPeriod,
+    }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', 'Approved GoClassroom name correction', normalized.requestId));
+
+    const finalCards = readPinCards_();
+    const addedCount = (plan.addActions || []).filter((entry) => entry.action === 'added').length;
+    const reactivatedCount = (plan.addActions || []).filter((entry) => entry.action === 'reactivated').length;
+    const createdPins = (plan.missingPinEmails || []).filter((email) => (
+      finalCards.some((card) => card.studentEmail === email && /^\d{6}$/.test(card.pin))
+    )).length;
+    const createdPinCards = (plan.missingPinCardKeys || []).filter((key) => (
+      finalCards.some((card) => card.studentKey === key && /^\d{6}$/.test(card.pin))
+    )).length;
 
     const newRevision = rosterSyncRevision_(getRoster_());
     result = {
@@ -2618,15 +2718,15 @@ function applyRosterSyncChanges(request, writeContract) {
       previousRevision: normalized.baseRevision,
       revision: newRevision,
       counts: {
-        added: added.length,
-        reactivated: reactivated.length,
-        nameRowsUpdated: nameUpdates.length,
+        added: addedCount,
+        reactivated: reactivatedCount,
+        nameRowsUpdated: normalized.updateName.length,
         requestedNameUpdates: normalized.updateName.length,
-        createdPins: Number(pinRepair.createdPins || 0),
-        createdPinCards: Number(pinRepair.createdCards || 0),
+        createdPins,
+        createdPinCards,
       },
     };
-    rememberRosterSyncRequest_(normalized, result);
+    rememberRosterSyncRequest_(normalized, result, plan);
   }, 30000, 'GoClassroom roster sync');
 
   return result;
