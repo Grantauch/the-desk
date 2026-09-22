@@ -517,6 +517,18 @@ assert.match(html, /sign-in problems\./);
 assert.match(html, /class rosters\./);
 assert.match(html, /data-remove-student/);
 assert.match(html, /teacherAddStudentClass/);
+assert.match(code, /GD_TEACHER_CONTRACT\s*=\s*'2026-09-22-all-teacher-rpcs'/);
+[
+  'teacherApplyUnmatchedEmail','teacherDismissUnmatched','teacherClearUnmatchedSignIns',
+  'teacherSetPassRules','teacherResetStudentPassCounters','teacherAddStudentClass',
+  'teacherRemoveStudentClass','teacherRemoveFromQueue','teacherVoidPass',
+  'teacherMarkStudentAbsent','teacherClearStudentAbsent','teacherPinEmailStatus',
+  'teacherGetCountablePasses','teacherSetStudentUnlimited','sendStudentPinEmails'
+].forEach((name) => assert.match(functionSource(name), /assertTeacherClient_\(clientContract\)/, `${name} must reject stale teacher clients`));
+assert.match(functionSource('previewStudentPinEmails'), /assertTeacherClient_\(clientContract\)/);
+assert.match(html, /name\.startsWith\('teacher'\)/);
+assert.match(html, /previewStudentPinEmails/);
+assert.match(html, /sendStudentPinEmails/);
 assert.match(html, /teacherRemoveStudentClass/);
 assert.match(html, /TEACHER_STALE_MS/);
 assert.match(html, /Live pass status could not refresh/);

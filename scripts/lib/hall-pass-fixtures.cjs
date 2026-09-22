@@ -13,7 +13,7 @@ const TEACHER = 'gauch@mtmorrisschools.org';
 
 /** A Thursday at 7:50 AM in Detroit, inside Period 1's pass window. */
 const DEFAULT_NOW = new Date('2026-09-10T11:50:00Z');
-const TEACHER_CONTRACT = '2026-09-05-memberships';
+const TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
 
 const PEOPLE = {
   ada: { email: `ada.byron@${STUDENT_DOMAIN}`, name: 'Byron, Ada' },

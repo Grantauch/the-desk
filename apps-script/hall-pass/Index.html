@@ -402,7 +402,12 @@
       /* ---------------------------------------------------------- plumbing */
 
       const call = (name, ...args) => new Promise((resolve, reject) => {
-        if (['getBootstrap', 'refreshTeacherState', 'teacherStartPass', 'teacherEndPass', 'teacherGetMembershipPasses', 'teacherSetStudentPassAccess', 'teacherCheckInStudent', 'teacherSetCheckInWindow', 'teacherReviewLateCheckIn', 'teacherResetStudentPin'].includes(name)) args.push(TEACHER_CONTRACT);
+        const needsTeacherContract = name === 'getBootstrap'
+          || name === 'refreshTeacherState'
+          || name.startsWith('teacher')
+          || name === 'previewStudentPinEmails'
+          || name === 'sendStudentPinEmails';
+        if (needsTeacherContract) args.push(TEACHER_CONTRACT);
         let settled = false;
         const timer = setTimeout(() => {
           if (settled) return;
