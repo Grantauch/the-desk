@@ -2044,6 +2044,77 @@ test('approved roster sync adds a membership, corrects a name, creates a PIN, au
   assert.equal(c.rosterRows().length, beforeRosterCount + 1, 'replay must not add the membership twice');
 });
 
+test('roster sync resumes safely after a failure that occurs after roster rows were already changed', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-partial-recovery-001',
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: 'resume.student@students.mtmorrisschools.org',
+      studentName: 'Student, Resume',
+      classPeriod: 'Period 3',
+    }],
+    updateName: [{
+      studentEmail: PEOPLE.ada.email,
+      studentName: 'Byron, Ada Resume',
+      beforeName: PEOPLE.ada.name,
+      classPeriod: 'Period 1',
+    }],
+  };
+
+  const originalPinRepair = c.harness.sandbox.ensureOnePinPerStudent_;
+  let injected = true;
+  c.harness.sandbox.ensureOnePinPerStudent_ = function(options) {
+    if (injected) {
+      injected = false;
+      throw new Error('synthetic interruption after roster mutations');
+    }
+    return originalPinRepair(options);
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic interruption/
+  );
+  assert.ok(c.rosterRows().some((row) =>
+    String(row['Student Email']) === 'resume.student@students.mtmorrisschools.org' &&
+    String(row['Class / Period']) === 'Period 3'
+  ), 'the injected failure should occur after the new membership exists');
+  assert.equal(
+    String(c.rosterRows().find((row) =>
+      String(row['Student Email']) === PEOPLE.ada.email &&
+      String(row['Class / Period']) === 'Period 1'
+    )['Student Name']),
+    'Byron, Ada Resume',
+    'the injected failure should occur after the approved name correction'
+  );
+
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  const pending = JSON.parse(c.harness.properties.getProperty(requestKey));
+  assert.equal(pending.status, 'PENDING', 'the server must retain resumable evidence before mutating the roster');
+
+  c.harness.sandbox.ensureOnePinPerStudent_ = originalPinRepair;
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.added, 1);
+  assert.equal(result.counts.requestedNameUpdates, 1);
+  assert.equal(c.rosterRows().filter((row) =>
+    String(row['Student Email']) === 'resume.student@students.mtmorrisschools.org' &&
+    String(row['Class / Period']) === 'Period 3'
+  ).length, 1, 'resuming must not duplicate a membership that was already written');
+
+  const finalRecord = JSON.parse(c.harness.properties.getProperty(requestKey));
+  assert.equal(finalRecord.status, 'DONE');
+  const actions = c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId);
+  assert.equal(actions.filter((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED').length, 1);
+  assert.equal(actions.filter((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED').length, 1);
+});
+
 test('roster sync name correction changes only the explicitly approved class membership', () => {
   const c = classroom({
     memberships: [
