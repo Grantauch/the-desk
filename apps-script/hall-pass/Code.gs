@@ -173,8 +173,6 @@ const GD_DEFAULT_SETTINGS = [
   ['PASS_URL', 'https://grant-desk.com/pass/', 'Hall Pass link included in PIN emails'],
   ['SCHOOL_YEAR_START', '2026-08-25', 'First student day from the official 2026-27 district calendar'],
   ['SCHOOL_YEAR_END', '2027-06-08', 'Last student day from the official 2026-27 district calendar'],
-  ['SCHOOL_CALENDAR_FILE_ID', '1Gd3ZENe41b1AWRLdbpQ2kdsZj0mEsgoz', 'Official student-calendar file in connected My Drive'],
-  ['SCHOOL_CALENDAR_FALLBACK_URL', 'https://www.mtmorrisschools.org/', 'Official district website fallback when the needed Drive calendar is unavailable'],
 ];
 
 /** Session token lifetime for PIN sign-in, in seconds. One class period plus slack. */
@@ -4437,7 +4435,7 @@ function setupWorkbook_() {
   if (missing.length) {
     settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
   }
-  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES']);
+  removeLegacySettingRows_(settingsSheet, ['PASS_SESSION_LIMIT', 'PASS_SESSION_RESET_AT', 'TIME_ZONE', 'DESTINATIONS', 'QUEUE_CLAIM_MINUTES', 'SCHOOL_CALENDAR_FILE_ID', 'SCHOOL_CALENDAR_FALLBACK_URL']);
   setSettingDescription_(
     settingsSheet,
     'RETENTION_DAYS',
