@@ -292,6 +292,50 @@ test('only the owned minute trigger or teacher can invoke a manual inbox flush',
 });
 
 
+test('owned background trigger IDs authenticate without enumerating project triggers', () => {
+  const c = classroom();
+  const flush = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  const cleanup = c.harness.state.triggers.find((entry) => entry.handler === 'dailyCleanup');
+  const beforeFlush = c.harness.state.triggerReads;
+  const flushResult = c.harness.call('flushPendingCheckIns', { triggerUid: flush.id });
+  assert.equal(c.harness.state.triggerReads, beforeFlush,
+    'known minute trigger ID should validate from Script Properties');
+  assert.equal(flushResult.idle, true);
+
+  const beforeCleanup = c.harness.state.triggerReads;
+  assert.doesNotThrow(() => c.harness.call('dailyCleanup', { triggerUid: cleanup.id }));
+  assert.equal(c.harness.state.triggerReads, beforeCleanup,
+    'known daily cleanup trigger ID should validate from Script Properties');
+});
+
+test('empty teacher polling does not acquire the shared transaction lock', () => {
+  const c = classroom();
+  c.harness.signInAs(TEACHER);
+  c.harness.newRequest();
+  c.harness.call('getBootstrap', 'teacher', TEACHER_CONTRACT);
+  const before = c.harness.state.lock.acquisitions;
+  c.harness.newRequest();
+  c.harness.call('getTeacherState_', { includePinStatus: false });
+  assert.equal(c.harness.state.lock.acquisitions, before,
+    'an empty durable Check-In inbox must not touch the shared transaction lock');
+});
+
+test('idle minute flusher returns before shared lock or Pass Log work', () => {
+  const c = classroom();
+  const trigger = c.harness.state.triggers.find((entry) => entry.handler === 'flushPendingCheckIns');
+  const beforeLocks = c.harness.state.lock.acquisitions;
+  const originalSnapshot = c.harness.sandbox.getPassSnapshot_;
+  c.harness.sandbox.getPassSnapshot_ = () => { throw new Error('Pass snapshot should not be read on idle minute tick'); };
+  try {
+    const result = c.harness.call('flushPendingCheckIns', { triggerUid: trigger.id });
+    assert.equal(result.idle, true);
+    assert.equal(c.harness.state.lock.acquisitions, beforeLocks);
+  } finally {
+    c.harness.sandbox.getPassSnapshot_ = originalSnapshot;
+  }
+});
+
+
 test('Daily Check-ins starts with safe row headroom and repairs a stale flusher flag', () => {
   const c = classroom();
   assert.ok(c.harness.sheet('Daily Check-ins').getMaxRows() >= 5000, 'setup must pre-grow the check-in sheet');
