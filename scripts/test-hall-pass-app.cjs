@@ -163,7 +163,7 @@ assert.match(cleanup, /withLock_/);
 assert.match(cleanup, /expirePreviousDayPasses_/);
 assert.match(cleanup, /catch\s*\(error\)[\s\S]*expirePreviousDayPasses_/, 'A Check-In sync failure must not abort the rest of daily cleanup');
 const cleanupHandler = functionSource('dailyCleanup');
-assert.match(cleanupHandler, /getHandlerFunction\(\)===['"]dailyCleanup['"]/);
+assert.match(cleanupHandler, /ownedTriggerEvent_\(event,'dailyCleanup',GD_CLEANUP_TRIGGER_ID_PROPERTY\)/);
 assert.match(code, /GD_BACKGROUND_TRIGGER_AUDIT_MS\s*=\s*60\s*\*\s*60\s*\*\s*1000/);
 const backgroundTriggerAudit = functionSource('ensureBackgroundTriggers_');
 assert.match(backgroundTriggerAudit, /GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY/);
@@ -173,6 +173,12 @@ assert.match(functionSource('getBootstrap'), /ensureBackgroundTriggers_\(true\)/
 const cleanupInstaller = functionSource('installCleanupTrigger_');
 assert.match(cleanupInstaller, /matches\.slice\(1\)\.forEach/);
 assert.match(cleanupInstaller, /dailyCleanup/);
+assert.match(cleanupInstaller, /GD_CLEANUP_TRIGGER_ID_PROPERTY/);
+const flushInstaller = functionSource('installCheckInFlushTrigger_');
+assert.match(flushInstaller, /GD_CHECKIN_FLUSH_TRIGGER_ID_PROPERTY/);
+const ownedTriggerEvent = functionSource('ownedTriggerEvent_');
+assert.match(ownedTriggerEvent, /getProperty\(propertyKey\)/);
+assert.match(ownedTriggerEvent, /getProjectTriggers\(\)/);
 
 const purgeIfDue = functionSource('purgeIfDue_');
 assert.match(purgeIfDue, /withLock_/);
@@ -403,6 +409,22 @@ assert.doesNotMatch(functionSource('getCheckInState_'), /readCheckInsIncludingPe
 assert.doesNotMatch(functionSource('getTeacherState_'), /readCheckInsIncludingPending_\(\)/, 'Teacher polling must not scan the full school-year check-in log');
 assert.match(functionSource('getTeacherState_'), /ensureBackgroundTriggers_\(false\)/);
 assert.doesNotMatch(functionSource('getTeacherState_'), /ensureCheckInFlushTrigger_\(\)/, 'Teacher polling must not enumerate project triggers every refresh');
+const opportunisticFlush = functionSource('tryFlushPendingCheckIns_');
+assert.ok(
+  opportunisticFlush.indexOf('readPendingCheckIns_') < opportunisticFlush.indexOf('getScriptLock'),
+  'Empty teacher/student Check-In refreshes must return before acquiring the shared lock'
+);
+const minuteFlush = functionSource('flushPendingCheckIns');
+assert.match(minuteFlush, /hasPending/);
+assert.match(minuteFlush, /hasWaiting/);
+assert.ok(
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('withLock_'),
+  'Idle minute trigger must return before the shared lock'
+);
+assert.ok(
+  minuteFlush.indexOf('if(!hasPending&&!hasWaiting)') < minuteFlush.indexOf('getPassSnapshot_'),
+  'Idle minute trigger must not build full pass/schedule state'
+);
 assert.match(code, /function checkInOperationalIndexVersion_/);
 assert.match(functionSource('checkInOperationalIndexVersion_'), /getSchoolCalendarIndex_/);
 assert.match(functionSource('checkInOperationalIndexVersion_'), /getRoster_/);
