@@ -565,9 +565,9 @@ assert.match(html, /class rosters\./);
 assert.match(html, /data-remove-student/);
 assert.match(html, /teacherAddStudentClass/);
 assert.match(code, /GD_TEACHER_CONTRACT\s*=\s*'2026-09-22-all-teacher-rpcs'/);
-const serverTeacherContract = code.match(/const GD_TEACHER_CONTRACT\\s*=\\s*'([^']+)'/);
-const browserTeacherContract = html.match(/const TEACHER_CONTRACT\\s*=\\s*'([^']+)'/);
-const releaseTeacherContract = releaseHtml.match(/releaseRunSyntheticSmoke\\('([^']+)'\\)/);
+const serverTeacherContract = code.match(/const GD_TEACHER_CONTRACT\s*=\s*'([^']+)'/);
+const browserTeacherContract = html.match(/const TEACHER_CONTRACT\s*=\s*'([^']+)'/);
+const releaseTeacherContract = releaseHtml.match(/releaseRunSyntheticSmoke\('([^']+)'\)/);
 assert.ok(serverTeacherContract && browserTeacherContract && releaseTeacherContract,
   'Teacher contract literals must exist in server, browser, and private release check');
 assert.equal(browserTeacherContract[1], serverTeacherContract[1],
