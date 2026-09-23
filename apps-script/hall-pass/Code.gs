@@ -3004,12 +3004,33 @@ function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
       studentEmails: [...new Set(normalized.add.map((input) => input.email))],
     });
 
+    // Reactivation may intentionally correct a retained membership name. A PIN
+    // card can predate that correction, so repair and then re-read the card
+    // before this approved batch is allowed to complete.
+    for (const input of normalized.add) {
+      const progress = addActionByKey.get(input.key);
+      if (!progress || progress.action !== 'reactivated') continue;
+      let card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (!card) {
+        throw new Error(`GoClassroom could not verify the PIN card for the reactivated membership for ${input.email}. Recovery remains pending; retry this same batch.`);
+      }
+      if (card.studentName !== input.name) {
+        pinSheet.getRange(card.row, 2).setValue(input.name);
+        gdForget_('pincards');
+        card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      }
+      if (!card || card.studentName !== input.name) {
+        throw new Error(`GoClassroom could not verify the corrected PIN-card name for the reactivated membership for ${input.email}. Recovery remains pending; retry this same batch.`);
+      }
+    }
+
     const finalRosterRows = readRosterRows_();
     const finalCards = readPinCards_();
     const verifiedCredentialMemberships = normalized.add.filter((input) => {
       const membership = finalRosterRows.find((student) => student.key === input.key && student.active) || null;
       const card = finalCards.find((entry) => entry.studentKey === input.key && /^\d{6}$/.test(entry.pin)) || null;
-      return Boolean(membership && card && membership.pinHash && membership.pinHash === hashPin_(card.pin));
+      return Boolean(membership && membership.name === input.name && card && card.studentName === input.name &&
+        membership.pinHash && membership.pinHash === hashPin_(card.pin));
     }).length;
     if (verifiedCredentialMemberships !== normalized.add.length) {
       throw new Error('GoClassroom could not verify usable PIN credentials for every approved membership. Recovery remains pending; retry this same batch.');

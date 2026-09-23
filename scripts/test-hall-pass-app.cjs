@@ -164,6 +164,12 @@ assert.match(rosterSyncApply, /withLock_/);
 assert.match(rosterSyncApply, /rosterSyncRevision_/);
 assert.match(rosterSyncApply, /assertPinEmailBatchIdle_/);
 assert.match(rosterSyncApply, /ensureOnePinPerStudent_\(\{[\s\S]*studentEmails:/);
+assert.match(rosterSyncApply, /progress\.action !== 'reactivated'/,
+  'GoClassroom reactivation must explicitly reconcile retained PIN-card identity');
+assert.match(rosterSyncApply, /card\.studentName !== input\.name[\s\S]*pinSheet\.getRange\(card\.row, 2\)\.setValue\(input\.name\)/,
+  'GoClassroom reactivation must update a stale PIN-card name');
+assert.match(rosterSyncApply, /card\.studentName === input\.name/,
+  'GoClassroom completion must verify the PIN-card name matches the approved membership');
 assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED/);
 assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_NAME_UPDATED/);
 assert.doesNotMatch(rosterSyncApply, /teacherRemoveStudentClass|setValue\(false\)|deleteRow/,
