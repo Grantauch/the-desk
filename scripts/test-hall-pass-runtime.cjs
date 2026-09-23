@@ -2175,10 +2175,10 @@ test('roster sync rejects a stale comparison before applying any requested chang
     }],
     updateName: [],
   };
-  assert.throws(
-    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
-    /roster changed after GoClassroom compared it/i
-  );
+  const rejected = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(rejected.ok, false);
+  assert.equal(rejected.status, 'REJECTED_NO_ROSTER_EFFECTS');
+  assert.equal(rejected.code, 'STALE_ROSTER_REVISION');
   assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === 'should.not.apply@students.mtmorrisschools.org'));
 });
 
@@ -2203,10 +2203,10 @@ test('roster sync prevalidates the whole batch so one stale name prevents an oth
       classPeriod: 'Period 1',
     }],
   };
-  assert.throws(
-    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
-    /name .* changed after comparison/i
-  );
+  const rejected = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(rejected.ok, false);
+  assert.equal(rejected.status, 'REJECTED_NO_ROSTER_EFFECTS');
+  assert.equal(rejected.code, 'ROSTER_PRECONDITION_CHANGED');
   assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === 'held.student@students.mtmorrisschools.org'),
     'valid additions must remain unapplied when any request item fails prevalidation');
 });
@@ -2287,14 +2287,24 @@ test('roster sync replay records are age-pruned and count-bounded', () => {
   const oldKey = c.harness.call('rosterSyncRequestKey_', 'old-roster-sync-request');
   properties.setProperty(oldKey, JSON.stringify({
     v: 1,
+    status: 'DONE',
     at: '2026-08-01T12:00:00.000Z',
     payloadDigest: 'old',
     result: { ok: true },
+  }));
+  const unresolvedKey = c.harness.call('rosterSyncRequestKey_', 'old-pending-roster-sync-request');
+  properties.setProperty(unresolvedKey, JSON.stringify({
+    v: 2,
+    status: 'PENDING',
+    at: '2026-08-01T12:00:00.000Z',
+    payloadDigest: 'pending-old',
+    plan: { v: 2, addActions: [], nameActions: [] },
   }));
   for (let index = 0; index < 105; index += 1) {
     const key = c.harness.call('rosterSyncRequestKey_', `fresh-roster-sync-${index}`);
     properties.setProperty(key, JSON.stringify({
       v: 1,
+      status: 'DONE',
       at: new Date(2026, 8, 10, 7, 30, index % 60).toISOString(),
       payloadDigest: `fresh-${index}`,
       result: { ok: true },
@@ -2303,8 +2313,98 @@ test('roster sync replay records are age-pruned and count-bounded', () => {
 
   c.harness.call('pruneRosterSyncRequests_', 0);
   const retained = Object.keys(properties.getProperties()).filter((key) => key.startsWith('roster-sync-request:'));
-  assert.ok(retained.length <= 100, 'replay retention must stay within its configured record cap');
-  assert.equal(properties.getProperty(oldKey), null, 'expired replay evidence must be removed');
+  assert.ok(retained.length <= 101, 'completed replay retention must stay bounded without deleting unresolved recovery evidence');
+  assert.equal(properties.getProperty(oldKey), null, 'expired completed replay evidence must be removed');
+  assert.notEqual(properties.getProperty(unresolvedKey), null, 'an unresolved PENDING request must never be age-pruned');
+});
+
+test('roster sync rejects an oversized recoverable batch before any roster mutation', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const additions = Array.from({ length: 200 }, (_, index) => ({
+    studentEmail: `bulk.student.${String(index).padStart(3, '0')}@students.mtmorrisschools.org`,
+    studentName: `Student, Bulk ${String(index).padStart(3, '0')}`,
+    classPeriod: `Period ${(index % 6) + 1}`,
+  }));
+  const before = c.rosterRows().length;
+  const result = c.harness.call('applyRosterSyncChanges', {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-oversized-ledger-001',
+    baseRevision: snapshot.revision,
+    add: additions,
+    updateName: [],
+  }, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 'REJECTED_NO_ROSTER_EFFECTS');
+  assert.equal(result.code, 'ROSTER_BATCH_TOO_LARGE');
+  assert.equal(c.rosterRows().length, before, 'oversized ledger rejection must occur before roster rows change');
+});
+
+test('roster sync PIN repair is limited to students in the approved additions', () => {
+  const c = classroom();
+  const unrelatedEmail = 'unrelated.pin@students.mtmorrisschools.org';
+  c.harness.sheet('Roster').appendRow([unrelatedEmail, 'Student, Unrelated', 'Period 2', '', true, false, 'STANDARD']);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const result = c.harness.call('applyRosterSyncChanges', {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-pin-scope-001',
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: 'approved.pin@students.mtmorrisschools.org',
+      studentName: 'Student, Approved',
+      classPeriod: 'Period 3',
+    }],
+    updateName: [],
+  }, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.ok(c.pinCards().some((row) => String(row['Student Email']) === 'approved.pin@students.mtmorrisschools.org'));
+  assert.ok(!c.pinCards().some((row) => String(row['Student Email']) === unrelatedEmail),
+    'an approved change for one student must not create PIN material for an unrelated roster student');
+});
+
+test('pending recovery never reactivates a membership after a later teacher deactivation', () => {
+  const returning = { email: 'returning.student@students.mtmorrisschools.org', name: 'Student, Returning' };
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [returning, 'Period 3', { active: false }]] });
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-teacher-edit-conflict-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: returning.email, studentName: returning.name, classPeriod: 'Period 3' }],
+    updateName: [],
+  };
+  const originalPinRepair = c.harness.sandbox.ensureOnePinPerStudent_;
+  let injected = true;
+  c.harness.sandbox.ensureOnePinPerStudent_ = function(options) {
+    if (injected) { injected = false; throw new Error('synthetic interruption before PIN completion'); }
+    return originalPinRepair(options);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic interruption/);
+  c.harness.sandbox.ensureOnePinPerStudent_ = originalPinRepair;
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const key = c.key(returning, 'Period 3');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherRemoveStudentClass', key, TEACHER_CONTRACT);
+
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /preserve the newer teacher decision/i
+  );
+  const row = c.rosterRows().find((entry) =>
+    String(entry['Student Email']) === returning.email && String(entry['Class / Period']) === 'Period 3'
+  );
+  assert.equal(String(row.Active).toLowerCase(), 'false', 'retry must not undo the later teacher deactivation');
 });
 
 section('Backend repair guardrails');
