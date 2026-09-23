@@ -2492,6 +2492,18 @@ function rosterSyncNoEffectsRejection_(normalizedRequest, code, message) {
   };
 }
 
+function rosterSyncRecoveryReviewRequired_(normalizedRequest, message) {
+  return {
+    ok: false,
+    schemaVersion: 1,
+    status: 'REQUIRES_TEACHER_REVIEW',
+    requestId: String(normalizedRequest && normalizedRequest.requestId || ''),
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    code: 'ROSTER_RECOVERY_REVIEW_REQUIRED',
+    message: String(message || 'An earlier roster write stopped at an uncertain point. Compare the current roster again before applying anything else.'),
+  };
+}
+
 function pruneRosterSyncRequests_(reserveSlots) {
   const properties = PropertiesService.getScriptProperties();
   const all = properties.getProperties();
@@ -2639,12 +2651,21 @@ function getRosterSyncSnapshot(bridgeContract) {
     throw new Error('Update GoClassroom before reading this roster. The roster sync contract has changed.');
   }
   const activeRoster = getRoster_();
-  const roster = activeRoster.map((student) => ({
-    studentEmail: student.email,
-    studentName: student.name,
-    classPeriod: student.classPeriod,
-    active: true,
-  }));
+  const pinCards = readPinCards_();
+  const pinCardByKey = new Map(pinCards.map((card) => [card.studentKey, card]));
+  const roster = activeRoster.map((student) => {
+    const card = pinCardByKey.get(student.key) || null;
+    const credentialReady = Boolean(
+      student.pinHash && card && /^\d{6}$/.test(card.pin) && hashPin_(card.pin) === student.pinHash
+    );
+    return {
+      studentEmail: student.email,
+      studentName: student.name,
+      classPeriod: student.classPeriod,
+      active: true,
+      credentialReady,
+    };
+  });
   return {
     ok: true,
     schemaVersion: 1,
@@ -2819,7 +2840,12 @@ function applyRosterSyncChanges(request, writeContract) {
 
       if (progress.stage === 'STARTED') {
         if (!sameMembership || !sameMembership.active || sameMembership.name !== input.name) {
-          throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped for teacher review.`);
+          result = rosterSyncRecoveryReviewRequired_(
+            normalized,
+            `GoClassroom cannot prove whether the earlier ${input.classPeriod} membership change completed. The old request was closed without another roster write. Compare the current roster again before approving anything else.`
+          );
+          rememberRosterSyncRequest_(normalized, result);
+          return;
         }
       } else {
         if (progress.action === 'added') {
@@ -2877,6 +2903,19 @@ function applyRosterSyncChanges(request, writeContract) {
       createMissing: true,
       studentEmails: [...new Set(normalized.add.map((input) => input.email))],
     });
+
+    const credentialRows = readRosterRows_();
+    const credentialCards = readPinCards_();
+    for (const input of normalized.add) {
+      const membership = credentialRows.find((student) => student.key === input.key && student.active) || null;
+      const card = credentialCards.find((entry) => entry.studentKey === input.key && /^\d{6}$/.test(entry.pin)) || null;
+      if (!membership || !membership.pinHash || !card || hashPin_(card.pin) !== membership.pinHash) {
+        throw new Error(`GoClassroom could not verify usable PIN material for ${input.email} / ${input.classPeriod}. The roster request remains pending for safe recovery.`);
+      }
+      if (card.studentName !== input.name) {
+        throw new Error(`GoClassroom could not verify the PIN-card name for ${input.email} / ${input.classPeriod}. The roster request remains pending for safe recovery.`);
+      }
+    }
 
     const affectedKeys = new Set([
       ...normalized.add.map((input) => input.key),
@@ -4249,7 +4288,7 @@ function ensureOnePinPerStudent_(options) {
       canonicalPin = '';
       canonicalHash = '';
     }
-    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0])) {
+    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0]) && !createMissing) {
       usedHashes.set(existingHashes[0], email);
       memberships.forEach((student) => {
         if (student.pinHash !== existingHashes[0]) {
@@ -4278,6 +4317,10 @@ function ensureOnePinPerStudent_(options) {
       if (activeCell && String(activeCell[0]).trim() === '') activeWrites.push(student.row);
       const card = (cardsByEmail.get(email) || []).find((item) => item.studentKey === student.key);
       if (card) {
+        if (card.studentName !== student.name) {
+          pinSheet.getRange(card.row, 2).setValue(student.name);
+          normalizedMemberships += 1;
+        }
         if (card.pin !== canonicalPin) {
           pinSheet.getRange(card.row, 4).setValue(canonicalPin);
           pinSheet.getRange(card.row, 6, 1, 3).clearContent();
