@@ -163,7 +163,7 @@ assert.match(rosterSyncApply, /rosterSyncRequestReplay_/);
 assert.match(rosterSyncApply, /withLock_/);
 assert.match(rosterSyncApply, /rosterSyncRevision_/);
 assert.match(rosterSyncApply, /assertPinEmailBatchIdle_/);
-assert.match(rosterSyncApply, /ensureOnePinPerStudent_\(\{ createMissing: true \}\)/);
+assert.match(rosterSyncApply, /ensureOnePinPerStudent_\(\{[\s\S]*studentEmails:/);
 assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED/);
 assert.match(rosterSyncApply, /GOCLASSROOM_ROSTER_NAME_UPDATED/);
 assert.doesNotMatch(rosterSyncApply, /teacherRemoveStudentClass|setValue\(false\)|deleteRow/,
@@ -187,6 +187,9 @@ assert.match(functionSource('rememberRosterSyncRequest_'), /rosterSyncRequestKey
 assert.match(functionSource('rememberRosterSyncRequest_'), /pruneRosterSyncRequests_\(1\)/);
 assert.match(functionSource('pruneRosterSyncRequests_'), /GD_ROSTER_SYNC_REQUEST_TTL_MS/);
 assert.match(functionSource('pruneRosterSyncRequests_'), /GD_ROSTER_SYNC_REQUEST_MAX_RECORDS/);
+assert.match(functionSource('pruneRosterSyncRequests_'), /status === 'PENDING'/);
+assert.match(functionSource('rosterSyncPendingStorageIssue_'), /GD_ROSTER_SYNC_PROPERTY_VALUE_TARGET_BYTES/);
+assert.match(functionSource('updateRosterSyncPendingPlan_'), /status !== 'PENDING'/);
 assert.match(functionSource('rosterSyncRequestKey_'), /GD_ROSTER_SYNC_REQUEST_PREFIX/);
 assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FILE_ID'/);
 assert.doesNotMatch(code, /\['SCHOOL_CALENDAR_FALLBACK_URL'/);
