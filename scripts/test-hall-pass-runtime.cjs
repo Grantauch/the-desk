@@ -1960,8 +1960,11 @@ test('authorized teacher can read only active roster identity fields through the
   assert.equal(repeated.revision, snapshot.revision, 'unchanged active roster must have a stable sync revision');
   assert.deepEqual(snapshot.roster.map((row) => row.studentEmail).sort(), [PEOPLE.ada.email, PEOPLE.grace.email].sort());
   snapshot.roster.forEach((row) => {
-    assert.deepEqual(Object.keys(row).sort(), ['active', 'classPeriod', 'studentEmail', 'studentName'].sort());
+    assert.deepEqual(Object.keys(row).sort(), ['active', 'classPeriod', 'credentialReady', 'studentEmail', 'studentName'].sort());
     assert.equal(row.active, true);
+    assert.equal(row.credentialReady, true);
+    assert.equal('pin' in row, false);
+    assert.equal('pinHash' in row, false);
   });
   assert.equal(JSON.stringify(c.rosterRows()), beforeRoster, 'bridge read must not change roster rows');
   assert.equal(JSON.stringify(c.pinCards()), beforePins, 'bridge read must not change PIN records');
@@ -2113,6 +2116,84 @@ test('roster sync resumes safely after a failure that occurs after roster rows w
   const actions = c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId);
   assert.equal(actions.filter((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED').length, 1);
   assert.equal(actions.filter((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED').length, 1);
+});
+
+test('roster sync repairs a missing PIN card after a PIN-card append failure before reporting success', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const unrelatedRosterBefore = JSON.stringify(c.rosterRows());
+  const unrelatedPinsBefore = JSON.stringify(c.pinCards());
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-pin-card-recovery-001',
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: 'pin.recovery@students.mtmorrisschools.org',
+      studentName: 'Student, Pin Recovery',
+      classPeriod: 'Period 3',
+    }],
+    updateName: [],
+  };
+  const pinSheet = c.harness.sheet('PIN Cards');
+  const originalAppend = pinSheet.appendRow.bind(pinSheet);
+  let injected = true;
+  pinSheet.appendRow = function(row) {
+    if (injected) { injected = false; throw new Error('synthetic PIN-card append failure'); }
+    return originalAppend(row);
+  };
+
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic PIN-card append failure/);
+  const membership = c.rosterRows().find((row) => String(row['Student Email']) === request.add[0].studentEmail && String(row['Class / Period']) === 'Period 3');
+  assert.ok(membership && String(membership['PIN Hash'] || ''), 'the injected failure should occur after the membership has a PIN hash');
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === request.add[0].studentEmail).length, 0, 'the first attempt must leave no PIN card');
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'PENDING', 'the interrupted request must remain resumable');
+
+  pinSheet.appendRow = originalAppend;
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE', 'DONE is allowed only after credential provisioning verifies');
+  const cards = c.pinCards().filter((row) => String(row['Student Email']) === request.add[0].studentEmail && String(row['Class / Period']) === 'Period 3');
+  assert.equal(cards.length, 1, 'retry must create exactly one usable membership card');
+  assert.match(String(cards[0].PIN), /^\d{6}$/);
+  const repairedPin = String(cards[0].PIN);
+
+  c.harness.newRequest();
+  const replay = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.deepEqual(replay, result, 'repeating an already completed request must replay the stored result');
+  const replayCards = c.pinCards().filter((row) => String(row['Student Email']) === request.add[0].studentEmail && String(row['Class / Period']) === 'Period 3');
+  assert.equal(replayCards.length, 1, 'completed replay must not duplicate PIN cards');
+  assert.equal(String(replayCards[0].PIN), repairedPin, 'completed replay must not regenerate a valid PIN');
+
+  const unrelatedRosterAfter = c.rosterRows().filter((row) => String(row['Student Email']) !== request.add[0].studentEmail);
+  const unrelatedPinsAfter = c.pinCards().filter((row) => String(row['Student Email']) !== request.add[0].studentEmail);
+  assert.equal(JSON.stringify(unrelatedRosterAfter), unrelatedRosterBefore, 'credential recovery must not modify unrelated roster rows');
+  assert.equal(JSON.stringify(unrelatedPinsAfter), unrelatedPinsBefore, 'credential recovery must not modify unrelated PIN cards');
+});
+
+test('roster sync reuses an existing valid student credential when adding another membership', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.grace, 'Period 1']] });
+  const originalPin = c.pin(PEOPLE.ada);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-multi-membership-pin-001', baseRevision: snapshot.revision,
+    add: [{ studentEmail: PEOPLE.ada.email, studentName: PEOPLE.ada.name, classPeriod: 'Period 3' }], updateName: [],
+  };
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.createdPins, 0, 'adding another membership must reuse a valid existing student PIN');
+  const cards = c.pinCards().filter((row) => String(row['Student Email']) === PEOPLE.ada.email);
+  assert.equal(cards.length, 2, 'one card should exist per membership, without uncontrolled duplication');
+  assert.ok(cards.every((row) => String(row.PIN) === originalPin), 'all memberships for one student must share the existing valid PIN');
+  const rows = c.rosterRows().filter((row) => String(row['Student Email']) === PEOPLE.ada.email);
+  assert.equal(rows.length, 2);
+  assert.equal(new Set(rows.map((row) => String(row['PIN Hash']))).size, 1, 'all memberships must retain one consistent PIN hash');
 });
 
 test('roster sync name correction changes only the explicitly approved class membership', () => {
