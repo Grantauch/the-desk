@@ -177,7 +177,7 @@ assert.match(functionSource('readRosterSyncRequestState_'), /payloadDigest/);
 assert.match(functionSource('readRosterSyncRequestState_'), /payloadDigest/);
 assert.match(functionSource('rosterSyncRequestReplay_'), /PENDING/);
 assert.match(functionSource('rosterSyncRequestReplay_'), /DONE/);
-assert.match(functionSource('beginRosterSyncRequest_'), /PENDING/);
+assert.match(functionSource('rosterSyncPendingRecord_'), /status: 'PENDING'/);
 assert.match(functionSource('rememberRosterSyncRequest_'), /DONE/);
 assert.match(functionSource('auditRosterSyncActionOnce_'), /rosterSyncAuditExists_/);
 assert.match(rosterSyncApply, /beginRosterSyncRequest_/);
