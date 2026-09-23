@@ -2632,6 +2632,13 @@ function auditRosterSyncActionOnce_(teacher, student, action, reason, requestId)
   auditTeacherAction_(teacher, student, action, [], reason, requestId);
 }
 
+function rosterSyncCredentialReady_(student, pinCards) {
+  if (!student || !student.pinHash) return false;
+  const cards = (pinCards || []).filter((card) => card.studentKey === student.key);
+  if (cards.length !== 1 || !/^\d{6}$/.test(cards[0].pin)) return false;
+  return hashPin_(cards[0].pin) === student.pinHash;
+}
+
 function getRosterSyncSnapshot(bridgeContract) {
   const settings = getSettings_();
   assertTeacher_(getActiveEmail_(), settings);
@@ -2639,11 +2646,13 @@ function getRosterSyncSnapshot(bridgeContract) {
     throw new Error('Update GoClassroom before reading this roster. The roster sync contract has changed.');
   }
   const activeRoster = getRoster_();
+  const pinCards = readPinCards_();
   const roster = activeRoster.map((student) => ({
     studentEmail: student.email,
     studentName: student.name,
     classPeriod: student.classPeriod,
     active: true,
+    credentialReady: rosterSyncCredentialReady_(student, pinCards),
   }));
   return {
     ok: true,
@@ -2876,6 +2885,16 @@ function applyRosterSyncChanges(request, writeContract) {
     ensureOnePinPerStudent_({
       createMissing: true,
       studentEmails: [...new Set(normalized.add.map((input) => input.email))],
+    });
+
+    const provisionedRows = readRosterRows_();
+    const provisionedCards = readPinCards_();
+    normalized.add.forEach((input) => {
+      const membership = provisionedRows.find((student) => student.key === input.key) || null;
+      if (!membership || !membership.active || membership.name !== input.name ||
+          !rosterSyncCredentialReady_(membership, provisionedCards)) {
+        throw new Error(`GoClassroom could not verify usable PIN material for ${input.email} / ${input.classPeriod}. The approved request remains pending for safe retry.`);
+      }
     });
 
     const affectedKeys = new Set([
@@ -4249,7 +4268,7 @@ function ensureOnePinPerStudent_(options) {
       canonicalPin = '';
       canonicalHash = '';
     }
-    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0])) {
+    if (!canonicalPin && !createMissing && existingHashes.length === 1 && !usedHashes.has(existingHashes[0])) {
       usedHashes.set(existingHashes[0], email);
       memberships.forEach((student) => {
         if (student.pinHash !== existingHashes[0]) {
