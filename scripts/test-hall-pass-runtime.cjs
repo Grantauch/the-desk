@@ -2119,80 +2119,460 @@ test('roster sync resumes safely after a failure that occurs after roster rows w
   assert.equal(actions.filter((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED').length, 1);
 });
 
-test('roster sync closes a pre-append STARTED recovery for fresh teacher review instead of trapping retries', () => {
+test('roster sync recovers a PIN-card append failure before reporting the batch complete', () => {
   const c = classroom();
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
   const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
-  const request = {
-    confirmation: 'APPLY SAFE ROSTER CHANGES',
-    requestId: 'sync-preappend-review-001',
-    baseRevision: snapshot.revision,
-    add: [{
-      studentEmail: 'preappend.student@students.mtmorrisschools.org',
-      studentName: 'Student, Preappend',
-      classPeriod: 'Period 3',
-    }],
-    updateName: [],
+  const target = {
+    email: 'pin.retry@students.mtmorrisschools.org',
+    name: 'Student, PIN Retry',
+    period: 'Period 3',
   };
-  const rosterSheet = c.harness.sheet('Roster');
-  const originalAppend = rosterSheet.appendRow.bind(rosterSheet);
-  let injected = true;
-  rosterSheet.appendRow = function(row) {
-    if (injected) { injected = false; throw new Error('synthetic failure before roster append'); }
-    return originalAppend(row);
-  };
-  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic failure before roster append/);
-  assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === request.add[0].studentEmail));
-  rosterSheet.appendRow = originalAppend;
-
-  c.harness.newRequest();
-  c.harness.signInAs(TEACHER);
-  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
-  assert.equal(review.ok, false);
-  assert.equal(review.status, 'REQUIRES_TEACHER_REVIEW');
-  assert.equal(review.code, 'ROSTER_RECOVERY_REVIEW_REQUIRED');
-  assert.ok(!c.rosterRows().some((row) => String(row['Student Email']) === request.add[0].studentEmail), 'review-required recovery must not perform another roster write');
-  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
-  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE', 'the old uncertain request must be closed so a fresh comparison can use a new request ID');
-});
-
-test('roster sync repairs a missing PIN card after a PIN-card append failure before reporting success', () => {
-  const c = classroom();
-  c.harness.newRequest();
-  c.harness.signInAs(TEACHER);
-  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
   const request = {
     confirmation: 'APPLY SAFE ROSTER CHANGES',
     requestId: 'sync-pin-card-recovery-001',
     baseRevision: snapshot.revision,
-    add: [{
-      studentEmail: 'pin.recovery@students.mtmorrisschools.org',
-      studentName: 'Student, Pin Recovery',
-      classPeriod: 'Period 3',
-    }],
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
     updateName: [],
   };
+
   const pinSheet = c.harness.sheet('PIN Cards');
-  const originalAppend = pinSheet.appendRow.bind(pinSheet);
+  const originalAppendRow = pinSheet.appendRow.bind(pinSheet);
   let injected = true;
-  pinSheet.appendRow = function(row) {
-    if (injected) { injected = false; throw new Error('synthetic PIN-card append failure'); }
-    return originalAppend(row);
+  pinSheet.appendRow = function appendRowWithOneFailure(values) {
+    if (injected && String(values && values[0] || '') === target.email) {
+      injected = false;
+      throw new Error('synthetic PIN-card append failure');
+    }
+    return originalAppendRow(values);
   };
-  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic PIN-card append failure/);
-  const membership = c.rosterRows().find((row) => String(row['Student Email']) === request.add[0].studentEmail && String(row['Class / Period']) === 'Period 3');
-  assert.ok(membership && String(membership['PIN Hash'] || ''), 'the injected failure should occur after the membership has a PIN hash');
-  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === request.add[0].studentEmail).length, 0, 'the first attempt must leave no PIN card');
-  pinSheet.appendRow = originalAppend;
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic PIN-card append failure/
+  );
+  const afterFailure = c.rosterRows().find((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  );
+  assert.ok(afterFailure, 'the injected failure must occur after the membership row is written');
+  assert.ok(String(afterFailure['PIN Hash'] || ''), 'the first attempt must leave the exact orphaned-hash state from the audit');
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'the first attempt must have no usable PIN card');
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'PENDING',
+    'credential provisioning failure must remain recoverable instead of becoming DONE');
+
+  pinSheet.appendRow = originalAppendRow;
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.verifiedCredentialMemberships, 1,
+    'completion must prove usable credential material for the approved membership');
+  const cards = c.pinCards().filter((row) => String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period);
+  assert.equal(cards.length, 1, 'retry must create exactly one missing PIN card');
+  assert.match(String(cards[0].PIN), /^\d{6}$/);
+  const finalRoster = c.rosterRows().find((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  );
+  assert.equal(String(finalRoster['PIN Hash']), c.harness.call('hashPin_', String(cards[0].PIN)),
+    'the recovered PIN card must match the roster credential hash');
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+});
+
+function prepareReactivation(c, { correctedName = 'Turing, Alan Corrected', removeCard = false } = {}) {
+  const rosterSheet = c.harness.sheet('Roster');
+  const pinSheet = c.harness.sheet('PIN Cards');
+  const rosterRow = rosterSheet.records().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
+  const originalCard = pinSheet.records().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
+  assert.ok(rosterRow && originalCard, 'reactivation fixture requires an existing membership and PIN card');
+  const originalPin = String(originalCard.PIN);
+  rosterSheet.getRange(rosterRow.__row, 5).setValue(false);
+  if (removeCard) pinSheet.deleteRow(originalCard.__row);
 
   c.harness.newRequest();
   c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: `sync-reactivate-name-${String(correctedName).replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()}`,
+    baseRevision: snapshot.revision,
+    add: [{
+      studentEmail: PEOPLE.alan.email,
+      studentName: correctedName,
+      classPeriod: 'Period 1',
+    }],
+    updateName: [],
+  };
+  return { request, correctedName, originalPin, originalCard };
+}
+
+test('reactivating a renamed student updates and verifies the existing PIN-card name', () => {
+  const c = classroom();
+  const { request, correctedName, originalPin } = prepareReactivation(c);
   const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
   assert.equal(result.ok, true);
-  const cards = c.pinCards().filter((row) => String(row['Student Email']) === request.add[0].studentEmail && String(row['Class / Period']) === 'Period 3');
+  assert.equal(result.counts.reactivated, 1);
+  assert.equal(result.counts.verifiedCredentialMemberships, 1);
+
+  const membership = c.rosterRows().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
+  const card = c.pinCards().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
+  assert.equal(String(membership['Student Name']), correctedName);
+  assert.equal(String(card['Student Name']), correctedName,
+    'the existing PIN card must be corrected before reactivation is reported complete');
+  assert.equal(String(card.PIN), originalPin, 'a name correction must not rotate an otherwise valid PIN');
+  assert.equal(String(membership['PIN Hash']), c.harness.call('hashPin_', String(card.PIN)));
+
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+});
+
+test('reactivation with an unchanged name preserves the existing PIN card and credential', () => {
+  const c = classroom();
+  const { request, originalPin } = prepareReactivation(c, { correctedName: PEOPLE.alan.name });
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.reactivated, 1);
+  const cards = c.pinCards().filter((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
   assert.equal(cards.length, 1);
+  assert.equal(String(cards[0]['Student Name']), PEOPLE.alan.name);
+  assert.equal(String(cards[0].PIN), originalPin);
+});
+
+test('reactivation with a missing PIN card recreates a correctly named credential card', () => {
+  const c = classroom();
+  const { request, correctedName } = prepareReactivation(c, { removeCard: true });
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.reactivated, 1);
+  assert.equal(result.counts.verifiedCredentialMemberships, 1);
+  const cards = c.pinCards().filter((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
+  assert.equal(cards.length, 1);
+  assert.equal(String(cards[0]['Student Name']), correctedName);
   assert.match(String(cards[0].PIN), /^\d{6}$/);
+  const membership = c.rosterRows().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  );
+  assert.equal(String(membership['PIN Hash']), c.harness.call('hashPin_', String(cards[0].PIN)));
+});
+
+test('a PIN-card name write failure leaves reactivation pending and the same request repairs on retry', () => {
+  const c = classroom();
+  const { request, correctedName, originalCard } = prepareReactivation(c);
+  const pinSheet = c.harness.sheet('PIN Cards');
+  const originalGetRange = pinSheet.getRange.bind(pinSheet);
+  let injected = true;
+  pinSheet.getRange = function getRangeWithNameWriteFailure(a, b, d, e) {
+    const range = originalGetRange(a, b, d, e);
+    if (Number(a) === originalCard.__row && Number(b) === 2) {
+      const originalSetValue = range.setValue.bind(range);
+      range.setValue = function setValueWithOneFailure(value) {
+        if (injected) {
+          injected = false;
+          throw new Error('synthetic PIN-card name update failure');
+        }
+        return originalSetValue(value);
+      };
+    }
+    return range;
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic PIN-card name update failure/
+  );
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'PENDING');
+  assert.equal(String(c.pinCards().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  )['Student Name']), PEOPLE.alan.name);
+
+  pinSheet.getRange = originalGetRange;
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const retried = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(retried.ok, true);
+  assert.equal(String(c.pinCards().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  )['Student Name']), correctedName);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+});
+
+test('a PIN-card name verification failure cannot falsely complete reactivation', () => {
+  const c = classroom();
+  const { request, correctedName, originalCard } = prepareReactivation(c);
+  const pinSheet = c.harness.sheet('PIN Cards');
+  const originalGetRange = pinSheet.getRange.bind(pinSheet);
+  let suppressWrites = true;
+  pinSheet.getRange = function getRangeWithSilentNameWriteLoss(a, b, d, e) {
+    const range = originalGetRange(a, b, d, e);
+    if (Number(a) === originalCard.__row && Number(b) === 2) {
+      const originalSetValue = range.setValue.bind(range);
+      range.setValue = function setValueWithOneSilentLoss(value) {
+        if (suppressWrites) return range;
+        return originalSetValue(value);
+      };
+    }
+    return range;
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /could not verify the corrected PIN-card name/i
+  );
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'PENDING',
+    'unverified card identity must keep the exact approved transaction recoverable');
+  assert.equal(String(c.pinCards().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  )['Student Name']), PEOPLE.alan.name);
+
+  pinSheet.getRange = originalGetRange;
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const retried = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(retried.ok, true);
+  assert.equal(String(c.pinCards().find((row) =>
+    String(row['Student Email']) === PEOPLE.alan.email && String(row['Class / Period']) === 'Period 1'
+  )['Student Name']), correctedName);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+});
+
+test('pre-write STARTED recovery requires explicit teacher review and then resumes the exact approved addition', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = { email: 'prewrite.retry@students.mtmorrisschools.org', name: 'Student, Prewrite Retry', period: 'Period 4' };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-prewrite-recovery-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+  const roster = c.harness.sheet('Roster'), originalAppendRow = roster.appendRow.bind(roster);
+  let injected = true, appendAttempts = 0;
+  roster.appendRow = function appendRowWithOneFailure(values) {
+    if (String(values && values[0] || '') === target.email) {
+      appendAttempts += 1;
+      if (injected) { injected = false; throw new Error('synthetic pre-write roster append failure'); }
+    }
+    return originalAppendRow(values);
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic pre-write roster append failure/
+  );
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  const pending = JSON.parse(c.harness.properties.getProperty(requestKey));
+  assert.equal(pending.status, 'PENDING');
+  assert.equal(pending.plan.addActions[0].stage, 'STARTED');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'the injected failure must happen before the membership row exists');
+
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.ok, false);
+  assert.equal(review.status, 'RECOVERY_REVIEW_REQUIRED');
+  assert.equal(review.reviewCounts.additions, 1);
+  assert.match(String(review.recoveryToken), /^[A-Za-z0-9_-]{20,80}$/);
+  assert.equal(appendAttempts, 1, 'ordinary retry must not guess by replaying an ambiguous STARTED write');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0);
+
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES',
+    token: review.recoveryToken,
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.added, 1);
+  assert.equal(result.counts.verifiedCredentialMemberships, 1);
+  assert.equal(appendAttempts, 2);
+  assert.equal(c.rosterRows().filter((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  ).length, 1);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+  c.harness.newRequest();
+  const replay = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.deepEqual(replay, result);
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 1);
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period).length, 1);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED').length, 1);
+});
+
+test('pre-write STARTED reactivation resumes only after review without duplicating the retained membership', () => {
+  const returning = { email: 'prewrite.reactivate@students.mtmorrisschools.org', name: 'Student, Returning' };
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [returning, 'Period 4', { active: false }]] });
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = { confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-prewrite-reactivate-001',
+    baseRevision: snapshot.revision, add: [{ studentEmail: returning.email, studentName: returning.name, classPeriod: 'Period 4' }], updateName: [] };
+  const roster = c.harness.sheet('Roster'), originalGetRange = roster.getRange.bind(roster);
+  const retainedRow = c.rosterRows().findIndex((row) => String(row['Student Email']) === returning.email) + 2;
+  let injected = true;
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && row === retainedRow && column === 1 && rest[0] === 1 && rest[1] === 7) {
+      injected = false;
+      throw new Error('synthetic pre-write reactivation failure');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic pre-write/);
+  roster.getRange = originalGetRange;
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.addActions[0].stage, 'STARTED');
+  assert.equal(String(c.rosterRows().find((row) => String(row['Student Email']) === returning.email).Active).toLowerCase(), 'false');
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.reviewCounts.reactivations, 1);
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token: review.recoveryToken,
+  });
+  assert.equal(result.counts.reactivated, 1);
+  c.harness.newRequest();
+  assert.deepEqual(c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), result);
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === returning.email && String(row['Class / Period']) === 'Period 4').length, 1);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED').length, 1);
+});
+
+test('pre-write STARTED name correction requires review and does not repeat its audit action', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = { confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-prewrite-name-001',
+    baseRevision: snapshot.revision, add: [], updateName: [{ studentEmail: PEOPLE.ada.email,
+      studentName: 'Byron, Ada Corrected', beforeName: PEOPLE.ada.name, classPeriod: 'Period 1' }] };
+  const roster = c.harness.sheet('Roster'), originalGetRange = roster.getRange.bind(roster);
+  let injected = true;
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && row > 1 && column === 2 && rest.length === 0) {
+      injected = false;
+      throw new Error('synthetic pre-write name failure');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic pre-write/);
+  roster.getRange = originalGetRange;
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.nameActions[0].stage, 'STARTED');
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.reviewCounts.nameUpdates, 1);
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token: review.recoveryToken,
+  });
+  assert.equal(result.counts.nameRowsUpdated, 1);
+  c.harness.newRequest();
+  assert.deepEqual(c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), result);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED').length, 1);
+});
+
+test('STARTED addition already written resumes without a second append or review', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = { email: 'postwrite.started@students.mtmorrisschools.org', name: 'Student, Postwrite', period: 'Period 4' };
+  const request = { confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-started-postwrite-001',
+    baseRevision: snapshot.revision, add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }], updateName: [] };
+  const roster = c.harness.sheet('Roster'), originalGetRange = roster.getRange.bind(roster), originalAppend = roster.appendRow.bind(roster);
+  let injected = true, appends = 0;
+  roster.appendRow = function (values) {
+    if (String(values[0]) === target.email) appends += 1;
+    return originalAppend(values);
+  };
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && row === roster.getLastRow() && column === 6 && c.rosterRows().some((entry) => String(entry['Student Email']) === target.email)) {
+      injected = false;
+      throw new Error('synthetic interruption after membership append');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic interruption/);
+  roster.getRange = originalGetRange;
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.addActions[0].stage, 'STARTED');
+  assert.equal(appends, 1);
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(appends, 1, 'recovery must not append the already-applied membership again');
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === target.email).length, 1);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED').length, 1);
+});
+
+test('reviewed pre-write recovery refuses to overwrite a later teacher membership change', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = { email: 'prewrite.conflict@students.mtmorrisschools.org', name: 'Student, Intended', period: 'Period 5' };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-prewrite-conflict-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+  const roster = c.harness.sheet('Roster'), originalAppendRow = roster.appendRow.bind(roster);
+  let injected = true;
+  roster.appendRow = function appendRowWithOneFailure(values) {
+    if (injected && String(values && values[0] || '') === target.email) {
+      injected = false;
+      throw new Error('synthetic pre-write roster append failure');
+    }
+    return originalAppendRow(values);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic pre-write/);
+  roster.appendRow = originalAppendRow;
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.status, 'RECOVERY_REVIEW_REQUIRED');
+
+  roster.appendRow([target.email, 'Student, Later Teacher Edit', target.period, '', true, false, 'STANDARD']);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+      confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES',
+      token: review.recoveryToken,
+    }),
+    /preserve the newer teacher decision/i
+  );
+  const row = c.rosterRows().find((entry) => String(entry['Student Email']) === target.email && String(entry['Class / Period']) === target.period);
+  assert.equal(String(row['Student Name']), 'Student, Later Teacher Edit');
+});
+
+test('hash-only PIN state is not rotated when missing-card creation is disabled', () => {
+  const c = classroom();
+  const email = 'hash.only@students.mtmorrisschools.org';
+  const originalHash = c.harness.call('hashPin_', '654321');
+  c.harness.sheet('Roster').appendRow([email, 'Student, Hash Only', 'Period 2', originalHash, true, false, 'STANDARD']);
+  c.harness.newRequest();
+  const result = c.harness.call('ensureOnePinPerStudent_', { createMissing: false, studentEmails: [email] });
+  const row = c.rosterRows().find((entry) => String(entry['Student Email']) === email);
+  assert.equal(String(row['PIN Hash']), originalHash, 'non-provisioning repair must preserve the existing hash');
+  assert.equal(c.pinCards().filter((entry) => String(entry['Student Email']) === email).length, 0,
+    'createMissing=false must not mint or expose a new credential');
+  assert.equal(result.createdPins, 0);
+  assert.equal(result.createdCards, 0);
 });
 
 test('roster sync name correction changes only the explicitly approved class membership', () => {
