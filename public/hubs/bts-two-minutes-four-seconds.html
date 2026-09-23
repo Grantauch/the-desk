@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="index, follow">
+<title>Two Minutes, Four Seconds &middot; Beyond the Scoreboard</title>
+<meta name="description" content="A four source investigation into Joe Louis, Max Schmeling, and what the country asked of a Black champion from Detroit, 1934 to 1981.">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-two-minutes-four-seconds.html">
+<meta property="og:title" content="Two Minutes, Four Seconds · Joe Louis and the Weight of a Fight">
+<meta property="og:description" content="Joe Louis loses to Max Schmeling, beats him in 124 seconds, gives his purses to a segregated military, and spends his last years owing the government.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-two-minutes-four-seconds.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/two-minutes/assets/b01-knockout.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap">
+<style>
+:root{
+  --ink:#12100d;
+  --paper:#e4ddcc;
+  --card:#eee8da;
+  --card2:#e7e0cf;
+  --gold:#7a520b;
+  --amber:#e3a33a;
+  --navy:#1c2f4d;
+  --rule:#968d7a;
+  --dim:#4a453c;
+  --light:#e9e3d4;
+  --muted:#b9b1a1;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:Newsreader,Georgia,'Times New Roman',serif;
+  font-size:18px;line-height:1.6;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+.skip{position:absolute;left:-9999px;top:8px;z-index:50;background:var(--ink);color:var(--light);padding:10px 16px;font-family:'Libre Franklin',sans-serif}
+.skip:focus{left:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- COVER ---------- */
+.hero{position:sticky;top:0;z-index:0;height:78vh;min-height:430px;max-height:800px;overflow:hidden;background:#080706;display:flex;align-items:flex-end;justify-content:center}
+.heroimg{position:absolute;inset:0;background:url(/storyhub/bts/two-minutes/assets/b01-knockout.jpg) 50% 30%/cover no-repeat;filter:contrast(1.06)}
+.heroscrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,6,.7) 0%,rgba(8,7,6,.1) 30%,rgba(8,7,6,.5) 60%,rgba(8,7,6,.96) 92%)}
+.herotype{position:relative;width:100%;text-align:center;padding:70px 20px 34px;color:var(--light);background:linear-gradient(180deg,rgba(8,7,6,0),rgba(8,7,6,.85) 45%,rgba(8,7,6,.97))}
+.kicker{font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);border-top:1px solid rgba(227,163,58,.5);border-bottom:1px solid rgba(227,163,58,.5);padding:7px 0;margin:0 auto 18px;max-width:520px}
+.herotype h1{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:clamp(3.3rem,14vw,7.4rem);line-height:.86;letter-spacing:.01em;margin:0;text-shadow:0 4px 24px rgba(0,0,0,.8)}
+.herotype h1 em{font-style:normal;color:var(--amber);display:block}
+.sub{font-family:'Libre Franklin',sans-serif;font-weight:500;font-size:clamp(.8rem,3vw,1rem);letter-spacing:.18em;text-transform:uppercase;margin-top:16px;color:#d8d0bf}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px;font-family:'Libre Franklin',sans-serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:#bcb3a2}
+.row i{font-style:normal;color:var(--amber)}
+.herocredit{position:absolute;right:12px;top:10px;max-width:62%;text-align:right;font-family:'Libre Franklin',sans-serif;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:#d8d0bf;background:rgba(8,7,6,.6);padding:3px 8px}
+.cue{margin-top:22px;height:24px;display:flex;justify-content:center}
+.cue span{width:11px;height:11px;border-right:2px solid var(--amber);border-bottom:2px solid var(--amber);transform:rotate(45deg);animation:drop 1.9s ease-in-out infinite}
+@keyframes drop{0%,100%{transform:translateY(-4px) rotate(45deg);opacity:.4}50%{transform:translateY(4px) rotate(45deg);opacity:1}}
+
+.wrap{position:relative;z-index:1;background:var(--paper);box-shadow:0 -30px 70px rgba(8,7,6,.6);max-width:860px;margin:0 auto;padding:30px 20px 72px}
+
+/* ---------- ID + OPENER ---------- */
+.idbar{display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:var(--card);margin-inline:-20px}
+.idbar label{flex:1 1 180px;display:flex;align-items:center;gap:10px;padding:11px 16px;border-right:1px solid var(--rule);font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;width:0;border:0;border-bottom:1.5px solid var(--rule);background:transparent;font:500 1rem 'Libre Franklin',sans-serif;color:var(--ink);padding:2px 4px}
+.idbar input:focus{outline:0;border-bottom-color:var(--gold)}
+.opener{margin-top:32px;padding:24px 26px 20px;background:var(--card);border-left:7px solid var(--navy);box-shadow:3px 3px 0 rgba(18,16,13,.15)}
+.opener p{margin:0 0 13px}
+.opener p:last-child{margin-bottom:0}
+.opener .lead{font-size:1.18rem;font-weight:600}
+
+/* ---------- PARTS + SOURCES ---------- */
+.parthead{margin:54px 0 0;border-top:3px solid var(--ink);padding-top:10px;display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;font-family:'Libre Franklin',sans-serif;text-transform:uppercase}
+.parthead b{font-size:1.1rem;letter-spacing:.12em}
+.parthead span{font-size:.68rem;letter-spacing:.18em;color:var(--dim);font-weight:700}
+.src{margin-top:30px;background:var(--card);border:1.5px solid var(--rule);box-shadow:4px 4px 0 rgba(18,16,13,.12)}
+.src > header{display:flex;align-items:stretch;background:var(--ink);color:var(--light)}
+.letter{font-family:'Bebas Neue',Impact,sans-serif;font-size:2.4rem;line-height:1;background:var(--navy);color:#fff;padding:12px 18px;display:flex;align-items:center}
+.htxt{padding:10px 16px;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.htxt b{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:1.5rem;letter-spacing:.06em;line-height:1}
+.htxt span{font-family:'Libre Franklin',sans-serif;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.body{padding:22px 24px 8px}
+.body > p{margin:0 0 14px}
+blockquote{margin:22px 0;padding:18px 22px;background:var(--ink);color:var(--light);border-left:7px solid var(--amber)}
+blockquote p{margin:0;font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.5rem,5vw,2.1rem);line-height:1.08;letter-spacing:.02em}
+blockquote.plain p{font-family:Newsreader,Georgia,serif;font-size:1.12rem;line-height:1.5;letter-spacing:0}
+blockquote cite{display:block;margin-top:12px;font-style:normal;font-family:'Libre Franklin',sans-serif;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- PHOTOS ---------- */
+figure{margin:26px 0}
+figure.photo{background:var(--ink);border-left:7px solid var(--navy)}
+figure.photo img{display:block;width:100%;height:auto}
+figure.photo.narrow img{max-width:430px;margin:0 auto}
+figcaption{padding:14px 20px 16px;color:#d6cfbf;font-size:.92rem;line-height:1.5}
+figcaption b{color:#fff;font-weight:600}
+.credit{display:block;margin-top:8px;font-family:'Libre Franklin',sans-serif;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#c9c1b0}
+.pair{display:grid;grid-template-columns:1fr 1fr;background:var(--ink);border-left:7px solid var(--navy);margin:26px 0}
+.pair figure{margin:0;border-left:0}
+.pair figure:first-child{border-right:1px solid #2e2a25}
+.pair img{height:320px;object-fit:contain;background:#080706}
+@media(max-width:620px){.pair{grid-template-columns:1fr}.pair figure:first-child{border-right:0;border-bottom:1px solid #2e2a25}.pair img{height:auto}}
+
+/* ---------- QUESTIONS ---------- */
+.q{border-top:1px solid var(--rule);padding:18px 0 6px}
+.qs .q:first-child{border-top:2px solid var(--ink)}
+.qlab{display:flex;gap:11px;align-items:baseline;margin-bottom:10px}
+.qnum{font-family:'Bebas Neue',Impact,sans-serif;color:var(--navy);font-size:1.25rem;letter-spacing:.04em;flex:none}
+.qtxt{font-size:1rem;line-height:1.5}
+textarea{width:100%;background:#f5f1e7;color:var(--ink);border:1.5px solid var(--rule);border-bottom:2.5px solid var(--ink);font:1rem/1.7 Newsreader,Georgia,serif;padding:11px 13px;resize:vertical;min-height:80px}
+textarea:focus{outline:0;border-color:var(--navy);background:#fbf8f1}
+
+/* ---------- PANELS ---------- */
+.panel{margin:26px 0;background:var(--ink);color:var(--light);padding:20px 22px 22px;border-left:7px solid var(--amber)}
+.ptop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-family:'Libre Franklin',sans-serif;text-transform:uppercase}
+.ptop b{font-size:.95rem;letter-spacing:.14em;color:#fff}
+.ptop span{font-size:.62rem;letter-spacing:.18em;color:var(--muted)}
+.panel p{margin:0 0 14px;color:#e2dccd}
+.btn{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.2rem;letter-spacing:.08em;background:var(--amber);color:var(--ink);border:0;padding:11px 22px;cursor:pointer}
+.btn:hover{background:#f0b651}
+.btn:focus-visible,.choice:focus-visible,input[type=range]:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--light);border:2px solid #6c665b}
+
+/* rulebook */
+.rules{display:grid;gap:12px}
+.rule{background:#1d1a16;border:1px solid #3a352e;padding:14px 16px}
+.rule h4{margin:0 0 10px;font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:1.5rem;letter-spacing:.04em;color:#fff;line-height:1.05}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.choice{font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;color:var(--light);border:1.5px solid #6c665b;padding:8px 12px;cursor:pointer}
+.choice[aria-pressed=true]{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+.rnote{margin-top:10px;padding-top:10px;border-top:1px solid #3a352e;font-size:.95rem;color:#e2dccd}
+.tally{margin-top:14px;font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.08em;color:var(--amber)}
+
+/* bell */
+.guess label{display:block;font-size:1rem;margin-bottom:6px}
+.gv{font-family:'Bebas Neue',Impact,sans-serif;font-size:2rem;color:var(--amber);display:block;line-height:1;margin:6px 0}
+input[type=range]{width:100%;accent-color:var(--amber)}
+.bars{margin-top:18px}
+.bar{margin-bottom:14px}
+.bar .lab{display:flex;justify-content:space-between;gap:10px;font-family:'Libre Franklin',sans-serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#d8d0bf;margin-bottom:5px}
+.track{height:30px;background:#26221d;position:relative;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;width:0;background:#8a8171;transition:width 1.6s ease-out}
+.fill.hot{background:var(--amber)}
+.verdict{margin-top:6px;min-height:1.4em;font-size:1.02rem;color:#fff}
+.verdict b{color:var(--amber)}
+
+/* poster */
+.said{display:grid;gap:10px;margin:8px 0 14px}
+.line{background:#1d1a16;border:1px solid #3a352e;padding:14px 16px}
+.line small{display:block;font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.line q{font-size:1.15rem;quotes:none}
+.line mark{background:transparent;color:inherit}
+.panel.on .line mark{background:var(--amber);color:var(--ink);padding:0 3px}
+
+/* table */
+.tablewrap{overflow-x:auto;margin:22px 0;border:2px solid var(--ink)}
+table{border-collapse:collapse;width:100%;min-width:520px;background:var(--card)}
+th{background:var(--ink);color:var(--light);text-align:left;font-family:'Libre Franklin',sans-serif;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;padding:10px 14px}
+td{padding:10px 14px;border-top:1px solid var(--rule);font-size:.96rem;vertical-align:top}
+td:first-child{font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.8rem;white-space:nowrap;color:var(--navy)}
+
+/* ---------- LEDGER + ESSAY ---------- */
+.ledger{display:grid;grid-template-columns:1fr 1fr;margin-top:24px;border:2px solid var(--ink)}
+.ledger > div{padding:18px 20px 20px;background:var(--card)}
+.ledger > div:first-child{border-right:2px solid var(--ink);background:var(--card2)}
+.ledger h3{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:1.6rem;letter-spacing:.03em;margin:0;line-height:1.05;color:var(--navy)}
+.note{font-family:'Libre Franklin',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:4px 0 12px;font-weight:700}
+.lrow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.lrow em{font-style:normal;font-family:'Bebas Neue',Impact,sans-serif;color:var(--dim);width:14px;flex:none}
+.lrow input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1.5px solid var(--rule);font:1rem Newsreader,Georgia,serif;color:var(--ink);padding:4px 2px}
+.lrow input:focus{outline:0;border-bottom-color:var(--navy)}
+@media(max-width:620px){.ledger{grid-template-columns:1fr}.ledger > div:first-child{border-right:0;border-bottom:2px solid var(--ink)}}
+.prompts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+@media(max-width:680px){.prompts{grid-template-columns:1fr}}
+.prompt{background:var(--card);border:2px solid var(--ink);cursor:pointer;display:flex;flex-direction:column;position:relative}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.ph{background:var(--card2);border-bottom:2px solid var(--ink);padding:10px 16px;display:flex;align-items:center;gap:10px;font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+.dot{width:15px;height:15px;border:2px solid var(--ink);border-radius:50%;flex:none}
+.pb{padding:15px 16px;font-size:.98rem;line-height:1.55}
+.prompt:has(input:checked){background:var(--ink);color:var(--light);box-shadow:5px 5px 0 var(--amber)}
+.prompt:has(input:checked) .ph{background:var(--navy);color:#fff;border-bottom-color:var(--navy)}
+.prompt:has(input:checked) .dot{background:#fff;border-color:#fff}
+.prompt:has(input:focus-visible){outline:3px solid var(--navy);outline-offset:3px}
+.essaymeta{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:22px 0 8px;font-family:'Libre Franklin',sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#wc{color:#8f1d12}
+#wc.ok{color:#2c6532}
+#essay{min-height:300px}
+.actions{margin-top:36px;padding:22px 24px;background:var(--ink);color:var(--light);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:7px solid var(--amber)}
+.actions p{margin:0;font-size:.95rem;color:#d6cfbf;max-width:44ch}
+.actions .btn.done{background:#5fae63}
+.refs{margin-top:46px;border-top:2px solid var(--ink);padding-top:16px;font-size:.86rem;line-height:1.7;color:var(--dim)}
+.refs b{display:block;font-family:'Libre Franklin',sans-serif;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);margin-bottom:10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px}
+.saved{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--light);font-family:'Libre Franklin',sans-serif;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 18px;border-left:4px solid var(--amber);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.hero{position:relative}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to the lesson</a>
+
+<header class="hero">
+  <div class="heroimg" role="img" aria-label="Joe Louis walks away as Max Schmeling kneels on the canvas and the referee counts, June 22, 1938."></div>
+  <div class="heroscrim"></div>
+  <div class="herocredit">Yankee Stadium, June 22, 1938 · Associated Press</div>
+  <div class="herotype">
+    <div class="kicker">Beyond the Scoreboard &nbsp;·&nbsp; Source Investigation</div>
+    <h1>Two Minutes,<em>Four Seconds</em></h1>
+    <div class="sub">Joe Louis and the Weight of a Fight</div>
+    <div class="row"><span>Detroit <i>1926</i></span><span>·</span><span>New York <i>1938</i></span><span>·</span><span>Arlington <i>1981</i></span></div>
+    <div class="cue" aria-hidden="true"><span></span></div>
+  </div>
+</header>
+
+<main class="wrap" id="main-content">
+
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+
+  <section class="opener">
+    <p class="lead">On June 22, 1938, a heavyweight championship fight lasted 124 seconds.</p>
+    <p>About 70,000 people were inside Yankee Stadium and around 70 million more were listening on the radio. The winner was a 24 year old Black man from Detroit, and that night white America cheered for him. This investigation asks what the country wanted from Joe Louis, and what it gave him back.</p>
+    <p><strong>Read every source. Answer in complete sentences. Cite sources by letter.</strong></p>
+  </section>
+
+  <div class="parthead"><b>Part One · The Sources</b><span>Four sources, 1908 to 1981</span></div>
+
+  <!-- A -->
+  <article class="src">
+    <header><div class="letter">A</div><div class="htxt"><b>The Rules</b><span>Detroit, 1926 to 1937</span></div></header>
+    <div class="body">
+      <p>Joe Louis Barrow was born in 1914 to Alabama sharecroppers. In 1926 the family moved to Detroit, where he worked at Ford's River Rouge plant and learned to box at the Brewster Recreation Center.</p>
+      <p>Every Black fighter of his time boxed in the shadow of Jack Johnson, the first Black heavyweight champion. Johnson grinned at the white men he beat and married white women. The novelist Jack London wrote that someone had to <q>remove that smile from Johnson's face.</q> After Johnson lost the title in 1915, no Black fighter got a title shot for 22 years.</p>
+      <div class="pair">
+        <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b02-johnson.jpg" alt="Jack Johnson standing in boxing trunks and gloves, full length portrait." loading="lazy" width="900" height="1362"><figcaption>Jack Johnson, heavyweight champion from 1908 to 1915.<span class="credit">Jack Johnson, 1910 · Library of Congress</span></figcaption></figure>
+        <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b03-louis-1941.jpg" alt="Joe Louis, shirtless, arms folded, looking straight at the camera." loading="lazy" width="1000" height="1345"><figcaption>Joe Louis at his training camp. <b>Never gloat</b> was one of his rules.<span class="credit">Joe Louis, September 15, 1941 · Carl Van Vechten, Library of Congress</span></figcaption></figure>
+      </div>
+      <p>Louis's managers, two Black businessmen named John Roxborough and Julian Black, did not want a second Johnson. The Smithsonian lists four of the rules they gave him.</p>
+
+      <div class="panel" id="rulebook">
+        <div class="ptop"><b>The Rulebook</b><span>Sort each rule</span></div>
+        <p>For each rule, decide what it was really about.</p>
+        <div class="rules">
+          <div class="rule" data-rule="0">
+            <h4>Never be photographed with a white woman</h4>
+            <div class="choices" role="group" aria-label="Never be photographed with a white woman"><button class="choice" type="button" data-pick="ring" aria-pressed="false">About boxing</button><button class="choice" type="button" data-pick="image" aria-pressed="false">About his image</button></div>
+            <div class="rnote" hidden>Nothing here touches a fight. Johnson's marriages to white women were a main reason white newspapers attacked him.</div>
+          </div>
+          <div class="rule" data-rule="1">
+            <h4>Never gloat over a fallen opponent</h4>
+            <div class="choices" role="group" aria-label="Never gloat over a fallen opponent"><button class="choice" type="button" data-pick="ring" aria-pressed="false">About boxing</button><button class="choice" type="button" data-pick="image" aria-pressed="false">About his image</button></div>
+            <div class="rnote" hidden>It happens in the ring, but it is aimed at the audience. Johnson's smile is what London wanted wiped away.</div>
+          </div>
+          <div class="rule" data-rule="2">
+            <h4>Never engage in fixed fights</h4>
+            <div class="choices" role="group" aria-label="Never engage in fixed fights"><button class="choice" type="button" data-pick="ring" aria-pressed="false">About boxing</button><button class="choice" type="button" data-pick="image" aria-pressed="false">About his image</button></div>
+            <div class="rnote" hidden>This is the rule most about boxing itself. A fixed fight would also have handed his critics an easy story.</div>
+          </div>
+          <div class="rule" data-rule="3">
+            <h4>Live clean and fight clean</h4>
+            <div class="choices" role="group" aria-label="Live clean and fight clean"><button class="choice" type="button" data-pick="ring" aria-pressed="false">About boxing</button><button class="choice" type="button" data-pick="image" aria-pressed="false">About his image</button></div>
+            <div class="rnote" hidden>Half ring, half everything else. His managers wanted a champion no newspaper could use against Black fighters.</div>
+          </div>
+        </div>
+        <div class="tally" id="rule-tally" aria-live="polite"></div>
+      </div>
+
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">A1</span><span class="qtxt">Pick one rule from the rulebook. Explain what it was meant to protect Louis from.</span></div><textarea data-q="A1" aria-label="Your answer to A1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">A2</span><span class="qtxt">Louis followed these rules because of Jack Johnson. Was that fair to Louis? Explain.</span></div><textarea data-q="A2" aria-label="Your answer to A2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- B -->
+  <article class="src">
+    <header><div class="letter">B</div><div class="htxt"><b>The First Fight</b><span>June 19, 1936 · Yankee Stadium</span></div></header>
+    <div class="body">
+      <p>Louis was 22 and had won all 27 of his professional fights. Max Schmeling was 30, a former champion from Germany. Schmeling had studied films of Louis and noticed that he dropped his left hand after every jab. He knocked Louis down in the fourth round and knocked him out in the twelfth.</p>
+      <div class="pair">
+        <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b04-counted-out.jpg" alt="Referee counting over Joe Louis, who lies face down on the canvas while Schmeling raises his arms." loading="lazy" width="1200" height="894"><figcaption>Round 12, 2:29.<span class="credit">June 19, 1936 · John Rooney</span></figcaption></figure>
+        <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b05-berlin-reception.jpg" alt="Max Schmeling in a suit beside his wife Anny Ondra, facing Adolf Hitler, who wears a swastika armband." loading="lazy" width="1200" height="878"><figcaption>Back in Germany, Schmeling and his wife, the actress Anny Ondra, were received by Adolf Hitler.<span class="credit">Berlin, July 6, 1936 · International News Photos</span></figcaption></figure>
+      </div>
+      <p>The Nazi government, which taught that Germans were a master race, sold the win as proof. Schmeling never joined the Nazi Party and kept his Jewish American manager.</p>
+      <blockquote><p>I am a fighter, not a politician.</p><cite>Max Schmeling</cite></blockquote>
+      <p>On June 22, 1937, Louis knocked out James Braddock in Chicago to become the first Black heavyweight champion since Johnson. He told reporters he did not want to be called champion until he beat Schmeling.</p>
+      <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b07-farr-color.jpg" alt="Color photograph of Joe Louis and Tommy Farr squaring off in an outdoor ring, 1937." loading="lazy" width="1400" height="863"><figcaption>Louis and Tommy Farr before his first title defense, in one of the earliest color newspaper photographs.<span class="credit">Harry Warnecke, New York Sunday News, August 1937</span></figcaption></figure>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">B1</span><span class="qtxt">Schmeling said he was a fighter and not a politician. Use the Berlin photograph to explain why his win became political anyway.</span></div><textarea data-q="B1" aria-label="Your answer to B1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">B2</span><span class="qtxt">Louis already held the title in 1937. Why did he still need to beat Schmeling?</span></div><textarea data-q="B2" aria-label="Your answer to B2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- C -->
+  <article class="src">
+    <header><div class="letter">C</div><div class="htxt"><b>The Rematch</b><span>June 22, 1938 · Yankee Stadium</span></div></header>
+    <div class="body">
+      <p>By 1938 Germany had taken over Austria, and the rematch was about more than a title. Louis later said President Roosevelt felt his arm at the White House and told him America needed muscles like his to beat Germany.</p>
+      <p>A crowd of 70,043 paid more than $1 million to get in. Schmeling went down three times, and the referee stopped the fight at two minutes and four seconds of the first round. Schmeling had thrown two punches.</p>
+
+      <div class="panel" id="bell">
+        <div class="ptop"><b>Ring the Bell</b><span>Fight time, 1936 and 1938</span></div>
+        <div class="guess"><label for="g-min">Before you ring it, guess. How many minutes of fighting did the first fight in 1936 last?</label><span class="gv" id="gv-min" aria-hidden="true">10 minutes</span><input type="range" id="g-min" min="1" max="45" value="10"></div>
+        <button class="btn" id="ring" type="button">Ring the bell</button>
+        <div class="bars" id="bars" hidden>
+          <div class="bar"><div class="lab"><span>1936 · Schmeling wins</span><span>35 minutes, 29 seconds</span></div><div class="track"><div class="fill" id="f36"></div></div></div>
+          <div class="bar"><div class="lab"><span>1938 · Louis wins</span><span>2 minutes, 4 seconds</span></div><div class="track"><div class="fill hot" id="f38"></div></div></div>
+          <div class="bar"><div class="lab"><span>Your guess for 1936</span><span id="yourlab"></span></div><div class="track"><div class="fill" id="fyou" style="background:#4d7aa8"></div></div></div>
+        </div>
+        <div class="verdict" id="bell-verdict" aria-live="polite"></div>
+      </div>
+
+      <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b08-harlem.jpg" alt="A packed bar in Harlem full of Black men and women cheering with raised arms and hats." loading="lazy" width="1400" height="1257"><figcaption>Harlem, minutes after the fight. Schmeling rode through these streets in an ambulance and later remembered only <b>celebration, noise, and saxophones</b>.<span class="credit">New York, June 22, 1938 · photographer unknown</span></figcaption></figure>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">C1</span><span class="qtxt">Use the bell chart. What does the difference between the two fights tell you about Louis in 1938?</span></div><textarea data-q="C1" aria-label="Your answer to C1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">C2</span><span class="qtxt">Millions of white Americans cheered for a Black man that night. Did that mean the country had changed? Use a detail from another source.</span></div><textarea data-q="C2" aria-label="Your answer to C2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- D -->
+  <article class="src">
+    <header><div class="letter">D</div><div class="htxt"><b>The Bill</b><span>1942 to 1981</span></div></header>
+    <div class="body">
+      <p>A month after Pearl Harbor, on January 9, 1942, Louis gave his purse from a title fight to the Navy Relief Society. At the time the Navy let Black men serve only as cooks and mess attendants. The next day he enlisted in a segregated Army. On March 10 he spoke at a Navy Relief show at Madison Square Garden, and the government turned his words into a recruiting poster. The words come down to us in two versions.</p>
+
+      <div class="panel" id="poster">
+        <div class="ptop"><b>One Sentence, Two Versions</b><span>March 1942</span></div>
+        <div class="said">
+          <div class="line"><small>As reported from the Garden that night</small><q><mark>I'm only doin' what any red blooded American would.</mark> We're <mark>gonna</mark> do our part and we'll win <mark>'cause</mark> we <mark>are</mark> on God's side.</q></div>
+          <div class="line"><small>As printed on the government poster</small><q>We're <mark>going to</mark> do our part <mark>. . .</mark> and we'll win <mark>because</mark> we<mark>'re</mark> on God's side.</q></div>
+        </div>
+        <button class="btn" id="diff" type="button" aria-pressed="false">Show the changes</button>
+        <p id="diff-note" aria-live="polite" style="margin-top:14px"></p>
+      </div>
+
+      <div class="pair">
+        <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b09-poster.jpg" alt="Blue World War Two poster of Private Joe Louis in helmet and uniform, charging with a rifle and bayonet." loading="lazy" width="900" height="1227"><figcaption>The poster.<span class="credit">Office of War Information, 1942 · National Archives</span></figcaption></figure>
+        <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b10-mess-hall.jpg" alt="Joe Louis in an Army uniform eating from a spoon at a mess hall table." loading="lazy" width="900" height="1193"><figcaption>Private Louis in an Army mess hall.<span class="credit">1942 · photographer unknown</span></figcaption></figure>
+      </div>
+      <p>He gave a second purse to Army Emergency Relief, fought about 100 exhibitions for troops, and rose to staff sergeant. Then the bill came.</p>
+      <div class="tablewrap" role="region" aria-label="Timeline of Joe Louis after the war" tabindex="0">
+        <table>
+          <thead><tr><th>Date</th><th>What happened</th></tr></thead>
+          <tbody>
+            <tr><td>1950</td><td>The IRS said he owed more than $500,000 in back taxes, interest and penalties. He came out of retirement to pay it and lost to younger men</td></tr>
+            <tr><td>Late 1950s</td><td>Tax debt with interest passed $1 million. He tried professional wrestling</td></tr>
+            <tr><td>1970s</td><td>Worked as a greeter at Caesars Palace in Las Vegas. Schmeling visited and sent him money</td></tr>
+            <tr><td>Apr 12, 1981</td><td>Died. President Reagan waived the rules so he could be buried at Arlington. Schmeling helped pay for the funeral</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b11-louis-schmeling-1971.jpg" alt="Joe Louis in a cap and Max Schmeling in a suit shaking hands and smiling." loading="lazy" width="1200" height="970"><figcaption>The old opponents in 1971. During the Kristallnacht attacks in November 1938, Schmeling hid two Jewish boys in his Berlin hotel room.<span class="credit">May 12, 1971 · Associated Press</span></figcaption></figure>
+      <p>The sportswriter Jimmy Cannon meant this line as praise.</p>
+      <blockquote><p>Joe Louis is a credit to his race, the human race.</p><cite>Jimmy Cannon, sportswriter</cite></blockquote>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">D1</span><span class="qtxt">Compare the two versions of his words. What changed between the Garden and the poster, and why would the government want him to sound that way?</span></div><textarea data-q="D1" aria-label="Your answer to D1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">D2</span><span class="qtxt">Pick the fact in this source that bothers you most and explain why.</span></div><textarea data-q="D2" aria-label="Your answer to D2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <figure class="photo"><img src="/storyhub/bts/two-minutes/assets/b12-the-fist.jpg" alt="A giant bronze arm and fist hanging from a pyramid frame over a Detroit intersection at night." loading="lazy" width="1200" height="1200"><figcaption>The Monument to Joe Louis, downtown Detroit, 1986.<span class="credit">Sculpture by Robert Graham · photograph by ajay_suresh, CC BY 2.0</span></figcaption></figure>
+
+  <div class="parthead"><b>Part Two · The Ledger</b><span>Three entries minimum per side</span></div>
+  <div class="ledger">
+    <div>
+      <h3>What the country asked of him</h3>
+      <div class="note">Evidence from the sources</div>
+      <div class="lrow"><em>1</em><input type="text" data-q="ASK1" autocomplete="off" aria-label="What the country asked, entry 1"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="ASK2" autocomplete="off" aria-label="What the country asked, entry 2"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="ASK3" autocomplete="off" aria-label="What the country asked, entry 3"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="ASK4" autocomplete="off" aria-label="What the country asked, entry 4"></div>
+    </div>
+    <div>
+      <h3>What the country gave back</h3>
+      <div class="note">Evidence from the sources</div>
+      <div class="lrow"><em>1</em><input type="text" data-q="GAVE1" autocomplete="off" aria-label="What the country gave back, entry 1"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="GAVE2" autocomplete="off" aria-label="What the country gave back, entry 2"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="GAVE3" autocomplete="off" aria-label="What the country gave back, entry 3"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="GAVE4" autocomplete="off" aria-label="What the country gave back, entry 4"></div>
+    </div>
+  </div>
+
+  <div class="parthead"><b>Part Three · Take a Side</b><span>200 words minimum · two sources minimum</span></div>
+  <div class="prompts">
+    <label class="prompt">
+      <input type="radio" name="prompt" value="Prompt 1">
+      <span class="ph"><span class="dot"></span>Prompt 1</span>
+      <span class="pb"><b>Argue whether Louis's rules were smart strategy or a price no champion should have had to pay.</b> Use Source A and one other.</span>
+    </label>
+    <label class="prompt">
+      <input type="radio" name="prompt" value="Prompt 2">
+      <span class="ph"><span class="dot"></span>Prompt 2</span>
+      <span class="pb"><b>Argue whether America treated Joe Louis fairly.</b> Use Source D and one other.</span>
+    </label>
+  </div>
+  <div class="essaymeta"><label for="essay">Your argument</label><span>Word count <span id="wc">0</span> / 200</span></div>
+  <textarea id="essay" data-q="ESSAY" placeholder="Pick a side in your first sentence. Then prove it."></textarea>
+
+  <div class="actions">
+    <p>When you finish, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+    <button class="btn" id="copy" type="button">Copy my answers</button>
+  </div>
+
+  <div class="refs">
+    <b>References</b>
+    <div>Margolick, D. (2005). <i>Beyond glory: Joe Louis vs. Max Schmeling, and a world on the brink</i>. Alfred A. Knopf.</div>
+    <div>Mead, C. (1985). <i>Champion: Joe Louis, Black hero in white America</i>. Charles Scribner's Sons.</div>
+    <div>National Museum of African American History and Culture. (n.d.). <i>Joe Louis</i>. Smithsonian Institution.</div>
+    <div>The National WWII Museum. (n.d.). <i>Joe Louis: From boxing gloves to combat boots</i>.</div>
+  </div>
+</main>
+
+<div class="saved" id="toast" aria-hidden="true">Saved</div>
+
+<script>
+(function(){
+  var KEY='bts-two-minutes-v1';
+  var store={};
+  try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){store={};}
+  var toast=document.getElementById('toast'),tT,sT;
+  function persist(){
+    try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1000);
+  }
+  function queue(){clearTimeout(sT);sT=setTimeout(persist,600);}
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  function k(el){return el.dataset.q||el.id;}
+  fields.forEach(function(el){
+    if(typeof store[k(el)]==='string')el.value=store[k(el)];
+    el.addEventListener('input',function(){store[k(el)]=el.value;queue();});
+  });
+  var radios=[].slice.call(document.querySelectorAll('input[name="prompt"]'));
+  radios.forEach(function(r){
+    if(store.__prompt===r.value)r.checked=true;
+    r.addEventListener('change',function(){store.__prompt=r.value;queue();});
+  });
+
+  /* word count */
+  var essay=document.getElementById('essay'),wc=document.getElementById('wc');
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.classList.toggle('ok',n>=200);}
+  essay.addEventListener('input',count);count();
+
+  /* rulebook */
+  var rules=[].slice.call(document.querySelectorAll('.rule'));
+  var tally=document.getElementById('rule-tally');
+  store.rules=store.rules||{};
+  function paintRule(rule,pick){
+    [].forEach.call(rule.querySelectorAll('.choice'),function(b){b.setAttribute('aria-pressed',String(b.dataset.pick===pick));});
+    rule.querySelector('.rnote').hidden=!pick;
+  }
+  function paintTally(){
+    var done=Object.keys(store.rules).length;
+    var image=Object.keys(store.rules).filter(function(i){return store.rules[i]==='image';}).length;
+    tally.textContent=done<rules.length?('Sorted '+done+' of '+rules.length+'.'):('You put '+image+' of 4 rules under image. Only one of the four is mainly about what happens in the ring.');
+  }
+  rules.forEach(function(rule){
+    var i=rule.dataset.rule;
+    if(store.rules[i])paintRule(rule,store.rules[i]);
+    [].forEach.call(rule.querySelectorAll('.choice'),function(b){
+      b.addEventListener('click',function(){store.rules[i]=b.dataset.pick;paintRule(rule,b.dataset.pick);paintTally();queue();});
+    });
+  });
+  paintTally();
+
+  /* bell */
+  var g=document.getElementById('g-min'),gv=document.getElementById('gv-min');
+  var ring=document.getElementById('ring'),bars=document.getElementById('bars'),verdict=document.getElementById('bell-verdict');
+  var S36=35*60+29,S38=124,MAX=45*60;
+  function showGuess(){gv.textContent=g.value+(g.value==='1'?' minute':' minutes');}
+  if(store.guess){g.value=store.guess;}
+  showGuess();
+  g.addEventListener('input',function(){showGuess();store.guess=g.value;queue();});
+  function fire(){
+    bars.hidden=false;
+    var you=Number(g.value)*60;
+    document.getElementById('yourlab').textContent=g.value+(g.value==='1'?' minute':' minutes');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      document.getElementById('f36').style.width=(S36/MAX*100)+'%';
+      document.getElementById('f38').style.width=(S38/MAX*100)+'%';
+      document.getElementById('fyou').style.width=(Math.min(you,MAX)/MAX*100)+'%';
+    });});
+    var off=Math.round(Math.abs(you-S36)/60);
+    verdict.innerHTML='The first fight ran <b>about 17 times longer</b> than the rematch. Your guess was '+(off===0?'right on':'off by about '+off+(off===1?' minute':' minutes'))+'.';
+    store.rang=true;queue();
+  }
+  ring.addEventListener('click',fire);
+  if(store.rang)fire();
+
+  /* poster diff */
+  var dp=document.getElementById('poster'),db=document.getElementById('diff'),dn=document.getElementById('diff-note');
+  db.addEventListener('click',function(){
+    var on=!dp.classList.contains('on');
+    dp.classList.toggle('on',on);db.setAttribute('aria-pressed',String(on));
+    db.textContent=on?'Hide the changes':'Show the changes';
+    dn.textContent=on?'The poster cuts his first sentence and rewrites the rest in formal grammar.':'';
+  });
+
+  /* copy */
+  var cb=document.getElementById('copy');
+  cb.addEventListener('click',function(){
+    function v(sel){var e=document.querySelector(sel);return e?e.value.trim():'';}
+    var out=['TWO MINUTES, FOUR SECONDS · Joe Louis and the Weight of a Fight',
+      'Name: '+(v('#f-name')||'______')+'   Hour: '+(v('#f-hour')||'___')+'   Date: '+(v('#f-date')||'______'),'','PART ONE · SOURCE ANALYSIS'];
+    ['A1','A2','B1','B2','C1','C2','D1','D2'].forEach(function(q){out.push(q+'. '+(v('[data-q="'+q+'"]')||'[no answer]'));out.push('');});
+    out.push('PART TWO · THE LEDGER','What the country asked of him:');
+    [1,2,3,4].forEach(function(i){out.push('  '+i+'. '+(v('[data-q="ASK'+i+'"]')||'[blank]'));});
+    out.push('What the country gave back:');
+    [1,2,3,4].forEach(function(i){out.push('  '+i+'. '+(v('[data-q="GAVE'+i+'"]')||'[blank]'));});
+    var r=document.querySelector('input[name="prompt"]:checked');
+    out.push('','PART THREE · '+(r?r.value.toUpperCase():'NO PROMPT SELECTED'),'Word count: '+wc.textContent,'',essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){cb.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';cb.classList.toggle('done',ok);setTimeout(function(){cb.textContent='Copy my answers';cb.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else{fallback();}
+  });
+})();
+</script>
+</body>
+</html>
