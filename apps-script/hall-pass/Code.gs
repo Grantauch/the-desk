@@ -2878,6 +2878,17 @@ function applyRosterSyncChanges(request, writeContract) {
       studentEmails: [...new Set(normalized.add.map((input) => input.email))],
     });
 
+    const finalRosterRows = readRosterRows_();
+    const finalCards = readPinCards_();
+    const verifiedCredentialMemberships = normalized.add.filter((input) => {
+      const membership = finalRosterRows.find((student) => student.key === input.key && student.active) || null;
+      const card = finalCards.find((entry) => entry.studentKey === input.key && /^\d{6}$/.test(entry.pin)) || null;
+      return Boolean(membership && card && membership.pinHash && membership.pinHash === hashPin_(card.pin));
+    }).length;
+    if (verifiedCredentialMemberships !== normalized.add.length) {
+      throw new Error('GoClassroom could not verify usable PIN credentials for every approved membership. Recovery remains pending; retry this same batch.');
+    }
+
     const affectedKeys = new Set([
       ...normalized.add.map((input) => input.key),
       ...normalized.updateName.map((input) => input.key),
@@ -2897,7 +2908,6 @@ function applyRosterSyncChanges(request, writeContract) {
       email: input.email, name: input.name, classPeriod: input.classPeriod,
     }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', 'Approved GoClassroom name correction', normalized.requestId));
 
-    const finalCards = readPinCards_();
     const addedCount = (plan.addActions || []).filter((entry) => entry.action === 'added').length;
     const reactivatedCount = (plan.addActions || []).filter((entry) => entry.action === 'reactivated').length;
     const createdPins = (plan.missingPinEmails || []).filter((email) => (
@@ -2923,6 +2933,7 @@ function applyRosterSyncChanges(request, writeContract) {
         requestedNameUpdates: normalized.updateName.length,
         createdPins,
         createdPinCards,
+        verifiedCredentialMemberships,
       },
     };
     rememberRosterSyncRequest_(normalized, result);
@@ -4249,7 +4260,7 @@ function ensureOnePinPerStudent_(options) {
       canonicalPin = '';
       canonicalHash = '';
     }
-    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0])) {
+    if (!canonicalPin && existingHashes.length === 1 && !usedHashes.has(existingHashes[0]) && !createMissing) {
       usedHashes.set(existingHashes[0], email);
       memberships.forEach((student) => {
         if (student.pinHash !== existingHashes[0]) {

@@ -2115,6 +2115,82 @@ test('roster sync resumes safely after a failure that occurs after roster rows w
   assert.equal(actions.filter((row) => String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED').length, 1);
 });
 
+test('roster sync recovers a PIN-card append failure before reporting the batch complete', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = {
+    email: 'pin.retry@students.mtmorrisschools.org',
+    name: 'Student, PIN Retry',
+    period: 'Period 3',
+  };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-pin-card-recovery-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+
+  const pinSheet = c.harness.sheet('PIN Cards');
+  const originalAppendRow = pinSheet.appendRow.bind(pinSheet);
+  let injected = true;
+  pinSheet.appendRow = function appendRowWithOneFailure(values) {
+    if (injected && String(values && values[0] || '') === target.email) {
+      injected = false;
+      throw new Error('synthetic PIN-card append failure');
+    }
+    return originalAppendRow(values);
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic PIN-card append failure/
+  );
+  const afterFailure = c.rosterRows().find((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  );
+  assert.ok(afterFailure, 'the injected failure must occur after the membership row is written');
+  assert.ok(String(afterFailure['PIN Hash'] || ''), 'the first attempt must leave the exact orphaned-hash state from the audit');
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'the first attempt must have no usable PIN card');
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'PENDING',
+    'credential provisioning failure must remain recoverable instead of becoming DONE');
+
+  pinSheet.appendRow = originalAppendRow;
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.verifiedCredentialMemberships, 1,
+    'completion must prove usable credential material for the approved membership');
+  const cards = c.pinCards().filter((row) => String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period);
+  assert.equal(cards.length, 1, 'retry must create exactly one missing PIN card');
+  assert.match(String(cards[0].PIN), /^\d{6}$/);
+  const finalRoster = c.rosterRows().find((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  );
+  assert.equal(String(finalRoster['PIN Hash']), c.harness.call('hashPin_', String(cards[0].PIN)),
+    'the recovered PIN card must match the roster credential hash');
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+});
+
+test('hash-only PIN state is not rotated when missing-card creation is disabled', () => {
+  const c = classroom();
+  const email = 'hash.only@students.mtmorrisschools.org';
+  const originalHash = c.harness.call('hashPin_', '654321');
+  c.harness.sheet('Roster').appendRow([email, 'Student, Hash Only', 'Period 2', originalHash, true, false, 'STANDARD']);
+  c.harness.newRequest();
+  const result = c.harness.call('ensureOnePinPerStudent_', { createMissing: false, studentEmails: [email] });
+  const row = c.rosterRows().find((entry) => String(entry['Student Email']) === email);
+  assert.equal(String(row['PIN Hash']), originalHash, 'non-provisioning repair must preserve the existing hash');
+  assert.equal(c.pinCards().filter((entry) => String(entry['Student Email']) === email).length, 0,
+    'createMissing=false must not mint or expose a new credential');
+  assert.equal(result.createdPins, 0);
+  assert.equal(result.createdCards, 0);
+});
+
 test('roster sync name correction changes only the explicitly approved class membership', () => {
   const c = classroom({
     memberships: [
