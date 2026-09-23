@@ -2492,15 +2492,97 @@ function rosterSyncNoEffectsRejection_(normalizedRequest, code, message) {
   };
 }
 
-function rosterSyncRecoveryReviewRequired_(normalizedRequest, message) {
+function normalizeRosterSyncRecoveryDecision_(value) {
+  if (!value) return null;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('The GoClassroom roster recovery decision is invalid. Stop and review this pending batch.');
+  }
+  if (String(value.confirmation || '') !== 'REAPPLY REVIEWED PREWRITE CHANGES') {
+    throw new Error('The GoClassroom roster recovery decision is missing explicit teacher confirmation. Nothing uncertain was written.');
+  }
+  const token = String(value.token || '').trim();
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(token)) {
+    throw new Error('The GoClassroom roster recovery review token is invalid. Review the pending batch again.');
+  }
+  return { confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token };
+}
+
+function rosterSyncPrewriteRecoveryReview_(normalizedRequest, plan, rows, pendingAt) {
+  const allRows = Array.isArray(rows) ? rows : readRosterRows_();
+  const byKey = new Map(allRows.map((student) => [student.key, student]));
+  const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
+  const nameActionByKey = new Map((plan.nameActions || []).map((entry) => [String(entry.key || ''), entry]));
+  const items = [];
+  const started = [...(plan.addActions || []), ...(plan.nameActions || [])]
+    .some((entry) => entry.stage === 'STARTED');
+  if (started) {
+    const since = new Date(pendingAt).getTime();
+    if (!Number.isFinite(since)) throw new Error('The saved roster recovery time is invalid. Stop and review this transaction.');
+    const emails = new Set([...normalizedRequest.add, ...normalizedRequest.updateName].map((entry) => entry.email));
+    const audit = getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT);
+    if (audit.getLastRow() > 1) {
+      const actions = audit.getRange(2, 1, audit.getLastRow() - 1, GD_HEADERS.TEACHER_AUDIT.length).getValues();
+      if (actions.some((row) => {
+        if (!emails.has(normalizeEmail_(row[3])) || !String(row[6] || '').startsWith('ROSTER_MEMBERSHIP_')) return false;
+        const at = new Date(row[1]).getTime();
+        return !Number.isFinite(at) || at >= since;
+      })) {
+        throw new Error('A teacher changed this student\'s roster after the approved batch started. Recovery stopped to preserve the newer teacher decision.');
+      }
+    }
+  }
+
+  for (const input of normalizedRequest.updateName) {
+    const progress = nameActionByKey.get(input.key);
+    if (!progress || progress.stage !== 'STARTED') continue;
+    const current = byKey.get(input.key) || null;
+    if (current && current.active && current.name === input.name) continue;
+    if (current && current.active && current.name === input.beforeName) {
+      items.push({ kind: 'name', key: input.key, state: 'BEFORE_NAME' });
+      continue;
+    }
+    throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+  }
+
+  for (const input of normalizedRequest.add) {
+    const progress = addActionByKey.get(input.key);
+    if (!progress || progress.stage !== 'STARTED') continue;
+    const current = byKey.get(input.key) || null;
+    if (current && current.active && current.name === input.name) continue;
+    if (progress.action === 'added' && !current) {
+      items.push({ kind: 'membership', key: input.key, action: 'added', state: 'ABSENT' });
+      continue;
+    }
+    if (progress.action === 'reactivated' && current && !current.active && current.name === progress.beforeName) {
+      items.push({ kind: 'membership', key: input.key, action: 'reactivated', state: 'INACTIVE_BEFORE' });
+      continue;
+    }
+    throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+  }
+
+  if (!items.length) return null;
+  const counts = {
+    additions: items.filter((item) => item.kind === 'membership' && item.action === 'added').length,
+    reactivations: items.filter((item) => item.kind === 'membership' && item.action === 'reactivated').length,
+    nameUpdates: items.filter((item) => item.kind === 'name').length,
+  };
+  return {
+    token: rosterSyncPayloadDigest_({ requestId: normalizedRequest.requestId, items }),
+    items,
+    counts,
+  };
+}
+
+function rosterSyncRecoveryReviewResult_(normalizedRequest, review) {
   return {
     ok: false,
     schemaVersion: 1,
-    status: 'REQUIRES_TEACHER_REVIEW',
-    requestId: String(normalizedRequest && normalizedRequest.requestId || ''),
+    status: 'RECOVERY_REVIEW_REQUIRED',
+    requestId: String(normalizedRequest.requestId || ''),
     writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
-    code: 'ROSTER_RECOVERY_REVIEW_REQUIRED',
-    message: String(message || 'An earlier roster write stopped at an uncertain point. Compare the current roster again before applying anything else.'),
+    recoveryToken: String(review && review.token || ''),
+    reviewCounts: { ...(review && review.counts || {}) },
+    message: 'The earlier roster attempt stopped at an uncertain write boundary. Review the exact pending changes before authorizing them again.',
   };
 }
 
@@ -2677,7 +2759,7 @@ function getRosterSyncSnapshot(bridgeContract) {
   };
 }
 
-function applyRosterSyncChanges(request, writeContract) {
+function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, settings);
@@ -2686,6 +2768,7 @@ function applyRosterSyncChanges(request, writeContract) {
   }
 
   const normalized = normalizeRosterSyncWriteRequest_(request, settings);
+  const recovery = normalizeRosterSyncRecoveryDecision_(recoveryDecision);
   const replay = rosterSyncRequestReplay_(normalized);
   if (replay) return replay;
 
@@ -2776,6 +2859,15 @@ function applyRosterSyncChanges(request, writeContract) {
 
     const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
     const nameActionByKey = new Map((plan.nameActions || []).map((entry) => [String(entry.key || ''), entry]));
+    const recoveryReview = rosterSyncPrewriteRecoveryReview_(normalized, plan, readRosterRows_(), requestState.at);
+    const recoveryApproved = Boolean(recoveryReview && recovery && recovery.token === recoveryReview.token);
+    if (recoveryReview && !recoveryApproved) {
+      result = rosterSyncRecoveryReviewResult_(normalized, recoveryReview);
+      return;
+    }
+    const recoveryApprovedKeys = new Set(recoveryApproved
+      ? recoveryReview.items.map((item) => `${item.kind}:${item.key}`)
+      : []);
     const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
     const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
 
@@ -2793,9 +2885,14 @@ function applyRosterSyncChanges(request, writeContract) {
         continue;
       }
 
+      let writeName = false;
       if (progress.stage === 'STARTED') {
-        if (!current || !current.active || current.name !== input.name) {
-          throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped for teacher review.`);
+        if (current && current.active && current.name === input.name) {
+          // The earlier write is already provable; continue recovery without rewriting it.
+        } else if (recoveryApprovedKeys.has(`name:${input.key}`) && current && current.active && current.name === input.beforeName) {
+          writeName = true;
+        } else {
+          throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
         }
       } else {
         if (!current || !current.active || current.name !== input.beforeName) {
@@ -2803,6 +2900,9 @@ function applyRosterSyncChanges(request, writeContract) {
         }
         progress.stage = 'STARTED';
         updateRosterSyncPendingPlan_(normalized, plan);
+        writeName = true;
+      }
+      if (writeName) {
         rosterSheet.getRange(current.row, 2).setValue(input.name);
         gdForget_('roster');
         current = readRosterRows_().find((student) => student.key === input.key) || null;
@@ -2838,14 +2938,20 @@ function applyRosterSyncChanges(request, writeContract) {
         continue;
       }
 
+      let writeMembership = false;
       if (progress.stage === 'STARTED') {
-        if (!sameMembership || !sameMembership.active || sameMembership.name !== input.name) {
-          result = rosterSyncRecoveryReviewRequired_(
-            normalized,
-            `GoClassroom cannot prove whether the earlier ${input.classPeriod} membership change completed. The old request was closed without another roster write. Compare the current roster again before approving anything else.`
-          );
-          rememberRosterSyncRequest_(normalized, result);
-          return;
+        if (sameMembership && sameMembership.active && sameMembership.name === input.name) {
+          // The earlier write is already provable; continue recovery without rewriting it.
+        } else if (recoveryApprovedKeys.has(`membership:${input.key}`)) {
+          const exactPrewriteState = progress.action === 'added'
+            ? !sameMembership
+            : Boolean(sameMembership && !sameMembership.active && sameMembership.name === progress.beforeName);
+          if (!exactPrewriteState) {
+            throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+          }
+          writeMembership = true;
+        } else {
+          throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
         }
       } else {
         if (progress.action === 'added') {
@@ -2860,7 +2966,10 @@ function applyRosterSyncChanges(request, writeContract) {
 
         progress.stage = 'STARTED';
         updateRosterSyncPendingPlan_(normalized, plan);
+        writeMembership = true;
+      }
 
+      if (writeMembership) {
         const accessMode = getStudentPassAccess_(input.email);
         const unlimited = accessMode === 'UNLIMITED';
         const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
@@ -2904,17 +3013,36 @@ function applyRosterSyncChanges(request, writeContract) {
       studentEmails: [...new Set(normalized.add.map((input) => input.email))],
     });
 
-    const credentialRows = readRosterRows_();
-    const credentialCards = readPinCards_();
+    // Reactivation may intentionally correct a retained membership name. A PIN
+    // card can predate that correction, so repair and then re-read the card
+    // before this approved batch is allowed to complete.
     for (const input of normalized.add) {
-      const membership = credentialRows.find((student) => student.key === input.key && student.active) || null;
-      const card = credentialCards.find((entry) => entry.studentKey === input.key && /^\d{6}$/.test(entry.pin)) || null;
-      if (!membership || !membership.pinHash || !card || hashPin_(card.pin) !== membership.pinHash) {
-        throw new Error(`GoClassroom could not verify usable PIN material for ${input.email} / ${input.classPeriod}. The roster request remains pending for safe recovery.`);
+      const progress = addActionByKey.get(input.key);
+      if (!progress || progress.action !== 'reactivated') continue;
+      let card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
+      if (!card) {
+        throw new Error(`GoClassroom could not verify the PIN card for the reactivated membership for ${input.email}. Recovery remains pending; retry this same batch.`);
       }
       if (card.studentName !== input.name) {
-        throw new Error(`GoClassroom could not verify the PIN-card name for ${input.email} / ${input.classPeriod}. The roster request remains pending for safe recovery.`);
+        pinSheet.getRange(card.row, 2).setValue(input.name);
+        gdForget_('pincards');
+        card = readPinCards_().find((entry) => entry.studentKey === input.key) || null;
       }
+      if (!card || card.studentName !== input.name) {
+        throw new Error(`GoClassroom could not verify the corrected PIN-card name for the reactivated membership for ${input.email}. Recovery remains pending; retry this same batch.`);
+      }
+    }
+
+    const finalRosterRows = readRosterRows_();
+    const finalCards = readPinCards_();
+    const verifiedCredentialMemberships = normalized.add.filter((input) => {
+      const membership = finalRosterRows.find((student) => student.key === input.key && student.active) || null;
+      const card = finalCards.find((entry) => entry.studentKey === input.key && /^\d{6}$/.test(entry.pin)) || null;
+      return Boolean(membership && membership.name === input.name && card && card.studentName === input.name &&
+        membership.pinHash && membership.pinHash === hashPin_(card.pin));
+    }).length;
+    if (verifiedCredentialMemberships !== normalized.add.length) {
+      throw new Error('GoClassroom could not verify usable PIN credentials for every approved membership. Recovery remains pending; retry this same batch.');
     }
 
     const affectedKeys = new Set([
@@ -2936,7 +3064,6 @@ function applyRosterSyncChanges(request, writeContract) {
       email: input.email, name: input.name, classPeriod: input.classPeriod,
     }, 'GOCLASSROOM_ROSTER_NAME_UPDATED', 'Approved GoClassroom name correction', normalized.requestId));
 
-    const finalCards = readPinCards_();
     const addedCount = (plan.addActions || []).filter((entry) => entry.action === 'added').length;
     const reactivatedCount = (plan.addActions || []).filter((entry) => entry.action === 'reactivated').length;
     const createdPins = (plan.missingPinEmails || []).filter((email) => (
@@ -2962,6 +3089,7 @@ function applyRosterSyncChanges(request, writeContract) {
         requestedNameUpdates: normalized.updateName.length,
         createdPins,
         createdPinCards,
+        verifiedCredentialMemberships,
       },
     };
     rememberRosterSyncRequest_(normalized, result);
