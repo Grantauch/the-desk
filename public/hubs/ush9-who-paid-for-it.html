@@ -112,7 +112,7 @@ figure.photo{background:var(--ink);border-left:7px solid var(--gilt);padding:0}
 figure.photo img{display:block;width:100%;height:auto;background:#0b0907}
 figure.photo figcaption,figure.chart figcaption{margin:0;padding:15px 20px 17px;color:#aea797;font-size:.88rem;line-height:1.55}
 figcaption b{color:var(--paper);font-weight:600}
-.credit{display:block;margin-top:9px;font-family:Oswald,sans-serif;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:#756e62}
+.credit{display:block;margin-top:9px;font-family:Oswald,sans-serif;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:#a39b8c}
 .photopair{display:grid;grid-template-columns:1fr 1fr;margin:26px 0;border-left:7px solid var(--gilt);background:var(--ink)}
 .photopair figure{margin:0;border-left:0;background:transparent}
 .photopair figure:first-child{border-right:1px solid #2d2923}
@@ -140,8 +140,8 @@ figure.chart figcaption{padding:12px 0 16px;border-top:1px solid #38332b;margin-
 .count{font-family:"Alfa Slab One",serif;font-size:1.5rem;color:#d9a53a}
 .count small{font-family:Oswald,sans-serif;font-size:.68rem;letter-spacing:.18em;color:#8d8677;text-transform:uppercase;margin-left:8px}
 .btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn{font-family:Oswald,sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;background:var(--gilt);color:#fff;border:0;padding:11px 18px;cursor:pointer}
-.btn:hover{background:#c58d1e}
+.btn{font-family:Oswald,sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;background:#8a6212;color:#fff;border:0;padding:11px 18px;cursor:pointer}
+.btn:hover{background:#7a560f}
 .btn.ghost{background:transparent;color:var(--paper);border:1.5px solid #5b554b}
 .btn:focus-visible{outline:3px solid var(--paper);outline-offset:2px}
 .status{min-height:1.6em;color:#cfc7b6;font-size:.95rem;margin-top:10px}
@@ -237,8 +237,8 @@ tr.pivot td:first-child{color:var(--rust)}
 
 .actions{margin-top:40px;padding:24px;background:var(--ink);color:var(--paper);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:7px solid var(--gilt)}
 .actions p{margin:0;font-size:.92rem;color:#aea797;max-width:44ch}
-#copy{font-family:"Alfa Slab One",serif;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;background:var(--gilt);color:#fff;border:0;padding:15px 28px;cursor:pointer}
-#copy:hover{background:#c58d1e}
+#copy{font-family:"Alfa Slab One",serif;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;background:#8a6212;color:#fff;border:0;padding:15px 28px;cursor:pointer}
+#copy:hover{background:#7a560f}
 #copy.done{background:#2f6b35}
 #copy:focus-visible{outline:3px solid var(--paper);outline-offset:3px}
 
@@ -304,7 +304,7 @@ tr.pivot td:first-child{color:var(--rust)}
 
       <figure class="chart">
         <div class="figtop"><b>Same Job, Different Pay</b><span>Central Pacific, 1866 to 1867</span></div>
-        <div class="plot">
+        <div class="plot" tabindex="0" role="region" aria-label="Chart, scroll sideways on small screens">
           <svg viewBox="0 0 820 200" role="img" aria-label="White workers earned about 35 dollars a month and the company fed them. Chinese workers earned 26 to 35 dollars a month and bought their own food.">
             <g font-family="Oswald, sans-serif" font-size="13" letter-spacing="1.5">
               <text x="0" y="46" fill="#ddd6c5">WHITE WORKERS</text>
@@ -341,8 +341,8 @@ tr.pivot td:first-child{color:var(--rust)}
       </blockquote>
 
       <div class="qs">
-        <div class="q"><div class="qlab"><span class="qnum">A1</span><span class="qtxt">Give two ways the government helped the railroad companies. Use numbers from the source.</span></div><textarea class="mini" data-q="A1"></textarea></div>
-        <div class="q"><div class="qlab"><span class="qnum">A2</span><span class="qtxt">Volpe meant his speech as praise. Why would the Chinese workers' descendants in that audience hear it differently?</span></div><textarea class="mini" data-q="A2"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">A1</span><span class="qtxt">Give two ways the government helped the railroad companies. Use numbers from the source.</span></div><textarea class="mini" data-q="A1" aria-label="Your answer to A1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">A2</span><span class="qtxt">Volpe meant his speech as praise. Why would the Chinese workers' descendants in that audience hear it differently?</span></div><textarea class="mini" data-q="A2" aria-label="Your answer to A2"></textarea></div>
       </div>
     </div>
   </article>
@@ -378,7 +378,7 @@ tr.pivot td:first-child{color:var(--rust)}
 
       <figure class="chart">
         <div class="figtop"><b>What a Gallon of Kerosene Cost</b><span>1870 to 1885</span></div>
-        <div class="plot">
+        <div class="plot" tabindex="0" role="region" aria-label="Chart, scroll sideways on small screens">
           <svg viewBox="0 0 820 170" role="img" aria-label="Kerosene cost about 26 cents a gallon around 1870 and about 8 cents by 1885.">
             <text x="0" y="44" fill="#ddd6c5" font-family="Oswald, sans-serif" font-size="14" letter-spacing="2">ABOUT 1870</text>
             <rect x="140" y="22" width="572" height="36" fill="#6e6655"/>
@@ -397,8 +397,8 @@ tr.pivot td:first-child{color:var(--rust)}
       <p>Ida Tarbell spent years digging through court records and company papers. Starting in 1902 she published her findings in <i>McClure's</i> magazine, then as a book in 1904, <i>The History of the Standard Oil Company</i>. On May 15, 1911, the Supreme Court ruled that Standard Oil had broken the Sherman Antitrust Act and ordered it split into 34 separate companies. Rockefeller owned shares in all of them and got richer after the breakup.</p>
 
       <div class="qs">
-        <div class="q"><div class="qlab"><span class="qnum">B1</span><span class="qtxt">Explain horizontal integration in your own words, using what happened in Cleveland in 1872 as your example.</span></div><textarea class="mini" data-q="B1"></textarea></div>
-        <div class="q"><div class="qlab"><span class="qnum">B2</span><span class="qtxt">Kerosene got cheaper under Standard Oil. Who gained from that, and who lost?</span></div><textarea class="mini" data-q="B2"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">B1</span><span class="qtxt">Explain horizontal integration in your own words, using what happened in Cleveland in 1872 as your example.</span></div><textarea class="mini" data-q="B1" aria-label="Your answer to B1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">B2</span><span class="qtxt">Kerosene got cheaper under Standard Oil. Who gained from that, and who lost?</span></div><textarea class="mini" data-q="B2" aria-label="Your answer to B2"></textarea></div>
       </div>
     </div>
   </article>
@@ -447,8 +447,8 @@ tr.pivot td:first-child{color:var(--rust)}
       <p>Six days later, 8,000 Pennsylvania militia soldiers took over the town. The mill reopened with replacement workers, and the union at Homestead was finished. In 1901 Carnegie sold his company to the banker J. P. Morgan for $480 million. Morgan used it to build U.S. Steel. Carnegie spent the rest of his life giving away about $350 million, including money for 2,509 public libraries.</p>
 
       <div class="qs">
-        <div class="q"><div class="qlab"><span class="qnum">C1</span><span class="qtxt">What is the difference between how Rockefeller built Standard Oil and how Carnegie built Carnegie Steel? Use the terms horizontal and vertical.</span></div><textarea class="mini" data-q="C1"></textarea></div>
-        <div class="q"><div class="qlab"><span class="qnum">C2</span><span class="qtxt">Carnegie wrote that a man who dies rich dies disgraced. Does Homestead make that statement harder to believe? Explain.</span></div><textarea class="mini" data-q="C2"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">C1</span><span class="qtxt">What is the difference between how Rockefeller built Standard Oil and how Carnegie built Carnegie Steel? Use the terms horizontal and vertical.</span></div><textarea class="mini" data-q="C1" aria-label="Your answer to C1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">C2</span><span class="qtxt">Carnegie wrote that a man who dies rich dies disgraced. Does Homestead make that statement harder to believe? Explain.</span></div><textarea class="mini" data-q="C2" aria-label="Your answer to C2"></textarea></div>
       </div>
     </div>
   </article>
@@ -494,7 +494,7 @@ tr.pivot td:first-child{color:var(--rust)}
         <figure class="photo"><img src="/storyhub/ush9/who-paid-for-it/assets/g17.jpg" alt="A narrow street in San Francisco's Chinatown with painted balconies and lanterns above people walking."><figcaption>The street of painted balconies. The 1906 earthquake and fire destroyed nearly all of it.<span class="credit">Arnold Genthe, Chinatown, San Francisco, 1896 to 1906 · digitally colorized</span></figcaption></figure>
       </div>
 
-      <div class="tablewrap">
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Timeline table, scroll sideways on small screens">
         <table>
           <thead><tr><th>Date</th><th>What happened</th></tr></thead>
           <tbody>
@@ -519,7 +519,7 @@ tr.pivot td:first-child{color:var(--rust)}
       </blockquote>
 
       <div class="qs">
-        <div class="q"><div class="qlab"><span class="qnum">D1</span><span class="qtxt">What surprised you most in this source? Explain why in two or three sentences.</span></div><textarea class="mini" data-q="D1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">D1</span><span class="qtxt">What surprised you most in this source? Explain why in two or three sentences.</span></div><textarea class="mini" data-q="D1" aria-label="Your answer to D1"></textarea></div>
       </div>
     </div>
   </article>
@@ -560,8 +560,8 @@ tr.pivot td:first-child{color:var(--rust)}
       <figure class="photo narrow"><img src="/storyhub/ush9/who-paid-for-it/assets/g20.jpg" alt="Portrait of an older Henry Ford in a light suit and patterned tie."><figcaption>By the 1920s Ford was one of the richest people in the world. He grew up in the Gilded Age and learned its lessons in Detroit.<span class="credit">Henry Ford · colorized</span></figcaption></figure>
 
       <div class="qs">
-        <div class="q"><div class="qlab"><span class="qnum">E1</span><span class="qtxt">Use the chart. How did the number of days of work needed to buy a Model T change from 1908 to 1914, and what two things caused the change?</span></div><textarea class="mini" data-q="E1"></textarea></div>
-        <div class="q"><div class="qlab"><span class="qnum">E2</span><span class="qtxt">Was the $5 day generous, or was it a smart business move for Ford? Use one fact from the source.</span></div><textarea class="mini" data-q="E2"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">E1</span><span class="qtxt">Use the chart. How did the number of days of work needed to buy a Model T change from 1908 to 1914, and what two things caused the change?</span></div><textarea class="mini" data-q="E1" aria-label="Your answer to E1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">E2</span><span class="qtxt">Was the $5 day generous, or was it a smart business move for Ford? Use one fact from the source.</span></div><textarea class="mini" data-q="E2" aria-label="Your answer to E2"></textarea></div>
       </div>
     </div>
   </article>
@@ -572,18 +572,18 @@ tr.pivot td:first-child{color:var(--rust)}
     <div class="got">
       <h3>Who got rich, and how</h3>
       <div class="note">One fact from the sources per line</div>
-      <div class="lrow"><em>1</em><input type="text" data-q="GOT1" autocomplete="off"></div>
-      <div class="lrow"><em>2</em><input type="text" data-q="GOT2" autocomplete="off"></div>
-      <div class="lrow"><em>3</em><input type="text" data-q="GOT3" autocomplete="off"></div>
-      <div class="lrow"><em>4</em><input type="text" data-q="GOT4" autocomplete="off"></div>
+      <div class="lrow"><em>1</em><input type="text" data-q="GOT1" aria-label="Who got rich, entry 1" autocomplete="off"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="GOT2" aria-label="Who got rich, entry 2" autocomplete="off"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="GOT3" aria-label="Who got rich, entry 3" autocomplete="off"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="GOT4" aria-label="Who got rich, entry 4" autocomplete="off"></div>
     </div>
     <div class="paid">
       <h3>Who paid, and how</h3>
       <div class="note">One fact from the sources per line</div>
-      <div class="lrow"><em>1</em><input type="text" data-q="PAID1" autocomplete="off"></div>
-      <div class="lrow"><em>2</em><input type="text" data-q="PAID2" autocomplete="off"></div>
-      <div class="lrow"><em>3</em><input type="text" data-q="PAID3" autocomplete="off"></div>
-      <div class="lrow"><em>4</em><input type="text" data-q="PAID4" autocomplete="off"></div>
+      <div class="lrow"><em>1</em><input type="text" data-q="PAID1" aria-label="Who paid, entry 1" autocomplete="off"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="PAID2" aria-label="Who paid, entry 2" autocomplete="off"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="PAID3" aria-label="Who paid, entry 3" autocomplete="off"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="PAID4" aria-label="Who paid, entry 4" autocomplete="off"></div>
     </div>
   </div>
 
@@ -604,7 +604,7 @@ tr.pivot td:first-child{color:var(--rust)}
 
   <div class="essaybox">
     <div class="essaymeta"><span>Your argument</span><span>Words <span id="wc">0</span> · aim for 100 to 150</span></div>
-    <textarea id="essay" data-q="ESSAY" rows="10" placeholder="Pick a side in your first sentence. Then prove it."></textarea>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" rows="10" placeholder="Pick a side in your first sentence. Then prove it."></textarea>
   </div>
 
   <div class="actions">
