@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Don't Worry About It &middot; Hidden History</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="Pearl Harbor, 1941. Washington knew a war with Japan was days away. Did anyone know where it would start? Warnings, codes, one radar contact, and the theory that Roosevelt let it happen.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-dont-worry-about-it.html">
+<meta property="og:title" content="Don't Worry About It · What America Knew Before Pearl Harbor">
+<meta property="og:description" content="Six weeks of warnings, two kinds of code, one radar contact, and the theory that Roosevelt let it happen.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-dont-worry-about-it.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/dont-worry/assets/p01-arizona-smoke.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Jost:wght@500;700;800;900&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#f5f1e6;
+  --paper2:#ebe5d4;
+  --onion:#f1ecdc;
+  --ink:#131313;
+  --dim:#4e4b45;
+  --red:#b8141c;
+  --navy:#1d3557;
+  --sea:#dfe6e8;
+  --plate:#0c1114;
+  --trace:#bfe6ff;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Libre Caslon Text",Georgia,serif;font-size:17.5px;line-height:1.66}
+img{max-width:100%}
+p{margin:0 0 1.05em}
+a{color:inherit}
+.label{font-family:Jost,"Futura","Century Gothic",sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+
+/* COVER */
+.cover{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);min-height:88vh;background:var(--ink);color:var(--paper)}
+.cover .words{padding:34px 36px 40px;display:flex;flex-direction:column;justify-content:space-between;gap:30px}
+.tab{display:inline-block;background:var(--red);color:#fff;padding:7px 12px 6px;font-family:Jost,sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase}
+.cover h1{font-family:Jost,sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(3rem,8.4vw,6.6rem);line-height:.9;letter-spacing:-.01em;margin:22px 0 0}
+.cover .dek{font-family:"Libre Caslon Text",serif;font-style:italic;font-size:clamp(1.08rem,2.3vw,1.4rem);line-height:1.42;color:#e4ddc9;max-width:30ch;margin:22px 0 0}
+.cover .strip{display:flex;flex-wrap:wrap;gap:6px 18px;border-top:2px solid var(--red);padding-top:12px;font-family:Jost,sans-serif;font-weight:700;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#bdb6a4}
+.cover .strip b{color:#fff}
+.cover figure{margin:0;position:relative;overflow:hidden;background:#222}
+.cover figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 40%}
+.cover figcaption{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,0));color:#e9e3d3;font-family:Jost,sans-serif;font-size:.7rem;letter-spacing:.08em}
+@media(max-width:820px){.cover{grid-template-columns:1fr;min-height:0}.cover figure{height:56vh;min-height:300px;order:-1}.cover .words{padding:26px 20px 30px}}
+
+/* SPREAD LAYOUT */
+.spread > *{min-width:0}
+.spread{display:grid;grid-template-columns:190px minmax(0,660px);gap:0 44px;max-width:980px;margin:0 auto;padding:0 20px}
+.side{padding-top:6px}
+.side .num{font-family:Jost,sans-serif;font-weight:900;font-size:4.2rem;line-height:.9;color:var(--red)}
+.side .when{font-family:Jost,sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:8px;line-height:1.5}
+.side .stat{margin-top:22px;border-top:3px solid var(--ink);padding-top:8px}
+.side .stat b{display:block;font-family:Jost,sans-serif;font-weight:900;font-size:2rem;line-height:1}
+.side .stat span{font-family:Jost,sans-serif;font-weight:500;font-size:.78rem;line-height:1.35;color:var(--dim);display:block;margin-top:4px}
+@media(max-width:820px){.spread{grid-template-columns:minmax(0,1fr)}.side{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px}.side .num{font-size:3rem}.side .stat{margin-top:0;border-top-width:2px}}
+.chapter{padding:64px 0 10px}
+.chapter h2{font-family:Jost,sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(1.9rem,5.2vw,3rem);line-height:.98;margin:0 0 20px;letter-spacing:-.005em;text-wrap:balance}
+.chapter h2::after{content:"";display:block;width:64px;height:6px;background:var(--red);margin-top:16px}
+.lead::first-letter{font-family:Jost,sans-serif;font-weight:900;float:left;font-size:3.9rem;line-height:.82;padding:6px 10px 0 0;color:var(--red)}
+
+/* ID BAR */
+.idbar{display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:#fff;margin:34px auto 0;max-width:940px}
+.idbar label{flex:1 1 180px;display:flex;align-items:center;gap:10px;padding:11px 14px;border-right:1px solid #cfc8b5;font-family:Jost,sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;border:0;border-bottom:1.5px solid #b9b1a0;background:transparent;font-family:"Courier Prime",monospace;font-size:1rem;color:var(--ink);padding:2px}
+.idbar input:focus{outline:0;border-bottom-color:var(--red)}
+.idwrap{padding:0 20px}
+
+/* PHOTOS */
+figure{margin:30px 0}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:.9rem;line-height:1.5;padding:10px 0 0;color:var(--dim)}
+figcaption b{font-family:Jost,sans-serif;font-weight:800;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-right:6px}
+.credit{display:block;margin-top:5px;font-family:Jost,sans-serif;font-weight:500;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:#6d685e}
+.wideshot{max-width:980px;margin:34px auto;padding:0 20px}
+.wideshot figure{margin:0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media(max-width:620px){.duo{grid-template-columns:1fr}}
+.inset{float:right;width:44%;margin:6px 0 16px 22px}
+@media(max-width:620px){.inset{float:none;width:100%;margin:22px 0}}
+.clear{clear:both}
+
+/* DOCUMENTS */
+.cable{background:var(--onion);border:1px solid #d8cfb4;box-shadow:0 12px 28px -18px rgba(0,0,0,.55);padding:18px 20px;margin:28px 0;font-family:"Courier Prime",monospace;font-size:.95rem;line-height:1.6}
+.cable .hd{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:700;font-size:.76rem;letter-spacing:.08em;border-bottom:1px dashed #9d947a;padding-bottom:8px;margin-bottom:10px;text-transform:uppercase}
+.cable .hd em{font-style:normal;color:var(--red)}
+.cable p{margin:0 0 .7em;text-transform:uppercase}
+.cable .foot{font-size:.72rem;letter-spacing:.06em;color:#6d685e;border-top:1px solid #d1c7aa;padding-top:8px;margin-top:8px;text-transform:uppercase}
+.place{background:transparent;border-bottom:2px solid transparent;transition:background .3s}
+.place.on{background:#f6d2cf;border-bottom-color:var(--red)}
+.quote{margin:34px 0;padding:22px 0;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink)}
+.quote p{font-family:Jost,sans-serif;font-weight:800;font-size:clamp(1.3rem,3.8vw,1.85rem);line-height:1.22;margin:0;text-transform:none}
+.quote cite{display:block;margin-top:12px;font-style:normal;font-family:Jost,sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+
+/* INTERACTIVE SHELL */
+.box{margin:34px 0;border:2px solid var(--ink);background:#fff}
+.box > header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--ink);color:#fff;padding:10px 14px}
+.box > header b{font-family:Jost,sans-serif;font-weight:800;font-size:.84rem;letter-spacing:.16em;text-transform:uppercase}
+.box > header span{font-family:Jost,sans-serif;font-weight:500;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#cfc8b5}
+.box .in{padding:16px}
+.btn{font-family:Jost,sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red);color:#fff;border:2px solid var(--red);padding:10px 16px;min-height:44px;cursor:pointer}
+.btn:hover{background:#96100f}
+.btn.alt{background:#fff;color:var(--ink);border-color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.note{font-size:.95rem;margin-top:12px;min-height:3em}
+
+/* MAP */
+.mapscroll{overflow-x:auto}
+.map svg{display:block;width:100%;height:auto;min-width:600px;background:var(--sea)}
+.map .pl circle{transition:r .3s ease,fill .3s ease}
+
+/* CODE CARDS */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:620px){.cards{grid-template-columns:1fr}}
+.card{border:1.5px solid #cfc8b5;background:var(--onion);padding:12px 14px;font-family:"Courier Prime",monospace;font-size:.86rem;line-height:1.5;position:relative;min-height:170px}
+.card .meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px dashed #9d947a;padding-bottom:6px;margin-bottom:8px}
+.card .sys{color:var(--navy)}
+.card .body{word-break:break-word;color:#5c574c}
+.card .verdict{margin-top:8px;font-family:Jost,sans-serif;font-weight:800;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase}
+.card.read{background:#fff;border-color:var(--ink)}
+.card.read .body{color:var(--ink);text-transform:uppercase}
+.card.read .verdict{color:#1c5a37}
+.card.dark{background:#262626;border-color:#262626;color:#bdbdbd}
+.card.dark .meta{border-bottom-color:#555}
+.card.dark .sys{color:#9db7d6}
+.card.dark .body{color:#8a8a8a}
+.card.dark .verdict{color:#ff8a8f}
+.tally3{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.tally3 div{flex:1 1 150px;border-top:3px solid var(--ink);padding-top:6px}
+.tally3 b{display:block;font-family:Jost,sans-serif;font-weight:900;font-size:1.8rem;line-height:1.1}
+.tally3 span{font-family:Jost,sans-serif;font-weight:500;font-size:.76rem;color:var(--dim)}
+
+/* A-SCOPE */
+.plate{background:var(--plate);color:#d9e7ee;border:2px solid var(--ink)}
+.plate > header{background:#000}
+.scopebox{padding:16px}
+.ascope{display:block;width:100%;height:auto;border-radius:10px;background:radial-gradient(ellipse at center,#122027 0%,#070b0d 80%)}
+.clockrow{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:14px 0 8px}
+.bigclock{font-family:"Courier Prime",monospace;font-weight:700;font-size:2.2rem;line-height:1;color:#fff}
+.bigclock small{display:block;font-family:Jost,sans-serif;font-weight:700;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8aa3ae;margin-bottom:4px}
+.rangeout{font-family:"Courier Prime",monospace;font-size:1.1rem;color:var(--trace);text-align:right}
+.rangeout small{display:block;font-family:Jost,sans-serif;font-weight:700;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8aa3ae}
+.slider{width:100%;accent-color:#e85c62;margin:6px 0 2px}
+.ticks{display:flex;justify-content:space-between;font-family:"Courier Prime",monospace;font-size:.72rem;color:#8aa3ae}
+.events{list-style:none;margin:14px 0 0;padding:0;border-top:1px solid #2b3940}
+.events li{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid #1e2a30;color:#8aa3ae;transition:color .3s}
+.events li b{font-family:"Courier Prime",monospace;font-weight:700;color:inherit}
+.events li.past{color:#d9e7ee}
+.events li.now{color:#fff;background:rgba(232,92,98,.14)}
+.events li.warn.past b{color:#ff8a8f}
+
+/* CASUALTY BAR */
+.cas svg{display:block;width:100%;height:auto}
+
+/* CHAIN */
+.chain{list-style:none;margin:0;padding:0;counter-reset:l}
+.chain li{position:relative;border:2px solid var(--ink);background:#fff;margin:0 0 26px;padding:12px 14px 12px 58px}
+.chain li::before{counter-increment:l;content:counter(l);position:absolute;left:0;top:0;bottom:0;width:44px;background:var(--ink);color:#fff;font-family:Jost,sans-serif;font-weight:900;font-size:1.3rem;display:flex;align-items:center;justify-content:center}
+.chain li::after{content:"";position:absolute;left:50%;bottom:-26px;width:4px;height:24px;background:var(--ink);transform:translateX(-50%)}
+.chain li:last-child::after{display:none}
+.chain li.holds{border-color:#1c5a37}
+.chain li.holds::before{background:#1c5a37}
+.chain li.breaks{border-color:var(--red);border-style:dashed}
+.chain li.breaks::before{background:var(--red)}
+.chain li.breaks::after{background:repeating-linear-gradient(180deg,var(--red) 0 5px,transparent 5px 9px)}
+.chain .claim{font-family:Jost,sans-serif;font-weight:700;font-size:1.02rem;line-height:1.3}
+.chain .test{margin-top:8px}
+.chain .res{display:none;margin-top:8px;font-size:.95rem}
+.chain li.holds .res,.chain li.breaks .res{display:block}
+.chain .res b{font-family:Jost,sans-serif;font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:.74rem;margin-right:6px}
+.chain li.holds .res b{color:#1c5a37}
+.chain li.breaks .res b{color:var(--red)}
+.chainsum{font-family:Jost,sans-serif;font-weight:700;margin-top:6px;min-height:1.6em}
+
+/* VERDICTS */
+.verdicts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0}
+@media(max-width:620px){.verdicts{grid-template-columns:1fr}}
+.vcard{border:2px solid var(--ink);background:#fff;padding:14px 16px}
+.vcard .yr{font-family:Jost,sans-serif;font-weight:900;font-size:2.2rem;line-height:1;color:var(--red)}
+.vcard h3{font-family:Jost,sans-serif;font-weight:800;font-size:.86rem;letter-spacing:.12em;text-transform:uppercase;margin:6px 0 8px}
+.vcard p{font-size:.95rem;margin:0 0 .6em}
+
+/* SENTENCE BUILDER */
+.slots{display:grid;gap:12px}
+.slot .label{color:var(--dim);display:block;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font-family:"Libre Caslon Text",serif;font-size:.95rem;background:#fff;border:1.5px solid #bdb5a1;padding:8px 12px;min-height:44px;cursor:pointer;text-align:left}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.sentence{margin-top:16px;font-family:Jost,sans-serif;font-weight:800;font-size:clamp(1.15rem,3.4vw,1.5rem);line-height:1.3;border-top:3px solid var(--ink);padding-top:12px}
+.sentence .blank{color:#6d685e}
+.judge{margin-top:10px;padding:12px 14px;border-left:6px solid #aaa196;background:var(--paper2);min-height:4.2em;font-size:.97rem}
+.judge b{font-family:Jost,sans-serif;font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:.76rem;display:block;margin-bottom:4px}
+.judge.ok{border-left-color:#1c5a37}.judge.ok b{color:#1c5a37}
+.judge.mid{border-left-color:#b07a12}.judge.mid b{color:#8a5e0b}
+.judge.no{border-left-color:var(--red)}.judge.no b{color:var(--red)}
+
+/* QUESTIONS */
+.q{margin:30px 0 0;padding-top:14px;border-top:3px solid var(--ink)}
+.q label{display:flex;gap:12px;align-items:baseline;margin-bottom:10px;font-size:1rem}
+.q .n{font-family:Jost,sans-serif;font-weight:900;color:var(--red);flex:none;font-size:.95rem}
+textarea{width:100%;min-height:96px;border:1.5px solid #b9b1a0;background:#fff;color:var(--ink);font-family:"Libre Caslon Text",serif;font-size:1rem;line-height:1.6;padding:10px 12px;resize:vertical}
+.prompts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+@media(max-width:680px){.prompts{grid-template-columns:1fr}}
+.prompt{display:block;border:2px solid var(--ink);background:#fff;padding:14px 16px;cursor:pointer;position:relative;font-size:.97rem}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph{display:block;font-family:Jost,sans-serif;font-weight:800;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:6px}
+.prompt.sel{background:var(--ink);color:var(--paper)}
+.prompt.sel .ph{color:#ff8a8f}
+.prompt:focus-within{outline:3px solid var(--navy);outline-offset:2px}
+.essaymeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:Jost,sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:20px 0 8px}
+#wc{color:var(--red)}
+#wc.ok{color:#1c5a37}
+#essay{min-height:240px}
+.actions{margin-top:30px;padding:22px;background:var(--ink);color:var(--paper);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:6px solid var(--red)}
+.actions p{margin:0;max-width:44ch;font-size:.95rem;color:#d9d2bf}
+#copy{font-family:Jost,sans-serif;font-weight:900;font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red);color:#fff;border:0;padding:15px 26px;min-height:48px;cursor:pointer}
+#copy.done{background:#1c5a37}
+.refs{margin:44px 0 70px;border-top:3px solid var(--ink);padding-top:12px;font-size:.84rem;line-height:1.6;color:var(--dim)}
+.refs h3{font-family:Jost,sans-serif;font-weight:800;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin:0 0 10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px;overflow-wrap:anywhere}
+.saved{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);font-family:Jost,sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;padding:8px 16px;border-left:5px solid var(--red);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="words">
+    <div>
+      <span class="tab">Hidden History</span>
+      <h1>Don't Worry About It</h1>
+      <p class="dek">Washington knew a war with Japan was days away. Nobody in Washington knew where it would start. What America knew before Pearl Harbor, and the theory that Roosevelt let it happen.</p>
+    </div>
+    <div class="strip"><span><b>Unit 03</b> Reading the Record</span><span><b>Nov 27</b> to <b>Dec 7</b>, 1941</span></div>
+  </div>
+  <figure>
+    <img src="/storyhub/hh/dont-worry/assets/p01-arizona-smoke.jpg" alt="The battleship USS Arizona burning and sinking in heavy black smoke, with fire hoses spraying water in the foreground." fetchpriority="high">
+    <figcaption>USS Arizona, December 7, 1941 · U.S. Navy 80-G-19942 · colorized</figcaption>
+  </figure>
+</header>
+
+<main>
+<div class="idwrap">
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+</div>
+
+<section class="spread chapter" aria-labelledby="h0">
+  <aside class="side"><div class="num" aria-hidden="true">&#9679;</div><div class="when">The theory</div></aside>
+  <div>
+    <h2 id="h0">He knew</h2>
+    <p class="lead">It is one of the oldest conspiracy theories in American history. It started in the weeks after the attack and it still fills books and videos: President Franklin Roosevelt knew Japan was going to strike Pearl Harbor and let it happen, so an angry country would finally go to war.</p>
+    <p>At 7:55 on a Sunday morning, December 7, 1941, planes from six Japanese aircraft carriers hit the Pacific Fleet at its base in Hawaii. They killed 2,403 Americans. The records from the six weeks before that morning are full of warnings. The question for this page is narrow and hard. What did the United States know, who knew it, and did anyone know the target?</p>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="spread chapter" aria-labelledby="h1">
+  <aside class="side"><div class="num">1</div><div class="when">Washington<br>Thursday, Nov 27, 1941</div><div class="stat"><b>0</b><span>warnings sent to Hawaii that named Pearl Harbor as a target</span></div></aside>
+  <div>
+    <h2 id="h1">A warning that named everywhere else</h2>
+    <p>By late November, talks between the United States and Japan had collapsed. Japanese troops were already fighting in China and pushing into French Indochina. On November 27 the Chief of Naval Operations, Admiral Harold Stark, sent a message to Admiral Husband Kimmel, commander of the Pacific Fleet at Pearl Harbor. Its first words were the strongest the Navy had.</p>
+    <div class="cable" id="warning">
+      <div class="hd"><span>CNO to CINCPAC and CINCAF · Nov 27, 1941</span><em>War warning</em></div>
+      <p>This despatch is to be considered a war warning. Negotiations with Japan looking toward stabilization of conditions in the Pacific have ceased and an aggressive move by Japan is expected within the next few days. The number and equipment of Japanese troops and the organization of naval task forces indicates an amphibious expedition against either the <span class="place" data-p="ph">Philippines</span>, <span class="place" data-p="th">Thai</span> or <span class="place" data-p="kra">Kra peninsula</span> or possibly <span class="place" data-p="bo">Borneo</span>. Execute an appropriate defensive deployment. Continental districts, <span class="place" data-p="gu">Guam</span>, <span class="place" data-p="sa">Samoa</span> directed take appropriate measures against sabotage.</p>
+      <div class="foot">Admiral Stark to Admirals Hart and Kimmel · lightly trimmed · National Archives</div>
+    </div>
+    <div class="box map" id="mapbox">
+      <header><b>Plot the Message</b><span>Every place the war warning names</span></header>
+      <div class="in">
+        <div class="mapscroll" tabindex="0" role="region" aria-label="Map, scroll sideways on small screens"><svg id="pacific" viewBox="0 0 640 330" role="img" aria-label="Map of the Pacific showing each place named in the November 27 war warning. Hawaii is not named."></svg></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="plot" type="button">Plot the named places</button>
+          <button class="btn alt" id="route" type="button" aria-pressed="false">Show where the carriers went</button>
+        </div>
+        <p class="note" id="mapnote" aria-live="polite">The war warning names six places. Plot them.</p>
+      </div>
+    </div>
+    <p>The Army's version went to General Walter Short, who commanded the troops defending Hawaii. It said "hostile action possible at any moment" and added that "the United States desires that Japan commit the first overt act." It also told him not to "alarm civil population or disclose intent." Short answered within half an hour.</p>
+    <div class="cable">
+      <div class="hd"><span>Short to the War Department · Nov 27, 1941</span><em>Reply</em></div>
+      <p>Report department alerted to prevent sabotage. Liaison with Navy.</p>
+    </div>
+    <figure class="inset"><img src="/storyhub/hh/dont-worry/assets/p04-short-kimmel.jpg" alt="General Short in an Army uniform and Admiral Kimmel in Navy whites standing beside Lord Louis Mountbatten on a porch." loading="lazy"><figcaption><b>Hawaii's commanders.</b> General Walter Short, left, and Admiral Husband Kimmel, right, with a British visitor, Lord Louis Mountbatten, in August 1941.<span class="credit">National Park Service · colorized</span></figcaption></figure>
+    <p>Sabotage by local spies was the danger Short believed in. To make his planes easier to guard, he had them parked wingtip to wingtip in the open. Washington never questioned his reply. Kimmel had spent the year asking for long range patrol planes, antiaircraft guns and torpedo nets, and got little of it. In the words of the Navy's own historians, in no message from Washington that Kimmel received "was Pearl Harbor ever explicitly mentioned as a possible target."</p>
+    <div class="clear"></div>
+    <div class="q"><label for="q1"><span class="n">Q1</span><span>The war warning was urgent and it was pointed somewhere else. Where did it point, and how did Short's reply show what he thought the danger was?</span></label><textarea id="q1" data-q="Q1"></textarea></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="spread chapter" aria-labelledby="h2">
+  <aside class="side"><div class="num">2</div><div class="when">Washington<br>Sept to Dec 1941</div><div class="stat"><b>1945</b><span>the year the U.S. finally read Japan's orders for the attack</span></div></aside>
+  <div>
+    <h2 id="h2">What the codebreakers could read</h2>
+    <p>Here is the fact the theory is built on. American codebreakers had broken Japan's top diplomatic cipher, which they called Purple. The decoded messages went to a short list of officials under the name Magic. It is true, and it is not the whole truth. Japan used different codes for different jobs. Purple carried messages between Tokyo and its embassies. The Japanese navy used its own code, and in 1941 American codebreakers could not break into it in any way that mattered.</p>
+    <figure class="inset"><img src="/storyhub/hh/dont-worry/assets/p06-purple-fragment.jpg" alt="A metal fragment of a Japanese Purple cipher machine with rows of switches and colored wires, displayed in a museum case." loading="lazy"><figcaption><b>Purple.</b> A surviving piece of a Japanese diplomatic cipher machine. Americans built their own copies to read the messages.<span class="credit">Arnold Reinhold, National Cryptologic Museum · CC BY-SA 4.0</span></figcaption></figure>
+    <p>Kimmel and Short did not receive Magic at all. Washington kept it to a handful of readers to protect the secret that the code was broken. Run the 1941 codebreakers on six real Japanese messages and see what came out.</p>
+    <div class="clear"></div>
+    <div class="box" id="codebox">
+      <header><b>Run the 1941 Codebreakers</b><span>Six real Japanese messages</span></header>
+      <div class="in">
+        <div class="cards" id="cards"></div>
+        <div class="row" style="margin-top:14px"><button class="btn" id="decode" type="button">Decode what 1941 could read</button><button class="btn alt" id="recode" type="button">Reset</button></div>
+        <div class="tally3" id="codetally" aria-live="polite"></div>
+      </div>
+    </div>
+    <p>The closest thing to a warning was Telegram 83, the message that told Tokyo's spy in Honolulu to divide the harbor into five areas. Historian Robert Butow of the National Archives wrote that it placed "a bombing grid over the target." Two officers in Washington were troubled by it. Others explained it away as Japanese love of detail. Tokyo's spies were also asking about the Panama Canal, the Philippines, and ports on the West Coast and in Canada, so a question about ship positions did not stand out.</p>
+    <p>On the night of December 6, a Navy aide brought Roosevelt the first 13 parts of Japan's final message. Butow wrote that the President read it and told his adviser Harry Hopkins, in substance, that this meant war. He was almost certainly thinking of Southeast Asia, where Japanese convoys were already at sea.</p>
+    <div class="q"><label for="q2"><span class="n">Q2</span><span>"We broke the Japanese code" is true. Explain why it is still misleading as evidence that Roosevelt knew about Pearl Harbor.</span></label><textarea id="q2" data-q="Q2"></textarea></div>
+  </div>
+</section>
+
+<div class="wideshot"><figure><img src="/storyhub/hh/dont-worry/assets/p02-shokaku-deck.jpg" alt="Rows of Japanese warplanes parked on the flight deck of an aircraft carrier with open ocean behind." loading="lazy"><figcaption><b>The strike force.</b> Planes crowd the deck of the carrier Shokaku before the first wave on the morning of December 7. The six carriers had left Hitokappu Bay in the Kurile Islands on November 26 and crossed the North Pacific with their radios silent.<span class="credit">Japanese photograph · Dec 7, 1941 · colorized</span></figcaption></figure></div>
+
+<!-- 3 -->
+<section class="spread chapter" aria-labelledby="h3">
+  <aside class="side"><div class="num">3</div><div class="when">Pearl Harbor<br>Dec 2, 1941</div><div class="stat"><b>2</b><span>times in one month the Japanese navy changed its radio call signs</span></div></aside>
+  <div>
+    <h2 id="h3">The carriers nobody could see</h2>
+    <p>Without a readable naval code, Navy radio analysts in Hawaii tracked the Japanese fleet from the outside and reported to Kimmel's intelligence officer, Lieutenant Commander Edwin Layton. They counted radio messages, plotted where they came from, and learned which call sign belonged to which ship. On November 1 and again on December 1, the Japanese navy changed every call sign. The carriers disappeared from the American picture.</p>
+    <p>At a staff meeting on December 2, Kimmel asked Layton where the carriers were. Layton admitted he did not know. By Layton's later account, Kimmel asked whether they could be rounding Diamond Head, the landmark on the edge of Honolulu, without anyone knowing. Layton said he hoped they would be spotted long before that. The right question was asked in the right room, and nobody could answer it.</p>
+    <figure><img src="/storyhub/hh/dont-worry/assets/p03-kimmel-staff.jpg" alt="Admiral Kimmel and two senior officers in white uniforms leaning over a chart spread on a desk." loading="lazy"><figcaption><b>Kimmel's staff.</b> Admiral Kimmel, center, with his chief of staff and his operations officer in June 1941.<span class="credit">U.S. Navy NH 57100 · colorized</span></figcaption></figure>
+    <p>The American carriers were not in port on December 7. Enterprise and Lexington were at sea delivering fighter planes to the Marine garrisons on Wake and Midway islands. Saratoga was in San Diego. Enterprise was about 200 miles west of Oahu that morning, heading home.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="spread chapter" aria-labelledby="h4">
+  <aside class="side"><div class="num">4</div><div class="when">Oahu<br>Sunday, Dec 7, 1941</div><div class="stat"><b>53</b><span>minutes between the radar contact and the first bombs on Pearl Harbor</span></div></aside>
+  <div>
+    <h2 id="h4">Fifty three minutes</h2>
+    <p>The morning of December 7 produced two warnings that were real, local and specific. The first came at sea. At about 6:45, the old destroyer USS Ward fired on a small Japanese submarine trying to follow a ship through the harbor entrance, and hit it. Lieutenant William Outerbridge, two days into his first command, radioed that he had "attacked, fired upon, and dropped depth charges upon submarine operating in defensive sea area." Headquarters asked for confirmation. In 2002 researchers found the submarine three miles outside the harbor, sitting upright with a shell hole at the base of its tower.</p>
+    <figure><img src="/storyhub/hh/dont-worry/assets/p09-ward-gun-crew.jpg" alt="Sailors in helmets and life jackets standing around a deck gun on the destroyer Ward." loading="lazy"><figcaption><b>The first shot.</b> The crew of the Ward's number 3 gun, which fired the first American shot of the Pacific war that morning.<span class="credit">U.S. Navy NH 97446 · colorized</span></figcaption></figure>
+    <p>The second warning came from a radar truck on a hill at Opana Point, on Oahu's north shore. The set was supposed to shut down at 7:00. Private Joseph Lockard kept it running so Private George Elliott could practice. Drag the clock.</p>
+  </div>
+</section>
+<div class="wideshot">
+  <div class="box plate" id="scopebox" style="margin:0">
+    <header><b>Opana Point, SCR 270 Radar</b><span>Range scope · Sunday morning</span></header>
+    <div class="scopebox">
+      <svg class="ascope" id="ascope" viewBox="0 0 900 260" role="img" aria-label="Radar range scope. A spike shows the incoming formation, moving closer as the clock advances."></svg>
+      <div class="clockrow">
+        <div class="bigclock" id="aclock"><small>Hawaii time</small>6:30</div>
+        <div class="rangeout" id="arange"><small>Largest contact</small>none</div>
+      </div>
+      <label class="label" for="aslide" style="color:#8aa3ae">Time</label>
+      <input class="slider" id="aslide" type="range" min="0" max="85" step="1" value="0" aria-valuetext="6:30 AM">
+      <div class="ticks" aria-hidden="true"><span>6:30</span><span>7:00</span><span>7:30</span><span>7:55</span></div>
+      <ul class="events" id="aevents">
+        <li data-t="15"><b>6:45</b><span>USS Ward fires on a submarine at the harbor entrance.</span></li>
+        <li data-t="32" class="warn"><b>7:02</b><span>Opana picks up the biggest contact Lockard has ever seen, 132 miles north.</span></li>
+        <li data-t="50" class="warn"><b>7:20</b><span>Lockard reaches the duty officer at Fort Shafter, Lieutenant Kermit Tyler. Tyler tells him, "Well, don't worry about it."</span></li>
+        <li data-t="63"><b>7:33</b><span>A warning from General Marshall in Washington reaches Honolulu by commercial telegraph.</span></li>
+        <li data-t="69"><b>7:39</b><span>The contact is lost 20 miles out, hidden by echoes off the mountains.</span></li>
+        <li data-t="85" class="warn"><b>7:55</b><span>Bombs and torpedoes hit Pearl Harbor.</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<section class="spread" aria-label="After the radar contact">
+  <aside class="side"></aside>
+  <div>
+    <div class="duo">
+      <figure style="margin-top:0"><img src="/storyhub/hh/dont-worry/assets/p08-lockard-scope.jpg" alt="A hand drawn diagram of a round oscilloscope screen with a large spike labeled Japanese planes and notes on echoes." loading="lazy"><figcaption><b>What the screen showed.</b> Lockard's own drawing of his scope at 7:02, made later, with the spike labeled.<span class="credit">Joseph Lockard · public domain</span></figcaption></figure>
+      <figure style="margin-top:0"><img src="/storyhub/hh/dont-worry/assets/p13-tyler.jpg" alt="Portrait of Kermit Tyler as a later Air Force officer seated at a desk." loading="lazy"><figcaption><b>Kermit Tyler.</b> A pilot on only his second shift at the information center, with no written duties. A flight of B-17 bombers really was due from California that morning, from nearly the same direction. The bombers arrived in the middle of the attack.<span class="credit">U.S. Air Force, years later · colorized</span></figcaption></figure>
+    </div>
+    <p>Tyler guessed wrong for a reason that made sense at 7:20 in the morning. That is what makes this an error and not a betrayal. Marshall's telegram, sent when Washington decoded Japan's order to deliver its final message at 1:00 p.m. Eastern time, went by commercial telegraph because Army radio to Hawaii was not getting through. A messenger reached Short's headquarters at 11:45. It was decoded and delivered at 2:58 in the afternoon.</p>
+    <div class="box cas">
+      <header><b>The Cost</b><span>Americans killed, Dec 7, 1941</span></header>
+      <div class="in">
+        <svg viewBox="0 0 640 170" role="img" aria-label="2,403 Americans killed. Navy 2,008, Army 218, Marine Corps 109, civilians 68. On one ship, the Arizona, 1,177 sailors and Marines died.">
+          <g font-family="Jost, sans-serif" font-weight="800" font-size="13" fill="#131313">
+            <text x="0" y="16">2,403 KILLED, BY SERVICE</text>
+          </g>
+          <rect x="0" y="26" width="490.8" height="40" fill="#1d3557"/>
+          <rect x="490.8" y="26" width="53.3" height="40" fill="#6b7a5a"/>
+          <rect x="544.1" y="26" width="26.6" height="40" fill="#9a8f78"/>
+          <rect x="570.7" y="26" width="16.6" height="40" fill="#c9bfa8"/>
+          <g font-family="Jost, sans-serif" font-weight="800" font-size="13">
+            <text x="8" y="51" fill="#fff">NAVY 2,008</text>
+            <text x="498" y="86" fill="#131313">ARMY 218</text>
+            <text x="498" y="103" fill="#131313">MARINES 109</text>
+            <text x="498" y="120" fill="#131313">CIVILIANS 68</text>
+            <text x="0" y="104" fill="#131313">ONE SHIP, USS ARIZONA</text>
+          </g>
+          <rect x="0" y="112" width="287.7" height="30" fill="#b8141c"/>
+          <text x="8" y="132" font-family="Jost, sans-serif" font-weight="800" font-size="13" fill="#fff">1,177 SAILORS AND MARINES</text>
+          <line x1="287.7" y1="66" x2="287.7" y2="112" stroke="#b8141c" stroke-dasharray="3 3"/>
+        </svg>
+        <p style="margin:10px 0 0;font-size:.95rem">Almost half of everyone killed that morning died on one ship. A bomb set off the Arizona's forward ammunition magazines. Japan lost 29 planes, five small submarines and 64 men.</p>
+      </div>
+    </div>
+    <div class="q"><label for="q3"><span class="n">Q3</span><span>Pick the Ward report or the Opana contact. Why did a real, specific warning fail to change what happened at 7:55?</span></label><textarea id="q3" data-q="Q3"></textarea></div>
+  </div>
+</section>
+
+<div class="wideshot"><figure><img src="/storyhub/hh/dont-worry/assets/p10-torpedo-run.jpg" alt="Aerial view of Battleship Row beside Ford Island with torpedo wakes and spreading smoke, photographed from a Japanese plane." loading="lazy"><figcaption><b>Battleship Row, about 8:00 a.m.</b> Torpedo tracks streak toward the moored battleships in this photograph taken from a Japanese plane. U.S. forces captured the photo later in the war.<span class="credit">Japanese photograph · U.S. Navy collection · colorized</span></figcaption></figure></div>
+
+<!-- 5 -->
+<section class="spread chapter" aria-labelledby="h5">
+  <aside class="side"><div class="num">5</div><div class="when">The theory, link by link</div><div class="stat"><b>1940</b><span>the date on the memo the theory leans on</span></div></aside>
+  <div>
+    <h2 id="h5">How the theory is built</h2>
+    <figure class="inset"><img src="/storyhub/hh/dont-worry/assets/p05-mccollum-memo.jpg" alt="First page of a typed Navy memorandum dated 7 October 1940, headed Estimate of the Situation in the Pacific." loading="lazy"><figcaption><b>The McCollum memo.</b> Page one, October 7, 1940.<span class="credit">National Archives</span></figcaption></figure>
+    <p>The strongest version of the theory appeared in a 2000 book by Robert Stinnett, <i>Day of Deceit</i>. It starts with a real document. In October 1940 a Navy intelligence officer, Lieutenant Commander Arthur McCollum, wrote a memo listing eight actions that could push Japan toward war, from keeping the fleet in Hawaii to cutting off Japan's trade. From there the theory adds link after link until it reaches Roosevelt. A chain is only as strong as its weakest link. Test each one.</p>
+    <div class="clear"></div>
+    <ol class="chain" id="chain"></ol>
+    <p class="chainsum" id="chainsum" aria-live="polite"></p>
+    <div class="q"><label for="q4"><span class="n">Q4</span><span>Choose one link that breaks. What evidence would a historian need to find to repair it?</span></label><textarea id="q4" data-q="Q4"></textarea></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="spread chapter" aria-labelledby="h6">
+  <aside class="side"><div class="num">6</div><div class="when">1942 to 1946</div><div class="stat"><b>44</b><span>witnesses before the joint committee of Congress</span></div></aside>
+  <div>
+    <h2 id="h6">Two verdicts</h2>
+    <p>The United States investigated Pearl Harbor again and again. The first inquiry and the biggest one reached opposite conclusions about the men in Hawaii.</p>
+    <div class="verdicts">
+      <div class="vcard"><div class="yr">1942</div><h3>The Roberts Commission</h3><p>A panel led by Supreme Court Justice Owen Roberts reported on January 23, 1942, only seven weeks after the attack. It found Kimmel and Short guilty of "dereliction of duty." They could not see the evidence against them or question witnesses.</p></div>
+      <div class="vcard"><div class="yr">1946</div><h3>The Joint Committee</h3><p>Ten members of Congress heard 44 witnesses and printed more than 5,000 pages of testimony. The majority found "errors of judgment and not derelictions of duty" in Hawaii and in Washington, and rejected the claim that Roosevelt "tricked, provoked, incited, cajoled, or coerced Japan" into attacking.</p></div>
+    </div>
+    <div class="quote"><p>The ultimate responsibility for the attack and its results rests upon Japan.</p><cite>Joint Committee on the Investigation of the Pearl Harbor Attack · June 20, 1946</cite></div>
+    <p>Two Republican senators, Owen Brewster of Maine and Homer Ferguson of Michigan, signed a minority report. They called the majority's conclusions "illogical" and wrote that "the record is far from complete." A careful reader keeps that dissent in view. Its complaint was that Washington, including the President, deserved more of the blame for failures of command. It did not claim proof that anyone knew the target.</p>
+    <p>The committee asked its own hardest question: "Why, with some of the finest intelligence available in our history, why was it possible for a Pearl Harbor to occur?" Its answer pointed to intelligence split among agencies that did not share it. The fix became law in 1947, when the National Security Act created the Central Intelligence Agency.</p>
+    <figure><img src="/storyhub/hh/dont-worry/assets/p12-fdr-congress.jpg" alt="President Roosevelt speaking at a rostrum covered with radio microphones before Congress." loading="lazy"><figcaption><b>December 8, 1941.</b> Roosevelt asks Congress to declare war on Japan. The Senate voted 82 to 0 and the House 388 to 1.<span class="credit">Office of War Information · colorized</span></figcaption></figure>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="spread chapter" aria-labelledby="h7">
+  <aside class="side"><div class="num">7</div><div class="when">Your turn</div></aside>
+  <div>
+    <h2 id="h7">Build the truest sentence</h2>
+    <p>Most arguments about Pearl Harbor turn on one sentence: someone knew something by some date. Build that sentence and see what the record will support.</p>
+    <div class="box" id="builder">
+      <header><b>Sentence Builder</b><span>Pick one chip in each row</span></header>
+      <div class="in">
+        <div class="slots">
+          <div class="slot"><span class="label" id="sl-who">Who</span><div class="chips" role="group" aria-labelledby="sl-who" data-slot="who"><button type="button" data-v="leaders" aria-pressed="false">Washington's military leaders</button><button type="button" data-v="breakers" aria-pressed="false">Navy codebreakers</button><button type="button" data-v="fdr" aria-pressed="false">President Roosevelt</button></div></div>
+          <div class="slot"><span class="label" id="sl-what">Knew</span><div class="chips" role="group" aria-labelledby="sl-what" data-slot="what"><button type="button" data-v="war" aria-pressed="false">that war with Japan was days away</button><button type="button" data-v="grid" aria-pressed="false">that Japan was mapping ships in Pearl Harbor</button><button type="button" data-v="strike" aria-pressed="false">that carriers would strike Pearl Harbor on December 7</button></div></div>
+          <div class="slot"><span class="label" id="sl-when">When</span><div class="chips" role="group" aria-labelledby="sl-when" data-slot="when"><button type="button" data-v="nov" aria-pressed="false">by November 27</button><button type="button" data-v="dec" aria-pressed="false">before the bombs fell</button></div></div>
+        </div>
+        <div class="sentence" id="sentence" aria-live="polite"><span class="blank">Pick a chip in each row.</span></div>
+        <div class="judge" id="judge" aria-live="polite"><b>The record</b>Your sentence will be checked here.</div>
+      </div>
+    </div>
+
+    <div class="chapter" style="padding-top:40px">
+      <h2 style="font-size:clamp(1.6rem,4.4vw,2.4rem)">Make the argument</h2>
+    </div>
+    <p>150 to 200 words. Pick one prompt and use at least two numbered sections as evidence.</p>
+    <div class="prompts">
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 1"><span class="ph">Prompt 1</span>The 1946 committee blamed errors of judgment. The theory blames a plan. <b>Which explanation fits the evidence better, and why?</b></label>
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 2"><span class="ph">Prompt 2</span>Pick the one warning that came closest to saving Pearl Harbor. <b>Explain why it failed and what would have had to be different.</b></label>
+    </div>
+    <div class="essaymeta"><span>Your argument</span><span>Words <span id="wc">0</span> · aim for 150 to 200</span></div>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" placeholder="State your position in the first sentence, then prove it."></textarea>
+    <div class="actions">
+      <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+      <button id="copy" type="button">Copy my answers</button>
+    </div>
+
+    <div class="refs">
+      <h3>Sources</h3>
+      <div>Butow, R. J. C. (1996). How Roosevelt attacked Japan at Pearl Harbor: Myth masquerading as history. <i>Prologue, 28</i>(3). National Archives.</div>
+      <div>Cox, S. J. (2016). Pearl Harbor, 7 December 1941 and USS Ward: The rest of the story. <i>H-Gram 001</i>. Naval History and Heritage Command.</div>
+      <div>Joint Committee on the Investigation of the Pearl Harbor Attack. (1946). <i>Investigation of the Pearl Harbor attack</i> (S. Doc. No. 79-244). U.S. Government Printing Office.</div>
+      <div>Layton, E. T., Pineau, R., &amp; Costello, J. (1985). <i>"And I was there": Pearl Harbor and Midway, breaking the secrets</i>. William Morrow.</div>
+      <div>McCollum, A. H. (1940, October 7). <i>Memorandum for the director: Estimate of the situation in the Pacific</i>. Office of Naval Intelligence. National Archives.</div>
+      <div>National Archives. (2001, May 24). <i>Pearl Harbor records at the National Archives</i> [Press release].</div>
+      <div>National Archives. (2018, December 6). Prologue to Pearl Harbor: The spy flight that wasn't, part II. <i>The Text Message</i>.</div>
+      <div>Parker, F. D. (1994). <i>Pearl Harbor revisited: United States Navy communications intelligence, 1924 to 1941</i>. National Security Agency, Center for Cryptologic History.</div>
+      <div>Stinnett, R. B. (2000). <i>Day of deceit: The truth about FDR and Pearl Harbor</i>. Free Press.</div>
+      <div>U.S. Army. (n.d.). <i>Intelligence, Japanese attack on Pearl Harbor</i>. Army.mil.</div>
+      <div>U.S. Senate Historical Office. (n.d.). <i>Joint Committee on the Investigation of the Pearl Harbor Attack</i>.</div>
+      <div>Photographs: U.S. Navy and Naval History and Heritage Command, National Archives, National Park Service, Office of War Information and captured Japanese photographs, via Wikimedia Commons, public domain. Purple machine fragment by Arnold Reinhold, CC BY-SA 4.0. Colorized photographs are digital colorizations of black and white originals.</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="saved" id="toast">Saved</div>
+
+<script>
+(function(){
+  var KEY='hh-dont-worry-v1';
+  var $=function(id){return document.getElementById(id);};
+  var NS='http://www.w3.org/2000/svg';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(parent,n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;parent.appendChild(e);return e;}
+
+  /* ---------- map ---------- */
+  var map=$('pacific'),W=640,H=330,lon0=92,lon1=212,lat0=-18,lat1=50;
+  function xy(lat,lon){if(lon<0)lon+=360;return [ (lon-lon0)/(lon1-lon0)*W, (lat1-lat)/(lat1-lat0)*H ];}
+  for(var lo=100;lo<=210;lo+=20){var a=xy(0,lo);mk(map,'line',{x1:a[0],x2:a[0],y1:0,y2:H,stroke:'#c4d0d4','stroke-width':1});}
+  for(var la=-10;la<=40;la+=10){var b=xy(la,lon0);mk(map,'line',{x1:0,x2:W,y1:b[1],y2:b[1],stroke:la===0?'#9fb1b8':'#c4d0d4','stroke-width':1});}
+  mk(map,'text',{x:8,y:xy(0,lon0)[1]-5,fill:'#6f8790','font-family':'Jost, sans-serif','font-size':10,'font-weight':700},'EQUATOR');
+  mk(map,'text',{x:W*0.6,y:H*0.62,'text-anchor':'middle',fill:'#8ea2a9','font-family':'Jost, sans-serif','font-size':13,'font-weight':700,'letter-spacing':3},'PACIFIC OCEAN');
+  var ctx=[{n:'Tokyo',lat:35.7,lon:139.7}];
+  ctx.forEach(function(c){var p=xy(c.lat,c.lon);mk(map,'rect',{x:p[0]-4,y:p[1]-4,width:8,height:8,fill:'#131313'});mk(map,'text',{x:p[0]+8,y:p[1]+4,'font-family':'Jost, sans-serif','font-size':12,'font-weight':800,fill:'#131313'},'TOKYO');});
+  var places=[
+    {k:'ph',n:'Philippines',lat:14.6,lon:121.0,dx:8,dy:4},
+    {k:'th',n:'Thailand',lat:13.75,lon:100.5,dx:8,dy:-6},
+    {k:'kra',n:'Kra peninsula',lat:10.3,lon:99.1,dx:8,dy:14},
+    {k:'bo',n:'Borneo',lat:1.0,lon:114.0,dx:8,dy:4},
+    {k:'gu',n:'Guam',lat:13.4,lon:144.8,dx:8,dy:4},
+    {k:'sa',n:'Samoa',lat:-14.3,lon:-170.7,dx:-8,dy:4,end:true}
+  ];
+  var pg=mk(map,'g',{'class':'pl'});
+  places.forEach(function(p){var c=xy(p.lat,p.lon);p.c=mk(pg,'circle',{cx:c[0],cy:c[1],r:0,fill:'#b8141c'});p.t=mk(pg,'text',{x:c[0]+p.dx,y:c[1]+p.dy,'font-family':'Jost, sans-serif','font-size':12,'font-weight':800,fill:'#b8141c',opacity:0,'text-anchor':p.end?'end':'start'},p.n.toUpperCase());});
+  var hi=xy(21.35,-157.97);
+  var hawaii=mk(map,'g',{opacity:.9});
+  mk(hawaii,'circle',{cx:hi[0],cy:hi[1],r:9,fill:'none',stroke:'#131313','stroke-width':2,'stroke-dasharray':'3 3'});
+  mk(hawaii,'text',{x:hi[0]-14,y:hi[1]-14,'text-anchor':'end','font-family':'Jost, sans-serif','font-size':12,'font-weight':800,fill:'#131313'},'PEARL HARBOR');
+  var hawaiiNote=mk(hawaii,'text',{x:hi[0]-14,y:hi[1]+2,'text-anchor':'end','font-family':'Jost, sans-serif','font-size':11,'font-weight':500,fill:'#4e4b45',opacity:0},'not in the message');
+  var rp=[xy(44.9,147.6),xy(43,160),xy(42,175),xy(40,-172),xy(33,-160),xy(26,-158)];
+  var route=mk(map,'path',{d:'M'+rp.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' L'),fill:'none',stroke:'#1d3557','stroke-width':3,'stroke-dasharray':'8 6',opacity:0});
+  var rlab=mk(map,'text',{x:rp[1][0],y:rp[1][1]-10,'font-family':'Jost, sans-serif','font-size':11,'font-weight':800,fill:'#1d3557',opacity:0},'APPROXIMATE STRIKE FORCE ROUTE, NOV 26 TO DEC 7');
+  var plotted=false,timers=[];
+  function lightPlace(k,on){document.querySelectorAll('#warning .place[data-p="'+k+'"]').forEach(function(s){s.classList.toggle('on',on);});}
+  $('plot').addEventListener('click',function(){
+    if(plotted)return;plotted=true;this.disabled=true;
+    places.forEach(function(p,i){timers.push(setTimeout(function(){p.c.setAttribute('r',7);p.t.setAttribute('opacity',1);lightPlace(p.k,true);$('mapnote').textContent=(i+1)+' of 6 plotted: '+p.n+'.';
+      if(i===places.length-1){hawaiiNote.setAttribute('opacity',1);$('mapnote').textContent='Six places, most of them thousands of miles west and south of Hawaii. The message never mentions Pearl Harbor. Now show where the carriers went.';}
+    },reduce?0:i*450));});
+  });
+  $('route').addEventListener('click',function(){
+    var on=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',on?'true':'false');
+    route.setAttribute('opacity',on?1:0);rlab.setAttribute('opacity',on?1:0);
+    this.textContent=on?'Hide the carrier route':'Show where the carriers went';
+    if(on)$('mapnote').textContent='The strike force left the Kurile Islands, crossed the empty North Pacific far from shipping lanes, and turned south toward Oahu. Nobody in the U.S. government plotted this line until after the attack.';
+  });
+
+  /* ---------- codebreakers ---------- */
+  var msgs=[
+    {d:'Sept 24, 1941',from:'Tokyo to its Honolulu consulate',sys:'Consular code',ok:true,txt:'Divide the waters of Pearl Harbor into five areas. Report the types and classes of warships in each. We would like to know when there are two or more vessels alongside the same wharf.',v:'Read. Translated October 9'},
+    {d:'Nov 22, 1941',from:'Tokyo to its Washington embassy',sys:'Purple',ok:true,txt:'The deadline for a settlement is extended to November 29. After that things are automatically going to happen.',v:'Read. Translated the same day'},
+    {d:'Nov 5 and 7, 1941',from:'Admiral Yamamoto to the fleet',sys:'Japanese navy',ok:false,txt:'',v:'Not read. The operational orders for the attack were translated on June 4, 1945'},
+    {d:'Dec 2, 1941',from:'Tokyo to its Washington embassy',sys:'Purple',ok:true,txt:'Burn most of your telegraphic codes. Destroy one of your two cipher machines. Dispose of all secret documents.',v:'Read. Shown to the President on December 4'},
+    {d:'Dec 2, 1941',from:'Combined Fleet to the strike force',sys:'Japanese navy',ok:false,txt:'',v:'Not read. The go signal, Climb Mount Niitaka 1208, meaning attack on December 8, Japan time'},
+    {d:'Dec 7, 1941',from:'Tokyo to its Washington embassy',sys:'Purple',ok:true,txt:'Submit our reply to the United States Government, if possible to the Secretary of State, at 1:00 p.m. on the 7th, your time.',v:'Read that Sunday morning in Washington'}
+  ];
+  var cardsEl=$('cards'),glyph='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function cipher(seed,n){var s='';for(var i=0;i<n;i++){var v=Math.sin(seed*127.1+i*311.7)*43758.5453;v=v-Math.floor(v);s+=glyph[Math.floor(v*glyph.length)];if(i%5===4)s+=' ';}return s;}
+  msgs.forEach(function(m,i){
+    var d=document.createElement('div');d.className='card';d.id='card'+i;
+    d.innerHTML='<div class="meta"><span>'+m.d+'</span><span class="sys">'+m.sys+'</span></div><div class="body">'+cipher(i+3,60)+'</div><div class="verdict" aria-live="polite"></div><div style="font-size:.74rem;margin-top:6px;color:#6d685e">'+m.from+'</div>';
+    cardsEl.appendChild(d);
+  });
+  var decoded=false;
+  $('decode').addEventListener('click',function(){
+    if(decoded)return;decoded=true;this.disabled=true;
+    msgs.forEach(function(m,i){setTimeout(function(){
+      var c=$('card'+i);c.classList.add(m.ok?'read':'dark');
+      if(m.ok)c.querySelector('.body').textContent=m.txt;
+      c.querySelector('.verdict').textContent=m.v;
+      if(i===msgs.length-1)$('codetally').innerHTML='<div><b>4 of 6</b><span>read by Americans before the attack</span></div><div><b>1 of 6</b><span>mentions Pearl Harbor, as a place to count ships</span></div><div><b>0 of 6</b><span>read in 1941 that name Pearl Harbor as the target</span></div>';
+    },reduce?0:i*380);});
+  });
+  $('recode').addEventListener('click',function(){
+    decoded=false;$('decode').disabled=false;$('codetally').innerHTML='';
+    msgs.forEach(function(m,i){var c=$('card'+i);c.className='card';c.querySelector('.body').textContent=cipher(i+3,60);c.querySelector('.verdict').textContent='';});
+  });
+
+  /* ---------- a-scope ---------- */
+  var sv=$('ascope'),SW=900,SH=260,base=190,x0=40,x1=860,maxMi=150;
+  mk(sv,'line',{x1:x0,x2:x1,y1:base,y2:base,stroke:'#2d4550','stroke-width':1});
+  for(var mi=0;mi<=150;mi+=25){var gx=x0+(mi/maxMi)*(x1-x0);mk(sv,'line',{x1:gx,x2:gx,y1:30,y2:base+8,stroke:'#18262c','stroke-width':1});mk(sv,'text',{x:gx,y:base+34,'text-anchor':'middle',fill:'#8aa3ae','font-family':'Courier Prime, monospace','font-size':22},mi+' mi');}
+  var trace=mk(sv,'polyline',{fill:'none',stroke:'#bfe6ff','stroke-width':2,'stroke-linejoin':'round'});
+  var glow=mk(sv,'polyline',{fill:'none',stroke:'#bfe6ff','stroke-width':7,opacity:.18,'stroke-linejoin':'round'});
+  var seedN=[];for(var q=0;q<=180;q++)seedN.push(Math.random());
+  function draw(t){
+    var pts=[],r=null;
+    if(t>=32&&t<=69)r=132-(t-32)*(112/37);
+    for(var i=0;i<=180;i++){
+      var mi2=i/180*maxMi,x=x0+i/180*(x1-x0),h=seedN[(i+t*7)%181]*6;
+      if(mi2<4)h+=120*(1-mi2/4);
+      if(mi2>12&&mi2<28)h+=26*Math.exp(-Math.pow((mi2-19)/4,2))+seedN[(i*3+t)%181]*14;
+      if(r!==null)h+=140*Math.exp(-Math.pow((mi2-r)/2.2,2));
+      if(t>69&&mi2>12&&mi2<28)h+=30*seedN[(i+t)%181];
+      pts.push(x.toFixed(1)+','+(base-h).toFixed(1));
+    }
+    trace.setAttribute('points',pts.join(' '));glow.setAttribute('points',pts.join(' '));
+    return r;
+  }
+  var evs=[].slice.call(document.querySelectorAll('#aevents li'));
+  function hm(t){var m=30+t,hh=6+Math.floor(m/60);m=m%60;return hh+':'+(m<10?'0':'')+m;}
+  function scope(t){
+    var r=draw(t);
+    $('aclock').innerHTML='<small>Hawaii time</small>'+hm(t);
+    $('arange').innerHTML='<small>Largest contact</small>'+(r!==null?Math.round(r)+' miles':(t>69&&t<85?'lost in mountain echoes':(t>=85?'over Pearl Harbor':'none')));
+    $('aslide').setAttribute('aria-valuetext',hm(t)+' AM');
+    var last=null;evs.forEach(function(li){var et=+li.dataset.t;li.classList.toggle('past',et<=t);li.classList.remove('now');if(et<=t)last=li;});
+    if(last)last.classList.add('now');
+  }
+  $('aslide').addEventListener('input',function(){scope(+this.value);});
+  scope(0);
+
+  /* ---------- chain ---------- */
+  var links=[
+    {c:'A Navy officer proposed steps that could push Japan toward war.',h:true,r:'The McCollum memo is real, dated October 7, 1940, and lists eight actions.'},
+    {c:'Roosevelt read the memo and followed it as a plan.',h:false,r:'It went to two Navy captains in Naval Intelligence. No record shows it reached Roosevelt. The oil embargo of August 1941 followed Japan\'s move into southern Indochina, not a memo.'},
+    {c:'American codebreakers could read the Japanese navy\'s orders.',h:false,r:'Purple was diplomatic. The navy\'s operational code was not broken in any useful way in 1941. Yamamoto\'s attack orders were translated in 1945.'},
+    {c:'Listeners tracked the carriers by radio as they crossed the Pacific.',h:false,r:'The strike force sailed with its radios silent, and Layton\'s analysts lost the carriers after the call sign changes. The best known claim of a sailor hearing them fell apart under technical questioning.'},
+    {c:'The American carriers were sent away to keep them safe.',h:false,r:'They were on assigned missions delivering planes to Wake and Midway, or in San Diego. Enterprise was due back and was about 200 miles out.'},
+    {c:'So Roosevelt knew the target and let the attack happen.',h:false,r:'Unproven. A conclusion needs every link beneath it. Four links above it break.'}
+  ];
+  var ch=$('chain'),tested=0;
+  links.forEach(function(l,i){
+    var li=document.createElement('li');li.id='link'+i;
+    li.innerHTML='<div class="claim">'+l.c+'</div><div class="test"><button class="btn alt" type="button" data-i="'+i+'">Test this link</button></div><div class="res" aria-live="polite"><b>'+(l.h?'Holds':'Breaks')+'</b>'+l.r+'</div>';
+    ch.appendChild(li);
+  });
+  ch.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-i]');if(!b)return;var i=+b.dataset.i,l=links[i],li=$('link'+i);
+    if(li.classList.contains('holds')||li.classList.contains('breaks'))return;
+    li.classList.add(l.h?'holds':'breaks');b.parentNode.style.display='none';tested++;
+    $('chainsum').textContent=tested<links.length?tested+' of '+links.length+' links tested.':'One link holds. The memo is real. Everything that connects it to Roosevelt and to Pearl Harbor breaks.';
+  });
+
+  /* ---------- sentence builder ---------- */
+  var pick={who:null,what:null,when:null};
+  var words={who:{leaders:'Washington\'s military leaders',breakers:'Navy codebreakers',fdr:'President Roosevelt'},what:{war:'that war with Japan was days away',grid:'that Japan was mapping ships in Pearl Harbor',strike:'that carriers would strike Pearl Harbor on December 7'},when:{nov:'by November 27',dec:'before the bombs fell'}};
+  function judge(){
+    var s=$('sentence'),j=$('judge');
+    if(!pick.who||!pick.what||!pick.when){s.innerHTML='<span class="blank">'+[pick.who?words.who[pick.who]:'Who',pick.what?'knew '+words.what[pick.what]:'knew what',pick.when?words.when[pick.when]:'when'].join(' ')+'</span>';j.className='judge';j.innerHTML='<b>The record</b>Pick a chip in each row.';return;}
+    s.textContent=words.who[pick.who]+' knew '+words.what[pick.what]+' '+words.when[pick.when]+'.';
+    var cls='no',head='Not supported',why='';
+    if(pick.what==='strike'){why='No American read the attack orders before December 7. They were translated in 1945. Warnings named the Philippines and Southeast Asia, not Hawaii.';}
+    else if(pick.what==='war'){cls='ok';head='Confirmed';why=pick.who==='breakers'?'The codebreakers read the November 22 deadline message and the December 2 order to burn codes.':pick.who==='fdr'&&pick.when==='nov'?'Secretary of War Henry Stimson\'s diary for November 25 records Roosevelt warning that an attack might come as soon as the next Monday. He did not say where.':pick.who==='fdr'?'Roosevelt followed the collapse of talks closely. On December 6 he read the first 13 parts of Japan\'s final message and said, in substance, that it meant war.':'The November 27 war warning said an aggressive move by Japan was expected within days.';
+      if(pick.when==='nov'&&pick.who==='breakers')why='By November 27 the codebreakers had read the November 22 message setting a November 29 deadline.';}
+    else if(pick.what==='grid'){
+      if(pick.who==='breakers'){cls='ok';head='Confirmed';why='Telegram 83 was translated on October 9. The catch: most readers took it as routine spying, not a bombing grid.';}
+      else if(pick.who==='leaders'){cls='mid';head='Partly supported';why='The message circulated in Washington and two officers worried about it. Others explained it away, and no warning based on it went to Hawaii.';}
+      else{cls='mid';head='Unproven';why='These sources do not show whether Roosevelt saw Telegram 83 or what he made of it.';}
+    }
+    j.className='judge '+cls;j.innerHTML='<b>'+head+'</b>'+why;
+    return head;
+  }
+  document.querySelectorAll('#builder .chips').forEach(function(g){
+    g.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var slot=g.dataset.slot;pick[slot]=b.dataset.v;
+      [].forEach.call(g.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});judge();queueSave();});
+  });
+
+  /* ---------- saving ---------- */
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var radios=[].slice.call(document.querySelectorAll('input[name="prompt"]'));
+  var essay=$('essay'),wc=$('wc'),toast=$('toast'),tT,sT;
+  function keyOf(el){return el.dataset.q||el.id;}
+  function markPrompt(){radios.forEach(function(r){r.closest('.prompt').classList.toggle('sel',r.checked);});}
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=150&&n<=200)?'ok':'';}
+  function save(){
+    var d={};fields.forEach(function(el){d[keyOf(el)]=el.value;});
+    var r=radios.filter(function(x){return x.checked;})[0];d.__prompt=r?r.value:'';d.__pick=pick;
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
+  (function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(el){var v=d[keyOf(el)];if(typeof v==='string')el.value=v;});
+    if(d.__prompt)radios.forEach(function(r){if(r.value===d.__prompt)r.checked=true;});
+    if(d.__pick){['who','what','when'].forEach(function(s){var v=d.__pick[s];if(!v)return;pick[s]=v;var g=document.querySelector('#builder .chips[data-slot="'+s+'"]');[].forEach.call(g.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed',x.dataset.v===v?'true':'false');});});judge();}
+  })();
+  markPrompt();count();
+  fields.forEach(function(el){el.addEventListener('input',queueSave);});
+  radios.forEach(function(r){r.addEventListener('change',function(){markPrompt();queueSave();});});
+  essay.addEventListener('input',count);
+
+  /* ---------- copy ---------- */
+  $('copy').addEventListener('click',function(){
+    var btn=this;function g(id){var e=$(id);return e?e.value.trim():'';}
+    var out=['DON\'T WORRY ABOUT IT: What America Knew Before Pearl Harbor','Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'),'','QUESTIONS'];
+    ['q1','q2','q3','q4'].forEach(function(id,i){out.push('Q'+(i+1)+'. '+(g(id)||'[no answer]'));out.push('');});
+    out.push('MY SENTENCE');
+    if(pick.who&&pick.what&&pick.when){out.push(words.who[pick.who]+' knew '+words.what[pick.what]+' '+words.when[pick.when]+'.');out.push('The record: '+judge());}else out.push('[not built]');
+    out.push('');
+    var r=radios.filter(function(x){return x.checked;})[0];
+    out.push('ARGUMENT: '+(r?r.value.toUpperCase():'NO PROMPT SELECTED')+'   Word count: '+wc.textContent);
+    out.push('');out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';btn.classList.toggle('done',ok);setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else fallback();
+  });
+})();
+</script>
+</body></html>

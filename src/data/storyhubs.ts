@@ -20,6 +20,28 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'hh-dont-worry-about-it',
+    href: '/hubs/hh-dont-worry-about-it.html',
+    title: 'don’t worry about it',
+    course: 'hidden history',
+    unit: 'unit 03 / reading the record',
+    period: '1940–1946',
+    status: 'ready to teach',
+    question: 'washington knew a war with japan was days away. did anyone know it would start at pearl harbor?',
+    blurb:
+      'A war warning that names six places and not Hawaii, codebreakers who could read Tokyo’s diplomats but not its navy, a destroyer’s first shot, a radar blip 132 miles out, and the theory that Roosevelt let it happen.',
+    cover: '/storyhub/hh/dont-worry/assets/p01-arizona-smoke.jpg',
+    coverAlt: 'Colorized photograph of the USS Arizona burning at Pearl Harbor, December 7, 1941',
+    topics: ['pearl harbor', 'world war two', 'magic and purple', 'kimmel and short', 'opana radar', 'conspiracy theories'],
+    inside: [
+      'Seven sections from the November 27 war warning to the 1946 joint committee of Congress.',
+      'Plot every place the war warning names, then run the 1941 codebreakers on six real Japanese messages.',
+      'Drag the clock through the 53 minutes between the Opana radar contact and the first bombs.',
+      'Test each link of the Roosevelt knew theory, then build the truest sentence the record supports.',
+      'Four short questions and a 150 to 200 word argument. Answers save in the browser and copy into Classroom.',
+    ],
+  },
+  {
     slug: 'hh-nothing-but-black-sea',
     href: '/hubs/hh-nothing-but-black-sea.html',
     title: 'nothing but black sea',
