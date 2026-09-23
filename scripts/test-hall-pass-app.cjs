@@ -903,6 +903,23 @@ assert.match(functionSource('identifyPin_'), /stabilizeInferredPassAction_/);
 assert.match(functionSource('authorizeStudentAction'), /stabilizeInferredPassAction_/);
 const lateReviewSource = functionSource('teacherReviewLateCheckIn');
 assert.match(lateReviewSource, /String\(entry\.status \|\| ''\)\.toUpperCase\(\) === status/);
+assert.match(lateReviewSource, /ensureTeacherActionMatchesState_/);
+assert.match(lateReviewSource, /auditAction/);
+const lateAuditRepair = functionSource('ensureTeacherActionMatchesState_');
+assert.match(lateAuditRepair, /latestTeacherActionForReference_/);
+assert.match(lateAuditRepair, /auditTeacherAction_/);
+for (const name of ['teacherStartPass','teacherEndPass','teacherCheckInStudent','teacherMarkStudentAbsent','teacherClearStudentAbsent']) {
+  assert.match(functionSource(name), /ensureTeacherActionMatchesState_/, `${name} must repair or deduplicate teacher audit evidence`);
+}
+assert.match(functionSource('teacherEndPass'), /settleWaitingQueue_\(\)/, 'Teacher return retry must resume queue settlement');
+assert.match(functionSource('teacherEndPass'), /pass\.status === 'RETURNED'/, 'Teacher return must recognize a previously committed teacher return');
+assert.match(functionSource('teacherStartPass'), /existingPass/, 'Teacher start must recognize an already committed active pass');
+assert.match(functionSource('teacherStartPass'), /closeWaitingQueueForEmail_/, 'Teacher start retry must repair stale queue state');
+assert.match(functionSource('teacherCheckInStudent'), /entry\.method/, 'Teacher backup Check-In must distinguish student-originated arrivals');
+assert.match(functionSource('teacherClearStudentAbsent'), /\['ABSENT', 'CLEARED'\]/, 'Absence clear retry must recognize an already cleared authoritative row');
+const latestLateAudit = functionSource('latestTeacherActionForReference_');
+assert.match(latestLateAudit, /for \(let index = rows\.length - 1; index >= 0; index -= 1\)/);
+assert.match(latestLateAudit, /Reference ID|rows\[index\]\[3\]/);
 
 // Preserve the behavioral coverage that predates the Version 9 recovery. The
 // structural assertions above catch security/privacy regressions; these
