@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="index, follow">
+<title>Who Took the Files &middot; Hidden History</title>
+<meta name="description" content="An eight source investigation into the 1971 burglary of the FBI office in Media, Pennsylvania, and the secret program the stolen files exposed.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-who-took-the-files.html">
+<meta property="og:title" content="Who Took the Files · The 1971 Burglary That Exposed the FBI">
+<meta property="og:description" content="Eight burglars, one FBI office, a boxing match for cover, and a secret they kept for 43 years.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-who-took-the-files.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/who-took-the-files/assets/a01-fight-night.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ink:#17181a;
+  --paper:#e2d9c3;
+  --card:#eee7d5;
+  --card2:#e6dcc4;
+  --folder:#cdb98a;
+  --stamp:#b3261e;
+  --stamp-dk:#7e1a14;
+  --carbon:#27406b;
+  --rule:#a39880;
+  --dim:#4c4639;
+  --smoke:#8f8877;
+  --night:#0d0e10;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Libre Caslon Text",Georgia,"Times New Roman",serif;
+  font-size:17px;line-height:1.66;
+  background-image:repeating-linear-gradient(0deg,rgba(23,24,26,.02) 0 1px,transparent 1px 3px);
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+.stencil{font-family:"Big Shoulders Stencil Display","Arial Black",sans-serif;font-weight:900}
+.mono{font-family:"IBM Plex Mono",Consolas,monospace}
+.typed{font-family:"Special Elite","Courier New",monospace}
+
+/* COVER */
+.hero{position:sticky;top:0;z-index:0;height:80vh;min-height:440px;max-height:820px;overflow:hidden;background:var(--night);display:flex;align-items:flex-end;justify-content:center}
+.heroimg{position:absolute;inset:0;background-size:cover;background-position:50% 22%;filter:saturate(.85) contrast(1.05)}
+.heroscrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,14,16,.78) 0%,rgba(13,14,16,.15) 30%,rgba(13,14,16,.5) 58%,rgba(13,14,16,.96) 90%,var(--night) 100%)}
+.herotype{position:relative;width:100%;text-align:center;padding:70px 20px 34px;color:var(--card);background:linear-gradient(180deg,rgba(13,14,16,0) 0%,rgba(13,14,16,.6) 24%,rgba(13,14,16,.9) 55%,rgba(13,14,16,.97) 100%)}
+.kicker{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:#e0716a;border-top:1px solid rgba(179,38,30,.6);border-bottom:1px solid rgba(179,38,30,.6);padding:7px 0;margin:0 auto 20px;max-width:540px}
+.herotype h1{font-family:"Big Shoulders Stencil Display","Arial Black",sans-serif;font-weight:900;font-size:clamp(3.4rem,15vw,7.6rem);line-height:.86;margin:0;text-transform:uppercase;letter-spacing:.01em;text-shadow:0 4px 26px rgba(13,14,16,.85)}
+.herotype h1 em{font-style:normal;color:var(--stamp);display:block;text-shadow:none}
+.herotype .sub{font-family:"IBM Plex Mono",monospace;font-size:clamp(.74rem,2.8vw,.95rem);letter-spacing:.16em;text-transform:uppercase;margin-top:18px;color:#cfc6b2}
+.herotype .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:#9a9282}
+.herotype .row i{font-style:normal;color:#e0716a}
+.herostamp{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));right:18px;z-index:2;transform:rotate(-8deg);border:3px solid rgba(179,38,30,.85);color:rgba(224,113,106,.95);padding:6px 12px;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;line-height:1.1;text-align:center}
+.herostamp small{display:block;font-family:"IBM Plex Mono",monospace;font-size:.55rem;letter-spacing:.2em;font-weight:600}
+.herocredit{position:absolute;bottom:8px;right:12px;z-index:2;font-family:"IBM Plex Mono",monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(226,217,195,.45)}
+.cue{margin-top:22px;height:26px;display:flex;justify-content:center}
+.cue span{width:11px;height:11px;border-right:2px solid var(--stamp);border-bottom:2px solid var(--stamp);animation:drop 1.9s ease-in-out infinite}
+@keyframes drop{0%,100%{transform:translateY(-4px) rotate(45deg);opacity:.35}50%{transform:translateY(4px) rotate(45deg);opacity:1}}
+
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:34px 20px 72px;background:var(--paper);box-shadow:0 -30px 70px rgba(13,14,16,.6)}
+
+/* ID BAR */
+.idbar{display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:var(--card);margin-inline:-20px}
+.idbar label{flex:1 1 180px;display:flex;align-items:center;gap:10px;padding:11px 16px;border-right:1px solid var(--rule);font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--rule);background:transparent;font-family:"Special Elite",monospace;font-size:1rem;color:var(--ink);padding:2px 4px}
+.idbar input:focus{outline:0;border-bottom-color:var(--stamp)}
+
+/* OPENER */
+.opener{margin-top:34px;padding:26px 26px 22px;background:var(--card);border-left:7px solid var(--stamp);box-shadow:3px 3px 0 rgba(23,24,26,.16)}
+.opener p{margin:0 0 13px}
+.opener p:last-child{margin-bottom:0}
+.opener .lead::first-letter{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;float:left;font-size:3.6rem;line-height:.8;padding:6px 10px 0 0;color:var(--stamp)}
+.opener strong{font-weight:700}
+
+.parthead{margin:58px 0 0;border-top:3px solid var(--ink);padding-top:10px;display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.parthead b{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.55rem;letter-spacing:.06em;text-transform:uppercase}
+.parthead span{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+
+/* SOURCE CARDS: manila folders */
+.src{margin-top:34px;position:relative;background:var(--card);border:1.5px solid var(--rule);box-shadow:4px 4px 0 rgba(23,24,26,.13)}
+.src > header{display:flex;align-items:stretch;background:var(--folder);border-bottom:2px solid var(--ink)}
+.src .letter{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:2.3rem;line-height:1;background:var(--ink);color:var(--card);padding:10px 18px;display:flex;align-items:center}
+.src .htxt{padding:10px 16px;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.src .htxt b{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.1}
+.src .htxt span{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.src .file{margin-left:auto;align-self:center;margin-right:14px;font-family:"Special Elite",monospace;font-size:.72rem;color:var(--stamp-dk);border:1.5px solid var(--stamp-dk);padding:2px 7px;transform:rotate(-3deg);white-space:nowrap}
+@media(max-width:560px){.src .file{display:none}}
+.src .body{padding:22px 24px 8px}
+.src .body > p{margin:0 0 14px}
+@media(max-width:520px){.src .body{padding:18px 16px 6px}.panel{padding:18px 14px}.memo{padding:18px 14px 14px}}
+
+blockquote{margin:22px 0;padding:20px 22px;background:var(--ink);color:var(--card);border-left:7px solid var(--stamp)}
+blockquote p{margin:0;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:clamp(1.5rem,5vw,2.2rem);line-height:1.08;text-transform:uppercase;letter-spacing:.02em}
+blockquote.plain p{font-family:"Libre Caslon Text",Georgia,serif;font-weight:400;text-transform:none;font-size:clamp(1rem,2.8vw,1.12rem);line-height:1.6;letter-spacing:0}
+blockquote cite{display:block;margin-top:14px;font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#a39b8a}
+
+/* QUESTIONS */
+.qs{margin-top:10px;border-top:2px solid var(--ink)}
+.q{border-top:1px solid var(--rule);padding:18px 0 4px}
+.qs .q:first-child{border-top:0}
+.qlab{display:flex;gap:11px;align-items:baseline;margin-bottom:10px}
+.qnum{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;color:var(--stamp);font-size:1.15rem;flex:none}
+.qtxt{font-size:1rem;line-height:1.5}
+textarea{width:100%;background:#f4efe2;color:var(--ink);border:1.5px solid var(--rule);border-bottom:2.5px solid var(--ink);font-family:"Libre Caslon Text",Georgia,serif;font-size:1rem;line-height:1.75;padding:11px 13px;resize:vertical;background-image:repeating-linear-gradient(transparent 0 calc(1.75em - 1px),rgba(163,152,128,.4) calc(1.75em - 1px) 1.75em);background-attachment:local}
+textarea:focus{outline:0;border-color:var(--stamp);border-bottom-color:var(--stamp);background-color:#f8f4ea}
+.mini{min-height:78px}
+
+/* PHOTOS */
+figure{margin:26px 0}
+figure.photo{background:var(--ink);border-left:7px solid var(--stamp);padding:0}
+figure.photo img{display:block;width:100%;height:auto;background:var(--night)}
+figure.photo figcaption,figure.chart figcaption,figure.doc figcaption{margin:0;padding:15px 20px 17px;color:#b3ab9a;font-size:.9rem;line-height:1.55}
+figcaption b{color:var(--card);font-weight:700}
+.credit{display:block;margin-top:9px;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#9a9282}
+figure.photo.narrow img{max-width:460px;margin:0 auto}
+.photopair{display:grid;grid-template-columns:1.5fr 1fr;margin:26px 0;border-left:7px solid var(--stamp);background:var(--ink)}
+.photopair figure{margin:0;border-left:0;background:transparent}
+.photopair figure:first-child{border-right:1px solid #2c2d30}
+.photopair img{height:340px;width:100%;object-fit:cover;object-position:center 30%}
+@media(max-width:620px){.photopair{grid-template-columns:1fr}.photopair figure:first-child{border-right:0;border-bottom:1px solid #2c2d30}.photopair img{height:280px}}
+
+/* DOCUMENT REPRODUCTION */
+figure.doc{background:var(--ink);border-left:7px solid var(--carbon);padding:18px 18px 0}
+figure.doc img{display:block;margin:0 auto;max-width:560px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+/* DECLASSIFY MEMO */
+.memo{margin:22px 0;background:#f6f1e4;border:1px solid var(--rule);box-shadow:0 2px 0 var(--rule),4px 6px 0 rgba(23,24,26,.12);padding:22px 24px 18px;font-family:"Special Elite","Courier New",monospace;font-size:1rem;line-height:1.75;position:relative}
+.memo .mhead{font-size:.8rem;line-height:1.5;border-bottom:1px dashed var(--rule);padding-bottom:10px;margin-bottom:14px;color:var(--dim)}
+.memo .mstamp{position:absolute;top:14px;right:16px;transform:rotate(6deg);border:2.5px solid var(--stamp);color:var(--stamp);font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:.95rem;letter-spacing:.14em;padding:2px 8px}
+.redact{display:inline;user-select:none;background:var(--ink);color:transparent;border:0;padding:0 .2em;font:inherit;cursor:pointer;line-height:1.9;border-radius:1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.redact:hover{background:#2c2d30}
+.redact:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
+.redact.open{user-select:text;background:rgba(179,38,30,.16);color:var(--stamp-dk);cursor:default}
+.memohint{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--stamp-dk);margin-top:10px}
+
+/* INTERACTIVE PANELS */
+.panel{margin:26px 0;background:var(--night);color:var(--card);border-left:7px solid var(--stamp);padding:20px 22px 20px}
+.ptop{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.ptop b{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.35rem;letter-spacing:.06em;text-transform:uppercase}
+.ptop span{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:#8e877a}
+.panel p{margin:0 0 12px;color:#d7cfbd;font-size:.97rem}
+.btn{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;background:var(--stamp);color:#fff;border:0;padding:12px 18px;cursor:pointer}
+.btn:hover{background:#cc3127}
+.btn.ghost{background:transparent;color:var(--card);border:1.5px solid #555}
+.btn:focus-visible{outline:3px solid var(--card);outline-offset:2px}
+.btn[disabled]{opacity:.45;cursor:default}
+
+/* DRAWER */
+.guess{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:6px 0 14px}
+@media(max-width:600px){.guess{grid-template-columns:1fr}}
+.guess label{display:block;font-size:.92rem;color:#d7cfbd}
+.guess .gv{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:2rem;color:#e0716a;line-height:1;display:block;margin:6px 0 2px}
+.guess input[type=range]{width:100%;accent-color:#e0716a}
+.waffle{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;margin:16px 0 12px}
+@media(max-width:520px){.waffle{grid-template-columns:repeat(10,1fr)}}
+.waffle i{display:block;aspect-ratio:4/3;background:#2a2b2e;border-top:3px solid #3a3b3f;transition:background .35s ease,border-color .35s ease}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.06em;color:#cfc6b2}
+.legend span{display:flex;align-items:center;gap:7px}
+.legend em{display:inline-block;width:14px;height:11px}
+.verdict{margin-top:14px;min-height:1.4em;font-size:.97rem;color:#efe6d2}
+.verdict b{color:#e0716a}
+.bars{margin-top:16px;border-top:1px solid #333;padding-top:14px}
+.bars .br{display:grid;grid-template-columns:170px 1fr 52px;gap:10px;align-items:center;margin-bottom:8px;font-size:.86rem;color:#cfc6b2}
+@media(max-width:520px){.bars .br{grid-template-columns:110px 1fr 44px;font-size:.78rem}}
+.bars .track{height:16px;background:#232427}
+.bars .fill{height:100%;background:var(--stamp);width:0;transition:width .8s ease}
+.bars .n{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.1rem;color:var(--card);text-align:right}
+
+/* EDITOR */
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 6px}
+@media(max-width:600px){.choices{grid-template-columns:1fr}}
+.choice{background:#1c1d20;border:2px solid #45464a;color:var(--card);padding:14px 12px;text-align:left;cursor:pointer;font-family:"Libre Caslon Text",serif;font-size:.95rem;line-height:1.4}
+.choice b{display:block;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.2rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;color:#fff}
+.choice:hover{border-color:#8a8479}
+.choice:focus-visible{outline:3px solid var(--card);outline-offset:2px}
+.choice.sel{border-color:var(--stamp);background:#2a1715}
+.outcomes{margin-top:16px;border-top:1px solid #333}
+.oc{display:grid;grid-template-columns:1fr auto;gap:6px 14px;padding:12px 0;border-bottom:1px solid #2c2d30;align-items:start}
+.oc h4{margin:0;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.oc p{grid-column:1/-1;margin:0;font-size:.92rem;color:#c9c1af}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border:1.5px solid #6d6a63;color:#cfc6b2;white-space:nowrap}
+.tag.print{border-color:var(--stamp);color:#fff;background:var(--stamp)}
+.tally{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+.tally div{border-top:2px solid #45464a;padding-top:6px;min-width:120px}
+.tally b{display:block;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.9rem;line-height:1;color:#fff}
+.tally span{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#8e877a}
+.youpicked{margin-top:12px;font-size:.95rem;color:#efe6d2}
+
+/* ROUTING SLIP */
+.slip{margin:22px auto;max-width:420px;background:#f3eee0;border:1px solid var(--rule);box-shadow:4px 6px 0 rgba(23,24,26,.14);font-family:"Special Elite",monospace;padding:0}
+.slip .sh{background:var(--carbon);color:#f3eee0;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;padding:6px 12px;display:flex;justify-content:space-between}
+.slip .sl{display:grid;grid-template-columns:90px 1fr;border-bottom:1px solid #cfc6b0;font-size:.85rem}
+.slip .sl span{padding:7px 10px;color:var(--dim);border-right:1px solid #cfc6b0}
+.slip .sl i{font-style:normal;padding:7px 10px}
+.slip .word{padding:18px 12px 20px;text-align:center;font-size:clamp(1.7rem,7vw,2.3rem);letter-spacing:.08em;color:var(--ink)}
+.slipnote{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:-12px;margin-bottom:18px}
+
+/* CLOCK */
+.clockhead{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:600px){.clockhead{grid-template-columns:1fr 1fr}.clockhead .cdate{grid-column:1/-1}}
+.clockhead div{border-top:2px solid #45464a;padding-top:6px}
+.clockhead b{display:block;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.7rem;line-height:1.05;color:#fff}
+.clockhead span{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:#8e877a}
+.clockhead .expired b{color:#e0716a}
+.trackwrap{position:relative;margin:4px 0 2px;padding-top:26px}
+.ticks{position:absolute;left:10px;right:10px;top:0;height:22px}
+.ticks i{position:absolute;bottom:0;width:2px;height:12px;background:#6d6a63;transform:translateX(-1px)}
+.ticks i.big{height:20px;background:var(--stamp)}
+.trackwrap input[type=range]{width:100%;accent-color:#e0716a;margin:0}
+.yrs{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:#8e877a;letter-spacing:.08em;margin-top:2px}
+.names{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0 12px}
+@media(max-width:560px){.names{grid-template-columns:repeat(2,1fr)}}
+.nm{border:1.5px dashed #4a4b4f;padding:9px 10px;min-height:62px;font-size:.86rem;color:#a09a8e;transition:all .3s ease}
+.nm b{display:block;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.05rem;letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
+.nm small{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase}
+.nm.on{border-style:solid;border-color:var(--stamp);color:#efe6d2;background:#241615}
+.nm.on b{color:#fff}
+.evlog{border-top:1px solid #333;padding-top:12px;min-height:84px}
+.evlog .d{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:#e0716a}
+.evlog .t{font-size:.97rem;color:#efe6d2;margin-top:3px}
+.evlog .prev{margin-top:10px;font-size:.84rem;color:#8e877a}
+.clockbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* CHARTS */
+figure.chart{background:var(--night);border-left:7px solid var(--stamp);padding:20px 22px 4px;color:var(--card)}
+figure.chart figcaption{padding:12px 0 16px;border-top:1px solid #333;margin-top:14px}
+.plot{overflow-x:auto}
+.plot svg{display:block;width:100%;height:auto;min-width:520px}
+
+/* TABLE */
+.tablewrap{overflow-x:auto;margin:22px 0;border:2px solid var(--ink)}
+table{border-collapse:collapse;width:100%;background:var(--card);min-width:480px}
+th{background:var(--ink);color:var(--card);text-align:left;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;padding:11px 14px}
+td{padding:10px 14px;border-top:1px solid var(--rule);font-size:.95rem;vertical-align:top}
+td:first-child{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.8rem;white-space:nowrap;color:var(--stamp-dk)}
+
+/* LEDGER */
+.ledger{display:grid;grid-template-columns:1fr 1fr;margin-top:26px;border:2px solid var(--ink)}
+.ledger > div{padding:20px 20px 22px;background:var(--card)}
+.ledger > div:first-child{border-right:2px solid var(--ink);background:#ece3cf}
+.ledger h3{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:.04em;text-transform:uppercase;margin:0 0 4px}
+.ledger .against h3{color:var(--stamp)}
+.ledger .proved h3{color:var(--carbon)}
+.ledger .note{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.lrow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.lrow em{font-style:normal;font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1rem;color:var(--rule);flex:none;width:15px}
+.lrow input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1.5px solid var(--rule);font-family:"Libre Caslon Text",serif;font-size:.95rem;color:var(--ink);padding:4px 2px}
+.lrow input:focus{outline:0;border-bottom-color:var(--stamp)}
+@media(max-width:620px){.ledger{grid-template-columns:1fr}.ledger > div:first-child{border-right:0;border-bottom:2px solid var(--ink)}}
+
+/* PROMPTS */
+.prompts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+@media(max-width:680px){.prompts{grid-template-columns:1fr}}
+.prompt{background:var(--card);border:2px solid var(--ink);cursor:pointer;display:flex;flex-direction:column;position:relative;transition:transform .12s ease,box-shadow .12s ease}
+.prompt:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 rgba(23,24,26,.2)}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph{background:var(--folder);border-bottom:2px solid var(--ink);padding:11px 16px;display:flex;align-items:center;gap:11px;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+.prompt .dot{width:15px;height:15px;border:2px solid var(--ink);border-radius:50%;flex:none}
+.prompt .pb{padding:16px;font-size:.97rem;line-height:1.55}
+.prompt .pb b{font-weight:700}
+.prompt:has(input:checked){background:var(--ink);color:var(--card);box-shadow:5px 5px 0 var(--stamp)}
+.prompt:has(input:checked) .ph{background:var(--stamp);color:#fff;border-bottom-color:var(--stamp-dk)}
+.prompt:has(input:checked) .dot{background:#fff;border-color:#fff}
+.prompt:has(input:focus-visible){outline:3px solid var(--stamp);outline-offset:3px}
+.essaybox{margin-top:22px}
+.essaymeta{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+#wc{font-weight:700;color:var(--stamp)}
+#wc.ok{color:#2f6b35}
+
+.actions{margin-top:40px;padding:24px;background:var(--ink);color:var(--card);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:7px solid var(--stamp)}
+.actions p{margin:0;font-size:.92rem;color:#b3ab9a;max-width:44ch}
+#copy{font-family:"Big Shoulders Stencil Display",sans-serif;font-weight:900;font-size:1.25rem;letter-spacing:.08em;text-transform:uppercase;background:var(--stamp);color:#fff;border:0;padding:13px 28px;cursor:pointer}
+#copy:hover{background:#cc3127}
+#copy.done{background:#2f6b35}
+#copy:focus-visible{outline:3px solid var(--card);outline-offset:3px}
+
+.refs{margin-top:48px;border-top:2px solid var(--ink);padding-top:18px;font-size:.83rem;line-height:1.7;color:var(--dim)}
+.refs b{display:block;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);margin-bottom:10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px}
+
+.saved{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--card);font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 18px;border-left:4px solid var(--stamp);opacity:0;transition:opacity .3s ease;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="heroimg" style="background-image:url(/storyhub/hh/who-took-the-files/assets/a01-fight-night.jpg)" role="img" aria-label="Joe Frazier walks to a neutral corner as Muhammad Ali lies on the canvas in the fifteenth round, March 8, 1971."></div>
+  <div class="heroscrim"></div>
+  <div class="herostamp">Medburg<small>Unsolved · 1976</small></div>
+  <div class="herotype">
+    <div class="kicker">Hidden History &nbsp;·&nbsp; Source Investigation</div>
+    <h1>Who Took<em>The Files</em></h1>
+    <div class="sub">The 1971 Burglary That Exposed the FBI</div>
+    <div class="row"><span>Media, PA <i>1971</i></span><span>·</span><span>Washington <i>1973</i></span><span>·</span><span>Named <i>2014</i></span></div>
+    <div class="cue" aria-hidden="true"><span></span></div>
+  </div>
+  <div class="herocredit">Frazier and Ali, round 15, March 8, 1971 · UPI</div>
+</div>
+
+<div class="wrap">
+
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+
+  <section class="opener">
+    <p class="lead">On the night of March 8, 1971, most of America was listening to a boxing match.</p>
+    <p>Muhammad Ali and Joe Frazier, both undefeated, were fighting for the heavyweight title at Madison Square Garden. Fifteen miles outside Philadelphia, in the small town of Media, eight people who were not listening forced open a door on the second floor of a building across from the county courthouse. Behind it was an FBI office. By morning its filing cabinets were empty.</p>
+    <p>The FBI put 200 agents on the case and never arrested anyone. The burglars kept their secret for 43 years. What they found in those cabinets led to one of the biggest investigations of the FBI in American history.</p>
+    <p><strong>Read every source. Answer in complete sentences. Cite sources by letter.</strong></p>
+  </section>
+
+  <div class="parthead"><b>Part One · The Burglary</b><span>Sources A to C</span></div>
+
+  <!-- A -->
+  <article class="src">
+    <header><div class="letter">A</div><div class="htxt"><b>The Casing</b><span>Winter 1971</span></div><div class="file">File 01</div></header>
+    <div class="body">
+      <p>The plan belonged to William Davidon, a physics professor at Haverford College and a longtime antiwar activist. He was convinced the FBI was spying on peaceful protest groups. He was also convinced nobody would believe it without proof, and the proof was sitting in filing cabinets.</p>
+      <p>Somebody had to see the inside first. That job went to Bonnie Raines, 29, a mother of three children ages 8, 6 and 2. She called the FBI office in Media and asked for an interview, saying she was a Swarthmore College student researching careers for women in the FBI. She showed up in big glasses with her hair pinned up under a hat, and she never took off her gloves.</p>
+      <blockquote class="plain">
+        <p>They were very gracious, and I think kind of flattered that I was interested in them.</p>
+        <cite>Bonnie Raines, remembering the visit, 2014</cite>
+      </blockquote>
+      <p>She left with a map of the office in her head. There was no alarm and no guard. The filing cabinets were unlocked. A side door was blocked from the inside by a heavy cabinet.</p>
+      <figure class="photo"><img src="/storyhub/hh/who-took-the-files/assets/a02-veterans-square.jpg" alt="A four story brick building at One Veterans Square in Media, Pennsylvania, with the white county courthouse at left." loading="lazy" width="1400" height="933"><figcaption>One Veterans Square. In 1971 the FBI rented rooms on the second floor, with apartments above. The Delaware County Courthouse stands at the left edge of the frame.<span class="credit">One Veterans Square, Media, Pennsylvania, photographed 2014 · Smallbones, Wikimedia Commons, CC0</span></figcaption></figure>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">A1</span><span class="qtxt">Bonnie Raines kept her gloves on for the entire visit. What was she trying not to leave behind, and why would it matter later?</span></div><textarea class="mini" data-q="A1" aria-label="Your answer to A1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">A2</span><span class="qtxt">The FBI was the most powerful police agency in the country. Using what she saw, explain why this particular office was an easy target.</span></div><textarea class="mini" data-q="A2" aria-label="Your answer to A2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- B -->
+  <article class="src">
+    <header><div class="letter">B</div><div class="htxt"><b>The Night</b><span>March 8, 1971</span></div><div class="file">File 02</div></header>
+    <div class="body">
+      <p>They picked the date on purpose. Ali and Frazier would be on the radio in every bar and living room, and the group hoped the building manager and the people in the upstairs apartments would be listening too.</p>
+      <p>Keith Forsyth, 21, was the lock picker. That evening he went to the main door and found a lock he had not expected, a kind he could not open.</p>
+      <blockquote>
+        <p>I just about had a heart attack.</p>
+        <cite>Keith Forsyth, on seeing the lock, 2014</cite>
+      </blockquote>
+      <p>The group talked about calling it off and voted to keep going. Forsyth moved to the side door, the one with the cabinet behind it. He picked its lock, snapped the deadbolt with a short crowbar and shoved the cabinet back far enough for a person to squeeze through. The others emptied the drawers into suitcases. They found revolvers in the office and left them where they lay.</p>
+      <p>Getaway cars carried four heavy suitcases to a Quaker farmhouse outside town. Around a table with sandwiches and beer, still wearing gloves, the eight of them started reading. Ralph Daniel, who pulled files out of the cabinets that night, remembered the moment fifty years later.</p>
+      <blockquote>
+        <p>It was clear we had a gold mine.</p>
+        <cite>Ralph Daniel, 2021</cite>
+      </blockquote>
+      <p>In New York, Frazier knocked Ali down in the fifteenth round and won a unanimous decision. The next day a caller read a statement to the Reuters news agency on behalf of a group nobody had ever heard of: the Citizens' Commission to Investigate the FBI.</p>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">B1</span><span class="qtxt">The lock was a surprise, and the group voted to keep going anyway. What does that vote tell you about the people in the room?</span></div><textarea class="mini" data-q="B1" aria-label="Your answer to B1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">B2</span><span class="qtxt">The burglars were committing a felony, but they left the FBI's guns behind. Why would they make a point of that?</span></div><textarea class="mini" data-q="B2" aria-label="Your answer to B2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- C -->
+  <article class="src">
+    <header><div class="letter">C</div><div class="htxt"><b>The Files</b><span>Written 1970 · read March 1971</span></div><div class="file">File 03</div></header>
+    <div class="body">
+      <p>The suitcases held about 1,000 documents. Most of them were boring. One was an internal newsletter from the FBI's Philadelphia office, dated September 16, 1970, about how agents should deal with antiwar students and activists. Part of it is blacked out below. Guess what the reason was before you open it.</p>
+      <div class="memo" id="memo">
+        <div class="mstamp">Declassify</div>
+        <div class="mhead">FBI · PHILADELPHIA<br>NEWSLETTER · SEPTEMBER 16, 1970<br>RE: NEW LEFT</div>
+        There was a general consensus that more interviews with these subjects and hangers-on are in order for plenty of reasons, chief of which are <span class="redact" id="redact" role="button" tabindex="0" aria-label="Blacked out text. Select to declassify.">it will enhance the paranoia endemic in these circles and will further serve to get the point across there is an FBI Agent behind every mailbox.</span>
+        <div class="memohint" id="memohint">Tap the black bar to declassify</div>
+      </div>
+      <p>Another document, signed by Director J. Edgar Hoover on November 4, 1970, ordered agents to begin investigating Black student groups on college campuses.</p>
+      <blockquote class="plain">
+        <p>Increased campus disorders involving black students pose a definite threat to the nation's stability and security and indicate need for an increase in both quality and quantity of intelligence information on Black Student Union (BSU) and similar groups...</p>
+        <cite>J. Edgar Hoover, FBI Director, November 4, 1970</cite>
+      </blockquote>
+
+      <div class="panel" id="drawer">
+        <div class="ptop"><b>Open the Drawer</b><span>Every 100 files from Media</span></div>
+        <p>The FBI told the public its job was catching criminals. Before you open the drawer, guess how the files actually broke down.</p>
+        <div class="guess">
+          <label for="g-pol">Out of 100 files, how many were about watching political groups and activists?<span class="gv" id="gv-pol">20</span><input type="range" id="g-pol" min="0" max="100" value="20"></label>
+          <label for="g-mob">Out of 100 files, how many were about organized crime, like the Mafia?<span class="gv" id="gv-mob">20</span><input type="range" id="g-mob" min="0" max="100" value="20"></label>
+        </div>
+        <button class="btn" id="open-drawer" type="button">Open the drawer</button>
+        <div class="waffle" id="waffle" aria-hidden="true"></div>
+        <div class="legend" id="legend" hidden>
+          <span><em style="background:#b3261e"></em>Political surveillance · 40</span>
+          <span><em style="background:#8c8578"></em>Manuals and routine forms · 30</span>
+          <span><em style="background:#27406b"></em>Bank robbery, murder, rape, interstate theft · 15</span>
+          <span><em style="background:#6a7f55"></em>Draft resistance and military desertion · 14</span>
+          <span><em style="background:#e8c35a"></em>Organized crime · 1</span>
+        </div>
+        <div class="verdict" id="drawer-verdict" aria-live="polite"></div>
+        <div class="bars" id="polbars" hidden>
+          <p style="margin-bottom:10px">Inside the political files, who was being watched?</p>
+          <div class="br"><span>Left or liberal groups</span><div class="track"><div class="fill" data-w="100"></div></div><span class="n">200+</span></div>
+          <div class="br"><span>Immigrants</span><div class="track"><div class="fill" data-w="5"></div></div><span class="n">10</span></div>
+          <div class="br"><span>Right wing groups</span><div class="track"><div class="fill" data-w="1"></div></div><span class="n">2</span></div>
+        </div>
+      </div>
+      <p>Keep one limit in mind. Media was one small office outside Philadelphia. These numbers describe what agents in that office were doing, and they cannot tell you what every FBI office in the country was doing.</p>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">C1</span><span class="qtxt">Read the declassified sentence. In your own words, what did the FBI want protesters to feel, and how would that feeling help the FBI?</span></div><textarea class="mini" data-q="C1" aria-label="Your answer to C1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">C2</span><span class="qtxt">Compare your guess to the drawer. Which number surprised you most, and what does it suggest about what the Media office cared about?</span></div><textarea class="mini" data-q="C2" aria-label="Your answer to C2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="parthead"><b>Part Two · The Envelopes</b><span>Sources D and E</span></div>
+
+  <!-- D -->
+  <article class="src">
+    <header><div class="letter">D</div><div class="htxt"><b>The Mail</b><span>March 1971</span></div><div class="file">File 04</div></header>
+    <div class="body">
+      <p>The burglars kept the originals hidden and mailed copies to five people. Three were reporters, at the Washington Post, the New York Times and the Los Angeles Times. Two were members of Congress: Senator George McGovern of South Dakota and Representative Parren Mitchell of Maryland. Every one of them was now holding stolen government documents.</p>
+      <p>At the Post, reporter Betty Medsger opened her envelope and showed it to her editors. The FBI confirmed the papers were real. Then Attorney General John Mitchell, the top law enforcement officer in the country, called two of the paper's editors and told them not to print a word. He warned that publishing</p>
+      <blockquote class="plain">
+        <p>could endanger the lives or cause serious harm to persons engaged in investigative activities.</p>
+        <cite>Attorney General John N. Mitchell, March 1971</cite>
+      </blockquote>
+      <figure class="photo"><img src="/storyhub/hh/who-took-the-files/assets/a03-mitchell-nixon-hoover.jpg" alt="Four men in suits talking in a living room at the White House." loading="lazy" width="1400" height="958"><figcaption>Eleven weeks after the burglary. From left: Attorney General John Mitchell, President Richard Nixon, FBI Director J. Edgar Hoover and White House adviser John Ehrlichman. Mitchell and Ehrlichman would both serve prison time for Watergate.<span class="credit">The White House, May 26, 1971 · White House Photo Office, National Archives</span></figcaption></figure>
+
+      <div class="panel" id="editor">
+        <div class="ptop"><b>Your Desk, 10 PM</b><span>March 23, 1971</span></div>
+        <p>You run the paper. The FBI says the documents are real. The Attorney General says printing them could get people hurt. Your own lawyers say no. The presses start in a few hours. Make the call.</p>
+        <div class="choices" role="group" aria-label="Your decision">
+          <button class="choice" type="button" data-c="print"><b>Print it</b>Put the story on the front page tomorrow.</button>
+          <button class="choice" type="button" data-c="return"><b>Hand it over</b>Give the documents back to the FBI.</button>
+          <button class="choice" type="button" data-c="hold"><b>Hold it</b>Keep the papers and wait for more information.</button>
+        </div>
+        <div class="youpicked" id="youpicked" aria-live="polite"></div>
+        <div id="outcomes" hidden>
+          <div class="outcomes">
+            <div class="oc"><h4>Senator George McGovern</h4><span class="tag">Gave to FBI</span><p>Returned the documents to the FBI and did not make them public.</p></div>
+            <div class="oc"><h4>Rep. Parren Mitchell</h4><span class="tag">Gave to FBI</span><p>Returned the documents to the FBI and did not make them public.</p></div>
+            <div class="oc"><h4>Los Angeles Times</h4><span class="tag">Never arrived</span><p>Reporter Jack Nelson never received his envelope. It ended up in the hands of the FBI.</p></div>
+            <div class="oc"><h4>New York Times</h4><span class="tag">Both</span><p>Gave the documents to the FBI but kept copies, and ran its own story the day after the Post.</p></div>
+            <div class="oc"><h4>Washington Post</h4><span class="tag print">Printed</span><p>Publisher Katharine Graham made the decision by about 10 PM. The front page on March 24, 1971 read: <i>Stolen Documents Describe FBI Surveillance Activities.</i></p></div>
+          </div>
+          <div class="tally">
+            <div><b>2 of 5</b><span>Printed the story</span></div>
+            <div><b>3 of 5</b><span>Handed documents to the FBI</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">D1</span><span class="qtxt">Both members of Congress returned the documents without making them public. Why might a politician be more nervous about holding stolen FBI files than a newspaper would be?</span></div><textarea class="mini" data-q="D1" aria-label="Your answer to D1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">D2</span><span class="qtxt">The Attorney General warned that publishing could get people hurt, and the Post printed anyway. Was that responsible? Defend your answer with a detail from this source.</span></div><textarea class="mini" data-q="D2" aria-label="Your answer to D2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- E -->
+  <article class="src">
+    <header><div class="letter">E</div><div class="htxt"><b>The Word</b><span>1971 to 1973</span></div><div class="file">File 05</div></header>
+    <div class="body">
+      <p>One document in the pile was a routing slip, the small form that tells a clerk where to send a file. Typed on it was a word nobody outside the FBI had ever seen.</p>
+      <div class="slip" aria-label="Recreation of an FBI routing slip with the word COINTELPRO typed on it">
+        <div class="sh"><span>Routing Slip</span><span>FBI</span></div>
+        <div class="sl"><span>To</span><i>Files</i></div>
+        <div class="sl"><span>Re</span><i>&nbsp;</i></div>
+        <div class="word">COINTELPRO</div>
+      </div>
+      <div class="slipnote">Recreated for this page</div>
+      <p>Carl Stern, who covered the Justice Department for NBC News, wanted to know what it meant. Officials refused to tell him. So he used the Freedom of Information Act, a 1966 law that lets any citizen request government records. The FBI refused again, and Stern sued. Judge Barrington Parker ruled in his favor, and on December 6, 1973, the Bureau handed over the files. That night NBC anchor John Chancellor told the country what the word meant.</p>
+      <blockquote class="plain">
+        <p>Secret FBI memos made public today show the late J. Edgar Hoover ordered a nationwide campaign to disrupt the activities of the New Left.</p>
+        <cite>John Chancellor, NBC Nightly News, December 6, 1973</cite>
+      </blockquote>
+      <p>The burglary produced the word. It took almost three more years, a reporter and a federal judge to find out what it meant.</p>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">E1</span><span class="qtxt">The burglars found the word COINTELPRO but could not explain it. How did Stern get the answer, and why could he get something the burglars could not?</span></div><textarea class="mini" data-q="E1" aria-label="Your answer to E1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">E2</span><span class="qtxt">Stern broke no laws to get his documents. Why does it matter that a legal route to the truth existed?</span></div><textarea class="mini" data-q="E2" aria-label="Your answer to E2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="parthead"><b>Part Three · The Manhunt</b><span>Source F</span></div>
+
+  <!-- F -->
+  <article class="src">
+    <header><div class="letter">F</div><div class="htxt"><b>Medburg</b><span>1971 to 2024</span></div><div class="file">File 06</div></header>
+    <div class="body">
+      <p>Hoover named the case MEDBURG and put about 200 agents on it. They had a sketch of the young woman who had come in for a research interview. They questioned John Raines, Bonnie's husband. They questioned Bob Williamson and Sara Shumer. They never questioned Bonnie. They left Davidon alone entirely, because he was already tied up in a separate federal case.</p>
+      <p>The Raineses had planned for the worst. If they went to prison, John's older brother and Bonnie's parents had agreed to raise the children.</p>
+      <p>Inside the Bureau, Hoover moved fast. He shut down 103 of the FBI's 538 small resident offices. On April 28, 1971, seven weeks after the burglary, the FBI formally ended every operation running under the name COINTELPRO. Ending the program on paper did not mean every kind of domestic spying stopped.</p>
+      <figure class="photo narrow"><img src="/storyhub/hh/who-took-the-files/assets/a04-hoover.jpg" alt="Portrait of J. Edgar Hoover seated in a suit." loading="lazy" width="900" height="1136"><figcaption>Hoover ran the Bureau from 1924 until he died on May 2, 1972. He never found out who robbed his office.<span class="credit">J. Edgar Hoover, 1961 · Marion S. Trikosko, Library of Congress</span></figcaption></figure>
+
+      <div class="panel" id="clock">
+        <div class="ptop"><b>The Clock</b><span>Drag through 53 years</span></div>
+        <p>Federal law gave prosecutors five years to charge the burglars. After March 8, 1976, they could never be tried for it. Move the slider and watch the clock run out, then watch how long the names stayed hidden. The first six years move slowly. After 1977 the track speeds up.</p>
+        <div class="clockhead">
+          <div class="cdate"><b id="ck-date">March 8, 1971</b><span>Date</span></div>
+          <div id="ck-limit-wrap"><b id="ck-limit">1,827</b><span id="ck-limit-lab">Days until they are safe</span></div>
+          <div><b id="ck-names">0 of 8</b><span>Burglars publicly named</span></div>
+        </div>
+        <div class="trackwrap">
+          <div class="ticks" id="ticks" aria-hidden="true"></div>
+          <input type="range" id="ck" min="0" max="100" value="0" aria-label="Move through time from 1971 to 2024">
+        </div>
+        <div class="yrs"><span>1971</span><span>1985</span><span>2000</span><span>2024</span></div>
+        <div class="names" id="names"></div>
+        <div class="evlog" aria-live="polite"><div class="d" id="ev-d"></div><div class="t" id="ev-t"></div><div class="prev" id="ev-prev"></div></div>
+        <div class="clockbtns"><button class="btn" id="ck-play" type="button">Play</button><button class="btn ghost" id="ck-reset" type="button">Back to 1971</button></div>
+      </div>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">F1</span><span class="qtxt">The FBI had a sketch of Bonnie Raines and 200 agents on the case, and never questioned her. Give one reason a huge manhunt might still miss the person it is looking for.</span></div><textarea class="mini" data-q="F1" aria-label="Your answer to F1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">F2</span><span class="qtxt">Hoover ended COINTELPRO seven weeks after the burglary. Does that timing make the program look more defensible or less? Explain.</span></div><textarea class="mini" data-q="F2" aria-label="Your answer to F2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="parthead"><b>Part Four · What the Word Opened</b><span>Sources G and H</span></div>
+
+  <!-- G -->
+  <article class="src">
+    <header><div class="letter">G</div><div class="htxt"><b>The Committee</b><span>1975 to 1976</span></div><div class="file">File 07</div></header>
+    <div class="body">
+      <p>In January 1975 the Senate created a special committee, chaired by Senator Frank Church of Idaho, to investigate the country's intelligence agencies. Its report on the FBI came out April 29, 1976. Using the Bureau's own paperwork, it found that between 1956 and 1971 the FBI approved 2,370 separate COINTELPRO actions against American groups and citizens.</p>
+      <figure class="chart">
+        <div class="ptop"><b>Five Programs</b><span>Approved by FBI headquarters, 1956 to 1971</span></div>
+        <div class="plot" tabindex="0" role="region" aria-label="Five Programs chart, scroll sideways on small screens">
+          <svg viewBox="0 0 800 258" role="img" aria-label="Timeline of five COINTELPRO programs. Communist Party USA from 1956, Socialist Workers Party from 1961 to 1969, White Hate Groups from 1964, Black Nationalist from 1967, New Left from 1968. Four were still running at the time of the Media burglary in March 1971 and all ended in April 1971.">
+            <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#8e877a" text-anchor="end">
+              <text x="60" y="47">1956</text><text x="299" y="87">1961</text><text x="432" y="127">1964</text><text x="570" y="167">1967</text><text x="602" y="207">1968</text>
+            </g>
+            <g>
+              <rect x="68" y="30" width="677" height="24" fill="#b3261e"/>
+              <rect x="307" y="70" width="356" height="24" fill="#5b5d63"/>
+              <rect x="440" y="110" width="305" height="24" fill="#b3261e"/>
+              <rect x="578" y="150" width="167" height="24" fill="#b3261e"/>
+              <rect x="610" y="190" width="135" height="24" fill="#b3261e"/>
+            </g>
+            <g font-family="Big Shoulders Stencil Display, Arial Black, sans-serif" font-weight="900" font-size="15" fill="#fff" letter-spacing=".5">
+              <text x="78" y="47">COMMUNIST PARTY USA</text>
+              <text x="317" y="87">SOCIALIST WORKERS PARTY · ENDED 1969</text>
+              <text x="450" y="127">WHITE HATE GROUPS</text>
+              <text x="586" y="167">BLACK NATIONALIST</text>
+              <text x="618" y="207">NEW LEFT</text>
+            </g>
+            <line x1="738" y1="16" x2="738" y2="222" stroke="#e8c35a" stroke-width="2" stroke-dasharray="5 4"/>
+            <text x="732" y="13" fill="#e8c35a" font-family="IBM Plex Mono, monospace" font-size="11" text-anchor="end" letter-spacing="1">MEDIA BURGLARY · MARCH 1971</text>
+            <line x1="40" y1="228" x2="790" y2="228" stroke="#444" stroke-width="2"/>
+            <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#8e877a" text-anchor="middle">
+              <text x="40" y="248">1956</text><text x="224" y="248">1960</text><text x="408" y="248">1964</text><text x="592" y="248">1968</text><text x="776" y="248">1972</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption>Four programs were still running on the night of the fight. <b>Seven weeks later all of them were shut down.</b> The Black Nationalist program listed Dr. Martin Luther King Jr.'s Southern Christian Leadership Conference as a hate group.</figcaption>
+      </figure>
+      <p>The documents also showed what an action looked like on paper. In April 1970 the Los Angeles office asked headquarters for permission to mail a letter from a made up person to Hollywood gossip columnists about the actress Jean Seberg, who gave money to the Black Panther Party. Headquarters wrote back that the plan had merit, and told agents to wait about two more months.</p>
+      <figure class="doc"><img src="/storyhub/hh/who-took-the-files/assets/a05-seberg-memo.jpg" alt="Typed FBI memo dated May 6, 1970, headed Counterintelligence Program, Black Nationalist Hate Groups, Black Panther Party, with names blacked out." loading="lazy" width="687" height="809"><figcaption>Read the first paragraph and the note at the bottom. The black bars are the FBI's own redactions.<span class="credit">FBI memorandum, Director to Los Angeles, May 6, 1970 · released under FOIA</span></figcaption></figure>
+      <p>In November 1964 the Bureau had also mailed Dr. King an anonymous package with a letter and a recording. The committee confirmed the FBI sent it. King and the people closest to him read the letter as an attempt to push him toward taking his own life.</p>
+      <p>In May 1976 the new FBI Director, Clarence Kelley, said something no FBI director had said before.</p>
+      <blockquote class="plain">
+        <p>We are truly sorry we were responsible for instances which are now subject to such criticism.</p>
+        <cite>Clarence M. Kelley, FBI Director, May 1976</cite>
+      </blockquote>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">G1</span><span class="qtxt">Find the phrase in the Seberg memo that says what the letter was supposed to do to her. Why does it matter that a plan like this was typed up, approved and filed?</span></div><textarea class="mini" data-q="G1" aria-label="Your answer to G1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">G2</span><span class="qtxt">Kelley apologized in 1976. Is an apology from a later director enough? What else would you expect an agency to do after something like COINTELPRO?</span></div><textarea class="mini" data-q="G2" aria-label="Your answer to G2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- H -->
+  <article class="src">
+    <header><div class="letter">H</div><div class="htxt"><b>The Other Burglars</b><span>1970 to 2005</span></div><div class="file">File 08</div></header>
+    <div class="body">
+      <p>In July 1970 President Nixon approved a secret plan, written by a young aide named Tom Huston, that would have let intelligence agencies open private mail and break into homes and offices. Hoover objected, and Nixon withdrew the plan within weeks.</p>
+      <p>A year later, after a government analyst leaked the Pentagon Papers to the New York Times in June 1971, the White House put together its own secret team to stop leaks. Its members called themselves the Plumbers. On June 17, 1972, six weeks after Hoover died, five men connected to that team and to Nixon's reelection committee were arrested inside the Democratic Party offices at the Watergate building. A security guard named Frank Wills had noticed tape holding a door latch open.</p>
+      <div class="photopair">
+        <figure class="photo"><img src="/storyhub/hh/who-took-the-files/assets/a06-watergate.jpg" alt="The curved Watergate complex beside the Potomac River with the Washington Monument in the distance." loading="lazy" width="1200" height="809"><figcaption>The Watergate complex, May 1973.<span class="credit">Yoichi Okamoto · National Archives</span></figcaption></figure>
+        <figure class="photo"><img src="/storyhub/hh/who-took-the-files/assets/a07-felt.jpg" alt="Official FBI portrait of Mark Felt." loading="lazy" width="571" height="733"><figcaption>W. Mark Felt, number two at the FBI.<span class="credit">FBI photograph, around 1972</span></figcaption></figure>
+      </div>
+      <p>The Media burglars were never caught. The Watergate burglars were arrested before dawn, and the investigation that followed ended with Nixon resigning on August 9, 1974.</p>
+      <p>One more twist. The second in command at the FBI during Watergate was Mark Felt. In 2005 he revealed that he was Deep Throat, the secret source who helped Washington Post reporters Bob Woodward and Carl Bernstein expose the cover up. In 1980 a federal jury had convicted Felt of approving FBI break ins, without warrants, at the homes of relatives and friends of antiwar radicals in 1972 and 1973. President Reagan pardoned him in 1981.</p>
+      <div class="qs">
+        <div class="q"><div class="qlab"><span class="qnum">H1</span><span class="qtxt">Both groups broke into offices to get files. Explain two differences between the Media burglary and the Watergate burglary. Think about who they worked for, what they wanted and how it ended.</span></div><textarea class="mini" data-q="H1" aria-label="Your answer to H1"></textarea></div>
+        <div class="q"><div class="qlab"><span class="qnum">H2</span><span class="qtxt">Mark Felt helped expose Watergate and was also convicted of ordering illegal break ins. Does his crime change how you judge what he did as Deep Throat? Explain.</span></div><textarea class="mini" data-q="H2" aria-label="Your answer to H2"></textarea></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="parthead"><b>Part Five · The Ledger</b><span>Four entries minimum per side</span></div>
+
+  <div class="ledger">
+    <div class="against">
+      <h3>The case against the burglars</h3>
+      <div class="note">Evidence from the sources</div>
+      <div class="lrow"><em>1</em><input type="text" data-q="AGAINST1" autocomplete="off" aria-label="Case against, entry 1"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="AGAINST2" autocomplete="off" aria-label="Case against, entry 2"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="AGAINST3" autocomplete="off" aria-label="Case against, entry 3"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="AGAINST4" autocomplete="off" aria-label="Case against, entry 4"></div>
+    </div>
+    <div class="proved">
+      <h3>What their files proved</h3>
+      <div class="note">Evidence from the sources</div>
+      <div class="lrow"><em>1</em><input type="text" data-q="PROVED1" autocomplete="off" aria-label="What the files proved, entry 1"></div>
+      <div class="lrow"><em>2</em><input type="text" data-q="PROVED2" autocomplete="off" aria-label="What the files proved, entry 2"></div>
+      <div class="lrow"><em>3</em><input type="text" data-q="PROVED3" autocomplete="off" aria-label="What the files proved, entry 3"></div>
+      <div class="lrow"><em>4</em><input type="text" data-q="PROVED4" autocomplete="off" aria-label="What the files proved, entry 4"></div>
+    </div>
+  </div>
+
+  <figure class="photo narrow" style="margin-top:34px"><img src="/storyhub/hh/who-took-the-files/assets/a08-kelley.jpg" alt="Official portrait of FBI Director Clarence M. Kelley." loading="lazy" width="700" height="899"><figcaption>Clarence Kelley became director in 1973, after Hoover's death and a year of Watergate turmoil at the Bureau. His 1976 apology came five years after the burglary.<span class="credit">Clarence M. Kelley · FBI photograph</span></figcaption></figure>
+
+  <div class="parthead"><b>Part Six · Take a Side</b><span>200 words minimum · three sources minimum</span></div>
+
+  <div class="prompts">
+    <label class="prompt">
+      <input type="radio" name="prompt" value="Prompt 1">
+      <span class="ph"><span class="dot"></span>Prompt 1</span>
+      <span class="pb">In 2021 Bonnie Raines said, "Fifty years ago, we were criminals — and now we're heroes. Isn't that the way history goes sometimes?" <b>Argue whether the Media burglary was justified.</b> You have to deal with both the crime they committed and what the files proved. Use Source C, Source G and one other.</span>
+    </label>
+    <label class="prompt">
+      <input type="radio" name="prompt" value="Prompt 2">
+      <span class="ph"><span class="dot"></span>Prompt 2</span>
+      <span class="pb">It is 10 PM on March 23, 1971, and you are Katharine Graham. The FBI says the papers are real. The Attorney General says printing them could get people hurt. <b>Argue whether a newspaper should publish stolen government documents.</b> Use Source D, Source E and one other.</span>
+    </label>
+  </div>
+
+  <div class="essaybox">
+    <div class="essaymeta"><span>Your argument</span><span>Word count <span id="wc">0</span> / 200</span></div>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" rows="15" placeholder="Pick a side in your first sentence. Then prove it."></textarea>
+  </div>
+
+  <div class="actions">
+    <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+    <button id="copy" type="button">Copy my answers</button>
+  </div>
+
+  <div class="refs">
+    <b>References</b>
+    <div>Daniel, R. (2021, March 7). Interview. In "Something had to be done": 50 years after FBI office burglary, San Rafael man admits role. <i>San Francisco Chronicle</i>.</div>
+    <div>Hamilton, J. (Director). (2014). <i>1971</i> [Film]. Maximum Pictures.</div>
+    <div>Medsger, B. (2014). <i>The burglary: The discovery of J. Edgar Hoover's secret FBI</i>. Alfred A. Knopf.</div>
+    <div>Medsger, B., Raines, B., &amp; Forsyth, K. (2014, January 8). "It was time to do more than protest" [Interview]. <i>Democracy Now!</i></div>
+    <div><i>Stern v. Richardson</i>, 367 F. Supp. 1316 (D.D.C. 1973).</div>
+    <div>U.S. Senate Select Committee to Study Governmental Operations with Respect to Intelligence Activities. (1976). <i>Final report, Book III: Supplementary detailed staff reports on intelligence activities and the rights of Americans</i>. U.S. Government Printing Office.</div>
+    <div>Stolen reports reveal FBI undercover activities. (1971, March 26). <i>The Harvard Crimson</i>.</div>
+  </div>
+</div>
+
+<div class="saved" id="toast">Saved</div>
+
+<script>
+(function(){
+  var KEY='hh-who-took-the-files-v1';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var state={};
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var toast=document.getElementById('toast');
+  var tTimer,sTimer;
+  function keyOf(el){return el.dataset.q||el.id;}
+  function readStore(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){return {};}}
+  function save(){
+    var data={};
+    fields.forEach(function(el){data[keyOf(el)]=el.value;});
+    var r=document.querySelector('input[name="prompt"]:checked');
+    data.__prompt=r?r.value:'';
+    data.__editor=state.editor||'';
+    data.__gpol=state.gpol; data.__gmob=state.gmob; data.__drawer=!!state.drawer;
+    data.__memo=!!state.memo;
+    try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){return;}
+    clearTimeout(tTimer);toast.classList.add('show');
+    tTimer=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sTimer);sTimer=setTimeout(save,600);}
+
+  /* ---------- MEMO ---------- */
+  var redact=document.getElementById('redact'),memohint=document.getElementById('memohint');
+  function openMemo(){
+    redact.classList.add('open');redact.setAttribute('aria-label','Declassified text');
+    redact.setAttribute('aria-disabled','true');redact.removeAttribute('tabindex');
+    memohint.textContent='Declassified';state.memo=true;
+  }
+  redact.addEventListener('click',function(){if(!state.memo){openMemo();queueSave();}});
+  redact.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&!state.memo){e.preventDefault();openMemo();queueSave();}});
+
+  /* ---------- DRAWER ---------- */
+  var CATS=[
+    {n:40,c:'#b3261e',l:'political surveillance'},
+    {n:30,c:'#8c8578',l:'manuals and routine forms'},
+    {n:15,c:'#27406b',l:'bank robbery, murder, rape and interstate theft'},
+    {n:14,c:'#6a7f55',l:'draft resistance and military desertion'},
+    {n:1,c:'#e8c35a',l:'organized crime'}
+  ];
+  var waffle=document.getElementById('waffle'),cells=[];
+  for(var i=0;i<100;i++){var c=document.createElement('i');waffle.appendChild(c);cells.push(c);}
+  var gPol=document.getElementById('g-pol'),gMob=document.getElementById('g-mob');
+  var gvPol=document.getElementById('gv-pol'),gvMob=document.getElementById('gv-mob');
+  var openBtn=document.getElementById('open-drawer'),verdict=document.getElementById('drawer-verdict');
+  function syncGuess(){
+    state.gpol=+gPol.value;state.gmob=+gMob.value;
+    gvPol.textContent=gPol.value;gvMob.textContent=gMob.value;
+  }
+  gPol.addEventListener('input',function(){syncGuess();queueSave();});
+  gMob.addEventListener('input',function(){syncGuess();queueSave();});
+  function fillDrawer(animate){
+    var colors=[];CATS.forEach(function(k){for(var j=0;j<k.n;j++)colors.push(k.c);});
+    cells.forEach(function(cell,idx){
+      var set=function(){cell.style.background=colors[idx];cell.style.borderTopColor='rgba(255,255,255,.18)';};
+      if(animate&&!reduce){setTimeout(set,idx*14);}else{set();}
+    });
+    document.getElementById('legend').hidden=false;
+    var pb=document.getElementById('polbars');pb.hidden=false;
+    setTimeout(function(){[].forEach.call(pb.querySelectorAll('.fill'),function(f){f.style.width=f.dataset.w+'%';});},animate&&!reduce?300:0);
+    var dp=state.gpol-40,dm=state.gmob-1;
+    var s='You guessed <b>'+state.gpol+'</b> political files. The drawer held <b>40</b>. ';
+    s+='You guessed <b>'+state.gmob+'</b> organized crime files. The drawer held <b>1</b>.';
+    if(dp<0&&dm>0)s+=' Like most people, you pictured an office chasing gangsters. It was mostly watching activists.';
+    verdict.innerHTML=s;
+    openBtn.textContent='Drawer open';openBtn.disabled=true;
+    gPol.disabled=true;gMob.disabled=true;
+    state.drawer=true;
+  }
+  openBtn.addEventListener('click',function(){fillDrawer(true);queueSave();});
+
+  /* ---------- EDITOR ---------- */
+  var choiceBtns=[].slice.call(document.querySelectorAll('.choice'));
+  var LAB={print:'Print it',return:'Hand it over',hold:'Hold it'};
+  var RESP={
+    print:'You printed it. The Washington Post made the same call and ran the story first.',
+    return:'You handed it over. Three of the five recipients made the same call, including both members of Congress.',
+    hold:'You held it. Nobody chose that exactly, but the New York Times split the difference: it gave the FBI the documents and kept copies.'
+  };
+  function setEditor(c){
+    state.editor=c;
+    choiceBtns.forEach(function(b){var on=b.dataset.c===c;b.classList.toggle('sel',on);b.setAttribute('aria-pressed',on?'true':'false');});
+    document.getElementById('youpicked').textContent=RESP[c]+' Here is what all five did.';
+    document.getElementById('outcomes').hidden=false;
+  }
+  choiceBtns.forEach(function(b){b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){setEditor(b.dataset.c);queueSave();});});
+
+  /* ---------- CLOCK ---------- */
+  function d(s){var p=s.split('-');return Date.UTC(+p[0],+p[1]-1,+p[2]);}
+  var DAY=864e5,T0=d('1971-03-08'),TB=d('1977-01-01'),T1=d('2024-06-30'),LIM=d('1976-03-08');
+  var SPLIT=600,MAXV=1000;
+  function toTime(v){return v<=SPLIT?T0+(TB-T0)*(v/SPLIT):TB+(T1-TB)*((v-SPLIT)/(MAXV-SPLIT));}
+  function toVal(t){return t<=TB?SPLIT*(t-T0)/(TB-T0):SPLIT+(MAXV-SPLIT)*(t-TB)/(T1-TB);}
+  var EV=[
+    ['1971-03-08','March 8, 1971','Eight burglars empty the FBI office in Media while Ali and Frazier fight in New York.',0],
+    ['1971-03-24','March 24, 1971','The Washington Post prints the first story from the stolen files.',0],
+    ['1971-04-28','April 28, 1971','The FBI formally ends every program running under the name COINTELPRO.',0],
+    ['1972-05-02','May 2, 1972','J. Edgar Hoover dies at 77. He never learned who robbed his office.',0],
+    ['1972-06-17','June 17, 1972','Five men are arrested inside the Watergate. A different set of burglars, caught on the first night.',0],
+    ['1973-12-06','December 6, 1973','Carl Stern wins his lawsuit. The FBI hands over the COINTELPRO files and NBC reports what the word means.',0],
+    ['1975-01-27','January 27, 1975','The Senate creates the Church Committee to investigate the intelligence agencies.',0],
+    ['1976-03-08','March 8, 1976','Five years to the day. The statute of limitations runs out. The burglars can never be charged.',0],
+    ['1976-03-11','March 11, 1976','The FBI closes MEDBURG. Nobody was ever charged.',0],
+    ['1976-04-29','April 29, 1976','The Church Committee releases its report: 2,370 approved COINTELPRO actions.',0],
+    ['2013-11-08','November 8, 2013','William Davidon, who planned the burglary, dies at 86. His name is still secret.',0],
+    ['2014-01-07','January 7, 2014','Betty Medsger publishes The Burglary. Five of the eight are named, 43 years later.',5],
+    ['2014-05-01','2014','Judi Feingold comes forward after 43 years of silence.',6],
+    ['2021-03-07','March 7, 2021','Ralph Daniel tells his story on the eve of the 50th anniversary.',7],
+    ['2024-06-01','June 2024','Sara Shumer, a Haverford professor in 1971, reveals her role on a podcast. All eight are now known.',8]
+  ];
+  EV.forEach(function(e){e.t=d(e[0]);});
+  var PEOPLE=[
+    ['William Davidon','Planned it · died 2013'],
+    ['Keith Forsyth','The lock picker'],
+    ['John Raines','Questioned by the FBI'],
+    ['Bonnie Raines','Cased the office'],
+    ['Bob Williamson','Questioned by the FBI'],
+    ['Judi Feingold','Came forward 2014'],
+    ['Ralph Daniel','Pulled the files'],
+    ['Sara Shumer','Questioned by the FBI']
+  ];
+  var namesEl=document.getElementById('names'),nmEls=[];
+  PEOPLE.forEach(function(p){var el=document.createElement('div');el.className='nm';el.innerHTML='<b>Unknown</b><small>Burglar</small>';namesEl.appendChild(el);nmEls.push(el);});
+  var ck=document.getElementById('ck');ck.max=MAXV;
+  var ticks=document.getElementById('ticks');
+  EV.forEach(function(e){var t=document.createElement('i');t.style.left=(toVal(e.t)/MAXV*100)+'%';if(e[3]||e[0]==='1976-03-08')t.className='big';ticks.appendChild(t);});
+  var yrs=document.querySelector('.yrs');
+  yrs.style.position='relative';yrs.style.height='14px';yrs.innerHTML='';
+  [['1971',T0],['1974',d('1974-01-01')],['1977',TB],['2000',d('2000-01-01')],['2024',T1]].forEach(function(y,idx,arr){
+    var s=document.createElement('span');s.textContent=y[0];s.style.position='absolute';
+    var pct=toVal(y[1])/MAXV*100;s.style.left=pct+'%';
+    s.style.transform=idx===0?'none':(idx===arr.length-1?'translateX(-100%)':'translateX(-50%)');
+    yrs.appendChild(s);
+  });
+  var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function fmt(t){var x=new Date(t);return MONTHS[x.getUTCMonth()]+' '+x.getUTCDate()+', '+x.getUTCFullYear();}
+  function renderClock(){
+    var v=+ck.value,t=toTime(v);
+    var last=null,prev=null;
+    EV.forEach(function(e){if(e.t<=t+DAY/2){prev=last;last=e;}});
+    if(v>=MAXV){last=EV[EV.length-1];prev=EV[EV.length-2];}
+    var shown=last?Math.max(t,last.t):t;
+    document.getElementById('ck-date').textContent=(last&&Math.abs(t-last.t)<DAY*3)?last[1]:fmt(shown);
+    var left=Math.round((LIM-t)/DAY);
+    var wrap=document.getElementById('ck-limit-wrap');
+    if(left>0){document.getElementById('ck-limit').textContent=left.toLocaleString('en-US');document.getElementById('ck-limit-lab').textContent='Days until they are safe';wrap.classList.remove('expired');}
+    else{document.getElementById('ck-limit').textContent='Expired';document.getElementById('ck-limit-lab').textContent='They can never be charged';wrap.classList.add('expired');}
+    var n=0;EV.forEach(function(e){if(e.t<=t+DAY/2&&e[3]>n)n=e[3];});
+    if(v>=MAXV)n=8;
+    document.getElementById('ck-names').textContent=n+' of 8';
+    nmEls.forEach(function(el,idx){
+      var on=idx<n;el.classList.toggle('on',on);
+      el.innerHTML=on?'<b>'+PEOPLE[idx][0]+'</b><small>'+PEOPLE[idx][1]+'</small>':'<b>Unknown</b><small>Burglar</small>';
+    });
+    document.getElementById('ev-d').textContent=last?last[1]:'';
+    document.getElementById('ev-t').textContent=last?last[2]:'';
+    document.getElementById('ev-prev').textContent=prev?('Before that · '+prev[1]+': '+prev[2]):'';
+    ck.setAttribute('aria-valuetext',fmt(shown));
+  }
+  ck.addEventListener('input',function(){stopPlay();renderClock();});
+  var playTimer=null,playBtn=document.getElementById('ck-play');
+  function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null;playBtn.textContent='Play';}}
+  playBtn.addEventListener('click',function(){
+    if(playTimer){stopPlay();return;}
+    if(+ck.value>=MAXV)ck.value=0;
+    if(reduce){ck.value=MAXV;renderClock();return;}
+    playBtn.textContent='Pause';
+    playTimer=setInterval(function(){
+      var v=+ck.value+4;if(v>=MAXV){v=MAXV;}
+      ck.value=v;renderClock();if(v>=MAXV)stopPlay();
+    },40);
+  });
+  document.getElementById('ck-reset').addEventListener('click',function(){stopPlay();ck.value=0;renderClock();});
+  renderClock();
+
+  /* ---------- ESSAY ---------- */
+  var essay=document.getElementById('essay'),wc=document.getElementById('wc');
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.classList.toggle('ok',n>=200);}
+  essay.addEventListener('input',count);
+
+  /* ---------- LOAD ---------- */
+  var data=readStore();
+  fields.forEach(function(el){var v=data[keyOf(el)];if(typeof v==='string')el.value=v;});
+  if(data.__prompt){var r=document.querySelector('input[name="prompt"][value="'+data.__prompt+'"]');if(r)r.checked=true;}
+  if(typeof data.__gpol==='number'){gPol.value=data.__gpol;}
+  if(typeof data.__gmob==='number'){gMob.value=data.__gmob;}
+  syncGuess();
+  if(data.__drawer)fillDrawer(false);
+  if(data.__memo)openMemo();
+  if(data.__editor&&RESP[data.__editor])setEditor(data.__editor);
+  count();
+  fields.forEach(function(el){el.addEventListener('input',queueSave);});
+  [].forEach.call(document.querySelectorAll('input[name="prompt"]'),function(r){r.addEventListener('change',queueSave);});
+
+  /* ---------- COPY ---------- */
+  document.getElementById('copy').addEventListener('click',function(){
+    var btn=this;
+    var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+    var q=function(k){var el=document.querySelector('[data-q="'+k+'"]');return (el&&el.value.trim())||'[no answer]';};
+    var out=[];
+    out.push('WHO TOOK THE FILES: The 1971 Burglary That Exposed the FBI');
+    out.push('Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'));
+    out.push('');
+    out.push('SOURCE ANALYSIS');
+    ['A1','A2','B1','B2','C1','C2','D1','D2','E1','E2','F1','F2','G1','G2','H1','H2'].forEach(function(k){out.push(k+'. '+q(k));out.push('');});
+    out.push('Drawer guess: '+state.gpol+' political, '+state.gmob+' organized crime (actual: 40 and 1)');
+    out.push('My call at 10 PM: '+(state.editor?LAB[state.editor]:'[no choice made]'));
+    out.push('');
+    out.push('THE LEDGER');
+    out.push('The case against the burglars:');
+    [1,2,3,4].forEach(function(i){var el=document.querySelector('[data-q="AGAINST'+i+'"]');out.push('  '+i+'. '+((el&&el.value.trim())||'[blank]'));});
+    out.push('What their files proved:');
+    [1,2,3,4].forEach(function(i){var el=document.querySelector('[data-q="PROVED'+i+'"]');out.push('  '+i+'. '+((el&&el.value.trim())||'[blank]'));});
+    out.push('');
+    var r=document.querySelector('input[name="prompt"]:checked');
+    out.push('TAKE A SIDE: '+(r?r.value.toUpperCase():'NO PROMPT SELECTED'));
+    out.push('Word count: '+wc.textContent);
+    out.push('');
+    out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    var done=function(ok){
+      btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';
+      btn.classList.toggle('done',ok);
+      setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);
+    };
+    function fallback(){
+      var ta=document.createElement('textarea');ta.value=text;
+      ta.style.position='fixed';ta.style.top='0';ta.style.left='0';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.focus();ta.select();
+      var ok=false;try{ok=document.execCommand('copy');}catch(e){ok=false;}
+      document.body.removeChild(ta);done(ok);
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else{fallback();}
+  });
+})();
+</script>
+</body>
+</html>
