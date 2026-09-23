@@ -2176,6 +2176,216 @@ test('roster sync recovers a PIN-card append failure before reporting the batch 
   assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
 });
 
+test('pre-write STARTED recovery requires explicit teacher review and then resumes the exact approved addition', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = { email: 'prewrite.retry@students.mtmorrisschools.org', name: 'Student, Prewrite Retry', period: 'Period 4' };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-prewrite-recovery-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+  const roster = c.harness.sheet('Roster'), originalAppendRow = roster.appendRow.bind(roster);
+  let injected = true, appendAttempts = 0;
+  roster.appendRow = function appendRowWithOneFailure(values) {
+    if (String(values && values[0] || '') === target.email) {
+      appendAttempts += 1;
+      if (injected) { injected = false; throw new Error('synthetic pre-write roster append failure'); }
+    }
+    return originalAppendRow(values);
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic pre-write roster append failure/
+  );
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  const pending = JSON.parse(c.harness.properties.getProperty(requestKey));
+  assert.equal(pending.status, 'PENDING');
+  assert.equal(pending.plan.addActions[0].stage, 'STARTED');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'the injected failure must happen before the membership row exists');
+
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.ok, false);
+  assert.equal(review.status, 'RECOVERY_REVIEW_REQUIRED');
+  assert.equal(review.reviewCounts.additions, 1);
+  assert.match(String(review.recoveryToken), /^[A-Za-z0-9_-]{20,80}$/);
+  assert.equal(appendAttempts, 1, 'ordinary retry must not guess by replaying an ambiguous STARTED write');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0);
+
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES',
+    token: review.recoveryToken,
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.counts.added, 1);
+  assert.equal(result.counts.verifiedCredentialMemberships, 1);
+  assert.equal(appendAttempts, 2);
+  assert.equal(c.rosterRows().filter((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  ).length, 1);
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE');
+  c.harness.newRequest();
+  const replay = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.deepEqual(replay, result);
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 1);
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period).length, 1);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED').length, 1);
+});
+
+test('pre-write STARTED reactivation resumes only after review without duplicating the retained membership', () => {
+  const returning = { email: 'prewrite.reactivate@students.mtmorrisschools.org', name: 'Student, Returning' };
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [returning, 'Period 4', { active: false }]] });
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = { confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-prewrite-reactivate-001',
+    baseRevision: snapshot.revision, add: [{ studentEmail: returning.email, studentName: returning.name, classPeriod: 'Period 4' }], updateName: [] };
+  const roster = c.harness.sheet('Roster'), originalGetRange = roster.getRange.bind(roster);
+  const retainedRow = c.rosterRows().findIndex((row) => String(row['Student Email']) === returning.email) + 2;
+  let injected = true;
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && row === retainedRow && column === 1 && rest[0] === 1 && rest[1] === 7) {
+      injected = false;
+      throw new Error('synthetic pre-write reactivation failure');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic pre-write/);
+  roster.getRange = originalGetRange;
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.addActions[0].stage, 'STARTED');
+  assert.equal(String(c.rosterRows().find((row) => String(row['Student Email']) === returning.email).Active).toLowerCase(), 'false');
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.reviewCounts.reactivations, 1);
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token: review.recoveryToken,
+  });
+  assert.equal(result.counts.reactivated, 1);
+  c.harness.newRequest();
+  assert.deepEqual(c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), result);
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === returning.email && String(row['Class / Period']) === 'Period 4').length, 1);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_REACTIVATED').length, 1);
+});
+
+test('pre-write STARTED name correction requires review and does not repeat its audit action', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = { confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-prewrite-name-001',
+    baseRevision: snapshot.revision, add: [], updateName: [{ studentEmail: PEOPLE.ada.email,
+      studentName: 'Byron, Ada Corrected', beforeName: PEOPLE.ada.name, classPeriod: 'Period 1' }] };
+  const roster = c.harness.sheet('Roster'), originalGetRange = roster.getRange.bind(roster);
+  let injected = true;
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && row > 1 && column === 2 && rest.length === 0) {
+      injected = false;
+      throw new Error('synthetic pre-write name failure');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic pre-write/);
+  roster.getRange = originalGetRange;
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.nameActions[0].stage, 'STARTED');
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.reviewCounts.nameUpdates, 1);
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token: review.recoveryToken,
+  });
+  assert.equal(result.counts.nameRowsUpdated, 1);
+  c.harness.newRequest();
+  assert.deepEqual(c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), result);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_NAME_UPDATED').length, 1);
+});
+
+test('STARTED addition already written resumes without a second append or review', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = { email: 'postwrite.started@students.mtmorrisschools.org', name: 'Student, Postwrite', period: 'Period 4' };
+  const request = { confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-started-postwrite-001',
+    baseRevision: snapshot.revision, add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }], updateName: [] };
+  const roster = c.harness.sheet('Roster'), originalGetRange = roster.getRange.bind(roster), originalAppend = roster.appendRow.bind(roster);
+  let injected = true, appends = 0;
+  roster.appendRow = function (values) {
+    if (String(values[0]) === target.email) appends += 1;
+    return originalAppend(values);
+  };
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && row === roster.getLastRow() && column === 6 && c.rosterRows().some((entry) => String(entry['Student Email']) === target.email)) {
+      injected = false;
+      throw new Error('synthetic interruption after membership append');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic interruption/);
+  roster.getRange = originalGetRange;
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.addActions[0].stage, 'STARTED');
+  assert.equal(appends, 1);
+  c.harness.newRequest();
+  const result = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(result.ok, true);
+  assert.equal(appends, 1, 'recovery must not append the already-applied membership again');
+  assert.equal(c.pinCards().filter((row) => String(row['Student Email']) === target.email).length, 1);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter((row) => String(row['Reference ID']) === request.requestId && String(row.Action) === 'GOCLASSROOM_ROSTER_MEMBERSHIP_ADDED').length, 1);
+});
+
+test('reviewed pre-write recovery refuses to overwrite a later teacher membership change', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = { email: 'prewrite.conflict@students.mtmorrisschools.org', name: 'Student, Intended', period: 'Period 5' };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-prewrite-conflict-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+  const roster = c.harness.sheet('Roster'), originalAppendRow = roster.appendRow.bind(roster);
+  let injected = true;
+  roster.appendRow = function appendRowWithOneFailure(values) {
+    if (injected && String(values && values[0] || '') === target.email) {
+      injected = false;
+      throw new Error('synthetic pre-write roster append failure');
+    }
+    return originalAppendRow(values);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic pre-write/);
+  roster.appendRow = originalAppendRow;
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.status, 'RECOVERY_REVIEW_REQUIRED');
+
+  roster.appendRow([target.email, 'Student, Later Teacher Edit', target.period, '', true, false, 'STANDARD']);
+  c.harness.newRequest();
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+      confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES',
+      token: review.recoveryToken,
+    }),
+    /preserve the newer teacher decision/i
+  );
+  const row = c.rosterRows().find((entry) => String(entry['Student Email']) === target.email && String(entry['Class / Period']) === target.period);
+  assert.equal(String(row['Student Name']), 'Student, Later Teacher Edit');
+});
+
 test('hash-only PIN state is not rotated when missing-card creation is disabled', () => {
   const c = classroom();
   const email = 'hash.only@students.mtmorrisschools.org';
@@ -2481,6 +2691,48 @@ test('pending recovery never reactivates a membership after a later teacher deac
     String(entry['Student Email']) === returning.email && String(entry['Class / Period']) === 'Period 3'
   );
   assert.equal(String(row.Active).toLowerCase(), 'false', 'retry must not undo the later teacher deactivation');
+});
+
+test('a STARTED reactivation cannot reverse a later teacher deactivation even with a stale recovery approval', () => {
+  const returning = { email: 'started.later.edit@students.mtmorrisschools.org', name: 'Student, Returning' };
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [returning, 'Period 3', { active: false }]] });
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES', requestId: 'sync-started-later-edit-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: returning.email, studentName: returning.name, classPeriod: 'Period 3' }],
+    updateName: [],
+  };
+  const roster = c.harness.sheet('Roster');
+  const originalGetRange = roster.getRange.bind(roster);
+  let injected = true;
+  roster.getRange = function (row, column, ...rest) {
+    if (injected && column === 6 && row > 1) {
+      injected = false;
+      throw new Error('synthetic interruption after reactivation write');
+    }
+    return originalGetRange(row, column, ...rest);
+  };
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'), /synthetic interruption/);
+  roster.getRange = originalGetRange;
+  const key = c.key(returning, 'Period 3');
+  const state = JSON.parse(c.harness.properties.getProperty(c.harness.call('rosterSyncRequestKey_', request.requestId)));
+  assert.equal(state.plan.addActions[0].stage, 'STARTED');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  c.harness.call('teacherRemoveStudentClass', key, TEACHER_CONTRACT);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /preserve the newer teacher decision/i);
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(() => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', {
+    confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token: 'RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR',
+  }), /preserve the newer teacher decision/i);
+  assert.equal(String(c.rosterRows().find((r) => String(r['Student Email']) === returning.email).Active).toLowerCase(), 'false');
 });
 
 section('Backend repair guardrails');

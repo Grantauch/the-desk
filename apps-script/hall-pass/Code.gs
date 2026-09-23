@@ -2492,6 +2492,100 @@ function rosterSyncNoEffectsRejection_(normalizedRequest, code, message) {
   };
 }
 
+function normalizeRosterSyncRecoveryDecision_(value) {
+  if (!value) return null;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('The GoClassroom roster recovery decision is invalid. Stop and review this pending batch.');
+  }
+  if (String(value.confirmation || '') !== 'REAPPLY REVIEWED PREWRITE CHANGES') {
+    throw new Error('The GoClassroom roster recovery decision is missing explicit teacher confirmation. Nothing uncertain was written.');
+  }
+  const token = String(value.token || '').trim();
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(token)) {
+    throw new Error('The GoClassroom roster recovery review token is invalid. Review the pending batch again.');
+  }
+  return { confirmation: 'REAPPLY REVIEWED PREWRITE CHANGES', token };
+}
+
+function rosterSyncPrewriteRecoveryReview_(normalizedRequest, plan, rows, pendingAt) {
+  const allRows = Array.isArray(rows) ? rows : readRosterRows_();
+  const byKey = new Map(allRows.map((student) => [student.key, student]));
+  const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
+  const nameActionByKey = new Map((plan.nameActions || []).map((entry) => [String(entry.key || ''), entry]));
+  const items = [];
+  const started = [...(plan.addActions || []), ...(plan.nameActions || [])]
+    .some((entry) => entry.stage === 'STARTED');
+  if (started) {
+    const since = new Date(pendingAt).getTime();
+    if (!Number.isFinite(since)) throw new Error('The saved roster recovery time is invalid. Stop and review this transaction.');
+    const emails = new Set([...normalizedRequest.add, ...normalizedRequest.updateName].map((entry) => entry.email));
+    const audit = getSpreadsheet_().getSheetByName(GD_SHEETS.TEACHER_AUDIT);
+    if (audit.getLastRow() > 1) {
+      const actions = audit.getRange(2, 1, audit.getLastRow() - 1, GD_HEADERS.TEACHER_AUDIT.length).getValues();
+      if (actions.some((row) => {
+        if (!emails.has(normalizeEmail_(row[3])) || !String(row[6] || '').startsWith('ROSTER_MEMBERSHIP_')) return false;
+        const at = new Date(row[1]).getTime();
+        return !Number.isFinite(at) || at >= since;
+      })) {
+        throw new Error('A teacher changed this student\'s roster after the approved batch started. Recovery stopped to preserve the newer teacher decision.');
+      }
+    }
+  }
+
+  for (const input of normalizedRequest.updateName) {
+    const progress = nameActionByKey.get(input.key);
+    if (!progress || progress.stage !== 'STARTED') continue;
+    const current = byKey.get(input.key) || null;
+    if (current && current.active && current.name === input.name) continue;
+    if (current && current.active && current.name === input.beforeName) {
+      items.push({ kind: 'name', key: input.key, state: 'BEFORE_NAME' });
+      continue;
+    }
+    throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+  }
+
+  for (const input of normalizedRequest.add) {
+    const progress = addActionByKey.get(input.key);
+    if (!progress || progress.stage !== 'STARTED') continue;
+    const current = byKey.get(input.key) || null;
+    if (current && current.active && current.name === input.name) continue;
+    if (progress.action === 'added' && !current) {
+      items.push({ kind: 'membership', key: input.key, action: 'added', state: 'ABSENT' });
+      continue;
+    }
+    if (progress.action === 'reactivated' && current && !current.active && current.name === progress.beforeName) {
+      items.push({ kind: 'membership', key: input.key, action: 'reactivated', state: 'INACTIVE_BEFORE' });
+      continue;
+    }
+    throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+  }
+
+  if (!items.length) return null;
+  const counts = {
+    additions: items.filter((item) => item.kind === 'membership' && item.action === 'added').length,
+    reactivations: items.filter((item) => item.kind === 'membership' && item.action === 'reactivated').length,
+    nameUpdates: items.filter((item) => item.kind === 'name').length,
+  };
+  return {
+    token: rosterSyncPayloadDigest_({ requestId: normalizedRequest.requestId, items }),
+    items,
+    counts,
+  };
+}
+
+function rosterSyncRecoveryReviewResult_(normalizedRequest, review) {
+  return {
+    ok: false,
+    schemaVersion: 1,
+    status: 'RECOVERY_REVIEW_REQUIRED',
+    requestId: String(normalizedRequest.requestId || ''),
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    recoveryToken: String(review && review.token || ''),
+    reviewCounts: { ...(review && review.counts || {}) },
+    message: 'The earlier roster attempt stopped at an uncertain write boundary. Review the exact pending changes before authorizing them again.',
+  };
+}
+
 function pruneRosterSyncRequests_(reserveSlots) {
   const properties = PropertiesService.getScriptProperties();
   const all = properties.getProperties();
@@ -2656,7 +2750,7 @@ function getRosterSyncSnapshot(bridgeContract) {
   };
 }
 
-function applyRosterSyncChanges(request, writeContract) {
+function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, settings);
@@ -2665,6 +2759,7 @@ function applyRosterSyncChanges(request, writeContract) {
   }
 
   const normalized = normalizeRosterSyncWriteRequest_(request, settings);
+  const recovery = normalizeRosterSyncRecoveryDecision_(recoveryDecision);
   const replay = rosterSyncRequestReplay_(normalized);
   if (replay) return replay;
 
@@ -2755,6 +2850,15 @@ function applyRosterSyncChanges(request, writeContract) {
 
     const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
     const nameActionByKey = new Map((plan.nameActions || []).map((entry) => [String(entry.key || ''), entry]));
+    const recoveryReview = rosterSyncPrewriteRecoveryReview_(normalized, plan, readRosterRows_(), requestState.at);
+    const recoveryApproved = Boolean(recoveryReview && recovery && recovery.token === recoveryReview.token);
+    if (recoveryReview && !recoveryApproved) {
+      result = rosterSyncRecoveryReviewResult_(normalized, recoveryReview);
+      return;
+    }
+    const recoveryApprovedKeys = new Set(recoveryApproved
+      ? recoveryReview.items.map((item) => `${item.kind}:${item.key}`)
+      : []);
     const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
     const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
 
@@ -2772,9 +2876,14 @@ function applyRosterSyncChanges(request, writeContract) {
         continue;
       }
 
+      let writeName = false;
       if (progress.stage === 'STARTED') {
-        if (!current || !current.active || current.name !== input.name) {
-          throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped for teacher review.`);
+        if (current && current.active && current.name === input.name) {
+          // The earlier write is already provable; continue recovery without rewriting it.
+        } else if (recoveryApprovedKeys.has(`name:${input.key}`) && current && current.active && current.name === input.beforeName) {
+          writeName = true;
+        } else {
+          throw new Error(`GoClassroom cannot prove whether the earlier name update for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
         }
       } else {
         if (!current || !current.active || current.name !== input.beforeName) {
@@ -2782,6 +2891,9 @@ function applyRosterSyncChanges(request, writeContract) {
         }
         progress.stage = 'STARTED';
         updateRosterSyncPendingPlan_(normalized, plan);
+        writeName = true;
+      }
+      if (writeName) {
         rosterSheet.getRange(current.row, 2).setValue(input.name);
         gdForget_('roster');
         current = readRosterRows_().find((student) => student.key === input.key) || null;
@@ -2817,9 +2929,20 @@ function applyRosterSyncChanges(request, writeContract) {
         continue;
       }
 
+      let writeMembership = false;
       if (progress.stage === 'STARTED') {
-        if (!sameMembership || !sameMembership.active || sameMembership.name !== input.name) {
-          throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped for teacher review.`);
+        if (sameMembership && sameMembership.active && sameMembership.name === input.name) {
+          // The earlier write is already provable; continue recovery without rewriting it.
+        } else if (recoveryApprovedKeys.has(`membership:${input.key}`)) {
+          const exactPrewriteState = progress.action === 'added'
+            ? !sameMembership
+            : Boolean(sameMembership && !sameMembership.active && sameMembership.name === progress.beforeName);
+          if (!exactPrewriteState) {
+            throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
+          }
+          writeMembership = true;
+        } else {
+          throw new Error(`GoClassroom cannot prove whether the earlier membership change for ${input.email} completed before a later edit. Recovery stopped to preserve the newer teacher decision.`);
         }
       } else {
         if (progress.action === 'added') {
@@ -2834,7 +2957,10 @@ function applyRosterSyncChanges(request, writeContract) {
 
         progress.stage = 'STARTED';
         updateRosterSyncPendingPlan_(normalized, plan);
+        writeMembership = true;
+      }
 
+      if (writeMembership) {
         const accessMode = getStudentPassAccess_(input.email);
         const unlimited = accessMode === 'UNLIMITED';
         const existingPinHash = (sameStudentRows.find((student) => student.pinHash) || {}).pinHash || '';
