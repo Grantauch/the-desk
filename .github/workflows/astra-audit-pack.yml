@@ -1,0 +1,38 @@
+name: Astra Hall Pass audit pack
+on:
+  push:
+    branches:
+      - audit/astra-hallpass-pack-20260923
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out exact deployed Hall Pass source
+        uses: actions/checkout@v4
+        with:
+          ref: 6dd1e52ff0f1e0e2ebc662729bea8c2abfe92de1
+      - name: Build focused Hall Pass audit archive
+        shell: bash
+        run: |
+          mkdir -p astra-pack/HallPass/apps-script/hall-pass astra-pack/HallPass/scripts astra-pack/HallPass/.github/workflows
+          cp apps-script/hall-pass/Code.gs astra-pack/HallPass/apps-script/hall-pass/Code.gs
+          cp scripts/test-hall-pass-runtime.cjs astra-pack/HallPass/scripts/test-hall-pass-runtime.cjs
+          cp scripts/test-hall-pass-app.cjs astra-pack/HallPass/scripts/test-hall-pass-app.cjs
+          cp .github/workflows/deploy-hall-pass-apps-script.yml astra-pack/HallPass/.github/workflows/deploy-hall-pass-apps-script.yml
+          cp .github/workflows/site-check.yml astra-pack/HallPass/.github/workflows/site-check.yml
+          cp package.json astra-pack/HallPass/package.json
+          cp package-lock.json astra-pack/HallPass/package-lock.json
+          printf '%s\n' \
+            'Repository: Grantauch/the-desk' \
+            'Deployed main commit: 6dd1e52ff0f1e0e2ebc662729bea8c2abfe92de1' \
+            'Hall Pass production Apps Script deployment completed successfully from this commit.' \
+            > astra-pack/HallPass/ASTRA_SOURCE_IDENTITY.txt
+      - name: Upload source pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: Astra-HallPass-deployed-source
+          path: astra-pack
+          if-no-files-found: error
+          retention-days: 7
