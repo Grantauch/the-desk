@@ -2191,6 +2191,160 @@ test('hash-only PIN state is not rotated when missing-card creation is disabled'
   assert.equal(result.createdCards, 0);
 });
 
+test('roster sync pre-write STARTED failure requires reviewed release before a fresh comparison', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = {
+    email: 'prewrite.retry@students.mtmorrisschools.org',
+    name: 'Student, Prewrite Retry',
+    period: 'Period 3',
+  };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-prewrite-recovery-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1', { confirmation: 'RELEASE PENDING ROSTER BATCH' }),
+    /no longer available for reviewed release/i,
+    'A release must not be accepted before the server has a pending ambiguous transaction.'
+  );
+
+  const rosterSheet = c.harness.sheet('Roster');
+  const originalAppendRow = rosterSheet.appendRow.bind(rosterSheet);
+  let injected = true;
+  rosterSheet.appendRow = function appendRowWithOneFailure(values) {
+    if (injected && String(values && values[0] || '') === target.email) {
+      injected = false;
+      throw new Error('synthetic roster append failure');
+    }
+    return originalAppendRow(values);
+  };
+
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic roster append failure/
+  );
+  const requestKey = c.harness.call('rosterSyncRequestKey_', request.requestId);
+  const pending = JSON.parse(c.harness.properties.getProperty(requestKey));
+  assert.equal(pending.status, 'PENDING');
+  assert.equal(pending.plan.addActions[0].stage, 'STARTED',
+    'The injected failure must reproduce the audit STARTED-before-append state.');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'The first attempt must fail before the membership append reaches the workbook.');
+
+  rosterSheet.appendRow = originalAppendRow;
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.ok, false);
+  assert.equal(review.status, 'RECOVERY_REVIEW_REQUIRED');
+  assert.equal(review.code, 'ROSTER_STARTED_STATE_AMBIGUOUS');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'The ordinary retry must not guess that the old append never happened.');
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'PENDING',
+    'Teacher review must be required while the exact transaction stays protected.');
+
+  c.harness.newRequest();
+  const released = c.harness.call(
+    'applyRosterSyncChanges',
+    request,
+    '2026-09-22-roster-write-v1',
+    { confirmation: 'RELEASE PENDING ROSTER BATCH' }
+  );
+  assert.equal(released.ok, false);
+  assert.equal(released.status, 'RECOVERY_RELEASED_FOR_RECOMPARE');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'Reviewed release must make no additional roster change.');
+  assert.equal(JSON.parse(c.harness.properties.getProperty(requestKey)).status, 'DONE',
+    'The old request ID must be terminal after reviewed release so it cannot trap future comparisons.');
+
+  c.harness.newRequest();
+  const replayedRelease = c.harness.call(
+    'applyRosterSyncChanges',
+    request,
+    '2026-09-22-roster-write-v1',
+    { confirmation: 'RELEASE PENDING ROSTER BATCH' }
+  );
+  assert.equal(replayedRelease.status, 'RECOVERY_RELEASED_FOR_RECOMPARE',
+    'A reviewed release must replay idempotently if local cleanup failed after the server committed it.');
+  assert.equal(c.rosterRows().filter((row) => String(row['Student Email']) === target.email).length, 0,
+    'Replaying a reviewed release must still make zero additional roster changes.');
+
+  c.harness.newRequest();
+  const fresh = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const freshRequest = {
+    ...request,
+    requestId: 'sync-prewrite-recovery-002',
+    baseRevision: fresh.revision,
+  };
+  const applied = c.harness.call('applyRosterSyncChanges', freshRequest, '2026-09-22-roster-write-v1');
+  assert.equal(applied.ok, true);
+  assert.equal(applied.counts.verifiedCredentialMemberships, 1);
+  assert.equal(c.rosterRows().filter((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period && row.Active === true
+  ).length, 1, 'A fresh teacher-reviewed comparison must be able to apply the addition normally.');
+});
+
+test('reviewed recovery release preserves a later conflicting teacher roster edit', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const snapshot = c.harness.call('getRosterSyncSnapshot', '2026-09-22-roster-sync-v1');
+  const target = {
+    email: 'teacher.edit@students.mtmorrisschools.org',
+    name: 'Student, Original',
+    period: 'Period 4',
+  };
+  const request = {
+    confirmation: 'APPLY SAFE ROSTER CHANGES',
+    requestId: 'sync-prewrite-teacher-edit-001',
+    baseRevision: snapshot.revision,
+    add: [{ studentEmail: target.email, studentName: target.name, classPeriod: target.period }],
+    updateName: [],
+  };
+  const rosterSheet = c.harness.sheet('Roster');
+  const originalAppendRow = rosterSheet.appendRow.bind(rosterSheet);
+  let injected = true;
+  rosterSheet.appendRow = function appendRowWithOneFailure(values) {
+    if (injected && String(values && values[0] || '') === target.email) {
+      injected = false;
+      throw new Error('synthetic roster append failure');
+    }
+    return originalAppendRow(values);
+  };
+  assert.throws(
+    () => c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1'),
+    /synthetic roster append failure/
+  );
+  rosterSheet.appendRow = originalAppendRow;
+
+  rosterSheet.appendRow([target.email, 'Teacher, Later Edit', target.period, '', false, false, 'STANDARD']);
+  c.harness.newRequest();
+  const review = c.harness.call('applyRosterSyncChanges', request, '2026-09-22-roster-write-v1');
+  assert.equal(review.status, 'RECOVERY_REVIEW_REQUIRED');
+
+  c.harness.newRequest();
+  const released = c.harness.call(
+    'applyRosterSyncChanges',
+    request,
+    '2026-09-22-roster-write-v1',
+    { confirmation: 'RELEASE PENDING ROSTER BATCH' }
+  );
+  assert.equal(released.status, 'RECOVERY_RELEASED_FOR_RECOMPARE');
+  const preserved = c.rosterRows().find((row) =>
+    String(row['Student Email']) === target.email && String(row['Class / Period']) === target.period
+  );
+  assert.ok(preserved);
+  assert.equal(String(preserved['Student Name']), 'Teacher, Later Edit');
+  assert.equal(preserved.Active, false,
+    'Reviewed release must preserve the later teacher decision instead of reactivating or renaming it.');
+});
+
 test('roster sync name correction changes only the explicitly approved class membership', () => {
   const c = classroom({
     memberships: [

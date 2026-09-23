@@ -17,6 +17,7 @@ const GD_TEACHER_CONTRACT = '2026-09-22-all-teacher-rpcs';
 const GD_ROSTER_SYNC_CONTRACT = '2026-09-22-roster-sync-v1';
 const GD_ROSTER_SYNC_WRITE_CONTRACT = '2026-09-22-roster-write-v1';
 const GD_ROSTER_SYNC_CONFIRMATION = 'APPLY SAFE ROSTER CHANGES';
+const GD_ROSTER_SYNC_RECOVERY_RELEASE_CONFIRMATION = 'RELEASE PENDING ROSTER BATCH';
 const GD_ROSTER_SYNC_MAX_WRITES = 200;
 const GD_ROSTER_SYNC_REQUEST_PREFIX = 'roster-sync-request:';
 const GD_ROSTER_SYNC_REQUEST_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -2492,6 +2493,57 @@ function rosterSyncNoEffectsRejection_(normalizedRequest, code, message) {
   };
 }
 
+function rosterSyncStartedRecoveryIssues_(normalizedRequest, plan) {
+  const rows = readRosterRows_();
+  const byKey = new Map(rows.map((student) => [student.key, student]));
+  const addInputs = new Map((normalizedRequest.add || []).map((input) => [input.key, input]));
+  const nameInputs = new Map((normalizedRequest.updateName || []).map((input) => [input.key, input]));
+  const issues = [];
+
+  (plan.addActions || []).forEach((progress) => {
+    if (String(progress.stage || '') !== 'STARTED') return;
+    const input = addInputs.get(String(progress.key || ''));
+    if (!input) throw new Error('The saved GoClassroom membership-recovery plan is invalid. Stop and review this transaction.');
+    const current = byKey.get(input.key) || null;
+    if (!current || !current.active || current.name !== input.name) issues.push({ kind: 'membership', key: input.key });
+  });
+  (plan.nameActions || []).forEach((progress) => {
+    if (String(progress.stage || '') !== 'STARTED') return;
+    const input = nameInputs.get(String(progress.key || ''));
+    if (!input) throw new Error('The saved GoClassroom name-recovery plan is invalid. Stop and review this transaction.');
+    const current = byKey.get(input.key) || null;
+    if (!current || !current.active || current.name !== input.name) issues.push({ kind: 'name', key: input.key });
+  });
+  return issues;
+}
+
+function rosterSyncRecoveryReviewResponse_(normalizedRequest, count) {
+  return {
+    ok: false,
+    schemaVersion: 1,
+    status: 'RECOVERY_REVIEW_REQUIRED',
+    requestId: String(normalizedRequest && normalizedRequest.requestId || ''),
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    code: 'ROSTER_STARTED_STATE_AMBIGUOUS',
+    reviewCount: Math.max(1, Number(count || 0)),
+    message: 'An earlier approved roster step was marked started, but its intended live result is not present now. GoClassroom will not reapply it automatically because a teacher may have changed the roster afterward. Review and release the pending batch, then compare the live rosters again.',
+  };
+}
+
+function rosterSyncRecoveryReleasedResponse_(normalizedRequest, count) {
+  return {
+    ok: false,
+    schemaVersion: 1,
+    status: 'RECOVERY_RELEASED_FOR_RECOMPARE',
+    requestId: String(normalizedRequest && normalizedRequest.requestId || ''),
+    writeContract: GD_ROSTER_SYNC_WRITE_CONTRACT,
+    code: 'ROSTER_RECOVERY_RELEASED',
+    reviewCount: Math.max(1, Number(count || 0)),
+    resolvedAt: new Date().toISOString(),
+    message: 'The pending roster transaction was released without applying any additional roster change. Any changes that already completed remain in place. Compare the live rosters again before applying anything else.',
+  };
+}
+
 function pruneRosterSyncRequests_(reserveSlots) {
   const properties = PropertiesService.getScriptProperties();
   const all = properties.getProperties();
@@ -2656,7 +2708,7 @@ function getRosterSyncSnapshot(bridgeContract) {
   };
 }
 
-function applyRosterSyncChanges(request, writeContract) {
+function applyRosterSyncChanges(request, writeContract, recoveryResolution) {
   const settings = getSettings_();
   const teacher = getActiveEmail_();
   assertTeacher_(teacher, settings);
@@ -2665,11 +2717,38 @@ function applyRosterSyncChanges(request, writeContract) {
   }
 
   const normalized = normalizeRosterSyncWriteRequest_(request, settings);
+  const releaseRequested = recoveryResolution && String(recoveryResolution.confirmation || '') === GD_ROSTER_SYNC_RECOVERY_RELEASE_CONFIRMATION;
   const replay = rosterSyncRequestReplay_(normalized);
-  if (replay) return replay;
+  if (replay) {
+    if (!releaseRequested || String(replay.status || '') === 'RECOVERY_RELEASED_FOR_RECOMPARE') return replay;
+    throw new Error('This roster transaction already reached a different terminal result. Compare the live rosters again.');
+  }
 
   let result = null;
   withLock_(() => {
+    if (releaseRequested) {
+      const replayInsideReleaseLock = rosterSyncRequestReplay_(normalized);
+      if (replayInsideReleaseLock) {
+        if (String(replayInsideReleaseLock.status || '') === 'RECOVERY_RELEASED_FOR_RECOMPARE') {
+          result = replayInsideReleaseLock;
+          return;
+        }
+        throw new Error('This roster transaction already reached a different terminal result. Compare the live rosters again.');
+      }
+      const requestState = readRosterSyncRequestState_(normalized);
+      const plan = requestState && requestState.status === 'PENDING' ? requestState.plan : null;
+      if (!plan || Number(plan.v || 0) !== 2) {
+        throw new Error('The pending GoClassroom roster recovery transaction is no longer available for reviewed release. Compare rosters again.');
+      }
+      const issues = rosterSyncStartedRecoveryIssues_(normalized, plan);
+      if (!issues.length) {
+        throw new Error('This pending roster transaction no longer requires a reviewed release. Retry the same approved batch so GoClassroom can verify its current state.');
+      }
+      result = rosterSyncRecoveryReleasedResponse_(normalized, issues.length);
+      rememberRosterSyncRequest_(normalized, result);
+      return;
+    }
+
     const replayInsideLock = rosterSyncRequestReplay_(normalized);
     if (replayInsideLock) {
       result = replayInsideLock;
@@ -2751,6 +2830,12 @@ function applyRosterSyncChanges(request, writeContract) {
 
     if (!plan || Number(plan.v || 0) !== 2) {
       throw new Error('The saved GoClassroom roster recovery plan predates the current safety model. Stop and review this transaction before retrying.');
+    }
+
+    const recoveryIssues = rosterSyncStartedRecoveryIssues_(normalized, plan);
+    if (recoveryIssues.length) {
+      result = rosterSyncRecoveryReviewResponse_(normalized, recoveryIssues.length);
+      return;
     }
 
     const addActionByKey = new Map((plan.addActions || []).map((entry) => [String(entry.key || ''), entry]));
