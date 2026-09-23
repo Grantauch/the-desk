@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nothing But Black Sea &middot; Hidden History</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="The Gulf of Tonkin, August 1964. One attack that happened, one that did not, a resolution that carried a war, and the NSA history that took 41 years to reach the public.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-nothing-but-black-sea.html">
+<meta property="og:title" content="Nothing But Black Sea · The Gulf of Tonkin, 1964">
+<meta property="og:description" content="Two nights, one vote, and 41 years before anyone could read the whole file.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-nothing-but-black-sea.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/black-sea/assets/b01-maddox.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --night:#070c10;
+  --night2:#0e161c;
+  --deck:#18232a;
+  --line:#2a3a44;
+  --haze:#e3e6e1;
+  --haze2:#d5dad4;
+  --bond:#f3f0e7;
+  --bond2:#e8e3d6;
+  --ink:#0f171d;
+  --dim:#46535b;
+  --steel:#56636a;
+  --flare:#ff7a1a;
+  --flare-dk:#a8440a;
+  --scope:#62d2c8;
+  --flash:#b3221c;
+  --tty:#f2e7b4;
+  --tty-ink:#2b2410;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bond);color:var(--ink);font-family:Newsreader,Georgia,"Times New Roman",serif;font-size:18px;line-height:1.62}
+img{max-width:100%}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+a{color:inherit}
+
+/* HERO */
+.hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;background:#05080a;overflow:hidden}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 55%;filter:saturate(.85) brightness(.72)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,10,.55) 0%,rgba(5,8,10,0) 30%,rgba(5,8,10,.35) 55%,rgba(5,8,10,.97) 92%)}
+.herotype{position:relative;z-index:2;width:100%;max-width:1040px;margin:0 auto;padding:0 22px 56px;color:#f1eee6}
+.kick{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--flare);margin-bottom:18px}
+.hero h1{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(3rem,11.5vw,8.2rem);line-height:.86;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.hero h1 i{font-weight:400;font-style:italic;color:#cfd8dc}
+.dek{font-family:Fraunces,Georgia,serif;font-size:clamp(1.1rem,3.6vw,1.55rem);line-height:1.35;max-width:36ch;margin:22px 0 0;color:#d8dfe2}
+.herometa{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#9fb0b8}
+.herometa b{color:#f1eee6;font-weight:600}
+.herocredit{position:absolute;right:14px;top:14px;z-index:2;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(241,238,230,.62)}
+
+/* LAYOUT */
+.band{padding:10px 0 70px}
+.band.day{background:var(--haze)}
+.band.bond{background:var(--bond)}
+.band.night{background:var(--night);color:#dfe6e9;--steel:#8d9ea6}
+.band.deep{background:var(--night2);color:#dfe6e9;--steel:#8d9ea6}
+.col{max-width:720px;margin:0 auto;padding:0 20px}
+.wide{max-width:1040px;margin:0 auto;padding:0 20px}
+p{margin:0 0 1.05em}
+.band.night p,.band.deep p{color:#cfd9dd}
+strong{font-weight:600}
+
+/* ID BAR */
+.idbar{display:flex;flex-wrap:wrap;gap:0;border:1.5px solid var(--ink);background:#fff;margin:30px 0 0}
+.idbar label{flex:1 1 170px;display:flex;align-items:center;gap:10px;padding:10px 14px;border-right:1px solid #c9c4b6;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;border:0;border-bottom:1.5px solid #b9b3a3;background:transparent;font-family:"IBM Plex Mono",monospace;font-size:.95rem;color:var(--ink);padding:3px 2px}
+.idbar input:focus{outline:0;border-bottom-color:var(--flare-dk)}
+
+.opener{margin-top:44px}
+.opener p:first-child::first-letter{font-family:Fraunces,serif;font-weight:900;float:left;font-size:4.6rem;line-height:.78;padding:8px 12px 0 0;color:var(--flare-dk)}
+.opener .ask{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.06em;border-top:1.5px solid var(--ink);padding-top:12px;margin-top:22px;color:var(--dim)}
+
+/* CHAPTER HEADS */
+.chap{padding-top:64px;margin-bottom:26px}
+.chap .no{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--flare-dk)}
+.band.night .chap .no,.band.deep .chap .no{color:var(--flare)}
+.chap h2{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(2.1rem,7.4vw,3.8rem);line-height:.98;letter-spacing:-.015em;margin:10px 0 0;text-wrap:balance}
+.chap h2 i{font-weight:400}
+.chap .when{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.12em;color:var(--dim);margin-top:14px}
+.band.night .chap .when,.band.deep .chap .when{color:#8fa2ab}
+
+/* PHOTOS */
+figure{margin:34px 0}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:.9rem;line-height:1.5;color:var(--dim);padding:10px 0 0;border-top:1px solid rgba(15,23,29,.2);margin-top:10px}
+.band.night figcaption,.band.deep figcaption{color:#9fb0b8;border-top-color:#2a3a44}
+.credit{display:block;margin-top:6px;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+.bleed{max-width:1040px;margin:40px auto;padding:0 20px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pair figure{margin:0}
+.pair img{aspect-ratio:4/3;object-fit:cover}
+@media(max-width:640px){.pair{grid-template-columns:1fr}}
+.portrait{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start;margin:30px 0}
+.portrait img{width:150px;height:auto;display:block}
+.portrait.lg{grid-template-columns:230px 1fr}
+.portrait.lg img{width:230px}
+@media(max-width:560px){.portrait.lg{grid-template-columns:1fr}.portrait.lg img{width:100%;max-width:320px}}
+.portrait figcaption{border-top:0;margin:0;padding:0}
+@media(max-width:480px){.portrait{grid-template-columns:110px 1fr}.portrait img{width:110px}}
+
+/* QUOTES AND MESSAGES */
+.pull{margin:36px 0;padding:0 0 0 22px;border-left:4px solid var(--flare)}
+.pull p{font-family:Fraunces,Georgia,serif;font-size:clamp(1.3rem,4.4vw,1.8rem);line-height:1.28;margin:0 0 .4em;color:inherit}
+.band.night .pull p,.band.deep .pull p{color:#f1eee6}
+.pull cite{display:block;font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);margin-top:10px}
+.msg{background:var(--tty);color:var(--tty-ink);font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.6;padding:18px 20px 16px;margin:30px 0;box-shadow:0 1px 0 rgba(0,0,0,.25),0 14px 30px -18px rgba(0,0,0,.6);background-image:repeating-linear-gradient(180deg,transparent 0 27px,rgba(43,36,16,.07) 27px 28px)}
+.msg .hd{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1.5px dashed rgba(43,36,16,.45);padding-bottom:8px;margin-bottom:10px;font-size:.66rem;letter-spacing:.14em}
+.msg .hd b{color:var(--flash);font-weight:600}
+.msg p{margin:0 0 .6em;color:var(--tty-ink)!important;text-transform:uppercase}
+.msg .src{font-size:.62rem;letter-spacing:.12em;color:#6b5f35;border-top:1px solid rgba(43,36,16,.3);padding-top:8px;margin-top:10px;text-transform:uppercase}
+
+/* SHARED INTERACTIVE SHELL */
+.kit{margin:38px 0;border:1.5px solid var(--ink);background:#fff}
+.band.night .kit,.band.deep .kit{border-color:#33464f;background:var(--night2)}
+.kit > header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1.5px solid var(--ink);font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
+.band.night .kit > header,.band.deep .kit > header{border-bottom-color:#33464f}
+.kit > header b{font-size:.8rem;letter-spacing:.16em;font-weight:600}
+.kit > header span{font-size:.62rem;letter-spacing:.14em;color:var(--steel)}
+.kit .in{padding:16px}
+.btn{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;border:1.5px solid var(--ink);background:var(--ink);color:#fff;padding:10px 14px;cursor:pointer;min-height:44px}
+.btn:hover{background:#26343d}
+.btn.alt{background:transparent;color:var(--ink)}
+.band.night .btn,.band.deep .btn{border-color:var(--scope);background:var(--scope);color:#04201d}
+.band.night .btn.alt,.band.deep .btn.alt{background:transparent;color:var(--scope)}
+.band.night .btn.hot,.band.deep .btn.hot{border-color:var(--flare);background:var(--flare);color:#240e00}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--flare);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* SCOPE */
+.scopewrap{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:22px;align-items:start}
+@media(max-width:720px){.scopewrap{grid-template-columns:1fr}}
+.scope{width:100%;max-width:360px;aspect-ratio:1;display:block;margin:0 auto}
+.scope .sweep{transform-origin:200px 200px;animation:sweep 4s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.blip{transition:opacity .9s ease}
+.clock{font-family:"IBM Plex Mono",monospace;font-size:1.5rem;color:var(--scope);letter-spacing:.06em}
+.clock small{display:block;font-size:.6rem;letter-spacing:.18em;color:#7f949c;text-transform:uppercase}
+.log{min-height:8.5em;margin:12px 0 14px;color:#dfe6e9;font-size:1rem}
+.tallies{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.tally{border-top:2px solid #33464f;padding-top:6px}
+.tally b{display:block;font-family:"IBM Plex Mono",monospace;font-size:1.6rem;font-weight:600;color:#f1eee6;line-height:1.2}
+.tally span{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#8fa2ab}
+.tally.hot b{color:var(--flare)}
+.tally.fixed{border-top-color:var(--scope)}
+.tally.fixed b{color:var(--scope)}
+.reveal{display:none;margin-top:16px;padding:14px 16px;border-left:4px solid var(--scope);background:#0a1a1e;color:#dfe6e9}
+.reveal.on{display:block}
+
+/* TWO NIGHTS */
+.nights{width:100%;border-collapse:collapse;font-size:.95rem}
+.nights th{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;text-align:left;color:#8fa2ab;padding:8px 10px;border-bottom:1.5px solid #33464f;font-weight:600}
+.nights td{padding:10px;border-bottom:1px solid #22313a;vertical-align:top;color:#dfe6e9}
+.nights td:first-child{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.06em;color:#9fb0b8;width:28%}
+.nights td.a4{color:#5b6d76}
+.nights td.a4.on{color:var(--flare)}
+@media(max-width:560px){.nights td,.nights th{padding:8px 6px;font-size:.86rem}.nights td:first-child{font-size:.64rem}}
+
+/* WASHINGTON CLOCK */
+.years{display:flex;gap:0;border:1.5px solid var(--ink);margin-bottom:14px}
+.years button{flex:1;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.8rem;letter-spacing:.08em;background:#fff;color:var(--ink);border:0;border-right:1px solid #c9c4b6;padding:10px 4px;cursor:pointer;min-height:44px}
+.years button:last-child{border-right:0}
+.years button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.day{list-style:none;margin:0;padding:0}
+.day li{display:grid;grid-template-columns:92px 1fr;gap:14px;padding:12px 0;border-top:1px solid #d9d3c4}
+.day li:first-child{border-top:0}
+.day .t{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:600;color:var(--dim);padding-top:2px}
+.day .x{font-size:1rem}
+.day .x em{display:block;font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);margin-top:4px}
+.day li.doubt .x{border-left:3px solid var(--flare);padding-left:10px}
+.day li.hid .x{position:relative;color:transparent;user-select:none}
+.day li.hid .x::after{content:"NOT YET PUBLIC";position:absolute;inset:0;background:var(--ink);color:#7f8c93;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.2em;display:flex;align-items:center;padding-left:12px}
+.day li.hid .x em{visibility:hidden}
+.day li.hid.doubt .x{border-left-color:transparent}
+.daynote{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--dim);border-top:1.5px solid var(--ink);padding-top:10px;margin-top:6px;min-height:3.2em}
+@media(max-width:480px){.day li{grid-template-columns:70px 1fr;gap:10px}}
+
+/* VOTE */
+.chamber{margin:6px 0 16px}
+.chamber h4{margin:0 0 6px;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.seats{display:flex;flex-wrap:wrap;gap:3px}
+.seats i{width:9px;height:9px;background:#9aa6ac;display:block}
+.seats button{width:22px;height:22px;background:var(--flash);border:2px solid var(--flash);padding:0;cursor:pointer;margin:0 2px}
+.seats button[aria-pressed="true"]{background:#fff}
+.votepanel{min-height:7em;border-top:1.5px solid var(--ink);padding-top:12px}
+.votepanel .who{display:grid;grid-template-columns:90px 1fr;gap:14px;align-items:start}
+.votepanel img{width:90px;display:block}
+.votepanel q{font-family:Fraunces,serif;font-size:1.15rem;line-height:1.35;quotes:"\201C" "\201D"}
+
+/* CHART */
+.chart .plot{overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto;min-width:600px}
+.yearbtns{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:8px}
+.yearbtns button{font-family:"IBM Plex Mono",monospace;font-size:.62rem;padding:8px 0;min-height:40px;border:1px solid #33464f;background:transparent;color:#9fb0b8;cursor:pointer}
+.yearbtns button[aria-pressed="true"]{background:var(--flare);color:#240e00;border-color:var(--flare)}
+.readout{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media(max-width:520px){.yearbtns{grid-template-columns:repeat(5,1fr)}}
+
+/* TRANSLATION */
+.msg .ph{background:rgba(179,34,28,.14);border-bottom:2px solid var(--flash);padding:1px 2px;cursor:pointer;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.msg .ph[aria-expanded="true"]{background:var(--flash);color:#fff}
+.msg .ph:focus-visible{outline:3px solid var(--flare);outline-offset:2px}
+.gloss{min-height:6.5em;margin-top:6px;padding:14px 16px;background:#0a1a1e;border-left:4px solid var(--flare);color:#dfe6e9;font-size:.98rem}
+.swap{display:flex;gap:0;border:1.5px solid var(--scope);margin:14px 0 4px;max-width:420px}
+.swap button{flex:1;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:10px 6px;min-height:44px;background:transparent;color:var(--scope);border:0;cursor:pointer}
+.swap button[aria-pressed="true"]{background:var(--scope);color:#04201d}
+
+/* DRAWER */
+.drawer{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:5px;margin:4px 0 14px}
+.drawer i{height:46px;border:1px solid #33464f;background:#101d23;display:block;position:relative;transition:background .4s ease,opacity .4s ease}
+.drawer i::before{content:"";position:absolute;left:5px;right:5px;top:6px;height:3px;background:#2b3c45}
+.drawer.chrono i{opacity:.18}
+.drawer.chrono i.used{opacity:1;background:var(--tty);border-color:var(--tty)}
+.drawer.chrono i.used::before{background:var(--flash)}
+.count{font-family:"IBM Plex Mono",monospace;font-size:1.25rem;color:#f1eee6}
+.count small{display:block;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#8fa2ab}
+
+/* QUESTIONS */
+.q{margin:30px 0 0;padding:16px 0 0;border-top:1.5px solid var(--ink)}
+.band.night .q,.band.deep .q{border-top-color:#33464f}
+.q label{display:flex;gap:12px;align-items:baseline;margin-bottom:10px;font-size:1.02rem}
+.q .n{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.8rem;color:var(--flare-dk);flex:none}
+.band.night .q .n,.band.deep .q .n{color:var(--flare)}
+textarea{width:100%;min-height:92px;background:#fff;color:var(--ink);border:1.5px solid #b9b3a3;font-family:Newsreader,Georgia,serif;font-size:1rem;line-height:1.6;padding:10px 12px;resize:vertical}
+.band.night textarea,.band.deep textarea{background:#0b1418;color:#eef2f3;border-color:#33464f}
+
+/* VERDICT */
+.claims{counter-reset:c}
+.claim{border-top:1.5px solid var(--ink);padding:16px 0 14px}
+.claim .ct{font-family:Fraunces,serif;font-size:1.16rem;line-height:1.35;margin-bottom:10px}
+.stamps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+@media(max-width:520px){.stamps{grid-template-columns:repeat(2,1fr)}}
+.stamps button{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;padding:9px 4px;min-height:44px;border:1.5px dashed var(--dim);background:transparent;color:var(--dim);cursor:pointer}
+.stamps button[aria-pressed="true"]{border-style:solid;background:var(--ink);color:#fff;transform:rotate(-2deg)}
+.record{display:none;margin-top:10px;padding:10px 14px;background:var(--bond2);font-size:.96rem;border-left:4px solid var(--flare-dk)}
+.record.on{display:block}
+.record b{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase}
+
+/* PROMPTS */
+.prompts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media(max-width:680px){.prompts{grid-template-columns:1fr}}
+.prompt{border:1.5px solid var(--ink);background:#fff;padding:14px 16px;cursor:pointer;display:block;position:relative}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph2{display:block;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--flare-dk);margin-bottom:6px;font-weight:600}
+.prompt.sel{background:var(--ink);color:#f1eee6}
+.prompt.sel .ph2{color:var(--flare)}
+.prompt:focus-within{outline:3px solid var(--flare);outline-offset:2px}
+.essaymeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:22px 0 8px}
+#wc{font-weight:600;color:var(--flash)}
+#wc.ok{color:#1f6b3a}
+#essay{min-height:240px}
+.actions{margin-top:34px;padding:22px;background:var(--ink);color:#f1eee6;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.actions p{margin:0;color:#b8c4c9;font-size:.95rem;max-width:44ch}
+#copy{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.84rem;letter-spacing:.12em;text-transform:uppercase;background:var(--flare);color:#240e00;border:0;padding:15px 24px;cursor:pointer;min-height:48px}
+#copy.done{background:#8fd6a4}
+.refs{margin-top:46px;border-top:1.5px solid var(--ink);padding-top:14px;font-size:.86rem;line-height:1.6;color:var(--dim)}
+.refs h3{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);margin:0 0 10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px;overflow-wrap:anywhere}
+.saved{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#f1eee6;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;padding:8px 16px;border-left:4px solid var(--flare);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img src="/storyhub/hh/black-sea/assets/b01-maddox.jpg" alt="The destroyer USS Maddox, hull number 731, cutting through open sea." fetchpriority="high">
+  <div class="herocredit">USS Maddox · U.S. Navy NH 97900 · colorized</div>
+  <div class="herotype">
+    <div class="kick">Hidden History · Unit 03 · Reading the Record</div>
+    <h1>Nothing But <i>Black Sea</i></h1>
+    <p class="dek">Two nights in the Gulf of Tonkin, one vote in Congress, and 41 years before anyone outside the government could read the whole file.</p>
+    <div class="herometa"><span><b>Aug 2</b> 1964</span><span><b>Aug 4</b> 1964</span><span><b>Aug 7</b> 1964</span><span><b>Nov</b> 2005</span></div>
+  </div>
+</header>
+
+<main>
+<section class="band bond">
+  <div class="col">
+    <div class="idbar">
+      <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+      <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+      <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+    </div>
+    <div class="opener">
+      <p>Type "Gulf of Tonkin" into a search bar and one claim keeps coming back: the United States faked an attack to start the Vietnam War. Part of it is true. Sorting out which part took 41 years.</p>
+      <p>In August 1964 more than 16,000 American military advisers were already in South Vietnam. Two American destroyers off the coast reported two attacks in three days. The first attack happened. The second existed on radar screens and in sonar headphones, and on the strength of it Congress gave President Lyndon Johnson the power to fight a war.</p>
+      <p>Read the record the way the National Security Agency's own historian finally did, one document at a time.</p>
+      
+    </div>
+  </div>
+</section>
+
+<!-- 01 -->
+<section class="band day" id="aug2">
+  <div class="col">
+    <div class="chap">
+      <div class="no">01 · Sunday, August 2, 1964</div>
+      <h2>The attack <i>that happened</i></h2>
+      <div class="when">Gulf of Tonkin · afternoon · clear skies</div>
+    </div>
+    <p>The destroyer USS Maddox carried a secret in 1964. Bolted to its deck sat a steel van full of radio receivers and Navy listeners who intercepted North Vietnamese military radio traffic while the ship cruised the coast. The public did not know the mission existed.</p>
+    <p>On July 30, South Vietnamese commandos trained and paid by the United States raided Hon Me Island off the North Vietnamese coast. The Maddox had no part in the raid, but two days later it was steaming past the same island.</p>
+    <p>On Sunday afternoon three torpedo boats came out after it. At about 3:05 PM the Maddox fired three warning shots, which the Johnson administration never mentioned. The boats fired torpedoes that missed and sprayed the destroyer with machine guns. Within fifteen minutes four Navy jets from the carrier Ticonderoga shot up all three boats.</p>
+  </div>
+  <div class="bleed">
+    <div class="pair">
+      <figure><img src="/storyhub/hh/black-sea/assets/b03-p4-boat.jpg" alt="A small North Vietnamese torpedo boat running across flat gray sea toward the camera's left." loading="lazy"><figcaption>One of the three torpedo boats running at the Maddox. A sailor on the destroyer took this in daylight.<span class="credit">U.S. Navy USN 711525 · Aug 2, 1964 · colorized</span></figcaption></figure>
+      <figure><img src="/storyhub/hh/black-sea/assets/b02-p4-fire.jpg" alt="A torpedo boat on the horizon with a column of smoke and spray rising behind it." loading="lazy"><figcaption>The same fight a moment later. The column behind the boat is smoke and spray from the destroyer's gunfire.<span class="credit">U.S. Navy USN 711524 · Aug 2, 1964 · colorized</span></figcaption></figure>
+    </div>
+  </div>
+  <div class="col">
+    <p>The Maddox took one bullet hole. One North Vietnamese boat limped home with four dead and six wounded sailors aboard. This fight left photographs, eyewitnesses, damage, casualties and a trail of intercepted North Vietnamese radio messages.</p>
+    <figure><img src="/storyhub/hh/black-sea/assets/b04-herrick-ogier.jpg" alt="Two Navy officers in helmets and life vests on the deck of a destroyer. The man on the right wears a helmet marked CO." loading="lazy"><figcaption><b>Captain John Herrick</b>, left, commanded the patrol. <b>Commander Herbert Ogier</b>, right, captained the Maddox. Herrick's messages two nights later are the most important documents on this page.<span class="credit">U.S. Navy NH 97898 · Aug 13, 1964 · colorized</span></figcaption></figure>
+    <div class="q"><label for="q1"><span class="n">Q1</span><span>Nobody disputes the August 2 attack. List two different kinds of evidence from this section that prove it happened.</span></label><textarea id="q1" data-q="Q1"></textarea></div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="band night" id="aug4">
+  <div class="col">
+    <div class="chap">
+      <div class="no">02 · Tuesday night, August 4, 1964</div>
+      <h2>The attack <i>on the radar</i></h2>
+      <div class="when">Gulf of Tonkin · no moon · thunderstorms · more than 40 miles offshore</div>
+    </div>
+    <p>Washington sent the patrol back into the gulf with a second destroyer, the USS Turner Joy. On August 4 an American listening post intercepted a North Vietnamese order for boats to prepare for an operation. It named no target. Herrick read it as an ambush order.</p>
+    <p>After dark, storms moved across the water and radar crews started seeing contacts. Work through the night the way the crews logged it.</p>
+  </div>
+  <div class="wide">
+    <div class="kit" id="scopekit">
+      <header><b>Evasive Action</b><span>Ship's time · the night of Aug 4</span></header>
+      <div class="in">
+        <div class="scopewrap">
+          <svg class="scope" id="scope" viewBox="0 0 400 400" role="img" aria-label="Radar scope centered on the two destroyers. Contacts appear as dots.">
+            <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#0f2a2b"/><stop offset="1" stop-color="#050b0d"/></radialGradient>
+            <linearGradient id="sw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#62d2c8" stop-opacity="0"/><stop offset="1" stop-color="#62d2c8" stop-opacity=".55"/></linearGradient></defs>
+            <circle cx="200" cy="200" r="196" fill="url(#glow)" stroke="#2a3a44" stroke-width="2"/>
+            <g fill="none" stroke="#1f4a4a" stroke-width="1">
+              <circle cx="200" cy="200" r="60"/><circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="180"/>
+              <line x1="200" y1="14" x2="200" y2="386"/><line x1="14" y1="200" x2="386" y2="200"/>
+            </g>
+            <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#4f8d88">
+              <text x="204" y="136">4,000 YD</text><text x="204" y="76">8,000 YD</text><text x="204" y="28">12,000 YD</text>
+              <text x="194" y="11" fill="#62d2c8">N</text>
+            </g>
+            <g class="sweep" id="sweep"><path d="M200 200 L380 200 A180 180 0 0 0 355 110 Z" fill="url(#sw)" opacity=".5"/></g>
+            <g id="blips"></g>
+            <g id="ships">
+              <g id="shipA" transform="translate(194 204) rotate(0)"><path d="M0 -9 L3 -3 L3 8 L-3 8 L-3 -3 Z" fill="#f1eee6"/></g>
+              <g id="shipB" transform="translate(208 196) rotate(0)"><path d="M0 -9 L3 -3 L3 8 L-3 8 L-3 -3 Z" fill="#9fb0b8"/></g>
+            </g>
+            <g id="wakes" fill="none" stroke="#f1eee6" stroke-width="1.4" opacity=".5"></g>
+            <circle id="flarefx" cx="200" cy="200" r="0" fill="#ff7a1a" opacity="0"/>
+          </svg>
+          <div>
+            <div class="clock" id="sclock"><small>Ship's time</small>Dusk</div>
+            <div class="log" id="slog" aria-live="polite">Press <b>Next report</b> to start the night.</div>
+            <div class="row">
+              <button class="btn" id="snext" type="button">Next report</button>
+              <button class="btn hot" id="sturn" type="button" disabled>Turn hard</button>
+              <button class="btn alt" id="sreset" type="button">Reset</button>
+            </div>
+            <div class="tallies">
+              <div class="tally hot"><b id="tTorp">0</b><span>Torpedo reports logged</span></div>
+              <div class="tally"><b id="tCont">0</b><span>Radar contacts logged</span></div>
+              <div class="tally fixed"><b>0</b><span>Boats seen by pilots overhead</span></div>
+              <div class="tally fixed"><b>0</b><span>Torpedoes heard all night on the Turner Joy's own sonar</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal" id="sreveal"><b>What the sonar was hearing.</b> The torpedo sounds came from the destroyers themselves. Every hard turn swung a rudder through the churning water behind the ship's own propellers, and the sonar heard that as the high pitched whine of a torpedo. The harder the ships dodged, the more torpedoes they heard. The crews reported more than two dozen that night. The Turner Joy's sonar never detected one.</div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <p>Commander James Stockdale flew one of the jets sent to protect the destroyers, diving on every contact the ships called out. Twenty years later he wrote down what he saw.</p>
+    <div class="pull">
+      <p>No boats, no boat wakes, no ricochets off boats, no boat impacts, no torpedo wakes, nothing but black sea and American firepower.</p>
+      <cite>James Stockdale, In Love and War, 1984 · a memoir written after the fact</cite>
+    </div>
+    <div class="portrait">
+      <img src="/storyhub/hh/black-sea/assets/b08-stockdale.jpg" alt="Formal portrait of James Stockdale in a white Navy dress uniform with rows of medals." loading="lazy">
+      <figcaption>Stockdale was shot down over North Vietnam a year later and held as a prisoner of war for more than seven years. Portrait from about 1979.<span class="credit">U.S. Navy file photo</span></figcaption>
+    </div>
+    <p>The crews were not lying. Men who had faced a real attack two days earlier were watching blotches flash on a radar screen in a storm, and they fired at them. The Maddox's gun director never locked onto a target and decided he had been shooting at waves. Nobody on either ship saw a boat for certain.</p>
+    <p>Herrick figured it out before sunrise and sent a message up the chain of command.</p>
+    <div class="msg">
+      <div class="hd"><span>FROM HERRICK · ABOARD USS MADDOX</span><b>FLASH</b></div>
+      <p>Review of action makes many reported contacts and torpedoes fired appear doubtful. Freak weather effects on radar and overeager sonarmen may have accounted for many reports. No actual visual sightings by Maddox. Suggest complete evaluation before any further action taken.</p>
+      <div class="src">Herrick to Pacific command, Aug 4, 1964 · made public in the Senate Foreign Relations Committee hearing of 1968</div>
+    </div>
+    <p>A second message added that the Maddox had "never positively identified a boat as such."</p>
+  </div>
+  <div class="wide">
+    <div class="kit">
+      <header><b>Two Nights, One Checklist</b><span>What a real battle leaves behind</span></header>
+      <div class="in">
+        <table class="nights" id="nights">
+          <thead><tr><th scope="col">Evidence</th><th scope="col">August 2</th><th scope="col">August 4</th></tr></thead>
+          <tbody>
+            <tr><td>Photographs of enemy boats</td><td>Yes. Taken from the Maddox in daylight</td><td class="a4" data-a="None">?</td></tr>
+            <tr><td>Boats seen by sailors</td><td>Yes. Three boats up close</td><td class="a4" data-a="No certain sighting">?</td></tr>
+            <tr><td>Boats seen by pilots</td><td>Yes. Four jets attacked all three</td><td class="a4" data-a="None. Pilots saw only the destroyers' own wakes">?</td></tr>
+            <tr><td>Damage to U.S. ships</td><td>One bullet hole</td><td class="a4" data-a="None">?</td></tr>
+            <tr><td>Enemy casualties</td><td>Four dead, six wounded on one boat</td><td class="a4" data-a="None confirmed">?</td></tr>
+            <tr><td>Enemy radio messages about a fight</td><td>Yes. Orders and reports</td><td class="a4" data-a="A handful, disputed. See 05">?</td></tr>
+          </tbody>
+        </table>
+        <div class="row" style="margin-top:14px"><button class="btn" id="nfill" type="button">Check August 4</button><span id="nstat" class="mono" style="font-size:.74rem;color:#8fa2ab" aria-live="polite"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <figure><img src="/storyhub/hh/black-sea/assets/b07-track-chart.jpg" alt="A Navy chart tracing the zigzagging paths of the two destroyers on August 4, with handwritten style labels for torpedoes sighted, hits observed and depth charges dropped." loading="lazy" style="max-width:520px;margin:0 auto;background:#fff"><figcaption>The Navy's chart of the night, drawn from the ships' reports. Every loop is a hard turn, and every hard turn meant more sonar reports.<span class="credit">U.S. Navy NH 96351 · Naval History and Heritage Command</span></figcaption></figure>
+    <div class="q"><label for="q2"><span class="n">Q2</span><span>Explain in your own words how the destroyers' own evasive turns produced more torpedo reports.</span></label><textarea id="q2" data-q="Q2"></textarea></div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="band bond" id="washington">
+  <div class="col">
+    <div class="chap">
+      <div class="no">03 · Washington, the same day</div>
+      <h2>Twelve hours <i>behind</i></h2>
+      <div class="when">The Pentagon and the White House · Tuesday, August 4</div>
+    </div>
+    <p>The Gulf of Tonkin runs twelve hours ahead of Washington, so the night fight played out during a Tuesday morning at the Pentagon. According to the NSA's later history, Johnson had approved a retaliatory air strike by early afternoon.</p>
+    <p>Herrick's doubt arrived at nearly the same moment. Secretary of Defense Robert McNamara phoned the Navy's Pacific commander, Admiral Ulysses S. Grant Sharp, who admitted there was "a little doubt on just what exactly went on." Then the NSA sent over a new intercept that read like a North Vietnamese battle report, including the line "we sacrificed two ships." Just before 5 PM McNamara and the Joint Chiefs of Staff agreed the attack had happened.</p>
+  </div>
+  <div class="bleed">
+    <figure style="margin:0"><img src="/storyhub/hh/black-sea/assets/b09-mcnamara.jpg" alt="Four men in suits and military uniforms talking in a Pentagon doorway under a sign reading Secretary of Defense." loading="lazy"><figcaption><b>McNamara</b>, second from left, at the Pentagon two weeks later with General Earle Wheeler of the Joint Chiefs, far left.<span class="credit">U.S. Navy photo by Harold Wise · Aug 17, 1964 · original color</span></figcaption></figure>
+  </div>
+  <div class="col">
+    <p>Most of that Tuesday stayed secret for decades. Move through the years and watch the public record of the day fill in.</p>
+    <div class="kit" id="daykit">
+      <header><b>The Public Record of August 4</b><span>Washington time</span></header>
+      <div class="in">
+        <div class="years" role="group" aria-label="Show what was public by year">
+          <button type="button" data-y="1964" aria-pressed="true">1964</button>
+          <button type="button" data-y="1968" aria-pressed="false">1968</button>
+          <button type="button" data-y="1971" aria-pressed="false">1971</button>
+          <button type="button" data-y="1992" aria-pressed="false">1992</button>
+          <button type="button" data-y="2005" aria-pressed="false">2005</button>
+        </div>
+        <ol class="day" id="day">
+          <li data-y="1971"><span class="t">9:12 AM</span><span class="x">McNamara phones Johnson about an intercepted warning of a North Vietnamese boat operation.<em>Public in 1971 · Johnson's memoir</em></span></li>
+          <li data-y="1964"><span class="t">Morning</span><span class="x">Flash messages: the destroyers are under torpedo attack.<em>Public in 1964</em></span></li>
+          <li data-y="1968" class="doubt"><span class="t">Early PM</span><span class="x">Herrick's cable: contacts and torpedoes "appear doubtful." Suggest complete evaluation before any further action.<em>Public in 1968 · Senate hearing</em></span></li>
+          <li data-y="1968"><span class="t">Afternoon</span><span class="x">The NSA translation arrives: "we sacrificed two ships." McNamara treats it as proof.<em>Public in 1968 · McNamara's testimony</em></span></li>
+          <li data-y="1992"><span class="t">6:03 PM</span><span class="x">State Department cable to the embassy in Thailand: the President has decided an air strike "should be carried out at once."<em>Public in 1992 · Foreign Relations of the United States</em></span></li>
+          <li data-y="1992" class="doubt"><span class="t">6:15 PM</span><span class="x">National Security Council meets. One official asks whether anyone knows for a fact the attack took place.<em>Public in 1992 · Foreign Relations of the United States</em></span></li>
+          <li data-y="1964"><span class="t">11:36 PM</span><span class="x">Johnson goes on television. The attack of August 2 "was repeated today."<em>Public in 1964</em></span></li>
+          <li data-y="2005" class="doubt"><span class="t">Later</span><span class="x">The NSA's own historian concludes no attack took place on August 4.<em>Public in 2005 · National Security Agency</em></span></li>
+        </ol>
+        <div class="daynote" id="daynote" aria-live="polite"></div>
+      </div>
+    </div>
+    <p>At the 6:15 meeting someone asked the right question and got an honest answer.</p>
+    <div class="msg" style="background:#fff;background-image:none">
+      <div class="hd"><span>SUMMARY NOTES · 538TH MEETING OF THE NATIONAL SECURITY COUNCIL</span><span>AUG 4, 6:15 PM</span></div>
+      <p>Rowan: Do we know for a fact that the North Vietnamese provocation took place? Can we nail down exactly what happened? We must be prepared to be accused of fabricating the incident.</p>
+      <p>McNamara: We will know definitely in the morning. As of now, only highly classified information nails down the incident.</p>
+      <div class="src">Carl Rowan, director of the U.S. Information Agency, and Robert McNamara · Foreign Relations of the United States, 1964 to 1968, Vol. I, Doc. 278</div>
+    </div>
+    <p>The "highly classified information" was the NSA intercept. The meeting moved on to air strikes and a draft resolution for Congress.</p>
+    <div class="portrait lg">
+      <img src="/storyhub/hh/black-sea/assets/b10-lbj-address.jpg" alt="President Johnson standing at a lectern with the presidential seal, an American flag behind him." loading="lazy">
+      <figcaption><b>11:36 PM.</b> Johnson tells the nation that "the initial attack on the destroyer Maddox, on August 2, was repeated today by a number of hostile vessels attacking two U.S. destroyers with torpedoes." He promises, "We still seek no wider war."<span class="credit">LBJ Library photo by Cecil Stoughton · Aug 4, 1964 · colorized</span></figcaption>
+    </div>
+        <div class="q"><label for="q3"><span class="n">Q3</span><span>Herrick asked Washington to wait. Rowan asked whether anyone knew for a fact. Why do you think the strike went ahead that same night? Use one fact from this section.</span></label><textarea id="q3" data-q="Q3"></textarea></div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="band bond" id="vote" style="padding-top:0;padding-bottom:0">
+  <div class="col">
+    <div class="chap" style="border-top:1.5px solid var(--ink)">
+      <div class="no">04 · Friday, August 7, 1964</div>
+      <h2>Two votes <i>against</i></h2>
+      <div class="when">The Capitol · Southeast Asia Resolution</div>
+    </div>
+    <p>The resolution Secretary of State Dean Rusk read at the 6:15 meeting was ready before anyone had checked the evidence. Eight weeks earlier, White House notes recorded McNamara's view that "in the event of a dramatic event in Southeast Asia we would go promptly for a Congressional resolution." The notes show an administration ready to use an incident if one came. They do not show a plan to create one.</p>
+    <div class="pull">
+      <p>Congress approves and supports the determination of the President, as Commander in Chief, to take all necessary measures to repel any armed attack against the forces of the United States and to prevent further aggression.</p>
+      <cite>Tonkin Gulf Resolution, Section 1 · passed Aug 7, 1964</cite>
+    </div>
+    <p>Senators heard about two unprovoked attacks and nothing about Herrick's doubts. When Wayne Morse of Oregon asked about the commando raids, McNamara answered, "Our Navy played absolutely no part in, was not associated with, was not aware of, any South Vietnamese actions, if there were any." The House passed the resolution 416 to 0 and the Senate 88 to 2.</p>
+    <div class="kit" id="votekit">
+      <header><b>Find the No Votes</b><span>Every vote cast, Aug 7, 1964</span></header>
+      <div class="in">
+        <div class="chamber"><h4>Senate · 88 yes · 2 no</h4><div class="seats" id="senate"></div></div>
+        <div class="chamber"><h4>House · 416 yes · 0 no</h4><div class="seats" id="house" aria-hidden="true"></div></div>
+        <div class="votepanel" id="votepanel" aria-live="polite"><p style="margin:0;color:var(--dim)">Two squares in the Senate are red. Select them.</p></div>
+      </div>
+    </div>
+    <figure><img src="/storyhub/hh/black-sea/assets/b11-lbj-signs.jpg" alt="President Johnson seated at a desk in the East Room signing a document, flags and red drapes behind him." loading="lazy"><figcaption>Johnson signs the resolution on August 10, 1964. Two presidents used these few paragraphs as legal authority for the war. Congress never declared war on North Vietnam.<span class="credit">Cecil Stoughton · NARA 192484 · colorized</span></figcaption></figure>
+  </div>
+  <div class="band deep" style="padding:30px 0 40px">
+    <div class="wide">
+      <div class="kit chart" id="chartkit" style="margin:0">
+        <header><b>What "All Necessary Measures" Carried</b><span>U.S. troops in Vietnam at year end · Americans killed each year</span></header>
+        <div class="in">
+          <div class="plot" tabindex="0" role="region" aria-label="Chart, scroll sideways on small screens"><svg id="esc" viewBox="0 0 860 330" role="img" aria-label="Bar chart. U.S. troops in Vietnam rise from 23,300 at the end of 1964 to a peak of 536,100 at the end of 1968, then fall to 50 by the end of 1973. American deaths peak at 16,899 in 1968."></svg></div>
+          <div class="yearbtns" id="yearbtns" role="group" aria-label="Choose a year"></div>
+          <div class="readout">
+            <div class="tally"><b id="rTroops">23,300</b><span id="rTroopsL">troops in Vietnam, end of 1964</span></div>
+            <div class="tally hot"><b id="rDead">216</b><span id="rDeadL">Americans killed in 1964</span></div>
+          </div>
+          <p style="margin:14px 0 0;font-size:.95rem" id="rNote" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="band night" id="drawer">
+  <div class="col">
+    <div class="chap">
+      <div class="no">05 · 1968 to 2005</div>
+      <h2>The historian who <i>opened the drawer</i></h2>
+      <div class="when">National Security Agency · Fort Meade, Maryland</div>
+    </div>
+    <p>In 1968 McNamara told the Senate Foreign Relations Committee that the intercepts proving the second attack were "unimpeachable." In 1972 the NSA's deputy director privately admitted to a Senate staffer that the key intercept could refer to August 2. Then the question went quiet inside the agency.</p>
+    <p>Decades later an NSA historian named Robert Hanyok went back through the agency's own files and wrote "Skunks, Bogies, Silent Hounds, and the Flying Fish" for its classified journal. The NSA made the study public in November 2005.</p>
+    <p>Start with the message McNamara called proof. Select the marked phrases.</p>
+    <div class="msg" id="tmsg">
+      <div class="hd"><span>NSA TRANSLATION · ISSUED AUG 4, 1964</span><b>TOP SECRET</b></div>
+      <p><span class="ph" role="button" tabindex="0" data-k="135" aria-expanded="false">After the 135 had already started to report to you,</span> we <span class="ph" role="button" tabindex="0" data-k="planes" aria-expanded="false">shot down two enemy planes in the battle area</span>, and one other plane was damaged. <span class="ph" role="button" tabindex="0" data-k="ships" aria-expanded="false"><span id="swapword">We sacrificed two ships</span></span> and all the rest are okay. The combat spirit is very high and we are starting out on the hunt and are waiting to receive assignment. <span class="ph" role="button" tabindex="0" data-k="ship" aria-expanded="false">The enemy ship could also have been damaged.</span></p>
+      <div class="src">As reproduced in Hanyok, Cryptologic Quarterly · lightly trimmed</div>
+    </div>
+    <div class="gloss" id="gloss" aria-live="polite">Each marked phrase can be checked against something you already know from August 2.</div>
+    <div class="swap" role="group" aria-label="Compare two versions of the translation">
+      <button type="button" id="vNSA" aria-pressed="true">NSA headquarters version</button>
+      <button type="button" id="vSM" aria-pressed="false">Philippines station version</button>
+    </div>
+    <p style="font-size:.95rem;margin-top:10px" id="swapnote">The listening station in the Philippines translated this intercept first. Switch versions to compare.</p>
+    <p>Hanyok concluded that analysts had most likely merged two separate North Vietnamese messages into one translation. One pointed back to August 2. The other came from observers watching the destroyers fire into the night. The Vietnamese original is missing from NSA files, and Hanyok could not explain why.</p>
+  </div>
+  <div class="wide">
+    <div class="kit" id="drawerkit">
+      <header><b>Fifty Nine Folders</b><span>Every NSA report relevant to Aug 4, written Aug 3 to Aug 6</span></header>
+      <div class="in">
+        <div class="row" style="margin-bottom:14px">
+          <button class="btn alt" type="button" id="dChrono" aria-pressed="false">What the official chronology used</button>
+          <button class="btn" type="button" id="dAll" aria-pressed="true">Everything the NSA had</button>
+        </div>
+        <div class="drawer" id="drawergrid" aria-hidden="true"></div>
+        <div class="count" id="dcount" aria-live="polite">59 reports<small>on file by August 6, 1964</small></div>
+        <p style="margin:14px 0 0;font-size:.98rem" id="dnote">In October 1964 the NSA wrote an official chronology of the incident. For years it was the only NSA source handed to congressional investigators. Choose a view.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <p>Hanyok's study makes two findings. The first is that no attack happened on August 4. North Vietnam's navy spent that night towing home boats damaged on August 2, unsure where the American ships even were. The second finding is the sentence most retellings leave out.</p>
+    <div class="pull">
+      <p>This mishandling of the SIGINT was not done in a manner that can be construed as conspiratorial, that is, with manufactured evidence and collusion at all levels.</p>
+      <cite>Robert J. Hanyok, NSA Center for Cryptologic History · released Nov 2005 · SIGINT means intercepted signals intelligence</cite>
+    </div>
+    <p>Nobody forged a message. Analysts who believed the Navy had been attacked picked out the real fragments that agreed with them and left the rest in the drawer.</p>
+    <p>Johnson may have sensed it early. A few days after the speech, in a remark Hanyok quotes, he said, "Hell, those damn, stupid sailors were just shooting at flying fish." He never said it on television.</p>
+    <div class="q"><label for="q4"><span class="n">Q4</span><span>How did a message that most likely described August 2 end up as the main proof of an attack on August 4?</span></label><textarea id="q4" data-q="Q4"></textarea></div>
+    <div class="q"><label for="q5"><span class="n">Q5</span><span>Hanyok proved the second attack never happened, and in the same study he said the mishandling was not a conspiracy. Why would a careful historian keep both findings instead of choosing one?</span></label><textarea id="q5" data-q="Q5"></textarea></div>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<section class="band bond" id="verdict">
+  <div class="col">
+    <div class="chap">
+      <div class="no">06 · Your verdict</div>
+      <h2>Stamp <i>each claim</i></h2>
+      <div class="when">Confirmed · Debunked · Misleading · Unproven</div>
+    </div>
+    <p>Each sentence below shows up in videos and posts about Tonkin. Pick a stamp, then compare it with the record.</p>
+    <div class="claims" id="claims"></div>
+
+    <div class="chap" style="padding-top:44px">
+      <div class="no">07 · Make the argument</div>
+      <h2>150 to <i>200 words</i></h2>
+      <div class="when">Pick one prompt · use at least two sections by number</div>
+    </div>
+    <div class="prompts">
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 1"><span class="ph2">Prompt 1</span>Which did more to mislead Congress in 1964, the false report of a second attack or the intelligence that was left out? <b>Pick one and defend it.</b></label>
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 2"><span class="ph2">Prompt 2</span>A classmate posts, "Tonkin proves the government staged the Vietnam War." <b>Write a reply that keeps what is true in that post and corrects what goes too far.</b></label>
+    </div>
+    <div class="essaymeta"><span>Your argument</span><span>Words <span id="wc">0</span> · aim for 150 to 200</span></div>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" placeholder="State your position in the first sentence, then prove it."></textarea>
+    <div class="actions">
+      <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+      <button id="copy" type="button">Copy my answers</button>
+    </div>
+
+    <div class="refs">
+      <h3>Sources</h3>
+      <div>Hanyok, R. J. (2005). Skunks, bogies, silent hounds, and the flying fish: The Gulf of Tonkin mystery, 2 to 4 August 1964. <i>Cryptologic Quarterly</i>. National Security Agency, Center for Cryptologic History. Declassified November 2005.</div>
+      <div>Johnson, L. B. (1964, August 4). <i>Radio and television report to the American people following renewed aggression in the Gulf of Tonkin</i>. The American Presidency Project.</div>
+      <div>National Archives. (n.d.). <i>Tonkin Gulf Resolution (1964)</i>. Milestone Documents.</div>
+      <div>National Archives. (2008). <i>Statistical information about fatal casualties of the Vietnam War</i>.</div>
+      <div>Office of the Historian. (1992). <i>Foreign relations of the United States, 1964 to 1968, Vol. I, Vietnam 1964</i> (Docs. 210, 272, 277, 278). U.S. Department of State.</div>
+      <div>Moïse, E. E. (1996). <i>Tonkin Gulf and the escalation of the Vietnam War</i>. University of North Carolina Press.</div>
+      <div>Stockdale, J. B., &amp; Stockdale, S. (1984). <i>In love and war</i>. Harper &amp; Row.</div>
+      <div>U.S. Department of Defense. (n.d.). <i>U.S. military personnel in South Vietnam, year end strength, 1960 to 1973</i>.</div>
+      <div>U.S. Senate, Committee on Foreign Relations. (1968). <i>The Gulf of Tonkin, the 1964 incidents</i>. Hearing, 90th Congress.</div>
+      <div>U.S. Senate. (1964, August 6 to 7). Debate on the Southeast Asia Resolution. <i>Congressional Record</i>, 110.</div>
+      <div>Photographs: U.S. Navy and Naval History and Heritage Command, LBJ Presidential Library, National Archives, Library of Congress and U.S. Senate Historical Office, via Wikimedia Commons. Public domain. Colorized photographs are digital colorizations of black and white originals.</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="saved" id="toast">Saved</div>
+
+<script>
+(function(){
+  var KEY='hh-black-sea-v1';
+  var $=function(id){return document.getElementById(id);};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- evasive action ---------- */
+  var NS='http://www.w3.org/2000/svg';
+  var blips=$('blips'),wakes=$('wakes'),sweep=$('sweep');
+  if(reduce&&sweep)sweep.style.display='none';
+  var st={step:0,torp:0,cont:0,turns:0,headA:0,headB:0};
+  var steps=[
+    {t:'about 9:35 PM',x:'The Maddox radar picks up one contact east of the ships, 9,800 yards out and closing at nearly 40 knots.',blip:[90,147]},
+    {t:'9:37 PM',x:'At 6,200 yards the contact turns sharply south. The combat information center reads the turn as a torpedo run and logs a torpedo. The Maddox sonarman heard a noise spike and did not call it a torpedo. North Vietnamese boats were trained to fire from inside 1,000 yards.',blip:[100,93],torp:1},
+    {t:'9:40 PM',x:'Both destroyers open fire. Within five minutes the contact fades off the Maddox radar. For the next fifteen minutes the scope is empty.',clear:true},
+    {t:'10:01 PM',x:'New contacts appear from the west. They flash for a few sweeps and vanish. The sonar room reports a torpedo in the water. Both captains order hard turns. Use Turn hard to dodge.',blip:[275,120],torp:1,evade:true},
+    {t:'11:35 PM',x:'The action is called over. Herrick reports two enemy boats sunk and another damaged.',clear:true},
+    {t:'After midnight',x:'Herrick starts reviewing the reports. Read what the sonar was really hearing below.',end:true}
+  ];
+  var turnMsgs=['Star shells light up the water. Nothing there.','Jets from the Ticonderoga drop flares on the contact and report empty sea.','The Turner Joy fires at a blotch on the radar with shells set to burst near anything solid.','Sonar: high speed screws, torpedo in the water. The ship heels into another turn.','The Maddox gun director cannot lock onto any target.','Four Turner Joy sailors think they see a white streak in the water.','Another contact flashes on, holds three sweeps, and disappears.','Depth charges go over the side to scare off a boat nobody can see.'];
+  function polar(deg,r){var a=(deg-90)*Math.PI/180;return [200+r*Math.cos(a),200+r*Math.sin(a)];}
+  function addBlip(deg,r,fade){
+    var p=polar(deg,r),c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',p[0].toFixed(1));c.setAttribute('cy',p[1].toFixed(1));c.setAttribute('r','6');
+    c.setAttribute('fill','#62d2c8');c.setAttribute('class','blip');blips.appendChild(c);
+    st.cont++;$('tCont').textContent=st.cont;
+    if(fade){setTimeout(function(){c.style.opacity='0';},reduce?600:1400);setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},reduce?700:2400);}
+    return c;
+  }
+  function clearBlips(){while(blips.firstChild)blips.removeChild(blips.firstChild);}
+  function setTorp(n){st.torp=n;$('tTorp').textContent=n;}
+  function flare(){
+    var f=$('flarefx');if(reduce)return;
+    var a=Math.random()*360,p=polar(a,60+Math.random()*110);
+    f.setAttribute('cx',p[0]);f.setAttribute('cy',p[1]);f.setAttribute('r','14');f.setAttribute('opacity','.55');
+    setTimeout(function(){f.setAttribute('opacity','0');f.setAttribute('r','0');},450);
+  }
+  function drawWake(g,x,y,from,to){
+    var r=16,a1=(from-90)*Math.PI/180,a2=(to-90)*Math.PI/180;
+    var p=document.createElementNS(NS,'path');
+    p.setAttribute('d','M'+(x+r*Math.cos(a1)).toFixed(1)+' '+(y+r*Math.sin(a1)).toFixed(1)+' A'+r+' '+r+' 0 0 '+(to>from?1:0)+' '+(x+r*Math.cos(a2)).toFixed(1)+' '+(y+r*Math.sin(a2)).toFixed(1));
+    wakes.appendChild(p);if(wakes.childNodes.length>10)wakes.removeChild(wakes.firstChild);
+  }
+  function renderShips(){
+    $('shipA').setAttribute('transform','translate(194 204) rotate('+st.headA+')');
+    $('shipB').setAttribute('transform','translate(208 196) rotate('+st.headB+')');
+  }
+  function show(i){
+    var s=steps[i];
+    $('sclock').innerHTML='<small>Ship\'s time</small>'+s.t;
+    $('slog').textContent=s.x;
+    if(s.clear){clearBlips();$('flarefx').setAttribute('opacity','0');}
+    if(s.blip)addBlip(s.blip[0],s.blip[1],false);
+    if(s.torp)setTorp(st.torp+s.torp);
+    $('sturn').disabled=!s.evade;
+    $('snext').disabled=!!s.evade&&st.turns<5;
+    if(s.end){$('sreveal').classList.add('on');$('snext').disabled=true;}
+  }
+  $('snext').addEventListener('click',function(){
+    if(st.step>=steps.length)return;
+    show(st.step);st.step++;
+    if(st.step>=steps.length)$('snext').disabled=true;
+  });
+  $('sturn').addEventListener('click',function(){
+    var dA=(st.turns%2?-1:1)*(70+Math.round(Math.random()*40));
+    drawWake(wakes,194,204,st.headA,st.headA+dA);
+    st.headA+=dA;st.headB+=dA*0.8;renderShips();
+    st.turns++;
+    var add=2+Math.floor(Math.random()*3);setTorp(st.torp+add);
+    addBlip(Math.random()*360,50+Math.random()*130,true);
+    flare();
+    $('slog').textContent='Hard turn. Sonar reports '+add+' more torpedoes. '+turnMsgs[(st.turns-1)%turnMsgs.length];
+    if(st.turns>=5)$('snext').disabled=false;
+  });
+  $('sreset').addEventListener('click',function(){
+    st={step:0,torp:0,cont:0,turns:0,headA:0,headB:0};clearBlips();while(wakes.firstChild)wakes.removeChild(wakes.firstChild);
+    renderShips();setTorp(0);$('tCont').textContent='0';$('sturn').disabled=true;$('snext').disabled=false;
+    $('sreveal').classList.remove('on');$('sclock').innerHTML='<small>Ship\'s time</small>Dusk';
+    $('slog').innerHTML='Press <b>Next report</b> to start the night.';
+  });
+
+  /* ---------- two nights ---------- */
+  var cells=[].slice.call(document.querySelectorAll('#nights td.a4')),filled=0;
+  $('nfill').addEventListener('click',function(){
+    if(filled>=cells.length)return;
+    var c=cells[filled];c.textContent=c.getAttribute('data-a');c.classList.add('on');filled++;
+    $('nstat').textContent=filled+' of '+cells.length+' checked';
+    if(filled>=cells.length){this.disabled=true;$('nstat').textContent='August 4 left almost nothing that a real fight leaves behind.';}
+    else this.textContent='Check the next row';
+  });
+
+  /* ---------- public record by year ---------- */
+  var dayRows=[].slice.call(document.querySelectorAll('#day li'));
+  var ybtns=[].slice.call(document.querySelectorAll('#daykit .years button'));
+  var notes={1964:'In 1964 the public version of the day was an attack and a speech.',1968:'The 1968 Senate hearings bring out Herrick\'s doubts and McNamara\'s claim that the intercepts were proof.',1971:'Johnson\'s memoir describes the morning call about the intercepted warning.',1992:'The State Department\'s official history prints the strike cable and the notes of the 6:15 meeting.',2005:'The NSA releases Hanyok\'s study. The record of the day is finally complete enough to judge.'};
+  function setYear(y){
+    var shown=0;
+    dayRows.forEach(function(li){var on=+li.getAttribute('data-y')<=y;li.classList.toggle('hid',!on);li.setAttribute('aria-hidden',on?'false':'true');if(on)shown++;});
+    ybtns.forEach(function(b){b.setAttribute('aria-pressed',+b.getAttribute('data-y')===y?'true':'false');});
+    $('daynote').textContent=y+': '+shown+' of '+dayRows.length+' entries public. '+notes[y];
+  }
+  ybtns.forEach(function(b){b.addEventListener('click',function(){setYear(+b.getAttribute('data-y'));});});
+  setYear(1964);
+
+  /* ---------- vote ---------- */
+  var senate=$('senate'),house=$('house');
+  var noPos=[23,61];
+  var voters={
+    morse:{img:'/storyhub/hh/black-sea/assets/b12-morse.jpg',alt:'Portrait of Senator Wayne Morse',name:'Wayne Morse, Democrat, Oregon',q:'I believe that history will record that we have made a great mistake in subverting and circumventing the Constitution of the United States.',n:'Senate floor, August 1964. He lost his seat in 1968.'},
+    gruening:{img:'/storyhub/hh/black-sea/assets/b13-gruening.jpg',alt:'Senator Ernest Gruening standing in a Senate hearing room',name:'Ernest Gruening, Democrat, Alaska',q:'This resolution is a further authorization for escalation unlimited. I am opposed to sacrificing a single American boy in this venture.',n:'Senate floor, August 1964. He lost his seat in 1968.'}
+  };
+  for(var i=0;i<90;i++){
+    if(noPos.indexOf(i)>-1){
+      var k=i===noPos[0]?'morse':'gruening',b=document.createElement('button');
+      b.type='button';b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','No vote: '+voters[k].name);b.dataset.k=k;
+      b.addEventListener('click',function(){
+        var v=voters[this.dataset.k];
+        [].forEach.call(senate.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed','false');});
+        this.setAttribute('aria-pressed','true');
+        var vp=$('votepanel'),who=document.createElement('div'),im=new Image(),tx=document.createElement('div');
+        who.className='who';im.src=v.img;im.alt=v.alt;
+        tx.innerHTML='<b>'+v.name+'</b><br><q>'+v.q+'</q><p style="margin:.6em 0 0;font-size:.9rem;color:var(--dim)">'+v.n+'</p>';
+        who.appendChild(im);who.appendChild(tx);vp.innerHTML='';vp.appendChild(who);
+      });
+      senate.appendChild(b);
+    }else senate.appendChild(document.createElement('i'));
+  }
+  for(var h=0;h<416;h++)house.appendChild(document.createElement('i'));
+
+  /* ---------- escalation chart ---------- */
+  var years=[1964,1965,1966,1967,1968,1969,1970,1971,1972,1973];
+  var troops=[23300,184300,385300,485600,536100,475200,334600,156800,24200,50];
+  var dead=[216,1928,6350,11363,16899,11780,6173,2414,759,68];
+  var svg=$('esc'),W=860,H=330,L=64,R=54,T=34,B=44,cw=(W-L-R)/years.length;
+  function el(n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
+  var maxT=600000,maxD=18000;
+  [0,200000,400000,600000].forEach(function(v){var y=H-B-(v/maxT)*(H-T-B);el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:'#22313a'});el('text',{x:L-8,y:y+4,'text-anchor':'end',fill:'#7f949c','font-family':'IBM Plex Mono, monospace','font-size':11},v===0?'0':(v/1000)+'K');});
+  [0,6000,12000,18000].forEach(function(v){var y=H-B-(v/maxD)*(H-T-B);el('text',{x:W-R+8,y:y+4,fill:'#ff7a1a','font-family':'IBM Plex Mono, monospace','font-size':11},v===0?'0':(v/1000)+'K');});
+  var bars=[];
+  years.forEach(function(yr,i){
+    var x=L+i*cw+cw*0.18,w=cw*0.64,h=(troops[i]/maxT)*(H-T-B);
+    bars.push(el('rect',{x:x,y:H-B-h,width:w,height:Math.max(h,1),fill:'#3d5864'}));
+    el('text',{x:L+i*cw+cw/2,y:H-B+18,'text-anchor':'middle',fill:'#9fb0b8','font-family':'IBM Plex Mono, monospace','font-size':12},String(yr));
+  });
+  var pts=years.map(function(yr,i){return [L+i*cw+cw/2,H-B-(dead[i]/maxD)*(H-T-B)];});
+  el('polyline',{points:pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' '),fill:'none',stroke:'#ff7a1a','stroke-width':2.5});
+  var dots=pts.map(function(p){return el('circle',{cx:p[0],cy:p[1],r:4,fill:'#ff7a1a'});});
+  el('line',{x1:L+cw*0.6,x2:L+cw*0.6,y1:T-8,y2:H-B,stroke:'#f1eee6','stroke-dasharray':'3 4'});
+  el('text',{x:L+cw*0.6+6,y:T,fill:'#f1eee6','font-family':'IBM Plex Mono, monospace','font-size':11},'AUG 1964 RESOLUTION');
+  el('line',{x1:L+cw*7.05,x2:L+cw*7.05,y1:T+22,y2:H-B,stroke:'#f1eee6','stroke-dasharray':'3 4'});
+  el('text',{x:L+cw*7.05+6,y:T+30,fill:'#f1eee6','font-family':'IBM Plex Mono, monospace','font-size':11},'JAN 1971 REPEAL');
+  el('rect',{x:W-R-250,y:6,width:12,height:12,fill:'#3d5864'});el('text',{x:W-R-232,y:16,fill:'#9fb0b8','font-family':'IBM Plex Mono, monospace','font-size':11},'TROOPS');
+  el('line',{x1:W-R-160,x2:W-R-142,y1:12,y2:12,stroke:'#ff7a1a','stroke-width':2.5});el('text',{x:W-R-136,y:16,fill:'#9fb0b8','font-family':'IBM Plex Mono, monospace','font-size':11},'KILLED THAT YEAR');
+  var yb=$('yearbtns'),yearNotes={1964:'Before the resolution, American advisers were already fighting and dying in small numbers.',1965:'Johnson begins sustained bombing of the North and sends the first ground combat units in March.',1968:'The peak. More Americans died in Vietnam in 1968 than in any other year.',1971:'Congress repealed the resolution in January. The war went on under other authority.',1973:'The last American combat troops leave in March.'};
+  function pick(i){
+    [].forEach.call(yb.children,function(b,j){b.setAttribute('aria-pressed',j===i?'true':'false');});
+    bars.forEach(function(r,j){r.setAttribute('fill',j===i?'#9fc9d0':'#3d5864');});
+    dots.forEach(function(d,j){d.setAttribute('r',j===i?7:4);});
+    $('rTroops').textContent=troops[i].toLocaleString('en-US');$('rTroopsL').textContent='troops in Vietnam, end of '+years[i];
+    $('rDead').textContent=dead[i].toLocaleString('en-US');$('rDeadL').textContent='Americans killed in '+years[i];
+    $('rNote').textContent=(yearNotes[years[i]]||'')+' From 1965 through 1973, 57,734 Americans were killed in the war.';
+  }
+  years.forEach(function(yr,i){var b=document.createElement('button');b.type='button';b.textContent=yr;b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){pick(i);});yb.appendChild(b);});
+  pick(0);
+
+  /* ---------- translation ---------- */
+  var gl={
+    '135':'Squadron 135 was the North Vietnamese torpedo boat unit that fought the Maddox on August 2. The message begins by pointing back to a report that unit had already made.',
+    planes:'North Vietnam claimed two American planes shot down on August 2. In fact one Navy jet was damaged and flew off trailing black exhaust with an escort. The claim matches August 2. No planes were hit on August 4.',
+    ships:'This is the line McNamara leaned on. Switch to the Philippines station version below and read it again.',
+    ship:'On August 2 the Maddox took one bullet hole. A North Vietnamese observer who watched it fight could reasonably report it might be damaged.'
+  };
+  var phs=[].slice.call(document.querySelectorAll('#tmsg .ph'));
+  phs.forEach(function(p){
+    function act(){phs.forEach(function(x){x.setAttribute('aria-expanded',x===p?'true':'false');});$('gloss').textContent=gl[p.dataset.k];}
+    p.addEventListener('click',act);
+    p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();act();}});
+  });
+  function ver(sm){
+    $('vNSA').setAttribute('aria-pressed',sm?'false':'true');$('vSM').setAttribute('aria-pressed',sm?'true':'false');
+    $('swapword').textContent=sm?'We sacrificed two comrades':'We sacrificed two ships';
+    $('swapnote').textContent=sm?'The Philippines station read the loss as two comrades, meaning two men. On August 2 North Vietnamese boats had come home with dead crewmen aboard. Two dead sailors from Sunday fit this message. Two sunk boats on Tuesday night was the version Washington used.':'NSA headquarters issued the version Washington saw: two ships sacrificed. That reads like boats sunk in a fight on August 4.';
+  }
+  $('vNSA').addEventListener('click',function(){ver(false);});$('vSM').addEventListener('click',function(){ver(true);});
+
+  /* ---------- fifty nine folders ---------- */
+  var grid=$('drawergrid'),used=[4,17,22,31,40,52];
+  for(var f=0;f<59;f++){var t=document.createElement('i');if(used.indexOf(f)>-1)t.className='used';grid.appendChild(t);}
+  function drawer(chrono){
+    grid.classList.toggle('chrono',chrono);
+    $('dChrono').setAttribute('aria-pressed',chrono?'true':'false');$('dAll').setAttribute('aria-pressed',chrono?'false':'true');
+    $('dChrono').className=chrono?'btn':'btn alt';$('dAll').className=chrono?'btn alt':'btn';
+    if(chrono){$('dcount').innerHTML='6 of 59<small>a bit more than 10 percent</small>';$('dnote').textContent='The chronology cited six reports, and they were the only six that could be read as North Vietnamese aggression. The other 53 were left out. They included reports that the North Vietnamese did not know where the destroyers were, reports on the salvage of the boats damaged Sunday, and intercepted orders telling boats to stay away from the Americans.';}
+    else{$('dcount').innerHTML='59 reports<small>on file by August 6, 1964</small>';$('dnote').textContent='Status reports on the North Vietnamese boats, coastal observers tracking the destroyers, the salvage of two boats damaged on August 2, boat movements, and intelligence reports. All of it was available when the chronology was written.';}
+  }
+  $('dChrono').addEventListener('click',function(){drawer(true);});$('dAll').addEventListener('click',function(){drawer(false);});
+
+  /* ---------- verdict board ---------- */
+  var claims=[
+    {c:'North Vietnamese boats attacked the USS Maddox on August 2, 1964.',v:'Confirmed',r:'Photographs, eyewitnesses, a bullet hole and North Vietnamese casualties. Section 01.'},
+    {c:'North Vietnamese boats attacked two American destroyers on the night of August 4.',v:'Debunked',r:'Herrick doubted it within hours, pilots saw nothing, and the NSA\'s full review found no attack. Sections 02 and 05.'},
+    {c:'The strike on North Vietnam was ordered before anyone had finished checking whether the second attack happened.',v:'Confirmed',r:'Herrick asked for a complete evaluation first. McNamara said they would know definitely in the morning. The strike was set in motion that evening. Section 03.'},
+    {c:'NSA officials forged fake North Vietnamese messages to prove the attack.',v:'Debunked',r:'Hanyok found real fragments used out of context and 53 of 59 reports left out, but nothing manufactured. Section 05.'},
+    {c:'Congress declared war on North Vietnam in August 1964.',v:'Debunked',r:'Congress approved "all necessary measures" and never declared war. Section 04.'},
+    {c:'President Johnson staged the Gulf of Tonkin incident to start the Vietnam War.',v:'Misleading',r:'August 2 was real and nothing here shows August 4 was planned. The record shows a false report accepted in a single day and doubts kept from Congress. Sections 03 and 04.'}
+  ];
+  var stamps=['Confirmed','Debunked','Misleading','Unproven'],cbox=$('claims');
+  claims.forEach(function(cl,i){
+    var d=document.createElement('div');d.className='claim';
+    var h='<div class="ct" id="cl'+i+'">'+(i+1)+'. '+cl.c+'</div><div class="stamps" role="group" aria-labelledby="cl'+i+'">';
+    stamps.forEach(function(s){h+='<button type="button" aria-pressed="false" data-i="'+i+'" data-s="'+s+'">'+s+'</button>';});
+    h+='</div><div class="record" id="rec'+i+'" aria-live="polite"><b>The record: '+cl.v+'.</b> '+cl.r+'</div>';
+    d.innerHTML=h;cbox.appendChild(d);
+  });
+  var verdicts={};
+  function markStamp(i,s){
+    verdicts[i]=s;
+    [].forEach.call(cbox.querySelectorAll('button[data-i="'+i+'"]'),function(b){b.setAttribute('aria-pressed',b.dataset.s===s?'true':'false');});
+    $('rec'+i).classList.add('on');
+  }
+  cbox.addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;markStamp(+b.dataset.i,b.dataset.s);queueSave();});
+
+  /* ---------- saving ---------- */
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var radios=[].slice.call(document.querySelectorAll('input[name="prompt"]'));
+  var essay=$('essay'),wc=$('wc'),toast=$('toast'),tT,sT;
+  function keyOf(el){return el.dataset.q||el.id;}
+  function markPrompt(){radios.forEach(function(r){r.closest('.prompt').classList.toggle('sel',r.checked);});}
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=150&&n<=200)?'ok':'';}
+  function save(){
+    var d={};fields.forEach(function(el){d[keyOf(el)]=el.value;});
+    var r=radios.filter(function(x){return x.checked;})[0];d.__prompt=r?r.value:'';d.__verdicts=verdicts;
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
+  (function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(el){var v=d[keyOf(el)];if(typeof v==='string')el.value=v;});
+    if(d.__prompt)radios.forEach(function(r){if(r.value===d.__prompt)r.checked=true;});
+    if(d.__verdicts)Object.keys(d.__verdicts).forEach(function(i){markStamp(+i,d.__verdicts[i]);});
+  })();
+  markPrompt();count();
+  fields.forEach(function(el){el.addEventListener('input',queueSave);});
+  radios.forEach(function(r){r.addEventListener('change',function(){markPrompt();queueSave();});});
+  essay.addEventListener('input',count);
+
+  /* ---------- copy ---------- */
+  $('copy').addEventListener('click',function(){
+    var btn=this;function g(id){var e=$(id);return e?e.value.trim():'';}
+    var out=['NOTHING BUT BLACK SEA: The Gulf of Tonkin, 1964','Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'),'','QUESTIONS'];
+    ['q1','q2','q3','q4','q5'].forEach(function(id,i){out.push('Q'+(i+1)+'. '+(g(id)||'[no answer]'));out.push('');});
+    out.push('VERDICT BOARD');
+    claims.forEach(function(cl,i){out.push((i+1)+'. '+cl.c);out.push('   My stamp: '+(verdicts[i]||'[none]')+'   The record: '+cl.v);});
+    out.push('');
+    var r=radios.filter(function(x){return x.checked;})[0];
+    out.push('ARGUMENT: '+(r?r.value.toUpperCase():'NO PROMPT SELECTED')+'   Word count: '+wc.textContent);
+    out.push('');out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';btn.classList.toggle('done',ok);setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else fallback();
+  });
+})();
+</script>
+</body></html>

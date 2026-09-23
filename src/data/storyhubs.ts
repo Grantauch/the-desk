@@ -20,6 +20,28 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'hh-nothing-but-black-sea',
+    href: '/hubs/hh-nothing-but-black-sea.html',
+    title: 'nothing but black sea',
+    course: 'hidden history',
+    unit: 'unit 03 / reading the record',
+    period: '1964–2005',
+    status: 'ready to teach',
+    question: 'the navy reported a second attack and congress handed over a war. what actually happened in the gulf of tonkin?',
+    blurb:
+      'Torpedo boats attack the USS Maddox in daylight on August 2, 1964. Two nights later two destroyers fight radar ghosts in a storm, the President goes on television, and Congress votes 504 to 2. An NSA historian finally opens the whole file in 2005.',
+    cover: '/storyhub/hh/black-sea/assets/b01-maddox.jpg',
+    coverAlt: 'Colorized photograph of the destroyer USS Maddox underway at sea',
+    topics: ['gulf of tonkin', 'vietnam war', 'nsa', 'lyndon johnson', 'robert mcnamara', 'tonkin gulf resolution'],
+    inside: [
+      'Five sections from the real attack of August 2 to the NSA study released in 2005.',
+      'Work a radar scope through the night of August 4 and watch the ships create their own torpedo reports.',
+      'Slide from 1964 to 2005 as the public record of one day fills in, then check a translation and a drawer of 59 reports.',
+      'Find the two votes against, trace what "all necessary measures" carried, and stamp six claims.',
+      'Five short questions and a 150 to 200 word argument. Answers save in the browser and copy into Classroom.',
+    ],
+  },
+  {
     slug: 'ush9-i-seen-my-opportunities',
     href: '/hubs/ush9-i-seen-my-opportunities.html',
     title: 'i seen my opportunities',
