@@ -148,8 +148,10 @@ assert.match(rosterSyncSnapshot, /GD_ROSTER_SYNC_CONTRACT/);
 assert.match(rosterSyncSnapshot, /studentEmail/);
 assert.match(rosterSyncSnapshot, /studentName/);
 assert.match(rosterSyncSnapshot, /classPeriod/);
-assert.doesNotMatch(rosterSyncSnapshot, /pinHash|PIN Cards|readPassLog_|readCheckIns|studentPassUsage|accessMode|unlimited/i,
-  'GoClassroom roster bridge must expose membership identity only');
+assert.match(rosterSyncSnapshot, /credentialReady/,
+  'GoClassroom roster bridge must expose only a boolean credential-readiness signal, never PIN material');
+assert.doesNotMatch(rosterSyncSnapshot, /readPassLog_|readCheckIns|studentPassUsage|accessMode|unlimited/i,
+  'GoClassroom roster bridge must not expose pass, check-in, or access-policy data');
 assert.doesNotMatch(rosterSyncSnapshot, /ensureWorkbookReady_|setupWorkbook_|ensureBackgroundTriggers_|withLock_|appendRow|setValue|setValues|deleteRow|deleteProperty|setProperty/,
   'GoClassroom roster bridge must remain read-only');
 assert.match(rosterSyncSnapshot, /rosterSyncRevision_/);
