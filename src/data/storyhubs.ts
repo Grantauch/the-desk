@@ -20,6 +20,28 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'hh-too-successful',
+    href: '/hubs/hh-too-successful.html',
+    title: 'too successful',
+    course: 'hidden history',
+    unit: 'unit 04 / trust and verify',
+    period: '1966–1977',
+    status: 'ready to teach',
+    question: 'the military really did make it rain over the ho chi minh trail. does that prove the government controls the weather?',
+    blurb:
+      'Operation Popeye: a secret cloud seeding program over Laos and Vietnam, a State Department memo that called the test too successful, and a closed Senate hearing where the Pentagon admitted the results were limited and unverifiable.',
+    cover: '/storyhub/hh/too-successful/assets/p01-wc130-54th.jpg',
+    coverAlt: 'A white Air Force WC-130 weather reconnaissance plane flying over a blue ocean dotted with clouds',
+    topics: ['operation popeye', 'vietnam war', 'weather modification', 'cloud seeding', 'chemtrails', 'conspiracy theories'],
+    inside: [
+      'Seven sections from the 1966 test over the Se Kong valley to the treaty signed in Geneva in 1977.',
+      'Seed a cloud four ways and see what the technique could and could not do.',
+      'Bet on how long the secret would hold, then step through the Pentagon’s own declassified maps and flight totals.',
+      'Follow June 1971 from 1,391 seeding units down to the roads, then grade a 1972 news story built on unnamed sources.',
+      'Four short questions and a 150 to 200 word argument. Answers save in the browser and copy into Classroom.',
+    ],
+  },
+  {
     slug: 'hh-sheer-poppycock',
     href: '/hubs/hh-sheer-poppycock.html',
     title: 'sheer poppycock',

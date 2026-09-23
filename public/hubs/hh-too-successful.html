@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Too Successful &middot; Hidden History</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="Operation Popeye, 1966 to 1974. The U.S. Air Force secretly seeded clouds over the Ho Chi Minh Trail to make mud. Follow the real weather weapon from its first test to the closed Senate hearing that exposed it, then test what it does and does not prove.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-too-successful.html">
+<meta property="og:title" content="Too Successful · The Secret Rain Over the Ho Chi Minh Trail">
+<meta property="og:description" content="A real military weather program, a memo that said it worked too well, and a Pentagon that later could not prove it worked at all.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-too-successful.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/too-successful/assets/p01-wc130-54th.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Saira+Stencil+One&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --sky:#edf1ee;
+  --iso:#d3ddd8;
+  --ink:#14181c;
+  --dim:#48515a;
+  --laterite:#a33c16;
+  --laterite-d:#7f2c0e;
+  --laterite-l:#f39a6b;
+  --rain:#1f5f8f;
+  --rain-l:#8ec6ec;
+  --storm:#121a23;
+  --storm2:#1b2632;
+  --stormline:#344659;
+  --mist:#b8c3ce;
+  --bone:#e8ece8;
+  --gpo:#f0e9de;
+  --gpo2:#e4dacb;
+  --green:#1c6a3c;
+  --amber:#8a5700;
+  --red:#a11d2b;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--sky);color:var(--ink);font-family:Literata,Georgia,serif;font-size:18px;line-height:1.66}
+img{max-width:100%}
+p{margin:0 0 1.05em}
+a{color:inherit}
+button{font:inherit}
+.cap{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase}
+.stencil{font-family:"Saira Stencil One",Impact,"Arial Black",sans-serif;font-weight:400}
+
+/* COVER */
+.cover{position:relative;min-height:94vh;display:flex;align-items:flex-end;justify-content:center;background:var(--storm);color:var(--bone);overflow:hidden;padding:0 16px 34px}
+.cover > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,16,24,.05) 0%,rgba(10,16,24,.2) 45%,rgba(10,16,24,.9) 100%)}
+.coverc{position:absolute;right:12px;top:12px;z-index:1;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:#e8ece8;background:rgba(10,16,24,.74);padding:4px 8px;max-width:62%;text-align:right}
+.sheet{position:relative;z-index:1;width:min(640px,100%);background:#fbfaf6;color:var(--ink);box-shadow:0 30px 60px -20px rgba(0,0,0,.75)}
+.sheet .stripe{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:var(--laterite);color:#fff;padding:7px 14px 6px}
+.sheet .stripe s{text-decoration-thickness:2px}
+.sheet .in{padding:20px 22px 18px;border:3px solid var(--laterite);border-top:0;position:relative}
+.sheet h1{font-family:"Saira Stencil One",Impact,sans-serif;font-weight:400;font-size:clamp(3rem,12vw,5.8rem);line-height:.9;margin:6px 0 12px;letter-spacing:.01em;color:var(--ink);text-transform:uppercase}
+.sheet .dek{font-size:clamp(1rem,2.4vw,1.12rem);line-height:1.52;margin:0 0 14px;max-width:48ch}
+.sheet .foot{display:flex;justify-content:space-between;gap:6px 18px;flex-wrap:wrap;border-top:1.5px solid var(--ink);padding-top:9px;color:var(--dim)}
+.declass{position:absolute;right:16px;top:14px;transform:rotate(7deg);border:3px solid var(--rain);color:var(--rain);padding:4px 9px 3px;text-align:center;background:rgba(251,250,246,.85);line-height:1.2}
+.declass b{display:block;font-size:.95rem;letter-spacing:.18em}
+@media(max-width:560px){.declass{position:static;display:inline-block;transform:rotate(-3deg);margin:0 0 6px}.coverc{font-size:.62rem;max-width:74%}}
+
+/* BANDS */
+.band{padding:64px 16px 50px}
+.chart{background-color:var(--sky);background-image:repeating-radial-gradient(circle at 12% 18%,transparent 0 62px,var(--iso) 62px 63px),repeating-radial-gradient(circle at 92% 78%,transparent 0 80px,var(--iso) 80px 81px)}
+.col{max-width:700px;margin:0 auto;background:var(--sky);padding:6px 0}
+.col > *{min-width:0}
+.storm{background:var(--storm);color:var(--bone)}
+.storm .col{background:var(--storm)}
+.gpo{background:var(--gpo)}
+.gpo .col{background:var(--gpo)}
+.wide{max-width:1000px;margin:0 auto}
+
+/* FLIGHT STRIP TAG + HEADINGS */
+.tag{display:inline-flex;align-items:stretch;border:1.5px solid var(--ink);color:var(--ink);font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.84rem;letter-spacing:.14em;text-transform:uppercase;background:var(--sky);max-width:100%}
+.tag .no{background:var(--laterite);color:#fff;padding:4px 10px 3px}
+.tag .where{padding:4px 10px 3px;border-left:1.5px solid var(--ink)}
+.storm .tag{border-color:var(--laterite-l);color:var(--bone);background:var(--storm)}
+.storm .tag .no{background:var(--laterite-l);color:var(--storm)}
+.storm .tag .where{border-left-color:var(--laterite-l)}
+.gpo .tag{background:var(--gpo)}
+h2{font-family:"Saira Stencil One",Impact,sans-serif;font-weight:400;font-size:clamp(2.1rem,6.6vw,3.5rem);line-height:1.02;margin:18px 0 22px;letter-spacing:.005em;text-wrap:balance}
+h2 em{font-style:normal;color:var(--laterite)}
+.storm h2 em{color:var(--laterite-l)}
+.lead{font-size:1.08rem}
+.lead::first-line{font-weight:600}
+
+/* FIGURES */
+figure{margin:30px 0}
+figure img{display:block;width:100%;height:auto;background:#c9d0cc}
+figcaption{font-size:.9rem;line-height:1.5;padding:9px 0 0;color:var(--dim)}
+figcaption b{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-right:6px}
+.storm figcaption{color:var(--mist)}
+.storm figcaption b{color:var(--bone)}
+.credit{display:block;margin-top:4px;font-family:"Barlow Condensed",sans-serif;font-weight:500;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:#59616a}
+.storm .credit{color:#a4b0bd}
+.gpo figcaption,.gpo .credit{color:#454b52}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+@media(max-width:600px){.duo{grid-template-columns:minmax(0,1fr)}}
+.inset{float:right;width:40%;margin:6px 0 14px 22px}
+@media(max-width:600px){.inset{float:none;width:100%;margin:22px 0}}
+.clear{clear:both}
+.half{max-width:430px;margin-left:auto;margin-right:auto}
+.doc img{border:1px solid #bfb39c;box-shadow:0 14px 30px -18px rgba(0,0,0,.5)}
+
+/* DOCUMENTS */
+.memo{background:#fbfaf6;color:var(--ink);border:1px solid #bdb6a6;margin:28px 0;box-shadow:0 16px 30px -22px rgba(0,0,0,.7)}
+.memo .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:var(--laterite);color:#fff;padding:6px 14px 5px}
+.memo .bd{padding:14px 18px 10px;font-family:"Space Mono","Courier New",monospace;font-size:.92rem;line-height:1.6}
+.memo .bd p{margin:0 0 .8em}
+.memo .ft{padding:0 18px 12px;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tx{margin:28px 0;border-left:4px solid var(--rain);padding:4px 0 4px 16px;font-family:"Space Mono","Courier New",monospace;font-size:.92rem;line-height:1.6}
+.tx p{margin:0 0 .8em}
+.tx b{font-weight:700;letter-spacing:.06em}
+.tx .src{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.storm .tx{border-left-color:var(--rain-l)}
+.storm .tx .src{color:var(--mist)}
+.pull{margin:34px 0;padding:18px 0 16px;border-top:3px solid currentColor;border-bottom:1px solid currentColor}
+.pull p{font-family:Literata,Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.3rem,3.8vw,1.8rem);line-height:1.28;margin:0}
+.pull cite{display:block;margin-top:12px;font-style:normal;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:var(--laterite)}
+.storm .pull cite{color:var(--laterite-l)}
+.vs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:26px 0;border:2px solid var(--ink)}
+@media(max-width:600px){.vs{grid-template-columns:minmax(0,1fr)}}
+.vs > div{padding:14px 16px;background:#fbfaf6}
+.vs > div + div{border-left:2px solid var(--ink)}
+@media(max-width:600px){.vs > div + div{border-left:0;border-top:2px solid var(--ink)}}
+.vs .who{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--laterite)}
+.vs p{margin:8px 0 0;font-size:.98rem}
+.vs .big{font-family:Literata,Georgia,serif;font-style:italic;font-weight:600;font-size:1.25rem;line-height:1.35}
+
+/* INSTRUMENT SHELL */
+.rig{margin:34px 0;border:2px solid var(--ink);background:#fbfcfb;color:var(--ink)}
+.rig > header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--storm2);color:#fff;padding:9px 14px;border-bottom:4px solid var(--laterite)}
+.rig > header b{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.98rem;letter-spacing:.16em;text-transform:uppercase}
+.rig > header span{font-family:"Barlow Condensed",sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:#cfd9e3}
+.rig .in{padding:16px}
+.btn{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:#fff;border:2px solid var(--ink);padding:8px 14px;min-height:44px;cursor:pointer;border-radius:0}
+.btn:hover{background:var(--laterite-d);border-color:var(--laterite-d)}
+.btn.alt{background:#fff;color:var(--ink);border-color:var(--ink)}
+.btn.alt:hover{background:var(--sky)}
+.btn[aria-pressed="true"],.btn.alt[aria-pressed="true"],.btn[aria-pressed="true"]:hover{background:var(--laterite);border-color:var(--laterite);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:3px solid var(--rain);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{font-size:.97rem;margin:12px 0 0;min-height:3.2em}
+.small{font-size:.86rem;color:var(--dim)}
+.storm .small{color:var(--mist)}
+.rig .small{color:var(--dim)}
+
+/* SEED THE CLOUD */
+.seed{display:block;width:100%;height:auto;background:#cfe1ee}
+.seed .tower,.seed .base{transform-box:fill-box;transform-origin:50% 100%;transition:transform 1.4s ease}
+.seed .puff{transition:fill 1.2s ease,opacity 1.2s ease}
+.seed .rainl{transition:opacity .6s ease .3s}
+.seed .road{transition:stroke 1s ease .6s}
+.picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+@media(max-width:560px){.picks{grid-template-columns:minmax(0,1fr)}}
+.picks .btn{text-align:left;text-transform:none;letter-spacing:.02em;font-size:1rem;font-weight:600;line-height:1.25}
+.gauges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 4px}
+.gauges div{border-top:3px solid var(--ink);padding-top:6px}
+.gauges b{display:block;font-family:"Saira Stencil One",Impact,sans-serif;font-weight:400;font-size:1.45rem;line-height:1.1}
+.gauges span{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+@media(max-width:480px){.gauges{grid-template-columns:minmax(0,1fr)}}
+
+/* LEAK CLOCK */
+.bet{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 12px}
+.bet input[type=range]{flex:1 1 220px;accent-color:var(--laterite);min-height:44px}
+.bet output{font-family:"Saira Stencil One",Impact,sans-serif;font-size:1.6rem;min-width:5.5ch}
+.clock{display:block;width:100%;height:auto;margin-top:6px}
+.events{list-style:none;margin:14px 0 0;padding:0;border-top:2px solid var(--ink)}
+.events li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid var(--iso);font-size:.95rem;line-height:1.45}
+.events li[hidden]{display:none}
+.events .d{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--laterite)}
+.events li.key .d{color:var(--rain)}
+@media(max-width:480px){.events li{grid-template-columns:minmax(0,1fr);gap:0}}
+
+/* DECLASSIFIED MAPS */
+.mapstage{position:relative;background:var(--gpo);border:1px solid #c7bba7;aspect-ratio:1000/1120;overflow:hidden}
+.mapstage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .45s ease;background:transparent}
+.mapstage img.on{opacity:1}
+.mapstage .stampd{position:absolute;left:10px;top:10px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--laterite);border:2px solid var(--laterite);padding:2px 7px;background:rgba(240,233,222,.9)}
+.mapgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:700px){.mapgrid{grid-template-columns:minmax(0,1fr)}}
+.framectl{display:flex;align-items:center;gap:8px;margin-top:10px}
+.framectl input[type=range]{flex:1;accent-color:var(--laterite);min-height:44px}
+.fdate{font-family:"Saira Stencil One",Impact,sans-serif;font-size:1.5rem;line-height:1.1;margin:0 0 6px}
+.fnote{font-size:.98rem;min-height:7.5em;margin:0 0 10px}
+.ledger{display:block;width:100%;height:auto}
+.modes{margin-top:6px}
+.modes .btn{font-size:.82rem;padding:6px 10px}
+details.data{margin-top:12px;font-size:.9rem}
+details.data summary{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.12em;text-transform:uppercase;color:var(--laterite);min-height:44px;display:flex;align-items:center}
+
+/* JUNE 1971 FUNNEL */
+.funnel{list-style:none;margin:0;padding:0}
+.funnel li{padding:10px 0;border-bottom:1px solid var(--iso)}
+.funnel li[hidden]{display:none}
+.funnel .top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:baseline}
+.funnel .n{font-family:"Saira Stencil One",Impact,sans-serif;font-size:1.7rem;line-height:1;text-align:right}
+.funnel .lab{font-size:.97rem;line-height:1.4}
+.funnel .bar{margin:6px 0 0 108px;height:12px;background:var(--iso);position:relative}
+.funnel .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--rain);min-width:3px;transition:width .6s ease}
+.funnel li.trk .bar i{background:var(--laterite)}
+@media(max-width:480px){.funnel .top{grid-template-columns:70px minmax(0,1fr)}.funnel .n{font-size:1.3rem}.funnel .bar{margin-left:82px}}
+.season{display:none;margin-top:16px}
+.season.on{display:block}
+.cal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid var(--ink)}
+.cal > div{padding:10px 12px;font-size:.9rem;line-height:1.4}
+.cal > div + div{border-left:2px solid var(--ink)}
+.cal .m{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.84rem;margin-bottom:4px}
+.cal .c1{background:#f6efe2}.cal .c2{background:#dbe8f2}.cal .c3{background:#b9d3e6}
+@media(max-width:560px){.cal{grid-template-columns:minmax(0,1fr)}.cal > div + div{border-left:0;border-top:2px solid var(--ink)}}
+.weeks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}
+.weeks div{border:1.5px solid var(--ink);padding:8px;font-size:.84rem;line-height:1.35;background:#fff}
+.weeks div b{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.weeks .hot{background:var(--laterite);color:#fff;border-color:var(--laterite)}
+.weeks .wet{background:var(--rain);color:#fff;border-color:var(--rain)}
+@media(max-width:560px){.weeks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* CHECK THE SOURCES + FORECAST */
+.cards{display:grid;gap:12px}
+.card{border:2px solid var(--ink);background:#fff;padding:12px 14px;position:relative}
+.card .claim{font-weight:600;font-size:1.02rem;line-height:1.4;padding-right:200px}
+@media(max-width:560px){.card .claim{padding-right:0}}
+.card .opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.card .opts .btn{font-size:.82rem;padding:6px 10px;letter-spacing:.08em}
+.card .why{display:none;margin:10px 0 0;font-size:.95rem;line-height:1.5}
+.card.done .why{display:block}
+.card .you{display:none;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.card.done .you{display:block}
+.stamp{position:absolute;right:12px;top:10px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;border:3px solid currentColor;padding:2px 8px 1px;transform:rotate(-5deg);background:#fff}
+@media(max-width:560px){.stamp{position:static;display:inline-block;margin-top:10px}}
+.k-match,.v-confirmed{color:var(--green)}
+.k-other,.v-debunked{color:var(--red)}
+.k-silent,.v-unproven{color:#48515a}
+.v-misleading{color:var(--amber)}
+.card.done.c-match,.card.done.c-confirmed{border-color:var(--green)}
+.card.done.c-other,.card.done.c-debunked{border-color:var(--red)}
+.card.done.c-silent,.card.done.c-unproven{border-color:#48515a;border-style:dashed}
+.card.done.c-misleading{border-color:var(--amber)}
+.tally{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:1.02rem;letter-spacing:.04em;margin-top:14px;min-height:1.6em}
+
+/* QUESTIONS AND WRITING */
+.q{margin:34px 0 0;padding-top:14px;border-top:3px solid currentColor}
+.q label{display:flex;gap:12px;align-items:baseline;margin-bottom:10px;font-size:1rem}
+.q .n{font-family:"Barlow Condensed",sans-serif;font-weight:700;color:var(--laterite);flex:none;font-size:1.02rem;letter-spacing:.08em}
+.storm .q .n{color:var(--laterite-l)}
+textarea{width:100%;min-height:100px;border:1.5px solid #939ca6;background:#fff;color:var(--ink);font-family:Literata,Georgia,serif;font-size:1rem;line-height:1.6;padding:10px 12px;resize:vertical;border-radius:0}
+.idbar{display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:#fff;margin:0 auto;max-width:900px}
+.idbar label{flex:1 1 180px;display:flex;align-items:center;gap:10px;padding:11px 14px;border-right:1px solid var(--iso);font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;border:0;border-bottom:1.5px solid #939ca6;background:transparent;font-family:"Space Mono",monospace;font-size:.98rem;color:var(--ink);padding:2px}
+.idbar input:focus{outline:0;border-bottom-color:var(--laterite)}
+.idwrap{padding:26px 16px 0;background:var(--sky)}
+.prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+@media(max-width:640px){.prompts{grid-template-columns:minmax(0,1fr)}}
+.prompt{display:block;border:2px solid var(--bone);background:var(--storm2);color:var(--bone);padding:14px 16px;cursor:pointer;position:relative;font-size:.97rem}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--laterite-l);margin-bottom:6px}
+.prompt.sel{background:var(--bone);border-color:var(--bone);color:var(--ink)}
+.prompt.sel .ph{color:var(--laterite)}
+.prompt:focus-within{outline:3px solid var(--rain-l);outline-offset:2px}
+.essaymeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin:20px 0 8px}
+#wc{color:var(--laterite-l)}
+#wc.ok{color:#8fd3a5}
+#essay{min-height:240px}
+.actions{margin-top:28px;padding:22px;background:var(--storm2);color:var(--bone);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:6px solid var(--laterite-l)}
+.actions p{margin:0;max-width:44ch;font-size:.95rem}
+#copy{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;background:var(--laterite-l);color:var(--storm);border:0;padding:14px 24px;min-height:48px;cursor:pointer}
+#copy.done{background:#8fd3a5}
+.refs{margin:44px 0 20px;border-top:3px solid var(--ink);padding-top:12px;font-size:.84rem;line-height:1.6;color:var(--dim)}
+.refs h3{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin:0 0 10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px;overflow-wrap:anywhere}
+.saved{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--storm);color:var(--bone);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;padding:8px 16px;border-left:5px solid var(--laterite-l);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <img src="/storyhub/hh/too-successful/assets/p01-wc130-54th.jpg" alt="A white four engine Air Force transport plane with a red tail band flies above a blue ocean scattered with white clouds." fetchpriority="high">
+  <span class="coverc">WC-130 weather reconnaissance plane of the 54th Weather Reconnaissance Squadron · U.S. Air Force</span>
+  <div class="sheet">
+    <div class="stripe cap"><span><s>Top Secret</s></span><span>Project Popeye</span></div>
+    <div class="in">
+      <div class="declass cap"><b>Declassified</b>May 19, 1974</div>
+      <div class="cap" style="color:var(--laterite)">Hidden History · Unit 04 · Trust and Verify</div>
+      <h1>Too Successful</h1>
+      <p class="dek">For five rainy seasons the U.S. Air Force secretly seeded clouds over the Ho Chi Minh Trail to turn its roads to mud. A State Department memo worried the rain worked too well. Seven years later the Pentagon told the Senate it could not prove the rain worked at all.</p>
+      <div class="foot cap"><span>Laos and Vietnam</span><span>1966 to 1974</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="idwrap">
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+</div>
+
+<!-- 0 -->
+<section class="band chart" aria-labelledby="h0">
+  <div class="col">
+    <div class="tag"><span class="no">Claim</span><span class="where">Posted, shared, reposted</span></div>
+    <h2 id="h0">They admitted they <em>control the weather</em></h2>
+    <div class="memo" style="margin-top:0">
+      <div class="hd cap"><span>The claim, as it circulates</span><span>Source not given</span></div>
+      <div class="bd"><p>The military admitted it secretly made rain during the Vietnam War. They have been controlling the weather ever since, and the white trails you see behind jets are the same program.</p></div>
+    </div>
+    <p>The first sentence is true. The government confirmed it in 1974 with maps, flight counts and a yearly price. This page follows the real program through the memos of the people who ran it, then asks how far that true first sentence can carry the rest.</p>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="band storm" aria-labelledby="h1">
+  <div class="col">
+    <div class="tag"><span class="no">No. 1</span><span class="where">Laos · the dry season</span></div>
+    <h2 id="h1">A road that ran on <em>dry weather</em></h2>
+    <p class="lead">The Ho Chi Minh Trail was never one trail. It was a web of dirt roads and river fords that North Vietnam ran south through neighboring Laos to supply its forces in South Vietnam. Laos was officially neutral, so the United States bombed the trail without announcing it and watched it from the air.</p>
+    <figure><img src="/storyhub/hh/too-successful/assets/p02-trucks-on-the-trail.jpg" alt="Aerial photograph of a pale dirt road cutting through dark jungle and bomb craters. White printed labels read unnumbered road segment and destroyed truck, and a circle marks a spot in the trees." loading="lazy"><figcaption><b>Laos, January 16, 1970.</b> Navy reconnaissance from 4,700 feet, with the photo interpreter's labels.<span class="credit">U.S. Navy, National Archives · colorized</span></figcaption></figure>
+    <p>The trail's real master was the weather. The officer who later briefed the Senate explained the calendar.</p>
+    <div class="tx">
+      <p>"During the northeast monsoon the rainfall is light or nonexistent and even unimproved roads are unaffected by the limited rains. During the southwest monsoon the rainfall is heavy and almost daily. As a result, the unimproved roads in this region become soaked and will not support vehicular traffic."</p>
+      <span class="src">Lt. Col. Ed Soyster, Joint Chiefs of Staff · closed Senate hearing, March 20, 1974</span>
+    </div>
+    <figure class="inset"><img src="/storyhub/hh/too-successful/assets/p03-craters-nam-gho.jpg" alt="Aerial photograph of a river crossing surrounded by hundreds of round bomb craters on bare ground." loading="lazy"><figcaption><b>Near the Nam Gho River, August 24, 1970.</b> Bombing left the ground around this crossing pocked like the moon.<span class="credit">U.S. Air Force · colorized</span></figcaption></figure>
+    <p>Bombs could cut a road for a day. Rain could close it for months. So the Pentagon's idea, code named Popeye, was to make the mud come early and stay late.</p>
+    <div class="clear"></div>
+  </div>
+</section>
+
+<div class="band storm" style="padding:0 16px"><div class="wide"><figure style="margin:0;padding:30px 0"><img src="/storyhub/hh/too-successful/assets/p05-cap-cloud.jpg" alt="A white cumulus cloud climbing into a blue sky, with a thin smooth cap of cloud sitting just above its top." loading="lazy"><figcaption><b>A cap cloud.</b> The Popeye briefer told the Senate that a small cap like this one marks the updraft of a growing cloud, the spot where a seeding flare did its work. Seeding only worked on clouds already growing on their own.<span class="credit">Dhaluza, Wikimedia Commons · CC BY 2.5</span></figcaption></figure></div></div>
+
+<!-- 2 -->
+<section class="band chart" aria-labelledby="h2">
+  <div class="col">
+    <div class="tag"><span class="no">No. 2</span><span class="where">Se Kong valley, Laos · October 1966</span></div>
+    <h2 id="h2">Fifty six <em>clouds</em></h2>
+    <p class="lead">Navy scientists at China Lake, California, had built a seeding flare: a 40 millimeter cartridge holding a candle of silver iodide or lead iodide. Dropped into a cloud, it burned for about 36 seconds while falling 3,000 feet.</p>
+    <figure class="inset"><img src="/storyhub/hh/too-successful/assets/p06-stormfury-crew.jpg" alt="About twenty men in flight suits stand in rows in front of a large propeller airliner marked United States Weather Bureau." loading="lazy"><figcaption><b>Project Stormfury crew, 1966.</b> This public hurricane program used the same seeding units.<span class="credit">NOAA · colorized</span></figcaption></figure>
+    <p>The flare itself was no secret. The same units had been used in publicized rainmaking in Okinawa and Texas. What was new was the target. In October 1966 a test team led by China Lake scientists seeded clouds over the Se Kong River valley in the Lao panhandle. Nobody asked the government of Laos. The Pentagon counted 56 seedings and said more than 85 percent of the clouds reacted as the theory predicted.</p>
+    <div class="clear"></div>
+    <div class="rig" id="seedbox">
+      <header><b>Seed the Cloud</b><span>The technique, from the 1974 briefing</span></header>
+      <div class="in">
+        <svg class="seed" id="seed" viewBox="0 0 640 400" role="img" aria-labelledby="seedT"><title id="seedT">A growing cumulus cloud over a jungle road, with an updraft in the middle, downdrafts along the sides and a small cap cloud above the updraft. A seeding plane crosses at seeding altitude.</title></svg>
+        <div class="picks" role="group" aria-label="Where to drop the seeding unit">
+          <button class="btn alt" type="button" data-drop="up" aria-pressed="false">Drop into the updraft, under the cap cloud</button>
+          <button class="btn alt" type="button" data-drop="edge" aria-pressed="false">Drop along the side of the cloud</button>
+          <button class="btn alt" type="button" data-drop="over" aria-pressed="false">Empty the whole pod into it</button>
+          <button class="btn alt" type="button" data-drop="clear" aria-pressed="false">Seed a patch of clear sky</button>
+        </div>
+        <div class="gauges" aria-live="polite">
+          <div><b id="gT">&ndash;</b><span>Cloud response</span></div>
+          <div><b id="gD">&ndash;</b><span>How long it lasts</span></div>
+          <div><b id="gA">&ndash;</b><span>How far it reaches</span></div>
+        </div>
+        <p class="note" id="seednote" aria-live="polite">Pick a place to drop the flare. Each result comes from the Pentagon's own description of the technique.</p>
+      </div>
+    </div>
+    <p>One test storm did more than anyone intended.</p>
+    <div class="memo">
+      <div class="hd cap"><span>Top Secret · Department of State</span><span>January 13, 1967</span></div>
+      <div class="bd">
+        <p>"In one instance, the rainfall continued as the cloud moved eastward across the Vietnam border and inundated a U.S. Special Forces camp with nine inches of rain in four hours."</p>
+        <p>"If anything, the tests were 'too successful'&thinsp;... neither the volume of induced rainfall nor the extent of area affected can be precisely predicted."</p>
+      </div>
+      <div class="ft">Foy D. Kohler, Deputy Under Secretary of State, to Secretary of State Dean Rusk</div>
+    </div>
+    <div class="q"><label for="q1"><span class="n">Q1</span><span>Kohler called the test "too successful." Why would a weapon that works too well worry a diplomat? Use one detail from this section.</span></label><textarea id="q1" data-q="Q1"></textarea></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="band gpo" aria-labelledby="h3">
+  <div class="col">
+    <div class="tag"><span class="no">No. 3</span><span class="where">Washington · January to March 1967</span></div>
+    <h2 id="h3">Two bets on <em>a secret</em></h2>
+    <p class="lead">The Pentagon wanted a regular operation, run in strict secrecy. Because the rain would fall on Laos, the State Department had to agree. Kohler warned Secretary Rusk what could go wrong.</p>
+    <div class="memo">
+      <div class="hd cap"><span>Kohler to Rusk · Top Secret</span><span>Project Popeye</span></div>
+      <div class="bd">
+        <p>"We cannot lightly assume responsibility for unilaterally altering climate, and possibly landforms, in other sovereignties, and particularly for initiating weather warfare with an uncertain extent of injury to civilian populations."</p>
+        <p>"It seems highly unlikely that such operations could remain secret indefinitely, and our assumption should be that they will become known."</p>
+      </div>
+      <div class="ft">Foreign Relations of the United States, 1964 to 1968, Volume XXVIII, Document 274</div>
+    </div>
+    <p>Kohler wrote on the first page that he had "serious doubts." Rusk approved anyway, "on a strictly experimental basis," in five limited areas. Late in February the Joint Chiefs of Staff sent the White House a list of ways to step up the war. Item four made the opposite bet from Kohler's.</p>
+    <div class="tx">
+      <p>"LAOS OPERATIONS. Continue as at present plus Operation POP EYE to reduce trafficability along infiltration routes. ... Risk of compromise is minimal."</p>
+      <span class="src">Joint Chiefs of Staff options for President Johnson, late February 1967 · printed in the Pentagon Papers</span>
+    </div>
+    <figure><img src="/storyhub/hh/too-successful/assets/p07-rusk-johnson-mcnamara.jpg" alt="Three men in dark suits sit close together at a long table. The man in the middle leans forward with his hands clasped and looks off to the side." loading="lazy"><figcaption><b>Dean Rusk, Lyndon Johnson and Robert McNamara,</b> February 9, 1968. Popeye needed a yes from both State and Defense.<span class="credit">Yoichi Okamoto, LBJ Presidential Library · colorized</span></figcaption></figure>
+    <p>The first mission flew on March 20, 1967. Now you make the bet.</p>
+    <div class="rig" id="leakbox">
+      <header><b>The Leak Clock</b><span>Place your bet, then run it</span></header>
+      <div class="in">
+        <label class="small" for="bet">How many years after the first mission did the public first read about the program?</label>
+        <div class="bet"><input type="range" id="bet" min="0" max="30" step="1" value="10"><output id="betout" for="bet">10 yrs</output></div>
+        <div class="row"><button class="btn" type="button" id="runclock">Run the clock</button><button class="btn alt" type="button" id="resetclock">Reset</button></div>
+        <svg class="clock" id="clock" viewBox="0 0 680 150" role="img" aria-labelledby="clockT"><title id="clockT">Timeline from 1966 onward comparing your guess with the dates the secret came out.</title></svg>
+        <ol class="events" id="events">
+          <li hidden><span class="d">Oct 1966</span><span>Test seeding over the Se Kong valley.</span></li>
+          <li hidden><span class="d">Mar 20, 1967</span><span>First mission. About 1,400 people will be briefed into the secret.</span></li>
+          <li hidden class="key"><span class="d">Mar 1971</span><span>Columnist Jack Anderson prints the code names. The Pentagon changes them.</span></li>
+          <li hidden><span class="d">1971</span><span>The Pentagon Papers print the Joint Chiefs' Pop Eye line. Hardly anyone notices.</span></li>
+          <li hidden><span class="d">Jul 3, 1972</span><span>The New York Times runs the story on page one.</span></li>
+          <li hidden><span class="d">Jul 5, 1972</span><span>The last Popeye mission flies.</span></li>
+          <li hidden class="key"><span class="d">May 19, 1974</span><span>The Pentagon's briefing is declassified, with maps and totals.</span></li>
+        </ol>
+        <p class="note" id="leaknote" aria-live="polite">Slide to your guess and press Run the clock.</p>
+      </div>
+    </div>
+    <div class="q"><label for="q2"><span class="n">Q2</span><span>Who won the bet, Kohler or the Joint Chiefs? What about Popeye made it hard to keep secret?</span></label><textarea id="q2" data-q="Q2"></textarea></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="band chart" aria-labelledby="h4">
+  <div class="col">
+    <div class="tag"><span class="no">No. 4</span><span class="where">Out of Thailand · 1967 to 1972</span></div>
+    <h2 id="h4">Logged as <em>weather reconnaissance</em></h2>
+    <p class="lead">Popeye ran on a small fleet: three WC-130 weather planes and two RF-4C reconnaissance jets, flying out of Thailand. A WC-130 carried a pod of 104 seeding units on each side of the fuselage.</p>
+    <p>On paper every flight was something else. WC-130 missions were logged as weather reconnaissance, and seeding reports went up a separate channel to the Joint Chiefs. The Pentagon later said the government of Thailand, whose bases the planes used, was not informed.</p>
+    <figure><img src="/storyhub/hh/too-successful/assets/p08-rf4c-udorn.jpg" alt="A camouflaged jet fighter with its landing gear down touches down on a runway past dry grass and palm trees." loading="lazy"><figcaption><b>Udorn, Thailand, 1968.</b> An RF-4C of the 14th Tactical Reconnaissance Squadron lands. Jets like this one carried seeding units in their flash cartridge bays.<span class="credit">U.S. Air Force</span></figcaption></figure>
+    <p>In 1974 the Pentagon gave the Senate maps of where seeding was allowed. Step through the printed maps, lined up so the coastline holds still while the shaded areas change.</p>
+    <div class="rig" id="mapbox">
+      <header><b>The Pentagon's Maps</b><span>Authorized seeding areas · 1967 to 1972</span></header>
+      <div class="in">
+        <div class="mapgrid">
+          <div>
+            <div class="mapstage" id="mapstage">
+              <img class="on" src="/storyhub/hh/too-successful/assets/map-01.png" alt="Printed map of Laos, Vietnam and Cambodia. A long shaded strip follows the Laos panhandle along the Vietnam border, labeled approved 25 Feb 67.">
+              <img src="/storyhub/hh/too-successful/assets/map-02.png" alt="The same map with a hatched block added in the north, labeled added 11 Jul 67." loading="lazy">
+              <img src="/storyhub/hh/too-successful/assets/map-03.png" alt="The same map with a small area added over the A Shau Valley in South Vietnam, labeled added 13 Sep 67, and a box with the 1967 totals." loading="lazy">
+              <img src="/storyhub/hh/too-successful/assets/map-04.png" alt="The same map with part of the northern block removed, labeled deleted 1 Apr 68." loading="lazy">
+              <img src="/storyhub/hh/too-successful/assets/map-05.png" alt="The same map with a hatched strip added inside North Vietnam along the border, labeled added 25 Sep 68." loading="lazy">
+              <img src="/storyhub/hh/too-successful/assets/map-06.png" alt="The same map with the North Vietnam strip outlined as removed, labeled deleted 1 Nov 68, and a box with the 1968 and 1969 totals." loading="lazy">
+              <img src="/storyhub/hh/too-successful/assets/map-07.png" alt="The same map with the areas in Laos redrawn in the north and south, labeled added 1970, and a box with the 1970 and 1971 totals." loading="lazy">
+              <img src="/storyhub/hh/too-successful/assets/map-08.png" alt="The same map with the northern area outlined as deleted in 1972 and a large area added over northeast Cambodia and South Vietnam, with a box of 1972 totals." loading="lazy">
+              <span class="stampd" id="mapstamp">Chart 4</span>
+            </div>
+            <div class="framectl">
+              <button class="btn alt" type="button" id="mprev" aria-label="Previous map">&larr;</button>
+              <input type="range" id="mframe" min="1" max="8" step="1" value="1" aria-label="Map number">
+              <button class="btn alt" type="button" id="mnext" aria-label="Next map">&rarr;</button>
+            </div>
+          </div>
+          <div>
+            <p class="fdate" id="fdate" aria-live="polite">25 Feb 1967</p>
+            <p class="fnote" id="fnote" aria-live="polite"></p>
+            <svg class="ledger" id="ledger" viewBox="0 0 360 220" role="img" aria-labelledby="ledgerT"><title id="ledgerT">Bar chart of Popeye by year, 1967 to 1972. The numbers are in the table below.</title></svg>
+            <div class="row modes" role="group" aria-label="What the bars show">
+              <button class="btn" type="button" data-mode="s" aria-pressed="true">Sorties</button>
+              <button class="btn alt" type="button" data-mode="u" aria-pressed="false">Units dropped</button>
+              <button class="btn alt" type="button" data-mode="r" aria-pressed="false">Units per sortie</button>
+            </div>
+            <p class="small" id="ledgernote" aria-live="polite" style="margin-top:8px"></p>
+          </div>
+        </div>
+        <details class="data"><summary>See the Pentagon's printed table</summary>
+          <figure class="doc" style="margin:8px 0 0"><img src="/storyhub/hh/too-successful/assets/d12-chart12.jpg" alt="Printed table titled sorties and seeding units expended for program, listing each year from 1967 to 1972 with totals of 2602 sorties and 47,409 units." loading="lazy"><figcaption>Chart 12 of the briefing. The map for 1968 and 1969 prints 737 and 526 sorties. This table prints 734 and 528, and its total of 2,602 matches its own rows.<span class="credit">U.S. Senate hearing record, 1974</span></figcaption></figure>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="band storm" aria-labelledby="h5">
+  <div class="col">
+    <div class="tag"><span class="no">No. 5</span><span class="where">Eastern Laos · June 1971</span></div>
+    <h2 id="h5">Twenty one or <em>twenty three</em></h2>
+    <p class="lead">Did the rain work? Nobody could measure it, because there were too few rain gauges in enemy territory. Working backward from units dropped, the Defense Intelligence Agency estimated rainfall rose in limited areas by up to 30 percent. To show what success looked like, the briefer walked the senators through one month. Follow his numbers down.</p>
+    <div class="rig" id="junebox">
+      <header><b>June 1971, Step by Step</b><span>The Pentagon's showcase month</span></header>
+      <div class="in">
+        <ol class="funnel" id="funnel">
+          <li><div class="top"><span class="n">1,391</span><span class="lab">Seeding units dropped in June.</span></div><div class="bar" aria-hidden="true"><i style="width:100%"></i></div></li>
+          <li hidden><div class="top"><span class="n">1,275</span><span class="lab">Judged successful "in the crews' judgment."</span></div><div class="bar" aria-hidden="true"><i style="width:0%" data-w="91.7"></i></div></li>
+          <li hidden><div class="top"><span class="n">329</span><span class="lab">Road segments "influenced," under a seeded cloud or in reach of its runoff.</span></div><div class="bar" aria-hidden="true"><i style="width:0%" data-w="23.7"></i></div></li>
+          <li hidden><div class="top"><span class="n">46</span><span class="lab">Road segments "interdicted," with water damage confirmed by photos.</span></div><div class="bar" aria-hidden="true"><i style="width:0%" data-w="3.3"></i></div></li>
+          <li hidden class="trk"><div class="top"><span class="n">9,000</span><span class="lab">More than this many enemy supply movements a week, picked up by sensors in eastern Laos in early April.</span></div><div class="bar" aria-hidden="true"><i style="width:0%" data-w="100"></i></div></li>
+          <li hidden class="trk"><div class="top"><span class="n">900</span><span class="lab">Fewer than this many a week by the end of June.</span></div><div class="bar" aria-hidden="true"><i style="width:0%" data-w="10"></i></div></li>
+        </ol>
+        <div class="row" style="margin-top:12px"><button class="btn" type="button" id="fnext">Next step</button><button class="btn alt" type="button" id="season" disabled>What else happened April to June?</button></div>
+        <div class="season" id="seasonbox">
+          <div class="cal">
+            <div class="c1"><span class="m">April to mid May</span>Scattered thundershowers already interrupt traffic.</div>
+            <div class="c2"><span class="m">May and June</span>The ground soaks until it is saturated.</div>
+            <div class="c3"><span class="m">End of June</span>The monsoon sets in. Roads stay soggy until fall.</div>
+          </div>
+          <div class="weeks" aria-label="Weeks of June 1971">
+            <div class="wet"><b>June 1 to 8</b>241 units. A typhoon drives heavy natural rain.</div>
+            <div><b>June 9 to 15</b>240 units.</div>
+            <div class="hot"><b>June 16 to 22</b>542 units, the heaviest seeding of the month.</div>
+            <div><b>June 23 to 30</b>368 units. Another typhoon and a tropical storm pass through during the month.</div>
+          </div>
+        </div>
+        <p class="note" id="junenote" aria-live="polite">Press Next step.</p>
+      </div>
+    </div>
+    <figure class="inset"><img src="/storyhub/hh/too-successful/assets/p04-sensor-loading.jpg" alt="Looking up at the underside of a Navy patrol plane as a crewman lifts a long cylinder into a rack under the wing." loading="lazy"><figcaption><b>Nakhon Phanom, Thailand, around 1967.</b> Loading a seismic sensor to drop along the trail.<span class="credit">U.S. Navy · colorized</span></figcaption></figure>
+    <p>Asked whether it worked, Dennis Doolin, the Pentagon official in charge of East Asia policy, looked at the rainfall charts.</p>
+    <div class="pull"><p>"When you are getting 21 inches in a given area and we add 2 inches, if I was on the bottom, I do not think I would know the difference between 21 and 23."</p><cite>Dennis Doolin, Deputy Assistant Secretary of Defense · March 20, 1974</cite></div>
+    <p>The briefing's conclusion was just as flat. At about $3.6 million a year, the program stayed alive because it was cheap.</p>
+    <div class="tx">
+      <p>"While this program had an effect on the primitive road conditions in these areas the results were certainly limited and unverifiable."</p>
+      <span class="src">Pentagon briefing to the Senate · March 20, 1974</span>
+    </div>
+    <div class="clear"></div>
+    <div class="q"><label for="q3"><span class="n">Q3</span><span>Truck traffic fell 90 percent between April and June 1971. Why can't that drop prove the seeding worked?</span></label><textarea id="q3" data-q="Q3"></textarea></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="band chart" aria-labelledby="h6">
+  <div class="col">
+    <div class="tag"><span class="no">No. 6</span><span class="where">Washington · 1971 to 1972</span></div>
+    <h2 id="h6">Never over <em>North Vietnam</em></h2>
+    <p class="lead">After Jack Anderson's column, Senator Claiborne Pell of Rhode Island began asking about weather warfare in public. On April 18, 1972, Secretary of Defense Melvin Laird was asked about weather modification before the Senate Foreign Relations Committee. He answered with one sentence.</p>
+    <div class="vs" role="group" aria-label="Laird's answer and the record">
+      <div><span class="who">Laird to the Senate, April 18, 1972</span><p class="big">"We have never engaged in that type of activity over North Vietnam."</p></div>
+      <div><span class="who">The Pentagon's own chart, 1974</span><p>1,017 seeding units dropped over North Vietnam in 1967. Another 98 in 1968. Most of the program's rain did fall over Laos, which the sentence left out.</p></div>
+    </div>
+    <figure><img src="/storyhub/hh/too-successful/assets/p09-laird-senate-1970.jpg" alt="A man in a suit sits at a witness table covered with microphones in a paneled hearing room, with a senior officer in a light uniform standing behind him." loading="lazy"><figcaption><b>Melvin Laird before the Senate Foreign Relations Committee,</b> May 18, 1970.<span class="credit">Warren K. Leffler, U.S. News &amp; World Report, Library of Congress · colorized</span></figcaption></figure>
+    <p>On July 3, 1972, Seymour Hersh put the program on the front page of The New York Times. "The United States has been secretly seeding clouds over North Vietnam, Laos and South Vietnam to increase and control the rainfall for military purposes," his story began. Every person he quoted went unnamed. Two days later the last Popeye mission flew.</p>
+    <p>Unnamed sources are hard to judge. These can be graded, because the classified record came out two years later. Test six things Hersh reported.</p>
+    <div class="rig" id="hershbox">
+      <header><b>Check the Unnamed Sources</b><span>Hersh, 1972, against the record</span></header>
+      <div class="in">
+        <div class="cards" id="hcards"></div>
+        <p class="tally" id="htally" aria-live="polite">Six claims. For each one, decide what the released record does.</p>
+      </div>
+    </div>
+    <div class="q"><label for="q4"><span class="n">Q4</span><span>Hersh's unnamed sources were mostly right, and some of their claims were never confirmed. How should you treat a claim that rests on one unnamed source?</span></label><textarea id="q4" data-q="Q4"></textarea></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="band gpo" aria-labelledby="h7">
+  <div class="col">
+    <div class="tag"><span class="no">No. 7</span><span class="where">Room S-116, the Capitol · March 20, 1974</span></div>
+    <h2 id="h7">An elephant <em>labored</em></h2>
+    <p class="lead">By January 1974 Laird had left the Pentagon to advise President Nixon. On January 28 he wrote to the Foreign Relations Committee to fix his testimony. "I have just been informed," he wrote, "that such activities were conducted over North Vietnam in 1967 and again in 1968." The letter stayed classified Secret.</p>
+    <p>On March 20 Pell's subcommittee heard the whole program in a closed hearing classified Top Secret.</p>
+    <figure class="doc"><img src="/storyhub/hh/too-successful/assets/d01-chart1.jpg" alt="Printed chart headed SEASIA Rainmaking, supplied by Department of Defense, reading: a classified rainmaking program was conducted in SEASIA from 1967 to 1972 which employed air dropped silver and lead iodide seeding units to increase normal monsoon rainfall." loading="lazy"><figcaption><b>Chart 1 of the briefing,</b> as printed when the transcript was released.<span class="credit">U.S. Senate hearing record, 1974</span></figcaption></figure>
+    <figure class="inset"><img src="/storyhub/hh/too-successful/assets/p10-pell.jpg" alt="Portrait of a lean man with dark combed hair in a dark suit and tie." loading="lazy"><figcaption><b>Claiborne Pell,</b> senator from Rhode Island, around 1969.<span class="credit">U.S. Government · colorized</span></figcaption></figure>
+    <p>Pell asked why such modest results had been guarded so tightly.</p>
+    <div class="tx">
+      <p><b>SENATOR PELL.</b> From what you say, I am reminded of the old maxim. An "elephant labored and a mouse came forth." What was the reason for this great secrecy?</p>
+      <p><b>GENERAL FURLONG.</b> Your observation ... I think reflects in large measure our current perception of the classification.</p>
+      <span class="src">Maj. Gen. Ray Furlong, Deputy Assistant Secretary of Defense · closed hearing, March 20, 1974</span>
+    </div>
+    <div class="clear"></div>
+    <p>The transcript was released on May 19, 1974. Pell kept pushing for a ban. On May 18, 1977, the United States and 33 other nations signed the Environmental Modification Convention in Geneva. It bans military use of techniques that change the environment with "widespread, long-lasting or severe effects." The Senate approved it 98 to 0 in 1979.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="band storm" aria-labelledby="h8">
+  <div class="col">
+    <div class="tag"><span class="no">Verdict</span><span class="where">Your forecast</span></div>
+    <h2 id="h8">Forecast the <em>verdict</em></h2>
+    <p class="lead">Here are five things people say about Popeye. Call each one before you see what the record says.</p>
+    <div class="rig" id="forebox">
+      <header><b>Five Forecasts</b><span>Commit first, then check</span></header>
+      <div class="in">
+        <div class="cards" id="fcards"></div>
+        <p class="tally" id="ftally" aria-live="polite">Pick a verdict for each claim.</p>
+      </div>
+    </div>
+
+    <h2 style="font-size:clamp(1.7rem,5vw,2.5rem);margin-top:48px">Make the argument</h2>
+    <p>150 to 200 words. Pick one prompt and use evidence from at least two numbered sections.</p>
+    <div class="prompts">
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 1"><span class="ph">Prompt 1</span>People who believe in chemtrails point to Popeye as proof the government controls the weather. <b>Using Popeye's own record, explain what the program proves and what it does not.</b></label>
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 2"><span class="ph">Prompt 2</span>Pell said "an elephant labored and a mouse came forth." <b>Was Popeye a dangerous weapon, a failed experiment, or both? Defend your answer.</b></label>
+    </div>
+    <div class="essaymeta"><span>Your argument</span><span>Words <span id="wc">0</span> · aim for 150 to 200</span></div>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" placeholder="State your position in the first sentence, then prove it."></textarea>
+    <div class="actions">
+      <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+      <button id="copy" type="button">Copy my answers</button>
+    </div>
+  </div>
+</section>
+
+<section class="band chart" aria-label="Sources" style="padding-top:10px">
+  <div class="col">
+    <div class="refs">
+      <h3>Sources</h3>
+      <div>Convention on the prohibition of military or any other hostile use of environmental modification techniques. (1977, May 18). Summary and ratification record, Federation of American Scientists.</div>
+      <div>Hersh, S. M. (1972, July 3). Rainmaking is used as weapon by U.S. <i>The New York Times</i>, p. 1.</div>
+      <div>Kohler, F. D. (1967, January 13). Memorandum to Secretary of State Rusk: Weather modification in North Vietnam and Laos (Project Popeye). In <i>Foreign relations of the United States, 1964 to 1968, Vol. XXVIII, Laos</i>, Document 274. Office of the Historian, U.S. Department of State.</div>
+      <div>Rush, K. (1973, June 28). Memorandum to President Nixon: Weather modification. In <i>Foreign relations of the United States, 1969 to 1976, Vol. E-14, Part 2</i>, Document 9. Office of the Historian, U.S. Department of State.</div>
+      <div><i>The Pentagon Papers</i>, Gravel edition. (1971). Vol. 4, ch. 2, Programs A, B and C, late February 1967. Beacon Press.</div>
+      <div>U.S. Senate, Subcommittee on Oceans and International Environment of the Committee on Foreign Relations. (1974). <i>Weather modification: Hearings</i>, 93rd Cong., 2nd sess., March 20, 1974, top secret briefing released May 19, 1974, pp. 87 to 123. Government Printing Office. Texas Tech University, The Vietnam Center and Archive.</div>
+      <div>Photographs: U.S. Air Force, U.S. Navy and National Archives, NOAA, the LBJ Presidential Library, and the U.S. News &amp; World Report collection at the Library of Congress, via Wikimedia Commons, public domain. Cap cloud photograph by Dhaluza, CC BY 2.5. Colorized photographs are digital interpretations of black and white originals. Charts and maps from the 1974 Senate hearing record, realigned so the base map holds still.</div>
+    </div>
+  </div>
+</section>
+</main>
+<div class="saved" id="toast">Saved</div>
+<script>
+(function(){
+  var KEY='hh-too-successful-v1';
+  var $=function(id){return document.getElementById(id);};
+  var NS='http://www.w3.org/2000/svg';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(parent,n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;parent.appendChild(e);return e;}
+  var FONT='Barlow Condensed, Arial Narrow, sans-serif';
+
+  /* ---------- seed the cloud ---------- */
+  var sv=$('seed');
+  var defs=mk(sv,'defs',{});
+  var g0=mk(defs,'linearGradient',{id:'skyg',x1:0,y1:0,x2:0,y2:1});
+  mk(g0,'stop',{offset:'0','stop-color':'#8fb9da'});mk(g0,'stop',{offset:'1','stop-color':'#dbe9f2'});
+  var mkr=mk(defs,'marker',{id:'arw',viewBox:'0 0 10 10',refX:5,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'});
+  mk(mkr,'path',{d:'M0 0 L10 5 L0 10 Z',fill:'#1f5f8f'});
+  mk(sv,'rect',{x:0,y:0,width:640,height:400,fill:'url(#skyg)'});
+  mk(sv,'line',{x1:0,x2:640,y1:150,y2:150,stroke:'#1f5f8f','stroke-width':1.5,'stroke-dasharray':'6 5'});
+  mk(sv,'text',{x:630,y:144,'text-anchor':'end','font-family':FONT,'font-size':13,'font-weight':700,'letter-spacing':1.5,fill:'#1f5f8f'},'FREEZING LEVEL');
+  mk(sv,'rect',{x:0,y:352,width:640,height:48,fill:'#35603f'});
+  var road=mk(sv,'path',{d:'M0 382 Q 170 364 330 378 T 640 370',fill:'none',stroke:'#d2ad82','stroke-width':8,'stroke-linecap':'round','class':'road'});
+  mk(sv,'text',{x:520,y:396,'font-family':FONT,'font-size':12,'font-weight':600,'letter-spacing':1,fill:'#e8ece8'},'TRUCK ROAD');
+  var cloud=mk(sv,'g',{'class':'cloudall'});cloud.style.transition='opacity .8s ease';
+  var rain=mk(cloud,'g',{'class':'rainl',opacity:0});
+  for(var i=0;i<22;i++){var rx=228+i*9;mk(rain,'line',{x1:rx,x2:rx-7,y1:340+(i%3)*5,y2:366,stroke:'#b9dcf3','stroke-width':2.5,'stroke-linecap':'round',opacity:.95});}
+  var base=mk(cloud,'g',{'class':'base'});
+  var tower=mk(cloud,'g',{'class':'tower'});
+  var puffs=[];
+  [[250,300,40],[300,286,54],[352,290,50],[398,306,38],[212,316,28],[432,318,26],[320,300,46]].forEach(function(c){puffs.push(mk(base,'circle',{cx:c[0],cy:c[1],r:c[2],fill:'#f8fafb','class':'puff'}));});
+  mk(base,'rect',{x:190,y:316,width:268,height:20,fill:'#f8fafb','class':'puff'});
+  [[320,236,44],[298,254,36],[344,252,36],[318,198,34],[332,172,26]].forEach(function(c){puffs.push(mk(tower,'circle',{cx:c[0],cy:c[1],r:c[2],fill:'#f8fafb','class':'puff'}));});
+  var cap=mk(cloud,'ellipse',{cx:326,cy:134,rx:42,ry:8,fill:'#ffffff',opacity:.9});
+  var arrows=mk(cloud,'g',{});
+  mk(arrows,'line',{x1:320,x2:320,y1:330,y2:176,stroke:'#1f5f8f','stroke-width':2.5,'marker-end':'url(#arw)'});
+  mk(arrows,'text',{x:328,y:300,'font-family':FONT,'font-size':13,'font-weight':700,fill:'#1f5f8f'},'UPDRAFT');
+  mk(arrows,'line',{x1:176,x2:176,y1:210,y2:320,stroke:'#1f5f8f','stroke-width':2,'stroke-dasharray':'5 4','marker-end':'url(#arw)'});
+  mk(arrows,'line',{x1:468,x2:468,y1:210,y2:320,stroke:'#1f5f8f','stroke-width':2,'stroke-dasharray':'5 4','marker-end':'url(#arw)'});
+  mk(arrows,'text',{x:118,y:204,'font-family':FONT,'font-size':13,'font-weight':700,fill:'#1f5f8f'},'DOWNDRAFT');
+  mk(arrows,'text',{x:430,y:204,'font-family':FONT,'font-size':13,'font-weight':700,fill:'#1f5f8f'},'DOWNDRAFT');
+  mk(arrows,'text',{x:376,y:128,'font-family':FONT,'font-size':12,'font-weight':600,fill:'#14181c'},'CAP CLOUD');
+  var plane=mk(sv,'g',{});plane.style.transition='transform 1s ease';
+  mk(plane,'path',{d:'M-26 0 L22 -3 L30 0 L22 3 Z M-6 -2 L4 -18 L10 -18 L6 -2 Z M-6 2 L4 18 L10 18 L6 2 Z M-24 -1 L-28 -9 L-22 -9 L-18 -1 Z',fill:'#14181c'});
+  var PY=160;plane.setAttribute('transform','translate(70 '+PY+')');
+  var flares=mk(sv,'g',{});
+  var busy=false;
+  function setPlane(x){plane.setAttribute('transform','translate('+x+' '+PY+')');}
+  function drop(x,toY,n){
+    while(flares.firstChild)flares.removeChild(flares.firstChild);
+    for(var k=0;k<n;k++){(function(k){
+      var f=mk(flares,'circle',{cx:x+(k-(n-1)/2)*14,cy:PY+6,r:5,fill:'#f39a6b',stroke:'#a33c16','stroke-width':2});
+      if(!reduce&&f.animate){f.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY('+(toY-PY)+'px)',opacity:.15}],{duration:1100,delay:250+k*60,easing:'ease-in',fill:'forwards'});}
+      else{f.setAttribute('cy',toY);f.setAttribute('opacity',.3);}
+    })(k);}
+  }
+  function paint(col){puffs.forEach(function(p){p.setAttribute('fill',col);});base.querySelector('rect').setAttribute('fill',col);}
+  function resetCloud(){cloud.style.opacity=1;tower.style.transform='';base.style.transform='';paint('#f8fafb');rain.setAttribute('opacity',0);road.setAttribute('stroke','#d2ad82');cap.setAttribute('opacity',.9);arrows.style.opacity=1;}
+  var OUT={
+    up:{t:'Rain shower',d:'About 30 min',a:'Up to 20 mi',n:'The flare freezes supercooled droplets, which releases heat and speeds the updraft. The tower above the freezing level doubles in 3 to 5 minutes, then collapses into a shower. The briefer said the effect usually lasted about half an hour, six hours at most, over an area perhaps 20 miles across.'},
+    edge:{t:'No change',d:'None',a:'None',n:'Air rises through the middle of a growing cloud and sinks around the sides, like a bubbling fountain. A flare on the side rides the downdraft out. That is why the pilot controlled every release.'},
+    over:{t:'Cloud breaks up',d:'None',a:'None',n:'In the briefer\'s words, "Over-seeding or improperly placed seeding tends to disperse the clouds." Crews dropped units about half a mile apart, not all at once.'},
+    clear:{t:'Nothing',d:'None',a:'None',n:'Seeding cannot make a cloud out of clear air. Rain, the Pentagon said, "can be significantly induced only where and when there are natural occurrences of heavy rains." So Popeye flew only in the rainy season.'}
+  };
+  function seed(kind){
+    if(busy)return;busy=true;resetCloud();
+    var o=OUT[kind];
+    if(kind==='clear'){cloud.style.opacity=0;}
+    var x=kind==='edge'?176:320;
+    setPlane(x);
+    setTimeout(function(){
+      drop(x,kind==='up'?228:(kind==='over'?250:350),kind==='over'?6:1);
+      setTimeout(function(){
+        setPlane(600);
+        if(kind==='up'){tower.style.transform='scale(1.12,1.7)';paint('#9aa5b1');rain.setAttribute('opacity',1);road.setAttribute('stroke','#7b3719');cap.setAttribute('opacity',0);arrows.style.opacity=.35;}
+        if(kind==='over'){tower.style.transform='scale(.8,.55)';base.style.transform='scale(1.3,.7)';paint('#e8eef2');cloud.style.opacity=.45;cap.setAttribute('opacity',0);arrows.style.opacity=.2;}
+        $('gT').textContent=o.t;$('gD').textContent=o.d;$('gA').textContent=o.a;$('seednote').textContent=o.n;busy=false;
+      },reduce?0:1100);
+    },reduce?0:900);
+  }
+  document.querySelectorAll('#seedbox [data-drop]').forEach(function(b){
+    b.addEventListener('click',function(){if(busy)return;document.querySelectorAll('#seedbox [data-drop]').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});seed(b.dataset.drop);});
+  });
+
+  /* ---------- leak clock ---------- */
+  var ck=$('clock'),bet=$('bet'),ran=false;
+  var START=1967.21;
+  var MARKS=[{y:1971.2,l:'First story',c:'#1f5f8f'},{y:1972.5,l:'Last mission',c:'#48515a'},{y:1974.38,l:'Full record',c:'#1f5f8f'}];
+  function drawClock(){
+    [].slice.call(ck.childNodes).forEach(function(n){if(n.nodeName!=='title')ck.removeChild(n);});
+    var b=+bet.value,end=Math.max(1980,Math.ceil(START+b)+2),L=20,R=660,Y=92;
+    function X(y){return L+(y-1966)/(end-1966)*(R-L);}
+    mk(ck,'line',{x1:L,x2:R,y1:Y,y2:Y,stroke:'#14181c','stroke-width':2});
+    var step=end-1966>20?5:2;
+    for(var y=1966;y<=end;y++){if((y-1966)%step)continue;mk(ck,'line',{x1:X(y),x2:X(y),y1:Y,y2:Y+6,stroke:'#14181c'});mk(ck,'text',{x:X(y),y:Y+22,'text-anchor':'middle','font-family':FONT,'font-size':13,fill:'#48515a'},y);}
+    mk(ck,'rect',{x:X(START)-2,y:Y-10,width:4,height:20,fill:'#a33c16'});
+    mk(ck,'text',{x:X(START),y:Y+40,'text-anchor':'start','font-family':FONT,'font-size':12,'font-weight':700,fill:'#a33c16'},'FIRST MISSION');
+    var gx=X(START+b);
+    mk(ck,'path',{d:'M'+gx+' '+(Y-4)+' l-8 -14 h16 z',fill:'#f39a6b',stroke:'#a33c16','stroke-width':1.5});
+    var gl=mk(ck,'text',{x:gx,y:Y-24,'text-anchor':gx>560?'end':(gx<90?'start':'middle'),'font-family':FONT,'font-size':13,'font-weight':700,fill:'#a33c16'},'YOUR BET · '+Math.floor(START+b));
+    if(ran){MARKS.forEach(function(m,i){var x=X(m.y);mk(ck,'circle',{cx:x,cy:Y,r:6,fill:m.c,stroke:'#fff','stroke-width':2});});
+      mk(ck,'text',{x:X(1971.2),y:Y-50,'text-anchor':'start','font-family':FONT,'font-size':13,'font-weight':700,fill:'#1f5f8f'},'FIRST STORY 1971 · FULL RECORD 1974');
+    }
+  }
+  bet.addEventListener('input',function(){$('betout').textContent=bet.value+(bet.value==='1'?' yr':' yrs');drawClock();});
+  $('runclock').addEventListener('click',function(){
+    ran=true;drawClock();var lis=[].slice.call(document.querySelectorAll('#events li'));
+    lis.forEach(function(li,i){if(reduce)li.hidden=false;else setTimeout(function(){li.hidden=false;},i*260);});
+    var b=+bet.value,msg='You bet '+b+(b===1?' year':' years')+'. The first public story came four years after the first mission, in March 1971. The full official numbers were public seven years after it, in May 1974. ';
+    msg+=b>7?'You gave the secret more time than it got. A program that needs planes, crews and paperwork leaks.':(b>=4?'That is close to what happened.':'You were even more pessimistic than Kohler, and the secret held a little longer than you guessed.');
+    $('leaknote').textContent=msg;$('runclock').disabled=true;
+  });
+  $('resetclock').addEventListener('click',function(){ran=false;document.querySelectorAll('#events li').forEach(function(li){li.hidden=true;});$('runclock').disabled=false;$('leaknote').textContent='Slide to your guess and press Run the clock.';drawClock();});
+  drawClock();
+
+  /* ---------- the Pentagon's maps ---------- */
+  var FR=[
+    {d:'25 Feb 1967',c:'Chart 4',y:[1967],n:'The first approved area: a long strip of the Laos panhandle along the trail, touching a very small part of North Vietnam. Operations began March 20.'},
+    {d:'11 Jul 1967',c:'Chart 5',y:[1967],n:'A block added in the north, covering more of Laos and part of North Vietnam.'},
+    {d:'13 Sep 1967',c:'Chart 6',y:[1967],n:'A small area over the A Shau Valley in South Vietnam. By the end of 1967: 591 sorties and 6,570 units, 1,017 of them over North Vietnam.'},
+    {d:'1 Apr 1968',c:'Chart 7',y:[1968],n:'Seeding over North Vietnam limited to south of 19 degrees north, the same day President Johnson limited the bombing there.'},
+    {d:'25 Sep 1968',c:'Chart 8',y:[1968],n:'An area inside North Vietnam added along the border.'},
+    {d:'1 Nov 1968',c:'Chart 9',y:[1968,1969],n:'All seeding over North Vietnam ends, the day Johnson halted the bombing of the North. When bombing of the North resumed, the seeding never did.'},
+    {d:'1970',c:'Chart 10',y:[1970,1971],n:'The areas in Laos redrawn in the north and the south. The 1971 area stayed the same.'},
+    {d:'1972',c:'Chart 11',y:[1972],n:'Parts of northeast Cambodia and South Vietnam added and the northern area dropped. The last mission flew on July 5.'}
+  ];
+  var imgs=[].slice.call(document.querySelectorAll('#mapstage img')),cur=1;
+  function frameTo(i){cur=Math.max(1,Math.min(8,i));imgs.forEach(function(im,k){im.classList.toggle('on',k===cur-1);});var f=FR[cur-1];$('fdate').textContent=f.d;$('fnote').textContent=f.n;$('mapstamp').textContent=f.c;$('mframe').value=cur;$('mprev').disabled=cur===1;$('mnext').disabled=cur===8;ledger();}
+  $('mprev').addEventListener('click',function(){frameTo(cur-1);});
+  $('mnext').addEventListener('click',function(){frameTo(cur+1);});
+  $('mframe').addEventListener('input',function(){frameTo(+this.value);});
+  var YRS=[1967,1968,1969,1970,1971,1972],SOR=[591,734,528,277,333,139],UNI=[6570,7420,9457,8312,11288,4362],mode='s';
+  var LNOTE={s:'Sorties fell after 1968. The 1972 season ended early, on July 5.',u:'Units dropped kept climbing until 1971, even as the number of flights fell.',r:'Fewer flights, more seed on each one. By 1971 a sortie dropped about 34 units, three times the 1967 rate.'};
+  function ledger(){
+    var lg=$('ledger');[].slice.call(lg.childNodes).forEach(function(n){if(n.nodeName!=='title')lg.removeChild(n);});
+    var vals=YRS.map(function(y,i){return mode==='s'?SOR[i]:(mode==='u'?UNI[i]:UNI[i]/SOR[i]);});
+    var max=mode==='s'?800:(mode==='u'?12000:40),H=160,T=30,bw=40;
+    var on=FR[cur-1].y;
+    mk(lg,'line',{x1:10,x2:350,y1:T+H,y2:T+H,stroke:'#14181c','stroke-width':1.5});
+    vals.forEach(function(v,i){
+      var x=20+i*56,h=v/max*H,hot=on.indexOf(YRS[i])>-1;
+      mk(lg,'rect',{x:x,y:T+H-h,width:bw,height:h,fill:hot?'#a33c16':'#9fb2c3'});
+      mk(lg,'text',{x:x+bw/2,y:T+H-h-6,'text-anchor':'middle','font-family':FONT,'font-size':13,'font-weight':700,fill:'#14181c'},mode==='r'?v.toFixed(0):v.toLocaleString('en-US'));
+      mk(lg,'text',{x:x+bw/2,y:T+H+18,'text-anchor':'middle','font-family':FONT,'font-size':13,'font-weight':hot?700:500,fill:hot?'#a33c16':'#48515a'},YRS[i]);
+    });
+    mk(lg,'text',{x:10,y:16,'font-family':FONT,'font-size':13,'font-weight':700,'letter-spacing':1,fill:'#48515a'},mode==='s'?'SORTIES FLOWN':(mode==='u'?'SEEDING UNITS DROPPED':'UNITS PER SORTIE'));
+    $('ledgernote').textContent=LNOTE[mode];
+  }
+  document.querySelectorAll('#mapbox [data-mode]').forEach(function(b){b.addEventListener('click',function(){mode=b.dataset.mode;document.querySelectorAll('#mapbox [data-mode]').forEach(function(x){var p=x===b;x.setAttribute('aria-pressed',p?'true':'false');x.className='btn'+(p?'':' alt');});ledger();});});
+  frameTo(1);
+
+  /* ---------- june 1971 ---------- */
+  var fl=[].slice.call(document.querySelectorAll('#funnel li')),fs=0;
+  var FN=['Start with 1,391 seeding units in June.',
+    'The crews judged 1,275 successful, their own call from the cockpit.',
+    'Those clouds rained on or near 329 stretches of road.',
+    'Photos confirmed water damage on 46. No photo can tell seeded rain from natural rain.',
+    'Now the traffic, counted by sensors along the trail.',
+    'Down 90 percent by the end of June. Now check what else was going on.'];
+  $('fnext').addEventListener('click',function(){
+    if(fs>=fl.length-1)return;fs++;var li=fl[fs];li.hidden=false;var bar=li.querySelector('i');
+    setTimeout(function(){bar.style.width=bar.dataset.w+'%';},reduce?0:30);
+    $('junenote').textContent=FN[fs];
+    if(fs===fl.length-1){$('fnext').disabled=true;$('season').disabled=false;$('season').focus();}
+  });
+  $('season').addEventListener('click',function(){
+    $('seasonbox').classList.add('on');this.disabled=true;
+    $('junenote').textContent='The drop matches the weeks the monsoon arrives every year. The two biggest weekly drops came June 2 to 9, during a typhoon, and June 16 to 23, the heaviest seeding. Nature and the seeding hit the same roads in the same weeks, and nobody could pull them apart.';
+  });
+
+  /* ---------- check the unnamed sources ---------- */
+  var HK={match:'Record matches',other:'Record says otherwise',silent:'Record is silent'};
+  var HC=[
+    {t:'Clouds were seeded over North Vietnam, Laos and South Vietnam.',k:'match',w:'The Pentagon\'s maps show Laos every year, North Vietnam in 1967 and 1968, and South Vietnam in 1967 and 1972.'},
+    {t:'"Once we dumped seven inches of rain in two hours on one of our Special Forces camps."',k:'match',w:'Kohler\'s memo describes the same accident in the 1966 test: nine inches in four hours. The event is confirmed. The details drifted in memory.'},
+    {t:'"The agency was calling all the shots." The CIA ran the program.',k:'other',w:'The Pentagon said its own research office proposed it, the Secretary of Defense approved it and the Air Force flew it. The CIA director appears only on the list of people informed.'},
+    {t:'The CIA first seeded clouds over Hue in 1963 to break up Buddhist protests.',k:'silent',w:'One former agent told Hersh this. No released record confirms or rules it out.'},
+    {t:'Navy scientists made a chemical that produced acid rain to foul enemy radar.',k:'silent',w:'The briefing named only silver iodide and lead iodide. No released document mentions an acid agent, which is not the same as proof it never existed.'},
+    {t:'The United States could not have caused the heavy 1971 floods in North Vietnam.',k:'match',w:'The Pentagon said no seeding took place during the floods and that all seeding over North Vietnam had ended on November 1, 1968.'}
+  ];
+  function cards(box,list,keys,labels,cls,onDone){
+    var wrap=$(box),answered=0,right=0;
+    list.forEach(function(c,i){
+      var d=document.createElement('div');d.className='card';
+      var h='<div class="claim">'+c.t+'</div><div class="opts" role="group" aria-label="Your call">';
+      keys.forEach(function(k){h+='<button class="btn alt" type="button" data-k="'+k+'">'+labels[k]+'</button>';});
+      h+='</div><p class="you"></p><p class="why" aria-live="polite"></p>';d.innerHTML=h;
+      d.querySelectorAll('[data-k]').forEach(function(b){b.addEventListener('click',function(){
+        if(d.classList.contains('done'))return;var pick=b.dataset.k,ok=pick===c.k;answered++;if(ok)right++;
+        d.classList.add('done','c-'+c.k);d.querySelector('.opts').remove();
+        var st=document.createElement('span');st.className='stamp '+cls+c.k;st.textContent=labels[c.k];d.insertBefore(st,d.querySelector('.you'));
+        d.querySelector('.you').textContent=(ok?'You called it: ':'You said: ')+labels[pick];
+        d.querySelector('.why').textContent=c.w;onDone(answered,right,list.length);
+      });});
+      wrap.appendChild(d);
+    });
+  }
+  cards('hcards',HC,['match','other','silent'],HK,'k-',function(a,r,n){$('htally').textContent=a<n?a+' of '+n+' checked. You have matched the record on '+r+'.':'You matched the record on '+r+' of '+n+'. The final count: three claims the record backs up, one it contradicts, and two it never settles.';});
+
+  /* ---------- forecast ---------- */
+  var VK={confirmed:'Confirmed',misleading:'Misleading',debunked:'Debunked',unproven:'Unproven'};
+  var FC=[
+    {t:'The U.S. military secretly made rain as a weapon of war.',k:'confirmed',w:'The Pentagon\'s own charts count 2,602 sorties and 47,409 seeding units from 1967 to 1972. Sections 4 and 7.'},
+    {t:'The rain shut down the Ho Chi Minh Trail.',k:'unproven',w:'The Pentagon called the results "limited and unverifiable," and its showcase month could not separate seeded rain from the monsoon. Section 5.'},
+    {t:'The Secretary of Defense lied to Congress to hide it.',k:'misleading',w:'Laird\'s statement was false. He later wrote that nobody had told him about the earlier flights, and he corrected the record. A false statement is proven. A deliberate lie is not. Sections 6 and 7.'},
+    {t:'Popeye caused the heavy 1971 floods in North Vietnam.',k:'unproven',w:'No evidence connects them. Seeding over North Vietnam ended in 1968 and a seeded storm lasted hours, not weeks. But the denial comes from the Pentagon, which had misled the Senate before, so the claim stays unproven rather than disproven. Sections 2 and 6.'},
+    {t:'Popeye proves the white trails behind jets today are a weather program.',k:'debunked',w:'Popeye left its own trail: named planes, flares burned inside rain clouds that already existed, 1,400 people briefed, a leak within four years. The chemtrail claim has no such record. Popeye is a reason to demand records, not proof of a program nobody can document. Sections 2 and 3.'}
+  ];
+  cards('fcards',FC,['confirmed','misleading','debunked','unproven'],VK,'v-',function(a,r,n){$('ftally').textContent=a<n?a+' of '+n+' called.':'Your forecasts matched the record on '+r+' of '+n+'. One claim confirmed, one misleading, two unproven, one debunked. The true part of a claim does not carry the rest of it.';});
+
+  /* ---------- saving ---------- */
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var radios=[].slice.call(document.querySelectorAll('input[name="prompt"]'));
+  var essay=$('essay'),wc=$('wc'),toast=$('toast'),tT,sT;
+  function keyOf(el){return el.dataset.q||el.id;}
+  function markPrompt(){radios.forEach(function(r){r.closest('.prompt').classList.toggle('sel',r.checked);});}
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=150&&n<=200)?'ok':'';}
+  function save(){
+    var d={};fields.forEach(function(el){d[keyOf(el)]=el.value;});
+    var r=radios.filter(function(x){return x.checked;})[0];d.__prompt=r?r.value:'';
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
+  (function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(el){var v=d[keyOf(el)];if(typeof v==='string')el.value=v;});
+    if(d.__prompt)radios.forEach(function(r){if(r.value===d.__prompt)r.checked=true;});
+  })();
+  markPrompt();count();
+  fields.forEach(function(el){el.addEventListener('input',queueSave);});
+  radios.forEach(function(r){r.addEventListener('change',function(){markPrompt();queueSave();});});
+  essay.addEventListener('input',count);
+
+  /* ---------- copy ---------- */
+  $('copy').addEventListener('click',function(){
+    var btn=this;function g(id){var e=$(id);return e?e.value.trim():'';}
+    var out=['TOO SUCCESSFUL: Operation Popeye and the Secret Rain','Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'),'','QUESTIONS'];
+    ['q1','q2','q3','q4'].forEach(function(id,i){out.push('Q'+(i+1)+'. '+(g(id)||'[no answer]'));out.push('');});
+    var r=radios.filter(function(x){return x.checked;})[0];
+    out.push('ARGUMENT: '+(r?r.value.toUpperCase():'NO PROMPT SELECTED')+'   Word count: '+wc.textContent);
+    out.push('');out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';btn.classList.toggle('done',ok);setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else fallback();
+  });
+})();
+</script>
+</body></html>
