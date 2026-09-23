@@ -1960,8 +1960,12 @@ test('authorized teacher can read only active roster identity fields through the
   assert.equal(repeated.revision, snapshot.revision, 'unchanged active roster must have a stable sync revision');
   assert.deepEqual(snapshot.roster.map((row) => row.studentEmail).sort(), [PEOPLE.ada.email, PEOPLE.grace.email].sort());
   snapshot.roster.forEach((row) => {
-    assert.deepEqual(Object.keys(row).sort(), ['active', 'classPeriod', 'studentEmail', 'studentName'].sort());
+    assert.deepEqual(Object.keys(row).sort(), ['active', 'classPeriod', 'credentialReady', 'studentEmail', 'studentName'].sort(),
+      'bridge rows must expose only membership identity plus a boolean credential-readiness signal');
     assert.equal(row.active, true);
+    assert.equal(row.credentialReady, true);
+    assert.equal('pin' in row, false);
+    assert.equal('pinHash' in row, false);
   });
   assert.equal(JSON.stringify(c.rosterRows()), beforeRoster, 'bridge read must not change roster rows');
   assert.equal(JSON.stringify(c.pinCards()), beforePins, 'bridge read must not change PIN records');
