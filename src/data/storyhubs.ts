@@ -20,6 +20,28 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'hh-sheer-poppycock',
+    href: '/hubs/hh-sheer-poppycock.html',
+    title: 'sheer poppycock',
+    course: 'hidden history',
+    unit: 'unit 04 / trust and verify',
+    period: '1926–1933',
+    status: 'ready to teach',
+    question: 'the government really did put poison in alcohol during prohibition. did it kill ten thousand americans on purpose?',
+    blurb:
+      'Wood alcohol, a Christmas week at Bellevue, Formula No. 5, the worst week on the Bowery, and a New York medical examiner who blamed the government in 1926 and called government poisoning talk sheer poppycock in 1928.',
+    cover: '/storyhub/hh/poppycock/assets/p01-sewer-pour.jpg',
+    coverAlt: 'Colorized photograph of agents pouring a barrel of seized liquor into a New York sewer during Prohibition',
+    topics: ['prohibition', 'denatured alcohol', 'wood alcohol', 'charles norris', 'death statistics', 'conspiracy theories'],
+    inside: [
+      'Seven sections from the Christmas deaths of 1926 to the Senate votes of 1930.',
+      'Fill a pint from three sources and run the medical examiner’s own arithmetic on wood alcohol.',
+      'Draw your prediction for alcoholism deaths from 1920 to 1940, then see the record for ten states including Michigan.',
+      'Regroup seven famous numbers by what they count, widen a famous quote until its meaning changes, and cut the claim into five testable pieces.',
+      'Four short questions and a 150 to 200 word argument. Answers save in the browser and copy into Classroom.',
+    ],
+  },
+  {
     slug: 'hh-dont-worry-about-it',
     href: '/hubs/hh-dont-worry-about-it.html',
     title: 'don’t worry about it',

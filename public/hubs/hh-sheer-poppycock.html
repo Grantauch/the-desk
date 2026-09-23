@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sheer Poppycock &middot; Hidden History</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="Prohibition, 1926 to 1930. The federal government required poison in industrial alcohol and people who drank it died. Did it kill ten thousand Americans on purpose? Test the claim against the medical examiner, the formulas and the death records.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-sheer-poppycock.html">
+<meta property="og:title" content="Sheer Poppycock · Did the Government Poison Prohibition Liquor?">
+<meta property="og:description" content="Wood alcohol, a Christmas week at Bellevue, the worst week on the Bowery, and a claim that needs four different verdicts.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-sheer-poppycock.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/poppycock/assets/p01-sewer-pour.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;0,6..96,900;1,6..96,500;1,6..96,700&family=Cutive+Mono&family=Oswald:wght@500;600&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --tile:#f3f5f1;
+  --grout:#e2e7e2;
+  --ink:#13161d;
+  --dim:#474d57;
+  --cobalt:#1c3b8f;
+  --cobalt-d:#132a68;
+  --amber:#8f4f08;
+  --amber-l:#f2b760;
+  --carmine:#9e1238;
+  --carmine-l:#ff8aa1;
+  --night:#0c1120;
+  --night2:#151c30;
+  --nightline:#2a3552;
+  --bone:#ebe6d9;
+  --mist:#b3bccd;
+  --label:#f0e8d0;
+  --label2:#e6dcbd;
+  --green:#1b6538;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--tile);color:var(--ink);font-family:Spectral,Georgia,serif;font-size:18px;line-height:1.68}
+img{max-width:100%}
+p{margin:0 0 1.05em}
+a{color:inherit}
+button{font:inherit}
+.cap{font-family:Oswald,"Arial Narrow",sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
+
+/* COVER */
+.cover{position:relative;min-height:92vh;display:flex;align-items:flex-end;justify-content:center;background:var(--night);color:var(--bone);overflow:hidden;padding:0 16px 34px}
+.cover > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,11,20,.25) 0%,rgba(8,11,20,.35) 45%,rgba(8,11,20,.92) 100%)}
+.plate{position:relative;z-index:1;width:min(620px,100%);background:var(--label);color:var(--ink);padding:10px;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+.plate .in{border:3px double var(--cobalt);padding:20px 22px 18px;text-align:center}
+.plate .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--cobalt);border-bottom:1.5px solid var(--cobalt);padding-bottom:8px}
+.plate h1{font-family:"Bodoni Moda",Didot,Georgia,serif;font-weight:900;font-style:italic;font-size:clamp(2.8rem,10vw,5.4rem);line-height:.92;margin:18px 0 10px;letter-spacing:-.01em;color:var(--ink)}
+.plate .dek{font-size:clamp(1rem,2.4vw,1.14rem);line-height:1.5;max-width:44ch;margin:0 auto 14px}
+.plate .band{background:var(--carmine);color:#fff;padding:7px 10px 6px}
+.plate .foot{display:flex;justify-content:center;gap:6px 18px;flex-wrap:wrap;margin-top:10px;color:var(--cobalt)}
+@media(max-width:600px){.coverc{font-size:.56rem;max-width:72%}}
+.coverc{position:absolute;right:12px;top:12px;z-index:1;font-family:Oswald,sans-serif;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#e8e2d2;background:rgba(8,11,20,.72);padding:4px 8px;max-width:60%;text-align:right}
+
+/* BANDS */
+.band{padding:66px 16px 50px}
+.lab{background-color:var(--tile);background-image:linear-gradient(var(--grout) 1px,transparent 1px),linear-gradient(90deg,var(--grout) 1px,transparent 1px);background-size:46px 46px}
+.col{max-width:700px;margin:0 auto;background:var(--tile);padding:6px 0}
+.col > *{min-width:0}
+.night{background:var(--night);color:var(--bone)}
+.night .col{background:var(--night)}
+.cream{background:var(--label2)}
+.cream .col{background:var(--label2)}
+.wide{max-width:1000px;margin:0 auto}
+
+/* SPECIMEN TAG + HEADINGS */
+.tag{display:inline-flex;align-items:stretch;border:1.5px solid var(--cobalt);border-radius:3px;color:var(--cobalt);font-family:Oswald,sans-serif;font-weight:600;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;background:var(--tile);max-width:100%}
+.tag .no{background:var(--cobalt);color:#fff;padding:5px 10px 4px 22px;position:relative}
+.tag .no::before{content:"";position:absolute;left:7px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--tile)}
+.tag .where{padding:5px 10px 4px}
+.night .tag{border-color:var(--amber-l);color:var(--amber-l);background:var(--night)}
+.night .tag .no{background:var(--amber-l);color:var(--night)}
+.night .tag .no::before{background:var(--night)}
+.cream .tag{background:var(--label2)}
+.cream .tag .no::before{background:var(--label2)}
+h2{font-family:"Bodoni Moda",Didot,Georgia,serif;font-weight:900;font-size:clamp(2.1rem,6.4vw,3.5rem);line-height:1;margin:18px 0 22px;letter-spacing:-.012em;text-wrap:balance}
+h2 em{font-weight:700;color:var(--cobalt)}
+.night h2 em{color:var(--amber-l)}
+.lead::first-letter{font-family:"Bodoni Moda",Georgia,serif;font-weight:900;float:left;font-size:4.3rem;line-height:.8;padding:6px 10px 0 0;color:var(--cobalt)}
+.night .lead::first-letter{color:var(--amber-l)}
+
+/* FIGURES */
+figure{margin:30px 0}
+figure img{display:block;width:100%;height:auto;background:#ccc}
+figcaption{font-size:.9rem;line-height:1.5;padding:9px 0 0;color:var(--dim)}
+figcaption b{font-family:Oswald,sans-serif;font-weight:600;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-right:6px}
+.night figcaption{color:var(--mist)}
+.night figcaption b{color:var(--bone)}
+.credit{display:block;margin-top:4px;font-family:Oswald,sans-serif;font-weight:500;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:#5d636d}
+.night .credit{color:#a3acbd}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+@media(max-width:600px){.duo{grid-template-columns:minmax(0,1fr)}}
+.inset{float:right;width:42%;margin:6px 0 14px 22px}
+@media(max-width:600px){.inset{float:none;width:100%;margin:22px 0}}
+.clear{clear:both}
+.half{max-width:430px;margin-left:auto;margin-right:auto}
+.mid{max-width:560px;margin-left:auto;margin-right:auto}
+.framed img{border:6px solid var(--bone)}
+.doc img{border:1px solid #bdb6a0;box-shadow:0 14px 30px -18px rgba(0,0,0,.55)}
+
+/* WIRE COPY + QUOTES */
+.wire{background:var(--label);color:var(--ink);border-top:4px solid var(--amber);padding:14px 18px 12px;margin:28px 0;font-family:"Cutive Mono","Courier New",monospace;font-size:1rem;line-height:1.55;box-shadow:0 16px 30px -20px rgba(0,0,0,.8)}
+.wire .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-family:Oswald,sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);border-bottom:1px dashed #b39e6a;padding-bottom:6px;margin-bottom:8px}
+.wire p{margin:0 0 .5em}
+.pull{margin:34px 0;padding:18px 0 16px;border-top:2px solid currentColor;border-bottom:1px solid currentColor}
+.pull p{font-family:"Bodoni Moda",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(1.35rem,4vw,1.9rem);line-height:1.22;margin:0}
+.pull cite{display:block;margin-top:12px;font-style:normal;font-family:Oswald,sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt)}
+.night .pull cite{color:var(--amber-l)}
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:26px 0}
+@media(max-width:600px){.split{grid-template-columns:minmax(0,1fr)}}
+.split > div{border:1px solid var(--nightline);background:var(--night2);padding:14px 16px}
+.split .who{font-family:Oswald,sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-l)}
+.split p{margin:8px 0 0;font-size:.98rem}
+
+/* FORMULA CARD */
+.formula{background:var(--label);border:2px solid var(--cobalt);padding:8px;margin:30px 0}
+.formula .in{border:1px solid var(--cobalt);padding:14px 16px}
+.formula .ttl{text-align:center;color:var(--cobalt);border-bottom:1.5px solid var(--cobalt);padding-bottom:8px;margin-bottom:10px}
+.formula .ttl b{display:block;font-family:"Bodoni Moda",Georgia,serif;font-weight:900;font-size:1.5rem;letter-spacing:0;text-transform:none;color:var(--ink);margin-top:2px}
+.formula table{width:100%;border-collapse:collapse;font-family:"Cutive Mono","Courier New",monospace;font-size:1rem}
+.formula td{padding:6px 2px;border-bottom:1px dotted #a99c74}
+.formula td:last-child{text-align:right;white-space:nowrap}
+.formula tr.pois td{color:var(--carmine)}
+.formula .note{font-size:.86rem;margin:10px 0 0;color:var(--dim)}
+
+/* INTERACTIVE SHELL */
+.rig{margin:34px 0;border:2px solid var(--ink);background:#fff}
+.rig > header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--cobalt);color:#fff;padding:10px 14px}
+.rig > header b{font-family:Oswald,sans-serif;font-weight:600;font-size:.86rem;letter-spacing:.16em;text-transform:uppercase}
+.rig > header span{font-family:Oswald,sans-serif;font-weight:500;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#d6def5}
+.rig .in{padding:16px}
+.btn{font-family:Oswald,sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;background:var(--cobalt);color:#fff;border:2px solid var(--cobalt);padding:9px 14px;min-height:44px;cursor:pointer;border-radius:2px}
+.btn:hover{background:var(--cobalt-d);border-color:var(--cobalt-d)}
+.btn.alt{background:#fff;color:var(--ink);border-color:var(--ink)}
+.btn.alt:hover{background:var(--tile)}
+.btn[aria-pressed="true"],.btn.alt[aria-pressed="true"],.btn[aria-pressed="true"]:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{font-size:.97rem;margin:12px 0 0;min-height:3.2em}
+.small{font-size:.84rem;color:var(--dim)}
+
+/* PINT */
+.pint{display:grid;grid-template-columns:190px minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:600px){.pint{grid-template-columns:minmax(0,1fr)}.pint svg.bottle{max-width:170px;margin:0 auto}}
+.bottle{display:block;width:100%;height:auto}
+.bottle rect{transition:y .6s ease,height .6s ease}
+.choices{display:grid;gap:8px}
+.choices .btn{text-align:left;text-transform:none;letter-spacing:.02em;font-size:.95rem;font-weight:500;line-height:1.3}
+.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 6px}
+.readout div{border-top:3px solid var(--ink);padding-top:6px}
+.readout b{display:block;font-family:"Bodoni Moda",Georgia,serif;font-weight:900;font-size:1.9rem;line-height:1.05}
+.readout .m b{color:var(--carmine)}
+.readout .e b{color:var(--amber)}
+.readout span{font-family:Oswald,sans-serif;font-weight:500;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.scale{display:block;width:100%;height:auto;margin-top:8px}
+
+/* CHART */
+.chartbox{position:relative}
+.chartwrap{position:relative}
+.chart{touch-action:pan-y}
+.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-family:Oswald,sans-serif;font-size:.78rem;letter-spacing:.04em;padding:5px 8px;border-radius:2px;opacity:0;transition:opacity .15s;white-space:nowrap;transform:translate(-50%,-120%)}
+.tip.on{opacity:1}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:Oswald,sans-serif;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:8px 0 0}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid var(--ink);vertical-align:middle;margin-right:6px}
+.legend i.you{border-top:3px dashed var(--amber)}
+details.data{margin-top:12px;font-size:.9rem}
+details.data summary{cursor:pointer;font-family:Oswald,sans-serif;font-weight:600;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cobalt);min-height:44px;display:flex;align-items:center}
+.datatable{overflow-x:auto}
+.datatable table{border-collapse:collapse;font-family:"Cutive Mono",monospace;font-size:.9rem}
+.datatable td,.datatable th{padding:3px 10px;border-bottom:1px solid var(--grout);text-align:right}
+
+/* NUMBER LINEUP */
+.lineup{list-style:none;margin:0;padding:0}
+.lineup li{display:grid;grid-template-columns:104px minmax(0,1fr);gap:4px 14px;padding:10px 0;border-bottom:1px solid var(--grout);transition:opacity .25s}
+.lineup .num{font-family:"Bodoni Moda",Georgia,serif;font-weight:900;font-size:1.7rem;line-height:1;text-align:right}
+.lineup .what{font-size:.95rem;line-height:1.4}
+.lineup .bar{grid-column:2;height:10px;background:var(--grout);position:relative}
+.lineup .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--cobalt);min-width:2px;transition:width .5s ease}
+.lineup .kind{grid-column:2;font-family:Oswald,sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:none}
+.lineup.grouped .kind{display:block}
+.lineup li.grp{display:block;border-bottom:2px solid var(--ink);padding:18px 0 4px;font-family:Oswald,sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt)}
+.lineup li.nocount .num{color:var(--carmine)}
+.lineup li.nocount .bar i{background:repeating-linear-gradient(45deg,var(--carmine) 0 6px,#f4c6d1 6px 12px)}
+@media(max-width:480px){.lineup li{grid-template-columns:76px minmax(0,1fr)}.lineup .num{font-size:1.35rem}}
+
+/* LOUPE */
+.essay{background:var(--label);border:1px solid #b9ab80;padding:18px 20px;box-shadow:0 18px 34px -24px rgba(0,0,0,.6)}
+.essay .src{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--cobalt);border-bottom:1px solid var(--cobalt);padding-bottom:6px;margin-bottom:12px}
+.frag{display:none;margin:0 0 14px}
+.frag.on{display:block}
+.frag .pg{display:block;font-family:Oswald,sans-serif;font-weight:600;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.frag p{font-family:"Cutive Mono","Courier New",monospace;font-size:.98rem;line-height:1.6;margin:0}
+.frag .gap{display:block;text-align:center;color:var(--dim);letter-spacing:.4em;margin-top:10px}
+mark{background:#f6d77e;color:inherit;padding:0 2px}
+.loupectl{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.frame{font-family:Oswald,sans-serif;font-weight:600;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+/* CUT THE CLAIM */
+.strip{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:6px 0 4px}
+.piece{font-family:"Bodoni Moda",Georgia,serif;font-weight:700;font-size:clamp(1.05rem,3vw,1.3rem);line-height:1.3;background:var(--label);border:1.5px dashed #9c8d5e;padding:10px 12px;transition:margin .35s ease,transform .35s ease}
+.strip.cutdone,.cutrow.cutdone{display:none}
+.snip{border:0;background:transparent;cursor:pointer;min-width:44px;min-height:44px;padding:0 4px;display:flex;align-items:center;justify-content:center;color:var(--carmine)}
+.snip svg{width:24px;height:24px}
+.snip[hidden]{display:none}
+.pieces{display:grid;gap:14px;margin-top:16px}
+.pc{border:2px solid var(--ink);background:#fff;padding:12px 14px;position:relative}
+.pc .t{font-family:"Bodoni Moda",Georgia,serif;font-weight:700;font-size:1.15rem;line-height:1.3;padding-right:130px}
+@media(max-width:520px){.pc .t{padding-right:0}}
+.pc .why{display:none;margin:10px 0 0;font-size:.96rem}
+.pc.done .why{display:block}
+.stamp{position:absolute;right:12px;top:10px;font-family:Oswald,sans-serif;font-weight:600;font-size:.84rem;letter-spacing:.16em;text-transform:uppercase;border:3px solid currentColor;padding:3px 8px 2px;transform:rotate(-6deg);background:#fff}
+@media(max-width:520px){.stamp{position:static;display:inline-block;margin-top:10px}}
+.v-confirmed{color:var(--green)}
+.v-misleading{color:var(--amber)}
+.v-debunked{color:var(--carmine)}
+.v-unproven{color:#454b55}
+.pc.done.c-confirmed{border-color:var(--green)}
+.pc.done.c-misleading{border-color:var(--amber)}
+.pc.done.c-debunked{border-color:var(--carmine)}
+.pc.done.c-unproven{border-color:#454b55;border-style:dashed}
+.tally{font-family:Oswald,sans-serif;font-weight:600;letter-spacing:.06em;margin-top:14px;min-height:1.6em}
+
+/* QUESTIONS AND WRITING */
+.q{margin:34px 0 0;padding-top:14px;border-top:3px solid currentColor}
+.q label{display:flex;gap:12px;align-items:baseline;margin-bottom:10px;font-size:1rem}
+.q .n{font-family:Oswald,sans-serif;font-weight:600;color:var(--cobalt);flex:none;font-size:.95rem;letter-spacing:.08em}
+.night .q .n{color:var(--amber-l)}
+textarea{width:100%;min-height:100px;border:1.5px solid #9aa2ad;background:#fff;color:var(--ink);font-family:Spectral,Georgia,serif;font-size:1rem;line-height:1.6;padding:10px 12px;resize:vertical;border-radius:2px}
+.idbar{display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:#fff;margin:0 auto;max-width:900px}
+.idbar label{flex:1 1 180px;display:flex;align-items:center;gap:10px;padding:11px 14px;border-right:1px solid var(--grout);font-family:Oswald,sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;border:0;border-bottom:1.5px solid #9aa2ad;background:transparent;font-family:"Cutive Mono",monospace;font-size:1rem;color:var(--ink);padding:2px}
+.idbar input:focus{outline:0;border-bottom-color:var(--cobalt)}
+.idwrap{padding:26px 16px 0;background:var(--tile)}
+.prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+@media(max-width:640px){.prompts{grid-template-columns:minmax(0,1fr)}}
+.prompt{display:block;border:2px solid var(--ink);background:#fff;padding:14px 16px;cursor:pointer;position:relative;font-size:.97rem}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph{display:block;font-family:Oswald,sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cobalt);margin-bottom:6px}
+.prompt.sel{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.prompt.sel .ph{color:#fff}
+.prompt:focus-within{outline:3px solid var(--amber);outline-offset:2px}
+.essaymeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:Oswald,sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:20px 0 8px}
+#wc{color:var(--carmine)}
+#wc.ok{color:var(--green)}
+#essay{min-height:240px}
+.actions{margin-top:28px;padding:22px;background:var(--night);color:var(--bone);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:6px solid var(--carmine)}
+.actions p{margin:0;max-width:44ch;font-size:.95rem}
+#copy{font-family:Oswald,sans-serif;font-weight:600;font-size:.92rem;letter-spacing:.14em;text-transform:uppercase;background:var(--amber-l);color:var(--night);border:0;padding:14px 24px;min-height:48px;cursor:pointer}
+#copy.done{background:#8fd3a5}
+.refs{margin:44px 0 20px;border-top:3px solid var(--ink);padding-top:12px;font-size:.84rem;line-height:1.6;color:var(--dim)}
+.refs h3{font-family:Oswald,sans-serif;font-weight:600;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin:0 0 10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px;overflow-wrap:anywhere}
+.saved{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--night);color:var(--bone);font-family:Oswald,sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;padding:8px 16px;border-left:5px solid var(--amber-l);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+.cream .credit{color:#41464e}
+.cream figcaption{color:#3d424a}
+.prompt{color:var(--ink)}
+.night .essaymeta{color:var(--mist)}
+.night #wc{color:var(--carmine-l)}
+.night #wc.ok{color:#8fd3a5}
+.night .rig{color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <img src="/storyhub/hh/poppycock/assets/p01-sewer-pour.jpg" alt="Men in shirtsleeves tip a barrel of liquor into an open sewer on a city street while a police officer and a man in a straw hat watch." fetchpriority="high">
+  <span class="coverc">Agents empty seized liquor into a New York sewer · Library of Congress · colorized</span>
+  <div class="plate">
+    <div class="in">
+      <div class="top cap"><span>Hidden History</span><span>Unit 04 · Trust and Verify</span></div>
+      <h1>Sheer Poppycock</h1>
+      <p class="dek">During Prohibition the federal government required poison in industrial alcohol, and people who drank it died. Did the government kill ten thousand Americans on purpose? The record answers four different ways.</p>
+      <div class="band cap">Not fit for beverage purposes</div>
+      <div class="foot cap"><span>New York City</span><span>1926 to 1930</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="idwrap">
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+</div>
+
+<!-- 0 -->
+<section class="band lab" aria-labelledby="h0">
+  <div class="col">
+    <div class="tag"><span class="no">Claim</span><span class="where">Posted, shared, reposted</span></div>
+    <h2 id="h0">The government <em>poisoned</em> the booze</h2>
+    <p class="lead">Every few years a claim about Prohibition goes around again in videos and posts. It usually sounds something like this.</p>
+    <div class="wire" style="border-top-color:var(--carmine)">
+      <div class="hd"><span>The claim, as it circulates</span><span>Source not given</span></div>
+      <p>During Prohibition the U.S. government poisoned the liquor Americans bought, on purpose, to kill drinkers. Officials knew people were dying and kept going. At least 10,000 Americans were killed.</p>
+    </div>
+    <p>Some of that is true. The government really did require poison in alcohol, and people really did die after drinking it. By the end of this page you will cut the claim apart and stamp each piece with a verdict.</p>
+    <p>The best witness is a New York doctor named Charles Norris, who spent Prohibition examining the dead. In 1926 he said the government carried moral responsibility for the deaths. In 1928 he wrote that most talk of government poisoning was "sheer poppycock." Keep both statements in mind.</p>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="band night" aria-labelledby="h1">
+  <div class="col">
+    <div class="tag"><span class="no">No. 1</span><span class="where">Manhattan · Dec 26 to 29, 1926</span></div>
+    <h2 id="h1">Christmas at <em>Bellevue</em></h2>
+    <p class="lead">Over the Christmas weekend of 1926, Bellevue Hospital, New York City's big public hospital, took in 65 people sick from holiday drinking. By December 28 the Associated Press counted 23 dead across the city, 17 of them in Manhattan. Bellevue's alcoholic ward held 79 patients that morning, 14 of them women. By the next day hospitals in Manhattan and the Bronx had admitted 137 cases.</p>
+    <p>The man who had to explain the bodies was Dr. Charles Norris, the city's chief medical examiner. His office was the first modern one of its kind in the country. His toxicologist, Alexander Gettler, tested organs from the morgue for poisons, one case at a time. Norris told reporters that 468 people had died in Manhattan that year from poisonous liquor. Then he pointed at Washington.</p>
+    <div class="wire">
+      <div class="hd"><span>Associated Press · Dec 27, 1926</span><span>Dr. Charles Norris</span></div>
+      <p>"Knowing that it is not stopping drinking by putting poison in its alcohol, the United States government must be charged with moral responsibility for the deaths that poisoned liquor causes."</p>
+    </div>
+    <figure class="framed mid"><img src="/storyhub/hh/poppycock/assets/p02-norris-gettler-lab.jpg" alt="Two men in suits stand in a laboratory crowded with glassware and hanging lamps. The younger man, left, holds a flask up to the light." loading="lazy"><figcaption><b>The poison hunters.</b> Toxicologist Alexander Gettler, left, and Chief Medical Examiner Charles Norris in their laboratory in New York.<span class="credit">Library of Congress · colorized</span></figcaption></figure>
+    <p>Norris's own office reported something different that same week. His assistant, Dr. Thomas Gonzales, said only one body showed traces of poisonous liquor. Autopsies on seven of the dead found the cause was excessive drinking. In Washington, Treasury officials said the 2 per cent of wood alcohol in most industrial alcohol was not enough to kill anyone.</p>
+    <div class="split" role="group" aria-label="Two findings from one office">
+      <div><span class="who">Norris, the chief</span><p>The drinkers were victims of poison the government put in its alcohol, and the government bears moral responsibility.</p></div>
+      <div><span class="who">Gonzales, his assistant</span><p>Seven autopsies. Cause of death: too much drinking. One body out of the first group showed poison.</p></div>
+    </div>
+    <div class="q"><label for="q1"><span class="n">Q1</span><span>Norris blamed the government. His assistant's autopsies pointed at ordinary drinking. Could both be right at the same time? Use one fact from this section.</span></label><textarea id="q1" data-q="Q1"></textarea></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="band lab" aria-labelledby="h2">
+  <div class="col">
+    <div class="tag"><span class="no">No. 2</span><span class="where">Washington · 1906 to 1927</span></div>
+    <h2 id="h2">Poison by the <em>formula</em></h2>
+    <p class="lead">Industrial alcohol stayed legal all through Prohibition. Factories needed it for everything from paint to perfume. Under a law passed in 1906, alcohol meant for industry could skip the heavy liquor tax if it was denatured first, which meant something was added to make it unfit to drink. The usual additive was wood alcohol, also called methanol. It is a poison that can blind or kill.</p>
+    <p>Once Prohibition began in January 1920, tax free industrial alcohol became the easiest liquor in America to steal. By the government's own figures, about 80 million gallons were made under permit every year and only about 70 million showed up again in legal products. Ten million gallons a year got away. Bootleggers redistilled it to strip out the additives, cut it with water and flavoring, and sold it as gin or whiskey. The cleaning was never complete.</p>
+    <figure class="inset"><img src="/storyhub/hh/poppycock/assets/p13-chester-mills.jpg" alt="A man with round glasses writes at a desk beside an upright telephone." loading="lazy"><figcaption><b>Chester P. Mills.</b> Federal prohibition administrator for New York.<span class="credit">Bain News Service, Library of Congress · colorized</span></figcaption></figure>
+    <p>Chester Mills, the federal prohibition chief for New York, said the harder agents squeezed one kind of industrial alcohol, the more bootleggers turned to the harsher kind, called completely denatured alcohol. A new formula for that alcohol had already been ordered. On January 1, 1927, one week after the Christmas deaths, it took effect as planned. It doubled the wood alcohol.</p>
+    <div class="clear"></div>
+    <div class="formula" role="group" aria-label="Formula No. 5">
+      <div class="in">
+        <div class="ttl cap">Completely denatured alcohol<b>Formula No. 5</b>In effect January 1, 1927</div>
+        <table>
+          <tr><td>Ethyl alcohol, the kind people drink</td><td>100 parts</td></tr>
+          <tr class="pois"><td>Wood alcohol, methanol</td><td>4 parts</td></tr>
+          <tr class="pois"><td>Pyridine bases</td><td>2.25 parts</td></tr>
+          <tr class="pois"><td>Benzene</td><td>0.5 part</td></tr>
+        </table>
+        <p class="note">The old formula used 2 parts wood alcohol. On April 1, 1927, a foul chemical called aldehol, made from burned kerosene, replaced the pyridine. The wood alcohol stayed at 4 parts.</p>
+      </div>
+    </div>
+    <figure><img src="/storyhub/hh/poppycock/assets/p03-denatured-label.jpg" alt="A red and white pharmacy label headed Completely Denatured Alcohol, with a skull and crossbones and the word Poison, warning that it cannot be taken internally without inducing blindness." loading="lazy"><figcaption><b>What the law expected people to read.</b> A druggist's label for completely denatured alcohol from Kewanee, Illinois: "a violent poison," "for art, mechanical and burning purposes only." Bootleggers did not pass the label along.<span class="credit">HA! Designs, Artbyheather · CC BY 2.0</span></figcaption></figure>
+    <p>The new formula set off a fight in Congress. Wayne Wheeler, the chief lawyer and lobbyist of the Anti-Saloon League, the most powerful dry organization in the country, defended it in the plainest terms.</p>
+    <div class="pull"><p>"The Government is under no obligation to furnish the people with alcohol that is drinkable when the Constitution prohibits it."</p><cite>Wayne B. Wheeler · quoted in Time, January 10, 1927</cite></div>
+    <div class="duo">
+      <figure style="margin-top:0"><img src="/storyhub/hh/poppycock/assets/p04-wheeler.jpg" alt="Formal portrait of a man with round wire glasses and a trimmed mustache." loading="lazy"><figcaption><b>Wayne B. Wheeler.</b> Anti-Saloon League.<span class="credit">Library of Congress · colorized</span></figcaption></figure>
+      <figure style="margin-top:0"><img src="/storyhub/hh/poppycock/assets/p05-edwards.jpg" alt="Close portrait of a man with a strong jaw in a high collar." loading="lazy"><figcaption><b>Edward I. Edwards.</b> Senator from New Jersey.<span class="credit">Public domain · colorized</span></figcaption></figure>
+    </div>
+    <p>Senator Edward Edwards of New Jersey, a wet who wanted Prohibition repealed, answered him. "I call it legalized murder," he said, "with the United States government an accessory before the fact." Treasury Secretary Andrew Mellon said he opposed using poison to enforce the law, but Formula No. 5 would stay until government chemists found an additive that was harmless and could not be removed. The aldehol switch in April was their attempt. The chief prohibition chemist, James Doran, said aldehol's taste was "terrible" and "very nauseating," and federal officials predicted bootleggers would be left selling "crankcase cocktails."</p>
+    <figure class="half"><img src="/storyhub/hh/poppycock/assets/p06-mellon-mills.jpg" alt="Two men in dark overcoats and hats stand on the steps outside a stone government building." loading="lazy"><figcaption><b>The Treasury, February 4, 1927.</b> Secretary Andrew Mellon with Ogden Mills, who became his undersecretary a month later. Prohibition enforcement belonged to Mellon's department.<span class="credit">National Photo Company, Library of Congress · colorized</span></figcaption></figure>
+  </div>
+</section>
+
+<div class="band night" style="padding:0 16px"><div class="wide"><figure style="margin:0;padding:30px 0"><img src="/storyhub/hh/poppycock/assets/p09-destroying-liquor.jpg" alt="Men in hats and overcoats, dark against a hazy sky, swing axes at containers of seized liquor on muddy ground." loading="lazy"><figcaption><b>Destroying liquor, March 13, 1923.</b> Agents smash seized containers on open ground. Supply could be destroyed by the barrel and still never catch up with demand.<span class="credit">National Photo Company, Library of Congress · colorized</span></figcaption></figure></div></div>
+
+<!-- 3 -->
+<section class="band night" aria-labelledby="h3" style="padding-top:30px">
+  <div class="col">
+    <div class="tag"><span class="no">No. 3</span><span class="where">Lower East Side · Oct 6 to 11, 1928</span></div>
+    <h2 id="h3">Five cents <em>a glass</em></h2>
+    <p class="lead">The deadliest week of the poison years came in October 1928, during a presidential campaign and a World Series. On Sunday, October 7, eleven people died in New York City and more than 60 were admitted to Bellevue's alcoholic ward. By Wednesday the count was 34. Most of the dead were found near the waterfront on the Lower East Side. Charles Coleman, a 45 year old laborer from Henry Street, died at Bellevue three hours after an ambulance brought him in. Peter Zolka, 50, of Division Street, cried out in pain loudly enough to bring a patrolman. He died three hours later.</p>
+    <div class="duo">
+      <figure class="doc" style="margin-top:0"><img src="/storyhub/hh/poppycock/assets/p07-nyt-1928-10-08.jpg" alt="Newspaper headline: 11 dead, 60 ill in day is city liquor toll. Poison sellers hunted. Five cent raw alcohol from East Side stills blamed for rise in fatalities." loading="lazy"><figcaption><b>Monday, October 8, 1928.</b><span class="credit">The New York Times, page 1</span></figcaption></figure>
+      <figure class="doc" style="margin-top:0"><img src="/storyhub/hh/poppycock/assets/p08-nyt-1928-10-09.jpg" alt="Newspaper headline: 20 speakeasies raided in drive backed by mayor as liquor kills 21 in day. Toll since Saturday 33. Medical examiner ridicules dry law as noble experiment in extermination." loading="lazy"><figcaption><b>Tuesday, October 9, 1928.</b><span class="credit">The New York Times, page 1</span></figcaption></figure>
+    </div>
+    <p>Waterfront dives were selling a drink called smoke, raw alcohol with a chemical that turned it cloudy, for 5 or 10 cents a glass. Police raided 20 speakeasies in one night. Norris and his assistants worked through the autopsies at the morgue, and he gave reporters a line aimed at both men running for president, Herbert Hoover and Al Smith.</p>
+    <div class="pull"><p>"I invite both Presidential candidates to see the noble experiment in extermination."</p><cite>Charles Norris · The New York Times, October 9, 1928</cite></div>
+    <figure class="inset"><img src="/storyhub/hh/poppycock/assets/p14-gettler.jpg" alt="A man in a suit pours liquid through a funnel into a flask at a laboratory bench lined with bottles." loading="lazy"><figcaption><b>Alexander Gettler at work.</b><span class="credit">Library of Congress · colorized</span></figcaption></figure>
+    <p>By October 10 Norris had traced 18 of the deaths to undiluted wood alcohol. This was not stolen industrial alcohol with poison left in it. It was the poison itself, sold as liquor. A federal grand jury confirmed that 24 people had died from drinking wood alcohol. Then it said the deaths were not a federal matter, because wood alcohol "is not a beverage, but a recognized poison" and no federal law covered its sale. Gettler told reporters the government's poisoned formulas caused some deaths in the city. For this week, the bottles held something worse.</p>
+    <div class="clear"></div>
+  </div>
+</section>
+
+<!-- ARITHMETIC -->
+<section class="band lab" aria-labelledby="h3b">
+  <div class="col">
+    <div class="tag"><span class="no">Lab</span><span class="where">The North American Review · Dec 1928</span></div>
+    <h2 id="h3b">Run Norris's <em>arithmetic</em></h2>
+    <p>Two months after the Bowery deaths, Norris worked the numbers in print. The lethal dose of wood alcohol, he wrote, "varies from an ounce in special conditions to five for the strong constitution." Take one pint of bootleg at the strength of ordinary whiskey, 80 proof, and assume the bootlegger cleaned none of the poison out. Pick the alcohol it was made from.</p>
+    <div class="rig" id="pintbox">
+      <header><b>One Pint, 80 Proof</b><span>Norris's figures, 1928</span></header>
+      <div class="in">
+        <div class="pint">
+          <svg class="bottle" id="bottle" viewBox="0 0 210 360" role="img" aria-labelledby="bottleT"><title id="bottleT">A pint bottle filled in layers showing water, grain alcohol and wood alcohol for the chosen source.</title></svg>
+          <div>
+            <div class="choices" role="group" aria-label="What the pint was made from">
+              <button class="btn alt" type="button" data-pick="f5" aria-pressed="false">Stolen Formula No. 5 alcohol, 4 parts wood alcohol</button>
+              <button class="btn alt" type="button" data-pick="f1" aria-pressed="false">Formula No. 1, the strongest government formula, 10 per cent wood alcohol</button>
+              <button class="btn alt" type="button" data-pick="wa" aria-pressed="false">Wood alcohol sold as liquor, October 1928</button>
+            </div>
+            <div class="readout" aria-live="polite">
+              <div class="m"><b id="ozM">&ndash;</b><span>ounces of wood alcohol</span></div>
+              <div class="e"><b id="ozE">&ndash;</b><span>ounces of grain alcohol</span></div>
+            </div>
+            <svg class="scale" id="scale" viewBox="0 0 400 86" role="img" aria-labelledby="scaleT"><title id="scaleT">Scale from 0 to 7 ounces of wood alcohol with Norris's fatal range of 1 to 5 ounces shaded.</title></svg>
+          </div>
+        </div>
+        <p class="note" id="pintnote" aria-live="polite">Pick a source for the pint.</p>
+        <p class="small">A pint is 16 ounces. At 80 proof, 6.4 ounces of it is alcohol. The fatal range is the one Norris gave in 1928. Doctors today know wood alcohol can blind or kill in smaller amounts, and that the symptoms can take hours to show up.</p>
+      </div>
+    </div>
+    <div class="q"><label for="q2"><span class="n">Q2</span><span>Why are the October 1928 deaths weak evidence that the government poisoned liquor? What are they strong evidence of?</span></label><textarea id="q2" data-q="Q2"></textarea></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="band lab" aria-labelledby="h4" style="padding-top:20px">
+  <div class="col">
+    <div class="tag"><span class="no">No. 4</span><span class="where">Ten states and D.C. · 1900 to 1940</span></div>
+    <h2 id="h4">Draw the line <em>first</em></h2>
+    <p class="lead">If poisoned alcohol killed Americans in huge numbers, the death records should show it. Federal statisticians tracked deaths from alcoholism in the same ten states and Washington, D.C., every year from 1900 to 1940. Michigan is one of the ten. The line is shown through 1919. Before you see the rest, draw what you think happened.</p>
+    <div class="rig" id="drawbox">
+      <header><b>Deaths From Alcoholism</b><span>Per 100,000 people · the registration states of 1900</span></header>
+      <div class="in">
+        <div class="chartbox">
+          <div class="chartwrap" id="chartwrap">
+            <svg class="chart" id="chart" viewBox="0 0 720 380" role="img" aria-labelledby="chartT"><title id="chartT">Line chart of the death rate from alcoholism per 100,000 people, 1900 to 1940. The full series is in the data table below the chart.</title></svg>
+            <div class="tip" id="tip" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="legend" aria-hidden="true"><span><i></i>The record</span><span><i class="you"></i>Your prediction</span></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" type="button" id="reveal">Show the record</button>
+          <button class="btn alt" type="button" id="redraw">Clear my line</button>
+        </div>
+        <p class="note" id="drawnote" aria-live="polite">Press and drag across the shaded years to draw your prediction for 1920 to 1940. You can also skip straight to the record.</p>
+        <details class="data"><summary>Show the data table</summary><div class="datatable" id="datatable"></div></details>
+      </div>
+    </div>
+    <p>One caution before you trust the line too far. It counts deaths certified as alcoholism. A death from wood alcohol was filed under poisonings, so it does not appear here. The chart can show that drinking kept killing people all through Prohibition. It cannot show how many died of the poison.</p>
+    <div class="q"><label for="q3"><span class="n">Q3</span><span>What did you predict, and what did the record show? Name one thing this chart proves and one thing it cannot.</span></label><textarea id="q3" data-q="Q3"></textarea></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="band lab" aria-labelledby="h5" style="padding-top:20px">
+  <div class="col">
+    <div class="tag"><span class="no">No. 5</span><span class="where">The numbers · 1919 to 2010</span></div>
+    <h2 id="h5">Where <em>ten thousand</em> comes from</h2>
+    <p class="lead">Numbers travel faster than their labels. Here are seven figures connected to this story. Line them up by size, then regroup them by what each one actually counts.</p>
+    <div class="rig" id="numbox">
+      <header><b>Seven Numbers</b><span>What does each one count?</span></header>
+      <div class="in">
+        <div class="row" role="group" aria-label="Arrange the numbers">
+          <button class="btn" type="button" id="bysize" aria-pressed="true">Sort by size</button>
+          <button class="btn alt" type="button" id="bykind" aria-pressed="false">Group by what it counts</button>
+        </div>
+        <ul class="lineup" id="lineup" aria-live="polite"></ul>
+        <p class="note" id="numnote" aria-live="polite"></p>
+      </div>
+    </div>
+    <p>The ten thousand figure appears in Edward Behr's 1996 book <i>Prohibition</i>, and in science writer Deborah Blum's 2010 account, which said the poisoning program had killed at least that many "by some estimates." Neither explains how the count was made. A 2019 look back in the <i>Saturday Evening Post</i> noted that nearly every source cites the number, "though no one seems to know how the number was derived." The only ten thousand in Norris's own writing is a guess about something else: that nearly ten thousand New Yorkers would die of "strong drink" in 1928.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="band cream" aria-labelledby="h6">
+  <div class="col">
+    <div class="tag"><span class="no">No. 6</span><span class="where">The North American Review · Dec 1928</span></div>
+    <h2 id="h6">Read past <em>the quote</em></h2>
+    <p class="lead">Norris's essay was called "Our Essay in Extermination." Its last line is the one people quote when they say the government poisoned its citizens. Start with that line, then widen the frame one step at a time.</p>
+    <div class="essay" id="essay-src">
+      <div class="src cap"><span>Charles Norris, M.D.</span><span>North American Review, vol. 226</span></div>
+      <div class="frag" data-step="4"><span class="pg">Page 646</span><p>So these five and twenty Americans died not of poison liquor but of poisoned liquor. Who poisoned it? The Government? By no means. There is a lot of loose talk about Government poisoning of drinking alcohol, and most of it is <mark>sheer poppycock</mark>. The Government permits, it is true, the use of wood alcohol as a denaturant.</p><span class="gap" aria-hidden="true">&middot; &middot; &middot;</span></div>
+      <div class="frag" data-step="3"><span class="pg">Page 650</span><p>These denaturants were originally added to the alcohol under Government control and connivance. But let us not blame the Government too harshly. Something must be added to grain alcohol to prevent its being all drunk away and thereby denied to legitimate industry and business. ... there has been no intention of enforcing Prohibition by a death penalty or slow torture.</p><span class="gap" aria-hidden="true">&middot; &middot; &middot;</span></div>
+      <div class="frag" data-step="2"><span class="pg">Page 652</span><p>Twenty-five citizens have been done to death by poison in one city. Nearly ten thousand in the same city will die this year from strong drink. Our national casualty list for the year from this one cause will outstrip the toll of the War. These are the first fruits of Prohibition ... This is the price of the Great Experiment ...</p></div>
+      <div class="frag on" data-step="1"><span class="pg" data-hide="2">Page 652, last line</span><p><mark>This is the net dividend of our noble experiment &mdash; in extermination.</mark></p></div>
+    </div>
+    <div class="loupectl">
+      <span class="frame" id="frame" aria-live="polite">Frame 1 of 4</span>
+      <div class="row"><button class="btn alt" type="button" id="narrow" disabled>Narrow</button><button class="btn" type="button" id="widen">Widen the frame</button></div>
+    </div>
+    <p class="note" id="loupenote" aria-live="polite">Alone, this line reads like an accusation of mass murder.</p>
+    <figure class="half"><img src="/storyhub/hh/poppycock/assets/p10-norris-library.jpg" alt="An older man with a white beard sits reading a large book in front of tall shelves of books." loading="lazy"><figcaption><b>Charles Norris in his library.</b> He was chief medical examiner from 1918 until his death in 1935, and he wrote about Prohibition as often as any official in New York.<span class="credit">Library of Congress · colorized</span></figcaption></figure>
+    <div class="q"><label for="q4"><span class="n">Q4</span><span>Why is a quote with its context cut away dangerous evidence? Use Norris's essay as your example.</span></label><textarea id="q4" data-q="Q4"></textarea></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="band lab" aria-labelledby="h7">
+  <div class="col">
+    <div class="tag"><span class="no">No. 7</span><span class="where">United States Senate · May and June 1930</span></div>
+    <h2 id="h7">Fifty three to <em>nineteen</em></h2>
+    <figure class="inset"><img src="/storyhub/hh/poppycock/assets/p11-tydings.jpg" alt="A lean man in a tweed suit sits at a desk and looks toward the camera." loading="lazy"><figcaption><b>Millard Tydings.</b> Senator from Maryland.<span class="credit">Harris &amp; Ewing, Library of Congress · colorized</span></figcaption></figure>
+    <p class="lead">Could the government have stopped using poison? Senator Millard Tydings of Maryland tried to make it stop. In May 1930 he offered an amendment that would have banned wood alcohol as a denaturant. The government, "driven by fanatics," he told the Senate, "advocates the death penalty for doing nothing more than drinking a pint of liquor."</p>
+    <p>Senator Morris Sheppard of Texas, the Senate's leading dry and the author of the Eighteenth Amendment, answered that denatured alcohol held only 2 to 4 per cent wood alcohol, not enough to poison anyone in ordinary amounts. On May 14 the Senate rejected Tydings, 53 to 19. He tried again on June 6 and lost, 45 to 16.</p>
+    <p>Wood alcohol stayed in the formulas until Prohibition ended on December 5, 1933. It is still in the denatured alcohol sold at hardware stores today, labeled as poison.</p>
+    <div class="clear"></div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="band night" aria-labelledby="h8">
+  <div class="col">
+    <div class="tag"><span class="no">Verdict</span><span class="where">Your turn</span></div>
+    <h2 id="h8">Cut the <em>claim</em></h2>
+    <p class="lead">Here is the claim from the top of the page, rewritten as the five separate things it asserts. Glued together, it sounds like one charge. Cut it apart, then test each piece against the record.</p>
+    <div class="rig" id="cutbox" style="background:var(--tile);color:var(--ink)">
+      <header><b>Cut and Test</b><span>Five claims in one sentence</span></header>
+      <div class="in">
+        <div class="strip" id="strip"></div>
+        <div class="row cutrow" style="margin-top:10px"><button class="btn alt" type="button" id="cutall">Cut every piece</button></div>
+        <div class="pieces" id="pieces"></div>
+        <p class="tally" id="tally" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <h2 style="font-size:clamp(1.7rem,5vw,2.5rem);margin-top:48px">Make the argument</h2>
+    <p>150 to 200 words. Pick one prompt and use evidence from at least two numbered sections.</p>
+    <div class="prompts">
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 1"><span class="ph">Prompt 1</span>In 1926 Norris said the government had moral responsibility. In 1928 he called talk of government poisoning sheer poppycock. <b>Which statement does the evidence support better, and why?</b></label>
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 2"><span class="ph">Prompt 2</span>Rewrite the viral claim as the truest version the record supports. <b>Then defend each part of your version with evidence.</b></label>
+    </div>
+    <div class="essaymeta"><span>Your argument</span><span>Words <span id="wc">0</span> · aim for 150 to 200</span></div>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" placeholder="State your position in the first sentence, then prove it."></textarea>
+    <div class="actions">
+      <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+      <button id="copy" type="button">Copy my answers</button>
+    </div>
+  </div>
+</section>
+
+<section class="band lab" aria-label="Sources" style="padding-top:10px">
+  <div class="col">
+    <div class="refs">
+      <h3>Sources</h3>
+      <div>Associated Press. (1926, December 27). Poison rum kills four in New York. <i>The Milwaukee Leader</i>, p. 1. Library of Congress, Chronicling America.</div>
+      <div>Associated Press. (1926, December 28). [Christmas liquor deaths in New York]. <i>Evening Star</i> (Washington, DC), p. 4. Library of Congress, Chronicling America.</div>
+      <div>Associated Press. (1926, December 28). [Mills on denaturing]. <i>The Manning Times</i> (Manning, SC), p. 1. Library of Congress, Chronicling America.</div>
+      <div>Associated Press. (1926, December 29). [Norris on 468 deaths]. <i>Evening Star</i> (Washington, DC), p. 24. Library of Congress, Chronicling America.</div>
+      <div>Behr, E. (1996). <i>Prohibition: Thirteen years that changed America</i>. Arcade.</div>
+      <div>Blum, D. (2010, February 19). The chemist's war. <i>Slate</i>.</div>
+      <div>Crankcase cocktail to appear soon. (1927, March 16). <i>The Milwaukee Leader</i>, p. 1. Library of Congress, Chronicling America.</div>
+      <div>Denaturants and the Treasury. (1926, December 30). <i>Springfield Weekly Republican</i>, p. 13. Library of Congress, Chronicling America.</div>
+      <div>Linder, F. E., &amp; Grove, R. D. (1943). <i>Vital statistics rates in the United States, 1900 to 1940</i>, table 17. U.S. Bureau of the Census.</div>
+      <div>The Saturday Evening Post. (2019, May). Would the government deliberately poison 10,000 Prohibition violators?</div>
+      <div>Norris, C. (1928). Our essay in extermination. <i>The North American Review, 226</i>(6), 645 to 652.</div>
+      <div>Poison. (1927, January 10). <i>Time</i>, National affairs.</div>
+      <div>Senate in debate on poison liquor. (1927, January 4). <i>The Milwaukee Leader</i>, p. 2. Library of Congress, Chronicling America.</div>
+      <div>The New York Times. (1928, October 8, 9, 10 and 12). Coverage of the October poison liquor deaths, p. 1.</div>
+      <div>United Press. (1930, May 17). Liquor transfer measure passes in upper house. <i>South Bend News-Times</i>, p. 2. Library of Congress, Chronicling America.</div>
+      <div>United Press. (1930, June 7). Senators crush bill to prevent poison alcohol. <i>Douglas Daily Dispatch</i>, p. 1. Library of Congress, Chronicling America.</div>
+      <div>Vile but harmless formula sought by U.S. to end drinking. (1926, December 30). <i>Evening Star</i> (Washington, DC), p. 1. Library of Congress, Chronicling America.</div>
+      <div>World Health Organization. (2014). <i>Information note: Methanol poisoning outbreaks</i>.</div>
+      <div>Photographs: Library of Congress collections including the National Photo Company, Bain News Service and Harris &amp; Ewing, via Wikimedia Commons, public domain. Poison label by HA! Designs, Artbyheather, CC BY 2.0. Colorized photographs are digital interpretations of black and white originals. Newspaper pages from The New York Times, October 1928, now in the public domain, via the Internet Archive.</div>
+    </div>
+  </div>
+</section>
+</main>
+<div class="saved" id="toast">Saved</div>
+<script>
+(function(){
+  var KEY='hh-sheer-poppycock-v1';
+  var $=function(id){return document.getElementById(id);};
+  var NS='http://www.w3.org/2000/svg';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(parent,n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;parent.appendChild(e);return e;}
+  function fmt(n){return (Math.round(n*100)/100).toFixed(2).replace(/0$/,'');}
+
+  /* ---------- the pint ---------- */
+  var SRC={
+    f5:{m:0.24,e:5.99,x:0.17,note:'About a quarter ounce of wood alcohol, well under the smallest fatal dose Norris gave. The same pint holds six ounces of grain alcohol. When a drinker died this way, Norris wrote, there was reasonable doubt "whether the methyl or the ethyl alcohol is responsible. He has had enough of either to account for him."'},
+    f1:{m:0.64,e:5.76,x:0,note:'About two thirds of an ounce, still under Norris\'s floor for one pint. Norris warned that wood alcohol does not fully leave the body, so drinking it day after day can build up to a dangerous dose. He called that slow poison, and he called it an established fact.'},
+    wa:{m:6.4,e:0,x:0,note:'6.4 ounces of wood alcohol, past the top of Norris\'s range. A few glasses could reach his smallest fatal dose. This is what killed people on the Bowery in October 1928, and no government formula put it in the bottle.'}
+  };
+  var bt=$('bottle'),B={top:78,bot:340,x:44,w:112},PX=(B.bot-B.top)/16;
+  var defs=mk(bt,'defs',{});
+  var cp=mk(defs,'clipPath',{id:'flask'});
+  var shape='M78 20 L122 20 L122 50 Q156 60 156 92 L156 328 Q156 344 140 344 L60 344 Q44 344 44 328 L44 92 Q44 60 78 50 Z';
+  mk(cp,'path',{d:shape});
+  var liquid=mk(bt,'g',{'clip-path':'url(#flask)'});
+  mk(liquid,'rect',{x:0,y:0,width:200,height:360,fill:'#fbfcfb'});
+  var L={
+    water:mk(liquid,'rect',{x:40,y:B.bot,width:120,height:0,fill:'#cfdde8'}),
+    eth:mk(liquid,'rect',{x:40,y:B.bot,width:120,height:0,fill:'#d98c2b'}),
+    oth:mk(liquid,'rect',{x:40,y:B.bot,width:120,height:0,fill:'#8e8e8e'}),
+    meth:mk(liquid,'rect',{x:40,y:B.bot,width:120,height:0,fill:'#9e1238'})
+  };
+  mk(bt,'path',{d:shape,fill:'none',stroke:'#13161d','stroke-width':3});
+  mk(bt,'rect',{x:74,y:6,width:52,height:16,rx:3,fill:'#8a6a3a',stroke:'#13161d','stroke-width':2});
+  for(var oz=2;oz<=16;oz+=2){var yy=B.bot-oz*PX;mk(bt,'line',{x1:44,x2:54,y1:yy,y2:yy,stroke:'#13161d','stroke-width':1.5});mk(bt,'text',{x:58,y:yy+4,'font-family':'Oswald, sans-serif','font-size':10,fill:'#13161d'},oz+' oz');}
+  var tags=mk(bt,'g',{'font-family':'Oswald, sans-serif','font-size':11,'font-weight':600});
+  function layer(r,y,h){r.setAttribute('y',y.toFixed(1));r.setAttribute('height',Math.max(0,h).toFixed(1));}
+  var sc=$('scale'),S0=20,S1=380,SM=7;function sx(v){return S0+(v/SM)*(S1-S0);}
+  mk(sc,'rect',{x:sx(1),y:14,width:sx(5)-sx(1),height:22,fill:'#f7d3dc'});
+  mk(sc,'text',{x:(sx(1)+sx(5))/2,y:29,'text-anchor':'middle','font-family':'Oswald, sans-serif','font-size':11,'font-weight':600,fill:'#7a0e2c'},'NORRIS\'S FATAL RANGE, 1 TO 5 OZ');
+  mk(sc,'line',{x1:S0,x2:S1,y1:36,y2:36,stroke:'#13161d','stroke-width':1.5});
+  for(var t=0;t<=7;t++){mk(sc,'line',{x1:sx(t),x2:sx(t),y1:36,y2:41,stroke:'#13161d'});mk(sc,'text',{x:sx(t),y:54,'text-anchor':'middle','font-family':'Oswald, sans-serif','font-size':11,fill:'#13161d'},t+' oz');}
+  var mark=mk(sc,'g',{opacity:0});
+  var mtri=mk(mark,'path',{d:'M0 36 L-7 24 L7 24 Z',fill:'#9e1238'});
+  var mlab=mk(mark,'text',{x:0,y:76,'text-anchor':'middle','font-family':'Oswald, sans-serif','font-size':12,'font-weight':600,fill:'#9e1238'},'');
+  function pour(k){
+    var s=SRC[k],alc=6.4,water=16-alc;
+    var y=B.bot;layer(L.water,y-water*PX,water*PX);y-=water*PX;
+    layer(L.eth,y-s.e*PX,s.e*PX);y-=s.e*PX;
+    layer(L.oth,y-s.x*PX,s.x*PX);y-=s.x*PX;
+    layer(L.meth,y-s.m*PX,s.m*PX);var mTop=y-s.m*PX,mMid=y-s.m*PX/2;
+    while(tags.firstChild)tags.removeChild(tags.firstChild);
+    mk(tags,'text',{x:100,y:B.bot-water*PX/2+4,'text-anchor':'middle',fill:'#13161d'},'WATER');
+    if(s.e>0)mk(tags,'text',{x:100,y:B.bot-water*PX-s.e*PX/2+4,'text-anchor':'middle',fill:'#13161d'},'GRAIN');
+    if(s.m*PX>16)mk(tags,'text',{x:100,y:mMid+4,'text-anchor':'middle',fill:'#fff'},'WOOD');
+    else{mk(tags,'line',{x1:150,x2:166,y1:mMid,y2:mMid-14,stroke:'#9e1238','stroke-width':1.5});mk(tags,'text',{x:168,y:mMid-12,fill:'#9e1238','font-size':10},'WOOD');}
+    $('ozM').textContent=fmt(s.m);$('ozE').textContent=s.e?fmt(s.e):'0';
+    mark.setAttribute('opacity',1);mark.setAttribute('transform','translate('+Math.min(sx(s.m),S1-4).toFixed(1)+',0)');mlab.textContent=fmt(s.m)+' OZ IN THIS PINT';var mx=sx(s.m);mlab.setAttribute('text-anchor',mx<110?'start':(mx>290?'end':'middle'));mlab.setAttribute('x',mx<110?-8:(mx>290?8:0));
+    $('pintnote').textContent=s.note;
+  }
+  document.querySelectorAll('#pintbox .choices .btn').forEach(function(b){
+    b.addEventListener('click',function(){document.querySelectorAll('#pintbox .choices .btn').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});pour(b.dataset.pick);});
+  });
+
+  /* ---------- draw the line ---------- */
+  var RATE={1900:5.3,1901:5.0,1902:5.2,1903:6.2,1904:5.3,1905:5.9,1906:6.4,1907:7.5,1908:5.1,1909:5.5,1910:5.6,1911:5.3,1912:5.9,1913:6.6,1914:5.4,1915:4.8,1916:7.4,1917:6.4,1918:3.1,1919:1.8,1920:1.2,1921:1.9,1922:3.3,1923:4.4,1924:4.5,1925:5.2,1926:5.4,1927:5.5,1928:5.4,1929:5.2,1930:4.8,1931:4.7,1932:3.4,1933:3.6,1934:3.7,1935:3.2,1936:3.5,1937:3.1,1938:2.5,1939:2.7,1940:2.5};
+  var ch=$('chart'),CW=720,CH=380,M={l:44,r:14,t:30,b:40},Y0=1900,Y1=1940,VMAX=8;
+  function X(y){return M.l+(y-Y0)/(Y1-Y0)*(CW-M.l-M.r);}
+  function Yv(v){return CH-M.b-(v/VMAX)*(CH-M.t-M.b);}
+  function inv(py){return Math.max(0,Math.min(VMAX,(CH-M.b-py)/(CH-M.t-M.b)*VMAX));}
+  mk(ch,'rect',{x:X(1920.04),y:M.t,width:X(1933.93)-X(1920.04),height:CH-M.t-M.b,fill:'#e3e8f5'});
+  mk(ch,'text',{x:(X(1920.04)+X(1933.93))/2,y:M.t-10,'text-anchor':'middle','font-family':'Oswald, sans-serif','font-size':12,'font-weight':600,'letter-spacing':2,fill:'#1c3b8f'},'PROHIBITION');
+  var zone=mk(ch,'rect',{x:X(1919.5),y:M.t,width:X(1940)-X(1919.5),height:CH-M.t-M.b,fill:'#f2b760','fill-opacity':.16});
+  var zoneT=mk(ch,'text',{x:X(1930),y:Yv(7.2),'text-anchor':'middle','font-family':'Oswald, sans-serif','font-size':13,'font-weight':600,fill:'#8f4f08'},'DRAW 1920 TO 1940 HERE');
+  for(var gv=0;gv<=VMAX;gv+=2){mk(ch,'line',{x1:M.l,x2:CW-M.r,y1:Yv(gv),y2:Yv(gv),stroke:gv?'#d5dbd5':'#13161d','stroke-width':gv?1:1.5});mk(ch,'text',{x:M.l-8,y:Yv(gv)+4,'text-anchor':'end','font-family':'Oswald, sans-serif','font-size':12,fill:'#474d57'},gv);}
+  [1900,1910,1920,1930,1940].forEach(function(y){mk(ch,'text',{x:X(y),y:CH-M.b+20,'text-anchor':'middle','font-family':'Oswald, sans-serif','font-size':12,fill:'#474d57'},y);mk(ch,'line',{x1:X(y),x2:X(y),y1:CH-M.b,y2:CH-M.b+5,stroke:'#13161d'});});
+  function pathOf(from,to){var d='';for(var y=from;y<=to;y++){d+=(y===from?'M':'L')+X(y).toFixed(1)+' '+Yv(RATE[y]).toFixed(1);}return d;}
+  mk(ch,'path',{d:pathOf(1900,1919),fill:'none',stroke:'#13161d','stroke-width':2.5,'stroke-linejoin':'round'});
+  var hidden=mk(ch,'path',{d:pathOf(1919,1940),fill:'none',stroke:'#13161d','stroke-width':2.5,'stroke-linejoin':'round',opacity:0});
+  var marks=mk(ch,'g',{opacity:0,'font-family':'Oswald, sans-serif','font-size':11,'font-weight':600});
+  mk(marks,'line',{x1:X(1927),x2:X(1927),y1:M.t,y2:CH-M.b,stroke:'#9e1238','stroke-dasharray':'4 4'});
+  mk(marks,'text',{x:X(1927)-4,y:Yv(7.6),'text-anchor':'end',fill:'#9e1238'},'FORMULA NO. 5');
+  mk(marks,'text',{x:X(1927)-4,y:Yv(7.6)+14,'text-anchor':'end',fill:'#9e1238'},'JAN 1927');
+  mk(marks,'line',{x1:X(1933.93),x2:X(1933.93),y1:M.t,y2:CH-M.b,stroke:'#1c3b8f','stroke-dasharray':'4 4'});
+  mk(marks,'text',{x:X(1933.93)+4,y:Yv(7.6),fill:'#1c3b8f'},'REPEAL');
+  mk(marks,'text',{x:X(1933.93)+4,y:Yv(7.6)+14,fill:'#1c3b8f'},'DEC 1933');
+  var you=mk(ch,'path',{d:'',fill:'none',stroke:'#8f4f08','stroke-width':3,'stroke-dasharray':'7 5','stroke-linecap':'round'});
+  var dot=mk(ch,'circle',{r:5,fill:'#13161d',stroke:'#fff','stroke-width':2,opacity:0});
+  var guess={},drawing=false,revealed=false,lastY=null;
+  function toSvg(e){var pt=ch.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;var m=ch.getScreenCTM();return m?pt.matrixTransform(m.inverse()):{x:0,y:0};}
+  function drawYou(){var d='M'+X(1919).toFixed(1)+' '+Yv(RATE[1919]).toFixed(1);for(var y=1920;y<=1940;y++){if(guess[y]==null)break;d+=' L'+X(y).toFixed(1)+' '+Yv(guess[y]).toFixed(1);}you.setAttribute('d',guess[1920]==null?'':d);}
+  function setGuess(p){
+    var yr=Math.round(Y0+(p.x-M.l)/(CW-M.l-M.r)*(Y1-Y0));if(yr<1920||yr>1940)return;
+    var v=inv(p.y);
+    if(lastY!==null&&Math.abs(yr-lastY)>1){var a=Math.min(yr,lastY),b=Math.max(yr,lastY),va=guess[a]!=null?guess[a]:v,vb=v;for(var k=a+1;k<b;k++){guess[k]=va+(vb-va)*(k-a)/(b-a);}}
+    guess[yr]=v;for(var q=1920;q<yr;q++){if(guess[q]==null)guess[q]=guess[yr];}
+    lastY=yr;drawYou();
+    var filled=0;for(var z=1920;z<=1940;z++)if(guess[z]!=null)filled++;
+    if(!revealed)$('drawnote').textContent=filled<21?'Keep going to 1940. You have drawn '+filled+' of 21 years.':'Your line is drawn. Press Show the record.';
+  }
+  ch.addEventListener('pointerdown',function(e){if(revealed)return;var p=toSvg(e);if(p.x<X(1919.5))return;drawing=true;lastY=null;try{ch.setPointerCapture(e.pointerId);}catch(err){}setGuess(p);e.preventDefault();});
+  ch.addEventListener('pointermove',function(e){var p=toSvg(e);if(drawing){setGuess(p);return;}hover(p,e);});
+  function stop(){drawing=false;}
+  ch.addEventListener('pointerup',stop);ch.addEventListener('pointercancel',stop);
+  ch.addEventListener('pointerleave',function(){if(!drawing){dot.setAttribute('opacity',0);$('tip').classList.remove('on');}});
+  function hover(p,e){
+    var yr=Math.round(Y0+(p.x-M.l)/(CW-M.l-M.r)*(Y1-Y0));var max=revealed?1940:1919;
+    if(yr<1900||yr>max){dot.setAttribute('opacity',0);$('tip').classList.remove('on');return;}
+    dot.setAttribute('cx',X(yr));dot.setAttribute('cy',Yv(RATE[yr]));dot.setAttribute('opacity',1);
+    var box=$('chartwrap').getBoundingClientRect(),r=ch.getBoundingClientRect(),tip=$('tip');
+    tip.textContent=yr+': '+RATE[yr].toFixed(1)+' per 100,000';
+    var tx=(X(yr)/CW)*r.width,ty=(Yv(RATE[yr])/CH)*r.height;tx=Math.max(70,Math.min(r.width-70,tx));
+    tip.style.left=tx+'px';tip.style.top=ty+'px';tip.classList.add('on');
+  }
+  function reveal(){
+    if(revealed)return;revealed=true;hidden.setAttribute('opacity',1);marks.setAttribute('opacity',1);zone.setAttribute('fill-opacity',0);zoneT.setAttribute('opacity',0);
+    if(!reduce&&hidden.animate){var len=hidden.getTotalLength();hidden.style.strokeDasharray=len;hidden.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:1400,easing:'ease-out'}).onfinish=function(){hidden.style.strokeDasharray='';};}
+    var msg='';
+    if(guess[1927]!=null)msg='You drew '+guess[1927].toFixed(1)+' for 1927. The record says 5.5. ';
+    msg+='The rate fell hard from 1917 to 1920, when wartime limits and then Prohibition cut the supply. It climbed every year from 1920 to 1927, when it was back to where it stood before the war. The year Formula No. 5 took effect shows no spike. The rate had been falling since 1928, and Repeal in December 1933 brought no jump.';
+    $('drawnote').textContent=msg;$('reveal').disabled=true;$('redraw').disabled=true;
+  }
+  $('reveal').addEventListener('click',reveal);
+  $('redraw').addEventListener('click',function(){guess={};lastY=null;drawYou();$('drawnote').textContent='Line cleared. Draw again from 1920.';});
+  (function table(){var h='<table><thead><tr><th scope="col">Year</th><th scope="col">Deaths per 100,000</th></tr></thead><tbody>';for(var y=1900;y<=1940;y++)h+='<tr><td>'+y+'</td><td>'+RATE[y].toFixed(1)+'</td></tr>';$('datatable').innerHTML=h+'</tbody></table>';})();
+
+  /* ---------- seven numbers ---------- */
+  var NUMS=[
+    {v:38,lab:'Deaths from wood alcohol in New York City in 1919, the year before Prohibition',src:'Norris, 1928',k:'wood'},
+    {v:23,lab:'Dead in New York City after Christmas 1926, counted by December 28',src:'Associated Press',k:'mixed'},
+    {v:468,lab:'Manhattan deaths "from poisonous liquor" in 1926',src:'Norris, December 1926',k:'mixed'},
+    {v:24,lab:'Deaths from drinking wood alcohol, found by a federal grand jury, October 1928',src:'The New York Times',k:'wood'},
+    {v:719,lab:'Deaths from alcoholism in New York City in 1927',src:'Norris, 1928',k:'all'},
+    {v:11700,lab:'"Deaths from alcoholic poisoning in the United States last year," meaning 1927',src:'Rep. Loring Black, quoted by Norris',k:'all'},
+    {v:10000,lab:'Americans killed by the government\'s poison, 1920 to 1933',src:'Behr, 1996, and Blum, 2010',k:'none'}
+  ];
+  var KIND={wood:'Wood alcohol poisoning only',mixed:'Mixed causes, never sorted out',all:'Every kind of drinking death',none:'No count found behind it'};
+  var lu=$('lineup');
+  function li(n){var e=document.createElement('li');if(n.k==='none')e.className='nocount';e.innerHTML='<div class="num">'+n.v.toLocaleString('en-US')+'</div><div class="what">'+n.lab+' <span class="small">· '+n.src+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+(n.v/11700*100).toFixed(2)+'%"></i></div><div class="kind">Counts: '+KIND[n.k]+'</div>';return e;}
+  function arrange(mode){
+    lu.innerHTML='';lu.classList.toggle('grouped',mode==='kind');
+    if(mode==='size'){NUMS.slice().sort(function(a,b){return b.v-a.v;}).forEach(function(n){lu.appendChild(li(n));});
+      $('numnote').textContent='Sorted by size, the famous number fits right in among the others. It looks like it belongs to the same family.';}
+    else{['wood','mixed','all','none'].forEach(function(k){var g=document.createElement('li');g.className='grp';g.textContent=KIND[k];lu.appendChild(g);NUMS.filter(function(n){return n.k===k;}).sort(function(a,b){return b.v-a.v;}).forEach(function(n){lu.appendChild(li(n));});});
+      $('numnote').textContent='Grouped by what they count, the only numbers that measure wood alcohol deaths are small, and each covers one city in one year or one week. The big numbers count every death from drinking. The 10,000 sits alone, because nobody has shown what it counts.';}
+    $('bysize').setAttribute('aria-pressed',mode==='size'?'true':'false');$('bykind').setAttribute('aria-pressed',mode==='kind'?'true':'false');
+    $('bysize').className='btn'+(mode==='size'?'':' alt');$('bykind').className='btn'+(mode==='kind'?'':' alt');
+  }
+  $('bysize').addEventListener('click',function(){arrange('size');});
+  $('bykind').addEventListener('click',function(){arrange('kind');});
+  arrange('size');
+
+  /* ---------- widen the frame ---------- */
+  var step=1,NOTES={
+    1:'Alone, this line reads like an accusation of mass murder.',
+    2:'The extermination he means is death from drinking of every kind, and the killer he names is Prohibition itself, the Great Experiment. His ten thousand are New Yorkers he expected to die from strong drink in one year.',
+    3:'He says the poisons were added under government "connivance." In the same passage he says there was no intention of a death penalty.',
+    4:'Four pages earlier he calls talk of government poisoning "sheer poppycock." One man, one essay: he blamed the government for the poisons and cleared it of murder.'
+  };
+  var frags=[].slice.call(document.querySelectorAll('#essay-src .frag'));
+  function frame(){
+    frags.forEach(function(f){f.classList.toggle('on',+f.dataset.step<=step);var pg=f.querySelector('[data-hide]');if(pg)pg.style.display=step>=+pg.dataset.hide?'none':'';});
+    $('frame').textContent='Frame '+step+' of 4';$('loupenote').textContent=NOTES[step];
+    $('narrow').disabled=step===1;$('widen').disabled=step===4;
+  }
+  $('widen').addEventListener('click',function(){if(step<4){step++;frame();var nf=document.querySelector('#essay-src .frag[data-step="'+step+'"]');if(nf&&nf.scrollIntoView)nf.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});}});
+  $('narrow').addEventListener('click',function(){if(step>1){step--;frame();}});
+  frame();
+
+  /* ---------- cut the claim ---------- */
+  var PIECES=[
+    {t:'The U.S. government put poison',v:'confirmed',w:'Federal formulas required wood alcohol and other poisons in industrial alcohol, and Formula No. 5 doubled the wood alcohol on January 1, 1927. Sections 2 and 7.'},
+    {t:'in the liquor Americans bought,',v:'misleading',w:'The poison went into alcohol made for factories. Bootleggers stole it and sold it without cleaning it out. The worst week of all, October 1928, came from pure wood alcohol that no federal formula put there. Sections 2 and 3.'},
+    {t:'on purpose, to kill drinkers,',v:'debunked',w:'The stated goal was to keep industrial alcohol from being drunk. The Treasury switched to aldehol to cut the poison, and even Norris wrote there was "no intention" of a death penalty. Some drys shrugged at the deaths. Shrugging at deaths is not a plan to cause them. Sections 2 and 6.'},
+    {t:'kept at it after people died,',v:'confirmed',w:'Formula No. 5 took effect a week after the Christmas deaths of 1926, and in 1930 the Senate refused to ban wood alcohol, 53 to 19 and then 45 to 16. Sections 1, 2 and 7.'},
+    {t:'and killed 10,000 Americans.',v:'unproven',w:'No one has shown how that number was counted, and the records of the time mostly did not separate poison deaths from drinking deaths. Sections 4 and 5.'}
+  ];
+  var strip=$('strip'),cuts=0,tested=0;
+  var SCISSORS='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.6 7.6 20 18M8.6 16.4 20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  PIECES.forEach(function(p,i){
+    var s=document.createElement('span');s.className='piece';s.textContent=p.t;strip.appendChild(s);
+    if(i<PIECES.length-1){var b=document.createElement('button');b.type='button';b.className='snip';b.innerHTML=SCISSORS;b.setAttribute('aria-label','Cut after: '+p.t);b.addEventListener('click',function(){cut(b);});strip.appendChild(b);}
+  });
+  function cut(b){if(b.hidden)return;b.hidden=true;cuts++;var prev=b.previousElementSibling;prev.style.marginRight=reduce?'10px':'10px';prev.style.transform='rotate(-1.5deg)';
+    $('tally').textContent=cuts<4?cuts+' of 4 cuts made.':'';if(cuts===4)build();}
+  $('cutall').addEventListener('click',function(){[].slice.call(strip.querySelectorAll('.snip')).forEach(function(b){cut(b);});});
+  var LABEL={confirmed:'Confirmed',misleading:'Misleading',debunked:'Debunked',unproven:'Unproven'};
+  function build(){
+    $('cutall').disabled=true;strip.classList.add('cutdone');document.querySelector('.cutrow').classList.add('cutdone');
+    var wrap=$('pieces');
+    PIECES.forEach(function(p,i){
+      var d=document.createElement('div');d.className='pc';d.id='pc'+i;
+      d.innerHTML='<div class="t">'+p.t.replace(/[,.]$/,'')+'</div><div class="row" style="margin-top:10px"><button class="btn alt" type="button">Test this piece</button></div><p class="why" aria-live="polite"></p>';
+      d.querySelector('button').addEventListener('click',function(){test(i);});
+      wrap.appendChild(d);
+    });
+    $('tally').textContent='Five pieces. Test each one against the record.';
+    var first=wrap.querySelector('button');if(first)first.focus();
+  }
+  function test(i){
+    var p=PIECES[i],d=$('pc'+i);if(d.classList.contains('done'))return;
+    d.classList.add('done','c-'+p.v);d.querySelector('.row').remove();
+    var st=document.createElement('span');st.className='stamp v-'+p.v;st.textContent=LABEL[p.v];d.insertBefore(st,d.querySelector('.why'));
+    d.querySelector('.why').textContent=p.w;tested++;
+    $('tally').textContent=tested<5?tested+' of 5 tested.':'Two confirmed, one misleading, one debunked, one unproven. A sentence that needs four different verdicts cannot honestly get just one.';
+  }
+
+  /* ---------- saving ---------- */
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var radios=[].slice.call(document.querySelectorAll('input[name="prompt"]'));
+  var essay=$('essay'),wc=$('wc'),toast=$('toast'),tT,sT;
+  function keyOf(el){return el.dataset.q||el.id;}
+  function markPrompt(){radios.forEach(function(r){r.closest('.prompt').classList.toggle('sel',r.checked);});}
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=150&&n<=200)?'ok':'';}
+  function save(){
+    var d={};fields.forEach(function(el){d[keyOf(el)]=el.value;});
+    var r=radios.filter(function(x){return x.checked;})[0];d.__prompt=r?r.value:'';
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
+  (function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(el){var v=d[keyOf(el)];if(typeof v==='string')el.value=v;});
+    if(d.__prompt)radios.forEach(function(r){if(r.value===d.__prompt)r.checked=true;});
+  })();
+  markPrompt();count();
+  fields.forEach(function(el){el.addEventListener('input',queueSave);});
+  radios.forEach(function(r){r.addEventListener('change',function(){markPrompt();queueSave();});});
+  essay.addEventListener('input',count);
+
+  /* ---------- copy ---------- */
+  $('copy').addEventListener('click',function(){
+    var btn=this;function g(id){var e=$(id);return e?e.value.trim():'';}
+    var out=['SHEER POPPYCOCK: Did the Government Poison Prohibition Liquor?','Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'),'','QUESTIONS'];
+    ['q1','q2','q3','q4'].forEach(function(id,i){out.push('Q'+(i+1)+'. '+(g(id)||'[no answer]'));out.push('');});
+    var r=radios.filter(function(x){return x.checked;})[0];
+    out.push('ARGUMENT: '+(r?r.value.toUpperCase():'NO PROMPT SELECTED')+'   Word count: '+wc.textContent);
+    out.push('');out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';btn.classList.toggle('done',ok);setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else fallback();
+  });
+})();
+</script>
+</body></html>
