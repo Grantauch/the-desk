@@ -31,7 +31,7 @@ import { storyHubs } from '../data/storyhubs';
   <div class="mt-8 space-y-8">
     {
       storyHubs.map((hub) => (
-        <article class="pop rounded-md bg-white overflow-hidden storyhub-card">
+        <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition }]}>
           <a class="storyhub-card__cover" href={hub.href}>
             <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
           </a>
@@ -42,6 +42,7 @@ import { storyHubs } from '../data/storyhubs';
               <span class="text-xs font-mono lowercase text-ink-soft">· {hub.unit}</span>
               <span class="text-xs font-mono lowercase text-ink-soft">· {hub.period}</span>
               <span class="storyhub-card__status">{hub.status}</span>
+              {hub.edition && <span class="storyhub-card__edition">{hub.edition}</span>}
             </div>
 
             <h2 class="mt-2 font-display text-3xl font-bold lowercase leading-none">
@@ -206,6 +207,55 @@ import { storyHubs } from '../data/storyhubs';
 
   .storyhub-card__topics li:last-child::after {
     content: '';
+  }
+
+  /* Special Edition line: Friday feature hubs with their own cover treatment. */
+  .storyhub-card--special {
+    background: #16110f;
+    color: #f4e8cb;
+    border-color: #16110f;
+    box-shadow: 6px 6px 0 #ffdd3c;
+  }
+
+  .storyhub-card--special .storyhub-card__body h2 a:hover {
+    color: #ffdd3c;
+  }
+
+  .storyhub-card--special .storyhub-card__question {
+    color: #f4e8cb;
+  }
+
+  .storyhub-card--special .storyhub-card__body p,
+  .storyhub-card--special .storyhub-card__inside,
+  .storyhub-card--special .storyhub-card__topics,
+  .storyhub-card--special .text-ink-soft {
+    color: #d9ccb4;
+  }
+
+  .storyhub-card--special .text-accent {
+    color: #ffdd3c;
+  }
+
+  .storyhub-card--special .storyhub-card__open {
+    border-color: #ffdd3c;
+    color: #ffdd3c;
+  }
+
+  .storyhub-card--special .storyhub-card__open:hover {
+    background: #ffdd3c;
+    border-color: #ffdd3c;
+    color: #16110f;
+  }
+
+  .storyhub-card__edition {
+    background: #ffdd3c;
+    color: #16110f;
+    padding: 0.15rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   @media (min-width: 900px) {

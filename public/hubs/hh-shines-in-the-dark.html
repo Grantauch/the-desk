@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shines in the Dark &middot; Hidden History Special Edition</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="Special Edition No. 1. The true story of the Radium Girls, told as a horror comic from the real record. Paint a shift of watch dials, flash the lights in the Orange studio, unmask the company and listen to a counter measure what the women carried.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-shines-in-the-dark.html">
+<meta property="og:title" content="Shines in the Dark · The Radium Girls">
+<meta property="og:description" content="StoryHub Special Edition No. 1. The girls who glowed, told from the real record.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-shines-in-the-dark.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/shines-in-the-dark/assets/p00-usrc-night.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,700;1,400&family=Bangers&family=Comic+Neue:wght@700&family=Creepster&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ink:#16110f;
+  --ink2:#3b302a;
+  --pulp:#f4e8cb;
+  --pulp2:#ead8ae;
+  --pulp3:#dcc491;
+  --cap:#ffdd3c;
+  --cap2:#f5c400;
+  --night:#120c20;
+  --night2:#1f1636;
+  --night3:#34275a;
+  --glow:#a4ff5e;
+  --glow2:#6dff9e;
+  --glowd:#2f7a12;
+  --blood:#c8211a;
+  --blood2:#8d1410;
+  --flame:#f07f1f;
+  --violet:#8f6bff;
+  --paleviolet:#d9ccff;
+  --mute:#c9bda6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--night);color:var(--ink);font-family:Alegreya,Georgia,serif;font-size:1.13rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.bang{font-family:Bangers,Impact,"Arial Black",sans-serif;font-weight:400;letter-spacing:.04em}
+.letter{font-family:"Comic Neue","Comic Sans MS",Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* halftone dots laid over photographs */
+.dots{position:relative;overflow:hidden}
+.dots::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(20,12,8,.34) 28%,transparent 31%);background-size:5px 5px;mix-blend-mode:multiply;opacity:.55}
+.dots.light::after{opacity:.3}
+
+/* ---------- masthead strip ---------- */
+.mast{background:var(--ink);color:var(--pulp);display:flex;align-items:stretch;justify-content:space-between;gap:8px;border-bottom:4px solid var(--cap);position:relative;z-index:3}
+.mast .who{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:.78rem}
+.mast .who a{text-decoration:none;color:var(--pulp)}
+.mast .who b{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:1.25rem;letter-spacing:.06em;color:var(--cap)}
+.price{background:var(--cap);color:var(--ink);padding:6px 14px 6px 12px;text-align:center;line-height:1.05;clip-path:polygon(8% 0,100% 0,100% 100%,0 100%)}
+.price b{display:block;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:1.5rem;letter-spacing:.05em}
+.price span{font-size:.68rem}
+
+/* ---------- cover ---------- */
+.cover{position:relative;background:var(--night);color:var(--pulp);padding:18px 16px 26px;overflow:hidden}
+.cover .frame{max-width:1120px;margin:0 auto;position:relative;border:6px solid var(--ink);outline:3px solid var(--cap);background:#000;box-shadow:12px 12px 0 var(--blood2)}
+.cover .pic{position:relative;aspect-ratio:1250/953;max-height:78vh;width:100%}
+.cover .pic img{width:100%;height:100%;object-fit:cover}
+.cover .pic::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,12,32,.82) 0%,rgba(18,12,32,.1) 32%,rgba(18,12,32,0) 55%,rgba(18,12,32,.9) 100%);z-index:1}
+.cover .kick{position:absolute;top:14px;left:16px;right:16px;z-index:2;text-align:center;font-size:clamp(.8rem,2.2vw,1.2rem);color:var(--cap);text-shadow:2px 2px 0 var(--ink)}
+.cover h1{position:absolute;left:0;right:0;top:clamp(34px,7vw,64px);z-index:2;margin:0;text-align:center;font-family:Creepster,Bangers,Impact,serif;font-weight:400;font-size:clamp(3rem,12.5vw,9.4rem);line-height:.86;letter-spacing:.02em;color:var(--glow);text-shadow:0 0 18px rgba(164,255,94,.55),4px 5px 0 var(--ink),7px 9px 0 var(--blood2)}
+.cover h1 span{display:block}
+.burst{position:absolute;right:3%;bottom:7%;z-index:2;width:clamp(86px,14vw,150px);aspect-ratio:1;display:grid;place-items:center;text-align:center;background:var(--blood);color:var(--pulp);clip-path:polygon(50% 0,61% 16%,79% 7%,78% 26%,98% 28%,85% 43%,100% 57%,81% 64%,88% 83%,68% 81%,61% 100%,50% 86%,37% 100%,31% 81%,11% 85%,18% 65%,0 56%,15% 43%,3% 27%,22% 26%,21% 7%,39% 16%);transform:rotate(-8deg);font-family:Bangers,Impact,sans-serif;font-size:clamp(.9rem,2.4vw,1.45rem);line-height:.95;padding:14%}
+.cover .under{max-width:1120px;margin:18px auto 0;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.cover .dek{background:var(--pulp);color:var(--ink);border:4px solid var(--ink);padding:14px 16px;font-size:1.12rem;box-shadow:6px 6px 0 var(--cap2)}
+.cover .dek p{margin:0}
+.cover .meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.8rem;color:var(--paleviolet)}
+.cover .credit{position:absolute;right:8px;bottom:6px;z-index:2;font-size:.66rem;color:#e8e0ff;text-shadow:1px 1px 0 #000}
+
+/* ---------- lights out cold open ---------- */
+.lights{position:relative;height:330vh;background:var(--night)}
+.lights .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:grid;place-items:center}
+.lights .stack{position:relative;width:min(100%,1250px);aspect-ratio:1250/953;max-height:100%}
+.lights .stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.lights .nightimg{opacity:0}
+.lights .card{position:absolute;left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));opacity:0;transition:opacity .45s}
+.lights .card.on{opacity:1}
+.capbox{background:var(--cap);color:var(--ink);border:3px solid var(--ink);padding:10px 14px;box-shadow:5px 5px 0 var(--ink);font-family:"Comic Neue","Comic Sans MS",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.98rem;line-height:1.35}
+.capbox.dark{background:var(--ink);color:var(--glow);border-color:var(--glow);box-shadow:5px 5px 0 var(--glowd)}
+.lights .c1{top:7%}.lights .c2{bottom:12%}.lights .c3{top:9%}.lights .c4{bottom:10%}
+.lights .hint{transition:opacity .4s;position:absolute;bottom:14px;left:0;right:0;text-align:center;color:var(--paleviolet);font-size:.78rem;letter-spacing:.14em}
+@media(prefers-reduced-motion:reduce){
+  .lights{height:auto;padding:16px}
+  .lights .stage{position:relative;height:auto;display:block}
+  .lights .stack{margin:0 auto 12px}
+  .lights .nightimg{opacity:1}
+  .lights .dayimg{display:none}
+  .lights .card{position:relative;left:auto;top:auto;bottom:auto;transform:none;opacity:1;margin:10px auto}
+  .lights .hint{display:none}
+}
+
+/* ---------- id bar ---------- */
+.idwrap{background:var(--ink);padding:14px 16px;border-top:4px solid var(--cap);border-bottom:4px solid var(--cap)}
+.idbar{max-width:880px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+.idbar label{display:flex;flex-direction:column;gap:3px;color:var(--cap);font-family:"Comic Neue",Arial,sans-serif;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+.idbar input{font:inherit;font-family:Alegreya,Georgia,serif;font-size:1rem;text-transform:none;letter-spacing:0;background:var(--pulp);color:var(--ink);border:3px solid var(--pulp3);padding:6px 8px;width:100%;min-width:0}
+.idbar input:focus{outline:3px solid var(--glow);outline-offset:1px}
+
+/* ---------- pages ---------- */
+.page{background:var(--pulp);position:relative;padding:44px 16px 52px;border-top:6px solid var(--ink)}
+.page::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(120,80,20,.08) 1px,transparent 1.4px);background-size:7px 7px}
+.page.nightpage{background:var(--night2);color:#efe7ff}
+.page.nightpage::before{background-image:radial-gradient(rgba(160,120,255,.09) 1px,transparent 1.4px)}
+.col{max-width:780px;margin:0 auto;position:relative}
+.wide{max-width:1080px;margin:0 auto;position:relative}
+.tag{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:12px}
+.tag .no{background:var(--blood);color:var(--pulp);font-family:Bangers,Impact,sans-serif;font-size:1.15rem;letter-spacing:.06em;padding:2px 12px 1px;transform:rotate(-2deg);box-shadow:3px 3px 0 var(--ink)}
+.tag .where{font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.8rem;letter-spacing:.08em;color:var(--ink2)}
+.nightpage .tag .where{color:var(--paleviolet)}
+h2{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:clamp(2.3rem,7vw,4.1rem);line-height:.95;letter-spacing:.03em;margin:0 0 18px;color:var(--ink);text-shadow:3px 3px 0 var(--cap)}
+.nightpage h2{color:var(--glow);text-shadow:3px 3px 0 #000,0 0 16px rgba(164,255,94,.35)}
+h3{font-family:Bangers,Impact,sans-serif;font-weight:400;letter-spacing:.04em;font-size:1.6rem;margin:26px 0 8px;line-height:1}
+p{margin:0 0 14px}
+.lead{font-size:1.22rem}
+.pull{margin:22px 0;padding:16px 18px 14px;background:var(--ink);color:var(--pulp);border-left:10px solid var(--glow);position:relative}
+.pull p{font-size:1.28rem;font-style:italic;margin:0 0 6px}
+.pull cite{font-family:"Comic Neue",Arial,sans-serif;font-weight:700;font-style:normal;text-transform:uppercase;font-size:.78rem;letter-spacing:.08em;color:var(--cap)}
+.nightpage .pull{background:#000;border-left-color:var(--cap)}
+
+/* comic panels */
+.panel{margin:22px 0;border:5px solid var(--ink);background:#000;box-shadow:8px 8px 0 var(--ink);position:relative}
+.panel img{width:100%;height:auto}
+.panel .capbox{position:absolute;left:-8px;top:-14px;max-width:78%;transform:rotate(-1deg);font-size:.86rem;padding:7px 10px}
+.panel figcaption{background:var(--pulp);color:var(--ink);border-top:5px solid var(--ink);padding:8px 12px;font-size:.92rem;line-height:1.45}
+.panel figcaption b{font-family:"Comic Neue",Arial,sans-serif;text-transform:uppercase;font-size:.8rem;letter-spacing:.05em;display:block}
+.credit{display:block;font-size:.72rem;color:var(--ink2);margin-top:3px}
+.inset{float:right;width:min(40%,280px);margin:6px 0 14px 20px;transform:rotate(1.5deg)}
+.inset.left{float:left;margin:6px 20px 14px 0;transform:rotate(-1.5deg)}
+.clear{clear:both}
+.twopanel{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;margin:22px 0}
+.twopanel .panel{margin:0}
+
+/* headline clippings */
+.clips{align-content:start;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px;margin:22px 0}
+.clip{background:#efe6cf;color:#1b1714;border:1px solid #b7a67f;padding:12px 12px 10px;box-shadow:4px 5px 0 rgba(0,0,0,.35);transform:rotate(var(--r,-1deg));font-family:Georgia,serif}
+.clip .hed{font-family:Bangers,Impact,sans-serif;font-size:1.5rem;line-height:1;letter-spacing:.03em;margin-bottom:6px;color:#111}
+.clip .src{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#4d4033;border-top:1px solid #b7a67f;padding-top:5px;margin-top:6px;display:block}
+.clip p{font-size:.95rem;margin:0}
+
+/* the strip of dated panels */
+.strip{padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:0;border:5px solid var(--ink);background:var(--ink);margin:24px 0;box-shadow:8px 8px 0 var(--blood2)}
+.strip li{list-style:none;color:var(--ink);background:var(--pulp);margin:3px;padding:12px 12px 14px;position:relative;min-height:128px}
+.strip li:nth-child(odd){background:#fbf2dc}
+.strip .d{font-family:Bangers,Impact,sans-serif;font-size:1.3rem;letter-spacing:.04em;color:var(--blood2);display:block;line-height:1;margin-bottom:6px}
+.strip li p{margin:0;font-size:.95rem;line-height:1.4}
+.strip li.last{background:var(--ink);color:var(--pulp)}
+.strip li.last .d{color:var(--cap)}
+.strip ul{padding:0;margin:0;display:contents}
+
+/* ---------- instruments shared ---------- */
+.inst{margin:26px 0;border:5px solid var(--ink);background:var(--night);color:#efe7ff;box-shadow:10px 10px 0 var(--ink);position:relative}
+.inst>header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 14px;background:var(--ink);padding:9px 14px 8px;border-bottom:3px solid var(--glow)}
+.inst>header b{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:1.55rem;letter-spacing:.05em;color:var(--glow)}
+.inst>header span{font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.74rem;letter-spacing:.1em;color:var(--paleviolet)}
+.inst .body{padding:16px}
+.inst p{color:#e6ddfa}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.btn{font-family:Bangers,Impact,sans-serif;font-size:1.3rem;letter-spacing:.06em;line-height:1;padding:11px 18px 9px;border:3px solid var(--ink);background:var(--cap);color:var(--ink);box-shadow:4px 4px 0 #000;cursor:pointer;min-height:44px}
+.btn:hover{background:#fff07a}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.btn:focus-visible{outline:3px solid var(--glow);outline-offset:3px}
+.btn.green{background:var(--glow);color:var(--ink)}
+.btn.green:hover{background:#c8ff9c}
+.btn.red{background:var(--blood);color:#fff}
+.btn.red:hover{background:#e0342c}
+.btn.ghost{background:transparent;color:var(--pulp);border-color:var(--pulp)}
+.btn.ghost:hover{background:rgba(255,255,255,.12)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.note{font-size:.85rem;color:var(--mute);margin:10px 0 0}
+.inst .note{color:#bfb3dd}
+
+/* ---------- game ---------- */
+.game{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:18px;align-items:start}
+.dialwrap{position:relative;background:radial-gradient(circle at 50% 45%,#2b2140 0%,#120c20 70%);border:3px solid #000;border-radius:6px;padding:10px;touch-action:manipulation}
+.dialwrap svg{display:block;width:100%;height:auto;cursor:pointer}
+.dialwrap svg:focus-visible{outline:3px solid var(--glow);outline-offset:2px}
+.hud{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hud div{background:#000;border:2px solid var(--night3);padding:8px 10px}
+.hud small{display:block;font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.66rem;letter-spacing:.1em;color:var(--paleviolet)}
+.hud strong{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:2rem;letter-spacing:.04em;color:var(--glow);line-height:1}
+.hud .rej strong{color:#ff8a80}
+.meter{margin:12px 0 4px;height:18px;border:2px solid var(--pulp);background:#000;position:relative}
+.meter i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--flame),var(--cap));width:100%}
+.meterlbl{display:flex;justify-content:space-between;font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.7rem;letter-spacing:.08em;color:var(--paleviolet)}
+.gamebtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.gamebtns .btn{font-size:1.15rem;padding:12px 6px 10px}
+.foreman{margin-top:12px;min-height:3.2em}
+.inst .capbox,.inst p.capbox{color:var(--ink)}
+.inst .body{position:relative}
+.over{position:absolute;inset:0;background:rgba(10,6,20,.94);display:none;padding:18px;overflow:auto;z-index:4}
+.over.show{display:block}
+.over h4{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:2.2rem;letter-spacing:.05em;color:var(--cap);margin:0 0 8px}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));gap:8px;margin:10px 0 14px}
+.tally div{border:2px solid var(--night3);padding:8px;background:#000}
+.tally b{display:block;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:1.9rem;color:var(--glow);line-height:1}
+.tally span{font-size:.78rem;color:var(--paleviolet)}
+.swallow{border:3px solid var(--glow);padding:12px 14px;background:#07150a;color:#e3ffd2;margin:10px 0}
+.swallow strong{color:var(--glow)}
+
+/* ---------- darkroom ---------- */
+.darkroom{position:relative;aspect-ratio:1250/953;background:#000;overflow:hidden;border:3px solid #000}
+.darkroom img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s}
+.darkroom .dk,.darkroom .gl{opacity:0}
+.darkroom.out .day{opacity:0}
+.darkroom.out .dk{opacity:1}
+.darkroom .gl{transition:none}
+.darkroom .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.darkroom .flash.go{animation:flash .5s ease-out}
+@keyframes flash{0%{opacity:.95}100%{opacity:0}}
+.darkroom .lbl{position:absolute;left:10px;bottom:10px;right:10px;font-size:.82rem}
+.glowlist{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px;padding:0;list-style:none}
+.glowlist li{border:2px solid var(--night3);padding:3px 9px;font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.78rem;letter-spacing:.05em;color:#8d80b0;transition:color .4s,border-color .4s,box-shadow .4s}
+.glowlist li.lit{color:var(--glow);border-color:var(--glow);box-shadow:0 0 10px rgba(164,255,94,.45)}
+
+/* ---------- film fog ---------- */
+.plan{width:100%;height:auto;display:block;background:#efe3c4;border:3px solid #000}
+.plan text{font-family:"Comic Neue",Arial,sans-serif;font-weight:700}
+.dayrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:14px 0 6px}
+.dayrow label{font-family:Bangers,Impact,sans-serif;font-size:1.4rem;letter-spacing:.05em;color:var(--cap)}
+.dayrow input[type=range]{flex:1 1 220px;accent-color:var(--glow);min-height:32px}
+.filmread{font-size:1rem;min-height:3em}
+
+/* ---------- unmask ---------- */
+.masks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;margin:22px 0}
+.mask{border:4px solid var(--ink);background:#fff8e6;box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column}
+.mask .face{background:var(--night2);color:var(--pulp);padding:14px 14px 12px;position:relative;min-height:118px}
+.mask .face svg{width:58px;height:auto;float:right;margin:0 0 6px 10px}
+.mask .who{font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.72rem;letter-spacing:.08em;color:var(--cap)}
+.mask .say{font-family:Bangers,Impact,sans-serif;font-size:1.45rem;letter-spacing:.03em;line-height:1.05;margin-top:6px;color:#fff}
+.mask .truth{padding:12px 14px;font-size:.98rem;flex:1;display:none;border-top:4px solid var(--ink)}
+.mask.open .truth{display:block}
+.mask.open .face{background:#2a0f0c}
+.mask .truth b{font-family:"Comic Neue",Arial,sans-serif;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;color:var(--blood2);display:block;margin-bottom:3px}
+.mask button{margin:0;border:0;border-top:4px solid var(--ink);background:var(--blood);color:#fff;font-family:Bangers,Impact,sans-serif;font-size:1.3rem;letter-spacing:.06em;padding:10px;cursor:pointer;min-height:44px}
+.mask button:hover{background:#e0342c}
+.mask button:focus-visible{outline:3px solid var(--ink);outline-offset:-6px}
+.mask.open button{background:var(--ink);color:var(--pulp)}
+.maskcount{font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.85rem}
+
+/* ---------- meanwhile ---------- */
+.meanwhile{background:var(--flame);border:5px solid var(--ink);box-shadow:8px 8px 0 var(--ink);margin:30px 0;padding:0}
+.meanwhile .mh{background:var(--ink);color:var(--cap);font-family:Bangers,Impact,sans-serif;font-size:1.7rem;letter-spacing:.06em;padding:8px 14px 6px}
+.meanwhile .mb{color:var(--ink);display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:14px;padding:14px;background:#fff1d9}
+.meanwhile .mb p{font-size:1.02rem}
+.meanwhile .panel{margin:0;box-shadow:4px 4px 0 var(--ink)}
+
+/* ---------- counter ---------- */
+.counter{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+.gauge{background:#d8ccae;border:4px solid #000;border-radius:14px;padding:10px 10px 12px;box-shadow:inset 0 0 0 3px #a8997a}
+.gauge svg{width:100%;height:auto;display:block}
+.lamp{display:flex;align-items:center;gap:10px;margin-top:8px;font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;color:#2b2217}
+.lamp i{width:18px;height:18px;border-radius:50%;background:#3a2a10;border:2px solid #000;display:inline-block}
+.lamp i.hit{background:#ffe066;box-shadow:0 0 12px #ffd23a}
+.subjects{display:grid;gap:8px}
+.subj{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;border:3px solid var(--night3);background:#000;color:#efe7ff;padding:9px 12px;cursor:pointer;font:inherit;min-height:44px}
+.subj b{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:1.2rem;letter-spacing:.04em;color:var(--glow)}
+.subj span{font-size:.88rem;color:#d4c9ef}
+.subj:hover{border-color:var(--paleviolet)}
+.subj[aria-pressed=true]{border-color:var(--cap);background:#1c1406}
+.subj[aria-pressed=true] b{color:var(--cap)}
+.subj:focus-visible{outline:3px solid var(--glow);outline-offset:2px}
+.readout{margin-top:10px;background:#000;border:2px solid var(--night3);padding:10px 12px;min-height:5.4em;font-size:1rem}
+
+/* ---------- data spreads ---------- */
+.chartbox{color:var(--ink);background:#fffaf0;border:4px solid var(--ink);padding:12px;box-shadow:8px 8px 0 var(--ink);margin:22px 0}
+.chartbox svg{width:100%;height:auto;display:block}
+.chartbox .ctitle{font-family:Bangers,Impact,sans-serif;font-size:1.5rem;letter-spacing:.04em;line-height:1.05;margin:0 0 4px}
+.chartbox .csub{font-size:.9rem;color:var(--ink2);margin:0 0 8px}
+.guessrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0}
+.guessrow input[type=range]{flex:1 1 220px;accent-color:var(--blood);min-height:32px}
+.guessrow .btn{font-size:1.1rem;padding:9px 14px 7px}
+.chartread{min-height:2.8em;font-size:1rem}
+.field{background:#0c0816;border:3px solid #000;padding:8px}
+.field canvas{width:100%;height:auto;display:block}
+.fieldkey{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px;font-size:.88rem;color:#e6ddfa}
+.fieldkey i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+/* ---------- writing ---------- */
+.q{margin:0 0 18px}
+.q label{display:block;font-weight:700;margin-bottom:6px}
+.q label .n{font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:1.25rem;color:var(--blood2);margin-right:6px;letter-spacing:.04em}
+textarea{width:100%;min-height:96px;font:inherit;font-size:1.02rem;padding:10px 12px;border:3px solid var(--ink);background:#fffdf6;color:var(--ink);resize:vertical}
+textarea:focus{outline:3px solid var(--blood);outline-offset:1px}
+#essay{min-height:210px}
+.essaymeta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-family:"Comic Neue",Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;margin:6px 0}
+#wc.ok{color:#1b6a3b}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:16px}
+.actions p{margin:0;flex:1 1 280px;font-size:.95rem}
+#copy.done{background:#8fd3a5}
+.lastpanel{border:5px solid var(--ink);background:var(--cap);padding:14px;box-shadow:8px 8px 0 var(--ink)}
+.lastpanel p.letter{margin:0 0 8px;font-size:.92rem}
+
+/* ---------- sources ---------- */
+.refs{font-size:.88rem;line-height:1.5}
+.refs h3{margin-top:0}
+.refs div{padding-left:1.6em;text-indent:-1.6em;margin:0 0 7px}
+.refs .pri{font-family:"Comic Neue",Arial,sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:var(--cap);padding:1px 5px;margin-right:5px;text-indent:0;display:inline-block}
+.endbar{background:var(--ink);color:var(--pulp);text-align:center;padding:22px 16px 90px;font-size:.85rem}
+.endbar a{color:var(--cap)}
+.endbar .fin{font-family:Creepster,Bangers,serif;font-size:2.6rem;color:var(--glow);letter-spacing:.06em;display:block;margin-bottom:6px}
+
+/* ---------- sound toggle + toast ---------- */
+.soundbtn{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;font-family:Bangers,Impact,sans-serif;font-size:1.05rem;letter-spacing:.06em;background:var(--ink);color:var(--pulp);border:3px solid var(--cap);padding:8px 12px 6px;cursor:pointer;box-shadow:3px 3px 0 #000;min-height:44px}
+.soundbtn[aria-pressed=true]{background:var(--glow);color:var(--ink);border-color:var(--ink)}
+.soundbtn:focus-visible{outline:3px solid var(--glow);outline-offset:3px}
+.saved{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--cap);font-family:Bangers,Impact,sans-serif;font-size:1.1rem;letter-spacing:.08em;padding:7px 16px 5px;border:3px solid var(--cap);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+
+@media(max-width:760px){
+  .game,.counter,.twopanel{grid-template-columns:minmax(0,1fr)}
+  .inset,.inset.left{float:none;width:100%;margin:18px 0;transform:none}
+  .meanwhile .mb{grid-template-columns:minmax(0,1fr)}
+  .meanwhile .mb .panel{max-width:220px}
+  .idbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .idbar label:first-child{grid-column:1/-1}
+  .panel .capbox{position:relative;left:auto;top:auto;max-width:none;transform:none;border-width:0 0 3px;box-shadow:none}
+  .mast .who span{display:none}
+}
+
+.filmlist{display:none;list-style:none;padding:0;margin:10px 0 0;gap:6px}
+.filmlist li{display:flex;align-items:center;gap:10px;font-size:.95rem;color:#e6ddfa}
+.filmlist i{width:28px;height:20px;border:2px solid var(--pulp);background:#fbfbf4;display:inline-block;flex:none}
+@media(max-width:760px){
+  .filmlist{display:grid}
+  .burst{display:none}
+  .soundbtn{left:auto;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:.9rem;padding:6px 10px 4px;min-height:44px}
+  .lights .stack{aspect-ratio:auto;width:100%;height:100%;max-height:none}
+  .lights .stack img{object-position:58% 50%}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="who"><a href="/storyhubs/"><b>Hidden History</b></a><span class="letter">StoryHub Special Edition</span></div>
+  <div class="price" aria-label="Special Edition number 1, Friday feature"><b>No. 1</b><span class="letter">Friday Feature</span></div>
+</header>
+
+<section class="cover" aria-labelledby="title">
+  <div class="frame">
+    <div class="pic dots light">
+      <img src="/storyhub/hh/shines-in-the-dark/assets/p00-usrc-night.jpg" alt="A long row of young women at wooden work tables in a darkened factory studio, their hair, hands and work trays glowing green." fetchpriority="high" width="1250" height="953">
+    </div>
+    <div class="kick letter">The true story of the girls who glowed</div>
+    <h1 id="title"><span>Shines in</span><span>the Dark</span></h1>
+    <div class="burst" aria-hidden="true">From the real record</div>
+    <span class="credit">Illustration made from a photograph of the United States Radium Corporation studio, about 1922 · Argonne National Laboratory</span>
+  </div>
+  <div class="under">
+    <div class="dek"><p>In 1917 a company in Orange, New Jersey, hired young women to paint glowing numbers on watch dials with radium. Its ads promised the paint <i>shines in the dark</i>. The painters shaped their brushes between their lips hundreds of times a day. Ten years later their jaws were falling apart, and the company still said the work was safe.</p></div>
+    <div class="meta letter"><span>Orange, New Jersey</span><span>Ottawa, Illinois</span><span>1917 to 1939</span><span>Six pages and one game</span></div>
+  </div>
+</section>
+
+<section class="lights" id="lights" aria-label="Opening scene: the lights go out in the dial studio">
+  <div class="stage">
+    <div class="stack">
+      <img class="dayimg" src="/storyhub/hh/shines-in-the-dark/assets/p01-usrc-painters.jpg" alt="" width="1250" height="953">
+      <img class="nightimg" src="/storyhub/hh/shines-in-the-dark/assets/p00-usrc-night.jpg" alt="The same studio in darkness. Green light glows from the women's hair, hands and dresses and from the trays on the tables." width="1250" height="953">
+      <div class="card c1 capbox" data-at="0.02" data-until="0.2">Orange, New Jersey. About 1922. Every tray on these tables holds watch dials and a dish of paint made with radium.</div>
+      <div class="card c2 capbox" data-at="0.2" data-until="0.42">The paint got on their fingers, their clothes and their lips.</div>
+      <div class="card c3 capbox dark" data-at="0.52" data-until="0.7">Now turn out the lights.</div>
+      <div class="card c4 capbox dark" data-at="0.7">In 1924 two Harvard doctors did. The women's hair glowed. So did their faces and hands. So did their dresses. Even the corsets.</div>
+    </div>
+    <div class="hint letter" id="lhint" aria-hidden="true">Keep scrolling</div>
+  </div>
+</section>
+
+<main>
+<div class="idwrap">
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+</div>
+
+<!-- PAGE 1 -->
+<section class="page" aria-labelledby="h1">
+  <div class="col">
+    <div class="tag"><span class="no">Page 1</span><span class="where">Orange, New Jersey · 1917 to 1920</span></div>
+    <h2 id="h1">The Magic Paint</h2>
+    <p class="lead">Sabin von Sochocky was a doctor who came to the United States from Austria in 1906. By 1913 he had a paint that glowed on its own, a pinch of radium mixed into zinc sulfide, a powder that flashes whenever radiation hits it.</p>
+    <figure class="panel inset dots light"><img src="/storyhub/hh/shines-in-the-dark/assets/p14-undark-ad.jpg" alt="A 1921 magazine advertisement showing a man at a desk under a glowing clock, with the word UNDARK in large letters and the slogan Shines in the Dark." loading="lazy" width="900" height="1312"><figcaption><b>The American Magazine, August 1921</b>A $3 home kit came with a brush and a promise: &ldquo;You Can Apply UNDARK Yourself.&rdquo;<span class="credit">Public domain, via Wikimedia Commons</span></figcaption></figure>
+    <p>In 1917 his company moved into a bigger plant in Orange, New Jersey. The country had just entered the First World War, and soldiers needed watches they could read at night. By 1920 <i>Scientific American</i> counted more than 1,000,000 glowing watches and clocks.</p>
+    <p>The painting was done by young women. Katherine Schaub started on February 1, 1917, when she was 14. Grace Fryer started that year at 18. They were paid by the dial, so speed was money.</p>
+    <p>The camel hair brushes spread after a few strokes, and a fat brush blotted the tiny numbers. The fastest fix was to draw the tip between your lips. The painters called the routine lip, dip, paint.</p>
+    <div class="pull"><p>&ldquo;Miss Fryer estimates that she put the radium paint brush to her lips to wet it about 300 times a day between 1917 and 1920 when she and 70 other women were employed.&rdquo;</p><cite>United Press interview, May 15, 1928</cite></div>
+    <div class="clear"></div>
+
+    <div class="inst" id="game">
+      <header><b>Lip, Dip, Paint</b><span>A shift at the dial table</span></header>
+      <div class="body">
+        <div class="game">
+          <div class="dialwrap">
+            <svg id="dial" viewBox="0 0 320 320" role="img" tabindex="0" aria-label="Watch dial. Paint the next numeral."><title>Watch dial to paint</title></svg>
+          </div>
+          <div>
+            <p style="margin-top:0">Paint the outlined numeral, one at a time. Twelve make a dial. Every stroke dulls the brush, and a dull brush blots the dial into the scrap box.</p>
+            <div class="meterlbl"><span>Brush point</span><span id="pointtxt">Sharp</span></div>
+            <div class="meter" aria-hidden="true"><i id="pointbar"></i></div>
+            <div class="hud">
+              <div><small>Dials finished</small><strong id="h-dials">0</strong></div>
+              <div><small>Clock</small><strong id="h-time">45</strong></div>
+              <div><small>Times on the lips</small><strong id="h-lips">0</strong></div>
+              <div class="rej"><small>Thrown out</small><strong id="h-rej">0</strong></div>
+            </div>
+            <div class="gamebtns">
+              <button class="btn green" id="b-paint" type="button">Paint <span class="sr">the next numeral</span></button>
+              <button class="btn" id="b-lip" type="button">Lip it</button>
+              <button class="btn ghost" id="b-rag" type="button">Rag</button>
+            </div>
+            <div class="btns"><button class="btn red" id="b-start" type="button">Start the shift</button></div>
+            <p class="foreman capbox" id="foreman" aria-live="polite">45 seconds on the clock. Keys: P paints, L lips, R rags.</p>
+          </div>
+        </div>
+        <div class="over" id="gameover" role="region" aria-label="Shift report"></div>
+        <p class="note">The rag takes about as long as a real wipe and rinse. The report at the end uses measurements from 1925.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="page nightpage" aria-labelledby="h2">
+  <div class="col">
+    <div class="tag"><span class="no">Page 2</span><span class="where">Orange, New Jersey · 1922 to 1924</span></div>
+    <h2 id="h2">Something in the Jaw</h2>
+    <p class="lead">Mollie Maggia had painted dials since 1917. Early in 1922 a dentist pulled a sore tooth, and the hole never healed. More teeth came out, then pieces of her jawbone. She died on September 12, 1922. She was 24, and the story that followed her to the grave was that she had died of syphilis.</p>
+    <div class="pull"><p>&ldquo;We have a chronic, progressive rotting away of the bone.&rdquo;</p><cite>Castle, Drinker and Drinker, Journal of Industrial Hygiene, 1925</cite></div>
+    <p>More painters were getting sick the same way. In March 1924 the company president, Arthur Roeder, hired a Harvard team led by the husband and wife doctors Cecil and Katherine Drinker. The company's first guess was dirty brushes. The Drinkers cultured them and grew nothing but ordinary mouth germs.</p>
+    <p>So they looked at the paint. They took the painters into a darkroom and flashed a light. Zinc sulfide gives light back slowly, so any paint dust would glow for a few seconds afterward.</p>
+
+    <div class="inst" id="dark">
+      <header><b>The Darkroom Flash</b><span>The Drinkers' test, 1924</span></header>
+      <div class="body">
+        <div class="darkroom" id="droom">
+          <img class="day" src="/storyhub/hh/shines-in-the-dark/assets/p01-usrc-painters.jpg" alt="The dial studio in daylight, women at work along a row of tables." loading="lazy" width="1250" height="953">
+          <img class="dk" src="/storyhub/hh/shines-in-the-dark/assets/p00-usrc-dark.jpg" alt="" loading="lazy" width="1250" height="953">
+          <img class="gl" id="dglow" src="/storyhub/hh/shines-in-the-dark/assets/p00-usrc-night.jpg" alt="" loading="lazy" width="1250" height="953">
+          <div class="flash" id="dflash"></div>
+        </div>
+        <div class="btns">
+          <button class="btn" id="d-off" type="button">Lights out</button>
+          <button class="btn green" id="d-flash" type="button" disabled>Flash</button>
+          <button class="btn ghost" id="d-on" type="button">Lights on</button>
+        </div>
+        <p id="dread" aria-live="polite">Turn off the lights first. Then flash.</p>
+        <ul class="glowlist" id="glist" aria-label="What the Drinkers found glowing">
+          <li>Hair</li><li>Faces</li><li>Hands</li><li>Arms</li><li>Necks</li><li>Dresses</li><li>Underclothes</li><li>Corsets</li><li>Tables</li><li>Chandeliers</li><li>Wall beams</li><li>Chairs nobody sat in</li><li>Office girls</li><li>Machine shop dust, one floor down</li>
+        </ul>
+        <p class="note">The glow spots are placed from the Drinkers' written list. The photograph is the Orange studio about two years before their visit.</p>
+      </div>
+    </div>
+
+    <div class="pull"><p>&ldquo;The hair, faces, hands, arms, necks, the dresses, the underclothes, even the corsets, of the dial painters were luminous. One of the girls showed luminous spots on her legs and thighs. The back of another was luminous almost to her waist.&rdquo;</p><cite>Castle, Drinker and Drinker, 1925</cite></div>
+    <p>The man who weighed out the powder said it blew away if he breathed on it. The woman who had the job before him noticed that when she blew her nose, it glowed in her handkerchief.</p>
+    <p>Glow proves dust, not radiation. For that the Drinkers placed sealed dental X ray film around the building. Film in a sealed packet only clouds if radiation passes through the wrapper. The radiologist George Pfahler had set the rule. If a sealed film fogs within two weeks, the people near it are getting too much.</p>
+
+    <div class="inst" id="film">
+      <header><b>Film in the Walls</b><span>Where the sealed films fogged</span></header>
+      <div class="body">
+        <svg class="plan" id="plan" viewBox="0 0 800 460" role="img" aria-labelledby="plant plandesc"><title id="plant">Sketch of the plant with six sealed films</title><desc id="plandesc">Six sealed dental films are placed in the painting room, the storeroom, the telephone room and the office. Move the day slider to see when each one fogged.</desc></svg>
+        <ul class="filmlist" id="filmlist" aria-hidden="true"></ul>
+        <div class="dayrow">
+          <label for="day">Day <span id="daynum">0</span></label>
+          <input type="range" id="day" min="0" max="14" step="0.5" value="0">
+          <button class="btn" id="dayplay" type="button">Run two weeks</button>
+        </div>
+        <p class="filmread" id="filmread" aria-live="polite">Every film starts clear. Slide the days forward.</p>
+        <p class="note">The layout is a sketch. The fogging times are the Drinkers' own.</p>
+      </div>
+    </div>
+
+    <p>They also drew blood from 22 employees. Not one sample, the report said, was &ldquo;entirely normal.&rdquo; On June 3, 1924, the Drinkers told Roeder what they believed. Radium had caused the dying jaws.</p>
+  </div>
+</section>
+
+<!-- PAGE 3 -->
+<section class="page" aria-labelledby="h3">
+  <div class="col">
+    <div class="tag"><span class="no">Page 3</span><span class="where">Newark · Boston · New York · 1924 to 1926</span></div>
+    <h2 id="h3">The Report That Changed on the Way</h2>
+    <p class="lead">Roeder did not accept the answer. He blamed infections the women had picked up somewhere else. Then the report reached the New Jersey Department of Labor saying something different. In the version the state received, every girl was in perfect condition.</p>
+    <p>Alice Hamilton, the country's leading expert on factory poisons, heard about it and wrote to Katherine Drinker.</p>
+    <div class="pull"><p>&ldquo;Do you suppose Roeder could do such a thing as to issue a forged report in your name?&rdquo;</p><cite>Alice Hamilton to Katherine Drinker, 1925</cite></div>
+    <p>The company had asked the Drinkers to hold off publishing because of the lawsuits. Roeder threatened to sue if they went ahead. They published anyway, in the August 1925 <i>Journal of Industrial Hygiene</i>, and the real conclusion went into print.</p>
+    <figure class="panel inset left dots light"><img src="/storyhub/hh/shines-in-the-dark/assets/p03-hoffman.jpg" alt="Portrait of a bearded man in a dark suit and high collar." loading="lazy" width="637" height="885"><figcaption><b>Frederick Hoffman</b>A Prudential Insurance statistician. Counting deaths was his job.<span class="credit">Biographical Cyclopedia of New Jersey, 1909 · Public domain</span></figcaption></figure>
+    <p>Outsiders were counting too. Frederick Hoffman, a Prudential Insurance statistician brought in by the Consumers' League, told the American Medical Association in May 1925 about 5 dead painters and 12 living ones with the same rotting jaws. He named it radium necrosis.</p>
+    <p>Harrison Martland, the Essex County medical examiner, picked up gamma rays coming out of living painters and found radon, the gas radium gives off, in their breath. He laid bone from a dead painter on dental film, and the bone took its own picture.</p>
+    <p>The company hired its own expert, Frederick Flinn of Columbia University. His 1926 paper found no industrial hazard. Two years and several deaths later, he changed his mind in print.</p>
+    <div class="clear"></div>
+    <h3>Unmask the company</h3>
+    <p>Every one of these lines was said or written about the painters. Pull off each mask and see what the record shows underneath.</p>
+    <div class="masks" id="masks"></div>
+    <p class="maskcount" id="maskcount" aria-live="polite">0 of 5 unmasked</p>
+  </div>
+</section>
+
+<!-- PAGE 4 -->
+<section class="page nightpage" aria-labelledby="h4">
+  <div class="col">
+    <div class="tag"><span class="no">Page 4</span><span class="where">Newark courts · 1927 to 1928</span></div>
+    <h2 id="h4">Doomed to Die</h2>
+    <p class="lead">In May 1927 Grace Fryer found a lawyer who would take the case, Raymond Berry of Newark. Katherine Schaub and Edna Hussman joined her, with Mollie Maggia's sisters Quinta McDonald and Albina Larice. Each sued the United States Radium Corporation for $250,000.</p>
+    <p>The company's answer was the calendar. New Jersey gave workers two years to sue. The women had painted from 1917 to 1920 and were not diagnosed until 1927, so the company argued their time ran out before they knew what was wrong.</p>
+    <p>In October 1927 Mollie Maggia's body was dug up to settle how she had died. Doctors found no sign of syphilis. Her bones were radioactive.</p>
+    <div class="twopanel">
+      <figure class="panel dots light"><img src="/storyhub/hh/shines-in-the-dark/assets/p02-grace-fryer.jpg" alt="Portrait of a young woman with short dark waved hair and a pearl necklace." loading="lazy" width="699" height="896"><figcaption><b>Grace Fryer</b>She started painting at 18. She led the five.<span class="credit">About 1925 · Public domain, via Wikimedia Commons</span></figcaption></figure>
+      <div class="clips">
+        <div class="clip" style="--r:-2deg"><div class="hed">Doomed to Die, Tells Emotions</div><p>&ldquo;I have had 19 operations,&rdquo; Miss Fryer said, &ldquo;but my doctors tell me there is no hope.&rdquo;</p><span class="src">New Britain Herald · May 15, 1928</span></div>
+        <div class="clip" style="--r:-1deg"><div class="hed">Five Radium Suits Are Settled</div><p>Each woman will receive $10,000 in cash and an annuity of $600.</p><span class="src">Milwaukee Leader · June 5, 1928</span></div>
+      </div>
+    </div>
+    <h3>Panel by panel: the stall</h3>
+    <ul class="strip" aria-label="The delays in the case, in order">
+      <li><span class="d">July 19, 1927</span><p>Berry asks the court to throw out the two year deadline.</p></li>
+      <li><span class="d">January 12, 1928</span><p>The first hearing. Two of the women cannot get out of bed. None of them can raise an arm to take the oath.</p></li>
+      <li><span class="d">April 2</span><p>Postponed. Defense witnesses cannot appear.</p></li>
+      <li><span class="d">Late April</span><p>The women finish their evidence. The company asks for more time.</p></li>
+      <li><span class="d">May 1928</span><p>Doctors say the women may have a year left. The company refuses a faster hearing.</p></li>
+      <li class="last"><span class="d">June 4, 1928</span><p>Settled out of court. $10,000 each, $600 a year for life, and every medical bill paid.</p></li>
+    </ul>
+    <p>Two weeks later Roeder wrote that settling admitted nothing, because &ldquo;there is very little question but that we had a perfect defense.&rdquo;</p>
+    <p>In November 1928 Sabin von Sochocky, the man who brought radium paint to America, died of radium poisoning. He had once figured the radium in his own body would take 3,520 years to leave it. Grace Fryer died on October 27, 1933. She was 34.</p>
+
+    <div class="meanwhile" role="note" aria-label="Meanwhile">
+      <div class="mh">Meanwhile, at the country club</div>
+      <div class="mb">
+        <figure class="panel dots light"><img src="/storyhub/hh/shines-in-the-dark/assets/p04-byers-golf.jpg" alt="A man in a cap and tweed suit finishes a golf swing on a grassy course." loading="lazy" width="436" height="705"><figcaption><b>Eben Byers</b><span class="credit">Public domain</span></figcaption></figure>
+        <div>
+          <p>Rich people paid to swallow radium. Eben Byers, a Pittsburgh steel man and the 1906 national amateur golf champion, hurt his arm in 1927, and a doctor suggested Radithor, bottled radium water from East Orange, New Jersey. Byers drank about three bottles a day for two years.</p>
+          <p>He died on March 31, 1932, at 51, after surgeons had removed most of his jaw. Laid on film for ten days, his teeth took their own picture.</p>
+          <figure class="panel"><img src="/storyhub/hh/shines-in-the-dark/assets/p15-byers-teeth.jpg" alt="A dark X ray style film showing pale glowing shapes of teeth made by their own radioactivity." loading="lazy" width="1000" height="537"><figcaption><b>Byers' teeth, photographed by themselves</b>Gettler and Norris, JAMA, 1933.<span class="credit">Public domain, via Wikimedia Commons</span></figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 5 -->
+<section class="page" aria-labelledby="h5">
+  <div class="col">
+    <div class="tag"><span class="no">Page 5</span><span class="where">Ottawa, Illinois · 1922 to 1939</span></div>
+    <h2 id="h5">The Society of the Living Dead</h2>
+    <p class="lead">Radium Dial opened a studio in an old high school in Ottawa, Illinois, in 1922. In 1925 a company officer told a federal investigator it turned out about 4,300 dials a day, and that it was practically impossible to stop the workers from tipping their brushes in their mouths.</p>
+    <figure class="panel dots light"><img src="/storyhub/hh/shines-in-the-dark/assets/p12-ottawa-1925.jpg" alt="A large studio room packed with rows of young women at small desks with lamps, trays of dials beside them and an American flag on the back wall." loading="lazy" width="750" height="396"><div class="capbox">Ottawa, 1925. Finished dials sit beside every painter.</div><figcaption><b>The Radium Dial studio</b>Every tray on the floor held glowing dials, so the painters sat in radiation from the outside while they swallowed it on the inside.<span class="credit">Argonne National Laboratory, Rowland 1994</span></figcaption></figure>
+    <p>In 1928 the New Jersey headlines reached Illinois, and a notice went up in the plant. According to the women's lawyer, it said Ottawa used a different type of radium that was not dangerous.</p>
+    <p>Catherine Wolfe painted there from 1922 to 1931 for $15 a week. By 1931 she walked with a limp, and her supervisors let her go.</p>
+    <div class="pull"><p>&ldquo;Your limping will cause talk. We're sorry, you'll have to go.&rdquo;</p><cite>As Catherine Donohue testified, February 1938</cite></div>
+    <p>She married Tom Donohue in 1932 and had two children as her health failed. In 1937 a Chicago lawyer, Leonard Grossman, took her case and other Ottawa painters' cases without pay. The newspapers called the group the Society of the Living Dead.</p>
+    <div class="clips">
+      <div class="clip" style="--r:-1.5deg"><div class="hed">Hearing Taken to Bedside of Doomed Woman</div><p>&ldquo;In my opinion, her death is almost certain within a matter of months,&rdquo; Dr. Dalitsch testified in her absence.</p><span class="src">Evening Star, Associated Press · February 11, 1938</span></div>
+      <div class="clip" style="--r:1.2deg"><div class="hed">Radium Victim Dies as Doctor Predicted</div><p>She was the 10th to die. Four doctors certified that she died of radium poisoning.</p><span class="src">Washington Daily News, United Press · July 27, 1938</span></div>
+    </div>
+    <p>The hearing opened on February 10, 1938. When a dentist testified that she would be dead within months, Catherine Donohue collapsed. She weighed 71 pounds. The arbitrator moved the rest of the hearing to the couch in her living room.</p>
+    <p>She won. The Illinois Industrial Commission ordered Radium Dial to pay her $5,661. The company, which had already moved to New York, appealed and fought even the bond it had to post to keep appealing. Catherine Donohue died on July 27, 1938, at 35. The company's last appeals failed in 1939.</p>
+  </div>
+</section>
+
+<!-- PAGE 6 -->
+<section class="page nightpage" aria-labelledby="h6">
+  <div class="col">
+    <div class="tag"><span class="no">Page 6</span><span class="where">What the bones taught · 1931 to today</span></div>
+    <h2 id="h6">What the Bones Taught</h2>
+    <p class="lead">By 1931 Martland was seeing bone cancers appear years after the jaws had rotted. The dial painters, he wrote, were &ldquo;proof that radiation can produce malignancy.&rdquo; It was the first hard evidence that radiation stored inside the body causes cancer.</p>
+    <p>The physicist Robley Evans built counters that could measure radium inside living people. In 1941, with the military about to order glowing dials by the thousands, a federal committee reviewed 27 people Evans had measured. Seven held half a microcurie or less and had no symptoms. The twenty who were sick held 1.2 to 23. The committee set the limit for a worker's body at 0.1.</p>
+    <p class="note" style="color:#cfc3ee">For radium, one microcurie is about one millionth of a gram.</p>
+
+    <div class="inst" id="counter">
+      <header><b>Evans' Counter</b><span>Listen to what the women carried</span></header>
+      <div class="body">
+        <div class="counter">
+          <div>
+            <div class="gauge"><svg id="gauge" viewBox="0 0 300 200" role="img" aria-labelledby="gt"><title id="gt">Counter meter</title></svg>
+              <div class="lamp"><i id="lamp"></i><span id="lamptxt">Pick a measurement</span></div>
+            </div>
+            <div class="readout" id="cread" aria-live="polite">Each button holds a real measurement of radium in a human body. Turn on sound at the bottom corner to hear the clicks.</div>
+          </div>
+          <div class="subjects" id="subjects"></div>
+        </div>
+        <p class="note">The red band on the meter is everything above the 1941 limit. The clicks are scaled so the loudest one stays bearable. Each time the click rate triples, the radium went up about ten times.</p>
+      </div>
+    </div>
+
+    <p>The simplest lesson was to keep the brush out of your mouth. After 1925 the lip pointing stopped. Decades later Argonne National Laboratory measured how much radium each generation of painters had absorbed.</p>
+
+    <div class="chartbox" id="cliff">
+      <p class="ctitle">How much radium the painters absorbed</p>
+      <p class="csub">Average radium taken into the body, in microcuries, for women grouped by the years they were hired. Measured cases only.</p>
+      <svg id="cliffsvg" viewBox="0 0 640 330" role="img" aria-labelledby="clt cld"><title id="clt">Average radium absorbed by hiring period</title><desc id="cld">Bar chart. Women hired before 1925 absorbed far more radium than women hired after.</desc></svg>
+      <div class="guessrow" id="guessrow">
+        <label for="guess" style="font-weight:700">Your guess for 1925 to 1929:</label>
+        <input type="range" id="guess" min="0" max="80" step="1" value="60">
+        <output id="guessout" for="guess">60</output>
+        <button class="btn red" id="reveal" type="button">Reveal the rest</button>
+      </div>
+      <p class="chartread" id="cliffread" aria-live="polite">The first three bars are women hired before the brush rule. Guess the fourth, then reveal.</p>
+    </div>
+
+    <div class="inst" id="threshold">
+      <header><b>The Line in the Bones</b><span>2,383 measured people</span></header>
+      <div class="body">
+        <div class="field"><canvas id="fieldcv" width="720" height="440" role="img" aria-label="Dot field of 2,383 people whose radium was measured. 64 dots are red for bone cancer."></canvas></div>
+        <div class="fieldkey"><span><i style="background:#6f6490"></i>Measured person, no bone cancer</span><span><i style="background:#ff4a3d"></i>Bone cancer</span></div>
+        <div class="btns"><button class="btn green" id="sortbtn" type="button">Line them up by radium absorbed</button></div>
+        <p id="fieldread" aria-live="polite">Every person whose radium was measured by the end of 1990, most of them dial workers, in no particular order.</p>
+        <p class="note">The exact position of each red dot inside the top group is not published. They are scattered through it here.</p>
+      </div>
+    </div>
+
+    <p>As of 1994, Argonne had not found a single radium cancer in anyone who started dial work after 1925. When the atomic bomb project began making plutonium, its first safety limit was built from the radium standard. That story is in <a href="/hubs/hh-never-use-the-word.html" style="color:var(--glow)">Never Use the Word</a>.</p>
+
+    <figure class="panel dots light"><img src="/storyhub/hh/shines-in-the-dark/assets/p06-usrc-floor-1995.jpg" alt="An empty second floor factory room with broken boards, dangling wires and tall dirty windows." loading="lazy" width="1600" height="1268"><div class="capbox">The Orange paint building in 1995.</div><figcaption><b>422 Alden Street, Orange</b>The site became a federal cleanup site in 1983. Crews dug radioactive soil out of about 250 nearby properties between 1997 and 2016. A park opened on the old plant ground in 2019.<span class="credit">Gerald Weinstein, HAER, Library of Congress · Public domain</span></figcaption></figure>
+  </div>
+</section>
+
+<!-- WRITING -->
+<section class="page" aria-labelledby="h7">
+  <div class="col">
+    <div class="tag"><span class="no">Your turn</span><span class="where">Three questions and the last panel</span></div>
+    <h2 id="h7">Finish the Comic</h2>
+    <div class="q"><label for="q1"><span class="n">1</span>Why did painters keep lipping their brushes? Use your shift and one fact from Page 1.</label><textarea id="q1" data-q="q1"></textarea></div>
+    <div class="q"><label for="q2"><span class="n">2</span>Pick one mask from Page 3. Who said it, and what evidence pulled it off?</label><textarea id="q2" data-q="q2"></textarea></div>
+    <div class="q"><label for="q3"><span class="n">3</span>What does the bar chart on Page 6 show changed after 1925, and why does it matter to workers today?</label><textarea id="q3" data-q="q3"></textarea></div>
+    <div class="lastpanel">
+      <p class="letter">The last panel</p>
+      <p style="margin-bottom:10px">Every horror comic ends with a narrator box. Write this one in 80 to 150 words, speaking to the reader, with at least two real facts from these pages.</p>
+      <div class="essaymeta"><span>Your narrator box</span><span>Words <span id="wc">0</span> · aim for 80 to 150</span></div>
+      <textarea id="essay" data-q="ESSAY" aria-label="Your narrator box for the last panel" placeholder="So you thought it was only paint..."></textarea>
+    </div>
+    <div class="actions">
+      <p>When you finish, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+      <button class="btn" id="copy" type="button">Copy my answers</button>
+    </div>
+  </div>
+</section>
+
+<section class="page" aria-label="Sources" style="padding-top:18px">
+  <div class="col refs">
+    <h3>Sources</h3>
+    <div><span class="pri">Primary</span>Castle, W. B., Drinker, K. R., &amp; Drinker, C. K. (1925). Necrosis of the jaw in workers employed in applying a luminous paint containing radium. <i>Journal of Industrial Hygiene</i>, 7(8), 371 to 382. Internet Archive.</div>
+    <div><span class="pri">Primary</span>United Press and Associated Press reports, 1927 to 1938, in the <i>Washington Daily News</i>, <i>New Britain Herald</i>, <i>Washington Times</i>, <i>Milwaukee Leader</i>, <i>Evening Star</i> and other papers. Chronicling America, Library of Congress.</div>
+    <div><span class="pri">Primary</span><i>People ex rel. Radium Dial Co. v. Ryan</i>, 371 Ill. 597 (1939). <i>La Porte v. United States Radium Corp.</i>, 13 F. Supp. 263 (D.N.J. 1935).</div>
+    <div><span class="pri">Primary</span>Death of radium painter. (1928, November 26). <i>Time</i>. Gettler, A. O., &amp; Norris, C. (1933). Poisoning from drinking radium water. <i>JAMA</i>, 100(6), 400 to 402.</div>
+    <div>Rowland, R. E. (1994). <i>Radium in humans: A review of U.S. studies</i>. Argonne National Laboratory. Table 1, Tables 7 and 8, pp. 11 to 30, and Roeder's June 18, 1928 letter, which it quotes along with Hoffman, Martland, Flinn and the 1941 Bureau of Standards handbook.</div>
+    <div>Harvard T.H. Chan School of Public Health. Deadly occupation, forged report. Centennial feature with Alice Hamilton's 1925 letter.</div>
+    <div>Moore, K. (2017). <i>The radium girls</i>. Sourcebooks. Start dates, Mollie Maggia's illness and the 1927 exhumation.</div>
+    <div>U.S. Environmental Protection Agency (2025), U.S. Radium Superfund five year review. Oak Ridge Associated Universities, Radithor. NPR Illinois (2018). Moss and Eckhardt (1995), <i>Los Alamos Science</i>, 23.</div>
+    <div>Photographs from Argonne National Laboratory, Wikimedia Commons and the Historic American Engineering Record, public domain. Colorized photographs are digital interpretations of black and white originals. The night views of the studio are illustrations made from the 1922 photograph.</div>
+  </div>
+</section>
+</main>
+
+<footer class="endbar">
+  <span class="fin">The End?</span>
+  <p>StoryHub Special Edition No. 1 · <a href="/storyhubs/">All StoryHubs</a> · <a href="/hidden-history/">Hidden History</a></p>
+</footer>
+
+<button class="soundbtn" id="sound" type="button" aria-pressed="false">Sound off</button>
+<div class="saved" id="toast">Saved</div>
+<script>
+(function(){
+  var KEY='hh-shines-in-the-dark-v1';
+  var $=function(id){return document.getElementById(id);};
+  var NS='http://www.w3.org/2000/svg';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(parent,n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;if(parent)parent.appendChild(e);return e;}
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function fmt(v,d){return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+
+  /* ---------- sound ---------- */
+  var AC=null,soundOn=false,sbtn=$('sound');
+  try{soundOn=localStorage.getItem('rg-sound')==='on';}catch(e){}
+  function ctx(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();}if(AC.state==='suspended')AC.resume();return AC;}
+  function paintSound(){sbtn.setAttribute('aria-pressed',soundOn?'true':'false');sbtn.textContent=soundOn?'Sound on':'Sound off';}
+  sbtn.addEventListener('click',function(){soundOn=!soundOn;if(soundOn)ctx();try{localStorage.setItem('rg-sound',soundOn?'on':'off');}catch(e){}paintSound();if(soundOn)tone(660,.08,'square',.05);});
+  paintSound();
+  function tone(f,d,type,vol,slide){if(!soundOn)return;var c=ctx();if(!c)return;var o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02);}
+  function noise(d,freq,vol,type){if(!soundOn)return;var c=ctx();if(!c)return;var n=Math.floor(c.sampleRate*d),b=c.createBuffer(1,n,c.sampleRate),x=b.getChannelData(0);for(var i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);var s=c.createBufferSource();s.buffer=b;var f=c.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=freq;var g=c.createGain();g.gain.value=vol;s.connect(f);f.connect(g);g.connect(c.destination);s.start();}
+  function geigerClick(){if(!soundOn)return;noise(.006,3200,.55,'highpass');}
+
+  /* ---------- lights out ---------- */
+  (function(){
+    var sec=$('lights');if(!sec||reduce)return;
+    var night=sec.querySelector('.nightimg'),cards=[].slice.call(sec.querySelectorAll('.card')),tk=false;
+    function upd(){
+      tk=false;var r=sec.getBoundingClientRect(),vh=window.innerHeight;
+      var p=clamp(-r.top/Math.max(1,r.height-vh),0,1);
+      night.style.opacity=clamp((p-.42)/.12,0,1).toFixed(3);
+      var hn=$('lhint');if(hn)hn.style.opacity=p>.9?0:1;
+      cards.forEach(function(c){var a=+c.dataset.at,u=c.dataset.until?+c.dataset.until:2;c.classList.toggle('on',p>=a&&p<u);});
+    }
+    window.addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(upd);}},{passive:true});
+    window.addEventListener('resize',upd);upd();
+  })();
+
+  /* ---------- game: lip, dip, paint ---------- */
+  (function(){
+    var svg=$('dial'),over=$('gameover'),fore=$('foreman');
+    var SHIFT=45,STROKES=3,RAG=2400;
+    var S={run:false,t:SHIFT,dials:0,rej:0,lips:0,rags:0,idx:0,sharp:STROKES,busy:0,end:0,timer:null};
+    var nums=[],blots;
+    var defs=mk(svg,'defs',{});
+    var fl=mk(defs,'filter',{id:'gglow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
+    mk(fl,'feGaussianBlur',{stdDeviation:'3',result:'b'});var fm=mk(fl,'feMerge',{});mk(fm,'feMergeNode',{'in':'b'});mk(fm,'feMergeNode',{'in':'SourceGraphic'});
+    mk(svg,'circle',{cx:160,cy:160,r:150,fill:'#efe4c8',stroke:'#2b2217','stroke-width':6});
+    mk(svg,'circle',{cx:160,cy:160,r:138,fill:'none',stroke:'#b9a57c','stroke-width':1.5});
+    for(var i=0;i<60;i++){var a=i*6*Math.PI/180,r1=i%5?131:125;mk(svg,'line',{x1:160+Math.sin(a)*r1,y1:160-Math.cos(a)*r1,x2:160+Math.sin(a)*137,y2:160-Math.cos(a)*137,stroke:'#6b5a3e','stroke-width':i%5?1:2.5});}
+    for(var n=1;n<=12;n++){var an=n*30*Math.PI/180,x=160+Math.sin(an)*104,y=160-Math.cos(an)*104+11;
+      var t=mk(svg,'text',{x:x,y:y,'text-anchor':'middle','font-family':'Bangers, Impact, sans-serif','font-size':32,fill:'none',stroke:'#8d7d5c','stroke-width':1.2,'stroke-dasharray':'3 2'},String(n));nums.push(t);}
+    blots=mk(svg,'g',{});
+    mk(svg,'line',{x1:160,y1:160,x2:160,y2:92,stroke:'#2b2217','stroke-width':6,'stroke-linecap':'round'});
+    mk(svg,'line',{x1:160,y1:160,x2:210,y2:160,stroke:'#2b2217','stroke-width':6,'stroke-linecap':'round'});
+    mk(svg,'circle',{cx:160,cy:160,r:7,fill:'#2b2217'});
+    var hint=mk(svg,'text',{x:160,y:205,'text-anchor':'middle','font-family':'Comic Neue, Arial, sans-serif','font-weight':700,'font-size':13,fill:'#2b2217'},'PRESS START');
+    function draw(){
+      nums.forEach(function(t,i){
+        if(i<S.idx){t.setAttribute('fill','#8cf24a');t.setAttribute('stroke','#2f7a12');t.setAttribute('stroke-dasharray','none');t.setAttribute('filter','url(#gglow)');}
+        else{t.setAttribute('fill','none');t.setAttribute('filter','');t.setAttribute('stroke-dasharray','3 2');
+          if(i===S.idx&&S.run){t.setAttribute('stroke','#c8211a');t.setAttribute('stroke-width',2.2);}else{t.setAttribute('stroke','#8d7d5c');t.setAttribute('stroke-width',1.2);}}
+      });
+      var pct=S.sharp/STROKES*100;$('pointbar').style.width=pct+'%';
+      $('pointtxt').textContent=S.busy?'Wiping…':['Blunt','Fat','Spreading','Sharp'][S.sharp];
+      $('h-dials').textContent=S.dials;$('h-lips').textContent=S.lips;$('h-rej').textContent=S.rej;$('h-time').textContent=Math.ceil(S.t);
+      $('b-paint').disabled=$('b-lip').disabled=$('b-rag').disabled=!S.run||!!S.busy;$('b-start').disabled=S.run;
+    }
+    function say(s){fore.textContent=s;}
+    function newDial(){S.idx=0;while(blots.firstChild)blots.removeChild(blots.firstChild);}
+    function paint(){
+      if(!S.run||S.busy)return;
+      if(S.sharp<=0){
+        var t=nums[S.idx],x=+t.getAttribute('x'),y=+t.getAttribute('y')-11;
+        mk(blots,'circle',{cx:x,cy:y,r:17,fill:'#b8ef8a',opacity:.85});mk(blots,'circle',{cx:x+9,cy:y+7,r:8,fill:'#b8ef8a',opacity:.8});
+        S.rej++;S.busy=1;noise(.18,500,.5,'lowpass');say('Blot! A blunt brush smeared the '+(S.idx+1)+'. That dial goes in the scrap box.');draw();
+        setTimeout(function(){S.busy=0;newDial();draw();},650);return;
+      }
+      S.idx++;S.sharp--;noise(.05,2200,.25);
+      if(S.idx>=12){S.dials++;tone(1320,.35,'triangle',.12);tone(1760,.5,'sine',.06);say('Dial '+S.dials+' done. Next one.');newDial();}
+      else if(S.sharp===0)say('The point is gone. Lip it, or take the rag.');
+      draw();
+    }
+    function lip(){if(!S.run||S.busy)return;S.lips++;S.sharp=STROKES;tone(900,.06,'sine',.12,500);say(['Quick twist between the lips. Sharp again.','Lip. Dip. Paint.','Back to a fine point. It tastes like nothing.'][S.lips%3]);draw();}
+    function rag(){
+      if(!S.run||S.busy)return;S.rags++;S.busy=1;noise(.5,900,.3);say('Wiping and rinsing the brush on the rag…');draw();
+      setTimeout(function(){S.busy=0;S.sharp=STROKES;if(S.run)say('Clean point. You lost a couple of seconds.');draw();},RAG);
+    }
+    function finish(){
+      S.run=false;clearInterval(S.timer);S.t=0;draw();hint.textContent='SHIFT OVER';
+      var mg=S.lips*500/300,lo=S.lips*2.5/300,hi=S.lips*17/300;
+      over.innerHTML='';
+      var h=el('h4',null,'Shift over');h.id='goh';over.appendChild(h);
+      var ta=el('div','tally');[[S.dials,'dials finished'],[S.rej,'thrown out'],[S.lips,'times on the lips'],[S.rags,'rag wipes']].forEach(function(r){var d=el('div');d.appendChild(el('b',null,String(r[0])));d.appendChild(el('span',null,r[1]));ta.appendChild(d);});over.appendChild(ta);
+      var sw=el('div','swallow');
+      if(S.lips){
+        sw.innerHTML='<p style="margin:0 0 8px">In 1925 the company expert Frederick Flinn measured how much paint a painter could swallow by lipping: about half a gram a day. Spread over Grace Fryer’s 300 licks, that is about 1.7 milligrams a lick.</p><p style="margin:0 0 8px">Your '+S.lips+' licks: about <strong>'+fmt(mg,0)+' milligrams of paint</strong> carrying <strong>'+fmt(lo,2)+' to '+fmt(hi,2)+' microcuries of radium</strong>. The range comes from two 1920s estimates of how much radium was in the paint.</p><p style="margin:0">A full day at 300 licks came to 2.5 to 17 microcuries. Much of it passed through. The part that stayed settled into bone, the way calcium does. The 1941 limit for a whole body would be 0.1.</p>';
+      }else{
+        sw.innerHTML='<p style="margin:0 0 8px"><strong>No licks. No radium swallowed.</strong></p><p style="margin:0">But look at your dial count. The painters were paid by the dial. In 1925 Radium Dial admitted it was practically impossible to keep its painters from pointing brushes with their mouths.</p>';
+      }
+      over.appendChild(sw);
+      var b=el('div','btns');var again=el('button','btn green','Work another shift');again.type='button';again.addEventListener('click',function(){start(false);});
+      var ragb=el('button','btn ghost',S.lips?'Try a shift with only the rag':'Try a shift using your lips');ragb.type='button';ragb.addEventListener('click',function(){start(false);say(S.lips===0?'This time, use the rag only. Watch your dial count.':'Go ahead. Use your lips.');});
+      b.appendChild(again);b.appendChild(ragb);over.appendChild(b);
+      over.classList.add('show');again.focus();
+      tone(330,.5,'sawtooth',.06,160);
+    }
+    function start(){
+      over.classList.remove('show');
+      S.run=true;S.t=SHIFT;S.dials=0;S.rej=0;S.lips=0;S.rags=0;S.sharp=STROKES;S.busy=0;newDial();
+      hint.textContent='';S.end=Date.now()+SHIFT*1000;say('The clock is running. Paint the numeral outlined in red.');
+      clearInterval(S.timer);S.timer=setInterval(function(){S.t=Math.max(0,(S.end-Date.now())/1000);$('h-time').textContent=Math.ceil(S.t);if(S.t<=0)finish();},200);
+      draw();svg.focus({preventScroll:true});
+    }
+    $('b-start').addEventListener('click',start);
+    $('b-paint').addEventListener('click',paint);$('b-lip').addEventListener('click',lip);$('b-rag').addEventListener('click',rag);
+    svg.addEventListener('click',paint);
+    document.getElementById('game').addEventListener('keydown',function(e){
+      if(!S.run)return;var k=e.key.toLowerCase();
+      if(k==='p'||((k===' '||k==='enter')&&e.target===svg)){e.preventDefault();paint();}
+      else if(k==='l'){e.preventDefault();lip();}else if(k==='r'){e.preventDefault();rag();}
+    });
+    draw();
+  })();
+
+  /* ---------- darkroom ---------- */
+  (function(){
+    var room=$('droom'),glow=$('dglow'),fl=$('dflash'),read=$('dread'),items=[].slice.call($('glist').children),fade=null;
+    function setGlow(v){glow.style.opacity=v;}
+    $('d-off').addEventListener('click',function(){room.classList.add('out');$('d-flash').disabled=false;read.textContent='Dark. Give your eyes a second. Now flash the light.';noise(.08,300,.4,'lowpass');});
+    $('d-on').addEventListener('click',function(){room.classList.remove('out');$('d-flash').disabled=true;cancelAnimationFrame(fade);setGlow(0);read.textContent='Lights on. The dust is still there. You just cannot see it.';});
+    $('d-flash').addEventListener('click',function(){
+      cancelAnimationFrame(fade);fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
+      noise(.25,4000,.35,'highpass');tone(220,.9,'sine',.05,110);
+      read.textContent='Hair. Faces. Hands. Dresses. The tables, the lamps, the beams overhead, even the chairs nobody used. The Drinkers found the same glow on the office girls and in the dust of the machine shop one floor down.';
+      items.forEach(function(li,i){setTimeout(function(){li.classList.add('lit');},reduce?0:180+i*110);});
+      if(reduce){setGlow(.9);return;}
+      var t0=performance.now();
+      (function step(now){var k=(now-t0)/7000;setGlow(k<.06?1:Math.max(.12,Math.exp(-(k-.06)*2.6)).toFixed(3));if(k<1)fade=requestAnimationFrame(step);})(t0);
+    });
+  })();
+
+  /* ---------- film in the walls ---------- */
+  (function(){
+    var svg=$('plan'),rng=$('day'),out=$('filmread'),num=$('daynum');
+    var ink='#1b1512';
+    function room(x,y,w,h,label,fill){mk(svg,'rect',{x:x,y:y,width:w,height:h,fill:fill||'#f7eed7',stroke:ink,'stroke-width':4});mk(svg,'text',{x:x+10,y:y+24,fill:ink,'font-size':17},label);}
+    room(20,20,500,240,'PAINTING ROOM');
+    mk(svg,'rect',{x:24,y:44,width:120,height:212,fill:'#e2d2a9'});
+    for(var i=0;i<6;i++){mk(svg,'rect',{x:175+i*55,y:190,width:38,height:22,fill:'#cdbb8f',stroke:'#6b5a3e'});}
+    mk(svg,'text',{x:175,y:236,fill:'#4a3a24','font-size':12},'PAINTERS’ TABLES');
+    room(540,20,240,112,'STOREROOM');
+    room(540,148,240,112,'TELEPHONE ROOM');
+    room(20,280,360,160,'OFFICE');
+    room(400,280,380,160,'MACHINE SHOP, FLOOR BELOW','#e9dfc8');
+    var dust=mk(svg,'g',{});for(var d=0;d<26;d++){mk(dust,'circle',{cx:430+Math.random()*320,cy:325+Math.random()*80,r:1.5+Math.random()*2.2,fill:'#58b82a',opacity:.8});}
+    mk(svg,'text',{x:414,y:430,fill:'#2c5a12','font-size':13},'Dust down here glowed too. No film needed.');
+    var F=[{x:80,y:110,t:2,m:.92,k:1.1,n:'Mixing end',l:'FOGGED BY DAY 2'},{x:265,y:110,t:2.5,m:.85,k:1.3,n:'Middle',l:'DAY 2 TO 3'},{x:455,y:110,t:3,m:.8,k:1.4,n:'Far end',l:'FOGGED BY DAY 3'},{x:640,y:72,t:8,m:.4,k:4,n:'Storeroom',l:'1 TO 2 WEEKS'},{x:640,y:200,t:9.5,m:.38,k:4,n:'Telephone',l:'1 TO 2 WEEKS'},{x:190,y:350,t:11,m:.35,k:4,n:'Office',l:'1 TO 2 WEEKS'}];
+    var fl=$('filmlist');F.forEach(function(f){var li=el('li');f.sw=el('i');li.appendChild(f.sw);f.st=el('span',null,f.n+': clear');li.appendChild(f.st);fl.appendChild(li);});
+    F.forEach(function(f){var g=mk(svg,'g',{});mk(g,'rect',{x:f.x-22,y:f.y-15,width:44,height:32,rx:3,fill:'#fbfbf4',stroke:ink,'stroke-width':2.5});f.fog=mk(g,'rect',{x:f.x-19,y:f.y-12,width:38,height:26,rx:2,fill:'#2a2a2a',opacity:0});f.stamp=mk(g,'text',{x:f.x,y:f.y+50,'text-anchor':'middle',fill:'#c8211a','font-size':13,'font-family':'Bangers, Impact, sans-serif',opacity:0,'letter-spacing':'.5'},f.l);mk(g,'text',{x:f.x,y:f.y+34,'text-anchor':'middle',fill:ink,'font-size':12},f.n.toUpperCase());});
+    function upd(){
+      var day=+rng.value;num.textContent=day%1?day.toFixed(1):day;
+      F.forEach(function(f){f.fog.setAttribute('opacity',day<f.t?0:Math.min(f.m,.12+(day-f.t)/f.k*f.m).toFixed(2));f.stamp.setAttribute('opacity',day<f.t?0:1);var o=day<f.t?0:Math.min(f.m,.12+(day-f.t)/f.k*f.m);f.sw.style.background='linear-gradient(rgba(42,42,42,'+o.toFixed(2)+'),rgba(42,42,42,'+o.toFixed(2)+')),#fbfbf4';f.st.textContent=f.n+': '+(day<f.t?'clear':f.l.toLowerCase().replace('day 2 to 3','fogged in 2 to 3 days').replace('1 to 2 weeks','fogged in 1 to 2 weeks'));});
+      var s;
+      if(day<2)s='Day '+day+'. All six films are still clear.';
+      else if(day<3)s='Day '+day+'. The film at the mixing end of the painting room is fogging. That is where the paint powder was measured and stirred.';
+      else if(day<8)s='Day '+day+'. All three painting room films are fogged. Pfahler’s line was two weeks. These took two to three days.';
+      else if(day<14)s='Day '+day+'. Now the films out in the rest of the building are clouding too, rooms where nobody touched a brush.';
+      else s='Day 14. Every film in the building fogged inside two weeks. By Pfahler’s rule, every room in the plant was getting too much radiation.';
+      out.textContent=s;
+    }
+    rng.addEventListener('input',upd);
+    var play=null;
+    $('dayplay').addEventListener('click',function(){
+      if(reduce){rng.value=14;upd();return;}
+      cancelAnimationFrame(play);var t0=performance.now(),from=+rng.value>=14?0:+rng.value;
+      (function step(now){var v=Math.min(14,from+(now-t0)/500);rng.value=(Math.round(v*2)/2);upd();if(v<14)play=requestAnimationFrame(step);})(t0);
+    });
+    upd();
+  })();
+
+  /* ---------- unmask ---------- */
+  (function(){
+    var M=[
+      {who:'The company’s first guess, 1924',say:'It might be the brushes. Sterilize every one.',t:'The Drinkers grew cultures from twelve brushes and found only the harmless germs that live in any mouth. The problem was what was on the bristles, not the bristles.',src:'Roeder letter, 1928 · Castle and Drinker, 1925'},
+      {who:'The report New Jersey received',say:'Every girl is in perfect condition.',t:'The Drinkers had tested the blood of 22 employees and found no sample entirely normal. Alice Hamilton asked Katherine Drinker whether Roeder had issued “a forged report in your name.”',src:'Harvard Chan School · Castle and Drinker, 1925'},
+      {who:'Frederick Flinn, company expert, 1926',say:'No industrial hazard.',t:'In 1928 Flinn wrote that “radioactive material is at the bottom of the trouble.” The company’s own expert took this mask off himself.',src:'Flinn 1926 and 1928, in Rowland 1994'},
+      {who:'The story told about Mollie Maggia, 1922',say:'She died of syphilis.',t:'Her body was dug up in October 1927. Doctors found no sign of syphilis. Her bones were radioactive.',src:'United Press, October 11, 1927 · Moore 2017'},
+      {who:'Notice at Radium Dial, Ottawa, 1928',say:'Our radium is a different kind. It is not dangerous.',t:'By July 1938 ten of the Ottawa women in the case had died. Catherine Donohue was the tenth, and the state had already ordered the company to pay her.',src:'United Press, February 11 and July 27, 1938'}
+    ];
+    var wrap=$('masks'),cnt=$('maskcount'),opened=0;
+    M.forEach(function(m,i){
+      var c=el('article','mask');var f=el('div','face');
+      var s=mk(null,'svg',{viewBox:'0 0 100 50','aria-hidden':'true',focusable:'false'});
+      mk(s,'path',{d:'M4 12 C18 2 38 4 50 13 C62 4 82 2 96 12 C98 30 88 44 70 44 C60 44 54 36 50 30 C46 36 40 44 30 44 C12 44 2 30 4 12 Z',fill:'#16110f',stroke:'#ffdd3c','stroke-width':2.5});
+      mk(s,'ellipse',{cx:29,cy:24,rx:11,ry:7,fill:'#ffdd3c'});mk(s,'ellipse',{cx:71,cy:24,rx:11,ry:7,fill:'#ffdd3c'});
+      f.appendChild(s);f.appendChild(el('div','who',m.who));var q=el('div','say','“'+m.say+'”');f.appendChild(q);c.appendChild(f);
+      var tr=el('div','truth');tr.id='mt'+i;tr.appendChild(el('b',null,'What the record shows'));tr.appendChild(el('p',null,m.t));var sp=el('p',null,m.src);sp.style.cssText='font-size:.78rem;color:#5a4a3a;margin:6px 0 0';tr.appendChild(sp);c.appendChild(tr);
+      var b=el('button',null,'Unmask');b.type='button';b.setAttribute('aria-expanded','false');b.setAttribute('aria-controls','mt'+i);
+      b.addEventListener('click',function(){var o=!c.classList.contains('open');c.classList.toggle('open',o);b.setAttribute('aria-expanded',o?'true':'false');b.textContent=o?'Put the mask back':'Unmask';opened+=o?1:-1;cnt.textContent=opened+' of 5 unmasked'+(opened===5?'. Every mask came off.':'');if(o){tone(180,.35,'sawtooth',.07,90);}});
+      c.appendChild(b);wrap.appendChild(c);
+    });
+  })();
+
+  /* ---------- Evans' counter ---------- */
+  (function(){
+    var svg=$('gauge'),read=$('cread'),lamp=$('lamp'),lt=$('lamptxt'),box=$('subjects');
+    var S=[
+      {v:0.1,n:'The 1941 limit',d:'The most radium the Bureau of Standards said a worker’s body should ever hold.'},
+      {v:0.5,n:'The seven who stayed well',d:'Seven of the 27 had carried radium for years with no symptoms. Each held half a microcurie or less.'},
+      {v:1.2,n:'The mildest sick case',d:'Twenty of the 27 had symptoms. The lowest of them held 1.2 microcuries.'},
+      {v:23,n:'The worst of the twenty',d:'The highest body burden in the group the committee reviewed.'},
+      {v:100,n:'Waterbury, Connecticut, 1927',d:'A dial painter broke her thighbone without falling. Flinn measured about 100 microcuries in her body. She died that year.'}
+    ];
+    function ang(v){return -75+(Math.log10(v)+2)/5*150;}
+    function pt(a,r){var t=(a-90)*Math.PI/180;return [150+Math.cos(t)*r,184+Math.sin(t)*r];}
+    function arc(a1,a2,r){var p1=pt(a1,r),p2=pt(a2,r);return 'M'+p1[0]+' '+p1[1]+' A'+r+' '+r+' 0 0 1 '+p2[0]+' '+p2[1];}
+    mk(svg,'rect',{x:4,y:4,width:292,height:192,rx:10,fill:'#f4ecd6',stroke:'#2b2217','stroke-width':3});
+    mk(svg,'path',{d:arc(-75,75,132),fill:'none',stroke:'#2b2217','stroke-width':3});
+    mk(svg,'path',{d:arc(ang(0.1),75,124),fill:'none',stroke:'#c8211a','stroke-width':9,opacity:.8});
+    [0.01,0.1,1,10,100,1000].forEach(function(v){var a=ang(v),p1=pt(a,132),p2=pt(a,116),p3=pt(a,102);mk(svg,'line',{x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],stroke:'#2b2217','stroke-width':2.5});mk(svg,'text',{x:p3[0],y:p3[1]+4,'text-anchor':'middle','font-family':'Comic Neue, Arial, sans-serif','font-weight':700,'font-size':11,fill:'#2b2217'},v>=1?String(v):String(v));});
+    mk(svg,'text',{x:150,y:132,'text-anchor':'middle','font-family':'Bangers, Impact, sans-serif','font-size':17,fill:'#2b2217'},'MICROCURIES');
+    
+    var needle=mk(svg,'line',{x1:150,y1:184,x2:150,y2:62,stroke:'#16110f','stroke-width':3.5,'stroke-linecap':'round'});
+    needle.style.transformOrigin='150px 184px';needle.style.transform='rotate(-75deg)';needle.style.transition=reduce?'none':'transform .9s cubic-bezier(.3,1.4,.5,1)';
+    mk(svg,'circle',{cx:150,cy:184,r:9,fill:'#16110f'});
+    var cur=null,timer=null;
+    function rate(v){return Math.min(40,1.2*Math.pow(3,Math.log10(v)+1));}
+    function tick(){if(!cur)return;var r=rate(cur.v);var wait=-Math.log(1-Math.random())/r*1000;timer=setTimeout(function(){geigerClick();lamp.classList.add('hit');setTimeout(function(){lamp.classList.remove('hit');},40);tick();},wait);}
+    var btns=[];
+    S.forEach(function(s,i){var b=el('button','subj');b.type='button';b.setAttribute('aria-pressed','false');b.appendChild(el('b',null,s.n));b.appendChild(el('span',null,fmt(s.v,s.v<1?1:s.v<10?1:0)+' microcuries'));
+      b.addEventListener('click',function(){
+        var on=cur!==s;clearTimeout(timer);btns.forEach(function(x){x.setAttribute('aria-pressed','false');});
+        if(!on){cur=null;needle.style.transform='rotate(-75deg)';lt.textContent='Pick a measurement';read.textContent='Counter off.';return;}
+        cur=s;b.setAttribute('aria-pressed','true');needle.style.transform='rotate('+ang(s.v)+'deg)';
+        var x=s.v/0.1;lt.textContent=s.v===0.1?'At the limit':fmt(x,0)+' times the limit';
+        read.textContent=s.d+' '+(s.v===0.1?'':'That is '+fmt(x,0)+' times the 1941 limit.');
+        if(ctx&&soundOn)ctx();tick();
+      });
+      btns.push(b);box.appendChild(b);});
+  })();
+
+  /* ---------- the cliff ---------- */
+  (function(){
+    var D=[['Before','1915',47.35,7],['1915','to 1919',78.68,215],['1920','to 1924',73.07,331],['1925','to 1929',9.83,267],['1930','to 1934',1.20,43],['1935','to 1939',1.33,54],['1940','to 1944',0.99,446],['1945','to 1949',0.76,167],['1950','to 1954',0.62,106],['1955','to 1959',0.11,41],['After','1959',0.08,70]];
+    var svg=$('cliffsvg'),g=$('guess'),go=$('guessout'),done=false,mq=window.matchMedia('(max-width: 600px)'),parts={};
+    var F='Comic Neue, Arial, sans-serif';
+    function lab(v){return v<1?fmt(v,2):fmt(v,1);}
+    function render(){
+      while(svg.lastChild&&svg.lastChild.tagName!=='title'&&svg.lastChild.tagName!=='desc')svg.removeChild(svg.lastChild);
+      var narrow=mq.matches,bars=[],vals=[];parts={bars:bars,vals:vals};
+      if(!narrow){
+        svg.setAttribute('viewBox','0 0 640 330');
+        var L=48,R=628,T=16,B=262,H=B-T,bw=(R-L)/D.length,y=function(v){return B-v/80*H;};
+        parts.pos=function(v){return {x1:L+3*bw+bw*.08,x2:L+3*bw+bw*.92,y1:y(v),y2:y(v),tx:L+3*bw+bw/2,ty:y(v)-7};};
+        [0,20,40,60,80].forEach(function(v){mk(svg,'line',{x1:L,y1:y(v),x2:R,y2:y(v),stroke:'#d8ccb0','stroke-width':1});mk(svg,'text',{x:L-8,y:y(v)+4,'text-anchor':'end','font-size':12,fill:'#3b302a','font-family':F,'font-weight':700},v);});
+        var rx=L+3*bw-2;parts.rule=mk(svg,'g',{opacity:done?1:0});
+        mk(parts.rule,'line',{x1:rx,y1:T,x2:rx,y2:B,stroke:'#c8211a','stroke-width':3,'stroke-dasharray':'6 4'});
+        mk(parts.rule,'text',{x:rx+6,y:T+14,'font-size':13,fill:'#8d1410','font-family':'Bangers, Impact, sans-serif'},'LIPS STOP AFTER 1925');
+        D.forEach(function(d,i){
+          var x=L+i*bw+bw*.16,w=bw*.68;
+          var r=mk(svg,'rect',{x:x,y:y(d[2]),width:w,height:B-y(d[2]),fill:i<3?'#c8211a':'#2f7a12'});bars.push(r);
+          vals.push(mk(svg,'text',{x:x+w/2,y:y(d[2])-5,'text-anchor':'middle','font-size':12,fill:'#16110f','font-family':F,'font-weight':700},lab(d[2])));
+          mk(svg,'text',{x:x+w/2,y:B+16,'text-anchor':'middle','font-size':11,fill:'#16110f','font-family':F,'font-weight':700},d[0]);
+          mk(svg,'text',{x:x+w/2,y:B+29,'text-anchor':'middle','font-size':10,fill:'#3b302a','font-family':F,'font-weight':700},d[1]);
+          mk(svg,'text',{x:x+w/2,y:B+44,'text-anchor':'middle','font-size':10,fill:'#5a4a3a','font-family':F},d[3]+' women');
+        });
+        mk(svg,'text',{x:L,y:B+62,'font-size':11,fill:'#3b302a','font-family':F,'font-weight':700},'YEAR HIRED');
+      }else{
+        svg.setAttribute('viewBox','0 0 340 470');
+        var L2=92,R2=318,T2=26,rh=38,x=function(v){return L2+v/80*(R2-L2);};
+        parts.pos=function(v){return {x1:x(v),x2:x(v),y1:T2+3*rh+2,y2:T2+4*rh-8,tx:Math.min(x(v)+26,305),ty:T2+3*rh+22};};
+        [0,20,40,60,80].forEach(function(v){mk(svg,'line',{x1:x(v),y1:T2-6,x2:x(v),y2:T2+D.length*rh,stroke:'#d8ccb0','stroke-width':1});mk(svg,'text',{x:x(v),y:T2-10,'text-anchor':'middle','font-size':12,fill:'#3b302a','font-family':F,'font-weight':700},v);});
+        parts.rule=mk(svg,'g',{opacity:done?1:0});
+        mk(parts.rule,'line',{x1:6,y1:T2+3*rh-2,x2:R2,y2:T2+3*rh-2,stroke:'#c8211a','stroke-width':3,'stroke-dasharray':'6 4'});
+        mk(parts.rule,'text',{x:R2,y:T2+3*rh+14,'text-anchor':'end','font-size':13,fill:'#8d1410','font-family':'Bangers, Impact, sans-serif'},'LIPS STOP');
+        D.forEach(function(d,i){
+          var y0=T2+i*rh+6,h=rh-14;
+          mk(svg,'text',{x:6,y:y0+12,'font-size':13,fill:'#16110f','font-family':F,'font-weight':700},d[0]+' '+d[1]);
+          mk(svg,'text',{x:6,y:y0+26,'font-size':11,fill:'#5a4a3a','font-family':F},d[3]+' women');
+          var r=mk(svg,'rect',{x:L2,y:y0,width:x(d[2])-L2,height:h,fill:i<3?'#c8211a':'#2f7a12'});bars.push(r);
+          vals.push(mk(svg,'text',{x:x(d[2])+5,y:y0+h-6,'font-size':12,fill:'#16110f','font-family':F,'font-weight':700},lab(d[2])));
+        });
+      }
+      bars.forEach(function(r,i){r.style.transformBox='fill-box';r.style.transformOrigin=narrow?'0% 50%':'50% 100%';if(i>=3&&!done){r.style.transform=narrow?'scaleX(0)':'scaleY(0)';vals[i].setAttribute('opacity',0);}if(!reduce)r.style.transition='transform .7s cubic-bezier(.2,.9,.3,1) '+Math.max(0,i-3)*.06+'s';});
+      if(!done){parts.gl=mk(svg,'line',{stroke:'#c8211a','stroke-width':4,'stroke-dasharray':'5 3'});parts.gt=mk(svg,'text',{'text-anchor':'middle','font-size':12,fill:'#8d1410','font-family':'Bangers, Impact, sans-serif'},'');mv();}
+    }
+    function mv(){var v=+g.value;go.textContent=v;if(!parts.gl)return;var q=parts.pos(v);parts.gl.setAttribute('x1',q.x1);parts.gl.setAttribute('x2',q.x2);parts.gl.setAttribute('y1',q.y1);parts.gl.setAttribute('y2',q.y2);parts.gt.setAttribute('x',q.tx);parts.gt.setAttribute('y',q.ty);parts.gt.textContent='YOU: '+v;}
+    g.addEventListener('input',mv);
+    if(mq.addEventListener)mq.addEventListener('change',render);else if(mq.addListener)mq.addListener(render);
+    render();
+    $('reveal').addEventListener('click',function(){
+      if(done)return;done=true;
+      parts.bars.forEach(function(b){b.style.transform='none';});parts.vals.forEach(function(v){v.setAttribute('opacity',1);});parts.rule.setAttribute('opacity',1);
+      g.disabled=true;this.disabled=true;tone(520,.2,'triangle',.08,260);
+      var gv=+g.value;
+      $('cliffread').textContent='The real 1925 to 1929 average was 9.8, and you guessed '+gv+'. Women hired from 1915 to 1919 absorbed about 79, eight times as much. During the Second World War the studios hired 446 women, the most of any period, and they averaged under one microcurie.';
+    });
+  })();
+
+  /* ---------- the line in the bones ---------- */
+  (function(){
+    var cv=$('fieldcv'),c=cv.getContext('2d'),N=2383,COLS=61,W=cv.width,Hh=cv.height,top=30,left=10;
+    var sx=(W-2*left)/COLS,sy=(Hh-top-30)/Math.ceil(N/COLS);
+    var seed=7;function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+    var red=new Array(N).fill(false);red[2101]=true;var pool=[];for(var i=2102;i<N;i++)pool.push(i);
+    for(i=pool.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
+    for(i=0;i<63;i++)red[pool[i]]=true;
+    var perm=[];for(i=0;i<N;i++)perm.push(i);for(i=N-1;i>0;i--){j=Math.floor(rnd()*(i+1));t=perm[i];perm[i]=perm[j];perm[j]=t;}
+    function pos(k){return [left+sx*(k%COLS)+sx/2,top+sy*Math.floor(k/COLS)+sy/2];}
+    var from=[],to=[];for(i=0;i<N;i++){from.push(pos(perm[i]));to.push(pos(i));}
+    var p=0,sorted=false,anim=null;
+    function draw(){
+      c.fillStyle='#0c0816';c.fillRect(0,0,W,Hh);
+      var e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+      for(var i=0;i<N;i++){var a=from[i],b=to[i],x=a[0]+(b[0]-a[0])*e,y=a[1]+(b[1]-a[1])*e;
+        c.beginPath();c.arc(x,y,red[i]?3.6:2.8,0,6.283);c.fillStyle=red[i]?'#ff4a3d':'#6f6490';c.fill();}
+      c.font='700 14px "Comic Neue", Arial, sans-serif';c.fillStyle='#e6ddfa';
+      if(sorted&&p>=1){
+        var b0=pos(2101),rowY=b0[1]-sy/2;
+        c.strokeStyle='#a4ff5e';c.lineWidth=2.5;c.beginPath();c.moveTo(left,rowY+sy);c.lineTo(b0[0]-sx/2,rowY+sy);c.lineTo(b0[0]-sx/2,rowY);c.lineTo(W-left,rowY);c.stroke();
+        c.fillStyle='#a4ff5e';c.fillText('LOWEST 2,101: NO BONE CANCER',left,20);
+        c.fillStyle='#ff8a80';c.fillText('HIGHEST 282: 64 BONE CANCERS',left,Hh-10);
+      }else{c.fillText('2,383 PEOPLE WHOSE RADIUM WAS MEASURED',left,20);}
+    }
+    draw();
+    $('sortbtn').addEventListener('click',function(){
+      sorted=!sorted;this.textContent=sorted?'Scatter them again':'Line them up by radium absorbed';
+      var a=p,b=sorted?1:0;cancelAnimationFrame(anim);
+      if(reduce){p=b;draw();}else{var t0=performance.now();(function step(now){var k=Math.min(1,(now-t0)/1400);p=a+(b-a)*k;draw();if(k<1)anim=requestAnimationFrame(step);})(t0);}
+      $('fieldread').textContent=sorted?'Sorted from least radium absorbed to most. The first 2,101 people had no bone cancer at all. All 64 cancers sit in the top 282, almost one in four of them. The lowest case took in 100 microcuries. She began painting in 1918, and her cancer was found in 1981, 63 years later.':'Every person whose radium was measured by the end of 1990, most of them dial workers, in no particular order.';
+      if(sorted)tone(440,.25,'triangle',.07,880);
+    });
+  })();
+
+  /* ---------- saving and copying ---------- */
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var essay=$('essay'),wc=$('wc'),toast=$('toast'),tT,sT;
+  function keyOf(e){return e.dataset.q||e.id;}
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=80&&n<=150)?'ok':'';}
+  function save(){
+    var d={};fields.forEach(function(e){d[keyOf(e)]=e.value;});
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
+  (function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(e){var v=d[keyOf(e)];if(typeof v==='string')e.value=v;});
+  })();
+  count();
+  fields.forEach(function(e){e.addEventListener('input',queueSave);});
+  essay.addEventListener('input',count);
+  $('copy').addEventListener('click',function(){
+    var btn=this;function g(id){var e=$(id);return e?e.value.trim():'';}
+    var out=['SHINES IN THE DARK: The Radium Girls (StoryHub Special Edition No. 1)','Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'),'','QUESTIONS'];
+    ['q1','q2','q3'].forEach(function(id,i){out.push('Q'+(i+1)+'. '+(g(id)||'[no answer]'));out.push('');});
+    out.push('THE LAST PANEL   Word count: '+wc.textContent);out.push('');out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';btn.classList.toggle('done',ok);setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else fallback();
+  });
+})();
+</script>
+
+</body></html>

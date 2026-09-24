@@ -16,9 +16,34 @@ export interface StoryHub {
   coverAlt: string;
   topics: string[];
   inside: string[];
+  /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
+  edition?: string;
 }
 
 export const storyHubs: StoryHub[] = [
+  {
+    slug: 'hh-shines-in-the-dark',
+    href: '/hubs/hh-shines-in-the-dark.html',
+    title: 'shines in the dark',
+    course: 'hidden history',
+    unit: 'special edition / friday feature',
+    period: '1917–1939',
+    status: 'ready to teach',
+    edition: 'special edition no. 1',
+    question: 'a company told the women who painted its glowing watch dials that the work was safe. what did it know, and what did their bones prove?',
+    blurb:
+      'The Radium Girls, told as a horror comic from the real record: lip, dip, paint in Orange, a Harvard report that changed on the way to the state, the five women who sued, and the Ottawa painter whose hearing moved to her living room.',
+    cover: '/storyhub/hh/shines-in-the-dark/assets/p00-usrc-night.jpg',
+    coverAlt: 'A row of young women at work tables in a darkened factory studio, their hair, hands and trays glowing green',
+    topics: ['radium girls', 'workplace safety', 'united states radium corporation', 'catherine donohue', 'corporate cover up', 'radiation'],
+    inside: [
+      'Six comic pages from the Orange studio in 1917 to the Ottawa hearing in 1938.',
+      'Paint a 45 second shift of watch dials at piece rate and see how much radium lipping the brush would have put in your mouth.',
+      'Flash the lights in the studio like the Harvard investigators did, then run two weeks of sealed dental film through the plant.',
+      'Unmask five things the company said, listen to a counter measure what the women carried, and guess what changed after 1925.',
+      'Three short questions and a narrator box for the last panel. Answers save in the browser and copy into Classroom.',
+    ],
+  },
   {
     slug: 'hh-never-use-the-word',
     href: '/hubs/hh-never-use-the-word.html',
