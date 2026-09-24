@@ -2891,5 +2891,127 @@ test('teacher policy changes leave central audit evidence', () => {
   assert.ok(actions.includes('PASS_RULES_CHANGED'));
 });
 
+section('One-trip PIN actions and automatic class routing');
+
+test('a signed-in two-class student opening the page lands on the class meeting now', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3']] });
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const state = c.harness.call('getBootstrap', 'student');
+  assert.notEqual(state.requiresClassSelection, true);
+  assert.equal(state.pinRequired, true);
+  assert.equal(state.student.classPeriod, 'Period 1');
+});
+
+test('a signed-in two-class student with neither class meeting still chooses', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 2'], [PEOPLE.ada, 'Period 3']] });
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.equal(c.harness.call('getBootstrap', 'student').requiresClassSelection, true);
+});
+
+const oneTrip = (c, person, entry, requestedAction = 'AUTO_PASS', studentKey = '') => {
+  c.harness.newRequest();
+  c.harness.signInAs(person.email);
+  return c.harness.call('authorizeAndActStudent', entry, c.pin(person), requestedAction, studentKey, `nonce-${Math.random()}`);
+};
+
+test('a fresh PIN starts the pass in the same request', () => {
+  const c = classroom();
+  const state = oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(state.completedAction, 'PASS_REQUEST');
+  assert.equal(outcomeOf({ state }).kind, 'STARTED');
+  assert.ok(!state.actionProof, 'a consumed proof must not be handed back');
+  assert.equal(c.passLog().length, 1);
+  assert.equal(c.passLog()[0].Status, 'OUT');
+});
+
+test('the same fresh PIN later records the return in one request', () => {
+  const c = classroom();
+  oneTrip(c, PEOPLE.ada, 'authorize');
+  c.harness.clock.advanceSeconds(120);
+  const back = oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(back.completedAction, 'RETURN');
+  assert.equal(c.passLog()[0].Status, 'RETURNED');
+  assert.equal(c.passLog().length, 1);
+});
+
+test('first PIN on a blank kiosk screen also completes in one request', () => {
+  const c = classroom();
+  const state = oneTrip(c, PEOPLE.alan, 'identify-pass');
+  assert.equal(state.completedAction, 'PASS_REQUEST');
+  assert.equal(c.passLog().length, 1);
+});
+
+test('a second student while the pass is out joins the line in one request', () => {
+  const c = classroom();
+  oneTrip(c, PEOPLE.ada, 'authorize');
+  const queued = oneTrip(c, PEOPLE.alan, 'authorize');
+  assert.equal(outcomeOf({ state: queued }).kind, 'QUEUED');
+  assert.equal(c.passLog().length, 1);
+  assert.equal(c.queue().length, 1);
+});
+
+test('a busy lock hands back the unused proof so the browser retry completes the same request', () => {
+  const c = classroom();
+  c.harness.refuseLocks(1);
+  const deferred = oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(deferred.actionDeferred, true);
+  assert.ok(deferred.actionProof);
+  assert.equal(c.passLog().length, 0);
+  c.harness.newRequest();
+  const finished = c.harness.call('requestBathroomPass', deferred.actionProof, deferred.student.key, deferred.pinToken);
+  assert.equal(outcomeOf({ state: finished }).kind, 'STARTED');
+  assert.equal(c.passLog().length, 1);
+});
+
+test('an unknown entry point is refused before any PIN work', () => {
+  const c = classroom();
+  assert.throws(() => oneTrip(c, PEOPLE.ada, 'teacher'), /Refresh this page/);
+  assert.equal(c.passLog().length, 0);
+});
+
+test('a wrong PIN still fails and records nothing', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  const wrong = c.pin(PEOPLE.ada) === '111111' ? '222222' : '111111';
+  assert.throws(() => c.harness.call('authorizeAndActStudent', 'authorize', wrong, 'AUTO_PASS', '', 'n'), /did not match|not unique/);
+  assert.equal(c.passLog().length, 0);
+});
+
+test('a two-class student is routed to the class meeting now and recorded there', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3'], [PEOPLE.alan, 'Period 1']] });
+  const state = oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(state.completedAction, 'PASS_REQUEST');
+  assert.equal(c.passLog()[0]['Class / Period'], 'Period 1');
+});
+
+test('a two-class student whose classes are not meeting now still gets the chooser, with nothing recorded', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 2'], [PEOPLE.ada, 'Period 3'], [PEOPLE.alan, 'Period 1']] });
+  const state = oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(state.requiresClassSelection, true);
+  assert.equal(c.passLog().length, 0);
+});
+
+test('outside any bell period a two-class student gets the chooser', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 3']], now: new Date('2026-09-10T03:00:00Z') });
+  c.harness.newRequest();
+  assert.equal(c.harness.call('membershipMeetingNow_', c.harness.call('getRoster_')), null);
+});
+
+test('a return goes to the original class even after the bell changes', () => {
+  const c = classroom({ memberships: [[PEOPLE.ada, 'Period 1'], [PEOPLE.ada, 'Period 2']] });
+  oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(c.passLog()[0]['Class / Period'], 'Period 1');
+  c.harness.clock.set(new Date('2026-09-10T12:50:00Z'));
+  c.harness.newRequest();
+  assert.equal(c.harness.call('currentScheduledPeriod_'), 2, 'fixture must now be in Period 2');
+  const back = oneTrip(c, PEOPLE.ada, 'authorize');
+  assert.equal(back.completedAction, 'RETURN');
+  assert.equal(c.passLog()[0].Status, 'RETURNED');
+  assert.equal(c.passLog().length, 1);
+});
+
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();

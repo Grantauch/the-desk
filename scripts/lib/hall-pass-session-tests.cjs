@@ -135,15 +135,24 @@ module.exports = function registerSessionTests(test, section) {
     assert.throws(() => c.harness.call('requestBathroomPass', proof.actionProof, key, proof.pinToken), /configured pass window/);
     assert.deepEqual(counts(c), [0,0,0]);
   });
-  test('multi-class PIN cannot select an upcoming or ended class', () => {
+  test('multi-class PIN is routed to the one class meeting now', () => {
     const c = classroom({memberships:[[PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 3']]});
+    const initial = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), 'multi');
+    assert.notEqual(initial.requiresClassSelection, true);
+    assert.equal(initial.student.key, c.key(PEOPLE.ada,'Period 1'));
+    assert.equal(c.harness.call('readStudentActionProof_',initial.actionProof).key, c.key(PEOPLE.ada,'Period 1'));
+    assert.throws(() => c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 3'), 'pass', initial.actionProof), /different class/);
+    c.harness.newRequest();
+    c.harness.call('requestBathroomPass', initial.actionProof, c.key(PEOPLE.ada,'Period 1'), initial.pinToken);
+    c.harness.newRequest();
+    assert.throws(() => c.harness.call('requestBathroomPass', initial.actionProof, c.key(PEOPLE.ada,'Period 1'), initial.pinToken), /already used/);
+  });
+  test('multi-class PIN with no class meeting now falls back to the chooser, which refuses a class not in session', () => {
+    const c = classroom({memberships:[[PEOPLE.ada,'Period 2'],[PEOPLE.ada,'Period 3']]});
     const initial = c.harness.call('identifyWithPin', c.pin(PEOPLE.ada), 'multi');
     assert.equal(initial.requiresClassSelection, true);
     assert.throws(() => c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 3'), 'pass', initial.actionProof), /selected class/);
-    const selected = c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 1'), 'pass', initial.actionProof);
-    assert.equal(c.harness.call('readStudentActionProof_',selected.actionProof).key, c.key(PEOPLE.ada,'Period 1'));
-    assert.throws(() => c.harness.call('requestBathroomPass', initial.actionProof, c.key(PEOPLE.ada,'Period 1'), initial.pinToken), /already used/);
-    assert.throws(() => c.harness.call('selectStudentClass', selected.pinToken, c.key(PEOPLE.ada,'Period 3'), 'pass', selected.actionProof), /different class/);
+    assert.throws(() => c.harness.call('selectStudentClass', initial.pinToken, c.key(PEOPLE.ada,'Period 2'), 'pass', initial.actionProof), /selected class/);
   });
   test('bell expires WAITING persistently but leaves OUT until a fresh-PIN return', () => {
     const c = classroom({settings:{QUEUE_MAX_WAIT_MINUTES:120}});
