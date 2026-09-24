@@ -961,6 +961,8 @@ behaviorContext.readPassLog_ = () => ([
   { row: 2, passId: 'old-pass', status: 'OUT', outDate: priorDay, studentEmail: 'old@students.mtmorrisschools.org' },
   { row: 3, passId: 'today-pass', status: 'OUT', outDate: snapshotNow, studentEmail: 'today@students.mtmorrisschools.org' },
 ]);
+// Student snapshots read the recent tail of the same log.
+behaviorContext.readRecentPassLog_ = () => behaviorContext.readPassLog_();
 behaviorContext.readWaitingQueue_ = () => ({ live: [], expired: [] });
 // This isolated structural harness intentionally has no workbook services.
 // Stub the room period so the snapshot test stays focused on prior-day rollover.

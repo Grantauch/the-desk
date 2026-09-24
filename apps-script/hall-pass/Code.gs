@@ -31,6 +31,7 @@ const GD_BUSY_LOCK_MESSAGE = 'The classroom system is handling other students ri
 const GD_LOCK_CONTENTION_PROPERTY = 'LOCK_CONTENTION_SUMMARY_V2';
 const GD_ROLLOVER_PROPERTY = 'LAST_ROLLOVER';
 const GD_CHECKIN_TAIL_ROWS = 600;
+const GD_PASS_TAIL_ROWS = 300;
 const GD_PENDING_CHECKIN_PREFIX = 'pending-checkin:';
 const GD_CHECKIN_INBOX_STALE_MS = 120000;
 const GD_CHECKIN_FLUSH_TRIGGER_PROPERTY = 'CHECKIN_FLUSH_TRIGGER_INSTALLED';
@@ -266,6 +267,7 @@ function gdForget_(key) {
   delete GD_MEMO[key];
   // Indexes derived from the raw roster rows must never outlive them.
   if (key === 'roster') GD_ROSTER_DERIVED_MEMOS.forEach((derived) => { delete GD_MEMO[derived]; });
+  if (key === 'passlog') delete GD_MEMO['passlog-recent'];
 }
 
 const GD_ROSTER_DERIVED_MEMOS = ['roster-rows', 'pass-access', 'credential-versions'];
@@ -750,7 +752,9 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
     );
   }
 
-  const student = selected || meetingNow || studentForReturn_(students, email) || students[0];
+  const student = selected || meetingNow
+    || (action === GD_STUDENT_ACTIONS.RETURN ? studentForReturn_(students, email) : null)
+    || students[0];
   assertStudentActionEligible_(student, action);
   const identityMethod = activeEmail && normalizeEmail_(activeEmail) === email ? 'google' : 'pin';
   const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, student.key, identityMethod, true);
@@ -787,7 +791,7 @@ function normalizeStudentAction_(value) {
 function inferPassAction_(email) {
   const normalized = normalizeEmail_(email);
   const todayKey = dateKey_(new Date());
-  return readPassLog_().some((pass) => (
+  return readRecentPassLog_(passLogRecentCutoff_()).some((pass) => (
     pass.studentEmail === normalized && pass.status === 'OUT' && safeDateKey_(pass.outDate) === todayKey
   )) ? GD_STUDENT_ACTIONS.RETURN : GD_STUDENT_ACTIONS.PASS_REQUEST;
 }
@@ -827,7 +831,7 @@ function stabilizeInferredPassAction_(email, attemptNonce, inferredAction) {
 }
 
 function studentForReturn_(students, email) {
-  const active = readPassLog_()
+  const active = readRecentPassLog_(passLogRecentCutoff_())
     .filter((pass) => pass.studentEmail === normalizeEmail_(email) && pass.status === 'OUT')
     .sort((a, b) => (b.outDate ? b.outDate.getTime() : 0) - (a.outDate ? a.outDate.getTime() : 0))[0];
   if (!active) return null;
@@ -1758,9 +1762,9 @@ function getStudentState_(student, pinToken, method, options) {
   return state;
 }
 
-function getPassSnapshot_() {
+function getPassSnapshot_(options) {
   const settings = getSettings_();
-  const log = readPassLog_();
+  const log = options && options.fullLog ? readPassLog_() : readRecentPassLog_(passLogRecentCutoff_(settings));
   const todayKey = dateKey_(new Date());
   // A missed return from a prior school day must never consume today's only
   // pass slot. Daily cleanup converts these rows to ROLLED_OVER for the audit
@@ -1838,7 +1842,7 @@ function studentPassView_(pass) {
 function closePassForStudent_(studentEmail, endedBy, note) {
   const email = normalizeEmail_(studentEmail);
   const todayKey = dateKey_(new Date());
-  const pass = readPassLog_()
+  const pass = readRecentPassLog_(passLogRecentCutoff_())
     .filter((item) => (
       item.status === 'OUT' && item.studentEmail === email && safeDateKey_(item.outDate) === todayKey
     ))
@@ -4003,7 +4007,7 @@ function getTeacherState_(options) {
     unlimited: getStudentPassAccess_(student.email) === 'UNLIMITED',
     accessMode: getStudentPassAccess_(student.email),
   }));
-  const snapshot = getPassSnapshot_();
+  const snapshot = getPassSnapshot_({ fullLog: true });
   const log = snapshot.log;
   const todayKey = dateKey_(new Date());
   const todayEntries = readCheckInsForDateIncludingPending_(todayKey);
@@ -4298,37 +4302,98 @@ function getStudentsByPinHash_(pinHash) {
   return getRoster_().filter((student) => student.pinHash && student.pinHash === pinHash);
 }
 
+function passFromRow_(row, rowNumber) {
+  return {
+    row: rowNumber,
+    passId: String(row[0] || ''),
+    studentEmail: normalizeEmail_(row[1]),
+    studentName: String(row[2] || ''),
+    classPeriod: String(row[3] || ''),
+    studentKey: rosterKey_(row[1], row[3]),
+    destination: String(row[4] || ''),
+    outDate: toDateOrNull_(row[5]),
+    returnDate: toDateOrNull_(row[6]),
+    minutesOut: row[7] === '' ? null : Number(row[7]),
+    method: String(row[8] || ''),
+    status: String(row[9] || ''),
+    endedBy: String(row[10] || ''),
+    note: String(row[11] || ''),
+    countability: String(row[12] || '').trim().toUpperCase(),
+    countabilityReason: String(row[13] || ''),
+    classifiedAt: toDateOrNull_(row[14]),
+    authorizationMethod: String(row[15] || ''),
+    authorizedAt: toDateOrNull_(row[16]),
+    requestId: String(row[17] || ''),
+    voidedAt: toDateOrNull_(row[18]),
+    voidedBy: String(row[19] || ''),
+    voidReason: String(row[20] || ''),
+  };
+}
+
 function readPassLog_() {
   return gdMemo_('passlog', () => {
     const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.LOG);
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return [];
-    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.LOG.length).getValues().map((row, index) => ({
-      row: index + 2,
-      passId: String(row[0] || ''),
-      studentEmail: normalizeEmail_(row[1]),
-      studentName: String(row[2] || ''),
-      classPeriod: String(row[3] || ''),
-      studentKey: rosterKey_(row[1], row[3]),
-      destination: String(row[4] || ''),
-      outDate: toDateOrNull_(row[5]),
-      returnDate: toDateOrNull_(row[6]),
-      minutesOut: row[7] === '' ? null : Number(row[7]),
-      method: String(row[8] || ''),
-      status: String(row[9] || ''),
-      endedBy: String(row[10] || ''),
-      note: String(row[11] || ''),
-      countability: String(row[12] || '').trim().toUpperCase(),
-      countabilityReason: String(row[13] || ''),
-      classifiedAt: toDateOrNull_(row[14]),
-      authorizationMethod: String(row[15] || ''),
-      authorizedAt: toDateOrNull_(row[16]),
-      requestId: String(row[17] || ''),
-      voidedAt: toDateOrNull_(row[18]),
-      voidedBy: String(row[19] || ''),
-      voidReason: String(row[20] || ''),
-    })).filter((pass) => pass.passId);
+    return sheet.getRange(2, 1, lastRow - 1, GD_HEADERS.LOG.length).getValues()
+      .map((row, index) => passFromRow_(row, index + 2))
+      .filter((pass) => pass.passId);
   });
+}
+
+/**
+ * The earliest moment a student decision can depend on: today's passes and
+ * cooldown, plus the marking period when a per-class limit is on. Anything
+ * older only matters to teacher history, which keeps reading the full log.
+ */
+function passLogRecentCutoff_(settings) {
+  const policy = getStudentPassPolicy_(settings || getSettings_());
+  let cutoff = Date.now() - 36 * 3600000 - policy.cooldownMinutes * 60000;
+  if (policy.limit) {
+    const resetAt = new Date(policy.resetAt).getTime();
+    cutoff = Math.min(cutoff, Number.isFinite(resetAt) ? resetAt : 0);
+  }
+  return cutoff;
+}
+
+/**
+ * Student taps read only the tail of Pass Log. Rows are appended in time
+ * order, so the window widens until it holds a pass older than the cutoff,
+ * which proves nothing the rules need is above it. Rows out of time order,
+ * or a window that reaches the top without that proof, fall back to the full
+ * read, so the answer is never narrower than the whole-sheet scan.
+ */
+function readRecentPassLog_(cutoffValue) {
+  const cutoff = Number(cutoffValue);
+  if (Object.prototype.hasOwnProperty.call(GD_MEMO, 'passlog')) return GD_MEMO.passlog;
+  const cached = GD_MEMO['passlog-recent'];
+  if (cached && cached.cutoff <= cutoff) return cached.rows;
+  const sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.LOG);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  const totalRows = lastRow - 1;
+  let windowRows = GD_PASS_TAIL_ROWS;
+  while (Number.isFinite(cutoff) && windowRows < totalRows) {
+    const startRow = lastRow - windowRows + 1;
+    const scanned = sheet.getRange(startRow, 1, windowRows, GD_HEADERS.LOG.length).getValues()
+      .map((row, index) => passFromRow_(row, startRow + index))
+      .filter((pass) => pass.passId);
+    let previous = 0;
+    const outOfOrder = scanned.some((pass) => {
+      if (!pass.outDate || isNaN(pass.outDate)) return false;
+      const time = pass.outDate.getTime();
+      const reversed = previous && time < previous;
+      previous = time;
+      return reversed;
+    });
+    if (outOfOrder) break;
+    if (scanned.some((pass) => pass.outDate && !isNaN(pass.outDate) && pass.outDate.getTime() < cutoff)) {
+      GD_MEMO['passlog-recent'] = { cutoff, rows: scanned };
+      return scanned;
+    }
+    windowRows = Math.min(totalRows, windowRows * 4);
+  }
+  return readPassLog_();
 }
 
 function readPassQueue_() {
