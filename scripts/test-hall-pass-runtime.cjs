@@ -2875,7 +2875,7 @@ test('teacher roster entry rejects a class label the bell engine cannot schedule
   c.harness.signInAs(TEACHER);
   assert.throws(
     () => c.harness.call('teacherAddStudentClass', 'Example, Student', 'example.student@students.mtmorrisschools.org', 'American History', TEACHER_CONTRACT),
-    /Period 1 through Period 6/
+    /Period 1 through Period 8/
   );
 });
 
@@ -3011,6 +3011,201 @@ test('a return goes to the original class even after the bell changes', () => {
   assert.equal(back.completedAction, 'RETURN');
   assert.equal(c.passLog()[0].Status, 'RETURNED');
   assert.equal(c.passLog().length, 1);
+});
+
+section('Copies for other teachers and schools');
+
+const settingsOf = (c) => {
+  c.harness.newRequest();
+  return c.harness.call('getSettings_');
+};
+const bellRows = (c) => c.harness.sheet('Bell Schedule').records().length;
+const calendarRows = (c) => c.harness.sheet('School Calendar').records().length;
+
+test('the synthetic release check passes through the one-trip student path', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  const result = c.harness.call('releaseRunSyntheticSmoke', TEACHER_CONTRACT);
+  assert.equal(result.ok, true);
+  assert.equal(result.request, 'STARTED');
+  assert.equal(result.return, 'RETURNED_COUNTABLE');
+  assert.equal(c.passLog().length, 0, 'the real workbook must stay untouched');
+});
+
+test('a copy set up by another district teacher belongs to them and starts with no borrowed schedule', () => {
+  const other = 'ms.rivera@lakeview.example.org';
+  const c = classroom({ activeEmail: other });
+  const settings = settingsOf(c);
+  assert.equal(settings.TEACHER_EMAILS, other);
+  assert.equal(settings.SCHOOL_DOMAIN, 'lakeview.example.org');
+  assert.equal(settings.STUDENT_EMAIL_DOMAIN, '');
+  assert.equal(settings.SCHOOL_YEAR_START, '');
+  assert.equal(settings.PASS_URL, '');
+  assert.equal(bellRows(c), 0, 'another school must not inherit Mt. Morris bells');
+  assert.equal(calendarRows(c), 0, 'another school must not inherit the Mt. Morris calendar');
+  assert.ok(!String(settings.TEACHER_EMAILS).includes('gauch@'));
+});
+
+const LAKEVIEW_STUDENT = { email: 'sam.lee@students.lakeview.example.org', name: 'Lee, Sam' };
+
+test('another school copy refuses passes until its bells are entered', () => {
+  const c = classroom({ activeEmail: 'ms.rivera@lakeview.example.org', memberships: [[LAKEVIEW_STUDENT, 'Period 1']] });
+  assert.throws(() => c.requestPass(LAKEVIEW_STUDENT, 'Period 1'), /schedule needs/);
+  assert.equal(c.passLog().length, 0);
+});
+
+test('another school copy still turns away accounts from a different district', () => {
+  const c = classroom({ activeEmail: 'ms.rivera@lakeview.example.org' });
+  assert.throws(() => c.requestPass(PEOPLE.ada, 'Period 1'), /school Google account/);
+});
+
+test('another school teacher can open their own teacher view, and the original teacher cannot', () => {
+  const other = 'ms.rivera@lakeview.example.org';
+  const c = classroom({ activeEmail: other });
+  c.harness.newRequest();
+  c.harness.signInAs(other);
+  assert.equal(c.harness.call('refreshTeacherState', TEACHER_CONTRACT).mode, 'teacher');
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  assert.throws(() => c.harness.call('refreshTeacherState', TEACHER_CONTRACT), /limited to the teacher/);
+});
+
+test('another school copy passes its own synthetic release check', () => {
+  const other = 'ms.rivera@lakeview.example.org';
+  const c = classroom({ activeEmail: other });
+  c.harness.newRequest();
+  c.harness.signInAs(other);
+  assert.equal(c.harness.call('releaseRunSyntheticSmoke', TEACHER_CONTRACT).ok, true);
+});
+
+test('a second Mt. Morris teacher keeps the district calendar and bells but is their own teacher', () => {
+  const colleague = 'j.doe@mtmorrisschools.org';
+  const c = classroom({ activeEmail: colleague });
+  const settings = settingsOf(c);
+  assert.equal(settings.TEACHER_EMAILS, colleague);
+  assert.equal(settings.STUDENT_EMAIL_DOMAIN, 'students.mtmorrisschools.org');
+  assert.ok(bellRows(c) >= 18);
+  assert.ok(calendarRows(c) > 10);
+});
+
+test('Period 7 and Period 8 classes are accepted and scheduled', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  assert.equal(c.harness.call('periodNumberFromClass_', 'Period 8 — Chemistry'), 8);
+  assert.equal(c.harness.call('periodNumberFromClass_', 'Period 9'), null);
+});
+
+section('Classroom setup screen and pasted rosters');
+
+const RIVERA = 'ms.rivera@lakeview.example.org';
+const lakeviewSetup = (extra = {}) => ({
+  periods: [
+    { period: 1, start: '07:30', end: '08:25' },
+    { period: 2, start: '08:30', end: '09:25' },
+    { period: 7, start: '13:35', end: '14:30' },
+  ],
+  studentEmailDomain: 'students.lakeview.example.org',
+  yearStart: '2026-08-20',
+  yearEnd: '2027-06-04',
+  noSchoolDates: ['2026-11-26', '2026-11-27'],
+  ...extra,
+});
+const asTeacher = (c, email, name, ...args) => {
+  c.harness.newRequest();
+  c.harness.signInAs(email);
+  return c.harness.call(name, ...args, TEACHER_CONTRACT);
+};
+
+test('a new school enters bells once and students can then sign out', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [[LAKEVIEW_STUDENT, 'Period 1']] });
+  const before = asTeacher(c, RIVERA, 'teacherGetClassroomSetup');
+  assert.equal(before.bellsReady, false);
+  const state = asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup());
+  assert.equal(state.classroomSetup.bellsReady, true);
+  assert.equal(state.classroomSetup.periods.find((p) => p.period === 7).start, '13:35');
+  assert.equal(JSON.stringify(state.classroomSetup.noSchoolDates), JSON.stringify(['2026-11-26', '2026-11-27']));
+  assert.equal(c.requestPass(LAKEVIEW_STUDENT, 'Period 1').state.actionOutcome.kind, 'STARTED');
+});
+
+test('setup refuses overlapping or backwards periods and writes nothing', () => {
+  const c = classroom({ activeEmail: RIVERA });
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({
+    periods: [{ period: 1, start: '07:30', end: '08:30' }, { period: 2, start: '08:15', end: '09:00' }],
+  })), /overlap/);
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({
+    periods: [{ period: 1, start: '09:00', end: '08:00' }],
+  })), /after the start/);
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ periods: [] })), /at least one/);
+  assert.equal(bellRows(c), 0);
+});
+
+test('saving setup again replaces only what the setup screen owns', () => {
+  const c = classroom();
+  const reducedBefore = c.harness.sheet('Bell Schedule').records().filter((r) => r['Schedule Key'] === 'REDUCED').length;
+  const officialBefore = calendarRows(c);
+  asTeacher(c, TEACHER, 'teacherSaveClassroomSetup', lakeviewSetup({ noSchoolDates: ['2026-10-30'] }));
+  asTeacher(c, TEACHER, 'teacherSaveClassroomSetup', lakeviewSetup({ noSchoolDates: [] }));
+  const bells = c.harness.sheet('Bell Schedule').records();
+  assert.equal(bells.filter((r) => r['Schedule Key'] === 'REDUCED').length, reducedBefore, 'reduced-day bells must stay');
+  assert.equal(bells.filter((r) => r['Schedule Key'] === 'NORMAL').length, 3);
+  assert.equal(calendarRows(c), officialBefore, 'official calendar rows must stay; the removed setup day must go');
+});
+
+test('only the teacher can change classroom setup', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(() => c.harness.call('teacherSaveClassroomSetup', lakeviewSetup(), TEACHER_CONTRACT), /limited to the teacher/);
+  assert.throws(() => c.harness.call('teacherPasteStudents', 'Ada\tada@x.org', 'Period 1', TEACHER_CONTRACT), /limited to the teacher/);
+});
+
+test('a pasted spreadsheet with a header row adds students with PINs', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [] });
+  asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup());
+  const paste = [
+    'First Name\tLast Name\tEmail Address',
+    'Maya\tOkafor\tmaya.okafor@students.lakeview.example.org',
+    'Theo\tBrandt\ttheo.brandt@students.lakeview.example.org',
+  ].join('\n');
+  const state = asTeacher(c, RIVERA, 'teacherPasteStudents', paste, 'Period 2 — Biology');
+  assert.match(state.noticeMessage, /2 students added to Period 2 — Biology/);
+  const roster = c.rosterRows();
+  assert.equal(roster.length, 2);
+  assert.ok(roster.some((row) => row['Student Name'] === 'Okafor, Maya'));
+  const cards = c.pinCards();
+  assert.equal(cards.length, 2);
+  assert.ok(cards.every((card) => /^\d{6}$/.test(String(card.PIN))));
+});
+
+test('pasting the same students again adds nobody twice', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [] });
+  asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup());
+  const paste = 'Maya Okafor, maya.okafor@students.lakeview.example.org';
+  asTeacher(c, RIVERA, 'teacherPasteStudents', paste, 'Period 1');
+  const again = asTeacher(c, RIVERA, 'teacherPasteStudents', paste, 'Period 1');
+  assert.match(again.noticeMessage, /0 students added.*1 already on the roster/);
+  assert.equal(c.rosterRows().length, 1);
+});
+
+test('one unreadable pasted line means nothing is added', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [] });
+  asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup());
+  const paste = 'Maya Okafor\tmaya.okafor@students.lakeview.example.org\nTheo Brandt\tno email here';
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherPasteStudents', paste, 'Period 1'), /Nothing was added.*line 2/);
+  assert.equal(c.rosterRows().length, 0);
+});
+
+test('pasted students must match the school email ending once it is set', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [] });
+  asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup());
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherPasteStudents', 'Sam\tsam@gmail.com', 'Period 1'), /Nothing was added/);
+  assert.equal(c.rosterRows().length, 0);
+});
+
+test('a pasted class must be Period 1 through 8', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [] });
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherPasteStudents', 'Sam Lee\tsam.lee@students.lakeview.example.org', 'Biology'), /Period 1 through Period 8/);
 });
 
 require('./lib/hall-pass-session-tests.cjs')(test, section);

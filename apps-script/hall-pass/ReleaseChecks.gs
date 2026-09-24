@@ -110,7 +110,7 @@ function releaseRunSyntheticSmoke(clientContract) {
   try {
     GD_SPREADSHEET = book; gdClearMemo_();
     setupWorkbook_();
-    const email = 'release.synthetic@' + getSettings_().STUDENT_EMAIL_DOMAIN;
+    const email = 'release.synthetic@' + (getSettings_().STUDENT_EMAIL_DOMAIN || 'example.invalid');
     const pin = String(Math.floor(100000 + Math.random() * 900000));
     const period = 'Period 1 — SYNTHETIC RELEASE CHECK';
     book.getSheetByName(GD_SHEETS.ROSTER).appendRow([email,'Synthetic, Release',period,hashPin_(pin),true,false,'STANDARD']);
@@ -123,13 +123,13 @@ function releaseRunSyntheticSmoke(clientContract) {
     book.getSheetByName(GD_SHEETS.CALENDAR).appendRow([dateKey_(now),true,'Synthetic smoke only','test','test','SYNTHETIC']);
     gdClearMemo_();
     const student = getStudentsByEmail_(email)[0];
-    const proof = authorizeStudentAction(pin,'AUTO_PASS',student.key,'synthetic-release');
-    const started = requestBathroomPass(proof.actionProof, student.key, proof.pinToken);
-    releaseAssert_(started.actionOutcome.kind === 'STARTED','fresh PIN did not start pass');
+    // The same one-trip entry point the student page calls.
+    const started = authorizeAndActStudent('authorize',pin,'AUTO_PASS',student.key,'synthetic-release');
+    releaseAssert_(started.completedAction === 'PASS_REQUEST' && started.actionOutcome.kind === 'STARTED','fresh PIN did not start pass');
     Utilities.sleep(3100);
-    const returnProof = authorizeStudentAction(pin,'AUTO_PASS',student.key,'synthetic-return');
-    const returned = returnPass(returnProof.actionProof,student.key,returnProof.pinToken);
-    releaseAssert_(returned.actionOutcome.kind === 'RETURNED_COUNTABLE','fresh PIN did not return countable pass');
+    gdClearMemo_();
+    const returned = authorizeAndActStudent('authorize',pin,'AUTO_PASS',student.key,'synthetic-return');
+    releaseAssert_(returned.completedAction === 'RETURN' && returned.actionOutcome.kind === 'RETURNED_COUNTABLE','fresh PIN did not return countable pass');
     const evidence = teacherGetMembershipPasses(student.key,GD_TEACHER_CONTRACT);
     releaseAssert_(evidence.used === 1 && evidence.passes.length === 1,'membership evidence disagrees');
     teacherVoidPass(evidence.passes[0].passId,'Synthetic release check completed',GD_TEACHER_CONTRACT);

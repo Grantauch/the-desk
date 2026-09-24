@@ -1,6 +1,14 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Current release — Version 28, September 22, 2026
+## Current release — Version 35, September 24, 2026
+
+Source commit: `c4572883272ab46632826b2ee293ed83a424a791` ([PR #147](https://github.com/Grantauch/the-desk/pull/147)). The existing deployment was updated in place by [GitHub Actions run 36006694588](https://github.com/Grantauch/the-desk/actions/runs/36006694588) ("DEPLOYED — Apps Script version 35; existing deployment ID and URL preserved; access=DOMAIN; executeAs=USER_DEPLOYING"). No workbook schema change; schema remains `2026-09-21-backend-b` and the teacher contract remains `2026-09-22-all-teacher-rpcs`.
+
+Version 35 makes student sign-out one server round trip after page load (`authorizeAndActStudent`), routes a multi-class student to the one class the bell schedule proves is meeting now (chooser otherwise; returns still follow the original pass), and removes repeated roster/settings/calendar/bell reads within a request.
+
+The teacher ran the authenticated `?mode=releasecheck` synthetic smoke after deployment at about 9:40 AM: `ok: true`, `request: STARTED`, `return: RETURNED_COUNTABLE`, `evidenceUsed: 1`, `testPassVoided: true`, `testMembershipDeactivated: true`, `productionFactsUnchanged: true`. Real-class field evidence is pending.
+
+## Previous release — Version 28, September 22, 2026
 
 Source commit: `f366947cc36b98ec5e82d9e7d26dcdd84c69b55e`. The existing Apps Script web-app deployment was updated **in place** through the guarded release bridge in [GitHub Actions run 35754589935](https://github.com/Grantauch/the-desk/actions/runs/35754589935), after production preflight run `35754508635` passed. The stable `/exec` URL, deployment identity, execute-as-deploying-user behavior, school-domain access, and five-file Apps Script contract were preserved.
 

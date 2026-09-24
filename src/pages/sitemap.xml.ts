@@ -29,7 +29,7 @@ const paths = [
   '/glossary/',
   '/detour-shelf/',
   '/tools/',
-  ...(passConfig.enabled ? ['/pass/'] : []),
+  ...(passConfig.enabled ? ['/pass/', '/pass-setup/'] : []),
   '/calendar/',
   '/fact-check-friday/',
   '/showcase/',

@@ -189,6 +189,63 @@ const GD_DEFAULT_SETTINGS = [
   ['SCHOOL_YEAR_END', '2027-06-08', 'Last student day from the official 2026-27 district calendar'],
 ];
 
+const GD_HOME_DISTRICT_DOMAIN = 'mtmorrisschools.org';
+
+/**
+ * The account that owns this copy of Hall Pass: the deploying teacher for the
+ * web app, the editor running a menu item in the spreadsheet.
+ */
+function workbookOwnerEmail_() {
+  try {
+    return normalizeEmail_(Session.getEffectiveUser().getEmail());
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Mt. Morris copies keep the verified district calendar and E.A. Johnson bell
+ * seed. Any other school starts blank and enters its own bells at setup, so a
+ * pass is never timed against someone else's schedule.
+ */
+function isHomeDistrictOwner_() {
+  const owner = workbookOwnerEmail_();
+  return !owner || owner.split('@').pop() === GD_HOME_DISTRICT_DOMAIN;
+}
+
+/** Default Settings rows for this copy. Only ever used to fill missing rows. */
+function defaultSettingsRows_() {
+  const owner = workbookOwnerEmail_();
+  const overrides = isHomeDistrictOwner_()
+    ? (owner ? { TEACHER_EMAILS: owner } : {})
+    : {
+      TEACHER_EMAILS: owner,
+      SCHOOL_DOMAIN: owner.split('@').pop(),
+      STUDENT_EMAIL_DOMAIN: '',
+      PIN_EMAIL_SUBJECT: 'Your private Hall Pass PIN',
+      CHECKIN_URL: '',
+      PASS_URL: '',
+      SCHOOL_YEAR_START: '',
+      SCHOOL_YEAR_END: '',
+    };
+  return GD_DEFAULT_SETTINGS.map(([key, value, description]) => [
+    key,
+    Object.prototype.hasOwnProperty.call(overrides, key) ? overrides[key] : value,
+    description,
+  ]);
+}
+
+/** This deployment's own student link, for PIN emails in copies with no site. */
+function webAppUrl_(mode) {
+  try {
+    const url = ScriptApp.getService().getUrl();
+    if (!url) return '';
+    return mode ? `${url}${url.includes('?') ? '&' : '?'}mode=${mode}` : url;
+  } catch (error) {
+    return '';
+  }
+}
+
 /** Session token lifetime for PIN sign-in, in seconds. One class period plus slack. */
 const GD_PIN_SESSION_SECONDS = 3600;
 
@@ -225,7 +282,7 @@ function readRosterRowsCached_() {
 /* ----------------------------------------------- shared class sessions ---- */
 
 function periodNumberFromClass_(classPeriod) {
-  const match = /^Period\s+([1-6])(?:\b|\s|$)/i.exec(String(classPeriod || '').trim());
+  const match = /^Period\s+([1-8])(?:\b|\s|$)/i.exec(String(classPeriod || '').trim());
   return match ? Number(match[1]) : null;
 }
 
@@ -279,7 +336,7 @@ function getBellScheduleIndex_() {
       const key = String(row[0] || '').trim().toUpperCase();
       if (!key) return;
       const profile = profiles[key] || (profiles[key] = { periods: {}, valid: true });
-      const period = /^[1-6]$/.test(String(row[1]).trim()) ? Number(row[1]) : null;
+      const period = /^[1-8]$/.test(String(row[1]).trim()) ? Number(row[1]) : null;
       const start = bellMinutes_(row[2]);
       const end = bellMinutes_(row[3]);
       if (!period || start === null || end === null || start >= end || profile.periods[period]) {
@@ -393,7 +450,7 @@ function migrateSessionPolicy_() {
   const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
   const existing = new Set(bells.getLastRow() > 1 ? bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues().map((row) => String(row[0]).trim().toUpperCase()) : []);
   const seed = [];
-  Object.entries(GD_BELL_SEED).forEach(([key, periods]) => periods.forEach(([start, end], index) => {
+  if (isHomeDistrictOwner_()) Object.entries(GD_BELL_SEED).forEach(([key, periods]) => periods.forEach(([start, end], index) => {
     if (!existing.has(key)) seed.push([key, index + 1, start, end, 'EAJ 2026-27 Bell Schedule; Period 4 B Lunch', 'Verified 2026-09-05']);
   }));
   if (seed.length) {
@@ -437,7 +494,7 @@ function onOpen() {
 function setupProject() {
   const active = SpreadsheetApp.getActiveSpreadsheet();
   if (!active) throw new Error('Open this script from the GrantDesk Hall Pass spreadsheet.');
-  const authSettings = GD_DEFAULT_SETTINGS.reduce((settings, row) => {
+  const authSettings = defaultSettingsRows_().reduce((settings, row) => {
     settings[row[0]] = row[1];
     return settings;
   }, {});
@@ -3176,6 +3233,249 @@ function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
   return result;
 }
 
+/* ------------------------------------------------------ classroom setup ---- */
+
+const GD_MAX_PERIOD = 8;
+const GD_SETUP_SOURCE = 'Teacher setup';
+
+function clockFromMinutes_(minutes) {
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+}
+
+/** What a teacher needs to see to finish or adjust their classroom setup. */
+function classroomSetupView_(settings) {
+  const normal = (getBellScheduleIndex_().NORMAL || { periods: {} }).periods;
+  const periods = [];
+  for (let period = 1; period <= GD_MAX_PERIOD; period += 1) {
+    const entry = normal[period];
+    periods.push({
+      period,
+      start: entry ? clockFromMinutes_(entry.start) : '',
+      end: entry ? clockFromMinutes_(entry.end) : '',
+    });
+  }
+  const calendar = getSchoolCalendarIndex_();
+  return {
+    periods,
+    bellsReady: Object.keys(normal).length > 0,
+    studentEmailDomain: String(settings.STUDENT_EMAIL_DOMAIN || ''),
+    yearStart: String(settings.SCHOOL_YEAR_START || ''),
+    yearEnd: String(settings.SCHOOL_YEAR_END || ''),
+    noSchoolDates: Object.keys(calendar.overrides || {}).filter((key) => calendar.overrides[key] === false).sort(),
+    studentCount: new Set(getRoster_().map((student) => student.email)).size,
+    membershipCount: getRoster_().length,
+    studentLink: webAppUrl_(''),
+    kioskLink: webAppUrl_('kiosk'),
+  };
+}
+
+function teacherGetClassroomSetup(clientContract) {
+  const settings = getSettings_();
+  assertTeacher_(getActiveEmail_(), settings);
+  assertTeacherClient_(clientContract);
+  return classroomSetupView_(settings);
+}
+
+function normalizeClassroomSetup_(setup) {
+  if (!setup || typeof setup !== 'object') throw new Error('Nothing was saved. Fill in the setup form and try again.');
+  const periods = [];
+  (Array.isArray(setup.periods) ? setup.periods : []).forEach((row) => {
+    const period = Number(row && row.period);
+    const startText = String(row && row.start || '').trim();
+    const endText = String(row && row.end || '').trim();
+    if (!startText && !endText) return;
+    if (!Number.isInteger(period) || period < 1 || period > GD_MAX_PERIOD) throw new Error('Only Periods 1 through 8 can be scheduled.');
+    const start = bellMinutes_(startText);
+    const end = bellMinutes_(endText);
+    if (start === null || end === null) throw new Error(`Period ${period}: enter both a start and an end time.`);
+    if (start >= end) throw new Error(`Period ${period}: the end time must be after the start time.`);
+    periods.push({ period, start, end });
+  });
+  if (!periods.length) throw new Error('Enter the start and end time for at least one class period.');
+  const ordered = periods.slice().sort((a, b) => a.start - b.start);
+  ordered.forEach((entry, index) => {
+    if (index && entry.start < ordered[index - 1].end) {
+      throw new Error(`Period ${ordered[index - 1].period} and Period ${entry.period} overlap. Check those times.`);
+    }
+  });
+
+  const studentEmailDomain = String(setup.studentEmailDomain || '').trim().toLowerCase().replace(/^@/, '');
+  if (studentEmailDomain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(studentEmailDomain)) {
+    throw new Error('The student email ending should look like students.yourschool.org.');
+  }
+  const dateOk = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const yearStart = String(setup.yearStart || '').trim();
+  const yearEnd = String(setup.yearEnd || '').trim();
+  if ((yearStart && !dateOk(yearStart)) || (yearEnd && !dateOk(yearEnd))) throw new Error('Enter the first and last day of school as dates.');
+  if (yearStart && yearEnd && yearStart > yearEnd) throw new Error('The first day of school must come before the last day.');
+  const noSchoolDates = [...new Set((Array.isArray(setup.noSchoolDates) ? setup.noSchoolDates : String(setup.noSchoolDates || '').split(/[\s,]+/))
+    .map((value) => String(value || '').trim())
+    .filter(Boolean))];
+  const badDate = noSchoolDates.find((value) => !dateOk(value));
+  if (badDate) throw new Error(`"${badDate}" is not a date. Use the calendar picker for no-school days.`);
+  if (noSchoolDates.length > 200) throw new Error('Enter at most 200 no-school days.');
+  return { periods, studentEmailDomain, yearStart, yearEnd, noSchoolDates: noSchoolDates.sort() };
+}
+
+/**
+ * Save the teacher's regular bell times, school-year dates, student email
+ * ending, and no-school days. Only the NORMAL bell profile and calendar rows
+ * this screen created are replaced; reduced/half-day profiles and official
+ * calendar rows are left exactly as they were.
+ */
+function teacherSaveClassroomSetup(setup, clientContract) {
+  const teacher = getActiveEmail_();
+  const settings = getSettings_();
+  assertTeacher_(teacher, settings);
+  assertTeacherClient_(clientContract);
+  const clean = normalizeClassroomSetup_(setup);
+  withLock_(() => {
+    const spreadsheet = getSpreadsheet_();
+    const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
+    if (bells.getLastRow() > 1) {
+      const keys = bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues();
+      for (let index = keys.length - 1; index >= 0; index -= 1) {
+        if (String(keys[index][0] || '').trim().toUpperCase() === 'NORMAL') bells.deleteRow(index + 2);
+      }
+    }
+    const bellRows = clean.periods
+      .slice()
+      .sort((a, b) => a.period - b.period)
+      .map((entry) => ['NORMAL', entry.period, clockFromMinutes_(entry.start), clockFromMinutes_(entry.end), GD_SETUP_SOURCE, new Date().toISOString()]);
+    const firstRow = bells.getLastRow() + 1;
+    bells.getRange(firstRow, 3, bellRows.length, 2).setNumberFormat('@');
+    bells.getRange(firstRow, 1, bellRows.length, GD_HEADERS.BELLS.length).setValues(bellRows);
+    gdForget_('bell-schedules');
+
+    const calendar = spreadsheet.getSheetByName(GD_SHEETS.CALENDAR);
+    const wanted = new Set(clean.noSchoolDates);
+    const present = new Set();
+    if (calendar.getLastRow() > 1) {
+      const rows = calendar.getRange(2, 1, calendar.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues();
+      for (let index = rows.length - 1; index >= 0; index -= 1) {
+        const key = normalizeDateKey_(rows[index][0]);
+        present.add(key);
+        if (String(rows[index][3] || '') === GD_SETUP_SOURCE && !wanted.has(key)) {
+          calendar.deleteRow(index + 2);
+          present.delete(key);
+        }
+      }
+    }
+    const added = clean.noSchoolDates
+      .filter((key) => !present.has(key))
+      .map((key) => [key, false, 'No school', GD_SETUP_SOURCE, new Date().toISOString(), '']);
+    if (added.length) {
+      const start = calendar.getLastRow() + 1;
+      calendar.getRange(start, 1, added.length, 1).setNumberFormat('@');
+      calendar.getRange(start, 1, added.length, GD_HEADERS.CALENDAR.length).setValues(added);
+    }
+    gdForget_('school-calendar');
+
+    setSettingValue_('STUDENT_EMAIL_DOMAIN', clean.studentEmailDomain);
+    setSettingValue_('SCHOOL_YEAR_START', clean.yearStart);
+    setSettingValue_('SCHOOL_YEAR_END', clean.yearEnd);
+    // Students on a different Google domain than their teacher would be
+    // turned away by the school-account check; their PIN still guards them.
+    const schoolDomain = String(getSettings_().SCHOOL_DOMAIN || '').toLowerCase();
+    if (schoolDomain && clean.studentEmailDomain &&
+        clean.studentEmailDomain !== schoolDomain && !clean.studentEmailDomain.endsWith(`.${schoolDomain}`)) {
+      setSettingValue_('SCHOOL_DOMAIN', '');
+    }
+    auditTeacherAction_(teacher, { email: '', name: 'Classroom setup', classPeriod: 'All classes' }, 'CLASSROOM_SETUP_SAVED', [],
+      `${clean.periods.length} periods; ${clean.noSchoolDates.length} no-school days; students @${clean.studentEmailDomain || 'any'}`, '');
+  }, 30000, 'classroom setup');
+  const state = getTeacherState_({ includePinStatus: true });
+  state.noticeMessage = 'Classroom setup saved. Your bell times are now in effect.';
+  return state;
+}
+
+/**
+ * Turn pasted spreadsheet rows into roster additions for one class. Accepts
+ * "First<TAB>Last<TAB>email", "Name<TAB>email", or comma-separated versions,
+ * with or without a header row. Nothing is written if any row is unreadable.
+ */
+function parsePastedStudents_(text, classPeriod, settings) {
+  const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) throw new Error('Paste at least one student: a name and a school email on each line.');
+  if (lines.length > GD_ROSTER_SYNC_MAX_WRITES) throw new Error(`Paste at most ${GD_ROSTER_SYNC_MAX_WRITES} students at a time.`);
+  const rows = [];
+  const problems = [];
+  lines.forEach((line, index) => {
+    const cells = (line.includes('\t') ? line.split('\t') : line.split(','))
+      .map((cell) => cell.trim().replace(/^"|"$/g, '').trim())
+      .filter(Boolean);
+    const emailIndex = cells.findIndex((cell) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cell));
+    if (emailIndex < 0) {
+      if (index === 0 && /mail/i.test(line)) return; // header row
+      problems.push(`line ${index + 1}: no email address`);
+      return;
+    }
+    const names = cells.filter((_, cellIndex) => cellIndex !== emailIndex && !/@/.test(cells[cellIndex]));
+    let name = '';
+    if (names.length === 1) name = names[0];
+    else if (names.length >= 2) name = `${names[1]}, ${names[0]}`;
+    if (!name) {
+      problems.push(`line ${index + 1}: no student name`);
+      return;
+    }
+    try {
+      rows.push(normalizeRosterInput_(name, cells[emailIndex], classPeriod, settings));
+    } catch (error) {
+      problems.push(`line ${index + 1}: ${error.message}`);
+    }
+  });
+  if (problems.length) {
+    throw new Error(`Nothing was added. Fix ${problems.length === 1 ? 'this line' : 'these lines'} and paste again — ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? '; …' : ''}`);
+  }
+  if (!rows.length) throw new Error('Paste at least one student: a name and a school email on each line.');
+  return rows;
+}
+
+/**
+ * Bulk add from a paste box. Uses the same revision-checked, idempotent,
+ * PIN-verifying batch writer as GoClassroom roster sync, so pasted students
+ * get exactly the same safety as synced ones. Already-active memberships are
+ * skipped, never duplicated.
+ */
+function teacherPasteStudents(text, classPeriod, clientContract) {
+  const teacher = getActiveEmail_();
+  const settings = getSettings_();
+  assertTeacher_(teacher, settings);
+  assertTeacherClient_(clientContract);
+  const rows = parsePastedStudents_(text, classPeriod, settings);
+  const snapshot = getRosterSyncSnapshot(GD_ROSTER_SYNC_CONTRACT);
+  const activeKeys = new Set(getRoster_().map((student) => student.key));
+  const seen = new Set();
+  const add = rows.filter((row) => {
+    if (activeKeys.has(row.key) || seen.has(row.key)) return false;
+    seen.add(row.key);
+    return true;
+  }).map((row) => ({ studentName: row.name, studentEmail: row.email, classPeriod: row.classPeriod }));
+  const skipped = rows.length - add.length;
+  let result = { ok: true, counts: { added: 0, reactivated: 0, createdPins: 0 } };
+  if (add.length) {
+    result = applyRosterSyncChanges({
+      confirmation: GD_ROSTER_SYNC_CONFIRMATION,
+      requestId: `paste-${Utilities.getUuid().replace(/-/g, '')}`,
+      baseRevision: snapshot.revision,
+      add,
+      updateName: [],
+    }, GD_ROSTER_SYNC_WRITE_CONTRACT, null);
+    if (!result || result.ok !== true) {
+      throw new Error((result && result.message) || 'Nothing was added. Refresh the page and paste again.');
+    }
+  }
+  gdClearMemo_();
+  const state = getTeacherState_({ includePinStatus: true });
+  const counts = result.counts || {};
+  const joined = Number(counts.added || 0) + Number(counts.reactivated || 0);
+  state.noticeMessage = `${joined} student${joined === 1 ? '' : 's'} added to ${rows[0].classPeriod}`
+    + (skipped ? `; ${skipped} already on the roster` : '')
+    + (Number(counts.createdPins || 0) ? `; ${counts.createdPins} new PIN${Number(counts.createdPins) === 1 ? '' : 's'} created` : '')
+    + '. New PINs are on the PIN Cards tab and in PIN delivery.';
+  return state;
+}
+
 function refreshTeacherState(clientContract) {
   assertTeacher_(getActiveEmail_(), getSettings_());
   assertTeacherClient_(clientContract);
@@ -3402,7 +3702,7 @@ function normalizeRosterInput_(studentName, studentEmail, classPeriod, settings)
   const email = normalizeEmail_(emailText);
   const className = cleanText(classPeriod, 'Class / period', 120);
   if (!periodNumberFromClass_(className)) {
-    throw new Error('Class / period must begin with Period 1 through Period 6 so GrantDesk can apply the bell schedule.');
+    throw new Error('Class / period must begin with Period 1 through Period 8 so GrantDesk can apply the bell schedule.');
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error('Enter the student’s full school email address.');
@@ -3748,6 +4048,7 @@ function getTeacherState_(options) {
     maxActivePasses: snapshot.maxActive,
     passPolicy: getStudentPassPolicy_(settings),
     studentPassUsage,
+    classroomSetup: classroomSetupView_(settings),
     repeatPassesToday: studentPassUsage
       .filter((student, index, rows) => rows.findIndex((entry) => entry.email === student.email) === index)
       .filter((student) => student.todayUsed >= 2)
@@ -4569,8 +4870,8 @@ function previewStudentPinEmails_() {
       'Here is your private GrantDesk PIN:',
       '123456',
       '',
-      `Daily Check-in: ${settings.CHECKIN_URL}`,
-      `Hall Pass: ${settings.PASS_URL}`,
+      `Daily Check-in: ${settings.CHECKIN_URL || webAppUrl_('checkin')}`,
+      `Hall Pass: ${settings.PASS_URL || webAppUrl_('')}`,
       'This one PIN works in all your classes. Keep it private.',
       '',
       '— Your teacher',
@@ -4744,8 +5045,8 @@ function buildPinEmailGroups_() {
 }
 
 function buildPinEmailMessage_(group,settings,teacherEmail){
-  const firstName=firstNameFromStudentName_(group.name),checkInUrl=settings.CHECKIN_URL||'https://grant-desk.com/check-in/',
-    passUrl=settings.PASS_URL||'https://grant-desk.com/pass/';
+  const firstName=firstNameFromStudentName_(group.name),checkInUrl=settings.CHECKIN_URL||webAppUrl_('checkin')||'https://grant-desk.com/check-in/',
+    passUrl=settings.PASS_URL||webAppUrl_('')||'https://grant-desk.com/pass/';
   const body=[`Hello ${firstName},`,'','Here is your private GrantDesk PIN:',group.pin,'',
     `Daily Check-in: ${checkInUrl}`,`Hall Pass: ${passUrl}`,
     'This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.',
@@ -4924,7 +5225,7 @@ function settingsForAuth_() {
   try {
     return getSettings_();
   } catch (error) {
-    return GD_DEFAULT_SETTINGS.reduce((settings, row) => {
+    return defaultSettingsRows_().reduce((settings, row) => {
       settings[row[0]] = row[1];
       return settings;
     }, {});
@@ -5492,7 +5793,7 @@ function setupWorkbook_() {
   const existing = settingsSheet.getLastRow() > 1
     ? new Set(settingsSheet.getRange(2, 1, settingsSheet.getLastRow() - 1, 1).getValues().flat().map(String))
     : new Set();
-  const missing = GD_DEFAULT_SETTINGS.filter((row) => !existing.has(row[0]));
+  const missing = defaultSettingsRows_().filter((row) => !existing.has(row[0]));
   if (missing.length) {
     settingsSheet.getRange(settingsSheet.getLastRow() + 1, 1, missing.length, 3).setValues(missing);
   }
@@ -5511,7 +5812,7 @@ function setupWorkbook_() {
   if (getSettings_().PIN_EMAIL_SUBJECT === 'Your private GrantDesk class PIN') {
     setSettingValue_('PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN');
   }
-  seedOfficialSchoolCalendar_();
+  if (isHomeDistrictOwner_()) seedOfficialSchoolCalendar_();
   migrateSessionPolicy_();
   refreshWorkbookInstructions_();
 
