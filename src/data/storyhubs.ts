@@ -24,6 +24,28 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'ush9-bytesize-garfield-arthur',
+    href: '/hubs/ush9-bytesize-garfield-arthur.html',
+    title: 'the dark horse and the gentleman boss',
+    course: 'us history 9',
+    unit: 'bytesize / presidents 20 and 21',
+    period: '1881–1885',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 2',
+    question: 'a job seeker shot the president, and his doctors made it worse. then a party boss nobody trusted took over. what changed?',
+    blurb:
+      'James A. Garfield and Chester A. Arthur in seven short bytes: a canal boy who proved the Pythagorean theorem, the office seeker at the train station, the pulse card the country followed, the bullet nobody found and the boss who signed civil service reform.',
+    cover: '/storyhub/ush9/bytesize-garfield-arthur/assets/b00-cover.jpg',
+    coverAlt: 'Colorized portraits of James A. Garfield and Chester A. Arthur side by side',
+    topics: ['james a. garfield', 'chester a. arthur', 'charles guiteau', 'pendleton act', 'chinese exclusion act', 'presidents'],
+    inside: [
+      'Two trading cards to flip, then seven bytes from a canal towpath in 1848 to Arthur burning his papers in 1886.',
+      'Work Garfield\'s own proof of the Pythagorean theorem and slide through the real 1881 pulse card, day by day.',
+      'Sweep Alexander Graham Bell\'s metal detector over the president, then see where the autopsy found the bullet.',
+      'Predict four of Arthur\'s choices, make eight real or fake calls, answer three short questions and write the back of a trading card.',
+    ],
+  },
+  {
     slug: 'ush9-bytesize-grant-hayes',
     href: '/hubs/ush9-bytesize-grant-hayes.html',
     title: 'the general and his fraudulency',
