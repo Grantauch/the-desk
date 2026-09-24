@@ -207,6 +207,19 @@ function gdMemo_(key, producer) {
 
 function gdForget_(key) {
   delete GD_MEMO[key];
+  // Indexes derived from the raw roster rows must never outlive them.
+  if (key === 'roster') GD_ROSTER_DERIVED_MEMOS.forEach((derived) => { delete GD_MEMO[derived]; });
+}
+
+const GD_ROSTER_DERIVED_MEMOS = ['roster-rows', 'pass-access', 'credential-versions'];
+
+/**
+ * One roster read per request for the student hot path. Code that must see
+ * its own roster write (roster sync, teacher edits) keeps calling
+ * readRosterRows_() directly, and every roster write forgets 'roster'.
+ */
+function readRosterRowsCached_() {
+  return gdMemo_('roster-rows', readRosterRows_);
 }
 
 /* ----------------------------------------------- shared class sessions ---- */
@@ -350,7 +363,7 @@ function assertStudentActionEligible_(student, action) {
 function getStudentPassAccess_(emailValue) {
   const index = gdMemo_('pass-access', () => {
     const modes = {};
-    readRosterRows_().forEach((student) => {
+    readRosterRowsCached_().forEach((student) => {
       const raw = String(student.passAccess || '').trim().toUpperCase();
       const mode = raw || (student.unlimited ? 'UNLIMITED' : 'STANDARD');
       const safeMode = ['STANDARD', 'UNLIMITED', 'ESCORT_ONLY'].includes(mode) ? mode : 'ESCORT_ONLY';
@@ -525,8 +538,9 @@ function getBootstrap(mode, clientContract) {
       'Your school account is signed in, but it is not on this class roster. Try your PIN or ask your teacher.'
     );
   }
-  if (students.length > 1) return createClassSelectionState_(students, 'google', purpose);
-  return getStudentPinPromptState_(students[0], '', 'google', purpose);
+  const current = students.length > 1 ? membershipMeetingNow_(students) : students[0];
+  if (!current) return createClassSelectionState_(students, 'google', purpose);
+  return getStudentPinPromptState_(current, '', 'google', purpose);
 }
 
 function unrecognizedState_(settings, purpose, message) {
@@ -562,18 +576,79 @@ function identifyPin_(pin, purpose, attemptNonce) {
     ? GD_STUDENT_ACTIONS.CHECKIN
     : stabilizeInferredPassAction_(email, attemptNonce, inferPassAction_(email));
 
-  if (students.length > 1) {
+  const chosen = students.length > 1
+    ? (action === GD_STUDENT_ACTIONS.RETURN ? studentForReturn_(students, email) : membershipMeetingNow_(students))
+    : students[0];
+  if (!chosen) {
     const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, '', 'pin', true);
     const actionProof = putStudentActionProof_(email, '', action, 'pin');
     return buildClassSelectionState_(students, token, 'pin', purpose, actionProof, action);
   }
-  assertStudentActionEligible_(students[0], action);
-  const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, students[0].key, 'pin', true);
-  const actionProof = putStudentActionProof_(email, students[0].key, action, 'pin');
+  assertStudentActionEligible_(chosen, action);
+  const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, chosen.key, 'pin', true);
+  const actionProof = putStudentActionProof_(email, chosen.key, action, 'pin');
   const next = purpose === 'checkin'
-    ? getCheckInState_(students[0], token, 'pin')
-    : getStudentState_(students[0], token, 'pin');
+    ? getCheckInState_(chosen, token, 'pin')
+    : getStudentState_(chosen, token, 'pin');
   return attachStudentAction_(next, actionProof, action);
+}
+
+/**
+ * The class a multi-class student is sitting in right now, proven only when
+ * the bell schedule names a current period and exactly one of the student's
+ * active memberships meets in it. Anything else returns null, and the
+ * student chooses their class exactly as before.
+ */
+function membershipMeetingNow_(students) {
+  let period = null;
+  try {
+    period = currentScheduledPeriod_();
+  } catch (error) {
+    return null;
+  }
+  if (!period) return null;
+  const matches = (students || []).filter((student) => periodNumberFromClass_(student.classPeriod) === period);
+  return matches.length === 1 ? matches[0] : null;
+}
+
+/**
+ * One round trip for the common case. The PIN is verified and a one-use
+ * proof issued exactly as before; when the class is known, that proof is
+ * consumed in this same request instead of in a second browser call.
+ *
+ * entry: 'authorize' (fresh PIN on an identified screen), 'identify-pass'
+ * or 'identify-checkin' (first PIN on a blank screen).
+ */
+function authorizeAndActStudent(entry, pin, requestedAction, studentKey, attemptNonce) {
+  let authorized;
+  if (entry === 'identify-pass') authorized = identifyWithPin(pin, attemptNonce);
+  else if (entry === 'identify-checkin') authorized = identifyCheckInWithPin(pin, attemptNonce);
+  else if (entry === 'authorize') authorized = authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce);
+  else throw new Error('Refresh this page before trying that student action.');
+  return completeStudentPinAction_(authorized);
+}
+
+function completeStudentPinAction_(authorized) {
+  if (!authorized || authorized.requiresClassSelection || !authorized.actionProof || !authorized.student) return authorized;
+  const action = authorized.authorizedAction;
+  const proof = authorized.actionProof;
+  const key = authorized.student.key;
+  const token = authorized.pinToken || '';
+  let completed = null;
+  try {
+    if (action === GD_STUDENT_ACTIONS.PASS_REQUEST) completed = requestBathroomPass(proof, key, token);
+    else if (action === GD_STUDENT_ACTIONS.RETURN) completed = returnPass(proof, key, token);
+    else if (action === GD_STUDENT_ACTIONS.CHECKIN) completed = submitDailyCheckIn(proof, key, token);
+    else return authorized;
+  } catch (error) {
+    // A busy lock refuses before the proof is consumed. Hand the unused proof
+    // back so the browser's existing retry loop finishes the same request.
+    if (String(error && error.message ? error.message : error) !== GD_BUSY_LOCK_MESSAGE) throw error;
+    authorized.actionDeferred = true;
+    return authorized;
+  }
+  completed.completedAction = action;
+  return completed;
 }
 
 /**
@@ -602,7 +677,10 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
   }
   if (studentKey && !selected) throw new Error('That class selection is no longer active.');
 
-  if (!selected && students.length > 1 && action !== GD_STUDENT_ACTIONS.RETURN) {
+  const meetingNow = !selected && students.length > 1 && action !== GD_STUDENT_ACTIONS.RETURN
+    ? membershipMeetingNow_(students)
+    : null;
+  if (!selected && !meetingNow && students.length > 1 && action !== GD_STUDENT_ACTIONS.RETURN) {
     const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, '', 'pin', true);
     const actionProof = putStudentActionProof_(email, '', action, 'pin');
     return buildClassSelectionState_(
@@ -615,7 +693,7 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
     );
   }
 
-  const student = selected || studentForReturn_(students, email) || students[0];
+  const student = selected || meetingNow || studentForReturn_(students, email) || students[0];
   assertStudentActionEligible_(student, action);
   const identityMethod = activeEmail && normalizeEmail_(activeEmail) === email ? 'google' : 'pin';
   const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), email, student.key, identityMethod, true);
@@ -710,7 +788,7 @@ function credentialVersionForEmail_(emailValue) {
   if (!email) return '';
   const versions = gdMemo_('credential-versions', () => {
     const byEmail = {};
-    readRosterRows_().forEach((student) => {
+    readRosterRowsCached_().forEach((student) => {
       if (!student.email || !student.pinHash) return;
       if (!byEmail[student.email]) byEmail[student.email] = new Set();
       byEmail[student.email].add(student.pinHash);
@@ -3893,7 +3971,7 @@ function readRosterRows_() {
 
 function getRoster_() {
   return gdMemo_('roster', () => {
-    const active = readRosterRows_().filter((student) => student.active);
+    const active = readRosterRowsCached_().filter((student) => student.active);
     const seen = new Map();
     active.forEach((student) => {
       if (seen.has(student.key)) {
@@ -4950,12 +5028,28 @@ function withLock_(action, waitMs, operationLabel) {
     throw new Error(GD_BUSY_LOCK_MESSAGE);
   }
   try {
-    gdClearMemo_();
+    gdClearVolatileMemo_();
     return action();
   } finally {
-    gdClearMemo_();
+    gdClearVolatileMemo_();
     lock.releaseLock();
   }
+}
+
+/**
+ * Settings, the School Calendar and bell schedules change only through
+ * setup or setSettingValue_, both of which forget their memo. Everything
+ * else (roster, credentials, passes, queue, check-ins) is re-read under the
+ * lock so each decision still sees the committed workbook.
+ */
+const GD_STABLE_MEMOS = ['settings', 'school-calendar', 'bell-schedules'];
+
+function gdClearVolatileMemo_() {
+  const kept = {};
+  GD_STABLE_MEMOS.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(GD_MEMO, key)) kept[key] = GD_MEMO[key];
+  });
+  GD_MEMO = kept;
 }
 
 /**

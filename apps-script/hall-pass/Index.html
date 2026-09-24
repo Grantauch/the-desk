@@ -737,32 +737,24 @@
           const button = event.currentTarget.querySelector('button');
           act(button, async () => {
             try {
-              adoptState(await call(purpose === 'checkin' ? 'identifyCheckInWithPin' : 'identifyWithPin', input.value, getPinAttemptNonce()));
+              adoptState(await call('authorizeAndActStudent', purpose === 'checkin' ? 'identify-checkin' : 'identify-pass', input.value, '', '', getPinAttemptNonce()));
             } catch (error) {
               input.select();
               throw error;
             }
-            if (state.requiresClassSelection) renderClassSelection();
-            else await completeAuthorizedAction();
+            await finishPinResult();
           });
         });
       };
 
-      const completeAuthorizedAction = async () => {
-        const proof = actionProof;
-        const action = authorizedAction;
-        const studentKey = state && state.student ? state.student.key : '';
-        const identityToken = pinToken;
-        if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
-
+      /** Draw the screen that follows a finished student action. */
+      const renderCompletedAction = (action) => {
         if (action === 'CHECKIN') {
-          adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
           renderCheckIn();
           if (sharedDevice()) scheduleHandoff(state.actionOutcome && state.actionOutcome.kind === 'LATE_CHECK_IN_RECORDED' ? 'Late sign-in recorded. This screen clears itself for the next student.' : 'Recorded. This screen clears itself for the next student.', HANDOFF_AFTER_CHECKIN_MS);
           return;
         }
         if (action === 'PASS_REQUEST') {
-          adoptState(await callWithBusyRetry('requestBathroomPass', proof, studentKey, identityToken));
           renderStudent();
           if (sharedDevice()) {
             const outcome = state.actionOutcome || {};
@@ -779,12 +771,36 @@
           return;
         }
         if (action === 'RETURN') {
-          adoptState(await callWithBusyRetry('returnPass', proof, studentKey, identityToken));
           renderStudent();
           if (sharedDevice()) scheduleHandoff('Welcome back. This screen clears itself for the next student.', HANDOFF_AFTER_RETURN_MS);
           return;
         }
         throw new Error('Refresh the page before trying that action.');
+      };
+
+      const completeAuthorizedAction = async () => {
+        const proof = actionProof;
+        const action = authorizedAction;
+        const studentKey = state && state.student ? state.student.key : '';
+        const identityToken = pinToken;
+        if (!proof || !action || !studentKey) throw new Error('Enter your PIN again before continuing.');
+
+        if (action === 'CHECKIN') adoptState(await call('submitDailyCheckIn', proof, studentKey, identityToken));
+        else if (action === 'PASS_REQUEST') adoptState(await callWithBusyRetry('requestBathroomPass', proof, studentKey, identityToken));
+        else if (action === 'RETURN') adoptState(await callWithBusyRetry('returnPass', proof, studentKey, identityToken));
+        else throw new Error('Refresh the page before trying that action.');
+        renderCompletedAction(action);
+      };
+
+      /**
+       * After a PIN: the server usually finished the action in the same trip.
+       * It hands back an unused proof only when the class needs choosing or
+       * the room was busy, and the existing paths finish those.
+       */
+      const finishPinResult = async () => {
+        if (state.requiresClassSelection) renderClassSelection();
+        else if (state.completedAction) renderCompletedAction(state.completedAction);
+        else await completeAuthorizedAction();
       };
 
       const renderActionPin = (requestedAction, message) => {
@@ -814,13 +830,12 @@
           const button = event.currentTarget.querySelector('.primary');
           act(button, async () => {
             try {
-              adoptState(await call('authorizeStudentAction', input.value, requestedAction, studentKey, getPinAttemptNonce()));
+              adoptState(await call('authorizeAndActStudent', 'authorize', input.value, requestedAction, studentKey, getPinAttemptNonce()));
             } catch (error) {
               input.select();
               throw error;
             }
-            if (state.requiresClassSelection) renderClassSelection();
-            else await completeAuthorizedAction();
+            await finishPinResult();
           });
         });
         const cancel = document.querySelector('#cancel-action-pin');

@@ -409,7 +409,7 @@ const contentionContext = {
   },
   Utilities: { formatDate: () => '2026-09-02' },
   Session: { getScriptTimeZone: () => 'America/Detroit' },
-  gdClearMemo_: () => { contentionMemoClears += 1; },
+  gdClearVolatileMemo_: () => { contentionMemoClears += 1; },
 };
 vm.createContext(contentionContext);
 vm.runInContext(`
@@ -672,7 +672,10 @@ assert.match(html, /data-clear-absence/);
 assert.match(html, /daily-pass-limit/);
 assert.match(html, /pass-cooldown-minutes/);
 assert.match(html, /playIfNewPassStarted/);
-assert.match(html, /authorizeStudentAction/);
+assert.match(html, /call\('authorizeAndActStudent', 'authorize'/);
+assert.match(html, /call\('authorizeAndActStudent', purpose === 'checkin' \? 'identify-checkin' : 'identify-pass'/);
+assert.match(functionSource('authorizeAndActStudent'), /authorizeStudentAction\(pin, requestedAction, studentKey, attemptNonce\)/);
+assert.match(functionSource('completeStudentPinAction_'), /GD_BUSY_LOCK_MESSAGE/);
 assert.match(html, /requestBathroomPass/);
 assert.match(html, /completeAuthorizedAction/);
 assert.match(html, /STUDENT_BUSY_RETRY_DELAYS_MS/);
