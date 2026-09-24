@@ -236,6 +236,14 @@ function defaultSettingsRows_() {
   ]);
 }
 
+/** Only Mr. Auch's own copy wears the desk branding; every other copy is plain Hall Pass. */
+const GD_BRANDED_OWNER = 'gauch@mtmorrisschools.org';
+
+function hallPassSiteBranded_() {
+  const owner = workbookOwnerEmail_();
+  return !owner || owner === GD_BRANDED_OWNER;
+}
+
 /** This deployment's own student link, for PIN emails in copies with no site. */
 function webAppUrl_(mode) {
   try {
@@ -555,8 +563,12 @@ function doGet(e) {
   const mode = ['student', 'kiosk', 'teacher', 'checkin'].includes(requestedMode) ? requestedMode : 'student';
   const template = HtmlService.createTemplateFromFile('Index');
   template.appMode = mode;
+  const branded = hallPassSiteBranded_();
+  template.siteBrand = branded ? 'desk' : '';
   return template.evaluate()
-    .setTitle(mode === 'checkin' ? 'GrantDesk Daily Check-in' : 'GrantDesk Hall Pass')
+    .setTitle(mode === 'checkin'
+      ? (branded ? 'GrantDesk Daily Check-in' : 'Daily Check-in')
+      : (branded ? 'GrantDesk Hall Pass' : 'Hall Pass'))
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -4932,7 +4944,7 @@ function previewStudentPinEmails_() {
     example: [
       'Hello Jordan,',
       '',
-      'Here is your private GrantDesk PIN:',
+      `Here is your private ${hallPassSiteBranded_() ? 'GrantDesk' : 'Hall Pass'} PIN:`,
       '123456',
       '',
       `Daily Check-in: ${settings.CHECKIN_URL || webAppUrl_('checkin')}`,
@@ -5112,11 +5124,12 @@ function buildPinEmailGroups_() {
 function buildPinEmailMessage_(group,settings,teacherEmail){
   const firstName=firstNameFromStudentName_(group.name),checkInUrl=settings.CHECKIN_URL||webAppUrl_('checkin')||'https://grant-desk.com/check-in/',
     passUrl=settings.PASS_URL||webAppUrl_('')||'https://grant-desk.com/pass/';
-  const body=[`Hello ${firstName},`,'','Here is your private GrantDesk PIN:',group.pin,'',
+  const pinName=hallPassSiteBranded_()?'GrantDesk':'Hall Pass';
+  const body=[`Hello ${firstName},`,'',`Here is your private ${pinName} PIN:`,group.pin,'',
     `Daily Check-in: ${checkInUrl}`,`Hall Pass: ${passUrl}`,
     'This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.',
     'Keep this PIN private.','','— Your teacher'].join('\n');
-  const htmlBody=[`<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,'<p>Here is your private GrantDesk PIN:</p>',
+  const htmlBody=[`<p>Hello ${escapeHtmlForEmail_(firstName)},</p>`,`<p>Here is your private ${pinName} PIN:</p>`,
     `<p style="font-family:monospace;font-size:24px;font-weight:bold;letter-spacing:.12em">${escapeHtmlForEmail_(group.pin)}</p>`,
     `<p><a href="${escapeHtmlForEmail_(checkInUrl)}">Daily Check-in</a><br><a href="${escapeHtmlForEmail_(passUrl)}">Hall Pass</a></p>`,
     '<p>This one PIN works in all your classes. If you are enrolled in more than one, choose the class you are attending after you enter it.</p>',
@@ -5176,6 +5189,126 @@ function teacherResetStudentPin(studentEmail,reason,clientContract){
   });
   const state=getTeacherState_({includePinStatus:true});
   state.noticeMessage=`${studentName}'s PIN was reset. The new PIN is ready for private delivery and the old PIN no longer works.`;
+  return state;
+}
+
+/* --------------------------------------------- lunch-number PIN switch ---- */
+
+const GD_LUNCH_PIN_CONFIRMATION = 'USE LUNCH NUMBERS';
+
+/**
+ * Read a pasted "school email + 6-digit lunch number" list against the active
+ * roster. Students on the list who are not in this teacher's classes are
+ * counted and ignored, so a schoolwide list can be pasted as-is. Anything
+ * ambiguous is a problem and nothing is written.
+ */
+function planLunchNumberPins_(text) {
+  const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) throw new Error('Paste the list first: a school email and a 6-digit lunch number on each line.');
+  if (lines.length > 5000) throw new Error('Paste at most 5,000 lines at a time.');
+  const problems = [];
+  const numberByEmail = new Map();
+  lines.forEach((line, index) => {
+    // Only the email and the 6-digit number matter, so split on any separator.
+    const cells = line.split(/[\t,;\s]+/).map((cell) => cell.trim().replace(/^"|"$/g, '')).filter(Boolean);
+    const email = normalizeEmail_(cells.find((cell) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cell)) || '');
+    const numbers = cells.filter((cell) => /^\d{6}$/.test(cell));
+    if (!email) {
+      if (index === 0 && /mail|number|id/i.test(line)) return; // header row
+      problems.push(`line ${index + 1}: no email address`);
+      return;
+    }
+    if (numbers.length !== 1) {
+      problems.push(`line ${index + 1}: needs exactly one 6-digit number`);
+      return;
+    }
+    const prior = numberByEmail.get(email);
+    if (prior && prior !== numbers[0]) problems.push(`line ${index + 1}: ${email} is listed twice with different numbers`);
+    numberByEmail.set(email, numbers[0]);
+  });
+
+  const rosterRows = readRosterRows_();
+  const activeEmails = new Set(rosterRows.filter((student) => student.active).map((student) => student.email));
+  const assignments = [...numberByEmail.entries()].filter(([email]) => activeEmails.has(email));
+  const notInClasses = numberByEmail.size - assignments.length;
+
+  const ownerOfNumber = new Map();
+  assignments.forEach(([email, number]) => {
+    const other = ownerOfNumber.get(number);
+    if (other && other !== email) problems.push(`${email} and ${other} have the same number`);
+    ownerOfNumber.set(number, email);
+  });
+  // A student who keeps an old PIN must not share it with someone's new lunch number.
+  const changing = new Set(assignments.map(([email]) => email));
+  const keptHashes = new Map();
+  rosterRows.filter((student) => student.active && !changing.has(student.email) && student.pinHash)
+    .forEach((student) => keptHashes.set(student.pinHash, student.email));
+  assignments.forEach(([email, number]) => {
+    const keeper = keptHashes.get(hashPin_(number));
+    if (keeper) problems.push(`${email}'s number matches the current PIN of ${keeper}, who is not on the list`);
+  });
+
+  return {
+    lines: lines.length,
+    assignments,
+    matched: assignments.length,
+    notInClasses,
+    keepOldPin: [...activeEmails].filter((email) => !changing.has(email)).length,
+    problems,
+  };
+}
+
+/**
+ * Switch students' PINs to their lunch numbers. Call once without the
+ * confirmation phrase to preview the counts; call again with the phrase to
+ * apply. Old PINs and open sessions stop working for every switched student.
+ */
+function teacherSetLunchNumberPins(text, confirmation, clientContract) {
+  const teacher = getActiveEmail_();
+  const settings = getSettings_();
+  assertTeacher_(teacher, settings);
+  assertTeacherClient_(clientContract);
+  const preview = planLunchNumberPins_(text);
+  const summary = (plan) => ({
+    lines: plan.lines, matched: plan.matched, notInClasses: plan.notInClasses,
+    keepOldPin: plan.keepOldPin, problems: plan.problems.slice(0, 8), problemCount: plan.problems.length,
+  });
+  if (String(confirmation || '') !== GD_LUNCH_PIN_CONFIRMATION) {
+    return { ok: true, applied: false, preview: summary(preview) };
+  }
+  if (preview.problems.length) throw new Error(`Nothing was changed. Fix the list first — ${preview.problems.slice(0, 3).join('; ')}`);
+  if (!preview.matched) throw new Error('Nothing was changed. None of the students on the list are in your classes.');
+
+  let applied = null;
+  withLock_(() => {
+    assertPinEmailBatchIdle_();
+    const plan = planLunchNumberPins_(text);
+    if (plan.problems.length) throw new Error(`Nothing was changed. ${plan.problems[0]}`);
+    const numberByEmail = new Map(plan.assignments);
+    const rosterSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+    const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+    const rows = readRosterRows_().filter((student) => numberByEmail.has(student.email));
+    rows.forEach((student) => rosterSheet.getRange(student.row, 4).setValue(hashPin_(numberByEmail.get(student.email))));
+    const cardsByKey = new Map(readPinCards_().map((card) => [card.studentKey, card]));
+    const detail = 'PIN is the student lunch number; the student already knows it';
+    const appended = [];
+    rows.filter((student) => student.active).forEach((student) => {
+      const number = numberByEmail.get(student.email);
+      const card = cardsByKey.get(student.key);
+      if (card) pinSheet.getRange(card.row, 4, 1, 5).setValues([[number, new Date(), 'SENT', '', detail]]);
+      else appended.push([student.email, student.name, student.classPeriod, number, new Date(), 'SENT', '', detail]);
+    });
+    if (appended.length) {
+      pinSheet.getRange(pinSheet.getLastRow() + 1, 1, appended.length, appended[0].length).setValues(appended);
+    }
+    gdClearMemo_();
+    auditTeacherAction_(teacher, { email: '', name: 'Student PINs', classPeriod: 'All classes' }, 'PINS_SET_TO_LUNCH_NUMBERS', [],
+      `${plan.matched} students switched; ${plan.notInClasses} list rows not in these classes`, '');
+    applied = summary(plan);
+  }, 30000, 'lunch-number PINs');
+  const state = getTeacherState_({ includePinStatus: true });
+  state.noticeMessage = `${applied.matched} student${applied.matched === 1 ? '' : 's'} now use their lunch number as their PIN. Their old PINs no longer work.`
+    + (applied.keepOldPin ? ` ${applied.keepOldPin} student${applied.keepOldPin === 1 ? ' was' : 's were'} not on the list and kept their current PIN.` : '');
   return state;
 }
 

@@ -3312,5 +3312,85 @@ test('recent and full reads agree on everything a student sees', () => {
   assert.equal(recent.cooldownActive, true);
 });
 
+section('Lunch-number PINs and copy branding');
+
+const lunchList = (rows) => ['Student Email\tLunch Number', ...rows.map(([person, number]) => `${person.email}\t${number}`)].join('\n');
+const setLunch = (c, text, confirmation = '') => {
+  c.harness.newRequest();
+  c.harness.signInAs(TEACHER);
+  return c.harness.call('teacherSetLunchNumberPins', text, confirmation, TEACHER_CONTRACT);
+};
+const signOutWith = (c, person, pin) => {
+  c.harness.newRequest();
+  c.harness.signInAs(person.email);
+  return c.harness.call('authorizeAndActStudent', 'authorize', pin, 'AUTO_PASS', '', `n-${Math.random()}`);
+};
+
+test('preview counts matches and outsiders without changing anything', () => {
+  const c = classroom();
+  const before = c.rosterRows().map((row) => row['PIN Hash']).join();
+  const text = lunchList([[PEOPLE.ada, '412345'], [PEOPLE.alan, '412346'], [{ email: 'other.kid@students.mtmorrisschools.org' }, '412347']]);
+  const result = setLunch(c, text);
+  assert.equal(result.applied, false);
+  assert.equal(result.preview.matched, 2);
+  assert.equal(result.preview.notInClasses, 1);
+  assert.equal(result.preview.keepOldPin, 1);
+  assert.equal(result.preview.problemCount, 0);
+  assert.equal(c.rosterRows().map((row) => row['PIN Hash']).join(), before);
+});
+
+test('applying switches PINs: the lunch number works and the old PIN does not', () => {
+  const c = classroom();
+  const oldPin = c.pin(PEOPLE.ada);
+  const state = setLunch(c, lunchList([[PEOPLE.ada, '412345'], [PEOPLE.alan, '412346']]), 'USE LUNCH NUMBERS');
+  assert.match(state.noticeMessage, /2 students now use their lunch number/);
+  assert.throws(() => signOutWith(c, PEOPLE.ada, oldPin), /did not match/);
+  assert.equal(signOutWith(c, PEOPLE.ada, '412345').actionOutcome.kind, 'STARTED');
+  const card = c.pinCards().find((row) => row['Student Email'] === PEOPLE.ada.email);
+  assert.equal(String(card.PIN), '412345');
+  assert.equal(card['Email Status'], 'SENT', 'lunch numbers must not queue PIN emails');
+});
+
+test('a student not on the list keeps their current PIN', () => {
+  const c = classroom();
+  const gracePin = c.pin(PEOPLE.grace);
+  setLunch(c, lunchList([[PEOPLE.ada, '412345']]), 'USE LUNCH NUMBERS');
+  assert.equal(signOutWith(c, PEOPLE.grace, gracePin).actionOutcome.kind, 'STARTED');
+});
+
+test('two students with the same number stop the switch with nothing changed', () => {
+  const c = classroom();
+  const before = c.rosterRows().map((row) => row['PIN Hash']).join();
+  const text = lunchList([[PEOPLE.ada, '412345'], [PEOPLE.alan, '412345']]);
+  assert.equal(setLunch(c, text).preview.problemCount, 1);
+  assert.throws(() => setLunch(c, text, 'USE LUNCH NUMBERS'), /Nothing was changed/);
+  assert.equal(c.rosterRows().map((row) => row['PIN Hash']).join(), before);
+});
+
+test('a bad line or a number that is not 6 digits stops the switch', () => {
+  const c = classroom();
+  assert.throws(() => setLunch(c, lunchList([[PEOPLE.ada, '41234']]), 'USE LUNCH NUMBERS'), /Nothing was changed/);
+  assert.throws(() => setLunch(c, `${PEOPLE.ada.email}\t412345\nno email here 412346`, 'USE LUNCH NUMBERS'), /Nothing was changed/);
+});
+
+test('a lunch number equal to a kept PIN is refused', () => {
+  const c = classroom();
+  const gracePin = c.pin(PEOPLE.grace);
+  assert.throws(() => setLunch(c, lunchList([[PEOPLE.ada, gracePin]]), 'USE LUNCH NUMBERS'), /matches the current PIN/);
+});
+
+test('only the teacher can switch PINs', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  c.harness.signInAs(PEOPLE.ada.email);
+  assert.throws(() => c.harness.call('teacherSetLunchNumberPins', lunchList([[PEOPLE.ada, '412345']]), 'USE LUNCH NUMBERS', TEACHER_CONTRACT), /limited to the teacher/);
+});
+
+test("only Mr. Auch's copy carries the desk branding", () => {
+  assert.equal(classroom().harness.call('hallPassSiteBranded_'), true);
+  assert.equal(classroom({ activeEmail: 'j.doe@mtmorrisschools.org' }).harness.call('hallPassSiteBranded_'), false);
+  assert.equal(classroom({ activeEmail: 'ms.rivera@lakeview.example.org' }).harness.call('hallPassSiteBranded_'), false);
+});
+
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();
