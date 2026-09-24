@@ -3611,5 +3611,97 @@ test('Mr. Auch’s own copy keeps its site links', () => {
   assert.match(c.harness.call('getSettings_').PASS_URL, /grant-desk\.com/);
 });
 
+
+section('Reduced days with their own bell schedule');
+
+// The fixture clock is Thursday 2026-09-10 at 7:50 AM in Detroit.
+const REDUCED_TODAY = '2026-09-10';
+const reducedBells = () => [
+  { period: 1, start: '08:00', end: '08:40' },
+  { period: 2, start: '08:45', end: '09:25' },
+];
+const scheduleToday = (c) => {
+  c.harness.newRequest();
+  return c.harness.call('getSchoolDaySchedule_').scheduleKey;
+};
+const calendarRow = (c, key) => c.harness.sheet('School Calendar').records().find((row) => String(row.Date) === key);
+
+test('a teacher at another school enters reduced bells and dates, and passes follow them', () => {
+  const c = classroom({ activeEmail: RIVERA, memberships: [[LAKEVIEW_STUDENT, 'Period 1']] });
+  const state = asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: reducedBells(), reducedDates: `${REDUCED_TODAY}\n2026-10-14` }));
+  assert.equal(JSON.stringify(state.classroomSetup.reducedDates), JSON.stringify([REDUCED_TODAY, '2026-10-14']));
+  assert.equal(state.classroomSetup.reducedPeriods.find((p) => p.period === 1).start, '08:00');
+  assert.equal(scheduleToday(c), 'REDUCED');
+  // 7:50 is inside the normal Period 1 window but before reduced Period 1 starts.
+  assert.throws(() => c.requestPass(LAKEVIEW_STUDENT, 'Period 1'), /closed/);
+  c.harness.clock.advanceSeconds(20 * 60); // 8:10, ten minutes into reduced Period 1
+  assert.equal(c.requestPass(LAKEVIEW_STUDENT, 'Period 1').state.actionOutcome.kind, 'STARTED');
+});
+
+test('removing a reduced day puts that day back on the normal schedule', () => {
+  const c = classroom({ activeEmail: RIVERA });
+  asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: reducedBells(), reducedDates: [REDUCED_TODAY] }));
+  assert.equal(scheduleToday(c), 'REDUCED');
+  asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: reducedBells(), reducedDates: [] }));
+  assert.equal(scheduleToday(c), 'NORMAL');
+  assert.equal(calendarRow(c, REDUCED_TODAY), undefined);
+});
+
+test('reduced-day mistakes are explained and nothing is saved', () => {
+  const c = classroom({ activeEmail: RIVERA });
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: [], reducedDates: [REDUCED_TODAY] })), /reduced-day bell times/);
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: reducedBells(), reducedDates: ['2026-11-26'] })), /both a no-school day and a reduced day/);
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: [{ period: 1, start: '09:00', end: '08:00' }], reducedDates: [REDUCED_TODAY] })), /Reduced day, Period 1/);
+  assert.throws(() => asTeacher(c, RIVERA, 'teacherSaveClassroomSetup', lakeviewSetup({ reducedPeriods: reducedBells(), reducedDates: 'soon' })), /not a date/);
+  assert.equal(bellRows(c), 0);
+});
+
+test('Mt. Morris copies show their built-in reduced schedule and dates', () => {
+  const c = classroom();
+  const setup = asTeacher(c, TEACHER, 'teacherGetClassroomSetup');
+  assert.ok(setup.reducedPeriods.some((p) => p.start), 'the district reduced bells are shown');
+  assert.ok(setup.reducedDates.includes('2026-10-14'), 'the district reduced days are shown');
+});
+
+test('saving setup without reduced-day answers leaves the reduced schedule alone', () => {
+  const c = classroom();
+  const before = JSON.stringify(asTeacher(c, TEACHER, 'teacherGetClassroomSetup').reducedPeriods);
+  const official = calendarRow(c, '2026-10-14');
+  asTeacher(c, TEACHER, 'teacherSaveClassroomSetup', lakeviewSetup({ studentEmailDomain: 'students.mtmorrisschools.org' }));
+  const after = asTeacher(c, TEACHER, 'teacherGetClassroomSetup');
+  assert.equal(JSON.stringify(after.reducedPeriods), before);
+  assert.ok(after.reducedDates.includes('2026-10-14'));
+  assert.equal(JSON.stringify(calendarRow(c, '2026-10-14')), JSON.stringify(official));
+});
+
+test('taking an official reduced day off the list keeps the calendar row and uses normal bells', () => {
+  const c = classroom();
+  const setup = asTeacher(c, TEACHER, 'teacherGetClassroomSetup');
+  const dates = setup.reducedDates.filter((key) => key !== '2026-10-14');
+  asTeacher(c, TEACHER, 'teacherSaveClassroomSetup', lakeviewSetup({ studentEmailDomain: 'students.mtmorrisschools.org', reducedPeriods: setup.reducedPeriods, reducedDates: dates }));
+  const row = calendarRow(c, '2026-10-14');
+  assert.ok(row, 'the official calendar row stays');
+  assert.equal(String(row['Schedule Key']), 'NORMAL');
+});
+
+test('an official no-school day cannot be made a reduced day', () => {
+  const c = classroom();
+  const setup = asTeacher(c, TEACHER, 'teacherGetClassroomSetup');
+  assert.throws(() => asTeacher(c, TEACHER, 'teacherSaveClassroomSetup', lakeviewSetup({
+    studentEmailDomain: 'students.mtmorrisschools.org', noSchoolDates: [], reducedPeriods: setup.reducedPeriods, reducedDates: ['2026-12-25'],
+  })), /no-school day on your school calendar/);
+});
+
+test('the setup window saves reduced days too', () => {
+  const h = freshCopy();
+  h.newRequest(); h.signInAs(RIVERA); h.call('setupWizardLoad');
+  h.newRequest();
+  const state = h.call('setupWizardSave', riveraAnswers({ reducedPeriods: reducedBells(), reducedDates: REDUCED_TODAY }));
+  assert.equal(JSON.stringify(state.reducedDates), JSON.stringify([REDUCED_TODAY]));
+  assert.equal(state.reducedPeriods.find((p) => p.period === 2).end, '09:25');
+  h.newRequest();
+  assert.equal(h.call('getSchoolDaySchedule_').scheduleKey, 'REDUCED');
+});
+
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();

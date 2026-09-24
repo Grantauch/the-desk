@@ -3279,21 +3279,34 @@ function clockFromMinutes_(minutes) {
   return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 }
 
-/** What a teacher needs to see to finish or adjust their classroom setup. */
-function classroomSetupView_(settings) {
-  const normal = (getBellScheduleIndex_().NORMAL || { periods: {} }).periods;
-  const periods = [];
+const GD_REDUCED_LABEL = 'Reduced day';
+
+/** Periods 1–8 of one bell profile, blank where the profile has no bell. */
+function bellProfileRows_(key) {
+  const profile = (getBellScheduleIndex_()[key] || { periods: {} }).periods;
+  const rows = [];
   for (let period = 1; period <= GD_MAX_PERIOD; period += 1) {
-    const entry = normal[period];
-    periods.push({
+    const entry = profile[period];
+    rows.push({
       period,
       start: entry ? clockFromMinutes_(entry.start) : '',
       end: entry ? clockFromMinutes_(entry.end) : '',
     });
   }
+  return rows;
+}
+
+/** What a teacher needs to see to finish or adjust their classroom setup. */
+function classroomSetupView_(settings) {
+  const normal = (getBellScheduleIndex_().NORMAL || { periods: {} }).periods;
+  const periods = bellProfileRows_('NORMAL');
   const calendar = getSchoolCalendarIndex_();
   return {
     periods,
+    reducedPeriods: bellProfileRows_('REDUCED'),
+    reducedDates: Object.keys(calendar.schedules || {})
+      .filter((key) => calendar.schedules[key] === 'REDUCED' && calendar.overrides[key] !== false)
+      .sort(),
     bellsReady: Object.keys(normal).length > 0,
     studentEmailDomain: String(settings.STUDENT_EMAIL_DOMAIN || ''),
     yearStart: String(settings.SCHOOL_YEAR_START || ''),
@@ -3313,10 +3326,10 @@ function teacherGetClassroomSetup(clientContract) {
   return classroomSetupView_(settings);
 }
 
-function normalizeClassroomSetup_(setup) {
-  if (!setup || typeof setup !== 'object') throw new Error('Nothing was saved. Fill in the setup form and try again.');
+/** Checked bell times for one profile. `label` prefixes messages, e.g. "Reduced day, ". */
+function normalizeBellPeriods_(list, label) {
   const periods = [];
-  (Array.isArray(setup.periods) ? setup.periods : []).forEach((row) => {
+  (Array.isArray(list) ? list : []).forEach((row) => {
     const period = Number(row && row.period);
     const startText = String(row && row.start || '').trim();
     const endText = String(row && row.end || '').trim();
@@ -3324,17 +3337,42 @@ function normalizeClassroomSetup_(setup) {
     if (!Number.isInteger(period) || period < 1 || period > GD_MAX_PERIOD) throw new Error('Only Periods 1 through 8 can be scheduled.');
     const start = bellMinutes_(startText);
     const end = bellMinutes_(endText);
-    if (start === null || end === null) throw new Error(`Period ${period}: enter both a start and an end time.`);
-    if (start >= end) throw new Error(`Period ${period}: the end time must be after the start time.`);
+    if (start === null || end === null) throw new Error(`${label}Period ${period}: enter both a start and an end time.`);
+    if (start >= end) throw new Error(`${label}Period ${period}: the end time must be after the start time.`);
     periods.push({ period, start, end });
   });
-  if (!periods.length) throw new Error('Enter the start and end time for at least one class period.');
   const ordered = periods.slice().sort((a, b) => a.start - b.start);
   ordered.forEach((entry, index) => {
     if (index && entry.start < ordered[index - 1].end) {
-      throw new Error(`Period ${ordered[index - 1].period} and Period ${entry.period} overlap. Check those times.`);
+      throw new Error(`${label}Period ${ordered[index - 1].period} and Period ${entry.period} overlap. Check those times.`);
     }
   });
+  return periods;
+}
+
+/** A list of YYYY-MM-DD dates from an array or a pasted block of text. */
+function normalizeSetupDates_(value, what) {
+  const dates = [...new Set((Array.isArray(value) ? value : String(value || '').split(/[\s,]+/))
+    .map((entry) => String(entry || '').trim())
+    .filter(Boolean))];
+  const bad = dates.find((entry) => !/^\d{4}-\d{2}-\d{2}$/.test(entry));
+  if (bad) throw new Error(`"${bad}" is not a date. Use the calendar picker for ${what}.`);
+  if (dates.length > 200) throw new Error(`Enter at most 200 ${what}.`);
+  return dates.sort();
+}
+
+function normalizeClassroomSetup_(setup) {
+  if (!setup || typeof setup !== 'object') throw new Error('Nothing was saved. Fill in the setup form and try again.');
+  const periods = normalizeBellPeriods_(setup.periods, '');
+  if (!periods.length) throw new Error('Enter the start and end time for at least one class period.');
+  // Reduced-day fields are optional: a caller that leaves them out changes nothing about reduced days.
+  const reducedPeriods = Array.isArray(setup.reducedPeriods) ? normalizeBellPeriods_(setup.reducedPeriods, 'Reduced day, ') : null;
+  const reducedDates = setup.reducedDates === undefined || setup.reducedDates === null
+    ? null
+    : normalizeSetupDates_(setup.reducedDates, 'reduced days');
+  if (reducedDates && reducedDates.length && reducedPeriods && !reducedPeriods.length) {
+    throw new Error('Enter the reduced-day bell times, or remove the reduced-day dates.');
+  }
 
   const studentEmailDomain = String(setup.studentEmailDomain || '').trim().toLowerCase().replace(/^@/, '');
   if (studentEmailDomain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(studentEmailDomain)) {
@@ -3345,13 +3383,10 @@ function normalizeClassroomSetup_(setup) {
   const yearEnd = String(setup.yearEnd || '').trim();
   if ((yearStart && !dateOk(yearStart)) || (yearEnd && !dateOk(yearEnd))) throw new Error('Enter the first and last day of school as dates.');
   if (yearStart && yearEnd && yearStart > yearEnd) throw new Error('The first day of school must come before the last day.');
-  const noSchoolDates = [...new Set((Array.isArray(setup.noSchoolDates) ? setup.noSchoolDates : String(setup.noSchoolDates || '').split(/[\s,]+/))
-    .map((value) => String(value || '').trim())
-    .filter(Boolean))];
-  const badDate = noSchoolDates.find((value) => !dateOk(value));
-  if (badDate) throw new Error(`"${badDate}" is not a date. Use the calendar picker for no-school days.`);
-  if (noSchoolDates.length > 200) throw new Error('Enter at most 200 no-school days.');
-  return { periods, studentEmailDomain, yearStart, yearEnd, noSchoolDates: noSchoolDates.sort() };
+  const noSchoolDates = normalizeSetupDates_(setup.noSchoolDates, 'no-school days');
+  const both = reducedDates ? reducedDates.find((key) => noSchoolDates.includes(key)) : null;
+  if (both) throw new Error(`${both} is listed as both a no-school day and a reduced day. Keep it in one list.`);
+  return { periods, reducedPeriods, reducedDates, studentEmailDomain, yearStart, yearEnd, noSchoolDates };
 }
 
 /**
@@ -3382,10 +3417,17 @@ function saveClassroomSetup_(teacher, clean) {
         if (String(keys[index][0] || '').trim().toUpperCase() === 'NORMAL') bells.deleteRow(index + 2);
       }
     }
-    const bellRows = clean.periods
+    if (clean.reducedPeriods) {
+      const keys = bells.getLastRow() > 1 ? bells.getRange(2, 1, bells.getLastRow() - 1, 1).getValues() : [];
+      for (let index = keys.length - 1; index >= 0; index -= 1) {
+        if (String(keys[index][0] || '').trim().toUpperCase() === 'REDUCED') bells.deleteRow(index + 2);
+      }
+    }
+    const profileRows = (key, list) => list
       .slice()
       .sort((a, b) => a.period - b.period)
-      .map((entry) => ['NORMAL', entry.period, clockFromMinutes_(entry.start), clockFromMinutes_(entry.end), GD_SETUP_SOURCE, new Date().toISOString()]);
+      .map((entry) => [key, entry.period, clockFromMinutes_(entry.start), clockFromMinutes_(entry.end), GD_SETUP_SOURCE, new Date().toISOString()]);
+    const bellRows = profileRows('NORMAL', clean.periods).concat(clean.reducedPeriods ? profileRows('REDUCED', clean.reducedPeriods) : []);
     const firstRow = bells.getLastRow() + 1;
     bells.getRange(firstRow, 3, bellRows.length, 2).setNumberFormat('@');
     bells.getRange(firstRow, 1, bellRows.length, GD_HEADERS.BELLS.length).setValues(bellRows);
@@ -3393,21 +3435,43 @@ function saveClassroomSetup_(teacher, clean) {
 
     const calendar = spreadsheet.getSheetByName(GD_SHEETS.CALENDAR);
     const wanted = new Set(clean.noSchoolDates);
+    const wantedReduced = new Set(clean.reducedDates || []);
     const present = new Set();
-    if (calendar.getLastRow() > 1) {
-      const rows = calendar.getRange(2, 1, calendar.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues();
-      for (let index = rows.length - 1; index >= 0; index -= 1) {
-        const key = normalizeDateKey_(rows[index][0]);
-        present.add(key);
-        if (String(rows[index][3] || '') === GD_SETUP_SOURCE && !wanted.has(key)) {
-          calendar.deleteRow(index + 2);
-          present.delete(key);
-        }
+    const rows = calendar.getLastRow() > 1 ? calendar.getRange(2, 1, calendar.getLastRow() - 1, GD_HEADERS.CALENDAR.length).getValues() : [];
+    // Nothing is written if a reduced day falls on a closure that this screen does not manage.
+    rows.forEach((row) => {
+      const key = normalizeDateKey_(row[0]);
+      const teacherMade = String(row[3] || '') === GD_SETUP_SOURCE;
+      if (wantedReduced.has(key) && !isTruthyCell_(row[1], false) && !(teacherMade && !wanted.has(key))) {
+        throw new Error(`${key} is a no-school day on your school calendar, so it cannot be a reduced day.`);
+      }
+    });
+    for (let index = rows.length - 1; index >= 0; index -= 1) {
+      const row = rows[index];
+      const key = normalizeDateKey_(row[0]);
+      const teacherMade = String(row[3] || '') === GD_SETUP_SOURCE;
+      const schoolDay = isTruthyCell_(row[1], false);
+      const scheduleKey = String(row[5] || '').trim().toUpperCase();
+      present.add(key);
+      const staleNoSchool = teacherMade && !schoolDay && !wanted.has(key);
+      const staleReduced = clean.reducedDates && teacherMade && schoolDay && scheduleKey === 'REDUCED' && !wantedReduced.has(key);
+      if (staleNoSchool || staleReduced) {
+        calendar.deleteRow(index + 2);
+        present.delete(key);
+        continue;
+      }
+      if (clean.reducedDates && schoolDay) {
+        // Official calendar rows stay; only which bell schedule they use changes.
+        if (wantedReduced.has(key) && scheduleKey !== 'REDUCED') calendar.getRange(index + 2, 6).setValue('REDUCED');
+        if (!wantedReduced.has(key) && scheduleKey === 'REDUCED') calendar.getRange(index + 2, 6).setValue('NORMAL');
       }
     }
     const added = clean.noSchoolDates
       .filter((key) => !present.has(key))
-      .map((key) => [key, false, 'No school', GD_SETUP_SOURCE, new Date().toISOString(), '']);
+      .map((key) => [key, false, 'No school', GD_SETUP_SOURCE, new Date().toISOString(), ''])
+      .concat((clean.reducedDates || [])
+        .filter((key) => !present.has(key))
+        .map((key) => [key, true, GD_REDUCED_LABEL, GD_SETUP_SOURCE, new Date().toISOString(), 'REDUCED']));
     if (added.length) {
       const start = calendar.getLastRow() + 1;
       calendar.getRange(start, 1, added.length, 1).setNumberFormat('@');
@@ -3426,7 +3490,7 @@ function saveClassroomSetup_(teacher, clean) {
       setSettingValue_('SCHOOL_DOMAIN', '');
     }
     auditTeacherAction_(teacher, { email: '', name: 'Classroom setup', classPeriod: 'All classes' }, 'CLASSROOM_SETUP_SAVED', [],
-      `${clean.periods.length} periods; ${clean.noSchoolDates.length} no-school days; students @${clean.studentEmailDomain || 'any'}`, '');
+      `${clean.periods.length} periods; ${clean.noSchoolDates.length} no-school days; ${clean.reducedDates ? `${clean.reducedDates.length} reduced days; ` : ''}students @${clean.studentEmailDomain || 'any'}`, '');
   }, 30000, 'classroom setup');
 }
 

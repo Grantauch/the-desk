@@ -80,6 +80,8 @@ function setupWizardState_() {
     maxActivePasses: numberSetting_(settings, 'MAX_ACTIVE_PASSES', 1),
     studentEmailDomain: classroom.studentEmailDomain,
     periods: classroom.periods,
+    reducedPeriods: classroom.reducedPeriods,
+    reducedDates: classroom.reducedDates,
     bellsReady: classroom.bellsReady,
     yearStart: classroom.yearStart,
     yearEnd: classroom.yearEnd,
@@ -141,6 +143,8 @@ function setupWizardSave(answers) {
     studentEmailDomain: answers && answers.studentEmailDomain,
     yearStart: answers && answers.yearStart,
     yearEnd: answers && answers.yearEnd,
+    reducedPeriods: answers && answers.reducedPeriods,
+    reducedDates: answers && answers.reducedDates,
     noSchoolDates: classroomSetupView_(getSettings_()).noSchoolDates,
   });
   if (!classroom.studentEmailDomain) {
