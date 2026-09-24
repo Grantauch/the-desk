@@ -18,9 +18,33 @@ export interface StoryHub {
   inside: string[];
   /** Set for the Special Edition line, e.g. 'special edition no. 1'. The card gets its own look. */
   edition?: string;
+  /** Set for the ByteSize line, short hubs that cover two presidents each, e.g. 'bytesize no. 1'. */
+  bytesize?: string;
 }
 
 export const storyHubs: StoryHub[] = [
+  {
+    slug: 'ush9-bytesize-grant-hayes',
+    href: '/hubs/ush9-bytesize-grant-hayes.html',
+    title: 'the general and his fraudulency',
+    course: 'us history 9',
+    unit: 'bytesize / presidents 18 and 19',
+    period: '1869–1881',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 1',
+    question: 'one president got pulled over for speeding. the next one lost the popular vote and won anyway. what did grant and hayes change?',
+    blurb:
+      'Ulysses S. Grant and Rutherford B. Hayes in seven short bytes: a colt deal gone wrong, ten thousand cigars, the Klan, a traffic stop at 13th and M, and the 1876 election deal that ended Reconstruction.',
+    cover: '/storyhub/ush9/bytesize-grant-hayes/assets/b00-cover.jpg',
+    coverAlt: 'Colorized portraits of Ulysses S. Grant and Rutherford B. Hayes side by side',
+    topics: ['ulysses s. grant', 'rutherford b. hayes', 'election of 1876', 'compromise of 1877', 'ku klux klan act', 'presidents'],
+    inside: [
+      'Two trading cards to flip, then seven bytes from a colt deal around 1830 to Grant finishing his memoirs three days before he died.',
+      'Make eight year old Ulysses\'s colt deal, run the cigar math and decide what Officer West should do with a speeding president.',
+      'Count the twenty disputed votes of 1876 yourself, then send them to the commission.',
+      'Eight real or fake calls, three short questions and the back of a trading card. Answers save in the browser and copy into Classroom.',
+    ],
+  },
   {
     slug: 'hh-shines-in-the-dark',
     href: '/hubs/hh-shines-in-the-dark.html',

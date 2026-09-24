@@ -31,7 +31,7 @@ import { storyHubs } from '../data/storyhubs';
   <div class="mt-8 space-y-8">
     {
       storyHubs.map((hub) => (
-        <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition }]}>
+        <article class:list={['pop rounded-md bg-white overflow-hidden storyhub-card', { 'storyhub-card--special': hub.edition, 'storyhub-card--bytesize': hub.bytesize }]}>
           <a class="storyhub-card__cover" href={hub.href}>
             <img src={hub.cover} alt={hub.coverAlt} loading="lazy" decoding="async" width="1600" height="900" />
           </a>
@@ -43,6 +43,7 @@ import { storyHubs } from '../data/storyhubs';
               <span class="text-xs font-mono lowercase text-ink-soft">· {hub.period}</span>
               <span class="storyhub-card__status">{hub.status}</span>
               {hub.edition && <span class="storyhub-card__edition">{hub.edition}</span>}
+              {hub.bytesize && <span class="storyhub-card__bytesize">{hub.bytesize}</span>}
             </div>
 
             <h2 class="mt-2 font-display text-3xl font-bold lowercase leading-none">
@@ -250,6 +251,38 @@ import { storyHubs } from '../data/storyhubs';
   .storyhub-card__edition {
     background: #ffdd3c;
     color: #16110f;
+    padding: 0.15rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+
+  /* ByteSize line: short two-president hubs. Cream card with a bite out of the corner. */
+  .storyhub-card--bytesize {
+    position: relative;
+    background: #fbf4e2;
+    box-shadow: 6px 6px 0 #b3341d;
+  }
+
+  .storyhub-card--bytesize::after {
+    content: '';
+    position: absolute;
+    top: -22px;
+    right: -22px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--color-paper, #fff);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .storyhub-card__bytesize {
+    background: #231c17;
+    color: #f4ead2;
     padding: 0.15rem 0.55rem;
     font-family: var(--font-mono);
     font-size: 0.62rem;
