@@ -37,9 +37,10 @@ function classroom(options = {}) {
     settings = {},
     now = DEFAULT_NOW,
     activeEmail = TEACHER,
+    template = false,
   } = options;
 
-  const h = createHarness({ activeEmail, now });
+  const h = createHarness({ activeEmail, now, template });
   h.call('ensureWorkbookReady_');
 
   const roster = h.sheet('Roster');

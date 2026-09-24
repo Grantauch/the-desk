@@ -7,32 +7,24 @@ const templateCopyUrl = 'https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWa
 
 const steps = [
   {
-    title: 'make your own copy.',
-    body: 'Open the template while signed in to your school Google account and choose Make a copy. It includes the Hall Pass program and none of anyone else’s students. Your copy, and every pass in it, belongs to you.',
-    link: { label: 'copy the hall pass template ↗', href: templateCopyUrl },
+    title: 'get your copy.',
+    body: 'Sign in to your school Google account, click the button, then click Make a copy. Your copy has none of anyone else’s students, and it belongs to you.',
+    link: { label: 'get my hall pass ↗', href: templateCopyUrl },
   },
   {
-    title: 'turn it on.',
-    body: 'In your copy, open Extensions → Apps Script. Click the blue Deploy button → New deployment. Click the gear next to “Select type” and choose Web app. Set Execute as to Me and Who has access to Anyone within your school district, then click Deploy. Google asks you to authorize: choose your school account and click Allow. If it says the app isn’t verified, choose Advanced → Go to Hall Pass — it is your own copy. Copy the Web app link it shows you; it ends in /exec.',
+    title: 'answer a few questions.',
+    body: 'In your copy, click Hall Pass in the menu bar (next to Help), then ▶ Start setup. The first time, Google asks permission: Continue → your account → Allow. If it says the app isn’t verified, choose Advanced → Go to Hall Pass; it is your own copy. Click ▶ Start setup again. It asks your name, your student email ending, and your bell times.',
   },
   {
-    title: 'set up your classroom.',
-    body: 'Open your link with ?mode=teacher added to the end. The teacher view walks you through two steps: add bell times (a normal day’s start and end for each period, your first and last day, and no-school days), then add students by pasting name and email columns from Google Classroom or any spreadsheet. Each new student gets a PIN automatically.',
-  },
-  {
-    title: 'give students the pass.',
-    body: 'Own Chromebooks: post your link in Google Classroom. One station by the door: open your link with ?mode=kiosk added to the end on that computer and leave it open. You can use both. Students in two of your classes are sent to the class meeting right now; they only pick a class when the bell schedule can’t tell.',
-  },
-  {
-    title: 'hand out PINs.',
-    body: 'Print the PIN Cards tab in your spreadsheet, or use Settings → PIN delivery in the teacher view to email each student their own PIN from your school account. Nobody sees anyone else’s PIN.',
+    title: 'turn it on and share.',
+    body: 'The setup window walks you through Google’s six-click switch, then gives you your student link with a Post it in Google Classroom button, a link for a computer by your door, and your teacher page. Add students there, or let GoClassroom bring them over from Google Classroom, then print PIN cards.',
   },
 ];
 ---
 
-<Base title="hall pass setup" description="Set up your own Hall Pass: copy, turn it on, add bells and students.">
+<Base title="hall pass setup" description="Set up your own Hall Pass: get a copy, answer a few questions, share your link.">
   <div class="setup-page">
-    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">for teachers // about fifteen minutes</p>
+    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">for teachers // about ten minutes</p>
     <h1 class="mt-3 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
       set up your hall pass<span class="text-accent">.</span>
     </h1>
@@ -55,7 +47,7 @@ const steps = [
 
     <aside class="setup-note mt-6">
       <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">using GoClassroom?</h2>
-      <p>GoClassroom can read your Google Classroom rosters for you. On its Rosters page, paste your Hall Pass link and your student email ending into “Which Hall Pass should your rosters go to?”, then map each class to its period. It only ever adds students and fixes names, and only after you confirm.</p>
+      <p>GoClassroom can bring your Google Classroom students over for you. Open Rosters &amp; Hall Pass, paste the student link from the setup window, then match each class to its period. It only ever adds students and fixes names, and only after you confirm.</p>
     </aside>
 
     <aside class="setup-note mt-4">

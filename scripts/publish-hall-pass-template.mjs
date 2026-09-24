@@ -7,11 +7,15 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const SOURCE_DIR = path.join(process.cwd(), 'apps-script', 'hall-pass');
+const TEMPLATE_DIR = path.join(process.cwd(), 'apps-script', 'hall-pass-template');
+// The template also carries the guided first-run setup, which production never gets.
 const SOURCE_FILES = [
   { disk: 'Code.gs', name: 'Code', type: 'SERVER_JS' },
   { disk: 'Index.html', name: 'Index', type: 'HTML' },
   { disk: 'ReleaseChecks.gs', name: 'ReleaseChecks', type: 'SERVER_JS' },
   { disk: 'ReleaseCheck.html', name: 'ReleaseCheck', type: 'HTML' },
+  { dir: TEMPLATE_DIR, disk: 'Setup.gs', name: 'Setup', type: 'SERVER_JS' },
+  { dir: TEMPLATE_DIR, disk: 'SetupWizard.html', name: 'SetupWizard', type: 'HTML' },
   { disk: 'appsscript.json', name: 'appsscript', type: 'JSON' },
 ];
 const API_BASE = 'https://script.googleapis.com/v1';
@@ -23,7 +27,7 @@ const env = (name) => String(process.env[name] || '').trim();
 async function readLocalFiles() {
   const files = [];
   for (const descriptor of SOURCE_FILES) {
-    const source = await readFile(path.join(SOURCE_DIR, descriptor.disk), 'utf8');
+    const source = await readFile(path.join(descriptor.dir || SOURCE_DIR, descriptor.disk), 'utf8');
     if (!source.trim()) fail(`${descriptor.disk} is empty.`);
     if (descriptor.type === 'JSON') JSON.parse(source);
     files.push({ name: descriptor.name, type: descriptor.type, source });

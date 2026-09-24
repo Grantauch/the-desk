@@ -217,8 +217,13 @@ function isHomeDistrictOwner_() {
 /** Default Settings rows for this copy. Only ever used to fill missing rows. */
 function defaultSettingsRows_() {
   const owner = workbookOwnerEmail_();
+  // grant-desk.com links and the desk PIN subject belong to Mr. Auch's copy
+  // only; another Mt. Morris teacher's students must be sent to their own pass.
+  const homeTeacher = hallPassSiteBranded_()
+    ? {}
+    : { PIN_EMAIL_SUBJECT: 'Your private Hall Pass PIN', CHECKIN_URL: '', PASS_URL: '' };
   const overrides = isHomeDistrictOwner_()
-    ? (owner ? { TEACHER_EMAILS: owner } : {})
+    ? (owner ? { TEACHER_EMAILS: owner, ...homeTeacher } : {})
     : {
       TEACHER_EMAILS: owner,
       SCHOOL_DOMAIN: owner.split('@').pop(),
@@ -244,10 +249,14 @@ function hallPassSiteBranded_() {
   return !owner || owner === GD_BRANDED_OWNER;
 }
 
+const GD_WEB_APP_URL_PROPERTY = 'WEB_APP_URL';
+
 /** This deployment's own student link, for PIN emails in copies with no site. */
 function webAppUrl_(mode) {
   try {
-    const url = ScriptApp.getService().getUrl();
+    // The link the teacher confirmed at setup wins: Google can report a
+    // test (/dev) address here that students are not allowed to open.
+    const url = PropertiesService.getScriptProperties().getProperty(GD_WEB_APP_URL_PROPERTY) || ScriptApp.getService().getUrl();
     if (!url) return '';
     return mode ? `${url}${url.includes('?') ? '&' : '?'}mode=${mode}` : url;
   } catch (error) {
@@ -489,8 +498,12 @@ function migrateSessionPolicy_() {
 /* ---------------------------------------------------------------- menu ---- */
 
 function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('GrantDesk Pass')
+  const menu = SpreadsheetApp.getUi().createMenu('Hall Pass');
+  // The classroom template carries a guided first-run setup (Setup.gs).
+  if (typeof hallPassStartSetup === 'function') {
+    menu.addItem('▶ Start setup / show my links', 'hallPassStartSetup').addSeparator();
+  }
+  menu
     .addItem('1. Set up / repair workbook', 'setupProject')
     .addItem('2. Generate missing student PINs', 'generateMissingPins')
     .addItem('Preview PIN email distribution', 'previewPinEmailDistribution')
@@ -499,11 +512,18 @@ function onOpen() {
     .addItem('Open today’s check-in log', 'openTodayCheckIns')
     .addItem('Archive old operational rows now', 'purgeOldPasses')
     .addToUi();
+  if (typeof hallPassShowStartHere_ === 'function') {
+    try {
+      hallPassShowStartHere_();
+    } catch (error) {
+      // A welcome note is never worth an error on open.
+    }
+  }
 }
 
-function setupProject() {
+function setupProject(options) {
   const active = SpreadsheetApp.getActiveSpreadsheet();
-  if (!active) throw new Error('Open this script from the GrantDesk Hall Pass spreadsheet.');
+  if (!active) throw new Error('Open this script from the Hall Pass spreadsheet.');
   const authSettings = defaultSettingsRows_().reduce((settings, row) => {
     settings[row[0]] = row[1];
     return settings;
@@ -534,19 +554,20 @@ function setupProject() {
       throw error;
     }
   }, 30000, 'workbook setup');
+  if (options && options.quiet === true) return result;
 
   try {
     const ui = SpreadsheetApp.getUi();
     ui.alert(
-      'GrantDesk Pass is ready',
-      'Paste students into the Roster tab, then use GrantDesk Pass → Generate missing student PINs.',
+      'Hall Pass is ready',
+      'Paste students into the Roster tab, then use Hall Pass → Generate missing student PINs.',
       ui.ButtonSet.OK
     );
   } catch (error) {
     // Editor/API executions do not have a spreadsheet UI. The migration is
     // already complete at this point, so leave a truthful success signal
     // instead of making the controlled release run appear to have failed.
-    console.log(`GrantDesk Pass is ready · workbook schema ${GD_SCHEMA_VERSION}`);
+    console.log(`Hall Pass is ready · workbook schema ${GD_SCHEMA_VERSION}`);
   }
   return result;
 }
@@ -3344,7 +3365,14 @@ function teacherSaveClassroomSetup(setup, clientContract) {
   const settings = getSettings_();
   assertTeacher_(teacher, settings);
   assertTeacherClient_(clientContract);
-  const clean = normalizeClassroomSetup_(setup);
+  saveClassroomSetup_(teacher, normalizeClassroomSetup_(setup));
+  const state = getTeacherState_({ includePinStatus: true });
+  state.noticeMessage = 'Classroom setup saved. Your bell times are now in effect.';
+  return state;
+}
+
+/** Writes an already-normalized classroom setup. Callers check the teacher first. */
+function saveClassroomSetup_(teacher, clean) {
   withLock_(() => {
     const spreadsheet = getSpreadsheet_();
     const bells = spreadsheet.getSheetByName(GD_SHEETS.BELLS);
@@ -3400,9 +3428,6 @@ function teacherSaveClassroomSetup(setup, clientContract) {
     auditTeacherAction_(teacher, { email: '', name: 'Classroom setup', classPeriod: 'All classes' }, 'CLASSROOM_SETUP_SAVED', [],
       `${clean.periods.length} periods; ${clean.noSchoolDates.length} no-school days; students @${clean.studentEmailDomain || 'any'}`, '');
   }, 30000, 'classroom setup');
-  const state = getTeacherState_({ includePinStatus: true });
-  state.noticeMessage = 'Classroom setup saved. Your bell times are now in effect.';
-  return state;
 }
 
 /**
@@ -6064,7 +6089,7 @@ function refreshWorkbookInstructions_() {
     ['9', 'Update the existing Apps Script deployment in place. Preserve the current /exec URL, domain-only access, and execute-as-deploying-user setting.'],
     ['10', 'Daily Check-ins expands automatically. Unresolved late sign-ins stay in teacher review across school days until you decide them; student screens still show only that student\'s own state.'],
   ];
-  sheet.getRange(1, 1).setValue('GrantDesk Hall Pass — private teacher log');
+  sheet.getRange(1, 1).setValue(hallPassSiteBranded_() ? 'GrantDesk Hall Pass — private teacher log' : 'Hall Pass — private teacher log');
   sheet.getRange(2, 1).setValue(`Operational instructions · schema ${GD_SCHEMA_VERSION}`);
   sheet.getRange(3, 1, rows.length, 2).setValues(rows).setWrap(true).setVerticalAlignment('top');
 }

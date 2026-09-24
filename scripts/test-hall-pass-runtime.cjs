@@ -3392,5 +3392,224 @@ test("only Mr. Auch's copy carries the desk branding", () => {
   assert.equal(classroom({ activeEmail: 'ms.rivera@lakeview.example.org' }).harness.call('hallPassSiteBranded_'), false);
 });
 
+
+section('Guided setup in a teacher copy');
+
+const RIVERA_LINK = 'https://script.google.com/a/macros/lakeview.example.org/s/AKfycbSyntheticRiveraDeployment000000000/exec';
+const riveraBells = () => [
+  { period: 1, start: '08:00', end: '08:55' },
+  { period: 2, start: '09:00', end: '09:55' },
+];
+const riveraAnswers = (extra = {}) => ({
+  appTitle: 'Ms. Rivera’s Hall Pass',
+  destination: 'Restroom',
+  maxActivePasses: 2,
+  studentEmailDomain: 'students.lakeview.example.org',
+  periods: riveraBells(),
+  yearStart: '2026-08-31',
+  yearEnd: '2027-06-10',
+  ...extra,
+});
+
+/** A brand-new copy: one empty tab and nothing run yet. */
+function freshCopy(owner = RIVERA) {
+  const { createHarness } = require('./lib/gas-harness.cjs');
+  const h = createHarness({ activeEmail: owner, now: new Date('2026-09-10T11:50:00Z'), template: true });
+  h.spreadsheet.insertSheet('Sheet1');
+  return h;
+}
+
+test('a new copy greets the teacher with a Start here note and a setup menu item', () => {
+  const h = freshCopy();
+  h.signOut(); // simple triggers run without a signed-in identity
+  h.call('onOpen');
+  const names = h.spreadsheet.getSheets().map((sheet) => sheet.getName());
+  assert.deepEqual(names, ['Start here']);
+  assert.match(String(h.sheet('Start here').readCell(3, 1)), /Hall Pass.*Start setup/);
+});
+
+test('the welcome note never touches a workbook that is already set up', () => {
+  const c = classroom({ template: true });
+  c.harness.newRequest();
+  const before = c.harness.spreadsheet.getSheets().map((sheet) => sheet.getName()).join();
+  c.harness.call('onOpen');
+  assert.equal(c.harness.spreadsheet.getSheets().map((sheet) => sheet.getName()).join(), before);
+});
+
+test('the menu item opens the setup window', () => {
+  const h = freshCopy();
+  h.call('hallPassStartSetup');
+  assert.deepEqual(h.state.dialogs, ['Set up your Hall Pass']);
+});
+
+test('opening setup builds the workbook quietly and removes the Start here note', () => {
+  const h = freshCopy();
+  h.call('onOpen');
+  h.newRequest();
+  h.signInAs(RIVERA);
+  const state = h.call('setupWizardLoad');
+  assert.equal(state.ok, true);
+  assert.equal(state.ownerEmail, RIVERA);
+  assert.equal(state.ownerDomain, 'lakeview.example.org');
+  assert.equal(state.links, null);
+  assert.equal(state.bellsReady, false);
+  assert.equal(h.state.uiAlerts.length, 0, 'no alert may pop over the setup window');
+  assert.equal(h.spreadsheet.getSheetByName('Start here'), null);
+  assert.ok(h.spreadsheet.getSheetByName('Settings'));
+  assert.match(state.scriptEditorUrl, /^https:\/\/script\.google\.com\/d\/synthetic-script-id\/edit$/);
+});
+
+test('someone other than the copy owner cannot run setup', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  h.signInAs('someone.else@lakeview.example.org');
+  assert.throws(() => h.call('setupWizardLoad'), /limited to the teacher/);
+  assert.throws(() => h.call('setupWizardSave', riveraAnswers()), /limited to the teacher/);
+  assert.throws(() => h.call('setupWizardSaveLink', RIVERA_LINK), /limited to the teacher/);
+});
+
+test('setup answers become the pass title, destination, limit, bells and student email ending', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  const state = h.call('setupWizardSave', riveraAnswers());
+  assert.equal(state.bellsReady, true);
+  h.newRequest();
+  const settings = h.call('getSettings_');
+  assert.equal(settings.APP_TITLE, 'Ms. Rivera’s Hall Pass');
+  assert.equal(settings.MAX_ACTIVE_PASSES, '2');
+  assert.equal(settings.STUDENT_EMAIL_DOMAIN, 'students.lakeview.example.org');
+  assert.equal(settings.SCHOOL_YEAR_START, '2026-08-31');
+  assert.equal(h.sheet('Bell Schedule').records().length, 2);
+});
+
+test('a bad bell time saves nothing at all', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  assert.throws(() => h.call('setupWizardSave', riveraAnswers({ periods: [{ period: 1, start: '09:00', end: '08:00' }] })), /end time/);
+  h.newRequest();
+  assert.equal(h.call('getSettings_').APP_TITLE, 'Hall Pass');
+  assert.equal(h.sheet('Bell Schedule').records().length, 0);
+});
+
+test('setup asks for the student email ending and a pass title', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  assert.throws(() => h.call('setupWizardSave', riveraAnswers({ studentEmailDomain: '' })), /student emails end/);
+  assert.throws(() => h.call('setupWizardSave', riveraAnswers({ appTitle: '  ' })), /top of the pass/);
+  assert.throws(() => h.call('setupWizardSave', riveraAnswers({ maxActivePasses: 9 })), /at once/);
+});
+
+test('the pasted Web app link is cleaned up, checked, and turned into links to share', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  h.call('setupWizardSave', riveraAnswers());
+  h.newRequest();
+  const state = h.call('setupWizardSaveLink', `  ${RIVERA_LINK}?mode=teacher#top `);
+  assert.equal(state.links.student, RIVERA_LINK);
+  assert.equal(state.links.kiosk, `${RIVERA_LINK}?mode=kiosk`);
+  assert.equal(state.links.teacher, `${RIVERA_LINK}?mode=teacher`);
+  assert.match(state.links.classroomShare, /^https:\/\/classroom\.google\.com\/share\?url=https%3A%2F%2Fscript\.google\.com/);
+  h.newRequest();
+  assert.equal(h.call('webAppUrl_', 'kiosk'), `${RIVERA_LINK}?mode=kiosk`, 'PIN emails and the teacher page use the saved link');
+  assert.equal(h.call('classroomSetupView_', h.call('getSettings_')).studentLink, RIVERA_LINK);
+});
+
+test('a test link, a spreadsheet link, or junk is refused with a plain explanation', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  assert.throws(() => h.call('setupWizardSaveLink', RIVERA_LINK.replace(/exec$/, 'dev')), /test link/);
+  assert.throws(() => h.call('setupWizardSaveLink', 'https://docs.google.com/spreadsheets/d/abc/edit'), /spreadsheet/);
+  assert.throws(() => h.call('setupWizardSaveLink', 'https://evil.example.com/s/AKfycbSyntheticRiveraDeployment000000000/exec'), /Web app link/);
+  assert.throws(() => h.call('setupWizardSaveLink', ''), /Paste/);
+  assert.equal(h.properties.getProperty('WEB_APP_URL'), null);
+});
+
+test('setup offers the link Google already knows, but only a real /exec one', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.state.serviceUrl = RIVERA_LINK.replace(/exec$/, 'dev');
+  h.newRequest();
+  assert.equal(h.call('setupWizardFindLink').link, '');
+  h.state.serviceUrl = RIVERA_LINK;
+  h.newRequest();
+  assert.equal(h.call('setupWizardFindLink').link, RIVERA_LINK);
+});
+
+test('reopening setup after it is done goes straight to the links', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  h.call('setupWizardSave', riveraAnswers());
+  h.newRequest();
+  h.call('setupWizardSaveLink', RIVERA_LINK);
+  h.newRequest();
+  const again = h.call('setupWizardLoad');
+  assert.equal(again.bellsReady, true);
+  assert.equal(again.links.student, RIVERA_LINK);
+  assert.equal(again.appTitle, 'Ms. Rivera’s Hall Pass');
+});
+
+test('a finished copy lets its students sign out', () => {
+  const h = freshCopy();
+  h.newRequest();
+  h.signInAs(RIVERA);
+  h.call('setupWizardLoad');
+  h.newRequest();
+  h.call('setupWizardSave', riveraAnswers());
+  h.newRequest();
+  h.call('setupWizardSaveLink', RIVERA_LINK);
+  h.newRequest();
+  const added = h.call('teacherPasteStudents', 'Sam\tLee\tsam.lee@students.lakeview.example.org', 'Period 1', TEACHER_CONTRACT);
+  assert.equal(added.ok, true);
+  h.newRequest();
+  h.call('ensureOnePinPerStudent_', { createMissing: true });
+  const card = h.sheet('PIN Cards').records().find((row) => row['Student Email'] === 'sam.lee@students.lakeview.example.org');
+  h.clock.advanceSeconds(20 * 60); // 8:10, inside Period 1's pass window
+  h.newRequest();
+  h.signInAs('sam.lee@students.lakeview.example.org');
+  const result = h.call('authorizeAndActStudent', 'authorize', String(card.PIN), 'AUTO_PASS', '', 'setup-nonce-1');
+  assert.equal(result.completedAction, 'PASS_REQUEST', JSON.stringify(result).slice(0, 300));
+  const pass = h.sheet('Pass Log').records().find((row) => row['Student Email'] === 'sam.lee@students.lakeview.example.org');
+  assert.equal(pass && pass['Class / Period'], 'Period 1');
+});
+
+test('another Mt. Morris teacher’s copy never points students at the desk site', () => {
+  const c = classroom({ activeEmail: 'j.doe@mtmorrisschools.org', template: true });
+  c.harness.newRequest();
+  const settings = c.harness.call('getSettings_');
+  assert.equal(settings.PASS_URL, '');
+  assert.equal(settings.CHECKIN_URL, '');
+  assert.doesNotMatch(settings.PIN_EMAIL_SUBJECT, /GrantDesk/);
+  assert.equal(settings.STUDENT_EMAIL_DOMAIN, 'students.mtmorrisschools.org', 'home district defaults still apply');
+});
+
+test('Mr. Auch’s own copy keeps its site links', () => {
+  const c = classroom();
+  c.harness.newRequest();
+  assert.match(c.harness.call('getSettings_').PASS_URL, /grant-desk\.com/);
+});
+
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();
