@@ -280,6 +280,16 @@
       .help-trigger { display:inline-grid; place-items:center; margin-left:7px; width:25px; height:25px; padding:0; vertical-align:middle; border:1px solid #d5d9e5; border-radius:50%; color:#697086; background:#fafbfe; font:600 12px/1 var(--display); }
       .help-trigger:hover, .help-trigger[aria-expanded="true"] { color:var(--accent-dark); border-color:var(--accent); background:var(--accent-soft); }
       .help-tooltip { position:fixed; z-index:100; max-width:min(310px,calc(100vw - 24px)); padding:13px 15px; border:1px solid #3c4056; background:#202437; color:#fff; border-radius:11px; font:400 12px/1.6 var(--display); box-shadow:0 8px 24px #17182726; }
+      .setup-dialog { width:min(620px,calc(100% - 32px)); max-height:min(88vh,860px); overflow:auto; }
+      .setup-dialog form { display:grid; gap:14px; }
+      .setup-dialog p { margin:0; }
+      .setup-dialog input, .setup-dialog select, .setup-dialog textarea { width:100%; }
+      .bell-table { width:100%; border-collapse:collapse; }
+      .bell-table th, .bell-table td { padding:4px 6px; text-align:left; font-size:13px; }
+      .setup-error { color:#b42318; font-weight:600; }
+      .setup-card .setup-links { display:grid; gap:10px; margin-top:14px; }
+      .setup-card .setup-links label { display:grid; gap:6px; font-size:13px; font-weight:600; }
+      .setup-banner { margin-bottom:16px; }
       .teacher-action-dialog { width:min(520px,calc(100% - 32px)); padding:28px; border:1px solid var(--line); border-radius:20px; color:var(--ink); background:white; }
       .teacher-action-dialog h2 { margin:0 0 14px; font-size:25px; line-height:1.2; letter-spacing:-.6px; }
       .teacher-action-dialog p { margin:0 0 20px; font-size:14px; color:var(--muted); line-height:1.65; }
@@ -1309,6 +1319,82 @@
         document.body.append(dialog); dialog.showModal();
         (wantsInput ? input : dialog.querySelector('#teacher-action-cancel')).focus();
       });
+      /** A form dialog outside the rerendered content; polling pauses while it is open. */
+      const teacherFormDialog = (html, onSubmit) => {
+        const previous = document.activeElement;
+        const dialog = document.createElement('dialog');
+        dialog.className = 'teacher-action-dialog setup-dialog';
+        dialog.innerHTML = `<form novalidate>${html}<p class="setup-error" role="alert" hidden></p><div class="button-row"><button class="secondary" type="button" data-dialog-cancel>Cancel</button><button class="primary" type="submit">Save</button></div></form>`;
+        const form = dialog.querySelector('form');
+        const errorLine = dialog.querySelector('.setup-error');
+        const saveButton = form.querySelector('button[type="submit"]');
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          errorLine.hidden = true;
+          saveButton.disabled = true; saveButton.textContent = 'Saving…';
+          try {
+            await onSubmit(form);
+            dialog.close();
+          } catch (error) {
+            errorLine.textContent = error.message; errorLine.hidden = false;
+          } finally {
+            saveButton.disabled = false; saveButton.textContent = 'Save';
+          }
+        });
+        dialog.querySelector('[data-dialog-cancel]').addEventListener('click', () => dialog.close());
+        dialog.addEventListener('close', () => { dialog.remove(); if (previous && previous.isConnected) previous.focus({preventScroll:true}); }, {once:true});
+        document.body.append(dialog); dialog.showModal();
+        const first = dialog.querySelector('input, textarea, select'); if (first) first.focus();
+        return dialog;
+      };
+
+      const openClassroomSetupDialog = () => {
+        const setup = (state && state.classroomSetup) || { periods: [] };
+        const rows = (setup.periods || []).map((row) => `<tr><th scope="row">Period ${escapeHtml(row.period)}</th><td><input type="time" data-bell-start="${escapeHtml(row.period)}" value="${escapeHtml(row.start)}" aria-label="Period ${escapeHtml(row.period)} start"></td><td><input type="time" data-bell-end="${escapeHtml(row.period)}" value="${escapeHtml(row.end)}" aria-label="Period ${escapeHtml(row.period)} end"></td></tr>`).join('');
+        teacherFormDialog(`<p class="eyebrow">CLASSROOM SETUP</p><h2>your bell schedule.</h2>
+          <p>Enter a normal day's start and end time for each period you teach. Leave the rest blank. Passes open and close with these times, and students in two of your classes are routed to the one meeting now.</p>
+          <table class="bell-table"><thead><tr><th>period</th><th>starts</th><th>ends</th></tr></thead><tbody>${rows}</tbody></table>
+          <div class="field-grid">
+            <label>First day of school<input type="date" name="yearStart" value="${escapeHtml(setup.yearStart || '')}"></label>
+            <label>Last day of school<input type="date" name="yearEnd" value="${escapeHtml(setup.yearEnd || '')}"></label>
+          </div>
+          <label>Student email ending<input name="studentEmailDomain" placeholder="students.yourschool.org" value="${escapeHtml(setup.studentEmailDomain || '')}" autocomplete="off"></label>
+          <label>No-school days (one per line, like 2026-11-26)<textarea name="noSchoolDates" rows="4">${escapeHtml((setup.noSchoolDates || []).join('\n'))}</textarea></label>`,
+        async (form) => {
+          const periods = (setup.periods || []).map((row) => ({
+            period: row.period,
+            start: form.querySelector(`[data-bell-start="${row.period}"]`).value,
+            end: form.querySelector(`[data-bell-end="${row.period}"]`).value,
+          }));
+          const payload = {
+            periods,
+            yearStart: form.elements.yearStart.value,
+            yearEnd: form.elements.yearEnd.value,
+            studentEmailDomain: form.elements.studentEmailDomain.value,
+            noSchoolDates: form.elements.noSchoolDates.value,
+          };
+          adoptState(await call('teacherSaveClassroomSetup', payload));
+          renderTeacher();
+        });
+      };
+
+      const openPasteStudentsDialog = () => {
+        const options = Array.from({ length: 8 }, (_, index) => `<option value="Period ${index + 1}">Period ${index + 1}</option>`).join('');
+        teacherFormDialog(`<p class="eyebrow">ADD STUDENTS</p><h2>paste a class list.</h2>
+          <p>Copy the name and school email columns from Google Classroom, a spreadsheet, or your student information system, then paste them below. One student per line. Students already on your list are skipped, and every new student gets a PIN.</p>
+          <div class="field-grid">
+            <label>Period<select name="period">${options}</select></label>
+            <label>Class name (optional)<input name="className" placeholder="Biology" maxlength="60" autocomplete="off"></label>
+          </div>
+          <label>Students<textarea name="students" rows="8" placeholder="Maya&#9;Okafor&#9;maya.okafor@students.school.org"></textarea></label>`,
+        async (form) => {
+          const label = form.elements.className.value.trim();
+          const classPeriod = label ? `${form.elements.period.value} — ${label}` : form.elements.period.value;
+          adoptState(await call('teacherPasteStudents', form.elements.students.value, classPeriod));
+          renderTeacher();
+        });
+      };
+
       const teacherConfirm = (message) => teacherDialog(message, false);
       const teacherPrompt = (message) => teacherDialog(message, true);
 
@@ -1413,7 +1499,7 @@
           'teacher-student': 'Start a pass using teacher authority. A private reason is required when overriding a restriction.',
           'teacher-checkin-student': 'Record attendance for a student who is here. A private reason is required outside the check-in window.',
           'pass-count-filter': 'Each row is one class membership. Used and remaining refer to that class for this marking period.',
-          'roster-class-period': 'Use a class label beginning with Period 1 through Period 6 so GrantDesk can apply the correct bell schedule. Existing students keep their current PIN.',
+          'roster-class-period': 'Use a class label beginning with Period 1 through Period 8 so GrantDesk can apply the correct bell schedule. Existing students keep their current PIN.',
         };
         Object.entries(help).forEach(([id, text]) => {
           const field = document.getElementById(id);
@@ -1469,6 +1555,31 @@
         intro('attendance', 'attendance.', 'See check-ins by class and help students who need a manual attendance update.');
         intro('students', 'students & access.', 'Class memberships, pass allowances, and private access settings in one place.');
         intro('settings', 'make it work for your classroom.', 'Set your pass rules, choose an alert sound, and manage PIN delivery.');
+        const setup = state.classroomSetup || null;
+        if (setup) {
+          const card = document.createElement('section');
+          card.className = 'subcard setup-card'; card.id = 'classroom-setup-card';
+          const scheduled = (setup.periods || []).filter((row) => row.start && row.end);
+          const links = setup.studentLink
+            ? `<div class="setup-links"><label>Student link (own Chromebooks)<input readonly value="${escapeHtml(setup.studentLink)}" data-copy-link></label><label>One-station link (kiosk by the door)<input readonly value="${escapeHtml(setup.kioskLink)}" data-copy-link></label></div>`
+            : '';
+          card.innerHTML = `<h3>classroom setup</h3>
+            <p class="message">${scheduled.length ? `${scheduled.length} class periods on your bell schedule` : '<strong>No bell times yet.</strong> Students cannot sign out until you add them'} · ${escapeHtml(setup.studentCount)} students in ${escapeHtml(setup.membershipCount)} class memberships.</p>
+            <div class="button-row"><button class="${scheduled.length ? 'secondary' : 'primary'}" type="button" data-open-setup="bells">bell times &amp; school calendar</button><button class="secondary" type="button" data-open-setup="students">add students by pasting</button></div>
+            ${links}`;
+          panels.settings.append(card);
+          card.querySelector('[data-open-setup="bells"]').addEventListener('click', () => openClassroomSetupDialog());
+          card.querySelector('[data-open-setup="students"]').addEventListener('click', () => openPasteStudentsDialog());
+          card.querySelectorAll('[data-copy-link]').forEach((input) => input.addEventListener('focus', () => input.select()));
+          if (!setup.bellsReady || !setup.membershipCount) {
+            const banner = document.createElement('div'); banner.className = 'attention-banner setup-banner';
+            banner.innerHTML = !setup.bellsReady
+              ? '<span><strong>Finish setting up your classroom.</strong> Add your bell times so students can sign out.</span><button class="primary" type="button">add bell times</button>'
+              : '<span><strong>Add your students.</strong> Paste your class lists and PINs are created for you.</span><button class="primary" type="button">add students</button>';
+            banner.querySelector('button').addEventListener('click', () => (setup.bellsReady ? openPasteStudentsDialog() : openClassroomSetupDialog()));
+            panels.overview.prepend(banner);
+          }
+        }
         intro('notifications', 'your classroom inbox.', 'Current observations from your classroom. Resolved items disappear when the data refreshes.');
         move('.room-summary', 'overview');
         if (actionable) {
@@ -1818,7 +1929,7 @@
                   <label>School email<input type="email" id="roster-student-email" maxlength="160" autocomplete="off" placeholder="Student’s school email"></label>
                   <label>Class / period<input type="text" id="roster-class-period" maxlength="120" list="teacher-class-options" autocomplete="off" placeholder="Period 1 — class name"><datalist id="teacher-class-options">${classOptions}</datalist></label>
                 </div>
-                <p class="message">Class labels must begin with Period 1 through Period 6 so the bell schedule can be applied. Existing students keep the same PIN in every class; a brand-new student gets one PIN automatically and appears in PIN delivery.</p>
+                <p class="message">Class labels must begin with Period 1 through Period 8 so the bell schedule can be applied. Existing students keep the same PIN in every class; a brand-new student gets one PIN automatically and appears in PIN delivery.</p>
                 <button class="primary" id="teacher-add-student">add student to class</button>
                 ${rosterResultHtml}
               </div></div>
