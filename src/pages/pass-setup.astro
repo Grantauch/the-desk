@@ -5,26 +5,60 @@ import Base from '../layouts/Base.astro';
 // no student data; each copy belongs to the teacher who makes it.
 const templateCopyUrl = 'https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0/copy';
 
+// GoClassroom's newest tested Windows installer, published by its build on each version tag.
+const goClassroomInstallerUrl = 'https://github.com/Grantauch/Classroom-Auto-Turn-In/releases/latest/download/GoClassroom-Setup.exe';
+
+// Each bullet is one thing to click or do. Words in **stars** are what the
+// teacher sees on screen.
 const steps = [
   {
     title: 'get your copy.',
-    body: 'Sign in to your school Google account, click the button, then click Make a copy. Your copy has none of anyone else’s students, and it belongs to you.',
+    bullets: [
+      'Make sure you are signed in to your **school** Google account.',
+      'Click the **get my hall pass** button below.',
+      'Click the blue **Make a copy** button.',
+      'Your own Hall Pass spreadsheet opens. It is yours, and it has no one else’s students.',
+    ],
     link: { label: 'get my hall pass ↗', href: templateCopyUrl },
   },
   {
     title: 'answer a few questions.',
-    body: 'In your copy, click Hall Pass in the menu bar (next to Help), then ▶ Start setup. The first time, Google asks permission: Continue → your account → Allow. If it says the app isn’t verified, choose Advanced → Go to Hall Pass; it is your own copy. Click ▶ Start setup again. It asks your name, your student email ending, and your bell times.',
+    bullets: [
+      'Wait a few seconds for **Hall Pass** to appear in the menu at the top (to the right of **Help**).',
+      'Click **Hall Pass**, then **▶ Start setup**.',
+      'Google asks for permission the first time. Click **Continue**, click your name, then click **Allow**.',
+      'If you see “Google hasn’t verified this app”: click **Advanced**, then **Go to Hall Pass**. It is safe; it is your own copy.',
+      'Click **Hall Pass → ▶ Start setup** one more time.',
+      'Type your name, how student emails end, and your bell times. Click **Next** after each page.',
+    ],
   },
   {
-    title: 'turn it on and share.',
-    body: 'The setup window walks you through Google’s six-click switch, then gives you your student link with a Post it in Google Classroom button, a link for a computer by your door, and your teacher page. Add students there, or let GoClassroom bring them over from Google Classroom, then print PIN cards.',
+    title: 'turn it on.',
+    bullets: [
+      'The setup window shows six numbered steps. Do them in order. They take about two minutes.',
+      'At the end, Google shows a long link. Click **Copy** under it.',
+      'Go back to the setup window, click in the box, and paste (hold **Ctrl** and press **V**).',
+      'Click **Finish**.',
+    ],
+  },
+  {
+    title: 'share it with students.',
+    bullets: [
+      'Click **Post it in Google Classroom** to give students the link.',
+      'Using one computer by the door? Open the **door computer link** on it and leave it open.',
+      'Click **Open my teacher page**, then bookmark it (click the ☆ star by the address bar).',
+      'On your teacher page, click **Add students**, then print the **PIN Cards** and hand them out.',
+    ],
   },
 ];
+
+// Turn **word** into bold text; everything else stays plain text.
+const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) => ({ chunk, bold: index % 2 === 1 }));
 ---
 
 <Base title="hall pass setup" description="Set up your own Hall Pass: get a copy, answer a few questions, share your link.">
   <div class="setup-page">
-    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">for teachers // about ten minutes</p>
+    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">for teachers // about fifteen minutes</p>
     <h1 class="mt-3 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
       set up your hall pass<span class="text-accent">.</span>
     </h1>
@@ -38,7 +72,11 @@ const steps = [
           <p class="setup-step__number">{String(index + 1).padStart(2, '0')}</p>
           <div>
             <h2>{step.title}</h2>
-            <p>{step.body}</p>
+            <ul class="setup-bullets">
+              {step.bullets.map((bullet) => (
+                <li>{parts(bullet).map(({ chunk, bold }) => (bold ? <strong>{chunk}</strong> : chunk))}</li>
+              ))}
+            </ul>
             {step.link && <a class="setup-link" href={step.link.href} target="_blank" rel="noopener">{step.link.label}</a>}
           </div>
         </li>
@@ -47,7 +85,19 @@ const steps = [
 
     <aside class="setup-note mt-6">
       <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">using GoClassroom?</h2>
-      <p>GoClassroom can bring your Google Classroom students over for you. Open Rosters &amp; Hall Pass, paste the student link from the setup window, then match each class to its period. It only ever adds students and fixes names, and only after you confirm.</p>
+      <p>GoClassroom copies your students from Google Classroom into Hall Pass for you, so you don’t have to type them. It is a Windows program.</p>
+      <ul class="setup-bullets">
+        <li>Click <strong>download GoClassroom</strong> below. It saves to your <strong>Downloads</strong> folder.</li>
+        <li>Open <strong>GoClassroom-Setup.exe</strong> from your Downloads.</li>
+        <li>If Windows says “Windows protected your PC”: click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+        <li>When GoClassroom opens, click <strong>Rosters &amp; Hall Pass</strong> on the left.</li>
+        <li>Paste your <strong>student link</strong> from the setup window into the Hall Pass link box, then click <strong>Save Hall Pass link</strong>.</li>
+        <li>Click <strong>Find my rosters</strong> at the top right.</li>
+        <li>Next to each class, choose its period. Click <strong>Save period mapping</strong>.</li>
+        <li>Click <strong>Compare rosters</strong>, look over the list, then click <strong>Apply safe changes</strong>.</li>
+        <li>It only adds students and fixes names, and only after you click Apply.</li>
+      </ul>
+      <a class="setup-link" href={goClassroomInstallerUrl}>download GoClassroom ↓</a>
     </aside>
 
     <aside class="setup-note mt-4">
@@ -92,6 +142,24 @@ const steps = [
     font-weight: 700;
     letter-spacing: -0.035em;
     line-height: 1.1;
+  }
+
+  .setup-bullets {
+    max-width: 44rem;
+    margin-top: 0.6rem;
+    padding-left: 1.2rem;
+    list-style: disc;
+    color: var(--color-ink-soft);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .setup-bullets li + li {
+    margin-top: 0.35rem;
+  }
+
+  .setup-bullets strong {
+    color: var(--color-ink);
   }
 
   .setup-step p,
