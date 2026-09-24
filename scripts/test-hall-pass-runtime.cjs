@@ -3208,5 +3208,109 @@ test('a pasted class must be Period 1 through 8', () => {
   assert.throws(() => asTeacher(c, RIVERA, 'teacherPasteStudents', 'Sam Lee\tsam.lee@students.lakeview.example.org', 'Biology'), /Period 1 through Period 8/);
 });
 
+section('Recent pass history on the student path');
+
+/** Fill Pass Log with a semester of completed passes before the fixture's "today". */
+const seedHistory = (c, count, { email = 'kid@students.mtmorrisschools.org', startDaysAgo = 25 } = {}) => {
+  const log = c.harness.sheet('Pass Log');
+  log.maxRows = 100000;
+  const base = new Date('2026-09-10T11:50:00Z').getTime() - startDaysAgo * 86400000;
+  for (let i = 0; i < count; i += 1) {
+    const out = new Date(base + i * 60000 * 7);
+    const back = new Date(out.getTime() + 300000);
+    log.appendRow([`hist-${i}`, email, 'Kid, Some', 'Period 1', 'Restroom', out, back, 5, 'pin', 'RETURNED', 'student', '', 'COUNTABLE', 'Seeded', back, 'PIN', out, `req-${i}`, '', '', '']);
+  }
+  c.harness.newRequest();
+};
+
+/** Record how many Pass Log rows each read asks for. */
+const spyLogReads = (c) => {
+  const sheet = c.harness.sheet('Pass Log');
+  const reads = [];
+  const original = sheet.getRange.bind(sheet);
+  sheet.getRange = (...args) => {
+    const range = original(...args);
+    const getValues = range.getValues.bind(range);
+    range.getValues = () => { const values = getValues(); if (values.length > 1) reads.push(values.length); return values; };
+    return range;
+  };
+  return reads;
+};
+
+test('a pass request with a long history reads only recent rows', () => {
+  const c = classroom();
+  seedHistory(c, 2000);
+  // The once-a-day rollover of forgotten passes reads everything; the daily
+  // cleanup trigger normally runs it before the first student arrives.
+  c.harness.call('expirePreviousDayPassesIfDue_');
+  c.harness.newRequest();
+  const reads = spyLogReads(c);
+  assert.equal(c.requestPass(PEOPLE.ada, 'Period 1').state.actionOutcome.kind, 'STARTED');
+  assert.ok(reads.length > 0, 'the request must still read the log');
+  assert.ok(Math.max(...reads) < 2000, `student path read ${Math.max(...reads)} rows of a 2000-row history`);
+});
+
+test('the return after a long history also reads only recent rows and closes the right pass', () => {
+  const c = classroom();
+  seedHistory(c, 2000);
+  c.requestPass(PEOPLE.ada, 'Period 1');
+  c.harness.clock.advanceSeconds(90);
+  c.harness.newRequest();
+  const reads = spyLogReads(c);
+  c.returnPass(PEOPLE.ada, 'Period 1');
+  assert.ok(Math.max(...reads) < 2000);
+  const ada = c.passLog().filter((row) => row['Student Email'] === PEOPLE.ada.email);
+  assert.equal(ada.length, 1);
+  assert.equal(ada[0].Status, 'RETURNED');
+});
+
+test('a marking-period limit still counts passes from weeks ago', () => {
+  const c = classroom({ settings: { STUDENT_PASS_LIMIT: 2, STUDENT_PASS_RESET_AT: '2026-08-25T12:00:00Z', PASS_COOLDOWN_MINUTES: 0 } });
+  seedHistory(c, 1500, { email: 'kid@students.mtmorrisschools.org' });
+  seedHistory(c, 2, { email: PEOPLE.ada.email, startDaysAgo: 12 });
+  seedHistory(c, 1500, { email: 'kid@students.mtmorrisschools.org', startDaysAgo: 10 });
+  const result = c.requestPass(PEOPLE.ada, 'Period 1').state;
+  assert.equal(result.actionOutcome.kind, 'BLOCKED', 'two passes twelve days ago must still use up a two-pass marking period');
+  assert.equal(result.actionOutcome.blockedReason, 'MARKING_PERIOD_LIMIT');
+});
+
+test('rows out of time order fall back to the full history', () => {
+  const c = classroom({ settings: { STUDENT_PASS_LIMIT: 1, STUDENT_PASS_RESET_AT: '2026-08-25T12:00:00Z', PASS_COOLDOWN_MINUTES: 0 } });
+  seedHistory(c, 1200);
+  // An old pass for Ada pasted at the bottom of the sheet, out of order.
+  seedHistory(c, 1, { email: PEOPLE.ada.email, startDaysAgo: 14 });
+  const reads = spyLogReads(c);
+  const result = c.requestPass(PEOPLE.ada, 'Period 1').state;
+  assert.equal(result.actionOutcome.kind, 'BLOCKED');
+  assert.ok(reads.some((rows) => rows >= 1200), 'an out-of-order tail must trigger the full read');
+});
+
+test('the teacher dashboard still counts the whole marking period', () => {
+  const c = classroom();
+  seedHistory(c, 3, { email: PEOPLE.ada.email, startDaysAgo: 12 });
+  seedHistory(c, 1500, { startDaysAgo: 10 });
+  const usage = c.teacherState().studentPassUsage.find((row) => row.email === PEOPLE.ada.email);
+  assert.equal(usage.used, 3);
+});
+
+test('recent and full reads agree on everything a student sees', () => {
+  const c = classroom({ settings: { DAILY_PASS_LIMIT: 3, PASS_COOLDOWN_MINUTES: 5 } });
+  seedHistory(c, 1500);
+  c.trip(PEOPLE.ada, 'Period 1', 60);
+  c.harness.clock.advanceSeconds(30);
+  c.harness.newRequest();
+  const key = c.key(PEOPLE.ada, 'Period 1');
+  c.harness.newRequest();
+  const student = c.harness.call('getStudentByKey_', key);
+  const settings = c.harness.call('getSettings_');
+  const recent = c.harness.call('getStudentPassAllowance_', student, settings, c.harness.call('readRecentPassLog_', c.harness.call('passLogRecentCutoff_', settings)));
+  c.harness.newRequest();
+  const full = c.harness.call('getStudentPassAllowance_', student, settings, c.harness.call('readPassLog_'));
+  ['used', 'todayUsed', 'blocked', 'blockedReason', 'cooldownActive', 'cooldownRemainingSeconds', 'remaining'].forEach((field) => {
+    assert.equal(JSON.stringify(recent[field]), JSON.stringify(full[field]), `${field} differs`);
+  });
+  assert.equal(recent.cooldownActive, true);
+});
+
 require('./lib/hall-pass-session-tests.cjs')(test, section);
 report();
