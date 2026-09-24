@@ -1,0 +1,147 @@
+---
+import Base from '../layouts/Base.astro';
+
+// The blank template a teacher copies. It contains the Hall Pass program and
+// no student data; each copy belongs to the teacher who makes it.
+const templateCopyUrl = 'https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0/copy';
+
+const steps = [
+  {
+    title: 'make your own copy.',
+    body: 'Open the template while signed in to your school Google account and choose Make a copy. It includes the Hall Pass program and none of anyone else’s students. Your copy, and every pass in it, belongs to you.',
+    link: { label: 'copy the hall pass template ↗', href: templateCopyUrl },
+  },
+  {
+    title: 'turn it on.',
+    body: 'In your copy, open Extensions → Apps Script. Click the blue Deploy button → New deployment. Click the gear next to “Select type” and choose Web app. Set Execute as to Me and Who has access to Anyone within your school district, then click Deploy. Google asks you to authorize: choose your school account and click Allow. If it says the app isn’t verified, choose Advanced → Go to Hall Pass — it is your own copy. Copy the Web app link it shows you; it ends in /exec.',
+  },
+  {
+    title: 'set up your classroom.',
+    body: 'Open your link with ?mode=teacher added to the end. The teacher view walks you through two steps: add bell times (a normal day’s start and end for each period, your first and last day, and no-school days), then add students by pasting name and email columns from Google Classroom or any spreadsheet. Each new student gets a PIN automatically.',
+  },
+  {
+    title: 'give students the pass.',
+    body: 'Own Chromebooks: post your link in Google Classroom. One station by the door: open your link with ?mode=kiosk added to the end on that computer and leave it open. You can use both. Students in two of your classes are sent to the class meeting right now; they only pick a class when the bell schedule can’t tell.',
+  },
+  {
+    title: 'hand out PINs.',
+    body: 'Print the PIN Cards tab in your spreadsheet, or use Settings → PIN delivery in the teacher view to email each student their own PIN from your school account. Nobody sees anyone else’s PIN.',
+  },
+];
+---
+
+<Base title="hall pass setup" description="Set up your own Hall Pass: copy, turn it on, add bells and students.">
+  <div class="setup-page">
+    <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] text-accent">for teachers // about fifteen minutes</p>
+    <h1 class="mt-3 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">
+      set up your hall pass<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
+      Your own copy, your own students, your own Google account. Students sign out with a PIN on their Chromebook or at one station by your door, and you see who is out from your teacher view.
+    </p>
+
+    <ol class="setup-steps mt-9">
+      {steps.map((step, index) => (
+        <li class="setup-step">
+          <p class="setup-step__number">{String(index + 1).padStart(2, '0')}</p>
+          <div>
+            <h2>{step.title}</h2>
+            <p>{step.body}</p>
+            {step.link && <a class="setup-link" href={step.link.href} target="_blank" rel="noopener">{step.link.label}</a>}
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <aside class="setup-note mt-6">
+      <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">using GoClassroom?</h2>
+      <p>GoClassroom can read your Google Classroom rosters for you. On its Rosters page, paste your Hall Pass link and your student email ending into “Which Hall Pass should your rosters go to?”, then map each class to its period. It only ever adds students and fixes names, and only after you confirm.</p>
+    </aside>
+
+    <aside class="setup-note mt-4">
+      <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">where the data lives</h2>
+      <p>Everything stays in your own Google spreadsheet under your school account. This website never receives student names, PINs, or pass history.</p>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .setup-steps {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .setup-step {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 18%, var(--color-line));
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, rgb(238 240 255 / 0.58), transparent 4rem),
+      white;
+  }
+
+  .setup-step__number {
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .setup-step h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+
+  .setup-step p,
+  .setup-note p {
+    max-width: 44rem;
+    margin-top: 0.55rem;
+    color: var(--color-ink-soft);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .setup-link {
+    display: inline-flex;
+    min-height: 2.9rem;
+    align-items: center;
+    margin-top: 0.9rem;
+    padding: 0 1rem;
+    border: 1px solid var(--color-accent-dark);
+    border-radius: 0.8rem;
+    background: var(--color-accent);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  .setup-link:hover {
+    background: var(--color-accent-dark);
+  }
+
+  .setup-note {
+    border: 1px solid color-mix(in srgb, var(--color-accent) 16%, var(--color-line));
+    border-radius: 1rem;
+    background: white;
+    padding: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .setup-step {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+  }
+</style>
