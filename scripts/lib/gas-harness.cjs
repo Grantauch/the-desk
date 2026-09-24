@@ -111,6 +111,7 @@ class FakeRange {
   setNumberFormat() { return this; }
   setNumberFormats() { return this; }
   setFontWeight() { return this; }
+  setFontSize() { return this; }
   setFontColor() { return this; }
   setBackground() { return this; }
   setWrap() { return this; }
@@ -347,6 +348,8 @@ function createHarness(options = {}) {
     now = new Date('2026-09-04T13:00:00Z'),
     mailQuota = 1500,
     spreadsheetId = 'test-workbook-id',
+    // Load the classroom template's first-run setup file too.
+    template = false,
   } = options;
 
   const state = {
@@ -368,6 +371,9 @@ function createHarness(options = {}) {
       acquisitions: 0,
     },
     uiAlerts: [],
+    dialogs: [],
+    // What ScriptApp.getService().getUrl() reports; '' until a deployment exists.
+    serviceUrl: '',
   };
 
   const spreadsheet = new FakeSpreadsheet(spreadsheetId);
@@ -474,7 +480,7 @@ function createHarness(options = {}) {
             return menu;
           },
           showSidebar: () => {},
-          showModalDialog: () => {},
+          showModalDialog: (html, title) => { state.dialogs.push(title); },
         };
         return ui;
       },
@@ -572,10 +578,21 @@ function createHarness(options = {}) {
           setFaviconUrl: function setFavicon() { return this; },
         }),
       }),
+      createHtmlOutputFromFile: (name) => {
+        const output = {
+          file: name,
+          setTitle: () => output,
+          setWidth: () => output,
+          setHeight: () => output,
+        };
+        return output;
+      },
       XFrameOptionsMode: { ALLOWALL: 'ALLOWALL', DEFAULT: 'DEFAULT' },
     },
 
     ScriptApp: {
+      getScriptId: () => 'synthetic-script-id',
+      getService: () => ({ getUrl: () => state.serviceUrl }),
       getProjectTriggers: () => { state.triggerReads += 1; return state.triggers.map((trigger) => ({
         getHandlerFunction: () => trigger.handler,
         getUniqueId: () => trigger.id,
@@ -609,6 +626,10 @@ function createHarness(options = {}) {
   vm.runInContext(source, sandbox, { filename: CODE_PATH });
   const releasePath = path.join(path.dirname(CODE_PATH), 'ReleaseChecks.gs');
   vm.runInContext(fs.readFileSync(releasePath, 'utf8'), sandbox, { filename: releasePath });
+  if (template) {
+    const setupPath = path.join(path.dirname(CODE_PATH), '..', 'hall-pass-template', 'Setup.gs');
+    vm.runInContext(fs.readFileSync(setupPath, 'utf8'), sandbox, { filename: setupPath });
+  }
 
   /** Call any top-level function in Code.gs by name. */
   const call = (name, ...args) => {

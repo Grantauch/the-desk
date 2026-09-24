@@ -1,0 +1,355 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root {
+      --ink: #1c2230;
+      --soft: #5b6475;
+      --line: #dfe3ec;
+      --accent: #3b4bdb;
+      --accent-dark: #2d3bb8;
+      --accent-wash: #eef0ff;
+      --good: #1f7a4d;
+      --good-wash: #e7f6ee;
+      --bad: #b3261e;
+      --bad-wash: #fdecea;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 "Google Sans", Roboto, Arial, sans-serif; color: var(--ink); background: #fff; }
+    .wrap { padding: 4px 6px 24px; }
+    .steps { display: flex; gap: 6px; margin: 0 0 18px; padding: 0; list-style: none; }
+    .steps li { flex: 1; height: 5px; border-radius: 5px; background: var(--line); }
+    .steps li.done { background: var(--accent); }
+    .eyebrow { margin: 0; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 4px 0 6px; font-size: 24px; line-height: 1.2; }
+    p.lead { margin: 0 0 18px; color: var(--soft); }
+    label { display: block; margin: 14px 0 4px; font-weight: 600; }
+    .hint { margin: 3px 0 0; color: var(--soft); font-size: 13px; }
+    input[type=text], input[type=date], input[type=time], input[type=url], select {
+      width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid #c5cbd8; border-radius: 8px; font: inherit; color: inherit;
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .choice { display: grid; gap: 8px; margin-top: 6px; }
+    .choice label { display: flex; gap: 10px; align-items: flex-start; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-weight: 400; cursor: pointer; }
+    .choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-wash); }
+    .choice b { display: block; }
+    table.bells { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    table.bells th { padding: 4px 6px; color: var(--soft); font-size: 12px; font-weight: 600; text-align: left; }
+    table.bells td { padding: 3px 6px 3px 0; }
+    table.bells td:first-child { width: 88px; font-weight: 600; }
+    .actions { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 22px; }
+    button, a.button {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--accent-dark);
+      border-radius: 10px; background: var(--accent); color: #fff; font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; text-decoration: none; cursor: pointer;
+    }
+    button:hover, a.button:hover { background: var(--accent-dark); }
+    button.quiet, a.button.quiet { border-color: #c5cbd8; background: #fff; color: var(--ink); }
+    button.quiet:hover, a.button.quiet:hover { background: #f4f5f9; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .message { display: none; margin-top: 14px; padding: 10px 12px; border-radius: 10px; }
+    .message.show { display: block; }
+    .message.bad { background: var(--bad-wash); color: var(--bad); }
+    .message.good { background: var(--good-wash); color: var(--good); }
+    ol.clicks { margin: 0; padding: 0; list-style: none; counter-reset: click; }
+    ol.clicks li { position: relative; margin: 0 0 10px; padding: 10px 12px 10px 48px; border: 1px solid var(--line); border-radius: 10px; counter-increment: click; }
+    ol.clicks li::before { content: counter(click); position: absolute; left: 12px; top: 9px; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; text-align: center; line-height: 26px; }
+    .pill { display: inline-block; padding: 0 7px; border: 1px solid #c5cbd8; border-radius: 6px; background: #f6f7fa; font-weight: 600; white-space: nowrap; }
+    .link-card { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; }
+    .link-card h2 { margin: 0; font-size: 15px; }
+    .link-card p { margin: 2px 0 8px; color: var(--soft); font-size: 13px; }
+    .link-card .copy-row { display: flex; gap: 8px; }
+    .link-card input { flex: 1; font-size: 13px; }
+    .link-card .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .spinner { width: 36px; height: 36px; margin: 60px auto 16px; border: 4px solid var(--accent-wash); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .center { text-align: center; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <ol class="steps" id="steps" hidden><li></li><li></li><li></li><li></li></ol>
+
+    <!-- Loading -->
+    <section id="screen-loading" class="center">
+      <div class="spinner"></div>
+      <h1>Getting your spreadsheet ready…</h1>
+      <p class="lead">The first time takes about 20 seconds.</p>
+    </section>
+
+    <!-- 1. About the pass -->
+    <section id="screen-about" hidden>
+      <p class="eyebrow">Step 1 of 4</p>
+      <h1>About your pass</h1>
+      <p class="lead">Just a few answers. You can change any of them later.</p>
+
+      <label for="teacher-name">Your name, the way students say it</label>
+      <input type="text" id="teacher-name" placeholder="Mrs. Smith" autocomplete="off">
+      <label for="app-title">The top of the pass will say</label>
+      <input type="text" id="app-title" maxlength="60">
+      <p class="hint">Fills in from your name. Change it if you like, for example “Room 214 Hall Pass”.</p>
+
+      <label for="destination">Where students go</label>
+      <input type="text" id="destination" maxlength="40" placeholder="Restroom">
+
+      <label for="max-active">How many students may be out at once</label>
+      <select id="max-active">
+        <option value="1">1 at a time (others wait in line)</option>
+        <option value="2">2 at a time</option>
+        <option value="3">3 at a time</option>
+      </select>
+
+      <label for="student-domain">Student emails end with</label>
+      <input type="text" id="student-domain" placeholder="students.yourschool.org" autocomplete="off">
+      <p class="hint">Look at any student’s email in Google Classroom and type the part after the @.</p>
+
+      <label>How will students sign out?</label>
+      <div class="choice" id="sign-out-style">
+        <label><input type="radio" name="style" value="own" checked><span><b>On their own Chromebooks</b>You post one link in Google Classroom.</span></label>
+        <label><input type="radio" name="style" value="station"><span><b>At one computer by the door</b>Leave the pass open on that computer.</span></label>
+        <label><input type="radio" name="style" value="both"><span><b>Both</b>Either way works at the same time.</span></label>
+      </div>
+
+      <div class="message bad" id="about-message"></div>
+      <div class="actions"><span></span><button type="button" id="about-next">Next: bell times →</button></div>
+    </section>
+
+    <!-- 2. Bells -->
+    <section id="screen-bells" hidden>
+      <p class="eyebrow">Step 2 of 4</p>
+      <h1>Your bell times</h1>
+      <p class="lead">Fill in only the periods you teach, on a normal day. Hall Pass uses this to know which class a student is in and to keep passes out of the first and last minutes of class.</p>
+      <table class="bells">
+        <thead><tr><th>Period</th><th>Starts</th><th>Ends</th></tr></thead>
+        <tbody id="bell-rows"></tbody>
+      </table>
+      <div class="row">
+        <div><label for="year-start">First day of school</label><input type="date" id="year-start"></div>
+        <div><label for="year-end">Last day of school</label><input type="date" id="year-end"></div>
+      </div>
+      <p class="hint">Optional. No-school days can be added later from your teacher page.</p>
+      <div class="message bad" id="bells-message"></div>
+      <div class="actions">
+        <button type="button" class="quiet" id="bells-back">← Back</button>
+        <button type="button" id="bells-save">Save and continue →</button>
+      </div>
+    </section>
+
+    <!-- 3. Turn it on -->
+    <section id="screen-turn-on" hidden>
+      <p class="eyebrow">Step 3 of 4</p>
+      <h1>Turn it on</h1>
+      <p class="lead">Google needs you to switch it on yourself, once. It is about six clicks.</p>
+      <ol class="clicks">
+        <li><a class="button quiet" id="open-editor" href="#" target="_blank" rel="noopener">Open the program ↗</a><br>A new tab opens with the Hall Pass program. You do not need to change anything there.</li>
+        <li>Top right, click the blue <span class="pill">Deploy</span>, then <span class="pill">New deployment</span>.</li>
+        <li>Click the gear ⚙ next to “Select type” and choose <span class="pill">Web app</span>.</li>
+        <li>Set <b>Execute as</b> to <span class="pill">Me</span> and <b>Who has access</b> to <span class="pill">Anyone within <span id="domain-name">your school</span></span>. Click <span class="pill">Deploy</span>.</li>
+        <li>If Google asks, click <span class="pill">Authorize access</span>, pick your school account, and click <span class="pill">Allow</span>. (If it says the app isn’t verified: <span class="pill">Advanced</span> → <span class="pill">Go to Hall Pass</span>. It is your own copy.)</li>
+        <li>Under <b>Web app</b>, click <span class="pill">Copy</span>. Come back to this tab and paste it here:</li>
+      </ol>
+      <input type="url" id="web-app-link" placeholder="https://script.google.com/…/exec" autocomplete="off">
+      <div class="message bad" id="link-message"></div>
+      <div class="actions">
+        <button type="button" class="quiet" id="turn-on-back">← Back</button>
+        <button type="button" id="link-save">Finish →</button>
+      </div>
+    </section>
+
+    <!-- 4. Done -->
+    <section id="screen-done" hidden>
+      <p class="eyebrow">Step 4 of 4</p>
+      <h1>Your Hall Pass is on 🎉</h1>
+      <p class="lead" id="done-lead">Here are your links. Open Hall Pass → Start setup any time to see them again.</p>
+
+      <div class="link-card" id="card-student">
+        <h2>Student link</h2>
+        <p>Students open this on their Chromebook and type their PIN.</p>
+        <div class="copy-row"><input type="text" readonly id="link-student"><button type="button" class="quiet" data-copy="link-student">Copy</button></div>
+        <div class="buttons"><a class="button" id="share-classroom" href="#" target="_blank" rel="noopener">Post it in Google Classroom ↗</a></div>
+      </div>
+
+      <div class="link-card" id="card-kiosk">
+        <h2>Door computer link</h2>
+        <p>Open this on the computer by your door and leave it open.</p>
+        <div class="copy-row"><input type="text" readonly id="link-kiosk"><button type="button" class="quiet" data-copy="link-kiosk">Copy</button></div>
+      </div>
+
+      <div class="link-card">
+        <h2>Your teacher page</h2>
+        <p>See who is out, add students, and print PIN cards. Bookmark it.</p>
+        <div class="copy-row"><input type="text" readonly id="link-teacher"><button type="button" class="quiet" data-copy="link-teacher">Copy</button></div>
+        <div class="buttons"><a class="button" id="open-teacher" href="#" target="_blank" rel="noopener">Open my teacher page ↗</a></div>
+      </div>
+
+      <div class="link-card">
+        <h2>Next: add your students</h2>
+        <p id="students-next">Using GoClassroom? Open it, click <b>Rosters &amp; Hall Pass</b>, paste your student link above, and it brings your Google Classroom students over. Not using it? On your teacher page, click <b>Add students</b> and paste names and emails.</p>
+      </div>
+
+      <div class="message good" id="done-message"></div>
+      <div class="actions">
+        <button type="button" class="quiet" id="done-edit">Change my answers</button>
+        <button type="button" id="done-close">Close</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var state = null;
+      // Until the teacher picks, show both the Chromebook and door-computer links.
+      var style = 'both';
+      var $ = function (id) { return document.getElementById(id); };
+      var screens = ['loading', 'about', 'bells', 'turn-on', 'done'];
+
+      function show(name) {
+        screens.forEach(function (screen) { $('screen-' + screen).hidden = screen !== name; });
+        var index = screens.indexOf(name);
+        $('steps').hidden = index < 1;
+        Array.prototype.forEach.call($('steps').children, function (bar, i) { bar.className = i < index ? 'done' : ''; });
+        window.scrollTo(0, 0);
+      }
+
+      function say(id, text, good) {
+        var box = $(id);
+        box.textContent = text || '';
+        box.className = 'message ' + (good ? 'good' : 'bad') + (text ? ' show' : '');
+      }
+
+      function run(name, args, onDone, messageId, button) {
+        if (button) button.disabled = true;
+        if (messageId) say(messageId, '');
+        var runner = google.script.run
+          .withSuccessHandler(function (result) { if (button) button.disabled = false; onDone(result); })
+          .withFailureHandler(function (error) {
+            if (button) button.disabled = false;
+            var text = String((error && error.message) || error || 'Something went wrong. Try again.');
+            if (messageId) say(messageId, text); else { show('about'); say('about-message', text); }
+          });
+        runner[name].apply(runner, args || []);
+      }
+
+      function possessive(name) {
+        name = name.trim();
+        if (!name) return '';
+        return name + (/s$/i.test(name) ? '’' : '’s') + ' Hall Pass';
+      }
+
+      var titleTouched = false;
+      $('teacher-name').addEventListener('input', function () {
+        if (!titleTouched) $('app-title').value = possessive($('teacher-name').value) || 'Hall Pass';
+      });
+      $('app-title').addEventListener('input', function () { titleTouched = true; });
+      Array.prototype.forEach.call(document.querySelectorAll('input[name=style]'), function (radio) {
+        radio.addEventListener('change', function () { style = radio.value; });
+      });
+
+      function fillBells(periods) {
+        var body = $('bell-rows');
+        body.innerHTML = '';
+        periods.forEach(function (entry) {
+          var row = document.createElement('tr');
+          row.innerHTML = '<td>Period ' + entry.period + '</td>' +
+            '<td><input type="time" data-period="' + entry.period + '" data-edge="start"></td>' +
+            '<td><input type="time" data-period="' + entry.period + '" data-edge="end"></td>';
+          body.appendChild(row);
+          row.querySelector('[data-edge=start]').value = entry.start || '';
+          row.querySelector('[data-edge=end]').value = entry.end || '';
+        });
+      }
+
+      function fill(next) {
+        state = next;
+        $('app-title').value = next.appTitle || 'Hall Pass';
+        titleTouched = next.appTitle && next.appTitle !== 'Hall Pass';
+        $('destination').value = next.destination || 'Restroom';
+        $('max-active').value = String(Math.min(3, Math.max(1, next.maxActivePasses || 1)));
+        $('student-domain').value = next.studentEmailDomain || '';
+        if (!next.studentEmailDomain && next.ownerDomain) $('student-domain').placeholder = 'students.' + next.ownerDomain;
+        fillBells(next.periods || []);
+        $('year-start').value = next.yearStart || '';
+        $('year-end').value = next.yearEnd || '';
+        $('open-editor').href = next.scriptEditorUrl;
+        $('domain-name').textContent = next.ownerDomain ? 'your school (' + next.ownerDomain + ')' : 'your school';
+      }
+
+      function answers() {
+        var periods = Array.prototype.map.call(document.querySelectorAll('#bell-rows tr'), function (row) {
+          return {
+            period: Number(row.querySelector('[data-edge=start]').getAttribute('data-period')),
+            start: row.querySelector('[data-edge=start]').value,
+            end: row.querySelector('[data-edge=end]').value,
+          };
+        });
+        return {
+          appTitle: $('app-title').value,
+          destination: $('destination').value,
+          maxActivePasses: Number($('max-active').value),
+          studentEmailDomain: $('student-domain').value,
+          periods: periods,
+          yearStart: $('year-start').value,
+          yearEnd: $('year-end').value,
+        };
+      }
+
+      function showDone(next) {
+        var links = next.links;
+        $('link-student').value = links.student;
+        $('link-kiosk').value = links.kiosk;
+        $('link-teacher').value = links.teacher;
+        $('share-classroom').href = links.classroomShare;
+        $('open-teacher').href = links.teacher;
+        $('card-student').hidden = style === 'station';
+        $('card-kiosk').hidden = style === 'own';
+        show('done');
+      }
+
+      $('about-next').addEventListener('click', function () {
+        if (!$('app-title').value.trim()) return say('about-message', 'Type your name or what the top of the pass should say.');
+        if (!$('student-domain').value.trim()) return say('about-message', 'Type how student emails end, like students.yourschool.org.');
+        say('about-message', '');
+        show('bells');
+      });
+      $('bells-back').addEventListener('click', function () { show('about'); });
+      $('bells-save').addEventListener('click', function () {
+        run('setupWizardSave', [answers()], function (next) {
+          fill(next);
+          if (next.links) return showDone(next);
+          show('turn-on');
+          google.script.run
+            .withSuccessHandler(function (found) {
+              if (found && found.link && !$('web-app-link').value) $('web-app-link').value = found.link;
+            })
+            .withFailureHandler(function () { /* the teacher pastes it instead */ })
+            .setupWizardFindLink();
+        }, 'bells-message', $('bells-save'));
+      });
+      $('turn-on-back').addEventListener('click', function () { show('bells'); });
+      $('link-save').addEventListener('click', function () {
+        run('setupWizardSaveLink', [$('web-app-link').value], function (next) { fill(next); showDone(next); }, 'link-message', $('link-save'));
+      });
+      $('done-edit').addEventListener('click', function () { show('about'); });
+      $('done-close').addEventListener('click', function () { google.script.host.close(); });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function (button) {
+        button.addEventListener('click', function () {
+          var field = $(button.getAttribute('data-copy'));
+          field.select();
+          var copied = false;
+          try { copied = document.execCommand('copy'); } catch (error) { copied = false; }
+          say('done-message', copied ? 'Copied.' : 'Press Ctrl+C to copy the highlighted link.', true);
+        });
+      });
+
+      run('setupWizardLoad', [], function (next) {
+        fill(next);
+        if (next.links && next.bellsReady) return showDone(next);
+        show('about');
+      });
+    })();
+  </script>
+</body>
+</html>
