@@ -20,6 +20,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'hh-never-use-the-word',
+    href: '/hubs/hh-never-use-the-word.html',
+    title: 'never use the word',
+    course: 'hidden history',
+    unit: 'unit 04 / trust and verify',
+    period: '1945–1997',
+    status: 'ready to teach',
+    question: 'the government really did inject hospital patients with plutonium. were they dying anyway, and why was it kept secret?',
+    blurb:
+      'Eighteen patients filed under code numbers, a first shot given to a man with broken bones, a stomach cancer that was an ulcer, the 1947 memos that kept the reports locked, and a 1972 rule never to say the word plutonium.',
+    cover: '/storyhub/hh/never-use-the-word/assets/p01-oak-ridge-hospital.jpg',
+    coverAlt: 'Colorized photograph of the long white wooden buildings of the Oak Ridge Army hospital under a cloudy sky in 1944',
+    topics: ['plutonium injections', 'manhattan project', 'human radiation experiments', 'informed consent', 'eileen welsome', 'conspiracy theories'],
+    inside: [
+      'Eight entries from the Los Alamos accident of 1944 to the settlements of 1997.',
+      'Count out ten milligrams of plutonium one microgram at a time, then run the years on all eighteen patients against the claim that none would live ten more.',
+      'Label the reasons in the 1947 secrecy memos and see what survivors and families were told in 1973.',
+      'Rule on five claims with evidence, answer four short questions and write a 150 to 200 word argument. Answers save in the browser and copy into Classroom.',
+    ],
+  },
+  {
     slug: 'hh-too-successful',
     href: '/hubs/hh-too-successful.html',
     title: 'too successful',

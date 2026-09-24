@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Never Use the Word &middot; Hidden History</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="The plutonium injections, 1945 to 1995. Eighteen hospital patients were injected with plutonium for the atomic bomb project and filed under code numbers. Follow the record from the first shot at Oak Ridge to the reporter who named them, then rule on what the viral version gets right and wrong.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-never-use-the-word.html">
+<meta property="og:title" content="Never Use the Word · The Plutonium Injections">
+<meta property="og:description" content="Eighteen patients, eighteen code numbers, and a 1972 memo that told staff never to say the word plutonium.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-never-use-the-word.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/never-use-the-word/assets/p01-oak-ridge-hospital.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Special+Elite&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ward:#e7ede4;
+  --rule:#cdd8cb;
+  --paper:#fbfbf6;
+  --ink:#142022;
+  --dim:#46534f;
+  --magenta:#a3155b;
+  --magenta-d:#7c0f45;
+  --magenta-l:#f394c4;
+  --cobalt:#1c4787;
+  --cobalt-l:#a9c6f3;
+  --film:#0c1214;
+  --film2:#162024;
+  --filmline:#2d3b40;
+  --glow:#8fe0d4;
+  --pale:#dde8e5;
+  --mist:#aebfbb;
+  --yellow:#f3e07c;
+  --yellow2:#e9d25c;
+  --blue-rule:#8fb2d6;
+  --manila:#ecd8a8;
+  --manila2:#dcc083;
+  --green:#1b6a3b;
+  --amber:#875400;
+  --red:#a31d2c;
+  --slate:#4a5357;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ward);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-size:18px;line-height:1.66}
+img{max-width:100%}
+p{margin:0 0 1.05em}
+a{color:inherit}
+button{font:inherit}
+.cap{font-family:"IBM Plex Sans Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
+.typed{font-family:"Special Elite","Courier New",monospace}
+
+/* COVER */
+.cover{position:relative;min-height:94vh;display:flex;align-items:flex-end;justify-content:center;background:var(--film);color:var(--pale);overflow:hidden;padding:0 16px 34px}
+.cover > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 60%}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,14,16,.05) 0%,rgba(8,14,16,.18) 45%,rgba(8,14,16,.9) 100%)}
+.coverc{position:absolute;right:12px;top:12px;z-index:1;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:#eef3f1;background:rgba(8,14,16,.76);padding:4px 8px;max-width:62%;text-align:right}
+.chartcard{position:relative;z-index:1;width:min(660px,100%);background:var(--paper);color:var(--ink);box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+.chartcard .top{display:flex;align-items:center;gap:12px;background:var(--cobalt);color:#fff;padding:9px 14px}
+.chartcard .top svg{width:34px;height:34px;flex:none}
+.chartcard .top .cap{line-height:1.3}
+.chartcard .in{padding:18px 22px 16px;border:3px solid var(--cobalt);border-top:0;background-image:linear-gradient(90deg,transparent 0 12px,var(--magenta) 12px 13.5px,transparent 13.5px 16px,var(--magenta) 16px 17.5px,transparent 17.5px);background-repeat:no-repeat}
+.chartcard .in > *{margin-left:10px}
+.chartcard h1{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:clamp(2.9rem,11vw,5.4rem);line-height:.92;margin:4px 0 12px;letter-spacing:-.01em}
+.chartcard h1 i{color:var(--magenta)}
+.chartcard .dek{font-size:clamp(1rem,2.4vw,1.1rem);line-height:1.52;margin:0 0 14px;max-width:50ch}
+.codes{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 14px;padding:0;list-style:none}
+.codes li{font-family:"Special Elite","Courier New",monospace;font-size:.8rem;border:1.5px solid var(--ink);padding:1px 6px 0;background:#fff}
+.codes li.m{background:var(--magenta);border-color:var(--magenta);color:#fff}
+.chartcard .foot{display:flex;justify-content:space-between;gap:6px 18px;flex-wrap:wrap;border-top:1.5px solid var(--ink);padding-top:9px;color:var(--dim)}
+@media(max-width:560px){.coverc{font-size:.62rem;max-width:74%}.codes li{font-size:.72rem}}
+
+/* BANDS */
+.band{padding:64px 16px 50px}
+.ward{background-color:var(--ward);background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px)}
+.col{max-width:700px;margin:0 auto;background:var(--ward);padding:6px 0}
+.col > *{min-width:0}
+.wide{max-width:1000px;margin:0 auto}
+.film{background:var(--film);color:var(--pale);background-image:repeating-linear-gradient(180deg,transparent 0 22px,rgba(143,224,212,.05) 22px 34px);background-size:14px 34px;background-repeat:repeat-y;background-position:left top}
+.film .col{background:var(--film)}
+.yellow{background-color:var(--yellow);background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--blue-rule) 31px 32px)}
+.yellow .col{background:var(--yellow)}
+.manila{background:var(--manila)}
+.manila .col{background:var(--manila)}
+
+/* ENTRY TAGS AND HEADINGS */
+.tag{display:inline-flex;align-items:stretch;border:1.5px solid var(--ink);color:var(--ink);font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.84rem;letter-spacing:.12em;text-transform:uppercase;background:var(--paper);max-width:100%}
+.tag .no{background:var(--magenta);color:#fff;padding:4px 10px 3px;white-space:nowrap}
+.tag .where{padding:4px 10px 3px;border-left:1.5px solid var(--ink)}
+.film .tag{border-color:var(--glow);color:var(--pale);background:var(--film)}
+.film .tag .no{background:var(--glow);color:var(--film)}
+.film .tag .where{border-left-color:var(--glow)}
+h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:clamp(2.1rem,6.4vw,3.4rem);line-height:1.04;margin:18px 0 22px;letter-spacing:-.005em;text-wrap:balance}
+h2 em{font-style:italic;color:var(--magenta)}
+.film h2 em{color:var(--magenta-l)}
+.lead{font-size:1.08rem}
+.lead::first-line{font-weight:600}
+
+/* FIGURES */
+figure{margin:30px 0}
+figure img{display:block;width:100%;height:auto;background:#c9d3cf}
+figcaption{font-size:.9rem;line-height:1.5;padding:9px 0 0;color:var(--dim)}
+figcaption b{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-right:6px}
+.film figcaption{color:var(--mist)}
+.film figcaption b{color:var(--pale)}
+.credit{display:block;margin-top:4px;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:500;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:#56615e}
+.film .credit{color:#9fb0ac}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+@media(max-width:600px){.duo{grid-template-columns:minmax(0,1fr)}}
+.duo.w{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+@media(max-width:600px){.duo.w{grid-template-columns:minmax(0,1fr)}}
+.inset{float:right;width:36%;margin:6px 0 14px 22px}
+@media(max-width:600px){.inset{float:none;width:70%;margin:22px auto}}
+.clear{clear:both}
+
+/* DOCUMENTS AND QUOTES */
+.slip{background:var(--paper);color:var(--ink);border:1px solid #b9c2b8;margin:28px 0;box-shadow:0 16px 30px -22px rgba(0,0,0,.7)}
+.slip .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:var(--cobalt);color:#fff;padding:6px 14px 5px}
+.slip .bd{padding:14px 18px 10px;font-family:"Special Elite","Courier New",monospace;font-size:.95rem;line-height:1.65}
+.slip .bd p{margin:0 0 .8em}
+.pull{margin:34px 0;padding:18px 0 16px 18px;border-left:6px solid var(--magenta)}
+.pull p{font-family:"DM Serif Display",Georgia,serif;font-size:clamp(1.35rem,3.8vw,1.85rem);line-height:1.25;margin:0}
+.pull cite{display:block;margin-top:12px;font-style:normal;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--magenta)}
+.film .pull{border-left-color:var(--magenta-l)}
+.film .pull cite{color:var(--magenta-l)}
+.voice{margin:30px 0;padding:16px 18px;background:var(--paper);border-top:4px solid var(--cobalt);box-shadow:0 16px 30px -24px rgba(0,0,0,.6)}
+.voice p{font-style:italic;margin:0 0 .6em}
+.voice .who{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cobalt)}
+.film .voice{background:var(--film2);border-top-color:var(--glow)}
+.film .voice .who{color:var(--glow)}
+
+/* YELLOW SHEETS */
+.sheets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:28px 0 8px;padding:0;list-style:none}
+@media(max-width:640px){.sheets{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.sheets li{background:#fffbe0;border:1px solid #c9b64f;box-shadow:0 6px 12px -8px rgba(0,0,0,.45);padding:8px 6px 6px;text-align:center;background-image:repeating-linear-gradient(180deg,transparent 0 13px,#bcd0e6 13px 14px);background-position:0 26px}
+.sheets li:nth-child(3n){transform:rotate(-1.2deg)}
+.sheets li:nth-child(4n+1){transform:rotate(1deg)}
+.sheets b{display:block;font-family:"Special Elite","Courier New",monospace;font-weight:400;font-size:1.05rem;line-height:1.1;background:#fffbe0}
+.sheets span{display:block;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:#5a5130;margin-top:4px;background:#fffbe0}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;color:#4a4120}
+
+/* INSTRUMENT SHELL */
+.rig{margin:34px 0;border:2px solid var(--ink);background:var(--paper);color:var(--ink)}
+.rig > header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--cobalt);color:#fff;padding:9px 14px;border-bottom:4px solid var(--magenta)}
+.rig > header b{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.98rem;letter-spacing:.14em;text-transform:uppercase}
+.rig > header span{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:#dbe6f7}
+.rig .in{padding:16px}
+.film .rig{background:var(--film2);color:var(--pale);border-color:var(--glow)}
+.film .rig > header{background:#0a2d33;border-bottom-color:var(--magenta-l)}
+.btn{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;border:2px solid var(--ink);padding:8px 14px;min-height:44px;cursor:pointer;border-radius:0}
+.btn:hover{background:var(--magenta-d);border-color:var(--magenta-d)}
+.btn.alt{background:#fff;color:var(--ink);border-color:var(--ink)}
+.btn.alt:hover{background:var(--ward)}
+.btn[aria-pressed="true"],.btn.alt[aria-pressed="true"],.btn[aria-pressed="true"]:hover{background:var(--magenta);border-color:var(--magenta);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.film .btn{background:var(--glow);color:var(--film);border-color:var(--glow)}
+.film .btn:hover{background:#c5f1ea;border-color:#c5f1ea}
+.film .btn.alt{background:transparent;color:var(--pale);border-color:var(--pale)}
+.film .btn.alt:hover{background:var(--filmline)}
+.film .btn[aria-pressed="true"],.film .btn.alt[aria-pressed="true"],.film .btn.alt[aria-pressed="true"]:hover{background:var(--magenta-l);border-color:var(--magenta-l);color:var(--film)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:3px solid var(--cobalt);outline-offset:2px}
+.film button:focus-visible,.film input:focus-visible{outline-color:var(--glow)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{font-size:.97rem;margin:12px 0 0;min-height:3.2em}
+.small{font-size:.86rem;color:var(--dim)}
+.film .small{color:var(--mist)}
+
+/* MICROGRAM GRID */
+.gridwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:680px){.gridwrap{grid-template-columns:minmax(0,1fr)}}
+.vial{position:relative;border:2px solid var(--ink);background:#fff;padding:6px}
+.vial canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;image-rendering:pixelated}
+.doses{display:grid;gap:6px}
+.doses .btn{text-align:left;text-transform:none;letter-spacing:.01em;font-size:.98rem;font-weight:600;line-height:1.25;display:flex;justify-content:space-between;gap:10px}
+.doses .btn small{font-weight:500;font-size:.84rem;opacity:.9}
+.readout{margin-top:12px;border-top:3px solid var(--ink);padding-top:8px}
+.readout .big{font-family:"DM Serif Display",Georgia,serif;font-size:2.1rem;line-height:1.05}
+.readout .big span{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.86rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-left:6px}
+
+/* LIFELINES */
+.betrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 12px}
+.betrow input[type=range]{flex:1 1 220px;accent-color:var(--magenta-l);min-height:44px}
+.betrow output{font-family:"DM Serif Display",Georgia,serif;font-size:1.9rem;min-width:3ch;color:var(--magenta-l)}
+.yr{font-family:"DM Serif Display",Georgia,serif;font-size:2.4rem;line-height:1;color:var(--glow)}
+.life{display:block;width:100%;height:auto;margin-top:8px}
+.picker{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:14px}
+@media(max-width:560px){.picker{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.picker .btn{font-family:"Special Elite","Courier New",monospace;font-weight:400;letter-spacing:.02em;font-size:.92rem;padding:6px 4px;text-transform:none}
+.pcard{margin-top:14px;border:1.5px solid var(--glow);padding:12px 14px;min-height:7.5em;font-size:.96rem;line-height:1.5}
+.pcard b.c{font-family:"Special Elite","Courier New",monospace;font-weight:400;font-size:1.25rem;color:var(--magenta-l);margin-right:8px}
+.pcard dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;margin:8px 0 0}
+.pcard dt{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);padding-top:3px}
+.pcard dd{margin:0}
+details.data{margin-top:14px;font-size:.88rem}
+details.data summary{cursor:pointer;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.1em;text-transform:uppercase;color:var(--glow);min-height:44px;display:flex;align-items:center}
+.tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+.tbl th,.tbl td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--filmline);vertical-align:top}
+.tbl th{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:.74rem;color:var(--mist)}
+.tscroll{max-width:100%;overflow-x:auto}
+
+/* HIGHLIGHTER */
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 12px;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:14px;height:14px;border:1.5px solid var(--ink)}
+.l-sec{background:#b9d3f5}.l-pub{background:#f7c1dc}.l-law{background:#f4d58c}.l-need{background:#cfd8d4}
+.doc{margin:0 0 14px;border:1px solid #c3cbc1;background:#fff}
+.doc .dh{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-bottom:1px solid #c3cbc1;background:#f1f4ef;color:var(--dim)}
+.doc p{font-family:"Special Elite","Courier New",monospace;font-size:.95rem;line-height:1.85;margin:0;padding:10px 12px}
+.hl{font:inherit;line-height:inherit;color:inherit;background:transparent;border:0;border-bottom:2px dotted var(--magenta);padding:0 1px;cursor:pointer;text-align:left;display:inline;border-radius:0}
+.hl.sec{background:#b9d3f5}.hl.pub{background:#f7c1dc}.hl.law{background:#f4d58c}.hl.need{background:#cfd8d4}
+.hl .lab{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;vertical-align:super;margin-left:3px;color:var(--ink)}
+.hl.ok{outline:2px solid var(--green);outline-offset:1px}
+.hl.no{outline:2px solid var(--red);outline-offset:1px}
+.tally{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:1.02rem;letter-spacing:.02em;margin-top:14px;min-height:1.6em}
+
+/* SAID AND HEARD */
+.cases{display:grid;gap:12px}
+.case{border:1.5px solid var(--filmline);background:var(--film);padding:12px 14px}
+.case .who{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--glow)}
+.case .f,.case .h{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;margin-top:8px;align-items:baseline}
+@media(max-width:520px){.case .f,.case .h{grid-template-columns:minmax(0,1fr);gap:2px}}
+.case .k{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.case .f .t{font-family:"Special Elite","Courier New",monospace;font-size:.95rem;line-height:1.6;transition:color .5s ease}
+.case.open .f .t{text-decoration:line-through;text-decoration-color:var(--magenta-l);text-decoration-thickness:2px;color:#8a9a97}
+.case .h{display:none}
+.case.open .h{display:grid}
+.case .h .t{font-size:1rem;line-height:1.55;color:#fff}
+.case .h .src{display:block;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:500;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);margin-top:4px}
+.case .btn{margin-top:10px;font-size:.84rem;padding:6px 12px}
+.counter{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;border-top:1.5px solid var(--filmline);padding-top:10px}
+.counter div{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
+.counter b{display:block;font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:2rem;letter-spacing:0;color:var(--magenta-l);line-height:1.05}
+
+/* CASE FILES */
+.files{display:grid;gap:30px;margin-top:30px}
+.file{background:#fff8e6;border:1.5px solid #9d8448;position:relative;padding:14px 14px 12px;box-shadow:0 10px 20px -16px rgba(0,0,0,.6)}
+.file::before{content:attr(data-n);position:absolute;left:14px;top:-15px;background:var(--manila2);border:1.5px solid #9d8448;border-bottom:0;padding:1px 12px 0;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase}
+.file .claim{font-family:"DM Serif Display",Georgia,serif;font-size:1.3rem;line-height:1.25;margin:4px 0 10px;padding-right:160px}
+@media(max-width:560px){.file .claim{padding-right:0}}
+.file .lbl{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:8px 0 6px}
+.file .opts{display:flex;flex-wrap:wrap;gap:6px}
+.file .opts .btn{font-size:.8rem;padding:6px 10px;letter-spacing:.08em}
+.file .ev{display:grid;gap:6px}
+.file .ev .btn{text-align:left;text-transform:none;letter-spacing:.01em;font-weight:600;font-size:.95rem;line-height:1.3}
+.file .why{display:none;margin:12px 0 0;font-size:.95rem;line-height:1.5;border-top:1.5px dashed #9d8448;padding-top:10px}
+.file.done .why{display:block}
+.file .you{display:none;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.file.done .you{display:block}
+.file.done .btn{cursor:default}
+.file.done .row{display:none}
+.stamp{position:absolute;right:14px;top:12px;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;border:3px solid currentColor;padding:2px 8px 1px;transform:rotate(-5deg);background:#fff8e6;display:none}
+.file.done .stamp{display:inline-block}
+@media(max-width:560px){.stamp{position:static;margin-top:10px}}
+.v-confirmed{color:var(--green)}
+.v-debunked{color:var(--red)}
+.v-unproven{color:var(--slate)}
+.v-misleading{color:var(--amber)}
+.file.done.c-confirmed{border-color:var(--green)}
+.file.done.c-debunked{border-color:var(--red)}
+.file.done.c-unproven{border-color:var(--slate);border-style:dashed}
+.file.done.c-misleading{border-color:var(--amber)}
+
+/* QUESTIONS AND WRITING */
+.q{margin:34px 0 0;padding-top:14px;border-top:3px solid currentColor}
+.q label{display:flex;gap:12px;align-items:baseline;margin-bottom:10px;font-size:1rem}
+.q .n{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;color:var(--magenta);flex:none;font-size:1.02rem;letter-spacing:.06em}
+.film .q .n{color:var(--magenta-l)}
+textarea{width:100%;min-height:100px;border:1.5px solid #8f9c98;background:#fff;color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-size:1rem;line-height:1.6;padding:10px 12px;resize:vertical;border-radius:0}
+.idbar{display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:#fff;margin:0 auto;max-width:900px}
+.idbar label{flex:1 1 180px;display:flex;align-items:center;gap:10px;padding:11px 14px;border-right:1px solid var(--rule);font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.idbar label:last-child{border-right:0}
+.idbar input{flex:1;min-width:0;border:0;border-bottom:1.5px solid #8f9c98;background:transparent;font-family:"Special Elite","Courier New",monospace;font-size:.98rem;color:var(--ink);padding:2px}
+.idbar input:focus{outline:0;border-bottom-color:var(--magenta)}
+.idwrap{padding:26px 16px 0;background:var(--ward)}
+.prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+@media(max-width:640px){.prompts{grid-template-columns:minmax(0,1fr)}}
+.prompt{display:block;border:2px solid var(--pale);background:var(--film2);color:var(--pale);padding:14px 16px;cursor:pointer;position:relative;font-size:.97rem}
+.prompt input{position:absolute;opacity:0;width:0;height:0}
+.prompt .ph{display:block;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta-l);margin-bottom:6px}
+.prompt.sel{background:var(--pale);border-color:var(--pale);color:var(--ink)}
+.prompt.sel .ph{color:var(--magenta)}
+.prompt:focus-within{outline:3px solid var(--glow);outline-offset:2px}
+.essaymeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin:20px 0 8px}
+#wc{color:var(--magenta-l)}
+#wc.ok{color:#8fd3a5}
+#essay{min-height:240px}
+.actions{margin-top:28px;padding:22px;background:var(--film2);color:var(--pale);display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:6px solid var(--magenta-l)}
+.actions p{margin:0;max-width:44ch;font-size:.95rem}
+#copy{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:1rem;letter-spacing:.12em;text-transform:uppercase;background:var(--magenta-l);color:var(--film);border:0;padding:14px 24px;min-height:48px;cursor:pointer}
+#copy.done{background:#8fd3a5}
+.refs{margin:44px 0 20px;border-top:3px solid var(--ink);padding-top:12px;font-size:.84rem;line-height:1.6;color:var(--dim)}
+.refs h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);margin:0 0 10px}
+.refs div{padding-left:2em;text-indent:-2em;margin-bottom:6px;overflow-wrap:anywhere}
+.saved{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--film);color:var(--pale);font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;padding:8px 16px;border-left:5px solid var(--magenta-l);opacity:0;transition:opacity .3s;pointer-events:none;z-index:40}
+.saved.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <img src="/storyhub/hh/never-use-the-word/assets/p01-oak-ridge-hospital.jpg" alt="Long white wooden hospital buildings stretch across a green field under a wide, cloudy sky." fetchpriority="high">
+  <span class="coverc">Oak Ridge Hospital, Tennessee, 1944 · Ed Westcott, U.S. Department of Energy</span>
+  <div class="chartcard">
+    <div class="top">
+      <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><circle cx="50" cy="50" r="9" fill="#f394c4"/><path fill="#f394c4" d="M27.50 11.03A45 45 0 0 1 72.50 11.03L56.75 38.31A13.5 13.5 0 0 0 43.25 38.31ZM95.00 50.00A45 45 0 0 1 72.50 88.97L56.75 61.69A13.5 13.5 0 0 0 63.50 50.00ZM27.50 88.97A45 45 0 0 1 5.00 50.00L36.50 50.00A13.5 13.5 0 0 0 43.25 61.69Z"/></svg>
+      <span class="cap">Hidden History · Unit 04 · Trust and Verify</span>
+    </div>
+    <div class="in">
+      <ul class="codes" aria-label="The eighteen case numbers">
+        <li class="m">HP-12</li><li>CHI-1</li><li>CAL-1</li><li>HP-1</li><li>HP-2</li><li>HP-3</li><li>HP-4</li><li>HP-5</li><li>CHI-2</li><li>CHI-3</li><li>HP-6</li><li>HP-7</li><li>HP-11</li><li>HP-8</li><li>HP-9</li><li>CAL-2</li><li>HP-10</li><li>CAL-3</li>
+      </ul>
+      <h1>Never Use <i>the Word</i></h1>
+      <p class="dek">From 1945 to 1947, doctors working for the atomic bomb project injected eighteen hospital patients with plutonium and filed them under code numbers. Twenty five years later, when the government came back for the survivors and the dead, a memo told staff never to say what had been in the needle.</p>
+      <div class="foot cap"><span>Oak Ridge · Rochester · Chicago · San Francisco</span><span>1945 to 1995</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="idwrap">
+  <div class="idbar">
+    <label>Name <input id="f-name" type="text" autocomplete="off"></label>
+    <label>Hour <input id="f-hour" type="text" autocomplete="off"></label>
+    <label>Date <input id="f-date" type="text" autocomplete="off"></label>
+  </div>
+</div>
+
+<!-- 0 -->
+<section class="band ward" aria-labelledby="h0">
+  <div class="col">
+    <div class="tag"><span class="no">Claim</span><span class="where">Posted, shared, reposted</span></div>
+    <h2 id="h0">They injected <em>dying patients</em></h2>
+    <div class="slip" style="margin-top:0">
+      <div class="hd cap"><span>The claim, as it circulates</span><span>Source not given</span></div>
+      <div class="bd"><p>During the atomic bomb project the government injected dying patients with plutonium to see what it would do to them, then buried the evidence. Thousands of Americans got the same treatment.</p></div>
+    </div>
+    <p>Some of that post comes straight out of the government's own files. Some of it falls apart once you read those files closely. A newspaper reporter in Albuquerque read them first, one code number at a time.</p>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="band yellow" aria-labelledby="h1">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 01</span><span class="where">Albuquerque, New Mexico · July 1987</span></div>
+    <h2 id="h1">Eighteen <em>code numbers</em></h2>
+    <p class="lead">In July 1987 Eileen Welsome, a reporter at the <i>Albuquerque Tribune</i>, was reading declassified reports on radioactive animal waste at Kirtland Air Force Base. Then her eye fell on a footnote. It mentioned eighteen people who had been injected with plutonium.</p>
+    <div class="pull"><p>&ldquo;Whenever a company wants to put in the bad news, it's always in a footnote.&rdquo;</p><cite>Eileen Welsome, 2004</cite></div>
+    <p>The eighteen had no names, only codes. Welsome wrote each one at the top of its own yellow sheet of paper and filled in whatever the reports gave up: age, date of injection, disease, date of death. Then she filed Freedom of Information requests. The story took her six years.</p>
+    <ul class="sheets" aria-label="The eighteen case numbers in the order the shots were given">
+      <li><b>HP-12</b><span>Oak Ridge</span></li><li><b>CHI-1</b><span>Chicago</span></li><li><b>CAL-1</b><span>San Francisco</span></li><li><b>HP-1</b><span>Rochester</span></li><li><b>HP-2</b><span>Rochester</span></li><li><b>HP-3</b><span>Rochester</span></li>
+      <li><b>HP-4</b><span>Rochester</span></li><li><b>HP-5</b><span>Rochester</span></li><li><b>CHI-2</b><span>Chicago</span></li><li><b>CHI-3</b><span>Chicago</span></li><li><b>HP-6</b><span>Rochester</span></li><li><b>HP-7</b><span>Rochester</span></li>
+      <li><b>HP-11</b><span>Rochester</span></li><li><b>HP-8</b><span>Rochester</span></li><li><b>HP-9</b><span>Rochester</span></li><li><b>CAL-2</b><span>San Francisco</span></li><li><b>HP-10</b><span>Rochester</span></li><li><b>CAL-3</b><span>San Francisco</span></li>
+    </ul>
+    <p class="key"><span>HP · &ldquo;human product&rdquo;</span><span>CHI · Chicago</span><span>CAL · California</span></p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="band ward" aria-labelledby="h2">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 02</span><span class="where">Los Alamos, New Mexico · August 1944</span></div>
+    <h2 id="h2">The whole supply <em>in one vial</em></h2>
+    <figure class="inset"><img src="/storyhub/hh/never-use-the-word/assets/p02-hempelmann-badge.jpg" alt="Security badge portrait of a young man with light hair in a pale jacket." loading="lazy"><figcaption><b>Louis Hempelmann</b> Los Alamos health director.<span class="credit">Los Alamos National Laboratory</span></figcaption></figure>
+    <p class="lead">In August 1944 a 23 year old chemist named Don Mastick was holding a glass vial with ten milligrams of plutonium, the entire supply at Los Alamos. The vial burst and sprayed acid solution into his face and mouth. Louis Hempelmann, the lab's health director, pumped his stomach, and Mastick recovered the plutonium from what came up. It was too valuable to lose.</p>
+    <p>Nobody could tell how much was still inside him, or inside the hundreds of workers who would soon make plutonium by the pound. Everyone knew the warning. In the 1920s women who painted glowing watch dials licked their brushes to a point, and years later many developed bone disease and cancer. Plutonium also settles in bone.</p>
+    <div class="clear"></div>
+    <figure><img src="/storyhub/hh/never-use-the-word/assets/p03-radium-dial-painters.jpg" alt="Rows of women sit at long wooden work tables in a bright factory room with tall windows." loading="lazy"><figcaption><b>Radium dial painters, about 1922</b> Their deaths set the first safety limit for radioactive material inside the body.<span class="credit">Argonne National Laboratory, via Wikimedia Commons · Public domain</span></figcaption></figure>
+    <p>The fix was a human tracer study. Inject a known amount into a person and measure how much leaves in urine and feces each day. With that ratio a doctor could read a worker's urine sample and estimate what was still inside. On August 16, 1944, J. Robert Oppenheimer approved the research with one line about human studies: &ldquo;I feel that it is desirable if these can in any way be handled elsewhere not to undertake them here.&rdquo;</p>
+
+    <div class="rig" id="vialbox">
+      <header><b>Ten milligrams, counted out</b><span>1 square = 1 microgram</span></header>
+      <div class="in">
+        <div class="gridwrap">
+          <div class="vial"><canvas id="grid" width="400" height="400" role="img" aria-label="A grid of 10,000 small squares, one for each microgram in the ten milligram vial. The squares that light up match the amount you pick."></canvas></div>
+          <div>
+            <div class="doses" id="doses">
+              <button class="btn alt" type="button" data-d="0.5">1950 worker limit<small>0.5 µg</small></button>
+              <button class="btn alt" type="button" data-d="1">1945 worker limit<small>1 µg</small></button>
+              <button class="btn alt" type="button" data-d="4.7">First shot, HP-12<small>4.7 µg</small></button>
+              <button class="btn alt" type="button" data-d="50">Langham's &ldquo;terminal case&rdquo;<small>50 µg</small></button>
+              <button class="btn alt" type="button" data-d="189.8">CHI-2 and CHI-3 together<small>189.8 µg</small></button>
+              <button class="btn alt" type="button" data-d="266.3">All eighteen shots<small>266 µg</small></button>
+            </div>
+            <div class="readout"><div class="big" id="gbig">10,000<span>micrograms in the vial</span></div></div>
+          </div>
+        </div>
+        <p class="note" id="gnote" aria-live="polite">Pick an amount.</p>
+      </div>
+    </div>
+    <p>Nobody was expected to feel sick from amounts this small, and nobody did. The fear was cancer ten or twenty years later. That fear shaped who the doctors picked.</p>
+    <div class="q"><label for="q1"><span class="n">Q1</span><span>Every shot was a few millionths of a gram, and nobody was expected to feel sick. Why did the doctors still worry about what could happen ten or twenty years later? Use the dial painters in your answer.</span></label><textarea id="q1" data-q="Q1"></textarea></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="band ward" aria-labelledby="h3" style="padding-top:20px">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 03</span><span class="where">Oak Ridge, Tennessee · April 10, 1945</span></div>
+    <h2 id="h3">The first shot went to a man <em>with broken bones</em></h2>
+    <p class="lead">On March 24, 1945, a cement mixer named Ebb Cade was hurt in a car crash and taken to the Army hospital in Oak Ridge, the secret city built to make fuel for the bomb. He was a 53 year old Black construction worker with a broken arm and a broken leg. His chart called him &ldquo;well developed [and] well nourished.&rdquo; He told his doctors he had always been in good health.</p>
+    <p>On April 10, still waiting for his bones to be set, Cade became HP-12 and was injected with 4.7 micrograms of plutonium. Surgeons set his bones five days later and took bone samples for the lab. Fifteen of his teeth were pulled and tested too.</p>
+    <figure><img src="/storyhub/hh/never-use-the-word/assets/p05-oak-ridge-operating-room.jpg" alt="Masked surgeons and nurses in caps and gowns crowd around a patient on an operating table." loading="lazy"><figcaption><b>Oak Ridge Hospital, November 1944</b> The Army hospital where Cade was injected.<span class="credit">Ed Westcott, U.S. Department of Energy · Public domain</span></figcaption></figure>
+    <p>The next day Hymer Friedell, deputy medical director of the Manhattan Project, wrote to Los Alamos: &ldquo;Everything went very smoothly, and I think that we will have some very valuable information for you.&rdquo; In 1974 the Army doctor Joseph Howland said he gave the shot without consent, on Friedell's written order. Friedell denied it.</p>
+    <p>One morning a nurse opened Cade's door and found him gone. He died of heart failure in Greensboro, North Carolina, in 1953. In 1950 Wright Langham of Los Alamos had asked Oak Ridge to find him and keep its &ldquo;eyes open for a possible autopsy.&rdquo;</p>
+    <figure><img src="/storyhub/hh/never-use-the-word/assets/p06-warren-friedell-1945.jpg" alt="Four men in Army uniforms lean over papers spread across a desk with a nameplate reading Col. S. L. Warren." loading="lazy"><figcaption><b>Oak Ridge, October 20, 1945</b> Colonel Stafford Warren's office, with Hymer Friedell and two other Manhattan Project medical officers.<span class="credit">Ed Westcott, U.S. Department of Energy · Public domain</span></figcaption></figure>
+  </div>
+</section>
+
+<div class="band film" style="padding:40px 16px">
+  <div class="wide">
+    <div class="duo w">
+      <figure style="margin:0"><img src="/storyhub/hh/never-use-the-word/assets/p04-fat-man-core-tinian.jpg" alt="Two men in khaki uniforms stand outdoors on either side of a small metal carrying case." loading="lazy"><figcaption><b>Tinian, August 1945</b> Luis Alvarez and a military policeman with the case carrying the plutonium core of Fat Man.<span class="credit">Los Alamos National Laboratory · Public domain</span></figcaption></figure>
+      <figure style="margin:0"><img src="/storyhub/hh/never-use-the-word/assets/p08-nagasaki.jpg" alt="A towering mushroom cloud rises high above a layer of white clouds." loading="lazy"><figcaption><b>Nagasaki, August 9, 1945</b> Four months after Cade's shot, a plutonium bomb destroyed the city. The public first read the word plutonium three days later.<span class="credit">Charles Levy, U.S. Army Air Forces · Public domain</span></figcaption></figure>
+    </div>
+  </div>
+</div>
+
+<!-- 4 -->
+<section class="band ward" aria-labelledby="h4">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 04</span><span class="where">San Francisco, California · May 14, 1945</span></div>
+    <h2 id="h4">The cancer <em>that wasn't</em></h2>
+    <p class="lead">Joseph Hamilton ran the plutonium work at Berkeley's Radiation Laboratory. On May 10, 1945, he told the Manhattan Project he was waiting for &ldquo;a suitable patient.&rdquo; Four days later Albert Stevens, a 58 year old house painter from Healdsburg, became CAL-1 at the university hospital in San Francisco. His doctors believed he had advanced stomach cancer.</p>
+    <p>His shot included plutonium 238, which throws off radiation roughly 280 times faster than the plutonium in the bomb and made his samples easier to measure. Four days later surgeons operated, and pieces of rib and spleen went to the lab. The tumor was a benign ulcer. He had never had cancer.</p>
+    <p>When Stevens talked about moving away, which would end the daily collection of his urine and stool, Hamilton asked permission to &ldquo;pay the man fifty dollars per month&rdquo; to stay. Kenneth Scott, the Berkeley researcher who analyzed the samples, said in 1979 that Stevens was paid. He also said nobody told Stevens what had been done.</p>
+    <div class="voice"><p>&ldquo;His sister was a nurse and she was very suspicious of me. But to my knowledge he never found out.&rdquo;</p><span class="who">Kenneth Scott, oral history, 1979</span></div>
+    <p>Stevens lived almost 21 more years. Because the plutonium sat in his bones all that time, he received the highest dose of the eighteen, about 6,400 rem, which a 1995 Los Alamos study put at 858 times the background radiation of an average American over the same years.</p>
+    <figure><img src="/storyhub/hh/never-use-the-word/assets/p07-hamilton-radiosodium-1939.jpg" alt="A man in a lab coat sits at a control panel with dials while a second man in a white shirt and tie sits beside him holding a small container." loading="lazy"><figcaption><b>Berkeley, January 1939</b> Joseph Hamilton at the controls as physicist Robert Marshak, right, volunteers to drink radioactive sodium for an early tracer study. Marshak knew what he was drinking.<span class="credit">Donald Cooksey, Lawrence Berkeley National Laboratory · Public domain</span></figcaption></figure>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="band film" aria-labelledby="h5">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 05</span><span class="where">Rochester · Chicago · Oak Ridge · San Francisco</span></div>
+    <h2 id="h5">&ldquo;Highly <em>improbable</em>&rdquo;</h2>
+    <p class="lead">Eleven of the shots were given at the University of Rochester. In a 1950 report Langham wrote that the patients were usually past middle age and &ldquo;suffering from chronic disorders such that survival for ten years was highly improbable.&rdquo; Later he called them &ldquo;terminal.&rdquo;</p>
+    <p>Ten years was the safety plan. Plutonium cancer was expected to take that long, so a patient who died first could not be hurt. But Rochester wanted patients whose organs worked like a healthy worker's, so it skipped cancer patients and chose people with long illnesses.</p>
+
+    <div class="rig" id="lifebox">
+      <header><b>The ward, 1945 to 1991</b><span>Survival after injection</span></header>
+      <div class="in">
+        <p style="margin:0 0 6px">How many of the eighteen do you think lived longer than ten years after their shot?</p>
+        <div class="betrow"><input type="range" id="bet" min="0" max="18" step="1" value="3" aria-label="Your guess, from 0 to 18 patients"><output id="betout" for="bet">3</output></div>
+        <div class="row"><button class="btn" type="button" id="run">Run the years</button><button class="btn alt" type="button" id="resetlife">Reset</button><span class="yr" id="yr" aria-hidden="true">1945</span></div>
+        <div id="lifewrap"><svg class="life" id="life" role="img" aria-labelledby="lifeT"><title id="lifeT">Timeline from 1945 to 1991 with one line for each of the eighteen patients, running from the date of the injection to the date of death. A mark on each line shows ten years after that patient's shot.</title></svg></div>
+        <p class="note" id="lifenote" aria-live="polite">Set your guess, then run the years. A pink mark on each line sits ten years after that patient's shot.</p>
+        <p class="small" style="margin:10px 0 0">Open a chart</p>
+        <div class="picker" id="picker"></div>
+        <div class="pcard" id="pcard" aria-live="polite">Pick a case number to read what the record says about that patient.</div>
+        <details class="data">
+          <summary>All eighteen in a table</summary>
+          <div class="tscroll"><table class="tbl" id="ltable"><thead><tr><th scope="col">Case</th><th scope="col">Shot</th><th scope="col">Age</th><th scope="col">Lived</th><th scope="col">Total dose</th></tr></thead><tbody></tbody></table></div>
+          <p class="small" style="margin-top:8px">Dates, survival, dose and conditions from the 1995 Los Alamos table of the eighteen patients. Names appear only where the Advisory Committee's report attaches a name to a case number. The Advisory Committee gives Ebb Cade's age as 53. The Los Alamos table lists 55.</p>
+        </details>
+      </div>
+    </div>
+
+    <figure><img src="/storyhub/hh/never-use-the-word/assets/p09-langham-plastic-man.jpg" alt="A man in a suit smoking a pipe sits at a desk beside a clear plastic model of a human body seated in a chair." loading="lazy"><figcaption><b>Los Alamos, 1959</b> Wright Langham with Plastic Man, a model for studying radiation inside the body. His 1950 formula, built largely from the patients' samples, became the standard way to estimate plutonium in workers.<span class="credit">Los Alamos National Laboratory, via Wikimedia Commons · CC BY 2.5</span></figcaption></figure>
+    <div class="voice"><p>&ldquo;My mother, Jan Stadt, had a number, HP-8. She was injected with plutonium on March 9th, 1946. She was forty one years old, and I was eleven years old at the time. My mother and father were never told or asked for any kind of consent to have this done to them.&rdquo;</p><span class="who">Milton Stadt, to the Advisory Committee, Santa Fe, January 30, 1995</span></div>
+    <div class="q"><label for="q2"><span class="n">Q2</span><span>Langham wrote that ten years of survival was &ldquo;highly improbable.&rdquo; Using the chart, explain what that sentence got wrong and why it mattered for the patients' risk.</span></label><textarea id="q2" data-q="Q2"></textarea></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="band ward" aria-labelledby="h6">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 06</span><span class="where">Atomic Energy Commission · 1947</span></div>
+    <h2 id="h6">&ldquo;The most <em>dangerous</em>&rdquo;</h2>
+    <p class="lead">On January 1, 1947, the civilian Atomic Energy Commission took over the bomb program and its files. One was a Chicago report on two injected patients that a Manhattan Project doctor wanted released. The AEC's declassification staff read it first.</p>
+
+    <div class="rig" id="hlbox">
+      <header><b>Read like a declassifier</b><span>Two memos, spring 1947</span></header>
+      <div class="in">
+        <p style="margin:0 0 10px">Each dotted phrase gives a reason to keep the reports secret. Tap a phrase to cycle through the labels, then check your labels against the record.</p>
+        <div class="legend" aria-hidden="true"><span><i class="l-sec"></i>Bomb secrets</span><span><i class="l-pub"></i>Public reaction</span><span><i class="l-law"></i>Lawsuits</span></div>
+        <div class="doc"><div class="dh">AEC declassification officer · February 28, 1947</div>
+          <p>The document appears to be the most dangerous since it describes experiments performed on human subjects, including the actual injection of the metal plutonium into the body. &hellip; It is unlikely that these tests were made without the consent of the subjects, but no statement is made to that effect and <button class="hl" type="button" data-k="pub">the coldly scientific manner in which the results are tabulated and discussed would have a very poor effect on the public</button>. Unless, of course, the legal aspects were covered by the necessary documents, the experimenters and the employing agencies, including the U.S., have been <button class="hl" type="button" data-k="law">laid open to a devastating lawsuit</button> which would, <button class="hl" type="button" data-k="pub">through its attendant publicity, have far reaching results</button>.</p></div>
+        <div class="doc"><div class="dh">Colonel O. G. Haywood to the AEC information office · April 1947</div>
+          <p>It is desired that no document be released which refers to experiments with humans and <button class="hl" type="button" data-k="pub">might have adverse effects on public opinion</button> <button class="hl" type="button" data-k="law">or result in legal suits</button>. Documents covering such work should be classified as secret.</p></div>
+        <div class="row"><button class="btn" type="button" id="hlcheck">Check my labels</button><button class="btn alt" type="button" id="hlreset">Clear</button></div>
+        <p class="tally" id="hltally" aria-live="polite">Five phrases. None labeled yet.</p>
+      </div>
+    </div>
+    <p>That July, Argonne's directors said releasing the reports would do no harm to &ldquo;the national interests.&rdquo; The AEC held them anyway. The same year it wrote rules for future experiments: some hope of benefit to the patient, and two doctors certifying in writing that the patient understood and agreed. All seventeen shots given before then broke both rules, so the reports stayed locked. Langham's full 1950 plutonium report stayed out of public reach until 1971.</p>
+    <div class="q"><label for="q3"><span class="n">Q3</span><span>According to these memos, what were officials protecting when they kept the plutonium reports secret? Quote one phrase.</span></label><textarea id="q3" data-q="Q3"></textarea></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="band film" aria-labelledby="h7">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 07</span><span class="where">Argonne National Laboratory · 1972 to 1974</span></div>
+    <h2 id="h7">Never use <em>the word</em></h2>
+    <p class="lead">Elmer Allen was the last. A 36 year old Black railroad porter with suspected bone cancer, he was injected in the left calf in San Francisco on July 18, 1947. Three days later his leg was amputated. Two doctors signed a note that the experiment was &ldquo;explained to the patient, who agreed to the procedure.&rdquo; Nothing says he was told the shot could not help him.</p>
+    <p>In December 1972 Argonne National Laboratory's Center for Human Radiobiology, which studied the old radium dial painters, planned to test the survivors and exhume the dead. Robert Rowland of the center wrote down the rule.</p>
+    <div class="pull"><p>&ldquo;Outside of CHR we will never use the word plutonium in regard to these cases.&rdquo;</p><cite>Robert Rowland, Argonne memo, December 1972</cite></div>
+
+    <div class="rig" id="saybox">
+      <header><b>What the file said, what people heard</b><span>Five cases</span></header>
+      <div class="in">
+        <div class="cases" id="cases"></div>
+        <div class="counter" aria-live="polite"><div><b id="cOpen">0</b>of 5 cases opened</div><div><b id="cWord">0</b>times &ldquo;plutonium&rdquo; reached these patients or families</div></div>
+      </div>
+    </div>
+
+    <p>In 1974 an AEC investigation finally told two Rochester survivors, Eda Charlton and John Mousso, what had been injected.</p>
+    <div class="voice"><p>&ldquo;He was asked to sign his name several times while a patient at the University of California hospital in San Francisco. Why was he not asked to sign his name permitting scientists to inject him with plutonium?&rdquo;</p><span class="who">Elmerine Whitfield Bell, to the Advisory Committee, March 15, 1995</span></div>
+    <figure><img src="/storyhub/hh/never-use-the-word/assets/p10-plutonium-button.jpg" alt="A man in glasses looks through a glovebox window at a round, rough metal disk held between two thick black rubber gloves." loading="lazy"><figcaption><b>Rocky Flats, Colorado, September 1973</b> A worker handles a button of plutonium. Workers like him were checked with Langham's formula, built largely from the patients' samples.<span class="credit">U.S. Department of Energy · Public domain</span></figcaption></figure>
+    <div class="q"><label for="q4"><span class="n">Q4</span><span>The war had been over for almost thirty years. Why would officials keep hiding the word plutonium from survivors and families in 1973?</span></label><textarea id="q4" data-q="Q4"></textarea></div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="band ward" aria-labelledby="h8">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 08</span><span class="where">Albuquerque and Washington · 1993 to 1997</span></div>
+    <h2 id="h8">&ldquo;Appalled, shocked <em>and deeply saddened</em>&rdquo;</h2>
+    <p class="lead">Welsome's three part series ran in November 1993 in a paper with about 35,000 readers. She named five of the eighteen: Elmer Allen, Albert Stevens, Fred Sours, John Mousso and Eda Schultz Charlton.</p>
+    <figure class="inset"><img src="/storyhub/hh/never-use-the-word/assets/p11-oleary-1994.jpg" alt="Two women in light suits and a man in a dark suit look intently at a small object one of the women holds." loading="lazy"><figcaption><b>Hazel O'Leary, 1994</b> The Energy Secretary, center, at Oak Ridge.<span class="credit">Lynn Freeny, U.S. Department of Energy · Public domain</span></figcaption></figure>
+    <p>On December 7, 1993, Energy Secretary Hazel O'Leary faced reporters. What she had learned &ldquo;with respect to these 18 citizens of our country,&rdquo; she said, &ldquo;leaves me appalled, shocked and deeply saddened.&rdquo; She repeated what one patient's daughter had said, that her father &ldquo;would probably have known as much about iced-cream as he knew about plutonium.&rdquo;</p>
+    <p>In January 1994 President Clinton appointed the Advisory Committee on Human Radiation Experiments. It found nearly 4,000 radiation experiments the government paid for between 1944 and 1974. Most were small tracer studies &ldquo;unlikely to have caused physical harm.&rdquo; Others were not, from total body radiation of cancer patients in Cincinnati to tracers fed to boys at the Fernald School in Massachusetts.</p>
+    <div class="clear"></div>
+    <div class="pull"><p>&ldquo;The United States of America offers a sincere apology to those of our citizens who were subjected to these experiments, to their families, and to their communities.&rdquo;</p><cite>President Bill Clinton, accepting the committee's report, October 3, 1995</cite></div>
+    <p>In March 1997 the government announced settlements with the families of sixteen of the eighteen, plus one uranium case, about $6.5 million in all.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="band manila" aria-labelledby="h9">
+  <div class="col">
+    <div class="tag"><span class="no">Entry 09</span><span class="where">Your ruling</span></div>
+    <h2 id="h9">Rule on <em>the post</em></h2>
+    <p>The post at the top of this page makes five claims. Pick a verdict and the evidence that settles each one best, then file it.</p>
+    <div class="files" id="files"></div>
+    <p class="tally" id="ftally" aria-live="polite">Five claims. None filed yet.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="band film" aria-labelledby="h10">
+  <div class="col">
+    <h2 id="h10" style="font-size:clamp(1.7rem,5vw,2.5rem)">Make the argument</h2>
+    <p>150 to 200 words. Pick one prompt and use evidence from at least two numbered entries.</p>
+    <div class="prompts">
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 1"><span class="ph">Prompt 1</span>The post says the government injected dying patients with plutonium and buried the story. <b>Using the record, explain which parts are true and which parts need correcting.</b></label>
+      <label class="prompt"><input type="radio" name="prompt" value="Prompt 2"><span class="ph">Prompt 2</span>The injections produced a method still used to protect plutonium workers. <b>Does that justify how they were done? Defend your answer.</b></label>
+    </div>
+    <div class="essaymeta"><span>Your argument</span><span>Words <span id="wc">0</span> · aim for 150 to 200</span></div>
+    <textarea id="essay" data-q="ESSAY" aria-label="Your argument" placeholder="State your position in the first sentence, then prove it."></textarea>
+    <div class="actions">
+      <p>When you are finished, copy everything and paste it into the Classroom assignment. Your work saves in this browser as you type.</p>
+      <button id="copy" type="button">Copy my answers</button>
+    </div>
+  </div>
+</section>
+
+<section class="band ward" aria-label="Sources" style="padding-top:10px">
+  <div class="col">
+    <div class="refs">
+      <h3>Sources</h3>
+      <div>Advisory Committee on Human Radiation Experiments. (1995). <i>Final report</i>. Government Printing Office. Executive summary, chapter 5 and chapter 13.</div>
+      <div>Clinton, W. J. (1995, October 3). Remarks on accepting the report of the Advisory Committee on Human Radiation Experiments. <i>Public papers of the presidents</i>.</div>
+      <div>Moss, W., &amp; Eckhardt, R. (1995). The human plutonium injection experiments. <i>Los Alamos Science</i>, 23, 177 to 233.</div>
+      <div>O'Leary, H. R. (1993, December 7). Openness press conference remarks. U.S. Department of Energy.</div>
+      <div>Pe&ntilde;a, F., O'Toole, T., &amp; Dwyer, J. (1997, March 28). Press briefing on the human radiation report. The White House.</div>
+      <div>Welsome, E. (2004, May 5). Interview. <i>Democracy Now!</i> See also <i>The Seattle Times</i>, November 21, 1993, and <i>High Country News</i>, 1994, on the <i>Albuquerque Tribune</i> series.</div>
+      <div>Photographs from the U.S. Department of Energy, Los Alamos, Lawrence Berkeley and Argonne national laboratories and the U.S. Army Air Forces, via Wikimedia Commons, public domain. Langham photograph CC BY 2.5. Colorized photographs are digital interpretations of black and white originals.</div>
+    </div>
+  </div>
+</section>
+</main>
+<div class="saved" id="toast">Saved</div>
+<script>
+(function(){
+  var KEY='hh-never-use-the-word-v1';
+  var $=function(id){return document.getElementById(id);};
+  var NS='http://www.w3.org/2000/svg';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mk(parent,n,a,txt){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;parent.appendChild(e);return e;}
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+  var COND='IBM Plex Sans Condensed, Arial Narrow, sans-serif';
+  var TYPE='Special Elite, Courier New, monospace';
+
+  /* ---------- ten milligrams, counted out ---------- */
+  var cv=$('grid'),ctx=cv.getContext('2d'),gFrame=null,gShown=0;
+  var GNOTES={
+    '0.5':'January 1950. The AEC cut the limit to half a microgram after animal tests showed plutonium could be fifteen times more toxic than radium. Half of one square.',
+    '1':'May 1945. Los Alamos set 1 microgram as the most plutonium a worker should carry. Langham wrote that the limit meant taking &ldquo;a relatively small chance of poisoning someone.&rdquo;',
+    '4.7':'April 10, 1945. Ebb Cade’s shot, almost five times the worker limit, given to a man whose only injuries were broken bones.',
+    '50':'March 1946. Langham to the Rochester doctors: &ldquo;In case you should decide to do another terminal case, I suggest you do 50 micrograms instead of 5. This would permit the analysis of much smaller samples and would make my work considerably easier.&rdquo;',
+    '189.8':'December 27, 1945. About 95 micrograms each, the largest shots, given in Chicago to two patients near death. One lived 17 days.',
+    '266.3':'Every shot from 1945 to 1947 together: about 266 micrograms, under 3 percent of Mastick’s vial. Weight is not everything. Albert Stevens’s shot weighed under one microgram, but its plutonium 238 made it more radioactive than all but the two Chicago shots.'
+  };
+  function drawGrid(v){
+    var W=cv.width,n=100,c=W/n,g=.6;
+    ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,W);
+    ctx.fillStyle='#d9e1dc';
+    for(var i=0;i<n*n;i++){var x=(i%n)*c,y=Math.floor(i/n)*c;ctx.fillRect(x+g/2,y+g/2,c-g,c-g);}
+    var full=Math.floor(v),part=v-full;
+    ctx.fillStyle='#a3155b';
+    for(var j=0;j<full&&j<n*n;j++){var xx=(j%n)*c,yy=Math.floor(j/n)*c;ctx.fillRect(xx+g/2,yy+g/2,c-g,c-g);}
+    if(part>0&&full<n*n){var px=(full%n)*c,py=Math.floor(full/n)*c;ctx.fillRect(px+g/2,py+g/2,(c-g)*part,c-g);}
+    if(v>0&&v<12){ctx.strokeStyle='#a3155b';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(Math.min(v,6)*c/2+c/2,c/2+1,c*3.2,0,Math.PI*2);ctx.stroke();}
+  }
+  function fmt(v){return v>=100?Math.round(v).toLocaleString():(''+v);}
+  function showDose(btn){
+    var v=parseFloat(btn.dataset.d);
+    [].forEach.call(document.querySelectorAll('#doses .btn'),function(b){b.setAttribute('aria-pressed',b===btn?'true':'false');});
+    $('gbig').innerHTML=fmt(v)+'<span>of 10,000 micrograms</span>';
+    $('gnote').innerHTML=GNOTES[btn.dataset.d];
+    cancelAnimationFrame(gFrame);
+    if(reduce){gShown=v;drawGrid(v);return;}
+    var from=gShown,t0=null;
+    (function step(ts){if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/700);k=1-Math.pow(1-k,3);gShown=from+(v-from)*k;drawGrid(gShown);if(k<1)gFrame=requestAnimationFrame(step);})(performance.now());
+  }
+  [].forEach.call(document.querySelectorAll('#doses .btn'),function(b){b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){showDose(b);});});
+  drawGrid(0);
+
+  /* ---------- the ward, 1945 to 1991 ---------- */
+  var P=[
+    {c:'HP-12',nm:'Ebb Cade',at:'Oak Ridge',age:'53',inj:'1945-04-10',die:'1953-04-13',lived:'8.0 years',ug:'4.7',rem:'230',cond:'Broken arm and leg from a car crash. Otherwise in good health.',cause:'Heart failure'},
+    {c:'CHI-1',at:'Chicago',age:'68',inj:'1945-04-26',die:'1945-10-03',lived:'160 days',ug:'6.5',rem:'19',cond:'Cancer of the chin that had spread to the lungs. Near death.',cause:'Cancer'},
+    {c:'CAL-1',nm:'Albert Stevens',at:'San Francisco',age:'58',inj:'1945-05-14',die:'1966-01-09',lived:'20.7 years',ug:'0.95 micrograms, including plutonium 238',rem:'6,400',cond:'Thought to have stomach cancer. It was a benign ulcer.',cause:'Heart disease'},
+    {c:'HP-1',at:'Rochester',age:'67',inj:'1945-10-16',die:'1960-01-12',lived:'14.2 years',ug:'4.6',rem:'380',cond:'Duodenal ulcer with severe bleeding.',cause:'Bronchopneumonia'},
+    {c:'HP-2',at:'Rochester',age:'48',inj:'1945-10-23',die:'1948-04-04',lived:'2.4 years',ug:'5.1',rem:'80',cond:'Hemophilia and heart disease.',cause:'Brain disease'},
+    {c:'HP-3',at:'Rochester',age:'48',inj:'1945-11-27',die:'1983-01-24',lived:'37.2 years',ug:'4.9',rem:'880',cond:'Rash, hepatitis and low blood protein. Doctors later decided her weight loss came from severe depression.',cause:'Cardiac arrest'},
+    {c:'HP-4',at:'Rochester',age:'18',inj:'1945-11-27',die:'1947-04-29',lived:'1.4 years',ug:'4.9',rem:'46',cond:'Cushing’s syndrome, a hormone disorder.',cause:'Cushing’s syndrome'},
+    {c:'HP-5',at:'Rochester',age:'56',inj:'1945-11-30',die:'1946-04-29',lived:'150 days',ug:'5.1',rem:'14',cond:'Lou Gehrig’s disease.',cause:'Bronchopneumonia'},
+    {c:'CHI-2',at:'Chicago',age:'56',inj:'1945-12-27',die:'1946-01-13',lived:'17 days',ug:'94.9',rem:'29',cond:'Breast cancer that had spread through her body.',cause:'Breast cancer'},
+    {c:'CHI-3',at:'Chicago',age:'Young adult',inj:'1945-12-27',die:'1946-06-15',lived:'About 170 days',ug:'94.9',rem:'300',cond:'Hodgkin’s disease.',cause:'Probably Hodgkin’s disease'},
+    {c:'HP-6',at:'Rochester',age:'44',inj:'1946-02-01',die:'1984-05-06',lived:'38.2 years',ug:'5.3',rem:'990',cond:'Addison’s disease, a hormone deficiency.',cause:'Natural causes'},
+    {c:'HP-7',at:'Rochester',age:'59',inj:'1946-02-08',die:'1946-10-27',lived:'261 days',ug:'6.3',rem:'30',cond:'Rheumatic heart disease.',cause:'Lung failure'},
+    {c:'HP-11',at:'Rochester',age:'69',inj:'1946-02-20',die:'1946-02-26',lived:'6 days',ug:'6.5',rem:'0.6',cond:'Malnutrition, alcoholism and cirrhosis. Near death when injected.',cause:'Bronchopneumonia'},
+    {c:'HP-8',nm:'Jan Stadt',at:'Rochester',age:'41',inj:'1946-03-09',die:'1975-11-22',lived:'29.7 years',ug:'6.5',rem:'1,000',cond:'Scleroderma, a chronic skin disease, and a duodenal ulcer.',cause:'Unknown'},
+    {c:'HP-9',at:'Rochester',age:'64',inj:'1946-04-03',die:'1947-07-02',lived:'1.2 years',ug:'6.3',rem:'52',cond:'Skin inflammation over the whole body, and weakness.',cause:'Bronchopneumonia'},
+    {c:'CAL-2',nm:'Simeon Shaw',at:'San Francisco',age:'4',inj:'1946-04-26',die:'1947-01-06',lived:'255 days',ug:'2.7 micrograms, with radioactive cerium and yttrium',rem:'13',cond:'Osteogenic sarcoma, a rare bone cancer. Flown from Australia for treatment.',cause:'Bone cancer'},
+    {c:'HP-10',at:'Rochester',age:'52',inj:'1946-07-16',die:'1957-06-02',lived:'10.9 years',ug:'6.1',rem:'410',cond:'Acute congestive heart failure.',cause:'Heart disease'},
+    {c:'CAL-3',nm:'Elmer Allen',at:'San Francisco',age:'36',inj:'1947-07-18',die:'1991-06-30',lived:'44.0 years',ug:'0.006 micrograms of plutonium 238',rem:'155',cond:'Believed to have bone cancer in the left knee. The leg was amputated three days later.',cause:'Pneumonia and respiratory failure'}
+  ];
+  function yr(s){var d=s.split('-');return +d[0]+((+d[1]-1)+(+d[2]-1)/31)/12;}
+  P.forEach(function(p){p.a=yr(p.inj);p.b=yr(p.die);p.ten=p.a+10;p.over=p.b>p.ten;});
+  var Y0=1945,Y1=1992,lifeT=Y0,lifeRun=false,lifeFrame=null,lifeDone=false;
+  var lsvg=$('life'),lwrap=$('lifewrap');
+  function drawLife(){
+    var W=Math.max(300,Math.round(lwrap.clientWidth||600)),L=58,R=10,T=26,RH=W<480?19:21,H=T+P.length*RH+8;
+    var t=lsvg.querySelector('title');
+    while(lsvg.lastChild)lsvg.removeChild(lsvg.lastChild);
+    lsvg.appendChild(t);
+    lsvg.setAttribute('viewBox','0 0 '+W+' '+H);
+    var x=function(v){return L+(v-Y0)/(Y1-Y0)*(W-L-R);};
+    [1945,1955,1965,1975,1985].forEach(function(y){
+      mk(lsvg,'line',{x1:x(y),x2:x(y),y1:T-6,y2:H-6,stroke:'#2d3b40','stroke-width':1});
+      mk(lsvg,'text',{x:x(y),y:14,'text-anchor':'middle','font-family':COND,'font-size':12,'font-weight':600,fill:'#aebfbb'},''+y);
+    });
+    mk(lsvg,'line',{x1:x(lifeT),x2:x(lifeT),y1:T-8,y2:H-4,stroke:'#8fe0d4','stroke-width':1.5,'stroke-dasharray':'3 3'});
+    P.forEach(function(p,i){
+      var cy=T+i*RH+RH/2, end=Math.min(p.b,lifeT), lit=lifeT>=p.ten&&p.over;
+      mk(lsvg,'text',{x:4,y:cy+4,'font-family':TYPE,'font-size':W<480?11.5:13,fill:lit?'#f394c4':'#dde8e5'},p.c);
+      mk(lsvg,'line',{x1:x(p.a),x2:x(Y1),y1:cy,y2:cy,stroke:'#22302f','stroke-width':1});
+      if(lifeT>p.a) mk(lsvg,'rect',{x:x(p.a),y:cy-4,width:Math.max(2,x(end)-x(p.a)),height:8,fill:lit?'#f394c4':'#8fe0d4'});
+      mk(lsvg,'circle',{cx:x(p.a),cy:cy,r:3.5,fill:'#dde8e5'});
+      mk(lsvg,'line',{x1:x(p.ten),x2:x(p.ten),y1:cy-7,y2:cy+7,stroke:'#f394c4','stroke-width':2});
+      if(lifeT>=p.b) mk(lsvg,'rect',{x:x(p.b)-1,y:cy-6,width:3,height:12,fill:'#dde8e5'});
+    });
+    if(!reduce||!lifeRun) $('yr').textContent=Math.min(1991,Math.floor(lifeT));
+  }
+  var bet=$('bet'),betout=$('betout');
+  bet.addEventListener('input',function(){betout.textContent=bet.value;});
+  function finishLife(){
+    lifeRun=false;lifeDone=true;$('run').disabled=false;
+    var g=+bet.value,over=P.filter(function(p){return p.over;}).length;
+    var msg='Your guess: '+g+'. The record: '+over+' of the 18 lived longer than ten years. HP-10 lived 10.9 more years, HP-1 14.2, Albert Stevens 20.7, Jan Stadt 29.7, HP-3 37.2, HP-6 38.2 and Elmer Allen 44. Seven others died within a year of the shot. Ebb Cade, the man with broken bones, lived eight.';
+    if(g===over)msg+=' You matched the record exactly.';
+    $('lifenote').textContent=msg;
+  }
+  $('run').addEventListener('click',function(){
+    cancelAnimationFrame(lifeFrame);lifeT=Y0;lifeRun=true;this.disabled=true;$('lifenote').textContent='Running the years…';
+    if(reduce){lifeT=Y1;drawLife();finishLife();return;}
+    var t0=null;
+    (function step(ts){if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/7000);lifeT=Y0+(Y1-Y0)*k;drawLife();if(k<1)lifeFrame=requestAnimationFrame(step);else finishLife();})(performance.now());
+  });
+  $('resetlife').addEventListener('click',function(){cancelAnimationFrame(lifeFrame);lifeRun=false;lifeDone=false;lifeT=Y0;$('run').disabled=false;drawLife();$('lifenote').textContent='Set your guess, then run the years. A pink mark on each line sits ten years after that patient’s shot.';});
+  var rT;window.addEventListener('resize',function(){clearTimeout(rT);rT=setTimeout(drawLife,120);});
+  function fmtDate(s){var m=['January','February','March','April','May','June','July','August','September','October','November','December'];var d=s.split('-');return m[+d[1]-1]+' '+(+d[2])+', '+d[0];}
+  var picker=$('picker'),pcard=$('pcard'),tb=$('ltable').querySelector('tbody');
+  P.forEach(function(p){
+    var b=el('button','btn alt',p.c);b.type='button';b.setAttribute('aria-pressed','false');picker.appendChild(b);
+    b.addEventListener('click',function(){
+      [].forEach.call(picker.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+      pcard.innerHTML='';
+      var h=el('p');h.style.margin='0';var cb=el('b','c',p.c);h.appendChild(cb);h.appendChild(document.createTextNode(p.nm?p.nm+' · '+p.at:'Name not in the committee’s report · '+p.at));pcard.appendChild(h);
+      var dl=el('dl');
+      [['Age at shot',p.age],['Shot',fmtDate(p.inj)],['Condition',p.cond],['Plutonium',/micrograms/.test(p.ug)?p.ug:p.ug+' micrograms'],['Lived after',p.lived+(p.over?', past Langham’s ten years':'')],['Total dose',p.rem+' rem'],['Cause of death',p.cause]].forEach(function(r){dl.appendChild(el('dt',null,r[0]));dl.appendChild(el('dd',null,r[1]));});
+      pcard.appendChild(dl);
+    });
+    var tr=el('tr');[p.c+(p.nm?' · '+p.nm:''),fmtDate(p.inj),p.age,p.lived,p.rem+' rem'].forEach(function(v){tr.appendChild(el('td',null,v));});tb.appendChild(tr);
+  });
+  drawLife();
+
+  /* ---------- read like a declassifier ---------- */
+  var ORDER=['','sec','pub','law'],NAMES={sec:'Bomb secrets',pub:'Public reaction',law:'Lawsuits'};
+  var hls=[].slice.call(document.querySelectorAll('.hl'));
+  hls.forEach(function(h){
+    h.dataset.v='';var lab=el('span','lab');h.appendChild(lab);
+    h.addEventListener('click',function(){
+      var i=(ORDER.indexOf(h.dataset.v)+1)%ORDER.length;h.dataset.v=ORDER[i];
+      h.classList.remove('sec','pub','law','ok','no');if(ORDER[i])h.classList.add(ORDER[i]);
+      lab.textContent=ORDER[i]?NAMES[ORDER[i]]:'';
+      var n=hls.filter(function(x){return x.dataset.v;}).length;
+      $('hltally').textContent=n+' of 5 phrases labeled.';
+    });
+  });
+  $('hlcheck').addEventListener('click',function(){
+    var right=0,cnt={sec:0,pub:0,law:0};
+    hls.forEach(function(h){var ok=h.dataset.v===h.dataset.k;if(ok)right++;cnt[h.dataset.k]++;h.classList.remove('ok','no');h.classList.add(ok?'ok':'no');});
+    $('hltally').textContent=right+' of 5 match the record. Reasons about bomb secrets: '+cnt.sec+'. Public reaction: '+cnt.pub+'. Lawsuits: '+cnt.law+'.';
+  });
+  $('hlreset').addEventListener('click',function(){hls.forEach(function(h){h.dataset.v='';h.classList.remove('sec','pub','law','ok','no');h.querySelector('.lab').textContent='';});$('hltally').textContent='Five phrases. None labeled yet.';});
+
+  /* ---------- what the file said, what people heard ---------- */
+  var C=[
+    {who:'Two Rochester survivors · 1950',f:'Living patients injected with plutonium in 1945 and 1946. Take X rays to look for damage to the skeleton.',h:'“Please get them in a completely routine manner. Do not make the examination look unusual in any way.”',src:'Wright Langham to the Rochester doctors, 1950'},
+    {who:'Survivors · 1973',f:'You were injected with plutonium in the 1940s in an experiment for the atomic bomb program.',h:'“These individuals are of interest to us because they may have received a radioactive material at some time.”',src:'Argonne memo, December 1972, on what to say “if we need to say anything at all”'},
+    {who:'Elmer Allen’s doctor · 1973',f:'Elmer Allen was injected with plutonium in 1947 in an experiment that was never meant to help him.',h:'Argonne was interested in the treatment he had received at the University of California in 1947 for his cancer.',src:'What the center told his physician, as the Advisory Committee reported it'},
+    {who:'Families asked to allow exhumation · 1973',f:'Your relative was injected with plutonium in a secret experiment.',h:'“The purpose of exhumation was to examine the remains in order to determine the microscopic distribution of residual radioactivity from past medical treatment.”',src:'The AEC’s own 1974 investigation, summarizing what families were told'},
+    {who:'Jan Stadt, HP-8 · 1974',f:'Injected with plutonium at Rochester on March 9, 1946, at age 41.',h:'Nothing. Her doctor judged that telling her would be “medically indefensible.”',src:'AEC investigation, 1974'}
+  ];
+  var opened=0,cases=$('cases');
+  C.forEach(function(c){
+    var d=el('div','case');d.appendChild(el('div','who',c.who));
+    var f=el('div','f');f.appendChild(el('span','k','In the file'));f.appendChild(el('span','t',c.f));d.appendChild(f);
+    var h=el('div','h');h.appendChild(el('span','k','What they heard'));var ht=el('span','t');var hq=el('span');ht.appendChild(hq);ht.appendChild(el('span','src',c.src));h.appendChild(ht);d.appendChild(h);
+    var b=el('button','btn','What they heard');b.type='button';d.appendChild(b);
+    b.addEventListener('click',function(){
+      if(d.classList.contains('open'))return;
+      d.classList.add('open');b.remove();opened++;$('cOpen').textContent=opened;
+      if(reduce){hq.textContent=c.h;return;}
+      var i=0;(function tick(){i+=3;hq.textContent=c.h.slice(0,i);if(i<c.h.length)setTimeout(tick,22);})();
+    });
+    cases.appendChild(d);
+  });
+
+  /* ---------- rule on the post ---------- */
+  var V=['confirmed','misleading','unproven','debunked'];
+  var F=[
+    {claim:'The government secretly injected patients with plutonium.',v:'confirmed',ev:['Albert Stevens’s sister, a nurse, was suspicious of the researchers','Eighteen shots at four hospitals from 1945 to 1947, recorded by code number in the government’s own reports','A newspaper series about the shots won the Pulitzer Prize'],e:1,why:'Confirmed. The doctors’ own reports record all eighteen shots by code number, and the Advisory Committee confirmed them in 1995. A suspicious sister and a prize are not proof. The reports are.'},
+    {claim:'The patients were dying anyway.',v:'misleading',ev:['Nobody was expected to feel sick from doses that small','Seven of the eighteen lived more than ten years, and at least two were misdiagnosed','The Chicago patients received the largest doses'],e:1,why:'Misleading. Several were near death, and seven died within a year. But Ebb Cade was healthy apart from broken bones, Albert Stevens had an ulcer, and Elmer Allen lived 44 more years. Langham’s “highly improbable” was wrong for seven of the eighteen.'},
+    {claim:'The plutonium killed them.',v:'unproven',ev:['Albert Stevens received about 6,400 rem','Most of them died of heart disease or pneumonia','The Advisory Committee could not conclude that any patient was or was not harmed by the shots'],e:2,why:'Unproven. The committee “could not conclude that any individual was or was not physically harmed” by the injections. A large dose raises the risk, but it does not prove a cause of death, and a certificate that says heart disease does not rule plutonium out.'},
+    {claim:'They kept it secret to protect atomic bomb secrets.',v:'debunked',ev:['Plutonium itself was a classified word during the war','The 1947 memos name public opinion and lawsuits, and Argonne’s directors saw no harm to the national interests in release','The reports were finally downgraded in 1971'],e:1,why:'Debunked. The Advisory Committee concluded the decision rested on “legal liability and adverse public reaction, not national security.” The word plutonium was secret in 1945, but that cannot explain hiding it from patients and families in 1973.'},
+    {claim:'Thousands of Americans got the same treatment.',v:'misleading',ev:['The shots were paid for by the Manhattan Project and then the AEC','Nearly 4,000 experiments were found, but most were small tracer studies unlikely to cause harm','President Clinton apologized in 1995'],e:1,why:'Misleading. The government did sponsor nearly 4,000 human radiation experiments from 1944 to 1974, but most used small tracer doses “unlikely to have caused physical harm.” A smaller set, the plutonium shots among them, raised the questions on this page.'}
+  ];
+  var files=$('files'),filed=0,vRight=0,eRight=0;
+  function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+  F.forEach(function(f,i){
+    var d=el('div','file');d.dataset.n='Case file '+(i+1);
+    d.appendChild(el('div','claim','“'+f.claim+'”'));
+    var st=el('span','stamp v-'+f.v,cap(f.v));d.appendChild(st);
+    d.appendChild(el('div','lbl','Your verdict'));
+    var o=el('div','opts');var pickV=null,pickE=null;
+    var fileBtn=el('button','btn','File it');fileBtn.type='button';fileBtn.disabled=true;
+    function ready(){fileBtn.disabled=!(pickV!==null&&pickE!==null)||d.classList.contains('done');}
+    V.forEach(function(v){var b=el('button','btn alt',cap(v));b.type='button';b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){if(d.classList.contains('done'))return;pickV=v;[].forEach.call(o.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});ready();});o.appendChild(b);});
+    d.appendChild(o);
+    d.appendChild(el('div','lbl','Best evidence'));
+    var ev=el('div','ev');
+    f.ev.forEach(function(t,j){var b=el('button','btn alt',t);b.type='button';b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){if(d.classList.contains('done'))return;pickE=j;[].forEach.call(ev.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});ready();});ev.appendChild(b);});
+    d.appendChild(ev);
+    var r=el('div','row');r.style.marginTop='10px';r.appendChild(fileBtn);d.appendChild(r);
+    var you=el('div','you');d.appendChild(you);
+    d.appendChild(el('p','why',f.why));
+    fileBtn.addEventListener('click',function(){
+      if(d.classList.contains('done'))return;
+      d.classList.add('done','c-'+f.v);fileBtn.disabled=true;filed++;
+      var vOk=pickV===f.v,eOk=pickE===f.e;if(vOk)vRight++;if(eOk)eRight++;
+      you.textContent='You ruled '+cap(pickV)+(vOk?', matching the record.':'. The record says '+cap(f.v)+'.')+(eOk?' Your evidence matches.':' The strongest evidence: '+f.ev[f.e]+'.');
+      $('ftally').textContent=filed+' of 5 filed. Verdicts matching the record: '+vRight+'. Evidence matching: '+eRight+'.';
+    });
+    files.appendChild(d);
+  });
+
+  /* ---------- saving and copying ---------- */
+  var fields=[].slice.call(document.querySelectorAll('[data-q],#f-name,#f-hour,#f-date'));
+  var radios=[].slice.call(document.querySelectorAll('input[name="prompt"]'));
+  var essay=$('essay'),wc=$('wc'),toast=$('toast'),tT,sT;
+  function keyOf(e){return e.dataset.q||e.id;}
+  function markPrompt(){radios.forEach(function(r){r.closest('.prompt').classList.toggle('sel',r.checked);});}
+  function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=150&&n<=200)?'ok':'';}
+  function save(){
+    var d={};fields.forEach(function(e){d[keyOf(e)]=e.value;});
+    var r=radios.filter(function(x){return x.checked;})[0];d.__prompt=r?r.value:'';
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
+  }
+  function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
+  (function load(){
+    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
+    fields.forEach(function(e){var v=d[keyOf(e)];if(typeof v==='string')e.value=v;});
+    if(d.__prompt)radios.forEach(function(r){if(r.value===d.__prompt)r.checked=true;});
+  })();
+  markPrompt();count();
+  fields.forEach(function(e){e.addEventListener('input',queueSave);});
+  radios.forEach(function(r){r.addEventListener('change',function(){markPrompt();queueSave();});});
+  essay.addEventListener('input',count);
+  $('copy').addEventListener('click',function(){
+    var btn=this;function g(id){var e=$(id);return e?e.value.trim():'';}
+    var out=['NEVER USE THE WORD: The Plutonium Injections','Name: '+(g('f-name')||'______')+'   Hour: '+(g('f-hour')||'___')+'   Date: '+(g('f-date')||'______'),'','QUESTIONS'];
+    ['q1','q2','q3','q4'].forEach(function(id,i){out.push('Q'+(i+1)+'. '+(g(id)||'[no answer]'));out.push('');});
+    var r=radios.filter(function(x){return x.checked;})[0];
+    out.push('ARGUMENT: '+(r?r.value.toUpperCase():'NO PROMPT SELECTED')+'   Word count: '+wc.textContent);
+    out.push('');out.push(essay.value.trim()||'[no response]');
+    var text=out.join('\n');
+    function done(ok){btn.textContent=ok?'Copied. Now paste it':'Press Ctrl and C';btn.classList.toggle('done',ok);setTimeout(function(){btn.textContent='Copy my answers';btn.classList.remove('done');},3200);}
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done(ok);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},fallback);}else fallback();
+  });
+})();
+</script>
+</body></html>
