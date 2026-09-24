@@ -290,6 +290,7 @@
       .setup-card .setup-links { display:grid; gap:10px; margin-top:14px; }
       .setup-card .setup-links label { display:grid; gap:6px; font-size:13px; font-weight:600; }
       .setup-banner { margin-bottom:16px; }
+      .lunch-preview { border:1px solid var(--line); border-radius:12px; padding:12px; background:#f8f9ff; font-size:13px; }
       .teacher-action-dialog { width:min(520px,calc(100% - 32px)); padding:28px; border:1px solid var(--line); border-radius:20px; color:var(--ink); background:white; }
       .teacher-action-dialog h2 { margin:0 0 14px; font-size:25px; line-height:1.2; letter-spacing:-.6px; }
       .teacher-action-dialog p { margin:0 0 20px; font-size:14px; color:var(--muted); line-height:1.65; }
@@ -343,9 +344,9 @@
       @media (max-width:380px) { .field-grid { grid-template-columns:1fr; } .brandbar small { display:none; } }
     </style>
   </head>
-  <body>
+  <body data-site-brand="<?= siteBrand ?>">
     <main class="shell">
-      <div class="brandbar"><span class="brandmark" aria-hidden="true">t/d</span><span>the desk<span style="color:var(--accent)">.</span></span><small>CLASSROOM TOOLS</small></div>
+      <div class="brandbar"><span class="brandmark" id="brand-mark" aria-hidden="true">t/d</span><span id="brand-name">the desk<span style="color:var(--accent)">.</span></span><small id="brand-note">CLASSROOM TOOLS</small></div>
       <header class="top">
         <div>
           <p class="eyebrow" id="app-eyebrow">grantdesk // out-of-room pass</p>
@@ -398,14 +399,25 @@
       let teacherAudioContext = null;
       let studentRefreshFailures = 0;
 
+      // Only Mr. Auch's copy carries the desk branding; other teachers see plain Hall Pass.
+      const SITE_BRANDED = document.body.dataset.siteBrand === 'desk';
+      const EYEBROW_PREFIX = SITE_BRANDED ? 'grantdesk // ' : '';
+      if (!SITE_BRANDED) {
+        document.querySelector('#brand-mark').textContent = 'HP';
+        document.querySelector('#brand-name').textContent = 'Hall Pass';
+        document.querySelector('#brand-note').textContent = 'CLASSROOM PASS';
+        appEyebrow.textContent = 'out-of-room pass';
+        const tagline = document.querySelector('.top .school');
+        if (tagline) tagline.hidden = true;
+      }
       document.body.classList.toggle('teacher-mode', APP_MODE === 'teacher');
       document.body.classList.toggle('checkin-mode', APP_MODE === 'checkin');
       modeLabel.textContent = APP_MODE === 'teacher' ? 'teacher view' : APP_MODE === 'kiosk' ? 'kiosk' : APP_MODE === 'checkin' ? 'daily check-in' : 'student pass';
       if (APP_MODE === 'checkin') {
-        appEyebrow.textContent = 'grantdesk // daily attendance + point';
+        appEyebrow.textContent = `${EYEBROW_PREFIX}daily attendance + point`;
         privacyNote.textContent = 'Your check-in is private. Student screens show only your own confirmation; the full daily log is limited to your teacher.';
       } else if (APP_MODE === 'teacher') {
-        appEyebrow.textContent = 'grantdesk // private classroom controls';
+        appEyebrow.textContent = `${EYEBROW_PREFIX}private classroom controls`;
         privacyNote.textContent = 'Passes and daily check-ins are visible only in this teacher view and the private teacher-owned workbook.';
       }
 
@@ -455,7 +467,7 @@
             if (attempt >= STUDENT_BUSY_RETRY_DELAYS_MS.length || spent >= STUDENT_BUSY_RETRY_BUDGET_MS) {
               throw new Error('Several hall-pass changes reached the room at the same time. Your pass was not changed. Wait five seconds and press once more; this is traffic, not a bad PIN. Your teacher can use the backup controls if needed.');
             }
-            showBusy(`Another hall-pass update is finishing. GrantDesk has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
+            showBusy(`Another hall-pass update is finishing. Hall Pass has not changed yours yet and is retrying automatically (${attempt + 2} of ${totalAttempts}).`);
             const jitter = Math.floor(Math.random() * 350);
             await wait(STUDENT_BUSY_RETRY_DELAYS_MS[attempt] + jitter);
           }
@@ -881,7 +893,7 @@
         content.innerHTML = `
           <div class="checkin-card">
             <div class="student-head">
-              <div><p class="eyebrow">one student · one PIN</p><h2>${escapeHtml(firstName)}, choose your class.</h2><p class="student-meta">Your identity is confirmed. This choice tells GrantDesk where to record today’s activity.</p></div>
+              <div><p class="eyebrow">one student · one PIN</p><h2>${escapeHtml(firstName)}, choose your class.</h2><p class="student-meta">Your identity is confirmed. This choice tells Hall Pass where to record today’s activity.</p></div>
             </div>
             <div class="override">
               <select id="student-class"><option value="">choose the class you are attending…</option>${options}</select>
@@ -1333,8 +1345,8 @@
           errorLine.hidden = true;
           saveButton.disabled = true; saveButton.textContent = 'Saving…';
           try {
-            await onSubmit(form);
-            dialog.close();
+            const done = await onSubmit(form);
+            if (done !== false) dialog.close();
           } catch (error) {
             errorLine.textContent = error.message; errorLine.hidden = false;
           } finally {
@@ -1392,6 +1404,33 @@
           const classPeriod = label ? `${form.elements.period.value} — ${label}` : form.elements.period.value;
           adoptState(await call('teacherPasteStudents', form.elements.students.value, classPeriod));
           renderTeacher();
+        });
+      };
+
+      const openLunchPinDialog = () => {
+        let previewed = '';
+        teacherFormDialog(`<p class="eyebrow">STUDENT PINS</p><h2>use lunch numbers as PINs.</h2>
+          <p>Paste two columns from the school list: each student's school email and their 6-digit lunch number. Students who are not in your classes are ignored, so the whole school list is fine.</p>
+          <label>School list<textarea name="list" rows="8" placeholder="student@students.school.org&#9;412345"></textarea></label>
+          <div class="lunch-preview" hidden></div>
+          <label class="lunch-confirm" hidden>Type USE LUNCH NUMBERS to switch<input name="confirmation" autocomplete="off"></label>`,
+        async (form) => {
+          const list = form.elements.list.value;
+          const box = form.querySelector('.lunch-preview');
+          const confirmLabel = form.querySelector('.lunch-confirm');
+          if (previewed !== list || confirmLabel.hidden) {
+            const result = await call('teacherSetLunchNumberPins', list, '');
+            const p = result.preview;
+            box.hidden = false;
+            box.innerHTML = `<p><strong>${escapeHtml(p.matched)}</strong> of your students will switch to their lunch number. <strong>${escapeHtml(p.keepOldPin)}</strong> keep their current PIN. ${escapeHtml(p.notInClasses)} list rows are not in your classes.</p>`
+              + (p.problemCount ? `<p class="setup-error">Fix ${escapeHtml(p.problemCount)} problem${p.problemCount === 1 ? '' : 's'} first: ${escapeHtml(p.problems.join('; '))}</p>` : '');
+            confirmLabel.hidden = Boolean(p.problemCount) || !p.matched;
+            previewed = list;
+            return false;
+          }
+          adoptState(await call('teacherSetLunchNumberPins', list, form.elements.confirmation.value.trim()));
+          renderTeacher();
+          return true;
         });
       };
 
@@ -1499,7 +1538,7 @@
           'teacher-student': 'Start a pass using teacher authority. A private reason is required when overriding a restriction.',
           'teacher-checkin-student': 'Record attendance for a student who is here. A private reason is required outside the check-in window.',
           'pass-count-filter': 'Each row is one class membership. Used and remaining refer to that class for this marking period.',
-          'roster-class-period': 'Use a class label beginning with Period 1 through Period 8 so GrantDesk can apply the correct bell schedule. Existing students keep their current PIN.',
+          'roster-class-period': 'Use a class label beginning with Period 1 through Period 8 so Hall Pass can apply the correct bell schedule. Existing students keep their current PIN.',
         };
         Object.entries(help).forEach(([id, text]) => {
           const field = document.getElementById(id);
@@ -1571,6 +1610,13 @@
           card.querySelector('[data-open-setup="bells"]').addEventListener('click', () => openClassroomSetupDialog());
           card.querySelector('[data-open-setup="students"]').addEventListener('click', () => openPasteStudentsDialog());
           card.querySelectorAll('[data-copy-link]').forEach((input) => input.addEventListener('focus', () => input.select()));
+          const lunch = document.createElement('section');
+          lunch.className = 'subcard setup-card'; lunch.id = 'lunch-pin-card';
+          lunch.innerHTML = `<h3>lunch-number PINs</h3>
+            <p class="message">When you have the school list, students can use their 6-digit lunch number as their PIN. Paste the list, check the preview, then confirm. Students not on the list keep their current PIN.</p>
+            <div class="button-row"><button class="secondary" type="button" id="open-lunch-pins">switch PINs to lunch numbers</button></div>`;
+          panels.settings.append(lunch);
+          lunch.querySelector('#open-lunch-pins').addEventListener('click', () => openLunchPinDialog());
           if (!setup.bellsReady || !setup.membershipCount) {
             const banner = document.createElement('div'); banner.className = 'attention-banner setup-banner';
             banner.innerHTML = !setup.bellsReady
@@ -1747,7 +1793,7 @@
           <section class="notice warning" role="status" style="margin-top:16px">
             <h3>check-ins are recorded; workbook sync is catching up.</h3>
             <p><strong>${escapeHtml(checkInInbox.pendingCount)} check-in${Number(checkInInbox.pendingCount) === 1 ? '' : 's'} are safe in the private inbox and already included in the dashboard totals.</strong>${checkInInbox.oldestAt ? ` Oldest: ${formatClock(checkInInbox.oldestAt)}.` : ''}${checkInInbox.lastError && checkInInbox.lastError.at ? ` Last workbook error: ${formatClock(checkInInbox.lastError.at)}.` : ''}</p>
-            <p>GrantDesk will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
+            <p>Hall Pass will write them to Daily Check-ins together as soon as the workbook is available. Students do not need to submit again.</p>
           </section>` : '';
 
         const summaryHtml = state.checkInSummary.length ? state.checkInSummary.map((summary) => `
