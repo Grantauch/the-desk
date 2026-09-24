@@ -40,6 +40,9 @@
     table.bells th { padding: 4px 6px; color: var(--soft); font-size: 12px; font-weight: 600; text-align: left; }
     table.bells td { padding: 3px 6px 3px 0; }
     table.bells td:first-child { width: 88px; font-weight: 600; }
+    details.reduced { margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; }
+    details.reduced summary { cursor: pointer; font-weight: 600; }
+    textarea { width: 100%; padding: 8px 10px; border: 1px solid #c5cbd8; border-radius: 8px; font: inherit; }
     .actions { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 22px; }
     button, a.button {
       display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--accent-dark);
@@ -131,6 +134,17 @@
         <div><label for="year-end">Last day of school</label><input type="date" id="year-end"></div>
       </div>
       <p class="hint">Optional. No-school days can be added later from your teacher page.</p>
+
+      <details class="reduced" id="reduced-box">
+        <summary>Does your school have reduced days? (shortened schedule)</summary>
+        <p class="hint">Fill in the shortened bell times and list the dates. On those days Hall Pass uses these times instead. Skip this if your school has no reduced days.</p>
+        <table class="bells">
+          <thead><tr><th>Period</th><th>Starts</th><th>Ends</th></tr></thead>
+          <tbody id="reduced-rows"></tbody>
+        </table>
+        <label for="reduced-dates">Reduced days (one per line, like 2026-10-14)</label>
+        <textarea id="reduced-dates" rows="4" placeholder="2026-10-14"></textarea>
+      </details>
       <div class="message bad" id="bells-message"></div>
       <div class="actions">
         <button type="button" class="quiet" id="bells-back">← Back</button>
@@ -248,8 +262,8 @@
         radio.addEventListener('change', function () { style = radio.value; });
       });
 
-      function fillBells(periods) {
-        var body = $('bell-rows');
+      function fillBells(periods, bodyId) {
+        var body = $(bodyId || 'bell-rows');
         body.innerHTML = '';
         periods.forEach(function (entry) {
           var row = document.createElement('tr');
@@ -262,6 +276,16 @@
         });
       }
 
+      function readBells(bodyId) {
+        return Array.prototype.map.call(document.querySelectorAll('#' + bodyId + ' tr'), function (row) {
+          return {
+            period: Number(row.querySelector('[data-edge=start]').getAttribute('data-period')),
+            start: row.querySelector('[data-edge=start]').value,
+            end: row.querySelector('[data-edge=end]').value,
+          };
+        });
+      }
+
       function fill(next) {
         state = next;
         $('app-title').value = next.appTitle || 'Hall Pass';
@@ -271,6 +295,9 @@
         $('student-domain').value = next.studentEmailDomain || '';
         if (!next.studentEmailDomain && next.ownerDomain) $('student-domain').placeholder = 'students.' + next.ownerDomain;
         fillBells(next.periods || []);
+        fillBells(next.reducedPeriods || next.periods.map(function (row) { return { period: row.period, start: '', end: '' }; }), 'reduced-rows');
+        $('reduced-dates').value = (next.reducedDates || []).join('\n');
+        $('reduced-box').open = (next.reducedDates || []).length > 0 || (next.reducedPeriods || []).some(function (row) { return row.start; });
         $('year-start').value = next.yearStart || '';
         $('year-end').value = next.yearEnd || '';
         $('open-editor').href = next.scriptEditorUrl;
@@ -278,19 +305,15 @@
       }
 
       function answers() {
-        var periods = Array.prototype.map.call(document.querySelectorAll('#bell-rows tr'), function (row) {
-          return {
-            period: Number(row.querySelector('[data-edge=start]').getAttribute('data-period')),
-            start: row.querySelector('[data-edge=start]').value,
-            end: row.querySelector('[data-edge=end]').value,
-          };
-        });
+        var periods = readBells('bell-rows');
         return {
           appTitle: $('app-title').value,
           destination: $('destination').value,
           maxActivePasses: Number($('max-active').value),
           studentEmailDomain: $('student-domain').value,
           periods: periods,
+          reducedPeriods: readBells('reduced-rows'),
+          reducedDates: $('reduced-dates').value,
           yearStart: $('year-start').value,
           yearEnd: $('year-end').value,
         };

@@ -283,6 +283,10 @@
       .setup-dialog { width:min(620px,calc(100% - 32px)); max-height:min(88vh,860px); overflow:auto; }
       .setup-dialog form { display:grid; gap:14px; }
       .setup-dialog p { margin:0; }
+      .reduced-setup { display:grid; gap:10px; border-top:1px solid rgba(0,0,0,.1); padding-top:12px; }
+      .reduced-setup > summary { cursor:pointer; font-weight:700; }
+      .reduced-setup[open] > summary { margin-bottom:6px; }
+      .reduced-setup > * + * { margin-top:10px; }
       .setup-dialog input, .setup-dialog select, .setup-dialog textarea { width:100%; }
       .bell-table { width:100%; border-collapse:collapse; }
       .bell-table th, .bell-table td { padding:4px 6px; text-align:left; font-size:13px; }
@@ -1362,7 +1366,11 @@
 
       const openClassroomSetupDialog = () => {
         const setup = (state && state.classroomSetup) || { periods: [] };
-        const rows = (setup.periods || []).map((row) => `<tr><th scope="row">Period ${escapeHtml(row.period)}</th><td><input type="time" data-bell-start="${escapeHtml(row.period)}" value="${escapeHtml(row.start)}" aria-label="Period ${escapeHtml(row.period)} start"></td><td><input type="time" data-bell-end="${escapeHtml(row.period)}" value="${escapeHtml(row.end)}" aria-label="Period ${escapeHtml(row.period)} end"></td></tr>`).join('');
+        const bellRows = (list, prefix, label) => (list || []).map((row) => `<tr><th scope="row">Period ${escapeHtml(row.period)}</th><td><input type="time" data-${prefix}-start="${escapeHtml(row.period)}" value="${escapeHtml(row.start)}" aria-label="${label}Period ${escapeHtml(row.period)} start"></td><td><input type="time" data-${prefix}-end="${escapeHtml(row.period)}" value="${escapeHtml(row.end)}" aria-label="${label}Period ${escapeHtml(row.period)} end"></td></tr>`).join('');
+        const rows = bellRows(setup.periods, 'bell', '');
+        const reducedList = setup.reducedPeriods && setup.reducedPeriods.length ? setup.reducedPeriods : (setup.periods || []).map((row) => ({ period: row.period, start: '', end: '' }));
+        const reducedRows = bellRows(reducedList, 'reduced', 'Reduced day ');
+        const hasReduced = reducedList.some((row) => row.start) || (setup.reducedDates || []).length > 0;
         teacherFormDialog(`<p class="eyebrow">CLASSROOM SETUP</p><h2>your bell schedule.</h2>
           <p>Enter a normal day's start and end time for each period you teach. Leave the rest blank. Passes open and close with these times, and students in two of your classes are routed to the one meeting now.</p>
           <table class="bell-table"><thead><tr><th>period</th><th>starts</th><th>ends</th></tr></thead><tbody>${rows}</tbody></table>
@@ -1371,15 +1379,27 @@
             <label>Last day of school<input type="date" name="yearEnd" value="${escapeHtml(setup.yearEnd || '')}"></label>
           </div>
           <label>Student email ending<input name="studentEmailDomain" placeholder="students.yourschool.org" value="${escapeHtml(setup.studentEmailDomain || '')}" autocomplete="off"></label>
-          <label>No-school days (one per line, like 2026-11-26)<textarea name="noSchoolDates" rows="4">${escapeHtml((setup.noSchoolDates || []).join('\n'))}</textarea></label>`,
+          <label>No-school days (one per line, like 2026-11-26)<textarea name="noSchoolDates" rows="4">${escapeHtml((setup.noSchoolDates || []).join('\n'))}</textarea></label>
+          <details class="reduced-setup"${hasReduced ? ' open' : ''}><summary>Reduced days (shortened schedule)</summary>
+            <p>On these days Hall Pass uses the reduced bell times below instead of the normal ones. Leave both blank if your school has no reduced days.</p>
+            <table class="bell-table"><thead><tr><th>period</th><th>starts</th><th>ends</th></tr></thead><tbody>${reducedRows}</tbody></table>
+            <label>Reduced days (one per line, like 2026-10-14)<textarea name="reducedDates" rows="4">${escapeHtml((setup.reducedDates || []).join('\n'))}</textarea></label>
+          </details>`,
         async (form) => {
           const periods = (setup.periods || []).map((row) => ({
             period: row.period,
             start: form.querySelector(`[data-bell-start="${row.period}"]`).value,
             end: form.querySelector(`[data-bell-end="${row.period}"]`).value,
           }));
+          const reducedPeriods = reducedList.map((row) => ({
+            period: row.period,
+            start: form.querySelector(`[data-reduced-start="${row.period}"]`).value,
+            end: form.querySelector(`[data-reduced-end="${row.period}"]`).value,
+          }));
           const payload = {
             periods,
+            reducedPeriods,
+            reducedDates: form.elements.reducedDates.value,
             yearStart: form.elements.yearStart.value,
             yearEnd: form.elements.yearEnd.value,
             studentEmailDomain: form.elements.studentEmailDomain.value,
