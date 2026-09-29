@@ -51,6 +51,8 @@ for (const htmlFile of htmlFiles) {
   for (const match of attributes) {
     const raw = (match[1] ?? match[2] ?? '').trim();
     if (!raw || raw.startsWith('#') || /^(?:https?:|mailto:|tel:|data:|blob:|javascript:|\/\/)/i.test(raw)) continue;
+    // Runtime template placeholders inside inline scripts are not static links.
+    if (raw.includes('${')) continue;
     references += 1;
 
     let clean;
