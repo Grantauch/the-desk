@@ -55,6 +55,7 @@ button:disabled { cursor: not-allowed; opacity: 0.42; }
   background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--mc) 55%, #fff) 0%, var(--mc) 42%, color-mix(in srgb, var(--mc) 55%, #000) 100%);
   box-shadow: 0 0 0 2px var(--gilt-hi), 0 0 0 3.5px var(--ink), inset 0 -3px 5px rgba(0,0,0,0.35); }
 .medal .ico { width: 64%; height: 64%; stroke-width: 2.6; filter: drop-shadow(0 1px 0 rgba(0,0,0,0.45)); }
+.medal .mface { position: absolute; left: 8%; top: 8%; width: 84%; height: 84%; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,0.5); }
 canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 /* ---------- Buttons ---------- */
@@ -95,8 +96,10 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 @keyframes shine { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0% 0; } }
 .hero .gilt-title { font-size: clamp(56px, 9vw, 128px); filter: drop-shadow(0 4px 0 rgba(0,0,0,0.55)); }
 .hero .tag { font-family: var(--display); font-style: italic; font-size: 22px; color: #d9ccaa; margin: 10px auto 26px; max-width: 30ch; }
-.barons { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; }
-.barons figure { margin: 0; width: 104px; text-align: center; }
+.barons { display: flex; justify-content: center; gap: clamp(8px, 1.6vw, 22px); flex-wrap: nowrap; }
+.barons figure { margin: 0; flex: 0 1 118px; min-width: 0; text-align: center; }
+.barons .card { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; border-radius: 4px; box-shadow: 0 0 0 2px var(--ink), 0 12px 24px rgba(0,0,0,0.55); transition: transform 0.25s ease; }
+.barons figure:hover .card { transform: translateY(-4px) rotate(-1deg); }
 .barons .medal { width: 70px; height: 70px; box-shadow: 0 0 0 3px var(--gilt-hi), 0 0 0 5px var(--ink), 0 10px 20px rgba(0,0,0,0.5), inset 0 -4px 8px rgba(0,0,0,0.35); }
 .barons figcaption { margin-top: 10px; font-family: var(--sc); font-size: 17px; line-height: 1.05; color: var(--paper); }
 .barons figcaption span { display: block; font-family: var(--sans); font-size: 14px; color: #b9ad8d; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
@@ -166,6 +169,7 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 .cell.owned .pr { color: var(--ink); font-weight: 700; }
 .cell .facs { display: flex; gap: 0.2cqw; }
 .cell .facs svg { width: 1.9cqw; height: 1.6cqw; }
+.cell .facs .fac { width: 2.5cqw; height: 2.5cqw; margin: -0.3cqw -0.35cqw 0; filter: drop-shadow(0 0.15cqw 0.15cqw rgba(0,0,0,0.45)); }
 .cell.mort .txt { opacity: 0.38; }
 .cell.mort::after { content: 'Mortgaged'; position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(-28deg); font-weight: 800; font-size: 1.3cqw; color: var(--oxblood); border: 1.5px solid var(--oxblood); padding: 0 3px; background: rgba(239,230,207,0.92); letter-spacing: 0.04em; text-transform: uppercase; }
 .cell.hl { background: radial-gradient(rgba(27,26,22,0.1) 0.6px, transparent 0.7px) 0 0 / 4px 4px, #efe8d6; }
@@ -188,9 +192,20 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 /* ---------- Token layer ---------- */
 .toklayer { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
 .ptok { position: absolute; left: 0; top: 0; will-change: transform; display: grid; }
+.ptok .piece { position: absolute; left: -14%; top: -22%; width: 128%; height: 128%; object-fit: contain; filter: drop-shadow(0 0.5cqw 0.45cqw rgba(0,0,0,0.6)); }
+.ptok.now .piece { filter: drop-shadow(0 0 0.45cqw #f7dc8f) drop-shadow(0 0.5cqw 0.45cqw rgba(0,0,0,0.6)); }
+.ptok:not(.nofig) > .medal { visibility: hidden; }
 .ptok .medal { width: 100%; height: 100%; box-shadow: 0 0 0 0.22cqw var(--gilt-hi), 0 0 0 0.42cqw var(--ink), 0 0.7cqw 0.8cqw rgba(0,0,0,0.45), inset 0 -0.5cqw 0.8cqw rgba(0,0,0,0.35); }
 .ptok.now::after { content: ''; position: absolute; inset: -0.7cqw; border-radius: 50%; border: 0.3cqw solid var(--gilt-hi); animation: ring 1.6s ease-out infinite; }
 @keyframes ring { 0% { transform: scale(0.85); opacity: 1; } 100% { transform: scale(1.45); opacity: 0; } }
+.bill { position: absolute; left: 0; top: 0; width: 6.4cqw; height: 2.56cqw; margin: -1.28cqw 0 0 -3.2cqw; background: center / contain no-repeat; filter: drop-shadow(0 0.25cqw 0.3cqw rgba(0,0,0,0.45)); }
+.btn .tico { width: 26px; height: 26px; flex: none; margin: -3px 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35)); }
+.btn.small .tico { width: 20px; height: 20px; }
+.cell .facs .tb { width: 2.4cqw; height: 2.4cqw; margin: -0.25cqw 0.15cqw 0 0; filter: drop-shadow(0 0.12cqw 0.12cqw rgba(0,0,0,0.45)); }
+.mrow .tb { width: 22px; height: 22px; vertical-align: -5px; margin-right: 4px; }
+.purse { position: relative; height: 112px; margin: 8px 0 14px; }
+.purse img { position: absolute; top: 0; width: 170px; height: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35)); }
+.purse figcaption { position: absolute; left: 0; right: 0; bottom: 0; font-size: 15px; color: var(--ink-2); }
 .coin { position: absolute; left: 0; top: 0; width: 2.4cqw; height: 2.4cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3c2 0%, #e8c060 35%, #a07a24 100%); border: 0.15cqw solid #6b5010; box-shadow: 0 0.2cqw 0.3cqw rgba(0,0,0,0.35); }
 .floater { position: absolute; left: 0; top: 0; font-weight: 800; font-size: 2.6cqw; white-space: nowrap; color: var(--gilt-hi); -webkit-text-stroke: 0.14cqw var(--ink); paint-order: stroke fill; }
 .floater.neg { color: #ff9a8a; }
@@ -373,6 +388,8 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 
 /* Market shift: the ticker goes wild */
 .mkt { position: relative; text-align: center; width: min(720px, 94vw); padding: 30px 20px; animation: popIn 0.5s cubic-bezier(.2,.9,.3,1.3) both; }
+.mkt > .scene { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.42; border-radius: 4px; -webkit-mask-image: radial-gradient(ellipse at center, #000 45%, transparent 78%); mask-image: radial-gradient(ellipse at center, #000 45%, transparent 78%); }
+.mkt { isolation: isolate; }
 .mkt .word { font-family: var(--wood); font-size: clamp(64px, 14vw, 150px); line-height: 0.9; }
 .mkt.panic .word { color: #ff6b5b; text-shadow: 0 6px 0 #3b0906, 0 0 40px rgba(255,80,60,0.45); }
 .mkt.boom .word { color: var(--gilt-hi); text-shadow: 0 6px 0 #3a2a08, 0 0 40px rgba(240,200,110,0.45); }
@@ -441,6 +458,12 @@ dialog::backdrop { background: rgba(6, 14, 10, 0.72); }
 .dlg td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .dlg .fact { font-family: var(--display); font-size: 19px; line-height: 1.4; background: #e5dabd; padding: 10px 12px; border-left: 5px solid var(--gilt); }
 .dlg .spacevig { height: 110px; border: 2px solid var(--ink); margin: 0 0 12px; }
+.scene { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.news .cut .scene, .plate .photo .scene, .dlg .spacevig.photo .scene { z-index: 0; }
+.dlg .spacevig.photo { position: relative; height: 170px; overflow: hidden; }
+.dlg .spacevig.fig { position: relative; height: 150px; overflow: hidden; }
+.dlg .spacevig.fig .vig { opacity: 0.55; }
+.dlg .spacevig .figure { position: absolute; left: 50%; bottom: 4px; height: 138px; width: auto; transform: translateX(-50%); filter: drop-shadow(0 8px 8px rgba(0,0,0,0.5)); }
 .mrow { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(27,26,22,0.18); }
 .mrow .chip { width: 14px; height: 30px; border: 1px solid var(--ink); }
 .mrow .mn { font-weight: 700; font-size: 18px; }
@@ -457,6 +480,8 @@ dialog::backdrop { background: rgba(6, 14, 10, 0.72); }
 .partners { display: flex; gap: 10px; flex-wrap: wrap; }
 .rules h3 { font-size: 19px; margin: 14px 0 4px; }
 .rules p { margin: 0 0 6px; }
+.rules .tb { width: 22px; height: 22px; vertical-align: -5px; margin: 0 3px; }
+.purse { overflow: hidden; }
 .rules .bline { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; align-items: center; margin: 6px 0; }
 .rules .bline .medal { width: 36px; height: 36px; }
 
@@ -482,7 +507,7 @@ dialog::backdrop { background: rgba(6, 14, 10, 0.72); }
   .bidder .bb { grid-column: 1 / 3; justify-content: flex-start; }
   .pod { width: 30vw; }
   .barons { gap: 10px; }
-  .barons figure { width: 76px; }
+  .barons figure { flex-basis: 72px; }
   .barons .medal { width: 54px; height: 54px; }
   .barons figcaption { font-size: 15px; }
   .barons figcaption span { font-size: 12px; }
@@ -714,13 +739,13 @@ const RB = (() => {
     { key: 'vanderbilt', name: 'Cornelius Vanderbilt', short: 'Vanderbilt', title: 'The Commodore', color: '#c0913a', emblem: 'loco',
       power: 'Your railroads charge 50 percent more rent.',
       fact: 'Vanderbilt started with one ferry boat in New York harbor in 1810. He took control of the New York Central in 1867 and died in 1877 worth about $100 million, the richest man in America.' },
-    { key: 'rockefeller', name: 'John D. Rockefeller', short: 'Rockefeller', title: 'The Refiner', color: '#3d6f9e', emblem: 'derrick',
+    { key: 'rockefeller', name: 'John D. Rockefeller', short: 'Rockefeller', title: 'The Refiner', color: '#b4432a', emblem: 'derrick',
       power: 'Secret rebates. You pay half rent on railroads.',
       fact: 'In 1872 Rockefeller joined the South Improvement Company, a secret deal that let big refiners ship oil on the railroads at a discount while rivals paid full price.' },
-    { key: 'carnegie', name: 'Andrew Carnegie', short: 'Carnegie', title: 'The Ironmaster', color: '#a9432f', emblem: 'converter',
+    { key: 'carnegie', name: 'Andrew Carnegie', short: 'Carnegie', title: 'The Ironmaster', color: '#2f6aa6', emblem: 'converter',
       power: 'You own the supply chain. Factories cost you 25 percent less.',
       fact: 'Carnegie bought iron mines, coke ovens, ore ships and his own rail line so that he controlled every step of making steel. Historians call this vertical integration.' },
-    { key: 'morgan', name: 'J. Pierpont Morgan', short: 'Morgan', title: 'The Banker', color: '#4d7b4c', emblem: 'bank',
+    { key: 'morgan', name: 'J. Pierpont Morgan', short: 'Morgan', title: 'The Banker', color: '#6a4591', emblem: 'bank',
       power: 'Interest pays. You collect $250 at Payday instead of $200.',
       fact: 'In 1895 the federal Treasury was running out of gold. Morgan led a group of bankers that supplied about 3.5 million ounces of gold and kept the government from defaulting.' }
   ];
@@ -1230,6 +1255,7 @@ const RB = (() => {
 <script>
 // ART START
 const ART = (() => {
+  const IMG = 'robber-barons-art/';
   /* ---------- Small engraved icons, 48 x 48, drawn in currentColor ---------- */
   const I = {
     steer: '<path d="M16 14Q24 10 32 14L31 30Q28 40 24 41Q20 40 17 30Z"/><path d="M16 15Q8 14 6 7M32 15Q40 14 42 7M16 19L9 21M32 19L39 21"/><circle cx="19.5" cy="23" r="1.4" class="f"/><circle cx="28.5" cy="23" r="1.4" class="f"/><circle cx="22" cy="36" r="1" class="f"/><circle cx="26" cy="36" r="1" class="f"/>',
@@ -1523,10 +1549,16 @@ const ART = (() => {
 
   /* ---------- Baron medallions ---------- */
   function medallion(baron, cls) {
-    return `<span class="medal${cls ? ' ' + cls : ''}" style="--mc:${baron.color}">${icon(baron.emblem)}</span>`;
+    return `<span class="medal${cls ? ' ' + cls : ''}" style="--mc:${baron.color}">${icon(baron.emblem)}<img class="mface" src="${IMG}face-${baron.key}.webp" alt="" draggable="false" onerror="this.remove()"></span>`;
+  }
+  function piece(baron) {
+    return medallion(baron) + `<img class="piece" src="${IMG}piece-${baron.key}.webp" alt="" draggable="false" onerror="this.parentNode.classList.add('nofig');this.remove()">`;
+  }
+  function card(baron) {
+    return `<img class="card" src="${IMG}card-${baron.key}.webp" width="400" height="600" alt="${baron.name}" draggable="false">`;
   }
 
-  return { icon, vignette, octopus, guilloche, medallion, VKEYS: Object.keys(V) };
+  return { icon, vignette, octopus, guilloche, medallion, piece, card, IMG, VKEYS: Object.keys(V) };
 })();
 // ART END
 </script>
@@ -1570,6 +1602,16 @@ const ART = (() => {
     return 'bag';
   }
   const GROUP_VIG = { meat: 'mill', sugar: 'ship', tob: 'mill', wire: 'streetcar', elec: 'bulb', oil: 'derricks', steel: 'mill', bank: 'bank' };
+  const SPACE_FIG = { 'Standard Oil': 'refinery' };
+  function spaceFig(sp) { return SPACE_FIG[sp.name] || ''; }
+  const GROUP_SCENE = { oil: 'oil', steel: 'steel', bank: 'bank', elec: 'tech' };
+  function spaceScene(sp) { if (spaceFig(sp)) return ''; return sp.type === 'rr' ? 'rail' : sp.type === 'prop' ? GROUP_SCENE[sp.group] || '' : ''; }
+  const CARD_SCENE = {
+    'Golden Spike': 'rail', 'Panic of 1873': 'crash', 'Panic of 1893': 'crash', 'Black Friday': 'crash', 'Sherman Antitrust Act': 'trust',
+    'Light at Menlo Park': 'tech', 'Klondike Gold Rush': 'boom', 'Haymarket Square': 'strike', 'Knights of Labor': 'strike', 'Pullman Strike': 'strike'
+  };
+  const sceneImg = k => `<img class="scene" src="${ART.IMG}scene-${k}.webp" alt="" draggable="false" onerror="this.remove()">`;
+  const cardArt = t => ART.vignette(CARD_ART[t]) + (CARD_SCENE[t] ? sceneImg(CARD_SCENE[t]) : '');
   function spaceVig(sp) {
     if (sp.type === 'prop') return GROUP_VIG[sp.group];
     if (sp.type === 'rr') return 'loco';
@@ -1674,7 +1716,10 @@ const ART = (() => {
     });
     host.innerHTML = svg + puffs;
   }
-  const FACTORY_ICON = '<svg viewBox="0 0 20 16" aria-hidden="true"><path fill="#1b1a16" d="M1 16V8l5-3v3l5-3v3l5-3V1h3v15z"/></svg>';
+  const FACTORY_ICON = `<img class="fac" src="${ART.IMG}factory.webp" alt="" draggable="false">`;
+  const TILES = { idea: 1, trust: 1, integration: 1 };
+  const tile = (k, cls) => `<img class="${cls}" src="${ART.IMG}tile-${k}.webp" alt="" draggable="false" onerror="this.remove()">`;
+  ['#setupRules', '#rulesBtn'].forEach(sel => { const b = $(sel); b.insertAdjacentHTML('afterbegin', tile('idea', 'tico')); });
   function roses() {
     if (!$('#setup').hidden) ART.guilloche($('#setupRose'), { cx: 0.3, cy: 0.45, size: 0.62, color: 'rgba(211,168,82,0.55)', lw: 0.55 });
     if (!$('#game').hidden) ART.guilloche($('#centerRose'), { cy: 0.4, size: 0.5, color: 'rgba(236,208,140,0.5)', lw: 0.5 });
@@ -1683,7 +1728,7 @@ const ART = (() => {
   window.addEventListener('resize', () => { clearTimeout(roseTimer); roseTimer = setTimeout(roses, 150); });
   skyline($('#setupSky'));
   $('#setupTape').textContent = HEADLINES.concat(STREETS).map(c => `${c.year}  ${c.title}`).join('   ✦   ');
-  $('#baronStrip').innerHTML = BARONS.map(b => `<figure>${ART.medallion(b)}<figcaption>${esc(b.short)}<span>${esc(b.title)}</span></figcaption></figure>`).join('');
+  $('#baronStrip').innerHTML = BARONS.map(b => `<figure>${ART.card(b)}<figcaption><span>${esc(b.title)}</span></figcaption></figure>`).join('');
 
   /* ================= Setup ================= */
   let count = 4;
@@ -1778,7 +1823,7 @@ const ART = (() => {
     const layer = $('#toklayer'); layer.innerHTML = ''; tokEls.length = 0;
     S.players.forEach(p => {
       const d = document.createElement('div');
-      d.className = 'ptok'; d.innerHTML = med(p.id); d.title = p.name;
+      d.className = 'ptok'; d.innerHTML = ART.piece(baron(p.id)); d.title = p.name;
       layer.appendChild(d); tokEls.push(d);
     });
   }
@@ -1801,7 +1846,9 @@ const ART = (() => {
         prEl.textContent = base; el.classList.remove('owned', 'mine'); el.setAttribute('aria-label', sp.name);
       }
       el.classList.toggle('mort', !!(pr && pr.mort));
-      el.querySelector('.facs').innerHTML = pr && pr.level ? FACTORY_ICON.repeat(pr.level) : '';
+      const lv = pr ? pr.level : 0, tr = !!(pr && pr.owner >= 0 && sp.type === 'prop' && RB.ownsTrust(S, sp.group, pr.owner));
+      const key = lv + (tr ? 't' : '');
+      if (el.dataset.lv !== key) { el.dataset.lv = key; el.querySelector('.facs').innerHTML = (tr ? tile('trust', 'tb') : '') + FACTORY_ICON.repeat(lv); }
     });
     let facs = 0; RB.BUYABLE.forEach(i => { facs += S.props[i].level; });
     const lit = Math.min(STACKS.length, 2 + facs);
@@ -1868,17 +1915,28 @@ const ART = (() => {
   }
 
   /* ================= Effects ================= */
-  function coins(from, to, n, delay = 0) {
+  const NOTES = [500, 100, 50, 20, 10, 5, 1];
+  function notesFor(amt, max) {
+    const out = []; let left = Math.max(0, Math.round(amt));
+    NOTES.forEach(v => { while (left >= v && out.length < max) { out.push(v); left -= v; } });
+    return out.length ? out : [1];
+  }
+  const billImg = v => `${ART.IMG}bill-${v}.webp`;
+  function coins(from, to, n, delay = 0, amt = 0) {
     if (reduceMotion) return Promise.resolve();
     const layer = $('#toklayer'), jobs = [];
+    const notes = amt > 0 ? notesFor(amt, 8) : null;
+    if (notes) n = notes.length;
     for (let k = 0; k < n; k++) {
-      const c = document.createElement('div'); c.className = 'coin'; layer.appendChild(c);
+      const c = document.createElement('div');
+      if (notes) { c.className = 'bill'; c.style.backgroundImage = `url("${billImg(notes[k])}")`; } else c.className = 'coin';
+      layer.appendChild(c);
       const sx = from.x + rand(-8, 8), sy = from.y + rand(-8, 8), ex = to.x + rand(-6, 6), ey = to.y + rand(-6, 6);
       const lift = Math.min(120, Math.hypot(ex - sx, ey - sy) * 0.4 + 30);
       const a = c.animate([
         { transform: `translate(${sx}px, ${sy}px) scale(0.6)`, opacity: 0 },
-        { transform: `translate(${(sx + ex) / 2}px, ${(sy + ey) / 2 - lift}px) scale(1.15) rotate(180deg)`, opacity: 1, offset: 0.5 },
-        { transform: `translate(${ex}px, ${ey}px) scale(0.7) rotate(360deg)`, opacity: 0.9 }], { duration: 620, delay: delay + k * 55, easing: 'cubic-bezier(.3,.1,.4,1)', fill: 'both' });
+        { transform: `translate(${(sx + ex) / 2}px, ${(sy + ey) / 2 - lift}px) scale(1.15) rotate(${notes ? rand(-14, 14) : 180}deg)`, opacity: 1, offset: 0.5 },
+        { transform: `translate(${ex}px, ${ey}px) scale(0.7) rotate(${notes ? rand(-6, 6) : 360}deg)`, opacity: 0.9 }], { duration: 620, delay: delay + k * 55, easing: 'cubic-bezier(.3,.1,.4,1)', fill: 'both' });
       jobs.push(a.finished.catch(() => {}).then(() => c.remove()));
     }
     return Promise.all(jobs);
@@ -1957,18 +2015,18 @@ const ART = (() => {
       SFX.paper();
       return scene(`<div class="news" role="dialog" aria-label="${esc(c.title)}"><div class="mast">The Gilded Gazette</div>
         <div class="dateline"><span>Extra edition</span><span>${esc(c.year)}</span><span>One cent</span></div>
-        <h2 class="hl">${esc(c.title)}</h2><div class="cut">${ART.vignette(CARD_ART[c.title])}</div><p class="deck">${esc(c.text)}</p>
+        <h2 class="hl">${esc(c.title)}</h2><div class="cut">${cardArt(c.title)}</div><p class="deck">${esc(c.text)}</p>
         <div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div>`, replayOpts());
     }
     const c = STREETS[ev.ci];
     SFX.shutter();
-    return scene(`<div class="plate" role="dialog" aria-label="${esc(c.title)}"><div class="photo"><span class="yr">${esc(c.year)}</span>${ART.vignette(CARD_ART[c.title])}</div>
+    return scene(`<div class="plate" role="dialog" aria-label="${esc(c.title)}"><div class="photo"><span class="yr">${esc(c.year)}</span>${cardArt(c.title)}</div>
       <div class="cap"><div class="kick">The Streets</div><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div></div>`, replayOpts());
   }
   function marketScene(mood) {
     const up = mood === 'boom';
     if (up) SFX.boom(); else SFX.crash();
-    return scene(`<div class="mkt ${mood}" role="dialog" aria-label="${up ? 'Boom' : 'Panic'}"><div class="word">${up ? 'Boom' : 'Panic'}</div>
+    return scene(`<div class="mkt ${mood}" role="dialog" aria-label="${up ? 'Boom' : 'Panic'}">${sceneImg(up ? 'boom' : 'crash')}<div class="word">${up ? 'Boom' : 'Panic'}</div>
       <div class="sub">${up ? 'Money floods into Wall Street.' : 'Crowds run on the banks.'}</div>
       <div class="rule">${up ? 'Every rent rises 50 percent for one round.' : 'Every rent falls by half for one round.'}</div></div>`, { deep: true, auto: 2600, mount: st => tapeStorm(st, up) });
   }
@@ -2129,7 +2187,7 @@ const ART = (() => {
   function button(label, cls, fn, disabled, title, iconKey) {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'btn ' + (cls || '');
-    b.innerHTML = (iconKey ? ic(iconKey) : '') + `<span>${esc(label)}</span>`;
+    b.innerHTML = (iconKey ? (TILES[iconKey] ? tile(iconKey, 'tico') : ic(iconKey)) : '') + `<span>${esc(label)}</span>`;
     b.disabled = !!disabled || busy; if (title) b.title = title;
     b.addEventListener('click', fn);
     return b;
@@ -2189,7 +2247,7 @@ const ART = (() => {
       else row1.appendChild(button('End turn', 'primary go', endTurnAction));
     }
     if (S.phase !== 'over' && S.phase !== 'auction' && !p.bankrupt && me && !offer) {
-      row2.appendChild(button('Build and mortgage', '', showManage, false, '', 'mill'));
+      row2.appendChild(button('Build and mortgage', '', showManage, false, '', 'integration'));
       row2.appendChild(button('Trade', '', showTradePartner, RB.active(S).length < 2, '', 'shake'));
     }
     if (row1.childNodes.length) acts.appendChild(row1); if (row2.childNodes.length) acts.appendChild(row2);
@@ -2265,7 +2323,7 @@ const ART = (() => {
       await walk(m.pid, m.from, m.steps);
       if (m.from + m.steps >= SPACES.length) {
         SFX.coin(); floatText(tokCenter(m.pid), '+' + money(RB.paydayFor(S, S.players[m.pid])));
-        coins(cellCenter(0), tokCenter(m.pid), 6);
+        coins(cellCenter(0), tokCenter(m.pid), 6, 0, RB.paydayFor(S, S.players[m.pid]));
       }
       const sp = SPACES[m.to];
       if ((sp.type === 'headlines' || sp.type === 'streets') && cards.length) await cardScene(cards.shift(), pid);
@@ -2278,13 +2336,13 @@ const ART = (() => {
       const payer = tokCenter(pid), owner = S.players[rent.to].bankrupt ? cellCenter(rent.idx) : tokCenter(rent.to);
       SFX.pay(); toast(`${S.players[pid].name} pays ${S.players[rent.to].name} ${money(rent.amount)}`);
       floatText(payer, '−' + money(rent.amount), true);
-      await coins(payer, owner, Math.min(10, 3 + Math.round(rent.amount / 40)));
+      await coins(payer, owner, 4, 0, rent.amount);
       SFX.coin();
     }
     const tax = S.events.find(e => e.kind === 'space' && SPACES[e.idx].type === 'tax');
     if (tax) {
       const pt = tokCenter(pid); SFX.pay(); floatText(pt, '−' + money(SPACES[tax.idx].amount), true);
-      await coins(pt, { x: $('#board').clientWidth / 2, y: $('#board').clientHeight / 2 }, 5);
+      await coins(pt, { x: $('#board').clientWidth / 2, y: $('#board').clientHeight / 2 }, 5, 0, SPACES[tax.idx].amount);
     }
     const busts = S.events.filter(e => e.kind === 'bankrupt');
     for (const b of busts) await bustScene(b);
@@ -2435,7 +2493,9 @@ const ART = (() => {
     if (!S) return;
     SFX.click();
     const sp = SPACES[i], pr = S.props[i];
-    let h = `<div class="spacevig">${ART.vignette(spaceVig(sp))}</div><h2 id="dlgTitle">${esc(sp.name)}</h2>`;
+    const fig = spaceFig(sp);
+    const scn = spaceScene(sp);
+    let h = `<div class="spacevig${fig ? ' fig' : ''}${scn ? ' photo' : ''}">${ART.vignette(spaceVig(sp))}${scn ? sceneImg(scn) : ''}${fig ? `<img class="figure" src="${ART.IMG}figure-${fig}.webp" alt="" draggable="false" onerror="this.remove()">` : ''}</div><h2 id="dlgTitle">${esc(sp.name)}</h2>`;
     if (sp.type === 'prop') {
       const g = GROUPS[sp.group];
       h += `<p><span style="display:inline-block;width:14px;height:14px;border:1px solid #1b1a16;background:${g.color};vertical-align:-2px;margin-right:6px"></span>${esc(g.name)} group. Price ${money(sp.price)}.</p>
@@ -2485,7 +2545,7 @@ const ART = (() => {
       }
       if (!pr.mort) btns += `<button class="btn small" data-act="mort" data-i="${i}" ${RB.canMortgage(S, p.id, i) ? '' : 'disabled title="Sell the factories in this group first"'}>Mortgage +${money(sp.price / 2)}</button>`;
       else btns += `<button class="btn small" data-act="unmort" data-i="${i}" ${p.cash >= RB.unmortgageCost(i) ? '' : 'disabled'}>Pay off ${money(RB.unmortgageCost(i))}</button>`;
-      h += `<div class="mrow"><span class="chip" style="background:${color}"></span><div style="min-width:0"><div class="mn">${esc(sp.name)}</div><div class="ms">${esc(st.join(', '))}</div></div><div class="mb">${btns}</div></div>`;
+      h += `<div class="mrow"><span class="chip" style="background:${color}"></span><div style="min-width:0"><div class="mn">${sp.type === 'prop' && RB.ownsTrust(S, sp.group, p.id) ? tile('trust', 'tb') : ''}${esc(sp.name)}</div><div class="ms">${esc(st.join(', '))}</div></div><div class="mb">${btns}</div></div>`;
     });
     h += '<p class="hint" style="margin-top:10px">Mortgaged businesses collect no rent. Paying off a mortgage costs the loan plus 10 percent.</p>';
     h += '<div class="foot"><button class="btn" type="button" data-close autofocus>Done</button></div>';
@@ -2678,12 +2738,13 @@ const ART = (() => {
   function showRules() {
     openDlg(`<h2 id="dlgTitle">How to play</h2><div class="rules">
       <p>Everyone starts with $1,500. Take turns rolling two dice and moving around the board. Pass Payday and you collect $200.</p>
+      <figure class="purse">${[500, 500, 100, 100, 100, 100, 50, 20, 20, 10].map((v, k) => `<img src="${billImg(v)}" alt="" style="left:${k * 42}px;top:${(k % 2) * 10}px;transform:rotate(${(k - 4.5) * 2}deg)" onerror="this.remove()">`).join('')}<figcaption>A starting fortune of $1,500 in Robber Barons notes.</figcaption></figure>
       <h3>Pick a baron</h3>
       ${BARONS.map(b => `<div class="bline">${ART.medallion(b)}<div><strong>${esc(b.name)}.</strong> ${esc(b.power)}</div></div>`).join('')}
       <h3>Buying businesses</h3>
       <p>Land on a business nobody owns and you can buy it. If you pass, the bank auctions it and anyone can bid, including you. Tap any space on the board to read its history and rent.</p>
       <h3>Rent and trusts</h3>
-      <p>Land on a business someone else owns and you pay them rent. Own every business in a color group and you control a trust. Rent doubles, and you can build up to 3 factories on each business in the trust. Factories raise rent fast.</p>
+      <p>Land on a business someone else owns and you pay them rent. Own every business in a color group and you control a trust, marked on the board with ${tile('trust', 'tb')} a chain. Rent doubles, and you can build up to 3 factories on each business in the trust. Factories raise rent fast.</p>
       <p>Railroads charge more for every railroad the owner holds.</p>
       <h3>Booms and panics</h3>
       <p>Some Headlines cards shake the market. A boom raises every rent 50 percent and a panic cuts every rent in half. Either one lasts until the player who drew the card takes their next turn. Watch the dial in the middle of the board.</p>
