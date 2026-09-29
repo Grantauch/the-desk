@@ -6,6 +6,11 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  # The Robber Barons Firebase web key is public by design and belongs in the page.
+  # The database rules in docs/robber-barons-online/ protect the data, not this key.
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
+
 [[redirects]]
   from = "/cold-openers"
   to = "/detour-shelf/#story-bank"

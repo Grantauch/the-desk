@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, follow">
-<meta name="description" content="A pass and play Gilded Age board game with baron powers, auctions, booms and panics.">
+<meta name="description" content="A Gilded Age board game for one shared Chromebook or a whole table of them with baron powers, auctions, booms and panics.">
 <title>Robber Barons: A Gilded Age Board Game</title>
+<script src="robber-barons-firebase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Rye&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
@@ -122,6 +123,23 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 .charter .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 .charter .actions-row .primary { flex: 1 1 200px; }
 .hint { color: var(--ink-2); font-size: 14px; margin: 4px 0 0; }
+.online { margin-top: 16px; padding-top: 12px; border-top: 3px double var(--bank); }
+.online h3 { margin: 0; font-family: var(--sc); font-weight: 400; font-size: 23px; color: var(--bank); }
+.joinrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.joinrow .primary { flex: 1 1 180px; }
+.joinrow input { width: 5.4em; min-width: 0; font: inherit; font-size: 22px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; text-align: center; padding: 5px 6px; border: 1.5px solid var(--ink); background: #fbf7ea; color: var(--ink); border-radius: 3px; }
+.online .err, .lobby .err { min-height: 0; margin: 6px 0 0; }
+.lobby h2 span { font-family: var(--sans); font-weight: 800; letter-spacing: 0.16em; color: var(--oxblood); }
+.lobby .where { margin: 0 0 12px; font-size: 16px; }
+.lobby .where b { word-break: break-all; }
+.lobby .field > input { width: 100%; font: inherit; font-size: 18px; padding: 5px 9px; border: 1.5px solid var(--ink); background: #fbf7ea; color: var(--ink); border-radius: 3px; }
+.seat { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; padding: 6px 8px; border: 1.5px solid rgba(27,26,22,0.35); background: rgba(255,250,235,0.6); }
+.seat.me { border-color: var(--bank); box-shadow: inset 4px 0 0 var(--bank); }
+.seat .sn { font-weight: 800; font-size: 18px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat .sp { font-size: 14px; color: var(--ink-2); line-height: 1.2; }
+.seat .sb { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.netpill { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--gilt-hi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.netpill.down { color: #ffb3a6; }
 
 /* ---------- Game layout ---------- */
 #game { height: 100%; display: grid; grid-template-columns: auto minmax(330px, 1fr); gap: 14px; padding: 10px;
@@ -457,6 +475,8 @@ dialog::backdrop { background: rgba(6, 14, 10, 0.72); }
   #setup { padding: 50px 16px 20px; }
   .namerow { grid-template-columns: 34px minmax(0, 1fr); }
   .namerow select { grid-column: 2; }
+  .seat { grid-template-columns: 34px minmax(0, 1fr); }
+  .seat .sb { grid-column: 1 / 3; justify-content: flex-start; }
   .cols { grid-template-columns: 1fr; }
   .bidder { grid-template-columns: 34px minmax(0, 1fr); }
   .bidder .bb { grid-column: 1 / 3; justify-content: flex-start; }
@@ -520,6 +540,34 @@ dialog::backdrop { background: rgba(6, 14, 10, 0.72); }
       <button class="btn" id="resumeBtn" type="button" hidden>Resume saved game</button>
       <button class="btn" id="setupRules" type="button">How to play</button>
     </div>
+    <div class="online">
+      <h3>Or play on separate Chromebooks</h3>
+      <p class="hint">One Chromebook hosts and gets a code. Everyone else opens this page, types the code, and plays from their own screen. The time limit and auction setting above apply.</p>
+      <div class="joinrow">
+        <button class="btn primary" id="hostBtn" type="button">Host a game</button>
+        <input type="text" id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Game code">
+        <button class="btn" id="joinBtn" type="button">Join</button>
+      </div>
+      <p class="err" id="onlineErr" role="alert"></p>
+    </div>
+  </div>
+  <div class="charter lobby" id="lobby" hidden>
+    <h2>Game <span id="lobbyCode">----</span></h2>
+    <p class="where" id="lobbyWhere"></p>
+    <div class="field">
+      <label class="lbl" for="myName">Your first name</label>
+      <input type="text" id="myName" maxlength="16" autocomplete="off" placeholder="First name or nickname">
+    </div>
+    <div class="field">
+      <span class="lbl" id="seatLbl">Pick your baron</span>
+      <div class="names" id="seats" role="group" aria-labelledby="seatLbl"></div>
+    </div>
+    <p class="err" id="lobbyErr" role="alert"></p>
+    <div class="actions-row">
+      <button class="btn primary" id="openBtn" type="button" hidden>Open for business</button>
+      <button class="btn" id="leaveBtn" type="button">Leave</button>
+    </div>
+    <p class="hint" id="lobbyNote"></p>
   </div>
 </section>
 
@@ -546,6 +594,7 @@ dialog::backdrop { background: rgba(6, 14, 10, 0.72); }
       <span class="clock" id="clock" aria-label="Time left">--:--</span>
       <button class="btn small" id="pauseBtn" type="button">Pause</button>
       <span class="spacer"></span>
+      <span class="netpill" id="netPill" role="status" hidden></span>
       <button class="btn small" id="soundBtn" type="button" aria-pressed="true">Sound on</button>
       <button class="btn small" id="rulesBtn" type="button">Rules</button>
       <button class="btn small warn" id="endBtn" type="button">End game</button>
@@ -738,6 +787,7 @@ const RB = (() => {
 
   function record(s) {
     s.hist.push({ w: s.players.map(p => p.bankrupt ? 0 : netWorth(s, p).total), m: s.market.mood });
+    s.histN = (s.histN || 0) + 1; // running count, so online play can send only the new entries
     if (s.hist.length > 600) s.hist.splice(1, 1);
   }
 
@@ -747,7 +797,7 @@ const RB = (() => {
     s.events.push({ kind: 'market', mood });
   }
 
-  function log(s, msg) { s.log.push(msg); if (s.log.length > 80) s.log.shift(); }
+  function log(s, msg) { s.log.push(msg); s.logN = (s.logN || 0) + 1; if (s.log.length > 80) s.log.shift(); }
   function cur(s) { return s.players[s.cur]; }
   function active(s) { return s.players.filter(p => !p.bankrupt); }
 
@@ -1172,7 +1222,7 @@ const RB = (() => {
     SPACES, GROUPS, HEADLINES, STREETS, BARONS, BUYABLE, RR_RENT, START_CASH, BAIL, MIN_BID, MOODS,
     newGame, migrate, roll, buy, pass, endTurn, bid, dropOut, canBid, baronOf, hasPower, paydayFor, facCost, rentOwed, baseRent, payBail, build, sellFactory, mortgage, unmortgage,
     canBuild, canMortgage, unmortgageCost, tradable, validTrade, trade, endGame,
-    rentFor, netWorth, ownsTrust, groupFactories, propsOwned, railroadsOwned, active, money, lastActiveIndex
+    rentFor, netWorth, ownsTrust, groupFactories, propsOwned, railroadsOwned, active, money, lastActiveIndex, log
   };
 })();
 // ENGINE END
@@ -1489,9 +1539,10 @@ const ART = (() => {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const rand = (a, b) => a + Math.random() * (b - a);
   let S = null, busy = false, disp = null, shownCash = null, lastTick = Date.now(), trade = null;
+  let net = null; // online play session, null in pass and play
 
   function esc(t) { return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-  function save() { try { if (S) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+  function save() { if (online()) return; try { if (S) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
   function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
   function loadSave() {
     try {
@@ -1845,7 +1896,7 @@ const ART = (() => {
   function turnBand(pid) {
     if (!S || S.phase === 'over') return;
     const p = S.players[pid], b = $('#turnband'), br = baron(pid);
-    b.innerHTML = `${med(pid)}<div><div class="nm">${esc(p.name)}</div><div class="sub">${esc(br.short)}, ${esc(br.title)}. ${p.inCourt ? 'Held at the Courthouse' : 'Your move'}</div></div>`;
+    b.innerHTML = `${med(pid)}<div><div class="nm">${esc(p.name)}</div><div class="sub">${esc(br.short)}, ${esc(br.title)}. ${p.inCourt ? 'Held at the Courthouse' : mine(pid) ? 'Your move' : 'Now playing'}</div></div>`;
     b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
     SFX.turn();
   }
@@ -1897,6 +1948,8 @@ const ART = (() => {
       const f = st.querySelector('[data-focus]'); if (f) f.focus();
     });
   }
+  // On a screen replaying another player's move, scenes that wait for a tap close by themselves.
+  function replayOpts() { return replaying ? { auto: 7000 } : {}; }
   function cardScene(ev, pid) {
     const p = S.players[pid];
     if (ev.deck === 'headlines') {
@@ -1905,12 +1958,12 @@ const ART = (() => {
       return scene(`<div class="news" role="dialog" aria-label="${esc(c.title)}"><div class="mast">The Gilded Gazette</div>
         <div class="dateline"><span>Extra edition</span><span>${esc(c.year)}</span><span>One cent</span></div>
         <h2 class="hl">${esc(c.title)}</h2><div class="cut">${ART.vignette(CARD_ART[c.title])}</div><p class="deck">${esc(c.text)}</p>
-        <div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div>`);
+        <div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div>`, replayOpts());
     }
     const c = STREETS[ev.ci];
     SFX.shutter();
     return scene(`<div class="plate" role="dialog" aria-label="${esc(c.title)}"><div class="photo"><span class="yr">${esc(c.year)}</span>${ART.vignette(CARD_ART[c.title])}</div>
-      <div class="cap"><div class="kick">The Streets</div><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div></div>`);
+      <div class="cap"><div class="kick">The Streets</div><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div></div>`, replayOpts());
   }
   function marketScene(mood) {
     const up = mood === 'boom';
@@ -1949,7 +2002,7 @@ const ART = (() => {
     const who = S.players[ev.pid];
     SFX.bust();
     return scene(`<div class="bust" role="dialog" aria-label="Bankrupt"><div class="vwrap">${ART.vignette('panic')}</div><h2>${esc(who.name)} is wiped out</h2>
-      <p style="font-size:21px;margin:0">${ev.creditor >= 0 ? esc(S.players[ev.creditor].name) + ' takes everything that is left.' : 'The bank takes back every business.'}</p><div class="stamp">Bankrupt</div></div>`);
+      <p style="font-size:21px;margin:0">${ev.creditor >= 0 ? esc(S.players[ev.creditor].name) + ' takes everything that is left.' : 'The bank takes back every business.'}</p><div class="stamp">Bankrupt</div></div>`, replayOpts());
   }
   function dealScene(a, b) {
     SFX.fanfare();
@@ -2067,7 +2120,7 @@ const ART = (() => {
   function renderClock() {
     const c = $('#clock');
     if (!S.timer) { c.textContent = 'No limit'; c.classList.remove('low'); $('#pauseBtn').hidden = true; return; }
-    $('#pauseBtn').hidden = S.phase === 'over' || S.timer.remaining <= 0;
+    $('#pauseBtn').hidden = S.phase === 'over' || S.timer.remaining <= 0 || (online() && !net.isHost);
     c.textContent = fmtClock(S.timer.remaining);
     c.classList.toggle('low', S.timer.remaining < 5 * 60000 && S.timer.remaining > 0 && S.phase !== 'over');
     $('#pauseBtn').textContent = S.timer.running ? 'Pause' : 'Resume';
@@ -2089,9 +2142,12 @@ const ART = (() => {
     $('#curTitle').textContent = S.phase === 'over' ? '' : `${br.name}, ${br.title}`;
     $('#curPower').textContent = S.phase === 'over' ? '' : br.power;
     const cc = $('#curCash'); cc.dataset.cash = p.id; cc.textContent = S.phase === 'over' ? '' : money(cashOf(p.id));
+    const me = mine(p.id), offer = online() ? S.offer : null;
     let status = '';
     if (S.phase !== 'over') {
       if (busy) status = 'Watch the board.';
+      else if (offer) status = offer.b === net.pid ? `${S.players[offer.a].name} offered you a deal.` : `${S.players[offer.a].name} offered ${S.players[offer.b].name} a deal. Waiting for an answer.`;
+      else if (!me && S.phase !== 'auction') status = `Waiting for ${p.name} to play.`;
       else if (S.phase === 'auction') status = 'Auction in progress. Everyone can bid.';
       else if (p.bankrupt) status = 'Bankrupt. End the turn to pass play along.';
       else if (p.inCourt) status = `Held at the Courthouse. Try ${p.courtTurns + 1} of 3.`;
@@ -2111,7 +2167,12 @@ const ART = (() => {
     const row2 = document.createElement('div'); row2.className = 'row';
     if (S.phase === 'over') {
       row1.appendChild(button('See the final standings', 'primary go', showResults));
-      row2.appendChild(button('New game', '', newGame));
+      row2.appendChild(button(online() ? 'Leave the game' : 'New game', '', newGame));
+    } else if (offer) {
+      if (me) row1.appendChild(button('Withdraw the offer', 'primary', withdrawOffer));
+      else if (offer.b === net.pid) row1.appendChild(button('Answer the deal', 'primary go', showOfferAnswer, false, '', 'shake'));
+    } else if (!me && S.phase !== 'auction') {
+      // Someone else's turn. Nothing to press on this Chromebook.
     } else if (S.phase === 'preRoll') {
       if (p.inCourt) {
         row1.appendChild(button('Roll for doubles', 'primary go', doRoll, false, '', 'dice'));
@@ -2127,20 +2188,22 @@ const ART = (() => {
       if (S.rollAgain && !p.bankrupt && !p.inCourt) row1.appendChild(button('Roll again', 'primary go', rollAgain, false, '', 'dice'));
       else row1.appendChild(button('End turn', 'primary go', endTurnAction));
     }
-    if (S.phase !== 'over' && S.phase !== 'auction' && !p.bankrupt) {
+    if (S.phase !== 'over' && S.phase !== 'auction' && !p.bankrupt && me && !offer) {
       row2.appendChild(button('Build and mortgage', '', showManage, false, '', 'mill'));
       row2.appendChild(button('Trade', '', showTradePartner, RB.active(S).length < 2, '', 'shake'));
     }
-    acts.appendChild(row1); if (row2.childNodes.length) acts.appendChild(row2);
+    if (row1.childNodes.length) acts.appendChild(row1); if (row2.childNodes.length) acts.appendChild(row2);
+    acts.hidden = !acts.childNodes.length;
+    renderNetPill();
 
     let h = '<div class="hdr"><span>Cash</span><span>Net worth</span></div>';
     S.players.forEach(q => {
       h += `<div class="prow${q.bankrupt ? ' out' : ''}${q.id === S.cur && S.phase !== 'over' ? ' cur' : ''}" data-pid="${q.id}">
-        ${med(q.id)}<span class="n">${esc(q.name)}</span><span class="c" data-cash="${q.id}">${money(cashOf(q.id))}</span><span class="w">${money(RB.netWorth(S, q).total)}</span></div>`;
+        ${med(q.id)}<span class="n">${esc(q.name)}${online() && q.id === net.pid ? ' (you)' : ''}</span><span class="c" data-cash="${q.id}">${money(cashOf(q.id))}</span><span class="w">${money(RB.netWorth(S, q).total)}</span></div>`;
     });
     $('#plist').innerHTML = h;
     if (!busy) $('#log').innerHTML = S.log.slice(-40).reverse().map(l => `<p>${esc(l)}</p>`).join('');
-    $('#endBtn').hidden = S.phase === 'over';
+    $('#endBtn').hidden = S.phase === 'over' || (online() && !net.isHost);
   }
   function render() { renderCells(); layoutTokens(); renderEvents(); renderMarket(); renderPanel(); renderClock(); if (!busy) renderTicker(); }
 
@@ -2176,17 +2239,24 @@ const ART = (() => {
       if (k < 1) requestAnimationFrame(step); else shownCash = null;
     };
     requestAnimationFrame(step);
+    netDrain();
   }
 
   /* ================= Turn actions ================= */
   async function doRoll() {
-    if (busy || !S || S.phase !== 'preRoll') return;
+    if (busy || !S || S.phase !== 'preRoll' || !mine(S.cur)) return;
     SFX.unlock();
     const before = snap(), posBefore = S.players.map(p => p.pos), pid = S.cur;
     const res = RB.roll(S);
     if (!res) return;
+    share({ kind: 'roll', res, before, posBefore, pid });
+    save();
+    await showRoll(res, before, posBefore, pid);
+  }
+  // The dice, the walk and every scene after a roll. Online, the other Chromebooks replay this too.
+  async function showRoll(res, before, posBefore, pid) {
     busy = true; disp = posBefore.slice(); shownCash = before.cash.slice();
-    save(); render();
+    render();
     await rollDice(res.dice);
     const cards = S.events.filter(e => e.kind === 'card');
     const shift = S.events.find(e => e.kind === 'market');
@@ -2225,34 +2295,43 @@ const ART = (() => {
     else if (S.rollAgain) toast('Doubles! You roll again after this.');
   }
   async function rollAgain() {
-    if (busy) return;
+    if (busy || !mine(S.cur)) return;
     RB.endTurn(S);
     await doRoll();
   }
   async function buyAction() {
-    if (busy || S.phase !== 'buy') return;
+    if (busy || S.phase !== 'buy' || !mine(S.cur)) return;
     const before = snap(), idx = S.pending.idx, pid = S.cur;
     if (!RB.buy(S)) return;
-    busy = true; shownCash = before.cash.slice(); save(); render();
+    share({ kind: 'buy', idx, pid, before });
+    save();
+    await showBuy(idx, pid, before);
+  }
+  async function showBuy(idx, pid, before) {
+    busy = true; shownCash = before.cash.slice(); render();
     await deedScene(idx, pid, 'Sold', SPACES[idx].price);
     for (const [who, g] of newTrusts(before)) await trustScene(who, g);
     busy = false; commit(before);
   }
   function passAction() {
-    if (busy) return;
-    RB.pass(S); SFX.click(); commit();
+    if (busy || !mine(S.cur)) return;
+    RB.pass(S); SFX.click(); share({ kind: 'pass' }); commit();
     if (S.phase === 'auction') { SFX.gavel(); openAuction(); }
   }
   function payBail() {
-    if (busy) return;
+    if (busy || !mine(S.cur)) return;
     const before = snap();
-    if (RB.payBail(S)) { SFX.pay(); toast('Bail paid. Roll the dice.'); commit(before); }
+    if (RB.payBail(S)) { SFX.pay(); toast('Bail paid. Roll the dice.'); share({ kind: 'sync', before, msg: 'Bail paid.' }); commit(before); }
   }
   async function endTurnAction() {
-    if (busy || S.phase !== 'postRoll') return;
+    if (busy || S.phase !== 'postRoll' || !mine(S.cur)) return;
     const prev = S.cur, mood = S.market.mood;
     RB.endTurn(S);
+    share({ kind: 'turn', prev, mood });
     commit();
+    await showTurn(prev, mood);
+  }
+  async function showTurn(prev, mood) {
     if (S.phase === 'over') { SFX.bell(); await sleep(500); showResults(); return; }
     if (mood !== 'steady' && S.market.mood === 'steady') toast('The market settles. Rents are back to normal.');
     if (S.cur !== prev) turnBand(S.cur);
@@ -2274,31 +2353,38 @@ const ART = (() => {
     RB.active(S).forEach(p => {
       const inIt = A.in.includes(p.id), lead = A.leader === p.id;
       let btns = '';
-      if (inIt && !lead) {
+      if (inIt && !lead && mine(p.id)) {
         [10, 50, 100].forEach(step => {
           const amt = Math.max(RB.MIN_BID, A.high + step);
           btns += `<button class="btn small" type="button" data-bid="${p.id}" data-amt="${amt}" ${RB.canBid(S, p.id, amt) ? '' : 'disabled'}>Bid ${money(amt)}</button>`;
         });
         btns += `<button class="btn small warn" type="button" data-drop="${p.id}">Drop out</button>`;
       }
-      const note = lead ? 'Leading. Wait for a higher bid.' : inIt ? `Cash ${money(p.cash)}` : 'Out of the bidding';
+      const note = lead ? 'Leading. Wait for a higher bid.' : inIt ? `Cash ${money(p.cash)}${mine(p.id) ? '' : '. Deciding'}` : 'Out of the bidding';
       h += `<div class="bidder${lead ? ' lead' : ''}${inIt ? '' : ' out'}">${med(p.id)}<div style="min-width:0"><div class="bn">${esc(p.name)}</div><div class="bc">${note}</div></div><div class="bb">${btns}</div></div>`;
     });
-    h += '</div><p class="hint" style="margin-top:10px">Pass the Chromebook around. The auction ends when only the high bidder is left.</p></div>';
+    h += `</div><p class="hint" style="margin-top:10px">${online() ? 'Everyone bids from their own Chromebook.' : 'Pass the Chromebook around.'} The auction ends when only the high bidder is left.</p></div>`;
     body.innerHTML = h;
     body.classList.add('auction');
     if (!dlg.open) dlg.showModal();
     body.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => auctionAct(() => RB.bid(S, +b.dataset.bid, +b.dataset.amt), 'bid')));
     body.querySelectorAll('[data-drop]').forEach(b => b.addEventListener('click', () => auctionAct(() => RB.dropOut(S, +b.dataset.drop), 'drop')));
     const first = body.querySelector('[data-bid]:not(:disabled), [data-drop]'); if (first) first.focus();
+    else { const f = body.querySelector('.poster'); if (f) { f.tabIndex = -1; f.focus(); } }
   }
   async function auctionAct(fn, kind) {
-    if (busy || !fn()) return;
+    if (busy) return;
+    const before = aucBefore || snap();
+    if (!fn()) return;
     if (kind === 'bid') SFX.bid(); else SFX.click();
+    share(S.phase === 'auction' ? { kind: 'bid', bid: kind === 'bid' } : { kind: 'won', before });
     save();
     if (S.phase === 'auction') { renderAuction(); renderPanel(); return; }
+    await showWon(before);
+  }
+  async function showWon(before) {
     closeDlg();
-    const before = aucBefore || snap(); aucBefore = null;
+    aucBefore = null;
     const L = S.lastAuction;
     if (L && L.winner >= 0) {
       SFX.gavel();
@@ -2313,13 +2399,14 @@ const ART = (() => {
   /* ================= Clock ================= */
   setInterval(() => {
     const now = Date.now(), dt = now - lastTick; lastTick = now;
+    if (online()) { onlineTick(); return; }
     if (!S || !S.timer || !S.timer.running || S.phase === 'over') return;
     S.timer.remaining -= dt;
     if (S.timer.remaining <= 0) {
       S.timer.remaining = 0; S.timer.running = false;
       if (!S.finalRound) {
         S.finalRound = true;
-        S.log.push('The closing bell rings. Finish this round.');
+        RB.log(S, 'The closing bell rings. Finish this round.');
         SFX.bell(); toast('The closing bell rings. Final round.');
         renderPanel();
       }
@@ -2329,19 +2416,20 @@ const ART = (() => {
   }, 1000);
   $('#pauseBtn').addEventListener('click', () => {
     if (!S || !S.timer) return;
+    if (online()) { if (net.isHost && !busy) toggleOnlineClock(); return; }
     S.timer.running = !S.timer.running; lastTick = Date.now(); renderClock(); save(); SFX.click();
   });
 
   /* ================= Dialogs ================= */
   const dlg = $('#dlg'), body = $('#dlgBody');
   function openDlg(html) {
-    body.classList.remove('auction');
+    body.classList.remove('auction'); delete body.dataset.offer;
     body.innerHTML = html;
     if (!dlg.open) dlg.showModal();
     const f = body.querySelector('[autofocus]'); if (f) f.focus();
   }
   function closeDlg() { if (dlg.open) dlg.close(); }
-  dlg.addEventListener('close', () => { trade = null; body.classList.remove('auction'); if (S && S.phase === 'auction') renderPanel(); });
+  dlg.addEventListener('close', () => { trade = null; body.classList.remove('auction'); delete body.dataset.offer; if (S && S.phase === 'auction') renderPanel(); });
 
   function showSpace(i) {
     if (!S) return;
@@ -2376,12 +2464,12 @@ const ART = (() => {
   }
 
   function showManage() {
-    if (busy || !S) return;
+    if (busy || !S || !mine(S.cur)) return;
     const p = S.players[S.cur];
-    const mine = RB.propsOwned(S, p.id).sort((a, b) => a - b);
+    const owned = RB.propsOwned(S, p.id).sort((a, b) => a - b);
     let h = `<h2 id="dlgTitle">Build and mortgage</h2><p>${esc(p.name)} has <strong>${money(p.cash)}</strong>. Own every business in a color group to form a trust, then build up to 3 factories on each.${RB.hasPower(S, p.id, 'carnegie') ? ' Your factories cost 25 percent less.' : ''}</p>`;
-    if (!mine.length) h += '<p>You do not own any businesses yet.</p>';
-    mine.forEach(i => {
+    if (!owned.length) h += '<p>You do not own any businesses yet.</p>';
+    owned.forEach(i => {
       const sp = SPACES[i], pr = S.props[i];
       const color = sp.type === 'prop' ? GROUPS[sp.group].color : '#1b1a16';
       const st = [];
@@ -2410,13 +2498,14 @@ const ART = (() => {
       if (a === 'sell') { ok = RB.sellFactory(S, p.id, i); if (ok) SFX.coin(); }
       if (a === 'mort') { ok = RB.mortgage(S, p.id, i); if (ok) SFX.coin(); }
       if (a === 'unmort') { ok = RB.unmortgage(S, p.id, i); if (ok) SFX.pay(); }
+      if (ok) share({ kind: 'sync', before, flash: a === 'build' ? i : null });
       commit(before); showManage();
       if (ok && a === 'build') flashCell(i);
     }));
   }
 
   function showTradePartner() {
-    if (busy || !S) return;
+    if (busy || !S || !mine(S.cur)) return;
     const p = S.players[S.cur];
     const others = S.players.filter(o => o.id !== p.id && !o.bankrupt);
     let h = `<h2 id="dlgTitle">Make a deal</h2><p>${esc(p.name)}, who do you want to trade with?</p><div class="partners">`;
@@ -2462,7 +2551,7 @@ const ART = (() => {
       readTrade();
       const e = RB.validTrade(S, trade.a, trade.b, [...trade.aSel], [...trade.bSel], trade.aCash, trade.bCash);
       if (e) { $('#tradeErr').textContent = e; return; }
-      showTradeConfirm();
+      if (online()) sendOffer(); else showTradeConfirm();
     });
   }
   function dealList(set, cash) {
@@ -2476,17 +2565,20 @@ const ART = (() => {
       <table><tbody><tr><th>${esc(A.name)} gives</th><td>${dealList(T.aSel, T.aCash)}</td></tr>
       <tr><th>${esc(B.name)} gives</th><td>${dealList(T.bSel, T.bCash)}</td></tr></tbody></table>
       <div class="foot"><button class="btn warn" type="button" id="declineBtn">Decline</button><button class="btn primary" type="button" id="acceptBtn">Accept the deal</button></div>`);
-    $('#declineBtn').addEventListener('click', () => { S.log.push(`${B.name} turns down a deal from ${A.name}.`); closeDlg(); commit(); SFX.pay(); });
+    $('#declineBtn').addEventListener('click', () => { RB.log(S, `${B.name} turns down a deal from ${A.name}.`); closeDlg(); commit(); SFX.pay(); });
     $('#acceptBtn').addEventListener('click', async () => {
       const before = snap();
       const ok = RB.trade(S, T.a, T.b, [...T.aSel], [...T.bSel], T.aCash, T.bCash);
       closeDlg();
-      if (!ok) { S.log.push('That deal could not go through.'); commit(); return; }
-      busy = true; shownCash = before.cash.slice(); render();
-      await dealScene(T.a, T.b);
-      for (const [who, g] of newTrusts(before)) await trustScene(who, g);
-      busy = false; commit(before);
+      if (!ok) { RB.log(S, 'That deal could not go through.'); commit(); return; }
+      await showDeal(T.a, T.b, before);
     });
+  }
+  async function showDeal(a, b, before) {
+    busy = true; shownCash = before.cash.slice(); render();
+    await dealScene(a, b);
+    for (const [who, g] of newTrusts(before)) await trustScene(who, g);
+    busy = false; commit(before);
   }
 
   /* ================= Finale ================= */
@@ -2560,7 +2652,7 @@ const ART = (() => {
       <div class="sub">${esc(why)} Net worth counts cash, businesses and factories.</div></div>
       <div class="cols2"><div><div class="podium">${pods}</div><div class="floor"></div>${rest ? `<div class="others">${rest}</div>` : ''}</div>
       ${chart ? `<div class="race"><h3>The fortune race</h3><div class="key"><span><i style="background:rgba(226,90,76,0.55)"></i>Panic</span><span><i style="background:rgba(236,208,140,0.5)"></i>Boom</span></div>${chart}</div>` : ''}</div>
-      <div class="row"><button class="btn dark" type="button" id="lookBtn">Look at the board</button><button class="btn primary" type="button" id="againBtn" data-focus>New game</button></div></div>`;
+      <div class="row"><button class="btn dark" type="button" id="lookBtn">Look at the board</button><button class="btn primary" type="button" id="againBtn" data-focus>${online() ? 'Leave the game' : 'New game'}</button></div></div>`;
     SFX.fanfare();
     scene(html, { clickAway: false, deep: true, mount: (st, finish) => {
       confetti(st, 90);
@@ -2569,17 +2661,18 @@ const ART = (() => {
     } });
   }
   function newGame() {
+    if (online()) { leaveRoom(); return; }
     clearSave(); S = null; disp = null; shownCash = null; aucBefore = null;
     $('#game').hidden = true; $('#setup').hidden = false; $('#resumeBtn').hidden = true;
     requestAnimationFrame(roses);
   }
 
   $('#endBtn').addEventListener('click', () => {
-    if (busy || !S) return;
+    if (busy || !S || (online() && !net.isHost)) return;
     openDlg(`<h2 id="dlgTitle">End the game now?</h2><p>Net worth is counted right away and the richest player wins.</p>
       <div class="foot"><button class="btn" type="button" data-close autofocus>Keep playing</button><button class="btn warn" type="button" id="endNow">End the game</button></div>`);
     body.querySelector('[data-close]').addEventListener('click', closeDlg);
-    $('#endNow').addEventListener('click', () => { RB.endGame(S, 'early'); closeDlg(); commit(); SFX.bell(); setTimeout(showResults, 500); });
+    $('#endNow').addEventListener('click', () => { RB.endGame(S, 'early'); share({ kind: 'over' }); closeDlg(); commit(); SFX.bell(); setTimeout(showResults, 500); });
   });
 
   function showRules() {
@@ -2608,6 +2701,461 @@ const ART = (() => {
     body.querySelector('[data-close]').addEventListener('click', closeDlg);
   }
   $('#rulesBtn').addEventListener('click', showRules);
+
+  /* ================= Online play ================= */
+  // Every Chromebook runs the same engine. The player who acts changes the game on their own screen,
+  // then sends only the parts that changed to Firebase. Every other Chromebook hears the change and
+  // replays it on its own board, dice and all. Each change carries the next version number, and the
+  // database rules accept only one change per number, so two taps at the same moment cannot collide.
+  const FB_URL = 'https://www.gstatic.com/firebasejs/12.19.0/';
+  const CODE_CHARS = 'BCDFGHJKMNPQRSTVWXZ'; // no vowels, so a code never spells a word
+  const ROOM_TTL = 24 * 3600000;
+  const ROOM_KEY = 'robber-barons-room', NAME_KEY = 'robber-barons-name';
+  let fb = null, fbLoading = null, netWorking = false;
+  let replaying = false; // true while this screen replays someone else's move
+
+  function online() { return !!(net && net.live); }
+  // Can this Chromebook act for that player? Always yes in pass and play.
+  function mine(pid) { return !online() || pid === net.pid; }
+  function serverNow() { return Date.now() + (fb ? fb.offset : 0); }
+  function onlineMsg(t) { $('#onlineErr').textContent = t; }
+  function lobbyMsg(t) { $('#lobbyErr').textContent = t; }
+  function cleanName(t) { return String(t || '').trim().replace(/\s+/g, ' ').slice(0, 16); }
+  function netError(e) {
+    const m = String((e && (e.code || e.message)) || e);
+    if (m === 'setup') return 'Online play is not switched on yet. The Firebase settings need to be added once, then this works.';
+    if (/operation-not-allowed|admin-restricted/i.test(m)) return 'Anonymous sign-in is turned off in Firebase. Turn it on under Authentication, Sign-in method.';
+    if (/permission/i.test(m)) return 'The game server turned that down. The game may be closed.';
+    return 'Could not reach the game server. Check the Wi-Fi and try again.';
+  }
+
+  function firebase() {
+    if (fb) return Promise.resolve(fb);
+    if (fbLoading) return fbLoading;
+    fbLoading = (async () => {
+      const cfg = window.RB_FIREBASE || {};
+      if (!cfg.databaseURL || !cfg.apiKey) throw new Error('setup');
+      const [A, U, D] = await Promise.all(['app', 'auth', 'database'].map(m => import(FB_URL + 'firebase-' + m + '.js')));
+      const app = A.getApps().find(a => a.name === 'robber-barons') || A.initializeApp(cfg, 'robber-barons');
+      const auth = U.getAuth(app), db = D.getDatabase(app);
+      if (cfg.emulator) { // only the automated test sets this
+        U.connectAuthEmulator(auth, 'http://' + cfg.emulator.auth, { disableWarnings: true });
+        D.connectDatabaseEmulator(db, cfg.emulator.host, cfg.emulator.port);
+      }
+      const cred = await U.signInAnonymously(auth); // no account, no email; the same Chromebook keeps the same id
+      const F = { D, db, uid: cred.user.uid, offset: 0, connected: true, ref: path => D.ref(db, path) };
+      D.onValue(F.ref('.info/serverTimeOffset'), x => { F.offset = x.val() || 0; });
+      D.onValue(F.ref('.info/connected'), x => { F.connected = !!x.val(); if (online()) renderNetPill(); });
+      fb = F;
+      return F;
+    })();
+    fbLoading.catch(() => { fbLoading = null; });
+    return fbLoading;
+  }
+
+  /* ----- Game state, flattened so only the changed pieces travel ----- */
+  const entryKey = n => 'e' + String(n).padStart(6, '0');
+  const entries = o => (o ? Object.keys(o).sort().map(k => o[k]) : []);
+  function flatState(st) {
+    const out = {};
+    Object.keys(st).forEach(k => {
+      if (k === 'log' || k === 'hist' || st[k] === undefined) return;
+      if (k === 'players') st.players.forEach((p, i) => { out['players_' + i] = JSON.stringify(p); });
+      else if (k === 'props') Object.keys(st.props).forEach(i => { out['props_' + i] = JSON.stringify(st.props[i]); });
+      // A running clock is stored as its end time. Each Chromebook counts down on its own.
+      else if (k === 'timer' && st.timer && st.timer.running) out.timer = JSON.stringify(Object.assign({}, st.timer, { remaining: null }));
+      else out[k] = JSON.stringify(st[k]);
+    });
+    return out;
+  }
+  // Game data comes from other Chromebooks, so it is cleaned before this page touches it. Names and
+  // messages stay as text, and the page always escapes text before showing it. Everything else must be
+  // a number, true or false, or one plain word, so nothing sent over the network can become page code.
+  const FREE_TEXT = new Set(['name', 'msg']);
+  function clean(v, key) {
+    if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+    if (typeof v === 'boolean' || v === null) return v;
+    if (typeof v === 'string') return FREE_TEXT.has(key) ? v.slice(0, 40) : /^[A-Za-z0-9]{1,40}$/.test(v) ? v : null;
+    if (Array.isArray(v)) return v.slice(0, 200).map(x => clean(x, key));
+    if (v && typeof v === 'object') {
+      const o = {};
+      Object.keys(v).forEach(k => { if (/^[A-Za-z0-9]{1,24}$/.test(k)) o[k] = clean(v[k], k); });
+      return o;
+    }
+    return null;
+  }
+  function parseClean(t, key) { try { return clean(JSON.parse(t), key); } catch (e) { return null; } }
+  function fromDoc(g) {
+    const st = { players: [], props: {} };
+    Object.keys(g.s || {}).forEach(k => {
+      const m = /^(players|props)_(\d{1,2})$/.exec(k);
+      if (m) { if (+m[2] < (m[1] === 'players' ? 4 : SPACES.length)) st[m[1]][+m[2]] = parseClean(g.s[k], k); }
+      else if (/^[A-Za-z]{1,24}$/.test(k)) st[k] = parseClean(g.s[k], k);
+    });
+    st.log = entries(g.log).slice(-80).map(t => String(t).slice(0, 300));
+    st.hist = entries(g.hist).map(t => parseClean(t, 'hist'));
+    if (st.hist.length > 600) st.hist.splice(1, st.hist.length - 600);
+    if (st.timer && st.timer.running && st.timer.endsAt) st.timer.remaining = Math.max(0, st.timer.endsAt - serverNow());
+    return st;
+  }
+  function seat(b) { return net && net.seats ? net.seats[b] || null : null; }
+  function pidIn(st) { return fb ? st.players.findIndex(p => { const x = seat(p.baron); return !!x && x.uid === fb.uid; }) : -1; }
+
+  // Send what this Chromebook just changed. fx tells the other screens which scene to replay.
+  function share(fx) {
+    if (!online()) return;
+    const n = net, flat = flatState(S), up = {};
+    new Set(Object.keys(flat).concat(Object.keys(n.flat))).forEach(k => { if (flat[k] !== n.flat[k]) up['s/' + k] = flat[k] === undefined ? null : flat[k]; });
+    const ln = S.logN || 0, hn = S.histN || 0;
+    for (let k = n.logN; k < ln; k++) { const e = S.log[S.log.length - (ln - k)]; if (e !== undefined) up['log/' + entryKey(k)] = e; }
+    for (let k = n.histN; k < hn; k++) { const e = S.hist[S.hist.length - (hn - k)]; if (e) up['hist/' + entryKey(k)] = JSON.stringify(e); }
+    n.v += 1;
+    up.v = n.v;
+    up.fx = n.fxStr = JSON.stringify(Object.assign({ v: n.v, by: fb.uid }, fx));
+    n.flat = flat; n.logN = ln; n.histN = hn;
+    n.pending += 1;
+    const ref = fb.ref(`rb/${n.code}/game`);
+    fb.D.update(ref, up).then(() => { n.pending -= 1; netDrain(); }, () => {
+      // Someone else's move landed first. Drop ours and catch up to the real board.
+      n.pending -= 1; n.v = -1; n.queue = [];
+      if (!fx.quiet && net === n) toast('Someone else moved first. Here is the latest board.');
+      fb.D.get(ref).then(x => { if (net === n && x.exists()) { n.queue.push(x.val()); netDrain(); } }).catch(() => {});
+    });
+  }
+
+  function onGame(g) {
+    const n = net;
+    if (!g || !n) return;
+    if (!n.live) { n.pendingGame = g; tryGoLive(); return; }
+    n.queue.push(g);
+    netDrain();
+  }
+  // Apply changes from other Chromebooks one at a time, after any animation on this screen finishes.
+  async function netDrain() {
+    const n = net;
+    if (!n || !n.live || n.draining) return;
+    n.draining = true;
+    try {
+      while (net === n && n.queue.length && !busy && !n.pending) {
+        const g = n.queue.shift();
+        if (g.v === n.v && g.fx === n.fxStr) continue; // our own change coming back
+        await adopt(g);
+      }
+      // An offer that arrived while this screen was animating still needs its answer box.
+      if (net === n && !busy && S && S.offer && mine(S.offer.b) && n.offerSeen !== offerKey(S.offer) && !dlg.open) showOfferAnswer();
+    } finally { n.draining = false; }
+  }
+  async function adopt(g) {
+    const n = net;
+    const fx = parseClean(g.fx, 'fx');
+    // Replay the scenes only when this screen is caught up. Far behind, it jumps straight to the latest board.
+    const step = g.v === n.v + 1 && fx && fx.v === g.v && fx.by !== fb.uid && n.queue.length < 3;
+    const prevPhase = S ? S.phase : null;
+    S = fromDoc(g);
+    n.v = g.v; n.fxStr = g.fx; n.flat = Object.assign({}, g.s); n.logN = S.logN || 0; n.histN = S.histN || 0;
+    n.pid = pidIn(S);
+    if (step) { replaying = true; try { await playFx(fx); } finally { replaying = false; } }
+    else { disp = null; shownCash = null; render(); if (S.phase === 'over' && prevPhase !== 'over') showResults(); }
+    if (net === n) syncDialogs(prevPhase);
+  }
+  // Replay another player's move with the same scenes they saw.
+  async function playFx(fx) {
+    switch (fx.kind) {
+      case 'roll': await showRoll(fx.res, fx.before, fx.posBefore, fx.pid); break;
+      case 'buy': await showBuy(fx.idx, fx.pid, fx.before); break;
+      case 'won': await showWon(fx.before); break;
+      case 'deal': await showDeal(fx.a, fx.b, fx.before); break;
+      case 'turn': commit(); await showTurn(fx.prev, fx.mood); break;
+      case 'bid': if (fx.bid) SFX.bid(); commit(); break;
+      case 'pass': commit(); if (S.phase === 'auction') SFX.gavel(); break;
+      case 'bell': commit(); SFX.bell(); toast('The closing bell rings. Final round.'); break;
+      case 'over': commit(); SFX.bell(); await sleep(500); showResults(); break;
+      default: commit(fx.before); if (fx.flash != null) flashCell(fx.flash); if (fx.msg) toast(fx.msg);
+    }
+  }
+  function syncDialogs(prevPhase) {
+    const aucOpen = dlg.open && body.classList.contains('auction');
+    if (S.phase === 'auction' && S.auction) { if (aucOpen) renderAuction(); else if (prevPhase !== 'auction') openAuction(); }
+    else { aucBefore = null; if (aucOpen) closeDlg(); }
+    const key = offerKey(S.offer);
+    if (S.offer && mine(S.offer.b) && !busy) { if (net.offerSeen !== key) showOfferAnswer(); }
+    else if (dlg.open && body.dataset.offer) closeDlg();
+  }
+
+  /* ----- Trades between two Chromebooks ----- */
+  const offerKey = o => (o ? [o.a, o.b, o.aSel, o.bSel, o.aCash, o.bCash, o.t].join('|') : '');
+  function sendOffer() {
+    const T = trade;
+    S.offer = { a: T.a, b: T.b, aSel: [...T.aSel].sort((x, y) => x - y), bSel: [...T.bSel].sort((x, y) => x - y), aCash: T.aCash, bCash: T.bCash, t: Date.now() };
+    RB.log(S, `${S.players[T.a].name} offers ${S.players[T.b].name} a deal.`);
+    share({ kind: 'sync', msg: `${S.players[T.a].name} offers ${S.players[T.b].name} a deal.` });
+    closeDlg(); SFX.click(); commit();
+    toast(`Offer sent to ${S.players[S.offer.b].name}.`);
+  }
+  function withdrawOffer() {
+    if (busy || !S.offer || !mine(S.offer.a)) return;
+    RB.log(S, `${S.players[S.offer.a].name} takes the deal off the table.`);
+    S.offer = null; share({ kind: 'sync' }); SFX.click(); commit();
+  }
+  function showOfferAnswer() {
+    const T = S.offer;
+    if (!T || !mine(T.b) || busy) return;
+    const key = net.offerSeen = offerKey(T), A = S.players[T.a], B = S.players[T.b];
+    openDlg(`<h2 id="dlgTitle">${esc(A.name)} offers you a deal</h2>
+      <table><tbody><tr><th>${esc(A.name)} gives you</th><td>${dealList(new Set(T.aSel), T.aCash)}</td></tr>
+      <tr><th>You give ${esc(A.name)}</th><td>${dealList(new Set(T.bSel), T.bCash)}</td></tr></tbody></table>
+      <div class="foot"><button class="btn warn" type="button" id="declineBtn">Decline</button><button class="btn primary" type="button" id="acceptBtn">Accept the deal</button></div>`);
+    body.dataset.offer = key;
+    SFX.turn();
+    const still = () => S.offer && offerKey(S.offer) === key;
+    $('#declineBtn').addEventListener('click', () => {
+      closeDlg();
+      if (busy || !still()) return;
+      RB.log(S, `${B.name} turns down a deal from ${A.name}.`);
+      S.offer = null; share({ kind: 'sync', msg: `${B.name} says no to the deal.` }); commit(); SFX.pay();
+    });
+    $('#acceptBtn').addEventListener('click', async () => {
+      closeDlg();
+      if (busy || !still()) return;
+      const before = snap();
+      const ok = RB.trade(S, T.a, T.b, T.aSel, T.bSel, T.aCash, T.bCash);
+      S.offer = null;
+      if (!ok) { RB.log(S, 'That deal could not go through.'); share({ kind: 'sync', msg: 'That deal could not go through.' }); commit(); return; }
+      share({ kind: 'deal', a: T.a, b: T.b, before });
+      await showDeal(T.a, T.b, before);
+    });
+  }
+
+  /* ----- The shared clock ----- */
+  function onlineTick() {
+    if (!S || !S.timer || S.phase === 'over') return;
+    const T = S.timer;
+    if (T.running && T.endsAt) T.remaining = Math.max(0, T.endsAt - serverNow());
+    // The player whose turn it is rings the bell. The host steps in if that Chromebook has gone quiet.
+    const ringer = mine(S.cur) || (net.isHost && serverNow() - T.endsAt > 5000);
+    if (T.running && T.remaining <= 0 && !S.finalRound && !busy && !net.pending && ringer) {
+      T.running = false; T.remaining = 0; T.endsAt = null; S.finalRound = true;
+      RB.log(S, 'The closing bell rings. Finish this round.');
+      share({ kind: 'bell', quiet: true });
+      SFX.bell(); toast('The closing bell rings. Final round.'); render();
+    }
+    renderClock();
+  }
+  function toggleOnlineClock() {
+    const T = S.timer;
+    if (T.running) { T.remaining = Math.max(0, T.endsAt - serverNow()); T.running = false; T.endsAt = null; }
+    else { T.endsAt = serverNow() + T.remaining; T.running = true; }
+    share({ kind: 'clock', quiet: true }); renderClock(); SFX.click();
+  }
+  function renderNetPill() {
+    const el = $('#netPill');
+    if (!online()) { el.hidden = true; return; }
+    const down = fb && !fb.connected;
+    el.hidden = false; el.classList.toggle('down', !!down);
+    el.textContent = down ? 'Reconnecting...' : `Game ${net.code} · ${net.pid >= 0 ? S.players[net.pid].name : 'Watching'}`;
+  }
+
+  /* ----- Hosting, joining and the lobby ----- */
+  async function hostGame() {
+    if (netWorking) return;
+    netWorking = true; onlineMsg('Opening a game...');
+    try {
+      const F = await firebase();
+      sweepOldRooms(F);
+      let code = null;
+      for (let t = 0; t < 10 && !code; t++) {
+        const c = Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+        const r = await F.D.runTransaction(F.ref('rbCodes/' + c), cur => (cur && cur > Date.now() - ROOM_TTL ? undefined : Date.now()));
+        if (r.committed) code = c;
+      }
+      if (!code) throw new Error('No free code');
+      const stale = await F.D.get(F.ref(`rb/${code}/meta`)).catch(() => null);
+      if (stale && stale.exists()) await F.D.remove(F.ref('rb/' + code)).catch(() => {}); // an expired game nobody swept yet
+      await F.D.set(F.ref(`rb/${code}/meta`), { host: F.uid, created: F.D.serverTimestamp(), status: 'lobby', minutes: +$('#timeSel').value, auctions: $('#aucChk').checked });
+      onlineMsg('');
+      enterRoom(code, true);
+    } catch (e) { onlineMsg(netError(e)); }
+    netWorking = false;
+  }
+  // Games are deleted a day after they start, whenever someone hosts a new one.
+  async function sweepOldRooms(F) {
+    try {
+      const old = await F.D.get(F.D.query(F.ref('rbCodes'), F.D.orderByValue(), F.D.endAt(Date.now() - ROOM_TTL), F.D.limitToFirst(25)));
+      old.forEach(c => { F.D.remove(F.ref('rb/' + c.key)).catch(() => {}).then(() => F.D.remove(F.ref('rbCodes/' + c.key))).catch(() => {}); });
+    } catch (e) {}
+  }
+  async function joinGame(raw) {
+    if (netWorking) return;
+    const code = String(raw || '').toUpperCase().replace(/[^A-Z]/g, '');
+    if (code.length !== 4) { onlineMsg('Type the 4 letter code from the host screen.'); $('#joinCode').focus(); return; }
+    netWorking = true; onlineMsg(`Finding game ${code}...`);
+    try {
+      const F = await firebase();
+      const m = await F.D.get(F.ref(`rb/${code}/meta`));
+      if (!m.exists()) onlineMsg(`No game called ${code}. Check the code on the host screen.`);
+      else { onlineMsg(''); enterRoom(code, m.val().host === F.uid); }
+    } catch (e) { onlineMsg(netError(e)); }
+    netWorking = false;
+  }
+  function enterRoom(code, isHost) {
+    if (net) leaveRoom();
+    const F = fb, base = `rb/${code}/`;
+    const n = net = { code, isHost, pid: -1, live: false, watching: false, meta: null, seats: {}, pendingGame: null,
+      v: 0, fxStr: '', flat: {}, logN: 0, histN: 0, pending: 0, queue: [], draining: false, offerSeen: '', offs: [] };
+    try { localStorage.setItem(ROOM_KEY, code); } catch (e) {}
+    const lost = () => { if (net === n) leaveRoom('Lost the connection to that game. Try joining again.'); };
+    n.offs.push(F.D.onValue(F.ref(base + 'meta'), x => { if (net !== n) return; n.metaSeen = true; n.meta = x.val(); onRoom(); }, lost));
+    n.offs.push(F.D.onValue(F.ref(base + 'seats'), x => { if (net !== n) return; n.seats = x.val() || {}; onRoom(); }, lost));
+    n.offs.push(F.D.onValue(F.ref(base + 'game'), x => { if (net === n) onGame(x.val()); }, lost));
+    document.querySelector('#setup .charter:not(.lobby)').hidden = true;
+    $('#lobby').hidden = false;
+    $('#lobbyCode').textContent = code;
+    $('#lobbyWhere').innerHTML = `On every other Chromebook, open <b>${esc(location.host + location.pathname)}</b>, then type <b>${esc(code)}</b> and press Join.`;
+    $('#myName').value = (() => { try { return localStorage.getItem(NAME_KEY) || ''; } catch (e) { return ''; } })();
+    lobbyMsg('');
+    renderLobby();
+  }
+  function onRoom() {
+    const n = net;
+    if (!n.meta) { if (n.metaSeen) leaveRoom(n.isHost ? '' : 'The host closed that game.'); return; }
+    if (n.live) {
+      const was = n.pid; n.pid = pidIn(S);
+      if (was !== n.pid) { if (was >= 0 && n.pid < 0) toast('Your seat moved to another Chromebook. You are watching now.'); render(); }
+      return;
+    }
+    tryGoLive();
+    if (net === n && !n.live) renderLobby();
+  }
+  function tryGoLive() {
+    const n = net, g = n.pendingGame;
+    if (n.live || !g || !n.meta || n.meta.status !== 'playing') return;
+    const st = fromDoc(g), pid = pidIn(st);
+    if (pid < 0 && !n.watching && !n.isHost) { renderLobby(); return; }
+    n.live = true; n.pendingGame = null;
+    n.v = g.v; n.fxStr = g.fx; n.flat = Object.assign({}, g.s); n.logN = st.logN || 0; n.histN = st.histN || 0; n.pid = pid;
+    $('#lobby').hidden = true;
+    startWith(st, true);
+    syncDialogs(null);
+    if (S.phase === 'over') setTimeout(showResults, 400);
+  }
+  function renderLobby() {
+    const n = net;
+    if (!n || n.live) return;
+    const playing = !!n.meta && n.meta.status === 'playing', uid = fb.uid;
+    const taken = BARONS.map((b, k) => seat(k)).filter(Boolean).length;
+    const mineAt = BARONS.findIndex((b, k) => { const x = seat(k); return x && x.uid === uid; });
+    let h = '';
+    BARONS.forEach((b, k) => {
+      const x = seat(k), me = !!x && x.uid === uid;
+      let who = '', btn = '';
+      if (me) {
+        who = esc(x.name) + ' (you)';
+        if (!playing) btn = `<button class="btn small warn" type="button" data-free="${k}">Give it up</button>`;
+      } else if (x) {
+        who = esc(x.name);
+        if (playing) btn = `<button class="btn small" type="button" data-take="${k}">I am ${esc(x.name)}</button>`;
+        else if (n.isHost) btn = `<button class="btn small warn" type="button" data-free="${k}">Remove</button>`;
+      } else {
+        who = playing ? 'Not playing' : 'Open';
+        if (!playing) btn = `<button class="btn small" type="button" data-take="${k}">Take ${esc(b.short)}</button>`;
+      }
+      h += `<div class="seat${me ? ' me' : ''}">${ART.medallion(b)}<div style="min-width:0"><div class="sn">${esc(b.short)}: ${who}</div><div class="sp">${esc(b.power)}</div></div><div class="sb">${btn}</div></div>`;
+    });
+    $('#seats').innerHTML = h;
+    $('#seats').querySelectorAll('[data-take]').forEach(btn => btn.addEventListener('click', () => takeSeat(+btn.dataset.take)));
+    $('#seats').querySelectorAll('[data-free]').forEach(btn => btn.addEventListener('click', () => freeSeat(+btn.dataset.free)));
+    $('#myName').closest('.field').hidden = playing;
+    const open = $('#openBtn');
+    open.hidden = playing ? false : !n.isHost;
+    open.textContent = playing ? 'Just watch' : 'Open for business';
+    open.disabled = !playing && taken < 2;
+    let note = '';
+    if (playing) note = 'This game has started. Tap your name to jump back in, or just watch.';
+    else if (n.isHost) note = taken < 2 ? 'Waiting for players. You need at least 2, and up to 4 can join. The host can play too by taking a baron.' : `${taken} players are in. Open for business when everyone is ready.`;
+    else note = mineAt >= 0 ? 'You are in. The host starts the game.' : 'Type your first name, then take a baron.';
+    $('#lobbyNote').textContent = note;
+  }
+  async function takeSeat(k) {
+    const n = net, playing = n.meta && n.meta.status === 'playing';
+    const name = playing ? (seat(k) || {}).name : cleanName($('#myName').value);
+    if (!name) { lobbyMsg('Type your first name first.'); $('#myName').focus(); return; }
+    if (!playing) { try { localStorage.setItem(NAME_KEY, name); } catch (e) {} }
+    const uid = fb.uid;
+    try {
+      const r = await fb.D.runTransaction(fb.ref(`rb/${n.code}/seats/${k}`), cur => {
+        if (playing) return cur ? { uid, name: cur.name } : undefined;
+        return !cur || cur.uid === uid ? { uid, name } : undefined;
+      });
+      if (!r.committed) { lobbyMsg('Someone else just took that baron.'); return; }
+      if (!playing) { // one baron per Chromebook
+        const up = {};
+        BARONS.forEach((b, j) => { const x = seat(j); if (j !== k && x && x.uid === uid) up[j] = null; });
+        if (Object.keys(up).length) await fb.D.update(fb.ref(`rb/${n.code}/seats`), up);
+      }
+      lobbyMsg(''); SFX.click();
+    } catch (e) { lobbyMsg(netError(e)); }
+  }
+  async function freeSeat(k) {
+    try { await fb.D.remove(fb.ref(`rb/${net.code}/seats/${k}`)); SFX.click(); } catch (e) { lobbyMsg(netError(e)); }
+  }
+  async function renameSeat() {
+    const n = net, name = cleanName($('#myName').value);
+    if (!n || n.live || !name) return;
+    try { localStorage.setItem(NAME_KEY, name); } catch (e) {}
+    const k = BARONS.findIndex((b, j) => { const x = seat(j); return x && x.uid === fb.uid; });
+    if (k >= 0 && seat(k).name !== name) fb.D.update(fb.ref(`rb/${n.code}/seats/${k}`), { name }).catch(e => lobbyMsg(netError(e)));
+  }
+  async function startOnline() {
+    const n = net;
+    if (!n || !n.isHost || netWorking) return;
+    const order = BARONS.map((b, k) => k).filter(k => seat(k));
+    if (order.length < 2) return;
+    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; } // random first player
+    const st = RB.newGame(order.map(k => seat(k).name), n.meta.minutes, { barons: order, auctions: n.meta.auctions });
+    st.offer = null;
+    if (st.timer) st.timer.endsAt = serverNow() + st.timer.total;
+    const doc = { v: 1, s: flatState(st), log: {}, hist: {}, fx: JSON.stringify({ v: 1, by: fb.uid, kind: 'start' }) };
+    st.log.forEach((l, k) => { doc.log[entryKey(k)] = l; });
+    st.hist.forEach((x, k) => { doc.hist[entryKey(k)] = JSON.stringify(x); });
+    netWorking = true;
+    try { await fb.D.update(fb.ref('rb/' + n.code), { game: doc, 'meta/status': 'playing' }); } catch (e) { lobbyMsg(netError(e)); }
+    netWorking = false;
+  }
+  function leaveRoom(msg) {
+    const n = net;
+    if (n) {
+      n.offs.forEach(off => off());
+      if (n.isHost && !n.live && n.meta && n.meta.status === 'lobby') { // closing the lobby closes the game
+        fb.D.remove(fb.ref('rbCodes/' + n.code)).catch(() => {}); // the rules check the host while the game still exists
+        fb.D.remove(fb.ref('rb/' + n.code)).catch(() => {});
+      }
+    }
+    net = null; S = null; disp = null; shownCash = null; aucBefore = null; busy = false;
+    try { localStorage.removeItem(ROOM_KEY); } catch (e) {}
+    closeDlg();
+    $('#game').hidden = true; $('#setup').hidden = false; $('#lobby').hidden = true;
+    document.querySelector('#setup .charter:not(.lobby)').hidden = false;
+    $('#resumeBtn').hidden = !loadSave();
+    $('#netPill').hidden = true;
+    onlineMsg(msg || '');
+    requestAnimationFrame(roses);
+  }
+
+  $('#hostBtn').addEventListener('click', () => { SFX.click(); hostGame(); });
+  $('#joinBtn').addEventListener('click', () => { SFX.click(); joinGame($('#joinCode').value); });
+  $('#joinCode').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); });
+  $('#joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(e.target.value); });
+  $('#openBtn').addEventListener('click', () => {
+    if (!net) return;
+    if (net.meta && net.meta.status === 'playing') { net.watching = true; tryGoLive(); } else startOnline();
+  });
+  $('#leaveBtn').addEventListener('click', () => leaveRoom());
+  $('#myName').addEventListener('change', renameSeat);
+  (() => { // a refreshed Chromebook or a shared link comes back with its code filled in
+    let code = new URLSearchParams(location.search).get('code') || '';
+    if (!code) { try { code = localStorage.getItem(ROOM_KEY) || ''; } catch (e) {} }
+    $('#joinCode').value = code.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+  })();
   requestAnimationFrame(roses);
 })();
 </script>

@@ -22,6 +22,7 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - `src/styles/global.css` — design tokens in `@theme`, plus signature classes: `.pop` (offset shadow card), `.pop-ink`, `.dot-grid` (hero dots)
 - `src/layouts/Base.astro` — page shell (head with OG and social meta, nav, footer)
 - `public/hubs/` — standalone HTML games and lessonhubs, served as written
+- `public/hubs/robber-barons-firebase.js` — Firebase settings for Robber Barons join-with-a-code play. Setup and database rules are in `docs/robber-barons-online/`
 - `storyhub/` — StoryHub production manifests, templates, and agent skills. Start at `docs/storyhub/README.md`; L014 is Reference Implementation 001, not a visual template.
 - `apps-script/hall-pass/` — the Hall Pass and Daily Check-In app. This is Google Apps Script, not part of the Astro build
 - `apps-script/snapshots/hall-pass/` — exact source of released versions, with fingerprints
@@ -32,7 +33,7 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - Brand is lowercase: "the desk". Never capitalize it. Page headings are lowercase with an accent colored period (`<span class="text-accent">.</span>`).
 - Accent color is deep electric blue (`--color-accent`). Use the token, never a hardcoded hex in a component.
 - Voice: playful but not pretentious. Confident, dry, concise.
-- Keep pages light on JavaScript. Where a page needs it, keep the state in the browser. Nothing on the static site transmits student information anywhere.
+- Keep pages light on JavaScript. Where a page needs it, keep the state in the browser. Nothing on the static site transmits student information anywhere. The one exception is Robber Barons online play, which sends a typed first name and the game moves to the teacher's Firebase project, where games are deleted after a day.
 - The site does not host grades, submissions, or rosters. Google Classroom handles those. `/pass/` and `/check-in/` only link out to the Apps Script app, which is where student check-ins actually live.
 - Headings use `font-display` (Space Grotesk, loaded in Base.astro).
 
