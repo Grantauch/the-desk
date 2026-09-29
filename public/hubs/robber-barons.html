@@ -2466,10 +2466,10 @@ const ART = (() => {
   function showManage() {
     if (busy || !S || !mine(S.cur)) return;
     const p = S.players[S.cur];
-    const mine = RB.propsOwned(S, p.id).sort((a, b) => a - b);
+    const owned = RB.propsOwned(S, p.id).sort((a, b) => a - b);
     let h = `<h2 id="dlgTitle">Build and mortgage</h2><p>${esc(p.name)} has <strong>${money(p.cash)}</strong>. Own every business in a color group to form a trust, then build up to 3 factories on each.${RB.hasPower(S, p.id, 'carnegie') ? ' Your factories cost 25 percent less.' : ''}</p>`;
-    if (!mine.length) h += '<p>You do not own any businesses yet.</p>';
-    mine.forEach(i => {
+    if (!owned.length) h += '<p>You do not own any businesses yet.</p>';
+    owned.forEach(i => {
       const sp = SPACES[i], pr = S.props[i];
       const color = sp.type === 'prop' ? GROUPS[sp.group].color : '#1b1a16';
       const st = [];
