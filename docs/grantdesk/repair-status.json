@@ -752,5 +752,11 @@
     ],
     "validation": "Browser checked at 390, 768, and 1440 pixels on homepage, tools, US History, resources, check-in, and pass: no overflow or page errors. Search filtering, Escape dismissal, running timer, and fullscreen entry/exit passed. Canonical npm run verify PASS: 52 built routes, 68 HTML files, 3851 local references, Astro 0 errors and 0 warnings.",
     "production": "Awaiting push and live confirmation at authoring time; no Apps Script or private data changes."
+  },
+  "the_league_20260928": {
+    "scope": "Additive Beyond the Scoreboard ownership game; solo vs five computer teams or 2-6 teams on one shared screen.",
+    "validation": "567 engine assertions/groups including 550 full stress games; 3000 scripted balance simulations. Browser completion, save reload/import/export, undo, denied storage, early finish, and WCAG checks at 1440, 390 and 320 passed before final projector-layout refinement. Final release gates pending.",
+    "production": "Pending protected PR, required checks, merge, exact Netlify commit and live-route verification.",
+    "field_status": "Classroom enjoyment and timing not yet observed."
   }
 }

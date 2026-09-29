@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#132b26">
+  <meta name="description" content="Own the team. Outbid your rivals. Build a sports empire across eight eras of history. A Beyond the Scoreboard game.">
+  <title>THE LEAGUE · Beyond the Scoreboard</title>
+  <link rel="canonical" href="https://grant-desk.com/hubs/the-league.html">
+  <link rel="stylesheet" href="./the-league/style.css">
+  <script defer src="./the-league/engine.js"></script>
+  <script defer src="./the-league/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to game</a>
+  <header class="topbar">
+    <a href="/beyond-the-scoreboard/" class="desk">the desk<span> / beyond the scoreboard</span></a>
+    <div class="tools"><button data-ui="help">How to play</button><button data-ui="sound" aria-pressed="false">Sound off</button><button data-ui="fullscreen">Full screen</button><button data-ui="menu">Game menu</button></div>
+  </header>
+  <main id="main" tabindex="-1"><p class="loading">Opening the league…</p></main>
+  <p id="announcement" class="sr" aria-live="polite" aria-atomic="true"></p>
+  <p id="notice" class="notice" role="status" hidden></p>
+  <dialog id="dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div><form method="dialog"><button class="button close">Back to game</button></form></dialog>
+  <input type="file" id="load-file" aria-label="Load a saved league" accept="application/json,.json" hidden>
+  <noscript><p class="notice">This game needs JavaScript. Enable it in your browser and reload the page.</p></noscript>
+</body>
+</html>

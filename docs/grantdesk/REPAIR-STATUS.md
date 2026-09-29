@@ -1,5 +1,11 @@
 # GrantDesk repair status
 
+## Current checkpoint — September 28 THE LEAGUE game
+
+Added a new, standalone Beyond the Scoreboard sports-ownership game at `/hubs/the-league.html`, with links from Games and the course resource list. Solo play supplies five computer rivals; classroom play uses 2–6 teams on one shared screen. Eight eras include scarce auctions, expiring talent, one investment per team, dice-based seasons, labor/relocation choices, automatic money and standings, browser saves, portable save files, undo, optional sound, a discussion timer, and early finish after a season. Historical sources are linked in the game; fictional mechanics are labeled.
+
+Initial engine acceptance passed 567 assertions/groups, including 550 complete stress games across all supported team counts and extreme spending policies. A separate 3,000-game simulation exercises scripted strategies, not observed student enjoyment. Browser acceptance passed 39 checks covering complete solo runs at 1440/390/320 pixels, classroom modes, early finish, reload/undo/import/export, denied storage, and automated WCAG A/AA. The final projector-layout refinement is undergoing the same acceptance checks. The Windows `npm run verify` wrapper fails before running its child command with `spawnSync npm.cmd EINVAL`; its exact `verify:full` gate is being run directly. Production remains pending the protected PR, required GitHub check, merge, exact Netlify commit, and live game readback. Classroom timing and enjoyment remain unobserved.
+
 ## Current checkpoint — September 9 Daily Check-In contention repair
 
 Apps Script Version 23 now contains the targeted replacement for the shared-lock Daily Check-In write path. Each arrival is stored first as a private, student/date-specific, idempotent inbox event; student and teacher state include pending events immediately; an idle request, teacher poll, one-minute owner trigger, or daily cleanup writes the inbox to `Daily Check-ins` in one batch. Pass capacity and queue mutations keep their existing shared lock.
