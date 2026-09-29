@@ -755,7 +755,7 @@
   },
   "the_league_20260928": {
     "scope": "Additive Beyond the Scoreboard ownership game; solo vs five computer teams or 2-6 teams on one shared screen.",
-    "validation": "567 engine assertions/groups including 550 full stress games; 3000 scripted balance simulations. Browser completion, save reload/import/export, undo, denied storage, early finish, and WCAG checks at 1440, 390 and 320 passed before final projector-layout refinement. Final release gates pending.",
+    "validation": "567 engine assertions/groups including 550 full stress games; 3000 scripted balance simulations plus 900 solo-policy runs. All 41 browser checks passed, including complete solo games at 1440/390/320, 2/6-team projector play, save reload/import/export, undo, denied storage, early finish and WCAG A/AA. Standalone HTML played offline. Exact verify:full chain passed locally; Windows verify launcher has an existing npm.cmd EINVAL failure. Concurrent Robber Barons release preserved by merge.",
     "production": "Pending protected PR, required checks, merge, exact Netlify commit and live-route verification.",
     "field_status": "Classroom enjoyment and timing not yet observed."
   }
