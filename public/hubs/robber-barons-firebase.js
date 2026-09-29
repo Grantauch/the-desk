@@ -4,9 +4,9 @@
 // While databaseURL is blank, "Host a game" and "Join" explain that online play is not set up yet,
 // and pass and play keeps working exactly as before.
 window.RB_FIREBASE = {
-  apiKey: '',
-  authDomain: '',
-  databaseURL: '',
-  projectId: '',
-  appId: ''
+  apiKey: 'AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0',
+  authDomain: 'robber-barons.firebaseapp.com',
+  databaseURL: 'https://robber-barons-default-rtdb.firebaseio.com',
+  projectId: 'robber-barons',
+  appId: '1:230890320629:web:7738aef41d5c9566160bbc'
 };
