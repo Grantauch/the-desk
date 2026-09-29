@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="A pass and play Gilded Age board game with baron powers, auctions, booms and panics.">
 <title>Robber Barons: A Gilded Age Board Game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -329,7 +331,7 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 .cover .art .octo { width: 100%; height: 100%; display: block; }
 .cover .cap { padding: 10px 18px 14px; text-align: center; background: #fff3d6; }
 .cover .kick { font-weight: 800; font-size: 17px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--panicred); }
-.cover h1 { font-family: var(--wood); font-weight: 400; font-size: 44px; line-height: 1; margin: 4px 0 6px; text-wrap: balance; }
+.cover h2 { font-family: var(--wood); font-weight: 400; font-size: 44px; line-height: 1; margin: 4px 0 6px; text-wrap: balance; }
 .cover p { font-size: 20px; margin: 0; }
 
 /* Court */
@@ -337,18 +339,18 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 .court .bars { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 40px, #111 40px 50px, #5a5f5b 50px 52px, transparent 52px 70px); animation: bars 0.4s cubic-bezier(.5,0,.8,.4) 0.25s both; pointer-events: none; opacity: 0.9; }
 @keyframes bars { from { transform: translateY(-105%); } to { transform: none; } }
 .court .big { position: relative; width: 84px; height: 84px; margin: 0 auto; color: var(--gilt-hi); }
-.court h1 { position: relative; font-family: var(--sc); font-weight: 400; font-size: 44px; margin: 4px 0 8px; text-shadow: 0 3px 0 #000; }
+.court h2 { position: relative; font-family: var(--sc); font-weight: 400; font-size: 44px; margin: 4px 0 8px; text-shadow: 0 3px 0 #000; }
 .court p { position: relative; font-size: 21px; margin: 0; text-shadow: 0 2px 0 #000; }
 
 .bust { position: relative; width: min(560px, 90vw); background: #f1ead2; color: var(--ink); text-align: center; padding: 30px 28px 28px; box-shadow: 0 30px 70px rgba(0,0,0,0.6); animation: shake 0.5s ease-in-out both; }
 @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-14px) rotate(-1deg); } 40% { transform: translateX(12px) rotate(1deg); } 60% { transform: translateX(-8px); } 80% { transform: translateX(5px); } }
 .bust .vwrap { height: 120px; border: 2px solid var(--ink); margin-bottom: 10px; }
-.bust h1 { font-family: var(--sc); font-weight: 400; font-size: 46px; margin: 6px 0; }
+.bust h2 { font-family: var(--sc); font-weight: 400; font-size: 46px; margin: 6px 0; }
 .bust .stamp { position: static; display: inline-block; margin-top: 12px; }
 
 .deal { text-align: center; color: var(--gilt-hi); animation: popIn 0.45s cubic-bezier(.2,.9,.3,1.3) both; }
 .deal .big { width: 120px; height: 120px; margin: 0 auto; color: var(--gilt-hi); }
-.deal h1 { font-family: var(--wood); font-weight: 400; font-size: 72px; margin: 0; }
+.deal h2 { font-family: var(--wood); font-weight: 400; font-size: 72px; margin: 0; }
 .deal p { font-size: 22px; color: var(--paper); }
 
 /* Market shift: the ticker goes wild */
@@ -1902,7 +1904,7 @@ const ART = (() => {
       SFX.paper();
       return scene(`<div class="news" role="dialog" aria-label="${esc(c.title)}"><div class="mast">The Gilded Gazette</div>
         <div class="dateline"><span>Extra edition</span><span>${esc(c.year)}</span><span>One cent</span></div>
-        <h1 class="hl">${esc(c.title)}</h1><div class="cut">${ART.vignette(CARD_ART[c.title])}</div><p class="deck">${esc(c.text)}</p>
+        <h2 class="hl">${esc(c.title)}</h2><div class="cut">${ART.vignette(CARD_ART[c.title])}</div><p class="deck">${esc(c.text)}</p>
         <div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div>`);
     }
     const c = STREETS[ev.ci];
@@ -1934,24 +1936,24 @@ const ART = (() => {
     SFX.fanfare();
     return scene(`<div class="cover" role="dialog" aria-label="Trust formed"><div class="mh"><b>The Monopolist</b><span>Price ten cents</span></div>
       <div class="art">${ART.octopus(G.color)}</div>
-      <div class="cap"><div class="kick">${esc(p.name)} swallows the market</div><h1>The ${esc(G.name)} Trust</h1>
+      <div class="cap"><div class="kick">${esc(p.name)} swallows the market</div><h2>The ${esc(G.name)} Trust</h2>
       <p>Rent on these businesses doubles, and factories can now be built on them.</p></div></div>`, { auto: 3200, deep: true, mount: st => confetti(st, 50) });
   }
   function courtScene(pid) {
     const p = S.players[pid];
     SFX.gavel();
     return scene(`<div class="court" role="dialog" aria-label="Courthouse"><div class="bars"></div><div class="big">${ic('scales')}</div>
-      <h1>Held at the Courthouse</h1><p>${esc(p.name)} waits for trial. Roll doubles or pay $50 bail to get out.</p></div>`, { auto: 2200 });
+      <h2>Held at the Courthouse</h2><p>${esc(p.name)} waits for trial. Roll doubles or pay $50 bail to get out.</p></div>`, { auto: 2200 });
   }
   function bustScene(ev) {
     const who = S.players[ev.pid];
     SFX.bust();
-    return scene(`<div class="bust" role="dialog" aria-label="Bankrupt"><div class="vwrap">${ART.vignette('panic')}</div><h1>${esc(who.name)} is wiped out</h1>
+    return scene(`<div class="bust" role="dialog" aria-label="Bankrupt"><div class="vwrap">${ART.vignette('panic')}</div><h2>${esc(who.name)} is wiped out</h2>
       <p style="font-size:21px;margin:0">${ev.creditor >= 0 ? esc(S.players[ev.creditor].name) + ' takes everything that is left.' : 'The bank takes back every business.'}</p><div class="stamp">Bankrupt</div></div>`);
   }
   function dealScene(a, b) {
     SFX.fanfare();
-    return scene(`<div class="deal" role="dialog" aria-label="Deal"><div class="big">${ic('shake')}</div><h1>Deal</h1>
+    return scene(`<div class="deal" role="dialog" aria-label="Deal"><div class="big">${ic('shake')}</div><h2>Deal</h2>
       <p>${esc(S.players[a].name)} and ${esc(S.players[b].name)} shake on it.</p></div>`, { auto: 1600, deep: true });
   }
 
@@ -2554,7 +2556,7 @@ const ART = (() => {
     const rest = R.slice(3).map((r, j) => `${j + 4}. ${esc(r.name)}, ${esc(titleFor(r))}, ${money(r.total)}`).join('<br>');
     const w = R[0];
     const chart = raceChart();
-    const html = `<div class="finale" role="dialog" aria-label="Final standings"><div class="head"><h1 class="gilt-title">${esc(w.name)} wins</h1>
+    const html = `<div class="finale" role="dialog" aria-label="Final standings"><div class="head"><h2 class="gilt-title">${esc(w.name)} wins</h2>
       <div class="sub">${esc(why)} Net worth counts cash, businesses and factories.</div></div>
       <div class="cols2"><div><div class="podium">${pods}</div><div class="floor"></div>${rest ? `<div class="others">${rest}</div>` : ''}</div>
       ${chart ? `<div class="race"><h3>The fortune race</h3><div class="key"><span><i style="background:rgba(226,90,76,0.55)"></i>Panic</span><span><i style="background:rgba(236,208,140,0.5)"></i>Boom</span></div>${chart}</div>` : ''}</div>
