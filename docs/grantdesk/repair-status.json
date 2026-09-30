@@ -758,5 +758,18 @@
     "validation": "567 engine assertions/groups including 550 full stress games; 3000 scripted balance simulations plus 900 solo-policy runs. All 41 browser checks passed, including complete solo games at 1440/390/320, 2/6-team projector play, save reload/import/export, undo, denied storage, early finish and WCAG A/AA. Standalone HTML played offline. Exact verify:full chain passed locally; Windows verify launcher has an existing npm.cmd EINVAL failure. Concurrent Robber Barons release preserved by merge.",
     "production": "Pending protected PR, required checks, merge, exact Netlify commit and live-route verification.",
     "field_status": "Classroom enjoyment and timing not yet observed."
+  },
+  "theodore_roosevelt_storyhub_20260930": {
+    "status": "LOCAL_VERIFIED",
+    "summary": "Theodore Roosevelt cinematic exhibit added to Story Hubs with finished opening film, archival images, source citations and conservation epilogue.",
+    "verification": [
+      "Canonical npm run verify passed: Astro/TypeScript 0 errors, 53 built routes, 101 HTML files and 4316 local references.",
+      "Eight StoryHub manifests and seven checksum-sealed releases passed; the Roosevelt release contains 18 files.",
+      "Focused browser acceptance passed all seven cases: catalog and exhibit at 320/390/1440 pixels, plus reduced-motion exhibit; full-page WCAG A/AA.",
+      "Opening film decoded and played for the expected 30.06-second duration; source dialog opens, pauses films and closes by Escape; chapter selection works.",
+      "Broader browser UI passed 54 cases and extended UI passed 48 cases; the existing game suite and required GitHub build remain separate gates."
+    ],
+    "deployment_status": "PENDING_PROTECTED_PR_AND_NETLIFY",
+    "field_status": "FIELD_PENDING"
   }
 }
