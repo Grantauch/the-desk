@@ -1,5 +1,9 @@
 # GrantDesk repair status
 
+## Current checkpoint — September 30 Theodore Roosevelt StoryHub
+
+Added the approved cinematic Roosevelt exhibit at `/hubs/ush9-theodore-roosevelt.html` and its Story Hubs catalog card. The finished thirty-second opening, archival images, licensed music attribution, primary-source notes and conservation epilogue are included. Canonical verification passed with 53 built routes, 101 HTML files and 4316 local references. Focused browser acceptance passed seven cases at 320/390/1440 pixels and reduced motion, including WCAG A/AA; the 30.06-second film decoded and played, and the sources and chapter controls passed. Broader browser UI passed 54 cases and extended UI passed 48. The existing game browser suite, protected GitHub build, merge and exact Netlify production evidence remain separate gates. Classroom use remains unobserved.
+
 ## Current checkpoint — September 28 THE LEAGUE game
 
 Added a new, standalone Beyond the Scoreboard sports-ownership game at `/hubs/the-league.html`, with links from Games and the course resource list. Solo play supplies five computer rivals; classroom play uses 2–6 teams on one shared screen. Eight eras include scarce auctions, expiring talent, one investment per team, dice-based seasons, labor/relocation choices, automatic money and standings, browser saves, portable save files, undo, optional sound, a discussion timer, and early finish after a season. Historical sources are linked in the game; fictional mechanics are labeled.

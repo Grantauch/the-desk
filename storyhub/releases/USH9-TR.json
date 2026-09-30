@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TR",
+  "title": "Theodore Roosevelt",
+  "route": "/hubs/ush9-theodore-roosevelt.html",
+  "files": [
+    {
+      "path": "/hubs/ush9-theodore-roosevelt.html",
+      "bytes": 49307,
+      "sha256": "550769ac0a181fe202849434002cb75577f2cb512688fc9a5d49ec462fc25281"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/anton-ofl.txt",
+      "bytes": 4390,
+      "sha256": "9267baca92b7a7ce9db6dd9e6cc32c9fe3ddf1ac96e421d5f87c5746b9089d6a"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/anton.woff2",
+      "assetId": "anton",
+      "bytes": 18612,
+      "sha256": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/app.js",
+      "bytes": 10661,
+      "sha256": "15ba9f6f7030fe9a4ca8fa82a5144d9cd117f28c28e977992879c063d71038a5"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/grand-canyon-poster.jpg",
+      "bytes": 49703,
+      "sha256": "22bf3adc4b9a24a70bb09db17f4ff78319f273d77ccbd68663e841b303580371"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/grand-canyon.mp4",
+      "assetId": "grand-canyon",
+      "bytes": 1477927,
+      "sha256": "60e3fb40510e41abbf036b27f95778bc52feb90d0d075b64c5585ac67b6a0677"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/opening-black.png",
+      "bytes": 8876,
+      "sha256": "aa3907de7309d405f262eed1fff85d79125e3f6a876922a019eea943b4792327"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/opening-poster.jpg",
+      "bytes": 149622,
+      "sha256": "2199bd99a9b53b5b9c2b18f7379d46dd91fa0444c933e2904468bcb6f8df2d57"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-age-eight.jpg",
+      "assetId": "age-eight",
+      "bytes": 324401,
+      "sha256": "8a8fc3455c6130543e65318052d27291645cf25eea1fb205025d54b23bed1091"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-expedition-boat.jpg",
+      "assetId": "expedition-boat",
+      "bytes": 283899,
+      "sha256": "eda39824f6f650155638b875cfbf61b724d1f26f2d6ece6108558dfdd2add3e2"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-muir.jpg",
+      "assetId": "muir",
+      "bytes": 353507,
+      "sha256": "c3260f0a69fbd63fff36764a9989d31163fa20068ef380602387a180b32733be"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-opening.mp4",
+      "assetId": "opening-film",
+      "bytes": 11121853,
+      "sha256": "8424b28c2a6a82f6f653e32c206478e605367dab29f5af58c6db07bb4a2b39d0"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-president.jpg",
+      "assetId": "president",
+      "bytes": 285079,
+      "sha256": "a134dc51f2499357724c934f8076820de54b14bb9d43cdd7fc4761155f02c2de"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-ranchman.jpg",
+      "assetId": "ranchman",
+      "bytes": 325901,
+      "sha256": "13e640312a0aad3a78087d0a97c934c35782d17f2053a3747a3525fb84d7f85a"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-rondon.jpg",
+      "assetId": "rondon",
+      "bytes": 323206,
+      "sha256": "b3d54d99ed3329ce30be3d2e16562ca8485895a6f84fe0b41c4ba8c44a04dbad"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/rough-riders.jpg",
+      "assetId": "rough-riders",
+      "bytes": 187555,
+      "sha256": "0a077ca282021db6707b340083cefe95e04c5124eef2d29d33a0a6c7f6cde3ac"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/styles.css",
+      "bytes": 17982,
+      "sha256": "bcef4b66685a62230817a1d4d10ff14435c2dfdd4e297d6296ab1fe30969093e"
+    },
+    {
+      "path": "/storyhub/ush9/theodore-roosevelt/assets/teddy-bear-cartoon.jpg",
+      "assetId": "teddy-bear-cartoon",
+      "bytes": 456533,
+      "sha256": "71fc8c459ddd97d6b03730b5284746384df029e92fc7c4c5b2e4fe81048e8540"
+    }
+  ],
+  "totalBytes": 15449014,
+  "sealedAt": "2026-09-30"
+}

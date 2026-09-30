@@ -24,6 +24,27 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
   {
+    slug: 'ush9-theodore-roosevelt',
+    href: '/hubs/ush9-theodore-roosevelt.html',
+    title: 'theodore roosevelt',
+    course: 'us history 9',
+    unit: 'the progressive era',
+    period: '1858–1919',
+    status: 'ready to teach',
+    question: 'how did a boy who struggled to breathe become a man determined to prove his strength—and what did that drive cost?',
+    blurb: 'An archival film opens a cinematic exhibit tracing Roosevelt from childhood asthma to the Rough Riders, the presidency and the River of Doubt, with a conservation epilogue.',
+    cover: '/storyhub/ush9/theodore-roosevelt/assets/opening-poster.jpg',
+    coverAlt: 'Theodore Roosevelt title beside genuine 1912 footage of Roosevelt walking with an axe',
+    topics: ['theodore roosevelt', 'rough riders', 'spanish-american war', 'teddy bear', 'river of doubt', 'conservation'],
+    inside: [
+      'A thirty-second opening film using authentic 1912 footage, an archival childhood portrait and an attributed memoir quotation.',
+      'Eleven scenes with sticky archival images, restrained effects and primary-source citations.',
+      'The cavalry without most of its horses, the human cost of the charge and the expedition that nearly killed him.',
+      'A dated conservation epilogue distinguishing parks, monuments, forests and the later National Park Service.',
+    ],
+  },
+
+  {
     slug: 'ush9-bytesize-garfield-arthur',
     href: '/hubs/ush9-bytesize-garfield-arthur.html',
     title: 'the dark horse and the gentleman boss',
