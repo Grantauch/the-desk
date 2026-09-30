@@ -130,6 +130,7 @@
  const resumeAmbient=()=>{if(soundOn&&audioContext&&audioContext.state==='suspended')audioContext.resume().catch(()=>{});};
  document.addEventListener('pointerdown',resumeAmbient,{passive:true});document.addEventListener('keydown',resumeAmbient);
  document.addEventListener('visibilitychange',()=>updateSound(active.dataset.theme,false));
- async function tryOpeningAutoplay(){if(reduced.matches){showStartGate();return;}await startOpening({restart:true,userGesture:false});}
- resizeCanvas();setEffects(effects);if(paused){$('#pause-film').textContent='Play films';$('#pause-film').setAttribute('aria-pressed','true');}updateScroll();tryOpeningAutoplay();
+ async function tryOpeningAutoplay(){if(openingRequested||openingEnded)return;if(reduced.matches){showStartGate();return;}await startOpening({restart:true,userGesture:false});}
+ resizeCanvas();setEffects(effects);if(paused){$('#pause-film').textContent='Play films';$('#pause-film').setAttribute('aria-pressed','true');}updateScroll();
+ const queueOpeningAutoplay=()=>setTimeout(tryOpeningAutoplay,800);if(document.readyState==='complete')queueOpeningAutoplay();else addEventListener('load',queueOpeningAutoplay,{once:true});
 })();
