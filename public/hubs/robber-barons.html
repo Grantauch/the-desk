@@ -651,6 +651,39 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
 @media (max-width: 700px) { .trust-vfx { height: min(620px, 80vh); } .trust-vfx-copy { bottom: 2.5%; padding: 12px 14px 14px; } }
 @media (prefers-reduced-motion: reduce) { .trust-vfx * { animation: none !important; transition: none !important; } }
 
+
+/* ----- Menu film: a Blender loop of the tycoon's desk behind the setup screen ----- */
+.setup-film { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: #07100c; }
+.setup-film img, .setup-film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 38% 70%; }
+.setup-film video { opacity: 0; transition: opacity 1.2s ease; }
+.setup-film.playing video { opacity: 1; }
+.setup-scrim { position: absolute; inset: 0; background:
+  radial-gradient(ellipse 48% 42% at 33% 44%, rgba(5,9,7,0.55), transparent 78%),
+  linear-gradient(90deg, rgba(4,8,6,0.35), transparent 30%, transparent 62%, rgba(4,8,6,0.45)),
+  linear-gradient(180deg, rgba(4,8,6,0.35), transparent 22%, transparent 78%, rgba(4,8,6,0.4)); }
+#setup.has-film { background: #07100c; }
+#setup.has-film .skyline, #setup.has-film #setupRose { display: none; }
+#setup.has-film .lampglow { opacity: 0.55; }
+#setup.has-film .hero .gilt-title { filter: drop-shadow(0 3px 10px rgba(0,0,0,0.85)); }
+#setup.has-film .hero .eyebrow, #setup.has-film .hero .tag { text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.9); }
+
+/* ----- Cutscene: Cleveland 1872, played when the Oil Trust forms ----- */
+.cutscene { position: relative; width: min(1280px, 96vw, calc(86vh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid rgba(226,191,116,0.42); border-radius: 18px; background: #050806; box-shadow: 0 32px 90px rgba(0,0,0,0.62), inset 0 0 0 1px rgba(255,235,186,0.06); cursor: pointer; }
+.cutscene video, .cutscene .cut-end { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cutscene .cut-end { opacity: 0; transition: opacity 0.6s ease; }
+.cutscene::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.35), transparent 22%, transparent 62%, rgba(0,0,0,0.6)); }
+.cut-date { position: absolute; z-index: 4; top: 5.5%; left: 4.5%; font-family: var(--sc); color: #f2d79c; font-size: clamp(18px, 2.6vw, 34px); letter-spacing: 0.08em; text-shadow: 0 2px 10px rgba(0,0,0,0.9); opacity: 0; transition: opacity 0.8s ease; }
+.cut-cap { position: absolute; z-index: 4; left: 50%; bottom: 6%; width: min(820px, 88%); transform: translate(-50%, 8px); text-align: center; color: #f5ead2; font-size: clamp(16px, 2vw, 25px); line-height: 1.3; text-shadow: 0 2px 10px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9); opacity: 0; transition: opacity 0.6s ease, transform 0.6s ease; }
+.cut-cap.on, .cutscene[data-phase="play"] .cut-date { opacity: 1; }
+.cut-cap.on { transform: translate(-50%, 0); }
+.cut-skip { position: absolute; z-index: 6; top: 14px; right: 14px; border: 1px solid rgba(228,192,114,0.6); background: rgba(6,10,8,0.72); color: #f2d79c; font: 700 14px/1 inherit; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 13px; border-radius: 3px; cursor: pointer; }
+.cut-skip:hover, .cut-skip:focus-visible { background: rgba(60,40,12,0.85); outline: 2px solid #f2d79c; outline-offset: 2px; }
+.cutscene .trust-vfx-copy { opacity: 0; transform: translate(-50%, 10px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.cutscene[data-phase="end"] .cut-end, .cutscene[data-phase="end"] .trust-vfx-copy { opacity: 1; }
+.cutscene[data-phase="end"] .trust-vfx-copy { transform: translate(-50%, 0); }
+.cutscene[data-phase="end"] .cut-cap, .cutscene[data-phase="end"] .cut-date { opacity: 0; }
+@media (max-width: 700px) { .cut-skip { top: 8px; right: 8px; padding: 7px 10px; font-size: 12px; } }
+
 /* ----- Scene cards: a glint of light across paper, the building on the certificate ----- */
 .deed::after, .news::after, .cover::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3;
   background: linear-gradient(112deg, transparent 38%, rgba(255,255,255,0.5) 50%, transparent 62%); transform: translateX(-110%); animation: glint 1.3s ease-out 0.5s both; }
@@ -710,6 +743,7 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
 </head>
 <body>
 <section id="setup">
+  <div class="setup-film" id="setupFilm" aria-hidden="true"><img src="robber-barons-art/menu-poster.webp" alt="" draggable="false" onerror="this.parentNode.remove()"><div class="setup-scrim"></div></div>
   <div class="lampglow" aria-hidden="true"></div>
   <canvas class="motes" id="setupMotes" aria-hidden="true"></canvas>
   <div class="tape" aria-hidden="true"><span class="run" id="setupTape"></span></div>
@@ -1909,6 +1943,20 @@ const FX = (() => {
     loader: './robber-barons-vfx/vendor/three/examples/jsm/loaders/GLTFLoader.js'
   });
   let trustVfxModules = null;
+  const FILMS = Object.freeze({
+    menu: { webm: 'robber-barons-art/menu-loop.webm', mp4: 'robber-barons-art/menu-loop.mp4' },
+    cleveland: { webm: 'robber-barons-vfx/cutscenes/cleveland-1872.webm', mp4: 'robber-barons-vfx/cutscenes/cleveland-1872.mp4',
+      poster: 'robber-barons-vfx/cutscenes/cleveland-1872-poster.webp', end: 'robber-barons-vfx/cutscenes/cleveland-1872-end.webp' }
+  });
+  const saveData = (() => { const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection; return !!(c && c.saveData); })();
+  function filmEl(src, opts = {}) {
+    const v = document.createElement('video');
+    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.loop = !!opts.loop; v.preload = opts.preload || 'auto';
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('disablepictureinpicture', ''); v.setAttribute('aria-hidden', 'true');
+    if (opts.poster) v.poster = opts.poster;
+    [['webm', 'video/webm'], ['mp4', 'video/mp4']].forEach(([k, type]) => { const s = document.createElement('source'); s.src = src[k]; s.type = type; v.appendChild(s); });
+    return v;
+  }
 
   function trustVfxMode() {
     if (reduceMotion) return 'static';
@@ -2203,6 +2251,53 @@ const FX = (() => {
   document.querySelectorAll('#baronStrip figure').forEach(FX.tilt);
   FX.motes($('#setupMotes'), 34); FX.motes($('#gameMotes'), 40);
 
+  // The setup screen plays a quiet loop of the tycoon's desk. Reduced motion and Data Saver keep the still.
+  (function menuFilm() {
+    const box = $('#setupFilm'), setup = $('#setup');
+    if (!box) return;
+    setup.classList.add('has-film');
+    if (reduceMotion || saveData) return;
+    const v = filmEl(FILMS.menu, { loop: true });
+    v.addEventListener('playing', () => box.classList.add('playing'));
+    v.addEventListener('error', () => v.remove(), true);
+    box.insertBefore(v, box.querySelector('.setup-scrim'));
+    const sync = () => { if (setup.hidden || document.hidden) v.pause(); else { const p = v.play(); if (p && p.catch) p.catch(() => {}); } };
+    new MutationObserver(sync).observe(setup, { attributes: true, attributeFilter: ['hidden'] });
+    document.addEventListener('visibilitychange', sync);
+    sync();
+  })();
+
+  // The Cleveland 1872 film waits in memory once a game begins, so it is ready when the Oil Trust forms.
+  let cleveFilm = null, cleveShown = false;
+  function cleveReady(ms) {
+    return new Promise(res => {
+      const v = cleveFilm;
+      if (!v || v.error) return res(false);
+      if (v.readyState >= 3) return res(true);
+      let t = 0;
+      const done = ok => { clearTimeout(t); v.removeEventListener('canplay', yes); v.removeEventListener('error', no, true); res(ok); };
+      const yes = () => done(true), no = () => done(false);
+      v.addEventListener('canplay', yes); v.addEventListener('error', no, true);
+      t = setTimeout(() => done(v.readyState >= 3), ms);
+    });
+  }
+  // On a machine strong enough for the 3D trust scene, fetch the model early so it is on screen before the scene closes.
+  let trustWarm = false;
+  function warmTrustVfx() {
+    if (trustWarm || trustVfxMode() !== 'premium') return;
+    trustWarm = true;
+    getTrustVfxModules().catch(() => {});
+    fetch(TRUST_VFX.glb, { priority: 'low' }).then(r => r.arrayBuffer()).catch(() => {});
+  }
+  function preloadCleveland() {
+    if (cleveFilm || reduceMotion || saveData) return;
+    cleveFilm = filmEl(FILMS.cleveland, { poster: FILMS.cleveland.poster });
+    cleveFilm.className = 'film-hold';
+    cleveFilm.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
+    document.body.appendChild(cleveFilm);
+    cleveFilm.load();
+  }
+
   /* ================= Setup ================= */
   let count = 4;
   const WORDS = ['One', 'Two', 'Three', 'Four'];
@@ -2252,6 +2347,8 @@ const FX = (() => {
     buildBoard(); render(); save();
     requestAnimationFrame(roses);
     SFX.fanfare();
+    setTimeout(preloadCleveland, 4000);
+    setTimeout(warmTrustVfx, 20000);
     setTimeout(() => { turnBand(S.cur); if (S.phase === 'auction') openAuction(); }, 250);
   }
 
@@ -2569,6 +2666,78 @@ const FX = (() => {
       } });
   }
   function trustScene(pid, g) {
+    if (g === 'oil' && !cleveShown && cleveFilm && !reduceMotion) {
+      cleveShown = true;
+      return cleveReady(2500).then(ok => ok ? clevelandScene(pid, g) : trustCard(pid, g));
+    }
+    return trustCard(pid, g);
+  }
+  function trustCopy(p, G, text) {
+    return `<div class="trust-vfx-copy">
+        <div class="kick">${esc(p.name)} swallows the market</div>
+        <div class="trust-vfx-concept">Horizontal integration</div>
+        <h2>The ${esc(G.name)} Trust</h2>
+        <p>${text}</p>
+      </div>`;
+  }
+  // Cleveland, 1872. Standard Oil buys out 22 of its 26 rivals in about six weeks.
+  function clevelandScene(pid, g) {
+    const p = S.players[pid], G = GROUPS[g], v = cleveFilm;
+    const CAPS = [
+      [0.3, 4.0, 'Standard Oil and 26 rival refineries line the Cuyahoga River.'],
+      [4.3, 9.7, 'Armed with secret railroad rebates, Rockefeller tells each rival to sell to him for cash or Standard Oil stock.'],
+      [10.1, 19.2, 'In about six weeks, 22 of the 26 sell. Historians call it the Cleveland Massacre.']
+    ];
+    return scene(`<div class="cutscene" data-phase="play" role="dialog" aria-label="Cleveland, 1872. The Oil Trust forms">
+      <div class="cut-slot"></div>
+      <img class="cut-end" src="${FILMS.cleveland.end}" alt="" draggable="false">
+      <div class="cut-date">Cleveland, 1872</div>
+      ${CAPS.map((c, i) => `<p class="cut-cap" data-cap="${i}">${c[2]}</p>`).join('')}
+      <button class="cut-skip" type="button" data-focus>Skip</button>
+      ${trustCopy(p, G, 'Rockefeller bought out the rivals in his own industry. One owner now controls every refinery on the board. Rent doubles, and factories can now be built.')}
+    </div>`, { clickAway: false, deep: true, mount: (st, finish) => {
+      const root = st.querySelector('.cutscene'), slot = root.querySelector('.cut-slot'), caps = [...root.querySelectorAll('.cut-cap')];
+      let ended = false, closeT = 0, safety = 0;
+      const toEnd = () => {
+        if (ended) return; ended = true;
+        clearTimeout(safety);
+        v.pause();
+        root.dataset.phase = 'end';
+        const b = root.querySelector('.cut-skip'); b.textContent = 'Continue';
+        SFX.fanfare();
+        FX.coinRain(st, 14);
+        closeT = setTimeout(close, 6500);
+      };
+      const close = () => {
+        clearTimeout(closeT); clearTimeout(safety);
+        document.removeEventListener('keydown', key, true);
+        v.removeEventListener('timeupdate', tick); v.removeEventListener('ended', toEnd);
+        v.pause();
+        finish();
+        // Played once per visit. Release the film so the Chromebook gets the memory back.
+        setTimeout(() => { v.remove(); v.querySelectorAll('source').forEach(s => s.remove()); try { v.load(); } catch (e) {} if (cleveFilm === v) cleveFilm = null; }, 260);
+      };
+      const next = () => { if (ended) close(); else toEnd(); };
+      let roared = false;
+      const tick = () => {
+        const t = v.currentTime;
+        caps.forEach((el, i) => el.classList.toggle('on', t >= CAPS[i][0] && t < CAPS[i][1]));
+        if (!roared && t >= 6.5) { roared = true; SFX.thunder(); }
+      };
+      const key = e => { if (['Enter', ' ', 'Escape'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); next(); } };
+      root.addEventListener('click', e => { e.stopPropagation(); next(); });
+      document.addEventListener('keydown', key, true);
+      v.addEventListener('timeupdate', tick); v.addEventListener('ended', toEnd);
+      v.style.cssText = ''; v.className = 'cut-video';
+      slot.replaceWith(v);
+      try { v.currentTime = 0; } catch (e) {}
+      const pr = v.play();
+      if (pr && pr.catch) pr.catch(toEnd);
+      SFX.whoosh();
+      safety = setTimeout(toEnd, 26000);
+    } });
+  }
+  function trustCard(pid, g) {
     const p = S.players[pid], G = GROUPS[g];
     SFX.fanfare();
     return scene(`<div class="trust-vfx" data-trust-vfx data-mode="legacy" role="dialog" aria-label="Trust formed">
