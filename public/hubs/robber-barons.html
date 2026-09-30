@@ -1943,6 +1943,7 @@ const FX = (() => {
     loader: './robber-barons-vfx/vendor/three/examples/jsm/loaders/GLTFLoader.js'
   });
   let trustVfxModules = null;
+  const TRUST_VFX_PREMIUM = false;
   const FILMS = Object.freeze({
     menu: { webm: 'robber-barons-art/menu-loop.webm', mp4: 'robber-barons-art/menu-loop.mp4' },
     cleveland: { webm: 'robber-barons-vfx/cutscenes/cleveland-1872.webm', mp4: 'robber-barons-vfx/cutscenes/cleveland-1872.mp4',
@@ -1969,7 +1970,9 @@ const FX = (() => {
       const canvas = document.createElement('canvas');
       if (!canvas.getContext('webgl2', { antialias: false, alpha: true })) return 'fallback';
     } catch (e) { return 'fallback'; }
-    return 'premium';
+    // The realtime GLB frames the whole ground plane and shows the octopus too small. The Blender-rendered
+    // animation reads better on every screen, so it is the default until the 3D framing is tuned.
+    return TRUST_VFX_PREMIUM ? 'premium' : 'fallback';
   }
 
   function showTrustFallback(root, staticOnly) {
