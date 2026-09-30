@@ -34,7 +34,7 @@ export const storyHubs: StoryHub[] = [
     question: 'how did a boy who struggled to breathe become a man determined to prove his strength—and what did that drive cost?',
     blurb: 'An archival film opens a cinematic exhibit tracing Roosevelt from childhood asthma to the Rough Riders, the presidency and the River of Doubt, with a conservation epilogue.',
     cover: '/storyhub/ush9/theodore-roosevelt/assets/opening-poster.jpg',
-    coverAlt: 'Theodore Roosevelt title beside genuine 1912 footage of Roosevelt walking with an axe',
+    coverAlt: 'Stylized portrait of Theodore Roosevelt above a snowy mountain wilderness scene',
     topics: ['theodore roosevelt', 'rough riders', 'spanish-american war', 'teddy bear', 'river of doubt', 'conservation'],
     inside: [
       'A thirty-second opening film using authentic 1912 footage, an archival childhood portrait and an attributed memoir quotation.',
