@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "/hubs/ush9-theodore-roosevelt.html",
-      "bytes": 49307,
-      "sha256": "550769ac0a181fe202849434002cb75577f2cb512688fc9a5d49ec462fc25281"
+      "bytes": 49302,
+      "sha256": "d718f634fbdb4706a2d7c6c31e62a41cf85f3b3cb497b515a0c25c53138d5342"
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/anton-ofl.txt",
@@ -43,8 +43,8 @@
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/opening-poster.jpg",
-      "bytes": 149622,
-      "sha256": "2199bd99a9b53b5b9c2b18f7379d46dd91fa0444c933e2904468bcb6f8df2d57"
+      "bytes": 218282,
+      "sha256": "75dba2f08a6cac51363fbb29fe915d76fa96afcc34aa7568e010d07055b8b042"
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/roosevelt-age-eight.jpg",
@@ -106,6 +106,6 @@
       "sha256": "71fc8c459ddd97d6b03730b5284746384df029e92fc7c4c5b2e4fe81048e8540"
     }
   ],
-  "totalBytes": 15449014,
+  "totalBytes": 15517669,
   "sealedAt": "2026-09-30"
 }
