@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TR",
+  "title": "Theodore Roosevelt",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "dramatic",
+      "restrained",
+      "source-led"
+    ],
+    "paletteIntent": "Black, charcoal and warm amber from the archival film, ending in muted forest green.",
+    "typographyIntent": "Anton theatrical display headings; readable system sans-serif narrative; bold primary-source labels.",
+    "textureLanguage": [
+      "real photographic grain",
+      "restrained editorial cinders",
+      "black film cuts"
+    ],
+    "shapeLanguage": "Wide film frames, full portraits and spare straight-edged source controls.",
+    "motionGrammar": [
+      "emergence from black",
+      "slow whole-image movement",
+      "sticky photographs against progressing text",
+      "stoppage at illness"
+    ],
+    "interactionSignature": [
+      "primary-source inspection",
+      "chapter navigation",
+      "opt-in film sound and replay"
+    ],
+    "densityRhythm": "Thirty-second opening followed by short scenes; the river slows the pace before the conservation epilogue.",
+    "archivalBehavior": "Preserve authentic faces and image structure. Identify posed photographs, retrospective memoirs and modern landscape footage.",
+    "endingLanguage": "Return explicitly to 1901–1909 and distinguish protected lands, national parks and the later National Park Service."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Approved Library of Congress photographs and Pathé film; amber title film treatment.",
+    "edgeTreatment": "Black gradients join archival frames to the narrative without invented historical detail.",
+    "controlLanguage": "Plain film, sound, effects and source buttons with visible keyboard focus.",
+    "spacingLanguage": "Portrait subjects occupy the right of desktop scenes; text follows below full frames on small screens.",
+    "transitionLanguage": "Natural scroll reveals scenes; the film begins in black and the river darkens before a green epilogue."
+  }
+}

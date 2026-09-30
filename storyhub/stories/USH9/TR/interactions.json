@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TR",
+  "interactions": [
+    {
+      "id": "film",
+      "chapterId": "opening",
+      "type": "archival film playback",
+      "teaches": "Compare Roosevelt’s adult public image with his retrospective description of childhood frailty.",
+      "studentAction": "Play or replay the opening, enable sound, or pause the film.",
+      "feedback": "Authentic 1912 footage gives way to the childhood portrait and attributed 1913 memoir quotation.",
+      "staticFallback": "A poster, accessible film description and the first chapter preserve the evidence without playback.",
+      "identityFit": "A controlled emergence from black begins the cinematic exhibit.",
+      "status": "implemented"
+    },
+    {
+      "id": "source-inspection",
+      "chapterId": "chapter-01",
+      "type": "primary-source drawer throughout the exhibit",
+      "teaches": "Distinguish a participant memoir, a political cartoon, official proclamation, archival image and later historical interpretation.",
+      "studentAction": "Open a chapter citation or the complete Sources drawer, then inspect the original source.",
+      "feedback": "Each source displays its date, type, attribution and limits; opening a drawer pauses films.",
+      "staticFallback": "Citation links and source notes remain available in semantic HTML.",
+      "identityFit": "Source inspection sits beside restrained scenes without interrupting natural scrolling.",
+      "status": "implemented"
+    }
+  ]
+}
