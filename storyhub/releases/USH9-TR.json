@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "/hubs/ush9-theodore-roosevelt.html",
-      "bytes": 49302,
-      "sha256": "d718f634fbdb4706a2d7c6c31e62a41cf85f3b3cb497b515a0c25c53138d5342"
+      "bytes": 49441,
+      "sha256": "94e29944e54bc15fa174e0d3bef42d1f26e27390f6094cb3282edaf666bc2206"
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/anton-ofl.txt",
@@ -22,8 +22,8 @@
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/app.js",
-      "bytes": 10661,
-      "sha256": "15ba9f6f7030fe9a4ca8fa82a5144d9cd117f28c28e977992879c063d71038a5"
+      "bytes": 12595,
+      "sha256": "c32487bf5f5f6c58f0d8343c7f2cd5f3ff1def4c2fe20fe2e14a48343b3dbacb"
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/grand-canyon-poster.jpg",
@@ -96,8 +96,8 @@
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/styles.css",
-      "bytes": 17982,
-      "sha256": "bcef4b66685a62230817a1d4d10ff14435c2dfdd4e297d6296ab1fe30969093e"
+      "bytes": 18640,
+      "sha256": "c897e377430138b067c4798e1994f3150d1e3c7c733888969b379cf1ff2af383"
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/teddy-bear-cartoon.jpg",
@@ -106,6 +106,6 @@
       "sha256": "71fc8c459ddd97d6b03730b5284746384df029e92fc7c4c5b2e4fe81048e8540"
     }
   ],
-  "totalBytes": 15517669,
+  "totalBytes": 15520400,
   "sealedAt": "2026-09-30"
 }

@@ -6,7 +6,7 @@
  const videos = [...document.querySelectorAll('video')];
  const opening = $('#opening'), openingFilm = $('#opening-film');
  const openingControl=$('#play-opening');
- let openingRequested=false,openingEnded=false,openingExplicitPlay=false;
+ let openingRequested=false,openingEnded=false,openingExplicitPlay=false,openingAutoplayBlocked=false;
  openingFilm.controls=false;
  let active = opening, paused = reduced.matches, effects = !reduced.matches, ticking = false;
  const sourceData = JSON.parse($('#source-data').textContent);
@@ -31,7 +31,7 @@
  function playVisibleVideos() {
   videos.forEach(v=>{
    const owner=v.closest('section'), visible=owner===active;
-   const permitted=v!==openingFilm||((effects||openingExplicitPlay)&&!openingEnded&&(openingRequested||opening.getBoundingClientRect().top < -30));
+   const permitted=v!==openingFilm||(!openingAutoplayBlocked&&(effects||openingExplicitPlay)&&!openingEnded&&(openingRequested||opening.getBoundingClientRect().top < -30));
    if(!paused && !document.hidden && !dialog.open && visible && permitted){if(v.paused)v.play().catch(()=>{});}else if(!v.paused)v.pause();
   });
  }
@@ -59,10 +59,9 @@
  document.addEventListener('visibilitychange',()=>{playVisibleVideos();if(!document.hidden)startAnimation();});
  function setPaused(value){paused=value;$('#pause-film').textContent=paused?'Play films':'Pause films';$('#pause-film').setAttribute('aria-pressed',String(paused));playVisibleVideos();}
  $('#pause-film').addEventListener('click',()=>setPaused(!paused));
- openingControl.addEventListener('click',()=>{
+ openingControl.addEventListener('click',async()=>{
   if(!openingFilm.paused&&!openingEnded){setPaused(true);return;}
-  if(openingEnded){openingFilm.currentTime=0;openingEnded=false;document.body.classList.remove('opening-ended');}
-  openingRequested=true;openingExplicitPlay=true;document.body.classList.add('opening-explicit');setPaused(false);
+  await startOpening({restart:openingEnded||openingAutoplayBlocked,userGesture:true});
  });
  openingFilm.addEventListener('play',()=>{openingRequested=true;openingControl.textContent='Pause opening';});
  openingFilm.addEventListener('pause',()=>{openingControl.textContent=openingEnded?'Replay opening':'Play opening · 0:30';});
@@ -99,6 +98,10 @@
  }
  function startAnimation(){if(!raf&&effects&&!document.hidden){last=performance.now();raf=requestAnimationFrame(animate);}}
  let audioContext,master,windGain,toneGain,soundOn=false;
+ const startExperience=$('#start-experience');
+ function syncSoundButton(){const b=$('#sound');b.setAttribute('aria-pressed',String(soundOn));b.querySelector('span').textContent=soundOn?'on':'off';}
+ function showStartGate(){openingAutoplayBlocked=true;document.body.classList.add('autoplay-blocked');openingControl.textContent='Start opening · sound on';}
+ function hideStartGate(){openingAutoplayBlocked=false;document.body.classList.remove('autoplay-blocked');}
  function initAudio(){
   audioContext=new (window.AudioContext||window.webkitAudioContext)();master=audioContext.createGain();master.gain.value=0;master.connect(audioContext.destination);
   const noise=audioContext.createBuffer(1,audioContext.sampleRate*3,audioContext.sampleRate),arr=noise.getChannelData(0);for(let i=0;i<arr.length;i++)arr[i]=Math.random()*2-1;
@@ -106,8 +109,27 @@
   windGain=audioContext.createGain();windGain.gain.value=.06;source.connect(filter);filter.connect(windGain);windGain.connect(master);source.start();
   const tone=audioContext.createOscillator();tone.type='sine';tone.frequency.value=55;toneGain=audioContext.createGain();toneGain.gain.value=.008;tone.connect(toneGain);toneGain.connect(master);tone.start();
  }
+ async function ensureAmbientAudio(){if(!audioContext)initAudio();if(audioContext.state!=='running')await audioContext.resume();}
  function updateSound(theme,quiet){if(!audioContext)return;const now=audioContext.currentTime;master.gain.setTargetAtTime(soundOn&&theme!=='opening'&&!quiet&&!document.hidden&&!dialog.open?.6:0,now,.9);windGain.gain.setTargetAtTime(theme==='river'||theme==='illness'?.095:.04,now,1.5);}
- $('#sound').addEventListener('click',async()=>{try{if(!audioContext)initAudio();await audioContext.resume();soundOn=!soundOn;openingFilm.muted=!soundOn;$('#sound').setAttribute('aria-pressed',String(soundOn));$('#sound span').textContent=soundOn?'on':'off';updateSound(active.dataset.theme,false);playVisibleVideos();}catch{$('#sound span').textContent='unavailable';}});
+ async function startOpening({restart=false,userGesture=false}={}){
+  if(openingEnded||restart){try{openingFilm.currentTime=0;}catch{}openingEnded=false;document.body.classList.remove('opening-ended');}
+  openingRequested=true;openingExplicitPlay=true;openingAutoplayBlocked=false;document.body.classList.add('opening-explicit');
+  paused=false;$('#pause-film').textContent='Pause films';$('#pause-film').setAttribute('aria-pressed','false');
+  soundOn=true;openingFilm.muted=false;syncSoundButton();
+  try{
+   const playPromise=openingFilm.play();
+   if(userGesture)ensureAmbientAudio().catch(()=>{});
+   await playPromise;
+   hideStartGate();if(!userGesture)ensureAmbientAudio().catch(()=>{});updateSound(active.dataset.theme,false);return true;
+  }catch{
+   openingFilm.pause();try{openingFilm.currentTime=0;}catch{}soundOn=false;openingFilm.muted=true;syncSoundButton();showStartGate();return false;
+  }
+ }
+ startExperience.addEventListener('click',()=>startOpening({restart:true,userGesture:true}));
+ $('#sound').addEventListener('click',async()=>{try{if(active===opening&&openingAutoplayBlocked){await startOpening({restart:true,userGesture:true});return;}const next=!soundOn;if(next)await ensureAmbientAudio();soundOn=next;openingFilm.muted=!soundOn;syncSoundButton();updateSound(active.dataset.theme,false);playVisibleVideos();}catch{$('#sound span').textContent='unavailable';}});
+ const resumeAmbient=()=>{if(soundOn&&audioContext&&audioContext.state==='suspended')audioContext.resume().catch(()=>{});};
+ document.addEventListener('pointerdown',resumeAmbient,{passive:true});document.addEventListener('keydown',resumeAmbient);
  document.addEventListener('visibilitychange',()=>updateSound(active.dataset.theme,false));
- resizeCanvas();setEffects(effects);if(paused){$('#pause-film').textContent='Play films';$('#pause-film').setAttribute('aria-pressed','true');}updateScroll();
+ async function tryOpeningAutoplay(){if(reduced.matches){showStartGate();return;}await startOpening({restart:true,userGesture:false});}
+ resizeCanvas();setEffects(effects);if(paused){$('#pause-film').textContent='Play films';$('#pause-film').setAttribute('aria-pressed','true');}updateScroll();tryOpeningAutoplay();
 })();
