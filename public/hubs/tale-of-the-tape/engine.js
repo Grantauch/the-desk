@@ -169,6 +169,7 @@
     s.injury = null; s.champ = false; s.retired = false; s.titleDefenses = 0; s.belts = 0;
     s.rec = { w: 0, l: 0, d: 0, ko: 0, kod: 0, streak: 0 };
     s.fights = []; s.flags = {}; s.c = { trainStreak: 0, earned: 0, idle: 0, actions: 0, played: 0, events: 0 };
+    s.perks = []; s.gear = {}; s.lessons = 0; s.ambition = E.AMBITIONS[o.ambition] ? o.ambition : null;
     s.queue = []; s.seen = {}; s.hist = {}; s.journal = []; s.story = []; s.inbox = []; s.offers = null; s.camp = null; s.service = null; s.after = null; s.ach = [];
     s.city = s.f.home;
     s.people = {
@@ -231,7 +232,9 @@
     if (s.flags.family) c += 20 * E.eraMoney(s.t);
     if (s.flags.highlife) c *= 1.6;
     if (s.flags.frugal) c *= 0.75;
-    return Math.round(c);
+    if (E.hasPerk(s, 'frugal')) c *= 0.85;
+    if (E.hasGear(s, 'house')) c *= 0.85;
+    return Math.round(c + (s.retired ? 0 : E.upkeep(s)));
   };
 
   // ---------- time ----------
@@ -241,7 +244,7 @@
       const before = E.month(s.t), yearBefore = E.year(s.t);
       s.t++;
       if (s.injury) {
-        s.injury.weeks -= mode === 'rest' ? 2 : 1;
+        s.injury.weeks -= (mode === 'rest' ? 2 : 1) * (E.hasPerk(s, 'healer') ? 1.5 : 1);
         if (s.injury.weeks <= 0) { note(s, `The ${s.injury.name} has healed.`, 'good'); s.injury = null; }
       }
       if (E.month(s.t) !== before) monthly(s, mode);
@@ -258,7 +261,8 @@
     }
     if (s.people.family.allowance) { const a = Math.round(10 * E.eraMoney(s.t)); s.money -= a; s.people.family.sent += a; }
     if (mode !== 'fight' && mode !== 'spar') s.sharp = clamp(s.sharp - 3, 0, 100);
-    if (s.health < 100) s.health = clamp(s.health + (mode === 'rest' ? 4 : 1.2), 0, 100);
+    if (s.health < 100) s.health = clamp(s.health + (mode === 'rest' ? 4 : 1.2) + (E.hasPerk(s, 'healer') ? 1 : 0), 0, 100);
+    if (s.fame > (s.flags.max_fame || 0)) s.flags.max_fame = s.fame;
     s.c.months = (s.c.months || 0) + 1;
     if (s.fame > 20 && mode !== 'fight') s.fame = clamp(s.fame - (s.retired ? 0.15 : 0.35), 0, 100);
     if (!s.retired && s.phase !== 'service') worldMonth(s);
@@ -271,7 +275,7 @@
     if (!s.retired) {
       // Prime is 24 to 29. After 30 the legs go first, then the reflexes, then the chin.
       if (age >= 30) {
-        const k = age >= 35 ? 4 : age >= 33 ? 2.8 : age >= 31 ? 1.8 : 1;
+        const k = (age >= 35 ? 4 : age >= 33 ? 2.8 : age >= 31 ? 1.8 : 1) * (E.hasPerk(s, 'oldpro') ? 0.6 : 1);
         s.st.spd -= k * between(s, 0.8, 1.3); s.st.sta -= k * between(s, 0.6, 1.2); s.st.def -= k * 0.4;
         if (age >= 33) s.st.chn -= k * 0.8;
         note(s, `You turn ${age}. ${age >= 34 ? 'Mornings hurt now.' : 'A step slower on the stairs, but who is counting?'}`, 'life');
@@ -439,6 +443,103 @@
     return x;
   };
 
+  // ---------- techniques, camp upgrades, ambitions ----------
+  // Techniques cost lessons, which you earn by fighting. Ring techniques change the fight itself.
+  E.PERKS = {
+    shoulder: { name: 'Shoulder Roll', kind: 'ring', cost: 4, blurb: 'Roll punches off your shoulder. Your slips and ducks stay safe a little longer.' },
+    counter: { name: 'Counter King', kind: 'ring', cost: 5, blurb: 'Counters after a miss hit much harder.' },
+    body: { name: 'Body Snatcher', kind: 'ring', cost: 4, blurb: 'Body shots do more damage and drain his stamina faster.' },
+    ironjaw: { name: 'Iron Jaw', kind: 'ring', cost: 5, blurb: 'Easier to beat the count, and you come up with more left.' },
+    secondwind: { name: 'Second Wind', kind: 'ring', cost: 4, blurb: 'Faster stamina recovery, and every corner break heals a little.' },
+    fasthands: { name: 'Fast Hands', kind: 'ring', cost: 5, blurb: 'Your punches come out quicker and snap back faster.' },
+    killer: { name: 'Killer Instinct', kind: 'ring', cost: 6, req: (s) => s.rec.ko >= 3, reqText: 'Needs 3 knockouts', blurb: 'When he is hurt, you finish. More damage on a staggered opponent.' },
+    clinch: { name: 'The Clinch', kind: 'ring', cost: 4, blurb: 'A new move: tie him up (E key or the CLINCH button) to stop his attack and catch your breath. Twice a round.' },
+    general: { name: 'Ring General', kind: 'ring', cost: 6, req: (s) => s.fights.length >= 12, reqText: 'Needs 12 fights', blurb: 'You read fighters early. His wind-ups take a little longer to come.' },
+    crowd: { name: 'Crowd Pleaser', kind: 'ring', cost: 4, blurb: 'Stars come easier, and every win brings more fame.' },
+    discipline: { name: 'Roadwork Discipline', kind: 'life', cost: 4, blurb: 'Every month of training does more.' },
+    healer: { name: 'Quick Healer', kind: 'life', cost: 4, blurb: 'Injuries heal faster and your body bounces back.' },
+    showman: { name: 'Showmanship', kind: 'life', cost: 5, blurb: 'Promoters pay more for a fighter who sells tickets. Bigger purses, better haggling.' },
+    frugal: { name: 'Smart Money', kind: 'life', cost: 3, blurb: 'You live cheaper than your fame says you should.' },
+    oldpro: { name: 'Old Pro', kind: 'life', cost: 6, req: (s) => E.age(s) >= 29, reqText: 'Needs age 29', blurb: 'Age takes your legs more slowly. Experience covers what speed cannot.' },
+    film: { name: 'Film Study', kind: 'life', cost: 5, req: (s) => E.year(s.t) >= 1946, reqText: 'After 1946, when fight films are easy to get', blurb: 'Studying an opponent counts double, and his tells are labeled in round one.' },
+  };
+  // Camp upgrades cost money once, and staff take wages every month.
+  E.GEAR = {
+    bag: { name: 'A heavy bag in the basement', cost: 40, upkeep: 0, blurb: 'All training a little better.' },
+    partners: { name: 'Good sparring partners', cost: 150, upkeep: 8, blurb: 'Sparring teaches more and hurts you less.' },
+    cutman: { name: 'A real cutman', cost: 120, upkeep: 6, blurb: 'Fewer injuries after fights. Ice and water heals more between rounds.' },
+    strength: { name: 'A strength coach', cost: 250, upkeep: 12, blurb: 'Power and chin training work better.' },
+    track: { name: 'A track coach', cost: 200, upkeep: 10, blurb: 'Stamina and speed training work better.' },
+    robe: { name: 'A silk robe with your name on it', cost: 90, upkeep: 0, blurb: 'You look like a star. More fame from every win.' },
+    car: { name: 'A car', cost: 700, upkeep: 5, from: 1936, blurb: 'You can take fights farther away: one more offer every time.' },
+    projector: { name: 'A fight-film projector', cost: 600, upkeep: 0, from: 1946, blurb: 'Watch the other man\'s fights. Studying him counts double.' },
+    house: { name: 'A house for your family', cost: 4000, upkeep: 0, blurb: 'No more rent. No more sending money home. Your family is set.' },
+  };
+  E.AMBITIONS = {
+    title: { name: 'Win a world title', reward: 25, done: (s) => s.belts > 0 },
+    rich: { name: 'Retire with $20,000 in the bank', reward: 15, done: (s) => s.retired && (s.flags.retire_money || 0) >= 20000 },
+    iron: { name: 'Never get knocked out (20+ fights)', reward: 15, done: (s) => s.fights.length >= 20 && s.rec.kod === 0 },
+    fifty: { name: 'Fight fifty times', reward: 10, done: (s) => s.fights.length >= 50 },
+    famous: { name: 'Become a household name', reward: 15, done: (s) => (s.flags.max_fame || 0) >= 70 },
+    rival: { name: 'Beat your rival twice', reward: 15, done: (s) => (s.flags.rival_wins || 0) >= 2 },
+    clean: { name: 'Never take a crooked dollar (20+ fights)', reward: 10, done: (s) => s.fights.length >= 20 && !s.flags.ever_crooked },
+    unbeaten: { name: 'Win your first fifteen fights', reward: 20, done: (s) => !!s.flags.first15 },
+    abroad: { name: 'Fight in London', reward: 10, done: (s) => s.fights.some((f) => f.city === 'London') },
+  };
+  E.hasPerk = (s, id) => !!(s.perks && s.perks.includes(id));
+  E.hasGear = (s, id) => !!(s.gear && s.gear[id]);
+  E.perkCost = (s, id) => E.PERKS[id].cost;
+  E.gearCost = (s, id) => Math.round(E.GEAR[id].cost * E.eraMoney(s.t) / 5) * 5;
+  E.buyPerk = function (s, id) {
+    const p = E.PERKS[id];
+    s.perks = s.perks || [];
+    if (!p || s.perks.includes(id) || (s.lessons || 0) < p.cost || (p.req && !p.req(s))) return false;
+    s.lessons -= p.cost; s.perks.push(id);
+    note(s, `${s.people.trainer.name} writes a new page in the notebook: ${p.name}.`, 'good');
+    return true;
+  };
+  E.buyGear = function (s, id) {
+    const g = E.GEAR[id];
+    s.gear = s.gear || {};
+    if (!g || s.gear[id] || (g.from && E.year(s.t) < g.from)) return false;
+    const cost = E.gearCost(s, id);
+    if (s.money < cost) return false;
+    s.money -= cost; s.gear[id] = s.t;
+    if (id === 'robe') s.heart = clamp(s.heart + 5, 0, 100);
+    if (id === 'house') { s.heart = clamp(s.heart + 20, 0, 100); s.people.family.allowance = false; remember(s, 'family', 'bought my family a house', 3); }
+    note(s, `New for the camp: ${g.name.replace(/^an? /, '')}.`, 'good');
+    return true;
+  };
+  E.dropGear = function (s, id) { if (s.gear && s.gear[id] && E.GEAR[id].upkeep) { delete s.gear[id]; note(s, `You let go of ${E.GEAR[id].name.replace(/^an? /, 'your ')}.`, 'life'); return true; } return false; };
+  E.upkeep = function (s) {
+    let u = 0;
+    for (const id in (s.gear || {})) u += E.GEAR[id] ? E.GEAR[id].upkeep : 0;
+    return Math.round(u * E.eraMoney(s.t));
+  };
+  // Haggle once per poster. Fame, a sharp manager and showmanship help. The promoter might walk.
+  E.haggle = function (s, offerId) {
+    const o = (s.offers || []).find((x) => x.id === offerId);
+    if (!o || o.haggled) return null;
+    o.haggled = true;
+    const p = clamp(0.32 + s.fame / 160 + (['connected', 'showman'].includes(s.people.manager.trait) ? 0.14 : 0) + (E.hasPerk(s, 'showman') ? 0.12 : 0) - (o.level === 'title' ? 0.1 : 0), 0.15, 0.85);
+    if (chance(s, p)) {
+      const bump = Math.round(o.purse * between(s, 0.15, 0.3) / 5) * 5;
+      o.purse += bump;
+      return { ok: true, text: `The promoter grumbles, then adds ${money(bump)}.` };
+    }
+    s.offers = s.offers.filter((x) => x.id !== offerId);
+    return { ok: false, text: `The promoter tears up the contract. "Plenty of guys want that fight."` };
+  };
+  // Elite fighters bring a signature move. Champions, your rival, and anyone rated 78+.
+  E.SIGNATURES = { slugger: 'bolo', showman: 'bolo', boxer: 'triple', counter: 'triple', swarmer: 'rush', dirty: 'lowblow' };
+  E.SIGNATURE_NAMES = { bolo: 'The Bolo', triple: 'The Triple', rush: 'The Rush', lowblow: 'The Low Blow' };
+  E.SIGNATURE_TIPS = { bolo: 'His bolo punch swings up from his right side in a big circle. Slip LEFT. Ducking will not save you.', triple: 'He throws three: jab, jab, then a hook. Slip the jabs and wait for the hook.', rush: 'He charges with three quick body shots. Slip side to side, or keep your guard up.', lowblow: 'He fights dirty: a fast punch below the belt with almost no wind-up. Slip it. The referee may take a point.' };
+  E.signatureFor = function (s, opp) {
+    if (!opp || opp.club && opp.rating < 78) return null;
+    if (opp.id === s.world.champId || opp.rival || opp.id === s.people.rival || opp.rating >= 78) return E.SIGNATURES[opp.style] || 'triple';
+    return null;
+  };
+
   // ---------- actions between fights ----------
   const TRAIN = {
     roadwork: { stat: 'sta', name: 'Roadwork', line: 'Five miles before sunrise, every day.' },
@@ -456,6 +557,10 @@
     if (t === 'old school') m = 1.12;
     if (s.heart < 30) m *= 0.7;
     if (s.c.trainStreak >= 4) m *= 0.75;
+    if (E.hasPerk(s, 'discipline')) m *= 1.2;
+    if (E.hasGear(s, 'bag')) m *= 1.1;
+    if (E.hasGear(s, 'strength') && (k === 'pow' || k === 'chn')) m *= 1.2;
+    if (E.hasGear(s, 'track') && (k === 'sta' || k === 'spd')) m *= 1.2;
     const ageMul = E.age(s) >= 34 ? 0.3 : E.age(s) >= 31 ? 0.55 : 1;
     const g = 4.2 * m * ageMul * scale * (1 - s.st[k] / 104) * between(s, 0.6, 1.4);
     s.st[k] = clamp(s.st[k] + g, 5, 99);
@@ -470,11 +575,11 @@
       if (s.injury && arg !== 'roadwork') { res.lines.push(`The ${s.injury.name} won't allow it. You do light roadwork instead.`); arg = 'roadwork'; }
       const tr = TRAIN[arg] || TRAIN.roadwork;
       const g = trainGain(s, tr.stat);
-      if (arg === 'spar') { trainGain(s, 'chn', 0.35); s.sharp = clamp(s.sharp + 12, 0, 100); }
+      if (arg === 'spar') { trainGain(s, 'chn', 0.35); s.sharp = clamp(s.sharp + 12, 0, 100); if (E.hasGear(s, 'partners')) trainGain(s, 'def', 0.4); }
       s.c.trainStreak++;
       res.lines.push(`${tr.line} ${E.statLabel[tr.stat]} +${g.toFixed(1)}.`);
       if (s.c.trainStreak >= 4 && chance(s, 0.25)) { s.heart = clamp(s.heart - 6, 0, 100); res.lines.push('You are grinding yourself down. The joy is leaking out.'); }
-      if (arg === 'spar' && chance(s, 0.07)) { x.injure(pick(s, ['bruised rib', 'cut over the eye', 'sprained thumb']), int(s, 3, 6)); res.lines.push(`A sparring partner catches you. ${s.injury.name[0].toUpperCase() + s.injury.name.slice(1)}.`); }
+      if (arg === 'spar' && chance(s, E.hasGear(s, 'partners') ? 0.035 : 0.07)) { x.injure(pick(s, ['bruised rib', 'cut over the eye', 'sprained thumb']), int(s, 3, 6)); res.lines.push(`A sparring partner catches you. ${s.injury.name[0].toUpperCase() + s.injury.name.slice(1)}.`); }
       tick(s, 4, arg === 'spar' ? 'spar' : 'train');
     } else if (action === 'work') {
       const job = D.JOBS.find((j) => E.year(s.t) >= j.from && E.year(s.t) <= j.to) || D.JOBS[D.JOBS.length - 1];
@@ -544,6 +649,7 @@
     if (opp && !opp.club) p *= 1 + Math.max(0, (opp.rating - 55) / 90);
     if (s.champ && level === 'title') p *= 2.4;
     if (E.tvEra(s.t)) p *= (level === 'club' || level === 'smoker') ? 0.75 : 1.25;
+    if (E.hasPerk(s, 'showman')) p *= 1.12;
     return Math.round((p * E.eraMoney(s.t)) / 5) * 5;
   }
   function makeOffer(s, level, opp, extra = {}) {
@@ -562,6 +668,7 @@
       purse: extra.purse || purseFor(s, lvl, opp), tv: E.tvEra(s.t) && (lvl === 'main' || lvl === 'ranked' || lvl === 'eliminator' || lvl === 'title') && (s.fame >= 18 || lvl === 'title'),
       title: lvl === 'title', tags: extra.tags || [], note: extra.note || '', crooked: extra.crooked || false,
     };
+    o.signature = E.signatureFor(s, opp);
     if (weeks <= 2 && lvl !== 'smoker' && lvl !== 'club') { o.tags.push('short notice'); o.purse = Math.round(o.purse * 1.35); }
     if (v.city !== (D.CITIES[s.city] || D.CITIES[s.f.home]).name) o.tags.push('on the road');
     if (o.tv) o.tags.push('on television');
@@ -621,6 +728,7 @@
     if (rival && rival.active && !s.champ && fights >= 6 && Math.abs(rival.elo - s.elo) < 260 && chance(s, 0.3) && !list.some((o) => o.oppId === rival.id)) {
       list.push(makeOffer(s, rival.id === s.world.champId ? 'title' : 'main', rival, { tags: [] }));
     }
+    if (E.hasGear(s, 'car') && !s.champ && list.length < 4) list.push(makeOffer(s, s.elo > 1350 ? 'main' : 'prelim', null, { tags: ['road trip'] }));
     if (E.year(s.t) >= 1946 && s.fame > 35 && chance(s, 0.12)) list.push(makeOffer(s, 'main', null, { venue: 'Harringay Arena', city: 'London', weeks: 6, tags: ['overseas'] }));
     s.offers = list.slice(0, 4);
     return s.offers;
@@ -657,7 +765,7 @@
         res.lines.push(`${tr.name}: ${E.statLabel[tr.stat]} +${g.toFixed(1)}.`);
       }
     } else if (what === 'scout') {
-      c.scout++;
+      c.scout += (E.hasPerk(s, 'film') ? 1 : 0) + (E.hasGear(s, 'projector') ? 1 : 0) + 1;
       res.lines.push(c.scout === 1 ? `You study ${c.offer.opp.last}. ${scoutLine(c.offer.opp)}` : 'You find another habit. You will know what is coming before it comes.');
     } else if (what === 'rest') { s.health = clamp(s.health + 4, 0, 100); s.heart = clamp(s.heart + 4, 0, 100); res.lines.push('Rest. Legs fresh. Mind clear.'); }
     else if (what === 'press') {
@@ -690,7 +798,8 @@
   E.styleEdge = (a, b) => (STYLE_EDGE[a] && STYLE_EDGE[a][b]) || 0;
 
   E.simFight = function (s, offer, opts = {}) {
-    const opp = offer.opp, P = E.overall(s) + E.styleEdge(s.f.style, opp.style) + (s.camp ? s.camp.scout * 1.2 : 0) + (opts.bonus || 0);
+    const ringPerks = (s.perks || []).filter((id) => E.PERKS[id] && E.PERKS[id].kind === 'ring').length;
+    const opp = offer.opp, P = E.overall(s) + E.styleEdge(s.f.style, opp.style) + Math.min(4, (s.camp ? s.camp.scout : 0) * 1.2) + Math.min(2.5, ringPerks * 0.35) + (opts.bonus || 0);
     const O = opp.rating + E.styleEdge(opp.style, s.f.style) + (offer.title && !s.champ ? 1.5 : 0);
     const oStats = opponentStats(opp.rating, opp.style);
     const rounds = offer.rounds, lines = [];
@@ -779,6 +888,9 @@
     const expenses = Math.round(offer.purse * 0.06 + 2 * E.eraMoney(s.t));
     let purse = offer.purse;
     if (out.result === 'L' && offer.level !== 'title') purse = Math.round(purse * 0.85);
+    const koBonus = out.played && out.result === 'W' && (out.method === 'KO' || out.method === 'TKO') ? Math.round(purse * 0.15 / 5) * 5 : 0;
+    purse += koBonus;
+    if (koBonus) r.koBonus = koBonus;
     const net = purse - Math.round(purse * (s.flags.self_managed ? 0 : 0.33)) - Math.round(purse * 0.1) - expenses;
     s.money += net; s.c.earned += Math.max(0, net);
     r.purse = { gross: purse, manager: Math.round(purse * (s.flags.self_managed ? 0 : 0.33)), trainer: Math.round(purse * 0.1), expenses, net, managerName: s.people.manager.name, trainerName: s.people.trainer.name };
@@ -801,7 +913,8 @@
       s.rec.w++; if (kod) s.rec.ko++;
       s.rec.streak = s.rec.streak > 0 ? s.rec.streak + 1 : 1;
       const before = s.fame;
-      x.fame(lvlFame * (kod ? 1.4 : 1) * (tv ? 1.5 : 1) * (out.played ? 1.15 : 1)); x.heart(6);
+      x.fame(lvlFame * (kod ? 1.4 : 1) * (tv ? 1.5 : 1) * (out.played ? 1.15 : 1) * (E.hasGear(s, 'robe') ? 1.1 : 1) * (E.hasPerk(s, 'crowd') ? 1.2 : 1)); x.heart(6);
+      if (s.rec.w === 15 && s.rec.l === 0) s.flags.first15 = true;
       const fg = Math.round(s.fame - before); if (fg > 0) r.changes.push(`Fame +${fg}`);
       if (s.rec.w === 1) { remember(s, 'first_win', `won my first fight at ${offer.venue}${kod ? ' by knockout' : ''}`, 1); E.achieve(s, 'first_win'); }
       if (s.rec.ko >= 10) E.achieve(s, 'ko_artist');
@@ -821,7 +934,7 @@
     s.health = clamp(s.health - wear, 0, 100);
     if (wear >= 6) r.changes.push(`Health -${wear}`);
     if (out.kdAgainst >= 2 || (kod && out.result === 'L')) s.st.chn = clamp(s.st.chn - between(s, 0.5, 2.2), 5, 99);
-    const injP = 0.04 + out.dmgTaken * 0.22 + (offer.rounds >= 12 ? 0.05 : 0);
+    const injP = (0.025 + out.dmgTaken * 0.2 * (offer.rounds >= 10 ? 1 : 0.6) + (offer.rounds >= 12 ? 0.04 : 0)) * (E.hasGear(s, 'cutman') ? 0.65 : 1);
     if (chance(s, injP)) {
       const inj = pick(s, [['broken hand', 10, 6], ['cut eyebrow', 4, 3], ['cracked rib', 7, 5], ['broken nose', 5, 3], ['detached retina scare', 12, 8], ['torn shoulder', 9, 6]]);
       if (inj[0] === 'detached retina scare' && chance(s, 0.6)) inj[0] = 'swollen eye';
@@ -835,12 +948,12 @@
           s.champ = false; s.world.champId = opp.id > 0 ? opp.id : s.world.champId;
           remember(s, 'title_lost', `lost the title to ${oppName} in ${E.year(s.t)}`, 3);
           r.titleLost = true;
-        } else { s.titleDefenses++; if (s.titleDefenses >= 3) E.achieve(s, 'defender'); r.defended = true; if (s.titleDefenses === 1 || s.titleDefenses % 3 === 0) remember(s, 'defense', `defended the title ${s.titleDefenses} time${s.titleDefenses > 1 ? 's' : ''}`, 2); }
+        } else { s.titleDefenses++; s.c.champIdle = 0; if (s.titleDefenses >= 3) E.achieve(s, 'defender'); r.defended = true; if (s.titleDefenses === 1 || s.titleDefenses % 3 === 0) remember(s, 'defense', `defended the title ${s.titleDefenses} time${s.titleDefenses > 1 ? 's' : ''}`, 2); }
       } else if (out.result === 'W') {
         s.champ = true; s.belts++; s.titleDefenses = 0; s.c.champIdle = 0; s.flags.title_shot_given = false;
         if (world) { s.world.champId = null; }
         x.fame(10);
-        remember(s, 'title_won', `won the ${D.DIVISIONS[s.f.division].name.toLowerCase()} championship of the world at age ${E.age(s)}, beating ${oppName} at ${offer.venue}`, 5);
+        remember(s, 'title_won', `won the ${D.DIVISIONS[s.f.division].name.toLowerCase()} championship of the world, beating ${oppName} at ${offer.venue}`, 5);
         E.achieve(s, 'champ'); r.titleWon = true;
         s.flags.ever_champ = true;
       } else { s.flags.title_shot_given = false; s.flags.lost_title_shot = (s.flags.lost_title_shot || 0) + 1; }
@@ -864,6 +977,12 @@
     if (tv && out.result === 'W') E.achieve(s, 'tv_star');
     if (tv && !s.flags.first_tv) { s.flags.first_tv = true; remember(s, 'tv', `fought on television for the first time in ${E.year(s.t)}`, 2); }
     if (offer.city === 'London') { E.achieve(s, 'abroad'); remember(s, 'abroad', `fought ${oppName} in London`, 1); }
+    // Lessons for the trainer's notebook
+    let les = (out.result === 'W' ? 1 : 0) + (out.played ? 1 : 0) + (r.titleWon ? 2 : 0) + (out.result === 'W' && ['ranked', 'eliminator', 'title'].includes(offer.level) ? 1 : 0);
+    if (s.fights.length <= 3) les += 1;
+    s.lessons = (s.lessons || 0) + les; r.lessons = les;
+    if (les) r.changes.push(`Lessons +${les}`);
+    if (koBonus) r.changes.push(`Knockout bonus ${money(koBonus)}`);
     // The clipping
     r.headline = headline(s, offer, out, opp, wasChamp);
     r.sub = `${offer.venue}, ${offer.city} — ${E.dateLabel(s.t)}`;
@@ -1006,7 +1125,7 @@
   };
   E.retire = function (s, reason) {
     if (s.retired) return;
-    s.retired = true; s.phase = 'retired';
+    s.retired = true; s.phase = 'retired'; s.flags.retire_money = s.money;
     s.retireT = s.t; s.retireReason = reason || 'chose';
     if (s.champ) { s.flags.retired_champ = true; s.champ = false; const top = E.rankings(s).find((r) => r.id !== 0); if (top) s.world.champId = top.id; }
     s.offers = null; s.camp = null;
@@ -1035,7 +1154,7 @@
   E.afterStep = function (s) {
     if (s.phase !== 'after' || s.inbox.length) return null;
     const a = s.after;
-    const yrs = a.years < 2 ? 1 : int(s, 1, 3);
+    const yrs = a.years < 2 ? 1 : a.years < 6 ? int(s, 1, 3) : int(s, 2, 4);
     for (let i = 0; i < yrs; i++) {
       tick(s, 52, 'after');
       const income = { trainer: 700, gym: 1000, referee: 800, broadcaster: 2200, promoter: 1800, business: 2000, politics: 1200, factory: 1100 }[a.path];
@@ -1046,7 +1165,7 @@
     rollRandom(s, 1);
     if (E.year(s.t) >= 1960) E.achieve(s, 'long_life');
     if (T.checkDiscoveries) T.checkDiscoveries(s);
-    const done = E.year(s.t) >= D.END_YEAR || a.years >= 9;
+    const done = E.year(s.t) >= D.END_YEAR || a.years >= 24;
     if (done) s.phase = 'done';
     return { years: yrs, done };
   };
@@ -1068,10 +1187,12 @@
     add('Beat your rival', (s.flags.rival_wins || 0) * 8);
     add('Served in the war', s.flags.veteran ? 12 : 0);
     add('Losses', -s.rec.l * 1);
-    add('Second act', s.after ? Math.min(20, s.after.years) + (s.after.standing || 0) * 0.6 : 0);
+    add('Second act', s.after ? Math.min(12, s.after.years) + (s.after.standing || 0) * 0.6 : 0);
     add('Money in the bank', Math.min(30, Math.max(-10, s.money / 1000)));
+    if (s.ambition && E.AMBITIONS[s.ambition] && E.AMBITIONS[s.ambition].done(s)) add(`Ambition: ${E.AMBITIONS[s.ambition].name.toLowerCase()}`, E.AMBITIONS[s.ambition].reward);
+    if (E.hasGear(s, 'house')) add('Bought the family a house', 8);
     const total = parts.reduce((n, p) => n + p.n, 0);
-    const tier = total >= 230 ? 'Immortal' : total >= 170 ? 'Hall of Famer' : total >= 115 ? 'Contender' : total >= 70 ? 'Journeyman' : total >= 30 ? 'Tough Customer' : 'A Hard Life';
+    const tier = total >= 300 ? 'Immortal' : total >= 215 ? 'Hall of Famer' : total >= 150 ? 'Contender' : total >= 100 ? 'Journeyman' : total >= 50 ? 'Tough Customer' : 'A Hard Life';
     return { parts, total, tier };
   };
 
@@ -1093,9 +1214,12 @@
       seen.add(k); lines.push(m);
     }
     const ranked = lines.sort((a, b) => b.weight - a.weight).slice(0, 7).sort((a, b) => a.t - b.t);
-    for (const m of ranked) out.push(`${m.age ? `At ${m.age}, I ` : 'I '}${m.text}.`);
-    const ret = first('retire'); if (ret) out.push(`I ${ret.text}.`);
+    const ret = first('retire');
+    const line = (m) => `${m.age ? `At ${m.age}, I ` : 'I '}${m.text}.`;
+    for (const m of ranked) if (!ret || m.t <= ret.t) out.push(line(m));
+    if (ret) out.push(`I ${ret.text}.`);
     const p = first('path'); if (p) out.push(`After that, I ${p.text}${s.after ? ` and stayed at it ${s.after.years} year${s.after.years === 1 ? '' : 's'}` : ''}.`);
+    if (ret) for (const m of ranked) if (m.t > ret.t) out.push(line(m));
     const final = s.money > 20000 ? 'I never had to worry about money again.' : s.money < 200 ? 'Most of the money was gone by the end. The stories stayed.' : 'I had enough. That is more than a lot of fighters can say.';
     out.push(final);
     return out.join(' ');

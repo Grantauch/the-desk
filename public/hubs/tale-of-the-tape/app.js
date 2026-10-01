@@ -128,6 +128,8 @@
     if (S.phase === 'after') return renderAfter();
     if (S.phase === 'service') return renderService();
     if (S.phase === 'camp') return ui.prefight ? renderPrefight() : renderCamp();
+    if (ui.panel === 'notebook') return renderNotebook();
+    if (ui.panel === 'shop') return renderShop();
     if (S.offers && S.offers.length) return renderOffers();
     return renderLedger();
   }
@@ -233,6 +235,8 @@
       first: R(D.FIRST), last: R(D.LAST), nick: '', home: R(Object.keys(D.CITIES)), division: R(['light', 'welter', 'middle']), style: R(Object.keys(D.STYLES)), bg: R(Object.keys(D.BACKGROUNDS)),
       look: { skin: Math.floor(Math.random() * D.SKINS.length), hair: Math.floor(Math.random() * D.HAIRS.length), cut: R(D.HAIRCUTS), trunks: Math.floor(Math.random() * D.TRUNKS.length), stache: Math.random() < 0.2, brow: Math.floor(Math.random() * 3), build: 1, jaw: 1, nose: Math.floor(Math.random() * 3) },
       code: code || '',
+      ambitions: (() => { const k = Object.keys(E.AMBITIONS).sort(() => Math.random() - 0.5).slice(0, 3); return k; })(),
+      ambition: '',
     };
   }
   function renderCreate() {
@@ -265,6 +269,10 @@
             <fieldset class="styles"><legend>Fighting style</legend>
               ${Object.entries(D.STYLES).map(([k, v]) => `<label class="style-card ${k === d.style ? 'on' : ''}"><input type="radio" name="style" value="${k}" ${k === d.style ? 'checked' : ''}><b>${esc(v.name)}</b><small>${esc(v.blurb)}</small></label>`).join('')}
             </fieldset>
+            <fieldset class="ambitions"><legend>Your ambition</legend>
+              <p class="field-note">Pick one goal for your life. Reach it and your legacy gets a big boost.</p>
+              ${d.ambitions.map((k) => `<label class="style-card amb ${d.ambition === k ? 'on' : ''}"><input type="radio" name="ambition" value="${k}" ${d.ambition === k ? 'checked' : ''}><b>${esc(E.AMBITIONS[k].name)}</b><small>+${E.AMBITIONS[k].reward} legacy</small></label>`).join('')}
+            </fieldset>
             <fieldset class="looks"><legend>Look</legend>
               <div class="look-row"><span>Skin</span>${swatches(D.SKINS, 'skin')}</div>
               <div class="look-row"><span>Hair</span>${swatches(D.HAIRS, 'hair')}</div>
@@ -288,7 +296,7 @@
       const fd = new FormData(form);
       const first = String(fd.get('first') || '').trim() || 'Johnny', last = String(fd.get('last') || '').trim() || 'Doyle';
       T.audio.unlock();
-      S = E.create({ first, last, nick: String(fd.get('nick') || '').trim(), home: draft.home, division: draft.division, style: draft.style, bg: draft.bg, look: draft.look, code: draft.code || '' });
+      S = E.create({ first, last, nick: String(fd.get('nick') || '').trim(), home: draft.home, division: draft.division, style: draft.style, bg: draft.bg, look: draft.look, code: draft.code || '', ambition: draft.ambition || '' });
       draft = null; ui = { screen: 'game' };
       sfx('bell'); save();
       playScene('intro').then(render);
@@ -394,6 +402,11 @@
                 ${act('press', '', tv ? 'TV & publicity' : 'Publicity', 'Fame', '', tv ? 'tv' : 'press')}
                 ${early ? act('circuit', '', 'Club circuit', 'Three quick fights on the radio') : ''}
               </div>
+              <p class="group-label">Improve <small>no time passes</small></p>
+              <div class="action-grid">
+                <button class="action ${affordablePerk() ? 'ready' : ''}" data-act="notebook">${icon('scout')}<b>Trainer's notebook</b><small>${S.lessons || 0} lesson${(S.lessons || 0) === 1 ? '' : 's'} to spend · ${(S.perks || []).length} techniques learned</small>${affordablePerk() ? '<em class="badge-new">new</em>' : ''}</button>
+                <button class="action" data-act="shop">${icon('work')}<b>Your camp</b><small>${Object.keys(S.gear || {}).length} upgrades · staff ${money(E.upkeep(S))}/mo</small></button>
+              </div>
               <div class="ledger-foot"><button class="linkish" data-act="retire-ask">Retire</button></div>
             </div>
             ${wire()}
@@ -482,7 +495,8 @@
       ${o.tags.length ? `<p class="fp-tags">${o.tags.map((t) => `<span>${esc(t)}</span>`).join('')}</p>` : ''}
       ${o.note ? `<p class="fp-note">${esc(o.note)}</p>` : ''}
       <dl class="fp-terms"><div><dt>Purse</dt><dd>${money(o.purse)}</dd></div><div><dt>Fight in</dt><dd>${o.weeks} wk</dd></div><div><dt>Danger</dt><dd>${danger(opp)}</dd></div></dl>
-      <button class="button" data-act="accept" data-arg="${o.id}">Sign for this fight</button>
+      ${o.signature ? `<p class="fp-sig">Signature move: <b>${esc(E.SIGNATURE_NAMES[o.signature])}</b></p>` : ''}
+      <div class="fp-buttons"><button class="button" data-act="accept" data-arg="${o.id}">Sign for this fight</button>${o.haggled ? '' : `<button class="button secondary small" data-act="haggle" data-arg="${o.id}" title="Ask for more money. The promoter might walk away.">Haggle</button>`}</div>
     </article>`;
   }
   function danger(opp) {
@@ -498,6 +512,48 @@
         <p class="screen-sub">Your manager spreads the posters on the table. ${S.fights.length === 0 ? 'Your first fight. Take something you can win.' : 'Danger is how he stacks up against you right now.'}</p>
         <div class="posters">${offers.map(poster).join('')}</div>
         <div class="center-row"><button class="button secondary" data-act="decline">Not now. Back to the gym</button></div>
+      </section>`);
+  }
+
+  // ---------- the trainer's notebook ----------
+  function affordablePerk() { return Object.entries(E.PERKS).some(([id, p]) => !E.hasPerk(S, id) && (S.lessons || 0) >= p.cost && (!p.req || p.req(S))); }
+  function renderNotebook() {
+    const card = ([id, p]) => {
+      const owned = E.hasPerk(S, id), locked = p.req && !p.req(S), afford = (S.lessons || 0) >= p.cost;
+      return `<article class="perk ${owned ? 'owned' : ''} ${locked ? 'locked' : ''}">
+        <header><b>${esc(p.name)}</b><span class="cost">${owned ? 'learned' : `${p.cost} lessons`}</span></header>
+        <p>${esc(p.blurb)}</p>
+        ${owned ? '<p class="stamp-small">IN THE BOOK</p>' : locked ? `<p class="req">${esc(p.reqText || '')}</p>` : `<button class="button ${afford ? '' : 'secondary'}" data-act="learn" data-arg="${id}" ${afford ? '' : 'disabled'}>Learn it</button>`}
+      </article>`;
+    };
+    const ring = Object.entries(E.PERKS).filter(([, p]) => p.kind === 'ring'), life = Object.entries(E.PERKS).filter(([, p]) => p.kind === 'life');
+    show(`
+      <section class="notebook">
+        ${dateBanner()}
+        <div class="nb-head"><div><p class="kicker">${esc(S.people.trainer.name)}'s notebook</p><h1 class="screen-title" tabindex="-1">Techniques</h1><p class="screen-sub">You earn lessons by fighting: wins, knockouts, big fights, and every fight you box yourself. Spend them here. Learning takes no time.</p></div>
+          <div class="lesson-count"><b>${S.lessons || 0}</b><span>lessons to spend</span></div></div>
+        <h2 class="nb-group">In the ring</h2><div class="perk-grid">${ring.map(card).join('')}</div>
+        <h2 class="nb-group">Your life</h2><div class="perk-grid">${life.map(card).join('')}</div>
+        <div class="center-row"><button class="button" data-act="panel-close">Back to the gym</button></div>
+      </section>`);
+  }
+  function renderShop() {
+    const yr = E.year(S.t);
+    const row = ([id, g]) => {
+      const owned = E.hasGear(S, id), early = g.from && yr < g.from, cost = E.gearCost(S, id), afford = S.money >= cost;
+      return `<article class="gear ${owned ? 'owned' : ''}">
+        <header><b>${esc(g.name[0].toUpperCase() + g.name.slice(1))}</b><span class="cost">${owned ? 'yours' : money(cost)}</span></header>
+        <p>${esc(g.blurb)}${g.upkeep ? ` <span class="upkeep">Wages: ${money(Math.round(g.upkeep * E.eraMoney(S.t)))}/month.</span>` : ''}</p>
+        ${owned ? (g.upkeep ? `<button class="button secondary" data-act="letgo" data-arg="${id}">Let go</button>` : '<p class="stamp-small">OWNED</p>') : early ? `<p class="req">Not until ${g.from}</p>` : `<button class="button ${afford ? '' : 'secondary'}" data-act="buy" data-arg="${id}" ${afford ? '' : 'disabled'}>${afford ? 'Buy' : 'Not enough money'}</button>`}
+      </article>`;
+    };
+    show(`
+      <section class="notebook shop">
+        ${dateBanner()}
+        <div class="nb-head"><div><p class="kicker">Spend it on the work</p><h1 class="screen-title" tabindex="-1">Your camp</h1><p class="screen-sub">Purses go fast. Some fighters spend theirs on nightclubs. You could spend yours on the things that win fights. Staff draw wages every month.</p></div>
+          <div class="lesson-count"><b>${money(S.money)}</b><span>in the bank · ${money(E.upkeep(S))}/mo in wages</span></div></div>
+        <div class="perk-grid">${Object.entries(E.GEAR).map(row).join('')}</div>
+        <div class="center-row"><button class="button" data-act="panel-close">Back to the gym</button></div>
       </section>`);
   }
 
@@ -559,6 +615,7 @@
           <div class="tape-side opp">${portraitCanvas(opp.look, { mood: 'tough', era: eraLook() }, 'tape-portrait', 200, 240)}<h2>${esc(opp.first)} ${esc(opp.last)}</h2><p>${opp.nick ? `“${esc(opp.nick)}”` : '&nbsp;'}</p></div>
         </div>
         <p class="tape-quirk">${esc(opp.last)} ${esc(opp.quirk)}. At the weigh-in he says: <q>${esc(opp.trash)}</q></p>
+        ${o.signature ? `<p class="tape-sig"><b>Signature move: ${esc(E.SIGNATURE_NAMES[o.signature])}.</b> ${esc(E.SIGNATURE_TIPS[o.signature])}</p>` : ''}
         ${scout ? `<p class="tape-scout"><b>Scouting report:</b> ${esc(E.scoutLine(opp))}</p>` : ''}
         ${dive ? `<div class="dive-box"><p><b>The fix is in.</b> You agreed to go down in the sixth.</p><div class="center-row"><button class="button danger" data-act="dive">Take the dive</button><button class="button" data-act="doublecross">Fight for real</button></div></div>` : `
         <div class="tape-actions">
@@ -581,7 +638,8 @@
     const host = app.querySelector('.fight-wrap');
     T.audio.unlock();
     fightCtl = T.fight.start(host, {
-      you: youSrc, opp: { first: opp.first, last: opp.last, nick: opp.nick, style: opp.style, rating: opp.rating, stats: E.opponentStats(opp.rating, opp.style), look: opp.look },
+      you: youSrc, opp: { first: opp.first, last: opp.last, nick: opp.nick, style: opp.style, rating: opp.rating, stats: E.opponentStats(opp.rating, opp.style), look: opp.look, signature: o.signature || opp.signature || null },
+      perks: practice ? (practice.perks || []) : (S.perks || []), gear: practice ? {} : (S.gear || {}), filmStudy: !practice && (E.hasPerk(S, 'film') || (S.camp && S.camp.scout >= 2)),
       rounds: practice ? practice.rounds : playedRounds(o), era, title: o.title, venue: `${o.venue}, ${o.city}`,
       trainer: practice ? 'Your trainer' : S.people.trainer.name, assist: settings.assist, reducedMotion,
       firstFight: practice ? true : S.c.played === 0,
@@ -755,6 +813,8 @@
           <div class="final-cols">
             <div class="ach"><h2>Discoveries this career</h2>${(S.disc || []).length ? `<ul>${S.disc.map((id) => { const d = T.discoveryById(id); return d ? `<li>◆ <b>${esc(d.name)}</b> <small>${esc(d.mix[0])} + ${esc(d.mix[1])}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time.</p>'}
             <h2>Achievements this career</h2>${S.ach.length ? `<ul>${S.ach.map((id) => { const a = D.ACHIEVEMENTS.find((x) => x.id === id); return a ? `<li>★ <b>${esc(a.name)}</b> <small>${esc(a.text)}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time. There is always next life.</p>'}</div>
+            ${S.ambition ? `<div class="amb-result ${E.AMBITIONS[S.ambition].done(S) ? 'done' : ''}"><h2>Ambition</h2><p><b>${esc(E.AMBITIONS[S.ambition].name)}</b>: ${E.AMBITIONS[S.ambition].done(S) ? `done. +${E.AMBITIONS[S.ambition].reward} legacy.` : 'not this time.'}</p></div>` : ''}
+            ${(S.perks || []).length ? `<div class="perk-list"><h2>The notebook</h2><p>${S.perks.map((id) => esc(E.PERKS[id].name)).join(' · ')}</p></div>` : ''}
             <div class="discuss"><h2>Talk about it</h2><ol>${qs.map((q) => `<li>${esc(q)}</li>`).join('')}</ol></div>
           </div>
           <div class="share-row">
@@ -911,6 +971,13 @@
       }
       case 'quick': ui = { screen: 'quick' }; return render();
       case 'ttab': ui.titleTab = arg; return renderTitle();
+      case 'notebook': ui.panel = 'notebook'; return render();
+      case 'shop': ui.panel = 'shop'; return render();
+      case 'panel-close': ui.panel = null; return render();
+      case 'learn': if (E.buyPerk(S, arg)) { sfx('star', 0.8); toast(`<span class="toast-kicker">New technique</span><b>${esc(E.PERKS[arg].name)}</b><small>${esc(E.PERKS[arg].blurb)}</small>`); save(); } return render();
+      case 'buy': if (E.buyGear(S, arg)) { sfx('cash', 0.8); save(); } return render();
+      case 'letgo': if (E.dropGear(S, arg)) save(); return render();
+      case 'haggle': { const r = E.haggle(S, Number(arg)); if (r) { toast(`<b>${r.ok ? 'Deal' : 'He walked'}</b><small>${esc(r.text)}</small>`); sfx(r.ok ? 'cash' : 'block', 0.8); save(); } if (S.offers && !S.offers.length) S.offers = null; return render(); }
       case 'title': if (dialog.open) dialog.close(); if (fightCtl) { fightCtl.destroy(); fightCtl = null; } ui = { screen: 'title' }; return render();
       case 'randomize': draft = Object.assign(newDraft(draft && draft.code), { code: draft && draft.code }); return renderCreate();
       case 'offers': E.offers(S); save(); return render();
@@ -1007,6 +1074,7 @@
   });
   document.addEventListener('change', (e) => {
     if (e.target.name === 'style' && draft) { draft.style = e.target.value; renderCreate(); const r = app.querySelector(`input[name="style"][value="${e.target.value}"]`); r && r.focus(); }
+    if (e.target.name === 'ambition' && draft) { draft.ambition = e.target.value; renderCreate(); const r = app.querySelector(`input[name="ambition"][value="${e.target.value}"]`); r && r.focus(); }
   });
   document.getElementById('load-file').addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];

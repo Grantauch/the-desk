@@ -24,6 +24,8 @@
     haymaker: { name: 'Haymaker', tell: 1050, strike: 170, dmg: 22, avoid: { L: 1, R: 1, duck: 1 }, block: 0.75, guardBreak: true, icon: '★', tip: 'The haymaker: big wind-up over his head. Get out of the way. Do NOT try to block it.' },
     feint: { name: 'Feint', tell: 520, strike: 0, dmg: 0, avoid: {}, block: 0, feint: true, icon: '?', tip: 'Some fighters fake the hook. Wait for the glove to actually come.' },
     taunt: { name: 'Taunt', tell: 950, strike: 0, dmg: 0, avoid: {}, block: 0, taunt: true, icon: '!', tip: 'When he showboats, he is wide open. Make him pay.' },
+    bolo: { name: 'Bolo punch', tell: 980, strike: 170, dmg: 15, avoid: { L: 1 }, block: 0.55, duckPenalty: 1.3, sig: true, icon: '↺', tip: 'His bolo punch swings up from his right side in a big circle. Slip LEFT. Ducking will not save you.' },
+    lowblow: { name: 'Low blow', tell: 300, strike: 110, dmg: 9, avoid: { L: 1, R: 1 }, block: 1, sig: true, icon: '⚠', tip: 'He fights dirty: a quick punch below the belt with almost no wind-up. Slip it.' },
   };
   // Style books: which moves each style throws, and how often.
   const BOOK = {
@@ -34,6 +36,8 @@
     dirty: { jab: 2, hookL: 2, hookR: 2, upper: 1.5, body: 3, feint: 2, haymaker: 1 },
     showman: { jab: 3, hookL: 2, hookR: 2, upper: 1.5, body: 1, taunt: 2.5, haymaker: 1 },
   };
+  const MOVES_SIG_NAMES = { bolo: 'The Bolo', triple: 'The Triple', rush: 'The Rush', lowblow: 'The Low Blow' };
+  const MOVES_SIG_TIPS = { bolo: 'It swings up from his right side in a big circle. Slip LEFT. Ducking will not save you.', triple: 'Jab, jab, then a hook. Slip the jabs and wait for the hook.', rush: 'He charges in with three quick body shots. Slip side to side or keep your guard up.', lowblow: 'A fast punch below the belt with almost no wind-up. Slip it. The referee may take a point.' };
   // Player punches.
   const PUNCH = {
     jab: { wind: 60, reach: 100, back: 150, dmg: 3.2, sta: 4, target: 'head' },
@@ -81,6 +85,8 @@
       this.reduced = !!cfg.reducedMotion;
       this.assist = cfg.assist || 'normal'; // 'rookie' | 'normal' | 'champ'
       this.demo = !!cfg.demo;
+      this.perks = new Set(cfg.perks || []);
+      this.gear = cfg.gear || {};
       this.sound = this.demo ? null : T.audio;
       this.buildDom();
       this.setup();
@@ -124,9 +130,10 @@
             <button class="pad-btn hit" data-k="cross" aria-label="Cross">CROSS</button>
             <button class="pad-btn hit" data-k="body" aria-label="Body shot">BODY</button>
             <button class="pad-btn hay" data-k="hay" aria-label="Haymaker">★<small>haymaker</small></button>
+            ${(c.perks || []).includes('clinch') ? '<button class="pad-btn" data-k="clinch" aria-label="Clinch">⊂⊃<small>clinch</small></button>' : ''}
           </div>
         </div>
-        <div class="fight-keys"><span><kbd>←</kbd><kbd>→</kbd> slip</span><span><kbd>↓</kbd> duck</span><span><kbd>↑</kbd> hold guard</span><span><kbd>J</kbd> jab</span><span><kbd>K</kbd> cross</span><span><kbd>L</kbd> body</span><span><kbd>Space</kbd> haymaker</span><span><kbd>P</kbd> pause</span></div>`;
+        <div class="fight-keys"><span><kbd>←</kbd><kbd>→</kbd> slip</span><span><kbd>↓</kbd> duck</span><span><kbd>↑</kbd> hold guard</span><span><kbd>J</kbd> jab</span><span><kbd>K</kbd> cross</span><span><kbd>L</kbd> body</span><span><kbd>Space</kbd> haymaker</span>${(c.perks || []).includes('clinch') ? '<span><kbd>E</kbd> clinch</span>' : ''}<span><kbd>P</kbd> pause</span></div>`;
       if ((navigator.maxTouchPoints || 0) > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) h.classList.add('touch');
       this.canvas = h.querySelector('canvas');
       this.ctx = this.canvas.getContext('2d');
@@ -153,7 +160,7 @@
       this.P = {
         hpMax: (80 + ys.chn * 0.7) * healthMul, staMax: 55 + ys.sta * 0.6, state: 'idle', t: 0, x: 0, y: 0, lean: 0,
         gL: { x: 360, y: 470, s: 1 }, gR: { x: 600, y: 470, s: 1 }, punch: null, stars: c.startStars || 0, kd: 0, kdRound: 0,
-        landed: 0, thrown: 0, dmgDealt: 0, dmgTaken: 0, combo: 0, mash: 0, hitFlash: 0, lastDodge: -1000, block: false, stun: 0,
+        landed: 0, thrown: 0, dmgDealt: 0, dmgTaken: 0, combo: 0, mash: 0, hitFlash: 0, lastDodge: -1000, block: false, stun: 0, clinches: 2,
       };
       this.P.hp = this.P.hpMax; this.P.sta = this.P.staMax;
       const r = opp.rating;
@@ -180,7 +187,7 @@
       this.lastTip = '';
       this.say(pick(D.CALLS[this.era].open));
       if (this.demo) { this.bot = demoBot; this.renderHud(true); setTimeout(() => this.running && this.beginRound(), 600); return; }
-      this.showOverlay(`<div class="ov-card intro"><p class="ov-kicker">${esc(c.venue || '')}</p><h2>${esc(c.you.last)} <span>vs</span> ${esc(opp.last)}</h2><p class="ov-sub">${this.rounds} rounds${c.title ? ' · for the championship' : ''}</p><p class="ov-hint">${c.firstFight ? 'Watch his wind-up. Slip the punch. Hit him while he is open.' : 'Read the tell. Slip. Counter.'}</p><button class="button" data-fx="go">Ring the bell</button></div>`);
+      this.showOverlay(`<div class="ov-card intro"><p class="ov-kicker">${esc(c.venue || '')}</p><h2>${esc(c.you.last)} <span>vs</span> ${esc(opp.last)}</h2><p class="ov-sub">${this.rounds} rounds${c.title ? ' · for the championship' : ''}</p><p class="ov-hint">${c.firstFight ? 'Watch his wind-up. Slip the punch. Hit him while he is open.' : 'Read the tell. Slip. Counter.'}</p>${opp.signature && MOVES_SIG_TIPS[opp.signature] ? `<p class="ov-sig"><b>Signature move: ${esc(MOVES_SIG_NAMES[opp.signature])}.</b> ${esc(MOVES_SIG_TIPS[opp.signature])}</p>` : ''}<button class="button" data-fx="go">Ring the bell</button></div>`);
       this.renderHud(true);
     }
 
@@ -204,7 +211,7 @@
       this.onKey = (e) => {
         const down = e.type === 'keydown';
         const k = e.key;
-        const map = { ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', ArrowDown: 'duck', s: 'duck', S: 'duck', ArrowUp: 'block', w: 'block', W: 'block', j: 'jab', J: 'jab', z: 'jab', Z: 'jab', k: 'cross', K: 'cross', x: 'cross', X: 'cross', l: 'body', L: 'body', c: 'body', C: 'body', ' ': 'hay', p: 'pause', P: 'pause', Escape: 'pause' };
+        const map = { e: 'clinch', E: 'clinch', ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', ArrowDown: 'duck', s: 'duck', S: 'duck', ArrowUp: 'block', w: 'block', W: 'block', j: 'jab', J: 'jab', z: 'jab', Z: 'jab', k: 'cross', K: 'cross', x: 'cross', X: 'cross', l: 'body', L: 'body', c: 'body', C: 'body', ' ': 'hay', p: 'pause', P: 'pause', Escape: 'pause' };
         const a = map[k];
         if (!a) return;
         if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
@@ -252,6 +259,8 @@
       if (this.phase === 'down-you') { if (['jab', 'cross', 'body', 'hay', 'left', 'right', 'duck'].includes(a)) this.mash(); return; }
       if (this.phase !== 'fight' || this.paused) return;
       const P = this.P;
+      if (a === 'clinch') { this.tryClinch(); return; }
+      if (P.state === 'clinch') return;
       if (P.state === 'hurt' || P.state === 'down' || P.stun > 0) return;
       if (a === 'left' || a === 'right' || a === 'duck') {
         if (P.state === 'punch' && P.punch && P.punch.phase !== 'back') return;
@@ -267,12 +276,25 @@
       this.throwPunch(a);
     }
 
+    tryClinch() {
+      const P = this.P, O = this.O;
+      if (!this.perks.has('clinch') || P.state === 'down' || P.state === 'clinch') return;
+      if ((P.clinches || 0) <= 0) { this.flashCallout('NO CLINCHES LEFT THIS ROUND', 'dim'); return; }
+      if (!['tell', 'strike', 'idle', 'hurt', 'cover', 'recover'].includes(O.state)) return;
+      P.clinches--; P.state = 'clinch'; P.t = 0; P.punch = null; P.queued = null; P.stun = 0;
+      O.state = 'clinch'; O.t = 0; O.move = null; O.combo = [];
+      P.sta = Math.min(P.staMax, P.sta + P.staMax * 0.3); P.hp = Math.min(P.hpMax, P.hp + P.hpMax * 0.03);
+      this.ref.tx = 650;
+      this.flashCallout('CLINCH!', 'dim');
+      this.sound && this.sound.play('block', 0.7);
+    }
+
     throwPunch(a) {
       const P = this.P, def = PUNCH[a];
       const tired = P.sta < 12;
       P.state = 'punch'; P.t = 0;
       const spd = this.cfg.you.stats.spd;
-      const speedMul = (1.15 - spd / 300) * (tired ? 1.5 : 1);
+      const speedMul = (1.15 - spd / 300) * (tired ? 1.5 : 1) * (this.perks.has('fasthands') ? 0.84 : 1);
       P.punch = { kind: a, phase: 'wind', t: 0, wind: def.wind * speedMul, reach: def.reach * speedMul, back: def.back * speedMul, hand: a === 'jab' ? 'L' : a === 'body' ? (Math.random() < 0.5 ? 'L' : 'R') : 'R', checked: false, tired };
       if (a === 'hay') { P.punch.stars = P.stars; P.stars = 0; this.sound && this.sound.play('windup', 0.6); this.say('Here comes the haymaker!'); }
       else P.sta = Math.max(0, P.sta - def.sta);
@@ -327,8 +349,10 @@
       const P = this.P;
       P.sta = P.staMax;
       if (k === 'breathe') { P.sta = P.staMax; P.staMax += 4; }
-      if (k === 'ice') P.hp = Math.min(P.hpMax, P.hp + P.hpMax * 0.18);
+      if (k === 'ice') P.hp = Math.min(P.hpMax, P.hp + P.hpMax * (this.gear.cutman ? 0.27 : 0.18));
       else P.hp = Math.min(P.hpMax, P.hp + P.hpMax * 0.06);
+      if (this.perks.has('secondwind')) P.hp = Math.min(P.hpMax, P.hp + P.hpMax * 0.08);
+      P.clinches = 2;
       if (k === 'fire') P.stars = Math.min(3, P.stars + 1);
       // the opponent recovers too
       const O = this.O;
@@ -463,6 +487,8 @@
         if (P.t > dodgeLen + 120) { P.state = 'idle'; P.t = 0; if (P.queued) { const q = P.queued; P.queued = null; this.input(q, true); } }
       } else if (P.state === 'hurt') {
         if (P.t > (P.hurtLen || 380)) { P.state = 'idle'; P.t = 0; }
+      } else if (P.state === 'clinch') {
+        if (P.t > 950) { P.state = 'idle'; P.t = 0; this.flashCallout('BREAK!', 'dim'); this.ref.tx = 800; }
       } else if (P.state === 'punch') {
         const pu = P.punch;
         pu.t += dt;
@@ -473,7 +499,7 @@
       if (P.recentPunches && this.now - (P.recentT || 0) > 700) P.recentPunches = 0;
       // stamina
       const regen = P.state === 'idle' || P.state === 'block' ? 11 : 4;
-      P.sta = Math.min(P.staMax, P.sta + (regen * dt) / 1000 * (0.7 + ys.sta / 200));
+      P.sta = Math.min(P.staMax, P.sta + (regen * dt) / 1000 * (0.7 + ys.sta / 200) * (this.perks.has('secondwind') ? 1.3 : 1));
       this.updatePlayerPose(dt);
     }
 
@@ -486,6 +512,7 @@
       if (O.state === 'down' || O.state === 'out') return;
       let landed = false, counter = false, blocked = false;
       const st = O.state;
+      if (st === 'clinch') return;
       if (st === 'cover') blocked = pu.kind !== 'hay' || Math.random() < 0.5;
       else if (st === 'recover' || st === 'taunt' || st === 'stagger') { landed = true; counter = st !== 'stagger'; }
       else if (st === 'hurt') {
@@ -522,14 +549,16 @@
       }
       if (!landed) { this.sound && this.sound.play('whiff', 0.4); return; }
       O.blocked = 0;
-      if (counter) { dmg *= O.countered ? 1.1 : 1.6; O.countered = true; }
+      if (counter) { dmg *= O.countered ? 1.1 : (this.perks.has('counter') ? 2.05 : 1.6); O.countered = true; }
+      if (pu.kind === 'body' && this.perks.has('body')) dmg *= 1.3;
+      if (this.perks.has('killer') && (st === 'hurt' || st === 'stagger')) dmg *= 1.3;
       O.hp -= dmg; O.dmgTaken += dmg; P.dmgDealt += dmg; P.landed++; this.roundPts[0] += dmg;
       P.combo++;
       O.hitFlash = 1; O.squash = Math.min(1.4, 0.5 + dmg / 12); O.bruise = Math.min(1, O.bruise + dmg / 140);
       O.headX = (pu.hand === 'L' ? 1 : -1) * (6 + dmg * 1.6); O.headY = target === 'head' ? -8 - dmg : 4; O.tilt = (pu.hand === 'L' ? 1 : -1) * 0.04 * dmg;
-      O.sta = Math.max(0, O.sta - dmg * (target === 'body' ? 1.6 : 0.7));
+      O.sta = Math.max(0, O.sta - dmg * (target === 'body' ? (this.perks.has('body') ? 2.4 : 1.6) : 0.7));
       if (counter && (st === 'recover' || st === 'taunt') && !O.starGiven) { O.starGiven = true; P.stars = Math.min(3, P.stars + 1); this.fx.push({ kind: 'starfly', x: 480 + O.x, y: 170, life: 650, max: 650 }); this.flashCallout(P.stars === 3 ? '★★★ CROWD ON ITS FEET' : '★ COUNTER!', 'star'); this.sound && this.sound.play('star', 0.6); }
-      else if (P.combo >= 5 && P.combo % 5 === 0) { P.stars = Math.min(3, P.stars + 1); this.fx.push({ kind: 'starfly', x: 480 + O.x, y: 200, life: 650, max: 650 }); this.flashCallout('★ COMBO', 'star'); }
+      else if (P.combo >= (this.perks.has('crowd') ? 4 : 5) && P.combo % (this.perks.has('crowd') ? 4 : 5) === 0) { P.stars = Math.min(3, P.stars + 1); this.fx.push({ kind: 'starfly', x: 480 + O.x, y: 200, life: 650, max: 650 }); this.flashCallout('★ COMBO', 'star'); }
       const big = dmg > 9 || pu.kind === 'hay';
       this.impact(target === 'head' ? 480 + O.x + O.headX : 480 + O.x, target === 'head' ? 170 : 300, dmg, big, pu.kind === 'hay');
       if (big) this.say(pick(D.CALLS[this.era].big).replace('{N}', this.cfg.you.last));
@@ -584,6 +613,8 @@
         if (O.t > O.wait) {
           if (O.combo.length) this.startAttack(O.combo.shift(), 0.75);
           else {
+            const sig = this.cfg.opp.signature;
+            if (sig && Math.random() < 0.2 && this.phaseT > 4000) { this.signature(sig); O.wait = rand(900, 1500); return; }
             const mv = weightedMove(BOOK[O.style] || BOOK.slugger);
             if (O.style === 'swarmer' && Math.random() < 0.45) O.combo = [pick(['jab', 'body', 'hookL', 'hookR'])];
             if (O.style === 'boxer' && mv === 'jab' && Math.random() < 0.5) O.combo = ['jab'];
@@ -616,6 +647,8 @@
         }
       } else if (O.state === 'cover') {
         if (O.t >= 650) { O.state = 'idle'; O.t = 0; O.chain = 0; if (Math.random() < 0.6 + this.skill * 0.3) this.startAttack(pick(['jab', 'hookL', 'hookR', 'body']), 0.55); }
+      } else if (O.state === 'clinch') {
+        if (O.t >= 950) { O.state = 'idle'; O.t = 0; O.wait = 700; }
       } else if (O.state === 'stagger') {
         if (O.t >= 650) { O.state = 'idle'; O.t = 0; O.wait = 400; }
       } else if (O.state === 'taunt') {
@@ -624,11 +657,21 @@
       this.updateOppPose(dt);
     }
 
+    signature(sig) {
+      const O = this.O;
+      const name = { bolo: 'THE BOLO!', triple: 'THE TRIPLE!', rush: 'THE RUSH!', lowblow: '' }[sig];
+      if (name) this.flashCallout(name, 'taunt');
+      if (sig === 'bolo') this.startAttack('bolo', 1);
+      else if (sig === 'lowblow') this.startAttack('lowblow', 1);
+      else if (sig === 'triple') { this.startAttack('jab', 0.7); O.combo = ['jab', pick(['hookL', 'hookR'])]; }
+      else if (sig === 'rush') { this.startAttack('body', 0.6); O.combo = ['body', 'body']; }
+    }
+
     startAttack(kind, speed) {
       const O = this.O, mv = MOVES[kind];
       const skillMul = 1.25 - this.skill * 0.55;
       O.state = 'tell'; O.t = 0;
-      const speedEdge = clamp(1 + (this.cfg.you.stats.spd - O.stats.spd) / 250, 0.8, 1.2);
+      const speedEdge = clamp(1 + (this.cfg.you.stats.spd - O.stats.spd) / 250, 0.8, 1.2) * (this.perks.has('general') ? 1.12 : 1);
       O.move = { kind, tellLen: mv.tell * skillMul * speedEdge * (speed || 1) * rand(0.92, 1.08), checked: false };
       O.used[kind] = (O.used[kind] || 0) + 1;
       if (kind !== 'jab') O.glint = 1;
@@ -646,6 +689,7 @@
       // Forgiveness: a dodge that was live when the punch started counts too.
       if (!side && move.dodgedAtStart) side = move.dodgedAtStart;
       const whiffWindow = (720 - this.skill * 300) * (this.assist === 'rookie' ? 1.25 : 1);
+      if (move.kind === 'lowblow') this.lowBlowCall();
       if (side && mv.avoid[side]) {
         O.recoverLen = whiffWindow * (mv.dmg > 9 ? 1.15 : 0.85);
         this.flashCallout(side === 'duck' ? 'DUCKED!' : 'SLIPPED!', 'good');
@@ -676,9 +720,15 @@
       if (P.hp <= 0) this.knockdown('you', dmg > 14);
     }
 
+    lowBlowCall() {
+      this.ref.tx = 720; setTimeout(() => { if (this.ref && !this.ref.counting) this.ref.tx = 800; }, 900);
+      if (Math.random() < 0.4) { this.roundPts[1] -= 12; this.flashCallout('LOW BLOW! POINT DEDUCTED', 'good'); this.say('The referee takes a point for the low blow!'); }
+      else { this.flashCallout('LOW BLOW! WARNING', 'bad'); this.say('The referee warns him about that low one.'); }
+    }
+
     dodgeLen() {
       const ys = this.cfg.you.stats;
-      return 470 + ys.spd * 1.6 + ys.def * 0.8 + (this.assist === 'rookie' ? 150 : 0);
+      return 470 + ys.spd * 1.6 + ys.def * 0.8 + (this.assist === 'rookie' ? 150 : 0) + (this.perks.has('shoulder') ? 90 : 0);
     }
 
     // ----- knockdowns -----
@@ -706,7 +756,7 @@
         this.roundPts[1] += 15;
         this.say(pick(D.CALLS[this.era].down).replace('{N}', this.cfg.you.last));
         this.flashCallout('YOU\'RE DOWN! MASH TO GET UP', 'bad');
-        const need = Math.round(10 + P.kd * 8 - this.cfg.you.stats.chn / 9 - (this.cfg.you.heart || 50) / 25 + (big ? 3 : 0));
+        const need = Math.round((10 + P.kd * 8 - this.cfg.you.stats.chn / 9 - (this.cfg.you.heart || 50) / 25 + (big ? 3 : 0)) * (this.perks.has('ironjaw') ? 0.65 : 1));
         this.count = { who: 'you', n: 0, t: -600, need: Math.max(6, need), tko: P.kdRound >= 3 };
         this.phase = 'down-you';
       }
@@ -740,7 +790,7 @@
         O.hp = O.hpMax * clamp(0.75 - O.kd * 0.12, 0.25, 0.7); O.state = 'idle'; O.t = 0; O.wait = 900; O.fall = 0;
         this.flashCallout(`UP AT ${this.count.n}!`, 'dim');
       } else {
-        P.hp = P.hpMax * clamp(0.55 - P.kd * 0.12, 0.15, 0.5); P.state = 'idle'; P.t = 0; P.stun = 600; P.sta = Math.max(P.sta, P.staMax * 0.4);
+        P.hp = P.hpMax * clamp(0.55 - P.kd * 0.12 + (this.perks.has('ironjaw') ? 0.12 : 0), 0.15, 0.62); P.state = 'idle'; P.t = 0; P.stun = 600; P.sta = Math.max(P.sta, P.staMax * 0.4);
         this.flashCallout('YOU BEAT THE COUNT!', 'good');
         this.O.state = 'idle'; this.O.wait = 1200; this.O.t = 0;
       }
@@ -770,6 +820,7 @@
       else if (P.state === 'hurt') { ty = 20; lean = Math.sin(P.t / 40) * 0.05; L = { x: 330, y: 500, s: 1 }; R = { x: 630, y: 500, s: 1 }; }
       else if (P.state === 'down') { ty = 260; L = { x: 300, y: 620, s: 1 }; R = { x: 660, y: 620, s: 1 }; }
       else if (P.block) { L = { x: 430, y: 400, s: 1.18 }; R = { x: 530, y: 400, s: 1.18 }; }
+      if (P.state === 'clinch') { ty = -30; L = { x: 420, y: 350, s: 0.7 }; R = { x: 540, y: 350, s: 0.7 }; }
       if (this.phase === 'down-opp' || (this.phase === 'over' && this.result && this.result.result === 'W')) { tx = -250; lean = -0.05; L = { x: 160, y: 470, s: 0.95 }; R = { x: 330, y: 470, s: 0.95 }; if (this.phase === 'over') { L = { x: 170, y: 300, s: 0.85 }; R = { x: 330, y: 290, s: 0.85 }; } }
       if (P.state === 'punch' && P.punch) {
         const pu = P.punch, O = this.O;
@@ -813,6 +864,8 @@
         else if (kind === 'body') { L = { x: hx - 95, y: chest + 120 + shiver, s: 0.85 }; crouch = 55 * p; }
         else if (kind === 'haymaker') { R = { x: hx + 150 + shiver, y: headY - 105, s: 0.78 }; lean = 0.2 * p; crouch = -18 * p; }
         else if (kind === 'taunt') { L = { x: hx - 150, y: chest + 120, s: 0.9 }; R = { x: hx + 150, y: chest + 120, s: 0.9 }; crouch = -10; }
+        else if (kind === 'bolo') { const a = t / 85; R = { x: hx + 150 + Math.cos(a) * 70, y: chest + 70 + Math.sin(a) * 70, s: 0.85 }; lean = 0.08; sway = 20 * p; }
+        else if (kind === 'lowblow') { L = { x: hx - 60, y: chest + 175, s: 0.85 }; crouch = 30 * p; }
         fast = true;
       } else if (st === 'strike' && O.move) {
         const kind = O.move.kind, p = ease(t / MOVES[kind].strike);
@@ -823,6 +876,8 @@
         else if (kind === 'upper') { R = mix({ x: hx + 70, y: chest + 150, s: 0.85 }, { x: hx + 15, y: 380, s: 2.1 }, p); crouch = 40 * (1 - p); }
         else if (kind === 'body') { L = mix({ x: hx - 95, y: chest + 120, s: 0.85 }, { x: hx - 10, y: 540, s: 2.1 }, p); crouch = 50; }
         else if (kind === 'haymaker') R = arc({ x: hx + 150, y: headY - 105, s: 0.78 }, { x: hx - 10, y: 440, s: 2.6 }, p, 1);
+        else if (kind === 'bolo') R = arc({ x: hx + 160, y: chest + 140, s: 0.85 }, { x: hx + 20, y: 410, s: 2.4 }, p, 1);
+        else if (kind === 'lowblow') L = mix({ x: hx - 60, y: chest + 175, s: 0.85 }, { x: hx - 5, y: 575, s: 2.0 }, p);
         lean = (kind === 'hookL' ? 0.12 : kind === 'hookR' || kind === 'haymaker' ? -0.12 : 0) * p;
         fast = true;
       } else if (st === 'recover' && O.move) {
@@ -834,6 +889,8 @@
       } else if (st === 'hurt' || st === 'stagger') {
         L = { x: hx - 120, y: chest + 60, s: 0.95 }; R = { x: hx + 120, y: chest + 60, s: 0.95 };
         sway = Math.sin(t / 60) * 14;
+      } else if (st === 'clinch') {
+        L = { x: hx - 70, y: chest + 150, s: 0.9 }; R = { x: hx + 70, y: chest + 150, s: 0.9 }; crouch = 26; lean = Math.sin(t / 120) * 0.04;
       } else if (st === 'cover') {
         L = { x: hx - 30, y: headY + 20, s: 1.15 }; R = { x: hx + 30, y: headY + 24, s: 1.15 }; crouch = 14;
       } else if (st === 'taunt') {
@@ -843,7 +900,7 @@
       }
       O.gL = fast ? lerpG(O.gL, L, kF) : lerpG(O.gL, L, k);
       O.gR = fast ? lerpG(O.gR, R, kF) : lerpG(O.gR, R, k);
-      if (st === 'strike') { O.gL = L.x !== undefined && (O.move && ['jab', 'hookL', 'body'].includes(O.move.kind)) ? L : O.gL; O.gR = (O.move && ['hookR', 'upper', 'haymaker'].includes(O.move.kind)) ? R : O.gR; }
+      if (st === 'strike') { O.gL = L.x !== undefined && (O.move && ['jab', 'hookL', 'body', 'lowblow'].includes(O.move.kind)) ? L : O.gL; O.gR = (O.move && ['hookR', 'upper', 'haymaker', 'bolo'].includes(O.move.kind)) ? R : O.gR; }
       O.lean = lerp(O.lean, lean, k); O.crouch = lerp(O.crouch, crouch, k);
       O.sway = lerp(O.sway, sway, k);
       O.x = O.sway;
@@ -851,7 +908,7 @@
       O.hitFlash = Math.max(0, O.hitFlash - dt / 200);
       const bouncing = st === 'idle' || st === 'tell' || st === 'cover' || this.phase === 'intro';
       O.bob = lerp(O.bob || 0, bouncing ? Math.sin((this.now || 0) / 165) * 5 : 0, k);
-      if (st === 'strike' && O.move) { const g = ['jab', 'hookL', 'body'].includes(O.move.kind) ? O.gL : O.gR; this.trails.push({ who: 'O', x: g.x, y: g.y, s: g.s, life: 120 }); }
+      if (st === 'strike' && O.move) { const g = ['jab', 'hookL', 'body', 'lowblow'].includes(O.move.kind) ? O.gL : O.gR; this.trails.push({ who: 'O', x: g.x, y: g.y, s: g.s, life: 120 }); }
       if (st === 'down' || st === 'out') O.fall = Math.min(1, O.fall + dt / 600); else O.fall = Math.max(0, O.fall - dt / 300);
     }
 
@@ -1276,7 +1333,7 @@
       for (const gl of order) this.drawGlove(c, gl.x + O.x, gl.y, 44 * gl.s, gcol, gl === O.gL ? -1 : 1);
       // tell glint around the loaded glove
       if (O.state === 'tell' && O.move && O.move.kind !== 'jab') {
-        const gl = ['hookL', 'body', 'feint'].includes(O.move.kind) && (O.move.kind !== 'feint' || O.move.side === 'L') ? O.gL : O.gR;
+        const gl = ['hookL', 'body', 'feint', 'lowblow'].includes(O.move.kind) && (O.move.kind !== 'feint' || O.move.side === 'L') ? O.gL : O.gR;
         const p = clamp(O.t / O.move.tellLen, 0, 1);
         c.save(); c.globalAlpha = 0.35 + 0.6 * Math.abs(Math.sin(O.t / 70));
         c.strokeStyle = '#fff6d8'; c.lineWidth = 4;
@@ -1405,15 +1462,18 @@
 
     drawTellAssist(c) {
       const O = this.O;
-      if (this.assist === 'champ' || O.state !== 'tell' || !O.move) return;
+      if (O.state !== 'tell' || !O.move) return;
       const mv = MOVES[O.move.kind];
-      if (this.assist === 'normal' && (this.round > 1 || O.move.kind === 'jab')) return;
+      if (this.assist === 'normal' && (this.round > 1 || O.move.kind === 'jab') && !(this.cfg.filmStudy && this.round === 1 && O.move.kind !== 'jab')) return;
+      if (this.assist === 'champ' && !(this.cfg.filmStudy && this.round === 1 && O.move.kind !== 'jab')) return;
       const x = 480 + O.x, y = 64;
       c.save();
+      const label = { jab: 'JAB · slip', hookL: 'HOOK → slip right', hookR: '← HOOK slip left', upper: 'UPPERCUT · slip ←→', body: 'BODY · slip or guard', haymaker: 'HAYMAKER · MOVE!', feint: 'FAKE? wait…', taunt: 'TAUNT · hit him!', bolo: '← BOLO · slip LEFT', lowblow: 'LOW BLOW · slip!' }[O.move.kind] || mv.name;
+      c.font = '700 20px Oswald, "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      const bw = Math.max(180, c.measureText(label).width + 32);
       c.fillStyle = 'rgba(241,230,204,.92)'; c.strokeStyle = INK; c.lineWidth = 3;
-      c.beginPath(); c.roundRect ? c.roundRect(x - 90, y - 22, 180, 44, 8) : c.rect(x - 90, y - 22, 180, 44); c.fill(); c.stroke();
-      c.fillStyle = INK; c.font = '700 20px Oswald, "Arial Narrow", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-      const label = { jab: 'JAB · slip', hookL: 'HOOK → slip right', hookR: '← HOOK slip left', upper: 'UPPERCUT · slip ←→', body: 'BODY · slip or guard', haymaker: 'HAYMAKER · MOVE!', feint: 'FAKE? wait…', taunt: 'TAUNT · hit him!' }[O.move.kind] || mv.name;
+      c.beginPath(); c.roundRect ? c.roundRect(x - bw / 2, y - 22, bw, 44, 8) : c.rect(x - bw / 2, y - 22, bw, 44); c.fill(); c.stroke();
+      c.fillStyle = INK;
       c.fillText(label, x, y + 1);
       c.restore();
     }
@@ -1529,7 +1589,7 @@
     const O = f.O, P = f.P;
     if (O.state === 'tell' && O.move) {
       if (!f.demoPlan || f.demoPlan.m !== O.move) {
-        const dir = { jab: 'left', hookL: 'right', hookR: 'left', upper: 'right', body: 'left', haymaker: 'left' }[O.move.kind];
+        const dir = { jab: 'left', hookL: 'right', hookR: 'left', upper: 'right', body: 'left', haymaker: 'left', bolo: 'left', lowblow: 'left' }[O.move.kind];
         f.demoPlan = { m: O.move, at: Math.max(260, O.move.tellLen - 300), dir: Math.random() < 0.72 ? dir : pick(['left', 'right', 'duck']), done: false };
       }
       if (!f.demoPlan.done && O.t > f.demoPlan.at && dir0(O.move.kind)) { f.demoPlan.done = true; f.input(f.demoPlan.dir, true); }
