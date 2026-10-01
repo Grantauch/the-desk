@@ -24,6 +24,13 @@
     src.connect(f); f.connect(g); g.connect(master); src.start(t, Math.random()); src.stop(t + dur + 0.05);
     return f;
   }
+  function noiseAt(delay, dur, type, freq, q, vol) {
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain(); const t = ctx.currentTime + delay;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    src.connect(f); f.connect(g); g.connect(master); src.start(t, Math.random()); src.stop(t + dur + 0.05);
+  }
   function tone(freq, dur, type, vol, slide, delay = 0) {
     const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + delay;
     o.type = type; o.frequency.setValueAtTime(freq, t);
@@ -50,6 +57,10 @@
     tap(v) { tone(660, 0.04, 'square', 0.05 * v); },
     down() { tone(140, 0.6, 'sine', 0.6, 50); noise(0.5, 'lowpass', 400, 0.7, 0.5, 0.01); },
     roar(v) { noise(1.6, 'bandpass', 700, 0.5, 0.35 * v, 0.25); noise(1.4, 'bandpass', 1500, 0.6, 0.18 * v, 0.3); },
+    reel(v) { for (let i = 0; i < 24; i++) noiseAt(i * 0.06, 0.03, 'bandpass', 1800, 2, 0.12 * v); tone(60, 2.5, 'sawtooth', 0.02 * v); },
+    tvon(v) { tone(15750, 1.4, 'sine', 0.015 * v); noise(0.35, 'bandpass', 3000, 0.8, 0.12 * v, 0.01); tone(120, 0.25, 'square', 0.04 * v, 60); },
+    click(v) { tone(1400, 0.025, 'square', 0.03 * v); noise(0.02, 'highpass', 4000, 0.7, 0.05 * v); },
+    heart(v) { tone(55, 0.12, 'sine', 0.6 * v, 40); tone(52, 0.14, 'sine', 0.5 * v, 38, 0.16); },
     win() { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.5, 'sawtooth', 0.07, null, i * 0.14)); },
     page() { noise(0.12, 'highpass', 3000, 0.6, 0.12, 0.01); },
     type() { noise(0.03, 'bandpass', 2400, 2, 0.15); },

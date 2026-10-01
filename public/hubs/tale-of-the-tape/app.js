@@ -51,12 +51,54 @@
     for (const p of queuePortraits) { const c = document.getElementById(p.id); if (c) T.portrait(c, p.look, p.opts); }
     queuePortraits = [];
   }
-  function bar(v, max = 100, cls = '') { return `<span class="bar ${cls}"><i style="width:${Math.max(0, Math.min(100, (v / max) * 100)).toFixed(1)}%"></i></span>`; }
-  function statRow(k, v) { return `<div class="stat"><span>${E.statLabel[k]}</span>${bar(v)}<b>${Math.round(v)}</b></div>`; }
+  const pctOf = (v, max) => Math.max(0, Math.min(100, (v / max) * 100)).toFixed(1);
+  // Bars start where they were last time and slide to the new value, so every change is visible.
+  function bar(v, max = 100, cls = '', from) {
+    const start = from == null ? v : from;
+    return `<span class="bar ${cls}"><i style="width:${pctOf(start, max)}%" data-w="${pctOf(v, max)}"></i></span>`;
+  }
+  function delta(v, from, digits = 1) {
+    if (from == null) return '';
+    const d = v - from;
+    if (Math.abs(d) < 0.1) return '';
+    return `<em class="delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(digits)}</em>`;
+  }
+  function statRow(k, v) { const p = ui.prev && ui.prev.st ? ui.prev.st[k] : null; return `<div class="stat"><span>${E.statLabel[k]}</span>${bar(v, 100, '', p)}<b>${Math.round(v)}${delta(v, p)}</b></div>`; }
+  function snap() { if (!S) return null; return { st: Object.assign({}, S.st), money: S.money, fame: S.fame, health: S.health, heart: S.heart, sharp: S.sharp }; }
+  function animateBars() {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      app.querySelectorAll('.bar i[data-w]').forEach((i) => { i.style.width = i.dataset.w + '%'; });
+      app.querySelectorAll('[data-count]').forEach((el) => {
+        const from = Number(el.dataset.from), to = Number(el.dataset.count);
+        if (reducedMotion || from === to) { el.textContent = money(to); return; }
+        const t0 = performance.now();
+        const step = (t) => { const k = Math.min(1, (t - t0) / 700); el.textContent = money(from + (to - from) * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+        requestAnimationFrame(step);
+      });
+    }));
+  }
+  const ICON = {
+    roadwork: '<path d="M4 17h11l4-3 1-3-5-1-3-4-3 2 1 3-4 1z"/><path d="M4 20h16"/>',
+    bag: '<path d="M12 2v3"/><rect x="7" y="5" width="10" height="15" rx="5"/><path d="M7 10h10"/>',
+    speed: '<path d="M4 4h16"/><path d="M12 4v3"/><path d="M12 7c-3 0-4 3-4 5s2 5 4 5 4-3 4-5-1-5-4-5z"/>',
+    spar: '<path d="M5 9a4 4 0 0 1 7 0v5H5z"/><path d="M5 14h7v3H5z"/><path d="M19 9a4 4 0 0 0-7 0"/><path d="M19 9v5h-4"/>',
+    chin: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/>',
+    work: '<rect x="4" y="9" width="16" height="11" rx="1"/><path d="M8 9V6h8v3"/><path d="M4 13h16"/>',
+    rest: '<path d="M20 15a8 8 0 1 1-9-11 6 6 0 0 0 9 11z"/>',
+    press: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8 21h8"/>',
+    tv: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M8 2l4 4 4-4"/>',
+    circuit: '<circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="17" cy="17" r="2"/><path d="M7 18h8M18 8l-1 7M6 16l11-9"/>',
+    fight: '<path d="M6 10a5 5 0 0 1 10 0v6H6z"/><path d="M6 16h10v4H6z"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/>',
+    scout: '<circle cx="10" cy="10" r="6"/><path d="M15 15l5 5"/>',
+    hype: '<path d="M3 10v4h4l6 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/>',
+  };
+  const icon = (k) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k] || ICON.fight}</svg>`;
 
   function show(html) {
+    stopDemo();
     app.innerHTML = html;
     flushPortraits();
+    animateBars();
     window.scrollTo(0, 0);
     setTimeout(focusMain, 20);
     renderTopbar();
@@ -76,6 +118,8 @@
     if (ui.screen === 'fight') return;
     if (ui.screen === 'radio') return renderRadio();
     if (ui.screen === 'clipping') return renderClipping();
+    const cs = pendingCutscene();
+    if (cs) { S.flags['cs_' + cs] = true; save(); playScene(cs).then(render); return; }
     if (S.inbox.length) return renderEvent();
     if (S.newAch && S.newAch.length) { const a = S.newAch.splice(0); a.forEach((id, i) => setTimeout(() => achToast(id), i * 1400)); remember(a); }
     if (ui.circuit) return renderCircuit();
@@ -87,6 +131,20 @@
     if (S.offers && S.offers.length) return renderOffers();
     return renderLedger();
   }
+  function pendingCutscene() {
+    if (!S || ui.screen !== 'game') return null;
+    const y = E.year(S.t);
+    if (S.hist.h_pearl && !S.flags.cs_war && y <= 1943) return 'war';
+    if (y >= 1946 && y <= 1948 && !S.flags.cs_postwar) return 'postwar';
+    if (y >= 1949 && y <= 1952 && !S.flags.cs_tv) return 'tv';
+    if (S.phase === 'retired' && !S.flags.cs_lastbell) return 'lastbell';
+    return null;
+  }
+  function playScene(kind, extra) {
+    if (!T.cutscene) return Promise.resolve();
+    const opts = Object.assign({ reduced: reducedMotion, city: D.CITIES[S.f.home].name, money: money(S.money), look: S.f.look, name: E.fullName(S.f), division: D.DIVISIONS[S.f.division].name, year: E.year(S.t), record: `${rec(S.rec)} · ${S.rec.ko} knockouts` }, extra || {});
+    return T.cutscene.play(kind, opts);
+  }
   function remember(ids) { const all = readJSON(ACH) || []; for (const id of ids) if (!all.includes(id)) all.push(id); writeJSON(ACH, all); }
   function achToast(id) { const a = D.ACHIEVEMENTS.find((x) => x.id === id); if (!a) return; sfx('star', 0.8); toast(`<span class="toast-kicker">Achievement</span><b>${esc(a.name)}</b><small>${esc(a.text)}</small>`); }
 
@@ -94,44 +152,75 @@
   function renderTitle() {
     document.body.dataset.era = 'depression';
     const saved = loadSaved();
-    const hall = (readJSON(HALL) || []).slice(0, 6);
+    const hall = (readJSON(HALL) || []).slice(0, 8);
     const ach = readJSON(ACH) || [];
+    const heads = T.history.map((h) => `<span><b>${h.y}</b> ${esc(h.title.toUpperCase())}</span>`).join('');
+    const tab = ui.titleTab || 'how';
     show(`
       <section class="title-screen">
         <div class="title-poster">
           <p class="poster-top">A Beyond the Scoreboard game · 1934–1966</p>
-          <h1 class="logo"><span class="logo-a">Tale</span><span class="logo-of">of the</span><span class="logo-b">Tape</span></h1>
-          <div class="poster-art">${portraitCanvas({ skin: 3, hair: 0, cut: 'slick', trunks: 0, stache: false, brow: 1, jaw: 1.1 }, { mood: 'tough', bg: '#b8231b' }, 'poster-portrait', 260, 300)}
-            <div class="poster-bill"><span>Live a whole life in the ring</span><strong>One fighter.<br>One century.<br>No two careers alike.</strong></div></div>
-          <p class="poster-pitch">Start in 1934 with $20 and a pair of borrowed gloves. Train, take fights, dodge the mob, survive the war, step in front of the TV cameras, and find out what kind of story your life becomes.</p>
+          <h1 class="logo"><span class="logo-a" data-text="Tale">Tale</span><span class="logo-of">of the</span><span class="logo-b" data-text="Tape">Tape</span></h1>
           <div class="title-actions">
             ${saved ? `<button class="button big" data-act="continue">Continue: ${esc(E.fullName(saved.state.f))} <small>${esc(E.dateLabel(saved.state.t))} · ${esc(rec(saved.state.rec))}</small></button>` : ''}
             <button class="button big ${saved ? 'secondary' : ''}" data-act="new">Start a new career</button>
             <button class="button secondary" data-act="quick">Quick fight</button>
             <button class="button secondary" data-act="code">Same-start code</button>
           </div>
+          <div class="poster-art"><div class="burst-wrap">${portraitCanvas({ skin: 3, hair: 0, cut: 'slick', trunks: 0, stache: false, brow: 1, jaw: 1.1 }, { mood: 'tough', bg: '#b8231b' }, 'poster-portrait', 260, 300)}</div>
+            <div class="poster-bill"><span>Live a whole life in the ring</span><strong>One fighter.<br>Thirty years.<br>No two lives alike.</strong></div></div>
+          <p class="poster-pitch">Start in 1934 with $20 and a pair of borrowed gloves. Train, take fights, dodge the mob, survive the war, step in front of the TV cameras, and find out what kind of story your life becomes.</p>
           <p class="poster-foot">Every fight is yours to box. Every year is real history. Saves stay on this computer.</p>
         </div>
         <aside class="title-side">
-          <div class="paper-card">
-            <h2 class="card-head">How it plays</h2>
-            <ol class="how">
-              <li><b>Live.</b> Each turn is a month: train, work, rest, or chase publicity.</li>
-              <li><b>Fight.</b> Box it yourself, Punch-Out style, or listen on the radio.</li>
-              <li><b>Survive history.</b> The Depression, Pearl Harbor, the color line, the mob, television.</li>
-              <li><b>Tell the story.</b> Retire, start a second act, and get the tale of your life.</li>
-            </ol>
+          <div class="now-showing">
+            <div class="ns-marquee"><span>Now showing</span><b>Fight Night</b><span>Live</span></div>
+            <div class="ns-frame">${reducedMotion ? `<div class="ns-still">${portraitCanvas({ skin: 5, hair: 0, cut: 'crop', trunks: 1, brow: 2, jaw: 1.15 }, { mood: 'tough', bg: '#1f3f8f' }, 'ns-portrait', 220, 200)}</div>` : '<div class="demo-host"></div>'}</div>
           </div>
-          ${hall.length ? `<div class="paper-card"><h2 class="card-head">Hall of fame <small>this browser</small></h2><ol class="hall">${hall.map((h) => `<li><b>${esc(h.name)}</b><span>${esc(h.record)} · ${esc(h.tier)}</span><small>${esc(h.years)}${h.belts ? ' · champion' : ''}</small></li>`).join('')}</ol></div>` : ''}
-          ${discoveryBookCard()}
-          <div class="paper-card"><h2 class="card-head">Achievements</h2><p class="ach-count"><b>${ach.length}</b> of ${D.ACHIEVEMENTS.length} found</p><ul class="ach-list">${D.ACHIEVEMENTS.map((a) => `<li class="${ach.includes(a.id) ? 'got' : ''}" title="${esc(a.text)}">${ach.includes(a.id) ? '★' : '☆'} ${ach.includes(a.id) ? esc(a.name) : '???'}</li>`).join('')}</ul></div>
+          <div class="paper-card record-book">
+            <div class="tabs" role="tablist" aria-label="Record book">
+              ${[['how', 'How it plays'], ['disc', `Discoveries ${Object.keys(readBook()).length}/${T.discoveries.length}`], ['ach', `Achievements ${ach.length}/${D.ACHIEVEMENTS.length}`], ['hall', 'Hall of fame']].map(([k, n]) => `<button role="tab" class="tab ${tab === k ? 'on' : ''}" aria-selected="${tab === k}" data-act="ttab" data-arg="${k}">${n}</button>`).join('')}
+            </div>
+            <div class="tab-body">
+              ${tab === 'how' ? `<ol class="how">
+                <li><b>Live.</b> Each turn is a month: train, work, rest, or chase publicity.</li>
+                <li><b>Fight.</b> Box it yourself, Punch-Out style, or listen on the radio.</li>
+                <li><b>Survive history.</b> The Depression, Pearl Harbor, the color line, the mob, television.</li>
+                <li><b>Discover.</b> Parts of a life combine into rare discoveries. Collect them all.</li>
+                <li><b>Tell the story.</b> Retire, start a second act, and get the tale of your life.</li></ol>` : ''}
+              ${tab === 'disc' ? discoveryBookCard(true) : ''}
+              ${tab === 'ach' ? `<ul class="ach-list">${D.ACHIEVEMENTS.map((a) => `<li class="${ach.includes(a.id) ? 'got' : ''}">${ach.includes(a.id) ? '★' : '☆'} <b>${ach.includes(a.id) ? esc(a.name) : '???'}</b><small>${esc(a.text)}</small></li>`).join('')}</ul>` : ''}
+              ${tab === 'hall' ? (hall.length ? `<ol class="hall">${hall.map((h) => `<li><b>${esc(h.name)}</b><span>${esc(h.record)} · ${esc(h.tier)}</span><small>${esc(h.years)}${h.belts ? ' · champion' : ''}</small></li>`).join('')}</ol>` : '<p class="empty">Nobody yet. Finish a career and your fighter hangs here.</p>') : ''}
+            </div>
+          </div>
         </aside>
-      </section>`);
+      </section>
+      <div class="ticker" aria-hidden="true"><div class="ticker-track">${heads}${heads}</div></div>`);
+    startDemo();
   }
 
-  function discoveryBookCard() {
+  // The title screen runs a real fight on its own, cycling through the decades.
+  let demoCtl = null, demoN = 0;
+  function startDemo() {
+    const host = app.querySelector('.demo-host');
+    if (!host || ui.screen !== 'title' || reducedMotion) return;
+    const R = (a) => a[Math.floor(Math.random() * a.length)], N = (n) => Math.floor(Math.random() * n);
+    const era = ['poster', 'newsreel', 'tv'][demoN++ % 3];
+    const look = () => ({ skin: N(7), hair: N(7), cut: R(D.HAIRCUTS), trunks: N(8), stache: Math.random() < 0.3, brow: N(3), jaw: 1 + Math.random() * 0.15, build: 0.95 + Math.random() * 0.15, nose: N(3) });
+    const style = R(['slugger', 'boxer', 'swarmer', 'counter', 'showman']);
+    const rating = 52 + N(14);
+    demoCtl = T.fight.start(host, {
+      demo: true, era, rounds: 1, roundSeconds: 45, venue: R(['Madison Square Garden', 'Olympia Stadium', 'Chicago Stadium', 'Duquesne Gardens', 'the Olympic Auditorium']),
+      you: { first: 'You', last: R(D.LAST), stats: { pow: 62, spd: 62, sta: 62, chn: 62, def: 62 }, look: look(), health: 100, heart: 60 },
+      opp: { first: R(D.FIRST), last: R(D.LAST), style, rating, stats: E.opponentStats(rating, style), look: look() },
+      onEnd: () => { demoCtl = null; setTimeout(() => { if (ui.screen === 'title') startDemo(); }, 400); },
+    });
+  }
+  function stopDemo() { if (demoCtl) { const d = demoCtl; demoCtl = null; d.destroy(); } }
+
+  function discoveryBookCard(bare) {
     const book = readBook(), n = Object.keys(book).length;
-    return `<div class="paper-card book"><h2 class="card-head">Discoveries <small>this computer</small></h2>
+    return `<div class="${bare ? '' : 'paper-card '}book">${bare ? '' : `<h2 class="card-head">Discoveries <small>this computer</small></h2>`}
       <p class="ach-count"><b>${n}</b> of ${T.discoveries.length} found. Two parts of a life combine into something new.</p>
       <ul class="book-list">${T.discoveries.map((d) => book[d.id] ? `<li class="got"><b>${esc(d.name)}</b><small>${esc(d.mix[0])} + ${esc(d.mix[1])}</small></li>` : `<li><b>? + ?</b><small>${esc(d.hint)}</small></li>`).join('')}</ul></div>`;
   }
@@ -201,7 +290,8 @@
       T.audio.unlock();
       S = E.create({ first, last, nick: String(fd.get('nick') || '').trim(), home: draft.home, division: draft.division, style: draft.style, bg: draft.bg, look: draft.look, code: draft.code || '' });
       draft = null; ui = { screen: 'game' };
-      sfx('bell'); save(); render();
+      sfx('bell'); save();
+      playScene('intro').then(render);
       announce(`Career started: ${E.fullName(S.f)}, ${D.START_YEAR}.`);
     });
   }
@@ -216,12 +306,12 @@
         <p class="fc-meta">Age ${age} · ${esc(D.DIVISIONS[S.f.division].name)} · ${esc(D.STYLES[S.f.style].name)}</p></div></div>
       <div class="stats">${statKeys.map((k) => statRow(k, S.st[k])).join('')}</div>
       <div class="life">
-        <div class="lifebox"><span>Health</span>${bar(S.health, 100, S.health < 40 ? 'warn' : '')}</div>
-        <div class="lifebox"><span>Heart</span>${bar(S.heart, 100, 'heart')}</div>
-        <div class="lifebox"><span>Ring sharp</span>${bar(S.sharp, 100, 'sharp')}</div>
-        <div class="lifebox"><span>Fame</span>${bar(S.fame, 100, 'fame')}<small>${esc(E.fameLabel(S.fame))}</small></div>
+        <div class="lifebox"><span>Health ${delta(S.health, ui.prev && ui.prev.health, 0)}</span>${bar(S.health, 100, S.health < 40 ? 'warn' : '', ui.prev && ui.prev.health)}</div>
+        <div class="lifebox"><span>Heart ${delta(S.heart, ui.prev && ui.prev.heart, 0)}</span>${bar(S.heart, 100, 'heart', ui.prev && ui.prev.heart)}</div>
+        <div class="lifebox"><span>Ring sharp ${delta(S.sharp, ui.prev && ui.prev.sharp, 0)}</span>${bar(S.sharp, 100, 'sharp', ui.prev && ui.prev.sharp)}</div>
+        <div class="lifebox"><span>Fame ${delta(S.fame, ui.prev && ui.prev.fame, 0)}</span>${bar(S.fame, 100, 'fame', ui.prev && ui.prev.fame)}<small>${esc(E.fameLabel(S.fame))}</small></div>
       </div>
-      <div class="purse-line"><span>Bank</span><b class="${S.money < 0 ? 'neg' : ''}">${money(S.money)}</b><small>costs ${money(E.monthlyCost(S))}/mo</small></div>
+      <div class="purse-line"><span>Bank</span><b class="${S.money < 0 ? 'neg' : ''}" data-count="${Math.round(S.money)}" data-from="${Math.round(ui.prev ? ui.prev.money : S.money)}">${money(ui.prev ? ui.prev.money : S.money)}</b><small>costs ${money(E.monthlyCost(S))}/mo</small></div>
       ${injury ? `<p class="injury">Injured: ${esc(injury.name)} · ${Math.ceil(injury.weeks)} weeks</p>` : ''}
       ${S.champ ? `<p class="belt">★ World ${esc(D.DIVISIONS[S.f.division].name)} Champion${S.titleDefenses ? ` · ${S.titleDefenses} defense${S.titleDefenses > 1 ? 's' : ''}` : ''}</p>` : ''}
     </div>`;
@@ -275,8 +365,9 @@
   }
   function renderLedger() {
     const early = S.fights.length < 12;
+    queueMicrotask(() => { ui.prev = null; });
     const tv = E.tvEra(S.t);
-    const act = (a, arg, title, sub, cls = '') => `<button class="action ${cls}" data-act="${a}" ${arg ? `data-arg="${arg}"` : ''}><b>${title}</b><small>${sub}</small></button>`;
+    const act = (a, arg, title, sub, cls = '', ic) => `<button class="action ${cls}" data-act="${a}" ${arg ? `data-arg="${arg}"` : ''}>${icon(ic || arg || a)}<b>${title}</b><small>${sub}</small></button>`;
     const last = ui.lastLines && ui.lastLines.length ? `<div class="last-month" role="status"><span class="kicker">Last month</span>${ui.lastLines.map((l) => `<p>${esc(l)}</p>`).join('')}</div>` : '';
     show(`
       <section class="ledger">
@@ -287,7 +378,7 @@
             <div class="paper-card actions-card">
               <h1 class="card-head big" data-focus tabindex="-1">What do you do this month?</h1>
               ${last}
-              <button class="action primary" data-act="offers"><b>${S.champ ? 'Defend the title' : 'Look for a fight'}</b><small>See who wants you and for how much</small></button>
+              <button class="action primary" data-act="offers">${icon('fight')}<b>${S.champ ? 'Defend the title' : 'Look for a fight'}</b><small>See who wants you and for how much</small></button>
               <p class="group-label">Train <small>one month</small></p>
               <div class="action-grid">
                 ${act('train', 'roadwork', 'Roadwork', 'Stamina')}
@@ -300,7 +391,7 @@
               <div class="action-grid">
                 ${act('work', '', 'Work a job', 'Money')}
                 ${act('rest', '', 'Rest', 'Health, heart')}
-                ${act('press', '', tv ? 'TV & publicity' : 'Publicity', 'Fame')}
+                ${act('press', '', tv ? 'TV & publicity' : 'Publicity', 'Fame', '', tv ? 'tv' : 'press')}
                 ${early ? act('circuit', '', 'Club circuit', 'Three quick fights on the radio') : ''}
               </div>
               <div class="ledger-foot"><button class="linkish" data-act="retire-ask">Retire</button></div>
@@ -319,20 +410,23 @@
     if (!v) { S.inbox.shift(); return render(); }
     if (v.kind === 'discovery') return renderDiscovery(v);
     const isHist = v.kind === 'history';
+    const LETTERS = ['ma_letter', 'svc_letter', 'loan_back', 'buddy_diner', 'wedding', 'aft_tate', 'rival_retires', 'baby', 'aft_memoir'];
+    const WIRES = ['draft_notice', 'broke', 'shark_due', 'strip_warning', 'ibc_offer', 'too_old', 'doctor_final', 'contract', 'spar_job', 'tv_friday', 'mob_fix', 'mob_revenge', 'young_lion', 'move_ny', 'trainer_poached', 'aft_comeback', 'homecoming', 'svc_orders'];
+    const look = isHist ? 'newspaper' : LETTERS.includes(v.id) ? 'letter' : WIRES.includes(v.id) ? 'telegram' : 'note';
     const yr = E.year(S.t);
     const paper = isHist ? (yr < 1941 ? 'The Evening Telegram' : yr < 1950 ? 'The Daily Clarion' : 'The Morning Ledger') : '';
     if (isHist) sfx('page');
     show(`
-      <section class="event ${isHist ? 'history' : 'life'}">
+      <section class="event ${isHist ? 'history' : 'personal'}">
         ${dateBanner()}
-        <article class="event-card ${isHist ? 'newspaper' : 'note'}">
-          ${isHist ? `<header class="masthead"><span>${esc(E.dateLabel(S.t))}</span><b>${esc(paper)}</b><span>${esc(v.kicker || 'Extra')} · 3¢</span></header>` : `<p class="kicker">${esc(v.kicker || E.dateLabel(S.t))}</p>`}
+        <article class="event-card ${look}">
+          ${isHist ? `<header class="masthead"><span>${esc(E.dateLabel(S.t))}</span><b>${esc(paper)}</b><span>${esc(v.kicker || 'Extra')} · 3¢</span></header>` : look === 'telegram' ? `<header class="wire-head"><b>TELEGRAM</b><span>${esc(E.dateLabel(S.t).toUpperCase())} · ${esc((D.CITIES[S.city] || D.CITIES[S.f.home]).name.toUpperCase())}</span></header>` : look === 'letter' ? `<p class="letter-date">${esc(E.dateLabel(S.t))}</p>` : `<p class="kicker">${esc(v.kicker || E.dateLabel(S.t))}</p>`}
           <h1 class="event-title" tabindex="-1">${esc(v.title)}</h1>
           <div class="event-body">${isHist && v.art ? `<div class="event-art art-${esc(v.art)}" aria-hidden="true"></div>` : ''}<p>${esc(v.text)}</p></div>
           ${v.archive ? `<aside class="archive"><b>From the archive</b><p>${esc(v.archive)}</p></aside>` : ''}
           ${v.link ? `<p class="event-link"><a href="${esc(v.link.href)}" target="_blank" rel="noopener">${esc(v.link.label)} ↗</a></p>` : ''}
           <div class="choices" role="group" aria-label="Your choice">
-            ${v.choices.length ? v.choices.map((c, i) => `<button class="choice" data-choice="${i}" ${c.ok ? '' : 'disabled'}><b>${esc(c.label)}</b>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}${c.ok ? '' : '<small class="locked">not available</small>'}</button>`).join('') : `<button class="choice" data-choice="0"><b>Turn the page</b></button>`}
+            ${v.choices.length ? v.choices.map((c, i) => `<button class="choice" data-choice="${i}" ${c.ok ? '' : 'disabled'}><kbd class="ck" aria-hidden="true">${i + 1}</kbd><b>${esc(c.label)}</b>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}${c.ok ? '' : '<small class="locked">not available</small>'}</button>`).join('') : `<button class="choice" data-choice="0"><b>Turn the page</b></button>`}
           </div>
           <div class="outcome" hidden></div>
         </article>
@@ -360,6 +454,7 @@
       </section>`);
   }
   function chooseEvent(i) {
+    if (!ui.prev) ui.prev = snap();
     const card = app.querySelector('.event-card');
     const res = E.resolveInbox(S, i);
     save();
@@ -409,6 +504,7 @@
   // ---------- training camp ----------
   function renderCamp() {
     const c = S.camp, o = c.offer, left = c.blocks - c.done.length;
+    queueMicrotask(() => { ui.prev = null; });
     const opt = (k, title, sub) => `<button class="action" data-act="camp" data-arg="${k}"><b>${title}</b><small>${sub}</small></button>`;
     show(`
       <section class="camp">
@@ -508,7 +604,9 @@
     const clip = E.resolveFight(S, o, final);
     ui.clip = clip; ui.prefight = false;
     ui.screen = out.how === 'radio' ? 'radio' : 'clipping';
-    save(); render();
+    save();
+    if (clip.titleWon && out.how !== 'radio') { ui.champShown = true; playScene('champion', { venue: `${o.venue}, ${o.city}` }).then(render); return; }
+    render();
   }
   function simAndShow(dive) {
     const o = S.camp.offer;
@@ -667,6 +765,7 @@
           </div>
           <p class="same-start">Want a classmate to start from the exact same world? Give them this code: <b>${esc(S.code)}</b></p>
         </article>
+        ${(S.belts || L.total >= 115) && !reducedMotion ? `<div class="confetti" aria-hidden="true">${Array.from({ length: 46 }, (_, i) => `<i style="left:${(i * 2.17 + Math.random() * 2).toFixed(1)}%;--c:${['#f1e6cc', '#fff', '#e0a526', '#b8231b'][i % 4]};--t:${(4 + Math.random() * 4).toFixed(1)}s;--d:${(-Math.random() * 6).toFixed(1)}s"></i>`).join('')}</div>` : ''}
       </section>`);
     sfx('win');
   }
@@ -800,6 +899,8 @@
   // ---------- actions ----------
   function doAction(a, arg, el) {
     T.audio.unlock();
+    if (['train', 'work', 'rest', 'press', 'circuit', 'camp', 'from-clip', 'service', 'after', 'accept'].includes(a)) ui.prev = snap();
+    if (a !== 'close') sfx('click', 0.5);
     switch (a) {
       case 'continue': { const x = loadSaved(); if (!x) return; S = x.state; ui = { screen: 'game', prefight: x.ui && x.ui.prefight }; return render(); }
       case 'new': draft = newDraft(); ui = { screen: 'create' }; return render();
@@ -809,6 +910,7 @@
         draft = newDraft(v.trim().toUpperCase()); ui = { screen: 'create' }; return render();
       }
       case 'quick': ui = { screen: 'quick' }; return render();
+      case 'ttab': ui.titleTab = arg; return renderTitle();
       case 'title': if (dialog.open) dialog.close(); if (fightCtl) { fightCtl.destroy(); fightCtl = null; } ui = { screen: 'title' }; return render();
       case 'randomize': draft = Object.assign(newDraft(draft && draft.code), { code: draft && draft.code }); return renderCreate();
       case 'offers': E.offers(S); save(); return render();
@@ -834,8 +936,8 @@
       case 'sim': return simAndShow(false);
       case 'dive': return simAndShow(true);
       case 'doublecross': E.doubleCross(S); save(); return render();
-      case 'to-clip': ui.screen = 'clipping'; return render();
-      case 'from-clip': ui.screen = 'game'; ui.clip = null; ui.lastLines = []; save(); return render();
+      case 'to-clip': ui.screen = 'clipping'; if (ui.clip && ui.clip.titleWon && !ui.champShown) { ui.champShown = true; const off = S.fights[S.fights.length - 1]; playScene('champion', { venue: `${off.venue}, ${off.city}` }).then(render); return; } return render();
+      case 'from-clip': ui.screen = 'game'; ui.clip = null; ui.champShown = false; ui.lastLines = []; save(); return render();
       case 'next': return render();
       case 'service': E.serviceStep(S); save(); return render();
       case 'path': E.choosePath(S, arg); save(); return render();
@@ -928,7 +1030,7 @@
   window.addEventListener('beforeunload', () => { if (S && ui.screen !== 'fight') save(); });
 
   // Expose a tiny hook for automated tests. It reads state; it cannot reach anything outside this page.
-  T.app = { get state() { return S; }, get ui() { return ui; }, get fight() { return fightCtl; }, challengeCode: () => (S ? challengeCode(S) : null), readChallenge };
+  T.app = { get state() { return S; }, get ui() { return ui; }, get fight() { return fightCtl; }, render: () => render(), challengeCode: () => (S ? challengeCode(S) : null), readChallenge };
 
   // ---------- boot ----------
   const saved = loadSaved();
