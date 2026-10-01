@@ -160,10 +160,10 @@
 
   D.ACHIEVEMENTS = [
     { id: 'first_win', name: 'Paid in Full', text: 'Win your first professional fight.' },
-    { id: 'ko_artist', name: 'Lights Out', text: 'Score ten knockouts in one career.' },
+    { id: 'ko_artist', name: 'Lights Out', text: 'Score # knockouts in one career.', n: 10 },
     { id: 'champ', name: 'The Belt', text: 'Win a world title.' },
-    { id: 'defender', name: 'Fighting Champion', text: 'Defend the title three times.' },
-    { id: 'iron_chin', name: 'Iron Chin', text: 'Finish a career of 20+ fights without being knocked out.' },
+    { id: 'defender', name: 'Fighting Champion', text: 'Defend the title # times.', n: 3 },
+    { id: 'iron_chin', name: 'Iron Chin', text: 'Finish a career of # or more fights without being knocked out.', n: 20 },
     { id: 'comeback', name: 'Comeback Kid', text: 'Win three straight after losing three straight.' },
     { id: 'served', name: 'Service Stripe', text: 'Serve in the armed forces during World War II.' },
     { id: 'tv_star', name: 'Ready for Your Close-Up', text: 'Headline a televised main event.' },
@@ -175,7 +175,7 @@
     { id: 'old_man', name: 'Old Man River', text: 'Win a fight at age 37 or older.' },
     { id: 'rival_done', name: 'Settled It', text: 'Beat your rival twice.' },
     { id: 'abroad', name: 'Passport Stamped', text: 'Fight overseas.' },
-    { id: 'unbeaten', name: 'Unbeaten', text: 'Retire with no losses after 15 or more fights.' },
+    { id: 'unbeaten', name: 'Unbeaten', text: 'Retire with no losses after # or more fights.', n: 15 },
     { id: 'skill_ko', name: 'Fists of Fury', text: 'Win a fight you played yourself by knockout.' },
     { id: 'long_life', name: 'The Long Game', text: 'Reach the 1960s.' },
     { id: 'activist', name: 'Bigger Than Boxing', text: 'Use your name to fight for civil rights.' },

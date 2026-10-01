@@ -8,7 +8,7 @@
   const add = (...list) => EV.push(...list);
   T.eventById = (id) => EV.find((e) => e.id === id);
   const E = () => T.engine;
-  const fights = (s) => s.fights.length;
+  const fights = (s) => E().fx(s); // counted as a full-length career would count them
   const yr = (s) => E().year(s.t);
   const age = (s) => E().age(s);
 
@@ -687,7 +687,7 @@
       ],
     },
     {
-      id: 'think_retire', title: 'The Long Look in the Mirror', weight: 3, repeat: 80, when: (s) => (age(s) >= 33 || s.health < 35 || s.flags.thinking_retire || s.flags.promised_retire) && !s.retired && s.phase === 'between',
+      id: 'think_retire', title: 'The Long Look in the Mirror', weight: 3, repeat: 80, steady: true, when: (s) => (age(s) >= 33 || s.health < 35 || s.flags.thinking_retire || s.flags.promised_retire) && !s.retired && s.phase === 'between',
       text: (s, x) => `${x.trainer()} sits down next to you after practice. "${age(s) >= 35 ? 'You\'re slower. I\'m old, so I notice.' : 'You\'ve taken a lot of punches, kid.'} I want you to walk out of this sport, not get carried out." Record: ${s.rec.w}-${s.rec.l}${s.rec.d ? '-' + s.rec.d : ''}. Bank account: ${E().money(s.money)}.`,
       choices: [
         { label: 'Retire now', hint: 'Start your second act', go: (x) => { x.retire('chose'); return 'You hand him your gloves. He holds them like they might break.'; } },

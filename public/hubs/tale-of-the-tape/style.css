@@ -800,3 +800,30 @@ body[data-era="tv"] .cost { color: #b23a1f; }
 .amb.on small { color: #c8f5a6; }
 .amb-result.done h2 { color: var(--good); }
 @media (max-width: 760px) { .ambitions { grid-template-columns: 1fr; } }
+
+/* ---------- game length, consequences, callbacks ---------- */
+.paces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.paces legend { grid-column: 1 / -1; }
+.style-card.pace em { display: block; font-family: var(--cond); font-style: normal; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-top: 2px; }
+.style-card.pace.on em { color: var(--accent2); }
+@media (max-width: 760px) { .paces { grid-template-columns: 1fr; } }
+.consequences { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.cq { font-family: var(--cond); font-size: .82rem; letter-spacing: .04em; padding: 3px 9px; border: 2px solid var(--ink); background: var(--paper2); animation: arrive .35s ease both; }
+.cq.up { background: #dbe9d0; color: #1f4a29; }
+.cq.down { background: #f2d3cc; color: #7c1810; }
+.cq.echo { background: var(--ink); color: var(--accent2); border-style: dashed; border-color: var(--accent2); text-transform: uppercase; letter-spacing: .1em; }
+.cq:nth-child(2) { animation-delay: .05s; } .cq:nth-child(3) { animation-delay: .1s; } .cq:nth-child(4) { animation-delay: .15s; } .cq:nth-child(n+5) { animation-delay: .2s; }
+.because { font-family: var(--type); font-size: .9rem; margin: 0 0 8px; padding: 6px 10px; border-left: 4px solid var(--accent2); background: rgba(224, 165, 38, .14); }
+.because span { opacity: .75; }
+.digest-cols { columns: 2 300px; column-gap: 26px; column-rule: 1px solid rgba(23, 19, 15, .35); margin-bottom: 16px; }
+.digest-item { break-inside: avoid; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px dashed rgba(23, 19, 15, .35); }
+.digest-item h2 { font-family: var(--display); font-weight: 400; font-size: 1.3rem; line-height: 1.1; margin: 2px 0 6px; }
+.digest-item p { margin: 0 0 6px; }
+.digest-archive { font-size: .9rem; color: var(--ink2); }
+.story-card ol { list-style: none; padding: 0; margin: 0; }
+.story-card li { padding: 7px 0; border-bottom: 1px dashed rgba(23, 19, 15, .3); font-size: .95rem; line-height: 1.35; }
+.story-card li span { display: block; font-family: var(--cond); text-transform: uppercase; font-size: .7rem; letter-spacing: .08em; color: var(--accent); }
+.story-card li:first-child { animation: arrive .5s ease both; }
+.tape-camp { background: var(--paper); color: var(--ink); display: inline-block; padding: 8px 14px; border: 2px solid var(--ink); max-width: 70ch; margin: 4px auto 10px; }
+.camp-plan-note { font-family: var(--type); background: var(--paper2); border-left: 4px solid var(--accent); padding: 6px 10px; }
+.event-card.newspaper.digest-card { animation: arrive .5s ease both; }

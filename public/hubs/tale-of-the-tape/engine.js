@@ -61,6 +61,20 @@
   E.eraMoney = (t) => { const y = E.year(t); return y < 1942 ? 1 : y < 1946 ? 1.3 : y < 1950 ? 1.75 : y < 1956 ? 2.1 : 2.4; };
   E.tvEra = (t) => E.year(t) >= 1949;
 
+  // ---------- game length ----------
+  // Every length covers the same history. Shorter games take bigger steps, so each turn,
+  // camp and fight carries more weight: more months pass, and every fight counts for more.
+  E.PACES = {
+    short: { name: 'Short', time: 'about 30 minutes', blurb: 'Each turn is a season. One plan per camp. Only the moments that change your life.', months: 3, kf: 2.5, ek: 2, camp: 'plan', hist: 'major', turn: 'this season', per: 'one season', last: 'Last season' },
+    standard: { name: 'Standard', time: 'about an hour', blurb: 'Two months at a time. The whole story with less waiting.', months: 2, kf: 1.7, ek: 1.5, camp: 'plan', hist: 'choices', turn: 'the next two months', per: 'two months', last: 'The last two months' },
+    full: { name: 'Full', time: 'a few hours, saved as you go', blurb: 'Month by month. Every week of camp, every headline.', months: 1, kf: 1, ek: 1, camp: 'steps', hist: 'all', turn: 'this month', per: 'one month', last: 'Last month' },
+  };
+  E.pace = (s) => E.PACES[s && s.pace] || E.PACES.full;
+  // A fight-count goal at this length ("twenty fights" in a full career is about eight in a short one).
+  E.nf = (s, n) => Math.max(1, Math.round(n / E.pace(s).kf));
+  // Fights so far, counted the way a full-length career would count them.
+  E.fx = (s) => s.fights.length * E.pace(s).kf;
+
   // ---------- names and fighters ----------
   function fullName(p) { return p.nick ? `${p.first} "${p.nick}" ${p.last}` : `${p.first} ${p.last}`; }
   E.fullName = fullName;
@@ -170,6 +184,7 @@
     s.rec = { w: 0, l: 0, d: 0, ko: 0, kod: 0, streak: 0 };
     s.fights = []; s.flags = {}; s.c = { trainStreak: 0, earned: 0, idle: 0, actions: 0, played: 0, events: 0 };
     s.perks = []; s.gear = {}; s.lessons = 0; s.ambition = E.AMBITIONS[o.ambition] ? o.ambition : null;
+    s.pace = E.PACES[o.pace] ? o.pace : 'full'; s.why = {};
     s.queue = []; s.seen = {}; s.hist = {}; s.journal = []; s.story = []; s.inbox = []; s.offers = null; s.camp = null; s.service = null; s.after = null; s.ach = [];
     s.city = s.f.home;
     s.people = {
@@ -365,7 +380,7 @@
 
   // ---------- events plumbing ----------
   function schedule(s, id, minWeeks, maxWeeks, data) {
-    s.queue.push({ id, at: s.t + int(s, minWeeks, Math.max(minWeeks, maxWeeks)), data: data || null });
+    s.queue.push({ id, at: s.t + int(s, minWeeks, Math.max(minWeeks, maxWeeks)), data: data || null, because: s.ctx || null });
   }
   E.schedule = schedule;
   function queueScheduled(s) {
@@ -373,7 +388,7 @@
     s.queue = s.queue.filter((q) => q.at > s.t);
     for (const q of due) {
       const ev = T.eventById(q.id);
-      if (ev && (!ev.when || ev.when(s, q.data))) s.inbox.push({ id: q.id, data: q.data, kind: 'event' });
+      if (ev && (!ev.when || ev.when(s, q.data))) s.inbox.push({ id: q.id, data: q.data, kind: 'event', because: q.because || null });
     }
   }
   function queueHistory(s) {
@@ -384,9 +399,37 @@
         s.hist[h.id] = s.t;
         if (at < 2 && s.t < 2) continue; // before the career started
         if (h.when && !h.when(s)) continue;
-        s.inbox.push({ id: h.id, kind: 'history' });
+        if (featured(s, h)) s.inbox.push({ id: h.id, kind: 'history' });
+        else digest(s, h);
       }
     }
+    printNews(s);
+  }
+  // Shorter games keep the headlines that ask something of you. The rest share one front page.
+  const MAJOR = new Set(['h_dust', 'h_schmeling2', 'h_pearl', 'h_double_v', 'h_jackie', 'h_louis_retires', 'h_tv', 'h_brown', 'h_montgomery', 'h_kefauver']);
+  function histChoices(s, h) { return (typeof h.choices === 'function' ? h.choices(s, E.api(s)) : h.choices) || []; }
+  function featured(s, h) {
+    const mode = E.pace(s).hist;
+    if (mode === 'all') return true;
+    if (histChoices(s, h).length < 2) return false;
+    return mode === 'choices' || MAJOR.has(h.id);
+  }
+  function digest(s, h) {
+    const x = E.api(s), val = (v) => (typeof v === 'function' ? v(s, x) : v);
+    const ch = histChoices(s, h);
+    // A headline with only one possible response still happens to you.
+    if (ch.length === 1 && ch[0].go) ch[0].go(x); else if (!ch.length && h.go) h.go(x);
+    s.seen[h.id] = s.t;
+    s.newsDesk = s.newsDesk || [];
+    s.newsDesk.push({ id: h.id, title: val(h.title), text: val(h.text), kicker: val(h.kicker) || '', archive: val(h.archive) || '', link: h.link || null, when: s.t });
+  }
+  // The front page goes out once a few stories pile up, or once the oldest is a year old.
+  function printNews(s) {
+    const desk = s.newsDesk;
+    if (!desk || !desk.length || (desk.length < 5 && s.t - desk[0].when < 104)) return;
+    let page = s.inbox.find((i) => i.kind === 'digest');
+    if (!page) { page = { id: 'digest', kind: 'digest', entries: [] }; s.inbox.push(page); }
+    page.entries.push(...desk.splice(0)); delete page.cache;
   }
   // A random event happens with a chance that grows with fame and trouble.
   function rollRandom(s, base) {
@@ -401,7 +444,7 @@
       if (ev.from && E.year(s.t) < ev.from) continue;
       if (ev.to && E.year(s.t) > ev.to) continue;
       const last = s.seen[ev.id];
-      if (last != null && (!ev.repeat || s.t - last < ev.repeat)) continue;
+      if (last != null && (!ev.repeat || s.t - last < ev.repeat * (ev.steady ? 1 : E.pace(s).months))) continue;
       if (ev.when && !ev.when(s)) continue;
       const w = typeof ev.weight === 'function' ? ev.weight(s) : ev.weight != null ? ev.weight : 1;
       if (w > 0) pool.push({ v: ev, w });
@@ -412,19 +455,21 @@
   E.rollRandom = rollRandom;
 
   // Effects API handed to event choices. Everything an event can do to a career lives here.
-  E.api = function (s, data) {
+  // k scales how much an event choice moves your stats, fame and standing. Shorter games have fewer
+  // events, so each one counts for more. Money stays as written, because choices show their prices.
+  E.api = function (s, data, k = 1) {
     const x = {
       s, data, E, D, rnd: () => rnd(s), int: (a, b) => int(s, a, b), pick: (arr) => pick(s, arr), chance: (p) => chance(s, p),
       money(n) { n = Math.round(n * (Math.abs(n) > 3 ? E.eraMoney(s.t) : 1)); s.money += n; if (n > 0) s.c.earned += n; return n; },
       rawMoney(n) { s.money += Math.round(n); if (n > 0) s.c.earned += n; },
-      stat(k, n) { s.st[k] = clamp(s.st[k] + n, 5, 99); },
-      fame(n) { E.addFame(s, n); },
-      rep(n) { s.rep = clamp(s.rep + n, -100, 100); },
+      stat(key, n) { s.st[key] = clamp(s.st[key] + n * k, 5, 99); },
+      fame(n) { E.addFame(s, n * k); },
+      rep(n) { s.rep = clamp(s.rep + n * k, -100, 100); },
       heart(n) { s.heart = clamp(s.heart + n, 0, 100); },
       health(n) { s.health = clamp(s.health + n, 0, 100); },
       sharp(n) { s.sharp = clamp(s.sharp + n, 0, 100); },
-      elo(n) { s.elo += n; },
-      flag(k, v = true) { s.flags[k] = v; },
+      elo(n) { s.elo += n * k; },
+      flag(k, v = true) { s.flags[k] = v; if (v && s.ctx) { s.why = s.why || {}; if (!s.why[k]) s.why[k] = s.ctx; } },
       has: (k) => !!s.flags[k],
       later(id, a, b, d) { schedule(s, id, a, b == null ? a : b, d); },
       note: (t, k) => note(s, t, k),
@@ -452,9 +497,9 @@
     ironjaw: { name: 'Iron Jaw', kind: 'ring', cost: 5, blurb: 'Easier to beat the count, and you come up with more left.' },
     secondwind: { name: 'Second Wind', kind: 'ring', cost: 4, blurb: 'Faster stamina recovery, and every corner break heals a little.' },
     fasthands: { name: 'Fast Hands', kind: 'ring', cost: 5, blurb: 'Your punches come out quicker and snap back faster.' },
-    killer: { name: 'Killer Instinct', kind: 'ring', cost: 6, req: (s) => s.rec.ko >= 3, reqText: 'Needs 3 knockouts', blurb: 'When he is hurt, you finish. More damage on a staggered opponent.' },
+    killer: { name: 'Killer Instinct', kind: 'ring', cost: 6, req: (s) => s.rec.ko >= E.nf(s, 3), reqText: (s) => `Needs ${E.nf(s, 3)} knockout${E.nf(s, 3) === 1 ? '' : 's'}`, blurb: 'When he is hurt, you finish. More damage on a staggered opponent.' },
     clinch: { name: 'The Clinch', kind: 'ring', cost: 4, blurb: 'A new move: tie him up (E key or the CLINCH button) to stop his attack and catch your breath. Twice a round.' },
-    general: { name: 'Ring General', kind: 'ring', cost: 6, req: (s) => s.fights.length >= 12, reqText: 'Needs 12 fights', blurb: 'You read fighters early. His wind-ups take a little longer to come.' },
+    general: { name: 'Ring General', kind: 'ring', cost: 6, req: (s) => s.fights.length >= E.nf(s, 12), reqText: (s) => `Needs ${E.nf(s, 12)} fights`, blurb: 'You read fighters early. His wind-ups take a little longer to come.' },
     crowd: { name: 'Crowd Pleaser', kind: 'ring', cost: 4, blurb: 'Stars come easier, and every win brings more fame.' },
     discipline: { name: 'Roadwork Discipline', kind: 'life', cost: 4, blurb: 'Every month of training does more.' },
     healer: { name: 'Quick Healer', kind: 'life', cost: 4, blurb: 'Injuries heal faster and your body bounces back.' },
@@ -478,14 +523,17 @@
   E.AMBITIONS = {
     title: { name: 'Win a world title', reward: 25, done: (s) => s.belts > 0 },
     rich: { name: 'Retire with $20,000 in the bank', reward: 15, done: (s) => s.retired && (s.flags.retire_money || 0) >= 20000 },
-    iron: { name: 'Never get knocked out (20+ fights)', reward: 15, done: (s) => s.fights.length >= 20 && s.rec.kod === 0 },
-    fifty: { name: 'Fight fifty times', reward: 10, done: (s) => s.fights.length >= 50 },
+    iron: { name: 'Never get knocked out (# or more fights)', n: 20, reward: 15, done: (s) => s.fights.length >= E.nf(s, 20) && s.rec.kod === 0 },
+    fifty: { name: 'Fight # times', n: 50, reward: 10, done: (s) => s.fights.length >= E.nf(s, 50) },
     famous: { name: 'Become a household name', reward: 15, done: (s) => (s.flags.max_fame || 0) >= 70 },
     rival: { name: 'Beat your rival twice', reward: 15, done: (s) => (s.flags.rival_wins || 0) >= 2 },
-    clean: { name: 'Never take a crooked dollar (20+ fights)', reward: 10, done: (s) => s.fights.length >= 20 && !s.flags.ever_crooked },
-    unbeaten: { name: 'Win your first fifteen fights', reward: 20, done: (s) => !!s.flags.first15 },
+    clean: { name: 'Never take a crooked dollar (# or more fights)', n: 20, reward: 10, done: (s) => s.fights.length >= E.nf(s, 20) && !s.flags.ever_crooked },
+    unbeaten: { name: 'Win your first # fights', n: 15, reward: 20, done: (s) => !!s.flags.first15 },
     abroad: { name: 'Fight in London', reward: 10, done: (s) => s.fights.some((f) => f.city === 'London') },
   };
+  // Goals that count fights shrink with the game length. Pass a career, or just { pace }.
+  E.ambName = (s, k) => { const a = E.AMBITIONS[k]; return a.n ? a.name.replace('#', E.nf(s, a.n)) : a.name; };
+  E.achText = (s, a) => (a.n ? a.text.replace('#', E.nf(s, a.n)) : a.text);
   E.hasPerk = (s, id) => !!(s.perks && s.perks.includes(id));
   E.hasGear = (s, id) => !!(s.gear && s.gear[id]);
   E.perkCost = (s, id) => E.PERKS[id].cost;
@@ -568,47 +616,54 @@
   }
   E.act = function (s, action, arg) {
     if (s.inbox.length || s.phase !== 'between' || s.retired) return null;
-    const res = { lines: [] };
+    const res = { lines: [] }, m = E.pace(s).months;
+    const span = { 1: 'A month', 2: 'Two months', 3: 'A season' }[m] || 'A month';
     s.c.actions++;
     const x = E.api(s);
     if (action === 'train') {
       if (s.injury && arg !== 'roadwork') { res.lines.push(`The ${s.injury.name} won't allow it. You do light roadwork instead.`); arg = 'roadwork'; }
       const tr = TRAIN[arg] || TRAIN.roadwork;
-      const g = trainGain(s, tr.stat);
-      if (arg === 'spar') { trainGain(s, 'chn', 0.35); s.sharp = clamp(s.sharp + 12, 0, 100); if (E.hasGear(s, 'partners')) trainGain(s, 'def', 0.4); }
-      s.c.trainStreak++;
+      let g = 0;
+      for (let i = 0; i < m; i++) {
+        g += trainGain(s, tr.stat);
+        if (arg === 'spar') { trainGain(s, 'chn', 0.35); s.sharp = clamp(s.sharp + 12, 0, 100); if (E.hasGear(s, 'partners')) trainGain(s, 'def', 0.4); }
+        s.c.trainStreak++;
+      }
       res.lines.push(`${tr.line} ${E.statLabel[tr.stat]} +${g.toFixed(1)}.`);
       if (s.c.trainStreak >= 4 && chance(s, 0.25)) { s.heart = clamp(s.heart - 6, 0, 100); res.lines.push('You are grinding yourself down. The joy is leaking out.'); }
-      if (arg === 'spar' && chance(s, E.hasGear(s, 'partners') ? 0.035 : 0.07)) { x.injure(pick(s, ['bruised rib', 'cut over the eye', 'sprained thumb']), int(s, 3, 6)); res.lines.push(`A sparring partner catches you. ${s.injury.name[0].toUpperCase() + s.injury.name.slice(1)}.`); }
-      tick(s, 4, arg === 'spar' ? 'spar' : 'train');
+      if (arg === 'spar' && chance(s, 1 - Math.pow(1 - (E.hasGear(s, 'partners') ? 0.035 : 0.07), m))) { x.injure(pick(s, ['bruised rib', 'cut over the eye', 'sprained thumb']), int(s, 3, 6)); res.lines.push(`A sparring partner catches you. ${s.injury.name[0].toUpperCase() + s.injury.name.slice(1)}.`); }
+      tick(s, 4 * m, arg === 'spar' ? 'spar' : 'train');
     } else if (action === 'work') {
       const job = D.JOBS.find((j) => E.year(s.t) >= j.from && E.year(s.t) <= j.to) || D.JOBS[D.JOBS.length - 1];
-      const pay = Math.round(between(s, job.pay[0], job.pay[1]));
+      let pay = 0;
+      for (let i = 0; i < m; i++) pay += Math.round(between(s, job.pay[0], job.pay[1]));
       s.money += pay; s.c.earned += pay; s.c.trainStreak = 0;
-      res.lines.push(`A month on ${job.name}. You bring home ${money(pay)}.${job.note && !s.flags['jobnote_' + job.from] ? ' ' + job.note : ''}`);
+      res.lines.push(`${span} on ${job.name}. You bring home ${money(pay)}.${job.note && !s.flags['jobnote_' + job.from] ? ' ' + job.note : ''}`);
       s.flags['jobnote_' + job.from] = true;
-      s.st.sta = clamp(s.st.sta + 0.3, 5, 99);
-      tick(s, 4, 'work');
+      s.st.sta = clamp(s.st.sta + 0.3 * m, 5, 99);
+      tick(s, 4 * m, 'work');
     } else if (action === 'rest') {
-      s.health = clamp(s.health + 8, 0, 100); s.heart = clamp(s.heart + 8, 0, 100); s.c.trainStreak = 0;
-      res.lines.push(pick(s, ['You sleep in, eat a real breakfast, and see a picture show.', 'A month off. Your hands stop aching.', 'You go home for a while. The cooking alone is worth it.']));
-      tick(s, 4, 'rest');
+      s.health = clamp(s.health + 8 * m, 0, 100); s.heart = clamp(s.heart + 8 * m, 0, 100); s.c.trainStreak = 0;
+      res.lines.push(pick(s, ['You sleep in, eat a real breakfast, and see a picture show.', `${span} off. Your hands stop aching.`, 'You go home for a while. The cooking alone is worth it.']));
+      tick(s, 4 * m, 'rest');
     } else if (action === 'press') {
       const tv = E.tvEra(s.t);
       const p = 0.55 + (s.people.manager.trait === 'showman' ? 0.2 : 0) + Math.min(0.2, s.rec.w / 60);
-      if (chance(s, p)) {
-        const b0 = s.fame; E.addFame(s, int(s, 2, 5) + (tv ? 1 : 0)); const g = Math.max(1, Math.round(s.fame - b0));
+      let hits = 0;
+      for (let i = 0; i < m; i++) if (chance(s, p)) hits++;
+      if (hits) {
+        const b0 = s.fame; for (let i = 0; i < hits; i++) E.addFame(s, int(s, 2, 5) + (tv ? 1 : 0)); const g = Math.max(1, Math.round(s.fame - b0));
         res.lines.push(pick(s, tv
           ? ['You go on a TV variety show and spar with the host. The audience eats it up.', 'A razor company films you shaving. Millions see it.']
           : ['You do a radio spot and tell the story of your first fight. The phones ring.', `${s.people.reporter.name} of ${s.people.reporter.paper} writes you up.`, 'You pose for photographers on a fire escape. The picture runs in three papers.']) + ` Fame +${g}.`);
       } else { res.lines.push(pick(s, ['You show up to a newspaper office. Nobody shows up to meet you.', 'The radio host mispronounces your name four times.', 'You trip on a cable at the photo studio. The photo runs anyway.'])); s.fame = clamp(s.fame + 1, 0, 100); }
-      s.c.trainStreak = 0; s.sharp = clamp(s.sharp - 2, 0, 100);
-      tick(s, 4, 'press');
+      s.c.trainStreak = 0; s.sharp = clamp(s.sharp - 2 * m, 0, 100);
+      tick(s, 4 * m, 'press');
     } else if (action === 'circuit') {
       // Three quick bouts on the club circuit, called on the radio.
       res.circuit = [];
       for (let i = 0; i < 3; i++) {
-        tick(s, int(s, 2, 4), 'fight');
+        tick(s, int(s, 2, 4) * m, 'fight');
         const offer = makeOffer(s, 'club');
         const out = E.simFight(s, offer);
         const r = E.resolveFight(s, offer, out);
@@ -650,7 +705,8 @@
     if (s.champ && level === 'title') p *= 2.4;
     if (E.tvEra(s.t)) p *= (level === 'club' || level === 'smoker') ? 0.75 : 1.25;
     if (E.hasPerk(s, 'showman')) p *= 1.12;
-    return Math.round((p * E.eraMoney(s.t)) / 5) * 5;
+    // In a shorter game a purse has to cover a longer stretch of rent.
+    return Math.round((p * E.eraMoney(s.t) * E.pace(s).months) / 5) * 5;
   }
   function makeOffer(s, level, opp, extra = {}) {
     const lvl = level;
@@ -662,14 +718,15 @@
     }
     const v = extra.venue ? { venue: extra.venue, city: extra.city } : venueFor(s, lvl === 'ranked' || lvl === 'eliminator' ? 'main' : lvl === 'prelim' ? 'club' : lvl);
     const rounds = { smoker: 4, club: 4, prelim: 6, main: 10, ranked: 10, eliminator: 12, title: 15 }[lvl];
-    const weeks = extra.weeks || (lvl === 'title' ? int(s, 6, 10) : lvl === 'smoker' || lvl === 'club' ? int(s, 2, 4) : int(s, 3, 8));
+    const baseWeeks = extra.weeks || (lvl === 'title' ? int(s, 6, 10) : lvl === 'smoker' || lvl === 'club' ? int(s, 2, 4) : int(s, 3, 8));
+    const weeks = Math.round(baseWeeks * E.pace(s).months);
     const o = {
       id: Math.floor(rnd(s) * 1e9), level: lvl, opp: snapshot(opp), oppId: opp.club ? null : opp.id, rounds, weeks, venue: v.venue, city: v.city,
       purse: extra.purse || purseFor(s, lvl, opp), tv: E.tvEra(s.t) && (lvl === 'main' || lvl === 'ranked' || lvl === 'eliminator' || lvl === 'title') && (s.fame >= 18 || lvl === 'title'),
       title: lvl === 'title', tags: extra.tags || [], note: extra.note || '', crooked: extra.crooked || false,
     };
     o.signature = E.signatureFor(s, opp);
-    if (weeks <= 2 && lvl !== 'smoker' && lvl !== 'club') { o.tags.push('short notice'); o.purse = Math.round(o.purse * 1.35); }
+    if (baseWeeks <= 2 && lvl !== 'smoker' && lvl !== 'club') { o.tags.push('short notice'); o.purse = Math.round(o.purse * 1.35); }
     if (v.city !== (D.CITIES[s.city] || D.CITIES[s.f.home]).name) o.tags.push('on the road');
     if (o.tv) o.tags.push('on television');
     if (opp.id === s.people.rival) o.tags.push('your rival');
@@ -699,7 +756,7 @@
       ranks.slice(0, 2).forEach((f, i) => list.push(makeOffer(s, 'title', f, { tags: i === 0 ? ['mandatory challenger'] : [] })));
       const nt = pick(s, act.filter((f) => f.elo < s.elo - 100)) ;
       if (nt) list.push(makeOffer(s, 'main', nt, { tags: ['non-title'], note: 'The belt is not on the line. The money is decent and the risk is lower.' }));
-    } else if (fights < 3) {
+    } else if (fights < E.nf(s, 3)) {
       list.push(makeOffer(s, 'smoker'));
       list.push(makeOffer(s, 'club'));
       if (chance(s, 0.6)) list.push(makeOffer(s, 'club', null, { weeks: 2, tags: ['short notice'], purse: purseFor(s, 'club') * 1.5 }));
@@ -725,7 +782,7 @@
     }
     // Sometimes the rival is available.
     const rival = E.rival(s);
-    if (rival && rival.active && !s.champ && fights >= 6 && Math.abs(rival.elo - s.elo) < 260 && chance(s, 0.3) && !list.some((o) => o.oppId === rival.id)) {
+    if (rival && rival.active && !s.champ && fights >= E.nf(s, 6) && Math.abs(rival.elo - s.elo) < 260 && chance(s, Math.min(0.7, 0.3 * E.pace(s).kf)) && !list.some((o) => o.oppId === rival.id)) {
       list.push(makeOffer(s, rival.id === s.world.champId ? 'title' : 'main', rival, { tags: [] }));
     }
     if (E.hasGear(s, 'car') && !s.champ && list.length < 4) list.push(makeOffer(s, s.elo > 1350 ? 'main' : 'prelim', null, { tags: ['road trip'] }));
@@ -757,27 +814,33 @@
     if (s.phase !== 'camp' || !s.camp || s.inbox.length) return null;
     const c = s.camp, res = { lines: [] };
     const tr = E.CAMP[what] || E.CAMP.roadwork;
+    // In the shorter games one plan covers the whole camp, so it does a whole camp's work.
+    const plan = E.pace(s).camp === 'plan', n = plan ? c.blocks : 1;
+    if (c.done.length >= (plan ? 1 : c.blocks)) return { lines: [], ready: true };
     if (tr.stat) {
-      if (s.injury && what !== 'roadwork') { res.lines.push(`The ${s.injury.name} keeps you out of it. Light work only.`); s.health = clamp(s.health + 1, 0, 100); }
+      if (s.injury && what !== 'roadwork') { res.lines.push(`The ${s.injury.name} keeps you out of it. Light work only.`); s.health = clamp(s.health + n, 0, 100); }
       else {
-        const g = trainGain(s, tr.stat, 0.9);
-        if (what === 'spar') { s.sharp = clamp(s.sharp + 10, 0, 100); if (chance(s, 0.05)) { E.api(s).injure('cut over the eye', 3, 3); res.lines.push('A sparring partner opens a cut over your eye. Doc tapes it.'); } }
+        let g = 0;
+        for (let i = 0; i < n; i++) { g += trainGain(s, tr.stat, 0.9); if (what === 'spar') s.sharp = clamp(s.sharp + 10, 0, 100); }
+        if (what === 'spar' && chance(s, 1 - Math.pow(0.95, n))) { E.api(s).injure('cut over the eye', 3, 3); res.lines.push('A sparring partner opens a cut over your eye. Doc tapes it.'); }
         res.lines.push(`${tr.name}: ${E.statLabel[tr.stat]} +${g.toFixed(1)}.`);
       }
     } else if (what === 'scout') {
-      c.scout += (E.hasPerk(s, 'film') ? 1 : 0) + (E.hasGear(s, 'projector') ? 1 : 0) + 1;
-      res.lines.push(c.scout === 1 ? `You study ${c.offer.opp.last}. ${scoutLine(c.offer.opp)}` : 'You find another habit. You will know what is coming before it comes.');
-    } else if (what === 'rest') { s.health = clamp(s.health + 4, 0, 100); s.heart = clamp(s.heart + 4, 0, 100); res.lines.push('Rest. Legs fresh. Mind clear.'); }
+      const first = !c.scout;
+      for (let i = 0; i < Math.min(n, 3); i++) c.scout += (E.hasPerk(s, 'film') ? 1 : 0) + (E.hasGear(s, 'projector') ? 1 : 0) + 1;
+      res.lines.push(first ? `You study ${c.offer.opp.last}. ${scoutLine(c.offer.opp)}` : 'You find another habit. You will know what is coming before it comes.');
+      if (plan && n > 1) res.lines.push('By fight night you know his habits better than he does.');
+    } else if (what === 'rest') { s.health = clamp(s.health + 4 * n, 0, 100); s.heart = clamp(s.heart + 4 * n, 0, 100); res.lines.push('Rest. Legs fresh. Mind clear.'); }
     else if (what === 'press') {
-      c.hype++; const b0 = s.fame; E.addFame(s, int(s, 1, 3)); const g = Math.max(1, Math.round(s.fame - b0));
+      c.hype += n; const b0 = s.fame; for (let i = 0; i < n; i++) E.addFame(s, int(s, 1, 3)); const g = Math.max(1, Math.round(s.fame - b0));
       res.lines.push(`You talk up the fight. Ticket sales jump. Fame +${g}, and the purse grows.`);
-      c.offer.purse = Math.round(c.offer.purse * 1.08);
+      c.offer.purse = Math.round(c.offer.purse * (1 + 0.08 * Math.min(n, 3)));
     }
     c.done.push(what);
     const left = c.offer.weeks - (c.done.length - 1) * 4;
-    tick(s, Math.max(1, Math.min(4, left)), what === 'rest' ? 'rest' : what === 'spar' ? 'spar' : 'train');
+    tick(s, plan ? c.offer.weeks : Math.max(1, Math.min(4, left)), what === 'rest' ? 'rest' : what === 'spar' ? 'spar' : 'train');
     if (chance(s, 0.25)) rollRandom(s, 1);
-    res.ready = c.done.length >= c.blocks;
+    res.ready = plan || c.done.length >= c.blocks;
     checkForced(s);
     return res;
   };
@@ -877,10 +940,11 @@
     const wasChamp = s.champ;
     const x = E.api(s);
     const yourName = fullName(s.f), oppName = fullName(opp);
+    const kf = E.pace(s).kf; // in a shorter game each fight stands for more of a career
     s.fights.push({ t: s.t, oppId: opp.id > 0 ? opp.id : null, opp: `${opp.first} ${opp.last}`, result: out.result, method: out.method, round: out.round, purse: offer.purse, venue: offer.venue, city: offer.city, level: offer.level, title: offer.title, played: out.played, tv: offer.tv });
-    s.sharp = clamp(s.sharp + 14, 0, 100);
+    s.sharp = clamp(s.sharp + 14 * kf, 0, 100);
     // Every fight teaches something, win or lose. Playing it yourself teaches more.
-    const learn = (out.played ? 1.6 : 1) * (offer.rounds >= 10 ? 1.3 : 1) * (E.age(s) >= 33 ? 0.15 : E.age(s) >= 30 ? 0.4 : 1);
+    const learn = kf * (out.played ? 1.6 : 1) * (offer.rounds >= 10 ? 1.3 : 1) * (E.age(s) >= 33 ? 0.15 : E.age(s) >= 30 ? 0.4 : 1);
     for (const k of ['pow', 'spd', 'sta', 'chn', 'def']) s.st[k] = clamp(s.st[k] + between(s, 0, 0.7) * learn * (1 - s.st[k] / 105), 5, 99);
     // Money: the purse is split before you ever see it.
     const managerCut = Math.round(offer.purse * (s.flags.self_managed ? 0 : 0.33));
@@ -899,7 +963,7 @@
     const oppElo = world ? world.elo : 1000 + opp.rating * 10;
     const exp = 1 / (1 + Math.pow(10, (oppElo - s.elo) / 400));
     const score = out.result === 'W' ? 1 : out.result === 'D' ? 0.5 : 0;
-    const K = s.fights.length < 10 ? 60 : 42;
+    const K = (s.fights.length < E.nf(s, 10) ? 60 : 42) * kf;
     const delta = K * (score - exp) * (offer.title ? 1.5 : 1);
     s.elo += delta;
     if (world) {
@@ -913,11 +977,11 @@
       s.rec.w++; if (kod) s.rec.ko++;
       s.rec.streak = s.rec.streak > 0 ? s.rec.streak + 1 : 1;
       const before = s.fame;
-      x.fame(lvlFame * (kod ? 1.4 : 1) * (tv ? 1.5 : 1) * (out.played ? 1.15 : 1) * (E.hasGear(s, 'robe') ? 1.1 : 1) * (E.hasPerk(s, 'crowd') ? 1.2 : 1)); x.heart(6);
-      if (s.rec.w === 15 && s.rec.l === 0) s.flags.first15 = true;
+      x.fame(kf * lvlFame * (kod ? 1.4 : 1) * (tv ? 1.5 : 1) * (out.played ? 1.15 : 1) * (E.hasGear(s, 'robe') ? 1.1 : 1) * (E.hasPerk(s, 'crowd') ? 1.2 : 1)); x.heart(6);
+      if (s.rec.w === E.nf(s, 15) && s.rec.l === 0) s.flags.first15 = true;
       const fg = Math.round(s.fame - before); if (fg > 0) r.changes.push(`Fame +${fg}`);
       if (s.rec.w === 1) { remember(s, 'first_win', `won my first fight at ${offer.venue}${kod ? ' by knockout' : ''}`, 1); E.achieve(s, 'first_win'); }
-      if (s.rec.ko >= 10) E.achieve(s, 'ko_artist');
+      if (s.rec.ko >= E.nf(s, 10)) E.achieve(s, 'ko_artist');
       if (E.age(s) >= 37) E.achieve(s, 'old_man');
       if (out.played && kod) E.achieve(s, 'skill_ko');
       if (s.flags.lost3 && s.rec.streak >= 3) { E.achieve(s, 'comeback'); remember(s, 'comeback', 'came back from a three-fight losing streak', 2); s.flags.lost3 = false; }
@@ -926,15 +990,15 @@
       if (kod) s.rec.kod++;
       s.rec.streak = s.rec.streak < 0 ? s.rec.streak - 1 : -1;
       if (s.rec.streak <= -3) s.flags.lost3 = true;
-      x.fame(offer.level === 'title' ? 2 : -Math.round(lvlFame / 3)); x.heart(kod ? -12 : -7);
+      x.fame(kf * (offer.level === 'title' ? 2 : -Math.round(lvlFame / 3))); x.heart(kod ? -12 : -7);
       if (s.rec.l === 1) remember(s, 'first_loss', `lost for the first time, to ${oppName}${kod ? ', who knocked me out' : ''}`, 1);
-    } else { s.rec.d++; s.rec.streak = 0; x.fame(Math.round(lvlFame / 2)); }
+    } else { s.rec.d++; s.rec.streak = 0; x.fame(kf * Math.round(lvlFame / 2)); }
     // Body damage
-    const wear = Math.round(out.dmgTaken * (offer.rounds >= 10 ? 10 : 5) + out.kdAgainst * 2.5 + (kod && out.result === 'L' ? 5 : 0));
+    const wear = Math.round((out.dmgTaken * (offer.rounds >= 10 ? 10 : 5) + out.kdAgainst * 2.5 + (kod && out.result === 'L' ? 5 : 0)) * Math.pow(kf, 0.75));
     s.health = clamp(s.health - wear, 0, 100);
     if (wear >= 6) r.changes.push(`Health -${wear}`);
     if (out.kdAgainst >= 2 || (kod && out.result === 'L')) s.st.chn = clamp(s.st.chn - between(s, 0.5, 2.2), 5, 99);
-    const injP = (0.025 + out.dmgTaken * 0.2 * (offer.rounds >= 10 ? 1 : 0.6) + (offer.rounds >= 12 ? 0.04 : 0)) * (E.hasGear(s, 'cutman') ? 0.65 : 1);
+    const injP = Math.min(0.45, (0.025 + out.dmgTaken * 0.2 * (offer.rounds >= 10 ? 1 : 0.6) + (offer.rounds >= 12 ? 0.04 : 0)) * (E.hasGear(s, 'cutman') ? 0.65 : 1) * Math.sqrt(kf));
     if (chance(s, injP)) {
       const inj = pick(s, [['broken hand', 10, 6], ['cut eyebrow', 4, 3], ['cracked rib', 7, 5], ['broken nose', 5, 3], ['detached retina scare', 12, 8], ['torn shoulder', 9, 6]]);
       if (inj[0] === 'detached retina scare' && chance(s, 0.6)) inj[0] = 'swollen eye';
@@ -948,7 +1012,7 @@
           s.champ = false; s.world.champId = opp.id > 0 ? opp.id : s.world.champId;
           remember(s, 'title_lost', `lost the title to ${oppName} in ${E.year(s.t)}`, 3);
           r.titleLost = true;
-        } else { s.titleDefenses++; s.c.champIdle = 0; if (s.titleDefenses >= 3) E.achieve(s, 'defender'); r.defended = true; if (s.titleDefenses === 1 || s.titleDefenses % 3 === 0) remember(s, 'defense', `defended the title ${s.titleDefenses} time${s.titleDefenses > 1 ? 's' : ''}`, 2); }
+        } else { s.titleDefenses++; s.c.champIdle = 0; if (s.titleDefenses >= E.nf(s, 3)) E.achieve(s, 'defender'); r.defended = true; if (s.titleDefenses === 1 || s.titleDefenses % 3 === 0) remember(s, 'defense', `defended the title ${s.titleDefenses} time${s.titleDefenses > 1 ? 's' : ''}`, 2); }
       } else if (out.result === 'W') {
         s.champ = true; s.belts++; s.titleDefenses = 0; s.c.champIdle = 0; s.flags.title_shot_given = false;
         if (world) { s.world.champId = null; }
@@ -979,7 +1043,8 @@
     if (offer.city === 'London') { E.achieve(s, 'abroad'); remember(s, 'abroad', `fought ${oppName} in London`, 1); }
     // Lessons for the trainer's notebook
     let les = (out.result === 'W' ? 1 : 0) + (out.played ? 1 : 0) + (r.titleWon ? 2 : 0) + (out.result === 'W' && ['ranked', 'eliminator', 'title'].includes(offer.level) ? 1 : 0);
-    if (s.fights.length <= 3) les += 1;
+    if (s.fights.length <= E.nf(s, 3)) les += 1;
+    les = Math.round(les * kf);
     s.lessons = (s.lessons || 0) + les; r.lessons = les;
     if (les) r.changes.push(`Lessons +${les}`);
     if (koBonus) r.changes.push(`Knockout bonus ${money(koBonus)}`);
@@ -994,7 +1059,7 @@
     tick(s, 1, 'fight');
     if (chance(s, 0.5)) rollRandom(s, 0.5);
     // Follow-up hooks for events
-    if (out.result === 'L' && kod && s.rec.kod >= 3 && (!s.flags.doc_t || s.t - s.flags.doc_t > 120)) { s.flags.doc_t = s.t; E.schedule(s, 'doctor_worry', 1, 4); }
+    if (out.result === 'L' && kod && s.rec.kod >= E.nf(s, 3) && (!s.flags.doc_t || s.t - s.flags.doc_t > 120)) { s.flags.doc_t = s.t; E.schedule(s, 'doctor_worry', 1, 4); }
     if (offer.crooked) E.schedule(s, 'fix_aftermath', 1, 3, { result: out.result });
     checkForced(s);
     return r;
@@ -1043,22 +1108,62 @@
     const item = s.inbox[0];
     if (!item) return null;
     if (item.kind === 'discovery') { s.inbox.shift(); const d = T.discoveryById(item.id); if (d && d.go) d.go(E.api(s)); return { text: '' }; }
+    if (item.kind === 'digest') { s.inbox.shift(); return { text: '' }; }
     const ev = item.kind === 'history' ? T.historyById(item.id) : T.eventById(item.id);
     s.inbox.shift();
     if (!ev) return { text: '' };
     s.seen[ev.id] = s.t; s.c.events++;
-    const x = E.api(s, item.data);
+    const x = E.api(s, item.data, E.pace(s).ek);
     const choices = typeof ev.choices === 'function' ? ev.choices(s, x) : ev.choices;
-    let text = '';
+    let text = '', echo = false;
     if (choices && choices.length) {
       const ch = choices[clamp(choiceIndex | 0, 0, choices.length - 1)];
       if (ch.req && !ch.req(s)) return { text: 'That option is not available.' };
-      text = ch.go ? ch.go(x) || '' : '';
+      // Remember which choice set things in motion, so later events can point back to it.
+      const queued = s.queue.length;
+      s.ctx = { t: s.t, id: ev.id, title: typeof ev.title === 'function' ? ev.title(s, x) : ev.title, choice: typeof ch.label === 'function' ? ch.label(s, x) : ch.label };
+      try { text = ch.go ? ch.go(x) || '' : ''; } finally {
+        const ctx = s.ctx; delete s.ctx;
+        echo = s.queue.length > queued || Object.keys(s.why || {}).some((k) => s.why[k] === ctx && [...(watchers()[k] || [])].some((id) => id !== ev.id));
+      }
       if (ch.label) s.decisions = (s.decisions || []).concat([{ t: s.t, ev: ev.id, title: typeof ev.title === 'function' ? ev.title(s, x) : ev.title, choice: ch.label }]).slice(-80);
     } else if (ev.go) text = ev.go(x) || '';
     if (text) note(s, text, item.kind === 'history' ? 'world' : 'life');
     checkForced(s);
-    return { text };
+    return { text, echo };
+  };
+
+  // Which flags other events and discoveries check for. A choice that sets one will come back.
+  let watched = null;
+  function watchers() {
+    if (watched) return watched;
+    watched = {};
+    const scan = (id, fns) => {
+      for (const fn of fns) {
+        if (typeof fn !== 'function') continue;
+        for (const m of String(fn).matchAll(/flags\.(\w+)|has\('(\w+)'\)|f\(s, '(\w+)'\)/g)) { const k = m[1] || m[2] || m[3]; (watched[k] = watched[k] || new Set()).add(id); }
+      }
+    };
+    for (const ev of T.events || []) scan(ev.id, [ev.when, ev.weight, typeof ev.choices === 'function' ? ev.choices : null].concat(Array.isArray(ev.choices) ? ev.choices.map((c) => c.req) : []));
+    for (const h of T.history || []) scan(h.id, [h.when, typeof h.choices === 'function' ? h.choices : null]);
+    for (const d of T.discoveries || []) scan(d.id, [d.need]);
+    return watched;
+  }
+  // The earlier choice that made this event possible, if there is one.
+  E.because = function (s, item) {
+    if (item.because) return item.because;
+    if (!s.why || (item.kind !== 'event' && item.kind !== 'discovery')) return null;
+    const ev = item.kind === 'discovery' ? T.discoveryById(item.id) : T.eventById(item.id);
+    const fn = ev && (item.kind === 'discovery' ? ev.need : ev.when);
+    if (typeof fn !== 'function') return null;
+    const src = String(fn);
+    let best = null;
+    for (const k in s.why) {
+      const w = s.why[k];
+      if (!s.flags[k] || w.id === ev.id || s.t - w.t < 4 || (best && best.t >= w.t)) continue;
+      if (new RegExp(`(^|[^!])(s\\.flags\\.${k}\\b|f\\(s, '${k}'\\)|has\\('${k}'\\))`).test(src)) best = w;
+    }
+    return best;
   };
   E.render = function (s, item) {
     if (item.cache) return item.cache;
@@ -1066,13 +1171,14 @@
     return item.cache;
   };
   function renderItem(s, item) {
-    if (item.kind === 'discovery') { const d = T.discoveryById(item.id); return d ? { id: d.id, kind: 'discovery', title: d.name, text: d.text, mix: d.mix, kicker: 'New discovery', archive: '', art: null, link: null, choices: [{ label: 'Add it to the book', hint: '', ok: true }] } : null; }
+    if (item.kind === 'discovery') { const d = T.discoveryById(item.id); return d ? { id: d.id, kind: 'discovery', title: d.name, text: d.text, mix: d.mix, kicker: 'New discovery', archive: '', art: null, link: null, because: E.because(s, item), choices: [{ label: 'Add it to the book', hint: '', ok: true }] } : null; }
+    if (item.kind === 'digest') return { id: 'digest', kind: 'digest', title: 'Meanwhile, in the Papers', entries: item.entries || [], text: '', kicker: '', archive: '', art: null, link: null, choices: [{ label: 'Turn the page', hint: '', ok: true }] };
     const ev = item.kind === 'history' ? T.historyById(item.id) : T.eventById(item.id);
     if (!ev) return null;
     const x = E.api(s, item.data);
     const val = (v) => (typeof v === 'function' ? v(s, x) : v);
     const choices = ((typeof ev.choices === 'function' ? ev.choices(s, x) : ev.choices) || []).map((c) => ({ label: val(c.label), hint: val(c.hint) || '', ok: !c.req || c.req(s) }));
-    return { id: ev.id, kind: item.kind, title: val(ev.title), text: val(ev.text), kicker: val(ev.kicker) || '', archive: val(ev.archive) || '', art: ev.art || null, link: ev.link || null, choices };
+    return { id: ev.id, kind: item.kind, title: val(ev.title), text: val(ev.text), kicker: val(ev.kicker) || '', archive: val(ev.archive) || '', art: ev.art || null, link: ev.link || null, because: E.because(s, item), choices };
   }
 
   // ---------- the war ----------
@@ -1087,9 +1193,10 @@
   };
   E.serviceStep = function (s) {
     if (s.phase !== 'service' || s.inbox.length) return null;
-    tick(s, 13, 'service');
+    const q = { 1: 1, 2: 1.5, 3: 2 }[E.pace(s).months] || 1;
+    tick(s, Math.round(13 * q), 'service');
     // Bodies change in uniform: fitter, rustier.
-    s.st.sta = clamp(s.st.sta + 0.8, 5, 99); s.sharp = clamp(s.sharp - 8, 0, 100);
+    s.st.sta = clamp(s.st.sta + 0.8 * q, 5, 99); s.sharp = clamp(s.sharp - 8 * q, 0, 100);
     const warOver = s.t >= E.weekOf(1945, 8, 15);
     if (warOver && s.t >= E.weekOf(1945, 10, 1)) {
       if (!s.inbox.some((i) => i.id === 'homecoming')) s.inbox.push({ id: 'homecoming', kind: 'event' });
@@ -1116,7 +1223,7 @@
   E.PATHS = {
     trainer: { name: 'Trainer', blurb: 'Teach the next kid what took you a career to learn.', ok: () => true },
     gym: { name: 'Gym owner', blurb: 'Your name over the door. Your rules inside.', ok: (s) => s.money >= 3000 * E.eraMoney(s.t) || s.flags.gi_bill },
-    referee: { name: 'Referee', blurb: 'Third man in the ring. Everyone yells at you.', ok: (s) => s.rep >= 5 && s.rec.w + s.rec.l >= 15 },
+    referee: { name: 'Referee', blurb: 'Third man in the ring. Everyone yells at you.', ok: (s) => s.rep >= 5 && s.rec.w + s.rec.l >= E.nf(s, 15) },
     broadcaster: { name: 'Broadcaster', blurb: 'Call the fights for radio or TV. Talk for a living.', ok: (s) => s.fame >= 45 },
     promoter: { name: 'Promoter', blurb: 'Make the fights. Count the gate. Make enemies.', ok: (s) => s.money >= 6000 * E.eraMoney(s.t) && s.fame >= 25 },
     business: { name: 'Restaurant owner', blurb: 'Dempsey did it. Steaks, photos on the wall, a handshake at the door.', ok: (s) => s.money >= 8000 * E.eraMoney(s.t) || (s.fame >= 60 && s.money >= 3000) },
@@ -1131,8 +1238,8 @@
     s.offers = null; s.camp = null;
     const rec = `${s.rec.w}-${s.rec.l}${s.rec.d ? '-' + s.rec.d : ''}`;
     remember(s, 'retire', reason === 'doctor' ? `retired at ${E.age(s)} when the doctors made me (${rec}, ${s.rec.ko} KOs)` : reason === 'age' ? `retired at ${E.age(s)} when the commission said I was too old (${rec})` : `retired at ${E.age(s)} on my own terms (${rec}, ${s.rec.ko} KOs)`, 3);
-    if (s.fights.length >= 20 && s.rec.kod === 0) E.achieve(s, 'iron_chin');
-    if (s.fights.length >= 15 && s.rec.l === 0) E.achieve(s, 'unbeaten');
+    if (s.fights.length >= E.nf(s, 20) && s.rec.kod === 0) E.achieve(s, 'iron_chin');
+    if (s.fights.length >= E.nf(s, 15) && s.rec.l === 0) E.achieve(s, 'unbeaten');
     if (!s.flags.ever_crooked && s.flags.refused_mob) E.achieve(s, 'clean');
     if (s.money >= 25000) E.achieve(s, 'rich');
     if (s.c.earned >= 10000 && s.money < 500) E.achieve(s, 'broke');
@@ -1161,7 +1268,7 @@
       s.money += Math.round(income * between(s, 0.6, 1.4) * E.eraMoney(s.t));
       a.years++;
     }
-    s.inbox = s.inbox.filter((i) => i.kind === 'history' || T.eventById(i.id) && (T.eventById(i.id).after || T.eventById(i.id).anyPhase));
+    s.inbox = s.inbox.filter((i) => i.kind === 'history' || i.kind === 'digest' || T.eventById(i.id) && (T.eventById(i.id).after || T.eventById(i.id).anyPhase));
     rollRandom(s, 1);
     if (E.year(s.t) >= 1960) E.achieve(s, 'long_life');
     if (T.checkDiscoveries) T.checkDiscoveries(s);
@@ -1178,18 +1285,19 @@
   E.legacy = function (s) {
     const parts = [];
     const add = (label, n) => { if (n) parts.push({ label, n: Math.round(n) }); };
-    add('Wins', s.rec.w * 1.5);
-    add('Knockouts', s.rec.ko * 0.75);
+    const kf = E.pace(s).kf; // fight counts weigh the same at every game length
+    add('Wins', s.rec.w * 1.5 * kf);
+    add('Knockouts', s.rec.ko * 0.75 * kf);
     add('World titles', s.belts * 40);
-    add('Title defenses', s.titleDefenses * 10 + (s.flags.def_total || 0));
+    add('Title defenses', (s.titleDefenses * 10 + (s.flags.def_total || 0)) * Math.sqrt(kf));
     add('Fame', s.fame * 0.4);
     add('Reputation', s.rep * 0.5);
-    add('Beat your rival', (s.flags.rival_wins || 0) * 8);
+    add('Beat your rival', (s.flags.rival_wins || 0) * 8 * Math.sqrt(kf));
     add('Served in the war', s.flags.veteran ? 12 : 0);
-    add('Losses', -s.rec.l * 1);
+    add('Losses', -s.rec.l * kf);
     add('Second act', s.after ? Math.min(12, s.after.years) + (s.after.standing || 0) * 0.6 : 0);
     add('Money in the bank', Math.min(30, Math.max(-10, s.money / 1000)));
-    if (s.ambition && E.AMBITIONS[s.ambition] && E.AMBITIONS[s.ambition].done(s)) add(`Ambition: ${E.AMBITIONS[s.ambition].name.toLowerCase()}`, E.AMBITIONS[s.ambition].reward);
+    if (s.ambition && E.AMBITIONS[s.ambition] && E.AMBITIONS[s.ambition].done(s)) add(`Ambition: ${E.ambName(s, s.ambition).toLowerCase()}`, E.AMBITIONS[s.ambition].reward);
     if (E.hasGear(s, 'house')) add('Bought the family a house', 8);
     const total = parts.reduce((n, p) => n + p.n, 0);
     const tier = total >= 300 ? 'Immortal' : total >= 215 ? 'Hall of Famer' : total >= 150 ? 'Contender' : total >= 100 ? 'Journeyman' : total >= 50 ? 'Tough Customer' : 'A Hard Life';

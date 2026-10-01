@@ -7,8 +7,9 @@
   const E = () => T.engine;
   const f = (s, k) => !!s.flags[k];
   const champ = (s) => !!s.flags.ever_champ;
-  const kos = (s) => s.rec.ko;
-  const fights = (s) => s.fights.length;
+  // Counted the way a full-length career would count them, so shorter games can find these too.
+  const kos = (s) => s.rec.ko * E().pace(s).kf;
+  const fights = (s) => E().fx(s);
   const DISC = T.discoveries = [
     { id: 'cinderella', name: 'The Cinderella Man', mix: ['Flat Broke', 'World Champion'], hint: 'Rock bottom, then the top.', need: (s) => f(s, 'was_broke') && champ(s),
       text: 'Two years ago you could not pay the landlord. Now you have a belt. The papers dig up the old eviction notice and print it next to your title photo.', go: (x) => { x.fame(5); x.heart(8); } },
@@ -22,11 +23,11 @@
       text: 'You took their money and won anyway. Somewhere a man in a camel-hair coat is very quiet. The fans think you are the bravest fighter alive. They may be right.', go: (x) => { x.fame(4); x.flag('mob_heat', 5); } },
     { id: 'clean_hands', name: 'Clean Hands, Dirty Town', mix: ['Took Mob Money', 'Refused the Fix'], hint: 'Took the envelope, kept the honor.', need: (s) => f(s, 'mob_money') && f(s, 'refused_mob'),
       text: 'You took their money once. You would not take the dive. That makes you a thief in their book and a hero in yours.', go: (x) => { x.rep(6); } },
-    { id: 'ham_and_eggs', name: 'Ham and Eggs', mix: ['Thirty Fights', 'More Losses Than Wins'], hint: 'Breakfast fighter.', need: (s) => fights(s) >= 30 && s.rec.l > s.rec.w,
+    { id: 'ham_and_eggs', name: 'Ham and Eggs', mix: ['A Long Career', 'More Losses Than Wins'], hint: 'Breakfast fighter.', need: (s) => fights(s) >= 30 && s.rec.l > s.rec.w,
       text: 'Old boxing people call you a "ham and egger": the honest working fighter who shows up, gets paid, and buys breakfast. Every great champion needed a hundred of you.', go: (x) => { x.heart(6); x.rep(4); } },
-    { id: 'glass_cannon', name: 'Glass Cannon', mix: ['Ten Knockouts', 'Five Times Knocked Out'], hint: 'Gives it and takes it.', need: (s) => kos(s) >= 10 && s.rec.kod >= 5,
+    { id: 'glass_cannon', name: 'Glass Cannon', mix: ['Knockout Artist', 'Knocked Out Often'], hint: 'Gives it and takes it.', need: (s) => kos(s) >= 10 && s.rec.kod * E().pace(s).kf >= 5,
       text: 'Every one of your fights ends with somebody on the floor. Nobody in the arena goes for a hot dog when you fight.', go: (x) => { x.fame(5); } },
-    { id: 'iron_man', name: 'Iron Man', mix: ['Fifty Fights', 'Still Standing'], hint: 'Count your fights.', need: (s) => fights(s) >= 50,
+    { id: 'iron_man', name: 'Iron Man', mix: ['A Very Long Career', 'Still Standing'], hint: 'Count your fights.', need: (s) => fights(s) >= 50,
       text: 'Fifty professional fights. In the 1930s that was normal. By the 1950s, when TV shrank the clubs, it was rare.', go: (x) => { x.rep(4); } },
     { id: 'goat_champ', name: 'The Goat\'s Champion', mix: ['A Goat', 'World Champion'], hint: 'Bring your mascot to the top.', need: (s) => f(s, 'goat') && champ(s),
       text: 'Uppercut the goat rides in the open car at your title parade. He eats the mayor\'s carnation. This is the most-reprinted photograph of your career.', go: (x) => { x.fame(6); x.heart(10); } },
@@ -40,9 +41,9 @@
       text: 'You fought the man the champions would not. Win or lose, the old fighters treat you differently now.', go: (x) => { x.rep(10); } },
     { id: 'family_champ', name: 'Champion of the House', mix: ['Married with a Kid', 'World Champion'], hint: 'A belt and a baby.', need: (s) => f(s, 'married') && f(s, 'kid') && champ(s),
       text: 'Your kid wears the championship belt to bed. It is bigger than they are. You let them.', go: (x) => { x.heart(15); } },
-    { id: 'professor', name: 'The Professor', mix: ['Boxer', 'Never Knocked Out'], hint: 'Twenty fights, nobody ever caught you clean.', need: (s) => s.f.style === 'boxer' && fights(s) >= 20 && s.rec.kod === 0,
-      text: 'Twenty fights and nobody has ever put you down for the count. Sportswriters start calling you "the Professor." You start wearing glasses to press conferences to help.', go: (x) => { x.fame(4); x.stat('def', 1); } },
-    { id: 'bolo_bandit', name: 'Bolo Bandit', mix: ['Bolo Punch', 'Fifteen Knockouts'], hint: 'A borrowed punch, many sleeping opponents.', need: (s) => f(s, 'bolo') && kos(s) >= 15,
+    { id: 'professor', name: 'The Professor', mix: ['Boxer', 'Never Knocked Out'], hint: 'A long career, and nobody ever caught you clean.', need: (s) => s.f.style === 'boxer' && fights(s) >= 20 && s.rec.kod === 0,
+      text: 'Fight after fight, and nobody has ever put you down for the count. Sportswriters start calling you "the Professor." You start wearing glasses to press conferences to help.', go: (x) => { x.fame(4); x.stat('def', 1); } },
+    { id: 'bolo_bandit', name: 'Bolo Bandit', mix: ['Bolo Punch', 'A Pile of Knockouts'], hint: 'A borrowed punch, many sleeping opponents.', need: (s) => f(s, 'bolo') && kos(s) >= 15,
       text: 'The bolo punch has become your calling card. Kids at the gym wind it up like windmills. Almost none of them land it.', go: (x) => { x.fame(4); x.stat('pow', 1); } },
     { id: 'lucky_belt', name: 'Lucky Silver Dollar', mix: ['Lucky Coin', 'World Champion'], hint: 'Taped inside the robe.', need: (s) => f(s, 'lucky') && champ(s),
       text: 'The 1904 silver dollar is taped inside your robe the night you win the title. You will never, ever spend it now.', go: (x) => { x.heart(8); } },
@@ -68,7 +69,7 @@
       text: 'A fighter with savings. Other fighters ask you for money advice. You tell them all the same thing: get a bank book and do not buy the Packard.', go: (x) => { x.money(150); } },
     { id: 'big_apple', name: 'The Big Apple', mix: ['Moved to New York', 'Won at the Garden'], hint: 'Go where the big fights are.', need: (s) => f(s, 'moved_ny') && f(s, 'won_msg'),
       text: 'You headlined the Garden. You walk past it the next morning just to see your name on the marquee.', go: (x) => { x.fame(5); } },
-    { id: 'sarge', name: 'Sergeant Slugger', mix: ['Sergeant', 'Fifteen Knockouts'], hint: 'Stripes and knockouts.', need: (s) => f(s, 'sergeant') && kos(s) >= 15,
+    { id: 'sarge', name: 'Sergeant Slugger', mix: ['Sergeant', 'A Pile of Knockouts'], hint: 'Stripes and knockouts.', need: (s) => f(s, 'sergeant') && kos(s) >= 15,
       text: 'The men from your old unit come to every fight and chant "SARGE." It catches on with the whole crowd.', go: (x) => { x.fame(4); } },
     { id: 'four_f_champ', name: 'The 4-F Champion', mix: ['Unfit for Service', 'World Champion'], hint: 'The Army said no. The ring said yes.', need: (s) => f(s, 'exempt') && champ(s),
       text: 'The Army called you unfit. Newspapers ask how a man unfit for the Army can be the best fighter in the world. You do not have a good answer.', go: (x) => { x.rep(-3); x.fame(3); } },

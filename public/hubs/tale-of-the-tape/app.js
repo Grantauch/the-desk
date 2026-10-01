@@ -64,7 +64,24 @@
     return `<em class="delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(digits)}</em>`;
   }
   function statRow(k, v) { const p = ui.prev && ui.prev.st ? ui.prev.st[k] : null; return `<div class="stat"><span>${E.statLabel[k]}</span>${bar(v, 100, '', p)}<b>${Math.round(v)}${delta(v, p)}</b></div>`; }
-  function snap() { if (!S) return null; return { st: Object.assign({}, S.st), money: S.money, fame: S.fame, health: S.health, heart: S.heart, sharp: S.sharp }; }
+  function snap() { if (!S) return null; return { st: Object.assign({}, S.st), money: S.money, fame: S.fame, health: S.health, heart: S.heart, sharp: S.sharp, rep: S.rep, rank: E.playerRank(S), injury: S.injury ? S.injury.name : '', lessons: S.lessons || 0 }; }
+  // What a choice changed, as a row of little tags.
+  function consequences(a, b, echo) {
+    if (!a || !b) return '';
+    const out = [];
+    const tag = (up, txt) => out.push(`<span class="cq ${up ? 'up' : 'down'}">${txt}</span>`);
+    const m = Math.round(b.money - a.money);
+    if (m) tag(m > 0, `${m > 0 ? '+' : '−'}${money(Math.abs(m))}`);
+    for (const k of statKeys) { const v = Math.round(b.st[k] - a.st[k]); if (v) tag(v > 0, `${E.statLabel[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}`); }
+    for (const [k, label] of [['fame', 'Fame'], ['health', 'Health'], ['heart', 'Heart'], ['rep', 'Reputation'], ['lessons', 'Lessons']]) { const v = Math.round(b[k] - a[k]); if (v) tag(v > 0, `${label} ${v > 0 ? '+' : '−'}${Math.abs(v)}`); }
+    if (b.rank && b.rank !== a.rank) tag(!a.rank || b.rank < a.rank, `Rank #${b.rank}`);
+    if (b.injury && b.injury !== a.injury) tag(false, `Hurt: ${esc(b.injury)}`);
+    if (echo) out.push('<span class="cq echo">This will come back</span>');
+    return out.length ? `<div class="consequences">${out.join('')}</div>` : '';
+  }
+  function becauseLine(w) {
+    return w ? `<p class="because">Because in ${esc(E.dateLabel(w.t))} you chose <b>“${esc(w.choice)}”</b>${w.title ? ` <span>(${esc(w.title)})</span>` : ''}.</p>` : '';
+  }
   function animateBars() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       app.querySelectorAll('.bar i[data-w]').forEach((i) => { i.style.width = i.dataset.w + '%'; });
@@ -148,7 +165,7 @@
     return T.cutscene.play(kind, opts);
   }
   function remember(ids) { const all = readJSON(ACH) || []; for (const id of ids) if (!all.includes(id)) all.push(id); writeJSON(ACH, all); }
-  function achToast(id) { const a = D.ACHIEVEMENTS.find((x) => x.id === id); if (!a) return; sfx('star', 0.8); toast(`<span class="toast-kicker">Achievement</span><b>${esc(a.name)}</b><small>${esc(a.text)}</small>`); }
+  function achToast(id) { const a = D.ACHIEVEMENTS.find((x) => x.id === id); if (!a) return; sfx('star', 0.8); toast(`<span class="toast-kicker">Achievement</span><b>${esc(a.name)}</b><small>${esc(E.achText(S, a))}</small>`); }
 
   // ---------- title ----------
   function renderTitle() {
@@ -185,14 +202,14 @@
             </div>
             <div class="tab-body">
               ${tab === 'how' ? `<ol class="how">
-                <li><b>Live.</b> Each turn is a month: train, work, rest, or chase publicity.</li>
+                <li><b>Live.</b> Each turn is a month, two months, or a season, depending on the game length you pick: train, work, rest, or chase publicity.</li>
                 <li><b>Fight.</b> Box it yourself, Punch-Out style, or listen on the radio.</li>
                 <li><b>Survive history.</b> The Depression, Pearl Harbor, the color line, the mob, television.</li>
                 <li><b>Discover.</b> Parts of a life combine into rare discoveries. Collect them all.</li>
                 <li><b>Tell the story.</b> Retire, start a second act, and get the tale of your life.</li></ol>` : ''}
               ${tab === 'disc' ? discoveryBookCard(true) : ''}
-              ${tab === 'ach' ? `<ul class="ach-list">${D.ACHIEVEMENTS.map((a) => `<li class="${ach.includes(a.id) ? 'got' : ''}">${ach.includes(a.id) ? '★' : '☆'} <b>${ach.includes(a.id) ? esc(a.name) : '???'}</b><small>${esc(a.text)}</small></li>`).join('')}</ul>` : ''}
-              ${tab === 'hall' ? (hall.length ? `<ol class="hall">${hall.map((h) => `<li><b>${esc(h.name)}</b><span>${esc(h.record)} · ${esc(h.tier)}</span><small>${esc(h.years)}${h.belts ? ' · champion' : ''}</small></li>`).join('')}</ol>` : '<p class="empty">Nobody yet. Finish a career and your fighter hangs here.</p>') : ''}
+              ${tab === 'ach' ? `<ul class="ach-list">${D.ACHIEVEMENTS.map((a) => `<li class="${ach.includes(a.id) ? 'got' : ''}">${ach.includes(a.id) ? '★' : '☆'} <b>${ach.includes(a.id) ? esc(a.name) : '???'}</b><small>${esc(E.achText(null, a))}</small></li>`).join('')}</ul>` : ''}
+              ${tab === 'hall' ? (hall.length ? `<ol class="hall">${hall.map((h) => `<li><b>${esc(h.name)}</b><span>${esc(h.record)} · ${esc(h.tier)}</span><small>${esc(h.years)}${h.belts ? ' · champion' : ''}${h.pace ? ` · ${esc(h.pace.toLowerCase())} game` : ''}</small></li>`).join('')}</ol>` : '<p class="empty">Nobody yet. Finish a career and your fighter hangs here.</p>') : ''}
             </div>
           </div>
         </aside>
@@ -237,6 +254,7 @@
       code: code || '',
       ambitions: (() => { const k = Object.keys(E.AMBITIONS).sort(() => Math.random() - 0.5).slice(0, 3); return k; })(),
       ambition: '',
+      pace: E.PACES[settings.pace] ? settings.pace : 'standard',
     };
   }
   function renderCreate() {
@@ -246,7 +264,7 @@
     const swatches = (arr, key) => arr.map((c, i) => `<button type="button" class="swatch ${d.look[key] === i ? 'on' : ''}" style="--c:${c}" data-look="${key}" data-v="${i}" aria-label="${key} color ${i + 1}" aria-pressed="${d.look[key] === i}"></button>`).join('');
     show(`
       <section class="create">
-        <div class="create-head"><p class="kicker">Signing papers · ${D.START_YEAR}</p><h1>Who are you?</h1>${d.code ? `<p class="code-note">Same-start code <b>${esc(d.code)}</b>: everyone with this code starts in the same world.</p>` : ''}</div>
+        <div class="create-head"><p class="kicker">Signing papers · ${D.START_YEAR}</p><h1>Who are you?</h1>${d.code ? `<p class="code-note">Same-start code <b>${esc(d.code)}</b>: everyone with this code and the same game length starts in the same world.</p>` : ''}</div>
         <form class="create-grid" id="create-form" autocomplete="off">
           <div class="create-preview paper-card">
             ${portraitCanvas(d.look, { mood: 'tough' }, 'create-portrait', 220, 260)}
@@ -266,12 +284,15 @@
               <label>Where you came from<select name="bg">${opt(D.BACKGROUNDS, d.bg)}</select></label>
             </div>
             <p class="field-note">${esc(D.BACKGROUNDS[d.bg].blurb)} <span class="muted">No heavyweights: from 1937 to 1949 that title belongs to Joe Louis, and you'll hear about him.</span></p>
+            <fieldset class="paces"><legend>How long do you want to play?</legend>
+              ${Object.entries(E.PACES).map(([k, v]) => `<label class="style-card pace ${k === d.pace ? 'on' : ''}"><input type="radio" name="pace" value="${k}" ${k === d.pace ? 'checked' : ''}><b>${esc(v.name)}</b><em>${esc(v.time)}</em><small>${esc(v.blurb)}</small></label>`).join('')}
+            </fieldset>
             <fieldset class="styles"><legend>Fighting style</legend>
               ${Object.entries(D.STYLES).map(([k, v]) => `<label class="style-card ${k === d.style ? 'on' : ''}"><input type="radio" name="style" value="${k}" ${k === d.style ? 'checked' : ''}><b>${esc(v.name)}</b><small>${esc(v.blurb)}</small></label>`).join('')}
             </fieldset>
             <fieldset class="ambitions"><legend>Your ambition</legend>
               <p class="field-note">Pick one goal for your life. Reach it and your legacy gets a big boost.</p>
-              ${d.ambitions.map((k) => `<label class="style-card amb ${d.ambition === k ? 'on' : ''}"><input type="radio" name="ambition" value="${k}" ${d.ambition === k ? 'checked' : ''}><b>${esc(E.AMBITIONS[k].name)}</b><small>+${E.AMBITIONS[k].reward} legacy</small></label>`).join('')}
+              ${d.ambitions.map((k) => `<label class="style-card amb ${d.ambition === k ? 'on' : ''}"><input type="radio" name="ambition" value="${k}" ${d.ambition === k ? 'checked' : ''}><b>${esc(E.ambName({ pace: d.pace }, k))}</b><small>+${E.AMBITIONS[k].reward} legacy</small></label>`).join('')}
             </fieldset>
             <fieldset class="looks"><legend>Look</legend>
               <div class="look-row"><span>Skin</span>${swatches(D.SKINS, 'skin')}</div>
@@ -296,7 +317,8 @@
       const fd = new FormData(form);
       const first = String(fd.get('first') || '').trim() || 'Johnny', last = String(fd.get('last') || '').trim() || 'Doyle';
       T.audio.unlock();
-      S = E.create({ first, last, nick: String(fd.get('nick') || '').trim(), home: draft.home, division: draft.division, style: draft.style, bg: draft.bg, look: draft.look, code: draft.code || '', ambition: draft.ambition || '' });
+      S = E.create({ first, last, nick: String(fd.get('nick') || '').trim(), home: draft.home, division: draft.division, style: draft.style, bg: draft.bg, look: draft.look, code: draft.code || '', ambition: draft.ambition || '', pace: draft.pace });
+      settings.pace = draft.pace; saveSettings();
       draft = null; ui = { screen: 'game' };
       sfx('bell'); save();
       playScene('intro').then(render);
@@ -372,11 +394,11 @@
       <div class="trail-ends"><span>${D.START_YEAR}</span><span>${D.END_YEAR}</span></div></div>`;
   }
   function renderLedger() {
-    const early = S.fights.length < 12;
+    const early = S.fights.length < E.nf(S, 12), P = E.pace(S);
     queueMicrotask(() => { ui.prev = null; });
     const tv = E.tvEra(S.t);
     const act = (a, arg, title, sub, cls = '', ic) => `<button class="action ${cls}" data-act="${a}" ${arg ? `data-arg="${arg}"` : ''}>${icon(ic || arg || a)}<b>${title}</b><small>${sub}</small></button>`;
-    const last = ui.lastLines && ui.lastLines.length ? `<div class="last-month" role="status"><span class="kicker">Last month</span>${ui.lastLines.map((l) => `<p>${esc(l)}</p>`).join('')}</div>` : '';
+    const last = ui.lastLines && ui.lastLines.length ? `<div class="last-month" role="status"><span class="kicker">${esc(P.last)}</span>${ui.lastLines.map((l) => `<p>${esc(l)}</p>`).join('')}</div>` : '';
     show(`
       <section class="ledger">
         ${dateBanner()}
@@ -384,10 +406,10 @@
           <div class="col-left">${fighterCard()}</div>
           <div class="col-mid">
             <div class="paper-card actions-card">
-              <h1 class="card-head big" data-focus tabindex="-1">What do you do this month?</h1>
+              <h1 class="card-head big" data-focus tabindex="-1">What do you do ${esc(P.turn)}?</h1>
               ${last}
               <button class="action primary" data-act="offers">${icon('fight')}<b>${S.champ ? 'Defend the title' : 'Look for a fight'}</b><small>See who wants you and for how much</small></button>
-              <p class="group-label">Train <small>one month</small></p>
+              <p class="group-label">Train <small>${esc(P.per)}</small></p>
               <div class="action-grid">
                 ${act('train', 'roadwork', 'Roadwork', 'Stamina')}
                 ${act('train', 'bag', 'Heavy bag', 'Power')}
@@ -395,7 +417,7 @@
                 ${act('train', 'spar', 'Sparring', 'Defense, sharpness · some risk')}
                 ${act('train', 'chin', 'Neck & body work', 'Chin')}
               </div>
-              <p class="group-label">Live <small>one month</small></p>
+              <p class="group-label">Live <small>${esc(P.per)}</small></p>
               <div class="action-grid">
                 ${act('work', '', 'Work a job', 'Money')}
                 ${act('rest', '', 'Rest', 'Health, heart')}
@@ -411,9 +433,15 @@
             </div>
             ${wire()}
           </div>
-          <div class="col-right">${rankingsCard()}${peopleCard()}</div>
+          <div class="col-right">${rankingsCard()}${peopleCard()}${storySoFar()}</div>
         </div>
       </section>`);
+  }
+  // The big moments so far, newest first, so the career's shape stays in view.
+  function storySoFar() {
+    const pts = (S.story || []).filter((x) => x.weight >= 2).slice(-4).reverse();
+    if (!pts.length) return '';
+    return `<div class="paper-card story-card"><h2 class="card-head">Your story so far</h2><ol>${pts.map((p) => `<li><span>${E.year(p.t)} · age ${p.age}</span>${esc(p.text[0].toUpperCase() + p.text.slice(1))}</li>`).join('')}</ol></div>`;
   }
 
   // ---------- events ----------
@@ -422,6 +450,7 @@
     const v = E.render(S, item);
     if (!v) { S.inbox.shift(); return render(); }
     if (v.kind === 'discovery') return renderDiscovery(v);
+    if (v.kind === 'digest') return renderDigest(v);
     const isHist = v.kind === 'history';
     const LETTERS = ['ma_letter', 'svc_letter', 'loan_back', 'buddy_diner', 'wedding', 'aft_tate', 'rival_retires', 'baby', 'aft_memoir'];
     const WIRES = ['draft_notice', 'broke', 'shark_due', 'strip_warning', 'ibc_offer', 'too_old', 'doctor_final', 'contract', 'spar_job', 'tv_friday', 'mob_fix', 'mob_revenge', 'young_lion', 'move_ny', 'trainer_poached', 'aft_comeback', 'homecoming', 'svc_orders'];
@@ -434,6 +463,7 @@
         ${dateBanner()}
         <article class="event-card ${look}">
           ${isHist ? `<header class="masthead"><span>${esc(E.dateLabel(S.t))}</span><b>${esc(paper)}</b><span>${esc(v.kicker || 'Extra')} · 3¢</span></header>` : look === 'telegram' ? `<header class="wire-head"><b>TELEGRAM</b><span>${esc(E.dateLabel(S.t).toUpperCase())} · ${esc((D.CITIES[S.city] || D.CITIES[S.f.home]).name.toUpperCase())}</span></header>` : look === 'letter' ? `<p class="letter-date">${esc(E.dateLabel(S.t))}</p>` : `<p class="kicker">${esc(v.kicker || E.dateLabel(S.t))}</p>`}
+          ${becauseLine(v.because)}
           <h1 class="event-title" tabindex="-1">${esc(v.title)}</h1>
           <div class="event-body">${isHist && v.art ? `<div class="event-art art-${esc(v.art)}" aria-hidden="true"></div>` : ''}<p>${esc(v.text)}</p></div>
           ${v.archive ? `<aside class="archive"><b>From the archive</b><p>${esc(v.archive)}</p></aside>` : ''}
@@ -441,6 +471,22 @@
           <div class="choices" role="group" aria-label="Your choice">
             ${v.choices.length ? v.choices.map((c, i) => `<button class="choice" data-choice="${i}" ${c.ok ? '' : 'disabled'}><kbd class="ck" aria-hidden="true">${i + 1}</kbd><b>${esc(c.label)}</b>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}${c.ok ? '' : '<small class="locked">not available</small>'}</button>`).join('') : `<button class="choice" data-choice="0"><b>Turn the page</b></button>`}
           </div>
+          <div class="outcome" hidden></div>
+        </article>
+      </section>`);
+  }
+  // In the shorter games, headlines with nothing to decide share one front page.
+  function renderDigest(v) {
+    const yr = E.year(S.t), paper = yr < 1941 ? 'The Evening Telegram' : yr < 1950 ? 'The Daily Clarion' : 'The Morning Ledger';
+    sfx('page');
+    show(`
+      <section class="event history digest">
+        ${dateBanner()}
+        <article class="event-card newspaper digest-card">
+          <header class="masthead"><span>${esc(E.dateLabel(S.t))}</span><b>${esc(paper)}</b><span>Late edition · 3¢</span></header>
+          <h1 class="event-title" tabindex="-1">${esc(v.title)}</h1>
+          <div class="digest-cols">${v.entries.map((e) => `<section class="digest-item"><p class="kicker">${esc(e.kicker || 'News')} · ${esc(E.shortDate(e.when))}</p><h2>${esc(e.title)}</h2><p>${esc(e.text)}</p>${e.archive ? `<p class="digest-archive"><b>From the archive:</b> ${esc(e.archive)}</p>` : ''}${e.link ? `<p class="event-link"><a href="${esc(e.link.href)}" target="_blank" rel="noopener">${esc(e.link.label)} ↗</a></p>` : ''}</section>`).join('')}</div>
+          <div class="choices"><button class="choice" data-choice="0"><b>Turn the page</b></button></div>
           <div class="outcome" hidden></div>
         </article>
       </section>`);
@@ -456,6 +502,7 @@
       <section class="event discovery">
         ${dateBanner()}
         <article class="event-card disc-card">
+          ${becauseLine(v.because)}
           <p class="kicker">New discovery</p>
           <div class="recipe" aria-label="${esc(v.mix[0])} plus ${esc(v.mix[1])} makes ${esc(v.title)}"><span class="ing">${esc(v.mix[0])}</span><b aria-hidden="true">+</b><span class="ing">${esc(v.mix[1])}</span><b aria-hidden="true">=</b></div>
           <h1 class="event-title disc-name" tabindex="-1">${esc(v.title)}</h1>
@@ -469,12 +516,13 @@
   function chooseEvent(i) {
     if (!ui.prev) ui.prev = snap();
     const card = app.querySelector('.event-card');
+    const before = snap();
     const res = E.resolveInbox(S, i);
     save();
     const out = card.querySelector('.outcome');
     card.querySelectorAll('.choice').forEach((b) => { b.disabled = true; if (b.dataset.choice === String(i)) b.classList.add('picked'); });
     if (res && res.text) {
-      out.innerHTML = `<p>${esc(res.text)}</p><button class="button" data-act="next">Continue</button>`;
+      out.innerHTML = `<p>${esc(res.text)}</p>${consequences(before, snap(), res.echo)}<button class="button" data-act="next">Continue</button>`;
       out.hidden = false; out.querySelector('button').focus();
       announce(res.text);
     } else render();
@@ -523,7 +571,7 @@
       return `<article class="perk ${owned ? 'owned' : ''} ${locked ? 'locked' : ''}">
         <header><b>${esc(p.name)}</b><span class="cost">${owned ? 'learned' : `${p.cost} lessons`}</span></header>
         <p>${esc(p.blurb)}</p>
-        ${owned ? '<p class="stamp-small">IN THE BOOK</p>' : locked ? `<p class="req">${esc(p.reqText || '')}</p>` : `<button class="button ${afford ? '' : 'secondary'}" data-act="learn" data-arg="${id}" ${afford ? '' : 'disabled'}>Learn it</button>`}
+        ${owned ? '<p class="stamp-small">IN THE BOOK</p>' : locked ? `<p class="req">${esc((typeof p.reqText === 'function' ? p.reqText(S) : p.reqText) || '')}</p>` : `<button class="button ${afford ? '' : 'secondary'}" data-act="learn" data-arg="${id}" ${afford ? '' : 'disabled'}>Learn it</button>`}
       </article>`;
     };
     const ring = Object.entries(E.PERKS).filter(([, p]) => p.kind === 'ring'), life = Object.entries(E.PERKS).filter(([, p]) => p.kind === 'life');
@@ -559,18 +607,19 @@
 
   // ---------- training camp ----------
   function renderCamp() {
-    const c = S.camp, o = c.offer, left = c.blocks - c.done.length;
+    const c = S.camp, o = c.offer, left = c.blocks - c.done.length, plan = E.pace(S).camp === 'plan';
     queueMicrotask(() => { ui.prev = null; });
     const opt = (k, title, sub) => `<button class="action" data-act="camp" data-arg="${k}"><b>${title}</b><small>${sub}</small></button>`;
+    const months = Math.max(1, Math.round(o.weeks / 4.3));
     show(`
       <section class="camp">
         ${dateBanner()}
         <div class="camp-grid">
           <div class="paper-card camp-main">
-            <p class="kicker">Training camp · ${left} ${left === 1 ? 'block' : 'blocks'} until fight night</p>
+            <p class="kicker">Training camp · ${plan ? `${months} month${months === 1 ? '' : 's'} until fight night` : `${left} ${left === 1 ? 'block' : 'blocks'} until fight night`}</p>
             <h1 class="card-head big" tabindex="-1">Getting ready for ${esc(o.opp.last)}</h1>
             <p>${esc(o.venue)}, ${esc(o.city)} · ${o.rounds} rounds · purse ${money(o.purse)}</p>
-            <ol class="camp-track">${Array.from({ length: c.blocks }, (_, i) => `<li class="${i < c.done.length ? 'done' : i === c.done.length ? 'now' : ''}">${i < c.done.length ? esc(E.CAMP[c.done[i]].name) : i === c.done.length ? 'this block' : '…'}</li>`).join('')}<li class="fight-night">fight night</li></ol>
+            ${plan ? `<p class="camp-plan-note">One plan for the whole camp. Every week of it goes where you point it.</p>` : `<ol class="camp-track">${Array.from({ length: c.blocks }, (_, i) => `<li class="${i < c.done.length ? 'done' : i === c.done.length ? 'now' : ''}">${i < c.done.length ? esc(E.CAMP[c.done[i]].name) : i === c.done.length ? 'this block' : '…'}</li>`).join('')}<li class="fight-night">fight night</li></ol>`}
             ${ui.lastLines && ui.lastLines.length ? `<div class="last-month" role="status">${ui.lastLines.map((l) => `<p>${esc(l)}</p>`).join('')}</div>` : ''}
             <div class="action-grid">
               ${opt('roadwork', 'Roadwork', 'Stamina')}
@@ -600,6 +649,7 @@
       <section class="tape">
         <h1 class="tape-title" tabindex="-1"><span>Tale of the</span> Tape</h1>
         <p class="tape-sub">${esc(o.venue)} · ${esc(o.city)} · ${esc(E.dateLabel(S.t))}${o.title ? ' · for the world championship' : ''}${o.tv ? ' · live on television' : ''}</p>
+        ${ui.lastLines && ui.lastLines.length ? `<p class="tape-camp"><b>From camp:</b> ${ui.lastLines.map(esc).join(' ')}</p>` : ''}
         <div class="tape-grid">
           <div class="tape-side you">${portraitCanvas(S.f.look, { mood: 'tough', era: eraLook() }, 'tape-portrait', 200, 240)}<h2>${esc(S.f.first)} ${esc(S.f.last)}</h2><p>${S.f.nick ? `“${esc(S.f.nick)}”` : '&nbsp;'}</p></div>
           <table class="tape-table"><tbody>
@@ -790,7 +840,7 @@
     const hall = readJSON(HALL) || [];
     if (!S.flags.hall_saved) {
       S.flags.hall_saved = true;
-      hall.unshift({ name: E.fullName(S.f), record: rec(S.rec), tier: L.tier, years: `${D.START_YEAR}–${E.year(S.retireT || S.t)}`, belts: S.belts, legacy: L.total });
+      hall.unshift({ name: E.fullName(S.f), record: rec(S.rec), tier: L.tier, years: `${D.START_YEAR}–${E.year(S.retireT || S.t)}`, belts: S.belts, legacy: L.total, pace: E.pace(S).name });
       writeJSON(HALL, hall.slice(0, 20)); save();
     }
     const years = {};
@@ -799,7 +849,7 @@
     show(`
       <section class="final">
         <article class="final-paper">
-          <header class="masthead"><span>${esc(E.dateLabel(S.t))}</span><b>The Tale of the Tape</b><span>Final edition</span></header>
+          <header class="masthead"><span>${esc(E.dateLabel(S.t))}</span><b>The Tale of the Tape</b><span>Final edition · ${esc(E.pace(S).name.toLowerCase())} game</span></header>
           <h1 tabindex="-1">${esc(S.f.first.toUpperCase())} ${S.f.nick ? `“${esc(S.f.nick.toUpperCase())}” ` : ''}${esc(S.f.last.toUpperCase())}</h1>
           <p class="final-dek">${esc(D.DIVISIONS[S.f.division].name)} · ${rec(S.rec)} · ${S.rec.ko} KOs${S.belts ? ` · ${S.belts > 1 ? S.belts + '-time ' : ''}world champion` : ''} · ${esc(L.tier)}</p>
           <div class="final-top">
@@ -812,8 +862,8 @@
           </div>
           <div class="final-cols">
             <div class="ach"><h2>Discoveries this career</h2>${(S.disc || []).length ? `<ul>${S.disc.map((id) => { const d = T.discoveryById(id); return d ? `<li>◆ <b>${esc(d.name)}</b> <small>${esc(d.mix[0])} + ${esc(d.mix[1])}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time.</p>'}
-            <h2>Achievements this career</h2>${S.ach.length ? `<ul>${S.ach.map((id) => { const a = D.ACHIEVEMENTS.find((x) => x.id === id); return a ? `<li>★ <b>${esc(a.name)}</b> <small>${esc(a.text)}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time. There is always next life.</p>'}</div>
-            ${S.ambition ? `<div class="amb-result ${E.AMBITIONS[S.ambition].done(S) ? 'done' : ''}"><h2>Ambition</h2><p><b>${esc(E.AMBITIONS[S.ambition].name)}</b>: ${E.AMBITIONS[S.ambition].done(S) ? `done. +${E.AMBITIONS[S.ambition].reward} legacy.` : 'not this time.'}</p></div>` : ''}
+            <h2>Achievements this career</h2>${S.ach.length ? `<ul>${S.ach.map((id) => { const a = D.ACHIEVEMENTS.find((x) => x.id === id); return a ? `<li>★ <b>${esc(a.name)}</b> <small>${esc(E.achText(S, a))}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time. There is always next life.</p>'}</div>
+            ${S.ambition ? `<div class="amb-result ${E.AMBITIONS[S.ambition].done(S) ? 'done' : ''}"><h2>Ambition</h2><p><b>${esc(E.ambName(S, S.ambition))}</b>: ${E.AMBITIONS[S.ambition].done(S) ? `done. +${E.AMBITIONS[S.ambition].reward} legacy.` : 'not this time.'}</p></div>` : ''}
             ${(S.perks || []).length ? `<div class="perk-list"><h2>The notebook</h2><p>${S.perks.map((id) => esc(E.PERKS[id].name)).join(' · ')}</p></div>` : ''}
             <div class="discuss"><h2>Talk about it</h2><ol>${qs.map((q) => `<li>${esc(q)}</li>`).join('')}</ol></div>
           </div>
@@ -823,7 +873,7 @@
             <button class="button secondary" data-act="new">New career</button>
             <button class="button secondary" data-act="title">Title screen</button>
           </div>
-          <p class="same-start">Want a classmate to start from the exact same world? Give them this code: <b>${esc(S.code)}</b></p>
+          <p class="same-start">Want a classmate to start from the exact same world? Give them this code: <b>${esc(S.code)}</b> and have them pick a ${esc(E.pace(S).name)} game.</p>
         </article>
         ${(S.belts || L.total >= 115) && !reducedMotion ? `<div class="confetti" aria-hidden="true">${Array.from({ length: 46 }, (_, i) => `<i style="left:${(i * 2.17 + Math.random() * 2).toFixed(1)}%;--c:${['#f1e6cc', '#fff', '#e0a526', '#b8231b'][i % 4]};--t:${(4 + Math.random() * 4).toFixed(1)}s;--d:${(-Math.random() * 6).toFixed(1)}s"></i>`).join('')}</div>` : ''}
       </section>`);
@@ -934,8 +984,8 @@
   function helpHtml() {
     return `<h2>How to play</h2>
       <h3>The career</h3>
-      <p>Each turn is about a month of your fighter's life. Train to raise a stat, work for money, rest to heal, or chase publicity. When you are ready, look for a fight. Signing a fight starts a training camp; spend it on whatever you need most, then fight.</p>
-      <p>History happens on its real dates. Some events are just news. Some change your life. Every choice has a cost.</p>
+      <p>Each turn covers a stretch of your fighter's life: a month in a Full game, two months in Standard, a season in Short. Train to raise a stat, work for money, rest to heal, or chase publicity. When you are ready, look for a fight. Signing a fight starts a training camp; spend it on whatever you need most, then fight. Shorter games take bigger steps, so every turn, camp and fight counts for more.</p>
+      <p>History happens on its real dates. Some events are just news. Some change your life. Every choice has a cost, and the tags under each result show exactly what changed. When a choice says <b>This will come back</b>, it will. Later events tell you which choice set them in motion.</p>
       <h3>In the ring</h3>
       <ul class="keys"><li><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> slip left or right</li><li><kbd>↓</kbd> or <kbd>S</kbd> duck</li><li><kbd>↑</kbd> or <kbd>W</kbd> hold your guard up</li><li><kbd>J</kbd> jab · <kbd>K</kbd> cross · <kbd>L</kbd> body shot</li><li><kbd>Space</kbd> haymaker (uses your stars)</li><li><kbd>P</kbd> pause</li></ul>
       <p><b>Read the wind-up.</b> Every punch has a tell. A glove swinging wide is a hook: slip away from it or duck. A dip low is an uppercut: slip sideways, never duck. A big wind-up over the head is a haymaker: get out of the way.</p>
@@ -1074,6 +1124,7 @@
   });
   document.addEventListener('change', (e) => {
     if (e.target.name === 'style' && draft) { draft.style = e.target.value; renderCreate(); const r = app.querySelector(`input[name="style"][value="${e.target.value}"]`); r && r.focus(); }
+    if (e.target.name === 'pace' && draft) { draft.pace = e.target.value; renderCreate(); const r = app.querySelector(`input[name="pace"][value="${e.target.value}"]`); r && r.focus(); }
     if (e.target.name === 'ambition' && draft) { draft.ambition = e.target.value; renderCreate(); const r = app.querySelector(`input[name="ambition"][value="${e.target.value}"]`); r && r.focus(); }
   });
   document.getElementById('load-file').addEventListener('change', async (e) => {
