@@ -1,6 +1,6 @@
 ---
 interface Props {
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring';
   label: string;
   eyebrow: string;
   featured?: boolean;
@@ -51,6 +51,18 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
         <span>gross pay</span><strong>$1,240</strong>
         <span>withheld</span><strong>− $286</strong>
         <span>take home</span><strong>$954</strong>
+      </div>
+    )
+  }
+
+  {
+    theme === 'ring' && (
+      <div class="tape-strip">
+        <span>1934</span>
+        <strong>W–L–KO</strong>
+        <i>vs</i>
+        <strong>history</strong>
+        <span>1966</span>
       </div>
     )
   }
@@ -208,6 +220,46 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
 
   .finance {
     background: linear-gradient(135deg, #064e3b, #0f766e);
+  }
+
+  .ring {
+    background: repeating-conic-gradient(from 0deg at 85% 120%, rgb(255 236 190 / 0.12) 0deg 7deg, transparent 7deg 14deg), linear-gradient(135deg, #7a1d12, #2b0c08);
+  }
+
+  .ring .preview-heading strong {
+    color: #f1e6cc;
+  }
+
+  .ring .preview-heading span {
+    color: #e0a526;
+  }
+
+  .tape-strip {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto;
+    align-items: center;
+    gap: 0.55rem;
+    border: 2px solid #f1e6cc;
+    background: rgb(0 0 0 / 0.35);
+    padding: 0.4rem 0.6rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.6rem;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .tape-strip strong {
+    color: #e0a526;
+    font-size: 0.9rem;
+  }
+
+  .tape-strip i {
+    opacity: 0.7;
   }
 
   .paycheck-lines {

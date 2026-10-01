@@ -10,7 +10,7 @@ interface Hub {
   name: string;
   course: string;
   kind: string;
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring';
   previewEyebrow: string;
   href: string;
   blurb: string;
@@ -19,6 +19,17 @@ interface Hub {
 }
 
 const hubs: Hub[] = [
+  {
+    name: 'tale of the tape',
+    course: 'beyond the scoreboard',
+    kind: 'boxing life game',
+    theme: 'ring',
+    previewEyebrow: '1934–1966 · no two careers alike',
+    featured: true,
+    href: '/hubs/tale-of-the-tape.html',
+    blurb:
+      'Live a whole boxing life from the Depression to the TV era. Box every fight yourself, Punch-Out style, survive real history from Pearl Harbor to the mob hearings, and collect discoveries no classmate has found yet.',
+  },
   {
     name: 'the league',
     course: 'beyond the scoreboard',
