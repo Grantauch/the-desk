@@ -732,6 +732,77 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
   .topbar { flex-wrap: wrap; }
   .topbar .watch { display: none; }
 }
+
+/* ----- Grand board: 40 spaces on an 11 by 11 grid, type scaled down to fit the smaller cells ----- */
+.board.grand { grid-template-columns: repeat(11, 1fr); grid-template-rows: repeat(11, 1fr); }
+.board.grand .center { grid-row: 2 / 11; grid-column: 2 / 11; }
+.board.grand .cell .nm { font-size: 1.28cqw; }
+.board.grand .cell .pr { font-size: 1.17cqw; }
+.board.grand .cell .pr .od { width: 1.15cqw; height: 1.15cqw; }
+.board.grand .cell .cic { width: 2.6cqw; height: 2.6cqw; }
+.board.grand .cell.rr .cic { width: 3cqw; height: 3cqw; }
+.board.grand .cell .cic:has(.csprite) { width: 5.3cqw; height: 3.5cqw; }
+.board.grand .cell.hl .cic:has(.csprite) { width: 4.6cqw; height: 3.3cqw; }
+.board.grand .cell.hl .nm { font-size: 1.62cqw; }
+.board.grand .cell.st .nm { font-size: 1.55cqw; }
+.board.grand .cell.corner .cic { width: 3.1cqw; height: 3.1cqw; }
+.board.grand .cell.corner .nm { font-size: 1.6cqw; }
+.board.grand .cell.corner .pr { font-size: 1.12cqw; }
+.board.grand .cell .facs .fac { width: 2.1cqw; height: 2.1cqw; }
+.board.grand .cell .facs .tb { width: 2cqw; height: 2cqw; }
+.board.grand .cell.mort::after { font-size: 1.1cqw; }
+.cell.sx { background-image: var(--fiber), linear-gradient(180deg, #f1e3b6, #dcc489); background-size: 160px 160px, auto; }
+.cell.sx .cic { color: var(--gilt-lo); }
+
+/* ----- Polish: spotlight badge, buy preview, deal finder, finale awards ----- */
+.prow .spot { display: inline-block; margin-left: 6px; padding: 0 5px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; vertical-align: 2px; color: #5a3d0c; background: #f4dc8f; border: 1px solid var(--gilt-lo); border-radius: 3px; }
+.cert .preview { margin: 0.4cqw 0 0; font-size: 1.75cqw; font-weight: 700; color: var(--bank); }
+.deals { display: grid; gap: 8px; margin: 0 0 14px; }
+.dealrow { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1.5px solid rgba(27,26,22,0.35); background: rgba(255,250,235,0.7); }
+.dealrow .chip { width: 14px; height: 32px; border: 1px solid var(--ink); }
+.dealrow .dt { font-weight: 800; font-size: 17px; }
+.dealrow .ds { font-size: 15px; color: var(--ink-2); }
+.awards { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; margin-top: 16px; }
+.award { padding: 5px 12px; font-size: 17px; color: #efe6cf; background: rgba(9,18,14,0.78); border: 1.5px solid rgba(236,208,140,0.5); }
+.award b { margin-right: 7px; font-size: 14px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gilt-hi); }
+@media (max-width: 520px) { .dealrow { grid-template-columns: 14px minmax(0, 1fr); } .dealrow .btn { grid-column: 1 / 3; } }
+
+/* ----- Board polish: owner portraits, the spotlight beam, roomier build rows, the board toggle ----- */
+.cell .pr .od { position: relative; display: inline-block; width: 1.9cqw; height: 1.9cqw; margin-right: 0.35cqw; border-radius: 50%; overflow: hidden; vertical-align: -0.55cqw;
+  background: var(--oc, #888); border: 0; box-shadow: 0 0 0 0.16cqw var(--oc, #888), 0 0.1cqw 0.25cqw rgba(0,0,0,0.45); }
+.cell .pr .od img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.board.grand .cell .pr .od { width: 1.6cqw; height: 1.6cqw; vertical-align: -0.45cqw; }
+.cell.claim { animation: claim 1.2s ease-out 1; }
+@keyframes claim { 0% { box-shadow: inset 0 0 0 0.5cqw var(--own), inset 0 0 4cqw var(--own); filter: brightness(1.25); } 100% { box-shadow: inset 0 0 0 0 transparent; filter: none; } }
+.ptok.spot::before { content: ''; position: absolute; left: -45%; right: -45%; bottom: 10%; height: 330%; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,240,190,0) 0%, rgba(255,232,160,0.18) 55%, rgba(255,226,140,0.5) 100%);
+  clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); animation: beam 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.ptok.spot .piece { filter: drop-shadow(0 0 0.6cqw rgba(255,226,140,0.95)) drop-shadow(0 0.5cqw 0.45cqw rgba(0,0,0,0.6)); }
+@keyframes beam { 0%, 100% { opacity: 0.75; transform: rotate(-4deg); } 50% { opacity: 1; transform: rotate(4deg); } }
+.mrow { grid-template-columns: 14px minmax(170px, 1fr) auto; }
+.mrow .mb { max-width: 440px; }
+.seg.board-seg button { font-size: 18px; padding: 7px 0; }
+.seg.board-seg button small { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; opacity: 0.8; margin-left: 4px; }
+
+/* ----- Showstoppers: fireworks, the trust chain, the market sweep, the closing bell ----- */
+.fwstar { position: absolute; left: 0; top: 0; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, #fffdf2 0 22%, var(--fc) 46%, rgba(0,0,0,0) 72%); box-shadow: 0 0 6px 2px var(--fc); }
+.fwtrail { position: absolute; left: 0; top: 0; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; pointer-events: none; background: #fff6d8; box-shadow: 0 0 10px 4px var(--fc); }
+.chainfx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.chainfx .glow { fill: none; stroke: var(--cc); stroke-linecap: round; opacity: 0.75; filter: blur(4px); }
+.chainfx .link { fill: none; stroke: #f4d98c; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(255,220,140,0.9)); }
+.sweep { position: absolute; inset: 0; z-index: 7; pointer-events: none; mix-blend-mode: screen;
+  background: linear-gradient(105deg, transparent 30%, var(--sw) 50%, transparent 70%) no-repeat; background-size: 60% 100%; background-position: -80% 0; animation: sweep 1.5s ease-in-out 1 both; }
+@keyframes sweep { to { background-position: 180% 0; } }
+.floater.big { font-size: 4.2cqw; -webkit-text-stroke: 0.2cqw var(--ink); }
+.bellcard { position: relative; width: min(560px, 90vw); padding: 30px 28px 28px; text-align: center; color: #f3e7c4; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 20%, rgba(255,226,150,0.22), transparent 60%), var(--grain), radial-gradient(ellipse at 50% 40%, var(--bank-2), var(--bank) 60%, #0c2018);
+  background-size: auto, 220px 220px, auto; border: 3px solid var(--gilt); box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px var(--gilt-lo), 0 30px 70px rgba(0,0,0,0.6); animation: popIn 0.5s cubic-bezier(.2,.9,.3,1.3) both; }
+.bellcard .bell { width: 110px; height: 110px; margin: 0 auto; color: var(--gilt-hi); transform-origin: 50% 8%; animation: bellring 0.5s ease-in-out 0.2s 5 alternate both; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
+.bellcard .bell .ico { stroke-width: 2.4; }
+@keyframes bellring { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+.bellcard h2 { margin: 6px 0 6px; font-family: var(--sc); font-weight: 400; font-size: 52px; line-height: 1; color: var(--gilt-hi); text-shadow: 0 3px 0 rgba(0,0,0,0.55); }
+.bellcard p { margin: 0; font-size: 21px; }
+@media (prefers-reduced-motion: reduce) { .ptok.spot::before, .sweep, .cell.claim { animation: none !important; } .sweep { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .train, .lampglow, .skyline .tw, .cscene img.on, .board::after { animation: none !important; }
   .train { display: none; }
@@ -769,6 +840,13 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
       <span class="lbl">Names and barons</span>
       <div class="names" id="nameRows"></div>
     </div>
+    <div class="field">
+      <span class="lbl" id="boardLbl">Board</span>
+      <div class="seg board-seg" id="boardSeg" role="group" aria-labelledby="boardLbl">
+        <button type="button" data-board="classic" aria-pressed="true">Classic<small>32 spaces</small></button>
+        <button type="button" data-board="grand" aria-pressed="false">Grand<small>40 spaces</small></button>
+      </div>
+    </div>
     <div class="optrow">
       <div class="field">
         <label class="lbl" for="timeSel">Time limit</label>
@@ -784,7 +862,7 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
       </div>
       <label class="check" for="aucChk"><input type="checkbox" id="aucChk" checked> Auction businesses nobody buys</label>
     </div>
-    <p class="hint">When time runs out, the round finishes so every player gets the same number of turns. Highest net worth wins.</p>
+    <p class="hint">When time runs out, the round finishes so every player gets the same number of turns. Highest net worth wins. The grand board adds the circus, Coca-Cola, the Gold Room and more, and plays best in 40 minutes or longer.</p>
     <div class="actions-row">
       <button class="btn primary" id="startBtn" type="button">Open for business</button>
       <button class="btn" id="resumeBtn" type="button" hidden>Resume saved game</button>
@@ -874,18 +952,22 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
 <script>
 // ENGINE START
 const RB = (() => {
-  const START_CASH = 1500, PAYDAY = 200, BAIL = 50, N = 32;
+  const START_CASH = 1500, PAYDAY = 200, BAIL = 50, DIVIDEND = 100, MAX_SPACES = 40;
 
-  const GROUPS = {
-    meat:   { name: 'Meatpacking',      color: '#8a5a33', fac: 50,  members: [1, 3] },
-    sugar:  { name: 'Sugar',            color: '#7fb0c4', fac: 50,  members: [6, 7] },
-    tob:    { name: 'Tobacco',          color: '#a8506f', fac: 100, members: [9, 11] },
-    wire:   { name: 'Wire and Telephone', color: '#d2822e', fac: 100, members: [14, 15] },
-    elec:   { name: 'Electric Power',   color: '#b8352f', fac: 150, members: [17, 19] },
-    oil:    { name: 'Oil',              color: '#d4b03a', fac: 150, members: [22, 23] },
-    steel:  { name: 'Steel',            color: '#3f7a52', fac: 200, members: [25, 27] },
-    bank:   { name: 'Finance',          color: '#2f3f7c', fac: 200, members: [30, 31] }
+  // Every industry either board can use. useBoard() fills GROUPS with the ones on the current board.
+  const GROUP_DEFS = {
+    meat:   { name: 'Meatpacking',      color: '#8a5a33', fac: 50 },
+    sugar:  { name: 'Sugar',            color: '#7fb0c4', fac: 50 },
+    tob:    { name: 'Tobacco',          color: '#a8506f', fac: 100 },
+    show:   { name: 'Showbiz',          color: '#2e8b8b', fac: 100 },
+    wire:   { name: 'Wire and Telephone', color: '#d2822e', fac: 100 },
+    elec:   { name: 'Electric Power',   color: '#b8352f', fac: 150 },
+    brand:  { name: 'Brand Names',      color: '#7a4ea3', fac: 150 },
+    oil:    { name: 'Oil',              color: '#d4b03a', fac: 150 },
+    steel:  { name: 'Steel',            color: '#3f7a52', fac: 200 },
+    bank:   { name: 'Finance',          color: '#2f3f7c', fac: 200 }
   };
+  const GROUPS = {};
   const RR_RENT = [25, 50, 100, 200];
 
   function r5(x) { return Math.max(5, Math.round(x / 5) * 5); }
@@ -898,7 +980,7 @@ const RB = (() => {
   }
   function R(name, short, fact) { return { type: 'rr', name, short, price: 200, fact }; }
 
-  const SPACES = [
+  const CLASSIC = [
     { type: 'corner', key: 'payday', name: 'Payday', short: 'Payday', fact: 'Collect $200 every time you pass this corner.' },
     P('Armour and Company', 'Armour & Co.', 'meat', 60, 'Philip Armour turned the Union Stock Yards of Chicago, opened in 1865, into a meatpacking empire. Packers liked to boast that they used every part of the hog except the squeal.'),
     { type: 'streets', name: 'The Streets', short: 'The Streets' },
@@ -913,9 +995,9 @@ const RB = (() => {
     P('American Tobacco Company', 'American Tobacco', 'tob', 160, 'James B. Duke formed the American Tobacco Company in 1890. His Bonsack machines each rolled about 120,000 cigarettes a day. The Supreme Court broke up the company in 1911.'),
     { type: 'streets', name: 'The Streets', short: 'The Streets' },
     R('Central Pacific Railroad', 'Central Pacific', 'The Central Pacific built east from Sacramento through the Sierra Nevada. Chinese immigrants made up about 90 percent of its workforce.'),
-    P('Western Union', 'Western Union', 'wire', 180, 'Western Union bought out rival telegraph lines until it became the first nationwide monopoly in America. Jay Gould took control of the company in 1881.'),
+    P('Western Union', 'Western Union', 'wire', 180, 'Western Union bought out rival telegraph lines until it ruled long distance telegraphy across the United States. Jay Gould took control of the company in 1881.'),
     P('Bell Telephone', 'Bell Telephone', 'wire', 200, 'Alexander Graham Bell received his telephone patent on March 7, 1876. By 1886 more than 150,000 people in the United States owned telephones.'),
-    { type: 'corner', key: 'fair', name: 'World\u2019s Fair', short: 'World\u2019s Fair', fact: 'Chicago hosted the World\u2019s Columbian Exposition in 1893. Rest here. Nothing happens.' },
+    { type: 'corner', key: 'fair', name: 'World\u2019s Fair', short: 'World\u2019s Fair', fact: 'Chicago hosted the World\u2019s Columbian Exposition in 1893. Land here and the whole country is watching: the next rent you collect is 50 percent higher.' },
     P('Edison Electric', 'Edison Electric', 'elec', 220, 'Pearl Street Station, built by Thomas Edison, began sending electric power to 82 customers in lower Manhattan on September 4, 1882.'),
     { type: 'headlines', name: 'Headlines', short: 'Headlines' },
     P('Westinghouse Electric', 'Westinghouse', 'elec', 240, 'George Westinghouse bet on the alternating current system of Nikola Tesla. His company won the contract to light the 1893 Chicago World\u2019s Fair.'),
@@ -933,19 +1015,61 @@ const RB = (() => {
     P('J.P. Morgan and Company', 'J.P. Morgan & Co.', 'bank', 400, 'In 1901 J.P. Morgan bought Carnegie Steel for $480 million and created U.S. Steel, the first billion dollar corporation in the world.')
   ];
 
+  // The grand board: 40 spaces. Every classic space, plus two industries, more cards and two specials.
+  const named = n => CLASSIC.find(sp => sp.name === n);
+  const HL = named('Headlines'), ST = named('The Streets');
+  const GRAND = [
+    named('Payday'), named('Armour and Company'), ST, named('Swift and Company'), named('Tariff Duty'), named('Union Pacific Railroad'),
+    named('Spreckels Sugar'), HL, named('American Sugar Refining'),
+    { type: 'special', key: 'gold', name: 'The Gold Room', short: 'Gold Room', fact: 'Speculators shouted bids for gold around a cupid fountain in the New York Gold Room. Gamble on the market here: win $150 in a boom, win $50 when the market is steady, lose $100 in a panic.' },
+    named('Courthouse'), named('R.J. Reynolds Tobacco'), ST, named('American Tobacco Company'),
+    P('Barnum and Bailey Circus', 'Barnum & Bailey', 'show', 170, 'P.T. Barnum and James Bailey joined their shows in 1881. Billed as the Greatest Show on Earth, the circus rode its own trains from town to town.'),
+    named('Central Pacific Railroad'),
+    P('Buffalo Bill\u2019s Wild West', 'Buffalo Bill', 'show', 190, 'William F. Cody opened Buffalo Bill\u2019s Wild West in 1883. Sharpshooter Annie Oakley starred in the show, which toured the United States and Europe.'),
+    HL, named('Western Union'), named('Bell Telephone'),
+    named('World\u2019s Fair'), named('Edison Electric'), ST, named('Westinghouse Electric'), named('Tammany Hall'), named('New York Central Railroad'),
+    P('H.J. Heinz Company', 'Heinz Ketchup', 'brand', 250, 'Henry J. Heinz started selling bottled ketchup in 1876. His company bragged about its 57 Varieties and gave away pickle pins at the 1893 World\u2019s Fair.'),
+    HL,
+    P('Coca-Cola Company', 'Coca-Cola', 'brand', 270, 'Pharmacist John Pemberton sold the first glass of Coca-Cola in Atlanta in 1886 for five cents. Asa Candler bought the company and spread it across the country with coupons and painted signs.'),
+    { type: 'special', key: 'depot', name: 'Grand Central Depot', short: 'Grand Central', fact: 'Cornelius Vanderbilt opened Grand Central Depot in New York City in 1871. Catch the express here and ride straight to the next railroad.' },
+    named('Indicted'), named('Titusville Oil Fields'), named('Standard Oil'), ST, named('Edgar Thomson Steel Works'), named('Pennsylvania Railroad'),
+    named('Homestead Steel Works'), HL, named('Wall Street'), named('J.P. Morgan and Company')
+  ];
+  const BOARDS = { classic: CLASSIC, grand: GRAND };
+  const SPACES = [], BUYABLE = [];
+  let boardKind = '';
+  // Switch boards in place, so every part of the page that holds SPACES, GROUPS or BUYABLE sees the change.
+  function useBoard(kind) {
+    kind = BOARDS[kind] ? kind : 'classic';
+    if (kind === boardKind) return kind;
+    boardKind = kind;
+    SPACES.length = 0; BOARDS[kind].forEach(sp => SPACES.push(sp));
+    BUYABLE.length = 0; SPACES.forEach((sp, i) => { if (sp.type === 'prop' || sp.type === 'rr') BUYABLE.push(i); });
+    Object.keys(GROUPS).forEach(g => { delete GROUPS[g]; });
+    Object.keys(GROUP_DEFS).forEach(g => {
+      const members = SPACES.map((sp, i) => (sp.group === g ? i : -1)).filter(i => i >= 0);
+      if (members.length) GROUPS[g] = Object.assign({}, GROUP_DEFS[g], { members });
+    });
+    return kind;
+  }
+  useBoard('classic');
+  const spaceAt = key => SPACES.findIndex(sp => sp.key === key);
+
   const HEADLINES = [
     { title: 'Golden Spike', year: '1869', text: 'The Union Pacific and Central Pacific meet at Promontory Summit, Utah, on May 10, 1869. Travel from coast to coast drops from months to about a week.', effect: 'Advance to the nearest railroad. Boom times. Every rent rises 50 percent for one round.', fx: { t: 'nearestRR' }, mkt: 'boom' },
     { title: 'Panic of 1873', year: '1873', text: 'The bank of Jay Cooke collapses on September 18, 1873. The depression that follows drags on until 1879.', effect: 'Pay $100. Panic. Every rent falls by half for one round.', fx: { t: 'money', v: -100 }, mkt: 'panic' },
     { title: 'Interstate Commerce Act', year: '1887', text: 'Congress creates the Interstate Commerce Commission, the first federal agency built to regulate a private industry. Its target is railroad rates.', effect: 'Pay $40 for each railroad you own.', fx: { t: 'perRR', v: 40 } },
-    { title: 'Sherman Antitrust Act', year: '1890', text: 'Congress outlaws combinations that restrain trade. The bill passes the Senate 51 to 1 and the House 242 to 0.', effect: 'Pay $100 for each trust you control.', fx: { t: 'perTrust', v: 100 } },
+    { title: 'Sherman Antitrust Act', year: '1890', text: 'Congress outlaws combinations that restrain trade. The bill passes the Senate 51 to 1 and the House 242 to 0. The courts enforce it weakly at first, but every trust is on notice.', effect: 'Pay $100 for each trust you control.', fx: { t: 'perTrust', v: 100 } },
     { title: 'Black Friday', year: '1869', text: 'Jay Gould and Jim Fisk try to corner the gold market. On September 24, 1869, President Grant orders the Treasury to sell $4 million in gold and the price collapses.', effect: 'Pay $75. Panic. Every rent falls by half for one round.', fx: { t: 'money', v: -75 }, mkt: 'panic' },
-    { title: 'Brooklyn Bridge Opens', year: '1883', text: 'On May 24, 1883, the longest suspension bridge in the world opens between Brooklyn and Manhattan after 14 years of work.', effect: 'Advance to Payday and collect your pay.', fx: { t: 'advance', to: 0 } },
-    { title: 'World\u2019s Columbian Exposition', year: '1893', text: 'Chicago hosts a world\u2019s fair that sells more than 27 million admissions in six months.', effect: 'Advance to the World\u2019s Fair and collect $100. Boom times. Every rent rises 50 percent for one round.', fx: { t: 'advance', to: 16, bonus: 100 }, mkt: 'boom' },
-    { title: 'Panic of 1893', year: '1893', text: 'Railroads overbuild and go bust. About 15,000 businesses and 500 banks fail, and unemployment climbs above 10 percent.', effect: 'Pay $150. Panic. Every rent falls by half for one round.', fx: { t: 'money', v: -150 }, mkt: 'panic' },
+    { title: 'Brooklyn Bridge Opens', year: '1883', text: 'On May 24, 1883, the longest suspension bridge in the world opens between Brooklyn and Manhattan after 14 years of work.', effect: 'Advance to Payday and collect your pay.', fx: { t: 'advance', key: 'payday' } },
+    { title: 'World\u2019s Columbian Exposition', year: '1893', text: 'Chicago hosts a world\u2019s fair that sells more than 27 million admissions in six months.', effect: 'Advance to the World\u2019s Fair and collect $100. Boom times. Every rent rises 50 percent for one round.', fx: { t: 'advance', key: 'fair', bonus: 100 }, mkt: 'boom' },
+    { title: 'Panic of 1893', year: '1893', text: 'Railroads overbuild and go bust. About 15,000 businesses and 500 banks fail, and unemployment may reach 17 to 19 percent.', effect: 'Pay $150. Panic. Every rent falls by half for one round.', fx: { t: 'money', v: -150 }, mkt: 'panic' },
     { title: 'The Gospel of Wealth', year: '1889', text: 'Andrew Carnegie writes that a man who dies rich dies disgraced. He argues the wealthy owe their fortunes to the public.', effect: 'Pay each player $50.', fx: { t: 'payEach', v: 50 } },
     { title: 'Klondike Gold Rush', year: '1897', text: 'On July 17, 1897, the steamship Portland docks in Seattle carrying about a ton of gold from the Yukon.', effect: 'Collect $150. Boom times. Every rent rises 50 percent for one round.', fx: { t: 'money', v: 150 }, mkt: 'boom' },
     { title: 'The Tweed Ring Falls', year: '1873', text: 'Boss William Tweed of Tammany Hall is convicted in November 1873 of stealing from New York City. Investigators are looking at your books next.', effect: 'Go directly to the Courthouse. Do not collect $200.', fx: { t: 'court' } },
-    { title: 'Light at Menlo Park', year: '1879', text: 'On December 31, 1879, Thomas Edison lights up his Menlo Park laboratory with a long lasting bulb for a crowd of visitors.', effect: 'Advance to Edison Electric.', fx: { t: 'advance', to: 17 } }
+    { title: 'Light at Menlo Park', year: '1879', text: 'On December 31, 1879, Thomas Edison lights up his Menlo Park laboratory with a long lasting bulb for a crowd of visitors.', effect: 'Advance to Edison Electric.', fx: { t: 'advance', name: 'Edison Electric' } },
+    // Grand board only. New cards go at the end so saved games keep their card numbers.
+    { title: 'Jumbo the Elephant', year: '1882', text: 'P.T. Barnum buys Jumbo, the biggest elephant anyone has ever seen, from the London Zoo. Crowds line up for blocks to see him.', effect: 'Advance to Barnum and Bailey Circus.', fx: { t: 'advance', name: 'Barnum and Bailey Circus' }, board: 'grand' }
   ];
 
   const STREETS = [
@@ -961,7 +1085,8 @@ const RB = (() => {
     { title: 'Electric Streetcars', year: '1888', text: 'Frank Sprague opens the first large electric streetcar system in Richmond, Virginia, in 1888. Cities begin to spread outward.', effect: 'Move ahead 3 spaces.', fx: { t: 'forward', n: 3 } },
     { title: 'Pinkerton Detectives', year: '1870s', text: 'Coal companies in Pennsylvania hire Pinkerton detectives to go undercover inside miners\u2019 groups.', effect: 'Pay $75.', fx: { t: 'money', v: -75 } },
     { title: 'Carnegie Libraries', year: '1880s', text: 'Andrew Carnegie pays for more than 1,600 public libraries across the United States. You borrow a bookkeeping manual and find money you forgot you had.', effect: 'Collect $50.', fx: { t: 'money', v: 50 } },
-    { title: 'Coxey\u2019s Army', year: '1894', text: 'Jacob Coxey leads unemployed men on a march to Washington. On May 1, 1894, police arrest him for walking on the Capitol lawn.', effect: 'Go directly to the Courthouse. Do not collect $200.', fx: { t: 'court' } }
+    { title: 'Coxey\u2019s Army', year: '1894', text: 'Jacob Coxey leads unemployed men on a march to Washington. On May 1, 1894, police arrest him for walking on the Capitol lawn.', effect: 'Go directly to the Courthouse. Do not collect $200.', fx: { t: 'court' } },
+    { title: 'The Soda Fountain', year: '1886', text: 'The drugstore soda fountain becomes the place to meet in American towns. A new drink called Coca-Cola sells for five cents a glass.', effect: 'Advance to Coca-Cola.', fx: { t: 'advance', name: 'Coca-Cola Company' }, board: 'grand' }
   ];
 
   const BARONS = [
@@ -979,8 +1104,7 @@ const RB = (() => {
       fact: 'In 1895 the federal Treasury was running out of gold. Morgan led a group of bankers that supplied about 3.5 million ounces of gold and kept the government from defaulting.' }
   ];
   const MOODS = { boom: 1.5, steady: 1, panic: 0.5 };
-
-  const BUYABLE = SPACES.map((s, i) => (s.type === 'prop' || s.type === 'rr') ? i : -1).filter(i => i >= 0);
+  const GOLD = { boom: 150, steady: 50, panic: -100 }; // the Gold Room pays out with the market
 
   function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
@@ -988,15 +1112,21 @@ const RB = (() => {
   }
   function range(n) { return Array.from({ length: n }, (_, i) => i); }
   function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+  // Card numbers for a deck, leaving out cards written for the other board.
+  function deckIdx(deck) {
+    const cards = deck === 'headlines' ? HEADLINES : STREETS;
+    return range(cards.length).filter(ci => !cards[ci].board || cards[ci].board === boardKind);
+  }
 
   function newGame(names, minutes, opts) {
     opts = opts || {};
+    const board = useBoard(opts.board);
     const props = {};
     BUYABLE.forEach(i => { props[i] = { owner: -1, level: 0, mort: false }; });
     const barons = opts.barons || names.map((n, i) => i);
     const s = {
       version: 2,
-      rules: { auctions: opts.auctions !== false },
+      rules: { auctions: opts.auctions !== false, board },
       market: { mood: 'steady', turns: 0 },
       auction: null,
       lastAuction: null,
@@ -1010,7 +1140,7 @@ const RB = (() => {
       lastRoll: null,
       pending: null,
       events: [],
-      decks: { headlines: shuffle(range(HEADLINES.length)), streets: shuffle(range(STREETS.length)) },
+      decks: { headlines: shuffle(deckIdx('headlines')), streets: shuffle(deckIdx('streets')) },
       log: [],
       timer: minutes > 0 ? { total: minutes * 60000, remaining: minutes * 60000, running: true } : null,
       finalRound: false,
@@ -1086,7 +1216,7 @@ const RB = (() => {
     propsOwned(s, p.id).forEach(i => {
       const sp = SPACES[i], pr = s.props[i];
       props += pr.mort ? sp.price / 2 : sp.price;
-      if (sp.type === 'prop') facs += pr.level * GROUPS[sp.group].fac;
+      if (sp.type === 'prop') facs += pr.level * facCost(s, p.id, sp.group); // what this owner paid
     });
     return { cash: p.cash, props, facs, total: p.cash + props + facs };
   }
@@ -1145,14 +1275,15 @@ const RB = (() => {
   }
 
   function sendToCourt(s, p, moves) {
-    moves.push({ pid: p.id, from: p.pos, to: 8, steps: 0, jump: true });
-    p.pos = 8; p.inCourt = true; p.courtTurns = 0;
+    const court = spaceAt('court');
+    moves.push({ pid: p.id, from: p.pos, to: court, steps: 0, jump: true });
+    p.pos = court; p.inCourt = true; p.courtTurns = 0;
     if (p.id === s.cur) s.rollAgain = false;
     log(s, `${p.name} is held at the Courthouse.`);
   }
 
   function moveBy(s, p, n, moves) {
-    const from = p.pos, to = (from + n) % N;
+    const N = SPACES.length, from = p.pos, to = (from + n) % N;
     moves.push({ pid: p.id, from, to, steps: n, jump: false });
     p.pos = to;
     if (from + n >= N) { const pay = paydayFor(s, p); p.cash += pay; log(s, `${p.name} passes Payday and collects ${money(pay)}.`); }
@@ -1160,12 +1291,12 @@ const RB = (() => {
   }
 
   function moveTo(s, p, target, moves) {
-    const steps = (target - p.pos + N) % N;
+    const steps = (target - p.pos + SPACES.length) % SPACES.length;
     moveBy(s, p, steps, moves);
   }
 
   function drawCard(s, deck) {
-    if (!s.decks[deck].length) s.decks[deck] = shuffle(range((deck === 'headlines' ? HEADLINES : STREETS).length));
+    if (!s.decks[deck].length) s.decks[deck] = shuffle(deckIdx(deck));
     return s.decks[deck].pop();
   }
 
@@ -1186,19 +1317,22 @@ const RB = (() => {
         s.players.forEach(o => { if (o.id !== p.id && !o.bankrupt && !p.bankrupt && s.phase !== 'over') pay(s, o, fx.v, p.id); });
         break;
       case 'court': sendToCourt(s, p, moves); break;
-      case 'advance':
-        moveTo(s, p, fx.to, moves);
+      case 'advance': {
+        const to = fx.key ? spaceAt(fx.key) : SPACES.findIndex(sp => sp.name === fx.name);
+        if (to >= 0) moveTo(s, p, to, moves);
         if (fx.bonus && !p.bankrupt) p.cash += fx.bonus;
         break;
-      case 'nearestRR': {
-        let t = p.pos;
-        do { t = (t + 1) % N; } while (SPACES[t].type !== 'rr');
-        moveTo(s, p, t, moves);
-        break;
       }
+      case 'nearestRR': moveTo(s, p, nextRR(p.pos), moves); break;
       case 'forward': moveBy(s, p, fx.n, moves); break;
     }
     if (card.mkt && s.phase !== 'over') setMarket(s, card.mkt);
+  }
+
+  function nextRR(from) {
+    let t = from;
+    do { t = (t + 1) % SPACES.length; } while (SPACES[t].type !== 'rr');
+    return t;
   }
 
   function land(s, p, moves) {
@@ -1217,10 +1351,15 @@ const RB = (() => {
         s.events.push({ kind: 'space', idx: i });
         log(s, `${p.name} lands on ${sp.short}. It is mortgaged, so no rent is due.`);
       } else {
-        const rent = rentOwed(s, i, p.id), owner = s.players[pr.owner];
+        const owner = s.players[pr.owner];
+        let rent = rentOwed(s, i, p.id);
         const rebate = rent < rentFor(s, i);
-        s.events.push({ kind: 'rent', idx: i, amount: rent, to: owner.id, rebate, mood: s.market.mood });
-        log(s, `${p.name} lands on ${sp.short} and owes ${owner.name} ${money(rent)} in rent${rebate ? ' after a railroad rebate' : ''}.`);
+        const vand = sp.type === 'rr' && hasPower(s, owner.id, 'vanderbilt');
+        // A player fresh from the World's Fair collects 50 percent more on their next rent.
+        const spot = !!owner.spot;
+        if (spot) { rent = r5(rent * 1.5); owner.spot = false; }
+        s.events.push({ kind: 'rent', idx: i, amount: rent, to: owner.id, rebate, vand, spot, mood: s.market.mood });
+        log(s, `${p.name} lands on ${sp.short} and owes ${owner.name} ${money(rent)} in rent${rebate ? ' after a railroad rebate' : ''}${spot ? ', 50 percent more under the spotlight' : ''}.`);
         pay(s, p, rent, owner.id);
       }
     } else if (sp.type === 'tax') {
@@ -1236,6 +1375,19 @@ const RB = (() => {
       s.events.push({ kind: 'space', idx: i });
       log(s, `${p.name} is indicted.`);
       sendToCourt(s, p, moves);
+    } else if (sp.key === 'fair') {
+      p.spot = true;
+      s.events.push({ kind: 'space', idx: i });
+      log(s, `${p.name} is in the national spotlight. Their next rent collected is 50 percent higher.`);
+    } else if (sp.key === 'gold') {
+      const mood = s.market.mood, amt = GOLD[mood] || 0;
+      s.events.push({ kind: 'gold', idx: i, amount: amt, mood });
+      if (amt >= 0) { p.cash += amt; log(s, `${p.name} speculates in the Gold Room and wins ${money(amt)}.`); }
+      else { log(s, `${p.name} speculates in the Gold Room during the panic and loses ${money(-amt)}.`); pay(s, p, -amt, null); }
+    } else if (sp.key === 'depot') {
+      s.events.push({ kind: 'space', idx: i });
+      log(s, `${p.name} catches the express at ${sp.short}.`);
+      moveTo(s, p, nextRR(i), moves);
     } else {
       s.events.push({ kind: 'space', idx: i });
     }
@@ -1274,7 +1426,7 @@ const RB = (() => {
       s.doubles++;
       if (s.doubles >= 3) {
         log(s, `${p.name} rolls doubles three times in a row and draws suspicion.`);
-        s.events.push({ kind: 'space', idx: 24 });
+        s.events.push({ kind: 'space', idx: spaceAt('indicted') });
         sendToCourt(s, p, moves);
       } else {
         s.rollAgain = true;
@@ -1315,7 +1467,8 @@ const RB = (() => {
     log(s, `${cur(s).name} passes on ${SPACES[idx].short}.`);
     s.pending = null; s.phase = 'postRoll';
     if (s.rules.auctions && active(s).length >= 2) {
-      s.auction = { idx, high: 0, leader: -1, in: active(s).map(p => p.id) };
+      // The player who passed sits this one out, so passing is never a way to buy a business on the cheap.
+      s.auction = { idx, high: 0, leader: -1, in: active(s).filter(p => p.id !== s.cur).map(p => p.id), passer: s.cur };
       s.phase = 'auction';
       log(s, `${SPACES[idx].short} goes up for auction.`);
     }
@@ -1381,6 +1534,16 @@ const RB = (() => {
     if (s.market.mood !== 'steady' && --s.market.turns <= 0) { s.market = { mood: 'steady', turns: 0 }; log(s, 'The market settles down. Rents return to normal.'); }
     log(s, `It is ${s.players[n].name}\u2019s turn.`);
     return true;
+  }
+
+  // After two doubles in a row: bank a dividend and stop, or roll again and risk a third.
+  function canCashOut(s) { const p = cur(s); return s.phase === 'postRoll' && s.rollAgain && s.doubles >= 2 && !p.bankrupt && !p.inCourt; }
+  function cashOut(s) {
+    if (!canCashOut(s)) return false;
+    const p = cur(s);
+    p.cash += DIVIDEND; s.rollAgain = false;
+    log(s, `${p.name} takes a ${money(DIVIDEND)} dividend instead of risking a third roll.`);
+    return endTurn(s);
   }
 
   function manageAllowed(s) { return s.phase === 'preRoll' || s.phase === 'postRoll' || s.phase === 'buy'; }
@@ -1468,12 +1631,16 @@ const RB = (() => {
     if (s.timer) s.timer.running = false;
     s.results = s.players.map(p => Object.assign({ id: p.id, name: p.name, bankrupt: p.bankrupt }, netWorth(s, p)))
       .sort((x, y) => (x.bankrupt - y.bankrupt) || (y.total - x.total));
+    // An exact tie for the top shares the win. Seat order never breaks it.
+    const top = s.results[0];
+    s.winners = top && !top.bankrupt ? s.results.filter(r => !r.bankrupt && r.total === top.total).map(r => r.id) : [];
     s.endReason = why;
     log(s, 'The game is over.');
   }
 
   return {
-    SPACES, GROUPS, HEADLINES, STREETS, BARONS, BUYABLE, RR_RENT, START_CASH, BAIL, MIN_BID, MOODS,
+    SPACES, GROUPS, HEADLINES, STREETS, BARONS, BUYABLE, RR_RENT, START_CASH, BAIL, MIN_BID, MOODS, GOLD, DIVIDEND, MAX_SPACES,
+    useBoard, board: () => boardKind, spaceAt, canCashOut, cashOut,
     newGame, migrate, roll, buy, pass, endTurn, bid, dropOut, canBid, baronOf, hasPower, paydayFor, facCost, rentOwed, baseRent, payBail, build, sellFactory, mortgage, unmortgage,
     canBuild, canMortgage, unmortgageCost, tradable, validTrade, trade, endGame,
     rentFor, netWorth, ownsTrust, groupFactories, propsOwned, railroadsOwned, active, money, lastActiveIndex, log
@@ -1510,6 +1677,9 @@ const ART = (() => {
     cuffs: '<circle cx="14" cy="30" r="8"/><circle cx="34" cy="30" r="8"/><path d="M19 23Q24 16 29 23" style="stroke-dasharray:3 2"/><rect x="11" y="19" width="6" height="5" class="f"/><rect x="31" y="19" width="6" height="5" class="f"/>',
     dice: '<rect x="6" y="14" width="22" height="22" rx="4"/><path d="M20 10L34 4L44 20L30 26"/><circle cx="12" cy="20" r="1.8" class="f"/><circle cx="22" cy="30" r="1.8" class="f"/><circle cx="17" cy="25" r="1.8" class="f"/>',
     hammer: '<path d="M8 12L22 12L22 22L8 22Z" class="f"/><path d="M22 17L42 17M15 22L15 42M9 42L21 42"/>',
+    bell: '<path d="M24 7Q34.5 8.5 35 22L36 31L41 37L7 37L12 31L13 22Q13.5 8.5 24 7Z"/><path d="M19 41Q24 46 29 41M24 3L24 7M16 18Q17 13 21 11.5"/>',
+    bottle: '<path d="M20 4L28 4L28 12Q34 18 33 26L33 42Q33 45 30 45L18 45Q15 45 15 42L15 26Q14 18 20 12Z"/><path d="M15 28L33 28M15 36L33 36M20 8L28 8"/>',
+    tent: '<path d="M24 11L42 40L6 40Z"/><path d="M24 11L17 40M24 11L31 40M3 44L45 44M24 11L24 3"/><path d="M24 3L32 6L24 9Z" class="f"/>',
     shake: '<path d="M4 20L12 14L20 16L28 12L36 18L44 16M12 14L6 30L14 36M36 18L42 30L32 38L24 32L18 36L14 36M24 32L28 28M20 28L24 24"/>'
   };
   function icon(key, cls) {
@@ -1898,6 +2068,73 @@ const FX = (() => {
   }
   const rays = red => `<div class="rays${red ? ' red' : ''}" aria-hidden="true"></div>`;
 
+  // Fireworks: each shell climbs from (x, y), bursts into a ring of colored stars, and the stars sag as they fade.
+  // host is any positioned layer; x and y are in its coordinates.
+  function fireworks(host, x, y, shells, o = {}) {
+    if (rm || !host) return;
+    const colors = o.colors || ['#ffd970', '#ff8a5c', '#9fd3ff', '#fff4d6', '#c9a2ff', '#86e3b0'];
+    const unit = o.unit || 7, n = o.stars || 22, R = o.radius || 70, spread = o.spread == null ? 120 : o.spread, rise = o.rise || 150;
+    for (let s = 0; s < shells; s++) {
+      const bx = x + rand(-1, 1) * spread, by = y - rise * rand(0.55, 1), delay = (o.delay || 0) + s * rand(200, 320);
+      const col = colors[Math.floor(rand(0, colors.length))], col2 = colors[Math.floor(rand(0, colors.length))];
+      // the flash of the burst itself
+      const fl = document.createElement('div'); fl.className = 'fwstar'; fl.style.setProperty('--fc', col);
+      const fs = R * 0.9; fl.style.width = fl.style.height = fs + 'px'; host.appendChild(fl);
+      done(fl)(fl.animate([{ transform: `translate(${bx - fs / 2}px, ${by - fs / 2}px) scale(0.1)`, opacity: 0 }, { transform: `translate(${bx - fs / 2}px, ${by - fs / 2}px) scale(1)`, opacity: 0.85, offset: 0.25 },
+        { transform: `translate(${bx - fs / 2}px, ${by - fs / 2}px) scale(1.4)`, opacity: 0 }], { duration: 520, delay: delay + 500, easing: 'ease-out', fill: 'both' }));
+      // an inner crackle ring in a second color
+      for (let k = 0; k < 10; k++) {
+        const c2 = document.createElement('div'); c2.className = 'fwstar'; c2.style.setProperty('--fc', col2);
+        const sz = unit * 0.6; c2.style.width = c2.style.height = sz + 'px'; host.appendChild(c2);
+        const a2 = (k / 10) * Math.PI * 2 + 0.3, d2 = R * 0.45;
+        done(c2)(c2.animate([{ transform: `translate(${bx - sz / 2}px, ${by - sz / 2}px)`, opacity: 0 }, { transform: `translate(${bx - sz / 2 + Math.cos(a2) * d2}px, ${by - sz / 2 + Math.sin(a2) * d2}px)`, opacity: 1, offset: 0.5 },
+          { transform: `translate(${bx - sz / 2 + Math.cos(a2) * d2 * 1.1}px, ${by - sz / 2 + Math.sin(a2) * d2 * 1.1 + R * 0.2}px) scale(0.2)`, opacity: 0 }], { duration: 900, delay: delay + 560, easing: 'ease-out', fill: 'both' }));
+      }
+      const t = document.createElement('div'); t.className = 'fwtrail'; t.style.setProperty('--fc', col); host.appendChild(t);
+      done(t)(t.animate([{ transform: `translate(${x + rand(-10, 10)}px, ${y}px)`, opacity: 0.2 }, { transform: `translate(${bx}px, ${by}px)`, opacity: 1, offset: 0.9 }, { transform: `translate(${bx}px, ${by}px) scale(2.5)`, opacity: 0 }],
+        { duration: 560, delay, easing: 'cubic-bezier(.25,.6,.4,1)', fill: 'both' }));
+      for (let k = 0; k < n; k++) {
+        const p = document.createElement('div'); p.className = 'fwstar'; p.style.setProperty('--fc', col);
+        const sz = unit * rand(0.85, 1.35); p.style.width = p.style.height = sz + 'px';
+        host.appendChild(p);
+        const ang = (k / n) * Math.PI * 2 + rand(-0.15, 0.15), d = R * rand(0.75, 1.1), ex = bx + Math.cos(ang) * d, ey = by + Math.sin(ang) * d;
+        done(p)(p.animate([
+          { transform: `translate(${bx - sz / 2}px, ${by - sz / 2}px) scale(0.2)`, opacity: 0 },
+          { transform: `translate(${bx - sz / 2}px, ${by - sz / 2}px) scale(1.2)`, opacity: 1, offset: 0.04 },
+          { transform: `translate(${ex - sz / 2}px, ${ey - sz / 2}px) scale(1)`, opacity: 1, offset: 0.5 },
+          { transform: `translate(${ex - sz / 2}px, ${ey - sz / 2 + R * 0.55}px) scale(0.3)`, opacity: 0 }],
+          { duration: rand(1150, 1550), delay: delay + 500, easing: 'cubic-bezier(.12,.8,.35,1)', fill: 'both' }));
+      }
+    }
+  }
+  // A gilt chain drawn between points (a new trust's businesses), glowing in the owner's color, then fading.
+  function chain(host, pts, color, width) {
+    if (rm || !host || pts.length < 2) return;
+    const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'chainfx'); svg.style.setProperty('--cc', color);
+    const cx = host.clientWidth / 2, cy = host.clientHeight / 2;
+    let d = `M${pts[0].x} ${pts[0].y}`;
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, len = Math.hypot(b.x - a.x, b.y - a.y);
+      const vx = cx - mx, vy = cy - my, vl = Math.hypot(vx, vy) || 1, bow = Math.max(len * 0.85, width * 8); // bow toward the middle of the board
+      d += ` Q${mx + vx / vl * bow} ${my + vy / vl * bow} ${b.x} ${b.y}`;
+    }
+    svg.innerHTML = `<path class="glow" d="${d}" stroke-width="${width * 3.4}" pathLength="1"/><path class="link" d="${d}" stroke-width="${width * 1.5}" stroke-dasharray="${width * 2.4} ${width * 1.1}"/>` +
+      pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="${width * 1.5}" fill="#f4d98c" stroke="#7c5a1c" stroke-width="${width * 0.45}"/>`).join('');
+    host.appendChild(svg);
+    const g = svg.querySelector('.glow'), l = svg.querySelector('.link');
+    g.animate([{ strokeDasharray: '0 1' }, { strokeDasharray: '1 0' }], { duration: 650, easing: 'ease-out', fill: 'both' });
+    l.animate([{ opacity: 0, strokeDashoffset: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, strokeDashoffset: -width * 16 }], { duration: 2400, easing: 'linear', fill: 'both' });
+    pts.forEach(p => burst(host, p.x, p.y, 8, width * 3));
+    done(svg)(svg.animate([{ opacity: 1 }, { opacity: 1, offset: 0.75 }, { opacity: 0 }], { duration: 3400, fill: 'both' }));
+  }
+  // A band of light sweeping across the board when the market turns.
+  function sweep(host, color) {
+    if (rm || !host) return;
+    const el = document.createElement('div'); el.className = 'sweep'; el.style.setProperty('--sw', color);
+    host.appendChild(el); setTimeout(() => el.remove(), 1700);
+  }
+
   // The district behind the skyline crossfades to wherever the action is.
   let shown = '';
   function district(host, key) {
@@ -1925,14 +2162,14 @@ const FX = (() => {
     fig.addEventListener('pointerleave', () => { [card, g].forEach(el => { el.style.removeProperty('--rx'); el.style.removeProperty('--ry'); }); });
   }
 
-  return { rm, motes, burst, ring, puff, shake, flash, coinRain, rays, district, resetDistrict, tilt, IMG };
+  return { rm, motes, burst, ring, puff, shake, flash, coinRain, rays, fireworks, chain, sweep, district, resetDistrict, tilt, IMG };
 })();
 // FX END
 </script>
 <script>
 (() => {
   const { SPACES, GROUPS, HEADLINES, STREETS, BARONS, money } = RB;
-  const SAVE_KEY = 'robber-barons-save-v1', SOUND_KEY = 'robber-barons-sound';
+  const SAVE_KEY = 'robber-barons-save-v1', SOUND_KEY = 'robber-barons-sound', BOARD_KEY = 'robber-barons-board';
   const $ = sel => document.querySelector(sel);
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const TRUST_VFX = Object.freeze({
@@ -2105,7 +2342,8 @@ const FX = (() => {
   const ic = k => ART.icon(k);
 
   /* ================= Art lookups ================= */
-  const GROUP_ICON = { meat: 'steer', sugar: 'sugar', tob: 'leaf', elec: 'bulb', steel: 'converter', bank: 'bank', oil: 'derrick', wire: 'pole' };
+  const GROUP_ICON = { meat: 'steer', sugar: 'sugar', tob: 'leaf', elec: 'bulb', steel: 'converter', bank: 'bank', oil: 'derrick', wire: 'pole', show: 'tent', brand: 'bottle' };
+  const SPECIAL_ICON = { gold: 'bag', depot: 'loco' };
   const NAME_ICON = { 'Bell Telephone': 'phone', 'Westinghouse Electric': 'bolt', 'Standard Oil': 'barrel', 'Homestead Steel Works': 'mill', 'Tariff Duty': 'ship', 'Tammany Hall': 'hat' };
   const CORNER_ICON = { payday: 'bag', court: 'scales', fair: 'wheel', indicted: 'cuffs' };
   function spaceIcon(sp) {
@@ -2115,24 +2353,29 @@ const FX = (() => {
     if (sp.type === 'headlines') return 'paper';
     if (sp.type === 'streets') return 'tenement';
     if (sp.type === 'corner') return CORNER_ICON[sp.key];
+    if (sp.type === 'special') return SPECIAL_ICON[sp.key];
     return 'bag';
   }
-  const GROUP_VIG = { meat: 'mill', sugar: 'ship', tob: 'mill', wire: 'streetcar', elec: 'bulb', oil: 'derricks', steel: 'mill', bank: 'bank' };
+  const GROUP_VIG = { meat: 'mill', sugar: 'ship', tob: 'mill', wire: 'streetcar', elec: 'bulb', oil: 'derricks', steel: 'mill', bank: 'bank', show: 'crowd', brand: 'mill' };
   const SPACE_FIG = { 'Standard Oil': 'refinery' };
   function spaceFig(sp) { return SPACE_FIG[sp.name] || ''; }
   const GROUP_SCENE = { oil: 'oil', steel: 'steel', bank: 'bank', elec: 'tech' };
   function spaceScene(sp) { if (spaceFig(sp)) return ''; return sp.type === 'rr' ? 'rail' : sp.type === 'prop' ? GROUP_SCENE[sp.group] || '' : ''; }
   const CARD_SCENE = {
-    'Golden Spike': 'rail', 'Panic of 1873': 'crash', 'Panic of 1893': 'crash', 'Black Friday': 'crash', 'Sherman Antitrust Act': 'trust',
-    'Light at Menlo Park': 'tech', 'Klondike Gold Rush': 'boom', 'Haymarket Square': 'strike', 'Knights of Labor': 'strike', 'Pullman Strike': 'strike'
+    'Golden Spike': 'spike', 'Panic of 1873': 'bankrun', 'Panic of 1893': 'crash', 'Black Friday': 'crash', 'Sherman Antitrust Act': 'trust',
+    'Light at Menlo Park': 'tech', 'Klondike Gold Rush': 'klondike', 'Haymarket Square': 'strike', 'Knights of Labor': 'strike', 'Pullman Strike': 'strike',
+    'Interstate Commerce Act': 'grange', 'The Gospel of Wealth': 'gospel'
   };
-  const sceneImg = k => `<img class="scene" src="${ART.IMG}scene-${k}.webp" alt="" draggable="false" onerror="this.remove()">`;
+  // Where to aim the crop on paintings whose faces sit high in the frame.
+  const SCENE_POS = { gospel: 'center 24%', grange: 'center 30%' };
+  const sceneImg = k => `<img class="scene" src="${ART.IMG}scene-${k}.webp" alt="" draggable="false"${SCENE_POS[k] ? ` style="object-position:${SCENE_POS[k]}"` : ''} onerror="this.remove()">`;
   const cardArt = t => ART.vignette(CARD_ART[t]) + (CARD_SCENE[t] ? sceneImg(CARD_SCENE[t]) : '');
   function spaceVig(sp) {
     if (sp.type === 'prop') return GROUP_VIG[sp.group];
     if (sp.type === 'rr') return 'loco';
     if (sp.type === 'tax') return sp.amount === 75 ? 'court' : 'ship';
     if (sp.type === 'corner') return { payday: 'gold', court: 'court', fair: 'wheel', indicted: 'court' }[sp.key];
+    if (sp.type === 'special') return sp.key === 'gold' ? 'gold' : 'loco';
     return sp.type === 'headlines' ? 'capitol' : 'tenement';
   }
   const CARD_ART = {
@@ -2141,7 +2384,7 @@ const FX = (() => {
     'Klondike Gold Rush': 'ship', 'The Tweed Ring Falls': 'court', 'Light at Menlo Park': 'bulb',
     'How the Other Half Lives': 'tenement', 'Ellis Island Opens': 'ship', 'Haymarket Square': 'strike', 'Knights of Labor': 'strike', 'Pullman Strike': 'loco',
     'The Sears Catalog': 'book', 'Hull House': 'tenement', 'Children at Work': 'mill', 'Company Scrip': 'mill', 'Electric Streetcars': 'streetcar',
-    'Pinkerton Detectives': 'lamp', 'Carnegie Libraries': 'library', 'Coxey’s Army': 'crowd'
+    'Pinkerton Detectives': 'lamp', 'Carnegie Libraries': 'library', 'Coxey’s Army': 'crowd', 'Jumbo the Elephant': 'crowd', 'The Soda Fountain': 'tenement'
   };
   function dial(mood) {
     const ang = { panic: -58, steady: 0, boom: 58 }[mood] || 0;
@@ -2333,18 +2576,38 @@ const FX = (() => {
   drawNameRows();
   if (loadSave()) $('#resumeBtn').hidden = false;
   $('#resumeBtn').addEventListener('click', () => { const o = loadSave(); if (o) startWith(o, false); });
-  $('#startBtn').addEventListener('click', () => {
+  let boardPick = 'classic';
+  try { if (localStorage.getItem(BOARD_KEY) === 'grand') boardPick = 'grand'; } catch (e) {}
+  function syncBoardSeg() { document.querySelectorAll('#boardSeg button').forEach(x => x.setAttribute('aria-pressed', x.dataset.board === boardPick ? 'true' : 'false')); }
+  document.querySelectorAll('#boardSeg button').forEach(b => b.addEventListener('click', () => {
+    boardPick = b.dataset.board; SFX.click(); syncBoardSeg();
+    try { localStorage.setItem(BOARD_KEY, boardPick); } catch (e) {}
+  }));
+  syncBoardSeg();
+  function startLocal() {
     const names = [];
     for (let i = 0; i < count; i++) {
       let n = (savedNames[i] || '').trim().replace(/\s+/g, ' ');
       if (!n) n = 'Player ' + WORDS[i];
       names.push(n);
     }
-    startWith(RB.newGame(names, +$('#timeSel').value, { barons: picks.slice(0, count), auctions: $('#aucChk').checked }), true);
+    // A random player goes first. Rotating keeps the order around the table, so the Chromebook still passes the same way.
+    const k = Math.floor(Math.random() * count), rot = a => a.map((x, i) => a[(i + k) % a.length]);
+    const board = boardPick;
+    startWith(RB.newGame(rot(names), +$('#timeSel').value, { barons: rot(picks.slice(0, count)), auctions: $('#aucChk').checked, board }), true);
+  }
+  $('#startBtn').addEventListener('click', () => {
+    if (!loadSave()) { startLocal(); return; }
+    openDlg(`<h2 id="dlgTitle">Start a new game?</h2><p>There is a saved game on this Chromebook. Starting a new one replaces it.</p>
+      <div class="foot"><button class="btn" type="button" data-close autofocus>Keep the saved game</button><button class="btn warn" type="button" id="replaceBtn">Start a new game</button></div>`);
+    body.querySelector('[data-close]').addEventListener('click', closeDlg);
+    $('#replaceBtn').addEventListener('click', () => { closeDlg(); startLocal(); });
   });
   $('#setupRules').addEventListener('click', showRules);
 
   function startWith(state, fresh) {
+    RB.useBoard(state.rules && state.rules.board);
+    if (fresh) cleveShown = false; // every new game gets the Cleveland film once
     S = state; disp = null; shownCash = null; lastTick = Date.now(); FX.resetDistrict();
     $('#setup').hidden = true; $('#game').hidden = false;
     buildBoard(); render(); save();
@@ -2356,21 +2619,24 @@ const FX = (() => {
   }
 
   /* ================= Board ================= */
+  // Grid spot for space i. Works for any board with a corner every quarter: 9 by 9 classic, 11 by 11 grand.
   function cellPos(i) {
-    if (i <= 8) return { r: 9, c: 9 - i, side: 'b' };
-    if (i <= 16) return { r: 9 - (i - 8), c: 1, side: 'l' };
-    if (i <= 24) return { r: 1, c: 1 + (i - 16), side: 't' };
-    return { r: 1 + (i - 24), c: 9, side: 'r' };
+    const k = SPACES.length / 4, e = k + 1;
+    if (i <= k) return { r: e, c: e - i, side: 'b' };
+    if (i <= 2 * k) return { r: e - (i - k), c: 1, side: 'l' };
+    if (i <= 3 * k) return { r: 1, c: 1 + (i - 2 * k), side: 't' };
+    return { r: 1 + (i - 3 * k), c: e, side: 'r' };
   }
   const cells = [], tokEls = [];
   // Railroads and the Headlines corners get painted pieces. Everything else keeps its engraved icon.
   function cellArt(sp) {
-    const k = sp.type === 'rr' ? 'bld-rail' : sp.type === 'headlines' ? 'extra' : '';
+    const k = sp.type === 'rr' || sp.key === 'depot' ? 'bld-rail' : sp.type === 'headlines' ? 'extra' : sp.key === 'gold' ? 'coin-50' : '';
     return k ? `<img class="csprite ${k}" src="${ART.IMG}sprite-${k}.webp" alt="" draggable="false" onerror="this.remove()">` + ic(spaceIcon(sp)) : ic(spaceIcon(sp));
   }
   function buildBoard() {
     const board = $('#board');
     board.querySelectorAll('.cell').forEach(c => c.remove());
+    board.classList.toggle('grand', SPACES.length > 32);
     cells.length = 0;
     SPACES.forEach((sp, i) => {
       const pos = cellPos(i);
@@ -2383,9 +2649,10 @@ const FX = (() => {
       if (sp.type === 'tax') { price = 'Pay ' + money(sp.amount); el.classList.add('tax'); }
       if (sp.type === 'headlines') { price = 'National news'; el.classList.add('hl'); }
       if (sp.type === 'streets') { price = 'Working life'; el.classList.add('st'); }
+      if (sp.type === 'special') { price = sp.key === 'gold' ? 'Gamble on gold' : 'Ride the express'; el.classList.add('sx'); }
       if (sp.type === 'corner') {
         el.classList.add('corner');
-        price = { payday: 'Collect $200', court: 'Bail $50', fair: 'Free rest', indicted: 'Go to Courthouse' }[sp.key];
+        price = { payday: 'Collect $200', court: 'Bail $50', fair: 'Spotlight', indicted: 'Go to Courthouse' }[sp.key];
       }
       el.dataset.base = price;
       const barColor = sp.type === 'prop' ? GROUPS[sp.group].color : '';
@@ -2412,8 +2679,9 @@ const FX = (() => {
     SPACES.forEach((sp, i) => {
       const el = cells[i], pr = S.props[i], prEl = el.querySelector('.pr');
       if (pr && pr.owner >= 0) {
-        const col = baron(pr.owner).color;
-        prEl.innerHTML = `<span class="od" style="background:${col}"></span>` + (pr.mort ? '' : 'Rent ' + money(RB.rentFor(S, i)));
+        const br = baron(pr.owner), col = br.color;
+        const ph = `<span class="od" style="--oc:${col}"><img src="${ART.IMG}face-${br.key}.webp" alt="" draggable="false" onerror="this.remove()"></span>` + (pr.mort ? '' : 'Rent ' + money(RB.rentFor(S, i)));
+        if (prEl.dataset.h !== ph) { prEl.dataset.h = ph; prEl.innerHTML = ph; }
         el.classList.add('owned');
         el.classList.toggle('mine', pr.owner === curId);
         el.style.setProperty('--mine', col); el.style.setProperty('--own', col);
@@ -2421,7 +2689,8 @@ const FX = (() => {
       } else {
         let base = el.dataset.base;
         if (sp.key === 'payday' && S.phase !== 'over') base = 'Collect ' + money(RB.paydayFor(S, S.players[S.cur]));
-        prEl.textContent = base; el.classList.remove('owned', 'mine'); el.setAttribute('aria-label', sp.name);
+        if (prEl.dataset.h !== base) { prEl.dataset.h = base; prEl.textContent = base; }
+        el.classList.remove('owned', 'mine'); el.setAttribute('aria-label', sp.name);
       }
       el.classList.toggle('mort', !!(pr && pr.mort));
       const lv = pr ? pr.level : 0, tr = !!(pr && pr.owner >= 0 && sp.type === 'prop' && RB.ownsTrust(S, sp.group, pr.owner));
@@ -2434,7 +2703,7 @@ const FX = (() => {
   }
   function flashCell(i) { const c = cells[i]; c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
   // Which district glows behind the skyline: the market mood first, then the space the current player is on.
-  const DISTRICT = { meat: 'rail', sugar: 'rail', tob: 'rail', wire: 'tech', elec: 'tech', oil: 'oil', steel: 'steel', bank: 'bank' };
+  const DISTRICT = { meat: 'rail', sugar: 'rail', tob: 'rail', wire: 'tech', elec: 'tech', oil: 'oil', steel: 'steel', bank: 'bank', show: 'boom', brand: 'rail' };
   const CORNER_DISTRICT = { payday: 'bank', court: 'trust', indicted: 'trust', fair: 'tech' };
   function districtKey() {
     const m = S.market ? S.market.mood : 'steady';
@@ -2449,6 +2718,7 @@ const FX = (() => {
     if (sp.type === 'streets') return 'strike';
     if (sp.type === 'tax') return 'bank';
     if (sp.type === 'corner') return CORNER_DISTRICT[sp.key];
+    if (sp.type === 'special') return sp.key === 'gold' ? 'bank' : 'rail';
     return 'trust';
   }
   function showDistrict() { if (S) FX.district($('#cscene'), districtKey()); }
@@ -2465,15 +2735,27 @@ const FX = (() => {
 
   /* ================= Tokens ================= */
   function positions() { return disp || S.players.map(p => p.pos); }
+  // Pieces stand on the inner rim of their space, half on the felt, so the name and price stay readable.
+  // Several pieces on one space line up along the rim; on a corner they gather toward the middle of the board.
   function tokenSpot(pid, pos, alone) {
-    const c = cells[pos], w = c.offsetWidth, h = c.offsetHeight, size = w * 0.38;
+    const c = cells[pos], w = c.offsetWidth, h = c.offsetHeight, size = w * 0.37;
     const P = positions();
     const here = alone ? [pid] : S.players.filter(p => !p.bankrupt && P[p.id] === pos).map(p => p.id);
-    const k = Math.max(0, here.indexOf(pid)), n = here.length, o = size * 0.46;
-    let dx = 0, dy = 0;
-    if (n === 2) dx = k ? o : -o;
-    else if (n > 2) { dx = k % 2 ? o : -o; dy = k < 2 ? -o : o; }
-    return { x: c.offsetLeft + w / 2 + dx - size / 2, y: c.offsetTop + h * 0.62 + dy - size / 2, size };
+    const k = Math.max(0, here.indexOf(pid)), n = here.length;
+    let x = c.offsetLeft + w / 2, y = c.offsetTop + h / 2;
+    if (SPACES[pos].type === 'corner') {
+      const b = $('#board'), o = size * 0.44;
+      x += Math.sign(b.clientWidth / 2 - x) * w * 0.36; y += Math.sign(b.clientHeight / 2 - y) * h * 0.36;
+      if (n === 2) x += k ? o : -o;
+      else if (n > 2) { x += k % 2 ? o : -o; y += k < 2 ? -o : o; }
+    } else {
+      const side = cellPos(pos).side, along = (k - (n - 1) / 2) * size * 0.62;
+      if (side === 'b') { y = c.offsetTop + h * 0.06; x += along; }
+      else if (side === 't') { y = c.offsetTop + h * 0.98; x += along; }
+      else if (side === 'l') { x = c.offsetLeft + w * 1.02; y += along; }
+      else { x = c.offsetLeft - w * 0.02; y += along; }
+    }
+    return { x: x - size / 2, y: y - size / 2, size };
   }
   function setTok(el, x, y) { el._x = x; el._y = y; el.style.transform = `translate(${x}px, ${y}px)`; }
   function layoutTokens() {
@@ -2485,21 +2767,23 @@ const FX = (() => {
       const s = tokenSpot(p.id, P[p.id], false);
       el.style.width = el.style.height = s.size + 'px';
       el.classList.toggle('now', p.id === S.cur && S.phase !== 'over');
+      el.classList.toggle('spot', !!p.spot && S.phase !== 'over'); // the World's Fair spotlight follows them
       setTok(el, s.x, s.y);
     });
   }
   function tokCenter(pid) { const el = tokEls[pid]; const s = parseFloat(el.style.width) || 20; return { x: el._x + s / 2, y: el._y + s / 2 }; }
   function cellCenter(i) { const c = cells[i]; return { x: c.offsetLeft + c.offsetWidth / 2, y: c.offsetTop + c.offsetHeight / 2 }; }
 
-  async function walk(pid, from, steps) {
+  async function walk(pid, from, steps, express) {
     const el = tokEls[pid];
     for (let k = 1; k <= steps; k++) {
       const pos = (from + k) % SPACES.length;
       disp[pid] = pos;
       const b = tokenSpot(pid, pos, true);
       if (reduceMotion) { setTok(el, b.x, b.y); continue; }
-      const ax = el._x, ay = el._y, mx = (ax + b.x) / 2, my = (ay + b.y) / 2 - b.size * 0.9;
-      const hop = steps > 8 ? 105 : 140;
+      const ax = el._x, ay = el._y, mx = (ax + b.x) / 2, my = (ay + b.y) / 2 - b.size * (express ? 0.3 : 0.9);
+      const hop = express ? 85 : steps > 8 ? 105 : 140;
+      if (express) FX.puff($('#toklayer'), ax + b.size / 2, ay + b.size * 0.2, 2, b.size * 0.5, true); // steam behind the express
       const anim = el.animate([
         { transform: `translate(${ax}px, ${ay}px) scale(1)` },
         { transform: `translate(${mx}px, ${my}px) scale(1.22)`, offset: 0.5 },
@@ -2518,10 +2802,11 @@ const FX = (() => {
   async function jumpToCourt(pid) {
     const el = tokEls[pid];
     if (!reduceMotion) { try { await el.animate([{ opacity: 1, transform: el.style.transform }, { opacity: 0, transform: el.style.transform + ' scale(0.2)' }], { duration: 220, fill: 'forwards' }).finished; } catch (e) {} }
-    disp[pid] = 8; layoutTokens();
+    const court = RB.spaceAt('court');
+    disp[pid] = court; layoutTokens();
     el.getAnimations().forEach(a => a.cancel());
     if (!reduceMotion) el.animate([{ opacity: 0, transform: el.style.transform + ' scale(2)' }, { opacity: 1, transform: el.style.transform }], { duration: 260 });
-    flashCell(8);
+    flashCell(court);
     await courtScene(pid);
   }
 
@@ -2554,15 +2839,16 @@ const FX = (() => {
     setTimeout(() => FX.burst(layer, to.x, to.y, 7, unit), delay + 560);
     return Promise.all(jobs);
   }
-  function floatText(pt, text, neg) {
+  function floatText(pt, text, neg, big) {
     if (reduceMotion) return;
-    const f = document.createElement('div'); f.className = 'floater' + (neg ? ' neg' : ''); f.textContent = text;
+    const f = document.createElement('div'); f.className = 'floater' + (neg ? ' neg' : '') + (big ? ' big' : ''); f.textContent = text;
     $('#toklayer').appendChild(f);
     const a = f.animate([{ transform: `translate(${pt.x}px, ${pt.y}px) translate(-50%, -50%) scale(0.6)`, opacity: 0 },
       { transform: `translate(${pt.x}px, ${pt.y - 20}px) translate(-50%, -50%) scale(1.1)`, opacity: 1, offset: 0.2 },
       { transform: `translate(${pt.x}px, ${pt.y - 70}px) translate(-50%, -50%) scale(1)`, opacity: 0 }], { duration: 1400, easing: 'ease-out', fill: 'both' });
     a.finished.catch(() => {}).then(() => f.remove());
   }
+  function powerTag(pt, text, delay) { setTimeout(() => floatText({ x: pt.x, y: pt.y - 26 }, text), delay || 0); }
   function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); }
   function turnBand(pid) {
     if (!S || S.phase === 'over') return;
@@ -2599,22 +2885,30 @@ const FX = (() => {
   }
 
   /* ================= Scenes ================= */
+  // Each scene owns the stage until it finishes. A newer scene that arrives first (online, the closing bell)
+  // ends the older one cleanly instead of letting its timer close the wrong scene.
+  let sceneSeq = 0, sceneEnd = null;
   function scene(html, opts = {}) {
     return new Promise(resolve => {
-      const st = $('#stage');
+      const st = $('#stage'), id = String(++sceneSeq), prev = sceneEnd;
+      st.dataset.sid = id;
+      if (prev) prev();
       st.innerHTML = html + (opts.clickAway !== false && !opts.auto ? '<div class="go-hint">Tap anywhere to continue</div>' : '');
       st.classList.remove('out'); st.classList.toggle('deep', !!opts.deep); st.hidden = false;
       let done = false;
       const finish = () => {
         if (done) return; done = true;
+        if (sceneEnd === finish) sceneEnd = null;
         document.removeEventListener('keydown', key, true);
+        if (st.dataset.sid !== id) { resolve(); return; } // already replaced by a newer scene
         st.onclick = null;
         st.classList.add('out');
-        setTimeout(() => { st.hidden = true; st.classList.remove('out'); st.innerHTML = ''; resolve(); }, reduceMotion ? 0 : 220);
+        setTimeout(() => { if (st.dataset.sid === id) { st.hidden = true; st.classList.remove('out'); st.innerHTML = ''; } resolve(); }, reduceMotion ? 0 : 220);
       };
+      sceneEnd = finish;
       const key = e => { if (opts.clickAway === false) return; if (['Enter', ' ', 'Escape'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); finish(); } };
       if (opts.clickAway !== false) { st.onclick = finish; document.addEventListener('keydown', key, true); }
-      if (opts.auto) setTimeout(finish, reduceMotion ? Math.min(opts.auto, 900) : opts.auto);
+      if (opts.auto) setTimeout(finish, opts.auto); // reduced motion removes the movement, not the reading time
       if (opts.mount) opts.mount(st, finish);
       const f = st.querySelector('[data-focus]'); if (f) f.focus();
     });
@@ -2683,13 +2977,13 @@ const FX = (() => {
         <p>${text}</p>
       </div>`;
   }
-  // Cleveland, 1872. Standard Oil buys out 22 of its 26 rivals in about six weeks.
+  // Cleveland, 1872. Standard Oil takes over 22 of its 26 rivals in about three months.
   function clevelandScene(pid, g) {
     const p = S.players[pid], G = GROUPS[g], v = cleveFilm;
     const CAPS = [
       [0.3, 4.0, 'Standard Oil and 26 rival refineries line the Cuyahoga River.'],
       [4.3, 9.7, 'Armed with secret railroad rebates, Rockefeller tells each rival to sell to him for cash or Standard Oil stock.'],
-      [10.1, 19.2, 'In about six weeks, 22 of the 26 sell. Historians call it the Cleveland Massacre.']
+      [10.1, 19.2, 'In the first three months of 1872, Standard Oil bought out, shut down or bankrupted 22 of the 26. Historians call it the Cleveland Massacre.']
     ];
     return scene(`<div class="cutscene" data-phase="play" role="dialog" aria-label="Cleveland, 1872. The Oil Trust forms">
       <div class="cut-slot"></div>
@@ -2768,6 +3062,18 @@ const FX = (() => {
     return scene(`<div class="court" role="dialog" aria-label="Courthouse"><div class="bars"></div><div class="big">${ic('scales')}</div>
       <h2>Held at the Courthouse</h2><p>${esc(p.name)} waits for trial. Roll doubles or pay $50 bail to get out.</p></div>`, { auto: 2200, mount: st => { setTimeout(() => { FX.shake(st.querySelector('.court'), 7, 320); }, reduceMotion ? 0 : 560); } });
   }
+  // Time is up. A big moment for the table, unless something else is already on screen.
+  function closingBell() {
+    SFX.bell(); renderPanel();
+    if (busy || !$('#stage').hidden || dlg.open) { toast('The closing bell rings. Final round.'); return; }
+    const last = S.players[RB.lastActiveIndex(S)];
+    scene(`<div class="bellcard" role="dialog" aria-label="The closing bell"><div class="bell">${ic('bell')}</div><h2>The Closing Bell</h2>
+      <p>Time is up! This is the final round. The game ends after ${esc(last.name)}\u2019s turn.</p></div>`, { auto: 3200, deep: true, mount: st => {
+        st.insertAdjacentHTML('afterbegin', FX.rays());
+        FX.flash('rgba(255,236,190,0.85)', 520, 0.45); FX.shake(st.querySelector('.bellcard'), 6, 420);
+        setTimeout(() => SFX.bell(), 700);
+      } });
+  }
   function bustScene(ev) {
     const who = S.players[ev.pid];
     SFX.bust();
@@ -2829,15 +3135,33 @@ const FX = (() => {
   }
 
   /* ================= Center events ================= */
-  function spaceCert(i, extra) {
+  function spaceCert(i, extra, note) {
     const sp = SPACES[i];
     let kind = '', chip = '';
     if (sp.type === 'prop') { kind = GROUPS[sp.group].name; chip = `<span class="chip" style="background:${GROUPS[sp.group].color}"></span>`; }
     else if (sp.type === 'rr') { kind = 'Railroad'; chip = '<span class="chip" style="background:#1b1a16"></span>'; }
     else if (sp.type === 'tax') kind = 'Expense';
+    else if (sp.type === 'special') kind = sp.key === 'gold' ? 'Speculation' : 'Express';
     else kind = 'Corner';
     return `<div class="cert"><div class="kind">${chip}${esc(kind)}</div><h3>${esc(sp.name)}</h3>` +
-      (sp.fact ? `<p>${esc(sp.fact)}</p>` : '') + (extra ? `<p class="effect">${esc(extra)}</p>` : '') + '</div>';
+      (sp.fact ? `<p>${esc(sp.fact)}</p>` : '') + (extra ? `<p class="effect">${esc(extra)}</p>` : '') + (note ? `<p class="preview">${esc(note)}</p>` : '') + '</div>';
+  }
+  const stop = t => /[.!?]$/.test(t) ? t : t + '.'; // end a sentence without doubling the period in "Swift & Co."
+  // What buying this business would mean, so the choice is not a blind one.
+  function buyPreview(i, pid) {
+    const sp = SPACES[i], p = S.players[pid];
+    if (p.cash < sp.price) return `You have only ${money(p.cash)}. Mortgage something in Build and mortgage, or pass.`;
+    const out = [`Cash after buying: ${money(p.cash - sp.price)}.`];
+    if (sp.type === 'rr') {
+      const n = RB.railroadsOwned(S, pid) + 1;
+      out.push(`You would own ${n} railroad${n > 1 ? 's' : ''}, each charging ${money(RB.RR_RENT[n - 1])} rent.`);
+    } else {
+      const G = GROUPS[sp.group], other = G.members.find(m => m !== i), o = S.props[other].owner;
+      if (o === pid) out.push(`This completes the ${G.name} trust! Rent doubles and you can build factories.`);
+      else if (o >= 0) out.push(`${S.players[o].name} owns ${stop(SPACES[other].short)} One deal could complete the ${G.name} trust.`);
+      else out.push(`${SPACES[other].short} is still for sale. Own both to form the ${G.name} trust.`);
+    }
+    return out.join(' ');
   }
   function renderEvents() {
     const box = $('#events');
@@ -2845,7 +3169,10 @@ const FX = (() => {
     if (S.phase === 'over') { box.innerHTML = '<div class="prompt">The closing bell has rung. <b>Check the results.</b></div>'; return; }
     const p = S.players[S.cur];
     let h = '';
-    if (S.phase === 'auction' && S.auction) h += `<div class="prompt"><b>${esc(SPACES[S.auction.idx].short)}</b> is up for auction. Every player can bid.</div>`;
+    if (S.phase === 'auction' && S.auction) {
+      const ps = S.auction.passer, who = ps >= 0 && S.players[ps] ? `Everyone except ${esc(S.players[ps].name)} can bid.` : 'Every player can bid.';
+      h += `<div class="prompt"><b>${esc(SPACES[S.auction.idx].short)}</b> is up for auction. ${who}</div>`;
+    }
     S.events.forEach(ev => {
       if (ev.kind === 'card') {
         const c = (ev.deck === 'headlines' ? HEADLINES : STREETS)[ev.ci];
@@ -2853,18 +3180,28 @@ const FX = (() => {
           `<h3><span class="yr">${esc(c.year)}</span>${esc(c.title)}</h3><p>${esc(c.text)}</p><p class="effect">${esc(c.effect)}</p></div>`;
       } else if (ev.kind === 'space') {
         const sp = SPACES[ev.idx], pr = S.props[ev.idx];
-        let extra = '';
-        if (pr && pr.owner < 0) extra = `For sale at ${money(sp.price)}.`;
+        let extra = '', note = '';
+        if (pr && pr.owner < 0) {
+          extra = `For sale at ${money(sp.price)}.`;
+          if (S.phase === 'buy' && S.pending && S.pending.idx === ev.idx) note = buyPreview(ev.idx, S.cur);
+        }
         else if (pr && pr.owner === p.id) extra = 'You own this business.';
         else if (pr && pr.mort) extra = 'Mortgaged. No rent is due.';
         else if (sp.type === 'tax') extra = `${p.name} paid ${money(sp.amount)}.`;
-        h += spaceCert(ev.idx, extra);
+        else if (sp.key === 'fair') extra = `${p.name} is in the spotlight. The next rent they collect is 50 percent higher.`;
+        else if (sp.key === 'depot') extra = 'All aboard. The express runs straight to the next railroad.';
+        h += spaceCert(ev.idx, extra, note);
       } else if (ev.kind === 'rent') {
         let why = '';
+        if (ev.vand) why += ' Vanderbilt’s railroads charge 50 percent more.';
         if (ev.rebate) why += ' Rockefeller’s rebate cut the bill in half.';
         if (ev.mood === 'panic') why += ' The panic cut rents in half.';
         if (ev.mood === 'boom') why += ' Boom times raised rents 50 percent.';
+        if (ev.spot) why += ' The World’s Fair spotlight added 50 percent.';
         h += spaceCert(ev.idx, `${p.name} paid ${money(ev.amount)} in rent to ${S.players[ev.to].name}.${why}`);
+      } else if (ev.kind === 'gold') {
+        const mood = ev.mood === 'boom' ? 'The boom lifts gold.' : ev.mood === 'panic' ? 'The panic sinks gold.' : 'A steady market pays a little.';
+        h += spaceCert(ev.idx, `${mood} ${p.name} ${ev.amount >= 0 ? 'wins' : 'loses'} ${money(Math.abs(ev.amount))}.`);
       } else if (ev.kind === 'stuck') {
         h += `<div class="prompt">No doubles. <b>${esc(p.name)}</b> stays at the Courthouse.</div>`;
       }
@@ -2930,6 +3267,7 @@ const FX = (() => {
       else if (p.bankrupt) status = 'Bankrupt. End the turn to pass play along.';
       else if (p.inCourt) status = `Held at the Courthouse. Try ${p.courtTurns + 1} of 3.`;
       else if (S.phase === 'buy') status = `Buy ${SPACES[S.pending.idx].short} or pass on it.`;
+      else if (S.phase === 'postRoll' && S.rollAgain && S.doubles >= 2) status = 'Doubles twice. Take the dividend, or roll again and risk the Courthouse.';
       else if (S.phase === 'postRoll' && S.rollAgain) status = 'Doubles. Roll again when ready.';
       else if (S.phase === 'postRoll') status = 'Build, trade, or end the turn.';
       else status = 'Your turn.';
@@ -2945,6 +3283,7 @@ const FX = (() => {
     const row2 = document.createElement('div'); row2.className = 'row';
     if (S.phase === 'over') {
       row1.appendChild(button('See the final standings', 'primary go', showResults));
+      if (!online()) row2.appendChild(button('Rematch', '', rematch, false, 'Same players and barons, new board'));
       row2.appendChild(button(online() ? 'Leave the game' : 'New game', '', newGame));
     } else if (offer) {
       if (me) row1.appendChild(button('Withdraw the offer', 'primary', withdrawOffer));
@@ -2963,12 +3302,15 @@ const FX = (() => {
     } else if (S.phase === 'auction') {
       row1.appendChild(button('Return to the auction', 'primary go', openAuction, false, '', 'hammer'));
     } else if (S.phase === 'postRoll') {
-      if (S.rollAgain && !p.bankrupt && !p.inCourt) row1.appendChild(button('Roll again', 'primary go', rollAgain, false, '', 'dice'));
-      else row1.appendChild(button('End turn', 'primary go', endTurnAction));
+      if (S.rollAgain && !p.bankrupt && !p.inCourt) {
+        row1.appendChild(button(RB.canCashOut(S) ? 'Risk a third roll' : 'Roll again', 'primary go', rollAgain, false, RB.canCashOut(S) ? 'Three doubles in a row sends you to the Courthouse' : '', 'dice'));
+        if (RB.canCashOut(S)) row1.appendChild(button(`Take ${money(RB.DIVIDEND)} and stop`, 'primary', cashOutAction));
+      } else row1.appendChild(button('End turn', 'primary go', endTurnAction));
     }
     if (S.phase !== 'over' && S.phase !== 'auction' && !p.bankrupt && me && !offer) {
       row2.appendChild(button('Build and mortgage', '', showManage, false, '', 'mk-build'));
-      row2.appendChild(button('Trade', '', showTradePartner, RB.active(S).length < 2, '', 'mk-trade'));
+      const nd = dealsFor(p.id).length;
+      row2.appendChild(button(nd ? `Trade (${nd} deal${nd > 1 ? 's' : ''})` : 'Trade', '', showTradePartner, RB.active(S).length < 2, nd ? 'An industry is split between you and a rival' : '', 'mk-trade'));
     }
     if (row1.childNodes.length) acts.appendChild(row1); if (row2.childNodes.length) acts.appendChild(row2);
     acts.hidden = !acts.childNodes.length;
@@ -2977,7 +3319,7 @@ const FX = (() => {
     let h = '<div class="hdr"><span>Cash</span><span>Net worth</span></div>';
     S.players.forEach(q => {
       h += `<div class="prow${q.bankrupt ? ' out' : ''}${q.id === S.cur && S.phase !== 'over' ? ' cur' : ''}" data-pid="${q.id}">
-        ${med(q.id)}<span class="n">${esc(q.name)}${online() && q.id === net.pid ? ' (you)' : ''}</span><span class="c" data-cash="${q.id}">${money(cashOf(q.id))}</span><span class="w">${money(RB.netWorth(S, q).total)}</span></div>`;
+        ${med(q.id)}<span class="n">${esc(q.name)}${online() && q.id === net.pid ? ' (you)' : ''}${q.spot && !q.bankrupt ? '<span class="spot" title="Next rent collected is 50 percent higher">Spotlight</span>' : ''}</span><span class="c" data-cash="${q.id}">${money(cashOf(q.id))}</span><span class="w">${money(RB.netWorth(S, q).total)}</span></div>`;
     });
     $('#plist').innerHTML = h;
     if (!busy) $('#log').innerHTML = S.log.slice(-40).reverse().map(l => `<p>${esc(l)}</p>`).join('');
@@ -3040,25 +3382,53 @@ const FX = (() => {
     const shift = S.events.find(e => e.kind === 'market');
     for (const m of res.moves) {
       if (m.jump) { await jumpToCourt(m.pid); continue; }
-      await walk(m.pid, m.from, m.steps);
+      const express = m.from === RB.spaceAt('depot');
+      if (express) { SFX.whistle(); SFX.whoosh(); }
+      await walk(m.pid, m.from, m.steps, express);
       if (m.from + m.steps >= SPACES.length) {
         SFX.coin(); floatText(tokCenter(m.pid), '+' + money(RB.paydayFor(S, S.players[m.pid])));
         coins(cellCenter(0), tokCenter(m.pid), 6, 0, RB.paydayFor(S, S.players[m.pid]));
         FX.burst($('#toklayer'), cellCenter(0).x, cellCenter(0).y, 12, $('#board').clientWidth * 0.02);
+        flashCell(0);
+        if (RB.hasPower(S, m.pid, 'morgan')) powerTag(tokCenter(m.pid), 'Morgan interest +$50', 450);
       }
       const sp = SPACES[m.to];
       if ((sp.type === 'headlines' || sp.type === 'streets') && cards.length) await cardScene(cards.shift(), pid);
       else if (sp.type === 'rr') SFX.whistle();
+      else if (sp.key === 'depot') { SFX.whistle(); toast('All aboard the express!'); await sleep(reduceMotion ? 300 : 600); }
+      else if (sp.key === 'fair' && S.players[m.pid].spot) {
+        SFX.fanfare(); toast('In the spotlight! Your next rent is 50 percent higher.');
+        const c = cellCenter(m.to), u = $('#board').clientWidth;
+        FX.fireworks($('#toklayer'), c.x, c.y, 3, { spread: u * 0.14, rise: u * 0.2, radius: u * 0.07, unit: u * 0.011 });
+        await sleep(reduceMotion ? 0 : 900);
+      }
     }
-    if (shift) { renderMarket(); await marketScene(shift.mood); }
+    if (shift) { renderMarket(); await marketScene(shift.mood); FX.sweep($('#board'), shift.mood === 'boom' ? 'rgba(255,214,120,0.55)' : 'rgba(255,90,70,0.45)'); }
     if (S.events.some(e => e.kind === 'stuck')) { toast('No doubles. Still held.'); SFX.gavel(); }
     const rent = S.events.find(e => e.kind === 'rent');
     if (rent) {
       const payer = tokCenter(pid), owner = S.players[rent.to].bankrupt ? cellCenter(rent.idx) : tokCenter(rent.to);
       SFX.pay(); toast(`${S.players[pid].name} pays ${S.players[rent.to].name} ${money(rent.amount)}`);
       floatText(payer, '−' + money(rent.amount), true);
+      // Baron powers announce themselves when they matter.
+      if (rent.vand) powerTag(owner, 'Commodore +50%', 350);
+      if (rent.rebate) powerTag(payer, 'Secret rebate −50%', 350);
+      if (rent.spot) powerTag(owner, 'Spotlight +50%', 650);
+      if (rent.amount >= 250) { // a rent big enough to feel
+        setTimeout(() => { FX.shake($('#board'), 9, 520); SFX.thud(); floatText({ x: owner.x, y: owner.y - 40 }, 'Ka-ching!', false, true); }, 380);
+      }
       await coins(payer, owner, 4, 0, rent.amount);
       SFX.coin();
+    }
+    const gold = S.events.find(e => e.kind === 'gold');
+    if (gold && gold.amount) {
+      const pt = tokCenter(pid), mid = { x: $('#board').clientWidth / 2, y: $('#board').clientHeight / 2 };
+      floatText(pt, (gold.amount > 0 ? '+' : '−') + money(Math.abs(gold.amount)), gold.amount < 0);
+      if (gold.amount > 0) {
+        SFX.register();
+        if (gold.mood === 'boom') { const u = $('#board').clientWidth; FX.fireworks($('#toklayer'), pt.x, pt.y, 3, { spread: u * 0.1, rise: u * 0.16, radius: u * 0.06, unit: u * 0.008, colors: ['#ffd970', '#fff4d6', '#f0b440'] }); }
+        await coins(mid, pt, 5, 0, gold.amount);
+      } else { SFX.crash(); FX.shake($('#board'), 7, 450); await coins(pt, mid, 5, 0, -gold.amount); }
     }
     const tax = S.events.find(e => e.kind === 'space' && SPACES[e.idx].type === 'tax');
     if (tax) {
@@ -3070,7 +3440,8 @@ const FX = (() => {
     busy = false;
     commit(before);
     if (S.phase === 'over') { SFX.bell(); await sleep(600); showResults(); return; }
-    if (S.rollAgain && S.phase !== 'buy') toast('Doubles! Roll again.');
+    if (S.rollAgain && S.doubles >= 2 && S.phase !== 'buy') toast('Doubles twice! Take $100 or risk a third roll.');
+    else if (S.rollAgain && S.phase !== 'buy') toast('Doubles! Roll again.');
     else if (S.rollAgain) toast('Doubles! You roll again after this.');
   }
   async function rollAgain() {
@@ -3089,8 +3460,32 @@ const FX = (() => {
   async function showBuy(idx, pid, before) {
     busy = true; shownCash = before.cash.slice(); render();
     await deedScene(idx, pid, 'Sold', SPACES[idx].price);
-    for (const [who, g] of newTrusts(before)) await trustScene(who, g);
+    claimFx(idx, pid);
+    for (const [who, g] of newTrusts(before)) { await trustScene(who, g); trustFx(who, g); }
     busy = false; commit(before);
+  }
+  // The space flashes in its new owner's color and a ring rolls out from it.
+  function claimFx(idx, pid) {
+    const c = cells[idx]; if (!c) return;
+    c.style.setProperty('--own', baron(pid).color);
+    c.classList.remove('claim'); void c.offsetWidth; c.classList.add('claim');
+    const pt = cellCenter(idx), w = c.offsetWidth;
+    FX.ring($('#toklayer'), pt.x, pt.y, w * 1.9, baron(pid).color);
+    FX.burst($('#toklayer'), pt.x, pt.y, 10, w * 0.12);
+  }
+  // A new trust: a gilt chain links its businesses and fireworks go up over them.
+  function trustFx(pid, g) {
+    const ms = GROUPS[g] ? GROUPS[g].members : [];
+    if (!ms.length || !cells[ms[0]]) return;
+    const layer = $('#toklayer'), u = $('#board').clientWidth, col = baron(pid).color;
+    // Anchor the chain on each business's inner rim, so it hangs across the felt instead of over the names.
+    const pts = ms.map(i => { const c = cellCenter(i), dx = u / 2 - c.x, dy = u / 2 - c.y, side = cellPos(i).side;
+      return side === 'b' || side === 't' ? { x: c.x, y: c.y + Math.sign(dy) * cells[i].offsetHeight * 0.5 } : { x: c.x + Math.sign(dx) * cells[i].offsetWidth * 0.5, y: c.y }; });
+    FX.chain(layer, pts, col, Math.max(3, u * 0.007));
+    ms.forEach(i => { const c = cells[i]; c.style.setProperty('--own', col); c.classList.remove('claim'); void c.offsetWidth; c.classList.add('claim'); });
+    const mx = pts.reduce((t, p) => t + p.x, 0) / pts.length, my = pts.reduce((t, p) => t + p.y, 0) / pts.length;
+    FX.fireworks(layer, (mx + u / 2) / 2, (my + u / 2) / 2, 3, { spread: u * 0.08, rise: u * 0.12, radius: u * 0.07, unit: u * 0.009 });
+    SFX.coin();
   }
   function passAction() {
     if (busy || !mine(S.cur)) return;
@@ -3108,6 +3503,15 @@ const FX = (() => {
     RB.endTurn(S);
     share({ kind: 'turn', prev, mood });
     commit();
+    await showTurn(prev, mood);
+  }
+  async function cashOutAction() {
+    if (busy || !S || !mine(S.cur) || !RB.canCashOut(S)) return;
+    const prev = S.cur, mood = S.market.mood, before = snap();
+    const msg = `${S.players[prev].name} banks a ${money(RB.DIVIDEND)} dividend.`;
+    RB.cashOut(S);
+    share({ kind: 'turn', prev, mood, before, msg });
+    SFX.register(); commit(before); toast(msg);
     await showTurn(prev, mood);
   }
   async function showTurn(prev, mood) {
@@ -3139,7 +3543,7 @@ const FX = (() => {
         });
         btns += `<button class="btn small warn" type="button" data-drop="${p.id}">Drop out</button>`;
       }
-      const note = lead ? 'Leading. Wait for a higher bid.' : inIt ? `Cash ${money(p.cash)}${mine(p.id) ? '' : '. Deciding'}` : 'Out of the bidding';
+      const note = lead ? 'Leading. Wait for a higher bid.' : inIt ? `Cash ${money(p.cash)}${mine(p.id) ? '' : '. Deciding'}` : A.passer === p.id ? 'Passed on it, so sits this one out' : 'Out of the bidding';
       h += `<div class="bidder${lead ? ' lead' : ''}${inIt ? '' : ' out'}">${med(p.id)}<div style="min-width:0"><div class="bn">${esc(p.name)}</div><div class="bc">${note}</div></div><div class="bb">${btns}</div></div>`;
     });
     h += `</div><p class="hint" style="margin-top:10px">${online() ? 'Everyone bids from their own Chromebook.' : 'Pass the Chromebook around.'} The auction ends when only the high bidder is left.</p></div>`;
@@ -3169,7 +3573,8 @@ const FX = (() => {
       SFX.gavel();
       busy = true; shownCash = before.cash.slice(); render();
       await deedScene(L.idx, L.winner, 'Won', L.price);
-      for (const [who, g] of newTrusts(before)) await trustScene(who, g);
+      claimFx(L.idx, L.winner);
+      for (const [who, g] of newTrusts(before)) { await trustScene(who, g); trustFx(who, g); }
       busy = false;
     } else toast('Nobody bid. It stays for sale.');
     commit(before);
@@ -3186,8 +3591,7 @@ const FX = (() => {
       if (!S.finalRound) {
         S.finalRound = true;
         RB.log(S, 'The closing bell rings. Finish this round.');
-        SFX.bell(); toast('The closing bell rings. Final round.');
-        renderPanel();
+        closingBell();
       }
     }
     renderClock();
@@ -3227,6 +3631,7 @@ const FX = (() => {
         <tr><td>With 2 factories</td><td class="num">${money(sp.rent[3])}</td></tr>
         <tr><td>With 3 factories</td><td class="num">${money(sp.rent[4])}</td></tr>
         <tr><td>Each factory costs</td><td class="num">${money(g.fac)}</td></tr>
+        ${RB.hasPower(S, S.cur, 'carnegie') ? `<tr><td>Carnegie pays</td><td class="num">${money(RB.facCost(S, S.cur, sp.group))}</td></tr>` : ''}
         </tbody></table>`;
     } else if (sp.type === 'rr') {
       h += `<p>Railroad. Price ${money(sp.price)}. Rent grows with every railroad the owner holds.</p><table><tbody>` +
@@ -3244,11 +3649,12 @@ const FX = (() => {
     body.querySelector('[data-close]').addEventListener('click', closeDlg);
   }
 
-  function showManage() {
+  function showManage(note) {
     if (busy || !S || !mine(S.cur)) return;
     const p = S.players[S.cur];
     const owned = RB.propsOwned(S, p.id).sort((a, b) => a - b);
     let h = `<h2 id="dlgTitle">Build and mortgage</h2><p>${esc(p.name)} has <strong>${money(p.cash)}</strong>. Own every business in a color group to form a trust, then build up to 3 factories on each.${RB.hasPower(S, p.id, 'carnegie') ? ' Your factories cost 25 percent less.' : ''}</p>`;
+    if (typeof note === 'string' && note) h += `<p class="fact">${esc(note)}</p>`;
     if (!owned.length) h += '<p>You do not own any businesses yet.</p>';
     owned.forEach(i => {
       const sp = SPACES[i], pr = S.props[i];
@@ -3261,7 +3667,9 @@ const FX = (() => {
       let btns = '';
       if (sp.type === 'prop' && RB.ownsTrust(S, sp.group, p.id)) {
         const cost = RB.facCost(S, p.id, sp.group);
-        btns += `<button class="btn small" data-act="build" data-i="${i}" ${RB.canBuild(S, p.id, i) ? '' : 'disabled'}>Build ${money(cost)}</button>`;
+        // Show the rent jump on the button, so the decision is visible before the money is spent.
+        const label = pr.level >= 3 ? 'Fully built' : `Build ${money(cost)}: rent ${money(RB.rentFor(S, i))} → ${money(rentIfBuilt(i))}`;
+        btns += `<button class="btn small" data-act="build" data-i="${i}" ${RB.canBuild(S, p.id, i) ? '' : 'disabled'}>${label}</button>`;
         if (pr.level) btns += `<button class="btn small" data-act="sell" data-i="${i}">Sell factory +${money(GROUPS[sp.group].fac / 2)}</button>`;
       }
       if (!pr.mort) btns += `<button class="btn small" data-act="mort" data-i="${i}" ${RB.canMortgage(S, p.id, i) ? '' : 'disabled title="Sell the factories in this group first"'}>Mortgage +${money(sp.price / 2)}</button>`;
@@ -3274,28 +3682,65 @@ const FX = (() => {
     body.querySelector('[data-close]').addEventListener('click', closeDlg);
     body.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
       const i = +b.dataset.i, a = b.dataset.act, before = snap();
-      let ok = false;
-      if (a === 'build') { ok = RB.build(S, p.id, i); if (ok) SFX.build(); }
+      let ok = false, note = '';
+      if (a === 'build') {
+        const saved = GROUPS[SPACES[i].group].fac - RB.facCost(S, p.id, SPACES[i].group);
+        ok = RB.build(S, p.id, i);
+        if (ok) { SFX.build(); if (saved > 0) note = `Carnegie discount: that factory cost ${money(saved)} less.`; }
+      }
       if (a === 'sell') { ok = RB.sellFactory(S, p.id, i); if (ok) SFX.coin(); }
       if (a === 'mort') { ok = RB.mortgage(S, p.id, i); if (ok) SFX.coin(); }
       if (a === 'unmort') { ok = RB.unmortgage(S, p.id, i); if (ok) SFX.pay(); }
       if (ok) share({ kind: 'sync', before, flash: a === 'build' ? i : null });
-      commit(before); showManage();
+      commit(before); showManage(note);
       if (ok && a === 'build') { flashCell(i); buildFx(i); }
     }));
   }
 
+  // Rent after one more factory, at today's market.
+  function rentIfBuilt(i) {
+    const base = SPACES[i].rent[S.props[i].level + 2], m = RB.MOODS[S.market.mood] || 1;
+    return m === 1 ? base : Math.max(5, Math.round(base * m / 5) * 5);
+  }
+  // Industries split between this player and one rival. Whoever ends up with both forms the trust.
+  function dealsFor(pid) {
+    const out = [];
+    Object.keys(GROUPS).forEach(g => {
+      const ms = GROUPS[g].members, own = ms.filter(i => S.props[i].owner === pid), want = ms.filter(i => S.props[i].owner !== pid);
+      if (!own.length || !want.length) return;
+      const owner = S.props[want[0]].owner;
+      if (owner >= 0 && S.players[owner] && !S.players[owner].bankrupt && want.every(i => S.props[i].owner === owner)) out.push({ g, own, want, owner });
+    });
+    return out;
+  }
   function showTradePartner() {
     if (busy || !S || !mine(S.cur)) return;
     const p = S.players[S.cur];
     const others = S.players.filter(o => o.id !== p.id && !o.bankrupt);
-    let h = `<h2 id="dlgTitle">Make a deal</h2><p>${esc(p.name)}, who do you want to trade with?</p><div class="partners">`;
+    const deals = dealsFor(p.id);
+    let h = '<h2 id="dlgTitle">Make a deal</h2>';
+    if (deals.length) {
+      h += '<p><strong>Deal opportunities.</strong> Each industry below is split between you and one rival. Whoever ends up with both forms the trust.</p><div class="deals">';
+      deals.forEach((d, k) => {
+        const G = GROUPS[d.g], o = S.players[d.owner];
+        h += `<div class="dealrow"><span class="chip" style="background:${G.color}"></span><div style="min-width:0"><div class="dt">${esc(G.name)}</div>
+          <div class="ds">You own ${esc(stop(d.own.map(i => SPACES[i].short).join(', ')))} ${esc(o.name)} owns ${esc(stop(d.want.map(i => SPACES[i].short).join(', ')))}</div></div>
+          <button class="btn small" type="button" data-deal="${k}">Make ${esc(o.name)} an offer</button></div>`;
+      });
+      h += '</div>';
+    }
+    h += `<p>${esc(p.name)}, who do you want to trade with?</p><div class="partners">`;
     others.forEach(o => { h += `<button class="btn" type="button" data-b="${o.id}">${med(o.id)}${esc(o.name)}</button>`; });
     h += '</div><div class="foot"><button class="btn" type="button" data-close>Cancel</button></div>';
     openDlg(h);
     body.querySelector('[data-close]').addEventListener('click', closeDlg);
     body.querySelectorAll('[data-b]').forEach(b => b.addEventListener('click', () => {
       trade = { a: p.id, b: +b.dataset.b, aSel: new Set(), bSel: new Set(), aCash: 0, bCash: 0 };
+      showTradeBuild();
+    }));
+    body.querySelectorAll('[data-deal]').forEach(b => b.addEventListener('click', () => {
+      const d = deals[+b.dataset.deal];
+      trade = { a: p.id, b: d.owner, aSel: new Set(), bSel: new Set(d.want), aCash: 0, bCash: 0 };
       showTradeBuild();
     }));
   }
@@ -3336,7 +3781,7 @@ const FX = (() => {
     });
   }
   function dealList(set, cash) {
-    const items = [...set].sort((x, y) => x - y).map(i => SPACES[i].short);
+    const items = [...set].sort((x, y) => x - y).map(i => SPACES[i].short + (S.props[i] && S.props[i].mort ? ' (mortgaged)' : ''));
     if (cash) items.push(money(cash));
     return items.length ? items.map(esc).join(', ') : 'Nothing';
   }
@@ -3358,12 +3803,12 @@ const FX = (() => {
   async function showDeal(a, b, before) {
     busy = true; shownCash = before.cash.slice(); render();
     await dealScene(a, b);
-    for (const [who, g] of newTrusts(before)) await trustScene(who, g);
+    for (const [who, g] of newTrusts(before)) { await trustScene(who, g); trustFx(who, g); }
     busy = false; commit(before);
   }
 
   /* ================= Finale ================= */
-  const TITLES = { meat: 'Beef Baron', sugar: 'Sugar Baron', tob: 'Tobacco Baron', wire: 'Telegraph Baron', elec: 'Electric Baron', oil: 'Oil Baron', steel: 'Steel Baron', bank: 'Banking Baron', rr: 'Railroad Baron' };
+  const TITLES = { meat: 'Beef Baron', sugar: 'Sugar Baron', tob: 'Tobacco Baron', wire: 'Telegraph Baron', elec: 'Electric Baron', oil: 'Oil Baron', steel: 'Steel Baron', bank: 'Banking Baron', rr: 'Railroad Baron', show: 'Showbiz Baron', brand: 'Brand-Name Baron' };
   function titleFor(r) {
     if (r.bankrupt) return 'Wiped out in the panic';
     const val = {};
@@ -3412,35 +3857,71 @@ const FX = (() => {
     });
     return s + '</svg>';
   }
+  // Bragging rights for the finale. They never change who wins.
+  function awards() {
+    const live = S.players.filter(p => !p.bankrupt);
+    const best = (label, f, min) => {
+      const vals = live.map(f), top = Math.max(...vals);
+      if (!live.length || !(top >= min)) return '';
+      return `<span class="award"><b>${label}</b>${esc(live.filter((p, k) => vals[k] === top).map(p => p.name).join(' and '))}</span>`;
+    };
+    return [
+      best('Railroad tycoon', p => RB.railroadsOwned(S, p.id), 2),
+      best('Trust magnate', p => Object.keys(GROUPS).filter(g => RB.ownsTrust(S, g, p.id)).length, 1),
+      best('Master builder', p => RB.propsOwned(S, p.id).reduce((t, i) => t + S.props[i].level, 0), 1),
+      best('Deepest pockets', p => p.cash, 1)
+    ].join('');
+  }
+  const joinNames = a => a.length < 3 ? a.join(' and ') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
   function showResults() {
     if (!S || !S.results) return;
     closeDlg();
     const R = S.results;
     const why = S.endReason === 'last' ? 'Every rival went bankrupt.' : S.endReason === 'time' ? 'The closing bell rang and the last round is finished.' : 'The books are closed.';
+    // An exact tie at the top shares the win, and the ranks below skip past it.
+    const winners = S.winners && S.winners.length ? S.winners : [R[0].id];
+    const rank = [];
+    R.forEach((r, k) => { rank[k] = k && r.bankrupt === R[k - 1].bankrupt && r.total === R[k - 1].total ? rank[k - 1] : k + 1; });
     const podOrder = [1, 0, 2].filter(k => R[k]);
     const heights = { 0: 150, 1: 105, 2: 70 };
     let pods = '';
     podOrder.forEach(k => {
       const r = R[k];
-      pods += `<div class="pod p${k + 1}"><div class="who" style="animation-delay:${0.5 + (2 - k) * 0.35}s">${k === 0 && !r.bankrupt ? `<img class="victory" src="${ART.IMG}sprite-mk-victory.webp" alt="" draggable="false" onerror="this.remove()">` : ''}${med(r.id)}
+      pods += `<div class="pod p${Math.min(3, rank[k])}"><div class="who" style="animation-delay:${0.5 + (2 - k) * 0.35}s">${winners.includes(r.id) ? `<img class="victory" src="${ART.IMG}sprite-mk-victory.webp" alt="" draggable="false" onerror="this.remove()">` : ''}${med(r.id)}
         <div class="nm">${esc(r.name)}</div><div class="ttl">${esc(titleFor(r))}</div><div class="nw">${money(r.total)}</div></div>
-        <div class="blk" style="--h:${heights[k]}px;animation-delay:${(2 - k) * 0.35}s">${k + 1}</div></div>`;
+        <div class="blk" style="--h:${heights[k]}px;animation-delay:${(2 - k) * 0.35}s">${rank[k]}</div></div>`;
     });
-    const rest = R.slice(3).map((r, j) => `${j + 4}. ${esc(r.name)}, ${esc(titleFor(r))}, ${money(r.total)}`).join('<br>');
-    const w = R[0];
+    const rest = R.slice(3).map((r, j) => `${rank[j + 3]}. ${esc(r.name)}, ${esc(titleFor(r))}, ${money(r.total)}`).join('<br>');
+    const names = winners.map(id => S.players[id].name);
+    const head = names.length > 1 ? `${joinNames(names)} tie` : `${names[0]} wins`;
     const chart = raceChart();
-    const html = `<div class="finale" role="dialog" aria-label="Final standings"><div class="head"><h2 class="gilt-title">${esc(w.name)} wins</h2>
-      <div class="sub">${esc(why)} Net worth counts cash, businesses and factories.</div></div>
+    const html = `<div class="finale" role="dialog" aria-label="Final standings"><div class="head"><h2 class="gilt-title">${esc(head)}</h2>
+      <div class="sub">${esc(why)} Net worth counts cash, businesses and what was paid for factories.${names.length > 1 ? ' A tie at the top shares the win.' : ''}</div></div>
       <div class="cols2"><div><div class="podium">${pods}</div><div class="floor"></div>${rest ? `<div class="others">${rest}</div>` : ''}</div>
       ${chart ? `<div class="race"><h3>The fortune race</h3><div class="key"><span><i style="background:rgba(226,90,76,0.55)"></i>Panic</span><span><i style="background:rgba(236,208,140,0.5)"></i>Boom</span></div>${chart}</div>` : ''}</div>
-      <div class="row"><button class="btn dark" type="button" id="lookBtn">Look at the board</button><button class="btn primary" type="button" id="againBtn" data-focus>${online() ? 'Leave the game' : 'New game'}</button></div></div>`;
+      <div class="awards">${awards()}</div>
+      <div class="row"><button class="btn dark" type="button" id="lookBtn">Look at the board</button>${online() ? '' : '<button class="btn dark" type="button" id="freshBtn">New game</button>'}
+        <button class="btn primary" type="button" id="againBtn" data-focus>${online() ? 'Leave the game' : 'Rematch'}</button></div></div>`;
     SFX.fanfare();
     scene(html, { clickAway: false, deep: true, mount: (st, finish) => {
       st.insertAdjacentHTML('afterbegin', FX.rays());
       confetti(st, 90); FX.coinRain(st, 26);
+      const vw = window.innerWidth, vh = window.innerHeight;
+      FX.fireworks(st, vw / 2, vh * 0.62, 5, { spread: vw * 0.36, rise: vh * 0.42, radius: Math.min(120, vw * 0.09), unit: 8, stars: 20, delay: 300 });
+      setTimeout(() => SFX.boom(), 900);
       st.querySelector('#lookBtn').addEventListener('click', finish);
-      st.querySelector('#againBtn').addEventListener('click', () => { finish(); newGame(); });
+      const fresh = st.querySelector('#freshBtn');
+      if (fresh) fresh.addEventListener('click', () => { finish(); newGame(); });
+      st.querySelector('#againBtn').addEventListener('click', () => { finish(); if (online()) newGame(); else rematch(); });
     } });
+  }
+  // Same players, barons and settings. A new random player goes first; the order around the table stays the same.
+  function rematch() {
+    if (!S || online()) return;
+    const P = S.players, k = Math.floor(Math.random() * P.length), order = P.map((p, i) => P[(i + k) % P.length]);
+    const minutes = S.timer ? Math.round(S.timer.total / 60000) : 0, rules = S.rules || {};
+    closeDlg(); clearSave(); aucBefore = null;
+    startWith(RB.newGame(order.map(p => p.name), minutes, { barons: order.map(p => p.baron), auctions: rules.auctions !== false, board: rules.board }), true);
   }
   function newGame() {
     if (online()) { leaveRoom(); return; }
@@ -3458,28 +3939,35 @@ const FX = (() => {
   });
 
   function showRules() {
+    // The rules follow the game being played, or the setup choices before one starts.
+    const auc = S ? S.rules.auctions !== false : $('#aucChk').checked;
+    const grand = S ? S.rules.board === 'grand' : boardPick === 'grand';
     openDlg(`<h2 id="dlgTitle">How to play</h2><div class="rules">
-      <p>Everyone starts with $1,500. Take turns rolling two dice and moving around the board. Pass Payday and you collect $200.</p>
+      <p>Everyone starts with $1,500. Take turns rolling two dice and moving around the board. Pass Payday and you collect $200. A random player goes first.</p>
       <figure class="purse">${[500, 500, 100, 100, 100, 100, 50, 20, 20, 10].map((v, k) => `<img src="${billImg(v)}" alt="" style="left:${k * 42}px;top:${(k % 2) * 10}px;transform:rotate(${(k - 4.5) * 2}deg)" onerror="this.remove()">`).join('')}<figcaption>A starting fortune of $1,500 in Robber Barons notes.</figcaption></figure>
       <h3>Pick a baron</h3>
       ${BARONS.map(b => `<div class="bline">${ART.medallion(b)}<div><strong>${esc(b.name)}.</strong> ${esc(b.power)}</div></div>`).join('')}
       <h3>Buying businesses</h3>
-      <p>Land on a business nobody owns and you can buy it. If you pass, the bank auctions it and anyone can bid, including you. Tap any space on the board to read its history and rent.</p>
+      <p>Land on a business nobody owns and you can buy it. ${auc ? 'If you pass, the bank auctions it to everyone else. You cannot bid on a business you just passed on.' : 'If you pass, it stays for sale for the next player who lands there.'} Tap any space on the board to read its history and rent.</p>
       <h3>Rent and trusts</h3>
       <p>Land on a business someone else owns and you pay them rent. Own every business in a color group and you control a trust, marked on the board with ${tile('trust', 'tb')} a chain. Rent doubles, and you can build up to 3 factories on each business in the trust. Factories raise rent fast.</p>
       <p>Railroads charge more for every railroad the owner holds.</p>
       <h3>Booms and panics</h3>
-      <p>Some Headlines cards shake the market. A boom raises every rent 50 percent and a panic cuts every rent in half. Either one lasts until the player who drew the card takes their next turn. Watch the dial in the middle of the board.</p>
+      <p>Some Headlines cards shake the market. A boom raises every rent about 50 percent and a panic cuts every rent about in half. Either one lasts until the player who drew the card takes their next turn. Watch the dial in the middle of the board.</p>
       <h3>Cards</h3>
       <p>Headlines cards are national events. Streets cards show the lives of workers, immigrants and reformers. Read them out loud.</p>
+      <h3>The World\u2019s Fair</h3>
+      <p>Land on the World\u2019s Fair and you are in the national spotlight. The next rent you collect is 50 percent higher.</p>
+      ${grand ? `<h3>The grand board</h3>
+      <p>Two more industries, Showbiz and Brand Names, plus two special spaces. The Gold Room is a gamble on the market: win $150 in a boom, $50 when steady, and lose $100 in a panic. Grand Central Depot sends you on the express to the next railroad.</p>` : ''}
       <h3>Courthouse</h3>
-      <p>Players sent to the Courthouse stay until they roll doubles or pay $50 bail. After three tries they must pay and move. Rolling doubles lets you roll again, but three doubles in a row sends you to the Courthouse.</p>
+      <p>Players sent to the Courthouse stay until they roll doubles or pay $50 bail. After three tries they must pay and move. Rolling doubles lets you roll again. After two doubles in a row you choose: take a $100 dividend and stop, or roll again and risk a third double, which sends you to the Courthouse.</p>
       <h3>Running short</h3>
       <p>If you owe more cash than you have, the game sells your factories and then mortgages your businesses for you. If that still is not enough, you are bankrupt and out of the game.</p>
       <h3>Trading</h3>
-      <p>On your turn you can offer a deal to another player. They must tap Accept before anything changes hands.</p>
+      <p>On your turn you can offer a deal to another player. They must tap Accept before anything changes hands. The Trade button counts the industries split between you and one rival, where a single deal would complete a trust.</p>
       <h3>Winning</h3>
-      <p>When the clock runs out, the round finishes so every player gets the same number of turns. Net worth counts cash, the price of every business you own and the cost of your factories. The highest net worth wins, and the final screen charts every fortune across the whole game.</p>
+      <p>When the clock runs out, the round finishes so every player gets the same number of turns. Net worth counts cash, the price of every business you own (half if it is mortgaged) and what you paid for your factories. The highest net worth wins, and an exact tie shares the win. The final screen charts every fortune across the whole game.</p>
       </div><div class="foot"><button class="btn" type="button" data-close autofocus>Got it</button></div>`);
     body.querySelector('[data-close]').addEventListener('click', closeDlg);
   }
@@ -3572,13 +4060,14 @@ const FX = (() => {
     const st = { players: [], props: {} };
     Object.keys(g.s || {}).forEach(k => {
       const m = /^(players|props)_(\d{1,2})$/.exec(k);
-      if (m) { if (+m[2] < (m[1] === 'players' ? 4 : SPACES.length)) st[m[1]][+m[2]] = parseClean(g.s[k], k); }
+      if (m) { if (+m[2] < (m[1] === 'players' ? 4 : RB.MAX_SPACES)) st[m[1]][+m[2]] = parseClean(g.s[k], k); }
       else if (/^[A-Za-z]{1,24}$/.test(k)) st[k] = parseClean(g.s[k], k);
     });
     st.log = entries(g.log).slice(-80).map(t => String(t).slice(0, 300));
     st.hist = entries(g.hist).map(t => parseClean(t, 'hist'));
     if (st.hist.length > 600) st.hist.splice(1, st.hist.length - 600);
     if (st.timer && st.timer.running && st.timer.endsAt) st.timer.remaining = Math.max(0, st.timer.endsAt - serverNow());
+    RB.useBoard(st.rules && st.rules.board); // the host picked the board; every Chromebook follows
     return st;
   }
   function seat(b) { return net && net.seats ? net.seats[b] || null : null; }
@@ -3648,10 +4137,10 @@ const FX = (() => {
       case 'buy': await showBuy(fx.idx, fx.pid, fx.before); break;
       case 'won': await showWon(fx.before); break;
       case 'deal': await showDeal(fx.a, fx.b, fx.before); break;
-      case 'turn': commit(); await showTurn(fx.prev, fx.mood); break;
+      case 'turn': commit(fx.before); if (fx.msg) toast(fx.msg); await showTurn(fx.prev, fx.mood); break;
       case 'bid': if (fx.bid) SFX.bid(); commit(); break;
       case 'pass': commit(); if (S.phase === 'auction') SFX.gavel(); break;
-      case 'bell': commit(); SFX.bell(); toast('The closing bell rings. Final round.'); break;
+      case 'bell': commit(); closingBell(); break;
       case 'over': commit(); SFX.bell(); await sleep(500); showResults(); break;
       default: commit(fx.before); if (fx.flash != null) { flashCell(fx.flash); buildFx(fx.flash); SFX.build(); } if (fx.msg) toast(fx.msg);
     }
@@ -3720,7 +4209,7 @@ const FX = (() => {
       T.running = false; T.remaining = 0; T.endsAt = null; S.finalRound = true;
       RB.log(S, 'The closing bell rings. Finish this round.');
       share({ kind: 'bell', quiet: true });
-      SFX.bell(); toast('The closing bell rings. Final round.'); render();
+      render(); closingBell();
     }
     renderClock();
   }
@@ -3854,7 +4343,8 @@ const FX = (() => {
     open.disabled = !playing && taken < 2;
     let note = '';
     if (playing) note = 'This game has started. Tap your name to jump back in, or just watch.';
-    else if (n.isHost) note = taken < 2 ? 'Waiting for players. You need at least 2, and up to 4 can join. The host can play too by taking a baron.' : `${taken} players are in. Open for business when everyone is ready.`;
+    else if (n.isHost) note = (taken < 2 ? 'Waiting for players. You need at least 2, and up to 4 can join. The host can play too by taking a baron.' : `${taken} players are in. Open for business when everyone is ready.`) +
+      (boardPick === 'grand' ? ' This game uses the grand board.' : '');
     else note = mineAt >= 0 ? 'You are in. The host starts the game.' : 'Type your first name, then take a baron.';
     $('#lobbyNote').textContent = note;
   }
@@ -3894,7 +4384,7 @@ const FX = (() => {
     const order = BARONS.map((b, k) => k).filter(k => seat(k));
     if (order.length < 2) return;
     for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; } // random first player
-    const st = RB.newGame(order.map(k => seat(k).name), n.meta.minutes, { barons: order, auctions: n.meta.auctions });
+    const st = RB.newGame(order.map(k => seat(k).name), n.meta.minutes, { barons: order, auctions: n.meta.auctions, board: boardPick });
     st.offer = null;
     if (st.timer) st.timer.endsAt = serverNow() + st.timer.total;
     const doc = { v: 1, s: flatState(st), log: {}, hist: {}, fx: JSON.stringify({ v: 1, by: fb.uid, kind: 'start' }) };
