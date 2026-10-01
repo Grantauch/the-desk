@@ -254,9 +254,9 @@
       text: 'A man in a camel-hair coat is waiting by your car. He knows your record, your mother\'s address, and how much you owe on your rent. He wants to be your "friend." Friends, he explains, help each other.',
       archive: 'Organized crime figures like Frankie Carbo and Blinky Palermo secretly controlled many fighters, managers, and title fights from the 1930s through the 1950s.',
       choices: [
-        { label: 'Take the envelope', hint: 'Money now. A debt forever', go: (x) => { x.flag('mob_met'); x.flag('mob_owned'); x.flag('ever_crooked'); x.money(300); x.elo(40); x.later('mob_fix', 6, 20); x.remember('mob', 'took money from the mob', 2); return 'It is thick. You do not count it in front of him. That would be rude.'; } },
+        { label: 'Take the envelope', hint: 'Money now. A debt forever', go: (x) => { x.flag('mob_met'); x.flag('mob_money'); x.flag('mob_owned'); x.flag('ever_crooked'); x.money(300); x.elo(40); x.later('mob_fix', 6, 20); x.remember('mob', 'took money from the mob', 2); return 'It is thick. You do not count it in front of him. That would be rude.'; } },
         { label: 'Say no, politely', hint: 'Reputation. Maybe trouble', go: (x) => { x.flag('mob_met'); x.flag('refused_mob'); x.rep(6); x.later('mob_squeeze', 8, 25); return '"Polite," he says. "I like polite." He does not sound like he likes it.'; } },
-        { label: 'Play along. Promise nothing', hint: 'Risky', go: (x) => { x.flag('mob_met'); x.flag('mob_heat', 1); x.money(100); x.later('mob_fix', 8, 22); return 'You nod in all the right places. He hands you a smaller envelope. "A down payment on our friendship."'; } },
+        { label: 'Play along. Promise nothing', hint: 'Risky', go: (x) => { x.flag('mob_met'); x.flag('mob_money'); x.flag('mob_heat', 1); x.money(100); x.later('mob_fix', 8, 22); return 'You nod in all the right places. He hands you a smaller envelope. "A down payment on our friendship."'; } },
       ],
     },
     {
@@ -383,8 +383,8 @@
       id: 'tate_road', title: 'No Vacancy', weight: 2, when: (s) => s.flags.tate_friend && !s.flags.tate_road && fights(s) >= 5,
       text: 'You and Deacon are on the road together for a card in another city. At the hotel, the clerk looks at Deacon and says there are no rooms. There is a VACANCY sign in the window.',
       choices: [
-        { label: 'Everybody leaves together', hint: 'Costs money, earns respect', go: (x) => { x.flag('tate_road'); x.money(-10); x.rep(6); x.heart(4); x.remember('civil', 'walked out of a segregated hotel with my friend Deacon Tate', 2); return 'You find a boarding house from Deacon\'s Green Book. The owner makes the best fried chicken you have ever had and refuses your money for seconds.'; } },
-        { label: 'Argue with the clerk', hint: 'Could go wrong', go: (x) => { x.flag('tate_road'); if (x.chance(0.4)) { x.rep(5); x.fame(2); return 'You raise your voice. The manager comes out, sees who you are, and suddenly finds two rooms. Deacon does not sleep well in either of them.'; } x.rep(3); x.heart(-4); return 'The clerk calls the police. You leave before they arrive. Deacon is quiet the whole drive.'; } },
+        { label: 'Everybody leaves together', hint: 'Costs money, earns respect', go: (x) => { x.flag('tate_road'); x.flag('tate_road_stand'); x.money(-10); x.rep(6); x.heart(4); x.remember('civil', 'walked out of a segregated hotel with my friend Deacon Tate', 2); return 'You find a boarding house from Deacon\'s Green Book. The owner makes the best fried chicken you have ever had and refuses your money for seconds.'; } },
+        { label: 'Argue with the clerk', hint: 'Could go wrong', go: (x) => { x.flag('tate_road'); x.flag('tate_road_stand'); if (x.chance(0.4)) { x.rep(5); x.fame(2); return 'You raise your voice. The manager comes out, sees who you are, and suddenly finds two rooms. Deacon does not sleep well in either of them.'; } x.rep(3); x.heart(-4); return 'The clerk calls the police. You leave before they arrive. Deacon is quiet the whole drive.'; } },
         { label: 'Stay. Deacon finds his own place', hint: 'Easier tonight', go: (x) => { x.flag('tate_road'); x.rep(-6); x.heart(-6); return '"It\'s fine," Deacon says. "I\'m used to it." He does not look at you at breakfast.'; } },
       ],
     },
@@ -471,7 +471,7 @@
       id: 'movie', title: 'Hollywood Calls', weight: 1.5, when: (s) => s.fame >= 35 && !s.flags.movie,
       text: 'A studio wants you for a bit part in a picture: a tough guy who gets punched by the leading man. You would have to fall down convincingly. For the first time in your career.',
       choices: [
-        { label: 'Take the part', hint: 'Fame, money, sharpness', go: (x) => { x.flag('movie'); x.fame(6); x.money(400); x.sharp(-15); x.remember('fame', 'played a tough guy in a Hollywood picture', 2); return 'You take the punch in one take. The director says you are "a natural faller." You decide to take that as a compliment.'; } },
+        { label: 'Take the part', hint: 'Fame, money, sharpness', go: (x) => { x.flag('movie'); x.flag('movie_done'); x.fame(6); x.money(400); x.sharp(-15); x.remember('fame', 'played a tough guy in a Hollywood picture', 2); return 'You take the punch in one take. The director says you are "a natural faller." You decide to take that as a compliment.'; } },
         { label: 'Stay in the gym', go: (x) => { x.flag('movie'); x.stat('def', 1); return 'Some other fighter gets punched by the leading man. Good for him.'; } },
       ],
     },
@@ -495,7 +495,7 @@
       id: 'vaudeville', title: 'The Vaudeville Circuit', weight: 1.5, when: (s) => s.fame >= 20 && yr(s) < 1945 && !s.flags.vaudeville,
       text: 'A vaudeville booker wants you on stage: skip rope, shadowbox, tell a few jokes between a juggler and a singing dog. Eight weeks, eight cities, good money.',
       choices: [
-        { label: 'Tour', hint: 'Money, fame. Rusty', go: (x) => { x.flag('vaudeville'); x.money(250); x.fame(5); x.sharp(-20); return 'The singing dog gets bigger laughs than you. Every night. You make friends with the dog.'; } },
+        { label: 'Tour', hint: 'Money, fame. Rusty', go: (x) => { x.flag('vaudeville'); x.flag('vaudeville_toured'); x.money(250); x.fame(5); x.sharp(-20); return 'The singing dog gets bigger laughs than you. Every night. You make friends with the dog.'; } },
         { label: 'Decline', go: (x) => { x.flag('vaudeville'); return 'You are a fighter, not an act. Mostly.'; } },
       ],
     },
@@ -512,7 +512,7 @@
       text: 'A traveling carnival has an "athletic show": a tent where locals pay to fight the carnival boxer. Last one standing three rounds wins five dollars. They need a carnival boxer.',
       archive: 'Carnival boxing booths were a rough training ground for many 1930s fighters, who sometimes fought a dozen times a day.',
       choices: [
-        { label: 'Join for the summer', hint: 'Sharpness, money, wear', go: (x) => { x.flag('carnival'); x.sharp(30); x.money(60); x.health(-6); x.stat('chn', 1.5); return 'You fight farmers, sailors, and one very determined lumberjack. You lose to the lumberjack. You never tell anyone.'; } },
+        { label: 'Join for the summer', hint: 'Sharpness, money, wear', go: (x) => { x.flag('carnival'); x.flag('carnival_worked'); x.sharp(30); x.money(60); x.health(-6); x.stat('chn', 1.5); return 'You fight farmers, sailors, and one very determined lumberjack. You lose to the lumberjack. You never tell anyone.'; } },
         { label: 'Pass', go: (x) => { x.flag('carnival'); return 'You hear the calliope music from the gym window for weeks.'; } },
       ],
     },
@@ -520,7 +520,7 @@
       id: 'move_ny', title: 'New York Is Where the Money Is', weight: 2, when: (s) => s.city !== 'newyork' && s.fame >= 20 && !s.flags.move_offer && !s.retired,
       text: (s, x) => `${x.manager()} says it plain: "Every big fight in this business goes through Madison Square Garden. If we want a title, we move to New York."`,
       choices: [
-        { label: 'Move to New York', hint: 'Bigger fights. Lonelier', go: (x) => { x.flag('move_offer'); x.s.city = 'newyork'; x.elo(30); x.heart(-5); x.remember('move', 'moved to New York to chase the big fights', 1); return 'You train at Stillman\'s now, where Lou Stillman yells at everyone equally and the air is mostly cigar.'; } },
+        { label: 'Move to New York', hint: 'Bigger fights. Lonelier', go: (x) => { x.flag('move_offer'); x.flag('moved_ny'); x.s.city = 'newyork'; x.elo(30); x.heart(-5); x.remember('move', 'moved to New York to chase the big fights', 1); return 'You train at Stillman\'s now, where Lou Stillman yells at everyone equally and the air is mostly cigar.'; } },
         { label: 'Stay home', hint: 'Heart', go: (x) => { x.flag('move_offer'); x.heart(5); return 'Your people are here. The big fights will have to come to you.'; } },
       ],
     },
@@ -634,18 +634,18 @@
       ],
     },
     {
-      id: 'sponsor', title: 'A Sponsor Wants You', weight: 2, when: (s) => yr(s) >= 1950 && s.fame >= 35 && !s.flags.sponsor,
+      id: 'sponsor', title: 'A Sponsor Wants You', weight: 2, when: (s) => yr(s) >= 1950 && s.fame >= 35 && !s.flags.sponsor && !s.flags.sponsor_no,
       text: (s, x) => `${x.pick(T.data.SPONSORS_1950S)} wants you in their TV commercials: you, a smile, and a slogan that does not quite make sense.`,
       choices: [
         { label: 'Sign', hint: 'Money, fame', go: (x) => { x.flag('sponsor'); x.money(500); x.fame(4); return 'You say "It\'s a knockout!" forty-one times until the director is happy.'; } },
-        { label: 'No thanks', go: (x) => { x.flag('sponsor'); x.rep(1); return 'Some other fighter says "It\'s a knockout!" on TV every Friday.'; } },
+        { label: 'No thanks', go: (x) => { x.flag('sponsor_no'); x.rep(1); return 'Some other fighter says "It\'s a knockout!" on TV every Friday.'; } },
       ],
     },
     {
       id: 'wrestling', title: 'The Wrestling Promoter', weight: 1.5, when: (s) => yr(s) >= 1948 && s.fame >= 25 && age(s) >= 29 && !s.flags.wrestling,
       text: 'Professional wrestling is the hottest thing on TV, and a promoter wants a "real fighter" to feud with his villain, The Masked Marvel. The ending is decided in advance. The money is real.',
       choices: [
-        { label: 'Do one match', hint: 'Money, fame, a little embarrassing', go: (x) => { x.flag('wrestling'); x.money(400); x.fame(4); x.rep(-2); return 'The Masked Marvel hits you with a folding chair, then whispers "you OK, pal?" Very professional.'; } },
+        { label: 'Do one match', hint: 'Money, fame, a little embarrassing', go: (x) => { x.flag('wrestling'); x.flag('wrestled'); x.money(400); x.fame(4); x.rep(-2); return 'The Masked Marvel hits you with a folding chair, then whispers "you OK, pal?" Very professional.'; } },
         { label: 'Refuse', go: (x) => { x.flag('wrestling'); x.rep(2); return '"Boxing\'s real," you tell him. He laughs for a long time.'; } },
       ],
     },
@@ -713,19 +713,19 @@
       choices: [{ label: 'Oh no', go: (x) => { x.flag('dysentery'); x.elo(-10); return 'He is fine. He misses two weeks of phone calls. He blames a ham sandwich in Nebraska.'; } }],
     },
     {
-      id: 'goat', title: 'A Goat Is Following You', weight: 1, when: (s) => !s.flags.goat && fights(s) >= 1,
+      id: 'goat', title: 'A Goat Is Following You', weight: 1, when: (s) => !s.flags.goat && !s.flags.goat_gone && fights(s) >= 1,
       text: 'During roadwork, a goat starts running alongside you. It keeps pace for four miles. It is waiting outside the gym the next morning.',
       choices: [
         { label: 'Adopt the goat', hint: 'Heart. The press loves it', go: (x) => { x.flag('goat'); x.heart(6); x.fame(2); return 'You name it "Uppercut." It eats a reporter\'s notebook. The story runs anyway, with a photo of the goat.'; } },
-        { label: 'Run faster', hint: 'Stamina', go: (x) => { x.flag('goat'); x.stat('sta', 1); return 'The goat gives up after a week. You are in the best shape of your life.'; } },
+        { label: 'Run faster', hint: 'Stamina', go: (x) => { x.flag('goat_gone'); x.stat('sta', 1); return 'The goat gives up after a week. You are in the best shape of your life.'; } },
       ],
     },
     {
-      id: 'lucky_coin', title: 'A Lucky Coin', weight: 1.2, when: (s) => !s.flags.lucky,
+      id: 'lucky_coin', title: 'A Lucky Coin', weight: 1.2, when: (s) => !s.flags.lucky && !s.flags.lucky_spent,
       text: 'You find a 1904 silver dollar on the sidewalk outside the arena. Heads up.',
       choices: [
         { label: 'Tape it inside your robe', hint: 'Heart', go: (x) => { x.flag('lucky'); x.heart(8); return 'It is not superstition if it works.'; } },
-        { label: 'Spend it', go: (x) => { x.flag('lucky'); x.rawMoney(1); return 'A dollar is a dollar. Your trainer says you will regret that.'; } },
+        { label: 'Spend it', go: (x) => { x.flag('lucky_spent'); x.rawMoney(1); return 'A dollar is a dollar. Your trainer says you will regret that.'; } },
       ],
     },
     {

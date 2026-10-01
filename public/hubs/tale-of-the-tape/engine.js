@@ -262,6 +262,7 @@
     s.c.months = (s.c.months || 0) + 1;
     if (s.fame > 20 && mode !== 'fight') s.fame = clamp(s.fame - (s.retired ? 0.15 : 0.35), 0, 100);
     if (!s.retired && s.phase !== 'service') worldMonth(s);
+    if (s.money < 0) s.flags.was_broke = true;
     if (s.money < 0 && !s.flags.debt_warned && !s.retired) { s.flags.debt_warned = true; schedule(s, 'broke', 0, 1); }
     if (s.money >= 0) s.flags.debt_warned = false;
   }
@@ -753,7 +754,7 @@
 
   // A fixed fight that the fighter agreed to lose.
   E.takeDive = function (s, offer) {
-    s.flags.dove = true; s.flags.dive_pending = false;
+    s.flags.dove = true; s.flags.took_dive = true; s.flags.dive_pending = false;
     const round = Math.min(offer.rounds, 6);
     return { result: 'L', method: 'KO', round, kdFor: 0, kdAgainst: 1, dmgTaken: 0.15, cards: [[0, 0], [0, 0], [0, 0]], lines: [{ r: round, text: `In the ${round === 6 ? 'sixth' : 'round ' + round}, ${s.f.last} goes down from a punch that would not have knocked over a lamp. He stays down. The crowd knows. The crowd always knows.`, pWon: false }], played: false, dive: true };
   };
@@ -850,6 +851,16 @@
       if (out.result === 'W') { s.flags.rival_wins = (s.flags.rival_wins || 0) + 1; if (s.flags.rival_wins >= 2) E.achieve(s, 'rival_done'); }
       remember(s, 'rival', `${out.result === 'W' ? 'beat' : out.result === 'L' ? 'lost to' : 'drew with'} my rival ${oppName}${s.flags.rival_fights > 1 ? ` (fight #${s.flags.rival_fights})` : ''}`, 2);
     }
+    if (out.result === 'W') {
+      if (s.flags.veteran) s.flags.won_after_war = true;
+      if (s.flags.double_cross) s.flags.crossed_and_won = true;
+      if (E.age(s) >= 37) s.flags.won_old = true;
+      if (s.flags.outlaw) s.flags.outlaw_win = true;
+      if (opp.rating - E.overall(s) >= 12) s.flags.big_upset = true;
+      if (offer.title && kod && out.round === 1) s.flags.r1_title_ko = true;
+    }
+    if (offer.venue === 'Madison Square Garden') { s.flags.fought_msg = true; if (out.result === 'W') s.flags.won_msg = true; }
+    if (offer.tags.includes('Deacon Tate')) s.flags.tate_fight_done = true;
     if (tv && out.result === 'W') E.achieve(s, 'tv_star');
     if (tv && !s.flags.first_tv) { s.flags.first_tv = true; remember(s, 'tv', `fought on television for the first time in ${E.year(s.t)}`, 2); }
     if (offer.city === 'London') { E.achieve(s, 'abroad'); remember(s, 'abroad', `fought ${oppName} in London`, 1); }
@@ -900,6 +911,7 @@
 
   // ---------- forced turns ----------
   function checkForced(s) {
+    if (T.checkDiscoveries) T.checkDiscoveries(s);
     if (s.retired || s.phase === 'service') return;
     if (s.health <= 12 && !s.flags.forced_doc) { s.flags.forced_doc = true; s.inbox.push({ id: 'doctor_final', kind: 'event' }); }
     if (E.age(s) >= 40 && !s.flags.forced_age) { s.flags.forced_age = true; s.inbox.push({ id: 'too_old', kind: 'event' }); }
@@ -911,6 +923,7 @@
   E.resolveInbox = function (s, choiceIndex) {
     const item = s.inbox[0];
     if (!item) return null;
+    if (item.kind === 'discovery') { s.inbox.shift(); const d = T.discoveryById(item.id); if (d && d.go) d.go(E.api(s)); return { text: '' }; }
     const ev = item.kind === 'history' ? T.historyById(item.id) : T.eventById(item.id);
     s.inbox.shift();
     if (!ev) return { text: '' };
@@ -934,6 +947,7 @@
     return item.cache;
   };
   function renderItem(s, item) {
+    if (item.kind === 'discovery') { const d = T.discoveryById(item.id); return d ? { id: d.id, kind: 'discovery', title: d.name, text: d.text, mix: d.mix, kicker: 'New discovery', archive: '', art: null, link: null, choices: [{ label: 'Add it to the book', hint: '', ok: true }] } : null; }
     const ev = item.kind === 'history' ? T.historyById(item.id) : T.eventById(item.id);
     if (!ev) return null;
     const x = E.api(s, item.data);
@@ -1031,6 +1045,7 @@
     s.inbox = s.inbox.filter((i) => i.kind === 'history' || T.eventById(i.id) && (T.eventById(i.id).after || T.eventById(i.id).anyPhase));
     rollRandom(s, 1);
     if (E.year(s.t) >= 1960) E.achieve(s, 'long_life');
+    if (T.checkDiscoveries) T.checkDiscoveries(s);
     const done = E.year(s.t) >= D.END_YEAR || a.years >= 9;
     if (done) s.phase = 'done';
     return { years: yrs, done };

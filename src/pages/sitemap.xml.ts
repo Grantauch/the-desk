@@ -27,6 +27,7 @@ const paths = [
   '/simulations/',
   '/games/',
   '/hubs/the-league.html',
+  '/hubs/tale-of-the-tape.html',
   '/glossary/',
   '/detour-shelf/',
   '/tools/',

@@ -8,7 +8,7 @@
   const dialogBody = document.getElementById('dialog-body');
   const live = document.getElementById('live');
   const toastEl = document.getElementById('toast');
-  const KEY = 'tott-career-v1', HALL = 'tott-hall-v1', ACH = 'tott-ach-v1', SETTINGS = 'tott-settings-v1';
+  const KEY = 'tott-career-v1', HALL = 'tott-hall-v1', ACH = 'tott-ach-v1', SETTINGS = 'tott-settings-v1', BOOK = 'tott-discoveries-v1';
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let S = null;
@@ -123,9 +123,17 @@
             </ol>
           </div>
           ${hall.length ? `<div class="paper-card"><h2 class="card-head">Hall of fame <small>this browser</small></h2><ol class="hall">${hall.map((h) => `<li><b>${esc(h.name)}</b><span>${esc(h.record)} · ${esc(h.tier)}</span><small>${esc(h.years)}${h.belts ? ' · champion' : ''}</small></li>`).join('')}</ol></div>` : ''}
+          ${discoveryBookCard()}
           <div class="paper-card"><h2 class="card-head">Achievements</h2><p class="ach-count"><b>${ach.length}</b> of ${D.ACHIEVEMENTS.length} found</p><ul class="ach-list">${D.ACHIEVEMENTS.map((a) => `<li class="${ach.includes(a.id) ? 'got' : ''}" title="${esc(a.text)}">${ach.includes(a.id) ? '★' : '☆'} ${ach.includes(a.id) ? esc(a.name) : '???'}</li>`).join('')}</ul></div>
         </aside>
       </section>`);
+  }
+
+  function discoveryBookCard() {
+    const book = readBook(), n = Object.keys(book).length;
+    return `<div class="paper-card book"><h2 class="card-head">Discoveries <small>this computer</small></h2>
+      <p class="ach-count"><b>${n}</b> of ${T.discoveries.length} found. Two parts of a life combine into something new.</p>
+      <ul class="book-list">${T.discoveries.map((d) => book[d.id] ? `<li class="got"><b>${esc(d.name)}</b><small>${esc(d.mix[0])} + ${esc(d.mix[1])}</small></li>` : `<li><b>? + ?</b><small>${esc(d.hint)}</small></li>`).join('')}</ul></div>`;
   }
 
   // ---------- create ----------
@@ -250,7 +258,20 @@
   }
   function dateBanner() {
     const era = E.era(S.t);
-    return `<div class="date-banner"><div class="db-date"><span class="db-month">${esc(E.dateLabel(S.t).split(' ')[0])}</span><span class="db-year">${E.year(S.t)}</span></div><div class="db-era"><b>${esc(era.name)}</b><small>${esc(era.blurb)}</small></div></div>`;
+    return `<div class="date-banner"><div class="db-date"><span class="db-month">${esc(E.dateLabel(S.t).split(' ')[0])}</span><span class="db-year">${E.year(S.t)}</span></div><div class="db-era"><b>${esc(era.name)}</b><small>${esc(era.blurb)}</small></div></div>${trail()}`;
+  }
+  // The trail: where this life is between 1934 and 1966, with history's landmarks along the way.
+  const LANDMARKS = [[1935.3, 'Dust Bowl'], [1937.5, 'Louis is champ'], [1941.95, 'Pearl Harbor'], [1945.6, 'War ends'], [1947.3, 'Robinson'], [1949.5, 'TV fights'], [1954.4, 'Brown v. Board'], [1960.7, 'Clay wins gold']];
+  function trail() {
+    const span = D.END_YEAR - D.START_YEAR;
+    const now = S.t / 52;
+    const pct = (y) => Math.max(0, Math.min(100, ((y - D.START_YEAR) / span) * 100));
+    const marks = S.fights.map((f) => `<i class="tf r-${f.result}${f.title ? ' t' : ''}" style="left:${pct(D.START_YEAR + f.t / 52).toFixed(2)}%"></i>`).join('');
+    return `<div class="trail" aria-label="Your life so far: ${esc(E.dateLabel(S.t))}, on a timeline from ${D.START_YEAR} to ${D.END_YEAR}">
+      <div class="trail-line"><span class="trail-done" style="width:${pct(D.START_YEAR + now).toFixed(2)}%"></span>${marks}
+      ${LANDMARKS.map(([y, n], i) => `<span class="lm ${i % 2 ? 'low' : ''} ${D.START_YEAR + now >= y ? 'past' : ''}" style="left:${pct(y).toFixed(2)}%"><b>${esc(n)}</b></span>`).join('')}
+      <span class="trail-you" style="left:${pct(D.START_YEAR + now).toFixed(2)}%;--c:${D.TRUNKS[S.f.look.trunks] || '#b8231b'}" title="You are here"></span></div>
+      <div class="trail-ends"><span>${D.START_YEAR}</span><span>${D.END_YEAR}</span></div></div>`;
   }
   function renderLedger() {
     const early = S.fights.length < 12;
@@ -296,6 +317,7 @@
     const item = S.inbox[0];
     const v = E.render(S, item);
     if (!v) { S.inbox.shift(); return render(); }
+    if (v.kind === 'discovery') return renderDiscovery(v);
     const isHist = v.kind === 'history';
     const yr = E.year(S.t);
     const paper = isHist ? (yr < 1941 ? 'The Evening Telegram' : yr < 1950 ? 'The Daily Clarion' : 'The Morning Ledger') : '';
@@ -312,6 +334,27 @@
           <div class="choices" role="group" aria-label="Your choice">
             ${v.choices.length ? v.choices.map((c, i) => `<button class="choice" data-choice="${i}" ${c.ok ? '' : 'disabled'}><b>${esc(c.label)}</b>${c.hint ? `<small>${esc(c.hint)}</small>` : ''}${c.ok ? '' : '<small class="locked">not available</small>'}</button>`).join('') : `<button class="choice" data-choice="0"><b>Turn the page</b></button>`}
           </div>
+          <div class="outcome" hidden></div>
+        </article>
+      </section>`);
+  }
+  function readBook() { return readJSON(BOOK) || {}; }
+  function renderDiscovery(v) {
+    const book = readBook();
+    const first = !book[v.id];
+    if (first) { book[v.id] = { by: E.fullName(S.f), year: E.year(S.t) }; writeJSON(BOOK, book); }
+    const count = Object.keys(book).length, total = T.discoveries.length;
+    sfx('star', 1);
+    show(`
+      <section class="event discovery">
+        ${dateBanner()}
+        <article class="event-card disc-card">
+          <p class="kicker">New discovery</p>
+          <div class="recipe" aria-label="${esc(v.mix[0])} plus ${esc(v.mix[1])} makes ${esc(v.title)}"><span class="ing">${esc(v.mix[0])}</span><b aria-hidden="true">+</b><span class="ing">${esc(v.mix[1])}</span><b aria-hidden="true">=</b></div>
+          <h1 class="event-title disc-name" tabindex="-1">${esc(v.title)}</h1>
+          <p class="disc-first">${first ? '★ First time anyone on this computer has found this one.' : `Already in the book: first found by ${esc(book[v.id].by)} in ${book[v.id].year}.`} <b>${count} of ${total}</b> discoveries found here.</p>
+          <div class="event-body"><p>${esc(v.text)}</p></div>
+          <div class="choices"><button class="choice" data-choice="0"><b>Add it to the book</b></button></div>
           <div class="outcome" hidden></div>
         </article>
       </section>`);
@@ -612,7 +655,8 @@
             <div class="timeline"><h2>Fight by fight</h2><ol>${allYears.map((y) => `<li><span>${y}</span>${(years[y] || []).map((f) => `<i class="r-${f.result}${f.title ? ' t' : ''}" title="${esc(`${f.result} vs ${f.opp}, ${E.methodText(f)}`)}"></i>`).join('') || (S.flags.veteran && y >= 1942 && y <= 1945 ? '<em>in uniform</em>' : '')}</li>`).join('')}</ol><p class="legend"><i class="r-W"></i> win <i class="r-L"></i> loss <i class="r-D"></i> draw <i class="r-W t"></i> title fight</p></div>
           </div>
           <div class="final-cols">
-            <div class="ach"><h2>Achievements this career</h2>${S.ach.length ? `<ul>${S.ach.map((id) => { const a = D.ACHIEVEMENTS.find((x) => x.id === id); return a ? `<li>★ <b>${esc(a.name)}</b> <small>${esc(a.text)}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time. There is always next life.</p>'}</div>
+            <div class="ach"><h2>Discoveries this career</h2>${(S.disc || []).length ? `<ul>${S.disc.map((id) => { const d = T.discoveryById(id); return d ? `<li>◆ <b>${esc(d.name)}</b> <small>${esc(d.mix[0])} + ${esc(d.mix[1])}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time.</p>'}
+            <h2>Achievements this career</h2>${S.ach.length ? `<ul>${S.ach.map((id) => { const a = D.ACHIEVEMENTS.find((x) => x.id === id); return a ? `<li>★ <b>${esc(a.name)}</b> <small>${esc(a.text)}</small></li>` : ''; }).join('')}</ul>` : '<p>None this time. There is always next life.</p>'}</div>
             <div class="discuss"><h2>Talk about it</h2><ol>${qs.map((q) => `<li>${esc(q)}</li>`).join('')}</ol></div>
           </div>
           <div class="share-row">

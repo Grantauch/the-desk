@@ -109,7 +109,7 @@
           <div class="fight-callout" aria-hidden="true"></div>
           <div class="fight-overlay" hidden></div>
         </div>
-        <p class="fight-ticker" aria-live="polite"></p>
+        <p class="fight-ticker" aria-live="polite"></p><p class="rotate-hint">Turn your phone sideways for a bigger ring.</p>
         <div class="touch-pad" aria-label="Fight controls">
           <div class="pad-left">
             <button class="pad-btn" data-k="left" aria-label="Slip left">◀<small>slip</small></button>
@@ -125,6 +125,7 @@
           </div>
         </div>
         <div class="fight-keys"><span><kbd>←</kbd><kbd>→</kbd> slip</span><span><kbd>↓</kbd> duck</span><span><kbd>↑</kbd> hold guard</span><span><kbd>J</kbd> jab</span><span><kbd>K</kbd> cross</span><span><kbd>L</kbd> body</span><span><kbd>Space</kbd> haymaker</span><span><kbd>P</kbd> pause</span></div>`;
+      if ((navigator.maxTouchPoints || 0) > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) h.classList.add('touch');
       this.canvas = h.querySelector('canvas');
       this.ctx = this.canvas.getContext('2d');
       this.hud = {
@@ -148,7 +149,7 @@
       this.roundLen = c.roundSeconds || 60;
       const healthMul = 0.75 + 0.25 * ((c.you.health == null ? 100 : c.you.health) / 100);
       this.P = {
-        hpMax: (85 + ys.chn * 0.45) * healthMul, staMax: 55 + ys.sta * 0.6, state: 'idle', t: 0, x: 0, y: 0, lean: 0,
+        hpMax: (80 + ys.chn * 0.7) * healthMul, staMax: 55 + ys.sta * 0.6, state: 'idle', t: 0, x: 0, y: 0, lean: 0,
         gL: { x: 360, y: 470, s: 1 }, gR: { x: 600, y: 470, s: 1 }, punch: null, stars: c.startStars || 0, kd: 0, kdRound: 0,
         landed: 0, thrown: 0, dmgDealt: 0, dmgTaken: 0, combo: 0, mash: 0, hitFlash: 0, lastDodge: -1000, block: false, stun: 0,
       };
@@ -156,7 +157,7 @@
       const r = opp.rating;
       const os = opp.stats;
       this.O = {
-        hpMax: 95 + os.chn * 0.9 + r * 1.25, staMax: 60 + os.sta * 0.5, state: 'idle', t: 0, wait: 1300, guard: 'high', guardT: 0,
+        hpMax: 90 + os.chn * 1.0 + r * 1.5, staMax: 60 + os.sta * 0.5, state: 'idle', t: 0, wait: 1300, guard: 'high', guardT: 0,
         move: null, x: 0, sway: 0, lean: 0, crouch: 0, headX: 0, headY: 0, tilt: 0, fall: 0,
         gL: { x: 425, y: 185, s: 1 }, gR: { x: 535, y: 185, s: 1 }, blocked: 0, kd: 0, kdRound: 0, combo: [], hitFlash: 0, dmgTaken: 0, landed: 0,
         bruise: 0, mouth: 0, stats: os, rating: r, style: opp.style, used: {}, getUp: null, tauntLine: '',
@@ -465,7 +466,7 @@
     resolvePunch(pu) {
       const P = this.P, O = this.O, def = PUNCH[pu.kind];
       const pow = this.cfg.you.stats.pow;
-      let dmg = def.dmg * (0.45 + pow / 120) * (pu.tired ? 0.5 : 1) * rand(0.85, 1.15);
+      let dmg = def.dmg * (0.25 + pow / 75) * (pu.tired ? 0.5 : 1) * rand(0.85, 1.15);
       if (pu.kind === 'hay') dmg *= 1 + pu.stars * 0.9;
       const target = def.target;
       if (O.state === 'down' || O.state === 'out') return;
@@ -597,7 +598,8 @@
       const O = this.O, mv = MOVES[kind];
       const skillMul = 1.25 - this.skill * 0.55;
       O.state = 'tell'; O.t = 0;
-      O.move = { kind, tellLen: mv.tell * skillMul * (speed || 1) * rand(0.92, 1.08), checked: false };
+      const speedEdge = clamp(1 + (this.cfg.you.stats.spd - O.stats.spd) / 250, 0.8, 1.2);
+      O.move = { kind, tellLen: mv.tell * skillMul * speedEdge * (speed || 1) * rand(0.92, 1.08), checked: false };
       O.used[kind] = (O.used[kind] || 0) + 1;
       if (kind !== 'jab') this.sound && this.sound.play('tell', 0.4, kind);
     }
@@ -621,7 +623,7 @@
         O.sta = Math.max(0, O.sta - mv.dmg * 0.6);
         return;
       }
-      let dmg = mv.dmg * 1.25 * (0.5 + O.rating / 90) * (1.15 - ys.def / 260) * rand(0.85, 1.15);
+      let dmg = mv.dmg * 1.25 * (0.5 + O.rating / 90) * (1.15 - ys.def / 260) * (1 + (O.stats.pow - ys.chn) / 200) * rand(0.85, 1.15);
       if (side === 'duck' && mv.duckPenalty) { dmg *= mv.duckPenalty; this.flashCallout('DUCKED INTO IT!', 'bad'); }
       const blocking = P.block && (P.state === 'idle' || P.state === 'block');
       if (blocking) {
@@ -700,7 +702,7 @@
       const P = this.P, O = this.O;
       this.fx = this.fx.filter((f) => f.kind !== 'count');
       if (who === 'opp') {
-        O.hp = O.hpMax * clamp(0.62 - O.kd * 0.14, 0.18, 0.6); O.state = 'idle'; O.t = 0; O.wait = 900; O.fall = 0;
+        O.hp = O.hpMax * clamp(0.75 - O.kd * 0.12, 0.25, 0.7); O.state = 'idle'; O.t = 0; O.wait = 900; O.fall = 0;
         this.flashCallout(`UP AT ${this.count.n}!`, 'dim');
       } else {
         P.hp = P.hpMax * clamp(0.55 - P.kd * 0.12, 0.15, 0.5); P.state = 'idle'; P.t = 0; P.stun = 600; P.sta = Math.max(P.sta, P.staMax * 0.4);
