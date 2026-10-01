@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b0c08">
+<title>Tale of the Tape · A Life in the Ring, 1934–1966</title>
+<meta name="description" content="Live a whole boxing life from the Depression to the TV era. Box every fight yourself, survive real history, and see what story your career becomes. A Beyond the Scoreboard game.">
+<link rel="canonical" href="https://grant-desk.com/hubs/tale-of-the-tape.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="the desk">
+<meta property="og:title" content="Tale of the Tape: a life in the ring, 1934–1966">
+<meta property="og:description" content="One fighter. Thirty years of real history. Box every fight yourself, dodge the mob, survive the war, and find out what story your life becomes.">
+<meta property="og:url" content="https://grant-desk.com/hubs/tale-of-the-tape.html">
+<meta property="og:image" content="https://grant-desk.com/hubs/tale-of-the-tape/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tale of the Tape: a life in the ring">
+<meta name="twitter:description" content="Box your way from the Depression to the TV era. No two careers alike.">
+<meta name="twitter:image" content="https://grant-desk.com/hubs/tale-of-the-tape/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23b8231b'/%3E%3Cellipse cx='30' cy='30' rx='18' ry='19' fill='%23f1e6cc' stroke='%2317130f' stroke-width='4'/%3E%3Cellipse cx='16' cy='33' rx='6' ry='9' fill='%23f1e6cc' stroke='%2317130f' stroke-width='4'/%3E%3Crect x='20' y='46' width='22' height='10' rx='3' fill='%23e0a526' stroke='%2317130f' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bangers&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Oswald:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./tale-of-the-tape/style.css">
+<script defer src="./tale-of-the-tape/data.js"></script>
+<script defer src="./tale-of-the-tape/engine.js"></script>
+<script defer src="./tale-of-the-tape/history.js"></script>
+<script defer src="./tale-of-the-tape/events-career.js"></script>
+<script defer src="./tale-of-the-tape/events-life.js"></script>
+<script defer src="./tale-of-the-tape/audio.js"></script>
+<script defer src="./tale-of-the-tape/portrait.js"></script>
+<script defer src="./tale-of-the-tape/fight.js"></script>
+<script defer src="./tale-of-the-tape/app.js"></script>
+</head>
+<body data-era="depression">
+<a class="skip" href="#app">Skip to the game</a>
+<header class="topbar">
+  <a class="desk" href="/beyond-the-scoreboard/">the desk<span> / beyond the scoreboard</span></a>
+  <div class="tools">
+    <button type="button" data-ui="help">How to play</button>
+    <button type="button" data-ui="sound" aria-pressed="true">Sound on</button>
+    <button type="button" data-ui="menu">Menu</button>
+  </div>
+</header>
+<main id="app" tabindex="-1"><p class="loading">Lacing up the gloves…</p></main>
+<div id="toast" class="toast" role="status" hidden></div>
+<p id="live" class="sr" aria-live="polite"></p>
+<dialog id="dialog" aria-label="Game dialog"><div id="dialog-body"></div><form method="dialog"><button class="button close">Back to the game</button></form></dialog>
+<input type="file" id="load-file" aria-label="Load a saved career" accept="application/json,.json" hidden>
+<noscript><p class="loading">Tale of the Tape needs JavaScript. Turn it on and reload the page.</p></noscript>
+</body>
+</html>
