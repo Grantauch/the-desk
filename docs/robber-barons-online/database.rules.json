@@ -27,14 +27,14 @@
         "seats": {
           "$b": {
             ".write": "auth != null && root.child('rb').child($code).child('meta').exists() && (!data.exists() || data.child('uid').val() === auth.uid || root.child('rb').child($code).child('meta/host').val() === auth.uid || (newData.exists() && root.child('rb').child($code).child('meta/status').val() === 'playing'))",
-            ".validate": "$b.matches(/^[0-3]$/) && newData.hasChildren(['uid', 'name']) && newData.child('uid').val() === auth.uid",
+            ".validate": "$b.matches(/^[0-7]$/) && newData.hasChildren(['uid', 'name']) && newData.child('uid').val() === auth.uid",
             "uid": { ".validate": "newData.isString()" },
             "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16" },
             "$other": { ".validate": false }
           }
         },
         "game": {
-          ".write": "auth != null && (root.child('rb').child($code).child('meta/host').val() === auth.uid || root.child('rb').child($code).child('seats/0/uid').val() === auth.uid || root.child('rb').child($code).child('seats/1/uid').val() === auth.uid || root.child('rb').child($code).child('seats/2/uid').val() === auth.uid || root.child('rb').child($code).child('seats/3/uid').val() === auth.uid)",
+          ".write": "auth != null && (root.child('rb').child($code).child('meta/host').val() === auth.uid || root.child('rb').child($code).child('seats/0/uid').val() === auth.uid || root.child('rb').child($code).child('seats/1/uid').val() === auth.uid || root.child('rb').child($code).child('seats/2/uid').val() === auth.uid || root.child('rb').child($code).child('seats/3/uid').val() === auth.uid || root.child('rb').child($code).child('seats/4/uid').val() === auth.uid || root.child('rb').child($code).child('seats/5/uid').val() === auth.uid || root.child('rb').child($code).child('seats/6/uid').val() === auth.uid || root.child('rb').child($code).child('seats/7/uid').val() === auth.uid)",
           "v": { ".validate": "newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1" },
           "fx": { ".validate": "newData.isString() && newData.val().length < 4000" },
           "s": { "$k": { ".validate": "newData.isString() && newData.val().length < 4000" } },
