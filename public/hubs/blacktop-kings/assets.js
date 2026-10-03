@@ -3,6 +3,7 @@
   'use strict';
   const base = new URL('./assets/generated-v1/', document.currentScript.src);
   const nextBase = new URL('./assets/generated-v2/', document.currentScript.src);
+  const detailBase = new URL('./assets/generated-v3/', document.currentScript.src);
   const catalog = {};
   const loaded = new Map();
   const pending = new Map();
@@ -12,7 +13,10 @@
   catalog.trophy = 'crown-trophy-v1.webp';
   const nextKeys = ['mode-career', 'mode-quick', 'mode-versus', 'mode-challenge', 'arch-slasher', 'arch-sniper', 'arch-general', 'arch-trickster', 'arch-big', 'ball'];
   for (const key of nextKeys) catalog[key] = key + '-v2.webp';
-  const url = (key) => catalog[key] ? new URL(catalog[key], nextKeys.includes(key) ? nextBase : base).href : '';
+  const fans = ['fan-teal', 'fan-red', 'fan-gold', 'fan-violet', 'fan-cream', 'fan-blue'];
+  const detailKeys = ['board-street', 'board-glass', ...fans, 'sideline-kit', 'jersey-weave', 'pad-vinyl'];
+  for (const key of detailKeys) catalog[key] = key + '-v3.webp';
+  const url = (key) => catalog[key] ? new URL(catalog[key], detailKeys.includes(key) ? detailBase : nextKeys.includes(key) ? nextBase : base).href : '';
   function load(key) {
     if (loaded.has(key)) return Promise.resolve(loaded.get(key));
     if (pending.has(key)) return pending.get(key);
@@ -32,10 +36,14 @@
   function surface(court) {
     return court.scene === 'gym' ? 'wood' : ['lot', 'cage', 'underpass'].includes(court.scene) ? 'asphalt' : 'painted';
   }
+  const board = (court) => ['lot', 'cage', 'underpass', 'harbor'].includes(court.scene) ? 'board-street' : 'board-glass';
   BK.assets = {
-    catalog, load, surface,
+    catalog, load, surface, board, fans,
     url,
     get: (key) => loaded.get(key) || null,
-    ensureCourt(court) { load('court-' + court.id); load('surface-' + surface(court)); },
+    ensureCourt(court) {
+      load('court-' + court.id); load('surface-' + surface(court));
+      load(board(court)); fans.forEach(load); load('sideline-kit'); load('jersey-weave'); load('pad-vinyl');
+    },
   };
 })(window.BK = window.BK || {});

@@ -239,6 +239,7 @@
   function imageTriangle(ctx, img, src, dst) {
     const [s0, s1, s2] = src, [d0, d1, d2] = dst;
     const det = (s1.x - s0.x) * (s2.y - s0.y) - (s2.x - s0.x) * (s1.y - s0.y);
+    if (!det) return;
     const ax = ((d1.x - d0.x) * (s2.y - s0.y) - (d2.x - d0.x) * (s1.y - s0.y)) / det;
     const bx = ((s1.x - s0.x) * (d2.x - d0.x) - (s2.x - s0.x) * (d1.x - d0.x)) / det;
     const ay = ((d1.y - d0.y) * (s2.y - s0.y) - (d2.y - d0.y) * (s1.y - s0.y)) / det;
@@ -247,6 +248,18 @@
     ctx.transform(ax, ay, bx, by, d0.x - ax * s0.x - bx * s0.y, d0.y - ay * s0.x - by * s0.y);
     ctx.drawImage(img, 0, 0); ctx.restore();
   }
+  A.drawImageQuad = function (ctx, img, dst) {
+    const src = [{ x: 0, y: 0 }, { x: img.width, y: 0 }, { x: img.width, y: img.height }, { x: 0, y: img.height }];
+    imageTriangle(ctx, img, [src[0], src[1], src[2]], [dst[0], dst[1], dst[2]]);
+    imageTriangle(ctx, img, [src[0], src[2], src[3]], [dst[0], dst[2], dst[3]]);
+  };
+  A.drawSideline = function (ctx, cam, court) {
+    const kit = BK.assets && BK.assets.get('sideline-kit');
+    if (!kit) return;
+    const p = cam.project(6, -26.5, 0), w = p.s * 11, h = w * kit.height / kit.width;
+    ctx.save(); ctx.globalAlpha = court.time === 'night' || court.id === 'crown' ? 0.65 : 0.94;
+    ctx.drawImage(kit, p.x - w / 2, p.y - h, w, h); ctx.restore();
+  };
   function paintSurface(ctx, cam, court, keyOnly) {
     if (!BK.assets) return;
     const img = BK.assets.get('surface-' + BK.assets.surface(court));
@@ -581,10 +594,22 @@
   };
   A.drawCrowd = function (ctx, cam, people, time, excite, court) {
     const night = court.time === 'night' || court.id === 'crown';
+    const sprites = BK.assets ? BK.assets.fans.map((key) => crowdSprite(BK.assets.get(key), night)) : [];
     for (const p of people) {
       const jump = excite > 0.2 ? Math.max(0, Math.sin(time * 9 * p.hype + p.ph)) * excite * 1.6 : Math.sin(time * 1.5 + p.ph) * 0.05;
       const z = p.z + (p.sit && excite < 0.3 ? -1.4 : 0) + jump;
       const feet = cam.project(p.x, p.y, z); const s = feet.s;
+      const sprite = sprites[Math.floor(p.ph / TAU * sprites.length)];
+      if (sprite) {
+        const h = p.h * s * (p.sit && excite < 0.3 ? 0.82 : 0.94), w = h * sprite.width / sprite.height;
+        ctx.save(); ctx.globalAlpha = p.y < -30 ? 0.8 : 0.94;
+        ctx.translate(feet.x, feet.y); if (p.ph > Math.PI) ctx.scale(-1, 1);
+        ctx.drawImage(sprite, -w / 2, -h, w, h); ctx.restore();
+        if (night && excite > 0.5 && Math.sin(time * 23 + p.ph * 7) > 0.97) {
+          ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.beginPath(); ctx.arc(feet.x, feet.y - h * 0.83, s * 0.3, 0, TAU); ctx.fill();
+        }
+        continue;
+      }
       const bodyH = p.h * 0.55 * s, headR = p.h * 0.085 * s;
       const top = feet.y - p.h * 0.85 * s;
       const shirt = night ? A.shade(p.shirt, -0.5) : p.shirt;
@@ -603,6 +628,18 @@
       if (night && excite > 0.5 && Math.sin(time * 23 + p.ph * 7) > 0.97) { ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.beginPath(); ctx.arc(feet.x, top, s * 0.5, 0, TAU); ctx.fill(); }
     }
   };
+  // Build each night tint once; animated crowds then need only one image draw per spectator.
+  const nightCrowd = new WeakMap();
+  function crowdSprite(img, night) {
+    if (!img || !night) return img;
+    if (!nightCrowd.has(img)) {
+      const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+      g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(16,18,37,0.48)'; g.fillRect(0, 0, c.width, c.height);
+      nightCrowd.set(img, c);
+    }
+    return nightCrowd.get(img);
+  }
 
   // Lights that glow on top of everything at night. Drawn every frame with additive blending.
   A.drawGlows = function (ctx, cam, court, time) {
@@ -648,11 +685,28 @@
       // pad
       const p0 = cam.project(49.5, 0, 0.2), p1 = cam.project(49.5, 0, 6.5);
       ctx.strokeStyle = court.accent; ctx.lineWidth = base.s * 1.3; ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+      const vinyl = BK.assets && BK.assets.get('pad-vinyl');
+      if (vinyl) {
+        const dx = p1.x - p0.x, dy = p1.y - p0.y, len = Math.hypot(dx, dy) || 1;
+        const nx = -dy / len * base.s * 0.6, ny = dx / len * base.s * 0.6;
+        const pts = [{ x: p1.x - nx, y: p1.y - ny }, { x: p1.x + nx, y: p1.y + ny }, { x: p0.x + nx, y: p0.y + ny }, { x: p0.x - nx, y: p0.y - ny }];
+        ctx.save(); ctx.globalAlpha = 0.7; ctx.globalCompositeOperation = 'soft-light';
+        A.drawImageQuad(ctx, vinyl, pts); ctx.restore();
+      }
       // board
       const jig = hoop.shake ? Math.sin(time * 60) * hoop.shake * 0.12 : 0;
       if (!hoop.shattered) {
-        path3(ctx, cam, [[bx, -3, 9.5 + jig], [bx, 3, 9.5 + jig], [bx, 3, 13 + jig], [bx, -3, 13 + jig]]);
-        ctx.fillStyle = court.scene === 'lot' || court.scene === 'cage' ? 'rgba(240,240,236,0.92)' : 'rgba(210,235,255,0.35)'; ctx.fill();
+        const boardPts = [[bx, -3, 9.5 + jig], [bx, 3, 9.5 + jig], [bx, 3, 13 + jig], [bx, -3, 13 + jig]];
+        const material = BK.assets && BK.assets.get(BK.assets.board(court));
+        const street = ['lot', 'cage', 'underpass', 'harbor'].includes(court.scene);
+        path3(ctx, cam, boardPts);
+        ctx.fillStyle = street ? 'rgba(240,240,236,0.92)' : material ? 'rgba(210,235,255,0.1)' : 'rgba(210,235,255,0.35)'; ctx.fill();
+        if (material) {
+          ctx.save(); ctx.globalAlpha = street ? 1 : 0.5;
+          A.drawImageQuad(ctx, material, [boardPts[3], boardPts[2], boardPts[1], boardPts[0]].map((p) => cam.project(...p)));
+          ctx.restore();
+        }
+        path3(ctx, cam, boardPts);
         ctx.strokeStyle = court.scene === 'crown' ? '#ffd23f' : '#f4f4f4'; ctx.lineWidth = Math.max(2, base.s * 0.18); ctx.stroke();
         path3(ctx, cam, [[bx - 0.02, -1, 10.1 + jig], [bx - 0.02, 1, 10.1 + jig], [bx - 0.02, 1, 11.6 + jig], [bx - 0.02, -1, 11.6 + jig]]);
         ctx.strokeStyle = court.scene === 'lot' || court.scene === 'cage' ? '#e8352b' : '#ffffff'; ctx.lineWidth = Math.max(1.5, base.s * 0.12); ctx.stroke();

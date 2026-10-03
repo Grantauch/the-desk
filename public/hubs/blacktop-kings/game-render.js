@@ -20,6 +20,7 @@
     ctx.translate(wt.ox, wt.oy); ctx.scale(wt.z, wt.z);
     ctx.drawImage(this.bg, 0, 0, W, H);
     A.drawCrowd(ctx, cam, this.crowd, this.time, this.excite, this.court);
+    A.drawSideline(ctx, cam, this.court);
     this.fx.drawGround(ctx);
     this.drawShadows(ctx);
     this.drawRings(ctx);

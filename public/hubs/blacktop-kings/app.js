@@ -30,9 +30,10 @@
     app.addEventListener('click', onClick);
     app.addEventListener('input', onInput);
     app.addEventListener('change', onChange);
-    if (BK.assets) { BK.assets.load('impact'); BK.assets.load('trophy'); BK.assets.load('ball'); }
-    window.addEventListener('bk-art-ready', () => {
-      for (const m of [S.match, S.attract]) if (m) { m.paintBackground(); if (m.paused || reduceMotion) m.render(); }
+    if (BK.assets) { BK.assets.load('impact'); BK.assets.load('trophy'); BK.assets.load('ball'); BK.assets.load('jersey-weave'); }
+    window.addEventListener('bk-art-ready', ({ detail }) => {
+      const scenery = detail && /^(court-|surface-)/.test(detail.key);
+      for (const m of [S.match, S.attract]) if (m) { if (scenery) m.paintBackground(); if (m.paused || reduceMotion) m.render(); }
       paintCanvases();
     });
     fileInput.addEventListener('change', onFilePicked);

@@ -1,10 +1,16 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 3 Blacktop Kings court details v3
+
+Eleven additional generated images add worn steel and translucent glass backboards, six fictional neighborhood spectators, a sideline bench with bags/cooler/towels, jersey mesh and stitched hoop padding. V3 adds 548,432 optimized bytes; all 34 assets total 5,275,586 bytes. Materials follow existing projected geometry and player animation. Board shake/shatter, hoop target/rim/net, customizable team colors and jersey numbers retain their existing behavior. Night spectators receive a cached darker treatment; pending or failed images retain original drawings.
+
+All 34 images decoded and all eight final court renders were visually inspected. Actual Lincoln Lot match start/pause/resume/quit and 390-pixel menu review passed. Blocking every v3 image retained a working match; no persistent career save was created. Focused board/padding/spectator regressions, existing geometry/audio/loader checks and the full canonical verification gate passed. Protected publication and exact production evidence remain pending at this source checkpoint. Original PNGs, prompts and earlier editions are preserved; ordinary player feedback remains pending.
+
 ## Current checkpoint — October 3 Blacktop Kings artwork expansion
 
 Added ten original generated assets using the approved v1 court paintings as the style reference: four menu panels, five player-style illustrations and a transparent pebbled basketball. V2 adds 1,792,930 optimized bytes; both batches total 4,727,154 bytes across 23 images. The Career tile and animated creator/locker preview retain the customizable player in front of the new locker-room setting. Other mode tiles and player-style cards gain decorative illustrations. Crown shots retain their special ball color.
 
-Local browser checks decoded all 23 images, inspected desktop and 390-pixel menu/creator layouts, verified player-style selection, and preserved typed value, field identity and focus during an image-ready repaint. Blocking all v2 images retained original menu art, all five style choices and four identity fields without creating a career save. Actual Boardwalk quick-game start, pause, resume and quit passed. Geometry, audio and image-loader regressions and the full canonical verification gate passed. Protected publication checks remain pending for this expansion.
+Local browser checks decoded all 23 images, inspected desktop and 390-pixel menu/creator layouts, verified player-style selection, and preserved typed value, field identity and focus during an image-ready repaint. Blocking all v2 images retained original menu art, all five style choices and four identity fields without creating a career save. Actual Boardwalk quick-game start, pause, resume and quit passed. Geometry, audio and image-loader regressions and the full canonical verification gate passed. PR #171 merged through the protected release path. Netlify production deploy `6ac0c0235747d300077b39de` reported exact commit `544150c4d822ae8c186d41f351b1992993acdc33` ready on October 3. All 23 public images and five integration files matched source SHA-256, and public match start/pause/resume/quit passed. Ordinary player feedback remains pending.
 
 ## Current checkpoint — October 3 Blacktop Kings generated artwork
 
