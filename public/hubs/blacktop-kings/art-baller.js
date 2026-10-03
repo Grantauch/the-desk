@@ -34,10 +34,10 @@
   // Stylized athlete proportions, in feet. u scales everything to the player's height.
   // sw/ww/hw: shoulder, waist, and hip width as seen in the three-quarter view.
   const BUILD = {
-    lean: { sw: 1.34, ww: 0.84, hw: 0.9, arm: 0.165, thigh: 0.27, calf: 0.2, belly: 0, neck: 0.17 },
-    athletic: { sw: 1.5, ww: 0.92, hw: 0.96, arm: 0.19, thigh: 0.3, calf: 0.22, belly: 0, neck: 0.2 },
-    strong: { sw: 1.66, ww: 1.02, hw: 1.04, arm: 0.23, thigh: 0.33, calf: 0.245, belly: 0.03, neck: 0.24 },
-    heavy: { sw: 1.62, ww: 1.32, hw: 1.24, arm: 0.235, thigh: 0.37, calf: 0.26, belly: 0.2, neck: 0.25 },
+    lean: { sw: 1.6, ww: 0.92, hw: 1.0, arm: 0.205, thigh: 0.29, calf: 0.21, belly: 0, neck: 0.18 },
+    athletic: { sw: 1.82, ww: 1.03, hw: 1.1, arm: 0.245, thigh: 0.34, calf: 0.245, belly: 0, neck: 0.23 },
+    strong: { sw: 2.02, ww: 1.14, hw: 1.18, arm: 0.29, thigh: 0.38, calf: 0.275, belly: 0.03, neck: 0.27 },
+    heavy: { sw: 1.96, ww: 1.5, hw: 1.4, arm: 0.28, thigh: 0.42, calf: 0.295, belly: 0.16, neck: 0.28 },
   };
   A.dims = function (hgtIn, build) {
     const H = (hgtIn || 76) / 12;
@@ -45,9 +45,9 @@
     const u = H / 6.5;
     return {
       H, b, u, k: u,
-      foot: 0.32 * u, thigh: 1.58 * u, shin: 1.57 * u, leg: 3.15 * u,
-      torso: 1.72 * u, neck: 0.2 * u, headR: Math.max(0.47, 0.5 * Math.pow(u, 0.6)),
-      upper: 1.15 * u, fore: 1.12 * u,
+      foot: 0.25 * u, thigh: 1.58 * u, shin: 1.57 * u, leg: 3.15 * u,
+      torso: 1.8 * u, neck: 0.2 * u, headR: Math.max(0.45, 0.48 * Math.pow(u, 0.6)),
+      upper: 1.12 * u, fore: 1.04 * u,
       sw: b.sw * u, ww: b.ww * u, hw: b.hw * u,
       armR: b.arm * u, thighR: b.thigh * u, calfR: b.calf * u, belly: b.belly * u, neckR: b.neck * u,
       // older names some callers still read
@@ -71,21 +71,24 @@
   A.pose = function (kind, o) {
     o = o || {};
     const d = o.dims; const t = o.t || 0; const time = o.time || 0;
-    const stand = d.foot + d.leg * 0.97;
+    const stand = d.foot + d.leg * 0.995;
     const P = { pelvis: [0, stand], lean: 0.04, tilt: 0, footF: [0.32, 0], footB: [-0.28, 0], handF: [0.25, stand * 0.92], handB: [-0.18, stand * 0.92], armF: -1, armB: -1, legF: 1, legB: 1 };
     const chestY = () => P.pelvis[1] + d.torso;
     const bob = Math.sin(time * 3.2) * 0.03;
     switch (kind) {
       case 'idle': {
         // athletic stance: knees soft, feet apart, hands off the jersey
-        P.pelvis = [0, stand - 0.16 + bob]; P.lean = 0.1;
-        P.footF = [0.42, 0]; P.footB = [-0.36, 0];
-        P.handF = [0.84, P.pelvis[1] - 0.6 + bob]; P.handB = [-0.7, P.pelvis[1] - 0.52 + bob]; P.armF = -1; P.armB = -1;
+        P.pelvis = [0, stand - 0.035 + bob * 0.35]; P.lean = 0.025;
+        P.footF = [0.5 * d.u, 0]; P.footB = [-0.46 * d.u, 0];
+        const shY = P.pelvis[1] + d.torso * 0.86;
+        P.handF = [1.02 * d.u, shY - (d.upper + d.fore) * 0.98];
+        P.handB = [-0.92 * d.u, shY - (d.upper + d.fore) * 0.97];
+        P.armF = -1; P.armB = 1; P.legB = -1;
         break;
       }
       case 'card': {
         // trading-card pose: ball on the hip, other hand at the side
-        P.pelvis = [0, stand - 0.1]; P.lean = 0.02; P.tilt = 0.12;
+        P.pelvis = [0, stand - 0.025]; P.lean = -0.025; P.tilt = 0.04;
         P.footF = [0.38, 0]; P.footB = [-0.32, 0];
         P.handF = [1.3, P.pelvis[1] + d.torso * 0.08]; P.handB = [-0.88, P.pelvis[1] + 0.02]; P.armF = -1; P.armB = -1;
         break;
@@ -409,7 +412,7 @@
     if (Math.abs(kx) < 0.12) kx = kx < 0 ? -0.12 : 0.12;
     const u = d.u;
     const olW = clamp(1.5 / Math.max(1, o.scale), 0.026 * u, 0.06 * u);
-    const skin = L.skin, skinB = shade(skin, -0.24);
+    const skin = L.skin, skinB = shade(skin, -0.16);
     const time = o.time || 0;
     SHADE_OFF = o.scale < 9;
     FINE = o.scale > 24;
@@ -445,43 +448,58 @@
       const ax = j[4], ay = j[5];
       const a = Math.atan2(ay - j[3], ax - j[2]);
       const rot = clamp((a + Math.PI / 2) * 0.3, -0.45, 0.45);
-      const Ls = 0.98 * u, fh = d.foot, st = 0.11 * u, yb = -fh + st;
-      const collar = L.shoes === 'high' ? 0.34 * u : L.shoes === 'mid' || L.shoes === 'glow' ? 0.18 * u : -0.02 * u;
+      const fh = d.foot, st = 0.075 * u, yb = -fh + st;
+      const collar = L.shoes === 'high' ? 0.2 * u : L.shoes === 'mid' || L.shoes === 'glow' ? 0.1 * u : 0.015 * u;
       const sc = back ? shade(L.shoeColor, -0.22) : L.shoeColor, acc = back ? shade(L.shoeAccent, -0.22) : L.shoeAccent;
       ctx.save(); ctx.translate(ax, ay); ctx.rotate(rot);
       const up = new Path2D();
-      up.moveTo(-0.37 * Ls, yb);
-      up.bezierCurveTo(-0.43 * Ls, yb + 0.22 * u, -0.36 * Ls, collar - 0.05 * u, -0.24 * Ls, collar + 0.03 * u);
-      up.lineTo(0.05 * Ls, collar);
-      up.bezierCurveTo(0.2 * Ls, collar - 0.06 * u, 0.3 * Ls, yb + 0.34 * u, 0.46 * Ls, yb + 0.29 * u);
-      up.bezierCurveTo(0.66 * Ls, yb + 0.24 * u, 0.7 * Ls, yb + 0.06 * u, 0.64 * Ls, yb);
+      // A fitted heel, ankle collar, flat forefoot, and a round toe. A separate
+      // tongue and side panel keep the high-top from becoming a white wedge.
+      up.moveTo(-0.3 * u, yb);
+      up.quadraticCurveTo(-0.34 * u, yb + 0.13 * u, -0.27 * u, collar + 0.035 * u);
+      up.lineTo(-0.055 * u, collar + 0.045 * u);
+      up.lineTo(0.1 * u, collar + 0.005 * u);
+      up.quadraticCurveTo(0.14 * u, yb + 0.19 * u, 0.3 * u, yb + 0.155 * u);
+      up.bezierCurveTo(0.47 * u, yb + 0.15 * u, 0.62 * u, yb + 0.115 * u, 0.62 * u, yb + 0.045 * u);
+      up.quadraticCurveTo(0.62 * u, yb - 0.005 * u, 0.52 * u, yb);
       up.closePath();
-      ctx.lineWidth = olW * 2; ctx.strokeStyle = OL; ctx.stroke(up);
+      ctx.lineWidth = olW * 1.5; ctx.strokeStyle = OL; ctx.stroke(up);
       ctx.fillStyle = sc; ctx.fill(up);
-      if (!FINE) {
-        ctx.fillStyle = acc; ctx.beginPath(); ctx.ellipse(0.6 * Ls, yb + 0.05 * u, 0.12 * Ls, 0.08 * u, 0, 0, TAU); ctx.fill();
-        ctx.fillRect(-0.36 * Ls, yb + 0.06 * u, 0.62 * Ls, 0.07 * u);
-      } else {
       ctx.save(); ctx.clip(up);
+      ctx.fillStyle = shade(sc, -0.28);
+      ctx.beginPath(); ctx.moveTo(-0.33 * u, yb); ctx.lineTo(-0.29 * u, collar);
+      ctx.lineTo(-0.13 * u, collar - 0.045 * u); ctx.lineTo(-0.05 * u, yb + 0.045 * u); ctx.closePath(); ctx.fill();
+      // angular quarter panel, with a small opening above the midsole
       ctx.fillStyle = acc;
-      ctx.beginPath(); ctx.ellipse(0.66 * Ls, yb, 0.14 * Ls, 0.1 * u, 0, 0, TAU); ctx.fill(); // toe cap
-      ctx.beginPath(); ctx.ellipse(-0.42 * Ls, yb + 0.12 * u, 0.12 * Ls, 0.2 * u, 0, 0, TAU); ctx.fill(); // heel counter
-      ctx.fillRect(-0.3 * Ls, yb + 0.05 * u, 0.72 * Ls, 0.06 * u); // side band
-      ctx.fillStyle = 'rgba(0,0,0,0.16)'; ctx.fillRect(-0.5 * Ls, yb, Ls * 1.3, 0.06 * u);
-      ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.beginPath(); ctx.ellipse(0.4 * Ls, yb + 0.2 * u, 0.12 * Ls, 0.035 * u, -0.25, 0, TAU); ctx.fill();
-      ctx.restore();
+      ctx.beginPath(); ctx.moveTo(-0.27 * u, yb + 0.04 * u); ctx.lineTo(-0.1 * u, yb + 0.19 * u);
+      ctx.lineTo(0.04 * u, yb + 0.17 * u); ctx.lineTo(0.19 * u, yb + 0.045 * u);
+      ctx.lineTo(0.36 * u, yb + 0.03 * u); ctx.lineTo(0.22 * u, yb); ctx.lineTo(-0.27 * u, yb); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = shade(sc, -0.18);
+      ctx.beginPath(); ctx.moveTo(-0.05 * u, collar + 0.06 * u); ctx.lineTo(0.08 * u, collar + 0.025 * u);
+      ctx.lineTo(0.28 * u, yb + 0.145 * u); ctx.lineTo(0.17 * u, yb + 0.09 * u); ctx.closePath(); ctx.fill();
+      if (FINE) {
+        ctx.strokeStyle = shade(sc, -0.4); ctx.lineWidth = 0.012 * u;
+        ctx.beginPath(); ctx.moveTo(0.4 * u, yb + 0.15 * u); ctx.quadraticCurveTo(0.33 * u, yb + 0.09 * u, 0.38 * u, yb); ctx.stroke();
+        ctx.fillStyle = shade(sc, -0.3);
+        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc((0.38 + i * 0.055) * u, yb + 0.105 * u, 0.009 * u, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = 'rgba(255,255,255,0.32)'; ctx.fillRect(-0.23 * u, collar - 0.025 * u, 0.11 * u, 0.028 * u);
       }
+      ctx.restore();
       // laces
-      if (L.shoes !== 'low' && FINE) {
-        ctx.strokeStyle = back ? '#c9c9c9' : '#ffffff'; ctx.lineWidth = 0.04 * u;
-        for (let i = 0; i < 3; i++) { const t = i / 3; const lx = lerp(0.08, 0.36, t) * Ls, ly = lerp(collar - 0.04 * u, yb + 0.3 * u, t); ctx.beginPath(); ctx.moveTo(lx - 0.05 * u, ly + 0.03 * u); ctx.lineTo(lx + 0.05 * u, ly - 0.03 * u); ctx.stroke(); }
+      if (FINE) {
+        ctx.strokeStyle = luminance(sc) > 0.65 ? '#4d5360' : '#ecebe4'; ctx.lineWidth = 0.018 * u;
+        for (let i = 0; i < 4; i++) { const t = i / 4; const lx = lerp(0.025, 0.23, t) * u, ly = lerp(collar - 0.025 * u, yb + 0.16 * u, t); ctx.beginPath(); ctx.moveTo(lx - 0.045 * u, ly); ctx.lineTo(lx + 0.055 * u, ly - 0.025 * u); ctx.stroke(); }
       }
       // sole
-      const sole = new Path2D(); const sx0 = -0.41 * Ls, sx1 = 0.69 * Ls;
-      sole.moveTo(sx0 + st * 0.5, -fh); sole.lineTo(sx1 - st * 0.6, -fh); sole.quadraticCurveTo(sx1 + st * 0.3, -fh, sx1, yb + st * 0.1);
-      sole.lineTo(sx0, yb); sole.quadraticCurveTo(sx0 - st * 0.2, -fh, sx0 + st * 0.5, -fh); sole.closePath();
-      ctx.lineWidth = olW * 2; ctx.strokeStyle = OL; ctx.stroke(sole);
-      ctx.fillStyle = L.shoes === 'glow' ? '#7df9ff' : back ? '#d6d6d6' : '#f6f6f2'; ctx.fill(sole);
+      const sole = new Path2D();
+      sole.moveTo(-0.3 * u, yb); sole.lineTo(0.58 * u, yb);
+      sole.quadraticCurveTo(0.65 * u, yb + 0.025 * u, 0.62 * u, -fh + 0.025 * u);
+      sole.quadraticCurveTo(0.42 * u, -fh - 0.018 * u, 0.2 * u, -fh + 0.015 * u);
+      sole.lineTo(-0.26 * u, -fh); sole.quadraticCurveTo(-0.33 * u, -fh, -0.3 * u, yb); sole.closePath();
+      ctx.lineWidth = olW * 1.25; ctx.strokeStyle = OL; ctx.stroke(sole);
+      ctx.fillStyle = L.shoes === 'glow' ? '#7df9ff' : back ? '#c3c5c4' : '#e6e5df'; ctx.fill(sole);
+      ctx.strokeStyle = back ? '#333941' : '#444b55'; ctx.lineWidth = 0.025 * u;
+      ctx.beginPath(); ctx.moveTo(-0.25 * u, -fh + 0.005 * u); ctx.lineTo(0.21 * u, -fh + 0.024 * u); ctx.quadraticCurveTo(0.42 * u, -fh, 0.57 * u, -fh + 0.014 * u); ctx.stroke();
       if (L.shoes === 'glow' && !back) { ctx.save(); ctx.shadowColor = '#7df9ff'; ctx.shadowBlur = 12; ctx.fill(sole); ctx.restore(); }
       ctx.restore();
     };
@@ -593,7 +611,7 @@
 
     // ---- torso ----
     const body = new Path2D();
-    const bp = [TP(-0.05, -hw * 0.5), TP(T * 0.42, -ww * 0.5), TP(T * 0.74, -sw * 0.44), TP(T * 0.94, -sw * 0.5), TP(T * 1.05, -sw * 0.28), TP(T * 1.08, 0), TP(T * 1.05, sw * 0.28), TP(T * 0.94, sw * 0.5), TP(T * 0.74, sw * 0.45 + B * 0.3), TP(T * 0.42, ww * 0.5 + B), TP(-0.05, hw * 0.5)];
+    const bp = [TP(0.15, -hw * 0.5), TP(T * 0.42, -ww * 0.5), TP(T * 0.74, -sw * 0.44), TP(T * 0.94, -sw * 0.5), TP(T * 1.05, -sw * 0.28), TP(T * 1.08, 0), TP(T * 1.05, sw * 0.28), TP(T * 0.94, sw * 0.5), TP(T * 0.74, sw * 0.45 + B * 0.3), TP(T * 0.42, ww * 0.5 + B), TP(0.15, hw * 0.5)];
     smoothClosed(body, bp);
     ctx.lineWidth = olW * 2; ctx.strokeStyle = OL; ctx.stroke(body); ctx.fillStyle = skin; ctx.fill(body);
     // jersey
@@ -652,7 +670,7 @@
     // number
     if (o.num != null && o.scale * Math.abs(kx) > 5) {
       const np = TP(T * 0.52, sw * 0.07);
-      ctx.save(); ctx.translate(np[0], np[1]); ctx.scale(1, -1); ctx.rotate(lean);
+      ctx.save(); ctx.translate(np[0], np[1]); ctx.scale(kx < 0 ? -1 : 1, -1); ctx.rotate(lean * (kx < 0 ? -1 : 1));
       ctx.font = `400 ${(T * 0.36).toFixed(3)}px Anton, Impact, 'Arial Narrow', sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.lineWidth = 0.075 * u; ctx.strokeStyle = shade(col.pri, -0.5); ctx.strokeText(String(o.num), 0, 0);
@@ -711,25 +729,25 @@
   // ---------- the head (three-quarter view, facing +x) ----------
   function headPath(hx, hy, r) {
     const p = new Path2D();
-    p.moveTo(hx + r * 0.8, hy + r * 0.4);
-    p.bezierCurveTo(hx + r * 0.74, hy + r * 1.08, hx - r * 0.56, hy + r * 1.14, hx - r * 0.88, hy + r * 0.36);
-    p.bezierCurveTo(hx - r * 1.04, hy - r * 0.12, hx - r * 0.78, hy - r * 0.52, hx - r * 0.42, hy - r * 0.62);
-    p.bezierCurveTo(hx - r * 0.2, hy - r * 0.86, hx + r * 0.14, hy - r * 1.02, hx + r * 0.44, hy - r * 0.99);
-    p.bezierCurveTo(hx + r * 0.68, hy - r * 0.96, hx + r * 0.8, hy - r * 0.72, hx + r * 0.82, hy - r * 0.46);
-    p.bezierCurveTo(hx + r * 0.9, hy - r * 0.2, hx + r * 0.94, hy + r * 0.06, hx + r * 0.8, hy + r * 0.4);
+    p.moveTo(hx + r * 0.77, hy + r * 0.38);
+    p.bezierCurveTo(hx + r * 0.77, hy + r * 1.05, hx - r * 0.6, hy + r * 1.1, hx - r * 0.86, hy + r * 0.36);
+    p.quadraticCurveTo(hx - r * 0.95, hy - r * 0.1, hx - r * 0.68, hy - r * 0.55);
+    p.lineTo(hx - r * 0.25, hy - r * 0.87);
+    p.quadraticCurveTo(hx + r * 0.08, hy - r * 1.0, hx + r * 0.38, hy - r * 0.87);
+    p.lineTo(hx + r * 0.7, hy - r * 0.57);
+    p.quadraticCurveTo(hx + r * 0.9, hy - r * 0.12, hx + r * 0.77, hy + r * 0.38);
     p.closePath();
     return p;
   }
   // Hair that sits on the skull. t: height above the skull, front: how low the hairline comes.
   function hairCap(hx, hy, r, t, front) {
     const p = new Path2D();
-    const fx = hx + r * (0.6 + front * 0.16), fy = hy + r * (0.56 - front * 0.14);
+    const fx = hx + r * (0.69 + front * 0.1), fy = hy + r * (0.6 - front * 0.08);
     p.moveTo(fx, fy);
     p.bezierCurveTo(hx + r * (0.8 + t * 0.4), hy + r * (1.12 + t), hx - r * (0.56 + t * 0.3), hy + r * (1.2 + t), hx - r * (0.92 + t), hy + r * 0.36);
-    p.bezierCurveTo(hx - r * (1.08 + t), hy - r * 0.08, hx - r * 0.84, hy - r * 0.46, hx - r * 0.54, hy - r * 0.54);
-    p.bezierCurveTo(hx - r * 0.42, hy - r * 0.22, hx - r * 0.24, hy + r * 0.04, hx - r * 0.04, hy - r * 0.02);
-    p.lineTo(hx + r * 0.04, hy - r * 0.24); p.lineTo(hx + r * 0.15, hy - r * 0.2);
-    p.quadraticCurveTo(hx + r * 0.16, hy + r * 0.36, fx, fy);
+    p.bezierCurveTo(hx - r * (1.02 + t), hy - r * 0.08, hx - r * 0.82, hy - r * 0.3, hx - r * 0.65, hy - r * 0.3);
+    p.lineTo(hx - r * 0.48, hy - r * 0.28); p.lineTo(hx - r * 0.45, hy + r * 0.32);
+    p.quadraticCurveTo(hx - r * 0.1, hy + r * 0.62, fx, fy);
     p.closePath();
     return p;
   }
@@ -809,20 +827,20 @@
     // hair over the skull, then the ear sits on top of it
     drawHairTop(ctx, L, hx, hy, r, olW, o.time || 0, head);
     // ear
-    const ex = hx - r * 0.26, ey = hy - r * 0.06;
+    const ex = hx - r * 0.63, ey = hy - r * 0.04;
     ctx.fillStyle = skin; ctx.strokeStyle = OL; ctx.lineWidth = olW * 1.6;
     ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.17, r * 0.25, -0.15, 0, TAU); ctx.fill(); ctx.stroke();
     if (big) { ctx.strokeStyle = shade(skin, -0.32); ctx.lineWidth = r * 0.045; ctx.beginPath(); ctx.arc(ex + r * 0.02, ey, r * 0.1, -1.2, 1.4); ctx.stroke(); }
     // nose
     const nose = new Path2D();
-    nose.moveTo(hx + r * 0.86, hy + r * 0.02); nose.quadraticCurveTo(hx + r * 1.12, hy - r * 0.2, hx + r * 0.98, hy - r * 0.3); nose.quadraticCurveTo(hx + r * 0.9, hy - r * 0.33, hx + r * 0.82, hy - r * 0.28);
+    nose.moveTo(hx + r * 0.55, hy + r * 0.08); nose.quadraticCurveTo(hx + r * 0.59, hy - r * 0.06, hx + r * 0.79, hy - r * 0.17); nose.quadraticCurveTo(hx + r * 0.7, hy - r * 0.3, hx + r * 0.47, hy - r * 0.23);
     ctx.fillStyle = skin; ctx.fill(nose);
     ctx.strokeStyle = OL; ctx.lineWidth = olW * 1.5; ctx.stroke(nose);
-    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.beginPath(); ctx.ellipse(hx + r * 0.7, hy - r * 0.22, r * 0.12, r * 0.1, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.beginPath(); ctx.ellipse(hx + r * 0.51, hy - r * 0.24, r * 0.085, r * 0.055, 0, 0, TAU); ctx.fill();
     // eyes
     const eyeY = hy + r * 0.1;
     const brC = shade(['#d8d8d8', '#f3e5b5', '#e8c46e'].includes(L.hairColor) ? '#8a6a3a' : L.hairColor, -0.15);
-    [[hx + r * 0.32, 1], [hx + r * 0.73, 0.7]].forEach(([ex2, k]) => {
+    [[hx - r * 0.04, 1], [hx + r * 0.49, 0.78]].forEach(([ex2, k]) => {
       const ew = r * 0.15 * k, eh = r * ({ wide: 0.13, sleepy: 0.065, focused: 0.075, normal: 0.1 }[L.eyes] || 0.1);
       if (!big) {
         ctx.fillStyle = '#1a120c'; ctx.beginPath(); ctx.ellipse(ex2 + ew * 0.15, eyeY, Math.max(ew * 0.55, r * 0.05), Math.max(eh * 0.85, r * 0.05), 0, 0, TAU); ctx.fill();
@@ -848,7 +866,7 @@
       ctx.stroke();
     });
     // mouth
-    const mx = hx + r * 0.6, my = hy - r * 0.52;
+    const mx = hx + r * 0.3, my = hy - r * 0.51;
     ctx.lineWidth = Math.max(olW * 1.3, r * 0.045); ctx.strokeStyle = '#3a1712';
     switch (L.mouth) {
       case 'smile': ctx.beginPath(); ctx.moveTo(mx - r * 0.17, my + r * 0.05); ctx.quadraticCurveTo(mx, my - r * 0.12, mx + r * 0.18, my + r * 0.07); ctx.stroke(); break;
@@ -880,9 +898,9 @@
       if (L.eyewear === 'goggles') {
         ctx.strokeStyle = '#111'; ctx.lineWidth = r * 0.1; ctx.beginPath(); ctx.moveTo(hx - r * 0.9, ey2 + r * 0.06); ctx.lineTo(hx + r * 0.16, ey2); ctx.stroke();
         ctx.fillStyle = 'rgba(190,230,255,0.42)'; ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = r * 0.07;
-        [[hx + r * 0.32, 0.95], [hx + r * 0.74, 0.75]].forEach(([x, s]) => { ctx.beginPath(); ctx.ellipse(x, ey2, r * 0.2 * s, r * 0.18, 0, 0, TAU); ctx.fill(); ctx.stroke(); });
+        [[hx - r * 0.04, 0.95], [hx + r * 0.49, 0.75]].forEach(([x, s]) => { ctx.beginPath(); ctx.ellipse(x, ey2, r * 0.2 * s, r * 0.18, 0, 0, TAU); ctx.fill(); ctx.stroke(); });
       } else if (L.eyewear === 'shades') {
-        ctx.fillStyle = '#0d0d10'; ctx.beginPath(); ctx.moveTo(hx + r * 0.12, ey2 + r * 0.12); ctx.lineTo(hx + r * 0.96, ey2 + r * 0.14); ctx.lineTo(hx + r * 0.88, ey2 - r * 0.12); ctx.lineTo(hx + r * 0.16, ey2 - r * 0.1); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#0d0d10'; ctx.beginPath(); ctx.moveTo(hx - r * 0.24, ey2 + r * 0.12); ctx.lineTo(hx + r * 0.74, ey2 + r * 0.14); ctx.lineTo(hx + r * 0.68, ey2 - r * 0.12); ctx.lineTo(hx - r * 0.2, ey2 - r * 0.1); ctx.closePath(); ctx.fill();
         ctx.strokeStyle = '#0d0d10'; ctx.lineWidth = r * 0.07; ctx.beginPath(); ctx.moveTo(hx + r * 0.14, ey2 + r * 0.1); ctx.lineTo(hx - r * 0.7, ey2 + r * 0.12); ctx.stroke();
         ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(hx + r * 0.58, ey2 + r * 0.02, r * 0.14, r * 0.05);
       } else if (L.eyewear === 'visor') {
@@ -898,25 +916,25 @@
     ctx.save(); ctx.fillStyle = c;
     const beard = (big) => {
       const p = new Path2D();
-      p.moveTo(hx - r * 0.1, hy + r * 0.12);
-      p.bezierCurveTo(hx - r * 0.16, hy - r * 0.4, hx - r * 0.05, hy - r * (0.75 + big * 0.2), hx + r * 0.42, hy - r * (1.04 + big * 0.32));
-      p.bezierCurveTo(hx + r * 0.75, hy - r * (1.0 + big * 0.25), hx + r * 0.86, hy - r * 0.7, hx + r * 0.82, hy - r * 0.38);
-      p.quadraticCurveTo(hx + r * 0.6, hy - r * 0.34, hx + r * 0.36, hy - r * 0.3);
-      p.quadraticCurveTo(hx + r * 0.1, hy - r * 0.2, hx + r * 0.08, hy + r * 0.12);
+      p.moveTo(hx - r * 0.49, hy - r * 0.08);
+      p.bezierCurveTo(hx - r * 0.64, hy - r * 0.46, hx - r * 0.32, hy - r * (0.82 + big * 0.2), hx + r * 0.12, hy - r * (0.98 + big * 0.32));
+      p.bezierCurveTo(hx + r * 0.57, hy - r * (0.98 + big * 0.25), hx + r * 0.72, hy - r * 0.64, hx + r * 0.68, hy - r * 0.35);
+      p.quadraticCurveTo(hx + r * 0.44, hy - r * 0.32, hx + r * 0.16, hy - r * 0.35);
+      p.quadraticCurveTo(hx - r * 0.3, hy - r * 0.34, hx - r * 0.35, hy - r * 0.08);
       p.closePath(); return p;
     };
     switch (L.facial) {
       case 'stubble': ctx.globalAlpha *= 0.32; ctx.fill(beard(0)); break;
-      case 'mustache': ctx.beginPath(); ctx.ellipse(hx + r * 0.64, hy - r * 0.36, r * 0.24, r * 0.075, -0.08, 0, TAU); ctx.fill(); break;
+      case 'mustache': ctx.beginPath(); ctx.ellipse(hx + r * 0.33, hy - r * 0.36, r * 0.24, r * 0.075, -0.08, 0, TAU); ctx.fill(); break;
       case 'goatee':
-        ctx.beginPath(); ctx.ellipse(hx + r * 0.64, hy - r * 0.36, r * 0.22, r * 0.065, -0.08, 0, TAU); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(hx + r * 0.52, hy - r * 0.84, r * 0.2, r * 0.17, 0.1, 0, TAU); ctx.fill(); break;
+        ctx.beginPath(); ctx.ellipse(hx + r * 0.33, hy - r * 0.36, r * 0.22, r * 0.065, -0.08, 0, TAU); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(hx + r * 0.16, hy - r * 0.8, r * 0.19, r * 0.15, 0.1, 0, TAU); ctx.fill(); break;
       case 'chinstrap':
-        ctx.strokeStyle = c; ctx.lineWidth = r * 0.12; ctx.beginPath(); ctx.moveTo(hx - r * 0.05, hy + r * 0.05); ctx.bezierCurveTo(hx - r * 0.12, hy - r * 0.6, hx + r * 0.1, hy - r * 0.95, hx + r * 0.6, hy - r * 0.93); ctx.stroke(); break;
+        ctx.strokeStyle = c; ctx.lineWidth = r * 0.12; ctx.beginPath(); ctx.moveTo(hx - r * 0.48, hy - r * 0.04); ctx.bezierCurveTo(hx - r * 0.65, hy - r * 0.6, hx + r * 0.1, hy - r * 1.08, hx + r * 0.58, hy - r * 0.7); ctx.stroke(); break;
       case 'beard': case 'bigbeard': {
         ctx.fill(beard(L.facial === 'bigbeard' ? 1 : 0));
         ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.beginPath(); ctx.ellipse(hx + r * 0.3, hy - r * 0.85, r * 0.45, r * 0.18, 0.1, 0, TAU); ctx.fill();
-        ctx.fillStyle = L.skin; ctx.beginPath(); ctx.ellipse(hx + r * 0.6, hy - r * 0.53, r * 0.16, r * 0.07, 0, 0, TAU); ctx.fill();
+        ctx.fillStyle = L.skin; ctx.beginPath(); ctx.ellipse(hx + r * 0.3, hy - r * 0.53, r * 0.2, r * 0.08, 0, 0, TAU); ctx.fill();
         break;
       }
       default: break;
@@ -954,7 +972,7 @@
         break;
       }
       case 'flattop': {
-        const p = new Path2D(); p.moveTo(hx + r * 0.7, hy + r * 0.5); p.lineTo(hx + r * 0.78, hy + r * 1.42); p.lineTo(hx - r * 0.82, hy + r * 1.46); p.quadraticCurveTo(hx - r * 1.04, hy + r * 0.9, hx - r * 0.9, hy + r * 0.2); p.lineTo(hx - r * 0.5, hy - r * 0.45); p.lineTo(hx + r * 0.1, hy - r * 0.15); p.quadraticCurveTo(hx + r * 0.2, hy + r * 0.4, hx + r * 0.7, hy + r * 0.5); p.closePath();
+        const p = new Path2D(); p.moveTo(hx + r * 0.7, hy + r * 0.56); p.lineTo(hx + r * 0.72, hy + r * 1.4); p.lineTo(hx - r * 0.8, hy + r * 1.43); p.quadraticCurveTo(hx - r * 0.98, hy + r * 0.85, hx - r * 0.88, hy + r * 0.25); p.lineTo(hx - r * 0.65, hy - r * 0.16); p.lineTo(hx - r * 0.46, hy - r * 0.14); p.lineTo(hx - r * 0.43, hy + r * 0.35); p.quadraticCurveTo(hx - r * 0.06, hy + r * 0.63, hx + r * 0.7, hy + r * 0.56); p.closePath();
         ctx.stroke(p); ctx.fill(p); ctx.save(); ctx.clip(p); ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(hx - r, hy + r * 1.3, r * 2, r * 0.2); ctx.restore();
         break;
       }

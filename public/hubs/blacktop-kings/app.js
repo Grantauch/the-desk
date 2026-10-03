@@ -117,15 +117,18 @@
       const cols = S.screen === 'create' ? [S.draft.crewPri, S.draft.crewSec] : S.save.crew.colors;
       const time = (now - t0) / 1000;
       ctx.clearRect(0, 0, c.width, c.height);
-      // a spotlight on a slice of hardwood, ringed in the crew color
+      // A quiet portrait backdrop lets the silhouette and equipment carry the screen.
       const fy = c.height * 0.95;
-      const fl = ctx.createLinearGradient(0, c.height * 0.72, 0, c.height);
-      fl.addColorStop(0, 'rgba(200,144,79,0)'); fl.addColorStop(0.35, 'rgba(200,144,79,0.35)'); fl.addColorStop(1, 'rgba(120,80,40,0.55)');
-      ctx.fillStyle = fl; ctx.fillRect(0, c.height * 0.72, c.width, c.height * 0.28);
-      const beam = ctx.createLinearGradient(0, 0, 0, fy);
-      beam.addColorStop(0, 'rgba(255,240,200,0)'); beam.addColorStop(1, 'rgba(255,240,200,0.16)');
-      ctx.fillStyle = beam; ctx.beginPath(); ctx.moveTo(c.width * 0.42, 0); ctx.lineTo(c.width * 0.58, 0); ctx.lineTo(c.width * 0.86, fy); ctx.lineTo(c.width * 0.14, fy); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = cols[0]; ctx.lineWidth = 6; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.ellipse(c.width / 2, fy, c.width * 0.3, c.height * 0.035, 0, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+      const halo = ctx.createRadialGradient(c.width * 0.55, c.height * 0.38, 8, c.width * 0.5, c.height * 0.4, c.height * 0.6);
+      halo.addColorStop(0, 'rgba(212,220,235,0.1)'); halo.addColorStop(1, 'rgba(212,220,235,0)');
+      ctx.fillStyle = halo; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.save(); ctx.globalAlpha = 0.055; ctx.fillStyle = '#ffffff';
+      ctx.font = '400 350px Anton, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(p.num).padStart(2, '0'), c.width / 2, c.height * 0.4); ctx.restore();
+      const fl = ctx.createLinearGradient(0, c.height * 0.78, 0, c.height);
+      fl.addColorStop(0, 'rgba(0,0,0,0)'); fl.addColorStop(1, 'rgba(0,0,0,0.45)');
+      ctx.fillStyle = fl; ctx.fillRect(0, c.height * 0.78, c.width, c.height * 0.22);
+      ctx.strokeStyle = cols[0]; ctx.lineWidth = 2; ctx.globalAlpha = 0.42; ctx.beginPath(); ctx.ellipse(c.width / 2, fy, c.width * 0.28, c.height * 0.024, 0, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
       const sh = ctx.createRadialGradient(c.width / 2, fy, 2, c.width / 2, fy, c.width * 0.22);
       sh.addColorStop(0, 'rgba(0,0,0,0.5)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.save(); ctx.translate(0, fy); ctx.scale(1, 0.14); ctx.translate(0, -fy); ctx.fillStyle = sh; ctx.beginPath(); ctx.arc(c.width / 2, fy, c.width * 0.22, 0, Math.PI * 2); ctx.fill(); ctx.restore();

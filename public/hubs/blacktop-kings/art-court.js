@@ -11,6 +11,13 @@
   A.COURT = { len: 47, half: 25, rimX: 41.75, rimY: 0, rimZ: 10, rimR: 0.78, boardX: 43, arcR: 22, cornerY: 21, keyHalf: 8, ftX: 28 };
   const C = A.COURT;
   C.cornerX = C.rimX - Math.sqrt(C.arcR * C.arcR - C.cornerY * C.cornerY);
+  // Travel from the far corner to the near corner. The positive basket's arc
+  // runs clockwise; reversing these ends creates diagonal lines across the key.
+  C.deepArc = (side) => {
+    const a = Math.asin(C.cornerY / C.arcR);
+    return side > 0 ? arcPts(C.rimX, 0, C.arcR, Math.PI + a, Math.PI - a, 64)
+      : arcPts(-C.rimX, 0, C.arcR, -a, a, 64);
+  };
   // Is the point outside the two-point line?
   C.isDeep = (x, y) => (x >= C.cornerX ? Math.abs(y) > C.cornerY : Math.hypot(x - C.rimX, y - C.rimY) > C.arcR);
 
@@ -159,8 +166,8 @@
       }
     }
     // two-point area tint
-    const arc = arcPts(C.rimX, 0, C.arcR, Math.PI - Math.asin(C.cornerY / C.arcR), Math.PI + Math.asin(C.cornerY / C.arcR), 40);
-    const inside = [[L, -C.cornerY], [C.cornerX, -C.cornerY]].concat(arc.slice().reverse().map(([x, y]) => [x, y])).concat([[C.cornerX, C.cornerY], [L, C.cornerY]]);
+    const arc = C.deepArc(1);
+    const inside = [[L, -C.cornerY]].concat(arc, [[L, C.cornerY]]);
     const tint = surf === 'gym' ? 'rgba(255,255,255,0.05)' : surf === 'crown' ? 'rgba(255,210,63,0.07)' : 'rgba(255,255,255,0.06)';
     fill3(ctx, cam, inside, tint);
     // key
@@ -169,7 +176,7 @@
     // center circle
     const cc = arcPts(0, 0, 6, 0, TAU, 48);
     fill3(ctx, cam, cc, shade(court.key, 0.05));
-    const lc = court.line; const lw = 0.2;
+    const lc = court.line; const lw = 2 / 12;
     // boundary
     stripe(ctx, cam, [[-L, -Hf], [L, -Hf], [L, Hf], [-L, Hf], [-L, -Hf]], lw * 1.2, lc);
     stripe(ctx, cam, [[0, -Hf], [0, Hf]], lw, lc);
@@ -180,12 +187,19 @@
       const bx = side * L, fx = side * C.ftX;
       stripe(ctx, cam, [[bx, -C.keyHalf], [fx, -C.keyHalf], [fx, C.keyHalf], [bx, C.keyHalf]], lw, lc);
       stripe(ctx, cam, arcPts(fx, 0, 6, side > 0 ? Math.PI / 2 : -Math.PI / 2, side > 0 ? Math.PI * 1.5 : Math.PI / 2, 24), lw, lc);
+      // The half of the free-throw circle inside the lane is dashed.
+      const dashStart = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+      for (let i = 0; i < 9; i++) {
+        const a = dashStart + i * Math.PI / 9;
+        stripe(ctx, cam, arcPts(fx, 0, 6, a, a + Math.PI / 16, 5), lw, lc);
+      }
       const rx = side * C.rimX;
-      const a0 = Math.asin(C.cornerY / C.arcR);
-      const pts = side > 0 ? arcPts(rx, 0, C.arcR, Math.PI - a0, Math.PI + a0, 50) : arcPts(rx, 0, C.arcR, -a0, a0, 50);
+      const pts = C.deepArc(side);
       stripe(ctx, cam, [[bx, -C.cornerY], pts[0]], lw, lc);
       stripe(ctx, cam, pts, lw, lc);
       stripe(ctx, cam, [pts[pts.length - 1], [bx, C.cornerY]], lw, lc);
+      // Restricted semicircle, centered on the rim and open to the baseline.
+      stripe(ctx, cam, arcPts(rx, 0, 4, side > 0 ? Math.PI / 2 : -Math.PI / 2, side > 0 ? Math.PI * 1.5 : Math.PI / 2, 32), lw, lc);
       // block marks
       [-1, 1].forEach((s2) => stripe(ctx, cam, [[side * (L - 7), s2 * C.keyHalf], [side * (L - 7), s2 * (C.keyHalf + 0.8)]], 0.5, lc));
     });
