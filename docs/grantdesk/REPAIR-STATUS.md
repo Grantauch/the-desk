@@ -1,5 +1,13 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 3 Blacktop Kings visual review
+
+Focused visual revision based on `claude/sleepy-gauss-ycw39g` at `8b4c4a5e9d702ad072c274556e10abf2bc460dc4`. Sneakers now have a fitted heel, flatter forefoot, separate tongue, side panels, laces and outsole. Player builds have stronger silhouettes and a relaxed neutral stance; the face, hairline, facial hair, glasses and jersey coverage were reconciled. Jersey numbers remain readable when facing either direction. The player preview and title use quieter lighting and typography.
+
+The positive basket's perimeter arc previously connected to the opposite corner endpoints, producing diagonal lines. Painting now shares one correctly ordered arc, with two-inch line widths, dashed inner free-throw semicircles and restricted-area arcs. The existing streetball radius and scoring boundaries are retained. `blacktop:test` checks corner alignment, mirrored geometry, arc continuity and inside/outside scoring, and is part of the full verification chain.
+
+Focused browser review inspected player builds, footwear close-ups, representative action poses, the court, the creator at 390 pixels and a quick game at 1440 pixels. A local art harness rendered 1,056 height/build/facing/shoe/pose combinations without an exception. Quick-game start, pause and quit were exercised. A separately packaged single-file review edition started a match. Render cases are a technical check, not proof of every combination's visual quality or observed enjoyment. Production publication and field play remain separate, unperformed steps; the Claude baseline is preserved.
+
 ## Current checkpoint — September 30 Theodore Roosevelt StoryHub
 
 Added the approved cinematic Roosevelt exhibit at `/hubs/ush9-theodore-roosevelt.html` and its Story Hubs catalog card. The finished thirty-second opening, archival images, licensed music attribution, primary-source notes and conservation epilogue are included. Canonical verification passed with 53 built routes, 101 HTML files and 4316 local references. Focused browser acceptance passed seven cases at 320/390/1440 pixels and reduced motion, including WCAG A/AA; the 30.06-second film decoded and played, and the sources and chapter controls passed. Broader browser UI passed 54 cases and extended UI passed 48. The existing game browser suite, protected GitHub build, merge and exact Netlify production evidence remain separate gates. Classroom use remains unobserved.

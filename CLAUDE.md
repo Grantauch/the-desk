@@ -22,6 +22,7 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - `src/styles/global.css` — design tokens in `@theme`, plus signature classes: `.pop` (offset shadow card), `.pop-ink`, `.dot-grid` (hero dots)
 - `src/layouts/Base.astro` — page shell (head with OG and social meta, nav, footer)
 - `public/hubs/` — standalone HTML games and lessonhubs, served as written
+- `public/hubs/blacktop-kings/` — Blacktop Kings, a just-for-fun 3-on-3 streetball game (no classroom content). Careers save in the browser or in a JSON file the player keeps; nothing is sent anywhere
 - `public/hubs/robber-barons-firebase.js` — Firebase settings for Robber Barons join-with-a-code play. Setup and database rules are in `docs/robber-barons-online/`
 - `storyhub/` — StoryHub production manifests, templates, and agent skills. Start at `docs/storyhub/README.md`; L014 is Reference Implementation 001, not a visual template.
 - `apps-script/hall-pass/` — the Hall Pass and Daily Check-In app. This is Google Apps Script, not part of the Astro build

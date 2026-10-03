@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0a10">
+<title>Blacktop Kings · 3-on-3 Streetball</title>
+<meta name="description" content="Three on three streetball. Build your baller, break ankles, throw it off the glass, fill the Crown meter, and take your crew from the corner lot to Crown Court. Play a friend head to head with the crews you built.">
+<link rel="canonical" href="https://grant-desk.com/hubs/blacktop-kings.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="the desk">
+<meta property="og:title" content="Blacktop Kings: 3-on-3 streetball">
+<meta property="og:description" content="Build your baller, break ankles, shatter backboards, and take your crew from the corner lot to Crown Court.">
+<meta property="og:url" content="https://grant-desk.com/hubs/blacktop-kings.html">
+<meta property="og:image" content="https://grant-desk.com/hubs/blacktop-kings/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Blacktop Kings: 3-on-3 streetball">
+<meta name="twitter:description" content="Build your baller. Break ankles. Shatter the backboard. First to 21.">
+<meta name="twitter:image" content="https://grant-desk.com/hubs/blacktop-kings/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0a10'/%3E%3Ccircle cx='32' cy='34' r='20' fill='%23f07a1a' stroke='%23111' stroke-width='3'/%3E%3Cpath d='M12 34h40M32 14v40M18 20c8 8 8 20 0 28M46 20c-8 8-8 20 0 28' stroke='%23111' stroke-width='3' fill='none'/%3E%3Cpath d='M18 12l5 8 9-9 9 9 5-8-2 12H20z' fill='%23ffd23f' stroke='%23111' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./blacktop-kings/style.css">
+<script defer src="./blacktop-kings/data.js"></script>
+<script defer src="./blacktop-kings/audio.js"></script>
+<script defer src="./blacktop-kings/input.js"></script>
+<script defer src="./blacktop-kings/art-baller.js"></script>
+<script defer src="./blacktop-kings/art-court.js"></script>
+<script defer src="./blacktop-kings/fx.js"></script>
+<script defer src="./blacktop-kings/game-core.js"></script>
+<script defer src="./blacktop-kings/game-ai.js"></script>
+<script defer src="./blacktop-kings/game-render.js"></script>
+<script defer src="./blacktop-kings/career.js"></script>
+<script defer src="./blacktop-kings/app.js"></script>
+</head>
+<body data-screen="loading">
+<a class="skip" href="#app">Skip to the menu</a>
+<div id="stage">
+  <canvas id="court" tabindex="-1" aria-label="Blacktop Kings court"></canvas>
+  <div id="touch-host"></div>
+</div>
+<main id="app"><p class="loading">Lacing up…</p></main>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<input type="file" id="load-file" accept="application/json,.json" aria-label="Load a Blacktop Kings save file" hidden>
+<noscript><p class="loading">Blacktop Kings needs JavaScript. Turn it on and reload the page.</p></noscript>
+</body>
+</html>

@@ -1,4 +1,16 @@
 {
+  "blacktop-visual-review-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "8b4c4a5e9d702ad072c274556e10abf2bc460dc4",
+    "evidence": [
+      "Focused player, sneaker, court marking and presentation revision; original gameplay scoring distances retained.",
+      "blacktop:test passed corner alignment, mirrored geometry, arc continuity and scoring-boundary regression checks.",
+      "Local browser inspected representative art, 390-pixel creator and 1440-pixel quick game; art harness rendered 1056 combinations without an exception.",
+      "Standalone review edition started a match. Original Claude branch preserved; production and field evidence remain separate."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "1": {
     "status": "VERIFIED",
     "depends_on": [
