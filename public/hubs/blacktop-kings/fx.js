@@ -331,45 +331,77 @@
     }
   };
 
+  // Callouts are broadcast stamps, not comic bursts: slanted Anton lettering with a hard two-tone fill,
+  // an ink outline and offset shadow. 'slam' calls ride a crew-color slab that wipes in with speed streaks.
+  const INK = '#07080c';
+  const ease = (k) => 1 - Math.pow(1 - Math.max(0, Math.min(1, k)), 3);
+  function slabPath(ctx, x, y, w, h, sl) { ctx.beginPath(); ctx.moveTo(x + sl, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w - sl, y + h); ctx.lineTo(x, y + h); ctx.closePath(); }
+  function letters(ctx, text, size, color, x, y) {
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = size * 0.16; ctx.strokeStyle = INK; ctx.fillStyle = INK;
+    ctx.strokeText(text, x + size * 0.06, y + size * 0.07); ctx.fillText(text, x + size * 0.06, y + size * 0.07);
+    ctx.lineWidth = size * 0.13; ctx.strokeText(text, x, y);
+    const g = ctx.createLinearGradient(0, y - size * 0.4, 0, y + size * 0.4);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.47, '#ffffff'); g.addColorStop(0.47, color); g.addColorStop(1, A_shade(color, -0.18));
+    ctx.fillStyle = g; ctx.fillText(text, x, y);
+  }
   P.drawCalls = function (ctx) {
-    const cam = this.cam;
+    const cam = this.cam; const W = cam.W;
     for (const f of this.floats) {
       const q = cam.project(f.x, f.y, f.z); const a = 1 - f.age / f.life;
-      ctx.save(); ctx.globalAlpha = Math.min(1, a * 2); ctx.font = `400 ${Math.round(Math.max(18, q.s * 2.2))}px Bangers, Impact, sans-serif`;
-      ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#111'; ctx.strokeText(f.text, q.x, q.y); ctx.fillStyle = f.color; ctx.fillText(f.text, q.x, q.y); ctx.restore();
+      const size = Math.round(Math.max(20, q.s * 2.3));
+      ctx.save(); ctx.globalAlpha = Math.min(1, a * 2); ctx.translate(q.x, q.y); ctx.transform(1, 0, -0.18, 1, 0, 0);
+      ctx.font = `400 ${size}px Anton, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+      ctx.lineWidth = size * 0.2; ctx.strokeStyle = INK; ctx.strokeText(f.text, 2, 3);
+      ctx.lineWidth = size * 0.16; ctx.strokeText(f.text, 0, 0); ctx.fillStyle = f.color; ctx.fillText(f.text, 0, 0);
+      ctx.restore();
     }
     for (const c of this.calls) {
-      const k = c.age / c.life;
-      let scale = 1;
-      if (c.style === 'slam') scale = k < 0.08 ? 2.6 - k / 0.08 * 1.6 : 1 + Math.max(0, 0.15 - (k - 0.08)) * 0.4;
-      else scale = k < 0.12 ? 0.3 + k / 0.12 * 0.85 : k < 0.2 ? 1.15 - (k - 0.12) / 0.08 * 0.15 : 1;
-      const a = k > 0.8 ? 1 - (k - 0.8) / 0.2 : 1;
-      ctx.save(); ctx.translate(c.x, c.y - (k > 0.8 ? (k - 0.8) * 120 : 0)); ctx.rotate(c.rot); ctx.scale(scale, scale); ctx.globalAlpha = a;
-      ctx.font = `400 ${c.size}px Bangers, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.lineJoin = 'round';
-      if (c.style === 'slam') {
-        // a jagged comic burst behind the word
-        const tw = ctx.measureText(c.text).width; const rx = tw * 0.62 + c.size * 0.3, ry = c.size * 0.95;
-        const spikes = 18; const wob = c.age * 6;
-        ctx.beginPath();
-        for (let i = 0; i <= spikes * 2; i++) {
-          const a = i / (spikes * 2) * TAU; const out = i % 2 ? 0.74 + Math.sin(i * 2.7 + wob) * 0.04 : 1 + Math.sin(i * 1.9) * 0.08;
-          ctx.lineTo(Math.cos(a) * rx * out, Math.sin(a) * ry * out);
+      const k = c.age / c.life; const slam = c.style === 'slam';
+      const size = c.size; const tin = ease(c.age / (slam ? 0.16 : 0.2));
+      const out = k > 0.82 ? (k - 0.82) / 0.18 : 0;
+      let dx = 0, sc = 1, a = 1 - out;
+      if (slam) { dx = (1 - tin) * -W * 0.55 + ease(out) * W * 0.35; sc = 1 + (1 - tin) * 0.18; }
+      else { sc = c.age < 0.12 ? 0.4 + c.age / 0.12 * 0.72 : c.age < 0.22 ? 1.12 - (c.age - 0.12) / 0.1 * 0.12 : 1; dx = ease(out) * 40; }
+      ctx.save(); ctx.translate(c.x + dx, c.y - out * 20); ctx.rotate(c.rot * 0.35); ctx.scale(sc, sc); ctx.globalAlpha = a;
+      ctx.transform(1, 0, -0.2, 1, 0, 0);
+      ctx.font = `400 ${size}px Anton, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const tw = ctx.measureText(c.text).width;
+      if (slam) {
+        const pw = tw + size * 0.9, ph = size * 1.12, px = -pw / 2, py = -ph / 2 + size * 0.02;
+        // speed streaks trailing off the left
+        ctx.save(); ctx.globalAlpha = a * (0.4 + (1 - tin) * 0.6);
+        for (let i = 0; i < 5; i++) {
+          const ly = py + ph * (0.12 + i * 0.19); const len = size * (1.4 + ((i * 7) % 5) * 0.5) * (1.4 - tin * 0.6);
+          ctx.fillStyle = i % 2 ? c.color : '#ffffff'; ctx.fillRect(px - len - size * 0.12, ly, len, Math.max(2, size * 0.045));
         }
-        ctx.closePath();
-        ctx.fillStyle = '#111'; ctx.save(); ctx.translate(7, 8); ctx.fill(); ctx.restore();
-        ctx.fillStyle = c.color2; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = '#111'; ctx.stroke();
-        ctx.save(); ctx.scale(0.86, 0.8); ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.fill(); ctx.restore();
+        ctx.restore();
+        // accent plate, shadow, main plate in the crew color, ink edge
+        ctx.fillStyle = c.color; slabPath(ctx, px - size * 0.14, py - size * 0.12, pw + size * 0.12, ph, size * 0.18); ctx.fill();
+        ctx.lineWidth = Math.max(2, size * 0.04); ctx.strokeStyle = INK; ctx.stroke();
+        ctx.fillStyle = INK; slabPath(ctx, px + size * 0.1, py + size * 0.12, pw, ph, size * 0.18); ctx.fill();
+        slabPath(ctx, px, py, pw, ph, size * 0.18); ctx.fillStyle = c.color2; ctx.fill();
+        ctx.save(); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(px - size, py, pw + size * 2, ph * 0.42);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(px - size, py + ph * 0.8, pw + size * 2, ph * 0.2); ctx.restore();
+        slabPath(ctx, px, py, pw, ph, size * 0.18); ctx.lineWidth = Math.max(3, size * 0.06); ctx.strokeStyle = INK; ctx.stroke();
+      } else {
+        // a crew-color bar under the word
+        const bw = tw * 0.92, bh = Math.max(6, size * 0.15), by = size * 0.44;
+        ctx.fillStyle = INK; slabPath(ctx, -bw / 2 + 5, by + 5, bw, bh, bh * 0.8); ctx.fill();
+        slabPath(ctx, -bw / 2, by, bw, bh, bh * 0.8); ctx.fillStyle = c.color2; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.stroke();
       }
-      ctx.lineWidth = c.size * 0.22; ctx.strokeStyle = '#111'; ctx.strokeText(c.text, 6, 7);
-      ctx.lineWidth = c.size * 0.16; ctx.strokeStyle = c.color2; ctx.strokeText(c.text, 0, 0);
-      const g = ctx.createLinearGradient(0, -c.size / 2, 0, c.size / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(0.45, c.color); g.addColorStop(1, A_shade(c.color));
-      ctx.fillStyle = g; ctx.fillText(c.text, 0, 0);
-      if (c.sub) { ctx.font = `400 ${Math.round(c.size * 0.36)}px Bangers, Impact, sans-serif`; ctx.lineWidth = 5; ctx.strokeStyle = '#111'; ctx.strokeText(c.sub, 0, c.size * 0.72); ctx.fillStyle = '#ffffff'; ctx.fillText(c.sub, 0, c.size * 0.72); }
+      letters(ctx, c.text, size, c.color, 0, 0);
+      if (c.sub) {
+        const ss = Math.round(size * 0.3); ctx.font = `italic 900 ${ss}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+        const sw = ctx.measureText(c.sub).width + ss * 1.4, sy = size * (slam ? 0.66 : 0.72);
+        ctx.fillStyle = INK; slabPath(ctx, -sw / 2, sy, sw, ss * 1.35, ss * 0.35); ctx.fill();
+        ctx.fillStyle = c.color; ctx.fillRect(-sw / 2 + ss * 0.1, sy + ss * 0.1, ss * 0.22, ss * 1.15);
+        ctx.fillStyle = '#ffffff'; ctx.fillText(c.sub, ss * 0.1, sy + ss * 0.72);
+      }
       ctx.restore();
     }
   };
-  function A_shade(c) { return BK.art && BK.art.shade ? BK.art.shade(c, -0.35) : c; }
+  function A_shade(c, amt) { return BK.art && BK.art.shade ? BK.art.shade(c, amt == null ? -0.35 : amt) : c; }
 
   BK.FX = FX;
 })(window.BK = window.BK || {});
