@@ -14,8 +14,8 @@
 
   // ---------- settings ----------
   const SETTINGS_KEY = 'bk-settings';
-  const settings = { difficulty: 'street', effects: reduceMotion ? 'reduced' : 'full', touch: 'auto' };
-  try { const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); if (s && typeof s === 'object') { if (['chill', 'street', 'legend'].includes(s.difficulty)) settings.difficulty = s.difficulty; if (['full', 'reduced'].includes(s.effects)) settings.effects = s.effects; if (['auto', 'on', 'off'].includes(s.touch)) settings.touch = s.touch; } } catch (e) { /* ignore */ }
+  const settings = { difficulty: 'street', effects: reduceMotion ? 'reduced' : 'full', touch: 'auto', camera: 'close' };
+  try { const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); if (s && typeof s === 'object') { if (['chill', 'street', 'legend'].includes(s.difficulty)) settings.difficulty = s.difficulty; if (['full', 'reduced'].includes(s.effects)) settings.effects = s.effects; if (['auto', 'on', 'off'].includes(s.touch)) settings.touch = s.touch; if (['close', 'wide'].includes(s.camera)) settings.camera = s.camera; } } catch (e) { /* ignore */ }
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ } };
   const DIFF = { chill: { skill: 0.32, boost: -1, name: 'Chill' }, street: { skill: 0.58, boost: 0, name: 'Street' }, legend: { skill: 0.86, boost: 1, name: 'Legend' } };
 
@@ -70,7 +70,7 @@
     const crews = D.QUICK_CREWS.slice().sort(() => Math.random() - 0.5);
     const courts = CR.openCourts(S.save);
     const court = pick(courts);
-    S.attract = new BK.Match(canvas, { attract: true, court, target: 11, teams: [crewSpec(crews[0]), crewSpec(crews[1])], humans: [], skill: 0.75, reducedMotion: settings.effects === 'reduced' });
+    S.attract = new BK.Match(canvas, { attract: true, court, target: 11, teams: [crewSpec(crews[0]), crewSpec(crews[1])], humans: [], skill: 0.75, reducedMotion: settings.effects === 'reduced', camera: settings.camera });
     if (reduceMotion) { S.attract.simulate(6); S.attract.render(); } else S.attract.start();
   }
   function crewSpec(c) { return { name: c.name, colors: c.colors.slice(), logo: c.logo, players: c.members.map((id) => CR.memberById(id)) }; }
@@ -80,7 +80,7 @@
   function figure(player, colors, opts) {
     const id = 'd' + (++drawId); drawables.set(id, { player, colors, opts: opts || {} });
     const w = (opts && opts.w) || 96, h = (opts && opts.h) || 128;
-    return `<canvas class="fig" width="${w * 2}" height="${h * 2}" style="width:${w}px;height:${h}px" data-draw="${id}" aria-hidden="true"></canvas>`;
+    return `<canvas class="fig${opts && opts.portrait ? ' portrait' : ''}" width="${w * 2}" height="${h * 2}" style="width:${w}px;height:${h}px" data-draw="${id}" aria-hidden="true"></canvas>`;
   }
   function logoCanvas(logo, c1, c2, size) {
     const id = 'd' + (++drawId); drawables.set(id, { logo, c1, c2 });
@@ -98,7 +98,8 @@
       if (d.logo) { A.drawLogo(ctx, d.logo, c.width / 2, c.height / 2, c.width * 0.46, d.c1, d.c2); return; }
       if (d.court) { const cam = A.defaultCamera(c.width, c.height); A.paintScene(ctx, cam, d.court); A.drawHoop(ctx, cam, {}, 'back', d.court, 0); A.drawHoop(ctx, cam, {}, 'front', d.court, 0); return; }
       const colors = teamColors(d.colors);
-      A.drawCard(ctx, d.player, colors, { x: 0, y: 0, w: c.width, h: c.height }, Object.assign({ time: 1.2 }, d.opts));
+      if (d.opts.portrait) A.drawPortrait(ctx, d.player, colors, { x: 0, y: 0, w: c.width, h: c.height }, d.opts);
+      else A.drawCard(ctx, d.player, colors, { x: 0, y: 0, w: c.width, h: c.height }, Object.assign({ time: 1.2 }, d.opts));
     });
     if (drawables.size > 400) drawables.clear();
   }
@@ -116,11 +117,20 @@
       const cols = S.screen === 'create' ? [S.draft.crewPri, S.draft.crewSec] : S.save.crew.colors;
       const time = (now - t0) / 1000;
       ctx.clearRect(0, 0, c.width, c.height);
-      const g = ctx.createRadialGradient(c.width / 2, c.height * 0.9, 10, c.width / 2, c.height * 0.9, c.width * 0.6);
-      g.addColorStop(0, 'rgba(255,210,63,0.25)'); g.addColorStop(1, 'rgba(255,210,63,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height);
-      ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(c.width / 2, c.height * 0.955, c.width * 0.22, c.height * 0.025, 0, 0, Math.PI * 2); ctx.fill();
+      // a spotlight on a slice of hardwood, ringed in the crew color
+      const fy = c.height * 0.95;
+      const fl = ctx.createLinearGradient(0, c.height * 0.72, 0, c.height);
+      fl.addColorStop(0, 'rgba(200,144,79,0)'); fl.addColorStop(0.35, 'rgba(200,144,79,0.35)'); fl.addColorStop(1, 'rgba(120,80,40,0.55)');
+      ctx.fillStyle = fl; ctx.fillRect(0, c.height * 0.72, c.width, c.height * 0.28);
+      const beam = ctx.createLinearGradient(0, 0, 0, fy);
+      beam.addColorStop(0, 'rgba(255,240,200,0)'); beam.addColorStop(1, 'rgba(255,240,200,0.16)');
+      ctx.fillStyle = beam; ctx.beginPath(); ctx.moveTo(c.width * 0.42, 0); ctx.lineTo(c.width * 0.58, 0); ctx.lineTo(c.width * 0.86, fy); ctx.lineTo(c.width * 0.14, fy); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = cols[0]; ctx.lineWidth = 6; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.ellipse(c.width / 2, fy, c.width * 0.3, c.height * 0.035, 0, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+      const sh = ctx.createRadialGradient(c.width / 2, fy, 2, c.width / 2, fy, c.width * 0.22);
+      sh.addColorStop(0, 'rgba(0,0,0,0.5)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save(); ctx.translate(0, fy); ctx.scale(1, 0.14); ctx.translate(0, -fy); ctx.fillStyle = sh; ctx.beginPath(); ctx.arc(c.width / 2, fy, c.width * 0.22, 0, Math.PI * 2); ctx.fill(); ctx.restore();
       const mode = S.preview; const cyc = (time % 1.6) / 1.6;
-      const opts = { time, scale: c.height * 0.88 / 7.9 };
+      const opts = { time, scale: c.height * 0.9 / Math.max(7.1, p.hgt / 12 + 0.7) };
       if (mode === 'dunk') { opts.pose = 'dunk'; opts.style = p.dunk; opts.t = cyc; }
       else if (mode === 'trick') { opts.pose = 'trick'; opts.style = ['cross', 'behind', 'spin', 'legs'][Math.floor(time / 1.6) % 4]; opts.t = cyc; }
       else if (mode === 'celebrate') { opts.pose = 'celebrate'; opts.style = p.celebration; }
@@ -161,7 +171,7 @@
   function playerCard(p, cols, opts) {
     opts = opts || {};
     return `<div class="pcard ${opts.cls || ''}">
-      ${figure(p, cols, { w: opts.w || 96, h: opts.h || 128 })}
+      ${figure(p, cols, { w: opts.w || 92, h: opts.h || 116, portrait: true })}
       <div class="pcard-body">
         <span class="pnick">${esc(p.nick || p.first)}</span>
         <span class="pname">${esc(p.first)} ${esc(p.last)} · #${esc(p.num)} · ${ft(p.hgt)}</span>
@@ -219,7 +229,7 @@
       </div>
       <p class="hint">Letters, numbers, spaces, periods, apostrophes, and hyphens only. Your nickname is what the crowd yells.</p>
       <h3 class="group-title">How you play</h3>
-      <div class="arch-grid">${Object.keys(D.ARCHETYPES).map((k) => { const a = D.ARCHETYPES[k]; return `<button type="button" class="arch ${d.arch === k ? 'on' : ''}" data-arch="${k}" aria-pressed="${d.arch === k}"><b>${esc(a.name)}</b><span>${esc(a.blurb)}</span>${statBars(a.base, { compact: true })}</button>`; }).join('')}</div>`;
+      <div class="arch-grid">${Object.keys(D.ARCHETYPES).map((k) => { const a = D.ARCHETYPES[k]; const top = D.STATS.slice().sort((x, y) => a.base[y.key] - a.base[x.key]).slice(0, 3); return `<button type="button" class="arch ${d.arch === k ? 'on' : ''}" data-arch="${k}" aria-pressed="${d.arch === k}"><b>${esc(a.name)}</b><span>${esc(a.blurb)}</span><span class="arch-top">${top.map((st) => `<i>${st.name} <em>${a.base[st.key]}</em></i>`).join('')}</span></button>`; }).join('')}</div>`;
     } else if (step === 1) {
       body = `<label class="field wide">Height: <b id="hgt-label">${ft(d.hgt)}</b>
           <input type="range" min="66" max="88" step="1" value="${d.hgt}" data-field="hgt" aria-valuetext="${ft(d.hgt)}"></label>
@@ -324,7 +334,7 @@
     return `${header(esc(s.me.nick), `${esc(s.me.first)} ${esc(s.me.last)} · ${esc(D.ARCHETYPES[s.me.arch].name)} · ${ft(s.me.hgt)} · ${esc(s.crew.name)}`, 'title', 'Title')}
       <div class="hub">
         <div class="hub-card">
-          ${figure(me, s.crew.colors, { w: 200, h: 270 })}
+          ${figure(me, s.crew.colors, { w: 240, h: 300, portrait: true })}
           <div class="level"><span class="lvl-badge">LV ${s.level}</span>
             <div class="rep"><span class="bar"><i style="width:${s.level >= D.MAX_LEVEL ? 100 : Math.round(s.rep / need * 100)}%"></i></span><small>${s.level >= D.MAX_LEVEL ? 'Max level' : `${Math.round(s.rep)} / ${need} REP`}</small></div></div>
           <div class="wallet"><span><b>${s.points}</b> skill points</span><span><b>${s.cred.toLocaleString()}</b> cred</span></div>
@@ -362,7 +372,7 @@
         const court = D.COURT_BY_ID[stop.court]; const open = CR.courtOpen(s, ci);
         const done = stop.events.filter((e) => s.beaten.includes(e.id)).length;
         return `<article class="court-card ${open ? '' : 'locked'}">
-          <div class="court-art">${open ? sceneCanvas(court) : '<div class="court-lock">🔒</div>'}</div>
+          <div class="court-art">${open ? sceneCanvas(court) : '<div class="court-lock">🔒</div>'}${done === stop.events.length ? '<span class="stamp">Conquered</span>' : ''}</div>
           <div class="court-info"><span class="kicker">Stop ${ci + 1} · ${done}/${stop.events.length} beaten</span><h3>${esc(court.name)}</h3><p>${esc(court.where)}</p>
           <ul class="events">${stop.events.map((ev, ei) => {
             const beat = s.beaten.includes(ev.id); const eo = CR.eventOpen(s, ci, ei);
@@ -544,6 +554,7 @@
       <div class="group"><h3 class="group-title">Difficulty</h3><div class="chips">${Object.keys(DIFF).map((k) => `<button type="button" class="chip ${settings.difficulty === k ? 'on' : ''}" data-setting="difficulty" data-val="${k}" aria-pressed="${settings.difficulty === k}">${DIFF[k].name}</button>`).join('')}</div>
         <p class="hint">Chill: slower reads, softer defense. Street: the real thing. Legend: they block your shots and talk about it.</p></div>
       <div class="group"><h3 class="group-title">Visual effects</h3><div class="chips">${[['full', 'Full (shake, slow motion, flashes)'], ['reduced', 'Reduced (no shake or flashes)']].map(([k, l]) => `<button type="button" class="chip ${settings.effects === k ? 'on' : ''}" data-setting="effects" data-val="${k}" aria-pressed="${settings.effects === k}">${l}</button>`).join('')}</div></div>
+      <div class="group"><h3 class="group-title">Camera</h3><div class="chips">${[['close', 'Close (follows the ball)'], ['wide', 'Wide (whole half court)']].map(([k, l]) => `<button type="button" class="chip ${settings.camera === k ? 'on' : ''}" data-setting="camera" data-val="${k}" aria-pressed="${settings.camera === k}">${l}</button>`).join('')}</div></div>
       <div class="group"><h3 class="group-title">Touch controls</h3><div class="chips">${[['auto', 'Automatic'], ['on', 'Always show'], ['off', 'Never show']].map(([k, l]) => `<button type="button" class="chip ${settings.touch === k ? 'on' : ''}" data-setting="touch" data-val="${k}" aria-pressed="${settings.touch === k}">${l}</button>`).join('')}</div></div>
     </div>`;
 
@@ -604,7 +615,7 @@
     cfg.crownsOn = [0, 0];
     const m = new BK.Match(canvas, {
       court: cfg.court, target: cfg.target, rule: cfg.rule, teams: cfg.teams, skill: cfg.skill, firstOffense: cfg.firstOffense,
-      humans, reducedMotion: settings.effects === 'reduced', showHint: !hintSeen || cfg.mode === 'versus',
+      humans, reducedMotion: settings.effects === 'reduced', camera: settings.camera, showHint: !hintSeen || cfg.mode === 'versus',
       onEnd: (res) => endMatch(res, cfg), onPause: () => showPause(),
       onEvent: (type, data) => { if (type === 'crownOn') cfg.crownsOn[data.team]++; },
     });

@@ -6,6 +6,11 @@
   const TAU = Math.PI * 2;
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  function rgbDist(a, b) {
+    const pa = parseInt(String(a).slice(1), 16), pb = parseInt(String(b).slice(1), 16);
+    if (!Number.isFinite(pa) || !Number.isFinite(pb)) return 999;
+    return Math.hypot(((pa >> 16) & 255) - ((pb >> 16) & 255), ((pa >> 8) & 255) - ((pb >> 8) & 255), (pa & 255) - (pb & 255));
+  }
 
   function FX(cam) {
     this.cam = cam;
@@ -51,7 +56,11 @@
     if (this.quiet) return;
     opts = opts || {};
     const W = this.cam.W, H = this.cam.H;
-    this.calls.push({ text, x: opts.x == null ? W / 2 : opts.x, y: opts.y == null ? H * 0.36 : opts.y, size: opts.size || 72, color: opts.color || '#ffd23f', color2: opts.color2 || '#e8352b', life: opts.life || 1.5, age: 0, rot: opts.rot == null ? rand(-0.12, 0.12) : opts.rot, style: opts.style || 'pop', sub: opts.sub || null });
+    const color = opts.color || '#ffd23f';
+    let color2 = opts.color2 || '#e8352b';
+    // the burst and outline must stand apart from the letters
+    if (rgbDist(color, color2) < 140) color2 = rgbDist(color, '#e8352b') > 160 ? '#e8352b' : '#1f6feb';
+    this.calls.push({ text, x: opts.x == null ? W / 2 : opts.x, y: opts.y == null ? H * 0.36 : opts.y, size: opts.size || 72, color, color2, life: opts.life || 1.5, age: 0, rot: opts.rot == null ? rand(-0.12, 0.12) : opts.rot, style: opts.style || 'pop', sub: opts.sub || null });
     if (this.calls.length > 4) this.calls.shift();
   };
   P.float = function (text, x, y, z, color) { if (this.quiet) return; this.floats.push({ text, x, y, z, color: color || '#ffffff', age: 0, life: 1.3 }); };
@@ -192,18 +201,20 @@
     if (this.tintT > 0) this.tintT -= realDt;
   };
 
-  // Camera transform for the world layer: shake + zoom.
-  P.worldTransform = function () {
-    const sx = this.shakeAmp ? rand(-1, 1) * this.shakeAmp : 0, sy = this.shakeAmp ? rand(-1, 1) * this.shakeAmp : 0;
-    const z = 1 + this.zoomAmt; const f = this.zoomFocus;
+  // Camera transform for the world layer. `base` is the broadcast camera (zoom + pan that follows
+  // the ball); effect zooms (dunks, blocks) and shake stack on top of it.
+  P.worldTransform = function (base) {
+    base = base || { z: 1, ox: 0, oy: 0 };
     const W = this.cam.W, H = this.cam.H;
-    // keep the zoom focus drifting toward center so edges never show
-    let tx = (W / 2 - f.x) * this.zoomAmt * 0.6, ty = (H / 2 - f.y) * this.zoomAmt * 0.6;
-    const cx = f.x, cy = f.y;
-    let ox = cx - cx * z + tx + sx, oy = cy - cy * z + ty + sy;
-    ox = Math.min(0 + Math.abs(sx), Math.max(W - W * z - Math.abs(sx), ox));
-    oy = Math.min(0 + Math.abs(sy), Math.max(H - H * z - Math.abs(sy), oy));
-    return { z, ox, oy };
+    const sx = this.shakeAmp ? rand(-1, 1) * this.shakeAmp : 0, sy = this.shakeAmp ? rand(-1, 1) * this.shakeAmp : 0;
+    const fz = 1 + this.zoomAmt; const f = this.zoomFocus;
+    const fsx = f.x * base.z + base.ox, fsy = f.y * base.z + base.oy;
+    // drift the effect focus toward the middle so the moment stays framed
+    const tx = (W / 2 - fsx) * this.zoomAmt * 0.6, ty = (H / 2 - fsy) * this.zoomAmt * 0.6;
+    const z = base.z * fz;
+    let ox = (base.ox - fsx) * fz + fsx + tx, oy = (base.oy - fsy) * fz + fsy + ty;
+    ox = Math.min(0, Math.max(W - W * z, ox)); oy = Math.min(0, Math.max(H - H * z, oy));
+    return { z, ox: ox + sx, oy: oy + sy };
   };
 
   // ---------- drawing ----------
@@ -276,9 +287,14 @@
     // vertical rings (around the rim, around a blocked ball)
     for (const r of this.rings) {
       if (!r.vertical) continue;
-      const q = cam.project(r.x, r.y, r.z); const k = r.age / r.life;
-      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - k; ctx.strokeStyle = r.color; ctx.lineWidth = Math.max(2, r.width * q.s * (1 - k));
-      ctx.beginPath(); ctx.ellipse(q.x, q.y, r.r * q.s, r.r * q.s * 0.85, 0, 0, TAU); ctx.stroke(); ctx.restore();
+      const q = cam.project(r.x, r.y, r.z); const k = r.age / r.life; const e = 1 - Math.pow(1 - k, 3);
+      const rx = r.r * q.s, ry = r.r * q.s * 0.85;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = (1 - k) * 0.35; ctx.fillStyle = r.color; ctx.beginPath(); ctx.ellipse(q.x, q.y, rx * 0.92, ry * 0.92, 0, 0, TAU); ctx.ellipse(q.x, q.y, rx * 0.55, ry * 0.55, 0, 0, TAU); ctx.fill('evenodd');
+      ctx.globalAlpha = 1 - k; ctx.strokeStyle = r.color; ctx.lineWidth = Math.max(2, r.width * q.s * (1 - e) * 1.4);
+      ctx.beginPath(); ctx.ellipse(q.x, q.y, rx, ry, 0, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r.width * q.s * (1 - e) * 0.5); ctx.stroke();
+      ctx.restore();
     }
     // lightning
     for (const b of this.bolts) {
@@ -331,6 +347,20 @@
       ctx.save(); ctx.translate(c.x, c.y - (k > 0.8 ? (k - 0.8) * 120 : 0)); ctx.rotate(c.rot); ctx.scale(scale, scale); ctx.globalAlpha = a;
       ctx.font = `400 ${c.size}px Bangers, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.lineJoin = 'round';
+      if (c.style === 'slam') {
+        // a jagged comic burst behind the word
+        const tw = ctx.measureText(c.text).width; const rx = tw * 0.62 + c.size * 0.3, ry = c.size * 0.95;
+        const spikes = 18; const wob = c.age * 6;
+        ctx.beginPath();
+        for (let i = 0; i <= spikes * 2; i++) {
+          const a = i / (spikes * 2) * TAU; const out = i % 2 ? 0.74 + Math.sin(i * 2.7 + wob) * 0.04 : 1 + Math.sin(i * 1.9) * 0.08;
+          ctx.lineTo(Math.cos(a) * rx * out, Math.sin(a) * ry * out);
+        }
+        ctx.closePath();
+        ctx.fillStyle = '#111'; ctx.save(); ctx.translate(7, 8); ctx.fill(); ctx.restore();
+        ctx.fillStyle = c.color2; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = '#111'; ctx.stroke();
+        ctx.save(); ctx.scale(0.86, 0.8); ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.fill(); ctx.restore();
+      }
       ctx.lineWidth = c.size * 0.22; ctx.strokeStyle = '#111'; ctx.strokeText(c.text, 6, 7);
       ctx.lineWidth = c.size * 0.16; ctx.strokeStyle = c.color2; ctx.strokeText(c.text, 0, 0);
       const g = ctx.createLinearGradient(0, -c.size / 2, 0, c.size / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(0.45, c.color); g.addColorStop(1, A_shade(c.color));

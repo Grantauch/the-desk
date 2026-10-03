@@ -14,7 +14,8 @@
     if (this.canvas.width !== cw || this.canvas.height !== ch) { this.canvas.width = cw; this.canvas.height = ch; this.paintBackground(); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = true;
-    const wt = this.fx.worldTransform();
+    const wt = this.fx.worldTransform(this.cameraBase());
+    ctx.fillStyle = this.court.ground; ctx.fillRect(0, 0, W, H);
     ctx.save();
     ctx.translate(wt.ox, wt.oy); ctx.scale(wt.z, wt.z);
     ctx.drawImage(this.bg, 0, 0, W, H);
@@ -41,16 +42,22 @@
     this.fx.drawCalls(ctx);
   };
 
+  // Soft contact shadows: a radial gradient squashed onto the floor, smaller and fainter in the air.
+  function softShadow(ctx, x, y, rx, ry, alpha) {
+    ctx.save(); ctx.translate(x, y); ctx.scale(1, ry / rx);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    g.addColorStop(0, `rgba(0,0,0,${alpha})`); g.addColorStop(0.55, `rgba(0,0,0,${alpha * 0.7})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, TAU); ctx.fill(); ctx.restore();
+  }
   M.drawShadows = function (ctx) {
     const cam = this.cam; const night = this.court.time === 'night' || this.court.time === 'indoor';
-    ctx.save(); ctx.fillStyle = night ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.28)';
+    const base = night ? 0.6 : 0.42;
     for (const p of this.players) {
       const g = cam.project(p.x, p.y, 0); const k = 1 / (1 + p.z * 0.12);
-      ctx.beginPath(); ctx.ellipse(g.x, g.y, g.s * 1.25 * k * (p.state === 'fallen' ? 1.8 : 1), g.s * 0.42 * k, 0, 0, TAU); ctx.fill();
+      softShadow(ctx, g.x, g.y, g.s * 1.55 * k * (p.state === 'fallen' ? 1.7 : 1), g.s * 0.5 * k, base * (0.55 + 0.45 * k));
     }
     const b = this.ball; const g = cam.project(b.x, b.y, 0); const k = 1 / (1 + b.z * 0.1);
-    ctx.beginPath(); ctx.ellipse(g.x, g.y, g.s * 0.5 * k, g.s * 0.18 * k, 0, 0, TAU); ctx.fill();
-    ctx.restore();
+    softShadow(ctx, g.x, g.y, g.s * 0.62 * k, g.s * 0.22 * k, base * k);
   };
 
   M.drawRings = function (ctx) {
@@ -78,15 +85,18 @@
     const crown = team.crownActive && this.offense === p.team;
     const glow = p.fire ? '#ff6a13' : crown ? '#ffd23f' : (p.data.look && p.data.look.aura === 'royal') ? 'rgba(255,210,63,0.6)' : null;
     if (glow && !this.fx.reduced) {
+      // a halo behind the body (the body itself stays crisp)
+      const cy = s.y - p.hgtFt * s.s * 0.5, r = p.hgtFt * s.s * 0.75;
+      const pulse = 0.85 + Math.sin(this.time * 8 + p.slot) * 0.15;
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      const gg = ctx.createRadialGradient(s.x, s.y - p.hgtFt * s.s * 0.5, 0, s.x, s.y - p.hgtFt * s.s * 0.5, p.hgtFt * s.s * 0.8);
-      gg.addColorStop(0, p.fire ? 'rgba(255,106,19,0.35)' : 'rgba(255,210,63,0.35)'); gg.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(s.x, s.y - p.hgtFt * s.s * 0.5, p.hgtFt * s.s * 0.8, 0, TAU); ctx.fill(); ctx.restore();
+      const gg = ctx.createRadialGradient(s.x, cy, r * 0.15, s.x, cy, r);
+      const c = p.fire ? '255,106,19' : '255,200,50';
+      gg.addColorStop(0, `rgba(${c},${0.42 * pulse})`); gg.addColorStop(0.6, `rgba(${c},${0.16 * pulse})`); gg.addColorStop(1, `rgba(${c},0)`);
+      ctx.fillStyle = gg; ctx.beginPath(); ctx.ellipse(s.x, cy, r * 0.7, r, 0, 0, TAU); ctx.fill(); ctx.restore();
     }
     A.drawBaller(ctx, {
       x: s.x, y: s.y, scale: s.s, hgt: p.data.hgt, build: p.data.build, look: p.data.look, num: p.data.num,
       colors: team.colors, facing: p.facing, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
-      glow: glow && !this.fx.reduced ? glow : null,
     });
     // dizzy stars over a fallen defender
     if (p.state === 'fallen' || p.state === 'stumble') {
@@ -171,14 +181,17 @@
     const [t0, t1] = this.teams;
     ctx.save();
     // scoreboard
-    const cx = W / 2, top = 14, pw = 300, ph = 58;
-    panel(ctx, cx - pw - 70, top, pw, ph, t0, 'left', this);
-    panel(ctx, cx + 70, top, pw, ph, t1, 'right', this);
-    ctx.fillStyle = '#111'; A.roundRect(ctx, cx - 66, top + 4, 132, 50, 8); ctx.fill();
-    ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#ffd23f'; ctx.font = '400 13px Anton, Impact, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('FIRST TO', cx, top + 22);
-    ctx.font = '400 26px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffffff'; ctx.fillText(String(this.target), cx, top + 49);
+    const cx = W / 2, top = 14, pw = 320, ph = 58;
+    panel(ctx, cx - pw - 54, top, pw, ph, t0, 'left', this);
+    panel(ctx, cx + 54, top, pw, ph, t1, 'right', this);
+    // center: first-to badge
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; A.roundRect(ctx, cx - 46, top + 6, 98, 52, 9); ctx.fill();
+    const bg = ctx.createLinearGradient(0, top, 0, top + 52); bg.addColorStop(0, '#2b2836'); bg.addColorStop(1, '#0d0c12');
+    ctx.fillStyle = bg; A.roundRect(ctx, cx - 48, top + 2, 96, 52, 9); ctx.fill();
+    ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = '#ffd23f'; ctx.font = '400 12px Anton, Impact, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('FIRST TO', cx, top + 19);
+    ctx.font = '400 28px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffffff'; ctx.fillText(String(this.target), cx, top + 48);
     // rule + court chip
     const rule = BK.data.RULES[this.rule];
     ctx.font = '400 13px Anton, Impact, sans-serif'; ctx.textAlign = 'left';
@@ -198,7 +211,7 @@
     this.humans.forEach((h) => {
       const t = this.teams[h.team];
       if (t.crown >= 1 && !t.crownActive) {
-        const x = h.team === 0 ? cx - 70 - pw / 2 : cx + 70 + pw / 2;
+        const x = h.team === 0 ? cx - 54 - pw / 2 : cx + 54 + pw / 2;
         const key = h.ctrl.lastSource === 'pad' ? 'LB' : (h.ctrl.layout === null ? 'CROWN' : BK.KEYS[h.keyLayout || 'solo'].crown.split(' ')[0]);
         ctx.textAlign = 'center'; ctx.font = '400 15px Anton, Impact, sans-serif';
         const pulse = 0.6 + Math.sin(this.time * 7) * 0.4;
@@ -239,38 +252,64 @@
 
   function panel(ctx, x, y, w, h, t, side, m) {
     const pri = t.colors.pri, sec = t.colors.sec;
+    const left = side === 'left';
     ctx.save();
-    ctx.fillStyle = '#111'; A.roundRect(ctx, x - 3, y - 3, w + 6, h + 6, 10); ctx.fill();
-    const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, A.shade(pri, 0.15)); g.addColorStop(1, A.shade(pri, -0.25));
-    ctx.fillStyle = g; A.roundRect(ctx, x, y, w, h, 8); ctx.fill();
+    // slanted broadcast panel: dark score box on the inside, team color outside
+    const sl = 14;
+    const shape = (ox, oy, grow) => {
+      ctx.beginPath();
+      if (left) { ctx.moveTo(x + sl + ox - grow, y + oy - grow); ctx.lineTo(x + w + ox + grow, y + oy - grow); ctx.lineTo(x + w - sl + ox + grow, y + h + oy + grow); ctx.lineTo(x + ox - grow, y + h + oy + grow); }
+      else { ctx.moveTo(x + ox - grow, y + oy - grow); ctx.lineTo(x + w - sl + ox + grow, y + oy - grow); ctx.lineTo(x + w + ox + grow, y + h + oy + grow); ctx.lineTo(x + sl + ox - grow, y + h + oy + grow); }
+      ctx.closePath();
+    };
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; shape(5, 5, 0); ctx.fill();
+    ctx.fillStyle = '#0d0c12'; shape(0, 0, 3); ctx.fill();
+    const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, A.shade(pri, 0.22)); g.addColorStop(0.5, pri); g.addColorStop(1, A.shade(pri, -0.32));
+    ctx.fillStyle = g; shape(0, 0, 0); ctx.fill();
+    ctx.save(); shape(0, 0, 0); ctx.clip();
+    ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(x, y, w, h * 0.42);
+    // score box
+    const bw = 74; const bx = left ? x + w - bw : x;
+    const sg = ctx.createLinearGradient(0, y, 0, y + h); sg.addColorStop(0, '#26232f'); sg.addColorStop(1, '#0d0c12');
+    ctx.fillStyle = sg; ctx.fillRect(bx, y, bw, h);
+    ctx.fillStyle = sec; ctx.fillRect(left ? bx : bx + bw - 4, y, 4, h);
+    ctx.restore();
     const light = A.luminance(pri) > 0.6;
-    const logoX = side === 'left' ? x + 30 : x + w - 30;
-    A.drawLogo(ctx, t.logo, logoX, y + h / 2, 20, sec === pri ? '#ffffff' : sec, A.shade(pri, -0.45));
-    ctx.textAlign = side === 'left' ? 'left' : 'right';
-    ctx.fillStyle = light ? '#111' : '#fff';
-    const nameX = side === 'left' ? x + 58 : x + w - 58;
-    const name = t.name.toUpperCase(); const room = w - 58 - 72;
+    const logoX = left ? x + 34 : x + w - 34;
+    A.drawLogo(ctx, t.logo, logoX, y + h / 2, 19, sec === pri ? '#ffffff' : sec, A.shade(pri, -0.45));
+    ctx.textAlign = left ? 'left' : 'right';
+    const nameX = left ? x + 60 : x + w - 60;
+    const name = t.name.toUpperCase(); const room = w - 60 - bw - 12;
     let fs = 20; ctx.font = `400 ${fs}px Anton, Impact, sans-serif`;
     while (fs > 11 && ctx.measureText(name).width > room) { fs -= 1; ctx.font = `400 ${fs}px Anton, Impact, sans-serif`; }
-    ctx.fillText(name, nameX, y + 25);
-    // crown meter
-    const mw = 150, mx = side === 'left' ? nameX : nameX - mw, my = y + 36;
+    ctx.fillStyle = light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.35)'; ctx.fillText(name, nameX + 1, y + 27);
+    ctx.fillStyle = light ? '#111' : '#fff'; ctx.fillText(name, nameX, y + 26);
+    // crown meter: two cells with a crown at the end
+    const mw = Math.min(150, room), mx = left ? nameX : nameX - mw, my = y + 36;
     for (let i = 0; i < 2; i++) {
-      const sx = mx + i * (mw / 2 + 2); const fill = clamp(t.crown - i, 0, 1);
-      ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(sx, my, mw / 2 - 2, 10);
-      const ready = fill >= 1;
-      ctx.fillStyle = ready ? `hsl(${45 + Math.sin(m.time * 8) * 6},100%,${58 + Math.sin(m.time * 8) * 10}%)` : '#ffd23f';
-      ctx.fillRect(sx + 1, my + 1, (mw / 2 - 4) * fill, 8);
+      const cx2 = mx + i * (mw / 2 + 2); const fill = clamp(t.crown - i, 0, 1); const cw2 = mw / 2 - 2;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; A.roundRect(ctx, cx2, my, cw2, 11, 3); ctx.fill();
+      if (fill > 0) {
+        const ready = fill >= 1;
+        const pulse = ready ? 0.5 + Math.sin(m.time * 9 + i) * 0.5 : 0;
+        const fg = ctx.createLinearGradient(0, my, 0, my + 11); fg.addColorStop(0, ready ? '#fff6c2' : '#ffe680'); fg.addColorStop(1, ready ? '#ffb300' : '#d99a00');
+        ctx.fillStyle = fg; A.roundRect(ctx, cx2 + 1, my + 1, Math.max(2, (cw2 - 2) * fill), 9, 2); ctx.fill();
+        if (ready) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.3 + pulse * 0.4; ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 12; ctx.fillStyle = '#ffd23f'; A.roundRect(ctx, cx2 + 1, my + 1, cw2 - 2, 9, 2); ctx.fill(); ctx.restore(); }
+      }
     }
     if (t.crownActive) {
       ctx.font = '400 12px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffd23f';
-      ctx.fillText(t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE', side === 'left' ? mx : mx + mw, my + 22);
+      ctx.fillText(t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE', left ? mx : mx + mw, my + 24);
     }
-    // score
-    ctx.font = '400 44px Anton, Impact, sans-serif'; ctx.textAlign = 'center';
-    const sx = side === 'left' ? x + w - 34 : x + 34;
-    ctx.lineWidth = 6; ctx.strokeStyle = '#111'; ctx.strokeText(String(t.score), sx, y + 47);
-    ctx.fillStyle = '#ffffff'; ctx.fillText(String(t.score), sx, y + 47);
+    // score, with a pop when it changes
+    const sx = left ? x + w - bw / 2 : x + bw / 2;
+    if (t._shown !== t.score) { t._shown = t.score; t._popT = m.time; }
+    const age = m.time - (t._popT || -9); const pop = age < 0.45 ? 1 + Math.sin(age / 0.45 * Math.PI) * 0.45 : 1;
+    ctx.save(); ctx.translate(sx, y + h / 2 + 2); ctx.scale(pop, pop);
+    ctx.font = '400 42px Anton, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (age < 0.6) { ctx.shadowColor = pri; ctx.shadowBlur = 24 * (1 - age / 0.6); }
+    ctx.fillStyle = '#ffffff'; ctx.fillText(String(t.score), 0, 0);
+    ctx.restore();
     ctx.restore();
   }
 })(window.BK = window.BK || {});

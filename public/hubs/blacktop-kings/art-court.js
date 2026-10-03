@@ -494,6 +494,11 @@
   };
 
   // ---------- the crowd (drawn every frame) ----------
+  function mix(a, b, k) {
+    const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+    const ch = (sh) => Math.round(((pa >> sh) & 255) * (1 - k) + ((pb >> sh) & 255) * k);
+    return '#' + [16, 8, 0].map((sh) => ch(sh).toString(16).padStart(2, '0')).join('');
+  }
   A.makeCrowd = function (court) {
     const rnd = BK.data.rng('crowd-' + court.id);
     const people = [];
@@ -507,7 +512,10 @@
       else { y = -28.5 - r * 1.7; z = r * 0.9; }
       for (let x = -45; x < 70; x += 1.9 + rnd() * 0.8) {
         if (rnd() > density) continue;
-        people.push({ x: x + rnd() * 0.6, y, z, h: 5.2 + rnd() * 1.2, shirt: shirts[Math.floor(rnd() * shirts.length)], skin: BK.data.SKIN[Math.floor(rnd() * BK.data.SKIN.length)], ph: rnd() * TAU, hype: 0.5 + rnd() * 0.8, sit: court.scene === 'gym' || court.scene === 'crown' });
+        // the crowd sits back a little: softer colors, darker toward the back rows, so the players pop
+        const dim = -0.12 - r * 0.07;
+        const mute = (c) => A.shade(mix(c, '#7d7a86', 0.28), dim);
+        people.push({ x: x + rnd() * 0.6, y, z, h: 5.2 + rnd() * 1.2, shirt: mute(shirts[Math.floor(rnd() * shirts.length)]), skin: A.shade(BK.data.SKIN[Math.floor(rnd() * BK.data.SKIN.length)], dim * 0.6), ph: rnd() * TAU, hype: 0.5 + rnd() * 0.8, sit: court.scene === 'gym' || court.scene === 'crown' });
       }
     }
     people.sort((a, b) => a.y - b.y);
@@ -525,6 +533,7 @@
       ctx.fillStyle = night ? '#141018' : '#2a2a30';
       ctx.fillRect(feet.x - s * 0.45, feet.y - p.h * 0.35 * s, s * 0.9, p.h * 0.35 * s);
       ctx.fillStyle = shirt; A.roundRect(ctx, feet.x - s * 0.6, top + headR * 1.4, s * 1.2, bodyH, s * 0.3); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(feet.x + s * 0.18, top + headR * 1.6, s * 0.38, bodyH * 0.9);
       ctx.fillStyle = night ? A.shade(p.skin, -0.45) : p.skin;
       ctx.beginPath(); ctx.arc(feet.x, top + headR * 0.5, headR, 0, TAU); ctx.fill();
       if (excite > 0.35) {

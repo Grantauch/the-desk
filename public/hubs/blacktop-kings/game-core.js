@@ -43,12 +43,15 @@
     this.humans = (opts.humans || []).map((h) => ({ team: h.team, ctrl: h.ctrl, player: null, label: h.label || ('P' + (h.team + 1)) }));
     this.humans.forEach((h) => { this.teams[h.team].human = h; });
     this.crowd = A.makeCrowd(this.court);
+    this.camBase = opts.camera === 'wide' ? 1 : 1.3;
+    this.camZ = this.camBase; this.camFocus = { x: W / 2, y: H / 2 };
     this.bg = document.createElement('canvas');
     this.paintBackground();
     this.offense = opts.firstOffense == null ? (Math.random() < 0.5 ? 0 : 1) : opts.firstOffense;
     this.placeForCheck(this.offense, true);
     this.players.forEach((p) => this.updatePose(p, 0));
     this.positionHeldBall();
+    this.updateCamera(0, true);
     this.running = false; this.paused = false; this.over = false;
     this.acc = 0; this.last = 0;
     this.stats = { plays: [] };
@@ -100,10 +103,32 @@
   }
 
   M.paintBackground = function () {
+    // painted once per game, a bit sharper than the screen so the camera can zoom in without blur
     const dpr = this.pixelRatio();
-    this.bg.width = Math.round(W * dpr); this.bg.height = Math.round(H * dpr);
-    const g = this.bg.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const s = Math.min(dpr * Math.max(1, this.camBase * 1.12), Math.sqrt(7e6 / (W * H)));
+    this.bg.width = Math.round(W * s); this.bg.height = Math.round(H * s);
+    const g = this.bg.getContext('2d'); g.setTransform(s, 0, 0, s, 0, 0);
     A.paintScene(g, this.cam, this.court);
+  };
+
+  // ---------- the broadcast camera ----------
+  // A 2D zoom and pan over the painted court that eases toward the ball, leaning toward the rim.
+  M.updateCamera = function (dt, snap) {
+    const b = this.ball; const cam = this.cam;
+    let gx = b.x, gy = b.y;
+    if (this.phase === 'intro' || this.phase === 'check') { const h = this.ball.holder; if (h) { gx = h.x; gy = h.y; } }
+    const bp = cam.project(gx, gy, 0); const rim = cam.project(C.rimX, 0, 0);
+    const tx = lerp(bp.x, rim.x, 0.28), ty = lerp(bp.y, H * 0.66, 0.5) - 24;
+    const k = snap ? 1 : 1 - Math.exp(-dt * 2.4);
+    this.camFocus.x += (tx - this.camFocus.x) * k; this.camFocus.y += (ty - this.camFocus.y) * k;
+    const zt = this.over && this.phase === 'over' ? this.camBase * 1.05 : this.camBase;
+    this.camZ += (zt - this.camZ) * (snap ? 1 : 1 - Math.exp(-dt * 1.5));
+  };
+  M.cameraBase = function () {
+    const z = this.camZ;
+    let ox = W / 2 - this.camFocus.x * z, oy = H / 2 - this.camFocus.y * z;
+    ox = Math.min(0, Math.max(W - W * z, ox)); oy = Math.min(0, Math.max(H - H * z, oy));
+    return { z, ox, oy };
   };
   M.pixelRatio = function () { return Math.min(2, Math.max(1, (window.devicePixelRatio || 1) * (this.canvas.clientWidth || W) / W)); };
 
@@ -133,6 +158,7 @@
     while (this.acc >= STEP && steps < 6) { this.update(STEP); this.acc -= STEP; steps++; this.humans.forEach((h) => h.ctrl.clearEdges()); }
     if (steps === 0) this.humans.forEach((h) => { /* keep edges for the next step */ void h; });
     this.fx.update(dt * scale, dt);
+    this.updateCamera(dt);
     this.time += dt;
     this.render();
   };
@@ -767,7 +793,7 @@
     this.hoop.swish = 1;
     if (crown) {
       this.fx.preset('crownMade', rimx, rimy, rimz);
-      this.fx.call(crown === 2 ? 'DOUBLE CROWN!' : pick(D.CALLS.crown), { size: 92, color: '#ffd23f', color2: team.colors.pri, style: 'slam', life: 2.0, sub: stolen ? `+${pts}  ·  ${opp.name.toUpperCase()} −${stolen}` : `+${pts}` });
+      this.fx.call(crown === 2 ? 'DOUBLE CROWN!' : pick(D.CALLS.crown), { size: 92, color: '#ffd23f', color2: team.colors.pri, style: 'slam', life: 2.0, sub: stolen ? `+${pts}  ·  ${opp.name.toUpperCase()} −${stolen}` : null });
       this.sfx('airhorn', 0.9); this.sfx('crowdRoar', 1); this.sfx('boom', 0.8);
       if (kind === 'dunk') { this.hoop.shattered = true; this.fx.preset('shatter', C.boardX, 0, 11); this.sfx('glass', 1); }
       team.crownActive = 0; this.resumeMusic();
