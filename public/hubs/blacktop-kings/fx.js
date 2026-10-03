@@ -87,6 +87,10 @@
   P.preset = function (name, x, y, z, o) {
     o = o || {};
     const cam = this.cam; const s = cam.project(x, y, z);
+    if (!this.reduced && !this.quiet && ['dunk', 'block'].includes(name) && BK.assets && BK.assets.get('impact')) {
+      this.add({ kind: 'impactArt', x, y, z, vx: 0, vy: 0, vz: 0, g: 0, drag: 0,
+        age: 0, life: 0.32, size: 4.5, rot: 0, vr: 0, color: '#ffc629' });
+    }
     switch (name) {
       case 'swish':
         this.ring(x, y, z, { color: '#ffffff', speed: 8, life: 0.4, width: 0.2, vertical: true });
@@ -248,6 +252,15 @@
       const q = cam.project(p.x, p.y, p.z); const k = p.age / p.life; const a = 1 - k;
       const sz = Math.max(1, p.size * q.s);
       switch (p.kind) {
+        case 'impactArt': {
+          const sprite = BK.assets && BK.assets.get('impact');
+          if (sprite) {
+            ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a * 0.75;
+            const r = sz * (0.65 + k * 0.5);
+            ctx.drawImage(sprite, q.x - r, q.y - r, r * 2, r * 2);
+          }
+          break;
+        }
         case 'fire': case 'ember': {
           ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * 0.8;
           const r = sz * (1 + k * 1.2);

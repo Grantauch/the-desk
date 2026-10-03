@@ -30,6 +30,11 @@
     app.addEventListener('click', onClick);
     app.addEventListener('input', onInput);
     app.addEventListener('change', onChange);
+    if (BK.assets) { BK.assets.load('impact'); BK.assets.load('trophy'); }
+    window.addEventListener('bk-art-ready', () => {
+      for (const m of [S.match, S.attract]) if (m) { m.paintBackground(); if (m.paused || reduceMotion) m.render(); }
+      paintCanvases();
+    });
     fileInput.addEventListener('change', onFilePicked);
     const firstGesture = () => { if (audioReady) return; audioReady = true; BK.audio.unlock(); if (BK.audio.settings.on && S.screen !== 'match') BK.audio.music('menu'); };
     document.addEventListener('keydown', firstGesture, { once: true });
@@ -495,7 +500,7 @@
   // ----- circuit -----
   SCREENS.circuit = () => {
     const s = S.save;
-    return `${header('The Circuit', 'Beat three crews to call out the king. Beat the king to open the next court.', 'career', 'Career')}
+    return `${header(`<span class="circuit-title">The Circuit${BK.assets && BK.assets.get('trophy') ? `<img class="circuit-trophy" src="${BK.assets.url('trophy')}" width="80" height="80" alt="">` : ''}</span>`, 'Beat three crews to call out the king. Beat the king to open the next court.', 'career', 'Career')}
       <div class="circuit">${D.CIRCUIT.map((stop, ci) => {
         const court = D.COURT_BY_ID[stop.court]; const open = CR.courtOpen(s, ci);
         const done = stop.events.filter((e) => s.beaten.includes(e.id)).length;
@@ -729,7 +734,7 @@
       recruit = `<div class="recruit"><p><b>${esc(R.recruited)}</b> joined your crew. Put them in the lineup from <b>Crew</b>.</p></div>`;
     }
     return `<section class="results ${win ? 'won' : 'lost'}">
-      ${header(`<span class="result-mark">${versus ? '★' : win ? 'W' : 'L'}</span>${head}`, `${esc(cfg.teams[0].name)} vs ${esc(cfg.teams[1].name)} · ${esc(cfg.court.name)} · first to ${cfg.target}`, null, null, `Final · ${esc(cfg.court.name)}`)}
+      ${header(`${win && BK.assets && BK.assets.get('trophy') ? `<img class="result-trophy" src="${BK.assets.url('trophy')}" width="72" height="72" alt="">` : ''}<span class="result-mark">${versus ? '★' : win ? 'W' : 'L'}</span>${head}`, `${esc(cfg.teams[0].name)} vs ${esc(cfg.teams[1].name)} · ${esc(cfg.court.name)} · first to ${cfg.target}`, null, null, `Final · ${esc(cfg.court.name)}`)}
       <div class="final" role="group" aria-label="Final score">${side(0)}<div class="final-mid">Final<small>to ${cfg.target}</small></div>${side(1)}</div>
       ${mvp || rewards || recruit ? `<div class="results-top ${mvp && (rewards || recruit) ? '' : 'solo'}">${mvp ? `<div>${mvp}</div>` : ''}${rewards || recruit ? `<div>${rewards}${recruit}</div>` : ''}</div>` : ''}
       <div class="boxes">${table(0)}${table(1)}</div>
