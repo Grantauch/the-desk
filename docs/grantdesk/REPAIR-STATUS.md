@@ -1,5 +1,11 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 3 Blacktop Kings soundtrack
+
+Replaced the synthesized music sequencer with the provided recordings, in order: The Asphalt Throne, then Canvas on the Concrete, repeating. One media player continues across menus, matches and Crown-shot events. The existing music volume and master sound controls pause and resume playback without restarting the song; basketball effects and crowd remain separate. The game attempts playback on opening, then retries after the first player gesture when browser autoplay rules block it. The source recordings are preserved, and the public copies retain their original bytes.
+
+Soundtrack regression checks passed order, repetition, navigation continuity, mute/resume, volume, autoplay rejection/retry and bounded load-error recovery. Browser review decoded both MP3s and exercised real ended-event transitions by seeking near the end of each recording; it checked the volume slider and sound toggle. Publication and live-site playback are separate release steps, pending at this source checkpoint.
+
 ## Current checkpoint — October 3 Blacktop Kings visual review
 
 Focused visual revision based on `claude/sleepy-gauss-ycw39g` at `8b4c4a5e9d702ad072c274556e10abf2bc460dc4`. Sneakers now have a fitted heel, flatter forefoot, separate tongue, side panels, laces and outsole. Player builds have stronger silhouettes and a relaxed neutral stance; the face, hairline, facial hair, glasses and jersey coverage were reconciled. Jersey numbers remain readable when facing either direction. The player preview and title use quieter lighting and typography.

@@ -1,4 +1,15 @@
 {
+  "blacktop-soundtrack-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "3e73c3902be4f09a46564f251d49d9d61917a8ff",
+    "evidence": [
+      "Provided MP3 recordings replace synthesized music; The Asphalt Throne precedes Canvas on the Concrete in a repeating playlist.",
+      "Playlist continues across screens; music volume and sound toggle retain control; browser autoplay rejection is retried after a gesture.",
+      "Soundtrack regressions and local browser checks passed both decoded tracks, real ended-event transitions, volume and mute/resume."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "blacktop-visual-review-2026-10-03": {
     "status": "LOCAL_VERIFIED",
     "source_base": "8b4c4a5e9d702ad072c274556e10abf2bc460dc4",

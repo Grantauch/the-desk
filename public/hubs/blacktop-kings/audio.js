@@ -1,9 +1,8 @@
-/* Blacktop Kings — sound. Everything is synthesized with the Web Audio API: no audio files, no samples.
-   BK.audio.sfx(name, vol) plays an effect. BK.audio.music(on) runs a boom-bap loop built from oscillators
-   and noise. Nothing starts until the player clicks or presses a key. */
+/* Blacktop Kings — a two-song soundtrack plus synthesized basketball effects.
+   Playback follows the browser's autoplay rules and retries after a player gesture. */
 (function (BK) {
   'use strict';
-  let ctx = null, sfxBus = null, musicBus = null, comp = null, noiseBuf = null;
+  let ctx = null, sfxBus = null, comp = null, noiseBuf = null;
   let crowdSrc = null, crowdGain = null, crowdFilter = null;
   const settings = { sfx: 0.8, music: 0.5, on: true };
   try {
@@ -26,7 +25,6 @@
     comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.2;
     comp.connect(ctx.destination);
     sfxBus = ctx.createGain(); sfxBus.connect(comp);
-    musicBus = ctx.createGain(); musicBus.connect(comp);
     applyVolumes();
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
@@ -34,10 +32,11 @@
     return ctx;
   }
   function applyVolumes() {
+    player.volume = settings.music;
+    player.muted = !settings.on;
     if (!ctx) return;
     const on = settings.on ? 1 : 0;
     sfxBus.gain.setTargetAtTime(settings.sfx * on * 0.9, ctx.currentTime, 0.05);
-    musicBus.gain.setTargetAtTime(settings.music * on * 0.55, ctx.currentTime, 0.05);
   }
 
   // ---------- building blocks ----------
@@ -138,73 +137,51 @@
   function setCrowd(level) { if (crowdGain) crowdGain.gain.setTargetAtTime(Math.max(0, level) * 0.6, ctx.currentTime, 0.4); }
   function stopCrowd() { if (crowdSrc) { try { crowdSrc.stop(); } catch (e) { /* already stopped */ } crowdSrc = null; crowdGain = null; } }
 
-  // ---------- music: a small boom-bap sequencer ----------
-  const TRACKS = {
-    menu: { bpm: 88, root: 41, prog: [0, 0, -4, -2], swing: 0.12, hats: 'eighths', stab: true },
-    game: { bpm: 94, root: 38, prog: [0, 3, -2, -4], swing: 0.1, hats: 'sixteenths', stab: true },
-    crown: { bpm: 100, root: 36, prog: [0, -1, -4, -2], swing: 0.06, hats: 'sixteenths', stab: true },
-  };
-  const KICK = [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0];
-  const KICK_B = [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0];
-  const SNARE = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0];
-  const BASS = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0];
-  let seq = null;
-  const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
+  // One player keeps the soundtrack in order across menus, games and Crown shots.
+  const playlist = [
+    './blacktop-kings/music/the-asphalt-throne.mp3',
+    './blacktop-kings/music/canvas-on-the-concrete.mp3',
+  ];
+  const player = document.getElementById('soundtrack');
+  let trackIndex = 0, musicRequested = false, failedTracks = 0;
+  player.src = playlist[trackIndex];
+  player.loop = false;
+  player.preload = 'none';
 
-  function startMusic(name) {
-    if (!init()) return;
-    const tr = TRACKS[name] || TRACKS.game;
-    if (seq && seq.name === name) return;
-    stopMusic();
-    seq = { name, tr, step: 0, bar: 0, next: ctx.currentTime + 0.12, timer: null, intensity: 0.5 };
-    seq.timer = setInterval(schedule, 25);
+  function playMusic() {
+    if (!musicRequested || !settings.on || !player.paused) return;
+    try {
+      const pending = player.play();
+      if (pending && pending.catch) pending.catch(() => { /* retry on the next gesture */ });
+    } catch (e) { /* browser playback unavailable */ }
   }
-  function stopMusic() { if (seq) { clearInterval(seq.timer); seq = null; } }
-  function setIntensity(v) { if (seq) seq.intensity = Math.max(0, Math.min(1, v)); }
-  function schedule() {
-    if (!seq || !ctx) return;
-    const tr = seq.tr; const stepDur = 60 / tr.bpm / 4;
-    while (seq.next < ctx.currentTime + 0.12) {
-      const s = seq.step % 16; const t = seq.next + (s % 2 ? stepDur * tr.swing : 0);
-      const chord = tr.prog[seq.bar % tr.prog.length]; const root = tr.root + chord;
-      const kicks = seq.bar % 4 === 3 ? KICK_B : KICK;
-      if (kicks[s]) { tone('sine', 150, 42, 0.32, 0.95, t, musicBus, 0.002); tone('triangle', 90, 40, 0.12, 0.4, t, musicBus); }
-      if (SNARE[s]) { noise('bandpass', 1900, 0.9, 0.2, 0.55, t, musicBus); tone('triangle', 200, 160, 0.09, 0.3, t, musicBus); noise('highpass', 5000, 0.5, 0.06, 0.2, t, musicBus); }
-      if (s === 15 && seq.bar % 2) noise('bandpass', 1900, 0.9, 0.12, 0.25, t, musicBus);
-      const hatEvery = tr.hats === 'sixteenths' && seq.intensity > 0.45 ? 1 : 2;
-      if (s % hatEvery === 0) noise('highpass', 7000, 0.6, s % 4 === 2 ? 0.07 : 0.03, s % 4 === 2 ? 0.16 : 0.1, t, musicBus);
-      if (BASS[s]) {
-        const n = s === 6 ? root + 12 : s === 10 ? root + 7 : root;
-        tone('triangle', midi(n), midi(n), stepDur * (s === 0 ? 5 : 3), 0.55, t, musicBus, 0.01);
-        tone('sine', midi(n - 12), midi(n - 12), stepDur * (s === 0 ? 5 : 3), 0.45, t, musicBus, 0.01);
-      }
-      if (tr.stab && (s === 0 || s === 11) && seq.bar % 2 === 0) {
-        [root + 24, root + 27, root + 31, root + 34].forEach((n) => {
-          const o = ctx.createOscillator(); const g = ctx.createGain(); const lp = ctx.createBiquadFilter();
-          o.type = 'sawtooth'; o.frequency.value = midi(n); lp.type = 'lowpass'; lp.frequency.setValueAtTime(2400, t); lp.frequency.exponentialRampToValueAtTime(400, t + 0.3);
-          env(g, t, 0.005, 0.045, 0.32); o.connect(lp); lp.connect(g); g.connect(musicBus); o.start(t); o.stop(t + 0.4);
-        });
-      }
-      if (seq.intensity > 0.8 && s % 4 === 3) tone('square', midi(root + 36), midi(root + 36), 0.05, 0.04, t, musicBus);
-      seq.next += stepDur; seq.step++;
-      if (seq.step % 16 === 0) seq.bar++;
-    }
+  function startMusic() { musicRequested = true; applyVolumes(); playMusic(); }
+  function stopMusic() { musicRequested = false; player.pause(); }
+  function nextTrack() {
+    trackIndex = (trackIndex + 1) % playlist.length;
+    player.src = playlist[trackIndex];
+    playMusic();
   }
+  player.addEventListener('ended', () => { failedTracks = 0; nextTrack(); });
+  player.addEventListener('error', () => {
+    if (!musicRequested || ++failedTracks >= playlist.length) { player.pause(); return; }
+    nextTrack();
+  });
 
   BK.audio = {
-    unlock() { init(); if (ctx && ctx.state === 'suspended') ctx.resume(); },
+    unlock() { init(); if (ctx && ctx.state === 'suspended') ctx.resume(); playMusic(); },
     sfx(name, vol, delay) {
       if (!settings.on || !init() || ctx.state !== 'running' || !FX[name]) return;
       try { FX[name](vol == null ? 1 : vol, ctx.currentTime + (delay || 0)); } catch (e) { /* audio hiccup */ }
     },
-    music(name) { if (!name) { stopMusic(); return; } if (settings.on) startMusic(name); },
-    intensity: setIntensity,
+    music(name) { if (!name) { stopMusic(); return; } startMusic(); },
+    intensity() { /* the recorded soundtrack keeps its own dynamics */ },
     crowd(level) { if (!settings.on || !init()) return; startCrowd(level); setCrowd(level); },
     stopCrowd,
     settings,
     set(key, value) {
       settings[key] = value; persist(); applyVolumes();
-      if (key === 'on' && !value) { stopMusic(); stopCrowd(); }
+      if (key === 'on') { if (!value) { player.pause(); stopCrowd(); } else playMusic(); }
     },
   };
 })(window.BK = window.BK || {});

@@ -36,6 +36,7 @@
     document.addEventListener('pointerdown', firstGesture, { once: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden && S.match && !S.match.paused && !S.match.over) showPause(); });
     window.addEventListener('blur', () => { if (S.match && !S.match.paused && !S.match.over && S.screen === 'match') showPause(); });
+    BK.audio.music('menu');
     const fontsReady = document.fonts && document.fonts.load ? Promise.all(['400 20px Bangers', '400 20px Anton'].map((f) => document.fonts.load(f).catch(() => null))) : Promise.resolve();
     Promise.race([fontsReady, new Promise((r) => setTimeout(r, 1500))]).then(() => { go('title'); });
     window.BK_APP = { S, go, startMatch };
