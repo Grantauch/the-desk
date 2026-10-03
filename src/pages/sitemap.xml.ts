@@ -28,6 +28,7 @@ const paths = [
   '/games/',
   '/hubs/the-league.html',
   '/hubs/tale-of-the-tape.html',
+  '/hubs/blacktop-kings.html',
   '/glossary/',
   '/detour-shelf/',
   '/tools/',
