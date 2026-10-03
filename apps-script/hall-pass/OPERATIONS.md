@@ -1,23 +1,44 @@
 # GrantDesk Hall Pass — steady-state operations
 
-Issue #14 is closed. **Version 29 is deployed.** The production Apps Script source, canonical release gate, production preflight, in-place Apps Script deployment, and matching Netlify application deploy are recorded below. Protected `main` may contain later documentation-only commits without changing the deployed Apps Script version. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
+Issue #14 is closed. **Version 30 is deployed.** The production Apps Script source, canonical release gate, production preflight, in-place Apps Script deployment, and matching Netlify application deploy are recorded below. Protected `main` may contain later documentation-only commits without changing the deployed Apps Script version. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
 
-Production fingerprint as of 2026-09-22 (Version 29):
+Production fingerprint as of 2026-09-22 (Version 30):
 
 | Fact | Value |
 | --- | --- |
-| Deployed application source | `d64bec5fd0ed8f3ddae2f9eb141979ce03d7926f` |
-| Apps Script version | 29, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
+| Deployed application source | `baa8ad44416d5023796f112501de8461233e918c` |
+| Apps Script version | 30, existing deployment ID and stable URL preserved; `DOMAIN` access and `USER_DEPLOYING` execution verified |
 | Workbook schema | `2026-09-21-backend-b` (unchanged) |
-| Teacher client contract | `2026-09-22-all-teacher-rpcs` in server, teacher browser and private release-check client |
-| GoClassroom roster bridge contract | `2026-09-22-roster-sync-v1`; teacher-authorized read-only active membership snapshot only |
-| Release evidence | preflight run `35772765535`; deploy run `35772904099`; canonical gate, bridge self-test and in-place deployment passed |
-| Netlify production | deploy `6ab2d417f8e303000839704b`, status `ready`, commit `d64bec5fd0ed8f3ddae2f9eb141979ce03d7926f`; enhanced secret scan reported no matches |
-| Data/schema impact | no workbook schema migration; Version 29 adds no roster mutation path and exposes no PIN, pass-history or Check-In-history fields through the GoClassroom bridge |
+| Teacher client contract | `2026-09-22-all-teacher-rpcs` |
+| GoClassroom read contract | `2026-09-22-roster-sync-v1` |
+| GoClassroom write contract | `2026-09-22-roster-write-v1`; teacher-approved add/reactivate and exact-membership name correction only |
+| Release evidence | preflight run `35777981230`; deploy run `35778256624`; canonical gate, bridge self-test and in-place deployment passed |
+| Netlify production | deploy `6ab2df797957c4000848c386`, status `ready`, commit `baa8ad44416d5023796f112501de8461233e918c`; enhanced secret scan reported no matches |
+| Runtime evidence | GoClassroom roster bridge 8/8; Hall Pass runtime 355/355 checks across 25 areas |
+| Data/schema impact | no workbook schema migration; automatic removal/deactivation/delete remains unsupported; roster sync never sends PIN email |
+
+## September 22 Version 30 GoClassroom approved roster writes
+
+Version 30 preserves all Version 29 Hall Pass/Check-In behavior and adds the first deliberately narrow write-capable GoClassroom roster contract.
+
+- Teacher authorization, exact write-contract match and explicit `APPLY SAFE ROSTER CHANGES` confirmation are required.
+- Each approved batch is bound to the exact live-roster revision GoClassroom compared. Any intervening roster change rejects the whole batch before mutation.
+- A unique request ID and stored payload digest make uncertain retries replay-safe and reject request-ID reuse with different data.
+- One batch is capped at 200 approved additions/name corrections.
+- Only additions/reactivations and exact-membership name corrections are supported. Removal, deactivation and delete requests are rejected server-side.
+- Name corrections touch only the class membership explicitly approved; another membership for the same student is not silently renamed.
+- Student domain, duplicate/conflicting operations and stale prior names are validated before writes begin.
+- New students may receive a private PIN/PIN Card record, but roster sync does not send PIN email.
+- Every applied roster change writes Teacher Actions audit evidence tied to the GoClassroom request ID.
+- PR #125 passed the protected full release gate, including 8/8 roster-bridge checks and 355/355 Hall Pass behavioral checks.
+- Production preflight `35777981230` passed against Version 29; deploy `35778256624` updated the existing deployment in place to Version 30.
+- Netlify application deploy `6ab2df797957c4000848c386` is ready on the matching source commit with no enhanced secret-scan matches.
+
+The authenticated `?mode=releasecheck` synthetic protected-action smoke remains separate FIELD_PENDING evidence; Version 30 does not claim that smoke complete.
 
 ## September 22 Version 29 GoClassroom read-only roster bridge
 
-Version 29 is the current single-classroom production release. It preserves all Version 28 Hall Pass/Check-In behavior and adds one narrowly scoped integration surface for GoClassroom.
+Version 29 was the prior single-classroom production release. It preserves all Version 28 Hall Pass/Check-In behavior and adds one narrowly scoped integration surface for GoClassroom.
 
 - `getRosterSyncSnapshot` requires an authorized teacher and the exact roster bridge contract `2026-09-22-roster-sync-v1`.
 - The bridge returns only active membership identity fields: student email, student name, class/period and active status.
@@ -88,7 +109,7 @@ Version 23 removed Daily Check-In from the shared workbook lock without changing
 - Pass requests and returns retain the shared lock because `MAX_ACTIVE_PASSES`, queue order, and return settlement require a serialized room decision.
 - Version 23 local evidence reached 311 behavioral checks, including a refused workbook lock, a thirty-student burst visible before flush, an interrupted-response replay, duplicate flush recovery, trigger authorization, late review, absences and Hall Pass regressions.
 
-The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 29. Real-class observation and the authenticated synthetic release smoke remain pending evidence. Do not create a new deployment or URL.
+The dependency-complete canonical gate, protected merge, production preflight and in-place deploy bridge have passed for Version 30. Real-class observation and the authenticated synthetic release smoke remain pending evidence. Do not create a new deployment or URL.
 
 ## Session and teacher policy
 
@@ -115,7 +136,7 @@ The dependency-complete canonical gate, protected merge, production preflight an
    or email correction made after a delivery batch assembled its recipients cannot send a credential to
    a stale address, and that the recorded delivery status matches the address actually used. Never
    exercise this against the live roster or by sending real mail.
-3. **Version 29 protected release smoke.** Preflight run `35772765535` passed and deploy run `35772904099` deployed Version 29 in place from source `d64bec5fd0ed8f3ddae2f9eb141979ce03d7926f`. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. The separate authenticated `?mode=releasecheck` synthetic smoke is still pending; run it as the teacher with only the isolated synthetic credential and record the result separately.
+3. **Version 30 protected release smoke.** Preflight run `35777981230` passed and deploy run `35778256624` deployed Version 30 in place from source `baa8ad44416d5023796f112501de8461233e918c`. The bridge verified the existing deployment ID, stable URL, `DOMAIN` access and `USER_DEPLOYING` execution. The separate authenticated `?mode=releasecheck` synthetic smoke is still pending; run it as the teacher with only the isolated synthetic credential and record the result separately.
 4. **`NEEDS_RESEND` credential records.** Ten PIN-card records were repointed to corrected addresses
    during the identity migration, and their delivery status was set to `NEEDS_RESEND` because a prior
    `SENT` marker could not prove delivery to the corrected address. All ten students had already used
