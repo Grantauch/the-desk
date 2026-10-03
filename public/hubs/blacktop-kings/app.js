@@ -36,8 +36,13 @@
     document.addEventListener('pointerdown', firstGesture, { once: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden && S.match && !S.match.paused && !S.match.over) showPause(); });
     window.addEventListener('blur', () => { if (S.match && !S.match.paused && !S.match.over && S.screen === 'match') showPause(); });
+    // Esc backs out of a menu, the same way the legend along the bottom says it does.
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || S.screen === 'match' || $('#pause') || e.target.tagName === 'SELECT') return;
+      const b = $('.back', app); if (b) { e.preventDefault(); b.click(); }
+    });
     BK.audio.music('menu');
-    const fontsReady = document.fonts && document.fonts.load ? Promise.all(['400 20px Bangers', '400 20px Anton'].map((f) => document.fonts.load(f).catch(() => null))) : Promise.resolve();
+    const fontsReady = document.fonts && document.fonts.load ? Promise.all(['italic 900 20px "Barlow Condensed"', 'italic 800 20px "Barlow Condensed"', '400 20px Anton', '600 16px Barlow'].map((f) => document.fonts.load(f).catch(() => null))) : Promise.resolve();
     Promise.race([fontsReady, new Promise((r) => setTimeout(r, 1500))]).then(() => { go('title'); });
     window.BK_APP = { S, go, startMatch };
   }
@@ -50,7 +55,7 @@
     if (screen === 'title') startAttract(); else if (S.attract) { S.attract.stop(); }
     document.body.dataset.screen = screen;
     const html = (SCREENS[screen] || SCREENS.title)();
-    app.innerHTML = html;
+    app.innerHTML = html + legend(/class="back"/.test(html));
     app.hidden = false;
     paintCanvases();
     if (screen === 'create' || screen === 'locker') startPreview();
@@ -92,10 +97,45 @@
     const id = 'd' + (++drawId); drawables.set(id, { court });
     return `<canvas class="scene" width="480" height="270" data-draw="${id}" aria-hidden="true"></canvas>`;
   }
+  // Artwork for menu tiles: sized by CSS, painted by `paint(ctx, w, h)`.
+  function art(w, h, paint) {
+    const id = 'd' + (++drawId); drawables.set(id, { paint });
+    return `<canvas class="art" width="${w}" height="${h}" data-draw="${id}" aria-hidden="true"></canvas>`;
+  }
+  const paintCourt = (court) => (ctx, w, h) => { const cam = A.defaultCamera(w, h); A.paintScene(ctx, cam, court); A.drawHoop(ctx, cam, {}, 'back', court, 0); A.drawHoop(ctx, cam, {}, 'front', court, 0); };
+  const paintPortrait = (p, cols, px) => (ctx, w, h) => A.drawPortrait(ctx, p, teamColors(cols), { x: 0, y: 0, w, h }, { px });
+  // Two crews squaring up: one portrait each side of a slanted seam.
+  const paintSplit = (a, ca, b, cb) => (ctx, w, h) => {
+    const seam = (top) => (top ? w * 0.56 : w * 0.44);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(seam(true), 0); ctx.lineTo(seam(false), h); ctx.lineTo(0, h); ctx.closePath(); ctx.clip();
+    A.drawPortrait(ctx, a, teamColors(ca), { x: 0, y: 0, w: w * 0.62, h }, { px: 0.42 }); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.moveTo(seam(true), 0); ctx.lineTo(w, 0); ctx.lineTo(w, h); ctx.lineTo(seam(false), h); ctx.closePath(); ctx.clip();
+    A.drawPortrait(ctx, b, teamColors(cb), { x: w * 0.38, y: 0, w: w * 0.62, h }, { px: 0.42, facing: -1 }); ctx.restore();
+    ctx.lineWidth = w * 0.022; ctx.strokeStyle = '#07080c'; ctx.beginPath(); ctx.moveTo(seam(true), -4); ctx.lineTo(seam(false), h + 4); ctx.stroke();
+    ctx.lineWidth = w * 0.006; ctx.strokeStyle = '#ffc629'; ctx.stroke();
+  };
+  // A rival you haven't met yet: an ink silhouette with a gold rim light.
+  const paintMystery = (p) => (ctx, w, h) => {
+    ctx.fillStyle = '#10131c'; ctx.fillRect(0, 0, w, h);
+    ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = '#1b2030';
+    ctx.beginPath(); ctx.moveTo(w * 0.42, 0); ctx.lineTo(w * 0.78, 0); ctx.lineTo(w * 0.5, h); ctx.lineTo(w * 0.14, h); ctx.closePath(); ctx.fill(); ctx.restore();
+    const off = document.createElement('canvas'); off.width = w; off.height = h; const o = off.getContext('2d');
+    const box = { x: w * 0.3, y: h * 0.06, w: w * 0.6, h: h * 1.1 };
+    A.drawCard(o, p, { pri: '#333', sec: '#555', num: '#777' }, box, { pose: 'idle', time: 1.4 });
+    o.globalCompositeOperation = 'source-in';
+    o.fillStyle = '#ffc629'; o.fillRect(0, 0, w, h);
+    ctx.drawImage(off, w * 0.012, -h * 0.004);
+    o.fillStyle = '#05060a'; o.fillRect(0, 0, w, h);
+    ctx.drawImage(off, 0, 0);
+    ctx.font = `400 ${Math.round(h * 0.42)}px Anton, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = h * 0.02; ctx.strokeStyle = '#05060a'; ctx.fillStyle = '#ffc629';
+    ctx.save(); ctx.translate(w * 0.62, h * 0.36); ctx.transform(1, 0, -0.2, 1, 0, 0); ctx.strokeText('?', 0, 0); ctx.fillText('?', 0, 0); ctx.restore();
+  };
   function paintCanvases() {
     $$('canvas[data-draw]', app).forEach((c) => {
       const d = drawables.get(c.dataset.draw); if (!d) return;
       const ctx = c.getContext('2d');
+      if (d.paint) { d.paint(ctx, c.width, c.height); return; }
       if (d.logo) { A.drawLogo(ctx, d.logo, c.width / 2, c.height / 2, c.width * 0.46, d.c1, d.c2); return; }
       if (d.court) { const cam = A.defaultCamera(c.width, c.height); A.paintScene(ctx, cam, d.court); A.drawHoop(ctx, cam, {}, 'back', d.court, 0); A.drawHoop(ctx, cam, {}, 'front', d.court, 0); return; }
       const colors = teamColors(d.colors);
@@ -118,18 +158,20 @@
       const cols = S.screen === 'create' ? [S.draft.crewPri, S.draft.crewSec] : S.save.crew.colors;
       const time = (now - t0) / 1000;
       ctx.clearRect(0, 0, c.width, c.height);
-      // A quiet portrait backdrop lets the silhouette and equipment carry the screen.
-      const fy = c.height * 0.95;
-      const halo = ctx.createRadialGradient(c.width * 0.55, c.height * 0.38, 8, c.width * 0.5, c.height * 0.4, c.height * 0.6);
-      halo.addColorStop(0, 'rgba(212,220,235,0.1)'); halo.addColorStop(1, 'rgba(212,220,235,0)');
-      ctx.fillStyle = halo; ctx.fillRect(0, 0, c.width, c.height);
-      ctx.save(); ctx.globalAlpha = 0.055; ctx.fillStyle = '#ffffff';
-      ctx.font = '400 350px Anton, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(String(p.num).padStart(2, '0'), c.width / 2, c.height * 0.4); ctx.restore();
-      const fl = ctx.createLinearGradient(0, c.height * 0.78, 0, c.height);
-      fl.addColorStop(0, 'rgba(0,0,0,0)'); fl.addColorStop(1, 'rgba(0,0,0,0.45)');
-      ctx.fillStyle = fl; ctx.fillRect(0, c.height * 0.78, c.width, c.height * 0.22);
-      ctx.strokeStyle = cols[0]; ctx.lineWidth = 2; ctx.globalAlpha = 0.42; ctx.beginPath(); ctx.ellipse(c.width / 2, fy, c.width * 0.28, c.height * 0.024, 0, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+      // A stage: hard-edged spotlight, the jersey number in outline, a floor disc in the crew color.
+      const cw = c.width, chh = c.height, fy = chh * 0.95;
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0, chh * 0.8, cw, chh * 0.2);
+      ctx.fillStyle = 'rgba(255,255,255,0.045)';
+      ctx.beginPath(); ctx.moveTo(cw * 0.36, 0); ctx.lineTo(cw * 0.64, 0); ctx.lineTo(cw * 0.9, fy); ctx.lineTo(cw * 0.1, fy); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cw * 0.44, 0); ctx.lineTo(cw * 0.56, 0); ctx.lineTo(cw * 0.72, fy); ctx.lineTo(cw * 0.28, fy); ctx.closePath(); ctx.fill();
+      ctx.save(); ctx.font = '400 330px Anton, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.translate(cw / 2, chh * 0.4); ctx.transform(1, 0, -0.16, 1, 0, 0);
+      const numTxt = String(p.num).padStart(2, '0');
+      ctx.globalAlpha = 0.08; ctx.fillStyle = cols[0]; ctx.fillText(numTxt, 0, 0);
+      ctx.globalAlpha = 0.16; ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff'; ctx.strokeText(numTxt, 0, 0); ctx.restore();
+      ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.beginPath(); ctx.ellipse(cw / 2, fy, cw * 0.34, chh * 0.032, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = cols[0]; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(cw / 2, fy, cw * 0.3, chh * 0.026, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(cw / 2, fy, cw * 0.3 + 3, chh * 0.026 + 3, 0, 0, Math.PI * 2); ctx.stroke();
       const sh = ctx.createRadialGradient(c.width / 2, fy, 2, c.width / 2, fy, c.width * 0.22);
       sh.addColorStop(0, 'rgba(0,0,0,0.5)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.save(); ctx.translate(0, fy); ctx.scale(1, 0.14); ctx.translate(0, -fy); ctx.fillStyle = sh; ctx.beginPath(); ctx.arc(c.width / 2, fy, c.width * 0.22, 0, Math.PI * 2); ctx.fill(); ctx.restore();
@@ -160,53 +202,117 @@
 
   // ---------- shared bits of markup ----------
   const btn = (act, label, cls, extra) => `<button type="button" class="btn ${cls || ''}" data-act="${act}" ${extra || ''}>${label}</button>`;
-  const back = (to, label) => `<button type="button" class="back" data-go="${to}">← ${esc(label || 'Back')}</button>`;
-  function header(title, sub, backTo, backLabel) {
+  const back = (to, label) => `<button type="button" class="back" data-go="${to}"><kbd aria-hidden="true">Esc</kbd><span class="back-arrow" aria-hidden="true">‹</span>${esc(label || 'Back')}</button>`;
+  const LOCK = '<i class="lk" aria-hidden="true"></i><span class="sr">Locked: </span>';
+  // Where each screen sits, for the rail across the top and the kicker over the title.
+  const CRUMBS = { create: 'Career / New player', career: 'Career', circuit: 'Career / The Circuit', event: 'Career / Matchup', upgrade: 'Career / Upgrade', locker: 'Career / Locker', crew: 'Career / Crew', quick: 'Quick Game', versus: 'Versus', challenge: 'Challenge', howto: 'How to Play', settings: 'Settings', results: 'Final' };
+  const KICKERS = { create: 'New player', career: 'Career mode', circuit: 'Career', event: 'Matchup', upgrade: 'Player development', locker: 'Locker room', crew: 'Roster', quick: 'Play now', versus: 'Head to head', challenge: 'Their crew, your court', howto: 'The rules of the lot', settings: 'Options', results: 'Final' };
+  function header(title, sub, backTo, backLabel, kicker) {
+    const s = S.save;
+    const crumb = (CRUMBS[S.screen] || '').split(' / ').map((c, i, a) => (i === a.length - 1 ? `<b>${esc(c)}</b>` : esc(c))).join('<i>/</i>');
+    const profile = s && S.screen !== 'create' ? `<span class="profile" aria-label="${esc(s.me.nick)}, level ${s.level}, ${s.cred} cred"><b>${esc(s.me.nick)}</b><span class="p-lv">LV ${s.level}</span><span class="p-cred">${s.cred.toLocaleString()} cred</span></span>` : '';
     return `<header class="screen-head">
-      <div class="head-row">${backTo ? back(backTo, backLabel) : '<span></span>'}<a class="desk" href="/games/">the desk <span>/ games</span></a></div>
-      <h2 class="screen-title">${title}</h2>${sub ? `<p class="screen-sub">${sub}</p>` : ''}
+      <div class="rail">${backTo ? back(backTo, backLabel) : ''}<span class="crumb">Blacktop Kings<i>/</i>${crumb}</span>
+        <span class="rail-right">${profile}<a class="desk" href="/games/">the desk <span>/ games</span></a></span></div>
+      <div class="title-block"><span class="kicker">${esc(kicker || KICKERS[S.screen] || '')}</span>
+        <h2 class="screen-title">${title}</h2>${sub ? `<p class="screen-sub">${sub}</p>` : ''}</div>
     </header>`;
+  }
+  function legend(canBack) {
+    return `<div class="legend" aria-hidden="true"><span><kbd>Tab</kbd>Move</span><span><kbd>Enter</kbd>Select</span>${canBack ? '<span><kbd>Esc</kbd>Back</span>' : ''}<span class="legend-brand">Blacktop <b>Kings</b></span></div>`;
+  }
+  // A big menu tile: artwork behind, an index number, a label and a line under it.
+  function tile(act, label, sub, o) {
+    o = o || {};
+    return `<button type="button" class="tile ${o.cls || ''}" data-act="${act}">
+      <span class="tile-art ${o.artCls || ''}" aria-hidden="true">${o.art || ''}</span>
+      ${o.idx ? `<span class="tile-idx" aria-hidden="true">${o.idx}</span>` : ''}${o.badge ? `<span class="tile-badge">${o.badge}</span>` : ''}
+      <span class="tile-text">${o.kicker ? `<span class="tile-kicker">${o.kicker}</span>` : ''}<b>${label}</b>${sub ? `<small>${sub}</small>` : ''}</span>
+    </button>`;
+  }
+  // Crew colors as CSS variables, with an ink color that reads on top of the primary.
+  function teamVars(cols) {
+    const ink = A.luminance(cols[0]) > 0.6 ? '#0b0b0d' : '#ffffff';
+    return `--team:${esc(cols[0])};--trim:${esc(cols[1])};--team-ink:${ink}`;
   }
   function statBars(r, opts) {
     opts = opts || {};
-    return `<div class="stats ${opts.compact ? 'compact' : ''}">${D.STATS.map((s) => `<div class="stat"><span class="stat-name">${opts.compact ? s.short : s.name}</span><span class="bar" aria-hidden="true"><i style="width:${r[s.key] * 10}%"></i></span><b>${r[s.key]}</b></div>`).join('')}</div>`;
+    return `<div class="stats ${opts.compact ? 'compact' : ''}">${D.STATS.map((s) => { const v = r[s.key]; return `<div class="stat"><span class="stat-name">${opts.compact ? s.short : s.name}</span><span class="bar" aria-hidden="true"><i class="${v >= 8 ? 'hi' : v >= 5 ? 'mid' : 'lo'}" style="width:${v * 10}%"></i></span><b>${v}</b></div>`; }).join('')}</div>`;
   }
   function overall(r) { return Math.round(D.STAT_KEYS.reduce((n, k) => n + r[k], 0) / D.STAT_KEYS.length * 10); }
+  const ovrBadge = (r) => `<span class="ovr"><b>${overall(r)}</b><i>OVR</i></span>`;
   function playerCard(p, cols, opts) {
     opts = opts || {};
-    return `<div class="pcard ${opts.cls || ''}">
+    return `<div class="pcard ${opts.cls || ''}" style="${teamVars(cols)}">
       ${figure(p, cols, { w: opts.w || 92, h: opts.h || 116, portrait: true })}
       <div class="pcard-body">
         <span class="pnick">${esc(p.nick || p.first)}</span>
         <span class="pname">${esc(p.first)} ${esc(p.last)} · #${esc(p.num)} · ${ft(p.hgt)}</span>
-        <span class="parch">${esc(D.ARCHETYPES[p.arch] ? D.ARCHETYPES[p.arch].name : '')}${p.legend ? ' · <em>legend</em>' : ''} · OVR ${overall(p.r)}</span>
+        <span class="parch">${esc(D.ARCHETYPES[p.arch] ? D.ARCHETYPES[p.arch].name : '')}${p.legend ? ' · <em>legend</em>' : ''}</span>
         ${opts.bio && p.bio ? `<span class="pbio">${esc(p.bio)}</span>` : ''}
         ${opts.stats ? statBars(p.r, { compact: true }) : ''}
-      </div>
+      </div>${ovrBadge(p.r)}
     </div>`;
   }
+  // "J or Z" becomes two key caps.
+  const kbdify = (s) => esc(s).split(/( or | \/ )/).map((part, i) => (i % 2 ? `<span class="hint">${part}</span>` : `<kbd>${part}</kbd>`)).join('');
 
   // ---------- screens ----------
   const SCREENS = {};
 
+  // The wordmark: BLACKTOP in white, KINGS in cel-shaded gold with a red misprint and an ink extrusion.
+  const LOGO = `<svg viewBox="0 0 690 300" role="img" aria-label="Blacktop Kings"><defs>
+      <linearGradient id="bk-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".4" stop-color="#ffe27a"/><stop offset=".4" stop-color="#ffc629"/><stop offset=".78" stop-color="#ffc629"/><stop offset=".78" stop-color="#e59400"/><stop offset="1" stop-color="#e59400"/></linearGradient>
+      <pattern id="bk-dots" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(20)"><circle cx="3.5" cy="3.5" r="1.7" fill="#7a3d00" fill-opacity=".38"/></pattern>
+      <clipPath id="bk-shade"><rect x="-60" y="226" width="800" height="80"/></clipPath>
+      <clipPath id="bk-crown-shade"><rect x="0" y="54" width="110" height="40"/></clipPath>
+    </defs>
+    <g font-family="'Barlow Condensed', 'Arial Narrow', sans-serif" font-style="italic" font-weight="900" font-size="108">
+      <text x="14" y="98" textLength="440" lengthAdjust="spacingAndGlyphs" fill="#000">BLACKTOP</text>
+      <text x="8" y="92" textLength="440" lengthAdjust="spacingAndGlyphs" fill="#fff" stroke="#07080c" stroke-width="9" stroke-linejoin="round" paint-order="stroke">BLACKTOP</text>
+    </g>
+    <g transform="translate(62 0) skewX(-12)" font-family="Anton, Impact, sans-serif" font-size="212">
+      <text x="14" y="290" textLength="600" lengthAdjust="spacingAndGlyphs" fill="#000" stroke="#000" stroke-width="12" stroke-linejoin="round">KINGS</text>
+      <text x="7" y="284" textLength="600" lengthAdjust="spacingAndGlyphs" fill="#ff4a2b" stroke="#07080c" stroke-width="10" stroke-linejoin="round" paint-order="stroke">KINGS</text>
+      <text x="0" y="278" textLength="600" lengthAdjust="spacingAndGlyphs" fill="url(#bk-gold)" stroke="#07080c" stroke-width="10" stroke-linejoin="round" paint-order="stroke">KINGS</text>
+      <text x="0" y="278" textLength="600" lengthAdjust="spacingAndGlyphs" fill="url(#bk-dots)" clip-path="url(#bk-shade)">KINGS</text>
+    </g>
+    <g transform="translate(540 6) rotate(13) scale(1.12)" stroke-linejoin="round">
+      <path d="M12 76 6 22l26 22L54 6l22 38 26-22-6 54z" transform="translate(5 5)" fill="#000"/>
+      <path d="M12 76 6 22l26 22L54 6l22 38 26-22-6 54z" fill="#ffc629" stroke="#07080c" stroke-width="6"/>
+      <path d="M12 76 6 22l26 22L54 6l22 38 26-22-6 54z" fill="#e59400" clip-path="url(#bk-crown-shade)"/>
+      <path d="M12 76 6 22l26 22L54 6l22 38 26-22-6 54z" fill="none" stroke="#07080c" stroke-width="6"/>
+      <rect x="10" y="80" width="88" height="14" fill="#ff4a2b" stroke="#07080c" stroke-width="5"/>
+      <circle cx="6" cy="20" r="6" fill="#fff" stroke="#07080c" stroke-width="4"/><circle cx="54" cy="5" r="6" fill="#fff" stroke="#07080c" stroke-width="4"/><circle cx="102" cy="20" r="6" fill="#fff" stroke="#07080c" stroke-width="4"/>
+    </g></svg>`;
   SCREENS.title = () => {
     const s = S.save;
+    const me = s ? CR.mePlayer(s) : (() => { const d = newDraft(); return { num: d.num, hgt: d.hgt, build: d.build, look: d.look }; })();
+    const meCols = s ? s.crew.colors : ['#e8352b', '#ffffff'];
+    const next = s && nextEvent(s);
+    const kings = D.QUICK_CREWS[0], show = D.QUICK_CREWS[1];
+    const rival = CR.memberById(D.QUICK_CREWS[2].members[0]);
     return `<section class="title-screen">
-      <div class="title-top"><a class="desk" href="/games/">the desk <span>/ games</span></a></div>
-      <h1 class="logo-type"><span class="lt-1">BLACKTOP</span><span class="lt-2">KINGS</span></h1>
-      <p class="tagline">Three on three. First to twenty-one. No refs, no mercy, no out of bounds.</p>
-      <nav class="title-menu" aria-label="Main menu">
-        ${btn('nav-career', s ? `Career <small>${esc(s.me.nick)} · Lv ${s.level}</small>` : 'Career <small>build your baller</small>', 'big primary')}
-        ${btn('nav-quick', 'Quick Game <small>pick two crews and go</small>', 'big')}
-        ${btn('nav-versus', 'Versus <small>two players, one screen</small>', 'big')}
-        ${btn('nav-challenge', 'Challenge a Friend <small>load their save, beat their crew</small>', 'big')}
+      <div class="topbar"><a class="desk" href="/games/">the desk <span>/ games</span></a>
+        ${s ? `<span class="profile" aria-label="${esc(s.me.nick)}, level ${s.level}, ${s.cred} cred"><b>${esc(s.me.nick)}</b><span class="p-lv">LV ${s.level}</span><span class="p-cred">${s.cred.toLocaleString()} cred</span></span>` : ''}</div>
+      <div class="title-hero">
+        <h1 class="logo">${LOGO}</h1>
+        <p class="tagline"><span>3-on-3 streetball</span><span>First to 21</span><span>No refs. No mercy.</span></p>
+      </div>
+      <nav class="tiles" aria-label="Main menu">
+        ${tile('nav-career', 'Career', s ? `${esc(s.me.nick)} · Level ${s.level} · ${esc(s.crew.name)}` : 'Build your baller. Run the circuit. Take the crown.', { cls: 'hero', idx: '01', kicker: s ? 'Continue' : 'New career', art: art(760, 560, paintPortrait(me, meCols, 0.68)) })}
+        ${tile('nav-quick', 'Quick Game', 'Pick two crews and go.', { idx: '02', art: art(640, 360, paintCourt(next ? next.court : D.COURTS[0])) })}
+        ${tile('nav-versus', 'Versus', 'Two players, one screen.', { idx: '03', art: art(560, 560, paintSplit(CR.memberById(kings.members[0]), kings.colors, CR.memberById(show.members[0]), show.colors)) })}
+        ${tile('nav-challenge', 'Challenge', 'Load a friend\'s save. Beat their crew.', { idx: '04', art: art(560, 560, paintMystery(rival)) })}
+      </nav>
+      <div class="title-foot">
         <div class="title-small">
           ${btn('nav-howto', 'How to Play', 'small')}
           ${btn('nav-settings', 'Settings', 'small')}
           ${btn('toggle-sound', BK.audio.settings.on ? 'Sound: On' : 'Sound: Off', 'small', `aria-pressed="${BK.audio.settings.on}"`)}
         </div>
-      </nav>
-      <p class="fineprint">Every player, crew, and court here is made up. Saves stay in this browser, or in a file you keep (Google Drive works).</p>
+        <p class="fineprint">Every player, crew, and court here is made up. Saves stay in this browser, or in a file you keep (Google Drive works).</p>
+      </div>
     </section>`;
   };
 
@@ -247,7 +353,8 @@
     } else {
       body = crewEditor({ name: d.crewName, colors: [d.crewPri, d.crewSec], logo: d.crewLogo }, true);
     }
-    return `${header('Build your baller', `Step ${step + 1} of 5 · ${CREATE_STEPS[step]}`, step === 0 ? 'title' : null)}
+    return `${header('Build your baller', '', step === 0 ? 'title' : null, 'Title')}
+      <ol class="stepper" aria-label="Step ${step + 1} of 5: ${CREATE_STEPS[step]}">${CREATE_STEPS.map((n, i) => `<li class="${i < step ? 'done' : i === step ? 'on' : ''}"${i === step ? ' aria-current="step"' : ''}><b>${String(i + 1).padStart(2, '0')}</b>${esc(n)}</li>`).join('')}</ol>
       <div class="editor">
         <div class="preview-col">${previewBox()}</div>
         <div class="edit-col">${body}
@@ -275,7 +382,7 @@
       const locked = !plain && !CR.isUnlocked(save, key, o);
       const canBuy = locked && o.cost && (!o.lvl || save.level >= o.lvl) && save.cred != null && S.screen === 'locker';
       const on = current === o.id;
-      return `<button type="button" class="chip ${on ? 'on' : ''} ${locked ? 'locked' : ''}" ${canBuy ? `data-buy="${key}:${o.id}" data-cost="${o.cost}"` : locked ? 'disabled' : `data-look="${key}" data-val="${o.id}"`} aria-pressed="${on}">${locked ? '🔒 ' : ''}${esc(o.name)}${lockText(o, save, key)}</button>`;
+      return `<button type="button" class="chip ${on ? 'on' : ''} ${locked ? 'locked' : ''}" ${canBuy ? `data-buy="${key}:${o.id}" data-cost="${o.cost}"` : locked ? 'disabled' : `data-look="${key}" data-val="${o.id}"`} aria-pressed="${on}">${locked ? LOCK : ''}${esc(o.name)}${lockText(o, save, key)}</button>`;
     }).join('')}</div></div>`;
   }
   function swatchGroup(title, key, colors, current, save, premium) {
@@ -312,11 +419,11 @@
       return chipGroup('Aura', 'aura', L.aura, look.aura, save) + chipGroup('Ball trail', 'trail', L.trail, look.trail, save)
         + `<div class="group"><h3 class="group-title">Celebration</h3><div class="chips">${D.CELEBRATIONS.map((c) => {
           const locked = !CR.isUnlocked(save, 'celebration', c); const canBuy = locked && c.cost && !c.lvl;
-          return `<button type="button" class="chip ${me.celebration === c.id ? 'on' : ''} ${locked ? 'locked' : ''}" ${canBuy ? `data-buy="celebration:${c.id}" data-cost="${c.cost}"` : locked ? 'disabled' : `data-celebrate="${c.id}"`} aria-pressed="${me.celebration === c.id}">${locked ? '🔒 ' : ''}${esc(c.name)}${lockText(c, save, 'celebration')}</button>`;
+          return `<button type="button" class="chip ${me.celebration === c.id ? 'on' : ''} ${locked ? 'locked' : ''}" ${canBuy ? `data-buy="celebration:${c.id}" data-cost="${c.cost}"` : locked ? 'disabled' : `data-celebrate="${c.id}"`} aria-pressed="${me.celebration === c.id}">${locked ? LOCK : ''}${esc(c.name)}${lockText(c, save, 'celebration')}</button>`;
         }).join('')}</div></div>`
         + `<div class="group"><h3 class="group-title">Signature dunk</h3><div class="chips">${D.DUNK_ORDER.map((k) => {
           const dk = D.DUNKS[k]; const locked = dk.lvl && save.level < dk.lvl;
-          return `<button type="button" class="chip ${me.dunk === k ? 'on' : ''} ${locked ? 'locked' : ''}" ${locked ? 'disabled' : `data-dunk="${k}"`} aria-pressed="${me.dunk === k}">${locked ? '🔒 ' : ''}${esc(dk.name)}${locked ? `<small>Lv ${dk.lvl}</small>` : ''}</button>`;
+          return `<button type="button" class="chip ${me.dunk === k ? 'on' : ''} ${locked ? 'locked' : ''}" ${locked ? 'disabled' : `data-dunk="${k}"`} aria-pressed="${me.dunk === k}">${locked ? LOCK : ''}${esc(dk.name)}${locked ? `<small>Lv ${dk.lvl}</small>` : ''}</button>`;
         }).join('')}</div><p class="hint">The more dunks you know, the more you mix in. Turbo dunks lean on your signature.</p></div>`;
     }
     return '';
@@ -335,25 +442,29 @@
     const me = CR.mePlayer(s);
     const need = D.repForLevel(s.level);
     const next = nextEvent(s);
+    const mates = s.lineup.map((id) => CR.memberById(id)).filter(Boolean);
+    const nextCourt = next ? next.court : D.COURT_BY_ID[D.CIRCUIT[D.CIRCUIT.length - 1].court];
     return `${header(esc(s.me.nick), `${esc(s.me.first)} ${esc(s.me.last)} · ${esc(D.ARCHETYPES[s.me.arch].name)} · ${ft(s.me.hgt)} · ${esc(s.crew.name)}`, 'title', 'Title')}
       <div class="hub">
-        <div class="hub-card">
-          ${figure(me, s.crew.colors, { w: 240, h: 300, portrait: true })}
-          <div class="level"><span class="lvl-badge">LV ${s.level}</span>
-            <div class="rep"><span class="bar"><i style="width:${s.level >= D.MAX_LEVEL ? 100 : Math.round(s.rep / need * 100)}%"></i></span><small>${s.level >= D.MAX_LEVEL ? 'Max level' : `${Math.round(s.rep)} / ${need} REP`}</small></div></div>
+        <div class="hub-card" style="${teamVars(s.crew.colors)}">
+          <div class="hc-art">${figure(me, s.crew.colors, { w: 320, h: 400, portrait: true })}${ovrBadge(s.me.r)}<span class="hc-tag">${esc(D.ARCHETYPES[s.me.arch].name)} · #${esc(s.me.num)}</span></div>
+          <div class="level"><span class="lvl-badge"><small>LV</small>${s.level}</span>
+            <div class="rep"><span class="bar" aria-hidden="true"><i style="width:${s.level >= D.MAX_LEVEL ? 100 : Math.round(s.rep / need * 100)}%"></i></span><small>${s.level >= D.MAX_LEVEL ? 'Max level' : `${Math.round(s.rep)} / ${need} REP to level ${s.level + 1}`}</small></div></div>
           <div class="wallet"><span><b>${s.points}</b> skill points</span><span><b>${s.cred.toLocaleString()}</b> cred</span></div>
           ${statBars(s.me.r)}
         </div>
         <div class="hub-menu">
-          ${next ? `<div class="next-up"><span class="kicker">Next up</span><b>${esc(next.ev.name)}</b><span>${esc(next.court.name)} · vs ${esc(next.ev.crew.name)} · first to ${next.ev.target}</span>${btn('play-next', 'Play it', 'primary')}</div>` : `<div class="next-up"><span class="kicker">Long live the king</span><b>You beat the whole circuit.</b><span>Replay any court for REP and cred, or take your crew to a friend.</span></div>`}
-          ${btn('nav-circuit', 'The Circuit <small>eight courts, one crown</small>', 'big')}
-          ${btn('nav-upgrade', `Upgrade <small>${s.points} point${s.points === 1 ? '' : 's'} to spend</small>`, 'big' + (s.points ? ' glow' : ''))}
-          ${btn('nav-locker', 'Locker <small>looks, gear, auras, dunks</small>', 'big')}
-          ${btn('nav-crew', `Crew <small>${s.roster.length} players · pick your two</small>`, 'big')}
+          ${next ? `<div class="next-up"><span class="nu-art" aria-hidden="true">${sceneCanvas(next.court)}</span><span class="kicker">Next up · Stop ${next.ci + 1}</span><b>${esc(next.ev.name)}</b><span>${esc(next.court.name)} · vs ${esc(next.ev.crew.name)} · first to ${next.ev.target}</span>${btn('play-next', 'Play it', 'primary big')}</div>` : `<div class="next-up"><span class="nu-art" aria-hidden="true">${sceneCanvas(nextCourt)}</span><span class="kicker">Long live the king</span><b>You beat the whole circuit.</b><span>Replay any court for REP and cred, or take your crew to a friend.</span></div>`}
+          <div class="hub-tiles">
+            ${tile('nav-circuit', 'The Circuit', 'Eight courts, one crown.', { idx: '01', art: art(640, 360, paintCourt(nextCourt)) })}
+            ${tile('nav-upgrade', 'Upgrade', `${s.points} point${s.points === 1 ? '' : 's'} to spend.`, { idx: '02', cls: s.points ? 'glow' : '', badge: s.points ? `${s.points} ready` : '', artCls: 'icon-art', art: ICON_UPGRADE })}
+            ${tile('nav-locker', 'Locker', 'Looks, gear, auras, dunks.', { idx: '03', artCls: 'icon-art', art: jerseyIcon(s.crew.colors, s.me.num) })}
+            ${tile('nav-crew', 'Crew', `${s.roster.length} players · pick your two.`, { idx: '04', art: mates.length === 2 ? art(640, 360, paintSplit(mates[0], s.crew.colors, mates[1], s.crew.colors)) : '' })}
+          </div>
           <div class="save-box">
             <h3 class="group-title">Your save</h3>
             <p>Saved in this browser after every game. To keep it safe or play on another computer, save a file. On a Chromebook, pick <b>Google Drive</b> in the save window.</p>
-            <div class="row">${btn('save-file', '💾 Save file (Drive)', 'primary')}${btn('load-career', '📂 Load save file', '')}</div>
+            <div class="row">${btn('save-file', 'Save file (Drive)', 'primary')}${btn('load-career', 'Load save file', '')}</div>
             <p class="hint">Last saved here: ${esc(new Date(s.updated).toLocaleString())}</p>
           </div>
           <details class="career-stats"><summary>Career numbers</summary>
@@ -363,6 +474,19 @@
         </div>
       </div>`;
   };
+  const ICON_UPGRADE = `<svg viewBox="0 0 120 110" aria-hidden="true"><g transform="translate(18 0) skewX(-12)" stroke="#07080c" stroke-width="4" stroke-linejoin="round">
+      <rect x="6" y="64" width="24" height="40" fill="#2a3044"/><rect x="40" y="42" width="24" height="62" fill="#a9afc0"/><rect x="74" y="22" width="24" height="82" fill="#ffc629"/>
+      <rect x="74" y="22" width="24" height="30" fill="#ffe27a"/></g>
+      <path d="M60 4 78 22H67v12H53V22H42z" fill="#fff" stroke="#07080c" stroke-width="4" stroke-linejoin="round" transform="translate(-26 8)"/></svg>`;
+  function jerseyIcon(cols, num) {
+    const shape = 'M40 8h12q8 16 16 0h12l3 14q6 18 19 22v66H18V44q13-4 19-22z';
+    return `<svg viewBox="0 0 120 120" aria-hidden="true"><path d="${shape}" transform="translate(5 5)" fill="#000"/>
+      <path d="${shape}" fill="${esc(cols[0])}" stroke="#07080c" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M70 8h10l3 14q6 18 19 22v66H70z" fill="#000" fill-opacity=".22"/>
+      <path d="M44 9q16 34 32 0" fill="none" stroke="${esc(cols[1])}" stroke-width="5"/>
+      <text x="60" y="94" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="44" fill="${esc(cols[1])}" stroke="#07080c" stroke-width="5" paint-order="stroke">${esc(num)}</text>
+      <path d="${shape}" fill="none" stroke="#07080c" stroke-width="4" stroke-linejoin="round"/></svg>`;
+  }
   function nextEvent(s) {
     for (const e of D.allEvents()) { if (!s.beaten.includes(e.ev.id) && CR.eventOpen(s, e.ci, e.ei)) return e; }
     return null;
@@ -376,13 +500,14 @@
         const court = D.COURT_BY_ID[stop.court]; const open = CR.courtOpen(s, ci);
         const done = stop.events.filter((e) => s.beaten.includes(e.id)).length;
         return `<article class="court-card ${open ? '' : 'locked'}">
-          <div class="court-art">${open ? sceneCanvas(court) : '<div class="court-lock">🔒</div>'}${done === stop.events.length ? '<span class="stamp">Conquered</span>' : ''}</div>
-          <div class="court-info"><span class="kicker">Stop ${ci + 1} · ${done}/${stop.events.length} beaten</span><h3>${esc(court.name)}</h3><p>${esc(court.where)}</p>
+          <div class="court-art">${sceneCanvas(court)}${open ? '' : '<span class="court-lock"><i class="lk" aria-hidden="true"></i>Locked</span>'}${done === stop.events.length ? '<span class="stamp">Conquered</span>' : ''}</div>
+          <div class="court-info"><span class="stop-no" aria-hidden="true">${String(ci + 1).padStart(2, '0')}</span><span class="kicker">Stop ${ci + 1}</span><h3>${esc(court.name)}</h3><p>${esc(court.where)}</p>
+          <div class="progress"><span aria-hidden="true">${stop.events.map((e) => `<i class="${s.beaten.includes(e.id) ? 'on' : ''}"></i>`).join('')}</span>${done}/${stop.events.length} beaten</div>
           <ul class="events">${stop.events.map((ev, ei) => {
             const beat = s.beaten.includes(ev.id); const eo = CR.eventOpen(s, ci, ei);
             return `<li><button type="button" class="event ${beat ? 'beat' : ''} ${ev.king ? 'king' : ''}" ${eo ? `data-event="${ci}:${ei}"` : 'disabled'}>
-              <span class="ev-status" aria-hidden="true">${beat ? '✓' : eo ? (ev.king ? '♛' : '▶') : '🔒'}</span>
-              <span class="ev-name">${esc(ev.name)}<small>vs ${esc(ev.crew.name)} · to ${ev.target}${ev.rule !== 'standard' ? ' · ' + esc(D.RULES[ev.rule].name) : ''}</small></span></button></li>`;
+              <span class="ev-status ${beat ? 'is-beat' : eo ? (ev.king ? 'is-king' : 'is-open') : 'is-locked'}" aria-hidden="true"></span>
+              <span class="ev-name">${esc(ev.name)}<small>vs ${esc(ev.crew.name)} · to ${ev.target}${ev.rule !== 'standard' ? ' · ' + esc(D.RULES[ev.rule].name) : ''}</small></span>${beat ? '<span class="ev-tag won">Won</span>' : ev.king ? '<span class="ev-tag king">King</span>' : ''}${eo ? '' : '<span class="sr">Locked</span>'}</button></li>`;
           }).join('')}</ul>${open ? '' : '<p class="hint">Beat the king of the last court to open this one.</p>'}</div></article>`;
       }).join('')}</div>`;
   };
@@ -392,12 +517,12 @@
     const opp = ev.crew.members.map((m) => D.memberFor(m, court.tier));
     const mine = CR.crewFromSave(s);
     const first = !s.beaten.includes(ev.id);
-    return `${header(esc(ev.name), `${esc(court.name)} · first to ${ev.target} · ${esc(D.RULES[ev.rule].name)}: ${esc(D.RULES[ev.rule].blurb)}`, 'circuit', 'Circuit')}
+    return `${header(esc(ev.name), `${esc(court.name)} · first to ${ev.target} · ${esc(D.RULES[ev.rule].name)}: ${esc(D.RULES[ev.rule].blurb)}`, 'circuit', 'Circuit', `Stop ${ci + 1} · ${ev.king ? 'King of the court' : 'Matchup'}`)}
       <div class="matchup">
-        <div class="side"><div class="side-head">${logoCanvas(s.crew.logo, s.crew.colors[1], s.crew.colors[0])}<h3>${esc(s.crew.name)}</h3></div>${mine.players.map((p) => playerCard(p, s.crew.colors, { stats: true })).join('')}
+        <div class="side"><div class="side-head" style="${teamVars(s.crew.colors)}">${logoCanvas(s.crew.logo, s.crew.colors[1], s.crew.colors[0])}<h3>${esc(s.crew.name)}</h3></div>${mine.players.map((p) => playerCard(p, s.crew.colors, { stats: true })).join('')}
           ${btn('nav-crew', 'Change your two', 'small ghost')}</div>
         <div class="vs-mark" aria-hidden="true">VS</div>
-        <div class="side"><div class="side-head">${logoCanvas(ev.crew.logo, ev.crew.colors[1], ev.crew.colors[0])}<h3>${esc(ev.crew.name)}</h3></div>${opp.map((p) => playerCard(p, ev.crew.colors, { stats: true, bio: true })).join('')}</div>
+        <div class="side"><div class="side-head" style="${teamVars(ev.crew.colors)}">${logoCanvas(ev.crew.logo, ev.crew.colors[1], ev.crew.colors[0])}<h3>${esc(ev.crew.name)}</h3></div>${opp.map((p) => playerCard(p, ev.crew.colors, { stats: true, bio: true })).join('')}</div>
       </div>
       <div class="event-foot">
         <p>${first ? `Win and you take <b>bonus REP and cred</b>, plus you get to <b>recruit one of them</b> to your crew.` : 'Already beaten. Run it back for REP and cred.'}${ev.king ? ' This is the king of the court. Beat them to open the next stop.' : ''}</p>
@@ -412,7 +537,7 @@
     return `${header('Upgrade', `${s.points} skill point${s.points === 1 ? '' : 's'} to spend · ratings cap at ${cap} right now (it rises every 4 levels)`, 'career', 'Career')}
       <div class="upgrade">${D.STATS.map((st) => {
         const v = s.me.r[st.key]; const c = CR.canUpgrade(s, st.key);
-        return `<div class="up-row"><div class="up-info"><b>${st.name}</b><span>${st.blurb}</span></div>
+        return `<div class="up-row ${c.ok ? 'can' : ''}"><div class="up-info"><b>${st.name}</b><span>${st.blurb}</span></div>
           <div class="up-bar"><span class="pips" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i class="${i < v ? 'on' : i < cap ? '' : 'capped'}"></i>`).join('')}</span><b class="up-val">${v}</b></div>
           <button type="button" class="btn small ${c.ok ? 'primary' : ''}" data-up="${st.key}" ${c.ok ? '' : 'disabled'} aria-label="Upgrade ${st.name}">${c.ok ? `+1 · ${c.cost} pt${c.cost > 1 ? 's' : ''}` : esc(c.why)}</button></div>`;
       }).join('')}</div>
@@ -463,8 +588,8 @@
       </div>
       ${courts.length < D.COURTS.length ? `<p class="hint">More courts open up as you win the circuit in Career.</p>` : ''}
       <div class="matchup compact">
-        <div class="side">${teamA.players.map((p) => playerCard(p, teamA.colors, {})).join('')}</div><div class="vs-mark" aria-hidden="true">VS</div>
-        <div class="side">${teamB.players.map((p) => playerCard(p, teamB.colors, {})).join('')}</div>
+        <div class="side"><div class="side-head" style="${teamVars(teamA.colors)}">${logoCanvas(teamA.logo, teamA.colors[1], teamA.colors[0])}<h3>${esc(teamA.name)}</h3></div>${teamA.players.map((p) => playerCard(p, teamA.colors, {})).join('')}</div><div class="vs-mark" aria-hidden="true">VS</div>
+        <div class="side"><div class="side-head" style="${teamVars(teamB.colors)}">${logoCanvas(teamB.logo, teamB.colors[1], teamB.colors[0])}<h3>${esc(teamB.name)}</h3></div>${teamB.players.map((p) => playerCard(p, teamB.colors, {})).join('')}</div>
       </div>
       <div class="event-foot">${btn('play-quick', 'Ball', 'primary big')}</div>`;
   };
@@ -483,8 +608,8 @@
           <button type="button" class="chip ${src === 'crew' ? 'on' : ''}" data-vsrc="${i}:crew" aria-pressed="${src === 'crew'}">Legend crew</button>
         </div>
         ${src === 'crew' ? `<label class="field">Crew<select data-vcrew="${i}">${D.QUICK_CREWS.map((c) => `<option value="${c.id}" ${v.crew[i] === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>` : ''}
-        ${src === 'file' ? `${btn('vs-load', v.file[i] ? 'Load a different file' : '📂 Pick their save file', v.file[i] ? 'small' : 'primary', `data-side="${i}"`)}` : ''}
-        ${team ? `<div class="vs-team">${logoCanvas(team.logo, team.colors[1], team.colors[0], 36)}<b>${esc(team.name)}</b>${team.level ? `<small>Lv ${team.level}</small>` : ''}</div><div class="mini-roster">${team.players.map((p) => playerCard(p, team.colors, { w: 70, h: 94 })).join('')}</div>` : '<p class="hint">No crew loaded yet.</p>'}
+        ${src === 'file' ? `${btn('vs-load', v.file[i] ? 'Load a different file' : 'Pick their save file', v.file[i] ? 'small' : 'primary', `data-side="${i}"`)}` : ''}
+        ${team ? `<div class="side-head" style="${teamVars(team.colors)}">${logoCanvas(team.logo, team.colors[1], team.colors[0], 36)}<h3>${esc(team.name)}</h3>${team.level ? `<small>LV ${team.level}</small>` : ''}</div><div class="mini-roster">${team.players.map((p) => playerCard(p, team.colors, { w: 70, h: 94 })).join('')}</div>` : '<p class="hint">No crew loaded yet.</p>'}
         <p class="keys">${i === 0 ? 'Keyboard: WASD move · F shoot · G pass · H trick · R oop · T crown · Shift turbo' : 'Keyboard: arrows move · , shoot · . pass · / trick · L oop · ; crown · M turbo'}<br>Or plug in a gamepad.</p>
       </div>`;
     };
@@ -517,9 +642,9 @@
     const theirs = c.file ? CR.crewFromSave(c.file) : null;
     return `${header('Challenge a Friend', 'Load a friend\'s save file and play against the crew they built. The computer runs their side, at their ratings, on Legend smarts.', 'title', 'Title')}
       <div class="matchup">
-        <div class="side"><div class="side-head">${logoCanvas(mine.logo, mine.colors[1], mine.colors[0])}<h3>${esc(mine.name)}</h3></div>${mine.players.map((p) => playerCard(p, mine.colors, { stats: true })).join('')}</div>
+        <div class="side"><div class="side-head" style="${teamVars(mine.colors)}">${logoCanvas(mine.logo, mine.colors[1], mine.colors[0])}<h3>${esc(mine.name)}</h3></div>${mine.players.map((p) => playerCard(p, mine.colors, { stats: true })).join('')}</div>
         <div class="vs-mark" aria-hidden="true">VS</div>
-        <div class="side">${theirs ? `<div class="side-head">${logoCanvas(theirs.logo, theirs.colors[1], theirs.colors[0])}<h3>${esc(theirs.name)}</h3><small>Lv ${c.file.level}</small></div>${theirs.players.map((p) => playerCard(p, theirs.colors, { stats: true })).join('')}${btn('ch-load', 'Load a different file', 'small ghost')}` : `<div class="empty"><p>Ask your friend for their save file (in Career, they hit <b>Save file</b>). If it's in Google Drive, it shows up in the file picker.</p>${btn('ch-load', '📂 Load their save', 'primary big')}</div>`}</div>
+        <div class="side">${theirs ? `<div class="side-head" style="${teamVars(theirs.colors)}">${logoCanvas(theirs.logo, theirs.colors[1], theirs.colors[0])}<h3>${esc(theirs.name)}</h3><small>LV ${c.file.level}</small></div>${theirs.players.map((p) => playerCard(p, theirs.colors, { stats: true })).join('')}${btn('ch-load', 'Load a different file', 'small ghost')}` : `<div class="empty"><p>Ask your friend for their save file (in Career, they hit <b>Save file</b>). If it's in Google Drive, it shows up in the file picker.</p>${btn('ch-load', 'Load their save', 'primary big')}</div>`}</div>
       </div>
       ${theirs ? `<div class="setup"><label class="field">Court<select data-c="court">${D.COURTS.map((ct) => `<option value="${ct.id}" ${c.court === ct.id ? 'selected' : ''}>${esc(ct.name)}</option>`).join('')}</select></label>
         <label class="field">First to<select data-c="target">${[11, 15, 21].map((n) => `<option value="${n}" ${c.target === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>
@@ -529,7 +654,7 @@
   // ----- how to play -----
   SCREENS.howto = () => {
     const K = BK.KEYS;
-    const row = (label, k) => `<tr><th scope="row">${label}</th><td>${esc(K.solo[k])}</td><td>${esc(K.pad[k])}</td></tr>`;
+    const row = (label, k) => `<tr><th scope="row">${label}</th><td>${kbdify(K.solo[k])}</td><td>${esc(K.pad[k])}</td></tr>`;
     return `${header('How to Play', 'Three on three on half a court. First crew to the target wins.', S.match ? null : 'title', 'Title')}
       <div class="howto">
         <section><h3>Controls</h3>
@@ -569,17 +694,30 @@
     const you = cfg.youTeam == null ? 0 : cfg.youTeam;
     const win = res.winner === you;
     const versus = cfg.mode === 'versus';
-    const head = versus ? `${esc(cfg.teams[res.winner].name)} win` : win ? 'W' : 'L';
+    const head = versus ? `${esc(cfg.teams[res.winner].name)} win` : win ? 'Victory' : 'Defeat';
     const table = (ti) => {
       const t = cfg.teams[ti];
-      return `<table class="box"><caption>${esc(t.name)} · ${res.score[ti]}</caption><thead><tr><th scope="col">Player</th><th scope="col">PTS</th><th scope="col">DNK</th><th scope="col">AST</th><th scope="col">REB</th><th scope="col">BLK</th><th scope="col">STL</th><th scope="col">ANK</th><th scope="col">STYLE</th></tr></thead><tbody>
+      return `<div class="box-wrap"><table class="box" style="${teamVars(t.colors)}"><caption>${esc(t.name)} · ${res.score[ti]}</caption><thead><tr><th scope="col">Player</th><th scope="col">PTS</th><th scope="col">DNK</th><th scope="col">AST</th><th scope="col">REB</th><th scope="col">BLK</th><th scope="col">STL</th><th scope="col">ANK</th><th scope="col">STYLE</th></tr></thead><tbody>
         ${res.players.filter((p) => p.team === ti).map((p) => `<tr${res.mvp && res.mvp.id === p.id && res.mvp.team === ti ? ' class="mvp"' : ''}><th scope="row">${esc(p.name)}${res.mvp && res.mvp.id === p.id && res.mvp.team === ti ? ' <span class="mvp-tag">MVP</span>' : ''}</th><td>${p.stats.pts}</td><td>${p.stats.dnk}</td><td>${p.stats.ast}</td><td>${p.stats.reb}</td><td>${p.stats.blk}</td><td>${p.stats.stl}</td><td>${p.stats.ankles}</td><td>${p.stats.style.toLocaleString()}</td></tr>`).join('')}
-      </tbody></table>`;
+      </tbody></table></div>`;
     };
+    const side = (ti) => {
+      const t = cfg.teams[ti];
+      return `<div class="final-team ${ti ? 'right' : ''} ${res.winner === ti ? 'win' : 'lose'}" style="${teamVars(t.colors)}">${logoCanvas(t.logo, t.colors[1], t.colors[0], 40)}<b>${esc(t.name)}</b><span class="final-score">${res.score[ti]}</span></div>`;
+    };
+    // Player of the game: the MVP's card with their line.
+    let mvp = '';
+    const mv = res.mvp && cfg.teams[res.mvp.team] && cfg.teams[res.mvp.team].players.find((p) => p.id === res.mvp.id);
+    const mvStats = res.mvp && (res.players.find((p) => p.id === res.mvp.id && p.team === res.mvp.team) || {}).stats;
+    if (mv && mvStats) {
+      const cols = cfg.teams[res.mvp.team].colors;
+      mvp = `<div class="mvp-card">${figure(mv, cols, { w: 96, h: 120, portrait: true })}<div><span class="kicker">Player of the game</span><b>${esc(res.mvp.name)}</b>
+        <div class="mvp-line">${[['PTS', mvStats.pts], ['AST', mvStats.ast], ['BLK', mvStats.blk], ['STYLE', mvStats.style.toLocaleString()]].map(([k, v]) => `<span><em>${v}</em>${k}</span>`).join('')}</div></div></div>`;
+    }
     let rewards = '';
     if (rw) {
-      rewards = `<div class="rewards"><h3>Rewards</h3><p><b>+${rw.rep} REP</b> · <b>+${rw.cred} cred</b>${rw.ups.length ? ` · <b class="lvlup">LEVEL UP! Now level ${S.save.level}</b> (+${rw.ups.length * D.POINTS_PER_LEVEL} skill points)` : ''}</p>
-        ${rw.unlocked.length ? `<ul class="unlocks">${rw.unlocked.map((u) => `<li>🔓 ${esc(u)}</li>`).join('')}</ul>` : ''}
+      rewards = `<div class="rewards"><h3>Rewards</h3><p class="reward-line"><span><b>+${rw.rep}</b> REP</span><span><b>+${rw.cred}</b> cred</span>${rw.ups.length ? `<span class="lvlup">Level up <b>${S.save.level}</b> +${rw.ups.length * D.POINTS_PER_LEVEL} skill points</span>` : ''}</p>
+        ${rw.unlocked.length ? `<ul class="unlocks">${rw.unlocked.map((u) => `<li><span class="sr">Unlocked: </span>${esc(u)}</li>`).join('')}</ul>` : ''}
         ${R.firstWin ? `<p class="first-win">First win over ${esc(cfg.teams[1 - you].name)}${R.king ? ' and the crown of this court. The next stop is open.' : '.'}</p>` : ''}</div>`;
     }
     let recruit = '';
@@ -588,13 +726,14 @@
         <div class="roster">${R.recruits.map(({ id, p }) => `<button type="button" class="roster-pick" data-recruit="${esc(id)}">${playerCard(p, cfg.teams[1 - you].colors, { stats: true, bio: true, w: 80, h: 108 })}<span class="pick-tag">Recruit</span></button>`).join('')}</div>
         <button type="button" class="link" data-act="skip-recruit">Skip</button></div>`;
     } else if (R.recruited) {
-      recruit = `<div class="recruit"><p>✅ ${esc(R.recruited)} joined your crew. Put them in the lineup from <b>Crew</b>.</p></div>`;
+      recruit = `<div class="recruit"><p><b>${esc(R.recruited)}</b> joined your crew. Put them in the lineup from <b>Crew</b>.</p></div>`;
     }
     return `<section class="results ${win ? 'won' : 'lost'}">
-      ${header(`<span class="result-mark">${head}</span> ${res.score[0]} – ${res.score[1]}`, `${esc(cfg.teams[0].name)} vs ${esc(cfg.teams[1].name)} · ${esc(cfg.court.name)}`, null)}
-      ${rewards}${recruit}
+      ${header(`<span class="result-mark">${versus ? '★' : win ? 'W' : 'L'}</span>${head}`, `${esc(cfg.teams[0].name)} vs ${esc(cfg.teams[1].name)} · ${esc(cfg.court.name)} · first to ${cfg.target}`, null, null, `Final · ${esc(cfg.court.name)}`)}
+      <div class="final" role="group" aria-label="Final score">${side(0)}<div class="final-mid">Final<small>to ${cfg.target}</small></div>${side(1)}</div>
+      ${mvp || rewards || recruit ? `<div class="results-top ${mvp && (rewards || recruit) ? '' : 'solo'}">${mvp ? `<div>${mvp}</div>` : ''}${rewards || recruit ? `<div>${rewards}${recruit}</div>` : ''}</div>` : ''}
       <div class="boxes">${table(0)}${table(1)}</div>
-      <div class="event-foot">${btn('again', 'Run it back', 'primary')}${cfg.mode === 'career' ? btn('nav-circuit', 'Circuit', '') + btn('nav-career', 'Career', '') : btn('nav-title', 'Main menu', '')}${S.save && cfg.mode !== 'quick' ? btn('save-file', '💾 Save file (Drive)', 'ghost') : ''}</div>
+      <div class="event-foot">${btn('again', 'Run it back', 'primary')}${cfg.mode === 'career' ? btn('nav-circuit', 'Circuit', '') + btn('nav-career', 'Career', '') : btn('nav-title', 'Main menu', '')}${S.save && cfg.mode !== 'quick' ? btn('save-file', 'Save file (Drive)', 'ghost') : ''}</div>
     </section>`;
   };
 
@@ -668,7 +807,9 @@
     let el = $('#pause'); if (el) el.remove();
     el = document.createElement('div'); el.id = 'pause'; el.className = 'pause'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Paused');
     const K = S.matchCfg.mode === 'versus' ? null : BK.KEYS.solo;
-    el.innerHTML = `<div class="pause-card"><h2>Paused</h2>
+    const [t0, t1] = S.match.teams;
+    el.innerHTML = `<div class="pause-card"><span class="kicker">${esc(S.matchCfg.court.name)} · first to ${S.matchCfg.target}</span><h2>Paused</h2>
+      <p class="pause-score">${esc(t0.name)} <b>${t0.score}</b> – <b>${t1.score}</b> ${esc(t1.name)}</p>
       <button type="button" class="btn primary big" data-p="resume">Resume</button>
       <button type="button" class="btn" data-p="sound">${BK.audio.settings.on ? 'Sound: On' : 'Sound: Off'}</button>
       <button type="button" class="btn" data-p="effects">Effects: ${settings.effects === 'full' ? 'Full' : 'Reduced'}</button>
@@ -684,7 +825,8 @@
       else if (a === 'effects') { settings.effects = settings.effects === 'full' ? 'reduced' : 'full'; saveSettings(); S.match.fx.reduced = settings.effects === 'reduced'; b.textContent = `Effects: ${settings.effects === 'full' ? 'Full' : 'Reduced'}`; }
       else if (a === 'quit') { hidePause(); S.match.destroy(); S.match = null; BK.input.showTouch(false); go(S.matchCfg.mode === 'career' ? 'circuit' : 'title'); }
     });
-    el.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); hidePause(); S.match.resume(); BK.input.capture(true); } });
+    // stopPropagation keeps the game's own key listener from reading this same Esc as a new pause
+    el.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); hidePause(); S.match.resume(); BK.input.capture(true); } });
     $('[data-p="resume"]', el).focus();
   }
   function hidePause() { const el = $('#pause'); if (el) el.remove(); }

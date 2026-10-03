@@ -1053,38 +1053,41 @@
     ctx.restore();
   };
 
-  // A trading card: team-color backdrop, the player from the thighs up, ball on the hip.
+  // A trading card: the player from the thighs up, ball on the hip, over a cel-shaded backdrop:
+  // flat crew color, a flat burst behind the head, one hard shadow plane with halftone, a trim slash.
   A.drawPortrait = function (ctx, player, colors, box, opts) {
     opts = opts || {};
     const d = A.dims(player.hgt, player.build);
     const pri = colors.pri, sec = colors.sec;
+    const px = opts.px || 0.36, facing = opts.facing === -1 ? -1 : 1;
+    const X = (k) => box.x + box.w * k, bottom = box.y + box.h;
     ctx.save();
     ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
-    const g = ctx.createLinearGradient(box.x, box.y, box.x + box.w, box.y + box.h);
-    g.addColorStop(0, shade(pri, 0.08)); g.addColorStop(1, shade(pri, -0.55));
-    ctx.fillStyle = g; ctx.fillRect(box.x, box.y, box.w, box.h);
-    // a bold stripe in the trim color and a burst of light behind the head
-    ctx.globalAlpha = 0.35; ctx.fillStyle = sec;
-    ctx.beginPath(); ctx.moveTo(box.x + box.w * 0.55, box.y); ctx.lineTo(box.x + box.w * 0.85, box.y); ctx.lineTo(box.x + box.w * 0.35, box.y + box.h); ctx.lineTo(box.x + box.w * 0.05, box.y + box.h); ctx.closePath(); ctx.fill();
-    ctx.globalAlpha = 1;
-    const rg = ctx.createRadialGradient(box.x + box.w * 0.55, box.y + box.h * 0.28, 2, box.x + box.w * 0.55, box.y + box.h * 0.28, box.w * 0.75);
-    rg.addColorStop(0, 'rgba(255,255,255,0.35)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = rg; ctx.fillRect(box.x, box.y, box.w, box.h);
-    ctx.fillStyle = 'rgba(0,0,0,0.12)';
-    const dot = Math.max(3, box.w / 22);
-    for (let yy = box.y; yy < box.y + box.h; yy += dot) for (let xx = box.x + ((yy / dot) % 2) * dot / 2; xx < box.x + box.w; xx += dot) { ctx.beginPath(); ctx.arc(xx, yy, dot * 0.16, 0, TAU); ctx.fill(); }
+    // a player facing left gets the backdrop mirrored; the player is turned, never flipped, so numbers read right
+    ctx.save();
+    if (facing === -1) { ctx.translate(box.x * 2 + box.w, 0); ctx.scale(-1, 1); }
+    ctx.fillStyle = shade(pri, -0.06); ctx.fillRect(box.x, box.y, box.w, box.h);
+    ctx.fillStyle = shade(pri, 0.16); ctx.beginPath(); ctx.arc(X(px + 0.14), box.y + box.h * 0.3, Math.min(box.w * 0.5, box.h * 0.42), 0, TAU); ctx.fill();
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(X(px + 0.4), box.y); ctx.lineTo(box.x + box.w, box.y); ctx.lineTo(box.x + box.w, bottom); ctx.lineTo(X(px + 0.08), bottom); ctx.closePath();
+    ctx.fillStyle = shade(pri, -0.36); ctx.fill(); ctx.clip();
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    const dot = Math.max(3, Math.min(box.w, box.h) / 26);
+    for (let yy = box.y; yy < bottom + dot; yy += dot) for (let xx = box.x + (Math.round((yy - box.y) / dot) % 2) * dot / 2; xx < box.x + box.w + dot; xx += dot) { ctx.beginPath(); ctx.arc(xx, yy, dot * 0.24, 0, TAU); ctx.fill(); }
+    ctx.restore();
+    ctx.globalAlpha = 0.9; ctx.fillStyle = sec === pri ? shade(pri, 0.4) : sec;
+    ctx.beginPath(); ctx.moveTo(X(px + 0.33), box.y); ctx.lineTo(X(px + 0.38), box.y); ctx.lineTo(X(px + 0.06), bottom); ctx.lineTo(X(px + 0.01), bottom); ctx.closePath(); ctx.fill();
+    ctx.restore();
     // the player
     // frame from the hips up so the face carries the card
     const visible = d.H * 0.56 + 0.3;
     const scale = box.h * 0.95 / visible;
     const footY = box.y + box.h * 0.05 + (d.H + 0.25) * scale;
     const pose = A.pose('card', { dims: d, time: opts.time || 1.2 });
-    const hands = A.drawBaller(ctx, { x: box.x + box.w * 0.36, y: footY, scale, hgt: player.hgt, build: player.build, look: player.look, num: player.num, colors, facing: 1, pose, dims: d, time: opts.time || 1.2 });
-    if (opts.ball !== false) A.drawBall(ctx, hands.handF[0] + scale * 0.32, hands.handF[1] - scale * 0.05, scale * 0.5, 0.5);
-    // vignette and a thin inner frame
-    const v = ctx.createLinearGradient(0, box.y + box.h * 0.7, 0, box.y + box.h);
-    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.45)');
-    ctx.fillStyle = v; ctx.fillRect(box.x, box.y, box.w, box.h);
+    const hands = A.drawBaller(ctx, { x: X(facing === 1 ? px : 1 - px), y: footY, scale, hgt: player.hgt, build: player.build, look: player.look, num: player.num, colors, facing, pose, dims: d, time: opts.time || 1.2 });
+    if (opts.ball !== false) A.drawBall(ctx, hands.handF[0] + scale * 0.32 * facing, hands.handF[1] - scale * 0.05, scale * 0.5, 0.5);
+    // a hard floor band so the card sits on something
+    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(box.x, box.y + box.h * 0.88, box.w, box.h * 0.12);
     ctx.restore();
   };
 

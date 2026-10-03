@@ -107,30 +107,44 @@
       }
     }
     if (p.human && this.humans.length) {
+      // a marker over the head: label plate and a chevron in the crew color
+      const bob = Math.sin(this.time * 5 + p.slot) * 2.5;
       const top = cam.project(p.x, p.y, p.z + p.hgtFt + 1.3);
-      const label = p.human.label;
-      ctx.save(); ctx.font = '400 16px Anton, Impact, sans-serif'; ctx.textAlign = 'center';
-      const w = ctx.measureText(label).width + 12;
-      ctx.fillStyle = team.colors.pri; A.roundRect(ctx, top.x - w / 2, top.y - 20, w, 20, 4); ctx.fill();
-      ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(top.x - 6, top.y); ctx.lineTo(top.x + 6, top.y); ctx.lineTo(top.x, top.y + 7); ctx.closePath(); ctx.fillStyle = team.colors.pri; ctx.fill(); ctx.stroke();
-      ctx.fillStyle = A.luminance(team.colors.pri) > 0.6 ? '#111' : '#fff'; ctx.fillText(label, top.x, top.y - 4);
+      const label = p.human.label; const pri = team.colors.pri;
+      const ink = A.luminance(pri) > 0.6 ? INK : '#ffffff';
+      ctx.save(); ctx.font = COND(900, 17); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const w = ctx.measureText(label).width + 22, ty = top.y - 30 + bob;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; slab(ctx, top.x - w / 2 + 3, ty + 3, w, 21, 6); ctx.fill();
+      slab(ctx, top.x - w / 2, ty, w, 21, 6); celFill(ctx, pri, ty, 21, 0.25); ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(top.x - 8, ty + 24); ctx.lineTo(top.x + 8, ty + 24); ctx.lineTo(top.x, ty + 33); ctx.closePath(); ctx.fillStyle = pri; ctx.fill(); ctx.stroke();
+      ctx.fillStyle = ink; ctx.fillText(label, top.x, ty + 11.5);
       ctx.restore();
-      // turbo meter under the feet
+      // turbo meter under the feet: five slanted cells
       const g = cam.project(p.x, p.y, 0);
-      ctx.save(); const bw = 46;
-      ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(g.x - bw / 2, g.y + g.s * 0.6, bw, 6);
-      ctx.fillStyle = p.turbo > 0.25 ? (p.turboOn ? '#ffb300' : '#2ec5ff') : '#e8352b'; ctx.fillRect(g.x - bw / 2 + 1, g.y + g.s * 0.6 + 1, (bw - 2) * p.turbo, 4);
+      ctx.save(); const bw = 54, bh = 7, cells = 5, gap = 2, cwid = (bw - gap * (cells - 1)) / cells;
+      const col = p.turbo > 0.25 ? (p.turboOn ? GOLD : '#38c9ff') : '#ff4a2b';
+      for (let i = 0; i < cells; i++) {
+        const cx3 = g.x - bw / 2 + i * (cwid + gap), cy3 = g.y + g.s * 0.62;
+        const f = clamp(p.turbo * cells - i, 0, 1);
+        slab(ctx, cx3, cy3, cwid, bh, 2.5); ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fill();
+        if (f > 0) { ctx.save(); slab(ctx, cx3, cy3, cwid, bh, 2.5); ctx.clip(); ctx.fillStyle = col; ctx.fillRect(cx3, cy3, cwid * f, bh); ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(cx3, cy3, cwid * f, bh * 0.42); ctx.restore(); }
+      }
       ctx.restore();
       // shot timing meter
       if (p.state === 'shoot' && p.shot && p.shot.human && !p.shot.released) {
         const span = p.shot.apex + 0.24; const k = clamp(p.st / span, 0, 1);
-        const mx = s.x + s.s * 2.2, my = s.y - p.hgtFt * s.s * 0.4; const mh = 70;
-        ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(mx - 6, my - mh, 12, mh);
+        const mx = s.x + s.s * 2.2, my = s.y - p.hgtFt * s.s * 0.4; const mh = 78, mw = 14;
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(mx - mw / 2 + 3, my - mh + 3, mw, mh);
+        ctx.fillStyle = '#10131c'; ctx.fillRect(mx - mw / 2, my - mh, mw, mh);
         const gz = (p.shot.apex / span) * mh; const gw = 0.11 / span * mh;
-        ctx.fillStyle = '#3fd13f'; ctx.fillRect(mx - 5, my - gz - gw / 2, 10, gw);
-        ctx.fillStyle = '#ffffff'; ctx.fillRect(mx - 8, my - k * mh - 2, 16, 4);
-        ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.strokeRect(mx - 6, my - mh, 12, mh); ctx.restore();
+        ctx.shadowColor = '#5ee38a'; ctx.shadowBlur = 10; ctx.fillStyle = '#5ee38a'; ctx.fillRect(mx - mw / 2 + 1, my - gz - gw / 2, mw - 2, gw); ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(mx - mw / 2 + 1, my - gz - gw / 2, mw - 2, gw * 0.4);
+        ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.strokeRect(mx - mw / 2, my - mh, mw, mh);
+        const ny = my - k * mh;
+        ctx.beginPath(); ctx.moveTo(mx - mw / 2 - 6, ny - 4); ctx.lineTo(mx + mw / 2 + 6, ny - 4); ctx.lineTo(mx + mw / 2 + 6, ny + 2); ctx.lineTo(mx - mw / 2 - 6, ny + 2); ctx.closePath();
+        ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.restore();
       }
     }
   };
@@ -177,75 +191,185 @@
   };
 
   // ---------- HUD ----------
+  // A broadcast scorebug drawn cel style: flat color, one hard light band, ink edges, hard shadows.
+  const COND = (w, px) => `italic ${w} ${px}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+  const NUM = (px) => `400 ${px}px Anton, Impact, sans-serif`;
+  const INK = '#07080c', GOLD = '#ffc629', GOLD_HI = '#ffe27a';
+  const ease = (k) => 1 - Math.pow(1 - clamp(k, 0, 1), 3);
+  const easeBack = (k) => { k = clamp(k, 0, 1); const c = 1.7; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+  // A parallelogram: x,y is the top-left of the box it leans inside; sl is how far the top shifts right.
+  function slab(ctx, x, y, w, h, sl) { ctx.beginPath(); ctx.moveTo(x + sl, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w - sl, y + h); ctx.lineTo(x, y + h); ctx.closePath(); }
+  // Fill the current path flat, with a hard lighter band across the top.
+  function celFill(ctx, color, y, h, band) {
+    ctx.fillStyle = color; ctx.fill();
+    ctx.save(); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,' + (band == null ? 0.16 : band) + ')'; ctx.fillRect(0, y, W * 2, h * 0.44);
+    ctx.fillStyle = 'rgba(0,0,0,0.16)'; ctx.fillRect(0, y + h * 0.8, W * 2, h * 0.2); ctx.restore();
+  }
+  function inkText(ctx, text, x, y, fill, lw) {
+    ctx.lineJoin = 'round'; ctx.lineWidth = lw || 4; ctx.strokeStyle = INK; ctx.strokeText(text, x, y); ctx.fillStyle = fill; ctx.fillText(text, x, y);
+  }
+  function crownGlyph(ctx, x, y, s, fill) {
+    ctx.beginPath(); ctx.moveTo(x - s, y + s * 0.55); ctx.lineTo(x - s * 1.1, y - s * 0.55); ctx.lineTo(x - s * 0.45, y); ctx.lineTo(x, y - s * 0.85); ctx.lineTo(x + s * 0.45, y); ctx.lineTo(x + s * 1.1, y - s * 0.55); ctx.lineTo(x + s, y + s * 0.55); ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.stroke();
+  }
+  function keycap(ctx, label, x, y) {
+    ctx.font = COND(800, 13); const w = Math.max(24, ctx.measureText(label).width + 12), h = 20;
+    ctx.fillStyle = INK; A.roundRect(ctx, x + 1, y + 2, w, h, 3); ctx.fill();
+    ctx.fillStyle = '#d4d8e2'; A.roundRect(ctx, x, y, w, h, 3); ctx.fill();
+    ctx.save(); ctx.clip(); ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, h * 0.5); ctx.restore();
+    ctx.lineWidth = 1.2; ctx.strokeStyle = INK; A.roundRect(ctx, x, y, w, h, 3); ctx.stroke();
+    ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, x + w / 2, y + h / 2 + 1);
+    return w;
+  }
+
   M.drawHUD = function (ctx) {
     const [t0, t1] = this.teams;
     ctx.save();
-    // scoreboard
-    const cx = W / 2, top = 14, pw = 320, ph = 58;
-    panel(ctx, cx - pw - 54, top, pw, ph, t0, 'left', this);
-    panel(ctx, cx + 54, top, pw, ph, t1, 'right', this);
-    // center: first-to badge
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; A.roundRect(ctx, cx - 46, top + 6, 98, 52, 9); ctx.fill();
-    const bg = ctx.createLinearGradient(0, top, 0, top + 52); bg.addColorStop(0, '#2b2836'); bg.addColorStop(1, '#0d0c12');
-    ctx.fillStyle = bg; A.roundRect(ctx, cx - 48, top + 2, 96, 52, 9); ctx.fill();
-    ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = '#ffd23f'; ctx.font = '400 12px Anton, Impact, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('FIRST TO', cx, top + 19);
-    ctx.font = '400 28px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffffff'; ctx.fillText(String(this.target), cx, top + 48);
-    // rule + court chip
-    const rule = BK.data.RULES[this.rule];
-    ctx.font = '400 13px Anton, Impact, sans-serif'; ctx.textAlign = 'left';
-    const chip = (this.court.name + (this.rule !== 'standard' ? '  ·  ' + rule.name : '')).toUpperCase();
-    const cwid = ctx.measureText(chip).width + 20;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; A.roundRect(ctx, 14, H - 34, cwid, 22, 5); ctx.fill();
-    ctx.fillStyle = '#ffffff'; ctx.fillText(chip, 24, H - 18);
-    // style pot
-    const off = this.teams[this.offense];
-    if (off.pot > 0 && (this.phase === 'live')) {
-      ctx.textAlign = 'center'; ctx.font = '400 30px Bangers, Impact, sans-serif';
-      const txt = `STYLE ${off.pot.toLocaleString()}` + (off.combo > 1 ? `  ×${off.combo}` : '');
-      ctx.lineWidth = 6; ctx.strokeStyle = '#111'; ctx.strokeText(txt, cx, H - 26);
-      ctx.fillStyle = off.combo > 2 ? '#ffd23f' : '#ffffff'; ctx.fillText(txt, cx, H - 26);
-    }
-    // crown hint for humans
-    this.humans.forEach((h) => {
-      const t = this.teams[h.team];
-      if (t.crown >= 1 && !t.crownActive) {
-        const x = h.team === 0 ? cx - 54 - pw / 2 : cx + 54 + pw / 2;
-        const key = h.ctrl.lastSource === 'pad' ? 'LB' : (h.ctrl.layout === null ? 'CROWN' : BK.KEYS[h.keyLayout || 'solo'].crown.split(' ')[0]);
-        ctx.textAlign = 'center'; ctx.font = '400 15px Anton, Impact, sans-serif';
-        const pulse = 0.6 + Math.sin(this.time * 7) * 0.4;
-        ctx.globalAlpha = pulse; ctx.fillStyle = '#ffd23f';
-        ctx.fillText(this.offense === h.team ? `CROWN READY · PRESS ${key}` : 'CROWN READY · GET THE BALL', x, top + ph + 34);
-        ctx.globalAlpha = 1;
+    ctx.textBaseline = 'alphabetic';
+    // scorebug
+    const top = 12, ph = 58, cw = 108, tw = 328, cx = W / 2;
+    const x0 = cx - cw / 2 - tw, x1 = cx + cw / 2 + tw;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; slab(ctx, x0 - 14 + 6, top + 6, x1 - x0 + 28, ph, 14); ctx.fill();
+    ctx.fillStyle = INK; slab(ctx, x0 - 16, top - 2, x1 - x0 + 32, ph + 4, 14); ctx.fill();
+    panel(ctx, x0, top, tw, ph, t0, 'left', this);
+    panel(ctx, cx + cw / 2, top, tw, ph, t1, 'right', this);
+    // center: first-to
+    ctx.fillStyle = '#0d1019'; ctx.fillRect(cx - cw / 2, top, cw, ph);
+    ctx.fillStyle = '#161a26'; ctx.fillRect(cx - cw / 2, top, cw, ph * 0.44);
+    ctx.fillStyle = GOLD; ctx.fillRect(cx - cw / 2, top, cw, 4);
+    ctx.textAlign = 'center';
+    ctx.font = COND(800, 12); ctx.fillStyle = GOLD; ctx.fillText('FIRST TO', cx, top + 20);
+    ctx.font = NUM(28); ctx.fillStyle = '#ffffff'; ctx.fillText(String(this.target), cx, top + 50);
+    // under the bug: crown state per team
+    this.teams.forEach((t, i) => {
+      const left = i === 0; const bx = left ? x0 + tw - 8 : cx + cw / 2 + 8;
+      let label = null, hot = false;
+      if (t.crownActive) { label = t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE'; hot = true; }
+      else {
+        const h = this.humans.find((hh) => hh.team === i);
+        if (h && t.crown >= 1) {
+          const key = h.ctrl.lastSource === 'pad' ? 'LB' : (h.ctrl.layout === null ? 'CROWN' : BK.KEYS[h.keyLayout || 'solo'].crown.split(' ')[0]);
+          label = this.offense === i ? `CROWN READY · PRESS ${key}` : 'CROWN READY · GET THE BALL';
+        }
       }
-    });
-    // intro card
-    if (this.phase === 'intro') {
-      const k = clamp(this.phaseT / 0.3, 0, 1);
-      ctx.globalAlpha = k;
-      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, H * 0.3, W, H * 0.36);
-      ctx.textAlign = 'center';
-      ctx.font = '400 64px Bangers, Impact, sans-serif'; ctx.lineWidth = 8; ctx.strokeStyle = '#111';
-      const vs = `${t0.name.toUpperCase()}  VS  ${t1.name.toUpperCase()}`;
-      ctx.strokeText(vs, W / 2, H * 0.44); ctx.fillStyle = '#ffffff'; ctx.fillText(vs, W / 2, H * 0.44);
-      ctx.font = '400 22px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffd23f';
-      ctx.fillText(`${this.court.name.toUpperCase()}  ·  FIRST TO ${this.target}  ·  ${rule.name.toUpperCase()}`, W / 2, H * 0.52);
-      ctx.font = '400 18px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffffff';
-      ctx.fillText(rule.blurb.toUpperCase(), W / 2, H * 0.58);
+      if (!label) return;
+      ctx.font = COND(900, 14); const lw = ctx.measureText(label).width + 30; const ly = top + ph + 8;
+      const lx = left ? bx - lw : bx;
+      const pulse = hot ? 1 : 0.65 + Math.sin(this.time * 7) * 0.35;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; slab(ctx, lx + 3, ly + 3, lw, 24, 8); ctx.fill();
+      slab(ctx, lx, ly, lw, 24, 8);
+      if (hot) celFill(ctx, GOLD, ly, 24, 0.3); else { ctx.fillStyle = INK; ctx.fill(); }
+      ctx.lineWidth = 1.5; ctx.strokeStyle = hot ? INK : GOLD; ctx.stroke();
+      crownGlyph(ctx, lx + 15, ly + 12, 5, hot ? INK : GOLD);
+      ctx.textAlign = 'left'; ctx.fillStyle = hot ? INK : GOLD; ctx.fillText(label, lx + 24, ly + 17);
       ctx.globalAlpha = 1;
+    });
+    // lower third: the court, and the rule if it isn't the standard one
+    const rule = BK.data.RULES[this.rule];
+    ctx.font = COND(900, 16); const court = this.court.name.toUpperCase();
+    const cwid = ctx.measureText(court).width + 34; const ly = H - 44;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; slab(ctx, 18, ly + 4, cwid, 28, 9); ctx.fill();
+    slab(ctx, 14, ly, cwid, 28, 9); celFill(ctx, GOLD, ly, 28, 0.32); ctx.lineWidth = 1.5; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.textAlign = 'left'; ctx.fillStyle = INK; ctx.fillText(court, 30, ly + 20);
+    if (this.rule !== 'standard') {
+      ctx.font = COND(800, 14); const rn = rule.name.toUpperCase(); const rw = ctx.measureText(rn).width + 30;
+      slab(ctx, 14 + cwid - 6, ly + 2, rw, 24, 8); ctx.fillStyle = 'rgba(7,8,12,0.9)'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.fillText(rn, 14 + cwid + 10, ly + 19);
     }
+    // style meter
+    const off = this.teams[this.offense];
+    if (off.pot > 0 && this.phase === 'live') {
+      const hot = off.combo > 2;
+      ctx.font = NUM(30); const num = off.pot.toLocaleString(); const nw = ctx.measureText(num).width;
+      const mult = off.combo > 1 ? `×${off.combo}` : '';
+      ctx.font = NUM(22); const mw = mult ? ctx.measureText(mult).width + 22 : 0;
+      const bw = 92 + nw + mw, bh = 44, bx = cx - bw / 2, by = H - 62;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)'; slab(ctx, bx + 5, by + 5, bw, bh, 12); ctx.fill();
+      slab(ctx, bx, by, bw, bh, 12); celFill(ctx, '#10131c', by, bh, 0.07); ctx.lineWidth = 2; ctx.strokeStyle = hot ? GOLD : 'rgba(255,255,255,0.3)'; ctx.stroke();
+      ctx.font = COND(900, 15); ctx.textAlign = 'left'; ctx.fillStyle = GOLD; ctx.fillText('STYLE', bx + 22, by + 28);
+      ctx.font = NUM(30); ctx.fillStyle = hot ? GOLD_HI : '#ffffff'; ctx.fillText(num, bx + 76, by + 35);
+      if (mult) {
+        const mx = bx + 76 + nw + 10;
+        slab(ctx, mx, by + 8, mw, bh - 16, 6); celFill(ctx, hot ? GOLD : '#ffffff', by + 8, bh - 16, 0.3);
+        ctx.font = NUM(20); ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.fillText(mult, mx + mw / 2, by + 30);
+      }
+    }
+    // intro: the matchup splash
+    if (this.phase === 'intro') this.drawIntro(ctx, rule);
     // first-game control hint
     if (this.hint > 0 && this.humans.length === 1 && !(BK.input && BK.input.touchVisible())) {
       const h = this.humans[0]; const K = BK.KEYS[h.keyLayout || 'solo'];
       const pad = h.ctrl.lastSource === 'pad'; const P = BK.KEYS.pad;
-      const lines = pad ? [`MOVE ${P.move}`, `SHOOT ${P.shoot}`, `PASS ${P.pass}`, `TRICK ${P.trick}`, `ALLEY-OOP ${P.oop}`, `TURBO ${P.turbo}`]
-        : [`MOVE ${K.move}`, `SHOOT / BLOCK  ${K.shoot}`, `PASS / SWITCH  ${K.pass}`, `TRICK / STEAL  ${K.trick}`, `ALLEY-OOP  ${K.oop}`, `TURBO  ${K.turbo}`];
-      ctx.globalAlpha = clamp(this.hint, 0, 1) * 0.92;
-      ctx.fillStyle = 'rgba(0,0,0,0.6)'; A.roundRect(ctx, W - 250, H - 170, 236, 156, 8); ctx.fill();
-      ctx.font = '400 14px Anton, Impact, sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff';
-      lines.forEach((l, i) => ctx.fillText(l.toUpperCase(), W - 236, H - 146 + i * 22));
+      const keys = (s) => s.replace(/\s*\([^)]*\)/g, '').split(/ or | \/ /).map((k) => k.toUpperCase());
+      const rows = pad ? [['MOVE', P.move], ['SHOOT · BLOCK', P.shoot], ['PASS · SWITCH', P.pass], ['TRICK · STEAL', P.trick], ['ALLEY-OOP', P.oop], ['TURBO', P.turbo]]
+        : [['MOVE', K.move], ['SHOOT · BLOCK', K.shoot], ['PASS · SWITCH', K.pass], ['TRICK · STEAL', K.trick], ['ALLEY-OOP', K.oop], ['TURBO', K.turbo]];
+      const pw = 290, phh = 36 + rows.length * 26, px = W - pw - 16, py = H - phh - 16;
+      ctx.globalAlpha = clamp(this.hint, 0, 1) * 0.95;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(px + 5, py + 5, pw, phh);
+      ctx.fillStyle = 'rgba(10,12,18,0.92)'; ctx.fillRect(px, py, pw, phh);
+      ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(px, py, pw, 28);
+      ctx.fillStyle = GOLD; ctx.fillRect(px, py, 52, 3);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, phh - 1);
+      ctx.font = COND(900, 14); ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.fillText('CONTROLS', px + 14, py + 20);
+      rows.forEach(([label, k], i) => {
+        const ry = py + 36 + i * 26;
+        ctx.font = COND(800, 14); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#c9cdd8'; ctx.fillText(label, px + 14, ry + 10);
+        let kx = px + 130;
+        keys(k).forEach((kk, j) => { if (j) { ctx.font = COND(700, 12); ctx.textAlign = 'left'; ctx.fillStyle = '#747b8f'; ctx.fillText('/', kx + 2, ry + 10); kx += 12; } kx += keycap(ctx, kk, kx, ry) + 4; });
+        ctx.textBaseline = 'alphabetic';
+      });
       ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  };
+
+  // Two crew slabs slam in from the sides, a VS plate pops between them, the court reads underneath.
+  M.drawIntro = function (ctx, rule) {
+    const t = this.phaseT, total = 2.4;
+    const kin = easeBack(t / 0.42), kout = clamp((total - t) / 0.3, 0, 1);
+    const cy = H * 0.44, sh = 96;
+    ctx.save(); ctx.globalAlpha = kout;
+    ctx.fillStyle = 'rgba(5,6,9,0.72)'; ctx.fillRect(0, cy - sh / 2 - 34, W, sh + 128);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    for (let i = -10; i < 50; i++) { slab(ctx, i * 34, cy - sh / 2 - 34, 10, sh + 128, 26); ctx.fill(); }
+    [0, 1].forEach((i) => {
+      const tm = this.teams[i]; const left = i === 0; const pri = tm.colors.pri, sec = tm.colors.sec;
+      const sw = W / 2 - 60; const slide = (1 - kin) * (W * 0.6) * (left ? -1 : 1);
+      const sx = (left ? 0 : W / 2 + 60) + slide;
+      ctx.fillStyle = INK; slab(ctx, sx + 8, cy - sh / 2 + 8, sw, sh, 28); ctx.fill();
+      slab(ctx, sx, cy - sh / 2, sw, sh, 28); celFill(ctx, pri, cy - sh / 2, sh, 0.18);
+      ctx.save(); ctx.clip(); ctx.fillStyle = sec === pri ? A.shade(pri, 0.4) : sec; ctx.fillRect(sx - 40, cy + sh / 2 - 8, sw + 80, 8); ctx.restore();
+      slab(ctx, sx, cy - sh / 2, sw, sh, 28); ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.stroke();
+      const lx = left ? sx + sw - 80 : sx + 80;
+      A.drawLogo(ctx, tm.logo, lx, cy - 2, 36, sec === pri ? '#ffffff' : sec, A.shade(pri, -0.45));
+      ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.beginPath(); ctx.arc(lx, cy - 2, 36, 0, TAU); ctx.stroke();
+      const name = tm.name.toUpperCase(); const room = sw - 170;
+      let fs = 56; ctx.font = COND(900, fs);
+      while (fs > 24 && ctx.measureText(name).width > room) { fs -= 2; ctx.font = COND(900, fs); }
+      ctx.textAlign = left ? 'right' : 'left'; ctx.textBaseline = 'middle';
+      const ink = A.luminance(pri) > 0.6 ? INK : '#ffffff';
+      const nx = left ? lx - 54 : lx + 54;
+      if (ink === '#ffffff') { ctx.fillStyle = INK; ctx.fillText(name, nx + 3, cy + 1); }
+      ctx.fillStyle = ink; ctx.fillText(name, nx, cy - 2);
+    });
+    // VS plate
+    const vk = easeBack((t - 0.3) / 0.3);
+    if (vk > 0) {
+      ctx.save(); ctx.translate(W / 2, cy); ctx.scale(vk, vk); ctx.rotate(-0.06);
+      ctx.fillStyle = INK; slab(ctx, -48 + 6, -38 + 6, 96, 76, 16); ctx.fill();
+      slab(ctx, -48, -38, 96, 76, 16); celFill(ctx, GOLD, -38, 76, 0.35); ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.stroke();
+      ctx.font = NUM(50); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = INK; ctx.fillText('VS', 0, 3);
+      ctx.restore();
+    }
+    // the court underneath
+    const lk = ease((t - 0.45) / 0.35);
+    if (lk > 0) {
+      ctx.globalAlpha = kout * lk; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.font = COND(900, 26); ctx.fillStyle = GOLD;
+      ctx.fillText(`${this.court.name.toUpperCase()}   /   FIRST TO ${this.target}   /   ${rule.name.toUpperCase()}`, W / 2, cy + sh / 2 + 46 - (1 - lk) * 10);
+      ctx.font = COND(700, 18); ctx.fillStyle = '#d4d8e2';
+      ctx.fillText(rule.blurb.toUpperCase(), W / 2, cy + sh / 2 + 74 - (1 - lk) * 10);
     }
     ctx.restore();
   };
@@ -253,62 +377,62 @@
   function panel(ctx, x, y, w, h, t, side, m) {
     const pri = t.colors.pri, sec = t.colors.sec;
     const left = side === 'left';
+    const sbw = 82; // score box
+    const nx = left ? x : x + sbw, nw = w - sbw; // name panel
     ctx.save();
-    // slanted broadcast panel: dark score box on the inside, team color outside
-    const sl = 14;
-    const shape = (ox, oy, grow) => {
-      ctx.beginPath();
-      if (left) { ctx.moveTo(x + sl + ox - grow, y + oy - grow); ctx.lineTo(x + w + ox + grow, y + oy - grow); ctx.lineTo(x + w - sl + ox + grow, y + h + oy + grow); ctx.lineTo(x + ox - grow, y + h + oy + grow); }
-      else { ctx.moveTo(x + ox - grow, y + oy - grow); ctx.lineTo(x + w - sl + ox + grow, y + oy - grow); ctx.lineTo(x + w + ox + grow, y + h + oy + grow); ctx.lineTo(x + sl + ox - grow, y + h + oy + grow); }
-      ctx.closePath();
-    };
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; shape(5, 5, 0); ctx.fill();
-    ctx.fillStyle = '#0d0c12'; shape(0, 0, 3); ctx.fill();
-    const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, A.shade(pri, 0.22)); g.addColorStop(0.5, pri); g.addColorStop(1, A.shade(pri, -0.32));
-    ctx.fillStyle = g; shape(0, 0, 0); ctx.fill();
-    ctx.save(); shape(0, 0, 0); ctx.clip();
-    ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(x, y, w, h * 0.42);
+    // name panel in the crew color, slanted on its outer edge
+    ctx.beginPath();
+    if (left) { ctx.moveTo(nx + 14, y); ctx.lineTo(nx + nw, y); ctx.lineTo(nx + nw, y + h); ctx.lineTo(nx, y + h); }
+    else { ctx.moveTo(nx, y); ctx.lineTo(nx + nw - 14, y); ctx.lineTo(nx + nw, y + h); ctx.lineTo(nx, y + h); }
+    ctx.closePath(); celFill(ctx, pri, y, h, 0.2);
+    ctx.save(); ctx.clip(); ctx.fillStyle = sec === pri ? A.shade(pri, 0.4) : sec; ctx.fillRect(nx - 20, y + h - 5, nw + 40, 5); ctx.restore();
     // score box
-    const bw = 74; const bx = left ? x + w - bw : x;
-    const sg = ctx.createLinearGradient(0, y, 0, y + h); sg.addColorStop(0, '#26232f'); sg.addColorStop(1, '#0d0c12');
-    ctx.fillStyle = sg; ctx.fillRect(bx, y, bw, h);
-    ctx.fillStyle = sec; ctx.fillRect(left ? bx : bx + bw - 4, y, 4, h);
-    ctx.restore();
+    const sx = left ? x + w - sbw : x;
+    ctx.fillStyle = '#10131c'; ctx.fillRect(sx, y, sbw, h);
+    ctx.fillStyle = '#1a1e2b'; ctx.fillRect(sx, y, sbw, h * 0.44);
+    ctx.fillStyle = INK; ctx.fillRect(left ? sx : sx + sbw - 2, y, 2, h);
+    // possession: a ball tucked into the score box of the crew with it
+    if (m.offense === t.i && (m.phase === 'live' || m.phase === 'check')) {
+      ctx.fillStyle = GOLD; ctx.fillRect(sx, y + h - 4, sbw, 4);
+      A.drawBall(ctx, left ? sx + sbw - 11 : sx + 11, y + 11, 6.5, 0.4);
+    }
     const light = A.luminance(pri) > 0.6;
-    const logoX = left ? x + 34 : x + w - 34;
-    A.drawLogo(ctx, t.logo, logoX, y + h / 2, 19, sec === pri ? '#ffffff' : sec, A.shade(pri, -0.45));
+    const logoX = left ? nx + 38 : nx + nw - 38;
+    A.drawLogo(ctx, t.logo, logoX, y + h / 2 - 2, 19, sec === pri ? '#ffffff' : sec, A.shade(pri, -0.45));
+    ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.beginPath(); ctx.arc(logoX, y + h / 2 - 2, 19, 0, TAU); ctx.stroke();
     ctx.textAlign = left ? 'left' : 'right';
-    const nameX = left ? x + 60 : x + w - 60;
-    const name = t.name.toUpperCase(); const room = w - 60 - bw - 12;
-    let fs = 20; ctx.font = `400 ${fs}px Anton, Impact, sans-serif`;
-    while (fs > 11 && ctx.measureText(name).width > room) { fs -= 1; ctx.font = `400 ${fs}px Anton, Impact, sans-serif`; }
-    ctx.fillStyle = light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.35)'; ctx.fillText(name, nameX + 1, y + 27);
-    ctx.fillStyle = light ? '#111' : '#fff'; ctx.fillText(name, nameX, y + 26);
-    // crown meter: two cells with a crown at the end
-    const mw = Math.min(150, room), mx = left ? nameX : nameX - mw, my = y + 36;
+    const nameX = left ? nx + 66 : nx + nw - 66;
+    const name = t.name.toUpperCase(); const room = nw - 66 - 14;
+    let fs = 24; ctx.font = COND(900, fs);
+    while (fs > 12 && ctx.measureText(name).width > room) { fs -= 1; ctx.font = COND(900, fs); }
+    if (!light) { ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillText(name, nameX + 2, y + 27); }
+    ctx.fillStyle = light ? INK : '#ffffff'; ctx.fillText(name, nameX, y + 25);
+    // crown meter: two slanted cells and a crown at the end
+    const mw = Math.min(150, room - 22), my = y + 34, ch = 10;
+    const mx = left ? nameX : nameX - mw - 22;
     for (let i = 0; i < 2; i++) {
-      const cx2 = mx + i * (mw / 2 + 2); const fill = clamp(t.crown - i, 0, 1); const cw2 = mw / 2 - 2;
-      ctx.fillStyle = 'rgba(0,0,0,0.6)'; A.roundRect(ctx, cx2, my, cw2, 11, 3); ctx.fill();
+      const cx2 = mx + i * (mw / 2 + 3); const fill = clamp(t.crown - i, 0, 1); const cw2 = mw / 2 - 3;
+      slab(ctx, cx2, my, cw2, ch, 4); ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill();
       if (fill > 0) {
         const ready = fill >= 1;
-        const pulse = ready ? 0.5 + Math.sin(m.time * 9 + i) * 0.5 : 0;
-        const fg = ctx.createLinearGradient(0, my, 0, my + 11); fg.addColorStop(0, ready ? '#fff6c2' : '#ffe680'); fg.addColorStop(1, ready ? '#ffb300' : '#d99a00');
-        ctx.fillStyle = fg; A.roundRect(ctx, cx2 + 1, my + 1, Math.max(2, (cw2 - 2) * fill), 9, 2); ctx.fill();
-        if (ready) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.3 + pulse * 0.4; ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 12; ctx.fillStyle = '#ffd23f'; A.roundRect(ctx, cx2 + 1, my + 1, cw2 - 2, 9, 2); ctx.fill(); ctx.restore(); }
+        ctx.save(); slab(ctx, cx2, my, cw2, ch, 4); ctx.clip();
+        ctx.fillStyle = ready ? GOLD : '#d9a100'; ctx.fillRect(cx2, my, cw2 * fill, ch);
+        ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(cx2, my, cw2 * fill, ch * 0.42);
+        ctx.restore();
+        if (ready) { const pulse = 0.5 + Math.sin(m.time * 9 + i) * 0.5; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25 + pulse * 0.35; ctx.shadowColor = GOLD; ctx.shadowBlur = 12; slab(ctx, cx2, my, cw2, ch, 4); ctx.fillStyle = GOLD; ctx.fill(); ctx.restore(); }
       }
+      slab(ctx, cx2, my, cw2, ch, 4); ctx.lineWidth = 1.2; ctx.strokeStyle = INK; ctx.stroke();
     }
-    if (t.crownActive) {
-      ctx.font = '400 12px Anton, Impact, sans-serif'; ctx.fillStyle = '#ffd23f';
-      ctx.fillText(t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE', left ? mx : mx + mw, my + 24);
-    }
+    crownGlyph(ctx, left ? mx + mw + 14 : mx + mw + 12, my + 5, 6, t.crown >= 1 ? GOLD : 'rgba(0,0,0,0.45)');
     // score, with a pop when it changes
-    const sx = left ? x + w - bw / 2 : x + bw / 2;
+    const scx = sx + sbw / 2;
     if (t._shown !== t.score) { t._shown = t.score; t._popT = m.time; }
-    const age = m.time - (t._popT || -9); const pop = age < 0.45 ? 1 + Math.sin(age / 0.45 * Math.PI) * 0.45 : 1;
-    ctx.save(); ctx.translate(sx, y + h / 2 + 2); ctx.scale(pop, pop);
-    ctx.font = '400 42px Anton, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const age = m.time - (t._popT || -9); const pop = age < 0.45 ? 1 + Math.sin(age / 0.45 * Math.PI) * 0.4 : 1;
+    ctx.save(); ctx.translate(scx, y + h / 2 + 2); ctx.scale(pop, pop);
+    ctx.font = NUM(42); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (age < 0.6) { ctx.shadowColor = pri; ctx.shadowBlur = 24 * (1 - age / 0.6); }
-    ctx.fillStyle = '#ffffff'; ctx.fillText(String(t.score), 0, 0);
+    ctx.fillStyle = INK; ctx.fillText(String(t.score), 2, 3);
+    ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff'; ctx.fillText(String(t.score), 0, 0);
     ctx.restore();
     ctx.restore();
   }
