@@ -2,6 +2,7 @@
 (function (BK) {
   'use strict';
   const base = new URL('./assets/generated-v1/', document.currentScript.src);
+  const nextBase = new URL('./assets/generated-v2/', document.currentScript.src);
   const catalog = {};
   const loaded = new Map();
   const pending = new Map();
@@ -9,6 +10,9 @@
   for (const id of ['asphalt', 'painted', 'wood']) catalog['surface-' + id] = id + '-surface-v1.webp';
   catalog.impact = 'impact-burst-v1.webp';
   catalog.trophy = 'crown-trophy-v1.webp';
+  const nextKeys = ['mode-career', 'mode-quick', 'mode-versus', 'mode-challenge', 'arch-slasher', 'arch-sniper', 'arch-general', 'arch-trickster', 'arch-big', 'ball'];
+  for (const key of nextKeys) catalog[key] = key + '-v2.webp';
+  const url = (key) => catalog[key] ? new URL(catalog[key], nextKeys.includes(key) ? nextBase : base).href : '';
   function load(key) {
     if (loaded.has(key)) return Promise.resolve(loaded.get(key));
     if (pending.has(key)) return pending.get(key);
@@ -20,7 +24,7 @@
         window.dispatchEvent(new CustomEvent('bk-art-ready', { detail: { key } }));
       };
       img.onerror = () => resolve(null);
-      img.src = new URL(catalog[key], base).href;
+      img.src = url(key);
     });
     pending.set(key, promise);
     return promise;
@@ -30,7 +34,7 @@
   }
   BK.assets = {
     catalog, load, surface,
-    url: (key) => catalog[key] ? new URL(catalog[key], base).href : '',
+    url,
     get: (key) => loaded.get(key) || null,
     ensureCourt(court) { load('court-' + court.id); load('surface-' + surface(court)); },
   };

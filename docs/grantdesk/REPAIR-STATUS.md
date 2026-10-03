@@ -1,10 +1,16 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 3 Blacktop Kings artwork expansion
+
+Added ten original generated assets using the approved v1 court paintings as the style reference: four menu panels, five player-style illustrations and a transparent pebbled basketball. V2 adds 1,792,930 optimized bytes; both batches total 4,727,154 bytes across 23 images. The Career tile and animated creator/locker preview retain the customizable player in front of the new locker-room setting. Other mode tiles and player-style cards gain decorative illustrations. Crown shots retain their special ball color.
+
+Local browser checks decoded all 23 images, inspected desktop and 390-pixel menu/creator layouts, verified player-style selection, and preserved typed value, field identity and focus during an image-ready repaint. Blocking all v2 images retained original menu art, all five style choices and four identity fields without creating a career save. Actual Boardwalk quick-game start, pause, resume and quit passed. Geometry, audio and image-loader regressions and the full canonical verification gate passed. Protected publication checks remain pending for this expansion.
+
 ## Current checkpoint — October 3 Blacktop Kings generated artwork
 
 Added 13 original generated image assets on top of PR #169's cel-shaded broadcast presentation: eight location-specific backdrops with murals and props, three court surface textures, a transparent impact burst and a crown trophy. Public WebP derivatives total 2,934,224 bytes. Court geometry, scoring, animated players, customization, saves and soundtrack logic retain the existing behavior. Images load lazily with deduplicated requests; completed images repaint static scenery and previews, while pending or failed images use the original canvas art. The new impact sprite is omitted in reduced effects and attract mode.
 
-All eight court scenes and floor textures were rendered and visually inspected. Local browser checks passed actual quick-game start, pause, resume and quit, 390-pixel menu layout, trophy decoding and reduced-effect behavior. Blocking all generated image requests retained original artwork, working menu buttons and no persistent career changes. Image-loader regressions, existing court/audio checks and the full canonical verification gate passed. Publication and player feedback remain separate pending steps; PR #169's source is preserved.
+All eight court scenes and floor textures were rendered and visually inspected. Local browser checks passed actual quick-game start, pause, resume and quit, 390-pixel menu layout, trophy decoding and reduced-effect behavior. Blocking all generated image requests retained original artwork, working menu buttons and no persistent career changes. Image-loader regressions, existing court/audio checks and the full canonical verification gate passed. PR #169 and #170 merged through the protected release path. Netlify production deploy `6ac0b8d01e41fe0008306c39` reported exact commit `4cb16ea31dd1c8802c125d58645c2636caddd6dc` ready on October 3. Ordinary player feedback remains pending; the source and v1 review package are preserved.
 
 ## Current checkpoint — October 3 Blacktop Kings soundtrack
 

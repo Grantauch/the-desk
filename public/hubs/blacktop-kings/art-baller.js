@@ -1015,6 +1015,11 @@
     opts = opts || {};
     ctx.save();
     ctx.translate(x, y); ctx.rotate(rot || 0);
+    const illustrated = !opts.color && BK.assets && BK.assets.get('ball');
+    if (illustrated) {
+      ctx.drawImage(illustrated, -r, -r, r * 2, r * 2);
+      ctx.restore(); return;
+    }
     const g = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
     const base = opts.color || '#f07a1a';
     g.addColorStop(0, shade(base, 0.35)); g.addColorStop(0.6, base); g.addColorStop(1, shade(base, -0.35));
@@ -1053,6 +1058,11 @@
     ctx.restore();
   };
 
+  A.drawImageCover = function (ctx, image, box) {
+    const scale = Math.max(box.w / image.naturalWidth, box.h / image.naturalHeight);
+    const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
+    ctx.drawImage(image, box.x + (box.w - w) / 2, box.y + (box.h - h) / 2, w, h);
+  };
   // A trading card: the player from the thighs up, ball on the hip, over a cel-shaded backdrop:
   // flat crew color, a flat burst behind the head, one hard shadow plane with halftone, a trim slash.
   A.drawPortrait = function (ctx, player, colors, box, opts) {
@@ -1063,6 +1073,9 @@
     const X = (k) => box.x + box.w * k, bottom = box.y + box.h;
     ctx.save();
     ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+    const room = opts.backgroundKey && BK.assets && BK.assets.get(opts.backgroundKey);
+    if (room) A.drawImageCover(ctx, room, box);
+    else {
     // a player facing left gets the backdrop mirrored; the player is turned, never flipped, so numbers read right
     ctx.save();
     if (facing === -1) { ctx.translate(box.x * 2 + box.w, 0); ctx.scale(-1, 1); }
@@ -1079,6 +1092,7 @@
     ctx.beginPath(); ctx.moveTo(X(px + 0.33), box.y); ctx.lineTo(X(px + 0.38), box.y); ctx.lineTo(X(px + 0.06), bottom); ctx.lineTo(X(px + 0.01), bottom); ctx.closePath(); ctx.fill();
     ctx.restore();
     // the player
+    }
     // frame from the hips up so the face carries the card
     const visible = d.H * 0.56 + 0.3;
     const scale = box.h * 0.95 / visible;

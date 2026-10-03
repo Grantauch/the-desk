@@ -30,7 +30,7 @@
     app.addEventListener('click', onClick);
     app.addEventListener('input', onInput);
     app.addEventListener('change', onChange);
-    if (BK.assets) { BK.assets.load('impact'); BK.assets.load('trophy'); }
+    if (BK.assets) { BK.assets.load('impact'); BK.assets.load('trophy'); BK.assets.load('ball'); }
     window.addEventListener('bk-art-ready', () => {
       for (const m of [S.match, S.attract]) if (m) { m.paintBackground(); if (m.paused || reduceMotion) m.render(); }
       paintCanvases();
@@ -108,7 +108,23 @@
     return `<canvas class="art" width="${w}" height="${h}" data-draw="${id}" aria-hidden="true"></canvas>`;
   }
   const paintCourt = (court) => (ctx, w, h) => { const cam = A.defaultCamera(w, h); A.paintScene(ctx, cam, court); A.drawHoop(ctx, cam, {}, 'back', court, 0); A.drawHoop(ctx, cam, {}, 'front', court, 0); };
-  const paintPortrait = (p, cols, px) => (ctx, w, h) => A.drawPortrait(ctx, p, teamColors(cols), { x: 0, y: 0, w, h }, { px });
+  const paintPortrait = (p, cols, px, backgroundKey) => (ctx, w, h) => {
+    if (backgroundKey && BK.assets) BK.assets.load(backgroundKey);
+    A.drawPortrait(ctx, p, teamColors(cols), { x: 0, y: 0, w, h }, { px, backgroundKey });
+  };
+  function imageArt(key, fallback) {
+    return `<span class="raster-frame" data-image-art="${key}"><span class="raster-fallback">${fallback || ''}</span><img class="raster-image" alt="" decoding="async" hidden></span>`;
+  }
+  function refreshIllustrations() {
+    if (!BK.assets) return;
+    $$('[data-image-art]', app).forEach((frame) => {
+      const key = frame.dataset.imageArt; BK.assets.load(key);
+      const loaded = BK.assets.get(key); if (!loaded) return;
+      const img = $('.raster-image', frame);
+      if (img.src !== loaded.src) img.src = loaded.src;
+      img.hidden = false; frame.classList.add('has-raster');
+    });
+  }
   // Two crews squaring up: one portrait each side of a slanted seam.
   const paintSplit = (a, ca, b, cb) => (ctx, w, h) => {
     const seam = (top) => (top ? w * 0.56 : w * 0.44);
@@ -137,6 +153,7 @@
     ctx.save(); ctx.translate(w * 0.62, h * 0.36); ctx.transform(1, 0, -0.2, 1, 0, 0); ctx.strokeText('?', 0, 0); ctx.fillText('?', 0, 0); ctx.restore();
   };
   function paintCanvases() {
+    refreshIllustrations();
     $$('canvas[data-draw]', app).forEach((c) => {
       const d = drawables.get(c.dataset.draw); if (!d) return;
       const ctx = c.getContext('2d');
@@ -163,6 +180,8 @@
       const cols = S.screen === 'create' ? [S.draft.crewPri, S.draft.crewSec] : S.save.crew.colors;
       const time = (now - t0) / 1000;
       ctx.clearRect(0, 0, c.width, c.height);
+      const room = BK.assets && BK.assets.get('mode-career');
+      if (room) A.drawImageCover(ctx, room, { x: 0, y: 0, w: c.width, h: c.height });
       // A stage: hard-edged spotlight, the jersey number in outline, a floor disc in the crew color.
       const cw = c.width, chh = c.height, fy = chh * 0.95;
       ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0, chh * 0.8, cw, chh * 0.2);
@@ -305,10 +324,10 @@
         <p class="tagline"><span>3-on-3 streetball</span><span>First to 21</span><span>No refs. No mercy.</span></p>
       </div>
       <nav class="tiles" aria-label="Main menu">
-        ${tile('nav-career', 'Career', s ? `${esc(s.me.nick)} · Level ${s.level} · ${esc(s.crew.name)}` : 'Build your baller. Run the circuit. Take the crown.', { cls: 'hero', idx: '01', kicker: s ? 'Continue' : 'New career', art: art(760, 560, paintPortrait(me, meCols, 0.68)) })}
-        ${tile('nav-quick', 'Quick Game', 'Pick two crews and go.', { idx: '02', art: art(640, 360, paintCourt(next ? next.court : D.COURTS[0])) })}
-        ${tile('nav-versus', 'Versus', 'Two players, one screen.', { idx: '03', art: art(560, 560, paintSplit(CR.memberById(kings.members[0]), kings.colors, CR.memberById(show.members[0]), show.colors)) })}
-        ${tile('nav-challenge', 'Challenge', 'Load a friend\'s save. Beat their crew.', { idx: '04', art: art(560, 560, paintMystery(rival)) })}
+        ${tile('nav-career', 'Career', s ? `${esc(s.me.nick)} · Level ${s.level} · ${esc(s.crew.name)}` : 'Build your baller. Run the circuit. Take the crown.', { cls: 'hero', idx: '01', kicker: s ? 'Continue' : 'New career', art: art(760, 560, paintPortrait(me, meCols, 0.68, 'mode-career')) })}
+        ${tile('nav-quick', 'Quick Game', 'Pick two crews and go.', { idx: '02', art: imageArt('mode-quick', art(640, 360, paintCourt(next ? next.court : D.COURTS[0]))) })}
+        ${tile('nav-versus', 'Versus', 'Two players, one screen.', { idx: '03', art: imageArt('mode-versus', art(560, 560, paintSplit(CR.memberById(kings.members[0]), kings.colors, CR.memberById(show.members[0]), show.colors))) })}
+        ${tile('nav-challenge', 'Challenge', 'Load a friend\'s save. Beat their crew.', { idx: '04', art: imageArt('mode-challenge', art(560, 560, paintMystery(rival))) })}
       </nav>
       <div class="title-foot">
         <div class="title-small">
@@ -344,7 +363,7 @@
       </div>
       <p class="hint">Letters, numbers, spaces, periods, apostrophes, and hyphens only. Your nickname is what the crowd yells.</p>
       <h3 class="group-title">How you play</h3>
-      <div class="arch-grid">${Object.keys(D.ARCHETYPES).map((k) => { const a = D.ARCHETYPES[k]; const top = D.STATS.slice().sort((x, y) => a.base[y.key] - a.base[x.key]).slice(0, 3); return `<button type="button" class="arch ${d.arch === k ? 'on' : ''}" data-arch="${k}" aria-pressed="${d.arch === k}"><b>${esc(a.name)}</b><span>${esc(a.blurb)}</span><span class="arch-top">${top.map((st) => `<i>${st.name} <em>${a.base[st.key]}</em></i>`).join('')}</span></button>`; }).join('')}</div>`;
+      <div class="arch-grid">${Object.keys(D.ARCHETYPES).map((k) => { const a = D.ARCHETYPES[k]; const top = D.STATS.slice().sort((x, y) => a.base[y.key] - a.base[x.key]).slice(0, 3); return `<button type="button" class="arch ${d.arch === k ? 'on' : ''}" data-arch="${k}" aria-pressed="${d.arch === k}"><span class="arch-art" aria-hidden="true">${imageArt('arch-' + k)}</span><b>${esc(a.name)}</b><span>${esc(a.blurb)}</span><span class="arch-top">${top.map((st) => `<i>${st.name} <em>${a.base[st.key]}</em></i>`).join('')}</span></button>`; }).join('')}</div>`;
     } else if (step === 1) {
       body = `<label class="field wide">Height: <b id="hgt-label">${ft(d.hgt)}</b>
           <input type="range" min="66" max="88" step="1" value="${d.hgt}" data-field="hgt" aria-valuetext="${ft(d.hgt)}"></label>
