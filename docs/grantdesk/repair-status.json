@@ -1,4 +1,16 @@
 {
+  "blacktop-generated-art-v3-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "544150c4d822ae8c186d41f351b1992993acdc33",
+    "evidence": [
+      "11 generated details integrated: two backboards, six spectators, sideline bench/kit, jersey mesh and stitched hoop padding. V3 adds 548432 bytes; all 34 images total 5275586 bytes.",
+      "All 34 images decoded and all eight final court renders inspected. Actual Lincoln Lot match start, pause, resume and quit and 390-pixel menu review passed; no persistent career save created.",
+      "Blocking all v3 images retained a working match and original drawing fallback. Focused board projection/shake/shatter/depth, padding, partial spectator and cached night treatment regressions passed alongside existing geometry, audio and loader checks.",
+      "Full canonical verify:full passed. Production publication and ordinary player feedback remain separate evidence."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "blacktop-generated-art-v2-2026-10-03": {
     "status": "LOCAL_VERIFIED",
     "source_base": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
@@ -6,10 +18,13 @@
       "10 additional generated assets integrated: four mode panels, five player-style cards and a transparent textured basketball. V2 adds 1792930 bytes; all 23 images total 4727154 bytes.",
       "All 23 images decoded; desktop and 390-pixel menu/creator inspected. Image-ready repaint preserved field identity, typed value and focus; player-style selection remained intact.",
       "Ordinary ball uses the new sprite while Crown shots retain special color. Blocking all v2 images preserved original menu illustrations and five player-style controls; no persistent career save created.",
-      "Asset loader, court geometry and soundtrack regressions and verify:full passed. Actual Boardwalk quick-game start, pause, resume and quit passed."
+      "Asset loader, court geometry and soundtrack regressions and verify:full passed. Actual Boardwalk quick-game start, pause, resume and quit passed.",
+      "PR #171 merged through the protected path. Exact production deployment confirmed; all 23 images and five integration files matched source SHA-256, and a public match started, paused, resumed and quit."
     ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
+    "deployment_status": "DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "production_commit": "544150c4d822ae8c186d41f351b1992993acdc33",
+    "netlify_deploy": "6ac0c0235747d300077b39de"
   },
   "blacktop-generated-art-2026-10-03": {
     "status": "LOCAL_VERIFIED",

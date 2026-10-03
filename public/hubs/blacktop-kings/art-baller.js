@@ -1,4 +1,4 @@
-/* Blacktop Kings — the ballers. Every player is drawn from shapes in canvas: no images.
+/* Blacktop Kings — animated ballers drawn from canvas shapes, with optional generated fabric detail.
    Coordinates inside a body are feet, origin at the feet, +x the way the player faces, +y up.
    BK.art.pose(kind, opts) builds joint targets; BK.art.drawBaller(ctx, o) draws them. */
 (function (BK) {
@@ -635,6 +635,15 @@
     jer.closePath();
     const jc = L.jersey === 'mesh' ? shade(col.pri, 0.16) : col.pri;
     ctx.fillStyle = jc; ctx.fill(jer);
+    // The neutral material follows the moving torso; crew colors, trim and numbers remain live.
+    const weave = BK.assets && BK.assets.get('jersey-weave');
+    if (weave && A.drawImageQuad && o.scale >= 12) {
+      ctx.save(); ctx.clip(jer); ctx.globalAlpha *= L.jersey === 'mesh' ? 0.5 : 0.3;
+      ctx.globalCompositeOperation = 'soft-light';
+      const pts = [TP(T * 1.1, -sw * 0.62), TP(T * 1.1, sw * 0.62), TP(-0.1, sw * 0.62), TP(-0.1, -sw * 0.62)];
+      A.drawImageQuad(ctx, weave, pts.map(([x, y]) => ({ x, y })));
+      ctx.restore();
+    }
     if (!FINE) {
       ctx.strokeStyle = col.sec; ctx.lineWidth = 0.16 * u; ctx.lineCap = 'butt';
       const h1 = TP(-0.0, -hw * 0.5), h2 = TP(-0.0, hw * 0.5 + B * 0.4); ctx.beginPath(); ctx.moveTo(h1[0], h1[1]); ctx.lineTo(h2[0], h2[1]); ctx.stroke(); ctx.lineCap = 'round';
