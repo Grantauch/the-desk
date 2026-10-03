@@ -99,6 +99,19 @@
   // ---------- the static scene ----------
   A.paintScene = function (ctx, cam, court) {
     const W = cam.W, H = cam.H; const rnd = BK.data.rng('scene-' + court.id);
+    if (BK.assets) {
+      BK.assets.ensureCourt(court);
+      const backdrop = BK.assets.get('court-' + court.id);
+      if (backdrop) {
+        ctx.fillStyle = court.ground; ctx.fillRect(0, 0, W, H);
+        const bottom = cam.project(24, -C.half - 6, 0).y;
+        ctx.drawImage(backdrop, 0, 0, W, bottom + 2);
+        if (['lot', 'cage', 'underpass'].includes(court.scene)) chainFence(ctx, cam, -50, 70, -31, 10, '#8d9398', '#454b51');
+        if (court.scene === 'gym' || court.scene === 'crown') SCENES[court.scene].mid(ctx, cam, court, rnd);
+        paintCourt(ctx, cam, court, rnd);
+        return;
+      }
+    }
     // sky
     const sky = ctx.createLinearGradient(0, 0, 0, Math.max(40, cam.horizon + 40));
     sky.addColorStop(0, court.sky[0]); sky.addColorStop(0.55, court.sky[1]); sky.addColorStop(1, court.sky[2]);
@@ -165,6 +178,7 @@
         ctx.stroke();
       }
     }
+    paintSurface(ctx, cam, court);
     // two-point area tint
     const arc = C.deepArc(1);
     const inside = [[L, -C.cornerY]].concat(arc, [[L, C.cornerY]]);
@@ -173,6 +187,7 @@
     // key
     fill3(ctx, cam, [[L, -C.keyHalf], [C.ftX, -C.keyHalf], [C.ftX, C.keyHalf], [L, C.keyHalf]], court.key);
     fill3(ctx, cam, [[-L, -C.keyHalf], [-C.ftX, -C.keyHalf], [-C.ftX, C.keyHalf], [-L, C.keyHalf]], court.key);
+    paintSurface(ctx, cam, court, true);
     // center circle
     const cc = arcPts(0, 0, 6, 0, TAU, 48);
     fill3(ctx, cam, cc, shade(court.key, 0.05));
@@ -219,6 +234,35 @@
       g.addColorStop(0, 'rgba(255,240,200,0.10)'); g.addColorStop(0.6, 'rgba(0,0,0,0.05)'); g.addColorStop(1, 'rgba(0,0,0,0.45)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, cam.W, cam.H); ctx.restore();
     }
+  }
+  // Project small texture tiles onto the existing floor; markings are painted afterwards.
+  function imageTriangle(ctx, img, src, dst) {
+    const [s0, s1, s2] = src, [d0, d1, d2] = dst;
+    const det = (s1.x - s0.x) * (s2.y - s0.y) - (s2.x - s0.x) * (s1.y - s0.y);
+    const ax = ((d1.x - d0.x) * (s2.y - s0.y) - (d2.x - d0.x) * (s1.y - s0.y)) / det;
+    const bx = ((s1.x - s0.x) * (d2.x - d0.x) - (s2.x - s0.x) * (d1.x - d0.x)) / det;
+    const ay = ((d1.y - d0.y) * (s2.y - s0.y) - (d2.y - d0.y) * (s1.y - s0.y)) / det;
+    const by = ((s1.x - s0.x) * (d2.y - d0.y) - (s2.x - s0.x) * (d1.y - d0.y)) / det;
+    ctx.save(); ctx.beginPath(); ctx.moveTo(d0.x, d0.y); ctx.lineTo(d1.x, d1.y); ctx.lineTo(d2.x, d2.y); ctx.closePath(); ctx.clip();
+    ctx.transform(ax, ay, bx, by, d0.x - ax * s0.x - bx * s0.y, d0.y - ay * s0.x - by * s0.y);
+    ctx.drawImage(img, 0, 0); ctx.restore();
+  }
+  function paintSurface(ctx, cam, court, keyOnly) {
+    if (!BK.assets) return;
+    const img = BK.assets.get('surface-' + BK.assets.surface(court));
+    if (!img) return;
+    ctx.save();
+    if (keyOnly) {
+      path3(ctx, cam, [[C.len, -C.keyHalf], [C.ftX, -C.keyHalf], [C.ftX, C.keyHalf], [C.len, C.keyHalf]]); ctx.clip();
+    } else { path3(ctx, cam, [[-C.len, -C.half], [C.len, -C.half], [C.len, C.half], [-C.len, C.half]]); ctx.clip(); }
+    ctx.globalAlpha = keyOnly ? 0.18 : 0.24; ctx.globalCompositeOperation = 'soft-light';
+    const src = [{ x: 0, y: 0 }, { x: img.width, y: 0 }, { x: img.width, y: img.height }, { x: 0, y: img.height }];
+    for (let x = -C.len; x < C.len; x += 12) for (let y = -C.half; y < C.half; y += 12) {
+      const dst = [[x, y], [x + 12, y], [x + 12, y + 12], [x, y + 12]].map(([px, py]) => cam.project(px, py, 0));
+      imageTriangle(ctx, img, [src[0], src[1], src[2]], [dst[0], dst[1], dst[2]]);
+      imageTriangle(ctx, img, [src[0], src[2], src[3]], [dst[0], dst[2], dst[3]]);
+    }
+    ctx.restore();
   }
   function drawGroundCrown(ctx, cam, cx, cy, s, color) {
     // u runs along the court (x), v points away from the camera (-y)

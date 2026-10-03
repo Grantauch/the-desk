@@ -4,6 +4,9 @@
    cel-shaded finish: flat color with one hard light band, ink edges, hard offset shadows, and halftone
    in the shade. Gold is the focus color; crew colors show up wherever a crew does. */
 [hidden] { display: none !important; }
+.circuit-title { display: inline-flex; align-items: center; gap: 18px; }
+.circuit-trophy { object-fit: contain; flex: 0 0 80px; }
+.result-trophy { object-fit: contain; vertical-align: middle; margin-right: 12px; }
 :root {
   --ink: #07080c; --ink-1: #0d0f16; --ink-2: #141722; --ink-3: #1c2030; --ink-4: #2a3044;
   --line: rgba(255, 255, 255, .08); --line-2: rgba(255, 255, 255, .16); --line-3: rgba(255, 255, 255, .28);

@@ -1,5 +1,11 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 3 Blacktop Kings generated artwork
+
+Added 13 original generated image assets on top of PR #169's cel-shaded broadcast presentation: eight location-specific backdrops with murals and props, three court surface textures, a transparent impact burst and a crown trophy. Public WebP derivatives total 2,934,224 bytes. Court geometry, scoring, animated players, customization, saves and soundtrack logic retain the existing behavior. Images load lazily with deduplicated requests; completed images repaint static scenery and previews, while pending or failed images use the original canvas art. The new impact sprite is omitted in reduced effects and attract mode.
+
+All eight court scenes and floor textures were rendered and visually inspected. Local browser checks passed actual quick-game start, pause, resume and quit, 390-pixel menu layout, trophy decoding and reduced-effect behavior. Blocking all generated image requests retained original artwork, working menu buttons and no persistent career changes. Image-loader regressions, existing court/audio checks and the full canonical verification gate passed. Publication and player feedback remain separate pending steps; PR #169's source is preserved.
+
 ## Current checkpoint — October 3 Blacktop Kings soundtrack
 
 Replaced the synthesized music sequencer with the provided recordings, in order: The Asphalt Throne, then Canvas on the Concrete, repeating. One media player continues across menus, matches and Crown-shot events. The existing music volume and master sound controls pause and resume playback without restarting the song; basketball effects and crowd remain separate. The game attempts playback on opening, then retries after the first player gesture when browser autoplay rules block it. The source recordings are preserved, and the public copies retain their original bytes.
