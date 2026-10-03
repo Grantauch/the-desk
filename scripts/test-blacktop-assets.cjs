@@ -17,16 +17,17 @@ vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/hubs/blacktop-ki
 const assets = sandbox.window.BK.assets;
 (async () => {
   assert.equal(requests.length, 0, 'Loading the module must not eagerly download every court');
-  assert.equal(Object.keys(assets.catalog).length, 13);
+  assert.equal(Object.keys(assets.catalog).length, 23);
   let bytes = 0;
-  for (const file of Object.values(assets.catalog)) {
-    const full = path.join(__dirname, '../public/hubs/blacktop-kings/assets/generated-v1', file);
+  for (const [key, file] of Object.entries(assets.catalog)) {
+    const relative = new URL(assets.url(key)).pathname.split('/assets/')[1];
+    const full = path.join(__dirname, '../public/hubs/blacktop-kings/assets', relative);
     const data = fs.readFileSync(full); bytes += data.length;
     assert.equal(data.toString('ascii', 0, 4), 'RIFF');
     assert.equal(data.toString('ascii', 8, 12), 'WEBP');
     assert.ok(data.length < 500000, `${file} exceeds the per-image budget`);
   }
-  assert.ok(bytes < 4000000, 'The full image set should remain under 4 MB');
+  assert.ok(bytes < 6000000, 'Both image batches should remain under 6 MB');
   const court = { id: 'lot', scene: 'lot' };
   assets.ensureCourt(court); assets.ensureCourt(court);
   assert.equal(requests.length, 2, 'The same court reuses its pending scenery and texture requests');
@@ -46,5 +47,13 @@ const assets = sandbox.window.BK.assets;
   assert.equal(await assets.load('unknown'), null);
   assert.equal(assets.surface({ scene: 'gym' }), 'wood');
   assert.equal(assets.surface({ scene: 'beach' }), 'painted');
-  console.log(`Blacktop assets: 13 WebP files (${bytes} bytes), lazy loading, deduplication, repaint events and failure fallback passed.`);
+  const menu = assets.load('mode-quick'); assets.load('mode-quick');
+  assert.equal(requests.length, 3, 'Menu art uses the same deduplicated loader');
+  assert.ok(requests[2].url.endsWith('/generated-v2/mode-quick-v2.webp'));
+  requests[2].onerror(); assert.equal(await menu, null);
+  assert.equal(assets.get('mode-quick'), null, 'Failed menu art retains its canvas fallback');
+  assert.ok(assets.url('arch-slasher').endsWith('/generated-v2/arch-slasher-v2.webp'));
+  assert.ok(assets.url('ball').endsWith('/generated-v2/ball-v2.webp'));
+  assert.equal(assets.url('unknown'), '');
+  console.log(`Blacktop assets: 23 WebP files (${bytes} bytes), lazy loading, deduplication, repaint events and failure fallback passed.`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

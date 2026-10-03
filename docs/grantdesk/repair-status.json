@@ -1,4 +1,16 @@
 {
+  "blacktop-generated-art-v2-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
+    "evidence": [
+      "10 additional generated assets integrated: four mode panels, five player-style cards and a transparent textured basketball. V2 adds 1792930 bytes; all 23 images total 4727154 bytes.",
+      "All 23 images decoded; desktop and 390-pixel menu/creator inspected. Image-ready repaint preserved field identity, typed value and focus; player-style selection remained intact.",
+      "Ordinary ball uses the new sprite while Crown shots retain special color. Blocking all v2 images preserved original menu illustrations and five player-style controls; no persistent career save created.",
+      "Asset loader, court geometry and soundtrack regressions and verify:full passed. Actual Boardwalk quick-game start, pause, resume and quit passed."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "blacktop-generated-art-2026-10-03": {
     "status": "LOCAL_VERIFIED",
     "source_base": "e71840f771d167a9ebac021a8fc6b368200123e5",
@@ -7,7 +19,9 @@
       "All eight courts rendered and inspected; actual match start, pause, resume and quit checked; 390-pixel menu and circuit trophy inspected.",
       "Image loading and failure fallback, reduced-motion effect behavior, existing geometry/audio regressions and verify:full passed."
     ],
-    "deployment_status": "NOT_DEPLOYED",
+    "deployment_status": "DEPLOYED",
+    "production_commit": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
+    "netlify_deploy": "6ac0b8d01e41fe0008306c39",
     "field_status": "FIELD_PENDING"
   },
   "blacktop-soundtrack-2026-10-03": {
