@@ -1169,8 +1169,9 @@
       p.ballWorld = bpos;
       const b = this.toBody(p, bpos.x, bpos.y, bpos.z);
       const tossed = p.state === 'trick' && p.trick && ['head', 'juggle', 'dome'].includes(p.trick.key);
-      const hand = tossed ? [b[0], b[1] - 0.45 * d.u] : [b[0], Math.max(b[1] + 0.5 * d.u, d.leg * 0.8)];
+      const hand = tossed ? [b[0], b[1] - 0.45 * d.u] : [b[0], Math.max(b[1] + 0.5 * d.u, (p.dribTop || d.leg * 0.75) + 0.05 * d.u)];
       if (b[2] >= -0.15) o.ballHand = hand; else o.ballHandB = hand;
+      o.ballClamp = !tossed; // a dribbling hand reaches as far toward the ball as the arm allows
     } else p.ballWorld = null;
     // dunks finish with the hand on the rim, wherever the rim is from this angle
     if (kind === 'dunk' || kind === 'hang') { const r = this.toBody(p, RIM.x, RIM.y, C.rimZ + 0.2); o.rim = [r[0], r[1]]; }
@@ -1179,7 +1180,7 @@
     else if (p.air) { p.air = false; p.landT = 0.22; }
     if (p.landT > 0) { p.landT -= dt; if (LANDS.includes(kind)) o.land = Math.sin(clamp(1 - p.landT / 0.22, 0, 1) * Math.PI); }
     let pose = A.pose(kind, o);
-    const key = kind + (o.style || '');
+    const key = kind + (o.style || '') + (o.released ? '!' : '');
     if (key !== p.animKey) {
       if (p.pose && dt) { p.blendFrom = p.pose; p.blendT = 0; p.blendDur = BLEND[kind] || (p.anim === 'run' || p.anim === 'slide' ? 0.14 : 0.12); }
       p.animKey = key;
@@ -1220,6 +1221,7 @@
       const bounce = (u) => 0.4 + (handZ - 0.4) * Math.abs(Math.cos(Math.PI * u));
       // remember where the move leaves the ball so the regular dribble picks it up from there
       const at = (bx, bz, depth) => { p.drib = { x: bx, depth }; return this.fromBody(p, bx, bz, depth); };
+      p.dribTop = handZ;
       switch (tr.key) {
         case 'hesi': return at(0.7, bounce(k * 1.5), 0.6);
         case 'cross': return at(0.75 - Math.sin(k * Math.PI) * 0.15, bounce(k), lerp(0.7, -0.7, k));
@@ -1237,14 +1239,16 @@
         default: return at(0.7, handZ, 0.5);
       }
     }
-    // regular dribble: about hip high, pushed out further ahead at speed
-    const per = sp > 6 ? 0.36 : 0.46;
+    // regular dribble: knee high and tight when standing (like a crossover), hip high and pushed
+    // out ahead at speed
+    const per = sp > 6 ? 0.36 : 0.42;
     const prev = p.dribT;
     p.dribT = (p.dribT + dt / per) % 1;
     if (prev < 0.5 && p.dribT >= 0.5 && !this.attract) this.sfx('dribble', clamp(0.35 + sp / 40, 0.3, 0.7));
-    const top = d.leg * (sp > 6 ? 0.8 : 0.74);
+    const top = d.leg * (sp > 6 ? 0.8 : 0.62);
+    p.dribTop = top;
     const z = 0.42 + (top - 0.42) * Math.abs(Math.cos(Math.PI * p.dribT));
-    const tx = (sp > 6 ? 1.2 : 0.95) * d.u, tdep = 0.55;
+    const tx = (sp > 6 ? 1.15 : 0.8) * d.u, tdep = 0.55;
     const dr = p.drib || (p.drib = { x: tx, depth: tdep });
     const ease = 1 - Math.exp(-dt * 9);
     dr.x += (tx - dr.x) * ease; dr.depth += (tdep - dr.depth) * ease;
