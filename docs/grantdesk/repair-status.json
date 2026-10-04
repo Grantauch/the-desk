@@ -1,4 +1,17 @@
 {
+  "blacktop-choice-art-v4-2026-10-04": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "2f94fe0a2368bb1a97968c206195a1d6c8409881",
+    "evidence": [
+      "Ten original images: four mode scenes, five action-based player-style cards and a separate empty locker background. Fictional casts vary across scenes and include white, Black, Latino, East Asian and South Asian players.",
+      "The active catalog has 35 images totaling 5557080 bytes, under its existing 6 MB budget. Earlier images remain in their versioned directories; full-resolution originals and prompts are preserved in the additive local v4 package.",
+      "Actual desktop and 390-pixel menu/creator review passed; whole skill actions remain visible. All 35 images decoded; style selection and image-ready input/focus preservation passed.",
+      "Blocking every v4 image retained original menu art, four identity fields, all five style choices and the player preview. Actual local match start, pause, resume and quit passed, without a persistent career save.",
+      "Packaged game decoded all 35 images from its own relative paths and reached active gameplay. JavaScript syntax, whitespace, existing Blacktop regressions and canonical verify:full passed: 53 built routes, 103 HTML files, 4346 references, 62 sealed files."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "blacktop-generated-art-v3-2026-10-03": {
     "status": "LOCAL_VERIFIED",
     "source_base": "544150c4d822ae8c186d41f351b1992993acdc33",
