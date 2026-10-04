@@ -1,5 +1,13 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 4 Blacktop Kings choice artwork v4
+
+Ten original generated illustrations replace four repeated mode scenes and five player-style scenes, with a separate empty locker room behind the customizable animated player. The fictional casts vary in skin tone, face, hair, build, clothing and setting, including white, Black, Latino, East Asian and South Asian players. Actions explain preparation, pickup play, head-to-head rivals, a saved lineup challenge, attacking the rim, deep shooting, passing, handles and rebounding. Existing layout, card dimensions and labels are preserved. Skill cards contain the full action; mode art retains faces at the top of shallow phone cards. Earlier asset files remain preserved in their versioned directories.
+
+The active catalog has 35 images totaling 5,557,080 bytes, within the existing 6 MB budget. All images decoded; desktop and 390-pixel menu/creator views were inspected. Player-style selection and artwork-ready input/focus preservation passed. Blocking v4 pictures retained original menu art, all five style controls, four identity fields and the preview. Actual match start/pause/resume/quit passed without creating a persistent career save. The saved edition decoded its own relative assets and reached active gameplay.
+
+Existing Blacktop geometry/detail/soundtrack/loader checks, JavaScript syntax and whitespace checks, and the canonical full verification gate passed: 53 built routes, 103 HTML files, 4,346 local references and 62 sealed release files. A fresh Windows checkout's newline conversion was repaired to exact tracked bytes before the sealed-file gate; those baseline files have no source diff. Full-resolution originals, prompts, optimized assets, gallery and playable review copy are preserved in the additive local v4 package. Protected publication and exact public verification are separate gates pending at this source checkpoint; visual preference and ordinary play feedback remain user judgments.
+
 ## Current checkpoint — October 3 Blacktop Kings court details v3
 
 Eleven additional generated images add worn steel and translucent glass backboards, six fictional neighborhood spectators, a sideline bench with bags/cooler/towels, jersey mesh and stitched hoop padding. V3 adds 548,432 optimized bytes; all 34 assets total 5,275,586 bytes. Materials follow existing projected geometry and player animation. Board shake/shatter, hoop target/rim/net, customizable team colors and jersey numbers retain their existing behavior. Night spectators receive a cached darker treatment; pending or failed images retain original drawings.
