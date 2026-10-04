@@ -28,7 +28,9 @@
     const ents = this.players.map((p) => ({ y: p.y, t: 'p', p }));
     ents.push({ y: -0.9, t: 'hoopBack' }, { y: 0.9, t: 'hoopFront' });
     const b = this.ball;
-    ents.push({ y: b.y + (b.state === 'held' ? 0.05 : 0), t: 'ball' });
+    // a ball sitting up on the rim is seen over the front of it; one dropping through is inside it
+    const onRim = Math.hypot(b.x - C.rimX, b.y - C.rimY) < 1.6 && b.z > C.rimZ + 0.15;
+    ents.push({ y: onRim ? 1 : b.y + (b.state === 'held' ? 0.05 : 0), t: 'ball' });
     ents.sort((a, c) => a.y - c.y);
     for (const e of ents) {
       if (e.t === 'p') this.drawPlayer(ctx, e.p);
@@ -97,7 +99,7 @@
     }
     A.drawBaller(ctx, {
       x: s.x, y: s.y, scale: s.s, hgt: p.data.hgt, build: p.data.build, look: p.data.look, num: p.data.num,
-      colors: team.colors, facing: p.facing, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
+      colors: team.colors, facing: p.faceVis == null ? p.facing : p.faceVis, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
     });
     // dizzy stars over a fallen defender
     if (p.state === 'fallen' || p.state === 'stumble') {
