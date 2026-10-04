@@ -4,6 +4,7 @@
   const base = new URL('./assets/generated-v1/', document.currentScript.src);
   const nextBase = new URL('./assets/generated-v2/', document.currentScript.src);
   const detailBase = new URL('./assets/generated-v3/', document.currentScript.src);
+  const choiceBase = new URL('./assets/generated-v4/', document.currentScript.src);
   const catalog = {};
   const loaded = new Map();
   const pending = new Map();
@@ -16,7 +17,9 @@
   const fans = ['fan-teal', 'fan-red', 'fan-gold', 'fan-violet', 'fan-cream', 'fan-blue'];
   const detailKeys = ['board-street', 'board-glass', ...fans, 'sideline-kit', 'jersey-weave', 'pad-vinyl'];
   for (const key of detailKeys) catalog[key] = key + '-v3.webp';
-  const url = (key) => catalog[key] ? new URL(catalog[key], detailKeys.includes(key) ? detailBase : nextKeys.includes(key) ? nextBase : base).href : '';
+  const choiceKeys = ['mode-career', 'mode-quick', 'mode-versus', 'mode-challenge', 'arch-slasher', 'arch-sniper', 'arch-general', 'arch-trickster', 'arch-big', 'locker-room'];
+  for (const key of choiceKeys) catalog[key] = key + '-v4.webp';
+  const url = (key) => catalog[key] ? new URL(catalog[key], choiceKeys.includes(key) ? choiceBase : detailKeys.includes(key) ? detailBase : nextKeys.includes(key) ? nextBase : base).href : '';
   function load(key) {
     if (loaded.has(key)) return Promise.resolve(loaded.get(key));
     if (pending.has(key)) return pending.get(key);

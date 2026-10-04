@@ -175,13 +175,14 @@
   // ---------- animated preview for the creator and locker ----------
   function startPreview() {
     const c = $('#preview', app); if (!c) return;
+    if (BK.assets) BK.assets.load('locker-room');
     const ctx = c.getContext('2d'); const t0 = performance.now();
     const loop = (now) => {
       const p = S.screen === 'create' ? draftPlayer() : CR.mePlayer(S.save);
       const cols = S.screen === 'create' ? [S.draft.crewPri, S.draft.crewSec] : S.save.crew.colors;
       const time = (now - t0) / 1000;
       ctx.clearRect(0, 0, c.width, c.height);
-      const room = BK.assets && BK.assets.get('mode-career');
+      const room = BK.assets && BK.assets.get('locker-room');
       if (room) A.drawImageCover(ctx, room, { x: 0, y: 0, w: c.width, h: c.height });
       // A stage: hard-edged spotlight, the jersey number in outline, a floor disc in the crew color.
       const cw = c.width, chh = c.height, fy = chh * 0.95;
@@ -325,7 +326,7 @@
         <p class="tagline"><span>3-on-3 streetball</span><span>First to 21</span><span>No refs. No mercy.</span></p>
       </div>
       <nav class="tiles" aria-label="Main menu">
-        ${tile('nav-career', 'Career', s ? `${esc(s.me.nick)} · Level ${s.level} · ${esc(s.crew.name)}` : 'Build your baller. Run the circuit. Take the crown.', { cls: 'hero', idx: '01', kicker: s ? 'Continue' : 'New career', art: art(760, 560, paintPortrait(me, meCols, 0.68, 'mode-career')) })}
+        ${tile('nav-career', 'Career', s ? `${esc(s.me.nick)} · Level ${s.level} · ${esc(s.crew.name)}` : 'Build your baller. Run the circuit. Take the crown.', { cls: 'hero', idx: '01', kicker: s ? 'Continue' : 'New career', art: imageArt('mode-career', art(760, 560, paintPortrait(me, meCols, 0.68))) })}
         ${tile('nav-quick', 'Quick Game', 'Pick two crews and go.', { idx: '02', art: imageArt('mode-quick', art(640, 360, paintCourt(next ? next.court : D.COURTS[0]))) })}
         ${tile('nav-versus', 'Versus', 'Two players, one screen.', { idx: '03', art: imageArt('mode-versus', art(560, 560, paintSplit(CR.memberById(kings.members[0]), kings.colors, CR.memberById(show.members[0]), show.colors))) })}
         ${tile('nav-challenge', 'Challenge', 'Load a friend\'s save. Beat their crew.', { idx: '04', art: imageArt('mode-challenge', art(560, 560, paintMystery(rival))) })}

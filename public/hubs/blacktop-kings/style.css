@@ -175,6 +175,7 @@ kbd { display: inline-grid; place-items: center; min-width: 26px; height: 22px; 
 .tagline span + span::before { content: '/'; color: var(--gold); margin: 0 12px; }
 .tiles { display: grid; grid-template-columns: 1.55fr 1fr 1fr 1fr; gap: 18px; margin-top: auto; }
 .tiles .tile { min-height: clamp(190px, 31vh, 290px); animation: tile-in .5s cubic-bezier(.2, .9, .3, 1) both; }
+.tiles .raster-image { object-position: 50% 0%; }
 .tiles .tile:nth-child(2) { animation-delay: .06s; } .tiles .tile:nth-child(3) { animation-delay: .12s; } .tiles .tile:nth-child(4) { animation-delay: .18s; }
 @keyframes tile-in { from { transform: translateY(26px); opacity: 0; } }
 .title-foot { display: flex; justify-content: space-between; align-items: center; gap: 14px 24px; flex-wrap: wrap; margin-top: 6px; }
@@ -248,7 +249,7 @@ kbd { display: inline-grid; place-items: center; min-width: 26px; height: 22px; 
 .raster-image[hidden] { display: none; }
 .arch-art { display: none; height: 112px; margin: -14px -14px 10px; overflow: hidden; border-bottom: 2px solid #07080c; }
 .arch-art:has(.has-raster) { display: block; }
-.arch-art .raster-image { object-position: 50% 35%; }
+.arch-art .raster-image { object-fit: contain; object-position: 50% 50%; background: #10131c; }
 .arch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
 .arch { position: relative; text-align: left; color: #fff; background: var(--band), var(--ink-2); border: 1px solid var(--line-2); padding: 14px 14px 12px; box-shadow: 4px 4px 0 #000; display: flex; flex-direction: column; gap: 4px; transition: border-color .12s ease, transform .12s ease; }
 .arch:hover { border-color: rgba(255, 198, 41, .7); transform: translate(-1px, -1px); }
