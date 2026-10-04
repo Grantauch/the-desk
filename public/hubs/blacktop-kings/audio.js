@@ -85,6 +85,7 @@
       o.connect(g); g.connect(sfxBus); o.start(t); lfo.start(t); o.stop(t + 0.5); lfo.stop(t + 0.5);
     },
     whoosh(v, t) { noise('bandpass', 400, 1.2, 0.35, 0.4 * v, t, sfxBus, 0.08, 2600); },
+    bump(v, t) { tone('sine', 120, 55, 0.11, 0.45 * v, t); noise('lowpass', 700, 0.7, 0.07, 0.3 * v, t); },
     catch(v, t) { tone('sine', 220, 120, 0.06, 0.4 * v, t); noise('lowpass', 1400, 0.6, 0.04, 0.2 * v, t); },
     pass(v, t) { noise('bandpass', 1100, 1, 0.12, 0.2 * v, t, sfxBus, 0.01, 2200); },
     scratch(v, t) {

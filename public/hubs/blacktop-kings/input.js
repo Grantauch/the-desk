@@ -34,18 +34,20 @@
   let capturing = false; // true while a match runs, so arrow keys and space do not scroll the page
 
   // Every keydown gets a sequence number, so a tap that starts and ends between two frames still counts.
+  // Press and release times are kept too, so a held shot is timed to the millisecond, not the frame.
   const pressedAt = new Map(); let seq = 0;
+  const downTime = new Map(), upTime = new Map();
   window.addEventListener('keydown', (e) => {
     if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     down.add(e.code);
-    if (!e.repeat) pressedAt.set(e.code, ++seq);
+    if (!e.repeat) { pressedAt.set(e.code, ++seq); downTime.set(e.code, e.timeStamp); }
     if (capturing && GAME_CODES.has(e.code)) e.preventDefault();
   }, { passive: false });
-  window.addEventListener('keyup', (e) => { down.delete(e.code); });
+  window.addEventListener('keyup', (e) => { down.delete(e.code); upTime.set(e.code, e.timeStamp); });
   window.addEventListener('blur', () => down.clear());
 
   // ---------- touch ----------
-  const touch = { x: 0, y: 0, shoot: false, pass: false, trick: false, turbo: false, oop: false, crown: false, pause: false, active: false };
+  const touch = { x: 0, y: 0, shoot: false, pass: false, trick: false, turbo: false, oop: false, crown: false, pause: false, active: false, downT: {}, upT: {} };
   let touchHost = null; let touchOn = false;
   function buildTouch(host) {
     if (touchHost) return touchHost;
@@ -81,8 +83,8 @@
     stick.addEventListener('pointerup', end); stick.addEventListener('pointercancel', end);
     wrap.querySelectorAll('[data-b]').forEach((b) => {
       const k = b.dataset.b;
-      b.addEventListener('pointerdown', (e) => { touch[k] = true; touch.active = true; b.classList.add('on'); b.setPointerCapture(e.pointerId); e.preventDefault(); });
-      const up = () => { touch[k] = false; b.classList.remove('on'); };
+      b.addEventListener('pointerdown', (e) => { touch[k] = true; touch.downT[k] = e.timeStamp; touch.active = true; b.classList.add('on'); b.setPointerCapture(e.pointerId); e.preventDefault(); });
+      const up = (e) => { if (touch[k]) touch.upT[k] = e && e.timeStamp ? e.timeStamp : performance.now(); touch[k] = false; b.classList.remove('on'); };
       b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
       b.addEventListener('contextmenu', (e) => e.preventDefault());
     });
@@ -108,6 +110,7 @@
     this.padIndex = opts.pad == null ? null : opts.pad; // 'any', a number, or null
     this.useTouch = !!opts.touch;
     this.state = { x: 0, y: 0 }; this.prev = {}; this.hit = {}; this.released = {};
+    this.pressT = {}; this.releaseT = {}; // when each button last went down and up (ms, performance.now clock)
     BUTTONS.forEach((k) => { this.state[k] = false; this.prev[k] = false; });
     this.lastSource = 'keys';
     this.seq = seq; // taps from before this controller existed don't count
@@ -138,10 +141,21 @@
     }
     this.seq = seq;
     const m = Math.hypot(s.x, s.y); if (m > 1) { s.x /= m; s.y /= m; }
+    const now = performance.now();
+    // the real moment a button moved: the newest key or touch event for it, or now for a gamepad
+    const stamp = (k, keyTimes, touchTimes) => {
+      let t = -1;
+      if (L && L[k]) L[k].forEach((c) => { const v = keyTimes.get(c); if (v != null && v > t && v <= now) t = v; });
+      if (this.useTouch && touchTimes[k] != null && touchTimes[k] > t && touchTimes[k] <= now) t = touchTimes[k];
+      return t > now - 250 ? t : now;
+    };
     BUTTONS.forEach((k) => {
       // edges stay set until a game step consumes them (clearEdges), so fast frames can't eat a press
-      this.hit[k] = this.hit[k] || (s[k] && !this.prev[k]);
-      this.released[k] = this.released[k] || (!s[k] && this.prev[k]);
+      const went = s[k] && !this.prev[k], lifted = !s[k] && this.prev[k];
+      if (went) this.pressT[k] = stamp(k, downTime, touch.downT);
+      if (lifted) this.releaseT[k] = stamp(k, upTime, touch.upT);
+      this.hit[k] = this.hit[k] || went;
+      this.released[k] = this.released[k] || lifted;
       this.prev[k] = s[k];
     });
     this.state = s;

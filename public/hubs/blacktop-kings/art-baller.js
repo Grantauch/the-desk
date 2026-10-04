@@ -217,6 +217,11 @@
       }
       default: break;
     }
+    // lean into a start, sit back against a stop, rock back from a bump
+    if (kind === 'run' || kind === 'idle' || kind === 'defend') {
+      P.lean += clamp(o.lean || 0, -1, 1) * 0.18;
+      if (o.bump) { P.lean -= o.bump * 0.3; P.tilt -= o.bump * 0.15; }
+    }
     if (o.ballHand) { P.handF = o.ballHand; }
     if (o.ballHandB) { P.handB = o.ballHandB; }
     return P;
