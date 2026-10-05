@@ -31,13 +31,15 @@
   A.fullLook = (look) => Object.assign({}, DEFAULT_LOOK, look || {});
 
   // ---------- body measurements ----------
-  // Stylized athlete proportions, in feet. u scales everything to the player's height.
+  // Stylized athlete proportions, in feet, measured from the approved character model sheet: a long
+  // torso and neck, a head a little larger than the sheet's so faces still read at game size, lean
+  // arms, and chunky high-top sneakers. u scales everything to the player's height.
   // sw/ww/hw: shoulder, waist, and hip width as seen in the three-quarter view.
   const BUILD = {
-    lean: { sw: 1.6, ww: 0.92, hw: 1.0, arm: 0.205, thigh: 0.29, calf: 0.21, belly: 0, neck: 0.18 },
-    athletic: { sw: 1.82, ww: 1.03, hw: 1.1, arm: 0.245, thigh: 0.34, calf: 0.245, belly: 0, neck: 0.23 },
-    strong: { sw: 2.02, ww: 1.14, hw: 1.18, arm: 0.29, thigh: 0.38, calf: 0.275, belly: 0.03, neck: 0.27 },
-    heavy: { sw: 1.96, ww: 1.5, hw: 1.4, arm: 0.28, thigh: 0.42, calf: 0.295, belly: 0.16, neck: 0.28 },
+    lean: { sw: 1.6, ww: 0.92, hw: 1.0, arm: 0.155, thigh: 0.25, calf: 0.18, belly: 0, neck: 0.18 },
+    athletic: { sw: 1.82, ww: 1.03, hw: 1.1, arm: 0.18, thigh: 0.29, calf: 0.21, belly: 0, neck: 0.22 },
+    strong: { sw: 2.02, ww: 1.14, hw: 1.18, arm: 0.215, thigh: 0.33, calf: 0.235, belly: 0.03, neck: 0.26 },
+    heavy: { sw: 1.96, ww: 1.5, hw: 1.4, arm: 0.21, thigh: 0.37, calf: 0.26, belly: 0.16, neck: 0.27 },
   };
   A.dims = function (hgtIn, build) {
     const H = (hgtIn || 76) / 12;
@@ -45,9 +47,9 @@
     const u = H / 6.5;
     return {
       H, b, u, k: u,
-      foot: 0.25 * u, thigh: 1.58 * u, shin: 1.57 * u, leg: 3.15 * u,
-      torso: 1.8 * u, neck: 0.2 * u, headR: Math.max(0.45, 0.48 * Math.pow(u, 0.6)),
-      upper: 1.12 * u, fore: 1.04 * u,
+      foot: 0.34 * u, thigh: 1.6 * u, shin: 1.36 * u, leg: 2.96 * u,
+      torso: 2.12 * u, neck: 0.3 * u, headR: Math.max(0.33, 0.37 * Math.pow(u, 0.6)),
+      upper: 1.1 * u, fore: 0.98 * u,
       sw: b.sw * u, ww: b.ww * u, hw: b.hw * u,
       armR: b.arm * u, thighR: b.thigh * u, calfR: b.calf * u, belly: b.belly * u, neckR: b.neck * u,
       // older names some callers still read
@@ -65,272 +67,434 @@
     return { jx: rx + Math.cos(ang) * a, jy: ry + Math.sin(ang) * a, ex: rx + Math.cos(base) * dc, ey: ry + Math.sin(base) * dc };
   }
 
+  // ---------- skeleton anchors ----------
+  // The poses and the drawing share these, so a pose can place a hand relative to its own shoulder.
+  // The torso is drawn turned three-quarters toward the camera, like the model sheet: the near arm
+  // (F, drawn in front, the one that handles the ball) hangs from the back edge of the chest and the
+  // far arm (B, drawn behind) from the front edge. Raising the near arm rolls its shoulder forward
+  // and up (P.roll, 0..1), so a shot or a dunk reaches past the face instead of across it.
+  function frame(P, d) {
+    const lean = P.lean || 0, pel = P.pelvis, roll = P.roll || 0;
+    const ux = Math.sin(lean), uy = Math.cos(lean), nx = Math.cos(lean), ny = -Math.sin(lean);
+    const TP = (a, c) => [pel[0] + ux * a + nx * c, pel[1] + uy * a + ny * c];
+    return { TP, ux, uy, nx, ny, shF: TP(d.torso * lerp(0.87, 0.93, roll), d.sw * lerp(-0.32, 0.04, roll)), shB: TP(d.torso * 0.88, d.sw * 0.36) };
+  }
+  A.shoulders = (P, d) => { const f = frame(P, d); return { F: f.shF, B: f.shB }; };
+  // Where a drawn hand really ends up once the arm's length is applied, and which way the palm points.
+  A.armEnd = function (P, d, front) {
+    const f = frame(P, d); const sh = front ? f.shF : f.shB; const h = front ? P.handF : P.handB;
+    const q = ik(sh[0], sh[1], h[0], h[1], d.upper, d.fore, (front ? P.armF : P.armB) || -1);
+    const a = Math.atan2(q.ey - q.jy, q.ex - q.jx) + ((front ? P.wristF : P.wristB) || 0);
+    return { x: q.ex, y: q.ey, dx: Math.cos(a), dy: Math.sin(a), elbow: [q.jx, q.jy], shoulder: sh };
+  };
+  // How high a standing player's fingertips reach with the arm straight up.
+  A.handReach = (d) => d.foot + d.leg * 0.995 + d.torso * 0.86 + (d.upper + d.fore) * 0.97 + d.armR;
+  // Running: the share of each stride a foot spends planted. Faster strides spend less.
+  A.runDuty = (speed) => lerp(0.44, 0.31, clamp(speed, 0, 1));
+  const smooth = (k) => k * k * (3 - 2 * k);
+
   // ---------- poses ----------
   // Every pose returns: pelvis [x,y], lean (rad, + forward), tilt (head), footF/footB, handF/handB,
-  // armSign F/B (elbow bend direction), legSign (knee direction), and optional extras.
+  // armF/armB (elbow bend: -1 folds the elbow the natural way; +1 only for an elbow thrown out behind
+  // the body, like the near arm of a double-biceps flex), legF/legB (+1, knees forward), optional
+  // wristF/wristB (radians) and toe (radians, negative points the toes down in the air). Hands are
+  // written relative to their own shoulder, so leaning or crouching never twists an arm. The poses
+  // follow the approved model sheet: low, wide defense and dribbling, a committed sprint, a high set
+  // point with the guide hand dropping on the follow-through.
   A.pose = function (kind, o) {
     o = o || {};
-    const d = o.dims; const t = o.t || 0; const time = o.time || 0;
+    const d = o.dims; const t = o.t || 0; const time = o.time || 0; const u = d.u;
     const stand = d.foot + d.leg * 0.995;
+    const R = d.upper + d.fore;
     const P = { pelvis: [0, stand], lean: 0.04, tilt: 0, footF: [0.32, 0], footB: [-0.28, 0], handF: [0.25, stand * 0.92], handB: [-0.18, stand * 0.92], armF: -1, armB: -1, legF: 1, legB: 1 };
-    const chestY = () => P.pelvis[1] + d.torso;
     const bob = Math.sin(time * 3.2) * 0.03;
+    // hand helpers, valid once pelvis and lean are set
+    const S = () => frame(P, d);
+    const rel = (s, x, y) => [s[0] + x * u, s[1] + y * u];
+    const polar = (s, deg, k) => { const a = deg * Math.PI / 180; return [s[0] + Math.cos(a) * R * k, s[1] + Math.sin(a) * R * k]; };
     switch (kind) {
       case 'idle': {
-        // athletic stance: knees soft, feet apart, hands off the jersey
-        P.pelvis = [0, stand - 0.035 + bob * 0.35]; P.lean = 0.025;
-        P.footF = [0.5 * d.u, 0]; P.footB = [-0.46 * d.u, 0];
-        const shY = P.pelvis[1] + d.torso * 0.86;
-        P.handF = [1.02 * d.u, shY - (d.upper + d.fore) * 0.98];
-        P.handB = [-0.92 * d.u, shY - (d.upper + d.fore) * 0.97];
-        P.armF = -1; P.armB = 1; P.legB = -1;
+        // athletic stance: knees soft, feet apart, arms hanging loose at the sides
+        P.pelvis = [0, stand - 0.07 * u + bob * 0.35]; P.lean = 0.07;
+        P.footF = [0.62 * u, 0]; P.footB = [-0.42 * u, 0];
+        const s = S();
+        P.handF = rel(s.shF, 0.2, -1.9 + bob * 0.4); P.handB = rel(s.shB, 0.15, -1.9 + bob * 0.4);
+        break;
+      }
+      case 'hold': {
+        // triple threat: ball on the near hip, the far hand over the front of it
+        P.pelvis = [0, stand - 0.18 * u + bob * 0.3]; P.lean = 0.2;
+        P.footF = [0.75 * u, 0]; P.footB = [-0.5 * u, 0];
+        const s = S();
+        P.handF = rel(s.shF, 0.9, -1.55); P.handB = rel(s.shB, 0.15, -1.35);
+        break;
+      }
+      case 'dribble': {
+        // live dribble standing still: low and wide, the off arm out front as a bar
+        P.pelvis = [0, stand - d.leg * 0.31 + bob * 0.4]; P.lean = 0.46;
+        P.footF = [0.95 * u, 0]; P.footB = [-0.8 * u, 0];
+        const s = S(); P.handF = rel(s.shF, 0.9, -1.75); P.handB = rel(s.shB, 1.0, -1.25);
         break;
       }
       case 'card': {
-        // trading-card pose: ball on the hip, other hand at the side
+        // trading-card pose: ball on the near hip, the other hand at the side
         P.pelvis = [0, stand - 0.025]; P.lean = -0.025; P.tilt = 0.04;
         P.footF = [0.38, 0]; P.footB = [-0.32, 0];
-        P.handF = [1.3, P.pelvis[1] + d.torso * 0.08]; P.handB = [-0.88, P.pelvis[1] + 0.02]; P.armF = -1; P.armB = -1;
+        const s = S(); P.handF = rel(s.shF, 0.78, -1.6); P.handB = rel(s.shB, 0.2, -1.88);
         break;
       }
       case 'defend': {
-        const slide = Math.sin(time * 9) * 0.06;
-        P.pelvis = [0, stand - d.leg * 0.2 + bob]; P.lean = 0.3;
-        P.footF = [0.75 + slide, 0]; P.footB = [-0.65 + slide, 0];
-        // wide stance, active hands out to both sides
-        const shY = P.pelvis[1] + d.torso * 0.84, w = Math.sin(time * 5) * 0.15;
-        P.handF = [2.15 * d.u, shY - 0.75 * d.u + w]; P.handB = [-1.95 * d.u, shY - 0.55 * d.u - w]; P.armF = -1; P.armB = 1;
+        // deep and wide: the near hand low in front, the far arm long and high to bother the look
+        const slide = Math.sin(time * 9) * 0.05, w = Math.sin(time * 5) * 0.12;
+        P.pelvis = [0, stand - d.leg * 0.33 + bob]; P.lean = 0.44;
+        P.footF = [1.05 * u + slide, 0]; P.footB = [-0.95 * u + slide, 0];
+        const s = S();
+        P.handF = rel(s.shF, 1.15, -1.7 - w); P.handB = rel(s.shB, 1.7, 0.5 + w);
         break;
       }
-      case 'run': {
-        const ph = o.phase || 0; const sp = clamp(o.speed || 1, 0.3, 1.6);
-        const stride = 0.65 + 0.45 * sp, lift = 0.32 + 0.28 * sp;
-        P.pelvis = [0, stand - 0.1 - Math.abs(Math.sin(ph)) * 0.12 * sp]; P.lean = 0.12 + 0.14 * sp;
-        P.footF = [Math.cos(ph) * stride, Math.max(0, Math.sin(ph)) * lift];
-        P.footB = [Math.cos(ph + Math.PI) * stride, Math.max(0, Math.sin(ph + Math.PI)) * lift];
-        // elbows bent about 90 degrees, hands pumping from the hip to chest height
-        const shY = P.pelvis[1] + d.torso * 0.84, k = d.u;
-        const sF = -Math.cos(ph) * Math.min(1, sp), sB = -sF;
-        P.handF = [0.6 + sF * 0.8 * k + 0.15, shY - (1.3 - Math.max(0, sF) * 0.35) * k];
-        P.handB = [-0.55 + sB * 0.8 * k + 0.15, shY - (1.3 - Math.max(0, sB) * 0.35) * k];
-        P.armF = -1; P.armB = -1;
+      case 'slide': {
+        // defensive shuffle: low and wide, feet step apart and back together, never cross
+        const ph = o.phase || 0, sp = clamp(o.speed == null ? 1 : o.speed, 0, 1.3);
+        const s1 = Math.sin(ph), c1 = Math.cos(ph), w = Math.sin(time * 6) * 0.1;
+        P.pelvis = [0, stand - d.leg * 0.31 - Math.abs(s1) * 0.05 * u]; P.lean = 0.42;
+        const open = 0.2 * u * sp * c1;
+        P.footF = [1.0 * u + open, Math.max(0, s1) * 0.24 * u * sp]; P.footB = [-0.9 * u - open, Math.max(0, -s1) * 0.24 * u * sp];
+        const s = S();
+        P.handF = rel(s.shF, 1.2, -1.6 - w); P.handB = rel(s.shB, 1.6, 0.25 + w);
         break;
       }
+      case 'run': poseRun(P, d, o); break;
       case 'crouch': {
         P.pelvis = [0, stand - d.leg * 0.3]; P.lean = 0.35; P.footF = [0.45, 0]; P.footB = [-0.35, 0];
-        P.handF = [0.6, P.pelvis[1] + 0.3]; P.handB = [0.3, P.pelvis[1] + 0.2];
+        const s = S(); P.handF = rel(s.shF, 1.0, -1.4); P.handB = rel(s.shB, 0.3, -1.3);
         break;
       }
       case 'jumpshot': {
-        // t: 0 crouch -> 0.18 takeoff -> 0.55 release -> 1 land
+        // t: 0 gather -> 0.18 takeoff -> ~0.55 release at the top -> 1 land
         const crouch = t < 0.18 ? Math.sin(t / 0.18 * Math.PI) * 0.22 : 0;
-        P.pelvis = [0, stand - d.leg * crouch]; P.lean = t < 0.18 ? 0.25 : -0.05;
-        const air = t > 0.18 && t < 0.92;
-        P.footF = air ? [0.18, -0.2] : [0.3, 0]; P.footB = air ? [-0.1, -0.1] : [-0.25, 0];
-        if (air) { P.footF = [0.15, P.pelvis[1] - d.leg * 0.9]; P.footB = [-0.12, P.pelvis[1] - d.leg * 0.92]; }
-        const top = P.pelvis[1] + d.torso;
-        const rel = o.released;
-        const k = clamp((t - 0.12) / 0.35, 0, 1);
-        P.handF = rel ? [0.55, top + d.upper + d.fore * 0.95] : [lerp(0.4, 0.2, k), lerp(top - 0.3, top + d.upper + 0.55, k)];
-        P.handB = rel ? [0.15, top + d.upper * 0.8] : [lerp(0.25, 0.05, k), lerp(top - 0.4, top + d.upper + 0.35, k)];
-        P.armF = 1; P.armB = 1; P.tilt = 0.15;
+        P.pelvis = [0, stand - d.leg * crouch]; P.lean = lerp(0.2, -0.03, smooth(clamp((t - 0.08) / 0.16, 0, 1))); P.tilt = 0.14;
+        const air = t > 0.16 && t < 0.94;
+        if (air) { P.footF = [0.25 * u, P.pelvis[1] - d.leg * 0.93]; P.footB = [-0.05 * u, P.pelvis[1] - d.leg * 0.95]; P.toe = -0.55; }
+        else { P.footF = [0.42 * u, 0]; P.footB = [-0.24 * u, 0]; }
+        const s = S();
+        if (o.released) {
+          // follow through: shooting arm long toward the rim, wrist snapped down, guide hand dropped
+          P.roll = 1; const s2 = S();
+          P.handF = polar(s2.shF, 70, 0.97); P.handB = rel(s2.shB, 0.3, -1.75); P.wristF = -1.25;
+        } else {
+          // the ball rises from the chest to the set point over the forehead, elbow out in front of the face
+          const k = smooth(clamp((t - 0.1) / 0.32, 0, 1));
+          P.roll = k; const s2 = S();
+          P.handF = lerpPt(rel(s.shF, 1.0, -0.8), rel(s2.shF, 0.55, 1.55), k);
+          P.handB = lerpPt(rel(s.shB, -0.1, -0.75), rel(s2.shB, -0.35, 1.75), k);
+          P.wristF = lerp(0, 0.25, k);
+        }
         break;
       }
       case 'layup': {
-        P.pelvis = [0, stand]; P.lean = -0.05;
-        P.footF = [0.5, P.pelvis[1] - d.leg * 0.45]; P.footB = [-0.25, P.pelvis[1] - d.leg * 0.98]; P.legF = 1;
-        const top = P.pelvis[1] + d.torso;
-        const k = clamp(t * 1.6, 0, 1);
-        P.handF = [lerp(0.3, 0.75, k), lerp(top, top + d.upper + d.fore * 0.95, k)]; P.handB = [-0.2, top - 0.6];
-        P.armF = 1; P.armB = -1; P.tilt = 0.2;
+        P.pelvis = [0, stand]; P.lean = lerp(0.12, -0.06, clamp(t, 0, 1)); P.tilt = 0.22; P.toe = -0.45;
+        // knee drive on the near leg, the trail leg hangs long
+        P.footF = [0.55 * u, P.pelvis[1] - d.leg * 0.52]; P.footB = [-0.3 * u, P.pelvis[1] - d.leg * 0.97];
+        const s = S(); const k = smooth(clamp(t * 1.9, 0, 1));
+        P.roll = k; const s2 = S();
+        P.handF = lerpPt(rel(s.shF, 1.0, -0.7), polar(s2.shF, 70, 0.97), k);
+        P.handB = lerpPt(rel(s.shB, -0.1, -0.7), rel(s.shB, 0.4, -1.5), k);
+        P.wristF = lerp(0.35, -0.45, clamp((t - 0.42) * 3, 0, 1));
         break;
       }
       case 'dunk': {
-        poseDunk(P, d, t, o.style || 'twohand', stand);
+        poseDunk(P, d, t, o.style || 'twohand', stand, o.rim);
         break;
       }
       case 'hang': {
-        P.pelvis = [0, stand]; P.lean = -0.1;
-        const sw = Math.sin(time * 6) * 0.25;
-        P.footF = [0.3 + sw, P.pelvis[1] - d.leg * 0.85]; P.footB = [-0.1 + sw * 0.7, P.pelvis[1] - d.leg * 0.88];
-        const top = P.pelvis[1] + d.torso;
-        P.handF = [0.55, top + d.upper + d.fore * 0.9]; P.handB = [0.3, top + d.upper + d.fore * 0.92]; P.armF = 1; P.armB = 1; P.tilt = 0.25;
+        P.pelvis = [0, stand]; P.lean = -0.1; P.tilt = 0.25; P.toe = -0.5; P.roll = 1;
+        const sw = Math.sin(time * 6) * 0.22;
+        P.footF = [(0.35 + sw) * u, P.pelvis[1] - d.leg * 0.86]; P.footB = [(0.05 + sw * 0.7) * u, P.pelvis[1] - d.leg * 0.9];
+        const s = S();
+        P.handF = o.rim ? o.rim : polar(s.shF, 72, 0.97);
+        P.handB = o.rim ? [o.rim[0] + 0.45 * u, o.rim[1]] : polar(s.shB, 88, 0.97);
         break;
       }
       case 'block': {
-        P.pelvis = [0, stand]; P.lean = -0.08;
-        P.footF = [0.3, P.pelvis[1] - d.leg * 0.85]; P.footB = [-0.2, P.pelvis[1] - d.leg * 0.95];
-        const top = P.pelvis[1] + d.torso; const swat = o.swat || 0;
-        P.handF = [lerp(0.35, 1.2, swat), top + d.upper + d.fore * lerp(0.95, 0.6, swat)]; P.handB = [0.05, top + d.upper + d.fore * 0.85];
-        P.armF = 1; P.armB = 1; P.tilt = 0.3;
+        P.pelvis = [0, stand]; P.lean = -0.06; P.tilt = 0.3; P.toe = -0.45; P.roll = 1;
+        P.footF = [0.3 * u, P.pelvis[1] - d.leg * 0.86]; P.footB = [-0.14 * u, P.pelvis[1] - d.leg * 0.93];
+        const s = S(), swat = o.swat || 0;
+        P.handF = polar(s.shF, lerp(80, 36, swat), 0.97); P.handB = polar(s.shB, 96, 0.95); P.wristF = -0.9 * swat;
         break;
       }
       case 'rebound': {
-        P.pelvis = [0, stand]; P.lean = 0;
-        P.footF = [0.25, P.pelvis[1] - d.leg * 0.8]; P.footB = [-0.25, P.pelvis[1] - d.leg * 0.82];
-        const top = P.pelvis[1] + d.torso;
-        P.handF = [0.45, top + d.upper + d.fore * 0.9]; P.handB = [0.15, top + d.upper + d.fore * 0.88]; P.armF = 1; P.armB = 1; P.tilt = 0.35;
+        P.pelvis = [0, stand]; P.lean = 0.02; P.tilt = 0.35; P.toe = -0.4; P.roll = 1;
+        P.footF = [0.28 * u, P.pelvis[1] - d.leg * 0.82]; P.footB = [-0.2 * u, P.pelvis[1] - d.leg * 0.86];
+        const s = S(); P.handF = polar(s.shF, 76, 0.96); P.handB = polar(s.shB, 100, 0.96);
         break;
       }
       case 'steal': {
+        // a quick lunge: the near hand stabs at the ball, the far arm swings back for balance
         const k = Math.sin(clamp(t, 0, 1) * Math.PI);
-        P.pelvis = [0.15 * k, stand - d.leg * 0.22 * k]; P.lean = 0.2 + 0.4 * k;
-        P.footF = [0.4 + 0.7 * k, 0]; P.footB = [-0.45, 0];
-        P.handF = [lerp(0.8, 2.2, k), lerp(stand, stand * 0.55, k)]; P.handB = [-0.95, stand * 0.95]; P.armF = -1;
+        P.pelvis = [0.1 * k * u, stand - d.leg * 0.24 * k]; P.lean = 0.18 + 0.38 * k; P.roll = 0.6 * k;
+        P.footF = [(0.55 + 0.6 * k) * u, 0]; P.footB = [-0.5 * u, 0];
+        const s = S();
+        P.handF = lerpPt(rel(s.shF, 0.9, -1.6), rel(s.shF, 2.0, -0.9), k); P.handB = rel(s.shB, -0.9, -1.5);
         break;
       }
       case 'pass': {
-        const k = Math.sin(clamp(t, 0, 1) * Math.PI);
-        P.pelvis = [0, stand - 0.05]; P.lean = 0.12 + 0.1 * k; P.footF = [0.55, 0]; P.footB = [-0.3, 0];
-        const cy = P.pelvis[1] + d.torso * 0.75;
-        P.handF = [lerp(1.0, 2.5, k), cy]; P.handB = [lerp(0.5, 2.2, k), cy + 0.12]; P.armF = -1; P.armB = -1;
+        // the chest pass: a quick two-hand push, thumbs turning down, then the arms come back
+        const k = t < 0.3 ? smooth(t / 0.3) : 1 - smooth((clamp(t, 0, 1) - 0.3) / 0.7);
+        P.pelvis = [0, stand - 0.08 * u]; P.lean = 0.12 + 0.12 * k; P.roll = 0.4 * k;
+        P.footF = [(0.65 + 0.2 * k) * u, 0]; P.footB = [-0.35 * u, 0];
+        const s = S();
+        P.handF = lerpPt(rel(s.shF, 1.0, -0.75), rel(s.shF, 2.0, -0.5), k);
+        P.handB = lerpPt(rel(s.shB, -0.15, -0.8), rel(s.shB, 0.9, -0.55), k);
+        P.wristF = -0.6 * k;
         break;
       }
       case 'catch': {
-        P.pelvis = [0, stand - 0.1]; P.lean = 0.1;
-        const cy = P.pelvis[1] + d.torso * 0.75;
-        P.handF = [0.9, cy + 0.1]; P.handB = [0.75, cy - 0.05]; P.armF = -1; P.armB = -1;
+        P.pelvis = [0, stand - 0.12 * u]; P.lean = 0.12; P.roll = 0.35;
+        P.footF = [0.6 * u, 0]; P.footB = [-0.38 * u, 0];
+        const s = S(); P.handF = rel(s.shF, 1.4, -0.85); P.handB = rel(s.shB, 0.6, -0.8);
         break;
       }
       case 'stumble': {
         const w = Math.sin(time * 18);
-        P.pelvis = [-0.2, stand - 0.25]; P.lean = -0.35 + w * 0.1;
-        P.footF = [0.2 + w * 0.2, 0]; P.footB = [0.35 - w * 0.2, 0.05];
-        const cy = P.pelvis[1] + d.torso;
-        P.handF = [0.9 + w * 0.3, cy + 0.6]; P.handB = [-1.3, cy + 0.3 - w * 0.3]; P.armF = 1; P.armB = 1; P.tilt = -0.3;
+        P.pelvis = [-0.2 * u, stand - 0.25 * u]; P.lean = -0.35 + w * 0.1; P.tilt = -0.3;
+        P.footF = [(0.35 + w * 0.2) * u, 0]; P.footB = [(-0.2 - w * 0.2) * u, 0.05];
+        // arms wheel for balance
+        const s = S(); P.handF = polar(s.shF, 150 - w * 30, 0.9); P.handB = polar(s.shB, 55 + w * 30, 0.9);
         break;
       }
       case 'fallen': {
+        // sat down hard, propped up on both hands behind
         P.pelvis = [-0.35, 0.42]; P.lean = -0.65;
-        P.footF = [1.9, 0.08]; P.footB = [1.55, 0.2]; P.legF = 1; P.legB = 1;
-        P.handF = [-1.05, 0.12]; P.handB = [-1.25, 0.15]; P.armF = 1; P.armB = 1; P.tilt = -0.45;
+        P.footF = [1.9, 0.08]; P.footB = [1.55, 0.2];
+        P.handF = [-1.25, 0.15]; P.handB = [-0.95, 0.12]; P.tilt = -0.45;
         break;
       }
       case 'celebrate': poseCelebrate(P, d, o.style || 'flex', time, stand); break;
-      case 'trick': poseTrick(P, d, o.style || 'cross', t, stand, time); break;
+      case 'trick': poseTrick(P, d, o.style || 'cross', t, stand); break;
       case 'walk': {
         const ph = o.phase || 0;
         P.pelvis = [0, stand - Math.abs(Math.sin(ph)) * 0.05];
         P.footF = [Math.cos(ph) * 0.45, Math.max(0, Math.sin(ph)) * 0.2]; P.footB = [Math.cos(ph + Math.PI) * 0.45, Math.max(0, Math.sin(ph + Math.PI)) * 0.2];
-        P.handF = [-Math.cos(ph) * 0.3 + 0.1, stand * 0.88]; P.handB = [Math.cos(ph) * 0.3 - 0.1, stand * 0.9];
+        const s = S(); P.handF = rel(s.shF, 0.25 - Math.cos(ph) * 0.35, -1.9); P.handB = rel(s.shB, 0.1 + Math.cos(ph) * 0.35, -1.9);
         break;
       }
       default: break;
     }
-    // lean into a start, sit back against a stop, rock back from a bump
-    if (kind === 'run' || kind === 'idle' || kind === 'defend') {
-      P.lean += clamp(o.lean || 0, -1, 1) * 0.18;
-      if (o.bump) { P.lean -= o.bump * 0.3; P.tilt -= o.bump * 0.15; }
+    // coming down from the air: the knees give for a moment and the arms drop with the body
+    if (o.land) {
+      const k = o.land * u;
+      P.pelvis = [P.pelvis[0], P.pelvis[1] - 0.32 * k]; P.lean += 0.12 * o.land;
+      P.handF = [P.handF[0], P.handF[1] - 0.3 * k]; P.handB = [P.handB[0], P.handB[1] - 0.3 * k];
     }
-    if (o.ballHand) { P.handF = o.ballHand; }
-    if (o.ballHandB) { P.handB = o.ballHandB; }
+    // The game can put a hand on the ball. A dribbling hand reaches as far toward the ball as the arm
+    // allows (o.ballClamp); otherwise a hand only follows the ball while it is within reach, so a juggle
+    // or a bounce off somebody's head never stretches the arm out like a stick.
+    if (o.ballHand || o.ballHandB) {
+      const s = S();
+      const follow = (hand, target, sh) => {
+        const dx = target[0] - sh[0], dy = target[1] - sh[1], dist = Math.hypot(dx, dy);
+        if (o.ballClamp) { const k = Math.min(1, R * 0.97 / (dist || 1)); return [sh[0] + dx * k, sh[1] + dy * k]; }
+        const w = clamp((R * 1.1 - dist) / (R * 0.22), 0, 1);
+        return w >= 1 ? target : lerpPt(hand, target, w);
+      };
+      if (o.ballHand) P.handF = follow(P.handF, o.ballHand, s.shF);
+      if (o.ballHandB) P.handB = follow(P.handB, o.ballHandB, s.shB);
+    }
     return P;
   };
 
-  function poseDunk(P, d, t, style, stand) {
-    // t 0..1 across the whole flight. Slam at ~0.78.
-    P.pelvis = [0, stand]; P.lean = 0.05;
+  // Blend two poses (for smooth changes between animations). Elbow and knee directions come from b.
+  A.mixPose = function (a, b, k) {
+    if (!a || k >= 1) return b;
+    const m = Object.assign({}, b);
+    m.pelvis = lerpPt(a.pelvis, b.pelvis, k); m.lean = lerp(a.lean || 0, b.lean || 0, k); m.tilt = lerp(a.tilt || 0, b.tilt || 0, k);
+    m.footF = lerpPt(a.footF, b.footF, k); m.footB = lerpPt(a.footB, b.footB, k);
+    m.handF = lerpPt(a.handF, b.handF, k); m.handB = lerpPt(a.handB, b.handB, k);
+    m.wristF = lerp(a.wristF || 0, b.wristF || 0, k); m.wristB = lerp(a.wristB || 0, b.wristB || 0, k);
+    m.toe = lerp(a.toe || 0, b.toe || 0, k); m.roll = lerp(a.roll || 0, b.roll || 0, k);
+    return m;
+  };
+
+  // A running stride. Each foot spends the first part of its cycle planted and sliding back under the
+  // hips at running speed (o.stride is half that slide, in feet, so the shoe stays put on the court),
+  // then swings through: heel up behind, knee driving forward, foot down ahead. Arms pump opposite:
+  // at full speed the front fist comes up near the chin and the back elbow drives up behind.
+  function poseRun(P, d, o) {
+    const u = d.u, sp = clamp(o.speed == null ? 1 : o.speed, 0, 1.7), k01 = clamp(sp, 0, 1);
+    const duty = A.runDuty(sp);
+    const Lh = clamp(o.stride != null ? o.stride : (0.45 + 0.62 * k01) * u, 0.16 * u, 1.35 * u);
+    const lift = (0.35 + 0.7 * k01) * u;
+    const legL = (d.thigh + d.shin) * 0.985;
+    const h = Math.sqrt(Math.max(1, legL * legL - Lh * Lh));
+    const bobA = (0.04 + 0.07 * k01) * u;
+    const cyc = (((o.phase || 0) / TAU) % 1 + 1) % 1;
+    // lowest through each footfall, highest in the air between them
+    P.pelvis = [0, d.foot + h - 0.08 * u - bobA - bobA * Math.cos(4 * Math.PI * (cyc - duty / 2))];
+    P.lean = 0.12 + 0.33 * k01 + clamp((o.accel || 0) / 150, -0.12, 0.16);
+    P.tilt = 0.04;
+    const foot = (c, hx) => {
+      if (c < duty) return [hx + Lh * (1 - 2 * c / duty), 0];
+      const k = (c - duty) / (1 - duty);
+      return [hx - Lh + 2 * Lh * smooth(k), lift * Math.pow(Math.sin(Math.PI * k), 0.85) * (1 - 0.3 * k)];
+    };
+    P.footF = foot(cyc, 0.24 * u); P.footB = foot((cyc + 0.5) % 1, -0.22 * u);
+    const a = -Math.cos(TAU * cyc) * lerp(0.45, 1, k01);
+    P.roll = 0.3 * Math.max(0, a);
+    const s = frame(P, d);
+    const hand = (sh, v) => [sh[0] + (0.15 + (v > 0 ? 1.3 : 0.92) * v) * u, sh[1] + (-1.65 + (v > 0 ? 1.3 * v : -0.68 * v)) * u];
+    P.handF = hand(s.shF, a); P.handB = hand(s.shB, -a);
+  }
+
+  function poseDunk(P, d, t, style, stand, rim) {
+    // t 0..1 across the whole flight; the slam lands at ~0.78
+    const u = d.u, R = d.upper + d.fore;
+    P.pelvis = [0, stand]; P.lean = 0.06; P.tilt = 0.2; P.toe = -0.5;
     const rise = clamp(t / 0.6, 0, 1);
-    P.footF = [lerp(0.3, 0.75, rise), P.pelvis[1] - d.leg * lerp(0.9, 0.45, rise)];
-    P.footB = [lerp(-0.2, -0.55, rise), P.pelvis[1] - d.leg * 0.95];
-    const top = P.pelvis[1] + d.torso; const reach = d.upper + d.fore;
-    const slam = clamp((t - 0.7) / 0.14, 0, 1);
-    P.armF = 1; P.armB = 1; P.tilt = 0.2;
-    const overhead = [ -0.35, top + reach * 0.85 ];
-    const front = [ 0.95, top + reach * 0.45 ];
+    // the near knee drives up to about hip height; the trail leg hangs long behind
+    P.footF = [lerp(0.35, 0.68, rise) * u, P.pelvis[1] - d.leg * lerp(0.9, 0.48, rise)];
+    P.footB = [lerp(-0.18, -0.55, rise) * u, P.pelvis[1] - d.leg * 0.97];
+    const slam = smooth(clamp((t - 0.68) / 0.12, 0, 1));
+    const chestF = (() => { const s0 = frame(P, d); return [s0.shF[0] + 1.0 * u, s0.shF[1] - 0.6 * u]; })();
+    const up = smooth(rise);
+    P.roll = style === 'windmill' || style === 'eclipse' || style === 'cradle' ? 0.5 : style === 'legs' && t < 0.6 ? 0.2 : up;
+    const s = frame(P, d);
+    const at = (sh, deg, k) => { const a = deg * Math.PI / 180; return [sh[0] + Math.cos(a) * R * k, sh[1] + Math.sin(a) * R * k]; };
     switch (style) {
       case 'tomahawk': {
-        const cock = [-0.85, top + reach * 0.7];
-        P.handF = slam ? lerpPt(cock, [0.9, top + reach * 0.55], slam) : lerpPt([0.4, top], cock, rise);
-        P.handB = [0.5, top + reach * 0.4]; P.lean = slam ? 0.25 : -0.12;
+        // one hand cocked way back behind the head, then whipped over the top
+        P.handF = slam > 0 ? at(s.shF, lerp(140, 36, slam), 0.97) : lerpPt(chestF, at(s.shF, 140, 0.97), up);
+        P.handB = [s.shB[0] + 0.6 * u, s.shB[1] - 1.3 * u];
+        P.lean = lerp(-0.12, 0.22, slam);
         break;
       }
       case 'windmill': case 'eclipse': {
-        const a = -Math.PI / 2 + clamp(t / 0.78, 0, 1) * TAU * 1.05;
-        const sh = [0.05, top - 0.1];
-        P.handF = slam >= 1 ? [0.9, top + reach * 0.5] : [sh[0] + Math.cos(a) * reach * 0.98, sh[1] + Math.sin(a) * reach * 0.98];
-        P.handB = [0.45, top + reach * 0.3]; P.armF = Math.cos(a) > 0 ? -1 : 1;
-        if (style === 'eclipse') { P.footF = [0.4, P.pelvis[1] - d.leg * 0.4]; P.footB = [-0.1, P.pelvis[1] - d.leg * 0.5]; }
+        // straight arm: down, back, up and over the top
+        const k = clamp(t / 0.78, 0, 1);
+        P.handF = at(s.shF, -55 - (style === 'eclipse' ? 640 : 280) * k, 0.97);
+        P.handB = [s.shB[0] + 0.5 * u, s.shB[1] - 1.4 * u];
+        if (style === 'eclipse') { P.footF = [0.6 * u, P.pelvis[1] - d.leg * 0.42]; P.footB = [0, P.pelvis[1] - d.leg * 0.5]; }
         break;
       }
       case 'reverse': {
-        P.handF = slam ? lerpPt(overhead, [-0.4, top + reach * 0.75], slam) : lerpPt([0.4, top], [0.1, top + reach * 0.95], rise);
-        P.handB = slam ? lerpPt([-0.1, top + reach * 0.9], [-0.5, top + reach * 0.6], slam) : [-0.05, top + reach * 0.9]; P.lean = -0.25;
+        // up overhead, then thrown back over the head as the body turns away from the rim
+        P.handF = slam > 0 ? at(s.shF, lerp(85, 150, slam), lerp(0.94, 0.97, slam)) : lerpPt(chestF, at(s.shF, 85, 0.94), up);
+        P.handB = [P.handF[0] + 0.28 * u, P.handF[1]];
+        P.lean = -0.2;
         break;
       }
       case 'cradle': {
-        const cr = clamp(t / 0.55, 0, 1);
-        const low = [0.35, P.pelvis[1] - 0.2];
-        P.handF = slam ? lerpPt([-0.6, top + reach * 0.7], front, slam) : cr < 1 ? lerpPt([0.5, top - 0.2], low, Math.sin(cr * Math.PI)) : lerpPt(low, [-0.6, top + reach * 0.7], clamp((t - 0.55) / 0.15, 0, 1));
-        P.handB = [0.3, top + 0.2];
+        // rock the ball low and back, then sweep it all the way over the top
+        const a = t < 0.45 ? lerp(-60, -150, smooth(t / 0.45)) : lerp(-150, -325, smooth(clamp((t - 0.45) / 0.33, 0, 1)));
+        P.handF = at(s.shF, a, t < 0.45 ? 0.95 : 0.97);
+        P.handB = [s.shB[0] + 0.3 * u, s.shB[1] - 1.2 * u];
         break;
       }
       case 'legs': {
-        const k = clamp((t - 0.2) / 0.45, 0, 1);
-        P.footF = [0.9, P.pelvis[1] - d.leg * 0.55]; P.footB = [-0.8, P.pelvis[1] - d.leg * 0.6];
-        P.handF = slam ? lerpPt(overhead, front, slam) : k < 1 ? [lerp(0.6, -0.1, k), lerp(top - 0.1, P.pelvis[1] - 0.3, Math.sin(k * Math.PI))] : lerpPt([-0.1, P.pelvis[1]], overhead, clamp((t - 0.65) / 0.08, 0, 1));
-        P.handB = k > 0.3 && k < 0.8 ? [0.1, P.pelvis[1] - 0.25] : [-0.3, top + 0.2];
+        // pass it under the legs with both knees tucked, bring it back up, slam
+        const under = [0.05 * u, P.pelvis[1] - 0.15 * u];
+        if (t < 0.2) P.handF = chestF;
+        else if (t < 0.42) P.handF = lerpPt(chestF, under, smooth((t - 0.2) / 0.22));
+        else if (t < 0.66) P.handF = lerpPt(under, at(s.shF, 110, 0.93), smooth((t - 0.42) / 0.24));
+        else P.handF = at(s.shF, lerp(110, 36, slam), lerp(0.93, 0.97, slam));
+        P.handB = t > 0.22 && t < 0.5 ? [0.15 * u, P.pelvis[1] - 0.25 * u] : [s.shB[0] + 0.45 * u, s.shB[1] - 0.9 * u];
+        if (t > 0.15 && t < 0.62) { P.footF = [0.8 * u, P.pelvis[1] - d.leg * 0.42]; P.footB = [0.25 * u, P.pelvis[1] - d.leg * 0.48]; }
         break;
       }
       case 'spin360': default: {
-        P.handF = slam ? lerpPt(overhead, front, slam) : lerpPt([0.5, top], overhead, rise);
-        P.handB = slam ? lerpPt([-0.15, top + reach * 0.8], [0.75, top + reach * 0.5], slam) : lerpPt([0.3, top], [-0.15, top + reach * 0.8], rise);
-        P.lean = slam ? 0.2 : -0.1;
+        // both hands take it up behind the head, then hammer it forward
+        P.handF = slam > 0 ? at(s.shF, lerp(100, 40, slam), lerp(0.94, 0.97, slam)) : lerpPt(chestF, at(s.shF, 100, 0.94), up);
+        P.handB = [P.handF[0] + 0.25 * u, P.handF[1] + 0.05 * u];
+        P.lean = lerp(-0.1, 0.2, slam);
         break;
       }
     }
+    // the slamming hand finishes on the rim when the game knows where it is
+    if (rim && t > 0.66) {
+      const w = smooth(clamp((t - 0.68) / 0.1, 0, 1));
+      const hb = [P.handB[0] - P.handF[0], P.handB[1] - P.handF[1]];
+      P.handF = lerpPt(P.handF, rim, w);
+      if (style !== 'tomahawk' && style !== 'windmill' && style !== 'eclipse' && style !== 'cradle') P.handB = [P.handF[0] + hb[0], P.handF[1] + hb[1]];
+    }
     if (t > 0.86) { // hanging after the slam
-      P.handF = [0.75, top + reach * 0.9]; P.handB = [0.5, top + reach * 0.88]; P.armF = 1; P.armB = 1;
-      P.footF = [0.4, P.pelvis[1] - d.leg * 0.85]; P.footB = [0.05, P.pelvis[1] - d.leg * 0.9];
+      P.handF = rim || at(s.shF, 72, 0.97); P.handB = rim ? [rim[0] + 0.45 * u, rim[1]] : at(s.shB, 88, 0.97);
+      P.footF = [0.4 * u, P.pelvis[1] - d.leg * 0.85]; P.footB = [0.05 * u, P.pelvis[1] - d.leg * 0.9];
     }
   }
 
   function poseCelebrate(P, d, style, time, stand) {
-    const top = stand + d.torso; const reach = d.upper + d.fore;
+    const u = d.u, R = d.upper + d.fore;
     const beat = Math.sin(time * 9);
     P.lean = -0.05; P.tilt = 0.15;
+    P.footF = [0.45 * u, 0]; P.footB = [-0.35 * u, 0];
+    let s = frame(P, d);
+    const rel = (sh, x, y) => [sh[0] + x * u, sh[1] + y * u];
+    const at = (sh, deg, k) => { const a = deg * Math.PI / 180; return [sh[0] + Math.cos(a) * R * k, sh[1] + Math.sin(a) * R * k]; };
+    const hangB = rel(s.shB, 0.2, -1.9);
     switch (style) {
       case 'chest': {
-        P.handF = beat > 0.3 ? [0.35, top - 0.35] : [0.7, top - 0.2]; P.handB = [-0.3, stand * 0.95]; P.armF = -1; P.tilt = 0.4; break;
+        // pounding the chest
+        P.tilt = 0.4; s = frame(P, d);
+        P.handF = beat > 0.3 ? rel(s.shF, 0.7, -0.45) : rel(s.shF, 0.45, -0.35); P.handB = rel(s.shB, 0.2, -1.9); break;
       }
-      case 'shush': { P.handF = [0.62, top + d.neck + d.headR * 0.4]; P.handB = [-0.3, stand * 0.92]; P.armF = -1; P.lean = 0.15; P.tilt = -0.05; break; }
-      case 'roof': { const up = (beat + 1) / 2; P.handF = [0.35, top + reach * lerp(0.6, 0.95, up)]; P.handB = [0.05, top + reach * lerp(0.6, 0.95, up)]; P.armF = 1; P.armB = 1; P.tilt = 0.35; break; }
-      case 'point': { P.handF = [0.75, top + reach * 0.95]; P.handB = [-0.25, stand * 0.9]; P.armF = 1; P.tilt = 0.5; break; }
-      case 'shoulders': { const k = (beat + 1) / 2; P.handF = [lerp(-0.1, -0.45, k), top - 0.05]; P.handB = [-0.3, stand * 0.92]; P.armF = -1; P.lean = -0.12; P.tilt = 0.25; break; }
+      case 'shush': { P.lean = 0.15; P.tilt = -0.05; P.roll = 0.5; s = frame(P, d); P.handF = rel(s.shF, 0.95, 0.7); P.handB = rel(s.shB, 0.2, -1.9); break; }
+      case 'roof': { const k = (beat + 1) / 2; P.tilt = 0.35; P.roll = 0.8; s = frame(P, d); P.handF = rel(s.shF, 0.9, 1.2 + 0.55 * k); P.handB = rel(s.shB, -0.3, 1.2 + 0.55 * k); break; }
+      case 'point': { P.tilt = 0.5; P.roll = 1; s = frame(P, d); P.handF = at(s.shF, 75, 0.97); P.handB = hangB; break; }
+      case 'shoulders': {
+        // brushing the dirt off the far shoulder
+        const k = (beat + 1) / 2; P.lean = -0.12; P.tilt = 0.25; s = frame(P, d);
+        P.handF = lerpPt(rel(s.shF, 1.15, 0.08), rel(s.shF, 1.3, -0.2), k); P.handB = rel(s.shB, 0.2, -1.9); break;
+      }
       case 'dance': {
         const st = Math.sin(time * 7);
         P.pelvis = [st * 0.12, stand - 0.15 - Math.abs(st) * 0.08]; P.footF = [0.45 + st * 0.3, Math.max(0, st) * 0.3]; P.footB = [-0.35 + st * 0.3, Math.max(0, -st) * 0.3];
-        P.handF = [0.55 + st * 0.3, top - 0.2 + Math.abs(st) * 0.4]; P.handB = [-0.45 - st * 0.2, top - 0.3]; P.armF = -1; P.armB = 1; break;
+        s = frame(P, d);
+        P.handF = rel(s.shF, 0.9 + st * 0.4, -0.95 + Math.abs(st) * 0.5); P.handB = rel(s.shB, 0.2 - st * 0.3, -1.05); break;
       }
       case 'crown': {
-        const k = clamp((Math.sin(time * 2.2) + 1) / 2, 0, 1);
-        P.handF = [0.25, top + d.neck + d.headR * 2 + lerp(0.6, 0.05, k)]; P.handB = [-0.15, top + d.neck + d.headR * 2 + lerp(0.6, 0.05, k)]; P.armF = 1; P.armB = 1; P.tilt = 0.1; break;
+        // setting a crown on his own head
+        const k = clamp((Math.sin(time * 2.2) + 1) / 2, 0, 1); P.tilt = 0.1; P.roll = 0.7; s = frame(P, d);
+        P.handF = rel(s.shF, 0.55, 1.6 + lerp(0.5, 0, k)); P.handB = rel(s.shB, -0.6, 1.6 + lerp(0.5, 0, k)); break;
       }
-      case 'lock': { P.handF = [0.55, top + d.neck + d.headR * 1.3]; P.handB = [-0.25, stand * 0.92]; P.armF = 1; P.lean = 0.1; P.tilt = -0.1; break; }
+      case 'lock': { P.lean = 0.1; P.tilt = -0.1; P.roll = 0.5; s = frame(P, d); P.handF = rel(s.shF, 0.95, 0.5); P.handB = rel(s.shB, 0.2, -1.9); break; }
       case 'flex': default: {
-        P.handF = [0.35, top + 0.55 + beat * 0.05]; P.handB = [-0.45, top + 0.5]; P.armF = 1; P.armB = 1; P.tilt = 0.3; P.lean = -0.08; break;
+        // double biceps: the near elbow out behind, the far one out front, fists up by the head
+        P.tilt = 0.3; P.lean = -0.08; s = frame(P, d);
+        P.handF = rel(s.shF, -0.35, 1.0 + beat * 0.05); P.armF = 1; P.handB = rel(s.shB, 0.3, 1.0 + beat * 0.05); break;
       }
     }
   }
 
-  function poseTrick(P, d, style, t, stand, time) {
+  function poseTrick(P, d, style, t, stand) {
+    const u = d.u;
     const k = Math.sin(clamp(t, 0, 1) * Math.PI);
-    P.pelvis = [0, stand - 0.18 - 0.12 * k]; P.lean = 0.25;
-    P.footF = [0.6, 0]; P.footB = [-0.5, 0];
-    P.handF = [0.5, stand * 0.7]; P.handB = [-0.1, stand * 0.75];
+    // low and wide like the model sheet's crossover, the chest out over the ball
+    P.pelvis = [0, stand - d.leg * 0.33 - 0.08 * k * u]; P.lean = 0.5;
+    P.footF = [0.95 * u, 0]; P.footB = [-0.8 * u, 0];
     switch (style) {
-      case 'hesi': P.pelvis[1] += 0.08 * k; P.lean = lerp(0.25, -0.05, k); P.footF = [0.4 + 0.3 * k, 0]; break;
-      case 'cross': P.footF = [lerp(0.6, 0.2, k), 0]; P.footB = [lerp(-0.5, -0.8, k), 0]; P.lean = 0.3; break;
-      case 'legs': P.footF = [0.85, 0]; P.footB = [-0.7, 0]; P.pelvis[1] -= 0.1; break;
-      case 'behind': P.lean = 0.35; P.footF = [0.7, 0]; P.footB = [-0.4, 0]; P.handB = [-0.6, stand * 0.75]; break;
-      case 'spin': case 'tornado': P.lean = 0.15; P.footF = [0.35, k * 0.15]; P.footB = [-0.35, 0]; P.handB = [-0.6, stand * 0.9 + k * 0.4]; break;
-      case 'world': P.footF = [0.5, 0]; P.footB = [-0.5, 0]; break;
-      case 'head': P.lean = -0.05 * k; P.pelvis[1] += 0.1; P.tilt = 0.25 * k; break;
-      case 'dome': P.lean = 0.05; P.footF = [0.7, 0]; P.handB = [-0.35, stand * 0.9]; break;
-      case 'juggle': P.lean = 0; P.pelvis[1] += 0.12; break;
+      case 'hesi': P.pelvis[1] += 0.12 * k * u; P.lean = lerp(0.38, 0.1, k); P.footF = [(0.75 + 0.3 * k) * u, 0]; break;
+      case 'cross': P.footF = [lerp(0.95, 0.5, k) * u, 0]; P.footB = [lerp(-0.8, -1.05, k) * u, 0]; P.lean = 0.55; break;
+      case 'legs': P.footF = [1.1 * u, 0]; P.footB = [-0.9 * u, 0]; P.pelvis[1] -= 0.08 * u; break;
+      case 'behind': P.lean = 0.5; P.footF = [1.0 * u, 0]; P.footB = [-0.6 * u, 0]; break;
+      case 'spin': case 'tornado': P.lean = 0.2; P.footF = [0.45 * u, k * 0.15]; P.footB = [-0.4 * u, 0]; P.pelvis[1] += 0.15 * u; break;
+      case 'world': P.footF = [0.75 * u, 0]; P.footB = [-0.7 * u, 0]; P.lean = 0.3; break;
+      case 'head': P.lean = 0.1 - 0.1 * k; P.pelvis[1] += 0.3 * u; P.tilt = 0.25 * k; break;
+      case 'dome': P.lean = 0.12; P.pelvis[1] += 0.2 * u; P.footF = [0.95 * u, 0]; break;
+      case 'juggle': P.lean = 0.05; P.pelvis[1] += 0.35 * u; P.tilt = 0.3 * k; break;
       default: break;
     }
-    void time;
+    const s = frame(P, d);
+    const rel = (sh, x, y) => [sh[0] + x * u, sh[1] + y * u];
+    // the hand without the ball stays out front as an arm bar; the game puts the other one on the ball
+    P.handF = rel(s.shF, 0.9, -1.75); P.handB = rel(s.shB, 1.0, -1.25);
+    switch (style) {
+      case 'behind': P.handB = rel(s.shB, -1.45, -1.4); break;
+      case 'spin': case 'tornado': P.handB = rel(s.shB, 0.2, -1.3); break;
+      case 'world': P.handB = rel(s.shB, 0.3, -1.6); break;
+      case 'head': P.handF = rel(s.shF, 1.0, lerp(-1.5, 0.9, k)); P.handB = rel(s.shB, 0.1, lerp(-1.3, 0.8, k)); break;
+      case 'juggle': P.handF = rel(s.shF, 1.1, lerp(-1.5, 0.5, k)); P.handB = rel(s.shB, 0.3, lerp(-1.3, 0.4, k)); break;
+      case 'dome': P.handF = rel(s.shF, 1.8, lerp(-1.3, 0.4, k)); P.handB = rel(s.shB, -0.2, -1.6); break;
+      default: break;
+    }
   }
   const lerpPt = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
 
@@ -432,10 +596,9 @@
 
     // ---- skeleton ----
     const pel = P.pelvis; const lean = P.lean;
-    const ux = Math.sin(lean), uy = Math.cos(lean), nx = Math.cos(lean), ny = -Math.sin(lean);
-    const TP = (a, c) => [pel[0] + ux * a + nx * c, pel[1] + uy * a + ny * c];
+    const fr = frame(P, d); const TP = fr.TP;
     const T = d.torso, sw = d.sw, ww = d.ww, hw = d.hw, B = d.belly;
-    const shF = TP(T * 0.86, sw * 0.42), shB = TP(T * 0.88, -sw * 0.4);
+    const shF = fr.shF, shB = fr.shB;
     const hipF = TP(0.02, hw * 0.23), hipB = TP(0.04, -hw * 0.21);
     const neckBase = TP(T * 0.98, sw * 0.03);
     const r = d.headR;
@@ -452,59 +615,62 @@
     const drawShoe = (j, back) => {
       const ax = j[4], ay = j[5];
       const a = Math.atan2(ay - j[3], ax - j[2]);
-      const rot = clamp((a + Math.PI / 2) * 0.3, -0.45, 0.45);
-      const fh = d.foot, st = 0.075 * u, yb = -fh + st;
-      const collar = L.shoes === 'high' ? 0.2 * u : L.shoes === 'mid' || L.shoes === 'glow' ? 0.1 * u : 0.015 * u;
+      // the shoe follows the shin a little, and points its toe down in the air
+      const rot = clamp((a + Math.PI / 2) * 0.3, -0.45, 0.45) + (P.toe || 0);
+      // chunky high-tops, like the model sheet: the shoe is drawn a size up from the body's unit
+      const su = u * 1.22;
+      const fh = d.foot, st = 0.075 * su, yb = -fh + st;
+      const collar = L.shoes === 'high' ? 0.2 * su : L.shoes === 'mid' || L.shoes === 'glow' ? 0.1 * su : 0.015 * su;
       const sc = back ? shade(L.shoeColor, -0.22) : L.shoeColor, acc = back ? shade(L.shoeAccent, -0.22) : L.shoeAccent;
       ctx.save(); ctx.translate(ax, ay); ctx.rotate(rot);
       const up = new Path2D();
       // A fitted heel, ankle collar, flat forefoot, and a round toe. A separate
       // tongue and side panel keep the high-top from becoming a white wedge.
-      up.moveTo(-0.3 * u, yb);
-      up.quadraticCurveTo(-0.34 * u, yb + 0.13 * u, -0.27 * u, collar + 0.035 * u);
-      up.lineTo(-0.055 * u, collar + 0.045 * u);
-      up.lineTo(0.1 * u, collar + 0.005 * u);
-      up.quadraticCurveTo(0.14 * u, yb + 0.19 * u, 0.3 * u, yb + 0.155 * u);
-      up.bezierCurveTo(0.47 * u, yb + 0.15 * u, 0.62 * u, yb + 0.115 * u, 0.62 * u, yb + 0.045 * u);
-      up.quadraticCurveTo(0.62 * u, yb - 0.005 * u, 0.52 * u, yb);
+      up.moveTo(-0.3 * su, yb);
+      up.quadraticCurveTo(-0.34 * su, yb + 0.13 * su, -0.27 * su, collar + 0.035 * su);
+      up.lineTo(-0.055 * su, collar + 0.045 * su);
+      up.lineTo(0.1 * su, collar + 0.005 * su);
+      up.quadraticCurveTo(0.14 * su, yb + 0.19 * su, 0.3 * su, yb + 0.155 * su);
+      up.bezierCurveTo(0.47 * su, yb + 0.15 * su, 0.62 * su, yb + 0.115 * su, 0.62 * su, yb + 0.045 * su);
+      up.quadraticCurveTo(0.62 * su, yb - 0.005 * su, 0.52 * su, yb);
       up.closePath();
       ctx.lineWidth = olW * 1.5; ctx.strokeStyle = OL; ctx.stroke(up);
       ctx.fillStyle = sc; ctx.fill(up);
       ctx.save(); ctx.clip(up);
       ctx.fillStyle = shade(sc, -0.28);
-      ctx.beginPath(); ctx.moveTo(-0.33 * u, yb); ctx.lineTo(-0.29 * u, collar);
-      ctx.lineTo(-0.13 * u, collar - 0.045 * u); ctx.lineTo(-0.05 * u, yb + 0.045 * u); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-0.33 * su, yb); ctx.lineTo(-0.29 * su, collar);
+      ctx.lineTo(-0.13 * su, collar - 0.045 * su); ctx.lineTo(-0.05 * su, yb + 0.045 * su); ctx.closePath(); ctx.fill();
       // angular quarter panel, with a small opening above the midsole
       ctx.fillStyle = acc;
-      ctx.beginPath(); ctx.moveTo(-0.27 * u, yb + 0.04 * u); ctx.lineTo(-0.1 * u, yb + 0.19 * u);
-      ctx.lineTo(0.04 * u, yb + 0.17 * u); ctx.lineTo(0.19 * u, yb + 0.045 * u);
-      ctx.lineTo(0.36 * u, yb + 0.03 * u); ctx.lineTo(0.22 * u, yb); ctx.lineTo(-0.27 * u, yb); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-0.27 * su, yb + 0.04 * su); ctx.lineTo(-0.1 * su, yb + 0.19 * su);
+      ctx.lineTo(0.04 * su, yb + 0.17 * su); ctx.lineTo(0.19 * su, yb + 0.045 * su);
+      ctx.lineTo(0.36 * su, yb + 0.03 * su); ctx.lineTo(0.22 * su, yb); ctx.lineTo(-0.27 * su, yb); ctx.closePath(); ctx.fill();
       ctx.fillStyle = shade(sc, -0.18);
-      ctx.beginPath(); ctx.moveTo(-0.05 * u, collar + 0.06 * u); ctx.lineTo(0.08 * u, collar + 0.025 * u);
-      ctx.lineTo(0.28 * u, yb + 0.145 * u); ctx.lineTo(0.17 * u, yb + 0.09 * u); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-0.05 * su, collar + 0.06 * su); ctx.lineTo(0.08 * su, collar + 0.025 * su);
+      ctx.lineTo(0.28 * su, yb + 0.145 * su); ctx.lineTo(0.17 * su, yb + 0.09 * su); ctx.closePath(); ctx.fill();
       if (FINE) {
-        ctx.strokeStyle = shade(sc, -0.4); ctx.lineWidth = 0.012 * u;
-        ctx.beginPath(); ctx.moveTo(0.4 * u, yb + 0.15 * u); ctx.quadraticCurveTo(0.33 * u, yb + 0.09 * u, 0.38 * u, yb); ctx.stroke();
+        ctx.strokeStyle = shade(sc, -0.4); ctx.lineWidth = 0.012 * su;
+        ctx.beginPath(); ctx.moveTo(0.4 * su, yb + 0.15 * su); ctx.quadraticCurveTo(0.33 * su, yb + 0.09 * su, 0.38 * su, yb); ctx.stroke();
         ctx.fillStyle = shade(sc, -0.3);
-        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc((0.38 + i * 0.055) * u, yb + 0.105 * u, 0.009 * u, 0, TAU); ctx.fill(); }
-        ctx.fillStyle = 'rgba(255,255,255,0.32)'; ctx.fillRect(-0.23 * u, collar - 0.025 * u, 0.11 * u, 0.028 * u);
+        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc((0.38 + i * 0.055) * su, yb + 0.105 * su, 0.009 * su, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = 'rgba(255,255,255,0.32)'; ctx.fillRect(-0.23 * su, collar - 0.025 * su, 0.11 * su, 0.028 * su);
       }
       ctx.restore();
       // laces
       if (FINE) {
-        ctx.strokeStyle = luminance(sc) > 0.65 ? '#4d5360' : '#ecebe4'; ctx.lineWidth = 0.018 * u;
-        for (let i = 0; i < 4; i++) { const t = i / 4; const lx = lerp(0.025, 0.23, t) * u, ly = lerp(collar - 0.025 * u, yb + 0.16 * u, t); ctx.beginPath(); ctx.moveTo(lx - 0.045 * u, ly); ctx.lineTo(lx + 0.055 * u, ly - 0.025 * u); ctx.stroke(); }
+        ctx.strokeStyle = luminance(sc) > 0.65 ? '#4d5360' : '#ecebe4'; ctx.lineWidth = 0.018 * su;
+        for (let i = 0; i < 4; i++) { const t = i / 4; const lx = lerp(0.025, 0.23, t) * su, ly = lerp(collar - 0.025 * su, yb + 0.16 * su, t); ctx.beginPath(); ctx.moveTo(lx - 0.045 * su, ly); ctx.lineTo(lx + 0.055 * su, ly - 0.025 * su); ctx.stroke(); }
       }
       // sole
       const sole = new Path2D();
-      sole.moveTo(-0.3 * u, yb); sole.lineTo(0.58 * u, yb);
-      sole.quadraticCurveTo(0.65 * u, yb + 0.025 * u, 0.62 * u, -fh + 0.025 * u);
-      sole.quadraticCurveTo(0.42 * u, -fh - 0.018 * u, 0.2 * u, -fh + 0.015 * u);
-      sole.lineTo(-0.26 * u, -fh); sole.quadraticCurveTo(-0.33 * u, -fh, -0.3 * u, yb); sole.closePath();
+      sole.moveTo(-0.3 * su, yb); sole.lineTo(0.58 * su, yb);
+      sole.quadraticCurveTo(0.65 * su, yb + 0.025 * su, 0.62 * su, -fh + 0.025 * su);
+      sole.quadraticCurveTo(0.42 * su, -fh - 0.018 * su, 0.2 * su, -fh + 0.015 * su);
+      sole.lineTo(-0.26 * su, -fh); sole.quadraticCurveTo(-0.33 * su, -fh, -0.3 * su, yb); sole.closePath();
       ctx.lineWidth = olW * 1.25; ctx.strokeStyle = OL; ctx.stroke(sole);
       ctx.fillStyle = L.shoes === 'glow' ? '#7df9ff' : back ? '#c3c5c4' : '#e6e5df'; ctx.fill(sole);
-      ctx.strokeStyle = back ? '#333941' : '#444b55'; ctx.lineWidth = 0.025 * u;
-      ctx.beginPath(); ctx.moveTo(-0.25 * u, -fh + 0.005 * u); ctx.lineTo(0.21 * u, -fh + 0.024 * u); ctx.quadraticCurveTo(0.42 * u, -fh, 0.57 * u, -fh + 0.014 * u); ctx.stroke();
+      ctx.strokeStyle = back ? '#333941' : '#444b55'; ctx.lineWidth = 0.025 * su;
+      ctx.beginPath(); ctx.moveTo(-0.25 * su, -fh + 0.005 * su); ctx.lineTo(0.21 * su, -fh + 0.024 * su); ctx.quadraticCurveTo(0.42 * su, -fh, 0.57 * su, -fh + 0.014 * su); ctx.stroke();
       if (L.shoes === 'glow' && !back) { ctx.save(); ctx.shadowColor = '#7df9ff'; ctx.shadowBlur = 12; ctx.fill(sole); ctx.restore(); }
       ctx.restore();
     };
@@ -513,7 +679,7 @@
     const shortsK = { short: 1.24, mid: 1.36, long: 1.4, baggy: 1.6 }[L.shorts] || 1.36;
     const drawLeg = (j, back) => {
       const sk = back ? skinB : skin;
-      const tr = d.thighR, kr = d.thighR * 0.66, ar = d.calfR * 0.56;
+      const tr = d.thighR, kr = d.thighR * 0.72, ar = d.calfR * 0.56;
       const segs = [[j[0], j[1], j[2], j[3], tr, kr, [0.14, 0.06]], [j[2], j[3], j[4], j[5], kr * 0.96, ar, [0.04, 0.24]]];
       fillShaded(ctx, limbPath(segs), segs, sk, olW);
       // knee sleeve
@@ -550,10 +716,10 @@
       if (FINE) { ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 0.07 * u; ctx.beginPath(); ctx.moveTo(e[0] + nnx * r1 * 0.9 - dx / Lg * 0.05 * u, e[1] + nny * r1 * 0.9 - dy / Lg * 0.05 * u); ctx.lineTo(e[0] - nnx * r1 * 0.9 - dx / Lg * 0.05 * u, e[1] - nny * r1 * 0.9 - dy / Lg * 0.05 * u); ctx.stroke(); }
       ctx.lineCap = 'round';
     };
-    const drawHand = (j, sk) => {
-      const dx = j[4] - j[2], dy = j[5] - j[3]; const a = Math.atan2(dy, dx);
+    const drawHand = (j, sk, wrist) => {
+      const dx = j[4] - j[2], dy = j[5] - j[3]; const a = Math.atan2(dy, dx) + (wrist || 0);
       ctx.save(); ctx.translate(j[4], j[5]); ctx.rotate(a);
-      const hr = d.armR * 1.0;
+      const hr = d.armR * 1.3;
       const hp = new Path2D(); hp.ellipse(hr * 0.15, 0, hr * 1.12, hr * 0.92, 0, 0, TAU);
       const th = new Path2D(); th.ellipse(-hr * 0.15, hr * 0.78, hr * 0.48, hr * 0.32, -0.6, 0, TAU);
       ctx.lineWidth = olW * 2; ctx.strokeStyle = OL; ctx.stroke(hp); ctx.stroke(th);
@@ -566,7 +732,7 @@
       const ar = d.armR;
       const fx = j[4] - j[2], fy = j[5] - j[3], fl = Math.hypot(fx, fy) || 1;
       const wx = j[4] - fx / fl * ar * 0.9, wy = j[5] - fy / fl * ar * 0.9;
-      const segs = [[j[0], j[1], j[2], j[3], ar * 1.22, ar * 0.7, [0.2, 0.1]], [j[2], j[3], wx, wy, ar * 0.76, ar * 0.5, [0.12, 0.06]]];
+      const segs = [[j[0], j[1], j[2], j[3], ar * 1.18, ar * 0.72, [0.2, 0.1]], [j[2], j[3], wx, wy, ar * 0.76, ar * 0.5, [0.12, 0.06]]];
       const p = limbPath(segs);
       fillShaded(ctx, p, segs, sk, olW, { outline: openRootOutline(segs) });
       // ink
@@ -596,7 +762,7 @@
         const ts = [[j[0], j[1], a[0], a[1], ar * 1.5, ar * 1.25, [0.05, 0.05], true]];
         fillShaded(ctx, limbPath(ts), ts, back ? shade(col.pri, -0.22) : col.pri, olW);
       }
-      drawHand(j, sk);
+      drawHand(j, sk, back ? P.wristB : P.wristF);
     };
 
     // ---- back layer ----
