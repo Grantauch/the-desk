@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burn the Files</title>
+<meta name="description" content="152 files destroyed, seven boxes survived, and the most careful sentence ever spoken about a missing record.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-burn-the-files.html">
+<meta property="og:title" content="Burn the Files">
+<meta property="og:description" content="152 files destroyed, seven boxes survived, and the most careful sentence ever spoken about a missing record.">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-burn-the-files.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/burn-the-files/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--char:#111010;--char2:#1b1a18;--ash:#a8a29a;--ash2:#d9d4cc;--ember:#e8641f;--ember2:#ffb26b;--paper:#ece6da;--green:#8fb996}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--char);color:var(--ash2);font:400 1.1rem/1.68 Literata,Georgia,serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:3px;background:var(--ember);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;text-transform:uppercase;line-height:.92;margin:0;letter-spacing:.01em}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:5rem 0}
+p{margin:0 0 1.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .8s,transform .8s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--ember2);outline-offset:3px}
+button{font:inherit}
+h2{font-size:clamp(2.6rem,8vw,4.6rem);margin-bottom:1.1rem;color:var(--paper)}
+.kick{display:block;margin-bottom:.7rem}
+
+/* hero: 152 files */
+.hero{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:2.4rem;align-items:center;max-width:68rem;margin:0 auto;padding:3rem 1.25rem}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);min-height:auto;padding-top:4rem}}
+.hero h1{font-size:clamp(4rem,13vw,8.5rem);color:var(--paper)}
+.hero .dek{font-size:1.2rem;max-width:30rem;margin-top:1rem}
+.files{display:grid;grid-template-columns:repeat(19,1fr);gap:3px}
+.files i{aspect-ratio:3/4;background:var(--paper);display:block;transition:background .5s,transform .9s,opacity .9s}
+.files.burn i{background:var(--ember);opacity:0;transform:translateY(-14px) scale(.6)}
+.boxes{display:flex;gap:.6rem;margin-top:1.4rem;min-height:3.4rem;align-items:flex-end}
+.boxes i{width:3rem;height:2.4rem;background:#8a6b3d;border:2px solid #c9a46a;display:block;opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s}
+.boxes.show i{opacity:1;transform:none}
+.burnbtn{margin-top:1.4rem;background:none;border:2px solid var(--ember);color:var(--ember2);padding:.75rem 1.2rem;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.burnbtn:hover{background:rgba(232,100,31,.12)}
+.burnlog{margin-top:1rem;min-height:5rem;font-size:1rem}
+
+/* plain */
+.plain{background:var(--paper);color:var(--char);padding:2.3rem 2rem;max-width:38rem;margin:0 auto}
+.plain h3{font-family:"IBM Plex Mono",monospace;font-size:.9rem;letter-spacing:.14em;margin:0 0 1rem}
+.plain p:last-child{margin:0}
+
+/* timeline strip */
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#33302c;border:1px solid #33302c;max-width:66rem;margin:2rem auto 0}
+@media (max-width:760px){.strip{grid-template-columns:1fr 1fr}}
+.strip div{background:var(--char2);padding:1.1rem}
+.strip b{font-family:"Big Shoulders Display",sans-serif;font-size:1.8rem;color:var(--ember2);display:block;line-height:1}
+.strip span{font-size:.95rem}
+
+/* six grid */
+.six{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:2.4rem;max-width:66rem;margin:0 auto;padding:0 1.25rem;align-items:start}
+@media (max-width:860px){.six{grid-template-columns:1fr}}
+.g149{display:grid;grid-template-columns:repeat(15,1fr);gap:3px;position:relative}
+.g149 i{aspect-ratio:1;background:#3a3631;display:block;transition:background .4s,opacity .4s}
+.g149 i.un{background:var(--ember)}
+.g149.f-vol i.v1{background:var(--green)}
+.g149.f-vol i.v2{background:#5f8a67}
+.g149.f-none i.nh{background:var(--ash2)}
+.g149.fog::after{content:"DESTROYED JANUARY 1973";position:absolute;inset:-6px;display:grid;place-items:center;background:repeating-linear-gradient(135deg,rgba(17,16,16,.88) 0 10px,rgba(40,37,33,.88) 10px 20px);color:var(--ash2);font-family:"IBM Plex Mono",monospace;letter-spacing:.14em;font-size:.85rem;text-align:center}
+.g149.fog i.un{position:relative;z-index:2}
+.filters{display:grid;gap:.5rem;margin-top:1rem}
+.filters button{display:flex;gap:.7rem;align-items:center;text-align:left;background:none;border:1px solid #3a3631;color:var(--ash2);padding:.55rem .7rem;cursor:pointer}
+.filters button[aria-pressed=true]{border-color:var(--ember2);background:#221d18}
+.filters .sw{width:1rem;height:1rem;flex:none}
+.filters b{font-family:"IBM Plex Mono",monospace;width:2rem;color:var(--paper)}
+.read{margin-top:1rem;padding:1rem 1.1rem;border-left:3px solid var(--ember);background:var(--char2);min-height:6rem}
+.quote{max-width:52rem;margin:0 auto;padding:4rem 1.25rem;text-align:center}
+.quote blockquote{margin:0;font-family:"Big Shoulders Display",sans-serif;font-weight:700;text-transform:uppercase;font-size:clamp(2rem,6vw,3.6rem);line-height:1;color:var(--paper)}
+.quote cite{display:block;margin-top:1rem;font:400 .82rem "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--ash)}
+
+/* verdict board */
+.board{max-width:66rem;margin:0 auto;padding:0 1.25rem}
+.bins{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin:1.4rem 0;position:sticky;top:.5rem;z-index:5}
+@media (max-width:760px){.bins{grid-template-columns:1fr 1fr}}
+.bin{background:var(--char2);border:2px solid #3a3631;color:var(--paper);padding:.8rem .6rem;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-weight:600;letter-spacing:.08em;font-size:.82rem;text-transform:uppercase}
+.bin:disabled{opacity:.45;cursor:default}
+.bin .ct{display:block;font-size:1.4rem;color:var(--ember2)}
+.cl{display:grid;gap:.6rem}
+.cl button.claim{display:block;width:100%;text-align:left;background:var(--paper);color:var(--char);border:0;padding:.95rem 1.1rem;cursor:pointer;font-size:1.02rem;border-left:6px solid transparent}
+.cl button.claim[aria-pressed=true]{border-left-color:var(--ember);box-shadow:0 0 0 2px var(--ember)}
+.cl button.claim.placed{background:var(--char2);color:var(--ash2);cursor:default}
+.cl .res{font-size:.95rem;padding:.5rem 1.1rem .2rem 1.6rem;color:var(--ash2)}
+.cl .res b{font-family:"IBM Plex Mono",monospace;letter-spacing:.08em}
+.cl .res b.ok{color:var(--green)}.cl .res b.no{color:var(--ember2)}
+.hint{min-height:1.6rem;font-size:.95rem;color:var(--ash)}
+
+.witness{max-width:62rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1rem}
+.wit{border:1px solid #3a3631;padding:1.2rem}
+.wit .mono{color:var(--ember2)}
+.wit h3{font-family:"Big Shoulders Display",sans-serif;font-size:1.7rem;margin:.3rem 0 .5rem;color:var(--paper);text-transform:uppercase}
+.tag{display:inline-block;margin-top:.6rem;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;border:1px solid var(--ash);padding:.1rem .4rem;color:var(--ash)}
+
+/* figures */
+.mug{float:right;width:12rem;margin:0 0 1rem 1.4rem;background:var(--paper);padding:.4rem}
+.mug img{display:block;width:100%;height:auto;filter:grayscale(.2) contrast(1.05)}
+.mug figcaption{color:#3a3631;font-size:.66rem;margin-top:.3rem;text-transform:none}
+@media (max-width:560px){.mug{float:none;width:100%;margin:1rem 0}}
+.faces{max-width:66rem;margin:2.4rem auto 0;padding:0 1.25rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}
+@media (max-width:760px){.faces{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.faces figure{margin:0}
+.faces img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top;filter:grayscale(.15);border:1px solid #33302c}
+.faces figcaption{margin-top:.4rem;text-transform:none;font-size:.7rem;letter-spacing:.04em}
+/* card */
+.card{background:var(--paper);color:var(--char);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem}
+.card h2{font-size:2.8rem;margin-bottom:.3rem;color:var(--char)}
+.card label{display:block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #857e74;background:#fff;color:var(--char)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--char);color:var(--paper);border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:5rem 1.25rem 3rem}
+.next p{font-family:"Big Shoulders Display",sans-serif;font-weight:700;text-transform:uppercase;font-size:2.2rem;max-width:36rem;margin:0 auto;line-height:1;color:var(--paper)}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:var(--ash)}
+.sources button{background:none;border:0;color:var(--ash);text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="hero">
+  <div>
+    <div class="mono">CIA headquarters, Langley, Virginia</div>
+    <h1>Burn the Files</h1>
+    <p class="dek">In January 1973 the man who ran the CIA was weeks from leaving. The record of MKULTRA went first.</p>
+  </div>
+  <div>
+    <div class="files" id="files" role="img" aria-label="152 MKULTRA files"></div>
+    <div class="boxes" id="boxes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <button class="burnbtn" id="burn">January 1973</button>
+    <p class="burnlog" id="burnlog" aria-live="polite">152 files. The operational record of MKULTRA, the paper that says who was tested, where and how.</p>
+  </div>
+</header>
+
+<main>
+<section style="padding-top:1rem">
+  <div class="wrap reveal">
+    <span class="mono kick">Why burn them</span>
+    <p>Richard Helms had been Director of Central Intelligence since 1966. President Nixon had decided to replace him, and he would leave in February 1973. Senator Edward Kennedy said at the 1977 hearing that Helms ordered the MKULTRA files destroyed. Technical Services staff carried it out on Sidney Gottlieb's instruction. Gottlieb retired that same year.</p>
+    <figure class="mug"><img src="/storyhub/hh/burn-the-files/assets/helms.webp" alt="Portrait of CIA Director Richard Helms" loading="lazy"><figcaption class="mono">Richard Helms, Director of Central Intelligence, 1966 to 1973</figcaption></figure>
+    <p>Helms later said the program was over, the papers could be misunderstood, and the outside researchers had been promised secrecy. Critics point to the timing. That same January the Watergate burglars went on trial, and Washington was starting to dig into what its government had hidden. Both explanations can be partly true. The effect is certain. When investigators came in 1975, the operational record was gone.</p>
+  </div>
+  <div class="faces reveal">
+    <figure><img src="/storyhub/hh/burn-the-files/assets/nrock.webp" alt="Vice President Nelson Rockefeller" loading="lazy"><figcaption class="mono">Nelson Rockefeller chaired the 1975 commission</figcaption></figure>
+    <figure><img src="/storyhub/hh/burn-the-files/assets/church.webp" alt="Senator Frank Church" loading="lazy"><figcaption class="mono">Frank Church chaired the Senate committee</figcaption></figure>
+    <figure><img src="/storyhub/hh/burn-the-files/assets/turner.webp" alt="Admiral Stansfield Turner" loading="lazy"><figcaption class="mono">Stansfield Turner testified in 1977</figcaption></figure>
+    <figure><img src="/storyhub/hh/burn-the-files/assets/inouye.webp" alt="Senator Daniel Inouye" loading="lazy"><figcaption class="mono">Daniel Inouye asked who approved it</figcaption></figure>
+  </div>
+  <div class="strip reveal">
+    <div><b>Dec 22, 1974</b><span>Seymour Hersh reports in The New York Times that the CIA spied on Americans.</span></div>
+    <div><b>June 1975</b><span>The Rockefeller Commission calls unwitting drug testing clearly illegal.</span></div>
+    <div><b>1977</b><span>Records requests turn up surviving financial files stored in the wrong place.</span></div>
+    <div><b>Aug 3, 1977</b><span>CIA Director Stansfield Turner testifies to the Senate.</span></div>
+  </div>
+</section>
+
+<section style="background:var(--char2)">
+  <div class="wrap reveal">
+    <div class="plain">
+      <h3>WHY A MISSING FILE PROVES NOTHING EITHER WAY</h3>
+      <p>Say your phone records get wiped. Someone claims you texted a threat last spring. Can they prove it? No, the record's gone. Can you prove you didn't? Also no. A missing record doesn't make the claim true, and it doesn't make it false. It just moves the question somewhere else, to witnesses, to other copies, to whatever survived.</p>
+      <p>That's the position every MKULTRA investigator has been in since 1973. People who want the worst version to be true say the burning proves a cover up of everything. People who want to defend the CIA say there's no evidence. Both are using a hole in the record as if it were evidence. The honest move is harder. You say exactly what the surviving paper shows, and you say exactly where it stops.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal" style="margin-bottom:2rem">
+    <span class="mono kick">August 3, 1977</span>
+    <h2>Six, not 149.</h2>
+    <p>Turner went through the recovered files subproject by subproject. Then he said the most important sentence of the hearing: There are 6 cases of these 149 where we have enough evidence in this new documentation to substantiate that there was unwitting testing. Each square below is one subproject. Press each filter. Then press the last two and compare them.</p>
+  </div>
+  <div class="six">
+    <div class="reveal"><div class="g149" id="g149" role="img" aria-label="149 squares, one for each MKULTRA subproject in the recovered files"></div></div>
+    <div class="reveal">
+      <div class="filters" id="filters">
+        <button data-f="un" aria-pressed="true"><span class="sw" style="background:var(--ember)"></span><b>6</b>Unwitting testing, proven by the surviving paper</button>
+        <button data-f="vol" aria-pressed="false"><span class="sw" style="background:var(--green)"></span><b>33</b>Volunteers: 14 definitely, 19 probably</button>
+        <button data-f="none" aria-pressed="false"><span class="sw" style="background:var(--ash2)"></span><b>17</b>Probably no human testing</button>
+        <button data-f="all" aria-pressed="false"><span class="sw" style="background:var(--ember2)"></span><b>?</b>Reading 1: six is all that happened</button>
+        <button data-f="fog" aria-pressed="false"><span class="sw" style="background:#2a2622;border:1px solid var(--ash)"></span><b>?</b>Reading 2: six is all we can prove</button>
+      </div>
+      <div class="read" id="read" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<div class="quote reveal">
+  <blockquote>That does not say there was not, but we have no such evidence.</blockquote>
+  <cite>Adm. Stansfield Turner, asked whether the White House approved MKULTRA, August 3, 1977</cite>
+</div>
+
+<section style="background:var(--char2)">
+  <div class="wrap reveal">
+    <span class="mono kick">The smallest verdict the record earns</span>
+    <h2>Sort the claims.</h2>
+    <p>Here is the test for this whole unit. Pick a claim, then pick the bin where the evidence puts it. Confirmed means the record proves it. Unproven means it could be true but the record cannot show it. Unsupported means the record gives no basis for it. Misleading means it twists something real.</p>
+  </div>
+  <div class="board">
+    <div class="bins" id="bins">
+      <button class="bin" data-b="c" disabled><span class="ct" id="ct-c">0</span>Confirmed</button>
+      <button class="bin" data-b="u" disabled><span class="ct" id="ct-u">0</span>Unproven</button>
+      <button class="bin" data-b="s" disabled><span class="ct" id="ct-s">0</span>Unsupported</button>
+      <button class="bin" data-b="m" disabled><span class="ct" id="ct-m">0</span>Misleading</button>
+    </div>
+    <p class="hint" id="hint">Pick a claim first.</p>
+    <div class="cl" id="cl"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal" style="margin-bottom:2rem">
+    <span class="mono kick">June 30, 2026</span>
+    <h2>Back in the hearing room.</h2>
+    <p>Almost 49 years later, a House Oversight task force chaired by Representative Anna Paulina Luna of Florida held a hearing called Mind Control and Accountability. Witness Tom O'Neill called it the first congressional hearing on MKULTRA since 1977. What the witnesses said is testimony. Testimony is evidence that someone made a claim, so each one is labeled below.</p>
+  </div>
+  <div class="witness">
+    <div class="wit reveal"><span class="mono">Witness</span><h3>Stephen Kinzer</h3><p>Author of Poisoner in Chief, a 2019 biography of Gottlieb. Testified that MKULTRA ran the most extreme experiments on humans ever carried out by a U.S. agency, and that the number of victims is unknown because the files were destroyed in 1973.</p><span class="tag">Second half matches the record. First half is his judgment.</span></div>
+    <div class="wit reveal"><span class="mono">Witness</span><h3>Tom O'Neill</h3><p>Author of CHAOS. Alleged that passages were removed from CIA documents before they went to Congress in 1977, so the old investigation worked from an incomplete record.</p><span class="tag">Allegation. Needs the original documents to check.</span></div>
+    <div class="wit reveal"><span class="mono">Both</span><h3>The ask</h3><p>End redactions on documents already released, and search again for records that were never turned over. Kinzer warned that modern neuroscience and artificial intelligence could make a successor program far more capable.</p><span class="tag">A warning about the future, not a finding about the past.</span></div>
+  </div>
+</section>
+
+<section style="padding-top:1rem">
+  <form class="card" data-card="BURN THE FILES: MKULTRA, Part 3 (StoryHub)" onsubmit="return false">
+    <span class="mono" style="color:#6c665e">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. Who ordered the MKULTRA files destroyed, and when?</label>
+    <textarea id="q1" data-q="Who ordered the MKULTRA files destroyed, and when?"></textarea>
+    <label for="q2">Q2. What is the difference between six is all that happened and six is all we can prove?</label>
+    <textarea id="q2" data-q="What is the difference between six is all that happened and six is all we can prove?"></textarea>
+    <label for="q3">Q3. Name one claim that belongs in the Confirmed bin and one that belongs in Unsupported.</label>
+    <textarea id="q3" data-q="Name one claim that belongs in the Confirmed bin and one that belongs in Unsupported."></textarea>
+    <label for="back">Back of the card. Should the government release every remaining MKULTRA record with no redactions? Use one fact from this week. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="Should the government release every remaining MKULTRA record with no redactions? Use one fact from this week." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="mono" style="margin-bottom:1rem">Next time</div>
+  <p>Review day. Then Friday, the case closes.</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>U.S. Senate, Project MKULTRA, Joint Hearing, August 3, 1977. Turner testimony, subproject categories, Kennedy opening statement, MKSEARCH appendix.</li>
+    <li>Commission on CIA Activities Within the United States, Report to the President, June 1975, Chapter 16. 152 files destroyed, Recommendation 27.</li>
+    <li>Seymour Hersh, The New York Times, December 22, 1974.</li>
+    <li>Portraits of Richard Helms, Nelson Rockefeller, Frank Church, Stansfield Turner and Daniel Inouye, official government photographs, public domain via Wikimedia Commons.</li>
+    <li>House Oversight Committee Task Force on the Declassification of Federal Secrets, Mind Control and Accountability, June 30, 2026. Witness statements of Stephen Kinzer and Tom O'Neill.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  // burn
+  var files=document.getElementById('files'); for(var i=0;i<152;i++) files.appendChild(document.createElement('i'));
+  var burned=false, bb=document.getElementById('burn'), log=document.getElementById('burnlog'), boxes=document.getElementById('boxes');
+  bb.addEventListener('click',function(){
+    burned=!burned;
+    if(burned){
+      var kids=files.children, order=[]; for(var k=0;k<kids.length;k++) order.push(k); order.sort(function(){return Math.random()-.5;});
+      if(HUB.reducedMotion){ files.classList.add('burn'); }
+      else order.forEach(function(k,n){ setTimeout(function(){ kids[k].style.background='var(--ember)'; setTimeout(function(){ kids[k].style.opacity='0'; kids[k].style.transform='translateY(-14px) scale(.6)'; },350); }, n*9); });
+      setTimeout(function(){ boxes.classList.add('show'); log.textContent='152 files destroyed, by the Rockefeller Commission\'s count. In 1977 a records search found seven boxes, roughly 8,000 pages, filed with financial records in a different storage center. They survived because they were boring.'; }, HUB.reducedMotion?0:1900);
+      bb.textContent='Rewind';
+    } else {
+      files.classList.remove('burn'); Array.prototype.forEach.call(files.children,function(k){ k.style.background=''; k.style.opacity=''; k.style.transform=''; });
+      boxes.classList.remove('show'); log.textContent='152 files. The operational record of MKULTRA, the paper that says who was tested, where and how.'; bb.textContent='January 1973';
+    }
+  });
+  // 149 grid: index ranges
+  var g=document.getElementById('g149'), cls=[]; for(var j=0;j<149;j++){ var c=''; if(j<6)c='un'; else if(j<20)c='v1'; else if(j<39)c='v2'; else if(j<56)c='nh'; cls.push(c); }
+  // spread the 6 so they are not clumped
+  var pos=[7,31,58,84,111,137]; var arr=new Array(149).fill(''); var rest=cls.filter(function(c){return c!=='un';}); var r=0;
+  for(var q=0;q<149;q++){ if(pos.indexOf(q)>=0) arr[q]='un'; else arr[q]=rest[r++]; }
+  g.innerHTML=arr.map(function(c){return '<i class="'+c+'"></i>';}).join('');
+  var txt={
+    un:'Six subprojects where the surviving paper proves people were tested without knowing it. That is a devastating finding, and it is a floor, not a ceiling.',
+    vol:'Turner listed 14 subprojects that definitely used volunteers and 19 that probably did. Remember Lexington before you call every volunteer free. A prisoner offered heroin is technically a volunteer.',
+    none:'17 subprojects probably involved no human testing at all: chemistry, equipment, reviews. The other 93 squares were about other topics or were not sorted by Turner into a testing category.',
+    all:'If six is all that happened, MKULTRA was a small scandal: six projects out of 149. This reading treats the surviving paper as the whole story. It ignores that the operational files were burned, and that the 1963 Inspector General found approvals were deliberately not written down.',
+    fog:'If six is all we can prove, the six stay lit and everything else goes dark. The true number of people tested is unknown. This is the reading Turner himself gave when he said other cases were ambiguous. It is also the reading historians use.'
+  };
+  var fb=document.querySelectorAll('#filters button'), read=document.getElementById('read');
+  function setF(f){ g.classList.remove('f-vol','f-none','fog'); if(f==='vol')g.classList.add('f-vol'); if(f==='none')g.classList.add('f-none'); if(f==='fog')g.classList.add('fog'); fb.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-f')===f); }); read.textContent=txt[f]; }
+  fb.forEach(function(b){ b.addEventListener('click',function(){ setF(b.getAttribute('data-f')); }); }); setF('un');
+  // verdict board
+  var claims=[
+    ['MKULTRA existed from 1953 to 1964 and funded 149 subprojects.','c','Confirmed by the recovered financial files and the 1977 hearing.'],
+    ['Americans were tested with drugs without knowing it.','c','Confirmed. Turner substantiated six subprojects, and the Rockefeller Commission called it clearly illegal.'],
+    ['The CIA hid its sponsorship from some researchers.','c','Confirmed. The 1977 hearing describes cutouts and the 375,000 dollar building fund routed through an intermediary.'],
+    ['The President personally approved MKULTRA.','u','Unproven. Turner: no evidence, and that does not say there was not. It could be true, and nothing shows it.'],
+    ['We know exactly how many people were dosed.','m','Misleading. Anyone giving an exact total is ignoring the 1973 destruction. The true number is unknown.'],
+    ['MKULTRA proved the CIA can control anyone\'s mind.','s','Unsupported. Nothing in the record shows reliable mind control worked. Trying is not the same as succeeding.'],
+    ['All related research stopped for good in 1964.','m','Misleading. MKULTRA ended in 1964, but volunteer testing ran to 1967 and a successor, MKSEARCH, was funded through fiscal 1972.'],
+    ['A secret version of the program is running today.','s','Unsupported by the record. Kinzer warned it could happen. A warning is not evidence that it did.']
+  ];
+  var cl=document.getElementById('cl'), bins=document.querySelectorAll('.bin'), hint=document.getElementById('hint'), cur=null, counts={c:0,u:0,s:0,m:0}, names={c:'Confirmed',u:'Unproven',s:'Unsupported',m:'Misleading'};
+  cl.innerHTML=claims.map(function(c,i){return '<div><button class="claim" type="button" data-i="'+i+'" aria-pressed="false">'+c[0]+'</button><div class="res" id="res'+i+'"></div></div>';}).join('');
+  cl.querySelectorAll('.claim').forEach(function(b){ b.addEventListener('click',function(){ if(b.classList.contains('placed'))return; cl.querySelectorAll('.claim').forEach(function(o){o.setAttribute('aria-pressed','false');}); b.setAttribute('aria-pressed','true'); cur=+b.getAttribute('data-i'); bins.forEach(function(x){x.disabled=false;}); hint.textContent='Now pick a bin for: '+claims[cur][0]; }); });
+  bins.forEach(function(bin){ bin.addEventListener('click',function(){ if(cur===null)return; var pick=bin.getAttribute('data-b'), c=claims[cur], ok=pick===c[1];
+    var res=document.getElementById('res'+cur); res.innerHTML='<b class="'+(ok?'ok':'no')+'">'+(ok?'RIGHT BIN. ':'YOU SAID '+names[pick].toUpperCase()+'. ')+'</b>'+c[2];
+    var btn=cl.querySelector('[data-i="'+cur+'"]'); btn.classList.add('placed'); btn.setAttribute('aria-pressed','false'); btn.textContent=names[c[1]].toUpperCase()+' / '+c[0];
+    counts[c[1]]++; document.getElementById('ct-'+c[1]).textContent=counts[c[1]]; cur=null; bins.forEach(function(x){x.disabled=true;});
+    hint.textContent=(counts.c+counts.u+counts.s+counts.m===claims.length)?'Board complete. Notice the Confirmed column is already severe. It does not need help from claims the record cannot carry.':'Pick the next claim.';
+  }); });
+})();
+</script>
+</body>
+</html>

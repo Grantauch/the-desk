@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Follow the Money</title>
+<meta name="description" content="MKULTRA as the receipts tell it: a funding line, eighty institutions and 375,000 dollars routed through a cutout.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-follow-the-money.html">
+<meta property="og:title" content="Follow the Money">
+<meta property="og:description" content="MKULTRA as the receipts tell it: a funding line, eighty institutions and 375,000 dollars routed through a cutout.">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-follow-the-money.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/follow-the-money/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--manila:#d8bf8a;--manila2:#c9ac70;--paper:#f4f0e5;--ink:#1d1c1a;--red:#b0261d;--gray:#6e6a60;--redact:#111}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--manila);color:var(--ink);font:400 1.1rem/1.66 "IBM Plex Serif",Georgia,serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:4px;background:var(--red);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:"Special Elite",Courier,monospace;font-weight:400;line-height:1.05;margin:0}
+.tw{font-family:"Courier Prime",monospace;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:4.5rem 0}
+p{margin:0 0 1.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+button{font:inherit}
+h2{font-size:clamp(2rem,6vw,3.2rem);margin-bottom:1.1rem}
+.kick{display:block;margin-bottom:.6rem;color:#5d4f30}
+
+/* folder hero */
+.hero{padding:4rem 1.25rem 5rem}
+.folder{max-width:52rem;margin:0 auto;position:relative}
+.tab{display:inline-block;background:var(--manila2);padding:.5rem 1.4rem .4rem;border-radius:.4rem .4rem 0 0;font-family:"Courier Prime",monospace;letter-spacing:.12em;font-size:.82rem}
+.sheet{background:var(--paper);padding:2.6rem 2.4rem 2.4rem;box-shadow:0 30px 60px -30px rgba(0,0,0,.5);position:relative}
+@media (max-width:600px){.sheet{padding:2rem 1.3rem}}
+.stamp{position:absolute;right:1.6rem;top:1.4rem;color:var(--red);border:3px solid var(--red);padding:.25rem .7rem;font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.16em;transform:rotate(-7deg);opacity:.85}
+.memo{font-family:"Courier Prime",monospace;font-size:.98rem;line-height:1.75}
+.memo .hd{display:grid;grid-template-columns:6rem 1fr;gap:.2rem .6rem;margin-bottom:1.4rem}
+.hero h1{font-size:clamp(2.6rem,9vw,5.4rem);margin:1.6rem 0 .6rem}
+.bar{background:var(--redact);color:transparent;border-radius:1px;transition:background .8s,color .8s;padding:0 .1em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.declass .bar.lift{background:transparent;color:var(--ink)}
+.bar.gone{position:relative}
+.declass .bar.gone::after{content:"DESTROYED 1973";position:absolute;left:.4em;top:50%;transform:translateY(-50%);color:#d8d2c2;font-size:.68rem;letter-spacing:.12em;white-space:nowrap}
+.dbtn{margin-top:1.4rem;background:none;border:2px solid var(--ink);padding:.7rem 1.2rem;cursor:pointer;font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.dbtn:hover{background:var(--ink);color:var(--paper)}
+.dnote{margin-top:1rem;font-size:.95rem;color:var(--gray);min-height:3rem}
+
+/* plain */
+.plain{background:var(--ink);color:var(--paper);padding:2.3rem 2rem;max-width:38rem;margin:0 auto}
+.plain h3{font-family:"Courier Prime",monospace;font-size:.9rem;letter-spacing:.16em;margin:0 0 1rem;color:var(--manila)}
+.plain p:last-child{margin:0}
+
+.paper{background:var(--paper)}
+.who{display:grid;grid-template-columns:minmax(0,12rem) 1fr;gap:2rem;align-items:start}
+.who img{width:100%;filter:grayscale(1) contrast(1.05);border:1px solid var(--ink)}
+@media (max-width:640px){.who{grid-template-columns:1fr}.who img{max-width:11rem}}
+
+/* chain */
+.chainwrap{max-width:66rem;margin:0 auto;padding:0 1.25rem}
+.chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:2rem 0 1rem;position:relative}
+@media (max-width:820px){.chain{grid-template-columns:1fr 1fr;row-gap:1.2rem}}
+.node{position:relative;padding:1rem .9rem 1.1rem;border:2px solid var(--ink);background:var(--paper);margin-right:1.6rem;opacity:.35;transition:opacity .5s,background .5s}
+.node.on{opacity:1}
+.node.knew{background:#f3e0dc}
+.node.blind{background:repeating-linear-gradient(45deg,#ece6d6,#ece6d6 6px,#e2dbc8 6px,#e2dbc8 12px)}
+.node .t{font-family:"Courier Prime",monospace;font-weight:700;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
+.node .n{font-family:"Special Elite",monospace;font-size:1.25rem;line-height:1.15;margin:.4rem 0}
+.node .k{font-size:.92rem;display:none}
+.showknow .node.on .k{display:block}
+.node:not(:last-child)::after{content:"";position:absolute;right:-1.6rem;top:50%;width:1.6rem;height:2px;background:var(--ink)}
+@media (max-width:820px){.node:nth-child(2)::after{display:none}}
+.money{font-family:"Courier Prime",monospace;font-weight:700;font-size:2.4rem;line-height:1}
+.ctrls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.b{background:var(--paper);border:2px solid var(--ink);padding:.6rem 1rem;cursor:pointer;font-family:"Courier Prime",monospace;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}
+.b[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.b:disabled{opacity:.4;cursor:default}
+.log{margin-top:1.2rem;background:var(--paper);border-left:4px solid var(--red);padding:1rem 1.2rem;min-height:6.5rem}
+
+/* waffle */
+.wgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.4rem;max-width:62rem;margin:0 auto;padding:0 1.25rem;align-items:start}
+@media (max-width:820px){.wgrid{grid-template-columns:1fr}}
+.waffle{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.waffle i{aspect-ratio:1;display:grid;place-items:center;font-style:normal;font-family:"Courier Prime",monospace;font-weight:700;font-size:.8rem;color:var(--paper);transition:background .4s,opacity .4s}
+.waffle i.u{background:#2c3e50}.waffle i.f{background:#7a5a1e}.waffle i.h{background:#8c3b30}.waffle i.p{background:#111}.waffle i.o{background:#9a948a}
+.waffle.dim i{opacity:.22}.waffle.dim i.sel{opacity:1}
+.waffle.ask i{background:#bdb5a3!important;opacity:1}
+.waffle.ask i::before{content:"?";color:var(--ink)}
+.legend{display:grid;gap:.4rem;margin-top:1rem}
+.legend button{display:flex;gap:.7rem;align-items:center;text-align:left;background:none;border:1px solid transparent;padding:.35rem .5rem;cursor:pointer}
+.legend button[aria-pressed=true]{border-color:var(--ink);background:var(--paper)}
+.legend .sw{width:1.1rem;height:1.1rem;flex:none}
+.legend b{font-family:"Courier Prime",monospace;width:2.2rem}
+.answer{margin-top:1.2rem;padding:1rem 1.1rem;background:var(--paper);border-left:4px solid var(--ink);min-height:5rem}
+
+/* figures */
+.snap{margin:1.4rem 0;background:var(--paper);border:1px solid var(--ink);padding:.5rem;box-shadow:0 14px 30px -22px rgba(0,0,0,.6)}
+.snap img{display:block;width:100%;height:auto;filter:sepia(.08)}
+.snap figcaption{margin-top:.4rem;text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.idcard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.6rem;align-items:center;background:#fff;border:2px solid var(--ink);padding:1rem;transform:rotate(-1deg);box-shadow:8px 10px 0 rgba(29,28,26,.25)}
+@media (max-width:640px){.idcard{grid-template-columns:minmax(0,1fr)}}
+.idcard img{display:block;width:100%;height:auto;border:1px solid #999}
+.idcard p{margin:.4rem 0 0}
+/* card */
+.card{background:var(--paper);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem;box-shadow:0 20px 40px -24px rgba(0,0,0,.5)}
+.card h2{font-size:2.2rem;margin-bottom:.3rem}
+.card label{display:block;font-family:"Courier Prime",monospace;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #8c8577;background:#fff;color:var(--ink)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--ink);color:var(--paper);border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:4.5rem 1.25rem 3rem}
+.next p{font-family:"Special Elite",monospace;font-size:1.8rem;max-width:36rem;margin:0 auto;line-height:1.25}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:#4d4434}
+.sources button{background:none;border:0;color:#4d4434;text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="hero">
+  <div class="folder">
+    <span class="tab">MKULTRA / CLASSROOM SUMMARY OF THE APRIL 1953 APPROVAL</span>
+    <div class="sheet" id="sheet">
+      <span class="stamp">SECRET</span>
+      <div class="memo">
+        <div class="hd"><span>TO:</span><span>Director of Central Intelligence</span><span>DATE:</span><span>13 April 1953</span><span>RE:</span><span><span class="bar lift">Project MKULTRA</span></span></div>
+        <p>Approval is requested to fund research on <span class="bar lift">drugs, hypnosis and behavior</span> outside normal contracting procedures, so that <span class="bar lift">the Agency's sponsorship remains concealed</span>, including from <span class="bar lift">some of the researchers themselves</span>.</p>
+        <p>Records of planning and approval: <span class="bar gone">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>. Subjects tested: <span class="bar gone">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>.</p>
+      </div>
+      <h1>Follow the Money</h1>
+      <p style="font-size:1.15rem;font-style:italic;max-width:34rem">The CIA destroyed most of MKULTRA's files in 1973. The receipts survived. This is the program as the accounting paper tells it.</p>
+      <button class="dbtn" id="declass">Declassify</button>
+      <p class="dnote" id="dnote" aria-live="polite">This memo is a classroom summary of what Allen Dulles approved on April 13, 1953, built from the 1977 Senate hearing. The real approval papers were part of what was lost.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+<section style="padding-top:0">
+  <div class="plain reveal">
+    <h3>WHAT AN UMBRELLA PROJECT IS</h3>
+    <p>Your school probably has an activities account. Money goes in under one name, and then it pays for the robotics club, the yearbook, the field trip and the new scoreboard. If you only saw the account name, you'd have no idea what any of it bought.</p>
+    <p>MKULTRA worked like that. It wasn't a laboratory or one big experiment. It was a name on a funding line, and under it the CIA paid for separate projects at universities, hospitals, drug companies and prisons. Here's where the school example breaks. Your activities account has a public budget. MKULTRA was built so the people doing the work often couldn't tell who was paying them, and the paper that would explain what each project did was destroyed on purpose. So when someone says MKULTRA did something, the right question is which project, and what's the proof.</p>
+  </div>
+</section>
+
+<section class="paper">
+  <div class="wrap">
+    <div class="who reveal">
+      <div><img src="/storyhub/hh/follow-the-money/assets/gottlieb.webp" alt="Photograph of Sidney Gottlieb"><p class="tw" style="margin-top:.4rem">Sidney Gottlieb, 1918 to 1999</p></div>
+      <div>
+        <span class="tw kick">Why a government does this</span>
+        <h2>A war for minds.</h2>
+        <p>In September 1950 a journalist named Edward Hunter introduced Americans to a new word: brainwashing. It seemed to explain things that terrified Washington. A Hungarian cardinal confessed at a show trial in 1949 in a flat, rehearsed voice. Captured American airmen in Korea confessed on camera to germ warfare. When the war ended in 1953, 21 American prisoners chose to stay with the communists.</p>
+        <figure class="snap"><img src="/storyhub/hh/follow-the-money/assets/mindszenty.webp" alt="Cardinal Jozsef Mindszenty seated between uniformed guards in a crowded Budapest courtroom, 1949" loading="lazy"><figcaption class="tw">Cardinal Mindszenty on trial in Budapest, February 1949. His flat, rehearsed confession frightened Washington.</figcaption></figure>
+        <p>On April 10, 1953, CIA Director Allen Dulles warned in a speech that the Soviets were waging brain warfare. Three days later he approved MKULTRA and allowed it to skip the normal paperwork. A chemist named Sidney Gottlieb ran it from 1953 until it ended in 1964. The stated purpose was defensive: learn the enemy's method before it was used on Americans.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="paper" style="padding-top:0">
+  <div class="wrap reveal">
+    <div class="idcard">
+      <img src="/storyhub/hh/follow-the-money/assets/dulles.webp" alt="Allen W. Dulles's CIA identification card with his photograph" loading="lazy">
+      <div><span class="tw">Declassified by the CIA</span><p><b>Allen W. Dulles</b>, Director of Central Intelligence from 1953 to 1961. He approved MKULTRA on April 13, 1953. The CIA itself later released his ID card to the public. It released almost nothing from the program he approved.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <span class="tw kick">One project the 1977 hearing laid out</span>
+    <h2>The gift that was not a gift.</h2>
+    <p>The 1977 hearing described this project in detail. The CIA sent 375,000 dollars to a private medical institution's building fund. The agency's top management approved it, and its own lawyer wrote an opinion saying it was legal. Walk the money through the chain one step at a time. Then turn on the second layer and see who knew where it came from.</p>
+  </div>
+  <div class="chainwrap">
+    <div class="chain" id="chain">
+      <div class="node knew" data-i="0"><div class="t">Step 1</div><div class="n">The CIA</div><div class="k"><b>Knew.</b> Approved by the Director of Central Intelligence and backed by the agency's General Counsel.</div></div>
+      <div class="node knew" data-i="1"><div class="t">Step 2</div><div class="n">An intermediary</div><div class="k"><b>Knew.</b> A private fund acting as a cutout. Its only job was to make CIA money look like private money.</div></div>
+      <div class="node blind" data-i="2"><div class="t">Step 3</div><div class="n">A private hospital's building fund</div><div class="k"><b>Not told.</b> The hearing says the institution did not know the true source of the gift.</div></div>
+      <div class="node blind" data-i="3"><div class="t">Step 4</div><div class="n">Federal matching funds</div><div class="k"><b>No sign it knew.</b> Because the money looked private, the building qualified for a federal match. The hearing gives no evidence the matching agency knew it was matching CIA money.</div></div>
+    </div>
+    <div class="ctrls">
+      <span class="money" id="money">$0</span>
+      <button class="b" id="step">Move the money</button>
+      <button class="b" id="know" aria-pressed="false">Who knew?</button>
+      <button class="b" id="restart">Start over</button>
+    </div>
+    <div class="log" id="log" aria-live="polite">The money is still at CIA headquarters.</div>
+  </div>
+</section>
+
+<section class="paper">
+  <div class="wrap reveal" style="margin-bottom:2rem">
+    <span class="tw kick">185 researchers, 80 institutions</span>
+    <h2>Eighty doors.</h2>
+    <p>The 1977 hearing counted 80 institutions that took MKULTRA money. Admiral Stansfield Turner, the CIA Director in 1977, called their names the most important new information in the recovered files, and then refused to release them. Many of the scientists, he said, never knew who was paying. Press a category to light it up. Then press the last button.</p>
+  </div>
+  <div class="wgrid">
+    <div class="reveal"><div class="waffle" id="waffle" role="img" aria-label="80 squares: 44 colleges and universities, 15 foundations or drug and chemical companies, 12 hospitals or clinics, 3 prisons, 6 not itemized"></div></div>
+    <div class="reveal">
+      <div class="legend" id="legend">
+        <button data-c="u" aria-pressed="false"><span class="sw" style="background:#2c3e50"></span><b>44</b>Colleges and universities</button>
+        <button data-c="f" aria-pressed="false"><span class="sw" style="background:#7a5a1e"></span><b>15</b>Research foundations, chemical and drug companies</button>
+        <button data-c="h" aria-pressed="false"><span class="sw" style="background:#8c3b30"></span><b>12</b>Hospitals and clinics</button>
+        <button data-c="p" aria-pressed="false"><span class="sw" style="background:#111"></span><b>3</b>Prisons</button>
+        <button data-c="o" aria-pressed="false"><span class="sw" style="background:#9a948a"></span><b>6</b>Not itemized in the hearing's count</button>
+        <button data-c="ask" aria-pressed="false" style="margin-top:.6rem;border:1px dashed var(--ink)"><span class="sw" style="background:#bdb5a3"></span><b>?</b>Which of them knew the CIA was paying?</button>
+      </div>
+      <div class="answer" id="ans" aria-live="polite">Pick a category.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <span class="tw kick">Why the paper is so thin</span>
+    <h2>Missing on purpose.</h2>
+    <p>In 1963 the CIA's own Inspector General reviewed MKULTRA and wrote that present practice is to maintain no records of the planning and approval of test programs. The most important decisions were never written down. Then in January 1973, on the order of Director Richard Helms, the operational files were destroyed. The Rockefeller Commission later counted 152 files gone. What survived was mostly accounting paper stored somewhere else. Every claim this week stands on that paper, and every claim has to be measured against it.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <form class="card" data-card="FOLLOW THE MONEY: MKULTRA, Part 1 (StoryHub)" onsubmit="return false">
+    <span class="tw">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. Why is it wrong to call MKULTRA one experiment?</label>
+    <textarea id="q1" data-q="Why is it wrong to call MKULTRA one experiment?"></textarea>
+    <label for="q2">Q2. How did the CIA hide that it paid 375,000 dollars to the hospital building fund?</label>
+    <textarea id="q2" data-q="How did the CIA hide that it paid 375,000 dollars to the hospital building fund?"></textarea>
+    <label for="q3">Q3. How many institutions took MKULTRA money, and what was the largest group?</label>
+    <textarea id="q3" data-q="How many institutions took MKULTRA money, and what was the largest group?"></textarea>
+    <label for="back">Back of the card. Some scientists never knew the CIA paid for their work. Are they responsible for how it was used? Use one fact from today. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="Some scientists never knew the CIA paid for their work. Are they responsible for how it was used? Use one fact from today." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="tw" style="margin-bottom:1rem">Next time</div>
+  <p>November 1953. A scientist inside the program is handed a glass of Cointreau.</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>U.S. Senate, Project MKULTRA, the CIA's Program of Research in Behavioral Modification, Joint Hearing before the Select Committee on Intelligence and the Subcommittee on Health and Scientific Research, August 3, 1977.</li>
+    <li>Commission on CIA Activities Within the United States, Report to the President, June 1975, Chapter 16.</li>
+    <li>Stephen Kinzer, Poisoner in Chief: Sidney Gottlieb and the CIA Search for Mind Control, Henry Holt, 2019.</li>
+    <li>Edward Hunter, Miami Daily News, September 1950. Allen Dulles, address at Princeton, April 10, 1953.</li>
+    <li>Photographs: Sidney Gottlieb / Allen W. Dulles identification card, released by the Central Intelligence Agency / the Mindszenty trial, 1949. Public domain via Wikimedia Commons.</li>
+    <li>The memo at the top of this page is a summary written for this lesson, not a reproduction of a real document.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var sheet=document.getElementById('sheet'), dn=document.getElementById('dnote'), db=document.getElementById('declass');
+  db.addEventListener('click',function(){ var on=!sheet.classList.contains('declass'); sheet.classList.toggle('declass',on); db.textContent=on?'Reclassify':'Declassify';
+    dn.textContent=on?'Declassifying a record only shows what survived. Two lines stay black because no paper exists to fill them. The 1963 Inspector General found approvals were deliberately not written down, and the operational files were destroyed in January 1973.':'This memo is a classroom summary of what Allen Dulles approved on April 13, 1953, built from the 1977 Senate hearing. The real approval papers were part of what was lost.'; });
+  // chain
+  var nodes=document.querySelectorAll('.node'), stepI=-1, money=document.getElementById('money'), log=document.getElementById('log'), step=document.getElementById('step');
+  var msgs=['The CIA sets aside 375,000 dollars. The Director approves. The General Counsel writes an opinion supporting the plan.','The money moves to an intermediary fund. On paper it now belongs to a private donor, and the CIA name disappears from the transaction.','The fund gives 375,000 dollars to a private medical institution\'s building fund. The institution thanks a generous private donor.','Because private money was raised, the building qualifies for federal matching funds. Public money now flows in behind CIA money that nobody can see. In 1977 Turner called this a possibly improper contribution.'];
+  function draw(){ nodes.forEach(function(n,i){ n.classList.toggle('on',i<=stepI); }); money.textContent=stepI<0?'$0':(stepI<3?'$375,000':'$375,000 + match'); log.textContent=stepI<0?'The money is still at CIA headquarters.':msgs[stepI]; step.disabled=stepI>=3; }
+  step.addEventListener('click',function(){ if(stepI<3){stepI++; draw();} });
+  document.getElementById('restart').addEventListener('click',function(){ stepI=-1; draw(); });
+  var know=document.getElementById('know'), chain=document.getElementById('chain');
+  know.addEventListener('click',function(){ var on=know.getAttribute('aria-pressed')!=='true'; know.setAttribute('aria-pressed',on); chain.classList.toggle('showknow',on); if(on&&stepI<3){ stepI=3; draw(); } });
+  draw();
+  // waffle
+  var w=document.getElementById('waffle'), seq=[]; [['u',44],['f',15],['h',12],['p',3],['o',6]].forEach(function(x){ for(var i=0;i<x[1];i++) seq.push(x[0]); });
+  w.innerHTML=seq.map(function(c){return '<i class="'+c+'"></i>';}).join('');
+  var txt={u:'44 colleges and universities. Grants often arrived through private foundations, so a professor could run a study without knowing the CIA was the source.',f:'15 research foundations and chemical or drug companies. Some foundations were fronts that existed to pass CIA money along.',h:'12 hospitals and clinics beyond those attached to universities. Patients in hospitals cannot easily walk away from a study.',p:'3 prisons. A prisoner depends on the institution for food, safety and parole. Whether anyone in a prison can freely volunteer is the hard question.',o:'The hearing gave a total of 80 and itemized 74. The other 6 were not broken out by type.',ask:'Nobody can tell you. The hearing says sponsorship was often hidden and that many researchers were unwitting. It does not say how many, and Turner kept the names secret. Every square is a question mark, and a careful historian leaves it that way until each case is checked.'};
+  var lg=document.querySelectorAll('#legend button'), ans=document.getElementById('ans');
+  lg.forEach(function(b){ b.addEventListener('click',function(){ var c=b.getAttribute('data-c'), on=b.getAttribute('aria-pressed')!=='true';
+    lg.forEach(function(o){o.setAttribute('aria-pressed','false');}); w.classList.remove('dim','ask'); w.querySelectorAll('i').forEach(function(i){i.classList.remove('sel');});
+    if(on){ b.setAttribute('aria-pressed','true'); if(c==='ask'){ w.classList.add('ask'); } else { w.classList.add('dim'); w.querySelectorAll('i.'+c).forEach(function(i){i.classList.add('sel');}); } ans.textContent=txt[c]; } else ans.textContent='Pick a category.';
+  }); });
+})();
+</script>
+</body>
+</html>

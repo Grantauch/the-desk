@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Scouting Report</title>
+<meta name="description" content="Jackie Robinson before Brooklyn: four sports at UCLA, a court martial over a bus seat, and a tryout that went nowhere.">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-the-scouting-report.html">
+<meta property="og:title" content="The Scouting Report">
+<meta property="og:description" content="Jackie Robinson before Brooklyn: four sports at UCLA, a court martial over a bus seat, and a tryout that went nowhere.">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-the-scouting-report.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/the-scouting-report/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--news:#f0ebdf;--news2:#e4dccb;--ink:#191714;--blue:#2c63b8;--gold:#e5a50a;--red:#b2362a;--muted:#6d665a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--news);color:var(--ink);font:400 1.2rem/1.6 "Crimson Pro",Georgia,serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:5px;background:var(--gold);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:"Alfa Slab One",Georgia,serif;font-weight:400;line-height:1;margin:0}
+.mono{font-family:"Roboto Mono",monospace;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:4.5rem 0}
+p{margin:0 0 1em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+button{font:inherit}
+h2{font-size:clamp(2rem,6vw,3.3rem);margin-bottom:1rem}
+.kick{display:block;margin-bottom:.6rem}
+.dots{background-image:radial-gradient(rgba(25,23,20,.13) 1px,transparent 1.4px);background-size:6px 6px}
+
+/* hero sports page */
+.hero{border-bottom:4px double var(--ink);padding:3rem 1.25rem 3.5rem}
+.paperhead{max-width:64rem;margin:0 auto;display:flex;justify-content:space-between;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:.4rem 0}
+.hgrid{max-width:64rem;margin:2rem auto 0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:2.4rem;align-items:start}
+@media (max-width:760px){.hgrid{grid-template-columns:minmax(0,1fr)}.hgrid figure{max-width:15rem}}
+.hero h1{font-size:clamp(3.2rem,10vw,6.6rem);letter-spacing:-.01em}
+.hero .deck{font-size:1.4rem;font-style:italic;margin-top:1rem;max-width:34rem}
+.hero figure{margin:0}
+.hero figure img{width:100%;border:2px solid var(--ink)}
+.hero figcaption{margin-top:.4rem}
+
+/* plain */
+.plain{background:var(--blue);color:#fff;padding:2.3rem 2rem;max-width:38rem;margin:0 auto}
+.plain h3{font-family:"Roboto Mono",monospace;font-size:.88rem;letter-spacing:.14em;margin:0 0 1rem;color:#ffd970}
+.plain p:last-child{margin:0}
+
+/* four sports */
+.board{max-width:62rem;margin:0 auto;padding:0 1.25rem}
+.sports{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin:1.6rem 0}
+@media (max-width:720px){.sports{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sp{background:var(--ink);color:var(--news);border:0;padding:1.4rem 1rem;cursor:pointer;text-align:left;position:relative;min-height:9rem}
+.sp .nm{font-family:"Alfa Slab One",serif;font-size:1.5rem;display:block}
+.sp .yr{font-family:"Roboto Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:#b9b2a3}
+.sp .st{display:none;margin-top:.6rem;font-size:1rem;line-height:1.35}
+.board.open .sp .st{display:block}
+.sp[aria-pressed=true]{outline:4px solid var(--gold)}
+.sp.worst{background:var(--red)}
+.verdict{background:#fff;border:2px solid var(--ink);padding:1.1rem 1.2rem;min-height:5rem;font-size:1.1rem}
+
+/* charge sheet */
+.sheet{max-width:40rem;margin:2rem auto 0;background:#fffdf7;border:1px solid #b3aa97;padding:1.8rem 1.6rem;box-shadow:0 14px 30px -20px rgba(0,0,0,.5);font-family:"Roboto Mono",monospace;font-size:.92rem}
+.sheet .hd{display:flex;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:.5rem;margin-bottom:1rem;letter-spacing:.08em}
+.charge{display:grid;grid-template-columns:2rem 1fr auto;gap:.6rem;padding:.6rem 0;border-bottom:1px dotted #b3aa97;align-items:center;transition:opacity .5s}
+.charge .s{font-weight:600;letter-spacing:.08em;font-size:.78rem}
+.charge.dropped{opacity:.4}
+.charge.dropped .t{text-decoration:line-through}
+.charge.dropped .s{color:var(--muted)}
+.charge.cleared .s{color:var(--blue)}
+.tally{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ink);border:1px solid var(--ink);margin-top:1.4rem}
+.tally div{background:var(--news);padding:.7rem;text-align:center}
+.tally b{display:block;font-family:"Alfa Slab One",serif;font-size:1.9rem;line-height:1}
+.tally span{font-family:"Roboto Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}
+.stepper{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:1.2rem}
+.b{background:var(--ink);color:var(--news);border:0;padding:.7rem 1.1rem;cursor:pointer;font-family:"Roboto Mono",monospace;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+.b.alt{background:none;color:var(--ink);border:2px solid var(--ink)}
+.b:disabled{opacity:.35;cursor:default}
+.slog{max-width:40rem;margin:1rem auto 0;min-height:4.5rem;font-size:1.08rem;text-align:center}
+
+/* integration timeline */
+.tlwrap{max-width:66rem;margin:0 auto;padding:0 1.25rem}
+.guess{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:1rem 0 1.4rem}
+.guess input{width:min(22rem,100%);accent-color:var(--blue)}
+.guess output{font-family:"Alfa Slab One",serif;font-size:1.6rem}
+.yrs{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;align-items:end;min-height:16rem;border-bottom:2px solid var(--ink);position:relative}
+.yr{display:flex;flex-direction:column-reverse;gap:3px}
+.yr i{display:block;height:2.4rem;background:var(--blue);opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s;cursor:pointer;position:relative}
+.yr i.last{background:var(--red)}
+.shown .yr i{opacity:1;transform:none}
+.yr i:focus-visible{outline:3px solid var(--gold)}
+.ylab{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;font-family:"Roboto Mono",monospace;font-size:.68rem;text-align:center;margin-top:.3rem}
+@media (max-width:640px){.ylab span:nth-child(even){visibility:hidden}}
+.teamline{margin-top:1rem;min-height:3.4rem;font-size:1.1rem;background:#fff;border-left:5px solid var(--blue);padding:.8rem 1rem}
+
+/* trading card */
+.tcard{perspective:1200px;cursor:pointer;max-width:17rem;justify-self:end}
+.tin{position:relative;width:100%;aspect-ratio:5/7;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.tcard.flip .tin{transform:rotateY(180deg)}
+.tface{position:absolute;inset:0;backface-visibility:hidden;border:6px solid #fff;outline:2px solid var(--ink);border-radius:.6rem;overflow:hidden;box-shadow:8px 10px 0 rgba(25,23,20,.25)}
+.tfront{background:var(--blue)}
+.tfront img{width:100%;height:100%;object-fit:cover;object-position:top}
+.tname{position:absolute;left:.6rem;bottom:2.2rem;background:var(--gold);font-family:"Alfa Slab One",serif;font-size:1.3rem;padding:.1rem .6rem;transform:rotate(-3deg)}
+.tteam{position:absolute;left:.6rem;bottom:.6rem;background:var(--ink);color:#fff;font:600 .7rem "Roboto Mono",monospace;letter-spacing:.08em;padding:.2rem .5rem}
+.tback{transform:rotateY(180deg);background:#fdf6e3;padding:1rem;font-size:.95rem;background-image:repeating-linear-gradient(0deg,transparent 0 1.5rem,rgba(44,99,184,.12) 1.5rem calc(1.5rem + 1px))}
+.tback b{font-family:"Alfa Slab One",serif;font-weight:400;font-size:1.15rem;display:block;margin-bottom:.4rem}
+.tback dl{display:grid;grid-template-columns:auto 1fr;gap:.15rem .6rem;margin:0;font-family:"Roboto Mono",monospace;font-size:.78rem}
+.tback dt{color:var(--muted)}
+.tback dd{margin:0}
+.tback p{margin:.7rem 0 0;font-style:italic;font-size:.95rem}
+.tflip{display:block;text-align:center;margin-top:.6rem}
+@media (max-width:760px){.tcard{justify-self:start}}
+.pair2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.4rem 0}
+.clip{margin:0;background:#fff;border:2px solid var(--ink);padding:.4rem;transform:rotate(-1.2deg)}
+.clip:nth-child(2){transform:rotate(1.4deg)}
+.clip img{display:block;width:100%;height:14rem;object-fit:cover;object-position:top}
+.clip figcaption{margin-top:.3rem;text-transform:none;font-size:.7rem}
+.clip.right{float:right;width:13rem;margin:0 0 1rem 1.4rem;transform:rotate(1.5deg)}
+@media (max-width:560px){.clip.right{float:none;width:100%;margin:1rem 0}}
+/* card */
+.card{background:#fff;border:3px solid var(--ink);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem}
+.card h2{font-size:2.4rem;margin-bottom:.3rem}
+.card label{display:block;font-family:"Roboto Mono",monospace;font-size:.76rem;letter-spacing:.05em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1.05rem;padding:.6rem .7rem;border:1px solid #8e8778;background:var(--news);color:var(--ink)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--blue);color:#fff;border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"Roboto Mono",monospace;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:4.5rem 1.25rem 3rem}
+.next p{font-family:"Alfa Slab One",serif;font-size:1.9rem;max-width:36rem;margin:0 auto;line-height:1.15}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.95rem;color:var(--muted)}
+.sources button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="hero dots">
+  <div class="paperhead mono"><span>Sports Final</span><span>Scouting file, Brooklyn National League Club, 1945</span></div>
+  <div class="hgrid">
+    <div>
+      <span class="mono kick">Before Brooklyn</span>
+      <h1>The Scouting Report</h1>
+      <p class="deck">Branch Rickey did not pick the best player in the Negro Leagues. He picked the man whose whole life had prepared him for the worst job in sports.</p>
+    </div>
+    <div class="tcard" id="tcard" tabindex="0" role="button" aria-label="Flip the trading card">
+      <div class="tin">
+        <div class="tface tfront"><img src="/storyhub/bts/the-scouting-report/assets/ucla.webp" alt="Jackie Robinson in his UCLA basketball uniform, colorized"><span class="tname">J. Robinson</span><span class="tteam">UCLA Bruins / 1940</span></div>
+        <div class="tface tback"><b>Jack Roosevelt Robinson</b><dl><dt>Born</dt><dd>Jan 31, 1919, Cairo, Ga.</dd><dt>Hometown</dt><dd>Pasadena, Calif.</dd><dt>College</dt><dd>UCLA, 1939 to 1941</dd><dt>Letters</dt><dd>4 sports</dd><dt>Long jump</dt><dd>1940 NCAA champ</dd><dt>College BA</dt><dd>.097</dd></dl><p>Scout's note: the worst sport on this card is the one that made him famous.</p></div>
+      </div>
+      <span class="mono tflip">Tap to flip</span>
+    </div>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap reveal">
+    <p>Jack Roosevelt Robinson was born on January 31, 1919, in Cairo, Georgia, the youngest of five children of sharecroppers. When his father left in 1920, his mother Mallie took all five children by train to Pasadena, California, and worked as a housekeeper. The Robinsons were one of the few Black families on their street, and white neighbors tried to push them out. The city pool let Black residents swim one day a week, the day before it was drained and cleaned.</p>
+    <p>His older brother Mack ran in the 1936 Olympics in Berlin and won silver in the 200 meters, just behind Jesse Owens. Mack came home to Pasadena and swept streets for the city. Jackie was 17. He learned early that being great at a sport did not protect a Black man once he walked off the field.</p>
+  </div>
+</section>
+
+<section class="dots" style="background-color:var(--news2)">
+  <div class="board" id="board">
+    <div class="reveal" style="max-width:44rem">
+      <span class="mono kick">UCLA, 1939 to 1941</span>
+      <h2>Four sports. Pick his best.</h2>
+      <p>Robinson became UCLA's first athlete to earn varsity letters in four sports. One of them would make him famous. Before you see his record, tap the sport you think he was best at in college.</p>
+    </div>
+    <div class="sports reveal" id="sports">
+      <button class="sp" data-s="fb" aria-pressed="false"><span class="nm">Football</span><span class="yr">1939, 1940</span><span class="st">One of the most dangerous running backs in the country on UCLA's unbeaten 1939 team.</span></button>
+      <button class="sp" data-s="bb" aria-pressed="false"><span class="nm">Basketball</span><span class="yr">1940, 1941</span><span class="st">Led his conference division in scoring two years in a row.</span></button>
+      <button class="sp" data-s="tr" aria-pressed="false"><span class="nm">Track</span><span class="yr">1940</span><span class="st">NCAA national champion in the long jump.</span></button>
+      <button class="sp worstc" data-s="ba" aria-pressed="false"><span class="nm">Baseball</span><span class="yr">1940</span><span class="st">Batted .097 in his one college season. His weakest sport.</span></button>
+    </div>
+    <div class="verdict reveal" id="verdict" aria-live="polite">Tap a sport.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="plain">
+      <h3>WHY RICKEY CARED ABOUT MORE THAN BASEBALL</h3>
+      <p>Think about the first kid to do anything big at your school, the first one to try out for a team nobody like them had ever made. Everyone's watching, and some of them want you to fail. If you mess up, they won't say you messed up. They'll say people like you can't do it.</p>
+      <p>That's the job Branch Rickey was hiring for. He needed someone who could hit, sure. He also needed someone who'd already lived inside white institutions, who could handle reporters, who didn't drink, who had a steady relationship, and who could take insults without breaking. Here's where the school comparison falls short. A kid at school can go home. Robinson would face it in every city, in front of thousands of people, for years, while millions of Americans used his every move to decide whether integration should happen at all.</p>
+    </div>
+  </div>
+</section>
+
+<section class="dots" style="background-color:var(--news2)">
+  <div class="wrap reveal">
+    <span class="mono kick">Camp Hood, Texas, July 6, 1944</span>
+    <h2>The bus.</h2>
+    <p>Robinson was drafted in 1942. The Army stalled Black applicants for officer school until heavyweight champion Joe Louis, stationed at the same base, used his fame to push. Robinson was commissioned a second lieutenant in January 1943 and assigned to the 761st Tank Battalion.</p>
+    <div class="pair2">
+      <figure class="clip"><img src="/storyhub/bts/the-scouting-report/assets/insignia.webp" alt="Shoulder insignia of the 761st Tank Battalion, a black panther over the motto Come Out Fighting" loading="lazy"><figcaption class="mono">The 761st Tank Battalion. Motto: Come Out Fighting.</figcaption></figure>
+      <figure class="clip"><img src="/storyhub/bts/the-scouting-report/assets/army.webp" alt="Jackie Robinson in his Army officer's uniform" loading="lazy"><figcaption class="mono">Lieutenant Robinson. Colorized.</figcaption></figure>
+    </div>
+    <p>On July 6, 1944, he sat in the middle of an Army bus next to the wife of a fellow officer. The driver ordered him to the back. Robinson refused, because the Army had recently ordered that buses on its posts be desegregated, and he knew it. Military police were called. When his own battalion commander refused to sign court martial papers, Robinson was transferred to a unit whose commander would. Step through what happened to the charges.</p>
+  </div>
+  <div class="sheet reveal" id="sheet">
+    <div class="hd"><span>CHARGE SHEET</span><span>2ND LT. J. R. ROBINSON</span></div>
+    <div class="charge" data-k="drop"><span>1</span><span class="t">Additional charge, dropped before trial</span><span class="s">PENDING</span></div>
+    <div class="charge" data-k="drop"><span>2</span><span class="t">Additional charge, dropped before trial</span><span class="s">PENDING</span></div>
+    <div class="charge" data-k="drop"><span>3</span><span class="t">Additional charge, dropped before trial</span><span class="s">PENDING</span></div>
+    <div class="charge" data-k="drop"><span>4</span><span class="t">Additional charge, dropped before trial</span><span class="s">PENDING</span></div>
+    <div class="charge" data-k="try"><span>5</span><span class="t">Behaving with disrespect toward a superior officer</span><span class="s">PENDING</span></div>
+    <div class="charge" data-k="try"><span>6</span><span class="t">Willfully disobeying a lawful command</span><span class="s">PENDING</span></div>
+    <div class="tally" aria-live="polite">
+      <div><b id="tB">6</b><span>Brought</span></div><div><b id="tD">0</b><span>Dropped</span></div><div><b id="tT">0</b><span>Tried</span></div><div><b id="tG">?</b><span>Guilty</span></div>
+    </div>
+  </div>
+  <div class="stepper"><button class="b" id="sNext">Next step</button><button class="b alt" id="sReset">Reset</button></div>
+  <p class="slog" id="slog" aria-live="polite">Six charges are filed against Lieutenant Robinson.</p>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <span class="mono kick">1945</span>
+    <h2>One season, one tryout.</h2>
+    <figure class="clip right"><img src="/storyhub/bts/the-scouting-report/assets/kc.webp" alt="Jackie Robinson in a Kansas City Monarchs uniform" loading="lazy"><figcaption class="mono">Monarchs, 1945. Colorized.</figcaption></figure>
+    <p>After his honorable discharge in November 1944, Robinson signed with the Kansas City Monarchs of the Negro American League for 400 dollars a month. He hated the endless bus rides and the restaurants and hotels that turned the team away.</p>
+    <p>On April 16, 1945, he worked out at Fenway Park for the Boston Red Sox with Sam Jethroe and Marvin Williams. Wendell Smith of the Pittsburgh Courier, a leading Black newspaper, had forced the tryout with help from a Boston city councilman who threatened the team's permit for Sunday games. All three played well. The Red Sox never called any of them. How long do you think it took for every major league team to put a Black player on the field? Make your guess, then reveal.</p>
+  </div>
+  <div class="tlwrap reveal">
+    <div class="guess"><label for="g" class="mono">My guess: the last team integrated in</label><input type="range" id="g" min="1947" max="1975" value="1950"><output id="gO">1950</output><button class="b" id="reveal">Reveal</button></div>
+    <div class="yrs" id="yrs" role="img" aria-label="Year each of the 16 major league teams integrated, from 1947 to 1959"></div>
+    <div class="ylab" id="ylab"></div>
+    <div class="teamline" id="teamline" aria-live="polite">Each block will be one team. Select a block to see who broke its color line.</div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <form class="card" data-card="THE SCOUTING REPORT: Jackie Robinson Before Brooklyn (StoryHub)" onsubmit="return false">
+    <span class="mono">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. Which was Robinson's weakest sport at UCLA, and what did he bat?</label>
+    <textarea id="q1" data-q="Which was Robinson's weakest sport at UCLA, and what did he bat?"></textarea>
+    <label for="q2">Q2. Why did Robinson refuse to move to the back of the bus at Camp Hood, and how did his court martial end?</label>
+    <textarea id="q2" data-q="Why did Robinson refuse to move to the back of the bus at Camp Hood, and how did his court martial end?"></textarea>
+    <label for="q3">Q3. Which team integrated last, and in what year?</label>
+    <textarea id="q3" data-q="Which team integrated last, and in what year?"></textarea>
+    <label for="back">Back of the card. Rickey wanted a man who would not fight back. Was that the right qualification to look for? Use one fact from today. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="Rickey wanted a man who would not fight back. Was that the right qualification to look for? Use one fact from today." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="mono" style="margin-bottom:1rem">Next time</div>
+  <p>August 28, 1945. A three hour meeting in Brooklyn, and a promise that lasted three years.</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>Jackie Robinson, I Never Had It Made, as told to Alfred Duckett, Putnam, 1972.</li>
+    <li>Arnold Rampersad, Jackie Robinson: A Biography, Knopf, 1997.</li>
+    <li>National Park Service, Jackie Robinson biography. Court martial charges and outcome, 1945 Monarchs salary.</li>
+    <li>Integration dates by team from team histories and the Society for American Baseball Research.</li>
+    <li>Photographs: Robinson at UCLA, in Army uniform, and with the Kansas City Monarchs / 761st Tank Battalion insignia. Public domain via Wikimedia Commons. Colorized for this lesson with the DDColor model.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  // trading card
+  var tc=document.getElementById('tcard'); function tf(){ tc.classList.toggle('flip'); } tc.addEventListener('click',tf); tc.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tf(); } });
+  // sports
+  var board=document.getElementById('board'), sps=document.querySelectorAll('.sp'), v=document.getElementById('verdict');
+  var msg={fb:'A strong pick. He was a star running back. ',bb:'A strong pick. He led his division in scoring twice. ',tr:'A strong pick. He was a national champion. ',ba:'That was his weakest college sport. '};
+  sps.forEach(function(b){ b.addEventListener('click',function(){
+    sps.forEach(function(o){o.setAttribute('aria-pressed','false');}); b.setAttribute('aria-pressed','true');
+    board.classList.add('open'); document.querySelector('[data-s=ba]').classList.add('worst');
+    v.textContent=msg[b.getAttribute('data-s')]+'The man who integrated Major League Baseball hit .097 in college baseball. Rickey was not buying a baseball prodigy. He was buying an athlete who could win at anything, and a man who could survive what came with being first.';
+  }); });
+  // charge sheet
+  var ch=document.querySelectorAll('.charge'), stage=0, log=document.getElementById('slog'), nx=document.getElementById('sNext');
+  var logs=['Six charges are filed against Lieutenant Robinson.','Before trial, four of the six charges are dropped. The case against him is already falling apart.','He is tried on the last two, starting August 2, 1944. Witnesses contradict each other, and his lawyer shows the charges grew out of his refusal to obey segregation on a bus where segregation had been banned.','A panel of nine officers acquits him on all charges. By then the 761st Tank Battalion has shipped out without him. It will fight in the Battle of the Bulge.'];
+  function draw(){
+    ch.forEach(function(c){ var k=c.getAttribute('data-k'); c.classList.remove('dropped','cleared'); var s=c.querySelector('.s');
+      if(stage>=1&&k==='drop'){ c.classList.add('dropped'); s.textContent='DROPPED'; }
+      else if(stage>=3&&k==='try'){ c.classList.add('cleared'); s.textContent='NOT GUILTY'; }
+      else if(stage>=2&&k==='try'){ s.textContent='ON TRIAL'; }
+      else s.textContent='PENDING'; });
+    document.getElementById('tD').textContent=stage>=1?4:0; document.getElementById('tT').textContent=stage>=2?2:0; document.getElementById('tG').textContent=stage>=3?0:'?';
+    log.textContent=logs[stage]; nx.disabled=stage>=3;
+  }
+  nx.addEventListener('click',function(){ if(stage<3){stage++; draw();} });
+  document.getElementById('sReset').addEventListener('click',function(){ stage=0; draw(); }); draw();
+  // integration timeline
+  var teams=[[1947,'Brooklyn Dodgers','Jackie Robinson, April 15'],[1947,'Cleveland Indians','Larry Doby, July 5'],[1947,'St. Louis Browns','Hank Thompson, July 17'],[1949,'New York Giants','Monte Irvin and Hank Thompson'],[1950,'Boston Braves','Sam Jethroe, one of the three at the Fenway tryout'],[1951,'Chicago White Sox','Minnie Minoso'],[1953,'Philadelphia Athletics','Bob Trice'],[1953,'Chicago Cubs','Ernie Banks'],[1954,'Pittsburgh Pirates','Curt Roberts'],[1954,'St. Louis Cardinals','Tom Alston'],[1954,'Cincinnati Reds','Nino Escalera and Chuck Harmon'],[1954,'Washington Senators','Carlos Paula'],[1955,'New York Yankees','Elston Howard'],[1957,'Philadelphia Phillies','John Kennedy'],[1958,'Detroit Tigers','Ozzie Virgil'],[1959,'Boston Red Sox','Pumpsie Green, July 21. The team that held the 1945 tryout was last.']];
+  var yrs=document.getElementById('yrs'), yl=document.getElementById('ylab'), tl=document.getElementById('teamline');
+  for(var y=1947;y<=1959;y++){ var col=document.createElement('div'); col.className='yr'; teams.forEach(function(t,i){ if(t[0]===y){ var b=document.createElement('i'); b.tabIndex=0; b.setAttribute('role','button'); b.setAttribute('aria-label',t[1]+' '+t[0]); if(t[0]===1959) b.className='last'; b.addEventListener('click',function(){ tl.textContent=t[0]+': '+t[1]+'. '+t[2]+'.'; }); b.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); b.click(); } }); col.appendChild(b); } }); yrs.appendChild(col); var s=document.createElement('span'); s.textContent="'"+String(y).slice(2); yl.appendChild(s); }
+  var g=document.getElementById('g'), gO=document.getElementById('gO'); g.addEventListener('input',function(){ gO.textContent=g.value; });
+  document.getElementById('reveal').addEventListener('click',function(){ yrs.classList.add('shown'); var d=1959-(+g.value);
+    tl.textContent='The answer is 1959, twelve years after Robinson\'s debut. Your guess was '+(d===0?'exactly right.':(Math.abs(d)+' year'+(Math.abs(d)===1?'':'s')+(d>0?' too early.':' too late.')))+' Select any block to see who broke that team\'s color line.'; });
+})();
+</script>
+</body>
+</html>

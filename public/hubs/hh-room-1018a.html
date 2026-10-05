@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room 1018A</title>
+<meta name="description" content="Frank Olson, the family that was told one story for 22 years, and a viral video that got one fact wrong.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-room-1018a.html">
+<meta property="og:title" content="Room 1018A">
+<meta property="og:description" content="Frank Olson, the family that was told one story for 22 years, and a viral video that got one fact wrong.">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-room-1018a.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/room-1018a/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Karla:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0a1322;--night2:#111d31;--wall:#1b3640;--lamp:#efc77f;--cream:#efe6d2;--fog:#8d9bb0;--red:#d0533f}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--night);color:var(--cream);font:400 1.1rem/1.68 Karla,system-ui,sans-serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:3px;background:var(--lamp);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;line-height:1.02;margin:0}
+.tw{font-family:"Courier Prime",monospace;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fog)}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:5rem 0}
+p{margin:0 0 1.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .8s,transform .8s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--lamp);outline-offset:3px}
+button{font:inherit}
+h2{font-size:clamp(2.1rem,6vw,3.5rem);margin-bottom:1.1rem}
+.kick{display:block;margin-bottom:.7rem}
+
+/* hero window */
+.hero{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:2rem;max-width:66rem;margin:0 auto;padding:3rem 1.25rem}
+@media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr);min-height:auto;padding-top:4rem}}
+.win{aspect-ratio:3/4;max-width:24rem;width:100%;margin:0 auto;border:10px solid #2a3647;background:linear-gradient(#0d1a2e,#1a2a44 60%,#2d3b55);position:relative;box-shadow:0 0 120px rgba(239,199,127,.08)}
+.win::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:8px;margin-left:-4px;background:#2a3647}
+.win::after{content:"";position:absolute;top:50%;left:0;right:0;height:8px;margin-top:-4px;background:#2a3647}
+.win .lights{position:absolute;inset:auto 0 0 0;height:35%;background:radial-gradient(circle at 20% 80%,rgba(239,199,127,.55) 0 2px,transparent 3px),radial-gradient(circle at 60% 70%,rgba(239,199,127,.45) 0 2px,transparent 3px),radial-gradient(circle at 80% 90%,rgba(239,199,127,.5) 0 2px,transparent 3px),radial-gradient(circle at 40% 95%,rgba(239,199,127,.4) 0 2px,transparent 3px);opacity:.9}
+.hero h1{font-size:clamp(3.4rem,10vw,6.4rem)}
+.hero .dek{font-size:1.2rem;color:#cdd5e0;max-width:30rem;margin-top:1rem}
+.floor{font-family:"Courier Prime",monospace;color:var(--lamp);font-size:1rem;letter-spacing:.2em;margin-top:1.4rem}
+
+/* plain */
+.plain{background:var(--cream);color:var(--night);padding:2.3rem 2rem;max-width:38rem;margin:0 auto;border-radius:2px}
+.plain h3{font-family:"Courier Prime",monospace;font-size:.9rem;letter-spacing:.16em;margin:0 0 1rem}
+.plain p:last-child{margin:0}
+
+/* told vs true */
+.tvt{max-width:66rem;margin:0 auto;padding:0 1.25rem}
+.years{display:flex;flex-wrap:wrap;gap:0;border:1px solid #2e3d55;margin:1.4rem 0}
+.years button{flex:1 1 auto;background:none;border:0;border-right:1px solid #2e3d55;color:var(--fog);padding:.8rem .6rem;cursor:pointer;font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.06em}
+.years button:last-child{border-right:0}
+.years button[aria-pressed=true]{background:var(--lamp);color:var(--night)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.col{background:var(--night2);border:1px solid #2e3d55;padding:1.4rem;min-height:14rem}
+.col h3{font-family:"Courier Prime",monospace;font-size:.82rem;letter-spacing:.14em;margin:0 0 .8rem;color:var(--lamp)}
+.col.truth h3{color:var(--red)}
+.col p{margin:0}
+.gap{margin-top:1.4rem}
+.gap .lbl{display:flex;justify-content:space-between;font-family:"Courier Prime",monospace;font-size:.78rem;color:var(--fog);letter-spacing:.08em}
+.gap .trk{height:1rem;background:#2a1d1f;position:relative;margin-top:.3rem}
+.gap .k{position:absolute;left:0;top:0;bottom:0;background:var(--lamp);transition:width .6s}
+
+/* narrative split */
+.dark2{background:var(--wall)}
+.place{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;max-width:62rem;margin:0 auto;padding:0 1.25rem}
+@media (max-width:760px){.place{grid-template-columns:1fr}}
+.pin{border-top:2px solid var(--lamp);padding-top:1rem}
+.pin b{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.8rem;display:block;line-height:1.1;margin-bottom:.4rem}
+
+/* verify */
+.vid{max-width:58rem;margin:0 auto;padding:0 1.25rem}
+.phone{max-width:22rem;margin:1.4rem auto;background:#05070c;border-radius:1.6rem;padding:1.2rem;border:2px solid #2e3d55}
+.phone .scr{background:linear-gradient(160deg,#1d2433,#0b0f17);border-radius:1rem;padding:1.4rem 1.1rem;min-height:16rem;display:flex;flex-direction:column;justify-content:flex-end}
+.phone .hl{font-family:Karla,sans-serif;font-weight:700;font-size:1.25rem;line-height:1.2;text-transform:uppercase;background:#fff;color:#000;padding:.3rem .5rem;display:inline;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.phone .meta{margin-top:1rem;font-size:.8rem;color:#9aa6b8}
+.claims{display:grid;gap:.9rem;margin-top:1.6rem}
+.claim{background:var(--night2);border:1px solid #2e3d55;padding:1.1rem 1.2rem}
+.claim .c{font-weight:700;font-size:1.1rem;margin-bottom:.6rem}
+.claim .c span{font-family:"Courier Prime",monospace;color:var(--lamp);margin-right:.5rem}
+.acts{display:flex;flex-wrap:wrap;gap:.5rem}
+.acts button{background:none;border:1px solid var(--cream);color:var(--cream);padding:.5rem .9rem;cursor:pointer;font-family:"Courier Prime",monospace;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.acts button[aria-pressed=true]{background:var(--cream);color:var(--night)}
+.claim .fb{display:none;margin-top:.8rem;padding-top:.8rem;border-top:1px dashed #3b4b66;font-size:1rem}
+.claim.done .fb{display:block}
+.v{font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.08em;margin-right:.4rem}
+.v.ok{color:#9fd3a6}.v.no{color:#ef8f7f}.v.lab{color:var(--lamp)}
+.lesson{display:none;margin-top:1.4rem;padding:1.2rem;border:1px solid var(--lamp);font-size:1.08rem}
+.lesson.show{display:block}
+
+/* figures */
+.snap{margin:1.6rem 0;background:var(--cream);padding:.5rem}
+.snap img{display:block;width:100%;height:auto}
+.snap figcaption{margin-top:.4rem;color:#55607a;text-transform:none;letter-spacing:.02em}
+.pinimg{display:block;width:100%;height:13rem;object-fit:cover;margin:.4rem 0 .8rem;border:1px solid #2e3d55}
+.ford{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:1rem;align-items:center;margin:1.2rem 0 0;background:var(--night2);border:1px solid #2e3d55;padding:.7rem}
+.ford[hidden]{display:none}
+.ford img{width:7rem;height:8.5rem;object-fit:cover;object-position:top}
+/* card */
+.card{background:var(--cream);color:var(--night);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem}
+.card h2{font-size:2.3rem;margin-bottom:.3rem}
+.card label{display:block;font-family:"Courier Prime",monospace;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #7d8796;background:#fff;color:var(--night)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--night);color:var(--cream);border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:5rem 1.25rem 3rem}
+.next p{font-family:"DM Serif Display",serif;font-size:1.9rem;max-width:36rem;margin:0 auto;line-height:1.2}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:var(--fog)}
+.sources button{background:none;border:0;color:var(--fog);text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="hero">
+  <div class="win" role="img" aria-label="A hotel window at night, tenth floor, Manhattan"><div class="lights"></div></div>
+  <div>
+    <div class="tw">Statler Hotel, Seventh Avenue, New York</div>
+    <h1>Room 1018A</h1>
+    <p class="dek">For 22 years Frank Olson's family believed one story about the night he died. The government knew a different one.</p>
+    <div class="floor">FLOOR 10 / NOVEMBER 28, 1953</div>
+  </div>
+</header>
+
+<main>
+<section style="padding-top:2rem">
+  <div class="wrap reveal">
+    <span class="tw kick">Deep Creek Lake, Maryland, November 19, 1953</span>
+    <p>Seven months after MKULTRA was approved, CIA officers and Army scientists met at a lake cabin in western Maryland. The Army men worked in the Special Operations Division at Camp Detrick, which studied biological weapons. After dinner on November 19, Sidney Gottlieb had LSD put in a bottle of Cointreau and served it to several of the scientists. They were told about twenty minutes later.</p>
+    <figure class="snap"><img src="/storyhub/hh/room-1018a/assets/floorplan.webp" alt="Architect's typical floor plan of the Hotel Pennsylvania, later the Statler, showing long corridors of guest rooms" loading="lazy"><figcaption class="tw">Typical guest floor of the Hotel Pennsylvania, renamed the Statler in 1948. Room 1018A was on the tenth floor.</figcaption></figure>
+    <p>One of them was Frank Olson, a 43 year old biochemist with a wife and three children. Over the next days he grew anxious and confused and could not sleep. On November 24 CIA officers took him to New York to see Dr. Harold Abramson, an allergist with a security clearance who had worked with LSD. He was not a psychiatrist. He was chosen because he could keep a secret. Olson shared room 1018A at the Statler Hotel with CIA officer Robert Lashbrook. In the early hours of November 28, Olson went through the closed window and fell ten floors.</p>
+  </div>
+  <div class="plain reveal" style="margin-top:2.4rem">
+    <h3>WHAT INFORMED CONSENT MEANS</h3>
+    <p>Before you can be part of a medical study today, a researcher has to tell you what they're testing, what could go wrong, and that you can quit anytime. Then you say yes, out loud and on paper. That's informed consent. Both words matter. Saying yes to something you don't understand isn't really consent, and understanding something you weren't asked about isn't either.</p>
+    <p>Frank Olson got neither part. He didn't know the drink had LSD in it until after he'd swallowed it. Now think about why that matters beyond one man. LSD hits people differently depending on whether they expect it. A scientist who suddenly feels his mind coming apart, with no idea why, isn't going through the same thing as a volunteer who signed a form. The secrecy wasn't a side detail. It was part of what was done to him.</p>
+  </div>
+</section>
+
+<section class="dark2">
+  <div class="wrap reveal">
+    <span class="tw kick" style="color:#a9c0c6">1953 to 2013</span>
+    <h2>What they were told.</h2>
+    <p>Move through the years. On the left is what the Olson family believed at that point. On the right is what the government's records now show was true at that same moment.</p>
+  </div>
+  <div class="tvt reveal">
+    <div class="years" id="years" role="group" aria-label="Choose a year">
+      <button data-y="0" aria-pressed="true">1953</button>
+      <button data-y="1" aria-pressed="false">1954</button>
+      <button data-y="2" aria-pressed="false">June 1975</button>
+      <button data-y="3" aria-pressed="false">July 1975</button>
+      <button data-y="4" aria-pressed="false">1976</button>
+      <button data-y="5" aria-pressed="false">1994</button>
+      <button data-y="6" aria-pressed="false">2013</button>
+    </div>
+    <div class="cols" aria-live="polite">
+      <div class="col"><h3>THE FAMILY BELIEVED</h3><p id="told"></p></div>
+      <div class="col truth"><h3>THE RECORD SHOWS</h3><p id="true"></p></div>
+    </div>
+    <figure class="ford" id="fordfig" hidden><img src="/storyhub/hh/room-1018a/assets/ford.webp" alt="Official portrait of President Gerald Ford" loading="lazy"><figcaption class="tw">President Gerald Ford, who apologized to the Olson family at the White House.</figcaption></figure>
+    <div class="gap"><div class="lbl"><span>HOW MUCH THE FAMILY KNEW</span><span id="pct"></span></div><div class="trk"><div class="k" id="kbar"></div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal" style="margin-bottom:2rem">
+    <span class="tw kick">Not only scientists</span>
+    <h2>Strangers and patients.</h2>
+    <p>Olson worked inside the program. Most unwitting subjects were nothing of the kind. The 1977 Senate hearing and the 1975 Rockefeller Commission describe two places where ordinary people were dosed.</p>
+  </div>
+  <div class="place">
+    <div class="pin reveal"><b>Safe houses</b><p>Apartments in San Francisco and New York City, run with help from the Federal Bureau of Narcotics. People were lured in and given drugs without their knowledge. The Rockefeller Commission says this began in the mid 1950s on the West Coast, with a second program in the East in 1961. Some later books say New York came first, and that disagreement is still open. CIA Director Stansfield Turner told senators in 1977 that beyond contracts and construction records, the agency was drawing inferences about what happened inside.</p></div>
+    <div class="pin reveal"><b>Lexington, Kentucky</b><img class="pinimg" src="/storyhub/hh/room-1018a/assets/farm.webp" alt="The large brick main building of the U.S. Public Health Service narcotics hospital in Lexington, Kentucky" loading="lazy"><p>A federal hospital where people addicted to drugs were treated, many of them prisoners. Dr. Harris Isbell ran its Addiction Research Center, and CIA linked funding paid for LSD research on patients. Senator Edward Kennedy said at the 1977 hearing that people addicted to heroin were offered heroin as a reward for taking part. Ask yourself how free a choice is when the payment is the drug you are addicted to.</p></div>
+  </div>
+</section>
+
+<section class="dark2">
+  <div class="vid">
+    <div class="reveal">
+      <span class="tw kick" style="color:#a9c0c6">After the June 30, 2026 hearing</span>
+      <h2>Check the video.</h2>
+      <p>A short video about Lexington spread online after Congress held its first focused MKULTRA hearing since 1977. The headline packs four separate claims into one line. A video can point at a real atrocity and still get facts wrong, so test each claim on its own.</p>
+    </div>
+    <div class="phone reveal" aria-label="Recreated video headline"><div class="scr"><div><span class="hl">MKULTRA: African prisons fed LSD to inmates every day for 77 days</span></div><div class="meta">Recreated headline for this lesson</div></div></div>
+    <div class="claims" id="claims">
+      <div class="claim reveal" data-a="ok" data-fb="The program name is right. Lexington research was funded through CIA channels and discussed at the 1977 hearing under MKULTRA."><div class="c"><span>01</span>The program was MKULTRA.</div><div class="acts"><button data-p="ok">Holds up</button><button data-p="no">Wrong</button><button data-p="lab">Needs a label</button></div><div class="fb"></div></div>
+      <div class="claim reveal" data-a="no" data-fb="Wrong. The research happened at the U.S. Public Health Service Hospital in Lexington, Kentucky. Senator Huddleston of Kentucky raised it by name at the 1977 hearing. Nothing in the record puts it in Africa."><div class="c"><span>02</span>It happened in African prisons.</div><div class="acts"><button data-p="ok">Holds up</button><button data-p="no">Wrong</button><button data-p="lab">Needs a label</button></div><div class="fb"></div></div>
+      <div class="claim reveal" data-a="ok" data-fb="Holds up. Lexington patients were given LSD in long studies, and the 1977 hearing confirms CIA linked drug research there."><div class="c"><span>03</span>Inmates were given LSD.</div><div class="acts"><button data-p="ok">Holds up</button><button data-p="no">Wrong</button><button data-p="lab">Needs a label</button></div><div class="fb"></div></div>
+      <div class="claim reveal" data-a="lab" data-fb="Needs a label. Isbell's own 1956 study reports daily LSD for 84 days in its Experiment 4. Later books by John Marks in 1979 and Stephen Kinzer in 2019 describe seven Black men kept on LSD for 77 straight days. The long dosing is documented. The exact 77 day figure comes from later reconstruction, so a careful post would say where the number comes from."><div class="c"><span>04</span>Every day for 77 days.</div><div class="acts"><button data-p="ok">Holds up</button><button data-p="no">Wrong</button><button data-p="lab">Needs a label</button></div><div class="fb"></div></div>
+    </div>
+    <p class="lesson" id="lesson">Two claims hold up, one is wrong, and one needs its source named. A student who throws out the whole video misses a documented abuse in a federal hospital. A student who believes the whole video learns a false location. The skill is checking each piece.</p>
+  </div>
+</section>
+
+<section>
+  <form class="card" data-card="ROOM 1018A: MKULTRA, Part 2 (StoryHub)" onsubmit="return false">
+    <span class="tw" style="color:#55607a">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. What was Frank Olson given at Deep Creek Lake, and when was he told?</label>
+    <textarea id="q1" data-q="What was Frank Olson given at Deep Creek Lake, and when was he told?"></textarea>
+    <label for="q2">Q2. How did the Olson family finally learn the truth in 1975?</label>
+    <textarea id="q2" data-q="How did the Olson family finally learn the truth in 1975?"></textarea>
+    <label for="q3">Q3. Which claim in the video was wrong, and what is the correct fact?</label>
+    <textarea id="q3" data-q="Which claim in the video was wrong, and what is the correct fact?"></textarea>
+    <label for="back">Back of the card. The family was paid 750,000 dollars in 1976. Was that justice? Use one fact from today. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="The family was paid 750,000 dollars in 1976. Was that justice? Use one fact from today." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="tw" style="margin-bottom:1rem">Next time</div>
+  <p>January 1973. The CIA director is leaving, and he wants the files gone first.</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>Commission on CIA Activities Within the United States, Report to the President, June 1975, Chapter 16.</li>
+    <li>U.S. Senate, Project MKULTRA, Joint Hearing, August 3, 1977. Safe houses, Lexington, heroin rewards.</li>
+    <li>Harris Isbell and others, Studies on Lysergic Acid Diethylamide, Archives of Neurology and Psychiatry, 1956. Experiment 4.</li>
+    <li>John Marks, The Search for the Manchurian Candidate, Times Books, 1979. Stephen Kinzer, Poisoner in Chief, Henry Holt, 2019.</li>
+    <li>House Oversight Committee Task Force on the Declassification of Federal Secrets, hearing of June 30, 2026.</li>
+    <li>Photographs: Hotel Pennsylvania floor plan / U.S. Public Health Service Hospital, Lexington, Kentucky / official portrait of Gerald Ford. Public domain via Wikimedia Commons.</li>
+    <li>The video headline on this page is recreated for teaching. It reproduces the claims, not the original video.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var data=[
+    ['Frank died after a sudden breakdown. He fell or jumped from a hotel window. It was recorded as a suicide.','He had been given LSD without his consent nine days earlier by a CIA team led by Sidney Gottlieb. The CIA officer in the room made a phone call before he called for help.',8],
+    ['Nothing new. Alice Olson raised three children on an Army widow\'s pension and the official story.','The CIA reviewed the case internally. Gottlieb and others got letters criticizing their judgment, kept out of their personnel files. Their careers continued.',8],
+    ['They read a newspaper. The Rockefeller Commission described an unnamed Army employee who was given LSD without his knowledge and died in a fall a week later. The Washington Post connected it to Frank.','The Commission concluded it was clearly illegal to test potentially dangerous drugs on unsuspecting United States citizens.',55],
+    ['On July 21 President Gerald Ford met the family at the White House and apologized for the government. CIA Director William Colby gave them some documents.','The documents released were partial. The family began to ask what else had been held back.',65],
+    ['Congress passed a private bill paying the family 750,000 dollars. They dropped plans to sue.','The payment settled the family\'s legal claim. It did not answer how Frank died.',70],
+    ['The family had Frank\'s body exhumed. Forensic scientist James Starrs found a blunt injury to the head that he said did not fit the fall and called the evidence suggestive of homicide.','The Manhattan District Attorney\'s office reviewed the case and did not reach a conclusion. Murder was never proven. The record still says he fell from the window.',72],
+    ['The sons\' 2012 lawsuit against the government was dismissed in 2013, partly because of the 1976 settlement. Eric Olson, nine years old in 1953, had spent most of his life on the case.','What happened in room 1018A in the early hours of November 28 is still disputed. Confirmed: the secret dosing and the cover story. Unproven: murder.',75]
+  ];
+  var told=document.getElementById('told'), tru=document.getElementById('true'), pct=document.getElementById('pct'), kbar=document.getElementById('kbar'), bs=document.querySelectorAll('#years button');
+  function show(i){ document.getElementById('fordfig').hidden=(i!==3); told.textContent=data[i][0]; tru.textContent=data[i][1]; kbar.style.width=data[i][2]+'%'; pct.textContent=data[i][2]<20?'ALMOST NOTHING':(data[i][2]<70?'PART OF IT':'MOST, NOT ALL'); bs.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-y')==String(i)); }); }
+  bs.forEach(function(b){ b.addEventListener('click',function(){ show(+b.getAttribute('data-y')); }); }); show(0);
+  var done=0;
+  document.querySelectorAll('.claim').forEach(function(c){ c.querySelectorAll('[data-p]').forEach(function(b){ b.addEventListener('click',function(){
+    var first=!c.classList.contains('done');
+    c.querySelectorAll('[data-p]').forEach(function(o){o.setAttribute('aria-pressed','false');}); b.setAttribute('aria-pressed','true');
+    var a=c.getAttribute('data-a'), ok=b.getAttribute('data-p')===a, lab={ok:'HOLDS UP.',no:'WRONG.',lab:'NEEDS A LABEL.'}[a];
+    c.querySelector('.fb').innerHTML='<span class="v '+a+'">'+(ok?'Yes. ':'Not quite. ')+lab+'</span>'+c.getAttribute('data-fb');
+    c.classList.add('done'); if(first){ done++; if(done===4) document.getElementById('lesson').classList.add('show'); }
+  }); }); });
+})();
+</script>
+</body>
+</html>

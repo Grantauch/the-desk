@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bargain</title>
+<meta name="description" content="Branch Rickey wanted a player with guts enough not to fight back. Follow the promise through 1947 and weigh his motives.">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-the-bargain.html">
+<meta property="og:title" content="The Bargain">
+<meta property="og:description" content="Branch Rickey wanted a player with guts enough not to fight back. Follow the promise through 1947 and weigh his motives.">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-the-bargain.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/the-bargain/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--green:#173a2c;--green2:#1f4a39;--board:#0f241b;--chalk:#f1efe6;--cream:#f4ecd8;--blue:#1d5fa8;--yellow:#f5c542;--red:#c8442f;--muted:#9fb3a8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:#1b1a17;font:400 1.08rem/1.72 "Libre Baskerville",Georgia,serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:5px;background:var(--yellow);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:Teko,Impact,sans-serif;font-weight:600;text-transform:uppercase;line-height:.88;margin:0;letter-spacing:.01em}
+.mono{font-family:"Roboto Mono",monospace;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:4.5rem 0}
+p{margin:0 0 1.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+button{font:inherit}
+h2{font-size:clamp(2.8rem,8vw,4.6rem);margin-bottom:1rem;color:var(--green)}
+.kick{display:block;margin-bottom:.6rem;color:#5d6b63}
+
+/* hero scoreboard */
+.hero{background:var(--green);color:var(--chalk);padding:3.5rem 1.25rem 4rem}
+.sb{max-width:60rem;margin:0 auto;background:var(--board);border:6px solid #2b5a45;padding:1.4rem}
+.sb .row{display:grid;grid-template-columns:minmax(0,1fr) 5rem;gap:4px;align-items:center;font-family:Teko,sans-serif;font-size:2.4rem}
+.sb .row span{background:#0a1912;text-align:center;line-height:1.4}
+.sb .row span.t{text-align:left;padding-left:.6rem;background:none;font-size:2rem}
+.sb .row.h span{background:none;color:var(--muted);font-size:1.1rem}
+.sb .y{color:var(--yellow)}
+@media (max-width:640px){.sb .row{font-size:1.7rem}.sb .row span.t{font-size:1.3rem}}
+.hero h1{max-width:60rem;margin:2.4rem auto 0;font-size:clamp(4.4rem,14vw,9rem);color:var(--chalk)}
+.hero .dek{max-width:60rem;margin:.8rem auto 0;font-style:italic;font-size:1.25rem;color:#d6e2da}
+
+/* quote */
+.meet{max-width:62rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+@media (max-width:760px){.meet{grid-template-columns:1fr}}
+.line{background:#fff;border-left:6px solid var(--blue);padding:1.3rem 1.4rem}
+.line.r{border-color:var(--red)}
+.line .who{font-family:Teko,sans-serif;font-size:1.5rem;text-transform:uppercase;color:#5d6b63}
+.line q{display:block;font-size:1.35rem;font-style:italic;line-height:1.45;quotes:"\201C" "\201D"}
+
+/* plain */
+.plain{background:var(--green);color:var(--chalk);padding:2.3rem 2rem;max-width:38rem;margin:0 auto}
+.plain h3{font-family:"Roboto Mono",monospace;font-size:.88rem;letter-spacing:.14em;margin:0 0 1rem;color:var(--yellow)}
+.plain p:last-child{margin:0}
+
+/* season strip */
+.season{max-width:66rem;margin:0 auto;padding:0 1.25rem}
+.strip{display:flex;gap:0;border:2px solid var(--green);margin-top:1.4rem;overflow-x:auto}
+.strip button{flex:1 0 9rem;background:#fff;border:0;border-right:1px solid #c9d2cc;padding:.9rem .7rem;cursor:pointer;text-align:left}
+.strip button:last-child{border-right:0}
+.strip button b{display:block;font-family:Teko,sans-serif;font-size:1.5rem;line-height:1;color:var(--green)}
+.strip button span{font-family:"Roboto Mono",monospace;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:#5d6b63}
+.strip button[aria-pressed=true]{background:var(--green)}
+.strip button[aria-pressed=true] b,.strip button[aria-pressed=true] span{color:var(--chalk)}
+.event{background:#fff;border:2px solid var(--green);border-top:0;padding:1.3rem 1.4rem;min-height:9rem}
+
+/* motive mixer */
+.mixer{background:var(--green2);color:var(--chalk)}
+.mixer h2{color:var(--chalk)}
+.mixer .kick{color:var(--muted)}
+.mix{max-width:62rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem}
+@media (max-width:820px){.mix{grid-template-columns:1fr}}
+.sl{margin-bottom:1.4rem}
+.sl label{display:flex;justify-content:space-between;font-family:Teko,sans-serif;font-size:1.6rem;text-transform:uppercase}
+.sl output{color:var(--yellow)}
+.sl input{width:100%;accent-color:var(--yellow)}
+.pie{display:flex;height:2.6rem;border:2px solid var(--chalk);margin:.4rem 0 1rem}
+.pie div{transition:flex-grow .3s;display:grid;place-items:center;font-family:Teko,sans-serif;font-size:1.2rem;color:var(--board);overflow:hidden;white-space:nowrap}
+.ev{background:var(--board);border:1px solid #2b5a45;padding:1.1rem 1.2rem;margin-bottom:.8rem}
+.ev h3{font-family:Teko,sans-serif;font-weight:600;font-size:1.5rem;text-transform:uppercase;margin:0 0 .3rem;color:var(--yellow)}
+.ev p{margin:0;font-size:.98rem}
+.mixout{margin-top:1rem;padding:1rem 1.2rem;border:1px solid var(--yellow);font-size:1rem;min-height:5rem}
+
+/* 47 vs 49 */
+.vs{max-width:62rem;margin:0 auto;padding:0 1.25rem}
+.toggle{display:inline-flex;border:2px solid var(--green);margin:1.2rem 0}
+.toggle button{background:#fff;border:0;padding:.7rem 1.3rem;cursor:pointer;font-family:Teko,sans-serif;font-size:1.5rem;text-transform:uppercase;color:var(--green)}
+.toggle button[aria-pressed=true]{background:var(--green);color:var(--chalk)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:var(--board);padding:4px}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stats div{background:var(--green);color:var(--chalk);padding:1rem;text-align:center}
+.stats b{display:block;font-family:Teko,sans-serif;font-size:3.2rem;line-height:1;color:var(--yellow);transition:color .3s}
+.stats span{font-family:"Roboto Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.vsnote{background:#fff;border-left:6px solid var(--yellow);padding:1rem 1.2rem;margin-top:1rem;min-height:6rem}
+
+/* figures */
+.snap{margin:0 0 1rem;background:#fff;border:2px solid var(--green);padding:.4rem}
+.snap img{display:block;width:100%;height:auto}
+.snap figcaption{margin-top:.3rem;color:#5d6b63;text-transform:none}
+.snap.right{float:right;width:13rem;margin:0 0 1rem 1.4rem}
+@media (max-width:560px){.snap.right{float:none;width:100%}}
+.snap.wide{margin-top:1.4rem}
+.snap.wide img{max-height:32rem;object-fit:cover;object-position:top}
+#eventwrap{display:grid;grid-template-columns:12rem minmax(0,1fr);gap:1.2rem;align-items:start}
+.evimg{width:12rem;height:14rem;object-fit:cover;object-position:top;border:2px solid var(--green)}
+@media (max-width:640px){#eventwrap{grid-template-columns:minmax(0,1fr)}.evimg{width:100%;height:14rem}}
+/* card */
+.card{background:#fff;border:3px solid var(--green);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem}
+.card h2{font-size:3rem;margin-bottom:.3rem}
+.card label{display:block;font-family:"Roboto Mono",monospace;font-size:.76rem;letter-spacing:.05em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #8f9a94;background:var(--cream);color:#1b1a17}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--green);color:var(--chalk);border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"Roboto Mono",monospace;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:4.5rem 1.25rem 3rem}
+.next p{font-family:Teko,sans-serif;text-transform:uppercase;font-size:2.4rem;max-width:36rem;margin:0 auto;line-height:1;color:var(--green)}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:#5d6b63}
+.sources button{background:none;border:0;color:#5d6b63;text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="hero" style="background-image:linear-gradient(rgba(23,58,44,.86),rgba(23,58,44,.95)),url('/storyhub/bts/the-bargain/assets/ebbets.webp');background-size:cover;background-position:center">
+  <div class="sb" aria-label="Final score, April 15, 1947: Dodgers 5, Braves 3">
+    <div class="row h"><span class="t mono">Ebbets Field, April 15, 1947</span><span class="fin">FINAL</span></div>
+    <div class="row"><span class="t">Boston Braves</span><span class="y">3</span></div>
+    <div class="row"><span class="t">Brooklyn Dodgers</span><span class="y">5</span></div>
+  </div>
+  <h1>The Bargain</h1>
+  <p class="dek">Ebbets Field, Brooklyn. 26,623 people came to watch a 28 year old rookie play first base. He had promised not to fight back.</p>
+</header>
+
+<main>
+<section>
+  <div class="wrap reveal">
+    <span class="mono kick">215 Montague Street, Brooklyn, August 28, 1945</span>
+    <figure class="snap right"><img src="/storyhub/bts/the-bargain/assets/rickey.webp" alt="Portrait of Branch Rickey as a young man in a suit and high collar" loading="lazy"><figcaption class="mono">Branch Rickey, early in his career. Colorized.</figcaption></figure>
+    <p>Robinson thought he was being recruited for a new Black league. Branch Rickey, the 63 year old president of the Dodgers, told him the truth: he wanted Robinson to break baseball's color line. Then for much of a three hour meeting, Rickey acted out what was coming. He played a hotel clerk refusing a room. He played a white player sliding in with spikes high. He hurled racial insults. He was watching to see what Robinson would do.</p>
+  </div>
+  <div class="meet">
+    <div class="line reveal"><div class="who">Robinson</div><q>Are you looking for a Negro who is afraid to fight back?</q></div>
+    <div class="line r reveal"><div class="who">Rickey</div><q>Robinson, I'm looking for a ballplayer with guts enough not to fight back.</q></div>
+  </div>
+  <div class="wrap reveal" style="margin-top:1.6rem"><p class="mono" style="color:#5d6b63">Both lines as Robinson remembered them in his own later accounts.</p></div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap reveal">
+    <div class="plain">
+      <h3>WHY NOT JUST FIGHT BACK</h3>
+      <p>If someone spat insults at you every day, you'd want to answer. Anybody would. So why would Rickey ask Robinson not to?</p>
+      <p>Because it wasn't really about Robinson. Plenty of owners and sportswriters wanted integration to fail. If Robinson threw one punch, they'd say it proved Black players couldn't control themselves, and the door could stay shut for another twenty years. Rickey figured silence was the only move that gave the other side nothing to use. Here's the hard part to sit with: the plan worked, and it was unfair. The man getting abused was the one asked to behave perfectly. He agreed to three years of it, from 1946 through 1948. He'd faced a court martial rather than move seats on a bus, so you can guess what that promise cost him.</p>
+    </div>
+  </div>
+</section>
+
+<section style="background:#e9e2cd">
+  <div class="season">
+    <div class="reveal" style="max-width:44rem">
+      <span class="mono kick">1946 to 1947</span>
+      <h2>Holding the promise.</h2>
+      <p>Tap through the season. Each moment is a test of the bargain.</p>
+    </div>
+    <div class="strip reveal" id="strip" role="group" aria-label="Season moments">
+      <button data-e="0" aria-pressed="true"><b>1946</b><span>Montreal</span></button>
+      <button data-e="1" aria-pressed="false"><b>Spring 47</b><span>A petition</span></button>
+      <button data-e="2" aria-pressed="false"><b>April 15</b><span>Debut</span></button>
+      <button data-e="3" aria-pressed="false"><b>April 22</b><span>Ben Chapman</span></button>
+      <button data-e="4" aria-pressed="false"><b>May 9</b><span>A strike threat</span></button>
+      <button data-e="5" aria-pressed="false"><b>Sept 1947</b><span>The verdict</span></button>
+    </div>
+    <div class="event reveal" id="eventwrap"><img id="evimg" class="evimg" src="/storyhub/bts/the-bargain/assets/montreal.webp" alt="" loading="lazy"><div id="event" aria-live="polite"></div></div>
+  </div>
+</section>
+
+<section class="mixer">
+  <div class="wrap reveal" style="margin-bottom:2rem">
+    <span class="mono kick">The question historians still argue</span>
+    <h2>Why did Rickey do it?</h2>
+    <p>The evidence points three ways. Split ten points among the motives based on the evidence on the right. There is no score here. The point is to commit to a weighing you could defend.</p>
+  </div>
+  <div class="mix">
+    <div class="reveal">
+      <div class="sl"><label for="mF">Conscience <output id="oF">4</output></label><input type="range" id="mF" min="0" max="10" value="4"></div>
+      <div class="sl"><label for="mM">Money <output id="oM">3</output></label><input type="range" id="mM" min="0" max="10" value="3"></div>
+      <div class="sl"><label for="mW">Winning <output id="oW">3</output></label><input type="range" id="mW" min="0" max="10" value="3"></div>
+      <div class="pie" aria-hidden="true"><div id="pF" style="background:var(--chalk)">C</div><div id="pM" style="background:var(--yellow)">M</div><div id="pW" style="background:#7fb6e6">W</div></div>
+      <div class="mixout" id="mixout" aria-live="polite"></div>
+    </div>
+    <div class="reveal">
+      <div class="ev"><h3>Conscience</h3><p>Rickey told a story from 1904, when he coached at Ohio Wesleyan. A Black player on his team, Charles Thomas, was refused a hotel room on a road trip, and Rickey found him rubbing his hands as if to scrub off his skin. Rickey said he never forgot it. He was also a devout Methodist who would not attend games on Sundays.</p></div>
+      <div class="ev"><h3>Money</h3><p>Brooklyn had a large Black population, and Black fans packed ballparks to see Robinson. Rickey also paid the Kansas City Monarchs nothing for Robinson, and dismissed the Negro Leagues as more like a racket than real leagues.</p></div>
+      <div class="ev"><h3>Winning</h3><p>The Negro Leagues held stars no other owner would sign. Rickey was famous for building winners cheaply through his farm system. Brooklyn won the pennant in 1947.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="vs">
+    <div class="reveal" style="max-width:44rem">
+      <span class="mono kick">The promise ends</span>
+      <h2>Silent versus free.</h2>
+      <p>Rickey released Robinson from the promise after the 1948 season. Compare the rookie who could not answer back with the player who finally could.</p>
+    </div>
+    <div class="toggle reveal" role="group"><button id="y47" aria-pressed="true">1947</button><button id="y49" aria-pressed="false">1949</button></div>
+    <div class="stats reveal" aria-live="polite">
+      <div><b id="sAvg">.297</b><span>Batting average</span></div>
+      <div><b id="sSb">29</b><span>Stolen bases</span></div>
+      <div><b id="sHr">12</b><span>Home runs</span></div>
+      <div><b id="sAw">ROY</b><span id="sAwL">First Rookie of the Year</span></div>
+    </div>
+    <div class="vsnote reveal" id="vsnote"></div>
+    <figure class="snap wide reveal"><img src="/storyhub/bts/the-bargain/assets/dodgers.webp" alt="Jackie Robinson kneeling in his Brooklyn Dodgers uniform" loading="lazy"><figcaption class="mono">Robinson in Brooklyn. Colorized.</figcaption></figure>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <form class="card" data-card="THE BARGAIN: Rickey, Robinson and 1947 (StoryHub)" onsubmit="return false">
+    <span class="mono">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. What did Robinson promise Rickey, and for how long?</label>
+    <textarea id="q1" data-q="What did Robinson promise Rickey, and for how long?"></textarea>
+    <label for="q2">Q2. Who led the worst abuse of 1947, and how did it backfire?</label>
+    <textarea id="q2" data-q="Who led the worst abuse of 1947, and how did it backfire?"></textarea>
+    <label for="q3">Q3. What happened in 1949 once the promise ended?</label>
+    <textarea id="q3" data-q="What happened in 1949 once the promise ended?"></textarea>
+    <label for="back">Back of the card. How did you split Rickey's motives, and what single piece of evidence weighed most? Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="How did you split Rickey's motives, and what single piece of evidence weighed most?" style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="mono" style="margin-bottom:1rem;color:#5d6b63">Next time</div>
+  <p>Rickey paid the Monarchs nothing. Who lost when Robinson won?</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>Jackie Robinson, I Never Had It Made, Putnam, 1972. The Rickey meeting and the Chapman series.</li>
+    <li>Jules Tygiel, Baseball's Great Experiment: Jackie Robinson and His Legacy, Oxford University Press, 1983.</li>
+    <li>Stanley Woodward, New York Herald Tribune, May 9, 1947.</li>
+    <li>Photographs: Branch Rickey / Robinson with the Montreal Royals, 1946 / Robinson with the Brooklyn Dodgers / Leo Durocher baseball card / Ebbets Field postcard. Public domain via Wikimedia Commons. Colorized for this lesson with the DDColor model.</li>
+    <li>Season statistics from Baseball Reference. Opening day final score and attendance, April 15, 1947.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var ev=[
+    'Montreal Royals, Brooklyn\'s top farm team. Spring training in Florida was brutal. In Sanford the police chief walked onto the field during a game and ordered Robinson off, and other towns canceled games rather than let him play. Then in Montreal he led the International League with a .349 average and won the Little World Series. Fans chased him down the street afterward out of pure joy.',
+    'Some Dodgers players circulated a petition saying they would not play with Robinson. Manager Leo Durocher called a team meeting after midnight and told them he did not care if a player was yellow or black or had stripes like a zebra. He was the manager and Robinson was playing. The petition died.',
+    'Robinson started at first base against the Boston Braves before 26,623 fans. He went hitless in three at bats but reached base and scored the go ahead run in a 5 to 3 win. He was the only Black player in the major leagues for almost three months.',
+    'Phillies manager Ben Chapman led his dugout in racial slurs across a three game series. Robinson later wrote it brought him closer to cracking than anything that season. He did not answer. The abuse backfired. Writers condemned Chapman, and Dodgers who had been cold to Robinson, including Eddie Stanky, began shouting back at the Phillies on his behalf.',
+    'A New York Herald Tribune story reported that St. Louis Cardinals players planned to strike rather than play against Robinson. National League President Ford Frick answered that any player who struck would be suspended. The strike never happened. Historians still debate how organized the plot was. The message was that integration would be defended.',
+    'Robinson hit .297, scored 125 runs and led the National League with 29 stolen bases. The Dodgers won the pennant. He was named the first Rookie of the Year in major league history, an award that now carries his name. He kept the promise the whole season.'
+  ];
+  var bs=document.querySelectorAll('#strip button'), out=document.getElementById('event');
+  var evi=['/storyhub/bts/the-bargain/assets/montreal.webp','/storyhub/bts/the-bargain/assets/durocher.webp','/storyhub/bts/the-bargain/assets/dodgers47.webp','/storyhub/bts/the-bargain/assets/dodgers47.webp','/storyhub/bts/the-bargain/assets/dodgers47.webp','/storyhub/bts/the-bargain/assets/dodgers.webp'], eva=['Robinson at spring training with the Montreal Royals, 1946','Leo Durocher on a baseball card','Jackie Robinson batting for Brooklyn','Jackie Robinson batting for Brooklyn','Jackie Robinson batting for Brooklyn','Jackie Robinson kneeling in his Dodgers uniform'];
+  function show(i){ var im=document.getElementById('evimg'); im.src=evi[i]; im.alt=eva[i]; out.textContent=ev[i]; bs.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-e')==String(i)); }); }
+  bs.forEach(function(b){ b.addEventListener('click',function(){ show(+b.getAttribute('data-e')); }); }); show(0);
+  // mixer
+  var F=document.getElementById('mF'), M=document.getElementById('mM'), W=document.getElementById('mW'), mo=document.getElementById('mixout');
+  function bal(changed){ var vals={F:+F.value,M:+M.value,W:+W.value}; var others=['F','M','W'].filter(function(k){return k!==changed;}); var over=vals.F+vals.M+vals.W-10;
+    while(over!==0){ var k=others[over>0? (vals[others[0]]>=vals[others[1]]?0:1) : (vals[others[0]]<=vals[others[1]]?0:1)]; if(over>0&&vals[k]>0){vals[k]--;over--;} else if(over<0&&vals[k]<10){vals[k]++;over++;} else { others.reverse(); var k2=others[0]; if(over>0&&vals[k2]>0){vals[k2]--;over--;} else if(over<0&&vals[k2]<10){vals[k2]++;over++;} else break; } }
+    F.value=vals.F; M.value=vals.M; W.value=vals.W; draw(); }
+  function draw(){ var f=+F.value,m=+M.value,w=+W.value; document.getElementById('oF').textContent=f; document.getElementById('oM').textContent=m; document.getElementById('oW').textContent=w;
+    document.getElementById('pF').style.flexGrow=f; document.getElementById('pM').style.flexGrow=m; document.getElementById('pW').style.flexGrow=w;
+    var top=[['conscience',f],['money',m],['winning',w]].sort(function(a,b){return b[1]-a[1];});
+    var t;
+    if(top[0][1]>=8) t='You put almost everything on '+top[0][0]+'. Be ready to explain the other evidence. Paying the Monarchs nothing is hard to square with pure conscience, and the Charles Thomas story is hard to square with pure profit.';
+    else if(top[0][1]===top[1][1]) t='You see '+top[0][0]+' and '+top[1][0]+' as equal. That matches what many historians argue: Rickey\'s motives were tangled, and he may not have separated them himself.';
+    else t='Your weighing leads with '+top[0][0]+'. Whatever the mix, notice what evidence cannot do. It can show what Rickey said and did. It cannot open his heart, so a strong answer says how confident it is.';
+    mo.textContent=t; }
+  [['F',F],['M',M],['W',W]].forEach(function(p){ p[1].addEventListener('input',function(){ bal(p[0]); }); }); draw();
+  // 47 vs 49
+  var d={47:['.297','29','12','ROY','First Rookie of the Year','Under the promise: no arguing with umpires, no answering bench jockeys, no fights. He still led the league in steals and helped win a pennant.'],49:['.342','37','16','MVP','National League Most Valuable Player','Released from the promise, he argued calls, answered taunts and slid hard. Some writers who praised his silence now called him a hothead. He won the batting title, led the league in steals again and was named MVP. The silence had been a strategy, not his personality.']};
+  var b47=document.getElementById('y47'), b49=document.getElementById('y49');
+  function yr(y){ var a=d[y]; document.getElementById('sAvg').textContent=a[0]; document.getElementById('sSb').textContent=a[1]; document.getElementById('sHr').textContent=a[2]; document.getElementById('sAw').textContent=a[3]; document.getElementById('sAwL').textContent=a[4]; document.getElementById('vsnote').textContent=a[5]; b47.setAttribute('aria-pressed',y==47); b49.setAttribute('aria-pressed',y==49); }
+  b47.addEventListener('click',function(){yr(47);}); b49.addEventListener('click',function(){yr(49);}); yr(47);
+})();
+</script>
+</body>
+</html>
