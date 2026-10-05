@@ -106,9 +106,10 @@ function finishGame(m, label) {
   const ankles = m.players.reduce((n, p) => n + p.stats.ankles, 0);
   const dunks = m.players.reduce((n, p) => n + p.stats.dnk, 0);
   const crownScores = m.events.filter((e) => e.type === 'score' && e.data.crown);
+  const score = [m.teams[0].score, m.teams[1].score];
   return {
-    winner: m.result.winner,
-    score: m.result.score.slice(),
+    winner: score[0] > score[1] ? 0 : 1,
+    score,
     time: m.time,
     fga, fgm, blocks, steals, ankles, dunks,
     crownScores: crownScores.length,
