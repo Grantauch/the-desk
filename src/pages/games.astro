@@ -10,7 +10,7 @@ interface Hub {
   name: string;
   course: string;
   kind: string;
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street';
   previewEyebrow: string;
   href: string;
   blurb: string;
@@ -19,6 +19,17 @@ interface Hub {
 }
 
 const hubs: Hub[] = [
+  {
+    name: 'blacktop kings',
+    course: 'just for fun',
+    kind: 'streetball game',
+    theme: 'street',
+    previewEyebrow: '3 on 3 · build your baller',
+    featured: true,
+    href: '/hubs/blacktop-kings.html',
+    blurb:
+      'Build a baller, break ankles, throw it off the glass, and shatter the backboard with a Crown dunk. Run the circuit from the corner lot to Crown Court, recruit the legends you beat, then bring your crew to a friend for head-to-head play.',
+  },
   {
     name: 'tale of the tape',
     course: 'beyond the scoreboard',
