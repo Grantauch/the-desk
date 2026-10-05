@@ -2,7 +2,7 @@
 
 ## Current checkpoint — October 4 Blacktop game feel
 
-PR #178 polishes existing slides, plants, catches, rebound reaches, landing compression, contact recoil and shot follow-through; adds brief bounded impact pauses/camera punches, collision-based sound, clutch crowd, green-release and possession/clock feedback. Dedicated feel regressions and existing gameplay/pose/art/audio checks passed; quick-game start and keyboard shooting were exercised in Chrome without captured JavaScript errors. The pre-release timing and original dust RNG trigger are preserved. Full canonical verification is in progress. Required CI, merge and exact production verification remain separate evidence; Netlify production deploys are paused for exhausted credits.
+PR #178 polishes existing slides, plants, catches, rebound reaches, landing compression, contact recoil and shot follow-through; adds brief bounded impact pauses/camera punches, collision-based sound, clutch crowd, green-release and possession/clock feedback. Full canonical verification passed, including dedicated feel regressions, 600 seeded balance games, existing gameplay/pose/art/audio checks, 53 built routes and 103 HTML files/4,347 references. Release archetypes span 31.3–70.3%; the separate 240-game deep archetype sample spans 31.3–70.8%, within every original balance limit. Chrome quick-game start, keyboard shooting, pause and quit were exercised in full/reduced effects without captured errors. The pre-release timing and original dust RNG trigger are preserved. Required CI, merge and exact production verification remain separate evidence; Netlify production deploys are paused for exhausted credits.
 
 ## Current checkpoint — October 4 Blacktop competitive balance lab
 

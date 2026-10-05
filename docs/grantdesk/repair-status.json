@@ -877,10 +877,10 @@
     "field_status": "FIELD_PENDING"
   },
   "blacktop_feel_20261004": {
-    "status": "FOCUSED_VERIFIED",
+    "status": "LOCAL_FULL_VERIFIED",
     "scope": "Existing action presentation and responsiveness",
-    "validation": "Feel, gameplay, pose, art, asset and audio checks passed. Actual Chrome quick-game start and shooting input passed without captured errors.",
-    "full_verification": "IN_PROGRESS",
+    "validation": "Full canonical verification including feel/gameplay/pose/art/audio/asset regressions and 600 seeded games passed. Release archetypes 31.3-70.3%; separate deep archetype 240-game sample 31.3-70.8%, with all original limits retained. Chrome start/shoot/pause/quit passed in full/reduced effects without captured errors.",
+    "full_verification": "PASS",
     "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
     "field_status": "FIELD_PENDING"
   }
