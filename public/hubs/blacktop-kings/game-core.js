@@ -445,7 +445,7 @@
   // best leapers on turbo.
   M.dunkRange = function (p, turbo) {
     if (p.r.dnk < 2) return 0;
-    let r = (2.2 + p.r.dnk * 0.55) * (turbo ? 1.45 : 1);
+    let r = (2.2 + p.r.dnk * 0.48) * (turbo ? 1.35 : 1);
     if (p.fire) r *= 1.15;
     if (this.teams[p.team].crownActive) r *= 1.25;
     return r;
@@ -547,6 +547,9 @@
     const con = this.contestAt(p, x, y);
     w *= 1 - 0.55 * con.c;
     w *= clamp(1 - Math.max(0, (gather || 0) - 5) / 36, 0.6, 1); // pulling up at full speed
+    // A clean pass from a good distributor gives the receiver a brief rhythm window. Passing now
+    // creates real shot quality instead of being valuable only when it happens to find a better player.
+    if (p.catchBoostUntil > this.time) w *= 1 + (p.catchBoost || 0);
     if (p.fire) w *= 1.3;
     if (this.teams[p.team].crownActive) w *= 1.2;
     return { w: clamp(w, 0.012, 0.12), c: con.c, side: con.side, d, deep };
@@ -1669,7 +1672,12 @@
       }
       if (f.t >= seg.T && f.i === f.segs.length - 1) {
         const q = f.recv;
-        if (hyp(q.x - b.x, q.y - b.y) < 4.5 && q.state !== 'fallen') { this.giveBall(q); q.state = 'catch'; q.st = 0; q.catchTarget = null; this.faceToward(q, RIM.x, RIM.y, true); }
+        if (hyp(q.x - b.x, q.y - b.y) < 4.5 && q.state !== 'fallen') {
+          this.giveBall(q); q.state = 'catch'; q.st = 0; q.catchTarget = null;
+          q.catchBoost = clamp((f.passer.r.pas - 3) * 0.025, 0, 0.18);
+          q.catchBoostUntil = this.time + 0.85;
+          this.faceToward(q, RIM.x, RIM.y, true);
+        }
         else { b.state = 'loose'; b.flight = null; q.catchTarget = null; }
       }
       return;
