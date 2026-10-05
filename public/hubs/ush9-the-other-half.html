@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Other Half</title>
+<meta name="description" content="Jacob Riis carried a flash of light into rooms nobody uptown had ever seen. Fit twelve lodgers into his Bayard Street room and test the 1901 tenement law.">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-the-other-half.html">
+<meta property="og:title" content="The Other Half">
+<meta property="og:description" content="Jacob Riis carried a flash of light into rooms nobody uptown had ever seen. Fit twelve lodgers into his Bayard Street room and test the 1901 tenement law.">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-the-other-half.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/ush9/the-other-half/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0a09;--soot:#16140f;--bone:#ebe5d6;--ash:#9b968a;--flash:#fff8df;--sodium:#e9c46a;--rust:#b4553a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--bone);font:400 1.14rem/1.65 "Source Serif 4",Georgia,serif;-webkit-font-smoothing:antialiased}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:3px;background:var(--sodium);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2,h3{font-family:"Playfair Display",Georgia,serif;line-height:1.05;margin:0}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ash)}
+.wrap{max-width:46rem;margin:0 auto;padding:0 1.25rem}
+section{padding:5.5rem 0}
+p{margin:0 0 1.1em}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+button{font:inherit}
+:focus-visible{outline:3px solid var(--sodium);outline-offset:3px}
+
+/* HERO: the dark room */
+.dark{min-height:100vh;display:grid;place-items:center;position:relative;overflow:hidden;background:#050504}
+.dark .photo{position:absolute;inset:0;background:center/cover no-repeat;filter:grayscale(1) contrast(1.15);opacity:0;transition:opacity 3.2s ease}
+.dark.lit .photo{opacity:.16}
+.dark.burst .photo{opacity:1;transition:opacity .05s}
+.dark .burstlayer{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,#fff 0,var(--flash) 30%,rgba(255,248,223,0) 75%);opacity:0;pointer-events:none}
+.dark.burst .burstlayer{animation:pop .9s ease-out forwards}
+@keyframes pop{0%{opacity:1}100%{opacity:0}}
+.dark .inner{text-shadow:0 2px 14px #000,0 0 30px #000;position:relative;text-align:center;padding:2rem 1.25rem;max-width:44rem}
+.dark h1{font-size:clamp(2.6rem,8vw,5.6rem);font-weight:900;letter-spacing:-.01em}
+.dark .sub{font-style:italic;color:var(--ash);margin:.9rem 0 2.2rem;font-size:1.2rem}
+.pan{display:inline-flex;align-items:center;gap:.8rem;background:none;border:1px solid var(--sodium);color:var(--sodium);padding:.95rem 1.5rem;cursor:pointer;font-family:"IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;font-size:.85rem}
+.pan:hover{background:rgba(233,196,106,.1)}
+.pan .dot{width:.7rem;height:.7rem;border-radius:50%;background:var(--sodium);box-shadow:0 0 18px var(--sodium)}
+.afterword{margin-top:2.2rem;min-height:5.5rem;color:var(--bone);font-size:1.08rem;opacity:0;transition:opacity 1.2s ease 1s}
+.dark.lit .afterword{opacity:1}
+
+/* plain talk */
+.plain{background:var(--bone);color:var(--ink);padding:2.4rem 2rem;margin:3rem auto;max-width:38rem;border-left:8px solid var(--ink);font-size:1.08rem}
+.plain h3{font-family:"IBM Plex Mono",monospace;font-size:.9rem;letter-spacing:.14em;margin-bottom:1rem}
+.plain p:last-child{margin:0}
+
+/* narrative w/ portrait */
+.who{display:grid;grid-template-columns:minmax(0,13rem) 1fr;gap:2rem;align-items:start}
+.who img{width:100%;filter:grayscale(1) contrast(1.05);border:1px solid #2a271f}
+.who figcaption{margin-top:.5rem}
+@media (max-width:640px){.who{grid-template-columns:1fr}.who img{max-width:12rem}}
+h2{font-size:clamp(2rem,5vw,3.3rem);margin-bottom:1.4rem}
+.kicker{display:block;margin-bottom:.8rem}
+blockquote{margin:2rem 0;padding:0 0 0 1.4rem;border-left:2px solid var(--sodium);font-family:"Playfair Display",serif;font-style:italic;font-size:1.45rem;line-height:1.35}
+blockquote cite{display:block;margin-top:.7rem;font:400 .8rem "IBM Plex Mono",monospace;font-style:normal;letter-spacing:.08em;color:var(--ash)}
+
+/* ROOM */
+.room{background:var(--soot)}
+.roomgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:2.2rem;align-items:start;max-width:62rem;margin:0 auto;padding:0 1.25rem}
+@media (max-width:820px){.roomgrid{grid-template-columns:1fr}}
+.floor{width:100%;height:auto;background:#0d0c09;border:1px solid #3a352a}
+.floor .cell{fill:none;stroke:#2b271e;stroke-width:.04}
+.floor .wall{fill:none;stroke:var(--bone);stroke-width:.18}
+.floor .sleeper{fill:var(--sodium);fill-opacity:.82;stroke:#0b0a09;stroke-width:.08}
+.floor .sleeper.new{animation:drop .45s ease-out}
+@keyframes drop{from{opacity:0;transform:translateY(-.6px)}to{opacity:1;transform:none}}
+.floor .bed{fill:none;stroke:var(--bone);stroke-dasharray:.3 .2;stroke-width:.09}
+.floor .door{stroke:var(--rust);stroke-width:.35}
+.floor text{font:600 .55px "IBM Plex Mono",monospace;fill:var(--ash)}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}
+.btn{background:none;border:1px solid var(--bone);color:var(--bone);padding:.6rem 1rem;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.btn.primary{border-color:var(--sodium);color:var(--sodium)}
+.btn[aria-pressed=true]{background:var(--bone);color:var(--ink)}
+.btn:disabled{opacity:.35;cursor:default}
+.readout{font-family:"IBM Plex Mono",monospace;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#3a352a;border:1px solid #3a352a;margin:1rem 0}
+.readout div{background:#0d0c09;padding:.8rem}
+.readout b{display:block;font-size:2rem;color:var(--sodium);font-weight:600;line-height:1.1}
+.readout span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ash)}
+.bars{margin-top:1.4rem}
+.bar{display:grid;grid-template-columns:9.5rem 1fr 3.4rem;gap:.6rem;align-items:center;margin:.45rem 0;font-size:.85rem}
+.bar .track{height:.9rem;background:#24211a}
+.bar .fill{height:100%;background:var(--bone);transition:width .6s ease}
+.bar.hot .fill{background:var(--sodium)}
+.bar .n{font-family:"IBM Plex Mono",monospace;text-align:right}
+.note{font-size:.95rem;color:var(--ash);margin-top:1rem}
+.punch{margin-top:1.2rem;padding:1rem 1.2rem;border:1px solid var(--rust);color:var(--bone);display:none}
+.punch.show{display:block}
+
+/* full bleed photo */
+.bleed{position:relative;min-height:88vh;display:flex;align-items:flex-end;background:#000 center/cover no-repeat}
+.bleed::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,4,.96) 0,rgba(5,5,4,.55) 45%,rgba(5,5,4,.1) 100%)}
+.bleed .wrap{position:relative;z-index:1;padding-bottom:4rem}
+.bleed .credit{position:absolute;right:1rem;top:1rem;z-index:1;background:rgba(5,5,4,.8);padding:.3rem .5rem;color:var(--bone)}
+
+/* DUMBBELL */
+.plan{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.2rem;max-width:62rem;margin:0 auto;padding:0 1.25rem;align-items:start}
+@media (max-width:820px){.plan{grid-template-columns:1fr}}
+.planfig svg{width:100%;height:auto;max-height:78vh;background:#0d0c09;border:1px solid #3a352a}
+.planfig .bldg{fill:#1d1a14;stroke:var(--bone);stroke-width:.35}
+.planfig .wallin{stroke:#6d675a;stroke-width:.2}
+.planfig .shaft{fill:#050504;stroke:var(--ash);stroke-width:.2;stroke-dasharray:.6 .4}
+.planfig .hl{fill:var(--rust);fill-opacity:0;transition:fill-opacity .4s}
+.planfig .hl.on{fill-opacity:.75}
+.planfig .lbl{font:600 1.5px "IBM Plex Mono",monospace;fill:var(--ash)}
+.rules{list-style:none;padding:0;margin:0}
+.rules li{margin:0 0 .7rem}
+.rule{width:100%;text-align:left;background:#14120e;border:1px solid #3a352a;color:var(--bone);padding:.9rem 1rem;cursor:pointer;display:grid;grid-template-columns:2rem 1fr;gap:.6rem}
+.rule .k{font-family:"IBM Plex Mono",monospace;color:var(--sodium)}
+.rule[aria-pressed=true]{border-color:var(--rust);background:#1e130f}
+.verdict{min-height:7rem;margin-top:1rem;padding:1rem 1.1rem;border-left:3px solid var(--rust);background:#120f0c;font-size:1rem}
+
+/* caption check */
+.snap{margin:1.8rem 0;background:#050504;border:1px solid #2a271f;padding:.6rem}
+.snap img{display:block;width:100%;height:auto;max-height:70vh;object-fit:cover}
+.snap figcaption{margin-top:.5rem;text-transform:none;letter-spacing:.02em}
+.snap.tr{max-width:20rem;float:right;margin:0 0 1rem 1.4rem}
+@media (max-width:640px){.snap.tr{float:none;max-width:none;margin:1.4rem 0}}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:1.6rem}
+@media (max-width:640px){.twocol{grid-template-columns:1fr}}
+.twocol h3{font-family:"IBM Plex Mono",monospace;font-size:.85rem;letter-spacing:.12em;margin-bottom:.6rem;color:var(--sodium)}
+
+/* CARD */
+.card{background:var(--bone);color:var(--ink);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem}
+.card h2{font-size:2.2rem;margin-bottom:.4rem}
+.card label{display:block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #6f6a5e;background:#fbf8f0;color:var(--ink)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--ink);color:var(--bone);border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;font-size:.85rem}
+.card [data-status]{display:block;margin-top:.7rem;font-size:.95rem}
+.next{text-align:center;padding:5rem 1.25rem 3rem}
+.next p{font-family:"Playfair Display",serif;font-style:italic;font-size:1.6rem;max-width:36rem;margin:0 auto}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:var(--ash)}
+.sources button{background:none;border:0;color:var(--ash);text-decoration:underline;cursor:pointer;padding:0}
+.sources ul{padding-left:1.1rem}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="dark" id="dark" style="--p:0">
+  <div class="photo" style="background-image:url('/storyhub/ush9/the-other-half/assets/bandits.webp')" role="img" aria-label="Jacob Riis photograph of Bandits' Roost, colorized, an alley at 59 and a half Mulberry Street, about 1888, with men standing among hanging laundry"></div>
+  <div class="burstlayer"></div>
+  <div class="inner">
+    <div class="mono">Mulberry Street, New York, about 1888</div>
+    <h1>The Other Half</h1>
+    <p class="sub">The alley has no streetlamp. The rooms behind it have no windows. Nobody uptown has ever seen inside.</p>
+    <button class="pan" id="fire"><span class="dot"></span> Fire the flash</button>
+    <p class="afterword" id="after" aria-live="polite"></p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <div class="plain reveal">
+      <h3>WHY A PICTURE BEAT A PARAGRAPH</h3>
+      <p>Imagine reading this sentence: a family of seven lives in one room with no window. You probably nodded and kept going. That's the problem Jacob Riis had for ten years. He wrote about tenement rooms in the newspaper over and over, and readers believed him about as much as you believe a stranger telling you a sad story. They could always tell themselves he was exaggerating.</p>
+      <p>A photograph took that escape away. A camera doesn't have an opinion, or at least that's what people in 1890 believed. If the picture showed twelve people asleep on a floor, then twelve people were asleep on that floor. The catch was that cameras needed light, and tenement rooms had none. Until 1887 nobody could photograph them at all. What you just did with that button is the reason this lesson exists.</p>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:1rem">
+  <div class="wrap">
+    <figure class="who reveal">
+      <div><img src="/storyhub/ush9/the-other-half/assets/riis.webp" alt="Portrait of Jacob Riis"><figcaption class="mono">Jacob Riis, 1849 to 1914</figcaption></div>
+      <div>
+        <span class="mono kicker">The reporter</span>
+        <h2>He slept on the floor first.</h2>
+        <p>Riis sailed from Denmark to New York in 1870, 21 years old and nearly broke. For years he took whatever work he could find, and on bad nights he slept in police station lodging rooms, where the city let homeless people lie on bare planks for free. In 1877 he became a police reporter for the New York Tribune. His office faced police headquarters at 300 Mulberry Street, at the edge of the worst slum in the city.</p>
+        <p>In 1887 two German chemists published a way to photograph in the dark by burning magnesium powder. Riis read a short news item about it and understood immediately what it meant. He went out after midnight with two amateur photographers and a police escort, and he fired the powder inside rooms where people were sleeping. By his own account he set fires more than once.</p>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<section class="room" id="room">
+  <div class="wrap reveal" style="margin-bottom:2.4rem">
+    <span class="mono kicker">Bayard Street, five cents a spot</span>
+    <h2>Twelve people. One room.</h2>
+    <p>Lodging houses rented floor space by the night. Riis visited one on Bayard Street with a police sanitary inspector around midnight, when it was fullest, and wrote down what he found.</p>
+    <blockquote>In a room not thirteen feet either way slept twelve men and women, two or three in bunks set in a sort of alcove, the rest on the floor.<cite>Jacob Riis, How the Other Half Lives, 1890</cite></blockquote>
+    <figure class="snap"><img src="/storyhub/ush9/the-other-half/assets/lodgers.webp" alt="Jacob Riis photograph of lodgers lying on bunks and the floor of a crowded Bayard Street lodging room" loading="lazy"><figcaption class="mono">Jacob Riis, Lodgers in a crowded Bayard Street tenement, about 1889. Colorized.</figcaption></figure>
+    <p>A sleeping adult needs a space about two feet wide and six feet long. Below is the room drawn to scale, one square for every square foot. Put the lodgers down one at a time and watch what happens to the floor.</p>
+  </div>
+  <div class="roomgrid">
+    <div>
+      <svg class="floor" id="floor" viewBox="-1 -1 15 16" role="img" aria-labelledby="floorT">
+        <title id="floorT">Scale drawing of a room 13 feet by 13 feet, with sleepers added one at a time</title>
+        <g id="cells"></g>
+        <rect class="wall" x="0" y="0" width="13" height="13"/>
+        <line class="door" x1="12.95" y1="12" x2="12.95" y2="13"/>
+        <g id="sleepers"></g>
+        <rect class="bed" id="bedroom" x="0" y="0" width="10" height="12" style="display:none"/>
+        <text x="0" y="14.2">13 FT</text><text x="11.2" y="14.2">DOOR</text>
+      </svg>
+    </div>
+    <div>
+      <div class="controls">
+        <button class="btn primary" id="add">Add a lodger</button>
+        <button class="btn" id="fill">Fill the room</button>
+        <button class="btn" id="reset">Empty it</button>
+        <button class="btn" id="bedbtn" aria-pressed="false">Show a bedroom for one</button>
+      </div>
+      <div class="readout" aria-live="polite">
+        <div><b id="n">0</b><span>lodgers</span></div>
+        <div><b id="per">169</b><span>square feet each</span></div>
+      </div>
+      <div class="bars" aria-hidden="true">
+        <div class="bar hot"><span>Bayard Street, each</span><div class="track"><div class="fill" id="barRoom" style="width:100%"></div></div><span class="n" id="barRoomN">169</span></div>
+        <div class="bar"><span>Twin mattress</span><div class="track"><div class="fill" style="width:16.5%"></div></div><span class="n">20</span></div>
+        <div class="bar"><span>Bedroom, 10 by 12</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="n">120</span></div>
+      </div>
+      <p class="note">Bar scale tops out at 120 square feet.</p>
+      <p class="punch" id="punch">Twelve sleepers cover the floor wall to wall. The only open space left is a strip one foot wide along two walls, and that strip is the path to the door. Each person gets 14 square feet, less than a twin mattress. This is what Riis counted, and in 1890 it was legal.</p>
+    </div>
+  </div>
+</section>
+
+<div class="bleed" style="background-image:url('/storyhub/ush9/the-other-half/assets/bend.webp')" role="img" aria-label="A crowded Mulberry Street lined with tenements, pushcarts and shoppers, about 1900">
+  <span class="mono credit">Mulberry Street, about 1900. Colorized.</span>
+  <div class="wrap">
+    <span class="mono kicker">59 and a half Mulberry Street</span>
+    <h2>The foul core.</h2>
+    <p>That is what Riis called Mulberry Bend, a crooked stretch of Mulberry Street packed with rear tenements built in old backyards. Thousands of immigrants lived there, many from southern Italy. Death rates in these blocks ran far above the rest of the city, and the worst of it fell on babies. Pushcarts filled the street because the rooms upstairs were too small to hold anything worth selling. When Riis finally got the Bend torn down, the city did not build new housing. It built a park.</p>
+  </div>
+</div>
+
+<section id="plan">
+  <div class="wrap reveal" style="margin-bottom:2.4rem">
+    <span class="mono kicker">The law that made it worse</span>
+    <h2>The dumbbell.</h2>
+    <p>In 1879 New York required every bedroom in a new tenement to have a window. Builders obeyed with a design shaped like a dumbbell. The building filled a lot 25 feet wide and 100 feet deep, usually five or six stories tall with four apartments on every floor. It pinched in at the middle, and that pinch left a narrow shaft between it and the next building. Every middle room got its window, and the window opened onto that shaft.</p>
+    <div class="plain" style="margin:2rem 0">
+      <h3>WHAT AN AIR SHAFT ACTUALLY DID</h3>
+      <p>Picture a gap between two six story buildings that's only a couple of feet wide on each side. Sunlight never reaches the bottom. Air doesn't move, it just sits. Now picture forty families with no garbage service and a window right there. The shaft filled with trash and smell. Worse, when a fire started on a low floor, that tall narrow gap worked exactly like a chimney and pulled the flames upward past every window. The 1879 law got what it asked for, a window in every bedroom. It didn't ask whether the window led anywhere.</p>
+    </div>
+    <p>In 1901, after Riis and other reformers had spent a decade pushing, New York passed the Tenement House Act and banned new dumbbells. Press each rule of the 1901 law and see which part of a dumbbell floor breaks it.</p>
+  </div>
+  <div class="plan">
+    <div class="planfig">
+      <svg viewBox="0 0 34 104" role="img" aria-labelledby="planT">
+        <title id="planT">Floor plan of one floor of a dumbbell tenement on a lot 25 feet by 100 feet</title>
+        <rect x="4.5" y="2" width="25" height="100" fill="none" stroke="#3a352a" stroke-width=".25" stroke-dasharray="1 .6"/>
+        <path class="bldg" d="M4.5 4 H29.5 V40 H27.5 V62 H29.5 V92 H4.5 V62 H6.5 V40 H4.5 Z"/>
+        <rect class="shaft" x="2.6" y="40" width="3.9" height="22"/>
+        <rect class="shaft" x="27.5" y="40" width="3.9" height="22"/>
+        <line class="wallin" x1="17" y1="4" x2="17" y2="92"/>
+        <line class="wallin" x1="4.5" y1="22" x2="29.5" y2="22"/>
+        <line class="wallin" x1="6.5" y1="40" x2="27.5" y2="40"/>
+        <line class="wallin" x1="6.5" y1="51" x2="13" y2="51"/><line class="wallin" x1="21" y1="51" x2="27.5" y2="51"/>
+        <line class="wallin" x1="6.5" y1="62" x2="27.5" y2="62"/>
+        <line class="wallin" x1="4.5" y1="77" x2="29.5" y2="77"/>
+        <rect x="13" y="44" width="8" height="14" fill="#0d0c09" stroke="#6d675a" stroke-width=".2"/>
+        <rect class="hl" id="h-dark" x="6.5" y="40" width="6.5" height="22"/>
+        <rect class="hl" id="h-dark2" x="21" y="40" width="6.5" height="22"/>
+        <rect class="hl" id="h-shaft" x="2.6" y="40" width="3.9" height="22"/>
+        <rect class="hl" id="h-shaft2" x="27.5" y="40" width="3.9" height="22"/>
+        <rect class="hl" id="h-wc" x="14.5" y="52.5" width="5" height="4.5"/>
+        <rect class="hl" id="h-stair" x="13" y="44" width="8" height="7"/>
+        <text class="lbl" x="7.5" y="14">FRONT</text><text class="lbl" x="19" y="14">FRONT</text>
+        <text class="lbl" x="7" y="86">REAR</text><text class="lbl" x="19" y="86">REAR</text>
+        <text class="lbl" x="14.2" y="48">STAIR</text><text class="lbl" x="15.2" y="56">WC</text>
+        <text class="lbl" x="7" y="99.5">STREET IS AT THE TOP. LOT 25 FT BY 100 FT.</text>
+        <text class="lbl" x="0.2" y="38.6">SHAFT</text>
+      </svg>
+    </div>
+    <div>
+      <ul class="rules" role="list">
+        <li><button class="rule" aria-pressed="false" data-hl="h-dark h-dark2" data-v="The middle rooms fail. Their only windows face the air shaft, which gets no sun and almost no moving air. Under the 1901 law every room needed a window onto a street, a yard or a real open court, and the courts had to be far wider than a dumbbell shaft."><span class="k">01</span><span>Every room gets a window to real outdoor air</span></button></li>
+        <li><button class="rule" aria-pressed="false" data-hl="h-wc" data-v="The dumbbell fails. Four families on each floor share two toilets in the public hallway. The 1901 law required a toilet inside every apartment, so families no longer lined up in the hall."><span class="k">02</span><span>A toilet inside every apartment</span></button></li>
+        <li><button class="rule" aria-pressed="false" data-hl="h-shaft h-shaft2" data-v="The shafts fail. A tall narrow gap between buildings acts like a chimney in a fire and fills with garbage. The 1901 law replaced shafts with open courts big enough to let in light and slow a fire."><span class="k">03</span><span>No narrow air shafts</span></button></li>
+        <li><button class="rule" aria-pressed="false" data-hl="h-stair" data-v="The single stair fails. In many dumbbells one wooden staircase in the middle of the building was the only way down. The 1901 law demanded fireproof stairs and fire escapes so people on upper floors had a second way out."><span class="k">04</span><span>Fireproof stairs and a second way out</span></button></li>
+      </ul>
+      <div class="verdict" id="verdict" aria-live="polite">Press a rule to test the floor plan.</div>
+      <p class="note">The law only covered new construction. Thousands of old dumbbells stayed full of tenants for decades. The city created a Tenement House Department in 1902 to inspect and enforce.</p>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--soot)">
+  <div class="wrap reveal">
+    <span class="mono kicker">Read him twice</span>
+    <h2>A reformer with blind spots.</h2>
+    <p>How the Other Half Lives describes Italian, Jewish, Chinese and Black New Yorkers using the ugly stereotypes common among native born Americans in 1890. Riis sometimes blamed poor people for habits he disliked in the same chapter where he blamed landlords. None of the people in his photographs agreed to be shown. Many were startled awake by an explosion of white light in the middle of the night.</p>
+    <figure class="snap"><img src="/storyhub/ush9/the-other-half/assets/kids.webp" alt="Jacob Riis photograph of boys asleep together in a narrow stone areaway" loading="lazy"><figcaption class="mono">Jacob Riis, Street Arabs in sleeping quarters, about 1889. Colorized. Some historians think scenes like this one were arranged for the camera.</figcaption></figure>
+    <div class="twocol">
+      <div><h3>What his photographs can prove</h3><p>The size of the rooms. How many people slept in them. The absence of light, beds and toilets. Conditions nobody else bothered to record.</p></div>
+      <div><h3>What they cannot prove</h3><p>Who the people were, what they thought, or whether a scene was typical. A caption tells you what the photographer wanted you to believe. That is evidence too, but it is evidence about Riis.</p></div>
+    </div>
+    <figure class="snap tr"><img src="/storyhub/ush9/the-other-half/assets/tr.webp" alt="Portrait of Theodore Roosevelt in the 1890s" loading="lazy"><figcaption class="mono">Theodore Roosevelt in the 1890s. Colorized.</figcaption></figure>
+    <p style="margin-top:1.6rem">Theodore Roosevelt read the book in 1895 when he took over New York's police board. He went to find Riis, and the two walked the tenement streets together after midnight. In February 1896 Roosevelt shut down the police lodging rooms. Mulberry Bend was torn down beginning in 1895, and a park opened on the spot in 1897. It is still there today, called Columbus Park.</p>
+  </div>
+</section>
+
+<section>
+  <form class="card" data-card="THE OTHER HALF: Jacob Riis and the Flash (StoryHub)" onsubmit="return false">
+    <span class="mono" style="color:#5b574d">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name" autocomplete="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. How many people did Riis count in the Bayard Street room, and about how much floor did each one get?</label>
+    <textarea id="q1" data-q="How many people did Riis count in the Bayard Street room, and about how much floor did each one get?"></textarea>
+    <label for="q2">Q2. What did the 1879 law require, and how did the dumbbell design make the problem worse?</label>
+    <textarea id="q2" data-q="What did the 1879 law require, and how did the dumbbell design make the problem worse?"></textarea>
+    <label for="q3">Q3. Name one thing the Tenement House Act of 1901 required.</label>
+    <textarea id="q3" data-q="Name one thing the Tenement House Act of 1901 required."></textarea>
+    <label for="back">Back of the card. Riis photographed people without asking them. Was it worth it? Use one fact from today. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="Riis photographed people without asking them. Was it worth it? Use one fact from today." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="mono" style="margin-bottom:1rem">Next time</div>
+  <p>A photograph can shame a city. Can a stack of paper break the richest company on earth?</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden>
+    <ul>
+      <li>Jacob A. Riis, How the Other Half Lives: Studies Among the Tenements of New York, Charles Scribner's Sons, 1890. Bayard Street lodging room quotation from the chapter on lodging houses.</li>
+      <li>Jacob A. Riis, The Making of an American, Macmillan, 1901. Arrival in 1870, police lodging rooms, flash photography and fires.</li>
+      <li>New York State Tenement House Act of 1901, and Lawrence Veiller and Robert DeForest, The Tenement House Problem, 1903.</li>
+      <li>Photographs: Jacob A. Riis, Bandits' Roost, about 1888, Lodgers in a crowded Bayard Street tenement and Street Arabs in sleeping quarters, about 1889, Museum of the City of New York. Mulberry Street, about 1900, Detroit Publishing Company, Library of Congress. Portraits of Riis and Roosevelt. All public domain, via Wikimedia Commons. Colorized for this lesson with the DDColor model, so colors are an educated guess, not a record.</li>
+    </ul>
+  </div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  // flash
+  var dark=document.getElementById('dark'), fire=document.getElementById('fire'), after=document.getElementById('after'), shots=0;
+  var lines=['That was Bandits\' Roost, an alley at 59 and a half Mulberry Street. You saw it for less than a second. So did Riis.','Every photograph in this lesson started like that: a pan of magnesium powder, a white blast, and a sleeping room that nobody uptown had ever seen.','Fire it as often as you like. The alley only exists while the light lasts.'];
+  fire.addEventListener('click',function(){
+    if(HUB.reducedMotion){ dark.classList.add('lit'); dark.querySelector('.photo').style.opacity='.55'; }
+    else { dark.classList.remove('burst'); void dark.offsetWidth; dark.classList.add('burst','lit'); setTimeout(function(){dark.classList.remove('burst');},700); }
+    after.textContent=lines[Math.min(shots,lines.length-1)]; shots++;
+    fire.lastChild.textContent=' Fire it again';
+  });
+  // room grid
+  var cells=document.getElementById('cells'), ns='http://www.w3.org/2000/svg', html='';
+  for(var x=0;x<13;x++)for(var y=0;y<13;y++) html+='<rect class="cell" x="'+x+'" y="'+y+'" width="1" height="1"/>';
+  cells.innerHTML=html;
+  var spots=[]; for(var r=0;r<6;r++){ spots.push([0,r*2]); spots.push([6,r*2]); }
+  var g=document.getElementById('sleepers'), n=0, nEl=document.getElementById('n'), per=document.getElementById('per'), punch=document.getElementById('punch'), add=document.getElementById('add');
+  var barRoom=document.getElementById('barRoom'), barRoomN=document.getElementById('barRoomN');
+  function update(){
+    nEl.textContent=n; var v=n?Math.round(169/n):169; per.textContent=v;
+    barRoom.style.width=Math.min(100,v/120*100)+'%'; barRoomN.textContent=v;
+    add.disabled=n>=12; document.getElementById('fill').disabled=n>=12; punch.classList.toggle('show',n>=12);
+  }
+  function place(){ if(n>=12)return; var s=spots[n]; var el=document.createElementNS(ns,'rect'); el.setAttribute('class','sleeper new'); el.setAttribute('x',s[0]+.08); el.setAttribute('y',s[1]+.08); el.setAttribute('width',5.84); el.setAttribute('height',1.84); g.appendChild(el); n++; update(); }
+  add.addEventListener('click',place);
+  document.getElementById('fill').addEventListener('click',function(){ while(n<12) place(); });
+  document.getElementById('reset').addEventListener('click',function(){ g.innerHTML=''; n=0; update(); });
+  var bb=document.getElementById('bedbtn'), bed=document.getElementById('bedroom');
+  bb.addEventListener('click',function(){ var on=bb.getAttribute('aria-pressed')!=='true'; bb.setAttribute('aria-pressed',on); bed.style.display=on?'':'none'; });
+  update();
+  // dumbbell rules
+  var rules=document.querySelectorAll('.rule'), verdict=document.getElementById('verdict');
+  rules.forEach(function(b){ b.addEventListener('click',function(){
+    rules.forEach(function(o){ o.setAttribute('aria-pressed','false'); });
+    document.querySelectorAll('.hl').forEach(function(h){ h.classList.remove('on'); });
+    b.setAttribute('aria-pressed','true');
+    b.getAttribute('data-hl').split(' ').forEach(function(id){ document.getElementById(id).classList.add('on'); });
+    verdict.textContent=b.getAttribute('data-v');
+  }); });
+})();
+</script>
+</body>
+</html>

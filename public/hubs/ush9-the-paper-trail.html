@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Paper Trail</title>
+<meta name="description" content="Ida Tarbell took on Standard Oil with documents. Run the 1872 freight bill, read the octopus, and decide what Tarbell could print.">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-the-paper-trail.html">
+<meta property="og:title" content="The Paper Trail">
+<meta property="og:description" content="Ida Tarbell took on Standard Oil with documents. Run the 1872 freight bill, read the octopus, and decide what Tarbell could print.">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-the-paper-trail.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/ush9/the-paper-trail/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f2ead8;--paper2:#e8dcc2;--ink:#1d1a16;--crude:#15120f;--rule:#2f5d50;--amber:#b9761f;--red:#9e2f25;--muted:#6c6253}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.12rem/1.66 "Libre Caslon Text",Georgia,serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:4px;background:var(--red);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:"Libre Caslon Display",Georgia,serif;font-weight:400;line-height:1.02;margin:0}
+.fig{font-family:"Courier Prime",monospace}
+.label{font-family:"Courier Prime",monospace;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:5rem 0}
+p{margin:0 0 1.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+button{font:inherit}
+
+/* masthead */
+.mast{border-bottom:3px double var(--ink);padding:4rem 0 3rem}
+.mast .top{display:flex;justify-content:space-between;border-bottom:1px solid var(--ink);padding-bottom:.5rem;margin-bottom:2.4rem}
+.mast .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,15rem);gap:2.4rem;align-items:end;max-width:62rem;margin:0 auto;padding:0 1.25rem}
+@media (max-width:760px){.mast .grid{grid-template-columns:1fr}.mast img{max-width:13rem}}
+.mast h1{font-size:clamp(3.2rem,10vw,7.4rem);letter-spacing:-.02em}
+.mast .dek{font-style:italic;font-size:1.3rem;max-width:32rem;margin-top:1.2rem}
+.mast img{width:100%;filter:grayscale(1) sepia(.25) contrast(1.05);border:1px solid var(--ink)}
+.mast figcaption{margin-top:.4rem}
+
+/* plain */
+.plain{background:var(--crude);color:var(--paper);padding:2.3rem 2rem;max-width:38rem;margin:0 auto}
+.plain h3{font-family:"Courier Prime",monospace;font-size:.9rem;letter-spacing:.16em;margin:0 0 1rem;color:#e9c08a}
+.plain p:last-child{margin:0}
+
+h2{font-size:clamp(2.2rem,6vw,3.6rem);margin-bottom:1.2rem}
+.kick{display:block;margin-bottom:.7rem}
+
+/* ledger */
+.ledgerwrap{max-width:62rem;margin:0 auto;padding:0 1.25rem}
+.ledger{background:#fbf6ea;border:1px solid #b8ab8f;box-shadow:0 1px 0 #d8ccb1,0 18px 40px -28px rgba(0,0,0,.45);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 2.15rem,rgba(47,93,80,.18) 2.15rem,rgba(47,93,80,.18) calc(2.15rem + 1px));padding:1.6rem 1.6rem 2rem}
+.ledger .hdr{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;border-bottom:2px solid var(--rule);padding-bottom:.6rem;margin-bottom:1.2rem}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-bottom:1.4rem}
+@media (max-width:700px){.sliders{grid-template-columns:1fr}}
+.sliders label{display:block;font-family:"Courier Prime",monospace;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.3rem}
+.sliders output{font-family:"Courier Prime",monospace;font-weight:700;font-size:1.5rem;color:var(--rule)}
+input[type=range]{width:100%;accent-color:var(--rule)}
+table.bill{width:100%;border-collapse:collapse;font-family:"Courier Prime",monospace;font-size:.98rem}
+.bill th{text-align:left;font-weight:400;color:var(--muted);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;padding:.4rem .3rem;border-bottom:1px solid var(--rule)}
+.bill td{padding:.55rem .3rem;border-bottom:1px dotted #b8ab8f;vertical-align:top}
+.bill td.n{text-align:right;white-space:nowrap}
+.bill tr.tot td{border-top:2px solid var(--ink);border-bottom:0;font-weight:700}
+.bill .red{color:var(--red)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem}
+@media (max-width:700px){.pair{grid-template-columns:1fr}}
+.pair h3{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.5rem;margin:0 0 .4rem}
+.perbbl{margin-top:1.6rem}
+.perbbl .row{display:grid;grid-template-columns:10rem 1fr 4.5rem;gap:.6rem;align-items:center;margin:.5rem 0;font-family:"Courier Prime",monospace;font-size:.9rem}
+.perbbl .trk{height:1.1rem;background:var(--paper2);position:relative}
+.perbbl .f{position:absolute;left:0;top:0;bottom:0;background:var(--rule);transition:width .4s}
+.perbbl .f.r{background:var(--red)}
+.say{margin-top:1.4rem;font-size:1.15rem;font-style:italic;border-left:3px solid var(--red);padding-left:1rem}
+
+/* refinery grid */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.4rem;max-width:62rem;margin:0 auto;padding:0 1.25rem;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+.refs{display:grid;grid-template-columns:repeat(13,1fr);gap:.35rem;margin:1rem 0}
+.ref{aspect-ratio:1;background:var(--paper2);border:1px solid #a99c80;position:relative;transition:background .5s,border-color .5s}
+.ref.so{background:var(--crude);border-color:var(--crude)}
+.ref::after{content:"";position:absolute;left:28%;right:28%;top:-28%;height:42%;background:inherit;border:inherit;border-bottom:0}
+.tabs{display:flex;gap:0;border:1px solid var(--ink);width:max-content;max-width:100%;flex-wrap:wrap}
+.tab{background:none;border:0;padding:.65rem 1rem;cursor:pointer;font-family:"Courier Prime",monospace;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
+.tab[aria-selected=true]{background:var(--ink);color:var(--paper)}
+.view{margin-top:1.2rem;min-height:12rem}
+.view h3{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.6rem;margin:0 0 .5rem}
+.price{display:flex;align-items:flex-end;gap:2rem;height:9rem;margin:2.6rem 0 .4rem;border-bottom:1px solid var(--ink);padding-left:.4rem}
+.price .col{width:4.5rem;background:var(--amber);position:relative}
+.price .col span{position:absolute;top:-1.6rem;left:0;right:0;text-align:center;font-family:"Courier Prime",monospace;font-weight:700}
+.yrs{display:flex;gap:2rem;padding-left:.4rem;font-family:"Courier Prime",monospace;font-size:.85rem}
+.yrs span{width:4.5rem;text-align:center}
+
+/* print or hold */
+.desk{background:var(--crude);color:var(--paper)}
+.desk h2{color:var(--paper)}
+.desk .label{color:#b6a98f}
+.claims{max-width:56rem;margin:2rem auto 0;padding:0 1.25rem;display:grid;gap:1rem}
+.claim{border:1px solid #4b443a;background:#1d1915;padding:1.2rem 1.3rem}
+.claim .c{font-family:"Libre Caslon Display",serif;font-size:1.45rem;line-height:1.2;margin-bottom:.5rem}
+.claim .ev{font-size:1rem;color:#d6cbb4;margin-bottom:.9rem}
+.claim .ev b{font-family:"Courier Prime",monospace;font-weight:400;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:#e9c08a;display:block}
+.claim .acts{display:flex;gap:.6rem;flex-wrap:wrap}
+.claim .acts button{background:none;border:1px solid var(--paper);color:var(--paper);padding:.5rem 1rem;cursor:pointer;font-family:"Courier Prime",monospace;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase}
+.claim .acts button[aria-pressed=true]{background:var(--paper);color:var(--crude)}
+.claim .fb{margin-top:.9rem;font-size:1rem;display:none;border-left:3px solid #e9c08a;padding-left:.9rem}
+.claim.done .fb{display:block}
+.stamp{display:inline-block;font-family:"Courier Prime",monospace;font-weight:700;letter-spacing:.1em;margin-right:.4rem}
+.stamp.ok{color:#8fc7a9}.stamp.no{color:#e58c7f}
+
+/* breakup */
+.split{display:grid;grid-template-columns:repeat(17,1fr);gap:.3rem;max-width:34rem;margin:1.6rem 0}
+.split i{aspect-ratio:1;background:var(--crude);display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1),background .7s}
+.split.whole{gap:0}
+.split.whole i{background:var(--crude)}
+.split.broken i{background:var(--rule)}
+.split.broken i:nth-child(3n){background:var(--amber)}
+
+/* plates */
+.plate{margin:1.6rem 0;background:#fbf6ea;border:1px solid #b8ab8f;padding:.6rem;box-shadow:0 14px 30px -24px rgba(0,0,0,.6)}
+.plate img{display:block;width:100%;height:auto}
+.plate figcaption{margin-top:.5rem;text-transform:none;letter-spacing:.02em}
+.plate.small{max-width:17rem}
+.plate.dark{background:#1d1915;border-color:#4b443a;float:right;margin:0 0 1rem 1.4rem}
+@media (max-width:640px){.plate.dark{float:none;margin:1rem 0}}
+.desk .plate.dark figcaption{color:#d6cbb4}
+/* octopus */
+.octo{background:#e9dcbf}
+.octowrap{max-width:68rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:1.6rem;align-items:start}
+@media (max-width:860px){.octowrap{grid-template-columns:minmax(0,1fr)}}
+.octoimg{position:relative;border:2px solid var(--ink);background:#000}
+.octoimg img{display:block;width:100%;height:auto}
+.hot{position:absolute;width:2.4rem;height:2.4rem;margin:-1.2rem 0 0 -1.2rem;border-radius:50%;border:3px solid #fff;background:rgba(158,47,37,.85);cursor:pointer;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:ping 1.8s infinite}
+.hot.seen{background:rgba(47,93,80,.9);animation:none}
+.hot[aria-pressed=true]{background:#e9c08a;border-color:var(--ink)}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,255,255,.75)}100%{box-shadow:0 0 0 18px rgba(255,255,255,0)}}
+.octotxt{background:#fbf6ea;border:2px solid var(--ink);padding:1.2rem 1.3rem;min-height:12rem;font-size:1.05rem}
+.octotxt b{display:block;font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.6rem;line-height:1.1;margin-bottom:.4rem}
+/* card */
+.card{background:#fbf6ea;border:1px solid var(--ink);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem;box-shadow:8px 8px 0 var(--ink)}
+.card h2{font-size:2.3rem;margin-bottom:.3rem}
+.card label{display:block;font-family:"Courier Prime",monospace;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #8c8068;background:#fff;color:var(--ink)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--ink);color:var(--paper);border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"Courier Prime",monospace;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:5rem 1.25rem 3rem}
+.next p{font-family:"Libre Caslon Display",serif;font-size:1.9rem;max-width:36rem;margin:0 auto;line-height:1.2}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:var(--muted)}
+.sources button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="mast">
+  <div class="wrap top label" style="max-width:62rem"><span>McClure's Magazine</span><span>November 1902 to October 1904</span></div>
+  <div class="grid">
+    <div>
+      <span class="label kick">Nineteen installments, one company</span>
+      <h1>The Paper Trail</h1>
+      <p class="dek">Ida Tarbell could not photograph a secret contract. She had to prove it existed, one document at a time, against the richest company on earth.</p>
+    </div>
+    <figure style="margin:0"><img src="/storyhub/ush9/the-paper-trail/assets/tarbell.webp" alt="Portrait of Ida M. Tarbell"><figcaption class="label">Ida M. Tarbell, about 1904. Colorized.</figcaption></figure>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap reveal">
+    <figure class="plate"><img src="/storyhub/ush9/the-paper-trail/assets/drake.webp" alt="Engraving of Edwin Drake in a top hat standing beside the wooden derrick of his oil well" loading="lazy"><figcaption class="label">Edwin Drake, right, at his well near Titusville, where the oil boom began in August 1859. Ida was two.</figcaption></figure>
+    <p>Ida Tarbell grew up in the oil fields of western Pennsylvania, where her father built storage tanks and drilled wells. In 1872, when she was 14, word leaked that John D. Rockefeller's Standard Oil and three railroads had signed a secret deal. The oil region rose up against it. Thirty years later Tarbell went back to that deal with a notebook, and she started with the freight bill.</p>
+  </div>
+  <div class="plain reveal" style="margin-top:2rem">
+    <h3>WHAT A REBATE ACTUALLY DID</h3>
+    <p>Say two kids sell candy at school and both buy it from the same corner store. The store's price is a dollar a bag. Then the store quietly tells one kid: you pay a dollar like everyone else, but I'll hand you back forty cents later. Oh, and every time your rival buys a bag, I'll hand you forty cents of his money too.</p>
+    <p>How long does the rival last? He's paying full price, you're paying sixty cents, and he's funding you every time he restocks. That's a rebate plus a drawback. Here's where the comparison breaks. A kid can walk to a different store. In 1872 an oil refiner in Cleveland had no other way to get his oil to New York. The railroads were the only road, and three of them signed the deal together.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="ledgerwrap reveal">
+    <span class="label kick">The South Improvement Company contract, 1872</span>
+    <h2>Read the freight bill.</h2>
+    <p style="max-width:44rem">Under the secret deal, the listed rate to ship a barrel of oil from Cleveland to New York was 2 dollars and 56 cents. Members got 1 dollar and 6 cents back on every barrel they shipped. They also got a drawback of 1 dollar and 6 cents on every barrel shipped by anyone outside the deal. You run an independent refinery. Set the shipments and read the bill.</p>
+    <div class="ledger">
+      <div class="hdr"><span class="label">Freight account, Cleveland to New York</span><span class="label">Rates per the 1872 contract</span></div>
+      <div class="sliders">
+        <div><label for="you">Your barrels shipped</label><output id="youO">1,000</output><input type="range" id="you" min="0" max="5000" step="100" value="1000"></div>
+        <div><label for="so">Standard's barrels shipped</label><output id="soO">4,000</output><input type="range" id="so" min="0" max="10000" step="100" value="4000"></div>
+      </div>
+      <div class="pair">
+        <div>
+          <h3>Your bill</h3>
+          <table class="bill"><thead><tr><th>Item</th><th class="n">Dollars</th></tr></thead><tbody>
+            <tr><td>Freight at 2.56 a barrel</td><td class="n" id="yF"></td></tr>
+            <tr><td>Rebate</td><td class="n">0.00</td></tr>
+            <tr class="tot"><td>You pay</td><td class="n" id="yT"></td></tr>
+          </tbody></table>
+        </div>
+        <div>
+          <h3>Standard's bill</h3>
+          <table class="bill"><thead><tr><th>Item</th><th class="n">Dollars</th></tr></thead><tbody>
+            <tr><td>Freight at 2.56 a barrel</td><td class="n" id="sF"></td></tr>
+            <tr><td>Rebate, 1.06 on its own oil</td><td class="n red" id="sR"></td></tr>
+            <tr><td>Drawback, 1.06 on <em>your</em> oil</td><td class="n red" id="sD"></td></tr>
+            <tr class="tot"><td>Standard pays</td><td class="n" id="sT"></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="perbbl" aria-live="polite">
+        <div class="row"><span>You, per barrel</span><div class="trk"><div class="f r" id="pY"></div></div><span id="pYn"></span></div>
+        <div class="row"><span>Standard, per barrel</span><div class="trk"><div class="f" id="pS"></div></div><span id="pSn"></span></div>
+      </div>
+      <p class="say" id="say"></p>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap reveal">
+    <p>The oil region found out in late February 1872. Producers held mass meetings, formed a union, and refused to sell crude to anyone tied to the deal. On April 2, 1872, Pennsylvania suspended the company's charter. The rebate plan was dead. Rockefeller had already used the threat of it.</p>
+  </div>
+</section>
+
+<section style="background:var(--paper2)">
+  <div class="wrap reveal" style="margin-bottom:2rem">
+    <span class="label kick">Cleveland, February to March 1872</span>
+    <h2>Twenty two of twenty six.</h2>
+    <p>While the rebate deal hung over the city, Standard Oil bought 22 of the 26 refineries in Cleveland in about six weeks. The same facts can be read two ways. Switch between them.</p>
+  </div>
+  <div class="two">
+    <div class="reveal">
+      <div class="refs" id="refs" role="img" aria-label="26 Cleveland refineries, 22 of them absorbed by Standard Oil"></div>
+      <div class="label" style="display:flex;gap:1.4rem;flex-wrap:wrap"><span>&#9632; Standard Oil</span><span style="opacity:.6">&#9633; Independent</span></div>
+      <div class="price" aria-label="Kerosene price per gallon"><div class="col" style="height:100%"><span>26&cent;</span></div><div class="col" style="height:30.8%"><span>8&cent;</span></div></div>
+      <div class="yrs"><span>1870</span><span>1885</span></div>
+      <p class="label" style="margin-top:.4rem">Kerosene, price per gallon</p>
+    </div>
+    <div class="reveal">
+      <figure class="plate small"><img src="/storyhub/ush9/the-paper-trail/assets/rockefeller.webp" alt="Portrait of John D. Rockefeller with a gray mustache" loading="lazy"><figcaption class="label">John D. Rockefeller. Colorized.</figcaption></figure>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-v="ind">The independent</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="roc">Rockefeller</button>
+      </div>
+      <div class="view" id="view" role="tabpanel" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="octo">
+  <div class="wrap reveal">
+    <span class="label kick">Puck magazine, September 7, 1904</span>
+    <h2>What is the octopus grabbing?</h2>
+    <p>While Tarbell's series was still running, the cartoonist Udo Keppler drew Standard Oil as an octopus whose head is an oil storage tank. He titled it Next! Tap each glowing spot to read what the tentacles have hold of.</p>
+  </div>
+  <div class="octowrap reveal">
+    <div class="octoimg">
+      <img src="/storyhub/ush9/the-paper-trail/assets/octopus.webp" alt="Political cartoon of a giant octopus with a Standard Oil tank for a head, its tentacles wrapped around the Capitol, a state house and industries, reaching for the White House" loading="lazy">
+      <button class="hot" style="left:52%;top:24%" data-h="0" aria-label="The head"></button>
+      <button class="hot" style="left:10%;top:31%" data-h="1" aria-label="Upper left building"></button>
+      <button class="hot" style="left:86%;top:36%" data-h="2" aria-label="Upper right building"></button>
+      <button class="hot" style="left:24%;top:15%" data-h="3" aria-label="Ship at the top"></button>
+      <button class="hot" style="left:70%;top:84%" data-h="4" aria-label="Men on the ground"></button>
+      <button class="hot" style="left:11%;top:86%" data-h="5" aria-label="Lower left building"></button>
+    </div>
+    <div class="octotxt" id="octotxt" aria-live="polite"><b>Six spots to find.</b> Start anywhere.</div>
+  </div>
+</section>
+
+<section class="desk">
+  <div class="wrap reveal">
+    <span class="label kick">Tarbell's desk, 1902</span>
+    <figure class="plate small dark"><img src="/storyhub/ush9/the-paper-trail/assets/mcclures.webp" alt="Cover of McClure's Magazine for Christmas 1903 listing The Story of Rockefeller by Ida M. Tarbell" loading="lazy"><figcaption class="label">McClure's, December 1903. Tarbell's name sells the issue.</figcaption></figure>
+    <h2>Print it or hold it?</h2>
+    <p>Tarbell spent about five years on the series with her assistant John Siddall. They dug through lawsuits, state investigations and congressional hearings, much of it sworn testimony by Standard's own officers. Henry H. Rogers, a top Standard executive, met with her many times starting in 1902 through his friend Mark Twain and handed over documents. Tarbell's rule was simple. If she could not prove it, it did not run. Standard Oil never sued her. You are the editor. Decide each claim.</p>
+  </div>
+  <div class="claims" id="claims">
+    <div class="claim reveal" data-a="print" data-fb="Tarbell printed it. The contracts themselves were published by angry producers in 1872, and the deal was laid out in testimony before Congress and the Pennsylvania legislature. When the company's own paperwork and sworn witnesses agree, the claim stands.">
+      <div class="c">Standard Oil joined a secret railroad deal in 1872 that charged its rivals more.</div>
+      <div class="ev"><b>Evidence on your desk</b>The signed contracts, published in 1872. Testimony to a congressional committee. Railroad officials who admitted the rates.</div>
+      <div class="acts"><button data-pick="print">Print</button><button data-pick="hold">Hold</button></div><div class="fb"></div>
+    </div>
+    <div class="claim reveal" data-a="hold" data-fb="Hold it. A story repeated by people who hate Rockefeller is still only a story. Tarbell had plenty of evidence that Standard crushed rivals in business. A claim about his private character needs its own proof, and gossip is not proof. The weaker a claim's evidence, the more it can be used to discredit the strong claims printed beside it.">
+      <div class="c">Rockefeller is a cruel man in his private life.</div>
+      <div class="ev"><b>Evidence on your desk</b>Stories from former rivals and oil region neighbors. No documents. No witnesses who saw anything themselves.</div>
+      <div class="acts"><button data-pick="print">Print</button><button data-pick="hold">Hold</button></div><div class="fb"></div>
+    </div>
+    <div class="claim reveal" data-a="print" data-fb="Tarbell printed it. Owners of bought refineries testified under oath in later investigations about how the sales happened. Several told the same story independently. That is corroboration, and it is why the Cleveland buyout is in every textbook.">
+      <div class="c">Cleveland refiners were pressured to sell to Standard in 1872.</div>
+      <div class="ev"><b>Evidence on your desk</b>Sworn testimony from several former owners, given separately, describing the same pressure.</div>
+      <div class="acts"><button data-pick="print">Print</button><button data-pick="hold">Hold</button></div><div class="fb"></div>
+    </div>
+    <div class="claim reveal" data-a="hold" data-fb="Hold it until it is checked. One unnamed tip is a lead, not a fact. A good muckraker treats a tip as the start of the work. If Rogers or company records confirmed it, it could run. Until then it stays in the drawer.">
+      <div class="c">A caller says Standard is about to buy a newspaper to attack you.</div>
+      <div class="ev"><b>Evidence on your desk</b>A tip from one person who will not give a name and offers no papers.</div>
+      <div class="acts"><button data-pick="print">Print</button><button data-pick="hold">Hold</button></div><div class="fb"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <span class="label kick">May 15, 1911</span>
+    <h2>One company, thirty four pieces.</h2>
+    <p>By 1880 Standard Oil refined about 90 percent of the oil in the United States. In 1906 Theodore Roosevelt's Justice Department sued it under the Sherman Antitrust Act of 1890. On May 15, 1911, the Supreme Court ordered the company broken apart.</p>
+    <button class="tab" id="breakBtn" style="border:1px solid var(--ink)">Break it up</button>
+    <div class="split whole" id="split" aria-hidden="true"></div>
+    <p id="splitTxt" aria-live="polite">One company controls the refining of nearly all American oil.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <form class="card" data-card="THE PAPER TRAIL: Ida Tarbell and Standard Oil (StoryHub)" onsubmit="return false">
+    <span class="label">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. Under the 1872 deal, what happened to Standard Oil every time an independent refiner shipped a barrel?</label>
+    <textarea id="q1" data-q="Under the 1872 deal, what happened to Standard Oil every time an independent refiner shipped a barrel?"></textarea>
+    <label for="q2">Q2. How many Cleveland refineries did Standard buy in 1872, and out of how many?</label>
+    <textarea id="q2" data-q="How many Cleveland refineries did Standard buy in 1872, and out of how many?"></textarea>
+    <label for="q3">Q3. What kind of evidence did Tarbell trust enough to print?</label>
+    <textarea id="q3" data-q="What kind of evidence did Tarbell trust enough to print?"></textarea>
+    <label for="back">Back of the card. Kerosene got cheaper while Standard crushed its rivals. Was Standard good or bad for Americans? Use one number from today. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="Kerosene got cheaper while Standard crushed its rivals. Was Standard good or bad for Americans? Use one number from today." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="label" style="margin-bottom:1rem">Next time</div>
+  <p>Tarbell used documents. The next writer told the truth inside an invented story, and it changed what you eat.</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>Ida M. Tarbell, The History of the Standard Oil Company, McClure, Phillips and Co., 1904. Two volumes, first serialized in McClure's Magazine, November 1902 to October 1904.</li>
+    <li>Ida M. Tarbell, All in the Day's Work: An Autobiography, Macmillan, 1939.</li>
+    <li>Ron Chernow, Titan: The Life of John D. Rockefeller, Sr., Random House, 1998. Cleveland purchases of 1872.</li>
+    <li>Standard Oil Co. of New Jersey v. United States, 221 U.S. 1, decided May 15, 1911.</li>
+    <li>Udo J. Keppler, Next!, Puck, September 7, 1904, Library of Congress. McClure's Magazine cover, December 1903. Engraving of the Drake well. Portraits of Tarbell and Rockefeller. All public domain, via Wikimedia Commons. Photographs colorized for this lesson with the DDColor model, so colors are an educated guess.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var you=document.getElementById('you'), so=document.getElementById('so');
+  function f(n){ return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function calc(){
+    var y=+you.value, s=+so.value;
+    document.getElementById('youO').textContent=y.toLocaleString(); document.getElementById('soO').textContent=s.toLocaleString();
+    var yF=y*2.56, sF=s*2.56, sR=s*1.06, sD=y*1.06, sT=sF-sR-sD;
+    document.getElementById('yF').textContent=f(yF); document.getElementById('yT').textContent=f(yF);
+    document.getElementById('sF').textContent=f(sF); document.getElementById('sR').textContent='minus '+f(sR); document.getElementById('sD').textContent='minus '+f(sD);
+    document.getElementById('sT').textContent=f(sT);
+    var py=y?2.56:0, ps=s? sT/s : 0;
+    document.getElementById('pY').style.width=(py/2.56*100)+'%'; document.getElementById('pYn').textContent=y?'$2.56':'n/a';
+    document.getElementById('pS').style.width=Math.max(0,ps/2.56*100)+'%'; document.getElementById('pSn').textContent=s?('$'+ps.toFixed(2)):'n/a';
+    var say=document.getElementById('say');
+    if(!s) say.textContent='Standard ships nothing and still collects '+f(sD)+' dollars from the railroad, all of it paid on your oil.';
+    else if(sT<=0) say.textContent='Standard\'s freight bill is now zero or less. The railroad owes Standard money, and your shipments are paying for it.';
+    else say.textContent='You pay $2.56 a barrel. Standard pays $'+ps.toFixed(2)+'. Every barrel you ship puts $1.06 in your rival\'s pocket, so the harder you work, the faster you fund him.';
+  }
+  you.addEventListener('input',calc); so.addEventListener('input',calc); calc();
+
+  // refineries
+  var refs=document.getElementById('refs'); for(var i=0;i<26;i++){ var d=document.createElement('div'); d.className='ref'+(i<22?' so':''); refs.appendChild(d); }
+  var views={
+    ind:'<h3>Sell or be crushed</h3><p>Owners later testified they were told to sell at Standard\'s price or watch their business die. Some got cash worth a fraction of what their plants had cost. Once a rival was gone, it was gone for good, and the customers had one seller left. The low price of kerosene depended on Standard choosing to keep it low.</p>',
+    roc:'<h3>Ending the chaos</h3><p>Rockefeller believed there were far too many refiners, prices swung wildly, and the industry was wasting itself. Combining them into one efficient company cut costs at every step. Many sellers took Standard stock and became rich. Kerosene fell from about 26 cents a gallon in 1870 to about 8 cents in 1885, and families across the country lit their homes for less.</p>'
+  };
+  var view=document.getElementById('view'), tabs=document.querySelectorAll('[role=tab][data-v]');
+  function show(v){ view.innerHTML=views[v]; tabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-v')===v); }); }
+  tabs.forEach(function(t){ t.addEventListener('click',function(){ show(t.getAttribute('data-v')); }); }); show('ind');
+
+  // claims
+  document.querySelectorAll('.claim').forEach(function(c){
+    c.querySelectorAll('[data-pick]').forEach(function(b){ b.addEventListener('click',function(){
+      c.querySelectorAll('[data-pick]').forEach(function(o){ o.setAttribute('aria-pressed','false'); }); b.setAttribute('aria-pressed','true');
+      var ok=b.getAttribute('data-pick')===c.getAttribute('data-a');
+      c.querySelector('.fb').innerHTML='<span class="stamp '+(ok?'ok':'no')+'">'+(ok?'SAME CALL AS TARBELL.':'TARBELL WOULD DISAGREE.')+'</span>'+c.getAttribute('data-fb');
+      c.classList.add('done');
+    }); });
+  });
+
+  // octopus
+  var spots=[
+    ['The head is an oil tank','Keppler turned the company itself into the monster. Its eyes stare out from the side of a storage tank labeled Standard Oil, the same kind of tank Ida Tarbell\'s father once built for a living.'],
+    ['The U.S. Capitol','One tentacle has wrapped the Capitol dome. The charge was that Standard Oil money bought influence in Congress, so laws that might break it up never got through.'],
+    ['A state house','Another grips a state capitol. Many states chartered and regulated corporations, so controlling a statehouse meant controlling the rules a company played by.'],
+    ['The shipping industry','A tentacle drags a ship. Standard Oil moved oil around the world and pressured railroads and shippers for special deals, the same game as the 1872 rebates.'],
+    ['Copper, steel and shipping','At the bottom right, men holding papers marked copper and steel are crushed in the coils. By 1904 Rockefeller money reached far beyond oil, into other industries.'],
+    ['The White House, labeled Next!','The last tentacle is still reaching for the White House. That is the joke in the title. The question for readers in 1904 was whether Theodore Roosevelt would be the next thing it grabbed, or the one who fought back. Two years later his Justice Department sued.']];
+  var hots=document.querySelectorAll('.hot'), ot=document.getElementById('octotxt'), seen={};
+  hots.forEach(function(h){ h.addEventListener('click',function(){ var i=+h.getAttribute('data-h'); hots.forEach(function(o){o.setAttribute('aria-pressed','false');}); h.setAttribute('aria-pressed','true'); h.classList.add('seen'); seen[i]=1; var n=Object.keys(seen).length;
+    ot.innerHTML='<b>'+spots[i][0]+'</b>'+spots[i][1]+'<p class="label" style="margin:1rem 0 0">'+n+' of 6 found'+(n===6?'. You read it like a 1904 reader.':'')+'</p>'; }); });
+  // breakup
+  var split=document.getElementById('split'); for(var k=0;k<34;k++){ split.appendChild(document.createElement('i')); }
+  var bb=document.getElementById('breakBtn'), st=document.getElementById('splitTxt'), broken=false;
+  bb.addEventListener('click',function(){
+    broken=!broken; split.className='split '+(broken?'broken':'whole'); bb.textContent=broken?'Put it back':'Break it up';
+    st.textContent=broken?'Thirty four separate companies. Several later became Exxon, Mobil, Chevron and Amoco. Rockefeller owned about a quarter of the shares in every piece, and as their stock rose his fortune grew bigger than it had ever been.':'One company controls the refining of nearly all American oil.';
+  });
+})();
+</script>
+</body>
+</html>
