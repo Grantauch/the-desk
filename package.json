@@ -42,7 +42,8 @@
     "storyhub:extract": "node scripts/storyhub-extract-assets.mjs",
     "classroom:test": "node --experimental-strip-types scripts/test-classroom-state.mjs",
     "audit:test": "node scripts/test-audit-regressions.mjs",
-    "blacktop:balance": "node scripts/test-blacktop-balance.cjs"
+    "blacktop:balance": "node scripts/test-blacktop-balance.cjs",
+    "blacktop:balance:deep": "node scripts/test-blacktop-balance.cjs --deep"
   },
   "engines": {
     "node": ">=22.12.0"
