@@ -163,4 +163,5 @@ document.getElementById("copyBtn").addEventListener("click",async()=>{if(!docume
 document.getElementById("clearBtn").addEventListener("click",()=>{if(!confirm("Clear saved answers for this course on this device?"))return;document.querySelectorAll("#panel-"+activeCourse+" textarea").forEach(el=>{localStorage.removeItem(key(el.dataset.q));el.value=""});status.textContent="This course was cleared."});
 showCourse(activeCourse);
 </script>
+<script src="/hubs/desk-save.js" defer></script>
 </body></html>

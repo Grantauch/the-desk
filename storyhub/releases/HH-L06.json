@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "/hubs/hh-l06-two-sources.html",
-      "bytes": 39895,
-      "sha256": "78ab493a6e7457618af1a34970641b9bba17ea90b266ffa39906288d519d5b09"
+      "bytes": 39944,
+      "sha256": "9754f2596515abf09194898f99e5d091f32545fbd8601d4c30c825bc23826b73"
     },
     {
       "assetId": "A00",
@@ -21,6 +21,6 @@
       "sha256": "97c652fea8ef3ee7e1e198f934b5579ea06cbd5c256a0ba7e8c17d36aaacde26"
     }
   ],
-  "totalBytes": 41278,
-  "sealedAt": "2026-09-09"
+  "totalBytes": 41327,
+  "sealedAt": "2026-10-05"
 }
