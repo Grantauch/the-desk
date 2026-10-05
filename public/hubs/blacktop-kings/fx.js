@@ -92,6 +92,9 @@
         age: 0, life: 0.32, size: 4.5, rot: 0, vr: 0, color: '#ffc629' });
     }
     switch (name) {
+      case 'green':
+        this.ring(x, y, z, { color: '#5ee38a', speed: 5, life: 0.3, width: 0.18, vertical: true });
+        break;
       case 'swish':
         this.ring(x, y, z, { color: '#ffffff', speed: 8, life: 0.4, width: 0.2, vertical: true });
         this.burst(x, y, z - 1, 14, { color: ['#ffffff', '#bfe8ff'], speed: 6, size: 0.12, life: 0.6, g: 10 });
@@ -106,21 +109,22 @@
         this.ring(x, y, 0, { color: '#ffffff', speed: 18, life: 0.45, width: 0.35 });
         this.burst(x, y, z, 50, { color: [o.color || '#ffd23f', '#ff6a13', '#ffffff'], speed: 20, life: 0.9, size: 0.3 });
         this.burst(x, y, 0.2, 18, { kind: 'dust', color: ['#c9c2b5', '#a39b8e'], speed: 9, upMax: 0.4, life: 1.1, size: 0.7, g: 2 });
-        this.shake(14, 0.5); this.hitstop(0.09); this.flash('#ffffff', 0.12);
-        this.zoom(s.x, s.y, 0.16, 0.7);
+        this.shake(8, 0.24); this.hitstop(0.035); this.flash('#ffffff', 0.07);
+        this.zoom(s.x, s.y, 0.075, 0.28);
         break;
       case 'bigdunk':
         this.preset('dunk', x, y, z, o);
         this.ring(x, y, 0, { color: '#ff3ea5', speed: 45, life: 0.8, width: 1.0 });
         this.burst(x, y, z, 60, { kind: 'fire', color: ['#ffb300', '#ff6a13', '#e8352b'], speed: 14, life: 1.0, size: 0.6, g: -6 });
-        this.slowmo(0.35, 0.6); this.lines(0.6, o.color || '#ffd23f'); this.shake(20, 0.6);
+        this.hitstop(0.055); this.slowmo(0.72, 0.22); this.lines(0.3, o.color || '#ffd23f'); this.shake(12, 0.28);
+        this.zoom(s.x, s.y, 0.11, 0.34);
         break;
       case 'block':
         this.ring(x, y, z, { color: '#2ec5ff', speed: 26, life: 0.5, width: 0.6, vertical: true });
         this.burst(x, y, z, 45, { color: ['#2ec5ff', '#ffffff', '#7b2ff7'], speed: 22, life: 0.8, size: 0.3 });
         this.burst(x, y, z, 8, { kind: 'star', color: '#ffffff', speed: 10, life: 0.9, size: 0.5, g: 6 });
-        this.shake(16, 0.45); this.hitstop(0.12); this.flash('#bfe8ff', 0.14); this.slowmo(0.3, 0.5);
-        this.zoom(s.x, s.y, 0.14, 0.6);
+        this.shake(9, 0.22); this.hitstop(0.05); this.flash('#bfe8ff', 0.07); this.slowmo(0.75, 0.2);
+        this.zoom(s.x, s.y, 0.085, 0.3);
         break;
       case 'steal':
         this.burst(x, y, z, 22, { color: ['#3fd13f', '#ffffff', '#ffe14d'], speed: 12, life: 0.6, size: 0.22 });
@@ -131,13 +135,14 @@
         this.burst(x, y, 0.3, 26, { kind: 'dust', color: ['#d8d0c0', '#b8b0a0'], speed: 8, upMax: 0.5, life: 1.2, size: 0.9, g: 1 });
         this.burst(x, y, 5, 10, { kind: 'star', color: ['#ffe14d', '#ffffff'], speed: 6, life: 1.4, size: 0.45, g: 2 });
         this.ring(x, y, 0, { color: '#ffe14d', speed: 20, life: 0.5, width: 0.4 });
-        this.shake(9, 0.35); this.slowmo(0.4, 0.7); this.zoom(s.x, s.y, 0.1, 0.8);
+        this.shake(6, 0.2); this.hitstop(0.04); this.slowmo(0.8, 0.2); this.zoom(s.x, s.y, 0.065, 0.3);
         break;
       case 'crownReady':
         this.burst(x, y, z, 30, { color: ['#ffd23f', '#fff1a8'], speed: 10, life: 1.0, size: 0.25, g: -4 });
         break;
       case 'crownOn': {
-        this.flash(o.color || '#ffd23f', 0.35); this.slowmo(0.25, 0.8); this.letterbox(1.4); this.shake(10, 0.5);
+        this.hitstop(0.045); this.flash(o.color || '#ffd23f', 0.16); this.slowmo(0.7, 0.28); this.letterbox(0.65); this.shake(7, 0.28);
+        this.zoom(s.x, s.y, 0.08, 0.3);
         const top = cam.project(x, y, 30), bot = cam.project(x, y, 6);
         for (let i = 0; i < 3; i++) this.bolt(top.x + rand(-80, 80), 0, bot.x + rand(-10, 10), bot.y, i ? '#fff1a8' : '#bfe8ff');
         this.burst(x, y, 4, 70, { color: ['#ffd23f', '#ffffff', o.color || '#ffd23f'], speed: 18, life: 1.2, size: 0.3, g: -2 });

@@ -68,6 +68,10 @@
   // ---------- effects ----------
   const FX = {
     dribble(v, t) { tone('sine', 140, 55, 0.09, 0.5 * v, t); noise('lowpass', 900, 0.7, 0.04, 0.18 * v, t); },
+    floor(v, t) { tone('sine', 125, 48, 0.13, 0.52 * v, t); noise('lowpass', 650, 0.7, 0.045, 0.22 * v, t); },
+    landing(v, t) { noise('lowpass', 480, 0.8, 0.07, 0.2 * v, t); tone('sine', 95, 45, 0.075, 0.14 * v, t); },
+    green(v, t) { tone('sine', 880, 1320, 0.12, 0.13 * v, t); tone('triangle', 1760, 1760, 0.1, 0.05 * v, t + 0.035); },
+    clock(v, t) { tone('sine', 740, 740, 0.035, 0.085 * v, t); },
     swish(v, t) { noise('highpass', 3500, 0.6, 0.32, 0.32 * v, t, sfxBus, 0.02, 7000); noise('bandpass', 1800, 1.2, 0.18, 0.12 * v, t + 0.04); },
     rim(v, t) { metal([523, 811, 1187, 1653], 0.45, 0.32 * v, t); noise('bandpass', 2400, 3, 0.06, 0.2 * v, t); },
     board(v, t) { tone('sine', 160, 90, 0.14, 0.45 * v, t); noise('lowpass', 1200, 0.8, 0.09, 0.3 * v, t); },

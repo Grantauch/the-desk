@@ -247,6 +247,7 @@
   };
   M.changePossession = function () {
     this.cleared = false; this.shotClock = SHOT_CLOCK;
+    this.possessionT = this.time;
   };
   // Behind the arc with the ball: cleared, so a basket will count.
   M.checkCleared = function () {
@@ -255,6 +256,7 @@
     if (b.state !== 'held' || !b.holder || b.holder.team !== this.offense) return;
     if (!C.isDeep(b.holder.x, b.holder.y)) return;
     this.cleared = true;
+    this.clearedT = this.time;
     if (b.holder.human && !this.attract) this.fx.float('CLEARED', b.holder.x, b.holder.y, b.holder.hgtFt + 1.6, '#9cf7b2');
   };
   M.runShotClock = function (dt) {
@@ -263,7 +265,10 @@
     if (b.state === 'shot' || b.state === 'dead') return;
     if (b.state === 'pass' && b.flight && b.flight.kind === 'oop') return;
     if (b.holder && ['shoot', 'layup', 'dunk', 'oop', 'hang'].includes(b.holder.state)) return;
+    const before = Math.ceil(this.shotClock);
     this.shotClock -= dt;
+    const after = Math.ceil(Math.max(0, this.shotClock));
+    if (after < before && after > 0 && after <= 3 && this.humans.some((h) => h.team === this.offense)) this.sfx('clock', 0.6);
     if (this.shotClock > 0) return;
     this.shotClock = 0;
     const team = this.teams[this.offense];
@@ -319,8 +324,12 @@
 
   M.updateAudio = function () {
     if (this.attract || !BK.audio) return;
-    BK.audio.crowd(0.06 + this.excite * 0.22);
-    BK.audio.intensity(clamp(Math.max(this.teams[0].score, this.teams[1].score) / this.target, 0.3, 1));
+    const lead = Math.abs(this.teams[0].score - this.teams[1].score);
+    const progress = Math.max(this.teams[0].score, this.teams[1].score) / this.target;
+    const close = progress > 0.65 && lead <= 3;
+    const danger = this.phase === 'live' && (this.shotClock < 3 || this.teams[this.offense].crownActive);
+    BK.audio.crowd(clamp(0.06 + this.excite * 0.22 + (close ? 0.045 : 0) + (danger ? 0.035 : 0), 0, 0.38));
+    BK.audio.intensity(clamp(progress + (close ? 0.12 : 0), 0.3, 1));
   };
 
   M.animateIdle = function (dt) { this.players.forEach((p) => { p.st += dt; this.updatePose(p, dt); }); this.positionHeldBall(); };
@@ -505,6 +514,11 @@
       const txt = { perfect: 'PERFECT!', slightEarly: 'A LITTLE EARLY', slightLate: 'A LITTLE LATE', early: 'EARLY', late: 'LATE' }[quality];
       const col = { perfect: '#3fd13f', slightEarly: '#ffffff', slightLate: '#ffffff', early: '#ffb300', late: '#ffb300' }[quality];
       this.fx.float(txt, p.x, p.y, p.z + p.hgtFt + 1.8, col);
+      if (quality === 'perfect') {
+        p.greenT = 0.38;
+        this.fx.preset('green', p.x, p.y, p.z + p.hgtFt);
+        this.sfx('green', 0.65);
+      }
     }
     // depth error along the line to the rim: short (early) or long (late), in feet
     const over = Math.max(0, u - 1);
@@ -1030,7 +1044,7 @@
       if (kind === 'layup' && Math.random() < 0.5) this.call('layup', { color: '#ffffff', color2: team.colors.pri, size: 56 });
       this.sfx('swish', 0.9); this.sfx('crowdOoh', 0.25);
     }
-    if (extra.bank) this.sfx('board', 0.6);
+    // Backboard sound is emitted by the actual collision in ballStep, once per impact.
     if (shooter.fire && !wasFire) {
       this.fx.call(pick(D.CALLS.fire), { size: 62, color: '#ff6a13', color2: '#ffd23f', y: H * 0.5, life: 1.4 });
       this.fx.preset('fire', shooter.x, shooter.y, shooter.hgtFt * 0.6); this.sfx('fire', 0.8);
@@ -1089,6 +1103,8 @@
       if (p.swat) p.swat = Math.max(0, p.swat - dt * 4);
       if (p.bumpT > 0) p.bumpT -= dt;
       if (p.bumpCool > 0) p.bumpCool -= dt;
+      if (p.greenT > 0) p.greenT = Math.max(0, p.greenT - dt);
+      if (p.reboundT > 0) p.reboundT = Math.max(0, p.reboundT - dt);
       // turbo
       const moving = hyp(p.vx, p.vy) > 3;
       const useTurbo = p.wantTurbo && p.turbo > 0.03 && moving;
@@ -1186,9 +1202,9 @@
       push = clamp(gain / 14, -1, 1);
       // planting to change direction at speed: a squeak and a scuff of dust
       const cosT = want > 1 ? along / want : 1;
-      if (cosT < -0.35 && sp > p.speed * 0.6 && !(p.plantT > 0)) {
+      if ((cosT < 0.3 || want < sp * 0.35) && sp > p.speed * 0.6 && !(p.plantT > 0)) {
         p.plantT = 0.35;
-        this.sfx('squeak', 0.35);
+        this.sfx('squeak', clamp(sp / 40, 0.22, 0.5));
         if (!this.fx.reduced) this.fx.burst(p.x, p.y, 0.15, 5, { kind: 'dust', color: '#cfc7b8', speed: 3, upMax: 0.3, life: 0.45, size: 0.45, g: 1 });
       }
     }
@@ -1443,11 +1459,11 @@
         else kind = 'idle';
         break;
       }
-      case 'catch': kind = 'catch'; break;
+      case 'catch': kind = 'catch'; o.t = clamp(p.st / 0.14, 0, 1); o.rebound = p.reboundT > 0; break;
       case 'pass': kind = 'pass'; o.t = p.st / 0.28; break;
       case 'steal': kind = 'steal'; o.t = p.st / 0.34; break;
       case 'trick': kind = 'trick'; o.style = p.trick ? p.trick.tr.path : 'cross'; o.t = p.trick ? p.st / p.trick.tr.dur : 0; break;
-      case 'shoot': kind = 'jumpshot'; o.t = clamp(0.18 + p.st / ((p.shot ? p.shot.apex : 0.4) * 2) * 0.74, 0, 1); o.released = p.shot ? p.shot.released : true; break;
+      case 'shoot': kind = 'jumpshot'; o.t = clamp(0.18 + p.st / ((p.shot ? p.shot.apex : 0.4) * 2) * 0.74, 0, 1); o.released = p.shot ? p.shot.released : true; o.releaseBlend = p.shot && p.shot.released ? clamp((p.st - p.shot.apex) / 0.1, 0, 1) : 0; break;
       case 'layup': kind = 'layup'; o.t = p.fly ? p.fly.t / p.fly.T : 1; break;
       case 'dunk': kind = 'dunk'; o.t = p.fly ? clamp(p.fly.t / p.fly.T, 0, 1) : 0.9; o.style = p.fly ? p.fly.style : 'twohand'; break;
       case 'oop': {
@@ -1478,8 +1494,18 @@
     if (kind === 'dunk' || kind === 'hang') { const r = this.toBody(p, RIM.x, RIM.y, C.rimZ + 0.2); o.rim = [r[0], r[1]]; }
     // landing: the knees give for a moment after coming down
     if (p.z > 0.05) p.air = true;
-    else if (p.air) { p.air = false; p.landT = 0.22; }
-    if (p.landT > 0) { p.landT -= dt; if (LANDS.includes(kind)) o.land = Math.sin(clamp(1 - p.landT / 0.22, 0, 1) * Math.PI); }
+    else if (p.air) {
+      p.air = false; p.landT = 0.24;
+      p.landStrength = clamp(Math.abs(p.visualVz || 0) / 18, 0.35, 1);
+      if (live) this.sfx('landing', p.landStrength * 0.55);
+    }
+    p.visualVz = p.vz;
+    if (p.landT > 0) {
+      p.landT = Math.max(0, p.landT - dt);
+      if (LANDS.includes(kind)) o.land = Math.sin(clamp(1 - p.landT / 0.24, 0, 1) * Math.PI) * (p.landStrength || 0.6);
+    }
+    o.plant = p.plantT > 0 ? Math.sin((1 - p.plantT / 0.35) * Math.PI) : 0;
+    o.contact = p.bumpT > 0 ? clamp(p.bumpT / 0.3, 0, 1) : 0;
     let pose = A.pose(kind, o);
     const key = kind + (o.style || '') + (o.released ? '!' : '');
     if (key !== p.animKey) {
@@ -1628,7 +1654,10 @@
     if (b.z < BR) {
       b.z = BR;
       if (b.vz < 0) {
-        if (b.vz < -3 && (b.state === 'loose' || Math.random() < 0.7)) this.sfx('dribble', clamp(-b.vz / 22, 0.2, 0.9));
+        if (b.vz < -3) {
+          const accent = b.state === 'loose' || Math.random() < 0.7;
+          this.sfx('floor', clamp(-b.vz / 22, 0.2, 0.9) * (accent ? 1 : 0.85));
+        }
         b.vz = -b.vz * 0.62; if (b.vz < 1.2) b.vz = 0;
         b.vx *= 0.85; b.vy *= 0.85; hit |= 4;
       }
@@ -1799,6 +1828,7 @@
       best.stats.reb++;
       b.blockedBy = null;
       this.giveBall(best);
+      best.reboundT = 0.24;
       if (best.state === 'move' && best.z === 0) { best.state = 'catch'; best.st = 0; }
       if (best.z > 3 && !this.attract) this.fx.float(off ? 'OFFENSIVE BOARD' : 'BOARD', best.x, best.y, best.z + best.hgtFt + 1, '#ffffff');
       this.emit('rebound', { p: best, off });
