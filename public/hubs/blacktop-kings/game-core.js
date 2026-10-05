@@ -13,6 +13,7 @@
   const W = 1280, H = 720, STEP = 1 / 60;
   const G_BALL = 32, G_JUMP = 30, TAU = Math.PI * 2;
   const CROWN_PTS = 5000;
+  const CROWN_RULE_BONUS = 2, CROWN_RULE_STEAL = 1;
   const SHOT_CLOCK = 12;
   // ball and hoop for the physics, in feet: ball radius, rim tube radius, backboard
   const BR = 0.42, RT = 0.05;
@@ -970,8 +971,13 @@
     let stolen = 0;
     const crown = team.crownActive;
     if (crown) {
-      const mult = this.rule === 'crowns' ? 2 : 1;
-      pts = (pts + crown) * mult; stolen = Math.min(opp.score, crown * mult);
+      if (this.rule === 'crowns') {
+        pts += crown * CROWN_RULE_BONUS;
+        stolen = Math.min(opp.score, crown * CROWN_RULE_STEAL);
+      } else {
+        pts += crown;
+        stolen = Math.min(opp.score, crown);
+      }
       opp.score -= stolen;
     }
     team.score += pts;
