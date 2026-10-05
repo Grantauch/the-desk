@@ -7,6 +7,10 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const DIR = path.join(__dirname, '../public/hubs/blacktop-kings');
+const DEEP = process.argv.includes('--deep');
+const QUICK_ROUNDS = DEEP ? 6 : 1;
+const ARCH_ROUNDS = DEEP ? 12 : 2;
+const DIFF_GAMES = DEEP ? 40 : 6;
 
 function seeded(seed) {
   return () => {
@@ -154,12 +158,12 @@ function aggregate(games) {
   };
 }
 
-// 1. Quick Game round robin: two mirrored passes through every matchup.
+// 1. Quick Game round robin. The release gate uses one mirrored pass; --deep uses six.
 const BQ = load(177);
 const quick = BQ.data.QUICK_CREWS;
 const quickStandings = table(quick.map((q) => q.name));
 const quickGames = [];
-for (let round = 0; round < 2; round++) {
+for (let round = 0; round < QUICK_ROUNDS; round++) {
   for (let i = 0; i < quick.length; i++) {
     for (let j = i + 1; j < quick.length; j++) {
       for (const swap of [false, true]) {
@@ -177,12 +181,12 @@ for (let round = 0; round < 2; round++) {
 }
 
 // 2. Pure archetype round robin: equal rating budgets, archetype-appropriate body types.
-// Four mirrored passes = 80 games, enough to catch a mechanically dominant build without making CI huge.
+// The release gate uses two mirrored passes; --deep expands this to twelve.
 const BA = load(178);
 const arches = Object.keys(BA.data.ARCHETYPES);
 const archStandings = table(arches);
 const archGames = [];
-for (let round = 0; round < 4; round++) {
+for (let round = 0; round < ARCH_ROUNDS; round++) {
   for (let i = 0; i < arches.length; i++) {
     for (let j = i + 1; j < arches.length; j++) {
       for (const swap of [false, true]) {
@@ -203,7 +207,7 @@ for (let round = 0; round < 4; round++) {
 function difficulty(skill, seed) {
   const B = load(seed);
   const games = [];
-  for (let g = 0; g < 12; g++) {
+  for (let g = 0; g < DIFF_GAMES; g++) {
     const a = B.data.QUICK_CREWS[g % B.data.QUICK_CREWS.length];
     const b = B.data.QUICK_CREWS[(g + 4) % B.data.QUICK_CREWS.length];
     games.push(finishGame(makeMatch(B, quickCrew(B, a), quickCrew(B, b), {
@@ -250,7 +254,8 @@ const quickRates = rates(quickStandings);
 const archRates = rates(archStandings);
 const report = {
   version: 'PR177',
-  totalSimulatedGames: quickGames.length + archGames.length + 36,
+  mode: DEEP ? 'deep' : 'release',
+  totalSimulatedGames: quickGames.length + archGames.length + DIFF_GAMES * 3,
   quick: { standings: quickRates, aggregate: aggregate(quickGames) },
   archetypes: { standings: archRates, aggregate: aggregate(archGames), greenWindowAtArc: windowReport },
   difficulty: difficultyReport,
