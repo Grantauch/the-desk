@@ -1,12 +1,16 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 4 Blacktop game feel
+
+PR #178 polishes existing slides, plants, catches, rebound reaches, landing compression, contact recoil and shot follow-through; adds brief bounded impact pauses/camera punches, collision-based sound, clutch crowd, green-release and possession/clock feedback. Dedicated feel regressions and existing gameplay/pose/art/audio checks passed; quick-game start and keyboard shooting were exercised in Chrome without captured JavaScript errors. The pre-release timing and original dust RNG trigger are preserved. Full canonical verification is in progress. Required CI, merge and exact production verification remain separate evidence; Netlify production deploys are paused for exhausted credits.
+
 ## Current checkpoint — October 4 Blacktop competitive balance lab
 
 PR #177 now uses 600 real-engine seeded games with independent mirrored seeds, every court/rule combination, shooting-quality and offensive-rebound metrics. The full canonical verification passed. All original balance thresholds remain unchanged; Quick Crews span 21.9–75.0% wins and archetypes 21.9–71.9%. Crown Rules caps a deep Double Crown possession at +6/-2. The separate 824-game deep run is pending. Production publication is currently blocked by exhausted Netlify deploy credits; the existing site remains online. Required GitHub checks, merge and exact live verification remain separate evidence.
 
 ## Current checkpoint — October 4 Robber Barons eight-player completion
 
-PR #166 now includes all four new tabletop pieces as optimized transparent 200x200 WebP assets. The Firebase console confirms the eight-seat rules are already published. A live synthetic room accepted eight seat claims and a game write from every seat; rejected ninth seat, non-player write, stale move version and global game listing. No existing game or student record was changed. Required website checks, merge, exact Netlify production commit and live browser acceptance remain separate publication gates. Classroom/network validation remains FIELD_PENDING.
+PR #166 merged at 1342a6aa3287e52efa4d5476d9e5282b7dc33fb5 after the protected build passed. All 24 card/face/piece assets on its hosted preview match the finished source bytes. Published Firebase rules match the eight-seat source; live synthetic tests accepted all eight claims and writes and rejected the ninth seat, outsider writes, stale move versions and global game listing. Actual independent Chrome/in-app browsers hosted, joined, selected Gould/Frick, rolled and purchased businesses with synchronized cash/turns. No existing game or student record was changed. Netlify production deploy 6ac3035e9f966b0008697448 was explicitly skipped because account deploy credits are exhausted. Existing production remains online; classroom/network validation remains FIELD_PENDING.
 
 ## Current checkpoint — October 4 Blacktop Kings choice artwork v4
 

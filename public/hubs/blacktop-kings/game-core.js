@@ -502,7 +502,7 @@
   // at: when in the jump the ball left the hand (seconds). Without it, the middle of this step.
   M.releaseShot = function (p, at) {
     if (!p.shot || p.shot.released) return;
-    const s = p.shot; s.released = true;
+    const s = p.shot; s.released = true; s.visualReleaseAt = p.st;
     const b = this.ball;
     if (b.state !== 'held' || b.holder !== p) return; // stripped or blocked on the way up
     const sw = this.shotWindow(p, p.x, p.y, s.gather);
@@ -1470,7 +1470,7 @@
       case 'pass': kind = 'pass'; o.t = p.st / 0.28; break;
       case 'steal': kind = 'steal'; o.t = p.st / 0.34; break;
       case 'trick': kind = 'trick'; o.style = p.trick ? p.trick.tr.path : 'cross'; o.t = p.trick ? p.st / p.trick.tr.dur : 0; break;
-      case 'shoot': kind = 'jumpshot'; o.t = clamp(0.18 + p.st / ((p.shot ? p.shot.apex : 0.4) * 2) * 0.74, 0, 1); o.released = p.shot ? p.shot.released : true; o.releaseBlend = p.shot && p.shot.released ? clamp((p.st - p.shot.apex) / 0.1, 0, 1) : 0; break;
+      case 'shoot': kind = 'jumpshot'; o.t = clamp(0.18 + p.st / ((p.shot ? p.shot.apex : 0.4) * 2) * 0.74, 0, 1); o.released = p.shot ? p.shot.released : true; o.releaseBlend = p.shot && p.shot.released ? clamp((p.st - (p.shot.visualReleaseAt == null ? p.shot.apex : p.shot.visualReleaseAt)) / 0.1, 0, 1) : 0; break;
       case 'layup': kind = 'layup'; o.t = p.fly ? p.fly.t / p.fly.T : 1; break;
       case 'dunk': kind = 'dunk'; o.t = p.fly ? clamp(p.fly.t / p.fly.T, 0, 1) : 0.9; o.style = p.fly ? p.fly.style : 'twohand'; break;
       case 'oop': {

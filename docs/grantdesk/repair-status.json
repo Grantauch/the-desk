@@ -849,15 +849,18 @@
     "field_status": "FIELD_PENDING"
   },
   "robber_barons_eight_players_20261004": {
-    "status": "VERIFIED_LOCAL_AND_FIREBASE",
+    "status": "MERGED_AND_HOSTED_PREVIEW_VERIFIED",
     "summary": "Eight player setup, four new barons and complete tabletop/card/face art.",
     "verification": [
       "Published Firebase rules readback matches source eight-seat rules.",
-      "Live synthetic test: eight seat claims and eight player game writes accepted; ninth seat, non-player write, stale version and global game listing rejected."
+      "Live synthetic test: eight seat claims and eight player game writes accepted; ninth seat, non-player write, stale version and global game listing rejected.",
+      "All 24 hosted preview card, face and piece assets matched source bytes; actual independent browsers hosted/joined and synchronized Gould/Frick purchases and turns."
     ],
-    "deployment_status": "PENDING_REQUIRED_CHECK_AND_NETLIFY",
-    "field_status": "FIELD_PENDING"
+    "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
+    "field_status": "FIELD_PENDING",
+    "merge_commit": "1342a6aa3287e52efa4d5476d9e5282b7dc33fb5"
   },
+
   "blacktop_balance_20261004": {
     "status": "LOCAL_FULL_VERIFIED",
     "pull_request": "https://github.com/Grantauch/the-desk/pull/177",
@@ -870,6 +873,14 @@
       "opponent_loss": 2,
       "swing": 8
     },
+    "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
+    "field_status": "FIELD_PENDING"
+  },
+  "blacktop_feel_20261004": {
+    "status": "FOCUSED_VERIFIED",
+    "scope": "Existing action presentation and responsiveness",
+    "validation": "Feel, gameplay, pose, art, asset and audio checks passed. Actual Chrome quick-game start and shooting input passed without captured errors.",
+    "full_verification": "IN_PROGRESS",
     "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
     "field_status": "FIELD_PENDING"
   }

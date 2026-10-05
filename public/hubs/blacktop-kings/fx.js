@@ -72,7 +72,7 @@
   };
 
   // ---------- screen effects ----------
-  P.shake = function (amp, dur) { if (this.reduced) amp *= 0.25; this.shakeAmp = Math.max(this.shakeAmp, amp); this.shakeT = Math.max(this.shakeT, dur || 0.4); };
+  P.shake = function (amp, dur) { if (this.reduced) return; this.shakeAmp = Math.max(this.shakeAmp, amp); this.shakeT = Math.max(this.shakeT, dur || 0.4); };
   P.flash = function (color, dur) { if (this.reduced) return; this.flashCol = color || '#ffffff'; this.flashT = dur || 0.25; this.flashDur = this.flashT; };
   P.slowmo = function (scale, dur) { if (this.reduced) return; this.slowScale = scale; this.slowT = dur; };
   P.hitstop = function (dur) { if (this.reduced) return; this.stopT = Math.max(this.stopT, dur); };

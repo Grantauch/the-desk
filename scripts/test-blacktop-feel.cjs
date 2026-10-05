@@ -32,6 +32,7 @@ for(const name of ['bigdunk','block','ankles','crownOn']){
  assert.ok(m.fx.zoomTarget>0&&m.fx.zoomTarget<=0.12,`${name}: bounded camera punch`);
  const {m:reduced}=match();reduced.fx.reduced=true;reduced.fx.preset(name,30,0,4);
  assert.equal(reduced.fx.stopT,0);assert.equal(reduced.fx.zoomTarget,0);
+ assert.equal(reduced.fx.shakeAmp,0);assert.equal(reduced.fx.flashT,0);assert.equal(reduced.fx.slowT,0);
 }
 // Every audible bounce comes from contact with the floor, not a scheduled shot outcome.
 // Side-cut feedback cannot consume the randomness used by AI, shots, or the original dust trigger.
