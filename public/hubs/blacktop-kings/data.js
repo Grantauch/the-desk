@@ -25,9 +25,9 @@
   D.ARCHETYPES = {
     slasher: { name: 'Slasher', blurb: 'Gets to the rim and stays there.', base: { spd: 6, hnd: 4, ins: 5, out: 2, dnk: 6, pas: 3, reb: 3, blk: 3, stl: 4 } },
     sniper: { name: 'Sniper', blurb: 'Lives behind the arc. Twos all day.', base: { spd: 5, hnd: 4, ins: 4, out: 7, dnk: 2, pas: 4, reb: 3, blk: 2, stl: 5 } },
-    general: { name: 'Floor General', blurb: 'Sees the oop before it exists.', base: { spd: 5, hnd: 6, ins: 4, out: 4, dnk: 2, pas: 7, reb: 2, blk: 2, stl: 4 } },
-    trickster: { name: 'Trickster', blurb: 'Ankles are a suggestion.', base: { spd: 6, hnd: 7, ins: 4, out: 3, dnk: 3, pas: 5, reb: 2, blk: 2, stl: 4 } },
-    big: { name: 'Big', blurb: 'The paint is rented. You own it.', base: { spd: 3, hnd: 2, ins: 6, out: 2, dnk: 5, pas: 3, reb: 7, blk: 6, stl: 2 } },
+    general: { name: 'Floor General', blurb: 'Sees the oop before it exists.', base: { spd: 5, hnd: 6, ins: 4, out: 5, dnk: 2, pas: 7, reb: 2, blk: 2, stl: 3 } },
+    trickster: { name: 'Trickster', blurb: 'Ankles are a suggestion.', base: { spd: 6, hnd: 7, ins: 6, out: 6, dnk: 3, pas: 3, reb: 2, blk: 1, stl: 2 } },
+    big: { name: 'Big', blurb: 'The paint is rented. You own it.', base: { spd: 3, hnd: 2, ins: 5, out: 4, dnk: 5, pas: 5, reb: 5, blk: 5, stl: 2 } },
   };
 
   // Upgrade cost to go from `v` to `v + 1`.
@@ -132,11 +132,11 @@
   const R = (spd, hnd, ins, out, dnk, pas, reb, blk, stl) => ({ spd, hnd, ins, out, dnk, pas, reb, blk, stl });
 
   D.LEGENDS = [
-    L('pogo', 'Tater', 'Rollins', 'Pogo', 4, 'slasher', 67, 'lean', R(9, 7, 6, 4, 8, 6, 3, 2, 7),
+    L('pogo', 'Tater', 'Rollins', 'Pogo', 4, 'slasher', 67, 'lean', R(9, 7, 8, 4, 8, 6, 5, 2, 7),
       { skin: '#6f4220', hair: 'fade', mouth: 'grin', socks: 'crew', wristbands: 'both' }, { dunk: 'windmill', bio: 'Five-seven. Dunks on everybody. Asks about it later.' }),
     L('farmboy', 'Clay', 'Lindqvist', 'Farm Boy', 33, 'sniper', 81, 'athletic', R(5, 6, 8, 9, 4, 8, 7, 4, 6),
       { skin: '#f3c9a5', hair: 'shaggy', hairColor: '#c98a3b', facial: 'mustache', mouth: 'flat', socks: 'tall' }, { dunk: 'twohand', bio: 'Tells you where the shot is going. Hits it anyway.' }),
-    L('tiedye', 'Sky', 'Waldron', 'Tie-Dye', 32, 'big', 83, 'athletic', R(4, 4, 8, 3, 6, 8, 9, 8, 4),
+    L('tiedye', 'Sky', 'Waldron', 'Tie-Dye', 32, 'big', 83, 'athletic', R(6, 5, 8, 3, 6, 8, 9, 8, 4),
       { skin: '#fde3cf', hair: 'long', hairColor: '#a8642f', facial: 'beard', headband: 'band', headbandColor: '#ff3ea5' }, { dunk: 'twohand', bio: 'Outlet passes like postcards. Never wears the same shirt twice.' }),
     L('flamingo', 'Dieter', 'Nowak', 'Flamingo', 41, 'sniper', 84, 'lean', R(4, 5, 8, 9, 4, 5, 7, 5, 3),
       { skin: '#f3c9a5', hair: 'shaggy', hairColor: '#e8c46e', facial: 'goatee' }, { dunk: 'twohand', bio: 'One leg up, falling away, all net. Do not bother contesting.' }),
@@ -275,7 +275,7 @@
   D.COURT_BY_ID = Object.fromEntries(D.COURTS.map((c) => [c.id, c]));
 
   // rules: 'standard' (inside 1, outside 2), 'deep' (only 2s and dunks count), 'dunks' (only dunks and
-  // layups, worth 2), 'crowns' (crown shots count double). target: points to win.
+  // layups, worth 2), 'crowns' (double Crown scoring bonuses, standard opponent loss). target: points to win.
   const CREW_COLORS = [
     ['#e8352b', '#ffffff'], ['#1f6feb', '#ffe14d'], ['#0f8a4b', '#f5deb3'], ['#7b2ff7', '#2ec5ff'], ['#ff6a13', '#1e2128'],
     ['#14b8a6', '#1a2f8f'], ['#b0124f', '#ffb300'], ['#1e2128', '#3fd13f'], ['#ffe14d', '#1e2128'], ['#ff3ea5', '#0b0b0d'],
@@ -338,7 +338,7 @@
     standard: { name: 'Standard', blurb: 'Inside the arc is 1. Outside is 2.' },
     deep: { name: 'Twos Only', blurb: 'Only shots from outside the arc and dunks count.' },
     dunks: { name: 'Dunk Contest Rules', blurb: 'Only dunks and layups count, and they are worth 2.' },
-    crowns: { name: 'Crown Rules', blurb: 'Crown shots count double and take double. Fill the meter.' },
+    crowns: { name: 'Crown Rules', blurb: 'Double scoring bonuses. A deep Double Crown scores 6 and takes up to 2.' },
   };
 
   // Resolve a crew member spec to a player object.

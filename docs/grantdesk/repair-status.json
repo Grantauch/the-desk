@@ -849,13 +849,46 @@
     "field_status": "FIELD_PENDING"
   },
   "robber_barons_eight_players_20261004": {
-    "status": "VERIFIED_LOCAL_AND_FIREBASE",
+    "status": "MERGED_AND_HOSTED_PREVIEW_VERIFIED",
     "summary": "Eight player setup, four new barons and complete tabletop/card/face art.",
     "verification": [
       "Published Firebase rules readback matches source eight-seat rules.",
-      "Live synthetic test: eight seat claims and eight player game writes accepted; ninth seat, non-player write, stale version and global game listing rejected."
+      "Live synthetic test: eight seat claims and eight player game writes accepted; ninth seat, non-player write, stale version and global game listing rejected.",
+      "All 24 hosted preview card, face and piece assets matched source bytes; actual independent browsers hosted/joined and synchronized Gould/Frick purchases and turns.",
+      "An actual hosted eight-player shared-screen game decoded all eight pieces, completed a business purchase and advanced the turn correctly without captured JavaScript errors."
     ],
-    "deployment_status": "PENDING_REQUIRED_CHECK_AND_NETLIFY",
+    "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
+    "field_status": "FIELD_PENDING",
+    "merge_commit": "1342a6aa3287e52efa4d5476d9e5282b7dc33fb5"
+  },
+
+  "blacktop_balance_20261004": {
+    "status": "LOCAL_FULL_AND_DEEP_VERIFIED",
+    "pull_request": "https://github.com/Grantauch/the-desk/pull/177",
+    "release_games": 600,
+    "deep_games": 824,
+    "deep_status": "PASS",
+    "ci_time_budget_minutes": 30,
+    "ci_status": "FINAL_COMBINED_RELEASE_PENDING",
+    "previous_protected_check": "PASS e0e1a45ce50f922c4c69d7c1157021aa1f9493ac",
+    "validation": "Full canonical verify:full and complete 600/824-game release/deep samples passed. Final Trickster/Big redistribution retains each archetype's 36-point budget, with an explicit budget check. Release archetypes 31.3-71.9%; deep archetypes 31.3-70.8%. All original guardrails retained. Per-release attempts/makes and all eight courts/four rules covered.",
+    "crown_rules": {
+      "points": 6,
+      "opponent_loss": 2,
+      "swing": 8
+    },
+    "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
+    "field_status": "FIELD_PENDING"
+  },
+  "blacktop_feel_20261004": {
+    "status": "LOCAL_FULL_VERIFIED",
+    "pull_request": "https://github.com/Grantauch/the-desk/pull/177",
+    "planned_phase": 178,
+    "scope": "Existing action presentation and responsiveness",
+    "validation": "Full canonical verification including feel/gameplay/pose/art/audio/asset regressions and 600 seeded games passed. Release archetypes 31.3-70.3%; separate deep archetype 240-game sample 31.3-70.8%, with all original limits retained. Chrome start/shoot/pause/quit passed in full/reduced effects without captured errors.",
+    "full_verification": "PASS",
+    "final_integrated_verification": "PASS October 5: 600 seeded games, all gameplay/pose/feel/art/audio/resource/publishing checks, 53 routes, 115 HTML files, 4423 local references, seven releases and 62 sealed files. October 5 lesson release preserved.",
+    "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
     "field_status": "FIELD_PENDING"
   }
 }

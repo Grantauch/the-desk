@@ -157,8 +157,8 @@
         const ph = o.phase || 0, sp = clamp(o.speed == null ? 1 : o.speed, 0, 1.3);
         const s1 = Math.sin(ph), c1 = Math.cos(ph), w = Math.sin(time * 6) * 0.1;
         P.pelvis = [0, stand - d.leg * 0.31 - Math.abs(s1) * 0.05 * u]; P.lean = 0.42;
-        const open = 0.2 * u * sp * c1;
-        P.footF = [1.0 * u + open, Math.max(0, s1) * 0.24 * u * sp]; P.footB = [-0.9 * u - open, Math.max(0, -s1) * 0.24 * u * sp];
+        const open = 0.24 * u * sp * c1;
+        P.footF = [1.0 * u + open, Math.max(0, s1) * 0.12 * u * sp]; P.footB = [-0.9 * u - open, Math.max(0, -s1) * 0.12 * u * sp];
         const s = S();
         P.handF = rel(s.shF, 1.2, -1.6 - w); P.handB = rel(s.shB, 1.6, 0.25 + w);
         break;
@@ -180,7 +180,9 @@
         if (o.released) {
           // follow through: shooting arm long toward the rim, wrist snapped down, guide hand dropped
           P.roll = 1; const s2 = S();
-          P.handF = polar(s2.shF, 70, 0.97); P.handB = rel(s2.shB, 0.3, -1.75); P.wristF = -1.25;
+          const follow = o.releaseBlend == null ? 1 : smooth(o.releaseBlend);
+          P.handF = lerpPt(rel(s2.shF, 0.55, 1.55), polar(s2.shF, 70, 0.97), follow);
+          P.handB = lerpPt(rel(s2.shB, -0.35, 1.75), rel(s2.shB, 0.3, -1.75), follow); P.wristF = -1.25 * follow;
         } else {
           // the ball rises from the chest to the set point over the forehead, elbow out in front of the face
           const k = smooth(clamp((t - 0.1) / 0.32, 0, 1));
@@ -249,9 +251,12 @@
         break;
       }
       case 'catch': {
-        P.pelvis = [0, stand - 0.12 * u]; P.lean = 0.12; P.roll = 0.35;
+        const secure = smooth(clamp(t, 0, 1));
+        P.pelvis = [0, stand - (0.12 + (o.rebound ? 0.1 : 0)) * u]; P.lean = 0.12; P.roll = 0.35;
         P.footF = [0.6 * u, 0]; P.footB = [-0.38 * u, 0];
-        const s = S(); P.handF = rel(s.shF, 1.4, -0.85); P.handB = rel(s.shB, 0.6, -0.8);
+        const s = S();
+        P.handF = lerpPt(rel(s.shF, 1.7, o.rebound ? 0.4 : -0.5), rel(s.shF, 1.05, -0.95), secure);
+        P.handB = lerpPt(rel(s.shB, 0.8, o.rebound ? 0.45 : -0.45), rel(s.shB, 0.35, -0.9), secure);
         break;
       }
       case 'stumble': {
@@ -283,8 +288,16 @@
     // coming down from the air: the knees give for a moment and the arms drop with the body
     if (o.land) {
       const k = o.land * u;
-      P.pelvis = [P.pelvis[0], P.pelvis[1] - 0.32 * k]; P.lean += 0.12 * o.land;
+      P.pelvis = [P.pelvis[0], P.pelvis[1] - 0.4 * k]; P.lean += 0.16 * o.land;
       P.handF = [P.handF[0], P.handF[1] - 0.3 * k]; P.handB = [P.handB[0], P.handB[1] - 0.3 * k];
+    }
+    if (o.plant && ['run', 'slide', 'dribble'].includes(kind)) {
+      P.pelvis[1] -= 0.1 * u * o.plant;
+      P.lean -= 0.12 * o.plant;
+    }
+    if (o.contact) {
+      P.pelvis[0] -= 0.16 * u * o.contact;
+      P.lean -= 0.22 * o.contact; P.tilt -= 0.12 * o.contact;
     }
     // The game can put a hand on the ball. A dribbling hand reaches as far toward the ball as the arm
     // allows (o.ballClamp); otherwise a hand only follows the ball while it is within reach, so a juggle

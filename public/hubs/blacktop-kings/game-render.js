@@ -174,6 +174,12 @@
         ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.lineWidth = 1.5; ctx.stroke();
         ctx.restore();
       }
+      if (p.greenT > 0) {
+        ctx.save(); ctx.globalAlpha = clamp(p.greenT / 0.18, 0, 1);
+        ctx.strokeStyle = '#5ee38a'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(s.x, s.y - p.hgtFt * s.s, 12 + (0.38 - p.greenT) * 28, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+      }
     }
   };
   function star(ctx, x, y, r, c) {
@@ -275,8 +281,11 @@
       const sw = 64, sh = 30, sy = top + ph + 2;
       ctx.fillStyle = 'rgba(0,0,0,0.55)'; slab(ctx, cx - sw / 2 + 4, sy + 4, sw, sh, 8); ctx.fill();
       slab(ctx, cx - sw / 2, sy, sw, sh, 8); ctx.fillStyle = low ? '#3a0d08' : '#0d1019'; ctx.fill();
-      ctx.lineWidth = 1.5; ctx.strokeStyle = low ? '#ff6a13' : 'rgba(255,255,255,0.25)'; ctx.stroke();
-      ctx.font = NUM(22); ctx.fillStyle = low ? '#ff8a4a' : '#ffffff'; ctx.fillText(txt, cx, sy + 24);
+      const urgent = low && sc <= 3;
+      const beat = urgent && !this.fx.reduced ? 0.7 + Math.sin(this.time * 12) * 0.3 : 1;
+      ctx.lineWidth = urgent ? 2.5 : 1.5; ctx.strokeStyle = low ? '#ff6a13' : 'rgba(255,255,255,0.25)'; ctx.stroke();
+      ctx.font = NUM(urgent ? 24 : 22); ctx.fillStyle = urgent ? '#ffddd0' : low ? '#ff8a4a' : '#ffffff'; ctx.fillText(txt, cx, sy + 24);
+      ctx.globalAlpha = beat; ctx.fillStyle = low ? '#ff6a13' : '#38c9ff'; ctx.fillRect(cx - sw / 2 + 5, sy + sh - 3, (sw - 10) * clamp(sc / 12, 0, 1), 2); ctx.globalAlpha = 1;
     }
     // under the bug: crown state per team
     this.teams.forEach((t, i) => {
@@ -284,6 +293,7 @@
       let label = null, hot = false;
       const back = !this.cleared && this.offense === i && this.phase === 'live' && this.humans.some((hh) => hh.team === i);
       if (back) label = 'TAKE IT BACK · GET BEHIND THE ARC';
+      else if (this.offense === i && this.phase === 'live' && this.time - (this.clearedT == null ? -9 : this.clearedT) < 0.9) label = 'CLEARED · ATTACK THE RIM';
       else if (t.crownActive) { label = t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE'; hot = true; }
       else {
         const h = this.humans.find((hh) => hh.team === i);
@@ -296,7 +306,7 @@
       ctx.font = COND(900, 14); const lw = ctx.measureText(label).width + 30; const ly = top + ph + 8;
       const lx = left ? bx - lw : bx;
       // a rule you must act on gets a solid plate; a reminder pulses
-      const pulse = hot ? 1 : back ? 0.88 + Math.sin(this.time * 7) * 0.12 : 0.65 + Math.sin(this.time * 7) * 0.35;
+      const pulse = this.fx.reduced || hot ? 1 : back ? 0.88 + Math.sin(this.time * 7) * 0.12 : 0.65 + Math.sin(this.time * 7) * 0.35;
       ctx.globalAlpha = pulse;
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; slab(ctx, lx + 3, ly + 3, lw, 24, 8); ctx.fill();
       slab(ctx, lx, ly, lw, 24, 8);

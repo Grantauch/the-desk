@@ -135,14 +135,15 @@
     }
     if (dunkOK && p.r.dnk >= 7 && d > 10 && d < 24 && !blocked && Math.random() < 0.05 + (crown ? 0.1 : 0)) { m.startSelfOop(p); return; }
     // 5. shake the defender: cross one who is sliding, freeze one who is flying at you
-    const fresh = m.time - (p.ai.moveAt || -9) > 1.4;
+    const handle = clamp((p.r.hnd - 2) / 8, 0, 1);
+    const fresh = m.time - (p.ai.moveAt || -9) > lerp(1.75, 0.85, handle);
     if (near.d < 5 && p.cool.trick <= 0 && fresh && beatWithMove(m, p, near, sk)) { p.ai.moveAt = m.time; return; }
-    if (near.d < 5 && p.cool.trick <= 0 && fresh && Math.random() < 0.03 + p.r.hnd * 0.01) {
+    if (near.d < 5 && p.cool.trick <= 0 && fresh && Math.random() < 0.015 + Math.max(0, p.r.hnd - 3) * 0.028) {
       p.ai.moveAt = m.time;
       // a little showtime now and then, for the style meter
       const r = Math.random();
       const dir = r < 0.35 ? 'fwd' : r < 0.65 ? 'side' : r < 0.85 ? 'back' : 'none';
-      const flashy = p.turbo > 0.35 && p.r.hnd >= 6 && Math.random() < 0.25 + p.r.hnd * 0.04;
+      const flashy = p.turbo > 0.35 && p.r.hnd >= 6 && Math.random() < clamp(0.12 + p.r.hnd * 0.055, 0, 0.7);
       m.startTrick(p, dir, flashy); return;
     }
     // 6. move the ball
