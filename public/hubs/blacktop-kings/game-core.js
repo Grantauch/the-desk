@@ -658,7 +658,7 @@
     const style = o.style || this.pickDunk(p, o.turbo, team.crownActive);
     const dx = RIM.x - p.x, dy = RIM.y - p.y, d = hyp(dx, dy) || 1;
     const ex = RIM.x - dx / d * 1.25, ey = RIM.y - dy / d * 1.25;
-    const ez = Math.max(0.8, C.rimZ + 0.7 - (p.reach + p.dims.upper * 0.15));
+    const ez = Math.max(0.8, C.rimZ + 0.35 - A.handReach(p.dims));
     const hang = D.DUNKS[style].hang;
     const T = 0.42 + d * 0.032 + hang * 0.42 + (team.crownActive ? 0.25 : 0);
     p.state = 'dunk'; p.st = 0; p.stats.fga++;
@@ -739,7 +739,7 @@
   M.beginOopFlight = function (q, cx, cy, T, self) {
     const style = this.pickDunk(q, true, this.teams[q.team].crownActive);
     q.state = 'oop'; q.st = 0; q.stats.fga++;
-    const ez = Math.max(1.2, C.rimZ + 1.0 - q.reach);
+    const ez = Math.max(1.2, C.rimZ + 1.1 - A.handReach(q.dims));
     q.fly = { sx: q.x, sy: q.y, ex: cx, ey: cy, ez, T, t: 0, kind: 'oop', style, self, caught: false };
     this.faceToward(q, RIM.x, RIM.y, true);
   };
