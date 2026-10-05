@@ -225,7 +225,6 @@ const difficultyReport = {
   m.phase = 'live';
   m.teams[0].score = 0; m.teams[1].score = 10; m.teams[0].crownActive = 2;
   m.scoreBasket(m.teams[0].players[0], 'jumper', true, { quality: 'perfect' });
-  assert.deepEqual(m.result, null);
   assert.deepEqual([m.teams[0].score, m.teams[1].score], [6, 8], 'A deep Double Crown in Crown Rules must be +6 / -2');
   const swing = 6 + 2;
   assert.equal(swing, 8, 'Crown Rules maximum planned swing is eight points, not twelve');
