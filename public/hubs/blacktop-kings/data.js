@@ -338,7 +338,7 @@
     standard: { name: 'Standard', blurb: 'Inside the arc is 1. Outside is 2.' },
     deep: { name: 'Twos Only', blurb: 'Only shots from outside the arc and dunks count.' },
     dunks: { name: 'Dunk Contest Rules', blurb: 'Only dunks and layups count, and they are worth 2.' },
-    crowns: { name: 'Crown Rules', blurb: 'Crown shots count double and take double. Fill the meter.' },
+    crowns: { name: 'Crown Rules', blurb: 'Crown bonuses hit twice as hard. Build the meter, then cash it in.' },
   };
 
   // Resolve a crew member spec to a player object.
