@@ -23,6 +23,7 @@
     A.drawSideline(ctx, cam, this.court);
     this.fx.drawGround(ctx);
     this.drawShadows(ctx);
+    this.drawClearLine(ctx);
     this.drawRings(ctx);
     // depth sort
     const ents = this.players.map((p) => ({ y: p.y, t: 'p', p }));
@@ -34,6 +35,12 @@
       if (e.t === 'p') this.drawPlayer(ctx, e.p);
       else if (e.t === 'ball') this.drawBallNow(ctx);
       else A.drawHoop(ctx, cam, this.hoop, e.t === 'hoopBack' ? 'back' : 'front', this.court, this.time);
+    }
+    // a dribble on the far side of the body would vanish behind it: keep a faint outline on top
+    if (b.state === 'held' && b.holder && b.y < b.holder.y - 0.12) {
+      const g = cam.project(b.x, b.y, b.z);
+      ctx.save(); ctx.globalAlpha = 0.45; ctx.lineWidth = 2; ctx.strokeStyle = '#ffb066';
+      ctx.beginPath(); ctx.arc(g.x, g.y, Math.max(3, g.s * 0.5), 0, TAU); ctx.stroke(); ctx.restore();
     }
     this.fx.drawAir(ctx);
     A.drawGlows(ctx, cam, this.court, this.time);
@@ -61,6 +68,20 @@
     softShadow(ctx, g.x, g.y, g.s * 0.62 * k, g.s * 0.22 * k, base * k);
   };
 
+  // While your crew has to take it back, the line you have to get behind glows on the floor.
+  M.drawClearLine = function (ctx) {
+    if (this.cleared || this.phase !== 'live' || !this.humans.some((h) => h.team === this.offense)) return;
+    const cam = this.cam; const k = 0.55 + Math.sin(this.time * 6) * 0.25;
+    const pts = [[47, -C.cornerY]].concat(C.deepArc(1)).concat([[47, C.cornerY]]);
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (const [w, a] of [[9, 0.18 * k], [3.5, 0.75 * k]]) {
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => { const q = cam.project(x, y, 0.02); if (i) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); });
+      ctx.lineWidth = w; ctx.strokeStyle = `rgba(255,154,31,${a})`; ctx.stroke();
+    }
+    ctx.restore();
+  };
+
   M.drawRings = function (ctx) {
     const cam = this.cam;
     for (const p of this.players) {
@@ -75,6 +96,10 @@
       } else if (this.ball.holder === p && this.ball.state === 'held') {
         ctx.save(); ctx.lineWidth = 2; ctx.strokeStyle = team.colors.pri; ctx.globalAlpha = 0.6;
         ctx.beginPath(); ctx.ellipse(g.x, g.y, g.s * 1.3, g.s * 0.45, 0, 0, TAU); ctx.stroke(); ctx.restore();
+      } else if (!this.attract) {
+        // everybody gets a faint footprint in their crew color, so a crowd under the rim stays readable
+        ctx.save(); ctx.lineWidth = 1.5; ctx.strokeStyle = team.colors.pri; ctx.globalAlpha = 0.32;
+        ctx.beginPath(); ctx.ellipse(g.x, g.y, g.s * 1.05, g.s * 0.36, 0, 0, TAU); ctx.stroke(); ctx.restore();
       }
     }
   };
@@ -97,7 +122,7 @@
     }
     A.drawBaller(ctx, {
       x: s.x, y: s.y, scale: s.s, hgt: p.data.hgt, build: p.data.build, look: p.data.look, num: p.data.num,
-      colors: team.colors, facing: p.facing, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
+      colors: team.colors, facing: p.faceVis == null ? p.facing : p.faceVis, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
     });
     // dizzy stars over a fallen defender
     if (p.state === 'fallen' || p.state === 'stumble') {
@@ -131,14 +156,16 @@
         if (f > 0) { ctx.save(); slab(ctx, cx3, cy3, cwid, bh, 2.5); ctx.clip(); ctx.fillStyle = col; ctx.fillRect(cx3, cy3, cwid * f, bh); ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(cx3, cy3, cwid * f, bh * 0.42); ctx.restore(); }
       }
       ctx.restore();
-      // shot timing meter
+      // shot timing meter: the green window is live, so it shrinks as a defender closes out
       if (p.state === 'shoot' && p.shot && p.shot.human && !p.shot.released) {
         const span = p.shot.apex + 0.24; const k = clamp(p.st / span, 0, 1);
         const mx = s.x + s.s * 2.2, my = s.y - p.hgtFt * s.s * 0.4; const mh = 78, mw = 14;
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(mx - mw / 2 + 3, my - mh + 3, mw, mh);
         ctx.fillStyle = '#10131c'; ctx.fillRect(mx - mw / 2, my - mh, mw, mh);
-        const gz = (p.shot.apex / span) * mh; const gw = 0.11 / span * mh;
+        const win = p.shot.win || 0.05;
+        const gz = (p.shot.apex / span) * mh; const gw = Math.max(2, (win * 2) / span * mh);
+        ctx.fillStyle = 'rgba(94,227,138,0.22)'; ctx.fillRect(mx - mw / 2 + 1, my - gz - gw, mw - 2, gw * 2);
         ctx.shadowColor = '#5ee38a'; ctx.shadowBlur = 10; ctx.fillStyle = '#5ee38a'; ctx.fillRect(mx - mw / 2 + 1, my - gz - gw / 2, mw - 2, gw); ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(mx - mw / 2 + 1, my - gz - gw / 2, mw - 2, gw * 0.4);
         ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.strokeRect(mx - mw / 2, my - mh, mw, mh);
@@ -195,7 +222,7 @@
   // A broadcast scorebug drawn cel style: flat color, one hard light band, ink edges, hard shadows.
   const COND = (w, px) => `italic ${w} ${px}px "Barlow Condensed", "Arial Narrow", sans-serif`;
   const NUM = (px) => `400 ${px}px Anton, Impact, sans-serif`;
-  const INK = '#07080c', GOLD = '#ffc629', GOLD_HI = '#ffe27a';
+  const INK = '#07080c', GOLD = '#ffc629', GOLD_HI = '#ffe27a', BACK = '#ff9a1f';
   const ease = (k) => 1 - Math.pow(1 - clamp(k, 0, 1), 3);
   const easeBack = (k) => { k = clamp(k, 0, 1); const c = 1.7; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
   // A parallelogram: x,y is the top-left of the box it leans inside; sl is how far the top shifts right.
@@ -241,11 +268,23 @@
     ctx.textAlign = 'center';
     ctx.font = COND(800, 12); ctx.fillStyle = GOLD; ctx.fillText('FIRST TO', cx, top + 20);
     ctx.font = NUM(28); ctx.fillStyle = '#ffffff'; ctx.fillText(String(this.target), cx, top + 50);
+    // shot clock, hanging under the center of the bug
+    if (this.phase === 'live' || this.phase === 'check') {
+      const sc = Math.max(0, this.shotClock), low = sc < 5 && this.phase === 'live';
+      const txt = low ? sc.toFixed(1) : String(Math.ceil(sc));
+      const sw = 64, sh = 30, sy = top + ph + 2;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)'; slab(ctx, cx - sw / 2 + 4, sy + 4, sw, sh, 8); ctx.fill();
+      slab(ctx, cx - sw / 2, sy, sw, sh, 8); ctx.fillStyle = low ? '#3a0d08' : '#0d1019'; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = low ? '#ff6a13' : 'rgba(255,255,255,0.25)'; ctx.stroke();
+      ctx.font = NUM(22); ctx.fillStyle = low ? '#ff8a4a' : '#ffffff'; ctx.fillText(txt, cx, sy + 24);
+    }
     // under the bug: crown state per team
     this.teams.forEach((t, i) => {
       const left = i === 0; const bx = left ? x0 + tw - 8 : cx + cw / 2 + 8;
       let label = null, hot = false;
-      if (t.crownActive) { label = t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE'; hot = true; }
+      const back = !this.cleared && this.offense === i && this.phase === 'live' && this.humans.some((hh) => hh.team === i);
+      if (back) label = 'TAKE IT BACK · GET BEHIND THE ARC';
+      else if (t.crownActive) { label = t.crownActive === 2 ? 'DOUBLE CROWN ACTIVE' : 'CROWN ACTIVE'; hot = true; }
       else {
         const h = this.humans.find((hh) => hh.team === i);
         if (h && t.crown >= 1) {
@@ -256,14 +295,17 @@
       if (!label) return;
       ctx.font = COND(900, 14); const lw = ctx.measureText(label).width + 30; const ly = top + ph + 8;
       const lx = left ? bx - lw : bx;
-      const pulse = hot ? 1 : 0.65 + Math.sin(this.time * 7) * 0.35;
+      // a rule you must act on gets a solid plate; a reminder pulses
+      const pulse = hot ? 1 : back ? 0.88 + Math.sin(this.time * 7) * 0.12 : 0.65 + Math.sin(this.time * 7) * 0.35;
       ctx.globalAlpha = pulse;
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; slab(ctx, lx + 3, ly + 3, lw, 24, 8); ctx.fill();
       slab(ctx, lx, ly, lw, 24, 8);
-      if (hot) celFill(ctx, GOLD, ly, 24, 0.3); else { ctx.fillStyle = INK; ctx.fill(); }
-      ctx.lineWidth = 1.5; ctx.strokeStyle = hot ? INK : GOLD; ctx.stroke();
-      crownGlyph(ctx, lx + 15, ly + 12, 5, hot ? INK : GOLD);
-      ctx.textAlign = 'left'; ctx.fillStyle = hot ? INK : GOLD; ctx.fillText(label, lx + 24, ly + 17);
+      if (back) celFill(ctx, BACK, ly, 24, 0.3); else if (hot) celFill(ctx, GOLD, ly, 24, 0.3); else { ctx.fillStyle = INK; ctx.fill(); }
+      const solid = hot || back;
+      ctx.lineWidth = 1.5; ctx.strokeStyle = solid ? INK : GOLD; ctx.stroke();
+      if (back) { ctx.beginPath(); ctx.moveTo(lx + 19, ly + 7); ctx.lineTo(lx + 12, ly + 12); ctx.lineTo(lx + 19, ly + 17); ctx.lineWidth = 2.5; ctx.strokeStyle = INK; ctx.stroke(); }
+      else crownGlyph(ctx, lx + 15, ly + 12, 5, hot ? INK : GOLD);
+      ctx.textAlign = 'left'; ctx.fillStyle = solid ? INK : GOLD; ctx.fillText(label, lx + 24, ly + 17);
       ctx.globalAlpha = 1;
     });
     // lower third: the court, and the rule if it isn't the standard one
@@ -298,6 +340,7 @@
     }
     // intro: the matchup splash
     if (this.phase === 'intro') this.drawIntro(ctx, rule);
+    if (this.drawCoach) this.drawCoach(ctx);
     // first-game control hint
     if (this.hint > 0 && this.humans.length === 1 && !(BK.input && BK.input.touchVisible())) {
       const h = this.humans[0]; const K = BK.KEYS[h.keyLayout || 'solo'];
@@ -322,6 +365,34 @@
       });
       ctx.globalAlpha = 1;
     }
+    ctx.restore();
+  };
+
+  // The coach's tip of the moment: a plate under the scorebug, words and keycaps in a row.
+  M.drawCoach = function (ctx) {
+    const c = this.coach && this.coach.cur; if (!c) return;
+    const a = clamp(Math.min(c.t / 0.25, (c.life - c.t) / 0.4), 0, 1);
+    ctx.save(); ctx.globalAlpha = a; ctx.textBaseline = 'middle';
+    const font = COND(800, 17), tagFont = COND(900, 13);
+    ctx.font = font;
+    const gap = 7, items = c.parts.map((w) => {
+      if (typeof w === 'string') { ctx.font = font; return { w: ctx.measureText(w).width, text: w }; }
+      ctx.font = COND(800, 13); return { w: Math.max(24, ctx.measureText(w.key).width + 12), key: w.key };
+    });
+    ctx.font = tagFont; const tagW = ctx.measureText('COACH').width + 22;
+    const inner = items.reduce((s, it) => s + it.w, 0) + gap * (items.length - 1);
+    const pw = Math.min(W - 40, tagW + inner + 30), phh = 36, px = W / 2 - pw / 2, py = 108 + (1 - a) * -8;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; slab(ctx, px + 4, py + 4, pw, phh, 10); ctx.fill();
+    slab(ctx, px, py, pw, phh, 10); celFill(ctx, '#10131c', py, phh, 0.06);
+    ctx.lineWidth = 1.5; ctx.strokeStyle = GOLD; ctx.stroke();
+    slab(ctx, px, py, tagW + 8, phh, 10); celFill(ctx, GOLD, py, phh, 0.3);
+    ctx.font = tagFont; ctx.textAlign = 'left'; ctx.fillStyle = INK; ctx.fillText('COACH', px + 14, py + phh / 2 + 1);
+    let x = px + tagW + 20;
+    items.forEach((it) => {
+      if (it.key) { keycap(ctx, it.key, x, py + phh / 2 - 10); ctx.textBaseline = 'middle'; }
+      else { ctx.font = font; ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.fillText(it.text, x, py + phh / 2 + 1); }
+      x += it.w + gap;
+    });
     ctx.restore();
   };
 

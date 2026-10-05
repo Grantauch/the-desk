@@ -14,8 +14,8 @@
 
   // ---------- settings ----------
   const SETTINGS_KEY = 'bk-settings';
-  const settings = { difficulty: 'street', effects: reduceMotion ? 'reduced' : 'full', touch: 'auto', camera: 'close' };
-  try { const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); if (s && typeof s === 'object') { if (['chill', 'street', 'legend'].includes(s.difficulty)) settings.difficulty = s.difficulty; if (['full', 'reduced'].includes(s.effects)) settings.effects = s.effects; if (['auto', 'on', 'off'].includes(s.touch)) settings.touch = s.touch; if (['close', 'wide'].includes(s.camera)) settings.camera = s.camera; } } catch (e) { /* ignore */ }
+  const settings = { difficulty: 'street', effects: reduceMotion ? 'reduced' : 'full', touch: 'auto', camera: 'close', coach: 'on' };
+  try { const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); if (s && typeof s === 'object') { if (['chill', 'street', 'legend'].includes(s.difficulty)) settings.difficulty = s.difficulty; if (['full', 'reduced'].includes(s.effects)) settings.effects = s.effects; if (['auto', 'on', 'off'].includes(s.touch)) settings.touch = s.touch; if (['close', 'wide'].includes(s.camera)) settings.camera = s.camera; if (['on', 'off'].includes(s.coach)) settings.coach = s.coach; } } catch (e) { /* ignore */ }
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ } };
   const DIFF = { chill: { skill: 0.32, boost: -1, name: 'Chill' }, street: { skill: 0.58, boost: 0, name: 'Street' }, legend: { skill: 0.86, boost: 1, name: 'Legend' } };
 
@@ -689,13 +689,15 @@
             ${row('Alley-oop (hold turbo to throw it off the glass to yourself)', 'oop')}${row('Crown shot (when the meter is full)', 'crown')}${row('Turbo (hold)', 'turbo')}${row('Pause', 'pause')}
           </tbody></table>
           <p>On a touchscreen, a stick and buttons appear on the court. In Versus, Player 1 uses WASD with F, G, H, R, T and Left Shift. Player 2 uses the arrows with comma, period, slash, L, semicolon and M.</p></section>
-        <section><h3>Scoring</h3><p>Inside the arc is <b>1</b>. Outside the arc is <b>2</b>. Dunks count as inside. No fouls, no clearing, and the fence keeps the ball in play. After a basket, the other crew checks it up top.</p>
-          <p><b>Jump shots:</b> hold shoot to rise, let go at the top of your jump. A meter shows the green window. Hit it for a <b>Perfect</b> release. A quick tap is a safe, average release.</p>
-          <p><b>Dunks:</b> press shoot near the rim. Hold turbo to take off from farther out, with your flashiest dunks. Big dunkers can fly from the free throw line.</p></section>
+        <section><h3>Scoring</h3><p>Inside the arc is <b>1</b>. Outside the arc is <b>2</b>. Dunks count as inside. After a basket, the other crew checks it up top. After a defensive rebound or a steal, <b>take it back</b> behind the arc before you can shoot. The <b>shot clock</b> is 12 seconds and starts over when a shot hits iron. No fouls, and the fence keeps the ball in play.</p>
+          <p><b>Jump shots:</b> hold shoot to rise, let go at the top of your jump. Let go in the green window and it goes in. Early comes up short off the front rim, late goes long off the back. Good shooters get a wider window. A hand in your face, deep range, and pulling up at full speed shrink it, so get open. From the 45-degree wing, mid-range shots use the glass, which forgives a little.</p>
+          <p><b>Layups and dunks:</b> press shoot near the rim. An open layup goes in; a defender in the way pushes it off line. Hold turbo to take off from farther out, with your flashiest dunks. The best leapers fly from near the free throw line. If a shot blocker meets you at the rim, it's strength against strength: you posterize them, they swat it, or it rattles out.</p></section>
         <section><h3>Tricks and the Crown meter</h3><p>Tap trick with a direction: toward the rim spins, across the court crosses over, away goes behind the back, no direction hesitates. Hold turbo for the flashy version: Tornado, Around the World, Head Bounce, or Off the Dome, which bounces the ball off your defender's head.</p>
-          <p>Tricks near a defender can make them stumble or break their ankles. Every trick earns <b>style points</b>, and chaining different ones multiplies them. You only bank style when you score, so a turnover wipes it.</p>
+          <p>At full speed you can't turn on a dime: a hard cut takes a plant step. A dribble move changes direction right now, bursting you the way you push the stick. It shakes a defender who is leaning the wrong way: cross back on a defender sliding with you, spin or hesitate on one flying at you. Lean hard enough and they go down. A defender standing square won't bite. Every trick earns <b>style points</b>, and chaining different ones multiplies them. You only bank style when you score, so a turnover wipes it.</p>
           <p>Banked style fills the <b>Crown meter</b>. When it's full, press crown on offense. Your next bucket is a <b>Crown shot</b>: it adds extra points to you and takes the same amount from them. Fill it twice for a Double Crown. A Crown dunk shatters the backboard.</p></section>
-        <section><h3>Defense</h3><p>Stay between your man and the rim. Jump to block as they rise; good timing and height win. Reach for steals when they're dribbling, not when they're doing a trick. Make three in a row and you're <b>on fire</b> until they score.</p></section>
+        <section><h3>Defense</h3><p>Stay between your man and the rim. To block, leave the floor with the shooter and get a hand on the ball on its way up. Touch it on the way down and it's goaltending: their basket counts. Height, leap and timing decide it.</p>
+          <p>A steal needs the ball in reach and out from the dribbler's body. Ball handlers keep it on the side away from you, so reach when they cross over in front of you or just caught it. Reach through their body and you come up empty, a step behind. Passes thrown through your hands are yours.</p>
+          <p>On a miss, box out: the player in position gets the rebound. Make three in a row and you're <b>on fire</b> until they score.</p></section>
         <section><h3>Career and saving</h3><p>Build your baller, run the circuit, recruit the crews you beat, and level up. Each level gives skill points and opens new looks and dunks. Cred buys the rest in the Locker.</p>
           <p>Your career saves itself in this browser. To keep it in <b>Google Drive</b>, open Career and press <b>Save file</b>. On a Chromebook or in Chrome, the save window lists Google Drive on the left. Pick a folder and save. To load it on another computer, press <b>Load save file</b> and pick it from Drive. Bring that same file to a friend's computer for Versus, or send it so they can Challenge your crew.</p></section>
       </div>`;
@@ -711,6 +713,8 @@
       <div class="group"><h3 class="group-title">Visual effects</h3><div class="chips">${[['full', 'Full (shake, slow motion, flashes)'], ['reduced', 'Reduced (no shake or flashes)']].map(([k, l]) => `<button type="button" class="chip ${settings.effects === k ? 'on' : ''}" data-setting="effects" data-val="${k}" aria-pressed="${settings.effects === k}">${l}</button>`).join('')}</div></div>
       <div class="group"><h3 class="group-title">Camera</h3><div class="chips">${[['close', 'Close (follows the ball)'], ['wide', 'Wide (whole half court)']].map(([k, l]) => `<button type="button" class="chip ${settings.camera === k ? 'on' : ''}" data-setting="camera" data-val="${k}" aria-pressed="${settings.camera === k}">${l}</button>`).join('')}</div></div>
       <div class="group"><h3 class="group-title">Touch controls</h3><div class="chips">${[['auto', 'Automatic'], ['on', 'Always show'], ['off', 'Never show']].map(([k, l]) => `<button type="button" class="chip ${settings.touch === k ? 'on' : ''}" data-setting="touch" data-val="${k}" aria-pressed="${settings.touch === k}">${l}</button>`).join('')}</div></div>
+      <div class="group"><h3 class="group-title">Coach tips</h3><div class="chips">${[['on', 'On'], ['off', 'Off']].map(([k, l]) => `<button type="button" class="chip ${settings.coach === k ? 'on' : ''}" data-setting="coach" data-val="${k}" aria-pressed="${settings.coach === k}">${l}</button>`).join('')}${btn('coach-reset', 'Show tips again', 'chip')}</div>
+        <p class="hint">Short tips during your games the first time each one matters: shot timing, defense, taking it back.</p></div>
     </div>`;
 
   // ----- results -----
@@ -784,7 +788,7 @@
     cfg.crownsOn = [0, 0];
     const m = new BK.Match(canvas, {
       court: cfg.court, target: cfg.target, rule: cfg.rule, teams: cfg.teams, skill: cfg.skill, firstOffense: cfg.firstOffense,
-      humans, reducedMotion: settings.effects === 'reduced', camera: settings.camera, showHint: !hintSeen || cfg.mode === 'versus',
+      humans, reducedMotion: settings.effects === 'reduced', camera: settings.camera, showHint: !hintSeen || cfg.mode === 'versus', coach: settings.coach !== 'off',
       onEnd: (res) => endMatch(res, cfg), onPause: () => showPause(),
       onEvent: (type, data) => { if (type === 'crownOn') cfg.crownsOn[data.team]++; },
     });
@@ -914,6 +918,7 @@
       case 'nav-challenge': go('challenge'); break;
       case 'nav-howto': go('howto'); break;
       case 'nav-settings': go('settings'); break;
+      case 'coach-reset': if (BK.coach) BK.coach.reset(); toast('Coach tips will show again.'); break;
       case 'nav-title': go('title'); break;
       case 'nav-circuit': go('circuit'); break;
       case 'nav-upgrade': go('upgrade'); break;
