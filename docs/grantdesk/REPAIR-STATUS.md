@@ -1,5 +1,9 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 4 Blacktop competitive balance lab
+
+PR #177 now uses 600 real-engine seeded games with independent mirrored seeds, every court/rule combination, shooting-quality and offensive-rebound metrics. The full canonical verification passed. All original balance thresholds remain unchanged; Quick Crews span 21.9–75.0% wins and archetypes 21.9–71.9%. Crown Rules caps a deep Double Crown possession at +6/-2. The separate 824-game deep run is pending. Production publication is currently blocked by exhausted Netlify deploy credits; the existing site remains online. Required GitHub checks, merge and exact live verification remain separate evidence.
+
 ## Current checkpoint — October 4 Robber Barons eight-player completion
 
 PR #166 now includes all four new tabletop pieces as optimized transparent 200x200 WebP assets. The Firebase console confirms the eight-seat rules are already published. A live synthetic room accepted eight seat claims and a game write from every seat; rejected ninth seat, non-player write, stale move version and global game listing. No existing game or student record was changed. Required website checks, merge, exact Netlify production commit and live browser acceptance remain separate publication gates. Classroom/network validation remains FIELD_PENDING.
