@@ -1,0 +1,11 @@
+# Competitive balance lab
+
+PR #177 adds a repeatable real-engine balance gate to the normal release verification. The default run completes 600 seeded games: 288 mirrored Quick Crew games, 160 mirrored archetype games, 120 games across Chill/Street/Legend, and all 32 court/rule combinations. Each mirrored pair starts from its own repeatable seed. The optional deep run expands the sample to 824 games.
+
+Crown Rules now awards at most +6 points and removes at most 2 opponent points for a deep Double Crown basket, an eight-point swing. Standard-rule Crown scoring retains its existing formula. Passing from a strong distributor opens a brief receiver shooting rhythm window; the Floor General rating budget shifts one steal point to outside shooting. Dunk reach is slightly shorter, and high-handle AI players use their handles more often. Pogo gains inside finishing/rebounding and Tie-Dye gains speed/handling to lift the weak Lot Lizards lineup.
+
+The 600-game release run passed every existing balance threshold. Quick Crew win rates range from 21.9% to 75.0%; archetypes range from 21.9% to 71.9%. These are broad regression limits, not a claim that every lineup wins equally often. Quick Crew games averaged 44.9% field goals, 2.06 blocks, 2.81 steals, 0.66 ankle breakers and 5.98 offensive rebounds per game. The report also records deep/inside/layup/dunk scoring and perfect/slightly early/slightly late/early/late releases. Legend produced 0.806 points per attempt versus Chill's 0.588 and finished faster on average.
+
+The full canonical verification passed locally, including the existing gameplay, poses, art, audio, public-resource and sealed StoryHub gates. The optional deeper sample remains separate evidence until its run finishes. An observed deep-sample 9-10 game scored its winner at 12:05; the deep liveness ceiling allows twenty simulated minutes, while the release gate retains twelve. No win-rate, efficiency or difficulty thresholds were relaxed.
+
+Protected GitHub checks, merge and exact production publication remain separate release evidence. On October 4 the hosting account reported production deploys paused for exhausted deploy credits; its existing site remains online. Classroom enjoyment, school-network behavior and Chromebook performance have not been observed in this release.

@@ -857,5 +857,20 @@
     ],
     "deployment_status": "PENDING_REQUIRED_CHECK_AND_NETLIFY",
     "field_status": "FIELD_PENDING"
+  },
+  "blacktop_balance_20261004": {
+    "status": "LOCAL_FULL_VERIFIED",
+    "pull_request": "https://github.com/Grantauch/the-desk/pull/177",
+    "release_games": 600,
+    "deep_games": 824,
+    "deep_status": "PENDING",
+    "validation": "Full canonical verify:full passed; every existing balance guardrail retained. All eight courts and four rules covered.",
+    "crown_rules": {
+      "points": 6,
+      "opponent_loss": 2,
+      "swing": 8
+    },
+    "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
+    "field_status": "FIELD_PENDING"
   }
 }
