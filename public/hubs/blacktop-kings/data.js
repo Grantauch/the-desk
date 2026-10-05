@@ -132,11 +132,11 @@
   const R = (spd, hnd, ins, out, dnk, pas, reb, blk, stl) => ({ spd, hnd, ins, out, dnk, pas, reb, blk, stl });
 
   D.LEGENDS = [
-    L('pogo', 'Tater', 'Rollins', 'Pogo', 4, 'slasher', 67, 'lean', R(9, 7, 6, 4, 8, 6, 3, 2, 7),
+    L('pogo', 'Tater', 'Rollins', 'Pogo', 4, 'slasher', 67, 'lean', R(9, 7, 8, 4, 8, 6, 5, 2, 7),
       { skin: '#6f4220', hair: 'fade', mouth: 'grin', socks: 'crew', wristbands: 'both' }, { dunk: 'windmill', bio: 'Five-seven. Dunks on everybody. Asks about it later.' }),
     L('farmboy', 'Clay', 'Lindqvist', 'Farm Boy', 33, 'sniper', 81, 'athletic', R(5, 6, 8, 9, 4, 8, 7, 4, 6),
       { skin: '#f3c9a5', hair: 'shaggy', hairColor: '#c98a3b', facial: 'mustache', mouth: 'flat', socks: 'tall' }, { dunk: 'twohand', bio: 'Tells you where the shot is going. Hits it anyway.' }),
-    L('tiedye', 'Sky', 'Waldron', 'Tie-Dye', 32, 'big', 83, 'athletic', R(4, 4, 8, 3, 6, 8, 9, 8, 4),
+    L('tiedye', 'Sky', 'Waldron', 'Tie-Dye', 32, 'big', 83, 'athletic', R(6, 5, 8, 3, 6, 8, 9, 8, 4),
       { skin: '#fde3cf', hair: 'long', hairColor: '#a8642f', facial: 'beard', headband: 'band', headbandColor: '#ff3ea5' }, { dunk: 'twohand', bio: 'Outlet passes like postcards. Never wears the same shirt twice.' }),
     L('flamingo', 'Dieter', 'Nowak', 'Flamingo', 41, 'sniper', 84, 'lean', R(4, 5, 8, 9, 4, 5, 7, 5, 3),
       { skin: '#f3c9a5', hair: 'shaggy', hairColor: '#e8c46e', facial: 'goatee' }, { dunk: 'twohand', bio: 'One leg up, falling away, all net. Do not bother contesting.' }),
