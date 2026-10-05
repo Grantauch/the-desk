@@ -1,5 +1,9 @@
 # GrantDesk repair status
 
+## Final combined checkpoint — October 5 morning
+
+PR #177 now includes both the competitive balance lab and the planned phase #178 game-feel work, with main's October 5 lesson release preserved. Full integrated canonical verification passed: 600 balance games, all gameplay/pose/feel/art/audio/resource/publishing checks, 0 errors/0 warnings, 53 built routes, 115 HTML files/4,423 local references, and seven releases/62 sealed StoryHub files. Release archetypes span 31.3–70.3% with every original threshold retained. Required protected CI and hosted verification are pending for this combined head; production remains blocked by exhausted Netlify deploy credits.
+
 ## Current checkpoint — October 4 Blacktop game feel
 
 PR #177 includes the planned phase #178 game feel: existing slides, plants, catches, rebound reaches, landing compression, contact recoil and shot follow-through; brief bounded impact pauses/camera punches, collision-based sound, clutch crowd, green-release and possession/clock feedback. Before integration of the October 5 lesson release, full canonical verification passed, including dedicated feel regressions, 600 seeded balance games, existing gameplay/pose/art/audio checks, 53 built routes and 103 HTML files/4,347 references. Release archetypes span 31.3–70.3%; the separate 240-game deep archetype sample spans 31.3–70.8%, within every original balance limit. Chrome quick-game start, keyboard shooting, pause and quit were exercised in full/reduced effects without captured errors. The pre-release timing and original dust RNG trigger are preserved. GitHub PR #178 was used by the separate lesson release, which is preserved. The final combined check, merge and exact production verification remain separate evidence; Netlify production deploys are paused for exhausted credits.
