@@ -122,7 +122,7 @@
     }
     A.drawBaller(ctx, {
       x: s.x, y: s.y, scale: s.s, hgt: p.data.hgt, build: p.data.build, look: p.data.look, num: p.data.num,
-      colors: team.colors, facing: p.facing, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
+      colors: team.colors, facing: p.faceVis == null ? p.facing : p.faceVis, spin: p.spin, pose: p.pose, dims: p.dims, time: this.time + p.slot,
     });
     // dizzy stars over a fallen defender
     if (p.state === 'fallen' || p.state === 'stumble') {
