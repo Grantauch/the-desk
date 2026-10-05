@@ -11,7 +11,7 @@
   'use strict';
   const D = BK.data, A = BK.art, C = A.COURT;
   const W = 1280, H = 720, STEP = 1 / 60;
-  const G_BALL = 32, G_JUMP = 30;
+  const G_BALL = 32, G_JUMP = 30, TAU = Math.PI * 2;
   const CROWN_PTS = 5000;
   const SHOT_CLOCK = 12;
   // ball and hoop for the physics, in feet: ball radius, rim tube radius, backboard
@@ -483,7 +483,7 @@
     p.shot.win = this.shotWindow(p, p.x, p.y, gather).w;
     // the computer releases with an error that shrinks on harder settings
     if (!o.human) p.shot.autoAt = clamp(apex + gauss() * this.releaseSigma(p), 0.06, apex + 0.24);
-    this.faceToward(p, RIM.x, RIM.y);
+    this.faceToward(p, RIM.x, RIM.y, true);
     this.emit('shotStart', { p });
     BK.AI && BK.AI.onShotStart(this, p);
   };
@@ -635,7 +635,7 @@
     const ex = RIM.x - dx / d * 2.6, ey = RIM.y - dy / d * 2.6;
     p.state = 'layup'; p.st = 0;
     p.fly = { sx: p.x, sy: p.y, ex, ey, ez: 2.4 + p.r.ins * 0.08, T: 0.62, t: 0, kind: 'layup', released: false };
-    this.faceToward(p, RIM.x, RIM.y);
+    this.faceToward(p, RIM.x, RIM.y, true);
     this.emit('shotStart', { p });
     BK.AI && BK.AI.onShotStart(this, p);
   };
@@ -685,7 +685,7 @@
     b.flight = { segs: [ballistic(b.x, b.y, b.z, tx, ty, tz + dist * 0.004, T)], i: 0, t: 0, passer: p, recv: q, kind: 'pass', checked: new Set(), afterTrick: this.teams[p.team].combo > 0 };
     q.catchTarget = { x: tx, y: ty, T };
     p.state = 'pass'; p.st = 0;
-    this.faceToward(p, q.x, q.y);
+    this.faceToward(p, q.x, q.y, true);
     this.lastPasser = { p, t: this.time };
     p.passedAt = this.time;
     p.cool.pass = 0.25;
@@ -717,7 +717,7 @@
     if (hyp(cx - q.x, cy - q.y) / T > 34) return this.passTo(passer, q);
     b.state = 'pass'; b.holder = null;
     b.flight = { segs: [ballistic(b.x, b.y, b.z, cx, cy, cz, T)], i: 0, t: 0, passer, recv: q, kind: 'oop', checked: new Set() };
-    passer.state = 'pass'; passer.st = 0; this.faceToward(passer, cx, cy);
+    passer.state = 'pass'; passer.st = 0; this.faceToward(passer, cx, cy, true);
     this.beginOopFlight(q, cx, cy, T, false);
     this.lastPasser = { p: passer, t: this.time };
     const h = this.teams[passer.team].human; if (h) { h.player = q; this.syncHumans(); }
@@ -741,7 +741,7 @@
     q.state = 'oop'; q.st = 0; q.stats.fga++;
     const ez = Math.max(1.2, C.rimZ + 1.0 - q.reach);
     q.fly = { sx: q.x, sy: q.y, ex: cx, ey: cy, ez, T, t: 0, kind: 'oop', style, self, caught: false };
-    this.faceToward(q, RIM.x, RIM.y);
+    this.faceToward(q, RIM.x, RIM.y, true);
   };
 
   // A dribble move is a change of direction. It bursts the way you push the stick (exit), so a
@@ -860,7 +860,7 @@
     if (p.cool.steal > 0 || p.state !== 'move') return;
     p.state = 'steal'; p.st = 0; p.cool.steal = 0.8; p.reachDone = false; p.whiff = false;
     const b = this.ball;
-    if (b.state === 'held' && b.holder && b.holder.team !== p.team) this.faceToward(p, b.holder.x, b.holder.y);
+    if (b.state === 'held' && b.holder && b.holder.team !== p.team) this.faceToward(p, b.holder.x, b.holder.y, true);
   };
   M.resolveReach = function (p) {
     p.reachDone = true;
@@ -1065,7 +1065,13 @@
   };
 
   // ---------- per-player physics and state ----------
-  M.faceToward = function (p, x, y) { const sd = this.cam.screenDX(x - p.x, y - p.y); if (Math.abs(sd) > 0.3) p.facing = sd > 0 ? 1 : -1; };
+  M.setFacing = function (p, dir, force) {
+    if (dir === p.facing) return;
+    if (!force && this.time - (p.faceAt == null ? -9 : p.faceAt) < 0.22) return;
+    p.facing = dir; p.faceAt = this.time;
+  };
+  M.faceToward = function (p, x, y, force) { const sd = this.cam.screenDX(x - p.x, y - p.y); if (Math.abs(sd) > (force ? 0.3 : 0.9)) this.setFacing(p, sd > 0 ? 1 : -1, force); };
+
 
   M.updatePlayers = function (dt, deadBall) {
     for (const p of this.players) {
@@ -1137,7 +1143,7 @@
     if (sp > 2.5) {
       const sd = this.cam.screenDX(p.vx, p.vy);
       const defending = this.offense !== p.team && this.ball.state === 'held' && this.phase === 'live';
-      if (defending) this.faceToward(p, this.ball.x, this.ball.y);
+      if (defending && sp < p.speed * 0.74) this.faceToward(p, this.ball.x, this.ball.y);
       else if (Math.abs(sd) > 1.5) p.facing = sd > 0 ? 1 : -1;
     } else if (this.phase === 'live') {
       if (this.ball.holder === p) this.faceToward(p, RIM.x, RIM.y); else this.faceToward(p, this.ball.x, this.ball.y);
@@ -1393,6 +1399,9 @@
   };
 
   // ---------- pose + held ball ----------
+  // Changes between animations cross-fade instead of snapping. Seconds, by the animation coming in.
+  const BLEND = { pass: 0.05, steal: 0.05, catch: 0.07, jumpshot: 0.07, block: 0.07, layup: 0.08, dunk: 0.08, hang: 0.06, stumble: 0.09, run: 0.15, slide: 0.14, fallen: 0.16, celebrate: 0.22 };
+  const LANDS = ['idle', 'run', 'defend', 'slide', 'hold', 'dribble', 'catch', 'pass'];
   M.camRight = function () { return this.cam.r; };
   M.updatePose = function (p, dt) {
     const d = p.dims; const o = { dims: d, time: this.time + p.slot * 0.7 };
@@ -1400,13 +1409,29 @@
     const sp = hyp(p.vx, p.vy);
     const ball = this.ball;
     const hasBall = ball.state === 'held' && ball.holder === p;
+    const live = this.phase === 'live';
+    // turning around takes about a tenth of a second instead of flipping in one frame
+    if (p.faceVis == null || !dt) p.faceVis = p.facing || 1;
+    else p.faceVis += clamp((p.facing || 1) - p.faceVis, -dt * 14, dt * 14);
+    // how hard the player is speeding up or slowing down, for leaning into a burst
+    if (dt) { p.accS = lerp(p.accS || 0, (sp - (p.lastSp || 0)) / dt, 1 - Math.exp(-dt * 10)); }
+    p.lastSp = sp;
     switch (p.state) {
       case 'move': {
-        if (sp > 2) { kind = 'run'; p.phase += sp * dt * 0.42; o.phase = p.phase; o.speed = sp / 18; }
-        else if (this.offense !== p.team && this.phase === 'live' && ball.state === 'held') kind = 'defend';
-        else kind = 'idle';
+        const guarding = this.offense !== p.team && live && ball.state === 'held';
         if (p.z > 0) kind = 'rebound';
-        o.lean = p.lean || 0; o.bump = p.bumpT > 0 ? p.bumpT / 0.3 : 0;
+        else if (sp > 2) {
+          const sx = this.cam.screenDX(p.vx, p.vy);
+          // a defender moving any way but straight ahead shuffles instead of running (with a little
+          // hysteresis so he doesn't flicker between the two)
+          const along = sx * (p.facing || 1) / sp;
+          const shuffle = guarding && sp < p.speed * 0.78 && along < (p.anim === 'slide' ? 0.85 : 0.6);
+          if (shuffle) { kind = 'slide'; p.phase += dt * TAU * (1.6 + sp * 0.05); o.phase = p.phase; o.speed = clamp(sp / 16, 0, 1.3); }
+          else { kind = 'run'; this.runGait(p, dt, sp, Math.abs(sx), o); }
+        }
+        else if (guarding) kind = 'defend';
+        else if (hasBall) kind = live ? 'dribble' : 'hold';
+        else kind = 'idle';
         break;
       }
       case 'catch': kind = 'catch'; break;
@@ -1416,7 +1441,11 @@
       case 'shoot': kind = 'jumpshot'; o.t = clamp(0.18 + p.st / ((p.shot ? p.shot.apex : 0.4) * 2) * 0.74, 0, 1); o.released = p.shot ? p.shot.released : true; break;
       case 'layup': kind = 'layup'; o.t = p.fly ? p.fly.t / p.fly.T : 1; break;
       case 'dunk': kind = 'dunk'; o.t = p.fly ? clamp(p.fly.t / p.fly.T, 0, 1) : 0.9; o.style = p.fly ? p.fly.style : 'twohand'; break;
-      case 'oop': kind = p.fly && p.fly.T - p.fly.t < 0.55 ? 'dunk' : 'run'; o.t = p.fly ? clamp(0.1 + (1 - (p.fly.T - p.fly.t) / 0.55) * 0.55, 0, 0.7) : 0; o.style = p.fly ? p.fly.style : 'twohand'; p.phase += sp * dt * 0.42; o.phase = p.phase; o.speed = 1.2; break;
+      case 'oop': {
+        if (p.fly && p.fly.T - p.fly.t < 0.55) { kind = 'dunk'; o.t = clamp(0.1 + (1 - (p.fly.T - p.fly.t) / 0.55) * 0.55, 0, 0.7); o.style = p.fly.style; }
+        else { kind = 'run'; this.runGait(p, dt, sp, Math.abs(this.cam.screenDX(p.vx, p.vy)), o); }
+        break;
+      }
       case 'hang': kind = 'hang'; break;
       case 'block': kind = 'block'; o.swat = p.swat || 0; break;
       case 'jump': case 'fall': kind = 'rebound'; break;
@@ -1425,24 +1454,54 @@
       case 'celebrate': kind = 'celebrate'; o.style = p.data.celebration || ['flex', 'chest', 'roof', 'point', 'shoulders'][p.slot % 5]; break;
       default: break;
     }
-    p.anim = kind;
-    // dribbling and tricks: the ball leads, the hand follows
-    if (hasBall && (p.state === 'move' || p.state === 'trick') && this.phase === 'live') {
+    // dribbling and tricks: the ball leads, and the hand rides on top of it. When the ball crosses
+    // behind the body (a crossover, between the legs, behind the back) the far hand takes it.
+    if (hasBall && (p.state === 'move' || p.state === 'trick') && live) {
       const bpos = this.ballPath(p, dt);
       p.ballWorld = bpos;
-      // dribbling on the far side of the body uses the far hand
-      const r = this.cam.r, depth = (bpos.x - p.x) * -r[1] + (bpos.y - p.y) * r[0];
-      if (p.state === 'move' && depth < -0.12) o.ballHandB = this.toBody(p, bpos.x, bpos.y, bpos.z);
-      else o.ballHand = this.toBody(p, bpos.x, bpos.y, bpos.z);
+      const b = this.toBody(p, bpos.x, bpos.y, bpos.z);
+      const tossed = p.state === 'trick' && p.trick && ['head', 'juggle', 'dome'].includes(p.trick.key);
+      const hand = tossed ? [b[0], b[1] - 0.45 * d.u] : [b[0], Math.max(b[1] + 0.5 * d.u, (p.dribTop || d.leg * 0.75) + 0.05 * d.u)];
+      if (b[2] >= -0.15) o.ballHand = hand; else o.ballHandB = hand;
+      o.ballClamp = !tossed; // a dribbling hand reaches as far toward the ball as the arm allows
     } else p.ballWorld = null;
-    p.pose = A.pose(kind, o);
+    // dunks finish with the hand on the rim, wherever the rim is from this angle
+    if (kind === 'dunk' || kind === 'hang') { const r = this.toBody(p, RIM.x, RIM.y, C.rimZ + 0.2); o.rim = [r[0], r[1]]; }
+    // landing: the knees give for a moment after coming down
+    if (p.z > 0.05) p.air = true;
+    else if (p.air) { p.air = false; p.landT = 0.22; }
+    if (p.landT > 0) { p.landT -= dt; if (LANDS.includes(kind)) o.land = Math.sin(clamp(1 - p.landT / 0.22, 0, 1) * Math.PI); }
+    let pose = A.pose(kind, o);
+    const key = kind + (o.style || '') + (o.released ? '!' : '');
+    if (key !== p.animKey) {
+      if (p.pose && dt) { p.blendFrom = p.pose; p.blendT = 0; p.blendDur = BLEND[kind] || (p.anim === 'run' || p.anim === 'slide' ? 0.14 : 0.12); }
+      p.animKey = key;
+    }
+    if (p.blendFrom) {
+      p.blendT += dt;
+      const k = p.blendT / p.blendDur;
+      if (k >= 1) p.blendFrom = null; else pose = A.mixPose(p.blendFrom, pose, k * k * (3 - 2 * k));
+    }
+    p.anim = kind;
+    p.pose = pose;
   };
+  // Feet stay planted: stride length comes from how fast the player crosses the screen and the cadence.
+  M.runGait = function (p, dt, sp, screenSp, o) {
+    const cadence = clamp(0.85 + sp * 0.05, 1.1, 2.4); // full strides per second
+    p.phase += TAU * cadence * dt;
+    const ground = screenSp + Math.sqrt(Math.max(0, sp * sp - screenSp * screenSp)) * 0.35; // running into the screen reads shorter
+    o.phase = p.phase; o.speed = sp / 18; o.accel = p.accS;
+    o.stride = ground * A.runDuty(o.speed) / cadence / 2;
+  };
+  // Body space: x the way the player visibly faces, y up, depth toward the camera.
+  M.bodyK = function (p) { return (p.faceVis == null ? (p.facing || 1) : p.faceVis) * Math.cos(p.spin || 0); };
   M.toBody = function (p, x, y, z) {
-    const r = this.cam.r; const k = (p.facing || 1) * (Math.abs(Math.cos(p.spin || 0)) < 0.2 ? 0.2 * Math.sign(Math.cos(p.spin || 0) || 1) : Math.cos(p.spin || 0));
-    return [((x - p.x) * r[0] + (y - p.y) * r[1]) / k, z - p.z];
+    const r = this.cam.r; let k = this.bodyK(p);
+    if (Math.abs(k) < 0.12) k = k < 0 ? -0.12 : 0.12; // the same narrowest width the drawing uses
+    return [((x - p.x) * r[0] + (y - p.y) * r[1]) / k, z - p.z, (x - p.x) * -r[1] + (y - p.y) * r[0]];
   };
   M.fromBody = function (p, bx, by, depth) {
-    const r = this.cam.r; const k = (p.facing || 1) * Math.cos(p.spin || 0);
+    const r = this.cam.r; const k = this.bodyK(p);
     return { x: p.x + r[0] * bx * k + (depth || 0) * -r[1], y: p.y + r[1] * bx * k + (depth || 0) * r[0], z: p.z + by };
   };
   // Where the ball is while dribbling or doing a trick (world coordinates).
@@ -1505,8 +1564,8 @@
     const p = b.holder;
     if (p.ballWorld) { b.x = p.ballWorld.x; b.y = p.ballWorld.y; b.z = p.ballWorld.z; }
     else if (p.pose) {
-      const hand = p.pose.handF;
-      const w = this.fromBody(p, hand[0] + 0.15, hand[1] + 0.2, 0.35);
+      const e = A.armEnd(p.pose, p.dims, true); const r = 0.42 * p.dims.u;
+      const w = this.fromBody(p, e.x + e.dx * r, e.y + e.dy * r, 0.35);
       b.x = w.x; b.y = w.y; b.z = w.z;
     }
     b.rot += 0.12;
@@ -1604,7 +1663,7 @@
       }
       if (f.t >= seg.T && f.i === f.segs.length - 1) {
         const q = f.recv;
-        if (hyp(q.x - b.x, q.y - b.y) < 4.5 && q.state !== 'fallen') { this.giveBall(q); q.state = 'catch'; q.st = 0; q.catchTarget = null; this.faceToward(q, RIM.x, RIM.y); }
+        if (hyp(q.x - b.x, q.y - b.y) < 4.5 && q.state !== 'fallen') { this.giveBall(q); q.state = 'catch'; q.st = 0; q.catchTarget = null; this.faceToward(q, RIM.x, RIM.y, true); }
         else { b.state = 'loose'; b.flight = null; q.catchTarget = null; }
       }
       return;
