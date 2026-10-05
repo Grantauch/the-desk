@@ -1674,7 +1674,7 @@
         const q = f.recv;
         if (hyp(q.x - b.x, q.y - b.y) < 4.5 && q.state !== 'fallen') {
           this.giveBall(q); q.state = 'catch'; q.st = 0; q.catchTarget = null;
-          q.catchBoost = clamp((f.passer.r.pas - 3) * 0.025, 0, 0.18);
+          q.catchBoost = clamp((f.passer.r.pas - 3) * 0.03, 0, 0.21);
           q.catchBoostUntil = this.time + 0.85;
           this.faceToward(q, RIM.x, RIM.y, true);
         }
