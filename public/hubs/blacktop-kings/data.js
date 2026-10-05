@@ -26,8 +26,8 @@
     slasher: { name: 'Slasher', blurb: 'Gets to the rim and stays there.', base: { spd: 6, hnd: 4, ins: 5, out: 2, dnk: 6, pas: 3, reb: 3, blk: 3, stl: 4 } },
     sniper: { name: 'Sniper', blurb: 'Lives behind the arc. Twos all day.', base: { spd: 5, hnd: 4, ins: 4, out: 7, dnk: 2, pas: 4, reb: 3, blk: 2, stl: 5 } },
     general: { name: 'Floor General', blurb: 'Sees the oop before it exists.', base: { spd: 5, hnd: 6, ins: 4, out: 5, dnk: 2, pas: 7, reb: 2, blk: 2, stl: 3 } },
-    trickster: { name: 'Trickster', blurb: 'Ankles are a suggestion.', base: { spd: 6, hnd: 7, ins: 4, out: 3, dnk: 3, pas: 5, reb: 2, blk: 2, stl: 4 } },
-    big: { name: 'Big', blurb: 'The paint is rented. You own it.', base: { spd: 3, hnd: 2, ins: 6, out: 2, dnk: 5, pas: 3, reb: 7, blk: 6, stl: 2 } },
+    trickster: { name: 'Trickster', blurb: 'Ankles are a suggestion.', base: { spd: 6, hnd: 7, ins: 5, out: 5, dnk: 3, pas: 3, reb: 2, blk: 2, stl: 3 } },
+    big: { name: 'Big', blurb: 'The paint is rented. You own it.', base: { spd: 3, hnd: 2, ins: 5, out: 4, dnk: 5, pas: 5, reb: 5, blk: 5, stl: 2 } },
   };
 
   // Upgrade cost to go from `v` to `v + 1`.

@@ -130,6 +130,7 @@ function finishGame(m, label) {
     crownScores: crownScores.length,
     offensiveRebounds: m.events.filter((e) => e.type === 'rebound' && e.data.off).length,
     releases: Object.fromEntries(['perfect', 'slightEarly', 'slightLate', 'early', 'late'].map((q) => [q, releases.filter((e) => e.data.quality === q).length])),
+    releaseMakes: Object.fromEntries(['perfect', 'slightEarly', 'slightLate', 'early', 'late'].map((q) => [q, scores.filter((e) => e.data.kind === 'jumper' && e.data.quality === q).length])),
     maxCrownSwing: crownScores.reduce((mx, e) => Math.max(mx, e.data.pts + e.data.stolen), 0),
   };
 }
@@ -154,9 +155,10 @@ function aggregate(games) {
   const sum = games.reduce((a, g) => {
     for (const k of ['points', 'fga', 'fgm', 'blocks', 'steals', 'ankles', 'dunks', 'deepMakes', 'layupMakes', 'dunkMakes', 'insideJumperMakes', 'crownScores', 'offensiveRebounds', 'time']) a[k] += g[k];
     for (const q of Object.keys(g.releases)) a.releases[q] = (a.releases[q] || 0) + g.releases[q];
+    for (const q of Object.keys(g.releaseMakes)) a.releaseMakes[q] = (a.releaseMakes[q] || 0) + g.releaseMakes[q];
     a.maxCrownSwing = Math.max(a.maxCrownSwing, g.maxCrownSwing);
     return a;
-  }, { points: 0, fga: 0, fgm: 0, blocks: 0, steals: 0, ankles: 0, dunks: 0, deepMakes: 0, layupMakes: 0, dunkMakes: 0, insideJumperMakes: 0, crownScores: 0, offensiveRebounds: 0, releases: {}, time: 0, maxCrownSwing: 0 });
+  }, { points: 0, fga: 0, fgm: 0, blocks: 0, steals: 0, ankles: 0, dunks: 0, deepMakes: 0, layupMakes: 0, dunkMakes: 0, insideJumperMakes: 0, crownScores: 0, offensiveRebounds: 0, releases: {}, releaseMakes: {}, time: 0, maxCrownSwing: 0 });
   const n = games.length;
   return {
     games: n,
@@ -174,6 +176,11 @@ function aggregate(games) {
     crownScoresPerGame: +(sum.crownScores / n).toFixed(2),
     offensiveReboundsPerGame: +(sum.offensiveRebounds / n).toFixed(2),
     releaseOutcomes: sum.releases,
+    releaseResults: Object.fromEntries(Object.entries(sum.releases).map(([quality, attempts]) => {
+      const makes = sum.releaseMakes[quality] || 0;
+      assert.ok(makes <= attempts, `${quality}: made jumpers cannot exceed releases`);
+      return [quality, { attempts, makes, fg: attempts ? +(makes / attempts).toFixed(3) : null }];
+    })),
     maxCrownSwing: sum.maxCrownSwing,
     avgSeconds: +(sum.time / n).toFixed(1),
   };

@@ -859,12 +859,12 @@
     "field_status": "FIELD_PENDING"
   },
   "blacktop_balance_20261004": {
-    "status": "LOCAL_FULL_VERIFIED",
+    "status": "FINAL_BALANCE_VERIFICATION_IN_PROGRESS",
     "pull_request": "https://github.com/Grantauch/the-desk/pull/177",
     "release_games": 600,
     "deep_games": 824,
     "deep_status": "PENDING",
-    "validation": "Full canonical verify:full passed; every existing balance guardrail retained. All eight courts and four rules covered.",
+    "validation": "First 600-game canonical run passed; deeper sampling found Trickster/Big imbalance. Final 36-point rating redistribution and per-release attempts/makes measurement are under canonical and deep archetype verification. Every original guardrail retained.",
     "crown_rules": {
       "points": 6,
       "opponent_loss": 2,

@@ -1038,7 +1038,7 @@
     this.fx.float(pts > 0 ? '+' + pts : 'NO COUNT', rimx, rimy, rimz + 2.5, pts > 0 ? team.colors.pri === '#ffffff' ? '#ffd23f' : '#ffffff' : '#ff6a13');
     this.hype(kind === 'dunk' || deep || crown ? 1 : 0.6);
     shooter.celebrate = kind === 'dunk' || deep || crown || shooter.fire || Math.random() < 0.3;
-    this.emit('score', { team: team.i, pts, kind, deep, crown, stolen, shooter });
+    this.emit('score', { team: team.i, pts, kind, deep, crown, stolen, shooter, quality: extra.quality || null });
     // possession
     this.nextOffense = 1 - team.i;
     this.phase = 'scored'; this.phaseT = 0;
