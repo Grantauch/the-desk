@@ -26,6 +26,8 @@ Students do not sign in with a Google account or an email address. Each Chromebo
 
 The rules make sure that only players in a game can change it, that nobody can list every game, and that each move has to build on the latest board.
 
+When this rules file changes, paste it again and click **Publish**. The October 2026 update opened seats five through eight, so games with more than four players need the new rules.
+
 ## 4. Copy the settings into the site
 
 1. Click the gear next to **Project overview**, then **Project settings**.
