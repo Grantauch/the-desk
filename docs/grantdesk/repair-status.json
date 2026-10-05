@@ -847,5 +847,15 @@
     ],
     "deployment_status": "PENDING_PROTECTED_PR_AND_NETLIFY",
     "field_status": "FIELD_PENDING"
+  },
+  "robber_barons_eight_players_20261004": {
+    "status": "VERIFIED_LOCAL_AND_FIREBASE",
+    "summary": "Eight player setup, four new barons and complete tabletop/card/face art.",
+    "verification": [
+      "Published Firebase rules readback matches source eight-seat rules.",
+      "Live synthetic test: eight seat claims and eight player game writes accepted; ninth seat, non-player write, stale version and global game listing rejected."
+    ],
+    "deployment_status": "PENDING_REQUIRED_CHECK_AND_NETLIFY",
+    "field_status": "FIELD_PENDING"
   }
 }
