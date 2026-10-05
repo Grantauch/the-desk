@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Jungle</title>
+<meta name="description" content="Upton Sinclair aimed at the public's heart and hit its stomach. Check his novel against the inspectors and sort what the 1906 laws fixed.">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-the-jungle.html">
+<meta property="og:title" content="The Jungle">
+<meta property="og:description" content="Upton Sinclair aimed at the public's heart and hit its stomach. Check his novel against the inspectors and sort what the 1906 laws fixed.">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-the-jungle.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/ush9/the-jungle/assets/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--kraft:#cdb48b;--kraft2:#bfa476;--steel:#262b2e;--steel2:#343a3e;--tile:#e9ece8;--stamp:#5d3f8f;--blood:#8f2a22;--ink:#16191b}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--tile);color:var(--ink);font:400 1.12rem/1.66 Lora,Georgia,serif}
+.rm *{transition:none!important;animation:none!important}
+[data-progress]{position:fixed;top:0;left:0;right:0;height:4px;background:var(--stamp);transform-origin:0 50%;transform:scaleX(0);z-index:50}
+h1,h2{font-family:Oswald,Impact,sans-serif;font-weight:700;text-transform:uppercase;line-height:.95;margin:0;letter-spacing:.01em}
+.mono{font-family:"Space Mono",monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
+.wrap{max-width:44rem;margin:0 auto;padding:0 1.25rem}
+section{padding:5rem 0}
+p{margin:0 0 1.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:3px solid var(--stamp);outline-offset:3px}
+button{font:inherit}
+h2{font-size:clamp(2.3rem,7vw,4rem);margin-bottom:1.2rem}
+.kick{display:block;margin-bottom:.7rem;color:#5c6266}
+
+/* hero: tile wall + stamp */
+.hero{background:var(--steel);color:var(--tile);min-height:92vh;display:grid;align-items:end;position:relative;overflow:hidden;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:64px 64px}
+.hero .wrap{max-width:62rem;padding-bottom:4.5rem}
+.hero h1{font-size:clamp(4.5rem,17vw,12rem)}
+.hero .dek{font-size:1.3rem;max-width:34rem;font-style:italic;margin-top:1rem;color:#cfd4d1}
+.hero .meta{color:#a9b0b2}
+.seal{position:absolute;right:6%;top:12%;width:clamp(9rem,22vw,15rem);aspect-ratio:1;border:5px solid var(--stamp);border-radius:50%;display:grid;place-items:center;text-align:center;color:var(--stamp);font-family:"Space Mono",monospace;font-weight:700;font-size:clamp(.7rem,1.4vw,.95rem);letter-spacing:.08em;transform:rotate(-12deg);background:rgba(233,236,232,.92);box-shadow:inset 0 0 0 6px rgba(233,236,232,.92),inset 0 0 0 8px var(--stamp)}
+@media (max-width:700px){.seal{position:relative;right:auto;top:auto;margin:2.5rem 0 0 1.25rem}}
+
+/* plain */
+.plain{background:var(--kraft);padding:2.3rem 2rem;max-width:38rem;margin:0 auto;border-top:6px solid var(--ink)}
+.plain h3{font-family:"Space Mono",monospace;font-size:.9rem;letter-spacing:.14em;margin:0 0 1rem}
+.plain p:last-child{margin:0}
+
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,14rem);gap:2.4rem;align-items:start;max-width:62rem;margin:0 auto;padding:0 1.25rem}
+@media (max-width:760px){.split{grid-template-columns:1fr}}
+.timeline{border-left:3px solid var(--ink);padding-left:1rem}
+.timeline div{margin:0 0 1.2rem}
+.timeline b{display:block;font-family:Oswald,sans-serif;font-size:1.5rem;line-height:1}
+.timeline span{font-size:.95rem}
+
+/* verify */
+.verify{background:var(--steel);color:var(--tile)}
+.verify .kick{color:#9aa3a6}
+.items{max-width:60rem;margin:2.2rem auto 0;padding:0 1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1rem}
+.item{background:var(--steel2);border:1px solid #4b5357;padding:1.3rem;display:flex;flex-direction:column}
+.item .q{font-style:italic;font-size:1.05rem;flex:1;margin:0}
+.item .src{color:#9aa3a6;margin:.6rem 0 1rem}
+.item .acts{display:flex;gap:.5rem}
+.item .acts button{flex:1;background:none;border:1px solid var(--tile);color:var(--tile);padding:.55rem;cursor:pointer;font-family:"Space Mono",monospace;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.item .acts button[aria-pressed=true]{background:var(--tile);color:var(--ink)}
+.item .res{display:none;margin-top:1rem;padding-top:1rem;border-top:1px dashed #6a7377;font-size:.98rem}
+.item.done .res{display:block}
+.tag{display:inline-block;font-family:"Space Mono",monospace;font-weight:700;font-size:.78rem;letter-spacing:.1em;padding:.15rem .5rem;margin-bottom:.5rem;border:2px solid}
+.tag.y{color:#b9a4e3;border-color:#b9a4e3}.tag.n{color:#e2a198;border-color:#e2a198}
+.tally{max-width:60rem;margin:1.6rem auto 0;padding:0 1.25rem;font-family:"Space Mono",monospace;font-size:.9rem;color:#cfd4d1}
+
+/* quote break */
+.qbreak{background:var(--kraft2);padding:5rem 1.25rem;text-align:center}
+.qbreak blockquote{margin:0 auto;max-width:44rem;font-family:Oswald,sans-serif;font-weight:500;text-transform:uppercase;font-size:clamp(1.8rem,5vw,3.2rem);line-height:1.08}
+.qbreak cite{display:block;margin-top:1.2rem;font:400 .85rem "Space Mono",monospace;letter-spacing:.1em}
+
+/* sorter */
+.sorter{max-width:62rem;margin:0 auto;padding:0 1.25rem}
+.probs{display:grid;gap:.8rem;margin-top:1.6rem}
+.prob{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;background:#fff;border:1px solid #c5cbc8;padding:1rem 1.1rem}
+@media (max-width:640px){.prob{grid-template-columns:1fr}}
+.prob .acts{display:flex;gap:.4rem}
+.prob .acts button{background:none;border:1px solid var(--ink);padding:.5rem .8rem;cursor:pointer;font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+.prob .acts button[aria-pressed=true]{background:var(--ink);color:var(--tile)}
+.prob .ans{grid-column:1/-1;display:none;font-size:.98rem;border-left:4px solid var(--stamp);padding-left:.8rem}
+.prob.done .ans{display:block}
+.prob.done.miss .ans{border-color:var(--blood)}
+.meter{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+.meter div{background:var(--steel);color:var(--tile);padding:1.2rem}
+.meter b{font-family:Oswald,sans-serif;font-size:3rem;line-height:1;display:block}
+.meter .eat b{color:#b9a4e3}.meter .work b{color:#e2a198}
+.reveal-line{display:none;margin-top:1.4rem;font-size:1.2rem;font-weight:600}
+.reveal-line.show{display:block}
+
+/* plates */
+.plate{margin:0 0 1.4rem;background:#fff;border:1px solid #c5cbc8;padding:.5rem}
+.plate img{display:block;width:100%;height:auto}
+.plate figcaption{margin-top:.4rem;text-transform:none;letter-spacing:.02em;color:#5c6266}
+.plate.side{float:right;max-width:15rem;margin:0 0 1rem 1.4rem}
+@media (max-width:640px){.plate.side{float:none;max-width:none;margin:1rem 0}}
+.plain .cover{float:right;width:7.5rem;margin:0 0 .8rem 1rem;border:2px solid var(--ink);transform:rotate(2deg);box-shadow:4px 6px 0 rgba(0,0,0,.25)}
+.yard{min-height:70vh;background:#222 center/cover no-repeat;display:flex;align-items:flex-end;position:relative}
+.yard::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(22,25,27,.92),rgba(22,25,27,.1) 60%)}
+.yard .wrap{position:relative;z-index:1;color:var(--tile);padding-bottom:2.6rem}
+.yard p{font-family:Oswald,sans-serif;text-transform:uppercase;font-size:clamp(1.4rem,3.5vw,2.2rem);line-height:1.05;margin:.4rem 0 0;max-width:40rem}
+.stampbox{text-align:center;margin-top:1.6rem;min-height:4rem}
+#stamp{display:inline-block;font-family:"Space Mono",monospace;font-weight:700;color:var(--stamp);border:4px double var(--stamp);padding:.5rem 1.2rem;letter-spacing:.14em;opacity:0;transform:scale(2.2) rotate(-14deg);transition:opacity .25s,transform .35s cubic-bezier(.3,1.6,.5,1)}
+#stamp.on{opacity:.9;transform:scale(1) rotate(-6deg)}
+/* card */
+.card{background:#fff;border:2px solid var(--ink);max-width:44rem;margin:0 auto;padding:2.2rem 1.8rem;position:relative}
+.card::before{content:"INSPECTED";position:absolute;right:1.2rem;top:1rem;font-family:"Space Mono",monospace;font-weight:700;color:var(--stamp);border:3px solid var(--stamp);padding:.2rem .6rem;transform:rotate(8deg);opacity:.7;letter-spacing:.12em;font-size:.85rem}
+.card h2{font-size:2.6rem;margin-bottom:.3rem}
+.card label{display:block;font-family:"Space Mono",monospace;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;margin:1.3rem 0 .4rem}
+.card input,.card textarea{width:100%;font:inherit;font-size:1rem;padding:.6rem .7rem;border:1px solid #8f9693;background:#f7f8f6;color:var(--ink)}
+.card textarea{min-height:5.5rem;resize:vertical}
+.card .row{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.card .copy{margin-top:1.4rem;background:var(--stamp);color:#fff;border:0;padding:.95rem 1.4rem;cursor:pointer;font-family:"Space Mono",monospace;letter-spacing:.1em;text-transform:uppercase}
+.card [data-status]{display:block;margin-top:.7rem}
+.next{text-align:center;padding:5rem 1.25rem 3rem}
+.next p{font-family:Oswald,sans-serif;text-transform:uppercase;font-size:2rem;max-width:38rem;margin:0 auto;line-height:1.1}
+.sources{max-width:44rem;margin:0 auto;padding:0 1.25rem 4rem;font-size:.9rem;color:#5c6266}
+.sources button{background:none;border:0;color:#5c6266;text-decoration:underline;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div data-progress></div>
+
+<header class="hero">
+  <div class="seal" aria-hidden="true">U.S.<br>INSPECTED<br>AND<br>PASSED<br>1906</div>
+  <div class="wrap">
+    <div class="mono meta">Packingtown, Chicago, fall 1904</div>
+    <h1>The Jungle</h1>
+    <p class="dek">Upton Sinclair wanted Americans to cry for the workers. They read his book and checked their sausage instead.</p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="split">
+    <div class="reveal">
+      <span class="mono kick">Seven weeks undercover</span>
+      <p>The Union Stock Yards opened on Chicago's South Side on Christmas Day, 1865. Railroads hauled in cattle and hogs from across the West, and giant packers like Armour and Swift shipped the meat out in refrigerated railcars to the whole country and across the ocean. Tens of thousands of people worked in the plants, many of them immigrants from Lithuania, Poland and Slovakia.</p>
+      <p>Upton Sinclair was 26, broke, and a socialist. Fred Warren, editor of a socialist weekly called Appeal to Reason, paid him a 500 dollar advance to write a novel about the packinghouse workers. In the fall of 1904 Sinclair put on old clothes, picked up a workman's lunch pail, and walked into the plants. Nobody stopped him. He spent seven weeks there, talking to workers in their homes at night.</p>
+    </div>
+    <div class="reveal">
+    <figure class="plate"><img src="/storyhub/ush9/the-jungle/assets/sinclair.webp" alt="Young Upton Sinclair seated on the edge of a table in a white shirt and tie" loading="lazy"><figcaption class="mono">Upton Sinclair, about 1906. Colorized.</figcaption></figure>
+    <div class="timeline" aria-label="Timeline">
+      <div><b>1904</b><span>Seven weeks in Packingtown</span></div>
+      <div><b>1905</b><span>Serialized in Appeal to Reason, February to November</span></div>
+      <div><b>Feb 1906</b><span>Published as a book by Doubleday, Page</span></div>
+      <div><b>June 30, 1906</b><span>Two federal food laws signed</span></div>
+    </div>
+    </div>
+  </div>
+  <div class="plain reveal" style="margin-top:3rem">
+    <img class="cover" src="/storyhub/ush9/the-jungle/assets/jungle.webp" alt="Cover of the 1906 first edition of The Jungle by Upton Sinclair" loading="lazy">
+    <h3>WHY A NOVEL AND NOT A NEWS STORY</h3>
+    <p>Tarbell spent five years proving every sentence. Sinclair did something that sounds like cheating. He invented a family, the Rudkuses, gave them names and hopes, and then walked them through every disaster he'd heard about in Packingtown. Jurgis Rudkus never existed. The plants, the swindles and the injuries mostly came from real interviews.</p>
+    <p>Why would that work better? Think about the difference between reading that thousands of workers get hurt and watching one character you care about lose his job after an injury. The second one sticks. That's what fiction does. The catch is that a novelist doesn't have to prove anything. A scene can be a real event, a rumor, or three stories mashed into one, and the reader can't tell which. So the government sent its own people to check.</p>
+  </div>
+</section>
+
+<div class="yard reveal" style="background-image:url('/storyhub/ush9/the-jungle/assets/yards.webp')" role="img" aria-label="Old postcard of hog carcasses hanging in a row in a dressing room at the Union Stock Yards">
+  <div class="wrap"><span class="mono">An early 1900s postcard: a dressing room at the Union Stock Yards, Chicago. Visitors toured the plants and mailed cards like this home.</span><p>Hundreds of acres of pens, rail lines and slaughterhouses. The packers liked to say they used everything but the squeal.</p></div>
+</div>
+
+<section class="verify">
+  <div class="wrap reveal">
+    <span class="mono kick">Spring 1906</span>
+    <h2>Fiction meets the inspectors.</h2>
+    <p>Theodore Roosevelt thought Sinclair exaggerated, but he could not ignore the public panic. He sent two men he trusted to Chicago: Charles P. Neill, the U.S. Commissioner of Labor, and James Bronson Reynolds, a lawyer and settlement house reformer. Their visit was short and announced ahead of time, so the plants had a chance to clean up. Roosevelt sent their report to Congress on June 4, 1906, and called the conditions revolting. For each scene from the novel, predict whether the investigators backed it up.</p>
+  </div>
+  <div class="items" id="items">
+    <div class="item reveal" data-a="y" data-r="Confirmed. The investigators saw a hog carcass fall from the line, slide partway into a workers' toilet room, and get picked up and sent on without being cleaned.">
+      <p class="q">Meat that hit the filthy floor went right back into production.</p>
+      <div class="mono src">Scene in The Jungle</div>
+      <div class="acts"><button data-p="y">Confirmed</button><button data-p="n">Not confirmed</button></div>
+      <div class="res"></div>
+    </div>
+    <div class="item reveal" data-a="y" data-r="Confirmed, and this was the report's sharpest complaint. Toilets were filthy, some were far from the work floor, and there were few sinks or none at all. Workers went straight from the toilet back to handling meat.">
+      <p class="q">Workers had nowhere to wash their hands before touching the meat.</p>
+      <div class="mono src">Scene in The Jungle</div>
+      <div class="acts"><button data-p="y">Confirmed</button><button data-p="n">Not confirmed</button></div>
+      <div class="res"></div>
+    </div>
+    <div class="item reveal" data-a="n" data-r="Not confirmed. The report does not back up the lard vat scene. Sinclair said he heard it from workers, and historians still argue about whether it ever happened. It is the most famous passage in the book and the least proven.">
+      <p class="q">Men fell into the open lard vats and went out to the world as Anderson's Pure Leaf Lard.</p>
+      <div class="mono src">The Jungle, Chapter 9</div>
+      <div class="acts"><button data-p="y">Confirmed</button><button data-p="n">Not confirmed</button></div>
+      <div class="res"></div>
+    </div>
+    <div class="item reveal" data-a="y" data-r="Confirmed in general terms. Roosevelt's message said the stock yards and packing houses were not kept even reasonably clean and that the handling of food was uncleanly and dangerous to health.">
+      <p class="q">The packing houses were dark, dirty and unsafe for food.</p>
+      <div class="mono src">Scene in The Jungle</div>
+      <div class="acts"><button data-p="y">Confirmed</button><button data-p="n">Not confirmed</button></div>
+      <div class="res"></div>
+    </div>
+  </div>
+  <p class="tally" id="tally" aria-live="polite"></p>
+</section>
+
+<div class="qbreak reveal">
+  <blockquote>I aimed at the public's heart, and by accident I hit it in the stomach.</blockquote>
+  <cite>Upton Sinclair, Cosmopolitan, October 1906</cite>
+</div>
+
+<section>
+  <div class="wrap reveal">
+    <span class="mono kick">June 30, 1906</span>
+    <h2>Two laws in one day.</h2>
+    <figure class="plate side"><img src="/storyhub/ush9/the-jungle/assets/wiley.webp" alt="Portrait of Dr. Harvey Wiley with a dark mustache" loading="lazy"><figcaption class="mono">Dr. Harvey Wiley, the government chemist who spent years pushing for the food and drug law. Colorized.</figcaption></figure>
+    <p>Roosevelt signed the Meat Inspection Act and the Pure Food and Drug Act on the same day. The first put federal inspectors inside every plant that shipped meat across state lines. They examined animals before and after slaughter, and the government paid them, so the packers could not buy their loyalty. The second banned mislabeled or adulterated food and medicine in interstate trade, and it forced labels to name dangerous ingredients like morphine, opium and cocaine. Earlier that spring, on April 14, Roosevelt had complained about reporters who never stopped raking up filth. He called them muckrakers. The reporters kept the name.</p>
+    <div class="plain" style="margin:2rem 0">
+      <h3>WHAT ADULTERATED MEANS</h3>
+      <p>Adulterated food has something mixed into it that shouldn't be there, usually something cheaper or something meant to hide a problem. In 1906 that could mean chemicals that made spoiled meat look and smell fresh, or a bottle of cough syrup that was secretly full of morphine with nothing on the label to say so. You'd buy it in good faith and have no way to know. The 1906 law didn't make every food safe overnight. It made lying about what's inside a federal crime when the product crossed state lines.</p>
+    </div>
+    <p>Now go back to Jurgis Rudkus and his family. The novel was about their lives. Sort each of their problems. Did the 1906 laws fix it?</p>
+  </div>
+  <div class="sorter">
+    <div class="probs" id="probs">
+      <div class="prob reveal" data-a="y" data-r="Fixed. Federal inspectors now checked carcasses and condemned diseased meat in any plant shipping across state lines."><div>Diseased meat is sold to the public as healthy.</div><div class="acts"><button data-p="y">Law fixed it</button><button data-p="n">Not fixed</button></div><div class="ans"></div></div>
+      <div class="prob reveal" data-a="n" data-r="Not fixed. Nothing in either law touched workplace safety. Injured packinghouse workers still lost their jobs with no compensation."><div>Jurgis is injured on the killing floor and fired.</div><div class="acts"><button data-p="y">Law fixed it</button><button data-p="n">Not fixed</button></div><div class="ans"></div></div>
+      <div class="prob reveal" data-a="y" data-r="Fixed. The Pure Food and Drug Act required labels to list dangerous ingredients like morphine and cocaine."><div>A medicine secretly contains morphine and the label does not say so.</div><div class="acts"><button data-p="y">Law fixed it</button><button data-p="n">Not fixed</button></div><div class="ans"></div></div>
+      <div class="prob reveal" data-a="n" data-r="Not fixed. Child labor in the plants was a state matter. The 1906 food laws said nothing about who did the work."><div>The children of the family go to work in the plants.</div><div class="acts"><button data-p="y">Law fixed it</button><button data-p="n">Not fixed</button></div><div class="ans"></div></div>
+      <div class="prob reveal" data-a="y" data-r="Fixed. Disguising spoiled meat with chemicals is adulteration, and adulterated food was now banned in interstate trade."><div>Spoiled meat is treated with chemicals and sold as fresh.</div><div class="acts"><button data-p="y">Law fixed it</button><button data-p="n">Not fixed</button></div><div class="ans"></div></div>
+      <div class="prob reveal" data-a="n" data-r="Not fixed. Wages and hours were untouched. Packinghouse workers did not win lasting union contracts until the late 1930s and 1940s."><div>Wages are too low to feed the family.</div><div class="acts"><button data-p="y">Law fixed it</button><button data-p="n">Not fixed</button></div><div class="ans"></div></div>
+    </div>
+    <div class="meter" aria-live="polite">
+      <div class="eat"><b id="eatN">0</b><span class="mono">Fixes that protect the person eating</span></div>
+      <div class="work"><b id="workN">0</b><span class="mono">Fixes that protect the person working</span></div>
+    </div>
+    <div class="stampbox" aria-hidden="true"><span id="stamp">U.S. INSPECTED AND PASSED</span></div>
+    <p class="reveal-line" id="rline">Every fix protects the customer. None protects Jurgis. That is what Sinclair meant by hitting the stomach. Some big packers even came to support inspection, because a government stamp helped convince Europe that American meat was safe to buy again.</p>
+  </div>
+</section>
+
+<section style="padding-top:1rem">
+  <form class="card" data-card="THE JUNGLE: Upton Sinclair and the Food Laws (StoryHub)" onsubmit="return false">
+    <span class="mono">Your card</span>
+    <h2>Before you go</h2>
+    <div class="row">
+      <div><label for="nm">Name</label><input id="nm" name="name"></div>
+      <div><label for="hr">Hour</label><input id="hr" name="hour"></div>
+    </div>
+    <label for="q1">Q1. How long did Sinclair spend in Packingtown, and who paid him to go?</label>
+    <textarea id="q1" data-q="How long did Sinclair spend in Packingtown, and who paid him to go?"></textarea>
+    <label for="q2">Q2. Name the two laws Roosevelt signed on June 30, 1906.</label>
+    <textarea id="q2" data-q="Name the two laws Roosevelt signed on June 30, 1906."></textarea>
+    <label for="q3">Q3. Which scene in The Jungle did the government investigators NOT confirm?</label>
+    <textarea id="q3" data-q="Which scene in The Jungle did the government investigators NOT confirm?"></textarea>
+    <label for="back">Back of the card. Who changed more this week, the photographer or the novelist? Use one fact about each. Up to 150 words. Words: <span data-wc>0</span></label>
+    <textarea id="back" data-back="Who changed more this week, the photographer or the novelist? Use one fact about each." style="min-height:9rem"></textarea>
+    <button type="button" class="copy" data-copy>Copy my card</button>
+    <span data-status aria-live="polite"></span>
+  </form>
+</section>
+
+<div class="next reveal">
+  <div class="mono" style="margin-bottom:1rem">Next time</div>
+  <p>Review day. Three muckrakers go head to head.</p>
+</div>
+
+<div class="sources">
+  <button data-sources-toggle aria-expanded="false" aria-controls="srcs">Sources</button>
+  <div id="srcs" hidden><ul>
+    <li>Upton Sinclair, The Jungle, Doubleday, Page and Company, 1906. Chapter 9 lard vat passage.</li>
+    <li>Theodore Roosevelt, Special Message to Congress transmitting the report of Charles P. Neill and James Bronson Reynolds on conditions in the Chicago stock yards, June 4, 1906.</li>
+    <li>Upton Sinclair, What Life Means to Me, Cosmopolitan, October 1906.</li>
+    <li>Meat Inspection Act and Pure Food and Drug Act, signed June 30, 1906.</li>
+    <li>Photographs, postcard and covers: Upton Sinclair about 1906, Harvey Wiley about 1905, a Union Stock Yards postcard, and the 1906 first edition cover of The Jungle, public domain via Wikimedia Commons. Colorized for this lesson with the DDColor model.</li>
+  </ul></div>
+</div>
+</main>
+
+<script>/* shared hub runtime: progress, reveal on scroll, card copy */
+(function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.toggle('rm', !!RM);
+  window.HUB = { reducedMotion: !!RM };
+
+  // progress bar
+  var bar = document.querySelector('[data-progress]');
+  function onScroll(){
+    if(!bar) return;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+  }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // reveal
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !RM){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -10% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // card
+  var card = document.querySelector('[data-card]');
+  if(card){
+    var title = card.getAttribute('data-card');
+    var back = card.querySelector('[data-back]');
+    var wc = card.querySelector('[data-wc]');
+    function count(){ var t=(back.value||'').trim(); var n=t? t.split(/\s+/).length : 0; if(wc) wc.textContent = n; return n; }
+    if(back){ back.addEventListener('input', count); count(); }
+    var btn = card.querySelector('[data-copy]');
+    var status = card.querySelector('[data-status]');
+    function val(sel){ var el=card.querySelector(sel); return el ? (el.value||'').trim() : ''; }
+    function text(){
+      var lines = [title, '', 'Name: ' + (val('[name=name]')||'______') + '   Hour: ' + (val('[name=hour]')||'___') + '   Date: ' + new Date().toLocaleDateString(), '', 'QUESTIONS'];
+      card.querySelectorAll('[data-q]').forEach(function(q, i){
+        lines.push('');
+        lines.push('Q' + (i+1) + '. ' + q.getAttribute('data-q'));
+        lines.push((q.value||'').trim() || '[no answer]');
+      });
+      if(back){ lines.push(''); lines.push('BACK OF THE CARD   Word count: ' + count()); lines.push(back.getAttribute('data-back')); lines.push((back.value||'').trim() || '[no response]'); }
+      return lines.join('\n');
+    }
+    function fallback(t){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); var ok=false; try{ ok=document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); return ok;
+    }
+    function say(m){ if(status){ status.textContent = m; } }
+    if(btn) btn.addEventListener('click', function(){
+      var t = text();
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(t).then(function(){ say('Copied. Paste it into your Google Classroom doc.'); }, function(){ say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); });
+      } else { say(fallback(t) ? 'Copied. Paste it into your Google Classroom doc.' : 'Copy blocked. Select your answers and copy them by hand.'); }
+    });
+  }
+
+  // generic toggles for source panels
+  document.querySelectorAll('[data-sources-toggle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p=document.getElementById(b.getAttribute('aria-controls')); var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', String(!open)); p.hidden = open;
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var right=0, done=0;
+  document.querySelectorAll('.item').forEach(function(it){
+    it.querySelectorAll('[data-p]').forEach(function(b){ b.addEventListener('click',function(){
+      var first=!it.classList.contains('done');
+      it.querySelectorAll('[data-p]').forEach(function(o){o.setAttribute('aria-pressed','false');}); b.setAttribute('aria-pressed','true');
+      var a=it.getAttribute('data-a'), ok=b.getAttribute('data-p')===a;
+      it.querySelector('.res').innerHTML='<span class="tag '+a+'">'+(a==='y'?'IN THE REPORT':'NOT IN THE REPORT')+'</span><br>'+it.getAttribute('data-r');
+      it.classList.add('done');
+      if(first){ done++; if(ok) right++; }
+      if(done===4) document.getElementById('tally').textContent='Your first guesses matched the report on '+right+' of 4. Three of the four scenes held up. The one everybody remembers did not.';
+    }); });
+  });
+  var eat=0, work=0, sorted=0;
+  document.querySelectorAll('.prob').forEach(function(p){
+    p.querySelectorAll('[data-p]').forEach(function(b){ b.addEventListener('click',function(){
+      var first=!p.classList.contains('done');
+      p.querySelectorAll('[data-p]').forEach(function(o){o.setAttribute('aria-pressed','false');}); b.setAttribute('aria-pressed','true');
+      var ok=b.getAttribute('data-p')===p.getAttribute('data-a');
+      p.querySelector('.ans').textContent=(ok?'Right. ':'Look again. ')+p.getAttribute('data-r');
+      p.classList.add('done'); p.classList.toggle('miss',!ok);
+      if(first){ sorted++; if(p.getAttribute('data-a')==='y') eat++; }
+      document.getElementById('eatN').textContent=eat; document.getElementById('workN').textContent=work;
+      if(sorted===6){ document.getElementById('rline').classList.add('show'); document.getElementById('stamp').classList.add('on'); }
+    }); });
+  });
+})();
+</script>
+</body>
+</html>
