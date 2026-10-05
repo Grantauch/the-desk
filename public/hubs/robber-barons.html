@@ -98,7 +98,16 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 .hero .tag { font-family: var(--display); font-style: italic; font-size: 22px; color: #d9ccaa; margin: 10px auto 26px; max-width: 30ch; }
 .barons { display: flex; justify-content: center; gap: clamp(8px, 1.6vw, 22px); flex-wrap: nowrap; }
 .barons figure { margin: 0; flex: 0 1 118px; min-width: 0; text-align: center; }
+.barons.many { gap: clamp(6px, 1vw, 14px); }
+.barons.many figure { flex-basis: 84px; }
+.barons.many figcaption { font-size: 15px; }
+.barons.many figcaption span { font-size: 11px; }
 .barons .card { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; border-radius: 4px; box-shadow: 0 0 0 2px var(--ink), 0 12px 24px rgba(0,0,0,0.55); transition: transform 0.25s ease; }
+.cardplate { position: relative; overflow: hidden; display: grid !important; place-content: center; justify-items: center; gap: 8%; background: radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--mc) 55%, #1b1a16) 0%, #14110c 78%); border: 2px solid var(--gilt-lo, #8a6420); }
+.cardplate::before { content: ''; position: absolute; inset: 5%; border: 1px solid rgba(236,208,140,0.55); border-radius: 2px; pointer-events: none; }
+.cardplate b { font-family: var(--sc); font-weight: 400; font-size: clamp(10px, 0.95vw, 15px); color: var(--gilt-hi); letter-spacing: 0.04em; }
+.cardplate .medal { width: 62% !important; height: auto !important; aspect-ratio: 1; }
+.cardplate > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .barons .medal { width: 70px; height: 70px; box-shadow: 0 0 0 3px var(--gilt-hi), 0 0 0 5px var(--ink), 0 10px 20px rgba(0,0,0,0.5), inset 0 -4px 8px rgba(0,0,0,0.35); }
 .barons figcaption { margin-top: 10px; font-family: var(--sc); font-size: 17px; line-height: 1.05; color: var(--paper); }
 .barons figcaption span { display: block; font-family: var(--sans); font-size: 14px; color: #b9ad8d; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
@@ -415,6 +424,12 @@ canvas.rose { position: absolute; inset: 0; width: 100%; height: 100%; pointer-e
 .bidder .bc { font-size: 14px; color: var(--ink-2); }
 .bidder .bb { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .bidder .bb .btn { padding: 6px 10px; font-size: 16px; }
+.bidders.many { gap: 4px; }
+.bidders.many .bidder { padding: 3px 8px; grid-template-columns: 28px minmax(0, 1fr) auto; }
+.bidders.many .bidder .medal { width: 28px; height: 28px; }
+.bidders.many .bidder .bn { font-size: 17px; }
+.bidders.many .bidder .bc { font-size: 13px; }
+.bidders.many .bidder .bb .btn { padding: 4px 9px; font-size: 15px; }
 
 /* Finale */
 .finale { width: min(1120px, 96vw); color: var(--paper); }
@@ -834,6 +849,10 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
         <button type="button" data-n="2" aria-pressed="false">2</button>
         <button type="button" data-n="3" aria-pressed="false">3</button>
         <button type="button" data-n="4" aria-pressed="true">4</button>
+        <button type="button" data-n="5" aria-pressed="false">5</button>
+        <button type="button" data-n="6" aria-pressed="false">6</button>
+        <button type="button" data-n="7" aria-pressed="false">7</button>
+        <button type="button" data-n="8" aria-pressed="false">8</button>
       </div>
     </div>
     <div class="field">
@@ -862,7 +881,7 @@ body[data-mood="panic"] .cscene img.on, body[data-mood="boom"] .cscene img.on { 
       </div>
       <label class="check" for="aucChk"><input type="checkbox" id="aucChk" checked> Auction businesses nobody buys</label>
     </div>
-    <p class="hint">When time runs out, the round finishes so every player gets the same number of turns. Highest net worth wins. The grand board adds the circus, Coca-Cola, the Gold Room and more, and plays best in 40 minutes or longer.</p>
+    <p class="hint">When time runs out, the round finishes so every player gets the same number of turns. Highest net worth wins. The grand board adds the circus, Coca-Cola, the Gold Room and more, and plays best in 40 minutes or longer. With six or more players, pick the grand board so there are enough businesses to go around.</p>
     <div class="actions-row">
       <button class="btn primary" id="startBtn" type="button">Open for business</button>
       <button class="btn" id="resumeBtn" type="button" hidden>Resume saved game</button>
@@ -1101,7 +1120,19 @@ const RB = (() => {
       fact: 'Carnegie bought iron mines, coke ovens, ore ships and his own rail line so that he controlled every step of making steel. Historians call this vertical integration.' },
     { key: 'morgan', name: 'J. Pierpont Morgan', short: 'Morgan', title: 'The Banker', color: '#6a4591', emblem: 'bank',
       power: 'Interest pays. You collect $250 at Payday instead of $200.',
-      fact: 'In 1895 the federal Treasury was running out of gold. Morgan led a group of bankers that supplied about 3.5 million ounces of gold and kept the government from defaulting.' }
+      fact: 'In 1895 the federal Treasury was running out of gold. Morgan led a group of bankers that supplied about 3.5 million ounces of gold and kept the government from defaulting.' },
+    { key: 'gould', name: 'Jay Gould', short: 'Gould', title: 'The Speculator', color: '#3d7a45', emblem: 'scales',
+      power: 'Friends on the bench. You walk out of the Courthouse on your next roll without paying bail.',
+      fact: 'In the Erie War of 1868 Gould and his partners printed new Erie Railroad stock to beat Vanderbilt. When a judge ordered their arrest, they fled to New Jersey while Gould carried cash to Albany and paid legislators to make the stock legal.' },
+    { key: 'stanford', name: 'Leland Stanford', short: 'Stanford', title: 'The Governor', color: '#c46a24', emblem: 'hammer',
+      power: 'Federal land grants. Railroads cost you $100 instead of $200.',
+      fact: 'Stanford was governor of California and president of the Central Pacific. Under the Pacific Railway Acts of 1862 and 1864, Congress gave the railroad millions of acres of public land and loans for every mile of track. He swung at the last spike at Promontory Summit on May 10, 1869.' },
+    { key: 'green', name: 'Hetty Green', short: 'Green', title: 'The Witch of Wall Street', color: '#56606e', emblem: 'bag',
+      power: 'Cash in the vault. At Payday you also collect 5 percent of the cash you hold, up to $100.',
+      fact: 'Hetty Green inherited a fortune in 1865 and grew it by buying bonds, holding cash and lending when banks ran short. She worked from a desk at the Chemical National Bank in New York, and during the Panic of 1907 she lent New York City $1.1 million.' },
+    { key: 'frick', name: 'Henry Clay Frick', short: 'Frick', title: 'The Coke King', color: '#2a7f86', emblem: 'mill',
+      power: 'Cuts labor costs. Streets cards that charge you cost half.',
+      fact: 'Frick sold the coke that fired Carnegie\u2019s furnaces and ran Carnegie Steel from 1889. In July 1892 he locked out the workers at Homestead, Pennsylvania, and sent in 300 Pinkerton guards. The battle on July 6 left at least seven workers and three Pinkertons dead.' }
   ];
   const MOODS = { boom: 1.5, steady: 1, panic: 0.5 };
   const GOLD = { boom: 150, steady: 50, panic: -100 }; // the Gold Room pays out with the market
@@ -1166,7 +1197,13 @@ const RB = (() => {
 
   function baronOf(s, pid) { return BARONS[s.players[pid].baron]; }
   function hasPower(s, pid, key) { return pid != null && pid >= 0 && s.players[pid] && baronOf(s, pid).key === key; }
-  function paydayFor(s, p) { return hasPower(s, p.id, 'morgan') ? 250 : PAYDAY; }
+  function paydayFor(s, p) {
+    if (hasPower(s, p.id, 'morgan')) return 250;
+    if (hasPower(s, p.id, 'green')) return PAYDAY + Math.min(100, Math.floor(Math.max(0, p.cash) * 0.05 / 5) * 5);
+    return PAYDAY;
+  }
+  // What a player pays the bank to buy business i outright. Stanford gets railroads at half price.
+  function priceFor(s, pid, i) { const sp = SPACES[i]; return sp.type === 'rr' && hasPower(s, pid, 'stanford') ? sp.price / 2 : sp.price; }
   function facCost(s, pid, g) { const f = GROUPS[g].fac; return hasPower(s, pid, 'carnegie') ? r5(f * 0.75) : f; }
 
   function record(s) {
@@ -1284,9 +1321,10 @@ const RB = (() => {
 
   function moveBy(s, p, n, moves) {
     const N = SPACES.length, from = p.pos, to = (from + n) % N;
-    moves.push({ pid: p.id, from, to, steps: n, jump: false });
+    const mv = { pid: p.id, from, to, steps: n, jump: false };
+    moves.push(mv);
     p.pos = to;
-    if (from + n >= N) { const pay = paydayFor(s, p); p.cash += pay; log(s, `${p.name} passes Payday and collects ${money(pay)}.`); }
+    if (from + n >= N) { const pay = paydayFor(s, p); mv.pay = pay; p.cash += pay; log(s, `${p.name} passes Payday and collects ${money(pay)}.`); }
     land(s, p, moves);
   }
 
@@ -1302,14 +1340,22 @@ const RB = (() => {
 
   function applyCard(s, p, card, moves) {
     const fx = card.fx;
+    // Frick pays half of any charge on a Streets card, rounded to the nearest $5.
+    const half = STREETS.includes(card) && hasPower(s, p.id, 'frick');
+    const fee = v => {
+      if (!half || v <= 0) return v;
+      const cut = Math.round(v / 10) * 5;
+      log(s, `Frick cuts the bill from ${money(v)} to ${money(cut)}.`);
+      return cut;
+    };
     switch (fx.t) {
       case 'money':
-        if (fx.v >= 0) p.cash += fx.v; else pay(s, p, -fx.v, null);
+        if (fx.v >= 0) p.cash += fx.v; else pay(s, p, fee(-fx.v), null);
         break;
-      case 'perRR': pay(s, p, fx.v * railroadsOwned(s, p.id), null); break;
-      case 'perTrust': pay(s, p, fx.v * trustsOwned(s, p.id), null); break;
-      case 'perFactory': pay(s, p, fx.v * factoriesOwned(s, p.id), null); break;
-      case 'perProp': pay(s, p, fx.v * propsOwned(s, p.id).length, null); break;
+      case 'perRR': pay(s, p, fee(fx.v * railroadsOwned(s, p.id)), null); break;
+      case 'perTrust': pay(s, p, fee(fx.v * trustsOwned(s, p.id)), null); break;
+      case 'perFactory': pay(s, p, fee(fx.v * factoriesOwned(s, p.id)), null); break;
+      case 'perProp': pay(s, p, fee(fx.v * propsOwned(s, p.id).length), null); break;
       case 'payEach':
         s.players.forEach(o => { if (o.id !== p.id && !o.bankrupt && !p.bankrupt) pay(s, p, fx.v, o.id); });
         break;
@@ -1406,6 +1452,11 @@ const RB = (() => {
     const dbl = d[0] === d[1], total = d[0] + d[1], moves = [];
     s.lastRoll = d; s.events = []; s.pending = null;
     log(s, `${p.name} rolls ${d[0]} and ${d[1]}.`);
+    if (p.inCourt && hasPower(s, p.id, 'gould')) {
+      p.inCourt = false; p.courtTurns = 0;
+      log(s, `A friendly judge dismisses the case. ${p.name} walks out of the Courthouse.`);
+      s.events.push({ kind: 'released', pid: p.id });
+    }
     if (p.inCourt) {
       s.rollAgain = false;
       if (dbl) {
@@ -1452,10 +1503,10 @@ const RB = (() => {
 
   function buy(s) {
     if (s.phase !== 'buy' || !s.pending) return false;
-    const p = cur(s), i = s.pending.idx, sp = SPACES[i];
-    if (p.cash < sp.price) return false;
-    p.cash -= sp.price; s.props[i].owner = p.id;
-    log(s, `${p.name} buys ${sp.short} for ${money(sp.price)}.`);
+    const p = cur(s), i = s.pending.idx, sp = SPACES[i], cost = priceFor(s, p.id, i);
+    if (p.cash < cost) return false;
+    p.cash -= cost; s.props[i].owner = p.id;
+    log(s, `${p.name} buys ${sp.short} for ${money(cost)}${cost < sp.price ? ' with a federal land grant' : ''}.`);
     if (sp.type === 'prop' && ownsTrust(s, sp.group, p.id)) log(s, `${p.name} now controls the ${GROUPS[sp.group].name} trust.`);
     s.pending = null; s.phase = 'postRoll';
     return true;
@@ -1639,9 +1690,9 @@ const RB = (() => {
   }
 
   return {
-    SPACES, GROUPS, HEADLINES, STREETS, BARONS, BUYABLE, RR_RENT, START_CASH, BAIL, MIN_BID, MOODS, GOLD, DIVIDEND, MAX_SPACES,
+    SPACES, GROUPS, HEADLINES, STREETS, BARONS, BUYABLE, RR_RENT, START_CASH, PAYDAY, BAIL, MIN_BID, MOODS, GOLD, DIVIDEND, MAX_SPACES,
     useBoard, board: () => boardKind, spaceAt, canCashOut, cashOut,
-    newGame, migrate, roll, buy, pass, endTurn, bid, dropOut, canBid, baronOf, hasPower, paydayFor, facCost, rentOwed, baseRent, payBail, build, sellFactory, mortgage, unmortgage,
+    newGame, migrate, roll, buy, pass, endTurn, bid, dropOut, canBid, baronOf, hasPower, paydayFor, priceFor, facCost, rentOwed, baseRent, payBail, build, sellFactory, mortgage, unmortgage,
     canBuild, canMortgage, unmortgageCost, tradable, validTrade, trade, endGame,
     rentFor, netWorth, ownsTrust, groupFactories, propsOwned, railroadsOwned, active, money, lastActiveIndex, log
   };
@@ -1953,8 +2004,10 @@ const ART = (() => {
   function piece(baron) {
     return medallion(baron) + `<img class="piece" src="${IMG}piece-${baron.key}.webp" alt="" draggable="false" onerror="this.parentNode.classList.add('nofig');this.remove()">`;
   }
+  // An engraved plate sits under the painted card, so a baron without card art yet still looks finished.
   function card(baron) {
-    return `<img class="card" src="${IMG}card-${baron.key}.webp" width="400" height="600" alt="${baron.name}" draggable="false">`;
+    return `<span class="card cardplate" style="--mc:${baron.color}">${medallion(baron)}<b>${baron.short}</b>` +
+      `<img src="${IMG}card-${baron.key}.webp" width="400" height="600" alt="${baron.name}" draggable="false" onerror="this.remove()"></span>`;
   }
 
   return { icon, vignette, octopus, guilloche, medallion, piece, card, IMG, VKEYS: Object.keys(V) };
@@ -2493,6 +2546,7 @@ const FX = (() => {
   window.addEventListener('resize', () => { clearTimeout(roseTimer); roseTimer = setTimeout(roses, 150); });
   skyline($('#setupSky'));
   $('#setupTape').textContent = HEADLINES.concat(STREETS).map(c => `${c.year}  ${c.title}`).join('   ✦   ');
+  $('#baronStrip').classList.toggle('many', BARONS.length > 4);
   $('#baronStrip').innerHTML = BARONS.map(b => `<figure>${ART.card(b)}<figcaption><span>${esc(b.title)}</span></figcaption></figure>`).join('');
   document.querySelectorAll('#baronStrip figure').forEach(FX.tilt);
   FX.motes($('#setupMotes'), 34); FX.motes($('#gameMotes'), 40);
@@ -2546,9 +2600,9 @@ const FX = (() => {
 
   /* ================= Setup ================= */
   let count = 4;
-  const WORDS = ['One', 'Two', 'Three', 'Four'];
-  const savedNames = ['', '', '', ''];
-  const picks = [0, 1, 2, 3];
+  const WORDS = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
+  const savedNames = BARONS.map(() => '');
+  const picks = BARONS.map((b, k) => k);
   function drawNameRows() {
     const box = $('#nameRows'); box.innerHTML = '';
     for (let i = 0; i < count; i++) {
@@ -2747,13 +2801,19 @@ const FX = (() => {
       const b = $('#board'), o = size * 0.44;
       x += Math.sign(b.clientWidth / 2 - x) * w * 0.36; y += Math.sign(b.clientHeight / 2 - y) * h * 0.36;
       if (n === 2) x += k ? o : -o;
-      else if (n > 2) { x += k % 2 ? o : -o; y += k < 2 ? -o : o; }
+      else if (n > 2 && n <= 4) { x += k % 2 ? o : -o; y += k < 2 ? -o : o; }
+      else if (n > 4) { // five to eight pieces gather in rows of three
+        const rows = Math.ceil(n / 3), r = Math.floor(k / 3), inRow = Math.min(3, n - r * 3);
+        x += (k % 3 - (inRow - 1) / 2) * o * 1.3; y += (r - (rows - 1) / 2) * o * 1.3;
+      }
     } else {
-      const side = cellPos(pos).side, along = (k - (n - 1) / 2) * size * 0.62;
-      if (side === 'b') { y = c.offsetTop + h * 0.06; x += along; }
-      else if (side === 't') { y = c.offsetTop + h * 0.98; x += along; }
-      else if (side === 'l') { x = c.offsetLeft + w * 1.02; y += along; }
-      else { x = c.offsetLeft - w * 0.02; y += along; }
+      // Up to four pieces share the rim. A crowd of five or more forms a second row just inside it.
+      const perRow = n > 4 ? Math.ceil(n / 2) : n, r = k >= perRow ? 1 : 0, kk = r ? k - perRow : k, nn = r ? n - perRow : perRow;
+      const side = cellPos(pos).side, along = (kk - (nn - 1) / 2) * size * 0.62, inward = r * size * 0.8;
+      if (side === 'b') { y = c.offsetTop + h * 0.06 - inward; x += along; }
+      else if (side === 't') { y = c.offsetTop + h * 0.98 + inward; x += along; }
+      else if (side === 'l') { x = c.offsetLeft + w * 1.02 + inward; y += along; }
+      else { x = c.offsetLeft - w * 0.02 - inward; y += along; }
     }
     return { x: x - size / 2, y: y - size / 2, size };
   }
@@ -2915,6 +2975,11 @@ const FX = (() => {
   }
   // On a screen replaying another player's move, scenes that wait for a tap close by themselves.
   function replayOpts() { return replaying ? { auto: 7000 } : {}; }
+  // A Streets card that sends Frick a bill says so on the card.
+  function frickNote(c, pid) {
+    const t = c.fx.t, bill = (t === 'money' && c.fx.v < 0) || t === 'perRR' || t === 'perFactory' || t === 'perProp' || t === 'perTrust';
+    return bill && STREETS.includes(c) && RB.hasPower(S, pid, 'frick') ? ' Frick pays half.' : '';
+  }
   function cardScene(ev, pid) {
     const p = S.players[pid];
     if (ev.deck === 'headlines') {
@@ -2928,7 +2993,7 @@ const FX = (() => {
     const c = STREETS[ev.ci];
     SFX.shutter();
     return scene(`<div class="plate" role="dialog" aria-label="${esc(c.title)}"><div class="photo"><span class="yr">${esc(c.year)}</span>${cardArt(c.title)}</div>
-      <div class="cap"><div class="kick">The Streets</div><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="ledger">${esc(p.name)}: ${esc(c.effect)}</div></div></div>`, replayOpts());
+      <div class="cap"><div class="kick">The Streets</div><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="ledger">${esc(p.name)}: ${esc(c.effect + frickNote(c, pid))}</div></div></div>`, replayOpts());
   }
   function marketScene(mood) {
     const up = mood === 'boom';
@@ -3149,9 +3214,9 @@ const FX = (() => {
   const stop = t => /[.!?]$/.test(t) ? t : t + '.'; // end a sentence without doubling the period in "Swift & Co."
   // What buying this business would mean, so the choice is not a blind one.
   function buyPreview(i, pid) {
-    const sp = SPACES[i], p = S.players[pid];
-    if (p.cash < sp.price) return `You have only ${money(p.cash)}. Mortgage something in Build and mortgage, or pass.`;
-    const out = [`Cash after buying: ${money(p.cash - sp.price)}.`];
+    const sp = SPACES[i], p = S.players[pid], cost = RB.priceFor(S, pid, i);
+    if (p.cash < cost) return `You have only ${money(p.cash)}. Mortgage something in Build and mortgage, or pass.`;
+    const out = [`Cash after buying: ${money(p.cash - cost)}.`];
     if (sp.type === 'rr') {
       const n = RB.railroadsOwned(S, pid) + 1;
       out.push(`You would own ${n} railroad${n > 1 ? 's' : ''}, each charging ${money(RB.RR_RENT[n - 1])} rent.`);
@@ -3177,12 +3242,13 @@ const FX = (() => {
       if (ev.kind === 'card') {
         const c = (ev.deck === 'headlines' ? HEADLINES : STREETS)[ev.ci];
         h += `<div class="cert"><div class="kind">${ev.deck === 'headlines' ? 'Headlines' : 'The Streets'}</div>` +
-          `<h3><span class="yr">${esc(c.year)}</span>${esc(c.title)}</h3><p>${esc(c.text)}</p><p class="effect">${esc(c.effect)}</p></div>`;
+          `<h3><span class="yr">${esc(c.year)}</span>${esc(c.title)}</h3><p>${esc(c.text)}</p><p class="effect">${esc(c.effect + frickNote(c, S.cur))}</p></div>`;
       } else if (ev.kind === 'space') {
         const sp = SPACES[ev.idx], pr = S.props[ev.idx];
         let extra = '', note = '';
         if (pr && pr.owner < 0) {
-          extra = `For sale at ${money(sp.price)}.`;
+          const mine = S.phase === 'buy' && S.pending && S.pending.idx === ev.idx ? RB.priceFor(S, S.cur, ev.idx) : sp.price;
+          extra = mine < sp.price ? `For sale at ${money(sp.price)}. Stanford\u2019s land grant cuts it to ${money(mine)}.` : `For sale at ${money(sp.price)}.`;
           if (S.phase === 'buy' && S.pending && S.pending.idx === ev.idx) note = buyPreview(ev.idx, S.cur);
         }
         else if (pr && pr.owner === p.id) extra = 'You own this business.';
@@ -3206,7 +3272,7 @@ const FX = (() => {
         h += `<div class="prompt">No doubles. <b>${esc(p.name)}</b> stays at the Courthouse.</div>`;
       }
     });
-    if (!h && S.phase === 'preRoll') h = `<div class="prompt"><b>${esc(p.name)}</b>, ${p.inCourt ? 'you are held at the Courthouse. Roll doubles or pay bail.' : 'roll the dice.'}</div>`;
+    if (!h && S.phase === 'preRoll') h = `<div class="prompt"><b>${esc(p.name)}</b>, ${p.inCourt ? (RB.hasPower(S, p.id, 'gould') ? 'you are held at the Courthouse, but a friendly judge will drop the case. Roll the dice.' : 'you are held at the Courthouse. Roll doubles or pay bail.') : 'roll the dice.'}</div>`;
     box.innerHTML = h; box.scrollTop = 0;
   }
   function renderMarket() {
@@ -3265,7 +3331,7 @@ const FX = (() => {
       else if (!me && S.phase !== 'auction') status = `Waiting for ${p.name} to play.`;
       else if (S.phase === 'auction') status = 'Auction in progress. Everyone can bid.';
       else if (p.bankrupt) status = 'Bankrupt. End the turn to pass play along.';
-      else if (p.inCourt) status = `Held at the Courthouse. Try ${p.courtTurns + 1} of 3.`;
+      else if (p.inCourt) status = RB.hasPower(S, p.id, 'gould') ? 'Held at the Courthouse. Gould walks out on this roll.' : `Held at the Courthouse. Try ${p.courtTurns + 1} of 3.`;
       else if (S.phase === 'buy') status = `Buy ${SPACES[S.pending.idx].short} or pass on it.`;
       else if (S.phase === 'postRoll' && S.rollAgain && S.doubles >= 2) status = 'Doubles twice. Take the dividend, or roll again and risk the Courthouse.';
       else if (S.phase === 'postRoll' && S.rollAgain) status = 'Doubles. Roll again when ready.';
@@ -3291,13 +3357,14 @@ const FX = (() => {
     } else if (!me && S.phase !== 'auction') {
       // Someone else's turn. Nothing to press on this Chromebook.
     } else if (S.phase === 'preRoll') {
-      if (p.inCourt) {
+      if (p.inCourt && RB.hasPower(S, p.id, 'gould')) row1.appendChild(button('Roll and walk out', 'primary go', doRoll, false, 'A friendly judge drops the case', 'dice'));
+      else if (p.inCourt) {
         row1.appendChild(button('Roll for doubles', 'primary go', doRoll, false, '', 'dice'));
         row1.appendChild(button('Pay $50 bail', 'primary', payBail, p.cash < RB.BAIL, p.cash < RB.BAIL ? 'Not enough cash' : ''));
       } else row1.appendChild(button('Roll the dice', 'primary go', doRoll, false, '', 'dice'));
     } else if (S.phase === 'buy') {
-      const sp = SPACES[S.pending.idx];
-      row1.appendChild(button(`Buy for ${money(sp.price)}`, 'primary go', buyAction, p.cash < sp.price, p.cash < sp.price ? 'Not enough cash. Mortgage something first or pass.' : ''));
+      const cost = RB.priceFor(S, p.id, S.pending.idx);
+      row1.appendChild(button(`Buy for ${money(cost)}`, 'primary go', buyAction, p.cash < cost, p.cash < cost ? 'Not enough cash. Mortgage something first or pass.' : ''));
       row1.appendChild(button(S.rules.auctions && RB.active(S).length > 1 ? 'Pass to auction' : 'Pass', 'primary', passAction));
     } else if (S.phase === 'auction') {
       row1.appendChild(button('Return to the auction', 'primary go', openAuction, false, '', 'hammer'));
@@ -3380,17 +3447,20 @@ const FX = (() => {
     await rollDice(res.dice);
     const cards = S.events.filter(e => e.kind === 'card');
     const shift = S.events.find(e => e.kind === 'market');
+    if (S.events.some(e => e.kind === 'released')) { toast('A friendly judge drops the case.'); SFX.gavel(); powerTag(tokCenter(pid), 'Case dismissed', 200); }
     for (const m of res.moves) {
       if (m.jump) { await jumpToCourt(m.pid); continue; }
       const express = m.from === RB.spaceAt('depot');
       if (express) { SFX.whistle(); SFX.whoosh(); }
       await walk(m.pid, m.from, m.steps, express);
       if (m.from + m.steps >= SPACES.length) {
-        SFX.coin(); floatText(tokCenter(m.pid), '+' + money(RB.paydayFor(S, S.players[m.pid])));
-        coins(cellCenter(0), tokCenter(m.pid), 6, 0, RB.paydayFor(S, S.players[m.pid]));
+        const got = m.pay != null ? m.pay : RB.paydayFor(S, S.players[m.pid]);
+        SFX.coin(); floatText(tokCenter(m.pid), '+' + money(got));
+        coins(cellCenter(0), tokCenter(m.pid), 6, 0, got);
         FX.burst($('#toklayer'), cellCenter(0).x, cellCenter(0).y, 12, $('#board').clientWidth * 0.02);
         flashCell(0);
         if (RB.hasPower(S, m.pid, 'morgan')) powerTag(tokCenter(m.pid), 'Morgan interest +$50', 450);
+        if (RB.hasPower(S, m.pid, 'green') && got > RB.PAYDAY) powerTag(tokCenter(m.pid), `Vault interest +${money(got - RB.PAYDAY)}`, 450);
       }
       const sp = SPACES[m.to];
       if ((sp.type === 'headlines' || sp.type === 'streets') && cards.length) await cardScene(cards.shift(), pid);
@@ -3459,7 +3529,9 @@ const FX = (() => {
   }
   async function showBuy(idx, pid, before) {
     busy = true; shownCash = before.cash.slice(); render();
-    await deedScene(idx, pid, 'Sold', SPACES[idx].price);
+    const paid = RB.priceFor(S, pid, idx);
+    await deedScene(idx, pid, 'Sold', paid);
+    if (paid < SPACES[idx].price) powerTag(tokCenter(pid), 'Land grant \u2212$100', 200);
     claimFx(idx, pid);
     for (const [who, g] of newTrusts(before)) { await trustScene(who, g); trustFx(who, g); }
     busy = false; commit(before);
@@ -3532,7 +3604,7 @@ const FX = (() => {
     const kind = sp.type === 'rr' ? 'Railroad' : GROUPS[sp.group].name + ' business';
     let h = `<div class="poster"><div class="eyebrow">By order of the bank</div><h2 id="dlgTitle">Public Auction</h2>
       <p class="lot">${esc(sp.name)}</p><p class="lotsub">${esc(kind)}. List price ${money(sp.price)}. Bidding opens at ${money(RB.MIN_BID)}.</p>
-      <div class="high"><span class="amt">${A.high ? money(A.high) : '$0'}</span><span class="by">${A.leader >= 0 ? 'High bid<br>' + esc(S.players[A.leader].name) : 'No bids<br>yet'}</span></div><div class="bidders">`;
+      <div class="high"><span class="amt">${A.high ? money(A.high) : '$0'}</span><span class="by">${A.leader >= 0 ? 'High bid<br>' + esc(S.players[A.leader].name) : 'No bids<br>yet'}</span></div><div class="bidders${RB.active(S).length > 4 ? ' many' : ''}">`;
     RB.active(S).forEach(p => {
       const inIt = A.in.includes(p.id), lead = A.leader === p.id;
       let btns = '';
@@ -3849,11 +3921,14 @@ const FX = (() => {
       ends.push({ y: y(last), name: p.name, col, v: last });
     });
     ends.sort((a, b) => a.y - b.y);
-    for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 32) ends[i].y = ends[i - 1].y + 32;
+    // Five or more players get one line each, name then fortune, so all of them fit beside the chart.
+    const one = ends.length > 4, gap = one ? 24 : 32;
+    for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < gap) ends[i].y = ends[i - 1].y + gap;
     const over = ends.length ? ends[ends.length - 1].y - (Ht - B) : 0;
     if (over > 0) ends.forEach(e => { e.y -= over; });
     ends.forEach(e => {
-      s += `<text x="${W - R + 10}" y="${(e.y - 3).toFixed(1)}" fill="${e.col}" font-size="15" font-weight="700" font-family="Barlow Condensed, sans-serif">${esc(e.name.length > 12 ? e.name.slice(0, 11) + '.' : e.name)}</text><text x="${W - R + 10}" y="${(e.y + 12).toFixed(1)}" fill="#efe6cf" font-size="13" font-family="Barlow Condensed, sans-serif">${money(e.v)}</text>`;
+      if (one) s += `<text x="${W - R + 10}" y="${(e.y + 4).toFixed(1)}" font-family="Barlow Condensed, sans-serif"><tspan fill="${e.col}" font-size="15" font-weight="700">${esc(e.name.length > 8 ? e.name.slice(0, 7) + '.' : e.name)}</tspan><tspan fill="#efe6cf" font-size="13" dx="4">${money(e.v)}</tspan></text>`;
+      else s += `<text x="${W - R + 10}" y="${(e.y - 3).toFixed(1)}" fill="${e.col}" font-size="15" font-weight="700" font-family="Barlow Condensed, sans-serif">${esc(e.name.length > 12 ? e.name.slice(0, 11) + '.' : e.name)}</text><text x="${W - R + 10}" y="${(e.y + 12).toFixed(1)}" fill="#efe6cf" font-size="13" font-family="Barlow Condensed, sans-serif">${money(e.v)}</text>`;
     });
     return s + '</svg>';
   }
@@ -4060,7 +4135,7 @@ const FX = (() => {
     const st = { players: [], props: {} };
     Object.keys(g.s || {}).forEach(k => {
       const m = /^(players|props)_(\d{1,2})$/.exec(k);
-      if (m) { if (+m[2] < (m[1] === 'players' ? 4 : RB.MAX_SPACES)) st[m[1]][+m[2]] = parseClean(g.s[k], k); }
+      if (m) { if (+m[2] < (m[1] === 'players' ? BARONS.length : RB.MAX_SPACES)) st[m[1]][+m[2]] = parseClean(g.s[k], k); }
       else if (/^[A-Za-z]{1,24}$/.test(k)) st[k] = parseClean(g.s[k], k);
     });
     st.log = entries(g.log).slice(-80).map(t => String(t).slice(0, 300));
@@ -4343,7 +4418,7 @@ const FX = (() => {
     open.disabled = !playing && taken < 2;
     let note = '';
     if (playing) note = 'This game has started. Tap your name to jump back in, or just watch.';
-    else if (n.isHost) note = (taken < 2 ? 'Waiting for players. You need at least 2, and up to 4 can join. The host can play too by taking a baron.' : `${taken} players are in. Open for business when everyone is ready.`) +
+    else if (n.isHost) note = (taken < 2 ? `Waiting for players. You need at least 2, and up to ${BARONS.length} can join. The host can play too by taking a baron.` : `${taken} players are in. Open for business when everyone is ready.`) +
       (boardPick === 'grand' ? ' This game uses the grand board.' : '');
     else note = mineAt >= 0 ? 'You are in. The host starts the game.' : 'Type your first name, then take a baron.';
     $('#lobbyNote').textContent = note;

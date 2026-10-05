@@ -1,3 +1,4 @@
 # Standalone HTML releases may be checksum-sealed; do not rewrite their committed line endings.
 public/hubs/*.html -text
 public/storyhub/runtime/storyhub-runtime.js -text
+public/storyhub/** -text

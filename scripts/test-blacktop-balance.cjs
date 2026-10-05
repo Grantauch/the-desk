@@ -8,9 +8,9 @@ const vm = require('node:vm');
 
 const DIR = path.join(__dirname, '../public/hubs/blacktop-kings');
 const DEEP = process.argv.includes('--deep');
-const QUICK_ROUNDS = DEEP ? 6 : 1;
-const ARCH_ROUNDS = DEEP ? 12 : 2;
-const DIFF_GAMES = DEEP ? 40 : 6;
+const QUICK_ROUNDS = DEEP ? 6 : 4;
+const ARCH_ROUNDS = DEEP ? 12 : 8;
+const DIFF_GAMES = 40;
 
 function seeded(seed) {
   return () => {
@@ -43,6 +43,7 @@ function load(seed) {
   for (const file of ['data.js', 'input.js', 'art-baller.js', 'art-court.js', 'fx.js', 'game-core.js', 'game-ai.js']) {
     vm.runInContext(fs.readFileSync(path.join(DIR, file), 'utf8'), sandbox, { filename: file });
   }
+  window.BK.setSeed = (seed) => { math.random = seeded(seed); };
   return window.BK;
 }
 
@@ -111,6 +112,7 @@ function finishGame(m, label) {
   const dunks = m.players.reduce((n, p) => n + p.stats.dnk, 0);
   const scores = m.events.filter((e) => e.type === 'score');
   const crownScores = scores.filter((e) => e.data.crown);
+  const releases = m.events.filter((e) => e.type === 'release');
   const score = [m.teams[0].score, m.teams[1].score];
   return {
     winner: score[0] > score[1] ? 0 : 1,
@@ -123,6 +125,8 @@ function finishGame(m, label) {
     dunkMakes: scores.filter((e) => e.data.kind === 'dunk').length,
     insideJumperMakes: scores.filter((e) => e.data.kind === 'jumper' && !e.data.deep).length,
     crownScores: crownScores.length,
+    offensiveRebounds: m.events.filter((e) => e.type === 'rebound' && e.data.off).length,
+    releases: Object.fromEntries(['perfect', 'slightEarly', 'slightLate', 'early', 'late'].map((q) => [q, releases.filter((e) => e.data.quality === q).length])),
     maxCrownSwing: crownScores.reduce((mx, e) => Math.max(mx, e.data.pts + e.data.stolen), 0),
   };
 }
@@ -145,10 +149,11 @@ function rates(t) {
 }
 function aggregate(games) {
   const sum = games.reduce((a, g) => {
-    for (const k of ['points', 'fga', 'fgm', 'blocks', 'steals', 'ankles', 'dunks', 'deepMakes', 'layupMakes', 'dunkMakes', 'insideJumperMakes', 'crownScores', 'time']) a[k] += g[k];
+    for (const k of ['points', 'fga', 'fgm', 'blocks', 'steals', 'ankles', 'dunks', 'deepMakes', 'layupMakes', 'dunkMakes', 'insideJumperMakes', 'crownScores', 'offensiveRebounds', 'time']) a[k] += g[k];
+    for (const q of Object.keys(g.releases)) a.releases[q] = (a.releases[q] || 0) + g.releases[q];
     a.maxCrownSwing = Math.max(a.maxCrownSwing, g.maxCrownSwing);
     return a;
-  }, { points: 0, fga: 0, fgm: 0, blocks: 0, steals: 0, ankles: 0, dunks: 0, deepMakes: 0, layupMakes: 0, dunkMakes: 0, insideJumperMakes: 0, crownScores: 0, time: 0, maxCrownSwing: 0 });
+  }, { points: 0, fga: 0, fgm: 0, blocks: 0, steals: 0, ankles: 0, dunks: 0, deepMakes: 0, layupMakes: 0, dunkMakes: 0, insideJumperMakes: 0, crownScores: 0, offensiveRebounds: 0, releases: {}, time: 0, maxCrownSwing: 0 });
   const n = games.length;
   return {
     games: n,
@@ -164,12 +169,14 @@ function aggregate(games) {
     dunkMakesPerGame: +(sum.dunkMakes / n).toFixed(2),
     insideJumperMakesPerGame: +(sum.insideJumperMakes / n).toFixed(2),
     crownScoresPerGame: +(sum.crownScores / n).toFixed(2),
+    offensiveReboundsPerGame: +(sum.offensiveRebounds / n).toFixed(2),
+    releaseOutcomes: sum.releases,
     maxCrownSwing: sum.maxCrownSwing,
     avgSeconds: +(sum.time / n).toFixed(1),
   };
 }
 
-// 1. Quick Game round robin. The release gate uses one mirrored pass; --deep uses six.
+// 1. Quick Game round robin. The release gate uses four mirrored passes; --deep uses six.
 const BQ = load(177);
 const quick = BQ.data.QUICK_CREWS;
 const quickStandings = table(quick.map((q) => q.name));
@@ -179,6 +186,7 @@ for (let round = 0; round < QUICK_ROUNDS; round++) {
     for (let j = i + 1; j < quick.length; j++) {
       for (const swap of [false, true]) {
         const qa = swap ? quick[j] : quick[i], qb = swap ? quick[i] : quick[j];
+        BQ.setSeed(177000 + round * 1000 + i * 30 + j);
         const m = makeMatch(BQ, quickCrew(BQ, qa), quickCrew(BQ, qb), {
           target: 11,
           firstOffense: (round + i + j + (swap ? 1 : 0)) % 2,
@@ -192,7 +200,7 @@ for (let round = 0; round < QUICK_ROUNDS; round++) {
 }
 
 // 2. Pure archetype round robin: equal rating budgets, archetype-appropriate body types.
-// The release gate uses two mirrored passes; --deep expands this to twelve.
+// The release gate uses eight mirrored passes; --deep expands this to twelve.
 const BA = load(178);
 const arches = Object.keys(BA.data.ARCHETYPES);
 const archStandings = table(arches);
@@ -202,6 +210,7 @@ for (let round = 0; round < ARCH_ROUNDS; round++) {
     for (let j = i + 1; j < arches.length; j++) {
       for (const swap of [false, true]) {
         const aa = swap ? arches[j] : arches[i], ab = swap ? arches[i] : arches[j];
+        BA.setSeed(178000 + round * 1000 + i * 30 + j);
         const m = makeMatch(BA, archetypeCrew(BA, aa, 0), archetypeCrew(BA, ab, 1), {
           target: 11,
           firstOffense: (round + i + j + (swap ? 1 : 0)) % 2,
@@ -214,7 +223,7 @@ for (let round = 0; round < ARCH_ROUNDS; round++) {
   }
 }
 
-// 3. Difficulty curve. Same rotating Quick crews, twelve games at each AI skill.
+// 3. Difficulty curve. Same rotating Quick crews, forty games at each AI skill.
 function difficulty(skill, seed) {
   const B = load(seed);
   const games = [];
@@ -232,6 +241,19 @@ const difficultyReport = {
   street: difficulty(0.58, 580),
   legend: difficulty(0.86, 860),
 };
+
+// Each named court and existing rule must complete a real seeded game too.
+const BC = load(179);
+const courtRuleCoverage = [];
+for (let court = 0; court < BC.data.COURTS.length; court++) {
+  for (const rule of ['standard', 'deep', 'dunks', 'crowns']) {
+    BC.setSeed(179000 + court * 10 + courtRuleCoverage.length);
+    const a = quickCrew(BC, BC.data.QUICK_CREWS[0]), b = quickCrew(BC, BC.data.QUICK_CREWS[4]);
+    const g = finishGame(makeMatch(BC, a, b, { court, rule }), `Court ${court} / ${rule}`);
+    assert.ok(g.maxCrownSwing <= (rule === 'crowns' ? 8 : 6), 'Court/rule Crown swing stays bounded');
+    courtRuleCoverage.push({ court: BC.data.COURTS[court].name, rule, seconds: +g.time.toFixed(1) });
+  }
+}
 
 // 4. Crown Rules has a hard scoreboard-swing budget. It should be dramatic, not a reset button.
 {
@@ -266,7 +288,8 @@ const archRates = rates(archStandings);
 const report = {
   version: 'PR177',
   mode: DEEP ? 'deep' : 'release',
-  totalSimulatedGames: quickGames.length + archGames.length + DIFF_GAMES * 3,
+  totalSimulatedGames: quickGames.length + archGames.length + DIFF_GAMES * 3 + courtRuleCoverage.length,
+  courtRuleCoverage,
   quick: { standings: quickRates, aggregate: aggregate(quickGames) },
   archetypes: { standings: archRates, aggregate: aggregate(archGames), greenWindowAtArc: windowReport },
   difficulty: difficultyReport,
