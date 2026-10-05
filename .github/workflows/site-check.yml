@@ -17,7 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The 600-game balance gate runs before the complete browser acceptance suite.
+    timeout-minutes: 30
     steps:
       - name: Check out the site
         uses: actions/checkout@v7

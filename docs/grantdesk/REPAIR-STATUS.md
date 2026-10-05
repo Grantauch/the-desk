@@ -6,6 +6,8 @@ PR #178 polishes existing slides, plants, catches, rebound reaches, landing comp
 
 ## Current checkpoint — October 4 Blacktop competitive balance lab
 
+The expanded balance gate and full browser acceptance receive a thirty-minute CI job budget. The earlier fifteen-minute limit cancelled the final browser-game pass after canonical verification and 48 extended browser cases passed. All required checks and assertions remain present; the final protected check is being rerun.
+
 PR #177 passed full canonical verification and the complete 600/824-game release/deep samples. Independent mirrored seeds cover every Quick Crew/archetype matchup, all eight courts/four rules, three difficulties, shot-quality attempts/makes, scoring mix and defensive/rebound frequencies. Final Trickster/Big redistribution retains equal 36-point base budgets and all original balance thresholds. Release Quick Crews span 21.9–75.0% wins; archetypes 31.3–71.9%. Deep archetypes span 31.3–70.8%. Crown Rules caps a deep Double Crown possession at +6/-2, with matching help text. The website build has 0 errors/0 warnings, 53 routes, 103 HTML files/4,347 references and all seven sealed releases verified. Required GitHub checks, merge and exact live verification remain separate evidence. Production publication is blocked by exhausted Netlify deploy credits; the existing site remains online.
 
 ## Current checkpoint — October 4 Robber Barons eight-player completion
