@@ -664,7 +664,7 @@
     p.state = 'dunk'; p.st = 0; p.stats.fga++;
     p.fly = { sx: p.x, sy: p.y, ex, ey, ez, T, t: 0, kind: 'dunk', style, peak: 0.9 + hang * 1.3 + d * 0.06, slammed: false, dist: d, oop: !!o.oop, selfOop: !!o.selfOop };
     if (o.turbo) p.turbo = Math.max(0, p.turbo - 0.1);
-    this.faceToward(p, RIM.x, RIM.y);
+    this.faceToward(p, RIM.x, RIM.y, true);
     this.sfx('whoosh', 0.6);
     if (d > 11 || style === 'eclipse' || style === 'legs' || style === 'spin360') { this.hype(0.7); this.sfx('crowdOoh', 0.4); }
     this.emit('shotStart', { p });
