@@ -2,7 +2,7 @@
 
 ## Current checkpoint — October 4 Blacktop competitive balance lab
 
-PR #177 now uses 600 real-engine seeded games with independent mirrored seeds, every court/rule combination, shooting-quality attempts/makes and offensive-rebound metrics. The first release run passed, but deeper sampling exposed Trickster/Big imbalance; focused final rating redistribution retains each archetype's 36-point budget and every original balance threshold. Final canonical and deep archetype verification are in progress. Crown Rules caps a deep Double Crown possession at +6/-2. Production publication is currently blocked by exhausted Netlify deploy credits; the existing site remains online. Required GitHub checks, merge and exact live verification remain separate evidence.
+PR #177 passed full canonical verification and the complete 600/824-game release/deep samples. Independent mirrored seeds cover every Quick Crew/archetype matchup, all eight courts/four rules, three difficulties, shot-quality attempts/makes, scoring mix and defensive/rebound frequencies. Final Trickster/Big redistribution retains equal 36-point base budgets and all original balance thresholds. Release Quick Crews span 21.9–75.0% wins; archetypes 31.3–71.9%. Deep archetypes span 31.3–70.8%. Crown Rules caps a deep Double Crown possession at +6/-2, with matching help text. The website build has 0 errors/0 warnings, 53 routes, 103 HTML files/4,347 references and all seven sealed releases verified. Required GitHub checks, merge and exact live verification remain separate evidence. Production publication is blocked by exhausted Netlify deploy credits; the existing site remains online.
 
 ## Current checkpoint — October 4 Robber Barons eight-player completion
 

@@ -859,12 +859,12 @@
     "field_status": "FIELD_PENDING"
   },
   "blacktop_balance_20261004": {
-    "status": "FINAL_BALANCE_VERIFICATION_IN_PROGRESS",
+    "status": "LOCAL_FULL_AND_DEEP_VERIFIED",
     "pull_request": "https://github.com/Grantauch/the-desk/pull/177",
     "release_games": 600,
     "deep_games": 824,
-    "deep_status": "PENDING",
-    "validation": "First 600-game canonical run passed; deeper sampling found Trickster/Big imbalance. Final 36-point rating redistribution and per-release attempts/makes measurement are under canonical and deep archetype verification. Every original guardrail retained.",
+    "deep_status": "PASS",
+    "validation": "Full canonical verify:full and complete 600/824-game release/deep samples passed. Final Trickster/Big redistribution retains each archetype's 36-point budget, with an explicit budget check. Release archetypes 31.3-71.9%; deep archetypes 31.3-70.8%. All original guardrails retained. Per-release attempts/makes and all eight courts/four rules covered.",
     "crown_rules": {
       "points": 6,
       "opponent_loss": 2,

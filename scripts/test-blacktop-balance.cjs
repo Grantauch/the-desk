@@ -213,6 +213,10 @@ for (let round = 0; round < QUICK_ROUNDS; round++) {
 // The release gate uses eight mirrored passes; --deep expands this to twelve.
 const BA = load(178);
 const arches = Object.keys(BA.data.ARCHETYPES);
+for (const arch of arches) {
+  const points = Object.values(BA.data.ARCHETYPES[arch].base).reduce((sum, rating) => sum + rating, 0);
+  assert.equal(points, 36, `${arch} must retain the equal 36-point base budget`);
+}
 const archStandings = table(arches);
 const archGames = [];
 for (let round = 0; round < ARCH_ROUNDS; round++) {
