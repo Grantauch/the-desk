@@ -1,5 +1,9 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 4 Robber Barons eight-player completion
+
+PR #166 now includes all four new tabletop pieces as optimized transparent 200x200 WebP assets. The Firebase console confirms the eight-seat rules are already published. A live synthetic room accepted eight seat claims and a game write from every seat; rejected ninth seat, non-player write, stale move version and global game listing. No existing game or student record was changed. Required website checks, merge, exact Netlify production commit and live browser acceptance remain separate publication gates. Classroom/network validation remains FIELD_PENDING.
+
 ## Current checkpoint — October 4 Blacktop Kings choice artwork v4
 
 Ten original generated illustrations replace four repeated mode scenes and five player-style scenes, with a separate empty locker room behind the customizable animated player. The fictional casts vary in skin tone, face, hair, build, clothing and setting, including white, Black, Latino, East Asian and South Asian players. Actions explain preparation, pickup play, head-to-head rivals, a saved lineup challenge, attacking the rim, deep shooting, passing, handles and rebounding. Existing layout, card dimensions and labels are preserved. Skill cards contain the full action; mode art retains faces at the top of shallow phone cards. Earlier asset files remain preserved in their versioned directories.
