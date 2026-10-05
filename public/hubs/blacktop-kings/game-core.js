@@ -248,6 +248,7 @@
   M.changePossession = function () {
     this.cleared = false; this.shotClock = SHOT_CLOCK;
     this.possessionT = this.time;
+    this.clearedT = -9;
   };
   // Behind the arc with the ball: cleared, so a basket will count.
   M.checkCleared = function () {
@@ -1038,11 +1039,11 @@
     } else if (deep) {
       this.fx.preset('deep', rimx, rimy, rimz, { color: team.colors.pri });
       this.call('deep', { color: '#2ec5ff', color2: team.colors.pri, size: 78 });
-      this.sfx('swish', 1); this.sfx('crowdRoar', 0.6);
+      this.sfx(extra.rattled ? 'net' : 'swish', extra.rattled ? 0.65 : 1); this.sfx('crowdRoar', 0.6);
     } else {
       this.fx.preset('swish', rimx, rimy, rimz);
       if (kind === 'layup' && Math.random() < 0.5) this.call('layup', { color: '#ffffff', color2: team.colors.pri, size: 56 });
-      this.sfx('swish', 0.9); this.sfx('crowdOoh', 0.25);
+      this.sfx(extra.rattled ? 'net' : 'swish', extra.rattled ? 0.55 : 0.9); this.sfx('crowdOoh', 0.25);
     }
     // Backboard sound is emitted by the actual collision in ballStep, once per impact.
     if (shooter.fire && !wasFire) {
@@ -1202,13 +1203,19 @@
       push = clamp(gain / 14, -1, 1);
       // planting to change direction at speed: a squeak and a scuff of dust
       const cosT = want > 1 ? along / want : 1;
-      if ((cosT < 0.3 || want < sp * 0.35) && sp > p.speed * 0.6 && !(p.plantT > 0)) {
+      if (cosT < -0.35 && sp > p.speed * 0.6 && !(p.plantT > 0)) {
         p.plantT = 0.35;
         this.sfx('squeak', clamp(sp / 40, 0.22, 0.5));
         if (!this.fx.reduced) this.fx.burst(p.x, p.y, 0.15, 5, { kind: 'dust', color: '#cfc7b8', speed: 3, upMax: 0.3, life: 0.45, size: 0.45, g: 1 });
       }
+      // Extra cut/stop feedback stays cosmetic: keep the original dust trigger and its RNG draws.
+      if ((cosT < 0.3 || want < sp * 0.35) && sp > p.speed * 0.6 && !(p.cutT > 0)) {
+        p.cutT = 0.35;
+        if (!(p.plantT > 0)) this.sfx('squeak', clamp(sp / 40, 0.22, 0.5));
+      }
     }
     if (p.plantT > 0) p.plantT -= dt;
+    if (p.cutT > 0) p.cutT -= dt;
     p.lean = lerp(p.lean || 0, push, 1 - Math.exp(-dt * 12));
   };
   // Where p was `secs` ago (at most half a second back).
@@ -1504,7 +1511,8 @@
       p.landT = Math.max(0, p.landT - dt);
       if (LANDS.includes(kind)) o.land = Math.sin(clamp(1 - p.landT / 0.24, 0, 1) * Math.PI) * (p.landStrength || 0.6);
     }
-    o.plant = p.plantT > 0 ? Math.sin((1 - p.plantT / 0.35) * Math.PI) : 0;
+    const plant = Math.max(p.plantT || 0, p.cutT || 0);
+    o.plant = plant > 0 ? Math.sin((1 - plant / 0.35) * Math.PI) : 0;
     o.contact = p.bumpT > 0 ? clamp(p.bumpT / 0.3, 0, 1) : 0;
     let pose = A.pose(kind, o);
     const key = kind + (o.style || '') + (o.released ? '!' : '');
@@ -1643,10 +1651,10 @@
     }
     // backboard, front face and back
     if (!this.hoop.shattered && Math.abs(b.y) < BOARD.half + BR * 0.4 && b.z > BOARD.lo - BR * 0.4 && b.z < BOARD.hi + BR * 0.4) {
-      const front = BOARD.x - BR, back = BOARD.x + BOARD.thick + BR;
+      const front = BOARD.x - BR, back = BOARD.x + BOARD.thick + BR, impactSpeed = Math.abs(b.vx);
       if (b.vx > 0 && b.x > front && b.x < BOARD.x + BOARD.thick * 0.5) { b.x = front; b.vx = -b.vx * BOARD_E; b.vy *= BOARD_F; b.vz *= BOARD_F; hit |= 2; }
       else if (b.vx < 0 && b.x < back && b.x > BOARD.x + BOARD.thick * 0.5) { b.x = back; b.vx = -b.vx * BOARD_E; b.vy *= BOARD_F; b.vz *= BOARD_F; hit |= 2; }
-      if (hit & 2) { this.sfx('board', clamp(Math.abs(b.vx) / 14, 0.25, 0.8)); this.hoop.shake = Math.max(this.hoop.shake, 0.15); }
+      if (hit & 2) { this.sfx('board', clamp(impactSpeed / 18, 0.25, 0.9)); this.hoop.shake = Math.max(this.hoop.shake, 0.15); }
     }
     // through the net: it grabs the ball and lets it drop
     if (b.z < C.rimZ && b.z > C.rimZ - 1.8 && rho < C.rimR) { const k = Math.exp(-h * 8); b.vx *= k; b.vy *= k; if (b.vz < -10) b.vz = -10; }
