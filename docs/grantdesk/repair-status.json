@@ -864,6 +864,8 @@
     "release_games": 600,
     "deep_games": 824,
     "deep_status": "PASS",
+    "ci_time_budget_minutes": 30,
+    "ci_status": "RERUN_AFTER_15_MINUTE_JOB_CUTOFF",
     "validation": "Full canonical verify:full and complete 600/824-game release/deep samples passed. Final Trickster/Big redistribution retains each archetype's 36-point budget, with an explicit budget check. Release archetypes 31.3-71.9%; deep archetypes 31.3-70.8%. All original guardrails retained. Per-release attempts/makes and all eight courts/four rules covered.",
     "crown_rules": {
       "points": 6,
