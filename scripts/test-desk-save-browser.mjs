@@ -70,8 +70,8 @@ async function test(name, fn) {
  */
 async function chromebook(server, options = {}) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  const hooks = options.endpoint === false ? null : { endpoint: ENDPOINT, debounceMs: 300, snapshotMs: 300, ...(options.hooks || {}) };
-  if (hooks) await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
+  const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, ...(options.hooks || {}) };
+  await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
   const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());

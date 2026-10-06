@@ -25,7 +25,7 @@
 (function () {
   'use strict';
 
-  var ENDPOINT = '';
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzssPoF99g1UTOrsVnMHy-jQaPwII8-lyxHwjlpNK8oa89KVSq48G5MkjiwTOCrgaJP/exec';
 
   if (window.__deskSave) return;
   window.__deskSave = { version: '1' };
@@ -280,7 +280,7 @@
     if (testHooks && testHooks.loadTestKey) body.test = testHooks.loadTestKey;
     function once() {
       var controller = window.AbortController ? new AbortController() : null;
-      var timer = setTimeout(function () { if (controller) controller.abort(); }, REQUEST_TIMEOUT_MS);
+      var timer = setTimeout(function () { if (controller) controller.abort(); }, options.timeoutMs || REQUEST_TIMEOUT_MS);
       return fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -299,7 +299,7 @@
     }
     function attempt(n) {
       return once().then(function (result) {
-        if (result && result.code === 'server' && n < attempts) return wait(n).then(function () { return attempt(n + 1); });
+        if (result && (result.code === 'server' || result.code === 'busy') && n < attempts) return wait(n).then(function () { return attempt(n + 1); });
         return result;
       }, function (error) {
         if (n < attempts) return wait(n).then(function () { return attempt(n + 1); });
@@ -474,7 +474,7 @@
       classPeriod: state.classPeriod,
       submissionId: state.submission.id,
       answers: list
-    }, { attempts: 3 }).then(function (result) {
+    }, { attempts: 3, timeoutMs: 40000 }).then(function (result) {
       if (result && result.code === 'pick_class') {
         state.classes = result.classes || [];
         persist();
