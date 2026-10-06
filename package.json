@@ -8,14 +8,14 @@
     "build": "astro build",
     "check": "node scripts/check-verification-deps.mjs && astro check",
     "verify": "node scripts/run-release-verification.mjs",
-    "verify:full": "npm run league:test && npm run blacktop:test && npm run release:test && npm run hall-pass:verify && npm run tools:test && npm run classroom:test && npm run audit:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
-    "verify:storyhub-fast": "npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
+    "verify:full": "npm run league:test && npm run blacktop:test && npm run release:test && npm run hall-pass:verify && npm run turn-in:test && npm run tools:test && npm run classroom:test && npm run audit:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
+    "verify:storyhub-fast": "npm run turn-in:test && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:release": "npm run verify",
     "release:classify": "node scripts/release-lane.mjs",
     "release:test": "node scripts/test-release-lane.mjs",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "tools:test": "node scripts/test-classroom-tools.mjs",
-    "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs",
+    "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser",
     "league:test": "node scripts/test-the-league.mjs",
     "blacktop:test": "node scripts/test-blacktop-art.cjs && node scripts/test-blacktop-audio.cjs && node scripts/test-blacktop-assets.cjs && node scripts/test-blacktop-gameplay.cjs && node scripts/test-blacktop-poses.cjs && node scripts/test-blacktop-feel.cjs && npm run blacktop:balance",
     "storyhub:browser:test": "node scripts/test-storyhub-release-browser.mjs",
@@ -43,7 +43,10 @@
     "classroom:test": "node --experimental-strip-types scripts/test-classroom-state.mjs",
     "audit:test": "node scripts/test-audit-regressions.mjs",
     "blacktop:balance": "node scripts/test-blacktop-balance.cjs",
-    "blacktop:balance:deep": "node scripts/test-blacktop-balance.cjs --deep"
+    "blacktop:balance:deep": "node scripts/test-blacktop-balance.cjs --deep",
+    "turn-in:test": "node scripts/test-turn-in-app.cjs",
+    "turn-in:browser": "node scripts/test-desk-save-browser.mjs",
+    "turn-in:load": "node scripts/turn-in-load-test.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

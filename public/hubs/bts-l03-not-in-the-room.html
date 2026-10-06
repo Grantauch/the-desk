@@ -277,5 +277,6 @@
     $('#copyNotes').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(notesText.value);$('#copyNotes').textContent='copied';setTimeout(()=>$('#copyNotes').textContent='copy notes',1200)}catch{notesText.select()}});
     $('#downloadNotes').addEventListener('click',()=>{const blob=new Blob([`NOT IN THE ROOM — NOTES\n\n${notesText.value}`],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='not-in-the-room-notes.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
   </script>
+<script src="/hubs/desk-save.js" defer></script>
 </body>
 </html>

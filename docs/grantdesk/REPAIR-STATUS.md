@@ -1,5 +1,9 @@
 # GrantDesk repair status
 
+## Current checkpoint — October 5 hub saving and Turn In
+
+Students were losing hub work and forgetting to copy answers out. Nine of the 33 hubs with answer boxes saved nothing, the rest saved only to one Chromebook, and on shared carts the next student could open the last student's answers. `public/hubs/desk-save.js` now runs on all 33: answers save per tab, a fresh tab is blank, the hall pass PIN saves work to the student's account so it follows them to any Chromebook, a Turn In panel sends answers to a private sheet and confirms only after the sheet has them, and the browser asks before leaving work that was never turned in or copied. The new `apps-script/turn-in/` web app is separate from Hall Pass and reads its roster only. `turn-in:test` (20) and `turn-in:browser` (14, including 35 simultaneous turn ins on a flaky network) pass, and canonical verification passed. Not yet deployed: the owner creates the Apps Script project from `apps-script/turn-in/SETUP.md`, then the endpoint is filled in and the real 35 student load test runs before students use it.
+
 ## Final combined checkpoint — October 5 morning
 
 PR #177 now includes both the competitive balance lab and the planned phase #178 game-feel work, with main's October 5 lesson release preserved. Full integrated canonical verification passed: 600 balance games, all gameplay/pose/feel/art/audio/resource/publishing checks, 0 errors/0 warnings, 53 built routes, 115 HTML files/4,423 local references, and seven releases/62 sealed StoryHub files. Release archetypes span 31.3–70.3% with every original threshold retained. Required protected CI and hosted verification are pending for this combined head; production remains blocked by exhausted Netlify deploy credits.

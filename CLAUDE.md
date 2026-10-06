@@ -25,6 +25,8 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - `public/hubs/blacktop-kings/` — Blacktop Kings, a just-for-fun 3-on-3 streetball game (no classroom content). Careers save in the browser or in a JSON file the player keeps; nothing is sent anywhere
 - `public/hubs/robber-barons-firebase.js` — Firebase settings for Robber Barons join-with-a-code play. Setup and database rules are in `docs/robber-barons-online/`
 - `storyhub/` — StoryHub production manifests, templates, and agent skills. Start at `docs/storyhub/README.md`; L014 is Reference Implementation 001, not a visual template.
+- `public/hubs/desk-save.js` — the one save system for every hub with answer boxes: saves while students type (this tab only, so a shared Chromebook is blank for the next student), saves to the student's account with their hall pass PIN, a Turn In panel, and a leave warning. Load it with `<script src="/hubs/desk-save.js" defer></script>` before `</body>`; never write per-hub save code
+- `apps-script/turn-in/` — the Turn In web app that receives hub answers into the teacher's private sheet. Separate from Hall Pass, reads the Hall Pass roster only. Setup in `apps-script/turn-in/SETUP.md`
 - `apps-script/hall-pass/` — the Hall Pass and Daily Check-In app. This is Google Apps Script, not part of the Astro build
 - `apps-script/snapshots/hall-pass/` — exact source of released versions, with fingerprints
 - `public/og.png` — social sharing card (1200x630)
@@ -34,8 +36,8 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - Brand is lowercase: "the desk". Never capitalize it. Page headings are lowercase with an accent colored period (`<span class="text-accent">.</span>`).
 - Accent color is deep electric blue (`--color-accent`). Use the token, never a hardcoded hex in a component.
 - Voice: playful but not pretentious. Confident, dry, concise.
-- Keep pages light on JavaScript. Where a page needs it, keep the state in the browser. Nothing on the static site transmits student information anywhere. The one exception is Robber Barons online play, which sends a typed first name and the game moves to the teacher's Firebase project, where games are deleted after a day.
-- The site does not host grades, submissions, or rosters. Google Classroom handles those. `/pass/` and `/check-in/` only link out to the Apps Script app, which is where student check-ins actually live.
+- Keep pages light on JavaScript. Where a page needs it, keep the state in the browser. Nothing on the static site transmits student information anywhere, with two exceptions. Robber Barons online play sends a typed first name and the game moves to the teacher's Firebase project, where games are deleted after a day. `desk-save.js` sends a hub's answers, with the student's hall pass PIN, only to the teacher's own Turn In Apps Script.
+- The site does not host grades or rosters. Hub answers turned in go to the teacher's private Turn In sheet in Google, never to this repository or Netlify. `/pass/` and `/check-in/` only link out to the Apps Script app, which is where student check-ins actually live.
 - Headings use `font-display` (Space Grotesk, loaded in Base.astro).
 
 ## StoryHub workflow
@@ -56,7 +58,7 @@ StoryHub is a quality standard and production system, not a visible template. Ea
 - **Change current unit**: set `currentUnit` in `src/data/classroom-state.ts` to an existing course unit; current calendar titles derive from that same value
 - **Rename a unit**: change `name` on the class page and the matching key in `src/data/unit-materials.json` together, and leave `hubSlug` alone. `npm run site:validate` checks the pairs that have already been renamed
 - **Attach slides or packets to a unit**: add a `materials: [{ label, href }]` array to that unit in the class page. Drive links must be shared as anyone with the link, viewer
-- **Add a lessonhub or game**: drop the HTML file in `public/hubs/` and add an entry to the `hubs` array in `src/pages/games.astro`
+- **Add a lessonhub or game**: drop the HTML file in `public/hubs/` and add an entry to the `hubs` array in `src/pages/games.astro`. If it has any answer boxes, add `<script src="/hubs/desk-save.js" defer></script>` before `</body>`; `npm run turn-in:test` fails without it. Put `data-desk-skip` on inputs that are not answers, and `<div data-desk-turnin></div>` where the Turn In panel should sit if the end of the page is wrong
 - **Start a StoryHub**: run `npm run storyhub:new -- COURSE LESSON "Title"`, author Story DNA and narrative manifests, then build only after the manifests describe a distinct identity and asset plan.
 
 ## Verification
@@ -64,6 +66,7 @@ StoryHub is a quality standard and production system, not a visible template. Ea
 Install dependencies with `npm install --include=dev` (`npm.cmd` in PowerShell), then run `npm run verify` before pushing. GitHub Actions runs this command once. It runs, in order:
 
 - `hall-pass:verify` — handoff map, structural suite, and runtime harness
+- `turn-in:test` — Turn In web app in the fake Apps Script runtime with Hall Pass generated PINs, plus the check that every answer hub loads `desk-save.js`
 - `tools:test` — group maker, cold call, and timer fixtures
 - `classroom:test` — current course/calendar parity, invalid unit and month checks
 - `resources:validate` — public-resource fixtures, synthetic local publishing/editor integration tests, then read-only catalog and assignment validation; no private inventory required and no external test uploads
@@ -82,4 +85,6 @@ Stage only the paths you actually changed and read `git diff --cached` before co
 
 `npm run browser:test` uses the built site: nine routes at 320, 390, and 1440 pixels; full-page WCAG A/AA and contrast; search focus/Enter/Escape; course/calendar agreement; timer pause/reset/fullscreen; first-screen daily actions with ordinary and reduced motion. External services are stubbed offline, so no student service is contacted. Screenshots and accessibility reports are in `browser-results/`, with traces on failure; GitHub retains these artifacts for seven days.
 
-A push to GitHub is not an Apps Script deployment. Changes under `apps-script/hall-pass/` reach students only when a new version is created on the existing Apps Script deployment. `apps-script/hall-pass/DEPLOY.md` carries that procedure and the release records.
+`npm run turn-in:browser` (part of `browser:test`) opens every answer hub in Chromium and drives typing, refreshing, shared Chromebooks, lost WiFi and 35 simultaneous turn ins against the real Turn In code. `npm run turn-in:load -- <exec URL> <key>` load tests the deployed web app with synthetic PINs; see `apps-script/turn-in/SETUP.md`.
+
+A push to GitHub is not an Apps Script deployment. Changes under `apps-script/turn-in/` reach students only after pasting into the Turn In project and editing the existing deployment to a new version. Changes under `apps-script/hall-pass/` reach students only when a new version is created on the existing Apps Script deployment. `apps-script/hall-pass/DEPLOY.md` carries that procedure and the release records.
