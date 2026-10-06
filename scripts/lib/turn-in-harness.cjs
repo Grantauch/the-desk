@@ -35,6 +35,7 @@ function world(options = {}) {
   const books = new Map([['roster-book', school.harness.spreadsheet]]);
   let created = 0;
   const SpreadsheetApp = {
+    flush: () => {},
     openById: (id) => {
       if (!books.has(id)) throw new Error(`No workbook ${id}`);
       return books.get(id);

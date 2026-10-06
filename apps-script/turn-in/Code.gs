@@ -13,11 +13,15 @@
  *   Drafts     autosaved work, so a student can pick up on another Chromebook
  *   Load Test  rows written only by the synthetic load test
  *
- * Writes use Sheet.appendRow, which Google documents as atomic, so concurrent
- * students never need the script lock. Nothing here edits the roster.
+ * Every sheet write happens under the script lock and is flushed before the
+ * lock is released. A live load test on Oct 5 2026 showed that 35 concurrent
+ * appendRow calls without the lock kept only 5 rows, so the lock is required.
+ * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-05-turn-in-v1';
+const TI_VERSION = '2026-10-05-turn-in-v3';
+const TI_TURNIN_LOCK_MS = 25000;
+const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
 const TI_ROSTER_CACHE_SECONDS = 10 * 60;
 const TI_DRAFT_CACHE_SECONDS = 6 * 60 * 60;
@@ -113,7 +117,18 @@ function saveDraft_(request) {
     return { ok: true, savedAt: record.savedAt };
   }
   CacheService.getScriptCache().put(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
-  workbook_().getSheetByName(TI_SHEETS.DRAFTS).appendRow([savedAt, session.email, hub, JSON.stringify(record)]);
+  // The cache already holds this draft for six hours. If the sheet is busy, the next autosave writes it.
+  // Open the sheet before taking the lock so the lock is held only for the write itself.
+  const drafts = workbook_().getSheetByName(TI_SHEETS.DRAFTS);
+  const lock = LockService.getScriptLock();
+  if (lock.tryLock(TI_DRAFT_LOCK_MS)) {
+    try {
+      drafts.appendRow([savedAt, session.email, hub, JSON.stringify(record)]);
+      SpreadsheetApp.flush();
+    } finally {
+      lock.releaseLock();
+    }
+  }
   return { ok: true, savedAt: record.savedAt };
 }
 
@@ -140,38 +155,58 @@ function turnIn_(request) {
   const turnedInAt = new Date();
   const record = { hub, answers, savedAt: turnedInAt.toISOString(), turnedIn: true };
 
-  const sheetName = identity.test ? TI_SHEETS.LOAD_TEST : TI_SHEETS.TURN_INS;
-  workbook_().getSheetByName(sheetName).appendRow([
-    turnedInAt,
-    classPeriod,
-    identity.name,
-    identity.email,
-    hub,
-    title,
-    `${answered} of ${answers.length}`,
-    words,
-    readableAnswers_(answers),
-    page,
-    submissionId,
-    JSON.stringify(record),
-  ]);
+  // Open the sheet before taking the lock so the lock is held only for the write itself.
+  const sheet = workbook_().getSheetByName(identity.test ? TI_SHEETS.LOAD_TEST : TI_SHEETS.TURN_INS);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(TI_TURNIN_LOCK_MS)) {
+    throw refuse_('busy', 'Lots of students are turning in right now. Press Turn In again.');
+  }
+  try {
+    // A retry of this same press may have finished while this one waited for the lock.
+    const landed = cache.get(`sub:${submissionId}`);
+    if (landed) return JSON.parse(landed);
+    turnInRow_(sheet, [
+      turnedInAt,
+      classPeriod,
+      identity.name,
+      identity.email,
+      hub,
+      title,
+      `${answered} of ${answers.length}`,
+      words,
+      readableAnswers_(answers),
+      page,
+      submissionId,
+      JSON.stringify(record),
+    ]);
+    cache.put(`sub:${submissionId}`, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length)), TI_SUBMISSION_CACHE_SECONDS);
+  } finally {
+    lock.releaseLock();
+  }
 
   if (!identity.test) {
     cache.put(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   }
 
-  const result = {
+  return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length);
+}
+
+function turnInRow_(sheet, row) {
+  sheet.appendRow(row);
+  SpreadsheetApp.flush();
+}
+
+function resultFor_(identity, classPeriod, turnedInAt, answered, total) {
+  return {
     ok: true,
     firstName: firstName_(identity.name),
     classPeriod,
     turnedInAt: turnedInAt.toISOString(),
     answered,
-    total: answers.length,
+    total,
     token: makeToken_(identity.email, identity.test),
     classes: identity.classes,
   };
-  cache.put(`sub:${submissionId}`, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
-  return result;
 }
 
 /* --------------------------------------------------------------- identity -- */

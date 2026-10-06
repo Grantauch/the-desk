@@ -142,6 +142,26 @@ test('a retried Turn In with the same submission id never makes a second row', (
   assert.equal(w.rows('Turn Ins').length, 2, 'a real second turn in is kept');
 });
 
+test('a busy sheet refuses cleanly, writes nothing, and the same press works on retry', () => {
+  const w = world();
+  const body = { action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'busy-1', answers: ONE, device: 'a' };
+  w.h.state.lock.held = true;
+  const busy = w.post(body);
+  w.h.state.lock.held = false;
+  assert.equal(busy.code, 'busy', JSON.stringify(busy));
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+test('every sheet write happens under the script lock', () => {
+  const source = fs.readFileSync(CODE, 'utf8');
+  const body = source.slice(source.indexOf('function saveDraft_'), source.indexOf('/* --------------------------------------------------------------- identity'));
+  assert.ok(body.indexOf('tryLock') < body.indexOf('drafts.appendRow'), 'draft write is locked');
+  assert.ok(body.indexOf('tryLock(TI_TURNIN_LOCK_MS)') < body.indexOf('turnInRow_(sheet,'), 'turn in write is locked');
+  assert.match(source, /function turnInRow_[^}]*SpreadsheetApp\.flush\(\)/);
+});
+
 test('a student in two classes is asked which one, then lands in the right one', () => {
   const w = world();
   const base = { action: 'turnin', pin: w.pin(PEOPLE.alan), hub: 'h', submissionId: 's', answers: ONE, device: 'a' };
