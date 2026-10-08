@@ -208,3 +208,13 @@ Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and
 Built on main d18e7c1 in a separate checkout. Adds dimensional field notes, course-cover styling, a keyboard-accessible page finder, tool jump links, and fullscreen timer presentation. Hall Pass and Daily Check-In shortcuts remain green. Browser checks passed on six representative routes at 390, 768, and 1440 pixels; search, timer countdown, and fullscreen entry/exit passed without browser errors. Existing StoryHub asset bytes were normalized locally to their committed LF form for Windows verification; no StoryHub content changes. Production push and live confirmation are recorded in the release task after verification. No Apps Script or private-data changes.
 
 Final local canonical verify PASS: 52 built routes, 68 HTML files, 3851 local references; Astro 0 errors and 0 warnings. Final user revision places green Daily Check-In and Hall Pass cards above the hero and changes the notebook to look closer. Browser page-finder empty results, Escape focus restoration, keyboard reopening and Enter navigation also passed.
+
+## Turn In and GoClassroom connection — October 8, 2026
+
+Live Turn In v3 and the connected client were verified read-only. The initial downloadable patch is superseded. New source repairs make draft acknowledgements durable, authenticate submission retries, deduplicate against persisted rows, and reject oversized answers rather than truncate them. GoClassroom v0.9.33 adds the teacher’s private submission sheet as an explicitly selected hub/period source for one Classroom assignment, with verified-email matching and the existing draft-grade protections. Synthetic verification is recorded separately from deployment.
+
+Apps Script v5 deployment, Windows app installation, and a school-account field cycle remain pending. The connected desktop was offline, and the Apps Script browser sign-in could not load. See `apps-script/turn-in/DEPLOY.md` for the existing-deployment update.
+
+Source verification passed: Turn In server 26/26, desk-save browser 14/14, GoClassroom deep regression and private-sheet bridge checks, and a synthetic 35-student browser preview. Windows build and school-account activation remain separate.
+
+October 8 live activation: the existing Apps Script deployment now serves code v5 (Apps Script deployment version 4), exact source verified before save. Anonymous POST ping confirms v5. Live 35-student turn-in wave succeeded with exactly 35 new unique sheet rows; the synthetic autosave wave also returned 35/35. Test mode was disabled after the test. Canonical site verification and GitHub build/browser checks passed. Windows installer and installed-app activation remain separate.
