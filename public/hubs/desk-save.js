@@ -338,7 +338,7 @@
     if (!answeredCount(list) && !state.everSaved) { state.cloudHash = hash; return Promise.resolve(true); }
     if (cloudBusy) { scheduleCloud(); return Promise.resolve(false); }
     cloudBusy = true;
-    return post({ action: 'save', token: state.token, hub: hub, answers: list }).then(function (result) {
+    return post({ action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list }).then(function (result) {
       cloudBusy = false;
       if (result && result.ok) {
         state.cloudHash = hash;
@@ -373,7 +373,7 @@
     if (hashOf(list) === state.cloudHash) return;
     if (!answeredCount(list) && !state.everSaved) return;
     try {
-      var body = JSON.stringify({ action: 'save', token: state.token, hub: hub, answers: list, device: device });
+      var body = JSON.stringify({ action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list, device: device });
       navigator.sendBeacon(ENDPOINT, new Blob([body], { type: 'text/plain;charset=utf-8' }));
     } catch (e) { /* the tab copy is still there */ }
   }
@@ -444,6 +444,9 @@
           state.turnedInAt = result.draft.savedAt;
         }
       }
+      if (result.draft && result.draft.turnedIn && hashOf(answers(false)) === hashOf(result.draft.answers)) {
+        state.turnedInHash = hashOf(answers(true));
+      }
       state.values = snapshot();
       state.cloudHash = '';
       persist();
@@ -452,7 +455,7 @@
       else state.cloudHash = hashOf(answers(false));
       var hello = state.firstName ? 'Welcome back, ' + state.firstName + '. ' : '';
       if (restored) return { ok: true, message: hello + restored + (restored === 1 ? ' answer' : ' answers') + ' brought back.' };
-      return { ok: true, message: hello + 'Your answers now save to your account.' };
+      return { ok: true, message: hello + 'Your answers now save to your account and turn in automatically after 30 quiet minutes.' };
     }, function () {
       return { ok: false, message: 'Could not reach the save system. Your answers are still saved in this tab.' };
     });
@@ -688,7 +691,9 @@
         var b = make('button', { type: 'button', 'aria-pressed': String(name === state.classPeriod) }, name);
         b.addEventListener('click', function () {
           state.classPeriod = name;
+          state.cloudHash = '';
           persist();
+          scheduleCloud();
           renderClasses();
           pin.focus();
         });
@@ -704,8 +709,8 @@
       var total = list.length;
       if (cloudOn) {
         if (state.turnedInAt && hash === state.turnedInHash) sub.textContent = 'Turned in at ' + clock(state.turnedInAt) + '. Change anything and you can turn in again.';
-        else if (state.turnedInAt) sub.textContent = 'You changed your answers after turning in. Press Turn In again to send the new version.';
-        else sub.textContent = count + ' of ' + total + ' answered. Enter your hall pass PIN and press Turn In.';
+        else if (state.turnedInAt) sub.textContent = 'Your changes will turn in automatically after 30 quiet minutes. Press Turn In to send them now.';
+        else sub.textContent = count + ' of ' + total + ' answered. Enter your PIN to save and turn in automatically after 30 quiet minutes. You can also press Turn In now.';
       } else {
         sub.textContent = count + ' of ' + total + ' answered. Your answers stay while this tab is open. Copy them before you close it.';
       }
@@ -722,7 +727,7 @@
         chipText.textContent = behind ? 'Saving…' : 'Saved · ' + (state.firstName || 'your account') + (state.cloudAt ? ' · ' + clock(state.cloudAt) : '');
         dot.className = behind && cloudRetry ? 'dot warn' : 'dot';
         if (behind && cloudRetry) chipText.textContent = 'Saved in this tab · retrying';
-        popText.textContent = 'Saving to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account. Open this page on any Chromebook and enter your PIN to pick up where you left off.';
+        popText.textContent = 'Saving to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account. Saved answers turn in automatically after 30 quiet minutes. Open this page on any Chromebook and enter your PIN to pick up where you left off.';
         popActions.appendChild(goTurnIn);
         popActions.appendChild(signOutBtn);
       } else {

@@ -1,3 +1,11 @@
+## October 8 automatic Turn In checkpoint
+
+Identified nonblank drafts can submit after 30 minutes without changes, checked by one 15-minute trigger. Automatic rows are labeled Auto and manual rows Pressed. Current roster/class validation, recent-draft filtering and durable comparison with the newest submission prevent wrong-class and repeated submissions. Blank, inactive, unassigned, legacy and over-48-hour drafts are skipped. Up to 35 drafts are handled per run, with backlog retained for later runs. Autosave acknowledges only after the sheet write and flush succeed.
+
+The Turn In server suite passed 30/30, including 35 synthetic student drafts, cache eviction and recovery after an interrupted flush without duplicates. A browser regression covers PIN login, autosave metadata and automatic submission after tab closure. Local Chromium installation is blocked by unavailable download bytes. Canonical npm run verify passed: 53 built pages, 115 validated HTML files, 4,456 local references and 7 verified StoryHub releases / 62 sealed files. Apps Script editor access returned 502 connection refused on both attempts, so no project, trigger, workbook or deployment was changed. This remains review source, not a live release; the existing deployment must be updated and setup run before activation. Live synthetic and real-class evidence remain pending.
+
+The teacher clarified that manually created Google Classroom assignments must also be marked turned in. This draft does not implement that integration. Google’s official turnIn API requires the student owner and the developer project that created the coursework or an add-on attachment. GoClassroom currently uses only the teacher’s browser session. A student-side extension and district-approved Chromebook installation are the remaining integration route; no student authorization or Classroom write was attempted.
+
 # GrantDesk repair status
 
 ## Current checkpoint — October 5 hub saving and Turn In
@@ -208,3 +216,11 @@ Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and
 Built on main d18e7c1 in a separate checkout. Adds dimensional field notes, course-cover styling, a keyboard-accessible page finder, tool jump links, and fullscreen timer presentation. Hall Pass and Daily Check-In shortcuts remain green. Browser checks passed on six representative routes at 390, 768, and 1440 pixels; search, timer countdown, and fullscreen entry/exit passed without browser errors. Existing StoryHub asset bytes were normalized locally to their committed LF form for Windows verification; no StoryHub content changes. Production push and live confirmation are recorded in the release task after verification. No Apps Script or private-data changes.
 
 Final local canonical verify PASS: 52 built routes, 68 HTML files, 3851 local references; Astro 0 errors and 0 warnings. Final user revision places green Daily Check-In and Hall Pass cards above the hero and changes the notebook to look closer. Browser page-finder empty results, Escape focus restoration, keyboard reopening and Enter navigation also passed.
+
+## Turn In and GoClassroom connection — October 8, 2026
+
+Live Turn In v3 and the connected client were verified read-only. The initial downloadable patch is superseded. New source repairs make draft acknowledgements durable, authenticate submission retries, deduplicate against persisted rows, and reject oversized answers rather than truncate them. GoClassroom v0.9.33 adds the teacher’s private submission sheet as an explicitly selected hub/period source for one Classroom assignment, with verified-email matching and the existing draft-grade protections. Synthetic verification is recorded separately from deployment.
+
+Apps Script v5 deployment, Windows app installation, and a school-account field cycle remain pending. The connected desktop was offline, and the Apps Script browser sign-in could not load. See `apps-script/turn-in/DEPLOY.md` for the existing-deployment update.
+
+Source verification passed: Turn In server 26/26, desk-save browser 14/14, GoClassroom deep regression and private-sheet bridge checks, and a synthetic 35-student browser preview. Windows build and school-account activation remain separate.

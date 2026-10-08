@@ -1,5 +1,9 @@
 # Turn In setup
 
+**Already running Turn In?** Use [DEPLOY.md](DEPLOY.md) to update the existing
+project. This setup guide is for a new installation. The original downloadable
+patch is an older implementation and must not replace the current code.
+
 Turn In is a small Google Apps Script web app that receives student work from the hubs. It is a separate project from Hall Pass, so a rush of turn ins at the bell never slows down check ins or passes. Students prove who they are with the same six digit PIN they already use for the hall pass.
 
 You do this once. It takes about fifteen minutes.
@@ -42,7 +46,7 @@ Turn In only reads the Roster tab. It never writes to the Hall Pass workbook.
 ## 4. Run setup
 
 1. In the editor, choose `setup` in the function menu and press **Run**.
-2. Google asks for permission. Approve it with your school account. It needs Sheets (to read the roster and write turn ins) and triggers (for the nightly draft cleanup).
+2. Google asks for permission. Approve it with your school account. It needs Sheets (to read the roster and write turn ins) and triggers (for automatic turn in and nightly draft cleanup).
 3. The log ends with `Ready. N students with PINs. Turn ins go to …`. That link is your new private workbook, **the desk · Turn Ins**. Bookmark it.
 
 If setup says no active students were found, the roster ID or the salt is wrong. Check step 3.
@@ -85,7 +89,8 @@ Open any hub on a Chromebook, type an answer, enter a PIN from a test student or
 
 | Column | Meaning |
 |---|---|
-| Turned In | When the student pressed Turn In |
+| Turned In | When the work reached Turn Ins |
+| How | `Pressed` for the button or `Auto` for automatic submission |
 | Class / Period | Their class from the hall pass roster. A student in two of your classes picks one |
 | Student Name, Student Email | From the roster |
 | Hub, Hub Title | Which page |
@@ -98,6 +103,16 @@ Open any hub on a Chromebook, type an answer, enter a PIN from a test student or
 A student can turn in more than once. Each press is its own row, so the newest row is their final version. Sort by Class / Period, then Student Name, to grade by hour.
 
 **Drafts** holds autosaved work so students can pick up on a different Chromebook. Drafts older than 30 days are removed every night at 2 AM. Turn ins are never removed.
+
+## Automatic turn in
+
+After a student enters their PIN to save to their account, their latest nonblank answers turn in automatically after 30 minutes without answer changes. The trigger checks every 15 minutes, so ordinary submission happens around 30 to 45 minutes after the last successful save. It works after the tab closes. Students can still press Turn In immediately.
+
+The script uses the active roster and selected enrolled class. Students with multiple classes must pick their class in the panel. Unassigned work stays a draft. Unchanged answers already submitted are skipped; a revised answer creates a new row. Blank drafts, legacy drafts from before this release, inactive students and drafts over 48 hours old are skipped. Each run handles up to 35 submissions; additional work waits for the next run. Turn Ins rows are never removed.
+
+Only successfully saved account drafts can submit. Offline work needs to reconnect and finish saving. Autosave reports success after the draft reaches the sheet, and retries when the sheet is busy.
+
+For this upgrade, paste the new Code.gs, run **setup** once to add the **How** column and install one **autoTurnIn** trigger, then update the existing deployment to a new version. Publish the updated `desk-save.js` too, so draft saves include the hub title, page and selected class. This sends work to this workbook; it does not mark Google Classroom assignments turned in.
 
 ## Updating the code later
 

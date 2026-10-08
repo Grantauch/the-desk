@@ -149,6 +149,31 @@ for (const name of hubs) {
   if ((await readFile(join(ROOT, 'hubs', name), 'utf8')).includes('/hubs/desk-save.js')) wired.push(name);
 }
 
+await test('PIN sign in and autosave submit automatically after closing the tab', async () => {
+  const s = world();
+  const cb = await chromebook(s);
+  const page = await cb.open('bts-the-bargain.html');
+  await typeInto(page, 'textarea', 'Forgot to press Turn In');
+  await chip(page).locator('.chip').click();
+  await chip(page).locator('input').fill(s.pin(PEOPLE.ada));
+  await chip(page).getByRole('button', { name: 'Save to my account' }).click();
+  await waitFor(() => s.rows('Drafts').length > 0);
+  assert.equal(s.rows('Turn Ins').length, 0);
+  const saved = s.rows('Drafts').at(-1);
+  const data = JSON.parse(saved.Data);
+  assert.equal(data.autoEligible, true);
+  assert.equal(data.page, '/hubs/bts-the-bargain.html');
+  assert.ok(data.title.length > 0);
+  await page.close({ runBeforeUnload: false });
+  s.clock.advanceMinutes(31);
+  assert.equal(s.sandbox.autoTurnIn(), 1);
+  const row = s.rows('Turn Ins')[0];
+  assert.equal(row.How, 'Auto');
+  assert.match(row.Answers, /Forgot to press Turn In/);
+  assert.equal(s.sandbox.autoTurnIn(), 0);
+  await cb.context.close();
+});
+
 await test(`all ${wired.length} wired hubs boot, find their answer boxes and label every question`, async () => {
   const s = world();
   const cb = await chromebook(s);

@@ -1,4 +1,19 @@
 {
+  "turn-in-automatic-2026-10-08": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "49905ce",
+    "scope": "Automatically submit identified nonblank hub drafts after 30 minutes without answer changes",
+    "evidence": [
+      "30/30 Turn In server checks passed, including 35 saved students, cache eviction, interrupted flush recovery, class validation, revised work, stale/blank/inactive/legacy skips and duplicate prevention.",
+      "Autosave acknowledges only after a durable sheet write; contention returns busy for browser retry.",
+      "Browser regression added for PIN sign in, autosave metadata, tab close and automatic submission. Local browser execution blocked because Chromium download is unavailable.",
+      "Canonical npm run verify passed: Astro build completed with 53 pages; static site validation checked 115 HTML files and 4,456 local references; all 7 StoryHub releases and 62 sealed files verified."
+    ],
+    "deployment_status": "NOT_DEPLOYED: review branch only; existing production untouched",
+    "apps_script_status": "NOT_DEPLOYED: editor returned 502 gateway connection refused twice; setup and existing deployment upgrade required",
+    "field_status": "FIELD_PENDING: synthetic live test then one real class cycle",
+    "classroom_status": "NOT_IMPLEMENTED: user clarified manually created Classroom assignments also need Turn In. Official API requires submission-owner authorization and coursework/add-on from the same developer project. GoClassroom uses the teacher local browser session only. Student-side extension and district Chromebook installation are dependencies."
+  },
   "turn-in-autosave-2026-10-05": {
     "status": "LOCAL_VERIFIED",
     "source_base": "b5374f3",
@@ -13,7 +28,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -906,5 +921,15 @@
     "final_integrated_verification": "PASS October 5: 600 seeded games, all gameplay/pose/feel/art/audio/resource/publishing checks, 53 routes, 115 HTML files, 4423 local references, seven releases and 62 sealed files. October 5 lesson release preserved.",
     "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
     "field_status": "FIELD_PENDING"
+  },
+  "turn_in_classroom_bridge_20261008": {
+    "status": "SOURCE_CHECKS_PASS_ACTIVATION_PENDING",
+    "summary": "Durable draft acknowledgement, authenticated persistent submission deduplication, complete-answer limits, and private-sheet source integration in GoClassroom v0.9.33.",
+    "live_service_version": "2026-10-05-turn-in-v3",
+    "target_service_version": "2026-10-08-turn-in-v5",
+    "deployment_status": "PENDING_APPS_SCRIPT_UPDATE_AND_WINDOWS_APP_INSTALL",
+    "field_status": "FIELD_PENDING",
+    "privacy": "No student records, workbook identifiers, PINs, or credentials added to source.",
+    "verification": "Turn In server 26/26 and browser 14/14; GoClassroom deep regression, StoryHub source/identity checks, and synthetic 35-student teacher preview passed. Windows installer CI and live activation are separate."
   }
 }
