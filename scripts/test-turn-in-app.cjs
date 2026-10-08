@@ -397,6 +397,44 @@ test('student facing messages avoid hyphens and semicolons', () => {
 
 /* --------------------------------------------------- hubs load the saver -- */
 
+test('a busy draft is not reported as saved and never reaches cache', () => {
+  const w = world();
+  const session = w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  w.h.state.lock.held = true;
+  assert.equal(w.post({action:'save',token:session.token,hub:'h',answers:ONE}).code,'busy');
+  w.h.state.lock.held = false;
+  assert.equal(w.rows('Drafts').length,0);
+  assert.equal(w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'}).draft,null);
+  assert.equal(w.post({action:'save',token:session.token,hub:'h',answers:ONE}).ok,true);
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'}).draft.answers[0].a,ONE[0].a);
+});
+
+test('retrying after cache eviction remains durable and authenticates the student', () => {
+  const w = world();
+  const body={action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',submissionId:'durable',answers:ONE};
+  assert.equal(w.post(body).ok,true);
+  assert.equal(w.post({...body,pin:'not-a-pin'}).ok,false);
+  w.h.state.cache.clear();
+  assert.equal(w.post(body).ok,true);
+  assert.equal(w.rows('Turn Ins').length,1);
+  assert.equal(w.post({...body,pin:w.pin(PEOPLE.grace)}).ok,false);
+  assert.equal(w.rows('Turn Ins').length,1);
+});
+
+test('oversized single answers and duplicate field keys cannot be silently truncated', () => {
+  const w = world(),base={action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',submissionId:'big'};
+  assert.equal(w.post({...base,answers:answers(['a','Q','x'.repeat(6001)])}).code,'too_big');
+  assert.equal(w.post({...base,answers:answers(['a','Q','ok'],['a','Q2','also'])}).code,'bad_request');
+  assert.equal(w.rows('Turn Ins').length,0);
+});
+
+test('spreadsheet titles beginning with equals remain literal text', () => {
+  const w=world();
+  assert.equal(w.post({action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',title:'=1+1',submissionId:'formula',answers:ONE}).ok,true);
+  assert.equal(w.rows('Turn Ins')[0]['Hub Title'],"'=1+1");
+});
+
 const HUBS = path.join(__dirname, '..', 'public', 'hubs');
 // Game boards whose text boxes are team names or scores, not student answers.
 const NOT_ANSWER_PAGES = new Set(['classroom-jeopardy.html', 'jeopardy-hidden-history-unit1.html', 'jeopardy-scoreboard-unit1.html']);

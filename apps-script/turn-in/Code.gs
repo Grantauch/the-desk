@@ -19,7 +19,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-08-turn-in-v4';
+const TI_VERSION = '2026-10-08-turn-in-v6';
 const TI_AUTO_IDLE_MINUTES = 30;
 const TI_AUTO_LOOKBACK_HOURS = 48;
 const TI_TURNIN_LOCK_MS = 25000;
@@ -113,6 +113,9 @@ function saveDraft_(request) {
   const hub = cleanHub_(request.hub);
   const session = readToken_(request.token);
   const answers = cleanAnswers_(request.answers);
+  if (!session.test && !Object.values(rosterByHash_()).some((entry) => entry.emails.length === 1 && entry.emails[0] === session.email)) {
+    throw refuse_('signed_out', 'Ask your teacher to check your account before saving again.');
+  }
   const savedAt = new Date();
   const identity = identityByEmail_(session.email);
   const classPeriod = identity ? chooseClass_(identity.classes, request.classPeriod, request.course) : '';
@@ -128,23 +131,23 @@ function saveDraft_(request) {
   try {
     drafts.appendRow([savedAt, session.email, hub, JSON.stringify(record)]);
     SpreadsheetApp.flush();
+    CacheService.getScriptCache().put(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   } finally {
     lock.releaseLock();
   }
-  CacheService.getScriptCache().put(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   return { ok: true, savedAt: record.savedAt };
 }
 
 function turnIn_(request) {
   const hub = cleanHub_(request.hub);
-  const submissionId = String(request.submissionId || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64);
-  if (!submissionId) throw refuse_('bad_request', 'That request could not be read.');
+  const submissionId = String(request.submissionId || '');
+  if (!/^[A-Za-z0-9-]{1,64}$/.test(submissionId)) throw refuse_('bad_request', 'That request could not be read.');
 
   const cache = CacheService.getScriptCache();
-  const previous = cache.get(`sub:${submissionId}`);
-  if (previous) return JSON.parse(previous);
-
   const identity = identify_(request);
+  const submissionKey = `sub:${identity.email}:${hub}:${submissionId}`;
+  const previous = cache.get(submissionKey);
+  if (previous) return JSON.parse(previous);
   const answers = cleanAnswers_(request.answers);
   const classPeriod = chooseClass_(identity.classes, request.classPeriod, request.course);
   if (!classPeriod) {
@@ -166,8 +169,21 @@ function turnIn_(request) {
   }
   try {
     // A retry of this same press may have finished while this one waited for the lock.
-    const landed = cache.get(`sub:${submissionId}`);
+    const landed = cache.get(submissionKey);
     if (landed) return JSON.parse(landed);
+    // Cache eviction or a delayed retry must not create a second submission.
+    const lastRow = sheet.getLastRow();
+    const ids = lastRow >= 2 ? sheet.getRange(2, 11, lastRow - 1, 1).getValues() : [];
+    const found = ids.findIndex((row) => String(row[0]) === submissionId);
+    if (found !== -1) {
+      const existing = sheet.getRange(found + 2, 1, 1, 12).getValues()[0];
+      if (existing[3] !== identity.email || existing[4] !== hub) throw refuse_('bad_request', 'That submission needs a new turn in. Press the button again.');
+      const data = JSON.parse(existing[11]);
+      if (JSON.stringify(data.answers) !== JSON.stringify(answers)) throw refuse_('bad_request', 'These answers changed. Press Turn In again to send the new version.');
+      const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length);
+      cache.put(submissionKey, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
+      return result;
+    }
     turnInRow_(sheet, [
       turnedInAt,
       classPeriod,
@@ -183,20 +199,18 @@ function turnIn_(request) {
       JSON.stringify(record),
       'Pressed',
     ]);
-    cache.put(`sub:${submissionId}`, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length)), TI_SUBMISSION_CACHE_SECONDS);
+    cache.put(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length)), TI_SUBMISSION_CACHE_SECONDS);
+    if (!identity.test) cache.put(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   } finally {
     lock.releaseLock();
-  }
-
-  if (!identity.test) {
-    cache.put(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   }
 
   return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length);
 }
 
 function turnInRow_(sheet, row) {
-  sheet.appendRow(row);
+  // Teacher-visible text must remain text even when an answer begins with =.
+  sheet.appendRow(row.map((value) => typeof value === 'string' && /^\s*=/.test(value) ? "'" + value : value));
   SpreadsheetApp.flush();
 }
 
@@ -499,10 +513,14 @@ function cleanAnswers_(value) {
   if (!Array.isArray(value)) throw refuse_('bad_request', 'That request could not be read.');
   if (value.length > TI_MAX_FIELDS) throw refuse_('too_big', 'This page has too many answer boxes to send. Use the copy button.');
   const answers = value.map((entry) => ({
-    k: String(entry && entry.k || '').slice(0, 120),
-    q: String(entry && entry.q || '').slice(0, TI_MAX_QUESTION_CHARS),
-    a: String(entry && entry.a || '').slice(0, TI_MAX_ANSWER_CHARS),
-  })).filter((entry) => entry.k);
+    k: String(entry && entry.k || ''),
+    q: String(entry && entry.q || ''),
+    a: String(entry && entry.a || ''),
+  }));
+  if (answers.some((entry) => !entry.k || entry.k.length > 120 || entry.q.length > TI_MAX_QUESTION_CHARS || entry.a.length > TI_MAX_ANSWER_CHARS)) {
+    throw refuse_('too_big', 'One answer or question is too long to send completely. Use the copy button.');
+  }
+  if (new Set(answers.map((entry) => entry.k)).size !== answers.length) throw refuse_('bad_request', 'Two answer boxes have the same name. Ask your teacher to check this page.');
   if (JSON.stringify(answers).length > TI_MAX_PAYLOAD_CHARS) throw refuse_('too_big', 'Your answers are too long to send in one piece. Use the copy button.');
   return answers;
 }
