@@ -1,4 +1,17 @@
 {
+  "turn-in-automatic-2026-10-08": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "49905ce",
+    "scope": "Automatically submit identified nonblank hub drafts after 30 minutes without answer changes",
+    "evidence": [
+      "30/30 Turn In server checks passed, including 35 saved students, cache eviction, interrupted flush recovery, class validation, revised work, stale/blank/inactive/legacy skips and duplicate prevention.",
+      "Autosave acknowledges only after a durable sheet write; contention returns busy for browser retry.",
+      "Browser regression added for PIN sign in, autosave metadata, tab close and automatic submission. Local browser execution blocked because Chromium download is unavailable."
+    ],
+    "deployment_status": "NOT_DEPLOYED: review branch only; existing production untouched",
+    "apps_script_status": "NOT_DEPLOYED: editor returned 502 gateway connection refused twice; setup and existing deployment upgrade required",
+    "field_status": "FIELD_PENDING: synthetic live test then one real class cycle"
+  },
   "turn-in-autosave-2026-10-05": {
     "status": "LOCAL_VERIFIED",
     "source_base": "b5374f3",
@@ -13,7 +26,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {

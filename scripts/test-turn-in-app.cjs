@@ -269,6 +269,125 @@ test('nightly cleanup drops old drafts and never touches turn ins', () => {
   assert.equal(w.rows('Turn Ins').length, 1);
 });
 
+function savedDraft(w, person = PEOPLE.ada, text = 'Forgot the button', extra = {}) {
+  const login = w.post({ action: 'signin', pin: w.pin(person), hub: 'h', device: 'test' });
+  const request = { action: 'save', token: login.token, hub: 'h', title: 'Test Hub', page: '/hubs/h.html', answers: answers(['k', 'Question?', text]), ...extra };
+  const result = w.post(request);
+  assert.equal(result.ok, true, JSON.stringify(result));
+  return request;
+}
+
+test('setup installs one automatic trigger and adds How without replacing existing work', () => {
+  const w = world();
+  savedDraft(w);
+  w.clock.advanceMinutes(31);
+  w.sandbox.autoTurnIn();
+  w.sandbox.setup();
+  w.sandbox.setup();
+  assert.equal(w.h.state.triggers.filter(t => t.handler === 'autoTurnIn').length, 1);
+  assert.equal(w.rows('Turn Ins')[0].How, 'Auto');
+});
+
+test('automatic turn in waits 30 minutes, survives cache eviction, and restores as submitted', () => {
+  const w = world();
+  savedDraft(w);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  w.clock.advanceMinutes(31);
+  w.h.state.cache.clear();
+  assert.equal(w.sandbox.autoTurnIn(), 1);
+  const [row] = w.rows('Turn Ins');
+  assert.equal(row.How, 'Auto');
+  assert.equal(row['Student Name'], 'Byron, Ada');
+  assert.equal(row['Class / Period'], 'Period 1');
+  assert.equal(row['Hub Title'], 'Test Hub');
+  assert.match(row.Answers, /Forgot the button/);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  const back = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'h', device: 'test' });
+  assert.equal(back.draft.turnedIn, true);
+});
+
+test('manual submission suppresses autosave duplicates but later changed work is submitted', () => {
+  const w = world();
+  const request = savedDraft(w);
+  w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'manual', answers: request.answers, device: 'test' });
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  savedDraft(w, PEOPLE.ada, 'Revised answer');
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 1);
+  assert.equal(w.rows('Turn Ins').length, 2);
+  assert.equal(w.rows('Turn Ins')[0].How, 'Pressed');
+});
+
+test('autosave after a manual submission does not duplicate unchanged answers with hidden blank fields', () => {
+  const w = world();
+  const request = savedDraft(w);
+  w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'manual', answers: request.answers, device: 'test' });
+  w.clock.advanceMinutes(1);
+  savedDraft(w, PEOPLE.ada, '', { answers: [...request.answers, { k: 'hidden', q: 'Hidden', a: '' }] });
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+});
+
+test('blank, unassigned, inactive, legacy and stale drafts are never automatically submitted', () => {
+  const w = world();
+  savedDraft(w, PEOPLE.ada, '   ');
+  savedDraft(w, PEOPLE.alan);
+  savedDraft(w, PEOPLE.katherine);
+  const roster = w.school.harness.sheet('Roster');
+  const row = roster.getRange(2, 1, roster.getLastRow() - 1, 1).getValues().findIndex(r => r[0] === PEOPLE.katherine.email) + 2;
+  roster.getRange(row, 5).setValue(false);
+  w.h.state.cache.clear();
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  savedDraft(w, PEOPLE.grace);
+  w.clock.advanceDays(3);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  const sheet = w.book().getSheetByName('Drafts');
+  sheet.appendRow([new w.sandbox.Date(), PEOPLE.ada.email, 'old-hub', JSON.stringify({ hub: 'old-hub', answers: ONE, savedAt: new w.sandbox.Date().toISOString() })]);
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+});
+
+test('multi-class students must pick an enrolled class and cannot forge another class', () => {
+  const w = world();
+  savedDraft(w, PEOPLE.alan, 'Work', { classPeriod: 'Period 99' });
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  savedDraft(w, PEOPLE.alan, 'Work', { classPeriod: 'Period 5' });
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 1);
+  assert.equal(w.rows('Turn Ins')[0]['Class / Period'], 'Period 5');
+});
+
+test('a busy draft write is not acknowledged and automatic writes retry after contention', () => {
+  const w = world();
+  const request = savedDraft(w);
+  w.h.state.lock.held = true;
+  assert.equal(w.post({ ...request, answers: ONE }).code, 'busy');
+  assert.equal(w.rows('Drafts').length, 1);
+  w.clock.advanceMinutes(31);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  w.h.state.lock.held = false;
+  assert.equal(w.sandbox.autoTurnIn(), 1);
+});
+
+test('35 saved student drafts land once each and an interrupted flush is recovered without a duplicate', () => {
+  const { crowd } = require('./lib/turn-in-harness.cjs');
+  const students = crowd(35);
+  const w = world({ memberships: students });
+  students.forEach(([person]) => savedDraft(w, person));
+  w.clock.advanceMinutes(31);
+  const original = w.sandbox.SpreadsheetApp.flush;
+  w.sandbox.SpreadsheetApp.flush = () => { throw new Error('lost response'); };
+  assert.throws(() => w.sandbox.autoTurnIn(), /lost response/);
+  w.sandbox.SpreadsheetApp.flush = original;
+  assert.equal(w.sandbox.autoTurnIn(), 34);
+  assert.equal(w.rows('Turn Ins').length, 35);
+  assert.equal(w.sandbox.autoTurnIn(), 0);
+  assert.equal(new Set(w.rows('Turn Ins').map(row => row['Student Email'])).size, 35);
+});
+
 test('student facing messages avoid hyphens and semicolons', () => {
   const source = fs.readFileSync(CODE, 'utf8');
   const messages = [...source.matchAll(/refuse_\('[a-z_]+', '([^']+)'\)/g)].map((m) => m[1]);

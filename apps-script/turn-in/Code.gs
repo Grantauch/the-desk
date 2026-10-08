@@ -19,7 +19,9 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-05-turn-in-v3';
+const TI_VERSION = '2026-10-08-turn-in-v4';
+const TI_AUTO_IDLE_MINUTES = 30;
+const TI_AUTO_LOOKBACK_HOURS = 48;
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -43,7 +45,7 @@ const TI_SHEETS = {
 };
 
 const TI_HEADERS = {
-  TURN_INS: ['Turned In', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Hub Title', 'Answered', 'Words', 'Answers', 'Page', 'Submission ID', 'Data'],
+  TURN_INS: ['Turned In', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Hub Title', 'Answered', 'Words', 'Answers', 'Page', 'Submission ID', 'Data', 'How'],
   DRAFTS: ['Saved At', 'Student Email', 'Hub', 'Data'],
 };
 TI_HEADERS.LOAD_TEST = TI_HEADERS.TURN_INS;
@@ -112,23 +114,24 @@ function saveDraft_(request) {
   const session = readToken_(request.token);
   const answers = cleanAnswers_(request.answers);
   const savedAt = new Date();
-  const record = { hub, answers, savedAt: savedAt.toISOString() };
+  const identity = identityByEmail_(session.email);
+  const classPeriod = identity ? chooseClass_(identity.classes, request.classPeriod, request.course) : '';
+  const record = { hub, answers, savedAt: savedAt.toISOString(), autoEligible: Boolean(classPeriod),
+    classPeriod, title: String(request.title || '').slice(0, 200), page: String(request.page || '').slice(0, 300) };
   if (session.test) {
     return { ok: true, savedAt: record.savedAt };
   }
-  CacheService.getScriptCache().put(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
-  // The cache already holds this draft for six hours. If the sheet is busy, the next autosave writes it.
-  // Open the sheet before taking the lock so the lock is held only for the write itself.
+  // A save is acknowledged only after a durable write. Cache alone can be evicted.
   const drafts = workbook_().getSheetByName(TI_SHEETS.DRAFTS);
   const lock = LockService.getScriptLock();
-  if (lock.tryLock(TI_DRAFT_LOCK_MS)) {
-    try {
-      drafts.appendRow([savedAt, session.email, hub, JSON.stringify(record)]);
-      SpreadsheetApp.flush();
-    } finally {
-      lock.releaseLock();
-    }
+  if (!lock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
+  try {
+    drafts.appendRow([savedAt, session.email, hub, JSON.stringify(record)]);
+    SpreadsheetApp.flush();
+  } finally {
+    lock.releaseLock();
   }
+  CacheService.getScriptCache().put(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   return { ok: true, savedAt: record.savedAt };
 }
 
@@ -178,6 +181,7 @@ function turnIn_(request) {
       page,
       submissionId,
       JSON.stringify(record),
+      'Pressed',
     ]);
     cache.put(`sub:${submissionId}`, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length)), TI_SUBMISSION_CACHE_SECONDS);
   } finally {
@@ -313,6 +317,78 @@ function firstName_(name) {
   const text = String(name || '').trim();
   if (text.indexOf(',') !== -1) return text.split(',')[1].trim().split(/\s+/)[0] || text;
   return text.split(/\s+/)[0] || text;
+}
+
+function identityByEmail_(email) {
+  const entries = Object.values(rosterByHash_()).filter((entry) => entry.emails.length === 1 && entry.emails[0] === email);
+  if (!entries.length) return null;
+  const classes = [];
+  entries.forEach((entry) => entry.classes.forEach((name) => { if (classes.indexOf(name) === -1) classes.push(name); }));
+  return { email, name: entries[0].name, classes };
+}
+
+// Ignore empty hidden fields and labels; compare the actual answers by stable key.
+function answerSignature_(answers) {
+  return JSON.stringify(answers.filter((entry) => entry.a.trim()).map((entry) => [entry.k, entry.a]).sort((a, b) => a[0].localeCompare(b[0])));
+}
+
+/** Every 15 minutes: submit recent identified work after 30 minutes without changes. */
+function autoTurnIn() {
+  const book = workbook_();
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(TI_DRAFT_LOCK_MS)) return 0;
+  let written = 0;
+  try {
+    const drafts = book.getSheetByName(TI_SHEETS.DRAFTS);
+    const sheet = book.getSheetByName(TI_SHEETS.TURN_INS);
+    if (drafts.getLastRow() < 2) return 0;
+    const latest = {};
+    const submitted = {};
+    const keyOf = (email, hub) => JSON.stringify([email, hub]);
+    drafts.getRange(2, 1, drafts.getLastRow() - 1, 4).getValues().forEach((row) => {
+      const key = keyOf(String(row[1]).toLowerCase(), String(row[2]));
+      // A corrupt newest row suppresses older work rather than submitting stale answers.
+      latest[key] = { email: String(row[1]).toLowerCase(), hub: String(row[2]), data: null };
+      try { latest[key].data = JSON.parse(row[3]); } catch (error) { /* skip */ }
+    });
+    if (sheet.getLastRow() >= 2) {
+      sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues().forEach((row) => {
+        const key = keyOf(String(row[3]).toLowerCase(), String(row[4]));
+        try { submitted[key] = JSON.parse(row[11]); } catch (error) { submitted[key] = null; }
+      });
+    }
+    const started = Date.now();
+    Object.keys(latest).some((key) => {
+      if (written >= 35 || Date.now() - started > 20000) return true;
+      const draft = latest[key];
+      const data = draft.data;
+      if (!data || !data.autoEligible || !Array.isArray(data.answers)) return false;
+      const stamp = Date.parse(data.savedAt);
+      const age = Date.now() - stamp;
+      if (!Number.isFinite(age) || age < TI_AUTO_IDLE_MINUTES * 60000 || age > TI_AUTO_LOOKBACK_HOURS * 3600000) return false;
+      const identity = identityByEmail_(draft.email);
+      if (!identity || identity.classes.indexOf(data.classPeriod) === -1) return false;
+      const answers = cleanAnswers_(data.answers);
+      const answered = answers.filter((entry) => entry.a.trim()).length;
+      if (!answered) return false;
+      const prior = submitted[key];
+      // A newer manual turn in wins, even if an older autosave landed afterward.
+      if (prior && (Date.parse(prior.savedAt) >= stamp || answerSignature_(prior.answers) === answerSignature_(answers))) return false;
+      const at = new Date();
+      const record = { hub: draft.hub, answers, savedAt: at.toISOString(), turnedIn: true };
+      const submissionId = 'auto-' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, key + data.savedAt));
+      turnInRow_(sheet, [at, data.classPeriod, identity.name, identity.email, draft.hub, data.title || draft.hub,
+        `${answered} of ${answers.length}`, answers.reduce((sum, entry) => sum + countWords_(entry.a), 0),
+        readableAnswers_(answers), data.page || '', submissionId, JSON.stringify(record), 'Auto']);
+      // Invalidate a cached draft; restoration must see the committed submission.
+      CacheService.getScriptCache().remove(draftCacheKey_(draft.email, draft.hub));
+      written += 1;
+      return false;
+    });
+  } finally {
+    lock.releaseLock();
+  }
+  return written;
 }
 
 /* ----------------------------------------------------------------- tokens -- */
@@ -464,9 +540,19 @@ function json_(value) {
 /**
  * Run once from the editor after filling in the two Script Properties
  * ROSTER_SPREADSHEET_ID and PIN_SALT. Creates the private Turn In workbook,
- * checks that the roster can be read, and installs the nightly draft cleanup.
+ * checks the roster, and installs automatic turn in and nightly draft cleanup.
  */
 function setup() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Turn In is busy. Run setup again.');
+  try {
+    return setup_();
+  } finally {
+    try { SpreadsheetApp.flush(); } finally { lock.releaseLock(); }
+  }
+}
+
+function setup_() {
   const props = PropertiesService.getScriptProperties();
   const rosterId = props.getProperty('ROSTER_SPREADSHEET_ID');
   const salt = props.getProperty('PIN_SALT');
@@ -490,9 +576,10 @@ function setup() {
   if (blank && book.getSheets().length > 1 && blank.getLastRow() === 0) book.deleteSheet(blank);
 
   ScriptApp.getProjectTriggers()
-    .filter((trigger) => trigger.getHandlerFunction() === 'pruneDrafts')
+    .filter((trigger) => ['pruneDrafts', 'autoTurnIn'].indexOf(trigger.getHandlerFunction()) !== -1)
     .forEach((trigger) => ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger('pruneDrafts').timeBased().everyDays(1).atHour(2).create();
+  ScriptApp.newTrigger('autoTurnIn').timeBased().everyMinutes(15).create();
 
   console.log(`Ready. ${students} students with PINs. Turn ins go to ${book.getUrl()}`);
   return book.getUrl();
@@ -506,6 +593,8 @@ function ensureSheet_(book, name, headers) {
     sheet.setFrozenRows(1);
     sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
   }
+  // Upgrade the existing header without replacing student rows.
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
   if (name !== TI_SHEETS.DRAFTS) {
     sheet.setColumnWidth(headers.indexOf('Answers') + 1, 480);
     sheet.hideColumns(headers.indexOf('Data') + 1);

@@ -1,3 +1,9 @@
+## October 8 automatic Turn In checkpoint
+
+Identified nonblank drafts can submit after 30 minutes without changes, checked by one 15-minute trigger. Automatic rows are labeled Auto and manual rows Pressed. Current roster/class validation, recent-draft filtering and durable comparison with the newest submission prevent wrong-class and repeated submissions. Blank, inactive, unassigned, legacy and over-48-hour drafts are skipped. Up to 35 drafts are handled per run, with backlog retained for later runs. Autosave acknowledges only after the sheet write and flush succeed.
+
+The Turn In server suite passed 30/30, including 35 synthetic student drafts, cache eviction and recovery after an interrupted flush without duplicates. A browser regression covers PIN login, autosave metadata and automatic submission after tab closure. Local Chromium installation is blocked by unavailable download bytes. Canonical release verification is recorded separately when complete. Apps Script editor access returned 502 connection refused on both attempts, so no project, trigger, workbook or deployment was changed. This remains review source, not a live release; the existing deployment must be updated and setup run before activation. Live synthetic and real-class evidence remain pending.
+
 # GrantDesk repair status
 
 ## Current checkpoint — October 5 hub saving and Turn In
