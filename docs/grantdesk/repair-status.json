@@ -6,11 +6,13 @@
     "evidence": [
       "30/30 Turn In server checks passed, including 35 saved students, cache eviction, interrupted flush recovery, class validation, revised work, stale/blank/inactive/legacy skips and duplicate prevention.",
       "Autosave acknowledges only after a durable sheet write; contention returns busy for browser retry.",
-      "Browser regression added for PIN sign in, autosave metadata, tab close and automatic submission. Local browser execution blocked because Chromium download is unavailable."
+      "Browser regression added for PIN sign in, autosave metadata, tab close and automatic submission. Local browser execution blocked because Chromium download is unavailable.",
+      "Canonical npm run verify passed: Astro build completed with 53 pages; static site validation checked 115 HTML files and 4,456 local references; all 7 StoryHub releases and 62 sealed files verified."
     ],
     "deployment_status": "NOT_DEPLOYED: review branch only; existing production untouched",
     "apps_script_status": "NOT_DEPLOYED: editor returned 502 gateway connection refused twice; setup and existing deployment upgrade required",
-    "field_status": "FIELD_PENDING: synthetic live test then one real class cycle"
+    "field_status": "FIELD_PENDING: synthetic live test then one real class cycle",
+    "classroom_status": "NOT_IMPLEMENTED: user clarified manually created Classroom assignments also need Turn In. Official API requires submission-owner authorization and coursework/add-on from the same developer project. GoClassroom uses the teacher local browser session only. Student-side extension and district Chromebook installation are dependencies."
   },
   "turn-in-autosave-2026-10-05": {
     "status": "LOCAL_VERIFIED",
