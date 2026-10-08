@@ -41,7 +41,11 @@ async function withRetry(body, attempts = 3) {
   for (let i = 1; i <= attempts; i += 1) {
     try {
       const out = await call(body);
-      if (out.json && (out.json.code === 'server' || out.json.code === 'busy') && i < attempts) { last = out; continue; }
+      if (out.json && (out.json.code === 'server' || out.json.code === 'busy') && i < attempts) {
+        last = out;
+        await new Promise((r) => setTimeout(r, 1200 * i + Math.random() * 800));
+        continue;
+      }
       return { ...out, tries: i };
     } catch (error) {
       last = { error, tries: i };

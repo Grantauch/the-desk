@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-08-turn-in-v7';
+const TI_VERSION = '2026-10-08-turn-in-v7.1';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -123,19 +123,20 @@ function saveDraft_(request) {
   const classPeriod = identity ? chooseClass_(identity.classes, request.classPeriod, request.course) : '';
   const record = { hub, answers, savedAt: savedAt.toISOString(), autoEligible: Boolean(classPeriod),
     classPeriod, title: String(request.title || '').slice(0, 200), page: String(request.page || '').slice(0, 300) };
+  const book = workbook_();
   if (session.test) {
     const testLock = LockService.getScriptLock();
     if (!testLock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
-    try { updateProgress_(workbook_(), identity, record, false); SpreadsheetApp.flush(); }
+    try { updateProgress_(book, identity, record, false); SpreadsheetApp.flush(); }
     finally { testLock.releaseLock(); }
     return { ok: true, savedAt: record.savedAt };
   }
   // A save is acknowledged only after a durable write. Cache alone can be evicted.
-  const drafts = workbook_().getSheetByName(TI_SHEETS.DRAFTS);
+  const drafts = book.getSheetByName(TI_SHEETS.DRAFTS);
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
   try {
-    const progress = updateProgress_(workbook_(), identity, record, false);
+    const progress = updateProgress_(book, identity, record, false);
     if (progress) {
       Object.assign(record, progress);
     }
@@ -174,7 +175,8 @@ function turnIn_(request) {
     finishedAt: turnedInAt.toISOString(), classPeriod, title, page };
 
   // Open the sheet before taking the lock so the lock is held only for the write itself.
-  const sheet = workbook_().getSheetByName(identity.test ? TI_SHEETS.LOAD_TEST : TI_SHEETS.TURN_INS);
+  const book = workbook_();
+  const sheet = book.getSheetByName(identity.test ? TI_SHEETS.LOAD_TEST : TI_SHEETS.TURN_INS);
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(TI_TURNIN_LOCK_MS)) {
     throw refuse_('busy', 'Lots of students are turning in right now. Press Turn In again.');
@@ -192,7 +194,7 @@ function turnIn_(request) {
       if (existing[3] !== identity.email || existing[4] !== hub) throw refuse_('bad_request', 'That submission needs a new turn in. Press the button again.');
       const data = JSON.parse(existing[11]);
       if (JSON.stringify(data.answers) !== JSON.stringify(answers)) throw refuse_('bad_request', 'These answers changed. Press Turn In again to send the new version.');
-      updateProgress_(workbook_(), identity, { ...data, classPeriod, title, page }, true);
+      updateProgress_(book, identity, { ...data, classPeriod, title, page }, true);
       SpreadsheetApp.flush();
       const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length);
       cache.put(submissionKey, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
@@ -212,8 +214,8 @@ function turnIn_(request) {
       submissionId,
       JSON.stringify(record),
       'Pressed',
-    ]);
-    updateProgress_(workbook_(), identity, record, true);
+    ], true);
+    updateProgress_(book, identity, record, true);
     SpreadsheetApp.flush();
     cache.put(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length)), TI_SUBMISSION_CACHE_SECONDS);
     if (!identity.test) cache.put(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
@@ -224,10 +226,10 @@ function turnIn_(request) {
   return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length);
 }
 
-function turnInRow_(sheet, row) {
+function turnInRow_(sheet, row, deferFlush) {
   // Teacher-visible text must remain text even when an answer begins with =.
   sheet.appendRow(literalCells_(row));
-  SpreadsheetApp.flush();
+  if (!deferFlush) SpreadsheetApp.flush();
 }
 
 function resultFor_(identity, classPeriod, turnedInAt, answered, total) {
@@ -373,10 +375,16 @@ function progressKey_(email, hub, classPeriod) {
 }
 
 // Called under the script lock. Normal saves read one current row, not draft history.
-function progressRow_(sheet, key) {
+function progressRow_(sheet, key, recordOut) {
   const cache = CacheService.getScriptCache();
   const row = Number(cache.get('progress-row:' + key));
-  if (row >= 2 && row <= sheet.getLastRow() && String(sheet.getRange(row, 11).getValue()) === key) return row;
+  if (row >= 2 && row <= sheet.getLastRow()) {
+    const cells = sheet.getRange(row, 11, 1, 2).getValues()[0];
+    if (String(cells[0]) === key) {
+      if (recordOut) recordOut.json = cells[1];
+      return row;
+    }
+  }
   const last = sheet.getLastRow();
   if (last < 2) return 0;
   const keys = sheet.getRange(2, 11, last - 1, 1).getValues();
@@ -392,10 +400,11 @@ function updateProgress_(book, identity, record, finished) {
   if (!identity || !record.classPeriod) return null;
   const sheet = book.getSheetByName(identity.test ? TI_SHEETS.LOAD_TEST_PROGRESS : TI_SHEETS.PROGRESS);
   const key = progressKey_(identity.email, record.hub, record.classPeriod);
-  let row = progressRow_(sheet, key);
+  const cachedRecord = {};
+  let row = progressRow_(sheet, key, cachedRecord);
   let prior = null;
   if (row) {
-    try { prior = JSON.parse(sheet.getRange(row, 12).getValue()); } catch (error) { /* rebuild this row */ }
+    try { prior = JSON.parse(cachedRecord.json || sheet.getRange(row, 12).getValue()); } catch (error) { /* rebuild this row */ }
   }
   const signature = answerSignature_(record.answers);
   // Blank first drafts need no teacher row. Clearing existing work must update it.

@@ -9,10 +9,15 @@
       "Live v6 source independently read from the editor and matched main before changes.",
       "Normal progress writes use a validated cached row location; no frequent full draft/submission background scan. Old autoTurnIn triggers removed by setup; its function is a safe no-op during upgrades.",
       "One-time additive migration preserves old Drafts and Turn Ins. Historical Auto records do not declare student completion. Synthetic release proof writes only Load Test tabs and does not enable test mode.",
-      "Canonical npm run verify passed: 53 built pages, 115 HTML files, 4456 local references and 7 StoryHub releases / 62 sealed assets."
+      "Canonical npm run verify passed: 53 built pages, 115 HTML files, 4456 local references and 7 StoryHub releases / 62 sealed assets.",
+      "First v7 live contention check: 35/35 Turn Ins but 32/35 autosaves within three attempts; remaining saves received busy, with no false acknowledgement. Site release held for refinement.",
+      "v7.1 reuses the already-open workbook, reads cached progress key/data together and flushes the two finished-record writes together. Server 36/36 and browser 16/16 checks passed again.",
+      "v7.1 live simultaneous retest: 35/35 Turn Ins (median 16384 ms, slowest successful attempt 29462 ms, 23 retried); 35/35 autosaves (median 7773 ms, slowest successful attempt 17048 ms, 25 retried). These are successful-attempt times, not total time including prior attempts. Test retry backoff now matches the browser. Synthetic rows remain isolated in Load Test tabs.",
+      "v7 live sequential proof passed 35 progress/finish/edit cycles; latest progress In progress and original finished snapshots preserved. Slowest cycle 5340 ms; automatic finishing triggers zero.",
+      "Final v7.1 sequential live proof passed 35 current progress rows and 35 preserved finished snapshots after edits. Slowest full draft/finish/edit cycle 6271 ms. Automatic finishing triggers zero; test mode false."
     ],
-    "deployment_status": "PENDING: protected review branch and production publish",
-    "apps_script_status": "PENDING: existing deployment upgrade, setup and synthetic proof",
+    "deployment_status": "PENDING: PR 183 protected checks and exact production publish",
+    "apps_script_status": "LIVE: v7.1 on unchanged deployment; setup migration complete; synthetic test mode disabled after testing",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "turn-in-automatic-2026-10-08": {
