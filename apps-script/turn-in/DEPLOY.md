@@ -32,4 +32,7 @@ Classroom draft writing keeps its separate opt-in and native confirmation.
 Returning grades to students remains the teacher's action in Google Classroom.
 
 Deployment evidence must be recorded separately from repository tests. The
-live service was observed as v3 on October 8, 2026; v5 deployment is pending.
+existing service was updated to code v5 on October 8, 2026 (Apps Script deployment
+version 4). The anonymous ping and live 35-student synthetic waves passed, with
+exactly 35 new unique Turn In test rows. Test mode was disabled afterward.
+The Windows app installation and a real class cycle remain pending.

@@ -908,13 +908,15 @@
     "field_status": "FIELD_PENDING"
   },
   "turn_in_classroom_bridge_20261008": {
-    "status": "SOURCE_CHECKS_PASS_ACTIVATION_PENDING",
+    "status": "LIVE_TURN_IN_PASS_GOCLASSROOM_INSTALL_PENDING",
     "summary": "Durable draft acknowledgement, authenticated persistent submission deduplication, complete-answer limits, and private-sheet source integration in GoClassroom v0.9.33.",
-    "live_service_version": "2026-10-05-turn-in-v3",
+    "live_service_version": "2026-10-08-turn-in-v5",
     "target_service_version": "2026-10-08-turn-in-v5",
-    "deployment_status": "PENDING_APPS_SCRIPT_UPDATE_AND_WINDOWS_APP_INSTALL",
+    "deployment_status": "APPS_SCRIPT_DEPLOYED_EXISTING_URL_WINDOWS_INSTALL_PENDING",
     "field_status": "FIELD_PENDING",
     "privacy": "No student records, workbook identifiers, PINs, or credentials added to source.",
-    "verification": "Turn In server 26/26 and browser 14/14; GoClassroom deep regression, StoryHub source/identity checks, and synthetic 35-student teacher preview passed. Windows installer CI and live activation are separate."
+    "verification": "Turn In server 26/26 and browser 14/14; GoClassroom deep regression, StoryHub source/identity checks, and synthetic 35-student teacher preview passed. Windows installer CI and live activation are separate.",
+    "live_verification": "October 8: deployed source exactly matches GitHub; anonymous POST ping reports v5; 35/35 synthetic turn ins succeeded with retries and exactly 35 new unique persisted rows; 35/35 synthetic autosaves succeeded. Test mode disabled after verification.",
+    "site_verification": "Canonical npm run verify passed: 53 routes, 115 HTML files, 4456 references and seven sealed StoryHub releases. GitHub build and browser checks passed."
   }
 }

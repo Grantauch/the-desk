@@ -216,3 +216,5 @@ Live Turn In v3 and the connected client were verified read-only. The initial do
 Apps Script v5 deployment, Windows app installation, and a school-account field cycle remain pending. The connected desktop was offline, and the Apps Script browser sign-in could not load. See `apps-script/turn-in/DEPLOY.md` for the existing-deployment update.
 
 Source verification passed: Turn In server 26/26, desk-save browser 14/14, GoClassroom deep regression and private-sheet bridge checks, and a synthetic 35-student browser preview. Windows build and school-account activation remain separate.
+
+October 8 live activation: the existing Apps Script deployment now serves code v5 (Apps Script deployment version 4), exact source verified before save. Anonymous POST ping confirms v5. Live 35-student turn-in wave succeeded with exactly 35 new unique sheet rows; the synthetic autosave wave also returned 35/35. Test mode was disabled after the test. Canonical site verification and GitHub build/browser checks passed. Windows installer and installed-app activation remain separate.
