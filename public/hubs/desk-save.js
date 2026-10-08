@@ -31,7 +31,7 @@
   window.__deskSave = { version: '1' };
 
   var IDLE_SIGNOUT_MS = 20 * 60 * 1000;
-  var CLOUD_DEBOUNCE_MS = 15 * 1000;
+  var CLOUD_DEBOUNCE_MS = 60 * 1000;
   var CLOUD_MAX_WAIT_MS = 60 * 1000;
   var SNAPSHOT_MS = 4000;
   var REQUEST_TIMEOUT_MS = 15000;
@@ -441,7 +441,7 @@
           checkRadio(g, function (r) { return radioText(r).slice(0, 600) === saved; });
         });
         if (result.draft.turnedIn) {
-          state.turnedInAt = result.draft.savedAt;
+          state.turnedInAt = result.draft.finishedAt || result.draft.savedAt;
         }
       }
       if (result.draft && result.draft.turnedIn && hashOf(answers(false)) === hashOf(result.draft.answers)) {
@@ -466,6 +466,7 @@
     var hash = hashOf(list);
     if (!answeredCount(list)) return Promise.resolve({ ok: false, message: 'Write at least one answer first.' });
     if (!state.submission || state.submission.hash !== hash) state.submission = { id: randomId(), hash: hash };
+    var fullHash = hashOf(answers(false));
     persist();
     return post({
       action: 'turnin',
@@ -490,7 +491,8 @@
       state.classes = result.classes || state.classes;
       state.turnedInHash = hash;
       state.turnedInAt = result.turnedInAt;
-      state.cloudHash = hashOf(answers(false));
+      state.cloudHash = fullHash;
+      if (hashOf(answers(false)) !== fullHash) scheduleCloud();
       state.lastActive = Date.now();
       persist();
       return { ok: true, message: 'Turned in, ' + (state.firstName || 'you are all set') + '. ' + state.classPeriod + ', ' + clock(result.turnedInAt) + '.' };
@@ -709,8 +711,8 @@
       var total = list.length;
       if (cloudOn) {
         if (state.turnedInAt && hash === state.turnedInHash) sub.textContent = 'Turned in at ' + clock(state.turnedInAt) + '. Change anything and you can turn in again.';
-        else if (state.turnedInAt) sub.textContent = 'Your changes will turn in automatically after 30 quiet minutes. Press Turn In to send them now.';
-        else sub.textContent = count + ' of ' + total + ' answered. Enter your PIN to save and turn in automatically after 30 quiet minutes. You can also press Turn In now.';
+        else if (state.turnedInAt) sub.textContent = 'Your changes save as work in progress. Press Turn In when you finish this version.';
+        else sub.textContent = count + ' of ' + total + ' answered. Enter your PIN to save progress about once a minute. Press Turn In when you finish.';
       } else {
         sub.textContent = count + ' of ' + total + ' answered. Your answers stay while this tab is open. Copy them before you close it.';
       }
@@ -724,10 +726,10 @@
         popActions.appendChild(goTurnIn);
       } else if (state.token) {
         var behind = hashOf(answers(false)) !== state.cloudHash;
-        chipText.textContent = behind ? 'Saving…' : 'Saved · ' + (state.firstName || 'your account') + (state.cloudAt ? ' · ' + clock(state.cloudAt) : '');
+        chipText.textContent = behind ? (cloudBusy ? 'Saving…' : 'Saved in this tab') : 'Saved · ' + (state.firstName || 'your account') + (state.cloudAt ? ' · ' + clock(state.cloudAt) : '');
         dot.className = behind && cloudRetry ? 'dot warn' : 'dot';
         if (behind && cloudRetry) chipText.textContent = 'Saved in this tab · retrying';
-        popText.textContent = 'Saving to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account. Saved answers turn in automatically after 30 quiet minutes. Open this page on any Chromebook and enter your PIN to pick up where you left off.';
+        popText.textContent = 'Saving to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account. Your progress saves about once a minute while you work. Press Turn In when you finish. Open this page on any Chromebook and enter your PIN to pick up where you left off.';
         popActions.appendChild(goTurnIn);
         popActions.appendChild(signOutBtn);
       } else {
@@ -769,7 +771,11 @@
     closeBtn.addEventListener('click', function () { panel.classList.remove('floating'); });
 
     signOutBtn.addEventListener('click', function () {
-      saveCloud().then(function () {
+      saveCloud().then(function (saved) {
+        if (!saved) {
+          ui.refresh('Your account save is still retrying. Wait for Saved before signing out.');
+          return;
+        }
         resetPage();
         message = 'Signed out. This page is blank for the next person.';
         messageGood = true;
@@ -887,6 +893,8 @@
     state.values = snapshot();
     persist();
     buildUi();
+    // Refreshing during the one-minute wait must restart the pending account save.
+    if (state.token && hashOf(answers(false)) !== state.cloudHash) scheduleCloud();
     // A tab left signed in for a long time is signed out once its work is safely on the account.
     idleCheck();
 
