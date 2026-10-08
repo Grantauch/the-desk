@@ -906,5 +906,15 @@
     "final_integrated_verification": "PASS October 5: 600 seeded games, all gameplay/pose/feel/art/audio/resource/publishing checks, 53 routes, 115 HTML files, 4423 local references, seven releases and 62 sealed files. October 5 lesson release preserved.",
     "deployment_status": "BLOCKED_NETLIFY_DEPLOY_CREDITS",
     "field_status": "FIELD_PENDING"
+  },
+  "turn_in_classroom_bridge_20261008": {
+    "status": "SOURCE_CHECKS_PASS_ACTIVATION_PENDING",
+    "summary": "Durable draft acknowledgement, authenticated persistent submission deduplication, complete-answer limits, and private-sheet source integration in GoClassroom v0.9.33.",
+    "live_service_version": "2026-10-05-turn-in-v3",
+    "target_service_version": "2026-10-08-turn-in-v5",
+    "deployment_status": "PENDING_APPS_SCRIPT_UPDATE_AND_WINDOWS_APP_INSTALL",
+    "field_status": "FIELD_PENDING",
+    "privacy": "No student records, workbook identifiers, PINs, or credentials added to source.",
+    "verification": "Turn In server 26/26 and browser 14/14; GoClassroom deep regression, StoryHub source/identity checks, and synthetic 35-student teacher preview passed. Windows installer CI and live activation are separate."
   }
 }

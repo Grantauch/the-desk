@@ -1,5 +1,9 @@
 # Turn In setup
 
+**Already running Turn In?** Use [DEPLOY.md](DEPLOY.md) to update the existing
+project. This setup guide is for a new installation. The original downloadable
+patch is an older implementation and must not replace the current code.
+
 Turn In is a small Google Apps Script web app that receives student work from the hubs. It is a separate project from Hall Pass, so a rush of turn ins at the bell never slows down check ins or passes. Students prove who they are with the same six digit PIN they already use for the hall pass.
 
 You do this once. It takes about fifteen minutes.
