@@ -149,7 +149,7 @@ for (const name of hubs) {
   if ((await readFile(join(ROOT, 'hubs', name), 'utf8')).includes('/hubs/desk-save.js')) wired.push(name);
 }
 
-await test('PIN sign in and autosave submit automatically after closing the tab', async () => {
+await test('PIN sign in captures progress after closing without declaring finished', async () => {
   const s = world();
   const cb = await chromebook(s);
   const page = await cb.open('bts-the-bargain.html');
@@ -166,11 +166,44 @@ await test('PIN sign in and autosave submit automatically after closing the tab'
   assert.ok(data.title.length > 0);
   await page.close({ runBeforeUnload: false });
   s.clock.advanceMinutes(31);
-  assert.equal(s.sandbox.autoTurnIn(), 1);
-  const row = s.rows('Turn Ins')[0];
-  assert.equal(row.How, 'Auto');
+  assert.equal(s.sandbox.autoTurnIn(), 0);
+  assert.equal(s.rows('Turn Ins').length, 0);
+  const row = s.rows('Progress')[0];
+  assert.equal(row.Status, 'In progress');
   assert.match(row.Answers, /Forgot to press Turn In/);
   assert.equal(s.sandbox.autoTurnIn(), 0);
+  await cb.context.close();
+});
+
+await test('changed progress saves on the minute without interrupting typing or finishing', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { debounceMs: 60000 } });
+  const page = await cb.context.newPage();
+  await page.clock.install();
+  await openHub(cb.context, 'bts-the-bargain.html', page);
+  await page.locator('#q1').fill('First answer');
+  await chip(page).locator('.chip').click();
+  await chip(page).locator('input').fill(s.pin(PEOPLE.ada));
+  await chip(page).getByRole('button', { name: 'Save to my account' }).click();
+  await waitFor(() => s.rows('Progress').length === 1);
+  const saves = cb.net.calls.filter(action => action === 'save').length;
+  await page.locator('#q1').fill('Still writing');
+  await page.clock.fastForward(59000);
+  assert.equal(cb.net.calls.filter(action => action === 'save').length, saves);
+  s.clock.advanceMinutes(1);
+  await page.clock.fastForward(2000);
+  await waitFor(() => /Still writing/.test(s.rows('Progress')[0].Answers));
+  assert.equal(s.rows('Progress').length, 1);
+  assert.equal(s.rows('Turn Ins').length, 0);
+  assert.equal(await page.locator('#q1').inputValue(), 'Still writing');
+  assert.match(await turnIn(page, s.pin(PEOPLE.ada)), /Turned in/);
+  assert.equal(s.rows('Progress')[0].Status, 'Finished');
+  await page.locator('#q1').fill('After finishing');
+  s.clock.advanceMinutes(1);
+  await page.clock.fastForward(61000);
+  await waitFor(() => s.rows('Progress')[0].Status === 'In progress');
+  assert.match(s.rows('Turn Ins')[0].Answers, /Still writing/);
+  assert.equal(s.rows('Turn Ins').length, 1);
   await cb.context.close();
 });
 

@@ -1,3 +1,9 @@
+## October 8 progress and finished work checkpoint
+
+Changed answers save quietly about once a minute after PIN identification. Account saves update a private Progress row per student, hub and enrolled class. The Progress view includes readable answers, latest save time, In progress / Finished status and last finished time. Only the Turn In button records a finished snapshot in Turn Ins. Later edits return the current view to In progress while preserving the finished snapshot. No repeating background scan is needed; setup removes the former automatic finishing trigger and migrates existing work additively. Historical Auto rows remain preserved as automatic captures.
+
+Server checks passed 36/36 and browser checks passed 16/16, including minute timing, subsequent edits, refresh/shared Chromebook behavior, lost WiFi and 35 simultaneous submissions on a flaky network. The live v6 editor source matched main before editing. Canonical npm run verify passed (53 built pages, 115 HTML files, 4,456 local references and 7 StoryHub releases / 62 sealed assets); protected site publication, Apps Script upgrade and the synthetic live proof remain pending. A real class cycle remains FIELD_PENDING.
+
 ## October 8 automatic Turn In checkpoint
 
 Identified nonblank drafts can submit after 30 minutes without changes, checked by one 15-minute trigger. Automatic rows are labeled Auto and manual rows Pressed. Current roster/class validation, recent-draft filtering and durable comparison with the newest submission prevent wrong-class and repeated submissions. Blank, inactive, unassigned, legacy and over-48-hour drafts are skipped. Up to 35 drafts are handled per run, with backlog retained for later runs. Autosave acknowledges only after the sheet write and flush succeed.

@@ -1,4 +1,20 @@
 {
+  "turn-in-progress-2026-10-08": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "88fd779c27ba6e37c8a9aa8b8ed450a38143602b",
+    "scope": "One-minute changed-answer progress capture with separate explicit finished submissions",
+    "evidence": [
+      "Turn In server suite passed 36/36. Progress is one current row per student, hub and enrolled class; manual snapshots remain append-only.",
+      "Desk-save browser suite passed 16/16, including one-minute timing, editing after finishing, tab closure, shared Chromebook isolation, lost WiFi, class selection and 35 simultaneous finished submissions on a flaky network.",
+      "Live v6 source independently read from the editor and matched main before changes.",
+      "Normal progress writes use a validated cached row location; no frequent full draft/submission background scan. Old autoTurnIn triggers removed by setup; its function is a safe no-op during upgrades.",
+      "One-time additive migration preserves old Drafts and Turn Ins. Historical Auto records do not declare student completion. Synthetic release proof writes only Load Test tabs and does not enable test mode.",
+      "Canonical npm run verify passed: 53 built pages, 115 HTML files, 4456 local references and 7 StoryHub releases / 62 sealed assets."
+    ],
+    "deployment_status": "PENDING: protected review branch and production publish",
+    "apps_script_status": "PENDING: existing deployment upgrade, setup and synthetic proof",
+    "field_status": "FIELD_PENDING: one real class cycle"
+  },
   "turn-in-automatic-2026-10-08": {
     "status": "LOCAL_VERIFIED",
     "source_base": "49905ce",

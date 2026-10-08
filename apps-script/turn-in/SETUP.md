@@ -46,7 +46,7 @@ Turn In only reads the Roster tab. It never writes to the Hall Pass workbook.
 ## 4. Run setup
 
 1. In the editor, choose `setup` in the function menu and press **Run**.
-2. Google asks for permission. Approve it with your school account. It needs Sheets (to read the roster and write turn ins) and triggers (for automatic turn in and nightly draft cleanup).
+2. Google asks for permission. Approve it with your school account. It needs Sheets (to read the roster and write turn ins) and triggers (for nightly draft cleanup).
 3. The log ends with `Ready. N students with PINs. Turn ins go to …`. That link is your new private workbook, **the desk · Turn Ins**. Bookmark it.
 
 If setup says no active students were found, the roster ID or the salt is wrong. Check step 3.
@@ -90,7 +90,7 @@ Open any hub on a Chromebook, type an answer, enter a PIN from a test student or
 | Column | Meaning |
 |---|---|
 | Turned In | When the work reached Turn Ins |
-| How | `Pressed` for the button or `Auto` for automatic submission |
+| How | `Pressed` for student-declared completion; historical `Auto` entries were automatic captures |
 | Class / Period | Their class from the hall pass roster. A student in two of your classes picks one |
 | Student Name, Student Email | From the roster |
 | Hub, Hub Title | Which page |
@@ -104,15 +104,15 @@ A student can turn in more than once. Each press is its own row, so the newest r
 
 **Drafts** holds autosaved work so students can pick up on a different Chromebook. Drafts older than 30 days are removed every night at 2 AM. Turn ins are never removed.
 
-## Automatic turn in
+## Progress and finished work
 
-After a student enters their PIN to save to their account, their latest nonblank answers turn in automatically after 30 minutes without answer changes. The trigger checks every 15 minutes, so ordinary submission happens around 30 to 45 minutes after the last successful save. It works after the tab closes. Students can still press Turn In immediately.
+After a student enters their PIN, changed answers save to their account about once a minute. The first sign in, sign out, and tab close can save immediately. Account saves update one row per student, hub and enrolled class in **Progress**. No repeated background workbook scan is needed. A successfully saved copy remains available after the tab closes.
 
-The script uses the active roster and selected enrolled class. Students with multiple classes must pick their class in the panel. Unassigned work stays a draft. Unchanged answers already submitted are skipped; a revised answer creates a new row. Blank drafts, legacy drafts from before this release, inactive students and drafts over 48 hours old are skipped. Each run handles up to 35 submissions; additional work waits for the next run. Turn Ins rows are never removed.
+**Progress** shows readable answers, class, saved time, answer and word counts, **Status** (`In progress` or `Finished`), and **Last Finished**. It is a current view, not a submission history. Students in multiple classes must pick an enrolled class. Unassigned work stays in Drafts; a first blank draft creates no Progress row, while clearing existing answers updates their current row.
 
-Only successfully saved account drafts can submit. Offline work needs to reconnect and finish saving. Autosave reports success after the draft reaches the sheet, and retries when the sheet is busy.
+Pressing **Turn In** deliberately declares that version finished. It appends a snapshot to **Turn Ins** with `How=Pressed` and marks the corresponding Progress row Finished. Subsequent changed answers update Progress to In progress and preserve the last finished time and every finished snapshot. Unchanged saves retain Finished. A second deliberate Turn In records the new finished version.
 
-For this upgrade, paste the new Code.gs, run **setup** once to add the **How** column and install one **autoTurnIn** trigger, then update the existing deployment to a new version. Publish the updated `desk-save.js` too, so draft saves include the hub title, page and selected class. This sends work to this workbook; it does not mark Google Classroom assignments turned in.
+The old 30-minute automatic finishing behavior is removed. Setup removes its trigger and performs an additive, one-time migration of existing work into Progress. Historical `How=Auto` rows remain intact but are treated as progress, not student-declared completion. Draft cleanup still runs nightly; it never deletes Turn Ins or Progress. Test traffic is isolated in **Load Test** and **Load Test Progress**.
 
 ## Updating the code later
 
