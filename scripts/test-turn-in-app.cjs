@@ -52,7 +52,7 @@ test('setup refuses to run before the roster and salt are filled in', () => {
 test('setup builds the private workbook, its tabs and the nightly cleanup', () => {
   const w = world();
   const names = w.book().getSheets().map((s) => s.getName());
-  assert.deepEqual(names.sort(), ['Drafts', 'Load Test', 'Load Test Progress', 'Progress', 'Turn Ins']);
+  assert.deepEqual(names.sort(), ['Classroom Links', 'Drafts', 'Load Test', 'Load Test Progress', 'Progress', 'Review Roster', 'Turn Ins']);
   assert.equal(w.book().getSheetByName('Turn Ins').getRange(1, 1, 1, 12).getValues()[0][8], 'Answers');
   assert.equal(w.h.state.triggers.filter((t) => t.handler === 'pruneDrafts').length, 1);
   w.sandbox.setup();
@@ -490,6 +490,47 @@ test('desk-save.js points at an Apps Script web app or at nothing', () => {
   const match = source.match(/var ENDPOINT = '([^']*)';/);
   assert.ok(match, 'ENDPOINT line is present');
   assert.match(match[1], /^(|https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec)$/);
+});
+
+test('Classroom handoff uses the exact enrolled class and never writes Classroom status', () => {
+  const w = world();
+  const links = w.book().getSheetByName('Classroom Links');
+  links.appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/COURSE1/a/ASSIGNMENT1/details', 'The Bargain']);
+  links.appendRow(['Period 5', 'bts-the-bargain', 'https://classroom.google.com/c/COURSE5/a/ASSIGNMENT5/details', 'The Bargain']);
+  assert.equal(w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'bts-the-bargain' }).classroomUrl, 'https://classroom.google.com/c/COURSE1/a/ASSIGNMENT1/details');
+  const result = w.post({ action: 'turnin', pin: w.pin(PEOPLE.alan), hub: 'bts-the-bargain', classPeriod: 'Period 5', submissionId: 'classroom-proof-1', answers: ONE });
+  assert.equal(result.ok, true);
+  assert.equal(result.classroomUrl, 'https://classroom.google.com/c/COURSE5/a/ASSIGNMENT5/details');
+  assert.equal(w.rows('Turn Ins')[0]['Class / Period'], 'Period 5');
+  assert.equal(w.post({ action: 'classroom-links', token: result.token }).ok, false, 'student routes cannot edit teacher configuration');
+});
+
+test('ambiguous and unsafe Classroom links are omitted while finished work still lands', () => {
+  const w = world();
+  const links = w.book().getSheetByName('Classroom Links');
+  links.appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/ONE/a/ONE/details']);
+  links.appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/TWO/a/TWO/details']);
+  links.appendRow(['Period 1', 'hh-test', 'https://classroom.google.com.evil.example/c/ONE/a/ONE/details']);
+  assert.equal(w.sandbox.classroomLink_('bts-the-bargain', 'Period 1'), '');
+  assert.equal(w.sandbox.classroomLink_('hh-test', 'Period 1'), '');
+  assert.equal(w.sandbox.classroomLink_('bts-the-bargain', 'Period 2'), '');
+  const result = w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'bts-the-bargain', submissionId: 'classroom-proof-2', answers: ONE });
+  assert.equal(result.ok, true);
+  assert.equal(result.classroomUrl, '');
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
+test('review membership refreshes from the active roster without changing source or student work', () => {
+  const w = world();
+  const original = JSON.stringify(w.school.harness.spreadsheet.getSheetByName('Roster').records());
+  assert.equal(w.rows('Review Roster').length, 5);
+  w.book().getSheetByName('Classroom Links').appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/ONE/a/ONE/details']);
+  w.sandbox.setup();
+  w.sandbox.refreshTeacherReview();
+  assert.equal(w.rows('Review Roster').length, 5, 'refresh does not append duplicate memberships');
+  assert.equal(JSON.stringify(w.school.harness.spreadsheet.getSheetByName('Roster').records()), original);
+  assert.equal(w.rows('Classroom Links').length, 1, 'setup preserves teacher links');
+  assert.equal(w.h.state.triggers.filter((t) => t.handler === 'refreshTeacherReview').length, 1);
 });
 
 console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);

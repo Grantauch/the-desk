@@ -430,7 +430,7 @@ await test('with no Turn In address set, the page still saves in the tab and off
   await typeInto(page, '#q1', 'Copy me');
   await panel(page).getByRole('button', { name: 'Copy my answers' }).click();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  assert.match(copied, /What did Robinson promise Rickey, and for how long\?\nCopy me/);
+  assert.match(copied, /What did Robinson promise Rickey, and for how long\?\r?\nCopy me/);
   await cb.context.close();
 });
 
@@ -456,6 +456,54 @@ await test('35 students turning in at the bell on a flaky network: every one lan
   assert.equal(rows.length, 35, `${rows.length} rows`);
   assert.equal(new Set(rows.map((r) => r['Student Email'])).size, 35);
   for (const { cb } of pages) await cb.context.close();
+});
+
+await test('Classroom handoff appears only after confirmed finishing and hides after edits', async () => {
+  const s = world();
+  s.book().getSheetByName('Classroom Links').appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/CLASS1/a/LESSON1/details']);
+  const cb = await chromebook(s);
+  const page = await cb.open('bts-the-bargain.html');
+  assert.equal(await panel(page).getByRole('link', { name: 'Open Classroom assignment' }).count(), 0);
+  await typeInto(page, 'textarea', 'Completed on the desk.');
+  await turnIn(page, s.pin(PEOPLE.ada));
+  const link = panel(page).getByRole('link', { name: 'Open Classroom assignment' });
+  await link.waitFor({ state: 'visible' });
+  assert.equal(await link.getAttribute('href'), 'https://classroom.google.com/c/CLASS1/a/LESSON1/details');
+  assert.match(await link.getAttribute('rel'), /noopener/);
+  assert.match(await panel(page).locator('.handoff').textContent(), /choose Turn In or Mark as done there/);
+  await typeInto(page, 'textarea', 'Changed after finishing.');
+  assert.equal(await link.isVisible(), false, 'new unfinished edits cannot imply Classroom completion');
+  assert.equal(s.rows('Turn Ins').length, 1, 'finished copy is preserved');
+  await cb.context.close();
+});
+
+await test('unconfigured or unsafe Classroom links fall back to home without losing work', async () => {
+  const s = world();
+  s.book().getSheetByName('Classroom Links').appendRow(['Period 1', 'bts-the-bargain', 'javascript:alert(1)']);
+  const cb = await chromebook(s);
+  const page = await cb.open('bts-the-bargain.html');
+  await typeInto(page, 'textarea', 'My complete answer.');
+  await turnIn(page, s.pin(PEOPLE.ada));
+  const link = panel(page).getByRole('link', { name: 'Open Google Classroom', exact: true });
+  await link.waitFor({ state: 'visible' });
+  assert.equal(await link.getAttribute('href'), 'https://classroom.google.com/');
+  assert.equal(s.rows('Turn Ins').length, 1);
+  await cb.context.close();
+});
+
+await test('switching class removes the previous receipt and Classroom link', async () => {
+  const s = world();
+  s.book().getSheetByName('Classroom Links').appendRow(['Period 1', 'bts-the-bargain', 'https://classroom.google.com/c/CLASS1/a/LESSON1/details']);
+  const cb = await chromebook(s);
+  const page = await cb.open('bts-the-bargain.html');
+  await typeInto(page, 'textarea', 'Work for one class.');
+  await turnIn(page, s.pin(PEOPLE.alan));
+  await panel(page).getByRole('button', { name: 'Period 1', exact: true }).click();
+  await turnIn(page, s.pin(PEOPLE.alan));
+  await panel(page).getByRole('link', { name: 'Open Classroom assignment' }).waitFor({ state: 'visible' });
+  await panel(page).getByRole('button', { name: 'Period 5', exact: true }).click();
+  assert.equal(await panel(page).locator('.handoff').isVisible(), false);
+  await cb.context.close();
 });
 
 await browser.close();

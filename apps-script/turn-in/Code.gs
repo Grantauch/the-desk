@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-08-turn-in-v7.1';
+const TI_VERSION = '2026-10-08-turn-in-v8';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -41,6 +41,8 @@ const TI_SHEETS = {
   TURN_INS: 'Turn Ins',
   DRAFTS: 'Drafts',
   PROGRESS: 'Progress',
+  REVIEW_ROSTER: 'Review Roster',
+  CLASSROOM_LINKS: 'Classroom Links',
   LOAD_TEST_PROGRESS: 'Load Test Progress',
   LOAD_TEST: 'Load Test',
 };
@@ -49,6 +51,8 @@ const TI_HEADERS = {
   TURN_INS: ['Turned In', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Hub Title', 'Answered', 'Words', 'Answers', 'Page', 'Submission ID', 'Data', 'How'],
   DRAFTS: ['Saved At', 'Student Email', 'Hub', 'Data'],
   PROGRESS: ['Saved At', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Hub Title', 'Answered', 'Words', 'Answers', 'Page', 'Record Key', 'Data', 'Status', 'Last Finished'],
+  REVIEW_ROSTER: ['Student Name', 'Student Email', 'Class / Period'],
+  CLASSROOM_LINKS: ['Class / Period', 'Hub', 'Classroom Assignment URL', 'Hub Title'],
 };
 TI_HEADERS.LOAD_TEST = TI_HEADERS.TURN_INS;
 
@@ -101,12 +105,14 @@ function signIn_(request) {
   const hub = cleanHub_(request.hub);
   const identity = identify_(request);
   const token = makeToken_(identity.email, identity.test);
+  const classPeriod = pickClass_(identity.classes, request.course);
   return {
     ok: true,
     token,
     firstName: firstName_(identity.name),
     classes: identity.classes,
-    classPeriod: pickClass_(identity.classes, request.course),
+    classPeriod,
+    classroomUrl: identity.test ? '' : classroomLink_(hub, classPeriod),
     draft: identity.test ? null : findDraft_(identity.email, hub),
   };
 }
@@ -166,6 +172,9 @@ function turnIn_(request) {
     return { ok: false, code: 'pick_class', classes: identity.classes, firstName: firstName_(identity.name), error: 'Pick your class, then press Turn In again.' };
   }
 
+  // Read link configuration outside the student-write lock, and only for this class.
+  const classroomUrl = identity.test ? '' : classroomLink_(hub, classPeriod);
+
   const answered = answers.filter((entry) => entry.a.trim()).length;
   const words = answers.reduce((sum, entry) => sum + countWords_(entry.a), 0);
   const title = String(request.title || '').slice(0, 200);
@@ -196,7 +205,7 @@ function turnIn_(request) {
       if (JSON.stringify(data.answers) !== JSON.stringify(answers)) throw refuse_('bad_request', 'These answers changed. Press Turn In again to send the new version.');
       updateProgress_(book, identity, { ...data, classPeriod, title, page }, true);
       SpreadsheetApp.flush();
-      const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length);
+      const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length, classroomUrl);
       cache.put(submissionKey, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
       return result;
     }
@@ -217,13 +226,13 @@ function turnIn_(request) {
     ], true);
     updateProgress_(book, identity, record, true);
     SpreadsheetApp.flush();
-    cache.put(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length)), TI_SUBMISSION_CACHE_SECONDS);
+    cache.put(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl)), TI_SUBMISSION_CACHE_SECONDS);
     if (!identity.test) cache.put(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   } finally {
     lock.releaseLock();
   }
 
-  return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length);
+  return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl);
 }
 
 function turnInRow_(sheet, row, deferFlush) {
@@ -232,7 +241,7 @@ function turnInRow_(sheet, row, deferFlush) {
   if (!deferFlush) SpreadsheetApp.flush();
 }
 
-function resultFor_(identity, classPeriod, turnedInAt, answered, total) {
+function resultFor_(identity, classPeriod, turnedInAt, answered, total, classroomUrl) {
   return {
     ok: true,
     firstName: firstName_(identity.name),
@@ -242,7 +251,60 @@ function resultFor_(identity, classPeriod, turnedInAt, answered, total) {
     total,
     token: makeToken_(identity.email, identity.test),
     classes: identity.classes,
+    classroomUrl: classroomUrl || '',
   };
+}
+
+/** Private configuration only; no student token can create or change these links. */
+function classroomLink_(hub, classPeriod) {
+  if (!classPeriod) return '';
+  const cache = CacheService.getScriptCache();
+  let links;
+  try { links = JSON.parse(cache.get('classroom-links:v1') || 'null'); } catch (error) { links = null; }
+  if (!links) {
+    links = {};
+    const sheet = workbook_().getSheetByName(TI_SHEETS.CLASSROOM_LINKS);
+    const last = sheet ? sheet.getLastRow() : 0;
+    if (last > 1) sheet.getRange(2, 1, Math.min(last - 1, 2000), 3).getValues().forEach((row) => {
+      const key = JSON.stringify([String(row[0] || '').trim(), String(row[1] || '').trim()]);
+      const url = String(row[2] || '').trim();
+      if (!url) return;
+      const valid = /^https:\/\/classroom\.google\.com\/(?:u\/\d+\/)?c\/[A-Za-z0-9_-]+\/a\/[A-Za-z0-9_-]+(?:\/details)?\/?(?:\?authuser=\d+)?$/.test(url);
+      // Duplicate mappings are ambiguous even if one of the URLs is invalid.
+      links[key] = Object.prototype.hasOwnProperty.call(links, key) ? '' : valid ? url : '';
+    });
+    try { cache.put('classroom-links:v1', JSON.stringify(links), 60); } catch (error) { /* optional configuration still works */ }
+  }
+  return links[JSON.stringify([classPeriod, hub])] || '';
+}
+
+/** Refreshes derived review membership only; the source Hall Pass roster is read-only. */
+function refreshTeacherReview() {
+  const book = workbook_();
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('Saving is busy. Try the review refresh again.');
+  try { refreshReviewRoster_(book); SpreadsheetApp.flush(); }
+  finally { lock.releaseLock(); }
+}
+
+function refreshReviewRoster_(book) {
+  const rows = [];
+  const seen = {};
+  const roster = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('ROSTER_SPREADSHEET_ID')).getSheetByName('Roster');
+  if (roster && roster.getLastRow() > 1) roster.getRange(2, 1, roster.getLastRow() - 1, 5).getValues().forEach((entry) => {
+    const email = String(entry[0] || '').trim().toLowerCase();
+    const name = String(entry[1] || '').trim();
+    const classPeriod = String(entry[2] || '').trim();
+    const key = JSON.stringify([email, classPeriod]);
+    if (!email || !name || !classPeriod || !isTruthyCell_(entry[4], true) || seen[key]) return;
+    seen[key] = true;
+    rows.push([name, email, classPeriod]);
+  });
+  rows.sort((a, b) => a[2].localeCompare(b[2]) || a[0].localeCompare(b[0]));
+  const sheet = ensureSheet_(book, TI_SHEETS.REVIEW_ROSTER, TI_HEADERS.REVIEW_ROSTER);
+  const count = Math.max(rows.length, sheet.getLastRow() - 1);
+  if (count) sheet.getRange(2, 1, count, 3).setValues(literalCells_(Array.from({ length: count }, (_, i) => rows[i] || ['', '', ''])));
+  return rows.length;
 }
 
 /* --------------------------------------------------------------- identity -- */
@@ -661,6 +723,8 @@ function setup_() {
   ensureSheet_(book, TI_SHEETS.LOAD_TEST_PROGRESS, TI_HEADERS.PROGRESS);
   migrateProgress_(book);
   ensureSheet_(book, TI_SHEETS.LOAD_TEST, TI_HEADERS.LOAD_TEST);
+  ensureSheet_(book, TI_SHEETS.CLASSROOM_LINKS, TI_HEADERS.CLASSROOM_LINKS);
+  refreshReviewRoster_(book);
   const blank = book.getSheetByName('Sheet1');
   if (blank && book.getSheets().length > 1 && blank.getLastRow() === 0) book.deleteSheet(blank);
 
@@ -668,6 +732,9 @@ function setup_() {
     .filter((trigger) => ['pruneDrafts', 'autoTurnIn'].indexOf(trigger.getHandlerFunction()) !== -1)
     .forEach((trigger) => ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger('pruneDrafts').timeBased().everyDays(1).atHour(2).create();
+  if (!ScriptApp.getProjectTriggers().some((trigger) => trigger.getHandlerFunction() === 'refreshTeacherReview')) {
+    ScriptApp.newTrigger('refreshTeacherReview').timeBased().everyDays(1).atHour(3).create();
+  }
 
   console.log(`Ready. ${students} students with PINs. Turn ins go to ${book.getUrl()}`);
   return book.getUrl();
@@ -683,10 +750,10 @@ function ensureSheet_(book, name, headers) {
   }
   // Upgrade the existing header without replacing student rows.
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
-  if (name !== TI_SHEETS.DRAFTS) {
+  if (headers.indexOf('Answers') >= 0) {
     sheet.setColumnWidth(headers.indexOf('Answers') + 1, 480);
-    sheet.hideColumns(headers.indexOf('Data') + 1);
-  } else {
+  }
+  if (headers.indexOf('Data') >= 0) {
     sheet.hideColumns(headers.indexOf('Data') + 1);
   }
   return sheet;

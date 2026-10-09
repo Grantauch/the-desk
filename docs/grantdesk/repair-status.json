@@ -1,4 +1,22 @@
 {
+  "turn-in-review-classroom-handoff-2026-10-08": {
+    "status": "LOCAL_VERIFIED_PRIVATE_REVIEW_LIVE",
+    "source_base": "a878796f454c730fac94a78c68baeee645c77a23",
+    "scope": "Correct save guidance, private class/lesson/status review, and extension-free student Classroom handoff",
+    "evidence": [
+      "Server suite passed 39/39; student browser suite passed 19/19 across all 33 answer hubs. New cases cover class-specific links, unsafe/duplicate link fallback, finished-only handoff, later edits, class changes, and derived roster refresh without changing the source roster.",
+      "Canonical full release gate passed via npm.cmd run verify:full after the Windows wrapper reported spawnSync npm.cmd EINVAL. Build produced 53 pages; validation checked 115 HTML files, 4456 local references and 7 releases / 62 sealed assets. Student receipt was visually inspected with an invented student and local backend.",
+      "Native private Review worksheet installed through the existing workbook. Active class memberships copied to hidden Review Roster; original Progress, Turn Ins and Hall Pass Roster preserved. No school workbook IDs, roster data or assignment links committed.",
+      "Native Google Sheets QA recalculated invented students across two classes and lessons. Finished, later In progress with a preserved finish date, no saved work, and status filters matched expected values.",
+      "Private Classroom Links worksheet added with class/hub dropdowns and blank URL templates. Exact URLs require teacher configuration; no assignment identifiers guessed. Student fallback opens Classroom home and explains the final student Turn In / Mark as done step.",
+      "Client is compatible with live v7.1. Optional exact assignment URLs and daily owner roster refresh require the v8 service update. Backend health remains ready on v7.1; Google browser account verification currently blocks editor/deployment access."
+    ],
+    "deployment_status": "PENDING: protected website publication",
+    "apps_script_status": "V8_SOURCE_VERIFIED_NOT_DEPLOYED: existing v7.1 remains healthy; teacher Google verification required",
+    "review_status": "LIVE: private native Review and Classroom Links installed; initial roster snapshot complete",
+    "field_status": "FIELD_PENDING: one real class cycle",
+    "classroom_status": "STUDENT_HANDOFF: user ruled out extensions. No automatic Classroom status change; students complete the final Classroom action."
+  },
   "turn-in-progress-2026-10-08": {
     "status": "LOCAL_VERIFIED",
     "source_base": "88fd779c27ba6e37c8a9aa8b8ed450a38143602b",
@@ -16,7 +34,7 @@
       "v7 live sequential proof passed 35 progress/finish/edit cycles; latest progress In progress and original finished snapshots preserved. Slowest cycle 5340 ms; automatic finishing triggers zero.",
       "Final v7.1 sequential live proof passed 35 current progress rows and 35 preserved finished snapshots after edits. Slowest full draft/finish/edit cycle 6271 ms. Automatic finishing triggers zero; test mode false."
     ],
-    "deployment_status": "PENDING: PR 183 protected checks and exact production publish",
+    "deployment_status": "DEPLOYED: PR 183 merged as a878796f454c730fac94a78c68baeee645c77a23; live desk-save.js matched release SHA256 68677888c453f28244e448f904ae427bce9b8efbc92fcc0aecd9a768a9e2717b on readback",
     "apps_script_status": "LIVE: v7.1 on unchanged deployment; setup migration complete; synthetic test mode disabled after testing",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
