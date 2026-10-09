@@ -79,7 +79,7 @@
 
   var state = null;
   function blankState() {
-    return { values: {}, updatedAt: 0, lastActive: Date.now(), token: '', firstName: '', classPeriod: '', classes: [], cloudHash: '', cloudAt: '', turnedInHash: '', turnedInAt: '', copiedHash: '', submission: null, everSaved: false };
+    return { values: {}, updatedAt: 0, lastActive: Date.now(), token: '', firstName: '', classPeriod: '', classes: [], cloudHash: '', cloudAt: '', turnedInHash: '', turnedInAt: '', classroomUrl: '', copiedHash: '', submission: null, everSaved: false };
   }
   function persist() { writeJson('sessionStorage', STORE_KEY, state); }
 
@@ -423,6 +423,8 @@
       state.token = result.token;
       state.firstName = result.firstName || '';
       state.classes = result.classes || [];
+      state.turnedInAt = '';
+      state.turnedInHash = '';
       if (result.classPeriod) state.classPeriod = result.classPeriod;
       state.lastActive = Date.now();
       var restored = 0;
@@ -440,11 +442,11 @@
           if (!saved || g.radios.some(function (r) { return r.checked && !r.defaultChecked; })) return;
           checkRadio(g, function (r) { return radioText(r).slice(0, 600) === saved; });
         });
-        if (result.draft.turnedIn) {
+        if (result.draft.turnedIn && result.draft.classPeriod === state.classPeriod) {
           state.turnedInAt = result.draft.finishedAt || result.draft.savedAt;
         }
       }
-      if (result.draft && result.draft.turnedIn && hashOf(answers(false)) === hashOf(result.draft.answers)) {
+      if (result.draft && result.draft.turnedIn && result.draft.classPeriod === state.classPeriod && hashOf(answers(false)) === hashOf(result.draft.answers)) {
         state.turnedInHash = hashOf(answers(true));
       }
       state.values = snapshot();
@@ -453,9 +455,11 @@
       // A blank page never overwrites saved work.
       if (hasWork()) saveCloud();
       else state.cloudHash = hashOf(answers(false));
+      state.classroomUrl = classroomAssignmentUrl(result.classroomUrl);
+      persist();
       var hello = state.firstName ? 'Welcome back, ' + state.firstName + '. ' : '';
       if (restored) return { ok: true, message: hello + restored + (restored === 1 ? ' answer' : ' answers') + ' brought back.' };
-      return { ok: true, message: hello + 'Your answers now save to your account and turn in automatically after 30 quiet minutes.' };
+      return { ok: true, message: hello + 'Your answers save to your account about once a minute. Press Turn In when you finish.' };
     }, function () {
       return { ok: false, message: 'Could not reach the save system. Your answers are still saved in this tab.' };
     });
@@ -491,6 +495,7 @@
       state.classes = result.classes || state.classes;
       state.turnedInHash = hash;
       state.turnedInAt = result.turnedInAt;
+      state.classroomUrl = classroomAssignmentUrl(result.classroomUrl);
       state.cloudHash = fullHash;
       if (hashOf(answers(false)) !== fullHash) scheduleCloud();
       state.lastActive = Date.now();
@@ -534,6 +539,12 @@
     return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
+  // Only teacher-configured Classroom assignment URLs may replace the safe home link.
+  function classroomAssignmentUrl(value) {
+    var text = String(value || '').trim();
+    return /^https:\/\/classroom\.google\.com\/(?:u\/\d+\/)?c\/[A-Za-z0-9_-]+\/a\/[A-Za-z0-9_-]+(?:\/details)?\/?(?:\?authuser=\d+)?$/.test(text) ? text : '';
+  }
+
   /* ----------------------------------------------------------------- ui -- */
 
   var CSS = [
@@ -546,7 +557,11 @@
     '.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}',
     'label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.9rem}',
     'input{width:9.5em;padding:10px 12px;border-radius:10px;border:1px solid var(--ds-line-strong);background:var(--ds-bg);color:var(--ds-fg);letter-spacing:.3em;font-size:1.1rem}',
-    'input:focus-visible,button:focus-visible{outline:3px solid var(--ds-fg);outline-offset:2px}',
+    'input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--ds-fg);outline-offset:2px}',
+    '.handoff{margin-top:18px;padding-top:16px;border-top:1px solid var(--ds-line)}',
+    '.handoff[hidden]{display:none}',
+    '.handoff p{margin:0 0 12px;font-size:.95rem}',
+    '.handoff a{display:inline-block;min-height:44px;padding:10px 16px;border:1px solid var(--ds-fg);border-radius:10px;font-weight:700;text-decoration:underline;text-underline-offset:3px}',
     'button{cursor:pointer;min-height:44px;padding:10px 18px;border-radius:10px;border:1px solid var(--ds-fg);background:transparent;font-weight:700}',
     'button.primary{background:var(--ds-fg);color:var(--ds-bg)}',
     'button[disabled]{opacity:.55;cursor:wait}',
@@ -644,7 +659,12 @@
     if (cloudOn) { actions.appendChild(pinLabel); actions.appendChild(turnBtn); }
     actions.appendChild(copyBtn);
     var status = make('p', { class: 'status', id: 'ds-status', role: 'status', 'aria-live': 'polite' });
-    [closeBtn, title, sub, classes, actions, status].forEach(function (n) { panel.appendChild(n); });
+    var handoff = make('div', { class: 'handoff', hidden: '' });
+    var handoffNote = make('p', { id: 'ds-classroom-note' }, 'Your finished work is saved on the desk. If your teacher assigned this in Google Classroom, open that assignment and choose Turn In or Mark as done there.');
+    var classroomLink = make('a', { href: 'https://classroom.google.com/', target: '_blank', rel: 'noopener noreferrer', referrerpolicy: 'no-referrer', 'aria-describedby': 'ds-classroom-note' }, 'Open Google Classroom');
+    handoff.appendChild(handoffNote);
+    handoff.appendChild(classroomLink);
+    [closeBtn, title, sub, classes, actions, status, handoff].forEach(function (n) { panel.appendChild(n); });
     panelHost.root.appendChild(panel);
 
     var slot = document.querySelector('[data-desk-turnin]');
@@ -694,9 +714,13 @@
         b.addEventListener('click', function () {
           state.classPeriod = name;
           state.cloudHash = '';
+          state.turnedInHash = '';
+          state.turnedInAt = '';
+          state.classroomUrl = '';
+          state.submission = null;
           persist();
           scheduleCloud();
-          renderClasses();
+          ui.refresh();
           pin.focus();
         });
         classes.appendChild(b);
@@ -709,6 +733,10 @@
       var count = answeredCount(list);
       var hash = hashOf(list);
       var total = list.length;
+      handoff.hidden = !(cloudOn && state.turnedInAt && hash === state.turnedInHash);
+      var assignmentUrl = classroomAssignmentUrl(state.classroomUrl);
+      classroomLink.href = assignmentUrl || 'https://classroom.google.com/';
+      classroomLink.textContent = assignmentUrl ? 'Open Classroom assignment' : 'Open Google Classroom';
       if (cloudOn) {
         if (state.turnedInAt && hash === state.turnedInHash) sub.textContent = 'Turned in at ' + clock(state.turnedInAt) + '. Change anything and you can turn in again.';
         else if (state.turnedInAt) sub.textContent = 'Your changes save as work in progress. Press Turn In when you finish this version.';

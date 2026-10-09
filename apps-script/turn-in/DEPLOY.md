@@ -1,5 +1,9 @@
 # Update the existing Turn In service
 
+The v8 companion adds private review membership and optional per-class Classroom
+assignment links. See [REVIEW.md](REVIEW.md). The existing private workbook and
+web-app endpoint stay in place; v8 setup preserves existing work and link rows.
+
 This is an update to the existing service, not a new setup. Do not recreate the
 workbook, change Hall Pass properties, or replace the stable web app URL.
 
@@ -7,7 +11,7 @@ workbook, change Hall Pass properties, or replace the stable web app URL.
 2. Replace only `Code.gs` with `apps-script/turn-in/Code.gs` from this release.
 3. Save and run setup to create the Progress view, migrate existing work, and remove the old automatic finishing trigger. Then use **Deploy → Manage deployments → Edit → New version → Deploy**.
 4. Open the existing `/exec` URL. It should report
-   `version: 2026-10-08-turn-in-v7` and `ready: true`.
+   `version: 2026-10-08-turn-in-v8` and `ready: true`.
 5. Run the synthetic load test described in `SETUP.md`. Count actual unique
    rows in **Load Test**, not just success responses. Turn the test off afterward.
 
