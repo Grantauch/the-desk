@@ -23,6 +23,68 @@ export interface StoryHub {
 }
 
 export const storyHubs: StoryHub[] = [
+
+  {
+    slug: 'hh-living-history-01-before-the-web',
+    href: '/hubs/hh-living-history-01-before-the-web.html',
+    title: 'before the web',
+    course: 'hidden history',
+    unit: 'history is still happening / modern america',
+    period: '1969–2026',
+    status: 'ready to teach',
+    question: 'what did an ordinary afternoon look like before every answer, purchase, and person was one click away?',
+    blurb: 'Step into the world before the public Web. Compare homework and communication across eras, connect through a simulated modem, meet the people who built and experienced the change, and imagine a different 2026.',
+    cover: '/storyhub/hh/living-history-01/cover.webp',
+    coverAlt: 'Original cinematic illustration of a 1990s student surrounded by a computer, reference books and warm lamplight',
+    topics: ['internet history', 'world wide web', 'dial-up', 'everyday life', 'historical counterfactuals'],
+    inside: [
+      'A before-the-Web assignment and a simulated dial-up connection with period technology.',
+      'A source-grounded timeline from early networks and CERN to an increasingly connected public.',
+      'Students, families, workers and business owners encounter unequal opportunities and new challenges.',
+      'Then-versus-now comparisons, a counterfactual laboratory, a comprehension check and Turn In.',
+    ],
+  },
+  {
+    slug: 'hh-living-history-02-device-in-your-pocket',
+    href: '/hubs/hh-living-history-02-device-in-your-pocket.html',
+    title: 'the device in your pocket',
+    course: 'hidden history',
+    unit: 'history is still happening / modern america',
+    period: '2004–2026',
+    status: 'ready to teach',
+    question: 'the phone made your world bigger. who gets to decide what fills the screen?',
+    blurb: 'From flip phones to algorithmic feeds: a day-in-the-life comparison, everyday experiences, a feed-ranking experiment and a rumor-spread model expose both the benefits and hidden costs of carrying a connected world.',
+    cover: '/storyhub/hh/living-history-02/cover.webp',
+    coverAlt: 'Original digital artwork of a teenager facing a glowing smartphone portal between analog and connected worlds',
+    topics: ['smartphones', 'social media', 'algorithms', 'privacy', 'attention', 'misinformation'],
+    inside: [
+      'Contrast a teenager’s day in 2003 with the routines of 2026.',
+      'Adjust an illustrative feed algorithm and see how different ranking incentives change what appears.',
+      'Trace a rumor, weigh privacy permissions and consider whose voices became easier to hear.',
+      'Six everyday perspectives, alternate futures, a comprehension check and Turn In.',
+    ],
+  },
+  {
+    slug: 'hh-living-history-03-hallways-went-quiet',
+    href: '/hubs/hh-living-history-03-hallways-went-quiet.html',
+    title: 'when the hallways went quiet',
+    course: 'hidden history',
+    unit: 'history is still happening / modern america',
+    period: '2019–2026',
+    status: 'ready to teach',
+    question: 'when school closed in march 2020, why did staying home mean such different things to different americans?',
+    blurb: 'A Michigan-centered March 2020 time capsule follows the pandemic from a crowded school corridor to an empty one, then into hospitals, grocery stores, family kitchens and a series of difficult choices.',
+    cover: '/storyhub/hh/living-history-03/cover.webp',
+    coverAlt: 'Original cinematic illustration of an empty Michigan-style school corridor at sunset after the pandemic shutdown',
+    topics: ['covid-19', 'pandemic', 'michigan schools', 'essential workers', 'public health', 'counterfactual history'],
+    inside: [
+      'Slide between school before and after the March 2020 shutdown and explore a dated timeline.',
+      'Follow a student, nurse, grocery worker, parent and small-business owner through different risks.',
+      'Use an illustrative transmission model and investigate ordinary pandemic objects.',
+      'Evaluate alternative choices, historical evidence, an exit ticket and Turn In.',
+    ],
+  },
+
   {
     slug: 'ush9-theodore-roosevelt',
     href: '/hubs/ush9-theodore-roosevelt.html',
