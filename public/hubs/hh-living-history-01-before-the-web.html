@@ -31,6 +31,13 @@ footer{background:#111c1d;color:#e5e9e2;padding:68px 0 80px}footer h2{font:clamp
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.ticker .ticker-inner,.network-art .line{animation:none!important}*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
 @keyframes popin{from{transform:translateY(9px);opacity:0}to{transform:none;opacity:1}}
 @media print{header,#progress,.ticker{display:none!important}.reveal{opacity:1;transform:none}body{color:black!important;background:white!important}section{break-inside:avoid}.hero{min-height:440px;height:auto}.btn,.iconbtn{display:none!important}}
+
+/* Living History publication QA: readable archival accent text and mobile ticker clipping. */
+.era:nth-child(1) > .era-year{color:#9c2819!important}
+.flood-quote b{color:#9b2d20!important}
+html,body{max-width:100%;overflow-x:hidden!important}
+.ticker{max-width:100%;width:100%;overflow:hidden!important;contain:paint}
+@media(max-width:480px){.ticker{font-size:13px}}
 </style>
 </head>
 <body>
