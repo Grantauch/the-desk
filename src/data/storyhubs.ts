@@ -25,6 +25,28 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'bts-the-fighter',
+    href: '/hubs/bts-the-fighter.html',
+    title: 'the fighter: beyond the bell',
+    course: 'beyond the scoreboard',
+    unit: 'sports, identity, labor and the media',
+    period: '1978–2003',
+    status: 'ready to teach',
+    question: 'everyone wants a piece of the fighter. who gets to decide his future?',
+    blurb: 'A companion to The Fighter (2010) with real photographs of Micky Ward and Dicky Eklund, Lowell history, a three-round tactics challenge, a judge’s scorecard, family decisions and six film-versus-fact investigations.',
+    cover: '/storyhub/bts/the-fighter/cover.svg',
+    coverAlt: 'Original illustrated boxing ring cover with red ropes and the words The Fighter',
+    topics: ['micky ward', 'dicky eklund', 'lowell', 'boxing', 'film and historical evidence'],
+    inside: [
+      'See the real people through reusable photographs, and investigate the jobs behind the sport.',
+      'Make strategic decisions in the ring, choose a career path and score three fictional rounds.',
+      'Separate dramatized scenes, real events, and a nearly three-year compressed fight timeline.',
+      'Reveal the later Gatti trilogy, defend a claim with evidence and turn in your response.',
+    ],
+  },
+
+
+  {
     slug: 'hh-living-history-01-before-the-web',
     href: '/hubs/hh-living-history-01-before-the-web.html',
     title: 'before the web',
