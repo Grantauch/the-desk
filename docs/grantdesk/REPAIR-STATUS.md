@@ -238,3 +238,10 @@ Live Turn In v3 and the connected client were verified read-only. The initial do
 Apps Script v5 deployment, Windows app installation, and a school-account field cycle remain pending. The connected desktop was offline, and the Apps Script browser sign-in could not load. See `apps-script/turn-in/DEPLOY.md` for the existing-deployment update.
 
 Source verification passed: Turn In server 26/26, desk-save browser 14/14, GoClassroom deep regression and private-sheet bridge checks, and a synthetic 35-student browser preview. Windows build and school-account activation remain separate.
+
+
+## The Fighter editorial rebuild — October 15, 2026
+
+Implemented a complete visual and instructional rebuild at the existing route. Real film and Lowell photography replaces decorative skyline and boxer drawings. Three scene checkpoints replace generic tactics and fictional family meters. An after-viewing record disclosure distinguishes the film from actual chronology. A final argument requires two scenes and a counterargument. Local optimized assets replace remote photo dependencies; shared desk-save remains the only answer persistence and Turn In runtime.
+
+Local focused verification passed: five responsive/reduced-motion cases with zero WCAG violations, image decoding, choice/note restoration and backup export. Fighter-specific synthetic submission persisted four written answers and three choices exactly once with their prompts. Shared Turn In browser suite passed 19/19 including 35 concurrent synthetic students; server tests passed 39/39. Manifest, Astro and static checks passed. Canonical full verification is running and protected build is still required before merge. Review branch and production deployment remain separate evidence; classroom field verification remains pending.
