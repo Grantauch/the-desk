@@ -970,5 +970,19 @@
     "field_status": "FIELD_PENDING",
     "privacy": "No student records, workbook identifiers, PINs, or credentials added to source.",
     "verification": "Turn In server 26/26 and browser 14/14; GoClassroom deep regression, StoryHub source/identity checks, and synthetic 35-student teacher preview passed. Windows installer CI and live activation are separate."
+  },
+  "fighter_editorial_rebuild_20261015": {
+    "status": "LOCAL_FOCUSED_VERIFIED_PROTECTED_RELEASE_PENDING",
+    "summary": "Rebuilt The Fighter as a photo-led sports feature with a real Lowell setting, three film-scene evidence checkpoints, native after-film record disclosure and a two-scene final argument. Shared desk-save remains the only answer persistence and Turn In system.",
+    "commit_status": "REVIEW_BRANCH_PENDING",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Fighter browser QA passed at 320, 390, 1366 and 1440 pixels and reduced motion: no horizontal overflow, all four images decoded, zero WCAG A/AA violations, choices and notes restored, backup export retained all work.",
+      "Fighter-specific synthetic Turn In persisted four written answers and three scene choices with full question labels, exactly once, before success acknowledgement.",
+      "Shared Turn In browser suite passed 19/19, including every wired hub and 35 simultaneous synthetic students with network failures.",
+      "Turn In server suite passed 39/39. StoryHub manifests passed with zero warnings. Astro check and static site validation passed.",
+      "Canonical full npm run verify launched; protected build remains required before merge."
+    ]
   }
 }

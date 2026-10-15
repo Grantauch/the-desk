@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FIGHTER",
+  "course": "BTS",
+  "lessonCode": "FIGHTER",
+  "title": "The Fighter: Who Calls the Shots?",
+  "audience": "students",
+  "narrativeQuestion": "Who should control Micky Ward's career, and what does the film show us about that power?",
+  "chapters": [
+    {
+      "id": "lowell",
+      "title": "The city behind the fighter",
+      "claim": "Industrial job loss helps explain the economic pressures surrounding a boxing career.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "realpeople",
+      "title": "The real brothers",
+      "claim": "Actors portray people with lives beyond the film.",
+      "namedPeople": [
+        {
+          "name": "Micky Ward",
+          "role": "boxer",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A03"
+        },
+        {
+          "name": "Dicky Eklund",
+          "role": "brother and trainer",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A04"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03",
+        "A04"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "ring",
+      "title": "Three moments to watch",
+      "claim": "Money, public storytelling and family influence create distinct pressures on an athlete.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01",
+        "I02",
+        "I03"
+      ]
+    },
+    {
+      "id": "truth",
+      "title": "After the film: check the record",
+      "claim": "A dramatized film compresses time and reframes historical events.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "end",
+      "title": "Make your call",
+      "claim": "A defensible judgment needs specific film evidence and a serious counterargument.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Film still identifies Mark Wahlberg and Christian Bale as actors, not the actual brothers.",
+    "Lowell photographs show preserved mills today, not the city in 1993.",
+    "Lowell mill employment figures are textile employment in 1895 and 1936, not population or 1990s unemployment.",
+    "Replacement-bout pressure is explicitly film analysis, not a claim that the movie reproduces the historical Mungin bout accurately.",
+    "The documentary title in the film differs from the real 1995 documentary.",
+    "Sanchez in 1997 and Neary in 2000 were separated by six Ward bouts.",
+    "Ward won the WBU light welterweight title, not an undisputed championship.",
+    "No invented numerical family outcomes or claims that toughness makes injury safe."
+  ]
+}

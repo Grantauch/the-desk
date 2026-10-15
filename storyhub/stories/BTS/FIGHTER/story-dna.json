@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-FIGHTER",
+  "title": "The Fighter: Who Calls the Shots?",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": ["sports feature", "observant", "plainspoken", "evidence-led"],
+    "paletteIntent": "Clean white and warm light gray editorial pages, near-black broadcast bars, red from the film's ring ropes, and restrained blue for source records.",
+    "typographyIntent": "Large condensed sports headlines beside clear sans-serif body text, small tabular chapter numbers, and short readable labels.",
+    "textureLanguage": ["unaltered photographic evidence", "clean printed sports section"],
+    "shapeLanguage": "Square-edged full-bleed photography, hairline divisions, spacious asymmetric feature layouts, and horizontal chapter rails.",
+    "motionGrammar": ["user-triggered scene analysis reveal", "chapter progress", "unfold the historical record after viewing"],
+    "interactionSignature": ["three film-scene decisions with evidence prompts", "parallel film and record comparison", "scene notes feeding a final claim"],
+    "densityRhythm": "Cinematic opening, compact viewing instructions, expansive Lowell photo feature, three focused scene checkpoints, optional historical record, and one final student argument.",
+    "archivalBehavior": "Film stills explicitly identify actors and the 2010 film. Modern Lowell and later boxer portraits carry dates or date limits. No decorative skyline, invented historical photo, or fake quantitative family score.",
+    "endingLanguage": "Return to who should control Micky's career with two scene details and a counterargument. Submit through the shared Turn In panel."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The film still's red ropes and near-black gym, real Lowell brick mills, and clean sports editorial page design.",
+    "edgeTreatment": "Photography extends to section boundaries; captions sit on clean margins rather than inside textured frames.",
+    "controlLanguage": "Scene selectors and analysis reveals resemble broadcast chapter slates with clear text, never imitation game health bars.",
+    "spacingLanguage": "Wide photo and narrow text pairings alternate with full-width scene analysis and a quiet final writing surface.",
+    "transitionLanguage": "Ordinary scrolling with immediate native disclosure controls. Reduced motion keeps every learning action available."
+  }
+}
