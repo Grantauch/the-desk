@@ -66,6 +66,26 @@ a[target="_blank"]{text-underline-offset:3px}
 @media(max-width:680px){.photo-grid{grid-template-columns:1fr}.real-card img{height:280px}.archive-photo{grid-template-columns:1fr}.archive-photo img{height:230px}.realpeople{padding:70px 0}.hero .hero-bg:before{font-size:8px;right:3px}}
 @media(prefers-reduced-motion:reduce){.real-card:hover img{transform:none}}
 
+
+/* Browser QA: small screens and WCAG AA contrast */
+.hero .mast,.btn.red,.unlock.sm.red{
+  background:#922319;
+  border-color:#922319;
+  color:#fff;
+}
+.hero .mast{max-width:100%;overflow-wrap:anywhere}
+.btn.red:hover,.unlock.sm.red:hover{background:#6f1c16;color:#fff}
+@media(max-width:680px){
+  nav .nav-save{display:none}
+  nav .brand{font-size:clamp(14px,4vw,19px);white-space:normal;line-height:1.1}
+  .hero .hero-content{min-width:0}
+  .hero h1{font-size:clamp(54px,17vw,104px);letter-spacing:-.055em;line-height:.91;max-width:100%}
+  .hero .tag{overflow-wrap:anywhere}
+  .hero-actions .btn{max-width:100%;white-space:normal}
+  .wrap{min-width:0}
+  .h2{overflow-wrap:break-word}
+}
+
 </style>
 </head>
 <body>
