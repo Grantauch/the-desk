@@ -203,6 +203,47 @@ await test('golf resumes notes, card, settings, run records and draft on a diffe
   await second.context.close();
 });
 
+await test('golf access requires participation, caps travel help, and clears lab controls between students', async () => {
+  const s = world();
+  const cb = await chromebook(s);
+  const page = await cb.open('bts-golf-special-edition.html');
+  const resume = page.locator('#desk-save-resume');
+  const signIn = async () => {
+    await resume.locator('input').fill(s.pin(PEOPLE.ada));
+    await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+    await page.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
+  };
+  await signIn();
+  await page.locator('#make-card').click();
+  const card = (await page.locator('#assignment-card').inputValue()).match(/^Card ([ABCD])/)[1];
+  const budget = { A: [45, 8], B: [60, 7], C: [50, 10], D: [70, 9] }[card];
+  const setRange = (id, value) => page.locator('#' + id).evaluate((el, val) => {
+    el.value = String(val); el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, value);
+  for (const id of ['ac-rounds', 'ac-lessons', 'ac-practice']) await setRange(id, 0);
+  await page.locator('#ac-grant').selectOption('10');
+  await page.locator('[data-run="access"]').click();
+  assert.match(await page.locator('#log-access').inputValue(), /grant used 0;.*no participation/);
+  await setRange('ac-rounds', 1);
+  await page.locator('[data-run="access"]').click();
+  assert.match(await page.locator('#log-access').inputValue(), new RegExp(`grant used 4;.*money remaining ${budget[0] - 18}; hours remaining ${budget[1] - 5}; feasible`));
+  await page.locator('#eq-ball').selectOption('guttie');
+  await setRange('wa-turf', 50);
+  await page.locator('#wa-grass').selectOption('1');
+  await page.locator('[data-run="water"]').click();
+  assert.match(await page.locator('#log-water').inputValue(), /water 45.*cost 100.*playability 85; within both limits/);
+  await resume.getByRole('button', { name: 'Save now', exact: true }).click();
+  await waitFor(() => s.rows('Progress').some(r => /no participation/.test(r.Answers)));
+  await page.locator('#desk-save-chip').click();
+  await panel(page).getByRole('button', { name: 'Not you? Sign out' }).click();
+  await page.waitForFunction(() => !document.querySelector('#assignment-card').value && document.querySelector('#eq-ball').value === 'featherie' && document.querySelector('#wa-turf').value === '10');
+  assert.equal(await page.locator('#log-access').inputValue(), '');
+  await signIn();
+  await page.waitForFunction(() => document.querySelector('#eq-ball').value === 'guttie' && document.querySelector('#wa-turf').value === '50');
+  assert.match(await page.locator('#log-access').inputValue(), /no participation/);
+  await cb.context.close();
+});
+
 await test('golf cloud cadence saves continuous edits within thirty seconds and never acknowledges offline work', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { debounceMs: 15000 } });
