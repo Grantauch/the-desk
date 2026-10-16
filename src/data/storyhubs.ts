@@ -25,6 +25,30 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'bts-golf-special-edition',
+    href: '/hubs/bts-golf-special-edition.html',
+    title: 'golf: who gets to play?',
+    course: 'beyond the scoreboard',
+    unit: 'golf / access, labor and institutions',
+    period: '1457–2023',
+    status: 'ready to teach',
+    edition: 'special edition · 5th hour BTS',
+    question: 'which barriers shaped who could participate in golf, and how did they change?',
+    blurb: 'An extended 18-chapter investigation made for 5th hour BTS: real archival images, four recorded field labs, a source hearing and a 100-point test-grade assessment. PIN recovery supports work across sessions.',
+    cover: '/storyhub/bts/golf/assets/golfers.webp',
+    coverAlt: 'Charles Lees’s 1847 painting The Golfers, showing a match and its gathered spectators',
+    topics: ['golf history', 'civil rights', 'women’s sport', 'labor', 'media', 'public land'],
+    inside: [
+      'Follow golf from early Scottish records through professional institutions and global competition.',
+      'Study Shippen, Grant, Ouimet, Jones, Zaharias, Sifford, Palmer, Elder, Woods and Pak.',
+      'Record and explain equipment, strategy, opportunity-budget and water-management investigations.',
+      'Complete an evidence notebook, image analysis, source corrections and a revised final argument.',
+      'Save as you work, recover with a PIN on another device, and submit through shared Turn In.',
+    ],
+  },
+
+
+  {
     slug: 'bts-the-fighter',
     href: '/hubs/bts-the-fighter.html',
     title: 'the fighter: who calls the shots?',

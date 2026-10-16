@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-GOLF",
+  "title": "Golf: Who Gets to Play?",
+  "route": "/hubs/bts-golf-special-edition.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/GOLF/story.json",
+    "note": "Original source-grounded 18-chapter Special Edition for 5th hour BTS; no teacher key included."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-golf-special-edition.html",
+      "bytes": 108141,
+      "sha256": "aff826fe9f382b015174801f11b538fb1c76ee305d1f9fadd4bedee269e3e470"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/anton.woff2",
+      "bytes": 18612,
+      "sha256": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/elder.webp",
+      "bytes": 108830,
+      "sha256": "ffbbd482ca40bc25b459a27fa4f13addcae49e7b52f54140ef8f5d3da401543c",
+      "width": 981,
+      "height": 1484,
+      "assetId": "A13"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/gibson.webp",
+      "bytes": 18174,
+      "sha256": "ec950f6abef64db98bcc2128ad51b440e228e237700a506cc55ae8009168bc1b",
+      "width": 295,
+      "height": 420,
+      "assetId": "A10"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/golf.css",
+      "bytes": 12582,
+      "sha256": "af291ce00ecd65488fc55e218f35174aa4c14d920cfdf726f81d87c3c9b0a466"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/golf.js",
+      "bytes": 10352,
+      "sha256": "ed627801121d79657f708aa83c91cb4bc7f0e1e62711d72b9416722b5ce3e636"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/golfers.webp",
+      "bytes": 110330,
+      "sha256": "e3a7a041e003d75a046a4efe96d6d59a3c6a38637fa7ab0ba50b084db20735d7",
+      "width": 956,
+      "height": 640,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/grant.webp",
+      "bytes": 19722,
+      "sha256": "bcd904126acdd247540c4d298fbb77df66acc74ce67a1b08faf841fe615e41dc",
+      "width": 276,
+      "height": 439,
+      "assetId": "A04"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/jones.webp",
+      "bytes": 167646,
+      "sha256": "fbc664283dc3774104eabd7bdae9f74e067f20e267df220027ea4dcb85483241",
+      "width": 1073,
+      "height": 1600,
+      "assetId": "A07"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/morris.webp",
+      "bytes": 32188,
+      "sha256": "4c219abea35406b022a312985dd34123c48b48a4d841208140f6107dca822cfb",
+      "width": 493,
+      "height": 687,
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/nicklaus.webp",
+      "bytes": 23470,
+      "sha256": "98ad9aadd5876238bf358456a5b3c28e405ea331c9af18a6e4ed9ecc9e4b0d36",
+      "width": 327,
+      "height": 436,
+      "assetId": "A12"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/ouimet.webp",
+      "bytes": 199970,
+      "sha256": "9f41c1cbc5ace65060dc8d6861325aeaba689bba61788b1e6057f8741a2888f9",
+      "width": 1014,
+      "height": 1421,
+      "assetId": "A06"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/pak.webp",
+      "bytes": 151678,
+      "sha256": "d3b9a22b6ca0d8c2fc322c5343348a026b2025870003774fc28eae25e3fe158d",
+      "width": 1067,
+      "height": 1600,
+      "assetId": "A15"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/palmer.webp",
+      "bytes": 69418,
+      "sha256": "ff01b15abb03fe5df990609b3c92f20717266f7edad900d68570d66571a402ab",
+      "width": 474,
+      "height": 663,
+      "assetId": "A11"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/patent.webp",
+      "bytes": 96546,
+      "sha256": "5ff530b0a5b18d05e7cb7cfc43b5874da1c72c5e3be6379008035f1189eb8bae",
+      "width": 1066,
+      "height": 1600,
+      "assetId": "A05"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/shippen.webp",
+      "bytes": 20202,
+      "sha256": "88694aa64cc4036aa6566114d072fe4fb4b29438ebf76d86587b6dfa1c53da95",
+      "width": 424,
+      "height": 623,
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/sifford.webp",
+      "bytes": 133206,
+      "sha256": "d73bca0458b2bf46cb1a4f4f45a241436aebad5c16843e47b8f28946bc20c017",
+      "width": 977,
+      "height": 1161,
+      "assetId": "A09"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/woods.webp",
+      "bytes": 182002,
+      "sha256": "69d5411f31a9404649d3c8c10c106cea00330a05b44e86c67b85f270892bc87c",
+      "width": 1051,
+      "height": 1493,
+      "assetId": "A14"
+    },
+    {
+      "path": "/storyhub/bts/golf/assets/zaharias.webp",
+      "bytes": 83382,
+      "sha256": "df57a4c1bf356f62d45cee344620740237a715ca3a2fc1e1c235e1463e31a256",
+      "width": 451,
+      "height": 681,
+      "assetId": "A08"
+    }
+  ],
+  "totalBytes": 1566451,
+  "sealedAt": "2026-10-16"
+}

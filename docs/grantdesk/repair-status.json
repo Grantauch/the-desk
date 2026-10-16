@@ -1,4 +1,17 @@
 {
+  "golf-special-edition-2026-10-16": {
+    "status": "SOURCE_VERIFIED_BROWSER_AND_PUBLICATION_PENDING",
+    "scope": "18-chapter 5th-hour BTS golf Special Edition, 100-point assessment, frequent account autosave and PIN recovery",
+    "evidence": [
+      "Original 18-chapter lesson contains roughly 11,000 visible words including directions, sources and credits, 15 historical visual assets, four recorded model labs, image analysis, source corrections and a revised argument.",
+      "Teacher key and substitute plan are in a separate private PDF; no keys, real PINs or student work were added to public source.",
+      "Turn In server suite passed 39/39. Manifest validation passed with zero warnings; the golf release seals 19 files at about 1.5 MiB.",
+      "All substantive canonical full-gate suites passed, including the 600-game balance check and Astro check with zero errors/warnings. Missing new-page metadata was repaired; a fresh build and static validation then passed: 53 generated routes, 120 HTML files, 4509 local references and 8 releases / 81 sealed files.",
+      "Local browser runner cannot launch because the managed environment has no Chromium executable; cross-device, stale-tab conflict and continuous-save regression cases are added for the required protected CI browser gate."
+    ],
+    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "PENDING_SCHOOL_CHROMEBOOK_AND_REAL_CLASS_SESSION"
+  },
   "turn-in-review-classroom-handoff-2026-10-08": {
     "status": "LOCAL_VERIFIED_PRIVATE_REVIEW_LIVE",
     "source_base": "a878796f454c730fac94a78c68baeee645c77a23",

@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-GOLF",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "hole-1",
+      "type": "evidence-notebook",
+      "teaches": "A law banning a game proves people already knew it. It does not tell us who invented it.",
+      "studentAction": "N01 \u00b7 Explain what the 1457 ban proves and one thing it cannot prove. Then identify the competing priorities of players and the government.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "hole-2",
+      "type": "evidence-notebook",
+      "teaches": "A sport grows differently when its playing surface is coastal land rather than a standardized court.",
+      "studentAction": "N02 \u00b7 Use one visible detail in Lees\u2019s painting. Explain how the setting differs from a fixed indoor court, then state one limit of the painting as evidence about early golf.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "hole-3",
+      "type": "evidence-notebook",
+      "teaches": "Rules and standards develop through decisions. They are not natural laws.",
+      "studentAction": "N03 \u00b7 Make a two-link cause-and-effect chain explaining why written rules help competition. Use 1744 and 1764 correctly, without claiming every course changed at once.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "hole-4",
+      "type": "recorded-model-and-evidence",
+      "teaches": "Technology can change the cost of entry, the work of making equipment, and the land a sport needs.",
+      "studentAction": "N04 \u00b7 Identify one group helped by a change in ball-making technology and one group whose work or decisions would change. Explain the connection.",
+      "feedback": "Visible labeled model outputs, preserved run records and an evidence explanation.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "hole-5",
+      "type": "evidence-notebook",
+      "teaches": "Early professionals often earned their living through several kinds of golf work.",
+      "studentAction": "N05 \u00b7 Explain why \u201cprofessional golfer\u201d could mean more than tournament player in Morris\u2019s era. Use the 1860 format and one kind of work in your explanation.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "hole-6",
+      "type": "evidence-notebook",
+      "teaches": "Golf spread through people, travel, clubs, and governing organizations. Its expansion was uneven.",
+      "studentAction": "N06 \u00b7 Explain how a golfer could enter an open championship and still face exclusion elsewhere. Name two different institutions or kinds of access.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I07",
+      "chapterId": "hole-7",
+      "type": "evidence-notebook",
+      "teaches": "An individual breakthrough can challenge exclusion while leaving larger barriers in place.",
+      "studentAction": "N07 \u00b7 Identify the threatened action, Havemeyer\u2019s response, and why the result did not end exclusion throughout golf. Use three connected sentences.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I08",
+      "chapterId": "hole-8",
+      "type": "evidence-notebook",
+      "teaches": "An invention document supports specific claims. Popular stories often stretch those claims.",
+      "studentAction": "N08 \u00b7 Identify one visible feature of the patent drawing and explain its likely function. Then name a claim about sales or popularity that the drawing cannot establish.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I09",
+      "chapterId": "hole-9",
+      "type": "recorded-model-and-evidence",
+      "teaches": "Francis Ouimet\u2019s victory challenged expectations about who could become a champion.",
+      "studentAction": "N09 \u00b7 Explain how Ouimet\u2019s background challenged expectations. Then use the celebration photograph to distinguish public excitement from proof of equal access.",
+      "feedback": "Visible labeled model outputs, preserved run records and an evidence explanation.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I10",
+      "chapterId": "hole-10",
+      "type": "evidence-notebook",
+      "teaches": "Amateur status and economic access are different questions.",
+      "studentAction": "N10 \u00b7 Explain why \u201camateur\u201d does not mean \u201cequal starting resources.\u201d Use Jones\u2019s 1930 Grand Slam and one cost a competitor would face.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I11",
+      "chapterId": "hole-11",
+      "type": "evidence-notebook",
+      "teaches": "Women\u2019s professional golf required organizing work as well as strong performances.",
+      "studentAction": "N11 \u00b7 Explain one task besides playing that the LPGA founders needed to handle. Compare that work with a form of early professional work from Hole 5.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I12",
+      "chapterId": "hole-12",
+      "type": "recorded-model-and-evidence",
+      "teaches": "Rules, money, travel, treatment, and ownership can each create a separate barrier.",
+      "studentAction": "N12 \u00b7 Compare Sifford\u2019s challenge to an existing rule with Powell\u2019s creation of a course. Explain why either change could matter even if other barriers remained.",
+      "feedback": "Visible labeled model outputs, preserved run records and an evidence explanation.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I13",
+      "chapterId": "hole-13",
+      "type": "evidence-notebook",
+      "teaches": "Media can increase attention and revenue without giving every viewer a place to play.",
+      "studentAction": "N13 \u00b7 Trace a three-step relationship from a televised comeback to a business benefit. Then identify one part of golf\u2019s work or access that the broadcast might leave out.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I14",
+      "chapterId": "hole-14",
+      "type": "evidence-notebook",
+      "teaches": "Lee Elder\u2019s entry and Tiger Woods\u2019s win were different milestones in different years.",
+      "studentAction": "N14 \u00b7 Write a four-link sequence using Shippen, Sifford, Elder, and Woods. Give the correct event or institution for each, then explain why these are separate milestones.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I15",
+      "chapterId": "hole-15",
+      "type": "evidence-notebook",
+      "teaches": "International success grows through role models and the systems that help players follow them.",
+      "studentAction": "N15 \u00b7 Compare Pak in 1998 with Woods in 1997. Explain a shared effect of visibility and one specific difference in their events or contexts. Add one resource a new player still needs.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I16",
+      "chapterId": "hole-16",
+      "type": "evidence-notebook",
+      "teaches": "Everyday access depends on prices, location, public decisions, and paid work.",
+      "studentAction": "N16 \u00b7 Propose one realistic change that could help a Michigan teenager try golf. Identify the barrier, who would do or fund the work, and a tradeoff.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I17",
+      "chapterId": "hole-17",
+      "type": "recorded-model-and-evidence",
+      "teaches": "Environmental decisions need local evidence and visible tradeoffs.",
+      "studentAction": "N17 \u00b7 Explain why one national claim about golf\u2019s water use might be misleading. Name two local conditions that a fair comparison needs.",
+      "feedback": "Visible labeled model outputs, preserved run records and an evidence explanation.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    },
+    {
+      "id": "I18",
+      "chapterId": "hole-18",
+      "type": "evidence-notebook",
+      "teaches": "Modern disputes return to older questions about work, control, money, and access.",
+      "studentAction": "N18 \u00b7 Choose an earlier chapter that helps explain the 2022\u20132023 business conflict. Identify a shared question about power and one important difference. Avoid treating a framework as a completed deal.",
+      "feedback": "A specific question and evidence checklist connect reading to a causal explanation; progress counts started work without assigning a grade.",
+      "staticFallback": "Full reading and question print; model formulas and assigned card support manual calculations.",
+      "identityFit": "Numbered yardage-book entry accumulates evidence across one long round.",
+      "status": "implemented"
+    }
+  ]
+}
