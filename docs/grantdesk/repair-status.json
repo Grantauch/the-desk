@@ -1,15 +1,30 @@
 {
+  "golf-polish-2026-10-16": {
+    "status": "SOURCE_VERIFIED_PROTECTED_BROWSER_AND_PUBLICATION_PENDING",
+    "scope": "Student independence, vocabulary, lab arithmetic, accessible image evidence and lab reset behavior",
+    "evidence": [
+      "Rechecked Scottish records, early championship format, the 1961 PGA clause and Clearview history against institutional sources. Preserved bounded 2022-2023 business case and dated later portraits.",
+      "Added first-session steps, source-ID examples, four verdict definitions, contextual vocabulary, worked expected-strokes arithmetic and complete paper formulas.",
+      "Added observed image descriptions and clarified no-activity access plans, travel-grant limits and meaningful two-run comparisons. Saved field IDs and recovery payload format remain stable.",
+      "Added synthetic browser coverage for no-participation feedback, actual-travel grant cap, a valid water plan, sign-out control reset and subsequent recovery.",
+      "Canonical npm run verify passed: full lane including 600-game balance, server checks, manifests, Astro check (zero errors/warnings), build and static validation of 120 HTML files / 4509 references / 81 sealed files.",
+      "Independent arithmetic checks passed 28 teacher-key cases across cards A-D. All 38 saved field IDs and limits remain unchanged; worst-case answer JSON is 39255 characters against the service limit of 45000. Private eight-page guide updated and visually checked."
+    ],
+    "deployment_status": "PENDING_PROTECTED_BUILD_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "PENDING_SCHOOL_CHROMEBOOK_AND_REAL_CLASS_SESSION"
+  },
   "golf-special-edition-2026-10-16": {
-    "status": "SOURCE_VERIFIED_BROWSER_AND_PUBLICATION_PENDING",
+    "status": "PUBLISHED_CI_AND_PRODUCTION_VERIFIED",
     "scope": "18-chapter 5th-hour BTS golf Special Edition, 100-point assessment, frequent account autosave and PIN recovery",
     "evidence": [
       "Original 18-chapter lesson contains roughly 11,000 visible words including directions, sources and credits, 15 historical visual assets, four recorded model labs, image analysis, source corrections and a revised argument.",
       "Teacher key and substitute plan are in a separate private PDF; no keys, real PINs or student work were added to public source.",
       "Turn In server suite passed 39/39. Manifest validation passed with zero warnings; the golf release seals 19 files at about 1.5 MiB.",
       "All substantive canonical full-gate suites passed, including the 600-game balance check and Astro check with zero errors/warnings. Missing new-page metadata was repaired; a fresh build and static validation then passed: 53 generated routes, 120 HTML files, 4509 local references and 8 releases / 81 sealed files.",
-      "Local browser runner cannot launch because the managed environment has no Chromium executable; cross-device, stale-tab conflict and continuous-save regression cases are added for the required protected CI browser gate."
+      "Local browser runner cannot launch because the managed environment has no Chromium executable; cross-device, stale-tab conflict and continuous-save regression cases are added for the required protected CI browser gate.",
+      "Protected build including browser checks passed for PR 188. Hosted visual review passed; all 19 sealed golf files plus shared save runtime matched production byte hashes."
     ],
-    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
+    "deployment_status": "NETLIFY_READY: bffee813123265b063e3bf25ed3992f85fbc51ec / deploy 6ad1b7a43fd9ab551d5aff3e",
     "field_status": "PENDING_SCHOOL_CHROMEBOOK_AND_REAL_CLASS_SESSION"
   },
   "turn-in-review-classroom-handoff-2026-10-08": {
