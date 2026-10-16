@@ -13,11 +13,12 @@
 
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat, mkdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import AxeBuilder from '@axe-core/playwright';
 
 const require = createRequire(import.meta.url);
 const { world, crowd, PEOPLE } = require('./lib/turn-in-harness.cjs');
@@ -140,6 +141,130 @@ async function waitFor(fn, timeout = 8000) {
 }
 
 /* ----------------------------------------------------- every wired hub -- */
+
+await test('golf is readable at 320, 390 and desktop widths with decoded historical images and accessible controls', async () => {
+  const cb = await chromebook(world());
+  const page = await cb.open('bts-golf-special-edition.html');
+  await page.evaluate(async () => {
+    const images = [...document.images];
+    images.forEach(img => { img.loading = 'eager'; });
+    await Promise.all(images.map(img => img.decode()));
+  });
+  await mkdir('browser-results/golf', { recursive: true });
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No horizontal overflow at ${width}`);
+    const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    assert.deepEqual(result.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target) })), [], `Golf accessibility at ${width}`);
+    await page.screenshot({ path: `browser-results/golf/cover-${width}.png` });
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto');
+  await page.locator('#hole-9').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'browser-results/golf/ouimet-desktop.png' });
+  await cb.context.close();
+});
+
+await test('golf resumes notes, card, settings, run records and draft on a different Chromebook', async () => {
+  const s = world();
+  const first = await chromebook(s);
+  const page = await first.open('bts-golf-special-edition.html');
+  const resume = page.locator('#desk-save-resume');
+  await resume.locator('input').fill(s.pin(PEOPLE.ada));
+  await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+  await page.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
+  await page.locator('#make-card').click();
+  await page.locator('#note-01').fill('The ban proves people knew the game, not that the government invented it.');
+  await page.locator('#first-claim').fill('My starting claim concerns rules and access.');
+  await page.locator('#eq-ball').selectOption('guttie');
+  await page.locator('[data-run="equipment"]').click();
+  await page.locator('#eq-ball').selectOption('wound');
+  await page.locator('[data-run="equipment"]').click();
+  const before = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('textarea')].map(el => [el.id, el.value])));
+  assert.match(before['log-equipment'], /Run 2/);
+  await resume.getByRole('button', { name: 'Save now', exact: true }).click();
+  await waitFor(() => s.rows('Progress').some(r => /Run 2/.test(r.Answers)));
+  assert.equal(s.rows('Turn Ins').length, 0, 'saving progress does not declare completion');
+  await first.context.close();
+  const second = await chromebook(s);
+  const home = await second.open('bts-golf-special-edition.html');
+  assert.equal(await home.locator('#assignment-card').inputValue(), '', 'fresh device has no assigned card before recovery');
+  await home.locator('#desk-save-resume').locator('input').fill(s.pin(PEOPLE.ada));
+  await home.locator('#desk-save-resume').getByRole('button', { name: 'Sign in / recover my work' }).click();
+  await home.waitForFunction(() => document.querySelector('#log-equipment').value.includes('Run 2'));
+  const after = await home.evaluate(() => Object.fromEntries([...document.querySelectorAll('textarea')].map(el => [el.id, el.value])));
+  assert.deepEqual(after, before, 'all work fields return, including readonly activity evidence');
+  await waitFor(async () => (await home.locator('#eq-ball').inputValue()) === 'wound');
+  await home.locator('[data-run="equipment"]').click();
+  assert.match(await home.locator('#log-equipment').inputValue(), /Run 3/, 'record numbering continues after recovery');
+  assert.match(await turnIn(home, s.pin(PEOPLE.ada)), /Turned in/);
+  assert.match(s.rows('Turn Ins')[0].Answers, /Run 3/);
+  await second.context.close();
+});
+
+await test('golf cloud cadence saves continuous edits within thirty seconds and never acknowledges offline work', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { debounceMs: 15000 } });
+  const page = await cb.context.newPage();
+  await page.clock.install();
+  await openHub(cb.context, 'bts-golf-special-edition.html', page);
+  const resume = page.locator('#desk-save-resume');
+  await resume.locator('input').fill(s.pin(PEOPLE.ada));
+  await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+  await page.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
+  for (let i = 0; i < 7; i++) {
+    await page.locator('#note-01').fill('Still typing ' + i);
+    await page.clock.fastForward(5000);
+  }
+  await waitFor(() => s.rows('Progress').some(r => /Still typing/.test(r.Answers)));
+  cb.net.down = true;
+  await page.locator('#note-01').fill('Newest offline edit');
+  await resume.getByRole('button', { name: 'Save now', exact: true }).click();
+  await page.clock.fastForward(20000);
+  await page.waitForTimeout(100);
+  assert.doesNotMatch(s.rows('Progress')[0].Answers, /Newest offline edit/);
+  assert.equal(await page.locator('#note-01').inputValue(), 'Newest offline edit');
+  assert.doesNotMatch(await resume.locator('.sub').textContent(), /Account save confirmed/);
+  cb.net.down = false;
+  await page.clock.fastForward(65000);
+  await waitFor(() => /Newest offline edit/.test(s.rows('Progress')[0].Answers));
+  assert.equal(s.rows('Turn Ins').length, 0);
+  await cb.context.close();
+});
+
+await test('returning to an older golf tab can recover the latest home copy with an explicit conflict choice', async () => {
+  const s = world();
+  const school = await chromebook(s);
+  const old = await school.open('bts-golf-special-edition.html');
+  const sign = async page => {
+    const resume = page.locator('#desk-save-resume');
+    await resume.locator('input').fill(s.pin(PEOPLE.ada));
+    await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+  };
+  await sign(old);
+  await old.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
+  await old.locator('#note-01').fill('Earlier school version');
+  await old.locator('#desk-save-resume').getByRole('button', { name: 'Save now', exact: true }).click();
+  await waitFor(() => s.rows('Progress').some(r => /Earlier school/.test(r.Answers)));
+  const home = await chromebook(s);
+  const newer = await home.open('bts-golf-special-edition.html');
+  await sign(newer);
+  await newer.waitForFunction(() => document.querySelector('#note-01').value === 'Earlier school version');
+  await newer.locator('#note-01').fill('Later home version');
+  await newer.locator('#desk-save-resume').getByRole('button', { name: 'Save now', exact: true }).click();
+  await waitFor(() => /Later home/.test(s.rows('Progress')[0].Answers));
+  old.once('dialog', dialog => dialog.dismiss());
+  await sign(old);
+  await waitFor(async () => /cancelled/.test(await old.locator('#desk-save-resume').locator('.status').textContent()));
+  assert.equal(await old.locator('#note-01').inputValue(), 'Earlier school version');
+  assert.match(s.rows('Progress')[0].Answers, /Later home version/, 'cancelling recovery does not overwrite the account copy');
+  old.once('dialog', dialog => dialog.accept());
+  await sign(old);
+  await old.waitForFunction(() => document.querySelector('#note-01').value === 'Later home version');
+  await school.context.close();
+  await home.context.close();
+});
 
 const hubs = (await readdir(join(ROOT, 'hubs')))
   .filter((name) => name.endsWith('.html'))

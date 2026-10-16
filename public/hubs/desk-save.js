@@ -33,6 +33,16 @@
   var IDLE_SIGNOUT_MS = 20 * 60 * 1000;
   var CLOUD_DEBOUNCE_MS = 60 * 1000;
   var CLOUD_MAX_WAIT_MS = 60 * 1000;
+  // Long assignments may request a more frequent, bounded cloud cadence.
+  // Local tab persistence still runs on every answer edit.
+  var requestedAutosave = Number(document.body && document.body.getAttribute('data-desk-autosave-ms'));
+  if (requestedAutosave >= 15000 && requestedAutosave <= 60000) {
+    CLOUD_DEBOUNCE_MS = requestedAutosave;
+    CLOUD_MAX_WAIT_MS = Math.max(requestedAutosave, 30000);
+  }
+  var cadenceText = requestedAutosave >= 15000 && requestedAutosave <= 60000
+    ? 'after a short pause, or about every ' + Math.round(CLOUD_MAX_WAIT_MS / 1000) + ' seconds while you keep typing'
+    : 'about once a minute';
   var SNAPSHOT_MS = 4000;
   var REQUEST_TIMEOUT_MS = 15000;
 
@@ -348,6 +358,7 @@
         cloudRetry = 0;
         persist();
         ui.refresh();
+        if (hashOf(answers(false)) !== state.cloudHash) scheduleCloud();
         return true;
       }
       if (result && result.code === 'signed_out') {
@@ -417,9 +428,15 @@
 
   /* ------------------------------------------------------------ actions -- */
 
-  function signIn(pin) {
+  function signIn(pin, options) {
     return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2 }).then(function (result) {
       if (!result || !result.ok) return { ok: false, message: result && result.error || 'That did not go through. Try again.' };
+      var replaceDraft = Boolean(options && options.recover && result.draft && Array.isArray(result.draft.answers));
+      if (replaceDraft && hasWork() && hashOf(answers(false)) !== hashOf(result.draft.answers)) {
+        if (!window.confirm('Recover the saved account copy and replace the work currently visible? Cancel and download a backup first if you need to keep both versions.')) {
+          return { ok: false, message: 'Recovery cancelled. Your visible work was kept. Download a backup before recovering another version.' };
+        }
+      }
       state.token = result.token;
       state.firstName = result.firstName || '';
       state.classes = result.classes || [];
@@ -435,7 +452,9 @@
         assignKeys(list);
         list.forEach(function (el) {
           var saved = byKey[keyOf.get(el)];
-          if (saved && clean(saved) && (!clean(el.value) || el.value === el.defaultValue) && setValue(el, saved)) restored++;
+          if (replaceDraft) {
+            if (setValue(el, typeof saved === 'string' ? saved : el.defaultValue)) restored++;
+          } else if (saved && clean(saved) && (!clean(el.value) || el.value === el.defaultValue) && setValue(el, saved)) restored++;
         });
         radioGroups().forEach(function (g) {
           var saved = byKey['r:' + g.name];
@@ -459,7 +478,7 @@
       persist();
       var hello = state.firstName ? 'Welcome back, ' + state.firstName + '. ' : '';
       if (restored) return { ok: true, message: hello + restored + (restored === 1 ? ' answer' : ' answers') + ' brought back.' };
-      return { ok: true, message: hello + 'Your answers save to your account about once a minute. Press Turn In when you finish.' };
+      return { ok: true, message: hello + 'Your answers save to your account ' + cadenceText + '. Press Turn In when you finish.' };
     }, function () {
       return { ok: false, message: 'Could not reach the save system. Your answers are still saved in this tab.' };
     });
@@ -698,6 +717,50 @@
 
     var message = '';
     var messageGood = false;
+    var resumeHost = null;
+    var resumeText, resumeStatus, resumePin, resumeSign, resumeNow, resumeClasses;
+    var resumeSlot = document.querySelector('[data-desk-resume]');
+    if (resumeSlot && cloudOn) {
+      resumeHost = host('desk-save-resume');
+      var resumePanel = make('section', { class: 'panel', 'aria-label': 'Save and recover your progress' });
+      resumePanel.appendChild(make('h2', {}, 'Save and recover your progress'));
+      resumeText = make('p', { class: 'sub' });
+      resumeClasses = make('div', { class: 'classes', role: 'group', 'aria-label': 'Your class for this work' });
+      resumeClasses.hidden = true;
+      var resumeActions = make('div', { class: 'actions' });
+      var resumeLabel = make('label', {}, 'Hall pass PIN');
+      resumePin = make('input', { type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: '6', 'aria-label': 'Hall pass PIN to save or recover work' });
+      resumeLabel.appendChild(resumePin);
+      resumeSign = make('button', { type: 'button', class: 'primary' }, 'Sign in / recover my work');
+      resumeNow = make('button', { type: 'button' }, 'Save now');
+      resumeStatus = make('p', { class: 'status', role: 'status', 'aria-live': 'polite' });
+      [resumeLabel, resumeSign, resumeNow].forEach(function (n) { resumeActions.appendChild(n); });
+      [resumeText, resumeClasses, resumeActions, resumeStatus].forEach(function (n) { resumePanel.appendChild(n); });
+      resumeHost.root.appendChild(resumePanel);
+      resumeSlot.appendChild(resumeHost.host);
+      resumePin.addEventListener('input', function () { resumePin.value = digits(resumePin).slice(0, 6); });
+      resumeSign.addEventListener('click', function () {
+        var code = digits(resumePin);
+        if (code.length !== 6) { setStatus(resumeStatus, 'Enter your six digit hall pass PIN.', false); return; }
+        busy(resumeSign, true, 'Checking…');
+        clearTimeout(cloudTimer);
+        signIn(code, { recover: true }).then(function (result) {
+          resumePin.value = '';
+          busy(resumeSign, false, 'Sign in / recover my work');
+          ui.refresh();
+          setStatus(resumeStatus, result.message, result.ok);
+        });
+      });
+      resumePin.addEventListener('keydown', function (e) { if (e.key === 'Enter') resumeSign.click(); });
+      resumeNow.addEventListener('click', function () {
+        busy(resumeNow, true, 'Saving…');
+        saveCloud().then(function (ok) {
+          busy(resumeNow, false, 'Save now');
+          var current = ok && hashOf(answers(false)) === state.cloudHash;
+          setStatus(resumeStatus, current ? 'Account save confirmed. Check the name and time above.' : 'Latest account save not confirmed. Keep this tab open; saving will retry.', current);
+        });
+      });
+    }
 
     function setStatus(node, text, good) {
       node.textContent = text || '';
@@ -705,10 +768,11 @@
     }
 
     function renderClasses() {
-      classes.textContent = '';
       var list = state.classes || [];
-      if (list.length < 2) { classes.hidden = true; return; }
-      classes.hidden = false;
+      [classes, resumeClasses].filter(Boolean).forEach(function (target) {
+      target.textContent = '';
+      if (list.length < 2) { target.hidden = true; return; }
+      target.hidden = false;
       list.forEach(function (name) {
         var b = make('button', { type: 'button', 'aria-pressed': String(name === state.classPeriod) }, name);
         b.addEventListener('click', function () {
@@ -721,9 +785,11 @@
           persist();
           scheduleCloud();
           ui.refresh();
-          pin.focus();
+          if (target === resumeClasses) resumePin.focus({ preventScroll: true });
+          else pin.focus();
         });
-        classes.appendChild(b);
+        target.appendChild(b);
+      });
       });
     }
 
@@ -733,6 +799,15 @@
       var count = answeredCount(list);
       var hash = hashOf(list);
       var total = list.length;
+      if (resumeHost) {
+        var pending = hashOf(answers(false)) !== state.cloudHash;
+        resumeHost.host.setAttribute('data-signed-in', state.token ? 'true' : 'false');
+        resumeNow.hidden = !state.token;
+        resumeText.textContent = state.token
+          ? 'Signed in as ' + (state.firstName || 'your account') + (state.classPeriod ? ' · ' + state.classPeriod : '') + '. ' +
+            (pending ? (cloudRetry ? 'Account save is retrying. Your latest work is in this tab.' : 'Latest edits are saved in this tab; account save is pending.') : (state.cloudAt ? 'Account save confirmed at ' + clock(state.cloudAt) + '.' : 'Ready to save your work.')) + ' Returning from another device? Enter your PIN again before editing to recover the latest account copy.'
+          : 'Enter your PIN before starting. On another device, open this same lesson and enter the same PIN to recover your saved answers and activity records.';
+      }
       handoff.hidden = !(cloudOn && state.turnedInAt && hash === state.turnedInHash);
       var assignmentUrl = classroomAssignmentUrl(state.classroomUrl);
       classroomLink.href = assignmentUrl || 'https://classroom.google.com/';
@@ -740,7 +815,7 @@
       if (cloudOn) {
         if (state.turnedInAt && hash === state.turnedInHash) sub.textContent = 'Turned in at ' + clock(state.turnedInAt) + '. Change anything and you can turn in again.';
         else if (state.turnedInAt) sub.textContent = 'Your changes save as work in progress. Press Turn In when you finish this version.';
-        else sub.textContent = count + ' of ' + total + ' answered. Enter your PIN to save progress about once a minute. Press Turn In when you finish.';
+        else sub.textContent = count + ' of ' + total + ' answered. Enter your PIN to save progress ' + cadenceText + '. Press Turn In when you finish.';
       } else {
         sub.textContent = count + ' of ' + total + ' answered. Your answers stay while this tab is open. Copy them before you close it.';
       }
@@ -757,7 +832,7 @@
         chipText.textContent = behind ? (cloudBusy ? 'Saving…' : 'Saved in this tab') : 'Saved · ' + (state.firstName || 'your account') + (state.cloudAt ? ' · ' + clock(state.cloudAt) : '');
         dot.className = behind && cloudRetry ? 'dot warn' : 'dot';
         if (behind && cloudRetry) chipText.textContent = 'Saved in this tab · retrying';
-        popText.textContent = 'Saving to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account. Your progress saves about once a minute while you work. Press Turn In when you finish. Open this page on any Chromebook and enter your PIN to pick up where you left off.';
+        popText.textContent = 'Saving to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account. Your progress saves ' + cadenceText + '. Press Turn In when you finish. Open this page on any Chromebook and enter your PIN to pick up where you left off.';
         popActions.appendChild(goTurnIn);
         popActions.appendChild(signOutBtn);
       } else {

@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-GOLF",
+  "course": "BTS",
+  "lessonCode": "GOLF",
+  "title": "Golf: Who Gets to Play?",
+  "audience": "students",
+  "narrativeQuestion": "Which barriers most shaped who could participate in golf, and how did they change?",
+  "chapters": [
+    {
+      "id": "hole-1",
+      "title": "The government wanted them practicing archery.",
+      "claim": "A law banning a game proves people already knew it. It does not tell us who invented it.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "hole-2",
+      "title": "The ground helped write the game.",
+      "claim": "A sport grows differently when its playing surface is coastal land rather than a standardized court.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "hole-3",
+      "title": "Eighteen holes was a choice.",
+      "claim": "Rules and standards develop through decisions. They are not natural laws.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "hole-4",
+      "title": "A better ball changes more than a score.",
+      "claim": "Technology can change the cost of entry, the work of making equipment, and the land a sport needs.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "hole-5",
+      "title": "The champion also had a job.",
+      "claim": "Early professionals often earned their living through several kinds of golf work.",
+      "namedPeople": [
+        {
+          "name": "Old Tom Morris",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A02"
+        }
+      ],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "hole-6",
+      "title": "A traveling game brings institutions with it.",
+      "claim": "Golf spread through people, travel, clubs, and governing organizations. Its expansion was uneven.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I06"
+      ]
+    },
+    {
+      "id": "hole-7",
+      "title": "John Shippen belonged on that tee.",
+      "claim": "An individual breakthrough can challenge exclusion while leaving larger barriers in place.",
+      "namedPeople": [
+        {
+          "name": "John Shippen",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A03"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I07"
+      ]
+    },
+    {
+      "id": "hole-8",
+      "title": "Read the patent, then check the story.",
+      "claim": "An invention document supports specific claims. Popular stories often stretch those claims.",
+      "namedPeople": [
+        {
+          "name": "George Franklin Grant",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A04"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05",
+        "A04"
+      ],
+      "interactionIds": [
+        "I08"
+      ]
+    },
+    {
+      "id": "hole-9",
+      "title": "The former caddie beats the famous professionals.",
+      "claim": "Francis Ouimet\u2019s victory challenged expectations about who could become a champion.",
+      "namedPeople": [
+        {
+          "name": "Francis Ouimet",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A06"
+        },
+        {
+          "name": "Eddie Lowery",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A06"
+        }
+      ],
+      "visualAnchorIds": [
+        "A06"
+      ],
+      "interactionIds": [
+        "I09"
+      ]
+    },
+    {
+      "id": "hole-10",
+      "title": "Playing without prize money still takes resources.",
+      "claim": "Amateur status and economic access are different questions.",
+      "namedPeople": [
+        {
+          "name": "Bobby Jones",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A07"
+        }
+      ],
+      "visualAnchorIds": [
+        "A07"
+      ],
+      "interactionIds": [
+        "I10"
+      ]
+    },
+    {
+      "id": "hole-11",
+      "title": "The players helped build their own tour.",
+      "claim": "Women\u2019s professional golf required organizing work as well as strong performances.",
+      "namedPeople": [
+        {
+          "name": "Babe Didrikson Zaharias",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A08"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08"
+      ],
+      "interactionIds": [
+        "I11"
+      ]
+    },
+    {
+      "id": "hole-12",
+      "title": "Permission is only one part of access.",
+      "claim": "Rules, money, travel, treatment, and ownership can each create a separate barrier.",
+      "namedPeople": [
+        {
+          "name": "Charlie Sifford",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        },
+        {
+          "name": "Althea Gibson",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A10"
+        }
+      ],
+      "visualAnchorIds": [
+        "A09",
+        "A10"
+      ],
+      "interactionIds": [
+        "I12"
+      ]
+    },
+    {
+      "id": "hole-13",
+      "title": "A camera changes who sees the sport.",
+      "claim": "Media can increase attention and revenue without giving every viewer a place to play.",
+      "namedPeople": [
+        {
+          "name": "Arnold Palmer",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A11"
+        },
+        {
+          "name": "Jack Nicklaus",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A12"
+        }
+      ],
+      "visualAnchorIds": [
+        "A11",
+        "A12"
+      ],
+      "interactionIds": [
+        "I13"
+      ]
+    },
+    {
+      "id": "hole-14",
+      "title": "One tournament has its own timeline.",
+      "claim": "Lee Elder\u2019s entry and Tiger Woods\u2019s win were different milestones in different years.",
+      "namedPeople": [
+        {
+          "name": "Lee Elder",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A13"
+        },
+        {
+          "name": "Tiger Woods",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A14"
+        }
+      ],
+      "visualAnchorIds": [
+        "A14",
+        "A13"
+      ],
+      "interactionIds": [
+        "I14"
+      ]
+    },
+    {
+      "id": "hole-15",
+      "title": "Se Ri Pak changes the picture.",
+      "claim": "International success grows through role models and the systems that help players follow them.",
+      "namedPeople": [
+        {
+          "name": "Se Ri Pak",
+          "role": "Historical participant",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A15"
+        }
+      ],
+      "visualAnchorIds": [
+        "A15"
+      ],
+      "interactionIds": [
+        "I15"
+      ]
+    },
+    {
+      "id": "hole-16",
+      "title": "The course keeps working after the cameras leave.",
+      "claim": "Everyday access depends on prices, location, public decisions, and paid work.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I16"
+      ]
+    },
+    {
+      "id": "hole-17",
+      "title": "A green course has a resource bill.",
+      "claim": "Environmental decisions need local evidence and visible tradeoffs.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I17"
+      ]
+    },
+    {
+      "id": "hole-18",
+      "title": "Who gets to decide what golf becomes?",
+      "claim": "Modern disputes return to older questions about work, control, money, and access.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I18"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Earliest surviving mention is not an invention date.",
+    "Written rules and the spread of the 18-hole standard are separate processes.",
+    "PGA of America, tours, clubs and tournaments have distinct access histories.",
+    "All model quantities are invented and clearly labeled.",
+    "1930 Grand Slam names its historical events, not the modern professional majors.",
+    "Later portraits carry dates and are not presented as event photographs.",
+    "The 2022\u20132023 business chapter makes no current-status claim.",
+    "Readonly activity records are learning evidence, not tamper-proof proof of authorship."
+  ]
+}

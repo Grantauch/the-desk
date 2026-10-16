@@ -1,5 +1,14 @@
 ## October 8 private review and Classroom handoff checkpoint
 
+## Current checkpoint - October 16 golf Special Edition
+
+Added Golf: Who Gets to Play? for 5th hour Beyond the Scoreboard, an eighteen-chapter, roughly 11,000-word student page with fifteen source images, four recorded investigations and a 100-point test-grade assessment. The substitute plan, scoring anchors and model checks remain in a private PDF outside public source. All model numbers are labeled invented; later portraits have dates; the business case is bounded to 2022-2023.
+
+The shared save runtime now supports an opt-in 15-second pause / 30-second maximum wait for cloud saves, a top-of-lesson PIN recovery panel, explicit Save now acknowledgement, and a confirmation before replacing a stale tab with an account draft. Normal hubs keep their one-minute cadence. Golf card, settings, run records, notes and drafts travel through the shared collector. The student instructions distinguish local and confirmed account copies and advise entering the PIN each session before editing across devices.
+
+Turn In server checks passed 39/39; StoryHub manifests passed without warnings; nineteen golf files are sealed at about 1.5 MiB. Astro check passed with zero errors and warnings. All substantive canonical full-gate suites passed, including the 600-game balance check. Missing new-page metadata was repaired; a fresh build/static validation passed with 53 generated routes, 120 HTML files, 4509 references and 8 releases / 81 sealed files. Local Chromium is absent, so the required protected CI browser gate must run the new cross-device, stale-tab and continuous-save cases. Protected merge, exact Netlify production commit, hosted visual review and actual classroom use remain separate evidence.
+
+
 The teacher ruled out student browser extensions. This follow-up corrects the stale sign-in message, adds a private Review worksheet to the existing Turn In workbook, and gives students a Classroom link after a confirmed finish. Students still choose Turn In or Mark as done in Classroom themselves. Exact class/lesson assignment URLs can be configured in private Classroom Links; blank, unsafe or ambiguous mappings use Classroom home. No assignment identifiers are guessed, and no school workbook IDs, roster data or private links are committed.
 
 The native Review is installed, with class, lesson and status filters, readable current answers, last save time and the preserved last finish time. Hidden Review Roster derives active class memberships without changing Hall Pass Roster. Native Sheets tests using invented students passed class/lesson isolation, Finished / In progress / No saved work received, later edits after finishing, and the status filter. Server tests passed 39/39 and student browser checks passed 19/19 across all 33 answer hubs, including final handoff visibility, unsafe link fallback and class changes.
