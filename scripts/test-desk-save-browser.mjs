@@ -234,8 +234,9 @@ await test('golf access requires participation, caps travel help, and clears lab
   assert.match(await page.locator('#log-water').inputValue(), /water 45.*cost 100.*playability 85; within both limits/);
   await resume.getByRole('button', { name: 'Save now', exact: true }).click();
   await waitFor(() => s.rows('Progress').some(r => /no participation/.test(r.Answers)));
-  await page.locator('#desk-save-chip').click();
-  await panel(page).getByRole('button', { name: 'Not you? Sign out' }).click();
+  await waitFor(async () => /Account save confirmed/.test(await resume.locator('.sub').textContent()));
+  await chip(page).locator('.chip').click();
+  await chip(page).getByRole('button', { name: 'Not you? Sign out' }).click();
   await page.waitForFunction(() => !document.querySelector('#assignment-card').value && document.querySelector('#eq-ball').value === 'featherie' && document.querySelector('#wa-turf').value === '10');
   assert.equal(await page.locator('#log-access').inputValue(), '');
   await signIn();
