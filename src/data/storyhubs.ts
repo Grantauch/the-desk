@@ -35,8 +35,8 @@ export const storyHubs: StoryHub[] = [
     bytesize: 'bytesize no. 3',
     question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
     blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
-    cover: 'https://upload.wikimedia.org/wikipedia/commons/3/39/Defendants_in_the_dock_at_nuremberg_trials.jpg',
-    coverAlt: 'Contemporary archival photograph of the defendants at the Nuremberg war crimes tribunal',
+    cover: '/storyhub/hh/nuremberg/cover.svg',
+    coverAlt: 'Original documentary illustration of the Nuremberg tribunal courtroom, not an archival photograph',
     topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
     inside: [
       'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
