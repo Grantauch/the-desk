@@ -1728,7 +1728,7 @@ figcaption {
       <script>
 const $ = (selector) =>
   document.querySelector(selector);
-const $ = (selector) =>
+const allEls = (selector) =>
   Array.from(document.querySelectorAll(selector));
 // desk-save.js handles all student-answer persistence, PIN restore and Turn In.
 // Only ephemeral activity selections are held here; never duplicate answer storage.
@@ -1749,11 +1749,11 @@ const choices = {
   summary:
     'This would have been faster, but it would deny defendants a chance to answer evidence and make it easier for future governments to justify executions without a trial.',
 };
-$('[data-choice]').forEach(button =>
+allEls('[data-choice]').forEach(button =>
   button.addEventListener('click', () => {
     const value = button.getAttribute('data-choice') || '';
     state.choice = value;
-    $('[data-choice]').forEach(b =>
+    allEls('[data-choice]').forEach(b =>
       b.classList.toggle('active', b === button)
     );
     const output = $('#choice-feedback');
@@ -1810,7 +1810,7 @@ function renderRecord(tab) {
     '</span></div><ul>' +
     d.lines.map(s => '<li>' + s + '</li>').join('') +
     '</ul>';
-  $('[data-tab]').forEach(button => {
+  allEls('[data-tab]').forEach(button => {
     button.classList.toggle(
       'selected',
       button.getAttribute('data-tab') === tab
@@ -1823,7 +1823,7 @@ function renderRecord(tab) {
   state.recordTab = tab;
   save();
 }
-$('[data-tab]').forEach(b =>
+allEls('[data-tab]').forEach(b =>
   b.addEventListener('click', () =>
     renderRecord(b.getAttribute('data-tab') || 'public')
   )
@@ -1834,10 +1834,10 @@ const witness = {
   '2': 'Correct. The witness could NOT directly see what happened behind the screen, determine the cause, or measure consciousness.',
   '3': 'Supported. A near-contemporary report helps establish when a statement was made, though even a timely witness can be mistaken.',
 };
-$('[data-witness]').forEach(b =>
+allEls('[data-witness]').forEach(b =>
   b.addEventListener('click', () => {
     state.witness = b.getAttribute('data-witness') || '';
-    $('[data-witness]').forEach(v => v.classList.toggle('active', v === b));
+    allEls('[data-witness]').forEach(v => v.classList.toggle('active', v === b));
     const out = $('#witness-feedback');
     if (out) out.textContent = witness[state.witness];
     save();
@@ -1925,7 +1925,7 @@ if (list)
     .join('');
 function gradeClaim(id, value) {
   state[id] = value;
-  $('[data-claim="' + id + '"]').forEach(b => {
+  allEls('[data-claim="' + id + '"]').forEach(b => {
     const is = b.getAttribute('data-class') === value;
     b.classList.toggle('selected', is);
     b.setAttribute('aria-pressed', String(is));
@@ -1944,7 +1944,7 @@ function gradeClaim(id, value) {
   if (score) score.textContent = tally + ' / 6 REVIEWED';
   save();
 }
-$('[data-claim]').forEach(b =>
+allEls('[data-claim]').forEach(b =>
   b.addEventListener('click', () =>
     gradeClaim(
       b.getAttribute('data-claim') || '',
@@ -1955,7 +1955,7 @@ $('[data-claim]').forEach(b =>
 claims.forEach(c => {
   if (state[c.id]) gradeClaim(c.id, state[c.id]);
 });
-$('[name="judgment"]').forEach(input => {
+allEls('[name="judgment"]').forEach(input => {
   const radio = input;
   radio.checked = state.judgment === radio.value;
   radio.addEventListener('change', () => {
