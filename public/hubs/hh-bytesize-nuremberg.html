@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Hangman of Nuremberg | Hidden History · ByteSize</title>
+    <link rel="stylesheet" href="/hubs/hh-bytesize-nuremberg.css" />
+  </head>
+  <body>
+    <div class="nuremberg-app-root">
+      <main id="app" class="site">
+        <div class="reading-progress" aria-hidden="true">
+          <span id="progress-fill"></span>
+        </div>
+        <header class="masthead">
+          <a
+            href="https://grant-desk.com/storyhubs/"
+            class="brand"
+            target="_blank"
+            rel="noopener"
+            >THE DESK<span class="brand-slash">/</span>HIDDEN HISTORY</a
+          ><span class="series"
+            >BYTESIZE <span class="amber">№ 03</span>
+            <span class="dots">•</span> 1945—1950</span
+          ><a href="#dispatch" class="mast-action">CASE FILE ↓</a>
+        </header>
+        <div class="cover" id="top">
+          <div class="cover-archival" aria-hidden="true"></div>
+          <div class="cover-grain" aria-hidden="true"></div>
+          <div class="cover-overlay" aria-hidden="true"></div>
+          <div class="cover-content">
+            <div class="eyebrow">
+              <span class="red-rule"></span>CLASSIFIED HISTORY / 19 OCTOBER 2026
+            </div>
+            <p class="case-number">
+              CASE FILE <strong>046</strong> <span>●</span> ARCHIVE OPEN
+            </p>
+            <h1>THE HANGMAN<br />OF <em>NUREMBERG.</em></h1>
+            <p class="dek">
+              The Nazis were convicted. The hangman had a secret. And some
+              witnesses said the final night went badly wrong.
+            </p>
+            <div class="cover-cta">
+              <a class="btn btn-accent" href="#byte-1"
+                >OPEN THE EVIDENCE <span>↗</span></a
+              ><span class="read-time">7 BYTES · 15–20 MINUTES</span>
+            </div>
+          </div>
+          <div class="cover-stamp">OCT 16<br /><strong>1946</strong></div>
+        </div>
+        <div class="section-strip" id="dispatch">
+          <span>YOUR ASSIGNMENT</span>
+          <p>
+            You are not deciding whether the Nazi leaders were guilty. A court
+            decided that. You are investigating
+            <strong
+              >whether the executions went wrong—and what can actually be
+              proved.</strong
+            >
+          </p>
+          <span class="record-note"
+            >SOME DETAILS ARE DISPUTED. THAT IS THE POINT.</span
+          >
+        </div>
+        <nav class="byte-nav" aria-label="Story sections">
+          <span class="nav-cap">IN THIS CASE</span
+          ><a href="#byte-1">01 / THE CHOICE</a
+          ><a href="#byte-2">02 / THE VERDICT</a
+          ><a href="#byte-3">03 / THE RÉSUMÉ</a
+          ><a href="#byte-4">04 / THE WITNESS</a
+          ><a href="#byte-5">05 / THE CLAIMS</a
+          ><a href="#byte-6">06 / THE ENDING</a
+          ><a href="#byte-7">07 / YOUR VERDICT</a>
+        </nav>
+        <section class="byte section-paper" id="byte-1" data-section>
+          <div class="inner">
+            <p class="byte-no">BYTE 01 <span>/ 1945</span></p>
+            <div class="split split-wide">
+              <div>
+                <h2>THE WORLD WANTED <em>ANSWERS.</em></h2>
+                <p class="lead">
+                  World War II was over. The Nazi government had carried out
+                  mass murder, including the Holocaust, in which it murdered six
+                  million European Jews. The Allies had captured senior Nazi
+                  leaders.
+                </p>
+                <p>
+                  Now what? Some leaders favored shooting Nazi officials without
+                  trials. Instead, four Allied countries set up an international
+                  court in Nuremberg, Germany. Accused leaders could have
+                  lawyers. Prosecutors had to present evidence.
+                </p>
+              </div>
+              <aside class="pull">
+                <span class="pull-kicker">THE BIG IDEA</span
+                ><strong
+                  >If you want to build a world ruled by laws, does the way you
+                  punish criminals matter?</strong
+                >
+                <div class="gavel-mark" aria-hidden="true">§</div>
+              </aside>
+            </div>
+            <div class="challenge">
+              <div class="challenge-header">
+                <span class="tag">YOUR MOVE / 01</span
+                ><span class="challenge-type">COUNTERFACTUAL</span>
+              </div>
+              <h3>It’s 1945. The Allies ask for your advice.</h3>
+              <p>
+                You can’t undo Nazi crimes. Which approach better establishes
+                lasting justice?
+              </p>
+              <div class="choice-grid">
+                <button class="option choice" data-choice="trial">
+                  <b>A</b><strong>PUT THEM ON TRIAL</strong
+                  ><small
+                    >Collect evidence, hear a defense, and publish a
+                    verdict.</small
+                  ></button
+                ><button class="option choice" data-choice="summary">
+                  <b>B</b><strong>EXECUTE THEM IMMEDIATELY</strong
+                  ><small>Skip months of testimony and evidence.</small>
+                </button>
+              </div>
+              <div class="response-box" id="choice-feedback" role="status">
+                Choose an option to see its trade-off.
+              </div>
+              <label for="a1" class="question-label"
+                >Why would some people disagree with your choice?</label
+              ><textarea
+                id="a1"
+                data-save
+                name="Nuremberg — Choice trade-off"
+                placeholder="Someone might disagree because…"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="factline">
+              <b>WHAT HAPPENED:</b> The International Military Tribunal began in
+              November 1945. Judges represented the U.S., U.K., France, and
+              Soviet Union.
+            </div>
+          </div>
+        </section>
+        <section class="byte section-dark" id="byte-2" data-section>
+          <div class="inner">
+            <p class="byte-no">BYTE 02 <span>/ OCTOBER 1946</span></p>
+            <h2>TWELVE SENTENCED.<br /><em>TEN HANGED.</em></h2>
+            <div class="count-grid">
+              <div><strong>22</strong><span>DEFENDANTS TRIED</span></div>
+              <div><strong>19</strong><span>FOUND GUILTY</span></div>
+              <div class="highlight">
+                <strong>12</strong><span>DEATH SENTENCES</span>
+              </div>
+              <div><strong>10</strong><span>EXECUTED</span></div>
+            </div>
+            <div class="split photo-split">
+              <div>
+                <p class="lead">
+                  The trials ended October 1, 1946. Of twelve death sentences,
+                  only ten were carried out.
+                </p>
+                <p>
+                  Martin Bormann was tried
+                  <dfn title="Without being physically present in court"
+                    >in absentia</dfn
+                  >—he was not there. Hermann Göring, a top Nazi leader, died by
+                  suicide using cyanide before his execution. The ten others
+                  were executed early on October 16.
+                </p>
+                <p class="quiet">
+                  Two scaffold platforms were used inside a prison gymnasium. A
+                  third was kept in reserve.
+                </p>
+              </div>
+              <figure class="archival">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/3/39/Defendants_in_the_dock_at_nuremberg_trials.jpg"
+                  alt="Historical photograph of defendants seated inside the Nuremberg courtroom with guards behind them"
+                  loading="lazy"
+                />
+                <figcaption>NUREMBERG TRIALS · ARCHIVAL PHOTOGRAPH</figcaption>
+              </figure>
+            </div>
+            <div class="interaction slim">
+              <span class="tag">LOOK CLOSELY / 02</span>
+              <h3>Where did the other two death sentences go?</h3>
+              <button class="reveal-btn" id="reveal-two" aria-expanded="false">
+                REVEAL THE TWO EXCEPTIONS <span>＋</span>
+              </button>
+              <div id="two-answer" class="reveal-content" hidden>
+                <p>
+                  <b>Göring:</b> died by suicide shortly before the
+                  executions.<br /><b>Bormann:</b> absent; the court sentenced
+                  him without him there. He had actually died in Berlin in 1945,
+                  though that was not then certain.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="byte section-paper" id="byte-3" data-section>
+          <div class="inner">
+            <p class="byte-no">BYTE 03 <span>/ THE HANGMAN</span></p>
+            <div class="split dossier">
+              <div>
+                <h2>MEET JOHN <em>C. WOODS.</em></h2>
+                <p class="lead">
+                  The U.S. Army assigned Master Sergeant John Clarence Woods to
+                  carry out the Nuremberg executions.
+                </p>
+                <p>
+                  The press described a seasoned hangman: 43 years old, from
+                  Texas, with fifteen years of experience and 347 executions
+                  behind him.
+                </p>
+                <p>
+                  Military historian French L. MacLean examined Woods’s records.
+                  The findings were different.
+                </p>
+              </div>
+              <figure class="woods-photo">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/1/15/John_C._Woods.jpg"
+                  alt="Historical 1946 head-and-shoulders photograph of John C. Woods in uniform"
+                  loading="lazy"
+                />
+                <figcaption>JOHN C. WOODS · 1946 · U.S. ARMY PHOTO</figcaption>
+              </figure>
+            </div>
+            <div class="record-card">
+              <div class="record-head">
+                <b>PERSONNEL FILE / 003</b><span>PRESS TAB ↔ ARCHIVE TAB</span>
+              </div>
+              <div
+                class="tab-controls"
+                role="tablist"
+                aria-label="Compare Woods claims with historical research"
+              >
+                <button
+                  role="tab"
+                  aria-selected="true"
+                  data-tab="public"
+                  class="selected"
+                >
+                  WHAT THE PRESS REPEATED</button
+                ><button role="tab" aria-selected="false" data-tab="record">
+                  WHAT RECORDS INDICATE
+                </button>
+              </div>
+              <div id="record-data" class="record-data">
+                <div class="big-data">
+                  <strong>347</strong><span>EXECUTIONS CLAIMED</span>
+                </div>
+                <ul>
+                  <li>43 years old</li>
+                  <li>15 years as a hangman</li>
+                  <li>Experience in Texas and Oklahoma</li>
+                </ul>
+              </div>
+            </div>
+            <div class="claim-note">
+              <span class="tag">YOUR MOVE / 03</span
+              ><label for="a2"
+                >A newspaper repeats a man’s own résumé without checking
+                records. Is that good evidence? Explain.</label
+              ><textarea
+                id="a2"
+                data-save
+                name="Nuremberg — Resume source reliability"
+                rows="3"
+                placeholder="A newspaper can report what someone claimed, but…"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+        <section class="byte section-dark" id="byte-4" data-section>
+          <div class="inner">
+            <p class="byte-no">
+              BYTE 04 <span>/ BEFORE DAWN · 16 OCTOBER</span>
+            </p>
+            <h2>SOMETHING SOUNDED <em>WRONG.</em></h2>
+            <div class="split">
+              <div>
+                <p class="lead">
+                  At about 1:11 a.m., Joachim von Ribbentrop arrived at the
+                  gallows. The last condemned man was hanged at about 2:45 a.m.
+                </p>
+                <p>
+                  Correspondent Joseph Kingsbury-Smith witnessed the executions.
+                  He reported groans after Julius Streicher, a publisher of
+                  vicious antisemitic propaganda, dropped through the trapdoor.
+                </p>
+                <p>
+                  But part of the drop space was screened off from witnesses. He
+                  could report the sounds he heard, not everything happening out
+                  of sight.
+                </p>
+              </div>
+              <div class="witness-panel">
+                <span>WITNESS / JOSEPH KINGSBURY-SMITH</span>
+                <div class="soundwave" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+                  ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+                <p>
+                  <b>DIRECT OBSERVATION:</b> A reporter heard distressing
+                  sounds.
+                </p>
+                <p>
+                  <b>NOT DIRECTLY OBSERVED:</b> How long a prisoner remained
+                  conscious, or why the sounds occurred.
+                </p>
+              </div>
+            </div>
+            <div class="challenge">
+              <div class="challenge-header">
+                <span class="tag">YOUR MOVE / 04</span
+                ><span class="challenge-type">WITNESS TEST</span>
+              </div>
+              <h3>Which statement goes beyond what this witness could know?</h3>
+              <div
+                class="option-stack"
+                role="group"
+                aria-label="Witness interpretation choices"
+              >
+                <button class="statement" data-witness="1">
+                  He reported sounds from the screened-off area.</button
+                ><button class="statement" data-witness="2">
+                  He could identify the exact cause and duration of suffering
+                  behind the screen.</button
+                ><button class="statement" data-witness="3">
+                  His account was written close to the time of the executions.
+                </button>
+              </div>
+              <p class="response-box" id="witness-feedback" role="status">
+                Pick the statement the witness could NOT establish directly.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section class="byte section-paper" id="byte-5" data-section>
+          <div class="inner">
+            <p class="byte-no">BYTE 05 <span>/ THE EVIDENCE DESK</span></p>
+            <h2>CLAIM. RECORD.<br /><em>INFERENCE.</em></h2>
+            <p class="lead">
+              Some historians believe the hangings were botched. Others
+              questioned the exact stories later told about them. A claim can be
+              dramatic and still lack proof.
+            </p>
+            <div class="cred-key">
+              <span><i class="dot green"></i>DOCUMENTED</span
+              ><span><i class="dot gold"></i>ATTRIBUTED / ESTIMATED</span
+              ><span><i class="dot red"></i>NOT ESTABLISHED</span>
+            </div>
+            <div class="evidence-lab">
+              <div class="lab-top">
+                <span>DOCUMENT REVIEW</span
+                ><span id="score">0 / 6 REVIEWED</span>
+              </div>
+              <div id="claim-list" class="claim-list"></div>
+            </div>
+            <div class="legend-note">
+              <strong>DOCUMENTED</strong> = well supported by the record.
+              <strong>ATTRIBUTED / ESTIMATED</strong> = someone said it, or a
+              researcher estimated it; not the same as independently proven.
+              <strong>NOT ESTABLISHED</strong> = too little evidence to say it
+              happened.
+            </div>
+            <label for="a3" class="question-label"
+              >Which claim was most misleading—and how did you catch it?</label
+            ><textarea
+              id="a3"
+              data-save
+              name="Nuremberg — Evidence classification"
+              placeholder="The claim about… was misleading because…"
+              rows="3"
+            ></textarea>
+          </div>
+        </section>
+        <section class="byte section-dark ending" id="byte-6" data-section>
+          <div class="inner">
+            <p class="byte-no">BYTE 06 <span>/ FOUR YEARS LATER</span></p>
+            <div class="split">
+              <div>
+                <h2>THE HANGMAN’S <em>OWN END.</em></h2>
+                <p class="lead">
+                  John Woods survived the war and the Nuremberg executions. In
+                  July 1950, at age 39, he died in an electrical accident on
+                  Eniwetok Atoll in the Marshall Islands.
+                </p>
+                <p>
+                  Later stories claimed he was killed while building an electric
+                  chair—or even murdered by German scientists. Reliable evidence
+                  does not establish either story.
+                </p>
+                <p>
+                  The accident was real. The elaborate conspiracy stories are
+                  not supported.
+                </p>
+              </div>
+              <div class="ending-date">
+                <span>JULY 21</span><b>1950</b><span>ENIWETOK ATOLL</span>
+                <div class="lightning" aria-hidden="true">ϟ</div>
+              </div>
+            </div>
+            <div class="closing-question">
+              Which version spreads faster: the plain accident—or the story that
+              sounds like a movie?
+            </div>
+          </div>
+        </section>
+        <section class="byte section-paper judgment" id="byte-7" data-section>
+          <div class="inner">
+            <p class="byte-no">BYTE 07 <span>/ DECIDE FOR YOURSELF</span></p>
+            <h2>YOU ARE THE <em>HISTORIAN.</em></h2>
+            <p class="lead">
+              Two separate questions belong in this case:
+              <strong>Were some executions mishandled?</strong> And
+              <strong
+                >can we prove Woods intended to cause extra suffering?</strong
+              >
+              The evidence for one claim is not automatically evidence for the
+              other.
+            </p>
+            <div class="ruling">
+              <div class="ruling-head">
+                <span>FINAL FINDING</span><span>EVIDENCE REQUIRED</span>
+              </div>
+              <fieldset>
+                <legend>What does the record most strongly support?</legend>
+                <label
+                  ><input type="radio" name="judgment" value="mistakes" /> Some
+                  executions appear mishandled, but deliberate cruelty is not
+                  proven.</label
+                ><label
+                  ><input type="radio" name="judgment" value="intent" /> Woods
+                  definitely planned the suffering.</label
+                ><label
+                  ><input type="radio" name="judgment" value="perfect" /> Every
+                  execution went perfectly.</label
+                ><label
+                  ><input type="radio" name="judgment" value="uncertain" /> I
+                  cannot decide yet; I need to identify specific missing
+                  evidence.</label
+                >
+              </fieldset>
+              <label for="a4"
+                >Use <strong>two pieces of evidence</strong> from different
+                parts of this case to support or question your decision. Name
+                the source of each piece.</label
+              ><textarea
+                id="a4"
+                data-save
+                name="Nuremberg — Two sources verdict"
+                rows="6"
+                placeholder="My conclusion is… First, the 1946 witness… Second, MacLean's research… What we still cannot prove is…"
+              ></textarea
+              ><label for="a5"
+                >Finally: Should people convicted of terrible crimes still be
+                treated humanely? Defend your answer.</label
+              ><textarea
+                id="a5"
+                data-save
+                name="Nuremberg — Justice reflection"
+                rows="4"
+                placeholder="I think… because…"
+              ></textarea>
+              <div class="save-row">
+                <span id="save-status" role="status"
+                  >Your answers save automatically on this device.</span
+                ><span id="word-count">0 WORDS</span>
+              </div>
+              <div class="submit-line">
+                <button class="btn btn-accent" id="copy-work">
+                  COPY MY RESPONSE</button
+                ><button class="btn btn-outline" id="download-work">
+                  DOWNLOAD BACKUP</button
+                ><button class="btn btn-outline" id="print-work">PRINT</button>
+              </div>
+              <p id="export-status" class="export-status" role="status"></p>
+              <div class="turn-in-guidance">
+                <strong>TURN IN</strong>
+                <p>
+                  If you’re completing this on the desk, use its PIN-based
+                  <b>Turn In</b> panel when it appears. Your answers save automatically in this tab; a PIN enables recovery
+                  on another Chromebook. You can also download a backup.
+                  <b>Copying or downloading is not a confirmed submission.</b>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div data-desk-turnin class="desk-turnin-slot" aria-label="Student Turn In"></div>
+        <footer class="sources">
+          <div class="inner">
+            <div class="source-top">
+              <span>END OF CASE FILE 046</span><a href="#top">BACK TO TOP ↑</a>
+            </div>
+            <h2>THE SOURCES.</h2>
+            <p>
+              These links let you check the claims yourself. The account
+              separates contemporary reporting from later research and
+              unverified stories.
+            </p>
+            <ol>
+              <li>
+                <a
+                  href="https://encyclopedia.ushmm.org/content/en/article/international-military-tribunal-at-nuremberg"
+                  target="_blank"
+                  rel="noopener"
+                  >U.S. Holocaust Memorial Museum — International Military
+                  Tribunal</a
+                >
+                <small>Trial, charges, convictions and sentences.</small>
+              </li>
+              <li>
+                <a
+                  href="https://www.thefifthfield.com/biographical-sketches/john-c-woods/"
+                  target="_blank"
+                  rel="noopener"
+                  >French L. MacLean — John C. Woods</a
+                >
+                <small>Biographical research using military records.</small>
+              </li>
+              <li>
+                <a
+                  href="https://www.historynet.com/hanging-offense-american-hangman-nuremberg/"
+                  target="_blank"
+                  rel="noopener"
+                  >Andrew Nagorski — A Hanging Offense</a
+                >
+                <small
+                  >Witness reports, technique disputes and historical
+                  disagreements.</small
+                >
+              </li>
+              <li>
+                <a
+                  href="https://www.famous-trials.com/nuremberg/1912-hangings"
+                  target="_blank"
+                  rel="noopener"
+                  >Joseph Kingsbury-Smith — The Nuremberg hangings</a
+                >
+                <small
+                  >Contemporary eyewitness pool report, hosted by Famous
+                  Trials.</small
+                >
+              </li>
+              <li>
+                <a
+                  href="https://content.time.com/time/subscriber/article/0,33009,803997-2,00.html"
+                  target="_blank"
+                  rel="noopener"
+                  >TIME — Night Without Dawn (1946)</a
+                >
+                <small>Shows what the press repeated about Woods.</small>
+              </li>
+            </ol>
+            <p class="footer-fine">
+              HIDDEN HISTORY / THE DESK · BYTESIZE NO. 03 · For educational use.
+              Archival photographs: Wikimedia Commons / U.S. Army photographic
+              collections. No graphic execution photographs used.
+            </p>
+          </div>
+        </footer>
+      </main>
+    </div>
+    
+      <script src="/hubs/hh-bytesize-nuremberg.js" defer></script>
+    <script src="/hubs/desk-save.js" defer></script>
+  </body>
+</html>
