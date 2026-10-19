@@ -25,6 +25,28 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'hh-bytesize-nuremberg',
+    href: '/hubs/hh-bytesize-nuremberg.html',
+    title: 'the hangman of nuremberg',
+    course: 'hidden history',
+    unit: 'nuremberg / justice and evidence',
+    period: '1945–1950',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 3',
+    question: 'were the nuremberg executions botched, and what can the evidence actually prove?',
+    blurb: 'A seven-byte case file on John C. Woods: decide why Nazi leaders were tried, check a hangman’s exaggerated résumé, question an eyewitness account, classify six contested claims, and reach an evidence-based verdict.',
+    cover: 'https://upload.wikimedia.org/wikipedia/commons/3/39/Defendants_in_the_dock_at_nuremberg_trials.jpg',
+    coverAlt: 'Contemporary archival photograph of the defendants at the Nuremberg war crimes tribunal',
+    topics: ['nuremberg trials', 'john c. woods', 'holocaust', 'war crimes', 'eyewitness testimony', 'historical evidence'],
+    inside: [
+      'Decide how leaders accused of war crimes should be tried, then discover the 1946 verdicts.',
+      'Compare Woods’s claims about 347 executions with archival research and examine contemporary reporting.',
+      'Test what witnesses could actually observe and classify six assertions by strength of evidence.',
+      'Defend a verdict with two cited pieces of evidence, then submit through the shared PIN-based Turn In system.',
+    ],
+  },
+
+  {
     slug: 'bts-golf-special-edition',
     href: '/hubs/bts-golf-special-edition.html',
     title: 'golf: who gets to play?',
