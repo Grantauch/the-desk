@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-L07",
+  "title": "The Hangman of Nuremberg: ByteSize Case File 046",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "forensic inquiry",
+      "restrained but urgent",
+      "humanitarian reflection"
+    ],
+    "paletteIntent": "Charcoal and aged-ivory dossier paper; oxidized brass counters; rust-red only for contested evidence.",
+    "typographyIntent": "Condensed documentary headlines, legible sans-serif reading copy, serif accents for official records.",
+    "textureLanguage": [
+      "dossier paper",
+      "photocopy grain",
+      "halftone evidence plates",
+      "archival filing stamps"
+    ],
+    "shapeLanguage": "Court docket rails, evidence tabs, document overlays, and rectangular verdict stamps.",
+    "motionGrammar": [
+      "reveal one hidden comparison",
+      "classify a disputed claim",
+      "show the consequence of source limits"
+    ],
+    "interactionSignature": [
+      "trial versus immediate punishment choice",
+      "press résumé versus military record comparison",
+      "witness limits and source classification",
+      "evidence-backed verdict"
+    ],
+    "densityRhythm": "Seven short sections alternate brief explanatory narratives and meaningful evidence tests, concluding with two separate judgments.",
+    "archivalBehavior": "Period sources are linked and attributed. Local editorial SVGs are clearly labeled interpretive illustrations, never presented as period photographs or a likeness of Woods.",
+    "endingLanguage": "A reasoned judgment distinguishes mishandling from intent, then asks whether state punishment must remain humane."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Official tribunal records, army personnel files, 1946 newsprint, and documentary archival darkroom surfaces.",
+    "edgeTreatment": "Torn-print borders, narrow rust evidence strokes, and stamped file tabs.",
+    "controlLanguage": "Options behave like source classifications and investigative decisions, not arcade points.",
+    "spacingLanguage": "Wide evidence cards with short readable text; source plate beside biographical text.",
+    "transitionLanguage": "Sections reveal evidence progressively. Reduced motion retains every factual comparison."
+  }
+}
