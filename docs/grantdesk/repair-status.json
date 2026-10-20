@@ -1,203 +1,4 @@
 {
-  "progressive-jeopardy-showtime-2026-10-19": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "0ef4f2d0a2b60a4c40e10f0ef025a7053df83d14",
-    "scope": "Progressive Era Jeopardy Showtime visual edition v2.1.0",
-    "evidence": [
-      "Original interpretive city illustration, local licensed display font, brass-framed clue board, original category symbols, team podiums and dedicated wager styling.",
-      "Optional clue entrances, answer reveals, point celebrations and existing finish confetti respect teacher effects settings and system reduced motion.",
-      "83 focused browser checks pass, including the complete 60-clue game, scoring, save transfer, accessibility, asset failure fallback, effects controls and 720px projector fit.",
-      "All 70 original regular clues and all final questions match the approved baseline exactly. Saved-game format remains compatible. The predecessor is retained privately.",
-      "Self-contained offline copy embeds artwork and font; disconnected play, scoring and refresh/resume passed."
-    ],
-    "verification_status": "CANONICAL_FULL_GATE_PASSED_53_PAGES_122_HTML_4521_REFS_81_SEALS",
-    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
-    "field_status": "FIELD_PENDING"
-  },
-  "progressive-jeopardy-v2-unanswered-wagers-2026-10-19": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "6bcf5719c7610f1ca953afc54aa582bed8436ff6",
-    "evidence": [
-      "No correct response and ending an unanswered locked Daily Double now each forfeit the wager through the same single miss ruling.",
-      "74 focused browser checks pass, including both unanswered-wager paths and Undo. The original 70-clue bank and saved-game format remain compatible.",
-      "Build and static validation pass: 122 HTML files, 4519 local references and 81 sealed files."
-    ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
-  },
-  "progressive-jeopardy-v2-2026-10-19": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "eae2cab44a77b38f8dc2cd477f2a1524f6bbb88d",
-    "evidence": [
-      "Added a separate original Progressive Era classroom Jeopardy edition; earlier games remain unchanged.",
-      "70 original clues with answers, explanations and hints; 60 clues per full match, 10 optional empire clues and three possible finals.",
-      "70 browser acceptance checks passed, including a complete 60-clue match, score totals, wagers, steal lockout, hints, hot streaks, undo, saved-file transfer and malformed-save handling.",
-      "Accessibility checks passed for setup, board, clue answer, results and phone board; layouts checked at 320, 390, 768 and 1280 pixels, with a compact 720-pixel projector view.",
-      "Standalone HTML opened fully offline and scored a clue. New game linked from Games, the Progressive Era course unit and the sitemap. All full verification stages passed after restoring five pre-existing files to exact tracked bytes and using the expanded Windows command. Astro reported zero errors; the build generated 53 pages, and static validation checked 122 HTML files and 4519 local references."
-    ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
-  },
-  "golf-special-edition-2026-10-16": {
-    "status": "SOURCE_VERIFIED_BROWSER_AND_PUBLICATION_PENDING",
-    "scope": "18-chapter 5th-hour BTS golf Special Edition, 100-point assessment, frequent account autosave and PIN recovery",
-    "evidence": [
-      "Original 18-chapter lesson contains roughly 11,000 visible words including directions, sources and credits, 15 historical visual assets, four recorded model labs, image analysis, source corrections and a revised argument.",
-      "Teacher key and substitute plan are in a separate private PDF; no keys, real PINs or student work were added to public source.",
-      "Turn In server suite passed 39/39. Manifest validation passed with zero warnings; the golf release seals 19 files at about 1.5 MiB.",
-      "All substantive canonical full-gate suites passed, including the 600-game balance check and Astro check with zero errors/warnings. Missing new-page metadata was repaired; a fresh build and static validation then passed: 53 generated routes, 120 HTML files, 4509 local references and 8 releases / 81 sealed files.",
-      "Local browser runner cannot launch because the managed environment has no Chromium executable; cross-device, stale-tab conflict and continuous-save regression cases are added for the required protected CI browser gate."
-    ],
-    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
-    "field_status": "PENDING_SCHOOL_CHROMEBOOK_AND_REAL_CLASS_SESSION"
-  },
-  "turn-in-review-classroom-handoff-2026-10-08": {
-    "status": "LOCAL_VERIFIED_PRIVATE_REVIEW_LIVE",
-    "source_base": "a878796f454c730fac94a78c68baeee645c77a23",
-    "scope": "Correct save guidance, private class/lesson/status review, and extension-free student Classroom handoff",
-    "evidence": [
-      "Server suite passed 39/39; student browser suite passed 19/19 across all 33 answer hubs. New cases cover class-specific links, unsafe/duplicate link fallback, finished-only handoff, later edits, class changes, and derived roster refresh without changing the source roster.",
-      "Canonical full release gate passed via npm.cmd run verify:full after the Windows wrapper reported spawnSync npm.cmd EINVAL. Build produced 53 pages; validation checked 115 HTML files, 4456 local references and 7 releases / 62 sealed assets. Student receipt was visually inspected with an invented student and local backend.",
-      "Native private Review worksheet installed through the existing workbook. Active class memberships copied to hidden Review Roster; original Progress, Turn Ins and Hall Pass Roster preserved. No school workbook IDs, roster data or assignment links committed.",
-      "Native Google Sheets QA recalculated invented students across two classes and lessons. Finished, later In progress with a preserved finish date, no saved work, and status filters matched expected values.",
-      "Private Classroom Links worksheet added with class/hub dropdowns and blank URL templates. Exact URLs require teacher configuration; no assignment identifiers guessed. Student fallback opens Classroom home and explains the final student Turn In / Mark as done step.",
-      "Client is compatible with live v7.1. Optional exact assignment URLs and daily owner roster refresh require the v8 service update. Backend health remains ready on v7.1; Google browser account verification currently blocks editor/deployment access."
-    ],
-    "deployment_status": "PENDING: protected website publication",
-    "apps_script_status": "V8_SOURCE_VERIFIED_NOT_DEPLOYED: existing v7.1 remains healthy; teacher Google verification required",
-    "review_status": "LIVE: private native Review and Classroom Links installed; initial roster snapshot complete",
-    "field_status": "FIELD_PENDING: one real class cycle",
-    "classroom_status": "STUDENT_HANDOFF: user ruled out extensions. No automatic Classroom status change; students complete the final Classroom action."
-  },
-  "turn-in-progress-2026-10-08": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "88fd779c27ba6e37c8a9aa8b8ed450a38143602b",
-    "scope": "One-minute changed-answer progress capture with separate explicit finished submissions",
-    "evidence": [
-      "Turn In server suite passed 36/36. Progress is one current row per student, hub and enrolled class; manual snapshots remain append-only.",
-      "Desk-save browser suite passed 16/16, including one-minute timing, editing after finishing, tab closure, shared Chromebook isolation, lost WiFi, class selection and 35 simultaneous finished submissions on a flaky network.",
-      "Live v6 source independently read from the editor and matched main before changes.",
-      "Normal progress writes use a validated cached row location; no frequent full draft/submission background scan. Old autoTurnIn triggers removed by setup; its function is a safe no-op during upgrades.",
-      "One-time additive migration preserves old Drafts and Turn Ins. Historical Auto records do not declare student completion. Synthetic release proof writes only Load Test tabs and does not enable test mode.",
-      "Canonical npm run verify passed: 53 built pages, 115 HTML files, 4456 local references and 7 StoryHub releases / 62 sealed assets.",
-      "First v7 live contention check: 35/35 Turn Ins but 32/35 autosaves within three attempts; remaining saves received busy, with no false acknowledgement. Site release held for refinement.",
-      "v7.1 reuses the already-open workbook, reads cached progress key/data together and flushes the two finished-record writes together. Server 36/36 and browser 16/16 checks passed again.",
-      "v7.1 live simultaneous retest: 35/35 Turn Ins (median 16384 ms, slowest successful attempt 29462 ms, 23 retried); 35/35 autosaves (median 7773 ms, slowest successful attempt 17048 ms, 25 retried). These are successful-attempt times, not total time including prior attempts. Test retry backoff now matches the browser. Synthetic rows remain isolated in Load Test tabs.",
-      "v7 live sequential proof passed 35 progress/finish/edit cycles; latest progress In progress and original finished snapshots preserved. Slowest cycle 5340 ms; automatic finishing triggers zero.",
-      "Final v7.1 sequential live proof passed 35 current progress rows and 35 preserved finished snapshots after edits. Slowest full draft/finish/edit cycle 6271 ms. Automatic finishing triggers zero; test mode false."
-    ],
-    "deployment_status": "DEPLOYED: PR 183 merged as a878796f454c730fac94a78c68baeee645c77a23; live desk-save.js matched release SHA256 68677888c453f28244e448f904ae427bce9b8efbc92fcc0aecd9a768a9e2717b on readback",
-    "apps_script_status": "LIVE: v7.1 on unchanged deployment; setup migration complete; synthetic test mode disabled after testing",
-    "field_status": "FIELD_PENDING: one real class cycle"
-  },
-  "turn-in-automatic-2026-10-08": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "49905ce",
-    "scope": "Automatically submit identified nonblank hub drafts after 30 minutes without answer changes",
-    "evidence": [
-      "30/30 Turn In server checks passed, including 35 saved students, cache eviction, interrupted flush recovery, class validation, revised work, stale/blank/inactive/legacy skips and duplicate prevention.",
-      "Autosave acknowledges only after a durable sheet write; contention returns busy for browser retry.",
-      "Browser regression added for PIN sign in, autosave metadata, tab close and automatic submission. Local browser execution blocked because Chromium download is unavailable.",
-      "Canonical npm run verify passed: Astro build completed with 53 pages; static site validation checked 115 HTML files and 4,456 local references; all 7 StoryHub releases and 62 sealed files verified."
-    ],
-    "deployment_status": "NOT_DEPLOYED: review branch only; existing production untouched",
-    "apps_script_status": "NOT_DEPLOYED: editor returned 502 gateway connection refused twice; setup and existing deployment upgrade required",
-    "field_status": "FIELD_PENDING: synthetic live test then one real class cycle",
-    "classroom_status": "NOT_IMPLEMENTED: user clarified manually created Classroom assignments also need Turn In. Official API requires submission-owner authorization and coursework/add-on from the same developer project. GoClassroom uses the teacher local browser session only. Student-side extension and district Chromebook installation are dependencies."
-  },
-  "turn-in-autosave-2026-10-05": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "b5374f3",
-    "scope": "One shared save and Turn In system for every hub with answer boxes",
-    "evidence": [
-      "Audit before the change: 33 hubs have answer boxes. 9 saved nothing, the rest each carried their own browser save code, and every saved copy stayed on one Chromebook, which leaked answers to the next student on a shared cart.",
-      "public/hubs/desk-save.js now loads on all 33. Answers save per browser tab and survive refresh. A fresh tab on a shared Chromebook is blank and overwrites any copy a hub kept for itself.",
-      "apps-script/turn-in/ is a separate Apps Script web app. Students identify with their hall pass PIN; the server reads the Hall Pass Roster only and writes Turn Ins, Drafts and Load Test tabs in its own private workbook with atomic appendRow, no script lock.",
-      "turn-in:test (20 checks) runs the real Code.gs in the fake Apps Script runtime with PINs generated by the real Hall Pass code: hash compatibility, wrong PIN throttling per device and globally, inactive students, two class students, dedupe of retried submissions, drafts from cache and sheet, forged and expired tokens, payload limits, load test isolation, nightly pruning, and the rule that every answer hub loads desk-save.js.",
-      "turn-in:browser (14 checks) drives all 33 hubs in Chromium: every question labeled, refresh survival, shared Chromebook blanking, Turn In confirmation by name, essay prompt choice captured, wrong PIN, class picking, lost WiFi with exactly one row after retry, restore on another Chromebook, idle sign out only after a confirmed save, leave warning, no endpoint mode, and 35 students turning in at once on a 20 percent flaky network landing exactly 35 rows.",
-      "BTS-L03 and HH-L06 resealed for the added script tag only. Canonical verify:full stages passed.",
-      "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
-    ],
-    "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
-    "field_status": "FIELD_PENDING: one real class cycle"
-  },
-  "blacktop-choice-art-v4-2026-10-04": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "2f94fe0a2368bb1a97968c206195a1d6c8409881",
-    "evidence": [
-      "Ten original images: four mode scenes, five action-based player-style cards and a separate empty locker background. Fictional casts vary across scenes and include white, Black, Latino, East Asian and South Asian players.",
-      "The active catalog has 35 images totaling 5557080 bytes, under its existing 6 MB budget. Earlier images remain in their versioned directories; full-resolution originals and prompts are preserved in the additive local v4 package.",
-      "Actual desktop and 390-pixel menu/creator review passed; whole skill actions remain visible. All 35 images decoded; style selection and image-ready input/focus preservation passed.",
-      "Blocking every v4 image retained original menu art, four identity fields, all five style choices and the player preview. Actual local match start, pause, resume and quit passed, without a persistent career save.",
-      "Packaged game decoded all 35 images from its own relative paths and reached active gameplay. JavaScript syntax, whitespace, existing Blacktop regressions and canonical verify:full passed: 53 built routes, 103 HTML files, 4346 references, 62 sealed files."
-    ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
-  },
-  "blacktop-generated-art-v3-2026-10-03": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "544150c4d822ae8c186d41f351b1992993acdc33",
-    "evidence": [
-      "11 generated details integrated: two backboards, six spectators, sideline bench/kit, jersey mesh and stitched hoop padding. V3 adds 548432 bytes; all 34 images total 5275586 bytes.",
-      "All 34 images decoded and all eight final court renders inspected. Actual Lincoln Lot match start, pause, resume and quit and 390-pixel menu review passed; no persistent career save created.",
-      "Blocking all v3 images retained a working match and original drawing fallback. Focused board projection/shake/shatter/depth, padding, partial spectator and cached night treatment regressions passed alongside existing geometry, audio and loader checks.",
-      "Full canonical verify:full passed. Production publication and ordinary player feedback remain separate evidence."
-    ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
-  },
-  "blacktop-generated-art-v2-2026-10-03": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
-    "evidence": [
-      "10 additional generated assets integrated: four mode panels, five player-style cards and a transparent textured basketball. V2 adds 1792930 bytes; all 23 images total 4727154 bytes.",
-      "All 23 images decoded; desktop and 390-pixel menu/creator inspected. Image-ready repaint preserved field identity, typed value and focus; player-style selection remained intact.",
-      "Ordinary ball uses the new sprite while Crown shots retain special color. Blocking all v2 images preserved original menu illustrations and five player-style controls; no persistent career save created.",
-      "Asset loader, court geometry and soundtrack regressions and verify:full passed. Actual Boardwalk quick-game start, pause, resume and quit passed.",
-      "PR #171 merged through the protected path. Exact production deployment confirmed; all 23 images and five integration files matched source SHA-256, and a public match started, paused, resumed and quit."
-    ],
-    "deployment_status": "DEPLOYED",
-    "field_status": "FIELD_PENDING",
-    "production_commit": "544150c4d822ae8c186d41f351b1992993acdc33",
-    "netlify_deploy": "6ac0c0235747d300077b39de"
-  },
-  "blacktop-generated-art-2026-10-03": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "e71840f771d167a9ebac021a8fc6b368200123e5",
-    "evidence": [
-      "13 original generated images integrated: eight court backgrounds, three projected floor materials, transparent impact burst and crown trophy; optimized derivatives total 2934224 bytes.",
-      "All eight courts rendered and inspected; actual match start, pause, resume and quit checked; 390-pixel menu and circuit trophy inspected.",
-      "Image loading and failure fallback, reduced-motion effect behavior, existing geometry/audio regressions and verify:full passed."
-    ],
-    "deployment_status": "DEPLOYED",
-    "production_commit": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
-    "netlify_deploy": "6ac0b8d01e41fe0008306c39",
-    "field_status": "FIELD_PENDING"
-  },
-  "blacktop-soundtrack-2026-10-03": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "3e73c3902be4f09a46564f251d49d9d61917a8ff",
-    "evidence": [
-      "Provided MP3 recordings replace synthesized music; The Asphalt Throne precedes Canvas on the Concrete in a repeating playlist.",
-      "Playlist continues across screens; music volume and sound toggle retain control; browser autoplay rejection is retried after a gesture.",
-      "Soundtrack regressions and local browser checks passed both decoded tracks, real ended-event transitions, volume and mute/resume."
-    ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
-  },
-  "blacktop-visual-review-2026-10-03": {
-    "status": "LOCAL_VERIFIED",
-    "source_base": "8b4c4a5e9d702ad072c274556e10abf2bc460dc4",
-    "evidence": [
-      "Focused player, sneaker, court marking and presentation revision; original gameplay scoring distances retained.",
-      "blacktop:test passed corner alignment, mirrored geometry, arc continuity and scoring-boundary regression checks.",
-      "Local browser inspected representative art, 390-pixel creator and 1440-pixel quick game; art harness rendered 1056 combinations without an exception.",
-      "Standalone review edition started a match. Original Claude branch preserved; production and field evidence remain separate."
-    ],
-    "deployment_status": "NOT_DEPLOYED",
-    "field_status": "FIELD_PENDING"
-  },
   "1": {
     "status": "VERIFIED",
     "depends_on": [
@@ -857,6 +658,205 @@
     ],
     "batch": "7"
   },
+  "progressive-jeopardy-showtime-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "0ef4f2d0a2b60a4c40e10f0ef025a7053df83d14",
+    "scope": "Progressive Era Jeopardy Showtime visual edition v2.1.0",
+    "evidence": [
+      "Original interpretive city illustration, local licensed display font, brass-framed clue board, original category symbols, team podiums and dedicated wager styling.",
+      "Optional clue entrances, answer reveals, point celebrations and existing finish confetti respect teacher effects settings and system reduced motion.",
+      "83 focused browser checks pass, including the complete 60-clue game, scoring, save transfer, accessibility, asset failure fallback, effects controls and 720px projector fit.",
+      "All 70 original regular clues and all final questions match the approved baseline exactly. Saved-game format remains compatible. The predecessor is retained privately.",
+      "Self-contained offline copy embeds artwork and font; disconnected play, scoring and refresh/resume passed."
+    ],
+    "verification_status": "CANONICAL_FULL_GATE_PASSED_53_PAGES_122_HTML_4521_REFS_81_SEALS",
+    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "FIELD_PENDING"
+  },
+  "progressive-jeopardy-v2-unanswered-wagers-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "6bcf5719c7610f1ca953afc54aa582bed8436ff6",
+    "evidence": [
+      "No correct response and ending an unanswered locked Daily Double now each forfeit the wager through the same single miss ruling.",
+      "74 focused browser checks pass, including both unanswered-wager paths and Undo. The original 70-clue bank and saved-game format remain compatible.",
+      "Build and static validation pass: 122 HTML files, 4519 local references and 81 sealed files."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "progressive-jeopardy-v2-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "eae2cab44a77b38f8dc2cd477f2a1524f6bbb88d",
+    "evidence": [
+      "Added a separate original Progressive Era classroom Jeopardy edition; earlier games remain unchanged.",
+      "70 original clues with answers, explanations and hints; 60 clues per full match, 10 optional empire clues and three possible finals.",
+      "70 browser acceptance checks passed, including a complete 60-clue match, score totals, wagers, steal lockout, hints, hot streaks, undo, saved-file transfer and malformed-save handling.",
+      "Accessibility checks passed for setup, board, clue answer, results and phone board; layouts checked at 320, 390, 768 and 1280 pixels, with a compact 720-pixel projector view.",
+      "Standalone HTML opened fully offline and scored a clue. New game linked from Games, the Progressive Era course unit and the sitemap. All full verification stages passed after restoring five pre-existing files to exact tracked bytes and using the expanded Windows command. Astro reported zero errors; the build generated 53 pages, and static validation checked 122 HTML files and 4519 local references."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "golf-special-edition-2026-10-16": {
+    "status": "SOURCE_VERIFIED_BROWSER_AND_PUBLICATION_PENDING",
+    "scope": "18-chapter 5th-hour BTS golf Special Edition, 100-point assessment, frequent account autosave and PIN recovery",
+    "evidence": [
+      "Original 18-chapter lesson contains roughly 11,000 visible words including directions, sources and credits, 15 historical visual assets, four recorded model labs, image analysis, source corrections and a revised argument.",
+      "Teacher key and substitute plan are in a separate private PDF; no keys, real PINs or student work were added to public source.",
+      "Turn In server suite passed 39/39. Manifest validation passed with zero warnings; the golf release seals 19 files at about 1.5 MiB.",
+      "All substantive canonical full-gate suites passed, including the 600-game balance check and Astro check with zero errors/warnings. Missing new-page metadata was repaired; a fresh build and static validation then passed: 53 generated routes, 120 HTML files, 4509 local references and 8 releases / 81 sealed files.",
+      "Local browser runner cannot launch because the managed environment has no Chromium executable; cross-device, stale-tab conflict and continuous-save regression cases are added for the required protected CI browser gate."
+    ],
+    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "PENDING_SCHOOL_CHROMEBOOK_AND_REAL_CLASS_SESSION"
+  },
+  "turn-in-review-classroom-handoff-2026-10-08": {
+    "status": "LOCAL_VERIFIED_PRIVATE_REVIEW_LIVE",
+    "source_base": "a878796f454c730fac94a78c68baeee645c77a23",
+    "scope": "Correct save guidance, private class/lesson/status review, and extension-free student Classroom handoff",
+    "evidence": [
+      "Server suite passed 39/39; student browser suite passed 19/19 across all 33 answer hubs. New cases cover class-specific links, unsafe/duplicate link fallback, finished-only handoff, later edits, class changes, and derived roster refresh without changing the source roster.",
+      "Canonical full release gate passed via npm.cmd run verify:full after the Windows wrapper reported spawnSync npm.cmd EINVAL. Build produced 53 pages; validation checked 115 HTML files, 4456 local references and 7 releases / 62 sealed assets. Student receipt was visually inspected with an invented student and local backend.",
+      "Native private Review worksheet installed through the existing workbook. Active class memberships copied to hidden Review Roster; original Progress, Turn Ins and Hall Pass Roster preserved. No school workbook IDs, roster data or assignment links committed.",
+      "Native Google Sheets QA recalculated invented students across two classes and lessons. Finished, later In progress with a preserved finish date, no saved work, and status filters matched expected values.",
+      "Private Classroom Links worksheet added with class/hub dropdowns and blank URL templates. Exact URLs require teacher configuration; no assignment identifiers guessed. Student fallback opens Classroom home and explains the final student Turn In / Mark as done step.",
+      "Client is compatible with live v7.1. Optional exact assignment URLs and daily owner roster refresh require the v8 service update. Backend health remains ready on v7.1; Google browser account verification currently blocks editor/deployment access."
+    ],
+    "deployment_status": "PENDING: protected website publication",
+    "apps_script_status": "V8_SOURCE_VERIFIED_NOT_DEPLOYED: existing v7.1 remains healthy; teacher Google verification required",
+    "review_status": "LIVE: private native Review and Classroom Links installed; initial roster snapshot complete",
+    "field_status": "FIELD_PENDING: one real class cycle",
+    "classroom_status": "STUDENT_HANDOFF: user ruled out extensions. No automatic Classroom status change; students complete the final Classroom action."
+  },
+  "turn-in-progress-2026-10-08": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "88fd779c27ba6e37c8a9aa8b8ed450a38143602b",
+    "scope": "One-minute changed-answer progress capture with separate explicit finished submissions",
+    "evidence": [
+      "Turn In server suite passed 36/36. Progress is one current row per student, hub and enrolled class; manual snapshots remain append-only.",
+      "Desk-save browser suite passed 16/16, including one-minute timing, editing after finishing, tab closure, shared Chromebook isolation, lost WiFi, class selection and 35 simultaneous finished submissions on a flaky network.",
+      "Live v6 source independently read from the editor and matched main before changes.",
+      "Normal progress writes use a validated cached row location; no frequent full draft/submission background scan. Old autoTurnIn triggers removed by setup; its function is a safe no-op during upgrades.",
+      "One-time additive migration preserves old Drafts and Turn Ins. Historical Auto records do not declare student completion. Synthetic release proof writes only Load Test tabs and does not enable test mode.",
+      "Canonical npm run verify passed: 53 built pages, 115 HTML files, 4456 local references and 7 StoryHub releases / 62 sealed assets.",
+      "First v7 live contention check: 35/35 Turn Ins but 32/35 autosaves within three attempts; remaining saves received busy, with no false acknowledgement. Site release held for refinement.",
+      "v7.1 reuses the already-open workbook, reads cached progress key/data together and flushes the two finished-record writes together. Server 36/36 and browser 16/16 checks passed again.",
+      "v7.1 live simultaneous retest: 35/35 Turn Ins (median 16384 ms, slowest successful attempt 29462 ms, 23 retried); 35/35 autosaves (median 7773 ms, slowest successful attempt 17048 ms, 25 retried). These are successful-attempt times, not total time including prior attempts. Test retry backoff now matches the browser. Synthetic rows remain isolated in Load Test tabs.",
+      "v7 live sequential proof passed 35 progress/finish/edit cycles; latest progress In progress and original finished snapshots preserved. Slowest cycle 5340 ms; automatic finishing triggers zero.",
+      "Final v7.1 sequential live proof passed 35 current progress rows and 35 preserved finished snapshots after edits. Slowest full draft/finish/edit cycle 6271 ms. Automatic finishing triggers zero; test mode false."
+    ],
+    "deployment_status": "DEPLOYED: PR 183 merged as a878796f454c730fac94a78c68baeee645c77a23; live desk-save.js matched release SHA256 68677888c453f28244e448f904ae427bce9b8efbc92fcc0aecd9a768a9e2717b on readback",
+    "apps_script_status": "LIVE: v7.1 on unchanged deployment; setup migration complete; synthetic test mode disabled after testing",
+    "field_status": "FIELD_PENDING: one real class cycle"
+  },
+  "turn-in-automatic-2026-10-08": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "49905ce",
+    "scope": "Automatically submit identified nonblank hub drafts after 30 minutes without answer changes",
+    "evidence": [
+      "30/30 Turn In server checks passed, including 35 saved students, cache eviction, interrupted flush recovery, class validation, revised work, stale/blank/inactive/legacy skips and duplicate prevention.",
+      "Autosave acknowledges only after a durable sheet write; contention returns busy for browser retry.",
+      "Browser regression added for PIN sign in, autosave metadata, tab close and automatic submission. Local browser execution blocked because Chromium download is unavailable.",
+      "Canonical npm run verify passed: Astro build completed with 53 pages; static site validation checked 115 HTML files and 4,456 local references; all 7 StoryHub releases and 62 sealed files verified."
+    ],
+    "deployment_status": "NOT_DEPLOYED: review branch only; existing production untouched",
+    "apps_script_status": "NOT_DEPLOYED: editor returned 502 gateway connection refused twice; setup and existing deployment upgrade required",
+    "field_status": "FIELD_PENDING: synthetic live test then one real class cycle",
+    "classroom_status": "NOT_IMPLEMENTED: user clarified manually created Classroom assignments also need Turn In. Official API requires submission-owner authorization and coursework/add-on from the same developer project. GoClassroom uses the teacher local browser session only. Student-side extension and district Chromebook installation are dependencies."
+  },
+  "turn-in-autosave-2026-10-05": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "b5374f3",
+    "scope": "One shared save and Turn In system for every hub with answer boxes",
+    "evidence": [
+      "Audit before the change: 33 hubs have answer boxes. 9 saved nothing, the rest each carried their own browser save code, and every saved copy stayed on one Chromebook, which leaked answers to the next student on a shared cart.",
+      "public/hubs/desk-save.js now loads on all 33. Answers save per browser tab and survive refresh. A fresh tab on a shared Chromebook is blank and overwrites any copy a hub kept for itself.",
+      "apps-script/turn-in/ is a separate Apps Script web app. Students identify with their hall pass PIN; the server reads the Hall Pass Roster only and writes Turn Ins, Drafts and Load Test tabs in its own private workbook with atomic appendRow, no script lock.",
+      "turn-in:test (20 checks) runs the real Code.gs in the fake Apps Script runtime with PINs generated by the real Hall Pass code: hash compatibility, wrong PIN throttling per device and globally, inactive students, two class students, dedupe of retried submissions, drafts from cache and sheet, forged and expired tokens, payload limits, load test isolation, nightly pruning, and the rule that every answer hub loads desk-save.js.",
+      "turn-in:browser (14 checks) drives all 33 hubs in Chromium: every question labeled, refresh survival, shared Chromebook blanking, Turn In confirmation by name, essay prompt choice captured, wrong PIN, class picking, lost WiFi with exactly one row after retry, restore on another Chromebook, idle sign out only after a confirmed save, leave warning, no endpoint mode, and 35 students turning in at once on a 20 percent flaky network landing exactly 35 rows.",
+      "BTS-L03 and HH-L06 resealed for the added script tag only. Canonical verify:full stages passed.",
+      "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
+    ],
+    "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
+    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "field_status": "FIELD_PENDING: one real class cycle"
+  },
+  "blacktop-choice-art-v4-2026-10-04": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "2f94fe0a2368bb1a97968c206195a1d6c8409881",
+    "evidence": [
+      "Ten original images: four mode scenes, five action-based player-style cards and a separate empty locker background. Fictional casts vary across scenes and include white, Black, Latino, East Asian and South Asian players.",
+      "The active catalog has 35 images totaling 5557080 bytes, under its existing 6 MB budget. Earlier images remain in their versioned directories; full-resolution originals and prompts are preserved in the additive local v4 package.",
+      "Actual desktop and 390-pixel menu/creator review passed; whole skill actions remain visible. All 35 images decoded; style selection and image-ready input/focus preservation passed.",
+      "Blocking every v4 image retained original menu art, four identity fields, all five style choices and the player preview. Actual local match start, pause, resume and quit passed, without a persistent career save.",
+      "Packaged game decoded all 35 images from its own relative paths and reached active gameplay. JavaScript syntax, whitespace, existing Blacktop regressions and canonical verify:full passed: 53 built routes, 103 HTML files, 4346 references, 62 sealed files."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "blacktop-generated-art-v3-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "544150c4d822ae8c186d41f351b1992993acdc33",
+    "evidence": [
+      "11 generated details integrated: two backboards, six spectators, sideline bench/kit, jersey mesh and stitched hoop padding. V3 adds 548432 bytes; all 34 images total 5275586 bytes.",
+      "All 34 images decoded and all eight final court renders inspected. Actual Lincoln Lot match start, pause, resume and quit and 390-pixel menu review passed; no persistent career save created.",
+      "Blocking all v3 images retained a working match and original drawing fallback. Focused board projection/shake/shatter/depth, padding, partial spectator and cached night treatment regressions passed alongside existing geometry, audio and loader checks.",
+      "Full canonical verify:full passed. Production publication and ordinary player feedback remain separate evidence."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "blacktop-generated-art-v2-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
+    "evidence": [
+      "10 additional generated assets integrated: four mode panels, five player-style cards and a transparent textured basketball. V2 adds 1792930 bytes; all 23 images total 4727154 bytes.",
+      "All 23 images decoded; desktop and 390-pixel menu/creator inspected. Image-ready repaint preserved field identity, typed value and focus; player-style selection remained intact.",
+      "Ordinary ball uses the new sprite while Crown shots retain special color. Blocking all v2 images preserved original menu illustrations and five player-style controls; no persistent career save created.",
+      "Asset loader, court geometry and soundtrack regressions and verify:full passed. Actual Boardwalk quick-game start, pause, resume and quit passed.",
+      "PR #171 merged through the protected path. Exact production deployment confirmed; all 23 images and five integration files matched source SHA-256, and a public match started, paused, resumed and quit."
+    ],
+    "deployment_status": "DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "production_commit": "544150c4d822ae8c186d41f351b1992993acdc33",
+    "netlify_deploy": "6ac0c0235747d300077b39de"
+  },
+  "blacktop-generated-art-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "e71840f771d167a9ebac021a8fc6b368200123e5",
+    "evidence": [
+      "13 original generated images integrated: eight court backgrounds, three projected floor materials, transparent impact burst and crown trophy; optimized derivatives total 2934224 bytes.",
+      "All eight courts rendered and inspected; actual match start, pause, resume and quit checked; 390-pixel menu and circuit trophy inspected.",
+      "Image loading and failure fallback, reduced-motion effect behavior, existing geometry/audio regressions and verify:full passed."
+    ],
+    "deployment_status": "DEPLOYED",
+    "production_commit": "4cb16ea31dd1c8802c125d58645c2636caddd6dc",
+    "netlify_deploy": "6ac0b8d01e41fe0008306c39",
+    "field_status": "FIELD_PENDING"
+  },
+  "blacktop-soundtrack-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "3e73c3902be4f09a46564f251d49d9d61917a8ff",
+    "evidence": [
+      "Provided MP3 recordings replace synthesized music; The Asphalt Throne precedes Canvas on the Concrete in a repeating playlist.",
+      "Playlist continues across screens; music volume and sound toggle retain control; browser autoplay rejection is retried after a gesture.",
+      "Soundtrack regressions and local browser checks passed both decoded tracks, real ended-event transitions, volume and mute/resume."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
+  "blacktop-visual-review-2026-10-03": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "8b4c4a5e9d702ad072c274556e10abf2bc460dc4",
+    "evidence": [
+      "Focused player, sneaker, court marking and presentation revision; original gameplay scoring distances retained.",
+      "blacktop:test passed corner alignment, mirrored geometry, arc continuity and scoring-boundary regression checks.",
+      "Local browser inspected representative art, 390-pixel creator and 1440-pixel quick game; art harness rendered 1056 combinations without an exception.",
+      "Standalone review edition started a match. Original Claude branch preserved; production and field evidence remain separate."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "_meta": {
     "updated": "2026-09-06",
     "baseline": "4513ae7543ef42aa6c2152b34a443e5ff0e28cd7",
@@ -1035,6 +1035,18 @@
       "Shared Turn In browser suite passed 19/19, including every wired hub and 35 simultaneous synthetic students with network failures.",
       "Turn In server suite passed 39/39. StoryHub manifests passed with zero warnings. Astro check and static site validation passed.",
       "Canonical full npm run verify launched; protected build remains required before merge."
+    ]
+  },
+  "dry_county_businesses_homes_20261020": {
+    "status": "FOCUSED_VERIFIED_PROTECTED_RELEASE_PENDING",
+    "summary": "Dry County 0.3: 17 interiors, counter jobs and cents trading; three concealed speakeasy discoveries and moonshine buyers; dealership; hardware, furniture and staged home construction; one-time endgame bonus.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "34 synthetic gameplay checks passed in the available JavaScript runtime, covering original movement/combat/saves and the new business/progression loop.",
+      "Protected CI runs the Node regression suite, canonical full release gate and new Chromium acceptance at desktop, phone and landscape sizes.",
+      "Existing saves retain cash and ownership; new stock, inventory, discoveries and home state migrate additively."
     ]
   }
 }

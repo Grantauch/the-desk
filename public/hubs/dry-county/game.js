@@ -2,10 +2,12 @@
 (() => {
 const $=id=>document.getElementById(id), canvas=$('game'), ctx=canvas.getContext('2d',{alpha:false});
 const mini=$('minimap'), mc=mini.getContext('2d');
+const SHOP=window.DryShops;
+let interior=null;
 const WLD=window.DryWorld, WORLD=WLD.width, WORLD_H=WLD.height, TAU=Math.PI*2;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)), lerp=(a,b,t)=>a+(b-a)*t;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y), rand=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)];
-const money=n=>'$'+Math.floor(n).toLocaleString('en-US');
+const money=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const norm=a=>Math.atan2(Math.sin(a),Math.cos(a));
 let seed=1926;function seeded(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
 const sr=(a,b)=>a+seeded()*(b-a);
@@ -13,17 +15,17 @@ const places=WLD.places;
 const district=WLD.district;
 const weapons=[
  {name:'M1911',short:'M1911',price:0,mag:8,reserve:64,damage:30,rate:.27,reload:1.15,spread:.035,bullets:1},
- {name:'Coach Gun',short:'COACH GUN',price:650,mag:2,reserve:40,damage:22,rate:.72,reload:1.5,spread:.18,bullets:7},
- {name:'Thompson M1921',short:'THOMPSON',price:1500,mag:30,reserve:180,damage:21,rate:.085,reload:1.8,spread:.065,bullets:1}
+ {name:'Coach Gun',short:'COACH GUN',price:35,mag:2,reserve:40,damage:22,rate:.72,reload:1.5,spread:.18,bullets:7},
+ {name:'Thompson M1921',short:'THOMPSON',price:200,mag:30,reserve:180,damage:21,rate:.085,reload:1.8,spread:.065,bullets:1}
 ];
 const carTypes={
  sedan:{name:'1926 Standard Six',color:'#3e6763',max:230,accel:180,turn:2.35,hp:160,price:0},
- coupe:{name:'Veloce Sport Coupe',color:'#9a4e3b',max:315,accel:235,turn:2.65,hp:150,price:1050},
- truck:{name:'Ironclad Delivery',color:'#65705e',max:206,accel:145,turn:1.85,hp:310,price:1450},
- custom:{name:'Blackbird Special',color:'#252d32',max:355,accel:270,turn:2.65,hp:230,price:3200},
+ coupe:{name:'Veloce Sport Coupe',color:'#9a4e3b',max:315,accel:235,turn:2.65,hp:150,price:620},
+ truck:{name:'Ironclad Delivery',color:'#65705e',max:206,accel:145,turn:1.85,hp:310,price:450},
+ custom:{name:'Blackbird Special',color:'#252d32',max:355,accel:270,turn:2.65,hp:230,price:1200},
  police:{name:'Police Pursuit',color:'#283438',max:275,accel:210,turn:2.4,hp:160,price:0}
 };
-const initial=()=>({v:1,cash:250,xp:0,jobs:0,weapon:0,ownedWeapons:[0],ownedCars:['sedan'],car:'sedan',engine:0,armor:0,grip:0,businesses:[],income:0,story:{},feedback:[],stats:{kills:0,distance:0,escapes:0,earnings:0,bestStreak:0,lives:0},daily:{date:'',done:0,claimed:false}});
+const initial=()=>({v:1,cash:25,xp:0,jobs:0,weapon:0,ownedWeapons:[0],ownedCars:['sedan'],car:'sedan',engine:0,armor:0,grip:0,businesses:[],income:0,story:{},feedback:[],stats:{kills:0,distance:0,escapes:0,earnings:0,bestStreak:0,lives:0},daily:{date:'',done:0,claimed:false}});
 let save=initial(), storageOK=true;
 try{const raw=JSON.parse(localStorage.getItem('drycounty-save-v1'));if(raw&&raw.v===1){save={...initial(),...raw,stats:{...initial().stats,...raw.stats},daily:{...initial().daily,...raw.daily}}}}catch(e){storageOK=false}
 function dailyDate(){return new Date().toLocaleDateString('en-CA')}
@@ -74,14 +76,27 @@ function makeCity(){
   addBuilding(b);rect(b.x+12,b.y+18,b.w+6,b.h+3,'#0a171c66');rect(b.x-3,b.y-3,b.w+6,b.h+6,'#27372f');rect(b.x,b.y,b.w,b.h,b.color);
  }
  // Every fictional establishment is attached to a reachable real road.
- for(const p of places){if(p.type==='phone')continue;const n=WLD.nearest(p),off=n.edge.road.width/2+53,x=p.x-Math.sin(n.angle)*off,y=p.y+Math.cos(n.angle)*off,b={x:x-46,y:y-30,w:92,h:60,z:p.type==='club'?58:34,color:p.type==='garage'?'#56685b':'#5b5d54',landmark:p.name};if(![...nearbyBuildings(x,y,90)].some(a=>b.x<a.x+a.w+5&&b.x+b.w>a.x-5&&b.y<a.y+a.h+5&&b.y+b.h>a.y-5)){addBuilding(b);rect(b.x+15,b.y+22,b.w,b.h,'#07131977');rect(b.x,b.y,b.w,b.h,b.color)}}
+ for(const p of places){if(p.type==='phone'||p.hidden)continue;const n=WLD.nearest(p);let chosen=null;
+  for(const [bw,bh] of [[92,60],[66,44]]){for(const shift of [0,80,-80,130,-130]){for(const side of [1,-1]){
+   const off=(n.edge.road.width/2+Math.max(bw,bh)/2+12)*side,x=n.x+Math.cos(n.angle)*shift-Math.sin(n.angle)*off,y=n.y+Math.sin(n.angle)*shift+Math.cos(n.angle)*off;
+   const b={x:x-bw/2,y:y-bh/2,w:bw,h:bh,z:p.type==='club'?58:34,color:p.type==='garage'?'#56685b':'#5b5d54',landmark:p.name,placeId:p.id};
+   if([...nearbyBuildings(x,y,110)].some(a=>b.x<a.x+a.w+5&&b.x+b.w>a.x-5&&b.y<a.y+a.h+5&&b.y+b.h>a.y-5))continue;
+   let clear=true;for(let tx=0;tx<=bw;tx+=bw/4)for(let ty=0;ty<=bh;ty+=bh/4){const q=WLD.nearest({x:b.x+tx,y:b.y+ty});if(q.d<q.edge.road.width/2+8)clear=false}
+   if(!clear)continue;chosen={b,x,y};break
+  }if(chosen)break}if(chosen)break}
+  if(chosen){const {b,x,y}=chosen;addBuilding(b);p.building=b;const nearest=WLD.nearest({x,y});p.x=nearest.x;p.y=nearest.y;
+   const dx=p.x-x,dy=p.y-y,t=Math.min(b.w/2/(Math.abs(dx)||.001),b.h/2/(Math.abs(dy)||.001));p.door={x:x+dx*t,y:y+dy*t};
+   rect(b.x+15,b.y+22,b.w,b.h,'#07131977');rect(b.x,b.y,b.w,b.h,b.color)}
+ }
+ for(const p of places.filter(p=>p.hidden)){const front=places.find(f=>f.id===p.front);p.x=front.x;p.y=front.y}
+
  for(let i=0;i<2100;i++){const p={x:sr(40,WORLD-40),y:sr(40,WORLD_H-40)},n=WLD.nearest(p);if(n.d>80&&![...nearbyBuildings(p.x,p.y,18)].some(b=>p.x>b.x-13&&p.x<b.x+b.w+13&&p.y>b.y-13&&p.y<b.y+b.h+13)){trees.push({...p,r:sr(7,18),z:sr(12,28)})}}
  g.font='bold 12px Arial';g.textAlign='center';for(const r of WLD.roads.filter(r=>r.width>75)){const a=r.points[0],b=r.points[r.points.length-1],ang=Math.atan2(b.y-a.y,b.x-a.x);for(const t of [.25,.67]){g.save();g.translate(lerp(a.x,b.x,t),lerp(a.y,b.y,t));g.rotate(ang);g.fillStyle='#dfd3ad70';g.fillText(r.name,0,-r.width/2+17);g.restore()}}
  g.textAlign='left';
 }
 function projectOnSegment(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy),0,1);return{x:a.x+dx*t,y:a.y+dy*t,d:Math.hypot(p.x-a.x-dx*t,p.y-a.y-dy*t)}}
 function pickSeed(a){return a[Math.floor(seeded()*a.length)]}makeCity();
-function blocked(x,y,r=10){if(x<45+r||y<45+r||x>WORLD-45-r||y>WORLD_H-45-r)return true;for(const b of nearbyBuildings(x,y,r+5)){if(x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h)return true}return false}
+function blocked(x,y,r=10){if(interior)return roomBlocked(x,y,r);if(x<45+r||y<45+r||x>WORLD-45-r||y>WORLD_H-45-r)return true;for(const b of nearbyBuildings(x,y,r+5)){if(x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h)return true}return false}
 function lineClear(a,b){const d=dist(a,b),n=Math.ceil(d/20);for(let i=1;i<n;i++)if(blocked(lerp(a.x,b.x,i/n),lerp(a.y,b.y,i/n),2))return false;return true}
 function moveBody(o,dx,dy,r){let ok=true;const steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/7));for(let i=0;i<steps;i++){if(!blocked(o.x+dx/steps,o.y,r))o.x+=dx/steps;else ok=false;if(!blocked(o.x,o.y+dy/steps,r))o.y+=dy/steps;else ok=false}return ok}
 function intersection(o){return WLD.nodes.reduce((a,b)=>dist(o,a)<dist(o,b)?a:b)}
@@ -101,48 +116,53 @@ function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');
 function particle(x,y,color,count=8,speed=60){for(let i=0;i<count;i++){const a=rand(0,TAU),v=rand(speed*.3,speed);particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:rand(.25,.65),max:.65,color,size:rand(1,3)})}}
 function addHeat(amount){const before=heat;heat=clamp(heat+amount,0,100);escapeGrace=10;if(heat>=20&&before<20)toast('The police are looking for you. Break their line of sight.');}
 function rank(){return ['SMALL TIMER','RUNNER','ENFORCER','CAPOREGIME','UNDERBOSS','THE DON'][Math.min(5,Math.floor(save.xp/350))]}
-function startGame(){$('crosshair').style.left=w/2+'px';$('crosshair').style.top=h/2+'px';started=true;lifeStart=activeElapsed;lifeJobs=save.jobs;lifeMoney=save.stats.earnings;mode='play';modal='';$('overlay').classList.add('hidden');$('titleScreen').classList.add('hidden');$('panel').classList.add('hidden');for(const id of ['hud','mission','area','bottomhud','minimapWrap'])$(id).classList.remove('hidden');if(isTouch)$('mobile').classList.remove('hidden');else $('crosshair').classList.remove('hidden');populate();camera.x=player.x;camera.y=player.y;generateJobs();if(!save.jobs)acceptJob(jobs[0]);else toast('Welcome back. Enter opens contracts. Tab opens your empire.');updateHUD(true);persist()}
+function startGame(){if(interior)leaveBusiness(true);$('crosshair').style.left=w/2+'px';$('crosshair').style.top=h/2+'px';started=true;lifeStart=activeElapsed;lifeJobs=save.jobs;lifeMoney=save.stats.earnings;mode='play';modal='';$('overlay').classList.add('hidden');$('titleScreen').classList.add('hidden');$('panel').classList.add('hidden');for(const id of ['hud','mission','area','bottomhud','minimapWrap'])$(id).classList.remove('hidden');if(isTouch)$('mobile').classList.remove('hidden');else $('crosshair').classList.remove('hidden');populate();camera.x=player.x;camera.y=player.y;generateJobs();if(!save.jobs)acceptJob(jobs[0]);else toast('Welcome back. Enter opens contracts. Tab opens your empire.');updateHUD(true);persist()}
 function showPanel(kind){if(deathReport)return;if(!started&&kind!=='help')return;modal=kind;mode='pause';mouse.down=false;touch.fire=false;for(const k in keys)keys[k]=false;$('overlay').classList.remove('hidden');$('titleScreen').classList.add('hidden');$('panel').classList.remove('hidden');$('crosshair').classList.add('hidden');renderPanel()}
-function closePanel(){if(deathReport)return;if(!started){modal='';mode='title';$('panel').classList.add('hidden');$('titleScreen').classList.remove('hidden');return}modal='';mode='play';$('overlay').classList.add('hidden');$('panel').classList.add('hidden');if(!isTouch)$('crosshair').classList.remove('hidden')}
+function closePanel(){if(deathReport)return;if(!started){modal='';mode='title';$('panel').classList.add('hidden');$('titleScreen').classList.remove('hidden');return}modal='';mode='play';$('overlay').classList.add('hidden');$('panel').classList.add('hidden');if(!isTouch&&!interior)$('crosshair').classList.remove('hidden')}
 function panelHead(eyebrow,title){return `<div class="panel-top"><span class="eyebrow">${eyebrow}</span><button class="close" data-do="close" aria-label="Close panel">×</button></div><h2>${title}</h2>`}
 function generateJobs(){const level=Math.floor(save.jobs/3);jobs=[
- {type:'bootleg',title:pick(['A Thirsty City','The Midnight Shipment','Last Call','Dry Law, Wet Streets']),desc:'Collect liquor at the woodland still. Deliver it to two speakeasies before the clock runs out.',pay:300+level*55,xp:100,difficulty:'BOOTLEGGING',duration:200},
- {type:'rival',title:pick(['Unfinished Business','A Message for Moretti','The Other Family']),desc:'A rival crew has occupied a corner. Clear the crew, take their ledger, and bring it home.',pay:420+level*65,xp:140,difficulty:'CREW WAR',duration:240},
- {type:'wheelman',title:pick(['Borrowed Luxury','A Car for the Boss','The Long Way Home']),desc:'Lift a marked luxury coupe and return it to Bell & Sons. The police will have questions.',pay:360+level*60,xp:120,difficulty:'GETAWAY DRIVER',duration:180}
-]}
-function acceptJob(j){if(job){toast('Finish or abandon your current job first.');return}closePanel();const clubs=places.filter(p=>p.type==='club').sort(()=>Math.random()-.5);job={...j,stage:0,time:j.duration,targets:[],kills:0,delivery:0};
- if(j.type==='bootleg'){job.stops=[places[1],clubs[0],clubs[1]];job.target=job.stops[0];job.info='Drive to the woodland still. Stop inside the gold circle to load the liquor.';toast('First, pick up the liquor. Follow the gold route.');}
+ {type:'bootleg',title:pick(['A Thirsty City','The Midnight Shipment','Last Call','Dry Law, Wet Streets']),desc:'Collect liquor at the woodland still. Deliver it to two speakeasies before the clock runs out.',pay:18+level*2,xp:100,difficulty:'BOOTLEGGING',duration:200},
+ {type:'rival',title:pick(['Unfinished Business','A Message for Moretti','The Other Family']),desc:'A rival crew has occupied a corner. Clear the crew, take their ledger, and bring it home.',pay:24+level*3,xp:140,difficulty:'CREW WAR',duration:240},
+ {type:'wheelman',title:pick(['Borrowed Luxury','A Car for the Boss','The Long Way Home']),desc:'Lift a marked luxury coupe and return it to Bell & Sons. The police will have questions.',pay:21+level*2,xp:120,difficulty:'GETAWAY DRIVER',duration:180}
+];const discovered=SHOP.secrets.filter(s=>save.secrets[s.club]==='found');if(discovered.length<2)jobs[0]=localJob(SHOP.errands[0]);for(const e of SHOP.errands){if(e.reveal){const s=SHOP.secrets.find(s=>s.club===e.reveal);if(save.secrets[e.reveal]==='found'||save.jobs<s.jobs-1)continue}jobs.push(localJob(e))}
+}
+function localJob(e){return{type:'errand',errandId:e.id,title:e.title,desc:e.description,pay:e.pay,xp:e.xp,difficulty:e.reveal?'SPEAKEASY CLUE':'LOCAL DELIVERY',duration:420}}
+function acceptJob(j){if(!j)return;if(j.type==='bootleg'&&SHOP.secrets.filter(s=>save.secrets[s.club]==='found').length<2){toast('Discover two speakeasies before taking this supply run.');return}if(job){toast('Finish or abandon your current job first.');return}closePanel();const clubs=places.filter(p=>p.type==='club'&&(!p.hidden||save.secrets[p.id]==='found')).sort(()=>Math.random()-.5);job={...j,stage:0,time:j.duration,targets:[],kills:0,delivery:0};
+ if(j.type==='errand'){const e=errandDefinition(j.errandId);job.stops=e.stops.map(id=>places.find(p=>p.id===id));job.target=job.stops[0];job.info='Go inside '+job.target.name+' and speak to the person at the counter to collect '+e.cargo+'.';toast('LOCAL JOB · Speak at each counter. Your sealed cargo is supplied free.');}
+ if(j.type==='bootleg'){const buyers=clubs.filter(p=>p.hidden);job.stops=[places[1],buyers[0],buyers[1]];job.target=job.stops[0];job.info='Go inside the woodland still and speak to Mabel to collect two sealed moonshine crates.';toast('First, pick up the liquor. Follow the gold route.');}
  if(j.type==='rival'){let site=pick(places.filter(p=>p.type==='club'));job.target=site;job.info='Clear the rival crew. Fire with the mouse; use cover and keep moving.';const count=4+Math.min(3,Math.floor(save.jobs/4));for(let i=0;i<count;i++){const a=i*TAU/count;let e={x:site.x+Math.cos(a)*rand(55,105),y:site.y+Math.sin(a)*rand(55,105),a:0,hp:75,maxHp:75,fire:rand(1,3),hit:0,job:true};if(blocked(e.x,e.y,9)){e.x=site.x+rand(-42,42);e.y=site.y+rand(-42,42)}enemies.push(e);job.targets.push(e)}toast('A rival crew is waiting. Take cover behind buildings.');}
  if(j.type==='wheelman'){const p=pick(places.filter(p=>p.type==='club'));const at=roadside(p,25),c=newCar('coupe',at.x,at.y,at.a,{mission:true,color:'#b8985b'});cars.push(c);job.car=c;job.target=c;job.info='Reach the marked coupe. Press E beside it to get in.';toast('Find the gold coupe. Bring it back in one piece.');}
  updateObjective();sound('cash')
 }
-function updateObjective(){if(!job){$('jobtag').textContent='THE NIGHT IS YOURS';$('jobtitle').textContent='Build your reputation';$('jobdesc').textContent='Enter: take a contract. Tab: upgrade your gear or buy a speakeasy. Stay near the back room to lose police heat.';$('jobprogress').textContent='CONTRACTS · UPGRADES · OWN THE CITY';return}
+function updateObjective(){if(!job){$('jobtag').textContent='THE NIGHT IS YOURS';$('jobtitle').textContent='Build your reputation';$('jobdesc').textContent='Enter: local jobs and clues. Visit businesses, find concealed doors, deliver moonshine, buy a car and build your home.';$('jobprogress').textContent='CONTRACTS · UPGRADES · OWN THE CITY';return}
  $('jobtag').textContent=job.difficulty+' · '+money(job.pay);$('jobtitle').textContent=job.title;$('jobdesc').textContent=job.info;
 }
-function completeJob(){if(!job)return;const completed=job;combo++;comboTimer=180;save.stats.bestStreak=Math.max(save.stats.bestStreak,combo);const bonus=Math.min(5,combo-1)*.1;const pay=Math.floor(completed.pay*(1+bonus));save.cash+=pay;save.stats.earnings+=pay;save.xp+=completed.xp;save.jobs++;refreshDaily();save.daily.done++;job=null;enemies=enemies.filter(e=>!e.job);for(const c of cars)c.mission=false;player.reserve=Math.max(player.reserve,weapons[save.weapon].reserve);player.hp=Math.min(100,player.hp+25);sound('cash');toast('JOB COMPLETE · '+money(pay)+(bonus>0?' · '+Math.round(bonus*100)+'% streak bonus':''));generateJobs();updateObjective();persist();}
+function completeJob(){if(!job)return;const completed=job;combo++;comboTimer=180;save.stats.bestStreak=Math.max(save.stats.bestStreak,combo);const bonus=Math.min(5,combo-1)*.1;const pay=SHOP.round(completed.pay*(1+bonus));save.cash=SHOP.round(save.cash+pay);save.stats.earnings=SHOP.round(save.stats.earnings+pay);save.xp+=completed.xp;save.jobs++;refreshDaily();save.daily.done++;job=null;enemies=enemies.filter(e=>!e.job);for(const c of cars)c.mission=false;player.reserve=Math.max(player.reserve,weapons[save.weapon].reserve);player.hp=Math.min(100,player.hp+25);sound('cash');toast('JOB COMPLETE · '+money(pay)+(bonus>0?' · '+Math.round(bonus*100)+'% streak bonus':''));generateJobs();updateObjective();persist();}
 function failJob(reason){if(!job)return;job=null;enemies=enemies.filter(e=>!e.job);for(const c of cars)c.mission=false;combo=0;toast(reason+' · New contracts are available.');updateObjective();generateJobs()}
-function renderPanel(){const p=$('panel');let html='';
+function renderPanel(){if(modal==='shop'){renderShop();return}if(modal==='home'){renderHome();return}if(modal==='dealership'){renderDealership();return}const p=$('panel');let html='';
  if(modal==='help'){
- html=panelHead('WELCOME TO MT. MORRIS','Your first night in the city');html+='<p>Prohibition banned making and selling alcoholic drinks and gave criminal gangs a lucrative market. This map follows modern Mt. Morris roads; the 1926 people, businesses and events are fictional. Here, you start with a borrowed sedan and $250. Run liquor, steal cars, and take on rival crews. Jobs earn cash and reputation. Buy better equipment and acquire speakeasies to fund your rise.</p><div class="help-grid"><div><kbd>WASD / ARROWS</kbd>Move. In a car: W accelerates, S brakes / reverses, A / D steer.</div><div><kbd>E</kbd>Enter / exit the nearest car. Use garages, payphones and safehouses. F talks to people with a speech bubble.</div><div><kbd>MOUSE</kbd>Aim and hold click to shoot. You can fire from a car.</div><div><kbd>SPACE</kbd>Handbrake. Make sharp turns and leave skid marks.</div><div><kbd>R</kbd>Reload. 1 / 2 / 3 switches owned weapons.</div><div><kbd>ENTER / TAB</kbd>Contracts / empire, upgrades and businesses.</div><div><kbd>M</kbd>City map. Gold is your objective; red is the law.</div><div><kbd>ESC / P</kbd>Pause. Your purchases and progress save automatically.</div></div><p>Lose the police by breaking line of sight behind city blocks. The green back room helps you recover. Stop in a gold objective circle to load or deliver. Cars can be stolen, damaged and destroyed. A wrecked car is not the end: get out and find another.</p><p>On a phone, use the left stick to move or steer; FIRE aims at the closest visible rival or officer. Rotate to landscape for a wider view.</p><button class="primary" data-do="close">'+(started?'BACK TO THE CITY':'GOT IT')+' <b>↗</b></button>';
+ html=panelHead('WELCOME TO MT. MORRIS','Your first night in the city');html+='<p>Prohibition banned making and selling alcoholic drinks and gave criminal gangs a lucrative market. This map follows modern Mt. Morris roads; the 1926 people, businesses and events are fictional. Here, you start with a borrowed sedan and $1.25. Run liquor, steal cars, and take on rival crews. Jobs earn cash and reputation. Buy better equipment and acquire speakeasies to fund your rise.</p><div class="help-grid"><div><kbd>WASD / ARROWS</kbd>Move. In a car: W accelerates, S brakes / reverses, A / D steer.</div><div><kbd>E</kbd>Enter / exit the nearest car. Walk into businesses on foot. Inside: F talks at counters, E uses exits and concealed doors. F talks to people with a speech bubble.</div><div><kbd>MOUSE</kbd>Aim and hold click to shoot. You can fire from a car.</div><div><kbd>SPACE</kbd>Handbrake. Make sharp turns and leave skid marks.</div><div><kbd>R</kbd>Reload. 1 / 2 / 3 switches owned weapons.</div><div><kbd>ENTER / TAB</kbd>Contracts / empire, upgrades and businesses.</div><div><kbd>M</kbd>City map. Gold is your objective; red is the law.</div><div><kbd>ESC / P</kbd>Pause. Your purchases and progress save automatically.</div></div><p>Lose the police by breaking line of sight behind city blocks. The green back room helps you recover. For local jobs and moonshine runs, go inside the marked business and speak at the counter. Explore shop backs for concealed speakeasy doors. Cars can be stolen, damaged and destroyed. A wrecked car is not the end: get out and find another.</p><p>On a phone, use the left stick to move or steer; FIRE aims at the closest visible rival or officer. Rotate to landscape for a wider view.</p><button class="primary" data-do="close">'+(started?'BACK TO THE CITY':'GOT IT')+' <b>↗</b></button>';
  }else if(modal==='jobs'){
  html=panelHead('THE PAYPHONE NETWORK','Work after dark');html+='<p>Word gets around. Take a contract and follow the gold marker. Complete consecutive jobs for up to a 50% payout bonus.</p>';
  if(job)html+=`<div class="card"><small>ACTIVE CONTRACT · ${Math.ceil(job.time)} SECONDS LEFT</small><h3>${job.title}</h3><p>${job.info}</p><footer><button data-do="close">CONTINUE JOB →</button><button data-do="abandon">ABANDON JOB</button></footer></div>`;
  else html+='<div class="cards">'+jobs.map((j,i)=>`<article class="card"><small>${j.difficulty}</small><h3>${j.title}</h3><p>${j.desc}</p><footer><span class="money">${money(j.pay)}</span><button data-do="job" data-i="${i}">TAKE JOB →</button></footer></article>`).join('')+'</div>';
- html+=`<div class="panel-footer"><span>STREAK ${combo} · ${rank()} · ${save.xp} REPUTATION</span><span>YOUR CUT: ${money(save.cash)}</span></div>`;
+ html+=progressionHTML();html+=`<div class="panel-footer"><span>STREAK ${combo} · ${rank()} · ${save.xp} REPUTATION</span><span>YOUR CUT: ${money(save.cash)}</span></div>`;
  }else if(modal==='empire'){
  refreshDaily();html=panelHead('MONEY TALKS · '+money(save.cash),'A bigger piece of the city');html+=`<div class="tabs"><button data-do="tab" data-tab="equipment" class="${tabName==='equipment'?'active':''}">ARSENAL</button><button data-do="tab" data-tab="garage" class="${tabName==='garage'?'active':''}">GARAGE</button><button data-do="tab" data-tab="business" class="${tabName==='business'?'active':''}">EMPIRE</button></div><div class="cards">`;
  if(tabName==='equipment'){
   html+=weapons.map((a,i)=>`<article class="card"><small>${i===0?'TRUSTY SIDEARM':i===1?'CLOSE QUARTERS':'THE CHICAGO TYPEWRITER'}</small><h3>${a.name}</h3><p>${i===0?'An eight-round .45. Reliable, accurate, and yours from the start.':i===1?'Two barrels. Seven pellets per shot. Devastating at close range.':'Thirty rounds. Fully automatic. The preferred punctuation of organized crime.'}</p><footer><span class="money">${save.ownedWeapons.includes(i)?'OWNED':money(a.price)}</span><button data-do="weapon" data-i="${i}" ${save.weapon===i?'disabled':''}>${save.weapon===i?'EQUIPPED':save.ownedWeapons.includes(i)?'EQUIP':'BUY & EQUIP'}</button></footer></article>`).join('');
-  html+=`<article class="card"><small>BACK-ROOM SUPPLIES</small><h3>Fresh start</h3><p>Refill your ammunition, patch up your injuries, and repair your current vehicle.</p><footer><span class="money">$85</span><button data-do="resupply">RESUPPLY</button></footer></article>`;
+  html+=`<article class="card"><small>BACK-ROOM SUPPLIES</small><h3>Fresh start</h3><p>Refill your ammunition, patch up your injuries, and repair your current vehicle.</p><footer><span class="money">$4.50</span><button data-do="resupply">RESUPPLY</button></footer></article>`;
  }
  if(tabName==='garage'){
+  html+='<p>Buy or recall vehicles in person at Cole Motor Company (A on your map).</p>';
   html+=['sedan','coupe','truck','custom'].map((id,i)=>{const a=carTypes[id];return `<article class="card"><small>${['YOUR FIRST SET OF WHEELS','SPEED & HANDLING','HEAVY ARMOR','THE BOSS\'S GETAWAY'][i]}</small><h3>${a.name}</h3><p>${Math.round(a.max*.21)} mph · ${a.hp} armor. ${['A dependable sedan. Enough room for liquor and a little ambition.','A lighter, faster chassis for precision getaways.','Tough delivery truck. Trades speed for serious durability.','Supercharged straight-eight. Fast, strong, and built to disappear.'][i]}</p><footer><span class="money">${save.ownedCars.includes(id)?'OWNED':money(a.price)}</span><button data-do="car" data-car="${id}">${save.ownedCars.includes(id)?'DISPATCH':'BUY & DISPATCH'}</button></footer></article>`}).join('');
-  for(const [id,title,desc] of [['engine','Engine tuning','15% more top speed and acceleration per level.'],['armor','Reinforced body','25% more vehicle durability per level.'],['grip','Performance tires','Better steering and faster recovery from a drift.']])html+=`<article class="card"><small>ALL OWNED CARS · LEVEL ${save[id]} / 3</small><h3>${title}</h3><p>${desc}</p><footer><span class="money">${save[id]>=3?'MAX':money(300+save[id]*300)}</span><button data-do="upgrade" data-up="${id}" ${save[id]>=3?'disabled':''}>UPGRADE</button></footer></article>`;
+  for(const [id,title,desc] of [['engine','Engine tuning','15% more top speed and acceleration per level.'],['armor','Reinforced body','25% more vehicle durability per level.'],['grip','Performance tires','Better steering and faster recovery from a drift.']])html+=`<article class="card"><small>ALL OWNED CARS · LEVEL ${save[id]} / 3</small><h3>${title}</h3><p>${desc}</p><footer><span class="money">${save[id]>=3?'MAX':money(30+save[id]*30)}</span><button data-do="upgrade" data-up="${id}" ${save[id]>=3?'disabled':''}>UPGRADE</button></footer></article>`;
  }
  if(tabName==='business'){
- const biz=[['velvet','The Velvet Room',900,60,'A discreet cocktail room in downtown Mt. Morris.'],['blue','Blue Lantern',1600,110,'A jazz club with a healthy thirst in the south.'],['lucky','Lucky Seven',2600,185,'The high rollers pay handsomely for a drink.']];
- html+=biz.map(([id,title,price,income,desc])=>`<article class="card"><small>${save.businesses.includes(id)?'PART OF YOUR EMPIRE':'ACQUIRE A SPEAKEASY'}</small><h3>${title}</h3><p>${desc} Generates ${money(income)} every two minutes of active play.</p><footer><span class="money">${save.businesses.includes(id)?'OWNED':money(price)}</span><button data-do="business" data-biz="${id}" ${save.businesses.includes(id)?'disabled':''}>${save.businesses.includes(id)?'IN BUSINESS':'ACQUIRE'}</button></footer></article>`).join('');
- html+=`<article class="card"><small>YOUR BUSINESS PROCEEDS</small><h3>The evening take</h3><p>Collect income from your speakeasies. Earnings accumulate while you play and survive between sessions.</p><footer><span class="money">${money(save.income)}</span><button data-do="collect" ${save.income<1?'disabled':''}>COLLECT</button></footer></article><article class="card"><small>DAILY CONTRACT BONUS · ${Math.min(save.daily.done,3)} / 3</small><h3>Three before sunrise</h3><p>Complete three contracts today. Claim a $500 bonus, once per day, on this browser.</p><footer><span class="money">$500</span><button data-do="daily" ${save.daily.done<3||save.daily.claimed?'disabled':''}>${save.daily.claimed?'CLAIMED':'CLAIM BONUS'}</button></footer></article>`;
+ const biz=[['velvet','The Velvet Room',90,6,'A discreet cocktail room in downtown Mt. Morris.'],['blue','Blue Lantern',160,11,'A jazz club with a healthy thirst in the south.'],['lucky','Lucky Seven',260,18.50,'The high rollers pay handsomely for a drink.']];
+ html+='<p>Discover speakeasies through concealed doors before buying a share in them. Ask at shop counters or take a clue job.</p>';
+ html+=biz.filter(([id])=>save.secrets[id]==='found').map(([id,title,price,income,desc])=>`<article class="card"><small>${save.businesses.includes(id)?'PART OF YOUR EMPIRE':'ACQUIRE A SPEAKEASY'}</small><h3>${title}</h3><p>${desc} Generates ${money(income)} every two minutes of active play.</p><footer><span class="money">${save.businesses.includes(id)?'OWNED':money(price)}</span><button data-do="business" data-biz="${id}" ${save.businesses.includes(id)?'disabled':''}>${save.businesses.includes(id)?'IN BUSINESS':'ACQUIRE'}</button></footer></article>`).join('');
+ html+=`<article class="card"><small>YOUR BUSINESS PROCEEDS</small><h3>The evening take</h3><p>Collect income from your speakeasies. Earnings accumulate while you play and survive between sessions.</p><footer><span class="money">${money(save.income)}</span><button data-do="collect" ${save.income<1?'disabled':''}>COLLECT</button></footer></article><article class="card"><small>DAILY CONTRACT BONUS · ${Math.min(save.daily.done,3)} / 3</small><h3>Three before sunrise</h3><p>Complete three contracts today. Claim a $25 bonus, once per day, on this browser.</p><footer><span class="money">$25.00</span><button data-do="daily" ${save.daily.done<3||save.daily.claimed?'disabled':''}>${save.daily.claimed?'CLAIMED':'CLAIM BONUS'}</button></footer></article>`;
  }
  html+=`</div><div class="panel-footer"><span>${save.jobs} JOBS COMPLETE · ${save.xp} REPUTATION · ${rank()}</span><span>${storageOK?'PROGRESS SAVED ON THIS BROWSER':'SESSION PROGRESS ONLY'}</span></div>`;
  }else if(modal==='map'){
@@ -153,34 +173,45 @@ function renderPanel(){const p=$('panel');let html='';
  p.innerHTML=html;
  if(modal==='map')drawMap($('fullmap').getContext('2d'),620,true);
 }
-function spend(amount){if(save.cash<amount){toast('You need '+money(amount-save.cash)+' more. Take another job.');return false}save.cash-=amount;sound('cash');return true}
+function spend(amount){if(!Number.isFinite(amount)||amount<0)return false;if(save.cash<amount){toast('You need '+money(amount-save.cash)+' more. Take another job.');return false}save.cash=SHOP.round(save.cash-amount);sound('cash');return true}
 $('panel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.dataset.do)return;const a=b.dataset.do,i=Number(b.dataset.i);
- switch(a){case'close':closePanel();return;case'help':showPanel('help');return;case'sound':enableAudio();renderPanel();return;case'job':acceptJob(jobs[i]);return;case'abandon':failJob('Contract abandoned');renderPanel();return;case'tab':tabName=b.dataset.tab;renderPanel();return;
+ switch(a){
+ case'shop-buy':tradeItem(b.dataset.item,'buy');renderShop();return;
+ case'shop-sell':tradeItem(b.dataset.item,'sell');renderShop();return;
+ case'shop-service':shopService();renderShop();return;
+ case'shop-use':useInventory(b.dataset.item);renderShop();return;
+ case'dealer-car':buyDealerCar(b.dataset.car);renderDealership();return;
+ case'home-build':buildHome(b.dataset.recipe);renderHome();return;
+ case'home-place':placeFurniture(b.dataset.item);renderHome();return;
+ case'home-remove':removeFurniture(Number(b.dataset.index));renderHome();return;
+ case'home-rest':if(interior?.place.id==='home'&&save.home.furniture.some(p=>p.item==='bed')){player.hp=100;toast('Rested at home.');updateHUD(true)}return;
+ case'close':closePanel();return;case'help':showPanel('help');return;case'sound':enableAudio();renderPanel();return;case'job':acceptJob(jobs[i]);return;case'abandon':failJob('Contract abandoned');renderPanel();return;case'tab':tabName=b.dataset.tab;renderPanel();return;
  case'weapon':if(save.ownedWeapons.includes(i)||spend(weapons[i].price)){if(!save.ownedWeapons.includes(i))save.ownedWeapons.push(i);equipWeapon(i);toast(weapons[i].name+' equipped.')}break;
- case'resupply':if(spend(85)){player.hp=100;player.ammo=weapons[save.weapon].mag;player.reserve=weapons[save.weapon].reserve;player.reload=0;if(player.car)player.car.hp=player.car.maxHp;toast('Patched up. Ammunition stocked. Car repaired.')}break;
- case'car':{const id=b.dataset.car;if(save.ownedCars.includes(id)||spend(carTypes[id].price)){if(!save.ownedCars.includes(id))save.ownedCars.push(id);save.car=id;const pos={x:player.x,y:player.y};let c=spawnOwned();const at=roadside(pos,18);c.x=at.x;c.y=at.y;c.a=at.a;c.v=c.vx=c.vy=0;player.x=c.x;player.y=c.y;toast(carTypes[id].name+' delivered to your nearest intersection.')}}break;
- case'upgrade':{const id=b.dataset.up;if(save[id]<3&&spend(300+save[id]*300)){save[id]++;if(id==='armor'&&player.car&&player.car.owned){const c=player.car;c.maxHp=carTypes[c.type].hp*(1+save.armor*.25);c.hp=c.maxHp}toast('Upgrade installed across your garage.')}}break;
- case'business':{const data={velvet:[900,60],blue:[1600,110],lucky:[2600,185]},id=b.dataset.biz;if(!save.businesses.includes(id)&&spend(data[id][0])){save.businesses.push(id);toast('Speakeasy acquired. Your empire is growing.')}}break;
+ case'resupply':if(spend(4.50)){player.hp=100;player.ammo=weapons[save.weapon].mag;player.reserve=weapons[save.weapon].reserve;player.reload=0;if(player.car)player.car.hp=player.car.maxHp;toast('Patched up. Ammunition stocked. Car repaired.')}break;
+ case'car':toast('Visit Cole Motor Company to buy or recall a car. Find A on the map.');return;
+ case'upgrade':{const id=b.dataset.up;if(save[id]<3&&spend(30+save[id]*30)){save[id]++;if(id==='armor'&&player.car&&player.car.owned){const c=player.car;c.maxHp=carTypes[c.type].hp*(1+save.armor*.25);c.hp=c.maxHp}toast('Upgrade installed across your garage.')}}break;
+ case'business':{const data={velvet:[90,6],blue:[160,11],lucky:[260,18.50]},id=b.dataset.biz;if(data[id]&&save.secrets[id]==='found'&&!save.businesses.includes(id)&&spend(data[id][0])){save.businesses.push(id);toast('Speakeasy acquired. Your empire is growing.')}}break;
  case'collect':if(save.income>0){save.cash+=save.income;save.stats.earnings+=save.income;toast(money(save.income)+' collected.');save.income=0;sound('cash')}break;
- case'daily':if(save.daily.done>=3&&!save.daily.claimed){save.cash+=500;save.daily.claimed=true;toast('Daily bonus collected · $500');sound('cash')}break;
+ case'daily':if(save.daily.done>=3&&!save.daily.claimed){save.cash=SHOP.round(save.cash+25);save.daily.claimed=true;toast('Daily bonus collected · $25.00');sound('cash')}break;
  case'end-run':closePanel();player.invincible=0;damagePlayer(9999,'Run ended by player');return;case'reset':pConfirm();return;
- case'reset-confirm':save=initial();refreshDaily();persist();heat=0;job=null;combo=0;player.hp=100;player.ammo=8;player.reserve=64;player.reload=0;for(let i=0;i<weapons.length;i++)ammoPacks[i]={ammo:weapons[i].mag,reserve:weapons[i].reserve};populate();generateJobs();closePanel();acceptJob(jobs[0]);return;
+ case'reset-confirm':if(interior)leaveBusiness(true);save=initial();ensureMarket();refreshDaily();persist();heat=0;job=null;combo=0;player.hp=100;player.ammo=8;player.reserve=64;player.reload=0;for(let i=0;i<weapons.length;i++)ammoPacks[i]={ammo:weapons[i].mag,reserve:weapons[i].reserve};populate();generateJobs();closePanel();acceptJob(jobs[0]);return;
  }persist();renderPanel()
 });
 function pConfirm(){$('panel').innerHTML=panelHead('START OVER','Leave your empire behind?')+'<p>This erases your money, upgrades, records and businesses in this browser. This cannot be undone.</p><div class="titleactions"><button class="secondary" data-do="reset-confirm">ERASE PROGRESS & START OVER</button><button class="primary" data-do="close">KEEP MY EMPIRE</button></div>'}
 function equipWeapon(i){if(!save.ownedWeapons.includes(i)||i===save.weapon)return;ammoPacks[save.weapon]={ammo:player.ammo,reserve:player.reserve};save.weapon=i;player.ammo=ammoPacks[i].ammo;player.reserve=ammoPacks[i].reserve;player.reload=0;persist()}
 function reload(){if(player.reload||player.ammo===weapons[save.weapon].mag||player.reserve<=0)return;player.reload=weapons[save.weapon].reload;sound('tick')}
-function nearestCar(){let c=null,best=68;for(const x of cars)if(!x.dead&&!x.burning&&x!==player.car&&Math.abs(x.v)<85){let d=dist(player,x);if(d<best){best=d;c=x}}return c}
-function nearestPlace(){return places.find(p=>dist(player,p)<85)}
-function interact(){if(mode!=='play')return;const near=player.car?.burning?null:nearestPlace();if(near&&(near.type==='garage'||near.type==='phone'||near.type==='safe')){
- if(near.type==='garage'){showPanel('empire');tabName='garage';renderPanel();return}if(near.type==='phone'){showPanel('jobs');return}if(near.type==='safe'){if(heat>1){heat=Math.max(0,heat-35);toast('Lay low in the back room. Some of the heat is off.')}else toast('The back room. Your health and vehicle are recovering.');player.hp=100;if(player.car)player.car.hp=player.car.maxHp;return}}
+function nearestCar(){if(interior)return null;let c=null,best=68;for(const x of cars)if(!x.dead&&!x.burning&&x!==player.car&&Math.abs(x.v)<85){let d=dist(player,x);if(d<best){best=d;c=x}}return c}
+function nearestPlace(){if(interior)return null;const d=p=>Math.min(dist(player,p),p.door?dist(player,p.door):Infinity);return places.filter(p=>!p.hidden).sort((a,b)=>d(a)-d(b)).find(p=>d(p)<85)}
+function interact(){if(mode!=='play')return;
+ if(interior){if(trySecretDoor())return;if(dist(player,{x:360,y:437})<65){leaveBusiness();return}if(nearestNPC()){talkNearby();return}toast('F talks at the counter. E leaves at the bottom exit.');return}
+ const near=player.car?.burning?null:nearestPlace();if(!player.car&&near&&shopById(near.id)&&(!nearestCar()||dist(player,nearestCar())>38)){enterBusiness(near);return}if(near?.type==='phone'){showPanel('jobs');return}
  if(player.car){const c=player.car;if(Math.abs(c.v)>125&&!c.burning){toast('Slow down before getting out.');return}const sides=[c.a+Math.PI/2,c.a-Math.PI/2,c.a+Math.PI,c.a];let pos=null;for(const a of sides){const x=c.x+Math.cos(a)*43,y=c.y+Math.sin(a)*43;if(!blocked(x,y,10)){pos={x,y};break}}if(!pos){toast('The door is blocked. Move the car.');return}player.car=null;player.x=pos.x;player.y=pos.y;player.a=c.a;c.v*=.3;c.ai='parked';toast('On foot. Aim with the mouse. Hold click to shoot.');return}
  const c=nearestCar();if(c){if(c.type==='police')addHeat(25);else if(c.ai==='traffic')addHeat(9);player.car=c;c.ai='player';player.x=c.x;player.y=c.y;sound('tick');if(job&&job.type==='wheelman'&&c===job.car&&job.stage===0){job.stage=1;job.target=places[0];job.info='Return the coupe to Bell & Sons garage. Shake the police on the way.';addHeat(38);updateObjective();toast('The coupe is yours. Take it to the garage.')}}}
-function fire(){const weap=weapons[save.weapon];if(player.shot>0||player.reload>0)return;if(player.ammo<1){reload();return}player.ammo--;player.shot=weap.rate;let a=player.a;if(!isTouch&&mouse.active){a=Math.atan2((mouse.y-h/2)/zoom+camera.y-player.y,(mouse.x-w/2)/zoom+camera.x-player.x)}else{const targets=enemies.filter(e=>e.hp>0).concat(cars.filter(c=>c.ai==='police'&&!c.dead));const t=targets.filter(e=>dist(player,e)<650&&lineClear(player,e)).sort((a,b)=>dist(player,a)-dist(player,b))[0];if(t)a=Math.atan2(t.y-player.y,t.x-player.x)}
+function fire(){if(interior)return;const weap=weapons[save.weapon];if(player.shot>0||player.reload>0)return;if(player.ammo<1){reload();return}player.ammo--;player.shot=weap.rate;let a=player.a;if(!isTouch&&mouse.active){a=Math.atan2((mouse.y-h/2)/zoom+camera.y-player.y,(mouse.x-w/2)/zoom+camera.x-player.x)}else{const targets=enemies.filter(e=>e.hp>0).concat(cars.filter(c=>c.ai==='police'&&!c.dead));const t=targets.filter(e=>dist(player,e)<650&&lineClear(player,e)).sort((a,b)=>dist(player,a)-dist(player,b))[0];if(t)a=Math.atan2(t.y-player.y,t.x-player.x)}
  player.a=a;for(let i=0;i<weap.bullets;i++){const ang=a+rand(-weap.spread,weap.spread);bullets.push({x:player.x+Math.cos(a)*26,y:player.y+Math.sin(a)*26,vx:Math.cos(ang)*850,vy:Math.sin(ang)*850,life:.8,damage:weap.damage,from:'player',lastX:player.x,lastY:player.y})}particle(player.x+Math.cos(a)*28,player.y+Math.sin(a)*28,'#efca77',5,55);shake=Math.max(shake,1.4);sound('shot');addHeat(.8);for(const p of peds)if(dist(p,player)<220)p.panic=5}
 function enemyFire(e,from='enemy'){const a=Math.atan2(player.y-e.y,player.x-e.x)+rand(-.12,.12);bullets.push({x:e.x+Math.cos(a)*22,y:e.y+Math.sin(a)*22,vx:Math.cos(a)*480,vy:Math.sin(a)*480,life:1,damage:from==='police'?7:10,from,lastX:e.x,lastY:e.y});particle(e.x+Math.cos(a)*24,e.y+Math.sin(a)*24,'#e6c47a',3,35)}
 function damagePlayer(amount,reason='Gunfire'){if(deathPending||deathReport||player.invincible>0)return;player.hp-=amount;flash=.2;shake=Math.max(shake,2);if(player.hp<=0){deathPending=true;endLife(reason)}}
-function recover(){const loss=Math.min(save.cash,Math.max(65,Math.round(save.cash*.12)));save.cash-=loss;player.hp=100;player.invincible=5;heat=0;combo=0;deathPending=false;if(job)failJob('The job went sideways');for(const c of cars.filter(c=>c.ai==='police'))c.remove=true;spawnOwned();camera.x=player.x;camera.y=player.y;camera.lookX=camera.lookY=0;lifeStart=activeElapsed;lifeJobs=save.jobs;lifeMoney=save.stats.earnings;toast('PATCHED UP · '+money(loss)+' hospital bill. Your empire is still yours.');persist()}
+function recover(){if(interior)leaveBusiness(true);const loss=Math.min(save.cash,Math.max(3.50,SHOP.round(save.cash*.12)));save.cash=SHOP.round(save.cash-loss);player.hp=100;player.invincible=5;heat=0;combo=0;deathPending=false;if(job)failJob('The job went sideways');for(const c of cars.filter(c=>c.ai==='police'))c.remove=true;spawnOwned();camera.x=player.x;camera.y=player.y;camera.lookX=camera.lookY=0;lifeStart=activeElapsed;lifeJobs=save.jobs;lifeMoney=save.stats.earnings;toast('PATCHED UP · '+money(loss)+' hospital bill. Your empire is still yours.');persist()}
 function wreck(c){if(c.dead||c.burning)return;c.hp=0;c.burning=true;c.burnTime=3.2;c.throttle=0;particle(c.x,c.y,'#d1b18a',12,80);if(c===player.car)toast('ENGINE FIRE · Three seconds. Get out with E!');if(job&&job.car===c)failJob('The marked coupe was wrecked')}
 function explodeCar(c){if(c.dead)return;const wasPlayer=c===player.car;c.dead=true;c.burning=false;c.v=c.vx=c.vy=0;shake=Math.max(shake,wasPlayer?10:5);sound('crash');particle(c.x,c.y,'#e9b55c',42,200);blastRings.push({x:c.x,y:c.y,life:.65});for(let i=0;i<17;i++){const a=rand(0,TAU),v=rand(50,180);debris.push({x:c.x,y:c.y,z:12,vx:Math.cos(a)*v,vy:Math.sin(a)*v,vz:rand(95,210),a:rand(0,TAU),spin:rand(-8,8),life:3.8,size:rand(3,9),color:pick(['#879083','#403d32','#b08b56','#242f30'])})}for(let i=0;i<18;i++)emitSmoke(c,true);
  if(wasPlayer){player.car=null;player.invincible=0;damagePlayer(140,'Vehicle explosion')}else if(dist(c,player)<105){damagePlayer(Math.max(0,95-dist(c,player))*.8,'Caught in an explosion')}
@@ -200,7 +231,7 @@ function spawnPolice(){if(cars.filter(c=>c.ai==='police'&&!c.dead&&!c.burning).l
 function trafficUpdate(c,dt){c.hit=Math.max(0,c.hit-dt);const component=WLD.nearest(c).edge.a.component;if(!c.destination||c.destination.component!==component||dist(c,c.destination)<65){const connected=WLD.components[component],nearby=connected.filter(n=>dist(n,c)>400&&dist(n,c)<1700);c.destination=pick(nearby.length?nearby:connected.filter(n=>dist(n,c)>55));c.route=[]}if(!c.destination)return;const ahead={x:c.x+Math.cos(c.a)*60,y:c.y+Math.sin(c.a)*60},near=cars.some(o=>o!==c&&!o.dead&&dist(o,ahead)<38&&dist(o,c)>20);followRoad(c,dt,c.destination,near?10:c.speed)}
 
 function update(dt){elapsed+=dt;frame++;if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').classList.remove('show')}shake*=Math.pow(.018,dt);flash=Math.max(0,flash-dt);if(mode!=='play'){if(engineGain)engineGain.gain.value=0;return}
- activeElapsed+=dt;
+ if(interior){updateInterior(dt);return}activeElapsed+=dt;tickMarket(dt);
  player.shot=Math.max(0,player.shot-dt);player.invincible=Math.max(0,player.invincible-dt);
  if(player.reload>0){player.reload-=dt;if(player.reload<=0){const we=weapons[save.weapon],take=Math.min(we.mag-player.ammo,player.reserve);player.ammo+=take;player.reserve-=take;sound('tick')}}
  let dx=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),dy=(keys.KeyS||keys.ArrowDown?1:0)-(keys.KeyW||keys.ArrowUp?1:0);if(isTouch&&(touch.x||touch.y)){dx=touch.x;dy=touch.y}
@@ -230,20 +261,22 @@ function update(dt){elapsed+=dt;frame++;if(toastTimer>0){toastTimer-=dt;if(toast
  if(safe){player.hp=Math.min(100,player.hp+dt*7);if(player.car)player.car.hp=Math.min(player.car.maxHp,player.car.hp+dt*12)}
  if(job){job.time-=dt;if(job.time<=0)failJob('Time ran out');else tickJob(dt)}
  if(comboTimer>0){comboTimer-=dt;if(comboTimer<=0)combo=0}
- empireTimer+=dt;if(empireTimer>=120){empireTimer-=120;const income=save.businesses.reduce((n,id)=>n+({velvet:60,blue:110,lucky:185}[id]||0),0);if(income){save.income+=income;toast('Your clubs earned '+money(income)+'. Collect it in Empire.');persist()}}
+ empireTimer+=dt;if(empireTimer>=120){empireTimer-=120;const income=save.businesses.reduce((n,id)=>n+({velvet:6,blue:11,lucky:18.50}[id]||0),0);if(income){save.income+=income;toast('Your clubs earned '+money(income)+'. Collect it in Empire.');persist()}}
  saveTimer+=dt;if(saveTimer>12){saveTimer=0;persist()}
  const cvx=player.car?.vx||player.vx||0,cvy=player.car?.vy||player.vy||0;camera.lookX=lerp(camera.lookX,clamp(cvx*.24,-75,75),1-Math.exp(-dt*3));camera.lookY=lerp(camera.lookY,clamp(cvy*.24,-75,75),1-Math.exp(-dt*3));camera.x=lerp(camera.x,player.x+camera.lookX,1-Math.exp(-dt*5));camera.y=lerp(camera.y,player.y+camera.lookY,1-Math.exp(-dt*5));
  updateHUD();
 }
-function killEnemy(e){if(e.killed)return;e.killed=true;save.stats.kills++;save.xp+=12;particle(e.x,e.y,'#c9a977',12,80);pickups.push({x:e.x,y:e.y,type:Math.random()>.5?'cash':'ammo',amount:rand(25,50),life:90});addHeat(3)}
+function killEnemy(e){if(e.killed)return;e.killed=true;save.stats.kills++;save.xp+=12;particle(e.x,e.y,'#c9a977',12,80);pickups.push({x:e.x,y:e.y,type:Math.random()>.5?'cash':'ammo',amount:SHOP.round(rand(1,2.50)),life:90});addHeat(3)}
 function tickJob(dt){if(!job)return;const j=job;
- if(j.type==='bootleg'){const target=j.stops[j.stage];if(dist(player,target)<56&&player.car&&Math.abs(player.car.v)<38){j.delivery+=dt;if(j.delivery>1.6){j.stage++;j.delivery=0;sound('cash');if(j.stage>=3){completeJob();return}j.target=j.stops[j.stage];j.info='Deliver to '+j.target.name+'. Slow down inside the gold circle.';addHeat(j.stage===1?19:12);updateObjective();toast(j.stage===1?'Liquor loaded. Two clubs are waiting.':'Delivery made. One more stop.')}}else j.delivery=0;
+ if(j.type==='errand'||j.type==='bootleg')return;
+ if(j.type==='legacy-bootleg'){const target=j.stops[j.stage];if(dist(player,target)<56&&player.car&&Math.abs(player.car.v)<38){j.delivery+=dt;if(j.delivery>1.6){j.stage++;j.delivery=0;sound('cash');if(j.stage>=3){completeJob();return}j.target=j.stops[j.stage];j.info='Deliver to '+j.target.name+'. Slow down inside the gold circle.';addHeat(j.stage===1?19:12);updateObjective();toast(j.stage===1?'Liquor loaded. Two clubs are waiting.':'Delivery made. One more stop.')}}else j.delivery=0;
  }else if(j.type==='rival'){if(j.stage===0&&j.targets.every(e=>e.hp<=0)){j.stage=1;j.target=places[6];j.info='Ledger secured. Return to the back room to collect your cut.';updateObjective();toast('Ledger secured. Bring it back to the green back room.')}else if(j.stage===1&&dist(player,j.target)<70){completeJob();return}
  }else if(j.type==='wheelman'&&j.stage===1&&player.car===j.car&&dist(player,places[0])<65&&Math.abs(player.car.v)<40){completeJob();return}
 }
-function updateHUD(force=false){if(!force&&frame%4!==0)return;$('cash').textContent=money(save.cash);$('rank').textContent=rank();const n=heat<15?0:Math.min(5,Math.ceil(heat/20));$('heat').textContent=Array.from({length:5},(_,i)=>i<n?'◆':'◇').join(' ');$('heat').style.color=policeSeen?'#db7960':'#d5ae62';$('heatlabel').textContent=n===0?'KEEP A LOW PROFILE':policeSeen?'POLICE HAVE EYES ON YOU':'WANTED · BREAK LINE OF SIGHT';$('hpbar').style.width=clamp(player.hp,0,100)+'%';$('carbar').style.width=player.car?clamp(player.car.hp/player.car.maxHp*100,0,100)+'%':'0%';$('vehicleLabel').textContent=player.car?carTypes[player.car.type].name:'ON FOOT';$('weapon').textContent=weapons[save.weapon].short;$('ammo').textContent=player.reload>0?'RELOADING':player.ammo+' / '+player.reserve;$('speed').querySelector('strong').textContent=String(Math.round(Math.abs(player.car?.v||0)*.21)).padStart(2,'0');$('district').textContent=district(player.x,player.y);const min=Math.floor(elapsed/5)+23*60+42;$('clock').textContent=String(Math.floor(min/60)%24).padStart(2,'0')+':'+String(min%60).padStart(2,'0');
- if(job){const mm=Math.floor(job.time/60),ss=Math.floor(job.time%60);$('jobprogress').textContent=`${mm}:${String(ss).padStart(2,'0')} LEFT · ${Math.floor(dist(player,job.target))} YD`+(job.delivery>0?' · '+(job.stage===0?'LOADING':'UNLOADING')+'…':job.type==='rival'&&job.stage===0?' · '+job.targets.filter(e=>e.hp<=0).length+'/'+job.targets.length+' CREW':'')}
- interaction=null;const near=nearestPlace();if(near?.type==='garage')interaction='Bell & Sons · Garage & upgrades';else if(near?.type==='safe')interaction='The Back Room · Repair, heal & lay low';else if(near?.type==='phone')interaction='Take a contract';else if(player.car)interaction=Math.abs(player.car.v)<65?'Exit vehicle':null;else{const c=nearestCar();if(c)interaction='Drive '+carTypes[c.type].name}
+function updateHUD(force=false){if(!force&&frame%4!==0)return;$('cash').textContent=money(save.cash);$('rank').textContent=rank();const n=heat<15?0:Math.min(5,Math.ceil(heat/20));$('heat').textContent=Array.from({length:5},(_,i)=>i<n?'◆':'◇').join(' ');$('heat').style.color=policeSeen?'#db7960':'#d5ae62';$('heatlabel').textContent=n===0?'KEEP A LOW PROFILE':policeSeen?'POLICE HAVE EYES ON YOU':'WANTED · BREAK LINE OF SIGHT';$('hpbar').style.width=clamp(player.hp,0,100)+'%';$('carbar').style.width=player.car?clamp(player.car.hp/player.car.maxHp*100,0,100)+'%':'0%';$('vehicleLabel').textContent=player.car?carTypes[player.car.type].name:'ON FOOT';$('weapon').textContent=weapons[save.weapon].short;$('ammo').textContent=player.reload>0?'RELOADING':player.ammo+' / '+player.reserve;$('speed').querySelector('strong').textContent=String(Math.round(Math.abs(player.car?.v||0)*.21)).padStart(2,'0');$('district').textContent=(interior?interior.place.name:district(player.x,player.y));const min=Math.floor(elapsed/5)+23*60+42;$('clock').textContent=String(Math.floor(min/60)%24).padStart(2,'0')+':'+String(min%60).padStart(2,'0');
+ if(job){const mm=Math.floor(job.time/60),ss=Math.floor(job.time%60);$('jobprogress').textContent=`${mm}:${String(ss).padStart(2,'0')} LEFT · ${Math.floor(dist(interior?interior.outside:player,job.target))} YD`+(job.delivery>0?' · '+(job.stage===0?'LOADING':'UNLOADING')+'…':job.type==='rival'&&job.stage===0?' · '+job.targets.filter(e=>e.hp<=0).length+'/'+job.targets.length+' CREW':'')}
+ if(interior){const near=nearestNPC();interaction=dist(player,{x:360,y:437})<65?'Leave '+interior.place.name:near?'Speak to '+near.name:null;const hidden=SHOP.secrets.find(s=>s.front===interior.place.id);if(hidden&&dist(player,{x:642,y:255})<64)interaction='Inspect the concealed door';$('interaction').classList.toggle('hidden',!interaction);if(interaction)$('interaction').querySelector('span').textContent=interaction;$('talkBtn').classList.toggle('hidden',!near);$('talkBtn').textContent=near?'F · Talk to '+near.name:'';return}
+ interaction=null;const near=nearestPlace();if(!player.car&&near&&shopById(near.id))interaction='Enter '+near.name;else if(near?.type==='phone')interaction='Take a contract';else if(player.car)interaction=Math.abs(player.car.v)<65?'Exit vehicle':null;else{const c=nearestCar();if(c)interaction='Drive '+carTypes[c.type].name}
  $('interaction').classList.toggle('hidden',!interaction);if(interaction)$('interaction').querySelector('span').textContent=interaction;
  drawMap(mc,180,false)
 }
@@ -282,15 +315,16 @@ function getRoute(){if(!job)return[];if(frame-routeFrame>25||!cachedRoute.length
 function drawRoute(){if(!job)return;const route=getRoute();ctx.save();ctx.strokeStyle='#c7a55e4f';ctx.lineWidth=5;ctx.lineCap='round';ctx.setLineDash([7,15]);ctx.lineDashOffset=-elapsed*12;ctx.beginPath();ctx.moveTo(player.x,player.y);for(const p of route)ctx.lineTo(p.x,p.y);ctx.stroke();ctx.restore()}
 function drawMarker(p,active=false){if(!visible(p,160))return;const s=active?51:29;ctx.save();ctx.translate(p.x,p.y);if(active){const glow=ctx.createRadialGradient(0,0,5,0,0,85);glow.addColorStop(0,'#d5ae6220');glow.addColorStop(1,'#d5ae6200');ctx.fillStyle=glow;ctx.fillRect(-85,-85,170,170)}ctx.strokeStyle=active?'#e6c37b':p.color+'88';ctx.lineWidth=active?2:1;ctx.setLineDash([active?12:4,active?6:5]);ctx.lineDashOffset=-elapsed*12;ctx.beginPath();ctx.arc(0,0,s+(active?Math.sin(elapsed*3)*3:0),0,TAU);ctx.stroke();ctx.setLineDash([]);
  ctx.fillStyle='#0c1a1bd9';ctx.beginPath();ctx.arc(0,0,14,0,TAU);ctx.fill();ctx.fillStyle=active?'#e6c37b':p.color;ctx.font='bold 11px Georgia';ctx.textAlign='center';ctx.fillText(active?'◆':p.icon,0,4);if(active){ctx.font='9px Arial';ctx.fillStyle='#ebd7ad';ctx.fillText(p.name||'MARKED COUPE',0,-69)}ctx.restore()}
-function drawMap(c,size,full){const mapHeight=full?Math.round(size*WORLD_H/WORLD):size;c.clearRect(0,0,size,mapHeight);c.fillStyle='#132527';c.fillRect(0,0,size,mapHeight);let range=full?WORLD:1350,sx=full?0:clamp(player.x-range/2,0,WORLD-range),sy=full?0:clamp(player.y-range/2,0,WORLD_H-range),scale=size/range;
+function drawMap(c,size,full){const mapHeight=full?Math.round(size*WORLD_H/WORLD):size;c.clearRect(0,0,size,mapHeight);c.fillStyle='#132527';c.fillRect(0,0,size,mapHeight);let range=full?WORLD:1350,sx=full?0:clamp((interior?interior.outside.x:player.x)-range/2,0,WORLD-range),sy=full?0:clamp((interior?interior.outside.y:player.y)-range/2,0,WORLD_H-range),scale=size/range;
  if(full)c.drawImage(map,0,0,WORLD,WORLD_H,0,0,size,mapHeight);else c.drawImage(map,sx,sy,range,range,0,0,size,size);c.fillStyle='#0a202567';c.fillRect(0,0,size,mapHeight);const point=o=>({x:(o.x-sx)*scale,y:(o.y-sy)*scale});
- if(job){c.strokeStyle='#d7b365';c.lineWidth=full?2.5:1.5;c.beginPath();let pp=point(player);c.moveTo(pp.x,pp.y);for(const p of roadRoute(player,job.target)){const q=point(p);c.lineTo(q.x,q.y)}c.stroke();const t=point(job.target);c.fillStyle='#f1c878';c.beginPath();c.arc(clamp(t.x,5,size-5),clamp(t.y,5,size-5),full?7:4,0,TAU);c.fill()}
- for(const p of places){const q=point(p);if(q.x<0||q.y<0||q.x>size||q.y>size)continue;c.fillStyle=p.color;c.font=`bold ${full?11:8}px Arial`;c.textAlign='center';c.fillText(p.icon,q.x,q.y+3);if(full){c.font='7px Arial';c.fillStyle='#d8d8b5';c.fillText(p.name,q.x,q.y+16)}}
+ if(job){c.strokeStyle='#d7b365';c.lineWidth=full?2.5:1.5;c.beginPath();let pp=point(interior?interior.outside:player);c.moveTo(pp.x,pp.y);for(const p of roadRoute(interior?interior.outside:player,job.target)){const q=point(p);c.lineTo(q.x,q.y)}c.stroke();const t=point(job.target);c.fillStyle='#f1c878';c.beginPath();c.arc(clamp(t.x,5,size-5),clamp(t.y,5,size-5),full?7:4,0,TAU);c.fill()}
+ for(const p of places){if(p.hidden&&save.secrets[p.id]!=='found')continue;const q=point(p);if(q.x<0||q.y<0||q.x>size||q.y>size)continue;c.fillStyle=p.color;c.font=`bold ${full?11:8}px Arial`;c.textAlign='center';c.fillText(p.icon,q.x,q.y+3);if(full){c.font='7px Arial';c.fillStyle='#d8d8b5';c.fillText(p.name,q.x,q.y+16)}}
  for(const e of enemies.filter(e=>e.hp>0).concat(cars.filter(c=>c.ai==='police'&&!c.dead))){const p=point(e);c.fillStyle='#df7962';c.beginPath();c.arc(p.x,p.y,full?3.5:2.5,0,TAU);c.fill()}
  if(full){c.fillStyle='#d4d2b090';c.font='10px Georgia';c.textAlign='center';for(const zone of WLD.zones){const q=point(zone);c.fillText(zone.name,q.x,q.y)}}
- const p=point(player);c.save();c.translate(p.x,p.y);c.rotate(player.car?player.car.a:player.a);c.fillStyle='#f5e7ba';c.strokeStyle='#111f20';c.lineWidth=1;c.beginPath();c.moveTo(8,0);c.lineTo(-5,-4);c.lineTo(-2,0);c.lineTo(-5,4);c.closePath();c.fill();c.stroke();c.restore();
+ const p=point(interior?interior.outside:player);c.save();c.translate(p.x,p.y);c.rotate(player.car?player.car.a:player.a);c.fillStyle='#f5e7ba';c.strokeStyle='#111f20';c.lineWidth=1;c.beginPath();c.moveTo(8,0);c.lineTo(-5,-4);c.lineTo(-2,0);c.lineTo(-5,4);c.closePath();c.fill();c.stroke();c.restore();
 }
 function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#111e21';ctx.fillRect(0,0,w,h);
+ if(interior){drawInterior();return}
  if(mode==='title'){camera.x=places[0].x+Math.sin(elapsed*.035)*340;camera.y=places[0].y+Math.cos(elapsed*.024)*220}
  const sX=shake>0?rand(-shake,shake):0,sY=shake>0?rand(-shake,shake):0;
  ctx.save();ctx.translate(w/2+sX,h/2+sY);ctx.scale(zoom,zoom);ctx.translate(-camera.x,-camera.y);
@@ -300,7 +334,7 @@ function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#111e21';ctx.fi
  for(const l of lamps){if(!visible(l,130))continue;const grad=ctx.createRadialGradient(l.x,l.y,0,l.x,l.y,105);grad.addColorStop(0,'#efc4751e');grad.addColorStop(.45,'#d9b6750c');grad.addColorStop(1,'#dfbb6b00');ctx.fillStyle=grad;ctx.fillRect(l.x-105,l.y-105,210,210);ctx.fillStyle='#172a27';ctx.fillRect(l.x-1,l.y-7,3,13);ctx.fillStyle='#d9c58e';ctx.fillRect(l.x-3,l.y-7,6,3);ctx.fillStyle='#d4bf7c16';ctx.fillRect(l.x-12,l.y+12,6,40)}
  for(const s of skids)if(visible(s)){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.a);ctx.globalAlpha=Math.min(.45,s.life/20);ctx.fillStyle='#0c1518';ctx.fillRect(-11,-13,22,3);ctx.fillRect(-11,10,22,3);ctx.restore()}
  if(started)drawRoute();
- for(const p of places)drawMarker(p,job&&job.target===p);if(job?.type==='wheelman'&&job.stage===0)drawMarker({...job.car,name:'MARKED COUPE'},true);
+ for(const p of places)if(!p.hidden||save.secrets[p.id]==='found')drawMarker(p,job&&job.target===p);if(job?.type==='wheelman'&&job.stage===0)drawMarker({...job.car,name:'MARKED COUPE'},true);
  for(const p of peds)if(visible(p,30))drawPerson(p);
  for(const e of enemies)if(visible(e,30))drawPerson(e,true,e.hp<=0);
  const renderCars=cars.filter(c=>visible(c,150)).sort((a,b)=>a.y-b.y);for(const c of renderCars)drawCar(c);
@@ -331,47 +365,47 @@ stick.addEventListener('pointerdown',e=>{stickPointer=e.pointerId;stick.setPoint
 for(const b of $('mobile').querySelectorAll('button')){const a=b.dataset.action;b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);if(a==='talk')talkNearby();else if(a==='fire')touch.fire=true;else if(a==='brake')touch.brake=true;else if(a==='interact')interact();else if(a==='jobs')showPanel('jobs');else if(a==='empire')showPanel('empire');else if(a==='reload')reload()});for(const event of ['pointerup','pointercancel'])b.addEventListener(event,()=>{if(a==='fire')touch.fire=false;if(a==='brake')touch.brake=false})}
 function openSpot(p,offset=65){const n=WLD.nearest(p);for(const off of [offset,-offset,offset+30,-offset-30]){const q={x:n.x-Math.sin(n.angle)*off,y:n.y+Math.cos(n.angle)*off};if(!blocked(q.x,q.y,12))return q}return{x:n.x,y:n.y}}
 function setupNPCs(){npcs=[['sal','Sal Bell','MECHANIC',0,places[0],'#9d9877'],['nora','Nora Vale','JAZZ SINGER',1,places[2],'#9c6a5c'],['ruth','Ruth Mercer','BOOTLEGGER',2,places[3],'#9b7255'],['eddie','Eddie Pike','NEWSPAPER HAWKER',3,places[7],'#8a9c82']].map(([id,name,role,portrait,p,color])=>({id,name,role,portrait,...openSpot({x:p.x+(id==='sal'?-40:34),y:p.y}),a:Math.PI/2,color,featured:true}));save.story=save.story||{};save.feedback=save.feedback||[];}
-function nearestNPC(radius=105){if(player.car&&Math.abs(player.car.v)>32)return null;return npcs.filter(n=>!n.consumed&&dist(n,player)<radius).sort((a,b)=>dist(a,player)-dist(b,player))[0]||null}
+function nearestNPC(radius=105){if(interior)return interior.people.filter(n=>dist(n,player)<radius).sort((a,b)=>dist(a,player)-dist(b,player))[0]||null;if(player.car&&Math.abs(player.car.v)>32)return null;return npcs.filter(n=>!n.consumed&&dist(n,player)<radius).sort((a,b)=>dist(a,player)-dist(b,player))[0]||null}
 const say=(text,choices)=>({text,choices}),option=(label,action)=>({label,action});
 function gift(amount){save.cash+=amount;save.stats.earnings+=amount;sound('cash');persist()}
 function mark(key,val=true){save.story[key]=val;persist()}
 function setLead(id,target,title,pay,twist=''){if(lead)return false;lead={id,target,title,pay,time:240,twist};toast('NEW LEAD · '+title+' · Follow the violet marker.');return true}
 function offerLead(id,target,title,pay,twist=''){return()=>{if(lead)return say('You already have an errand on your hands. Finish that one first.',[option('I will be back.',endConversation)]);if(save.story[id])return say('You already took care of that. People here remember a favor.',[option('Good to know.',endConversation)]);setLead(id,target,title,pay,twist);mark(id);endConversation()}}
-function storyFor(n){const st=save.story;
+function storyFor(n){if(n.shopId)return shopStory(n);const st=save.story;
  if(n.id==='sal'){
   if(st.salDelivered)return say('That ledger you carried? The numbers were badge numbers. Someone is selling the town a protection racket and charging both sides. I made a copy. I am getting too old to be the only person who knows a thing.',[option('Who else has seen it?',()=>say('Nora. She remembers faces. You should ask her about the man at table six.',[option('I will talk to Nora.',()=>{mark('tableSix');endConversation()})])),option('Can you check the car?',()=>repairConversation(n)),option('Keep the copy safe.',endConversation)]);
   return say(st.salVisits>1?'I keep finding the same man outside the shop. Clean shoes. Muddy car. He asks whether you came back. I told him I charge extra for questions.':'Somebody left a car outside my shop with a full tank and a bullet hole in the passenger door. Then they left a note with your description. That is not regular garage business.',[
    option('Whose car was it?',()=>say('The name on the title belongs to a dead man. Here is the interesting part: the title was signed yesterday.',[
-    option('Let me see the paperwork.',()=>say('Two sets of handwriting. One address: the freight depot. Take this envelope there, and I will pay $140. Keep it out of the rain. And if a man asks for the blue copy, you have the wrong man.',[option('I will take the envelope. [+ $140 on delivery]',offerLead('salEnvelope',places[5],'The dead man’s title',140,'ledger')),option('Who is the wrong man?',()=>say('That is what bothers me. There should only be one man expecting it. Take it if you want answers. I will not ask twice.',[option('Take the envelope.',offerLead('salEnvelope',places[5],'The dead man’s title',140,'ledger')),option('Not tonight.',endConversation)])),option('I am not carrying that.',endConversation)])),option('Sounds like a problem for someone else.',endConversation)])),
+    option('Let me see the paperwork.',()=>say('Two sets of handwriting. One address: the freight depot. Take this envelope there, and I will pay $7.00. Keep it out of the rain. And if a man asks for the blue copy, you have the wrong man.',[option('I will take the envelope. [+ $7.00 on delivery]',offerLead('salEnvelope',places[5],'The dead man’s title',7,'ledger')),option('Who is the wrong man?',()=>say('That is what bothers me. There should only be one man expecting it. Take it if you want answers. I will not ask twice.',[option('Take the envelope.',offerLead('salEnvelope',places[5],'The dead man’s title',7,'ledger')),option('Not tonight.',endConversation)])),option('I am not carrying that.',endConversation)])),option('Sounds like a problem for someone else.',endConversation)])),
    option('I need the car running properly.',()=>repairConversation(n)),
    option('What is the trick to driving these things?',()=>say('Ease off before the corner. Brake first, turn second, and get back on the gas when the nose is pointing where you want it. The handbrake will rotate the rear, but it will not negotiate with a brick wall.',[option('I will try it your way.',endConversation)]))]);
  }
  if(n.id==='nora'){
   const line=st.tableSix?'Sal sent you? The man at table six is not a federal agent. His badge is real. His name is not.':'A man has bought the same empty table three nights in a row. Tonight he paid for two drinks. The other glass is for you. Do not look over yet.';
-  return say(line,[option('What does he want?',()=>say('He wants my piano player to identify a man in a photograph. The photograph is of the piano player. Either he is very bad at his job, or he wants us frightened.',[option('Get your piano player out of here.',()=>say('There is a delivery car going south. Carry his suitcase to the Blue Lantern and I will pay $180. If a patrol stops you, the case holds shoes. That is even true.',[option('I can do that.',offerLead('noraCase',places[4],'Two left shoes',180,'nora')),option('Why tell me any of this?',()=>say(st.ruthTrap?'Because Ruth’s trap was not meant for you. Someone changed the name on the crate. You may want to remember that.':'Because he watched the door until you arrived. Then he stopped. Whatever this is, you are already in it.',[option('Take the suitcase.',offerLead('noraCase',places[4],'Two left shoes',180,'nora')),option('I need time to think.',endConversation)]))])),option('I will ask him myself.',()=>{mark('noraConfronted');addHeat(16);return say('You cross the room. He leaves a badge on the table and walks out through the kitchen. It is a stage prop. Outside, a real patrol car starts its engine.',[option('That was deliberate.',endConversation)])})])),option('Buy the table a round. [$40]',()=>{if(!spend(40))return say('Nora puts your money back. “You need that more than he does.”',[option('Fair enough.',endConversation)]);mark('noraTrust');heat=Math.max(0,heat-25);return say('Nora sends over water in two whiskey glasses. The man laughs, leaves, and takes the patrol outside with him. “Sometimes,” she says, “they just want to know who will blink.”',[option('I owe you one.',endConversation)])}),option('Leave before the second glass is filled.',endConversation)]);
+  return say(line,[option('What does he want?',()=>say('He wants my piano player to identify a man in a photograph. The photograph is of the piano player. Either he is very bad at his job, or he wants us frightened.',[option('Get your piano player out of here.',()=>say('There is a delivery car going south. Carry his suitcase to the Blue Lantern and I will pay $9.00. If a patrol stops you, the case holds shoes. That is even true.',[option('I can do that.',offerLead('noraCase',places[4],'Two left shoes',9,'nora')),option('Why tell me any of this?',()=>say(st.ruthTrap?'Because Ruth’s trap was not meant for you. Someone changed the name on the crate. You may want to remember that.':'Because he watched the door until you arrived. Then he stopped. Whatever this is, you are already in it.',[option('Take the suitcase.',offerLead('noraCase',places[4],'Two left shoes',9,'nora')),option('I need time to think.',endConversation)]))])),option('I will ask him myself.',()=>{mark('noraConfronted');addHeat(16);return say('You cross the room. He leaves a badge on the table and walks out through the kitchen. It is a stage prop. Outside, a real patrol car starts its engine.',[option('That was deliberate.',endConversation)])})])),option('Buy the table a round. [$2.00]',()=>{if(!spend(2))return say('Nora puts your money back. “You need that more than he does.”',[option('Fair enough.',endConversation)]);mark('noraTrust');heat=Math.max(0,heat-25);return say('Nora sends over water in two whiskey glasses. The man laughs, leaves, and takes the patrol outside with him. “Sometimes,” she says, “they just want to know who will blink.”',[option('I owe you one.',endConversation)])}),option('Leave before the second glass is filled.',endConversation)]);
  }
  if(n.id==='ruth'){
-  if(st.ruthTrap&&!st.ruthCompensated){gift(60);mark('ruthCompensated')}
-  if(st.ruthCrate)return say(st.ruthTrap?'You found the patrol, then. I checked the warehouse. Somebody switched the destination after I signed the manifest. I am paying you $60 for the trouble. That is an apology. I do not have many of those.':'The crate arrived. The buyer wanted to know whether you looked inside. I said you charged too much to be curious. He seemed reassured.',[option('What happens to the people who do look?',()=>say('Depends on what they find. And who finds out they found it.',[option('I will keep that in mind.',endConversation)])),option('I am looking for paid work.',()=>{endConversation();showPanel('jobs')})]);
-  return say('A crate. A short drive. $210. Before you answer: that gold car has passed us three times. The driver changed his hat on the second lap. I would respect the effort if the car were less conspicuous.',[
-   option('What is inside the crate?',()=>say('Empty bottles. The bottles are not the cargo. The labels are. Someone is forging a federal evidence seal. I would rather not be the last person holding them.',[option('I will carry it. [$210, possible trouble]',offerLead('ruthCrate',places[5],'The wrong crate',210,'crate')),option('Take it to the authorities.',()=>say('Which ones? That is the part of the question I cannot answer.',[option('Then I will pass.',endConversation)]))])),
-   option('I will take the job without asking.',offerLead('ruthCrate',places[5],'The wrong crate',210,'crate')),
+  if(st.ruthTrap&&!st.ruthCompensated){gift(3);mark('ruthCompensated')}
+  if(st.ruthCrate)return say(st.ruthTrap?'You found the patrol, then. I checked the warehouse. Somebody switched the destination after I signed the manifest. I am paying you $3.00 for the trouble. That is an apology. I do not have many of those.':'The crate arrived. The buyer wanted to know whether you looked inside. I said you charged too much to be curious. He seemed reassured.',[option('What happens to the people who do look?',()=>say('Depends on what they find. And who finds out they found it.',[option('I will keep that in mind.',endConversation)])),option('I am looking for paid work.',()=>{endConversation();showPanel('jobs')})]);
+  return say('A crate. A short drive. $10.50. Before you answer: that gold car has passed us three times. The driver changed his hat on the second lap. I would respect the effort if the car were less conspicuous.',[
+   option('What is inside the crate?',()=>say('Empty bottles. The bottles are not the cargo. The labels are. Someone is forging a federal evidence seal. I would rather not be the last person holding them.',[option('I will carry it. [$10.50, possible trouble]',offerLead('ruthCrate',places[5],'The wrong crate',10.50,'crate')),option('Take it to the authorities.',()=>say('Which ones? That is the part of the question I cannot answer.',[option('Then I will pass.',endConversation)]))])),
+   option('I will take the job without asking.',offerLead('ruthCrate',places[5],'The wrong crate',10.50,'crate')),
    option('Tell me about that car instead.',()=>{mark('goldCar');return say('The front plate is from Michigan. The rear plate is from Ohio. Nobody makes that mistake by accident. If you see it at the depot, leave yourself an exit.',[option('That sounds like a useful detail.',endConversation)])}),option('Too much attention. I am out.',endConversation)]);
  }
  if(n.id==='eddie')return say(st.eddieTip?'You were right about yesterday’s paper. The editor says I cannot sell tomorrow’s news until he knows who paid for it. He still took a copy home.':'Want tomorrow’s paper? I know how that sounds. But there is a photograph on the front page of a warehouse fire, and the warehouse is still standing.',[
- option('How did you get it?',()=>say('A man paid me to deliver a bundle to the depot. The press date was wrong. The fire date was tonight. He told me a clever boy does not read what he carries. That was a poor choice of words.',[option('Give me a copy. [$20]',()=>{if(!spend(20))return say('“Keep your twenty,” Eddie says. “You look like you have already had a long evening.”',[option('Thanks.',endConversation)]);mark('eddieTip');return say('On the back of the photograph is a route around Dort Highway. The patrols are stopping cars on the main road. Eddie circles the side streets. “The fire story is fake. The roadblocks are not.” Your police heat drops.',[option('Use the route. [-30 heat]',()=>{heat=Math.max(0,heat-30);endConversation()})])}),option('Can you get this to Nora?',()=>{mark('tableSix');gift(25);return say('Eddie is gone before you finish the sentence. A minute later he is back with a folded $25. “She says she owes you a drink. She also says do not order it tonight.”',[option('That is unsettling.',endConversation)])})])),option('Any ordinary work going?',()=>{endConversation();showPanel('jobs')}),option('I would rather read yesterday’s news.',endConversation)]);
+ option('How did you get it?',()=>say('A man paid me to deliver a bundle to the depot. The press date was wrong. The fire date was tonight. He told me a clever boy does not read what he carries. That was a poor choice of words.',[option('Give me a copy. [$1.00]',()=>{if(!spend(1))return say('“Keep your twenty,” Eddie says. “You look like you have already had a long evening.”',[option('Thanks.',endConversation)]);mark('eddieTip');return say('On the back of the photograph is a route around Dort Highway. The patrols are stopping cars on the main road. Eddie circles the side streets. “The fire story is fake. The roadblocks are not.” Your police heat drops.',[option('Use the route. [-30 heat]',()=>{heat=Math.max(0,heat-30);endConversation()})])}),option('Can you get this to Nora?',()=>{mark('tableSix');gift(1.25);return say('Eddie is gone before you finish the sentence. A minute later he is back with a folded $1.25. “She says she owes you a drink. She also says do not order it tonight.”',[option('That is unsettling.',endConversation)])})])),option('Any ordinary work going?',()=>{endConversation();showPanel('jobs')}),option('I would rather read yesterday’s news.',endConversation)]);
  return ambientStory(n);
 }
-function repairConversation(n){if(!save.story.salRepair){mark('salRepair');player.hp=Math.min(100,player.hp+20);if(player.car&&!player.car.burning)player.car.hp=player.car.maxHp;return say('Sal lifts the hood, adjusts one cable, and closes it. “The first one is free. The second one costs money. The third one means you should let somebody else drive.”',[option('Thanks, Sal.',endConversation)])}return say('“I can fix it. But I am running a garage, not a charity.” Full repairs, medical supplies and ammunition are $85 in the shop.',[option('Open the garage.',()=>{endConversation();showPanel('empire');tabName='garage';renderPanel()}),option('Maybe later.',endConversation)])}
+function repairConversation(n){if(!save.story.salRepair){mark('salRepair');player.hp=Math.min(100,player.hp+20);if(player.car&&!player.car.burning)player.car.hp=player.car.maxHp;return say('Sal lifts the hood, adjusts one cable, and closes it. “The first one is free. The second one costs money. The third one means you should let somebody else drive.”',[option('Thanks, Sal.',endConversation)])}return say('“I can fix it. But I am running a garage, not a charity.” Full repairs, medical supplies and ammunition are $4.50 in the shop.',[option('Open the garage.',()=>{endConversation();showPanel('empire');tabName='garage';renderPanel()}),option('Maybe later.',endConversation)])}
 function ambientStory(n){if(n.kind==='motorist')return say('“My car stopped. That gentleman over there offered to buy it before I even pulled over. Is that normal around here?”',[
  option('Help with the engine.',()=>{n.consumed=true;const outcome=Math.random();if(outcome<.7){gift(45);return say('One loose cable. The driver presses $45 into your hand. Across the road, the interested buyer suddenly remembers an appointment.',[option('Keep driving.',endConversation)])}addHeat(12);return say('Under the hood, the engine is fine. A whistle sounds from the other side of the road. The driver says, “I am sorry. They said they would take my car.”',[option('Leave before the trap closes.',endConversation)])}),option('Ask who the buyer is.',()=>say('“Said his name was Smith. Then called himself Jones when he answered his telephone.”',[option('I would find another mechanic.',endConversation)])),option('Keep walking.',endConversation)]);
- if(n.kind==='courier')return say('“Which way is the freight depot? And if you happen to know, is there more than one person there named Mr. Blue?”',[option('Two Mr. Blues? Let me see the address.',()=>{n.consumed=true;gift(30);mark('blueWarning');return say('The envelope is addressed to Bell & Sons, not the depot. The courier turns it over. “Oh. That explains the last three hours.” You get $30 for saving the delivery.',[option('Some nights are like that.',endConversation)])}),option('I cannot help you.',endConversation)]);
+ if(n.kind==='courier')return say('“Which way is the freight depot? And if you happen to know, is there more than one person there named Mr. Blue?”',[option('Two Mr. Blues? Let me see the address.',()=>{n.consumed=true;gift(1.50);mark('blueWarning');return say('The envelope is addressed to Bell & Sons, not the depot. The courier turns it over. “Oh. That explains the last three hours.” You get $1.50 for saving the delivery.',[option('Some nights are like that.',endConversation)])}),option('I cannot help you.',endConversation)]);
  return say(pick(['“The patrol on Dort is stopping empty trucks and waving loaded ones through. I am not saying there is a system. I am saying it is a very specific coincidence.”','“Somebody bought six hundred empty bottles at the depot. I sell milk. I would know if this town started drinking that much milk.”','“The lights at the Blue Lantern went out twice. Once for the police. Once for the band. The band was worse.”']),[option('Any paid work around?',()=>{endConversation();showPanel('jobs')}),option('Thanks for the warning.',endConversation)]);
 }
 function talkNearby(){if(mode!=='play')return;const n=nearestNPC();if(!n){toast('Get closer to someone with a speech bubble. F starts a conversation.');return}if(player.car){player.car.v=player.car.vx=player.car.vy=0;player.car.throttle=0}for(const k in keys)keys[k]=false;mouse.down=false;touch.fire=false;touch.x=touch.y=0;mode='dialogue';$('pursuitFx').classList.remove('active');conversation={npc:n,node:null};if(n.featured){mark(n.id+'Visits',(save.story[n.id+'Visits']||0)+1)}setDialogue(storyFor(n));$('crosshair').classList.add('hidden')}
 function setDialogue(node){if(!conversation||!node)return;conversation.node=node;const n=conversation.npc;$('dialogue').classList.remove('hidden');$('dialogue').classList.toggle('no-portrait',!n.featured);$('portrait').style.backgroundPosition=['0% 0%','100% 0%','0% 100%','100% 100%'][n.portrait||0];$('speakerName').textContent=n.name;$('speakerRole').textContent=n.role;$('dialogueText').textContent=node.text;$('dialogueChoices').innerHTML=node.choices.map((c,i)=>`<button data-choice="${i}"><kbd>${i+1}</kbd>${c.label}</button>`).join('')}
 function chooseDialogue(i){const choice=conversation?.node?.choices[i];if(!choice)return;const next=choice.action();if(next&&conversation)setDialogue(next)}
-function endConversation(){conversation=null;$('dialogue').classList.add('hidden');mode='play';if(!isTouch)$('crosshair').classList.remove('hidden');persist()}
+function endConversation(){conversation=null;$('dialogue').classList.add('hidden');mode='play';if(!isTouch&&!interior)$('crosshair').classList.remove('hidden');persist()}
 function spawnEncounter(){if(npcs.filter(n=>!n.featured&&!n.consumed).length>=3)return;const points=WLD.nodes.filter(n=>dist(n,player)>260&&dist(n,player)<600);if(!points.length)return;const at=openSpot(pick(points),64),kind=pick(['motorist','courier','neighbor']);npcs.push({id:'event-'+Math.floor(elapsed*1000),name:kind==='motorist'?'A stranded motorist':kind==='courier'?'A confused courier':'A local',role:'STREET ENCOUNTER',kind,...at,a:rand(0,TAU),color:'#a29572',expires:elapsed+110,featured:false,bark:kind==='motorist'?'A little help here?':kind==='courier'?'Excuse me. The depot?':'You hear what happened?'});toast('Someone nearby is trying to get your attention. Look for the speech bubble.')}
 function tickWorldLife(dt){encounterTimer-=dt;if(encounterTimer<=0){spawnEncounter();encounterTimer=rand(40,70)}npcs=npcs.filter(n=>n.featured||(!n.consumed&&n.expires>elapsed));
  if(lead){lead.time-=dt;if(lead.time<0){toast('The lead went cold. Other people still have stories.');lead=null}else if(dist(player,lead.target)<63&&(!player.car||Math.abs(player.car.v)<30)){const done=lead;lead=null;gift(done.pay);save.xp+=55;if(done.twist==='ledger'){mark('salDelivered');toast('ENVELOPE DELIVERED · '+money(done.pay)+' · The recipient knew your name. Sal may know why.')}else if(done.twist==='crate'&&Math.random()<.45){mark('ruthTrap');addHeat(38);toast('A patrol was waiting at the depot. Ruth owes you an explanation.')}else if(done.twist==='nora'){mark('noraSaved');toast('SUITCASE DELIVERED · '+money(done.pay)+' · Two shoes. Two different sizes.')}else toast('LEAD COMPLETE · '+money(done.pay));persist()}}
@@ -386,6 +420,7 @@ function drawBuilding3D(b){const floor=[{x:b.x,y:b.y},{x:b.x+b.w,y:b.y},{x:b.x+b
  for(const i of facing){const j=(i+1)%4;polygon([floor[i],floor[j],roof[j],roof[i]],['#39423a','#293936','#283a37','#4b5040'][i]);if(b.z>25){for(let t=.18;t<.9;t+=.22){const a={x:lerp(floor[i].x,floor[j].x,t),y:lerp(floor[i].y,floor[j].y,t)},p=project3(a.x,a.y,b.z*.55);ctx.fillStyle=(Math.floor(b.x+t*10)%3)?'#d5b67599':'#243c39';ctx.fillRect(p.x-2,p.y-2,4,4)}}}
  polygon(roof,b.color);ctx.strokeStyle='#b6b19355';ctx.lineWidth=1;ctx.beginPath();roof.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.stroke();
  if(b.gable){const a=project3(b.x+b.w/2,b.y,b.z+7),z=project3(b.x+b.w/2,b.y+b.h,b.z+7);polygon([roof[0],a,z,roof[3]],'#424d42');ctx.strokeStyle='#a3a18b66';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(z.x,z.y);ctx.stroke()}else{const p=project3(b.x+10,b.y+12,b.z+3);ctx.fillStyle='#31474a';ctx.fillRect(p.x,p.y,12,8);ctx.fillStyle='#86a39a';ctx.fillRect(p.x+1,p.y+1,10,2);const q=project3(b.x+b.w-15,b.y+b.h-12,b.z+5);ctx.fillStyle='#86846c';ctx.fillRect(q.x,q.y,8,6)}
+ if(b.placeId){const door=places.find(p=>p.id===b.placeId)?.door;if(door){ctx.fillStyle='#e6c382';ctx.fillRect(door.x-5,door.y-5,10,10);ctx.strokeStyle='#ead5a366';ctx.beginPath();ctx.arc(door.x,door.y,13,0,TAU);ctx.stroke()}}
  if(b.landmark){const p=project3(b.x+b.w/2,b.y+b.h/2,b.z+1);ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle='#101f20d9';ctx.fillRect(-b.w*.55,-7,b.w*1.1,14);ctx.font='6px Arial';ctx.textAlign='center';ctx.fillStyle='#d7c594';ctx.fillText(b.landmark,0,2);ctx.restore()}
 }
 function drawWorldLife(){
@@ -397,7 +432,7 @@ function drawWorldLife(){
  for(const s of smoke){if(!visible(s,180))continue;const p=project3(s.x,s.y,s.z),alpha=clamp(s.life/s.max,0,1)*.42;ctx.fillStyle=s.dark?`rgba(37,42,38,${alpha})`:`rgba(156,163,145,${alpha})`;ctx.beginPath();ctx.arc(p.x,p.y,s.r,0,TAU);ctx.fill();ctx.fillStyle=`rgba(197,193,161,${alpha*.2})`;ctx.beginPath();ctx.arc(p.x-s.r*.2,p.y-s.r*.2,s.r*.6,0,TAU);ctx.fill()}
 }
 function drawPursuitEdges(){if(mode!=='play')$('pursuitFx').classList.remove('active')}
-function endLife(reason){if(deathReport)return;toastTimer=0;$('toast').classList.remove('show');player.hp=0;save.stats.lives=(save.stats.lives||0)+1;deathReport={id:Date.now().toString(36)+'-'+Math.floor(Math.random()*1e6),build:'0.2.2-mtmorris',reason,duration:Math.round(activeElapsed-lifeStart),jobs:save.jobs-lifeJobs,earned:Math.max(0,save.stats.earnings-lifeMoney),district:district(player.x,player.y),rating:0,handling:0};for(const k in keys)keys[k]=false;mouse.down=false;touch.fire=false;touch.x=touch.y=0;mode='feedback';$('pursuitFx').classList.remove('active');$('overlay').classList.remove('hidden');$('titleScreen').classList.add('hidden');$('panel').classList.remove('hidden');$('crosshair').classList.add('hidden');renderDeath();persist()}
+function endLife(reason){if(deathReport)return;toastTimer=0;$('toast').classList.remove('show');player.hp=0;save.stats.lives=(save.stats.lives||0)+1;deathReport={id:Date.now().toString(36)+'-'+Math.floor(Math.random()*1e6),build:'0.3-businesses',reason,duration:Math.round(activeElapsed-lifeStart),jobs:save.jobs-lifeJobs,earned:Math.max(0,save.stats.earnings-lifeMoney),district:district(player.x,player.y),rating:0,handling:0};for(const k in keys)keys[k]=false;mouse.down=false;touch.fire=false;touch.x=touch.y=0;mode='feedback';$('pursuitFx').classList.remove('active');$('overlay').classList.remove('hidden');$('titleScreen').classList.add('hidden');$('panel').classList.remove('hidden');$('crosshair').classList.add('hidden');renderDeath();persist()}
 function renderDeath(){const r=deathReport;$('panel').innerHTML=`<div class="eyebrow">END OF THIS LIFE · PROTOTYPE 0.2</div><h2>The night caught up with you.</h2><p>${r.reason} in ${r.district.toLowerCase()}. Your empire and upgrades carry on.</p><div class="statsgrid"><div><strong>${Math.floor(r.duration/60)}:${String(r.duration%60).padStart(2,'0')}</strong><small>TIME ON THE STREET</small></div><div><strong>${r.jobs}</strong><small>JOBS COMPLETE</small></div><div><strong>${money(r.earned)}</strong><small>EARNED THIS LIFE</small></div></div><form id="lifeFeedback" data-desk-skip><h3>Help shape the next build.</h3><fieldset><legend>How was this life?</legend><div class="rating-row">${[1,2,3,4,5].map(i=>`<label><input data-desk-skip type="radio" name="rating" value="${i}"><span>${i}</span></label>`).join('')}<small>1 · frustrating &nbsp; 5 · one more run</small></div></fieldset><fieldset><legend>How did driving feel?</legend><div class="rating-row">${[1,2,3,4,5].map(i=>`<label><input data-desk-skip type="radio" name="handling" value="${i}"><span>${i}</span></label>`).join('')}<small>1 · awkward &nbsp; 5 · smooth</small></div></fieldset><label class="feedback-label" for="feedbackNote">What felt good, broke, or should happen next?</label><textarea data-desk-skip id="feedbackNote" name="note" rows="3" maxlength="1000" placeholder="Optional. Please leave out names and personal information."></textarea><p class="feedback-privacy">Only your ratings, note and the run summary above are sent to the game's creator. No name or account is requested.</p><div class="feedback-actions"><button class="primary" type="submit">SEND FEEDBACK & CONTINUE ↗</button><button type="button" class="secondary" id="skipFeedback">SKIP & CONTINUE</button></div><p id="feedbackStatus" role="status"></p></form>`;$('lifeFeedback').addEventListener('submit',submitLifeFeedback);$('skipFeedback').addEventListener('click',continueLife)}
 async function submitLifeFeedback(e){e.preventDefault();if(!deathReport)return;const f=$('lifeFeedback'),data=new FormData(f),report={...deathReport,rating:Number(data.get('rating'))||0,handling:Number(data.get('handling'))||0,note:String(data.get('note')||'').slice(0,1000),date:new Date().toISOString(),sent:false};save.feedback=save.feedback||[];const existing=save.feedback.findIndex(v=>v.id===report.id);if(existing>=0)save.feedback[existing]=report;else save.feedback.push(report);save.feedback=save.feedback.slice(-60);persist();const status=$('feedbackStatus'),btn=f.querySelector('button[type="submit"]');btn.disabled=true;status.textContent='Sending your feedback…';
  try{const body=new URLSearchParams({'form-name':'dry-county-feedback','bot-field':'',run:report.id,build:report.build,rating:String(report.rating),handling:String(report.handling),note:report.note,summary:JSON.stringify({reason:report.reason,duration:report.duration,jobs:report.jobs,earned:report.earned,district:report.district}),date:report.date});const res=await fetch(new URL('feedback.html',location.href),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString(),signal:AbortSignal.timeout(8000)});if(!res.ok)throw new Error('Feedback endpoint not available');report.sent=true;const local=save.feedback.find(v=>v.id===report.id);if(local)local.sent=true;persist();status.textContent='Thank you. Feedback sent.';if(deathReport?.id===report.id){continueLife();toast('Thanks. Your feedback was sent.');}}
@@ -407,8 +442,239 @@ function downloadFeedback(report){const blob=new Blob([JSON.stringify(report,nul
 function continueLife(){if(!deathReport)return;deathReport=null;deathPending=false;$('panel').classList.add('hidden');$('overlay').classList.add('hidden');mode='play';recover();if(!isTouch)$('crosshair').classList.remove('hidden')}
 $('dialogueChoices').addEventListener('click',e=>{const b=e.target.closest('button');if(b)chooseDialogue(Number(b.dataset.choice))});$('dialogueClose').addEventListener('click',endConversation);$('talkBtn').addEventListener('click',talkNearby);
 
+
+/* Businesses share the city save, but use their own walkable rooms. */
+function shopById(id){return SHOP.shops.find(s=>s.id===id)}
+function ensureMarket(){
+ if(!save.secrets||typeof save.secrets!=='object')save.secrets={};
+ if(!save.home||typeof save.home!=='object')save.home={built:[],furniture:[]};
+ if(!Array.isArray(save.home.built))save.home.built=[];
+ if(!Array.isArray(save.home.furniture))save.home.furniture=[];
+ if(!Number.isFinite(save.moonshineDelivered))save.moonshineDelivered=0;
+ for(const id of save.businesses)if(SHOP.secrets.some(s=>s.club===id))save.secrets[id]='found';
+ if(!save.inventory||typeof save.inventory!=='object'||Array.isArray(save.inventory))save.inventory={};
+ if(!save.market||typeof save.market!=='object')save.market={seconds:0,stock:{}};
+ if(!save.market.demand||typeof save.market.demand!=='object')save.market.demand={};
+ for(const secret of SHOP.secrets)if(!Number.isInteger(save.market.demand[secret.club]))save.market.demand[secret.club]=3;
+ if(!save.market.stock||typeof save.market.stock!=='object')save.market.stock={};
+ for(const s of SHOP.shops){if(!save.market.stock[s.id])save.market.stock[s.id]={};for(const id of s.goods){
+  if(!Number.isInteger(save.market.stock[s.id][id])||save.market.stock[s.id][id]<0)save.market.stock[s.id][id]=SHOP.items[id].stock;
+ }}
+ for(const id of Object.keys(save.inventory))if(!SHOP.items[id]||!Number.isInteger(save.inventory[id])||save.inventory[id]<0)delete save.inventory[id];
+}
+function tickMarket(dt){ensureMarket();save.market.seconds=(Number(save.market.seconds)||0)+dt;if(save.market.seconds>=180){save.market.seconds%=180;for(const s of SHOP.shops)for(const id of s.goods)save.market.stock[s.id][id]=SHOP.items[id].stock;for(const s of SHOP.secrets)save.market.demand[s.club]=3;persist()}}
+function makeRoom(s){
+ if(s.id==='home'){
+  const fixtures=[{x:280,y:156,w:160,h:28,label:'CONSTRUCTION BOOK',color:'#6e5940'}];
+  const sizes={bed:[75,90],table:[70,45],chair:[28,28],radio:[40,25],lamp:[24,24]};
+  for(const p of save.home.furniture){const [w,h]=sizes[p.item]||[35,35];fixtures.push({x:p.x,y:p.y,w,h,label:SHOP.items[p.item].name.toUpperCase(),color:'#80694e'})}
+  return fixtures;
+ }
+ const f=(x,y,w,h,label,color='#655344')=>({x,y,w,h,label,color});
+ const common=[f(280,156,160,28,'COUNTER','#6e5940')];
+ const layouts={
+ dealer:[f(60,80,150,95,'SHOWROOM'),f(500,240,130,120,'DISPLAY CAR','#54716e')],
+ hardware:[f(55,85,150,90,'LUMBER'),f(530,85,100,140,'HARDWARE')],
+ furniture:[f(55,90,150,80,'BEDS'),f(515,95,110,100,'TABLES'),f(70,330,130,45,'RADIOS')],
+ garage:[f(70,100,140,65,'WORK BENCH'),f(490,205,100,140,'SERVICE BAY','#4e6662'),f(65,340,130,45,'TIRES','#343d36')],
+ still:[f(70,100,125,95,'COPPER STILL','#a06d3c'),f(510,90,100,55,'BOTTLES'),f(80,330,150,48,'SACKS OF SUGAR')],
+ club:[f(55,78,150,90,'BANDSTAND','#66506b'),f(510,250,80,55,'TABLE'),f(115,300,80,55,'TABLE'),f(490,85,125,55,'BAR','#6f543e')],
+ depot:[f(55,85,155,70,'FREIGHT'),f(510,80,120,95,'CRATES'),f(70,330,150,60,'DISPATCH')],
+ boarding:[f(65,110,145,80,'SOFA','#6b6853'),f(510,85,120,90,'BED','#897b63'),f(500,320,100,45,'SUPPER')],
+ grocer:[f(55,80,145,55,'COFFEE / SUGAR'),f(525,80,110,140,'GROCERIES','#72805b'),f(60,330,150,55,'BREAD / MILK')],
+ diner:[f(50,85,150,65,'KITCHEN','#84918a'),f(525,95,110,60,'BOOTH','#87624f'),f(525,310,110,60,'BOOTH','#87624f'),f(60,325,140,45,'STOOLS')],
+ pharmacy:[f(50,75,145,80,'DRESSINGS','#799588'),f(525,75,115,110,'MEDICINES','#799588'),f(70,340,130,40,'SODA FOUNTAIN')],
+ tailor:[f(55,80,150,65,'SEWING TABLE'),f(525,85,110,155,'CLOTH RACK','#987960'),f(80,335,130,55,'FITTING SCREEN')],
+ pawn:[f(50,80,150,90,'WATCHES'),f(520,85,110,125,'RECORDS'),f(70,335,130,50,'USED GOODS')],
+ barber:[f(55,85,145,50,'MIRROR','#81918c'),f(85,250,75,80,'CHAIR','#8a6257'),f(530,250,75,80,'CHAIR','#8a6257')]
+ };
+ return common.concat(layouts[s.layout]||layouts.grocer);
+}
+function roomBlocked(x,y,r=9){if(x<38+r||x>682-r||y<62+r||y>455-r)return true;return interior.fixtures.some(b=>x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h)}
+function clearInputs(){for(const k in keys)keys[k]=false;mouse.down=false;touch.fire=false;touch.x=touch.y=0}
+function enterBusiness(p,viaSecret=false){
+ if(mode!=='play'||(interior&&!viaSecret)||!shopById(p.id))return false;
+ if(p.hidden&&!viaSecret){toast('Find the concealed entrance through '+places.find(f=>f.id===p.front).name+'.');return false}
+ if(player.car){toast('Park, press E to get out, then walk to the entrance.');return false}
+ if(heat>=20&&!viaSecret){toast('Patrols are watching. Lose your wanted level before going inside.');return false}
+ const s=shopById(p.id);ensureMarket();const outside=interior?interior.outside:{x:player.x,y:player.y,a:player.a};interior={place:p,shop:s,outside,fixtures:makeRoom(s)};
+ player.x=360;player.y=405;player.vx=player.vy=0;player.a=-Math.PI/2;clearInputs();
+ camera.x=360;camera.y=250;camera.lookX=camera.lookY=0;
+ interior.people=[{id:'shop-'+s.id,name:s.keeper,role:s.role,x:360,y:122,a:Math.PI/2,color:s.color,featured:s.portrait!==undefined,portrait:s.portrait,shopId:s.id},
+ {id:'patron-'+s.id,name:s.layout==='club'?'A musician':'A local customer',role:'LOCAL',x:230,y:270,a:0,color:'#a69e80',shopId:s.id,patron:true}];
+ if(s.id==='home')interior.people=interior.people.slice(0,1);
+ $('insideLabel').textContent=p.name+' · F: talk · E: leave at the door';$('insideLabel').classList.remove('hidden');$('minimapWrap').classList.add('hidden');$('crosshair').classList.add('hidden');
+ toast('Inside '+p.name+'. Walk to the counter and press F.');updateHUD(true);return true;
+}
+function leaveBusiness(force=false){
+ if(!interior)return false;
+ if(!force&&dist(player,{x:360,y:437})>65){toast('Walk to the EXIT at the bottom of the room, then press E.');return false}
+ if(conversation)endConversation();if(interior.place.hidden&&!force){const front=places.find(p=>p.id===interior.place.front);return enterBusiness(front,true)}const outside=interior.outside;interior=null;
+ Object.assign(player,outside,{vx:0,vy:0});clearInputs();camera.x=player.x;camera.y=player.y;camera.lookX=camera.lookY=0;
+ $('insideLabel').classList.add('hidden');$('minimapWrap').classList.remove('hidden');if(!isTouch)$('crosshair').classList.remove('hidden');updateHUD(true);persist();return true;
+}
+function updateInterior(dt){
+ activeElapsed+=dt;tickMarket(dt);player.shot=Math.max(0,player.shot-dt);player.invincible=Math.max(0,player.invincible-dt);
+ let dx=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),dy=(keys.KeyS||keys.ArrowDown?1:0)-(keys.KeyW||keys.ArrowUp?1:0);
+ if(isTouch&&(touch.x||touch.y)){dx=touch.x;dy=touch.y}const n=Math.max(1,Math.hypot(dx,dy)),v=130;
+ const tx=player.x+dx/n*v*dt,ty=player.y+dy/n*v*dt;
+ if(!roomBlocked(tx,player.y))player.x=tx;if(!roomBlocked(player.x,ty))player.y=ty;
+ if(dx||dy){player.a=Math.atan2(dy,dx);player.step+=dt*11}
+ if(job){job.time-=dt;if(job.time<=0)failJob('Time ran out')}
+ saveTimer+=dt;if(saveTimer>12){saveTimer=0;persist()}updateHUD();
+}
+function errandDefinition(id){return SHOP.errands.find(e=>e.id===id)}
+function offerShopJob(id){let e=errandDefinition(id);if(!e)return;if(job){toast('Finish or abandon your current job first.');return}if(conversation)endConversation();acceptJob({type:'errand',errandId:e.id,title:e.title,desc:e.description,pay:e.pay,xp:e.xp,difficulty:'LOCAL DELIVERY',duration:420})}
+function advanceSupplyJob(){
+ if(!interior||!conversation||conversation.npc.patron||job?.type!=='bootleg'||job.target.id!==interior.place.id)return;
+ job.stage++;
+ if(job.stage>=3){save.moonshineDelivered+=2;completeJob();checkEndgame();return say('Both crates accounted for. Your cut is paid.',[option('Good doing business.',endConversation)])}
+ job.target=job.stops[job.stage];job.info='Take one sealed crate inside '+job.target.name+' through its concealed shop entrance. Speak to the proprietor.';addHeat(job.stage===1?8:6);updateObjective();
+ return say(job.stage===1?'Two crates loaded. Both buyers expect a handover inside.':'One crate delivered. Take the other to your next buyer.',[option('On my way.',endConversation)]);
+}
+function advanceShopJob(){
+ if(!interior||!conversation||conversation.npc.patron||job?.type!=='errand'||job.target.id!==interior.place.id)return;
+ const e=errandDefinition(job.errandId);job.stage++;
+ if(job.stage>=e.stops.length){if(e.reveal){save.secrets[e.reveal]=save.secrets[e.reveal]||'known';toast(SHOP.secrets.find(s=>s.club===e.reveal).hint)}completeJob();checkEndgame();return say('That is the right parcel. Here is your pay. Thanks for seeing it through.',[option('Glad to help.',endConversation)])}
+ job.target=places.find(p=>p.id===e.stops[job.stage]);job.cargo=e.cargo;job.info='Carry '+e.cargo+' to '+job.target.name+'. Go inside and speak to the person at the counter.';
+ updateObjective();return say('Here is your sealed order. Take it to '+job.target.name+'. It has already been paid for.',[option('I have it. I will speak to them inside.',endConversation)]);
+}
+function shopStory(n){
+ const s=shopById(n.shopId);
+ if(n.patron)return say(s.rumor,[option('Who runs this place?',()=>say(s.keeper+' is at the counter. Ask about goods, services or local jobs.',[option('Thanks.',endConversation)])),option('Back to it.',endConversation)]);
+ const choices=[];
+ if(s.id==='home')return say(s.greeting,[option('Open the construction book.',()=>{endConversation();showPanel('home')}),option('Back to the lot.',endConversation)]);
+ if(s.id==='dealer')return say(s.greeting,[option('Show me the cars.',()=>{endConversation();showPanel('dealership')}),option('About buying a car...',()=>say('You keep the cars you buy. The car is parked outside the dealership; leave the showroom and press E beside it. Recalling an owned car costs nothing.',[option('Understood.',endConversation)])),option('Goodbye.',endConversation)]);
+ const hidden=SHOP.secrets.find(secret=>secret.front===s.id);
+ if(hidden)choices.push(option('Ask about the room in the back.',()=>{if(save.jobs<hidden.jobs)return say('I do not know you well enough yet. Complete '+hidden.jobs+' jobs around town, then ask again.',[option('Fair enough.',endConversation)]);save.secrets[hidden.club]=save.secrets[hidden.club]||'known';persist();return say(hidden.hint+' Look for the door on the right side of this shop, then press E beside it.',[option('I will take a look.',endConversation)])}));
+ if(job?.type==='bootleg'&&job.target.id===s.id)choices.push(option(job.stage===0?'Collect the two job crates.':'Deliver the job crate.',advanceSupplyJob));
+ if(job?.type==='errand'&&job.target.id===s.id)choices.push(option(job.stage===0?'Collect the job parcel.':'Hand over the job parcel.',advanceShopJob));
+ choices.push(option('Show me what you buy and sell.',()=>{endConversation();showPanel('shop')}));
+ choices.push(option('Any local jobs?',()=>job?say('You already have a job. Finish it, or abandon it from the Jobs panel.',[option('Understood.',endConversation)]):say(errandDefinition(s.job).description+' Pay: '+money(errandDefinition(s.job).pay)+'. The goods are supplied; no purchase is required.',[option('Take the job.',()=>{offerShopJob(s.job)}),option('Maybe later.',endConversation)])));
+ choices.push(option('What is happening around town?',()=>say(s.rumor,[option('Good to know.',endConversation)])));
+ if(['garage','velvet','lucky'].includes(s.id))choices.push(option('About that other business...',()=>storyFor({...n,id:({garage:'sal',velvet:'nora',lucky:'ruth'})[s.id],shopId:null})));
+ choices.push(option('Just looking. Goodbye.',endConversation));return say(s.greeting,choices);
+}
+function tradeItem(id,side){
+ if(modal!=='shop'||!interior||mode!=='pause')return false;ensureMarket();
+ const s=interior.shop,item=SHOP.items[id];if(!item||!s.goods.includes(id)||!['buy','sell'].includes(side))return false;
+ const stock=save.market.stock[s.id],owned=save.inventory[id]||0;
+ if(id==='moonshine'){
+  const secret=SHOP.secrets.find(p=>p.club===s.id);
+  if(side==='buy'&&s.id!=='still')return false;
+  if(side==='sell'&&(!secret||save.secrets[s.id]!=='found'))return false;
+  if(side==='sell'){
+   if(owned<1||save.market.demand[s.id]<1){toast('This club has enough stock tonight. Buyers return after three minutes of active play.');return false}
+   save.inventory[id]--;save.market.demand[s.id]--;save.cash=SHOP.round(save.cash+secret.price);save.stats.earnings=SHOP.round(save.stats.earnings+secret.price);save.moonshineDelivered++;addHeat(8);sound('cash');persist();checkEndgame();updateHUD(true);toast('MOONSHINE DELIVERED · '+money(secret.price)+' · '+save.market.demand[s.id]+' more crates wanted');return true;
+  }
+ }
+ if(side==='buy'){
+  if(stock[id]<1){toast('Sold out. Deliveries restock shops after three minutes of active play.');return false}
+  if(Object.values(save.inventory).reduce((a,b)=>a+b,0)>=30){toast('Your bag is full: 30 items. Use or sell something first.');return false}
+  if(!spend(item.price))return false;save.cash=SHOP.round(save.cash);stock[id]--;save.inventory[id]=owned+1;toast(item.name+' bought · '+money(item.price));
+ }else{
+  if(owned<1){toast('You do not have that item to sell.');return false}
+  const price=SHOP.round(item.price*.55);save.inventory[id]--;stock[id]++;save.cash=SHOP.round(save.cash+price);sound('cash');toast(item.name+' sold · '+money(price));
+ }persist();updateHUD(true);return true;
+}
+function useInventory(id){
+ const item=SHOP.items[id];if(!item?.heal||!(save.inventory[id]>0)||player.hp>=100)return false;
+ save.inventory[id]--;player.hp=Math.min(100,player.hp+item.heal);persist();toast(item.name+' used.');updateHUD(true);return true;
+}
+function shopService(){
+ if(modal!=='shop'||!interior?.shop.service)return false;
+ const [type,price]=interior.shop.service;let car=null;if(type==='repair'){car=cars.filter(c=>!c.dead&&!c.burning&&dist(c,interior.outside)<170).sort((a,b)=>dist(a,interior.outside)-dist(b,interior.outside))[0];if(!car||car.hp>=car.maxHp){toast('Park a damaged, repairable car outside first.');return false}}
+ else if(player.hp>=100){toast('You are already in good health.');return false}
+ if(!spend(price))return false;save.cash=SHOP.round(save.cash);
+ if(type==='repair')car.hp=car.maxHp;else player.hp=Math.min(100,player.hp+({meal:25,shave:10}[type]||100));
+ persist();updateHUD(true);toast(type==='repair'?'Your parked car is repaired.':'You feel better.');return true;
+}
+function renderShop(){
+ if(!interior){closePanel();return}ensureMarket();const s=interior.shop;
+ let html=panelHead(s.keeper+' · '+money(save.cash),interior.place.name)+'<p>Buy one item at a time. Selling pays 55% of the shelf price, rounded to the nearest cent. Bag: '+Object.values(save.inventory).reduce((a,b)=>a+b,0)+'/30. Stock returns every three minutes of active play.</p><div class="shop-ledger">';
+ html+='<div class="shop-row shop-heading"><span>GOODS / IN YOUR BAG</span><span>COUNTER</span></div>';
+ for(const id of s.goods){const a=SHOP.items[id],owned=save.inventory[id]||0,stock=save.market.stock[s.id][id];
+ if(id==='moonshine'){const secret=SHOP.secrets.find(p=>p.club===s.id);html+='<article class="shop-row"><div><h3>'+a.name+'</h3><p>'+a.description+'</p><small>IN BAG '+owned+(secret?' · BUYER WANTS '+save.market.demand[s.id]:' · IN STOCK '+stock)+'</small></div><div class="shop-actions">'+(s.id==='still'?'<button data-do="shop-buy" data-item="moonshine" '+(stock<1||save.cash<4?'disabled':'')+'>BUY $4.00</button>':'<button data-do="shop-sell" data-item="moonshine" '+(owned<1||!save.market.demand[s.id]?'disabled':'')+'>DELIVER '+money(secret.price)+'</button>')+'</div></article>';continue}
+ html+='<article class="shop-row"><div><h3>'+a.name+'</h3><p>'+a.description+'</p><small>IN BAG '+owned+' · IN STOCK '+stock+'</small></div><div class="shop-actions"><button data-do="shop-buy" data-item="'+id+'" '+(stock<1||save.cash<a.price?'disabled':'')+'>BUY '+money(a.price)+'</button><button data-do="shop-sell" data-item="'+id+'" '+(owned<1?'disabled':'')+'>SELL '+money(SHOP.round(a.price*.55))+'</button></div></article>'}
+ html+='</div>';
+ if(s.service)html+='<div class="card"><h3>'+s.service[2]+'</h3><footer><span>'+money(s.service[1])+'</span><button data-do="shop-service">ASK FOR SERVICE</button></footer></div>';
+ html+='<h3>Your bag</h3><div class="bag-items">';
+ const held=Object.entries(save.inventory).filter(([id,n])=>n>0);
+ html+=held.length?held.map(([id,n])=>'<span>'+SHOP.items[id].name+' × '+n+(SHOP.items[id].heal?' <button data-do="shop-use" data-item="'+id+'" '+(player.hp>=100?'disabled':'')+'>USE</button>':'')+'</span>').join(''):'<p>Your bag is empty.</p>';
+ html+='</div><p class="shop-footnote">Fictional shops and game prices inspired by the 1920s. A job parcel is separate from your bag and cannot be sold.</p><button data-do="close" class="primary">BACK TO THE ROOM →</button>';$('panel').innerHTML=html;
+}
+function trySecretDoor(){
+ if(!interior)return false;const secret=SHOP.secrets.find(s=>s.front===interior.place.id);if(!secret||dist(player,{x:642,y:255})>64)return false;
+ if(save.jobs<secret.jobs){toast('A locked panel. Earn trust by completing '+secret.jobs+' jobs.');return true}
+ if(save.secrets[secret.club]!=='found'){save.secrets[secret.club]='found';save.xp+=100;persist();toast('SPEAKEASY DISCOVERED · '+places.find(p=>p.id===secret.club).name)}
+ enterBusiness(places.find(p=>p.id===secret.club),true);checkEndgame();return true;
+}
+function checkEndgame(){
+ if(save.endgameClaimed||!SHOP.secrets.every(s=>save.secrets[s.club]==='found')||save.moonshineDelivered<12||!save.home.built.includes('roof'))return;
+ save.endgameClaimed=true;gift(100);save.xp+=250;persist();toast('COUNTY SUPPLIER · All three hidden clubs found, 12 crates delivered and your home built. Bonus: $100.');
+}
+function progressionHTML(){
+ return '<div class="card"><small>THE COUNTY SUPPLIER · LONG-TERM GOAL</small><h3>Find your buyers. Build a home.</h3><p>'+SHOP.secrets.filter(s=>save.secrets[s.club]==='found').length+'/3 speakeasies discovered · '+save.moonshineDelivered+'/12 moonshine crates delivered · '+save.home.built.length+'/3 home stages. '+(save.endgameClaimed?'COMPLETED · $100 bonus paid.':'Complete all three goals for a $100 bonus.')+'</p><p>'+SHOP.secrets.map(s=>save.secrets[s.club]==='found'?places.find(p=>p.id===s.club).name+' discovered':save.secrets[s.club]==='known'?s.hint:'Hidden buyer: earn trust through '+s.jobs+' completed jobs or investigate a clue job.').join('<br>')+'</p></div>';
+}
+function buyDealerCar(id){
+ if(modal!=='dealership'||interior?.place.id!=='dealer'||!['sedan','coupe','truck','custom'].includes(id))return false;
+ if(!save.ownedCars.includes(id)&&!spend(carTypes[id].price))return false;
+ if(!save.ownedCars.includes(id))save.ownedCars.push(id);save.car=id;
+ const p=interior.outside,at=roadside(p,-20);
+ // Recall an existing copy instead of duplicating a vehicle on every click.
+ const c=cars.find(c=>c.owned&&c.type===id&&!c.dead&&!c.burning);
+ if(c){c.x=at.x;c.y=at.y;c.a=at.a;c.v=c.vx=c.vy=0;c.ai='parked'}
+ else {const car=newCar(id,at.x,at.y,at.a,{owned:true});car.maxHp=carTypes[id].hp*(1+save.armor*.25);car.hp=car.maxHp;cars.push(car)}
+ persist();toast(carTypes[id].name+' is parked outside. Leave the showroom and press E beside it.');return true;
+}
+function renderDealership(){
+ if(interior?.place.id!=='dealer'){closePanel();return}
+ $('panel').innerHTML=panelHead('COLE MOTOR COMPANY · '+money(save.cash),'Your next set of wheels')+'<p>Buy a car here, then leave the showroom to collect it. Owned cars can be recalled here free of charge.</p><div class="cards">'+['sedan','coupe','truck','custom'].map(id=>'<article class="card"><small>'+Math.round(carTypes[id].max*.21)+' MPH · '+carTypes[id].hp+' DURABILITY</small><h3>'+carTypes[id].name+'</h3><footer><span class="money">'+(save.ownedCars.includes(id)?'OWNED':money(carTypes[id].price))+'</span><button data-do="dealer-car" data-car="'+id+'" '+(!save.ownedCars.includes(id)&&save.cash<carTypes[id].price?'disabled':'')+'>'+(save.ownedCars.includes(id)?'RECALL OUTSIDE':'BUY CAR')+'</button></footer></article>').join('')+'</div>';
+}
+const homeSlots=[{x:70,y:85},{x:180,y:85},{x:510,y:85},{x:590,y:85},{x:70,y:315},{x:180,y:315},{x:510,y:315},{x:590,y:315}];
+function buildHome(id){
+ if(modal!=='home'||interior?.place.id!=='home')return false;const r=SHOP.recipes.find(r=>r.id===id);
+ if(!r||save.home.built.includes(id)||!r.requires.every(id=>save.home.built.includes(id))||!Object.entries(r.needs).every(([id,n])=>(save.inventory[id]||0)>=n))return false;
+ for(const [id,n] of Object.entries(r.needs))save.inventory[id]-=n;save.home.built.push(id);interior.fixtures=makeRoom(interior.shop);persist();checkEndgame();toast(r.name+' complete.');return true;
+}
+function placeFurniture(id){
+ if(modal!=='home'||interior?.place.id!=='home'||!['bed','table','chair','radio','lamp'].includes(id)||!save.home.built.includes('roof')||!(save.inventory[id]>0)||save.home.furniture.length>=homeSlots.length)return false;
+ const slot=homeSlots.find(p=>!save.home.furniture.some(f=>f.x===p.x&&f.y===p.y));save.inventory[id]--;save.home.furniture.push({item:id,...slot});interior.fixtures=makeRoom(interior.shop);persist();return true;
+}
+function removeFurniture(index){
+ if(modal!=='home'||interior?.place.id!=='home'||!Number.isInteger(index)||!save.home.furniture[index]||Object.values(save.inventory).reduce((a,b)=>a+b,0)>=30)return false;
+ const p=save.home.furniture.splice(index,1)[0];save.inventory[p.item]=(save.inventory[p.item]||0)+1;interior.fixtures=makeRoom(interior.shop);persist();return true;
+}
+function renderHome(){
+ if(interior?.place.id!=='home'){closePanel();return}
+ let html=panelHead('YOUR HOME · '+money(save.cash),'Make a place of your own')+'<p>Buy supplies at Bell\'s Hardware and bring them here. Each stage uses the materials listed. Furnishings come from Abbott Home Furnishings.</p><div class="cards">';
+ for(const r of SHOP.recipes){const done=save.home.built.includes(r.id),can=!done&&r.requires.every(id=>save.home.built.includes(id))&&Object.entries(r.needs).every(([id,n])=>(save.inventory[id]||0)>=n);
+ html+='<article class="card"><small>'+ (done?'BUILT':'CONSTRUCTION')+'</small><h3>'+r.name+'</h3><p>'+r.description+'</p><p>'+Object.entries(r.needs).map(([id,n])=>SHOP.items[id].name+': '+(save.inventory[id]||0)+' / '+n).join('<br>')+'</p><button data-do="home-build" data-recipe="'+r.id+'" '+(!can?'disabled':'')+'>'+(done?'COMPLETE':'BUILD')+'</button></article>'}
+ html+='</div><h3>Furnish your finished home</h3><div class="bag-items">';
+ for(const id of ['bed','table','chair','radio','lamp'])html+='<span>'+SHOP.items[id].name+' × '+(save.inventory[id]||0)+' <button data-do="home-place" data-item="'+id+'" '+(!(save.inventory[id]>0)||!save.home.built.includes('roof')||save.home.furniture.length>=8?'disabled':'')+'>PLACE</button></span>';
+ html+='</div><p>Placed: '+save.home.furniture.length+' / 8. Each piece appears in the room.</p>';
+ html+=save.home.furniture.map((p,i)=>'<p>'+SHOP.items[p.item].name+' <button data-do="home-remove" data-index="'+i+'">PACK INTO BAG</button></p>').join('');
+ if(save.home.furniture.some(p=>p.item==='bed'))html+='<button data-do="home-rest" class="secondary">REST IN YOUR BED · FREE</button>';
+ html+=progressionHTML();$('panel').innerHTML=html;
+}
+function drawInterior(){
+ const s=interior.shop,scale=Math.min(w/790,h/610),ox=w/2-360*scale,oy=h/2-250*scale;
+ ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);
+ ctx.fillStyle='#081415';ctx.fillRect(18,35,688,444);ctx.fillStyle=s.floor;ctx.fillRect(38,62,644,393);
+ ctx.strokeStyle='#d6c39818';ctx.lineWidth=1;for(let y=62;y<455;y+=22){ctx.beginPath();ctx.moveTo(38,y);ctx.lineTo(682,y);ctx.stroke()}for(let x=38;x<682;x+=64){ctx.beginPath();ctx.moveTo(x,62);ctx.lineTo(x,455);ctx.stroke()}
+ ctx.fillStyle='#233432';ctx.fillRect(25,45,670,17);ctx.fillRect(25,45,13,423);ctx.fillRect(682,45,13,423);ctx.fillRect(25,455,295,13);ctx.fillRect(400,455,295,13);
+ ctx.fillStyle=s.color;ctx.fillRect(322,453,76,10);ctx.fillStyle='#f4e4b8';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText('E · EXIT',360,481);
+ for(const b of interior.fixtures){ctx.fillStyle='#0b131665';ctx.fillRect(b.x+5,b.y+7,b.w,b.h);ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeStyle='#ddc69755';ctx.strokeRect(b.x,b.y,b.w,b.h);ctx.fillStyle='#f1e1c0';ctx.font='9px Arial';ctx.fillText(b.label,b.x+b.w/2,b.y+b.h/2+3)}
+ const hidden=SHOP.secrets.find(secret=>secret.front===interior.shop.id);
+ if(hidden){ctx.fillStyle=save.secrets[hidden.club]?'#b29b68':'#4c4c40';ctx.fillRect(658,220,21,68);ctx.fillStyle='#e4d1a0';ctx.font='9px Arial';ctx.textAlign='right';ctx.fillText(save.secrets[hidden.club]?'E · CONCEALED DOOR':'UNMARKED PANEL',650,250)}
+ if(s.id==='home'&&!save.home.built.includes('roof')){ctx.fillStyle='#d9c38e';ctx.font='12px Arial';ctx.textAlign='center';ctx.fillText(save.home.built.includes('frame')?'FRAME RAISED · ROOF NEEDED':save.home.built.includes('foundation')?'FOUNDATION LAID':'EMPTY HOME LOT',360,340)}
+ for(const n of interior.people){drawPerson(n);ctx.fillStyle=s.color;ctx.font='bold 11px Arial';ctx.fillText(n.patron?'···':n.name,n.x,n.y-22);if(dist(n,player)<110){ctx.fillStyle='#f6e8c9';ctx.fillText('F · TALK',n.x,n.y-40)}}
+ drawPerson(player);ctx.restore();
+}
+ensureMarket();
+
 if(save.jobs>0||save.xp>0){$('startBtn').innerHTML='CONTINUE YOUR EMPIRE <b>↗</b>';$('saveNote').textContent=rank()+' · '+money(save.cash)+' · '+save.jobs+' JOBS COMPLETE'}
 populate();updateObjective();requestAnimationFrame(loop);
 // A read-only diagnostic snapshot makes game state inspectable during verification.
-window.dryCounty={snapshot:()=>({mode,player:{x:Math.round(player.x),y:Math.round(player.y),hp:player.hp,vehicle:player.car?.type,ammo:player.ammo},cash:save.cash,xp:save.xp,jobs:save.jobs,heat,map:{width:WORLD,height:WORLD_H,roads:WLD.roads.length,nodes:WLD.nodes.length},npcs:npcs.length,conversation:conversation?.npc?.name||null,lead:lead?.title||null,burning:cars.filter(c=>c.burning).length,contract:job?{type:job.type,stage:job.stage,time:Math.round(job.time),target:{x:job.target.x,y:job.target.y}}:null,cars:cars.length,enemies:enemies.filter(e=>e.hp>0).length,businesses:save.businesses,upgrades:{engine:save.engine,armor:save.armor,grip:save.grip},storageOK})};
+window.dryCounty={snapshot:()=>({build:'0.3-businesses',interior:interior?.place.id||null,inventory:{...save.inventory},secrets:{...save.secrets},moonshineDelivered:save.moonshineDelivered,home:JSON.parse(JSON.stringify(save.home)),mode,player:{x:Math.round(player.x),y:Math.round(player.y),hp:player.hp,vehicle:player.car?.type,ammo:player.ammo},cash:save.cash,xp:save.xp,jobs:save.jobs,heat,map:{width:WORLD,height:WORLD_H,roads:WLD.roads.length,nodes:WLD.nodes.length},npcs:npcs.length,conversation:conversation?.npc?.name||null,lead:lead?.title||null,burning:cars.filter(c=>c.burning).length,contract:job?{type:job.type,stage:job.stage,time:Math.round(job.time),target:{x:job.target.x,y:job.target.y}}:null,cars:cars.length,enemies:enemies.filter(e=>e.hp>0).length,businesses:save.businesses,upgrades:{engine:save.engine,armor:save.armor,grip:save.grip},storageOK})};
 })();
