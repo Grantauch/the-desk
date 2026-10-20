@@ -31,6 +31,9 @@ check('Every ordinary business has a distinct walkable room, reachable counter a
  t.recover();if(t.job)t.failJob('Test cleanup');
  const layouts=new Set();
  for(const shop of t.SHOP.shops.filter(s=>!t.places.find(p=>p.id===s.id).hidden)){
+  const place=t.places.find(p=>p.id===shop.id);assert(place.building,'Missing exterior '+shop.id);
+  const b=place.building,dx=place.x-(b.x+b.w/2),dy=place.y-(b.y+b.h/2),length=Math.hypot(dx,dy),doorstep={x:place.door.x+dx/length*18,y:place.door.y+dy/length*18};
+  assert(!t.blocked(doorstep.x,doorstep.y,9),'Blocked doorstep '+shop.id);
   const room=enter(shop.id);layouts.add(room.shop.layout);assert(!t.roomBlocked(360,405));assert(!t.roomBlocked(360,208));t.draw();counter();assert(t.conversation.node.choices.length>=2);t.endConversation();
   t.player.x=360;t.player.y=437;t.interact();assert.equal(t.interior,null);assert(Number.isFinite(t.player.x));
  }assert(layouts.size>=12);

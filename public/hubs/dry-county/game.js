@@ -71,14 +71,14 @@ function makeCity(){
   const commercial=Math.abs(by-(100+358*4))<150||Math.abs(bx-(100+974*4))<100,bw=commercial?sr(40,72):sr(22,35),bh=commercial?sr(29,52):sr(22,36),b={x:bx-bw/2,y:by-bh/2,w:bw,h:bh,z:commercial?sr(22,67):sr(13,25),color:pickSeed(palettes),gable:!commercial};
   if([...nearbyBuildings(bx,by,85)].some(a=>b.x<a.x+a.w+8&&b.x+b.w>a.x-8&&b.y<a.y+a.h+8&&b.y+b.h>a.y-8))continue;
   if([[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]].some(([cx,cy])=>{const z=WLD.nearest({x:cx,y:cy});return z.d<z.edge.road.width/2+7}))continue;
-  if(places.some(p=>Math.hypot(bx-p.x,by-p.y)<85))continue;
+  if(places.some(p=>!p.hidden&&Math.hypot(bx-p.x,by-p.y)<220))continue;
   const railNear=WLD.railway.some((p,i,arr)=>i&&projectOnSegment({x:bx,y:by},arr[i-1],p).d<30);if(railNear)continue;
   addBuilding(b);rect(b.x+12,b.y+18,b.w+6,b.h+3,'#0a171c66');rect(b.x-3,b.y-3,b.w+6,b.h+6,'#27372f');rect(b.x,b.y,b.w,b.h,b.color);
  }
  // Every fictional establishment is attached to a reachable real road.
  for(const p of places){if(p.type==='phone'||p.hidden)continue;const n=WLD.nearest(p);let chosen=null;
-  for(const [bw,bh] of [[92,60],[66,44]]){for(const shift of [0,80,-80,130,-130]){for(const side of [1,-1]){
-   const off=(n.edge.road.width/2+Math.max(bw,bh)/2+12)*side,x=n.x+Math.cos(n.angle)*shift-Math.sin(n.angle)*off,y=n.y+Math.sin(n.angle)*shift+Math.cos(n.angle)*off;
+  for(const [bw,bh] of [[92,60],[66,44],[36,26],[26,20]]){for(const shift of [0,80,-80,130,-130,45,-45,200,-200]){for(const side of [1,-1]){
+   const off=(n.edge.road.width/2+Math.abs(Math.sin(n.angle))*bw/2+Math.abs(Math.cos(n.angle))*bh/2+9)*side,x=n.x+Math.cos(n.angle)*shift-Math.sin(n.angle)*off,y=n.y+Math.sin(n.angle)*shift+Math.cos(n.angle)*off;
    const b={x:x-bw/2,y:y-bh/2,w:bw,h:bh,z:p.type==='club'?58:34,color:p.type==='garage'?'#56685b':'#5b5d54',landmark:p.name,placeId:p.id};
    if([...nearbyBuildings(x,y,110)].some(a=>b.x<a.x+a.w+5&&b.x+b.w>a.x-5&&b.y<a.y+a.h+5&&b.y+b.h>a.y-5))continue;
    let clear=true;for(let tx=0;tx<=bw;tx+=bw/4)for(let ty=0;ty<=bh;ty+=bh/4){const q=WLD.nearest({x:b.x+tx,y:b.y+ty});if(q.d<q.edge.road.width/2+8)clear=false}
@@ -416,7 +416,13 @@ function tickWorldLife(dt){encounterTimer-=dt;if(encounterTimer<=0){spawnEncount
 }
 function project3(x,y,z){return{x:x+(x-camera.x)*z/1900,y:y+(y-camera.y)*z/1900-z*.34}}
 function polygon(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fill()}
-function drawBuilding3D(b){const floor=[{x:b.x,y:b.y},{x:b.x+b.w,y:b.y},{x:b.x+b.w,y:b.y+b.h},{x:b.x,y:b.y+b.h}],roof=floor.map(p=>project3(p.x,p.y,b.z));const facing=[0,1,2,3].sort((i,j)=>Math.hypot((floor[j].x+floor[(j+1)%4].x)/2-camera.x,(floor[j].y+floor[(j+1)%4].y)/2-camera.y)-Math.hypot((floor[i].x+floor[(i+1)%4].x)/2-camera.x,(floor[i].y+floor[(i+1)%4].y)/2-camera.y));
+function drawBuilding3D(b){
+ if(b.placeId==='home'&&!save.home.built.includes('roof')){
+  ctx.fillStyle=save.home.built.includes('foundation')?'#8d8068':'#3b513b';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeStyle='#d5c08a';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.strokeRect(b.x,b.y,b.w,b.h);ctx.setLineDash([]);
+  if(save.home.built.includes('frame'))for(const [x,y] of [[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]]){const top=project3(x,y,28);ctx.strokeStyle='#b99b70';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(top.x,top.y);ctx.stroke()}
+  const p=project3(b.x+b.w/2,b.y+b.h/2,5);ctx.fillStyle='#efe2bf';ctx.font='7px Arial';ctx.textAlign='center';ctx.fillText(save.home.built.includes('frame')?'HOME FRAME':save.home.built.includes('foundation')?'FOUNDATION':'HOME LOT',p.x,p.y);return
+ }
+ const floor=[{x:b.x,y:b.y},{x:b.x+b.w,y:b.y},{x:b.x+b.w,y:b.y+b.h},{x:b.x,y:b.y+b.h}],roof=floor.map(p=>project3(p.x,p.y,b.z));const facing=[0,1,2,3].sort((i,j)=>Math.hypot((floor[j].x+floor[(j+1)%4].x)/2-camera.x,(floor[j].y+floor[(j+1)%4].y)/2-camera.y)-Math.hypot((floor[i].x+floor[(i+1)%4].x)/2-camera.x,(floor[i].y+floor[(i+1)%4].y)/2-camera.y));
  for(const i of facing){const j=(i+1)%4;polygon([floor[i],floor[j],roof[j],roof[i]],['#39423a','#293936','#283a37','#4b5040'][i]);if(b.z>25){for(let t=.18;t<.9;t+=.22){const a={x:lerp(floor[i].x,floor[j].x,t),y:lerp(floor[i].y,floor[j].y,t)},p=project3(a.x,a.y,b.z*.55);ctx.fillStyle=(Math.floor(b.x+t*10)%3)?'#d5b67599':'#243c39';ctx.fillRect(p.x-2,p.y-2,4,4)}}}
  polygon(roof,b.color);ctx.strokeStyle='#b6b19355';ctx.lineWidth=1;ctx.beginPath();roof.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.stroke();
  if(b.gable){const a=project3(b.x+b.w/2,b.y,b.z+7),z=project3(b.x+b.w/2,b.y+b.h,b.z+7);polygon([roof[0],a,z,roof[3]],'#424d42');ctx.strokeStyle='#a3a18b66';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(z.x,z.y);ctx.stroke()}else{const p=project3(b.x+10,b.y+12,b.z+3);ctx.fillStyle='#31474a';ctx.fillRect(p.x,p.y,12,8);ctx.fillStyle='#86a39a';ctx.fillRect(p.x+1,p.y+1,10,2);const q=project3(b.x+b.w-15,b.y+b.h-12,b.z+5);ctx.fillStyle='#86846c';ctx.fillRect(q.x,q.y,8,6)}
