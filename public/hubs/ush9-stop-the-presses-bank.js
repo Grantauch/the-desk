@@ -138,7 +138,7 @@ window.STP_BANK = [
     a: ["Managers kept the stairwell doors locked", "The building had no windows", "Firefighters refused to come", "The workers were chained to their machines"],
     f: "Owners Max Blanck and Isaac Harris locked doors to stop unauthorized breaks and theft. A jury acquitted both men of manslaughter.",
     r: "New York factory safety laws, 1911 to 1913" },
-  { id: "l03", d: "labor", q: "A 1916 law banned shipping goods made by children under 16 across state lines. What does it show public support for?",
+  { id: "l03", d: "labor", q: "A 1916 law kept goods made by child workers out of trade between states. What does it show public support for?",
     a: ["Ending child labor", "Government control of mining", "Limits on foreign trade", "Lower shipping costs"],
     f: "This was the Keating Owen Act. The Supreme Court struck it down in 1918, and child labor was not banned nationwide until 1938.",
     r: "Keating Owen Child Labor Act, 1916" },

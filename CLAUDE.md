@@ -25,6 +25,7 @@ Personal classroom website for a social studies teacher (US History 9, Hidden Hi
 - `public/hubs/blacktop-kings/` — Blacktop Kings, a just-for-fun 3-on-3 streetball game (no classroom content). Careers save in the browser or in a JSON file the player keeps; nothing is sent anywhere
 - `public/hubs/robber-barons-firebase.js` — Firebase settings for Robber Barons join-with-a-code play. Setup and database rules are in `docs/robber-barons-online/`
 - `public/hubs/ush9-stop-the-presses.html` — Stop the Presses, the live Progressive Era class game (teacher hosts on the projector, students join at grant-desk.com/press). Questions live in `ush9-stop-the-presses-bank.js`, desk photos in `public/hubs/stop-the-presses/`. Shares the Robber Barons Firebase project and rules file. Host guide in `docs/stop-the-presses/README.md`
+- `public/hubs/ush9-square-deal.html` — The Square Deal, a Progressive Era card duel (vs the computer or two players on one Chromebook). Cards and rules in `ush9-square-deal-engine.js`, art in `public/hubs/square-deal/`, notes in `docs/square-deal/README.md`. `npm run square-deal:test` checks the cards and balance after edits. Nothing is sent anywhere
 - `storyhub/` — StoryHub production manifests, templates, and agent skills. Start at `docs/storyhub/README.md`; L014 is Reference Implementation 001, not a visual template.
 - `public/hubs/desk-save.js` — the one save system for every hub with answer boxes: saves while students type (this tab only, so a shared Chromebook is blank for the next student), saves changed work to the student's account about once a minute with their hall pass PIN, updates the private Progress view, and records finished snapshots only when the student presses Turn In. Load it with `<script src="/hubs/desk-save.js" defer></script>` before `</body>`; never write per-hub save code
 - `apps-script/turn-in/` — the Turn In web app that receives hub answers into the teacher's private sheet. Separate from Hall Pass, reads the Hall Pass roster only. Setup in `apps-script/turn-in/SETUP.md`
@@ -67,6 +68,7 @@ StoryHub is a quality standard and production system, not a visible template. Ea
 Install dependencies with `npm install --include=dev` (`npm.cmd` in PowerShell), then run `npm run verify` before pushing. GitHub Actions runs this command once. It runs, in order:
 
 - `hall-pass:verify` — handoff map, structural suite, and runtime harness
+- `square-deal:test` — The Square Deal card data, game completion, amendment protection and balance
 - `turn-in:test` — Turn In web app in the fake Apps Script runtime with Hall Pass generated PINs, plus the check that every answer hub loads `desk-save.js`
 - `tools:test` — group maker, cold call, and timer fixtures
 - `classroom:test` — current course/calendar parity, invalid unit and month checks

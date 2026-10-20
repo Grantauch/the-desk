@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Square Deal</title>
+<meta name="description" content="A Progressive Era card duel. Reformers and the Machine fight over four fronts from 1900 to 1918, one historical card at a time.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-square-deal.html">
+<meta property="og:title" content="The Square Deal">
+<meta property="og:description" content="A Progressive Era card duel: Reformers against the Machine, 1900 to 1918.">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-square-deal.html">
+<meta property="og:image" content="https://grant-desk.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alegreya:ital,wght@0,400;0,700;0,800;1,400&family=Alegreya+Sans+SC:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f4ead2;--cream2:#ebdcb8;--cream3:#dcc89b;--ink:#1d1915;--ink2:#4c4236;--ink3:#6b5e4c;
+  --red:#b12f28;--gold:#d29c1c;--goldInk:#7a5608;--teal:#23686c;--tealDk:#174b4e;--crim:#6e1a17;--crimDk:#4a0f0d;
+  --head:'Abril Fatface',Georgia,serif;--body:'Alegreya',Georgia,serif;--sc:'Alegreya Sans SC','Arial Narrow',sans-serif;
+  --tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .14 0 0 0 0 .06 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--cream);background-image:var(--tex);color:var(--ink);font:400 1.02rem/1.45 var(--body);min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+h1,h2,h3{margin:0;font-family:var(--head);font-weight:400;line-height:1.05}
+p{margin:0}
+[hidden]{display:none!important}
+.sc{font:800 .78rem/1.1 var(--sc);letter-spacing:.08em;text-transform:uppercase}
+.screen{display:none;min-height:100vh}
+.screen.on{display:block;animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.wrap{width:min(76rem,100%);margin:0 auto;padding:0 1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border:2px solid var(--ink);background:var(--ink);color:var(--cream);padding:.75rem 1.2rem;font:800 1rem/1 var(--sc);letter-spacing:.06em;text-transform:uppercase;border-radius:3px;box-shadow:3px 3px 0 var(--gold)}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--gold)}
+.btn:disabled{opacity:.4}
+.btn.teal{background:var(--teal);border-color:var(--tealDk)}
+.btn.crim{background:var(--crim);border-color:var(--crimDk)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:none}
+.btn.small{padding:.5rem .8rem;font-size:.82rem}
+.frame{border:3px solid var(--ink);outline:1px solid var(--ink);outline-offset:4px;background:#f8f0dc}
+
+/* title */
+.title{padding:1.4rem 0 3rem}
+.title-top{display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:center}
+@media (max-width:860px){.title-top{grid-template-columns:1fr}}
+.kick{color:var(--red)}
+.title h1{font-size:clamp(3rem,9vw,6.4rem);letter-spacing:.01em;margin:.25rem 0 .2rem;color:var(--ink);text-shadow:3px 3px 0 var(--gold)}
+.title .dek{font:italic 400 1.25rem/1.4 var(--body);color:var(--ink2);max-width:36rem}
+.art{margin:0;padding:.6rem .6rem .45rem;transform:rotate(1.2deg)}
+.art img{display:block;width:100%;height:auto}
+.art figcaption{font:italic 400 .82rem/1.3 var(--body);color:var(--ink2);margin-top:.35rem}
+.choose{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+@media (max-width:860px){.choose{grid-template-columns:1fr}}
+.side{border:3px solid var(--ink);padding:1rem;text-align:left;display:flex;flex-direction:column;gap:.35rem;box-shadow:5px 5px 0 var(--ink);transition:transform .1s}
+.side:hover{transform:translate(-2px,-2px)}
+.side strong{font:400 1.7rem/1 var(--head)}
+.side span{font-size:.97rem}
+.side.reform{background:var(--teal);color:#f6efdc}
+.side.machine{background:var(--crim);color:#f6efdc}
+.side.duel{background:var(--gold);color:var(--ink)}
+.levels{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:1.2rem}
+.lvl{border:2px solid var(--ink);background:transparent;padding:.45rem .7rem;font:800 .82rem/1 var(--sc);letter-spacing:.06em;text-transform:uppercase}
+.lvl[aria-pressed=true]{background:var(--ink);color:var(--cream)}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem}
+@media (max-width:860px){.rules{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.rules{grid-template-columns:1fr}}
+.rules div{border-top:3px double var(--ink);padding-top:.5rem}
+.rules b{display:block;font:400 1.15rem/1.15 var(--head);margin-bottom:.2rem}
+.rules span{font-size:.95rem;color:var(--ink2)}
+.links{margin-top:1.6rem;display:flex;gap:.8rem;flex-wrap:wrap}
+
+/* board */
+.bar{position:sticky;top:0;z-index:20;background:var(--ink);color:var(--cream);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;flex-wrap:wrap}
+.bar .yr{font:400 2rem/1 var(--head);color:var(--gold)}
+.bar .rd{font:800 .8rem/1.1 var(--sc);letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.bar .who{padding:.35rem .7rem;font:800 .9rem/1 var(--sc);letter-spacing:.06em;text-transform:uppercase;border-radius:3px}
+.bar .who.R{background:var(--teal)}.bar .who.M{background:var(--crim)}
+.coins{display:flex;gap:.25rem;align-items:center}
+.coin{width:1.2rem;height:1.2rem;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffe08a,var(--gold) 60%,var(--goldInk));border:1px solid #5a3e05}
+.coin.spent{background:#3b342b;border-color:#3b342b}
+.tally{margin-left:auto;display:flex;gap:.6rem;align-items:center;font:800 .85rem/1 var(--sc);letter-spacing:.05em;text-transform:uppercase}
+.tally b{font:400 1.4rem/1 var(--head)}
+.tally .R b{color:#7fd0cf}.tally .M b{color:#ff9a8a}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;padding:.9rem 1rem}
+@media (max-width:980px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.board{grid-template-columns:1fr}}
+.front{border:3px solid var(--ink);background:#f8f0dc;display:flex;flex-direction:column;position:relative;transition:box-shadow .2s,transform .2s}
+.front.target{box-shadow:0 0 0 4px var(--gold),0 0 22px rgba(210,156,28,.6);cursor:pointer;transform:translateY(-2px)}
+.front .pic{height:clamp(4.6rem,11vh,7.5rem);overflow:hidden;border-bottom:3px solid var(--ink);position:relative}
+.front .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.front .pic .owner{position:absolute;right:.4rem;top:.4rem;padding:.25rem .5rem;font:800 .72rem/1 var(--sc);letter-spacing:.06em;text-transform:uppercase;color:#fff;border:2px solid #fff}
+.front .pic .owner.R{background:var(--teal)}.front .pic .owner.M{background:var(--crim)}.front .pic .owner.N{background:#5d554a}
+.front .body{padding:.55rem .65rem .7rem;display:flex;flex-direction:column;gap:.45rem;flex:1}
+.front h3{font-size:1.35rem}
+.front .sub{font:italic 400 .85rem/1.2 var(--body);color:var(--ink2)}
+.meter{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;position:relative;margin-top:.1rem}
+.meter i{height:1.1rem;background:var(--cream2);border:1px solid var(--cream3)}
+.meter i.mz{background:#cdbb92}
+.meter i.onR{background:var(--teal);border-color:var(--tealDk)}
+.meter i.onM{background:var(--crim);border-color:var(--crimDk)}
+.mlabels{display:flex;justify-content:space-between;font:800 .66rem/1 var(--sc);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+.mnum{font:400 1.5rem/1 var(--head);text-align:center}
+.mnum.R{color:var(--teal)}.mnum.M{color:var(--crim)}
+.row{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center}
+.outrage{display:flex;align-items:center;gap:.35rem;font:800 .8rem/1 var(--sc);letter-spacing:.05em;text-transform:uppercase;color:var(--red)}
+.flames{letter-spacing:-.1em;font-size:1rem}
+.chip{font:700 .78rem/1.15 var(--body);padding:.2rem .45rem;border:1.5px solid var(--ink);background:var(--cream)}
+.chip.law{border-color:var(--teal);color:var(--tealDk);background:#e2efe9}
+.chip.amend{border-color:var(--gold);color:var(--goldInk);background:#f6e9c4}
+.chip.agR{background:var(--teal);color:#f6efdc;border-color:var(--tealDk)}
+.chip.agM{background:var(--crim);color:#f6efdc;border-color:var(--crimDk)}
+.chip small{opacity:.8}
+.shield{font:800 .72rem/1 var(--sc);letter-spacing:.05em;text-transform:uppercase;color:var(--teal)}
+.fx{position:absolute;left:50%;top:40%;transform:translate(-50%,0);font:400 2rem/1 var(--head);pointer-events:none;animation:floatup 1.3s ease forwards;text-shadow:2px 2px 0 var(--cream)}
+.fx.R{color:var(--teal)}.fx.M{color:var(--crim)}.fx.O{color:var(--red)}
+@keyframes floatup{from{opacity:0;transform:translate(-50%,10px)}15%{opacity:1}to{opacity:0;transform:translate(-50%,-40px)}}
+
+/* hand */
+.dock{position:sticky;bottom:0;z-index:15;background:var(--cream);background-image:var(--tex);border-top:3px double var(--ink);padding:.6rem 1rem .8rem;box-shadow:0 -8px 18px -12px rgba(29,25,21,.5)}
+.dock-top{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.5rem}
+.dock-top .msg{flex:1;font:italic 400 1rem/1.3 var(--body);color:var(--ink2);min-width:12rem}
+.hand{display:flex;gap:.7rem;overflow-x:auto;padding:.4rem .2rem .6rem;scroll-snap-type:x proximity}
+.card{flex:0 0 13.2rem;min-height:17.5rem;border:3px solid var(--ink);border-radius:6px;background:#fbf4e2;display:flex;flex-direction:column;text-align:left;padding:0;position:relative;scroll-snap-align:start;box-shadow:3px 3px 0 var(--ink);transition:transform .15s,box-shadow .15s,opacity .2s}
+.card:hover:not(.dead){transform:translateY(-4px)}
+.card.sel{transform:translateY(-10px);box-shadow:0 0 0 4px var(--gold),4px 6px 0 var(--ink)}
+.card.dead{opacity:.55}
+.card .top{display:flex;align-items:center;gap:.45rem;padding:.45rem .5rem;color:#f6efdc;border-radius:3px 3px 0 0}
+.card.R .top{background:var(--teal)}.card.M .top{background:var(--crim)}
+.card .cost{width:1.9rem;height:1.9rem;flex:none;border-radius:50%;display:grid;place-items:center;font:400 1.1rem/1 var(--head);color:var(--ink);background:radial-gradient(circle at 35% 35%,#ffe08a,var(--gold) 60%,var(--goldInk));border:2px solid #5a3e05}
+.card .kind{font:800 .74rem/1 var(--sc);letter-spacing:.08em;text-transform:uppercase}
+.card .ftag{margin-left:auto;font:800 .66rem/1 var(--sc);letter-spacing:.05em;text-transform:uppercase;opacity:.9}
+.card .nm{font:400 1.18rem/1.08 var(--head);padding:.5rem .6rem .2rem}
+.card .eff{padding:.15rem .6rem;font:700 .9rem/1.3 var(--body)}
+.card .need{margin:.15rem .6rem 0;font:800 .74rem/1.2 var(--sc);letter-spacing:.04em;text-transform:uppercase;color:var(--red)}
+.card .need.ok{color:var(--teal)}
+.card .fact{margin-top:auto;padding:.45rem .6rem .55rem;font:italic 400 .8rem/1.3 var(--body);color:var(--ink2);border-top:1px dashed var(--cream3)}
+.card.big{flex-basis:auto;width:min(22rem,86vw);min-height:0;transform:none!important}
+.card.big .fact{margin-top:.6rem}
+@media (max-width:700px){.dock{position:static}.card{flex-basis:11.5rem;min-height:15.5rem}}
+.card.big .nm{font-size:1.7rem}.card.big .eff{font-size:1.05rem}.card.big .fact{font-size:.95rem}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.log{padding:0 1rem 1.2rem;display:grid;grid-template-columns:1fr;gap:.25rem}
+.log p{font:400 .95rem/1.35 var(--body);border-bottom:1px dotted var(--cream3);padding:.2rem 0}
+.log p b{font-family:var(--sc);letter-spacing:.05em;text-transform:uppercase;font-size:.78rem}
+.log .R{color:var(--tealDk)}.log .M{color:var(--crim)}
+
+/* overlays */
+.veil{position:fixed;inset:0;z-index:40;background:rgba(29,25,21,.72);display:grid;place-items:center;padding:1rem}
+.veil .box{background:var(--cream);background-image:var(--tex);border:3px solid var(--ink);padding:1.4rem;max-width:min(40rem,100%);max-height:90vh;overflow:auto;text-align:center;display:flex;flex-direction:column;gap:.8rem;align-items:center}
+.veil .box h2{font-size:clamp(1.8rem,5vw,2.8rem)}
+.reveal .who{font:800 .9rem/1 var(--sc);letter-spacing:.08em;text-transform:uppercase}
+.yearbanner{font:400 clamp(4rem,14vw,8rem)/1 var(--head);color:var(--gold);text-shadow:4px 4px 0 var(--ink)}
+
+/* end */
+.endhead{text-align:center;padding:1.6rem 0 1rem;border-bottom:3px double var(--ink)}
+.endhead h2{font-size:clamp(2.4rem,7vw,4.6rem);text-shadow:3px 3px 0 var(--gold)}
+.endhead p{font:italic 400 1.2rem/1.4 var(--body);color:var(--ink2);margin-top:.4rem}
+.recap{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.2rem 0}
+@media (max-width:900px){.recap{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.recap{grid-template-columns:1fr}}
+.recap div{border:3px solid var(--ink);background:#f8f0dc;padding:.8rem}
+.recap h3{font-size:1.3rem}
+.recap .res{font:800 .8rem/1 var(--sc);letter-spacing:.06em;text-transform:uppercase;margin:.3rem 0}
+.recap .res.R{color:var(--teal)}.recap .res.M{color:var(--crim)}
+.recap p{font-size:.93rem;color:var(--ink2)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(13.2rem,1fr));gap:.9rem;padding-bottom:2.5rem}
+.cards-grid .card{flex:none}
+.libtools{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;padding:1rem 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="live" class="sr" aria-live="polite"></div>
+
+<!-- TITLE -->
+<section class="screen on" id="title">
+  <div class="wrap title">
+    <div class="title-top">
+      <div>
+        <span class="sc kick">U.S. History 9 · The Progressive Era · A card duel</span>
+        <h1>The Square Deal</h1>
+        <p class="dek">Reformers against the Machine, 1900 to 1918. Four fronts. Ten rounds. Every card is a real person, law, scheme or court case.</p>
+      </div>
+      <figure class="art frame"><img src="/hubs/square-deal/machine.webp" alt="A cartoon of giant money bags labeled with trust names looming over senators at their desks." width="870" height="574"><figcaption>"The Bosses of the Senate," Joseph Keppler, Puck, 1889. Library of Congress.</figcaption></figure>
+    </div>
+    <div class="choose">
+      <button class="side reform" type="button" data-start="R"><span class="sc">Against the computer</span><strong>Lead the Reformers</strong><span>Expose the slums, build outrage, and turn it into laws the Machine cannot undo.</span></button>
+      <button class="side machine" type="button" data-start="M"><span class="sc">Against the computer</span><strong>Run the Machine</strong><span>Bosses, trusts and friendly judges. Keep the money flowing and the reformers quiet.</span></button>
+      <button class="side duel" type="button" data-start="2"><span class="sc">Two players</span><strong>Head to head</strong><span>One Chromebook, two players. Pass it back and forth, and keep your hand hidden.</span></button>
+    </div>
+    <div class="levels"><span class="sc">Computer opponent</span>
+      <button class="lvl" type="button" data-lvl="easy" aria-pressed="false">Rookie</button>
+      <button class="lvl" type="button" data-lvl="normal" aria-pressed="true">Veteran</button>
+      <button class="lvl" type="button" data-lvl="hard" aria-pressed="false">Legend</button>
+    </div>
+    <div class="rules">
+      <div><b>Win the fronts.</b><span>The City, the Factory, the Market and the Vote. Each meter runs from the Machine at 6 to Reform at 6. After 1918, whoever holds more fronts wins. A tie goes to the side with more total pressure.</span></div>
+      <div><b>Spend influence.</b><span>You get more each round, up to 6. Every card costs some. Unspent influence is lost.</span></div>
+      <div><b>Outrage makes laws.</b><span>Exposés build Outrage on a front. A law spends it, pushes hard, and shields that front so Machine pushes there hit one weaker per law.</span></div>
+      <div><b>Courts strike back.</b><span>The Machine's court cards can erase a law. Amendments are part of the Constitution, so no court can touch them.</span></div>
+    </div>
+    <div class="links"><button class="btn ghost" type="button" id="toLibrary">The card library</button><button class="btn ghost" type="button" id="resumeBtn" hidden>Resume your game</button></div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section class="screen" id="game">
+  <div class="bar">
+    <span class="yr" id="gYear"></span><span class="rd" id="gRound"></span>
+    <span class="who" id="gWho"></span>
+    <span class="coins" id="gCoins" aria-label="Influence"></span>
+    <div class="tally"><span class="R">Reform <b id="tR">0</b></span><span class="M">Machine <b id="tM">0</b></span></div>
+    <button class="btn small ghost" type="button" id="gMenu" style="color:var(--cream);border-color:var(--cream)">Menu</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="log" id="log" aria-label="Headlines"></div>
+  <div class="dock">
+    <div class="dock-top"><p class="msg" id="msg"></p><div class="actions" id="acts"></div><button class="btn" type="button" id="endTurn">End turn</button></div>
+    <div class="hand" id="hand" aria-label="Your hand"></div>
+  </div>
+</section>
+
+<!-- END -->
+<section class="screen" id="end">
+  <div class="wrap">
+    <div class="endhead"><span class="sc kick" id="eKick"></span><h2 id="eHead"></h2><p id="eSub"></p></div>
+    <div class="recap" id="eRecap"></div>
+    <div class="links" style="justify-content:center"><button class="btn teal" type="button" id="eAgain">Play again</button><button class="btn crim" type="button" id="eSwap">Switch sides</button><button class="btn ghost" type="button" id="eTitle">Back to the start</button></div>
+    <h2 style="font-size:1.8rem;margin:2rem 0 .8rem">The cards played this game</h2>
+    <div class="cards-grid" id="ePlayed"></div>
+  </div>
+</section>
+
+<!-- LIBRARY -->
+<section class="screen" id="library">
+  <div class="wrap">
+    <div class="libtools"><h2 style="font-size:2.2rem;margin-right:auto">The card library</h2>
+      <button class="lvl" type="button" data-lib="all" aria-pressed="true">All</button>
+      <button class="lvl" type="button" data-lib="R" aria-pressed="false">Reformers</button>
+      <button class="lvl" type="button" data-lib="M" aria-pressed="false">Machine</button>
+      <button class="btn small" type="button" id="libBack">Back</button></div>
+    <div class="cards-grid" id="libGrid"></div>
+  </div>
+</section>
+
+<div class="veil" id="veil" hidden><div class="box" id="veilBox"></div></div>
+
+<script src="/hubs/ush9-square-deal-engine.js"></script>
+<script>
+(() => {
+  'use strict';
+  const SD = window.SD;
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const FR = Object.fromEntries(SD.FRONTS.map(f => [f.id, f]));
+  const SIDE = { R: 'Reformers', M: 'Machine' };
+  const NAMES = { R: { easy: 'a settlement volunteer', normal: 'a muckraker', hard: 'Theodore Roosevelt' }, M: { easy: 'a ward heeler', normal: 'a city boss', hard: 'a robber baron' } };
+  const EVENTS = {
+    1900: 'McKinley wins a second term. Theodore Roosevelt is his vice president.',
+    1902: 'Ida Tarbell\'s Standard Oil series begins in McClure\'s Magazine.',
+    1904: 'Roosevelt, president since McKinley\'s assassination, wins a full term.',
+    1906: 'The Jungle is published. Within months, Congress passes two food laws.',
+    1908: 'Taft, Roosevelt\'s chosen successor, is elected president.',
+    1910: 'The shirtwaist strike ends with new contracts at most shops.',
+    1912: 'Roosevelt runs as a Bull Moose, splitting the Republicans. Wilson wins.',
+    1914: 'War breaks out in Europe. Wilson signs the Clayton Antitrust Act.',
+    1916: 'Congress passes the Keating Owen child labor act.',
+    1918: 'The Great War ends in November. The Supreme Court strikes down Keating Owen.'
+  };
+  const HISTORY = {
+    city: 'Many machines survived the era. Tammany Hall kept real power in New York into the 1930s, but the secret ballot spread to almost every state by the 1890s.',
+    factory: 'New York rewrote its factory laws after the Triangle fire. A national ban on child labor waited until the Fair Labor Standards Act of 1938.',
+    market: 'Standard Oil was broken into 34 companies in 1911, and the 1906 food laws still shape what Americans eat today.',
+    vote: 'The 19th Amendment came in 1920. Poll taxes and literacy tests kept most Black Southerners from voting until the 1960s.'
+  };
+  function say(t) { const l = $('#live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+  function show(id) { $$('.screen').forEach(s => s.classList.toggle('on', s.id === id)); window.scrollTo(0, 0); }
+  const SS = { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* fine */ } }, del(k) { try { sessionStorage.removeItem(k); } catch (e) { /* fine */ } } };
+
+  /* ---------- describing cards ---------- */
+  const frName = id => id === 'all' ? 'every front' : id === 'any' || id === 'target' ? 'a front you choose' : FR[id] ? FR[id].name.replace('The ', 'the ') : '';
+  function effects(c) {
+    const out = [];
+    c.fx.forEach(([op, w, a, b]) => {
+      if (op === 'push') out.push((c.side === 'R' ? 'Push ' : 'Pull ') + frName(w) + ' ' + a + ' toward ' + (c.side === 'R' ? 'Reform.' : 'the Machine.'));
+      if (op === 'out') out.push('+' + a + ' Outrage at ' + frName(w) + '.');
+      if (op === 'spin') out.push('Remove ' + a + ' Outrage at ' + frName(w) + '.');
+      if (op === 'agent') out.push((c.side === 'R' ? 'Organizer. ' : 'Boss. ') + 'Pushes ' + frName(w) + ' ' + a + ' every turn for ' + b + ' turns.');
+      if (op === 'bust') out.push('Remove the newest ' + (c.side === 'R' ? 'Machine boss' : 'Reform organizer') + ' at ' + frName(w) + '.');
+      if (op === 'strike') out.push('Strike down a law at ' + frName(w) + '. Amendments are safe.');
+      if (op === 'draw') out.push('Draw ' + w + (w === 1 ? ' card.' : ' cards.'));
+    });
+    if (c.kind === 'amend') out.push('Amendment. No court can strike it down.');
+    else if (c.kind === 'law') out.push('Law. Shields ' + frName(c.front) + '.');
+    return out.join(' ');
+  }
+  function frontTag(c) { return c.front === 'all' ? 'All fronts' : c.front === 'any' ? 'Any front' : c.front === 'none' ? '' : FR[c.front].name; }
+  function cardHtml(c, opts) {
+    opts = opts || {};
+    const need = c.need ? '<p class="need' + (opts.st && opts.st.fronts[c.front].out >= c.need ? ' ok' : '') + '">Needs ' + c.need + ' Outrage at ' + esc(frName(c.front)) + (opts.st ? ' · has ' + opts.st.fronts[c.front].out : '') + '</p>' : '';
+    return '<span class="top"><span class="cost">' + c.cost + '</span><span class="kind">' + esc(SD.KIND[c.kind]) + '</span><span class="ftag">' + esc(frontTag(c)) + '</span></span>' +
+      '<span class="nm">' + esc(c.name) + '</span>' + need + '<span class="eff">' + esc(effects(c)) + '</span><span class="fact">' + esc(c.fact) + '</span>';
+  }
+
+  /* ---------- game state ---------- */
+  const G = { st: null, mode: 'R', level: 'normal', human: { R: true, M: false }, sel: null, aim: false, busy: false, lastYear: 0, viewer: 'R' };
+  function save() { if (G.st) SS.set('sd-game', JSON.stringify({ st: G.st, mode: G.mode, level: G.level })); }
+  function load() { try { const j = JSON.parse(SS.get('sd-game') || 'null'); return j && j.st && !j.st.over ? j : null; } catch (e) { return null; } }
+  if (load()) $('#resumeBtn').hidden = false;
+  $('#resumeBtn').addEventListener('click', () => { const j = load(); if (!j) return; G.st = j.st; G.mode = j.mode; G.level = j.level; setHumans(); G.rand = SD.rng((Math.random() * 2 ** 31) >>> 0); G.sel = null; G.aim = false; G.lastYear = SD.yearOf(G.st.round); G.viewer = humanTurn() ? G.st.turn : G.mode; render(); show('game'); afterChange(); });
+
+  $$('.lvl[data-lvl]').forEach(b => b.addEventListener('click', () => { G.level = b.dataset.lvl; $$('.lvl[data-lvl]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
+  $$('[data-start]').forEach(b => b.addEventListener('click', () => startGame(b.dataset.start)));
+  function setHumans() { G.human = { R: G.mode === 'R' || G.mode === '2', M: G.mode === 'M' || G.mode === '2' }; }
+  function startGame(mode) {
+    G.mode = mode; setHumans();
+    G.st = SD.newGame((Math.random() * 2 ** 31) >>> 0);
+    G.sel = null; G.aim = false; G.lastYear = 0; G.viewer = mode === 'M' ? 'M' : 'R';
+    G.rand = SD.rng((Math.random() * 2 ** 31) >>> 0);
+    render(); show('game');
+    afterChange();
+  }
+  const humanTurn = () => G.st && !G.st.over && G.human[G.st.turn];
+
+  /* ---------- drawing ---------- */
+  function render() {
+    const st = G.st;
+    const year = SD.yearOf(st.round);
+    $('#gYear').textContent = year;
+    $('#gRound').textContent = 'Round ' + st.round + ' of ' + SD.ROUNDS;
+    const who = $('#gWho'); who.className = 'who ' + st.turn; who.textContent = SIDE[st.turn] + (G.mode === '2' ? '' : G.human[st.turn] ? ' · your turn' : ' · thinking');
+    const total = SD.influenceFor(st.round);
+    $('#gCoins').innerHTML = Array.from({ length: total }, (_, i) => '<span class="coin' + (i >= st.inf[st.turn] ? ' spent' : '') + '"></span>').join('');
+    const t = SD.tally(st); $('#tR').textContent = t.r; $('#tM').textContent = t.m;
+    drawBoard(); drawHand(); drawLog();
+  }
+  function drawBoard() {
+    const st = G.st, targets = G.aim && G.sel ? SD.targetsFor(st, st.turn, G.sel) : [];
+    $('#board').innerHTML = SD.FRONTS.map(fr => {
+      const f = st.fronts[fr.id];
+      const own = f.m > 0 ? 'R' : f.m < 0 ? 'M' : 'N';
+      const cells = Array.from({ length: 13 }, (_, n) => { const v = n - 6; const on = f.m > 0 && v > 0 && v <= f.m ? 'onR' : f.m < 0 && v < 0 && v >= f.m ? 'onM' : ''; return '<i class="' + (v === 0 ? 'mz ' : '') + on + '"></i>'; }).join('');
+      const laws = f.laws.map(l => '<span class="chip ' + (SD.BYID[l].kind === 'amend' ? 'amend' : 'law') + '">' + esc(SD.BYID[l].name) + '</span>').join('');
+      const ags = ['R', 'M'].map(s => f.ag[s].map(a => '<span class="chip ag' + s + '">' + esc(SD.BYID[a.id].name) + ' <small>· ' + a.left + ' left</small></span>').join('')).join('');
+      const sh = SD.shield(f);
+      return '<div class="front' + (targets.includes(fr.id) ? ' target' : '') + '" data-front="' + fr.id + '" role="group" aria-label="' + esc(fr.name) + '">' +
+        `<div class="pic"><img src="/hubs/square-deal/${fr.img}.webp" alt="" title="${esc(fr.credit)}">` + '<span class="owner ' + own + '">' + (own === 'R' ? 'Reform holds' : own === 'M' ? 'Machine holds' : 'Up for grabs') + '</span></div>' +
+        '<div class="body"><h3>' + esc(fr.name) + '</h3><p class="sub">' + esc(fr.sub) + '</p>' +
+        '<div class="mlabels"><span>Machine</span><span class="mnum ' + own + '">' + (f.m > 0 ? '+' : '') + f.m + '</span><span>Reform</span></div><div class="meter" aria-hidden="true">' + cells + '</div>' +
+        '<div class="row"><span class="outrage">Outrage ' + f.out + ' <span class="flames" aria-hidden="true">' + '\u{1F525}'.repeat(Math.min(f.out, 6)) + '</span></span>' + (sh ? '<span class="shield">Shield ' + sh + '</span>' : '') + '</div>' +
+        (laws ? '<div class="row">' + laws + '</div>' : '') + (ags ? '<div class="row">' + ags + '</div>' : '') + '</div></div>';
+    }).join('');
+  }
+  function drawHand() {
+    const st = G.st, side = G.viewer;
+    const mine = humanTurn() && st.turn === side;
+    const hand = st.hand[side];
+    $('#hand').innerHTML = hand.map((id, n) => {
+      const c = SD.BYID[id], ok = mine && SD.canPlay(st, side, id);
+      return '<button type="button" class="card ' + c.side + (ok ? '' : ' dead') + (G.sel === id ? ' sel' : '') + '" data-card="' + id + '" data-n="' + n + '">' + cardHtml(c, { st }) + '</button>';
+    }).join('') || '<p class="msg">Your hand is empty. End the turn to draw.</p>';
+    $('#endTurn').disabled = !mine || G.busy;
+    $('#endTurn').className = 'btn ' + (side === 'R' ? 'teal' : 'crim');
+    drawActs();
+  }
+  function drawActs() {
+    const st = G.st, side = st.turn, acts = $('#acts');
+    acts.innerHTML = '';
+    if (!humanTurn() || G.busy) {
+      $('#msg').textContent = st.over ? '' : G.busy ? '' : SIDE[st.turn] + ' are moving.';
+      return;
+    }
+    if (!G.sel) { $('#msg').textContent = 'Pick a card. You have ' + st.inf[side] + ' influence left this turn.'; return; }
+    const c = SD.BYID[G.sel];
+    const targets = SD.targetsFor(st, side, G.sel);
+    if (G.aim) { $('#msg').textContent = 'Choose the front for ' + c.name + '.'; acts.innerHTML = '<button class="btn small ghost" type="button" data-act="cancel">Cancel</button>'; return; }
+    let why = '';
+    if (c.cost > st.inf[side]) why = 'Not enough influence. It costs ' + c.cost + '.';
+    else if (c.need && st.fronts[c.front].out < c.need) why = 'Needs ' + c.need + ' Outrage at ' + frName(c.front) + ' first. Play exposés there.';
+    else if (c.kind === 'court' && !targets.length) why = 'There is no law a court can strike down yet.';
+    else if (!targets.length) why = 'You already have two of those working that front.';
+    $('#msg').textContent = why || c.name + ': ' + effects(c);
+    const rf = SD.rallyFront(st, side, G.sel);
+    const rallyText = side === 'R' ? 'Trade in for +1 Outrage at ' + frName(rf) : 'Trade in to pull ' + frName(rf) + ' 1';
+    acts.innerHTML = (targets.length ? '<button class="btn small ' + (side === 'R' ? 'teal' : 'crim') + '" type="button" data-act="play">Play it</button>' : '') +
+      (SD.canRally(st, side, G.sel) ? '<button class="btn small ghost" type="button" data-act="rally" title="Costs 1 influence">' + esc(rallyText) + ' · 1</button>' : '') +
+      '<button class="btn small ghost" type="button" data-act="cancel">Cancel</button>';
+  }
+  function drawLog() {
+    const items = G.st.log.slice(-6).reverse().map(e => {
+      const c = SD.BYID[e.id];
+      const what = e.rally ? (e.side === 'R' ? 'speak out at ' + frName(e.rally) : 'grease palms at ' + frName(e.rally)) : 'play ' + c.name + (e.target && SD.BYID[e.id].front === 'any' ? ' at ' + frName(e.target) : '');
+      return '<p class="' + e.side + '"><b>' + SD.yearOf(e.round) + ' · ' + SIDE[e.side] + '</b> ' + esc(what) + '.</p>';
+    });
+    $('#log').innerHTML = items.join('');
+  }
+  function floatFx(notes, side) {
+    notes.forEach((n, k) => {
+      const el = document.querySelector('.front[data-front="' + n.front + '"]'); if (!el) return;
+      let txt = '', cls = side;
+      if (n.d) txt = (n.d > 0 ? '+' : '') + n.d;
+      else if (n.out) { txt = (n.out > 0 ? '+' : '') + n.out + ' outrage'; cls = 'O'; }
+      else if (n.law) txt = 'Law passed';
+      else if (n.struck) txt = 'Struck down';
+      else if (n.bust) txt = 'Removed';
+      else if (n.agent) txt = 'At work';
+      else if (n.blocked) { txt = 'Shielded'; cls = 'R'; }
+      if (!txt) return;
+      const s = document.createElement('span'); s.className = 'fx ' + cls; s.textContent = txt; s.style.top = (35 + k * 9) + '%';
+      el.appendChild(s); setTimeout(() => s.remove(), 1400);
+    });
+  }
+
+  /* ---------- player input ---------- */
+  $('#hand').addEventListener('click', e => {
+    const b = e.target.closest('[data-card]'); if (!b || !humanTurn() || G.busy || G.st.turn !== G.viewer) return;
+    G.sel = G.sel === b.dataset.card ? null : b.dataset.card; G.aim = false;
+    drawHand(); drawBoard();
+  });
+  $('#acts').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b || !G.sel) return;
+    const act = b.dataset.act, st = G.st, side = st.turn;
+    if (act === 'cancel') { G.sel = null; G.aim = false; drawHand(); drawBoard(); return; }
+    if (act === 'rally') { const id = G.sel; G.sel = null; const notes = SD.rally(st, side, id); render(); floatFx(notes, side); save(); return; }
+    if (act === 'play') {
+      const c = SD.BYID[G.sel];
+      if (c.front === 'any') { G.aim = true; drawBoard(); drawActs(); return; }
+      doPlay(G.sel);
+    }
+  });
+  $('#board').addEventListener('click', e => {
+    const f = e.target.closest('.front.target'); if (!f || !G.aim || !G.sel) return;
+    doPlay(G.sel, f.dataset.front);
+  });
+  function doPlay(id, target) {
+    const st = G.st, side = st.turn;
+    const notes = SD.play(st, side, id, target);
+    G.sel = null; G.aim = false;
+    render(); floatFx(notes, side); save();
+    const k = SD.BYID[id].kind;
+    say((k === 'law' || k === 'amend' ? 'Passed: ' : 'Played: ') + SD.BYID[id].name);
+  }
+  $('#endTurn').addEventListener('click', () => { if (!humanTurn() || G.busy) return; G.sel = null; G.aim = false; SD.endTurn(G.st); save(); afterChange(); });
+  $('#gMenu').addEventListener('click', () => {
+    if (G.busy) return; // the computer is mid move; the menu opens on your turn
+    openVeil('<h2>Paused</h2><p>Your game is saved in this tab until you close it.</p><div class="links" style="justify-content:center"><button class="btn" type="button" data-v="resume">Keep playing</button><button class="btn ghost" type="button" data-v="rules">How it works</button><button class="btn ghost" type="button" data-v="quit">Quit to the start</button></div>', v => {
+      if (v === 'quit') { closeVeil(); show('title'); $('#resumeBtn').hidden = !load(); }
+      else if (v === 'rules') { closeVeil(); show('title'); $('#resumeBtn').hidden = !load(); }
+      else closeVeil();
+    });
+  });
+
+  /* ---------- overlays ---------- */
+  let veilCb = null;
+  function openVeil(html, cb) { $('#veilBox').innerHTML = html; $('#veil').hidden = false; veilCb = cb || null; const f = $('#veilBox button'); if (f) f.focus(); }
+  function closeVeil() { $('#veil').hidden = true; veilCb = null; }
+  $('#veilBox').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b && veilCb) veilCb(b.dataset.v); });
+  function waitVeil(html) { return new Promise(res => openVeil(html, v => { closeVeil(); res(v); })); }
+
+  /* ---------- turn flow ---------- */
+  async function afterChange() {
+    const st = G.st;
+    if (st.over) return finish();
+    G.busy = true; render();
+    const year = SD.yearOf(st.round);
+    if (year !== G.lastYear) {
+      G.lastYear = year;
+      await waitVeil('<span class="sc kick">Round ' + st.round + ' of ' + SD.ROUNDS + '</span><div class="yearbanner">' + year + '</div><p style="font-size:1.15rem">' + esc(EVENTS[year] || '') + '</p><button class="btn" type="button" data-v="go">Begin ' + year + '</button>');
+    }
+    // organizers and bosses already on the board went to work when the turn began
+    const ev = (st.agentEvents || []).filter(x => x.d);
+    if (ev.length) { render(); floatFx(ev.map(x => ({ front: x.front, d: x.d })), st.turn); await sleep(900); }
+    st.agentEvents = [];
+    if (G.human[st.turn]) {
+      if (G.mode === '2' && G.viewer !== st.turn) {
+        G.viewer = st.turn; render();
+        await waitVeil('<span class="sc kick">Pass the Chromebook</span><h2>' + (st.turn === 'R' ? 'Reformers' : 'The Machine') + ', your move</h2><p>The other player looks away. Your hand stays hidden until you press the button.</p><button class="btn ' + (st.turn === 'R' ? 'teal' : 'crim') + '" type="button" data-v="go">Show my hand</button>');
+      }
+      G.viewer = st.turn;
+      G.busy = false; render(); save();
+      return;
+    }
+    await aiTurn();
+  }
+  async function aiTurn() {
+    const st = G.st, side = st.turn;
+    await sleep(600);
+    let n = 0, pick;
+    while (!st.over && (pick = SD.aiPick(st, G.level, G.rand)) && n++ < 10) {
+      const c = SD.BYID[pick.id];
+      const label = pick.rally ? (side === 'R' ? 'Trades in a card to speak out at ' + frName(SD.rallyFront(st, side, pick.id)) : 'Trades in a card to grease palms at ' + frName(SD.rallyFront(st, side, pick.id))) : '';
+      if (!pick.rally) {
+        $('#msg').textContent = SIDE[side] + ' play ' + c.name + '.';
+        openVeil('<span class="sc kick reveal">' + esc(SIDE[side]) + ' play</span><div class="card big ' + c.side + '">' + cardHtml(c) + '</div>' + (pick.target && c.front === 'any' ? '<p class="sc">Aimed at ' + esc(frName(pick.target)) + '</p>' : '') + '<button class="btn small ghost" type="button" data-v="ok">Next</button>', () => {});
+        await Promise.race([sleep(2600), new Promise(r => { veilCb = () => r(); })]);
+        closeVeil();
+        const notes = SD.play(st, side, pick.id, pick.target);
+        render(); floatFx(notes, side); say(SIDE[side] + ' played ' + c.name + '.');
+      } else {
+        const notes = SD.rally(st, side, pick.id);
+        $('#msg').textContent = SIDE[side] + ': ' + label + '.';
+        render(); floatFx(notes, side);
+      }
+      save();
+      await sleep(900);
+    }
+    SD.endTurn(st); save();
+    afterChange();
+  }
+
+  /* ---------- the end ---------- */
+  function finish() {
+    G.busy = false; SS.del('sd-game'); $('#resumeBtn').hidden = true;
+    const st = G.st, t = SD.tally(st);
+    const you = G.mode === '2' ? null : G.mode;
+    let head;
+    if (st.winner === 'draw') head = 'A dead heat';
+    else if (!you) head = (st.winner === 'R' ? 'The Reformers' : 'The Machine') + ' win';
+    else head = st.winner === you ? 'You win' : 'You lose';
+    $('#eKick').textContent = '1918 · Final count';
+    $('#eHead').textContent = head;
+    const tie = t.r === t.m && st.winner !== 'draw' ? ' Fronts are tied, so the side with more total pressure across all four takes it.' : '';
+    $('#eSub').textContent = 'Reformers hold ' + t.r + (t.r === 1 ? ' front' : ' fronts') + ', the Machine holds ' + t.m + '.' + tie + ' ' + (st.winner === 'R' ? 'The Progressive Era belongs to the reformers.' : st.winner === 'M' ? 'The bosses and the trusts hang on.' : 'Neither side can claim the era.');
+    $('#eRecap').innerHTML = SD.FRONTS.map(fr => {
+      const f = st.fronts[fr.id], w = f.m > 0 ? 'R' : f.m < 0 ? 'M' : '';
+      return '<div><h3>' + esc(fr.name) + '</h3><p class="res ' + w + '">' + (w === 'R' ? 'Reform holds it at +' + f.m : w === 'M' ? 'The Machine holds it at ' + f.m : 'Even at 0') + '</p><p><b>What really happened:</b> ' + esc(HISTORY[fr.id]) + '</p></div>';
+    }).join('');
+    const seen = [];
+    st.log.forEach(e => { if (!e.rally && !seen.includes(e.id)) seen.push(e.id); });
+    $('#ePlayed').innerHTML = seen.map(id => '<div class="card ' + SD.BYID[id].side + '">' + cardHtml(SD.BYID[id]) + '</div>').join('');
+    show('end');
+    say(head);
+  }
+  $('#eAgain').addEventListener('click', () => startGame(G.mode));
+  $('#eSwap').addEventListener('click', () => startGame(G.mode === 'R' ? 'M' : G.mode === 'M' ? 'R' : '2'));
+  $('#eTitle').addEventListener('click', () => show('title'));
+
+  /* ---------- library ---------- */
+  let libSide = 'all';
+  function drawLib() {
+    const cards = SD.R.concat(SD.M).filter(c => libSide === 'all' || c.side === libSide);
+    $('#libGrid').innerHTML = cards.map(c => '<div class="card ' + c.side + '">' + cardHtml(c) + '</div>').join('');
+  }
+  $('#toLibrary').addEventListener('click', () => { drawLib(); show('library'); });
+  $('#libBack').addEventListener('click', () => show('title'));
+  $$('[data-lib]').forEach(b => b.addEventListener('click', () => { libSide = b.dataset.lib; $$('[data-lib]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawLib(); }));
+
+  window.SD_UI = { G, startGame };
+})();
+</script>
+</body>
+</html>
