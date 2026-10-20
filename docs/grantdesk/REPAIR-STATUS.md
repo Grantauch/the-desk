@@ -31,6 +31,12 @@ The teacher clarified that manually created Google Classroom assignments must al
 
 # GrantDesk repair status
 
+## Current checkpoint — October 19 Jeopardy Showtime visuals
+
+Progressive Era Jeopardy v2.1.0 adds an original interpretive city illustration, locally bundled licensed display font, brass-framed board, category symbols, team podiums and dedicated Daily Double styling. Short clue entrances, answer reveals and score celebrations follow the teacher effects control and system reduced-motion setting. The visual artwork is identified as an illustration rather than historical evidence.
+
+83 focused browser checks pass, including a complete sixty-clue match, scoring, saved-game transfer, accessibility, 720px projector layout, effects controls, reduced motion and decorative-asset failure. All seventy regular clues and the final question bank exactly match the approved baseline; saved-game compatibility is preserved. A self-contained offline edition embeds artwork and font and passed disconnected scoring and refresh/resume. The predecessor remains privately archived. Canonical full verification passed via the expanded Windows verify:full command: 53 generated pages, 122 HTML files, 4521 local references and 81 sealed assets. Protected review, exact Netlify production commit and real classroom use remain separate checks.
+
 ## Current checkpoint — October 19 Jeopardy unanswered wagers
 
 The final scoring review caught two ways an unanswered, locked Daily Double could end without losing the wager. Both No correct response and closing the unanswered clue now apply the same single miss ruling as Incorrect. The close control explicitly says End clue as missed. Ordinary untouched clues still return to the board without scoring, and Undo restores the wager and score. The original clue bank and saved-game format remain compatible.

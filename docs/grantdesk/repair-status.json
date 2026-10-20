@@ -1,4 +1,19 @@
 {
+  "progressive-jeopardy-showtime-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "0ef4f2d0a2b60a4c40e10f0ef025a7053df83d14",
+    "scope": "Progressive Era Jeopardy Showtime visual edition v2.1.0",
+    "evidence": [
+      "Original interpretive city illustration, local licensed display font, brass-framed clue board, original category symbols, team podiums and dedicated wager styling.",
+      "Optional clue entrances, answer reveals, point celebrations and existing finish confetti respect teacher effects settings and system reduced motion.",
+      "83 focused browser checks pass, including the complete 60-clue game, scoring, save transfer, accessibility, asset failure fallback, effects controls and 720px projector fit.",
+      "All 70 original regular clues and all final questions match the approved baseline exactly. Saved-game format remains compatible. The predecessor is retained privately.",
+      "Self-contained offline copy embeds artwork and font; disconnected play, scoring and refresh/resume passed."
+    ],
+    "verification_status": "CANONICAL_FULL_GATE_PASSED_53_PAGES_122_HTML_4521_REFS_81_SEALS",
+    "deployment_status": "PENDING_PROTECTED_REVIEW_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "FIELD_PENDING"
+  },
   "progressive-jeopardy-v2-unanswered-wagers-2026-10-19": {
     "status": "LOCAL_VERIFIED",
     "source_base": "6bcf5719c7610f1ca953afc54aa582bed8436ff6",

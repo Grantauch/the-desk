@@ -9,7 +9,14 @@ const source = new URL('../public/hubs/ush9-progressive-era-jeopardy-v2.html', i
 const out = new URL('../browser-results/progressive-jeopardy-v2/', import.meta.url);
 await mkdir(out, { recursive: true });
 const html = await readFile(source, 'utf8');
-const server = createServer((req, res) => { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(html); });
+const server = createServer(async (req, res) => {
+  const name = (req.url || '').split('/').pop();
+  if (['showtime.css','anton.woff2','reform-city.webp'].includes(name)) {
+    const types = { css:'text/css',woff2:'font/woff2',webp:'image/webp' };
+    res.writeHead(200, { 'Content-Type': types[name.split('.').pop()] });
+    res.end(await readFile(new URL(`../public/hubs/jeopardy-art-v1/${name}`, import.meta.url)));
+  } else { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(html); }
+});
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch({ headless: true });
@@ -17,8 +24,8 @@ let checks = 0;
 const errors = [];
 const pass = (v, label) => { assert.ok(v, label); checks++; console.log(`PASS ${label}`); };
 const eq = (v, expected, label) => { assert.deepEqual(v, expected, label); checks++; console.log(`PASS ${label}`); };
-async function pageFor(width = 1440, height = 1000) {
-  const context = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+async function pageFor(width = 1440, height = 1000, reducedMotion = 'reduce') {
+  const context = await browser.newContext({ viewport: { width, height }, reducedMotion });
   const page = await context.newPage();
   page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(() => { Math.random = () => 0; });
@@ -182,6 +189,7 @@ try {
   await full.getByRole('button',{name:'Let’s play →'}).click();
   await full.locator('#fullscreen').click();
   pass(await full.locator('#advance').evaluate(e=>e.getBoundingClientRect().bottom<=innerHeight), '720px projector view shows board, scores and advance together');
+  await full.screenshot({path:fileURLToPath(new URL('projector-showtime.png',out)),fullPage:true});
   for(let r=0;r<2;r++) {
     for(const c of ['muck','work','rights','votes','pres','ideas']) {
       for(let n=0;n<5;n++) {
@@ -222,6 +230,43 @@ try {
   pass((await bad.locator('#setup-message').innerText()).includes('not a valid save'), 'Malformed save rejected with helpful feedback');
   pass(await bad.locator('#setup').isVisible(), 'Malformed save leaves setup usable');
   await bad.context().close();
+  const show = await pageFor(1280,720,'no-preference');
+  await show.evaluate(()=>document.fonts.ready);
+  pass(await show.evaluate(()=>document.fonts.check('16px Showtime')), 'Bundled display font loads locally');
+  const art = await show.request.get(origin+'/jeopardy-art-v1/reform-city.webp');
+  pass(art.ok() && art.headers()['content-type']==='image/webp' && (await art.body()).length>10000, 'Original artwork serves as a real local image');
+  await show.getByRole('button',{name:'Let’s play →'}).click();
+  await clickClue(show,'0:muck:1');
+  eq(await show.locator('#clue-dialog').getAttribute('data-mode'),'wager','Daily Double receives its own visual scene');
+  await show.locator('#clue-dialog').evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));
+  await show.screenshot({path:fileURLToPath(new URL('daily-double-showtime.png',out))});
+  await show.locator('#lock-wager').click();
+  await show.locator('#correct').click();
+  pass(await show.locator('#score-flare').evaluate(e=>e.classList.contains('lit')&&getComputedStyle(e).animationName==='score-rise'), 'Correct answer triggers optional score celebration');
+  await show.locator('#done-clue').click();
+  await show.locator('#settings').click();
+  await show.locator('#setting-effects').uncheck();
+  await show.getByRole('button',{name:'Apply controls',exact:true}).click();
+  await clickClue(show,'0:muck:0');
+  eq(await show.locator('#clue-dialog').evaluate(e=>getComputedStyle(e).animationName),'none','Teacher can turn off clue entrance motion');
+  await show.locator('#correct').click();
+  pass(await show.locator('#score-flare').evaluate(e=>!e.classList.contains('lit')), 'Effects off suppresses score celebration');
+  await show.context().close();
+  const calm = await pageFor(1280,720);
+  await calm.getByRole('button',{name:'Let’s play →'}).click();
+  await clickClue(calm,'0:muck:0');
+  eq(await calm.locator('#clue-dialog').evaluate(e=>getComputedStyle(e).animationName),'none','System reduced motion suppresses clue entrance');
+  await calm.locator('#correct').click();
+  pass(await calm.locator('#score-flare').evaluate(e=>!e.classList.contains('lit')), 'System reduced motion suppresses score celebration');
+  await calm.context().close();
+  const fallback = await pageFor(1280,720);
+  await fallback.route('**/*.{webp,woff2}',route=>route.abort());
+  await fallback.reload();
+  await fallback.getByRole('button',{name:'Let’s play →'}).click();
+  await clickClue(fallback,'0:muck:0');
+  await fallback.locator('#correct').click();
+  eq(await scores(fallback),[100,0,0],'Game remains playable if decorative art or font cannot load');
+  await fallback.context().close();
   eq(errors,[], 'No uncaught browser errors across complete acceptance');
   await writeFile(new URL('receipt.json',out),JSON.stringify({checks,status:'passed',errors},null,2));
   console.log(`${checks} Progressive Era Jeopardy checks passed.`);
