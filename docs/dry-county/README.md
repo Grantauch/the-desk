@@ -6,7 +6,7 @@ The buildings, businesses, characters, events and criminal plots are fictional. 
 
 ## Visuals
 
-Buildings use projected 3D corner positions at different heights, solid wall faces and raised roofs. Cars have projected raised cabins. Explosion fragments have x/y/z positions, vertical velocity, gravity, bounce and ground shadows. This is a Canvas 2D renderer with 2.5D geometry, not a full 3D engine.
+Buildings use projected 3D corner positions at different heights, solid wall faces and raised roofs. Cars have projected raised roofs over a glass cabin well. Explosion fragments have x/y/z positions, vertical velocity, gravity, bounce and ground shadows. This is a Canvas 2D renderer with 2.5D geometry, not a full 3D engine.
 
 `public/hubs/dry-county/assets/portraits.webp` is an optimized four-character atlas generated with the built-in image generation tool. It contains four original fictional characters: Sal Bell (older Italian American mechanic), Nora Vale (Black American jazz singer), Ruth Mercer (woman bootlegger), and Eddie Pike (adult newspaper hawker). The prompt requested equal 2×2 head-and-shoulder portraits, 1926 clothing, cinematic ink/gouache realism, deep teal shadows, warm brass light, expressive faces, no text, no weapons, no logos, and no resemblance to named real people.
 
@@ -76,3 +76,13 @@ Regression coverage adds reserved-land checks, independent street/rail clearance
 **Atmosphere.** The clock drives the light: full night until 5 a.m., dawn between 5 and 7, daylight, dusk from 7 to 9 p.m. Night is a darkness layer drawn at reduced resolution, with gas lamps, headlights, the train's lamp, fire, explosions and muzzle flashes cut out of it. Police lamps, fire and the player's brake lights add colored light. Rain intensity and wind drift over time, with ripples on the pavement, tire spray, lightning and delayed thunder. A freight train runs the diagonal tracks every minute or two. The crossings flash and ring, traffic waits at the gates, and anything left on the rails gets hit. Respawn points slide along the road until they are clear of the tracks. Sound adds a gear-shifting engine, tire squeal by slip, rain, train rumble, horn and crossing bells, scrape sparks, footsteps and thunder. Big crashes pause the world for a beat, and the camera pulls back as speed rises.
 
 **Performance.** `perfWatch` tracks frame time during play. Sustained slow frames step quality down: full lighting, then cheaper lighting at a third resolution, then no lighting and lighter rain. It steps back up after 20 seconds of fast frames. The pause menu has a night lighting toggle for projectors or anyone who wants the brighter look.
+
+## Graphics pass
+
+**Cars.** `CAR_ART` draws each 1920s body once into a cached sprite at 2.5 times game scale: fenders, running boards, a louvered hood, a chrome radiator shell, headlamps, bumpers and a spare wheel. Police cars carry white roof stripes and a roof lamp that flashes red and blue. Federal agents get a gold pinstripe and a red dash lamp. Wrecks swap to a scorched sprite. Front wheels turn with the steering and every tire tread rolls with speed. Brake lights glow, damaged cars show scorch marks, and the hit flash replays the sprite in additive light. Drawing a sprite costs less than the old vector cars.
+
+**People and trees.** Pedestrians are period figures seen from above, with a fedora, cloche, newsboy cap or bare head, a coat, swinging arms and walking legs. The player wears a tan trench coat and a dark fedora. Rival crews wear dark suits and fedoras with a red band. Knocked down figures lose their hat. Tree canopies are clustered sprites in two layers that sway with the wind.
+
+**Effects.** Burning cars throw flame, and wrecks smolder for nine seconds after they blow. Explosions are fireballs with a shockwave and a scorch mark that fades after 45 seconds. Smoke is soft, layered puffs. Sparks and tracers glow, and every gun, the rival crews' included, shows a muzzle flash and lights up the night. In rain the wet street mirrors the gas lamps and headlights.
+
+**Screen.** An art deco speedometer with a gear badge replaces the plain number. A light film grain and a warm print grade sit over the scene. The grain holds still for anyone who prefers reduced motion.
