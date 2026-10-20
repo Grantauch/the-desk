@@ -1059,8 +1059,9 @@
     "field_status": "FIELD_PENDING",
     "verification": [
       "Reviewed all eight additional user-supplied aerial captures.",
-      "Synthetic map initialization and render pass: 773 buildings, 27 authored lots, 10 ramps, 16 reachable-jug candidates; all fourteen business doorsteps clear.",
-      "Full Node regression and desktop/phone/landscape Chromium acceptance remain required on the protected review branch."
+      "All 57 synchronous gameplay/map checks pass in the available JavaScript runtime, including routes between every job location, every storefront approach and hidden jug reachability. Two asynchronous feedback checks and canonical/Chromium verification remain protected CI evidence.",
+      "Full Node regression and desktop/phone/landscape Chromium acceptance remain required on the protected review branch.",
+      "Pursuit fixture starts away from the garage respray; roadblock layouts fit the narrower mapped streets."
     ]
   }
 }
