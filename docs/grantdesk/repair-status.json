@@ -1050,5 +1050,17 @@
       "The first protected run passed all 34 gameplay checks, canonical full verification, site browser acceptance and the new three-size Dry County browser journeys on 72986a674fa08ff00c8a1eb4a46e9df5ac4fb298.",
       "Automated review fixes: remove misleading remote car purchase controls, remember and repair the player's actual parked car, and accrue club income during active indoor exploration. The 16 focused business/progression checks pass after these fixes; the Node suite now has 36 checks. Clue-job handovers also display their discovery hint directly."
     ]
+  },
+  "dry_county_map_20261020": {
+    "status": "AUTHORING_GEOMETRY_CHECKED_PROTECTED_VERIFICATION_PENDING",
+    "summary": "Reference-guided 0.4 map: western farmland, corrected downtown/woodland roads, 13 land-use areas, 27 authored footprints and period architecture.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Reviewed all eight additional user-supplied aerial captures.",
+      "Synthetic map initialization and render pass: 773 buildings, 27 authored lots, 10 ramps, 16 reachable-jug candidates; all fourteen business doorsteps clear.",
+      "Full Node regression and desktop/phone/landscape Chromium acceptance remain required on the protected review branch."
+    ]
   }
 }

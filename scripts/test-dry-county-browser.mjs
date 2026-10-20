@@ -5,7 +5,7 @@ import {join,resolve} from 'node:path';
 import {chromium} from 'playwright';
 const root=resolve('dist/hubs/dry-county'),out=resolve('browser-results/dry-county');
 await mkdir(out,{recursive:true});
-const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={player,places,enterBusiness,leaveBusiness,get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
+const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={camera,draw,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
 const server=createServer(async(req,res)=>{try{const file=(req.url||'/').split('?')[0];if(file.includes('..'))throw Error('Invalid path');const p=file==='/'?'index.html':file.slice(1);let bytes=await readFile(join(root,p));if(p==='game.js')bytes=Buffer.from(instrument(bytes.toString()));res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.webp')?'image/webp':'text/html');res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true});
@@ -14,6 +14,12 @@ try{
  for(const size of [{width:1440,height:900},{width:390,height:844},{width:844,height:390}]){
   const context=await browser.newContext({viewport:size,isMobile:size.width<900,hasTouch:size.width<900});
   const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.getByRole('button',{name:'ENTER MT. MORRIS'}).click();
+  // Inspect real street rendering before the interior journeys. Test-only hooks
+  // move the camera; published builds expose no position-changing controls.
+  await page.evaluate(()=>{const t=window.__dryTest;t.closePanel();t.camera.x=t.places[0].x;t.camera.y=t.places[0].y;t.draw()});
+  await page.screenshot({path:join(out,'downtown-'+size.width+'x'+size.height+'.png')});
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().map.authoredLots),27);
+  if(size.width===1440){for(const [name,x,y] of [['north-common',2700,700],['west-country',900,1300],['freight',3200,2380]]){await page.evaluate(({x,y})=>{const t=window.__dryTest;t.camera.x=x;t.camera.y=y;t.draw()},{x,y});await page.screenshot({path:join(out,name+'.png')})}}
   const enter=async id=>{await page.evaluate(id=>{const t=window.__dryTest;if(t.interior)t.leaveBusiness(true);t.player.car=null;t.heat=0;const p=t.places.find(p=>p.id===id);t.player.x=p.x;t.player.y=p.y;t.enterBusiness(p)},id);await page.waitForTimeout(80)};
   const talk=async()=>{await page.evaluate(()=>{window.__dryTest.player.x=360;window.__dryTest.player.y=208});await page.keyboard.press('KeyF');await page.getByRole('dialog',{name:'Conversation'}).waitFor()};
   await enter('grocer');await talk();await page.getByRole('button',{name:'Collect the job parcel.',exact:false}).click();await page.keyboard.press('Escape');
