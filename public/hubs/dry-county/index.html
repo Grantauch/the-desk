@@ -5,7 +5,7 @@
 <div id="vignette"></div><div id="pursuitFx" aria-hidden="true"><i></i><b></b></div>
 <header id="hud" class="hidden">
  <div class="brand"><span class="diamond">◆</span><div>DRY COUNTY<small>MT. MORRIS, 1926</small></div></div>
- <div class="topstats"><div><small>DIRTY MONEY</small><strong id="cash">$0</strong></div><div><small>REPUTATION</small><strong id="rank">SMALL TIMER</strong></div><div class="heatbox"><small id="heatlabel">KEEP A LOW PROFILE</small><span id="heat">◇ ◇ ◇ ◇ ◇</span></div></div>
+ <div class="topstats"><div><small>CASH ON HAND</small><strong id="cash">$0</strong></div><div><small>REPUTATION</small><strong id="rank">SMALL TIMER</strong></div><div class="heatbox"><small id="heatlabel">KEEP A LOW PROFILE</small><span id="heat">◇ ◇ ◇ ◇ ◇</span></div></div>
  <button id="pauseBtn" class="square" aria-label="Pause">Ⅱ</button>
 </header>
 <div id="mission" class="hidden"><div class="eyebrow" id="jobtag">YOUR NEXT MOVE</div><h2 id="jobtitle"></h2><p id="jobdesc"></p><div id="jobprogress"></div></div>
@@ -14,7 +14,7 @@
 <div id="interaction" class="hidden"><kbd>E</kbd><span></span></div>
 <div id="bottomhud" class="hidden"><div class="vitals"><div class="vital"><small>HEALTH</small><div class="bar"><i id="hpbar"></i></div></div><div class="vital"><small id="vehicleLabel">VEHICLE</small><div class="bar vehicle"><i id="carbar"></i></div></div><div class="gun"><strong id="weapon">M1911</strong><span id="ammo">8 / 64</span></div></div><div id="speed"><strong>00</strong><small>MPH</small></div><div class="controls"><span><kbd>WASD</kbd> drive</span><span><kbd>SPACE</kbd> handbrake</span><span><kbd>E</kbd> car / use</span><span><kbd>H</kbd> horn</span><span><kbd>↵</kbd> jobs</span><span><kbd>TAB</kbd> garage</span><span><kbd>M</kbd> map</span><span><kbd>Q</kbd> gun</span></div></div>
 <div id="minimapWrap" class="hidden"><canvas id="minimap" width="180" height="180"></canvas><div>MT. MORRIS <span>N ↑</span></div></div>
-<button id="talkBtn" class="hidden"></button><div id="rumor" class="hidden"></div>
+<button id="talkBtn" class="hidden"></button><div id="insideLabel" class="hidden" role="status"></div><div id="rumor" class="hidden"></div>
 <div id="dialogue" class="hidden" role="dialog" aria-modal="true" aria-label="Conversation"><div id="portrait" role="img" aria-label="Portrait of the speaker"></div><div class="dialogue-body"><div class="dialogue-top"><div><span id="speakerRole"></span><h2 id="speakerName"></h2></div><button id="dialogueClose" aria-label="Leave conversation">×</button></div><p id="dialogueText"></p><div id="dialogueChoices"></div></div></div>
 <div id="crosshair" class="hidden"><i></i></div>
 <div id="overlay" class="overlay">
@@ -27,5 +27,5 @@
  <section id="panel" class="panel hidden"></section>
 </div>
 <div id="mobile" class="hidden"><div id="stick"><i></i></div><button data-action="talk">TALK</button><button data-action="fire">FIRE</button><button data-action="interact">E</button><button data-action="jobs">JOBS</button><button data-action="empire">SHOP</button><button data-action="reload">R</button><button data-action="brake">BRAKE</button></div>
-<script src="world.js"></script><script src="game.js"></script>
+<script src="world.js"></script><script src="shops.js"></script><script src="game.js"></script>
 </body></html>

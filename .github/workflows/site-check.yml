@@ -63,6 +63,9 @@ jobs:
           echo "Reason: ${{ steps.lane.outputs.reason }}"
           echo "Routes: ${{ steps.lane.outputs.routes }}"
 
+      - name: Check Dry County businesses, progression and saves
+        run: npm run dry-county:test
+
       - name: Verify StoryHub-only release
         if: steps.lane.outputs.mode == 'storyhub'
         run: npm run verify:storyhub-fast
@@ -121,6 +124,10 @@ jobs:
       - name: Check key site pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test
+
+      - name: Check Dry County businesses in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: node scripts/test-dry-county-browser.mjs
 
       - name: Save browser screenshots and accessibility reports
         if: always()
