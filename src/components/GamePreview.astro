@@ -1,6 +1,6 @@
 ---
 interface Props {
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street' | 'press';
   label: string;
   eyebrow: string;
   featured?: boolean;
@@ -75,6 +75,16 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
         <i>crown shot</i>
         <strong>×2</strong>
         <span>no refs</span>
+      </div>
+    )
+  }
+
+  {
+    theme === 'press' && (
+      <div class="press-strip">
+        <span>inside ×1</span>
+        <span>front ×2</span>
+        <strong>extra! ×3</strong>
       </div>
     )
   }
@@ -272,6 +282,44 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
 
   .tape-strip i {
     opacity: 0.7;
+  }
+
+  .press {
+    background: radial-gradient(rgb(24 20 15 / 0.12) 1px, transparent 1.2px) 0 0 / 6px 6px, linear-gradient(135deg, #f2e9d5, #ddcfae);
+    color: #18140f;
+  }
+
+  .press .preview-heading strong {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    text-transform: none;
+  }
+
+  .press .preview-heading span {
+    color: #a8221a;
+    opacity: 1;
+  }
+
+  .press-strip {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 3px double #18140f;
+    padding-top: 0.45rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .press-strip strong {
+    color: #a8221a;
   }
 
   .street {
