@@ -1,0 +1,7 @@
+Showtime visual edition - Progressive Era Jeopardy
+
+reform-city.webp: Original AI-generated decorative illustration created with OpenAI image generation for the desk, October 2026. An imagined early-1900s American city, not a historical photograph or evidence of a specific place. Optimized from the retained original PNG.
+
+anton.woff2: Anton by Vernon Adams. SIL Open Font License 1.1, included in anton-ofl.txt. Existing licensed project font, copied without modification.
+
+Category pictograms and all interface decorations are original code-native drawings. Game sounds are short synthesized original tones.
