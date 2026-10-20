@@ -1,6 +1,6 @@
 ---
 interface Props {
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street' | 'press';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street' | 'press' | 'cartoon';
   label: string;
   eyebrow: string;
   featured?: boolean;
@@ -85,6 +85,18 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
         <span>inside ×1</span>
         <span>front ×2</span>
         <strong>extra! ×3</strong>
+      </div>
+    )
+  }
+
+  {
+    theme === 'cartoon' && (
+      <div class="cartoon-strip">
+        <span>reform</span>
+        <strong>+3</strong>
+        <i>vs</i>
+        <strong>−3</strong>
+        <span>machine</span>
       </div>
     )
   }
@@ -320,6 +332,47 @@ const { theme, label, eyebrow, featured = false } = Astro.props;
 
   .press-strip strong {
     color: #a8221a;
+  }
+
+  .cartoon {
+    background: radial-gradient(circle at 85% 20%, rgb(210 156 28 / 0.45), transparent 35%), linear-gradient(120deg, #23686c 0 48%, #6e1a17 52% 100%);
+  }
+
+  .cartoon .preview-heading strong {
+    font-family: 'Abril Fatface', Georgia, serif;
+    font-weight: 400;
+    text-transform: none;
+    color: #f4ead2;
+    text-shadow: 2px 2px 0 #1d1915;
+  }
+
+  .cartoon .preview-heading span {
+    color: #ffd98a;
+    opacity: 1;
+  }
+
+  .cartoon-strip {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto;
+    align-items: center;
+    gap: 0.55rem;
+    border: 2px solid #f4ead2;
+    background: rgb(29 25 21 / 0.35);
+    padding: 0.4rem 0.6rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.6rem;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .cartoon-strip strong {
+    color: #ffd98a;
+    font-size: 0.9rem;
   }
 
   .street {

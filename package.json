@@ -18,6 +18,7 @@
     "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run jeopardy:test",
     "jeopardy:test": "node scripts/test-progressive-jeopardy.mjs",
     "league:test": "node scripts/test-the-league.mjs",
+    "square-deal:test": "node scripts/test-square-deal.cjs",
     "blacktop:test": "node scripts/test-blacktop-art.cjs && node scripts/test-blacktop-audio.cjs && node scripts/test-blacktop-assets.cjs && node scripts/test-blacktop-gameplay.cjs && node scripts/test-blacktop-poses.cjs && node scripts/test-blacktop-feel.cjs && npm run blacktop:balance",
     "storyhub:browser:test": "node scripts/test-storyhub-release-browser.mjs",
     "handoff:validate": "node scripts/validate-grantdesk-handoff.mjs",
