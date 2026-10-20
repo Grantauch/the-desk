@@ -12,6 +12,11 @@
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
 
 [[redirects]]
+  from = "/press"
+  to = "/hubs/ush9-stop-the-presses.html"
+  status = 301
+
+[[redirects]]
   from = "/cold-openers"
   to = "/detour-shelf/#story-bank"
   status = 301

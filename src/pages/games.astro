@@ -10,7 +10,7 @@ interface Hub {
   name: string;
   course: string;
   kind: string;
-  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street';
+  theme: 'jeopardy' | 'casefile' | 'scoreboard' | 'finance' | 'lab' | 'ring' | 'street' | 'press';
   previewEyebrow: string;
   href: string;
   blurb: string;
@@ -19,6 +19,17 @@ interface Hub {
 }
 
 const hubs: Hub[] = [
+  {
+    name: 'stop the presses',
+    course: 'u.s. history 9',
+    kind: 'live class game',
+    theme: 'press',
+    previewEyebrow: 'progressive era · everyone plays',
+    featured: true,
+    href: '/hubs/ush9-stop-the-presses.html',
+    blurb:
+      'Every student runs a newspaper in the Progressive Era. The story hits the big screen, editors file from their Chromebooks, and every paper bets on how big to print it. Reforms pass when the room knows them. Solo mode and the Morgue are there for test prep.',
+  },
   {
     name: 'progressive era jeopardy',
     course: 'u.s. history 9',

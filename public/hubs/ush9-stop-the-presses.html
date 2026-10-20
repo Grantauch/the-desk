@@ -1,0 +1,1557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stop the Presses</title>
+<meta name="description" content="A live newspaper war for the whole class. Every student runs a paper, files stories on the Progressive Era, and bets on how big to print them.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-stop-the-presses.html">
+<meta property="og:title" content="Stop the Presses">
+<meta property="og:description" content="A live newspaper war for the whole class, set in the Progressive Era.">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-stop-the-presses.html">
+<meta property="og:image" content="https://grant-desk.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f2e9d5;--paper2:#e8dcc1;--paper3:#ddcfae;--ink:#18140f;--ink2:#4b4236;--ink3:#685d4c;
+  --red:#a8221a;--redInk:#fff6ec;--rule:#2b251d;
+  --cA:#a8221a;--cB:#1e4a86;--cC:#2c6a39;--cD:#8a5a08;
+  --good:#2c6a39;--bad:#a8221a;
+  --mast:'UnifrakturMaguntia',Georgia,serif;--head:'Playfair Display',Georgia,serif;--body:'Libre Caslon Text',Georgia,serif;--label:'Oswald','Arial Narrow',sans-serif;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .05 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--paper);background-image:var(--grain);color:var(--ink);font:400 1.05rem/1.5 var(--body);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+h1,h2,h3{margin:0;font-family:var(--head);line-height:1.05}
+p{margin:0}
+[hidden]{display:none!important}
+.lbl{font:700 .78rem/1.1 var(--label);letter-spacing:.14em;text-transform:uppercase}
+.screen{display:none;min-height:100vh}
+.screen.on{display:flex;flex-direction:column;animation:ink .35s ease}
+@keyframes ink{from{opacity:0;filter:blur(2px)}to{opacity:1;filter:none}}
+.wrap{width:min(72rem,100%);margin:0 auto;padding:0 1rem}
+.rule2{border:0;border-top:3px double var(--rule);margin:0}
+.rule1{border:0;border-top:1px solid var(--rule);margin:0}
+
+/* masthead */
+.mast{text-align:center;padding:1.2rem 0 .6rem}
+.mast .dateline{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;padding:.35rem 0;border-top:1px solid var(--rule);border-bottom:3px double var(--rule);font:500 .8rem/1.2 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.mast h1{font:400 clamp(2.9rem,10vw,7.2rem)/1 var(--mast);letter-spacing:.01em;margin:.2rem 0 .35rem}
+.mast .ear{font:700 .72rem/1.2 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.mini-mast{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.55rem 1rem;border-bottom:3px double var(--rule);background:var(--paper)}
+.mini-mast .name{font:400 1.6rem/1 var(--mast)}
+.mini-mast .meta{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;background:var(--ink);color:var(--paper);border:0;border-radius:2px;padding:.85rem 1.3rem;font:700 1rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;box-shadow:4px 4px 0 var(--red);transition:transform .08s,box-shadow .08s}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--red)}
+.btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:1px 1px 0 var(--red)}
+.btn.red{background:var(--red);color:var(--redInk);box-shadow:4px 4px 0 var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink);box-shadow:none}
+.btn.big{font-size:1.25rem;padding:1.1rem 1.8rem}
+.btn:disabled{opacity:.4}
+.linkish{background:none;border:0;padding:.3rem;font:700 .8rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+
+/* home */
+.home-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:1.6rem;padding:1.2rem 0 2.5rem}
+@media (max-width:820px){.home-grid{grid-template-columns:1fr}}
+.lede h2{font:900 clamp(1.9rem,4.4vw,3.1rem)/1.02 var(--head);margin-bottom:.7rem}
+.lede .dek{font:italic 400 1.18rem/1.5 var(--body);color:var(--ink2);margin-bottom:1rem}
+.lede p.body{column-count:2;column-gap:1.4rem;column-rule:1px solid var(--paper3)}
+.lede p.body::first-letter{float:left;font:900 3.6rem/.8 var(--head);padding:.3rem .4rem 0 0;color:var(--red)}
+@media (max-width:560px){.lede p.body{column-count:1}}
+.howto{margin-top:1.2rem;display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem 1.3rem}
+@media (max-width:560px){.howto{grid-template-columns:1fr}}
+.howto div{border-top:1px solid var(--rule);padding-top:.5rem}
+.howto b{display:block;font:900 1.1rem/1.15 var(--head);margin-bottom:.2rem}
+.howto span{font-size:.95rem;color:var(--ink2)}
+.doors{display:flex;flex-direction:column;gap:.85rem}
+.door{display:grid;grid-template-columns:auto 1fr;gap:.2rem 1rem;align-items:center;text-align:left;background:var(--paper);border:2px solid var(--ink);padding:1rem 1.1rem;box-shadow:5px 5px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+.door:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.door .ico{grid-row:span 2;width:3.2rem;height:3.2rem;display:grid;place-items:center;background:var(--ink);color:var(--paper);font:900 1.5rem/1 var(--head)}
+.door.hot{background:var(--red);color:var(--redInk);border-color:var(--red);box-shadow:5px 5px 0 var(--ink)}
+.door.hot .ico{background:var(--redInk);color:var(--red)}
+.door strong{font:900 1.45rem/1.05 var(--head)}
+.door span{font-size:.95rem;opacity:.85}
+.extra-stamp{display:inline-block;transform:rotate(-6deg);border:4px solid var(--red);color:var(--red);font:700 1.1rem/1 var(--label);letter-spacing:.2em;padding:.35rem .6rem;margin:.2rem 0 .8rem}
+
+/* forms */
+.panel{background:var(--paper);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:1.4rem}
+.center{flex:1;display:grid;place-items:center;padding:1.5rem 1rem}
+.formcol{width:min(32rem,100%);display:flex;flex-direction:column;gap:1rem}
+.field label{display:block;margin-bottom:.35rem}
+.field input{width:100%;font:700 1.4rem/1 var(--head);padding:.75rem .9rem;border:2px solid var(--ink);background:#fbf6ea;color:var(--ink);border-radius:2px}
+.field input.code{font:700 2.4rem/1 var(--label);letter-spacing:.4em;text-transform:uppercase;text-align:center}
+.paperpick{display:flex;align-items:center;gap:.6rem;border:2px dashed var(--ink2);padding:.7rem .9rem;background:#fbf6ea}
+.paperpick output{flex:1;font:italic 900 1.4rem/1.1 var(--head)}
+.err{color:var(--red);font-weight:700;min-height:1.4em}
+.note{color:var(--ink2);font-size:.92rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{border:2px solid var(--ink);background:transparent;padding:.5rem .75rem;font:700 .85rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.seg{display:flex;border:2px solid var(--ink)}
+.seg button{flex:1;border:0;background:transparent;padding:.65rem .5rem;font:700 .9rem/1.1 var(--label);letter-spacing:.06em;text-transform:uppercase}
+.seg button+button{border-left:2px solid var(--ink)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.seg button small{display:block;font:400 .75rem/1.2 var(--body);text-transform:none;letter-spacing:0;opacity:.8;margin-top:.15rem}
+
+/* waiting card */
+.paper-card{text-align:center;padding:1.6rem 1.2rem;background:#fbf6ea;border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink)}
+.paper-card .pc-name{font:400 clamp(2rem,6vw,3rem)/1 var(--mast);margin:.3rem 0}
+.paper-card .pc-ed{font:italic 400 1rem/1.3 var(--body);color:var(--ink2)}
+.pulse{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;background:var(--red);margin-right:.4rem;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+/* question, shared look */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.6rem 1rem;border-bottom:1px solid var(--rule)}
+.fuse{height:.55rem;background:var(--paper3);position:relative;overflow:hidden}
+.fuse i{position:absolute;inset:0 auto 0 0;width:100%;background:linear-gradient(90deg,var(--ink),var(--red));transform-origin:left;transition:width .2s linear}
+.fuse.hot i{animation:flick .25s infinite alternate}
+@keyframes flick{to{opacity:.55}}
+.timenum{font:700 2rem/1 var(--label);min-width:3ch;text-align:right}
+.timenum.hot{color:var(--red)}
+.headline{font:900 clamp(1.45rem,3.6vw,2.3rem)/1.12 var(--head);text-wrap:balance}
+.perkchip{display:inline-flex;gap:.35rem;align-items:center;background:var(--ink);color:var(--paper);padding:.3rem .55rem;font:700 .72rem/1 var(--label);letter-spacing:.1em;text-transform:uppercase}
+.perkchip:empty{display:none}
+
+/* player question */
+.pq-body{flex:1;display:flex;flex-direction:column;gap:1rem;padding:1rem;width:min(56rem,100%);margin:0 auto}
+.stakes{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.stake{border:2px solid var(--ink);background:#fbf6ea;padding:.55rem .4rem;text-align:center}
+.stake b{display:block;font:900 1.15rem/1 var(--head)}
+.stake small{display:block;font:400 .78rem/1.2 var(--body);color:var(--ink2);margin-top:.2rem}
+.stake[aria-checked=true]{background:var(--ink);color:var(--paper)}
+.stake[aria-checked=true] small{color:var(--paper3)}
+.stake.s3[aria-checked=true]{background:var(--red);border-color:var(--red)}
+.stakes-note{font:700 .78rem/1.2 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);text-align:center}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+@media (max-width:620px){.choices{grid-template-columns:1fr}}
+.choice{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:.8rem;text-align:left;min-height:5.4rem;padding:.7rem .9rem .7rem .7rem;border:0;color:#fff;font:700 1.08rem/1.25 var(--body);box-shadow:4px 4px 0 var(--ink);transition:transform .08s,box-shadow .08s,opacity .2s}
+.choice:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--ink)}
+.choice:active:not(:disabled){transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.choice .k{width:2.6rem;height:2.6rem;display:grid;place-items:center;background:rgba(255,255,255,.95);color:var(--ink);font:900 1.5rem/1 var(--head);border-radius:2px}
+.choice.c0{background:var(--cA)}.choice.c1{background:var(--cB)}.choice.c2{background:var(--cC)}.choice.c3{background:var(--cD)}
+.choice.struck{opacity:.28;text-decoration:line-through;pointer-events:none}
+.choice.picked{outline:4px solid var(--ink);outline-offset:3px}
+.choice.right{outline:5px solid var(--good);outline-offset:3px}
+.choice.dim{opacity:.35}
+.readwait{text-align:center;font:italic 400 1.1rem/1.3 var(--body);color:var(--ink2)}
+.order-zone{display:flex;flex-direction:column;gap:.7rem}
+.order-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+@media (max-width:620px){.order-slots{grid-template-columns:1fr 1fr}}
+.oslot{min-height:4.4rem;border:2px dashed var(--ink2);padding:.5rem;display:flex;flex-direction:column;gap:.2rem;background:#fbf6ea}
+.oslot .n{font:700 .75rem/1 var(--label);letter-spacing:.12em;color:var(--ink3)}
+.oslot.filled{border-style:solid;border-color:var(--ink);background:var(--paper)}
+.oslot .t{font:700 .98rem/1.2 var(--body)}
+.oslot.ok{border-color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
+.oslot.no{border-color:var(--bad);box-shadow:inset 0 0 0 2px var(--bad)}
+.oslot .y{font:700 .8rem/1 var(--label);color:var(--red);letter-spacing:.08em}
+.order-items{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+@media (max-width:620px){.order-items{grid-template-columns:1fr}}
+.oitem{border:2px solid var(--ink);background:var(--paper);text-align:left;padding:.75rem .8rem;font:700 1.02rem/1.25 var(--body);box-shadow:3px 3px 0 var(--ink)}
+.oitem:disabled{opacity:.25;box-shadow:none}
+.order-actions{display:flex;gap:.7rem;justify-content:flex-end;flex-wrap:wrap}
+
+/* lock + result */
+.slip{width:min(34rem,100%);text-align:center;display:flex;flex-direction:column;gap:.8rem;align-items:center}
+.slip .big-word{font:900 clamp(2.6rem,9vw,4.4rem)/1 var(--head);letter-spacing:-.01em}
+.slip .delta{font:700 clamp(1.8rem,6vw,2.6rem)/1 var(--label);letter-spacing:.04em}
+.slip .delta.up{color:var(--good)}.slip .delta.down{color:var(--bad)}
+.slip .tot{font:italic 400 1.1rem/1.3 var(--body);color:var(--ink2)}
+.slip .ans{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:.6rem 0;width:100%}
+.slip .ans b{font:900 1.2rem/1.2 var(--head)}
+.fact{background:#fbf6ea;border-left:5px solid var(--red);padding:.8rem 1rem;text-align:left;font-size:1.02rem;width:100%}
+.fact .lbl{display:block;color:var(--red);margin-bottom:.25rem}
+.reform-line{font:700 .95rem/1.3 var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--good)}
+.reform-line.fail{color:var(--ink3)}
+.bad-word{color:var(--bad)}.good-word{color:var(--good)}
+.streak{font:700 .85rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:.35rem .6rem}
+
+/* perks */
+.perks{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media (max-width:760px){.perks{grid-template-columns:1fr}}
+.perk{border:2px solid var(--ink);background:#fbf6ea;padding:1rem;text-align:left;box-shadow:5px 5px 0 var(--ink);display:flex;flex-direction:column;gap:.45rem}
+.perk .pi{font:900 2rem/1 var(--head);color:var(--red)}
+.perk b{font:900 1.3rem/1.1 var(--head)}
+.perk span{font-size:.95rem;color:var(--ink2)}
+.perk[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.perk[aria-pressed=true] span{color:var(--paper3)}
+.perk[aria-pressed=true] .pi{color:#ff8a7a}
+
+/* host: projector sizes */
+.host .perk{padding:clamp(1rem,1.6vw,1.8rem)}.host .perk .pi{font-size:clamp(2rem,3.4vw,3.4rem)}.host .perk b{font-size:clamp(1.4rem,2.4vw,2.6rem)}.host .perk span{font-size:clamp(1rem,1.5vw,1.6rem)}.host .perk .pc{font:700 clamp(1rem,1.6vw,1.7rem)/1 var(--label);color:var(--red);letter-spacing:.06em;margin-top:auto}
+.host .mini-mast .name{font-size:clamp(1.6rem,2.6vw,2.4rem)}
+.host-body{flex:1;display:flex;flex-direction:column;gap:clamp(.8rem,1.6vw,1.6rem);padding:clamp(1rem,2vw,2rem) clamp(1rem,3vw,3rem)}
+.hq-text{font:900 clamp(2rem,4.2vw,4.4rem)/1.08 var(--head);text-wrap:balance;max-width:68rem}
+.hq-top{display:grid;grid-template-columns:minmax(0,1fr) clamp(13rem,24vw,28rem);gap:clamp(1rem,2.4vw,2.6rem);align-items:start}
+@media (max-width:900px){.hq-top{grid-template-columns:1fr}.hq-top .photo{display:none}}
+.photo{margin:0;background:#fbf6ea;border:1px solid var(--ink);padding:.5rem .5rem .4rem;box-shadow:5px 5px 0 var(--paper3);transform:rotate(1.2deg)}
+.photo img{display:block;width:100%;max-height:30vh;object-fit:cover;mix-blend-mode:multiply;filter:contrast(1.05)}
+.photo figcaption{font:400 clamp(.72rem,.9vw,.95rem)/1.3 var(--body);font-style:italic;color:var(--ink2);margin-top:.35rem}
+.home-photo{transform:rotate(-1deg);margin-top:.6rem}
+.home-photo img{max-height:46vh}
+.hq-desk{color:var(--red)}
+.hchoices{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:clamp(.6rem,1.2vw,1.2rem);flex:1 1 auto;min-height:clamp(10rem,34vh,26rem);max-height:48vh}
+.hchoice{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;padding:clamp(.7rem,1.3vw,1.3rem);color:#fff;font:700 clamp(1.25rem,2.4vw,2.6rem)/1.2 var(--body);box-shadow:6px 6px 0 var(--ink);min-height:clamp(4.5rem,9vh,8rem);position:relative;overflow:hidden;transition:opacity .4s,transform .4s}
+.hchoice .k{width:clamp(2.6rem,3.8vw,4rem);height:clamp(2.6rem,3.8vw,4rem);display:grid;place-items:center;background:rgba(255,255,255,.95);color:var(--ink);font:900 clamp(1.5rem,2.6vw,2.6rem)/1 var(--head)}
+.hchoice .cnt{font:700 clamp(1.3rem,2.4vw,2.4rem)/1 var(--label);opacity:0}
+.hchoice .bar{position:absolute;left:0;bottom:0;height:.55rem;background:rgba(255,255,255,.75);width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hchoice.c0{background:var(--cA)}.hchoice.c1{background:var(--cB)}.hchoice.c2{background:var(--cC)}.hchoice.c3{background:var(--cD)}
+.hchoice.wrong{opacity:.28;transform:scale(.98)}
+.hchoice.right{outline:clamp(5px,.6vw,9px) solid var(--ink);outline-offset:4px}
+.reveal-on .hchoice .cnt{opacity:1}
+/* On reveal the question shrinks so the answer, the fact and the button all fit one projector screen. */
+.hq-text{transition:font-size .35s ease}
+.reveal-on .hq-text{font-size:clamp(1.5rem,2.9vw,3.2rem)}
+.reveal-on .hchoices{min-height:0;max-height:none;grid-auto-rows:auto;flex:0 0 auto}
+.reveal-on .hchoice{min-height:clamp(3.4rem,8vh,6.5rem)}
+.reveal-on .photo img{max-height:22vh}
+@media (max-height:820px){.reveal-on .photo img{max-height:15vh}.reveal-on .hchoice{font-size:clamp(1.1rem,2vw,2rem)}}
+.hq-foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;position:sticky;bottom:0;z-index:2;padding:.5rem 0 .2rem;margin-top:auto;background:linear-gradient(rgba(242,233,213,0),var(--paper) 35%)}
+.filed{font:700 clamp(1.1rem,1.8vw,1.8rem)/1 var(--label);letter-spacing:.06em}
+.filed b{font-size:1.4em;color:var(--red)}
+.htimer{display:flex;align-items:center;gap:1rem}
+.htimer .timenum{font-size:clamp(2.6rem,5vw,5rem)}
+.hfuse{height:clamp(.6rem,1.1vh,1rem)}
+.host-order{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.6rem,1.2vw,1.2rem)}
+.host-order div{border:3px solid var(--ink);background:#fbf6ea;padding:clamp(.7rem,1.3vw,1.3rem);font:700 clamp(1.15rem,2vw,2rem)/1.2 var(--body);display:flex;gap:.8rem;align-items:center}
+.host-order div .y{margin-left:auto;font:700 clamp(1.1rem,1.8vw,1.8rem)/1 var(--label);color:var(--red);opacity:0;transition:opacity .4s}
+.host-order.reveal div .y{opacity:1}
+.host-order div .n{font:900 clamp(1.3rem,2.2vw,2.2rem)/1 var(--head);color:var(--red);min-width:1.5ch}
+.hfact{display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:center}
+@media (max-width:900px){.hfact{grid-template-columns:1fr}}
+.hfact .fact{font-size:clamp(1.05rem,1.7vw,1.7rem);line-height:1.4}
+.hstat{font:700 clamp(1rem,1.5vw,1.5rem)/1.3 var(--label);letter-spacing:.05em;color:var(--ink2)}
+.stamp{justify-self:center;border:clamp(4px,.5vw,7px) solid var(--good);color:var(--good);padding:.6rem 1rem;text-align:center;transform:rotate(-7deg) scale(1);font:700 clamp(.9rem,1.4vw,1.4rem)/1.2 var(--label);letter-spacing:.12em;text-transform:uppercase;max-width:22rem;background:rgba(242,233,213,.6);animation:stampin .45s cubic-bezier(.3,1.6,.5,1) both}
+.stamp b{display:block;font-size:2.2em;letter-spacing:.18em}
+.stamp.fail{border-color:var(--ink3);color:var(--ink3);animation:none;transform:rotate(-4deg)}
+@keyframes stampin{from{transform:rotate(-7deg) scale(2.4);opacity:0}to{transform:rotate(-7deg) scale(1);opacity:1}}
+
+/* stop the presses slam */
+.slam{position:fixed;inset:0;display:grid;place-items:center;background:var(--red);color:var(--redInk);z-index:50;pointer-events:none;opacity:0}
+.slam.go{animation:slam 1.25s ease forwards}
+.slam div{font:900 clamp(3rem,11vw,10rem)/.9 var(--head);text-align:center;text-transform:uppercase;letter-spacing:-.01em}
+.slam small{display:block;font:700 clamp(.9rem,1.8vw,1.6rem)/1 var(--label);letter-spacing:.3em;margin-top:1rem}
+@keyframes slam{0%{opacity:0;transform:scale(1.3)}12%{opacity:1;transform:scale(1)}18%{transform:translate(-8px,4px)}24%{transform:translate(6px,-3px)}30%{transform:none}80%{opacity:1}100%{opacity:0}}
+
+/* lobby */
+.lobby-top{display:grid;grid-template-columns:auto 1fr auto;gap:2rem;align-items:center}
+@media (max-width:900px){.lobby-top{grid-template-columns:1fr}}
+.joinbox{border:3px solid var(--ink);background:#fbf6ea;padding:1rem 1.4rem;box-shadow:6px 6px 0 var(--ink)}
+.joinbox .url{font:700 clamp(1.1rem,2vw,1.9rem)/1.1 var(--label);letter-spacing:.04em}
+.codebig{font:700 clamp(4rem,10vw,9rem)/1 var(--label);letter-spacing:.18em;color:var(--red)}
+.stand{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.8rem}
+.stand button{border:2px solid var(--ink);background:#fbf6ea;padding:.7rem .8rem;text-align:left;box-shadow:3px 3px 0 var(--ink);animation:drop .45s cubic-bezier(.3,1.5,.5,1)}
+.stand button:hover{background:var(--paper3)}
+.stand b{display:block;font:italic 900 1.2rem/1.1 var(--head)}
+.stand span{font-size:.88rem;color:var(--ink2)}
+@keyframes drop{from{transform:translateY(-16px) rotate(-3deg);opacity:0}}
+.count-big{font:900 clamp(1.4rem,2.4vw,2.4rem)/1 var(--head)}
+
+/* board */
+.board{display:flex;flex-direction:column;gap:.45rem;position:relative}
+.brow{display:grid;grid-template-columns:3ch 1fr minmax(8rem,34%) 9ch;align-items:center;gap:1rem;padding:.45rem .8rem;background:#fbf6ea;border:2px solid var(--ink);transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.brow .rk{font:900 clamp(1.3rem,2.3vw,2.2rem)/1 var(--head);color:var(--red)}
+.brow .nm b{display:block;font:italic 900 clamp(1.1rem,2vw,1.9rem)/1.1 var(--head)}
+.brow .nm span{font-size:clamp(.8rem,1.1vw,1rem);color:var(--ink2)}
+.brow .bar{height:clamp(.8rem,1.4vw,1.3rem);background:var(--paper3);position:relative}
+.brow .bar i{position:absolute;inset:0 auto 0 0;background:var(--ink);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.brow .rd{font:700 clamp(1.1rem,1.9vw,1.8rem)/1 var(--label);text-align:right}
+.brow .mv{font:700 .8rem/1 var(--label);color:var(--good)}
+.brow.top{background:var(--ink);color:var(--paper)}
+.brow.top .nm span{color:var(--paper3)}.brow.top .bar{background:#3a3228}.brow.top .bar i{background:var(--red)}
+.scoopline{font:italic 400 clamp(1rem,1.7vw,1.6rem)/1.3 var(--body);color:var(--ink2)}
+.scoopline b{font-style:normal;color:var(--ink)}
+
+/* final edition */
+.final-head{text-align:center;border-bottom:3px double var(--rule);padding-bottom:1rem}
+.final-head .kick{color:var(--red)}
+.final-head h2{font:900 clamp(2.2rem,5.6vw,5.6rem)/1 var(--head);text-transform:uppercase;letter-spacing:-.01em;margin:.4rem 0}
+.final-head p{font:italic 400 clamp(1.05rem,1.8vw,1.7rem)/1.3 var(--body);color:var(--ink2)}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:1rem;align-items:end}
+.pod{border:2px solid var(--ink);background:#fbf6ea;text-align:center;padding:1rem;box-shadow:5px 5px 0 var(--ink)}
+.pod .place{font:900 clamp(2rem,4vw,3.6rem)/1 var(--head);color:var(--red)}
+.pod b{display:block;font:400 clamp(1.3rem,2.4vw,2.3rem)/1.05 var(--mast);margin:.3rem 0}
+.pod span{color:var(--ink2)}
+.pod.p1{padding:1.6rem 1rem;background:var(--ink);color:var(--paper)}
+.pod.p1 span{color:var(--paper3)}
+.ledger{display:flex;flex-wrap:wrap;gap:.6rem}
+.ledger span{border:2px solid var(--good);color:var(--good);padding:.35rem .6rem;font:700 .85rem/1.2 var(--label);letter-spacing:.06em;text-transform:uppercase;transform:rotate(-1.5deg)}
+.cols3{column-count:3;column-gap:1.4rem;column-rule:1px solid var(--paper3)}
+@media (max-width:900px){.cols3{column-count:1}}
+.cols3 div{break-inside:avoid;display:flex;justify-content:space-between;gap:.6rem;padding:.25rem 0;border-bottom:1px dotted var(--ink3)}
+
+/* morgue */
+.morgue-tools{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;padding:1rem 0}
+.morgue-tools input{flex:1;min-width:14rem;font:400 1.1rem/1 var(--body);padding:.7rem .9rem;border:2px solid var(--ink);background:#fbf6ea}
+.clips{column-count:3;column-gap:1.2rem}
+@media (max-width:1000px){.clips{column-count:2}}
+@media (max-width:640px){.clips{column-count:1}}
+.clip{break-inside:avoid;margin:0 0 1rem;padding:.8rem .9rem;background:#fbf6ea;border:1px solid var(--ink);box-shadow:3px 3px 0 var(--paper3)}
+.clip .lbl{color:var(--red)}
+.clip h3{font:700 1.08rem/1.25 var(--head);margin:.25rem 0 .4rem}
+.clip .a{font-weight:700}
+.clip p{font-size:.95rem;color:var(--ink2);margin-top:.3rem}
+.desk-h{column-span:all;font:900 1.6rem/1 var(--head);border-bottom:3px double var(--rule);padding:.6rem 0 .4rem;margin:1rem 0 .8rem}
+
+/* solo end */
+.missed{display:flex;flex-direction:column;gap:.8rem}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.vs div{border:2px solid var(--ink);padding:.8rem;text-align:center;background:#fbf6ea}
+.vs b{display:block;font:700 2rem/1 var(--label)}
+.vs .win{background:var(--ink);color:var(--paper)}
+.deskbars div{display:grid;grid-template-columns:12rem 1fr 4ch;gap:.8rem;align-items:center;padding:.25rem 0}
+@media (max-width:560px){.deskbars div{grid-template-columns:8rem 1fr 4ch}}
+.deskbars i{display:block;height:.8rem;background:var(--paper3);position:relative}
+.deskbars i em{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+
+.foot-note{text-align:center;padding:1rem;color:var(--ink3);font-size:.85rem}
+.netpill{font:700 .72rem/1 var(--label);letter-spacing:.1em;text-transform:uppercase;padding:.3rem .5rem;border:2px solid var(--good);color:var(--good)}
+.netpill.off{border-color:var(--bad);color:var(--bad)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.slam{display:none}}
+</style>
+</head>
+<body>
+<div id="live" class="sr" aria-live="polite"></div>
+<div class="slam" id="slam" aria-hidden="true"><div>Stop the<br>presses!<small>No more stories filed</small></div></div>
+
+<!-- HOME -->
+<section class="screen on" id="home">
+  <div class="wrap">
+    <div class="mast">
+      <div class="dateline"><span>Vol. I</span><span>New York · 1890 to 1920</span><span>U.S. History 9</span><span>One cent</span></div>
+      <h1>Stop the Presses</h1>
+      <div class="ear">The Progressive Era newspaper war · Every editor for themselves</div>
+    </div>
+    <hr class="rule2">
+    <div class="home-grid">
+      <article class="lede">
+        <span class="extra-stamp">Extra! Extra!</span>
+        <h2>Every editor in the room runs a paper. Only one wins the press war.</h2>
+        <p class="dek">Get the story right, get it out fast, and decide how big to print it.</p>
+        <p class="body">New York, 1890. A police reporter is about to light up a tenement with a burst of flash powder. In Pennsylvania, a woman is quietly collecting the documents that will break the biggest company in America. Two penny papers are screaming at each other across Park Row, and you own the newest paper in the city. Every story that comes over the wire is a question about the Progressive Era. The readers go to whoever gets it right first.</p>
+        <div class="howto">
+          <div><b>Read the lead.</b><span>The story hits the big screen and your Chromebook at the same moment.</span></div>
+          <div><b>Pick your page.</b><span>Inside Page is safe. Front Page doubles your sales. EXTRA! triples them, and a wrong EXTRA! costs you readers.</span></div>
+          <div><b>File fast.</b><span>The sooner you file a correct story, the more copies you sell.</span></div>
+          <div><b>Push reforms.</b><span>When two thirds of the room nails a reform story, the law passes and everyone who got it right sells more.</span></div>
+        </div>
+      </article>
+      <div class="doors">
+        <button class="door hot" type="button" data-go="join"><span class="ico">&#9758;</span><strong>Join a game</strong><span>Got a code from the big screen? Start here.</span></button>
+        <button class="door" type="button" data-go="ssetup"><span class="ico">1</span><strong>Play solo</strong><span>Run your paper against the Evening Rag and study every story before the test.</span></button>
+        <button class="door" type="button" data-go="morgue"><span class="ico">&#9776;</span><strong>The Morgue</strong><span>Newspapers called their archive the morgue. Every fact in the game, filed by desk.</span></button>
+        <button class="door" type="button" data-go="hsetup"><span class="ico">&#9733;</span><strong>Host a live game</strong><span>For the teacher's screen at the front of the room.</span></button>
+        <figure class="photo home-photo"><img src="/hubs/stop-the-presses/home.webp" alt="Three newsboys with canvas bags full of papers stand on a city street." width="802" height="983"><figcaption>Newsboys in Utica, New York, 1910. Lewis Hine, Library of Congress.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section class="screen" id="join">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><button class="linkish" type="button" data-go="home">Front page</button></div>
+  <div class="center">
+    <form class="formcol panel" id="joinForm" autocomplete="off">
+      <h2 style="font-size:2rem">Open your paper</h2>
+      <div class="field"><label class="lbl" for="jCode">Game code</label><input class="code" id="jCode" maxlength="4" inputmode="text" autocapitalize="characters" spellcheck="false" data-desk-skip required></div>
+      <div class="field"><label class="lbl" for="jName">Your first name</label><input id="jName" maxlength="16" spellcheck="false" data-desk-skip required></div>
+      <div><span class="lbl">Your newspaper</span>
+        <div class="paperpick" style="margin-top:.35rem"><output id="jPaper"></output><button class="btn ghost" type="button" id="jSpin">New name</button></div>
+      </div>
+      <p class="err" id="jErr" role="alert"></p>
+      <button class="btn red big" type="submit" id="jGo">Start printing</button>
+    </form>
+  </div>
+</section>
+
+<!-- PLAYER WAIT -->
+<section class="screen" id="pwait">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="netpill" id="pNet1">Connected</span></span></div>
+  <div class="center">
+    <div class="slip">
+      <div class="paper-card" style="width:100%">
+        <span class="lbl">Now on the newsstand</span>
+        <div class="pc-name" id="wPaper"></div>
+        <div class="pc-ed" id="wEd"></div>
+      </div>
+      <p class="tot" id="wMsg"><span class="pulse"></span>You're in. Watch the big screen. The first story is coming over the wire.</p>
+    </div>
+  </div>
+</section>
+
+<!-- QUESTION (players and solo) -->
+<section class="screen" id="pq">
+  <div class="qhead"><span class="lbl" id="pqSlot"></span><span class="lbl hq-desk" id="pqDesk"></span><span class="perkchip" id="pqPerk"></span><span class="timenum" id="pqTime"></span></div>
+  <div class="fuse" id="pqFuseWrap"><i id="pqFuse"></i></div>
+  <div class="pq-body">
+    <h2 class="headline" id="pqText"></h2>
+    <p class="readwait" id="pqWait">Read the lead.</p>
+    <div id="pqStakeWrap">
+      <div class="stakes" id="pqStakes" role="radiogroup" aria-label="How big to print it">
+        <button type="button" class="stake s1" role="radio" data-s="1" aria-checked="true"><b>Inside Page</b><small>&times;1 · no risk</small></button>
+        <button type="button" class="stake s2" role="radio" data-s="2" aria-checked="false"><b>Front Page</b><small>&times;2 · lose 300 if wrong</small></button>
+        <button type="button" class="stake s3" role="radio" data-s="3" aria-checked="false"><b>EXTRA!</b><small>&times;3 · lose 700 if wrong</small></button>
+      </div>
+    </div>
+    <p class="stakes-note" id="pqOrderNote" hidden>Special edition · put them in order · no stakes this round</p>
+    <div class="choices" id="pqChoices"></div>
+    <div class="order-zone" id="pqOrder" hidden>
+      <div class="order-slots" id="pqSlots"></div>
+      <div class="order-items" id="pqItems"></div>
+      <div class="order-actions"><button class="btn ghost" type="button" id="pqClear">Clear</button><button class="btn red" type="button" id="pqFile" disabled>File the story</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCKED -->
+<section class="screen" id="plock">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl" id="lkSlot"></span></span></div>
+  <div class="center">
+    <div class="slip">
+      <span class="lbl">Sent to the typesetter</span>
+      <div class="big-word" id="lkWord">Filed.</div>
+      <p class="tot" id="lkMsg"></p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section class="screen" id="pres">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl" id="rsSlot"></span></span></div>
+  <div class="center">
+    <div class="slip" id="rsSlip">
+      <span class="lbl" id="rsKick"></span>
+      <div class="big-word" id="rsWord"></div>
+      <div class="delta" id="rsDelta"></div>
+      <p class="tot" id="rsTot"></p>
+      <span class="streak" id="rsStreak" hidden></span>
+      <p class="reform-line" id="rsReform" hidden></p>
+      <div class="ans" id="rsAns"></div>
+      <div class="fact"><span class="lbl">From the morgue</span><span id="rsFact"></span></div>
+      <div id="rsVs" class="vs" style="width:100%" hidden></div>
+      <button class="btn red big" type="button" id="rsNext" hidden>Next story</button>
+      <p class="note" id="rsWait" hidden><span class="pulse"></span>Watch the big screen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYER STANDING (between stories) -->
+<section class="screen" id="pstand">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl">Circulation report</span></span></div>
+  <div class="center">
+    <div class="slip">
+      <span class="lbl">Your paper is</span>
+      <div class="big-word" id="stRank"></div>
+      <div class="delta" id="stReaders"></div>
+      <p class="tot" id="stGap"></p>
+    </div>
+  </div>
+</section>
+
+<!-- PERK DESK (players and solo) -->
+<section class="screen" id="pdesk">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="timenum" id="dkTime" style="font-size:1.6rem"></span></span></div>
+  <div class="center">
+    <div style="width:min(60rem,100%);display:flex;flex-direction:column;gap:1rem">
+      <div><span class="lbl hq-desk">The Editor's Desk</span><h2 style="font-size:clamp(1.6rem,4vw,2.4rem);margin-top:.3rem">Pick one advantage for your next three stories.</h2></div>
+      <div class="perks" id="dkPerks"></div>
+      <p class="note" id="dkMsg"></p>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYER FINAL -->
+<section class="screen" id="pend">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl">Final edition</span></span></div>
+  <div class="center">
+    <div class="slip">
+      <span class="lbl">The press war is over</span>
+      <div class="paper-card" style="width:100%"><div class="pc-name" id="eoPaper"></div><div class="pc-ed" id="eoEd"></div></div>
+      <div class="big-word" id="eoRank"></div>
+      <p class="tot" id="eoLine"></p>
+      <button class="btn ghost" type="button" data-go="ssetup">Study solo</button>
+    </div>
+  </div>
+</section>
+
+<!-- SOLO SETUP -->
+<section class="screen" id="ssetup">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><button class="linkish" type="button" data-go="home">Front page</button></div>
+  <div class="center">
+    <div class="formcol panel" style="width:min(44rem,100%)">
+      <h2 style="font-size:2rem">Solo edition</h2>
+      <p class="note">You against the Evening Rag, an old paper that gets about seven stories in ten right. After every story you see the fact behind it. At the end you get every story you missed, ready to study.</p>
+      <div><span class="lbl">Desks</span><div class="chips" id="sDesks" style="margin-top:.4rem"></div></div>
+      <div><span class="lbl">Length</span><div class="seg" id="sLen" style="margin-top:.4rem">
+        <button type="button" data-n="10" aria-pressed="false">10 stories</button><button type="button" data-n="20" aria-pressed="true">20 stories</button><button type="button" data-n="999" aria-pressed="false">Every story</button></div></div>
+      <div><span class="lbl">Clock</span><div class="seg" id="sClock" style="margin-top:.4rem">
+        <button type="button" data-t="20000" aria-pressed="true">20 seconds</button><button type="button" data-t="30000" aria-pressed="false">30 seconds</button><button type="button" data-t="0" aria-pressed="false">No clock</button></div></div>
+      <p class="note" id="sBest"></p>
+      <button class="btn red big" type="button" id="sGo">Roll the presses</button>
+    </div>
+  </div>
+</section>
+
+<!-- SOLO END -->
+<section class="screen" id="send">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><button class="linkish" type="button" data-go="home">Front page</button></div>
+  <div class="wrap" style="padding-top:1.4rem;padding-bottom:3rem;display:flex;flex-direction:column;gap:1.4rem">
+    <div class="final-head"><span class="lbl kick">Final edition</span><h2 id="seHead"></h2><p id="seSub"></p></div>
+    <div class="vs" id="seVs"></div>
+    <div><span class="lbl">How each desk went</span><div class="deskbars" id="seDesks" style="margin-top:.5rem"></div></div>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap"><button class="btn red" type="button" id="seRetry">Study my missed stories</button><button class="btn" type="button" data-go="ssetup">New solo edition</button></div>
+    <div><span class="lbl">Stories you missed</span><div class="missed" id="seMissed" style="margin-top:.6rem"></div></div>
+  </div>
+</section>
+
+<!-- MORGUE -->
+<section class="screen" id="morgue">
+  <div class="mini-mast"><span class="name">The Morgue</span><button class="linkish" type="button" data-go="home">Front page</button></div>
+  <div class="wrap" style="padding-bottom:3rem">
+    <div class="morgue-tools"><input type="search" id="mSearch" placeholder="Search the morgue: Tarbell, 1906, Hawaii" aria-label="Search the morgue" data-desk-skip><div class="chips" id="mDesks"></div></div>
+    <div class="clips" id="mClips"></div>
+  </div>
+</section>
+
+<!-- HOST SETUP -->
+<section class="screen" id="hsetup">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><button class="linkish" type="button" data-go="home">Front page</button></div>
+  <div class="center">
+    <div class="formcol panel" style="width:min(48rem,100%)">
+      <h2 style="font-size:2rem">Open the newsroom</h2>
+      <div><span class="lbl">Desks in play</span><div class="chips" id="hDesks" style="margin-top:.4rem"></div></div>
+      <div><span class="lbl">Edition</span><div class="seg" id="hLen" style="margin-top:.4rem">
+        <button type="button" data-n="12" aria-pressed="false">Quick<small>12 stories</small></button><button type="button" data-n="20" aria-pressed="true">Daily<small>20 stories</small></button><button type="button" data-n="30" aria-pressed="false">Sunday<small>30 stories</small></button></div></div>
+      <div><span class="lbl">Clock per story</span><div class="seg" id="hClock" style="margin-top:.4rem">
+        <button type="button" data-t="15000" aria-pressed="false">15 seconds</button><button type="button" data-t="20000" aria-pressed="true">20 seconds</button><button type="button" data-t="30000" aria-pressed="false">30 seconds</button></div></div>
+      <p class="err" id="hErr" role="alert"></p>
+      <div style="display:flex;gap:.8rem;flex-wrap:wrap"><button class="btn red big" type="button" id="hGo">Get a game code</button><button class="btn ghost" type="button" id="hResume" hidden></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOST LOBBY -->
+<section class="screen host" id="hlobby">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="netpill" id="hNet">Live</span><span class="lbl" id="hLobbyMeta"></span></span></div>
+  <div class="host-body">
+    <div class="lobby-top">
+      <div class="joinbox"><span class="lbl">Join at</span><div class="url" id="hUrl">grant-desk.com/press</div><span class="lbl" style="display:block;margin-top:.6rem">Game code</span><div class="codebig" id="hCode"></div></div>
+      <div><span class="lbl">Now on the newsstand</span><div class="count-big" id="hCount">No papers yet</div><p class="note" style="margin-top:.4rem">Tap a paper to pull it off the stand.</p></div>
+      <button class="btn red big" type="button" id="hStart" disabled data-primary>Start the presses</button>
+    </div>
+    <hr class="rule2">
+    <div class="stand" id="hStand"></div>
+  </div>
+</section>
+
+<!-- HOST QUESTION + REVEAL -->
+<section class="screen host" id="hq">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl hq-desk" id="hqDesk"></span><span class="lbl" id="hqSlot"></span></span></div>
+  <div class="fuse hfuse" id="hqFuseWrap"><i id="hqFuse"></i></div>
+  <div class="host-body" id="hqBody">
+    <div class="hq-top"><h2 class="hq-text" id="hqText"></h2><figure class="photo"><img id="hqImg" alt=""><figcaption id="hqCredit"></figcaption></figure></div>
+    <div class="hchoices" id="hqChoices"></div>
+    <div class="host-order" id="hqOrder" hidden></div>
+    <div class="hfact" id="hqFact" hidden><div class="fact"><span class="lbl">From the morgue</span><span id="hqFactText"></span><p class="hstat" id="hqStat" style="margin-top:.5rem"></p></div><div id="hqStamp"></div></div>
+    <div class="hq-foot">
+      <span class="filed" id="hqFiled"></span>
+      <div class="htimer"><span class="timenum" id="hqTime"></span><button class="btn" type="button" id="hqAct" data-primary></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOST BOARD -->
+<section class="screen host" id="hboard">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl" id="hbSlot"></span></span></div>
+  <div class="host-body">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap"><h2 class="hq-text" style="font-size:clamp(2rem,4vw,4rem)">Circulation report</h2><button class="btn red big" type="button" id="hbNext" data-primary>Next story</button></div>
+    <p class="scoopline" id="hbScoop"></p>
+    <div class="board" id="hbBoard"></div>
+  </div>
+</section>
+
+<!-- HOST PERK DESK -->
+<section class="screen host" id="hdesk">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="timenum" id="hdTime"></span></span></div>
+  <div class="host-body">
+    <span class="lbl hq-desk">The Editor's Desk</span>
+    <h2 class="hq-text" style="font-size:clamp(2rem,4vw,4rem)">Every editor picks one advantage for the next three stories.</h2>
+    <div class="perks" id="hdPerks"></div>
+    <div class="hq-foot"><span class="filed" id="hdCount"></span><button class="btn red big" type="button" id="hdNext" data-primary>Back to the presses</button></div>
+  </div>
+</section>
+
+<!-- HOST FINAL -->
+<section class="screen host" id="hend">
+  <div class="mini-mast"><span class="name">Stop the Presses</span><span class="meta"><span class="lbl">Final edition</span></span></div>
+  <div class="host-body">
+    <div class="final-head"><span class="lbl kick">Final edition · the press war is over</span><h2 id="heHead"></h2><p id="heSub"></p></div>
+    <div class="podium" id="hePodium"></div>
+    <div><span class="lbl">Reforms this room pushed through</span><div class="ledger" id="heLedger" style="margin-top:.5rem"></div></div>
+    <div><span class="lbl">Full circulation</span><div class="cols3" id="heAll" style="margin-top:.5rem"></div></div>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap"><button class="btn red" type="button" id="heClose">Close the newsroom</button><button class="btn ghost" type="button" id="heMorgue">Open the Morgue</button></div>
+  </div>
+</section>
+
+<script src="/hubs/robber-barons-firebase.js"></script>
+<script src="/hubs/ush9-stop-the-presses-bank.js"></script>
+<script>
+(() => {
+  'use strict';
+  /* ================= Basics ================= */
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const DESKS = window.STP_DESKS || [];
+  const BANK = window.STP_BANK || [];
+  const BYID = Object.fromEntries(BANK.map(q => [q.id, q]));
+  const deskName = id => (DESKS.find(d => d.id === id) || {}).name || '';
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  const START_READERS = 2000;
+  const READ_MS = { mc: 3000, order: 4000 };
+  const DESK_EVERY = 5, PERK_LEN = 3, DESK_MS = 15000;
+  const TTL = 24 * 3600000;
+  const STAKES = { 1: { name: 'Inside Page', mult: 1, loss: 0 }, 2: { name: 'Front Page', mult: 2, loss: 300 }, 3: { name: 'EXTRA!', mult: 3, loss: 700 } };
+  const PERKS = {
+    flash: { icon: '✷', name: "Riis's Flash Powder", text: 'Light up the room. One wrong answer is crossed out on your screen. In order rounds, the first event is placed for you.' },
+    press: { icon: '⚙', name: 'Rotary Press', text: 'Print faster than anyone. Your speed bonus doubles.' },
+    lawyer: { icon: '⚖', name: 'Libel Lawyer', text: 'Get it wrong in print and pay nothing. Wrong Front Page and EXTRA! stories cost no readers.' },
+    newsboys: { icon: '✉', name: 'Army of Newsboys', text: 'Kids on every corner. Each correct story sells 300 extra copies.' }
+  };
+  const PAPER_A = ['Bowery', 'Hester Street', 'Five Points', 'Mulberry Bend', 'Bayard Street', 'Gotham', 'Brooklyn', 'Harlem', 'Park Row', 'Tenement Row', 'Flint', 'Saginaw', 'Genesee', 'Packingtown', 'Titusville', 'Chicago', 'Lower East Side', 'Union Square', "Hell's Kitchen", 'Coney Island'];
+  const PAPER_B = ['Bugle', 'Clarion', 'Herald', 'Sentinel', 'Courier', 'Inquirer', 'Tattler', 'Torch', 'Lantern', 'Ledger', 'Crier', 'Gazette', 'Examiner', 'Dispatch', 'Beacon', 'Bulletin', 'Muckrake', 'Megaphone', 'Telegraph', 'Searchlight'];
+  const PAPER_SET = new Set();
+  PAPER_A.forEach(a => PAPER_B.forEach(b => { const n = 'The ' + a + ' ' + b; if (n.length <= 30) PAPER_SET.add(n); }));
+  const PAPERS = Array.from(PAPER_SET);
+  const paperOk = p => PAPER_SET.has(p) ? p : 'An Independent Paper';
+  const cleanName = t => String(t || '').replace(/[\u0000-\u001f<>]/g, '').trim().replace(/\s+/g, ' ').slice(0, 16);
+
+  function say(t) { const l = $('#live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+
+  let current = 'home', shownAt = 0;
+  function show(id) {
+    $$('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+    if (current !== id) shownAt = Date.now();
+    current = id;
+    window.scrollTo(0, 0);
+    const f = $('#' + id + ' [autofocus]'); if (f) f.focus();
+  }
+
+  /* ================= Seeded randomness ================= */
+  function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function shuffle(arr, rand) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  // Display order of the four authored choices for one story in one game. Same on every screen.
+  function layoutFor(qid, seed, slot) { return shuffle([0, 1, 2, 3], mulberry32((seed ^ hashStr(qid) ^ Math.imul(slot + 1, 2654435761)) >>> 0)); }
+  // Which wrong answer Flash Powder crosses out.
+  function flashPick(qid, seed, slot) { return 1 + Math.floor(mulberry32((seed + 99 + slot) ^ hashStr(qid))() * 3); }
+
+  // Build a deck: topics rotate through the chosen desks, order rounds spaced out, never first.
+  function buildDeck(n, desks, seed) {
+    const rand = mulberry32(seed);
+    const pool = BANK.filter(q => desks.includes(q.d));
+    const ord = shuffle(pool.filter(q => q.t === 'order'), rand);
+    const byDesk = {};
+    shuffle(pool.filter(q => q.t !== 'order'), rand).forEach(q => { (byDesk[q.d] = byDesk[q.d] || []).push(q); });
+    const total = Math.min(n, pool.length);
+    let wantOrd = Math.min(ord.length, Math.max(total >= 10 ? 1 : 0, Math.round(total / 8)));
+    if (n >= 999) wantOrd = ord.length;
+    const mcNeed = total - wantOrd;
+    const mc = [];
+    const keys = shuffle(Object.keys(byDesk), rand);
+    while (mc.length < mcNeed && keys.some(k => byDesk[k].length)) keys.forEach(k => { if (mc.length < mcNeed && byDesk[k].length) mc.push(byDesk[k].shift()); });
+    // Make sure reform stories show up, so the room has laws to fight for.
+    const wantReform = Math.min(pool.filter(q => q.r && q.t !== 'order').length, Math.round(mcNeed / 4));
+    const spare = shuffle(pool.filter(q => q.r && q.t !== 'order' && !mc.includes(q)), rand);
+    for (let k = mc.length - 1; k >= 0 && mc.filter(q => q.r).length < wantReform && spare.length; k--) {
+      if (mc[k].r) continue;
+      const sameDesk = spare.findIndex(x => x.d === mc[k].d);
+      mc[k] = spare.splice(sameDesk >= 0 ? sameDesk : 0, 1)[0];
+    }
+    const out = mc.map(q => q.id);
+    const ords = ord.slice(0, Math.min(wantOrd, total - mc.length));
+    ords.forEach((q, i) => { const at = Math.max(2, Math.round((i + 1) * (out.length + ords.length) / (ords.length + 1))); out.splice(Math.min(at, out.length), 0, q.id); });
+    return out;
+  }
+
+  /* ================= Scoring, shared by solo and the live host ================= */
+  // ans: { c: string, s: 1 to 3, ms: milliseconds after the clock started }  or null for no answer
+  function scoreOne(q, ans, ctx) {
+    const perk = ctx.perk || '';
+    const streak = ctx.streak || 0;
+    const dur = ctx.dur || 20000;
+    if (!ans) return { ok: false, missed: true, delta: 0, streak: 0, part: 0 };
+    const frac = ctx.noClock ? 1 : Math.max(0, Math.min(1, 1 - (ans.ms || 0) / dur));
+    const speed = Math.round(400 * frac) * (perk === 'press' ? 2 : 1);
+    if (q.t === 'order') {
+      const seq = String(ans.c || '');
+      let part = 0; for (let i = 0; i < 4; i++) if (seq[i] === String(i)) part++;
+      if (part === 4) {
+        const st = streak + 1;
+        return { ok: true, delta: 1000 + speed + streakBonus(st) + (perk === 'newsboys' ? 300 : 0), streak: st, part };
+      }
+      return { ok: false, delta: part * 150, streak: 0, part };
+    }
+    const stake = STAKES[ans.s] || STAKES[1];
+    if (String(ans.c) === '0') {
+      const st = streak + 1;
+      return { ok: true, delta: (600 + speed) * stake.mult + streakBonus(st) + (perk === 'newsboys' ? 300 : 0), streak: st, part: 0 };
+    }
+    return { ok: false, delta: perk === 'lawyer' ? 0 : -stake.loss, streak: 0, part: 0 };
+  }
+  function streakBonus(st) { return st >= 3 ? Math.min(500, (st - 2) * 100) : 0; }
+  function perkFor(sc, slot) { return sc && sc.pk && slot >= sc.pf && slot <= sc.pt ? sc.pk : ''; }
+  const REFORM_SHARE = 2 / 3, REFORM_BONUS = 250;
+
+  /* ================= Little sounds for the projector ================= */
+  const Snd = {
+    ctx: null, on: true,
+    tone(f, d, type, v, when) {
+      if (!this.on) return;
+      try {
+        this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+        const t = this.ctx.currentTime + (when || 0), o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = type || 'sine'; o.frequency.value = f; g.gain.setValueAtTime(v || .12, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + d + .02);
+      } catch (e) { /* no sound is fine */ }
+    },
+    clack() { this.tone(1800, .03, 'square', .05); this.tone(900, .05, 'square', .04, .03); },
+    tick() { this.tone(1200, .05, 'square', .05); },
+    thud() { this.tone(70, .5, 'sawtooth', .22); this.tone(110, .3, 'square', .12, .05); },
+    bell() { this.tone(1320, .9, 'sine', .14); this.tone(1980, .6, 'sine', .06, .02); },
+    fanfare() { [523, 659, 784, 1046].forEach((f, i) => this.tone(f, .35, 'triangle', .12, i * .14)); }
+  };
+
+  /* ================= Shared question view (players and solo) ================= */
+  const QV = {
+    o: null, stake: 1, seq: [], timer: null, done: false,
+    // o = { qid, slot, total, seed, now(), start, dur (0 = no clock), perk, onSubmit(c, s), onTimeout() }
+    open(o) {
+      this.o = o; this.stake = 1; this.seq = []; this.done = false;
+      const q = BYID[o.qid];
+      $('#pqSlot').textContent = 'Story ' + (o.slot + 1) + ' of ' + o.total;
+      $('#pqDesk').textContent = deskName(q.d);
+      $('#pqPerk').textContent = o.perk ? PERKS[o.perk].icon + ' ' + PERKS[o.perk].name : '';
+      $('#pqText').textContent = q.q;
+      const isOrder = q.t === 'order';
+      $('#pqStakeWrap').hidden = isOrder;
+      $('#pqOrderNote').hidden = !isOrder;
+      $$('#pqStakes .stake').forEach(b => b.setAttribute('aria-checked', b.dataset.s === '1' ? 'true' : 'false'));
+      const lay = layoutFor(o.qid, o.seed, o.slot);
+      const box = $('#pqChoices'); box.innerHTML = ''; box.hidden = isOrder;
+      $('#pqOrder').hidden = !isOrder;
+      if (!isOrder) {
+        const struck = o.perk === 'flash' ? flashPick(o.qid, o.seed, o.slot) : -1;
+        lay.forEach((ai, pos) => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'choice c' + pos + (ai === struck ? ' struck' : ''); b.dataset.ai = ai;
+          b.innerHTML = '<span class="k">' + LETTERS[pos] + '</span><span>' + esc(q.a[ai]) + '</span>';
+          if (ai === struck) b.disabled = true;
+          b.addEventListener('click', () => this.pick(String(ai), b));
+          box.appendChild(b);
+        });
+      } else {
+        this.lay = lay;
+        if (o.perk === 'flash') this.seq = [0];
+        this.drawOrder();
+      }
+      show('pq');
+      this.gate(true);
+      clearInterval(this.timer);
+      this.timer = setInterval(() => this.tickClock(), 150);
+      this.tickClock();
+    },
+    // While the lead is being read, the answers stay hidden. Stakes can be picked early.
+    gate(locked) {
+      $('#pqWait').hidden = !locked;
+      $('#pqChoices').style.visibility = locked ? 'hidden' : 'visible';
+      $('#pqOrder').style.visibility = locked ? 'hidden' : 'visible';
+    },
+    tickClock() {
+      const o = this.o; if (!o || this.done) return;
+      const now = o.now();
+      if (now < o.start) { this.gate(true); $('#pqTime').textContent = ''; $('#pqFuse').style.width = '100%'; return; }
+      this.gate(false);
+      if (!o.dur) { $('#pqTime').textContent = ''; $('#pqFuseWrap').hidden = true; return; }
+      $('#pqFuseWrap').hidden = false;
+      const left = Math.max(0, o.start + o.dur - now);
+      const secs = Math.ceil(left / 1000);
+      $('#pqTime').textContent = secs;
+      $('#pqTime').classList.toggle('hot', secs <= 5);
+      $('#pqFuseWrap').classList.toggle('hot', secs <= 5);
+      $('#pqFuse').style.width = (100 * left / o.dur) + '%';
+      if (left <= 0) { this.stop(); if (o.onTimeout) o.onTimeout(); }
+    },
+    stop() { this.done = true; clearInterval(this.timer); },
+    setStake(s) { this.stake = s; $$('#pqStakes .stake').forEach(b => b.setAttribute('aria-checked', String(Number(b.dataset.s) === s))); },
+    pick(c, btn) {
+      if (this.done || this.o.now() < this.o.start) return;
+      this.stop();
+      $$('#pqChoices .choice').forEach(b => { b.disabled = true; });
+      if (btn) btn.classList.add('picked');
+      this.o.onSubmit(c, this.stake);
+    },
+    drawOrder() {
+      const q = BYID[this.o.qid];
+      const slots = $('#pqSlots'); slots.innerHTML = '';
+      for (let i = 0; i < 4; i++) {
+        const ai = this.seq[i];
+        const d = document.createElement('div');
+        d.className = 'oslot' + (ai != null ? ' filled' : '');
+        d.innerHTML = '<span class="n">' + (i === 0 ? 'EARLIEST' : i === 3 ? 'LATEST' : 'NEXT') + '</span>' + (ai != null ? '<span class="t">' + esc(q.a[ai]) + '</span>' : '');
+        slots.appendChild(d);
+      }
+      const items = $('#pqItems'); items.innerHTML = '';
+      this.lay.forEach(ai => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'oitem'; b.textContent = q.a[ai];
+        b.disabled = this.seq.includes(ai);
+        b.addEventListener('click', () => { if (this.done || this.seq.length >= 4) return; this.seq.push(ai); this.drawOrder(); });
+        items.appendChild(b);
+      });
+      $('#pqFile').disabled = this.seq.length < 4;
+    }
+  };
+  $$('#pqStakes .stake').forEach(b => b.addEventListener('click', () => QV.setStake(Number(b.dataset.s))));
+  document.addEventListener('keydown', e => {
+    if (current !== 'pq' || e.target.tagName === 'INPUT') return;
+    const k = e.key.toUpperCase();
+    const i = LETTERS.indexOf(k);
+    if (i >= 0) { const b = $$('#pqChoices .choice')[i]; if (b && !b.disabled) b.click(); }
+    if (k === '1' || k === '2' || k === '3') QV.setStake(Number(k));
+  });
+  $('#pqClear').addEventListener('click', () => { if (QV.done) return; QV.seq = QV.o.perk === 'flash' ? [0] : []; QV.drawOrder(); });
+  $('#pqFile').addEventListener('click', () => {
+    if (QV.done || QV.seq.length < 4 || QV.o.now() < QV.o.start) return;
+    QV.stop(); $('#pqFile').disabled = true;
+    QV.o.onSubmit(QV.seq.join(''), 1);
+  });
+
+  // Result slip, shared by players and solo.
+  function showResult(r) {
+    // r = { qid, slot, total, picked, stake, res, total readers, rankLine, reform: 'pass' or 'fail' or '', reformName, reformPct, solo, vsHtml }
+    const q = BYID[r.qid];
+    $('#rsSlot').textContent = 'Story ' + (r.slot + 1) + ' of ' + r.total;
+    const res = r.res;
+    let word, kick, cls;
+    if (res.missed) { word = 'Missed the deadline'; kick = 'The presses rolled without you'; cls = 'bad-word'; }
+    else if (q.t === 'order') { word = res.ok ? 'Scoop!' : res.part + ' of 4 in place'; kick = res.ok ? 'Every event in order' : 'Special edition'; cls = res.ok ? 'good-word' : 'bad-word'; }
+    else if (res.ok) { word = 'Scoop!'; kick = 'You ran it on the ' + STAKES[r.stake].name.replace('EXTRA!', 'EXTRA! edition'); cls = 'good-word'; }
+    else { word = res.delta < 0 ? 'Retraction' : 'Wrong story'; kick = res.delta < 0 ? 'Printed big and printed wrong' : (r.perkSaved ? 'Your libel lawyer saved you' : 'It ran on an inside page, so no harm done'); cls = 'bad-word'; }
+    $('#rsKick').textContent = kick;
+    $('#rsWord').textContent = word; $('#rsWord').className = 'big-word ' + cls;
+    const d = res.delta + (r.reformBonus || 0);
+    $('#rsDelta').textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + fmt(Math.abs(d)) + ' readers';
+    $('#rsDelta').className = 'delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : '');
+    $('#rsTot').textContent = r.rankLine || '';
+    const sk = $('#rsStreak'); sk.hidden = !(res.streak >= 3); sk.textContent = res.streak + ' scoops in a row';
+    const rf = $('#rsReform');
+    if (q.r && r.reform) { rf.hidden = false; rf.className = 'reform-line' + (r.reform === 'pass' ? '' : ' fail'); rf.textContent = r.reform === 'pass' ? 'Reform passed: ' + q.r + (r.reformBonus ? '. Plus ' + REFORM_BONUS + ' readers for getting it right.' : '') : 'Reform stalled. Only ' + r.reformPct + '% got it, and it needed two thirds.'; }
+    else rf.hidden = true;
+    if (q.t === 'order') $('#rsAns').innerHTML = '<span class="lbl">The right order</span><br><b>' + q.a.map((a, i) => esc(q.y[i]) + ' · ' + esc(a)).join('<br>') + '</b>';
+    else $('#rsAns').innerHTML = '<span class="lbl">The story</span><br><b>' + esc(q.a[0]) + '</b>';
+    $('#rsFact').textContent = q.f;
+    const vs = $('#rsVs'); vs.hidden = !r.vsHtml; vs.innerHTML = r.vsHtml || '';
+    $('#rsNext').hidden = !r.solo; $('#rsWait').hidden = !!r.solo;
+    show('pres');
+    say(word + '. ' + $('#rsDelta').textContent);
+  }
+
+  function renderPerkPicker(offer, chosen, onPick, msg) {
+    const box = $('#dkPerks'); box.innerHTML = '';
+    offer.forEach(id => {
+      const p = PERKS[id]; if (!p) return;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'perk'; b.setAttribute('aria-pressed', String(chosen === id));
+      b.innerHTML = '<span class="pi">' + p.icon + '</span><b>' + esc(p.name) + '</b><span>' + esc(p.text) + '</span>';
+      b.disabled = !!chosen;
+      b.addEventListener('click', () => onPick(id));
+      box.appendChild(b);
+    });
+    $('#dkMsg').textContent = msg || '';
+    show('pdesk');
+  }
+
+  /* ================= Navigation ================= */
+  $$('[data-go]').forEach(b => b.addEventListener('click', () => {
+    const to = b.dataset.go;
+    if (to === 'join') openJoin();
+    else if (to === 'ssetup') openSoloSetup();
+    else if (to === 'morgue') openMorgue();
+    else if (to === 'hsetup') openHostSetup();
+    else show(to);
+  }));
+
+  function deskChips(box, selected, onChange) {
+    box.innerHTML = '';
+    DESKS.forEach(d => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = d.name; b.title = d.sub;
+      b.setAttribute('aria-pressed', String(selected.includes(d.id)));
+      b.addEventListener('click', () => {
+        const i = selected.indexOf(d.id);
+        if (i >= 0) { if (selected.length > 1) selected.splice(i, 1); } else selected.push(d.id);
+        deskChips(box, selected, onChange); if (onChange) onChange();
+      });
+      box.appendChild(b);
+    });
+  }
+  function segInit(box, attr, onPick) {
+    box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      onPick(Number(b.dataset[attr]));
+    }));
+  }
+
+  /* ================= The Morgue ================= */
+  let morgueDesks = DESKS.map(d => d.id);
+  function openMorgue() { deskChips($('#mDesks'), morgueDesks, drawMorgue); drawMorgue(); show('morgue'); }
+  function drawMorgue() {
+    const term = $('#mSearch').value.trim().toLowerCase();
+    let html = '';
+    DESKS.filter(d => morgueDesks.includes(d.id)).forEach(d => {
+      const qs = BANK.filter(q => q.d === d.id && (!term || [q.q, q.a[0], q.f, q.r || '', (q.y || []).join(' ')].join(' ').toLowerCase().includes(term)));
+      if (!qs.length) return;
+      html += '<h2 class="desk-h">' + esc(d.name) + ' <span class="lbl" style="color:var(--ink3)">' + esc(d.sub) + '</span></h2>';
+      qs.forEach(q => {
+        const ans = q.t === 'order' ? q.a.map((a, i) => esc(q.y[i]) + ': ' + esc(a)).join('<br>') : esc(q.a[0]);
+        html += '<div class="clip">' + (q.r ? '<span class="lbl">Reform · ' + esc(q.r) + '</span>' : '<span class="lbl">' + esc(d.name) + '</span>') + '<h3>' + esc(q.q) + '</h3><div class="a">' + ans + '</div><p>' + esc(q.f) + '</p></div>';
+      });
+    });
+    $('#mClips').innerHTML = html || '<p class="note">Nothing in the morgue matches that.</p>';
+  }
+  $('#mSearch').addEventListener('input', drawMorgue);
+
+  /* ================= Solo edition ================= */
+  const solo = { desks: DESKS.map(d => d.id), n: 20, dur: 20000, deck: [], seed: 0, i: 0, r: START_READERS, st: 0, pk: '', pf: -1, pt: -1, log: [], rag: { r: START_READERS, st: 0 }, retry: null };
+  function bestKey() { return 'stp-solo-best'; }
+  function readBest() { try { return Number(localStorage.getItem(bestKey())) || 0; } catch (e) { return 0; } }
+  function writeBest(v) { try { if (v > readBest()) localStorage.setItem(bestKey(), String(v)); } catch (e) { /* private window */ } }
+  function openSoloSetup() {
+    deskChips($('#sDesks'), solo.desks);
+    const b = readBest();
+    $('#sBest').textContent = b ? 'Best solo circulation on this Chromebook: ' + fmt(b) + ' readers.' : '';
+    show('ssetup');
+  }
+  segInit($('#sLen'), 'n', v => { solo.n = v; });
+  segInit($('#sClock'), 't', v => { solo.dur = v; });
+  $('#sGo').addEventListener('click', () => startSolo(null));
+  $('#seRetry').addEventListener('click', () => { if (solo.retry && solo.retry.length) startSolo(solo.retry); });
+  function startSolo(ids) {
+    solo.seed = (Math.random() * 2 ** 31) >>> 0;
+    solo.deck = ids ? shuffle(ids, mulberry32(solo.seed)) : buildDeck(solo.n, solo.desks, solo.seed);
+    Object.assign(solo, { i: 0, r: START_READERS, st: 0, pk: '', pf: -1, pt: -1, log: [], rag: { r: START_READERS, st: 0 } });
+    soloAsk();
+  }
+  function soloAsk() {
+    const qid = solo.deck[solo.i], q = BYID[qid];
+    const read = q.t === 'order' ? 1500 : 1200;
+    const dur = solo.dur ? (q.t === 'order' ? solo.dur + 15000 : solo.dur) : 0;
+    const start = Date.now() + read;
+    const perk = perkFor(solo, solo.i);
+    QV.open({ qid, slot: solo.i, total: solo.deck.length, seed: solo.seed, now: Date.now, start, dur, perk,
+      onSubmit: (c, s) => soloScore({ c, s, ms: Date.now() - start }, dur, perk),
+      onTimeout: () => soloScore(null, dur, perk) });
+  }
+  function soloScore(ans, dur, perk) {
+    const qid = solo.deck[solo.i], q = BYID[qid];
+    const res = scoreOne(q, ans, { dur: dur || 20000, perk, streak: solo.st, noClock: !dur });
+    solo.st = res.streak;
+    solo.r = Math.max(0, solo.r + res.delta);
+    // The Evening Rag files too.
+    const rr = Math.random, ragOk = rr() < .7, ragS = rr() < .5 ? 1 : rr() < .7 ? 2 : 3;
+    const ragAns = q.t === 'order' ? { c: ragOk ? '0123' : '1023', s: 1, ms: dur * (.3 + rr() * .5) } : { c: ragOk ? '0' : '1', s: ragS, ms: (dur || 20000) * (.3 + rr() * .5) };
+    const rres = scoreOne(q, ragAns, { dur: dur || 20000, streak: solo.rag.st, noClock: !dur });
+    solo.rag.st = rres.streak; solo.rag.r = Math.max(0, solo.rag.r + rres.delta);
+    solo.log.push({ qid, ok: res.ok, part: res.part, missed: !!res.missed });
+    if (ans && q.t !== 'order') { const btn = $$('#pqChoices .choice').find(b => b.dataset.ai === '0'); if (btn) btn.classList.add('right'); }
+    const ahead = solo.r >= solo.rag.r;
+    const vsHtml = '<div class="' + (ahead ? 'win' : '') + '"><span class="lbl">Your paper</span><b>' + fmt(solo.r) + '</b></div><div class="' + (ahead ? '' : 'win') + '"><span class="lbl">The Evening Rag</span><b>' + fmt(solo.rag.r) + '</b></div>';
+    setTimeout(() => showResult({ qid, slot: solo.i, total: solo.deck.length, stake: ans ? ans.s : 1, res, perkSaved: perk === 'lawyer' && !res.ok && ans && ans.s > 1, rankLine: 'Circulation: ' + fmt(solo.r) + ' readers', solo: true, vsHtml }), ans ? 450 : 50);
+  }
+  $('#rsNext').addEventListener('click', () => {
+    solo.i++;
+    if (solo.i >= solo.deck.length) return soloEnd();
+    if (solo.i % DESK_EVERY === 0 && solo.deck.length - solo.i >= 2) {
+      const offer = shuffle(Object.keys(PERKS), Math.random).slice(0, 3);
+      $('#dkTime').textContent = '';
+      renderPerkPicker(offer, '', id => { solo.pk = id; solo.pf = solo.i; solo.pt = solo.i + PERK_LEN - 1; soloAsk(); }, 'Pick one to keep printing.');
+      return;
+    }
+    soloAsk();
+  });
+  function soloEnd() {
+    writeBest(solo.r);
+    const right = solo.log.filter(l => l.ok).length, n = solo.log.length;
+    const win = solo.r >= solo.rag.r;
+    $('#seHead').textContent = win ? 'Your paper buries the Evening Rag' : 'The Evening Rag wins this round';
+    $('#seSub').textContent = right + ' of ' + n + ' stories right. Final circulation ' + fmt(solo.r) + ' readers.';
+    $('#seVs').innerHTML = '<div class="' + (win ? 'win' : '') + '"><span class="lbl">Your paper</span><b>' + fmt(solo.r) + '</b></div><div class="' + (win ? '' : 'win') + '"><span class="lbl">The Evening Rag</span><b>' + fmt(solo.rag.r) + '</b></div>';
+    const per = {};
+    solo.log.forEach(l => { const d = BYID[l.qid].d; per[d] = per[d] || { n: 0, ok: 0 }; per[d].n++; if (l.ok) per[d].ok++; });
+    $('#seDesks').innerHTML = DESKS.filter(d => per[d.id]).map(d => { const p = per[d.id], pct = Math.round(100 * p.ok / p.n); return '<div><span>' + esc(d.name) + '</span><i><em style="width:' + pct + '%"></em></i><b>' + pct + '%</b></div>'; }).join('');
+    const missed = solo.log.filter(l => !l.ok).map(l => l.qid);
+    solo.retry = missed;
+    $('#seRetry').hidden = !missed.length;
+    $('#seMissed').innerHTML = missed.length ? missed.map(id => { const q = BYID[id]; const a = q.t === 'order' ? q.a.map((x, i) => esc(q.y[i]) + ': ' + esc(x)).join('<br>') : esc(q.a[0]); return '<div class="clip"><span class="lbl">' + esc(deskName(q.d)) + '</span><h3>' + esc(q.q) + '</h3><div class="a">' + a + '</div><p>' + esc(q.f) + '</p></div>'; }).join('') : '<p class="note">You missed nothing. Go host the next press war.</p>';
+    show('send');
+  }
+
+  /* ================= Firebase ================= */
+  const FB_URL = 'https://www.gstatic.com/firebasejs/12.19.0/';
+  const CODE_CHARS = 'BCDFGHJKMNPQRSTVWXZ';
+  let fb = null, fbLoading = null;
+  function firebase() {
+    if (fb) return Promise.resolve(fb);
+    if (fbLoading) return fbLoading;
+    fbLoading = (async () => {
+      const cfg = window.STP_FIREBASE || window.RB_FIREBASE || {};
+      if (!cfg.databaseURL || !cfg.apiKey) throw new Error('setup');
+      const [A, U, D] = await Promise.all(['app', 'auth', 'database'].map(m => import(FB_URL + 'firebase-' + m + '.js')));
+      const app = A.getApps().find(a => a.name === 'stop-the-presses') || A.initializeApp(cfg, 'stop-the-presses');
+      const auth = U.getAuth(app), db = D.getDatabase(app);
+      if (cfg.emulator) { // only the automated test sets this
+        U.connectAuthEmulator(auth, 'http://' + cfg.emulator.auth, { disableWarnings: true });
+        D.connectDatabaseEmulator(db, cfg.emulator.host, cfg.emulator.port);
+      }
+      const cred = await U.signInAnonymously(auth);
+      const F = { D, db, uid: cred.user.uid, offset: 0, connected: true, ref: p => D.ref(db, p) };
+      D.onValue(F.ref('.info/serverTimeOffset'), x => { F.offset = x.val() || 0; });
+      D.onValue(F.ref('.info/connected'), x => { F.connected = !!x.val(); netPills(); });
+      fb = F;
+      return F;
+    })();
+    fbLoading.catch(() => { fbLoading = null; });
+    return fbLoading;
+  }
+  const serverNow = () => Date.now() + (fb ? fb.offset : 0);
+  function netPills() { ['#pNet1', '#hNet'].forEach(s => { const p = $(s); if (!p) return; const on = !fb || fb.connected; p.classList.toggle('off', !on); p.textContent = on ? (s === '#hNet' ? 'Live' : 'Connected') : 'Reconnecting'; }); }
+  function netError(e) {
+    const m = String((e && (e.code || e.message)) || e);
+    if (m === 'setup') return 'Live games are not switched on yet. Solo play works right now.';
+    if (/operation-not-allowed|admin-restricted/i.test(m)) return 'Anonymous sign in is turned off in Firebase.';
+    if (/permission/i.test(m)) return 'The game server turned that down. The game may be closed, or live play needs its one time setup.';
+    return 'Could not reach the game server. Check the Wi-Fi and try again.';
+  }
+  const P_ = code => 'stp/' + code;
+
+  /* ================= Player ================= */
+  const P = { code: '', name: '', paper: '', joined: false, st: null, scores: {}, chose: {}, offs: [], answered: -1, lastShown: '' };
+  const SS = { get(k) { try { return sessionStorage.getItem(k) || ''; } catch (e) { return ''; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* fine */ } } };
+  function spinPaper() { P.paper = PAPERS[Math.floor(Math.random() * PAPERS.length)]; $('#jPaper').textContent = P.paper; }
+  function openJoin(msg) {
+    const qs = new URLSearchParams(location.search);
+    $('#jCode').value = (qs.get('code') || SS.get('stp-code') || '').toUpperCase().slice(0, 4);
+    $('#jName').value = SS.get('stp-name');
+    P.paper = SS.get('stp-paper') && PAPER_SET.has(SS.get('stp-paper')) ? SS.get('stp-paper') : '';
+    if (!P.paper) spinPaper(); else $('#jPaper').textContent = P.paper;
+    $('#jErr').textContent = msg || '';
+    show('join');
+    ($('#jCode').value ? $('#jName') : $('#jCode')).focus();
+  }
+  $('#jSpin').addEventListener('click', spinPaper);
+  $('#jCode').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); });
+  $('#joinForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = $('#jCode').value.trim().toUpperCase(), name = cleanName($('#jName').value);
+    if (!/^[A-Z]{4}$/.test(code)) { $('#jErr').textContent = 'The code is four letters on the big screen.'; return; }
+    if (!name) { $('#jErr').textContent = 'Type your first name so your teacher knows whose paper it is.'; return; }
+    $('#jGo').disabled = true; $('#jErr').textContent = 'Finding the newsroom...';
+    try {
+      const F = await firebase(), D = F.D;
+      const meta = (await D.get(F.ref(P_(code) + '/meta'))).val();
+      if (!meta) throw new Error('nogame');
+      if (meta.status === 'done') throw new Error('over');
+      // Two papers with the same name would confuse the board, so pick an unused one.
+      try {
+        const others = (await D.get(F.ref(P_(code) + '/players'))).val() || {};
+        const taken = new Set(Object.keys(others).filter(u => u !== F.uid).map(u => others[u] && others[u].paper));
+        for (let t = 0; t < 40 && taken.has(P.paper); t++) spinPaper();
+      } catch (e) { /* a repeat name is not worth failing over */ }
+      await D.set(F.ref(P_(code) + '/players/' + F.uid), { name, paper: P.paper });
+      SS.set('stp-code', code); SS.set('stp-name', name); SS.set('stp-paper', P.paper);
+      Object.assign(P, { code, name, joined: true, answered: -1, chose: {}, lastShown: '' });
+      playerListen();
+      $('#jErr').textContent = '';
+    } catch (err) {
+      const m = String(err && err.message);
+      $('#jErr').textContent = m === 'nogame' ? 'No game with that code. Check the big screen.' : m === 'over' ? 'That press war is already over.' : netError(err);
+    } finally { $('#jGo').disabled = false; }
+  });
+  function playerOff() { P.offs.forEach(f => f()); P.offs = []; }
+  function playerListen() {
+    playerOff();
+    const F = fb, D = F.D, base = P_(P.code);
+    $('#wPaper').textContent = P.paper; $('#wEd').textContent = 'Editor ' + P.name;
+    $('#eoPaper').textContent = P.paper; $('#eoEd').textContent = 'Editor ' + P.name;
+    P.offs.push(D.onValue(F.ref(base + '/players/' + F.uid), s => {
+      if (!s.exists() && P.joined) { P.joined = false; playerOff(); QV.stop(); openJoin('Your editor pulled your paper off the stand. Pick a new name and join again.'); }
+    }));
+    P.offs.push(D.onValue(F.ref(base + '/score'), s => { P.scores = s.val() || {}; if (P.st && (P.st.phase === 'rev' || P.st.phase === 'board' || P.st.phase === 'end')) playerRender(true); }));
+    P.offs.push(D.onValue(F.ref(base + '/state'), s => { P.st = s.val(); playerRender(false); }));
+  }
+  function myScore() { return P.scores[fb.uid] || null; }
+  function rankOf(uid) {
+    const list = Object.keys(P.scores).map(u => ({ u, r: Number(P.scores[u].r) || 0 })).sort((a, b) => b.r - a.r);
+    const i = list.findIndex(x => x.u === uid);
+    return { rank: i + 1, of: list.length, list };
+  }
+  const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+  async function playerRender(scoreOnly) {
+    const st = P.st; if (!st || !P.joined) return;
+    const deck = String(st.deck || '').split(',').filter(Boolean);
+    const key = st.phase + ':' + st.i + ':' + (st.dk || 0);
+    if (scoreOnly && st.phase !== 'rev' && st.phase !== 'board' && st.phase !== 'end') return;
+    if (!scoreOnly && key === P.lastShown && st.phase !== 'rev') return;
+    P.lastShown = key;
+    const F = fb, D = F.D, base = P_(P.code);
+    if (st.phase === 'lobby') { QV.stop(); show('pwait'); return; }
+    if (st.phase === 'q') {
+      const qid = deck[st.i]; if (!qid || !BYID[qid]) return;
+      let mine = null;
+      try { mine = (await D.get(F.ref(base + '/ans/' + st.k + '/' + F.uid))).val(); } catch (e) { /* offline, carry on */ }
+      if (P.st !== st) return;
+      if (mine) { P.answered = st.i; return showLocked(st, mine); }
+      const sc = myScore();
+      QV.open({ qid, slot: st.i, total: Number(st.n) || deck.length, seed: Number(st.seed) || 0, now: serverNow, start: Number(st.start) + Number(st.read || 0), dur: Number(st.dur) || 20000, perk: perkFor(sc, st.i),
+        onSubmit: async (c, s) => {
+          P.answered = st.i;
+          showLocked(st, { c, s });
+          try { await D.set(F.ref(base + '/ans/' + st.k + '/' + F.uid), { c, s, t: D.serverTimestamp() }); }
+          catch (e) { $('#lkWord').textContent = 'Too late'; $('#lkMsg').textContent = 'The presses stopped before your story reached the typesetter.'; }
+        },
+        onTimeout: () => { $('#lkWord').textContent = 'Time!'; $('#lkMsg').textContent = 'The presses are rolling. Watch the big screen.'; $('#lkSlot').textContent = 'Story ' + (st.i + 1); show('plock'); } });
+      return;
+    }
+    if (st.phase === 'lock') {
+      QV.stop();
+      if (P.answered !== st.i) { $('#lkWord').textContent = 'Stop the presses!'; $('#lkMsg').textContent = 'No more stories. Watch the big screen.'; $('#lkSlot').textContent = 'Story ' + (st.i + 1); show('plock'); }
+      return;
+    }
+    if (st.phase === 'rev') {
+      QV.stop();
+      const qid = deck[st.i]; const sc = myScore();
+      if (!sc || sc.q !== st.i) { $('#lkWord').textContent = 'Counting...'; $('#lkMsg').textContent = 'The circulation desk is adding up sales.'; show('plock'); return; }
+      const q = BYID[qid];
+      const res = { ok: sc.ok === 1, missed: sc.ok === -1, delta: Number(sc.d) || 0, streak: Number(sc.st) || 0, part: Number(sc.pt4) || 0 };
+      const rk = rankOf(F.uid);
+      const reform = q.r ? (st.rp ? 'pass' : 'fail') : '';
+      showResult({ qid, slot: st.i, total: Number(st.n) || deck.length, stake: Number(sc.s) || 1, res, reform, reformPct: Number(st.rpct) || 0, reformBonus: Number(sc.rb) || 0, perkSaved: sc.ok === 0 && Number(sc.s) > 1 && Number(sc.d) === 0, rankLine: fmt(sc.r) + ' readers · ' + ord(rk.rank) + ' of ' + rk.of });
+      return;
+    }
+    if (st.phase === 'board') {
+      const sc = myScore(); if (!sc) return;
+      const rk = rankOf(F.uid);
+      $('#stRank').textContent = ord(rk.rank) + ' of ' + rk.of;
+      $('#stReaders').textContent = fmt(sc.r) + ' readers';
+      if (rk.rank === 1) $('#stGap').textContent = rk.of > 1 ? 'You lead the city by ' + fmt(sc.r - rk.list[1].r) + ' readers. Every paper is coming for you.' : 'The only paper in town.';
+      else { const ahead = rk.list[rk.rank - 2]; const nm = (P.scores[ahead.u] || {}).p || 'the paper ahead'; $('#stGap').textContent = fmt(ahead.r - sc.r) + ' readers behind ' + paperOk(nm) + '.'; }
+      show('pstand');
+      return;
+    }
+    if (st.phase === 'desk') {
+      QV.stop();
+      const dk = String(st.dk);
+      let chosen = P.chose[dk] || '';
+      if (!chosen) { try { chosen = (await D.get(F.ref(base + '/perk/' + dk + '/' + F.uid))).val() || ''; } catch (e) { /* fine */ } }
+      const offer = String(st.offer || '').split(',').filter(k => PERKS[k]);
+      const draw = () => renderPerkPicker(offer, chosen, async id => {
+        if (chosen) return; chosen = id; P.chose[dk] = id; draw();
+        try { await D.set(F.ref(base + '/perk/' + dk + '/' + F.uid), id); } catch (e) { $('#dkMsg').textContent = 'Too late for this desk. Back to the presses.'; }
+      }, chosen ? 'Locked in: ' + PERKS[chosen].name + '. Watch the big screen.' : 'Pick fast. The clock is on the big screen.');
+      draw();
+      return;
+    }
+    if (st.phase === 'end') {
+      QV.stop();
+      const sc = myScore(); const rk = rankOf(F.uid);
+      $('#eoRank').textContent = sc ? ord(rk.rank) + ' of ' + rk.of : 'Final';
+      $('#eoLine').textContent = sc ? 'Final circulation ' + fmt(sc.r) + ' readers. ' + (Number(sc.n) || 0) + ' correct stories.' + (rk.rank === 1 ? ' Your paper won the press war.' : '') : '';
+      show('pend');
+    }
+  }
+  function showLocked(st, ans) {
+    const q = BYID[String(st.deck).split(',')[st.i]];
+    $('#lkSlot').textContent = 'Story ' + (st.i + 1);
+    $('#lkWord').textContent = 'Filed.';
+    $('#lkMsg').textContent = q && q.t === 'order' ? 'Your special edition is at the typesetter. Watch the big screen.' : 'You ran it on the ' + (STAKES[ans.s] || STAKES[1]).name + '. Watch the big screen.';
+    show('plock');
+  }
+
+  /* ================= Host ================= */
+  const H = { code: '', desks: DESKS.map(d => d.id), n: 20, dur: 20000, deck: [], seed: 0, players: {}, scores: {}, i: -1, phase: '', st: {}, offs: [], qOff: null, answers: {}, closing: false, loop: null, reforms: [], prevRank: {}, lastTick: -1 };
+  const LS = { get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* fine */ } }, del(k) { try { localStorage.removeItem(k); } catch (e) { /* fine */ } } };
+  function openHostSetup() {
+    deskChips($('#hDesks'), H.desks);
+    $('#hErr').textContent = '';
+    const prev = LS.get('stp-host');
+    $('#hResume').hidden = !prev; $('#hResume').textContent = prev ? 'Resume game ' + prev : '';
+    show('hsetup');
+  }
+  segInit($('#hLen'), 'n', v => { H.n = v; });
+  segInit($('#hClock'), 't', v => { H.dur = v; });
+  $('#hGo').addEventListener('click', hostCreate);
+  $('#hResume').addEventListener('click', () => hostResume(LS.get('stp-host')));
+
+  async function hostCreate() {
+    $('#hGo').disabled = true; $('#hErr').textContent = 'Opening the newsroom...';
+    try {
+      const F = await firebase(), D = F.D;
+      // Sweep games older than a day so codes get reused.
+      try {
+        const stale = await D.get(D.query(F.ref('stpCodes'), D.orderByValue(), D.endAt(serverNow() - TTL), D.limitToFirst(25)));
+        const jobs = []; stale.forEach(c => { jobs.push(D.remove(F.ref('stp/' + c.key)).then(() => D.remove(F.ref('stpCodes/' + c.key))).catch(() => {})); });
+        await Promise.all(jobs);
+      } catch (e) { /* sweeping is optional */ }
+      let code = '';
+      for (let t = 0; t < 10 && !code; t++) {
+        const c = Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+        const was = (await D.get(F.ref('stpCodes/' + c))).val();
+        if (was && was > serverNow() - TTL) continue;
+        if (was) { try { await D.remove(F.ref('stp/' + c)); } catch (e) { continue; } }
+        try { await D.set(F.ref('stpCodes/' + c), D.serverTimestamp()); code = c; } catch (e) { if (t > 6) throw e; }
+      }
+      if (!code) throw new Error('nocode');
+      H.seed = (Math.random() * 2 ** 31) >>> 0;
+      H.deck = buildDeck(H.n, H.desks, H.seed);
+      Object.assign(H, { code, players: {}, scores: {}, i: -1, answers: {}, reforms: [], prevRank: {} });
+      await D.set(F.ref(P_(code) + '/meta'), { host: F.uid, created: D.serverTimestamp(), status: 'lobby' });
+      await D.set(F.ref(P_(code) + '/state'), { phase: 'lobby', i: 0, k: '-', n: H.deck.length, deck: H.deck.join(','), seed: H.seed, dur: H.dur });
+      LS.set('stp-host', code);
+      hostListen();
+      hostLobby();
+      $('#hErr').textContent = '';
+    } catch (e) { $('#hErr').textContent = netError(e); }
+    finally { $('#hGo').disabled = false; }
+  }
+  async function hostResume(code) {
+    if (!code) return;
+    $('#hErr').textContent = 'Reopening ' + code + '...';
+    try {
+      const F = await firebase(), D = F.D;
+      const g = (await D.get(F.ref(P_(code)))).val();
+      if (!g || !g.meta || g.meta.host !== F.uid) { LS.del('stp-host'); $('#hResume').hidden = true; throw new Error('That game is gone. Start a new one.'); }
+      const st = g.state || {};
+      Object.assign(H, { code, deck: String(st.deck || '').split(',').filter(Boolean), seed: Number(st.seed) || 0, dur: Number(st.dur) || 20000, i: Number(st.i) || 0, scores: g.score || {}, players: {}, answers: {}, reforms: [], st });
+      H.deck.slice(0, H.i + 1).forEach((id, i) => { if (BYID[id] && BYID[id].r && g.passed && g.passed[i]) H.reforms.push(BYID[id].r); });
+      hostListen();
+      H.phase = st.phase;
+      if (st.phase === 'lobby') return hostLobby();
+      if (st.phase === 'q' || st.phase === 'lock') { H.st = st; return hostAsk(H.i, true); }
+      if (st.phase === 'rev' || st.phase === 'board') return hostBoard();
+      if (st.phase === 'desk') return hostDesk(true);
+      if (st.phase === 'end') return hostEnd();
+    } catch (e) { $('#hErr').textContent = e.message && !/permission|network/i.test(e.message) ? e.message : netError(e); }
+  }
+  function hostListen() {
+    H.offs.forEach(f => f()); H.offs = [];
+    const F = fb, D = F.D, base = P_(H.code);
+    H.offs.push(D.onValue(F.ref(base + '/players'), s => {
+      const v = s.val() || {};
+      const added = Object.keys(v).filter(u => !H.players[u]);
+      H.players = {};
+      Object.keys(v).forEach(u => { const p = v[u] || {}; H.players[u] = { name: cleanName(p.name) || 'Editor', paper: paperOk(p.paper) }; });
+      if (added.length && H.phase === 'lobby') Snd.clack();
+      // Late arrivals get a starting circulation once the game is running.
+      if (H.phase && H.phase !== 'lobby') {
+        const ups = {};
+        Object.keys(H.players).forEach(u => { if (!H.scores[u]) { H.scores[u] = { r: START_READERS, st: 0, n: 0, q: -1, p: H.players[u].paper }; ups['score/' + u] = H.scores[u]; } });
+        if (Object.keys(ups).length) D.update(F.ref(base), ups).catch(() => {});
+      }
+      if (H.phase === 'lobby') drawLobby();
+      if (H.phase === 'q') drawFiled();
+    }));
+  }
+  function activeUids() { return Object.keys(H.players); }
+  function hostLobby() {
+    H.phase = 'lobby';
+    const shortUrl = location.host.includes('grant-desk.com') ? 'grant-desk.com/press' : location.host + location.pathname;
+    $('#hUrl').textContent = shortUrl;
+    $('#hCode').textContent = H.code;
+    $('#hLobbyMeta').textContent = H.deck.length + ' stories · ' + Math.round(H.dur / 1000) + ' seconds each';
+    drawLobby();
+    show('hlobby');
+  }
+  function drawLobby() {
+    const ids = activeUids();
+    $('#hCount').textContent = ids.length ? ids.length + (ids.length === 1 ? ' paper' : ' papers') + ' on the newsstand' : 'No papers yet';
+    $('#hStart').disabled = !ids.length;
+    $('#hStand').innerHTML = ids.map(u => '<button type="button" data-kick="' + esc(u) + '" title="Pull this paper"><b>' + esc(H.players[u].paper) + '</b><span>Editor ' + esc(H.players[u].name) + '</span></button>').join('');
+  }
+  $('#hStand').addEventListener('click', async e => {
+    const b = e.target.closest('[data-kick]'); if (!b) return;
+    const u = b.dataset.kick, p = H.players[u]; if (!p) return;
+    if (!confirm('Pull ' + p.paper + ' off the stand? Editor ' + p.name + ' can rejoin with a new name.')) return;
+    const F = fb; try { await F.D.update(F.ref(P_(H.code)), { ['players/' + u]: null, ['score/' + u]: null }); delete H.scores[u]; } catch (err) { alert(netError(err)); }
+  });
+  $('#hStart').addEventListener('click', async () => {
+    const F = fb, D = F.D, base = P_(H.code);
+    $('#hStart').disabled = true;
+    const ups = { 'meta/status': 'live' };
+    activeUids().forEach(u => { H.scores[u] = { r: START_READERS, st: 0, n: 0, q: -1, p: H.players[u].paper }; ups['score/' + u] = H.scores[u]; });
+    try { await D.update(F.ref(base), ups); Snd.fanfare(); hostAsk(0); }
+    catch (e) { $('#hStart').disabled = false; alert(netError(e)); }
+  });
+
+  function stopLoop() { clearInterval(H.loop); H.loop = null; if (H.qOff) { H.qOff(); H.qOff = null; } }
+  // A double click on the projector must not run a step twice.
+  // A new projector screen ignores clicks for a moment so a double press cannot skip it.
+  function once(fn) { return async () => { if (H.busy || Date.now() - shownAt < 600) return; H.busy = true; try { await fn(); } finally { H.busy = false; } }; }
+  async function hostAsk(i, resume) {
+    stopLoop();
+    const F = fb, D = F.D, base = P_(H.code);
+    H.i = i; H.phase = 'q'; H.closing = false; H.answers = {}; H.lastTick = -1;
+    const qid = H.deck[i], q = BYID[qid];
+    $('#hqAct').onclick = null;
+    const isOrder = q.t === 'order';
+    const read = isOrder ? READ_MS.order : READ_MS.mc;
+    const dur = isOrder ? H.dur + 15000 : H.dur;
+    if (!resume) {
+      try { await D.update(F.ref(base + '/state'), { phase: 'q', i, k: String(i), start: D.serverTimestamp(), read, dur, rp: 0, rpct: 0 }); }
+      catch (e) { alert(netError(e)); return; }
+    }
+    const st = (await D.get(F.ref(base + '/state'))).val() || {};
+    H.st = st;
+    const start = Number(st.start) + read;
+    // draw
+    $('#hqDesk').textContent = deskName(q.d);
+    const desk = DESKS.find(d => d.id === q.d) || {};
+    $('#hqImg').src = '/hubs/stop-the-presses/' + q.d + '.webp';
+    $('#hqImg').alt = desk.credit ? desk.credit.split('.')[0] : '';
+    $('#hqCredit').textContent = desk.credit || '';
+    $('#hqSlot').textContent = 'Story ' + (i + 1) + ' of ' + H.deck.length;
+    $('#hqText').textContent = q.q;
+    $('#hqBody').classList.remove('reveal-on');
+    $('#hqFact').hidden = true;
+    const lay = layoutFor(qid, H.seed, i);
+    $('#hqChoices').hidden = isOrder; $('#hqOrder').hidden = !isOrder; $('#hqOrder').classList.remove('reveal');
+    if (!isOrder) {
+      $('#hqChoices').innerHTML = lay.map((ai, pos) => '<div class="hchoice c' + pos + '" data-ai="' + ai + '" style="visibility:hidden"><span class="k">' + LETTERS[pos] + '</span><span>' + esc(q.a[ai]) + '</span><span class="cnt"></span><i class="bar"></i></div>').join('');
+    } else {
+      $('#hqOrder').innerHTML = lay.map(ai => '<div style="visibility:hidden" data-ai="' + ai + '"><span class="n"></span><span>' + esc(q.a[ai]) + '</span><span class="y">' + esc(q.y[ai]) + '</span></div>').join('');
+    }
+    $('#hqAct').textContent = 'Stop the presses now'; $('#hqAct').className = 'btn'; $('#hqAct').onclick = () => { if (Date.now() - shownAt > 1500) hostClose(); };
+    $('#hqFuseWrap').hidden = false;
+    show('hq');
+    drawFiled();
+    H.qOff = D.onValue(F.ref(base + '/ans/' + i), s => { H.answers = s.val() || {}; drawFiled(); if (H.phase === 'q' && activeUids().length && activeUids().every(u => H.answers[u])) setTimeout(() => hostClose(), 700); });
+    H.loop = setInterval(() => {
+      const now = serverNow();
+      const vis = now >= start;
+      $$('#hqChoices .hchoice, #hqOrder div').forEach(el => { el.style.visibility = vis ? 'visible' : 'hidden'; });
+      if (!vis) { $('#hqTime').textContent = ''; $('#hqFuse').style.width = '100%'; return; }
+      const left = Math.max(0, start + dur - now), secs = Math.ceil(left / 1000);
+      $('#hqTime').textContent = secs; $('#hqTime').classList.toggle('hot', secs <= 5); $('#hqFuseWrap').classList.toggle('hot', secs <= 5);
+      $('#hqFuse').style.width = (100 * left / dur) + '%';
+      if (secs <= 5 && secs !== H.lastTick && secs > 0) { H.lastTick = secs; Snd.tick(); }
+      if (left <= 0) hostClose();
+    }, 150);
+    if (resume && st.phase === 'lock') hostClose();
+  }
+  function drawFiled() {
+    if (H.phase !== 'q') return;
+    const n = activeUids().length, f = activeUids().filter(u => H.answers[u]).length;
+    $('#hqFiled').innerHTML = '<b>' + f + '</b> of ' + n + ' stories filed';
+  }
+  async function hostClose() {
+    if (H.closing || H.phase !== 'q') return;
+    H.closing = true; H.phase = 'lock';
+    clearInterval(H.loop); H.loop = null;
+    const F = fb, D = F.D, base = P_(H.code);
+    const slam = $('#slam'); slam.classList.remove('go'); void slam.offsetWidth; slam.classList.add('go'); Snd.thud();
+    try { await D.update(F.ref(base + '/state'), { phase: 'lock' }); } catch (e) { /* keep going, answers are read next */ }
+    await sleep(1250);
+    if (H.qOff) { H.qOff(); H.qOff = null; }
+    let answers = {};
+    try { answers = (await D.get(F.ref(base + '/ans/' + H.i))).val() || {}; } catch (e) { answers = H.answers; }
+    const i = H.i, qid = H.deck[i], q = BYID[qid], st = H.st;
+    const start = Number(st.start) + Number(st.read || 0), dur = Number(st.dur) || H.dur;
+    const uids = activeUids();
+    const results = {};
+    let okCount = 0;
+    uids.forEach(u => {
+      const sc = H.scores[u] || { r: START_READERS, st: 0, n: 0 };
+      const a = answers[u];
+      const ans = a ? { c: String(a.c), s: Number(a.s) || 1, ms: Math.max(0, Number(a.t) - start) } : null;
+      if (ans && ans.ms > dur + 2500) ans.ms = dur;
+      const res = scoreOne(q, ans, { dur, perk: perkFor(sc, i), streak: Number(sc.st) || 0 });
+      results[u] = { res, ans };
+      if (res.ok) okCount++;
+    });
+    const pct = uids.length ? Math.round(100 * okCount / uids.length) : 0;
+    const passed = !!(q.r && uids.length && okCount / uids.length >= REFORM_SHARE);
+    if (passed && !H.reforms.includes(q.r)) H.reforms.push(q.r);
+    const ups = {};
+    H.prevRank = rankMap();
+    uids.forEach(u => {
+      const sc = H.scores[u] || { r: START_READERS, st: 0, n: 0 };
+      const { res, ans } = results[u];
+      const rb = passed && res.ok ? REFORM_BONUS : 0;
+      const before = Number(sc.r) || 0;
+      const after = Math.max(0, before + res.delta + rb);
+      const next = { r: after, st: res.streak, n: (Number(sc.n) || 0) + (res.ok ? 1 : 0), q: i, d: after - before - rb, ok: res.missed ? -1 : res.ok ? 1 : 0, s: ans ? ans.s : 0, rb, pt4: res.part || 0, p: H.players[u] ? H.players[u].paper : sc.p || '' };
+      if (sc.pk) { next.pk = sc.pk; next.pf = sc.pf; next.pt = sc.pt; }
+      H.scores[u] = next; ups['score/' + u] = next;
+    });
+    ups['state/phase'] = 'rev'; ups['state/rp'] = passed ? 1 : 0; ups['state/rpct'] = pct;
+    if (passed) ups['passed/' + i] = 1;
+    try { await D.update(F.ref(base), ups); } catch (e) { alert(netError(e)); }
+    H.phase = 'rev';
+    hostReveal(q, qid, answers, results, okCount, pct, passed);
+  }
+  function hostReveal(q, qid, answers, results, okCount, pct, passed) {
+    Snd.bell();
+    shownAt = Date.now();
+    const uids = activeUids();
+    $('#hqTime').textContent = ''; $('#hqFuseWrap').hidden = true;
+    $('#hqBody').classList.add('reveal-on');
+    if (q.t !== 'order') {
+      const counts = [0, 0, 0, 0];
+      uids.forEach(u => { const a = answers[u]; if (a && /^[0-3]$/.test(String(a.c))) counts[Number(a.c)]++; });
+      const max = Math.max(1, ...counts);
+      $$('#hqChoices .hchoice').forEach(el => {
+        const ai = Number(el.dataset.ai);
+        el.style.visibility = 'visible';
+        el.classList.add(ai === 0 ? 'right' : 'wrong');
+        el.querySelector('.cnt').textContent = (ai === 0 ? '\u2713 ' : '') + counts[ai];
+        setTimeout(() => { el.querySelector('.bar').style.width = (100 * counts[ai] / max) + '%'; }, 60);
+      });
+      const front = uids.filter(u => results[u].ans && results[u].ans.s === 2).length, extra = uids.filter(u => results[u].ans && results[u].ans.s === 3).length;
+      const extraRight = uids.filter(u => results[u].ans && results[u].ans.s === 3 && results[u].res.ok).length;
+      $('#hqStat').textContent = okCount + ' of ' + uids.length + ' got it · ' + front + ' ran it on the front page · ' + extra + ' printed an EXTRA!' + (extra ? ', ' + extraRight + ' of them correct' : '');
+    } else {
+      const box = $('#hqOrder'); box.classList.add('reveal');
+      const els = $$('#hqOrder div');
+      els.sort((a, b) => Number(a.dataset.ai) - Number(b.dataset.ai)).forEach((el, n) => { el.style.visibility = 'visible'; el.querySelector('.n').textContent = n + 1; box.appendChild(el); });
+      const perfect = okCount, close = uids.filter(u => !results[u].res.ok && results[u].res.part >= 2).length;
+      $('#hqStat').textContent = perfect + ' of ' + uids.length + ' had the whole order right · ' + close + ' more were close';
+    }
+    $('#hqFactText').textContent = q.f;
+    $('#hqStamp').innerHTML = q.r ? (passed ? '<div class="stamp">Reform passed<b>' + esc('✓') + '</b>' + esc(q.r) + '</div>' : '<div class="stamp fail">Reform stalled<br>' + pct + '% · needed 67%</div>') : '';
+    $('#hqFact').hidden = false;
+    $('#hqFiled').textContent = '';
+    $('#hqAct').textContent = 'Circulation report'; $('#hqAct').className = 'btn red big'; $('#hqAct').onclick = once(hostBoard);
+  }
+  function rankMap() {
+    const m = {}; Object.keys(H.scores).filter(u => H.players[u]).sort((a, b) => (H.scores[b].r || 0) - (H.scores[a].r || 0)).forEach((u, n) => { m[u] = n + 1; }); return m;
+  }
+  async function hostBoard() {
+    if (H.phase !== 'rev' && H.phase !== 'board') return;
+    const F = fb, D = F.D, base = P_(H.code);
+    H.phase = 'board';
+    try { await D.update(F.ref(base + '/state'), { phase: 'board' }); } catch (e) { /* players catch up on the next story */ }
+    const uids = activeUids().filter(u => H.scores[u]).sort((a, b) => (H.scores[b].r || 0) - (H.scores[a].r || 0));
+    const top = uids.slice(0, 8), max = Math.max(1, ...top.map(u => H.scores[u].r || 0));
+    const now = rankMap();
+    $('#hbSlot').textContent = 'After story ' + (H.i + 1) + ' of ' + H.deck.length;
+    const best = uids.slice().sort((a, b) => ((H.scores[b].d || 0) + (H.scores[b].rb || 0)) - ((H.scores[a].d || 0) + (H.scores[a].rb || 0)))[0];
+    const bd = best ? (H.scores[best].d || 0) + (H.scores[best].rb || 0) : 0;
+    $('#hbScoop').innerHTML = best && bd > 0 ? 'Scoop of the round: <b>' + esc(H.players[best].paper) + '</b>, plus ' + fmt(bd) + ' readers' + (H.scores[best].s === 3 ? ' on an EXTRA!' : '') + '.' : 'A slow news day. Nobody gained readers.';
+    const box = $('#hbBoard');
+    box.innerHTML = top.map((u, n) => {
+      const sc = H.scores[u], was = H.prevRank[u], mv = was && was > now[u] ? '<span class="mv">&#9650; ' + (was - now[u]) + '</span>' : '';
+      return '<div class="brow' + (n === 0 ? ' top' : '') + '" data-u="' + esc(u) + '"><span class="rk">' + (n + 1) + '</span><span class="nm"><b>' + esc(H.players[u].paper) + '</b><span>Editor ' + esc(H.players[u].name) + ' ' + mv + '</span></span><span class="bar"><i style="width:0"></i></span><span class="rd">' + fmt(sc.r) + '</span></div>';
+    }).join('') + (uids.length > 8 ? '<p class="note">' + (uids.length - 8) + ' more papers are fighting for the top eight.</p>' : '');
+    show('hboard');
+    // slide rows from their old place
+    $$('#hbBoard .brow').forEach((el, n) => {
+      const was = H.prevRank[el.dataset.u];
+      if (was && was !== n + 1) { el.style.transition = 'none'; el.style.transform = 'translateY(' + ((Math.min(was, 9) - (n + 1)) * el.offsetHeight * 1.12) + 'px)'; void el.offsetWidth; el.style.transition = ''; el.style.transform = ''; }
+      setTimeout(() => { el.querySelector('.bar i').style.width = (100 * (H.scores[el.dataset.u].r || 0) / max) + '%'; }, 80);
+    });
+    $('#hbNext').textContent = H.i + 1 >= H.deck.length ? 'Print the final edition' : 'Next story';
+  }
+  $('#hbNext').addEventListener('click', once(async () => {
+    if (H.phase !== 'board') return;
+    const nxt = H.i + 1;
+    if (nxt >= H.deck.length) return hostEnd();
+    if (nxt % DESK_EVERY === 0 && H.deck.length - nxt >= 2) return hostDesk(false);
+    await hostAsk(nxt);
+  }));
+  async function hostDesk(resume) {
+    stopLoop();
+    const F = fb, D = F.D, base = P_(H.code);
+    const dk = Math.floor((H.i + 1) / DESK_EVERY);
+    let offer;
+    H.phase = 'desk';
+    if (!resume) {
+      offer = shuffle(Object.keys(PERKS), mulberry32(H.seed + dk * 7)).slice(0, 3);
+      try { await D.update(F.ref(base + '/state'), { phase: 'desk', dk, offer: offer.join(','), start: D.serverTimestamp(), dur: DESK_MS }); } catch (e) { alert(netError(e)); return; }
+    }
+    const st = (await D.get(F.ref(base + '/state'))).val() || {};
+    offer = String(st.offer || '').split(',').filter(k => PERKS[k]);
+    const end = Number(st.start) + DESK_MS;
+    $('#hdPerks').innerHTML = offer.map(id => '<div class="perk" data-perk="' + id + '"><span class="pi">' + PERKS[id].icon + '</span><b>' + esc(PERKS[id].name) + '</b><span>' + esc(PERKS[id].text) + '</span><span class="pc"></span></div>').join('');
+    let picks = {};
+    H.qOff = D.onValue(F.ref(base + '/perk/' + dk), s => {
+      picks = s.val() || {};
+      const n = activeUids().length, c = activeUids().filter(u => picks[u]).length;
+      $('#hdCount').innerHTML = '<b>' + c + '</b> of ' + n + ' editors chose';
+      $$('#hdPerks .perk').forEach(el => { const k = activeUids().filter(u => picks[u] === el.dataset.perk).length; el.querySelector('.pc').textContent = k ? k + (k === 1 ? ' editor' : ' editors') : ''; });
+      if (n && c >= n) setTimeout(finish, 600);
+    });
+    let done = false;
+    const finish = async () => {
+      if (done) return; done = true; stopLoop();
+      try { picks = (await D.get(F.ref(base + '/perk/' + dk))).val() || picks; } catch (e) { /* use what arrived */ }
+      const ups = {};
+      const from = H.i + 1;
+      activeUids().forEach(u => { const p = picks[u]; if (p && PERKS[p] && H.scores[u]) { H.scores[u] = Object.assign({}, H.scores[u], { pk: p, pf: from, pt: from + PERK_LEN - 1 }); ups['score/' + u] = H.scores[u]; } });
+      if (Object.keys(ups).length) { try { await D.update(F.ref(base), ups); } catch (e) { /* perks are a bonus */ } }
+      hostAsk(from);
+    };
+    $('#hdNext').onclick = finish;
+    show('hdesk');
+    H.loop = setInterval(() => { const left = Math.max(0, end - serverNow()); $('#hdTime').textContent = Math.ceil(left / 1000); if (left <= 0) finish(); }, 200);
+  }
+  async function hostEnd() {
+    stopLoop();
+    const F = fb, D = F.D, base = P_(H.code);
+    H.phase = 'end';
+    try { await D.update(F.ref(base), { 'state/phase': 'end', 'meta/status': 'done' }); } catch (e) { /* the screen still shows the results */ }
+    Snd.fanfare();
+    const uids = activeUids().filter(u => H.scores[u]).sort((a, b) => (H.scores[b].r || 0) - (H.scores[a].r || 0));
+    const w = uids[0];
+    $('#heHead').textContent = w ? H.players[w].paper + ' wins the press war' : 'The presses fell silent';
+    $('#heSub').textContent = w ? 'Editor ' + H.players[w].name + ' finishes with ' + fmt(H.scores[w].r) + ' readers and ' + (H.scores[w].n || 0) + ' correct stories out of ' + H.deck.length + '.' : '';
+    const pod = [uids[1], uids[0], uids[2]];
+    $('#hePodium').innerHTML = pod.map((u, k) => u ? '<div class="pod p' + [2, 1, 3][k] + '"><div class="place">' + ord([2, 1, 3][k]) + '</div><b>' + esc(H.players[u].paper) + '</b><span>Editor ' + esc(H.players[u].name) + ' · ' + fmt(H.scores[u].r) + '</span></div>' : '<div></div>').join('');
+    $('#heLedger').innerHTML = H.reforms.length ? H.reforms.map(r => '<span>' + esc(r) + '</span>').join('') : '<p class="note">No reforms passed this game. Two thirds of the room has to get a reform story right.</p>';
+    $('#heAll').innerHTML = uids.map((u, n) => '<div><span>' + (n + 1) + '. ' + esc(H.players[u].paper) + ' <em class="note">' + esc(H.players[u].name) + '</em></span><b>' + fmt(H.scores[u].r) + '</b></div>').join('');
+    show('hend');
+  }
+  $('#heClose').addEventListener('click', async () => {
+    if (!confirm('Close the newsroom? This deletes the game and every score in it.')) return;
+    const F = fb; try { await F.D.remove(F.ref('stpCodes/' + H.code)); await F.D.remove(F.ref(P_(H.code))); } catch (e) { /* it expires in a day anyway */ }
+    H.offs.forEach(f => f()); H.offs = []; LS.del('stp-host');
+    show('home');
+  });
+  $('#heMorgue').addEventListener('click', openMorgue);
+
+  // The space bar or Enter runs the main button on the projector screens.
+  document.addEventListener('keydown', e => {
+    if (!['hlobby', 'hq', 'hboard', 'hdesk'].includes(current)) return;
+    if (e.key !== ' ' && e.key !== 'Enter') return;
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+    const b = $('#' + current + ' [data-primary]');
+    if (b && !b.disabled) { e.preventDefault(); b.click(); }
+  });
+
+  /* ================= Start ================= */
+  if (new URLSearchParams(location.search).get('code')) openJoin();
+  window.STP_TEST = { buildDeck, scoreOne, layoutFor, PAPERS, BYID };
+})();
+</script>
+</body>
+</html>
