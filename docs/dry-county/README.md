@@ -1,8 +1,8 @@
-# Dry County prototype 0.3
+# Dry County prototype 0.4
 
 The road centerlines in `public/hubs/dry-county/world.js` were manually digitized from the two Mt. Morris aerial/reference screenshots supplied by Grant on October 20, 2026. The view covers the Mt. Morris Road / Saginaw Street junction, Dort Highway, the surrounding residential street shapes, and the diagonal railway. This is a simplified game map derived from the modern reference, not a survey or a reconstruction of the 1926 town. No Google aerial tiles or screenshots are embedded in the published game.
 
-The buildings, businesses, characters, events and criminal plots are fictional. The playable map contains 74 road polylines with a graph used by jobs, traffic and police. Buildings are generated only outside road clearance envelopes.
+The buildings, businesses, characters, events and criminal plots are fictional. The playable map contains 76 road polylines with a graph used by jobs, traffic and police. Buildings are generated only outside road clearance envelopes.
 
 ## Visuals
 
@@ -56,6 +56,16 @@ This layer is about fun. The history rides along in small doses. All money uses 
 - **Performance.** The map draws only the visible region, lamp glow is one stamped sprite, the canvas is capped at 1.5x, and traffic caches its road lookups.
 
 The history facts are in the `FACTS` list in `game.js`: Michigan's 1918 statewide ban, the 18th Amendment and Volstead Act, the Detroit River smuggling route (presented as an estimate), the Purple Gang, the Anti-Saloon League and the WCTU, Capone's 1931 tax conviction, the 21st Amendment, and Michigan as the first state to ratify repeal.
+
+## October 20 map and atmosphere pass
+
+Eight additional user-supplied aerial captures guide this pass: two regional overviews, a town overview, and close-ups of downtown/the rail crossing, the northern common and residential blocks, and the western fields/woodland. The existing trace frame is retained; its west margin expands by 800 game units to include the visible farmland. `world.js` removes a coarse street through the western woodlot, corrects the north cross street, opens the downtown blocks around Saginaw, and adds the curved woodland lane, short depot/side streets and western county boundary road. The railway and main junction remain the geographic anchors. These are hand-interpreted game coordinates, not survey measurements.
+
+`scenery.js` defines 13 land-use polygons, 27 stable building footprints and park/yard details. Fourteen business exteriors now use authored lots rather than searching for an arbitrary small rectangle. Larger civic lots become fictional reading room, schoolhouse, chapel and meeting house; modern parking/campus uses become greens, gravel yards or freight space. Houses follow road frontages outside reserved fields, woods, park and the curated downtown blocks. Footprints clear both roads and the diagonal railway; infill also reserves the complete walking approach to every business door.
+
+The Canvas renderer now uses muted autumn greens and ochres, gravel county lanes, macadam neighborhood streets, stone walks, parcel lawns, brick/siding courses, pitched shingle roofs, chimneys, parapets, skylights, striped shop awnings and painted signs. Modern rooftop machinery and highway striping are removed. Geographic materials and cached ground texture carry the atmosphere; no new particle or post-processing effects were added. Terrain is cached in one map canvas. Existing businesses, jobs, interiors, driving and saved progression remain in place.
+
+Regression coverage adds reserved-land checks, independent street/rail clearance checks for every building, and complete entrance-approach checks. Chromium acceptance records the downtown view at all three supported screen sizes and additional district views on desktop, alongside the existing economy/interior journeys. Production deployment and player field use remain separate evidence.
 
 ## Physics and atmosphere
 
