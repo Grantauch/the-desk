@@ -1,3 +1,9 @@
+## October 20 Dry County businesses and home progression
+
+Dry County 0.3 adds 17 walkable interiors, individual counter conversations, legal trading with cents and stock, three concealed speakeasies found through trust or clue jobs, and moonshine buyers. Vehicle purchases now take place at Cole Motor Company. Hardware supplies staged construction at the home lot, and bought furniture can be placed in the finished house. The County Supplier goal requires three discoveries, twelve delivered crates and a finished home; its $100 reward pays once.
+
+The first protected run passed all 34 gameplay checks, canonical full verification, existing site browser acceptance and the new desktop/phone/landscape Dry County journeys on 72986a674fa08ff00c8a1eb4a46e9df5ac4fb298. Automated review then identified misleading remote garage buttons, repairs selecting another nearby vehicle, and income pausing during active interior exploration. All three are corrected, with 16 focused checks passing and 36 total Node regression checks now defined. Clue-job dialogue now states the discovery hint directly. Protected rechecks remain pending on the corrected head. The review branch includes Node regression checks and Chromium acceptance for desktop, phone and landscape, in addition to the canonical release and protected browser checks. Protected checks, merge, exact Netlify deployment and player field use remain separate pending evidence. Existing cash, weapons, cars and owned clubs are retained; inventory, market, discoveries and home data are additive.
+
 ## October 8 private review and Classroom handoff checkpoint
 
 ## Current checkpoint - October 16 golf Special Edition

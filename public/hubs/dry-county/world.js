@@ -92,9 +92,21 @@ window.DryWorld=(()=>{
  {id:'blue',name:'BLUE LANTERN',...P(435,669),icon:'L',color:'#c9a961',type:'club'},
  {id:'docks',name:'THE FREIGHT DEPOT',...P(548,486),icon:'D',color:'#c9a961',type:'club'},
  {id:'safe',name:'THE BACK ROOM',...P(299,486),icon:'S',color:'#8ebaa2',type:'safe'},
- {id:'phone',name:'DOWNTOWN PAYPHONE',...P(518,211),icon:'☎',color:'#c9a961',type:'phone'}];
+ {id:'phone',name:'DOWNTOWN PAYPHONE',...P(518,211),icon:'☎',color:'#c9a961',type:'phone'},
+ {id:'grocer',name:"FINCH'S GROCERY",...P(398,358),icon:'F',color:'#b4bc83',type:'shop'},
+ {id:'diner',name:"ROSE'S DINER",...P(548,358),icon:'R',color:'#dcb18b',type:'shop'},
+ {id:'pharmacy',name:"WARD'S PHARMACY",...P(434,264),icon:'+',color:'#a5c5b6',type:'shop'},
+ {id:'tailor',name:'BROOKS TAILORING',...P(367,114),icon:'T',color:'#bb9c7d',type:'shop'},
+ {id:'pawn',name:"PRICE'S SECONDHAND",...P(491,585),icon:'P',color:'#c2a465',type:'shop'},
+ {id:'dealer',name:'COLE MOTOR COMPANY',...P(630,305),icon:'A',color:'#c4ba94',type:'shop'},
+ {id:'hardware',name:"BELL'S HARDWARE",...P(435,537),icon:'H',color:'#b2af83',type:'shop'},
+ {id:'furniture',name:'ABBOTT HOME FURNISHINGS',...P(398,211),icon:'U',color:'#c7a78a',type:'shop'},
+ {id:'home',name:'YOUR HOME LOT',...P(323,618),icon:'⌂',color:'#a8bd9a',type:'home'},
+ {id:'barber',name:"LEO'S BARBERSHOP",...P(576,512),icon:'C',color:'#bda8a3',type:'shop'}];
  // Snap all objective locations to the actual hand-traced centerlines.
  for(const p of places){const q=nearest(p);p.x=q.x;p.y=q.y}
+ // Speakeasies are reached through their ordinary shop fronts.
+ for(const [club,front] of [['velvet','grocer'],['lucky','tailor'],['blue','barber']]){const c=places.find(p=>p.id===club),f=places.find(p=>p.id===front);c.x=f.x;c.y=f.y;c.hidden=true;c.front=front}
  const mainComponent=nearest(places[0]).edge.a.component,driveNodes=nodes.filter(n=>n.component===mainComponent),driveEdges=edges.filter(e=>e.a.component===mainComponent);
  return{width,height,P,roads,railway,segments,nodes,edges,nearest,route,district,zones,places,components,driveNodes,driveEdges};
 })();
