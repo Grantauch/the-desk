@@ -2,15 +2,18 @@
    reference captures. Buildings and people are fictional period scenery. */
 'use strict';
 window.DryWorld=(()=>{
- const width=6000,height=3300,S=4,P=(x,y)=>({x:100+x*S,y:100+y*S});
- const roads=[];function road(name,w,points){roads.push({name,width:w,points:points.map(p=>P(...p))})}
- road('MT. MORRIS ROAD',96,[[0,362],[266,360],[518,358],[690,354],[972,345],[1435,324]]);
+ const width=6800,height=3300,S=4,P=(x,y)=>({x:900+x*S,y:100+y*S});
+ const roads=[];function road(name,w,points){
+  const major=/MT\. MORRIS|SAGINAW|DORT HIGHWAY|BRAY ROAD/.test(name);
+  const width=name==='DORT HIGHWAY'?80:name==='MT. MORRIS ROAD'?76:name==='SAGINAW STREET'?66:name==='BRAY ROAD'?58:w>=62?54:w>=58?46:42;
+  roads.push({name,width,major,surface:major?'paved':/WEST ROAD|LANE|YARDS/.test(name)?'gravel':'macadam',points:points.map(p=>P(...p))})
+ }
+ road('MT. MORRIS ROAD',96,[[-200,364],[0,362],[266,360],[518,358],[690,354],[972,345],[1435,324]]);
  road('SAGINAW STREET',82,[[517,0],[518,114],[518,211],[518,358],[522,440],[521,608],[519,755]]);
  road('DORT HIGHWAY',100,[[882,0],[916,62],[938,128],[961,245],[972,345],[974,510],[974,755]]);
  road('BRAY ROAD',76,[[1430,0],[1432,324],[1432,755]]);
- road('NORTH NEIGHBORHOOD',58,[[145,0],[145,127],[145,235],[266,235]]);
  road('WEST ROAD',64,[[23,0],[23,362],[23,755]]);
- road('NORTH CROSS STREET',58,[[145,127],[266,127],[266,114],[518,114],[630,113],[690,112],[806,113]]);
+ road('NORTH CROSS STREET',58,[[23,114],[266,114],[518,114],[630,113],[690,112],[806,113]]);
  road('WEST NEIGHBORHOOD',58,[[266,114],[266,175],[266,235],[270,360]]);
  road('NORTH RESIDENTIAL',54,[[295,175],[295,360]]);
  road('NORTH RESIDENTIAL',54,[[318,175],[318,360]]);
@@ -22,7 +25,7 @@ window.DryWorld=(()=>{
  road('NORTH RESIDENTIAL',54,[[266,211],[518,211]]);
  road('NORTH RESIDENTIAL',54,[[266,235],[518,235]]);
  road('NORTH RESIDENTIAL',54,[[266,289],[518,289]]);
- road('NORTH RESIDENTIAL',54,[[266,316],[518,316],[590,316]]);
+ road('NORTH RESIDENTIAL',54,[[266,316],[434,316]]);
  road('NORTH TERRACE',54,[[367,56],[518,56],[625,55],[694,54]]);
  road('NORTH TERRACE',54,[[518,22],[625,21],[694,18]]);
  road('NORTH TERRACE',54,[[518,78],[625,77],[694,76]]);
@@ -33,9 +36,8 @@ window.DryWorld=(()=>{
  road('EAST RESIDENTIAL',54,[[518,163],[630,162]]);
  road('EAST RESIDENTIAL',54,[[518,187],[590,186],[590,238],[630,238]]);
  road('EAST RESIDENTIAL',54,[[518,236],[578,235],[578,219],[630,219]]);
- road('EAST RESIDENTIAL',54,[[518,279],[655,277]]);
- road('EAST RESIDENTIAL',54,[[518,305],[655,303],[710,302],[710,198],[808,197]]);
- road('EAST RESIDENTIAL',54,[[518,331],[655,329]]);
+ road('EAST RESIDENTIAL',54,[[518,289],[655,287]]);
+ road('EAST RESIDENTIAL',54,[[655,303],[710,302],[710,198],[808,197]]);
  road('SOUTH BLOCKS',58,[[273,440],[430,440],[522,440],[548,440],[575,470],[600,510],[600,560],[521,560]]);
  road('SOUTH BLOCKS',54,[[273,440],[273,537],[521,537]]);
  road('SOUTH BLOCKS',54,[[273,463],[522,463]]);
@@ -67,6 +69,12 @@ window.DryWorld=(()=>{
  road('EAST TERRACE',54,[[1252,342],[1252,474]]);
  road('EAST TERRACE',54,[[1210,37],[1280,36],[1280,78],[1215,80],[1210,37]]);
  road('EAST TERRACE',54,[[1215,57],[1280,56]]);
+ // Close-up references: the curved west lane and the short streets around the
+ // rail/Saginaw junction were absent from the first coarse trace.
+ road('WEST WOODLAND LANE',46,[[215,360],[220,389],[219,411],[208,435],[184,458],[155,480],[132,491]]);
+ road('DEPOT STREET',44,[[483,405],[518,405],[558,405],[600,405]]);
+ road('DOWNTOWN SIDE STREET',44,[[558,289],[558,405],[558,440]]);
+ road('WEST COUNTY ROAD',58,[[-190,0],[-190,364],[-190,755]]);
  // The rail line is scenery, not a road: its diagonal breaks up the town.
  const railway=[[319,114],[367,210],[434,318],[491,409],[548,490],[609,566],[651,655],[694,755]].map(p=>P(...p));
  const segments=[];for(const r of roads)for(let i=1;i<r.points.length;i++)segments.push({a:r.points[i-1],b:r.points[i],road:r,cuts:[0,1]});
