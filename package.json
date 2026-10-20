@@ -48,7 +48,8 @@
     "blacktop:balance:deep": "node scripts/test-blacktop-balance.cjs --deep",
     "turn-in:test": "node scripts/test-turn-in-app.cjs",
     "turn-in:browser": "node scripts/test-desk-save-browser.mjs",
-    "turn-in:load": "node scripts/turn-in-load-test.mjs"
+    "turn-in:load": "node scripts/turn-in-load-test.mjs",
+    "dry-county:test": "node scripts/test-dry-county.cjs"
   },
   "engines": {
     "node": ">=22.12.0"
