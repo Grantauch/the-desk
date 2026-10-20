@@ -29,6 +29,7 @@ try{
   await enter('hardware');await talk();await page.getByRole('button',{name:'Show me what you buy and sell.',exact:false}).click();await page.getByRole('heading',{name:'Lumber bundle',exact:true}).waitFor();await page.keyboard.press('Escape');
   await enter('home');await talk();await page.getByRole('button',{name:'Open the construction book.',exact:false}).click();await page.getByRole('heading',{name:'Make a place of your own'}).waitFor();
   assert.equal(await page.locator('html').evaluate(el=>el.scrollWidth<=innerWidth),true);await page.screenshot({path:join(out,'home-'+size.width+'x'+size.height+'.png')});
+  await page.keyboard.press('Escape');await page.keyboard.press('Tab');await page.getByRole('button',{name:'GARAGE',exact:true}).click();assert.equal(await page.locator('button[data-do="car"]').count(),0);await page.getByText('VISIT COLE MOTOR COMPANY · A ON MAP').first().waitFor();
   await context.close();
  }
  assert.deepEqual(errors,[]);console.log('Dry County browser checks passed: counter jobs, cents trading, secret entrance, dealership, supplies and construction at desktop, phone and landscape sizes.');

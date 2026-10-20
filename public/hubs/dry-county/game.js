@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id), canvas=$('game'), ctx=canvas.getContext('2d',{alpha:false});
 const mini=$('minimap'), mc=mini.getContext('2d');
 const SHOP=window.DryShops;
-let interior=null;
+let interior=null,parkedVehicle=null;
 const WLD=window.DryWorld, WORLD=WLD.width, WORLD_H=WLD.height, TAU=Math.PI*2;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)), lerp=(a,b,t)=>a+(b-a)*t;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y), rand=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -104,7 +104,7 @@ function roadRoute(a,b){return WLD.route(a,b)}
 function roadside(p,off=0){const n=WLD.nearest(p);return{x:n.x-Math.sin(n.angle)*off,y:n.y+Math.cos(n.angle)*off,a:n.angle}}
 
 function newCar(type,x,y,a=-Math.PI/2,opts={}){const t=carTypes[type];return{type,x,y,a,v:0,hp:t.hp,maxHp:t.hp,color:t.color,ai:'parked',route:[],routeTime:0,fire:rand(1,3),turn:0,vx:0,vy:0,steering:0,throttle:0,yaw:0,burning:false,burnTime:0,impact:0,dead:false,hit:0,...opts}}
-function spawnOwned(){const p=places[0],old=player.car;if(old){old.owned=false;old.ai='parked';old.v=old.vx=old.vy=0}const at=roadside({x:p.x-70,y:p.y},-19),c=newCar(save.car,at.x,at.y,at.a,{owned:true});c.maxHp=carTypes[c.type].hp*(1+save.armor*.25);c.hp=c.maxHp;cars.push(c);player.car=c;player.x=c.x;player.y=c.y;player.vx=player.vy=0;return c}
+function spawnOwned(){parkedVehicle=null;const p=places[0],old=player.car;if(old){old.owned=false;old.ai='parked';old.v=old.vx=old.vy=0}const at=roadside({x:p.x-70,y:p.y},-19),c=newCar(save.car,at.x,at.y,at.a,{owned:true});c.maxHp=carTypes[c.type].hp*(1+save.armor*.25);c.hp=c.maxHp;cars.push(c);player.car=c;player.x=c.x;player.y=c.y;player.vx=player.vy=0;return c}
 function populate(){cars=[];peds=[];enemies=[];bullets=[];particles=[];pickups=[];skids=[];smoke=[];debris=[];blastRings=[];
  for(let i=0;i<31;i++){const edge=pick(WLD.driveEdges.filter(e=>e.d>90)),t=rand(.12,.88),dir=Math.random()>.5?1:-1,a=Math.atan2(edge.b.y-edge.a.y,edge.b.x-edge.a.x)+(dir<0?Math.PI:0),c=newCar(pick(['sedan','sedan','coupe','truck']),lerp(edge.a.x,edge.b.x,t)-Math.sin(a)*15,lerp(edge.a.y,edge.b.y,t)+Math.cos(a)*15,a,{ai:'traffic',speed:rand(50,88),color:pick(['#73674b','#56666a','#835f4c','#374e50','#777963','#485361','#695555'])});c.route=[];cars.push(c)}
  for(let i=0;i<12;i++){const edge=pick(WLD.edges.filter(e=>e.d>150)),at=roadside({x:lerp(edge.a.x,edge.b.x,.45),y:lerp(edge.a.y,edge.b.y,.45)},edge.road.width/2-12);if(!blocked(at.x,at.y,18))cars.push(newCar(pick(['sedan','coupe']),at.x,at.y,at.a,{color:pick(['#61694e','#84674e','#596368'])}))}
@@ -155,7 +155,7 @@ function renderPanel(){if(modal==='shop'){renderShop();return}if(modal==='home')
  }
  if(tabName==='garage'){
   html+='<p>Buy or recall vehicles in person at Cole Motor Company (A on your map).</p>';
-  html+=['sedan','coupe','truck','custom'].map((id,i)=>{const a=carTypes[id];return `<article class="card"><small>${['YOUR FIRST SET OF WHEELS','SPEED & HANDLING','HEAVY ARMOR','THE BOSS\'S GETAWAY'][i]}</small><h3>${a.name}</h3><p>${Math.round(a.max*.21)} mph · ${a.hp} armor. ${['A dependable sedan. Enough room for liquor and a little ambition.','A lighter, faster chassis for precision getaways.','Tough delivery truck. Trades speed for serious durability.','Supercharged straight-eight. Fast, strong, and built to disappear.'][i]}</p><footer><span class="money">${save.ownedCars.includes(id)?'OWNED':money(a.price)}</span><button data-do="car" data-car="${id}">${save.ownedCars.includes(id)?'DISPATCH':'BUY & DISPATCH'}</button></footer></article>`}).join('');
+  html+=['sedan','coupe','truck','custom'].map((id,i)=>{const a=carTypes[id];return `<article class="card"><small>${['YOUR FIRST SET OF WHEELS','SPEED & HANDLING','HEAVY ARMOR','THE BOSS\'S GETAWAY'][i]}</small><h3>${a.name}</h3><p>${Math.round(a.max*.21)} mph · ${a.hp} armor. ${['A dependable sedan. Enough room for liquor and a little ambition.','A lighter, faster chassis for precision getaways.','Tough delivery truck. Trades speed for serious durability.','Supercharged straight-eight. Fast, strong, and built to disappear.'][i]}</p><footer><span class="money">${save.ownedCars.includes(id)?'OWNED':money(a.price)}</span><span class="dealer-note">VISIT COLE MOTOR COMPANY · A ON MAP</span></footer></article>`}).join('');
   for(const [id,title,desc] of [['engine','Engine tuning','15% more top speed and acceleration per level.'],['armor','Reinforced body','25% more vehicle durability per level.'],['grip','Performance tires','Better steering and faster recovery from a drift.']])html+=`<article class="card"><small>ALL OWNED CARS · LEVEL ${save[id]} / 3</small><h3>${title}</h3><p>${desc}</p><footer><span class="money">${save[id]>=3?'MAX':money(30+save[id]*30)}</span><button data-do="upgrade" data-up="${id}" ${save[id]>=3?'disabled':''}>UPGRADE</button></footer></article>`;
  }
  if(tabName==='business'){
@@ -188,7 +188,7 @@ $('panel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b
  case'close':closePanel();return;case'help':showPanel('help');return;case'sound':enableAudio();renderPanel();return;case'job':acceptJob(jobs[i]);return;case'abandon':failJob('Contract abandoned');renderPanel();return;case'tab':tabName=b.dataset.tab;renderPanel();return;
  case'weapon':if(save.ownedWeapons.includes(i)||spend(weapons[i].price)){if(!save.ownedWeapons.includes(i))save.ownedWeapons.push(i);equipWeapon(i);toast(weapons[i].name+' equipped.')}break;
  case'resupply':if(spend(4.50)){player.hp=100;player.ammo=weapons[save.weapon].mag;player.reserve=weapons[save.weapon].reserve;player.reload=0;if(player.car)player.car.hp=player.car.maxHp;toast('Patched up. Ammunition stocked. Car repaired.')}break;
- case'car':toast('Visit Cole Motor Company to buy or recall a car. Find A on the map.');return;
+
  case'upgrade':{const id=b.dataset.up;if(save[id]<3&&spend(30+save[id]*30)){save[id]++;if(id==='armor'&&player.car&&player.car.owned){const c=player.car;c.maxHp=carTypes[c.type].hp*(1+save.armor*.25);c.hp=c.maxHp}toast('Upgrade installed across your garage.')}}break;
  case'business':{const data={velvet:[90,6],blue:[160,11],lucky:[260,18.50]},id=b.dataset.biz;if(data[id]&&save.secrets[id]==='found'&&!save.businesses.includes(id)&&spend(data[id][0])){save.businesses.push(id);toast('Speakeasy acquired. Your empire is growing.')}}break;
  case'collect':if(save.income>0){save.cash+=save.income;save.stats.earnings+=save.income;toast(money(save.income)+' collected.');save.income=0;sound('cash')}break;
@@ -205,8 +205,8 @@ function nearestPlace(){if(interior)return null;const d=p=>Math.min(dist(player,
 function interact(){if(mode!=='play')return;
  if(interior){if(trySecretDoor())return;if(dist(player,{x:360,y:437})<65){leaveBusiness();return}if(nearestNPC()){talkNearby();return}toast('F talks at the counter. E leaves at the bottom exit.');return}
  const near=player.car?.burning?null:nearestPlace();if(!player.car&&near&&shopById(near.id)&&(near.door&&dist(player,near.door)<30&&(!nearestCar()?.mission||dist(player,near.door)<8)||!nearestCar()||dist(player,nearestCar())>38)){enterBusiness(near);return}if(near?.type==='phone'){showPanel('jobs');return}
- if(player.car){const c=player.car;if(Math.abs(c.v)>125&&!c.burning){toast('Slow down before getting out.');return}const sides=[c.a+Math.PI/2,c.a-Math.PI/2,c.a+Math.PI,c.a];let pos=null;for(const a of sides){const x=c.x+Math.cos(a)*43,y=c.y+Math.sin(a)*43;if(!blocked(x,y,10)){pos={x,y};break}}if(!pos){toast('The door is blocked. Move the car.');return}player.car=null;player.x=pos.x;player.y=pos.y;player.a=c.a;c.v*=.3;c.ai='parked';toast('On foot. Aim with the mouse. Hold click to shoot.');return}
- const c=nearestCar();if(c){if(c.type==='police')addHeat(25);else if(c.ai==='traffic')addHeat(9);player.car=c;c.ai='player';player.x=c.x;player.y=c.y;sound('tick');if(job&&job.type==='wheelman'&&c===job.car&&job.stage===0){job.stage=1;job.target=places[0];job.info='Return the coupe to Bell & Sons garage. Shake the police on the way.';addHeat(38);updateObjective();toast('The coupe is yours. Take it to the garage.')}}}
+ if(player.car){const c=player.car;if(Math.abs(c.v)>125&&!c.burning){toast('Slow down before getting out.');return}const sides=[c.a+Math.PI/2,c.a-Math.PI/2,c.a+Math.PI,c.a];let pos=null;for(const a of sides){const x=c.x+Math.cos(a)*43,y=c.y+Math.sin(a)*43;if(!blocked(x,y,10)){pos={x,y};break}}if(!pos){toast('The door is blocked. Move the car.');return}parkedVehicle=c;player.car=null;player.x=pos.x;player.y=pos.y;player.a=c.a;c.v*=.3;c.ai='parked';toast('On foot. Aim with the mouse. Hold click to shoot.');return}
+ const c=nearestCar();if(c){if(c.type==='police')addHeat(25);else if(c.ai==='traffic')addHeat(9);parkedVehicle=null;player.car=c;c.ai='player';player.x=c.x;player.y=c.y;sound('tick');if(job&&job.type==='wheelman'&&c===job.car&&job.stage===0){job.stage=1;job.target=places[0];job.info='Return the coupe to Bell & Sons garage. Shake the police on the way.';addHeat(38);updateObjective();toast('The coupe is yours. Take it to the garage.')}}}
 function fire(){if(interior)return;const weap=weapons[save.weapon];if(player.shot>0||player.reload>0)return;if(player.ammo<1){reload();return}player.ammo--;player.shot=weap.rate;let a=player.a;if(!isTouch&&mouse.active){a=Math.atan2((mouse.y-h/2)/zoom+camera.y-player.y,(mouse.x-w/2)/zoom+camera.x-player.x)}else{const targets=enemies.filter(e=>e.hp>0).concat(cars.filter(c=>c.ai==='police'&&!c.dead));const t=targets.filter(e=>dist(player,e)<650&&lineClear(player,e)).sort((a,b)=>dist(player,a)-dist(player,b))[0];if(t)a=Math.atan2(t.y-player.y,t.x-player.x)}
  player.a=a;for(let i=0;i<weap.bullets;i++){const ang=a+rand(-weap.spread,weap.spread);bullets.push({x:player.x+Math.cos(a)*26,y:player.y+Math.sin(a)*26,vx:Math.cos(ang)*850,vy:Math.sin(ang)*850,life:.8,damage:weap.damage,from:'player',lastX:player.x,lastY:player.y})}particle(player.x+Math.cos(a)*28,player.y+Math.sin(a)*28,'#efca77',5,55);shake=Math.max(shake,1.4);sound('shot');addHeat(.8);for(const p of peds)if(dist(p,player)<220)p.panic=5}
 function enemyFire(e,from='enemy'){const a=Math.atan2(player.y-e.y,player.x-e.x)+rand(-.12,.12);bullets.push({x:e.x+Math.cos(a)*22,y:e.y+Math.sin(a)*22,vx:Math.cos(a)*480,vy:Math.sin(a)*480,life:1,damage:from==='police'?7:10,from,lastX:e.x,lastY:e.y});particle(e.x+Math.cos(a)*24,e.y+Math.sin(a)*24,'#e6c47a',3,35)}
@@ -261,7 +261,7 @@ function update(dt){elapsed+=dt;frame++;if(toastTimer>0){toastTimer-=dt;if(toast
  if(safe){player.hp=Math.min(100,player.hp+dt*7);if(player.car)player.car.hp=Math.min(player.car.maxHp,player.car.hp+dt*12)}
  if(job){job.time-=dt;if(job.time<=0)failJob('Time ran out');else tickJob(dt)}
  if(comboTimer>0){comboTimer-=dt;if(comboTimer<=0)combo=0}
- empireTimer+=dt;if(empireTimer>=120){empireTimer-=120;const income=save.businesses.reduce((n,id)=>n+({velvet:6,blue:11,lucky:18.50}[id]||0),0);if(income){save.income+=income;toast('Your clubs earned '+money(income)+'. Collect it in Empire.');persist()}}
+ tickEmpire(dt);
  saveTimer+=dt;if(saveTimer>12){saveTimer=0;persist()}
  const cvx=player.car?.vx||player.vx||0,cvy=player.car?.vy||player.vy||0;camera.lookX=lerp(camera.lookX,clamp(cvx*.24,-75,75),1-Math.exp(-dt*3));camera.lookY=lerp(camera.lookY,clamp(cvy*.24,-75,75),1-Math.exp(-dt*3));camera.x=lerp(camera.x,player.x+camera.lookX,1-Math.exp(-dt*5));camera.y=lerp(camera.y,player.y+camera.lookY,1-Math.exp(-dt*5));
  updateHUD();
@@ -468,6 +468,9 @@ function ensureMarket(){
  }}
  for(const id of Object.keys(save.inventory))if(!SHOP.items[id]||!Number.isInteger(save.inventory[id])||save.inventory[id]<0)delete save.inventory[id];
 }
+function tickEmpire(dt){
+ empireTimer+=dt;while(empireTimer>=120){empireTimer-=120;const income=save.businesses.reduce((n,id)=>n+({velvet:6,blue:11,lucky:18.50}[id]||0),0);if(income){save.income=SHOP.round(save.income+income);toast('Your clubs earned '+money(income)+'. Collect it in Empire.');persist()}}
+}
 function tickMarket(dt){ensureMarket();save.market.seconds=(Number(save.market.seconds)||0)+dt;if(save.market.seconds>=180){save.market.seconds%=180;for(const s of SHOP.shops)for(const id of s.goods)save.market.stock[s.id][id]=SHOP.items[id].stock;for(const s of SHOP.secrets)save.market.demand[s.club]=3;persist()}}
 function makeRoom(s){
  if(s.id==='home'){
@@ -520,7 +523,7 @@ function leaveBusiness(force=false){
  $('insideLabel').classList.add('hidden');$('minimapWrap').classList.remove('hidden');if(!isTouch)$('crosshair').classList.remove('hidden');updateHUD(true);persist();return true;
 }
 function updateInterior(dt){
- activeElapsed+=dt;tickMarket(dt);player.shot=Math.max(0,player.shot-dt);player.invincible=Math.max(0,player.invincible-dt);
+ activeElapsed+=dt;tickMarket(dt);tickEmpire(dt);player.shot=Math.max(0,player.shot-dt);player.invincible=Math.max(0,player.invincible-dt);
  let dx=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),dy=(keys.KeyS||keys.ArrowDown?1:0)-(keys.KeyW||keys.ArrowUp?1:0);
  if(isTouch&&(touch.x||touch.y)){dx=touch.x;dy=touch.y}const n=Math.max(1,Math.hypot(dx,dy)),v=130;
  const tx=player.x+dx/n*v*dt,ty=player.y+dy/n*v*dt;
@@ -541,7 +544,7 @@ function advanceSupplyJob(){
 function advanceShopJob(){
  if(!interior||!conversation||conversation.npc.patron||job?.type!=='errand'||job.target.id!==interior.place.id)return;
  const e=errandDefinition(job.errandId);job.stage++;
- if(job.stage>=e.stops.length){if(e.reveal){save.secrets[e.reveal]=save.secrets[e.reveal]||'known';toast(SHOP.secrets.find(s=>s.club===e.reveal).hint)}completeJob();checkEndgame();return say('That is the right parcel. Here is your pay. Thanks for seeing it through.',[option('Glad to help.',endConversation)])}
+ if(job.stage>=e.stops.length){if(e.reveal){save.secrets[e.reveal]=save.secrets[e.reveal]||'known';toast(SHOP.secrets.find(s=>s.club===e.reveal).hint)}completeJob();checkEndgame();return say('That is the right parcel. Here is your pay. '+(e.reveal?SHOP.secrets.find(s=>s.club===e.reveal).hint:'Thanks for seeing it through.'),[option('Glad to help.',endConversation)])}
  job.target=places.find(p=>p.id===e.stops[job.stage]);job.cargo=e.cargo;job.info='Carry '+e.cargo+' to '+job.target.name+'. Go inside and speak to the person at the counter.';
  updateObjective();return say('Here is your sealed order. Take it to '+job.target.name+'. It has already been paid for.',[option('I have it. I will speak to them inside.',endConversation)]);
 }
@@ -589,7 +592,11 @@ function useInventory(id){
 }
 function shopService(){
  if(modal!=='shop'||!interior?.shop.service)return false;
- const [type,price]=interior.shop.service;let car=null;if(type==='repair'){car=cars.filter(c=>!c.dead&&!c.burning&&dist(c,interior.outside)<170).sort((a,b)=>dist(a,interior.outside)-dist(b,interior.outside))[0];if(!car||car.hp>=car.maxHp){toast('Park a damaged, repairable car outside first.');return false}}
+ const [type,price]=interior.shop.service;let car=null;if(type==='repair'){
+ car=parkedVehicle;
+ if(!car||!cars.includes(car)||car.dead||car.burning||dist(car,interior.outside)>=170){toast('Park your car outside, get out, then walk in for repairs.');return false}
+ if(car.hp>=car.maxHp){toast('Your parked car does not need repairs.');return false}
+ }
  else if(player.hp>=100){toast('You are already in good health.');return false}
  if(!spend(price))return false;save.cash=SHOP.round(save.cash);
  if(type==='repair')car.hp=car.maxHp;else player.hp=Math.min(100,player.hp+({meal:25,shave:10}[type]||100));

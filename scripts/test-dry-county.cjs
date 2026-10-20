@@ -9,7 +9,7 @@ check('Start in a driveable car with period starting cash and a local delivery j
 check('Accelerate for 2 seconds without penetrating buildings',()=>{const c=t.player.car;const start={x:c.x,y:c.y};for(let i=0;i<120;i++)t.drive(c,1/60,1,0,false);assert(Math.hypot(c.x-start.x,c.y-start.y)>180);assert(!t.blocked(c.x,c.y,15));assert(c.v>150)});
 function enter(id){if(t.conversation)t.endConversation();if(t.interior)t.leaveBusiness(true);t.closePanel();t.heat=0;t.player.car=null;const p=t.places.find(p=>p.id===id);t.player.x=p.door?.x||p.x;t.player.y=p.door?.y||p.y;t.interact();assert.equal(t.interior?.place.id,id,JSON.stringify({place:p,player:t.player,near:t.nearestPlace(),car:t.nearestCar(),heat:t.heat,mode:t.mode}));return t.interior}
 function counter(){t.player.x=360;t.player.y=208;t.talkNearby();assert.equal(t.mode,'dialogue');assert(t.conversation.npc.shopId);assert(!t.conversation.npc.patron)}
-function handover(){counter();const i=t.conversation.node.choices.findIndex(c=>/Collect the job|Hand over the job|Collect the two|Deliver the job/.test(c.label));assert(i>=0,t.conversation.node.text);t.chooseDialogue(i);t.endConversation()}
+function handover(){counter();const i=t.conversation.node.choices.findIndex(c=>/Collect the job|Hand over the job|Collect the two|Deliver the job/.test(c.label));assert(i>=0,t.conversation.node.text);t.chooseDialogue(i);const response=t.conversation?.node?.text;t.endConversation();return response}
 check('Complete the starter delivery through two real counters; proximity never completes it',()=>{const initialCash=t.save.cash;for(let stop=0;stop<2;stop++){const id=t.job.target.id;t.player.x=t.job.target.x;t.player.y=t.job.target.y;t.tickJob(10);assert.equal(t.job.stage,stop);enter(id);handover();t.leaveBusiness(true)}assert.equal(t.job,null);assert.equal(t.save.cash,initialCash+5);assert.equal(t.save.jobs,1);assert.equal(t.save.daily.done,1);assert.equal(t.save.xp,70)});
 check('Complete rival crew job only after crew is cleared and ledger returned',()=>{t.acceptJob(t.jobs[1]);assert.equal(t.job.type,'rival');for(const e of t.enemies){e.hp=0;t.killEnemy(e)}t.tickJob(.1);assert.equal(t.job.stage,1);t.player.x=t.job.target.x;t.player.y=t.job.target.y;t.tickJob(.1);assert.equal(t.job,null);assert.equal(t.save.jobs,2);assert.equal(t.save.cash,56.40)});
 check('Car theft requires the marked vehicle and its return to the garage',()=>{t.acceptJob(t.jobs[2]);const c=t.job.car;t.player.car=null;t.player.x=c.x+20;t.player.y=c.y;t.interact();assert.equal(t.player.car,c);assert.equal(t.job.stage,1);assert(t.heat>=38);t.player.x=t.places[0].x;t.player.y=t.places[0].y;c.x=t.player.x;c.y=t.player.y;c.v=0;c.vx=c.vy=0;t.tickJob(.1);assert.equal(t.job,null);assert.equal(t.save.jobs,3)});
@@ -53,13 +53,26 @@ check('Consumables heal only when needed and remove one item',()=>{
 check('Unfunded and full-bag purchases do not consume stock; restocking requires active time',()=>{
  enter('hardware');t.showPanel('shop');t.save.cash=100;t.save.inventory={timber:30};const stock=t.save.market.stock.hardware.nails;assert(!t.tradeItem('nails','buy'));assert.equal(t.save.market.stock.hardware.nails,stock);t.save.inventory={};t.save.market.stock.hardware.nails=0;assert(!t.tradeItem('nails','buy'));t.tickMarket(180);assert.equal(t.save.market.stock.hardware.nails,t.SHOP.items.nails.stock);t.closePanel();t.leaveBusiness(true);
 });
+
+check('Garage service repairs the last car the player exited, even with closer traffic',()=>{
+ if(t.interior)t.leaveBusiness(true);t.closePanel();t.heat=0;const garage=t.places.find(p=>p.id==='garage');
+ const target=t.newCar('sedan',garage.x,garage.y,0,{owned:true});target.hp=40;t.cars.push(target);t.player.car=target;t.player.x=target.x;t.player.y=target.y;t.interact();assert.equal(t.player.car,null);
+ enter('garage');const outside=t.interior.outside,other=t.newCar('sedan',outside.x,outside.y,0,{ai:'traffic'});other.hp=20;t.cars.push(other);
+ t.save.cash=100;t.showPanel('shop');const before=t.save.cash;assert(t.shopService());assert.equal(target.hp,target.maxHp);assert.equal(other.hp,20);assert.equal(t.save.cash,before-3.50);
+ assert(!t.shopService());assert.equal(t.save.cash,before-3.50);target.hp=50;target.x+=1000;const cash=t.save.cash;assert(!t.shopService());assert.equal(t.save.cash,cash);assert.equal(other.hp,20);
+ t.closePanel();t.leaveBusiness(true);
+});
+check('Club income accrues during indoor exploration and stops in shop menus',()=>{
+ enter('grocer');t.save.businesses=['velvet','blue'];t.showPanel('shop');const before=t.save.income;t.update(121);assert.equal(t.save.income,before);t.closePanel();t.update(121);assert(t.save.income>=before+17);t.leaveBusiness(true);
+ t.showPanel('empire');nodes.get('panel').listeners.click({target:{closest:()=>({dataset:{do:'tab',tab:'garage'}})}});assert(!nodes.get('panel').innerHTML.includes('data-do="car"'));assert(nodes.get('panel').innerHTML.includes('VISIT COLE MOTOR COMPANY'));t.closePanel();
+});
 check('Ordinary job parcels cannot be sold, and wrong counters cannot advance the job',()=>{
  t.offerShopJob('cloth');assert.equal(t.job.type,'errand');enter('grocer');counter();const stage=t.job.stage;assert.equal(t.advanceShopJob(),undefined);assert.equal(t.job.stage,stage);assert.equal(t.save.inventory.cloth||0,0);t.endConversation();t.leaveBusiness(true);
  for(let i=0;i<3;i++){enter(t.job.target.id);handover();t.leaveBusiness(true)}assert.equal(t.job,null);
 });
 check('Clue jobs reveal a location; hidden doors require trust and actual exploration',()=>{
  t.save.secrets={};t.save.businesses=[];t.save.jobs=1;enter('grocer');t.player.x=642;t.player.y=255;t.interact();assert.equal(t.interior.place.id,'grocer');assert(!t.save.secrets.velvet);t.leaveBusiness(true);
- t.offerShopJob('clue-velvet');for(let i=0;i<2;i++){enter(t.job.target.id);handover();t.leaveBusiness(true)}assert.equal(t.save.secrets.velvet,'known');assert(t.save.jobs>=2);
+ t.offerShopJob('clue-velvet');let clueText;for(let i=0;i<2;i++){enter(t.job.target.id);clueText=handover();t.leaveBusiness(true)}assert(clueText.includes('flour rack'));assert.equal(t.save.secrets.velvet,'known');assert(t.save.jobs>=2);
  enter('grocer');t.player.x=642;t.player.y=255;t.interact();assert.equal(t.interior.place.id,'velvet');assert.equal(t.save.secrets.velvet,'found');t.player.x=360;t.player.y=437;t.interact();assert.equal(t.interior.place.id,'grocer');t.leaveBusiness(true);
 });
 check('All three speakeasies unlock at distinct progression levels through their fronts',()=>{

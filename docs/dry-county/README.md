@@ -39,3 +39,5 @@ These are fictional game prices and compressed game-time earnings, not a reconst
 ### Verification
 
 Run `npm run dry-county:test` for the synthetic movement, jobs, counters, room collisions, cents trading, stock limits, consumables, discoveries, moonshine, dealership, crafting, endgame and persistence checks. After the production build, `node scripts/test-dry-county-browser.mjs` exercises counter jobs, the trading UI, a concealed entrance, dealership, supplies and home book in Chromium at 1440×900, 390×844 and 844×390. Its test server alone instruments game hooks; public source exposes only the read-only diagnostic snapshot. Protected CI also retains the canonical release and existing site browser checks.
+
+Automated review follow-up: the remote Garage catalog gives directions without advertising purchases or recalls it cannot perform. Garage repairs target the last vehicle the player actually exited and reject a missing, distant, destroyed or already repaired vehicle without charging. Club income accrues while walking indoors as well as on the street, and pauses in menus. Clue-job completion dialogue includes the location hint directly.
