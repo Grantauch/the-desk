@@ -204,7 +204,7 @@ function nearestCar(){if(interior)return null;let c=null,best=68;for(const x of 
 function nearestPlace(){if(interior)return null;const d=p=>Math.min(dist(player,p),p.door?dist(player,p.door):Infinity);return places.filter(p=>!p.hidden).sort((a,b)=>d(a)-d(b)).find(p=>d(p)<85)}
 function interact(){if(mode!=='play')return;
  if(interior){if(trySecretDoor())return;if(dist(player,{x:360,y:437})<65){leaveBusiness();return}if(nearestNPC()){talkNearby();return}toast('F talks at the counter. E leaves at the bottom exit.');return}
- const near=player.car?.burning?null:nearestPlace();if(!player.car&&near&&shopById(near.id)&&(!nearestCar()||dist(player,nearestCar())>38)){enterBusiness(near);return}if(near?.type==='phone'){showPanel('jobs');return}
+ const near=player.car?.burning?null:nearestPlace();if(!player.car&&near&&shopById(near.id)&&(near.door&&dist(player,near.door)<30||!nearestCar()||dist(player,nearestCar())>38)){enterBusiness(near);return}if(near?.type==='phone'){showPanel('jobs');return}
  if(player.car){const c=player.car;if(Math.abs(c.v)>125&&!c.burning){toast('Slow down before getting out.');return}const sides=[c.a+Math.PI/2,c.a-Math.PI/2,c.a+Math.PI,c.a];let pos=null;for(const a of sides){const x=c.x+Math.cos(a)*43,y=c.y+Math.sin(a)*43;if(!blocked(x,y,10)){pos={x,y};break}}if(!pos){toast('The door is blocked. Move the car.');return}player.car=null;player.x=pos.x;player.y=pos.y;player.a=c.a;c.v*=.3;c.ai='parked';toast('On foot. Aim with the mouse. Hold click to shoot.');return}
  const c=nearestCar();if(c){if(c.type==='police')addHeat(25);else if(c.ai==='traffic')addHeat(9);player.car=c;c.ai='player';player.x=c.x;player.y=c.y;sound('tick');if(job&&job.type==='wheelman'&&c===job.car&&job.stage===0){job.stage=1;job.target=places[0];job.info='Return the coupe to Bell & Sons garage. Shake the police on the way.';addHeat(38);updateObjective();toast('The coupe is yours. Take it to the garage.')}}}
 function fire(){if(interior)return;const weap=weapons[save.weapon];if(player.shot>0||player.reload>0)return;if(player.ammo<1){reload();return}player.ammo--;player.shot=weap.rate;let a=player.a;if(!isTouch&&mouse.active){a=Math.atan2((mouse.y-h/2)/zoom+camera.y-player.y,(mouse.x-w/2)/zoom+camera.x-player.x)}else{const targets=enemies.filter(e=>e.hp>0).concat(cars.filter(c=>c.ai==='police'&&!c.dead));const t=targets.filter(e=>dist(player,e)<650&&lineClear(player,e)).sort((a,b)=>dist(player,a)-dist(player,b))[0];if(t)a=Math.atan2(t.y-player.y,t.x-player.x)}
@@ -612,7 +612,7 @@ function renderShop(){
 function trySecretDoor(){
  if(!interior)return false;const secret=SHOP.secrets.find(s=>s.front===interior.place.id);if(!secret||dist(player,{x:642,y:255})>64)return false;
  if(save.jobs<secret.jobs){toast('A locked panel. Earn trust by completing '+secret.jobs+' jobs.');return true}
- if(save.secrets[secret.club]!=='found'){save.secrets[secret.club]='found';save.xp+=100;persist();toast('SPEAKEASY DISCOVERED · '+places.find(p=>p.id===secret.club).name)}
+ if(save.secrets[secret.club]!=='found'){save.secrets[secret.club]='found';save.xp+=100;generateJobs();persist();toast('SPEAKEASY DISCOVERED · '+places.find(p=>p.id===secret.club).name)}
  enterBusiness(places.find(p=>p.id===secret.club),true);checkEndgame();return true;
 }
 function checkEndgame(){
