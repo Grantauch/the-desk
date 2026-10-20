@@ -1,0 +1,212 @@
+import assert from 'node:assert/strict';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
+import { chromium } from 'playwright';
+import AxeBuilder from '@axe-core/playwright';
+
+const source = new URL('../public/hubs/ush9-progressive-era-jeopardy-v2.html', import.meta.url);
+const out = new URL('../browser-results/progressive-jeopardy-v2/', import.meta.url);
+await mkdir(out, { recursive: true });
+const html = await readFile(source, 'utf8');
+const server = createServer((req, res) => { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(html); });
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const origin = `http://127.0.0.1:${server.address().port}`;
+const browser = await chromium.launch({ headless: true });
+let checks = 0;
+const errors = [];
+const pass = (v, label) => { assert.ok(v, label); checks++; console.log(`PASS ${label}`); };
+const eq = (v, expected, label) => { assert.deepEqual(v, expected, label); checks++; console.log(`PASS ${label}`); };
+async function pageFor(width = 1440, height = 1000) {
+  const context = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.goto(origin);
+  return page;
+}
+const read = p => p.evaluate(() => JSON.parse(JSON.stringify(state)));
+const scores = async p => (await read(p)).teams.map(t => t.score);
+const clickClue = (p, id) => p.locator(`[data-clue="${id}"]`).click();
+async function axe(p, label) {
+  const r = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  await writeFile(new URL(`${label}-axe.json`, out), JSON.stringify(r.violations, null, 2));
+  eq(r.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })), [], `${label}: accessibility`);
+}
+try {
+  const p = await pageFor();
+  eq(await p.evaluate(() => BANK.map(c => c.clues.length)), [10,10,10,10,10,10,10], '70 complete original clues across seven categories');
+  pass(await p.evaluate(() => BANK.every(c => c.clues.every(q => q.length === 4 && q.every(x => typeof x === 'string' && x.length > 3)))), 'Every clue has answer, explanation and hint');
+  eq(await p.evaluate(() => new Set(BANK.flatMap(c => c.clues.map(q => q[0]))).size), 70, 'Every clue is unique');
+  await axe(p, 'desktop-setup');
+  await p.screenshot({ path: fileURLToPath(new URL('desktop-setup.png', out)), fullPage: true });
+  await p.getByText('Make it interesting', { exact:true }).click();
+  await p.locator('#opt-daily').uncheck();
+  await p.locator('#opt-hints').check();
+  await p.locator('#opt-streaks').check();
+  await p.locator('#scoring').selectOption('classic');
+  await p.getByRole('button', { name: 'Let’s play →' }).click();
+  eq(await p.locator('.tile').count(), 30, 'Six-category, thirty-clue board');
+  await axe(p, 'desktop-board');
+  await p.screenshot({ path: fileURLToPath(new URL('desktop-board.png', out)), fullPage: true });
+  await clickClue(p, '0:muck:0');
+  eq(await p.locator('#clock').innerText(), '30s', 'Timer starts paused');
+  await p.locator('#hint').click();
+  await p.locator('#incorrect').click();
+  eq(await scores(p), [-50,0,0], 'Hint halves the classic miss deduction');
+  eq((await read(p)).active.team, 1, 'Miss opens steal for another team');
+  await p.locator('#correct').click();
+  eq(await scores(p), [-50,50,0], 'Steal awards half value once');
+  eq(await p.locator('#correct').count(), 0, 'Resolved clue cannot be awarded twice');
+  pass(await p.locator('.answer').isVisible(), 'Answer explanation appears after ruling');
+  await axe(p, 'clue-answer');
+  await p.screenshot({ path: fileURLToPath(new URL('clue-answer.png', out)), fullPage: true });
+  await p.locator('#done-clue').click();
+  await p.locator('#undo').click();
+  eq(await scores(p), [-50,0,0], 'Undo restores score before correct ruling');
+  pass(await p.locator('#clue-dialog').isVisible(), 'Undo reopens the exact clue');
+  await p.locator('#correct').click();
+  await p.locator('#done-clue').click();
+  for (const n of [1,2]) {
+    await clickClue(p, `0:muck:${n}`);
+    await p.locator('#timer-toggle').click();
+    await p.locator('#timer-toggle').click();
+    pass(await p.evaluate(() => !timerRunning) && /Start|Resume/.test(await p.locator('#timer-toggle').innerText()), 'Clue timer pauses and can resume');
+    await p.locator('#correct').click();
+    await p.locator('#done-clue').click();
+  }
+  eq(await scores(p), [-50,650,0], 'Third consecutive regular success awards 100 bonus points');
+  await p.reload();
+  await p.locator('#resume').click();
+  eq(await scores(p), [-50,650,0], 'Refresh and resume preserve scores and progress');
+  await clickClue(p, '0:work:0');
+  await p.locator('#reveal').click();
+  await p.locator('#incorrect').click();
+  pass((await read(p)).active.locked, 'No steals after answer reveal');
+  await p.locator('#done-clue').click();
+  await clickClue(p, '0:work:1');
+  await p.locator('#close-clue').click();
+  pass(!(await read(p)).used['0:work:1'], 'Closing untouched clue returns it to the board');
+  const downloadPromise = p.waitForEvent('download');
+  await p.locator('#settings').click();
+  await p.getByRole('button', { name: 'Download save', exact: true }).click();
+  const download = await downloadPromise;
+  const savedPath = await download.path();
+  const saveText = await readFile(savedPath, 'utf8');
+  const expectedScores = await scores(p);
+  pass(JSON.parse(saveText).version === 'progressive-jeopardy-v2.0', 'Downloaded save has version and match state');
+  const transfer = await pageFor(1280,800);
+  await transfer.locator('#save-file').setInputFiles({ name:'save.json', mimeType:'application/json', buffer:Buffer.from(saveText) });
+  eq(await scores(transfer), expectedScores, 'Save file transfers complete match to a fresh browser');
+  await transfer.context().close();
+  await p.context().close();
+
+  const d = await pageFor();
+  await d.getByText('Make it interesting', { exact:true }).click();
+  await d.locator('#opt-streaks').check();
+  await d.getByRole('button', { name: 'Let’s play →' }).click();
+  await clickClue(d, '0:muck:0');
+  await d.locator('#correct').click();
+  await d.locator('#done-clue').click();
+  await clickClue(d, '0:muck:1');
+  pass(await d.locator('#dd-wager').isVisible(), 'Daily Double hides clue before wager');
+  await d.locator('#dd-wager').fill('2500');
+  await d.locator('#lock-wager').click();
+  pass((await d.locator('#wager-error').innerText()).includes('1,000'), 'Out-of-range Daily Double wager rejected');
+  await d.locator('#dd-wager').fill('500');
+  await d.locator('#lock-wager').click();
+  eq((await read(d)).active.wager, 500, 'Valid Daily Double wager locked');
+  pass(await d.locator('#responding').isDisabled(), 'Daily Double team cannot change after lock');
+  eq(await d.locator('#hint').count(), 0, 'Daily Double has no hints');
+  await d.locator('#incorrect').click();
+  eq(await scores(d), [-400,0,0], 'Daily Double miss loses wager in friendly mode');
+  eq((await read(d)).teams[0].streak, 1, 'Daily Double does not reset regular hot streak');
+  pass((await read(d)).active.locked, 'Daily Double has no steals');
+  await d.locator('#done-clue').click();
+  await d.locator('#settings').click();
+  await d.locator('#adjust-team').selectOption('1');
+  await d.locator('#adjust-value').fill('1000');
+  await d.getByRole('button', { name:'Apply points', exact:true }).click();
+  await d.locator('#advance').click();
+  await d.locator('#confirm-cancel').click();
+  eq((await read(d)).round, 0, 'Early round advance can be canceled');
+  await d.locator('#advance').click();
+  await d.locator('#confirm-go').click();
+  eq((await read(d)).round, 1, 'Early round advance is explicit and works');
+  pass((await d.locator('[data-clue="1:muck:4"]').innerText()).includes('1,000'), 'Double Jeopardy values double');
+  await d.locator('#advance').click();
+  await d.locator('#confirm-go').click();
+  eq(await d.locator('#fw-0').getAttribute('max'), '0', 'Negative score allows zero final wager only');
+  await d.locator('#fw-1').fill('500');
+  await d.getByRole('button', { name:'Lock all wagers & reveal clue →' }).click();
+  await d.reload();
+  await d.locator('#resume').click();
+  pass(await d.locator('#final-reveal').isVisible(), 'Final clue resumes after refresh with wagers locked');
+  await d.locator('#final-reveal').click();
+  await d.locator('[data-final="0:right"]').click();
+  await d.locator('[data-final="1:right"]').click();
+  eq(await d.locator('[data-final^="1:"]').count(), 0, 'Each final team can be graded once');
+  eq(await scores(d), [-400,1500,0], 'Final correct wager is applied once');
+  await d.locator('[data-final="2:wrong"]').click();
+  await d.locator('#finish').click();
+  pass(await d.locator('#results').isVisible(), 'Complete match reaches results');
+  pass((await d.locator('#results').innerText()).includes('Worth another look'), 'Missed clues are available for review');
+  await axe(d,'results');
+  await d.screenshot({ path:fileURLToPath(new URL('results.png',out)),fullPage:true });
+  await d.locator('#results-undo').click();
+  pass(await d.locator('#utility-dialog').isVisible(), 'Undo finish restores final grading screen');
+  await d.context().close();
+
+  const full = await pageFor(1280,720);
+  await full.getByText('Make it interesting',{exact:true}).click();
+  await full.locator('#opt-daily').uncheck();
+  await full.getByRole('button',{name:'Let’s play →'}).click();
+  await full.locator('#fullscreen').click();
+  pass(await full.locator('#advance').evaluate(e=>e.getBoundingClientRect().bottom<=innerHeight), '720px projector view shows board, scores and advance together');
+  for(let r=0;r<2;r++) {
+    for(const c of ['muck','work','rights','votes','pres','ideas']) {
+      for(let n=0;n<5;n++) {
+        await clickClue(full,`${r}:${c}:${n}`);
+        await full.locator('#correct').click();
+        await full.locator('#done-clue').click();
+      }
+    }
+    eq((await read(full)).teams[0].score,r===0?9000:27000,`Complete round ${r+1} awards exact total`);
+    await full.locator('#advance').click();
+  }
+  eq(Object.keys((await read(full)).used).length,60,'All sixty clues play through both rounds');
+  await full.locator('#fw-0').fill('27000');
+  await full.getByRole('button',{name:'Lock all wagers & reveal clue →'}).click();
+  await full.locator('#final-reveal').click();
+  for(let i=0;i<3;i++) await full.locator(`[data-final="${i}:right"]`).click();
+  await full.locator('#finish').click();
+  eq((await read(full)).teams[0].score,54000,'Full-match final wager resolves exact total');
+  pass((await full.locator('#results').innerText()).includes('60 clues played'), 'Full match results account for every clue');
+  await full.context().close();
+
+  for (const width of [320,390,768,1280]) {
+    const m = await pageFor(width, width===1280?720:844);
+    pass(await m.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), `${width}px setup fits viewport`);
+    await m.locator('#team-count').selectOption('6');
+    await m.locator('#team-name-0').fill('<script>alert(1)</script>');
+    await m.getByText('Make it interesting', { exact:true }).click();
+    await m.locator('#opt-empire').check();
+    await m.getByRole('button',{name:'Let’s play →'}).click();
+    eq((await read(m)).categories[5],'empire',`${width}px optional empire category`);
+    pass(await m.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), `${width}px board scroll stays inside viewport`);
+    pass((await m.locator('#teams').innerText()).includes('<script>alert(1)</script>'), 'Team nicknames render as text');
+    if(width===390){await axe(m,'phone-board');await m.screenshot({path:fileURLToPath(new URL('phone-board.png',out)),fullPage:true})}
+    await m.context().close();
+  }
+  const bad = await pageFor();
+  await bad.locator('#save-file').setInputFiles({name:'broken.json',mimeType:'application/json',buffer:Buffer.from('{"version":"progressive-jeopardy-v2.0","state":{}}')});
+  pass((await bad.locator('#setup-message').innerText()).includes('not a valid save'), 'Malformed save rejected with helpful feedback');
+  pass(await bad.locator('#setup').isVisible(), 'Malformed save leaves setup usable');
+  await bad.context().close();
+  eq(errors,[], 'No uncaught browser errors across complete acceptance');
+  await writeFile(new URL('receipt.json',out),JSON.stringify({checks,status:'passed',errors},null,2));
+  console.log(`${checks} Progressive Era Jeopardy checks passed.`);
+} finally {
+  await browser.close();
+  await new Promise(resolve=>server.close(resolve));
+}
