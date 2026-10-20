@@ -35,6 +35,10 @@ async function axe(p, label) {
 }
 try {
   const p = await pageFor();
+  await p.keyboard.press('Tab');
+  pass(await p.getByRole('link',{name:'Skip to the game'}).evaluate(e=>getComputedStyle(e).clipPath==='none'), 'Keyboard skip link becomes visible on focus');
+  await p.keyboard.press('Enter');
+  pass(await p.evaluate(()=>location.hash==='#main'), 'Keyboard skip link reaches the game');
   eq(await p.evaluate(() => BANK.map(c => c.clues.length)), [10,10,10,10,10,10,10], '70 complete original clues across seven categories');
   pass(await p.evaluate(() => BANK.every(c => c.clues.every(q => q.length === 4 && q.every(x => typeof x === 'string' && x.length > 3)))), 'Every clue has answer, explanation and hint');
   eq(await p.evaluate(() => new Set(BANK.flatMap(c => c.clues.map(q => q[0]))).size), 70, 'Every clue is unique');

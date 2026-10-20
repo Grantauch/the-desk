@@ -5,7 +5,7 @@
     "evidence": [
       "Added a separate original Progressive Era classroom Jeopardy edition; earlier games remain unchanged.",
       "70 original clues with answers, explanations and hints; 60 clues per full match, 10 optional empire clues and three possible finals.",
-      "68 browser acceptance checks passed, including a complete 60-clue match, score totals, wagers, steal lockout, hints, hot streaks, undo, saved-file transfer and malformed-save handling.",
+      "70 browser acceptance checks passed, including a complete 60-clue match, score totals, wagers, steal lockout, hints, hot streaks, undo, saved-file transfer and malformed-save handling.",
       "Accessibility checks passed for setup, board, clue answer, results and phone board; layouts checked at 320, 390, 768 and 1280 pixels, with a compact 720-pixel projector view.",
       "Standalone HTML opened fully offline and scored a clue. New game linked from Games, the Progressive Era course unit and the sitemap. All full verification stages passed after restoring five pre-existing files to exact tracked bytes and using the expanded Windows command. Astro reported zero errors; the build generated 53 pages, and static validation checked 122 HTML files and 4519 local references."
     ],
