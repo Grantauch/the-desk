@@ -83,18 +83,15 @@
       }
     },
     "stpCodes": {
-      ".read": "auth != null",
-      ".indexOn": [
-        ".value"
-      ],
       "$code": {
+        ".read": "auth != null",
         ".write": "auth != null && $code.matches(/^[B-DF-HJ-NP-TV-XZ]{4}$/) && (!data.exists() || data.val() < now - 86400000 || root.child('stp').child($code).child('meta/host').val() === auth.uid)",
         ".validate": "newData.isNumber() && newData.val() === now"
       }
     },
     "stp": {
       "$code": {
-        ".read": "auth != null",
+        ".read": "auth != null && data.child('meta/created').val() > now - 86400000",
         ".write": "auth != null && !newData.exists() && (data.child('meta/created').val() < now - 86400000 || data.child('meta/host').val() === auth.uid)",
         "meta": {
           ".write": "auth != null && (!data.exists() || data.child('host').val() === auth.uid)",

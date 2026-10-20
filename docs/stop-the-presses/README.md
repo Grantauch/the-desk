@@ -41,7 +41,7 @@ If the projector browser refreshes or crashes, open the page again, choose Host 
 
 ## After the game
 
-**Close the newsroom** deletes the game and every score in it. Games nobody closes are swept away a day later. Nothing is graded and no scores leave the game.
+**Close the newsroom** deletes the game and every score in it. If you forget, nobody can open the game once it is a day old, and the next game you host from the same computer deletes it. Nothing is graded and no scores leave the game.
 
 Students can keep studying on their own. **Play solo** runs the same stories against the Evening Rag with the fact after every story, then lists every missed story with a button to replay just those. **The Morgue** shows every question, answer and fact, grouped by desk and searchable.
 
