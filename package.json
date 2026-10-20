@@ -8,7 +8,7 @@
     "build": "astro build",
     "check": "node scripts/check-verification-deps.mjs && astro check",
     "verify": "node scripts/run-release-verification.mjs",
-    "verify:full": "npm run league:test && npm run blacktop:test && npm run release:test && npm run hall-pass:verify && npm run turn-in:test && npm run tools:test && npm run classroom:test && npm run audit:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
+    "verify:full": "npm run league:test && npm run square-deal:test && npm run blacktop:test && npm run release:test && npm run hall-pass:verify && npm run turn-in:test && npm run tools:test && npm run classroom:test && npm run audit:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:storyhub-fast": "npm run turn-in:test && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:release": "npm run verify",
     "release:classify": "node scripts/release-lane.mjs",

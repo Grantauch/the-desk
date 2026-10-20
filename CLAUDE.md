@@ -68,6 +68,7 @@ StoryHub is a quality standard and production system, not a visible template. Ea
 Install dependencies with `npm install --include=dev` (`npm.cmd` in PowerShell), then run `npm run verify` before pushing. GitHub Actions runs this command once. It runs, in order:
 
 - `hall-pass:verify` — handoff map, structural suite, and runtime harness
+- `square-deal:test` — The Square Deal card data, game completion, amendment protection and balance
 - `turn-in:test` — Turn In web app in the fake Apps Script runtime with Hall Pass generated PINs, plus the check that every answer hub loads `desk-save.js`
 - `tools:test` — group maker, cold call, and timer fixtures
 - `classroom:test` — current course/calendar parity, invalid unit and month checks

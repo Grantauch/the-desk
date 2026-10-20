@@ -315,7 +315,7 @@ p{margin:0}
   function save() { if (G.st) SS.set('sd-game', JSON.stringify({ st: G.st, mode: G.mode, level: G.level })); }
   function load() { try { const j = JSON.parse(SS.get('sd-game') || 'null'); return j && j.st && !j.st.over ? j : null; } catch (e) { return null; } }
   if (load()) $('#resumeBtn').hidden = false;
-  $('#resumeBtn').addEventListener('click', () => { const j = load(); if (!j) return; G.st = j.st; G.mode = j.mode; G.level = j.level; setHumans(); G.lastYear = SD.yearOf(G.st.round); G.viewer = humanTurn() ? G.st.turn : G.mode; render(); show('game'); afterChange(); });
+  $('#resumeBtn').addEventListener('click', () => { const j = load(); if (!j) return; G.st = j.st; G.mode = j.mode; G.level = j.level; setHumans(); G.rand = SD.rng((Math.random() * 2 ** 31) >>> 0); G.sel = null; G.aim = false; G.lastYear = SD.yearOf(G.st.round); G.viewer = humanTurn() ? G.st.turn : G.mode; render(); show('game'); afterChange(); });
 
   $$('.lvl[data-lvl]').forEach(b => b.addEventListener('click', () => { G.level = b.dataset.lvl; $$('.lvl[data-lvl]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
   $$('[data-start]').forEach(b => b.addEventListener('click', () => startGame(b.dataset.start)));
