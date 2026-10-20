@@ -189,7 +189,7 @@ function roadside(p,off=0){const n=WLD.nearest(p);return{x:n.x-Math.sin(n.angle)
 
 function newCar(type,x,y,a=-Math.PI/2,opts={}){const t=carTypes[type];return{type,x,y,a,v:0,hp:t.hp,maxHp:t.hp,color:t.color,ai:'parked',route:[],routeTime:0,fire:rand(1,3),turn:0,vx:0,vy:0,steering:0,throttle:0,yaw:0,burning:false,burnTime:0,impact:0,dead:false,hit:0,z:0,vz:0,air:0,spin:0,nearCd:0,...opts}}
 function spawnOwned(){parkedVehicle=null;const p=places[0],old=player.car;if(old){old.owned=false;old.ai='parked';old.v=old.vx=old.vy=0}const at=offRail(roadside({x:p.x-70,y:p.y},-19)),c=newCar(save.car,at.x,at.y,at.a,{owned:true});c.maxHp=carTypes[c.type].hp*(1+save.armor*.25);c.hp=c.maxHp;cars.push(c);player.car=c;player.x=c.x;player.y=c.y;player.vx=player.vy=0;return c}
-function populate(){cars=[];peds=[];enemies=[];bullets=[];particles=[];pickups=[];skids=[];smoke=[];debris=[];blastRings=[];throws=[];LAW.search=null;LAW.known=null;LAW.seenAt=-99;flames=[];flashes=[];scorches=[];
+function populate(){cars=[];peds=[];enemies=[];bullets=[];particles=[];pickups=[];skids=[];smoke=[];debris=[];blastRings=[];throws=[];LAW.search=null;LAW.known=null;LAW.genAt=null;LAW.seenAt=-99;flames=[];flashes=[];scorches=[];
  for(let i=0;i<31;i++){const edge=pick(WLD.driveEdges.filter(e=>e.d>90)),t=rand(.12,.88),dir=Math.random()>.5?1:-1,a=Math.atan2(edge.b.y-edge.a.y,edge.b.x-edge.a.x)+(dir<0?Math.PI:0),c=newCar(pick(['sedan','sedan','coupe','truck']),lerp(edge.a.x,edge.b.x,t)-Math.sin(a)*15,lerp(edge.a.y,edge.b.y,t)+Math.cos(a)*15,a,{ai:'traffic',speed:rand(50,88),color:pick(['#73674b','#56666a','#835f4c','#374e50','#777963','#485361','#695555'])});c.route=[];cars.push(c)}
  for(let i=0;i<12;i++){const edge=pick(WLD.edges.filter(e=>e.d>150)),at=roadside({x:lerp(edge.a.x,edge.b.x,.45),y:lerp(edge.a.y,edge.b.y,.45)},edge.road.width/2-12);if(!blocked(at.x,at.y,18))cars.push(newCar(pick(['sedan','coupe']),at.x,at.y,at.a,{color:pick(['#61694e','#84674e','#596368'])}))}
  for(let i=0;i<48;i++){const edge=pick(WLD.edges.filter(e=>e.d>75)),t=rand(.1,.9),a=Math.atan2(edge.b.y-edge.a.y,edge.b.x-edge.a.x),off=(edge.road.width/2+9)*pick([-1,1]);const p={x:lerp(edge.a.x,edge.b.x,t)-Math.sin(a)*off,y:lerp(edge.a.y,edge.b.y,t)+Math.cos(a)*off,a,edge,t,dir:pick([-1,1]),off,speed:rand(13,23),color:pick(['#6f7260','#7b6b59','#40565a','#7f8070']),panic:0};if(!blocked(p.x,p.y,8))peds.push(p)}
@@ -379,8 +379,9 @@ function policeUpdate(c,dt){c.routeTime-=dt;c.fire-=dt;c.burstT=(c.burstT||0)-dt
    const diff=norm(Math.atan2(ty-c.y,tx-c.x)-c.a);drive(c,dt,Math.abs(diff)>2.3?-.7:1,clamp(diff*2.8,-1,1),Math.abs(diff)>1.1&&c.v>140)}}
  else{if(c.routeTime<0||!c.goal){c.goal=lawGoal(c);c.route=roadRoute(c,c.goal);c.routeTime=c.goal.fast?1.2:2}followRoad(c,dt,c.goal,carTypes[c.type].max*(c.goal.fast?.97:.7))}
  if(!c.parked&&Math.abs(c.v)<14&&Math.abs(c.throttle||0)>.4&&!c.reverse){c.stuck=(c.stuck||0)+dt;if(c.stuck>1){c.reverse=.75;c.revSteer=Math.random()>.5?1:-1;c.stuck=0}}else c.stuck=Math.max(0,(c.stuck||0)-dt);c.reverse=Math.max(0,(c.reverse||0));
- if(see&&d<470&&c.fire<0&&(c.type==='agent'||st>=3)){if(c.type==='agent')c.burst=4;else{enemyFire(c,'police');c.fire=rand(1.5,2.6)}}
- if(c.burst>0&&c.burstT<=0){enemyFire(c,'agent');c.burst--;c.burstT=.1;if(!c.burst)c.fire=rand(1.3,2.1)}
+ const manned=!(c.parked&&!(c.crew>0));if(!manned)c.burst=0;
+ if(manned&&see&&d<470&&c.fire<0&&(c.type==='agent'||st>=3)){if(c.type==='agent')c.burst=4;else{enemyFire(c,'police');c.fire=rand(1.5,2.6)}}
+ if(manned&&c.burst>0&&c.burstT<=0){enemyFire(c,'agent');c.burst--;c.burstT=.1;if(!c.burst)c.fire=rand(1.3,2.1)}
  if(d>2300&&st===0)c.remove=true}
 function spawnPolice(){const st=stars(),cap=[0,1,2,3,4,6][st],live=cars.filter(c=>c.ai==='police'&&!c.dead&&!c.burning).length;if(live>=cap)return;const ref=LAW.search||player,candidates=WLD.driveNodes.filter(n=>{const dr=dist(n,ref),dp=dist(n,player);return dr<1150&&dr>(ref===player?560:250)&&dp>480&&n.links.length>1});if(!candidates.length)return;const p=pick(candidates),a=Math.atan2(ref.y-p.y,ref.x-p.x),agent=st>=4&&Math.random()<.55;if(blocked(p.x,p.y,16))return;cars.push(newCar(agent?'agent':'police',p.x,p.y,a,{ai:'police',routeTime:0,fire:rand(1.5,3),role:live%3===1?'cut':'chase',crew:2,out:0}))}
 let roadblockTimer=10,lastStars=0;
@@ -456,12 +457,12 @@ function getPinched(){if(deathPending||deathReport)return;deathPending=true;save
 // The police know only what they saw or were told. A sighting or a reported crime sets a search circle on the
 // minimap. Squad cars drive to it and comb its streets, and it widens while nobody has eyes on you. Out of sight
 // and outside the circle, the heat drains fast. Officers step out to run down a suspect on foot.
-const LAW={search:null,seenAt:-99,gen:0,known:null};
+const LAW={search:null,seenAt:-99,gen:0,known:null,genAt:null};
 let throws=[],crewBarkT=0,crewId=0;
-function lawSaw(o,report=false){const vx=o.vx||0,vy=o.vy||0;LAW.known={x:o.x,y:o.y,vx,vy,v:Math.hypot(vx,vy)};if(!report)LAW.seenAt=elapsed;const r=report?190:110;if(!LAW.search||dist(LAW.search,o)>150){LAW.search={x:o.x,y:o.y,r};LAW.gen++}else{LAW.search.x=o.x;LAW.search.y=o.y;LAW.search.r=Math.min(LAW.search.r,r)}}
+function lawSaw(o,report=false){const vx=o.vx||0,vy=o.vy||0;LAW.known={x:o.x,y:o.y,vx,vy,v:Math.hypot(vx,vy)};if(!report)LAW.seenAt=elapsed;const r=report?190:110;if(!LAW.search)LAW.search={x:o.x,y:o.y,r};else{LAW.search.x=o.x;LAW.search.y=o.y;LAW.search.r=Math.min(LAW.search.r,r)}if(!LAW.genAt||dist(LAW.genAt,o)>60){LAW.gen++;LAW.genAt={x:o.x,y:o.y}}}
 function lawHidden(){return elapsed-LAW.seenAt>1.5}
 function outsideSearch(){const sr=LAW.search;return !sr||dist(player,sr)>sr.r}
-function lawBrainTick(dt){const st=stars();if(!st){LAW.search=null;LAW.known=null}else{if(!LAW.search)lawSaw(player.car||player,true);if(!policeSeen)LAW.search.r=Math.min(520,LAW.search.r+dt*24)}if(frame%10===0)$('heat').classList.toggle('searching',!!st&&lawHidden())}
+function lawBrainTick(dt){const st=stars();if(!st){LAW.search=null;LAW.known=null;LAW.genAt=null}else{if(!LAW.search)lawSaw(player.car||player,true);if(!policeSeen)LAW.search.r=Math.min(520,LAW.search.r+dt*24)}if(frame%10===0)$('heat').classList.toggle('searching',!!st&&lawHidden())}
 function lawGoal(c){const sr=LAW.search,k=LAW.known;
  if(c.role==='cut'&&k&&k.v>110&&elapsed-LAW.seenAt<5){const n=WLD.nearest({x:clamp(k.x+k.vx*1.9,60,WORLD-60),y:clamp(k.y+k.vy*1.9,60,WORLD_H-60)});return{x:n.x,y:n.y,fast:true}}
  if(!sr)return{x:player.x,y:player.y,fast:true};
@@ -502,7 +503,7 @@ function crewTick(e,dt){const D=e.def;e.hit=Math.max(0,e.hit-dt);e.supp=Math.max
  const d=dist(e,player);if((e.seeT-=dt)<=0){e.seeT=.15+Math.random()*.1;e.sees=d<D.see&&lineClear(e,player)}
  for(const b of bullets)if(b.from==='player'&&b.nearE!==e&&Math.abs(b.x-e.x)<46&&Math.abs(b.y-e.y)<46){b.nearE=e;e.supp=Math.min(2.2,e.supp+.8);if(!e.aware)wakeCrew(e)}
  if(!e.aware){if((e.sees&&d<D.see*.75)||e.hit>0)wakeCrew(e);else{if(Math.random()<dt*.4)e.a+=rand(-1,1);return}}
- if(e.sees){e.hiddenT=0;e.lastX=player.x;e.lastY=player.y}else e.hiddenT+=dt;
+ if(e.sees){e.hiddenT=0;e.lastX=player.x;e.lastY=player.y;if(e.cop&&stars()&&!player.car){policeSeen=true;lawSaw(player)}}else e.hiddenT+=dt;
  if(e.cop){copTick(e,dt,d);return}
  if(e.state==='engage'&&e.t<=0){if((e.supp>1||e.ammo<=0||(e.hit>0&&e.hp<e.maxHp*.5))&&e.kind!=='rusher'){if(findCover(e)){e.state='cover';e.flankPt=null;e.t=rand(.9,1.7);if(e.ammo<=0)startReload(e);else if(e.supp>1)bark(e,pick(['KEEP YOUR HEAD DOWN!','COVER ME!','HE\'S SHOOTING!']))}else e.t=1.2}else if(e.kind==='gunman'&&e.hiddenT>2.5&&!e.flankPt)pickFlank(e)}
  if(e.ammo<=0&&e.reloadT<=0)startReload(e);
