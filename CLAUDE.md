@@ -91,3 +91,9 @@ Stage only the paths you actually changed and read `git diff --cached` before co
 `npm run turn-in:browser` (part of `browser:test`) opens every answer hub in Chromium and drives typing, refreshing, shared Chromebooks, lost WiFi and 35 simultaneous turn ins against the real Turn In code. `npm run turn-in:load -- <exec URL> <key>` load tests the deployed web app with synthetic PINs; see `apps-script/turn-in/SETUP.md`.
 
 A push to GitHub is not an Apps Script deployment. Changes under `apps-script/turn-in/` reach students only after pasting into the Turn In project and editing the existing deployment to a new version. Changes under `apps-script/hall-pass/` reach students only when a new version is created on the existing Apps Script deployment. `apps-script/hall-pass/DEPLOY.md` carries that procedure and the release records.
+
+## Dry County prototype
+
+`public/hubs/dry-county/` is a just-for-fun Prohibition game on a simplified modern Mt. Morris road layout. Its people, businesses and story are fictional. Run `npm run dry-county:test` for movement, road routes, jobs, dialogue, wrecks, feedback lifecycle and saves. Source notes are in `docs/dry-county/README.md`.
+
+Dry County adds one explicit exception to the no-transmission convention above: only when a player chooses Send after a life ends, it submits optional ratings, an optional note and the displayed game-run summary to the site's Netlify Forms collection (`dry-county-feedback`). It requests no name, email, account, roster or PIN. Its inputs carry `data-desk-skip`; they are play-test feedback, not student assignment answers. Failed or unconfirmed submissions remain local and are described as unsent, with retry/download. Never claim a local save is a received submission.
