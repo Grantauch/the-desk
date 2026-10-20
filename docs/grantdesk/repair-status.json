@@ -1063,5 +1063,18 @@
       "Full Node regression and desktop/phone/landscape Chromium acceptance remain required on the protected review branch.",
       "Pursuit fixture starts away from the garage respray; roadblock layouts fit the narrower mapped streets."
     ]
+  },
+  "dry_county_noir_20261020": {
+    "status": "LOCAL_RENDER_CHECKED_PROTECTED_VERIFICATION_PENDING",
+    "summary": "0.5 midnight edition: original title illustration, projected roof materials and windows, textured roads, authored interior furniture and responsive HUD.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "67 gameplay regressions passed.",
+      "Existing desktop, phone and landscape business browser journeys passed.",
+      "Additional four-size title and fourteen-room rendering verification added to protected CI.",
+      "Canonical full verification running; production and player hardware validation remain separate."
+    ]
   }
 }
