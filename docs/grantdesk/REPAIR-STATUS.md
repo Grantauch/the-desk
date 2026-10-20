@@ -31,6 +31,12 @@ The teacher clarified that manually created Google Classroom assignments must al
 
 # GrantDesk repair status
 
+## Current checkpoint — October 19 Jeopardy unanswered wagers
+
+The final scoring review caught two ways an unanswered, locked Daily Double could end without losing the wager. Both No correct response and closing the unanswered clue now apply the same single miss ruling as Incorrect. The close control explicitly says End clue as missed. Ordinary untouched clues still return to the board without scoring, and Undo restores the wager and score. The original clue bank and saved-game format remain compatible.
+
+74 focused browser checks pass, including the two unanswered-wager routes, single resolution and undo, alongside the complete 60-clue game, accessibility, transfer and projector tests. Build and static validation pass. The initial release merged through PR #191 after protected CI and a hosted-preview playthrough; this scoring correction receives its own protected review before final production acceptance.
+
 ## Current checkpoint — October 19 Progressive Era Jeopardy v2
 
 Added a separate Progressive Era classroom game with original clue writing. A full match plays 60 different clues in two rounds, followed by one of three final prompts. An optional 10-clue empire category replaces Big Ideas. Every clue includes an answer, a short explanation and a hint. The existing reusable Jeopardy template and earlier course games remain preserved.

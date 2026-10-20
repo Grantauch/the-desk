@@ -161,6 +161,21 @@ try {
   pass(await d.locator('#utility-dialog').isVisible(), 'Undo finish restores final grading screen');
   await d.context().close();
 
+  const wagerMiss = await pageFor();
+  await wagerMiss.getByRole('button',{name:'Let’s play →'}).click();
+  await clickClue(wagerMiss,'0:muck:1');
+  await wagerMiss.locator('#dd-wager').fill('50');
+  await wagerMiss.locator('#lock-wager').click();
+  await wagerMiss.locator('#skip').click();
+  eq(await scores(wagerMiss),[-50,0,0],'Unanswered Daily Double forfeits the locked wager');
+  pass((await read(wagerMiss)).active.locked,'Unanswered Daily Double resolves once');
+  await wagerMiss.locator('#done-clue').click();
+  await wagerMiss.locator('#undo').click();
+  eq(await scores(wagerMiss),[0,0,0],'Undo restores the unanswered wager and score');
+  await wagerMiss.getByRole('button',{name:'End clue as missed'}).click();
+  eq(await scores(wagerMiss),[-50,0,0],'Closing an unanswered locked wager also forfeits it once');
+  await wagerMiss.context().close();
+
   const full = await pageFor(1280,720);
   await full.getByText('Make it interesting',{exact:true}).click();
   await full.locator('#opt-daily').uncheck();

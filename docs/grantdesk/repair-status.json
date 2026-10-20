@@ -1,4 +1,15 @@
 {
+  "progressive-jeopardy-v2-unanswered-wagers-2026-10-19": {
+    "status": "LOCAL_VERIFIED",
+    "source_base": "6bcf5719c7610f1ca953afc54aa582bed8436ff6",
+    "evidence": [
+      "No correct response and ending an unanswered locked Daily Double now each forfeit the wager through the same single miss ruling.",
+      "74 focused browser checks pass, including both unanswered-wager paths and Undo. The original 70-clue bank and saved-game format remain compatible.",
+      "Build and static validation pass: 122 HTML files, 4519 local references and 81 sealed files."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "progressive-jeopardy-v2-2026-10-19": {
     "status": "LOCAL_VERIFIED",
     "source_base": "eae2cab44a77b38f8dc2cd477f2a1524f6bbb88d",
