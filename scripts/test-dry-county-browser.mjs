@@ -19,7 +19,14 @@ try{
   await page.evaluate(()=>{const t=window.__dryTest;t.closePanel();t.camera.x=t.places[0].x;t.camera.y=t.places[0].y;t.draw()});
   await page.screenshot({path:join(out,'downtown-'+size.width+'x'+size.height+'.png')});
   assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().map.authoredLots),27);
-  if(size.width===1440){for(const [name,x,y] of [['north-common',2700,700],['west-country',900,1300],['freight',3200,2380]]){await page.evaluate(({x,y})=>{const t=window.__dryTest;t.camera.x=x;t.camera.y=y;t.draw()},{x,y});await page.screenshot({path:join(out,name+'.png')})}}
+  if(size.width===1440){for(const [name,x,y] of [['north-common',2700,700],['west-country',900,1300],['freight',3200,2380]]){await page.evaluate(({x,y})=>{const t=window.__dryTest;t.camera.x=t.player.x=x;t.camera.y=t.player.y=y;if(t.player.car){t.player.car.x=x;t.player.car.y=y;t.player.car.v=t.player.car.vx=t.player.car.vy=0}t.draw()},{x,y});await page.screenshot({path:join(out,name+'.png')})}}
+  await page.keyboard.press('KeyM');await page.locator('#fullmap').waitFor();
+  const dimensions=await page.locator('#fullmap').evaluate(el=>({width:el.width,height:el.height}));
+  const mapSize=await page.evaluate(()=>window.dryCounty.snapshot().map);
+  assert.equal(dimensions.height,Math.round(dimensions.width*mapSize.height/mapSize.width));
+  assert.equal(await page.locator('html').evaluate(el=>el.scrollWidth<=innerWidth),true);
+  await page.screenshot({path:join(out,'county-map-'+size.width+'x'+size.height+'.png'),fullPage:true});
+  await page.keyboard.press('Escape');
   const enter=async id=>{await page.evaluate(id=>{const t=window.__dryTest;if(t.interior)t.leaveBusiness(true);t.player.car=null;t.heat=0;const p=t.places.find(p=>p.id===id);t.player.x=p.x;t.player.y=p.y;t.enterBusiness(p)},id);await page.waitForTimeout(80)};
   const talk=async()=>{await page.evaluate(()=>{window.__dryTest.player.x=360;window.__dryTest.player.y=208});await page.keyboard.press('KeyF');await page.getByRole('dialog',{name:'Conversation'}).waitFor()};
   await enter('grocer');await talk();await page.getByRole('button',{name:'Collect the job parcel.',exact:false}).click();await page.keyboard.press('Escape');
