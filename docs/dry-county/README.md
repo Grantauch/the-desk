@@ -1,3 +1,38 @@
+# Dry County 0.6 — A Town With a Pulse (review branch)
+
+Phase 1 adds a browser-local civilian simulation in `town.js`. There are 72 stable fictional residents with assigned home doors, workplaces, shifts, errands and delivery work. Residents follow the traced streets, enter buildings, spend time there, then leave; workers head home after closing. Up to 24 resident-owned vehicles take destination trips, wait for pedestrians and trains, park, and let their driver finish the trip on foot. A blocked driver waits and can pass a stationary obstruction when the passing lane is clear. Crowded junctions can still queue.
+
+The town begins at 07:50 for the morning commute, and retains its clock in the existing save. Five active seconds advance one town minute. Menus, dialogue and feedback freeze the town clock; walking indoors advances the outside simulation. Businesses display their hours. Closed storefronts reject ordinary entry; an active contract handover, pharmacy emergency access, garage service and concealed-door returns remain available. Interior customers come from the resident visits outside. The existing three-minute inventory restock remains separate from ambient delivery visits, which award no money or stock.
+
+Residents who can see nearby gunfire, crashes or theft remember the incident. Some report it after a delay at its original position. Their F dialogue and short street reactions reflect what they saw. Completing a local errand can create a positive memory. Memory is saved locally, limited to six incidents per resident, and retained for up to three town days on load. Hidden residents do not witness street incidents. This is resident-level recognition, not a full rumor or faction system.
+
+Errands, customer visits and delivery arrivals occur without player input. Short contextual street notices accompany actual activity. Population, event history, path creation and memory are bounded. Near residents update at 20 Hz; intermediate residents at 4 Hz; distant residents at 1 Hz. Vehicles use 20 Hz locally and 4 Hz farther away. Low quality narrows the detailed radius. Path travel is continuous across detail levels; perception and impact reactions stay local. These are simulation budgets, not a measured Chromebook performance guarantee.
+
+## Scale pass
+
+The previous sedan was about 50×25 world units, while many houses were only 26–38 units across. Passenger-car collisions also mostly shared one size. A single body table now supplies rendering, roofs, wall probes, car contact and car-to-car collision geometry:
+
+| Body | Length × width (world units) |
+| --- | --- |
+| Coupe | 32 × 16 |
+| Standard sedan | 36 × 18 |
+| Police sedan | 38 × 18 |
+| Blackbird | 41 × 18 |
+| Federal sedan | 42 × 19 |
+| Delivery truck | 47 × 20 |
+
+Infill homes now range from 36 to 58 units across their plan dimensions, with several footprint/roof-height combinations. The 27 authored landmarks and road trace remain in their established locations. Adult sprites vary modestly in height/build; the player and story characters retain a readable common scale. These are game-art proportions, not a survey or exact historic dimensions.
+
+## 0.6 verification and release boundary
+
+`npm run dry-county:test` includes the existing gameplay suite plus a five-minute deterministic Main Street observation, stable identities, business activity and parking, local/distant simulation, active/paused clocks, hours, persistent witness memory, occluded incidents, delayed reporting, shift completion and size checks.
+
+`node scripts/test-dry-county-town-browser.mjs` is a separate **five real minute** Chromium observation of the built site, with no player input after parking on Mt. Morris Road. It retains start/midpoint/end screenshots and a five-second observation log. The script instruments only its test server; production exposes only the existing read-only diagnostic snapshot, now including town activity and scale. The protected workflow also runs the existing desktop/phone/landscape gameplay and four-size art checks.
+
+Production stays on the existing release. Do not merge or promote this branch until the canonical full gate, browser journeys, five-minute observation and hosted visual check pass. Actual Chromebook/classroom use remains separate field evidence.
+
+---
+
 # Dry County prototype 0.4
 
 The road centerlines in `public/hubs/dry-county/world.js` were manually digitized from the two Mt. Morris aerial/reference screenshots supplied by Grant on October 20, 2026. The view covers the Mt. Morris Road / Saginaw Street junction, Dort Highway, the surrounding residential street shapes, and the diagonal railway. This is a simplified game map derived from the modern reference, not a survey or a reconstruction of the 1926 town. No Google aerial tiles or screenshots are embedded in the published game.

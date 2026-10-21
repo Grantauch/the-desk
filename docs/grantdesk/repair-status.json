@@ -778,7 +778,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -1077,6 +1077,18 @@
       "Additional four-size title and fourteen-room rendering verification added to protected CI.",
       "Initial visual-pass full local verification, protected GitHub build and hosted Netlify preview passed on 822712b.",
       "Combined release full verification running; final protected build, production and player hardware validation remain separate."
+    ]
+  },
+  "dry_county_pulse_20261021": {
+    "status": "IMPLEMENTED_REVIEW_VERIFICATION_IN_PROGRESS",
+    "summary": "0.6 Phase 1 living residents, purposeful civilian traffic, local witness memory, business schedules and background activity, simulation budgets, and shared scale geometry.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Initial deterministic five-minute town observation passed seven checks, including business footfall, destination trips and parking, stable identities, local/distant simulation, clocks, hours, save memory and vehicle/house proportions.",
+      "Existing gameplay regression suite passed after adapting hours and collision fixtures to the new scale.",
+      "Expanded occlusion, delayed-report and shift checks, canonical full verification, protected real-time five-minute Chromium observation and hosted visual QA remain in progress."
     ]
   }
 }

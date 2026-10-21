@@ -5,7 +5,7 @@ import {join,resolve} from 'node:path';
 import {chromium} from 'playwright';
 const root=resolve('dist/hubs/dry-county'),out=resolve('browser-results/dry-county');
 await mkdir(out,{recursive:true});
-const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={camera,draw,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
+const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={get town(){return town},camera,draw,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
 const server=createServer(async(req,res)=>{try{const file=(req.url||'/').split('?')[0];if(file.includes('..'))throw Error('Invalid path');const p=file==='/'?'index.html':file.slice(1);let bytes=await readFile(join(root,p));if(p==='game.js')bytes=Buffer.from(instrument(bytes.toString()));res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.webp')?'image/webp':'text/html');res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true});
@@ -27,7 +27,7 @@ try{
   assert.equal(await page.locator('html').evaluate(el=>el.scrollWidth<=innerWidth),true);
   await page.screenshot({path:join(out,'county-map-'+size.width+'x'+size.height+'.png'),fullPage:true});
   await page.keyboard.press('Escape');
-  const enter=async id=>{await page.evaluate(id=>{const t=window.__dryTest;if(t.interior)t.leaveBusiness(true);t.player.car=null;t.heat=0;const p=t.places.find(p=>p.id===id);t.player.x=p.x;t.player.y=p.y;t.enterBusiness(p)},id);await page.waitForTimeout(80)};
+  const enter=async id=>{await page.evaluate(id=>{const t=window.__dryTest;t.town.state.minute=600;if(t.interior)t.leaveBusiness(true);t.player.car=null;t.heat=0;const p=t.places.find(p=>p.id===id);t.player.x=p.x;t.player.y=p.y;t.enterBusiness(p)},id);await page.waitForTimeout(80)};
   const talk=async()=>{await page.evaluate(()=>{window.__dryTest.player.x=360;window.__dryTest.player.y=208});await page.keyboard.press('KeyF');await page.getByRole('dialog',{name:'Conversation'}).waitFor()};
   await enter('grocer');await talk();await page.getByRole('button',{name:'Collect the job parcel.',exact:false}).click();await page.keyboard.press('Escape');
   await talk();await page.getByRole('button',{name:'Show me what you buy and sell.',exact:false}).click();
