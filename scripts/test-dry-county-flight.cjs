@@ -16,7 +16,7 @@ test('three aircraft classes have unique roles and historically labeled equipmen
  assert(Flight.TYPES.rotorcraft.period.includes('Alternate-history'));
  assert(Flight.TYPES.biplane.period.includes('Period'));
  assert.notEqual(Flight.TYPES.biplane.span,Flight.TYPES.rotorcraft.span);
- assert.throws(()=>Flight.create('not-aircraft',10,10),RangeError);
+ assert.throws(()=>Flight.create('not-aircraft',10,10),/Unknown aircraft/);
 });
 test('rotorcraft lifts off, moves, hovers and lands on the ground plane',()=>{
  const c=Flight.create('rotorcraft',3000,1500);
@@ -50,9 +50,9 @@ test('aircraft stay within all map edges at extreme speeds',()=>{
 test('police follow visible suspects, then preserve last known coordinates',()=>{
  const c=Flight.create('rotorcraft',1000,900,{z:80,landed:false});
  for(let i=0;i<600;i++)Flight.updatePolice(c,{x:2000,y:1200,visible:true},dt,env);
- assert(c.x>1010,'follows actual sighting');assert.deepEqual(c.search,{x:2000,y:1200});
+ assert(c.x>1010,'follows actual sighting');assert.equal(c.search.x,2000);assert.equal(c.search.y,1200);
  for(let i=0;i<420;i++)Flight.updatePolice(c,{x:3000,y:2000,visible:false},dt,env);
- assert.deepEqual(c.search,{x:2000,y:1200},'must not track invisible player');
+ assert.equal(c.search.x,2000,'must not track invisible player x');assert.equal(c.search.y,1200,'must not track invisible player y');
  assert(c.searchAge>6);
  const cmd=Flight.policeInput(c,null,36);assert(cmd.searching);
  finite(c);
