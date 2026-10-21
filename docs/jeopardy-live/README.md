@@ -45,6 +45,14 @@ In the Live panel, scan the code with your phone or type the link under **Phone 
 
 A typed first name, the team they picked, their buzzes, room calls, Pick a Number guesses and Final Jeopardy wagers and answers go to the teacher's Firebase project under `jep/`. No email, no Google account, no grades. The rules stop players from reading another team's guesses or Final answer, from buzzing before the buzzers open, from faking a buzz time, and from sending remote commands.
 
+## Cloud boards
+
+Edits normally live in the browser where you made them. To edit at home and play at school, open **Boards** and press **Cloud** on a board. You get a link. From then on every edit saves to the cloud a moment after you type it, including fixes made in the middle of a game.
+
+Open the link on another computer and the board appears there, ready to play. When either computer loads the game, it pulls any newer edits made on the other one. **Open a cloud link** in Boards does the same thing when you paste a link.
+
+Anyone with the link can open and change the board, so share it only with teachers you trust and keep it off the projector. A built in board saved to the cloud becomes your own copy, and the original stays untouched. Cloud boards live in the same Firebase project under `jepBoards/`, hold no student information, and nobody can list them without the link.
+
 ## Editing questions
 
 Press **Edit** in the top bar, or **Edit questions** on the start screen. Every category, clue, answer, hint, teacher note, point value, Daily Double and Final Jeopardy clue can be changed, and edits save as you type. **Boards** holds copies, imports, exports and **Paste from a spreadsheet**, which builds a board from six columns: Round, Category, Clue, Answer, Explanation, Hint.

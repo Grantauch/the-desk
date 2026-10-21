@@ -432,6 +432,25 @@
           ".validate": false
         }
       }
+    },
+    "jepBoards": {
+      "$id": {
+        ".read": "auth != null",
+        ".write": "auth != null && $id.matches(/^[A-HJ-NP-Za-km-z2-9]{20}$/)",
+        ".validate": "newData.hasChildren(['v', 't'])",
+        "v": {
+          ".validate": "newData.isString() && newData.val().length <= 400000"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "t": {
+          ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }

@@ -511,6 +511,9 @@ body.host .pick-layer .postit .front small{font-size:clamp(11px,1vw,16px);bottom
 .live-ok{font:700 .75rem var(--font-body);color:var(--good);border:1px solid var(--good);border-radius:999px;padding:1px 8px;text-transform:none}
 @media (max-width:700px){.remote-box{grid-template-columns:1fr}}
 
+.cloud-st{margin:4px 0 0;font-size:.8rem;color:var(--good);font-weight:700;min-height:1em}
+.err-t{color:var(--bad);font-weight:700;min-height:1.2em;margin:8px 0 0}
+
 </style>
 </head>
 <body>
@@ -711,6 +714,7 @@ function saveBoard(b){
  if(c.builtin)LIB.over[c.id]=c;
  else{const i=LIB.user.findIndex(x=>x.id===c.id);if(i<0)LIB.user.push(c);else LIB.user[i]=c}
  saveLib();
+ if(c.cloud&&typeof cloudSaveSoon==='function')cloudSaveSoon(c);
 }
 let saveT=null;function saveBoardSoon(b){clearTimeout(saveT);saveT=setTimeout(()=>{saveBoard(b);flashSaved()},350)}
 function defaultName(b,i){const list=b.teamNames||(b.builtin?DEFAULT_NAMES:[]);return list[i]||('Team '+(i+1))}
@@ -910,7 +914,7 @@ function commit(opt={}){
 }
 
 /* ================= Icons ================= */
-const IC={note:'<path d="M4 4h16v11l-5 5H4z"/><path d="M15 20v-5h5"/>',screen:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',palette:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a3 3 0 0 1 0-6h2"/>',sound:'<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',mute:'<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>',menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',check:'<path d="m5 12 5 5L20 7"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',back:'<path d="M15 18 9 12l6-6"/>',next:'<path d="m9 18 6-6-6-6"/>',bulb:'<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',key:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 14h10M6 10h.01M10 10h.01M14 10h.01M18 10h.01"/>',print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',board:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9M15 21V9"/>',trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a4 4 0 0 1-4 4M7 5H4v2a4 4 0 0 0 4 4"/>',play:'<path d="m7 4 13 8-13 8z"/>',pause:'<path d="M8 4v16M16 4v16"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',dl:'<path d="M12 3v12m-5-5 5 5 5-5M5 21h14"/>',ul:'<path d="M12 21V9m-5 5 5-5 5 5M5 3h14"/>',copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',reset:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',full:'<path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/>',wifi:'<path d="M2 8.8a15 15 0 0 1 20 0M5 12.6a10 10 0 0 1 14 0M8.5 16.4a5 5 0 0 1 7 0"/><circle cx="12" cy="20" r="1"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>'};
+const IC={note:'<path d="M4 4h16v11l-5 5H4z"/><path d="M15 20v-5h5"/>',screen:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',palette:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a3 3 0 0 1 0-6h2"/>',sound:'<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',mute:'<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>',menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',check:'<path d="m5 12 5 5L20 7"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',back:'<path d="M15 18 9 12l6-6"/>',next:'<path d="m9 18 6-6-6-6"/>',bulb:'<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',key:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 14h10M6 10h.01M10 10h.01M14 10h.01M18 10h.01"/>',print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',board:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9M15 21V9"/>',trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a4 4 0 0 1-4 4M7 5H4v2a4 4 0 0 0 4 4"/>',play:'<path d="m7 4 13 8-13 8z"/>',pause:'<path d="M8 4v16M16 4v16"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',dl:'<path d="M12 3v12m-5-5 5 5 5-5M5 21h14"/>',ul:'<path d="M12 21V9m-5 5 5-5 5 5M5 3h14"/>',copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',reset:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',full:'<path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/>',cloud:'<path d="M7 18a5 5 0 0 1-.6-9.96A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',wifi:'<path d="M2 8.8a15 15 0 0 1 20 0M5 12.6a10 10 0 0 1 14 0M8.5 16.4a5 5 0 0 1 7 0"/><circle cx="12" cy="20" r="1"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>'};
 const icon=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
 const tc=i=>i>=0?`var(--t${(i%8)+1})`:'var(--muted)';
 const lenClass=s=>{const n=(s||'').length;return n>230?'len-xl':n>165?'len-l':n>105?'len-m':''};
@@ -974,7 +978,7 @@ function startHTML(){
  ${resume}
  <div class="hero"><span class="kicker">${esc(b.subtitle||'Review game')} · Jeopardy</span><h\u0031>${esc(b.title)}<span class="v3">V3</span></h1><p>${esc(b.desc||'Pick a board, name your teams, choose a look. Every clue, category and score stays editable from this screen.')}</p></div>
  <div class="start-grid">
-  <section class="card"><h2>Board</h2><p class="sub">${b.rounds.length} round${b.rounds.length>1?'s':''} · ${r1.cats.length} categories · ${b.builtin?'built in':'your board'}</p>
+  <section class="card"><h2>Board</h2><p class="sub">${b.rounds.length} round${b.rounds.length>1?'s':''} · ${r1.cats.length} categories · ${b.builtin?'built in':b.cloud?'saved to the cloud':'your board'}</p>
    <div class="chips">${r1.cats.map(c=>`<span class="chip">${esc(c.name||'Untitled')}</span>`).join('')}</div>
    <div class="row"><button class="btn" data-act="boards">${icon('board')}Change board</button><button class="btn" data-act="edit-board">${icon('edit')}Edit questions</button><button class="btn ghost" data-act="answer-key">${icon('print')}Answer key</button></div>
    <h2 style="margin-top:22px">Look</h2><p class="sub">Change it any time during the game.</p><div class="looks">${looks}</div>
@@ -1438,6 +1442,55 @@ function runRemote(c,a){
  const fn=map[c];if(fn){SFX.init();fn()}
 }
 
+/* ================= Cloud boards (Firebase) ================= */
+const CLOUD={status:{},timers:{}};
+const CLOUD_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+const CLOUD_PAGE='https://grant-desk.com/hubs/ush9-progressive-era-jeopardy-v3.html';
+function newCloudId(){const a=new Uint32Array(20);crypto.getRandomValues(a);return Array.from(a,x=>CLOUD_CHARS[x%CLOUD_CHARS.length]).join('')}
+const cloudLink=id=>CLOUD_PAGE+'?board='+id;
+function boardPayload(b){return{title:b.title,subtitle:b.subtitle||'',desc:b.desc||'',teamNames:b.teamNames||null,rounds:b.rounds,finals:b.finals,finalPick:b.finalPick||0}}
+function setCloudStatus(id,s){CLOUD.status[id]=s;const el=document.querySelector(`[data-cloud-status="${id}"]`);if(el)el.textContent=cloudStatusText(id);if(s==='saved')document.querySelectorAll('[data-saved]').forEach(sv=>{sv.textContent='Saved to cloud';clearTimeout(sv._t);sv._t=setTimeout(()=>sv.textContent='',2500)})}
+function cloudStatusText(id){const s=CLOUD.status[id];return s==='saving'?'Saving to cloud...':s==='saved'?'Saved to cloud':s==='error'?'Cloud save failed. Your edits are safe in this browser.':''}
+async function cloudSave(b){
+ if(!b||!b.cloud)return;
+ const id=b.cloud;setCloudStatus(id,'saving');
+ try{
+  const F=await firebase();LIVE.F=LIVE.F||F;
+  await F.D.set(F.ref('jepBoards/'+id),{v:JSON.stringify(boardPayload(b)),title:String(b.title||'Board').slice(0,120),t:F.D.serverTimestamp()});
+  const t=(await F.D.get(F.ref('jepBoards/'+id+'/t'))).val();
+  const local=LIB.user.find(x=>x.cloud===id);if(local){local.cloudT=t;saveLib()}
+  if(G&&G.board.cloud===id)G.board.cloudT=t;
+  setCloudStatus(id,'saved');
+ }catch(e){setCloudStatus(id,'error');console.warn(e)}
+}
+function cloudSaveSoon(b){if(!b||!b.cloud)return;const id=b.cloud,copy=clone(b);setCloudStatus(id,'saving');clearTimeout(CLOUD.timers[id]);CLOUD.timers[id]=setTimeout(()=>cloudSave(copy),1500)}
+async function cloudFetch(id){
+ const F=await firebase();LIVE.F=LIVE.F||F;
+ const snap=(await F.D.get(F.ref('jepBoards/'+id))).val();
+ if(!snap||!snap.v)throw new Error('noboard');
+ const data=JSON.parse(snap.v);if(!data||!Array.isArray(data.rounds))throw new Error('noboard');
+ return{data,t:snap.t};
+}
+function cloudError(e){const m=String((e&&(e.code||e.message))||e);if(m==='noboard')return'No board at that link. Check that the whole link was copied.';return liveError(e)}
+/* Bring a cloud board into this browser, or refresh the copy already here */
+async function cloudOpen(id,quiet){
+ const{data,t}=await cloudFetch(id);
+ let b=LIB.user.find(x=>x.cloud===id);
+ if(b){Object.assign(b,data,{cloud:id,cloudT:t});normalize(b)}
+ else{b=normalize(Object.assign({},data,{id:'u'+Date.now().toString(36),builtin:false,cloud:id,cloudT:t}));LIB.user.push(b)}
+ saveLib();EB=null;
+ if(!(G&&SCREEN==='game'))PREFS.boardId=b.id;
+ if(!quiet)toast('Opened '+(b.title||'board')+' from the cloud');
+ commit();return b;
+}
+/* On load, pull newer edits made on another computer */
+async function cloudRefresh(){
+ const b=LIB.user.find(x=>x.id===PREFS.boardId&&x.cloud);if(!b)return;
+ try{const F=await firebase();const t=(await F.D.get(F.ref('jepBoards/'+b.cloud+'/t'))).val();
+  if(t&&(!b.cloudT||t>b.cloudT)){await cloudOpen(b.cloud,true);toast('Pulled the latest edits to '+b.title)}}catch{}
+}
+function parseCloudId(s){const m=String(s||'').match(/[?&]board=([A-Za-z0-9]{20})/)||String(s||'').trim().match(/^([A-Za-z0-9]{20})$/);return m?m[1]:''}
+
 /* ================= Sound (original synthesized tones) ================= */
 const SFX={ctx:null,master:null,thinkT:null,
  on(){return HOST&&PREFS.sound},
@@ -1476,7 +1529,7 @@ const Confetti={cv:null,cx:null,parts:[],run:false,
 /* ================= Toast, modal, drawer ================= */
 let toastT=null;
 function toast(msg){const el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2600)}
-function flashSaved(){const el=document.getElementById('saved');if(el){el.textContent='Saved';clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',1400)}}
+function flashSaved(){document.querySelectorAll('[data-saved]').forEach(el=>{el.textContent='Saved';clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',1400)})}
 let MODAL=null,DRAWER=null;
 function openModal(kind,arg){MODAL={kind,arg};renderModal()}
 function closeModal(){MODAL=null;renderModal()}
@@ -1527,11 +1580,14 @@ const MODALS={
   return`<h2>Keyboard shortcuts</h2><p class="sub">Your clicker or keyboard can run the whole game.</p><div class="keys">${k.map(([a,b])=>`<kbd>${a}</kbd><span>${b}</span>`).join('')}</div>`},
  confirm(a){return`<h2>${esc(a.title)}</h2><p class="sub">${esc(a.text)}</p><div class="mfoot"><button class="btn ghost" data-act="modal-close">Cancel</button><button class="btn primary" data-act="confirm-yes">${esc(a.yes||'Yes')}</button></div>`},
  boards(){const list=allBoards(),curId=G&&SCREEN==='game'?G.board.id:PREFS.boardId;
-  return`<h2>Boards</h2><p class="sub">Built in boards can be edited and restored. Your boards live in this browser, so export a copy to move them.</p><div class="blist">${list.map(b=>`<div class="bitem ${b.id===curId?'cur':''}"><div><h3>${esc(b.title)}</h3><p>${b.builtin?'Built in':'Your board'} · ${b.rounds.length} round${b.rounds.length>1?'s':''} · ${b.rounds[0].cats.map(c=>esc(c.name)).join(', ')}</p></div><div class="row">
+  return`<h2>Boards</h2><p class="sub">Built in boards can be edited and restored. Boards live in this browser unless you save them to the cloud, which lets you edit at home and play at school from the same link.</p><div class="blist">${list.map(b=>`<div class="bitem ${b.id===curId?'cur':''}"><div><h3>${esc(b.title)}</h3><p>${b.builtin?'Built in':b.cloud?'Cloud board':'Your board'} · ${b.rounds.length} round${b.rounds.length>1?'s':''} · ${b.rounds[0].cats.map(c=>esc(c.name)).join(', ')}</p>${b.cloud?`<p class="cloud-st" data-cloud-status="${b.cloud}">${esc(cloudStatusText(b.cloud))}</p>`:''}</div><div class="row">
    <button class="btn sm ${b.id===curId?'':'primary'}" data-act="board-use" data-arg="${b.id}" ${b.id===curId?'disabled':''}>${b.id===curId?'In use':'Use'}</button>
-   <button class="btn sm" data-act="board-dup" data-arg="${b.id}" title="Duplicate">${icon('copy')}</button><button class="btn sm" data-act="board-export" data-arg="${b.id}" title="Export">${icon('dl')}</button>
+   <button class="btn sm ${b.cloud?'live-on':''}" data-act="board-cloud" data-arg="${b.id}" title="${b.cloud?'Cloud link':'Save to the cloud'}">${icon('cloud')}${b.cloud?'Link':'Cloud'}</button><button class="btn sm" data-act="board-dup" data-arg="${b.id}" title="Duplicate">${icon('copy')}</button><button class="btn sm" data-act="board-export" data-arg="${b.id}" title="Export">${icon('dl')}</button>
    ${b.builtin?(LIB.over[b.id]?`<button class="btn sm" data-act="board-restore" data-arg="${b.id}" title="Restore the original questions">${icon('reset')}</button>`:''):`<button class="btn sm bad" data-act="board-del" data-arg="${b.id}" title="Delete">${icon('trash')}</button>`}</div></div>`).join('')}</div>
-  <div class="mfoot" style="justify-content:flex-start"><button class="btn" data-act="board-new">${icon('plus')}New blank board</button><button class="btn" data-act="board-paste">${icon('copy')}Paste from a spreadsheet</button><button class="btn" data-act="board-import">${icon('ul')}Import a file</button></div>`},
+  <div class="mfoot" style="justify-content:flex-start"><button class="btn" data-act="board-new">${icon('plus')}New blank board</button><button class="btn" data-act="board-paste">${icon('copy')}Paste from a spreadsheet</button><button class="btn" data-act="board-import">${icon('ul')}Import a file</button><button class="btn" data-act="board-link">${icon('cloud')}Open a cloud link</button></div>`},
+ cloud(id){const b=getBoard(id);if(!b?.cloud)return'';const url=cloudLink(b.cloud);
+  return`<h2>${icon('cloud')} ${esc(b.title)}</h2><p class="sub">This board saves to the cloud every time you edit it. Open this link on any computer to get the latest version, and edits made there come back here too.</p><div class="remote-box"><div><code id="cl-url">${esc(url)}</code><p class="sub" style="margin-top:10px">Anyone with this link can open and change the board. Share it only with teachers you trust, and keep it off the projector.</p><p class="cloud-st" data-cloud-status="${b.cloud}">${esc(cloudStatusText(b.cloud))}</p></div><div id="qr" class="qr" data-url="${esc(url)}"></div></div><div class="mfoot"><button class="btn" data-act="cloud-copy" data-arg="${esc(url)}">${icon('copy')}Copy link</button><button class="btn primary" data-act="modal-close">Done</button></div>`},
+ link(){return`<h2>Open a cloud link</h2><p class="sub">Paste a board link from another computer or another teacher.</p><input type="text" id="cl-in" placeholder="https://grant-desk.com/hubs/...?board=" autocomplete="off"><p class="err-t" id="cl-err"></p><div class="mfoot"><button class="btn ghost" data-act="modal-close">Cancel</button><button class="btn primary" data-act="cloud-open">Open it</button></div>`},
  paste(){return`<h2>Paste from a spreadsheet</h2><p class="sub">Copy rows from Google Sheets or Excel and paste them here. Columns in this order: Round, Category, Clue, Answer, Explanation, Hint. Use 1 or 2 for the round and F for Final Jeopardy. Explanation and Hint can be blank.</p>
   <textarea id="paste-box" style="min-height:240px;font-family:ui-monospace,Consolas,monospace;font-size:.85rem" placeholder="1&#9;Muckrakers&#9;He photographed tenements...&#9;Jacob Riis"></textarea>
   <div class="mgrid" style="margin-top:12px"><label class="field">Board title<input type="text" id="paste-title" value="New board"></label></div>
@@ -1560,7 +1616,7 @@ function renderDrawer(){
   const id=DRAWER.arg,{r,c,n}=parseId(id),rd=b.rounds[r];if(!rd||!rd.cats[c]){closeDrawer();return}
   const cl=rd.cats[c].clues[n],pin=(rd.pins||[]).includes(`${c}:${n}`),inGame=G&&SCREEN==='game'&&G.board===b,played=inGame&&G.used[id];
   const fld=(key,label,ta,ph)=>`<label class="field">${label}${ta?`<textarea id="cf-${key}" data-in="cf" data-arg="${key}" placeholder="${ph||''}">${esc(cl[key])}</textarea>`:`<input type="text" id="cf-${key}" data-in="cf" data-arg="${key}" value="${esc(cl[key])}" placeholder="${ph||''}">`}</label>`;
-  h=`<header><div><h2>${esc(rd.cats[c].name||'Category')} · ${rd.values[n]}</h2><small class="saved" id="saved"></small></div><div class="row"><button class="btn icon" data-act="drawer-step" data-arg="-1" aria-label="Previous clue">${icon('back')}</button><button class="btn icon" data-act="drawer-step" data-arg="1" aria-label="Next clue">${icon('next')}</button><button class="btn icon" data-act="drawer-close" aria-label="Close">${icon('x')}</button></div></header>
+  h=`<header><div><h2>${esc(rd.cats[c].name||'Category')} · ${rd.values[n]}</h2><small class="saved" data-saved></small></div><div class="row"><button class="btn icon" data-act="drawer-step" data-arg="-1" aria-label="Previous clue">${icon('back')}</button><button class="btn icon" data-act="drawer-step" data-arg="1" aria-label="Next clue">${icon('next')}</button><button class="btn icon" data-act="drawer-close" aria-label="Close">${icon('x')}</button></div></header>
   <div class="dbody">${fld('q','Clue',true,'What the class sees')}${fld('a','Answer',false,'Shown on the reveal')}${fld('why','Explanation',true,'Optional. Shown under the answer')}${fld('hint','Hint',false,'Optional. Worth half value')}${fld('note','Teacher note',false,'Optional. Only you ever see this')}
   <label class="switch"><input type="checkbox" data-ch="dd-pin" ${pin?'checked':''}><span>Always a Daily Double here<small>Pinned tiles count toward this round's Daily Doubles.</small></span></label>
   ${inGame?`<label class="switch"><input type="checkbox" data-ch="mark-played" ${played?'checked':''}><span>Already played<small>Fix the board if a tile was opened by mistake. Scores do not change.</small></span></label>`:''}</div>
@@ -1568,7 +1624,7 @@ function renderDrawer(){
  }else if(DRAWER.kind==='final'){
   const fi=clamp(DRAWER.arg||0,0,b.finals.length-1),f=b.finals[fi];
   const fld=(key,label,ta)=>`<label class="field">${label}${ta?`<textarea id="ff-${key}" data-in="ff" data-arg="${key}">${esc(f[key])}</textarea>`:`<input type="text" id="ff-${key}" data-in="ff" data-arg="${key}" value="${esc(f[key])}">`}</label>`;
-  h=`<header><div><h2>Final Jeopardy</h2><small class="saved" id="saved"></small></div><button class="btn icon" data-act="drawer-close" aria-label="Close">${icon('x')}</button></header>
+  h=`<header><div><h2>Final Jeopardy</h2><small class="saved" data-saved></small></div><button class="btn icon" data-act="drawer-close" aria-label="Close">${icon('x')}</button></header>
   <div class="dbody"><div class="seg">${b.finals.map((x,i)=>`<button data-act="final-tab" data-arg="${i}" aria-pressed="${i===fi}">${esc(x.cat||'Final '+(i+1))}</button>`).join('')}<button data-act="final-add">${icon('plus')}</button></div>
   ${fld('cat','Category')}${fld('q','Clue',true)}${fld('a','Answer')}${fld('why','Explanation',true)}${fld('note','Teacher note')}
   <label class="switch"><input type="radio" name="fp" data-ch="final-use" data-arg="${fi}" ${b.finalPick===fi?'checked':''}><span>Use this one in the game</span></label>
@@ -1591,7 +1647,7 @@ function editStripHTML(b){
  <label class="sub" style="margin:0;display:flex;gap:6px;align-items:center">Daily Doubles<select data-ch="e-dd" style="width:70px;min-height:36px">${[0,1,2,3,4].map(x=>`<option ${rd.dd===x?'selected':''}>${x}</option>`).join('')}</select></label>
  <button class="btn sm" data-act="cat-add">${icon('plus')}Category</button><button class="btn sm" data-act="row-add">${icon('plus')}Row</button><button class="btn sm" data-act="row-del" ${rd.values.length<=1?'disabled':''}>${icon('minus')}Row</button>
  ${b.rounds.length<3?`<button class="btn sm" data-act="round-add">${icon('plus')}Round</button>`:''}${b.rounds.length>1?`<button class="btn sm bad" data-act="round-del">${icon('trash')}Round</button>`:''}
- <span class="saved" id="saved"></span><button class="btn primary sm" data-act="edit-done" style="margin-left:auto">${icon('check')}Done editing</button></div>`;
+ <span class="saved" data-saved></span><button class="btn primary sm" data-act="edit-done" style="margin-left:auto">${icon('check')}Done editing</button></div>`;
 }
 function editBoardHTML(b){
  const rd=b.rounds[ER],inGame=G&&SCREEN==='game'&&G.board===b;
@@ -1691,6 +1747,14 @@ const ACT={
  'board-import'(){pickFile(txt=>{try{const o=JSON.parse(txt);const arr=o.board?[o.board]:Array.isArray(o.boards)?o.boards:o.rounds?[o]:[];if(!arr.length){toast('No board found in that file');return}arr.forEach(x=>{const b=normalize(clone(x));b.id='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);b.builtin=false;LIB.user.push(b);PREFS.boardId=b.id});saveLib();EB=null;commit();openModal('boards');toast('Imported')}catch{toast('Could not read that file')}})},
  'board-new'(){const b={id:'u'+Date.now().toString(36),builtin:false,title:'New board',subtitle:'',rounds:[{name:'Round One',values:BOARD_STD.slice(),dd:1,cats:Array.from({length:6},()=>blankCat(5))}],finals:[{cat:'',q:'',a:'',why:'',note:''}],finalPick:0};LIB.user.push(normalize(b));saveLib();PREFS.boardId=b.id;EB=null;closeModal();if(G&&SCREEN==='game')SCREEN='start';EDITING=true;ER=0;commit()},
  'board-paste'(){openModal('paste')},
+ async 'board-cloud'(id){let b=getBoard(id);if(b.cloud){openModal('cloud',b.id);return}
+  if(b.builtin){b=clone(b);b.id='u'+Date.now().toString(36);b.builtin=false;LIB.user.push(b);if(PREFS.boardId===id&&!(G&&SCREEN==='game'))PREFS.boardId=b.id;if(G&&SCREEN==='game'&&G.board.id===id)G.board.id=b.id}
+  b.cloud=newCloudId();const local=LIB.user.find(x=>x.id===b.id);if(local)local.cloud=b.cloud;if(G&&SCREEN==='game'&&G.board.id===b.id)G.board.cloud=b.cloud;
+  saveLib();EB=null;openModal('cloud',b.id);await cloudSave(b);renderModal();commit()},
+ 'cloud-copy'(url){(navigator.clipboard?.writeText(url)||Promise.reject()).then(()=>toast('Link copied'),()=>{const el=document.getElementById('cl-url');if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)}toast('Press Ctrl+C to copy')})},
+ 'board-link'(){openModal('link')},
+ async 'cloud-open'(){const id=parseCloudId(document.getElementById('cl-in')?.value);const err=document.getElementById('cl-err');if(!id){if(err)err.textContent='That does not look like a board link.';return}
+  if(err)err.textContent='Opening...';try{if(G&&SCREEN==='game'){toast('Board added. Pick it from Boards when this game ends.')}await cloudOpen(id);closeModal()}catch(e){if(err)err.textContent=cloudError(e)}},
  'paste-go'(){const txt=document.getElementById('paste-box').value,title=document.getElementById('paste-title').value.trim()||'New board';const b=sheetToBoard(txt,title);if(!b){toast('Nothing to build. Check the columns and try again.');return}LIB.user.push(b);saveLib();PREFS.boardId=b.id;EB=null;closeModal();if(G&&SCREEN==='game')SCREEN='start';EDITING=true;ER=0;commit();toast('Board built. Look it over, then press Done editing.')},
  'copy-template'(){const t='Round\tCategory\tClue\tAnswer\tExplanation\tHint\n1\tMuckrakers\tHe photographed New York tenements for How the Other Half Lives.\tJacob Riis\tHis 1890 book used flash photography.\tThink camera.\n1\tMuckrakers\tShe exposed Standard Oil in McClure\'s magazine.\tIda Tarbell\t\t\n2\tPresidents\tHe signed the Clayton Antitrust Act in 1914.\tWoodrow Wilson\t\t\nF\tReform and Its Limits\tName one reform and one group it left out.\tAny accurate pairing\t\t\n';
   (navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast('Template copied. Paste it into Google Sheets.'),()=>{const box=document.getElementById('paste-box');box.value=t;box.select();toast('Template placed in the box')})},
@@ -1820,6 +1884,8 @@ function boot(){
   if(BC)BC.onmessage=e=>{const m=e.data;if(!m)return;const was=projOn();if(m.t==='hello'){lastPing=Date.now();cast()}if(m.t==='ping')lastPing=Date.now();if(was!==projOn())render()};
   setInterval(()=>{const on=projOn();if(on!==boot._p){boot._p=on;render()}},2000);
   addEventListener('beforeunload',()=>{saveGame()});
+  const bl=parseCloudId(location.search);
+  if(bl){history.replaceState(null,'',location.pathname);cloudOpen(bl).catch(e=>toast(cloudError(e)))}else if(LIB.user.some(x=>x.cloud))cloudRefresh();
   try{const s=JSON.parse(localStorage.getItem('deskjep3.live')||'null');if(s&&s.code)goLive(true)}catch{}
  }
  render();cast();requestAnimationFrame(timerLoop);
