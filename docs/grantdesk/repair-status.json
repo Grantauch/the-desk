@@ -1080,15 +1080,17 @@
     ]
   },
   "dry_county_pulse_20261021": {
-    "status": "IMPLEMENTED_REVIEW_VERIFICATION_IN_PROGRESS",
+    "status": "LOCAL_FULL_AND_BROWSER_JOURNEYS_PASSED_REALTIME_AND_PROTECTED_PENDING",
     "summary": "0.6 Phase 1 living residents, purposeful civilian traffic, local witness memory, business schedules and background activity, simulation budgets, and shared scale geometry.",
     "commit_status": "REVIEW_BRANCH",
     "deployment_status": "NOT_DEPLOYED",
     "field_status": "FIELD_PENDING",
     "verification": [
-      "Initial deterministic five-minute town observation passed seven checks, including business footfall, destination trips and parking, stable identities, local/distant simulation, clocks, hours, save memory and vehicle/house proportions.",
-      "Existing gameplay regression suite passed after adapting hours and collision fixtures to the new scale.",
-      "Expanded occlusion, delayed-report and shift checks, canonical full verification, protected real-time five-minute Chromium observation and hosted visual QA remain in progress."
+      "Canonical npm run verify passed: 53 built routes, 128 HTML files and 4542 local references; verification made no tracked authoring mutations.",
+      "77 existing gameplay checks and 10 living-town checks passed, including a deterministic five-minute observation with 54 nearby pedestrians, 10 drivers, 46 business visits, 4 deliveries and 6 parking arrivals.",
+      "Desktop/phone/landscape gameplay browser journeys and four-size/fourteen-room art checks passed. The latter caught and verified a phone title overflow fix for wider fallback fonts.",
+      "The independent five-real-minute Chromium observation, final-head protected verification and player hardware field use remain separate pending evidence.",
+      "Netlify production remains on 104cc8066bcdaf48a13dbc429fdb874f912fe403. No merge, promotion or production deployment performed."
     ]
   }
 }

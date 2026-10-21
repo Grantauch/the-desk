@@ -2,7 +2,7 @@
 
 Adds 72 living residents, shifts/errands, destination traffic and parking, witness memories, business hours and real interior customers, background deliveries, and distance-based simulation budgets. The scale audit reduces oversized cars, gives six body types distinct shared render/collision dimensions, broadens infill-house sizes and adds restrained adult variation. Existing saved cash and progression are retained; town clock and bounded memories are additive.
 
-Initial deterministic five-minute acceptance passed after correcting traffic waiting indefinitely behind stationary cars; the expanded regression/occlusion/shift checks and protected real-time Chromium observation are being verified on this branch. Production has not been changed. Canonical full verification, protected browser checks, hosted visual review and field use remain separate evidence.
+Local canonical full verification passed (53 built routes, 128 HTML files and 4,542 references), alongside 77 gameplay checks and 10 town checks. Desktop/phone/landscape gameplay browser journeys and four-size/fourteen-room art verification passed. A wide fallback font caused phone title overflow; it is corrected. Deterministic Main Street observation recorded 54 pedestrians, 10 drivers, 46 business visits, 4 deliveries and 6 parking arrivals. The independent five-real-minute Chromium observation and final-head protected check remain in progress. Netlify production remains on 104cc8066bcdaf48a13dbc429fdb874f912fe403; no promotion or merge occurred. Field use remains pending.
 
 ## October 20 Dry County businesses and home progression
 

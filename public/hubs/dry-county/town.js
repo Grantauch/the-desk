@@ -69,6 +69,7 @@ window.DryTown = (() => {
    r.targetPoint=availablePoint(site,5);
   }
   function arrive(r){
+   const destination=lookup(r.target.id);if(destination&&!open(destination)){depart(r,r.home);return}
    r.state=r.target===r.home?'home':r.employee&&r.target.id===r.work?'working':r.role==='delivery'?'unloading':'shopping';
    r.site=r.target;r.hidden=true;r.path=[];r.visits++;stats.arrivals++;
    r.wait=r.state==='working'?35+r.serial%30:r.state==='home'?25+r.serial%50:r.state==='unloading'?9:7+r.serial%13;
@@ -95,10 +96,24 @@ window.DryTown = (() => {
    if(!r.path){r.path=path(r,r.targetPoint);if(!r.path)return;if(!r.path.length){r.wait=2;r.path=null;return}}
    let remaining=r.speed*(r.panic>0?1.6:1)*dt;
    while(remaining>0&&r.path.length){const p=r.path[0],d=distance(r,p);if(d<1){r.path.shift();continue}const step=Math.min(d,remaining),dx=(p.x-r.x)/d,dy=(p.y-r.y)/d;
+    const next={x:r.x+dx*step,y:r.y+dy*step};
+    if(r.detailed){
+     const car=closeCars(r,60).find(c=>{if(c.dead||c.remove||(c===r.car&&r.state==='to-car'))return false;const body=BODY[c.type],ca=Math.cos(c.a),sa=Math.sin(c.a),rx=next.x-c.x,ry=next.y-c.y;return Math.abs(rx*ca+ry*sa)<body.length/2+5&&Math.abs(-rx*sa+ry*ca)<body.width/2+5});
+     if(car){
+      if(Math.abs(car.v)>5){r.wait=.3;return}
+      const body=BODY[car.type],ca=Math.cos(car.a),sa=Math.sin(car.a),corners=[];
+      for(const x of [-body.length/2-9,body.length/2+9])for(const y of [-body.width/2-9,body.width/2+9])corners.push({x:car.x+ca*x-sa*y,y:car.y+sa*x+ca*y});
+      const safe=(a,b)=>{if(!clearLine(a,b,5))return false;const count=Math.max(1,Math.ceil(distance(a,b)/3));for(let i=1;i<=count;i++){const x=a.x+(b.x-a.x)*i/count-car.x,y=a.y+(b.y-a.y)*i/count-car.y;if(Math.abs(x*ca+y*sa)<body.length/2+5&&Math.abs(-x*sa+y*ca)<body.width/2+5)return false}return true};
+      const options=[];
+      for(const a of corners)if(safe(r,a)){if(safe(a,p))options.push([a]);for(const b of corners)if(a!==b&&safe(a,b)&&safe(b,p))options.push([a,b])}
+      options.sort((a,b)=>distance(r,a[0])+distance(a[0],a.at(-1))+distance(a.at(-1),p)-distance(r,b[0])-distance(b[0],b.at(-1))-distance(b.at(-1),p));
+      if(options.length)r.path.unshift(...options[0]);else r.wait=.4;stats.avoided++;return;
+     }
+    }
     // Crossings yield to approaching cars, including the player's vehicle.
     if(p.crossing&&closeCars(r,90).some(c=>!c.dead&&Math.abs(c.v)>15&&distance(c,r)<BODY[c.type].length/2+25)){r.wait=.3;stats.avoided++;return}
     if(!clearLine(r,{x:r.x+dx*step,y:r.y+dy*step},5)){r.path=null;r.wait=1;return}
-    r.x+=dx*step;r.y+=dy*step;r.a=Math.atan2(dy,dx);r.step=(r.step||0)+step*.17;remaining-=step;
+    r.x+=dx*step;r.y+=dy*step;r.a=Math.atan2(dy,dx);r.step=(r.step||0)+step*.17;remaining-=step;r.detouring=false;
     if(step>=d-.01)r.path.shift();
    }
    if(r.path.length)return;
@@ -166,7 +181,7 @@ window.DryTown = (() => {
    let step=Math.min(d,c.v*dt);if(obstacle)step=Math.min(step,Math.max(0,distance(c,obstacle)-(body.length+BODY[obstacle.type].length)/2-5));
    const next={x:c.x+dx*step,y:c.y+dy*step};
    if(!clearLine(c,next,body.width/2)){c.v=c.vx=c.vy=0;c.path=null;return}
-   c.a=angle;c.vx=dx*c.v;c.vy=dy*c.v;c.x=next.x;c.y=next.y;c.throttle=desired>c.v?.4:0;c.braking=desired<c.v;
+   c.a+=Math.atan2(Math.sin(angle-c.a),Math.cos(angle-c.a))*Math.min(1,dt*8);c.vx=dx*c.v;c.vy=dy*c.v;c.x=next.x;c.y=next.y;c.throttle=desired>c.v?.4:0;c.braking=desired<c.v;
   }
   // Seventy-two durable identities, concentrated enough for a visible Main Street.
   for(let i=0;i<72&&homeSites.length;i++){
@@ -181,7 +196,7 @@ window.DryTown = (() => {
    accumulator+=dt;if(accumulator<.05)return;const slice=accumulator;accumulator=0;
    routeBudget=4;rebuildGrid();const focus=api.focus(),quality=api.quality();
    for(const r of residents){const d=distance(r,focus),near=d<(quality===0?650:1050),period=near?.05:d<1900?.25:1;
-    r.lodDebt+=slice;if(r.lodDebt+1e-8<period)continue;const delta=r.lodDebt;r.lodDebt=0;if(near)stats.nearSteps++;else stats.farSteps++;
+    r.detailed=near;r.lodDebt+=slice;if(r.lodDebt+1e-8<period)continue;const delta=r.lodDebt;r.lodDebt=0;if(near)stats.nearSteps++;else stats.farSteps++;
     // Distant residents advance their itinerary in one coarse step. Swept path
     // movement still checks the full segment, so returning to view is continuous.
     residentTick(r,delta);

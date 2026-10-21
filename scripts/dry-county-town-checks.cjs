@@ -36,6 +36,7 @@ module.exports=function(t){
  check('Businesses keep hours, permit an active handover and retain emergency access',()=>{
   t.town.state.minute=23*60;assert(!t.town.isOpen('tailor'));assert.equal(t.enterBusiness(t.places.find(p=>p.id==='tailor')),false);
   assert(t.enterBusiness(t.places.find(p=>p.id==='pharmacy')));t.leaveBusiness(true);
+  t.save.secrets.lucky='found';assert(t.enterBusiness(t.places.find(p=>p.id==='tailor')),'Discovered speakeasy front remains accessible after hours');t.leaveBusiness(true);
   t.town.state.minute=600;assert(t.town.isOpen('tailor'));
  });
  check('Witnesses require proximity and line of sight; remembered reactions survive saves',()=>{
@@ -63,6 +64,15 @@ module.exports=function(t){
   assert(t.WLD.roads.every(r=>sedan.width*2<=r.width));
   for(const type of ['sedan','coupe','truck','agent']){const body=t.vehicleBody({type}),car=t.newCar(type,300,300,0);assert(t.carContact(car,{x:300+body.length/2-1,y:300},2));assert.equal(t.carContact(car,{x:300+body.length/2+3,y:300},2),null)}
   const houses=t.buildings.filter(b=>!b.authored);assert(Math.min(...houses.map(b=>Math.min(b.w,b.h)))>=36);assert(new Set(houses.map(b=>b.w+'x'+b.h)).size>=4);
+ });
+ check('A walking resident goes around a parked car without penetrating its footprint',()=>{
+  const n=t.WLD.nearest(t.WLD.P(1320,330)),a=n.angle,dx=Math.cos(a),dy=Math.sin(a);
+  t.player.car=null;t.player.x=n.x-dy*150;t.player.y=n.y+dx*150;t.heat=0;t.town.state.minute=600;
+  for(const person of t.peds){person.hidden=true;person.wait=999}
+  const r=t.peds[20],goal={x:n.x+dx*85,y:n.y+dy*85};Object.assign(r,{x:n.x-dx*85,y:n.y-dy*85,state:'walking',hidden:false,wait:0,path:[goal],target:r.home,targetPoint:goal,car:null,down:0,dive:0});
+  const car=t.newCar('sedan',n.x,n.y,a,{ai:'parked'});t.cars.push(car);
+  for(let i=0;i<720&&!r.hidden;i++){t.update(1/60);assert.equal(t.carContact(car,r,4),null,'Pedestrian entered the parked body')}
+  assert(r.hidden||Math.hypot(r.x-goal.x,r.y-goal.y)<8,'Pedestrian remained stuck at the parked car');
  });
  console.log(JSON.stringify({passed:results.length,checks:results},null,2));
 };

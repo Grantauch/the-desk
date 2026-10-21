@@ -34,6 +34,8 @@ header{padding:20px 26px;background:linear-gradient(#07121be8,#07121b77 68%,tran
 }
 @media(max-width:430px){.brand small{display:none}.topstats{gap:10px}header{gap:10px}.topstats small{letter-spacing:.6px}.heatbox{min-width:91px}.brand{font-size:16px}#mission{width:195px}#area{max-width:130px}#mission h2{font-size:16px}.titleactions{gap:19px}.save-note{max-width:280px;line-height:1.8}}
 @media(max-width:500px){#minimapWrap{bottom:auto}}
+/* Fit the title even when a Chromebook/phone falls back to a wider sans font. */
+@media(max-width:430px){.titleblock{right:8%}.titleblock h1{font-size:clamp(58px,18.2vw,78px)}}
 @media(max-height:550px) and (min-width:600px){
  .titleblock{top:74px;left:7%}.titleblock .eyebrow{font-size:7px;margin:0}h1{font-size:72px;margin:13px 0 12px}.lead{font-size:13px;line-height:1.4;margin:0}.titleactions{position:absolute;left:285px;bottom:20px;margin:0;gap:18px;min-width:260px}.primary{min-width:250px;padding:16px 18px;font-size:10px}.save-note{display:none}.titlefooter{bottom:20px}.edition{padding-top:10px}.title-screen{padding-top:20px}
  #mission{top:69px;max-width:220px;padding:8px 12px}#mission h2{font-size:15px;margin:5px 0}#mission p{font-size:9px}#jobprogress{padding-top:5px;margin-top:5px}#area{top:73px}#toast{top:26%;max-width:48%}#minimapWrap{width:90px}#bottomhud .vitals{padding:7px 10px}#bottomhud{bottom:10px}#interaction{bottom:80px}#talkBtn{bottom:127px}
