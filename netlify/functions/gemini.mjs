@@ -34,7 +34,7 @@ export function createHandler({ env = key => Netlify.env.get(key), generate = ge
     try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return json({ error: 'Send valid JSON.', code: 'INVALID_JSON' }, 400); }
     if (typeof body?.prompt !== 'string' || !body.prompt.trim() || body.prompt.length > 12000) return json({ error: 'Use a prompt between 1 and 12000 characters.', code: 'INVALID_PROMPT' }, 400);
     try {
-      return json(await generate({ apiKey: env('GEMINI_API_KEY'), model: env('GEMINI_MODEL') || 'gemini-flash-latest', prompt: body.prompt, maxOutputTokens: 1536 }));
+      return json(await generate({ apiKey: env('GEMINI_API_KEY'), model: env('GEMINI_MODEL') || 'gemini-flash-latest', prompt: body.prompt, maxOutputTokens: 1536, totalMs: 9000 }));
     } catch (error) {
       if (error instanceof GeminiError) return json({ error: error.message, code: error.code }, error.status);
       return json({ error: 'Gemini could not complete the request.', code: 'GEMINI_FAILED' }, 502);
