@@ -1,23 +1,51 @@
 name: Gemini Assistant
 on:
-  issues:
-    types: [opened]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: What should Gemini review or draft? Public project information only.
+        required: true
+        default: Read the shared project brief and suggest three useful next tasks. Do not change files.
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gemini-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   gemini-process:
+    if: >-
+      github.event.sender.login == github.repository_owner &&
+      (github.event_name == 'workflow_dispatch' || startsWith(github.event.comment.body, '@gemini '))
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     permissions:
-      contents: write
+      contents: read
       issues: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: '20'
-      - name: Run Gemini Task
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Ask Gemini with bounded public context
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          # Run your automation script using @google/genai SDK
-          node scripts/gemini-handler.js "${{ github.event.issue.body }}"
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/gemini-handler.mjs
+      - name: Keep answer and connection receipt
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gemini-answer-${{ github.run_id }}
+          path: gemini-results/
+          retention-days: 14
+          if-no-files-found: ignore
