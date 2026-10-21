@@ -90,3 +90,7 @@ B3's Playwright test detected a hidden AIR RUN control on phones. B4 changes the
 ### Acceptance limits
 
 B4 tests check proportional scale, low-detail operation reduction, reduced-motion effect suppression, deterministic weather, audio allocation/mute/distance behavior, full Dry County regression, and real-browser desktop/phone/landscape flows. Audio listening and frame timing on an actual Chromebook remain human-device QA gates. Keep PR #210 draft until Batch 5 reconciles Work's 0.6 world branch and confirms the live deployment.
+
+## B5 scale reconciliation — authoritative 0.6 values
+
+The B4 experiment used an older 50-world-unit sedan artwork baseline. The authoritative 0.6 DryTown.BODY sedan collision length is **36** units; 0.6 homes are 36–58 units across. B5 sets helicopter/experimental rotorcraft **72**, Jenny biplane **80** and balloon envelope **76** world units (2.00x, 2.22x and 2.11x sedan length). Both swept collisions and rendered graphics use these new sizes. Existing 0.6 houses, residents, road traffic and vehicle footprints remain unchanged. The earlier B4 standalone scale notes are superseded for this integration build.
