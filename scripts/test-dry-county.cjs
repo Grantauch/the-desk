@@ -200,4 +200,26 @@ check('Flight Batch 2 boards from foot, takes off, lands, exits and persists wit
  assert.equal(saved.aircraft.craft[0].id,'rotor');assert.equal(sandbox.dryCounty.snapshot().flight.altitude,0);
  t.recover();assert(t.player.car,'ordinary driving works after using aircraft');t.player.invincible=0;
 });
+check('Flight Batch 3: high wanted heat deploys one law rotorcraft and no heat resets it safely',()=>{
+ reset();t.airOps.reset();t.heat=64;step(2);
+ assert(t.airOps.aircraft,'police aircraft launches during a serious wanted pursuit');
+ assert.equal(t.airOps.aircraft.type,'rotorcraft');
+ const one=t.airOps.aircraft;step(20);assert.equal(t.airOps.aircraft,one,'one helicopter cap');
+ t.heat=0;t.airOps.reset();assert.equal(t.airOps.aircraft,null);
+});
+check('Flight Batch 3: optional two-stage air courier awards cash only after safe landing',()=>{
+ reset();t.airOps.reset();t.heat=0;t.player.car=null;
+ const a=t.airBridge.craft[1];t.player.x=a.x;t.player.y=a.y;t.interact();
+ assert.equal(t.player.air,a);assert(t.airOps.startCourier(t.player).ok);
+ const startCash=t.save.cash;
+ for(let i=0;i<2;i++){
+  const drop=t.airOps.drops[i];a.x=drop.x;a.y=drop.y;a.z=95;a.vx=a.vy=a.vz=0;a.landed=false;
+  t.player.x=a.x;t.player.y=a.y;step(1);assert.equal(t.airOps.courier.stage,i+1,'ordered drop '+i);
+ }
+ const p=t.airBridge.pads[1];a.x=p.x;a.y=p.y;a.z=0;a.vx=a.vy=a.vz=0;a.landed=true;
+ t.player.x=a.x;t.player.y=a.y;step(1);
+ assert.equal(t.airOps.courier,null,'returns and completes');
+ assert.equal(t.save.cash,Math.round((startCash+42)*100)/100,'air courier payout');
+ t.airOps.reset();t.airBridge.abandon(t.player);t.recover();
+});
 (async()=>{reset();t.heat=0;t.player.invincible=0;t.damagePlayer(500,'Feedback test');const before=t.save.feedback.length;await t.submitLifeFeedback({preventDefault:noop});assert.equal(t.save.feedback.length,before+1);assert.equal(t.save.feedback.at(-1).sent,false);assert(nodes.get('feedbackStatus').textContent.includes('server did not confirm'));assert.equal(t.mode,'feedback');formValues.note='Revised report after editing the failed attempt';formValues.rating='2';await t.submitLifeFeedback({preventDefault:noop});assert.equal(t.save.feedback.length,before+1);assert.equal(t.save.feedback.at(-1).note,formValues.note);assert.equal(t.save.feedback.at(-1).rating,2);log.push('Feedback retries replace the same report with the latest edited values');t.continueLife();log.push('Unconfirmed feedback stays local, reports failure honestly and allows recovery');console.log(JSON.stringify({passed:log.length,checks:log,final:sandbox.dryCounty.snapshot()},null,2))})().catch(e=>{console.error(e);process.exitCode=1});
