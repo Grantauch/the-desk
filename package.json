@@ -49,7 +49,7 @@
     "turn-in:test": "node scripts/test-turn-in-app.cjs",
     "turn-in:browser": "node scripts/test-desk-save-browser.mjs",
     "turn-in:load": "node scripts/turn-in-load-test.mjs",
-    "dry-county:test": "node scripts/test-dry-county.cjs && node scripts/test-dry-county-flight.cjs && node scripts/test-dry-county-air-bridge.cjs && node scripts/test-dry-county-air-ops.cjs"
+    "dry-county:test": "node scripts/test-dry-county.cjs && node scripts/test-dry-county-flight.cjs && node scripts/test-dry-county-air-bridge.cjs && node scripts/test-dry-county-air-ops.cjs && node scripts/test-dry-county-flight-polish.cjs"
   },
   "engines": {
     "node": ">=22.12.0"
