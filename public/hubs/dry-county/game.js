@@ -919,7 +919,7 @@ addEventListener('keyup',e=>{keys[e.code]=false});
 canvas.addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mouse.active=true;$('crosshair').style.left=mouse.x+'px';$('crosshair').style.top=mouse.y+'px'});
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===0){mouse.down=true;mouse.active=true;mouse.x=e.clientX;mouse.y=e.clientY}});addEventListener('pointerup',()=>mouse.down=false);canvas.addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=false;touch.fire=false;touch.x=touch.y=0;silenceOutdoorAudio();if(mode==='play')showPanel('pause')});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)silenceOutdoorAudio()});
+if(typeof document.addEventListener==='function')document.addEventListener('visibilitychange',()=>{if(document.hidden)silenceOutdoorAudio()});
 addEventListener('pagehide',persist);
 let stickPointer=null;const stick=$('stick');function stickMove(e){const r=stick.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/38,dy=(e.clientY-r.top-r.height/2)/38,mag=Math.max(1,Math.hypot(dx,dy));touch.x=dx/mag;touch.y=dy/mag;stick.querySelector('i').style.transform=`translate(${touch.x*30}px,${touch.y*30}px)`}
 stick.addEventListener('pointerdown',e=>{stickPointer=e.pointerId;stick.setPointerCapture(e.pointerId);stickMove(e)});stick.addEventListener('pointermove',e=>{if(e.pointerId===stickPointer)stickMove(e)});function stickEnd(){stickPointer=null;touch.x=touch.y=0;stick.querySelector('i').style.transform=''}stick.addEventListener('pointerup',stickEnd);stick.addEventListener('pointercancel',stickEnd);
