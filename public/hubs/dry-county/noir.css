@@ -1,0 +1,45 @@
+/* Dry County: the midnight edition. Presentation only; no gameplay state. */
+:root{--ink:#0b1921;--paper:#f1e5ca;--gold:#dcb776;--muted:#acb9b6}
+.title-screen{background:linear-gradient(90deg,#06131bea 0%,#06131b9c 32%,#06131b0d 67%),url('assets/noir-title-v1.webp') center/cover no-repeat;padding:30px 4.5vw}
+.title-screen:after{content:'';position:absolute;inset:12px;border:1px solid #dcb77622;pointer-events:none}
+.edition{padding-top:16px;color:#c5c9bd;font-size:10px;letter-spacing:3px;border-color:#dcb77655}
+.titleblock{top:18%;left:7%}
+.titleblock .eyebrow{font-size:9px;letter-spacing:3px}
+h1{font-size:clamp(100px,12.4vw,184px);letter-spacing:-2px;margin:23px 0 26px;text-shadow:0 4px 0 #0004,0 12px 42px #0008}
+h1 em{color:#dfba77}h1>span{color:#dfba77;font-size:13px;right:-25px;top:10px}
+.lead{font-size:21px;color:#d0d1c3;text-shadow:0 2px 12px #000}
+.titleactions{gap:22px;margin-top:28px}.primary{background:linear-gradient(135deg,#e1c08a,#c89b52);border:1px solid #f2d6a1;box-shadow:0 6px 24px #0006,inset 0 0 0 3px #1b20231c;padding:19px 24px;min-width:285px}.primary:hover{background:#f0d5a2;box-shadow:0 8px 30px #dcb77622}
+.save-note{color:#a7b6b5;letter-spacing:1.8px;font-size:8px}.poster-note{display:none}.titlefooter{border-color:#cfb77e44;color:#a7b6b5}
+#vignette{box-shadow:inset 0 0 110px 8px #050e1838;background:radial-gradient(ellipse at center,transparent 62%,#06101d24)}
+#vignette:after{opacity:.025;animation:none;will-change:auto}
+header{padding:20px 26px;background:linear-gradient(#07121be8,#07121b77 68%,transparent);gap:24px}
+.brand{font-size:23px;letter-spacing:2px}.brand small{color:#abb8b5;font-size:7px}.diamond{font-size:13px}
+.topstats{gap:30px}.topstats small{color:#b4c1bc}.topstats strong{font-variant-numeric:tabular-nums;color:#f0dfb9}.square{width:36px;height:36px;border-color:#dcb77655;background:#0c1b26cc}
+#mission{left:26px;top:98px;width:264px;padding:13px 17px 14px;border-left:2px solid #dcb776;background:linear-gradient(115deg,#0b1a24ed,#10232bce);box-shadow:0 8px 25px #0002;border-bottom:1px solid #cbb17726}
+#mission h2{font-size:20px;line-height:1.15;margin:9px 0 11px}#mission p{font-size:11px;color:#c2cdc4;line-height:1.65}#jobprogress{border-top:1px solid #dcb77625;padding-top:9px;font-size:9px}
+#area{top:102px}#district{font-size:9px;letter-spacing:3px;color:#e3e4cd}#clock{color:#d5b97c;font-variant-numeric:tabular-nums}
+#minimapWrap{border:1px solid #dcb77670;box-shadow:0 5px 22px #0008,0 0 0 4px #0918219c;background:#0a1921}#minimapWrap>div{color:#d3d4c0;background:#0a1921;padding:9px 10px;border-top:1px solid #dcb77633}
+#bottomhud .vitals{width:max-content;max-width:100%;padding:13px 16px;background:linear-gradient(90deg,#0a1921ed,#0a1921a6);border-top:1px solid #cbb17740}.vital small{color:#d0d9cc;font-size:8px;letter-spacing:1.2px}.bar{height:5px;background:#08121c}.bar i{height:5px}.bar.vehicle i{background:#87b7ac}.gun{gap:12px}.controls{color:#c2c9bd;margin-top:15px;gap:12px;font-size:8px}
+#interaction,#talkBtn{border-color:#dcb77670;background:#0b1d28ed;box-shadow:0 4px 16px #0005}#toast{top:31%;font:14px/1.5 Georgia;color:#f2e4c6;box-shadow:0 12px 32px #0005;border:1px solid #dcb77666;border-top:2px solid #dcb776;background:#0b1b25f2}
+.panel{background:linear-gradient(140deg,#132a32fa,#091820fa);border-color:#dcb77666;box-shadow:0 30px 120px #000b,inset 0 0 0 5px #dcb77606}.panel h2{color:#efe0c1}.card{background:#1a3035aa;border-color:#bba57833}.card:hover{background:#223a3c}.shop-ledger{border-color:#cbb17755}.shop-row{background:linear-gradient(90deg,#dfbd7c04,transparent)}.shop-actions button:hover:not(:disabled){background:#416157}
+#insideLabel{background:#0a1922ed;border-color:#cbb17766;padding:11px 22px;letter-spacing:2px;font-size:10px}
+@media(min-width:1000px){#mission{transition:opacity .2s}#mission:hover{opacity:1}#speed{right:10px;bottom:8px}}
+@media(max-width:800px){
+ .title-screen{background-position:64% center;background-image:linear-gradient(90deg,#05131beb,#05131b8c 65%,#05131b44),url('assets/noir-title-v1.webp')}.titleblock{top:18%;left:8%}h1{font-size:clamp(89px,20vw,145px);letter-spacing:-1px}.lead{font-size:18px}.primary{min-width:270px}.edition{font-size:8px;letter-spacing:1.6px}.titleblock .eyebrow{font-size:8px;letter-spacing:2px}
+ header{padding:13px 15px;gap:12px}.brand{font-size:17px;letter-spacing:1px}.brand small{font-size:6px;letter-spacing:1.5px}.diamond{font-size:10px}.topstats{gap:13px}.topstats small{font-size:6px}.topstats strong{font-size:16px}.heatbox{min-width:95px}.heatbox span{font-size:17px}.square{width:32px;height:32px}
+ #mission{top:82px;left:14px;width:210px;padding:9px 12px}#mission h2{font-size:17px}#mission p{font-size:10px;line-height:1.5}#mission .eyebrow{font-size:7px;letter-spacing:1.7px}#jobprogress{font-size:8px;margin-top:7px;padding-top:7px}
+ #area{top:82px;right:14px;max-width:130px}#district{font-size:7px;line-height:1.5;letter-spacing:1.5px}#clock{font-size:8px}
+ #bottomhud .vitals{padding:10px;gap:10px}.vital{width:59px}.vital small{font-size:6px}.gun{gap:8px;font-size:8px}.gun span{font-size:12px}.bar,.bar i{height:4px}
+ #minimapWrap{width:104px;right:15px;bottom:15px}#minimapWrap>div{padding:6px;font-size:6px}#toast{top:33%;font-size:12px;padding:12px 16px}#insideLabel{font-size:9px;padding:9px 12px}
+}
+@media(max-width:430px){.brand small{display:none}.topstats{gap:10px}header{gap:10px}.topstats small{letter-spacing:.6px}.heatbox{min-width:91px}.brand{font-size:16px}#mission{width:195px}#area{max-width:130px}#mission h2{font-size:16px}.titleactions{gap:19px}.save-note{max-width:280px;line-height:1.8}}
+@media(max-width:500px){#minimapWrap{bottom:auto}}
+@media(max-height:550px) and (min-width:600px){
+ .titleblock{top:74px;left:7%}.titleblock .eyebrow{font-size:7px;margin:0}h1{font-size:72px;margin:13px 0 12px}.lead{font-size:13px;line-height:1.4;margin:0}.titleactions{position:absolute;left:285px;bottom:20px;margin:0;gap:18px;min-width:260px}.primary{min-width:250px;padding:16px 18px;font-size:10px}.save-note{display:none}.titlefooter{bottom:20px}.edition{padding-top:10px}.title-screen{padding-top:20px}
+ #mission{top:69px;max-width:220px;padding:8px 12px}#mission h2{font-size:15px;margin:5px 0}#mission p{font-size:9px}#jobprogress{padding-top:5px;margin-top:5px}#area{top:73px}#toast{top:26%;max-width:48%}#minimapWrap{width:90px}#bottomhud .vitals{padding:7px 10px}#bottomhud{bottom:10px}#interaction{bottom:80px}#talkBtn{bottom:127px}
+}
+@media(prefers-reduced-motion:reduce){.primary,#mission{transition:none}.primary:hover{transform:none}}
+/* Keep the room visible and avoid a second set of street directions indoors. */
+body:has(#insideLabel:not(.hidden)) #mission,body:has(#insideLabel:not(.hidden)) #area,body:has(#insideLabel:not(.hidden)) #rumor,body:has(#insideLabel:not(.hidden)) #speed,body:has(#insideLabel:not(.hidden)) .controls,body:has(#insideLabel:not(.hidden)) .gun{display:none}
+@media(min-width:801px) and (max-height:800px){.titleblock{top:14%}.titleblock h1{font-size:clamp(100px,11vw,145px);margin:19px 0 22px}.titleblock .titleactions{margin-top:20px;gap:18px}.titleblock .save-note{margin-top:18px}}
+@media(max-height:550px) and (min-width:600px){.titleblock{display:block;top:72px;left:7%;right:auto;width:86%}.titleblock h1{font-size:72px;width:max-content;margin:14px 0 13px;line-height:.82}.titleblock .lead{font-size:13px;margin:0}.titleblock .titleactions{position:absolute;left:285px;top:112px;bottom:auto;margin:0;gap:18px;min-width:0}.titleblock .primary{min-width:240px}.titleblock .save-note{display:none}}

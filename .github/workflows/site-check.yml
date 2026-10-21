@@ -127,7 +127,9 @@ jobs:
 
       - name: Check Dry County businesses in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
-        run: node scripts/test-dry-county-browser.mjs
+        run: |
+          node scripts/test-dry-county-browser.mjs
+          node scripts/test-dry-county-art-browser.mjs
 
       - name: Save browser screenshots and accessibility reports
         if: always()
