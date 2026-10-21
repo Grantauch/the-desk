@@ -290,4 +290,6 @@ All 57 synchronous gameplay/map checks pass in the available JavaScript runtime,
 
 ## October 20 Dry County midnight edition
 
+Final phone inspection caught and corrected a conflicting top/bottom minimap rule that stretched its background over the play area. Browser coverage now asserts that the minimap wraps its contents and stays inside all four viewports.
+
 Build 0.5 adds original illustrated title artwork, cached shingle and metal roof materials, projected windows, road patina, warm shop entrances, detailed business interiors and responsive HUD refinement. Existing geography, collisions, economy and saves are preserved. Review PR #202 initially passed the full local verification chain, protected GitHub build and hosted Netlify preview. Integration with main `83db125` preserves PR #203's newer police search and rival crew behavior; all 77 combined gameplay checks and the desktop, phone and landscape browser journeys pass locally. Four-viewport title and fourteen-room rendering checks also pass and are included in protected CI. Full verification of the combined release is running; its final protected build, production deployment and player hardware acceptance remain separate. See `docs/dry-county/NOIR-ART.md` for scope, asset provenance, performance limits and generation prompt.

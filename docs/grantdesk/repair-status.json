@@ -1072,6 +1072,7 @@
     "field_status": "FIELD_PENDING",
     "verification": [
       "77 gameplay regressions passed after integration with main 83db125 and PR #203 police/rival AI.",
+      "Phone minimap top/bottom conflict corrected; browser coverage now asserts compact content height and viewport bounds at all four sizes.",
       "Existing desktop, phone and landscape business browser journeys passed.",
       "Additional four-size title and fourteen-room rendering verification added to protected CI.",
       "Initial visual-pass full local verification, protected GitHub build and hosted Netlify preview passed on 822712b.",

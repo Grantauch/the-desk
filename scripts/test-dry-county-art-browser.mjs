@@ -19,6 +19,9 @@ try{
   const title=await page.evaluate(()=>{const b=document.querySelector('#startBtn').getBoundingClientRect(),f=document.querySelector('.titlefooter').getBoundingClientRect();return{buttonBottom:b.bottom,footerTop:f.top,buttonRight:b.right,width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth}});
   assert(!title.overflow,JSON.stringify({size,title}));assert(title.buttonBottom<title.footerTop);assert(title.buttonRight<=title.width);
   await page.locator('#startBtn').click();await page.waitForTimeout(250);
+  const minimap=await page.locator('#minimapWrap').evaluate(el=>{const b=el.getBoundingClientRect(),map=el.querySelector('canvas').getBoundingClientRect(),label=el.querySelector('div').getBoundingClientRect();return{height:b.height,contentHeight:map.height+label.height,top:b.top,bottom:b.bottom,viewport:innerHeight}});
+  assert(minimap.height<=minimap.contentHeight+4,'Minimap must wrap its contents instead of stretching over the play area: '+JSON.stringify({size,minimap}));
+  assert(minimap.top>=0&&minimap.bottom<=minimap.viewport,'Minimap stays inside the viewport');
   await page.evaluate(()=>{const t=window.__artTest;t.toastTimer=0;document.querySelector('#toast').classList.remove('show');t.draw()});
   await page.screenshot({path:join(out,`street-${size.width}.png`)});
   if(size.width===1440){
@@ -30,5 +33,5 @@ try{
   }
   await context.close();
  }
- assert.deepEqual(errors,[]);console.log('Art browser checks passed: title controls fit four viewports, all 14 room renderers draw without errors, interior HUD clears, daylight and reduced-motion screenshots captured.');
+ assert.deepEqual(errors,[]);console.log('Art browser checks passed: title controls and compact minimap fit four viewports, all 14 room renderers draw without errors, interior HUD clears, daylight and reduced-motion screenshots captured.');
 }finally{await browser.close();await new Promise(r=>server.close(r))}
