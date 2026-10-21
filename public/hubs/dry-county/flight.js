@@ -13,9 +13,9 @@
   const damp=(current,target,k,dt)=>current+(target-current)*(1-Math.exp(-k*dt));
   const angle=a=>Math.atan2(Math.sin(a),Math.cos(a));
   const TYPES=Object.freeze({
-    rotorcraft:Object.freeze({name:'County Air Patrol · experimental rotorcraft',period:'Alternate-history prototype, 1926',span:96,accel:105,drag:1.28,turn:1.65,climb:82,ceiling:220,cruise:105,fuel:270,police:true}),
-    biplane:Object.freeze({name:'Curtiss JN-4 · Jenny',period:'Period aircraft',span:110,accel:145,drag:.64,turn:1.15,climb:94,ceiling:260,cruise:160,stall:42,fuel:360}),
-    balloon:Object.freeze({name:'County Fair Observation Balloon',period:'Period aircraft',span:98,accel:18,drag:1.9,turn:.53,climb:33,ceiling:185,cruise:32,fuel:460})
+    rotorcraft:Object.freeze({name:'County Air Patrol · experimental rotorcraft',period:'Alternate-history prototype, 1926',span:72,accel:105,drag:1.28,turn:1.65,climb:82,ceiling:220,cruise:105,fuel:270,police:true}),
+    biplane:Object.freeze({name:'Curtiss JN-4 · Jenny',period:'Period aircraft',span:80,accel:145,drag:.64,turn:1.15,climb:94,ceiling:260,cruise:160,stall:42,fuel:360}),
+    balloon:Object.freeze({name:'County Fair Observation Balloon',period:'Period aircraft',span:76,accel:18,drag:1.9,turn:.53,climb:33,ceiling:185,cruise:32,fuel:460})
   });
   function create(type,x,y,options={}){
     if(!TYPES[type])throw new RangeError('Unknown aircraft: '+type);
@@ -130,7 +130,8 @@
     // Top-down artwork scales modestly with altitude while the shadow stays on the ground.
     // World scale matches the 48–61 px ground-car footprints; never scale
     // aircraft up indefinitely with altitude (z is height, not size).
-    ctx.scale(1+Math.min(c.z/1700,.10),1+Math.min(c.z/1700,.10));
+    const artScale=c.type==='rotorcraft'?def.span/96:c.type==='biplane'?def.span/110:def.span/98;
+    ctx.scale((1+Math.min(c.z/1700,.10))*artScale,(1+Math.min(c.z/1700,.10))*artScale);
     if(c.type==='rotorcraft'){
       ctx.fillStyle='#1c2628';ctx.fillRect(-53,-4,56,8);
       ctx.fillStyle='#67766d';ctx.fillRect(-51,-15,16,30);
@@ -143,18 +144,18 @@
       ctx.restore();
       ctx.fillStyle='#f0d397';ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.fillText('LAW',3,3);
     }else if(c.type==='biplane'){
-      ctx.fillStyle='#ad9470';ctx.fillRect(-12,-def.span*.5,25,def.span);
-      ctx.fillStyle='#705b3f';ctx.fillRect(-26,-def.span*.42,13,def.span*.84);
+      ctx.fillStyle='#ad9470';ctx.fillRect(-12,-55,25,110);
+      ctx.fillStyle='#705b3f';ctx.fillRect(-26,-46,13,92);
       ctx.fillStyle='#6e4233';ctx.beginPath();ctx.ellipse(0,0,43,8,0,0,TAU);ctx.fill();
       ctx.fillStyle='#d7b783';ctx.fillRect(-19,-12,40,24);
       ctx.fillStyle='#394647';ctx.beginPath();ctx.arc(10,0,7,0,TAU);ctx.fill();
       ctx.save();ctx.translate(44,0);ctx.rotate(reduced?0:c.rotor);ctx.strokeStyle='#ddd0a3';ctx.lineWidth=reduced?3:5;ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(0,18);ctx.stroke();ctx.restore();
       if(wet>.22&&c.z>18&&!reduced){ctx.strokeStyle='rgba(222,230,217,'+(wet*.13).toFixed(3)+')';ctx.lineWidth=1;
-       for(let i=0;i<3;i++){const ox=-24+i*22;ctx.beginPath();ctx.moveTo(ox,-def.span*.48);ctx.lineTo(ox-7,-def.span*.61);ctx.stroke();}}
+       for(let i=0;i<3;i++){const ox=-24+i*22;ctx.beginPath();ctx.moveTo(ox,-53);ctx.lineTo(ox-7,-67);ctx.stroke();}}
     }else{
       ctx.fillStyle='#6c5035';ctx.fillRect(-11,-7,22,14);
       ctx.strokeStyle='#cab286';ctx.lineWidth=1.2;for(const y of [-9,9]){ctx.beginPath();ctx.moveTo(-11,y);ctx.lineTo(-16,y*1.5);ctx.stroke();}
-      ctx.fillStyle='#e5c392';ctx.beginPath();ctx.ellipse(0,0,def.span*.5,def.span*.36,0,0,TAU);ctx.fill();
+      ctx.fillStyle='#e5c392';ctx.beginPath();ctx.ellipse(0,0,49,35,0,0,TAU);ctx.fill();
       ctx.strokeStyle='#9c774c';ctx.lineWidth=2;for(const y of [-14,0,14]){ctx.beginPath();ctx.moveTo(-31,y);ctx.lineTo(31,y);ctx.stroke();}
     }
     // Position lights are purpose-built vectors: no per-frame generated sprites.
