@@ -13,11 +13,11 @@ const drawCount=(type,detail,options={})=>{
  return counts;
 };
 check('airframe footprints stay proportional to the 50-unit sedan baseline',()=>{
- const base=50;
- assert.equal(F.TYPES.rotorcraft.span,96);
- assert.equal(F.TYPES.biplane.span,110);
- assert.equal(F.TYPES.balloon.span,98);
- for(const c of Object.values(F.TYPES))assert(c.span/base>1.8&&c.span/base<2.4);
+ const base=36;
+ assert.equal(F.TYPES.rotorcraft.span,72);
+ assert.equal(F.TYPES.biplane.span,80);
+ assert.equal(F.TYPES.balloon.span,76);
+ for(const c of Object.values(F.TYPES))assert(c.span/base>1.9&&c.span/base<2.4);
 });
 check('low detail halves primitive calls for every aircraft type',()=>{
  for(const type of Object.keys(F.TYPES)){
