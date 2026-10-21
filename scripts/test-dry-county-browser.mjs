@@ -5,7 +5,7 @@ import {join,resolve} from 'node:path';
 import {chromium} from 'playwright';
 const root=resolve('dist/hubs/dry-county'),out=resolve('browser-results/dry-county');
 await mkdir(out,{recursive:true});
-const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={camera,draw,update,interact,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get airBridge(){return airBridge},get airOps(){return airOps},get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
+const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={camera,draw,update,interact,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get airBridge(){return airBridge},get airOps(){return airOps},get airAudio(){return airAudio},get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
 const server=createServer(async(req,res)=>{try{const file=(req.url||'/').split('?')[0];if(file.includes('..'))throw Error('Invalid path');const p=file==='/'?'index.html':file.slice(1);let bytes=await readFile(join(root,p));if(p==='game.js')bytes=Buffer.from(instrument(bytes.toString()));res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.webp')?'image/webp':'text/html');res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true});
@@ -84,6 +84,11 @@ try{
   }else await page.keyboard.press('KeyG');
   assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.courierStage),0,'courier opens from aircraft');
   await page.screenshot({path:join(out,'flight-courier-'+size.width+'x'+size.height+'.png')});
+  const scales=await page.evaluate(()=>window.dryCounty.snapshot().flight.scale);
+  assert.equal(scales.sedan,50);assert.equal(scales.biplane,110);assert.equal(scales.rotorcraft,96);
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.renderQuality)>=0,true);
+  await page.evaluate(()=>{const t=window.__dryTest;t.draw()});
+  assert.deepEqual(errors,[],'aircraft visual frames produce no page errors');
   await context.close();
  }
  assert.deepEqual(errors,[]);console.log('Dry County browser checks passed: air-police deployment, courier launch, flight boarding, climb/landing, touch controls, counter jobs, cents trading, secret entrance, dealership, supplies and construction at desktop, phone and landscape sizes.');
