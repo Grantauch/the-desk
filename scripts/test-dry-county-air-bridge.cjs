@@ -43,8 +43,8 @@ test('roof penetration is stopped by a continuous 3D collision sweep',()=>{
 });
 test('save in flight resumes parked at last safe spot; loading never duplicates craft',()=>{
  const b=create(),a=b.craft[1],p=player(a.x,a.y);b.interaction(p);
- const pad={...a.lastSafe};
  steps(b,p,{forward:1,lift:1},600);assert(a.z>0);
+ const pad={...a.lastSafe}; // Taxi changes the last safe landing point before takeoff.
  const snap=b.snapshot(),record=snap.craft.find(c=>c.id==='jenny');
  assert.equal(record.x,pad.x);assert.equal(record.y,pad.y);
  const reloaded=create(snap);
