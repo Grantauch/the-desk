@@ -5,7 +5,7 @@ import {join,resolve} from 'node:path';
 import {chromium} from 'playwright';
 const root=resolve('dist/hubs/dry-county'),out=resolve('browser-results/dry-county');
 await mkdir(out,{recursive:true});
-const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={camera,draw,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
+const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={camera,draw,update,interact,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get airBridge(){return airBridge},get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
 const server=createServer(async(req,res)=>{try{const file=(req.url||'/').split('?')[0];if(file.includes('..'))throw Error('Invalid path');const p=file==='/'?'index.html':file.slice(1);let bytes=await readFile(join(root,p));if(p==='game.js')bytes=Buffer.from(instrument(bytes.toString()));res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.webp')?'image/webp':'text/html');res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true});
@@ -43,7 +43,33 @@ try{
   await enter('home');await talk();await page.getByRole('button',{name:'Open the construction book.',exact:false}).click();await page.getByRole('heading',{name:'Make a place of your own'}).waitFor();
   assert.equal(await page.locator('html').evaluate(el=>el.scrollWidth<=innerWidth),true);await page.screenshot({path:join(out,'home-'+size.width+'x'+size.height+'.png')});
   await page.keyboard.press('Escape');await page.keyboard.press('Tab');await page.getByRole('button',{name:'GARAGE',exact:true}).click();assert.equal(await page.locator('button[data-do="car"]').count(),0);await page.getByText('VISIT COLE MOTOR COMPANY · A ON MAP').first().waitFor();
+  // Flight acceptance uses real keyboard E/Shift/C over the production game page.
+  // The test-only hook positions a pedestrian at the remote western airfield.
+  await page.keyboard.press('Escape');
+  await page.evaluate(()=>{
+   const t=window.__dryTest;t.closePanel();if(t.interior)t.leaveBusiness(true);
+   const c=t.airBridge.craft[0];t.player.car=null;t.player.x=c.x;t.player.y=c.y;t.heat=0;
+  });
+  await page.keyboard.press('KeyE');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.mounted),'rotor','E boards from foot');
+  if(size.width===390){
+   assert(await page.locator('#mobile button[data-action="air-up"]').isVisible(),'touch climb visible when piloting');
+   assert(await page.locator('#mobile button[data-action="air-down"]').isVisible(),'touch descend visible when piloting');
+  }
+  await page.keyboard.down('Shift');
+  await page.evaluate(()=>{for(let i=0;i<180;i++)window.__dryTest.update(1/60);window.__dryTest.draw()});
+  await page.keyboard.up('Shift');
+  assert(await page.evaluate(()=>window.dryCounty.snapshot().flight.altitude)>10,'Shift climbs');
+  await page.screenshot({path:join(out,'flight-airborne-'+size.width+'x'+size.height+'.png')});
+  await page.keyboard.press('KeyE');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.mounted),'rotor','cannot jump from aircraft');
+  await page.keyboard.down('KeyC');
+  await page.evaluate(()=>{for(let i=0;i<600;i++)window.__dryTest.update(1/60);window.__dryTest.draw()});
+  await page.keyboard.up('KeyC');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.altitude),0,'C lands');
+  await page.keyboard.press('KeyE');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.mounted),null,'E exits on ground');
   await context.close();
  }
- assert.deepEqual(errors,[]);console.log('Dry County browser checks passed: counter jobs, cents trading, secret entrance, dealership, supplies and construction at desktop, phone and landscape sizes.');
+ assert.deepEqual(errors,[]);console.log('Dry County browser checks passed: flight boarding, climb/landing, touch controls, counter jobs, cents trading, secret entrance, dealership, supplies and construction at desktop, phone and landscape sizes.');
 }finally{await browser.close();await new Promise(r=>server.close(r))}
