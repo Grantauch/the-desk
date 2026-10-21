@@ -25,6 +25,50 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'bts-bytesize-zero-points',
+    href: '/hubs/bts-bytesize-zero-points.html',
+    title: 'zero points in paris',
+    course: 'beyond the scoreboard',
+    unit: 'bytesize / olympics, judging and the internet',
+    period: '1973–2026',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 6',
+    question: 'how did an athlete with zero votes become the most famous competitor of paris 2024?',
+    blurb: 'Raygun and breaking’s only Olympics so far, in seven short sections: the battle footage, how nine judges vote, every one of the 54 votes she lost, how she legally qualified, and the petition claims checked against the record.',
+    cover: '/storyhub/bts/zero-points/assets/cypher.webp',
+    coverAlt: 'A breaker spinning on one hand inside a crowded street cypher in Seoul',
+    topics: ['olympics', 'breaking', 'judged sports', 'qualification', 'misinformation', 'online harassment'],
+    inside: [
+      'Watch Raygun’s first battle at Place de la Concorde.',
+      'Reveal all six rounds and see where every judge’s vote went.',
+      'Learn how a continental quota sent the Oceania champion to Paris.',
+      'Check four viral petition claims against the Olympic committee’s record.',
+    ],
+  },
+
+  {
+    slug: 'bts-bytesize-the-girlfriend',
+    href: '/hubs/bts-bytesize-the-girlfriend.html',
+    title: 'the girlfriend who never existed',
+    course: 'beyond the scoreboard',
+    unit: 'bytesize / media and the athlete story',
+    period: '2011–2022',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 5',
+    question: 'how did a girlfriend who never existed become one of the biggest sports stories of 2012?',
+    blurb: 'Manti Te’o’s 2012 season in seven short sections: the late night phone calls, two interceptions on funeral day, the outlets that repeated it all, the four records checks that ended it, and the people on the other end of the line.',
+    cover: '/storyhub/bts/the-girlfriend/assets/teo-2010.webp',
+    coverAlt: 'Manti Te’o on the Notre Dame sideline in 2010',
+    topics: ['catfishing', 'sports media', 'verification', 'notre dame football', 'heisman trophy', 'documentary'],
+    inside: [
+      'Follow one week in September 2012 when a real death and an invented one landed a day apart.',
+      'Watch the Michigan game that turned Te’o into a national story.',
+      'Run Deadspin’s four background checks and see what came back.',
+      'Hear from the person who created Lennay and the woman whose photos were used.',
+    ],
+  },
+
+  {
     slug: 'bts-bytesize-weights-in-the-fish',
     href: '/hubs/bts-bytesize-weights-in-the-fish.html',
     title: 'weights in the fish',

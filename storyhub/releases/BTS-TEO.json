@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-TEO",
+  "title": "The Girlfriend Who Never Existed",
+  "route": "/hubs/bts-bytesize-the-girlfriend.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/TEO/story.json",
+    "note": "ByteSize no. 5. Openly licensed images only; footage plays through YouTube embeds."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-bytesize-the-girlfriend.html",
+      "bytes": 24173,
+      "sha256": "1b50b788b4c6610828ef4a61e4a092a6a0ceebf0fdc91affabcb7ce015746fef"
+    },
+    {
+      "path": "/storyhub/bts/the-girlfriend/assets/teo-2010.webp",
+      "assetId": "A01",
+      "bytes": 59608,
+      "sha256": "539f4411d3b558d9e79bef74b0ad680e1917cb794f4cdf86b1c56ff9cca0f5a4",
+      "width": 1100,
+      "height": 1294
+    },
+    {
+      "path": "/storyhub/bts/the-girlfriend/assets/stadium-night.webp",
+      "assetId": "A02",
+      "bytes": 305366,
+      "sha256": "6d914013bb1a89efa8b11c60b6048b6003dfbddda97f387adaf787257ec38c2f",
+      "width": 1400,
+      "height": 1050
+    }
+  ],
+  "totalBytes": 389147,
+  "sealedAt": "2026-10-21"
+}
