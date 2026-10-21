@@ -1,6 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict');
-const Flight=require('../public/hubs/dry-county/flight.js');
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const sandbox={window:{}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/hubs/dry-county/flight.js'),'utf8'),sandbox);
+const Flight=sandbox.window.DryFlight;
 const env={width:6800,height:3300,windX:4,windY:-2};
 const dt=1/60;
 function advance(c,cmd,seconds){for(let i=0;i<Math.round(seconds/dt);i++)Flight.step(c,cmd,dt,env)}
