@@ -103,11 +103,11 @@
     ctx.fillStyle='rgba(0,0,0,'+shadowAlpha+')';ctx.beginPath();
     ctx.ellipse(c.x+c.z*.26,c.y+c.z*.31,def.span*.53+c.z*.08,def.span*.22+c.z*.045,c.a,0,TAU);ctx.fill();
     // Low-detail mode keeps proportional silhouettes at a fraction of the draw calls.
-    if(low){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);ctx.fillStyle=c.type==='biplane'?'#c8ae82':c.type==='balloon'?'#dec18a':'#7d938d';
+    if(low){ctx.translate(c.x,c.y);ctx.rotate(c.a);ctx.fillStyle=c.type==='biplane'?'#c8ae82':c.type==='balloon'?'#dec18a':'#7d938d';
       ctx.beginPath();ctx.ellipse(0,0,def.span*.44,c.type==='balloon'?def.span*.35:8,0,0,TAU);ctx.fill();
       if(c.type==='biplane'){ctx.fillRect(-7,-def.span*.5,14,def.span)}
       if(c.type==='rotorcraft'){ctx.fillRect(-def.span*.49,-3,def.span*.98,6)}
-      ctx.restore();ctx.restore();return;
+      ctx.restore();return;
     }
     // Full-detail rotor downwash is suppressed for reduced-motion users.
     if(!reduced&&c.type==='rotorcraft'&&c.z>2&&c.z<52){
