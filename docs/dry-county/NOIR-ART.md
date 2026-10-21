@@ -10,7 +10,9 @@ This visual pass builds on the 0.4 map and existing gameplay. Collision footprin
 
 ## Verification
 
-`node scripts/test-dry-county.cjs` exercises 67 gameplay, geography, economy, collision, save and feedback checks. `node scripts/test-dry-county-browser.mjs` retains the three-size business journeys. The added `node scripts/test-dry-county-art-browser.mjs` renders all fourteen rooms with real Canvas images, checks title-button boundaries at 1440x900, 1280x720, 390x844 and 844x390, checks the indoor HUD, and captures daylight/reduced-motion views. Protected CI runs both browser scripts. Screenshots are generated under `browser-results/`.
+`node scripts/test-dry-county.cjs` exercises 77 gameplay, geography, economy, collision, save, feedback and AI checks after integration with the police/rival AI release in PR #203. All 77 pass locally. `node scripts/test-dry-county-browser.mjs` retains the three-size business journeys. The added `node scripts/test-dry-county-art-browser.mjs` renders all fourteen rooms with real Canvas images, checks title-button boundaries at 1440x900, 1280x720, 390x844 and 844x390, checks the indoor HUD, and captures daylight/reduced-motion views. Both browser scripts pass on the combined build. Protected CI runs both browser scripts. Screenshots are generated under `browser-results/`.
+
+The initial visual-pass commit passed the full local verification chain and protected GitHub build, and its Netlify preview was checked. The combined release retains the newer `LAW` last-known-position search and `CREW` behavior. Its final protected check and production fingerprint must be recorded separately. A 1440x900 headless desktop sample under concurrent test load measured 28.8 fps for the original and 27.3 fps for this pass, with the same 33.3 ms median and 50 ms 95th-percentile frame intervals; this does not establish performance on player devices.
 
 The canonical Windows wrapper can report `spawnSync npm.cmd EINVAL`; use its expanded `npm.cmd run verify:full` chain, retaining every release check. Local tests, protected CI, deployment and actual player/device validation are separate evidence.
 

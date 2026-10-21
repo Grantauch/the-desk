@@ -1065,16 +1065,17 @@
     ]
   },
   "dry_county_noir_20261020": {
-    "status": "LOCAL_RENDER_CHECKED_PROTECTED_VERIFICATION_PENDING",
+    "status": "AI_INTEGRATED_LOCAL_CHECKED_FINAL_PROTECTED_VERIFICATION_PENDING",
     "summary": "0.5 midnight edition: original title illustration, projected roof materials and windows, textured roads, authored interior furniture and responsive HUD.",
     "commit_status": "REVIEW_BRANCH",
     "deployment_status": "NOT_DEPLOYED",
     "field_status": "FIELD_PENDING",
     "verification": [
-      "67 gameplay regressions passed.",
+      "77 gameplay regressions passed after integration with main 83db125 and PR #203 police/rival AI.",
       "Existing desktop, phone and landscape business browser journeys passed.",
       "Additional four-size title and fourteen-room rendering verification added to protected CI.",
-      "Canonical full verification running; production and player hardware validation remain separate."
+      "Initial visual-pass full local verification, protected GitHub build and hosted Netlify preview passed on 822712b.",
+      "Combined release full verification running; final protected build, production and player hardware validation remain separate."
     ]
   }
 }
