@@ -49,7 +49,7 @@
    const dx=goal.x-c.x,dy=goal.y-c.y,d=Math.hypot(dx,dy);
    const turn=clamp(norm(Math.atan2(dy,dx)-c.a)*1.65,-1,1);
    const input={forward:d>200?.82:d>65?.48:.14,turn,lift:c.z<altitude-9?1:c.z>altitude+9?-1:0};
-   flight.step(c,input,dt,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0});
+   flight.step(c,input,dt,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0,turbulence:wind.turbulence||0});
    return d;
   }
   function tickLaw(dt,{heat=0,player=null,wind={},rain=0,night=0,search=null}={}){
@@ -64,10 +64,10 @@
    if(spotted){
     if(phase!=='track')justSpotted=true;
     lastSight=clock;seenCount++;phase='track';
-    flight.updatePolice(c,{x:target.x,y:target.y,visible:true},step,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0});
+    flight.updatePolice(c,{x:target.x,y:target.y,visible:true},step,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0,turbulence:wind.turbulence||0});
    }else if(c.search&&c.searchAge<28&&heat>=15){
     phase='search';
-    flight.updatePolice(c,null,step,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0});
+    flight.updatePolice(c,null,step,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0,turbulence:wind.turbulence||0});
    }else if(heat>=15){
     phase='patrol';
     // Ground squad search locations are already last-reported knowledge;
@@ -116,10 +116,10 @@
    }
    return {active:true,stage:q.stage,time:q.time};
   }
-  function draw(ctx,time,quality=2,visible=()=>true){
-   if(c&&visible(c,210)){const beam=spotted?{x:c.search.x,y:c.search.y}:c.search&&c.searchAge<22?c.search:null;
-    flight.render(ctx,c,time,{lowDetail:quality<2,beamTarget:beam});
-    if(quality>=2&&beam){ctx.save();ctx.strokeStyle=spotted?'rgba(250,221,128,.45)':'rgba(247,218,143,.16)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(beam.x,beam.y,30+Math.sin(time*4)*3,0,TAU);ctx.stroke();ctx.restore();}
+  function draw(ctx,time,quality=2,visible=()=>true,visual={}){
+   if(c&&visible(c,210)){const beam=spotted&&c.search?{x:c.search.x,y:c.search.y}:c.search&&c.searchAge<22?c.search:{x:c.x+Math.cos(c.a)*145,y:c.y+Math.sin(c.a)*145};
+    flight.render(ctx,c,time,{lowDetail:quality<2,reducedMotion:!!visual.reducedMotion,rain:visual.rain||0,beamTarget:visual.lights===false?null:beam,beamStrength:spotted?1:phase==='search'?.56:.28});
+    if(quality>=2&&beam&&visual.lights!==false){ctx.save();ctx.strokeStyle=spotted?'rgba(250,221,128,.45)':'rgba(247,218,143,.16)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(beam.x,beam.y,30+Math.sin(time*4)*3,0,TAU);ctx.stroke();ctx.restore();}
    }
    if(courier){const drop=drops[courier.stage];if(drop&&visible(drop,180)){
     ctx.save();ctx.strokeStyle='#e8c47d';ctx.lineWidth=3;ctx.setLineDash([10,8]);ctx.lineDashOffset=-time*14;
