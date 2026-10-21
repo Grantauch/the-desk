@@ -18,7 +18,7 @@ All types use one world coordinate system but carry an independent altitude valu
 | 1 — Flight laboratory | Flight physics, three silhouettes, pilot controls, fuel, AI police pursuit, mobile controls and test hangar | Fly, hover and land in isolated page; police hold last known spot after sight is lost; nine automated tests; no changes to core game.js | Implemented in this PR; CI / browser checks pending |
 | 2 — Ground-world bridge | Three open-ground pads, on-foot E boarding/exiting, mobile/keyboard controls, existing save integration, altitude-aware rooftop collision sweeps, indoor suspension | Find pad, enter craft, lift, land, exit and resume car; midair reload parks at last safe location; no duplicates | Implemented in draft PR #208; checks in progress |
 | 3 — Air police and missions | One alternate-history air-police unit at serious heat, route patrols, 3D roof-occluded sightlines, rain/night cone, honest search memory, air courier, map/beam/UI | Hide behind roofs to break air detection; get two ordered high-altitude drops and return to an airfield without disrupting ground jobs | Implemented in draft PR #209; CI/browser checks pending |
-| 4 — Visual and audio polish | Rotor blur/downwash, exhaust, searchlight cone, scale verification, propellor sound, Doppler, weather turbulence, performance LOD | Clear silhouettes at phone and desktop; no long-frame spikes on target Chromebook profile; reduced-motion fallback | Not started |
+| 4 — Visual and audio polish | Scaled 1926 silhouettes, animated rotor/propeller and downwash, police beam, synthesized audio with Doppler, bounded gusts, reduced-motion fallback and adaptive draw detail | Scale and quality regression tests; desktop/phone Playwright; independent Chromebook runtime profiling before release | Implemented in stacked draft PR #210; CI / manual device QA pending |
 | 5 — Production integration | Rebase on stable 0.6, regression checks and release | Full dry-county tests, npm run verify, preview walkthrough and explicit merge/deploy check | Not started |
 
 ## Flight lab
@@ -59,3 +59,32 @@ A county experimental air-patrol rotorcraft joins serious wanted chases at heat 
 Air police only activate at higher wanted levels. This is explicitly alternate-history policing for a 1926-themed game, not an assertion that 1926 county police used helicopter fleets. B3's scope intentionally excludes aerial firefights, damage/destruction of law aircraft, and synchronizing jobs with the future 0.6 resident AI.
 
 The code is **draft-only**: B1 #206 → B2 #208 → B3 #209 is the intended merge order following a rebase on the stabilized 0.6 map. No branch state alone is evidence of an accessible production deployment.
+
+## Batch 4 — visual/audio and scale (stacked PR #210)
+
+### Grounded world-scale audit
+
+The existing ground-car art defines cars as approximately 48–61 world units long. Aircraft use the SAME world coordinate system: rotorcraft 96 units (1.92 standard sedans), Jenny biplane 110 (2.20 sedans), balloon envelope 98 (1.96 sedans). Shadows respond to altitude but the entire airframe no longer keeps growing with height. The collision and spawn logic uses the updated span values.
+
+These are **internal gameplay proportions**, not accurate historical engineering dimensions. Building sizes and the 0.6 resident/car variety need a whole-world proportionality review at integration. Batch 4 does not resize other agents' buildings or road vehicles.
+
+### Render detail and Chromebook budget
+
+- Full quality 2: dual-blur rotor, four small downwash arcs when low, biplane weather streaks, balloon envelope, air police search beam and ground sighting ring.
+- Adaptive quality 0–1: low-draw-call proportional silhouettes, no animated downwash or complex beam.
+- Reduced-motion preference: static rotor/prop, no downwash or blinking lights; the visual preference does not alter collision, pilot physics or police visibility logic.
+- The existing off-screen culling, FPS averaging and lighting quality system also control aircraft effects. A dedicated real school Chromebook frame-time profile is STILL REQUIRED before declaring smooth 60 fps on that hardware.
+
+### Audio and weather
+
+The separate air-audio.js component uses only two persistent synthesized Web Audio voices. It uses existing game sound unlock, mute and pause behavior, distance attenuation for law aircraft, and limited Doppler-like pitch changes. No samples or per-frame oscillator allocation.
+
+Bounded gust turbulence changes in-air handling during rainy, windy weather, without unbounded acceleration or random position teleports. Flight collision and speed caps still apply.
+
+### Regression found and repaired
+
+B3's Playwright test detected a hidden AIR RUN control on phones. B4 changes the HUD visibility selector to reveal the courier launch alongside ascend/descend after boarding. The B3 browser test remains in the suite.
+
+### Acceptance limits
+
+B4 tests check proportional scale, low-detail operation reduction, reduced-motion effect suppression, deterministic weather, audio allocation/mute/distance behavior, full Dry County regression, and real-browser desktop/phone/landscape flows. Audio listening and frame timing on an actual Chromebook remain human-device QA gates. Keep PR #210 draft until Batch 5 reconciles Work's 0.6 world branch and confirms the live deployment.
