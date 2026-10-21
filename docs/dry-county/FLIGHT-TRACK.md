@@ -68,6 +68,8 @@ The existing ground-car art defines cars as approximately 48–61 world units lo
 
 These are **internal gameplay proportions**, not accurate historical engineering dimensions. Building sizes and the 0.6 resident/car variety need a whole-world proportionality review at integration. Batch 4 does not resize other agents' buildings or road vehicles.
 
+**Confirmed integration blocker:** Existing procedural house footprints in game.js are only 26–38 world units across (the house generator uses widths/heights 24, 26, 30, 32, 38), while a sedan is 50 world units long. Thus a car can appear longer than a whole house, and even the adjusted airframes may look too large near residential blocks. The 0.6 town-simulation branch must address house/building scale, road width, occupant size, and both ground and air collision footprints TOGETHER before merging this flight chain. No unreviewed resizing here.
+
 ### Render detail and Chromebook budget
 
 - Full quality 2: dual-blur rotor, four small downwash arcs when low, biplane weather streaks, balloon envelope, air police search beam and ground sighting ring.
