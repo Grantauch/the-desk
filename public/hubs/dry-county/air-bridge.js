@@ -93,7 +93,7 @@
     clock+=dt;
     const c=mounted,prev={x:c.x,y:c.y,z:c.z};
     const radius=flight.TYPES[c.type].span*.43;
-    flight.step(c,inputs,dt,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0});
+    flight.step(c,inputs,dt,{width:world.width,height:world.height,windX:wind.x||0,windY:wind.y||0,turbulence:wind.turbulence||0});
     let hit=false;
     const len=Math.hypot(c.x-prev.x,c.y-prev.y,c.z-prev.z),steps=Math.max(1,Math.ceil(len/8));
     for(let i=1;i<=steps;i++){
@@ -132,11 +132,11 @@
       ctx.fillStyle='#f5e1b1';ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.fillText('AIRFIELD · '+p.id.toUpperCase(),0,-p.r-16);ctx.restore();
     }
   }
-  function drawCraft(ctx,time,quality=2,visible=()=>true,phase='air'){
+  function drawCraft(ctx,time,quality=2,visible=()=>true,phase='air',visual={}){
     for(const c of craft){
       const airborne=c.z>3;
       if((phase==='air')!==airborne||!visible(c,150))continue;
-      flight.render(ctx,c,time,{lowDetail:quality<2});
+      flight.render(ctx,c,time,{lowDetail:quality<2,reducedMotion:!!visual.reducedMotion,rain:visual.rain||0});
     }
   }
   function map(ctx,point,full=false){
