@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-WALLEYE",
+  "course": "BTS",
+  "lessonCode": "WALLEYE",
+  "title": "Weights in the Fish",
+  "audience": "students",
+  "narrativeQuestion": "How did two anglers rig a Lake Erie championship, how were they caught, and was the payoff worth what it cost them?",
+  "chapters": [
+    {
+      "id": "01-scale",
+      "title": "The Scale",
+      "claim": "Runyan and Cominsky's five walleye weighed 33.91 pounds at the September 30, 2022 LEWT championship in Cleveland.",
+      "namedPeople": [
+        {
+          "name": "Jake Runyan",
+          "role": "angler",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Chase Cominsky",
+          "role": "angler",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "02-team",
+      "title": "Nobody Could Beat Them",
+      "claim": "The team won 9 of the 19 events Jason Fischer ran from 2019, against 2 for the next best team, after a 2021 polygraph disqualification and a 2022 Rossford investigation.",
+      "namedPeople": [
+        {
+          "name": "Jason Fischer",
+          "role": "Lake Erie Walleye Trail tournament director",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "03-weigh-in",
+      "title": "Five Pound Cookie Cutters",
+      "claim": "Fischer judged the fish to look like ordinary four to five pound walleye, cut them open and found lead sinkers and fillets while the crowd filmed.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A03",
+        "A04"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "04-lead",
+      "title": "Pull the Lead Out",
+      "claim": "Ten sinkers weighed 7 pounds. Without them the bag drops to 26.91 pounds, below the 28.18 pound leader.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "05-fallout",
+      "title": "From the Ramp to Jail",
+      "claim": "The pair were indicted, pleaded guilty to cheating and unlawful ownership of wild animals, and were sentenced on May 11, 2023.",
+      "namedPeople": [
+        {
+          "name": "Steven Gall",
+          "role": "Cuyahoga County Common Pleas judge",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "06-ledger",
+      "title": "Was It Worth It?",
+      "claim": "They chased $28,760 and lost a $100,000 boat, three years of fishing, ten days of freedom and a clean record.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "Sinker total uses the court affidavit figures of eight 12 ounce and two 8 ounce weights, exactly 7 pounds. NPR reported 7.58 pounds. The page uses the affidavit figure.",
+    "The weight of the stuffed fillets was never published, so the page says the de-leaded total is still too high.",
+    "The win grid shows counts only. The order of individual wins across the 19 events is not shown because it is not in the record."
+  ]
+}

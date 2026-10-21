@@ -25,6 +25,28 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'bts-bytesize-weights-in-the-fish',
+    href: '/hubs/bts-bytesize-weights-in-the-fish.html',
+    title: 'weights in the fish',
+    course: 'beyond the scoreboard',
+    unit: 'bytesize / cheating and the rules',
+    period: '2021–2024',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 4',
+    question: 'how did two anglers rig a lake erie championship, and was it worth it?',
+    blurb: 'The 2022 Lake Erie walleye scandal in six short sections: the 33.91 pound bag, the director’s knife, the crowd video playing right on the page, a scale where you pull the lead out yourself, and the road from the boat ramp to jail.',
+    cover: '/storyhub/bts/weights-in-the-fish/assets/walleye.webp',
+    coverAlt: 'A walleye photographed against a black background by the U.S. Fish and Wildlife Service',
+    topics: ['cheating', 'fishing tournaments', 'lake erie', 'evidence', 'criminal law', 'viral video'],
+    inside: [
+      'See how a team that never finished above 13th started winning 9 of 19 events.',
+      'Watch the weigh in where Jason Fischer cut open the winning walleye.',
+      'Pull ten lead sinkers off the scale and see the honest bag fall below the leader.',
+      'Follow the seizure, the guilty pleas, the sentence and the boat auction.',
+    ],
+  },
+
+  {
     slug: 'hh-bytesize-nuremberg',
     href: '/hubs/hh-bytesize-nuremberg.html',
     title: 'the hangman of nuremberg',
