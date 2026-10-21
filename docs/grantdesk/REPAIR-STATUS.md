@@ -1,3 +1,9 @@
+## October 21 Dry County 0.6 — review branch
+
+Adds 72 living residents, shifts/errands, destination traffic and parking, witness memories, business hours and real interior customers, background deliveries, and distance-based simulation budgets. The scale audit reduces oversized cars, gives six body types distinct shared render/collision dimensions, broadens infill-house sizes and adds restrained adult variation. Existing saved cash and progression are retained; town clock and bounded memories are additive.
+
+Local canonical full verification passed (53 built routes, 128 HTML files and 4,542 references), alongside 77 gameplay checks and 10 town checks. Desktop/phone/landscape gameplay browser journeys and four-size/fourteen-room art verification passed. A wide fallback font caused phone title overflow; it is corrected. Deterministic Main Street observation recorded 54 pedestrians, 10 drivers, 46 business visits, 4 deliveries and 6 parking arrivals. The independent five-real-minute Chromium observation and final-head protected check remain in progress. Netlify production remains on 104cc8066bcdaf48a13dbc429fdb874f912fe403; no promotion or merge occurred. Field use remains pending.
+
 ## October 20 Dry County businesses and home progression
 
 Dry County 0.3 adds 17 walkable interiors, individual counter conversations, legal trading with cents and stock, three concealed speakeasies found through trust or clue jobs, and moonshine buyers. Vehicle purchases now take place at Cole Motor Company. Hardware supplies staged construction at the home lot, and bought furniture can be placed in the finished house. The County Supplier goal requires three discoveries, twelve delivered crates and a finished home; its $100 reward pays once.

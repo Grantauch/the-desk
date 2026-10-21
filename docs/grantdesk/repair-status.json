@@ -778,7 +778,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -1077,6 +1077,20 @@
       "Additional four-size title and fourteen-room rendering verification added to protected CI.",
       "Initial visual-pass full local verification, protected GitHub build and hosted Netlify preview passed on 822712b.",
       "Combined release full verification running; final protected build, production and player hardware validation remain separate."
+    ]
+  },
+  "dry_county_pulse_20261021": {
+    "status": "LOCAL_FULL_AND_BROWSER_JOURNEYS_PASSED_REALTIME_AND_PROTECTED_PENDING",
+    "summary": "0.6 Phase 1 living residents, purposeful civilian traffic, local witness memory, business schedules and background activity, simulation budgets, and shared scale geometry.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Canonical npm run verify passed: 53 built routes, 128 HTML files and 4542 local references; verification made no tracked authoring mutations.",
+      "77 existing gameplay checks and 10 living-town checks passed, including a deterministic five-minute observation with 54 nearby pedestrians, 10 drivers, 46 business visits, 4 deliveries and 6 parking arrivals.",
+      "Desktop/phone/landscape gameplay browser journeys and four-size/fourteen-room art checks passed. The latter caught and verified a phone title overflow fix for wider fallback fonts.",
+      "The independent five-real-minute Chromium observation, final-head protected verification and player hardware field use remain separate pending evidence.",
+      "Netlify production remains on 104cc8066bcdaf48a13dbc429fdb874f912fe403. No merge, promotion or production deployment performed."
     ]
   }
 }

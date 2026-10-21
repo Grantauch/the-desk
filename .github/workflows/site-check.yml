@@ -130,6 +130,7 @@ jobs:
         run: |
           node scripts/test-dry-county-browser.mjs
           node scripts/test-dry-county-art-browser.mjs
+          node scripts/test-dry-county-town-browser.mjs
 
       - name: Save browser screenshots and accessibility reports
         if: always()
