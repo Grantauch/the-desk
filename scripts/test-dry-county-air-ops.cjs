@@ -32,7 +32,7 @@ test('forward-facing detection has range, cone, rain and altitude gates',()=>{
  assert(o.canSpot(air,person(530,300)));
  assert(!o.canSpot(air,person(300,300)),'rear target');
  assert(!o.canSpot(air,person(1050,300)),'too far');
- assert(!o.canSpot(air,person(530,300,350)),'height mismatch');
+ assert(!o.canSpot(air,{...person(530,300),z:350}),'height mismatch');
  assert(!o.canSpot(air,person(895,300),1,1),'bad weather must reduce range');
 });
 test('sightings update verified last known location, not an unseen teleport',()=>{
