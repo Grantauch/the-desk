@@ -27,6 +27,8 @@ assert.equal((await createHandler({env:()=>undefined})(request({prompt:'Hi'}))).
 for (const [status, expected] of [[400,502],[401,502],[403,502],[429,429],[500,502]]) {
   await assert.rejects(() => generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({error:{message:'secret must not be echoed'}},{status})}), error=>error.status===expected && !error.message.includes('secret must'));
 }
+await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({error:{status:'INVALID_ARGUMENT',message:'free text secret',details:[{reason:'API_KEY_INVALID'}]}},{status:400})}),error=>error.message.includes('HTTP 400 API_KEY_INVALID') && !error.message.includes('free text'));
+await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({error:{status:'bad; $(x)'}},{status:403})}),error=>error.message.includes('HTTP 403)') && !error.message.includes('$('));
 await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({})}),error=>error.code==='EMPTY_RESPONSE');
 await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>{throw new Error('network secret')}}),error=>error.status===504);
 const answer=await generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async(url,init)=>{

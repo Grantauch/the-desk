@@ -19,7 +19,15 @@ export async function generateText({ apiKey, prompt, model = 'gemini-flash-lates
   } catch { throw new GeminiError('Gemini could not be reached in time. Try again later.', 504, 'UPSTREAM_UNAVAILABLE'); }
   if (!response.ok) {
     if (response.status === 429) throw new GeminiError('The Gemini API quota or rate limit was reached. Your chat subscription has separate access.', 429, 'GEMINI_QUOTA');
-    throw new GeminiError('Google rejected the Gemini request. Check the API key, API access, and model setting.', 502, 'GOOGLE_REJECTED');
+    // Report only Google's HTTP status and machine reason code, never its free text.
+    let reason = '';
+    try {
+      const err = (await response.json())?.error || {};
+      const detail = (err.details || []).find(d => typeof d?.reason === 'string')?.reason;
+      reason = [detail, err.status].find(r => typeof r === 'string' && /^[A-Z_]{1,60}$/.test(r)) || '';
+    } catch {}
+    const hint = response.status === 404 ? 'Check the model setting.' : 'Check the API key and that the Generative Language API is enabled for it.';
+    throw new GeminiError(`Google rejected the Gemini request (HTTP ${response.status}${reason ? ` ${reason}` : ''}). ${hint}`, 502, 'GOOGLE_REJECTED');
   }
   let data;
   try { data = await response.json(); } catch { throw new GeminiError('Google returned an unreadable response.', 502, 'INVALID_RESPONSE'); }
