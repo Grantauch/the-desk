@@ -71,6 +71,49 @@ export const storyHubs: StoryHub[] = [
 
 
   {
+    slug: 'bts-americas-most-hated',
+    href: '/hubs/bts-americas-most-hated.html',
+    title: 'america’s most hated',
+    course: 'beyond the scoreboard',
+    unit: 'the money game / wrestling, media and national fear',
+    period: '1947–2014',
+    status: 'ready to teach',
+    question: 'who were americans told to boo, and why then?',
+    blurb: 'The launch hub for the heel project: fifteen wrestling villains borrowed from the headlines, from Gorgeous George to Rusev. Match front pages to the ring, watch heroes and villains switch sides, filter the card by national fear and see who was really under the costume.',
+    cover: '/storyhub/bts/americas-most-hated/assets/gg-ring.webp',
+    coverAlt: 'Gorgeous George standing in a wrestling ring in a long robe in 1949, Library of Congress photograph',
+    topics: ['professional wrestling', 'cold war', 'iran hostage crisis', 'gulf war', 'stereotypes', 'media and promotion'],
+    inside: [
+      'Watch the Mr. McMahon trailer and learn heel, face, kayfabe and territory before episode 1.',
+      'Pick a headline and see how many days it took wrestling to answer it, from 2 days to 1,513.',
+      'Switch Sgt. Slaughter, Nikolai Volkoff and Jack Swagger between heel and face as the news changed.',
+      'Claim one of fifteen heels, learn the five questions and the rubric, then prove a connection with dates.',
+      'Ten official videos from Netflix, the National Archives, WWE and British Pathé, loaded only on press.',
+    ],
+  },
+  {
+    slug: 'bts-americas-most-hated-exemplar',
+    href: '/hubs/bts-americas-most-hated-exemplar.html',
+    title: 'fritz von erich: the exemplar',
+    course: 'beyond the scoreboard',
+    unit: 'the money game / wrestling, media and national fear',
+    period: '1945–1966',
+    status: 'ready to teach',
+    question: 'what does a full credit heel presentation look like?',
+    blurb: 'A finished model presentation for America’s Most Hated: three slides and a spoken script on Fritz Von Erich, the Nazi villain who was really from Texas. Turn on the red pencil to see where every rubric point comes from.',
+    cover: '/storyhub/bts/americas-most-hated/assets/fritz-claw-1977.webp',
+    coverAlt: 'Fritz Von Erich applying the Iron Claw in a 1977 wrestling program photograph',
+    topics: ['fritz von erich', 'world war ii memory', 'primary sources', 'presentation model'],
+    inside: [
+      'Each slide shown as the class would see it, with the presenter’s script beneath it.',
+      'Grading marks in red pencil and a scorecard that jumps to the evidence for each point.',
+      'A 1953 letter in Adkisson’s own words, a chart of war deaths and a timeline of when the act began and ended.',
+      'A speaking time check computed from the script, plus what to copy and what not to.',
+    ],
+  },
+
+
+  {
     slug: 'bts-the-fighter',
     href: '/hubs/bts-the-fighter.html',
     title: 'the fighter: who calls the shots?',
