@@ -17,6 +17,11 @@
   status = 301
 
 [[redirects]]
+  from = "/buzz"
+  to = "/hubs/jeopardy-buzz.html"
+  status = 301
+
+[[redirects]]
   from = "/cold-openers"
   to = "/detour-shelf/#story-bank"
   status = 301

@@ -26,7 +26,7 @@ Students do not sign in with a Google account or an email address. Each Chromebo
 
 The rules make sure that only players in a game can change it, that nobody can list every game, and that each move has to build on the latest board.
 
-When this rules file changes, paste it again and click **Publish**. The October 2026 update opened seats five through eight, so games with more than four players need the new rules. The October 19, 2026 update adds the `stpCodes` and `stp` sections for Stop the Presses. Robber Barons is unchanged by it, and Stop the Presses live games are refused until this version is published.
+When this rules file changes, paste it again and click **Publish**. The October 2026 update opened seats five through eight, so games with more than four players need the new rules. The October 19, 2026 update adds the `stpCodes` and `stp` sections for Stop the Presses. Robber Barons is unchanged by it, and Stop the Presses live games are refused until this version is published. The October 20, 2026 update adds the `jepCodes`, `jep` and `jepBoards` sections for live Progressive Era Jeopardy and its cloud boards. Robber Barons and Stop the Presses are unchanged by it, and Jeopardy rooms are refused until this version is published.
 
 ## 4. Copy the settings into the site
 
