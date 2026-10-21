@@ -214,6 +214,224 @@
           ".validate": false
         }
       }
+    },
+    "jepCodes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && $code.matches(/^[B-DF-HJ-NP-TV-XZ]{4}$/) && (!data.exists() || data.val() < now - 86400000 || root.child('jep').child($code).child('meta/host').val() === auth.uid)",
+        ".validate": "newData.isNumber() && newData.val() === now"
+      }
+    },
+    "jep": {
+      "$code": {
+        ".write": "auth != null && !newData.exists() && (data.child('meta/created').val() < now - 86400000 || data.child('meta/host').val() === auth.uid)",
+        "meta": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          ".write": "auth != null && (!data.exists() || data.child('host').val() === auth.uid)",
+          ".validate": "$code.matches(/^[B-DF-HJ-NP-TV-XZ]{4}$/) && newData.hasChildren(['host', 'created', 'status']) && newData.child('host').val() === auth.uid",
+          "host": {
+            ".validate": "newData.isString()"
+          },
+          "created": {
+            ".validate": "data.exists() ? newData.val() === data.val() : newData.val() === now"
+          },
+          "status": {
+            ".validate": "newData.val() === 'live' || newData.val() === 'done'"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "teams": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          ".write": "auth != null && root.child('jep').child($code).child('meta/host').val() === auth.uid",
+          "$t": {
+            ".validate": "$t.matches(/^[0-7]$/) && newData.isString() && newData.val().length >= 1 && newData.val().length <= 28"
+          }
+        },
+        "scores": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          ".write": "auth != null && root.child('jep').child($code).child('meta/host').val() === auth.uid",
+          "$t": {
+            ".validate": "$t.matches(/^[0-7]$/) && newData.isNumber()"
+          }
+        },
+        "players": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          "$uid": {
+            ".write": "auth != null && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done' && (auth.uid === $uid || (!newData.exists() && root.child('jep').child($code).child('meta/host').val() === auth.uid))",
+            ".validate": "newData.hasChildren(['name', 'team'])",
+            "name": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16"
+            },
+            "team": {
+              ".validate": "newData.isString() && newData.val().matches(/^[0-7]$/) && root.child('jep').child($code).child('teams').child(newData.val()).exists()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "state": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          ".write": "auth != null && root.child('jep').child($code).child('meta/host').val() === auth.uid",
+          ".validate": "newData.hasChildren(['ph', 'k', 'out'])",
+          "ph": {
+            ".validate": "newData.isString() && newData.val().matches(/^(idle|clue|buzz|answer|pick|final|lock|over)$/)"
+          },
+          "k": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "out": {
+            ".validate": "newData.isString() && newData.val().matches(/^[0-7]{0,8}$/)"
+          },
+          "at": {
+            ".validate": "newData.isNumber()"
+          },
+          "rt": {
+            ".validate": "newData.isString() && newData.val().matches(/^[0-7]?$/)"
+          },
+          "max": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000"
+          },
+          "pt": {
+            ".validate": "newData.isString() && newData.val().matches(/^[0-7]{0,8}$/)"
+          },
+          "info": {
+            ".validate": "newData.isString() && newData.val().length <= 200"
+          },
+          "th": {
+            ".validate": "newData.isString() && newData.val().matches(/^(studio|press|terminal|gilded)$/)"
+          },
+          "fs": {
+            ".validate": "newData.isString() && newData.val().matches(/^(cat|clue)?$/)"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "buzz": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          "$k": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.exists() && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done' && root.child('jep').child($code).child('state/ph').val() === 'buzz' && root.child('jep').child($code).child('state/k').val() === $k && now >= root.child('jep').child($code).child('state/at').val() && root.child('jep').child($code).child('players').child($uid).exists() && !root.child('jep').child($code).child('state/out').val().contains(root.child('jep').child($code).child('players').child(auth.uid).child('team').val())",
+              ".validate": "newData.hasChildren(['t', 'team'])",
+              "t": {
+                ".validate": "newData.val() === now"
+              },
+              "team": {
+                ".validate": "newData.val() === root.child('jep').child($code).child('players').child(auth.uid).child('team').val()"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "pick": {
+          "$k": {
+            ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('meta/host').val() === auth.uid)",
+            "$t": {
+              ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('players').child(auth.uid).child('team').val() === $t)",
+              ".write": "auth != null && !data.exists() && newData.exists() && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done' && root.child('jep').child($code).child('state/ph').val() === 'pick' && root.child('jep').child($code).child('state/k').val() === $k && root.child('jep').child($code).child('players').child(auth.uid).child('team').val() === $t && root.child('jep').child($code).child('state/pt').val().contains($t)",
+              ".validate": "newData.hasChildren(['g', 'by'])",
+              "g": {
+                ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= root.child('jep').child($code).child('state/max').val()"
+              },
+              "by": {
+                ".validate": "newData.val() === auth.uid"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "final": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('meta/host').val() === auth.uid)",
+          "$t": {
+            ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('players').child(auth.uid).child('team').val() === $t)",
+            ".write": "auth != null && newData.exists() && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done' && root.child('jep').child($code).child('state/ph').val() === 'final' && root.child('jep').child($code).child('players').child(auth.uid).child('team').val() === $t",
+            ".validate": "newData.hasChildren(['w', 'a', 'by'])",
+            "w": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && (newData.val() === 0 || newData.val() <= root.child('jep').child($code).child('scores').child($t).val())"
+            },
+            "a": {
+              ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "by": {
+              ".validate": "newData.val() === auth.uid"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "predict": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('meta/host').val() === auth.uid)",
+          "$k": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.exists() && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done' && root.child('jep').child($code).child('state/ph').val() === 'answer' && root.child('jep').child($code).child('state/k').val() === $k && root.child('jep').child($code).child('players').child($uid).exists() && root.child('jep').child($code).child('players').child(auth.uid).child('team').val() !== root.child('jep').child($code).child('state/rt').val()",
+              ".validate": "newData.isString() && (newData.val() === 'y' + root.child('jep').child($code).child('players').child(auth.uid).child('team').val() || newData.val() === 'n' + root.child('jep').child($code).child('players').child(auth.uid).child('team').val())"
+            }
+          }
+        },
+        "req": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('meta/host').val() === auth.uid)",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && newData.exists() && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done'",
+            ".validate": "newData.hasChildren(['pin', 't'])",
+            "pin": {
+              ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}$/)"
+            },
+            "t": {
+              ".validate": "newData.val() === now"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "remotes": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000",
+          ".write": "auth != null && root.child('jep').child($code).child('meta/host').val() === auth.uid",
+          "$uid": {
+            ".validate": "newData.val() === true"
+          }
+        },
+        "secret": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('meta/host').val() === auth.uid || root.child('jep').child($code).child('remotes').child(auth.uid).val() === true)",
+          ".write": "auth != null && root.child('jep').child($code).child('meta/host').val() === auth.uid",
+          "v": {
+            ".validate": "newData.isString() && newData.val().length <= 60000"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "cmd": {
+          ".read": "auth != null && root.child('jep').child($code).child('meta/created').val() > now - 86400000 && (root.child('jep').child($code).child('meta/host').val() === auth.uid || root.child('jep').child($code).child('remotes').child(auth.uid).val() === true)",
+          "$id": {
+            ".write": "auth != null && ((newData.exists() && !data.exists() && root.child('jep').child($code).child('remotes').child(auth.uid).val() === true && root.child('jep').child($code).child('meta').exists() && root.child('jep').child($code).child('meta/status').val() !== 'done') || (!newData.exists() && root.child('jep').child($code).child('meta/host').val() === auth.uid))",
+            ".validate": "newData.hasChildren(['c', 'a', 't'])",
+            "c": {
+              ".validate": "newData.isString() && newData.val().matches(/^[a-z-]{1,20}$/)"
+            },
+            "a": {
+              ".validate": "newData.isString() && newData.val().length <= 24"
+            },
+            "t": {
+              ".validate": "newData.val() === now"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }

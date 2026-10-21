@@ -475,7 +475,7 @@ test('spreadsheet titles beginning with equals remain literal text', () => {
 
 const HUBS = path.join(__dirname, '..', 'public', 'hubs');
 // Game boards whose text boxes are team names or scores, not student answers.
-const NOT_ANSWER_PAGES = new Set(['classroom-jeopardy.html', 'jeopardy-hidden-history-unit1.html', 'jeopardy-scoreboard-unit1.html']);
+const NOT_ANSWER_PAGES = new Set(['classroom-jeopardy.html', 'jeopardy-hidden-history-unit1.html', 'jeopardy-scoreboard-unit1.html', 'ush9-progressive-era-jeopardy-v3.html']);
 
 test('every hub with answer boxes loads desk-save.js', () => {
   const missing = fs.readdirSync(HUBS)
