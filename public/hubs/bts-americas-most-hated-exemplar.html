@@ -224,7 +224,7 @@ p{margin:0 0 1rem}
       <p class="hero__lead">This is what a finished presentation looks like, built on a heel who is not on the class card. Read each slide, then read what the presenter says out loud. Turn on the grading marks to see exactly where the points come from.</p>
       <div class="facts" aria-label="This presentation at a glance">
         <div>3<span>slides</span></div>
-        <div id="timeFact">2:30<span>spoken</span></div>
+        <div id="timeFact">2:37<span>spoken</span></div>
         <div>2<span>outside sources</span></div>
       </div>
     </div>
@@ -379,8 +379,8 @@ p{margin:0 0 1rem}
     <article class="block" id="time" aria-labelledby="h-time">
       <div class="block__head"><span class="num">The clock</span><h2 id="h-time">Does It Fit in Three Minutes?</h2></div>
       <div class="chart" style="margin-top:0">
-        <p>The script on this page is <b id="wordCount">370</b> words. At a normal speaking pace of 150 words a minute, that comes to:</p>
-        <div class="timer__read" id="timeRead">about 2:28</div>
+        <p>The script on this page is <b id="wordCount">392</b> words. At a normal speaking pace of 150 words a minute, that comes to:</p>
+        <div class="timer__read" id="timeRead">about 2:37</div>
         <div class="timer">
           <div class="track" role="img" id="timeTrack" aria-label="Spoken time compared with the two to three minute window"><div class="window"></div><div class="fill" id="timeFill"></div></div>
           <div class="ticks"><span>0:00</span><span>1:00</span><span>2:00</span><span>3:00</span><span>4:00</span></div>
@@ -477,7 +477,8 @@ p{margin:0 0 1rem}
   }
   btn.addEventListener('click',function(){setMarks(btn.getAttribute('aria-pressed')!=='true')});
   document.querySelectorAll('[data-jump]').forEach(function(a){
-    a.addEventListener('click',function(){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
       setMarks(true);
       var t=document.querySelector('[data-hit="'+a.dataset.jump+'"]');
       if(t){t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});}

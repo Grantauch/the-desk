@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-americas-most-hated.html",
-      "bytes": 81407,
-      "sha256": "8cc354cda2b7b90ee63fc208b0464491079fe4f12ef83fa02a5b01cb49090c3f"
+      "bytes": 81456,
+      "sha256": "653f3dd2394bb3970a52e1668e21f08dd7e1d2603fc7983e906af80277bff6a7"
     },
     {
       "path": "/storyhub/bts/americas-most-hated/assets/alfa-slab-one.woff2",
@@ -102,6 +102,6 @@
       "height": 246
     }
   ],
-  "totalBytes": 793987,
+  "totalBytes": 794036,
   "sealedAt": "2026-10-21"
 }
