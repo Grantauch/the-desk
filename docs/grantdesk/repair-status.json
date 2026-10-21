@@ -1063,5 +1063,20 @@
       "Full Node regression and desktop/phone/landscape Chromium acceptance remain required on the protected review branch.",
       "Pursuit fixture starts away from the garage respray; roadblock layouts fit the narrower mapped streets."
     ]
+  },
+  "dry_county_noir_20261020": {
+    "status": "AI_INTEGRATED_LOCAL_CHECKED_FINAL_PROTECTED_VERIFICATION_PENDING",
+    "summary": "0.5 midnight edition: original title illustration, projected roof materials and windows, textured roads, authored interior furniture and responsive HUD.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "77 gameplay regressions passed after integration with main 83db125 and PR #203 police/rival AI.",
+      "Phone minimap top/bottom conflict corrected; browser coverage now asserts compact content height and viewport bounds at all four sizes.",
+      "Existing desktop, phone and landscape business browser journeys passed.",
+      "Additional four-size title and fourteen-room rendering verification added to protected CI.",
+      "Initial visual-pass full local verification, protected GitHub build and hosted Netlify preview passed on 822712b.",
+      "Combined release full verification running; final protected build, production and player hardware validation remain separate."
+    ]
   }
 }
