@@ -24,5 +24,5 @@ Draft, tested, merged, deployed, and classroom-verified are separate states. Do 
 
 - For Grant's individual Pro account, use Google's Antigravity coding client and sign in with Google. Google ended individual Pro access through the older Gemini CLI on June 18, 2026; it remains a separate API/enterprise path. Work in an isolated checkout.
 - GitHub: the owner comments `@gemini ` followed by a task on an issue or PR, or runs Gemini Assistant manually in Actions. It reads a small explicit set of public files, returns a draft, and cannot execute commands or edit the repository.
-- Netlify: `/.netlify/functions/gemini` accepts bounded POST JSON with a private bearer token. It has no GitHub or Netlify management tools. Never put the token in a webpage.
+- Netlify: `/api/gemini` accepts bounded POST JSON with a private bearer token and a per-IP/domain request limit. It has no GitHub or Netlify management tools. Never put the token in a webpage.
 - API requests use their own quota. `GEMINI_MODEL` is configurable; default `gemini-flash-latest`. Errors are reported as errors.

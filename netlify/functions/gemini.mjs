@@ -3,7 +3,10 @@ import { generateText, GeminiError } from '../../scripts/lib/gemini-api.mjs';
 
 const json = (body, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
 const MAX_BYTES = 20000;
-export const config = { rateLimit: { action: 'rate_limit', aggregateBy: 'domain', windowSize: 60, windowLimit: 10 } };
+export const config = {
+  path: '/api/gemini',
+  rateLimit: { action: 'rate_limit', aggregateBy: ['ip', 'domain'], windowSize: 60, windowLimit: 10 },
+};
 
 export function createHandler({ env = key => Netlify.env.get(key), generate = generateText } = {}) {
   return async req => {

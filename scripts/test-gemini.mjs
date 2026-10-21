@@ -1,12 +1,19 @@
 import assert from 'node:assert/strict';
-import { createHandler } from '../netlify/functions/gemini.mjs';
+import { createHandler, config } from '../netlify/functions/gemini.mjs';
 import { generateText, GeminiError } from './lib/gemini-api.mjs';
 import { requestFromEvent } from './gemini-handler.mjs';
 
+// Netlify ignores code-based throttling without an explicit route. Use the
+// per-IP/domain mode supported by standard plans, rather than enterprise-only
+// shared-domain aggregation. A deployed smoke check still proves enforcement.
+assert.equal(config.path, '/api/gemini');
+assert.deepEqual(config.rateLimit.aggregateBy, ['ip', 'domain']);
+assert.equal(config.rateLimit.windowLimit, 10);
+assert.equal(config.rateLimit.windowSize, 60);
 let calls = 0;
 const env = key => ({ GEMINI_ACCESS_TOKEN: 'test-access-token', GEMINI_API_KEY: 'fake-key' })[key];
 const handler = createHandler({ env, generate: async () => { calls++; return { text: 'Hello.', model: 'test' }; } });
-const request = (body, options = {}) => new Request('https://test.invalid/.netlify/functions/gemini', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer test-access-token', ...options.headers }, body: JSON.stringify(body) });
+const request = (body, options = {}) => new Request('https://test.invalid/api/gemini', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer test-access-token', ...options.headers }, body: JSON.stringify(body) });
 assert.equal((await handler(new Request('https://test.invalid'))).status, 405);
 assert.equal((await handler(request({prompt:'Hi'}, {headers:{authorization:''}}))).status, 401);
 assert.equal(calls,0);
