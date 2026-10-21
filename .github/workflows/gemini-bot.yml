@@ -1,0 +1,23 @@
+name: Gemini Assistant
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  gemini-process:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run Gemini Task
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          # Run your automation script using @google/genai SDK
+          node scripts/gemini-handler.js "${{ github.event.issue.body }}"
