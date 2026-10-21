@@ -9,11 +9,11 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // Google often answers 503 when Gemini is overloaded. Retry busy answers a few
 // times inside totalMs, so a passing hiccup does not look like a broken setup.
-export async function generateText({ apiKey, prompt, model = 'gemini-flash-latest', fetchImpl = fetch, maxOutputTokens = 1536, totalMs = 25000, sleep = wait }) {
+export async function generateText({ apiKey, prompt, model = 'gemini-flash-latest', fetchImpl = fetch, maxOutputTokens = 1536, totalMs = 25000, sleep = wait, now = Date.now }) {
   if (!apiKey?.trim()) throw new GeminiError('The Gemini API key is not configured.', 503, 'SETUP_REQUIRED');
   if (!/^[a-zA-Z0-9._-]{1,100}$/.test(model)) throw new GeminiError('The Gemini model setting is invalid.', 503, 'MODEL_SETTING');
   if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 80000) throw new GeminiError('Provide a non-empty prompt within the size limit.', 400, 'INVALID_PROMPT');
-  const deadline = Date.now() + totalMs;
+  const deadline = now() + totalMs;
   const pauses = [1500, 4000, 8000];
   let response; let lastBusy = '';
   for (let attempt = 0; ; attempt++) {
@@ -23,13 +23,13 @@ export async function generateText({ apiKey, prompt, model = 'gemini-flash-lates
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens } }),
-        signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())),
+        signal: AbortSignal.timeout(Math.max(1000, deadline - now())),
       });
     } catch { lastBusy = 'no answer in time'; }
     if (response && !BUSY.has(response.status)) break;
     if (response) lastBusy = `HTTP ${response.status}${await reasonOf(response)}`;
     const pause = pauses[attempt];
-    if (pause === undefined || Date.now() + pause + 1000 > deadline) {
+    if (pause === undefined || now() + pause + 1000 > deadline) {
       throw new GeminiError(`Google's Gemini servers were busy (${lastBusy}) after ${attempt + 1} ${attempt ? 'tries' : 'try'}. This is on Google's side. Try again in a few minutes.`, 503, 'GEMINI_BUSY');
     }
     await sleep(pause);
