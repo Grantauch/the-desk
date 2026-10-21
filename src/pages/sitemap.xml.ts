@@ -26,6 +26,7 @@ const paths = [
   ...learningHubs.map((hub) => `/learn/${hub.courseSlug}/${hub.slug}/`),
   '/simulations/',
   '/games/',
+  '/hubs/ush9-progressive-era-jeopardy-v3.html',
   '/hubs/ush9-progressive-era-jeopardy-v2.html',
   '/hubs/the-league.html',
   '/hubs/tale-of-the-tape.html',
