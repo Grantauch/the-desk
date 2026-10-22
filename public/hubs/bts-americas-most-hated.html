@@ -337,9 +337,8 @@ section.ch{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--rope
 .no-js .reveal{opacity:1;transform:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
-<link rel="stylesheet" href="/hubs/bts-americas-most-hated-lab.css">
 </head>
-<body class="no-js" data-desk-autosave-ms="30000">
+<body class="no-js">
 <a class="skip" href="#main-content">Skip to the story</a>
 
 <header class="bar">
@@ -354,7 +353,6 @@ section.ch{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--rope
         <li><a href="#mission">Mission</a></li>
         <li><a href="#prove">Prove It</a></li>
         <li><a href="#rules">Rules</a></li>
-        <li><a href="#lab">Research Lab</a></li>
         <li><a href="#bell">Final Bell</a></li>
       </ul>
     </nav>
@@ -383,7 +381,6 @@ section.ch{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--rope
       <div class="tape">
         <a class="btn btn--red" href="#watch">Start with the episode</a>
         <a class="btn" href="#card">Go to the heel list</a>
-        <a class="btn" href="#lab">Open the Research Lab</a>
       </div>
     </div>
     <figure class="hero__photo">
@@ -827,143 +824,6 @@ section.ch{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--rope
   </div>
 </section>
 
-
-<!-- HEEL RESEARCH LAB: Student work is saved exclusively by the shared desk-save runtime. -->
-<section class="investigation" id="lab" aria-labelledby="lab-title">
-  <div class="lab-inner">
-    <div class="lab-topline">
-      <div>
-        <span class="lab-eyebrow">The case file · interactive research lab</span>
-        <h2 id="lab-title">Build the Case.</h2>
-        <p class="lab-deck">A wrestler played the villain. Your job is to prove why that character worked in that moment of American history. Work through the five rounds, collect evidence, prepare your argument, then turn in the organizer. You provide the answers.</p>
-      </div>
-      <div class="lab-counter" aria-live="polite"><strong id="lab-progress">0 / 5</strong><span>Rounds drafted, not graded</span></div>
-    </div>
-    <div class="lab-meter" role="progressbar" aria-label="Rounds with draft work" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" id="lab-meter"><span id="lab-meter-fill"></span></div>
-    <div class="lab-stepnav" aria-label="Choose a research round">
-      <button type="button" data-lab-tab="1" aria-controls="lab-round-1" aria-current="step"><span>01 · Claim</span>Who?</button>
-      <button type="button" data-lab-tab="2" aria-controls="lab-round-2"><span>02 · Context</span>When?</button>
-      <button type="button" data-lab-tab="3" aria-controls="lab-round-3"><span>03 · Argument</span>Why?</button>
-      <button type="button" data-lab-tab="4" aria-controls="lab-round-4"><span>04 · Evidence</span>Prove it</button>
-      <button type="button" data-lab-tab="5" aria-controls="lab-round-5"><span>05 · Final bell</span>Present</button>
-    </div>
-
-    <div class="lab-panel" id="lab-round-1" data-lab-round="1">
-      <div class="lab-strap">Round 01 / The suspect</div>
-      <h3>Who did the audience think they were seeing?</h3>
-      <p class="lab-lead">Pick one of the fifteen heels. This is a research choice, not an automatic reservation: confirm your selection with your teacher so the class does not repeat a wrestler.</p>
-      <div class="lab-field">
-        <label for="lab-heel">Your selected heel <small>Choose from the fight card below or type the name.</small></label>
-        <input type="text" id="lab-heel" name="lab_heel" list="lab-heel-options" autocomplete="off" placeholder="Pick a wrestler">
-        <datalist id="lab-heel-options"></datalist>
-        <div class="lab-choice" id="lab-heel-choices" aria-label="Choose a heel from the fight card"></div>
-      </div>
-      <div class="lab-field">
-        <label for="lab-identity">Q1 · Who was the heel? (10 points) <small>Ring name, real name, real hometown, years the character was prominent, and two sentences describing the gimmick.</small></label>
-        <textarea id="lab-identity" name="lab_identity" placeholder="Write your researched identity here, including the difference between the character and the person."></textarea>
-      </div>
-      <div class="lab-field">
-        <label for="lab-character-clue">Your opening clue <small>What was the most recognizable thing about the character: an entrance, outfit, manager, catchphrase, rivalry or flag? Explain why it caught your eye.</small></label>
-        <textarea id="lab-character-clue" name="lab_character_clue" placeholder="Describe the detail and what a spectator would notice."></textarea>
-      </div>
-      <details class="lab-tip"><summary>Need a starting point?</summary><p>Use <a href="#card">the 15-wrestler fight card</a> to compare the poster with the real record. Then verify both with sources. The card supplies leads, not all the evidence you need.</p></details>
-      <div class="lab-controls"><a class="lab-action lab-action--light" href="#card">Explore the fight card</a><button class="lab-action" type="button" data-lab-go="2">Next: investigate the history →</button></div>
-    </div>
-
-    <div class="lab-panel" id="lab-round-2" data-lab-round="2">
-      <div class="lab-strap">Round 02 / Headline or coincidence?</div>
-      <h3>Build the historical timeline.</h3>
-      <p class="lab-lead">Your real-world event needs accurate dates and at least one hard fact. Then put that history beside the character. A headline that came later could not have invented an earlier gimmick.</p>
-      <div class="lab-field">
-        <label for="lab-history">Q2 · What was happening in the world? (15 points) <small>Name the event or issue. Who was involved? Where and when did it happen? Include a specific number, person or documented event.</small></label>
-        <textarea id="lab-history" name="lab_history" placeholder="Explain the real historical event in your own words, with dates and at least one precise fact."></textarea>
-      </div>
-      <div class="lab-columns">
-        <div class="lab-field"><label for="lab-event-date">Historical event date <small>YYYY or YYYY-MM-DD; use the date your evidence supports.</small></label><input type="text" id="lab-event-date" name="lab_event_date" placeholder="e.g., 1991-01-17" inputmode="numeric"></div>
-        <div class="lab-field"><label for="lab-character-date">Character known to be in use by <small>Earliest year or date your research can verify.</small></label><input type="text" id="lab-character-date" name="lab_character_date" placeholder="e.g., 1990" inputmode="numeric"></div>
-        <div class="lab-field"><label for="lab-match-date">Key promo, match or storyline date <small>The specific example you will use in your talk.</small></label><input type="text" id="lab-match-date" name="lab_match_date" placeholder="e.g., 1991-01-19" inputmode="numeric"></div>
-      </div>
-      <button class="lab-action" type="button" id="lab-compare">Compare my dates</button>
-      <div id="lab-date-feedback" class="lab-outcome" role="status"><p>Enter at least the event date and character date, then compare them. Dates show sequence; you still must prove the connection.</p></div>
-      <div class="lab-field"><label for="lab-timeline-meaning">What does your timeline actually prove? <small>Did the real event create, intensify, transform, or merely coincide with this character? Distinguish a documented link from your own interpretation.</small></label><textarea id="lab-timeline-meaning" name="lab_timeline_meaning" placeholder="Explain your interpretation and what evidence would support or challenge it."></textarea></div>
-      <details class="lab-tip"><summary>What counts as a hard fact?</summary><p>A date, named person, documented policy, audience figure, election, war, or other checkable detail. “People were angry back then” is too broad. Try the <a href="#prove">Iron Sheik chronology activity</a> to see why order matters.</p></details>
-      <div class="lab-controls"><button class="lab-action lab-action--light" type="button" data-lab-go="1">← Previous</button><button class="lab-action" type="button" data-lab-go="3">Next: explain the crowd →</button></div>
-    </div>
-
-    <div class="lab-panel" id="lab-round-3" data-lab-round="3">
-      <div class="lab-strap">Round 03 / Connect the dots</div>
-      <h3>Why did they boo?</h3>
-      <p class="lab-lead">The wrestler is only half your story. You need to show how a promoter used that era's history to get a reaction, and what this reveals about the audience.</p>
-      <div class="lab-field"><label for="lab-wrestling">Q3 · How did wrestling use that history? (15 points) <small>Give at least two specific examples: a named match, a promo, an entrance, costume, manager, flag, anthem or rivalry. Explain what each detail borrowed from real life.</small></label><textarea id="lab-wrestling" name="lab_wrestling" placeholder="Specific example 1 and why it mattered; specific example 2 and why it mattered."></textarea></div>
-      <div class="lab-field"><label for="lab-audience">Q4 · Why did the crowd hate this character then? (15 points) <small>Connect the reaction to a belief, fear or conflict at that particular time. Who was the target audience? What evidence supports your interpretation?</small></label><textarea id="lab-audience" name="lab_audience" placeholder="Explain the reaction with historical context, not simply 'because he was the bad guy.'"></textarea></div>
-      <div class="lab-field"><label for="lab-america">Q5 · What does the character tell us about America? (15 points) <small>Identify the stereotype or prejudice. Decide whether the portrayal was fair to the people it claimed to represent, and defend your position with a detail from your research.</small></label><textarea id="lab-america" name="lab_america" placeholder="Make a clear judgment and support it with evidence."></textarea></div>
-      <div class="lab-info"><p><strong>The ethical rule:</strong> Describe racist or hateful material when it is relevant, but do not repeat slurs or perform hateful promos. You can analyze the prejudice without recreating it.</p></div>
-      <details class="lab-tip"><summary>Stuck on the difference between Q4 and Q5?</summary><p>Q4 explains the historical cause of a crowd reaction. Q5 judges what that reaction and the character reveal about society. One asks <em>why it worked</em>. The other asks <em>what it says about us</em>.</p></details>
-      <div class="lab-controls"><button class="lab-action lab-action--light" type="button" data-lab-go="2">← Previous</button><button class="lab-action" type="button" data-lab-go="4">Next: verify the evidence →</button></div>
-    </div>
-
-    <div class="lab-panel" id="lab-round-4" data-lab-round="4">
-      <div class="lab-strap">Round 04 / Evidence locker</div>
-      <h3>Can another person check your claims?</h3>
-      <p class="lab-lead">Find <strong>two credible sources</strong>, including at least <strong>one outside WWE</strong>. Wikipedia can help you locate leads but cannot count as one of your two. Record enough information for a classmate to find each source.</p>
-      <div class="lab-columns">
-        <div>
-          <div class="lab-field"><label for="lab-source-one">Source 1 · Full citation <small>Creator, title, publisher, date and URL when available.</small></label><textarea id="lab-source-one" name="lab_source_one" placeholder="Article, archive, book or documentary citation."></textarea></div>
-          <div class="lab-field"><label for="lab-source-one-claim">What does source 1 prove? <small>One concrete fact from this source. Say whether it is reporting, a primary record or later commentary.</small></label><textarea id="lab-source-one-claim" name="lab_source_one_claim" placeholder="Fact and why this source is credible."></textarea></div>
-        </div>
-        <div>
-          <div class="lab-field"><label for="lab-source-two">Source 2 · Full citation <small>Creator, title, publisher, date and URL when available.</small></label><textarea id="lab-source-two" name="lab_source_two" placeholder="Another credible, distinct source."></textarea></div>
-          <div class="lab-field"><label for="lab-source-two-claim">What does source 2 prove? <small>Find something that confirms, extends or complicates the first source.</small></label><textarea id="lab-source-two-claim" name="lab_source_two_claim" placeholder="Fact and why this source is credible."></textarea></div>
-        </div>
-      </div>
-      <div class="lab-field"><label for="lab-independent">Which source is independent of WWE, and why trust it? <small>A WWE clip is valuable evidence of a wrestling portrayal, but it may not independently establish what the public believed.</small></label><textarea id="lab-independent" name="lab_independent" placeholder="Name your outside source and explain its reliability."></textarea></div>
-      <div class="lab-field"><label for="lab-visual">Your visual evidence (5 points) <small>Identify a historical photo or a wrestling clip of no more than 30 seconds. Include where it comes from, the image/link or clip timestamp, and exactly what it helps prove.</small></label><textarea id="lab-visual" name="lab_visual" placeholder="Visual, source/link or timestamp, and the claim it supports."></textarea></div>
-      <div class="lab-info"><p><strong>Source check:</strong> Who made it? When? Was the creator actually there, or relying on another account? Can a second source confirm the claim? Primary sources can show what people said, but can also be biased.</p></div>
-      <div class="lab-badges" aria-label="Research databases to try"><span>Newspapers</span><span>Archives</span><span>Books</span><span>Interviews</span><span>Period footage</span></div>
-      <p class="lab-mini">Places to start: <a href="https://www.loc.gov/" target="_blank" rel="noopener noreferrer">Library of Congress</a> · <a href="https://www.archives.gov/" target="_blank" rel="noopener noreferrer">National Archives</a> · <a href="https://www.npr.org/" target="_blank" rel="noopener noreferrer">NPR</a> · <a href="#h-sources">StoryHub sources and credits</a>. Research the history, not just the wrestler.</p>
-      <div class="lab-controls"><button class="lab-action lab-action--light" type="button" data-lab-go="3">← Previous</button><button class="lab-action" type="button" data-lab-go="5">Next: prepare to teach →</button></div>
-    </div>
-
-    <div class="lab-panel" id="lab-round-5" data-lab-round="5">
-      <div class="lab-strap">Round 05 / Final bell</div>
-      <h3>Teach us in two to three minutes.</h3>
-      <p class="lab-lead">Maximum three slides, one meaningful visual, two credible sources. Your slides support your explanation; do not paste your entire research organizer onto them. Your finished organizer is submitted here, separately from your slides.</p>
-      <div class="lab-columns">
-        <div class="lab-field"><label for="lab-slide-one">Slide 1 · Meet the heel <small>Which facts and image identify the wrestler and the character?</small></label><textarea id="lab-slide-one" name="lab_slide_one" placeholder="Short headline, a couple of key facts, and what you will explain aloud."></textarea></div>
-        <div class="lab-field"><label for="lab-slide-two">Slide 2 · The real headline <small>Dates, the real historical event, and the connection to wrestling.</small></label><textarea id="lab-slide-two" name="lab_slide_two" placeholder="A brief timeline or historical visual and your evidence."></textarea></div>
-      </div>
-      <div class="lab-field"><label for="lab-slide-three">Slide 3 · Your verdict (optional third slide) <small>Why the crowd responded and what the portrayal tells us about America. Two slides are fine if they cover everything.</small></label><textarea id="lab-slide-three" name="lab_slide_three" placeholder="Your main argument and one image or fact that supports it."></textarea></div>
-      <div class="lab-field"><label for="lab-talk">Speaking plan <small>How will you explain all five questions in your own words without reading slides? What is your strongest piece of evidence?</small></label><textarea id="lab-talk" name="lab_talk" placeholder="An outline or practice notes for your presentation."></textarea></div>
-      <div class="lab-timer" aria-label="Practice presentation timer"><strong id="lab-clock" aria-live="off">0:00</strong><button type="button" id="lab-timer-start">Start</button><button type="button" id="lab-timer-stop">Pause</button><button type="button" id="lab-timer-reset">Reset</button><span id="lab-timer-result" role="status">Aim for 2:00–3:00.</span></div>
-      <p class="lab-mini">Need slides? <a href="https://slides.new/" target="_blank" rel="noopener noreferrer">Open a new Google Slides presentation</a>. Follow your school's sharing instructions for the slides. The organizer below uses the desk's separate Turn In system.</p>
-      <h3 style="margin-top:2rem">The 100-point preflight</h3>
-      <p>This is a <strong>self-check, not an automatic grade</strong>. Mark Yes only when you can point to the evidence in your organizer or slides. Empty or weak answers can still lose points.</p>
-      <div class="lab-rubric" id="lab-rubric">
-        <fieldset><legend>Q1 · Names, hometown, years, two-sentence gimmick <span class="lab-points">10 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_1" value="Yes"> Yes</label><label><input type="radio" name="lab_check_1" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Q2 · Historical dates and a checkable fact <span class="lab-points">15 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_2" value="Yes"> Yes</label><label><input type="radio" name="lab_check_2" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Q3 · Two specific wrestling details linked to history <span class="lab-points">15 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_3" value="Yes"> Yes</label><label><input type="radio" name="lab_check_3" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Q4 · Period-specific explanation for audience reaction <span class="lab-points">15 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_4" value="Yes"> Yes</label><label><input type="radio" name="lab_check_4" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Q5 · Fairness/stereotype judgment supported by evidence <span class="lab-points">15 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_5" value="Yes"> Yes</label><label><input type="radio" name="lab_check_5" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Two credible sources, at least one outside WWE <span class="lab-points">10 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_6" value="Yes"> Yes</label><label><input type="radio" name="lab_check_6" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Complete research organizer <span class="lab-points">10 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_7" value="Yes"> Yes</label><label><input type="radio" name="lab_check_7" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>Historical photo or clip no longer than 30 seconds <span class="lab-points">5 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_8" value="Yes"> Yes</label><label><input type="radio" name="lab_check_8" value="Not yet"> Not yet</label></div></fieldset>
-        <fieldset><legend>2–3 minute delivery, three slides maximum <span class="lab-points">5 pts</span></legend><div class="lab-checks"><label><input type="radio" name="lab_check_9" value="Yes"> Yes</label><label><input type="radio" name="lab_check_9" value="Not yet"> Not yet</label></div></fieldset>
-      </div>
-      <div class="lab-score" role="status" aria-live="polite"><strong id="lab-score-count">0 of 100 points self-checked</strong><p>This total is only the points you personally marked as ready. Your teacher decides the grade after reviewing the evidence and your presentation.</p></div>
-      <div id="lab-missing" class="lab-info" role="status"><p>Fill out your organizer, then review the items you have not finished.</p></div>
-      <div class="lab-controls"><button class="lab-action lab-action--light" type="button" data-lab-go="4">← Previous</button><a class="lab-action" href="/hubs/bts-americas-most-hated-exemplar.html" target="_blank" rel="noopener noreferrer">Study the finished example ↗</a></div>
-    </div>
-
-    <div class="lab-submit">
-      <h3>Save your investigation. Then turn it in.</h3>
-      <p>Use your school Hall Pass PIN below to connect your work to your account. Your typed answers save in this tab as you work and sync to your account when connected. You can reopen your research on another Chromebook using the same PIN. The desk confirms a Turn In only after your teacher's sheet receives it.</p>
-      <p><strong>Before you submit:</strong> Check the organizer, prepare your separate slides, verify your visual and sources, and practice your two-to-three-minute explanation. Turning in the organizer is not the same as presenting or submitting slides in Google Classroom.</p>
-      <div data-desk-turnin></div>
-    </div>
-    <p class="lab-fineprint">Your progress counter checks whether each round has draft content, not whether the historical claims are correct. A real A requires accurate research and a clear argument.</p>
-  </div>
-</section>
-
 <!-- 8 BELL -->
 <section class="ch bell" id="bell" aria-labelledby="h-bell">
   <div class="wrap">
@@ -1149,7 +1009,5 @@ section.ch{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--rope
   }
 })();
 </script>
-<script src="/hubs/bts-americas-most-hated-lab.js" defer></script>
-<script src="/hubs/desk-save.js" defer></script>
 </body>
 </html>
