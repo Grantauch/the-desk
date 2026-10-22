@@ -331,3 +331,15 @@ Focused tests pass: 17 companion server scenarios, all 440 classroom-service beh
 Checkling layout follow-up: seven browser journeys also verify complete rendering of an uninterrupted 18-character wide name at 320/390/1440 without clipping. The habitat upgrade remains in protected review; the foundation public site is deployed as recorded above.
 
 Checkling release checkpoint — October 22: protected workflow `39721575066` passed the complete release and browser gates for head `355cbb6`. Refreshed Apps Script preflight `39721202948` passed; live Version 39, all five live source hashes, stable URL, domain-only access and deploying-owner execution match the earlier preflight exactly, with no unpublished draft. Main subsequently merged unrelated golf/ByteSize work; its changes are being preserved in this review branch before rerunning protected CI. Deployment and protected live smoke remain pending.
+
+Checkling merge checkpoint — October 22: protected workflow `39820930189` passed every release/browser gate, including all 440 classroom-service behaviors and seven companion journeys. PR #218 merged as `716d1666dd099d85ddea99cd3e2e14961c186240`. The guarded existing-deployment release is recorded below. Protected live smoke and actual classroom use remain pending.
+
+## Checkling production release — October 22, 2026
+
+2026-10-22: guarded release workflow 39825119574 deployed Apps Script Version 40 from merged commit 716d1666dd099d85ddea99cd3e2e14961c186240. All five normalized source hashes read back from Google exactly match the tested repository files. Live Version 39 source matched both prior preflights before replacement; no unpublished draft was overwritten. Existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. No workbook migration. Authenticated synthetic release check, live mode review and classroom field use remain pending; the shared browser sign-in could not be reopened because browser security policy blocked access.
+
+Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes.
+
+## Checkling protected live verification — October 22, 2026
+
+Teacher-reported authenticated production release check passed on October 22, 2026: ok=true; request=STARTED; return=RETURNED_COUNTABLE; evidenceUsed=1; testPassVoided=true; testMembershipDeactivated=true; productionFactsUnchanged=true; syntheticOnly=true. Schema 2026-09-21-backend-b and client contract 2026-09-22-all-teacher-rpcs match the release. This is the teacher-supplied result, not an agent-observed browser execution. Live mode visual review and an actual classroom cycle remain pending.
