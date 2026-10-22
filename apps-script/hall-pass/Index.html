@@ -1276,7 +1276,8 @@
         const journey = companion.journey || [];
         const home = journey.find(entry => pet && entry.habitat === pet.habitat) || journey[0];
         const habitat = home ? home.habitat : 'meadow';
-        const images = 'https://grant-desk.com/hubs/checkling/pets/';
+        /* Keep slashes escaped: HtmlService can strip a literal URL as a line comment. */
+        const images = 'https:\x2f\x2fgrant-desk.com/hubs/checkling/pets/';
         const species = pet ? friend.id : 'egg';
         const seed = Array.from(String(state.dateKey) + species).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 17);
         const message = companion.visitedToday

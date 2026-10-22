@@ -28,6 +28,19 @@ assert.ok(scriptBlocks.length, 'Index.html must contain an application script');
 const clientScript = scriptBlocks.at(-1)[1].replace('<?!= JSON.stringify(appMode) ?>', '"student"');
 new vm.Script(clientScript, { filename: htmlPath });
 
+// Version 40's actual HtmlService output truncated the artwork statement to
+// `const images = 'https:`. Raw-HTML fixtures missed that Google-side rewrite.
+// Replay that observed truncation and require every entry mode to still parse.
+for (const mode of ['student', 'kiosk', 'checkin', 'teacher']) {
+  const servedScript = scriptBlocks.at(-1)[1]
+    .replace('<?!= JSON.stringify(appMode) ?>', JSON.stringify(mode))
+    .replace(/https:\/\/[^\r\n]*/g, 'https:');
+  new vm.Script(servedScript, { filename: `HtmlService-${mode}.js` });
+  const imageStatement = servedScript.match(/const images = ([^;]+);/);
+  assert.ok(imageStatement, 'Checkling artwork must survive HtmlService rendering');
+  assert.equal(vm.runInNewContext(imageStatement[1]), 'https://grant-desk.com/hubs/checkling/pets/');
+}
+
 const functionSource = (name) => {
   const start = code.indexOf(`function ${name}(`);
   assert.notEqual(start, -1, `Missing function ${name}`);
