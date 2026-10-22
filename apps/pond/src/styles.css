@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #12100e;
+  --color-surface: #1c1916;
+  --color-surface-2: #26211c;
+  --color-fg: #f2ebe3;
+  --color-muted: #9a9188;
+  --color-subtle: #6f6860;
+  --color-accent: #c8c2ba;
+  --color-accent-fg: #12100e;
+  --color-border: rgb(242 235 227 / 10%);
+  --color-border-strong: rgb(242 235 227 / 18%);
+
+  --color-sand: #e2b86a;
+  --color-water: #4092c6;
+  --color-fire: #e85c2a;
+  --color-plant: #3e8c4e;
+  --color-stone: #787670;
+  --color-wood: #845c3a;
+  --color-ice: #bae0ec;
+  --color-lava: #d64a20;
+  --color-oil: #6b5a4c;
+  --color-acid: #84c43e;
+  --color-slime: #56a87a;
+  --color-seed: #a88c48;
+  --color-powder: #484644;
+  --color-critter: #c65c6c;
+  --color-snow: #eceff4;
+  --color-fungus: #508c82;
+  --color-salt: #e8e4dc;
+  --color-dish: #1a1714;
+  --color-dish-well: #0c0b0a;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+
+  --shadow-dish:
+    inset 0 1px 0 rgb(255 255 255 / 10%),
+    0 0 0 1px rgb(255 255 255 / 8%),
+    0 28px 60px rgb(0 0 0 / 45%);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100dvh;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+@keyframes pond-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-y, 8px));
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.pond-enter {
+  animation: pond-enter 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pond-enter-2 {
+  animation-delay: 80ms;
+}
+
+.pond-enter-3 {
+  animation-delay: 160ms;
+}
+
+.pond-enter-4 {
+  animation-delay: 220ms;
+}
