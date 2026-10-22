@@ -303,3 +303,14 @@ Build 0.5 adds original illustrated title artwork, cached shingle and metal roof
 ## Gemini assistant connection - October 21, 2026
 
 Owner-only on-demand GitHub draft helper, authenticated bounded Netlify API, and shared public assistant handoff brief prepared. Focused regression suite passes. Full verification, protected merge, production readback, API account test, and local subscribed Google login are separate pending evidence.
+
+
+## Checkling and Pond integration — October 21, 2026
+
+Prepared on an isolated branch. Checkling is embedded in the existing private Daily Check-In: the existing PIN action and school-day calendar remain authoritative for attendance, points, late review and growth. Four original species and per-class pet names follow the verified login across devices; cosmetic play never records attendance. Optional pet storage failures do not hide the official confirmation. No sheet, trigger or roster-schema migration is added.
+
+Pond is a static Games sandbox with the supplied particle engine and scenes, 20-step undo, browser save/restore, validated JSON import/export, muted initial sound, keyboard brush controls and reduced-motion handling. The editable source and locked app build remain separate from the root site's dependencies; read-only fingerprints prevent stale bundles.
+
+Focused verification passed: 12 synthetic companion server checks, all 440 existing Hall Pass/Daily Check-In behaviors, Turn In 39/39, six particle/save checks, both app build/type checks, and six responsive production-browser journeys with zero WCAG A/AA violations. Astro has zero errors/warnings; static validation passes 131 HTML files and 4576 local references. All 18 full-release stages passed across the initial canonical run and resuming from resources:validate after extending its explicit stage-contract fixture for the new suites. The original command stopped at that stale fixture; an uninterrupted final full run was not repeated. Protected CI, merge, site publication, the separate existing-deployment Apps Script release, protected synthetic live smoke and classroom use remain unverified. GitHub write access is now connected; publication and protected CI are in progress. The publishing branch preserves the newer Dry County flight integration and tests from main `3e71b3d`. Handoff: `docs/checkling-pond/README.md`.
+
+Publication follow-up: production preflight `39715268796` passed against Version 39. All five live file hashes match main `3e71b3d`; stable URL, DOMAIN access, USER_DEPLOYING execution and absence of an unpublished editor draft are verified. Prior main CI `39712617542` reached its deadline during browser acceptance after a ten-minute diagnostic audit. The report now bounds registry requests and explicitly distinguishes unavailable results from clean audits; focused timeout/error/advisory regressions run before the report. All release/browser gates and the existing deadline remain in place.

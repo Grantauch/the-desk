@@ -32,6 +32,7 @@ const paths = [
   '/hubs/tale-of-the-tape.html',
   '/hubs/blacktop-kings.html',
   '/hubs/dry-county/',
+  '/hubs/pond/',
   '/glossary/',
   '/detour-shelf/',
   '/tools/',

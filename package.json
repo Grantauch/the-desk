@@ -9,14 +9,14 @@
     "build": "astro build",
     "check": "node scripts/check-verification-deps.mjs && astro check",
     "verify": "node scripts/run-release-verification.mjs",
-    "verify:full": "npm run gemini:test && npm run league:test && npm run square-deal:test && npm run blacktop:test && npm run dry-county:test && npm run release:test && npm run hall-pass:verify && npm run turn-in:test && npm run tools:test && npm run classroom:test && npm run audit:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
+    "verify:full": "npm run gemini:test && npm run league:test && npm run square-deal:test && npm run blacktop:test && npm run dry-county:test && npm run release:test && npm run checkling:test && npm run pond:test && npm run hall-pass:verify && npm run turn-in:test && npm run tools:test && npm run classroom:test && npm run audit:test && npm run resources:validate && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:storyhub-fast": "npm run turn-in:test && npm run storyhub:validate && npm run check && npm run build && npm run site:validate",
     "verify:release": "npm run verify",
     "release:classify": "node scripts/release-lane.mjs",
     "release:test": "node scripts/test-release-lane.mjs",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "tools:test": "node scripts/test-classroom-tools.mjs",
-    "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run jeopardy:test",
+    "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run jeopardy:test && npm run companion:browser",
     "jeopardy:test": "node scripts/test-progressive-jeopardy.mjs",
     "league:test": "node scripts/test-the-league.mjs",
     "square-deal:test": "node scripts/test-square-deal.cjs",
@@ -33,7 +33,7 @@
     "remix:validate": "node scripts/validate-remix-public.mjs",
     "live-data:check": "node scripts/validate-live-data.mjs",
     "live-data:production": "node scripts/validate-production-live-data.mjs",
-    "security:audit:report": "node scripts/report-dependency-audit.mjs",
+    "security:audit:report": "node --test scripts/test-dependency-audit-report.mjs && node scripts/report-dependency-audit.mjs",
     "hall-pass:runtime": "node scripts/test-hall-pass-runtime.cjs",
     "storyhub:new": "node scripts/storyhub-new.mjs",
     "storyhub:validate": "node scripts/storyhub-validate.mjs && node scripts/storyhub-verify-assets.mjs",
@@ -50,7 +50,11 @@
     "turn-in:test": "node scripts/test-turn-in-app.cjs",
     "turn-in:browser": "node scripts/test-desk-save-browser.mjs",
     "turn-in:load": "node scripts/turn-in-load-test.mjs",
-    "dry-county:test": "node scripts/test-dry-county.cjs && node scripts/test-dry-county.cjs --town && node scripts/test-dry-county-flight.cjs && node scripts/test-dry-county-air-bridge.cjs && node scripts/test-dry-county-air-ops.cjs && node scripts/test-dry-county-flight-polish.cjs"
+    "dry-county:test": "node scripts/test-dry-county.cjs && node scripts/test-dry-county.cjs --town && node scripts/test-dry-county-flight.cjs && node scripts/test-dry-county-air-bridge.cjs && node scripts/test-dry-county-air-ops.cjs && node scripts/test-dry-county-flight-polish.cjs",
+    "checkling:test": "node --test scripts/test-checkling.cjs",
+    "pond:test": "node --experimental-strip-types --test apps/pond/src/lib/pond/*.test.ts && node scripts/validate-pond-build.mjs",
+    "pond:build": "npm --prefix apps/pond run build",
+    "companion:browser": "node scripts/test-checkling-pond-browser.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
