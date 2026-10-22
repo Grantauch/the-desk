@@ -1,16 +1,18 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Prepared Checkling integration — October 21, 2026 (not deployed)
+## Checkling production release — Version 40, October 22, 2026
 
-The current source adds the optional Checkling companion to Daily Check-In. See `docs/checkling-pond/README.md` for behavior and verification. Pet preferences use the existing private property store; the workbook schema and five-file source set are unchanged. The existing attendance, PIN, calendar, late-review and point rules remain authoritative.
+[Release workflow 39825119574](https://github.com/Grantauch/the-desk/actions/runs/39825119574) deployed Version 40 on the existing deployment at 17:55 UTC, from merged PR #218 commit `716d1666dd099d85ddea99cd3e2e14961c186240`. Protected workflow `39820930189` passed every release and browser gate before merge; the guarded deployment repeated the canonical gate and bridge self-test. All five normalized source hashes read back from Google match the exact tested repository files. The prior live Version 39 sources match both reviewed preflight receipts, and no unpublished draft was overwritten.
 
-Release `public/hubs/checkling/pets/` on the website first, then run the normal guarded Apps Script preflight and update the existing deployment. Preserve unpublished editor drafts, the stable URL and domain-only access. The required authenticated synthetic protected-action smoke remains pending. Local source tests do not mean Version 39 includes Checkling. The prepared little-world development pass also adds species personalities, milestone habitats/keepsakes and untimed Star pairs/Echo grove games. Private habitat preferences remain compatible with existing friend data and add no attendance or point writes.
+Daily Check-In now includes the optional Checkling companion, with four original species, private names, personalities, five milestone habitats and keepsakes, and three untimed local activities. The existing PIN, attendance, calendar, late-review and point rules remain authoritative. Pet play awards no classroom points or attendance. Private preferences remain schema v1, adding only a bounded habitat ID; the workbook schema and five-file deployment contract are unchanged. No migration or broad setup was run. See `docs/checkling-pond/README.md`.
 
-The site prerequisite is complete: Netlify production `6ad98a531434a56a17d487f7` is ready on merged PR #217 commit `deff07421a29e60db9fb5b79e7cb04765ac8514d`. All 17 Pond/art files match source SHA-256 on the live domain. The expanded companion in PR #218 remains a separate pending Apps Script release.
+The existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. The public pet-art prerequisite was separately verified before release. Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes. The required authenticated `?mode=releasecheck`, live student/kiosk/check-in/teacher mode review and actual classroom use remain pending. The shared browser sign-in could not be reopened because its security policy blocked access; no browser workaround or real student PIN was used. The teacher can run the reviewed synthetic check in their own school-account browser. A successful source deployment is separate from that protected-action result.
 
-## Most recent production preflight — Version 39, October 21, 2026
+## Production preflight baseline — Version 39, October 21–22, 2026
 
 [Preflight run 39715268796](https://github.com/Grantauch/the-desk/actions/runs/39715268796) verified Version 39 on the existing deployment. All five production file hashes exactly match site main `3e71b3dc67e9d394d5c7ed634090814dd979c34c`, with no unpublished editor draft. The stable URL, DOMAIN access and USER_DEPLOYING execution are unchanged. This is read-only production evidence; it does not deploy Checkling or replace the required protected synthetic smoke.
+
+Refreshed preflight `39721202948` passed on October 22; its live Version 39 source/configuration exactly matches the earlier receipt. The deployment rechecked and preserved that baseline before replacing it with Version 40.
 
 ## Earlier release record — Version 35, September 24, 2026
 

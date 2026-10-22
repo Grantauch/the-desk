@@ -1,6 +1,6 @@
 # Checkling and Pond
 
-Task owner: Codex. Isolated branch: `codex/checkling-pond-publish`.
+Task owner: Codex. Integration: PR #217; expanded Checkling: PR #218. Release-record branch: `codex/checkling-release-record`.
 
 ## Checkling belongs to Daily Check-In
 
@@ -8,7 +8,7 @@ The companion appears inside the existing Apps Script Daily Check-In after ident
 
 The original PIN action, durable attendance inbox, timestamps, school calendar, late review and point settings remain authoritative. The companion reads the same official streak. Its five stages use best streak milestones of 0, 3, 7, 14 and 30 school days. A missed day does not shrink the pet; non-school days follow the existing calendar. A late sign-in welcomes the student but gains no automatic point or streak credit. Pet play changes neither attendance nor points.
 
-Preferences contain only a schema version, one of four species IDs and an 18-character pet name. They live in the existing private Apps Script properties, under the verified class membership's key. Students cannot nominate another membership or import a fabricated attendance tally. The signed PIN session must still be valid. A new verified login reads the same preferences across devices. Student names, PINs and progress are not stored by the public site or browser-local pet profiles.
+Preferences contain only a schema version, one of four species IDs, an 18-character pet name and a bounded unlocked habitat ID. They live in the existing private Apps Script properties, under the verified class membership's key. Students cannot nominate another membership or import a fabricated attendance tally. The signed PIN session must still be valid. A new verified login reads the same preferences across devices. Student names, PINs and progress are not stored by the public site or browser-local pet profiles.
 
 Reading a damaged preference permits a new selection. A pet-property read failure produces an optional unavailable state while leaving official confirmation visible. Failed preference writes never write attendance. Each preference is bounded to a small JSON value; there is no new sheet, trigger, roster column, workbook migration or per-minute pet polling. The original Apps Script property quota still applies; adoption can fail independently if the shared store is full.
 
@@ -34,7 +34,7 @@ npm run pond:test
 
 ## Verification and release
 
-Focused server tests: `npm run checkling:test`. Original hall-pass contract and runtime: `npm run hall-pass:verify`. Sandbox physics/save tests and published fingerprints: `npm run pond:test`. Synthetic real-browser journeys: `npm run companion:browser`, after `npm run build`. The browser suite uses the actual Apps Script code in the existing fake runtime; every identity and PIN is synthetic, and all external services are intercepted offline. Both new suites are included in the repository's release commands.
+Focused server tests: `npm run checkling:test`. Original hall-pass contract and runtime: `npm run hall-pass:verify`. Sandbox physics/save tests and published fingerprints: `npm run pond:test`. Synthetic real-browser journeys: `npm run companion:browser`. The browser suite uses the actual Apps Script code in the existing fake runtime; every identity and PIN is synthetic, and all external services are intercepted offline. Both new suites are included in the repository's release commands.
 
 The protected site release still requires `npm run verify`, protected GitHub review/build and normal Netlify deployment. Upload the pet artwork in the site release before deploying the Apps Script client that references it. Site publication does not deploy Daily Check-In.
 
@@ -48,7 +48,7 @@ Original baseline: site main `07fe226e056d8d5b51557e55fd778dbf80450b48`. Publish
 
 Result: prepared source integration and static Pond build on the isolated branch. Local checks passed: 12 companion server scenarios, all 440 existing service behaviors, Turn In 39/39, six Pond physics/save tests, app TypeScript and production build, six responsive browser journeys, and all 18 release stages (resumed after updating the explicit test-stage contract). Astro reported zero errors and warnings; static validation checked 131 HTML files and 4576 references. An uninterrupted final full command was not repeated. The exact commit and publishing blocker are recorded with the delivery package. No merge, Netlify deployment, Apps Script deployment or classroom field use is implied by local tests.
 
-Foundation release: PR #217 merged as `deff07421a29e60db9fb5b79e7cb04765ac8514d` after protected workflow `39717873895` passed every release and browser check. Netlify production `6ad98a531434a56a17d487f7` is ready on that exact commit. All 17 public Pond/art files match source SHA-256, and the Games, Check-In and sitemap links are verified. The expanded Checkling in PR #218 still requires its final protected workflow, guarded Apps Script release and authenticated synthetic smoke.
+Foundation release: PR #217 merged as `deff07421a29e60db9fb5b79e7cb04765ac8514d` after protected workflow `39717873895` passed every release and browser check. Netlify production `6ad98a531434a56a17d487f7` is ready on that exact commit. All 17 public Pond/art files match source SHA-256, and the Games, Check-In and sitemap links are verified. The expanded Checkling in PR #218 subsequently passed protected workflow `39820930189` and merged as `716d1666dd099d85ddea99cd3e2e14961c186240`. The guarded Apps Script release and authenticated synthetic smoke are recorded separately.
 
 ## Protected CI timing repair
 
@@ -58,7 +58,7 @@ Preflight `39715268796` passed against production Version 39: all five productio
 
 ## Checkling: the little-world development pass
 
-Task owner: Codex. Branch: `codex/checkling-habitat`, layered on the first integration release. Source is prepared for protected review; no production deployment is implied.
+Task owner: Codex. Branch: `codex/checkling-habitat`, layered on the first integration release. PR #218 merged as `716d1666dd099d85ddea99cd3e2e14961c186240` after protected workflow `39820930189` passed every release and browser check. Production deployment and protected live smoke are recorded separately below.
 
 Each species now has its own personality, daily tiny thoughts and affectionate reactions. The companion has a landscaped home, interactive greeting, mood text, visible stage progress, and a keepsake journey. Official best streak milestones unlock Morning meadow (0), Mossy grove (3), Tidepool cove (7), Cloud island (14) and Little cosmos (30). A missed day preserves earned stages and homes. The server validates a home choice against the official summary; a forged or locked choice cannot replace the existing friend. Changing a cosmetic preference never writes attendance or awards points.
 
@@ -70,4 +70,12 @@ Focused validation: 17 synthetic server scenarios, all 440 existing classroom be
 
 Shared-screen behavior is covered with a virtual browser clock: an unattended PIN confirmation still clears after the existing ten-second handoff. Intentional Checkling interaction cancels only that short handoff; the unchanged two-minute inactivity reset and explicit done/next-student control still clear the visit. The fixture verifies that neither path duplicates attendance or points.
 
-Layout verification also covers an uninterrupted 18-character wide pet name at every tested width; the complete name wraps without clipping. The final application source is prepared for its protected release gate.
+Layout verification also covers an uninterrupted 18-character wide pet name at every tested width; the complete name wraps without clipping. The final application source passed its protected release gate.
+
+## Production release — October 22, 2026
+
+2026-10-22: guarded release workflow 39825119574 deployed Apps Script Version 40 from merged commit 716d1666dd099d85ddea99cd3e2e14961c186240. All five normalized source hashes read back from Google exactly match the tested repository files. Live Version 39 source matched both prior preflights before replacement; no unpublished draft was overwritten. Existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. No workbook migration. Authenticated synthetic release check, live mode review and classroom field use remain pending; the shared browser sign-in could not be reopened because browser security policy blocked access.
+
+The teacher can finish protected verification at the existing `/exec?mode=releasecheck` using the school account and **Run synthetic release check**. The reviewed helper uses synthetic credentials and an isolated private workbook, performs its own cleanup, and sends no email. Do not use a real student PIN.
+
+Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes.
