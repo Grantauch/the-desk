@@ -33,7 +33,7 @@
     "remix:validate": "node scripts/validate-remix-public.mjs",
     "live-data:check": "node scripts/validate-live-data.mjs",
     "live-data:production": "node scripts/validate-production-live-data.mjs",
-    "security:audit:report": "node scripts/report-dependency-audit.mjs",
+    "security:audit:report": "node --test scripts/test-dependency-audit-report.mjs && node scripts/report-dependency-audit.mjs",
     "hall-pass:runtime": "node scripts/test-hall-pass-runtime.cjs",
     "storyhub:new": "node scripts/storyhub-new.mjs",
     "storyhub:validate": "node scripts/storyhub-validate.mjs && node scripts/storyhub-verify-assets.mjs",

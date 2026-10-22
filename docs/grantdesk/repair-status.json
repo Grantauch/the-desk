@@ -1119,7 +1119,9 @@
       "Pond TypeScript and production build pass; six physics/save checks and published source/bundle fingerprints pass.",
       "Astro check has zero errors and warnings; site build and static validation pass for 131 HTML files and 4576 local references.",
       "All 18 full-release stages passed across the initial canonical run and resuming from resources:validate after extending its explicit stage-contract fixture for the two new suites. The original full run stopped at that stale fixture; an uninterrupted final full run was not repeated. No protected GitHub build, merge, Netlify release, Apps Script release or classroom field test is claimed.",
-      "GitHub write access connected. Publishing branch incorporates main 3e71b3d and retains its Dry County flight integration and test commands; protected CI and production releases pending."
+      "GitHub write access connected. Publishing branch incorporates main 3e71b3d and retains its Dry County flight integration and test commands; protected CI and production releases pending.",
+      "Production preflight 39715268796 passed: Version 39 five-file hashes exactly match main 3e71b3d, with stable URL, DOMAIN access, USER_DEPLOYING execution and no unpublished editor draft.",
+      "Prior main CI 39712617542 timed out during browser acceptance after a ten-minute diagnostic audit. Each audit is now bounded to 60 seconds and unavailable responses cannot masquerade as clean reports; four focused diagnostic regressions run before the report. No release/browser tests or workflow deadline were changed."
     ]
   }
 }
