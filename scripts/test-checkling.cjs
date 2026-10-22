@@ -142,3 +142,72 @@ test('student switching on one Chromebook receives only that student’s pet', (
   assert.equal(saved.checkling.pet.name, 'AlanFriend');
   assert.equal(identify(c).checkling.pet.name, 'AdaFriend');
 });
+
+test('habitats and keepsakes unlock only from the official best streak', () => {
+  const c = classroom({now:new Date('2026-09-08T11:30:00Z')});
+  const initial = identify(c);
+  assert.deepEqual(Array.from(initial.checkling.journey, entry => entry.min), [0,3,7,14,30]);
+  assert.equal(initial.checkling.journey.filter(entry => entry.unlocked).length,1);
+  assert.throws(() => c.harness.call('saveCheckling',initial.pinToken,'mochi','Mochi','cosmos'), /official school-day/);
+  for (const day of ['08','09','10']) {
+    c.harness.clock.set(new Date(`2026-09-${day}T11:30:00Z`));
+    c.checkIn(PEOPLE.ada,'Period 1');
+  }
+  const saved = c.harness.call('saveCheckling',identify(c).pinToken,'mochi','Mochi','grove');
+  assert.equal(saved.checkling.pet.habitat,'grove');
+  const renamed=c.harness.call('saveCheckling',identify(c).pinToken,'mochi','Renamed');
+  assert.equal(renamed.checkling.pet.habitat,'grove','An older three-argument client preserves an earned home');
+  assert.equal(saved.checkling.journey.filter(entry => entry.unlocked).length,2);
+  assert.equal(c.checkIns().length,3);
+  assert.equal(c.checkIns().reduce((sum,row)=>sum+row.Point,0),3);
+  c.harness.clock.set(new Date('2026-09-14T11:30:00Z'));
+  c.checkIn(PEOPLE.ada,'Period 1');
+  const afterMiss = identify(c);
+  assert.equal(afterMiss.streak.current,1);
+  assert.equal(afterMiss.checkling.pet.habitat,'grove');
+  assert.equal(afterMiss.checkling.journey[1].unlocked,true);
+});
+
+test('legacy preferences and three-argument clients preserve the saved home', () => {
+  const c = setup(); const state=identify(c);
+  c.harness.properties.setProperty(`checkling-v1:${state.student.key}`,JSON.stringify({v:1,species:'bolt',name:'Original'}));
+  assert.equal(identify(c).checkling.pet.habitat,'meadow');
+  const changed=c.harness.call('saveCheckling',identify(c).pinToken,'bolt','New name');
+  assert.equal(changed.checkling.pet.habitat,'meadow');
+  assert.equal(changed.checkling.pet.name,'New name');
+  const raw=c.harness.properties.getProperty(`checkling-v1:${state.student.key}`);
+  assert.ok(raw.length<256,'Preferences remain bounded, without game history');
+  assert.equal(c.checkIns().length,0);
+});
+
+test('unknown or locked home selections cannot overwrite a saved friend', () => {
+  const c=setup();const token=identify(c).pinToken;
+  c.harness.call('saveCheckling',token,'ember','Dragon','meadow');
+  for(const home of ['../../other','cosmos',null,{},['meadow']]) {
+    assert.throws(()=>c.harness.call('saveCheckling',token,'zee','Changed',home));
+  }
+  const saved=identify(c).checkling.pet;
+  assert.equal(saved.name,'Dragon'); assert.equal(saved.species,'ember'); assert.equal(saved.habitat,'meadow');
+  assert.equal(identify(c,PEOPLE.alan).checkling.pet,null);
+});
+
+test('a corrupt or prematurely selected habitat falls back without losing the pet', () => {
+  const c=setup();const state=identify(c);
+  for(const habitat of ['cosmos','unknown']) {
+    c.harness.properties.setProperty(`checkling-v1:${state.student.key}`,JSON.stringify({v:1,species:'zee',name:'Comet',habitat}));
+    const next=identify(c);
+    assert.equal(next.checkling.pet.name,'Comet'); assert.equal(next.checkling.pet.habitat,'meadow');
+  }
+});
+
+test('all five homes follow the server summary milestones, including Legend', () => {
+  const c=setup();const state=identify(c);
+  const student=c.harness.call('getStudentByKey_',state.student.key);
+  for(const [best,habitat,count] of [[0,'meadow',1],[3,'grove',2],[7,'cove',3],[14,'sky',4],[30,'cosmos',5]]) {
+    c.harness.properties.setProperty(`checkling-v1:${state.student.key}`,JSON.stringify({v:1,species:'ember',name:'Dragon',habitat}));
+    const view=c.harness.call('getChecklingState_',student,{best,current:best,lastCountedDate:'2026-09-10'},{},'2026-09-10');
+    assert.equal(view.pet.habitat,habitat);
+    assert.equal(view.journey.filter(entry=>entry.unlocked).length,count);
+  }
+  assert.equal(c.checkIns().length,0,'Reading historical progress writes no attendance');
+});

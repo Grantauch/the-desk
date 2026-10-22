@@ -1122,8 +1122,8 @@
   },
   "checkling-pond-integration-2026-10-21": {
     "status": "SOURCE_REPAIRED",
-    "verification_status": "ALL_RELEASE_STAGES_PASSED",
-    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "verification_status": "PROTECTED_CI_PASSED",
+    "deployment_status": "SITE_DEPLOYED_APPS_SCRIPT_PENDING",
     "field_status": "FIELD_PENDING",
     "summary": "Checkling integrated into the private Daily Check-In; Pond adapted to a static standalone sandbox linked from Games.",
     "evidence": [
@@ -1135,7 +1135,25 @@
       "All 18 full-release stages passed across the initial canonical run and resuming from resources:validate after extending its explicit stage-contract fixture for the two new suites. The original full run stopped at that stale fixture; an uninterrupted final full run was not repeated. No protected GitHub build, merge, Netlify release, Apps Script release or classroom field test is claimed.",
       "GitHub write access connected. Publishing branch incorporates main 3e71b3d and retains its Dry County flight integration and test commands; protected CI and production releases pending.",
       "Production preflight 39715268796 passed: Version 39 five-file hashes exactly match main 3e71b3d, with stable URL, DOMAIN access, USER_DEPLOYING execution and no unpublished editor draft.",
-      "Prior main CI 39712617542 timed out during browser acceptance after a ten-minute diagnostic audit. Each audit is now bounded to 60 seconds and unavailable responses cannot masquerade as clean reports; four focused diagnostic regressions run before the report. No release/browser tests or workflow deadline were changed."
+      "Prior main CI 39712617542 timed out during browser acceptance after a ten-minute diagnostic audit. Each audit is now bounded to 60 seconds and unavailable responses cannot masquerade as clean reports; four focused diagnostic regressions run before the report. No release/browser tests or workflow deadline were changed.",
+      "Protected workflow 39717873895 passed all release/browser gates; PR #217 merged as deff07421a29e60db9fb5b79e7cb04765ac8514d. Netlify production 6ad98a531434a56a17d487f7 is ready on that exact commit. All 17 public Pond/art files match source SHA-256, and Games, Check-In and sitemap links are verified."
+    ]
+  },
+  "checkling-habitat-2026-10-21": {
+    "status": "SOURCE_REPAIRED",
+    "verification_status": "FOCUSED_CHECKS_PASSED",
+    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "field_status": "FIELD_PENDING",
+    "summary": "Checkling gains personal habitats, keepsakes, species personalities and two untimed memory games inside Daily Check-In.",
+    "evidence": [
+      "17 synthetic companion server scenarios pass, including official milestone unlocks, forged/locked home refusal, legacy compatibility, corruption recovery and unchanged classroom points.",
+      "All 440 existing Hall Pass/Daily Check-In behaviors pass.",
+      "Seven offline browser journeys pass, including responsive 320/390/1440 checks: all three activities, earned home save/reload, keepsakes, student isolation and reduced motion; zero WCAG A/AA violations.",
+      "Preference schema remains v1 with one bounded habitat ID; games keep no persistent history and write no attendance. Existing five-file deployment, workbook schema, URL and domain-only access are preserved.",
+      "Protected CI and production release are pending; local full-site build was stopped by automatic approval review for unrelated news-feed access. Focused companion verification uses a static local server and blocks all external services.",
+      "Virtual-clock shared-PIN browser checks pass: unattended ten-second handoff, active companion visit, unchanged two-minute inactivity reset, removal of stale handoff copy and no duplicated attendance/points.",
+      "All seven focused browser journeys pass with the complete uninterrupted 18-character wide pet name wrapping without clipping at 320/390/1440.",
+      "2026-10-22: protected workflow 39721575066 passed every full-release and browser gate on 355cbb6. Refreshed preflight 39721202948 passed and exactly matches the previous live Version 39 source/configuration; no unpublished editor draft. Newer main golf/ByteSize changes are preserved before rerunning protected CI. Deployment and protected live smoke remain pending."
     ]
   }
 }
