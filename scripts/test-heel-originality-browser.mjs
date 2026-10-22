@@ -91,6 +91,7 @@ try {
   await page.locator('[data-lab-stamp="1"]').click();
   assert.match(await page.locator('#lab-process-report').inputValue(), /round 1 /);
 
+  page.once('dialog', dialog => dialog.accept());
   await page.reload({ waitUntil: 'load' });
   await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
   await page.waitForFunction(() => document.getElementById('lab-process-report').value.includes('rejected (>12 words): 2'));
