@@ -123,6 +123,14 @@
         ' · draft stamps: ' + stamped + '/5';
       save();
     }
+    var deferredRender = 0;
+    function scheduleRender() {
+      clearTimeout(deferredRender);
+      deferredRender = setTimeout(function () { deferredRender = 0; render(); }, 400);
+    }
+    window.addEventListener('pagehide', function () {
+      if (deferredRender) { clearTimeout(deferredRender); deferredRender = 0; render(); }
+    });
     function show(message) {
       feedback.textContent = message;
     }
@@ -167,17 +175,17 @@
       if (!eligible(event.target) || !event.isTrusted || event.repeat ||
           !activeInput[event.target.id] || event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key && event.key.length === 1) {
-        state.characterKeyPresses += 1; touch(event.target); render();
+        state.characterKeyPresses += 1; touch(event.target); scheduleRender();
       }
     }, true);
 
     lab.addEventListener('beforeinput', function (event) {
       if (!eligible(event.target) || !event.isTrusted) return;
       if (String(event.inputType).startsWith('delete')) {
-        state.deletions += 1; touch(event.target); render();
+        state.deletions += 1; touch(event.target); scheduleRender();
       } else if (activeInput[event.target.id] &&
                  event.inputType && !/insertFromPaste|insertText/i.test(event.inputType)) {
-        state.nonKeyboardInserts += 1; touch(event.target); render();
+        state.nonKeyboardInserts += 1; touch(event.target); scheduleRender();
       }
     }, true);
 
@@ -199,7 +207,7 @@
       }
       fieldLengths[el.id] = el.value.length;
       touch(el);
-      render();
+      scheduleRender();
     }, true);
 
     override.addEventListener('change', function () {
