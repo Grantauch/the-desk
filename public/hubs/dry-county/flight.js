@@ -1,0 +1,167 @@
+/* Dry County flight experiment — isolated from the 0.6 ground simulation.
+ * Units are existing world pixels; altitude is a separate simulation axis.
+ * No assets, dependencies, globals other than DryFlight, or persistence required.
+ */
+'use strict';
+(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  if(root)root.DryFlight=api;
+})(typeof window!=='undefined'?window:undefined,function(){
+  const PI=Math.PI,TAU=PI*2;
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const damp=(current,target,k,dt)=>current+(target-current)*(1-Math.exp(-k*dt));
+  const angle=a=>Math.atan2(Math.sin(a),Math.cos(a));
+  const TYPES=Object.freeze({
+    rotorcraft:Object.freeze({name:'County Air Patrol · experimental rotorcraft',period:'Alternate-history prototype, 1926',span:72,accel:105,drag:1.28,turn:1.65,climb:82,ceiling:220,cruise:105,fuel:270,police:true}),
+    biplane:Object.freeze({name:'Curtiss JN-4 · Jenny',period:'Period aircraft',span:80,accel:145,drag:.64,turn:1.15,climb:94,ceiling:260,cruise:160,stall:42,fuel:360}),
+    balloon:Object.freeze({name:'County Fair Observation Balloon',period:'Period aircraft',span:76,accel:18,drag:1.9,turn:.53,climb:33,ceiling:185,cruise:32,fuel:460})
+  });
+  function create(type,x,y,options={}){
+    if(!TYPES[type])throw new RangeError('Unknown aircraft: '+type);
+    if(!Number.isFinite(x)||!Number.isFinite(y))throw new TypeError('Aircraft must have finite coordinates');
+    return {type,x,y,z:0,a:options.heading||-PI/2,vx:0,vy:0,vz:0,
+      throttle:0,fuel:TYPES[type].fuel,health:100,rotor:0,flightTime:0,
+      landed:true,search:null,searchAge:0,...options};
+  }
+  function step(c,controls={},dt=1/60,environment={}){
+    if(!TYPES[c.type])throw new RangeError('Unknown aircraft');
+    if(!Number.isFinite(dt)||dt<=0)return c;
+    // Integrate in small bounded steps, including when a tab resumes after sleep.
+    const steps=Math.ceil(Math.min(dt,.25)/(1/60)),h=Math.min(dt,.25)/steps;
+    for(let i=0;i<steps;i++)integrate(c,controls,h,environment);
+    return c;
+  }
+  function integrate(c,input,dt,env){
+    const def=TYPES[c.type],forward=clamp(Number(input.forward)||0,-1,1),
+      turn=clamp(Number(input.turn)||0,-1,1),lift=clamp(Number(input.lift)||0,-1,1);
+    const windX=clamp(Number(env.windX)||0,-30,30),windY=clamp(Number(env.windY)||0,-30,30);
+    const powered=c.fuel>0&&c.health>0;
+    c.a=angle(c.a+turn*def.turn*dt*(c.type==='biplane'?.35+Math.min(1,Math.hypot(c.vx,c.vy)/65)*.65:1));
+    c.throttle=damp(c.throttle,powered?Math.max(0,forward):0,c.type==='biplane'?1.6:2.5,dt);
+    const speed=Math.hypot(c.vx,c.vy);
+    const thrust=powered?def.accel*c.throttle:0;
+    const ax=Math.cos(c.a)*thrust,ay=Math.sin(c.a)*thrust;
+    const resist=Math.exp(-def.drag*dt);
+    c.vx=(c.vx+ax*dt)*resist;
+    c.vy=(c.vy+ay*dt)*resist;
+    if(c.type==='balloon'){
+      c.vx=damp(c.vx,windX*.85+Math.cos(c.a)*c.throttle*def.cruise,1.1,dt);
+      c.vy=damp(c.vy,windY*.85+Math.sin(c.a)*c.throttle*def.cruise,1.1,dt);
+    }else if(c.z>0){
+      c.vx+=windX*.1*dt;c.vy+=windY*.1*dt;
+    }
+    // Gusts are deterministic per craft and bounded. Weather changes handling,
+    // not a random teleport; reduced-motion is visual only, never gameplay.
+    const gust=clamp(Number(env.turbulence)||0,0,1);
+    if(c.z>8&&gust){const t=c.flightTime,weight=c.type==='balloon'?2.4:c.type==='biplane'?1.3:.8;
+      c.vx+=(Math.sin(t*2.1+c.y*.003)+Math.sin(t*3.7)*.4)*weight*gust*dt*11;
+      c.vy+=(Math.cos(t*1.9+c.x*.004)+Math.sin(t*2.8)*.5)*weight*gust*dt*11;
+    }
+    const s=Math.hypot(c.vx,c.vy);
+    if(s>def.cruise){c.vx*=def.cruise/s;c.vy*=def.cruise/s}
+    const canClimb=c.type!=='biplane'||s>=def.stall;
+    let upward=(powered&&canClimb?lift*def.climb:0);
+    if(c.type==='biplane'&&!canClimb)upward-=58;
+    if(!powered&&c.z>0)upward-=50;
+    c.vz=clamp((c.vz+upward*dt)*Math.exp(-dt*(c.type==='balloon'?1.75:2.1)),-55,55);
+    if(c.z>=def.ceiling&&c.vz>0)c.vz=0;
+    c.z=clamp(c.z+c.vz*dt,0,def.ceiling);
+    if(c.z===0){c.vz=0;c.landed=true}
+    else c.landed=false;
+    c.x+=c.vx*dt;c.y+=c.vy*dt;
+    // Altitude is not permission to leave the map. Preserve motion at edges without teleporting.
+    const width=Number(env.width)||6800,height=Number(env.height)||3300,margin=54;
+    if(c.x<margin){c.x=margin;c.vx=Math.max(0,c.vx)}
+    if(c.y<margin){c.y=margin;c.vy=Math.max(0,c.vy)}
+    if(c.x>width-margin){c.x=width-margin;c.vx=Math.min(0,c.vx)}
+    if(c.y>height-margin){c.y=height-margin;c.vy=Math.min(0,c.vy)}
+    if(powered&&(c.z>0||c.throttle>.05))c.fuel=Math.max(0,c.fuel-dt*(.17+c.throttle*.36+(c.type==='balloon'&&lift>0?.09:0)));
+    c.flightTime+=dt;c.rotor=(c.rotor+dt*(powered?22:4))%TAU;
+  }
+  function policeInput(c,target,dt){
+    if(target&&target.visible!==false&&Number.isFinite(target.x)&&Number.isFinite(target.y)){
+      c.search={x:target.x,y:target.y};c.searchAge=0;
+    }else c.searchAge+=Math.max(0,dt);
+    const goal=c.search;
+    if(!goal||c.searchAge>35)return {forward:.18,turn:.23,lift:c.z<85?1:c.z>125?-1:0,searching:true};
+    const dx=goal.x-c.x,dy=goal.y-c.y,d=Math.hypot(dx,dy);
+    const off=angle(Math.atan2(dy,dx)-c.a);
+    const aim=clamp(off*1.4,-1,1);
+    const wantedAltitude=clamp(d*.13,68,140);
+    return {forward:d>160?.85:d>65?.36:0,turn:aim,lift:c.z<wantedAltitude-7?1:c.z>wantedAltitude+7?-1:0,searching:c.searchAge>0};
+  }
+  function updatePolice(c,target,dt,environment={}){
+    const command=policeInput(c,target,dt);
+    step(c,command,dt,environment);
+    return command;
+  }
+  function render(ctx,c,time=0,options={}){
+    const def=TYPES[c.type];if(!def)return;
+    const low=!!options.lowDetail,reduced=!!options.reducedMotion,wet=clamp(Number(options.rain)||0,0,1),shadowAlpha=clamp(.34-c.z/650,.06,.34);
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,'+shadowAlpha+')';ctx.beginPath();
+    ctx.ellipse(c.x+c.z*.26,c.y+c.z*.31,def.span*.53+c.z*.08,def.span*.22+c.z*.045,c.a,0,TAU);ctx.fill();
+    // Low-detail mode keeps proportional silhouettes at a fraction of the draw calls.
+    if(low){ctx.translate(c.x,c.y);ctx.rotate(c.a);ctx.fillStyle=c.type==='biplane'?'#c8ae82':c.type==='balloon'?'#dec18a':'#7d938d';
+      ctx.beginPath();ctx.ellipse(0,0,def.span*.44,c.type==='balloon'?def.span*.35:8,0,0,TAU);ctx.fill();
+      if(c.type==='biplane'){ctx.fillRect(-7,-def.span*.5,14,def.span)}
+      if(c.type==='rotorcraft'){ctx.fillRect(-def.span*.49,-3,def.span*.98,6)}
+      ctx.restore();return;
+    }
+    // Full-detail rotor downwash is suppressed for reduced-motion users.
+    if(!reduced&&c.type==='rotorcraft'&&c.z>2&&c.z<52){
+      const p=1-c.z/52;
+      ctx.strokeStyle='rgba(219,200,148,'+(p*.22)+')';ctx.lineWidth=1.3;
+      for(let i=0;i<4;i++){const a=time*1.8+i*TAU/4;
+        ctx.beginPath();ctx.arc(c.x+Math.cos(a)*24,c.y+Math.sin(a)*24,14+p*24,a,a+1.45);ctx.stroke();
+      }
+    }
+    if(def.police&&c.z>15&&options.beamTarget){
+      const t=options.beamTarget,range=clamp(c.z,35,220),br=clamp(Number(options.beamStrength)||.4,0,1);
+      const spread=25+range*.19,alpha=(.02+br*.07)*(1-wet*.35);
+      ctx.fillStyle='rgba(244,224,161,'+alpha.toFixed(3)+')';ctx.strokeStyle='rgba(244,224,161,'+(br*.24).toFixed(3)+')';
+      ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(c.x,c.y);
+      ctx.lineTo(t.x-spread,t.y-spread*.4);ctx.arc(t.x,t.y,spread,Math.PI*1.2,Math.PI*.8);
+      ctx.closePath();ctx.fill();ctx.beginPath();ctx.ellipse(t.x,t.y,spread,spread*.58,0,0,TAU);ctx.stroke();
+    }
+    ctx.translate(c.x,c.y);
+    ctx.rotate(c.a);
+    // Top-down artwork scales modestly with altitude while the shadow stays on the ground.
+    // World scale matches the 48–61 px ground-car footprints; never scale
+    // aircraft up indefinitely with altitude (z is height, not size).
+    const artScale=c.type==='rotorcraft'?def.span/96:c.type==='biplane'?def.span/110:def.span/98;
+    ctx.scale((1+Math.min(c.z/1700,.10))*artScale,(1+Math.min(c.z/1700,.10))*artScale);
+    if(c.type==='rotorcraft'){
+      ctx.fillStyle='#1c2628';ctx.fillRect(-53,-4,56,8);
+      ctx.fillStyle='#67766d';ctx.fillRect(-51,-15,16,30);
+      ctx.fillStyle='#22363a';ctx.beginPath();ctx.ellipse(5,0,36,17,0,0,TAU);ctx.fill();
+      ctx.fillStyle='#889b94';ctx.beginPath();ctx.ellipse(14,0,19,12,0,0,TAU);ctx.fill();
+      ctx.strokeStyle='#c9cebf';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-22,-21);ctx.lineTo(19,-21);ctx.moveTo(-22,21);ctx.lineTo(19,21);ctx.stroke();
+      ctx.save();ctx.rotate(reduced?0:c.rotor);ctx.strokeStyle='rgba(225,229,211,'+(reduced?.77:.36)+')';
+      ctx.lineWidth=reduced?5:9;ctx.beginPath();ctx.moveTo(-46,0);ctx.lineTo(46,0);ctx.stroke();
+      if(!reduced){ctx.rotate(Math.PI/2);ctx.strokeStyle='rgba(225,229,211,.22)';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-45,0);ctx.lineTo(45,0);ctx.stroke()}
+      ctx.restore();
+      ctx.fillStyle='#f0d397';ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.fillText('LAW',3,3);
+    }else if(c.type==='biplane'){
+      ctx.fillStyle='#ad9470';ctx.fillRect(-12,-55,25,110);
+      ctx.fillStyle='#705b3f';ctx.fillRect(-26,-46,13,92);
+      ctx.fillStyle='#6e4233';ctx.beginPath();ctx.ellipse(0,0,43,8,0,0,TAU);ctx.fill();
+      ctx.fillStyle='#d7b783';ctx.fillRect(-19,-12,40,24);
+      ctx.fillStyle='#394647';ctx.beginPath();ctx.arc(10,0,7,0,TAU);ctx.fill();
+      ctx.save();ctx.translate(44,0);ctx.rotate(reduced?0:c.rotor);ctx.strokeStyle='#ddd0a3';ctx.lineWidth=reduced?3:5;ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(0,18);ctx.stroke();ctx.restore();
+      if(wet>.22&&c.z>18&&!reduced){ctx.strokeStyle='rgba(222,230,217,'+(wet*.13).toFixed(3)+')';ctx.lineWidth=1;
+       for(let i=0;i<3;i++){const ox=-24+i*22;ctx.beginPath();ctx.moveTo(ox,-53);ctx.lineTo(ox-7,-67);ctx.stroke();}}
+    }else{
+      ctx.fillStyle='#6c5035';ctx.fillRect(-11,-7,22,14);
+      ctx.strokeStyle='#cab286';ctx.lineWidth=1.2;for(const y of [-9,9]){ctx.beginPath();ctx.moveTo(-11,y);ctx.lineTo(-16,y*1.5);ctx.stroke();}
+      ctx.fillStyle='#e5c392';ctx.beginPath();ctx.ellipse(0,0,49,35,0,0,TAU);ctx.fill();
+      ctx.strokeStyle='#9c774c';ctx.lineWidth=2;for(const y of [-14,0,14]){ctx.beginPath();ctx.moveTo(-31,y);ctx.lineTo(31,y);ctx.stroke();}
+    }
+    // Position lights are purpose-built vectors: no per-frame generated sprites.
+    if(c.type!=='balloon'&&(reduced||Math.sin(time*5)>0)){ctx.fillStyle='#f9edba';ctx.beginPath();ctx.arc(0,-def.span*.44,3,0,TAU);ctx.fill();
+      ctx.fillStyle='#de7c62';ctx.beginPath();ctx.arc(0,def.span*.44,3,0,TAU);ctx.fill();}
+    ctx.restore();
+  }
+  return Object.freeze({TYPES,create,step,policeInput,updatePolice,render});
+});

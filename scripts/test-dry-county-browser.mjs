@@ -5,7 +5,7 @@ import {join,resolve} from 'node:path';
 import {chromium} from 'playwright';
 const root=resolve('dist/hubs/dry-county'),out=resolve('browser-results/dry-county');
 await mkdir(out,{recursive:true});
-const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={get town(){return town},camera,draw,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
+const instrument=source=>source.replace(/\}\)\(\);\s*$/,'window.__dryTest={get town(){return town},camera,draw,update,interact,showPanel,closePanel,player,places,enterBusiness,leaveBusiness,get airBridge(){return airBridge},get airOps(){return airOps},get interior(){return interior},get save(){return save},set heat(v){heat=v}};})();');
 const server=createServer(async(req,res)=>{try{const file=(req.url||'/').split('?')[0];if(file.includes('..'))throw Error('Invalid path');const p=file==='/'?'index.html':file.slice(1);let bytes=await readFile(join(root,p));if(p==='game.js')bytes=Buffer.from(instrument(bytes.toString()));res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.webp')?'image/webp':'text/html');res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true});
@@ -43,7 +43,44 @@ try{
   await enter('home');await talk();await page.getByRole('button',{name:'Open the construction book.',exact:false}).click();await page.getByRole('heading',{name:'Make a place of your own'}).waitFor();
   assert.equal(await page.locator('html').evaluate(el=>el.scrollWidth<=innerWidth),true);await page.screenshot({path:join(out,'home-'+size.width+'x'+size.height+'.png')});
   await page.keyboard.press('Escape');await page.keyboard.press('Tab');await page.getByRole('button',{name:'GARAGE',exact:true}).click();assert.equal(await page.locator('button[data-do="car"]').count(),0);await page.getByText('VISIT COLE MOTOR COMPANY · A ON MAP').first().waitFor();
+  // B5 release gate: flight through the actual combined 0.6 town on every viewport.
+  await page.keyboard.press('Escape');
+  await page.evaluate(()=>{const t=window.__dryTest;t.closePanel();if(t.interior)t.leaveBusiness(true);
+   t.heat=0;const c=t.airBridge.craft[0];t.player.car=null;t.player.x=c.x;t.player.y=c.y;
+   t.camera.x=c.x;t.camera.y=c.y;});
+  await page.keyboard.press('KeyE');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.mounted),'rotor','E boards aircraft without disabling 0.6');
+  if(size.width===390){
+   assert(await page.locator('#mobile button[data-action="air-up"]').isVisible(),'CLIMB on phone');
+   assert(await page.locator('#mobile button[data-action="air-down"]').isVisible(),'DESCEND on phone');
+   assert(await page.locator('#mobile button[data-action="air-job"]').isVisible(),'AIR RUN on phone');
+  }
+  await page.keyboard.down('Shift');
+  await page.evaluate(()=>{const t=window.__dryTest;for(let i=0;i<180;i++)t.update(1/60);t.draw()});
+  await page.keyboard.up('Shift');
+  assert(await page.evaluate(()=>window.dryCounty.snapshot().flight.altitude)>10,'aircraft safely climbs in 0.6');
+  await page.screenshot({path:join(out,'flight-b5-airborne-'+size.width+'x'+size.height+'.png')});
+  await page.keyboard.press('KeyE');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.mounted),'rotor','midair exit is forbidden');
+  await page.keyboard.down('KeyC');
+  await page.evaluate(()=>{const t=window.__dryTest;for(let i=0;i<620;i++)t.update(1/60);t.draw()});
+  await page.keyboard.up('KeyC');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.altitude),0,'aircraft lands in 0.6');
+  await page.keyboard.press('KeyE');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.mounted),null,'player exits safely on foot');
+  await page.evaluate(()=>{const t=window.__dryTest;t.heat=65;for(let i=0;i<12;i++)t.update(1/60)});
+  assert.notEqual(await page.evaluate(()=>window.dryCounty.snapshot().flight.airPatrol),'off','police aircraft activates with wanted heat');
+  await page.evaluate(()=>{const t=window.__dryTest;t.heat=0;t.airOps.reset();
+   const c=t.airBridge.craft[0];c.x=c.home.x;c.y=c.home.y;c.z=0;c.vx=c.vy=c.vz=0;c.landed=true;
+   t.player.car=null;t.player.air=null;t.player.x=c.x;t.player.y=c.y;});
+  await page.keyboard.press('KeyE');
+  if(size.width===390)await page.locator('#mobile button[data-action="air-job"]').click();
+  else await page.keyboard.press('KeyG');
+  assert.equal(await page.evaluate(()=>window.dryCounty.snapshot().flight.courierStage),0,'courier starts in integrated town');
+  const saved=await page.evaluate(()=>window.dryCounty.snapshot());
+  assert(saved.town&&saved.scale&&saved.flight,'town diagnostics coexist with air diagnostics');
+  await page.screenshot({path:join(out,'flight-b5-courier-'+size.width+'x'+size.height+'.png')});
   await context.close();
  }
- assert.deepEqual(errors,[]);console.log('Dry County browser checks passed: counter jobs, cents trading, secret entrance, dealership, supplies and construction at desktop, phone and landscape sizes.');
+ assert.deepEqual(errors,[]);console.log('Dry County browser checks passed: town + flight boarding, landing, police patrol, courier, counter jobs, cents trading, secret entrance, dealership, supplies and construction at desktop, phone and landscape sizes.');
 }finally{await browser.close();await new Promise(r=>server.close(r))}
