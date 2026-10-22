@@ -100,6 +100,18 @@ try {
     for (let i=1;i<=6;i++) await page.getByRole('button',{name:`Berry ${i}`,exact:true}).click();
     assert.match(await page.locator('#ck-play').textContent(), /Berry legend/);
     assert.equal(c.checkIns()[0].Point,1,'Pet play adds no points');
+    // Even the widest allowed uninterrupted name must remain visible at 320px.
+    const wideName='W'.repeat(18);
+    for(const name of [wideName,'Tiny Dragon']) {
+      await page.getByText('make it yours',{exact:true}).click();
+      await page.getByLabel('Their name',{exact:true}).fill(name);
+      await page.getByRole('button',{name:'save friend',exact:true}).click();
+      const heading=page.getByRole('heading',{name,exact:true});
+      await heading.waitFor();
+      assert.ok(await heading.evaluate(element=>element.scrollWidth<=element.clientWidth+1),'The complete pet name wraps without clipping');
+      assert.equal(c.checkIns().length,1,'Renaming cannot record extra attendance');
+    }
+
     await page.getByRole('button',{name:'star pairs',exact:true}).click();
     const cards = page.locator('.ck-card-grid button');
     const remembered = new Map();

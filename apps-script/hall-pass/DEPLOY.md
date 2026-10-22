@@ -6,6 +6,8 @@ The current source adds the optional Checkling companion to Daily Check-In. See 
 
 Release `public/hubs/checkling/pets/` on the website first, then run the normal guarded Apps Script preflight and update the existing deployment. Preserve unpublished editor drafts, the stable URL and domain-only access. The required authenticated synthetic protected-action smoke remains pending. Local source tests do not mean Version 39 includes Checkling. The prepared little-world development pass also adds species personalities, milestone habitats/keepsakes and untimed Star pairs/Echo grove games. Private habitat preferences remain compatible with existing friend data and add no attendance or point writes.
 
+The site prerequisite is complete: Netlify production `6ad98a531434a56a17d487f7` is ready on merged PR #217 commit `deff07421a29e60db9fb5b79e7cb04765ac8514d`. All 17 Pond/art files match source SHA-256 on the live domain. The expanded companion in PR #218 remains a separate pending Apps Script release.
+
 ## Most recent production preflight — Version 39, October 21, 2026
 
 [Preflight run 39715268796](https://github.com/Grantauch/the-desk/actions/runs/39715268796) verified Version 39 on the existing deployment. All five production file hashes exactly match site main `3e71b3dc67e9d394d5c7ed634090814dd979c34c`, with no unpublished editor draft. The stable URL, DOMAIN access and USER_DEPLOYING execution are unchanged. This is read-only production evidence; it does not deploy Checkling or replace the required protected synthetic smoke.
