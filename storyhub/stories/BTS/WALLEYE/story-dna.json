@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-WALLEYE",
+  "title": "Weights in the Fish",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "deadpan",
+      "procedural",
+      "small town sports scandal"
+    ],
+    "paletteIntent": "Pale Lake Erie gray green water ground with deep teal ink, a black LED scale housing, LED red digits for the rigged weight and tournament gold for honest results.",
+    "typographyIntent": "Big Shoulders Display for banner style tournament headlines, Public Sans for reading, Share Tech Mono for every scale readout, date and label.",
+    "textureLanguage": [
+      "LED segment ghost digits behind live numbers",
+      "matte lead sinkers"
+    ],
+    "shapeLanguage": "Rounded scale housings and leaderboard rows like a weigh in stage, egg shaped sinkers as the only organic shapes.",
+    "motionGrammar": [
+      "sinkers drop and fade when pulled",
+      "scale digits update instantly like an electronic scale"
+    ],
+    "interactionSignature": [
+      "pull the lead off the scale and watch the leaderboard reorder"
+    ],
+    "densityRhythm": "Short sections, one big number per section, video at the moment the story happened.",
+    "archivalBehavior": "Real footage arrives through embedded YouTube players at the point in the story where it was filmed. Committed images are public domain only.",
+    "endingLanguage": "A ledger of what they were chasing against what they lost, closed by Runyan's own words in court."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The red LED scoreboard on the LEWT weigh in stage and the gray green of Lake Erie water.",
+    "edgeTreatment": "Soft 8 to 12 pixel radii on instrument panels, square photo edges with small radii.",
+    "controlLanguage": "Controls are physical objects from the weigh in: sinkers to pull, a scale to read.",
+    "spacingLanguage": "Generous section padding with tight instrument panels inside.",
+    "transitionLanguage": "No scroll animation. State changes happen on press, as on a real scale."
+  }
+}

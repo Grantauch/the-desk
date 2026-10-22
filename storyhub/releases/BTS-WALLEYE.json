@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-WALLEYE",
+  "title": "Weights in the Fish",
+  "route": "/hubs/bts-bytesize-weights-in-the-fish.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/WALLEYE/story.json",
+    "note": "ByteSize no. 4. Public domain images only; footage plays through YouTube embeds."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-bytesize-weights-in-the-fish.html",
+      "bytes": 28096,
+      "sha256": "8ce8b515d6a4b0c41efc232de78b9e48c188723720c5b40901586594301435df"
+    },
+    {
+      "path": "/storyhub/bts/weights-in-the-fish/assets/walleye.webp",
+      "assetId": "A01",
+      "bytes": 46416,
+      "sha256": "bdb7bd4d57e2387d2701b8e7a764df80634edd7f7e6009edfd76be3d301ef6e7",
+      "width": 1600,
+      "height": 1067
+    },
+    {
+      "path": "/storyhub/bts/weights-in-the-fish/assets/lake-erie.webp",
+      "assetId": "A02",
+      "bytes": 162718,
+      "sha256": "f737f380e846e9243fd6ec8a28d531432478968fa629b63b19cda2bd2dd749ea",
+      "width": 1600,
+      "height": 746
+    }
+  ],
+  "totalBytes": 237230,
+  "sealedAt": "2026-10-22"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-WALLEYE",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Hero subject",
+      "sourceMode": "archival-source-first",
+      "subject": "A walleye photographed on a black background at Gavins Point National Fish Hatchery.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Walleye_(Sander_vitreus)_-_51780343419_(cropped).jpg",
+      "rightsStatus": "Public domain / U.S. government",
+      "provenance": "Sam Stukel, U.S. Fish and Wildlife Service. Resized and compressed to WebP.",
+      "htmlSafeZone": "Text sits below the image on the scale housing.",
+      "responsiveCrop": "object-fit cover, centered slightly low.",
+      "deployPath": "/storyhub/bts/weights-in-the-fish/assets/walleye.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "satellite-image",
+      "role": "Place anchor",
+      "sourceMode": "archival-source-first",
+      "subject": "Lake Erie seen from orbit.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A1.23188.1851.LakeErie.143.250m.jpg",
+      "rightsStatus": "Public domain / U.S. government",
+      "provenance": "NASA MODIS imagery. Resized and compressed to WebP.",
+      "htmlSafeZone": "Text outside the image.",
+      "responsiveCrop": "Full image, object-fit cover.",
+      "deployPath": "/storyhub/bts/weights-in-the-fish/assets/lake-erie.webp"
+    },
+    {
+      "id": "A03",
+      "status": "embedded",
+      "type": "video",
+      "role": "Primary evidence of the weigh in",
+      "sourceMode": "embedded-third-party",
+      "subject": "Crowd video of Fischer cutting open the walleye, posted by KBB Outdoors.",
+      "sourceUrl": "https://www.youtube.com/watch?v=MFnByQCDjz0",
+      "rightsStatus": "Third party, played through the YouTube embed player",
+      "provenance": "Not downloaded or rehosted.",
+      "htmlSafeZone": "Video sits in its own 16:9 frame.",
+      "responsiveCrop": "16:9 frame at every width.",
+      "deploymentStatus": "embedded-not-hosted",
+      "deploymentNote": "Played from YouTube through a lazy loaded embed. Nothing is stored in the repository."
+    },
+    {
+      "id": "A04",
+      "status": "embedded",
+      "type": "video",
+      "role": "News coverage of the weigh in",
+      "sourceMode": "embedded-third-party",
+      "subject": "ITV News report showing the 33.91 scoreboard and the discovery.",
+      "sourceUrl": "https://www.youtube.com/watch?v=zljR4GOEtCQ",
+      "rightsStatus": "Third party, played through the YouTube embed player",
+      "provenance": "Not downloaded or rehosted.",
+      "htmlSafeZone": "Video sits in its own 16:9 frame.",
+      "responsiveCrop": "16:9 frame at every width.",
+      "deploymentStatus": "embedded-not-hosted",
+      "deploymentNote": "Played from YouTube through a lazy loaded embed. Nothing is stored in the repository."
+    },
+    {
+      "id": "A05",
+      "status": "embedded",
+      "type": "video",
+      "role": "Sentencing coverage",
+      "sourceMode": "embedded-third-party",
+      "subject": "WBNS 10TV report on the May 11, 2023 sentencing.",
+      "sourceUrl": "https://www.youtube.com/watch?v=NSPzXOBhkZE",
+      "rightsStatus": "Third party, played through the YouTube embed player",
+      "provenance": "Not downloaded or rehosted.",
+      "htmlSafeZone": "Video sits in its own 16:9 frame.",
+      "responsiveCrop": "16:9 frame at every width.",
+      "deploymentStatus": "embedded-not-hosted",
+      "deploymentNote": "Played from YouTube through a lazy loaded embed. Nothing is stored in the repository."
+    }
+  ]
+}
