@@ -41,8 +41,8 @@
     },
     {
       "path": "/storyhub/bts/golf/assets/golf.js",
-      "bytes": 10937,
-      "sha256": "ce056d7c8c10f60d51a7da711e730caa0729ca5f892cf5096bab4aa4c40d6842"
+      "bytes": 10953,
+      "sha256": "e652528acf3c1613669eb87eca05a43e3d0ee94931f779f62fe05637b34fe65c"
     },
     {
       "path": "/storyhub/bts/golf/assets/golfers.webp",
@@ -149,6 +149,6 @@
       "assetId": "A08"
     }
   ],
-  "totalBytes": 1580367,
+  "totalBytes": 1580383,
   "sealedAt": "2026-10-22"
 }
