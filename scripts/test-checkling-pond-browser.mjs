@@ -7,7 +7,7 @@ import { createServer } from 'node:http';
 import { resolve, extname } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 const require = createRequire(import.meta.url);
-const { classroom, PEOPLE } = require('./lib/hall-pass-fixtures.cjs');
+const { classroom, PEOPLE, TEACHER } = require('./lib/hall-pass-fixtures.cjs');
 const origin = 'http://127.0.0.1:4396';
 const root = new URL('../', import.meta.url);
 const out = new URL('../browser-results/companions/', import.meta.url);
@@ -166,6 +166,42 @@ try {
     console.log(`PASS Checkling ${width}: PIN, adoption, all three games, earned habitat save/reload, journey, student isolation, still art, accessibility`);
     await context.close();
   }
+  // A shared PIN screen still hands off when idle, while an intentional pet
+  // visit keeps its short transaction timer from interrupting play.
+  {
+    const context=await browser.newContext({viewport:{width:390,height:900},reducedMotion:'reduce'});
+    await offline(context);
+    const page=await context.newPage();
+    await page.clock.install();
+    const c=classroom({now:new Date('2026-09-10T11:30:00Z')});
+    c.harness.signInAs(TEACHER);
+    const identified=c.harness.call('identifyCheckInWithPin',c.pin(PEOPLE.ada),'shared-pet-setup');
+    c.harness.call('saveCheckling',identified.pinToken,'bolt','Shared friend');
+    await gasBridge(page,c);
+    await page.goto(`${origin}/checkling-fixture/`);
+    const enter=async()=>{
+      await page.locator('input[type=password]').fill(c.pin(PEOPLE.ada));
+      await page.locator('input[type=password]').press('Enter');
+      await page.getByRole('heading',{name:'Shared friend',exact:true}).waitFor();
+    };
+    await enter();
+    await page.clock.fastForward(11000);
+    await page.locator('input[type=password]').waitFor();
+    assert.equal(await page.locator('.ck-pocket').count(),0,'An unattended shared confirmation still clears');
+    await enter();
+    await page.getByRole('button',{name:'star pairs',exact:true}).click();
+    await page.clock.fastForward(11000);
+    await page.getByRole('heading',{name:'Shared friend',exact:true}).waitFor();
+    assert.equal(await page.locator('.handoff').count(),0,'The superseded short handoff message is removed');
+    await page.clock.fastForward(120001);
+    await page.locator('input[type=password]').waitFor();
+    assert.equal(await page.locator('.ck-pocket').count(),0,'An inactive visit still clears at the existing privacy limit');
+    assert.equal(c.checkIns().length,1);
+    assert.equal(c.checkIns()[0].Point,1);
+    results.push({name:'checkling-shared-screen',status:'passed'}); cases++;
+    console.log('PASS shared Checkling: unattended handoff, active visit, idle privacy reset, no duplicate points');
+    await context.close();
+  }
   for (const width of [320,390,1440]) {
     const context = await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce',acceptDownloads:true,hasTouch:width < 600});
     await offline(context);
@@ -222,7 +258,7 @@ try {
     console.log(`PASS Pond ${width}: keyboard paint, undo, guide, export, invalid import, restore, saved reload, accessibility`);
     await context.close();
   }
-  console.log(`Companion browser acceptance: ${cases}/6 passed. All student data synthetic; external services offline.`);
+  console.log(`Companion browser acceptance: ${cases}/7 passed. All student data synthetic; external services offline.`);
 } finally {
   await writeFile(new URL('results.json',out),JSON.stringify(results,null,2));
   await browser.close();

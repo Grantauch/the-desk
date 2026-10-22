@@ -1133,9 +1133,10 @@
     "evidence": [
       "17 synthetic companion server scenarios pass, including official milestone unlocks, forged/locked home refusal, legacy compatibility, corruption recovery and unchanged classroom points.",
       "All 440 existing Hall Pass/Daily Check-In behaviors pass.",
-      "Six responsive offline browser journeys pass at 320/390/1440: all three activities, earned home save/reload, keepsakes, student isolation and reduced motion; zero WCAG A/AA violations.",
+      "Seven offline browser journeys pass, including responsive 320/390/1440 checks: all three activities, earned home save/reload, keepsakes, student isolation and reduced motion; zero WCAG A/AA violations.",
       "Preference schema remains v1 with one bounded habitat ID; games keep no persistent history and write no attendance. Existing five-file deployment, workbook schema, URL and domain-only access are preserved.",
-      "Protected CI and production release are pending; local full-site build was stopped by automatic approval review for unrelated news-feed access. Focused companion verification uses a static local server and blocks all external services."
+      "Protected CI and production release are pending; local full-site build was stopped by automatic approval review for unrelated news-feed access. Focused companion verification uses a static local server and blocks all external services.",
+      "Virtual-clock shared-PIN browser checks pass: unattended ten-second handoff, active companion visit, unchanged two-minute inactivity reset, removal of stale handoff copy and no duplicated attendance/points."
     ]
   }
 }
