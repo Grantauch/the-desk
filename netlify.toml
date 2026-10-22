@@ -11,6 +11,13 @@
   # The database rules in docs/robber-barons-online/ protect the data, not this key.
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyBA-NZ3otPFmOJOHAASrWk0A6Km3PnLCV0"
 
+# The original, release-sealed /hubs/bts-americas-most-hated.html remains intact.
+# Route the classroom-friendly URL to its expanded interactive assignment.
+[[redirects]]
+  from = "/hubs/bts-americas-most-hated"
+  to = "/hubs/bts-americas-most-hated-research.html"
+  status = 302
+
 [[redirects]]
   from = "/press"
   to = "/hubs/ush9-stop-the-presses.html"
