@@ -237,7 +237,21 @@ await test('golf access requires participation, caps travel help, and clears lab
   await waitFor(async () => /Account save confirmed/.test(await resume.locator('.sub').textContent()));
   await chip(page).locator('.chip').click();
   await chip(page).getByRole('button', { name: 'Not you? Sign out' }).click();
-  await page.waitForFunction(() => !document.querySelector('#assignment-card').value && document.querySelector('#eq-ball').value === 'featherie' && document.querySelector('#wa-turf').value === '10');
+  try {
+    await page.waitForFunction(() => !document.querySelector('#assignment-card').value && document.querySelector('#eq-ball').value === 'featherie' && document.querySelector('#wa-turf').value === '10');
+  } catch (error) {
+    // Report what the page shows so a CI-only failure can be diagnosed.
+    const seen = await page.evaluate(() => ({
+      card: document.querySelector('#assignment-card').value.slice(0, 40),
+      ball: document.querySelector('#eq-ball').value,
+      turf: document.querySelector('#wa-turf').value,
+      signedIn: document.querySelector('#desk-save-resume')?.getAttribute('data-signed-in'),
+      chip: (document.querySelector('#desk-save-chip')?.shadowRoot || document.querySelector('#desk-save-chip'))?.textContent?.replace(/\s+/g, ' ').slice(0, 300),
+      resume: (document.querySelector('#desk-save-resume')?.shadowRoot || document.querySelector('#desk-save-resume'))?.textContent?.replace(/\s+/g, ' ').slice(0, 300),
+    }));
+    console.log('    golf sign-out diagnostic:', JSON.stringify(seen), 'calls:', cb.net.calls.slice(-8).join(','));
+    throw error;
+  }
   assert.equal(await page.locator('#log-access').inputValue(), '');
   await signIn();
   await page.waitForFunction(() => document.querySelector('#eq-ball').value === 'guttie' && document.querySelector('#wa-turf').value === '50');
