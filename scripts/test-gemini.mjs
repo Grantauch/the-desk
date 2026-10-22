@@ -24,13 +24,27 @@ assert.equal((await handler(request({prompt:'Hi'}, {headers:{'content-type':'tex
 assert.equal((await handler(request({prompt:'Hi'}))).status,200);
 assert.equal(calls,1);
 assert.equal((await createHandler({env:()=>undefined})(request({prompt:'Hi'}))).status,503);
-for (const [status, expected] of [[400,502],[401,502],[403,502],[429,429],[500,502]]) {
-  await assert.rejects(() => generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({error:{message:'secret must not be echoed'}},{status})}), error=>error.status===expected && !error.message.includes('secret must'));
+for (const [status, expected] of [[400,502],[401,502],[403,502],[429,429],[500,503]]) {
+  await assert.rejects(() => generateText({apiKey:'fake',prompt:'Hi',sleep:async()=>{},fetchImpl:async()=>Response.json({error:{message:'secret must not be echoed'}},{status})}), error=>error.status===expected && !error.message.includes('secret must'));
 }
 await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({error:{status:'INVALID_ARGUMENT',message:'free text secret',details:[{reason:'API_KEY_INVALID'}]}},{status:400})}),error=>error.message.includes('HTTP 400 API_KEY_INVALID') && !error.message.includes('free text'));
 await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({error:{status:'bad; $(x)'}},{status:403})}),error=>error.message.includes('HTTP 403)') && !error.message.includes('$('));
+// Busy Google answers are retried, then reported as busy rather than as a bad key.
+// A fake clock moves only when the code pauses, so these checks never depend on runner speed.
+let clock=0; const now=()=>clock; const sleepFake=async ms=>{clock+=ms;};
+let busyCalls=0;
+clock=0;
+const busyOk=await generateText({apiKey:'fake',prompt:'Hi',now,sleep:sleepFake,fetchImpl:async()=>++busyCalls<3?Response.json({error:{status:'UNAVAILABLE'}},{status:503}):Response.json({candidates:[{content:{parts:[{text:'Back'}]}}]})});
+assert.equal(busyOk.text,'Back'); assert.equal(busyCalls,3);
+busyCalls=0; clock=0;
+await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',now,sleep:sleepFake,fetchImpl:async()=>{busyCalls++;return Response.json({error:{status:'UNAVAILABLE'}},{status:503});}}),error=>error.code==='GEMINI_BUSY'&&error.status===503&&error.message.includes('HTTP 503 UNAVAILABLE')&&!error.message.includes('API key'));
+assert.equal(busyCalls,4);
+busyCalls=0; clock=0;
+await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',totalMs:9000,now,sleep:sleepFake,fetchImpl:async()=>{busyCalls++;return new Response('',{status:503});}}),error=>error.code==='GEMINI_BUSY');
+assert.equal(busyCalls,3,'a short budget must stop retrying before the Netlify time limit');
+assert(clock<9000,'pauses must fit inside the budget');
 await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>Response.json({})}),error=>error.code==='EMPTY_RESPONSE');
-await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async()=>{throw new Error('network secret')}}),error=>error.status===504);
+await assert.rejects(()=>generateText({apiKey:'fake',prompt:'Hi',sleep:async()=>{},fetchImpl:async()=>{throw new Error('network secret')}}),error=>error.status===503&&!error.message.includes('network secret'));
 const answer=await generateText({apiKey:'fake',prompt:'Hi',fetchImpl:async(url,init)=>{
  assert(!url.includes('fake')); assert.equal(init.headers['x-goog-api-key'],'fake');
  return Response.json({candidates:[{content:{parts:[{text:'private thoughts',thought:true},{text:'Hello'},{text:' world'}]}}]});
