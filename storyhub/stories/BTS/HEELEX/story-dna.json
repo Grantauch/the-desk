@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELEX",
+  "title": "Fritz Von Erich: Exemplar",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "teacher's desk",
+      "patient",
+      "exacting"
+    ],
+    "paletteIntent": "Archive paper and ink with a single red grading pencil; the projected slides keep the project's arena black so students see what the board shows.",
+    "typographyIntent": "Newspaper serif for reading, the project's slab headline type, condensed labels and a handwritten red pencil face for grading marks.",
+    "textureLanguage": [
+      "archival letter",
+      "graded manuscript",
+      "program scans"
+    ],
+    "shapeLanguage": "Slide mockups as dark rectangles on a paper desk, a rotated snapshot portrait and a rubber stamp.",
+    "motionGrammar": [
+      "marks appear on demand",
+      "time bar fills on arrival"
+    ],
+    "interactionSignature": [
+      "grading marks toggle",
+      "scorecard jumps to the evidence",
+      "speaking time computed from the script"
+    ],
+    "densityRhythm": "Short hero, then three slide and script pairs, each followed by a chart or video, then the clock and a do and do not list.",
+    "archivalBehavior": "Program scans are credited and kept small where soft. The primary source is quoted once, in his words, with its archive named.",
+    "endingLanguage": "Send students back to the heel list to pick their own wrestler."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The yellowed program paper of the 1970s scans and the red ink of a grader.",
+    "edgeTreatment": "White snapshot borders and dashed red outlines that only appear when marks are on.",
+    "controlLanguage": "One stamp style toggle in the header and plain scorecard links.",
+    "spacingLanguage": "A reading column with a sticky scorecard beside it on wide screens.",
+    "transitionLanguage": "Natural scrolling; reduced motion sets the time bar instantly."
+  }
+}

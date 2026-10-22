@@ -778,7 +778,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -1077,6 +1077,51 @@
       "Additional four-size title and fourteen-room rendering verification added to protected CI.",
       "Initial visual-pass full local verification, protected GitHub build and hosted Netlify preview passed on 822712b.",
       "Combined release full verification running; final protected build, production and player hardware validation remain separate."
+    ]
+  },
+  "dry_county_pulse_20261021": {
+    "status": "LOCAL_FULL_AND_BROWSER_JOURNEYS_PASSED_REALTIME_AND_PROTECTED_PENDING",
+    "summary": "0.6 Phase 1 living residents, purposeful civilian traffic, local witness memory, business schedules and background activity, simulation budgets, and shared scale geometry.",
+    "commit_status": "REVIEW_BRANCH",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Canonical npm run verify passed: 53 built routes, 128 HTML files and 4542 local references; verification made no tracked authoring mutations.",
+      "77 existing gameplay checks and 10 living-town checks passed, including a deterministic five-minute observation with 54 nearby pedestrians, 10 drivers, 46 business visits, 4 deliveries and 6 parking arrivals.",
+      "Desktop/phone/landscape gameplay browser journeys and four-size/fourteen-room art checks passed. The latter caught and verified a phone title overflow fix for wider fallback fonts.",
+      "The independent five-real-minute Chromium observation, final-head protected verification and player hardware field use remain separate pending evidence.",
+      "Netlify production remains on 104cc8066bcdaf48a13dbc429fdb874f912fe403. No merge, promotion or production deployment performed."
+    ]
+  },
+  "gemini-team-setup-2026-10-21": {
+    "field_status": "ACCOUNT_LOGIN_PENDING",
+    "verification_status": "FULL_GATE_PENDING",
+    "scope": "Owner-requested Gemini assistance and protected private API",
+    "evidence": [
+      "Owner-only explicit trigger; literal event parsing; no generated command execution or repository write permission.",
+      "Authenticated bounded Netlify endpoint; finite output, timeout, rate limit, and truthful upstream errors.",
+      "Shared public assistant brief and Gemini project entry point.",
+      "Focused regression suite passed."
+    ],
+    "status": "SOURCE_REPAIRED",
+    "deployment_status": "PROTECTED_REVIEW_PENDING"
+  },
+  "checkling-pond-integration-2026-10-21": {
+    "status": "SOURCE_REPAIRED",
+    "verification_status": "ALL_RELEASE_STAGES_PASSED",
+    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "field_status": "FIELD_PENDING",
+    "summary": "Checkling integrated into the private Daily Check-In; Pond adapted to a static standalone sandbox linked from Games.",
+    "evidence": [
+      "12 synthetic Checkling server checks pass: verified identity, isolated membership preferences, idempotent attendance, school-calendar progression, late teacher review and optional storage failure.",
+      "Existing Hall Pass/Daily Check-In suite passes all 440 behavioral checks; Turn In server passes 39/39.",
+      "Six focused production-browser journeys pass at 320, 390 and 1440 pixels with zero WCAG A/AA violations, reduced-motion still art and no uncaught errors.",
+      "Pond TypeScript and production build pass; six physics/save checks and published source/bundle fingerprints pass.",
+      "Astro check has zero errors and warnings; site build and static validation pass for 131 HTML files and 4576 local references.",
+      "All 18 full-release stages passed across the initial canonical run and resuming from resources:validate after extending its explicit stage-contract fixture for the two new suites. The original full run stopped at that stale fixture; an uninterrupted final full run was not repeated. No protected GitHub build, merge, Netlify release, Apps Script release or classroom field test is claimed.",
+      "GitHub write access connected. Publishing branch incorporates main 3e71b3d and retains its Dry County flight integration and test commands; protected CI and production releases pending.",
+      "Production preflight 39715268796 passed: Version 39 five-file hashes exactly match main 3e71b3d, with stable URL, DOMAIN access, USER_DEPLOYING execution and no unpublished editor draft.",
+      "Prior main CI 39712617542 timed out during browser acceptance after a ten-minute diagnostic audit. Each audit is now bounded to 60 seconds and unavailable responses cannot masquerade as clean reports; four focused diagnostic regressions run before the report. No release/browser tests or workflow deadline were changed."
     ]
   }
 }

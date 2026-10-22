@@ -2,3 +2,7 @@
 public/hubs/*.html -text
 public/storyhub/runtime/storyhub-runtime.js -text
 public/storyhub/** -text
+
+# Preserve deterministic app-source and generated bundle fingerprints.
+apps/pond/** text=auto eol=lf
+public/hubs/pond/** -text

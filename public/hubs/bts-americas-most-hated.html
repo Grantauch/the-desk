@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>America's Most Hated · the heel project · the desk</title>
+<meta name="description" content="Beyond the Scoreboard: fifteen professional wrestling villains, the real history behind each one, and a research project on who Americans were told to boo, and why then.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-americas-most-hated.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="America's Most Hated: the heel project">
+<meta property="og:description" content="Fifteen wrestling villains borrowed from the headlines, and the real history behind each one.">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-americas-most-hated.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/americas-most-hated/assets/gg-ring.webp">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+@font-face{font-family:"Alfa Slab One";src:url(/storyhub/bts/americas-most-hated/assets/alfa-slab-one.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow Condensed";font-weight:600;src:url(/storyhub/bts/americas-most-hated/assets/barlow-condensed-600.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow Condensed";font-weight:800;src:url(/storyhub/bts/americas-most-hated/assets/barlow-condensed-800.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow";font-weight:400;src:url(/storyhub/bts/americas-most-hated/assets/barlow-400.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow";font-weight:600;src:url(/storyhub/bts/americas-most-hated/assets/barlow-600.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Barlow";font-style:italic;font-weight:400;src:url(/storyhub/bts/americas-most-hated/assets/barlow-400-italic.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Source Serif 4";font-weight:400 600;src:url(/storyhub/bts/americas-most-hated/assets/source-serif-4.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Source Serif 4";font-style:italic;font-weight:400;src:url(/storyhub/bts/americas-most-hated/assets/source-serif-4-italic.woff2) format("woff2");font-display:swap}
+
+:root{
+  --ink:#0f0d0c;--ink2:#1b1715;--ink3:#26201c;--rope:#3a322c;
+  --bone:#f2e8d5;--bone2:#cfc4ae;--mute:#a99e8a;
+  --red:#d7263d;--red-deep:#9e1428;--gold:#e8a93b;
+  --steel:#9bb7cc;--steel-deep:#4f6f86;--paper:#e9e1cf;
+  --display:"Alfa Slab One",Rockwell,"Roboto Slab",Georgia,serif;
+  --label:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",Arial,Helvetica,sans-serif;
+  --record:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --max:1180px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--ink);color:var(--bone);font:400 1.125rem/1.6 var(--body);overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--gold)}
+a:hover{color:var(--bone)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.skip{position:absolute;left:1rem;top:-5rem;background:var(--gold);color:var(--ink);padding:.6rem 1rem;z-index:50;font:800 1rem var(--label);text-transform:uppercase;letter-spacing:.06em}
+.skip:focus{top:1rem}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.label{font:600 .95rem/1.2 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.label--steel{color:var(--steel)}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.02;margin:0;letter-spacing:.005em}
+h2{font-size:clamp(1.75rem,5.4vw,3.9rem);text-transform:uppercase;overflow-wrap:break-word}
+h3{font-size:clamp(1.35rem,2.6vw,1.75rem)}
+p{margin:0 0 1rem}
+.lead{font-size:clamp(1.15rem,2vw,1.35rem);color:var(--bone);max-width:44rem}
+.record{font-family:var(--record);font-style:italic;color:var(--steel)}
+.mute{color:var(--mute)}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:20;background:rgba(15,13,12,.94);border-bottom:1px solid var(--rope);backdrop-filter:blur(6px)}
+.bar__in{display:flex;align-items:center;gap:1rem;justify-content:space-between;min-height:3.25rem}
+.bar__home{font:800 1rem var(--label);letter-spacing:.08em;text-transform:lowercase;color:var(--bone);text-decoration:none;white-space:nowrap}
+.bar__home span{color:var(--red)}
+.rail{display:flex;gap:.25rem;list-style:none;margin:0;padding:0;overflow:hidden}
+.rail a{display:block;font:600 .85rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-decoration:none;padding:.35rem .5rem;border-radius:3px;white-space:nowrap}
+.rail a:hover,.rail a[aria-current="true"]{color:var(--ink);background:var(--gold)}
+@media (max-width:980px){.rail{display:none}}
+.progress{position:absolute;left:0;bottom:-1px;height:3px;background:var(--red);width:0}
+
+/* ring ropes divider */
+.ropes{height:22px;margin:0;border:0;background:
+  linear-gradient(var(--red-deep),var(--red-deep)) 0 3px/100% 3px no-repeat,
+  linear-gradient(var(--bone2),var(--bone2)) 0 10px/100% 3px no-repeat,
+  linear-gradient(var(--steel-deep),var(--steel-deep)) 0 17px/100% 3px no-repeat;opacity:.55}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--rope)}
+.hero__grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:end;padding-top:clamp(2.5rem,6vw,5rem)}
+.hero h1{font-size:clamp(2.2rem,7.4vw,6.4rem);text-transform:uppercase;line-height:.88;margin:.6rem 0 1.4rem}
+.hero h1 em{font-style:normal;color:var(--red);display:block}
+.hero__q{border-left:6px solid var(--red);padding:.4rem 0 .4rem 1.1rem;margin:1.6rem 0 2rem;max-width:40rem}
+.hero__q .label{display:block;margin-bottom:.3rem}
+.hero__q p{font:400 clamp(1.4rem,2.8vw,2rem)/1.2 var(--display);margin:0;color:var(--bone)}
+.hero__photo{position:relative;align-self:stretch;min-height:22rem}
+.hero__photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:grayscale(1) contrast(1.08);mask-image:linear-gradient(180deg,#000 75%,transparent)}
+.hero__photo figcaption{position:absolute;right:0;bottom:1rem;max-width:16rem;text-align:right;font:400 .85rem/1.35 var(--record);font-style:italic;color:var(--bone2)}
+.tape{display:flex;flex-wrap:wrap;gap:.6rem;padding-bottom:clamp(2rem,5vw,4rem)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font:800 1.05rem var(--label);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:.8rem 1.15rem;border:2px solid var(--bone);color:var(--bone);background:transparent;border-radius:2px;cursor:pointer}
+.btn:hover{background:var(--bone);color:var(--ink)}
+.btn--red{background:var(--red-deep);border-color:var(--red-deep);color:#fff}
+.btn--red:hover{background:var(--bone);border-color:var(--bone);color:var(--ink)}
+.hero__stats{display:flex;gap:2rem;flex-wrap:wrap;margin:0 0 1.5rem}
+.hero__stats div{font:800 2.4rem/1 var(--label);color:var(--bone)}
+.hero__stats span{display:block;font:600 .85rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-top:.25rem}
+@media (max-width:820px){.hero__grid{grid-template-columns:1fr}.hero__photo{min-height:18rem;max-height:26rem;order:-1}.hero__photo img{mask-image:linear-gradient(180deg,#000 60%,transparent)}}
+
+/* sections */
+section.ch{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--rope);scroll-margin-top:3.5rem}
+.ch__head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.25rem;align-items:start;margin-bottom:2.2rem}
+.ch__num{font:800 clamp(3rem,7vw,5.5rem)/.8 var(--label);color:transparent;-webkit-text-stroke:2px var(--red)}
+.ch__head .label{display:block;margin-bottom:.45rem}
+@media (max-width:560px){.ch__head{grid-template-columns:1fr;gap:.4rem}.ch__num{font-size:2.6rem}}
+.ch--paper{background:var(--paper);color:var(--ink)}
+.ch--paper .lead,.ch--paper h2,.ch--paper h3{color:var(--ink)}
+.ch--paper .label{color:var(--red-deep)}
+.ch--paper .ch__num{-webkit-text-stroke-color:var(--red-deep)}
+.ch--paper .mute{color:#5d5446}
+.ch--paper a{color:var(--red-deep)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1.25rem,3vw,2.5rem)}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+
+/* terms */
+.terms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-top:2rem}
+.term{background:var(--ink2);border:1px solid var(--rope);padding:1.1rem 1.1rem 1.2rem;border-radius:2px}
+.term b{display:block;font:400 1.5rem var(--display);color:var(--gold);margin-bottom:.35rem}
+.term p{margin:0;font-size:1rem;color:var(--bone2)}
+@media (max-width:900px){.terms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.terms{grid-template-columns:1fr}}
+
+/* video */
+.vid{margin:0}
+.vid__frame{position:relative;display:block;aspect-ratio:16/9;background:#000 radial-gradient(circle at 50% 50%,#2a2420,#000 70%);overflow:hidden;border:1px solid var(--rope);border-radius:2px;text-decoration:none;color:var(--bone)}
+.vid__frame img{width:100%;height:100%;object-fit:cover;opacity:.78;transition:opacity .2s,transform .4s}
+.vid__frame:hover img{opacity:1;transform:scale(1.02)}
+.vid__frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vid__play{position:absolute;left:50%;top:50%;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;background:var(--red-deep);box-shadow:0 0 0 6px rgba(242,232,213,.18)}
+.vid__play::after{content:"";position:absolute;left:31px;top:23px;border-left:24px solid #fff;border-top:16px solid transparent;border-bottom:16px solid transparent}
+.vid__tag{position:absolute;left:.75rem;top:.75rem;font:800 .8rem var(--label);letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--gold);padding:.3rem .55rem}
+.vid figcaption{padding-top:.7rem;font-size:1rem;color:var(--bone2)}
+.vid figcaption strong{display:block;color:var(--bone);font:600 1.1rem/1.3 var(--body)}
+.ch--paper .vid figcaption{color:#4a4236}
+.ch--paper .vid figcaption strong{color:var(--ink)}
+.vids{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.5rem;margin-top:2.5rem}
+@media (max-width:760px){.vids{grid-template-columns:1fr}}
+
+/* headlines */
+.heads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem;margin:2rem 0 1.5rem}
+.head{all:unset;box-sizing:border-box;cursor:pointer;display:block;background:#f6efdf;color:#17130f;padding:1rem 1rem 1.1rem;border-radius:2px;box-shadow:0 1px 0 #c9bea8 inset,4px 4px 0 #000;transition:transform .15s}
+.head:hover{transform:translate(-2px,-2px)}
+.head:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.head[aria-pressed="true"]{background:var(--gold);box-shadow:4px 4px 0 var(--red-deep)}
+.head small{display:block;font:800 .8rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:#6b1020}
+.head span{display:block;font:400 1.6rem/1 var(--display);margin:.3rem 0 .45rem}
+.head em{font:italic 400 1rem/1.3 var(--record)}
+@media (max-width:900px){.heads{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.heads{grid-template-columns:1fr}}
+.answer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--rope);background:var(--ink2)}
+.answer > div{padding:1.4rem 1.5rem}
+.answer__news{border-right:1px solid var(--rope)}
+.answer__news p{font:400 1.2rem/1.45 var(--record);color:var(--bone)}
+.answer__ring p{font-size:1.15rem}
+.answer__gap{grid-column:1/-1;border-top:1px solid var(--rope);display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;background:var(--ink3)}
+.answer__gap b{font:800 2.6rem/1 var(--label);color:var(--red)}
+@media (max-width:700px){.answer{grid-template-columns:1fr}.answer__news{border-right:0;border-bottom:1px solid var(--rope)}}
+.gapchart{margin-top:2rem;background:var(--ink2);border:1px solid var(--rope);padding:1.3rem 1.4rem 1.1rem}
+.gaprow{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 6.5rem;gap:.8rem;align-items:center;margin:.55rem 0}
+.gaprow span{font:600 1rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--bone2)}
+.gaprow i{display:block;height:20px;background:var(--steel-deep);border-radius:1px;transform-origin:left;transition:background .2s}
+.gaprow.is-on i{background:var(--red)}
+.gaprow.is-on span{color:var(--bone)}
+.gaprow b{font:800 1.05rem var(--label);text-align:right;color:var(--bone)}
+@media (max-width:520px){.gaprow{grid-template-columns:5.5rem minmax(0,1fr) 4.6rem}.gaprow span{font-size:.85rem}}
+
+/* flip */
+.flip{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1.5rem;margin-top:2rem}
+.flip__who{display:flex;flex-direction:column;gap:.5rem}
+.pick{all:unset;box-sizing:border-box;cursor:pointer;padding:.85rem 1rem;border:1px solid var(--rope);background:var(--ink2);font:800 1.15rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--bone2)}
+.pick[aria-pressed="true"]{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.pick:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.flip__stage{background:var(--ink2);border:1px solid var(--rope);display:grid;grid-template-columns:13rem minmax(0,1fr)}
+.flip__stage img{width:100%;height:100%;object-fit:cover;filter:grayscale(.15)}
+.poster{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.1rem;padding:1.5rem 1rem;background:repeating-linear-gradient(180deg,#9e1428 0 18px,#f2e8d5 18px 36px);text-transform:uppercase}
+.poster span{font:400 clamp(1.8rem,3vw,2.6rem)/1 var(--display);background:#1f2a44;color:#f2e8d5;padding:.2rem .6rem}
+.flip__body{padding:1.3rem 1.5rem 1.4rem}
+.states{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0 1rem}
+.state{all:unset;box-sizing:border-box;cursor:pointer;font:800 .95rem var(--label);letter-spacing:.08em;text-transform:uppercase;padding:.45rem .75rem;border:2px solid var(--rope);color:var(--bone2)}
+.state:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.state[aria-pressed="true"].is-heel{background:var(--red-deep);border-color:var(--red-deep);color:#fff}
+.state[aria-pressed="true"].is-face{background:var(--steel);border-color:var(--steel);color:var(--ink)}
+.role{display:inline-block;font:800 .85rem var(--label);letter-spacing:.14em;padding:.2rem .5rem;margin-bottom:.6rem}
+.role--heel{background:var(--red-deep);color:#fff}
+.role--face{background:var(--steel);color:var(--ink)}
+.why{margin-top:1rem;padding-top:.9rem;border-top:1px dashed var(--rope)}
+.why .label{display:block;margin-bottom:.25rem}
+@media (max-width:860px){.flip{grid-template-columns:1fr}.flip__who{flex-direction:row;flex-wrap:wrap}.pick{flex:1 1 9rem;text-align:center}}
+@media (max-width:620px){.flip__stage{grid-template-columns:1fr}.flip__stage img{max-height:16rem;object-position:center 20%}}
+
+/* the card */
+.controls{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:center;justify-content:space-between;margin:2rem 0 1rem}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;font:600 .95rem var(--label);letter-spacing:.06em;text-transform:uppercase;padding:.45rem .75rem;border:1px solid var(--rope);border-radius:999px;color:var(--bone2)}
+.chip b{color:var(--gold);margin-left:.35rem}
+.chip[aria-pressed="true"]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.chip[aria-pressed="true"] b{color:var(--ink)}
+.chip:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.toggle{display:inline-flex;border:2px solid var(--bone2);border-radius:2px;overflow:hidden}
+.toggle button{all:unset;box-sizing:border-box;cursor:pointer;padding:.5rem .8rem;font:800 .9rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--bone2)}
+.toggle button[aria-pressed="true"]{background:var(--bone);color:var(--ink)}
+.toggle button:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.cardgrid{display:grid;grid-template-columns:minmax(0,1fr) 22rem;gap:2rem;align-items:start}
+@media (max-width:980px){.cardgrid{grid-template-columns:1fr}}
+.bouts{list-style:none;margin:0;padding:0;display:grid;align-items:start;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.8rem}
+.bout{background:var(--ink2);border:1px solid var(--rope);border-radius:2px}
+.bout[hidden]{display:none}
+.bout details{height:100%}
+.bout summary{list-style:none;cursor:pointer;padding:.9rem 1rem 1rem;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.8rem;align-items:center}
+.bout summary::-webkit-details-marker{display:none}
+.bout summary:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.bout__n{font:800 2rem/1 var(--label);color:var(--red)}
+.bout__name{font:400 1.2rem/1.1 var(--display);color:var(--bone)}
+.bout__yrs{display:block;font:600 .85rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-top:.2rem}
+.bout details[open]{background:var(--ink3);border-color:var(--gold)}
+.bout__more{padding:0 1rem 1.1rem;font-size:1rem}
+.bout__from{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .6rem;margin:.2rem 0 .8rem;font-size:.98rem}
+.bout__from dt{font:800 .8rem var(--label);letter-spacing:.12em;text-transform:uppercase;padding-top:.2rem}
+.bout__from dd{margin:0}
+.bout__from > div{display:contents}
+.k-only dt{color:var(--gold)}
+.r-only dt{color:var(--steel)}
+.r-only dd{font-family:var(--record)}
+.show-record .k-only,.show-kayfabe .r-only{display:none}
+.bout__q{color:var(--bone2);font-style:italic}
+.bout__vid{display:inline-block;margin-top:.5rem;font:800 .85rem var(--label);letter-spacing:.1em;text-transform:uppercase}
+.tally{position:sticky;top:4.5rem;background:var(--ink2);border:1px solid var(--rope);padding:1.2rem 1.25rem}
+.tally h3{font-size:1.25rem;margin:.2rem 0 1rem}
+.bars{list-style:none;margin:0 0 1.4rem;padding:0}
+.bars li{margin:.55rem 0}
+.bars span{display:flex;justify-content:space-between;font:600 .95rem var(--label);letter-spacing:.05em;text-transform:uppercase;color:var(--bone2)}
+.bars i{display:block;height:12px;background:var(--rope);margin-top:.25rem;position:relative}
+.bars i::after{content:"";position:absolute;inset:0;width:var(--w);background:var(--steel-deep)}
+.bars li.is-on span{color:var(--bone)}
+.bars li.is-on i::after{background:var(--gold)}
+.dots{display:flex;flex-wrap:wrap;gap:6px;margin:.6rem 0 .5rem}
+.dots i{width:22px;height:22px;border-radius:50%;border:2px solid var(--steel)}
+.dots i.fake{background:var(--red);border-color:var(--red)}
+.stat{font:800 2.6rem/1 var(--label);color:var(--red)}
+
+/* mission */
+.stories{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.25rem;margin:2rem 0 2.5rem}
+.story{padding:1.5rem 1.5rem 1.6rem;border:2px solid var(--ink);background:#f6efdf;box-shadow:6px 6px 0 var(--ink)}
+.story .label{display:block}
+.story h3{font-size:clamp(1.6rem,3vw,2.2rem);margin:.4rem 0 .8rem;text-transform:uppercase}
+.story p{margin:0;font-size:1.08rem}
+@media (max-width:760px){.stories{grid-template-columns:1fr}}
+.points{display:flex;height:46px;border:2px solid var(--ink);margin:1rem 0 .6rem;overflow:hidden}
+.points button{all:unset;box-sizing:border-box;cursor:pointer;height:100%;display:flex;align-items:center;justify-content:center;font:800 .95rem var(--label);color:#fff;border-right:2px solid var(--paper);min-width:0}
+.points button:last-child{border-right:0}
+.points button:focus-visible{outline:3px solid var(--ink);outline-offset:-5px}
+.points .p-hist{background:var(--red-deep)}
+.points .p-who{background:#7a5a2c}
+.points .p-other{background:#4d4539}
+.points button[aria-pressed="true"]{box-shadow:inset 0 0 0 4px var(--gold)}
+.pointnote{min-height:3.2rem;font-size:1.05rem}
+.qs{margin:1.5rem 0 0;padding:0;list-style:none;counter-reset:q}
+.qs li{border-top:2px solid var(--ink)}
+.qs li:last-child{border-bottom:2px solid var(--ink)}
+.qs summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:3.2rem minmax(0,1fr) auto;gap:.8rem;align-items:center;padding:1rem .25rem}
+.qs summary::-webkit-details-marker{display:none}
+.qs summary:focus-visible{outline:3px solid var(--red-deep);outline-offset:2px}
+.qs .n{font:800 2.4rem/1 var(--label);color:var(--red-deep)}
+.qs .t{font:600 1.25rem/1.25 var(--body)}
+.qs .pts{font:800 .95rem var(--label);letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:.25rem .5rem;white-space:nowrap}
+.qs .body{padding:0 .25rem 1.2rem 4rem;font-size:1.05rem}
+.qs .body b{color:var(--red-deep)}
+@media (max-width:560px){.qs .body{padding-left:.25rem}.qs summary{grid-template-columns:2.4rem minmax(0,1fr)}.qs .pts{grid-column:2}}
+
+/* order game */
+.order{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;margin-top:2rem}
+@media (max-width:860px){.order{grid-template-columns:1fr}}
+.pool{display:grid;gap:.6rem}
+.ev{all:unset;box-sizing:border-box;cursor:pointer;display:block;padding:.9rem 1rem;background:var(--ink2);border:1px solid var(--rope);font-size:1.05rem;line-height:1.35}
+.ev:hover{border-color:var(--gold)}
+.ev:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.ev[disabled]{opacity:.35;cursor:default}
+.slots{list-style:none;margin:0;padding:0;counter-reset:s}
+.slots li{counter-increment:s;display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:.8rem;align-items:center;padding:.7rem 0;border-bottom:1px dashed var(--rope);min-height:3.4rem}
+.slots li::before{content:counter(s);font:800 1.8rem/1 var(--label);color:var(--rope)}
+.slots li.filled::before{color:var(--gold)}
+.slots li.right::before{color:var(--steel)}
+.slots li.wrong::before{color:var(--red)}
+.slots .date{display:block;font:800 .85rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
+.verdict{margin-top:1rem;padding:1rem 1.2rem;border-left:5px solid var(--gold);background:var(--ink3);min-height:3rem}
+.order__tools{display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
+
+/* rules */
+.reqs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin:2rem 0}
+.req{padding:1.25rem;background:var(--ink2);border:1px solid var(--rope)}
+.req b{display:block;font:800 3rem/1 var(--label);color:var(--gold)}
+.req h3{font-size:1.25rem;margin:.35rem 0 .5rem}
+.req p{margin:0;font-size:1rem;color:var(--bone2)}
+@media (max-width:900px){.reqs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.reqs{grid-template-columns:1fr}}
+.firm{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.6rem;align-items:center;padding:1.8rem;border:3px solid var(--red);margin:2.5rem 0}
+.firm svg{width:84px;height:84px}
+.firm h3{font-size:clamp(1.6rem,3.6vw,2.4rem);text-transform:uppercase;margin-bottom:.6rem}
+.firm p{margin:0;color:var(--bone2)}
+@media (max-width:560px){.firm{grid-template-columns:1fr}}
+.week{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.6rem;list-style:none;margin:1.5rem 0 0;padding:0}
+.week li{background:var(--ink2);border-top:4px solid var(--steel-deep);padding:1rem;font-size:1rem}
+.week li.show{border-top-color:var(--red)}
+.week b{display:block;font:800 1rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem}
+@media (max-width:860px){.week{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.week{grid-template-columns:1fr}}
+
+/* final bell */
+.bell{text-align:left}
+.bell__q{font:400 clamp(2rem,5.6vw,4.4rem)/1.05 var(--display);max-width:22ch;margin:1rem 0 2rem}
+.bell__grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:2rem;align-items:center}
+.bell__grid img{width:100%;filter:grayscale(.2);border:6px solid var(--bone)}
+@media (max-width:760px){.bell__grid{grid-template-columns:1fr}}
+.next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1.2rem;align-items:center;margin-top:3rem;padding:1.5rem 1.6rem;background:var(--bone);color:var(--ink)}
+.next .label{color:var(--red-deep)}
+.next h3{margin:.3rem 0 .4rem;font-size:clamp(1.4rem,3vw,2rem)}
+.next p{margin:0}
+@media (max-width:620px){.next{grid-template-columns:1fr}}
+.next .btn{border-color:var(--ink);color:var(--ink)}
+.next .btn:hover{background:var(--ink);color:var(--bone)}
+
+/* photo figure */
+.fig{margin:0}
+.fig img{width:100%;border:1px solid var(--rope)}
+.fig figcaption{font:400 .92rem/1.4 var(--record);font-style:italic;color:var(--bone2);margin-top:.5rem}
+.ch--paper .fig figcaption{color:#4a4236}
+
+/* sources */
+.sources{padding:3.5rem 0 4.5rem;background:var(--ink2);font-size:.98rem;color:var(--bone2)}
+.sources h2{font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:1.2rem}
+.sources h3{font:800 1rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:1.6rem 0 .6rem}
+.sources ul{margin:0;padding-left:1.2rem}
+.sources li{margin:.3rem 0}
+.foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rope);font:600 .95rem var(--label);letter-spacing:.08em;text-transform:lowercase}
+.foot a{color:var(--bone2)}
+
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.is-in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+.no-js .reveal{opacity:1;transform:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body class="no-js">
+<a class="skip" href="#main-content">Skip to the story</a>
+
+<header class="bar">
+  <div class="wrap bar__in">
+    <a class="bar__home" href="/beyond-the-scoreboard/">the desk<span>.</span> beyond the scoreboard</a>
+    <nav aria-label="Chapters">
+      <ul class="rail">
+        <li><a href="#watch">Watch</a></li>
+        <li><a href="#headlines">Headlines</a></li>
+        <li><a href="#flip">Switch</a></li>
+        <li><a href="#card">The Card</a></li>
+        <li><a href="#mission">Mission</a></li>
+        <li><a href="#prove">Prove It</a></li>
+        <li><a href="#rules">Rules</a></li>
+        <li><a href="#bell">Final Bell</a></li>
+      </ul>
+    </nav>
+    <span class="progress" aria-hidden="true"></span>
+  </div>
+</header>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="title">
+  <div class="wrap hero__grid">
+    <div>
+      <span class="label">Beyond the Scoreboard · The Heel Project</span>
+      <h1 id="title">America's <em>Most Hated</em></h1>
+      <p class="lead">For nearly seventy years, American wrestling promoters built their villains out of the evening news. A Soviet who made the crowd stand for his anthem. An Iranian champion in the shadow of the hostage crisis. A Marine drill sergeant who sided with Saddam Hussein while American planes bombed Baghdad.</p>
+      <div class="hero__q">
+        <span class="label">The question</span>
+        <p>Who were Americans told to boo, and why then?</p>
+      </div>
+      <div class="hero__stats" aria-label="Project at a glance">
+        <div>15<span>villains</span></div>
+        <div>1947<span>to 2014</span></div>
+        <div>3:00<span>to teach yours</span></div>
+      </div>
+      <div class="tape">
+        <a class="btn btn--red" href="#watch">Start with the episode</a>
+        <a class="btn" href="#card">Go to the heel list</a>
+      </div>
+    </div>
+    <figure class="hero__photo">
+      <img src="/storyhub/bts/americas-most-hated/assets/gg-ring.webp" width="545" height="849" alt="Gorgeous George stands in a wrestling ring in a long robe, under bright arena lights, with the crowd at ringside">
+      <figcaption>Gorgeous George, the most booed man of early television, in the ring in 1949. Library of Congress.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 1 WATCH -->
+<section class="ch" id="watch" aria-labelledby="h-watch">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">01</span>
+      <div><span class="label">Before the episode</span><h2 id="h-watch">The Man Who Sold the Villains</h2></div>
+    </div>
+    <div class="two">
+      <div class="reveal">
+        <p class="lead">In 1982 Vince McMahon bought his father's wrestling company, the WWF, and set out to take it national. Episode 1 of the Netflix series <i>Mr. McMahon</i> tells that story.</p>
+        <p>Halfway through, McMahon explains why he picked the Iron Sheik, an Iranian, to take the championship from Bob Backlund so Hulk Hogan could win it a month later. The segment cuts the Sheik waving his flag against news footage of American hostages in Iran. Bruce Prichard, a longtime WWE executive, says fans could watch an Iranian get beaten up at the arena in a way they could never see in real life.</p>
+        <p class="record">That moment is the whole project in one scene. A real fear, turned into a ticket.</p>
+      </div>
+      <div class="reveal">
+        <figure class="vid">
+          <a class="vid__frame" href="https://www.youtube.com/watch?v=fwKm7WM_P8E" data-yt="fwKm7WM_P8E" data-title="Mr. McMahon, official trailer">
+            <img src="https://i.ytimg.com/vi/fwKm7WM_P8E/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+            <span class="vid__tag">Trailer · 2:17</span>
+            <span class="vid__play"></span>
+            <span class="sr">Play the Mr. McMahon official trailer, 2 minutes 17 seconds</span>
+          </a>
+          <figcaption><strong>Mr. McMahon, official trailer</strong>Netflix, 2024. The series is rated TV-MA. Episode 1 is titled "Junior."</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="terms">
+      <div class="term reveal"><b>Heel</b><p>The villain. The wrestler the crowd is supposed to boo.</p></div>
+      <div class="term reveal"><b>Face</b><p>Short for babyface. The hero the crowd cheers.</p></div>
+      <div class="term reveal"><b>Kayfabe</b><p>Presenting the scripted story as real, inside the ring and out of it.</p></div>
+      <div class="term reveal"><b>Territory</b><p>A regional wrestling company. Before the 1980s, promoters agreed to stay out of each other's turf.</p></div>
+    </div>
+  </div>
+</section>
+
+<hr class="ropes" aria-hidden="true">
+
+<!-- 2 HEADLINES -->
+<section class="ch" id="headlines" aria-labelledby="h-heads">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">02</span>
+      <div><span class="label">Villains from the headlines</span><h2 id="h-heads">How Fast Did Wrestling Answer the News?</h2></div>
+    </div>
+    <p class="lead">Pick a front page. Then see what happened in the ring, and how many days passed in between.</p>
+
+    <div class="heads" role="group" aria-label="Choose a headline">
+      <button class="head" type="button" aria-pressed="true" data-head="0"><small>November 4, 1979</small><span>Tehran</span><em>Militants seize the U.S. embassy</em></button>
+      <button class="head" type="button" aria-pressed="false" data-head="1"><small>January 17, 1991</small><span>Baghdad</span><em>The bombing of Iraq begins</em></button>
+      <button class="head" type="button" aria-pressed="false" data-head="2"><small>March 20, 2003</small><span>Paris</span><em>France opposed the invasion of Iraq</em></button>
+      <button class="head" type="button" aria-pressed="false" data-head="3"><small>March 18, 2014</small><span>Crimea</span><em>Russia annexes Ukrainian territory</em></button>
+    </div>
+
+    <div aria-live="polite">
+      <article class="answer" data-answer="0">
+        <div class="answer__news"><span class="label label--steel">In the news</span><p>Militants seize the U.S. embassy in Tehran and hold 52 Americans hostage for 444 days. They come home January 20, 1981, minutes after Ronald Reagan is sworn in.</p></div>
+        <div class="answer__ring"><span class="label">In the ring</span><p>December 26, 1983: the Iron Sheik, billed from Tehran, takes the WWF title from Bob Backlund at Madison Square Garden. On January 23, 1984, Hulk Hogan beats him and Hulkamania is born.</p></div>
+        <div class="answer__gap"><b>1,513 days</b><p>The slowest answer on the board, because the Sheik was already wrestling as an Iranian villain. The crisis made him worth a title run.</p></div>
+      </article>
+      <article class="answer" data-answer="1">
+        <div class="answer__news"><span class="label label--steel">In the news</span><p>Iraq invades Kuwait in August 1990. On January 17, 1991, the United States and its allies begin bombing Iraq in the Persian Gulf War.</p></div>
+        <div class="answer__ring"><span class="label">In the ring</span><p>January 19, 1991: Sgt. Slaughter, a former American hero now siding with Saddam Hussein, wins the WWF title at the Royal Rumble. Hogan takes it back at WrestleMania VII on March 24.</p></div>
+        <div class="answer__gap"><b>2 days</b><p>The storyline had started in late 1990. The war arrived right on schedule for it.</p></div>
+      </article>
+      <article class="answer" data-answer="2">
+        <div class="answer__news"><span class="label label--steel">In the news</span><p>The invasion of Iraq begins March 20, 2003. France had refused to back it at the United Nations, and that month the House cafeterias in Washington renamed french fries "freedom fries."</p></div>
+        <div class="answer__ring"><span class="label">In the ring</span><p>April 28, 2003: La Résistance, two arrogant Frenchmen, debut on Raw by attacking Scott Steiner. Both men were actually Canadians.</p></div>
+        <div class="answer__gap"><b>39 days</b><p>WWE had aired vignettes of the pair criticizing America from a fake French news studio before they ever wrestled.</p></div>
+      </article>
+      <article class="answer" data-answer="3">
+        <div class="answer__news"><span class="label label--steel">In the news</span><p>Russia annexes Crimea from Ukraine on March 18, 2014, and relations between Washington and Moscow fall to their lowest point since the Cold War.</p></div>
+        <div class="answer__ring"><span class="label">In the ring</span><p>By mid May 2014, Rusev, a Bulgarian, is presented as a hero of the Russian Federation who dedicates his wins to Vladimir Putin while Putin's face fills the arena screen.</p></div>
+        <div class="answer__gap"><b>57 days</b><p>Measured to a May 14, 2014 news report describing the act. Rusev had debuted months earlier as "the Bulgarian Brute." Russia was added once the news made it useful.</p></div>
+      </article>
+    </div>
+
+    <div class="gapchart reveal" aria-label="Days between the headline and the wrestling response">
+      <span class="label label--steel">Days from headline to ring · log scale</span>
+      <div class="gaprow is-on" data-gap="0"><span>Iran 1979</span><i style="width:100%"></i><b>1,513</b></div>
+      <div class="gaprow" data-gap="1"><span>Iraq 1991</span><i style="width:9.5%"></i><b>2</b></div>
+      <div class="gaprow" data-gap="2"><span>France 2003</span><i style="width:50.1%"></i><b>39</b></div>
+      <div class="gaprow" data-gap="3"><span>Russia 2014</span><i style="width:55.2%"></i><b>57</b></div>
+      <p class="mute" style="margin:.8rem 0 0;font-size:.95rem">Three of the four answers came in under two months. Promoters were reading the same newspapers as their fans.</p>
+    </div>
+
+    <div class="vids">
+      <figure class="vid reveal">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=hBT_Zg31_A4" data-yt="hBT_Zg31_A4" data-title="Hostage, US National Archives">
+          <img src="https://i.ytimg.com/vi/hBT_Zg31_A4/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">Archive · 2:01</span><span class="vid__play"></span>
+          <span class="sr">Play Hostage, from the US National Archives, 2 minutes 1 second</span>
+        </a>
+        <figcaption><strong>The hostage crisis, from the National Archives</strong>U.S. government footage of the crisis that hung over the country from 1979 to 1981.</figcaption>
+      </figure>
+      <figure class="vid reveal">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=qAmzvTbqFDM" data-yt="qAmzvTbqFDM" data-title="Iron Sheik vs. Hulk Hogan, January 23, 1984">
+          <img src="https://i.ytimg.com/vi/qAmzvTbqFDM/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">The match · 14:45</span><span class="vid__play"></span>
+          <span class="sr">Play the full match, Iron Sheik versus Hulk Hogan, January 23, 1984, 14 minutes 45 seconds</span>
+        </a>
+        <figcaption><strong>Iron Sheik vs. Hulk Hogan, Madison Square Garden, 1984</strong>WWE. Watch the crowd during the Sheik's entrance, then again when Hogan wins.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 3 FLIP -->
+<section class="ch" id="flip" aria-labelledby="h-flip">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">03</span>
+      <div><span class="label">Same man, other side</span><h2 id="h-flip">A Heel Is a Role, Not a Person</h2></div>
+    </div>
+    <p class="lead">Pick a wrestler, then move through the years. Watch the crowd switch sides even when the man underneath barely changes.</p>
+
+    <div class="flip">
+      <div class="flip__who" role="group" aria-label="Choose a wrestler">
+        <button class="pick" type="button" aria-pressed="true" data-who="slaughter">Sgt. Slaughter</button>
+        <button class="pick" type="button" aria-pressed="false" data-who="volkoff">Nikolai Volkoff</button>
+        <button class="pick" type="button" aria-pressed="false" data-who="swagger">Jack Swagger</button>
+      </div>
+
+      <div>
+        <article class="flip__stage" data-flip="slaughter">
+          <img src="/storyhub/bts/americas-most-hated/assets/slaughter-1984.webp" width="960" height="1203" alt="Sgt. Slaughter in 1984, in a campaign hat and white tank top, walking along the ring ropes">
+          <div class="flip__body">
+            <h3>Sgt. Slaughter</h3>
+            <p class="mute" style="font-size:.95rem">Robert Remus, born in Detroit in 1948. Photographed here in 1984.</p>
+            <div class="states" role="group" aria-label="Choose a year for Sgt. Slaughter">
+              <button class="state is-face" type="button" aria-pressed="true" data-state="0">1984</button>
+              <button class="state is-heel" type="button" aria-pressed="false" data-state="1">1991</button>
+              <button class="state is-face" type="button" aria-pressed="false" data-state="2">Late 1991</button>
+            </div>
+            <div data-panel="0"><span class="role role--face">FACE</span><p>A Marine drill sergeant who fights the Iron Sheik for America and becomes a G.I. Joe action figure. Kids salute him.</p></div>
+            <div data-panel="1"><span class="role role--heel">HEEL</span><p>Back from a long absence, he sides with Saddam Hussein, carries the Iraqi flag, and wins the title two days into the bombing of Iraq. He reports death threats.</p><div class="why"><span class="label">What changed</span><p>The country went to war, and his patriotism became the thing he betrayed.</p></div></div>
+            <div data-panel="2"><span class="role role--face">FACE</span><p>After losing to Hogan at WrestleMania VII, he asks the fans to forgive him and returns as an American hero.</p><div class="why"><span class="label">What changed</span><p>The war ended in February 1991. The story had nothing left to sell.</p></div></div>
+          </div>
+        </article>
+
+        <article class="flip__stage" data-flip="volkoff">
+          <img src="/storyhub/bts/americas-most-hated/assets/sheik-volkoff-1986.webp" width="344" height="246" alt="The Iron Sheik and Nikolai Volkoff shaking hands in a hallway in 1986">
+          <div class="flip__body">
+            <h3>Nikolai Volkoff</h3>
+            <p class="mute" style="font-size:.95rem">Josip Peruzović, born in Croatia, then part of communist Yugoslavia. Shown at right beside the Iron Sheik in 1986.</p>
+            <div class="states" role="group" aria-label="Choose a year for Nikolai Volkoff">
+              <button class="state is-heel" type="button" aria-pressed="true" data-state="0">1985</button>
+              <button class="state is-face" type="button" aria-pressed="false" data-state="1">1990</button>
+            </div>
+            <div data-panel="0"><span class="role role--heel">HEEL</span><p>Demands that the crowd stand while he sings the Soviet national anthem. Wins the tag titles with the Iron Sheik at the first WrestleMania on March 31, 1985.</p></div>
+            <div data-panel="1"><span class="role role--face">FACE</span><p>Sings "The Star Spangled Banner" on television instead, and the boos turn into cheers.</p><div class="why"><span class="label">What changed</span><p>The Cold War ended. Volkoff had defected from Yugoslavia at a weightlifting meet in 1968 and hated communism. He finally got to play himself.</p></div></div>
+          </div>
+        </article>
+
+        <article class="flip__stage" data-flip="swagger">
+          <div class="poster" aria-hidden="true"><span>We</span><span>the</span><span>People</span></div>
+          <div class="flip__body">
+            <h3>Jack Swagger</h3>
+            <p class="mute" style="font-size:.95rem">From Perry, Oklahoma. His 2013 catchphrase is set on the poster at left. The video in chapter 04 shows the Russian he faced next.</p>
+            <div class="states" role="group" aria-label="Choose a year for Jack Swagger">
+              <button class="state is-heel" type="button" aria-pressed="true" data-state="0">2013</button>
+              <button class="state is-face" type="button" aria-pressed="false" data-state="1">2014</button>
+            </div>
+            <div data-panel="0"><span class="role role--heel">HEEL</span><p>Chants "We the People" under a Don't Tread on Me flag while his manager, Zeb Colter, attacks immigrants. The target is Alberto Del Rio, a Mexican champion. WWE said the story was built to make Del Rio a hero for Latino fans, about 20 percent of its audience.</p></div>
+            <div data-panel="1"><span class="role role--face">FACE</span><p>Swagger and Colter wave the same American flag against Rusev, the Russian, and the arena cheers them for the first time.</p><div class="why"><span class="label">What changed</span><p>Only the opponent.</p></div></div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="vids">
+      <figure class="vid reveal">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=oDyKMcyh7OE" data-yt="oDyKMcyh7OE" data-title="Hulk Hogan and Sgt. Slaughter watch their WrestleMania VII main event">
+          <img src="https://i.ytimg.com/vi/oDyKMcyh7OE/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">WWE Playback · 6:25</span><span class="vid__play"></span>
+          <span class="sr">Play Hulk Hogan and Sgt. Slaughter watch their WrestleMania VII main event, 6 minutes 25 seconds</span>
+        </a>
+        <figcaption><strong>Hogan and Slaughter rewatch WrestleMania VII</strong>WWE. Two men decades later, talking about the war story they sold in 1991.</figcaption>
+      </figure>
+      <figure class="vid reveal">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=50LhVy4VUuk" data-yt="50LhVy4VUuk" data-title="A tribute to the life and career of Nikolai Volkoff">
+          <img src="https://i.ytimg.com/vi/50LhVy4VUuk/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">Tribute · 2:36</span><span class="vid__play"></span>
+          <span class="sr">Play a tribute to the life and career of Nikolai Volkoff, 2 minutes 36 seconds</span>
+        </a>
+        <figcaption><strong>The life and career of Nikolai Volkoff</strong>WWE, 2018. Watch for the anthem.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<hr class="ropes" aria-hidden="true">
+
+<!-- 4 THE CARD -->
+<section class="ch" id="card" aria-labelledby="h-card">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">04</span>
+      <div><span class="label">Tonight's card · claim one</span><h2 id="h-card">Fifteen Heels, One Each</h2></div>
+    </div>
+    <p class="lead">Filter the card by what each villain stood for. Open a bout to see your starter question. Then flip the switch and compare who the poster said the wrestler was with who he really was.</p>
+
+    <div class="controls">
+      <div class="chips" role="group" aria-label="Filter the heels by fear">
+        <button class="chip" type="button" aria-pressed="true" data-cat="all">All<b>15</b></button>
+        <button class="chip" type="button" aria-pressed="false" data-cat="soviet">Soviet Union and Russia<b>3</b></button>
+        <button class="chip" type="button" aria-pressed="false" data-cat="mideast">The Middle East<b>4</b></button>
+        <button class="chip" type="button" aria-pressed="false" data-cat="rivals">Old enemies and rivals<b>4</b></button>
+        <button class="chip" type="button" aria-pressed="false" data-cat="africa">Africa<b>1</b></button>
+        <button class="chip" type="button" aria-pressed="false" data-cat="home">Enemies at home<b>3</b></button>
+      </div>
+      <div class="toggle" role="group" aria-label="Show the billing or the real record">
+        <button type="button" aria-pressed="true" data-view="kayfabe">The poster</button>
+        <button type="button" aria-pressed="false" data-view="record">The record</button>
+      </div>
+    </div>
+    <p class="sr" aria-live="polite" id="cardStatus">Showing all 15 heels.</p>
+
+    <div class="cardgrid">
+      <ol class="bouts">
+        <li class="bout" data-cat="home"><details><summary><span class="bout__n">01</span><span><span class="bout__name">Gorgeous George</span><span class="bout__yrs">1947 to 1955</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>The Human Orchid, a pampered glamour boy</dd></div><div class="r-only"><dt>Record</dt><dd>George Wagner, born 1915 in Nebraska, raised in Houston</dd></div></dl>
+          <p class="bout__q">Why would curled platinum hair and a valet spraying perfume make crowds of working men furious?</p>
+          <a class="bout__vid" href="#v-george">Watch: 1948 newsreel</a></div></details></li>
+        <li class="bout" data-cat="rivals"><details><summary><span class="bout__n">02</span><span><span class="bout__name">Hans Schmidt</span><span class="bout__yrs">1950s</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>A German from Munich</dd></div><div class="r-only"><dt>Record</dt><dd>Guy Larose of Joliette, Quebec, renamed in 1951</dd></div></dl>
+          <p class="bout__q">Why could a German villain still sell out arenas years after World War II ended?</p></div></details></li>
+        <li class="bout" data-cat="mideast"><details><summary><span class="bout__n">03</span><span><span class="bout__name">The Sheik</span><span class="bout__yrs">1960s to 1970s</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>A wild Syrian aristocrat with a prayer rug</dd></div><div class="r-only"><dt>Record</dt><dd>Edward Farhat of Lansing, Michigan, son of Lebanese immigrants</dd></div></dl>
+          <p class="bout__q">How did one of wrestling's most hated "foreigners" end up running Detroit wrestling at Cobo Hall?</p></div></details></li>
+        <li class="bout" data-cat="soviet"><details><summary><span class="bout__n">04</span><span><span class="bout__name">Ivan Koloff</span><span class="bout__yrs">1971</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>The Russian Bear, from the Soviet Union</dd></div><div class="r-only"><dt>Record</dt><dd>Oreal Perras, a French Canadian</dd></div></dl>
+          <p class="bout__q">Why did Madison Square Garden go silent when Koloff ended Bruno Sammartino's reign of nearly eight years in 1971?</p></div></details></li>
+        <li class="bout" data-cat="mideast"><details><summary><span class="bout__n">05</span><span><span class="bout__name">The Iron Sheik</span><span class="bout__yrs">1979 to 1984</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>Tehran, Iran</dd></div><div class="r-only"><dt>Record</dt><dd>Hossein Khosrow Vaziri, really from Iran</dd></div></dl>
+          <p class="bout__q">How did the hostage crisis turn an existing character into the perfect villain for Hulk Hogan to beat?</p>
+          <a class="bout__vid" href="#headlines">Watch: the 1984 match</a></div></details></li>
+        <li class="bout" data-cat="africa"><details><summary><span class="bout__n">06</span><span><span class="bout__name">Kamala</span><span class="bout__yrs">1980s</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>The Ugandan Giant, a bodyguard of Idi Amin</dd></div><div class="r-only"><dt>Record</dt><dd>James Harris of Senatobia, Mississippi, a sharecropper's son</dd></div></dl>
+          <p class="bout__q">Who built this character, and what did announcers say about him that would never air today?</p></div></details></li>
+        <li class="bout" data-cat="soviet"><details><summary><span class="bout__n">07</span><span><span class="bout__name">Nikolai Volkoff</span><span class="bout__yrs">1984 to 1987</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>Moscow, Soviet Union</dd></div><div class="r-only"><dt>Record</dt><dd>Josip Peruzović, a Croatian who escaped communist Yugoslavia</dd></div></dl>
+          <p class="bout__q">Why would singing the Soviet anthem make an arena full of Americans furious?</p>
+          <a class="bout__vid" href="#flip">Watch: the Volkoff tribute</a></div></details></li>
+        <li class="bout" data-cat="home"><details><summary><span class="bout__n">08</span><span><span class="bout__name">Ted DiBiase</span><span class="bout__yrs">1987 to 1990</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>The Million Dollar Man, from Palm Beach</dd></div><div class="r-only"><dt>Record</dt><dd>An American, which is the point: the threat is greed at home</dd></div></dl>
+          <p class="bout__q">Why did fans hate a man whose whole gimmick was that everybody has a price?</p>
+          <a class="bout__vid" href="#v-dibiase">Watch: the public pool</a></div></details></li>
+        <li class="bout" data-cat="mideast"><details><summary><span class="bout__n">09</span><span><span class="bout__name">Sgt. Slaughter</span><span class="bout__yrs">1990 to 1991</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>An American Marine turned Iraqi sympathizer</dd></div><div class="r-only"><dt>Record</dt><dd>Robert Remus of Detroit</dd></div></dl>
+          <p class="bout__q">Why did the WWF turn a beloved patriot into a traitor while a real war was being fought?</p>
+          <a class="bout__vid" href="#flip">Watch: WrestleMania VII, looking back</a></div></details></li>
+        <li class="bout" data-cat="rivals"><details><summary><span class="bout__n">10</span><span><span class="bout__name">Yokozuna</span><span class="bout__yrs">1993</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>A Japanese sumo champion, managed by Mr. Fuji</dd></div><div class="r-only"><dt>Record</dt><dd>Rodney Anoa'i, a Samoan American</dd></div></dl>
+          <p class="bout__q">Why stage a body slam challenge against a "Japanese" champion on an aircraft carrier on July 4?</p>
+          <a class="bout__vid" href="#v-yokozuna">Watch: the body slam challenge</a></div></details></li>
+        <li class="bout" data-cat="rivals"><details><summary><span class="bout__n">11</span><span><span class="bout__name">Bret "Hitman" Hart</span><span class="bout__yrs">1997</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>Calgary, Alberta</dd></div><div class="r-only"><dt>Record</dt><dd>Really from Calgary, from wrestling's Hart family</dd></div></dl>
+          <p class="bout__q">How could the same wrestler be booed in American arenas and cheered as a hero in Canada in the same summer?</p></div></details></li>
+        <li class="bout" data-cat="rivals"><details><summary><span class="bout__n">12</span><span><span class="bout__name">La Résistance</span><span class="bout__yrs">2003</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>Paris, France</dd></div><div class="r-only"><dt>Record</dt><dd>Sylvain Grenier and René Duprée, both Canadians</dd></div></dl>
+          <p class="bout__q">Why did WWE create French villains within weeks of the invasion of Iraq?</p>
+          <a class="bout__vid" href="#headlines">See: the 39 day gap</a></div></details></li>
+        <li class="bout" data-cat="mideast"><details><summary><span class="bout__n">13</span><span><span class="bout__name">Muhammad Hassan</span><span class="bout__yrs">2004 to 2005</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>An Arab American from Detroit</dd></div><div class="r-only"><dt>Record</dt><dd>Marc Copani, an Italian American from Syracuse, New York</dd></div></dl>
+          <p class="bout__q">Why did a character who started out complaining about anti Arab prejudice get pulled off television?</p></div></details></li>
+        <li class="bout" data-cat="home"><details><summary><span class="bout__n">14</span><span><span class="bout__name">The Real Americans</span><span class="bout__yrs">2013</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>"We the People," Jack Swagger and Zeb Colter</dd></div><div class="r-only"><dt>Record</dt><dd>Swagger is from Oklahoma. The villain here is the anger itself</dd></div></dl>
+          <p class="bout__q">What happens when the villain is the one waving the American flag?</p>
+          <a class="bout__vid" href="#flip">See: the switch</a></div></details></li>
+        <li class="bout" data-cat="soviet"><details><summary><span class="bout__n">15</span><span><span class="bout__name">Rusev and Lana</span><span class="bout__yrs">2014</span></span></summary><div class="bout__more">
+          <dl class="bout__from"><div class="k-only"><dt>Poster</dt><dd>Moscow, Russia, champions of Vladimir Putin</dd></div><div class="r-only"><dt>Record</dt><dd>Miroslav Barnyashev of Bulgaria and Catherine Perry, an American</dd></div></dl>
+          <p class="bout__q">Why did WWE bring back the Russian villain more than twenty years after the Cold War ended?</p>
+          <a class="bout__vid" href="#v-rusev">Watch: "America's failures"</a></div></details></li>
+      </ol>
+
+      <aside class="tally" aria-labelledby="h-tally">
+        <span class="label">The tally</span>
+        <h3 id="h-tally">What the card was afraid of</h3>
+        <ul class="bars">
+          <li data-cat="mideast"><span>The Middle East <b>4</b></span><i style="--w:100%"></i></li>
+          <li data-cat="rivals"><span>Old enemies and rivals <b>4</b></span><i style="--w:100%"></i></li>
+          <li data-cat="soviet"><span>Soviet Union and Russia <b>3</b></span><i style="--w:75%"></i></li>
+          <li data-cat="home"><span>Enemies at home <b>3</b></span><i style="--w:75%"></i></li>
+          <li data-cat="africa"><span>Africa <b>1</b></span><i style="--w:25%"></i></li>
+        </ul>
+        <span class="label label--steel">Who was under the costume</span>
+        <div class="stat">9 of 11</div>
+        <div class="dots" role="img" aria-label="Eleven heels were sold as outsiders. Nine of them were played by men from somewhere else."><i class="fake"></i><i class="fake"></i><i class="fake"></i><i class="fake"></i><i class="fake"></i><i class="fake"></i><i class="fake"></i><i class="fake"></i><i class="fake"></i><i></i><i></i></div>
+        <p style="font-size:1rem;margin:0">Of the 11 heels sold to crowds as outsiders, 9 were played by men from somewhere else. Only the Iron Sheik and Bret Hart were from the place on the poster.</p>
+      </aside>
+    </div>
+
+    <div class="vids">
+      <figure class="vid reveal" id="v-george">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=PfXjhXAa29o" data-yt="PfXjhXAa29o" data-title="Gorgeous George Wrestler (1948), British Pathé">
+          <img src="https://i.ytimg.com/vi/PfXjhXAa29o/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">Newsreel · 1:50</span><span class="vid__play"></span>
+          <span class="sr">Play Gorgeous George Wrestler, a 1948 British Pathé newsreel, 1 minute 50 seconds</span>
+        </a>
+        <figcaption><strong>Gorgeous George, 1948</strong>British Pathé newsreel. A primary source from the first years of televised wrestling.</figcaption>
+      </figure>
+      <figure class="vid reveal" id="v-dibiase">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=lgj3_Wis6HU" data-yt="lgj3_Wis6HU" data-title="Million Dollar Man Ted DiBiase pays for the public pool">
+          <img src="https://i.ytimg.com/vi/lgj3_Wis6HU/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">Vignette · 2:47</span><span class="vid__play"></span>
+          <span class="sr">Play Million Dollar Man Ted DiBiase pays for the public pool, 2 minutes 47 seconds</span>
+        </a>
+        <figcaption><strong>The Million Dollar Man buys the public pool</strong>WWE. A 1980s vignette about money and who gets to use public space.</figcaption>
+      </figure>
+      <figure class="vid reveal" id="v-yokozuna">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=_v-vSfCAF0Y" data-yt="_v-vSfCAF0Y" data-title="Yokozuna's Bodyslam Challenge, Raw, July 5, 1993">
+          <img src="https://i.ytimg.com/vi/_v-vSfCAF0Y/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">USS Intrepid · 5:45</span><span class="vid__play"></span>
+          <span class="sr">Play Yokozuna's Bodyslam Challenge, Raw, July 5, 1993, 5 minutes 45 seconds</span>
+        </a>
+        <figcaption><strong>The body slam challenge on the USS Intrepid, 1993</strong>WWE. Count the American flags.</figcaption>
+      </figure>
+      <figure class="vid reveal" id="v-rusev">
+        <a class="vid__frame" href="https://www.youtube.com/watch?v=noQWWt1lx-c" data-yt="noQWWt1lx-c" data-title="Rusev and Lana address America's failures, Raw, December 1, 2014">
+          <img src="https://i.ytimg.com/vi/noQWWt1lx-c/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="vid__tag">Raw, 2014 · 3:58</span><span class="vid__play"></span>
+          <span class="sr">Play Rusev and Lana address America's failures, Raw, December 1, 2014, 3 minutes 58 seconds</span>
+        </a>
+        <figcaption><strong>Rusev and Lana on "America's failures," 2014</strong>WWE. Notice what the crowd chants back.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 5 MISSION -->
+<section class="ch ch--paper" id="mission" aria-labelledby="h-mission">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">05</span>
+      <div><span class="label">Your mission</span><h2 id="h-mission">Pick One Heel. Investigate Two Stories.</h2></div>
+    </div>
+    <div class="stories">
+      <div class="story reveal"><span class="label">Story one</span><h3>The character</h3><p>What the promoters built: the ring name, the costume, the flag, the manager and the hometown printed on the poster. Find out where the wrestler was really from, too.</p></div>
+      <div class="story reveal"><span class="label">Story two</span><h3>The history</h3><p>What was happening in America that made fans want to see this character lose. Find the real event with its dates and what people were afraid of at the time.</p></div>
+    </div>
+    <p class="lead">Then teach the class in two to three minutes. Your presentation has to answer five questions. Tap the bar to see where the 100 points come from.</p>
+
+    <div class="points" role="group" aria-label="How the 100 points are divided">
+      <button class="p-who" type="button" aria-pressed="false" style="flex:10" data-pt="0" aria-label="Question 1, who was the heel, 10 points">10</button>
+      <button class="p-hist" type="button" aria-pressed="false" style="flex:15" data-pt="1" aria-label="Question 2, what was happening, 15 points">15</button>
+      <button class="p-hist" type="button" aria-pressed="false" style="flex:15" data-pt="2" aria-label="Question 3, how wrestling used it, 15 points">15</button>
+      <button class="p-hist" type="button" aria-pressed="false" style="flex:15" data-pt="3" aria-label="Question 4, why the crowd hated it, 15 points">15</button>
+      <button class="p-hist" type="button" aria-pressed="false" style="flex:15" data-pt="4" aria-label="Question 5, what it tells us, 15 points">15</button>
+      <button class="p-other" type="button" aria-pressed="false" style="flex:10" data-pt="5" aria-label="Sources, 10 points">10</button>
+      <button class="p-other" type="button" aria-pressed="false" style="flex:10" data-pt="6" aria-label="Research organizer, 10 points">10</button>
+      <button class="p-other" type="button" aria-pressed="false" style="flex:5" data-pt="7" aria-label="Visual evidence, 5 points">5</button>
+      <button class="p-other" type="button" aria-pressed="false" style="flex:5" data-pt="8" aria-label="Delivery, 5 points">5</button>
+    </div>
+    <p class="pointnote" id="pointNote" aria-live="polite"><b>60 of the 100 points</b> come from questions 2 through 5, the history behind your heel.</p>
+
+    <ol class="qs">
+      <li><details><summary><span class="n">1</span><span class="t">Who was the heel?</span><span class="pts">10 pts</span></summary><div class="body"><p>Ring name, real name, real hometown, and the years the character was on top. Describe the gimmick in two sentences.</p><p><b>Full credit:</b> all of that, stated clearly and correctly.</p></div></details></li>
+      <li><details><summary><span class="n">2</span><span class="t">What was happening in the world?</span><span class="pts">15 pts</span></summary><div class="body"><p>The real event or issue, with dates.</p><p><b>Full credit:</b> accurate dates and at least one hard fact, like a number or a name.</p></div></details></li>
+      <li><details><summary><span class="n">3</span><span class="t">How did wrestling use that history?</span><span class="pts">15 pts</span></summary><div class="body"><p>Entrances, anthems, flags, managers, costumes and rivalries.</p><p><b>Full credit:</b> at least two specific details from the character, such as a named match or a manager.</p></div></details></li>
+      <li><details><summary><span class="n">4</span><span class="t">Why did the crowd hate this character?</span><span class="pts">15 pts</span></summary><div class="body"><p>Connect the boos to what Americans believed or feared at that moment.</p><p><b>Full credit:</b> the reaction is tied directly to that time, not to wrestling in general.</p></div></details></li>
+      <li><details><summary><span class="n">5</span><span class="t">What does it tell us about America?</span><span class="pts">15 pts</span></summary><div class="body"><p>Name the stereotype or prejudice involved and decide whether the character was fair to the people it claimed to represent.</p><p><b>Full credit:</b> a clear position, backed by your evidence.</p></div></details></li>
+    </ol>
+    <p class="mute" style="margin-top:1rem;font-size:1rem">The other 30 points: 10 for two credible sources, 10 for your research organizer, 5 for one piece of visual evidence and 5 for your delivery.</p>
+  </div>
+</section>
+
+<!-- 6 PROVE -->
+<section class="ch" id="prove" aria-labelledby="h-prove">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">06</span>
+      <div><span class="label">The hardest part</span><h2 id="h-prove">Prove the Connection With Dates</h2></div>
+    </div>
+    <p class="lead">Do not assume an event created a character. Line up the dates and show what changed. Try it: put these four moments in order, earliest first.</p>
+
+    <div class="order">
+      <div>
+        <div class="pool" role="group" aria-label="Events to place in order">
+          <button class="ev" type="button" data-ev="2">The Iron Sheik takes the WWF title from Bob Backlund at Madison Square Garden.</button>
+          <button class="ev" type="button" data-ev="0">Militants seize the U.S. embassy in Tehran and take 52 Americans hostage.</button>
+          <button class="ev" type="button" data-ev="3">Hulk Hogan beats the Iron Sheik and becomes a national hero overnight.</button>
+          <button class="ev" type="button" data-ev="1">The hostages come home after 444 days.</button>
+        </div>
+        <div class="order__tools"><button class="btn" type="button" id="orderReset">Start over</button></div>
+      </div>
+      <div>
+        <ol class="slots" id="slots" aria-live="polite">
+          <li><span><span class="date">November 4, 1979</span>Militants seize the U.S. embassy in Tehran.</span></li>
+          <li><span><span class="date">January 20, 1981</span>The hostages come home after 444 days.</span></li>
+          <li><span><span class="date">December 26, 1983</span>The Iron Sheik becomes WWF champion.</span></li>
+          <li><span><span class="date">January 23, 1984</span>Hulk Hogan beats the Sheik.</span></li>
+        </ol>
+        <div class="verdict" id="verdict">The Iron Sheik was already wrestling as an Iranian villain before 1979. The crisis did not invent him. It turned him into the perfect opponent for a new American hero. Your presentation needs this kind of proof.</div>
+      </div>
+    </div>
+
+    <div class="two" style="margin-top:2.5rem">
+      <figure class="fig reveal"><img src="/storyhub/bts/americas-most-hated/assets/hostages-1979.webp" width="901" height="630" alt="American hostages seated at a long table for a holiday meal inside the embassy in Tehran, with a Christmas tree behind them" loading="lazy"><figcaption>American hostages at a holiday meal inside the embassy in Tehran, 1979. Library of Congress.</figcaption></figure>
+      <figure class="fig reveal"><img src="/storyhub/bts/americas-most-hated/assets/protest-1979.webp" width="1024" height="701" alt="Demonstrators march down a city street in 1979 carrying an American flag and a hand lettered sign that uses an ethnic slur and tells Iranians to go home" loading="lazy"><figcaption>A demonstration in Washington, D.C., during the hostage crisis, 1979. Library of Congress. The sign uses a slur aimed at people from the Middle East. That is the anger promoters would sell tickets to, and it is the kind of evidence question 5 asks you to name.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<hr class="ropes" aria-hidden="true">
+
+<!-- 7 RULES -->
+<section class="ch" id="rules" aria-labelledby="h-rules">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">07</span>
+      <div><span class="label">The rules of the ring</span><h2 id="h-rules">What You Turn In</h2></div>
+    </div>
+    <div class="reqs">
+      <div class="req reveal"><b>2</b><h3>Credible sources</h3><p>At least one from outside WWE. Newspaper obituaries, NPR stories, books and documentaries all count. Wikipedia is where you start looking, not one of the two.</p></div>
+      <div class="req reveal"><b>1</b><h3>Piece of visual evidence</h3><p>A historical photograph, or a wrestling clip no longer than 30 seconds.</p></div>
+      <div class="req reveal"><b>3</b><h3>Slides at most</h3><p>Your slides back up your talk. You do the teaching out loud.</p></div>
+      <div class="req reveal"><b>1</b><h3>Research organizer</h3><p>Every box filled in and handed in on presentation day.</p></div>
+    </div>
+
+    <div class="firm reveal">
+      <svg viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="40" fill="#9e1428"/><rect x="34" y="18" width="16" height="30" rx="8" fill="#f2e8d5"/><path d="M26 42a16 16 0 0 0 32 0" fill="none" stroke="#f2e8d5" stroke-width="4"/><rect x="40" y="58" width="4" height="10" fill="#f2e8d5"/><line x1="18" y1="18" x2="66" y2="66" stroke="#f2e8d5" stroke-width="6" stroke-linecap="round"/></svg>
+      <div><span class="label">One firm rule</span><h3>Do not repeat a slur or act out a hateful promo.</h3><p>You can describe what a wrestler said and explain why it worked on a crowd. Analyzing it is the job. A presentation that repeats a slur stops right there and loses the 15 points for question 5.</p></div>
+    </div>
+
+    <span class="label">The week ahead</span>
+    <ol class="week">
+      <li><b>Day 1</b>Watch Mr. McMahon, episode 1, with the viewing guide. Claim your heel before you leave.</li>
+      <li><b>Day 2</b>Research. Organizer through question 3. Find both sources.</li>
+      <li><b>Day 3</b>Finish the organizer and build your slides. Pick your visual evidence.</li>
+      <li class="show"><b>Day 4</b>Presentations begin, in timeline order. Fill in the class timeline as each heel goes.</li>
+      <li class="show"><b>Day 5</b>Last presentations, then the final question.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 8 BELL -->
+<section class="ch bell" id="bell" aria-labelledby="h-bell">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="ch__num" aria-hidden="true">08</span>
+      <div><span class="label">The final bell</span><h2 id="h-bell">The Question We End On</h2></div>
+    </div>
+    <div class="bell__grid">
+      <figure class="fig reveal"><img src="/storyhub/bts/americas-most-hated/assets/gg-crowd.webp" width="911" height="566" alt="Fans packed into seats at a 1949 wrestling match, watching the ring intently" loading="lazy"><figcaption>Fans at a Gorgeous George match, 1949. Library of Congress. Every heel on the card needed a crowd like this to work.</figcaption></figure>
+      <div>
+        <p class="bell__q">Were these wrestlers actually villains, or did wrestling companies teach audiences who the villains were supposed to be?</p>
+        <p class="lead">You will answer with evidence from the whole class timeline. Volkoff, Slaughter and Swagger already gave you a head start.</p>
+      </div>
+    </div>
+    <div class="next reveal">
+      <div><span class="label">See a finished example</span><h3>Fritz Von Erich: The Nazi Villain From Texas</h3><p>A complete model presentation on a heel who is not on the card, with every rubric point marked.</p></div>
+      <a class="btn" href="/hubs/bts-americas-most-hated-exemplar.html">Open the exemplar</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="sources" aria-labelledby="h-sources">
+  <div class="wrap">
+    <span class="label">Sources and credits</span>
+    <h2 id="h-sources">Where This Came From</h2>
+    <h3>Facts and reporting</h3>
+    <ul>
+      <li><i>Mr. McMahon</i>, episode 1, "Junior," Netflix, 2024. Episode notes: <a href="https://www.blogofdoom.com/2024/09/26/mr-mcmahon-episode-one-junior/">Blog of Doom recap</a> and <a href="https://postwrestling.com/?p=101744">PostWrestling preview</a>.</li>
+      <li><a href="https://www.npr.org/2018/08/05/635832620/remembering-nikolai-volkoff-wrestlings-soviet-villain">"Remembering Nikolai Volkoff, Wrestling's Soviet Villain,"</a> NPR, August 5, 2018, and <a href="https://slamwrestling.net/?p=40581">Slam Wrestling obituary</a>.</li>
+      <li><a href="https://www.mentalfloss.com/sports/hans-schmidt-nazi-wrestler-who-incited-riots">"Hans Schmidt, the Nazi Wrestler Who Incited Riots,"</a> Mental Floss.</li>
+      <li><a href="https://lansingcitypulse.com/the-rise-and-fall-of-lansing-wrestling-legend-the-sheik/">"The rise and fall of Lansing wrestling legend the Sheik,"</a> Lansing City Pulse.</li>
+      <li><a href="https://www.spokesman.com/stories/2020/aug/10/aw_200811_harrisobit/">Associated Press obituary of James "Kamala" Harris</a>, August 2020.</li>
+      <li><a href="https://www.sescoops.com/news/wwe/wrestlemania-7-location-change-reason/">WrestleMania VII venue change</a>, SEScoops, on WWE's 2024 admission about ticket sales.</li>
+      <li><a href="https://en.wikipedia.org/wiki/La_R%C3%A9sistance_(professional_wrestling)">La Résistance</a> and <a href="https://en.wikipedia.org/wiki/WrestleMania_VII">WrestleMania VII</a> overview pages, used for dates.</li>
+      <li><a href="https://fightful.com/wrestling/muhammad-hassan-looks-back-undertaker-segment-after-london-bombings">Muhammad Hassan on the 2005 segment</a>, Fightful.</li>
+      <li><a href="https://www.eastidahonews.com/?p=61056">WWE's statement on the Swagger and Del Rio storyline</a>, ABC News Radio, 2013.</li>
+      <li><a href="https://www.thedailybeast.com/articles/2014/05/14/putin-vs-obama-in-spandex-wrestling-s-new-cold-war">"Putin vs. Obama in Spandex,"</a> The Daily Beast, May 14, 2014.</li>
+    </ul>
+    <h3>Photographs</h3>
+    <ul>
+      <li>Gorgeous George in the ring, ringside fans, and match photographs, 1949; protest in Washington and hostages in Tehran, 1979: <a href="https://www.loc.gov/photos/?q=gorgeous+george">Library of Congress Prints and Photographs Division</a>, no known restrictions on publication.</li>
+      <li>Sgt. Slaughter, 1984, and the Iron Sheik with Nikolai Volkoff, 1986: <a href="https://commons.wikimedia.org/wiki/File:Sgt._Slaughter_1984.png">Wikimedia Commons</a>, public domain wrestling program scans.</li>
+    </ul>
+    <h3>Video</h3>
+    <ul>
+      <li>Videos play from YouTube only when you press play. Channels: Netflix, US National Archives, WWE, British Pathé.</li>
+    </ul>
+    <div class="foot"><a href="/beyond-the-scoreboard/">back to beyond the scoreboard</a><a href="/storyhubs/">all storyhubs</a></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var body=document.body; body.classList.remove('no-js'); body.classList.add('show-kayfabe');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* video facades: load YouTube only on press */
+  document.querySelectorAll('[data-yt]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      var f=document.createElement('iframe');
+      f.src='https://www.youtube-nocookie.com/embed/'+a.dataset.yt+'?autoplay=1&rel=0&modestbranding=1';
+      f.title=a.dataset.title||'Video';
+      f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      f.allowFullscreen=true;
+      var box=document.createElement('div'); box.className='vid__frame'; box.appendChild(f);
+      a.replaceWith(box); f.focus();
+    });
+  });
+
+  /* generic pressed-group helper */
+  function group(sel,onPick){
+    var btns=[].slice.call(document.querySelectorAll(sel));
+    btns.forEach(function(b){ b.addEventListener('click',function(){
+      btns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')}); onPick(b);
+    });});
+    return btns;
+  }
+
+  /* headlines */
+  var answers=[].slice.call(document.querySelectorAll('[data-answer]'));
+  var gaps=[].slice.call(document.querySelectorAll('[data-gap]'));
+  function showHead(i){
+    answers.forEach(function(a){a.hidden=a.dataset.answer!==String(i)});
+    gaps.forEach(function(g){g.classList.toggle('is-on',g.dataset.gap===String(i))});
+  }
+  group('.head',function(b){showHead(b.dataset.head)}); showHead(0);
+
+  /* flip */
+  var stages=[].slice.call(document.querySelectorAll('[data-flip]'));
+  stages.forEach(function(st){
+    var panels=[].slice.call(st.querySelectorAll('[data-panel]'));
+    var states=[].slice.call(st.querySelectorAll('.state'));
+    function show(i){panels.forEach(function(p){p.hidden=p.dataset.panel!==String(i)})}
+    states.forEach(function(s){s.addEventListener('click',function(){
+      states.forEach(function(x){x.setAttribute('aria-pressed',x===s?'true':'false')}); show(s.dataset.state);
+    })});
+    show(0);
+  });
+  function showWho(w){stages.forEach(function(s){s.hidden=s.dataset.flip!==w})}
+  group('.pick',function(b){showWho(b.dataset.who)}); showWho('slaughter');
+
+  /* card filter + tally */
+  var bouts=[].slice.call(document.querySelectorAll('.bout'));
+  var bars=[].slice.call(document.querySelectorAll('.bars li'));
+  var status=document.getElementById('cardStatus');
+  group('.chip',function(b){
+    var c=b.dataset.cat, n=0;
+    bouts.forEach(function(x){var on=c==='all'||x.dataset.cat===c; x.hidden=!on; if(on)n++});
+    bars.forEach(function(x){x.classList.toggle('is-on',x.dataset.cat===c)});
+    status.textContent='Showing '+n+(n===1?' heel':' heels')+': '+b.firstChild.textContent+'.';
+  });
+  group('.toggle button',function(b){
+    var rec=b.dataset.view==='record';
+    body.classList.toggle('show-record',rec); body.classList.toggle('show-kayfabe',!rec);
+  });
+
+  /* points bar */
+  var notes=[
+    '<b>Question 1, 10 points.</b> Who was the heel: ring name, real name, real hometown and years.',
+    '<b>Question 2, 15 points.</b> What was happening in the world, with dates and a hard fact.',
+    '<b>Question 3, 15 points.</b> How wrestling used that history, with at least two specific details.',
+    '<b>Question 4, 15 points.</b> Why the crowd hated the character at that moment.',
+    '<b>Question 5, 15 points.</b> What it tells us about America, with a clear position on fairness.',
+    '<b>Sources, 10 points.</b> Two credible sources, at least one from outside WWE.',
+    '<b>Research organizer, 10 points.</b> Every section completed and handed in.',
+    '<b>Visual evidence, 5 points.</b> A historical photo or a clip of 30 seconds or less.',
+    '<b>Delivery, 5 points.</b> Two to three minutes, talking to the class instead of reading slides.'
+  ];
+  var note=document.getElementById('pointNote');
+  group('.points button',function(b){note.innerHTML=notes[+b.dataset.pt]});
+
+  /* order game */
+  var labels=['Militants seize the U.S. embassy in Tehran.','The hostages come home after 444 days.','The Iron Sheik becomes WWF champion.','Hulk Hogan beats the Sheik.'];
+  var dates=['November 4, 1979','January 20, 1981','December 26, 1983','January 23, 1984'];
+  var evs=[].slice.call(document.querySelectorAll('.ev'));
+  var slots=[].slice.call(document.querySelectorAll('#slots li'));
+  var verdict=document.getElementById('verdict');
+  var picks=[];
+  function resetOrder(){
+    picks=[]; evs.forEach(function(e){e.disabled=false});
+    slots.forEach(function(s){s.className='';s.innerHTML='<span class="mute">Empty</span>'});
+    verdict.textContent='Choose the earliest event first.';
+  }
+  evs.forEach(function(e){e.addEventListener('click',function(){
+    if(e.disabled) return;
+    var i=picks.length; picks.push(+e.dataset.ev); e.disabled=true;
+    slots[i].className='filled';
+    slots[i].innerHTML='<span>'+e.textContent+'</span>';
+    if(picks.length===4){
+      var right=0;
+      picks.forEach(function(p,k){
+        var ok=p===k; if(ok) right++;
+        slots[k].className=ok?'right':'wrong';
+        slots[k].innerHTML='<span><span class="date">'+dates[p]+'</span>'+labels[p]+(ok?'':' <span class="mute">(belongs in spot '+(p+1)+')</span>')+'</span>';
+      });
+      verdict.textContent=(right===4?'All four in order. ':right+' of 4 in the right spot. ')+'The Iron Sheik was already wrestling as an Iranian villain before 1979. The crisis did not invent him. It turned him into the perfect opponent for a new American hero, more than two years after the hostages came home.';
+    } else { verdict.textContent='Now pick event number '+(picks.length+1)+'.'; }
+  })});
+  document.getElementById('orderReset').addEventListener('click',resetOrder);
+  resetOrder();
+
+  /* chapter rail + progress */
+  var links=[].slice.call(document.querySelectorAll('.rail a'));
+  var bar=document.querySelector('.progress');
+  function onScroll(){
+    var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1);
+    bar.style.width=(Math.min(1,Math.max(0,p))*100)+'%';
+    var cur=null;
+    links.forEach(function(a){var s=document.querySelector(a.getAttribute('href')); if(s&&s.getBoundingClientRect().top<140) cur=a});
+    links.forEach(function(a){a.setAttribute('aria-current',a===cur?'true':'false')});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  /* reveal on scroll */
+  var rev=[].slice.call(document.querySelectorAll('.reveal'));
+  if(reduce||!('IntersectionObserver' in window)){rev.forEach(function(r){r.classList.add('is-in')})}
+  else{
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
+    rev.forEach(function(r){io.observe(r)});
+  }
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ import { chromium } from 'playwright';
 // Render every furniture family: a mocked canvas cannot catch bad image sources.
 const root=resolve('public/hubs/dry-county'),out=resolve('browser-results/dry-county-art');
 await mkdir(out,{recursive:true});
-const instrument=s=>s.replace(/\}\)\(\);\s*$/,`window.__artTest={player,places,enterBusiness,leaveBusiness,draw,closePanel,weather,set elapsed(v){elapsed=v},set heat(v){heat=v},set toastTimer(v){toastTimer=v},get interior(){return interior}};})();`);
+const instrument=s=>s.replace(/\}\)\(\);\s*$/,`window.__artTest={get town(){return town},player,places,enterBusiness,leaveBusiness,draw,closePanel,weather,set elapsed(v){elapsed=v},set heat(v){heat=v},set toastTimer(v){toastTimer=v},get interior(){return interior}};})();`);
 const server=createServer(async(req,res)=>{try{const p=decodeURIComponent((req.url||'/').split('?')[0]);if(p.includes('..'))throw Error('Invalid path');const file=p==='/'?'index.html':p.slice(1);let bytes=await readFile(join(root,file));if(file==='game.js')bytes=Buffer.from(instrument(bytes.toString()));res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.webp')?'image/webp':'text/html');res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true}),errors=[];
@@ -26,10 +26,10 @@ try{
   await page.screenshot({path:join(out,`street-${size.width}.png`)});
   if(size.width===1440){
    for(const id of ['grocer','diner','pharmacy','tailor','pawn','barber','dealer','hardware','furniture','garage','still','safe','docks','velvet']){
-    await page.evaluate(id=>{const t=window.__artTest;if(t.interior)t.leaveBusiness(true);t.player.car=null;t.heat=0;const p=t.places.find(p=>p.id===id);t.player.x=p.x;t.player.y=p.y;t.enterBusiness(p,!!p.hidden);t.toastTimer=0;document.querySelector('#toast').classList.remove('show');t.draw()},id);
+    await page.evaluate(id=>{const t=window.__artTest;t.town.state.minute=600;if(t.interior)t.leaveBusiness(true);t.player.car=null;t.heat=0;const p=t.places.find(p=>p.id===id);t.player.x=p.x;t.player.y=p.y;t.enterBusiness(p,!!p.hidden);t.toastTimer=0;document.querySelector('#toast').classList.remove('show');t.draw()},id);
     await page.waitForTimeout(100);assert.equal(await page.locator('#mission').isVisible(),false);await page.screenshot({path:join(out,`room-${id}.png`)});
    }
-   await page.evaluate(()=>{const t=window.__artTest;t.leaveBusiness(true);t.elapsed=11*60*5;t.weather.rain=0;t.draw()});await page.screenshot({path:join(out,'daylight.png')});
+   await page.evaluate(()=>{const t=window.__artTest;t.leaveBusiness(true);t.town.state.minute=660;t.weather.rain=0;t.draw()});await page.screenshot({path:join(out,'daylight.png')});
   }
   await context.close();
  }
