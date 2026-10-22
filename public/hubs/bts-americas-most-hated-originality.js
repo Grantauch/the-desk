@@ -23,15 +23,16 @@
 
     var STORE = 'bts-heels:originality-session:v1';
     var MAX_PASTE_WORDS = 12;
-    var sourceFields = new Set(['lab-source-one', 'lab-source-two',
-      'lab-source-one-claim', 'lab-source-two-claim', 'lab-independent', 'lab-visual']);
-    var ignored = new Set(['lab-process-report', 'lab-paste-reason', 'lab-defense-answer']);
+    var sourceFields = new Set(['lab-source-one', 'lab-source-two']);
+    var ignored = new Set(['lab-process-report', 'lab-paste-reason']);
     var activeInput = {
       'lab-identity': true, 'lab-character-clue': true, 'lab-history': true,
       'lab-timeline-meaning': true, 'lab-wrestling': true, 'lab-audience': true,
       'lab-america': true, 'lab-talk': true, 'lab-slide-one': true,
       'lab-slide-two': true, 'lab-slide-three': true,
-      'lab-initial-hypothesis': true, 'lab-revised-hypothesis': true
+      'lab-initial-hypothesis': true, 'lab-revised-hypothesis': true,
+      'lab-source-one-claim': true, 'lab-source-two-claim': true,
+      'lab-independent': true, 'lab-visual': true, 'lab-defense-answer': true
     };
     var hypotheses = ['lab-initial-hypothesis', 'lab-revised-hypothesis'];
     var state;
@@ -81,13 +82,13 @@
       var chunks = [
         'WRITING PROCESS RECEIPT — NOT AN AI DETECTOR',
         'Scope: this browser tab/session only. Work restored from another device may not be represented.',
-        'Source and citation fields permit unrestricted paste; analysis fields limit ordinary paste to ' + MAX_PASTE_WORDS + ' words per action unless the student turns on an exception.',
+        'Citation fields permit unrestricted paste; analysis fields limit ordinary paste to ' + MAX_PASTE_WORDS + ' words per action unless the student turns on an exception.',
         'Analysis paste attempts: ' + state.pastes + ' | accepted: ' + state.allowed +
           ' | rejected (>12 words): ' + state.blocked + ' | exception imports: ' + state.imported,
         'Analysis words added by accepted paste: ' + state.pastedWords +
           ' | largest paste attempt: ' + state.maxPaste + ' words',
-        'Source/citation pastes: ' + state.sourcePastes +
-          ' | source/citation pasted words: ' + state.sourceWords,
+        'Citation pastes: ' + state.sourcePastes +
+          ' | citation pasted words: ' + state.sourceWords,
         'Printable keyboard presses: ' + state.characterKeyPresses +
           ' | deletion operations: ' + state.deletions +
           ' | other input insert events: ' + state.nonKeyboardInserts +
@@ -140,7 +141,7 @@
       if (sourceFields.has(el.id)) {
         state.sourcePastes += 1;
         state.sourceWords += size;
-        show('Citation/source paste counted. Sources are exempt so you can enter accurate titles and URLs. Do not paste a generated analysis.');
+        show('Citation paste counted. Bibliography entries are exempt for accurate titles, authors and URLs; explanations and analysis still follow the paste limit.');
       } else {
         state.pastes += 1;
         state.maxPaste = Math.max(state.maxPaste, size);
@@ -181,9 +182,13 @@
     }, true);
 
     var fieldLengths = {};
-    lab.querySelectorAll('textarea,input[type="text"]').forEach(function (el) {
-      if (eligible(el)) fieldLengths[el.id] = el.value.length;
-    });
+    function updateFieldLengths() {
+      lab.querySelectorAll('textarea,input[type="text"]').forEach(function (el) {
+        if (eligible(el)) fieldLengths[el.id] = el.value.length;
+      });
+    }
+    updateFieldLengths();
+    window.addEventListener('load', function () { setTimeout(updateFieldLengths, 250); }, { once: true });
     lab.addEventListener('input', function (event) {
       var el = event.target;
       if (!eligible(el) || !event.isTrusted) return;
