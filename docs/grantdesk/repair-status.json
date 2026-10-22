@@ -778,7 +778,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -1092,5 +1092,18 @@
       "The independent five-real-minute Chromium observation, final-head protected verification and player hardware field use remain separate pending evidence.",
       "Netlify production remains on 104cc8066bcdaf48a13dbc429fdb874f912fe403. No merge, promotion or production deployment performed."
     ]
+  },
+  "gemini-team-setup-2026-10-21": {
+    "field_status": "ACCOUNT_LOGIN_PENDING",
+    "verification_status": "FULL_GATE_PENDING",
+    "scope": "Owner-requested Gemini assistance and protected private API",
+    "evidence": [
+      "Owner-only explicit trigger; literal event parsing; no generated command execution or repository write permission.",
+      "Authenticated bounded Netlify endpoint; finite output, timeout, rate limit, and truthful upstream errors.",
+      "Shared public assistant brief and Gemini project entry point.",
+      "Focused regression suite passed."
+    ],
+    "status": "SOURCE_REPAIRED",
+    "deployment_status": "PROTECTED_REVIEW_PENDING"
   }
 }

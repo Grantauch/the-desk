@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-HEELEX",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Fritz Von Erich identity anchor",
+      "sourceMode": "archival-source-photo",
+      "subject": "Fritz Von Erich head and shoulders, 1973 wrestling program",
+      "namedPeople": [
+        "Fritz Von Erich"
+      ],
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fritz_Von_Erich_-_The_Rassler_-_25_June_1973.jpg",
+      "rightsStatus": "public-domain-wikimedia-commons",
+      "provenance": "Wikimedia Commons scan of The Rassler, June 25, 1973. Grayscale, shown small because the scan is soft.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/fritz-1973.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Gimmick evidence on slide 1",
+      "sourceMode": "archival-source-photo",
+      "subject": "Fritz Von Erich applying the Iron Claw, 1977 program",
+      "namedPeople": [
+        "Fritz Von Erich"
+      ],
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fritz_Von_Erich_applying_his_Claw_-_Big_Time_Wrestling_-_21_Juin_1977_(cropped).jpg",
+      "rightsStatus": "public-domain-wikimedia-commons",
+      "provenance": "Wikimedia Commons scan of a June 1977 Big Time Wrestling program. Cropped to 4:5 in CSS.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/fritz-claw-1977.webp"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "The twist on slide 3",
+      "sourceMode": "archival-source-photo",
+      "subject": "Fritz Von Erich with four of his sons, 1980s program",
+      "namedPeople": [
+        "Fritz Von Erich"
+      ],
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Von_Erich_family.png",
+      "rightsStatus": "public-domain-wikimedia-commons",
+      "provenance": "Wikimedia Commons program scan, shown as a full width strip.",
+      "htmlSafeZone": "Caption and text sit outside the image.",
+      "responsiveCrop": "Full image shown; stacks above text on phone.",
+      "deployPath": "/storyhub/bts/americas-most-hated/assets/von-erichs.webp"
+    }
+  ]
+}
