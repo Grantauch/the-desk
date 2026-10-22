@@ -107,8 +107,10 @@
       return chunks.join('\n');
     }
     function render() {
-      currentReport = reportText();
-      if (report.value !== currentReport) {
+      var hasActivity = Boolean(state.firstWorkAt || state.exceptionsUsed ||
+        Object.keys(state.stamped).length || state.priorReport);
+      currentReport = hasActivity ? reportText() : '';
+      if (hasActivity && report.value !== currentReport) {
         report.value = currentReport;
         /* desk-save records the receipt as part of the student's work. */
         report.dispatchEvent(new Event('input', { bubbles: true }));
