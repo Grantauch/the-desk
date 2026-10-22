@@ -16,7 +16,7 @@
     "release:test": "node scripts/test-release-lane.mjs",
     "hall-pass:test": "node scripts/test-hall-pass-app.cjs",
     "tools:test": "node scripts/test-classroom-tools.mjs",
-    "browser:test": "node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run jeopardy:test && npm run companion:browser",
+    "browser:test": "node scripts/test-heel-originality-browser.mjs && node scripts/test-browser-ui.mjs && node scripts/test-browser-extended.mjs && node scripts/test-the-league-browser.mjs && npm run turn-in:browser && npm run jeopardy:test && npm run companion:browser",
     "jeopardy:test": "node scripts/test-progressive-jeopardy.mjs",
     "league:test": "node scripts/test-the-league.mjs",
     "square-deal:test": "node scripts/test-square-deal.cjs",
