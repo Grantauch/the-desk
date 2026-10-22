@@ -40,6 +40,7 @@ const GD_CLEANUP_TRIGGER_ID_PROPERTY = 'DAILY_CLEANUP_TRIGGER_ID';
 const GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY = 'BACKGROUND_TRIGGER_AUDIT_AT';
 const GD_BACKGROUND_TRIGGER_AUDIT_MS = 60 * 60 * 1000;
 const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
+const GD_CHECKLING_PREFIX = 'checkling-v1:';
 const GD_LATE_REVIEW_PREFIX = 'late-review:';
 const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
 const GD_CHECKIN_FLUSH_ERROR_PROPERTY = 'CHECKIN_FLUSH_LAST_ERROR';
@@ -1268,7 +1269,49 @@ function getCheckInState_(student,pinToken,method) {
     pinToken:pinToken||'',method,dateKey:todayKey,pointValue:numberSetting_(settings,'CHECKIN_POINT_VALUE',1),checkedIn:Boolean(checkIn),
     lateCheckIn:Boolean(checkIn&&checkInStatusIsLate_(checkIn.status)),lateReviewStatus:checkIn&&checkInStatusIsLate_(checkIn.status)?checkIn.status:'',
     attendanceLocked:Boolean(absence&&!checkIn&&!sessionEligibility.late),priorAbsence:Boolean(absence&&!checkIn),sessionEligibility,
-    checkIn:checkIn?clientCheckIn_(checkIn):null,streak:streakFromCheckInSummary_(summary,todayKey),serverNow:new Date().toISOString()};
+    checkIn:checkIn?clientCheckIn_(checkIn):null,streak:streakFromCheckInSummary_(summary,todayKey),
+    checkling:getChecklingState_(student,summary,checkIn,todayKey),serverNow:new Date().toISOString()};
+}
+
+/** Optional companion preferences only. Attendance remains the sole authority
+ * for points, dates and streaks; the pet never writes an attendance event.
+ * No new workbook columns or migration, no browser-local student profile.
+ */
+function getChecklingState_(student, summary, checkIn, todayKey) {
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(GD_CHECKLING_PREFIX + student.key);
+    let saved = null;
+    try { saved = raw ? JSON.parse(raw) : null; } catch (error) { /* allow the student to choose again */ }
+    const species = ['mochi', 'bolt', 'zee', 'ember'];
+    const pet = saved && saved.v === 1 && species.includes(saved.species) && typeof saved.name === 'string'
+      ? {species: saved.species, name: saved.name.slice(0, 18)} : null;
+    const streak = streakFromCheckInSummary_(summary, todayKey);
+    const stages = [
+      {label:'Hatchling', min:0, scale:0.82}, {label:'Sprout', min:3, scale:0.92},
+      {label:'Buddy', min:7, scale:1}, {label:'Ace', min:14, scale:1.08},
+      {label:'Legend', min:30, scale:1.16},
+    ];
+    const best = Math.max(0, Number(streak.best) || 0);
+    const stage = stages.filter((entry) => best >= entry.min).pop();
+    const next = stages.find((entry) => entry.min > best);
+    return {available:true, pet, stage:stage.label, scale:stage.scale, bestStreak:best,
+      nextMilestone:next ? next.min : null, visitedToday:Boolean(checkIn),
+      countedToday:Boolean(streak.checkedInToday), protectedDay:Boolean(streak.nonSchoolDayProtected)};
+  } catch (error) {
+    // A damaged preference or a property outage must never hide a recorded check-in.
+    return {available:false};
+  }
+}
+
+function saveCheckling(pinToken, species, petName) {
+  const resolved = resolveStudent_(pinToken, true);
+  if (!['mochi', 'bolt', 'zee', 'ember'].includes(species)) throw new Error('Choose one of the four Checklings.');
+  if (typeof petName !== 'string') throw new Error('Give your Checkling a name.');
+  const name = petName.replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 18);
+  if (!name) throw new Error('Give your Checkling a name.');
+  PropertiesService.getScriptProperties().setProperty(GD_CHECKLING_PREFIX + resolved.student.key,
+    JSON.stringify({v:1, species, name}));
+  return getCheckInState_(resolved.student, pinToken || '', resolved.method);
 }
 
 function checkInLogicalKey_(checkIn) {

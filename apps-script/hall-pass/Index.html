@@ -346,6 +346,32 @@
         .attention-banner { align-items:flex-start; }
       }
       @media (max-width:380px) { .field-grid { grid-template-columns:1fr; } .brandbar small { display:none; } }
+
+      .ck-pocket { display:grid; grid-template-columns:minmax(160px, .8fr) minmax(0, 1.2fr); gap:24px; padding:22px; border-radius:26px; background:#f3ecdf; color:#1c1915; border:1px solid #d5c8b2; }
+      .ck-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; border-radius:18px; background:#10241c; color:#c6ef73; text-align:center; }
+      .ck-screen picture { display:block; height:150px; }
+      .ck-screen img { object-fit:contain; }
+      .ck-screen h3 { font-size:25px; margin:6px 0; }
+      .ck-screen p { font-size:13px; line-height:1.6; margin:0; }
+      .ck-screen .ck-label { color:#c6ef73; font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+      .ck-controls { min-width:0; display:grid; gap:12px; align-content:center; }
+      .ck-controls p { margin:0; font-size:13px; line-height:1.6; }
+      .ck-controls summary { cursor:pointer; font-size:14px; font-weight:700; padding:10px 0; }
+      .ck-controls form { display:grid; gap:12px; }
+      .ck-friends { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding:8px 0; border:0; margin:0; min-width:0; }
+      .ck-friends legend { font-size:12px; }
+      .ck-friends label { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:6px 0; border-radius:12px; background:#e6dcc8; font-size:12px; }
+      .ck-friends input { width:18px; height:18px; accent-color:#08765a; }
+      .ck-friends img { max-width:100%; height:56px; object-fit:contain; }
+      .ck-friends small { font-size:10px; }
+      .ck-name { display:grid; gap:6px; font-size:13px; }
+      .ck-name input { width:100%; min-height:44px; border:1px solid #8b8172; border-radius:10px; padding:8px 12px; background:#fffaf2; color:#1c1915; }
+      .ck-controls .secondary { min-height:44px; background:#fffaf2; color:#1c1915; border-color:#8b8172; }
+      .ck-controls .ck-note { font-size:11px; }
+      .ck-berries { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+      .ck-berries button { width:44px; height:44px; border-radius:50%; border:1px solid #075f49; background:#10241c; color:#c6ef73; font-size:22px; }
+      .ck-berries button:disabled { opacity:.6; }
+      @media(max-width:600px) { .ck-pocket { grid-template-columns:1fr; gap:16px; padding:14px; } }
     </style>
   </head>
   <body data-site-brand="<?= siteBrand ?>">
@@ -1121,6 +1147,7 @@
                   ? '<button class="secondary" id="checkin-next">different student</button>'
                   : '<button class="secondary" id="checkin-pin">use a PIN instead</button>'}
               </div>`}
+            <div id="checkling-slot"></div>
           </div>`;
 
         const actionButton = document.querySelector('#checkin-action');
@@ -1142,7 +1169,101 @@
 
         const pinButton = document.querySelector('#checkin-pin');
         if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in all your classes.'));
+        renderCheckling();
         armIdleReset();
+      };
+
+      /* Checkling is a companion to the signed-in student's official record.
+         Nuzzles and snack taps are cosmetic; only the existing PIN action
+         records attendance or awards points. No student data leaves this app. */
+      const renderCheckling = () => {
+        const slot = document.querySelector('#checkling-slot');
+        if (!slot) return;
+        const companion = state.checkling;
+        if (!companion || !companion.available) {
+          slot.innerHTML = '<p class="message">Your Checkling is taking a break. Your attendance confirmation above still counts.</p>';
+          return;
+        }
+        const friends = [
+          {id:'mochi', name:'Mochi', kind:'monster'}, {id:'bolt', name:'Bolt', kind:'robot'},
+          {id:'zee', name:'Zee', kind:'alien'}, {id:'ember', name:'Ember', kind:'dragon'},
+        ];
+        const pet = companion.pet;
+        const friend = friends.find((entry) => pet && entry.id === pet.species) || friends[0];
+        const images = 'https://grant-desk.com/hubs/checkling/pets/';
+        const species = pet ? friend.id : 'egg';
+        const message = companion.visitedToday
+          ? companion.countedToday ? 'You showed up. I noticed. Today is recorded.' : 'Glad you made it. Your sign-in is recorded; the point follows your teacher’s review.'
+          : companion.protectedDay ? 'Day off. I’m resting too. Your school-day streak is protected.'
+          : 'Your seat is saved. Use the check-in above when your class opens.';
+        slot.innerHTML = `
+          <section class="ck-pocket" aria-labelledby="ck-title">
+            <div class="ck-screen">
+              <p class="ck-label">checkling · ${escapeHtml(companion.stage)}</p>
+              <picture>
+                <source media="(prefers-reduced-motion: reduce)" srcset="${images}${species}/idle-1.png">
+                <img src="${images}${species}/animation.gif" alt="${pet ? escapeHtml(pet.name) : 'A Checkling egg'}" width="144" height="144" referrerpolicy="no-referrer" style="transform:scale(${Number(companion.scale) || 0.82})">
+              </picture>
+              <h3 id="ck-title">${pet ? escapeHtml(pet.name) : 'Someone saved your seat.'}</h3>
+              <p id="ck-message" role="status">${pet ? message : 'Choose a friend. Your normal daily check-in helps them grow.'}</p>
+            </div>
+            <div class="ck-controls">
+              <p><strong>Show up. They notice.</strong> Your friend grows at school-day streak milestones. Your best streak keeps its stage, even if you miss a day.</p>
+              <p>${companion.nextMilestone ? `Next stage at ${escapeHtml(companion.nextMilestone)} school days in a row.` : 'Legend. Your friend is unbearable about it, quietly.'} Best: ${escapeHtml(companion.bestStreak)}.</p>
+              ${pet ? `<div class="button-row"><button type="button" class="secondary" id="ck-nuzzle">nuzzle</button><button type="button" class="secondary" id="ck-snacks">snacks</button></div><div id="ck-play" class="ck-play" aria-label="Snack game"></div>` : ''}
+              <details ${pet ? '' : 'open'}><summary>${pet ? 'name & friend' : 'hatch a friend'}</summary>
+                <form id="ck-form">
+                  <fieldset class="ck-friends"><legend>Choose a friend</legend>
+                    ${friends.map((entry) => `<label><input type="radio" name="ck-species" value="${entry.id}" ${entry.id === friend.id ? 'checked' : ''}><img src="${images}${entry.id}/idle-1.png" alt="" width="56" height="56" referrerpolicy="no-referrer"><span>${entry.name}</span><small>${entry.kind}</small></label>`).join('')}
+                  </fieldset>
+                  <label class="ck-name">Their name<input name="ck-name" maxlength="18" required value="${escapeHtml(pet ? pet.name : friend.name)}" autocomplete="off"></label>
+                  <button type="submit" class="secondary">${pet ? 'save friend' : 'hatch my Checkling'}</button>
+                  <p id="ck-save-status" role="status"></p>
+                </form>
+              </details>
+              <p class="ck-note">Your friend follows this class login across devices. Pet play adds no points. Points and attendance come from the confirmation above.</p>
+            </div>
+          </section>`;
+        const form = document.querySelector('#ck-form');
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const button = form.querySelector('button[type="submit"]');
+          if (button.disabled) return;
+          const token = pinToken;
+          const identity = state.student.key;
+          button.disabled = true;
+          const status = document.querySelector('#ck-save-status');
+          status.textContent = 'Saving your friend…';
+          try {
+            const selected = form.querySelector('input[name="ck-species"]:checked').value;
+            const next = await call('saveCheckling', token, selected, form.elements['ck-name'].value);
+            if (!state.student || state.student.key !== identity || pinToken !== token || screen !== 'checkin') return;
+            adoptState(next);
+            renderCheckIn();
+            document.querySelector('#ck-message').textContent = 'Your friend is saved. Same daily check-in. Same official points.';
+          } catch (error) {
+            status.textContent = 'Couldn’t save your friend. Your check-in is unaffected. Try again.';
+          } finally {
+            button.disabled = false;
+          }
+        });
+        const nuzzle = document.querySelector('#ck-nuzzle');
+        if (nuzzle) nuzzle.addEventListener('click', () => {
+          document.querySelector('#ck-message').textContent = `${pet.name} leans in. That was a good nuzzle.`;
+        });
+        const snacks = document.querySelector('#ck-snacks');
+        if (snacks) snacks.addEventListener('click', () => {
+          const game = document.querySelector('#ck-play');
+          let caught = 0;
+          game.innerHTML = '<p>Tap six berries. Just for fun.</p><div class="ck-berries">' + Array.from({length:6}, (_, i) => `<button type="button" aria-label="Berry ${i + 1}">●</button>`).join('') + '</div>';
+          game.querySelectorAll('button').forEach((berry) => berry.addEventListener('click', () => {
+            if (berry.disabled) return;
+            berry.disabled = true;
+            berry.textContent = '✓';
+            caught += 1;
+            game.querySelector('p').textContent = caught === 6 ? 'Berry legend. No extra points. Just a happy friend.' : `${caught} of 6 berries.`;
+          }));
+        });
       };
 
       /* ------------------------------------------------------------ teacher */
