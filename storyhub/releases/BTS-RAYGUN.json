@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-RAYGUN",
+  "title": "Zero Points in Paris",
+  "route": "/hubs/bts-bytesize-zero-points.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/RAYGUN/story.json",
+    "note": "ByteSize no. 6. Openly licensed images only; footage plays through YouTube embeds."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-bytesize-zero-points.html",
+      "bytes": 26202,
+      "sha256": "b89c708b4653b975df687a69adbed21819fd3873ab24b3341c4161b0cc31bbfb"
+    },
+    {
+      "path": "/storyhub/bts/zero-points/assets/youth-olympics-2018.webp",
+      "assetId": "A01",
+      "bytes": 149016,
+      "sha256": "d66cd00202c74c3b0e032fb6b18e289cdb65e4e2ef08e29a5490b89333c095d1",
+      "width": 1400,
+      "height": 931
+    },
+    {
+      "path": "/storyhub/bts/zero-points/assets/cypher.webp",
+      "assetId": "A02",
+      "bytes": 189214,
+      "sha256": "c4282da79d814f6853812aaaa3c6b1a3773bbdbb330a2bf45c1d016b8480f2bf",
+      "width": 1400,
+      "height": 1046
+    }
+  ],
+  "totalBytes": 364432,
+  "sealedAt": "2026-10-21"
+}

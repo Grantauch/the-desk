@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-RAYGUN",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-stage",
+      "type": "embedded-video",
+      "teaches": "What the battles and her response actually looked like.",
+      "studentAction": "Press play on a video inside the page.",
+      "feedback": "The YouTube player starts inside the page.",
+      "staticFallback": "Each video has an Open on YouTube link.",
+      "identityFit": "Footage sits at each turn of the story.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "03-rules",
+      "type": "vote-reveal",
+      "teaches": "How battle judging works and how complete the loss was: 54 judge votes, none for Raygun.",
+      "studentAction": "Reveal six rounds one at a time or all at once.",
+      "feedback": "Nine squares per round fill in the opponent's color, battle scores and a running tally update.",
+      "staticFallback": "A noscript line gives the three 18 to 0 results and the 0 of 54 total.",
+      "identityFit": "Mirrors the red and blue round boxes on the Paris scoreboard.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "05-rumor",
+      "type": "claim-check",
+      "teaches": "Separating viral claims from the record using a primary source.",
+      "studentAction": "Tap each petition claim to see what the record shows.",
+      "feedback": "Each card flips to True or False with the fact, and a counter tracks claims checked.",
+      "staticFallback": "Facts are in the page markup and read by screen readers when expanded.",
+      "identityFit": "The record answers the rumor in the same card.",
+      "status": "implemented"
+    }
+  ]
+}

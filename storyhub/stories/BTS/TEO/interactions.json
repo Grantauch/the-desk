@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-TEO",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "02-week",
+      "type": "embedded-video",
+      "teaches": "What the game, the creator and the photo subject actually looked and sounded like.",
+      "studentAction": "Press play on a video inside the page.",
+      "feedback": "The YouTube player starts inside the page.",
+      "staticFallback": "Each video has an Open on YouTube link.",
+      "identityFit": "Footage sits beside the moment it shows.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "04-check",
+      "type": "records-check",
+      "teaches": "Verification. Four ordinary record searches disproved a story that dozens of outlets repeated.",
+      "studentAction": "Run each of Deadspin's four checks.",
+      "feedback": "Each check returns FOUND or NO RECORD, a tally counts progress, and a verdict appears after all four.",
+      "staticFallback": "A noscript paragraph lists all four results, and the deck covers them.",
+      "identityFit": "The control is a records query, the reporter's own tool.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "06-fallout",
+      "type": "scaled-bar-chart",
+      "teaches": "How close the Heisman vote was and what the story was worth.",
+      "studentAction": "Read three bars drawn to scale.",
+      "feedback": "Static bars with values.",
+      "staticFallback": "Values are printed on the bars and in the aria label.",
+      "identityFit": "Gold marks Te'o as on every other real fact.",
+      "status": "implemented"
+    }
+  ]
+}

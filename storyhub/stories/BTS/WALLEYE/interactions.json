@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-WALLEYE",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "02-team",
+      "type": "count-grid",
+      "teaches": "How far outside normal results the team's win rate was.",
+      "studentAction": "Read the grid of 19 events.",
+      "feedback": "Nine filled circles against ten empty ones, with the next best team's two wins stated.",
+      "staticFallback": "The counts are written in the legend and text.",
+      "identityFit": "Plain tally marks like a season standings board.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "03-weigh-in",
+      "type": "embedded-video",
+      "teaches": "What the discovery and the sentencing actually looked like.",
+      "studentAction": "Press play on a video inside the page.",
+      "feedback": "The YouTube player starts inside the page.",
+      "staticFallback": "Each video has an Open on YouTube link.",
+      "identityFit": "Footage appears at the point in the story where it was filmed.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "04-lead",
+      "type": "remove-the-weights-scale",
+      "teaches": "The lead was more than the margin of victory, so the honest bag would have lost.",
+      "studentAction": "Tap sinkers off the scale one at a time, or pull all ten.",
+      "feedback": "The LED readout, weight bar and two row leaderboard update, and a sentence states the new margin.",
+      "staticFallback": "The page text states the 7 pound total and the 26.91 pound honest bag. The leaderboard starts filled in without script.",
+      "identityFit": "The control is the evidence itself, operated on the tournament's own scale.",
+      "status": "implemented"
+    }
+  ]
+}
