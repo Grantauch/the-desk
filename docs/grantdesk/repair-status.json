@@ -1158,15 +1158,18 @@
   },
   "checkling-startup-2026-10-22": {
     "status": "SOURCE_REPAIRED",
-    "verification_status": "FULL_LOCAL_GATE_AND_BROWSER_PASSED",
-    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "verification_status": "PROTECTED_CI_AND_LIVE_SMOKE_PASSED",
+    "deployment_status": "DEPLOYED_VERSION_41",
     "field_status": "FIELD_PENDING",
     "summary": "Repair the shared client startup freeze caused by HtmlService truncating the Checkling artwork URL.",
     "evidence": [
       "Reproduced on the authenticated production teacher page: initial loading screen, unchanged mode label, and SyntaxError: Invalid or unexpected token. The served script truncates the artwork statement to an unterminated https: string before getBootstrap can run.",
       "Escape the artwork URL slashes in the existing Index.html. No server code, workbook schema, PIN contract, attendance logic, points, deployment URL or access policy change.",
       "Regression replays the observed Google-side URL truncation, parses all four entry modes and verifies the resulting artwork URL. Existing Hall Pass structural/handoff checks, all 440 service behaviors and 17 Checkling server scenarios pass.",
-      "All 11 offline Chromium browser journeys pass: student/kiosk/check-in/teacher startup after the observed rewrite, responsive companion activities and Pond, shared-device handoff/idle privacy, artwork and accessibility. Canonical npm run verify passed all 18 stages: 53 built routes, 135 HTML files, 4601 local references and 13 releases/117 sealed files. Protected CI, existing-deployment release and live UI readback remain pending."
+      "All 11 offline Chromium browser journeys pass: student/kiosk/check-in/teacher startup after the observed rewrite, responsive companion activities and Pond, shared-device handoff/idle privacy, artwork and accessibility. Canonical npm run verify passed all 18 stages: 53 built routes, 135 HTML files, 4601 local references and 13 releases/117 sealed files. Protected CI, existing-deployment release and live UI readback remain pending.",
+      "Owner-approved PR #221 merged as 7a6111d11e5df028a212fac0ad4597c0c5d8e7c1. Protected workflow 39833478519 and merged-main workflow 39840265487 passed. Guarded release 39845770698 deployed Apps Script Version 41 with the existing URL, DOMAIN access and USER_DEPLOYING execution preserved.",
+      "Live Chrome verification passed for teacher, student, kiosk and Daily Check-In. The teacher dashboard renders its controls; student modes render PIN forms. Public /check-in/ and /pass/ launch links were followed into the expected modes. Served artwork URL retains escaped slashes and the fresh Check-In page has no application console errors.",
+      "Authenticated Version 41 synthetic smoke passed: ok=true, request=STARTED, return=RETURNED_COUNTABLE, evidenceUsed=1, testPassVoided=true, testMembershipDeactivated=true, productionFactsUnchanged=true and syntheticOnly=true. Schema/client contract match the release. Private test workbook URL and real student details are omitted. Actual classroom use remains FIELD_PENDING."
     ]
   }
 }
