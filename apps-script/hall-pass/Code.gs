@@ -41,6 +41,13 @@ const GD_BACKGROUND_TRIGGER_AUDIT_PROPERTY = 'BACKGROUND_TRIGGER_AUDIT_AT';
 const GD_BACKGROUND_TRIGGER_AUDIT_MS = 60 * 60 * 1000;
 const GD_CHECKIN_SUMMARY_PREFIX = 'checkin-summary:';
 const GD_CHECKLING_PREFIX = 'checkling-v1:';
+const GD_CHECKLING_STAGES = [
+  {label:'Hatchling', min:0, scale:0.82, habitat:'meadow', home:'Morning meadow', keepsake:'First hello', symbol:'✦'},
+  {label:'Sprout', min:3, scale:0.92, habitat:'grove', home:'Mossy grove', keepsake:'Lucky leaf', symbol:'❧'},
+  {label:'Buddy', min:7, scale:1, habitat:'cove', home:'Tidepool cove', keepsake:'Pocket pearl', symbol:'◈'},
+  {label:'Ace', min:14, scale:1.08, habitat:'sky', home:'Cloud island', keepsake:'Sky feather', symbol:'⌁'},
+  {label:'Legend', min:30, scale:1.16, habitat:'cosmos', home:'Little cosmos', keepsake:'Your own star', symbol:'★'},
+];
 const GD_LATE_REVIEW_PREFIX = 'late-review:';
 const GD_CHECKIN_INDEX_SCHEMA_PROPERTY = 'CHECKIN_INDEX_SCHEMA';
 const GD_CHECKIN_FLUSH_ERROR_PROPERTY = 'CHECKIN_FLUSH_LAST_ERROR';
@@ -1283,34 +1290,39 @@ function getChecklingState_(student, summary, checkIn, todayKey) {
     let saved = null;
     try { saved = raw ? JSON.parse(raw) : null; } catch (error) { /* allow the student to choose again */ }
     const species = ['mochi', 'bolt', 'zee', 'ember'];
-    const pet = saved && saved.v === 1 && species.includes(saved.species) && typeof saved.name === 'string'
-      ? {species: saved.species, name: saved.name.slice(0, 18)} : null;
     const streak = streakFromCheckInSummary_(summary, todayKey);
-    const stages = [
-      {label:'Hatchling', min:0, scale:0.82}, {label:'Sprout', min:3, scale:0.92},
-      {label:'Buddy', min:7, scale:1}, {label:'Ace', min:14, scale:1.08},
-      {label:'Legend', min:30, scale:1.16},
-    ];
     const best = Math.max(0, Number(streak.best) || 0);
+    const stages = GD_CHECKLING_STAGES;
     const stage = stages.filter((entry) => best >= entry.min).pop();
     const next = stages.find((entry) => entry.min > best);
+    const home = stages.find((entry) => saved && entry.habitat === saved.habitat && best >= entry.min) || stages[0];
+    const pet = saved && saved.v === 1 && species.includes(saved.species) && typeof saved.name === 'string'
+      ? {species:saved.species, name:saved.name.slice(0,18), habitat:home.habitat} : null;
     return {available:true, pet, stage:stage.label, scale:stage.scale, bestStreak:best,
       nextMilestone:next ? next.min : null, visitedToday:Boolean(checkIn),
-      countedToday:Boolean(streak.checkedInToday), protectedDay:Boolean(streak.nonSchoolDayProtected)};
+      countedToday:Boolean(streak.checkedInToday), protectedDay:Boolean(streak.nonSchoolDayProtected),
+      journey:stages.map((entry) => ({label:entry.label, min:entry.min, habitat:entry.habitat,
+        home:entry.home, keepsake:entry.keepsake, symbol:entry.symbol, unlocked:best >= entry.min}))};
   } catch (error) {
     // A damaged preference or a property outage must never hide a recorded check-in.
     return {available:false};
   }
 }
 
-function saveCheckling(pinToken, species, petName) {
+function saveCheckling(pinToken, species, petName, habitat) {
   const resolved = resolveStudent_(pinToken, true);
   if (!['mochi', 'bolt', 'zee', 'ember'].includes(species)) throw new Error('Choose one of the four Checklings.');
   if (typeof petName !== 'string') throw new Error('Give your Checkling a name.');
   const name = petName.replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 18);
   if (!name) throw new Error('Give your Checkling a name.');
+  const current = getCheckInState_(resolved.student, pinToken || '', resolved.method);
+  if (!current.checkling.available) throw new Error('Your friend cannot save right now. Your check-in is unaffected.');
+  const chosenHome = habitat === undefined ? (current.checkling.pet && current.checkling.pet.habitat) || 'meadow' : habitat;
+  const home = current.checkling.journey.find((entry) => entry.habitat === chosenHome);
+  if (!home) throw new Error('Choose one of the five Checkling habitats.');
+  if (!home.unlocked) throw new Error('That habitat opens at its official school-day streak milestone.');
   PropertiesService.getScriptProperties().setProperty(GD_CHECKLING_PREFIX + resolved.student.key,
-    JSON.stringify({v:1, species, name}));
+    JSON.stringify({v:1, species, name, habitat:home.habitat}));
   return getCheckInState_(resolved.student, pinToken || '', resolved.method);
 }
 

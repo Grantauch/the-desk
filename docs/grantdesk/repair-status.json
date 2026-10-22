@@ -1123,5 +1123,19 @@
       "Production preflight 39715268796 passed: Version 39 five-file hashes exactly match main 3e71b3d, with stable URL, DOMAIN access, USER_DEPLOYING execution and no unpublished editor draft.",
       "Prior main CI 39712617542 timed out during browser acceptance after a ten-minute diagnostic audit. Each audit is now bounded to 60 seconds and unavailable responses cannot masquerade as clean reports; four focused diagnostic regressions run before the report. No release/browser tests or workflow deadline were changed."
     ]
+  },
+  "checkling-habitat-2026-10-21": {
+    "status": "SOURCE_REPAIRED",
+    "verification_status": "FOCUSED_CHECKS_PASSED",
+    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "field_status": "FIELD_PENDING",
+    "summary": "Checkling gains personal habitats, keepsakes, species personalities and two untimed memory games inside Daily Check-In.",
+    "evidence": [
+      "17 synthetic companion server scenarios pass, including official milestone unlocks, forged/locked home refusal, legacy compatibility, corruption recovery and unchanged classroom points.",
+      "All 440 existing Hall Pass/Daily Check-In behaviors pass.",
+      "Six responsive offline browser journeys pass at 320/390/1440: all three activities, earned home save/reload, keepsakes, student isolation and reduced motion; zero WCAG A/AA violations.",
+      "Preference schema remains v1 with one bounded habitat ID; games keep no persistent history and write no attendance. Existing five-file deployment, workbook schema, URL and domain-only access are preserved.",
+      "Protected CI and production release are pending; local full-site build was stopped by automatic approval review for unrelated news-feed access. Focused companion verification uses a static local server and blocks all external services."
+    ]
   }
 }

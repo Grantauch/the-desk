@@ -372,6 +372,87 @@
       .ck-berries button { width:44px; height:44px; border-radius:50%; border:1px solid #075f49; background:#10241c; color:#c6ef73; font-size:22px; }
       .ck-berries button:disabled { opacity:.6; }
       @media(max-width:600px) { .ck-pocket { grid-template-columns:1fr; gap:16px; padding:14px; } }
+      .ck-pocket { gap:20px; padding:20px; }
+      .ck-world { position:relative; overflow:hidden; min-height:390px; padding:22px 18px; background:linear-gradient(155deg,#102c29,#254537); color:#fff5dc; isolation:isolate; }
+      .ck-world::before { content:''; position:absolute; width:160%; height:135px; bottom:-35px; left:-30%; background:#314d35; border-radius:50% 50% 0 0; }
+      .ck-world > :not(.ck-atmosphere) { position:relative; z-index:1; }
+      .ck-world .ck-label { color:#d6f5b0; margin:0; }
+      .ck-world .ck-home-label { color:#fff5dc; font-size:12px; margin:6px 0 0; }
+      .ck-world h3 { font-size:29px; letter-spacing:-.04em; }
+      .ck-world #ck-message { min-height:60px; max-width:310px; line-height:1.6; font-size:14px; }
+      .ck-atmosphere { position:absolute; inset:60px 0 auto; height:145px; pointer-events:none; }
+      .ck-atmosphere i { position:absolute; left:13%; top:25%; width:38px; height:14px; border-radius:50px; background:#b9d5bc; opacity:.65; box-shadow:12px -7px 0 -2px #b9d5bc; animation:ck-drift 9s ease-in-out infinite alternate; }
+      .ck-atmosphere i:nth-child(2) { left:73%; top:60%; transform:scale(.65); animation-delay:-4s; }
+      .ck-atmosphere i:nth-child(3) { left:55%; top:0; width:10px; height:10px; background:#f9d98d; box-shadow:none; border-radius:50%; animation-delay:-2s; }
+      .ck-home-grove { background:linear-gradient(145deg,#112c27,#28402b); }
+      .ck-home-grove::before { background:#354e2e; }
+      .ck-home-grove .ck-atmosphere i { width:26px; height:48px; background:#9cbf79; border-radius:90% 0 90% 0; box-shadow:none; opacity:.5; }
+      .ck-home-cove { background:linear-gradient(145deg,#12313c,#214652); }
+      .ck-home-cove::before { border-radius:35%; background:repeating-linear-gradient(0deg,#254b53 0 20px,#38616a 21px 23px,#254b53 24px 40px); }
+      .ck-home-cove .ck-atmosphere i { background:#b4d8dc; box-shadow:12px -7px 0 -2px #b4d8dc; }
+      .ck-home-sky { background:linear-gradient(145deg,#1f2b4b,#3f4668); }
+      .ck-home-sky::before { bottom:-55px; background:#53597b; height:150px; }
+      .ck-home-sky .ck-atmosphere i { width:45px; height:20px; background:#d5d2ed; box-shadow:14px -8px 0 -2px #d5d2ed; }
+      .ck-home-cosmos { background:radial-gradient(ellipse at 70% 25%,#493969,#171c39 70%); }
+      .ck-home-cosmos::before { background:#343049; }
+      .ck-home-cosmos .ck-atmosphere i { width:4px; height:4px; background:#ffe8ac; box-shadow:25px 18px #ffe8ac,43px -25px #ffe8ac,-18px 55px #ffe8ac; opacity:.9; border-radius:50%; }
+      .ck-world .ck-pet { display:block; border:0; padding:0; margin:5px auto 0; width:174px; min-height:167px; background:transparent; color:inherit; border-radius:50%; cursor:pointer; }
+      .ck-pet picture { height:164px; display:flex; align-items:center; justify-content:center; }
+      .ck-pet img { filter:drop-shadow(0 12px 8px #0005); }
+      .ck-pet.is-bouncing { animation:ck-boop .5s ease; }
+      .ck-world .ck-mood { display:inline-block; width:fit-content; border:1px solid #a8d5b36b; border-radius:30px; padding:3px 10px; margin:3px 0 5px; font-size:11px; color:#fff5dc; background:#10241c70; }
+      .ck-world .ck-daydream { margin-top:18px; padding:12px; border-radius:12px; background:#0c182b66; color:#fff5dc; font-size:12px; max-width:310px; }
+      .ck-daydream span { display:block; margin-bottom:4px; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:#e4eebf; }
+      .ck-kicker { color:#655033; font-size:10px!important; text-transform:uppercase; letter-spacing:.12em; font-weight:700; margin-bottom:6px!important; }
+      .ck-controls h4 { margin:0; font-size:23px; line-height:1.2; letter-spacing:-.035em; }
+      .ck-growth { padding:12px; background:#e6ddcb; border:1px solid #cabea7; border-radius:12px; }
+      .ck-growth > div { display:flex; justify-content:space-between; gap:8px; font-size:12px; }
+      .ck-growth progress { display:block; width:100%; height:8px; border:0; border-radius:5px; overflow:hidden; margin:9px 0; accent-color:#245640; background:#c8bfae; }
+      .ck-growth progress::-webkit-progress-bar { background:#c8bfae; border-radius:5px; }
+      .ck-growth progress::-webkit-progress-value { background:#245640; border-radius:5px; }
+      .ck-growth progress::-moz-progress-bar { background:#245640; border-radius:5px; }
+      .ck-growth p { font-size:11px; }
+      .ck-action-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .ck-name select { width:100%; min-height:44px; border:1px solid #8b8172; border-radius:10px; padding:8px; background:#fffaf2; color:#1c1915; font:inherit; }
+      .ck-play:empty { display:none; }
+      .ck-play:not(:empty) { padding:14px; background:#fffaf2; border:1px solid #cabea7; border-radius:16px; }
+      .ck-game-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      .ck-game-head h4 { font-size:19px; }
+      .ck-game-head button { min-width:44px; min-height:44px; border:1px solid #8b8172; border-radius:12px; background:#fffaf2; color:#1c1915; font:inherit; font-size:24px; cursor:pointer; }
+      .ck-game-status { margin:8px 0 12px!important; min-height:42px; font-size:12px!important; }
+      .ck-berries { justify-content:center; }
+      .ck-berries button { color:#f4b7b1; background:#223f32; box-shadow:inset 0 0 0 5px #304e3d; }
+      .ck-card-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+      .ck-card-grid button { min-height:58px; border:1px solid #193c2c; border-radius:12px; background:#193c2c; color:#d6f5b0; font-size:26px; cursor:pointer; }
+      .ck-card-grid button[aria-pressed="true"] { background:#e8dfcd; color:#263827; }
+      .ck-card-grid button.is-matched { background:#d4e6af; color:#233d24; border-color:#6e8d54; opacity:1; }
+      .ck-echo-trail { display:flex; justify-content:center; flex-wrap:wrap; gap:6px; padding:0; margin:10px 0; list-style:none; }
+      .ck-echo-trail li { text-align:center; padding:6px; background:#ece3d1; border-radius:10px; font-size:10px; min-width:38px; }
+      .ck-echo-trail span { display:block; font-size:22px; }
+      .ck-echo-actions { display:grid; gap:7px; margin:10px 0; }
+      .ck-echo-notes { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+      .ck-echo-notes button { display:grid; justify-items:center; gap:3px; min-height:62px; border:1px solid #80745e; border-radius:10px; background:#e8dfcd; color:#263827; padding:6px 2px; font-size:11px; cursor:pointer; }
+      .ck-echo-notes button span { font-size:25px; }
+      .ck-echo-notes button:disabled { opacity:.55; }
+      .ck-journey { grid-column:1/-1; padding-top:2px; border-top:1px solid #cabea7; }
+      .ck-journey summary { cursor:pointer; padding:14px 0; font-size:14px; font-weight:700; }
+      .ck-journey summary > span { float:right; font-size:11px; font-weight:400; }
+      .ck-journey ol { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; padding:0; list-style:none; margin:0 0 12px; }
+      .ck-journey li { display:grid; gap:5px; padding:12px 9px; border:1px dashed #a99b85; border-radius:14px; font-size:11px; line-height:1.4; background:#e8e0d1; color:#514938; }
+      .ck-journey li.is-earned { border-style:solid; background:#fffaf2; color:#1c1915; }
+      .ck-journey li[aria-current] { border:2px solid #245640; padding:11px 8px; }
+      .ck-keepsake { display:grid; place-items:center; width:38px; height:38px; border-radius:50%; background:#d5cdbd; color:#514938; font-size:25px; }
+      .is-earned .ck-keepsake { background:#deebbb; color:#29432d; }
+      .ck-journey small { font-size:10px; }
+      .ck-pocket .ck-note { font-size:12px; line-height:1.6; margin:0; }
+      .ck-pocket :focus-visible { outline:3px solid #087458; outline-offset:3px; }
+      .ck-world :focus-visible { outline-color:#d6f5b0; }
+      .ck-pocket [hidden] { display:none!important; }
+      @keyframes ck-boop { 0%,100%{transform:translateY(0) rotate(0)} 35%{transform:translateY(-12px) rotate(-5deg)} 70%{transform:translateY(-4px) rotate(4deg)} }
+      @keyframes ck-drift { from{translate:-5px 0} to{translate:8px -5px} }
+      @media(max-width:600px) { .ck-pocket { padding:14px; gap:16px; } .ck-world{min-height:390px;} .ck-journey ol{grid-template-columns:repeat(2,minmax(0,1fr));} .ck-journey li:last-child{grid-column:1/-1;} }
+      @media(prefers-reduced-motion:reduce) { .ck-atmosphere i,.ck-pet.is-bouncing { animation:none!important; } }
+
     </style>
   </head>
   <body data-site-brand="<?= siteBrand ?>">
@@ -1185,84 +1266,176 @@
           return;
         }
         const friends = [
-          {id:'mochi', name:'Mochi', kind:'monster'}, {id:'bolt', name:'Bolt', kind:'robot'},
-          {id:'zee', name:'Zee', kind:'alien'}, {id:'ember', name:'Ember', kind:'dragon'},
+          {id:'mochi', name:'Mochi', kind:'soft-hearted monster', trait:'small friend, enormous feelings', hello:['A tiny wave. An enormous commitment to this friendship.','Currently practicing a very brave hello.','Found a comfortable patch of sunlight. Saved you half.'], nuzzle:['melts into a happy little puddle','offers a very serious tiny hug','leans in with maximum squish']},
+          {id:'bolt', name:'Bolt', kind:'curious little robot', trait:'built for small discoveries', hello:['Running today’s important program: be your friend.','Invented a machine that does absolutely nothing. Very proud.','Found a fascinating pebble. Analysis is ongoing.'], nuzzle:['makes a pleased little boop','files this under excellent human interactions','runs a very successful hug simulation']},
+          {id:'zee', name:'Zee', kind:'cosmic daydreamer', trait:'a whole universe of curiosity', hello:['Searching the universe for a good snack.','Reports that Earth friendship is going very well.','Named a constellation after a sandwich.'], nuzzle:['glows one very happy shade brighter','does the intergalactic friendship wiggle','declares this a first-class Earth nuzzle']},
+          {id:'ember', name:'Ember', kind:'pocket-sized dragon', trait:'a brave heart with tiny wings', hello:['Guarding a treasure hoard of three nice leaves.','Practicing a heroic entrance. It needs more wings.','Accidentally toasted a berry. Calls it cuisine.'], nuzzle:['tucks those tiny wings around you','gives a very careful dragon hug','puffs a little heart-shaped cloud']},
         ];
         const pet = companion.pet;
-        const friend = friends.find((entry) => pet && entry.id === pet.species) || friends[0];
+        const friend = friends.find(entry => pet && entry.id === pet.species) || friends[0];
+        const journey = companion.journey || [];
+        const home = journey.find(entry => pet && entry.habitat === pet.habitat) || journey[0];
+        const habitat = home ? home.habitat : 'meadow';
         const images = 'https://grant-desk.com/hubs/checkling/pets/';
         const species = pet ? friend.id : 'egg';
+        const seed = Array.from(String(state.dateKey) + species).reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 17);
         const message = companion.visitedToday
           ? companion.countedToday ? 'You showed up. I noticed. Today is recorded.' : 'Glad you made it. Your sign-in is recorded; the point follows your teacher’s review.'
           : companion.protectedDay ? 'Day off. I’m resting too. Your school-day streak is protected.'
           : 'Your seat is saved. Use the check-in above when your class opens.';
+        const best = Number(companion.bestStreak) || 0;
+        const goal = Number(companion.nextMilestone) || 30;
         slot.innerHTML = `
           <section class="ck-pocket" aria-labelledby="ck-title">
-            <div class="ck-screen">
+            <div class="ck-screen ck-world ck-home-${habitat}">
               <p class="ck-label">checkling · ${escapeHtml(companion.stage)}</p>
-              <picture>
-                <source media="(prefers-reduced-motion: reduce)" srcset="${images}${species}/idle-1.png">
-                <img src="${images}${species}/animation.gif" alt="${pet ? escapeHtml(pet.name) : 'A Checkling egg'}" width="144" height="144" referrerpolicy="no-referrer" style="transform:scale(${Number(companion.scale) || 0.82})">
-              </picture>
+              <span class="ck-atmosphere" aria-hidden="true"><i></i><i></i><i></i></span>
+              <p class="ck-home-label">${escapeHtml(home ? home.home : 'Morning meadow')}</p>
+              <button type="button" class="ck-pet" aria-label="${pet ? `Say hello to ${escapeHtml(pet.name)}` : 'Say hello to your Checkling egg'}">
+                <picture><source media="(prefers-reduced-motion: reduce)" srcset="${images}${species}/idle-1.png"><img src="${images}${species}/animation.gif" alt="${pet ? escapeHtml(pet.name) : 'A Checkling egg'}" width="144" height="144" referrerpolicy="no-referrer" style="transform:scale(${Number(companion.scale) || 0.82})"></picture>
+              </button>
+              <span class="ck-mood" id="ck-mood">${pet ? 'happy you’re here' : 'a little possibility'}</span>
               <h3 id="ck-title">${pet ? escapeHtml(pet.name) : 'Someone saved your seat.'}</h3>
               <p id="ck-message" role="status">${pet ? message : 'Choose a friend. Your normal daily check-in helps them grow.'}</p>
+              ${pet ? `<p class="ck-daydream"><span>today’s tiny thought</span>${escapeHtml(friend.hello[seed % friend.hello.length])}</p>` : ''}
             </div>
             <div class="ck-controls">
-              <p><strong>Show up. They notice.</strong> Your friend grows at school-day streak milestones. Your best streak keeps its stage, even if you miss a day.</p>
-              <p>${companion.nextMilestone ? `Next stage at ${escapeHtml(companion.nextMilestone)} school days in a row.` : 'Legend. Your friend is unbearable about it, quietly.'} Best: ${escapeHtml(companion.bestStreak)}.</p>
-              ${pet ? `<div class="button-row"><button type="button" class="secondary" id="ck-nuzzle">nuzzle</button><button type="button" class="secondary" id="ck-snacks">snacks</button></div><div id="ck-play" class="ck-play" aria-label="Snack game"></div>` : ''}
-              <details ${pet ? '' : 'open'}><summary>${pet ? 'name & friend' : 'hatch a friend'}</summary>
-                <form id="ck-form">
-                  <fieldset class="ck-friends"><legend>Choose a friend</legend>
-                    ${friends.map((entry) => `<label><input type="radio" name="ck-species" value="${entry.id}" ${entry.id === friend.id ? 'checked' : ''}><img src="${images}${entry.id}/idle-1.png" alt="" width="56" height="56" referrerpolicy="no-referrer"><span>${entry.name}</span><small>${entry.kind}</small></label>`).join('')}
-                  </fieldset>
-                  <label class="ck-name">Their name<input name="ck-name" maxlength="18" required value="${escapeHtml(pet ? pet.name : friend.name)}" autocomplete="off"></label>
-                  <button type="submit" class="secondary">${pet ? 'save friend' : 'hatch my Checkling'}</button>
-                  <p id="ck-save-status" role="status"></p>
-                </form>
-              </details>
-              <p class="ck-note">Your friend follows this class login across devices. Pet play adds no points. Points and attendance come from the confirmation above.</p>
+              <div><p class="ck-kicker">${pet ? escapeHtml(friend.trait) : 'a small beginning'}</p><h4>${pet ? 'A little world. Yours together.' : 'Meet your new desk buddy.'}</h4></div>
+              <p>Your friend grows with your best official school-day streak. Every milestone opens a new home and a keepsake. A missed day never takes one away.</p>
+              <div class="ck-growth"><div><strong>${escapeHtml(companion.stage)}</strong><span>best streak · ${best}</span></div><progress value="${Math.min(best,goal)}" max="${goal}" aria-label="${companion.nextMilestone ? `${best} of ${goal} school days toward the next stage` : 'All Checkling stages unlocked'}"></progress><p>${companion.nextMilestone ? `${Math.max(0,goal-best)} more consecutive school ${goal-best === 1 ? 'day' : 'days'} to the next little adventure.` : 'Every home unlocked. There’s still a whole world to play in.'}</p></div>
+              ${pet ? '<div class="ck-action-grid"><button type="button" class="secondary" id="ck-nuzzle">nuzzle</button><button type="button" class="secondary" id="ck-snacks">snacks</button><button type="button" class="secondary" id="ck-pairs">star pairs</button><button type="button" class="secondary" id="ck-echo">echo grove</button></div><div id="ck-play" class="ck-play" aria-label="Checkling play corner"></div>' : ''}
+              <details ${pet ? '' : 'open'}><summary>${pet ? 'make it yours' : 'hatch a friend'}</summary><form id="ck-form">
+                <fieldset class="ck-friends"><legend>Choose a friend</legend>${friends.map(entry => `<label><input type="radio" name="ck-species" aria-label="${escapeHtml(entry.name + ", " + entry.kind)}" value="${entry.id}" ${entry.id === friend.id ? 'checked' : ''}><img src="${images}${entry.id}/idle-1.png" alt="" width="56" height="56" referrerpolicy="no-referrer"><span>${entry.name}</span></label>`).join('')}</fieldset>
+                <label class="ck-name">Their name<input name="ck-name" maxlength="18" required value="${escapeHtml(pet ? pet.name : friend.name)}" autocomplete="off"></label>
+                <label class="ck-name">Their little home<select name="ck-habitat" aria-label="Their little home">${journey.map(entry => `<option value="${entry.habitat}" ${entry.habitat === habitat ? 'selected' : ''} ${entry.unlocked ? '' : 'disabled'}>${escapeHtml(entry.home)}${entry.unlocked ? '' : ` · opens at ${entry.min} days`}</option>`).join('')}</select></label>
+                <button type="submit" class="secondary">${pet ? 'save friend' : 'hatch my Checkling'}</button><p id="ck-save-status" role="status"></p>
+              </form></details>
+              <p class="ck-note">Your friend and home follow this class login across devices. Play is just for fun; attendance and points come from the confirmation above.</p>
             </div>
+            ${journey.length ? `<details class="ck-journey"><summary>your little journey <span>${journey.filter(entry => entry.unlocked).length} / 5 keepsakes</span></summary><ol>${journey.map(entry => `<li class="${entry.unlocked ? 'is-earned' : ''}" ${entry.label === companion.stage ? 'aria-current="step"' : ''}><span class="ck-keepsake" aria-hidden="true">${entry.unlocked ? entry.symbol : '◇'}</span><strong>${escapeHtml(entry.keepsake)}</strong><span>${entry.min === 0 ? 'A new friendship' : `${entry.min} school days`} · ${escapeHtml(entry.label)}</span><small>${entry.unlocked ? 'yours to keep' : `opens ${escapeHtml(entry.home)}`}</small></li>`).join('')}</ol><p class="ck-note">Earned from your best official streak. Weekends and school closures protect it. Late points follow your teacher’s review.</p></details>` : ''}
           </section>`;
-        const form = document.querySelector('#ck-form');
-        form.addEventListener('submit', async (event) => {
+        const shell = slot.querySelector('.ck-pocket');
+        const say = shell.querySelector('#ck-message');
+        const mood = shell.querySelector('#ck-mood');
+        const petButton = shell.querySelector('.ck-pet');
+        const react = (text, feeling) => {
+          if (!shell.isConnected) return;
+          say.textContent = text;
+          mood.textContent = feeling;
+          petButton.classList.remove('is-bouncing');
+          void petButton.offsetWidth;
+          petButton.classList.add('is-bouncing');
+        };
+        petButton.addEventListener('animationend', () => petButton.classList.remove('is-bouncing'));
+        let hellos = 0;
+        petButton.addEventListener('click', () => react(pet ? friend.hello[(seed + ++hellos) % friend.hello.length] : 'A tiny rustle from inside. Someone is excited to meet you.', pet ? 'feeling seen' : 'nearly ready'));
+        const form = shell.querySelector('#ck-form');
+        let defaultName = friend.name;
+        form.querySelectorAll('[name=ck-species]').forEach(radio => radio.addEventListener('change', () => {
+          const selected = friends.find(entry => entry.id === radio.value);
+          if (!pet && form.elements['ck-name'].value === defaultName) form.elements['ck-name'].value = selected.name;
+          defaultName = selected.name;
+        }));
+        form.addEventListener('submit', async event => {
           event.preventDefault();
           const button = form.querySelector('button[type="submit"]');
           if (button.disabled) return;
           const token = pinToken;
           const identity = state.student.key;
           button.disabled = true;
-          const status = document.querySelector('#ck-save-status');
-          status.textContent = 'Saving your friend…';
+          const status = form.querySelector('#ck-save-status');
+          status.textContent = 'Saving your little world…';
           try {
             const selected = form.querySelector('input[name="ck-species"]:checked').value;
-            const next = await call('saveCheckling', token, selected, form.elements['ck-name'].value);
-            if (!state.student || state.student.key !== identity || pinToken !== token || screen !== 'checkin') return;
+            const next = await call('saveCheckling', token, selected, form.elements['ck-name'].value, form.elements['ck-habitat'].value);
+            if (!state.student || state.student.key !== identity || pinToken !== token || screen !== 'checkin' || !form.isConnected) return;
             adoptState(next);
             renderCheckIn();
-            document.querySelector('#ck-message').textContent = 'Your friend is saved. Same daily check-in. Same official points.';
+            const savedMessage = document.querySelector('#ck-message');
+            if (savedMessage) savedMessage.textContent = 'Your little world is saved. Your friend is settling in.';
           } catch (error) {
             status.textContent = 'Couldn’t save your friend. Your check-in is unaffected. Try again.';
-          } finally {
-            button.disabled = false;
-          }
+          } finally { button.disabled = false; }
         });
-        const nuzzle = document.querySelector('#ck-nuzzle');
-        if (nuzzle) nuzzle.addEventListener('click', () => {
-          document.querySelector('#ck-message').textContent = `${pet.name} leans in. That was a good nuzzle.`;
-        });
-        const snacks = document.querySelector('#ck-snacks');
-        if (snacks) snacks.addEventListener('click', () => {
-          const game = document.querySelector('#ck-play');
+        if (!pet) return;
+        let nuzzles = 0;
+        shell.querySelector('#ck-nuzzle').addEventListener('click', () => react(`${pet.name} ${friend.nuzzle[nuzzles++ % friend.nuzzle.length]}. A very good nuzzle.`, 'feeling loved'));
+        const game = shell.querySelector('#ck-play');
+        const openGame = (title, intro, body) => {
+          game.innerHTML = `<div class="ck-game-head"><h4>${title}</h4><button type="button" aria-label="Close play corner">×</button></div><p class="ck-game-status" role="status">${intro}</p>${body}`;
+          game.querySelector('.ck-game-head button').addEventListener('click', () => { game.innerHTML = ''; shell.querySelector('#ck-snacks').focus(); });
+          return game.querySelector('.ck-game-status');
+        };
+        shell.querySelector('#ck-snacks').addEventListener('click', () => {
           let caught = 0;
-          game.innerHTML = '<p>Tap six berries. Just for fun.</p><div class="ck-berries">' + Array.from({length:6}, (_, i) => `<button type="button" aria-label="Berry ${i + 1}">●</button>`).join('') + '</div>';
-          game.querySelectorAll('button').forEach((berry) => berry.addEventListener('click', () => {
+          const status = openGame('the berry patch', 'Six little berries. One very enthusiastic friend.', '<div class="ck-berries">' + Array.from({length:6}, (_,i) => `<button type="button" aria-label="Berry ${i+1}"><span aria-hidden="true">●</span></button>`).join('') + '</div>');
+          game.querySelectorAll('.ck-berries button').forEach(berry => berry.addEventListener('click', () => {
             if (berry.disabled) return;
-            berry.disabled = true;
-            berry.textContent = '✓';
-            caught += 1;
-            game.querySelector('p').textContent = caught === 6 ? 'Berry legend. No extra points. Just a happy friend.' : `${caught} of 6 berries.`;
+            berry.disabled = true; berry.textContent = '✓'; caught++;
+            status.textContent = caught === 6 ? 'Berry legend. No extra points. Just a happy friend.' : `${caught} of 6 berries. A promising snack situation.`;
+            if (caught === 6) react(`${pet.name} has strong opinions about berries. All of them are good.`, 'snack champion');
           }));
+        });
+        const stars = [{name:'sun',icon:'☀'},{name:'moon',icon:'☾'},{name:'leaf',icon:'❧'},{name:'star',icon:'★'}];
+        shell.querySelector('#ck-pairs').addEventListener('click', () => {
+          const deck = [0,1,2,3,0,1,2,3];
+          let random = seed;
+          for (let i=deck.length-1;i>0;i--) { random = (Math.imul(random,1664525)+1013904223) >>> 0; const j=random%(i+1); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+          const status = openGame('star pairs', 'Find four matching pairs. Take all the time you need.', '<div class="ck-card-grid">' + deck.map((_,i) => `<button type="button" aria-label="Card ${i+1}, face down" aria-pressed="false">✦</button>`).join('') + '</div><button type="button" class="secondary" id="ck-pairs-flip" hidden>turn these over</button>');
+          const cards = [...game.querySelectorAll('.ck-card-grid button')];
+          const matched = new Set(); let open = [], moves = 0;
+          const flip = game.querySelector('#ck-pairs-flip');
+          const paint = () => cards.forEach((card,i) => {
+            const visible = matched.has(i) || open.includes(i), star = stars[deck[i]];
+            card.textContent = visible ? star.icon : '✦';
+            card.setAttribute('aria-label', `Card ${i+1}, ${visible ? star.name : 'face down'}${matched.has(i) ? ', matched' : ''}`);
+            card.setAttribute('aria-pressed', String(visible));
+            card.classList.toggle('is-matched',matched.has(i));
+            card.disabled = matched.has(i);
+          });
+          flip.addEventListener('click', () => { open=[]; paint(); flip.hidden=true; status.textContent='Pick two stars. Their friends are out there.'; cards.find(button => !button.disabled).focus(); });
+          cards.forEach((card,i) => card.addEventListener('click', () => {
+            if (matched.has(i) || open.includes(i)) return;
+            if (open.length === 2) { open = []; flip.hidden=true; }
+            open.push(i); paint();
+            if (open.length < 2) { status.textContent = `A ${stars[deck[i]].name}. Where is its friend?`; return; }
+            moves++;
+            if (deck[open[0]] === deck[open[1]]) {
+              open.forEach(index => matched.add(index)); open = []; paint();
+              status.textContent = matched.size === 8 ? `Constellation complete in ${moves} turns. Four pairs, one delighted friend.` : `${matched.size/2} of 4 pairs found. A little constellation is coming together.`;
+              if (matched.size === 8) { react(`${pet.name} thinks you just arranged the whole night sky.`, 'star collector'); game.querySelector('.ck-game-head button').focus(); }
+              else cards.find(button => !button.disabled).focus();
+            } else { flip.hidden=false; status.textContent = 'Two different stars. Turn them over, or choose another card when you’re ready.'; }
+          }));
+        });
+        shell.querySelector('#ck-echo').addEventListener('click', () => {
+          let level = 3, cursor = 0, remembering = false;
+          const pattern = Array.from({length:5},(_,i) => (seed >>> (i*3))%4);
+          const status = openGame('echo grove', 'Remember the trail, then let your friend follow your footsteps.', '<ol class="ck-echo-trail" aria-label="Trail to remember"></ol><div class="ck-echo-actions"><button type="button" class="secondary" id="ck-echo-ready">ready — hide the trail</button><button type="button" class="secondary" id="ck-echo-replay">show the trail again</button></div><div class="ck-echo-notes">' + stars.map((star,i) => `<button type="button" data-note="${i}" disabled><span aria-hidden="true">${star.icon}</span>${star.name}</button>`).join('') + '</div><button type="button" class="secondary" id="ck-echo-next" hidden>try a longer trail</button>');
+          const trail = game.querySelector('.ck-echo-trail');
+          const ready = game.querySelector('#ck-echo-ready');
+          const notes = [...game.querySelectorAll('[data-note]')];
+          const next = game.querySelector('#ck-echo-next');
+          const show = () => {
+            cursor=0; remembering=false; trail.hidden=false; ready.hidden=false; next.hidden=true;
+            trail.innerHTML=pattern.slice(0,level).map(note => `<li><span aria-hidden="true">${stars[note].icon}</span>${stars[note].name}</li>`).join('');
+            notes.forEach(button => button.disabled=true);
+            status.textContent=`A ${level}-step trail. Have a look, then hide it when you’re ready.`;
+          };
+          ready.addEventListener('click', () => { remembering=true; trail.hidden=true; ready.hidden=true; notes.forEach(button => button.disabled=false); status.textContent=`Your turn. Repeat the ${level} steps.`; notes[0].focus(); });
+          game.querySelector('#ck-echo-replay').addEventListener('click', show);
+          notes.forEach((button,note) => button.addEventListener('click', () => {
+            if (!remembering) return;
+            if (pattern[cursor] !== note) { show(); status.textContent='A different path. Your friend is patient. Have another look and try again.'; ready.focus(); return; }
+            cursor++;
+            if (cursor === level) {
+              remembering=false; notes.forEach(item => item.disabled=true); next.hidden=false; next.textContent=level<5 ? 'try a longer trail' : 'take the trail again';
+              status.textContent=`Trail remembered! ${level} little steps, perfectly echoed.`;
+              react(`${pet.name} followed every step. That’s teamwork.`, 'echo explorer'); next.focus();
+            } else status.textContent=`${cursor} of ${level} steps remembered. Keep going.`;
+          }));
+          next.addEventListener('click', () => { level=Math.min(5,level+1); show(); ready.focus(); });
+          show();
         });
       };
 

@@ -3,7 +3,8 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
-import { preview } from 'astro';
+import { createServer } from 'node:http';
+import { resolve, extname } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 const require = createRequire(import.meta.url);
 const { classroom, PEOPLE } = require('./lib/hall-pass-fixtures.cjs');
@@ -13,7 +14,20 @@ const out = new URL('../browser-results/companions/', import.meta.url);
 await mkdir(out, { recursive:true });
 const html = (await readFile(new URL('apps-script/hall-pass/Index.html', root), 'utf8'))
   .replace('<?!= JSON.stringify(appMode) ?>', '"checkin"').replace('<?= siteBrand ?>', 'grantdesk');
-const server = await preview({server:{host:'127.0.0.1',port:4396}});
+// These companions ship as static assets and five-file Apps Script source.
+// Serve only the published Pond directory; no full-site build or news fetch.
+const publicRoot = fileURLToPath(new URL('../public/', import.meta.url));
+const server = createServer(async (request, response) => {
+  try {
+    const pathname = decodeURIComponent(new URL(request.url, origin).pathname);
+    const path = resolve(publicRoot, '.' + pathname, pathname.endsWith('/') ? 'index.html' : '');
+    if (!path.startsWith(resolve(publicRoot, 'hubs/pond') + '/')) { response.writeHead(404).end(); return; }
+    const types = {'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.jpg':'image/jpeg','.json':'application/json'};
+    const body = await readFile(path);
+    response.writeHead(200, {'content-type':types[extname(path)] || 'application/octet-stream','cache-control':'no-store'}).end(body);
+  } catch { response.writeHead(404).end(); }
+});
+await new Promise((resolve, reject) => { server.once('error',reject); server.listen(4396,'127.0.0.1',resolve); });
 const browser = await chromium.launch({headless:true,
   ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? {executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH} : {})});
 let cases = 0;
@@ -86,12 +100,60 @@ try {
     for (let i=1;i<=6;i++) await page.getByRole('button',{name:`Berry ${i}`,exact:true}).click();
     assert.match(await page.locator('#ck-play').textContent(), /Berry legend/);
     assert.equal(c.checkIns()[0].Point,1,'Pet play adds no points');
+    await page.getByRole('button',{name:'star pairs',exact:true}).click();
+    const cards = page.locator('.ck-card-grid button');
+    const remembered = new Map();
+    for(let i=0;i<8;i+=2) {
+      for(const index of [i,i+1]) {
+        await cards.nth(index).click();
+        const name=(await cards.nth(index).getAttribute('aria-label')).split(', ')[1];
+        const positions=remembered.get(name)||[]; positions.push(index); remembered.set(name,positions);
+      }
+      const flip=page.getByRole('button',{name:'turn these over',exact:true});
+      if(await flip.isVisible()) await flip.click();
+    }
+    for(const positions of remembered.values()) {
+      if(await cards.nth(positions[0]).isEnabled()) {
+        await cards.nth(positions[0]).click(); await cards.nth(positions[1]).click();
+      }
+    }
+    await page.getByRole('status').filter({hasText:'Constellation complete'}).waitFor();
+    await audit(page,`checkling-pairs-${width}`);
+    await page.getByRole('button',{name:'echo grove',exact:true}).click();
+    const trail=(await page.locator('.ck-echo-trail li').allTextContents()).map(text=>text.replace(/[^a-z]/g,''));
+    await page.getByRole('button',{name:'ready — hide the trail',exact:true}).click();
+    assert.equal(await page.locator('.ck-echo-trail').isVisible(),false);
+    for(const note of trail) await page.locator('.ck-echo-notes').getByRole('button',{name:note,exact:true}).click();
+    await page.getByRole('status').filter({hasText:'Trail remembered!'}).waitFor();
+    assert.equal(c.checkIns().length,1,'Games never record attendance');
+    assert.equal(c.checkIns()[0].Point,1,'Games never award classroom points');
     await audit(page,`checkling-${width}`);
     await page.getByRole('button',{name:'refresh confirmation'}).click();
     await page.getByRole('heading',{name:'Tiny Dragon',exact:true}).waitFor();
     assert.equal(c.checkIns().length,1);
     const src = await page.locator('.ck-screen img').evaluate(e => e.currentSrc);
     assert.ok(src.endsWith('/idle-1.png'),'Reduced motion uses a still sprite');
+    // Earn the next habitat through three real synthetic school-day check-ins.
+    for(const day of ['11','14']) {
+      c.harness.clock.set(new Date(`2026-09-${day}T11:30:00Z`));
+      c.checkIn(PEOPLE.ada,'Period 1');
+    }
+    await page.reload();
+    await page.locator('input[type="password"]').fill(c.pin(PEOPLE.ada));
+    await page.locator('input[type="password"]').press('Enter');
+    await page.getByText('make it yours',{exact:true}).click();
+    await page.getByLabel('Their little home',{exact:true}).selectOption('grove');
+    await page.getByRole('button',{name:'save friend',exact:true}).click();
+    await page.locator('.ck-home-grove').waitFor();
+    assert.equal(c.checkIns().length,3,'Choosing a home adds no extra attendance');
+    await page.getByText('your little journey',{exact:false}).click();
+    assert.equal(await page.locator('.ck-journey .is-earned').count(),2);
+    await audit(page,`checkling-grove-${width}`);
+    if(width===1440) await page.locator('.ck-pocket').screenshot({path:fileURLToPath(new URL('checkling-habitat-preview.png',out))});
+    await page.reload();
+    await page.locator('input[type="password"]').fill(c.pin(PEOPLE.ada));
+    await page.locator('input[type="password"]').press('Enter');
+    await page.locator('.ck-home-grove').waitFor();
     // A new login in the same browser must not inherit the previous student's pet.
     c.harness.signInAs(PEOPLE.alan.email);
     await page.reload();
@@ -101,7 +163,7 @@ try {
     assert.equal(await page.getByRole('heading',{name:'Tiny Dragon',exact:true}).count(),0);
     assert.deepEqual(errors,[]);
     results.push({name:`checkling-${width}`,status:'passed'}); cases++;
-    console.log(`PASS Checkling ${width}: PIN, adoption, play, refresh, student isolation, still art, accessibility`);
+    console.log(`PASS Checkling ${width}: PIN, adoption, all three games, earned habitat save/reload, journey, student isolation, still art, accessibility`);
     await context.close();
   }
   for (const width of [320,390,1440]) {
@@ -164,5 +226,5 @@ try {
 } finally {
   await writeFile(new URL('results.json',out),JSON.stringify(results,null,2));
   await browser.close();
-  await server.stop();
+  await new Promise(resolve => server.close(resolve));
 }

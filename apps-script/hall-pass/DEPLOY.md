@@ -4,9 +4,13 @@
 
 The current source adds the optional Checkling companion to Daily Check-In. See `docs/checkling-pond/README.md` for behavior and verification. Pet preferences use the existing private property store; the workbook schema and five-file source set are unchanged. The existing attendance, PIN, calendar, late-review and point rules remain authoritative.
 
-Release `public/hubs/checkling/pets/` on the website first, then run the normal guarded Apps Script preflight and update the existing deployment. Preserve unpublished editor drafts, the stable URL and domain-only access. The required authenticated synthetic protected-action smoke remains pending. Local source tests do not mean Version 35 includes Checkling.
+Release `public/hubs/checkling/pets/` on the website first, then run the normal guarded Apps Script preflight and update the existing deployment. Preserve unpublished editor drafts, the stable URL and domain-only access. The required authenticated synthetic protected-action smoke remains pending. Local source tests do not mean Version 39 includes Checkling. The prepared little-world development pass also adds species personalities, milestone habitats/keepsakes and untimed Star pairs/Echo grove games. Private habitat preferences remain compatible with existing friend data and add no attendance or point writes.
 
-## Current release — Version 35, September 24, 2026
+## Most recent production preflight — Version 39, October 21, 2026
+
+[Preflight run 39715268796](https://github.com/Grantauch/the-desk/actions/runs/39715268796) verified Version 39 on the existing deployment. All five production file hashes exactly match site main `3e71b3dc67e9d394d5c7ed634090814dd979c34c`, with no unpublished editor draft. The stable URL, DOMAIN access and USER_DEPLOYING execution are unchanged. This is read-only production evidence; it does not deploy Checkling or replace the required protected synthetic smoke.
+
+## Earlier release record — Version 35, September 24, 2026
 
 Source commit: `c4572883272ab46632826b2ee293ed83a424a791` ([PR #147](https://github.com/Grantauch/the-desk/pull/147)). The existing deployment was updated in place by [GitHub Actions run 36006694588](https://github.com/Grantauch/the-desk/actions/runs/36006694588) ("DEPLOYED — Apps Script version 35; existing deployment ID and URL preserved; access=DOMAIN; executeAs=USER_DEPLOYING"). No workbook schema change; schema remains `2026-09-21-backend-b` and the teacher contract remains `2026-09-22-all-teacher-rpcs`.
 
