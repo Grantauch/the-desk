@@ -34,7 +34,6 @@
       'lab-source-one-claim': true, 'lab-source-two-claim': true,
       'lab-independent': true, 'lab-visual': true, 'lab-defense-answer': true
     };
-    var hypotheses = ['lab-initial-hypothesis', 'lab-revised-hypothesis'];
     var state;
     var hadPreviousSession = false;
     try {
@@ -44,7 +43,7 @@
         hadPreviousSession = true;
       }
     } catch (error) { /* storage can be blocked */ }
-    if (!state) state = {
+    function blankState() { return {
       v: 1, pastes: 0, blocked: 0, allowed: 0, imported: 0,
       pastedWords: 0, sourcePastes: 0, sourceWords: 0, maxPaste: 0,
       characterKeyPresses: 0, deletions: 0, nonKeyboardInserts: 0,
@@ -52,7 +51,8 @@
       firstWorkAt: 0, lastWorkAt: 0,
       fields: {}, stamped: {}, exceptionsUsed: 0,
       priorReport: ''
-    };
+    }; }
+    if (!state) state = blankState();
     var lastEdit = 0;
     var stampAnchor = state.firstWorkAt || Date.now();
     var currentReport = '';
@@ -96,14 +96,14 @@
         'Editing bursts (2-minute inactivity gap): ' + state.editSessions +
           ' | research fields visited: ' + Object.keys(state.fields).length,
         'Student exception switch activations: ' + state.exceptionsUsed,
-        'Draft evidence stamps: ' + Object.keys(state.stamped).sort().map(function (k) {
+        'Draft evidence stamps: ' + (Object.keys(state.stamped).sort().map(function (k) {
           return 'round ' + k + ' (+' + state.stamped[k].minute + 'm, ' + state.stamped[k].words + ' words in its writing fields)';
-        }).join('; ') || 'none',
+        }).join('; ') || 'none'),
         'Interpretation: counts can miss voice typing, imports, other devices, offline writing and browser manipulation. They cannot establish authorship or academic misconduct. Review the evidence and ask follow-up questions.'
       ];
       if (state.priorReport) {
         chunks.push('Previous device/session receipt (as restored from saved work; not merged with these counts):');
-        chunks.push(state.priorReport.slice(0, 1600));
+        chunks.push(state.priorReport);
       }
       return chunks.join('\n');
     }
@@ -196,6 +196,17 @@
       });
     }
     updateFieldLengths();
+    /* Shared account recovery emits ordinary input events for restored fields.
+     * Keep length baselines current without treating recovery as student edits. */
+    lab.addEventListener('input', function (event) {
+      if (event.isTrusted) return;
+      if (eligible(event.target)) fieldLengths[event.target.id] = event.target.value.length;
+      if (event.target === report && window.__deskSave && window.__deskSave.ready &&
+          report.value && report.value !== currentReport) {
+        preserveReceipt(report.value);
+        scheduleRender();
+      }
+    });
     window.addEventListener('load', function () { setTimeout(updateFieldLengths, 250); }, { once: true });
     lab.addEventListener('input', function (event) {
       var el = event.target;
@@ -252,23 +263,42 @@
     function updateDefense() {
       var name = heel.value.trim() || 'your wrestler';
       defense.textContent = challenges[challengeIndex(name.toLowerCase())](name);
+      document.getElementById('lab-defense-answer').setAttribute('data-q', 'Source defense: ' + defense.textContent);
     }
     heel.addEventListener('input', updateDefense);
     updateDefense();
 
+    function preserveReceipt(text) {
+      if (text.indexOf('WRITING PROCESS RECEIPT') === -1) return;
+      /* Keep only the latest other-session summary, avoiding recursive growth.
+       * The final receipt stays well within Turn In's 6,000-character limit. */
+      state.priorReport = text.split('\nPrevious device/session receipt')[0].slice(0, 2800);
+    }
+    window.addEventListener('desk-save:reset', function () {
+      clearTimeout(deferredRender);
+      deferredRender = 0;
+      state = blankState();
+      lastEdit = 0;
+      stampAnchor = Date.now();
+      currentReport = '';
+      report.value = '';
+      override.checked = false;
+      feedback.textContent = 'New session. The ordinary 12-word paste limit is active; accessibility and prior-work exceptions are available below.';
+      updateFieldLengths();
+      render();
+    });
+
     /* Audit receipt across a reload is restored by desk-save later. */
     render();
-    if (!hadPreviousSession) {
-      window.addEventListener('load', function () {
+    window.addEventListener('load', function () {
         setTimeout(function () {
-          if (report.value && report.value !== currentReport &&
+          if (!hadPreviousSession && report.value && report.value !== currentReport &&
               report.value.indexOf('WRITING PROCESS RECEIPT') !== -1) {
-            state.priorReport = report.value.slice(0, 1600);
-            render();
+            preserveReceipt(report.value);
           }
+          render();
         }, 140);
       }, { once: true });
-    }
     /* Form and report are readable as a teacher-facing note: never a private tracker. */
     window.__heelOriginality = { version: '1', receipt: function () { return report.value; } };
   }

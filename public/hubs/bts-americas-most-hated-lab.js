@@ -15,20 +15,20 @@
     var selection = input('lab-heel');
     var scores = [10, 15, 15, 15, 15, 10, 10, 5, 5];
     var required = [
-      ['lab-heel', 'lab-identity', 'lab-character-clue'],
+      ['lab-heel', 'lab-identity', 'lab-character-clue', 'lab-initial-hypothesis'],
       ['lab-history', 'lab-event-date', 'lab-character-date', 'lab-timeline-meaning'],
-      ['lab-wrestling', 'lab-audience', 'lab-america'],
+      ['lab-wrestling', 'lab-audience', 'lab-america', 'lab-revised-hypothesis'],
       ['lab-source-one', 'lab-source-one-claim', 'lab-source-two', 'lab-source-two-claim', 'lab-independent', 'lab-visual'],
-      ['lab-slide-one', 'lab-slide-two', 'lab-talk']
+      ['lab-slide-one', 'lab-slide-two', 'lab-talk', 'lab-defense-answer']
     ];
     /* These thresholds signal meaningful draft text, NOT factual quality. */
     var minimums = {
-      'lab-heel': 3, 'lab-identity': 45, 'lab-character-clue': 20,
+      'lab-heel': 3, 'lab-identity': 45, 'lab-character-clue': 20, 'lab-initial-hypothesis': 25,
       'lab-history': 45, 'lab-event-date': 4, 'lab-character-date': 4, 'lab-timeline-meaning': 35,
-      'lab-wrestling': 45, 'lab-audience': 45, 'lab-america': 45,
+      'lab-wrestling': 45, 'lab-audience': 45, 'lab-america': 45, 'lab-revised-hypothesis': 25,
       'lab-source-one': 20, 'lab-source-one-claim': 25, 'lab-source-two': 20,
       'lab-source-two-claim': 25, 'lab-independent': 25, 'lab-visual': 25,
-      'lab-slide-one': 20, 'lab-slide-two': 20, 'lab-talk': 35
+      'lab-slide-one': 20, 'lab-slide-two': 20, 'lab-talk': 35, 'lab-defense-answer': 25
     };
     var active = 1;
 
@@ -184,6 +184,12 @@
       clearInterval(ticker);
       elapsed = 0; started = 0; paintTimer();
       hint.textContent = 'Aim for 2:00–3:00.';
+    });
+    window.addEventListener('desk-save:reset', function () {
+      input('lab-timer-reset').click();
+      input('lab-date-feedback').textContent = 'Enter your dates, then compare them. Dates show sequence; you still must prove the connection.';
+      go(1, false);
+      update();
     });
     document.addEventListener('visibilitychange', function () {
       if (document.hidden && started) {

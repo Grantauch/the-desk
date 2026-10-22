@@ -22,6 +22,9 @@
 .investigation .lab-panel[hidden]{display:none!important}
 .investigation .lab-panel h3{font:400 clamp(1.65rem,3.3vw,2.45rem)/1.08 var(--display);color:#281b16;margin:0 0 1rem}
 .investigation .lab-panel p{color:#392c25}
+.investigation .lab-panel a{color:#801c2b}
+.investigation .lab-panel a.lab-action{color:#fff5e2}
+.investigation .lab-panel a.lab-action--light{color:#241a17}
 .investigation .lab-lead{max-width:72ch;font-size:1.15rem}
 .investigation .lab-strap{font:800 1rem/1.2 var(--label);letter-spacing:.1em;text-transform:uppercase;color:#9e1428;margin-bottom:.7rem}
 .investigation .lab-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}

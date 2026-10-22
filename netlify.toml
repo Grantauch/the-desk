@@ -17,6 +17,7 @@
   from = "/hubs/bts-americas-most-hated"
   to = "/hubs/bts-americas-most-hated-research.html"
   status = 302
+  force = true
 
 [[redirects]]
   from = "/press"
