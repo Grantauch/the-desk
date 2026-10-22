@@ -45,14 +45,16 @@ const runCase = async (name, viewport, check, reducedMotion = 'no-preference') =
   try {
     await check(page);
     assert.deepEqual(errors, [], 'No uncaught browser errors');
-    await page.screenshot({ path: artifact(`${slug}.png`), fullPage: name.startsWith('page ') });
+    // Tall StoryHubs can take longer to rasterize on Windows than an action.
+    // Keep the interaction timeout above; give the evidence image its own bound.
+    await page.screenshot({ path: artifact(`${slug}.png`), fullPage: name.startsWith('page '), timeout: 30_000 });
     results.push({ name, viewport: viewport.name, status: 'passed' });
     console.log(`PASS ${viewport.name}: ${name}`);
     await context.tracing.stop();
   } catch (error) {
     results.push({ name, viewport: viewport.name, status: 'failed', error: error.stack });
     console.error(`FAIL ${viewport.name}: ${name}\n${error.message}`);
-    await page.screenshot({ path: artifact(`${slug}-failed.png`), fullPage: true }).catch(() => {});
+    await page.screenshot({ path: artifact(`${slug}-failed.png`), fullPage: true, timeout: 30_000 }).catch(() => {});
     await context.tracing.stop({ path: artifact(`${slug}-trace.zip`) });
   } finally { await context.close(); }
 };
