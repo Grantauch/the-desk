@@ -71,3 +71,26 @@
 .investigation .lab-fineprint{font-size:.94rem;color:#c3b5a1;max-width:74ch}
 @media(max-width:720px){.investigation .lab-topline{grid-template-columns:1fr}.investigation .lab-counter{text-align:left}.investigation .lab-stepnav{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.investigation .lab-stepnav button{padding:.55rem .25rem;text-align:center;font-size:.76rem;line-height:1.12;overflow-wrap:anywhere}.investigation .lab-stepnav button span{font-size:.8rem}.investigation .lab-columns{grid-template-columns:1fr}.investigation .lab-panel{box-shadow:4px 4px 0 #090909}.investigation .lab-rubric fieldset{grid-template-columns:1fr}.investigation .lab-rubric .lab-checks{grid-column:1;grid-row:2}}
 @media(prefers-reduced-motion:reduce){.investigation .lab-meter>span{transition:none}}
+
+/* Provenance tools: intentionally legible, transparent and non-punitive. */
+.investigation .lab-integrity{margin:2rem 0;border:2px solid #ad7e4d;background:#251d18;color:#f4e5d1;padding:clamp(1rem,3vw,1.7rem)}
+.investigation .lab-integrity h3{color:#ffe6b4;font-size:clamp(1.5rem,3vw,2.25rem);margin:.4rem 0 .8rem}
+.investigation .lab-integrity p{color:#f0e0c8}
+.investigation .lab-integrity .lab-inline{font:800 1.05rem var(--label);text-transform:uppercase;color:#f9ca73}
+.investigation .lab-integrity .lab-integrity-status{border-block:1px solid #785d4c;padding:.75rem 0;color:#ffe4ac;font:700 1.05rem/1.45 var(--label);letter-spacing:.03em}
+.investigation .lab-integrity .lab-field label{color:#fff0d7}
+.investigation .lab-integrity .lab-field label small{color:#d7c2af}
+.investigation .lab-integrity input[type=checkbox]{height:1.2rem;width:1.2rem;accent-color:#f3bd65}
+.investigation .lab-integrity .lab-checkline{display:flex;align-items:flex-start;gap:.7rem;margin:1rem 0}
+.investigation .lab-integrity .lab-checkline label{font-weight:700;cursor:pointer}
+.investigation .lab-integrity .lab-integrity-message{background:#403028;padding:.8rem;border-left:4px solid #f0bd6d;min-height:3rem;margin:1rem 0}
+.investigation .lab-integrity details{border-block:1px solid #71594d;margin:1.5rem 0;padding:.65rem 0}
+.investigation .lab-integrity details summary{cursor:pointer;font:800 1rem var(--label);text-transform:uppercase;color:#ffcc82}
+.investigation .lab-integrity .lab-field textarea[readonly]{font:400 .85rem/1.5 ui-monospace,Consolas,monospace;background:#eddfcb;color:#231915;min-height:11rem}
+.investigation .lab-evidence-stamp{background:#efe0c6;border:2px dashed #7c5c4c;padding:.85rem 1rem;margin:1rem 0}
+.investigation .lab-evidence-stamp button{background:#442923;color:#fff0d4;cursor:pointer;padding:.55rem .9rem;border:0;font:800 1rem var(--label);text-transform:uppercase}
+.investigation .lab-evidence-stamp button:hover{background:#9e1428}
+.investigation .lab-evidence-stamp p{font-size:.95rem;margin:0 0 .65rem}
+.investigation .lab-defense{background:#e4d3b4;border-left:5px solid #a12930;padding:1rem 1.25rem;margin:1.4rem 0}
+.investigation .lab-defense p{color:#2a201b}
+.investigation .lab-defense strong{color:#812530}
