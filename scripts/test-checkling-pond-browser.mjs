@@ -13,7 +13,9 @@ const root = new URL('../', import.meta.url);
 const out = new URL('../browser-results/companions/', import.meta.url);
 await mkdir(out, { recursive:true });
 const html = (await readFile(new URL('apps-script/hall-pass/Index.html', root), 'utf8'))
-  .replace('<?!= JSON.stringify(appMode) ?>', '"checkin"').replace('<?= siteBrand ?>', 'grantdesk');
+  .replace('<?!= JSON.stringify(appMode) ?>', '"checkin"').replace('<?= siteBrand ?>', 'desk')
+  // Replay the URL truncation observed in the live Version 40 HtmlService output.
+  .replace(/<script>([\s\S]*?)<\/script>/g, (_, script) => `<script>${script.replace(/https:\/\/[^\r\n]*/g, 'https:')}</script>`);
 // These companions ship as static assets and five-file Apps Script source.
 // Serve only the published Pond directory; no full-site build or news fetch.
 const publicRoot = fileURLToPath(new URL('../public/', import.meta.url));
@@ -50,7 +52,7 @@ async function offline(context) {
     return route.fulfill({status:200,body:'',contentType:'text/css'});
   });
 }
-async function gasBridge(page, c) {
+async function gasBridge(page, c, mode = 'checkin') {
   await page.exposeFunction('__gas', ({name,args}) => {
     c.harness.newRequest();
     return JSON.parse(JSON.stringify(c.harness.call(name,...args)));
@@ -65,9 +67,27 @@ async function gasBridge(page, c) {
     }
     window.google = {script:{get run(){return runner();}}};
   });
-  await page.route(`${origin}/checkling-fixture/`, route => route.fulfill({body:html,contentType:'text/html'}));
+  await page.route(`${origin}/checkling-fixture/`, route => route.fulfill({body:html.replace('const APP_MODE = "checkin";', `const APP_MODE = ${JSON.stringify(mode)};`),contentType:'text/html'}));
 }
 try {
+  for (const mode of ['student','kiosk','checkin','teacher']) {
+    const context = await browser.newContext();
+    await offline(context);
+    const page = await context.newPage();
+    page.setDefaultTimeout(10000);
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    const c = classroom({now:new Date('2026-09-10T11:30:00Z')});
+    c.harness.signInAs(mode === 'teacher' ? TEACHER : PEOPLE.ada.email);
+    await gasBridge(page,c,mode);
+    await page.goto(`${origin}/checkling-fixture/`);
+    await page.locator(mode === 'teacher' ? '#teacher-stamp' : 'input[type="password"]').waitFor();
+    assert.equal(await page.getByText('Getting your classroom ready…',{exact:true}).count(),0);
+    assert.deepEqual(errors,[],`${mode} must boot without script errors after HtmlService rendering`);
+    results.push({name:`HtmlService startup: ${mode}`,status:'passed'});
+    cases++;
+    await context.close();
+  }
   for (const width of [320,390,1440]) {
     const context = await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
     await offline(context);
@@ -270,7 +290,7 @@ try {
     console.log(`PASS Pond ${width}: keyboard paint, undo, guide, export, invalid import, restore, saved reload, accessibility`);
     await context.close();
   }
-  console.log(`Companion browser acceptance: ${cases}/7 passed. All student data synthetic; external services offline.`);
+  console.log(`Companion browser acceptance: ${cases}/11 passed. All student data synthetic; external services offline.`);
 } finally {
   await writeFile(new URL('results.json',out),JSON.stringify(results,null,2));
   await browser.close();
