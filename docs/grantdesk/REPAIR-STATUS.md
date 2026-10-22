@@ -338,3 +338,12 @@ Checkling release checkpoint — October 22: protected workflow `39721575066` pa
 Owner: Codex; isolated branch `codex/checkling-startup-fix`. The authenticated live teacher page reproduces the loading freeze and an invalid-token syntax error. Its served script contains an unterminated `https:` artwork string: HtmlService stripped the literal URL remainder as a comment. Because all entry modes share that script, student pass, check-in, kiosk and teacher startup are affected before bootstrap runs.
 
 The existing Index.html now escapes the URL slashes while preserving the exact artwork destination. Server code, workbook schema, PIN/attendance/point rules and deployment URL/access are unchanged. Regression coverage replays the observed truncation, parses all four modes and checks the artwork URL. Existing structural/handoff checks, all 440 service behaviors and 17 Checkling server scenarios pass. All 11 offline Chromium browser journeys pass, including the four entry-mode startups, responsive companion/Pond interactions, artwork, accessibility and shared-screen privacy. Canonical `npm run verify` passed all 18 stages (53 built routes, 135 HTML files, 4601 local references, 13 releases/117 sealed files). Protected CI, guarded production release and live page readback remain separate pending evidence.
+
+
+## Checkling startup fix live — October 22, 2026
+
+Owner: Codex. PR #221 merged as `7a6111d11e5df028a212fac0ad4597c0c5d8e7c1` after protected workflow `39833478519` passed. Merged-main workflow `39840265487` also passed. Guarded release [39845770698](https://github.com/Grantauch/the-desk/actions/runs/39845770698) deployed Apps Script **Version 41** on the existing URL, preserving DOMAIN access and USER_DEPLOYING execution.
+
+Live Chrome checks pass for teacher, student, kiosk and Daily Check-In: the teacher dashboard renders, student entry forms appear, and the website's `/check-in/` and `/pass/` launch links reach their expected modes. The served Checkling artwork URL retains its escaped slashes, and the fresh Check-In page reports no application script errors.
+
+The authenticated Version 41 synthetic release check passes: `ok=true`, request `STARTED`, return `RETURNED_COUNTABLE`, evidence used `1`, test pass voided, test membership deactivated, `productionFactsUnchanged=true` and `syntheticOnly=true`. Schema and client contract match the existing release contract. The private test workbook URL and real student information are omitted. This is live release verification; actual classroom use remains **FIELD_PENDING**.
