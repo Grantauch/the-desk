@@ -227,6 +227,8 @@ try {
   }
   const bad = await pageFor();
   await bad.locator('#save-file').setInputFiles({name:'broken.json',mimeType:'application/json',buffer:Buffer.from('{"version":"progressive-jeopardy-v2.0","state":{}}')});
+  // The page reads the file asynchronously, so give a slow runner time to show the message.
+  await bad.waitForFunction(()=>(document.querySelector('#setup-message')?.innerText||'').includes('not a valid save'),null,{timeout:5000}).catch(()=>{});
   pass((await bad.locator('#setup-message').innerText()).includes('not a valid save'), 'Malformed save rejected with helpful feedback');
   pass(await bad.locator('#setup').isVisible(), 'Malformed save leaves setup usable');
   await bad.context().close();
