@@ -1,0 +1,73 @@
+
+/* America's Most Hated · student research lab. Scoped to this project. */
+.investigation{background:radial-gradient(ellipse at 93% 0%,#3d1b21 0,transparent 40%),#14110f;color:#f4e9d5;position:relative;border-block:5px solid #9e1428;scroll-margin-top:4rem}
+.investigation .lab-inner{max-width:1180px;margin:auto;padding:clamp(2rem,5vw,4.5rem) clamp(1rem,4vw,2.5rem)}
+.investigation .lab-eyebrow{font:800 1rem/1.2 var(--label);letter-spacing:.16em;text-transform:uppercase;color:#f0b95e}
+.investigation h2{font-size:clamp(2rem,5.5vw,4.6rem);margin:.35rem 0 1rem;color:#fff}
+.investigation .lab-deck{font-size:clamp(1.05rem,2vw,1.3rem);max-width:66ch;color:#e4d8c5}
+.investigation .lab-topline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:1.5rem;margin-bottom:2rem}
+.investigation .lab-counter{min-width:10rem;padding:.8rem 1rem;border:2px solid #9a8172;background:#211b18;text-align:center}
+.investigation .lab-counter strong{font:800 2rem/1 var(--label);color:#f5c46c;display:block}
+.investigation .lab-counter span{font:600 .92rem var(--label);text-transform:uppercase;letter-spacing:.06em}
+.investigation .lab-meter{height:.65rem;border:1px solid #796053;background:#221b18;overflow:hidden;margin-bottom:1.5rem}
+.investigation .lab-meter>span{display:block;height:100%;background:#d7263d;width:0;transition:width .25s ease}
+.investigation .lab-stepnav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem;margin:0 0 1.5rem}
+.investigation .lab-stepnav button{background:#251d19;color:#eadfcc;border:1px solid #726154;text-align:left;min-width:0;padding:.7rem .65rem;cursor:pointer;font:800 1rem/1.1 var(--label);text-transform:uppercase}
+.investigation .lab-stepnav button span{display:block;font-size:.85rem;color:#e9b759;margin-bottom:.3rem}
+.investigation .lab-stepnav button[aria-current="step"]{border-color:#efc16a;box-shadow:inset 0 -4px #d7263d;background:#463028;color:#fff}
+.investigation .lab-stepnav button[data-drafted="true"]:not([aria-current="step"]){border-color:#ab966e}
+.investigation .lab-stepnav button[data-drafted="true"] span::after{content:" ✓"}
+.investigation .lab-stepnav button:focus-visible,.investigation input:focus-visible,.investigation textarea:focus-visible,.investigation .lab-action:focus-visible{outline:3px solid #f5d279;outline-offset:2px}
+.investigation .lab-panel{border:1px solid #907b6c;background:#f0e7d6;color:#241b16;padding:clamp(1rem,4vw,2rem);box-shadow:8px 8px 0 #090909}
+.investigation .lab-panel[hidden]{display:none!important}
+.investigation .lab-panel h3{font:400 clamp(1.65rem,3.3vw,2.45rem)/1.08 var(--display);color:#281b16;margin:0 0 1rem}
+.investigation .lab-panel p{color:#392c25}
+.investigation .lab-lead{max-width:72ch;font-size:1.15rem}
+.investigation .lab-strap{font:800 1rem/1.2 var(--label);letter-spacing:.1em;text-transform:uppercase;color:#9e1428;margin-bottom:.7rem}
+.investigation .lab-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.investigation .lab-field{margin:1.15rem 0}
+.investigation .lab-field label{display:block;font:800 1.04rem/1.35 var(--label);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;color:#241b16}
+.investigation .lab-field label small{font:400 .92rem/1.4 var(--body);text-transform:none;letter-spacing:0;color:#655247;display:block;margin-top:.2rem}
+.investigation .lab-field textarea,.investigation .lab-field input[type=text]{display:block;width:100%;padding:.85rem .9rem;border:2px solid #746358;border-radius:2px;background:#fffdfa;color:#201916;font:400 1rem/1.5 var(--body);min-width:0}
+.investigation .lab-field textarea{min-height:7.5rem;resize:vertical}
+.investigation .lab-field textarea::placeholder,.investigation .lab-field input::placeholder{color:#77685f;opacity:1}
+.investigation .lab-info{padding:1rem 1.15rem;background:#e4d7bd;border-left:5px solid #a02832;color:#32241e;margin:1.1rem 0}
+.investigation .lab-info p{margin:0}
+.investigation .lab-info strong{color:#711524}
+.investigation .lab-mini{font-size:.93rem;color:#624b40}
+.investigation .lab-choice{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem}
+.investigation .lab-choice button{cursor:pointer;background:#251c19;color:#fff1d8;border:1px solid #735d4a;padding:.45rem .65rem;font:700 .96rem var(--label);letter-spacing:.03em}
+.investigation .lab-choice button[aria-pressed=true]{background:#9e1428;color:#fff;border-color:#9e1428}
+.investigation .lab-outcome{margin:1rem 0;padding:1rem;background:#241b17;color:#f5ead9;border-left:4px solid #e6ae52;min-height:3.5rem}
+.investigation .lab-outcome p{color:#f5ead9;margin:0}
+.investigation .lab-controls{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;padding-top:1.4rem;margin-top:1.5rem;border-top:1px solid #9d887a}
+.investigation .lab-action{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border:2px solid #241a17;background:#241a17;color:#fff5e2;padding:.7rem 1rem;font:800 1.05rem/1.15 var(--label);letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+.investigation .lab-action:hover{background:#a21e2c;border-color:#a21e2c;color:#fff}
+.investigation .lab-action--light{background:transparent;color:#241a17}
+.investigation .lab-action--light:hover{background:#241a17;color:#fff}
+.investigation .lab-badges{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0}
+.investigation .lab-badges span{background:#e0c9ac;padding:.3rem .6rem;font:800 .9rem var(--label);text-transform:uppercase}
+.investigation .lab-timer{display:flex;align-items:center;flex-wrap:wrap;gap:.6rem;padding:1rem;border:2px solid #8c7361;background:#e5d5bd}
+.investigation .lab-timer strong{font:800 clamp(2rem,5vw,3.5rem)/1 var(--label);font-variant-numeric:tabular-nums;margin-right:.5rem}
+.investigation .lab-timer button{cursor:pointer;border:2px solid #372721;background:transparent;padding:.55rem .75rem;color:#241814;font:800 .95rem var(--label);text-transform:uppercase}
+.investigation .lab-timer button:hover{background:#372721;color:#fff}
+.investigation .lab-rubric{display:grid;gap:.5rem;margin:1rem 0}
+.investigation .lab-rubric fieldset{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:.6rem;padding:.7rem;border:1px solid #ad9b8a;margin:0;min-width:0}
+.investigation .lab-rubric legend{float:left;width:auto;padding:0;font:700 1rem/1.35 var(--body);color:#281d18}
+.investigation .lab-rubric .lab-points{color:#872735;font:800 .9rem var(--label)}
+.investigation .lab-rubric .lab-checks{display:flex;gap:.7rem;grid-column:2;grid-row:1;align-items:center}
+.investigation .lab-rubric label{font:600 .92rem var(--body);white-space:nowrap}
+.investigation .lab-rubric input{accent-color:#94212d;width:1rem;height:1rem}
+.investigation .lab-score{background:#251b17;color:#f1e3ce;padding:1rem;margin:1rem 0}
+.investigation .lab-score strong{color:#ffd17e;font:800 1.7rem var(--label)}
+.investigation .lab-score p{color:#f1e3ce;margin:0;font-size:.95rem}
+.investigation .lab-submit{border:2px solid #b28f52;background:#261c18;padding:1.2rem;margin:2rem 0 0}
+.investigation .lab-submit h3{color:#fff0dc;margin:0 0 .65rem}
+.investigation .lab-submit p{color:#eadbc5;font-size:1rem}
+.investigation .lab-submit a{color:#ffc875}
+.investigation .lab-submit [data-desk-turnin]{scroll-margin-top:6rem}
+.investigation details.lab-tip{margin:1rem 0;border-top:1px solid #c5b39a;padding:.5rem 0}
+.investigation details.lab-tip summary{cursor:pointer;color:#861824;font:800 .98rem var(--label);text-transform:uppercase}
+.investigation .lab-fineprint{font-size:.94rem;color:#c3b5a1;max-width:74ch}
+@media(max-width:720px){.investigation .lab-topline{grid-template-columns:1fr}.investigation .lab-counter{text-align:left}.investigation .lab-stepnav{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.investigation .lab-stepnav button{padding:.55rem .25rem;text-align:center;font-size:.76rem;line-height:1.12;overflow-wrap:anywhere}.investigation .lab-stepnav button span{font-size:.8rem}.investigation .lab-columns{grid-template-columns:1fr}.investigation .lab-panel{box-shadow:4px 4px 0 #090909}.investigation .lab-rubric fieldset{grid-template-columns:1fr}.investigation .lab-rubric .lab-checks{grid-column:1;grid-row:2}}
+@media(prefers-reduced-motion:reduce){.investigation .lab-meter>span{transition:none}}
