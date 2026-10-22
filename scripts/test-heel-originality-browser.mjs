@@ -52,6 +52,7 @@ try {
   await page.locator('#lab-heel-choices button').filter({ hasText: 'The Iron Sheik' }).click();
   assert.equal(await page.locator('#lab-heel').inputValue(), 'The Iron Sheik');
   await page.locator('#lab-identity').fill('This is my first attempt to distinguish the advertised villain from the actual wrestler who played the character.');
+  await page.waitForFunction(() => document.getElementById('lab-process-report').value.includes('WRITING PROCESS RECEIPT'));
   assert.match(await page.locator('#lab-process-report').inputValue(), /WRITING PROCESS RECEIPT/);
   assert.ok(!errors.length, 'No JavaScript errors when entering an original answer: ' + errors.join('; '));
 
@@ -92,6 +93,7 @@ try {
 
   await page.reload({ waitUntil: 'load' });
   await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
+  await page.waitForFunction(() => document.getElementById('lab-process-report').value.includes('rejected (>12 words): 2'));
   assert.match(await page.locator('#lab-process-report').inputValue(), /rejected \(>12 words\): 2/);
   assert.match(await page.locator('#lab-originality-status').textContent(), /draft stamps: 1\/5/);
   assert.ok(!errors.length, 'No JavaScript errors: ' + errors.join('; '));
