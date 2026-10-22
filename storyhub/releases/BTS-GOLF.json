@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-golf-special-edition.html",
-      "bytes": 108141,
-      "sha256": "aff826fe9f382b015174801f11b538fb1c76ee305d1f9fadd4bedee269e3e470"
+      "bytes": 121260,
+      "sha256": "6ac14eff2d3bbbfec9720560d7380f9cada69489bb0096d51063f00a6b8905ac"
     },
     {
       "path": "/storyhub/bts/golf/assets/anton.woff2",
@@ -36,13 +36,13 @@
     },
     {
       "path": "/storyhub/bts/golf/assets/golf.css",
-      "bytes": 12582,
-      "sha256": "af291ce00ecd65488fc55e218f35174aa4c14d920cfdf726f81d87c3c9b0a466"
+      "bytes": 12794,
+      "sha256": "c3ebebd2b788f11154b422bd1f56adb2c08c5bb90aecdede83ced14d9e14c61f"
     },
     {
       "path": "/storyhub/bts/golf/assets/golf.js",
-      "bytes": 10352,
-      "sha256": "ed627801121d79657f708aa83c91cb4bc7f0e1e62711d72b9416722b5ce3e636"
+      "bytes": 10953,
+      "sha256": "e652528acf3c1613669eb87eca05a43e3d0ee94931f779f62fe05637b34fe65c"
     },
     {
       "path": "/storyhub/bts/golf/assets/golfers.webp",
@@ -149,6 +149,6 @@
       "assetId": "A08"
     }
   ],
-  "totalBytes": 1566451,
-  "sealedAt": "2026-10-16"
+  "totalBytes": 1580383,
+  "sealedAt": "2026-10-22"
 }

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Zero Points in Paris | Beyond the Scoreboard · ByteSize</title>
+<meta name="description" content="Raygun, the first Olympic breaking competition, and how 0 votes out of 54 turned a Sydney lecturer into the most famous athlete of Paris 2024.">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-bytesize-zero-points.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zero Points in Paris">
+<meta property="og:description" content="Watch Raygun's battles, see every judge's vote, and sort the rumors from the record.">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-bytesize-zero-points.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/zero-points/assets/cypher.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Story DNA: the Paris 2024 breaking stage at Place de la Concorde. Violet stage floor, red and blue judge boxes, Australian green and gold for Raygun. Layout reads like a battle bracket: two sides, a verdict between. */
+:root {
+  --ground: #F1EFFA;
+  --panel: #FFFFFF;
+  --ink: #1D1548;
+  --muted: #565080;
+  --line: #D6D1EE;
+  --stage: #2A1F6E;
+  --stage-ink: #F4F2FF;
+  --red: #D7263D;
+  --blue: #2F5BEA;
+  --green: #00843D;
+  --gold: #6B5200;
+  --gold-bright: #FFCD00;
+  --font-display: "Unbounded", "Arial Black", Arial, sans-serif;
+  --font-body: "Figtree", "Segoe UI", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #120D33; --panel: #1C1550; --ink: #F1EFFA; --muted: #B3ADDA; --line: #33297A;
+    --red: #FF5A6E; --blue: #6F90FF; --green: #2BC46E; --gold: #FFCD00; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #120D33; --panel: #1C1550; --ink: #F1EFFA; --muted: #B3ADDA; --line: #33297A;
+  --red: #FF5A6E; --blue: #6F90FF; --green: #2BC46E; --gold: #FFCD00; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+img { max-width: 100%; }
+a { color: inherit; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--ink); color: var(--ground); padding: 10px 14px; border-radius: 6px; font-weight: 700; text-decoration: none; }
+.skip:focus { top: 12px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.masthead { background: var(--stage); color: var(--stage-ink); }
+.masthead .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 14px; }
+.brand { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem; text-decoration: none; }
+.brand span { color: var(--gold-bright); padding: 0 8px; }
+.series { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.series b { color: var(--gold-bright); }
+section { padding-block: clamp(48px, 8vw, 96px); border-top: 1px solid var(--line); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.05; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.5rem, 8vw, 5.2rem); text-transform: uppercase; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.7rem, 4.4vw, 2.7rem); margin-bottom: 20px; }
+h3 { font-size: 1.15rem; margin-bottom: 8px; }
+.kicker { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; color: var(--gold); margin: 0 0 12px; font-weight: 700; }
+p { margin: 0 0 16px; max-width: 64ch; }
+.lede { font-size: 1.2rem; }
+.muted { color: var(--muted); }
+figure { margin: 0; }
+figcaption { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+.split > * { min-width: 0; }
+@media (max-width: 780px) { .split { grid-template-columns: 1fr; } }
+
+/* hero: stage */
+.hero { background: var(--stage); color: var(--stage-ink); border-top: 0; }
+.hero .kicker { color: var(--gold-bright); }
+.hero-score { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 28px; }
+.hero-score div { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 14px 18px; min-width: 9rem; }
+.hero-score b { display: block; font-family: var(--font-mono); font-size: 2.2rem; line-height: 1; color: #FF6B7D; }
+.hero-score span { font-size: 0.9rem; color: #D6D1EE; }
+.hero .video { margin-top: 32px; }
+.hero .vmeta, .hero .vmeta a { color: #D6D1EE; }
+
+/* video */
+.video { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vmeta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+.vmeta a { color: var(--muted); }
+
+/* timeline */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.steps li { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; display: grid; grid-template-columns: 7.5rem 1fr; gap: 12px; }
+.steps li > * { min-width: 0; }
+.steps time { font-family: var(--font-mono); font-weight: 700; color: var(--gold); font-size: 0.88rem; padding-top: 2px; }
+@media (max-width: 520px) { .steps li { grid-template-columns: 1fr; gap: 2px; } }
+.crit { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 18px 0; }
+.crit div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.crit b { display: block; font-size: 0.95rem; }
+.crit span { font-size: 0.82rem; color: var(--muted); }
+@media (max-width: 760px) { .crit { grid-template-columns: repeat(2, 1fr); } .crit div:last-child { grid-column: span 2; } }
+
+/* panel interaction */
+.panelbox { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: clamp(16px, 3vw, 28px); }
+.battle { display: grid; grid-template-columns: 10rem 1fr 5.5rem; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.battle:first-of-type { border-top: 0; }
+.battle > * { min-width: 0; }
+.battle .who b { display: block; }
+.battle .who span { font-size: 0.85rem; color: var(--muted); }
+.rounds { display: grid; gap: 6px; }
+.round { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; max-width: 360px; }
+.vote { aspect-ratio: 1; border-radius: 4px; border: 2px dashed var(--line); background: transparent; transition: background 0.25s, border-color 0.25s, transform 0.25s; }
+.vote.on { border-style: solid; transform: scale(1); }
+.vote.opp-red.on { background: var(--red); border-color: var(--red); }
+.vote.opp-blue.on { background: var(--blue); border-color: var(--blue); }
+.score { font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .battle { grid-template-columns: 1fr; gap: 8px; } .score { text-align: left; } }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; align-items: center; }
+.btn { appearance: none; border: 1px solid var(--ink); background: transparent; color: var(--ink); font: 700 0.95rem var(--font-body); padding: 10px 16px; border-radius: 999px; cursor: pointer; }
+.btn.solid { background: var(--ink); color: var(--ground); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn:focus-visible, .claim:focus-visible, a:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.tally { font-family: var(--font-mono); font-weight: 700; }
+.tally .g { color: var(--green); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-top: 10px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+
+/* rumors */
+.claims { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
+@media (max-width: 680px) { .claims { grid-template-columns: 1fr; } }
+.claim { appearance: none; text-align: left; font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; cursor: pointer; display: grid; gap: 8px; min-height: 8.5rem; }
+.claim:hover { border-color: var(--ink); }
+.claim .tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.claim .said { font-weight: 700; font-size: 1.05rem; }
+.claim .fact { display: none; font-size: 0.98rem; }
+.claim[aria-expanded="true"] .fact { display: block; }
+.claim[aria-expanded="true"] .tag.false { color: var(--red); }
+.claim[aria-expanded="true"] .tag.true { color: var(--green); }
+.claims-count { font-family: var(--font-mono); font-size: 0.9rem; color: var(--muted); margin-top: 12px; }
+
+.podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+.podium div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.podium b { display: block; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+@media (max-width: 600px) { .podium { grid-template-columns: 1fr; } }
+blockquote { margin: 0 0 18px; padding: 0; font-size: clamp(1.25rem, 3vw, 1.65rem); font-weight: 600; line-height: 1.3; max-width: 32ch; }
+blockquote cite { display: block; font-style: normal; font-weight: 400; font-size: 0.92rem; color: var(--muted); margin-top: 8px; }
+.photo img { display: block; width: 100%; height: auto; border-radius: 12px; object-fit: cover; }
+.sources { font-size: 0.85rem; color: var(--muted); }
+.sources a { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to the story</a>
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="https://grant-desk.com/storyhubs/">The Desk<span>/</span>Beyond the Scoreboard</a>
+    <span class="series">ByteSize <b>№ 06</b></span>
+  </div>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <section class="hero">
+    <div class="wrap">
+      <p class="kicker">Place de la Concorde · August 9, 2024</p>
+      <h1>Zero Points in Paris</h1>
+      <p class="lede" style="margin-top:20px;max-width:56ch">Breaking's first Olympic competition produced a gold medalist from Japan, a silver medalist from Lithuania, and a 36 year old university lecturer from Sydney who became more famous than both of them.</p>
+      <div class="hero-score">
+        <div><b>3</b><span>battles</span></div>
+        <div><b>0</b><span>rounds won</span></div>
+        <div><b>0 / 54</b><span>judge votes</span></div>
+      </div>
+      <div class="video" data-yt="PrOrQUvGETE" data-title="Raygun's first battle at the Paris 2024 Olympics"></div>
+      <div class="vmeta"><span>Raygun's first battle, against Logistx · 5:25 · broadcast clip uploaded by a fan</span><a href="https://www.youtube.com/watch?v=PrOrQUvGETE" target="_blank" rel="noopener">Open on YouTube</a></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <p class="kicker">The sport</p>
+        <h2>From a Bronx rec room to the Olympics</h2>
+        <ol class="steps">
+          <li><time datetime="1973-08-11">Aug 11, 1973</time><div>DJ Kool Herc stretches the drum breaks of funk records at a party at 1520 Sedgwick Avenue in the Bronx. Dancers build moves for the breaks.</div></li>
+          <li><time datetime="2018">2018</time><div>Breaking appears at the Youth Olympic Games in Buenos Aires.</div></li>
+          <li><time datetime="2020-12">Dec 2020</time><div>The IOC adds breaking to Paris 2024 to reach younger viewers.</div></li>
+          <li><time datetime="2023-10">Oct 2023</time><div>Los Angeles leaves breaking off the 2028 program. Paris will be its only Olympics for now.</div></li>
+        </ol>
+      </div>
+      <figure class="photo">
+        <img src="/storyhub/bts/zero-points/assets/youth-olympics-2018.webp" alt="A breaker balancing on one hand during a battle at the 2018 Youth Olympic Games" width="1400" height="931" loading="lazy">
+        <figcaption>Breaking at the 2018 Youth Olympic Games in Buenos Aires. Photo: BugWarp, CC BY-SA 4.0.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">The rules</p>
+      <h2>Nine judges, two rounds, one vote each</h2>
+      <p>In a battle, two dancers take turns to music the DJ picks live. Neither one knows the song until it starts. After every round, each of nine judges votes for one dancer. In the group stage a battle had two rounds, so 18 votes were up for grabs.</p>
+      <div class="crit">
+        <div><b>Technique</b><span>body control, athletic skill</span></div>
+        <div><b>Vocabulary</b><span>how many different moves</span></div>
+        <div><b>Execution</b><span>clean, no slips</span></div>
+        <div><b>Musicality</b><span>moving with the beat</span></div>
+        <div><b>Originality</b><span>something nobody else does</span></div>
+      </div>
+      <p class="kicker" style="margin-top:28px">Be the panel</p>
+      <div class="panelbox">
+        <p style="margin-bottom:6px">Reveal Raygun's six rounds one at a time. Every square is one judge's vote. Green would have been a vote for her.</p>
+        <div class="battle"><div class="who"><b>vs Logistx</b><span>United States</span></div><div class="rounds" data-battle="0"></div><div class="score" id="score0">0 to 0</div></div>
+        <div class="battle"><div class="who"><b>vs Syssy</b><span>France</span></div><div class="rounds" data-battle="1"></div><div class="score" id="score1">0 to 0</div></div>
+        <div class="battle"><div class="who"><b>vs Nicka</b><span>Lithuania</span></div><div class="rounds" data-battle="2"></div><div class="score" id="score2">0 to 0</div></div>
+        <div class="controls">
+          <button class="btn solid" type="button" id="nextRound">Reveal round 1</button>
+          <button class="btn" type="button" id="allRounds">Reveal all six</button>
+          <button class="btn" type="button" id="resetRounds">Reset</button>
+          <span class="tally" id="tally" aria-live="polite">Raygun: <span class="g">0</span> of 0 votes so far</span>
+        </div>
+        <div class="legend"><span><i style="background:var(--red)"></i>Logistx and Nicka</span><span><i style="background:var(--blue)"></i>Syssy</span><span><i style="background:var(--green)"></i>Raygun</span></div>
+        <noscript><p>All three battles ended 18 to 0 for her opponents. Raygun received 0 of 54 votes.</p></noscript>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <p class="kicker">The athlete</p>
+        <h2>How a lecturer got to Paris</h2>
+        <p>Rachael Gunn started breaking in her mid twenties. In 2017 she earned a PhD in cultural studies at Macquarie University in Sydney, writing about women in Sydney's mostly male breaking scene. By 2024 she taught there and competed as Raygun.</p>
+        <p>Every continent got Olympic spots. Oceania got one for b-girls. In October 2023 Gunn won the Oceania championship in Sydney, beating Molly Chapman in the final in front of nine international judges.</p>
+        <p><strong>She followed the rules exactly. The rules sent the best b-girl in a small region to face the best in the world.</strong></p>
+      </div>
+      <div>
+        <div class="video" data-yt="-zt7IE9cR7M" data-title="Yahoo Australia on the qualifying system that sent Raygun to Paris"></div>
+        <div class="vmeta"><span>Yahoo Australia on the qualifying system · 1:23</span><a href="https://www.youtube.com/watch?v=-zt7IE9cR7M" target="_blank" rel="noopener">Open on YouTube</a></div>
+        <blockquote style="margin-top:24px">"She was trying to be original, bring something new to the table."<cite>Martin Gilian, the competition's head judge, after the backlash</cite></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">The pile on</p>
+      <h2>Rumor or record?</h2>
+      <p>Within hours the kangaroo hop was a meme. Within days an anonymous Change.org petition with more than 45,000 signatures claimed she had rigged her way in. Australia's Olympic committee answered with a list of facts. Tap each claim.</p>
+      <div class="claims" id="claims">
+        <button class="claim" type="button" aria-expanded="false" id="claim1"><span class="tag false">Claim</span><span class="said">"She set up her own governing body for breaking."</span><span class="fact"><b>False.</b> She held no position with AUSBreaking or DanceSport Australia and had no say over funding.</span></button>
+        <button class="claim" type="button" aria-expanded="false" id="claim2"><span class="tag false">Claim</span><span class="said">"Her coach judged the qualifier."</span><span class="fact"><b>False.</b> Her coach, Samuel Free, held no official role and was not a judge. Nine international judges picked by the world federation scored it.</span></button>
+        <button class="claim" type="button" aria-expanded="false" id="claim3"><span class="tag false">Claim</span><span class="said">"Team Australia's leader, Anna Meares, picked her."</span><span class="fact"><b>False.</b> Meares had no role in the qualifier or the nomination. DanceSport Australia nominated the Oceania champion, as the rules required.</span></button>
+        <button class="claim" type="button" aria-expanded="false" id="claim4"><span class="tag true">Claim</span><span class="said">"She earned her spot by winning a judged qualifier."</span><span class="fact"><b>True.</b> She won the October 2023 Oceania Breaking Championship. No other athlete appealed.</span></button>
+      </div>
+      <p class="claims-count" id="claimsCount" aria-live="polite">0 of 4 checked</p>
+      <p style="margin-top:18px">Olympic committee CEO Matt Carroll called the petition "vexatious, misleading and bullying." Change.org took it down on August 15, 2024.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <p class="kicker">August 15, 2024</p>
+        <h2>"Please stop"</h2>
+        <blockquote>"I didn't realize that would also open the door to so much hate, which has, frankly, been pretty devastating."<cite>Rachael Gunn, video statement</cite></blockquote>
+        <p>She said she trained hard and took the Olympics seriously, and asked reporters to stop harassing her family, her friends and the breaking community.</p>
+        <p class="kicker" style="margin-top:28px">Who actually won</p>
+        <div class="podium">
+          <div><b>Gold</b>Ami Yuasa, Japan</div>
+          <div><b>Silver</b>Nicka, Lithuania</div>
+          <div><b>Bronze</b>671, China</div>
+        </div>
+        <p class="muted" style="margin-top:12px">Nicka beat Raygun in the group stage on her way to silver.</p>
+      </div>
+      <div>
+        <div class="video" data-yt="maNQnnnMZj0" data-title="Raygun's video statement about the backlash, August 2024"></div>
+        <div class="vmeta"><span>Gunn's statement, via the New York Post · 1:39</span><a href="https://www.youtube.com/watch?v=maNQnnnMZj0" target="_blank" rel="noopener">Open on YouTube</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <p class="kicker">After Paris</p>
+        <h2>Number one, then gone</h2>
+        <ol class="steps">
+          <li><time datetime="2024-09">Sept 2024</time><div>The world federation's rankings list Raygun as the number one b-girl on Earth. Olympic events did not count and many top breakers' points had expired.</div></li>
+          <li><time datetime="2024-11-06">Nov 6, 2024</time><div>She retires from competition. "I just didn't have any control over how people saw me or who I was."</div></li>
+          <li><time datetime="2026-02">Feb 2026</time><div>She leaves her teaching job at Macquarie University.</div></li>
+          <li><time datetime="2026-09">Sept 2026</time><div>Netflix releases Untold Raygun: Breaking Badly. In the trailer she says she feared "the whole world could laugh at me."</div></li>
+        </ol>
+      </div>
+      <div>
+        <div class="video" data-yt="OCZg5l9BfRg" data-title="Untold Raygun: Breaking Badly, Netflix trailer"></div>
+        <div class="vmeta"><span>Netflix trailer, 2026 · 1:33</span><a href="https://www.youtube.com/watch?v=OCZg5l9BfRg" target="_blank" rel="noopener">Open on YouTube</a></div>
+        <figure class="photo" style="margin-top:28px">
+          <img src="/storyhub/bts/zero-points/assets/cypher.webp" alt="A breaker spinning on one hand in a crowded circle at a street event" width="1400" height="1046" loading="lazy">
+          <figcaption>A cypher at the R16 festival in Seoul, 2014. Photo: gbern3, CC BY-SA 3.0.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sources">
+      <p><strong>Sources.</strong> <a href="https://en.wikipedia.org/wiki/Breaking_at_the_2024_Summer_Olympics_%E2%80%93_B-Girls" target="_blank" rel="noopener">Official results summary</a>, <a href="https://thenightly.com.au/sport/olympics/raygun-falsehoods-called-out-in-explosive-statement-by-australian-olympic-committee-c-15712483" target="_blank" rel="noopener">AOC statement via The Nightly</a>, <a href="https://www.sbs.com.au/news/article/nothing-shocking-top-breakdancing-judge-praises-rayguns-kangaroo-move-for-originality/vsikcbjyz" target="_blank" rel="noopener">SBS News</a>, <a href="https://www.aljazeera.com/sports/2024/11/7/raygun-quits-competitive-breakdancing-after-paris-olympics-backlash" target="_blank" rel="noopener">Al Jazeera</a>, <a href="https://www.worlddancesport.org/News/wdsf-statement-la28-decision-exclude-breaking-3367" target="_blank" rel="noopener">World DanceSport Federation</a>, <a href="https://www.teamusa.com/news/2023/november/04/the-history-of-breaking" target="_blank" rel="noopener">Team USA</a>, <a href="https://au.variety.com/2026/film/news/australian-olympian-raygun-to-get-netflix-documentary-39371/" target="_blank" rel="noopener">Variety Australia</a>. Videos play from YouTube.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  document.querySelectorAll('.video[data-yt]').forEach(function (box) {
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?rel=0&playsinline=1';
+    f.title = box.getAttribute('data-title');
+    f.loading = 'lazy';
+    f.allow = 'encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    box.appendChild(f);
+  });
+
+  // Six rounds: battle index, opponent color. Every round was 9 to 0.
+  var colors = ['opp-red', 'opp-blue', 'opp-red'];
+  var cells = [];
+  document.querySelectorAll('.rounds').forEach(function (r) {
+    var b = Number(r.getAttribute('data-battle'));
+    for (var k = 0; k < 2; k++) {
+      var row = document.createElement('div');
+      row.className = 'round';
+      row.setAttribute('aria-hidden', 'true');
+      var list = [];
+      for (var j = 0; j < 9; j++) { var v = document.createElement('span'); v.className = 'vote ' + colors[b]; row.appendChild(v); list.push(v); }
+      r.appendChild(row);
+      cells.push({ battle: b, votes: list });
+    }
+  });
+  var shown = 0;
+  var next = document.getElementById('nextRound');
+  var tally = document.getElementById('tally');
+  function render() {
+    cells.forEach(function (c, i) { c.votes.forEach(function (v) { v.classList.toggle('on', i < shown); }); });
+    for (var b = 0; b < 3; b++) {
+      var opp = cells.filter(function (c, i) { return c.battle === b && i < shown; }).length * 9;
+      document.getElementById('score' + b).textContent = '0 to ' + opp;
+    }
+    tally.innerHTML = 'Raygun: <span class="g">0</span> of ' + (shown * 9) + ' votes so far';
+    next.textContent = shown < 6 ? 'Reveal round ' + (shown + 1) : 'All six rounds shown';
+    next.disabled = shown >= 6;
+  }
+  next.addEventListener('click', function () { if (shown < 6) { shown++; render(); } });
+  document.getElementById('allRounds').addEventListener('click', function () { shown = 6; render(); });
+  document.getElementById('resetRounds').addEventListener('click', function () { shown = 0; render(); });
+  render();
+
+  var claims = Array.prototype.slice.call(document.querySelectorAll('.claim'));
+  var count = document.getElementById('claimsCount');
+  claims.forEach(function (c) {
+    c.addEventListener('click', function () {
+      c.setAttribute('aria-expanded', c.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');
+      var tag = c.querySelector('.tag');
+      tag.textContent = c.getAttribute('aria-expanded') === 'true' ? (tag.classList.contains('true') ? 'Record: true' : 'Record: false') : 'Claim';
+      c.dataset.seen = '1';
+      count.textContent = claims.filter(function (x) { return x.dataset.seen; }).length + ' of 4 checked';
+    });
+  });
+})();
+</script>
+</body>
+</html>

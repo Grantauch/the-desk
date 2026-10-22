@@ -697,6 +697,20 @@
     "deployment_status": "NOT_DEPLOYED",
     "field_status": "FIELD_PENDING"
   },
+  "golf-polish-2026-10-16": {
+    "status": "SOURCE_VERIFIED_PROTECTED_BROWSER_AND_PUBLICATION_PENDING",
+    "scope": "Student independence, vocabulary, lab arithmetic, accessible image evidence and lab reset behavior",
+    "evidence": [
+      "Rechecked Scottish records, early championship format, the 1961 PGA clause and Clearview history against institutional sources. Preserved bounded 2022-2023 business case and dated later portraits.",
+      "Added first-session steps, source-ID examples, four verdict definitions, contextual vocabulary, worked expected-strokes arithmetic and complete paper formulas.",
+      "Added observed image descriptions and clarified no-activity access plans, travel-grant limits and meaningful two-run comparisons. Saved field IDs and recovery payload format remain stable.",
+      "Added synthetic browser coverage for no-participation feedback, actual-travel grant cap, a valid water plan, sign-out control reset and subsequent recovery.",
+      "Independent arithmetic checks passed 28 teacher-key cases across cards A-D. All 38 saved field IDs and limits remain unchanged; worst-case answer JSON is 39255 characters against the service limit of 45000.",
+      "2026-10-22: protected CI showed lab controls kept the previous student's settings after sign out because the reset waited on a polling timer. Labs now reset on the card-cleared event; a frozen-timer browser check confirmed the old code kept the settings and the new code clears them. Desk-save browser suite 24/24 locally on Node 22 and Node 24."
+    ],
+    "deployment_status": "PENDING_PROTECTED_BUILD_AND_EXACT_NETLIFY_COMMIT",
+    "field_status": "PENDING_SCHOOL_CHROMEBOOK_AND_REAL_CLASS_SESSION"
+  },
   "golf-special-edition-2026-10-16": {
     "status": "SOURCE_VERIFIED_BROWSER_AND_PUBLICATION_PENDING",
     "scope": "18-chapter 5th-hour BTS golf Special Edition, 100-point assessment, frequent account autosave and PIN recovery",
@@ -1138,7 +1152,8 @@
       "Preference schema remains v1 with one bounded habitat ID; games keep no persistent history and write no attendance. Existing five-file deployment, workbook schema, URL and domain-only access are preserved.",
       "Protected CI and production release are pending; local full-site build was stopped by automatic approval review for unrelated news-feed access. Focused companion verification uses a static local server and blocks all external services.",
       "Virtual-clock shared-PIN browser checks pass: unattended ten-second handoff, active companion visit, unchanged two-minute inactivity reset, removal of stale handoff copy and no duplicated attendance/points.",
-      "All seven focused browser journeys pass with the complete uninterrupted 18-character wide pet name wrapping without clipping at 320/390/1440."
+      "All seven focused browser journeys pass with the complete uninterrupted 18-character wide pet name wrapping without clipping at 320/390/1440.",
+      "2026-10-22: protected workflow 39721575066 passed every full-release and browser gate on 355cbb6. Refreshed preflight 39721202948 passed and exactly matches the previous live Version 39 source/configuration; no unpublished editor draft. Newer main golf/ByteSize changes are preserved before rerunning protected CI. Deployment and protected live smoke remain pending."
     ]
   }
 }

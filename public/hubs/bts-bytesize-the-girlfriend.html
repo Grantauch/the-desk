@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Girlfriend Who Never Existed | Beyond the Scoreboard · ByteSize</title>
+<meta name="description" content="How Manti Te'o, Notre Dame and most of American sports media fell for a girlfriend who never existed, and how two reporters proved it.">
+<link rel="canonical" href="https://grant-desk.com/hubs/bts-bytesize-the-girlfriend.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Girlfriend Who Never Existed">
+<meta property="og:description" content="Manti Te'o, the 2012 Heisman race, and the background check nobody ran until Deadspin did.">
+<meta property="og:url" content="https://grant-desk.com/hubs/bts-bytesize-the-girlfriend.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/bts/the-girlfriend/assets/teo-2010.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,600;0,800;1,600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Story DNA: a phone lit up in a dark dorm room at 2 a.m. Navy night ground, Notre Dame gold for what was real, message bubble blue for what was only said, records red for what was never there. Single dark look by design. */
+:root {
+  --night: #0A1428;
+  --panel: #13213D;
+  --line: #2A3D63;
+  --ink: #F3EFE6;
+  --muted: #AEB9CC;
+  --gold: #E2B848;
+  --bubble: #1D5FC4;
+  --bubble-dim: #1C2C4D;
+  --red: #FF7563;
+  --green: #7FD39B;
+  --font-display: "Bitter", Cambria, Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--night); color: var(--ink); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.62; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+img { max-width: 100%; }
+a { color: inherit; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--gold); color: var(--night); padding: 10px 14px; border-radius: 6px; font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.masthead { border-bottom: 1px solid var(--line); }
+.masthead .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 14px; }
+.brand { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.85rem; text-decoration: none; }
+.brand span { color: var(--gold); padding: 0 8px; }
+.series { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.series b { color: var(--gold); font-weight: 600; }
+section { padding-block: clamp(48px, 8vw, 96px); border-top: 1px solid var(--line); }
+section.hero { border-top: 0; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.05; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.8rem, 8vw, 5.4rem); letter-spacing: -0.01em; }
+h2 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 20px; }
+h3 { font-size: 1.35rem; margin-bottom: 8px; }
+.kicker { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.82rem; color: var(--gold); margin: 0 0 12px; }
+p { margin: 0 0 16px; max-width: 64ch; }
+.lede { font-size: 1.22rem; }
+.muted { color: var(--muted); }
+figure { margin: 0; }
+figcaption { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+.split { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+.split > * { min-width: 0; }
+@media (max-width: 780px) { .split { grid-template-columns: 1fr; } }
+
+/* hero */
+.hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: clamp(24px, 5vw, 64px); align-items: center; }
+.hero-grid > * { min-width: 0; }
+@media (max-width: 780px) { .hero-grid { grid-template-columns: 1fr; } }
+.hero img { display: block; width: 100%; height: auto; aspect-ratio: 1100 / 1294; object-fit: cover; border-radius: 14px; }
+.thread { display: grid; gap: 10px; margin-top: 28px; max-width: 30rem; }
+.msg { border-radius: 20px; padding: 12px 18px; max-width: 85%; font-size: 1.05rem; }
+.msg.them { background: var(--bubble-dim); justify-self: start; border-bottom-left-radius: 6px; }
+.msg.me { background: var(--bubble); color: #fff; justify-self: end; border-bottom-right-radius: 6px; }
+.msg small { display: block; font-size: 0.75rem; color: #E4ECFB; margin-top: 4px; }
+.msg.them small { color: var(--muted); }
+
+/* video */
+.video { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000; }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vmeta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+.vmeta a { color: var(--muted); }
+
+/* days */
+.days { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.days li { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; grid-template-columns: 8.5rem 1fr; gap: 14px; }
+.days li > * { min-width: 0; }
+.days time { font-family: var(--font-mono); color: var(--gold); font-size: 0.9rem; padding-top: 2px; }
+.days li.fake time { color: var(--red); }
+@media (max-width: 520px) { .days li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* echo */
+.echo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+@media (max-width: 860px) { .echo { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .echo { grid-template-columns: 1fr; } }
+.echo div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.echo .d { font-family: var(--font-mono); color: var(--gold); font-size: 0.82rem; }
+.echo b { display: block; font-family: var(--font-display); font-size: 1.15rem; margin: 2px 0 6px; }
+.echo .src { font-family: var(--font-mono); font-size: 0.8rem; color: var(--red); margin-top: 8px; }
+
+/* records check */
+.terminal { background: #050B17; border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 3vw, 28px); }
+.checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+@media (max-width: 640px) { .checks { grid-template-columns: 1fr; } }
+.check { appearance: none; text-align: left; width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--ink); border-radius: 10px; padding: 14px 16px; font: inherit; cursor: pointer; display: grid; gap: 6px; }
+.check:hover { border-color: var(--gold); }
+.check:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.check .q { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.check .name { font-weight: 600; font-size: 1.05rem; }
+.check .out { font-family: var(--font-mono); font-size: 0.92rem; color: var(--muted); min-height: 2.6em; }
+.check[data-state="done"] { cursor: default; }
+.out .hit { color: var(--green); }
+.out .miss { color: var(--red); }
+.tally { font-family: var(--font-mono); font-size: 0.95rem; color: var(--muted); }
+.verdict { margin-top: 14px; font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 1.9rem); line-height: 1.25; }
+.verdict[hidden] { display: none; }
+.btn { appearance: none; border: 1px solid var(--muted); background: transparent; color: var(--ink); font: 600 0.92rem var(--font-body); padding: 9px 14px; border-radius: 6px; cursor: pointer; }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+/* heisman bars */
+.bars { display: grid; gap: 12px; margin: 18px 0 8px; }
+.bar { display: grid; grid-template-columns: minmax(8rem, 13rem) 1fr; gap: 12px; align-items: center; }
+.bar > * { min-width: 0; }
+.bar .track { height: 30px; background: var(--panel); border-radius: 6px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--muted); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--night); font-weight: 600; }
+.bar.teo .fill { background: var(--gold); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+.stats > div { min-width: 0; }
+.stats b { display: block; font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3rem); color: var(--gold); line-height: 1; }
+.stats span { font-size: 0.92rem; color: var(--muted); }
+@media (max-width: 600px) { .stats { grid-template-columns: 1fr; } }
+blockquote { margin: 0 0 18px; padding: 0; font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: clamp(1.3rem, 3vw, 1.75rem); line-height: 1.3; max-width: 32ch; }
+blockquote cite { display: block; font-family: var(--font-body); font-style: normal; font-weight: 400; font-size: 0.92rem; color: var(--muted); margin-top: 8px; }
+.wide img { display: block; width: 100%; height: auto; aspect-ratio: 1400 / 1050; max-height: 460px; object-fit: cover; border-radius: 12px; }
+.sources { font-size: 0.85rem; color: var(--muted); }
+.sources a { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to the story</a>
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="https://grant-desk.com/storyhubs/">The Desk<span>/</span>Beyond the Scoreboard</a>
+    <span class="series">ByteSize <b>№ 05</b></span>
+  </div>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="kicker">Notre Dame · 2012</p>
+        <h1>The Girlfriend Who Never Existed</h1>
+        <p class="lede" style="margin-top:20px">Manti Te'o played the best season of his life while grieving a girl the whole country cried about. She had never been born.</p>
+        <div class="thread" aria-label="Words Te'o said Lennay Kekua spoke to him">
+          <div class="msg them">"I love you."<small>Lennay's last words, as Te'o told ESPN College GameDay, October 6, 2012</small></div>
+          <div class="msg me">"All she wanted was some white roses."<small>Te'o after the Michigan game, September 2012</small></div>
+        </div>
+      </div>
+      <figure>
+        <img src="/storyhub/bts/the-girlfriend/assets/teo-2010.webp" alt="Manti Te'o in a white Notre Dame jersey on the sideline" width="1100" height="1294">
+        <figcaption>Te'o in 2010. Photo: Shotgun Spratling / Neon Tommy, CC BY-SA 2.0.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <p class="kicker">October 2011</p>
+        <h2>A girl on the phone</h2>
+        <p>Te'o grew up in Laie, Hawaii and came to Notre Dame in 2009 as one of the best linebacker recruits in the country. In October 2011 he started trading messages on Twitter with an account belonging to Lennay Kekua, who said she was a Stanford student in California.</p>
+        <p>They talked on the phone almost every night. They never met in person. In 2012 Te'o was told she had been badly hurt in a car accident in April and diagnosed with leukemia in June.</p>
+      </div>
+      <div>
+        <p class="kicker">One week in September</p>
+        <ol class="days">
+          <li><time datetime="2012-09-11">Tue, Sept 11</time><div>His grandmother, Annette Santiago, dies at 72. This was real.</div></li>
+          <li class="fake"><time datetime="2012-09-12">Wed, Sept 12</time><div>A caller who says he is Lennay's brother tells Te'o she has died.</div></li>
+          <li><time datetime="2012-09-15">Sat, Sept 15</time><div>Te'o makes 12 tackles as Notre Dame beats Michigan State 20 to 3.</div></li>
+          <li class="fake"><time datetime="2012-09-22">Sat, Sept 22</time><div>The day of Lennay's funeral, he is told. Te'o stays to play Michigan because she made him promise.</div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <p class="kicker">September 22, 2012</p>
+          <h2>Two interceptions on funeral day</h2>
+          <p class="lede">Te'o picked off Michigan twice that night and Notre Dame won 13 to 6. Coach Brian Kelly gave him the game ball to send to Lennay's family in Hawaii.</p>
+          <p>From then on, every broadcast told the story. Notre Dame went 12 and 0 and played for the national title. Te'o won seven national awards.</p>
+        </div>
+        <div>
+          <div class="video" data-yt="wa7E9X-1nN0" data-title="Manti Te'o against Michigan, September 22, 2012"></div>
+          <div class="vmeta"><span>Te'o against Michigan · 4:17</span><a href="https://www.youtube.com/watch?v=wa7E9X-1nN0" target="_blank" rel="noopener">Open on YouTube</a></div>
+        </div>
+      </div>
+      <figure class="wide" style="margin-top:36px">
+        <img src="/storyhub/bts/the-girlfriend/assets/stadium-night.webp" alt="Notre Dame Stadium full of fans under the lights at night" width="1400" height="1050" loading="lazy">
+        <figcaption>Notre Dame Stadium at night. Photo: Eccekevin, CC BY-SA 4.0.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">The echo</p>
+      <h2>Everybody told the story</h2>
+      <p>The biggest names in sports media repeated what Te'o and his family said. Look at what each one used as proof.</p>
+      <div class="echo">
+        <div><span class="d">Sept 22, 2012</span><b>South Bend Tribune</b>Two stories that did not agree on which death came first.<div class="src">Record checked: none</div></div>
+        <div><span class="d">Oct 1, 2012</span><b>Sports Illustrated</b>Te'o on the magazine cover.<div class="src">Record checked: none</div></div>
+        <div><span class="d">Oct 6, 2012</span><b>ESPN College GameDay</b>A feature on Lennay's last words.<div class="src">Record checked: none</div></div>
+        <div><span class="d">Oct 13, 2012</span><b>The New York Times</b>Called her a Stanford graduate.<div class="src">Record checked: none</div></div>
+        <div><span class="d">Dec 10, 2012</span><b>Los Angeles Times</b>She made him promise to keep playing.<div class="src">Record checked: none</div></div>
+        <div><span class="d">Jan 7, 2013</span><b>CBS This Morning</b>Showed a real woman's photo as Lennay.<div class="src">Record checked: none</div></div>
+      </div>
+      <p style="margin-top:20px">On December 6, 2012 Te'o's phone rang from Lennay's number. The voice he knew as hers said she was alive. Four days later he still told the Los Angeles Times she had died. He told his coaches on December 26. Nobody else knew.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">January 16, 2013</p>
+      <h2>Run the background check</h2>
+      <p>After an anonymous tip, Timothy Burke and Jack Dickey of Deadspin did what no one had done. They looked Lennay Kekua up. Run their four checks.</p>
+      <div class="terminal">
+        <div class="tally" id="tally" aria-live="polite">0 of 4 checks run</div>
+        <div class="checks">
+          <button class="check" type="button" id="chk-ssa" data-key="ssa"><span class="q">Check 1</span><span class="name">Social Security death records</span><span class="out">Not run yet</span></button>
+          <button class="check" type="button" id="chk-stanford" data-key="stanford"><span class="q">Check 2</span><span class="name">Stanford registrar</span><span class="out">Not run yet</span></button>
+          <button class="check" type="button" id="chk-obit" data-key="obit"><span class="q">Check 3</span><span class="name">Obituaries and funeral notices</span><span class="out">Not run yet</span></button>
+          <button class="check" type="button" id="chk-photo" data-key="photo"><span class="q">Check 4</span><span class="name">Reverse image search of her photos</span><span class="out">Not run yet</span></button>
+        </div>
+        <noscript><p>Social Security death records: Annette Santiago found, Lennay Kekua no record. Stanford registrar: no record. Obituaries and funeral notices: nothing. Reverse image search: the photos belong to a real California woman who never met Te'o.</p></noscript>
+        <div class="verdict" id="verdict" hidden>Lennay Kekua was never born, never enrolled, never died and never looked like her pictures. Deadspin's headline called it a hoax.</div>
+        <div style="margin-top:14px"><button class="btn" type="button" id="resetChecks">Clear the checks</button></div>
+      </div>
+      <p class="muted" style="margin-top:14px">Every one of these tools was available to every reporter in September.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">The other end of the line</p>
+      <h2>Who was Lennay?</h2>
+      <div class="split">
+        <div>
+          <h3>The voice</h3>
+          <p>Lennay was created by Ronaiah Tuiasosopo, a 22 year old from Lancaster, California who knew Te'o through family and church. Tuiasosopo did Lennay's voice on the phone for more than a year and invented her brother, her accident, her cancer and her death.</p>
+          <p class="muted">Tuiasosopo now lives as a woman named Naya and told her side in a 2022 Netflix documentary.</p>
+          <div class="video" data-yt="8mPYQQsKOug" data-title="Tuiasosopo demonstrates the Lennay voice on Dr. Phil, February 2013"></div>
+          <div class="vmeta"><span>Dr. Phil, February 2013 · 4:48</span><a href="https://www.youtube.com/watch?v=8mPYQQsKOug" target="_blank" rel="noopener">Open on YouTube</a></div>
+        </div>
+        <div>
+          <h3>The face</h3>
+          <p>The photos belonged to Diane O'Meara, a California woman who went to high school with Tuiasosopo. She had never met or spoken to Te'o. She learned her face had been on national television when reporters called.</p>
+          <div class="video" data-yt="aEKb8tdi4tQ" data-title="Diane O'Meara on CNN, January 2013"></div>
+          <div class="vmeta"><span>CNN, January 2013 · 5:26</span><a href="https://www.youtube.com/watch?v=aEKb8tdi4tQ" target="_blank" rel="noopener">Open on YouTube</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">The fallout</p>
+      <h2>What the story was worth</h2>
+      <div class="split">
+        <div>
+          <p>Before the truth came out, the story helped carry Te'o to New York for the Heisman ceremony on December 8, 2012. No player who only played defense had ever won it.</p>
+          <div class="bars" role="img" aria-label="2012 Heisman points: Johnny Manziel 2,029, Manti Te'o 1,706, Collin Klein 894">
+            <div class="bar"><span>Johnny Manziel, Texas A&amp;M</span><div class="track"><div class="fill" style="width:100%">2,029</div></div></div>
+            <div class="bar teo"><span>Manti Te'o, Notre Dame</span><div class="track"><div class="fill" style="width:84.1%">1,706</div></div></div>
+            <div class="bar"><span>Collin Klein, Kansas State</span><div class="track"><div class="fill" style="width:44.1%">894</div></div></div>
+          </div>
+          <p class="muted" style="font-size:0.9rem">Heisman Trophy voting points, 2012</p>
+          <div class="stats">
+            <div><b>28</b><span>Points Notre Dame lost the title game by, 42 to 14 to Alabama</span></div>
+            <div><b>38th</b><span>His pick in the 2013 NFL draft, second round</span></div>
+            <div><b>2021</b><span>His last year in the NFL</span></div>
+          </div>
+        </div>
+        <div>
+          <blockquote>"Even if it didn't follow me, in my mind, it followed me."<cite>Manti Te'o to NPR, August 2022</cite></blockquote>
+          <blockquote>"The forgiveness was given without the request."<cite>Te'o on Naya Tuiasosopo, NPR, August 2022</cite></blockquote>
+          <div class="video" data-yt="sTj-jHfhdzo" data-title="Untold: The Girlfriend Who Didn't Exist, Netflix trailer"></div>
+          <div class="vmeta"><span>Netflix trailer, 2022 · 1:46</span><a href="https://www.youtube.com/watch?v=sTj-jHfhdzo" target="_blank" rel="noopener">Open on YouTube</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sources">
+      <p><strong>Sources.</strong> <a href="https://deadspin.com/5976517/manti-teos-dead-girlfriend-the-most-heartbreaking-and-inspirational-story-of-the-college-football-season-is-a-hoax" target="_blank" rel="noopener">Deadspin, January 16, 2013</a>, <a href="https://newsfeed.time.com/?p=190858" target="_blank" rel="noopener">TIME timeline</a>, <a href="https://www.npr.org/sections/thetwo-way/2013/01/16/169547477/manti-teo-girlfriend-story-was-a-hoax-deadspin-says" target="_blank" rel="noopener">NPR, 2013</a>, <a href="https://www.npr.org/transcripts/1118650801" target="_blank" rel="noopener">NPR interview, 2022</a>, <a href="https://www.foxsports.com/stories/other/texas-ams-manziel-wins-heisman-trophy" target="_blank" rel="noopener">Associated Press Heisman results via Fox Sports</a>, <a href="https://en.wikipedia.org/wiki/Manti_Te%27o" target="_blank" rel="noopener">Wikipedia summary</a>. Videos play from YouTube.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  document.querySelectorAll('.video[data-yt]').forEach(function (box) {
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?rel=0&playsinline=1';
+    f.title = box.getAttribute('data-title');
+    f.loading = 'lazy';
+    f.allow = 'encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    box.appendChild(f);
+  });
+
+  var results = {
+    ssa: '<span class="hit">FOUND</span> Annette Santiago, died Sept 11, 2012, age 72.<br><span class="miss">NO RECORD</span> Lennay Kekua.',
+    stanford: '<span class="miss">NO RECORD</span> No student by that name ever enrolled.',
+    obit: '<span class="miss">NOTHING</span> No obituary, no funeral notice, no accident report.',
+    photo: '<span class="miss">SOMEONE ELSE</span> The pictures belong to a real California woman who never met Te\'o.'
+  };
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.check'));
+  var tally = document.getElementById('tally');
+  var verdict = document.getElementById('verdict');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function update() {
+    var done = buttons.filter(function (b) { return b.dataset.state === 'done'; }).length;
+    tally.textContent = done + ' of 4 checks run';
+    verdict.hidden = done < 4;
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.state) return;
+      var out = b.querySelector('.out');
+      b.dataset.state = 'running';
+      out.textContent = 'Searching…';
+      setTimeout(function () {
+        out.innerHTML = results[b.dataset.key];
+        b.dataset.state = 'done';
+        update();
+      }, reduce ? 0 : 700);
+    });
+  });
+  document.getElementById('resetChecks').addEventListener('click', function () {
+    buttons.forEach(function (b) { delete b.dataset.state; b.querySelector('.out').textContent = 'Not run yet'; });
+    update();
+  });
+})();
+</script>
+</body>
+</html>

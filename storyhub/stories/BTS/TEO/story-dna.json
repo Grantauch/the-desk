@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-TEO",
+  "title": "The Girlfriend Who Never Existed",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "late night",
+      "intimate",
+      "investigative"
+    ],
+    "paletteIntent": "Navy night ground, Notre Dame gold for what was real, message bubble blue for what was only said, records red for what was never there.",
+    "typographyIntent": "Bitter for headlines with a newsroom serif weight, IBM Plex Sans for reading, IBM Plex Mono for dates and records output.",
+    "textureLanguage": [
+      "phone message bubbles",
+      "records terminal output"
+    ],
+    "shapeLanguage": "Rounded message bubbles against squared record cards.",
+    "motionGrammar": [
+      "records checks resolve after a short search delay, instant with reduced motion"
+    ],
+    "interactionSignature": [
+      "run the four Deadspin background checks yourself"
+    ],
+    "densityRhythm": "Short sections, one turn of the story each, video beside the moment it shows.",
+    "archivalBehavior": "Real footage arrives through embedded YouTube players. Committed images are openly licensed only, credited on the page. Photos of the woman whose pictures were stolen appear only in her own chosen interview.",
+    "endingLanguage": "Te'o's own words from 2022 about being followed and about forgiveness."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Notre Dame navy and gold and the blue of a phone message thread.",
+    "edgeTreatment": "Large radii on message bubbles, small radii on record cards.",
+    "controlLanguage": "Each control is a records query that returns what Deadspin found.",
+    "spacingLanguage": "Generous section padding, tight card grids.",
+    "transitionLanguage": "No scroll animation. Results appear on press."
+  }
+}
