@@ -111,39 +111,6 @@
       "staticFallback": "Links to YouTube.",
       "identityFit": "Same slate system.",
       "status": "shipped"
-    },
-    {
-      "id": "I07",
-      "chapterId": "05-mission",
-      "type": "five-round research case file",
-      "teaches": "Students compare the wrestler's billed identity with the historical situation, then build original evidence-backed explanations rather than copy an answer.",
-      "studentAction": "Choose a heel, draft answers to the five research questions and cite sources in progressively revealed rounds.",
-      "feedback": "A live meter identifies which rounds contain substantial drafts; it explicitly does not certify historical accuracy or a grade.",
-      "staticFallback": "All five rounds' labels and answer fields remain visible without JavaScript, with the existing assignment rubric still readable.",
-      "identityFit": "A ringside case dossier with fight-card rounds and original paper evidence locker.",
-      "status": "shipped"
-    },
-    {
-      "id": "I08",
-      "chapterId": "05-mission",
-      "type": "historical chronology evidence test",
-      "teaches": "Chronology constrains causal claims; a later event cannot create an earlier character, and an earlier event alone does not prove influence.",
-      "studentAction": "Enter the real event date and earliest documented character date, optionally a later promo or match, then compare.",
-      "feedback": "The comparison explains the valid chronological inference and flags missing precision, without fabricating exact dates.",
-      "staticFallback": "The neighboring Prove the Connection chapter gives a complete dated example and the case file text fields remain usable.",
-      "identityFit": "A scored timeline check as part of the investigation.",
-      "status": "shipped"
-    },
-    {
-      "id": "I09",
-      "chapterId": "05-mission",
-      "type": "presentation rehearsal and rubric self-audit",
-      "teaches": "A good history presentation balances an evidence-based claim, accurate research, source reliability, concise delivery and ethical language.",
-      "studentAction": "Draft up to three slides, rehearse with an optional timer and self-check the original nine point categories.",
-      "feedback": "The timer shows whether the rehearsal was under, within or over two to three minutes; self-checked points remain separate from the teacher's grade.",
-      "staticFallback": "The original rubric and rules remain available; slide outlines and source notes are readable without the timer.",
-      "identityFit": "Five rounds leading to the final bell, with a judge's scorecard that cannot award grades.",
-      "status": "shipped"
     }
   ]
 }
