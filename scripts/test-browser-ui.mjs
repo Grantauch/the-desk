@@ -126,6 +126,20 @@ try {
         assert.ok(await page.locator('[data-calendar-event]:visible').evaluateAll((events, course) => events.every(event => ['all', course].includes(event.dataset.course)), course), 'Unrelated milestones hidden');
       }
     });
+    await runCase('course materials open the guided heel project', viewport, async page => {
+      await visit(page, '/beyond-the-scoreboard/');
+      const unit = page.locator('.unit-row').filter({ hasText: 'The Money Game, 1979–2005' });
+      await unit.getByRole('button', { name: /unit materials/ }).click();
+      const project = page.getByRole('link', { name: 'america’s most hated: the heel project storyhub', exact: true });
+      assert.equal(await project.getAttribute('href'), '/hubs/bts-americas-most-hated-research.html');
+      const [projectPage] = await Promise.all([page.waitForEvent('popup'), project.click()]);
+      await projectPage.waitForLoadState('load');
+      assert.equal(projectPage.url(), `${origin}/hubs/bts-americas-most-hated-research.html`);
+      await projectPage.getByRole('link', { name: 'Open the Research Lab', exact: true }).click();
+      assert.equal(await projectPage.locator('#lab-heel-choices button').count(), 15);
+      assert.ok(await projectPage.locator('#lab-identity').isVisible(), 'The normal course entry reaches the working organizer');
+      await projectPage.close();
+    });
     await runCase('keyboard page finder', viewport, async page => {
       await visit(page, '/');
       await page.keyboard.press('Control+k');

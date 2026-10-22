@@ -9,7 +9,7 @@
       "Focused Chromium acceptance passed: real clipboard guard, citation exception, assistive/prior-work override, all five checkpoints, keyboard edits, date validation, rubric, rehearsal timer, offline save-service/reload, fresh-device PIN recovery, delayed server acknowledgement, and shared-device clearing through reload.",
       "All five research rounds passed WCAG A/AA checks at 320, 390 and 1366 pixels, with keyboard and reduced-motion navigation. Browser service tests use isolated synthetic students and the actual Turn In server source.",
       "Canonical npm run verify passed locally: 53 built routes, 136 HTML files, 4618 local references, 13 releases and 117 sealed files. Windows runner now invokes npm through Node. Full-page screenshot capture has its own 30-second bound for tall StoryHubs; interaction/assertion timeouts are unchanged. Full browser suite and protected CI remain separate release evidence.",
-      "The exact extensionless classroom redirect is forced so the sealed predecessor cannot shadow it. CI retains every gate with a 40-minute budget because run 39816669934 hit 30 minutes during its required five-real-minute town observation. Merge, exact production verification and actual classroom use remain pending."
+      "The exact extensionless classroom redirect is forced so the sealed predecessor cannot shadow it. The normal Beyond the Scoreboard unit-materials link also targets the expanded workspace, with browser coverage following that student entry point. CI retains every gate with a 40-minute budget because run 39816669934 hit 30 minutes during its required five-real-minute town observation. Merge, exact production verification and actual classroom use remain pending."
     ]
   },
   "1": {
