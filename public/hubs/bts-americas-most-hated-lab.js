@@ -32,7 +32,7 @@
     };
     var active = 1;
 
-    function go(n) {
+    function go(n, shouldScroll) {
       if (n < 1 || n > panels.length) return;
       active = n;
       tabs.forEach(function (button) {
@@ -43,14 +43,16 @@
       panels.forEach(function (panel) {
         panel.hidden = +panel.getAttribute('data-lab-round') !== n;
       });
-      /* Focus stays on the activated tab to keep keyboard movement predictable. */
-      lab.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      if (shouldScroll) {
+        tabs[n - 1].focus({ preventScroll: true });
+        lab.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      }
     }
     tabs.forEach(function (button) {
-      button.addEventListener('click', function () { go(+button.getAttribute('data-lab-tab')); });
+      button.addEventListener('click', function () { go(+button.getAttribute('data-lab-tab'), true); });
     });
     lab.querySelectorAll('[data-lab-go]').forEach(function (button) {
-      button.addEventListener('click', function () { go(+button.getAttribute('data-lab-go')); });
+      button.addEventListener('click', function () { go(+button.getAttribute('data-lab-go'), true); });
     });
 
     /* Draw the selection from the existing 15-person card, not a second fact list. */
@@ -194,7 +196,7 @@
     });
 
     /* Default to round one with all research fields present for desk-save. */
-    go(1);
+    go(1, false);
     update();
     /* PIN restoration runs in the shared runtime shortly after window load. */
     window.addEventListener('load', function () { setTimeout(update, 200); }, { once: true });
