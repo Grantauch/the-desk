@@ -255,6 +255,7 @@ try {
     for (let round = 1; round <= 5; round++) {
       await research.locator(`[data-lab-tab="${round}"]`).click();
       assert.ok(await research.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No overflow at ${width}px round ${round}`);
+      if (round === 1) await research.locator('a.lab-action--light[href="#card"]').hover();
       const audit = await new AxeBuilder({ page: research }).include('#lab').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
       assert.deepEqual(audit.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target) })), [], `Accessible lab at ${width}px round ${round}`);
     }
