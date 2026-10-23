@@ -4,6 +4,7 @@ import {randomUUID} from 'node:crypto';
 import pg from 'pg';
 import {postgresDatabase} from './database.mjs';
 import {storageContract} from './storage-contract.mjs';
+import {authContract} from './auth-contract.mjs';
 
 // Explicit synthetic-only opt-in. Every run uses a fresh private test schema.
 const url=process.env.CHECKLINGS_TEST_DATABASE_URL;
@@ -21,6 +22,7 @@ test('native PostgreSQL independent-client transactions and 35 simultaneous requ
     try {assert.equal(new Set((await Promise.all(clients.map(c=>c.query('SELECT pg_backend_pid() AS pid')))).map(r=>r.rows[0].pid)).size,35);}
     finally {clients.forEach(c=>c.release());}
     await storageContract(t,postgresDatabase(pool));
+    await authContract(t,postgresDatabase(pool));
   } finally {
     if(pool)await pool.end();
     await admin.query(`DROP SCHEMA ${schema} CASCADE`);

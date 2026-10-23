@@ -1,7 +1,10 @@
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-const migrationSql = await readFile(new URL('./migrations/001-foundation.sql', import.meta.url), 'utf8');
-const migrationChecksum = createHash('sha256').update(migrationSql).digest('hex');
+const migrations = await Promise.all(['001-foundation.sql','002-sessions.sql'].map(async (file,index)=>{
+  const sql=await readFile(new URL('./migrations/'+file, import.meta.url),'utf8');
+  return {version:index+1,sql,checksum:createHash('sha256').update(sql).digest('hex')};
+}));
+const matches = rows => rows.every((row,index)=>row.version===migrations[index]?.version && row.checksum===migrations[index]?.checksum);
 
 // A migration is explicitly invoked by an operator, never by a student request.
 export async function migrate(database) {
@@ -9,14 +12,13 @@ export async function migrate(database) {
     // Serialize migration runners without relying on a nonexistent version row.
     await client.query('SELECT pg_advisory_xact_lock(743201001)');
     await client.query('CREATE TABLE IF NOT EXISTS ck_schema_migrations (version integer PRIMARY KEY, checksum text NOT NULL)');
-    const {rows} = await client.query('SELECT checksum FROM ck_schema_migrations WHERE version=1');
-    if (rows.length) {
-      if (rows[0].checksum !== migrationChecksum) throw new Error('Migration checksum mismatch');
-      return {applied:false, version:1};
+    const {rows} = await client.query('SELECT version,checksum FROM ck_schema_migrations ORDER BY version');
+    if (!matches(rows)) throw new Error('Migration checksum mismatch');
+    for(const migration of migrations.slice(rows.length)) {
+      if (client.exec) await client.exec(migration.sql); else await client.query(migration.sql);
+      await client.query('INSERT INTO ck_schema_migrations VALUES ($1,$2)', [migration.version,migration.checksum]);
     }
-    if (client.exec) await client.exec(migrationSql); else await client.query(migrationSql);
-    await client.query('INSERT INTO ck_schema_migrations VALUES (1,$1)', [migrationChecksum]);
-    return {applied:true, version:1};
+    return {applied:rows.length<migrations.length, version:migrations.length};
   });
 }
 
@@ -51,8 +53,8 @@ export function postgresDatabase(pool) {
 export async function readiness(database) {
   try {
     return await database.transaction(async c => {
-      const {rows} = await c.query('SELECT version,checksum FROM ck_schema_migrations ORDER BY version DESC LIMIT 1');
-      return {ready:rows[0]?.version===1 && rows[0]?.checksum===migrationChecksum, schemaVersion:rows[0]?.version??null};
+      const {rows} = await c.query('SELECT version,checksum FROM ck_schema_migrations ORDER BY version');
+      return {ready:rows.length===migrations.length && matches(rows), schemaVersion:rows.at(-1)?.version??null};
     });
   } catch { return {ready:false, schemaVersion:null}; }
 }

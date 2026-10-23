@@ -11,7 +11,8 @@ const keys = (value, allowed) => value && Object.getPrototypeOf(value)===Object.
 export function createGameStore({database, authorize, migrationKey}) {
   insist(database && typeof database.transaction==='function' && typeof authorize==='function', 'Missing trusted dependencies');
   async function owner(client, token) {
-    const actor = await authorize(token);
+    // Reuse this transaction: a session verifier must not acquire a second client.
+    const actor = await authorize(token,client);
     insist(actor && id(actor.tenantId) && id(actor.memberId) && id(actor.classId) && Number.isSafeInteger(actor.authEpoch), 'Unauthorized');
     const {rows} = await client.query('SELECT class_id, active, auth_epoch FROM ck_memberships WHERE tenant_id=$1 AND member_id=$2 FOR UPDATE', [actor.tenantId,actor.memberId]);
     insist(rows[0]?.active===true && rows[0].class_id===actor.classId && rows[0].auth_epoch===actor.authEpoch, 'Unauthorized');

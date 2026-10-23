@@ -36,4 +36,6 @@ Assertions cover preserved founder/name/home unlocks across service instances, 3
 
 ## Next work
 
+Subsequent reconciliation: final PR #227 head `0b98f49f5850c07f597bedfadf05f31196563aea` passed [storage integration 39982438432](https://github.com/Grantauch/the-desk/actions/runs/39982438432) and [protected site checks 39982438462](https://github.com/Grantauch/the-desk/actions/runs/39982438462). The PR remains unmerged and undeployed. [Batch 03](BATCH-03-AUTH.md) continues the internal authentication/session foundation on a separate stacked branch.
+
 Native PostgreSQL CI has passed. Finish the 02A staging/deployment package and operational ownership. Then implement slice 02B's verified school-PIN launch bridge and revocable game sessions in staging. Keep all student integration and lethal features off until their own acceptance gates pass. The original four companions remain governed by the separately deployed classroom release.

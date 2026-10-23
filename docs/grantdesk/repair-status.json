@@ -1214,7 +1214,7 @@
     "verification_status": "PROTECTED_CI_PASSED"
   },
   "checklings-batch-02-persistence-2026-10-23": {
-    "status": "NATIVE_POSTGRES_PASSED_FULL_SITE_CI_PENDING",
+    "status": "PROTECTED_SITE_AND_NATIVE_POSTGRES_CI_PASSED",
     "owner": "Codex",
     "scope": "SQL persistence, atomic import/rename commands, immutable receipts/events, staged native transaction tests; weight and scar additions scheduled later",
     "deployment_status": "NOT_DEPLOYED_NO_STUDENT_DATA_MIGRATION",
@@ -1225,7 +1225,23 @@
       "Added an isolated PostgreSQL 18 workflow and explicit synthetic-only native runner using 35 physical connections. Native CI, hosted provisioning, authentication bridge and managed restore remain separate gates.",
       "Grant deferred feeding/body condition, exercise, long-term complications and localized scars until care/combat prerequisites exist. Requirements and acceptance gates are recorded in docs/checklings/BODY-CONDITION-AND-SCARS.md. No weight/scar runtime fields or simulation were added.",
       "Canonical npm run verify passed all 18 stages, 440 classroom behaviors, zero Astro errors/warnings, 53 routes, 136 HTML files and 4618 local references. A subsequent SQL import-key guard passed the final focused 54-case suite; the entire gate was not repeated after that follow-up. Protected CI will run final source. No production release is modified or newly claimed.",
-      "Native PostgreSQL 18 workflow 39981989607 passed on source 99c3d6fa05016a1aa217454832bb52721ae87265: 18/18 embedded and 18/18 native tests; 35 distinct physical connections; duplicate requests and competing revisions converge safely. General protected site CI for Batch 02 remains separate. Parent Batch 01 protected run 39977450198 passed every release/browser gate."
+      "Native PostgreSQL 18 workflow 39981989607 passed on source 99c3d6fa05016a1aa217454832bb52721ae87265: 18/18 embedded and 18/18 native tests; 35 distinct physical connections; duplicate requests and competing revisions converge safely. General protected site CI for Batch 02 remains separate. Parent Batch 01 protected run 39977450198 passed every release/browser gate.",
+      "Subsequent reconciliation verified final PR 227 head 0b98f49f5850c07f597bedfadf05f31196563aea: storage integration 39982438432 and protected site check 39982438462 both completed successfully. Unmerged and undeployed; supersedes the earlier pending-CI note."
+    ],
+    "verification_status": "PROTECTED_CI_PASSED"
+  },
+  "checklings-batch-03-auth-2026-10-23": {
+    "status": "AUTH_CORE_FULL_LOCAL_PASSED_CI_PENDING",
+    "owner": "Codex",
+    "scope": "Private launch/assertion broker, durable browser-bound code exchange, expiring/revocable game sessions and additive migration 002; school/HTTP integration remains separate",
+    "verification_status": "FULL_LOCAL_GATE_PASSED_NATIVE_AND_SITE_CI_PENDING",
+    "deployment_status": "NOT_DEPLOYED_NO_STUDENT_LOGIN_OR_MIGRATION",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "72/72 focused tests passed: 20 original companion, 16 foundation, 35 embedded storage/auth and one schema-1 upgrade rehearsal. Embedded transactions are serialized. Native runner includes the same shared scenarios with 35 physical PostgreSQL connections; this branch has not yet run native CI.",
+      "Signed fixed-issuer/audience/tenant assertions reject forged, replayed, expired and extra claims. Codes require the originating browser proof/state, are hashed and consumed once. Sessions are stored only as hashes, expire after two idle/fifteen absolute minutes, and recheck database membership/class/auth epoch.",
+      "Game store passes its transaction client to session authorization. Membership-first lock ordering serializes logout and commands, including receipt replay. Schema 001 remains unchanged; upgrade 002 preserves existing pet, membership, event and receipt rows and readiness verifies all migration checksums.",
+      "Canonical npm run verify passed all 18 stages: 72 Checklings tests, all 440 classroom behaviors, Astro 0 errors/0 warnings (155 hints), 53 routes, 136 HTML files, 4618 references and 13 releases/117 sealed files. Subsequent CI results are tracked in the pull request. No real school issuer, HTTP/cookie/CSRF adapter, roster propagation, teacher auth, student data, public route, hosting/database provisioning or production release is included. Weight/body condition, exercise, long-term complications and scars remain deferred. See docs/checklings/BATCH-03-AUTH.md."
     ]
   }
 }
