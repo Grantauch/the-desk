@@ -1,4 +1,15 @@
 {
+  "checkling-visit-only-2026-10-22": {
+    "status": "REVIEW_TESTED",
+    "owner": "Codex",
+    "scope": "Checkling-only fresh-PIN visits outside class hours, with no attendance or pass action proof",
+    "evidence": [
+      "The existing reusable synthetic student is active in its own private demo class. Its generated PIN and identifying details remain outside this public repository.",
+      "Daily Check-In offers visit Checkling only from both PIN screens. The fresh-PIN endpoint retains school-account checks and throttling, supports own-class selection, and issues no attendance/pass action proof. Existing classroom time gates and fresh-action PIN requirements are preserved.",
+      "20 Checkling server scenarios and all 440 classroom-service behaviors pass. Fifteen offline Chromium journeys pass, including 320/390/1440 weekend visits to an unscheduled period, adoption/reload, normal Google and teacher PIN screens, class selection, accessibility, and existing shared-device privacy.",
+      "The isolated live synthetic release check now also verifies the companion PIN endpoint without recording attendance. Canonical npm run verify passed all stages (53 routes, 136 HTML files, 4618 local references, 13 sealed releases/117 files). Protected merge, guarded Apps Script deployment, and live readback are separate pending gates."
+    ]
+  },
   "bts-heel-research-release-2026-10-22": {
     "status": "REVIEW_TESTED",
     "owner": "Codex",

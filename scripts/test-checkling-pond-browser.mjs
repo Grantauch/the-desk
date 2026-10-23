@@ -198,6 +198,57 @@ try {
     console.log(`PASS Checkling ${width}: PIN, adoption, all three games, earned habitat save/reload, journey, student isolation, still art, accessibility`);
     await context.close();
   }
+  // Companion visits must remain usable when the attendance gate is closed.
+  for (const width of [320,390,1440]) {
+    const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+    await offline(context);
+    const page=await context.newPage();
+    const errors=[];
+    page.on('pageerror',error=>errors.push(error.message));
+    const c=classroom({now:new Date('2026-09-12T23:30:00Z'),
+      memberships:[[PEOPLE.ada,'Period 8 — Synthetic demo']],
+      activeEmail:width===1440?PEOPLE.ada.email:TEACHER});
+    await gasBridge(page,c);
+    const visit=async()=>{
+      await page.goto(`${origin}/checkling-fixture/`);
+      await page.locator('input[type=password]').fill(c.pin(PEOPLE.ada));
+      await page.getByRole('button',{name:'visit Checkling only',exact:true}).click();
+      await page.locator('#ck-form').waitFor({state:'attached'});
+    };
+    await visit();
+    assert.equal(await page.locator('#checkin-action').isDisabled(),true);
+    await page.locator('[name="ck-name"]').fill('Weekend friend');
+    await page.getByRole('button',{name:'hatch my Checkling',exact:true}).click();
+    await page.getByRole('heading',{name:'Weekend friend',exact:true}).waitFor();
+    await page.getByRole('button',{name:'star pairs',exact:true}).click();
+    await audit(page,`checkling-visit-${width}`);
+    await visit();
+    await page.getByRole('heading',{name:'Weekend friend',exact:true}).waitFor();
+    assert.equal(c.checkIns().length,0,'A pet visit and reload must not record attendance');
+    assert.equal(c.passLog().length,0);
+    assert.deepEqual(errors,[]);
+    results.push({name:`checkling-visit-${width}`,status:'passed'}); cases++;
+    console.log(`PASS Checkling visit ${width}: weekend, unscheduled period, saved friend, no attendance, accessibility`);
+    await context.close();
+  }
+  {
+    const context=await browser.newContext({viewport:{width:390,height:900},reducedMotion:'reduce'});
+    await offline(context);
+    const page=await context.newPage();
+    const c=classroom({now:new Date('2026-09-12T23:30:00Z'),memberships:[
+      [PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 8 — Synthetic demo']]});
+    await gasBridge(page,c);
+    await page.goto(`${origin}/checkling-fixture/`);
+    await page.locator('input[type=password]').fill(c.pin(PEOPLE.ada));
+    await page.getByRole('button',{name:'visit Checkling only',exact:true}).click();
+    await page.locator('#student-class').selectOption(c.key(PEOPLE.ada,'Period 8 — Synthetic demo'));
+    await page.getByRole('button',{name:'continue',exact:true}).click();
+    await page.locator('#ck-form').waitFor();
+    assert.equal(c.checkIns().length,0);
+    results.push({name:'checkling-visit-class-selection',status:'passed'}); cases++;
+    console.log('PASS Checkling visit: multiple-class selection without an attendance proof');
+    await context.close();
+  }
   // A shared PIN screen still hands off when idle, while an intentional pet
   // visit keeps its short transaction timer from interrupting play.
   {
@@ -290,7 +341,7 @@ try {
     console.log(`PASS Pond ${width}: keyboard paint, undo, guide, export, invalid import, restore, saved reload, accessibility`);
     await context.close();
   }
-  console.log(`Companion browser acceptance: ${cases}/11 passed. All student data synthetic; external services offline.`);
+  console.log(`Companion browser acceptance: ${cases}/15 passed. All student data synthetic; external services offline.`);
 } finally {
   await writeFile(new URL('results.json',out),JSON.stringify(results,null,2));
   await browser.close();

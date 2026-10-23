@@ -9,6 +9,49 @@ const identify = (c, person = PEOPLE.ada) => {
   return c.harness.call('identifyCheckInWithPin', c.pin(person), `pet-${Math.random()}`);
 };
 
+test('companion-only PIN visits work after hours, on weekends and without a configured period', () => {
+  for (const now of ['2026-09-10T23:30:00Z', '2026-09-12T16:00:00Z']) {
+    const c = classroom({now:new Date(now), memberships:[[PEOPLE.ada,'Period 8 — Synthetic demo']]});
+    const visit = c.harness.call('identifyChecklingWithPin',c.pin(PEOPLE.ada),'visit-only');
+    assert.equal(visit.checkedIn,false);
+    assert.equal(visit.sessionEligibility.allowed,false);
+    assert.equal(visit.actionProof,undefined);
+    assert.equal(visit.authorizedAction,undefined);
+    const saved = c.harness.call('saveCheckling',visit.pinToken,'bolt','Demo friend');
+    assert.equal(saved.checkling.pet.name,'Demo friend');
+    assert.equal(c.checkIns().length,0);
+    assert.equal(c.passLog().length,0);
+    assert.throws(()=>c.harness.call('authorizeAndActStudent','identify-checkin',c.pin(PEOPLE.ada),'','','normal-checkin'));
+    assert.throws(()=>c.harness.call('submitDailyCheckIn',visit.pinToken,visit.student.key,visit.pinToken));
+    assert.equal(c.checkIns().length,0);
+  }
+});
+
+test('companion-only class selection is PIN-verified and confined to the same student', () => {
+  const c = classroom({now:new Date('2026-09-12T16:00:00Z'),memberships:[
+    [PEOPLE.ada,'Period 1'],[PEOPLE.ada,'Period 8'],[PEOPLE.alan,'Period 1']]});
+  const visit = c.harness.call('identifyChecklingWithPin',c.pin(PEOPLE.ada),'choose-pet');
+  assert.equal(visit.requiresClassSelection,true);
+  assert.equal(visit.purpose,'checkling');
+  assert.equal(visit.actionProof,undefined);
+  const ownKey = c.key(PEOPLE.ada,'Period 8');
+  const selected = c.harness.call('selectStudentClass',visit.pinToken,ownKey,'checkling','');
+  assert.equal(selected.student.key,ownKey);
+  assert.equal(selected.checkling.available,true);
+  assert.throws(()=>c.harness.call('selectStudentClass',visit.pinToken,c.key(PEOPLE.alan,'Period 1'),'checkling',''));
+  const google = c.harness.call('createClassSelectionState_',c.harness.call('getStudentsByEmail_',PEOPLE.ada.email),'google','checkin');
+  assert.throws(()=>c.harness.call('selectStudentClass',google.pinToken,ownKey,'checkling',''),/Enter your PIN/);
+  assert.equal(c.checkIns().length,0);
+});
+
+test('companion visits retain school-account and invalid-PIN checks', () => {
+  const c = setup();
+  assert.throws(()=>c.harness.call('identifyChecklingWithPin','not-a-pin','bad-pet'),/six-digit PIN/);
+  c.harness.signInAs('outsider@example.org');
+  assert.throws(()=>c.harness.call('identifyChecklingWithPin',c.pin(PEOPLE.ada),'foreign-pet'));
+  assert.equal(c.checkIns().length,0);
+});
+
 test('a recognized student can adopt without recording attendance or a point', () => {
   const c = setup();
   const before = identify(c);

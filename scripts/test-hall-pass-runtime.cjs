@@ -3028,6 +3028,7 @@ test('the synthetic release check passes through the one-trip student path', () 
   c.harness.signInAs(TEACHER);
   const result = c.harness.call('releaseRunSyntheticSmoke', TEACHER_CONTRACT);
   assert.equal(result.ok, true);
+  assert.equal(result.companionVisit, 'PIN_VERIFIED_NO_ATTENDANCE');
   assert.equal(result.request, 'STARTED');
   assert.equal(result.return, 'RETURNED_COUNTABLE');
   assert.equal(c.passLog().length, 0, 'the real workbook must stay untouched');

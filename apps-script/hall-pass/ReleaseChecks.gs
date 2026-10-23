@@ -114,6 +114,12 @@ function releaseRunSyntheticSmoke(clientContract) {
     const pin = String(Math.floor(100000 + Math.random() * 900000));
     const period = 'Period 1 — SYNTHETIC RELEASE CHECK';
     book.getSheetByName(GD_SHEETS.ROSTER).appendRow([email,'Synthetic, Release',period,hashPin_(pin),true,false,'STANDARD']);
+    gdClearMemo_();
+    const beforeVisit = releasePreservedState_(book);
+    const visit = identifyChecklingWithPin(pin, 'synthetic-companion-visit');
+    releaseAssert_(visit.checkling && visit.checkling.available && !visit.checkedIn && !visit.actionProof,
+      'companion visit must verify the PIN without an attendance proof');
+    releaseAssertPreserved_(beforeVisit, book);
     const now = new Date();
     const clock = Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm').split(':').map(Number);
     const minute = clock[0]*60+clock[1];
@@ -136,7 +142,7 @@ function releaseRunSyntheticSmoke(clientContract) {
     book.getSheetByName(GD_SHEETS.ROSTER).getRange(student.row,5).setValue(false);
     releaseAssertPreserved_(before,production);
     const result = { ok: true, schema: GD_SCHEMA_VERSION, clientContract: GD_TEACHER_CONTRACT,
-      syntheticOnly: true, request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
+      syntheticOnly: true, companionVisit: 'PIN_VERIFIED_NO_ATTENDANCE', request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
       testPassVoided: true, testMembershipDeactivated: true, productionFactsUnchanged: true, workbookUrl: book.getUrl() };
     console.log(JSON.stringify(result)); return result;
   } finally { GD_SPREADSHEET = production; gdClearMemo_(); }

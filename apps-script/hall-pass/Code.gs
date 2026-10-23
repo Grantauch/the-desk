@@ -665,6 +665,19 @@ function identifyCheckInWithPin(pin, attemptNonce) {
   return identifyPin_(pin, 'checkin', attemptNonce);
 }
 
+/** A verified companion visit issues no attendance/pass action proof. */
+function identifyChecklingWithPin(pin, attemptNonce) {
+  ensureWorkbookReady_();
+  const activeEmail = getActiveEmail_();
+  assertSchoolAccount_(activeEmail, getSettings_());
+  const students = verifyStudentPin_(pin, activeEmail, attemptNonce);
+  const chosen = students.length > 1 ? membershipMeetingNow_(students) : students[0];
+  const token = putPinSession_(Utilities.getUuid().replace(/-/g, ''), students[0].email,
+    chosen ? chosen.key : '', 'pin', true);
+  return chosen ? getCheckInState_(chosen, token, 'pin')
+    : buildClassSelectionState_(students, token, 'pin', 'checkling');
+}
+
 function identifyPin_(pin, purpose, attemptNonce) {
   ensureWorkbookReady_();
   const settings = getSettings_();
@@ -997,12 +1010,13 @@ function createClassSelectionState_(students, method, purpose) {
 
 function buildClassSelectionState_(students, token, method, purpose, actionProof, authorizedAction) {
   const settings = getSettings_();
+  const checkInView = purpose === 'checkin' || purpose === 'checkling';
   const state = {
     ok: true,
-    mode: purpose === 'checkin' ? 'checkin' : 'student',
+    mode: checkInView ? 'checkin' : 'student',
     recognized: true,
     requiresClassSelection: true,
-    appTitle: purpose === 'checkin' ? 'Daily Check-in' : settings.APP_TITLE,
+    appTitle: checkInView ? 'Daily Check-in' : settings.APP_TITLE,
     purpose,
     method,
     pinToken: token,
@@ -1039,6 +1053,10 @@ function selectStudentClass(pinToken, studentKey, purpose, actionProof) {
     }
   }
   const nextToken = putPinSession_(pinToken, student.email, student.key, method, session.pinVerified);
+  if (purpose === 'checkling') {
+    if (!session.pinVerified || method !== 'pin') throw new Error('Enter your PIN to visit your Checkling.');
+    return getCheckInState_(student, nextToken, method);
+  }
   const next = actionSession
     ? (purpose === 'checkin'
       ? getCheckInState_(student, nextToken, method)
