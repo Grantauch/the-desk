@@ -101,13 +101,15 @@ export function chooseIntent(snapshot,{scene='home',tag='quiet'}={}) {
   if (!snapshot || snapshot.version!=='synthetic-individuality-v1') throw new TypeError('experiment snapshot required');
   assertString(scene,'scene',LIMITS.tagLength);assertString(tag,'tag',LIMITS.tagLength);
   const t=snapshot.traits, s=snapshot.state, affinity=snapshot.preferences[tag]||0;
+  // Balance near-neutral scenarios around competing plausible choices.
+  // Temperament matters; severe fatigue or distress overrides personality.
   const scores={
-    rest:(100-s.energy)*1.2+(100-t.activity)*.17,
-    explore:t.curiosity*.83+s.energy*.35-t.caution*.35+affinity*.6,
-    socialize:t.sociability*.75+s.trust*.4+affinity*.45,
-    observe:t.curiosity*.56+t.caution*.34+s.comfort*.12,
-    seek_comfort:(100-s.comfort)*.82+(100-s.trust)*.25,
-    withdraw:(100-s.comfort)*.74+t.caution*.42+(100-s.trust)*.2
+    rest:4+(100-s.energy)*.86+(100-t.activity)*.24,
+    explore:9+t.curiosity*.89+s.energy*.30-t.caution*.28+affinity*.65,
+    socialize:2+t.sociability*.78+s.trust*.23+s.comfort*.12+affinity*.35,
+    observe:0+t.caution*.67+t.curiosity*.49+s.comfort*.08,
+    seek_comfort:7+(100-s.comfort)*.8+(100-s.trust)*.28+(100-t.resilience)*.10,
+    withdraw:1+(100-s.comfort)*.95+t.caution*.53+(100-s.trust)*.20
   };
   // 0..4 stable variability depends on the SAME committed revision/scene.
   const ranked=INTENTS.map(intent=>({intent,score:Math.round((scores[intent]+hash32([snapshot.creatureId,snapshot.seed,snapshot.revision,scene,tag,intent].join(':'))%5)*100)/100})).sort((a,b)=>b.score-a.score||a.intent.localeCompare(b.intent));
