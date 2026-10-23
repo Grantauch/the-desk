@@ -51,7 +51,7 @@
     "turn-in:browser": "node scripts/test-desk-save-browser.mjs",
     "turn-in:load": "node scripts/turn-in-load-test.mjs",
     "dry-county:test": "node scripts/test-dry-county.cjs && node scripts/test-dry-county.cjs --town && node scripts/test-dry-county-flight.cjs && node scripts/test-dry-county-air-bridge.cjs && node scripts/test-dry-county-air-ops.cjs && node scripts/test-dry-county-flight-polish.cjs",
-    "checkling:test": "node --test scripts/test-checkling.cjs apps/checklings-foundation/foundation.test.cjs",
+    "checkling:test": "node --test scripts/test-checkling.cjs apps/checklings-foundation/foundation.test.cjs apps/checklings-service/storage.test.mjs",
     "pond:test": "node --experimental-strip-types --test apps/pond/src/lib/pond/*.test.ts && node scripts/validate-pond-build.mjs",
     "pond:build": "npm --prefix apps/pond run build",
     "companion:browser": "node scripts/test-checkling-pond-browser.mjs"
@@ -68,6 +68,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.10.2",
+    "@electric-sql/pglite": "0.5.11",
+    "pg": "8.23.1",
     "playwright": "^1.55.0",
     "typescript": "^6.0.3"
   },

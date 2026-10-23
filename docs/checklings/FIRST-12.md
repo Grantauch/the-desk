@@ -23,6 +23,8 @@ Each candidate has a distinct body, personality, battle hook, nurturing/discover
 
 Each slice uses its own feature branch and small release. Complete the implementation, tests and review before any production gate. The existing four remain usable until a verified pilot cutover.
 
+October 23 addition: [body condition and scars](BODY-CONDITION-AND-SCARS.md) are accepted later-development requirements. Schedule feeding/weight/exercise after slice 04 core care, combat modifiers with slice 06 balance, and localized scars after the wound/healing pipeline and species art anchors exist. Prolonged-condition complications join slice 07 consequence testing. They are not implemented in the current database batch.
+
 | Slice | Concrete deliverable | Required acceptance evidence |
 |---|---|---|
 | 02A: durable service | Separate synthetic/staging game service, SQL schema, migrations, command receipts, event ledger, minimal health endpoint | Real database rollback/crash/duplicate-command tests; 35 concurrent synthetic writers; backup restore; no classroom credentials in game service |

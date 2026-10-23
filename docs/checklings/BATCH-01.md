@@ -90,3 +90,7 @@ The new death helper is an admission policy reference: offline, absence, disconn
 Begin slice 02A on a separate branch: dedicated synthetic game service, SQL constraints, transaction adapter, command idempotency, event ledger, backup/restore and concurrent-write tests. Then build the school-PIN launch bridge in staging and release its small Apps Script integration separately. Keep imports and lethal actions disabled until their own gates pass.
 
 Batch 01's completion is the reconciled baseline, executable compatibility rehearsal, exact service boundaries and tested foundation plan. Infrastructure implementation, actual student migration and a playable 12-species release remain later deliverables. No 300-species feature or Version 1.0 claim is made.
+
+## Subsequent protected verification
+
+Protected [site-check run 39977450198](https://github.com/Grantauch/the-desk/actions/runs/39977450198) passed on exact source `6258c9e072951328049bd18cd8d3cd38037cf7d5`, including full release, site browser and Dry County browser gates. This supersedes the earlier pending protected-CI state; the local Chromium-download limitation remains an accurate record of the local attempt. PR #226 is still unmerged and this does not imply a new production deployment.

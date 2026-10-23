@@ -1208,7 +1208,24 @@
       "Deployed synthetic smoke passed: PIN_VERIFIED_NO_ATTENDANCE, STARTED, RETURNED_COUNTABLE, evidenceUsed=1, test pass voided, test membership deactivated and productionFactsUnchanged=true. No real student PIN used.",
       "16 new offline foundation tests pass, including all four founders/five homes, exact legacy names, tenant and membership separation, source conflicts, rerun preservation of deceased individuals and absence-safe death admission. Original 20 companion cases remain green; canonical npm run verify passed all 18 stages, 440 classroom behaviors, zero Astro errors/warnings, 53 built routes and 136 HTML/4618 local references.",
       "PR 223 exact head f5ce7bb passes its 29 synthetic engine tests; dead-seat raid stall separately reproduced. No prototype code merged or production integration implied. docs/checklings/BATCH-01.md records findings and remaining pilot gates.",
-      "Focused offline browser suite could not start locally: no Chromium executable, and official Playwright browser download returned an invalid archive. No browser regression pass claimed; protected CI and Chromebook field use remain pending."
+      "Focused offline browser suite could not start locally: no Chromium executable, and official Playwright browser download returned an invalid archive. No browser regression pass claimed; protected CI and Chromebook field use remain pending.",
+      "Subsequent protected workflow 39977450198 passed on 6258c9e, including the full release, site browser and Dry County browser gates. PR 226 remains unmerged; no new production claim."
+    ],
+    "verification_status": "PROTECTED_CI_PASSED"
+  },
+  "checklings-batch-02-persistence-2026-10-23": {
+    "status": "NATIVE_POSTGRES_PASSED_FULL_SITE_CI_PENDING",
+    "owner": "Codex",
+    "scope": "SQL persistence, atomic import/rename commands, immutable receipts/events, staged native transaction tests; weight and scar additions scheduled later",
+    "deployment_status": "NOT_DEPLOYED_NO_STUDENT_DATA_MIGRATION",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "18 embedded PostgreSQL tests passed (17 shared scenarios plus the outer persistence/restore test). Combined original companion/foundation/storage suite passed 54/54. Embedded transactions are serialized and are not independent-client concurrency evidence.",
+      "The SQL schema constrains ownership, source provenance, lifecycle and revision consistency. Commands recheck active membership/class/auth epoch, serialize by owner, preserve imports and atomically commit state, append-only event and response receipt.",
+      "Added an isolated PostgreSQL 18 workflow and explicit synthetic-only native runner using 35 physical connections. Native CI, hosted provisioning, authentication bridge and managed restore remain separate gates.",
+      "Grant deferred feeding/body condition, exercise, long-term complications and localized scars until care/combat prerequisites exist. Requirements and acceptance gates are recorded in docs/checklings/BODY-CONDITION-AND-SCARS.md. No weight/scar runtime fields or simulation were added.",
+      "Canonical npm run verify passed all 18 stages, 440 classroom behaviors, zero Astro errors/warnings, 53 routes, 136 HTML files and 4618 local references. A subsequent SQL import-key guard passed the final focused 54-case suite; the entire gate was not repeated after that follow-up. Protected CI will run final source. No production release is modified or newly claimed.",
+      "Native PostgreSQL 18 workflow 39981989607 passed on source 99c3d6fa05016a1aa217454832bb52721ae87265: 18/18 embedded and 18/18 native tests; 35 distinct physical connections; duplicate requests and competing revisions converge safely. General protected site CI for Batch 02 remains separate. Parent Batch 01 protected run 39977450198 passed every release/browser gate."
     ]
   }
 }
