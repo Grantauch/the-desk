@@ -65,6 +65,8 @@ Before applying a battle turn, lock battle and creature records and verify every
 
 Care values use one direction: 100 is healthy. Store nutrition, happiness, energy, cleanliness and focus; derive plain-language hunger/exhaustion displays. Illness, injuries, friendship, personal development and ancestry are separate state.
 
+Accepted later scope: [body condition, exercise and localized battle scars](BODY-CONDITION-AND-SCARS.md). Use additive versioned state migrations and consequential events so these can be introduced after core care/combat without resetting existing pets. Do not equate immediate satiety with long-term body condition or invent historical feeding/wounds during import. Current schema v2 is unchanged; no weight or scar simulation is active.
+
 Preserve the founder's official best streak and earned habitats as a legacy achievement. Game XP, care and team strength are a separate system. Attendance can provide a verified one-time welcome cosmetic later; nurturing, discovery, crafting and exploration must offer equivalent access without perfect attendance. No game command can edit school points or attendance.
 
 Offline decay may lower bounded care values, but cannot commit death. Repeated logins cannot multiply a capped absence calculation: record a continuous absence interval, last authoritative accrual time and applied cap. Closures and weekends use the verified calendar. Danger timers pause on disconnect, outage, teacher freeze and inactivity; wall-clock catch-up never consumes rescue opportunities.

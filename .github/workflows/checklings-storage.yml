@@ -1,0 +1,42 @@
+name: Checklings storage integration
+on:
+  pull_request:
+    paths:
+      - 'apps/checklings-service/**'
+      - 'apps/checklings-foundation/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/checklings-storage.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: checklings_test
+          POSTGRES_USER: synthetic_checklings
+          POSTGRES_PASSWORD: synthetic-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U synthetic_checklings -d checklings_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev --no-audit --no-fund
+      - name: Embedded SQL, persistence and archive restore
+        run: node --test apps/checklings-service/storage.test.mjs
+      - name: Independent PostgreSQL clients, atomic writes and contention
+        env:
+          CHECKLINGS_TEST_DATABASE_URL: postgres://synthetic_checklings:synthetic-ci-only@127.0.0.1:5432/checklings_test
+          CHECKLINGS_TEST_DATABASE_PURPOSE: synthetic-only
+        run: node --test apps/checklings-service/native-storage.integration.mjs
