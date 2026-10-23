@@ -30,6 +30,8 @@ Use **PASS / FAIL / BLOCKED / NOT_RUN** per case **per applicable level**. Never
 
 An "action" below is performed by a synthetic identity unless S2/S3 is explicitly required. In each case, the decisive assertion is against server state, not visual feedback alone.
 
+**Boundary clarification:** CKQ-007/008/036 and CKQ-049–055 distinguish today's **school class-access panel and short class leases** from future **game-only teacher controls** for battle/PvP/lethal settings. Passing a school access/pause check does not validate those future game policy switches or their UI. For source review, pin the exact Batch05 local implementation separately; the currently published Batch04 baseline does not itself establish Batch05 behavior or permit its publication.
+
 | ID | Level | Exercise / reproduction | Required observable outcome |
 | --- | --- | --- | --- |
 | CKQ-001 | S0/S1 | Verify feature flag off and launch game with no valid school assertion | Existing check-in/pass remains usable; game session not issued; no game data mutation |
@@ -80,6 +82,13 @@ An "action" below is performed by a synthetic identity unless S2/S3 is explicitl
 | CKQ-046 | S1 | Recover from encrypted staging backup including identity mapping, revision and events | Imported accounts, pets, warning clocks, command receipts and memorial counts match pre-backup manifest |
 | CKQ-047 | S2/S3 | Ask representative readers to locate "how to rescue," "how to quit," and "how to save" unaided | Key actions understood; misread terms and dead ends logged and fixed before expansion |
 | CKQ-048 | S0/S1/S2 | Compare all observed functionality to milestone labels and release notes | Claims explicitly distinguish designed, implemented, staging, production and student-verified behavior |
+| CKQ-049 | S0/S1/S2 | Run 20-minute synthetic school access with repeated class-lease expiries (each at most 120 seconds); attempt actions at expiry, between leases, and after expiry without a new verified issuer action | No invisible or automatic renewal in the current school bridge; an expired class lease denies new authorized access until the student explicitly renews through the permitted school process; log actual lease boundaries |
+| CKQ-050 | S0/S1 | Begin an authorized school action just before the 120-second class-lease boundary, hold the lock/queue until after expiry, and attempt commit | Revalidate the lease at the authoritative commit point; waiting for a lock does not create an expiry bypass, extend the lease or accept a stale membership |
+| CKQ-051 | S0/S1/S2 | Teacher applies a locally visible school access pause while the remote push fails or is delayed; compare the state with a server-confirmed pause using a previously issued student lease | UI distinguishes pending/failed remote propagation from a confirmed server-enforced pause; do not claim instant remote denial while an old lease remains valid; maximum possible stale remote access is bounded by its original expiry, never renewed during pause |
+| CKQ-052 | S0/S1 | Push a correctly signed, explicit disabled/empty school-class snapshot even when the prior roster contains duplicates or more than 35 entries; separately submit malformed, unsigned, or absent snapshots | Signed disabled/empty pause fails closed and revokes/denies access despite malformed prior roster; malformed or unsigned updates are rejected, not interpreted as an open class or permissive default |
+| CKQ-053 | S0/S1 | Omit a member from the next signed roster, then change their credential/auth epoch while a previously authorized lease remains; attempt ordinary and privileged operations | Omission or changed credentials revoke membership at the specified propagation/lease bound; the system never silently reuses old grants, and no unauthorized refresh or teacher scope appears |
+| CKQ-054 | S0/S1 | Deliver validly signed school roster/pause snapshots out of order, then replay an older previously valid snapshot after a newer revocation/disabled state | Snapshot version/order is monotonic; stale replay cannot restore old members, clear a newer pause, widen permissions, or extend previously issued leases; log the ignored update |
+| CKQ-055 | S0/S1 | Authorize exactly 35 distinct active school-class members, then attempt 36 distinct active members, including duplicate entries and a roster with 36 unique users | All 35 legitimate members work; 36 unique active members are rejected by the documented boundary with no truncation, accidental partial roster, or bypass via duplicates |
 
 ## 4. Performance profile and budgets
 
@@ -113,6 +122,6 @@ Each identified defect needs severity (blocker/high/medium/low), replication ste
 
 ## 7. Ready-to-run first verification sequence
 
-For the next integration owner: (1) pin exact merged/tested source and stage endpoints, (2) establish disposable synthetic identities, (3) automate CKQ-001–020 plus CKQ-021/022/024/026/027/033/035/036/042/045/046 as features actually become available, (4) open distinct defects, (5) perform rollback and backup recovery, (6) schedule independent CKQ-003/004/007/019/029/030/037–044/047 on real district devices, and (7) capture supervised S3 parity feedback only after G3 passes.
+For the next integration owner: (1) pin exact merged/tested source and stage endpoints, (2) establish disposable synthetic identities, (3) automate CKQ-001–020 plus CKQ-021/022/024/026/027/033/035/036/042/045/046 and school-bridge addendum CKQ-049–055 as features actually become available, (4) open distinct defects, (5) perform rollback and backup recovery, (6) schedule independent CKQ-003/004/007/019/029/030/037–044/047 on real district devices, and (7) capture supervised S3 parity feedback only after G3 passes.
 
 **Handoff:** Proposed matrix only; **no tests executed and no new Checklings runtime shipped by this file**. Coordinator/reviewer should approve thresholds, stage ownership, privacy boundaries and exact gate-to-task mappings. Related tasks: CK-INT-001, CK-OPS-001, CK-CARE-001, CK-BEH-003 and CK-PILOT-012.
