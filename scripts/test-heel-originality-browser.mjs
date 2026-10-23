@@ -1,5 +1,5 @@
 /**
- * BTS heel project originality / accessibility browser acceptance.
+ * BTS heel project writing accessibility and save/submit browser acceptance.
  * Tests only synthetic work. No private roster, Google endpoint or real student PIN.
  */
 import assert from 'node:assert/strict';
@@ -52,13 +52,14 @@ try {
   assert.equal(await page.locator('#lab-round-1').isVisible(), true);
   assert.equal(await page.locator('#lab-round-2').isVisible(), false);
   assert.equal(await page.locator('#lab-heel-choices button').count(), 15);
-  assert.equal((await page.locator('#lab-process-report').inputValue()).trim(), '', 'Opening an empty assignment should not create a fake answer');
+  assert.equal(await page.locator('#lab-process-report').count(), 0, 'Process receipts must not exist');
+  assert.equal(await page.locator('[data-lab-stamp]').count(), 0, 'Confusing draft stamps were removed');
 
   await page.locator('#lab-heel-choices button').filter({ hasText: 'The Iron Sheik' }).click();
   assert.equal(await page.locator('#lab-heel').inputValue(), 'The Iron Sheik');
   await page.locator('#lab-identity').fill('This is my first attempt to distinguish the advertised villain from the actual wrestler who played the character.');
-  await page.waitForFunction(() => document.getElementById('lab-process-report').value.includes('WRITING PROCESS RECEIPT'));
-  assert.match(await page.locator('#lab-process-report').inputValue(), /WRITING PROCESS RECEIPT/);
+  assert.equal(await page.locator('#lab-identity').getAttribute('spellcheck'), 'true');
+  assert.equal(await page.locator('#lab-identity').getAttribute('autocapitalize'), 'sentences');
   assert.ok(!errors.length, 'No JavaScript errors when entering an original answer: ' + errors.join('; '));
 
   async function paste(selector, text) {
@@ -70,8 +71,7 @@ try {
   const before = await page.locator('#lab-identity').inputValue();
   await paste('#lab-identity', largePaste);
   assert.equal(await page.locator('#lab-identity').inputValue(), before, 'Large prose paste must be prevented by default');
-  assert.match(await page.locator('#lab-process-report').inputValue(), /rejected \(>12 words\): 1/);
-  assert.match(await page.locator('#lab-originality-feedback').textContent(), /was not inserted/);
+  assert.match(await page.locator('#lab-paste-feedback').textContent(), /not pasted/);
 
   const shortPaste = 'A short quoted phrase';
   await paste('#lab-identity', shortPaste);
@@ -91,25 +91,35 @@ try {
   assert.equal(await page.locator('#lab-source-one-claim').inputValue(), claimBefore, 'Original source analysis obeys the paste rule');
 
   await page.locator('#lab-paste-override').check();
-  await page.locator('#lab-paste-reason').fill('Work drafted offline in a school-approved editor.');
   await page.locator('[data-lab-tab="3"]').click();
   await paste('#lab-wrestling', largePaste);
   assert.ok((await page.locator('#lab-wrestling').inputValue()).includes(largePaste), 'Transparent accessibility/prior-work override permits an import');
-  assert.match(await page.locator('#lab-process-report').inputValue(), /exception imports: 1/);
+  assert.equal(await page.locator('#lab-process-report').count(), 0, 'No hidden writing history is generated');
 
   await page.locator('[data-lab-tab="1"]').click();
   await page.locator('#lab-initial-hypothesis').fill('I think the boos were shaped by the conflict and uncertainty surrounding the public perception of this character.');
-  await page.locator('[data-lab-stamp="1"]').click();
-  assert.match(await page.locator('#lab-process-report').inputValue(), /round 1 /);
-
+  await page.locator('#lab-character-clue').fill('');
+  await page.locator('#lab-character-clue').focus();
+  await page.keyboard.type('hello. world');
+  assert.equal(await page.locator('#lab-character-clue').inputValue(), 'Hello. World', 'Capitalize typed sentence beginnings on Chromebook keyboard');
+  const toolbox = page.locator('#lab-character-clue').locator('..');
+  assert.match(await toolbox.locator('.lab-word-count').textContent(), /2 words/);
+  await toolbox.locator('.lab-editor-expand').click();
+  assert.equal(await toolbox.evaluate(el => el.classList.contains('lab-editor-expanded')), true);
+  await page.keyboard.press('Escape');
+  assert.equal(await toolbox.evaluate(el => el.classList.contains('lab-editor-expanded')), false);
+  await toolbox.locator('.lab-editor-button[aria-pressed]').click();
+  assert.equal(await toolbox.locator('.lab-editor-button[aria-pressed]').getAttribute('aria-pressed'), 'false');
+  await page.locator('#lab-character-clue').fill('');
+  await page.locator('#lab-character-clue').focus();
+  await page.keyboard.type('lowercase');
+  assert.equal(await page.locator('#lab-character-clue').inputValue(), 'lowercase', 'Auto-caps can be turned off');
   page.once('dialog', dialog => dialog.accept());
   await page.reload({ waitUntil: 'load' });
   await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
-  await page.waitForFunction(() => document.getElementById('lab-process-report').value.includes('rejected (>12 words): 3'));
-  assert.match(await page.locator('#lab-process-report').inputValue(), /rejected \(>12 words\): 3/);
-  assert.match(await page.locator('#lab-originality-status').textContent(), /draft stamps: 1\/5/);
+  assert.equal(await page.locator('#lab-process-report').count(), 0);
   assert.ok(!errors.length, 'No JavaScript errors: ' + errors.join('; '));
-  console.log('PASS: original-work counters, limited analysis paste, bibliography exception, documented import, draft stamp and tab-refresh recovery.');
+  console.log('PASS: native spellcheck, sentence caps, toggle, word count, expanded writing, paste guard and accessibility override.');
   await context.close();
 
   // Drive the served student page against the real Turn In code in an isolated
@@ -173,18 +183,15 @@ try {
       assert.match(await research.locator('#lab-date-feedback').textContent(), /supported year/);
       await research.locator('#lab-event-date').fill('1979-11-04');
     }
-    await research.locator(`[data-lab-stamp="${round}"]`).click();
   }
   await research.locator('#lab-talk').press('End');
   await research.keyboard.type(' Revised after checking a source.');
   await research.keyboard.press('Backspace');
   await research.waitForTimeout(550);
   assert.equal(await research.locator('#lab-progress').textContent(), '5 / 5');
-  const receipt = await research.locator('#lab-process-report').inputValue();
-  for (let round = 1; round <= 5; round++) assert.match(receipt, new RegExp('round ' + round + ' '));
-  assert.match(receipt, /Printable keyboard presses: [1-9]/);
-  assert.match(receipt, /deletion operations: [1-9]/);
-  assert.ok(receipt.length < 6000);
+  assert.equal(await research.locator('#lab-process-report').count(), 0);
+  assert.equal(await research.locator('[data-lab-stamp]').count(), 0);
+  assert.equal(await research.locator('#lab-identity').getAttribute('spellcheck'), 'true');
   await research.locator('#lab-timer-start').click();
   await research.waitForTimeout(1100);
   await research.locator('#lab-timer-stop').click();
@@ -201,7 +208,7 @@ try {
   await research.waitForFunction(() => window.__deskSave?.ready);
   await research.locator('[data-lab-tab="5"]').click();
   assert.match(await research.locator('#lab-talk').inputValue(), /Offline revision preserved/);
-  assert.match(await research.locator('#lab-originality-status').textContent(), /5\/5/);
+  assert.equal(await research.locator('#lab-paste-override').isChecked(), false);
   offline = false;
   await research.evaluate(() => window.__deskSave.saveCloud());
 
@@ -210,11 +217,9 @@ try {
   const recovered = await open(secondDevice);
   assert.equal(await recovered.locator('#lab-identity').inputValue(), '');
   await login(recovered);
-  await recovered.waitForFunction(() => document.getElementById('lab-process-report').value.includes('Previous device/session receipt'));
+  await recovered.waitForFunction(expected => document.getElementById('lab-identity').value === expected, prose);
   assert.equal(await recovered.locator('#lab-identity').inputValue(), prose);
-  const recoveredReceipt = await recovered.locator('#lab-process-report').inputValue();
-  assert.match(recoveredReceipt, /unusually large non-paste changes: 0/);
-  assert.match(recoveredReceipt, /round 5 /);
+  assert.equal(await recovered.locator('#lab-process-report').count(), 0);
   assert.match(await recovered.locator('#lab-defense-answer').getAttribute('data-q'), /For The Iron Sheik/);
   await secondDevice.close();
 
@@ -230,9 +235,9 @@ try {
   releaseSubmission();
   await research.waitForFunction(() => Boolean(window.__deskSave.state().turnedInAt));
   assert.equal(service.rows('Turn Ins').length, 1);
-  assert.ok(submitted[0].answers.some(a => /WRITING PROCESS RECEIPT/.test(a.a)));
+  assert.ok(!submitted[0].answers.some(a => /WRITING PROCESS RECEIPT/.test(a.a)), 'No typing history is sent to the teacher');
   assert.ok(submitted[0].answers.some(a => /Source defense: For The Iron Sheik/.test(a.q)));
-  console.log('PASS: five rounds/checkpoints, hypotheses, dates, keyboard edits, rubric, timer, offline reload, PIN recovery, and server-acknowledged submission (isolated synthetic service).');
+  console.log('PASS: five rounds, hypotheses, dates, rubric, timer, offline reload, PIN recovery and server-acknowledged submission (isolated synthetic service).');
 
   await research.locator('#lab-paste-override').check();
   const chip = research.locator('#desk-save-chip');
@@ -240,14 +245,14 @@ try {
   await chip.getByRole('button', { name: 'Not you? Sign out' }).click();
   await research.waitForFunction(() => !window.__deskSave.state().token);
   await research.waitForTimeout(600);
-  assert.equal(await research.locator('#lab-process-report').inputValue(), '');
+  assert.equal(await research.locator('#lab-process-report').count(), 0);
   assert.equal(await research.locator('#lab-paste-override').isChecked(), false);
-  assert.match(await research.locator('#lab-originality-status').textContent(), /Pastes tried: 0.*keyboard edits: 0.*draft stamps: 0\/5/);
+  assert.equal(await research.locator('#lab-character-clue').getAttribute('autocapitalize'), 'sentences');
   assert.equal(await research.locator('#lab-progress').textContent(), '0 / 5');
   await research.reload({ waitUntil: 'load' });
   await research.waitForFunction(() => window.__deskSave?.ready);
-  assert.equal(await research.locator('#lab-process-report').inputValue(), '');
-  console.log('PASS: shared-device sign-out clears answers, receipt, counters, exception switch, rubric and timer across reload.');
+  assert.equal(await research.locator('#lab-process-report').count(), 0);
+  console.log('PASS: shared-device sign-out clears answers, paste option, editor settings, rubric and timer across reload.');
 
   await mkdir(new URL('../browser-results/heel-research/', import.meta.url), { recursive: true });
   for (const width of [320, 390, 1366]) {
