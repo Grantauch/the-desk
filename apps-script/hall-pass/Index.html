@@ -844,6 +844,17 @@
 
       /* ------------------------------------------------------------ screens */
 
+      const bindChecklingVisit = (input) => {
+        const visitButton = document.querySelector('#visit-checkling');
+        if (visitButton) visitButton.addEventListener('click', (event) => {
+          if (!input.reportValidity()) return;
+          act(event.currentTarget, async () => {
+            adoptState(await call('identifyChecklingWithPin', input.value, getPinAttemptNonce()));
+            renderResolvedState('checkling');
+          });
+        });
+      };
+
       const renderPin = (message, purpose = APP_MODE === 'checkin' ? 'checkin' : 'pass') => {
         cancelHandoff();
         clearInterval(timerHandle);
@@ -861,6 +872,7 @@
             <label class="pin-label" for="pin">Your six-digit PIN</label>
             <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
             <button class="primary" type="submit">${purpose === 'checkin' ? 'check in' : 'continue with PIN'} →</button>
+            ${purpose === 'checkin' ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
             <details class="pin-help"><summary>Need a hand?</summary><p>Use the six-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
           </form>`;
         const input = document.querySelector('#pin');
@@ -878,6 +890,7 @@
             await finishPinResult();
           });
         });
+        bindChecklingVisit(input);
       };
 
       /** Draw the screen that follows a finished student action. */
@@ -954,6 +967,7 @@
             <label class="pin-label" for="action-pin">Your six-digit PIN</label>
             <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
             <button class="primary" type="submit">${checkIn ? 'check in now' : 'continue'}</button>
+            ${checkIn ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
             ${canGoBack ? '<button class="secondary" id="cancel-action-pin" type="button">go back</button>' : ''}
           </form>`;
         const input = document.querySelector('#action-pin');
@@ -971,6 +985,7 @@
             await finishPinResult();
           });
         });
+        bindChecklingVisit(input);
         const cancel = document.querySelector('#cancel-action-pin');
         if (cancel) cancel.addEventListener('click', () => (checkIn ? renderCheckIn() : renderStudent()));
         armIdleReset();
@@ -986,7 +1001,7 @@
           renderActionPin(chosen === 'checkin' ? 'CHECKIN' : 'AUTO_PASS');
           return;
         }
-        if (chosen === 'checkin') renderCheckIn();
+        if (chosen === 'checkin' || chosen === 'checkling') renderCheckIn();
         else renderStudent();
       };
 
@@ -1004,7 +1019,7 @@
         content.innerHTML = `
           <div class="checkin-card">
             <div class="student-head">
-              <div><p class="eyebrow">one student · one PIN</p><h2>${escapeHtml(firstName)}, choose your class.</h2><p class="student-meta">Your identity is confirmed. This choice tells Hall Pass where to record today’s activity.</p></div>
+              <div><p class="eyebrow">one student · one PIN</p><h2>${escapeHtml(firstName)}, choose your class.</h2><p class="student-meta">${state.purpose === 'checkling' ? 'Choose the class whose Checkling you want to visit. This does not record attendance.' : 'Your identity is confirmed. This choice tells Hall Pass where to record today’s activity.'}</p></div>
             </div>
             <div class="override">
               <select id="student-class"><option value="">choose the class you are attending…</option>${options}</select>
@@ -1182,7 +1197,7 @@
           <div class="checkin-card">
             <div class="student-head">
               <div>
-                <p class="eyebrow">${state.checkedIn ? late ? 'late sign-in' : 'recorded for today' : state.attendanceLocked ? 'teacher attendance review' : actionIsLate ? 'late check-in available' : 'on-time check-in'}</p>
+                <p class="eyebrow">${state.checkedIn ? late ? 'late sign-in' : 'recorded for today' : state.attendanceLocked ? 'teacher attendance review' : !eligibility.allowed ? 'Checkling visit' : actionIsLate ? 'late check-in available' : 'on-time check-in'}</p>
                 <h2>${escapeHtml(firstName)}.</h2>
                 <p class="student-meta">${escapeHtml(state.student.classPeriod || 'class')} · ${escapeHtml(state.method === 'pin' ? 'student PIN' : 'school Google account')}</p>
               </div>
@@ -1311,7 +1326,7 @@
                 <label class="ck-name">Their little home<select name="ck-habitat" aria-label="Their little home">${journey.map(entry => `<option value="${entry.habitat}" ${entry.habitat === habitat ? 'selected' : ''} ${entry.unlocked ? '' : 'disabled'}>${escapeHtml(entry.home)}${entry.unlocked ? '' : ` · opens at ${entry.min} days`}</option>`).join('')}</select></label>
                 <button type="submit" class="secondary">${pet ? 'save friend' : 'hatch my Checkling'}</button><p id="ck-save-status" role="status"></p>
               </form></details>
-              <p class="ck-note">Your friend and home follow this class login across devices. Play is just for fun; attendance and points come from the confirmation above. ${sharedDevice() ? 'Choose done — next student above when your visit is over.' : ''}</p>
+              <p class="ck-note">Your friend and home follow this class login across devices. Play is just for fun; attendance and points come from the confirmation above. ${sharedDevice() ? `Choose ${state.checkedIn ? 'done — next student' : 'different student'} above when your visit is over.` : ''}</p>
             </div>
             ${journey.length ? `<details class="ck-journey"><summary>your little journey <span>${journey.filter(entry => entry.unlocked).length} / 5 keepsakes</span></summary><ol>${journey.map(entry => `<li class="${entry.unlocked ? 'is-earned' : ''}" ${entry.label === companion.stage ? 'aria-current="step"' : ''}><span class="ck-keepsake" aria-hidden="true">${entry.unlocked ? entry.symbol : '◇'}</span><strong>${escapeHtml(entry.keepsake)}</strong><span>${entry.min === 0 ? 'A new friendship' : `${entry.min} school days`} · ${escapeHtml(entry.label)}</span><small>${entry.unlocked ? 'yours to keep' : `opens ${escapeHtml(entry.home)}`}</small></li>`).join('')}</ol><p class="ck-note">Earned from your best official streak. Weekends and school closures protect it. Late points follow your teacher’s review.</p></details>` : ''}
           </section>`;
