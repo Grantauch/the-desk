@@ -1,15 +1,18 @@
-# Checklings persistence foundation
+# Checklings service foundation
 
-Owner: Codex. Branch: `checklings/batch-02-persistence`, based on Batch 01 PR #226.
+Owner: Codex. Current branch: `checklings/batch-03-auth-sessions`, stacked on persistence PR #227.
 
 Internal Node modules and SQL only. No HTTP mutation endpoint, school login, public game UI, production database or Netlify service is deployed by this change. No student record is read or imported. Production integration remains disabled.
 
 - `database.mjs`: explicit, checksum-guarded schema migration; PostgreSQL pool transaction adapter; redacted readiness result.
 - `migrations/001-foundation.sql`: scoped membership/creature storage, command receipts and append-only event journal, with ownership/provenance/revision constraints.
 - `store.mjs`: injected server authorization; rechecked database membership/class/auth epoch; atomic legacy import and nickname changes; private owner reads.
+- `auth.mjs` / `migrations/002-sessions.sql`: private signed-launch/assertion broker, browser-bound one-use exchange, hashed sessions, server expiry and durable logout. No school bridge, cookies or HTTP routes are wired yet. See [protocol and remaining gates](../../docs/checklings/BATCH-03-AUTH.md).
 - `storage-contract.mjs`: shared synthetic assertions against embedded SQL and independent PostgreSQL clients.
 - `storage.test.mjs`: embedded PostgreSQL assertions, file-backed close/reopen and archive restore. Embedded transactions are serialized; this does not establish independent-client contention or hosted durability.
-- `native-storage.integration.mjs`: the same contract using a real PostgreSQL pool with 35 separately opened physical connections. This is an explicit opt-in synthetic test, not a production load tool.
+- `auth-contract.mjs`: shared authentication/replay/revocation tests, including 35 simultaneous assertion deliveries and code exchanges.
+- `migration.test.mjs`: upgrade an existing schema-1 founder without changing pet, receipt or history rows; database-clock and checksum-drift checks.
+- `native-storage.integration.mjs`: the same storage/auth contract using a real PostgreSQL pool with 35 separately opened physical connections. This is an explicit opt-in synthetic test, not a production load tool.
 
 ## Run locally
 
@@ -17,7 +20,7 @@ From the repository root:
 
 ```sh
 npm ci --include=dev
-node --test apps/checklings-service/storage.test.mjs
+node --test apps/checklings-service/storage.test.mjs apps/checklings-service/migration.test.mjs
 npm run checkling:test
 npm run verify
 ```
@@ -40,7 +43,7 @@ This batch handles one owner and one creature per consequential command. Future 
 
 A replayed receipt describes its original committed result. It may be older than a later rename, injury or death. The future UI must compare revisions, reject stale repainting and load the current creature after command recovery. Battle eligibility must always read current locked database state, never a historical receipt or client snapshot.
 
-`authorize` must be a trusted server verifier returning opaque tenant, membership and class IDs plus the current auth epoch. This batch does not implement it. A caller-supplied identity object cannot be treated as authenticated. `importLegacy` accepts a private verified school export, not a browser payload. Keep both methods behind the future authenticated server adapter; do not expose module methods directly through a public router.
+`authorize(token, client)` must be a trusted server verifier returning opaque tenant, membership and class IDs plus the current auth epoch. Pass `createAuthService(...).authorize` to use durable game sessions; it reuses the store's transaction client and locks the membership before the session. A caller-supplied identity object cannot be treated as authenticated. The real school-side assertion issuer remains unimplemented. `importLegacy` accepts a private verified school export, not a browser payload. Keep both methods behind the future authenticated server adapter; do not expose module methods directly through a public router.
 
 An imported state can be renamed, but reimport cannot overwrite its later progress or resurrect it. Missing/corrupt/conflicting legacy source requires review. Source preferences remain untouched because the game has no access to the classroom store. The separately reviewed per-membership legacy writer fence and final source-fingerprint recheck are still required before a pilot import.
 
@@ -50,6 +53,6 @@ An imported state can be renamed, but reimport cannot overwrite its later progre
 
 ## Remaining before staging or classroom use
 
-Native independent-client CI passed at source `99c3d6f` in [run 39981989607](https://github.com/Grantauch/the-desk/actions/runs/39981989607). Package a separate deployable service; provision a dedicated owner-approved database; implement the real school-session bridge and server session revocation; configure a least-privilege runtime role versus migration owner; managed backup/restore rehearsal; cost/resource limits and redacted monitoring; migration fence; actual multi-device UI and Chromebook verification. Local SQL tests and a passing native test container do not prove these deployment gates.
+Parent persistence PR #227 passed native and protected site CI at `0b98f49`; Batch 03's new tests require their own CI results. Package a separate deployable service; provision a dedicated owner-approved database; implement the real school-session bridge, HTTPS/cookie/CSRF adapter and shared-device UI; configure a least-privilege runtime role versus migration owner; managed backup/restore rehearsal; cost/resource limits and redacted monitoring; migration fence; actual multi-device UI and Chromebook verification. Internal session revocation is implemented, but these source tests do not prove deployment gates.
 
 Primary references: [node-postgres transactions](https://node-postgres.com/features/transactions), [PostgreSQL row locking](https://www.postgresql.org/docs/current/explicit-locking.html), [PGlite API and archive limits](https://pglite.dev/docs/api). PGlite archives are for compatible PGlite instances; they are not a managed PostgreSQL backup format.
