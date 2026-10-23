@@ -424,6 +424,7 @@
     state = blankState();
     state.values = snapshot();
     persist();
+    window.dispatchEvent(new Event('desk-save:reset'));
   }
 
   /* ------------------------------------------------------------ actions -- */

@@ -34,7 +34,13 @@ export function runReleaseVerification({ projectRoot = resolve('.'), baseRef, he
   console.log(classification.reason);
   if (classification.routes.length) console.log(`Focused browser routes: ${classification.routes.join(', ')}`);
   const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  run(npm, ['run', script], { cwd: projectRoot });
+  // npm.cmd cannot be spawned directly on Windows. npm supplies its CLI path
+  // when this canonical gate runs through npm, so launch it with Node directly.
+  const npmCli = process.env.npm_execpath;
+  run(npmCli ? process.execPath : npm, npmCli ? [npmCli, 'run', script] : ['run', script], {
+    cwd: projectRoot,
+    shell: !npmCli && process.platform === 'win32',
+  });
   return classification;
 }
 

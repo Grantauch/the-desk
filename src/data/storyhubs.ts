@@ -138,14 +138,14 @@ export const storyHubs: StoryHub[] = [
 
   {
     slug: 'bts-americas-most-hated',
-    href: '/hubs/bts-americas-most-hated.html',
+    href: '/hubs/bts-americas-most-hated-research.html',
     title: 'america’s most hated',
     course: 'beyond the scoreboard',
     unit: 'the money game / wrestling, media and national fear',
     period: '1947–2014',
     status: 'ready to teach',
     question: 'who were americans told to boo, and why then?',
-    blurb: 'The launch hub for the heel project: fifteen wrestling villains borrowed from the headlines, from Gorgeous George to Rusev. Match front pages to the ring, watch heroes and villains switch sides, filter the card by national fear and see who was really under the costume.',
+    blurb: 'The complete heels project: fifteen wrestling villains, historical video and news context, plus a five-round research lab with source checks, a chronology tool, draft progress, a presentation planner and a transparent writing-process receipt.',
     cover: '/storyhub/bts/americas-most-hated/assets/gg-ring.webp',
     coverAlt: 'Gorgeous George standing in a wrestling ring in a long robe in 1949, Library of Congress photograph',
     topics: ['professional wrestling', 'cold war', 'iran hostage crisis', 'gulf war', 'stereotypes', 'media and promotion'],
@@ -155,6 +155,8 @@ export const storyHubs: StoryHub[] = [
       'Switch Sgt. Slaughter, Nikolai Volkoff and Jack Swagger between heel and face as the news changed.',
       'Claim one of fifteen heels, learn the five questions and the rubric, then prove a connection with dates.',
       'Ten official videos from Netflix, the National Archives, WWE and British Pathé, loaded only on press.',
+      'Draft your original argument, trace evidence, check sources and dates, and present with a two-to-three-minute practice timer.',
+      'Paste guard, source citations, research checkpoints, optional accessibility exception, and secure PIN-based Turn In.',
     ],
   },
   {
