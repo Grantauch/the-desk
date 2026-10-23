@@ -7,8 +7,11 @@
       "The existing reusable synthetic student is active in its own private demo class. Its generated PIN and identifying details remain outside this public repository.",
       "Daily Check-In offers visit Checkling only from both PIN screens. The fresh-PIN endpoint retains school-account checks and throttling, supports own-class selection, and issues no attendance/pass action proof. Existing classroom time gates and fresh-action PIN requirements are preserved.",
       "20 Checkling server scenarios and all 440 classroom-service behaviors pass. Fifteen offline Chromium journeys pass, including 320/390/1440 weekend visits to an unscheduled period, adoption/reload, normal Google and teacher PIN screens, class selection, accessibility, and existing shared-device privacy.",
-      "The isolated live synthetic release check now also verifies the companion PIN endpoint without recording attendance. Canonical npm run verify passed all stages (53 routes, 136 HTML files, 4618 local references, 13 sealed releases/117 files). Protected merge, guarded Apps Script deployment, and live readback are separate pending gates."
-    ]
+      "The isolated live synthetic release check now also verifies the companion PIN endpoint without recording attendance. Canonical npm run verify passed all stages (53 routes, 136 HTML files, 4618 local references, 13 sealed releases/117 files). Protected merge, guarded Apps Script deployment, and live readback are separate pending gates.",
+      "October 23 Batch 01 reconciliation supersedes the earlier pending-release note: Version 42 is active; independent live protected smoke verifies companionVisit=PIN_VERIFIED_NO_ATTENDANCE and unchanged production facts. See docs/checklings/BATCH-01.md."
+    ],
+    "deployment_status": "APPS_SCRIPT_V42_LIVE_SYNTHETIC_VERIFIED",
+    "field_status": "FIELD_PENDING"
   },
   "bts-heel-research-release-2026-10-22": {
     "status": "REVIEW_TESTED",
@@ -1191,6 +1194,21 @@
       "Escape the artwork URL slashes in the existing Index.html. No server code, workbook schema, PIN contract, attendance logic, points, deployment URL or access policy change.",
       "Regression replays the observed Google-side URL truncation, parses all four entry modes and verifies the resulting artwork URL. Existing Hall Pass structural/handoff checks, all 440 service behaviors and 17 Checkling server scenarios pass.",
       "All 11 offline Chromium browser journeys pass: student/kiosk/check-in/teacher startup after the observed rewrite, responsive companion activities and Pond, shared-device handoff/idle privacy, artwork and accessibility. Canonical npm run verify passed all 18 stages: 53 built routes, 135 HTML files, 4601 local references and 13 releases/117 sealed files. Protected CI, existing-deployment release and live UI readback remain pending."
+    ]
+  },
+  "checklings-batch-01-2026-10-23": {
+    "status": "FOUNDATION_TESTED_PROTECTED_REVIEW_PENDING",
+    "owner": "Codex",
+    "scope": "Production reconciliation, offline import rehearsal, authority boundaries, versioned data contracts and first-12 design/implementation plan",
+    "deployment_status": "NO_NEW_GAME_DEPLOYMENT_OR_MIGRATION",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Observed Netlify production 6adb6ab62f3d769755b5d68e ready on 82deafce4e1e6fedcd4adab49ae2527774920aea. Independently read active Apps Script Version 42 in Manage deployments; stable existing URL, DOMAIN access and deploying-owner execution retained.",
+      "Version 42 release artifact from run 39888673590 matches all five local normalized source hashes at dec34de; current main has identical Apps Script source. Current full editor export was not independently repeated.",
+      "Deployed synthetic smoke passed: PIN_VERIFIED_NO_ATTENDANCE, STARTED, RETURNED_COUNTABLE, evidenceUsed=1, test pass voided, test membership deactivated and productionFactsUnchanged=true. No real student PIN used.",
+      "16 new offline foundation tests pass, including all four founders/five homes, exact legacy names, tenant and membership separation, source conflicts, rerun preservation of deceased individuals and absence-safe death admission. Original 20 companion cases remain green; canonical npm run verify passed all 18 stages, 440 classroom behaviors, zero Astro errors/warnings, 53 built routes and 136 HTML/4618 local references.",
+      "PR 223 exact head f5ce7bb passes its 29 synthetic engine tests; dead-seat raid stall separately reproduced. No prototype code merged or production integration implied. docs/checklings/BATCH-01.md records findings and remaining pilot gates.",
+      "Focused offline browser suite could not start locally: no Chromium executable, and official Playwright browser download returned an invalid archive. No browser regression pass claimed; protected CI and Chromebook field use remain pending."
     ]
   }
 }
