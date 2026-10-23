@@ -50,7 +50,7 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
   }
   // Global lock order for authenticated work: membership, then flow/session.
   // First session lookup is an unlocked hint only; recheck after the owner lock.
-  async function session(c,token) {
+  async function session(c,token,{touch=true}={}) {
     insist(secret(token));
     const tokenHash=digest(token);
     const hint=(await c.query('SELECT issuer,audience,tenant_id,member_id,class_id,auth_epoch FROM ck_sessions WHERE token_hash=$1',[tokenHash])).rows[0];
@@ -61,8 +61,9 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
     const now=await time(c);
     insist(row && row.issuer===issuer && row.audience===audience && row.tenant_id===tenantId && row.member_id===actor.memberId && row.class_id===actor.classId && row.auth_epoch===actor.authEpoch);
     insist(row && row.revoked_ms===null && now<Number(row.idle_expires_ms) && now<Number(row.absolute_expires_ms));
-    await c.query('UPDATE ck_sessions SET idle_expires_ms=$1 WHERE token_hash=$2',[Math.min(now+120000,Number(row.absolute_expires_ms)),tokenHash]);
-    return {actor,tokenHash,now};
+    const expiry=Math.min(touch?now+120000:Number(row.idle_expires_ms),Number(row.absolute_expires_ms));
+    if(touch)await c.query('UPDATE ck_sessions SET idle_expires_ms=$1 WHERE token_hash=$2',[expiry,tokenHash]);
+    return {actor,tokenHash,now,remainingMs:expiry-now};
   }
   return {
     async beginLaunch() {
@@ -83,7 +84,7 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
         const flow=(await c.query('SELECT * FROM ck_launch_flows WHERE flow_id=$1 FOR UPDATE',[claims.flowId])).rows[0];
         const now=await time(c);
         insist(claims.iat*1000<=now && claims.exp*1000>now);
-        insist(flow && flow.issuer===issuer && flow.audience===audience && flow.code_hash===null && now<Number(flow.expires_ms) && equal(flow.challenge,claims.challenge));
+        insist(flow && flow.cancelled_ms===null && flow.issuer===issuer && flow.audience===audience && flow.code_hash===null && now<Number(flow.expires_ms) && equal(flow.challenge,claims.challenge));
         const used=await c.query('INSERT INTO ck_launch_assertions (issuer,assertion_id,flow_id,expires_ms) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING assertion_id',[issuer,claims.jti,claims.flowId,claims.exp*1000]);
         insist(used.rows.length===1);
         const code=random();
@@ -104,10 +105,10 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
         const flow=(await c.query('SELECT * FROM ck_launch_flows WHERE flow_id=$1 FOR UPDATE',[flowId])).rows[0];
         const now=await time(c);
         insist(flow && flow.tenant_id===tenantId && flow.member_id===actor.memberId && flow.class_id===actor.classId && flow.auth_epoch===actor.authEpoch);
-        insist(flow && flow.issuer===issuer && flow.audience===audience && flow.consumed_ms===null && now<Number(flow.expires_ms) && now<Number(flow.code_expires_ms));
+        insist(flow && flow.cancelled_ms===null && flow.issuer===issuer && flow.audience===audience && flow.consumed_ms===null && now<Number(flow.expires_ms) && now<Number(flow.code_expires_ms));
         insist(equal(flow.cookie_hash,digest(flowCookie)) && equal(flow.state_hash,digest(state)) && equal(flow.code_hash,digest(code)) && equal(flow.challenge,challenge(flowCookie)));
         const token=random();
-        await c.query('INSERT INTO ck_sessions (token_hash,issuer,audience,tenant_id,member_id,class_id,auth_epoch,created_ms,idle_expires_ms,absolute_expires_ms) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[digest(token),issuer,audience,tenantId,actor.memberId,actor.classId,actor.authEpoch,now,now+120000,now+900000]);
+        await c.query('INSERT INTO ck_sessions (token_hash,issuer,audience,tenant_id,member_id,class_id,auth_epoch,created_ms,idle_expires_ms,absolute_expires_ms,launch_flow_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[digest(token),issuer,audience,tenantId,actor.memberId,actor.classId,actor.authEpoch,now,now+120000,now+900000,flowId]);
         await c.query('UPDATE ck_launch_flows SET consumed_ms=$1 WHERE flow_id=$2',[now,flowId]);
         return {token};
       });
@@ -116,6 +117,22 @@ export function createAuthService({database,issuer,tenantId,audience,assertionKe
     async authorize(token,client) {
       insist(client && typeof client.query==='function');
       return (await session(client,token)).actor;
+    },
+    async sessionWindow(token) {
+      return database.transaction(async c=>({remainingMs:(await session(c,token,{touch:false})).remainingMs}));
+    },
+    async cancelLaunch(flowCookie) {
+      if(!secret(flowCookie))return;
+      await database.transaction(async c=>{
+        // Cancellation takes flow -> session locks and NEVER a membership lock.
+        // No session operation later requests a flow lock. An in-flight exchange
+        // either sees cancellation or commits first and has its session revoked.
+        const {rows}=await c.query('SELECT flow_id FROM ck_launch_flows WHERE cookie_hash=$1 AND issuer=$2 AND audience=$3 FOR UPDATE',[digest(flowCookie),issuer,audience]);
+        if(!rows.length)return;
+        const now=await time(c),flowId=rows[0].flow_id;
+        await c.query('UPDATE ck_launch_flows SET cancelled_ms=COALESCE(cancelled_ms,$1) WHERE flow_id=$2',[now,flowId]);
+        await c.query('UPDATE ck_sessions SET revoked_ms=COALESCE(revoked_ms,$1) WHERE launch_flow_id=$2',[now,flowId]);
+      });
     },
     async logout(token) {
       // Idempotent even after expiry/revocation. Unknown/malformed tokens are no-op.

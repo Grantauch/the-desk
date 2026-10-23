@@ -20,7 +20,7 @@ test('embedded PostgreSQL storage contract (serialized, not distributed concurre
     const restored=await PGlite.create({loadDataDir:archive});
     try {
       assert.deepEqual((await restored.query('SELECT count(*)::int AS n FROM ck_creatures')).rows,before);
-      for(const table of ['ck_creatures','ck_events','ck_command_receipts','ck_launch_flows','ck_launch_assertions','ck_sessions']) {
+      for(const table of ['ck_creatures','ck_events','ck_command_receipts','ck_launch_flows','ck_launch_assertions','ck_sessions','ck_request_limits']) {
         assert.deepEqual((await restored.query(`SELECT * FROM ${table} ORDER BY 1,2`)).rows,(await db.query(`SELECT * FROM ${table} ORDER BY 1,2`)).rows);
       }
     } finally {await restored.close();}

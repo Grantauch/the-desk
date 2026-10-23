@@ -51,7 +51,7 @@
     "turn-in:browser": "node scripts/test-desk-save-browser.mjs",
     "turn-in:load": "node scripts/turn-in-load-test.mjs",
     "dry-county:test": "node scripts/test-dry-county.cjs && node scripts/test-dry-county.cjs --town && node scripts/test-dry-county-flight.cjs && node scripts/test-dry-county-air-bridge.cjs && node scripts/test-dry-county-air-ops.cjs && node scripts/test-dry-county-flight-polish.cjs",
-    "checkling:test": "node --test scripts/test-checkling.cjs apps/checklings-foundation/foundation.test.cjs apps/checklings-service/storage.test.mjs apps/checklings-service/migration.test.mjs",
+    "checkling:test": "node --test scripts/test-checkling.cjs apps/checklings-foundation/foundation.test.cjs apps/checklings-service/storage.test.mjs apps/checklings-service/migration.test.mjs apps/checklings-service/http.test.mjs apps/checklings-service/browser-client.test.mjs",
     "pond:test": "node --experimental-strip-types --test apps/pond/src/lib/pond/*.test.ts && node scripts/validate-pond-build.mjs",
     "pond:build": "npm --prefix apps/pond run build",
     "companion:browser": "node scripts/test-checkling-pond-browser.mjs"

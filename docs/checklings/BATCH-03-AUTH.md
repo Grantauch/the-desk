@@ -38,6 +38,8 @@ Parent PR #227 head `0b98f49f5850c07f597bedfadf05f31196563aea` independently pas
 
 ## Remaining integration gates
 
+Subsequent reconciliation: both [site/browser run 39999302788](https://github.com/Grantauch/the-desk/actions/runs/39999302788) and [PostgreSQL run 39999302907](https://github.com/Grantauch/the-desk/actions/runs/39999302907) passed at exact PR #228 head `60d2624c6ae16d837fdb90661440a861bd05e823`. The native job passed 35/35 independent-client tests and 36/36 embedded/upgrade tests. This supersedes the initial pending-CI note above, without implying merge/deployment. [Batch 04](BATCH-04-BROWSER-AUTH.md) continues the HTTP/callback boundary on a separate branch.
+
 Implement the actual school-side verified-PIN launch and ticket verification as a separately reviewed Apps Script release, then the separate game's HTTPS adapter and callback. The adapter must enforce fixed callback/launch origins, POST-only mutations, exact Origin/CSRF checks, bounded JSON bodies, rate limits, generic redacted errors, no-store responses, secure host-only HttpOnly SameSite cookies and credential-safe logging. The flow proof belongs only in the flow cookie; the session token only in the session cookie. Clear the URL fragment before further callback work; allow no third-party assets, analytics or referrers there. No public method may accept a client identity, private legacy export or raw PIN.
 
 Provisioning remains separate: dedicated service/project/database, least-privilege roles, managed backup/restore, cost limits, expiry cleanup, monitoring and private key rotation. Replay IDs must survive until their assertions expire; remove assertion rows before their expired flow rows. No automatic cleanup is run by a student request.

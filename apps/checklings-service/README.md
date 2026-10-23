@@ -1,18 +1,22 @@
 # Checklings service foundation
 
-Owner: Codex. Current branch: `checklings/batch-03-auth-sessions`, stacked on persistence PR #227.
+Owner: Codex. Current branch: `checklings/batch-04-browser-auth`, stacked on session PR #228.
 
-Internal Node modules and SQL only. No HTTP mutation endpoint, school login, public game UI, production database or Netlify service is deployed by this change. No student record is read or imported. Production integration remains disabled.
+Internal Node modules, SQL and an unmounted Fetch HTTP/browser adapter. No school login, public game UI, production database, HTTP endpoint or Netlify service is deployed by this change. No student record is read or imported. Production integration remains disabled.
 
 - `database.mjs`: explicit, checksum-guarded schema migration; PostgreSQL pool transaction adapter; redacted readiness result.
 - `migrations/001-foundation.sql`: scoped membership/creature storage, command receipts and append-only event journal, with ownership/provenance/revision constraints.
 - `store.mjs`: injected server authorization; rechecked database membership/class/auth epoch; atomic legacy import and nickname changes; private owner reads.
-- `auth.mjs` / `migrations/002-sessions.sql`: private signed-launch/assertion broker, browser-bound one-use exchange, hashed sessions, server expiry and durable logout. No school bridge, cookies or HTTP routes are wired yet. See [protocol and remaining gates](../../docs/checklings/BATCH-03-AUTH.md).
+- `auth.mjs` / `migrations/002-sessions.sql`: private signed-launch/assertion broker, browser-bound one-use exchange, hashed sessions, server expiry and durable logout. The school bridge is unimplemented; the HTTP adapter below is unmounted. See [broker protocol](../../docs/checklings/BATCH-03-AUTH.md).
+- `http.mjs`, `auth-pages.mjs`, `browser-client.mjs`: unmounted cookie/CSRF adapter, minimal callback/start documents and private-render clearing. Routes require a fixed HTTPS origin and school URL, plus trusted client-address metadata. See [Batch 04](../../docs/checklings/BATCH-04-BROWSER-AUTH.md).
+- `migrations/003-browser-boundary.sql`, `rate-limit.mjs`: pending-flow cancellation, session provenance and shared keyed SQL request limits. Old sessions remain compatible.
 - `storage-contract.mjs`: shared synthetic assertions against embedded SQL and independent PostgreSQL clients.
 - `storage.test.mjs`: embedded PostgreSQL assertions, file-backed close/reopen and archive restore. Embedded transactions are serialized; this does not establish independent-client contention or hosted durability.
 - `auth-contract.mjs`: shared authentication/replay/revocation tests, including 35 simultaneous assertion deliveries and code exchanges.
-- `migration.test.mjs`: upgrade an existing schema-1 founder without changing pet, receipt or history rows; database-clock and checksum-drift checks.
+- `migration.test.mjs`: upgrade a schema-1 founder and schema-2 issued session without replacing existing data; database-clock and checksum-drift checks.
 - `native-storage.integration.mjs`: the same storage/auth contract using a real PostgreSQL pool with 35 separately opened physical connections. This is an explicit opt-in synthetic test, not a production load tool.
+- `http.test.mjs`, `browser-client.test.mjs`: request/cookie/CSRF tests plus generation, cross-tab and expiry behavior using synthetic environments. `http-test-support.mjs` is test-only.
+- `browser.integration.mjs`: CI-only synthetic HTTPS/Chromium journeys. Uses temporary TLS credentials, an intercepted school page and a synthetic issuer; no real school connection or student UI acceptance.
 
 ## Run locally
 
@@ -53,6 +57,6 @@ An imported state can be renamed, but reimport cannot overwrite its later progre
 
 ## Remaining before staging or classroom use
 
-Parent persistence PR #227 passed native and protected site CI at `0b98f49`; Batch 03's new tests require their own CI results. Package a separate deployable service; provision a dedicated owner-approved database; implement the real school-session bridge, HTTPS/cookie/CSRF adapter and shared-device UI; configure a least-privilege runtime role versus migration owner; managed backup/restore rehearsal; cost/resource limits and redacted monitoring; migration fence; actual multi-device UI and Chromebook verification. Internal session revocation is implemented, but these source tests do not prove deployment gates.
+Session PR #228 passed native and protected site CI at `60d2624`; Batch 04 needs its own native/browser results. Package and mount a separate deployable service; provision a dedicated owner-approved database; implement the real school-session bridge, roster/epoch propagation and complete gameplay UI; configure a least-privilege runtime role versus migration owner; managed backup/restore rehearsal; cleanup, cost/resource limits and redacted monitoring; migration fence; actual multi-device UI and Chromebook verification. Internal HTTP/session/privacy code is implemented, but source tests do not prove deployment gates.
 
 Primary references: [node-postgres transactions](https://node-postgres.com/features/transactions), [PostgreSQL row locking](https://www.postgresql.org/docs/current/explicit-locking.html), [PGlite API and archive limits](https://pglite.dev/docs/api). PGlite archives are for compatible PGlite instances; they are not a managed PostgreSQL backup format.

@@ -23,11 +23,11 @@ test('upgrade applied schema 1 without changing existing pets, receipts or histo
     const before={};
     for(const table of ['ck_memberships','ck_creatures','ck_events','ck_command_receipts'])before[table]=(await db.query(`SELECT * FROM ${table}`)).rows;
     assert.deepEqual(await readiness(database),{ready:false,schemaVersion:1});
-    assert.deepEqual(await migrate(database),{applied:true,version:2});
-    assert.deepEqual(await migrate(database),{applied:false,version:2});
+    assert.deepEqual(await migrate(database),{applied:true,version:3});
+    assert.deepEqual(await migrate(database),{applied:false,version:3});
     for(const table of Object.keys(before))assert.deepEqual((await db.query(`SELECT * FROM ${table}`)).rows,before[table]);
     assert.deepEqual(await store.load('synthetic',original.creature.id),original.creature);
-    assert.deepEqual(await readiness(database),{ready:true,schemaVersion:2});
+    assert.deepEqual(await readiness(database),{ready:true,schemaVersion:3});
     // Exercise the production database clock path, rather than only injected clocks.
     const auth=createAuthService({database,...actor,issuer:'synthetic_school',audience:'synthetic_game',assertionKey:randomBytes(32),flowKey:randomBytes(32)});
     const start=Date.now();const launch=await auth.beginLaunch();
@@ -37,5 +37,26 @@ test('upgrade applied schema 1 without changing existing pets, receipts or histo
     await db.query("UPDATE ck_schema_migrations SET checksum='synthetic-drift' WHERE version=1");
     assert.equal((await readiness(database)).ready,false);
     await assert.rejects(migrate(database),/checksum mismatch/);
+  } finally {await db.close();}
+});
+
+test('upgrade schema 2 preserves an already issued session and its membership',async()=>{
+  const db=await PGlite.create(),database={transaction:work=>db.transaction(work)};
+  try {
+    await db.exec('CREATE TABLE ck_schema_migrations (version integer PRIMARY KEY,checksum text NOT NULL)');
+    for(const [index,file] of ['001-foundation.sql','002-sessions.sql'].entries()) {
+      const sql=await readFile(new URL('./migrations/'+file,import.meta.url),'utf8');
+      await db.exec(sql);await db.query('INSERT INTO ck_schema_migrations VALUES ($1,$2)',[index+1,createHash('sha256').update(sql).digest('hex')]);
+    }
+    const token=randomBytes(32).toString('base64url'),now=Date.now();
+    await db.exec("INSERT INTO ck_memberships (tenant_id,member_id,class_id,active) VALUES ('synthetic','member','class',true)");
+    await db.query(`INSERT INTO ck_sessions (token_hash,issuer,audience,tenant_id,member_id,class_id,auth_epoch,created_ms,idle_expires_ms,absolute_expires_ms)
+      VALUES ($1,'school','game','synthetic','member','class',0,$2,$3,$4)`,[createHash('sha256').update(token).digest('hex'),now,now+120000,now+900000]);
+    const before=(await db.query('SELECT * FROM ck_sessions')).rows[0];
+    assert.deepEqual(await migrate(database),{applied:true,version:3});
+    const after=(await db.query('SELECT * FROM ck_sessions')).rows[0];
+    assert.deepEqual(after,{...before,launch_flow_id:null});
+    const auth=createAuthService({database,tenantId:'synthetic',issuer:'school',audience:'game',assertionKey:randomBytes(32),flowKey:randomBytes(32)});
+    assert.deepEqual(await database.transaction(c=>auth.authorize(token,c)),{tenantId:'synthetic',memberId:'member',classId:'class',authEpoch:0});
   } finally {await db.close();}
 });

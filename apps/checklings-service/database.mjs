@@ -1,6 +1,6 @@
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-const migrations = await Promise.all(['001-foundation.sql','002-sessions.sql'].map(async (file,index)=>{
+const migrations = await Promise.all(['001-foundation.sql','002-sessions.sql','003-browser-boundary.sql'].map(async (file,index)=>{
   const sql=await readFile(new URL('./migrations/'+file, import.meta.url),'utf8');
   return {version:index+1,sql,checksum:createHash('sha256').update(sql).digest('hex')};
 }));

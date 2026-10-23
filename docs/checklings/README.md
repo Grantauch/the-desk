@@ -13,8 +13,9 @@ Preserve Ember, Bolt, Mochi, Zee and all existing progress. Game state belongs o
 - [Body condition and scars](BODY-CONDITION-AND-SCARS.md): accepted future requirements, scheduled after care and combat prerequisites.
 - [Batch 02 persistence handoff](BATCH-02-PERSISTENCE.md): database implementation, evidence and remaining staging gates.
 - [Batch 03 authentication handoff](BATCH-03-AUTH.md): private launch broker, durable sessions, upgrade preservation and remaining school/HTTP integration.
+- [Batch 04 browser boundary](BATCH-04-BROWSER-AUTH.md): unmounted cookie/CSRF adapter, callback, shared-device clearing, pending-login cancellation and shared request limits.
 - `apps/checklings-foundation/`: offline import planner, death admission policy reference, TypeScript contracts, species design candidates and synthetic tests. These files are not wired to a student application or production datastore.
 
 Run `npm run checkling:test` for original companion, foundation, embedded storage/auth and migration tests. Run `npm run verify` before pushing. No game service, migration or new student feature is deployed by this batch.
 
-Current continuation: `checklings/batch-03-auth-sessions`, stacked on persistence PR #227 and foundation PR #226. Weight/body changes, exercise, long-term complications and anatomically placed battle scars are scheduled for later implementation; they do not displace the database/authentication priority.
+Current continuation: `checklings/batch-04-browser-auth`, stacked on session PR #228, persistence PR #227 and foundation PR #226. Weight/body changes, exercise, long-term complications and anatomically placed battle scars are scheduled for later implementation; they do not displace the database/authentication priority.
