@@ -30,7 +30,7 @@
 .investigation .lab-field label{display:block;font:800 1.04rem/1.35 var(--label);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;color:#241b16}
 .investigation .lab-field label small{font:400 .92rem/1.4 var(--body);text-transform:none;letter-spacing:0;color:#655247;display:block;margin-top:.2rem}
 .investigation .lab-field textarea,.investigation .lab-field input[type=text]{display:block;width:100%;padding:.85rem .9rem;border:2px solid #746358;border-radius:2px;background:#fffdfa;color:#201916;font:400 1rem/1.5 var(--body);min-width:0}
-.investigation .lab-field textarea{min-height:7.5rem;resize:vertical}
+.investigation .lab-field textarea{min-height:10rem;resize:vertical;font-size:1.06rem;line-height:1.65}
 .investigation .lab-field textarea::placeholder,.investigation .lab-field input::placeholder{color:#77685f;opacity:1}
 .investigation .lab-info{padding:1rem 1.15rem;background:#e4d7bd;border-left:5px solid #a02832;color:#32241e;margin:1.1rem 0}
 .investigation .lab-info p{margin:0}
@@ -73,25 +73,24 @@
 @media(max-width:720px){.investigation .lab-topline{grid-template-columns:1fr}.investigation .lab-counter{text-align:left}.investigation .lab-stepnav{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.investigation .lab-stepnav button{padding:.55rem .25rem;text-align:center;font-size:.76rem;line-height:1.12;overflow-wrap:anywhere}.investigation .lab-stepnav button span{font-size:.8rem}.investigation .lab-columns{grid-template-columns:1fr}.investigation .lab-panel{box-shadow:4px 4px 0 #090909}.investigation .lab-rubric fieldset{grid-template-columns:1fr}.investigation .lab-rubric .lab-checks{grid-column:1;grid-row:2}}
 @media(prefers-reduced-motion:reduce){.investigation .lab-meter>span{transition:none}}
 
-/* Provenance tools: intentionally legible, transparent and non-punitive. */
-.investigation .lab-integrity{margin:2rem 0;border:2px solid #ad7e4d;background:#251d18;color:#f4e5d1;padding:clamp(1rem,3vw,1.7rem)}
-.investigation .lab-integrity h3{color:#ffe6b4;font-size:clamp(1.5rem,3vw,2.25rem);margin:.4rem 0 .8rem}
-.investigation .lab-integrity p{color:#f0e0c8}
-.investigation .lab-integrity .lab-inline{font:800 1.05rem var(--label);text-transform:uppercase;color:#f9ca73}
-.investigation .lab-integrity .lab-integrity-status{border-block:1px solid #785d4c;padding:.75rem 0;color:#ffe4ac;font:700 1.05rem/1.45 var(--label);letter-spacing:.03em}
-.investigation .lab-integrity .lab-field label{color:#fff0d7}
-.investigation .lab-integrity .lab-field label small{color:#d7c2af}
-.investigation .lab-integrity input[type=checkbox]{height:1.2rem;width:1.2rem;accent-color:#f3bd65}
-.investigation .lab-integrity .lab-checkline{display:flex;align-items:flex-start;gap:.7rem;margin:1rem 0}
-.investigation .lab-integrity .lab-checkline label{font-weight:700;cursor:pointer}
-.investigation .lab-integrity .lab-integrity-message{background:#403028;padding:.8rem;border-left:4px solid #f0bd6d;min-height:3rem;margin:1rem 0}
-.investigation .lab-integrity details{border-block:1px solid #71594d;margin:1.5rem 0;padding:.65rem 0}
-.investigation .lab-integrity details summary{cursor:pointer;font:800 1rem var(--label);text-transform:uppercase;color:#ffcc82}
-.investigation .lab-integrity .lab-field textarea[readonly]{font:400 .85rem/1.5 ui-monospace,Consolas,monospace;background:#eddfcb;color:#231915;min-height:11rem}
-.investigation .lab-evidence-stamp{background:#efe0c6;border:2px dashed #7c5c4c;padding:.85rem 1rem;margin:1rem 0}
-.investigation .lab-evidence-stamp button{background:#442923;color:#fff0d4;cursor:pointer;padding:.55rem .9rem;border:0;font:800 1rem var(--label);text-transform:uppercase}
-.investigation .lab-evidence-stamp button:hover{background:#9e1428}
-.investigation .lab-evidence-stamp p{font-size:.95rem;margin:0 0 .65rem}
 .investigation .lab-defense{background:#e4d3b4;border-left:5px solid #a12930;padding:1rem 1.25rem;margin:1.4rem 0}
 .investigation .lab-defense p{color:#2a201b}
 .investigation .lab-defense strong{color:#812530}
+
+/* Writing tools: all editing stays inside the original autosaved textarea. */
+.investigation .lab-paste-option{display:flex;align-items:center;gap:.6rem;max-width:76ch;color:#f8e7d3;background:#29211d;border:1px solid #8d7963;padding:.7rem .9rem;margin:0 0 1.4rem;font:600 1rem/1.4 var(--body);cursor:pointer}
+.investigation .lab-paste-option input{width:1.15rem;height:1.15rem;accent-color:#f0b85f;flex-shrink:0}
+.investigation .lab-writing-tools{display:flex;align-items:center;flex-wrap:wrap;gap:.45rem;margin:.35rem 0 .6rem}
+.investigation .lab-word-count{font:600 .92rem/1.2 var(--body);color:#645247;margin-right:auto;padding:.5rem 0}
+.investigation .lab-editor-button{cursor:pointer;min-height:2.6rem;padding:.48rem .8rem;border:2px solid #705a4a;background:#fffaf0;color:#312119;font:700 .95rem/1.2 var(--body);border-radius:4px}
+.investigation .lab-editor-button:hover,.investigation .lab-editor-button:focus-visible{background:#38251f;color:#fff6e6;outline-offset:2px}
+.investigation .lab-editor-button[aria-pressed="false"]{background:#e5dbc8}
+.investigation .lab-editor-expand{border-color:#73232c;background:#78242d;color:#fff9ed}
+body.lab-writing-open{overflow:hidden}
+body.lab-writing-open::before{content:"";position:fixed;inset:0;background:rgba(9,7,6,.83);z-index:9998}
+.investigation .lab-field.lab-editor-expanded{position:fixed;inset:clamp(.55rem,2vw,1.25rem);margin:0;z-index:9999;display:flex;flex-direction:column;min-width:0;min-height:0;max-width:none;width:auto;padding:clamp(.9rem,2vw,1.6rem);background:#f0e7d6;color:#2c201a;border:3px solid #e0b66f;box-shadow:0 10px 50px rgba(0,0,0,.45)}
+.investigation .lab-field.lab-editor-expanded label{flex:0 0 auto;line-height:1.35}
+.investigation .lab-field.lab-editor-expanded textarea{flex:1 1 auto;height:auto;min-height:5rem;max-height:none;resize:none;line-height:1.75;font-size:clamp(1.05rem,2vw,1.18rem)}
+.investigation .lab-field.lab-editor-expanded .lab-writing-tools{flex:0 0 auto;order:3;margin:.6rem 0 0}
+.investigation .lab-field.lab-editor-expanded .lab-editor-expand{background:#6f202a}
+@media(max-width:450px){.investigation .lab-editor-button{padding:.4rem .55rem;font-size:.9rem}.investigation .lab-field.lab-editor-expanded{inset:.35rem;padding:.7rem}.investigation .lab-field.lab-editor-expanded label{font-size:.95rem}}
