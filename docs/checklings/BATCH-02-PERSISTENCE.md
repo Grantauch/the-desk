@@ -28,7 +28,7 @@ Feeding/fitness implementation follows core care; combat effects join tactical b
 |---|---|
 | Embedded SQL | 18/18 final storage tests passed (17 shared scenarios plus the outer persistence/restore test); combined companion/foundation/storage suite passed 54/54. Exercises actual PostgreSQL SQL through PGlite, with serialized embedded transactions. |
 | Persistence / restore | File-backed database close/reopen plus a compatible PGlite archive restore compare creature, event and receipt rows. This is not a hosted disaster-recovery test. |
-| Native independent-client tests | Added separate PostgreSQL 18 CI job. Opens 35 physical connections and runs the shared contract, including duplicate delivery and conflicting revisions. Local native PostgreSQL is unavailable; do not count embedded Promise-based requests as distributed concurrency evidence. |
+| Native independent-client tests | **Passed:** [PostgreSQL 18 CI run 39981989607](https://github.com/Grantauch/the-desk/actions/runs/39981989607) on source commit `99c3d6fa05016a1aa217454832bb52721ae87265`. All 18 native tests passed, including 35 distinct physical connections, duplicate delivery and competing revisions. The same run also passed all 18 embedded tests. These are synthetic database results, not hosted/student gameplay evidence. |
 | Classroom regressions | Canonical `npm run verify` passed all 18 stages: 440 classroom behaviors, Astro 0 errors/0 warnings, 53 built routes, 136 HTML files and 4,618 local references. Its storage checkpoint had 53 combined tests; a subsequent SQL import-key guard and its final focused suite passed 54/54. The entire gate was not repeated after that focused follow-up; protected CI will run the final source. |
 | Production / actual students | No deployment, live migration, student login or Chromebook gameplay test performed by this continuation. |
 
@@ -36,4 +36,4 @@ Assertions cover preserved founder/name/home unlocks across service instances, 3
 
 ## Next work
 
-Review native CI evidence and finish the 02A staging/deployment package and operational ownership. Then implement slice 02B's verified school-PIN launch bridge and revocable game sessions in staging. Keep all student integration and lethal features off until their own acceptance gates pass. The original four companions remain governed by the separately deployed classroom release.
+Native PostgreSQL CI has passed. Finish the 02A staging/deployment package and operational ownership. Then implement slice 02B's verified school-PIN launch bridge and revocable game sessions in staging. Keep all student integration and lethal features off until their own acceptance gates pass. The original four companions remain governed by the separately deployed classroom release.
