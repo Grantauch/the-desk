@@ -71,3 +71,9 @@ Focused validation: 17 synthetic server scenarios, all 440 existing classroom be
 Shared-screen behavior is covered with a virtual browser clock: an unattended PIN confirmation still clears after the existing ten-second handoff. Intentional Checkling interaction cancels only that short handoff; the unchanged two-minute inactivity reset and explicit done/next-student control still clear the visit. The fixture verifies that neither path duplicates attendance or points.
 
 Layout verification also covers an uninterrupted 18-character wide pet name at every tested width; the complete name wraps without clipping. The final application source is prepared for its protected release gate.
+
+## Companion-only PIN visits
+
+Daily Check-In includes **visit Checkling only** on both PIN entry screens. A student enters the same private PIN and can open their companion outside class hours, on weekends, or in a synthetic demo class without bell times. Multi-class students choose one of their own classes. This verifies identity only: no check-in, point, bathroom request, or one-use action proof is created. Recording attendance still requires the normal fresh PIN action during the configured session. The existing private demo account is reusable; retrieve its card privately, and never copy a PIN or private workbook identifier into this repository.
+
+Focused validation: 20 server scenarios, 440 classroom behaviors, and 15 offline browser journeys passed. Protected CI, existing-deployment release and authenticated synthetic smoke remain separate release gates. The smoke now returns `companionVisit: PIN_VERIFIED_NO_ATTENDANCE` after checking the new endpoint without changing workbook facts.
