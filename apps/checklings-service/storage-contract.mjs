@@ -19,8 +19,8 @@ export async function storageContract(t,database) {
   }
   await t.test('migration is repeatable and readiness fails closed before schema',async()=>{
     assert.equal((await readiness(database)).ready,false);
-    assert.deepEqual(await migrate(database),{applied:true,version:2});
-    assert.deepEqual(await migrate(database),{applied:false,version:2});
+    assert.deepEqual(await migrate(database),{applied:true,version:3});
+    assert.deepEqual(await migrate(database),{applied:false,version:3});
     assert.equal((await readiness(database)).ready,true);
   });
   await t.test('import preserves founder, name, earned sky home and unlocks across service instances',async()=>{

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {createHash,createHmac,randomBytes,randomUUID} from 'node:crypto';
 import {createAuthService} from './auth.mjs';
 import {createGameStore} from './store.mjs';
+import {createRateLimiter} from './rate-limit.mjs';
 const random=()=>randomBytes(32).toString('base64url');
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const exportPet={raw:JSON.stringify({v:1,species:'mochi',name:'Survivor',habitat:'grove'}),officialBestStreak:3,importedAt:'2026-10-23T16:00:00.000Z'};
@@ -174,5 +175,56 @@ export async function authContract(t,database) {
       await other.logout(l.token);
       assert.deepEqual(await f.authorize(l.token),f.actor);
     }
+  });
+  await t.test('Done cancels unapproved and approved login flows and is repeatable',async()=>{
+    const f=await fixture(),a=await f.launch(),b=await f.launch();
+    await f.auth.cancelLaunch(a.flowCookie);await f.auth.cancelLaunch(a.flowCookie);
+    await assert.rejects(f.auth.acceptAssertion(f.sign(a.claims)),/Unauthorized/);
+    const {code}=await f.auth.acceptAssertion(f.sign(b.claims));
+    await f.auth.cancelLaunch(b.flowCookie);
+    await assert.rejects(f.auth.exchange({...b.exchange,code}),/Unauthorized/);
+    await f.auth.cancelLaunch('malformed');
+  });
+  await t.test('Done revokes a committed exchange even before its token reaches the browser',async()=>{
+    const f=await fixture(),l=await f.login();
+    await f.auth.cancelLaunch(l.flowCookie);
+    await assert.rejects(f.authorize(l.token),/Unauthorized/);
+    const fresh=await f.login();assert.deepEqual(await f.authorize(fresh.token),f.actor);
+    await createAuthService({...f.config,audience:'another_game'}).cancelLaunch(fresh.flowCookie);
+    assert.deepEqual(await f.authorize(fresh.token),f.actor);
+  });
+  await t.test('35 exchanges racing cancellation leave no usable session after Done',async()=>{
+    const f=await fixture(),l=await f.launch(),{code}=await f.auth.acceptAssertion(f.sign(l.claims));
+    const exchanges=Array.from({length:35},()=>f.auth.exchange({...l.exchange,code}));
+    const results=await Promise.allSettled([...exchanges,f.auth.cancelLaunch(l.flowCookie)]);
+    assert.equal(results.at(-1).status,'fulfilled');
+    for(const r of results.slice(0,-1))if(r.status==='fulfilled')await assert.rejects(f.authorize(r.value.token),/Unauthorized/);
+    await assert.rejects(f.auth.exchange({...l.exchange,code}),/Unauthorized/);
+  });
+  await t.test('shared SQL rate budget admits exactly five of 35 concurrent requests',async()=>{
+    const key=randomBytes(32),limits={launch:5,exchange:5,logout:5,bridge:5,command:5};
+    const a=createRateLimiter({database,key,limits}),b=createRateLimiter({database,key,limits});
+    const results=await Promise.all(Array.from({length:35},(_,i)=>(i%2?a:b).take('launch','192.0.2.1')));
+    assert.equal(results.filter(Boolean).length,5);
+    assert.equal(await a.take('exchange','192.0.2.1'),true);
+    assert.equal(await a.take('launch','192.0.2.2'),true);
+    const bucket=createHmac('sha256',key).update('launch\n192.0.2.1').digest('hex');
+    const row=(await database.transaction(c=>c.query('SELECT * FROM ck_request_limits WHERE bucket_hash=$1',[bucket]))).rows[0];
+    assert.equal(row.hits,6);assert.ok(!JSON.stringify(row).includes('192.0.2.1'));
+    await assert.rejects(a.take('launch','browser-supplied-text'),/trusted request address/);
+  });
+  await t.test('rate windows expire using trusted server time; absent database fails closed',async()=>{
+    let now=60000;
+    const config={database,key:randomBytes(32),limits:{launch:1,exchange:1,logout:1,bridge:1,command:1},clock:async()=>now};
+    const limiter=createRateLimiter(config);
+    assert.equal(await limiter.take('launch','192.0.2.3'),true);
+    assert.equal(await limiter.take('launch','192.0.2.3'),false);
+    now=120000;assert.equal(await limiter.take('launch','192.0.2.3'),true);
+    await assert.rejects(createRateLimiter({...config,database:{transaction:async()=>{throw new Error('synthetic unavailable');}}}).take('launch','192.0.2.3'),/unavailable/);
+  });
+  await t.test('session deadline inspection never refreshes idle expiry',async()=>{
+    const f=await fixture(),l=await f.login();
+    f.advance(60000);assert.deepEqual(await f.auth.sessionWindow(l.token),{remainingMs:60000});
+    f.advance(60000);await assert.rejects(f.auth.sessionWindow(l.token),/Unauthorized/);
   });
 }
