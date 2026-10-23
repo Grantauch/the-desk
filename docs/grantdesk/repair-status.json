@@ -1246,10 +1246,10 @@
     ]
   },
   "checklings-batch-04-browser-auth-2026-10-23": {
-    "status": "HTTP_PRIVACY_CORE_FULL_LOCAL_PASSED_CI_PENDING",
+    "status": "NATIVE_POSTGRES_AND_SYNTHETIC_CHROMIUM_PASSED_SITE_CI_PENDING",
     "owner": "Codex",
     "scope": "Unmounted HTTP/cookie/CSRF and callback adapter, browser privacy/expiry client, durable pending-flow cancellation, shared SQL request limits and synthetic Chromium acceptance",
-    "verification_status": "FULL_LOCAL_GATE_PASSED_NATIVE_BROWSER_AND_SITE_CI_PENDING",
+    "verification_status": "FULL_LOCAL_NATIVE_AND_SYNTHETIC_BROWSER_PASSED",
     "deployment_status": "NOT_MOUNTED_NOT_DEPLOYED_NO_STUDENT_LOGIN_OR_IMPORT",
     "field_status": "FIELD_PENDING",
     "evidence": [
@@ -1257,7 +1257,8 @@
       "Server cookie proof/state/code binding, exact Origin plus custom-header checks, JSON/body deadlines, duplicate-cookie refusal, no-store/CSP/referrer protections and generic error responses are implemented. Raw PIN/client identities/private legacy exports have no browser route. Runtime is unmounted from the classroom site.",
       "Done immediately clears rendering, cancels pending private requests, broadcasts to other tabs and durably cancels pending or committed exchanges. Server remaining-time headers clear idle/absolute-expired UI without polling; inspection does not refresh idle time. Unconfirmed database sign-out returns 503 and clears browser cookies. Missing cross-tab support fails closed.",
       "Migration 003 preserves existing founder/history/receipt data and issued session hashes. Shared keyed SQL counters admit exactly five of 35 concurrent test requests; native runner proves 35 physical clients. A separate Chromium CI job uses synthetic HTTPS, an intercepted school page and a test issuer; no real school or Chromebook verification is implied. Local Chromium is unavailable; new native/browser CI is pending.",
-      "Canonical npm run verify passed all 18 stages with the final 103 Checklings tests, all 440 classroom behaviors, Astro 0 errors/0 warnings, 53 routes, 136 HTML files, 4618 references and 13 releases/117 sealed assets. Subsequent CI results are tracked in the pull request. No school bridge, roster propagation, teacher roles, hosting/provisioning, production release or student migration is included. Weight/body condition, exercise, chronic complications and scars stay in their later care/combat phases. See docs/checklings/BATCH-04-BROWSER-AUTH.md."
+      "Canonical npm run verify passed all 18 stages with the final 103 Checklings tests, all 440 classroom behaviors, Astro 0 errors/0 warnings, 53 routes, 136 HTML files, 4618 references and 13 releases/117 sealed assets. Subsequent CI results are tracked in the pull request. No school bridge, roster propagation, teacher roles, hosting/provisioning, production release or student migration is included. Weight/body condition, exercise, chronic complications and scars stay in their later care/combat phases. See docs/checklings/BATCH-04-BROWSER-AUTH.md.",
+      "Independent CI run 40008927061 passed on runtime source 0a1cc4714bb0f245e17081811c43e6457565f0d0 in draft PR 229: PostgreSQL job 120603932280 passed 67/67 embedded and 41/41 native tests; Chromium job 120603931992 passed six synthetic HTTPS journeys plus outer test (7/7). Both logs read independently. General site run 40008927145 remains separate/in progress. Follow-up modifies evidence documentation only; no new runtime or tests, merge or deployment."
     ]
   }
 }
