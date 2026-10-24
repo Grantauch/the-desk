@@ -5,7 +5,9 @@ const path = require('node:path');
 function parseAffinityUnion(ts) {
   const match = ts.match(/\bexport\s+type\s+Affinity\s*=\s*([^;]+);/);
   if (!match) throw Error('Cannot find exported Affinity union in contracts.ts');
-  const names = [...match[1].matchAll(/'([a-z][a-z0-9_-]*)'/g)].map(m => m[1]);
+  const tokens = match[1].trim().split('|').map(x=>x.trim());
+  if(!tokens.length || tokens.some(token=>!/^'[a-z][a-z0-9_-]*'$/.test(token))) throw Error('Invalid canonical affinity union term');
+  const names = tokens.map(token=>token.slice(1,-1));
   if (!names.length || new Set(names).size !== names.length) throw Error('Invalid or duplicate canonical affinity values');
   return names;
 }
@@ -23,7 +25,10 @@ function checkCanonical(planText, typescriptText) {
   return { affinities, speciesCount: plan.slice.length, species: Object.fromEntries(plan.slice.map(s => [s.id, { affinity:s.affinity,ecosystem:s.ecosystem }])), errors };
 }
 function readIds(cell) {
-  return [...cell.matchAll(/`([A-Z][A-Z0-9_]*)`/g)].map(m => m[1]);
+  const ids=[...cell.matchAll(/`([A-Z][A-Z0-9_]*)`/g)].map(m=>m[1]);
+  const remaining=cell.replace(/`[A-Z][A-Z0-9_]*`/g,'').replace(/[,\\s]/g,'');
+  if(remaining && !['-','—','–','none','None','N/A'].includes(remaining)) throw Error('Unrecognized battle matchup token: '+cell);
+  return ids;
 }
 function checkBattleChart(markdown, canonical) {
   const lines = markdown.split(/\r?\n/);
@@ -65,6 +70,7 @@ function checkBattleChart(markdown, canonical) {
 }
 function checkProposalSpecies(md, battle) {
   const hit = md.match(/\*\*Ecological Affinity\*\*:\s*`([A-Z][A-Z0-9_]*)`/);
+  if (!hit && /\*\*Ecological Affinity\*\*\s*:/.test(md)) return {state:'invalid-group-label',errors:['Malformed Ecological Affinity label']};
   if (!hit) return {state:'not-specified',errors:[]};
   return {state:'proposed-ecological-group',group:hit[1],errors:battle.declaredGroups.includes(hit[1])?[]:['Undeclared proposed species group: '+hit[1]]};
 }
