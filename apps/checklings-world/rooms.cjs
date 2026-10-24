@@ -6,6 +6,7 @@ const { randomBytes, createHash } = require('node:crypto');
 const MAX_MEMBERS = 4;
 const TTL_MS = 30 * 60 * 1000;
 const MOVES = Object.freeze(['strike', 'guard', 'encourage']);
+const MAX_JOURNAL_ENTRIES = 32; // transient UI history, not an authoritative event ledger
 function insist(value, msg) { if (!value) throw new Error(msg); }
 function codeHash(code) { return createHash('sha256').update(code).digest('hex'); }
 function memberView(room, actor) {
@@ -106,6 +107,7 @@ function createRaidService({ authorize, isEnabled, store, now = Date.now, random
         else if (move === 'guard') seat.guarding = true;
         else for (const friend of room.seats) if (friend.hp > 0) friend.hp = Math.min(100, friend.hp + 8);
         room.journal.push({ seat: room.activeSeat + 1, move });
+        if (room.journal.length > MAX_JOURNAL_ENTRIES) room.journal.splice(0,room.journal.length - MAX_JOURNAL_ENTRIES);
         if (room.boss.hp === 0) { room.status = 'victory'; return { victory: true }; }
         room.boss.phase = room.boss.hp <= 80 ? 3 : room.boss.hp <= 160 ? 2 : 1;
         // Dead seats do not receive turns. Otherwise a KO in seat 1 can leave
