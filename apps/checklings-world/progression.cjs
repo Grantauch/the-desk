@@ -41,6 +41,37 @@ care(token,action){check(Object.hasOwn(ACTS,action),'Unknown action');return cha
 claim(token,quest){return change(token,s=>{check(['visit','meal','play'].includes(quest),'Unknown quest');check(s.quests.completed.includes(quest),'Quest incomplete');if(s.quests.claimed.includes(quest))return {awarded:false};s.quests.claimed.push(quest);s.dust=Math.min(MAX_DUST,s.dust+10);return {awarded:true};});},
 equip(token,id){return change(token,s=>{const item=BY_ID.get(id);check(item&&s.owned.includes(id),'Item not owned');s.equipped[item.slot]=id;return {equipped:true};},false);},
 craft(token,id){return change(token,s=>{const item=BY_ID.get(id);check(item,'Unknown item');if(s.owned.includes(id))return {created:false};const price=item.rarity==='rare'?160:75;check(s.dust>=price,'Insufficient dust');s.dust-=price;s.owned.push(id);return {created:true,cost:price};});},
-open(token,expectedRevision){return change(token,s=>{check(s.revision===expectedRevision,'Stale request');check(s.crates>0,'No crates');const index=random(ITEMS.length);check(Number.isInteger(index)&&index>=0&&index<ITEMS.length,'Invalid random');const item=ITEMS[index];s.crates--;const duplicate=s.owned.includes(item.id);if(duplicate)s.dust=Math.min(MAX_DUST,s.dust+25);else s.owned.push(item.id);return {item,duplicate};});}
+open(token,expectedRevision,commandId){return (async()=>{
+  check(typeof commandId==='string'&&/^[A-Za-z0-9_-]{8,128}$/.test(commandId),'Valid crate command ID required');
+  check(Number.isSafeInteger(expectedRevision)&&expectedRevision>=0,'Invalid crate revision');
+  const {member,cal}=await context(token);
+  check(cal.isSchoolDay===true,'Only on school days');
+  return store.transact(member.key,current=>{
+   check(current?.v===1,'Adopt first');
+   // A bounded retry ledger lives alongside the prototype member state; the
+   // real game must use the transactional ck_command_receipts store instead.
+   const receipts=Array.isArray(current.crateReceipts)?current.crateReceipts:[];
+   const prior=receipts.find(x=>x.commandId===commandId);
+   if(prior){
+    check(prior.expectedRevision===expectedRevision,'Command ID reused with different revision');
+    return {state:current,result:structuredClone(prior.response)};
+   }
+   const s=structuredClone(current);
+   advance(s,cal.day);
+   check(s.revision===expectedRevision,'Stale request');
+   check(s.crates>0,'No crates');
+   const index=random(ITEMS.length);
+   check(Number.isInteger(index)&&index>=0&&index<ITEMS.length,'Invalid random');
+   const item=ITEMS[index];
+   s.crates--;
+   const duplicate=s.owned.includes(item.id);
+   if(duplicate)s.dust=Math.min(MAX_DUST,s.dust+25);
+   else s.owned.push(item.id);
+   s.revision++;
+   const response={result:{item,duplicate},state:visible(s)};
+   s.crateReceipts=[...receipts,{commandId,expectedRevision,response}].slice(-64);
+   return {state:s,result:response};
+  });
+ })();}
 };}
 module.exports={ITEMS,createProgressionService};
