@@ -15,7 +15,7 @@ test('attendance earns only one daily crate and bonus',async()=>{const f=setup()
 test('late attendance maintains lifetime stage without rewards',async()=>{const f=setup();await f.service.adopt('a','bolt','B');f.setStreak(30);f.late();const a=await f.service.checkIn('a');assert.equal(a.state.stage,4);assert.equal(a.state.crates,0);});
 test('quests require completion and reject replay',async()=>{const f=setup();await f.service.adopt('a','bolt','B');await assert.rejects(f.service.claim('a','play'),/incomplete/);await f.service.care('a','play');await f.service.claim('a','play');const b=await f.service.claim('a','play');assert.equal(b.result.awarded,false);assert.equal(b.state.dust,10);});
 test('care caps repeated farming, preserving bond',async()=>{const f=setup();await f.service.adopt('a','bolt','B');for(let i=0;i<12;i++)await f.service.care('a','play');const x=await f.service.load('a');assert.equal(x.bond,2);});
-test('crate consumes only once and stale retries fail',async()=>{const f=setup();await f.service.adopt('a','mochi','M');await f.service.checkIn('a');const a=await f.service.load('a');const b=await f.service.open('a',a.revision);assert.equal(b.state.crates,0);await assert.rejects(f.service.open('a',a.revision),/Stale/);});
+test('crate replays the original receipt and a new stale ID cannot reroll',async()=>{const f=setup();await f.service.adopt('a','mochi','M');await f.service.checkIn('a');const a=await f.service.load('a');const b=await f.service.open('a',a.revision,'crate_open_0001');assert.equal(b.state.crates,0);assert.deepEqual(await f.service.open('a',a.revision,'crate_open_0001'),b);assert.equal((await f.service.load('a')).revision,b.state.revision);await assert.rejects(f.service.open('a',a.revision,'crate_open_0002'),/Stale/);});
 test('locked cosmetics cannot be equipped',async()=>{const f=setup();await f.service.adopt('a','mochi','M');await assert.rejects(f.service.equip('a','hat-3'),/not owned/);});
 test('holidays do not permit minting',async()=>{const f=setup();await f.service.adopt('a','mochi','M');f.weekend();await assert.rejects(f.service.checkIn('a'),/school days/);await assert.rejects(f.service.care('a','play'),/school days/);});
 test('daily quests reset without stripping collected items',async()=>{const f=setup();await f.service.adopt('a','mochi','M');await f.service.care('a','play');await f.service.claim('a','play');f.next();await assert.rejects(f.service.claim('a','play'),/incomplete/);assert.ok((await f.service.load('a')).owned.includes('eyes-0'));});
@@ -76,4 +76,30 @@ test('free weekend care remains member-private; regular rewarded school care sti
  assert.equal(normal.result.essential,false);
  assert.ok(normal.state.quests.completed.includes('meal'));
  assert.equal(normal.state.bond,1);
+});
+
+
+test('crate opening needs valid member-scoped command ID and preserves exact retry receipt',async()=>{
+ const f=setup();await f.service.adopt('a','zee','Z');await f.service.checkIn('a');
+ const before=await f.service.load('a');
+ await assert.rejects(f.service.open('a',before.revision),/command ID/);
+ await assert.rejects(f.service.open('a',before.revision,'bad!'),/command ID/);
+ const first=await f.service.open('a',before.revision,'crate_open_0003');
+ const after=await f.service.load('a');
+ assert.equal(after.crates,0);assert.equal(after.revision,before.revision+1);
+ assert.deepEqual(await f.service.open('a',before.revision,'crate_open_0003'),first);
+ assert.deepEqual(await f.service.load('a'),after);
+ await assert.rejects(f.service.open('a',after.revision,'crate_open_0003'),/different revision/);
+ await assert.rejects(f.service.open('a',before.revision,'crate_open_0004'),/Stale/);
+});
+test('two members may safely use the same opaque crate command ID',async()=>{
+ const f=setup();await f.service.adopt('a','bolt','B');await f.service.adopt('b','mochi','M');
+ await f.service.checkIn('a');await f.service.checkIn('b');
+ const a=await f.service.load('a'),b=await f.service.load('b');
+ const first=await f.service.open('a',a.revision,'shared_crate_001');
+ const second=await f.service.open('b',b.revision,'shared_crate_001');
+ assert.equal(first.state.crates,0);assert.equal(second.state.crates,0);
+ assert.equal((await f.service.load('a')).crates,0);assert.equal((await f.service.load('b')).crates,0);
+ assert.deepEqual(await f.service.open('a',a.revision,'shared_crate_001'),first);
+ assert.deepEqual(await f.service.open('b',b.revision,'shared_crate_001'),second);
 });
