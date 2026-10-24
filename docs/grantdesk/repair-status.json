@@ -1295,15 +1295,16 @@
     ]
   },
   "checklings-batch05-recovery-and-privacy-integration-2026-10-24": {
-    "status": "LOCAL_FOCUSED_BROWSER_PASSED_CANONICAL_PENDING",
+    "status": "LOCAL_FULL_PASSED_BATCH05_CI_PASSED_COMBINED_CI_PENDING",
     "owner": "Codex",
     "branch": "checklings/integration/foundation-review-20261024",
-    "verification_status": "LOCAL_141_FOCUSED_16_BROWSER_PASSED",
+    "verification_status": "LOCAL_FULL_141_FOCUSED_16_BROWSER_PASSED",
     "evidence": [
       "Grant explicitly authorized public Batch05 publication. Cloud workspace maintenance removed the unpublished checkout; recovered all24 files from recorded edits, verified complete tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef, and preserved it as c4807fc0a2ad41e7cc731757baba8412d018591b plus a local Git bundle. Fresh recovered baseline136/136 focused and12/12 synthetic HTTPS Chromium passed. Combined Batch05 and PR239 histories in merge8a14038b7202fecbabb6f6cc4b44fc339de62751, preserving both repair ledger sections;141/141 focused and16/16 synthetic HTTPS Chromium passed. Canonical verification and fresh independent CI remain pending at this checkpoint. No school deployment, hosted database, real account or classroom evidence.",
-      "Independent operations technical review: docs/checklings/OPERATIONS-REVIEW-2026-10-24.md. Suitable technical basis; full hosting gate still requires owner provider/region/privacy/spending/retention/operators/escrow decisions and actual restore measurement."
+      "Independent operations technical review: docs/checklings/OPERATIONS-REVIEW-2026-10-24.md. Suitable technical basis; full hosting gate still requires owner provider/region/privacy/spending/retention/operators/escrow decisions and actual restore measurement.",
+      "October24 publication update: Grant explicitly authorized public source publication. Batch05 PR240 is published at c4807fc0a2ad41e7cc731757baba8412d018591b, complete recovered tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef. Fresh local136 focused/12 synthetic browser/all18 canonical stages PASS. Independent GitHub run40143837616 PASS:100 embedded-service,60 native PostgreSQL and12 synthetic Chromium tests, zero failures/skips; both job logs read. Full protected site run40143837630 is separate and still running at this checkpoint. Combined bridge/privacy source7c2429ed5f6498a874957e91f0407ac0c57ee777 passed141 focused,16 synthetic browser and all18 canonical stages, including440 school workflow checks, Astro0 errors/0 warnings,53 routes,136 HTML,4618 references and13 releases/117 sealed assets. This update changes evidence documents only; runtime/test blobs remain identical to that complete local run. Fresh CI for the combined head remains required before integration."
     ],
     "deployment_status": "NOT_DEPLOYED",
-    "next_action": "Finish canonical verification; publish Batch05 draft PR; retarget and publish combined PR239 with native PostgreSQL/browser/protected site CI. Then isolated staging package and concrete resource decisions."
+    "next_action": "Publish/retarget PR239 above PR240; inspect new native/browser/protected CI and independent source review. Then staging package and concrete resource decisions."
   }
 }
