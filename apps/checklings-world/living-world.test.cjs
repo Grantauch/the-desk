@@ -87,3 +87,10 @@ test('prototype cloud alias normalizes to sky without rerolling a daily event', 
   assert.equal(canonical.eventKey,laterCanonical.eventKey);
   assert.equal(canonical.habitat,'sky');
 });
+
+
+test('world habitat registry exposes exactly five stored legacy home IDs', () => {
+  assert.deepEqual(Object.keys(world.HABITATS), ['meadow','grove','cove','sky','cosmos']);
+  assert.equal(Object.hasOwn(world.HABITATS,'cloud'),false);
+  assert.equal(world.observeWorld({...options,habitat:'cloud'}).habitat,'sky');
+});
