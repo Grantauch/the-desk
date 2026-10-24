@@ -5,7 +5,7 @@ function setup(){
  const rows=new Map();let day=42,school=true,counted=true,streak=1;
  const store={load:async k=>structuredClone(rows.get(k)||null),transact:async(k,fn)=>{const x=fn(structuredClone(rows.get(k)||null));rows.set(k,structuredClone(x.state));return x.result;}};
  const service=createProgressionService({authorize:async token=>token==='a'?{key:'class-a'}:token==='b'?{key:'class-b'}:null,calendar:async()=>({day,isSchoolDay:school}),attendance:()=>({verified:true,membershipConfirmed:true,day,bestStreak:streak,counted}),store,random:n=>n-1,seed:()=>('c'.repeat(32))});
- return {service,next:()=>day++,late:()=>counted=false,weekend:()=>school=false,setStreak:v=>streak=v};
+ return {service,next:()=>day++,jump:n=>{day+=n;},setVital:(key,vital,value)=>{const s=structuredClone(rows.get(key));s.vitals[vital]=value;rows.set(key,s);},late:()=>counted=false,weekend:()=>school=false,setStreak:v=>streak=v};
 }
 test('wardrobe offers seven slots and dozens of unique items',()=>{assert.equal(new Set(ITEMS.map(x=>x.id)).size,ITEMS.length);assert.ok(ITEMS.length>=40);assert.equal(new Set(ITEMS.map(x=>x.slot)).size,7);});
 test('session isolation and private seeds',async()=>{const f=setup();await assert.rejects(f.service.load('fake'),/Unauthorized/);await f.service.adopt('a','ember','Blaze');assert.equal(await f.service.load('b'),null);assert.ok(!JSON.stringify(await f.service.load('a')).includes('c'.repeat(32)));});
@@ -19,3 +19,61 @@ test('crate consumes only once and stale retries fail',async()=>{const f=setup()
 test('locked cosmetics cannot be equipped',async()=>{const f=setup();await f.service.adopt('a','mochi','M');await assert.rejects(f.service.equip('a','hat-3'),/not owned/);});
 test('holidays do not permit minting',async()=>{const f=setup();await f.service.adopt('a','mochi','M');f.weekend();await assert.rejects(f.service.checkIn('a'),/school days/);await assert.rejects(f.service.care('a','play'),/school days/);});
 test('daily quests reset without stripping collected items',async()=>{const f=setup();await f.service.adopt('a','mochi','M');await f.service.care('a','play');await f.service.claim('a','play');f.next();await assert.rejects(f.service.claim('a','play'),/incomplete/);assert.ok((await f.service.load('a')).owned.includes('eyes-0'));});
+
+
+test('free essential care is available on a weekend with no reward or bond grants',async()=>{
+ const f=setup();await f.service.adopt('a','mochi','M');
+ f.weekend();
+ for(const [action,vital] of [['meal','hunger'],['rest','energy'],['bath','clean']]){
+   f.setVital('class-a',vital,2);
+   const out=await f.service.care('a',action);
+   assert.equal(out.result.applied,true,action);
+   assert.equal(out.result.essential,true,action);
+   assert.equal(out.state.vitals[vital],45,action);
+   assert.equal(out.state.dust,0);assert.equal(out.state.crates,0);
+   assert.equal(out.state.bond,0);
+   assert.deepEqual(out.state.quests.completed,[]);
+ }
+ await assert.rejects(f.service.care('a','play'),/school days/);
+});
+
+test('daily activity caps never block emergency meals, rest or bathing',async()=>{
+ const f=setup();await f.service.adopt('a','ember','Em');
+ for(const action of ['play','study','treat','bath'])assert.equal((await f.service.care('a',action)).result.applied,true);
+ const before=await f.service.load('a');
+ for(const [action,vital] of [['meal','hunger'],['rest','energy'],['bath','clean']]){
+  f.setVital('class-a',vital,0);
+  const out=await f.service.care('a',action);
+  assert.deepEqual(out.result,{applied:true,essential:true});
+  assert.equal(out.state.vitals[vital],45);
+  assert.equal(out.state.bond,before.bond);
+  assert.deepEqual(out.state.quests.completed,before.quests.completed);
+  assert.equal(out.state.dust,before.dust);
+  assert.equal(out.state.crates,before.crates);
+ }
+ assert.equal((await f.service.care('a','play')).result.applied,false);
+});
+
+test('repeating free basic care above the recovery floor gives no advantage',async()=>{
+ const f=setup();await f.service.adopt('a','zee','Z');
+ f.weekend();f.setVital('class-a','hunger',0);
+ const first=await f.service.care('a','meal');
+ assert.equal(first.result.applied,true);assert.equal(first.state.vitals.hunger,45);
+ const second=await f.service.care('a','meal');
+ assert.equal(second.result.applied,false);assert.equal(second.result.essential,true);
+ assert.equal(second.state.vitals.hunger,45);
+ assert.equal(second.state.bond,0);assert.equal(second.state.crates,0);
+});
+
+test('free weekend care remains member-private; regular rewarded school care still works',async()=>{
+ const f=setup();await f.service.adopt('a','bolt','B');await f.service.adopt('b','mochi','M');
+ f.setVital('class-a','energy',1);f.weekend();
+ const rescued=await f.service.care('a','rest');
+ assert.equal(rescued.state.vitals.energy,45);
+ assert.equal((await f.service.load('b')).vitals.energy,84);
+ const f2=setup();await f2.service.adopt('a','bolt','B');
+ const normal=await f2.service.care('a','meal');
+ assert.equal(normal.result.essential,false);
+ assert.ok(normal.state.quests.completed.includes('meal'));
+ assert.equal(normal.state.bond,1);
+});
