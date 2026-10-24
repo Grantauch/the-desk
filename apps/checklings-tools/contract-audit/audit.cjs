@@ -29,7 +29,7 @@ function checkBattleChart(markdown, canonical) {
   const lines = markdown.split(/\r?\n/);
   const start = lines.findIndex(l => /^\|\s*Affinity ID\s*\|/.test(l));
   if (start < 0) throw Error('No Affinity ID table found');
-  const groups = [], references=[];
+  const groups = [], references=[], strong=new Map(), resisted=new Map();
   for (const line of lines.slice(start+2)) {
     if (!line.startsWith('|')) break;
     const cols = line.split('|').slice(1,-1).map(x=>x.trim());
@@ -37,6 +37,8 @@ function checkBattleChart(markdown, canonical) {
     const ids = readIds(cols[0]);
     if (ids.length !== 1) throw Error('Chart row must define one group ID: ' + line);
     groups.push(ids[0]);
+    strong.set(ids[0],readIds(cols[3]));
+    resisted.set(ids[0],readIds(cols[4]));
     for (const c of [cols[3],cols[4]]) for(const id of readIds(c)) references.push({group:ids[0],target:id});
   }
   if (!groups.length) throw Error('Empty affinity table');
@@ -44,6 +46,19 @@ function checkBattleChart(markdown, canonical) {
   const errors = [];
   if (declared.size !== groups.length) errors.push('Duplicate battle group ID');
   for(const ref of references) if(!declared.has(ref.target)) errors.push('Undefined battle group ' + ref.target + ' referenced by ' + ref.group);
+  // The chart describes one directional matchup twice: A strong against B
+  // must agree with B's 'Resisted By A'. Otherwise a single battle has two answers.
+  for (const a of groups) {
+    for (const b of strong.get(a)) {
+      if (!declared.has(b)) continue; // already reported as undefined
+      if (a===b) errors.push('Self-advantage '+a+' needs a move-specific exception, not a blanket affinity multiplier');
+      if (!resisted.get(b).includes(a)) errors.push('Nonreciprocal matchup: '+a+' strong against '+b+' but '+b+' does not list '+a+' under Resisted By');
+    }
+    for (const b of resisted.get(a)) {
+      if (!declared.has(b)) continue;
+      if (!strong.get(b).includes(a)) errors.push('Nonreciprocal matchup: '+a+' resisted by '+b+' but '+b+' does not list '+a+' under Strong Against');
+    }
+  }
   const differs = groups.filter(g => !canonical.affinities.includes(g));
   const warnings = differs.length ? ['Proposed battle group IDs are NOT canonical Affinity values; require explicit accepted interface/mapping before use: ' + differs.join(', ')] : [];
   return { declaredGroups:groups, checkedReferences:references.length, errors:[...new Set(errors)],warnings };
