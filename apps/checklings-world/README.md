@@ -16,6 +16,10 @@
 - `rooms.test.cjs` now has **11** synthetic tests, including four KO/cadence regressions and a 240-move bounded-history stress case. Exact source and committed tests passed **11/11** in an isolated V8 harness with Node-test/crypto/Buffer/in-memory-store stand-ins; a native Node run, protected CI, 35 separate PostgreSQL clients and two-device classroom tests remain unverified by that harness.
 - None of this prototype is an implemented release of the blocked multiplayer milestone. Real ownership, class authorization, turn receipts, crash-safe settlement and teacher gating remain implementation tasks after approval.
 
+## October 23 sky-home compatibility
+
+The authoritative legacy home ID is `sky`, not `cloud`. Earlier prototype scenery keyed Cloud Island under `cloud` and would reject a migrated original pet's valid `sky` home. The living-world observer now accepts **`sky` as canonical**, with `cloud` retained only as a compatibility alias; both hash to the same scene/event key and the observer returns `habitat:'sky'`. `living-world.test.cjs` now contains 13 tests, including both valid legacy sky behavior and alias/reload equality (13/13 in exact-source isolated JS harness). No migrated school data, attendance, home entitlement, live page, or authoritative service was changed. Native Node and real Chromebook tests remain future integration gates.
+
 ## Features built
 
 - Four temperament-specific personalities and greeting banks.
