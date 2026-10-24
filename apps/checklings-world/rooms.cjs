@@ -104,19 +104,30 @@ function createRaidService({ authorize, isEnabled, store, now = Date.now, random
         insist(seat && seat.id === a.key && seat.hp > 0, 'Not your turn');
         if (move === 'strike') room.boss.hp = Math.max(0, room.boss.hp - 22);
         else if (move === 'guard') seat.guarding = true;
-        else for (const friend of room.seats) friend.hp = Math.min(100, friend.hp + 8);
+        else for (const friend of room.seats) if (friend.hp > 0) friend.hp = Math.min(100, friend.hp + 8);
         room.journal.push({ seat: room.activeSeat + 1, move });
         if (room.boss.hp === 0) { room.status = 'victory'; return { victory: true }; }
         room.boss.phase = room.boss.hp <= 80 ? 3 : room.boss.hp <= 160 ? 2 : 1;
-        room.activeSeat = (room.activeSeat + 1) % room.seats.length;
-        // In battle, boss acts once after each round. It targets the next seat by
-        // server-owned turn rotation, never by a client-submitted damage value.
-        if (room.activeSeat === 0) {
+        // Dead seats do not receive turns. Otherwise a KO in seat 1 can leave
+        // the only surviving teammate unable to act for the rest of the raid.
+        const actingSeat = room.activeSeat;
+        let nextSeat = -1;
+        for (let offset = 1; offset <= room.seats.length; offset++) {
+          const candidate = (actingSeat + offset) % room.seats.length;
+          if (room.seats[candidate].hp > 0) { nextSeat = candidate; break; }
+        }
+        insist(nextSeat !== -1, 'No active teammate');
+        const roundComplete = nextSeat <= actingSeat;
+        room.activeSeat = nextSeat;
+        // Resolve one boss turn after the last living teammate, even when a
+        // knockout caused the seat rotation to skip seat zero.
+        if (roundComplete) {
           for (const friend of room.seats) {
-            friend.hp = Math.max(0, friend.hp - (friend.guarding ? 3 : 10));
+            if (friend.hp > 0) friend.hp = Math.max(0, friend.hp - (friend.guarding ? 3 : 10));
             friend.guarding = false;
           }
           if (room.seats.every(s => s.hp === 0)) room.status = 'defeat';
+          else room.activeSeat = room.seats.findIndex(s => s.hp > 0);
         }
         return { victory: false, phase: room.boss.phase };
       });
