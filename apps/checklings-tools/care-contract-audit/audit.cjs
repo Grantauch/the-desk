@@ -26,7 +26,7 @@ function proposalCare(proposal) {
       const parts=line.split('|').map(x=>x.trim());
       const defaultCell=parts[3]||'';
       const d=defaultCell.match(/^`?(-?\d+)`?(?=\s|$)/);
-      meters.push({field:m[1],minimum:Number(m[2]),maximum:Number(m[3]),defaultValue:d?Number(d[1]):null});
+      meters.push({field:m[1],minimum:Number(m[2]),maximum:Number(m[3]),defaultValue:d?Number(d[1]):null,defaultPolicy:/^Preserved from founder streak\b/.test(defaultCell)?'derived-founder-streak':'explicit-or-missing'});
     }
   }
   if(!meters.length)throw Error('No proposed INT fields found in first care-state table');
@@ -50,7 +50,11 @@ function auditCare(ts,migration,proposal) {
     if(seenProposed.has(m.field))errors.push('PROPOSAL_DUPLICATE '+m.field);
     else seenProposed.add(m.field);
     if(m.minimum>m.maximum)errors.push('PROPOSAL_INVALID_RANGE '+m.field);
-    if(m.defaultValue===null)errors.push('PROPOSAL_DEFAULT_MISSING '+m.field);
+    if(m.defaultValue===null) {
+      if(m.field==='development_stage' && m.defaultPolicy==='derived-founder-streak')
+        warnings.push('PROPOSAL_DERIVED_DEFAULT development_stage requires verified official streak migration source');
+      else errors.push('PROPOSAL_DEFAULT_MISSING '+m.field);
+    }
     else if(m.defaultValue<m.minimum||m.defaultValue>m.maximum)errors.push('PROPOSAL_DEFAULT_OUT_OF_RANGE '+m.field);
     if(contract.names.includes(m.field) && (m.minimum!==contract.minimum || m.maximum!==contract.maximum))errors.push('PROPOSAL_SCALE_MISMATCH '+m.field);
     if(!contract.names.includes(m.field))warnings.push('PROPOSAL_NEW_OR_RENAMED_FIELD '+m.field+' needs an explicitly accepted mapping/migration');
