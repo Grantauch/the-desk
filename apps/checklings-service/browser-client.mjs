@@ -42,6 +42,9 @@ export function createGameClient({onClear=()=>{},environment=globalThis}={}) {
       return result;
     } catch(error) {
       if(controller.signal.aborted || generation!==started || disposed)return null;
+      // Network and body/JSON failures bypass the HTTP-status branch above.
+      // Clear every private view and pending read without claiming revocation.
+      if(privateWork)clear();
       throw error;
     } finally {pending.delete(controller);}
   }
