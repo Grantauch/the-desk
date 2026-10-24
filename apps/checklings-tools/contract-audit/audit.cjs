@@ -26,7 +26,7 @@ function checkCanonical(planText, typescriptText) {
 }
 function readIds(cell) {
   const ids=[...cell.matchAll(/`([A-Z][A-Z0-9_]*)`/g)].map(m=>m[1]);
-  const remaining=cell.replace(/`[A-Z][A-Z0-9_]*`/g,'').replace(/[,\\s]/g,'');
+  const remaining=cell.replace(/`[A-Z][A-Z0-9_]*`/g,'').replace(/[,\s]/g,'');
   if(remaining && !['-','—','–','none','None','N/A'].includes(remaining)) throw Error('Unrecognized battle matchup token: '+cell);
   return ids;
 }
