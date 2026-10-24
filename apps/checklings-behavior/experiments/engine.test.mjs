@@ -142,3 +142,39 @@ test('missing preference map is rejected while null-prototype input remains safe
   const safe=Object.assign(Object.create(null),snapshot.preferences);
   assert.ok(Number.isFinite(chooseIntent({...snapshot,preferences:safe},{tag:'constructor'}).score));
 });
+
+test('malformed vital readings never produce NaN intent scores',()=>{
+  const original=replay(spec,events);
+  for(const invalid of [NaN,Infinity,-Infinity,-1,101,'70',null,undefined]) {
+    const forged={...original,state:{...original.state,energy:invalid}};
+    assert.throws(()=>chooseIntent(forged,{scene:'home',tag:'garden'}),/invalid snapshot state.energy/);
+  }
+  assert.ok(Number.isFinite(chooseIntent(original).score));
+});
+test('malformed temperament and incomplete state are rejected',()=>{
+  const original=replay(spec,events);
+  for(const field of ['curiosity','sociability','caution','activity','resilience']) {
+    for(const invalid of [NaN,Infinity,'50',-1,101]) {
+      assert.throws(()=>chooseIntent({...original,traits:{...original.traits,[field]:invalid}}),/invalid snapshot traits/);
+    }
+  }
+  assert.throws(()=>chooseIntent({...original,traits:null}),/invalid snapshot traits/);
+  assert.throws(()=>chooseIntent({...original,traits:{}}),/invalid snapshot traits/);
+  assert.throws(()=>chooseIntent({...original,state:null}),/invalid snapshot state/);
+  assert.throws(()=>chooseIntent({...original,state:{energy:70}}),/invalid snapshot state/);
+});
+test('forged revision, seed and identity are rejected before decision scoring',()=>{
+  const original=replay(spec,events);
+  for(const revision of [-1,257,NaN,'3']) assert.throws(()=>chooseIntent({...original,revision}),/revision/);
+  for(const seed of [-1,4294967296,NaN,'7']) assert.throws(()=>chooseIntent({...original,seed}),/seed/);
+  for(const creatureId of ['',42,'private @ value']) assert.throws(()=>chooseIntent({...original,creatureId}),/creatureId/);
+  assert.throws(()=>chooseIntent({...original,speciesId:'bad species'}),/speciesId/);
+});
+test('valid scores stay deterministic and snapshots never mutate with defensive checks',()=>{
+  const snapshot=replay(spec,events),before=JSON.stringify(snapshot);
+  const first=chooseIntent(snapshot,{scene:'river',tag:'garden'});
+  assert.deepEqual(chooseIntent(snapshot,{scene:'river',tag:'garden'}),first);
+  assert.equal(JSON.stringify(snapshot),before);
+  assert.ok(Number.isFinite(first.score));
+  assert.ok(first.alternatives.every(choice=>Number.isFinite(choice.score)));
+});
