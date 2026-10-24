@@ -27,3 +27,13 @@ test('rejects impossible huge uncompressed entry',()=>{const b=F();const central
 test('reserved school files are hard failures while extra files only warn',()=>{const b=fixture([['docs/checklings/test.md','hello'],['apps-script/hall-pass/Code.gs','bad'],['other.txt','fine']]);const r=audit(b,M);assert.ok(r.errors.some(e=>e.startsWith('RESERVED ')));assert.equal(r.extras.length,2);});
 test('manifest entries must be unique safe normalized paths',()=>assert.throws(()=>audit(F(),{schema:1,requiredPaths:['docs/checklings/test.md','docs/checklings/test.md']}),/duplicate/));
 test('no extraction, loading source or script execution required',()=>{const b=fixture([['docs/checklings/test.md','require("node:fs").writeFileSync("/tmp/bad", "x")']]);assert.equal(audit(b,M).pass,true);});
+test('rejects case-insensitive duplicate ZIP paths on Windows',()=>{
+ assert.throws(()=>entries(fixture([['docs/checklings/Foo.txt','first'],['docs/checklings/foo.txt','second']])),/duplicate/i);
+});
+test('rejects Windows reserved files, alternate streams and trailing dots',()=>{
+ for(const name of ['docs/CON.txt','docs/nul','docs/Com1.log','docs/foo:bar.txt','docs/trailing.','docs/trailing '])
+  assert.equal(safeName(name),false,name);
+});
+test('accepts valid distinct mixed-case files',()=>{
+ assert.equal(entries(fixture([['docs/checklings/Alpha.txt','first'],['docs/checklings/Beta.txt','second']])).size,2);
+});
