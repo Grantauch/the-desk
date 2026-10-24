@@ -1,4 +1,18 @@
 {
+  "checklings-transport-privacy-2026-10-24": {
+    "status": "LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "CK-INT-PRIVACY-001: clear prerelease private browser views after network, body or JSON failure",
+    "evidence": [
+      "Published Batch04 baseline 89f4502966ec1bca9bd6ce093c8f90b8d2f906a2 passes 103/103 focused tests on native Node v24.15.0.",
+      "Before repair the original eight client cases pass and all five new failure/cancellation regressions fail. After repair the combined client suite passes 13/13, with no failures or skips.",
+      "Local synthetic HTTPS Chromium suite passes ten journeys plus its outer test (11/11), including visible-pet clearing for network abort, malformed success JSON and unreadable 401. A real committed rename survives a dropped acknowledgement, idempotent retry and new login at revision one.",
+      "One runtime guard reuses existing local/cross-tab clearing and late-response cancellation. No server revocation, command rollback or migration is implied. Canonical verification passes all 18 stages with 108 Checklings cases, 440 classroom behaviors, Astro zero errors/warnings, 53 routes, 136 HTML files and 4,618 references. Evidence-only follow-up edits preserve the executed source/test blobs; exact-head GitHub CI remains separate."
+    ],
+    "handoff": "docs/checklings/INTEGRATION-REVIEW-2026-10-24.md",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "checkling-visit-only-2026-10-22": {
     "status": "REVIEW_TESTED",
     "owner": "Codex",
