@@ -6,7 +6,7 @@
 
 The pinned Batch04 sources define **12 lower-case** `Affinity` values in `apps/checklings-foundation/contracts.ts` and 12 first-slice species assignments in `apps/checklings-foundation/species-plan.json`. A separate, unapproved design proposal introduces **six uppercase** `Ecological Affinity` / battle groups (e.g. `CANOPY_FLORA` and `TIDAL_BRINE`). These may be useful for a role/terrain grouping but are **not the current persisted Affinity type**, and they must not silently replace it.
 
-An independent inspection found the proposed six-group table refers to `FROST_RIME` as an advantage target, while the table declares `ASTRAL_RIME` and not `FROST_RIME`. That is an internal typo/undefined type in the proposal. No runtime game fault is claimed; the proposal has not been integrated.
+An independent inspection found two references to the undefined `FROST_RIME` where the table declares `ASTRAL_RIME`. Its six-group table also has nonreciprocal advantage/resistance pairs, and lists `ASTRAL_RIME` as an affinity-wide advantage against itself; these require explicit design choices rather than silent code changes. That is an internal typo/undefined type in the proposal. No runtime game fault is claimed; the proposal has not been integrated.
 
 ## Run
 
@@ -26,6 +26,7 @@ The battle proposal and species markdown paths can be local reviewer-only files 
 - The actual exported TypeScript `Affinity` string-literal union is parsed from the source, not a guessed synonym list.
 - The design-plan species list has unique IDs, known canonical affinities, and known ecosystem keys.
 - A proposed `Affinity ID` battle table has unique group IDs and no references to absent groups (including resistance and advantage cells).
+- Reciprocal advantage/resistance declarations agree in both directions: if A is strong against B, B lists A under Resisted By (and vice versa). Self-advantage is flagged as an affinity-wide balance defect; a one-move exception belongs in an explicitly named ability rule.
 - Proposed `Ecological Affinity` labels in species briefs resolve inside their **proposed table**, not automatically to the canonical `Affinity` field.
 
 This is a narrow syntactic contract check. It cannot approve a 6-versus-12 balance change, migrate saved creatures, assess silhouettes, verify animations, balance PvP, or confirm playable/deployed behavior. A change to the actual battle affinity model requires a new `INTERFACE` proposal describing source/current version, mapping and migrations, every consumer, backwards compatibility, authority, tests, and an explicit accepted decision from the integration owner. Preserve founder IDs, pets, names, homes and student progress regardless of the proposed classification.
