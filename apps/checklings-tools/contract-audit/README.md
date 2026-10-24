@@ -30,3 +30,9 @@ The battle proposal and species markdown paths can be local reviewer-only files 
 - Proposed `Ecological Affinity` labels in species briefs resolve inside their **proposed table**, not automatically to the canonical `Affinity` field.
 
 This is a narrow syntactic contract check. It cannot approve a 6-versus-12 balance change, migrate saved creatures, assess silhouettes, verify animations, balance PvP, or confirm playable/deployed behavior. A change to the actual battle affinity model requires a new `INTERFACE` proposal describing source/current version, mapping and migrations, every consumer, backwards compatibility, authority, tests, and an explicit accepted decision from the integration owner. Preserve founder IDs, pets, names, homes and student progress regardless of the proposed classification.
+
+## Strictness hardening — October 23, 2026
+
+An independent review identified three previous false approvals: (1) `Affinity` union terms such as `string` or unknown type expressions were silently ignored if at least one quoted literal appeared, (2) a bare/unformatted matchup name in a battle table was ignored instead of considered a malformed declaration, and (3) a malformed `**Ecological Affinity**` brief label was treated as absent. The parser now fails closed on all three, without deciding the 6-versus-12 mapping or modifying catalogs. This is deliberately syntax-constrained: when the agreed table/type notation changes, update the checker after review rather than silently skipping unknown tokens.
+
+New `review-regression.test.cjs` covers all three. Run `node --test apps/checklings-tools/contract-audit/*.test.cjs` — **12/12 native Node tests PASS** (nine existing plus three new). Exact source Git blob `1c1caba9c4177a57d62fd4b0276fd20563a6b6b8` and new test blob `abfbd0fcd01dcc4a33176dd963d5052e09b10cba` match locally executed files. This is a source-only validation improvement, not a production release.
