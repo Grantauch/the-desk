@@ -16,7 +16,9 @@ function crc32(buf) {
 function safeName(name) {
   return typeof name === 'string' && !!name.length && !name.includes('\\') && !name.includes('\u0000') &&
     !name.startsWith('/') && !/^[a-zA-Z]:/.test(name) && !/[\u0000-\u001f\u007f]/.test(name) &&
-    name.split('/').every((part,i,a)=>part === '' ? i === a.length-1 : part !== '.' && part !== '..');
+    name.split('/').every((part,i,a)=>part === '' ? i === a.length-1 :
+      part !== '.' && part !== '..' && !/[<>:"|?*]/.test(part) &&
+      !/[. ]$/.test(part) && !/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i.test(part));
 }
 function entries(zip) {
   if (!Buffer.isBuffer(zip) || zip.length > MAX_ZIP) throw Error('ZIP must be a Buffer of at most 64 MiB');
@@ -28,7 +30,7 @@ function entries(zip) {
   if(zip.readUInt16LE(end+4)!==0 || zip.readUInt16LE(end+6)!==0) throw Error('Multi-disk ZIP unsupported');
   const n=zip.readUInt16LE(end+10), size=zip.readUInt32LE(end+12), offset=zip.readUInt32LE(end+16);
   if(n>MAX_COUNT || n!==zip.readUInt16LE(end+8) || offset+size>end) throw Error('Invalid ZIP central-directory bounds/count');
-  const found=new Map(); let cursor=offset,total=0;
+  const found=new Map(), caseFoldSeen=new Set(); let cursor=offset,total=0;
   for(let i=0;i<n;i++) {
     if(cursor+46>offset+size || zip.readUInt32LE(cursor)!==0x02014b50) throw Error('Invalid ZIP central record');
     const flags=zip.readUInt16LE(cursor+8), method=zip.readUInt16LE(cursor+10);
@@ -39,7 +41,8 @@ function entries(zip) {
     if(cursor+46+nl+el+cl>offset+size || disk!==0) throw Error('Out-of-bounds ZIP entry');
     const name=zip.subarray(cursor+46,cursor+46+nl).toString('utf8');
     cursor+=46+nl+el+cl;
-    if(!safeName(name) || found.has(name)) throw Error('Unsafe or duplicate ZIP path: '+name);
+    if(!safeName(name) || found.has(name) || caseFoldSeen.has(name.toLowerCase())) throw Error('Unsafe or duplicate ZIP path: '+name);
+    caseFoldSeen.add(name.toLowerCase());
     if(mode===0xa000 || (flags&1) || !(method===0||method===8)) throw Error('Unsafe ZIP file type/flags/method: '+name);
     if(raw>MAX_ENTRY || (total+=raw)>MAX_TOTAL || (comp===0 && raw>0) || (comp>0 && raw/comp>200)) throw Error('Oversize or suspicious ZIP entry: '+name);
     if(loc+30>zip.length || zip.readUInt32LE(loc)!==0x04034b50) throw Error('Missing local header: '+name);
