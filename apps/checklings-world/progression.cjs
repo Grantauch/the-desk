@@ -5,6 +5,8 @@ const NAMES={dye:['Sakura','Matcha','Lavender','Nebula','Midnight','Tangerine','
 const ITEMS=Object.freeze(SLOTS.flatMap(slot=>NAMES[slot].map((name,index)=>Object.freeze({id:slot+'-'+index,slot,name,rarity:index>=4?'rare':'common'}))));
 const BY_ID=new Map(ITEMS.map(i=>[i.id,i]));
 const ACTS={meal:{hunger:24},treat:{hunger:10,joy:14},bath:{clean:28},play:{joy:24,energy:-5},rest:{energy:26},tidy:{clean:19},study:{focus:23}};
+const ESSENTIAL=Object.freeze({meal:'hunger',rest:'energy',bath:'clean'});
+const ESSENTIAL_FLOOR=45; // free non-reward recovery, never quest or bond farming
 const MAX_DUST=999999;
 const check=(ok,msg)=>{if(!ok)throw new Error(msg);};
 const dayOk=n=>Number.isSafeInteger(n)&&n>=0&&n<10000000;
@@ -18,7 +20,24 @@ return {
 async adopt(token,species,name){const {member,cal}=await context(token);check(['ember','bolt','mochi','zee'].includes(species),'Invalid species');check(typeof name==='string'&&name.trim().length>0&&[...name.trim()].length<=18&&!/[<>\x00-\x1f]/.test(name),'Invalid name');return store.transact(member.key,current=>{if(current)return {state:current,result:{created:false,state:visible(current)}};const s={v:1,pet:{species,name:name.trim(),seed:seed()},revision:0,stage:0,streak:0,day:cal.day,lastReward:-1,dust:0,crates:0,owned:['dye-1','eyes-0'],equipped:{dye:'dye-1',eyes:'eyes-0'},vitals:{hunger:82,joy:85,energy:84,clean:88,focus:78},bond:0,actions:0,used:{},quests:{completed:[],claimed:[]}};return {state:s,result:{created:true,state:visible(s)}};});},
 async load(token){const {member}=await context(token);const s=await store.load(member.key);return s?visible(s):null;},
 checkIn(token){return change(token,(s,member,cal)=>{const record=attendance(member,cal);check(record&&!record.then&&record.verified===true&&record.membershipConfirmed===true&&record.day===cal.day&&Number.isSafeInteger(record.bestStreak),'Official check-in verification required');s.streak=Math.max(s.streak,record.bestStreak);s.stage=[0,3,7,14,30].reduce((v,min,i)=>s.streak>=min?i:v,0);if(record.counted===true&&s.lastReward!==cal.day){s.lastReward=cal.day;s.dust=Math.min(MAX_DUST,s.dust+15);s.crates++;s.quests.completed.push('visit');return {awarded:true};}return {awarded:false};});},
-care(token,action){return change(token,s=>{check(Object.hasOwn(ACTS,action),'Unknown action');if(s.actions>=4||(s.used[action]||0)>=2)return {applied:false};for(const [k,v] of Object.entries(ACTS[action]))s.vitals[k]=Math.max(0,Math.min(100,s.vitals[k]+v));s.actions++;s.used[action]=(s.used[action]||0)+1;if(s.actions<=2)s.bond=Math.min(1000,s.bond+1);if(['play','meal'].includes(action)&&!s.quests.completed.includes(action))s.quests.completed.push(action);return {applied:true};});},
+care(token,action){check(Object.hasOwn(ACTS,action),'Unknown action');return change(token,(s,member,cal)=>{
+ const rewarded=cal.isSchoolDay===true&&s.actions<4&&(s.used[action]||0)<2;
+ if (!rewarded) {
+  if (Object.hasOwn(ESSENTIAL,action)) {
+   const vital=ESSENTIAL[action];
+   if(s.vitals[vital]>=ESSENTIAL_FLOOR)return {applied:false,essential:true};
+   s.vitals[vital]=ESSENTIAL_FLOOR;
+   return {applied:true,essential:true}; // no bond, quests, dust or crates
+  }
+  check(cal.isSchoolDay===true,'Only on school days');
+  return {applied:false};
+ }
+ for(const [k,v] of Object.entries(ACTS[action]))s.vitals[k]=Math.max(0,Math.min(100,s.vitals[k]+v));
+ s.actions++;s.used[action]=(s.used[action]||0)+1;
+ if(s.actions<=2)s.bond=Math.min(1000,s.bond+1);
+ if(['play','meal'].includes(action)&&!s.quests.completed.includes(action))s.quests.completed.push(action);
+ return {applied:true,essential:false};
+},false);},
 claim(token,quest){return change(token,s=>{check(['visit','meal','play'].includes(quest),'Unknown quest');check(s.quests.completed.includes(quest),'Quest incomplete');if(s.quests.claimed.includes(quest))return {awarded:false};s.quests.claimed.push(quest);s.dust=Math.min(MAX_DUST,s.dust+10);return {awarded:true};});},
 equip(token,id){return change(token,s=>{const item=BY_ID.get(id);check(item&&s.owned.includes(id),'Item not owned');s.equipped[item.slot]=id;return {equipped:true};},false);},
 craft(token,id){return change(token,s=>{const item=BY_ID.get(id);check(item,'Unknown item');if(s.owned.includes(id))return {created:false};const price=item.rarity==='rare'?160:75;check(s.dust>=price,'Insufficient dust');s.dust-=price;s.owned.push(id);return {created:true,cost:price};});},
