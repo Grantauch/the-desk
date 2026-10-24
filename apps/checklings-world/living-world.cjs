@@ -14,6 +14,7 @@ const HABITATS = Object.freeze({
   meadow: { title: 'Morning meadow', weather: ['sunny', 'breezy', 'fireflies'], visitors: ['a shy field mouse', 'a lantern beetle', 'a sleepy bee'] },
   grove: { title: 'Mossy grove', weather: ['drizzle', 'sunbeams', 'fireflies'], visitors: ['a mushroom sprite', 'a moss fox', 'a copper butterfly'] },
   cove: { title: 'Tidepool cove', weather: ['mist', 'sea breeze', 'sunny'], visitors: ['a pearl crab', 'a tiny sea dragon', 'a ribbon jellyfish'] },
+  sky: { title: 'Cloud island', weather: ['cloud drift', 'rainbow', 'starlight'], visitors: ['a kite moth', 'a floating sheep', 'a sky manta'] },
   cloud: { title: 'Cloud island', weather: ['cloud drift', 'rainbow', 'starlight'], visitors: ['a kite moth', 'a floating sheep', 'a sky manta'] },
   cosmos: { title: 'Little cosmos', weather: ['meteor glow', 'starlight', 'aurora'], visitors: ['a comet fox', 'a lunar moth', 'a star whale'] }
 });
@@ -113,10 +114,11 @@ function observeWorld({ worldSeed, dayKey, minuteOfDay, species = 'ember', habit
     throw new TypeError('dayKey must be a real YYYY-MM-DD date');
   }
   requireInteger(minuteOfDay, 'minuteOfDay', 0, 1439);
-  if (!Object.hasOwn(SPECIES, species) || !Object.hasOwn(HABITATS, habitat) || !SEASONS.includes(season)) throw new TypeError('unknown world identity');
+  const canonicalHabitat = habitat === 'cloud' ? 'sky' : habitat; // old scene alias, never stored home ID
+  if (!Object.hasOwn(SPECIES, species) || !Object.hasOwn(HABITATS, canonicalHabitat) || !SEASONS.includes(season)) throw new TypeError('unknown world identity');
   const vitalState = careState ? getVitals(careState) : { ...INITIAL };
-  const h = hash32(`${seed}|${dayKey}|${habitat}|${season}`);
-  const scene = HABITATS[habitat];
+  const h = hash32(`${seed}|${dayKey}|${canonicalHabitat}|${season}`);
+  const scene = HABITATS[canonicalHabitat];
   const timeOfDay = minuteOfDay < 360 ? 'night' : minuteOfDay < 720 ? 'morning' : minuteOfDay < 1080 ? 'afternoon' : 'evening';
   const mood = getMood(vitalState);
   const visitor = pickFrom(scene.visitors, h, 8);
@@ -124,7 +126,7 @@ function observeWorld({ worldSeed, dayKey, minuteOfDay, species = 'ember', habit
   const line = pickFrom(SPECIES[species].voice, h, 16);
   const sky = timeOfDay === 'night' || timeOfDay === 'evening' ? 'warm lanterns and stars' : 'soft light and wandering clouds';
   return {
-    dayKey, timeOfDay, habitat, habitatTitle: scene.title, season, weather, visitor,
+    dayKey, timeOfDay, habitat: canonicalHabitat, habitatTitle: scene.title, season, weather, visitor,
     mood: mood.mood, expression: mood.expression, suggestedCare: mood.nextCare,
     personality: SPECIES[species].temperament,
     greeting: `${line} Today ${visitor} stopped by ${scene.title.toLowerCase()}.`,
