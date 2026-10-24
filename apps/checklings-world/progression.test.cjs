@@ -113,3 +113,61 @@ test('committed crate receipt can be recovered after school closes but fresh rol
  assert.equal((await f.service.load('a')).revision,result.state.revision);
  await assert.rejects(f.service.open('a',result.state.revision,'crate_after_closure_1'),/school days/);
 });
+
+
+test('one hundred rejected capped care actions do not advance state revision',async()=>{
+ const f=setup();await f.service.adopt('a','bolt','B');
+ for(const act of ['play','study','treat','bath'])await f.service.care('a',act);
+ const snapshot=await f.service.load('a');
+ for(let i=0;i<100;i++){
+  const blocked=await f.service.care('a','play');
+  assert.equal(blocked.result.applied,false);
+  assert.equal(blocked.state.revision,snapshot.revision);
+ }
+ assert.deepEqual(await f.service.load('a'),snapshot);
+});
+test('duplicate check-in, duplicate claim, and owned craft keep revision when nothing changed',async()=>{
+ const f=setup();await f.service.adopt('a','mochi','M');
+ const first=await f.service.checkIn('a');
+ const again=await f.service.checkIn('a');
+ assert.equal(again.result.awarded,false);
+ assert.equal(again.state.revision,first.state.revision);
+ await f.service.care('a','meal');
+ const claim=await f.service.claim('a','meal');
+ const duplicate=await f.service.claim('a','meal');
+ assert.equal(duplicate.result.awarded,false);
+ assert.equal(duplicate.state.revision,claim.state.revision);
+ const owned=await f.service.craft('a','dye-1');
+ assert.equal(owned.result.created,false);
+ assert.equal(owned.state.revision,claim.state.revision);
+});
+test('free essential care above threshold does not write an empty revision',async()=>{
+ const f=setup();await f.service.adopt('a','zee','Z');f.weekend();
+ const before=await f.service.load('a');
+ for(let i=0;i<30;i++){
+  const out=await f.service.care('a','meal');
+  assert.deepEqual(out.result,{applied:false,essential:true});
+  assert.equal(out.state.revision,before.revision);
+ }
+ assert.deepEqual(await f.service.load('a'),before);
+});
+test('school-day advance still persists when attempted action itself is a no-op',async()=>{
+ const f=setup();await f.service.adopt('a','ember','Em');
+ const before=await f.service.load('a');f.next();
+ const after=await f.service.craft('a','dye-1');
+ assert.equal(after.result.created,false);
+ assert.equal(after.state.revision,before.revision+1);
+ assert.equal(after.state.vitals.hunger,before.vitals.hunger-7);
+ const repeated=await f.service.craft('a','dye-1');
+ assert.equal(repeated.state.revision,after.state.revision);
+});
+test('verified streak promotion increments revision even when daily award is not counted',async()=>{
+ const f=setup();await f.service.adopt('a','ember','E');f.late();f.setStreak(30);
+ const promoted=await f.service.checkIn('a');
+ assert.equal(promoted.result.awarded,false);
+ assert.equal(promoted.state.stage,4);
+ assert.equal(promoted.state.revision,1);
+ const duplicate=await f.service.checkIn('a');
+ assert.equal(duplicate.result.awarded,false);
+ assert.equal(duplicate.state.revision,1);
+});
