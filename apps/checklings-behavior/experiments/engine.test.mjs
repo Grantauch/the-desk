@@ -101,3 +101,44 @@ test('behavior decisions cannot change the event count, replay or temperament',(
   assert.equal(snap.counters.eventsProcessed,3);
   assert.deepEqual(replay(spec,events),snap);
 });
+
+test('reserved object-property tags are not inherited learned preferences',()=>{
+  const snapshot=replay(spec,events);
+  const before=JSON.stringify(snapshot);
+  for (const tag of ['constructor','toString','__proto__','hasOwnProperty','valueOf']) {
+    assert.equal(Object.hasOwn(snapshot.preferences,tag),false);
+    const one=chooseIntent(snapshot,{scene:'home',tag});
+    assert.deepEqual(one,chooseIntent(snapshot,{scene:'home',tag}));
+    assert.ok(Number.isFinite(one.score),tag);
+    assert.ok(one.alternatives.every(choice=>Number.isFinite(choice.score)),tag);
+    assert.ok(!JSON.stringify(one).includes('null'),tag);
+  }
+  assert.equal(JSON.stringify(snapshot),before);
+});
+test('committed events tagged with reserved names retain bounded explicit preferences',()=>{
+  const tagged=['constructor','toString','__proto__','hasOwnProperty','valueOf'];
+  const log=tagged.map((tag,i)=>e('safe-'+i,i+1,'PLAY',tag));
+  const snap=replay(spec,log);
+  for(const tag of tagged){
+    assert.equal(Object.hasOwn(snap.preferences,tag),true);
+    assert.equal(snap.preferences[tag],4);
+    assert.ok(Number.isFinite(chooseIntent(snap,{scene:'lab',tag}).score));
+  }
+  assert.deepEqual(replay(spec,log),snap);
+  assert.equal(JSON.stringify(snap),JSON.stringify(replay(spec,log)));
+});
+test('nonfinite or forged numeric preferences fail rather than yielding NaN',()=>{
+  const original=replay(spec,events);
+  for(const bad of [NaN,Infinity,-Infinity,'5',99,-99]) {
+    const changed={...original,preferences:{...original.preferences,garden:bad}};
+    assert.throws(()=>chooseIntent(changed,{tag:'garden'}),/invalid tag preference/);
+  }
+  assert.ok(Number.isFinite(chooseIntent(original,{tag:'garden'}).score));
+});
+test('missing preference map is rejected while null-prototype input remains safe',()=>{
+  const snapshot=replay(spec,events);
+  assert.throws(()=>chooseIntent({...snapshot,preferences:null}),/experiment preferences required/);
+  assert.throws(()=>chooseIntent({...snapshot,preferences:[]}),/experiment preferences required/);
+  const safe=Object.assign(Object.create(null),snapshot.preferences);
+  assert.ok(Number.isFinite(chooseIntent({...snapshot,preferences:safe},{tag:'constructor'}).score));
+});
