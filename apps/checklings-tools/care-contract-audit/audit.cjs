@@ -22,7 +22,12 @@ function proposalCare(proposal) {
   const meters=[];
   for(const line of block.split(/\r?\n/)) {
     const m=line.match(/^\|\s*`([^`]+)`\s*\|\s*`?INT\s*\((\-?\d+)\.\.(\+?\d+)\)/);
-    if(m)meters.push({field:m[1],minimum:Number(m[2]),maximum:Number(m[3])});
+    if(m){
+      const parts=line.split('|').map(x=>x.trim());
+      const defaultCell=parts[3]||'';
+      const d=defaultCell.match(/^`?(-?\d+)`?(?=\s|$)/);
+      meters.push({field:m[1],minimum:Number(m[2]),maximum:Number(m[3]),defaultValue:d?Number(d[1]):null});
+    }
   }
   if(!meters.length)throw Error('No proposed INT fields found in first care-state table');
   return meters;
@@ -30,6 +35,10 @@ function proposalCare(proposal) {
 function auditCare(ts,migration,proposal) {
   const contract=sourceCareContract(ts),defaults=migrationDefaults(migration),proposed=proposalCare(proposal);
   const errors=[],warnings=[];
+  const migDefaultBlock=migration.match(/\bconst\s+INITIAL_CARE\s*=\s*Object\.freeze\(\{([^}]+)\}\)/);
+  const migKeys=[...migDefaultBlock[1].matchAll(/\b([a-z][a-zA-Z0-9_]*)\s*:\s*\d+/g)].map(x=>x[1]);
+  for(const key of migKeys){if(migKeys.indexOf(key)!==migKeys.lastIndexOf(key)&&!errors.includes('MIGRATION_DUPLICATE '+key))errors.push('MIGRATION_DUPLICATE '+key);}
+  const seenProposed=new Set();
   for(const field of contract.names) {
     if(!Object.hasOwn(defaults,field))errors.push('MIGRATION_MISSING '+field);
     else if(defaults[field]<contract.minimum||defaults[field]>contract.maximum)errors.push('MIGRATION_OUT_OF_RANGE '+field);
@@ -38,6 +47,11 @@ function auditCare(ts,migration,proposal) {
   const proposedNames=new Set(proposed.map(m=>m.field));
   for(const field of contract.names)if(!proposedNames.has(field))errors.push('PROPOSAL_MISSING_CANONICAL '+field);
   for(const m of proposed) {
+    if(seenProposed.has(m.field))errors.push('PROPOSAL_DUPLICATE '+m.field);
+    else seenProposed.add(m.field);
+    if(m.minimum>m.maximum)errors.push('PROPOSAL_INVALID_RANGE '+m.field);
+    if(m.defaultValue===null)errors.push('PROPOSAL_DEFAULT_MISSING '+m.field);
+    else if(m.defaultValue<m.minimum||m.defaultValue>m.maximum)errors.push('PROPOSAL_DEFAULT_OUT_OF_RANGE '+m.field);
     if(contract.names.includes(m.field) && (m.minimum!==contract.minimum || m.maximum!==contract.maximum))errors.push('PROPOSAL_SCALE_MISMATCH '+m.field);
     if(!contract.names.includes(m.field))warnings.push('PROPOSAL_NEW_OR_RENAMED_FIELD '+m.field+' needs an explicitly accepted mapping/migration');
   }
