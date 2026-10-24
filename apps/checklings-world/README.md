@@ -18,7 +18,7 @@
 
 ## October 23 sky-home compatibility
 
-The authoritative legacy home ID is `sky`, not `cloud`. Earlier prototype scenery keyed Cloud Island under `cloud` and would reject a migrated original pet's valid `sky` home. The living-world observer now accepts **`sky` as canonical**, with `cloud` retained only as a compatibility alias; both hash to the same scene/event key and the observer returns `habitat:'sky'`. `living-world.test.cjs` now contains 13 tests, including both valid legacy sky behavior and alias/reload equality (13/13 in exact-source isolated JS harness). No migrated school data, attendance, home entitlement, live page, or authoritative service was changed. Native Node and real Chromebook tests remain future integration gates.
+The authoritative legacy home ID is `sky`, not `cloud`. Earlier prototype scenery keyed Cloud Island under `cloud` and would reject a migrated original pet's valid `sky` home. The living-world observer now accepts **`sky` as canonical**, with `cloud` retained only as a compatibility alias; both hash to the same scene/event key and the observer returns `habitat:'sky'`. `living-world.test.cjs` now contains 14 tests, including valid legacy sky behavior, alias/reload equality and an exactly-five-homes registry check (14/14 in exact-source isolated JS harness). The exported registry exposes `meadow`, `grove`, `cove`, `sky`, `cosmos` only, even though an old caller may still request `cloud`. No migrated school data, attendance, home entitlement, live page, or authoritative service was changed. Native Node and real Chromebook tests remain future integration gates.
 
 ## Features built
 
