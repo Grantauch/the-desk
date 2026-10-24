@@ -1,4 +1,18 @@
 {
+  "checklings-transport-privacy-2026-10-24": {
+    "status": "LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "CK-INT-PRIVACY-001: clear prerelease private browser views after network, body or JSON failure",
+    "evidence": [
+      "Published Batch04 baseline 89f4502966ec1bca9bd6ce093c8f90b8d2f906a2 passes 103/103 focused tests on native Node v24.15.0.",
+      "Before repair the original eight client cases pass and all five new failure/cancellation regressions fail. After repair the combined client suite passes 13/13, with no failures or skips.",
+      "Local synthetic HTTPS Chromium suite passes ten journeys plus its outer test (11/11), including visible-pet clearing for network abort, malformed success JSON and unreadable 401. A real committed rename survives a dropped acknowledgement, idempotent retry and new login at revision one.",
+      "One runtime guard reuses existing local/cross-tab clearing and late-response cancellation. No server revocation, command rollback or migration is implied. Canonical verification passes all 18 stages with 108 Checklings cases, 440 classroom behaviors, Astro zero errors/warnings, 53 routes, 136 HTML files and 4,618 references. Evidence-only follow-up edits preserve the executed source/test blobs; exact-head GitHub CI remains separate."
+    ],
+    "handoff": "docs/checklings/INTEGRATION-REVIEW-2026-10-24.md",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING"
+  },
   "checkling-visit-only-2026-10-22": {
     "status": "REVIEW_TESTED",
     "owner": "Codex",
@@ -1279,5 +1293,18 @@
       "Canonical npm run verify passed all 18 stages on final runtime/tests: 136/136 Checklings checks, all 440 classroom behaviors, Astro 0 errors/0 warnings (156 hints across 224 files), 53 built routes, 136 HTML files, 4618 references and 13 releases/117 sealed files. No local Chromium/native PostgreSQL server is available; new native/browser/protected CI remains pending on the review branch. No deployment, real school account, student import or Chromebook use is claimed.",
       "Automatic approval review rejected publishing Batch05 source to Grantauch/the-desk because authorization for that exact external publication had not been established. No Batch05 remote branch or pull request was created, and no indirect publication was attempted. The destination was independently confirmed as Grantauch's public repository with authenticated push/admin permission. Source remains committed locally; native/browser/protected CI cannot start until review publication is authorized."
     ]
+  },
+  "checklings-batch05-recovery-and-privacy-integration-2026-10-24": {
+    "status": "LOCAL_FULL_PASSED_BATCH05_CI_PASSED_COMBINED_CI_PENDING",
+    "owner": "Codex",
+    "branch": "checklings/integration/foundation-review-20261024",
+    "verification_status": "LOCAL_FULL_141_FOCUSED_16_BROWSER_PASSED",
+    "evidence": [
+      "Grant explicitly authorized public Batch05 publication. Cloud workspace maintenance removed the unpublished checkout; recovered all24 files from recorded edits, verified complete tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef, and preserved it as c4807fc0a2ad41e7cc731757baba8412d018591b plus a local Git bundle. Fresh recovered baseline136/136 focused and12/12 synthetic HTTPS Chromium passed. Combined Batch05 and PR239 histories in merge8a14038b7202fecbabb6f6cc4b44fc339de62751, preserving both repair ledger sections;141/141 focused and16/16 synthetic HTTPS Chromium passed. Canonical verification and fresh independent CI remain pending at this checkpoint. No school deployment, hosted database, real account or classroom evidence.",
+      "Independent operations technical review: docs/checklings/OPERATIONS-REVIEW-2026-10-24.md. Suitable technical basis; full hosting gate still requires owner provider/region/privacy/spending/retention/operators/escrow decisions and actual restore measurement.",
+      "October24 publication update: Grant explicitly authorized public source publication. Batch05 PR240 is published at c4807fc0a2ad41e7cc731757baba8412d018591b, complete recovered tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef. Fresh local136 focused/12 synthetic browser/all18 canonical stages PASS. Independent GitHub run40143837616 PASS:100 embedded-service,60 native PostgreSQL and12 synthetic Chromium tests, zero failures/skips; both job logs read. Full protected site run40143837630 is separate and still running at this checkpoint. Combined bridge/privacy source7c2429ed5f6498a874957e91f0407ac0c57ee777 passed141 focused,16 synthetic browser and all18 canonical stages, including440 school workflow checks, Astro0 errors/0 warnings,53 routes,136 HTML,4618 references and13 releases/117 sealed assets. This update changes evidence documents only; runtime/test blobs remain identical to that complete local run. Fresh CI for the combined head remains required before integration."
+    ],
+    "deployment_status": "NOT_DEPLOYED",
+    "next_action": "Publish/retarget PR239 above PR240; inspect new native/browser/protected CI and independent source review. Then staging package and concrete resource decisions."
   }
 }
