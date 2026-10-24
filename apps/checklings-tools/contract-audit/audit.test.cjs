@@ -4,10 +4,7 @@ const assert = require('node:assert/strict');
 const {checkCanonical,checkBattleChart,checkProposalSpecies,parseAffinityUnion} = require('./audit.cjs');
 const types="export type Affinity = 'growth' | 'tide' | 'stone' | 'spark' | 'flame' | 'frost' | 'gale' | 'shade' | 'alloy' | 'cosmic' | 'venom' | 'spirit';";
 const plan=JSON.stringify({ecosystems:['forest','ocean'],slice:[{id:'mosswisp',ecosystem:'forest',affinity:'spirit'},{id:'brinebell',ecosystem:'ocean',affinity:'tide'}]});
-const chart=`| Affinity ID | Domain | Assigned | Strong Against | Resisted By |
-| :--- | :--- | :--- | :--- | :--- |
-| `CANOPY_FLORA` | Forest | Mosswisp | `TIDAL_BRINE` | `TIDAL_BRINE` |
-| `TIDAL_BRINE` | Ocean | Brinebell | `FROST_RIME` | `CANOPY_FLORA` |`;
+const chart=["| Affinity ID | Domain | Assigned | Strong Against | Resisted By |","| :--- | :--- | :--- | :--- | :--- |","| `CANOPY_FLORA` | Forest | Mosswisp | `TIDAL_BRINE` | `TIDAL_BRINE` |","| `TIDAL_BRINE` | Ocean | Brinebell | `FROST_RIME` | `CANOPY_FLORA` |"].join("\n");
 test('canonical affinities are 12 stable lowercase values',()=>{const a=parseAffinityUnion(types);assert.equal(a.length,12);assert.ok(a.includes('spirit'));assert.ok(a.includes('tide'));});
 test('canonical plan is valid independently of proposal groups',()=>{const c=checkCanonical(plan,types);assert.deepEqual(c.errors,[]);assert.equal(c.species.mosswisp.affinity,'spirit');});
 test('identifies undefined proposed battle target without mislabeling legacy species',()=>{const b=checkBattleChart(chart,checkCanonical(plan,types));assert.deepEqual(b.errors,['Undefined battle group FROST_RIME referenced by TIDAL_BRINE']);assert.equal(b.declaredGroups.length,2);assert.equal(b.warnings.length,1);});
