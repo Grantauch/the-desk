@@ -7,7 +7,7 @@
 Two individuals of the **same species** should react differently based on durable traits and genuinely recorded experiences; replaying the same records must not reroll temperament or fabricate events.
 
 - `engine.mjs`: species-anchored, seeded curiosity/sociability/caution/activity/resilience; 0–100 derived energy/trust/comfort; deterministic, bounded (16) event memories; bounded (12) tag preferences; six read-only suggested intentions.
-- `engine.test.mjs`: **16 node:test cases** covering deterministic replay, duplicate suppression and conflict detection, no invented history, hard limits, absence of caller mutation, personality separation, fatigue/distress/recovery priority, bounded diagnostic diversity and no implicit commit.
+- `engine.test.mjs`: **20 node:test cases** covering deterministic replay, duplicate suppression and conflict detection, no invented history, hard limits, absence of caller mutation, personality separation, fatigue/distress/recovery priority, bounded diagnostic diversity and no implicit commit.
 - `run.mjs`: three synthetic creatures with the same events; 1,000 sample replays; 300 independently seeded same-species creatures; reproducible SHA-256 snapshot digest and machine-dependent process timing and heap delta.
 
 Run with **Node 22+**, no installation:
@@ -20,6 +20,8 @@ node apps/checklings-behavior/experiments/run.mjs > /tmp/checklings-individualit
 ## Findings
 
 The original unbalanced heuristic selected **socialize for 259/300** synthetic individuals in one identical scene. The revised heuristic selects **observe 142, socialize 97, explore 49, withdraw 12**. The maximum single choice is 47.3% rather than 86.3%; this only demonstrates variation in the specified synthetic sampling condition.
+
+**Review fix (October 23):** Missing tag names such as `constructor`, `__proto__`, and `toString` previously read inherited properties from a normal JavaScript object, yielding `NaN` scores. Intent scoring now uses own-property lookup and finite/range validation. Four added tests cover missing reserved-name tags, authentically recorded reserved-name tags, nonfinite/forged preference values, read-only behavior and null-prototype inputs. The 20 tests are local synthetic checks, not production authorization tests.
 
 The 300-person diagnostic has a *temporary* regression limit of no intent above 55%, with at least four unique responses. Rest and seek_comfort are deliberately not forced into a neutral scene; targeted tests instead confirm that exhaustion causes rest and repeated scares trigger withdrawal. These are proposed scoring weights; actual player-facing behavior and age-appropriate creative content require independent design review.
 
