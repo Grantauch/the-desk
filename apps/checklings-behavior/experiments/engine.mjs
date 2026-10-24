@@ -96,9 +96,29 @@ export function replay(spec, events=[]) {
     counters:{eventsProcessed:seen.size, memories:memoryView.length, preferences:preferences.size}
   };
 }
+function validateIntentSnapshot(snapshot) {
+  assertString(snapshot.creatureId, 'snapshot.creatureId');
+  assertString(snapshot.speciesId, 'snapshot.speciesId');
+  assertNumber(snapshot.seed, 'snapshot.seed');
+  if (snapshot.seed < 0 || snapshot.seed > 4294967295) throw new RangeError('invalid snapshot seed');
+  assertNumber(snapshot.revision, 'snapshot.revision');
+  if (snapshot.revision < 0 || snapshot.revision > LIMITS.events) throw new RangeError('invalid snapshot revision');
+  for (const [part, fields] of [
+    ['traits', ['curiosity','sociability','caution','activity','resilience']],
+    ['state', ['energy','trust','comfort']]
+  ]) {
+    const values = snapshot[part];
+    if (!values || typeof values !== 'object' || Array.isArray(values)) throw new TypeError('invalid snapshot '+part);
+    for (const field of fields) {
+      if (!own(values,field) || !Number.isInteger(values[field]) || values[field] < 0 || values[field] > 100)
+        throw new TypeError('invalid snapshot '+part+'.'+field+' (expected integer 0..100)');
+    }
+  }
+}
 /** Scores hypothetical behavior without ever claiming a server event occurred. */
 export function chooseIntent(snapshot,{scene='home',tag='quiet'}={}) {
   if (!snapshot || snapshot.version!=='synthetic-individuality-v1') throw new TypeError('experiment snapshot required');
+  validateIntentSnapshot(snapshot);
   assertString(scene,'scene',LIMITS.tagLength);assertString(tag,'tag',LIMITS.tagLength);
   const t=snapshot.traits, s=snapshot.state;
   const preferences=snapshot.preferences;
