@@ -15,7 +15,7 @@ function crc32(buf) {
 }
 function safeName(name) {
   return typeof name === 'string' && !!name.length && !name.includes('\\') && !name.includes('\u0000') &&
-    !name.startsWith('/') && !/^[a-zA-Z]:/.test(name) &&
+    !name.startsWith('/') && !/^[a-zA-Z]:/.test(name) && !/[\u0000-\u001f\u007f]/.test(name) &&
     name.split('/').every((part,i,a)=>part === '' ? i === a.length-1 : part !== '.' && part !== '..');
 }
 function entries(zip) {
@@ -43,6 +43,10 @@ function entries(zip) {
     if(mode===0xa000 || (flags&1) || !(method===0||method===8)) throw Error('Unsafe ZIP file type/flags/method: '+name);
     if(raw>MAX_ENTRY || (total+=raw)>MAX_TOTAL || (comp===0 && raw>0) || (comp>0 && raw/comp>200)) throw Error('Oversize or suspicious ZIP entry: '+name);
     if(loc+30>zip.length || zip.readUInt32LE(loc)!==0x04034b50) throw Error('Missing local header: '+name);
+    const localFlags=zip.readUInt16LE(loc+6),localMethod=zip.readUInt16LE(loc+8);
+    const localCrc=zip.readUInt32LE(loc+14),localComp=zip.readUInt32LE(loc+18),localRaw=zip.readUInt32LE(loc+22);
+    if(localFlags!==flags || localMethod!==method) throw Error('Local ZIP flags/method mismatch: '+name);
+    if(!(flags&8) && (localCrc!==crc || localComp!==comp || localRaw!==raw)) throw Error('Local ZIP CRC/size mismatch: '+name);
     const lnl=zip.readUInt16LE(loc+26),lel=zip.readUInt16LE(loc+28);
     const localName=zip.subarray(loc+30,loc+30+lnl).toString('utf8');
     const pos=loc+30+lnl+lel;
@@ -66,7 +70,10 @@ function audit(zip,manifest={}) {
     if(!bytes) errors.push('MISSING '+spec.path);
     else if(spec.sha256 && crypto.createHash('sha256').update(bytes).digest('hex')!==spec.sha256) errors.push('HASH_MISMATCH '+spec.path);
   }
-  for(const name of found.keys()) if(name.startsWith('apps-script/hall-pass/') || name.startsWith('apps/checklings-service/') || name==='.env' || /(^|\/)\.env(\.|$)/.test(name)) errors.push('RESERVED '+name);
+  for(const name of found.keys()) {
+    const lower=name.toLowerCase(); // ZIPs may be handled on case-insensitive student/dev computers
+    if(lower.startsWith('apps-script/hall-pass/') || lower.startsWith('apps/checklings-service/') || lower==='.env' || /(^|\/)\.env(\.|$)/.test(lower)) errors.push('RESERVED '+name);
+  }
   const extra=[...found.keys()].filter(x=>!x.endsWith('/') && !seen.has(x));
   if(extra.length) warnings.push('Extra files not claimed: '+extra.length);
   return {pass:!errors.length,archiveEntries:found.size,required:seen.size,errors,warnings,extras:extra};
