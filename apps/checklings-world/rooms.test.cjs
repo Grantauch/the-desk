@@ -6,7 +6,7 @@ function fixture(){
  const db=new Map(), roster=new Map([['a',{key:'a',classKey:'period1'}],['b',{key:'b',classKey:'period1'}],['c',{key:'c',classKey:'period2'}],['d',{key:'d',classKey:'period1'}]]);
  const store={async create(k,v){if(db.has(k))return false;db.set(k,structuredClone(v));return true;},async load(k){return structuredClone(db.get(k)||null);},async transact(k,fn){const old=structuredClone(db.get(k)||null);const r=fn(old);db.set(k,structuredClone(r.room));return r.result;}};
  const service=createRaidService({authorize:async id=>roster.get(id),isEnabled:async()=>enabled,store,now:()=>now,random:()=>Buffer.alloc(10,0x3b)});
- return {service,expire(){now+=31*60*1000;},disable(){enabled=false;}};
+ return {service,storedRoom(){return structuredClone([...db.values()][0]||null);},expire(){now+=31*60*1000;},disable(){enabled=false;}};
 }
 test('room is private to a class and cannot be viewed by strangers',async()=>{const f=fixture(),a=await f.service.create('a','ember');await assert.rejects(f.service.join('c',a.invite,'mochi'),/not found/);await assert.rejects(f.service.view('b',a.invite),/participant/);});
 test('join creates a real distinct seat and cannot duplicate a seat',async()=>{const f=fixture(),a=await f.service.create('a','ember');const b=await f.service.join('b',a.invite,'bolt');assert.equal(b.room.seats.length,2);const c=await f.service.join('b',a.invite,'mochi');assert.equal(c.room.seats.length,2);});
@@ -87,4 +87,25 @@ test('total party knockout produces defeat without giving dead seats extra turns
  assert.equal(state.status,'defeat');
  assert.deepEqual(state.seats.map(s=>s.hp),[0,0]);
  await assert.rejects(f.service.move('a',code,state.revision,'strike'),/Not in battle/);
+});
+
+
+test('long-running support-only battle retains bounded UI journal, not unbounded room state',async()=>{
+ const f=fixture(),created=await f.service.create('a','ember'),code=created.invite;
+ let state=(await f.service.join('b',code,'bolt')).room;
+ state=(await f.service.ready('a',code,state.revision)).room;
+ state=(await f.service.ready('b',code,state.revision)).room;
+ for(let i=0;i<120;i++){
+  state=(await f.service.move('a',code,state.revision,'encourage')).room;
+  state=(await f.service.move('b',code,state.revision,'encourage')).room;
+ }
+ const raw=f.storedRoom();
+ assert.equal(raw.status,'battle');
+ assert.equal(raw.boss.hp,240,'no boss HP is removed by encouragement');
+ assert.equal(raw.journal.length,32,'ephemeral stored journal is bounded');
+ assert.equal(raw.revision,243,'revision advances for every committed move');
+ assert.equal(state.journal.length,8,'private player view has only last eight events');
+ assert.equal(raw.journal.at(-1).seat,2);
+ assert.equal(raw.journal.at(-1).move,'encourage');
+ assert.equal(raw.journal.at(0).seat,1);
 });
