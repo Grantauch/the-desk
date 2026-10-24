@@ -16,6 +16,7 @@ function checkCanonical(planText, typescriptText) {
   const affinities = parseAffinityUnion(typescriptText);
   if (!Array.isArray(plan.slice) || !Array.isArray(plan.ecosystems)) throw Error('Canonical plan needs slice and ecosystems arrays');
   const errors = [], seen = new Set();
+  if(!plan.slice.length || !plan.ecosystems.length) errors.push('Canonical species/ecosystem catalog must not be empty');
   for (const species of plan.slice) {
     if (!species.id || seen.has(species.id)) errors.push('Duplicate or missing species ID: ' + species.id);
     seen.add(species.id);
@@ -34,11 +35,15 @@ function checkBattleChart(markdown, canonical) {
   const lines = markdown.split(/\r?\n/);
   const start = lines.findIndex(l => /^\|\s*Affinity ID\s*\|/.test(l));
   if (start < 0) throw Error('No Affinity ID table found');
+  const divider = lines[start+1];
+  const dividerCells = divider && divider.startsWith('|') ? divider.split('|').slice(1,-1).map(c=>c.trim()) : [];
+  if(dividerCells.length!==5 || dividerCells.some(c=>!/^:?-{3,}:?$/.test(c)))
+    throw Error('Missing or malformed Markdown affinity table separator');
   const groups = [], references=[], strong=new Map(), resisted=new Map();
   for (const line of lines.slice(start+2)) {
     if (!line.startsWith('|')) break;
     const cols = line.split('|').slice(1,-1).map(x=>x.trim());
-    if (cols.length < 5) throw Error('Malformed affinity chart row: ' + line);
+    if (cols.length !== 5) throw Error('Malformed affinity chart row: expected five columns: ' + line);
     const ids = readIds(cols[0]);
     if (ids.length !== 1) throw Error('Chart row must define one group ID: ' + line);
     groups.push(ids[0]);
