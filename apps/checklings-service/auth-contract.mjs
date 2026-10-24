@@ -20,6 +20,7 @@ export async function authContract(t,database) {
     const actor={tenantId,memberId:'member_a',classId:'class_a',authEpoch:0};
     const keys={assertionKey:randomBytes(32),flowKey:randomBytes(32)};
     let now=Date.parse('2026-10-23T16:00:00Z');
+    await database.transaction(c=>c.query("INSERT INTO ck_school_classes (tenant_id,class_id,issuer,audience,revision,enabled,valid_until_ms,content_hash) VALUES ($1,$2,'synthetic_school','synthetic_game',1,true,$3,'synthetic-only')",[tenantId,actor.classId,now+3600000]));
     await database.transaction(c=>c.query('INSERT INTO ck_memberships (tenant_id,member_id,class_id,active) VALUES ($1,$2,$3,true)',[tenantId,actor.memberId,actor.classId]));
     const config={database,tenantId,issuer:'synthetic_school',audience:'synthetic_game',...keys,clock:async()=>now};
     const auth=createAuthService(config);

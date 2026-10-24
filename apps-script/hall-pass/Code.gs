@@ -583,8 +583,9 @@ function setupProject(options) {
 /* ------------------------------------------------------------ web entry ---- */
 
 function doGet(e) {
-  ensureWorkbookReady_();
   const requestedMode = String((e && e.parameter && e.parameter.mode) || 'student').toLowerCase();
+  if (requestedMode === 'checklings' || requestedMode === 'checklings-admin') return checklingsWeb_(e, requestedMode === 'checklings-admin');
+  ensureWorkbookReady_();
   if (requestedMode === 'releasecheck') {
     assertTeacher_(getActiveEmail_(), getSettings_());
     return HtmlService.createHtmlOutputFromFile('ReleaseCheck').setTitle('GrantDesk private release check');
@@ -653,6 +654,197 @@ function unrecognizedState_(settings, purpose, message) {
     message,
     serverNow: new Date().toISOString(),
   };
+}
+
+/* -------------------------------- optional expanded Checklings bridge ---- */
+// Disabled unless a privately provisioned configuration explicitly enables it.
+// Keys are independent random 32-byte base64url strings, used as UTF-8 HMAC
+// keys on BOTH sides (not decoded). No workbook IDs, names or PINs leave here.
+function checklingsConfig_() {
+  let c;
+  try { c = JSON.parse(PropertiesService.getScriptProperties().getProperty('CHECKLINGS_BRIDGE_CONFIG') || '{}'); } catch (error) { c = {}; }
+  const opaque = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(v);
+  const keys = [c.assertionKey, c.flowKey, c.schoolKey, c.identityKey];
+  if (c.enabled !== true || !opaque(c.issuer) || !opaque(c.audience) || !opaque(c.tenantId) ||
+      !/^https:\/\/(?:[a-z0-9-]+\.netlify\.app|checklings\.grant-desk\.com)$/.test(c.gameOrigin || '') ||
+      keys.some((key) => typeof key !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(key)) || new Set(keys).size !== 4 ||
+      !Array.isArray(c.classPeriods) || !c.classPeriods.length || c.classPeriods.length > 20 ||
+      c.classPeriods.some((p) => typeof p !== 'string' || !p.trim() || p !== p.trim() || p.length > 80) || new Set(c.classPeriods).size !== c.classPeriods.length) {
+    throw new Error('Expanded Checklings is not available yet. Your classroom tools still work.');
+  }
+  return c;
+}
+
+function checklingsMac_(key, domain, body) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(domain + '\n' + body, key, Utilities.Charset.UTF_8)).replace(/=+$/g, '');
+}
+function checklingsSign_(key, domain, payload) {
+  const body = encodeTokenPart_(JSON.stringify(payload));
+  return body + '.' + checklingsMac_(key, domain, body);
+}
+function checklingsRead_(key, domain, token) {
+  if (typeof token !== 'string' || token.length > 4096) throw new Error('Start again from Checklings.');
+  const parts = token.split('.');
+  if (parts.length !== 2 || !/^[A-Za-z0-9_-]+$/.test(parts[0]) || !/^[A-Za-z0-9_-]{43}$/.test(parts[1]) ||
+      !secureEquals_(parts[1], checklingsMac_(key, domain, parts[0]))) throw new Error('Start again from Checklings.');
+  try { return JSON.parse(decodeTokenPart_(parts[0])); } catch (error) { throw new Error('Start again from Checklings.'); }
+}
+function checklingsTicket_(c, ticket) {
+  const p = checklingsRead_(c.flowKey, 'checklings:launch:v1', ticket), now = Math.floor(Date.now() / 1000);
+  const fields = ['v', 'iss', 'aud', 'flowId', 'challenge', 'state', 'iat', 'exp'];
+  if (!p || Object.keys(p).length !== fields.length || !fields.every((k) => Object.prototype.hasOwnProperty.call(p, k)) ||
+      p.v !== 1 || p.iss !== c.audience || p.aud !== c.issuer ||
+      [p.flowId, p.challenge, p.state].some((v) => typeof v !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(v)) ||
+      !Number.isSafeInteger(p.iat) || !Number.isSafeInteger(p.exp) || p.iat > now || p.exp <= now || p.exp <= p.iat || p.exp - p.iat > 60) {
+    throw new Error('This sign-in expired. Start again from Checklings.');
+  }
+  return p;
+}
+function checklingsId_(c, kind, value) { return checklingsMac_(c.identityKey, 'checklings:identity:v1', kind + '\n' + c.tenantId + '\n' + value); }
+function checklingsPolicyKey_(c, period) { return 'ck-bridge-class:' + checklingsId_(c, 'class', period); }
+function checklingsPolicy_(c, period) {
+  if (!c.classPeriods.includes(period)) throw new Error('That class is not enabled for Checklings.');
+  const raw = PropertiesService.getScriptProperties().getProperty(checklingsPolicyKey_(c, period));
+  if (!raw) return { enabled: false, revision: 0 };
+  let p; try { p = JSON.parse(raw); } catch (error) { throw new Error('Ask your teacher to check Checklings access.'); }
+  if (typeof p.enabled !== 'boolean' || !Number.isSafeInteger(p.revision) || p.revision < 0) throw new Error('Ask your teacher to check Checklings access.');
+  return p;
+}
+function checklingsAccount_() { assertSchoolAccount_(getActiveEmail_(), getSettings_()); }
+
+/** Fresh PIN verification for this game only: no Hall Pass token/action proof. */
+function identifyChecklingsGame(pin, attemptNonce, ticket) {
+  const c = checklingsConfig_(), flow = checklingsTicket_(c, ticket);
+  ensureWorkbookReady_(); checklingsAccount_();
+  const students = verifyStudentPin_(pin, getActiveEmail_(), attemptNonce);
+  const eligible = students.filter((s) => c.classPeriods.includes(s.classPeriod) && checklingsPolicy_(c, s.classPeriod).enabled);
+  if (!eligible.length) throw new Error('Your teacher has not opened Checklings for your class.');
+  const now = Math.floor(Date.now() / 1000);
+  return {
+    selection: checklingsSign_(c.assertionKey, 'checklings:selection:v1', {
+      v: 1, email: students[0].email, account: getActiveEmail_(), credentialVersion: credentialVersionForEmail_(students[0].email),
+      ticketHash: checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket), iat: now, exp: Math.min(flow.exp, now + 60),
+    }),
+    classes: eligible.map((s) => ({ id: checklingsId_(c, 'class', s.classPeriod), label: s.classPeriod })),
+  };
+}
+
+/** Create a complete current class snapshot under the existing short lock.
+ * Network calls always happen AFTER release. Nothing hooks attendance/pass code.
+ */
+function checklingsSnapshot_(c, period, enabled) {
+  return withLock_(() => {
+    const properties = PropertiesService.getScriptProperties(), policy = checklingsPolicy_(c, period);
+    if (enabled !== undefined) policy.enabled = enabled;
+    if (policy.revision >= Number.MAX_SAFE_INTEGER) throw new Error('Ask your teacher to check Checklings access.');
+    // Closing access must work even if the roster is oversized or malformed.
+    // A disabled empty snapshot revokes all existing game memberships without
+    // reading roster identities or depending on current PIN health.
+    let members = [];
+    if (policy.enabled) {
+      const students = getRoster_().filter((s) => s.classPeriod === period);
+      if (students.length > 35) throw new Error('This pilot supports up to 35 active students per class.');
+      members = students.map((s) => {
+        const version = credentialVersionForEmail_(s.email);
+        return { memberId: checklingsId_(c, 'member', s.key), credentialVersion: checklingsMac_(c.identityKey, 'checklings:credential:v1', s.key + '\n' + (version || 'unavailable')), active: Boolean(version) };
+      });
+    }
+    policy.revision += 1;
+    properties.setProperty(checklingsPolicyKey_(c, period), JSON.stringify(policy));
+    const iat = Math.floor(Date.now() / 1000);
+    return { v: 1, iss: c.issuer, aud: c.audience, tenantId: c.tenantId, classId: checklingsId_(c, 'class', period),
+      revision: policy.revision, enabled: policy.enabled, members, iat, exp: iat + 120 };
+  }, 1000);
+}
+function checklingsPost_(c, path, body) {
+  try {
+    const response = UrlFetchApp.fetch(c.gameOrigin + path, { method: 'post', contentType: 'application/json',
+      payload: JSON.stringify(body), followRedirects: false, muteHttpExceptions: true, validateHttpsCertificates: true });
+    if (response.getResponseCode() !== 200) throw new Error('Unavailable');
+    const raw = response.getContentText();
+    if (raw.length > 8192) throw new Error('Unavailable');
+    return JSON.parse(raw);
+  } catch (error) { throw new Error('Checklings could not confirm access. Try again from the game.'); }
+}
+function checklingsSendSnapshot_(c, snapshot) {
+  return checklingsPost_(c, '/bridge/school', { snapshot: checklingsSign_(c.schoolKey, 'checklings:school:v1', snapshot) });
+}
+function completeChecklingsGame(selection, classId, ticket) {
+  const c = checklingsConfig_(), flow = checklingsTicket_(c, ticket);
+  ensureWorkbookReady_(); checklingsAccount_();
+  const selected = checklingsRead_(c.assertionKey, 'checklings:selection:v1', selection), now = Math.floor(Date.now() / 1000);
+  if (selected.v !== 1 || selected.account !== getActiveEmail_() || selected.exp <= now || selected.iat > now || selected.exp - selected.iat > 60 ||
+      !secureEquals_(selected.ticketHash, checklingsMac_(c.flowKey, 'checklings:ticket-hash:v1', ticket))) throw new Error('Enter your PIN again from Checklings.');
+  assertCredentialVersion_(selected.email, selected.credentialVersion);
+  const student = getStudentsByEmail_(selected.email).find((s) => checklingsId_(c, 'class', s.classPeriod) === classId);
+  if (!student || !c.classPeriods.includes(student.classPeriod) || !checklingsPolicy_(c, student.classPeriod).enabled) throw new Error('Choose one of your own enabled classes.');
+  const snapshot = checklingsSnapshot_(c, student.classPeriod), approval = checklingsSendSnapshot_(c, snapshot);
+  const memberId = checklingsId_(c, 'member', student.key), epoch = approval && approval.authEpochs && approval.authEpochs[memberId];
+  if (approval.ok !== true || !Number.isInteger(epoch) || epoch < 0) throw new Error('Checklings could not confirm your class access.');
+  // Recheck identity/policy after network work; no stale caller facts are issued.
+  gdClearMemo_(); checklingsTicket_(c, ticket); assertCredentialVersion_(student.email, selected.credentialVersion);
+  if (!getStudentByKey_(student.key) || !checklingsPolicy_(c, student.classPeriod).enabled) throw new Error('Your class access changed. Start again from Checklings.');
+  const iat = Math.floor(Date.now() / 1000), exp = Math.min(iat + 30, flow.exp);
+  const assertion = checklingsSign_(c.assertionKey, 'checklings:bridge:v1', {
+    v: 1, iss: c.issuer, aud: c.audience, tenantId: c.tenantId, memberId, classId, authEpoch: epoch,
+    flowId: flow.flowId, challenge: flow.challenge,
+    jti: checklingsMac_(c.assertionKey, 'checklings:jti:v1', Utilities.getUuid() + Utilities.getUuid()), iat, exp,
+  });
+  const result = checklingsPost_(c, '/bridge/assertion', { assertion });
+  if (!result || typeof result.code !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(result.code)) throw new Error('Start again from Checklings.');
+  return { callbackUrl: c.gameOrigin + '/auth/callback#flowId=' + encodeURIComponent(flow.flowId) + '&state=' + encodeURIComponent(flow.state) + '&code=' + encodeURIComponent(result.code), expiresMs: exp * 1000 };
+}
+
+function getChecklingsAccess() {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  const c = checklingsConfig_();
+  return c.classPeriods.map((period) => ({ period, enabled: checklingsPolicy_(c, period).enabled }));
+}
+function syncChecklingsAccess(period, enabled) {
+  assertTeacher_(getActiveEmail_(), getSettings_());
+  const c = checklingsConfig_();
+  if (enabled !== null && typeof enabled !== 'boolean') throw new Error('Choose open, pause, or refresh.');
+  const snapshot = checklingsSnapshot_(c, period, enabled === null ? undefined : enabled);
+  try {
+    const result = checklingsSendSnapshot_(c, snapshot);
+    if (result.ok !== true) throw new Error('Unconfirmed');
+    return { enabled: snapshot.enabled, confirmed: true };
+  } catch (error) {
+    return { enabled: snapshot.enabled, confirmed: false, message: 'Saved here. The game has not confirmed it. Existing access expires within two minutes; retry refresh.' };
+  }
+}
+
+function checklingsPage_(ticket, admin) {
+  const safeTicket = JSON.stringify(ticket).replace(/</g, '\\u003c');
+  return '<!doctype html><html><head><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checklings access</title>' +
+    '<style>body{font:18px system-ui,sans-serif;max-width:620px;margin:40px auto;padding:20px;color:#16212b;background:#f5f7fa}button,input,select,a{font:inherit;padding:12px;margin:8px 0}input,select{max-width:100%;box-sizing:border-box}button,a{cursor:pointer}label{display:block}p{line-height:1.5}.row{border-top:1px solid #aab4bc;padding:12px 0}button{min-height:44px}a{display:inline-block} [hidden]{display:none!important}</style></head><body>' +
+    '<h1>Checklings</h1><p id="message" role="status" aria-live="polite"></p><main id="panel"></main><button id="done" type="button">Done / clear this screen</button>' +
+    '<script>(function(){"use strict";const ticket=' + safeTicket + ',admin=' + JSON.stringify(admin) + ';let generation=0,selection="",idle,expiry;' +
+    'const panel=document.getElementById("panel"),message=document.getElementById("message");' +
+    'const call=(name,...args)=>new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(()=>reject(new Error("Access could not be confirmed. Start again from Checklings.")))[name](...args));' +
+    'function clear(){generation++;selection="";panel.replaceChildren();message.textContent="Screen cleared. Start again from Checklings.";clearTimeout(idle);clearTimeout(expiry);}' +
+    'document.getElementById("done").onclick=clear;document.addEventListener("visibilitychange",()=>{if(document.hidden)clear();});window.addEventListener("pagehide",clear);' +
+    'function active(){clearTimeout(idle);idle=setTimeout(clear,120000);}document.addEventListener("pointerdown",active);document.addEventListener("keydown",active);active();' +
+    'async function boot(){const g=generation;try{if(admin){const rows=await call("getChecklingsAccess");if(g!==generation)return;message.textContent="Open or pause a class. Refresh renews verified access for up to two minutes. Student login also refreshes its class.";' +
+    'for(const row of rows){const div=document.createElement("div");div.className="row";const title=document.createElement("p");title.textContent=row.period+" — "+(row.enabled?"open":"paused");div.append(title);' +
+    'for(const [label,value] of [["Open",true],["Pause",false],["Refresh",null]]){const b=document.createElement("button");b.textContent=label;b.onclick=async()=>{b.disabled=true;try{const r=await call("syncChecklingsAccess",row.period,value);if(g!==generation)return;title.textContent=row.period+" — "+(r.enabled?"open":"paused");message.textContent=r.confirmed?"Game confirmed the current class access.":r.message;}catch(e){if(g===generation)message.textContent=e.message;}finally{if(g===generation)b.disabled=false;}};div.append(b);}panel.append(div);}return;}' +
+    'message.textContent="Enter your classroom PIN, then choose your class. This does not record attendance or start a Hall Pass.";' +
+    'const form=document.createElement("form");form.innerHTML=\'<label for="pin">Six-digit PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" required><button type="submit">Continue</button>\';panel.append(form);' +
+    'form.onsubmit=async e=>{e.preventDefault();const input=form.querySelector("input"),button=form.querySelector("button");let pin=input.value;input.value="";button.disabled=true;try{const r=await call("identifyChecklingsGame",pin,crypto.randomUUID(),ticket);pin="";if(g!==generation)return;selection=r.selection;panel.replaceChildren();' +
+    'const label=document.createElement("label");label.textContent="Choose your class";const select=document.createElement("select");label.append(select);for(const c of r.classes){const option=document.createElement("option");option.value=c.id;option.textContent=c.label;select.append(option);}const confirm=document.createElement("button");confirm.textContent="Confirm class";panel.append(label,confirm);' +
+    'confirm.onclick=async()=>{confirm.disabled=true;try{const r=await call("completeChecklingsGame",selection,select.value,ticket);if(g!==generation)return;selection="";panel.replaceChildren();const a=document.createElement("a");a.id="open-game";a.href=r.callbackUrl;a.target="_top";a.rel="noreferrer noopener";a.textContent="Open Checklings";panel.append(a);message.textContent="Ready. Open Checklings to finish signing in.";expiry=setTimeout(clear,Math.max(0,r.expiresMs-Date.now()));}catch(e){if(g===generation){clear();message.textContent=e.message;}}};' +
+    '}catch(e){if(g===generation){message.textContent=e.message;button.disabled=false;}}finally{pin="";}};' +
+    '}catch(e){if(g===generation)message.textContent=e.message;}}boot();})();</script></body></html>';
+}
+function checklingsWeb_(e, admin) {
+  try {
+    const c = checklingsConfig_();
+    if (admin) assertTeacher_(getActiveEmail_(), getSettings_());
+    else checklingsTicket_(c, e && e.parameter && e.parameter.ticket);
+    return HtmlService.createHtmlOutput(checklingsPage_(admin ? '' : e.parameter.ticket, admin)).setTitle('Checklings access');
+  } catch (error) {
+    return HtmlService.createHtmlOutput('<!doctype html><meta name="referrer" content="no-referrer"><h1>Checklings is unavailable</h1><p>Start again from the game, or ask your teacher. Your classroom tools still work.</p>').setTitle('Checklings access');
+  }
 }
 
 /* -------------------------------------------------------- identification ---- */

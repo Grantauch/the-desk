@@ -819,7 +819,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
@@ -1246,7 +1246,7 @@
     ]
   },
   "checklings-batch-04-browser-auth-2026-10-23": {
-    "status": "NATIVE_POSTGRES_AND_SYNTHETIC_CHROMIUM_PASSED_SITE_CI_PENDING",
+    "status": "PROTECTED_SITE_NATIVE_POSTGRES_AND_SYNTHETIC_CHROMIUM_PASSED",
     "owner": "Codex",
     "scope": "Unmounted HTTP/cookie/CSRF and callback adapter, browser privacy/expiry client, durable pending-flow cancellation, shared SQL request limits and synthetic Chromium acceptance",
     "verification_status": "FULL_LOCAL_NATIVE_AND_SYNTHETIC_BROWSER_PASSED",
@@ -1258,7 +1258,26 @@
       "Done immediately clears rendering, cancels pending private requests, broadcasts to other tabs and durably cancels pending or committed exchanges. Server remaining-time headers clear idle/absolute-expired UI without polling; inspection does not refresh idle time. Unconfirmed database sign-out returns 503 and clears browser cookies. Missing cross-tab support fails closed.",
       "Migration 003 preserves existing founder/history/receipt data and issued session hashes. Shared keyed SQL counters admit exactly five of 35 concurrent test requests; native runner proves 35 physical clients. A separate Chromium CI job uses synthetic HTTPS, an intercepted school page and a test issuer; no real school or Chromebook verification is implied. Local Chromium is unavailable; new native/browser CI is pending.",
       "Canonical npm run verify passed all 18 stages with the final 103 Checklings tests, all 440 classroom behaviors, Astro 0 errors/0 warnings, 53 routes, 136 HTML files, 4618 references and 13 releases/117 sealed assets. Subsequent CI results are tracked in the pull request. No school bridge, roster propagation, teacher roles, hosting/provisioning, production release or student migration is included. Weight/body condition, exercise, chronic complications and scars stay in their later care/combat phases. See docs/checklings/BATCH-04-BROWSER-AUTH.md.",
-      "Independent CI run 40008927061 passed on runtime source 0a1cc4714bb0f245e17081811c43e6457565f0d0 in draft PR 229: PostgreSQL job 120603932280 passed 67/67 embedded and 41/41 native tests; Chromium job 120603931992 passed six synthetic HTTPS journeys plus outer test (7/7). Both logs read independently. General site run 40008927145 remains separate/in progress. Follow-up modifies evidence documentation only; no new runtime or tests, merge or deployment."
+      "Independent CI run 40008927061 passed on runtime source 0a1cc4714bb0f245e17081811c43e6457565f0d0 in draft PR 229: PostgreSQL job 120603932280 passed 67/67 embedded and 41/41 native tests; Chromium job 120603931992 passed six synthetic HTTPS journeys plus outer test (7/7). Both logs read independently. General site run 40008927145 remains separate/in progress. Follow-up modifies evidence documentation only; no new runtime or tests, merge or deployment.",
+      "Batch 05 reconciliation: final documentation head 89f4502966ec1bca9bd6ce093c8f90b8d2f906a2 has passing storage/browser run 40009461914 and protected site/browser run 40009462098; build job 120606366534 steps read independently. This supersedes the pending-site note. No merge/deployment."
+    ]
+  },
+  "checklings-batch-05-school-bridge-2026-10-23": {
+    "status": "LOCAL_FULL_PASSED_REVIEW_PUBLICATION_APPROVAL_BLOCKED",
+    "owner": "Codex",
+    "scope": "School-only PIN/class launch issuer, private opaque roster/credential snapshots, bounded class access leases, teacher open/pause/refresh controls, immutable access audit and additive SQL migration 004",
+    "verification_status": "LOCAL_FULL_136_PASSED",
+    "deployment_status": "DISABLED_UNCONFIGURED_UNMOUNTED_NOT_DEPLOYED_NO_STUDENT_IMPORT",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Owner branch checklings/batch-05-school-bridge is stacked on PR 229. The optional Apps Script route requires explicit private configuration and each class defaults paused. No classroom action proof, PIN/session, name/email, workbook identifier or attendance fact is sent to the game.",
+      "Signed complete class snapshots provision opaque memberships; PIN change, omission/deactivation and pause/reopen increment epochs and revoke sessions. School authorization is required on every private operation and expires within 120 seconds. No automatic school hook/poll/trigger: an unpushed change is bounded by existing lease expiry, not instantaneous propagation.",
+      "Five-file Apps Script contract and normal Index/manifest/release files remain unchanged. All game network requests follow lock release and are isolated from attendance/pass/roster write paths. Migration 004 adds class leases, credential versions and immutable access events, preserving prior SQL migrations and creature schema v2.",
+      "Actual school issuer code runs in a synthetic workbook worker with its UrlFetch connected to real HTTP/SQL handlers; this is not actual Google/Workspace or student login evidence. A new Chromium suite uses intercepted Google navigation/RPC and actual generated school page source. No local Chromium execution, real managed database provisioning or Chromebook test is claimed.",
+      "Handoff and private key/lease limits: docs/checklings/BATCH-05-SCHOOL-BRIDGE.md. Initial complete snapshots allow up to 35 active students per class; the sustained-play renewal strategy remains a staging gate. Weight/exercise/chronic complications and scars stay deferred.",
+      "Final focused Checklings suite passed 136/136: 20 original companion, 16 foundation, 60 embedded storage/auth/school, three schema upgrades, 16 HTTP, eight browser-client and 13 school bridge checks. Targeted independent-review rerun passed 73/73. Pause works without a valid/bounded roster; lease checks repeat after membership and flow/session lock waits.",
+      "Canonical npm run verify passed all 18 stages on final runtime/tests: 136/136 Checklings checks, all 440 classroom behaviors, Astro 0 errors/0 warnings (156 hints across 224 files), 53 built routes, 136 HTML files, 4618 references and 13 releases/117 sealed files. No local Chromium/native PostgreSQL server is available; new native/browser/protected CI remains pending on the review branch. No deployment, real school account, student import or Chromebook use is claimed.",
+      "Automatic approval review rejected publishing Batch05 source to Grantauch/the-desk because authorization for that exact external publication had not been established. No Batch05 remote branch or pull request was created, and no indirect publication was attempted. The destination was independently confirmed as Grantauch's public repository with authenticated push/admin permission. Source remains committed locally; native/browser/protected CI cannot start until review publication is authorized."
     ]
   }
 }
