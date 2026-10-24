@@ -27,7 +27,7 @@ function checkCanonical(planText, typescriptText) {
 }
 function readIds(cell) {
   const ids=[...cell.matchAll(/`([A-Z][A-Z0-9_]*)`/g)].map(m=>m[1]);
-  const remaining=cell.replace(/`[A-Z][A-Z0-9_]*`/g,'').replace(/[,\s]/g,'');
+  const remaining=cell.replace(/\s+\([A-Za-z][A-Za-z0-9 ,/-]{0,80}\)\s*$/,'').replace(/`[A-Z][A-Z0-9_]*`/g,'').replace(/[,\s]/g,'');
   if(remaining && !['-','—','–','none','None','N/A'].includes(remaining)) throw Error('Unrecognized battle matchup token: '+cell);
   return ids;
 }
@@ -35,15 +35,18 @@ function checkBattleChart(markdown, canonical) {
   const lines = markdown.split(/\r?\n/);
   const start = lines.findIndex(l => /^\|\s*Affinity ID\s*\|/.test(l));
   if (start < 0) throw Error('No Affinity ID table found');
+  const headerCells = lines[start].split('|').slice(1,-1).map(c=>c.trim());
+  const validHeaders = (headerCells.length===5 || (headerCells.length===6 && /^Terrain Synergy Bonus/.test(headerCells[5]))) && /^Affinity ID$/.test(headerCells[0]) && /^Strong Against/.test(headerCells[3]) && /^Resisted By/.test(headerCells[4]);
+  if(!validHeaders) throw Error('Unsupported Markdown affinity table header');
   const divider = lines[start+1];
   const dividerCells = divider && divider.startsWith('|') ? divider.split('|').slice(1,-1).map(c=>c.trim()) : [];
-  if(dividerCells.length!==5 || dividerCells.some(c=>!/^:?-{3,}:?$/.test(c)))
+  if(dividerCells.length!==headerCells.length || dividerCells.some(c=>!/^:?-{3,}:?$/.test(c)))
     throw Error('Missing or malformed Markdown affinity table separator');
   const groups = [], references=[], strong=new Map(), resisted=new Map();
   for (const line of lines.slice(start+2)) {
     if (!line.startsWith('|')) break;
     const cols = line.split('|').slice(1,-1).map(x=>x.trim());
-    if (cols.length !== 5) throw Error('Malformed affinity chart row: expected five columns: ' + line);
+    if (cols.length !== headerCells.length) throw Error('Malformed affinity chart row: unexpected column count: ' + line);
     const ids = readIds(cols[0]);
     if (ids.length !== 1) throw Error('Chart row must define one group ID: ' + line);
     groups.push(ids[0]);
