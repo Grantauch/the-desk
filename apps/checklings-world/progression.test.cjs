@@ -103,3 +103,13 @@ test('two members may safely use the same opaque crate command ID',async()=>{
  assert.deepEqual(await f.service.open('a',a.revision,'shared_crate_001'),first);
  assert.deepEqual(await f.service.open('b',b.revision,'shared_crate_001'),second);
 });
+
+test('committed crate receipt can be recovered after school closes but fresh rolls stay blocked',async()=>{
+ const f=setup();await f.service.adopt('a','ember','E');await f.service.checkIn('a');
+ const before=await f.service.load('a');
+ const result=await f.service.open('a',before.revision,'crate_before_closure_1');
+ f.weekend();
+ assert.deepEqual(await f.service.open('a',before.revision,'crate_before_closure_1'),result);
+ assert.equal((await f.service.load('a')).revision,result.state.revision);
+ await assert.rejects(f.service.open('a',result.state.revision,'crate_after_closure_1'),/school days/);
+});
