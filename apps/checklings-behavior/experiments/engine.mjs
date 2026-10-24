@@ -100,7 +100,12 @@ export function replay(spec, events=[]) {
 export function chooseIntent(snapshot,{scene='home',tag='quiet'}={}) {
   if (!snapshot || snapshot.version!=='synthetic-individuality-v1') throw new TypeError('experiment snapshot required');
   assertString(scene,'scene',LIMITS.tagLength);assertString(tag,'tag',LIMITS.tagLength);
-  const t=snapshot.traits, s=snapshot.state, affinity=snapshot.preferences[tag]||0;
+  const t=snapshot.traits, s=snapshot.state;
+  const preferences=snapshot.preferences;
+  if (!preferences || typeof preferences !== 'object' || Array.isArray(preferences)) throw new TypeError('experiment preferences required');
+  // Object.fromEntries returns an ordinary object: inherited names are not learned tags.
+  const affinity=own(preferences,tag) ? preferences[tag] : 0;
+  if (!Number.isFinite(affinity) || affinity < -25 || affinity > 25) throw new TypeError('invalid tag preference');
   // Balance near-neutral scenarios around competing plausible choices.
   // Temperament matters; severe fatigue or distress overrides personality.
   const scores={
