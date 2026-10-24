@@ -15,7 +15,6 @@ const HABITATS = Object.freeze({
   grove: { title: 'Mossy grove', weather: ['drizzle', 'sunbeams', 'fireflies'], visitors: ['a mushroom sprite', 'a moss fox', 'a copper butterfly'] },
   cove: { title: 'Tidepool cove', weather: ['mist', 'sea breeze', 'sunny'], visitors: ['a pearl crab', 'a tiny sea dragon', 'a ribbon jellyfish'] },
   sky: { title: 'Cloud island', weather: ['cloud drift', 'rainbow', 'starlight'], visitors: ['a kite moth', 'a floating sheep', 'a sky manta'] },
-  cloud: { title: 'Cloud island', weather: ['cloud drift', 'rainbow', 'starlight'], visitors: ['a kite moth', 'a floating sheep', 'a sky manta'] },
   cosmos: { title: 'Little cosmos', weather: ['meteor glow', 'starlight', 'aurora'], visitors: ['a comet fox', 'a lunar moth', 'a star whale'] }
 });
 
