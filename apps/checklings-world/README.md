@@ -5,9 +5,21 @@
 ## Source and local verification
 
 - `apps/checklings-world/living-world.cjs`: pure CommonJS engine; no PIN, attendance, gradebook, browser storage, or network dependencies.
-- `apps/checklings-world/living-world.test.cjs`: 11 synthetic deterministic tests.
+- `apps/checklings-world/living-world.test.cjs`: 14 synthetic deterministic tests (see latest native suite below).
 - Run: `node --test apps/checklings-world/living-world.test.cjs`
 - Identical copies of these two files passed 11/11 tests locally in Node before upload. The GitHub branch has not passed protected CI yet.
+
+## October 23 independent native Node verification — exact PR source
+
+**Result: 44/44 passed, 0 failed, 0 skipped** on **Node v22.16.0**, run with `node --test apps/checklings-world/*.test.cjs` against all six files extracted from PR #223 head `33a42871cb0d7ec7a5374a5d0afa92c23007ebcc`. **Every file's Git blob SHA was verified** before execution. This supersedes earlier V8 shim-only evidence for these exact 44 cases; the earlier historical notes below are retained for traceability. 
+
+| Suite | Passed | Source Git blob | Test Git blob |
+| --- | ---: | --- | --- |
+| Living world + home aliases | 14/14 | `8976e4e713426f8856dcfbae79dcefc61fe17a52` | `bc1e5867756d5ac6454fd61549c7387fae16ffa1` |
+| Care + progression + crate replay | 19/19 | `f068ef459e5e22adff241ec0338eab57559c9591` | `9d11c3dd8dc48ecc9f4c9d91cd5473b8510ab071` |
+| Raid and knockouts | 11/11 | `768f7e06129a52f5d9773573db20fa33e8ca9f1e` | `f7c62be791f001e9025d1ba4f645c005ef19d0e0` |
+
+Full unmodified TAP output and the exact verified source snapshot are in `checklings_PR223_native_44_pass_QA.zip` (independent QA artifact, linked in PR discussion/team board). No real database/service, browser, classroom Chromebook, teacher feature flag, production authentication, or live release has been verified. Source remains an **unmerged, undeployed prototype**, and this passing suite does not unblock Batch05 or the separate CK-MP-IMPL/CK-CARE-IMPL gates.
 
 ## October 23 follow-up: isolated raid correctness hardening
 
