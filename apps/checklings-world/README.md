@@ -9,6 +9,13 @@
 - Run: `node --test apps/checklings-world/living-world.test.cjs`
 - Identical copies of these two files passed 11/11 tests locally in Node before upload. The GitHub branch has not passed protected CI yet.
 
+## October 23 follow-up: isolated raid correctness hardening
+
+- `rooms.cjs` no longer stalls on a knocked-out active seat. It advances to the next surviving participant and resolves one boss action per full round of living teammates. Ordinary `encourage` cannot revive a zero-HP knockout.
+- The in-room, **non-authoritative display journal** retains at most the latest **32 moves** (only eight in player views). Long support-only raids cannot grow the stored display array indefinitely. This does **not** substitute for a durable, append-only authoritative event ledger in a future game service.
+- `rooms.test.cjs` now has **11** synthetic tests, including four KO/cadence regressions and a 240-move bounded-history stress case. Exact source and committed tests passed **11/11** in an isolated V8 harness with Node-test/crypto/Buffer/in-memory-store stand-ins; a native Node run, protected CI, 35 separate PostgreSQL clients and two-device classroom tests remain unverified by that harness.
+- None of this prototype is an implemented release of the blocked multiplayer milestone. Real ownership, class authorization, turn receipts, crash-safe settlement and teacher gating remain implementation tasks after approval.
+
 ## Features built
 
 - Four temperament-specific personalities and greeting banks.
