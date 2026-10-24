@@ -43,7 +43,15 @@ function entries(zip) {
     cursor+=46+nl+el+cl;
     if(!safeName(name) || found.has(name) || caseFoldSeen.has(name.toLowerCase())) throw Error('Unsafe or duplicate ZIP path: '+name);
     caseFoldSeen.add(name.toLowerCase());
-    if(mode===0xa000 || (flags&1) || !(method===0||method===8)) throw Error('Unsafe ZIP file type/flags/method: '+name);
+    // An archive may be unpacked later on Unix: reject every special inode type,
+    // not just symbolic links. DOS-origin entries (mode 0) remain supported.
+    if ((mode!==0 && mode!==0x8000 && mode!==0x4000) ||
+        (mode===0x4000 && !name.endsWith('/')) ||
+        (mode===0x8000 && name.endsWith('/')) ||
+        (flags & ~0x080e) || !(method===0||method===8))
+      throw Error('Unsafe ZIP file type/flags/method: '+name);
+    if (name.endsWith('/') && (raw!==0 || comp!==0 || crc!==0))
+      throw Error('Unsafe ZIP directory content: '+name);
     if(raw>MAX_ENTRY || (total+=raw)>MAX_TOTAL || (comp===0 && raw>0) || (comp>0 && raw/comp>200)) throw Error('Oversize or suspicious ZIP entry: '+name);
     if(loc+30>zip.length || zip.readUInt32LE(loc)!==0x04034b50) throw Error('Missing local header: '+name);
     const localFlags=zip.readUInt16LE(loc+6),localMethod=zip.readUInt16LE(loc+8);
