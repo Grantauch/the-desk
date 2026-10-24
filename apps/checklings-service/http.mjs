@@ -46,11 +46,11 @@ const expectedErrors=new Map([
 /** Fetch Request/Response adapter for a SEPARATE game host. No server is started.
  * The hosting layer supplies clientAddress from trusted platform/socket metadata.
  */
-export function createGameHandler({auth,store,limiter,origin,schoolLaunchUrl,report=()=>{},bodyTimeoutMs=2000}) {
+export function createGameHandler({auth,store,school:schoolService,limiter,origin,schoolLaunchUrl,report=()=>{},bodyTimeoutMs=2000}) {
   const game=new URL(origin),school=new URL(schoolLaunchUrl);
   if(game.protocol!=='https:' || game.origin!==origin || game.username || game.password || school.protocol!=='https:' || school.hostname!=='script.google.com' || school.port || school.username || school.password || school.search || school.hash || !/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(school.pathname) || !auth || !store || typeof limiter?.take!=='function' || !Number.isInteger(bodyTimeoutMs) || bodyTimeoutMs<1 || bodyTimeoutMs>10000)
     throw new Error('Invalid private HTTP configuration');
-  const routes=new Map([['/auth/launch','launch'],['/auth/exchange','exchange'],['/auth/logout','logout'],['/bridge/assertion','bridge'],['/api/creature','command'],['/api/rename','command']]);
+  const routes=new Map([['/auth/launch','launch'],['/auth/exchange','exchange'],['/auth/logout','logout'],['/bridge/assertion','bridge'],['/bridge/school','bridge'],['/api/creature','command'],['/api/rename','command']]);
   return async function handle(request,{clientAddress}={}) {
     const nonce=randomBytes(24).toString('base64');
     const headers=new Headers({'Cache-Control':'no-store, max-age=0','Pragma':'no-cache','Referrer-Policy':'no-referrer',
@@ -84,6 +84,11 @@ export function createGameHandler({auth,store,limiter,origin,schoolLaunchUrl,rep
       demand(allowed || scope==='logout',429,'try_later');
       const body=await jsonBody(request,bodyTimeoutMs);
       if(scope==='bridge') {
+        if(path==='/bridge/school') {
+          demand(typeof schoolService?.acceptSnapshot==='function',404,'unavailable');
+          demand(exact(body,['snapshot']));return reply(200,await schoolService.acceptSnapshot(body.snapshot));
+        }
+
         demand(exact(body,['assertion']));
         const result=await auth.acceptAssertion(body.assertion);return reply(200,{code:result.code});
       }

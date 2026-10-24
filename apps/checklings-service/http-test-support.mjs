@@ -19,6 +19,7 @@ export async function httpFixture({origin='https://synthetic-game.example',limit
   const actors={a:{tenantId,memberId:'member_a',classId:'class_a',authEpoch:0},b:{tenantId,memberId:'member_b',classId:'class_b',authEpoch:0}};
   for(const a of Object.values(actors))await db.query('INSERT INTO ck_memberships (tenant_id,member_id,class_id,active) VALUES ($1,$2,$3,true)',[tenantId,a.memberId,a.classId]);
   let now=Date.now();
+  for(const a of Object.values(actors))await db.query("INSERT INTO ck_school_classes (tenant_id,class_id,issuer,audience,revision,enabled,valid_until_ms,content_hash) VALUES ($1,$2,'synthetic_school','synthetic_game',1,true,$3,'synthetic-only')",[tenantId,a.classId,now+3600000]);
   const config={database,tenantId,issuer:'synthetic_school',audience:'synthetic_game',...keys,clock:async()=>now};
   const auth=createAuthService(config),store=createGameStore({database,authorize:auth.authorize,migrationKey:'synthetic-only-migration-key-at-least-32-characters'});
   const limiter=createRateLimiter({database,key:randomBytes(32),...(limits?{limits}:{})});
