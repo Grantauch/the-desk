@@ -9,6 +9,17 @@
 - Run: `node --test apps/checklings-world/living-world.test.cjs`
 - Identical copies of these two files passed 11/11 tests locally in Node before upload. The GitHub branch has not passed protected CI yet.
 
+## October 23 follow-up: no-op revision correctness (native 49/49)
+
+A reviewer found that capped care requests, duplicate check-ins/quest claims and already-owned craft requests were incrementing the stored member revision even when they changed nothing. `change()` now distinguishes a genuinely modified serialized state from an unchanged one and preserves the original revision for true no-ops. **Official school-day rollover, changed care values and verified streak/stage advancement still persist and increment the revision**; avoiding a revision does not imply an arbitrary database store callback performs no physical write.
+
+Five new tests cover 100 rejected actions, duplicate reward/claim/craft, unnecessary basic-care attempts, a real day rollover on a no-op, and a genuine streak promotion without a daily reward. On exact committed GitHub blobs, Node v22.16.0 ran `node --test apps/checklings-world/*.test.cjs` => **49/49 PASS, 0 failed** (11 raid, 14 living-world, **24 progression**).
+
+- Updated progression source blob: `36b2e3904c6300d1159b7945b912c8063957c8c3`
+- Updated progression test blob: `cece5342a686c998798fcf0dd71e653272131277`
+- Other four source/test blobs remain unchanged from the 44-case verification below.
+- This is a synthetic, unmerged prototype. The real game must use explicit transactional no-op/idempotency semantics in its reviewed PostgreSQL adapter. No school PIN, Hall Pass, classroom, student record, production build or active session is modified here.
+
 ## October 23 independent native Node verification — exact PR source
 
 **Result: 44/44 passed, 0 failed, 0 skipped** on **Node v22.16.0**, run with `node --test apps/checklings-world/*.test.cjs` against all six files extracted from PR #223 head `33a42871cb0d7ec7a5374a5d0afa92c23007ebcc`. **Every file's Git blob SHA was verified** before execution. This supersedes earlier V8 shim-only evidence for these exact 44 cases; the earlier historical notes below are retained for traceability. 
