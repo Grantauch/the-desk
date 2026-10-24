@@ -45,7 +45,6 @@ open(token,expectedRevision,commandId){return (async()=>{
   check(typeof commandId==='string'&&/^[A-Za-z0-9_-]{8,128}$/.test(commandId),'Valid crate command ID required');
   check(Number.isSafeInteger(expectedRevision)&&expectedRevision>=0,'Invalid crate revision');
   const {member,cal}=await context(token);
-  check(cal.isSchoolDay===true,'Only on school days');
   return store.transact(member.key,current=>{
    check(current?.v===1,'Adopt first');
    // A bounded retry ledger lives alongside the prototype member state; the
@@ -56,6 +55,7 @@ open(token,expectedRevision,commandId){return (async()=>{
     check(prior.expectedRevision===expectedRevision,'Command ID reused with different revision');
     return {state:current,result:structuredClone(prior.response)};
    }
+   check(cal.isSchoolDay===true,'Only on school days'); // new rolls only; old receipts survive closure
    const s=structuredClone(current);
    advance(s,cal.day);
    check(s.revision===expectedRevision,'Stale request');
