@@ -67,3 +67,23 @@ test('malformed and hostile fields are rejected', () => {
   assert.throws(() => world.performCare(world.createCareState(2), 'free-dust', 2), /action/);
   assert.throws(() => world.advanceSchoolDays(world.createCareState(10), 9), /rewind/);
 });
+
+
+test('existing sky home remains the canonical Cloud Island habitat', () => {
+  const scene = world.observeWorld({ ...options, habitat: 'sky' });
+  assert.equal(scene.habitat, 'sky');
+  assert.equal(scene.habitatTitle, 'Cloud island');
+  assert.ok(world.HABITATS.sky.weather.includes(scene.weather));
+  assert.ok(world.HABITATS.sky.visitors.includes(scene.visitor));
+});
+
+test('prototype cloud alias normalizes to sky without rerolling a daily event', () => {
+  const canonical = world.observeWorld({ ...options, habitat: 'sky' });
+  const oldAlias = world.observeWorld({ ...options, habitat: 'cloud' });
+  assert.deepEqual(oldAlias,canonical);
+  const laterAlias = world.observeWorld({ ...options, habitat: 'cloud', minuteOfDay: 1360 });
+  const laterCanonical = world.observeWorld({ ...options, habitat: 'sky', minuteOfDay: 1360 });
+  assert.deepEqual(laterAlias,laterCanonical);
+  assert.equal(canonical.eventKey,laterCanonical.eventKey);
+  assert.equal(canonical.habitat,'sky');
+});
