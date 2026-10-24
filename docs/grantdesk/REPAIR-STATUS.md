@@ -1,3 +1,9 @@
+## October 24 Batch05 recovery and combined privacy integration
+
+Grant explicitly authorized public Batch05 publication. Cloud workspace maintenance removed the unpublished checkout; recovered all24 files from recorded edits, verified complete tree8e20ee6134a9943b2d9d6bc07868f823d67fd940 identical to original a16e7ef, and preserved it as c4807fc0a2ad41e7cc731757baba8412d018591b plus a local Git bundle. Fresh recovered baseline136/136 focused and12/12 synthetic HTTPS Chromium passed. Combined Batch05 and PR239 histories in merge8a14038b7202fecbabb6f6cc4b44fc339de62751, preserving both repair ledger sections;141/141 focused and16/16 synthetic HTTPS Chromium passed. Canonical verification and fresh independent CI remain pending at this checkpoint. No school deployment, hosted database, real account or classroom evidence.
+
+[Operations technical review](../checklings/OPERATIONS-REVIEW-2026-10-24.md) accepts the isolation/recovery design as a basis for staging preparation. Full hosting acceptance still requires concrete owner resource/operating choices and measured hosting/restore evidence. Earlier publication-blocked statements below describe the historical checkpoint and are superseded by this explicit authorization/recovery record.
+
 ## October 24 Checklings prerelease transport-failure privacy repair
 
 Owner: Codex, task `CK-INT-PRIVACY-001`, isolated branch `checklings/integration/foundation-review-20261024` on published Batch04 `89f4502` / PR #229. Rejected fetches, interrupted bodies and unreadable JSON previously left an already-rendered private pet visible. Reused the existing privacy clear operation on unhandled private transport failures; local and peer views clear, pending reads abort and late responses cannot repaint. This does not assert server revocation or undo a committed command. No live school source, new endpoint, schema or Batch05 source changed.
