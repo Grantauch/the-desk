@@ -1,0 +1,10 @@
+// Executes the embedded game in a DOM emulator, without loading or displaying a page.
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM,VirtualConsole}=require('jsdom');
+test('Complete offline bundle boots with embedded sprites and working trail/practice handlers',t=>{
+ const file=process.env.PIXEL_STANDALONE;assert.ok(file,'Build a standalone file, then set PIXEL_STANDALONE to its path.');const text=fs.readFileSync(file,'utf8');
+ assert.equal(/src="assets\//.test(text),false);assert.equal(/url\(["']?assets\//.test(text),false);assert.equal(/<script[^>]+src=/.test(text),false);assert.equal(/<link[^>]+href=/.test(text),false);
+ const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));const dom=new JSDOM(text,{url:'https://sample.invalid/',runScripts:'outside-only',virtualConsole:vc}),w=dom.window;w.structuredClone=structuredClone;w.matchMedia=()=>({matches:false,addEventListener(){}});w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};t.after(()=>w.close());
+ for(const script of w.document.querySelectorAll('script'))w.eval(script.textContent);
+ const doc=w.document;assert.equal(doc.querySelectorAll('.actor').length,4);assert.ok(doc.getElementById('world-art').src.startsWith('data:image/png;base64,'));assert.ok(doc.querySelector('.actor img').src.startsWith('data:image/gif;base64,'));
+ doc.querySelector('[data-view=trail]').click();doc.getElementById('discover').click();assert.equal(doc.getElementById('stamp-count').textContent,'1');doc.querySelector('[data-view=practice]').click();doc.getElementById('start-practice').click();doc.querySelector('[data-move=guard]').click();assert.equal(doc.getElementById('stump-sprite').dataset.pose,'2');doc.getElementById('open-menu').click();doc.getElementById('quiet-toggle').click();assert.ok(doc.getElementById('battle-friend-art').src.startsWith('data:image/png;base64,'));assert.deepEqual(errors,[]);
+});
