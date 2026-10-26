@@ -271,8 +271,8 @@
     $('#axesReset').addEventListener('click',()=>{$$('.point').forEach(p=>p.classList.remove('show'));$('#axisEvidence').textContent='Choose an occupation. Each position comes with the evidence behind it.'});
 
     const notes=$('#notes'), notesText=$('#notesText'), key='grantdesk:bts-l03:notes';
-    try{notesText.value=localStorage.getItem(key)||''}catch{}
-    notesText.addEventListener('input',()=>{try{localStorage.setItem(key,notesText.value)}catch{}});
+    try{notesText.value=sessionStorage.getItem(key)||''}catch{}
+    notesText.addEventListener('input',()=>{try{sessionStorage.setItem(key,notesText.value)}catch{}});
     $('#notesToggle').addEventListener('click',()=>{notes.classList.toggle('open');const open=notes.classList.contains('open');$('#notesToggle').setAttribute('aria-expanded',String(open));if(open)notesText.focus()});
     $('#copyNotes').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(notesText.value);$('#copyNotes').textContent='copied';setTimeout(()=>$('#copyNotes').textContent='copy notes',1200)}catch{notesText.select()}});
     $('#downloadNotes').addEventListener('click',()=>{const blob=new Blob([`NOT IN THE ROOM — NOTES\n\n${notesText.value}`],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='not-in-the-room-notes.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});

@@ -1,0 +1,241 @@
+{
+  "checkedAt": "2026-10-26",
+  "catalogueCount": 47,
+  "hubs": [
+    {
+      "hub": "bts-bytesize-zero-points.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-bytesize-the-girlfriend.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-bytesize-weights-in-the-fish.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-nuremberg.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-golf-special-edition.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-americas-most-hated-research.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-americas-most-hated-exemplar.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-the-fighter.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-living-history-01-before-the-web.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-living-history-02-device-in-your-pocket.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-living-history-03-hallways-went-quiet.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-theodore-roosevelt.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-bytesize-garfield-arthur.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-bytesize-grant-hayes.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-shines-in-the-dark.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-never-use-the-word.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-too-successful.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-sheer-poppycock.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-dont-worry-about-it.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-nothing-but-black-sea.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-i-seen-my-opportunities.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-who-pressed-record.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "bts-two-minutes-four-seconds.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "bts-whats-my-name.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-who-took-the-files.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-who-paid-for-it.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-who-paid-for-it-part-two.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-l016-the-one-that-passed.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-l016b-they-said-no.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s01-the-margin.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-s01-the-desk-it-stopped-at.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "bts-s01-the-death-harvest.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-l014-unions.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-l015-who-showed-up.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-l03-not-in-the-room.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-l06-two-sources.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "ush9-l018-the-debt-didnt-move.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": true
+    },
+    {
+      "hub": "hh-l03-week-roswell-became-roswell.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-the-other-half.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-the-paper-trail.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-the-jungle.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-follow-the-money.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-room-1018a.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-burn-the-files.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-the-scouting-report.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-the-bargain.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-who-lost-when-robinson-won.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    }
+  ]
+}

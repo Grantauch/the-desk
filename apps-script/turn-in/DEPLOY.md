@@ -1,6 +1,6 @@
 # Update the existing Turn In service
 
-The v8 companion adds private review membership and optional per-class Classroom
+The v9 release adds revision-checked writes, receipt validation and account-token/PIN matching. The v8 companion added private review membership and optional per-class Classroom
 assignment links. See [REVIEW.md](REVIEW.md). The existing private workbook and
 web-app endpoint stay in place; v8 setup preserves existing work and link rows.
 
@@ -9,11 +9,14 @@ workbook, change Hall Pass properties, or replace the stable web app URL.
 
 1. Open the existing **the desk · Turn In** project in Google Apps Script.
 2. Replace only `Code.gs` with `apps-script/turn-in/Code.gs` from this release.
-3. Save and run setup to create the Progress view, migrate existing work, and remove the old automatic finishing trigger. Then use **Deploy → Manage deployments → Edit → New version → Deploy**.
+3. Save. Updating an already configured v8 project to v9 needs no setup or sheet migration. Use **Deploy → Manage deployments → Edit → New version → Deploy**.
 4. Open the existing `/exec` URL. It should report
-   `version: 2026-10-08-turn-in-v8` and `ready: true`.
-5. Run the synthetic load test described in `SETUP.md`. Count actual unique
+   `version: 2026-10-26-turn-in-v9`, `writeProtocol: 1`, and `ready: true`.
+5. After the v2 website client is live, run `activateWorkProtection` in this existing project. The health response must then show `checkedWritesRequired: true`. Older open pages must copy/download their pending work and reload. Until activation, legacy writes remain compatible and unprotected by revisions.
+6. Run the synthetic load test described in `SETUP.md`. Count actual unique
    rows in **Load Test**, not just success responses. Turn the test off afterward.
+
+See [the October 26 audit](../../docs/storyhub/SAVE-LOAD-AUDIT-2026-10-26.md) for evidence limits and the coordinated release sequence.
 
 This version refuses a busy draft save until it has reached the sheet, rejects
 oversized answers instead of truncating them, authenticates retries, and finds

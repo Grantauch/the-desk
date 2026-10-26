@@ -617,7 +617,7 @@ textarea{width:100%;min-height:92px;background:#fff;color:var(--ink);border:1.5p
 </section>
 </main>
 
-<div class="saved" id="toast">Saved</div>
+<div class="saved" id="toast">Draft updated</div>
 
 <script>
 (function(){
@@ -851,12 +851,12 @@ textarea{width:100%;min-height:92px;background:#fff;color:var(--ink);border:1.5p
   function save(){
     var d={};fields.forEach(function(el){d[keyOf(el)]=el.value;});
     var r=radios.filter(function(x){return x.checked;})[0];d.__prompt=r?r.value:'';d.__verdicts=verdicts;
-    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    try{sessionStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
     clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
   }
   function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
   (function load(){
-    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    var raw=null;try{raw=sessionStorage.getItem(KEY);}catch(e){}
     if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
     fields.forEach(function(el){var v=d[keyOf(el)];if(typeof v==='string')el.value=v;});
     if(d.__prompt)radios.forEach(function(r){if(r.value===d.__prompt)r.checked=true;});

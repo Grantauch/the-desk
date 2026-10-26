@@ -12,8 +12,9 @@
  *      back on any Chromebook.
  *   3. A Turn In panel at the bottom sends the answers to the teacher's private
  *      sheet and shows a confirmation only after the sheet has them.
- *   4. The browser asks before leaving a page whose answers were never turned
- *      in or copied.
+ *   4. Common controls load account work, export/import a personal backup, copy
+ *      answers and show acknowledged Turn In references. Exit warnings protect
+ *      work that has no confirmed account copy or successful clipboard copy.
  *
  * Placement: the Turn In panel goes inside <div data-desk-turnin></div> when a
  * hub has one, otherwise at the end of the page. Put data-desk-skip on any
@@ -28,7 +29,7 @@
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzssPoF99g1UTOrsVnMHy-jQaPwII8-lyxHwjlpNK8oa89KVSq48G5MkjiwTOCrgaJP/exec';
 
   if (window.__deskSave) return;
-  window.__deskSave = { version: '1' };
+  window.__deskSave = { version: '2' };
 
   var IDLE_SIGNOUT_MS = 20 * 60 * 1000;
   var CLOUD_DEBOUNCE_MS = 60 * 1000;
@@ -55,7 +56,7 @@
   }
   var cloudOn = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(ENDPOINT) || Boolean(testHooks && ENDPOINT);
 
-  var hub = (location.pathname.split('/').pop() || 'hub').replace(/\.html?$/i, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'hub';
+  var hub = (location.pathname.replace(/\/+$/, '').split('/').pop() || 'hub').replace(/\.html?$/i, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'hub';
   var course = (hub.match(/^(ush9|hh|bts)(?=-|$)/) || [])[1] || '';
   var STORE_KEY = 'desk-save:v1:' + hub;
 
@@ -70,9 +71,17 @@
       return memory[store + key] || null;
     }
   }
+  var tabDurable = false;
+  var applying = false;
+  var transitioning = false;
+  var generation = 0;
   function writeJson(store, key, value) {
     memory[store + key] = value;
-    try { window[store].setItem(key, JSON.stringify(value)); } catch (e) { /* memory copy still works */ }
+    try {
+      var json = JSON.stringify(value);
+      window[store].setItem(key, json);
+      return window[store].getItem(key) === json;
+    } catch (e) { return false; }
   }
   function removeKey(store, key) {
     delete memory[store + key];
@@ -89,9 +98,9 @@
 
   var state = null;
   function blankState() {
-    return { values: {}, updatedAt: 0, lastActive: Date.now(), token: '', firstName: '', classPeriod: '', classes: [], cloudHash: '', cloudAt: '', turnedInHash: '', turnedInAt: '', classroomUrl: '', copiedHash: '', submission: null, everSaved: false };
+    return { values: {}, updatedAt: 0, lastActive: Date.now(), token: '', firstName: '', classPeriod: '', classes: [], cloudHash: '', cloudAt: '', turnedInHash: '', turnedInAt: '', classroomUrl: '', copiedHash: '', submission: null, everSaved: false, identityKey: '', remoteAt: '', conflict: false, receipt: null, saveError: '', backupHash: '', undoValues: null };
   }
-  function persist() { writeJson('sessionStorage', STORE_KEY, state); }
+  function persist() { tabDurable = writeJson('sessionStorage', STORE_KEY, state); return tabDurable; }
 
   /* ------------------------------------------------------------- fields -- */
 
@@ -253,16 +262,12 @@
   function answers(forSending) {
     var list = fields();
     assignKeys(list);
-    var shown = list.filter(function (el) { return visible(el) || clean(el.value); });
-    // A page whose only box sits in a closed drawer still counts that box.
-    if (forSending && shown.length) list = shown;
+    // Hidden research rounds still belong to the assignment. Never omit blanks.
     var out = list.map(function (el) {
       return { k: keyOf.get(el), q: labelFor(el), a: el.value };
     });
     radioGroups().forEach(function (g) {
       var on = g.radios.filter(function (r) { return r.checked; })[0];
-      var seen = g.radios.some(function (r) { return visible(r.closest('label') || r); });
-      if (forSending && !seen && !on) return;
       out.push({ k: 'r:' + g.name, q: groupLabel(g), a: on ? radioText(on).slice(0, 600) : '' });
     });
     return out;
@@ -278,7 +283,7 @@
 
   function hasWork() {
     var values = snapshot();
-    return fields().some(function (el) { return clean(values[keyOf.get(el)]) && values[keyOf.get(el)] !== el.defaultValue; });
+    return fields().some(function (el) { return clean(values[keyOf.get(el)]) && values[keyOf.get(el)] !== el.defaultValue; }) || radioGroups().some(function (g) { return g.radios.some(function (r) { return r.checked && !r.defaultChecked; }); });
   }
 
   /* ------------------------------------------------------------ network -- */
@@ -297,11 +302,11 @@
         body: JSON.stringify(body),
         redirect: 'follow',
         credentials: 'omit',
+        keepalive: body.action === 'save',
         signal: controller ? controller.signal : undefined
       }).then(function (response) {
-        clearTimeout(timer);
-        if (!response.ok) throw new Error('http ' + response.status);
-        return response.json();
+        if (!response.ok) { clearTimeout(timer); throw new Error('http ' + response.status); }
+        return response.json().finally(function () { clearTimeout(timer); });
       }, function (error) {
         clearTimeout(timer);
         throw error;
@@ -328,10 +333,12 @@
   var cloudTimer = null;
   var cloudFirstPending = 0;
   var cloudBusy = false;
+  var cloudPromise = null;
+  var finishing = false;
   var cloudRetry = 0;
 
   function scheduleCloud() {
-    if (!cloudOn || !state.token) return;
+    if (!cloudOn || !state.token || applying || transitioning || finishing || state.conflict) return;
     var now = Date.now();
     if (!cloudFirstPending) cloudFirstPending = now;
     clearTimeout(cloudTimer);
@@ -341,19 +348,27 @@
 
   function saveCloud() {
     clearTimeout(cloudTimer);
-    if (!cloudOn || !state.token) return Promise.resolve(true);
+    if (!cloudOn || !state.token || transitioning || finishing || state.conflict) return Promise.resolve(false);
     var list = answers(false);
     var hash = hashOf(list);
     if (hash === state.cloudHash) { cloudFirstPending = 0; return Promise.resolve(true); }
     if (!answeredCount(list) && !state.everSaved) { state.cloudHash = hash; return Promise.resolve(true); }
-    if (cloudBusy) { scheduleCloud(); return Promise.resolve(false); }
+    if (cloudBusy) return cloudPromise.then(function () { return saveCloud(); });
     cloudBusy = true;
-    return post({ action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list }).then(function (result) {
+    var started = generation, owner = state;
+    cloudPromise = post({ writeProtocol: 1, baseRevision: state.remoteAt, action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list }).then(function (result) {
       cloudBusy = false;
-      if (result && result.ok) {
+      if (started !== generation || state !== owner) return false;
+      if (result && result.code === 'conflict') {
+        state.conflict = true; persist();
+        ui.refresh('Another tab or device saved a different version. Download a backup, then Load My Work to compare. Account saving is paused.');
+        return false;
+      }
+      if (result && result.ok && result.savedAt && Number.isFinite(Date.parse(result.savedAt))) {
         state.cloudHash = hash;
         state.everSaved = true;
         state.cloudAt = result.savedAt;
+        state.remoteAt = result.revision || result.savedAt;
         cloudFirstPending = 0;
         cloudRetry = 0;
         persist();
@@ -367,33 +382,33 @@
         ui.refresh('Enter your PIN again to keep saving to your account.');
         return false;
       }
+      if (result && /^(too_big|bad_request|refused|reload_required)$/.test(result.code)) { state.saveError = result.error || 'Account save was refused.'; persist(); ui.refresh(); return false; }
       throw new Error(result && result.error || 'save failed');
     }).catch(function () {
       cloudBusy = false;
+      if (started !== generation || state !== owner) return false;
       cloudRetry = Math.min(cloudRetry + 1, 4);
       clearTimeout(cloudTimer);
       cloudTimer = setTimeout(saveCloud, 15000 * cloudRetry);
       ui.refresh();
       return false;
     });
+    return cloudPromise;
   }
 
   function beaconSave() {
-    if (!cloudOn || !state || !state.token || !navigator.sendBeacon) return;
-    var list = answers(false);
-    if (hashOf(list) === state.cloudHash) return;
-    if (!answeredCount(list) && !state.everSaved) return;
-    try {
-      var body = JSON.stringify({ action: 'save', token: state.token, hub: hub, course: course, classPeriod: state.classPeriod, title: document.title, page: location.pathname, answers: list, device: device });
-      navigator.sendBeacon(ENDPOINT, new Blob([body], { type: 'text/plain;charset=utf-8' }));
-    } catch (e) { /* the tab copy is still there */ }
+    // Unacknowledged unload writes can race newer work. Save through the
+    // acknowledged queue while visible; keep the tab/backup warning on exit.
+    if (state) { persist(); saveCloud(); }
   }
 
   /* ------------------------------------------------------------- events -- */
 
   function onEdit() {
+    if (applying) return;
     var values = snapshot();
     if (JSON.stringify(values) === JSON.stringify(state.values)) return;
+    state.saveError = '';
     state.values = values;
     state.updatedAt = Date.now();
     state.lastActive = Date.now();
@@ -411,7 +426,7 @@
   function idleCheck() {
     if (!state.token || Date.now() - state.lastActive < IDLE_SIGNOUT_MS) return;
     saveCloud().then(function (saved) {
-      if (!saved || !state.token || Date.now() - state.lastActive < IDLE_SIGNOUT_MS) return;
+      if (!saved || !state.token || hashOf(answers(false)) !== state.cloudHash || Date.now() - state.lastActive < IDLE_SIGNOUT_MS) return;
       var name = state.firstName;
       resetPage();
       ui.refresh('Signed out after 20 quiet minutes. ' + (name ? name + ', your' : 'Your') + ' work is saved. Enter your PIN to bring it back.');
@@ -419,86 +434,114 @@
   }
 
   function resetPage() {
+    generation++; clearTimeout(cloudTimer); cloudFirstPending = 0;
+    applying = true;
     fields().forEach(function (el) { setValue(el, el.defaultValue); });
     resetRadios();
     state = blankState();
     state.values = snapshot();
     persist();
     window.dispatchEvent(new Event('desk-save:reset'));
+    applying = false;
   }
 
   /* ------------------------------------------------------------ actions -- */
 
   function signIn(pin, options) {
-    return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2 }).then(function (result) {
+    if (transitioning || finishing) return Promise.resolve({ ok: false, message: 'Wait for the current account check.' });
+    transitioning = true;
+    clearTimeout(cloudTimer);
+    var beforeHash = hashOf(answers(false));
+    var beforeOwner = state;
+    return Promise.resolve(cloudPromise).then(function () {
+      return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2 });
+    }).then(function (result) {
       if (!result || !result.ok) return { ok: false, message: result && result.error || 'That did not go through. Try again.' };
-      var replaceDraft = Boolean(options && options.recover && result.draft && Array.isArray(result.draft.answers));
-      if (replaceDraft && hasWork() && hashOf(answers(false)) !== hashOf(result.draft.answers)) {
-        if (!window.confirm('Recover the saved account copy and replace the work currently visible? Cancel and download a backup first if you need to keep both versions.')) {
-          return { ok: false, message: 'Recovery cancelled. Your visible work was kept. Download a backup before recovering another version.' };
+      if (state !== beforeOwner || beforeHash !== hashOf(answers(false))) return { ok: false, message: 'Your answers changed while loading. They were kept. Choose Load My Work again when ready.' };
+      var draft = result.draft && Array.isArray(result.draft.answers) ? result.draft : null;
+      var switching = Boolean(state.token);
+      var differentStudent = switching && (!result.identityKey || result.identityKey !== state.identityKey);
+      var replaceDraft = Boolean(draft && options && options.recover);
+      if ((replaceDraft || switching) && hasWork() && (!draft || hashOf(answers(false)) !== hashOf(draft.answers))) {
+        if (!window.confirm('Load the account copy and replace the answers on screen? Cancel to download a backup first. You can also undo the load in this tab.')) {
+          state.conflict = true; persist();
+          return { ok: false, message: 'Recovery cancelled. Your visible work was kept. Account saving is paused. Download a backup before recovering another version.' };
         }
+      }
+      var known = new Set(answers(false).map(function (e) { return e.k; }));
+      if (draft && draft.answers.some(function (e) { return !known.has(e.k) && clean(e.a); })) {
+        state.conflict = true; persist();
+        return { ok: false, message: 'The account copy contains answers this version of the page cannot display. Your work was kept. Ask your teacher to recover the full version before saving.' };
+      }
+      generation++;
+      state.undoValues = differentStudent ? null : snapshot();
+      applying = true;
+      if (switching) {
+        fields().forEach(function (el) { setValue(el, el.defaultValue); });
+        resetRadios();
+        window.dispatchEvent(new Event('desk-save:reset'));
       }
       state.token = result.token;
+      state.identityKey = result.identityKey || '';
       state.firstName = result.firstName || '';
       state.classes = result.classes || [];
-      state.turnedInAt = '';
-      state.turnedInHash = '';
-      if (result.classPeriod) state.classPeriod = result.classPeriod;
+      state.classPeriod = result.classPeriod || '';
+      state.turnedInAt = ''; state.turnedInHash = '';
+      state.receipt = null; state.submission = null;
+      state.conflict = false;
+      state.remoteAt = draft && (draft.revision || draft.savedAt) || '';
+      state.cloudAt = draft && draft.savedAt || '';
+      state.everSaved = Boolean(draft);
       state.lastActive = Date.now();
-      var restored = 0;
-      if (result.draft && Array.isArray(result.draft.answers)) {
-        var byKey = {};
-        result.draft.answers.forEach(function (e) { byKey[e.k] = e.a; });
-        var list = fields();
-        assignKeys(list);
-        list.forEach(function (el) {
-          var saved = byKey[keyOf.get(el)];
-          if (replaceDraft) {
-            if (setValue(el, typeof saved === 'string' ? saved : el.defaultValue)) restored++;
-          } else if (saved && clean(saved) && (!clean(el.value) || el.value === el.defaultValue) && setValue(el, saved)) restored++;
-        });
-        radioGroups().forEach(function (g) {
-          var saved = byKey['r:' + g.name];
-          if (replaceDraft) {
-            checkRadio(g, function (r) { return saved ? radioText(r).slice(0, 600) === saved : r.defaultChecked; });
-            return;
-          }
-          if (!saved || g.radios.some(function (r) { return r.checked && !r.defaultChecked; })) return;
-          checkRadio(g, function (r) { return radioText(r).slice(0, 600) === saved; });
-        });
-        if (result.draft.turnedIn && result.draft.classPeriod === state.classPeriod) {
-          state.turnedInAt = result.draft.finishedAt || result.draft.savedAt;
-        }
-      }
-      if (result.draft && result.draft.turnedIn && result.draft.classPeriod === state.classPeriod && hashOf(answers(false)) === hashOf(result.draft.answers)) {
+      var restored = 0, byKey = {};
+      if (draft) draft.answers.forEach(function (e) { byKey[e.k] = e.a; });
+      var list = fields(); assignKeys(list);
+      list.forEach(function (el) {
+        var saved = byKey[keyOf.get(el)];
+        if (replaceDraft || switching) {
+          if (setValue(el, typeof saved === 'string' ? saved : el.defaultValue)) restored++;
+        } else if (typeof saved === 'string' && clean(saved) && (!clean(el.value) || el.value === el.defaultValue) && setValue(el, saved)) restored++;
+      });
+      radioGroups().forEach(function (g) {
+        var saved = byKey['r:' + g.name];
+        if (replaceDraft || switching) checkRadio(g, function (r) { return saved ? radioText(r).slice(0, 600) === saved : r.defaultChecked; });
+        else if (saved && !g.radios.some(function (r) { return r.checked && !r.defaultChecked; })) checkRadio(g, function (r) { return radioText(r).slice(0, 600) === saved; });
+      });
+      applying = false;
+      state.values = snapshot();
+      state.cloudHash = draft ? hashOf(draft.answers) : '';
+      if (draft && draft.turnedIn && draft.classPeriod === state.classPeriod && hashOf(answers(false)) === state.cloudHash) {
+        state.turnedInAt = draft.finishedAt || draft.savedAt;
         state.turnedInHash = hashOf(answers(true));
       }
-      state.values = snapshot();
-      state.cloudHash = '';
-      persist();
-      // A blank page never overwrites saved work.
-      if (hasWork()) saveCloud();
-      else state.cloudHash = hashOf(answers(false));
       state.classroomUrl = classroomAssignmentUrl(result.classroomUrl);
       persist();
       var hello = state.firstName ? 'Welcome back, ' + state.firstName + '. ' : '';
-      if (restored) return { ok: true, message: hello + restored + (restored === 1 ? ' answer' : ' answers') + ' brought back.' };
-      return { ok: true, message: hello + 'Your answers save to your account ' + cadenceText + '. Press Turn In when you finish.' };
-    }, function () {
-      return { ok: false, message: 'Could not reach the save system. Your answers are still saved in this tab.' };
+      return { ok: true, message: hello + (restored ? restored + ' answers brought back. ' : (!draft ? 'No account copy was found for this assignment. ' : 'Your account copy is loaded. ')) + 'Check your name before saving.' };
+    }).catch(function () {
+      applying = false;
+      return { ok: false, message: 'Could not reach the save system. Your visible answers were kept. Keep this tab open or download a backup.' };
+    }).finally(function () {
+      transitioning = false;
+      if (state.token && !state.conflict && hasWork() && hashOf(answers(false)) !== state.cloudHash) saveCloud();
     });
   }
 
-  function turnIn(pin) {
+  function sendTurnIn(pin) {
+    if (transitioning || state.conflict) return Promise.resolve({ ok: false, message: 'Load My Work first to resolve the account version. Download a backup to keep your current answers.' });
     var list = answers(true);
     var hash = hashOf(list);
     if (!answeredCount(list)) return Promise.resolve({ ok: false, message: 'Write at least one answer first.' });
     if (!state.submission || state.submission.hash !== hash) state.submission = { id: randomId(), hash: hash };
     var fullHash = hashOf(answers(false));
+    var owner = state, started = generation;
     persist();
     return post({
+      writeProtocol: 1,
+      baseRevision: state.token ? state.remoteAt : '',
       action: 'turnin',
       pin: pin,
+      accountToken: state.token || undefined,
       hub: hub,
       course: course,
       title: document.title,
@@ -507,13 +550,16 @@
       submissionId: state.submission.id,
       answers: list
     }, { attempts: 3, timeoutMs: 40000 }).then(function (result) {
+      if (owner !== state || started !== generation) return { ok: false, message: 'The account changed. Load My Work to check the result.' };
+      if (result && result.code === 'conflict') { state.conflict = true; persist(); }
       if (result && result.code === 'pick_class') {
         state.classes = result.classes || [];
         persist();
         return { ok: false, pickClass: true, message: 'Which class is this for? Pick one, then press Turn In again.' };
       }
-      if (!result || !result.ok) return { ok: false, message: (result && result.error) || 'That did not go through. Press Turn In again.' };
+      if (!result || !result.ok || !result.turnedInAt || !Number.isFinite(Date.parse(result.turnedInAt))) return { ok: false, message: (result && result.error) || 'That did not go through. Press Turn In again.' };
       state.token = result.token || state.token;
+      state.identityKey = result.identityKey || state.identityKey;
       state.firstName = result.firstName || state.firstName;
       state.classPeriod = result.classPeriod || state.classPeriod;
       state.classes = result.classes || state.classes;
@@ -521,6 +567,8 @@
       state.turnedInAt = result.turnedInAt;
       state.classroomUrl = classroomAssignmentUrl(result.classroomUrl);
       state.cloudHash = fullHash;
+      state.cloudAt = result.turnedInAt; state.remoteAt = result.revision || result.turnedInAt; state.everSaved = true;
+      state.receipt = { submissionId: result.submissionId || state.submission.id, turnedInAt: result.turnedInAt, firstName: state.firstName, classPeriod: state.classPeriod, hub: hub, answers: list, source: 'Server acknowledged Turn In. This downloaded copy can be edited; verify against the private teacher record.' };
       if (hashOf(answers(false)) !== fullHash) scheduleCloud();
       state.lastActive = Date.now();
       persist();
@@ -530,17 +578,25 @@
     });
   }
 
+  function turnIn(pin) {
+    if (finishing || transitioning) return Promise.resolve({ ok: false, message: 'Wait for the current request to finish.' });
+    finishing = true; clearTimeout(cloudTimer);
+    return Promise.resolve(cloudPromise).then(function () { return sendTurnIn(pin); }).finally(function () {
+      finishing = false;
+      if (state.token && !state.conflict && hashOf(answers(false)) !== state.cloudHash) scheduleCloud();
+    });
+  }
+
   function copyAnswers() {
     var list = answers(true);
     var lines = [document.title, ''];
     list.forEach(function (e, i) { lines.push((i + 1) + '. ' + e.q, clean(e.a) ? e.a.trim() : '(blank)', ''); });
     var text = lines.join('\n');
-    state.copiedHash = hashOf(list);
-    persist();
+    function copied(ok) { if (ok) { state.copiedHash = hashOf(list); persist(); } return ok; }
     if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+      return navigator.clipboard.writeText(text).then(function () { return copied(true); }, function () { return copied(legacyCopy(text)); });
     }
-    return Promise.resolve(legacyCopy(text));
+    return Promise.resolve(copied(legacyCopy(text)));
   }
 
   function legacyCopy(text) {
@@ -557,10 +613,49 @@
     return ok;
   }
 
+  function downloadJson(data, suffix) {
+    var url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    var a = make('a', { href: url, download: hub + '-' + suffix + '.json' });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function applyValues(values) {
+    applying = true;
+    var list = fields(); assignKeys(list);
+    list.forEach(function (el) { if (Object.prototype.hasOwnProperty.call(values, keyOf.get(el))) setValue(el, values[keyOf.get(el)]); });
+    radioGroups().forEach(function (g) {
+      if (Object.prototype.hasOwnProperty.call(values, 'r:' + g.name)) checkRadio(g, function (r) { return r.value === values['r:' + g.name]; });
+    });
+    applying = false;
+    onEdit();
+  }
+
+  function importBackup(file) {
+    if (transitioning || finishing || cloudBusy) return Promise.reject(new Error('Wait for saving to finish, then load the backup.'));
+    if (!file || file.size > 2000000) return Promise.reject(new Error('Choose a StoryHub backup smaller than 2 MB.'));
+    return file.text().then(function (text) {
+      var data;
+      try { data = JSON.parse(text); } catch (e) { throw new Error('This file is not a readable StoryHub backup.'); }
+      if (!data || data.format !== 'desk-work-backup' || data.version !== 1 || data.hub !== hub || !data.values || typeof data.values !== 'object' || Array.isArray(data.values)) throw new Error('This backup belongs to another assignment or uses an unsupported format. Your answers were kept.');
+      var known = snapshot(), keys = Object.keys(data.values);
+      if (keys.some(function (k) { return !Object.prototype.hasOwnProperty.call(known, k) || typeof data.values[k] !== 'string'; })) throw new Error('Some backup answers do not match this page. Your answers were kept. Ask your teacher to recover the original version.');
+      radioGroups().forEach(function (g) {
+        var value = data.values['r:' + g.name];
+        if (value && !g.radios.some(function (r) { return r.value === value; })) throw new Error('A saved choice no longer matches this page. Your answers were kept.');
+      });
+      if (hasWork() && !window.confirm('Replace matching answers with this backup? Cancel to download your current version first. Undo load is available in this tab.')) return false;
+      state.undoValues = snapshot();
+      // A file contains work only. It cannot assert identity, a server receipt or cheating evidence.
+      applyValues(data.values);
+      return true;
+    });
+  }
+
   function clock(iso) {
     var d = iso ? new Date(iso) : new Date();
-    if (isNaN(d)) d = new Date();
-    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (isNaN(d)) return 'unconfirmed time';
+    return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
 
   // Only teacher-configured Classroom assignment URLs may replace the safe home link.
@@ -577,7 +672,12 @@
     '.panel{background:var(--ds-bg);border:1px solid var(--ds-line);border-radius:14px;padding:22px 22px 20px;max-width:640px;margin:48px auto 140px;box-shadow:0 1px 0 var(--ds-line)}',
     '.panel.floating{position:fixed;inset:auto 12px 76px 12px;margin:0 auto;z-index:2147483001;max-height:calc(100vh - 100px);overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.35)}',
     'h2{font-size:1.3rem;font-weight:700;margin:0 0 4px;letter-spacing:.01em}',
-    '.sub{margin:0 0 16px;opacity:.78}',
+    '.sub{margin:0 0 16px}',
+    '.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--ds-line)}',
+    '.tools button{font-size:.9rem;padding:9px 12px}',
+    '.help{margin:14px 0 0;font-size:.85rem}',
+    '[hidden]{display:none!important}',
+    '@media print{:host{display:none!important}}',
     '.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}',
     'label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.9rem}',
     'input{width:9.5em;padding:10px 12px;border-radius:10px;border:1px solid var(--ds-line-strong);background:var(--ds-bg);color:var(--ds-fg);letter-spacing:.3em;font-size:1.1rem}',
@@ -651,6 +751,8 @@
   }
 
   var ui = { refresh: function () {} };
+  var fullPasteAllowed = false;
+  var pasteViews = [];
 
   function buildUi() {
     var colors = pageColors();
@@ -720,16 +822,23 @@
     chipHost.root.appendChild(chip);
     document.body.appendChild(chipHost.host);
 
+    var toolViews = [];
     var message = '';
     var messageGood = false;
     var resumeHost = null;
-    var resumeText, resumeStatus, resumePin, resumeSign, resumeNow, resumeClasses;
+    var resumeText, resumeStatus, resumePin, resumeSign, resumeNow, resumeClasses, resumeOut;
     var resumeSlot = document.querySelector('[data-desk-resume]');
+    if (!resumeSlot && fields().length) {
+      resumeSlot = make('div', { 'data-desk-resume': '' });
+      var main = document.querySelector('main') || document.body;
+      main.insertBefore(resumeSlot, main.firstChild);
+    }
     if (resumeSlot && cloudOn) {
-      var resumeSignLabel = resumeSlot.getAttribute('data-desk-resume-label') || 'Sign in / recover my work';
+      var resumeSignLabel = resumeSlot.getAttribute('data-desk-resume-label') || 'Load My Work';
       resumeHost = host('desk-save-resume');
-      var resumePanel = make('section', { class: 'panel', 'aria-label': 'Save and recover your progress' });
-      resumePanel.appendChild(make('h2', {}, 'Save and recover your progress'));
+      var resumePanel = make('section', { class: 'panel', 'aria-label': 'Your work' });
+      resumePanel.style.margin = '24px auto 32px';
+      resumePanel.appendChild(make('h2', {}, 'Your work'));
       resumeText = make('p', { class: 'sub' });
       resumeClasses = make('div', { class: 'classes', role: 'group', 'aria-label': 'Your class for this work' });
       resumeClasses.hidden = true;
@@ -744,6 +853,13 @@
       [resumeText, resumeClasses, resumeActions, resumeStatus].forEach(function (n) { resumePanel.appendChild(n); });
       resumeHost.root.appendChild(resumePanel);
       resumeSlot.appendChild(resumeHost.host);
+      addTools(resumePanel, resumeStatus);
+      var jumpFinish = make('button', { type: 'button' }, 'Go to Turn In');
+      jumpFinish.addEventListener('click', function () { panelHost.host.scrollIntoView({ block: 'center', behavior: 'auto' }); pin.focus({ preventScroll: true }); });
+      resumeActions.appendChild(jumpFinish);
+      resumeOut = signOutBtn.cloneNode(true);
+      resumeActions.appendChild(resumeOut);
+      resumeOut.addEventListener('click', function () { signOutBtn.click(); });
       resumePin.addEventListener('input', function () { resumePin.value = digits(resumePin).slice(0, 6); });
       resumeSign.addEventListener('click', function () {
         var code = digits(resumePin);
@@ -762,11 +878,67 @@
         busy(resumeNow, true, 'Saving…');
         saveCloud().then(function (ok) {
           busy(resumeNow, false, 'Save now');
-          var current = ok && hashOf(answers(false)) === state.cloudHash;
+          var current = ok && state.token && state.cloudAt && hashOf(answers(false)) === state.cloudHash;
           setStatus(resumeStatus, current ? 'Account save confirmed. Check the name and time above.' : 'Latest account save not confirmed. Keep this tab open; saving will retry.', current);
         });
       });
     }
+
+    function addTools(target, feedback) {
+      var tools = make('div', { class: 'tools', 'aria-label': 'Work controls' });
+      var download = make('button', { type: 'button' }, 'Download backup');
+      var load = make('button', { type: 'button' }, 'Load backup file');
+      var file = make('input', { type: 'file', accept: '.json,application/json', hidden: '', 'aria-label': 'StoryHub backup file' });
+      var copy = make('button', { type: 'button' }, 'Copy answers');
+      var undo = make('button', { type: 'button' }, 'Undo load');
+      var receipt = make('button', { type: 'button' }, 'Download Turn In receipt');
+      var print = make('button', { type: 'button' }, 'Print');
+      var evidence = make('p', { class: 'help' });
+      [download, load, copy, undo, receipt, print].forEach(function (n) { tools.appendChild(n); });
+      file.setAttribute('data-desk-skip', ''); document.body.appendChild(file);
+      target.appendChild(tools); target.appendChild(evidence);
+      if (!document.getElementById('lab-paste-feedback')) {
+        var pasteLabel = make('label', { class: 'help' });
+        var pasteCheck = make('input', { type: 'checkbox' });
+        pasteCheck.style.cssText = 'width:20px;height:20px;letter-spacing:normal';
+        pasteLabel.appendChild(pasteCheck);
+        pasteLabel.appendChild(document.createTextNode('Allow full paste for my own draft or a writing tool'));
+        var pasteHelp = make('p', { class: 'help', role: 'status', 'aria-live': 'polite' }, 'Write in your own words. Short quotes and source links can be pasted. Longer pastes need the option above.');
+        target.appendChild(pasteLabel); target.appendChild(pasteHelp);
+        pasteViews.push({ checkbox: pasteCheck, feedback: pasteHelp });
+        pasteCheck.addEventListener('change', function () {
+          fullPasteAllowed = pasteCheck.checked;
+          pasteViews.forEach(function (v) { v.checkbox.checked = fullPasteAllowed; });
+        });
+      }
+      download.addEventListener('click', function () {
+        downloadJson({ format: 'desk-work-backup', version: 1, hub: hub, title: document.title, exportedAt: new Date().toISOString(), values: snapshot(), answers: answers(false), notice: 'Personal backup. This file does not prove a server save, submission time or authorship.' }, 'backup');
+        // Starting a download does not prove the file landed. Keep the unload guard.
+        setStatus(feedback, 'Backup download started. Check that the file is in Downloads before closing.', true);
+      });
+      load.addEventListener('click', function () { file.click(); });
+      file.addEventListener('change', function () {
+        importBackup(file.files[0]).then(function (ok) {
+          ui.refresh(); setStatus(feedback, ok ? 'Backup loaded. This is work in progress; save or Turn In when ready.' : 'Load cancelled. Your answers were kept.', ok);
+        }).catch(function (error) { setStatus(feedback, error.message, false); }).finally(function () { file.value = ''; });
+      });
+      copy.addEventListener('click', function () { copyAnswers().then(function (ok) { setStatus(feedback, ok ? 'Copied. Paste your answers where needed.' : 'Copy was blocked. Download a backup instead.', ok); }); });
+      undo.addEventListener('click', function () {
+        if (!state.undoValues || transitioning || finishing || cloudBusy) return;
+        var previous = state.undoValues; state.undoValues = snapshot(); applyValues(previous);
+        ui.refresh(); setStatus(feedback, 'Previous on-screen answers restored. Save or Turn In this version when ready.', true);
+      });
+      receipt.addEventListener('click', function () { if (state.receipt) downloadJson(state.receipt, 'turn-in-receipt'); });
+      print.addEventListener('click', function () { window.print(); });
+      toolViews.push({ undo: undo, receipt: receipt, evidence: evidence });
+    }
+    addTools(panel, status);
+
+    window.addEventListener('desk-save:reset', function () {
+      [pin, popPin, resumePin].filter(Boolean).forEach(function (input) { input.value = ''; });
+      [status, popStatus, resumeStatus].filter(Boolean).forEach(function (node) { setStatus(node, '', false); });
+      message = ''; messageGood = false;
+    });
 
     function setStatus(node, text, good) {
       node.textContent = text || '';
@@ -782,12 +954,13 @@
       list.forEach(function (name) {
         var b = make('button', { type: 'button', 'aria-pressed': String(name === state.classPeriod) }, name);
         b.addEventListener('click', function () {
+          generation++; clearTimeout(cloudTimer);
           state.classPeriod = name;
           state.cloudHash = '';
           state.turnedInHash = '';
           state.turnedInAt = '';
           state.classroomUrl = '';
-          state.submission = null;
+          state.submission = null; state.receipt = null;
           persist();
           scheduleCloud();
           ui.refresh();
@@ -809,6 +982,7 @@
         var pending = hashOf(answers(false)) !== state.cloudHash;
         resumeHost.host.setAttribute('data-signed-in', state.token ? 'true' : 'false');
         resumeNow.hidden = !state.token;
+        resumeOut.hidden = !state.token;
         resumeText.textContent = state.token
           ? 'Signed in as ' + (state.firstName || 'your account') + (state.classPeriod ? ' · ' + state.classPeriod : '') + '. ' +
             (pending ? (cloudRetry ? 'Account save is retrying. Your latest work is in this tab.' : 'Latest edits are saved in this tab; account save is pending.') : (state.cloudAt ? 'Account save confirmed at ' + clock(state.cloudAt) + '.' : 'Ready to save your work.')) + ' Returning from another device? Enter your PIN again before editing to recover the latest account copy.'
@@ -826,6 +1000,11 @@
         sub.textContent = count + ' of ' + total + ' answered. Your answers stay while this tab is open. Copy them before you close it.';
       }
       renderClasses();
+      toolViews.forEach(function (view) {
+        view.undo.hidden = !state.undoValues;
+        view.receipt.hidden = !state.receipt;
+        view.evidence.textContent = (tabDurable ? 'Tab copy available until this tab closes. ' : 'Browser storage is blocked. These answers may disappear on refresh. Download a backup now. ') + (state.cloudAt ? 'Last account confirmation: ' + clock(state.cloudAt) + '. ' : 'Account save has not been confirmed. ') + (state.saveError ? state.saveError + ' Download a backup. ' : '') + (state.conflict ? 'Version conflict: account saving is paused. Download a backup, then Load My Work. ' : '') + (state.receipt ? 'Turn In reference: ' + state.receipt.submissionId + '. ' : '') + 'A saved draft is not a finished submission.';
+      });
 
       popActions.textContent = '';
       if (!cloudOn) {
@@ -849,6 +1028,11 @@
         popActions.appendChild(signBtn);
       }
       if (message) setStatus(popStatus, message, messageGood);
+      if (!tabDurable) { chipText.textContent = 'Storage blocked · download backup'; dot.className = 'dot warn'; }
+      else if (state.saveError) { chipText.textContent = 'Account save refused · download backup'; dot.className = 'dot warn'; }
+      else if (state.conflict) { chipText.textContent = 'Version conflict · load work'; dot.className = 'dot warn'; }
+      if (resumeHost && state.conflict) resumeText.textContent = 'Your on-screen answers were kept. Account saving is paused to protect another version. Download a backup, then Load My Work.';
+      if (resumeHost && !tabDurable) resumeText.textContent = 'Browser storage is blocked. Keep this page open and download a backup. ' + (state.token ? 'Signed in as ' + state.firstName + '.' : 'Enter your PIN for account saving.');
     };
 
     function openPop(open) {
@@ -881,7 +1065,7 @@
 
     signOutBtn.addEventListener('click', function () {
       saveCloud().then(function (saved) {
-        if (!saved) {
+        if (!saved || hashOf(answers(false)) !== state.cloudHash) {
           ui.refresh('Your account save is still retrying. Wait for Saved before signing out.');
           return;
         }
@@ -907,7 +1091,7 @@
       var code = digits(popPin);
       if (code.length !== 6) { message = 'Enter your six digit hall pass PIN.'; messageGood = false; ui.refresh(); return; }
       busy(signBtn, true, 'Checking…');
-      signIn(code).then(function (result) {
+      signIn(code, { recover: true }).then(function (result) {
         busy(signBtn, false, 'Save to my account');
         popPin.value = '';
         message = result.message;
@@ -980,7 +1164,24 @@
 
   /* --------------------------------------------------------------- boot -- */
 
+  function buildReaderUi() {
+    var colors = pageColors();
+    var h = make('aside', { id: 'desk-save-reader', 'data-desk-skip': '' });
+    h.style.setProperty('--ds-fg', colors.fg); h.style.setProperty('--ds-bg', colors.bg);
+    h.style.setProperty('--ds-line', 'currentColor');
+    var root = h.attachShadow({ mode: 'open' }); root.appendChild(make('style', {}, CSS));
+    var card = make('section', { class: 'panel', 'aria-label': 'StoryHub controls' });
+    card.appendChild(make('h2', {}, 'StoryHub controls'));
+    card.appendChild(make('p', {}, 'This page has no written answer boxes. There is no assignment draft to save or load here.'));
+    var print = make('button', { type: 'button' }, 'Print'); print.addEventListener('click', function () { window.print(); });
+    card.appendChild(print); root.appendChild(card);
+    var main = document.querySelector('main') || document.body; main.appendChild(h);
+    window.__deskSave.mode = 'reading'; window.__deskSave.ready = true;
+  }
+
   function boot() {
+    if (!fields().length && !radioGroups().length) { buildReaderUi(); return; }
+    window.__deskSave.mode = 'assignment';
     var saved = readJson('sessionStorage', STORE_KEY);
     state = saved && typeof saved === 'object' && saved.values ? Object.assign(blankState(), saved) : blankState();
 
@@ -1016,14 +1217,36 @@
     setInterval(idleCheck, testHooks && testHooks.idleMs ? 250 : 30000);
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') beaconSave(); });
     window.addEventListener('pagehide', beaconSave);
+    window.addEventListener('online', function () { if (state.token) saveCloud(); });
     window.addEventListener('beforeunload', function (e) {
       if (!hasWork()) return;
       var hash = hashOf(answers(true));
-      if (hash === state.turnedInHash || hash === state.copiedHash) return;
+      if (hash === state.turnedInHash || hash === state.copiedHash || hash === state.backupHash || (state.token && hashOf(answers(false)) === state.cloudHash && state.cloudAt)) return;
       e.preventDefault();
       e.returnValue = '';
     });
 
+    // A paste rule is writing support, never an authorship or AI detector.
+    // It records no clipboard text, key counts, activity scores or exceptions.
+    if (!document.getElementById('lab-paste-feedback')) {
+      var guardPaste = function (e) {
+        if (fullPasteAllowed || fields().indexOf(e.target) < 0) return;
+        var field = e.target;
+        if (field.getAttribute('data-desk-paste') === 'source' || /^(?:source|citation)(?:-|_|$)/i.test(field.id)) return;
+        var transfer = e.clipboardData || e.dataTransfer;
+        var text = transfer && transfer.getData('text/plain') || '';
+        if (/^https?:\/\/\S+$/i.test(text.trim()) || (text.trim().match(/\S+/g) || []).length <= 12) return;
+        e.preventDefault();
+        pasteViews.forEach(function (v) { v.feedback.textContent = 'Long paste was not inserted. For your own draft or a writing tool, choose Allow full paste first.'; });
+        ui.refresh('Long paste was not inserted. Use Allow full paste in Your work for your own draft or a writing tool.');
+      };
+      document.addEventListener('paste', guardPaste, true);
+      document.addEventListener('drop', guardPaste, true);
+      window.addEventListener('desk-save:reset', function () {
+        fullPasteAllowed = false;
+        pasteViews.forEach(function (v) { v.checkbox.checked = false; v.feedback.textContent = 'Write in your own words. Short quotes and source links can be pasted. Longer pastes need the option above.'; });
+      });
+    }
     window.__deskSave.ready = true;
     window.__deskSave.hub = hub;
     if (testHooks) {

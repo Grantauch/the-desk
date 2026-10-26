@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-08-turn-in-v8';
+const TI_VERSION = '2026-10-26-turn-in-v9';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -70,6 +70,8 @@ function doGet() {
     ok: true,
     service: 'the desk turn in',
     version: TI_VERSION,
+    writeProtocol: 1,
+    checkedWritesRequired: props.getProperty('REQUIRE_CHECKED_WRITES') === 'true',
     ready: Boolean(props.getProperty('ROSTER_SPREADSHEET_ID') && props.getProperty('PIN_SALT') && props.getProperty('TURNIN_SPREADSHEET_ID')),
   });
 }
@@ -109,6 +111,8 @@ function signIn_(request) {
   return {
     ok: true,
     token,
+    identityKey: sign_('identity:' + identity.email),
+    writeProtocol: 1,
     firstName: firstName_(identity.name),
     classes: identity.classes,
     classPeriod,
@@ -127,32 +131,41 @@ function saveDraft_(request) {
   const savedAt = new Date();
   const identity = session.test ? { email: session.email, name: 'Load Test ' + session.email.split('@')[0], classes: ['Load Test'], test: true } : identityByEmail_(session.email);
   const classPeriod = identity ? chooseClass_(identity.classes, request.classPeriod, request.course) : '';
-  const record = { hub, answers, savedAt: savedAt.toISOString(), autoEligible: Boolean(classPeriod),
+  const record = { hub, answers, revision: Utilities.getUuid(), savedAt: savedAt.toISOString(), autoEligible: Boolean(classPeriod),
     classPeriod, title: String(request.title || '').slice(0, 200), page: String(request.page || '').slice(0, 300) };
   const book = workbook_();
   if (session.test) {
     const testLock = LockService.getScriptLock();
     if (!testLock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
-    try { updateProgress_(book, identity, record, false); SpreadsheetApp.flush(); }
+    try {
+      const prior = guardedDraft_(book, identity, hub, request, answers);
+      if (prior) return { ok: true, savedAt: prior.savedAt, revision: prior.revision || prior.savedAt };
+      record.savedAt = nextWriteTime_(book, identity, hub).toISOString();
+      updateProgress_(book, identity, record, false); SpreadsheetApp.flush();
+    }
     finally { testLock.releaseLock(); }
-    return { ok: true, savedAt: record.savedAt };
+    return { ok: true, savedAt: record.savedAt, revision: record.revision };
   }
   // A save is acknowledged only after a durable write. Cache alone can be evicted.
   const drafts = book.getSheetByName(TI_SHEETS.DRAFTS);
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(TI_DRAFT_LOCK_MS)) throw refuse_('busy', 'Lots of students are saving right now. Your page will try again.');
   try {
+    const prior = guardedDraft_(book, identity, hub, request, answers);
+    if (prior) return { ok: true, savedAt: prior.savedAt, revision: prior.revision || prior.savedAt };
+    record.savedAt = nextWriteTime_(book, identity, hub).toISOString();
+    CacheService.getScriptCache().remove(draftCacheKey_(session.email, hub));
     const progress = updateProgress_(book, identity, record, false);
     if (progress) {
       Object.assign(record, progress);
     }
-    drafts.appendRow([savedAt, session.email, hub, JSON.stringify(record)]);
+    drafts.appendRow([new Date(record.savedAt), session.email, hub, JSON.stringify(record)]);
     SpreadsheetApp.flush();
-    CacheService.getScriptCache().put(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
+    optionalCachePut_(draftCacheKey_(session.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   } finally {
     lock.releaseLock();
   }
-  return { ok: true, savedAt: record.savedAt };
+  return { ok: true, savedAt: record.savedAt, revision: record.revision };
 }
 
 function turnIn_(request) {
@@ -163,9 +176,9 @@ function turnIn_(request) {
   const cache = CacheService.getScriptCache();
   const identity = identify_(request);
   const submissionKey = `sub:${identity.email}:${hub}:${submissionId}`;
-  const previous = cache.get(submissionKey);
-  if (previous) return JSON.parse(previous);
   const answers = cleanAnswers_(request.answers);
+  // Authenticate and validate the complete body even when retrying a cached ID.
+  if (request.accountToken && readToken_(request.accountToken).email !== identity.email) throw refuse_('wrong_account', 'That PIN belongs to a different account. Sign out before changing students.');
   if (!answers.some((entry) => entry.a.trim())) throw refuse_('bad_request', 'Write at least one answer first.');
   const classPeriod = chooseClass_(identity.classes, request.classPeriod, request.course);
   if (!classPeriod) {
@@ -179,8 +192,8 @@ function turnIn_(request) {
   const words = answers.reduce((sum, entry) => sum + countWords_(entry.a), 0);
   const title = String(request.title || '').slice(0, 200);
   const page = String(request.page || '').slice(0, 300);
-  const turnedInAt = new Date();
-  const record = { hub, answers, savedAt: turnedInAt.toISOString(), turnedIn: true,
+  let turnedInAt = new Date();
+  const record = { hub, answers, revision: Utilities.getUuid(), submissionId, savedAt: turnedInAt.toISOString(), turnedIn: true,
     finishedAt: turnedInAt.toISOString(), classPeriod, title, page };
 
   // Open the sheet before taking the lock so the lock is held only for the write itself.
@@ -193,7 +206,11 @@ function turnIn_(request) {
   try {
     // A retry of this same press may have finished while this one waited for the lock.
     const landed = cache.get(submissionKey);
-    if (landed) return JSON.parse(landed);
+    if (landed) {
+      const cached = JSON.parse(landed);
+      if (cached.answerSignature !== payloadSignature_(answers) || (request.classPeriod && cached.classPeriod !== request.classPeriod)) throw refuse_('bad_request', 'These answers or class changed. Press Turn In again to send a new version.');
+      return cached;
+    }
     // Cache eviction or a delayed retry must not create a second submission.
     const lastRow = sheet.getLastRow();
     const ids = lastRow >= 2 ? sheet.getRange(2, 11, lastRow - 1, 1).getValues() : [];
@@ -202,13 +219,17 @@ function turnIn_(request) {
       const existing = sheet.getRange(found + 2, 1, 1, 12).getValues()[0];
       if (existing[3] !== identity.email || existing[4] !== hub) throw refuse_('bad_request', 'That submission needs a new turn in. Press the button again.');
       const data = JSON.parse(existing[11]);
-      if (JSON.stringify(data.answers) !== JSON.stringify(answers)) throw refuse_('bad_request', 'These answers changed. Press Turn In again to send the new version.');
+      if (String(existing[1]) !== classPeriod || JSON.stringify(data.answers) !== JSON.stringify(answers)) throw refuse_('bad_request', 'These answers changed. Press Turn In again to send the new version.');
       updateProgress_(book, identity, { ...data, classPeriod, title, page }, true);
       SpreadsheetApp.flush();
-      const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length, classroomUrl);
-      cache.put(submissionKey, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
+      const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length, classroomUrl, submissionId, data.revision, answers);
+      optionalCachePut_(submissionKey, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
       return result;
     }
+    guardedDraft_(book, identity, hub, request, answers);
+    turnedInAt = nextWriteTime_(book, identity, hub);
+    record.savedAt = turnedInAt.toISOString(); record.finishedAt = record.savedAt;
+    if (!identity.test) cache.remove(draftCacheKey_(identity.email, hub));
     turnInRow_(sheet, [
       turnedInAt,
       classPeriod,
@@ -226,13 +247,48 @@ function turnIn_(request) {
     ], true);
     updateProgress_(book, identity, record, true);
     SpreadsheetApp.flush();
-    cache.put(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl)), TI_SUBMISSION_CACHE_SECONDS);
-    if (!identity.test) cache.put(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
+    optionalCachePut_(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl, submissionId, record.revision, answers)), TI_SUBMISSION_CACHE_SECONDS);
+    if (!identity.test) optionalCachePut_(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   } finally {
     lock.releaseLock();
   }
 
-  return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl);
+  return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl, submissionId, record.revision, answers);
+}
+
+/** Compare under the write lock; a delayed tab must never replace a newer revision.
+ * Returning the exact current answer copy makes a lost-response retry idempotent.
+ * Legacy clients remain compatible; reload all open hubs when activating v9.
+ */
+// Run only after the v2 website client is live. No sheet/schema changes.
+function activateWorkProtection() {
+  PropertiesService.getScriptProperties().setProperty('REQUIRE_CHECKED_WRITES', 'true');
+  console.log('Checked writes required. Older open pages must copy their answers and reload.');
+}
+
+function currentDraft_(book, identity, hub) {
+  return identity.test
+    ? newestMatch_(book.getSheetByName(TI_SHEETS.LOAD_TEST_PROGRESS), 4, 5, 12, identity.email, hub)
+    : findDraft_(identity.email, hub);
+}
+
+function nextWriteTime_(book, identity, hub) {
+  const current = currentDraft_(book, identity, hub);
+  return new Date(Math.max(Date.now(), current && Date.parse(current.savedAt) + 1 || 0));
+}
+
+function guardedDraft_(book, identity, hub, request, answers) {
+  if (request.writeProtocol !== 1) {
+    if (PropertiesService.getScriptProperties().getProperty('REQUIRE_CHECKED_WRITES') === 'true') throw refuse_('reload_required', 'This page uses an older save system. Download or copy your answers, then reload the page before saving.');
+    return null;
+  }
+  const current = currentDraft_(book, identity, hub);
+  if (current && payloadSignature_(current.answers) === payloadSignature_(answers) && (!request.classPeriod || request.classPeriod === current.classPeriod)) return current;
+  const revision = current && (current.revision || current.savedAt) || '';
+  if (typeof request.baseRevision !== 'string' || request.baseRevision !== revision) {
+    throw refuse_('conflict', 'Another account version exists. Download a backup, then choose Load My Work before saving or turning in.');
+  }
+  return null;
 }
 
 function turnInRow_(sheet, row, deferFlush) {
@@ -241,9 +297,13 @@ function turnInRow_(sheet, row, deferFlush) {
   if (!deferFlush) SpreadsheetApp.flush();
 }
 
-function resultFor_(identity, classPeriod, turnedInAt, answered, total, classroomUrl) {
+function resultFor_(identity, classPeriod, turnedInAt, answered, total, classroomUrl, submissionId, revision, answers) {
   return {
     ok: true,
+    submissionId: submissionId || '',
+    identityKey: sign_('identity:' + identity.email),
+    revision: revision || turnedInAt.toISOString(),
+    answerSignature: payloadSignature_(answers || []),
     firstName: firstName_(identity.name),
     classPeriod,
     turnedInAt: turnedInAt.toISOString(),
@@ -341,7 +401,7 @@ function identify_(request) {
 function rosterByHash_() {
   const cache = CacheService.getScriptCache();
   const cached = cache.get('roster:v1');
-  if (cached) return JSON.parse(cached);
+  if (cached) { try { return JSON.parse(cached); } catch (error) { cache.remove('roster:v1'); } }
 
   const props = PropertiesService.getScriptProperties();
   const id = props.getProperty('ROSTER_SPREADSHEET_ID');
@@ -422,6 +482,11 @@ function identityByEmail_(email) {
 }
 
 // Ignore empty hidden fields and labels; compare the actual answers by stable key.
+function payloadSignature_(answers) {
+  const text = JSON.stringify(answers.map((entry) => [entry.k, entry.q, entry.a]).sort((a, b) => a[0].localeCompare(b[0])));
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text));
+}
+
 function answerSignature_(answers) {
   const text = JSON.stringify(answers.filter((entry) => entry.a.trim()).map((entry) => [entry.k, entry.a]).sort((a, b) => a[0].localeCompare(b[0])));
   // Keep completion metadata bounded even for answers near the Sheets cell limit.
@@ -475,11 +540,13 @@ function updateProgress_(book, identity, record, finished) {
   if (prior && Date.parse(prior.savedAt) > Date.parse(record.savedAt)) data = { ...prior };
   data.finishedAt = prior && prior.finishedAt || '';
   data.finishedSignature = prior && prior.finishedSignature || '';
+  data.finishedPayloadSignature = prior && (prior.finishedPayloadSignature || (prior.turnedIn ? payloadSignature_(prior.answers) : '')) || '';
   if (finished && (!data.finishedAt || Date.parse(record.savedAt) >= Date.parse(data.finishedAt))) {
     data.finishedAt = record.finishedAt || record.savedAt;
     data.finishedSignature = signature;
+    data.finishedPayloadSignature = payloadSignature_(record.answers);
   }
-  data.turnedIn = Boolean(data.finishedAt && answerSignature_(data.answers) === data.finishedSignature);
+  data.turnedIn = Boolean(data.finishedAt && data.finishedPayloadSignature && payloadSignature_(data.answers) === data.finishedPayloadSignature);
   const cells = literalCells_([new Date(data.savedAt), data.classPeriod, identity.name, identity.email,
     data.hub, data.title || data.hub, `${data.answers.filter((entry) => entry.a.trim()).length} of ${data.answers.length}`,
     data.answers.reduce((sum, entry) => sum + countWords_(entry.a), 0), readableAnswers_(data.answers),
@@ -487,7 +554,7 @@ function updateProgress_(book, identity, record, finished) {
     data.finishedAt ? new Date(data.finishedAt) : '']);
   if (row) sheet.getRange(row, 1, 1, cells.length).setValues([cells]);
   else { sheet.appendRow(cells); row = sheet.getLastRow(); }
-  CacheService.getScriptCache().put('progress-row:' + key, String(row), TI_DRAFT_CACHE_SECONDS);
+  optionalCachePut_('progress-row:' + key, String(row), TI_DRAFT_CACHE_SECONDS);
   return data;
 }
 
@@ -595,7 +662,13 @@ function draftCacheKey_(email, hub) {
 
 function findDraft_(email, hub) {
   const cached = CacheService.getScriptCache().get(draftCacheKey_(email, hub));
-  if (cached) return JSON.parse(cached);
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      if (data && data.hub === hub && Array.isArray(data.answers) && Number.isFinite(Date.parse(data.savedAt))) return data;
+    } catch (error) { /* fall back to durable records */ }
+    CacheService.getScriptCache().remove(draftCacheKey_(email, hub));
+  }
 
   const book = workbook_();
   const candidates = [
@@ -612,23 +685,30 @@ function newestMatch_(sheet, emailCol, hubCol, dataCol, email, hub) {
   if (!sheet) return null;
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return null;
-  const count = sheet.getName() === TI_SHEETS.PROGRESS ? lastRow - 1 : Math.min(lastRow - 1, TI_DRAFT_SCAN_ROWS);
-  const start = lastRow - count + 1;
   const width = Math.max(emailCol, hubCol, dataCol);
-  const rows = sheet.getRange(start, 1, count, width).getValues();
   let latest = null;
-  for (let i = rows.length - 1; i >= 0; i -= 1) {
-    if (String(rows[i][emailCol - 1]).toLowerCase() === email && String(rows[i][hubCol - 1]) === hub) {
+  // Read in bounded batches, but never silently discard older retained work.
+  for (let end = lastRow; end >= 2;) {
+    const start = Math.max(2, end - TI_DRAFT_SCAN_ROWS + 1);
+    const rows = sheet.getRange(start, 1, end - start + 1, width).getValues();
+    for (let i = rows.length - 1; i >= 0; i -= 1) {
+      if (String(rows[i][emailCol - 1]).toLowerCase() !== email || String(rows[i][hubCol - 1]) !== hub) continue;
       try {
         const data = JSON.parse(rows[i][dataCol - 1]);
-        if (sheet.getName() !== TI_SHEETS.PROGRESS) return data;
+        if (!data || !Array.isArray(data.answers) || !Number.isFinite(Date.parse(data.savedAt))) continue;
+        if (sheet.getName() !== TI_SHEETS.PROGRESS && sheet.getName() !== TI_SHEETS.LOAD_TEST_PROGRESS) return data;
         if (!latest || Date.parse(data.savedAt) > Date.parse(latest.savedAt)) latest = data;
-      } catch (error) {
-        return null;
-      }
+      } catch (error) { /* continue to the previous readable durable record */ }
     }
+    end = start - 1;
   }
   return latest;
+}
+
+/** These caches speed up durable sheet reads; they are never the evidence. */
+function optionalCachePut_(key, value, seconds) {
+  try { CacheService.getScriptCache().put(key, value, seconds); }
+  catch (error) { console.error('Optional work cache unavailable; durable sheet records remain authoritative.'); }
 }
 
 /* ---------------------------------------------------------------- answers -- */
