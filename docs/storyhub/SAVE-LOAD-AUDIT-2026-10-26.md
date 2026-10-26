@@ -38,7 +38,7 @@ All 36 catalogue pages that collect work share: PIN Load My Work, confirmed Save
 
 The 11 reading/viewing pages receive a common reading panel with Print and an explicit explanation that there is no written assignment draft on that page. They never create phantom assignments or contact the save service.
 
-Common writing support uses the existing 12-word paste rule and a visible override for a student's own draft or a writing tool. Full URLs and explicitly identified source fields are allowed. The wrestling project's existing tools continue to own its paste behavior. No keystroke counts, clipboard history, process receipts, activity scores or AI scores are added or transmitted.
+Common writing support uses the existing 12-word paste rule and a visible override for a student's own draft or a writing tool. Full URLs and explicitly identified source fields are allowed. The wrestling project's existing tools continue to own its paste behavior. No keystroke counts, clipboard history, process receipts, activity scores or AI scores are added or transmitted. Superseded the same day at the owner's request: see [WRITING-TIMELINE.md](WRITING-TIMELINE.md). The clipboard is still never read and no AI score is computed.
 
 Finished status now refers to the exact question/answer snapshot, including blank fields. Capturing previously omitted hidden questions can move an older Progress entry to In progress; its original immutable Turn Ins row remains available.
 

@@ -15,6 +15,12 @@
  *   4. Common controls load account work, export/import a personal backup, copy
  *      answers and show acknowledged Turn In references. Exit warnings protect
  *      work that has no confirmed account copy or successful clipboard copy.
+ *   5. A writing timeline records how each answer took shape in this tab:
+ *      typing in short batches, pastes, text that appeared without typing,
+ *      loads, and time away from the page. It goes to the teacher's private
+ *      Writing Timeline sheet only with Turn In. Students are told on the page.
+ *   6. Read aloud, bottom left, reads selected text or the passage in the
+ *      middle of the screen with the Chromebook's own voice. Nothing is sent.
  *
  * Placement: the Turn In panel goes inside <div data-desk-turnin></div> when a
  * hub has one, otherwise at the end of the page. Put data-desk-skip on any
@@ -29,7 +35,7 @@
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzssPoF99g1UTOrsVnMHy-jQaPwII8-lyxHwjlpNK8oa89KVSq48G5MkjiwTOCrgaJP/exec';
 
   if (window.__deskSave) return;
-  window.__deskSave = { version: '2' };
+  window.__deskSave = { version: '3' };
 
   var IDLE_SIGNOUT_MS = 20 * 60 * 1000;
   var CLOUD_DEBOUNCE_MS = 60 * 1000;
@@ -402,6 +408,200 @@
     if (state) { persist(); saveCloud(); }
   }
 
+  /* ----------------------------------------------------------- timeline -- */
+
+  // Writing timeline: how each answer took shape in this tab. It is sent only
+  // with Turn In, to the teacher's private sheet. It shows typing, pastes, text
+  // that appeared without typing and time away from the page. It is evidence for
+  // a conversation, never a verdict: it cannot see other devices or who typed.
+  var TL_KEY = 'desk-save:timeline:v1:' + hub;
+  var TL_FLUSH_MS = testHooks && testHooks.timelineFlushMs || 15000;
+  var TL_MAX_CHARS = 45000;
+  var TL_BIG = 25;
+  var TL_HIST = [150, 300, 600, 1500, 5000, 30000];
+  var tl = null;
+  var tlTimer = null;
+  var awayStart = 0;
+
+  function tlBlank() { return { v: 1, startedAt: new Date().toISOString(), t0: Date.now(), f: {}, away: [], marks: [], bases: {} }; }
+  function tlSec(ms) { return Math.max(0, Math.round(((ms || Date.now()) - tl.t0) / 1000)); }
+  function tlField(key) {
+    return tl.f[key] || (tl.f[key] = { ops: [], typed: 0, del: 0, pasted: 0, big: 0, hist: [0, 0, 0, 0, 0, 0, 0], ms: 0, lastKey: 0, lastEdit: 0, pending: 0, seen: null });
+  }
+  function tlDiff(a, b) {
+    if (a === b) return null;
+    var s = 0, max = Math.min(a.length, b.length);
+    while (s < max && a.charCodeAt(s) === b.charCodeAt(s)) s++;
+    var ea = a.length, eb = b.length;
+    while (ea > s && eb > s && a.charCodeAt(ea - 1) === b.charCodeAt(eb - 1)) { ea--; eb--; }
+    return [s, ea - s, b.slice(s, eb)];
+  }
+  function tlOp(key, text, kind, at) {
+    var rec = tlField(key);
+    var d = tlDiff(tl.bases[key] || '', text);
+    rec.pending = 0;
+    if (!d) return;
+    rec.ops.push([at == null ? tlSec() : at, d[0], d[1], d[2], kind]);
+    tl.bases[key] = text;
+    if (/^[pbx]$/.test(kind)) rec.big = Math.max(rec.big, d[2].length);
+  }
+  // Typing is stored in short batches rather than per key.
+  function tlFlush(key, text) {
+    var rec = tl.f[key];
+    if (rec && rec.pending) tlOp(key, text, 't', tlSec(rec.lastEdit));
+  }
+  function tlFlushAll() {
+    if (!tl) return;
+    var list = fields(); assignKeys(list);
+    list.forEach(function (el) { var rec = tl.f[keyOf.get(el)]; if (rec && rec.pending) tlFlush(keyOf.get(el), rec.seen == null ? el.value : rec.seen); });
+  }
+  function tlSave(now) {
+    if (!tl) return;
+    clearTimeout(tlTimer);
+    if (now) { writeJson('sessionStorage', TL_KEY, tl); return; }
+    tlTimer = setTimeout(function () { writeJson('sessionStorage', TL_KEY, tl); }, 1000);
+  }
+  // Programmatic changes: initial values, account loads, backups and undo.
+  function tlSync(kind) {
+    if (!tl) return;
+    var list = fields(); assignKeys(list);
+    list.forEach(function (el) {
+      var key = keyOf.get(el), rec = tlField(key);
+      if (rec.pending) tlFlush(key, rec.seen == null ? el.value : rec.seen);
+      tlOp(key, el.value, kind);
+      rec.seen = el.value;
+    });
+    tlSave();
+  }
+  function tlReset() {
+    tl = tlBlank();
+    tlSync('i');
+    tlSave(true);
+  }
+  function tlMark(name) { if (tl) { tl.marks.push([tlSec(), name]); if (tl.marks.length > 100) tl.marks.shift(); tlSave(); } }
+
+  function tlInput(e) {
+    var el = e.target;
+    if (!tl || applying || fields().indexOf(el) < 0) return;
+    var key = keyOf.get(el);
+    if (!key) { assignKeys(fields()); key = keyOf.get(el); }
+    var rec = tlField(key), now = Date.now(), type = e.inputType || '';
+    var prev = rec.seen != null ? rec.seen : (tl.bases[key] || '');
+    var d = tlDiff(prev, el.value);
+    rec.seen = el.value;
+    if (!d) return;
+    var ins = d[2].length;
+    rec.del += d[1];
+    if (rec.lastEdit && now - rec.lastEdit < 60000) rec.ms += now - rec.lastEdit;
+    rec.lastEdit = now;
+    var key1 = (type === 'insertText' || type === 'insertCompositionText') && ins <= 3;
+    var small = key1 || type === 'insertLineBreak' || type === 'insertParagraph' || /^delete/.test(type) || (type === 'insertReplacementText' && ins < TL_BIG) || (!type && ins <= 3);
+    if (small) {
+      if (key1 || type === 'insertLineBreak' || type === 'insertParagraph') {
+        rec.typed += ins;
+        if (rec.lastKey) {
+          var gap = now - rec.lastKey, b = 0;
+          while (b < TL_HIST.length && gap >= TL_HIST[b]) b++;
+          rec.hist[b]++;
+        }
+        rec.lastKey = now;
+      }
+      if (!rec.pending) rec.pending = now;
+      if (now - rec.pending >= TL_FLUSH_MS) tlFlush(key, el.value);
+    } else {
+      // Anything larger than a keystroke is stored on its own, with its kind.
+      if (rec.pending) tlOp(key, prev, 't', tlSec(rec.lastEdit));
+      var kind = /^insertFrom(Paste|Drop)/.test(type) ? 'p' : /^history/.test(type) ? 'u' : type ? 'b' : 'x';
+      if (kind === 'p') rec.pasted += ins;
+      tlOp(key, el.value, kind);
+      rec.lastKey = 0;
+    }
+    tlSave();
+  }
+  // Text that changed with no input event: set by the page or an extension.
+  function tlTick() {
+    if (!tl || applying) return;
+    var now = Date.now(), list = fields(); assignKeys(list);
+    list.forEach(function (el) {
+      var key = keyOf.get(el), rec = tlField(key);
+      if (rec.seen == null) rec.seen = tl.bases[key] || '';
+      if (el.value !== rec.seen) {
+        if (rec.pending) tlOp(key, rec.seen, 't', tlSec(rec.lastEdit));
+        tlOp(key, el.value, 'x');
+        rec.seen = el.value;
+        tlSave();
+      } else if (rec.pending && now - rec.pending >= TL_FLUSH_MS) { tlFlush(key, el.value); tlSave(); }
+    });
+  }
+  function tlAway() {
+    if (!tl || awayStart) return;
+    awayStart = Date.now();
+    tlFlushAll();
+    tlSave(true);
+  }
+  function tlBack() {
+    if (!tl || !awayStart) return;
+    var dur = Date.now() - awayStart, at = tlSec(awayStart);
+    awayStart = 0;
+    if (dur < 2000) return;
+    tl.away.push([at, Math.round(dur / 1000)]);
+    if (tl.away.length > 300) tl.away.shift();
+    tlSave();
+  }
+  // Rebuild every saved text so long timelines can be thinned to fit.
+  function tlTexts(ops) {
+    var text = '', out = [];
+    ops.forEach(function (op) { text = text.slice(0, op[1]) + op[3] + text.slice(op[1] + op[2]); out.push(text); });
+    return out;
+  }
+  function tlThin(rec) {
+    var texts = tlTexts(rec.ops), kept = [], keptTexts = [], merged = false;
+    for (var i = 0; i < rec.ops.length; i++) {
+      var op = rec.ops[i], next = rec.ops[i + 1];
+      if (op[4] === 't' && next && next[4] === 't') {
+        var d = tlDiff(keptTexts.length ? keptTexts[keptTexts.length - 1] : '', texts[i + 1]);
+        if (d) { kept.push([next[0], d[0], d[1], d[2], 't']); keptTexts.push(texts[i + 1]); }
+        i++; merged = true;
+      } else {
+        var d2 = tlDiff(keptTexts.length ? keptTexts[keptTexts.length - 1] : '', texts[i]);
+        if (d2) { kept.push([op[0], d2[0], d2[1], d2[2], op[4]]); keptTexts.push(texts[i]); }
+      }
+    }
+    rec.ops = kept;
+    return merged;
+  }
+  function tlPayload() {
+    try {
+      if (!tl) return undefined;
+      tlTick(); tlFlushAll();
+      var out = { v: 1, startedAt: tl.startedAt, sentAt: new Date().toISOString(), fields: {}, away: tl.away.slice(), marks: tl.marks.slice() };
+      var list = fields(); assignKeys(list);
+      list.forEach(function (el) {
+        var key = keyOf.get(el), rec = tl.f[key];
+        if (!rec || !rec.ops.length) return;
+        out.fields[key] = { ops: rec.ops.slice(), typed: rec.typed, del: rec.del, pasted: rec.pasted, big: rec.big, hist: rec.hist.slice(), ms: rec.ms };
+      });
+      var guard = 0;
+      while (JSON.stringify(out).length > TL_MAX_CHARS && guard++ < 12) {
+        var any = false;
+        Object.keys(out.fields).forEach(function (k) { if (tlThin(out.fields[k])) any = true; });
+        if (!any) break;
+      }
+      if (JSON.stringify(out).length > TL_MAX_CHARS) {
+        // Keep the counts and the large events; drop the step by step replay.
+        Object.keys(out.fields).forEach(function (k) {
+          var f = out.fields[k];
+          f.notable = f.ops.filter(function (op) { return /^[pbx]$/.test(op[4]); }).map(function (op) { return [op[0], op[4], op[3].length]; }).slice(-40);
+          f.ops = [];
+        });
+        out.truncated = true;
+      }
+      return out;
+    } catch (error) {
+      return undefined;
+    }
+  }
+
   /* ------------------------------------------------------------- events -- */
 
   function onEdit() {
@@ -509,6 +709,7 @@
       });
       applying = false;
       state.values = snapshot();
+      tlSync('l');
       state.cloudHash = draft ? hashOf(draft.answers) : '';
       if (draft && draft.turnedIn && draft.classPeriod === state.classPeriod && hashOf(answers(false)) === state.cloudHash) {
         state.turnedInAt = draft.finishedAt || draft.savedAt;
@@ -548,7 +749,8 @@
       page: location.pathname,
       classPeriod: state.classPeriod,
       submissionId: state.submission.id,
-      answers: list
+      answers: list,
+      timeline: tlPayload()
     }, { attempts: 3, timeoutMs: 40000 }).then(function (result) {
       if (owner !== state || started !== generation) return { ok: false, message: 'The account changed. Load My Work to check the result.' };
       if (result && result.code === 'conflict') { state.conflict = true; persist(); }
@@ -628,6 +830,7 @@
       if (Object.prototype.hasOwnProperty.call(values, 'r:' + g.name)) checkRadio(g, function (r) { return r.value === values['r:' + g.name]; });
     });
     applying = false;
+    tlSync('r');
     onEdit();
   }
 
@@ -897,6 +1100,7 @@
       [download, load, copy, undo, receipt, print].forEach(function (n) { tools.appendChild(n); });
       file.setAttribute('data-desk-skip', ''); document.body.appendChild(file);
       target.appendChild(tools); target.appendChild(evidence);
+      if (cloudOn) target.appendChild(make('p', { class: 'help' }, 'This page keeps a timeline of how your answers were written, such as pastes and time away from the page. Your teacher receives it when you press Turn In.'));
       if (!document.getElementById('lab-paste-feedback')) {
         var pasteLabel = make('label', { class: 'help' });
         var pasteCheck = make('input', { type: 'checkbox' });
@@ -909,6 +1113,7 @@
         pasteCheck.addEventListener('change', function () {
           fullPasteAllowed = pasteCheck.checked;
           pasteViews.forEach(function (v) { v.checkbox.checked = fullPasteAllowed; });
+          tlMark(fullPasteAllowed ? 'paste-on' : 'paste-off');
         });
       }
       download.addEventListener('click', function () {
@@ -1164,6 +1369,164 @@
 
   /* --------------------------------------------------------------- boot -- */
 
+  /* --------------------------------------------------------- read aloud -- */
+
+  // Uses the Chromebook's own speech engine. Nothing is sent anywhere.
+  var READ_CSS = [
+    ':host{all:initial;font-family:inherit;color:var(--ds-fg);font-size:16px;line-height:1.3}',
+    '*{box-sizing:border-box;font:inherit;color:inherit}',
+    '.bar{position:fixed;left:14px;bottom:var(--ds-lift,14px);z-index:2147483000;display:flex;align-items:center;gap:6px;padding:4px;border-radius:999px;background:var(--ds-bg);border:1px solid var(--ds-line-strong);box-shadow:0 6px 20px rgba(0,0,0,.25)}',
+    'button{min-height:40px;min-width:40px;padding:6px 14px;border-radius:999px;border:1px solid transparent;background:transparent;font-size:.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}',
+    'button:hover{border-color:var(--ds-line-strong)}',
+    'button:focus-visible{outline:3px solid currentColor;outline-offset:2px}',
+    'svg{width:18px;height:18px;flex:none}',
+    '[hidden]{display:none!important}',
+    '@media (max-width:520px){.bar{left:10px}.main .label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}',
+    '@media print{.bar{display:none}}'
+  ].join('');
+
+  function readChunks(text) {
+    var clean1 = String(text || '').replace(/\s+/g, ' ').trim();
+    var parts = clean1.match(/[^.!?]+[.!?]+["'”’)\]]*\s*|[^.!?]+$/g) || [];
+    var out = [], cur = '';
+    parts.forEach(function (p) {
+      while (p.length > 240) {
+        var cut = p.lastIndexOf(', ', 220); if (cut < 80) cut = p.lastIndexOf(' ', 220); if (cut < 80) cut = 220;
+        if (cur) { out.push(cur); cur = ''; }
+        out.push(p.slice(0, cut + 1).trim()); p = p.slice(cut + 1);
+      }
+      if ((cur + ' ' + p).length > 240) { if (cur) out.push(cur); cur = p.trim(); }
+      else cur = (cur + ' ' + p).trim();
+    });
+    if (cur) out.push(cur);
+    return out.filter(function (c) { return /\w/.test(c); });
+  }
+
+  function buildReadAloud() {
+    var synth = window.speechSynthesis;
+    if (!synth || typeof window.SpeechSynthesisUtterance !== 'function') return;
+    try { synth.cancel(); } catch (e) {}
+    var colors = pageColors();
+    var h = make('div', { id: 'desk-read-aloud', 'data-desk-skip': '' });
+    h.style.setProperty('--ds-fg', colors.fg);
+    h.style.setProperty('--ds-bg', colors.bg);
+    h.style.setProperty('--ds-line-strong', 'color-mix(in srgb, ' + colors.fg + ' 45%, transparent)');
+    var root = h.attachShadow({ mode: 'open' });
+    root.appendChild(make('style', {}, READ_CSS));
+    var mark = document.createElement('style');
+    mark.textContent = '.desk-reading{outline:3px solid currentColor;outline-offset:4px;border-radius:4px}';
+    document.head.appendChild(mark);
+    var bar = make('div', { class: 'bar', role: 'group', 'aria-label': 'Read aloud' });
+    var icon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+    var mainBtn = make('button', { class: 'main', type: 'button' });
+    mainBtn.innerHTML = icon + '<span class="label"></span>';
+    var label = mainBtn.querySelector('.label');
+    var pauseBtn = make('button', { type: 'button', hidden: '' }, 'Pause');
+    var stopBtn = make('button', { type: 'button', hidden: '' }, 'Stop');
+    var speeds = [0.8, 1, 1.25];
+    var speed = 1;
+    try { var savedSpeed = Number(localStorage.getItem('desk-read-aloud:speed')); if (speeds.indexOf(savedSpeed) >= 0) speed = savedSpeed; } catch (e) {}
+    var speedBtn = make('button', { type: 'button', 'aria-label': 'Reading speed' });
+    [mainBtn, pauseBtn, stopBtn, speedBtn].forEach(function (b) { bar.appendChild(b); });
+    root.appendChild(bar);
+    document.body.appendChild(h);
+
+    var queue = [], speaking = false, paused = false, block = null, voice = null, run = 0;
+    function pickVoice() {
+      var list = synth.getVoices() || [];
+      voice = list.filter(function (v) { return /^en-US/i.test(v.lang) && /google/i.test(v.name); })[0]
+        || list.filter(function (v) { return /^en-US/i.test(v.lang); })[0]
+        || list.filter(function (v) { return /^en/i.test(v.lang); })[0] || null;
+    }
+    pickVoice();
+    if ('onvoiceschanged' in synth) synth.addEventListener('voiceschanged', pickVoice);
+
+    function selectedText() {
+      var a = document.activeElement;
+      if (a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && /^(text|search)?$/.test(a.type || ''))) && a.selectionEnd > a.selectionStart) {
+        return a.value.slice(a.selectionStart, a.selectionEnd);
+      }
+      var sel = window.getSelection && window.getSelection();
+      var text = sel ? String(sel) : '';
+      if (sel && sel.anchorNode && h.contains(sel.anchorNode)) return '';
+      return text.trim().length > 1 ? text : '';
+    }
+    // With nothing selected, read the passage in the middle of the screen.
+    function passage() {
+      var x = Math.round(window.innerWidth / 2), y = Math.round(window.innerHeight * 0.42);
+      var el = document.elementFromPoint(x, y);
+      if (!el || el.closest('[data-desk-skip]') || el === document.body || el === document.documentElement) {
+        el = Array.prototype.slice.call(document.querySelectorAll('main p, main h1, main h2, main h3, main li, main blockquote, p, h1, h2, li, blockquote')).filter(function (n) {
+          var r = n.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight && !n.closest('[data-desk-skip]') && n.innerText.trim();
+        })[0] || null;
+      }
+      if (!el) return null;
+      var target = el.closest('p, li, blockquote, figcaption, h1, h2, h3, h4, td, label, dd') || el;
+      var container = target.closest('section, article, [data-section]');
+      if (container && !container.closest('[data-desk-skip]') && container.innerText.length <= 2500) target = container;
+      return target.innerText.trim() ? target : null;
+    }
+    function refresh() {
+      var sel = !speaking && selectedText();
+      label.textContent = speaking ? (paused ? 'Paused' : 'Reading') : sel ? 'Read selection' : 'Read aloud';
+      mainBtn.setAttribute('aria-label', speaking ? 'Read aloud is playing' : sel ? 'Read the selected text aloud' : 'Read this part of the page aloud');
+      mainBtn.disabled = speaking;
+      pauseBtn.hidden = stopBtn.hidden = !speaking;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      speedBtn.textContent = (speed === 1 ? '1' : String(speed)) + 'x';
+      speedBtn.setAttribute('aria-label', 'Reading speed ' + speed + ' times. Change speed');
+    }
+    function clearBlock() { if (block) block.classList.remove('desk-reading'); block = null; }
+    function stop() {
+      run++; queue = []; speaking = false; paused = false;
+      try { synth.cancel(); } catch (e) {}
+      clearBlock(); refresh();
+    }
+    function next(id) {
+      if (id !== run) return;
+      if (!queue.length) { speaking = false; paused = false; clearBlock(); refresh(); return; }
+      var u = new SpeechSynthesisUtterance(queue.shift());
+      if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = 'en-US';
+      u.rate = speed;
+      u.onend = function () { next(id); };
+      u.onerror = function (e) { if (e && e.error === 'interrupted') return; next(id); };
+      synth.speak(u);
+    }
+    function start(text, el) {
+      stop();
+      queue = readChunks(text);
+      if (!queue.length) return;
+      if (el) { block = el; el.classList.add('desk-reading'); }
+      speaking = true; refresh();
+      next(run);
+    }
+    mainBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); });
+    mainBtn.addEventListener('click', function () {
+      var sel = selectedText();
+      if (sel) { start(sel, null); return; }
+      var el = passage();
+      if (el) { el.scrollIntoView({ block: 'nearest' }); start(el.innerText, el); }
+    });
+    pauseBtn.addEventListener('click', function () {
+      if (!speaking) return;
+      if (paused) { synth.resume(); paused = false; } else { synth.pause(); paused = true; }
+      refresh();
+    });
+    stopBtn.addEventListener('click', stop);
+    speedBtn.addEventListener('click', function () {
+      speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length];
+      try { localStorage.setItem('desk-read-aloud:speed', String(speed)); } catch (e) {}
+      refresh();
+    });
+    var selTimer = null;
+    document.addEventListener('selectionchange', function () { clearTimeout(selTimer); selTimer = setTimeout(refresh, 150); });
+    document.addEventListener('select', function () { clearTimeout(selTimer); selTimer = setTimeout(refresh, 150); }, true);
+    window.addEventListener('pagehide', stop);
+    window.addEventListener('desk-save:reset', stop);
+    window.__deskSave.readAloud = { stop: stop };
+    refresh();
+  }
+
   function buildReaderUi() {
     var colors = pageColors();
     var h = make('aside', { id: 'desk-save-reader', 'data-desk-skip': '' });
@@ -1180,6 +1543,7 @@
   }
 
   function boot() {
+    try { buildReadAloud(); } catch (error) { /* Reading support must never stop saving. */ }
     if (!fields().length && !radioGroups().length) { buildReaderUi(); return; }
     window.__deskSave.mode = 'assignment';
     var saved = readJson('sessionStorage', STORE_KEY);
@@ -1202,21 +1566,30 @@
     });
     state.values = snapshot();
     persist();
+    var savedTl = readJson('sessionStorage', TL_KEY);
+    if (savedTl && savedTl.v === 1 && savedTl.t0 && savedTl.f && savedTl.bases) { tl = savedTl; tl.away = tl.away || []; tl.marks = tl.marks || []; tlSync('r'); }
+    else tlReset();
+    window.addEventListener('desk-save:reset', tlReset);
     buildUi();
     // Refreshing during the one-minute wait must restart the pending account save.
     if (state.token && hashOf(answers(false)) !== state.cloudHash) scheduleCloud();
     // A tab left signed in for a long time is signed out once its work is safely on the account.
     idleCheck();
 
+    document.addEventListener('input', tlInput, true);
     document.addEventListener('input', function (e) { if (e.target && e.target.matches && e.target.matches('textarea, input')) onEdit(); }, true);
     document.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches('textarea, input')) onEdit(); }, true);
     ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (type) {
       document.addEventListener(type, onActivity, { capture: true, passive: true });
     });
     setInterval(onEdit, SNAPSHOT_MS);
+    setInterval(tlTick, SNAPSHOT_MS);
     setInterval(idleCheck, testHooks && testHooks.idleMs ? 250 : 30000);
-    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') beaconSave(); });
-    window.addEventListener('pagehide', beaconSave);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { tlAway(); beaconSave(); } else tlBack(); });
+    // A video or embedded activity taking focus is not leaving the page.
+    window.addEventListener('blur', function () { setTimeout(function () { var a = document.activeElement; if ((a && a.tagName === 'IFRAME') || document.hasFocus()) return; tlAway(); }, 0); });
+    window.addEventListener('focus', tlBack);
+    window.addEventListener('pagehide', function () { tlFlushAll(); tlSave(true); beaconSave(); });
     window.addEventListener('online', function () { if (state.token) saveCloud(); });
     window.addEventListener('beforeunload', function (e) {
       if (!hasWork()) return;
@@ -1227,7 +1600,8 @@
     });
 
     // A paste rule is writing support, never an authorship or AI detector.
-    // It records no clipboard text, key counts, activity scores or exceptions.
+    // It never reads the clipboard. A blocked long paste is noted on the
+    // writing timeline, which goes to the teacher only with Turn In.
     if (!document.getElementById('lab-paste-feedback')) {
       var guardPaste = function (e) {
         if (fullPasteAllowed || fields().indexOf(e.target) < 0) return;
@@ -1237,6 +1611,7 @@
         var text = transfer && transfer.getData('text/plain') || '';
         if (/^https?:\/\/\S+$/i.test(text.trim()) || (text.trim().match(/\S+/g) || []).length <= 12) return;
         e.preventDefault();
+        tlMark('paste-blocked');
         pasteViews.forEach(function (v) { v.feedback.textContent = 'Long paste was not inserted. For your own draft or a writing tool, choose Allow full paste first.'; });
         ui.refresh('Long paste was not inserted. Use Allow full paste in Your work for your own draft or a writing tool.');
       };
@@ -1253,6 +1628,7 @@
       window.__deskSave.state = function () { return JSON.parse(JSON.stringify(state)); };
       window.__deskSave.answers = function () { return answers(true); };
       window.__deskSave.saveCloud = saveCloud;
+      window.__deskSave.timeline = function () { return JSON.parse(JSON.stringify(tlPayload() || null)); };
     }
   }
 
