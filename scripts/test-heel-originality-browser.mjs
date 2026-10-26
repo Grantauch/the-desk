@@ -125,7 +125,7 @@ try {
   // Drive the served student page against the real Turn In code in an isolated
   // Apps Script runtime. Synthetic PINs and work never contact the live service.
   const service = world();
-  let offline = false, holdSubmission = false, releaseSubmission;
+  let offline = false, holdSubmission = false, releaseSubmission, acceptRecovery = true;
   const submitted = [];
   const makeDevice = async () => {
     const device = await browser.newContext({ viewport: { width: 1366, height: 768 } });
@@ -152,20 +152,25 @@ try {
   const open = async device => {
     const p = await device.newPage();
     p.on('pageerror', error => errors.push(String(error)));
-    p.on('dialog', dialog => dialog.accept());
+    p.on('dialog', dialog => dialog.type() === 'confirm' && !acceptRecovery ? dialog.dismiss() : dialog.accept());
     await p.goto(origin + '/hubs/bts-americas-most-hated-research.html', { waitUntil: 'load' });
     await p.waitForFunction(() => window.__deskSave?.ready);
     return p;
   };
   const login = async p => {
-    const chip = p.locator('#desk-save-chip');
-    await chip.locator('.chip').click();
-    await chip.locator('input').fill(service.pin(PEOPLE.ada));
-    await chip.getByRole('button', { name: 'Save to my account' }).click();
+    const resume = p.locator('#desk-save-resume');
+    await resume.locator('input').fill(service.pin(PEOPLE.ada));
+    await resume.getByRole('button', { name: 'Load My Work', exact: true }).click();
     await p.waitForFunction(() => Boolean(window.__deskSave.state().token));
   };
   const device = await makeDevice();
   const research = await open(device);
+  const resume = research.locator('#desk-save-resume');
+  assert.equal(await research.getByRole('link', { name: 'Load My Work', exact: true }).first().getAttribute('href'), '#load-work');
+  await resume.locator('input').fill('12');
+  await resume.getByRole('button', { name: 'Load My Work', exact: true }).click();
+  assert.match(await resume.locator('.status').textContent(), /six digit/);
+  assert.equal(await research.evaluate(() => Boolean(window.__deskSave.state().token)), false);
   await login(research);
   await research.locator('#lab-heel-choices button').filter({ hasText: 'The Iron Sheik' }).click();
   const prose = 'Synthetic research draft for browser verification only. The interpretation separates a character from a person and checks the historical record before making a claim about audiences, promotion, chronology, prejudice, and evidence.';
@@ -211,17 +216,46 @@ try {
   assert.equal(await research.locator('#lab-paste-override').isChecked(), false);
   offline = false;
   await research.evaluate(() => window.__deskSave.saveCloud());
+  await research.waitForFunction(() => window.__deskSave.state().cloudHash.includes('Offline revision preserved.'));
+  await resume.getByRole('button', { name: 'Save now', exact: true }).click();
+  await research.waitForFunction(() => /Account save confirmed/.test(document.querySelector('#desk-save-resume').shadowRoot.querySelector('.status').textContent));
 
   // A fresh device starts blank and recovers only after authentication.
   const secondDevice = await makeDevice();
   const recovered = await open(secondDevice);
   assert.equal(await recovered.locator('#lab-identity').inputValue(), '');
+  const homeResume = recovered.locator('#desk-save-resume');
+  const load = homeResume.getByRole('button', { name: 'Load My Work', exact: true });
+  await recovered.locator('#lab-identity').fill('Keep this unsaved answer unless I approve loading the account copy.');
+  await recovered.locator('[data-lab-tab="5"]').click();
+  await recovered.locator('input[name="lab_check_1"][value="Not yet"]').check();
+  offline = true;
+  await homeResume.locator('input').fill(service.pin(PEOPLE.ada));
+  await load.click();
+  await recovered.waitForFunction(() => /Could not reach/.test(document.querySelector('#desk-save-resume').shadowRoot.querySelector('.status').textContent));
+  assert.equal(await recovered.locator('#lab-identity').inputValue(), 'Keep this unsaved answer unless I approve loading the account copy.');
+  assert.equal(await load.isEnabled(), true);
+  offline = false;
+  acceptRecovery = false;
+  await homeResume.locator('input').fill(service.pin(PEOPLE.ada));
+  await load.click();
+  await recovered.waitForFunction(() => /cancelled/.test(document.querySelector('#desk-save-resume').shadowRoot.querySelector('.status').textContent));
+  assert.equal(await recovered.evaluate(() => Boolean(window.__deskSave.state().token)), false);
+  assert.equal(await recovered.locator('#lab-identity').inputValue(), 'Keep this unsaved answer unless I approve loading the account copy.');
+  acceptRecovery = true;
   await login(recovered);
   await recovered.waitForFunction(expected => document.getElementById('lab-identity').value === expected, prose);
   assert.equal(await recovered.locator('#lab-identity').inputValue(), prose);
   assert.equal(await recovered.locator('#lab-process-report').count(), 0);
+  assert.match(await recovered.locator('#lab-talk').inputValue(), /Offline revision preserved/);
+  assert.equal(await recovered.locator('#lab-heel').inputValue(), 'The Iron Sheik');
+  assert.equal(await recovered.locator('#lab-event-date').inputValue(), '1979-11-04');
+  assert.equal(await recovered.locator('#lab-progress').textContent(), '5 / 5');
+  assert.match(await recovered.locator('#lab-score-count').textContent(), /100 of 100/);
+  assert.equal(await homeResume.locator('input').inputValue(), '', 'PIN cleared after loading');
   assert.match(await recovered.locator('#lab-defense-answer').getAttribute('data-q'), /For The Iron Sheik/);
   await secondDevice.close();
+  console.log('PASS: visible Load My Work, PIN validation, confirmed Save now, offline failure preserves work, cancelled/accepted replacement, and all five rounds plus rubric recover on a fresh device.');
 
   // A submission stays unconfirmed until the server acknowledges its write.
   holdSubmission = true;
@@ -257,6 +291,11 @@ try {
   await mkdir(new URL('../browser-results/heel-research/', import.meta.url), { recursive: true });
   for (const width of [320, 390, 1366]) {
     await research.setViewportSize({ width, height: 768 });
+    await research.locator('#load-work').scrollIntoViewIfNeeded();
+    const resumeAudit = await new AxeBuilder({ page: research }).include('#load-work').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    assert.deepEqual(resumeAudit.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target) })), [], `Accessible recovery at ${width}px`);
+    assert.ok(await research.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Recovery fits ${width}px`);
+    await research.screenshot({ path: fileURLToPath(new URL(`../browser-results/heel-research/load-${width}.png`, import.meta.url)) });
     for (let round = 1; round <= 5; round++) {
       await research.locator(`[data-lab-tab="${round}"]`).click();
       assert.ok(await research.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No overflow at ${width}px round ${round}`);
