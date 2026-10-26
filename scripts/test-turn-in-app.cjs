@@ -335,7 +335,7 @@ test('unchanged autosave after finishing keeps Finished and records the original
   const request = savedDraft(w);
   w.post({ action: 'turnin', pin: w.pin(PEOPLE.ada), hub: 'h', submissionId: 'manual', answers: request.answers });
   w.clock.advanceMinutes(1);
-  savedDraft(w, PEOPLE.ada, '', { answers: [...request.answers, { k: 'hidden', q: 'Hidden', a: '' }] });
+  savedDraft(w, PEOPLE.ada, '', { answers: request.answers });
   assert.equal(w.rows('Progress')[0].Status, 'Finished');
   assert.equal(w.rows('Turn Ins').length, 1);
   const back = w.post({ action: 'signin', pin: w.pin(PEOPLE.ada), hub: 'h' });
@@ -531,6 +531,125 @@ test('review membership refreshes from the active roster without changing source
   assert.equal(JSON.stringify(w.school.harness.spreadsheet.getSheetByName('Roster').records()), original);
   assert.equal(w.rows('Classroom Links').length, 1, 'setup preserves teacher links');
   assert.equal(w.h.state.triggers.filter((t) => t.handler === 'refreshTeacherReview').length, 1);
+});
+
+
+test('checked writes reject older tabs even when both writes share the same server millisecond', () => {
+  const w = world();
+  const login = w.post({ action:'signin', pin:w.pin(PEOPLE.ada), hub:'h' });
+  const base = {action:'save', token:login.token, hub:'h', classPeriod:'Period 1', writeProtocol:1};
+  const first = w.post({...base, baseRevision:'', answers:ONE});
+  assert.equal(first.ok, true);
+  const newer = answers(['id:q1','Question','Newer version']);
+  const second = w.post({...base, baseRevision:first.revision, answers:newer});
+  assert.equal(second.ok, true);
+  assert.notEqual(first.revision, second.revision);
+  const stale = w.post({...base, baseRevision:first.revision, answers:ONE});
+  assert.equal(stale.code, 'conflict');
+  assert.equal(w.rows('Drafts').length, 2);
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin', pin:w.pin(PEOPLE.ada), hub:'h'}).draft.answers[0].a, 'Newer version');
+});
+
+test('a lost checked-save acknowledgement can be retried without creating another draft', () => {
+  const w = world();
+  const login=w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  const request={action:'save',token:login.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:'',answers:ONE};
+  const a=w.post(request); w.h.state.cache.clear(); const b=w.post(request);
+  assert.equal(b.ok,true); assert.equal(a.revision,b.revision); assert.equal(w.rows('Drafts').length,1);
+});
+
+test('stale checked Turn In preserves newer progress and creates no misleading finish', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada);
+  const login=w.post({action:'signin',pin,hub:'h'});
+  const save=w.post({action:'save',token:login.token,hub:'h',classPeriod:'Period 1',answers:ONE});
+  const result=w.post({action:'turnin',pin,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:'',submissionId:'old-tab',answers:answers(['k','Q','old'])});
+  assert.equal(result.code,'conflict'); assert.equal(w.rows('Turn Ins').length,0);
+  assert.equal(w.rows('Progress')[0].Status,'In progress');
+  const ok=w.post({action:'turnin',pin,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:save.revision,submissionId:'current-tab',answers:ONE});
+  assert.equal(ok.ok,true); assert.equal(ok.submissionId,'current-tab'); assert.ok(ok.revision);
+});
+
+test('cached Turn In IDs cannot acknowledge a different answer payload', () => {
+  const w=world(),request={action:'turnin',pin:w.pin(PEOPLE.ada),hub:'h',submissionId:'cache-replay',answers:ONE};
+  assert.equal(w.post(request).ok,true);
+  assert.equal(w.post({...request,answers:answers(['k','Q','Different work'])}).code,'bad_request');
+  assert.equal(w.rows('Turn Ins').length,1);
+});
+
+test('signed-in account and Turn In PIN must identify the same student', () => {
+  const w=world(),login=w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  const result=w.post({action:'turnin',pin:w.pin(PEOPLE.grace),accountToken:login.token,hub:'h',submissionId:'wrong-account',answers:ONE});
+  assert.equal(result.code,'wrong_account'); assert.equal(w.rows('Turn Ins').length,0);
+});
+
+test('a corrupt newest draft row does not hide the previous readable work', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),login=w.post({action:'signin',pin,hub:'h'});
+  w.post({action:'save',token:login.token,hub:'h',answers:ONE});
+  w.book().getSheetByName('Drafts').appendRow([new Date(),PEOPLE.ada.email,'h','{broken']);
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin,hub:'h'}).draft.answers[0].a,ONE[0].a);
+});
+
+test('every catalogue StoryHub has common controls and answer drafts never use localStorage', () => {
+  const catalog=fs.readFileSync(path.join(__dirname,'../src/data/storyhubs.ts'),'utf8');
+  const hrefs=[...catalog.matchAll(/href: '(\/hubs\/[^']+)'/g)].map(m=>m[1]);
+  assert.equal(hrefs.length,47);
+  for(const href of hrefs) {
+    const text=fs.readFileSync(path.join(__dirname,'../public',href),'utf8');
+    assert.ok(text.includes('/hubs/desk-save.js'),href);
+    if(/<textarea\b/i.test(text)) assert.ok(!/localStorage/.test(text),href+' retains a shared browser draft');
+  }
+});
+
+test('strict activation rejects an older client instead of permitting an unprotected overwrite', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),login=w.post({action:'signin',pin,hub:'h'});
+  w.sandbox.activateWorkProtection();
+  assert.equal(JSON.parse(w.sandbox.doGet().text).checkedWritesRequired,true);
+  assert.equal(w.post({action:'save',token:login.token,hub:'h',answers:ONE}).code,'reload_required');
+  assert.equal(w.post({action:'turnin',pin,hub:'h',answers:ONE,submissionId:'legacy'}).code,'reload_required');
+  assert.equal(w.rows('Turn Ins').length,0);
+  assert.equal(w.post({action:'save',token:login.token,hub:'h',answers:ONE,writeProtocol:1,baseRevision:''}).ok,true);
+});
+
+test('retrying an old receipt after cache eviction cannot regress newer progress in the same clock tick', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),body={action:'turnin',pin,hub:'h',submissionId:'first',answers:ONE};
+  const first=w.post(body);
+  const changed=answers(['id:q1','Q','Later draft']);
+  w.post({action:'save',token:first.token,hub:'h',classPeriod:'Period 1',answers:changed});
+  w.h.state.cache.clear();assert.equal(w.post(body).ok,true);
+  assert.match(w.rows('Progress')[0].Answers,/Later draft/);
+  assert.equal(w.rows('Progress')[0].Status,'In progress');
+});
+
+test('retained drafts older than the most recent 4000 other rows remain recoverable', () => {
+  const w=world(),pin=w.pin(PEOPLE.alan),login=w.post({action:'signin',pin,hub:'h'});
+  assert.equal(w.post({action:'save',token:login.token,hub:'h',answers:ONE}).ok,true);
+  assert.equal(w.rows('Progress').length,0,'multiple classes leave this draft unassigned');
+  const sheet=w.book().getSheetByName('Drafts');
+  sheet.insertRowsAfter(sheet.getMaxRows(),4100);
+  for(let n=0;n<4001;n++) sheet.appendRow([new Date(),'other@example.invalid','other','{}']);
+  w.h.state.cache.clear();assert.equal(w.post({action:'signin',pin,hub:'h'}).draft.answers[0].a,ONE[0].a);
+});
+
+test('optional work-cache failure cannot convert a durable save or Turn In into a failure', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),login=w.post({action:'signin',pin,hub:'h'});
+  const cache=w.sandbox.CacheService.getScriptCache(),put=cache.put;
+  cache.put=(key,...args)=>{if(/^(draft:|sub:|progress-row:)/.test(key))throw Error('Cache quota');return put.call(cache,key,...args);};
+  const save=w.post({action:'save',token:login.token,hub:'h',classPeriod:'Period 1',answers:ONE});
+  assert.equal(save.ok,true);assert.equal(w.rows('Drafts').length,1);
+  assert.equal(w.post({action:'turnin',pin,hub:'h',submissionId:'no-cache',answers:ONE}).ok,true);
+  assert.equal(w.rows('Turn Ins').length,1);
+});
+
+test('blank fields and question wording are part of the exact saved and finished snapshot', () => {
+  const w=world(),pin=w.pin(PEOPLE.ada),body={action:'turnin',pin,hub:'h',submissionId:'exact',answers:ONE};
+  const receipt=w.post(body);
+  const expanded=[...ONE,{k:'id:q3',q:'New question',a:''}];
+  assert.equal(w.post({...body,answers:expanded}).code,'bad_request','blank fields cannot be hidden behind an old receipt');
+  const save=w.post({action:'save',token:receipt.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:receipt.revision,answers:expanded});
+  assert.equal(save.ok,true);assert.equal(w.rows('Progress')[0].Status,'In progress');
+  assert.equal(JSON.parse(w.rows('Drafts')[0].Data).answers.length,3);
 });
 
 console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);

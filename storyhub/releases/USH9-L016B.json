@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "/hubs/ush9-l016b-they-said-no.html",
-      "bytes": 77881,
-      "sha256": "ac85f7edb85d1b753db9b6163ddb4d31b6914a78c7a3a2e9cef0cd15289061ff"
+      "bytes": 77930,
+      "sha256": "bb0f0778a58c6b5353f978f8f22a007b522b90901bd0b0439abecb8bb9377fd8"
     },
     {
       "path": "/storyhub/ush9/l016/assets/sea.webp",
@@ -26,6 +26,6 @@
       "height": 782
     }
   ],
-  "totalBytes": 267625,
-  "sealedAt": "2026-09-10"
+  "totalBytes": 267674,
+  "sealedAt": "2026-10-26"
 }

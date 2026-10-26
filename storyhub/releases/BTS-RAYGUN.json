@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-bytesize-zero-points.html",
-      "bytes": 26202,
-      "sha256": "b89c708b4653b975df687a69adbed21819fd3873ab24b3341c4161b0cc31bbfb"
+      "bytes": 26251,
+      "sha256": "50b7c65facb2bc5489845d2ff3019b27b893bb830b31a8ac1878eb70e6351179"
     },
     {
       "path": "/storyhub/bts/zero-points/assets/youth-olympics-2018.webp",
@@ -30,6 +30,6 @@
       "height": 1046
     }
   ],
-  "totalBytes": 364432,
-  "sealedAt": "2026-10-21"
+  "totalBytes": 364481,
+  "sealedAt": "2026-10-26"
 }

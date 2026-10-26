@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-americas-most-hated-exemplar.html",
-      "bytes": 37928,
-      "sha256": "5aea0430881308bc8a8f1e5da8c8773c04f25091c499d29659e96ac462c25eba"
+      "bytes": 37977,
+      "sha256": "3d2cc8e42d0ad891d8101cd01f0a68922fda8c881e89c0f10c4748aff019ef37"
     },
     {
       "path": "/storyhub/bts/americas-most-hated/assets/alfa-slab-one.woff2",
@@ -78,6 +78,6 @@
       "height": 214
     }
   ],
-  "totalBytes": 513486,
-  "sealedAt": "2026-10-21"
+  "totalBytes": 513535,
+  "sealedAt": "2026-10-26"
 }

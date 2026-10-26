@@ -666,7 +666,7 @@ textarea:focus{outline:3px solid var(--blood);outline-offset:1px}
 </footer>
 
 <button class="soundbtn" id="sound" type="button" aria-pressed="false">Sound off</button>
-<div class="saved" id="toast">Saved</div>
+<div class="saved" id="toast">Draft updated</div>
 <script>
 (function(){
   var KEY='hh-shines-in-the-dark-v1';
@@ -680,10 +680,10 @@ textarea:focus{outline:3px solid var(--blood);outline-offset:1px}
 
   /* ---------- sound ---------- */
   var AC=null,soundOn=false,sbtn=$('sound');
-  try{soundOn=localStorage.getItem('rg-sound')==='on';}catch(e){}
+  try{soundOn=sessionStorage.getItem('rg-sound')==='on';}catch(e){}
   function ctx(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();}if(AC.state==='suspended')AC.resume();return AC;}
   function paintSound(){sbtn.setAttribute('aria-pressed',soundOn?'true':'false');sbtn.textContent=soundOn?'Sound on':'Sound off';}
-  sbtn.addEventListener('click',function(){soundOn=!soundOn;if(soundOn)ctx();try{localStorage.setItem('rg-sound',soundOn?'on':'off');}catch(e){}paintSound();if(soundOn)tone(660,.08,'square',.05);});
+  sbtn.addEventListener('click',function(){soundOn=!soundOn;if(soundOn)ctx();try{sessionStorage.setItem('rg-sound',soundOn?'on':'off');}catch(e){}paintSound();if(soundOn)tone(660,.08,'square',.05);});
   paintSound();
   function tone(f,d,type,vol,slide){if(!soundOn)return;var c=ctx();if(!c)return;var o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02);}
   function noise(d,freq,vol,type){if(!soundOn)return;var c=ctx();if(!c)return;var n=Math.floor(c.sampleRate*d),b=c.createBuffer(1,n,c.sampleRate),x=b.getChannelData(0);for(var i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);var s=c.createBufferSource();s.buffer=b;var f=c.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=freq;var g=c.createGain();g.gain.value=vol;s.connect(f);f.connect(g);g.connect(c.destination);s.start();}
@@ -1008,12 +1008,12 @@ textarea:focus{outline:3px solid var(--blood);outline-offset:1px}
   function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=80&&n<=150)?'ok':'';}
   function save(){
     var d={};fields.forEach(function(e){d[keyOf(e)]=e.value;});
-    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    try{sessionStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
     clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
   }
   function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
   (function load(){
-    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    var raw=null;try{raw=sessionStorage.getItem(KEY);}catch(e){}
     if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
     fields.forEach(function(e){var v=d[keyOf(e)];if(typeof v==='string')e.value=v;});
   })();

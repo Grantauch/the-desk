@@ -424,10 +424,10 @@ td:first-child{font-family:'Libre Franklin',sans-serif;font-weight:700;font-size
 (function(){
   var KEY='bts-two-minutes-v1';
   var store={};
-  try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){store={};}
+  try{store=JSON.parse(sessionStorage.getItem(KEY)||'{}')||{};}catch(e){store={};}
   var toast=document.getElementById('toast'),tT,sT;
   function persist(){
-    try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){return;}
+    try{sessionStorage.setItem(KEY,JSON.stringify(store));}catch(e){return;}
     clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1000);
   }
   function queue(){clearTimeout(sT);sT=setTimeout(persist,600);}

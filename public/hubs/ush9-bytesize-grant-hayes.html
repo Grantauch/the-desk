@@ -587,7 +587,7 @@ textarea{width:100%;min-height:92px;font:inherit;font-size:1.05rem;background:#f
   <span class="fin">That's the Byte.</span>
   <p>StoryHub ByteSize No. 1 &middot; <a href="/storyhubs/">All StoryHubs</a> &middot; <a href="/us-history/">US History 9</a></p>
 </footer>
-<div class="saved" id="toast">Saved</div>
+<div class="saved" id="toast">Draft updated</div>
 
 <script>
 (function(){
@@ -753,12 +753,12 @@ textarea{width:100%;min-height:92px;font:inherit;font-size:1.05rem;background:#f
   function count(){var n=essay.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=n;wc.className=(n>=50&&n<=100)?'ok':'';}
   function save(){
     var d={};fields.forEach(function(e){d[keyOf(e)]=e.value;});
-    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
+    try{sessionStorage.setItem(KEY,JSON.stringify(d));}catch(e){return;}
     clearTimeout(tT);toast.classList.add('show');tT=setTimeout(function(){toast.classList.remove('show');},1100);
   }
   function queueSave(){clearTimeout(sT);sT=setTimeout(save,700);}
   (function load(){
-    var raw=null;try{raw=localStorage.getItem(KEY);}catch(e){}
+    var raw=null;try{raw=sessionStorage.getItem(KEY);}catch(e){}
     if(!raw)return;var d;try{d=JSON.parse(raw);}catch(e){return;}
     fields.forEach(function(e){var v=d[keyOf(e)];if(typeof v==='string')e.value=v;});
   })();

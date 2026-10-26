@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/bts-bytesize-weights-in-the-fish.html",
-      "bytes": 28096,
-      "sha256": "8ce8b515d6a4b0c41efc232de78b9e48c188723720c5b40901586594301435df"
+      "bytes": 28145,
+      "sha256": "367b57681e72ed5d283ee72225be9ceacf2d4c6ceb4caa37cae69d3e131ae6cd"
     },
     {
       "path": "/storyhub/bts/weights-in-the-fish/assets/walleye.webp",
@@ -30,6 +30,6 @@
       "height": 746
     }
   ],
-  "totalBytes": 237230,
-  "sealedAt": "2026-10-22"
+  "totalBytes": 237279,
+  "sealedAt": "2026-10-26"
 }

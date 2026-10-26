@@ -54,6 +54,7 @@ let failures = 0;
 let passed = 0;
 
 async function test(name, fn) {
+  if (process.env.DESK_SAVE_TEST_FILTER && !name.includes(process.env.DESK_SAVE_TEST_FILTER)) return;
   try {
     await fn();
     passed += 1;
@@ -122,7 +123,7 @@ async function typeInto(page, selector, text) {
 }
 
 async function turnIn(page, pin) {
-  await panel(page).locator('input').fill(pin);
+  await panel(page).locator('input[type="password"]').fill(pin);
   await panel(page).getByRole('button', { name: 'Turn In' }).click();
   await page.waitForFunction(() => {
     const status = document.querySelector('#desk-save-panel').shadowRoot.querySelector('.status');
@@ -171,8 +172,8 @@ await test('golf resumes notes, card, settings, run records and draft on a diffe
   const first = await chromebook(s);
   const page = await first.open('bts-golf-special-edition.html');
   const resume = page.locator('#desk-save-resume');
-  await resume.locator('input').fill(s.pin(PEOPLE.ada));
-  await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+  await resume.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+  await resume.getByRole('button', { name: 'Load My Work' }).click();
   await page.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
   await page.locator('#make-card').click();
   await page.locator('#note-01').fill('The ban proves people knew the game, not that the government invented it.');
@@ -190,8 +191,8 @@ await test('golf resumes notes, card, settings, run records and draft on a diffe
   const second = await chromebook(s);
   const home = await second.open('bts-golf-special-edition.html');
   assert.equal(await home.locator('#assignment-card').inputValue(), '', 'fresh device has no assigned card before recovery');
-  await home.locator('#desk-save-resume').locator('input').fill(s.pin(PEOPLE.ada));
-  await home.locator('#desk-save-resume').getByRole('button', { name: 'Sign in / recover my work' }).click();
+  await home.locator('#desk-save-resume').locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+  await home.locator('#desk-save-resume').getByRole('button', { name: 'Load My Work' }).click();
   await home.waitForFunction(() => document.querySelector('#log-equipment').value.includes('Run 2'));
   const after = await home.evaluate(() => Object.fromEntries([...document.querySelectorAll('textarea')].map(el => [el.id, el.value])));
   assert.deepEqual(after, before, 'all work fields return, including readonly activity evidence');
@@ -209,8 +210,8 @@ await test('golf access requires participation, caps travel help, and clears lab
   const page = await cb.open('bts-golf-special-edition.html');
   const resume = page.locator('#desk-save-resume');
   const signIn = async () => {
-    await resume.locator('input').fill(s.pin(PEOPLE.ada));
-    await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+    await resume.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+    await resume.getByRole('button', { name: 'Load My Work' }).click();
     await page.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
   };
   await signIn();
@@ -266,8 +267,8 @@ await test('golf cloud cadence saves continuous edits within thirty seconds and 
   await page.clock.install();
   await openHub(cb.context, 'bts-golf-special-edition.html', page);
   const resume = page.locator('#desk-save-resume');
-  await resume.locator('input').fill(s.pin(PEOPLE.ada));
-  await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+  await resume.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+  await resume.getByRole('button', { name: 'Load My Work' }).click();
   await page.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
   for (let i = 0; i < 7; i++) {
     await page.locator('#note-01').fill('Still typing ' + i);
@@ -295,8 +296,8 @@ await test('returning to an older golf tab can recover the latest home copy with
   const old = await school.open('bts-golf-special-edition.html');
   const sign = async page => {
     const resume = page.locator('#desk-save-resume');
-    await resume.locator('input').fill(s.pin(PEOPLE.ada));
-    await resume.getByRole('button', { name: 'Sign in / recover my work' }).click();
+    await resume.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+    await resume.getByRole('button', { name: 'Load My Work' }).click();
   };
   await sign(old);
   await old.waitForFunction(() => document.querySelector('#desk-save-resume').getAttribute('data-signed-in') === 'true');
@@ -327,7 +328,7 @@ const hubs = (await readdir(join(ROOT, 'hubs')))
   .filter(async () => true);
 const wired = [];
 for (const name of hubs) {
-  if ((await readFile(join(ROOT, 'hubs', name), 'utf8')).includes('/hubs/desk-save.js')) wired.push(name);
+  if ((await readFile(join(ROOT, 'hubs', name), 'utf8')).includes('/hubs/desk-save.js') && /<textarea\b/i.test(await readFile(join(ROOT, 'hubs', name), 'utf8'))) wired.push(name);
 }
 
 await test('PIN sign in captures progress after closing without declaring finished', async () => {
@@ -336,7 +337,7 @@ await test('PIN sign in captures progress after closing without declaring finish
   const page = await cb.open('bts-the-bargain.html');
   await typeInto(page, 'textarea', 'Forgot to press Turn In');
   await chip(page).locator('.chip').click();
-  await chip(page).locator('input').fill(s.pin(PEOPLE.ada));
+  await chip(page).locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
   await chip(page).getByRole('button', { name: 'Save to my account' }).click();
   await waitFor(() => s.rows('Drafts').length > 0);
   assert.equal(s.rows('Turn Ins').length, 0);
@@ -364,7 +365,7 @@ await test('changed progress saves on the minute without interrupting typing or 
   await openHub(cb.context, 'bts-the-bargain.html', page);
   await page.locator('#q1').fill('First answer');
   await chip(page).locator('.chip').click();
-  await chip(page).locator('input').fill(s.pin(PEOPLE.ada));
+  await chip(page).locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
   await chip(page).getByRole('button', { name: 'Save to my account' }).click();
   await waitFor(() => s.rows('Progress').length === 1);
   const saves = cb.net.calls.filter(action => action === 'save').length;
@@ -429,14 +430,14 @@ await test('the next student on a shared Chromebook gets a blank page, even on h
   const first = await cb.open('hh-who-took-the-files.html');
   await typeInto(first, 'textarea[data-q="A1"]', 'Second hour answer that must not leak');
   await first.waitForTimeout(1200);
-  const hubOwnCopy = await first.evaluate(() => Object.keys(localStorage).map((k) => localStorage.getItem(k)).join(' '));
-  assert.match(hubOwnCopy, /must not leak/, 'this hub keeps its own copy in the browser');
+  const hubOwnCopy = await first.evaluate(() => Object.keys(sessionStorage).map((k) => sessionStorage.getItem(k)).join(' '));
+  assert.match(hubOwnCopy, /must not leak/, 'this hub keeps its own copy in this tab');
   await first.close();
 
   const second = await cb.open('hh-who-took-the-files.html');
   assert.equal(await second.locator('textarea[data-q="A1"]').inputValue(), '');
   await second.waitForTimeout(1200);
-  const after = await second.evaluate(() => Object.keys(localStorage).map((k) => localStorage.getItem(k)).join(' '));
+  const after = await second.evaluate(() => Object.keys(sessionStorage).map((k) => sessionStorage.getItem(k)).join(' '));
   assert.doesNotMatch(after, /must not leak/, 'the old copy is overwritten');
   await cb.context.close();
 });
@@ -448,13 +449,13 @@ await test('Turn In sends every answer with its question and confirms by name', 
   await typeInto(page, '#q1', 'Three years.');
   await typeInto(page, '#q3', 'He fought back openly.');
   const status = await turnIn(page, s.pin(PEOPLE.ada));
-  assert.match(status, /^Turned in, Ada\. Period 1, \d{1,2}:\d{2}/);
+  assert.match(status, /^Turned in, Ada\. Period 1, .+\d{1,2}:\d{2}/);
   const [row] = s.rows('Turn Ins');
   assert.equal(row['Student Name'], 'Byron, Ada');
   assert.equal(row.Hub, 'bts-the-bargain');
   assert.match(row.Answers, /What did Robinson promise Rickey, and for how long\?\nThree years\./);
   assert.match(row.Answers, /What happened in 1949 once the promise ended\?\nHe fought back openly\./);
-  assert.equal(await panel(page).locator('input').inputValue(), '', 'the PIN box is cleared');
+  assert.equal(await panel(page).locator('input[type="password"]').inputValue(), '', 'the PIN box is cleared');
   await cb.context.close();
 });
 
@@ -484,7 +485,7 @@ await test('signing in on a blank page never wipes saved work', async () => {
   const cb = await chromebook(s);
   const page = await cb.open('ush9-the-jungle.html');
   await chip(page).locator('.chip').click();
-  await chip(page).locator('input').fill(pin);
+  await chip(page).locator('input[type="password"]').fill(pin);
   await chip(page).getByRole('button', { name: 'Save to my account' }).click();
   await waitFor(async () => /account/.test(await chip(page).locator('.pop .status').textContent()));
   await page.waitForTimeout(800);
@@ -541,7 +542,7 @@ await test('work saved with a PIN comes back on a different Chromebook', async (
   const first = await chromebook(s);
   const page = await first.open('ush9-the-other-half.html');
   await chip(page).locator('.chip').click();
-  await chip(page).locator('input').fill(s.pin(PEOPLE.grace));
+  await chip(page).locator('input[type="password"]').fill(s.pin(PEOPLE.grace));
   await chip(page).getByRole('button', { name: 'Save to my account' }).click();
   await waitFor(async () => /account/.test(await chip(page).locator('.pop .status').textContent()));
   await typeInto(page, 'textarea', 'Riis photographed tenements in 1890.');
@@ -555,7 +556,7 @@ await test('work saved with a PIN comes back on a different Chromebook', async (
   const again = await second.open('ush9-the-other-half.html');
   assert.equal(await again.locator('textarea').first().inputValue(), '');
   await chip(again).locator('.chip').click();
-  await chip(again).locator('input').fill(s.pin(PEOPLE.grace));
+  await chip(again).locator('input[type="password"]').fill(s.pin(PEOPLE.grace));
   await chip(again).getByRole('button', { name: 'Save to my account' }).click();
   await waitFor(async () => /brought back/.test(await chip(again).locator('.pop .status').textContent())).catch(async (e) => {
     console.log('      status:', await chip(again).locator('.pop .status').textContent(), second.net.calls);
@@ -570,7 +571,7 @@ await test('a signed in tab left alone signs out and blanks itself after its wor
   const cb = await chromebook(s, { hooks: { idleMs: 2500 } });
   const page = await cb.open('hh-burn-the-files.html');
   await chip(page).locator('.chip').click();
-  await chip(page).locator('input').fill(s.pin(PEOPLE.ada));
+  await chip(page).locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
   await chip(page).getByRole('button', { name: 'Save to my account' }).click();
   await waitFor(async () => /account/.test(await chip(page).locator('.pop .status').textContent()));
   await typeInto(page, 'textarea', 'Burned files answer');
@@ -605,7 +606,7 @@ await test('with no Turn In address set, the page still saves in the tab and off
   const cb = await chromebook(world(), { endpoint: false });
   const page = await cb.open('bts-the-bargain.html');
   assert.equal(await panel(page).locator('h2').textContent(), 'Before you leave');
-  assert.equal(await panel(page).locator('input').count(), 0);
+  assert.equal(await panel(page).locator('input[type="password"]').count(), 0);
   assert.equal(await chip(page).locator('.chip').textContent(), 'Saved in this tab');
   await cb.context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: BASE });
   await typeInto(page, '#q1', 'Copy me');
@@ -687,7 +688,162 @@ await test('switching class removes the previous receipt and Classroom link', as
   await cb.context.close();
 });
 
+
+await test('every catalogue reader gets honest controls without creating an assignment or contacting the save service', async () => {
+  const catalog = JSON.parse(await readFile(new URL('../docs/storyhub/work-panel-catalog.json', import.meta.url), 'utf8'));
+  const cb = await chromebook(world());
+  for (const item of catalog.hubs.filter(h => h.mode === 'reading')) {
+    const p = await cb.open(item.hub);
+    assert.equal(await p.evaluate(() => window.__deskSave.mode), 'reading');
+    assert.match(await p.locator('#desk-save-reader').locator('.panel').innerText(), /no written answer boxes/);
+    assert.equal(await p.getByRole('button', {name:'Turn In',exact:true}).count(),0);
+    await p.close();
+  }
+  assert.deepEqual(cb.net.calls,[]);
+  await cb.context.close();
+});
+
+await test('blocked tab storage is visible and failed copy never suppresses the exit warning', async () => {
+  const cb = await chromebook(world(), {endpoint:false});
+  await cb.context.addInitScript(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(k,v) { if (this === sessionStorage) throw Error('Quota exceeded'); return original.call(this,k,v); };
+    Object.defineProperty(navigator,'clipboard',{value:{writeText:()=>Promise.reject(Error('blocked'))}});
+    document.execCommand=()=>false;
+  });
+  const p = await cb.open('bts-the-bargain.html');
+  await p.locator('#q1').fill('A draft with no durable tab storage.');
+  assert.match(await chip(p).locator('.chip').textContent(),/Storage blocked/);
+  await panel(p).getByRole('button',{name:'Copy my answers',exact:true}).click();
+  await waitFor(async()=>/blocked/.test(await panel(p).locator('.status').textContent()));
+  assert.equal(await p.evaluate(()=>window.__deskSave.state().copiedHash),'');
+  assert.equal(await p.evaluate(()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;}),true);
+  await cb.context.close();
+});
+
+await test('all hidden research rounds are included as blanks in Turn In', async () => {
+  const s=world(),cb=await chromebook(s),p=await cb.open('bts-americas-most-hated-research.html');
+  await p.locator('#lab-identity').fill('My first written answer.');
+  assert.equal(await p.locator('#lab-round-5').isVisible(),false);
+  assert.match(await turnIn(p,s.pin(PEOPLE.ada)),/Turned in/);
+  const record=JSON.parse(s.rows('Turn Ins')[0].Data);
+  assert.ok(record.answers.some(a=>a.k==='id:lab-talk'&&a.a===''),'hidden final response is recorded as blank');
+  assert.ok(record.answers.length>=20);
+  await cb.context.close();
+});
+
+await test('portable backup imports only into the matching hub and supports undo', async () => {
+  const cb=await chromebook(world(),{endpoint:false}),p=await cb.open('bts-the-bargain.html');
+  await p.locator('#q1').fill('Original on-screen answer.');
+  const backup={format:'desk-work-backup',version:1,hub:'bts-the-bargain',values:{'id:q1':'Imported answer.'}};
+  const file=p.locator('input[type="file"]').first();
+  const upload=async data=>file.setInputFiles({name:'work.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+  await upload({...backup,hub:'wrong-assignment'});
+  await waitFor(async()=>/another assignment/.test(await panel(p).locator('.status').textContent()));
+  assert.equal(await p.locator('#q1').inputValue(),'Original on-screen answer.');
+  p.once('dialog',d=>d.accept());await upload(backup);
+  await waitFor(async()=>await p.locator('#q1').inputValue()==='Imported answer.');
+  await panel(p).getByRole('button',{name:'Undo load',exact:true}).click();
+  assert.equal(await p.locator('#q1').inputValue(),'Original on-screen answer.');
+  assert.equal(await p.evaluate(()=>window.__deskSave.state().token),'');
+  assert.equal(await p.evaluate(()=>window.__deskSave.state().turnedInAt),'');
+  await cb.context.close();
+});
+
+await test('an older signed-in tab cannot autosave over a newer device and can explicitly recover', async () => {
+  const s=world(),a=await chromebook(s),b=await chromebook(s);
+  const p=await a.open('bts-the-bargain.html');
+  const sign=async page=>{
+    const r=page.locator('#desk-save-resume');await r.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+    await r.getByRole('button',{name:'Load My Work',exact:true}).click();
+    await page.waitForFunction(()=>Boolean(window.__deskSave.state().token));
+  };
+  await sign(p);await p.locator('#q1').fill('Initial version.');
+  await p.evaluate(()=>window.__deskSave.saveCloud());
+  const q=await b.open('bts-the-bargain.html');await sign(q);
+  await q.locator('#q1').fill('Newer device version.');await q.evaluate(()=>window.__deskSave.saveCloud());
+  await p.locator('#q1').fill('Older tab attempted overwrite.');await p.evaluate(()=>window.__deskSave.saveCloud());
+  assert.equal(await p.evaluate(()=>window.__deskSave.state().conflict),true);
+  assert.match(s.rows('Progress')[0].Answers,/Newer device version/);
+  p.once('dialog',d=>d.accept());await sign(p);
+  await waitFor(async()=>await p.locator('#q1').inputValue()==='Newer device version.');
+  await a.context.close();await b.context.close();
+});
+
+await test('blank Save now cannot display an account confirmation without a server write', async () => {
+  const s=world(),cb=await chromebook(s),p=await cb.open('bts-the-bargain.html'),r=p.locator('#desk-save-resume');
+  await r.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));await r.getByRole('button',{name:'Load My Work',exact:true}).click();
+  await p.waitForFunction(()=>Boolean(window.__deskSave.state().token));
+  await r.getByRole('button',{name:'Save now',exact:true}).click();
+  assert.doesNotMatch(await r.locator('.status').textContent(),/^Account save confirmed/);
+  assert.equal(s.rows('Drafts').length,0);await cb.context.close();
+});
+
+await test('student controls fit 320, 390 and desktop widths and pass accessibility with reduced motion', async () => {
+  const cb=await chromebook(world()),p=await cb.open('bts-americas-most-hated-research.html');
+  await mkdir('browser-results/work-panel',{recursive:true});
+  await p.emulateMedia({reducedMotion:'reduce'});
+  for(const width of [320,390,1440]) {
+    await p.setViewportSize({width,height:900});
+    const r=p.locator('#desk-save-resume');await r.scrollIntoViewIfNeeded();
+    assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    const axe=await new AxeBuilder({page:p}).include('#desk-save-resume').withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+    assert.deepEqual(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),[]);
+    await p.screenshot({path:`browser-results/work-panel/panel-${width}.png`});
+  }
+  await cb.context.close();
+});
+
+
+await test('shared paste support has a 12-word boundary, URL exception and transparent override', async () => {
+  const cb=await chromebook(world(),{endpoint:false}),p=await cb.open('bts-the-bargain.html');
+  const paste=async text=>p.locator('#q1').evaluate((el,text)=>{const transfer=new DataTransfer();transfer.setData('text/plain',text);const event=new ClipboardEvent('paste',{clipboardData:transfer,bubbles:true,cancelable:true});el.dispatchEvent(event);return event.defaultPrevented;},text);
+  const twelve='one two three four five six seven eight nine ten eleven twelve';
+  assert.equal(await paste(twelve),false);assert.equal(await paste(twelve+' thirteen'),true);
+  assert.equal(await paste('https://example.invalid/source'),false);
+  await panel(p).getByRole('checkbox',{name:'Allow full paste for my own draft or a writing tool'}).check();
+  assert.equal(await paste(twelve+' thirteen'),false);
+  assert.equal(await p.evaluate(()=>Object.keys(window.__deskSave.state()).some(k=>/keystroke|pasteCount|activityScore/i.test(k))),false);
+  await cb.context.close();
+});
+
+await test('changing students preserves the prior account and clears answers, undo and writing override', async () => {
+  const s=world(),cb=await chromebook(s),p=await cb.open('bts-the-bargain.html'),r=p.locator('#desk-save-resume');
+  await r.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));await r.getByRole('button',{name:'Load My Work',exact:true}).click();
+  await p.waitForFunction(()=>window.__deskSave.state().firstName==='Ada');
+  await p.locator('#q1').fill('Private Ada draft.');
+  await r.getByRole('checkbox',{name:'Allow full paste for my own draft or a writing tool'}).check();
+  await p.evaluate(()=>window.__deskSave.saveCloud());
+  await panel(p).locator('input[type="password"]').fill('123456');
+  p.once('dialog',d=>d.accept());await r.locator('input[type="password"]').fill(s.pin(PEOPLE.grace));await r.getByRole('button',{name:'Load My Work',exact:true}).click();
+  await p.waitForFunction(()=>window.__deskSave.state().firstName==='Grace');
+  assert.equal(await p.locator('#q1').inputValue(),'');
+  assert.equal(await p.evaluate(()=>window.__deskSave.state().undoValues),null);
+  assert.equal(await panel(p).locator('input[type="password"]').inputValue(),'');
+  assert.equal(await r.getByRole('checkbox',{name:'Allow full paste for my own draft or a writing tool'}).isChecked(),false);
+  assert.match(s.rows('Progress').find(row=>row['Student Email']===PEOPLE.ada.email).Answers,/Private Ada draft/);
+  assert.ok(!s.rows('Progress').some(row=>row['Student Email']===PEOPLE.grace.email));
+  await cb.context.close();
+});
+
+await test('downloaded backups exclude credentials and receipts match the private submission reference', async () => {
+  const s=world(),cb=await chromebook(s),p=await cb.open('bts-the-bargain.html');
+  await p.locator('#q1').fill('My answer is in the exported backup.');
+  assert.match(await turnIn(p,s.pin(PEOPLE.ada)),/Turned in/);
+  const download=p.waitForEvent('download');await panel(p).getByRole('button',{name:'Download backup',exact:true}).click();
+  const backup=JSON.parse(await readFile(await (await download).path(),'utf8'));
+  assert.equal(backup.values['id:q1'],'My answer is in the exported backup.');
+  assert.ok(!JSON.stringify(backup).includes(await p.evaluate(()=>window.__deskSave.state().token)));
+  assert.ok(!('token' in backup));assert.ok(!('pin' in backup));
+  const receiptDownload=p.waitForEvent('download');await panel(p).getByRole('button',{name:'Download Turn In receipt',exact:true}).click();
+  const receipt=JSON.parse(await readFile(await (await receiptDownload).path(),'utf8'));
+  assert.equal(receipt.submissionId,s.rows('Turn Ins')[0]['Submission ID']);
+  assert.equal(receipt.turnedInAt,JSON.parse(s.rows('Turn Ins')[0].Data).savedAt);
+  assert.match(receipt.source,/verify against the private teacher record/);
+  await cb.context.close();
+});
+
 await browser.close();
 server.close();
 console.log(`${failures ? 'FAIL' : 'PASS'}  desk-save browser  (${passed}/${passed + failures})`);
-if (failures) process.exit(1);
+if (failures || !passed) process.exit(1);

@@ -6,8 +6,8 @@
   "files": [
     {
       "path": "/hubs/ush9-theodore-roosevelt.html",
-      "bytes": 49432,
-      "sha256": "6d179c85627f04f16a45728d597ca8ced91ae6bafdf4f5a69f2f6c00badb3d02"
+      "bytes": 49481,
+      "sha256": "bbae786cd8cc09db616ea84cf4e49869214fdf970436ca5187b841161c2b10e3"
     },
     {
       "path": "/storyhub/ush9/theodore-roosevelt/assets/anton-ofl.txt",
@@ -106,6 +106,6 @@
       "sha256": "71fc8c459ddd97d6b03730b5284746384df029e92fc7c4c5b2e4fe81048e8540"
     }
   ],
-  "totalBytes": 15520601,
-  "sealedAt": "2026-09-30"
+  "totalBytes": 15520650,
+  "sealedAt": "2026-10-26"
 }
