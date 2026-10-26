@@ -52,7 +52,7 @@ test('setup refuses to run before the roster and salt are filled in', () => {
 test('setup builds the private workbook, its tabs and the nightly cleanup', () => {
   const w = world();
   const names = w.book().getSheets().map((s) => s.getName());
-  assert.deepEqual(names.sort(), ['Classroom Links', 'Drafts', 'Load Test', 'Load Test Progress', 'Progress', 'Review Roster', 'Turn Ins']);
+  assert.deepEqual(names.sort(), ['Classroom Links', 'Drafts', 'Load Test', 'Load Test Progress', 'Progress', 'Review Roster', 'Turn Ins', 'Writing Timeline']);
   assert.equal(w.book().getSheetByName('Turn Ins').getRange(1, 1, 1, 12).getValues()[0][8], 'Answers');
   assert.equal(w.h.state.triggers.filter((t) => t.handler === 'pruneDrafts').length, 1);
   w.sandbox.setup();
@@ -650,6 +650,82 @@ test('blank fields and question wording are part of the exact saved and finished
   const save=w.post({action:'save',token:receipt.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:receipt.revision,answers:expanded});
   assert.equal(save.ok,true);assert.equal(w.rows('Progress')[0].Status,'In progress');
   assert.equal(JSON.parse(w.rows('Drafts')[0].Data).answers.length,3);
+});
+
+/* ------------------------------------------------------- writing timeline -- */
+
+const ESSAY = 'Robinson agreed to three years without answering back. '.repeat(6).trim();
+const ESSAY_ANSWERS = answers(['id:q1', 'What did Robinson promise Rickey?', ESSAY], ['id:q2', 'Who led the abuse?', '']);
+
+test('a typed answer gets a Writing Timeline row with counts and no flags', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const half = ESSAY.slice(0, 110);
+  const timeline = { v: 1, startedAt: '2026-10-26T14:00:00Z', fields: { 'id:q1': {
+    ops: [[30, 0, 0, half, 't'], [60, 110, 0, ESSAY.slice(110), 't']],
+    typed: ESSAY.length, del: 30, pasted: 0, hist: [5, 40, 60, 50, 30, 8, 2], ms: 300000,
+  } }, away: [[70, 5]], marks: [] };
+  assert.equal(w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'typed', answers: ESSAY_ANSWERS, timeline }).ok, true);
+  const row = w.rows('Writing Timeline')[0];
+  assert.equal(row['Student Email'], PEOPLE.ada.email);
+  assert.equal(row['Submission ID'], 'typed');
+  assert.equal(row['Typed'], ESSAY.length);
+  assert.equal(row['Writing Minutes'], 5);
+  assert.equal(row['Flags'], 'None');
+  assert.equal(JSON.parse(row['Replay Data']).fields['id:q1'].ops.length, 2);
+});
+
+test('large pastes, sudden inserts, away bursts and blocked pastes are flagged in plain language', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const timeline = { v: 1, fields: { 'id:q1': {
+    ops: [[10, 0, 0, ESSAY.slice(0, 40), 't'], [200, 40, 0, ESSAY.slice(40, 160), 'x'], [205, 160, 0, ESSAY.slice(160), 'p']],
+    typed: 40, del: 0, pasted: ESSAY.length - 160, hist: [0, 10, 20, 9, 0, 0, 0], ms: 20000,
+  } }, away: [[100, 95]], marks: [[5, 'paste-blocked'], [190, 'paste-on']] };
+  w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'flags', answers: ESSAY_ANSWERS, timeline });
+  const flags = w.rows('Writing Timeline')[0]['Flags'];
+  assert.match(flags, /120 characters appeared at once in "What did Robinson promise Rickey\?" without typing or pasting/);
+  assert.match(flags, /Left the page for 95 seconds, then added \d+ characters within 90 seconds/);
+  assert.match(flags, /Pasted \d+ characters into "What did Robinson promise Rickey\?"/);
+  assert.match(flags, /Allow full paste was turned on/);
+  assert.match(flags, /Tried a long paste that was blocked/);
+  assert.equal(w.rows('Writing Timeline')[0]['Largest Single Add'], ESSAY.length - 160);
+});
+
+test('straight through fast typing and answers with no recorded writing are flagged', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const long = 'x'.repeat(500);
+  const both = answers(['id:q1', 'Q one', long], ['id:q2', 'Q two', ESSAY]);
+  const timeline = { v: 1, fields: { 'id:q1': {
+    ops: [[60, 0, 0, long, 't']], typed: 500, del: 2, pasted: 0, hist: [0, 300, 199, 0, 0, 0, 0], ms: 60000,
+  } }, away: [], marks: [] };
+  w.post({ action: 'turnin', pin, hub: 'h', submissionId: 'fast', answers: both, timeline });
+  const flags = w.rows('Writing Timeline')[0]['Flags'];
+  assert.match(flags, /Typed straight through with almost no corrections or pauses in "Q one"/);
+  assert.match(flags, /Typed at about 100 words a minute in "Q one"/);
+  assert.match(flags, /"Q two" has no recorded writing in this tab/);
+});
+
+test('a missing, malformed or oversized timeline never blocks a Turn In', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const body = { action: 'turnin', pin, hub: 'h', answers: ESSAY_ANSWERS };
+  assert.equal(w.post({ ...body, submissionId: 'none' }).ok, true);
+  assert.equal(w.post({ ...body, submissionId: 'junk', answers: answers(['id:q1', 'Q', 'Second version']), timeline: 'nonsense' }).ok, true);
+  const huge = { v: 1, fields: { 'id:q1': { ops: Array.from({ length: 900 }, (_, i) => [i, 0, 0, 'y'.repeat(80), 't']), typed: 10 } } };
+  assert.equal(w.post({ ...body, submissionId: 'huge', answers: answers(['id:q1', 'Q', 'Third version']), timeline: huge }).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 3);
+  const rows = w.rows('Writing Timeline');
+  assert.equal(rows.length, 1, 'only the object timeline is recorded');
+  assert.match(rows[0]['Flags'], /Replay was too large to store/);
+  assert.ok(String(rows[0]['Replay Data']).length <= 48000);
+});
+
+test('a retried Turn In does not duplicate its Writing Timeline row and load tests write none', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const timeline = { v: 1, fields: { 'id:q1': { ops: [[1, 0, 0, ESSAY, 't']], typed: ESSAY.length, ms: 400000 } } };
+  const body = { action: 'turnin', pin, hub: 'h', submissionId: 'retry', answers: ESSAY_ANSWERS, timeline };
+  assert.equal(w.post(body).ok, true);
+  w.h.state.cache.clear();
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Writing Timeline').length, 1);
 });
 
 console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);

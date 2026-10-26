@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-26-turn-in-v9';
+const TI_VERSION = '2026-10-26-turn-in-v10';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -36,6 +36,7 @@ const TI_MAX_QUESTION_CHARS = 400;
 const TI_MAX_PAYLOAD_CHARS = 45000;
 const TI_DRAFT_SCAN_ROWS = 4000;
 const TI_DRAFT_KEEP_DAYS = 30;
+const TI_TIMELINE_MAX_CHARS = 48000;
 
 const TI_SHEETS = {
   TURN_INS: 'Turn Ins',
@@ -45,6 +46,7 @@ const TI_SHEETS = {
   CLASSROOM_LINKS: 'Classroom Links',
   LOAD_TEST_PROGRESS: 'Load Test Progress',
   LOAD_TEST: 'Load Test',
+  TIMELINE: 'Writing Timeline',
 };
 
 const TI_HEADERS = {
@@ -53,6 +55,8 @@ const TI_HEADERS = {
   PROGRESS: ['Saved At', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Hub Title', 'Answered', 'Words', 'Answers', 'Page', 'Record Key', 'Data', 'Status', 'Last Finished'],
   REVIEW_ROSTER: ['Student Name', 'Student Email', 'Class / Period'],
   CLASSROOM_LINKS: ['Class / Period', 'Hub', 'Classroom Assignment URL', 'Hub Title'],
+  TIMELINE: ['Turned In', 'Class / Period', 'Student Name', 'Student Email', 'Hub', 'Submission ID', 'Writing Minutes',
+    'Typed', 'Pasted', 'Largest Single Add', 'Times Away', 'Flags', 'Replay Data'],
 };
 TI_HEADERS.LOAD_TEST = TI_HEADERS.TURN_INS;
 
@@ -190,6 +194,9 @@ function turnIn_(request) {
 
   const answered = answers.filter((entry) => entry.a.trim()).length;
   const words = answers.reduce((sum, entry) => sum + countWords_(entry.a), 0);
+  // A missing or malformed timeline never blocks a Turn In.
+  let timeline = null;
+  if (!identity.test) { try { timeline = timelineSummary_(request.timeline, answers, hub, submissionId); } catch (error) { console.error(error && error.stack || error); } }
   const title = String(request.title || '').slice(0, 200);
   const page = String(request.page || '').slice(0, 300);
   let turnedInAt = new Date();
@@ -245,6 +252,12 @@ function turnIn_(request) {
       JSON.stringify(record),
       'Pressed',
     ], true);
+    if (timeline) {
+      try {
+        turnInRow_(timelineSheet_(book), [turnedInAt, classPeriod, identity.name, identity.email, hub, submissionId, timeline.minutes,
+          timeline.typed, timeline.pasted, timeline.largest, timeline.away, timeline.flags, timeline.data], true);
+      } catch (error) { console.error(error && error.stack || error); }
+    }
     updateProgress_(book, identity, record, true);
     SpreadsheetApp.flush();
     optionalCachePut_(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl, submissionId, record.revision, answers)), TI_SUBMISSION_CACHE_SECONDS);
@@ -254,6 +267,110 @@ function turnIn_(request) {
   }
 
   return resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl, submissionId, record.revision, answers);
+}
+
+/* ------------------------------------------------------- writing timeline -- */
+
+// Optional: run once from the editor to see the Writing Timeline tab before the first Turn In creates it.
+function addWritingTimelineSheet() {
+  timelineSheet_(workbook_());
+  console.log('Writing Timeline sheet is ready.');
+}
+
+function timelineSheet_(book) {
+  return book.getSheetByName(TI_SHEETS.TIMELINE) || ensureSheet_(book, TI_SHEETS.TIMELINE, TI_HEADERS.TIMELINE);
+}
+
+/**
+ * Summarize the page's writing timeline for the teacher. Every flag is a reason
+ * to look or ask, never a finding: the timeline covers one browser tab, cannot
+ * see other devices, and cannot tell who was typing.
+ */
+function timelineSummary_(raw, answers, hub, submissionId) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const num = (value) => (Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : 0);
+  const labels = {};
+  const finals = {};
+  answers.forEach((entry) => { labels[entry.k] = entry.q || entry.k; finals[entry.k] = entry.a; });
+  const short = (key) => {
+    const text = String(labels[key] || key).replace(/\s+/g, ' ').trim();
+    return text.length > 48 ? text.slice(0, 45).trim() + '...' : text;
+  };
+  const fields = {};
+  const source = raw.fields && typeof raw.fields === 'object' ? raw.fields : {};
+  Object.keys(source).slice(0, TI_MAX_FIELDS).forEach((key) => {
+    if (!Object.prototype.hasOwnProperty.call(labels, key)) return;
+    const rec = source[key] || {};
+    const ops = (Array.isArray(rec.ops) ? rec.ops : []).slice(0, 4000)
+      .filter((op) => Array.isArray(op) && op.length === 5 && typeof op[3] === 'string' && /^[tpbxulri]$/.test(op[4]))
+      .map((op) => [num(op[0]), num(op[1]), num(op[2]), op[3].slice(0, TI_MAX_ANSWER_CHARS), op[4]]);
+    const notable = (Array.isArray(rec.notable) ? rec.notable : []).slice(0, 40)
+      .filter((n) => Array.isArray(n) && /^[pbx]$/.test(n[1])).map((n) => [num(n[0]), n[1], num(n[2])]);
+    const hist = (Array.isArray(rec.hist) ? rec.hist : []).slice(0, 7).map(num);
+    while (hist.length < 7) hist.push(0);
+    fields[key] = { ops, notable, typed: num(rec.typed), del: num(rec.del), pasted: num(rec.pasted), hist, ms: num(rec.ms) };
+  });
+  const away = (Array.isArray(raw.away) ? raw.away : []).slice(-300)
+    .filter((a) => Array.isArray(a) && a.length === 2).map((a) => [num(a[0]), num(a[1])]);
+  const marks = (Array.isArray(raw.marks) ? raw.marks : []).slice(-100)
+    .filter((m) => Array.isArray(m) && typeof m[1] === 'string').map((m) => [num(m[0]), m[1].slice(0, 40)]);
+
+  const events = [];
+  let typed = 0, pasted = 0, ms = 0, largest = 0;
+  const flags = [];
+  Object.keys(fields).forEach((key) => {
+    const f = fields[key];
+    typed += f.typed; pasted += f.pasted; ms += f.ms;
+    const big = f.ops.filter((op) => /^[pbx]$/.test(op[4])).map((op) => [op[0], op[4], op[3].length]).concat(f.notable);
+    big.forEach((n) => { largest = Math.max(largest, n[2]); });
+    const pastes = big.filter((n) => n[1] === 'p' && n[2] >= 100);
+    if (pastes.length) flags.push(`Pasted ${Math.max(...pastes.map((n) => n[2]))} characters into "${short(key)}"` + (pastes.length > 1 ? ` (${pastes.length} large pastes)` : ''));
+    const appeared = big.filter((n) => n[1] !== 'p' && n[2] >= 25);
+    if (appeared.length) flags.push(`${Math.max(...appeared.map((n) => n[2]))} characters appeared at once in "${short(key)}" without typing or pasting. Dictation, autocomplete, an extension or another program can do this.`);
+    const pauses = f.hist[5] + f.hist[6];
+    if (f.typed >= 300 && f.del < f.typed * 0.03 && pauses <= 1) flags.push(`Typed straight through with almost no corrections or pauses in "${short(key)}"`);
+    if (f.typed >= 400 && f.ms > 0) {
+      const wpm = Math.round(f.typed / 5 / (f.ms / 60000));
+      if (wpm >= 60) flags.push(`Typed at about ${wpm} words a minute in "${short(key)}"`);
+    }
+    const added = f.ops.reduce((sum, op) => sum + op[3].length, 0) + f.notable.reduce((sum, n) => sum + n[2], 0);
+    const finalLength = String(finals[key] || '').trim().length;
+    if (finalLength >= 100 && added < finalLength * 0.5 && !raw.truncated) flags.push(`Most of "${short(key)}" has no recorded writing in this tab`);
+    f.ops.forEach((op) => { if (/^[tpbx]$/.test(op[4])) events.push([op[0], op[3].length]); });
+  });
+  Object.keys(labels).forEach((key) => {
+    if (!fields[key] && String(finals[key] || '').trim().length >= 100 && !raw.truncated) flags.push(`"${short(key)}" has no recorded writing in this tab`);
+  });
+  away.filter((a) => a[1] >= 20).forEach((a) => {
+    const back = a[0] + a[1];
+    const burst = events.filter((e) => e[0] >= back && e[0] <= back + 90).reduce((sum, e) => sum + e[1], 0);
+    if (burst >= 200) flags.push(`Left the page for ${a[1]} seconds, then added ${burst} characters within 90 seconds`);
+  });
+  if (marks.some((m) => m[1] === 'paste-on')) flags.push('Allow full paste was turned on');
+  const blocked = marks.filter((m) => m[1] === 'paste-blocked').length;
+  if (blocked) flags.push(`Tried a long paste that was blocked${blocked > 1 ? ` (${blocked} times)` : ''}`);
+  if (raw.truncated) flags.push('Timeline was long, so only counts and large events were kept');
+
+  const data = {
+    v: 1, hub, submissionId, startedAt: String(raw.startedAt || '').slice(0, 40), sentAt: String(raw.sentAt || '').slice(0, 40),
+    truncated: Boolean(raw.truncated), labels: Object.fromEntries(Object.keys(fields).map((key) => [key, short(key)])), fields, away, marks,
+  };
+  let text = JSON.stringify(data);
+  if (text.length > TI_TIMELINE_MAX_CHARS) {
+    Object.keys(fields).forEach((key) => { fields[key].ops = []; });
+    data.truncated = true;
+    text = JSON.stringify(data);
+    flags.push('Replay was too large to store, so only the summary was kept');
+  }
+  return {
+    minutes: Math.round(ms / 6000) / 10,
+    typed,
+    pasted,
+    largest,
+    away: away.filter((a) => a[1] >= 10).length,
+    flags: flags.slice(0, 12).join('\n') || 'None',
+    data: text,
+  };
 }
 
 /** Compare under the write lock; a delayed tab must never replace a newer revision.
@@ -804,6 +921,7 @@ function setup_() {
   migrateProgress_(book);
   ensureSheet_(book, TI_SHEETS.LOAD_TEST, TI_HEADERS.LOAD_TEST);
   ensureSheet_(book, TI_SHEETS.CLASSROOM_LINKS, TI_HEADERS.CLASSROOM_LINKS);
+  ensureSheet_(book, TI_SHEETS.TIMELINE, TI_HEADERS.TIMELINE);
   refreshReviewRoster_(book);
   const blank = book.getSheetByName('Sheet1');
   if (blank && book.getSheets().length > 1 && blank.getLastRow() === 0) book.deleteSheet(blank);

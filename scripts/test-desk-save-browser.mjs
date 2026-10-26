@@ -843,6 +843,194 @@ await test('downloaded backups exclude credentials and receipts match the privat
   await cb.context.close();
 });
 
+/* ------------------------------------------------------- writing timeline -- */
+
+function replayText(ops) {
+  let text = '';
+  for (const [, pos, del, ins] of ops) text = text.slice(0, pos) + ins + text.slice(pos + del);
+  return text;
+}
+
+async function goAway(page, ms) {
+  await page.evaluate(async (ms) => {
+    const set = (v) => Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => v });
+    set('hidden'); document.dispatchEvent(new Event('visibilitychange'));
+    await new Promise((r) => setTimeout(r, ms));
+    set('visible'); document.dispatchEvent(new Event('visibilitychange'));
+  }, ms);
+}
+
+await test('the writing timeline records typing, real pastes, sudden inserts and time away, and replays to the exact answer', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { timelineFlushMs: 200 } });
+  await cb.context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: BASE });
+  const page = await cb.open('bts-the-bargain.html');
+  assert.match(await page.evaluate(() => document.querySelector('#desk-save-panel').shadowRoot.textContent), /keeps a timeline of how your answers were written/);
+  await typeInto(page, '#q1', 'He promised three years. ');
+  await page.waitForTimeout(300);
+  await page.keyboard.type('Then he answered back.', { delay: 2 });
+  await goAway(page, 2300);
+  await page.keyboard.insertText(' In 1949 the silence ended and Robinson argued with umpires and opponents in public.');
+  await panel(page).getByRole('checkbox', { name: 'Allow full paste for my own draft or a writing tool' }).check();
+  const pasted = ' The press noticed right away, and some writers who had praised his restraint now called him a problem.';
+  await page.evaluate((t) => navigator.clipboard.writeText(t), pasted);
+  await page.locator('#q1').focus();
+  await page.keyboard.press('End');
+  await page.keyboard.press('ControlOrMeta+V');
+  await page.keyboard.press('Backspace');
+  const finalText = await page.locator('#q1').inputValue();
+  assert.ok(finalText.endsWith(pasted.slice(0, -1)), 'the real paste landed in the box');
+  const local = await page.evaluate(() => window.__deskSave.timeline());
+  const kinds = local.fields['id:q1'].ops.map((op) => op[4]);
+  assert.ok(kinds.includes('t') && kinds.includes('b') && kinds.includes('p'), `kinds were ${kinds.join(',')}`);
+  assert.equal(local.away.length, 1);
+  assert.ok(local.marks.some((m) => m[1] === 'paste-on'));
+  assert.equal(replayText(local.fields['id:q1'].ops), finalText);
+  assert.match(await turnIn(page, s.pin(PEOPLE.ada)), /^Turned in, Ada/);
+  const [row] = s.rows('Writing Timeline');
+  assert.equal(row['Submission ID'], s.rows('Turn Ins')[0]['Submission ID']);
+  assert.equal(row['Pasted'], pasted.length);
+  assert.ok(row['Typed'] >= 40, 'typed characters are counted');
+  assert.equal(row['Times Away'], 0, 'a two second step away is listed in the replay but not counted as an absence');
+  assert.match(row['Flags'], /Pasted \d+ characters into/);
+  assert.match(row['Flags'], /appeared at once/);
+  assert.match(row['Flags'], /Allow full paste was turned on/);
+  const data = JSON.parse(row['Replay Data']);
+  assert.equal(replayText(data.fields['id:q1'].ops), finalText, 'the stored replay rebuilds the turned in answer');
+  assert.equal(JSON.stringify(data).includes(s.pin(PEOPLE.ada)), false, 'no PIN in the replay');
+  const replay = await cb.context.newPage();
+  await replay.goto(`${BASE}/teacher/writing-replay.html`);
+  await replay.locator('#input').fill('"' + row['Replay Data'].replace(/"/g, '""') + '"');
+  await replay.getByRole('button', { name: 'Show replay' }).click();
+  assert.equal(await replay.locator('#msg').textContent(), 'Replay ready.');
+  const card = replay.locator('section.card').first();
+  assert.equal(await card.locator('.text').textContent(), finalText, 'the replay page ends on the turned in answer');
+  await card.locator('input[type=range]').fill('0');
+  assert.match(await card.locator('[role=status]').textContent(), /^Step 1 of \d+/);
+  assert.ok(await replay.locator('mark.k-p').count() + await replay.locator('.strip .k-p').count() > 0, 'pastes are colored');
+  const axe = await new AxeBuilder({ page: replay }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  assert.deepEqual(axe.violations.map((v) => v.id), []);
+  assert.equal(cb.net.calls.filter((c) => c !== 'turnin' && c !== 'save' && c !== 'signin').length, 0);
+  await cb.context.close();
+});
+
+await test('a refresh keeps the timeline, an account load is marked as a load, and signing out starts a fresh one', async () => {
+  const s = world();
+  const first = await chromebook(s, { hooks: { timelineFlushMs: 200 } });
+  const a = await first.open('bts-the-bargain.html');
+  await typeInto(a, '#q1', 'Three years of silence.');
+  await turnIn(a, s.pin(PEOPLE.ada));
+  await first.context.close();
+  const second = await chromebook(s, { hooks: { timelineFlushMs: 200 } });
+  const p = await second.open('bts-the-bargain.html');
+  const resume = p.locator('#desk-save-resume');
+  await resume.locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+  await resume.getByRole('button', { name: 'Load My Work' }).click();
+  await p.waitForFunction(() => document.querySelector('#q1').value === 'Three years of silence.');
+  let t = await p.evaluate(() => window.__deskSave.timeline());
+  assert.deepEqual(t.fields['id:q1'].ops.map((op) => op[4]), ['l'], 'loaded work is marked as a load, never a paste');
+  await typeInto(p, '#q3', 'He fought back.');
+  await p.reload({ waitUntil: 'load' });
+  await p.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
+  t = await p.evaluate(() => window.__deskSave.timeline());
+  assert.equal(replayText(t.fields['id:q3'].ops), 'He fought back.', 'refresh keeps the timeline');
+  assert.deepEqual(t.fields['id:q1'].ops.map((op) => op[4]), ['l'], 'refresh adds nothing to unchanged answers');
+  await p.evaluate(() => {
+    const roots = [...document.querySelectorAll('[id^="desk-save"]')].map((h) => h.shadowRoot).filter(Boolean);
+    const btn = roots.flatMap((r) => [...r.querySelectorAll('button')]).find((b) => b.textContent.trim() === 'Not you? Sign out');
+    btn.click();
+  });
+  await p.waitForFunction(() => document.querySelector('#q3').value === '' && document.querySelector('#q1').value === '');
+  t = await p.evaluate(() => window.__deskSave.timeline());
+  assert.deepEqual(t.fields, {}, 'the next student starts with an empty timeline');
+  await second.context.close();
+});
+
+/* ------------------------------------------------------------ read aloud -- */
+
+async function stubSpeech(context) {
+  await context.addInitScript(() => {
+    const spoken = [];
+    window.__spoken = spoken;
+    window.SpeechSynthesisUtterance = function (text) { this.text = text; };
+    const synth = {
+      speaking: false, paused: false,
+      getVoices: () => [{ name: 'Google US English', lang: 'en-US' }],
+      speak(u) { spoken.push({ text: u.text, rate: u.rate }); setTimeout(() => u.onend && u.onend(), 5); },
+      cancel() { spoken.push({ cancel: true }); }, pause() { spoken.push({ pause: true }); }, resume() { spoken.push({ resume: true }); },
+      addEventListener() {},
+    };
+    Object.defineProperty(window, 'speechSynthesis', { configurable: true, get: () => synth });
+  });
+}
+const readBar = (page) => page.locator('#desk-read-aloud');
+
+await test('read aloud reads selected text and student writing at the chosen speed and sends nothing', async () => {
+  const s = world();
+  const cb = await chromebook(s);
+  await stubSpeech(cb.context);
+  const page = await cb.open('bts-the-bargain.html');
+  const before = cb.net.calls.length;
+  const para = page.locator('main p').filter({ hasText: /\w{4,}.*\w{4,}/ }).first();
+  await para.scrollIntoViewIfNeeded();
+  const chosen = await para.evaluate((el) => { const r = document.createRange(); r.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); return String(sel).replace(/\s+/g, ' ').trim(); });
+  await page.waitForTimeout(250);
+  await readBar(page).getByRole('button', { name: 'Reading speed 1 times. Change speed' }).click();
+  await readBar(page).getByRole('button', { name: 'Read the selected text aloud' }).click();
+  await page.waitForFunction(() => window.__spoken.some((u) => u.text));
+  await page.waitForTimeout(100);
+  const spoken = await page.evaluate(() => window.__spoken.filter((u) => u.text));
+  assert.equal(spoken.map((u) => u.text).join(' ').replace(/\s+/g, ' ').trim(), chosen);
+  assert.ok(spoken.every((u) => u.rate === 1.25 && u.text.length <= 241), 'chunks are short and use the chosen speed');
+  await page.evaluate(() => getSelection().removeAllRanges());
+  await typeInto(page, '#q1', 'He promised three years. Then he answered back.');
+  await page.locator('#q1').evaluate((el) => { el.focus(); el.setSelectionRange(0, 24); });
+  await page.waitForTimeout(250);
+  await page.evaluate(() => { window.__spoken.length = 0; });
+  await readBar(page).getByRole('button', { name: 'Read the selected text aloud' }).click();
+  await page.waitForFunction(() => window.__spoken.some((u) => u.text));
+  assert.equal(await page.evaluate(() => window.__spoken.find((u) => u.text).text), 'He promised three years.');
+  assert.equal(cb.net.calls.length, before, 'read aloud contacts nothing');
+  await cb.context.close();
+});
+
+await test('with nothing selected read aloud reads the passage on screen, highlights it, and stop clears it', async () => {
+  const cb = await chromebook(world());
+  await stubSpeech(cb.context);
+  const page = await cb.open('bts-the-bargain.html');
+  await page.evaluate(() => { const s = window.speechSynthesis; s.speak = (u) => { window.__spoken.push({ text: u.text }); }; });
+  const para = page.locator('main p').filter({ hasText: /\w{4,}.*\w{4,}/ }).nth(1);
+  await para.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  await readBar(page).getByRole('button', { name: 'Read this part of the page aloud' }).click();
+  await page.waitForFunction(() => window.__spoken.some((u) => u.text));
+  assert.equal(await page.locator('.desk-reading').count(), 1, 'the passage being read is outlined');
+  await readBar(page).getByRole('button', { name: 'Pause' }).click();
+  assert.ok(await page.evaluate(() => window.__spoken.some((u) => u.pause)));
+  await readBar(page).getByRole('button', { name: 'Stop' }).click();
+  assert.equal(await page.locator('.desk-reading').count(), 0);
+  assert.equal(await readBar(page).getByRole('button', { name: 'Stop' }).isVisible(), false);
+  await cb.context.close();
+});
+
+await test('read aloud is on reading pages too and fits beside the status control at 320 pixels', async () => {
+  const cb = await chromebook(world());
+  await stubSpeech(cb.context);
+  const page = await cb.open('bts-americas-most-hated-research.html');
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
+  const a = await readBar(page).locator('.bar').boundingBox();
+  const b = await chip(page).locator('.chip').boundingBox().catch(() => null);
+  if (b) assert.ok(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y, 'read aloud and the status chip do not overlap');
+  const over = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, wide: [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > innerWidth + 1 && getComputedStyle(e).position !== 'fixed').slice(0, 5).map((e) => e.tagName + '#' + e.id + '.' + e.className) }));
+  assert.ok(over.sw <= 321, JSON.stringify(over));
+  const result = await new AxeBuilder({ page }).include('#desk-read-aloud').withTags(['wcag2a', 'wcag2aa']).analyze();
+  assert.deepEqual(result.violations.map((v) => v.id), []);
+  const reader = await cb.open('hh-l06-two-sources.html').catch(() => null);
+  if (reader && await reader.evaluate(() => window.__deskSave.mode) === 'reading') assert.equal(await readBar(reader).count(), 1);
+  await cb.context.close();
+});
+
 await browser.close();
 server.close();
 console.log(`${failures ? 'FAIL' : 'PASS'}  desk-save browser  (${passed}/${passed + failures})`);
