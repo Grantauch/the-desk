@@ -1,4 +1,18 @@
 {
+  "bts-heel-load-work-2026-10-26": {
+    "status": "LOCAL_VERIFIED_RELEASE_IN_PROGRESS",
+    "owner": "Codex",
+    "scope": "Visible PIN recovery and Save now in the America's Most Hated research workspace; exact restoration of saved rubric choices",
+    "verification_status": "CANONICAL_FULL_PASSED_BROWSER_PENDING",
+    "deployment_status": "PENDING_PROTECTED_CI_AND_PRODUCTION_READBACK",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Reuses desk-save.js, the existing research hub identifier and stable answer keys. No backend deployment, new student storage, roster change or per-project save implementation.",
+      "Adds a Load My Work link and PIN recovery panel near the top. Explicit recovery asks before replacing a different visible draft; saved radio choices are restored with the text answers. Other hubs retain the default recovery button label.",
+      "Focused Turn In service suite passed 39/39. Added browser acceptance scenarios cover PIN validation, Save now confirmation, offline preservation, cancelled and accepted recovery, five research rounds, rubric choices, PIN clearing and accessibility at 320/390/1366.",
+      "Local Chromium could not be installed because its download failed. Canonical npm run verify passed all 18 stages: zero Astro errors/warnings, 53 built routes, 136 HTML files, 4618 local references and 13 releases/117 sealed files. Feature code is in local commit 99820cd4943ecfafb15bfe6b9cc7b53a81bfcc6c. Source publication and production release are explicitly authorized. Protected CI must run the new browser scenarios before merge. Exact production deployment and field verification remain separate pending evidence."
+    ]
+  },
   "checkling-visit-only-2026-10-22": {
     "status": "REVIEW_TESTED",
     "owner": "Codex",

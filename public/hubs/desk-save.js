@@ -459,6 +459,10 @@
         });
         radioGroups().forEach(function (g) {
           var saved = byKey['r:' + g.name];
+          if (replaceDraft) {
+            checkRadio(g, function (r) { return saved ? radioText(r).slice(0, 600) === saved : r.defaultChecked; });
+            return;
+          }
           if (!saved || g.radios.some(function (r) { return r.checked && !r.defaultChecked; })) return;
           checkRadio(g, function (r) { return radioText(r).slice(0, 600) === saved; });
         });
@@ -722,6 +726,7 @@
     var resumeText, resumeStatus, resumePin, resumeSign, resumeNow, resumeClasses;
     var resumeSlot = document.querySelector('[data-desk-resume]');
     if (resumeSlot && cloudOn) {
+      var resumeSignLabel = resumeSlot.getAttribute('data-desk-resume-label') || 'Sign in / recover my work';
       resumeHost = host('desk-save-resume');
       var resumePanel = make('section', { class: 'panel', 'aria-label': 'Save and recover your progress' });
       resumePanel.appendChild(make('h2', {}, 'Save and recover your progress'));
@@ -732,7 +737,7 @@
       var resumeLabel = make('label', {}, 'Hall pass PIN');
       resumePin = make('input', { type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: '6', 'aria-label': 'Hall pass PIN to save or recover work' });
       resumeLabel.appendChild(resumePin);
-      resumeSign = make('button', { type: 'button', class: 'primary' }, 'Sign in / recover my work');
+      resumeSign = make('button', { type: 'button', class: 'primary' }, resumeSignLabel);
       resumeNow = make('button', { type: 'button' }, 'Save now');
       resumeStatus = make('p', { class: 'status', role: 'status', 'aria-live': 'polite' });
       [resumeLabel, resumeSign, resumeNow].forEach(function (n) { resumeActions.appendChild(n); });
@@ -747,7 +752,7 @@
         clearTimeout(cloudTimer);
         signIn(code, { recover: true }).then(function (result) {
           resumePin.value = '';
-          busy(resumeSign, false, 'Sign in / recover my work');
+          busy(resumeSign, false, resumeSignLabel);
           ui.refresh();
           setStatus(resumeStatus, result.message, result.ok);
         });
@@ -807,7 +812,7 @@
         resumeText.textContent = state.token
           ? 'Signed in as ' + (state.firstName || 'your account') + (state.classPeriod ? ' · ' + state.classPeriod : '') + '. ' +
             (pending ? (cloudRetry ? 'Account save is retrying. Your latest work is in this tab.' : 'Latest edits are saved in this tab; account save is pending.') : (state.cloudAt ? 'Account save confirmed at ' + clock(state.cloudAt) + '.' : 'Ready to save your work.')) + ' Returning from another device? Enter your PIN again before editing to recover the latest account copy.'
-          : 'Enter your PIN before starting. On another device, open this same lesson and enter the same PIN to recover your saved answers and activity records.';
+          : 'Enter your Hall Pass PIN to load your saved work or start saving to your account. Use the same PIN when you return, including on another Chromebook.';
       }
       handoff.hidden = !(cloudOn && state.turnedInAt && hash === state.turnedInHash);
       var assignmentUrl = classroomAssignmentUrl(state.classroomUrl);
