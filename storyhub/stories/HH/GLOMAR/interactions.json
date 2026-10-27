@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GLOMAR",
+  "interactions": [
+    {
+      "id": "I01", "chapterId": "02-pipe", "type": "depth-slider",
+      "teaches": "The scale of the recovery. Pipe count and water pressure grow with depth, and familiar landmarks fall far short of the wreck.",
+      "studentAction": "Drag the winch slider or press Lower it to the wreck.",
+      "feedback": "The claw moves down the water column, four readouts update, and a line names the last landmark passed.",
+      "staticFallback": "A noscript paragraph gives the pipe count and pressure at the wreck.",
+      "identityFit": "The control is the ship's winch and the readouts use the typewriter face of the documents.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02", "chapterId": "04-radio", "type": "branching-dialogue",
+      "teaches": "What a cover story demands. Every answer had to match what the world already believed about the ship.",
+      "studentAction": "Choose a reply to each of four Soviet questions.",
+      "feedback": "Each choice explains why it would hold or break the cover, then the real reply from the CIA transcript is logged.",
+      "staticFallback": "A noscript paragraph prints the real exchange.",
+      "identityFit": "The radio log is set in typewriter type with Soviet red and sonar teal speakers.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03", "chapterId": "05-claw", "type": "part-explorer",
+      "teaches": "What the CIA got compared with what it wanted, and where the evidence is still disputed.",
+      "studentAction": "Tap each part of the submarine on the drawing or the buttons.",
+      "feedback": "The chosen part highlights and a status reports whether it reached the ship, fell back, or was never grabbed.",
+      "staticFallback": "A legend colors every part and a noscript paragraph lists all four outcomes.",
+      "identityFit": "A damage report on the hull drawing in the same three colors used across the hub.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04", "chapterId": "06-sailors", "type": "embedded-video",
+      "teaches": "What the operation and the burial actually looked like.",
+      "studentAction": "Press play on a video inside the page.",
+      "feedback": "The YouTube player starts inside the page.",
+      "staticFallback": "Each video has an Open on YouTube link.",
+      "identityFit": "Footage sits beside the moment it shows.",
+      "status": "implemented"
+    }
+  ]
+}

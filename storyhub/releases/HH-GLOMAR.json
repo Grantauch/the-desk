@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GLOMAR",
+  "title": "The Ship That Wasn't Mining",
+  "route": "/hubs/hh-bytesize-glomar.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/GLOMAR/story.json",
+    "note": "ByteSize no. 8. Images are pages of the declassified CIA history and photos published by the National Security Archive. Footage plays through YouTube embeds."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-glomar.html",
+      "bytes": 42860,
+      "sha256": "0f013c32cb06f9f9a4fd22213be2186270cc79f10d605a5332f9b270d909ef25"
+    },
+    {
+      "path": "/storyhub/hh/glomar/assets/schematic.webp",
+      "assetId": "A01",
+      "bytes": 316980,
+      "sha256": "f29a78d97d4b98a6bc122efc31b49b1f22ed40e5f74dece7087ffda12701392a",
+      "width": 1100,
+      "height": 887
+    },
+    {
+      "path": "/storyhub/hh/glomar/assets/golf-class.webp",
+      "assetId": "A02",
+      "bytes": 49944,
+      "sha256": "682b6bc3e2822db6c2380be4a87e38e282f5c21cd02e46153fad45bed3d55451",
+      "width": 900,
+      "height": 609
+    },
+    {
+      "path": "/storyhub/hh/glomar/assets/radio-page.webp",
+      "assetId": "A03",
+      "bytes": 98996,
+      "sha256": "223df4c4575a0d73489f6eb34d1e37f9573bea18358eff34c8982d81062ae1c4",
+      "width": 1000,
+      "height": 800
+    },
+    {
+      "path": "/storyhub/hh/glomar/assets/first-page.webp",
+      "assetId": "A04",
+      "bytes": 43444,
+      "sha256": "afc8c6e568be4371eb867212f0be00f321887614140cb275b3cfce81ea7279d4",
+      "width": 1100,
+      "height": 375
+    },
+    {
+      "path": "/storyhub/hh/glomar/assets/redacted-page.webp",
+      "assetId": "A05",
+      "bytes": 97374,
+      "sha256": "1606949b4014fa8da9e3ff4300e8ffd1b4fe81311b06e8ec2e9698bd559fb74b",
+      "width": 1000,
+      "height": 717
+    },
+    {
+      "path": "/storyhub/hh/glomar/assets/glomar-at-sea.webp",
+      "assetId": "A06",
+      "bytes": 28450,
+      "sha256": "569aaa4eea2ab2d22adfb04ab85b60a9200d393b3281eec468e740d09699d709",
+      "width": 900,
+      "height": 654
+    }
+  ],
+  "totalBytes": 678048,
+  "sealedAt": "2026-10-27"
+}

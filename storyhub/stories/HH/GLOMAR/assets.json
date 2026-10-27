@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GLOMAR",
+  "assets": [
+    {
+      "id": "A01", "status": "shipped", "type": "archival-document",
+      "role": "Hero image and ship anchor",
+      "sourceMode": "archival-source-first",
+      "subject": "Figure 5, schematic drawing of the MV Hughes Glomar Explorer, from the CIA history.",
+      "sourceUrl": "https://nsarchive2.gwu.edu/nukevault/ebb305/doc01.pdf",
+      "rightsStatus": "US government work, public domain",
+      "provenance": "Page 21 of the declassified CIA history published by the National Security Archive. Rendered from the PDF, rotated, cropped and compressed to grayscale WebP.",
+      "htmlSafeZone": "Text sits beside the image.",
+      "responsiveCrop": "Full image at every width inside a paper frame.",
+      "deployPath": "/storyhub/hh/glomar/assets/schematic.webp"
+    },
+    {
+      "id": "A02", "status": "shipped", "type": "photograph",
+      "role": "Submarine class anchor",
+      "sourceMode": "archival-source-first",
+      "subject": "A Soviet Golf II class submarine on the surface, the same type as K-129.",
+      "sourceUrl": "https://nsarchive2.gwu.edu/nukevault/ebb305/",
+      "rightsStatus": "US Navy photograph, public domain",
+      "provenance": "Published by the National Security Archive with its Project Azorian briefing book. Upscaled and compressed to WebP.",
+      "htmlSafeZone": "Text sits beside the image.",
+      "responsiveCrop": "Full image at every width.",
+      "deployPath": "/storyhub/hh/glomar/assets/golf-class.webp"
+    },
+    {
+      "id": "A03", "status": "shipped", "type": "archival-document",
+      "role": "Primary source for the radio exchange",
+      "sourceMode": "archival-source-first",
+      "subject": "Page 40 of the CIA history showing the end of the Chazhma radio exchange and redaction boxes.",
+      "sourceUrl": "https://nsarchive2.gwu.edu/nukevault/ebb305/doc01.pdf",
+      "rightsStatus": "US government work, public domain",
+      "provenance": "Rendered from the declassified PDF, cropped and compressed to WebP.",
+      "htmlSafeZone": "Text sits beside the image.",
+      "responsiveCrop": "Full image at every width.",
+      "deployPath": "/storyhub/hh/glomar/assets/radio-page.webp"
+    },
+    {
+      "id": "A04", "status": "shipped", "type": "archival-document",
+      "role": "Primary source showing a redacted recovery sentence",
+      "sourceMode": "archival-source-first",
+      "subject": "Opening paragraphs of the CIA history with the recovery date kept and the method blanked.",
+      "sourceUrl": "https://nsarchive2.gwu.edu/nukevault/ebb305/doc01.pdf",
+      "rightsStatus": "US government work, public domain",
+      "provenance": "Page 1 of the declassified PDF, cropped and compressed to WebP.",
+      "htmlSafeZone": "Text sits beside the image.",
+      "responsiveCrop": "Full image at every width.",
+      "deployPath": "/storyhub/hh/glomar/assets/first-page.webp"
+    },
+    {
+      "id": "A05", "status": "shipped", "type": "archival-document",
+      "role": "Ending image of what is still classified",
+      "sourceMode": "archival-source-first",
+      "subject": "Page 45 of the CIA history with whole paragraphs left as blank boxes.",
+      "sourceUrl": "https://nsarchive2.gwu.edu/nukevault/ebb305/doc01.pdf",
+      "rightsStatus": "US government work, public domain",
+      "provenance": "Rendered from the declassified PDF, cropped and compressed to WebP.",
+      "htmlSafeZone": "Text sits beside the image.",
+      "responsiveCrop": "Full image at every width.",
+      "deployPath": "/storyhub/hh/glomar/assets/redacted-page.webp"
+    },
+    {
+      "id": "A06", "status": "shipped", "type": "photograph",
+      "role": "Social sharing image",
+      "sourceMode": "archival-source-first",
+      "subject": "The Hughes Glomar Explorer at sea.",
+      "sourceUrl": "https://nsarchive2.gwu.edu/nukevault/ebb305/",
+      "rightsStatus": "Published by the National Security Archive with its Project Azorian briefing book",
+      "provenance": "Upscaled and compressed to WebP. Used only as the page's sharing image.",
+      "htmlSafeZone": "Not shown on the page.",
+      "responsiveCrop": "Not applicable.",
+      "deployPath": "/storyhub/hh/glomar/assets/glomar-at-sea.webp"
+    },
+    {
+      "id": "A07", "status": "embedded", "type": "video",
+      "role": "Overview documentary",
+      "sourceMode": "embedded-third-party",
+      "subject": "How the CIA Stole a Russian Submarine, by fern.",
+      "sourceUrl": "https://www.youtube.com/watch?v=yGsVo0uIJVs",
+      "rightsStatus": "Third party, played through the YouTube embed player",
+      "provenance": "Not downloaded or rehosted.",
+      "htmlSafeZone": "Video sits in its own 16:9 frame.",
+      "responsiveCrop": "16:9 frame at every width.",
+      "deploymentStatus": "embedded-not-hosted",
+      "deploymentNote": "Played from YouTube through a lazy loaded embed. Nothing is stored in the repository."
+    },
+    {
+      "id": "A08", "status": "embedded", "type": "video",
+      "role": "Primary footage of the burial",
+      "sourceMode": "embedded-third-party",
+      "subject": "The CIA's film of the burial at sea of six Soviet submariners, September 4, 1974.",
+      "sourceUrl": "https://www.youtube.com/watch?v=TOypyBdVZhU",
+      "rightsStatus": "Third party, played through the YouTube embed player",
+      "provenance": "Not downloaded or rehosted.",
+      "htmlSafeZone": "Video sits in its own 16:9 frame.",
+      "responsiveCrop": "16:9 frame at every width.",
+      "deploymentStatus": "embedded-not-hosted",
+      "deploymentNote": "Played from YouTube through a lazy loaded embed. Nothing is stored in the repository."
+    }
+  ]
+}
