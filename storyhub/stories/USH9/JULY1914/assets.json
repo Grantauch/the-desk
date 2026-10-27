@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-JULY1914",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "approved",
+      "type": "image",
+      "role": "Historical evidence",
+      "sourceMode": "source-first",
+      "subject": "Achille Beltrame newspaper illustration of the assassination, July 5\u201312, 1914.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:DC-1914-27-d-Sarajevo.jpg",
+      "rightsStatus": "Public domain; Beltrame died 1945, published 1914.",
+      "provenance": "Retained supplied optimized derivative; visually checked against the cataloged original subject. No generated archival evidence.",
+      "deployPath": "/storyhub/ush9/thirty-seven-days/assets/domenica-sarajevo.webp",
+      "htmlSafeZone": "Caption outside image.",
+      "responsiveCrop": "Full image, no content crop."
+    },
+    {
+      "id": "A02",
+      "status": "approved",
+      "type": "image",
+      "role": "Historical evidence",
+      "sourceMode": "source-first",
+      "subject": "Period portrait of Gavrilo Princip.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gavrilo_princip.jpg",
+      "rightsStatus": "Public domain period photograph.",
+      "provenance": "Retained supplied optimized derivative; visually checked against the cataloged original subject. No generated archival evidence.",
+      "deployPath": "/storyhub/ush9/thirty-seven-days/assets/princip.webp",
+      "htmlSafeZone": "Caption outside image.",
+      "responsiveCrop": "Full image, no content crop."
+    },
+    {
+      "id": "A03",
+      "status": "approved",
+      "type": "image",
+      "role": "Historical evidence",
+      "sourceMode": "source-first",
+      "subject": "German soldiers in a rail wagon in August 1914; later colorization.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aufbruch_an_die_Franz\u00f6schische_Front._August_1914_Deutsche_Soldaten_mit_Fronterf,_Bestanddeelnr_158-2342.jpg",
+      "rightsStatus": "Underlying photograph CC0 / public domain, Nationaal Archief. Colorized derivative retained from the supplied branch.",
+      "provenance": "Retained supplied optimized derivative; visually checked against the cataloged original subject. No generated archival evidence.",
+      "deployPath": "/storyhub/ush9/thirty-seven-days/assets/troop-train-1914.webp",
+      "htmlSafeZone": "Caption outside image.",
+      "responsiveCrop": "Full image, no content crop."
+    },
+    {
+      "id": "A04",
+      "status": "approved",
+      "type": "map",
+      "role": "Four teaching maps",
+      "sourceMode": "data-derived",
+      "subject": "Simplified 1914 political boundaries and schematic movements.",
+      "rightsStatus": "GPL-3.0; Andr\u00e9 Ourednik and historical-basemaps contributors. Corresponding source and license included.",
+      "provenance": "Draft SVG country order and geometry checked against world_1914.geojson. Movement overlays are original teaching schematics, checked against NZ History. Borders remain approximate.",
+      "htmlSafeZone": "Readouts and controls outside the map.",
+      "responsiveCrop": "Preserve entire viewBox; stacked readouts on phones.",
+      "deploymentStatus": "inline-in-html",
+      "deploymentNote": "All four SVG maps are embedded in the sealed hub HTML; their editable source and source-data snapshot are included under this story."
+    }
+  ]
+}

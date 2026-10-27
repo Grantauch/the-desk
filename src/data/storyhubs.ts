@@ -25,6 +25,29 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'ush9-bytesize-thirty-seven-days',
+    href: '/hubs/ush9-bytesize-thirty-seven-days.html',
+    title: 'thirty seven days',
+    course: 'us history 9',
+    unit: 'bytesize / the road to world war i',
+    period: 'June–December 1914',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 7',
+    question: 'how did two shots in sarajevo become a european war in thirty seven days?',
+    blurb: 'Four interactive maps trace alliances, empires, the July Crisis and the failed advance on Paris. Locate the countries, follow ten dated decisions, practice the MAIN causes and explain why the war spread.',
+    cover: '/storyhub/ush9/thirty-seven-days/assets/troop-train-1914.webp',
+    coverAlt: 'Colorized period photograph of German soldiers on a troop train in 1914',
+    topics: ['world war i', 'july crisis', 'alliances', 'imperialism', 'nationalism', 'militarism'],
+    inside: [
+      'Explore the 1914 alliance map and locate eight countries.',
+      'Compare European empires and their overseas reach.',
+      'Step from Sarajevo to Britain’s declaration, then compare the plan with the Western Front.',
+      'Classify eight MAIN examples and save or turn in three explanations.',
+    ],
+  },
+
+
+  {
     slug: 'bts-bytesize-zero-points',
     href: '/hubs/bts-bytesize-zero-points.html',
     title: 'zero points in paris',

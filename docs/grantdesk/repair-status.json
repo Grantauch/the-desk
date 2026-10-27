@@ -1221,5 +1221,20 @@
       "Main UI 57/57, extended UI 48/48, Jeopardy 83 and companion/Pond 15/15 pass. Combined browser command stops on unchanged The League 320px landing overflow in local Chromium 153; protected CI remains required."
     ],
     "evidence": "docs/storyhub/SAVE-LOAD-AUDIT-2026-10-26.md"
+  },
+  "ush9_bytesize_july1914_20261027": {
+    "status": "COMPLETE_FOCUSED_BROWSER_PASSED_FULL_GATE_PENDING",
+    "owner": "Codex",
+    "summary": "Completes the supplied Thirty Seven Days ByteSize draft with four maps, ten crisis steps, a MAIN workshop and shared work controls.",
+    "deployment_status": "NOT_DEPLOYED",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Focused offline Chromium acceptance passed at 320, 390 and 1440 pixels: country selection, drill/hints/reset, empire filters, timeline forward/back/scrub, Western Front views and MAIN correction.",
+      "Light and dark WCAG A/AA, reduced motion, decoded images, unique IDs and no-script text guides passed.",
+      "Answer/radio refresh recovery, shared-device blank tabs, synthetic Turn In and cross-device recovery all passed against the real Apps Script harness at each viewport.",
+      "Historical corrections distinguish 1878 occupation from 1908 annexation, alliance terms from automatic war, and mobilization from declaration.",
+      "Full canonical verification, protected GitHub build, merge and exact Netlify production commit remain pending."
+    ],
+    "evidence": "storyhub/stories/USH9/JULY1914/verify.mjs"
   }
 }

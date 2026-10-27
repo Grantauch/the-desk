@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-JULY1914",
+  "title": "Thirty Seven Days",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "plainspoken",
+      "consequential",
+      "evidence-led"
+    ],
+    "paletteIntent": "Paper map ground, Entente blue, Central Powers oxblood, gold for diplomatic backing.",
+    "typographyIntent": "Stencil headlines beside readable Source Serif and typewriter dates.",
+    "textureLanguage": [
+      "paper ground",
+      "map borders",
+      "telegram rules"
+    ],
+    "shapeLanguage": "Rectangular map boards and document panels.",
+    "motionGrammar": [
+      "Immediate state changes on student input; no autoplay.",
+      "No transitions with reduced motion."
+    ],
+    "interactionSignature": [
+      "Locate countries, then trace diplomatic choices across the same geography.",
+      "Compare planned and actual movement; classify MAIN examples."
+    ],
+    "densityRhythm": "Brief explanation, large map, short readout, then application.",
+    "archivalBehavior": "Three period images labeled by medium and alteration. Maps are simplified teaching reconstructions with linked data and license.",
+    "endingLanguage": "Explain one decision that widened the war, using a date and a MAIN cause."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Draft period newspaper and troop-train image, with blue and red map pins.",
+    "edgeTreatment": "Thin ruled borders and square frames.",
+    "controlLanguage": "Country labels, date steps and telegram readouts.",
+    "spacingLanguage": "Wide maps alternate with paired evidence panels.",
+    "transitionLanguage": "Color and arrows update on input; ordinary scrolling."
+  }
+}
