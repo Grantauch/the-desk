@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Ship That Wasn't Mining | Hidden History · ByteSize</title>
+<meta name="description" content="In 1974 the CIA disguised a spy ship as a Howard Hughes mining venture and used it to pull part of a sunken Soviet nuclear submarine off the floor of the Pacific.">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-bytesize-glomar.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Ship That Wasn't Mining">
+<meta property="og:description" content="Project Azorian: a fake mining ship, a giant claw, a sunken Soviet submarine three miles down, and the CIA answer that became famous.">
+<meta property="og:url" content="https://grant-desk.com/hubs/hh-bytesize-glomar.html">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/glomar/assets/glomar-at-sea.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Story DNA: the bottom of the Pacific in 1974. Abyss blue ground that gets darker as the story goes deeper, sonar teal for what the Americans could see, Soviet red for the other side, declassified paper for the CIA's own pages. Single dark look by design. */
+:root {
+  --abyss: #050E15;
+  --deep: #0A1A24;
+  --panel: #0F2633;
+  --line: #24465B;
+  --ink: #EEF1EC;
+  --muted: #A3B7C1;
+  --sonar: #5FD4C9;
+  --red: #FF7466;
+  --paper: #F1EBDD;
+  --paper-ink: #1E1B16;
+  --font-display: "DM Serif Display", Cambria, Georgia, serif;
+  --font-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --font-type: "Courier Prime", "Courier New", monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--abyss); color: var(--ink); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.62; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+img { max-width: 100%; }
+a { color: inherit; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--sonar); color: var(--abyss); padding: 10px 14px; border-radius: 6px; font-weight: 700; text-decoration: none; }
+.skip:focus { top: 12px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.masthead { border-bottom: 1px solid var(--line); background: var(--deep); }
+.masthead .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 14px; }
+.brand { font-family: var(--font-type); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem; text-decoration: none; }
+.brand span { color: var(--sonar); padding: 0 8px; }
+.series { font-family: var(--font-type); font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.series b { color: var(--sonar); }
+section { padding-block: clamp(48px, 8vw, 96px); border-top: 1px solid var(--line); }
+section.hero { border-top: 0; background: linear-gradient(180deg, #0B2230 0%, var(--abyss) 100%); }
+section.d1 { background: #071520; }
+section.d2 { background: #061219; }
+section.d3 { background: #050F16; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.05; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.8rem, 8vw, 5.4rem); }
+h2 { font-size: clamp(2rem, 5vw, 3.1rem); margin-bottom: 20px; }
+h3 { font-size: 1.4rem; margin-bottom: 8px; }
+.kicker { font-family: var(--font-type); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.85rem; color: var(--sonar); margin: 0 0 12px; }
+.byte { font-family: var(--font-type); font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 6px; }
+p { margin: 0 0 16px; max-width: 64ch; }
+.lede { font-size: 1.22rem; }
+.muted { color: var(--muted); }
+figure { margin: 0; }
+figcaption { font-size: 0.82rem; color: var(--muted); margin-top: 8px; }
+.split { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+.split > * { min-width: 0; }
+@media (max-width: 780px) { .split { grid-template-columns: 1fr; } }
+
+/* hero */
+.hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(24px, 5vw, 56px); align-items: center; }
+.hero-grid > * { min-width: 0; }
+@media (max-width: 820px) { .hero-grid { grid-template-columns: 1fr; } }
+.paperframe { background: var(--paper); padding: 10px; border-radius: 4px; box-shadow: 0 14px 40px rgba(0,0,0,0.45); }
+.paperframe img { display: block; width: 100%; height: auto; }
+.facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 28px; max-width: 32rem; }
+.facts div { background: rgba(15,38,51,0.75); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; min-width: 0; }
+.facts b { display: block; font-family: var(--font-display); font-size: 2rem; line-height: 1; color: var(--sonar); }
+.facts span { font-size: 0.92rem; color: var(--muted); }
+.facts .red b { color: var(--red); }
+
+/* photos */
+.photo img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
+
+/* depth */
+.depth { display: grid; grid-template-columns: 220px 1fr; gap: clamp(16px, 4vw, 40px); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 3vw, 28px); margin-top: 12px; }
+.depth > * { min-width: 0; }
+@media (max-width: 640px) { .depth { grid-template-columns: 1fr; } }
+.column { position: relative; height: 420px; border-radius: 8px; background: linear-gradient(180deg, #1C6A7C 0%, #0C3442 22%, #061A24 60%, #02070B 100%); border: 1px solid var(--line); overflow: hidden; }
+@media (max-width: 640px) { .column { height: 300px; } }
+.column .mark { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed rgba(238,241,236,0.4); }
+.column .mark span { position: absolute; left: 60px; right: 4px; font-size: 0.74rem; line-height: 1.2; color: var(--ink); white-space: nowrap; }
+.column .mark.up span { bottom: 3px; }
+.column .mark.down span { top: 3px; }
+.column .mark.wreck { border-top: 2px solid var(--red); }
+.column .mark.wreck span { color: var(--red); font-weight: 700; }
+.column .cable { position: absolute; left: 30px; top: 0; width: 3px; background: var(--sonar); height: 0; }
+.column .claw { position: absolute; left: 18px; width: 28px; height: 20px; top: 0; transform: translateY(-2px); }
+.column .claw svg { display: block; width: 28px; height: 20px; }
+.readout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.readout div { background: var(--deep); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; min-width: 0; }
+.readout b { display: block; font-family: var(--font-type); font-size: clamp(1.4rem, 3.4vw, 1.9rem); color: var(--sonar); line-height: 1.1; }
+.readout span { font-size: 0.88rem; color: var(--muted); }
+.passing { margin: 16px 0; font-size: 1.08rem; min-height: 3.4em; }
+.range-row label { display: block; font-family: var(--font-type); font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+input[type=range] { width: 100%; accent-color: var(--sonar); height: 28px; }
+input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offset: 4px; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.btn { appearance: none; border: 1px solid var(--muted); background: transparent; color: var(--ink); font: 600 0.95rem var(--font-body); padding: 9px 14px; border-radius: 6px; cursor: pointer; }
+.btn.primary { background: var(--sonar); border-color: var(--sonar); color: var(--abyss); }
+.btn:focus-visible { outline: 3px solid var(--sonar); outline-offset: 3px; }
+
+/* route */
+.route { list-style: none; padding: 0; margin: 20px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 860px) { .route { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .route { grid-template-columns: 1fr; } }
+.route li { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.route time { display: block; font-family: var(--font-type); font-size: 0.85rem; color: var(--sonar); }
+.route b { display: block; font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; margin: 2px 0 6px; }
+.route li.coup time, .route li.coup b { color: var(--red); }
+
+/* video */
+.video { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vmeta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+
+/* radio */
+.radio { background: #03090D; border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 3vw, 26px); font-family: var(--font-type); }
+.radio .log { display: grid; gap: 10px; margin-bottom: 16px; }
+.line { display: grid; grid-template-columns: 6.5rem 1fr; gap: 12px; align-items: baseline; }
+.line > * { min-width: 0; }
+.line .who { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.06em; }
+.line.sov .who { color: var(--red); }
+.line.us .who { color: var(--sonar); }
+.line .said { font-size: 1.02rem; }
+@media (max-width: 480px) { .line { grid-template-columns: 1fr; gap: 0; } }
+.choices { display: grid; gap: 8px; }
+.choice { appearance: none; text-align: left; width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 11px 14px; font: 1rem var(--font-type); cursor: pointer; }
+.choice:hover { border-color: var(--sonar); }
+.choice:focus-visible { outline: 3px solid var(--sonar); outline-offset: 2px; }
+.feedback { font-family: var(--font-body); font-size: 1rem; margin: 12px 0 0; padding: 12px 14px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); }
+.feedback.good { border-color: var(--sonar); }
+.feedback.bad { border-color: var(--red); }
+.feedback[hidden], .choices[hidden] { display: none; }
+.prompt { font-family: var(--font-body); font-size: 0.95rem; color: var(--muted); margin: 0 0 10px; }
+
+/* sub */
+.subwrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: clamp(14px, 3vw, 26px); margin-top: 12px; }
+.subwrap svg { display: block; width: 100%; height: auto; }
+.zone { cursor: pointer; }
+.zone rect, .zone path { transition: opacity 0.2s; }
+.zone:focus { outline: none; }
+.zone:focus-visible .hull { stroke: var(--ink); stroke-width: 4; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.88rem; color: var(--muted); margin: 10px 0 14px; }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.zonebtns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0; }
+@media (max-width: 640px) { .zonebtns { grid-template-columns: repeat(2, 1fr); } }
+.zonebtn { appearance: none; background: var(--deep); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 10px 12px; font: 600 0.95rem var(--font-body); cursor: pointer; text-align: left; }
+.zonebtn[aria-pressed="true"] { border-color: var(--sonar); background: #12313F; }
+.zonebtn:focus-visible { outline: 3px solid var(--sonar); outline-offset: 2px; }
+.zoneinfo { min-height: 7.5em; }
+.zoneinfo .status { font-family: var(--font-type); font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.zoneinfo .status.up { color: var(--sonar); }
+.zoneinfo .status.down { color: var(--red); }
+.zoneinfo .status.never { color: var(--muted); }
+
+/* sailors */
+.dots { display: grid; grid-template-columns: repeat(14, 1fr); gap: 6px; max-width: 420px; margin: 8px 0 14px; }
+.dots i { display: block; aspect-ratio: 1; border-radius: 50%; background: #2C5A6E; }
+.dots i.found { background: var(--red); }
+
+/* timeline */
+.leak { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.leak li { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; grid-template-columns: 11rem 1fr; gap: 14px; }
+.leak li > * { min-width: 0; }
+.leak time { font-family: var(--font-type); color: var(--sonar); font-size: 0.9rem; padding-top: 2px; }
+.leak li.out time { color: var(--red); }
+@media (max-width: 560px) { .leak li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* document quote */
+.doc { background: var(--paper); color: var(--paper-ink); border-radius: 4px; padding: clamp(18px, 3vw, 30px); font-family: var(--font-type); font-size: clamp(1.05rem, 2.2vw, 1.25rem); line-height: 1.5; box-shadow: 0 14px 40px rgba(0,0,0,0.45); }
+.doc small { display: block; font-size: 0.8rem; margin-top: 12px; color: #4A453C; }
+.tweet { margin-top: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+.tweet .h { font-family: var(--font-type); font-size: 0.82rem; color: var(--muted); }
+.tweet p { font-size: 1.15rem; margin: 6px 0 0; }
+.sources { font-size: 0.86rem; color: var(--muted); }
+.sources a { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to the story</a>
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="https://grant-desk.com/storyhubs/">The Desk<span>/</span>Hidden History</a>
+    <span class="series">ByteSize <b>№ 08</b></span>
+  </div>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="kicker">Project Azorian · 1968 to 1975</p>
+        <h1>The Ship That Wasn't Mining</h1>
+        <p class="lede" style="margin-top:20px">In 1974 the CIA disguised a spy ship as a Howard Hughes mining venture and sent it to pull a sunken Soviet nuclear submarine off the floor of the Pacific, three miles down, while Soviet ships watched.</p>
+        <div class="facts">
+          <div class="red"><b>98</b><span>Soviet sailors lost when K-129 sank</span></div>
+          <div><b>16,500 ft</b><span>depth of the wreck</span></div>
+          <div><b>619 ft</b><span>length of the Hughes Glomar Explorer</span></div>
+          <div><b>2010</b><span>year the CIA released its own history, a third of it still blank</span></div>
+        </div>
+      </div>
+      <figure>
+        <div class="paperframe"><img src="/storyhub/hh/glomar/assets/schematic.webp" alt="CIA drawing of the Hughes Glomar Explorer, a long ship with a tall drilling derrick in the middle, labeled MV Hughes Glomar Explorer" width="1100" height="887"></div>
+        <figcaption>Figure 5 from the CIA's secret history of the project, declassified in 2010.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="d1">
+    <div class="wrap split">
+      <div>
+        <p class="byte">Byte 1</p>
+        <p class="kicker">March 1968</p>
+        <h2>A submarine disappears</h2>
+        <p>The Soviet submarine K-129 left its base at Petropavlovsk around March 1, 1968, carrying 98 men and three nuclear missiles. About a week later it sank somewhere in the middle of the Pacific. Nobody aboard got off a distress call.</p>
+        <p>The Soviet Navy searched for two months and found nothing. What caused the sinking is still unknown.</p>
+        <p>The Americans had a better idea of where to look. Navy underwater microphones had recorded the sound of the disaster. That summer the spy submarine USS Halibut towed cameras over the area and photographed the wreck lying on the bottom, about 1,560 miles northwest of Hawaii.</p>
+      </div>
+      <figure class="photo">
+        <img src="/storyhub/hh/glomar/assets/golf-class.webp" alt="A long black Soviet submarine running on the surface, its tall sail in the middle" width="900" height="609">
+        <figcaption>A Soviet Golf II class submarine, the same type as K-129. The three missiles rode upright inside the tall sail. U.S. Navy photo via the National Security Archive.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="d1">
+    <div class="wrap">
+      <p class="byte">Byte 2</p>
+      <p class="kicker">1969 to 1974</p>
+      <h2>Three miles of pipe</h2>
+      <p class="lede">CIA engineers proposed something nobody had ever done. A ship would lower a giant steel claw on a string of pipe and haul the submarine straight up. The CIA's estimate of the weight was about 2,000 to 2,200 tons.</p>
+      <p>Lower the claw yourself. Watch what you pass on the way down.</p>
+      <div class="depth" id="depthTool">
+        <div class="column" id="column" aria-hidden="true">
+          <div class="cable" id="cable"></div>
+          <div class="claw" id="claw"><svg viewBox="0 0 28 20"><path d="M14 0 v6 M4 6 h20 M4 6 l-3 12 M24 6 l3 12 M10 6 l-1 10 M18 6 l1 10" stroke="#5FD4C9" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
+        </div>
+        <div>
+          <div class="readout" aria-live="polite">
+            <div><b id="rDepth">0 ft</b><span>depth below the surface</span></div>
+            <div><b id="rMiles">0.0 mi</b><span>straight down</span></div>
+            <div><b id="rPipe">0</b><span>sixty foot pipe sections screwed together</span></div>
+            <div><b id="rPsi">15 psi</b><span>water pressure on the claw</span></div>
+          </div>
+          <p class="passing" id="passing" aria-live="polite">The claw is at the surface, hanging in the center well of the ship.</p>
+          <div class="range-row">
+            <label for="depthRange">Claw depth in feet</label>
+            <input type="range" id="depthRange" min="0" max="16500" step="50" value="0" data-desk-skip>
+          </div>
+          <div class="btns">
+            <button type="button" class="btn primary" id="dropBtn">Lower it to the wreck</button>
+            <button type="button" class="btn" id="raiseBtn">Back to the surface</button>
+          </div>
+          <noscript><p class="muted">At 16,500 feet the claw hangs on 275 sixty foot pipe sections and the water presses on it at about 7,300 pounds per square inch, roughly 200 times the air pressure in a car tire.</p></noscript>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="d2">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <p class="byte">Byte 3</p>
+          <p class="kicker">1972 to 1973</p>
+          <h2>Enter Howard Hughes</h2>
+          <p>A secret this big needed a cover story. Howard Hughes was a billionaire famous for hiding from the public, and his companies already did secret work for the government. A senior Hughes official asked him to lend his name, and he agreed.</p>
+          <p>The world was told Hughes was building a ship to scoop metal nodules off the deep ocean floor. Mining experts believed it. Some companies started planning ocean mining ventures of their own.</p>
+          <p>The claw itself was built out of sight inside a giant covered barge called HMB-1. Off Catalina Island the barge sank itself, and the ship parked on top and pulled the claw up through doors in the bottom of its own hull.</p>
+        </div>
+        <div>
+          <div class="video" data-yt="yGsVo0uIJVs" data-title="How the CIA Stole a Russian Submarine, by fern"></div>
+          <div class="vmeta"><span>How the CIA Stole a Russian Submarine · fern</span><a href="https://www.youtube.com/watch?v=yGsVo0uIJVs" target="_blank" rel="noopener">Open on YouTube</a></div>
+        </div>
+      </div>
+      <h3 style="margin-top:40px">The long way to California</h3>
+      <p class="muted">The ship was too wide for the Panama Canal, so it sailed around the bottom of South America.</p>
+      <ol class="route">
+        <li><time>Summer 1973</time><b>Chester, Pennsylvania</b>To fit under the Delaware Memorial Bridge, the crew cut 28 feet off the top of the derrick, then a floating crane put it back.</li>
+        <li><time>Sept 5 and 6</time><b>Strait of Magellan</b>Two Chilean pilots came aboard to steer through the passage at the tip of South America.</li>
+        <li class="coup"><time>Sept 12, 1973</time><b>Valparaiso, Chile</b>The ship arrived the day after a military coup. Tanks filled the streets while technicians waited to get aboard.</li>
+        <li><time>Sept 30, 1973</time><b>Long Beach, California</b>The ship tied up at Pier E to get ready for the real job.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="d2">
+    <div class="wrap">
+      <p class="byte">Byte 4</p>
+      <p class="kicker">July 18, 1974</p>
+      <h2>What kind of vessel are you?</h2>
+      <div class="split">
+        <div>
+          <p>The Glomar Explorer reached the wreck site on the Fourth of July. Two weeks later the Soviet missile tracking ship Chazhma came over the horizon. Its helicopter made low passes over the deck taking pictures. Then the Soviets got on the radio.</p>
+          <p>You are on the Glomar's radio. Every answer has to match the cover story the whole world has already read about. Pick your reply, then see what the crew actually said.</p>
+          <figure class="photo" style="margin-top:20px">
+            <img src="/storyhub/hh/glomar/assets/radio-page.webp" alt="A typed page from the CIA history with the end of the radio conversation and several blank white boxes where text is still classified" width="1000" height="800">
+            <figcaption>Page 40 of the CIA history. The conversation survived declassification. The empty boxes did not.</figcaption>
+          </figure>
+        </div>
+        <div class="radio" id="radio">
+          <div class="log" id="radioLog" aria-live="polite"></div>
+          <p class="prompt" id="radioPrompt">Your reply:</p>
+          <div class="choices" id="radioChoices"></div>
+          <p class="feedback" id="radioFeedback" hidden></p>
+          <div class="btns"><button type="button" class="btn" id="radioReset">Start the call over</button></div>
+          <noscript><p>The real exchange: "What are you doing here?" "We are conducting ocean mining tests." "What kind of vessel are you?" "A deep-ocean mining vessel." "How much time will you be here?" "We expect to finish testing in two to three weeks." The Soviets signed off: "I wish you all the best."</p></noscript>
+        </div>
+      </div>
+      <p style="margin-top:28px">Chazhma left that night. Four days later a 155 foot Soviet salvage tug called SB-10 arrived and stayed for weeks. The Americans counted 43 people on its deck, including one woman, many in swim trunks, snapping photos. Once it came within 75 yards. The crew stacked crates on the helicopter deck so no Soviet helicopter could land.</p>
+    </div>
+  </section>
+
+  <section class="d3">
+    <div class="wrap">
+      <p class="byte">Byte 5</p>
+      <p class="kicker">August 1 to 9, 1974</p>
+      <h2>The claw breaks</h2>
+      <p class="lede">The claw closed on the submarine and lifted it off the bottom on August 1. Partway up, some of its steel grabbing arms failed. Most of the hull broke away and fell back three miles to the seafloor.</p>
+      <p>On August 8 what was left reached the ship. Tap each part of K-129 to see what happened to it.</p>
+      <div class="subwrap">
+        <div class="legend"><span><i style="background:#5FD4C9"></i>Reached the ship</span><span><i style="background:#FF7466"></i>Fell back during the lift</span><span><i style="background:#3A5566"></i>Never grabbed</span></div>
+        <svg viewBox="0 0 900 200" role="img" aria-labelledby="subTitle">
+          <title id="subTitle">Side view of K-129 split into four parts: stern, sail with missiles, control room and bow</title>
+          <g class="zone" data-zone="stern"><path class="hull" d="M40 120 Q20 110 40 92 L250 88 L250 140 L60 140 Q40 136 40 120 Z" fill="#3A5566" stroke="#0A1A24" stroke-width="2"/><text x="140" y="122" fill="#EEF1EC" font-size="18" text-anchor="middle" font-family="Source Sans 3, Arial">Stern</text></g>
+          <g class="zone" data-zone="sail"><path class="hull" d="M250 88 L470 86 L470 142 L250 140 Z M300 88 L320 30 L430 30 L445 86 Z" fill="#FF7466" stroke="#0A1A24" stroke-width="2"/><text x="372" y="66" fill="#1E1B16" font-size="16" text-anchor="middle" font-family="Source Sans 3, Arial">3 missiles</text><text x="360" y="122" fill="#1E1B16" font-size="18" text-anchor="middle" font-family="Source Sans 3, Arial">Sail</text></g>
+          <g class="zone" data-zone="control"><path class="hull" d="M470 86 L650 86 L650 142 L470 142 Z" fill="#FF7466" stroke="#0A1A24" stroke-width="2"/><text x="560" y="122" fill="#1E1B16" font-size="18" text-anchor="middle" font-family="Source Sans 3, Arial">Control room</text></g>
+          <g class="zone" data-zone="bow"><path class="hull" d="M650 86 L800 90 Q870 104 860 116 Q850 136 790 140 L650 142 Z" fill="#5FD4C9" stroke="#0A1A24" stroke-width="2"/><text x="745" y="122" fill="#1E1B16" font-size="18" text-anchor="middle" font-family="Source Sans 3, Arial">Bow</text></g>
+          <text x="40" y="180" fill="#A3B7C1" font-size="14" font-family="Source Sans 3, Arial">Simplified drawing, not to scale. Exact break points remain classified.</text>
+        </svg>
+        <div class="zonebtns" role="group" aria-label="Parts of the submarine">
+          <button type="button" class="zonebtn" data-zone="bow" aria-pressed="false">Bow</button>
+          <button type="button" class="zonebtn" data-zone="control" aria-pressed="false">Control room</button>
+          <button type="button" class="zonebtn" data-zone="sail" aria-pressed="false">Sail and missiles</button>
+          <button type="button" class="zonebtn" data-zone="stern" aria-pressed="false">Stern</button>
+        </div>
+        <div class="zoneinfo" id="zoneInfo" aria-live="polite"><p class="muted">Choose a part of the submarine.</p></div>
+        <noscript><p>The bow reached the ship on August 8, 1974. The control room and the sail with the three missiles fell back during the lift. The stern had already broken away on the seafloor and was never grabbed.</p></noscript>
+      </div>
+      <div class="split" style="margin-top:32px">
+        <figure class="photo">
+          <img src="/storyhub/hh/glomar/assets/first-page.webp" alt="The opening paragraphs of the CIA history. The sentence about the recovery keeps the date August 8, 1974 but blanks out how the submarine was raised" width="1100" height="375">
+          <figcaption>The first page of the CIA history. The date survives. The method is still a white box.</figcaption>
+        </figure>
+        <p>Radiation monitors aboard picked up plutonium leaking from the recovered nuclear torpedoes. Exactly what came up is still classified. Accounts disagree on whether any code machines were inside, and the CIA has never said.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="d3">
+    <div class="wrap split">
+      <div>
+        <p class="byte">Byte 6</p>
+        <p class="kicker">September 4, 1974</p>
+        <h2>Six sailors</h2>
+        <p>Inside the recovered section were the bodies of six Soviet sailors. On September 4, 1974, the Americans buried them at sea in a steel chamber about 90 miles southwest of Hawaii. The coffins were covered with the Soviet naval flag. A chaplain read prayers, and the Soviet national anthem played.</p>
+        <p>The CIA filmed the ceremony. For 18 years the families were told nothing. In October 1992, after the Soviet Union collapsed, CIA Director Robert Gates flew to Moscow and handed the film to Russian President Boris Yeltsin.</p>
+        <div class="dots" role="img" aria-label="98 dots, one for each man aboard K-129. Six are highlighted for the sailors recovered.">
+          <i class="found"></i><i class="found"></i><i class="found"></i><i class="found"></i><i class="found"></i><i class="found"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <p class="muted">One dot for each man aboard K-129. Six were ever recovered.</p>
+      </div>
+      <div>
+        <div class="video" data-yt="TOypyBdVZhU" data-title="Burial at sea of Soviet submariners from the Hughes Glomar Explorer, September 4, 1974"></div>
+        <div class="vmeta"><span>The CIA's film of the burial, September 4, 1974</span><a href="https://www.youtube.com/watch?v=TOypyBdVZhU" target="_blank" rel="noopener">Open on YouTube</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="d2">
+    <div class="wrap">
+      <p class="byte">Byte 7</p>
+      <p class="kicker">June 1974 to March 1975</p>
+      <h2>The burglary that blew the cover</h2>
+      <ol class="leak">
+        <li><time>June 1974</time><div>Burglars break into Summa Corporation headquarters in Los Angeles, a Hughes company, and haul away files. The CIA later feared one was a memo to Hughes describing the submarine plan.</div></li>
+        <li><time>February 1975</time><div>The Los Angeles Times prints a confused version of the story connecting Hughes and his mining ship to the CIA.</div></li>
+        <li><time>Feb to March 1975</time><div>CIA Director William Colby personally asks newspaper editors to hold the story. Several of the biggest papers in the country agree.</div></li>
+        <li class="out"><time>March 1975</time><div>Columnist Jack Anderson breaks it on national radio and TV. The next day The New York Times runs Seymour Hersh's story on its front page.</div></li>
+      </ol>
+      <p style="margin-top:20px">With the cover blown, the White House canceled a second mission that would have gone back for the rest of the submarine.</p>
+    </div>
+  </section>
+
+  <section class="d1">
+    <div class="wrap split">
+      <div>
+        <p class="byte">Byte 8</p>
+        <p class="kicker">March 1975 to today</p>
+        <h2>Neither confirm nor deny</h2>
+        <p>Rolling Stone reporter Harriet Ann Phillippi filed a Freedom of Information Act request for CIA records about the ship. A CIA lawyer wrote an answer built so that even a no could not tip off the Soviets.</p>
+        <div class="doc">"We can neither confirm nor deny the existence of the information requested but, hypothetically, if such data were to exist, the subject matter would be classified, and could not be disclosed."<small>The CIA's reply to Phillippi, 1975</small></div>
+        <p style="margin-top:20px">A federal appeals court upheld the answer in 1976. In 1977 the Carter administration admitted the project existed. Government agencies still give the same kind of answer today, and it is still called a Glomar response.</p>
+        <div class="tweet"><div class="h">@CIA · June 6, 2014 · the agency's first tweet</div><p>"We can neither confirm nor deny that this is our first tweet."</p></div>
+      </div>
+      <figure class="photo">
+        <img src="/storyhub/hh/glomar/assets/redacted-page.webp" alt="A page of the CIA history about the Soviet tug with several whole paragraphs left as empty white boxes" width="1000" height="717">
+        <figcaption>Page 45 of the history, released 36 years after the mission. The white boxes are what the CIA still will not confirm or deny.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sources">
+      <p><strong>Sources.</strong> Central Intelligence Agency, <a href="https://nsarchive2.gwu.edu/nukevault/ebb305/" target="_blank" rel="noopener">"Project Azorian: The Story of the Hughes Glomar Explorer," declassified 2010, via the National Security Archive</a>. <a href="https://history.state.gov/historicaldocuments/frus1969-76v35/d196" target="_blank" rel="noopener">Foreign Relations of the United States, 1969 to 1976, Volume XXXV, Document 196</a>. Phillippi v. Central Intelligence Agency, 546 F.2d 1009 (D.C. Cir. 1976). Norman Polmar and Michael White, Project Azorian: The CIA and the Raising of the K-129 (Naval Institute Press, 2010). Videos are embedded from YouTube and not rehosted.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll('.video[data-yt]').forEach(function (box) {
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?rel=0&playsinline=1';
+    f.title = box.getAttribute('data-title');
+    f.loading = 'lazy';
+    f.allow = 'encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    box.appendChild(f);
+  });
+
+  /* Byte 2: lower the claw */
+  var MAX = 16500;
+  var marks = [
+    { ft: 1090, pos: 'up', label: 'Scuba record \u00b7 1,090 ft', note: 'You just passed the deepest any human has gone on scuba, Ahmed Gabr in 2014.' },
+    { ft: 1454, pos: 'down', label: 'Empire State \u00b7 1,454 ft', note: 'The Empire State Building, antenna and all, would be underwater by now.' },
+    { ft: 9816, pos: 'down', label: 'Deepest whale \u00b7 9,816 ft', note: 'A Cuvier’s beaked whale once dove this deep, the record for any mammal.' },
+    { ft: 12500, pos: 'down', label: 'Titanic \u00b7 12,500 ft', note: 'The wreck of the Titanic lies at this depth. You still have 4,000 feet to go.' },
+    { ft: 16500, pos: 'up', label: 'K-129 \u00b7 16,500 ft', note: 'You reached the wreck. The claw now hangs on 275 pipe sections, and the water presses on it about 200 times harder than the air in a car tire.', wreck: true }
+  ];
+  var column = document.getElementById('column');
+  var cable = document.getElementById('cable');
+  var claw = document.getElementById('claw');
+  var range = document.getElementById('depthRange');
+  var passing = document.getElementById('passing');
+  marks.forEach(function (m) {
+    var d = document.createElement('div');
+    d.className = 'mark ' + m.pos + (m.wreck ? ' wreck' : '');
+    d.style.top = 'calc(' + (m.ft / MAX) + ' * (100% - 24px) + 10px)';
+    var sp = document.createElement('span');
+    sp.textContent = m.label;
+    d.appendChild(sp);
+    column.appendChild(d);
+  });
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function draw(ft) {
+    var h = column.clientHeight - 24;
+    var y = ft / MAX * h;
+    cable.style.height = y + 'px';
+    claw.style.top = y + 'px';
+    document.getElementById('rDepth').textContent = fmt(ft) + ' ft';
+    document.getElementById('rMiles').textContent = (ft / 5280).toFixed(1) + ' mi';
+    document.getElementById('rPipe').textContent = fmt(Math.ceil(ft / 60));
+    document.getElementById('rPsi').textContent = fmt(14.7 + ft * 0.445) + ' psi';
+    var last = null;
+    marks.forEach(function (m) { if (ft >= m.ft) last = m; });
+    passing.textContent = ft === 0 ? 'The claw is at the surface, hanging in the center well of the ship.' : (last ? last.note : 'Almost all sunlight is gone below about 650 feet. Keep going.');
+  }
+  range.addEventListener('input', function () { draw(Number(range.value)); });
+  var anim = null;
+  function glide(target) {
+    if (anim) cancelAnimationFrame(anim);
+    if (reduce) { range.value = target; draw(target); return; }
+    var start = Number(range.value), t0 = null, dur = 2400;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      var v = Math.round((start + (target - start) * (1 - Math.pow(1 - p, 3))) / 50) * 50;
+      range.value = v; draw(v);
+      if (p < 1) anim = requestAnimationFrame(step);
+    }
+    anim = requestAnimationFrame(step);
+  }
+  document.getElementById('dropBtn').addEventListener('click', function () { glide(MAX); });
+  document.getElementById('raiseBtn').addEventListener('click', function () { glide(0); });
+  window.addEventListener('resize', function () { draw(Number(range.value)); });
+  draw(0);
+
+  /* Byte 4: the radio call */
+  var steps = [
+    { q: 'We are on our way home and heard your fog horn. What are you doing here?',
+      opts: [
+        { t: 'We are conducting ocean mining tests.', real: true, why: 'That is what the crew said. It matches the story every newspaper had already printed about the Hughes mining ship.' },
+        { t: 'No comment.', why: 'Silence from a ship sitting still in the open ocean looks like something to hide. The crew answered.' },
+        { t: 'Just passing through.', why: 'The Glomar had not moved in two weeks. The Soviets could see that for themselves.' }
+      ] },
+    { q: 'What kind of vessel are you?',
+      opts: [
+        { t: 'A research ship.', why: 'Too vague. The Glomar was publicly registered as a Hughes mining ship, and the Soviets could look that up.' },
+        { t: 'A deep-ocean mining vessel.', real: true, why: 'The real answer. Boring on purpose, and exactly what the world already believed.' },
+        { t: 'That is classified.', why: 'Mining companies do not have classified ships. One word would have blown the cover.' }
+      ] },
+    { q: 'What kind of equipment is aboard?',
+      opts: [
+        { t: 'Heavy lift gear for raising big objects.', why: 'True, and a giveaway. The Soviets knew exactly what big object was lying under this spot.' },
+        { t: 'We have experimental deep-ocean mining equipment onboard.', real: true, why: 'The real answer. Experimental explains why the ship looks like nothing else afloat.' },
+        { t: 'Oil drilling equipment.', why: 'That contradicts the mining story in a single sentence.' }
+      ] },
+    { q: 'How much time will you be here?',
+      opts: [
+        { t: 'As long as it takes.', why: 'Takes to do what? That answer invites the next question.' },
+        { t: 'We are leaving tonight.', why: 'A lie that would fall apart by morning when the ship was still there.' },
+        { t: 'We expect to finish testing in two to three weeks.', real: true, why: 'The real answer, and close to the truth. The lift ended on August 9.' }
+      ] }
+  ];
+  var log = document.getElementById('radioLog');
+  var choices = document.getElementById('radioChoices');
+  var fb = document.getElementById('radioFeedback');
+  var prompt = document.getElementById('radioPrompt');
+  var idx = 0;
+  function addLine(who, text, cls) {
+    var d = document.createElement('div');
+    d.className = 'line ' + cls;
+    var w = document.createElement('span'); w.className = 'who'; w.textContent = who;
+    var s = document.createElement('span'); s.className = 'said'; s.textContent = '“' + text + '”';
+    d.appendChild(w); d.appendChild(s); log.appendChild(d);
+  }
+  function ask() {
+    choices.innerHTML = '';
+    if (idx >= steps.length) {
+      addLine('CHAZHMA', 'I wish you all the best.', 'sov');
+      choices.hidden = true; prompt.hidden = true;
+      fb.hidden = false; fb.className = 'feedback good';
+      fb.textContent = 'The Soviets signed off and sailed home to Petropavlovsk at about 9 p.m. The cover held. Underneath the ship, the claw kept going down.';
+      return;
+    }
+    var st = steps[idx];
+    addLine('CHAZHMA', st.q, 'sov');
+    choices.hidden = false; prompt.hidden = false;
+    st.opts.forEach(function (o) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'choice'; b.textContent = o.t;
+      b.addEventListener('click', function () {
+        var real = st.opts.filter(function (x) { return x.real; })[0];
+        fb.hidden = false;
+        fb.className = 'feedback ' + (o.real ? 'good' : 'bad');
+        fb.textContent = (o.real ? 'Matches the transcript. ' : 'Not what they said. ') + o.why;
+        addLine('GLOMAR', real.t, 'us');
+        idx += 1;
+        setTimeout(ask, reduce ? 0 : 450);
+      });
+      choices.appendChild(b);
+    });
+  }
+  document.getElementById('radioReset').addEventListener('click', function () { log.innerHTML = ''; fb.hidden = true; idx = 0; ask(); });
+  ask();
+
+  /* Byte 5: which part came up */
+  var zones = {
+    bow: { s: 'up', label: 'Reached the ship on August 8', text: 'The front of the submarine came up into the hidden well. News reports since 1975 say it held two nuclear torpedoes and the bodies of six sailors. Plutonium from the torpedoes contaminated parts of it.' },
+    control: { s: 'down', label: 'Fell back during the lift', text: 'The control room was inside the section the claw grabbed, but it broke away when the arms failed. Accounts disagree on whether any code machines made it up. The CIA has never said.' },
+    sail: { s: 'down', label: 'Fell back during the lift', text: 'The tall sail held the three nuclear missiles the CIA most wanted to study. It broke away and dropped back to the bottom. The planned second mission to retrieve it was canceled in 1975.' },
+    stern: { s: 'never', label: 'Never grabbed', text: 'The back of the submarine had already broken off when K-129 hit the seafloor in 1968. The claw was never designed to lift it.' }
+  };
+  var info = document.getElementById('zoneInfo');
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.zonebtn'));
+  function show(z) {
+    var d = zones[z];
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.zone === z ? 'true' : 'false'); });
+    document.querySelectorAll('.zone').forEach(function (g) { g.style.opacity = g.dataset.zone === z ? '1' : '0.45'; });
+    info.innerHTML = '';
+    var s = document.createElement('p'); s.className = 'status ' + d.s; s.textContent = d.label;
+    var t = document.createElement('p'); t.textContent = d.text;
+    info.appendChild(s); info.appendChild(t);
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.zone); }); });
+  document.querySelectorAll('.zone').forEach(function (g) { g.addEventListener('click', function () { show(g.dataset.zone); }); });
+})();
+</script>
+<script src="/hubs/desk-save.js" defer></script>
+</body>
+</html>

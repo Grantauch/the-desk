@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GLOMAR",
+  "course": "HH",
+  "lessonCode": "GLOMAR",
+  "title": "The Ship That Wasn't Mining",
+  "audience": "students",
+  "narrativeQuestion": "How did the CIA try to steal a sunken Soviet submarine from three miles down, and why does its answer about the mission still shape government secrecy?",
+  "chapters": [
+    {
+      "id": "01-sinking",
+      "title": "A Submarine Disappears",
+      "claim": "K-129 sank in March 1968 with 98 men and three nuclear missiles. The Soviets never found it, and USS Halibut photographed the wreck that summer.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A02"],
+      "interactionIds": []
+    },
+    {
+      "id": "02-pipe",
+      "title": "Three Miles of Pipe",
+      "claim": "The CIA planned to lift an object it estimated at 2,000 to 2,200 tons from 16,500 feet on a string of pipe.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": ["I01"]
+    },
+    {
+      "id": "03-hughes",
+      "title": "Enter Howard Hughes",
+      "claim": "Howard Hughes lent his name to a deep ocean mining cover story, and the ship sailed around South America to reach California in 1973.",
+      "namedPeople": [
+        { "name": "Howard Hughes", "role": "billionaire who lent his name to the cover story", "anchorStatus": "not-available" }
+      ],
+      "visualAnchorIds": ["A01", "A07"],
+      "interactionIds": ["I04"]
+    },
+    {
+      "id": "04-radio",
+      "title": "What Kind of Vessel Are You?",
+      "claim": "On July 18, 1974 the Soviet ship Chazhma questioned the Glomar Explorer by radio and accepted the mining answers.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A03"],
+      "interactionIds": ["I02"]
+    },
+    {
+      "id": "05-claw",
+      "title": "The Claw Breaks",
+      "claim": "Part of the capture vehicle failed during the August 1974 lift, and only the forward section of K-129 reached the ship on August 8.",
+      "namedPeople": [],
+      "visualAnchorIds": ["A04"],
+      "interactionIds": ["I03"]
+    },
+    {
+      "id": "06-sailors",
+      "title": "Six Sailors",
+      "claim": "Six Soviet sailors were buried at sea on September 4, 1974, and Robert Gates gave the film to Boris Yeltsin in October 1992.",
+      "namedPeople": [
+        { "name": "Robert Gates", "role": "CIA Director in 1992", "anchorStatus": "not-needed" },
+        { "name": "Boris Yeltsin", "role": "Russian President in 1992", "anchorStatus": "not-needed" }
+      ],
+      "visualAnchorIds": ["A08"],
+      "interactionIds": ["I04"]
+    },
+    {
+      "id": "07-leak",
+      "title": "The Burglary That Blew the Cover",
+      "claim": "A June 1974 burglary at Summa Corporation led to a February 1975 Los Angeles Times story and Jack Anderson's March 1975 broadcast.",
+      "namedPeople": [
+        { "name": "William Colby", "role": "CIA Director who asked editors to hold the story", "anchorStatus": "not-needed" },
+        { "name": "Jack Anderson", "role": "columnist who broke the story", "anchorStatus": "not-needed" },
+        { "name": "Seymour Hersh", "role": "New York Times reporter", "anchorStatus": "not-needed" }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "08-glomar",
+      "title": "Neither Confirm Nor Deny",
+      "claim": "The CIA's reply to Harriet Ann Phillippi's 1975 request became the Glomar response, upheld by a federal appeals court in 1976.",
+      "namedPeople": [
+        { "name": "Harriet Ann Phillippi", "role": "Rolling Stone reporter who filed the request", "anchorStatus": "not-needed" }
+      ],
+      "visualAnchorIds": ["A05"],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "The radio exchange is quoted from pages 39 and 40 of the CIA history. The alternative replies are invented choices and are labeled as not what the crew said.",
+    "Accounts disagree on whether code equipment was recovered. The hub states the disagreement instead of picking a side.",
+    "Exact break points of the hull remain classified, so the submarine drawing is labeled simplified."
+  ]
+}

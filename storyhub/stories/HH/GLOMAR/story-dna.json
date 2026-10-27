@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GLOMAR",
+  "title": "The Ship That Wasn't Mining",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "cold war thriller",
+      "deep water",
+      "declassified"
+    ],
+    "paletteIntent": "Abyss blue ground that darkens section by section as the story goes deeper, sonar teal for what the Americans could see, Soviet red for the other side, declassified paper for the CIA's own pages.",
+    "typographyIntent": "DM Serif Display for headlines with a 1970s magazine weight, Source Sans 3 for reading, Courier Prime for typewritten documents, radio traffic and readouts.",
+    "textureLanguage": [
+      "typed CIA pages with blank redaction boxes",
+      "radio log in typewriter type"
+    ],
+    "shapeLanguage": "Square paper documents against a rounded water column and a side profile of the submarine.",
+    "motionGrammar": [
+      "the claw glides down the water column with an eased descent, instant with reduced motion"
+    ],
+    "interactionSignature": [
+      "lower the claw yourself and answer the Soviet ship on the radio"
+    ],
+    "densityRhythm": "Eight short bytes, one turn of the story each, documents and footage beside the moment they show.",
+    "archivalBehavior": "The CIA's own declassified history supplies the drawing, the radio transcript and the redacted pages. Footage plays through YouTube embeds and is not rehosted.",
+    "endingLanguage": "The CIA's own neither confirm nor deny answer and its first tweet, beside a page that is still mostly white boxes."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "The dark Pacific of the wreck site and the cream paper of the declassified history.",
+    "edgeTreatment": "Paper documents keep square corners with a drop shadow. Controls and panels use small radii.",
+    "controlLanguage": "Controls are the ship's own tools: a winch slider, a radio reply and a part by part damage report.",
+    "spacingLanguage": "Generous section padding with section backgrounds stepping darker as the depth increases.",
+    "transitionLanguage": "No scroll animation. The claw moves only when lowered, and radio lines appear on reply."
+  }
+}

@@ -25,6 +25,28 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: 'hh-bytesize-glomar',
+    href: '/hubs/hh-bytesize-glomar.html',
+    title: 'the ship that wasn’t mining',
+    course: 'hidden history',
+    unit: 'bytesize / cold war secrets',
+    period: '1968–1977',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 8',
+    question: 'how did the cia try to steal a sunken soviet submarine from three miles down, and why can it still neither confirm nor deny it?',
+    blurb: 'Project Azorian in eight short bytes: a fake Howard Hughes mining ship, a claw lowered 16,500 feet, a Soviet ship on the radio, six sailors buried at sea, the burglary that blew the cover and the CIA answer that became famous.',
+    cover: '/storyhub/hh/glomar/assets/schematic.webp',
+    coverAlt: 'CIA schematic drawing of the Hughes Glomar Explorer from the declassified Project Azorian history',
+    topics: ['cold war', 'cia', 'project azorian', 'k-129', 'cover stories', 'freedom of information act'],
+    inside: [
+      'Lower the claw to the wreck and watch the pipe count and water pressure climb.',
+      'Answer the Soviet ship Chazhma on the radio, then compare with the real transcript.',
+      'Tap each part of K-129 to see what reached the ship and what fell back.',
+      'Read the CIA reply that created the Glomar response, beside pages that are still blank.',
+    ],
+  },
+
+  {
     slug: 'ush9-bytesize-thirty-seven-days',
     href: '/hubs/ush9-bytesize-thirty-seven-days.html',
     title: 'thirty seven days',
