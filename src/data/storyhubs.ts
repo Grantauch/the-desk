@@ -34,7 +34,7 @@ export const storyHubs: StoryHub[] = [
     status: 'ready to teach',
     bytesize: 'bytesize no. 8',
     question: 'how did the cia try to steal a sunken soviet submarine from three miles down, and why can it still neither confirm nor deny it?',
-    blurb: 'Project Azorian in eight short bytes: a fake Howard Hughes mining ship, a claw lowered 16,500 feet, a Soviet ship on the radio, six sailors buried at sea, the burglary that blew the cover and the CIA answer that became famous.',
+    blurb: 'Project Azorian in nine short bytes: a fake Howard Hughes mining ship, a claw lowered 16,500 feet, a Soviet ship on the radio, six sailors buried at sea, the burglary that blew the cover, the CIA answer that became famous and an evidence desk that sorts what is proven from what is still secret.',
     cover: '/storyhub/hh/glomar/assets/schematic.webp',
     coverAlt: 'CIA schematic drawing of the Hughes Glomar Explorer from the declassified Project Azorian history',
     topics: ['cold war', 'cia', 'project azorian', 'k-129', 'cover stories', 'freedom of information act'],
@@ -43,6 +43,7 @@ export const storyHubs: StoryHub[] = [
       'Answer the Soviet ship Chazhma on the radio, then compare with the real transcript.',
       'Tap each part of K-129 to see what reached the ship and what fell back.',
       'Read the CIA reply that created the Glomar response, beside pages that are still blank.',
+      'Sort eight claims on the evidence desk, then write a verdict on the blanks the CIA still keeps.',
     ],
   },
 

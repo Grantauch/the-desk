@@ -3,7 +3,9 @@
   "storyId": "HH-GLOMAR",
   "interactions": [
     {
-      "id": "I01", "chapterId": "02-pipe", "type": "depth-slider",
+      "id": "I01",
+      "chapterId": "02-pipe",
+      "type": "depth-slider",
       "teaches": "The scale of the recovery. Pipe count and water pressure grow with depth, and familiar landmarks fall far short of the wreck.",
       "studentAction": "Drag the winch slider or press Lower it to the wreck.",
       "feedback": "The claw moves down the water column, four readouts update, and a line names the last landmark passed.",
@@ -12,7 +14,9 @@
       "status": "implemented"
     },
     {
-      "id": "I02", "chapterId": "04-radio", "type": "branching-dialogue",
+      "id": "I02",
+      "chapterId": "04-radio",
+      "type": "branching-dialogue",
       "teaches": "What a cover story demands. Every answer had to match what the world already believed about the ship.",
       "studentAction": "Choose a reply to each of four Soviet questions.",
       "feedback": "Each choice explains why it would hold or break the cover, then the real reply from the CIA transcript is logged.",
@@ -21,7 +25,9 @@
       "status": "implemented"
     },
     {
-      "id": "I03", "chapterId": "05-claw", "type": "part-explorer",
+      "id": "I03",
+      "chapterId": "05-claw",
+      "type": "part-explorer",
       "teaches": "What the CIA got compared with what it wanted, and where the evidence is still disputed.",
       "studentAction": "Tap each part of the submarine on the drawing or the buttons.",
       "feedback": "The chosen part highlights and a status reports whether it reached the ship, fell back, or was never grabbed.",
@@ -30,12 +36,25 @@
       "status": "implemented"
     },
     {
-      "id": "I04", "chapterId": "06-sailors", "type": "embedded-video",
+      "id": "I04",
+      "chapterId": "06-sailors",
+      "type": "embedded-video",
       "teaches": "What the operation and the burial actually looked like.",
       "studentAction": "Press play on a video inside the page.",
       "feedback": "The YouTube player starts inside the page.",
       "staticFallback": "Each video has an Open on YouTube link.",
       "identityFit": "Footage sits beside the moment it shows.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "09-evidence",
+      "type": "evidence-sort",
+      "teaches": "The difference between what the record proves, what it disproves, what people only claim, and what the government still withholds.",
+      "studentAction": "Sort eight items about K-129 and the mission into Documented, Proven false, Claimed not proven, or Still classified.",
+      "feedback": "Each choice marks the card, names the category the record supports, and explains the evidence. A running tally counts how many match.",
+      "staticFallback": "A noscript paragraph lists every item under its category.",
+      "identityFit": "The cards sit on the same deep panels as the rest of the hub, with sonar teal for what the record supports and Soviet red where the sort misses.",
       "status": "implemented"
     }
   ]
