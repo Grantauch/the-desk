@@ -1,7 +1,12 @@
 {
-  "checkedAt": "2026-10-26",
-  "catalogueCount": 47,
+  "checkedAt": "2026-10-27",
+  "catalogueCount": 48,
   "hubs": [
+    {
+      "hub": "ush9-bytesize-thirty-seven-days.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
     {
       "hub": "bts-bytesize-zero-points.html",
       "mode": "reading",

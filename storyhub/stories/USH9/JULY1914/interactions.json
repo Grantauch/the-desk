@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-JULY1914",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "01-alliances",
+      "type": "country-map-and-drill",
+      "teaches": "Where the powers were and how their commitments differed.",
+      "studentAction": "Choose a country, or find eight named countries.",
+      "feedback": "Country highlights, relationship lines and explanations; drill gives corrective feedback.",
+      "staticFallback": "Country explanations remain in an expandable text guide.",
+      "identityFit": "Country chips act as map labels.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "02-empires",
+      "type": "empire-filter",
+      "teaches": "European states controlled territories far larger than their home countries.",
+      "studentAction": "Select an empire.",
+      "feedback": "Highlight its territories and read named examples; comparison bars emphasize approximate scale.",
+      "staticFallback": "An empire list and labeled bars retain the evidence.",
+      "identityFit": "Empire-color map key.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "04-crisis",
+      "type": "timeline-map",
+      "teaches": "Diplomatic and military choices widened the crisis in a particular sequence.",
+      "studentAction": "Move between ten dated events.",
+      "feedback": "Date, elapsed days, arrows, mobilization and participant lists update together.",
+      "staticFallback": "Complete dated chronology in a text guide; noscript summary.",
+      "identityFit": "Telegram date controls.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "05-front",
+      "type": "map-comparison",
+      "teaches": "A military plan and the actual course of war differ.",
+      "studentAction": "Choose plan, campaign or December.",
+      "feedback": "Arrows or front line and a matching explanation change.",
+      "staticFallback": "Three explanations remain in a text guide.",
+      "identityFit": "Operational map layers.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "06-main",
+      "type": "cause-workshop",
+      "teaches": "Distinguish militarism, alliances, imperialism and nationalism from the immediate trigger.",
+      "studentAction": "Read the four cause panels, classify eight examples, then check.",
+      "feedback": "Each answer receives an explanation; blanks stay unanswered and corrections can be checked again.",
+      "staticFallback": "Definitions and all examples are readable without scripts.",
+      "identityFit": "Lettered document tabs and cards.",
+      "status": "implemented"
+    },
+    {
+      "id": "I06",
+      "chapterId": "07-exit",
+      "type": "evidence-response",
+      "teaches": "Connect a dated decision to a long-term pressure.",
+      "studentAction": "Write three brief evidence-based answers.",
+      "feedback": "Shared work controls provide save, recovery and submission status.",
+      "staticFallback": "Written work can be copied or recorded on paper.",
+      "identityFit": "A final dispatch returns to the opening question.",
+      "status": "implemented"
+    }
+  ]
+}

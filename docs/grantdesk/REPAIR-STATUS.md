@@ -363,3 +363,12 @@ Canonical `npm run verify` passed all 18 stages, including 39/39 Turn In service
 ## StoryHub work controls — October 26, 2026
 
 Owner: Codex. Source repaired and focused verification passed on `feat/storyhub-work-panel`; protected review pending. Common controls cover the 47-page catalogue (36 written assignments, 11 reading pages). Turn In v9 adds checked revisions, account-token/PIN matching and validated receipts; the client reports storage failures and preserves conflicts. Server tests 51/51, final work browser 34/34, Astro check and StoryHub assets pass. Canonical full verification completed; final added server checks pass independently. The broader browser command stopped on unchanged The League 320px overflow in the local runtime; its remaining work-save/Jeopardy/companion stages passed independently. See [the audit and release sequence](../storyhub/SAVE-LOAD-AUDIT-2026-10-26.md). No website or Apps Script deployment is claimed. Automatic approval review blocked the Google Accounts origin; existing-project activation needs explicit authorization. Classroom cycle remains pending.
+
+
+## Thirty Seven Days ByteSize — October 27, 2026
+
+Owner: Codex, completing Grant’s explicitly assigned `claude/ush9-bytesize-thirty-seven-days` branch. The original draft remains preserved. The finished student route is `/hubs/ush9-bytesize-thirty-seven-days.html`, with catalog/sitemap registration, four maps, ten dated crisis steps, eight MAIN practice choices and three written responses using the shared save controls. Story DNA, image provenance, corresponding map source and GPL notice are complete.
+
+Focused offline Chromium acceptance passed at 320, 390 and 1440 pixels: map selection and drill, hints/reset, empire filters, timeline limits/scrubbing, Western Front layers, MAIN corrections, keyboard navigation, refresh recovery, blank shared-device tabs and synthetic Turn In. Both color schemes passed WCAG A/AA; reduced motion, image decoding, unique IDs and no-script guides passed. Cross-device recovery also passed at all three widths against the synthetic service. Reproducible acceptance: `node storyhub/stories/USH9/JULY1914/verify.mjs`.
+
+The canonical full gate is running. Protected GitHub build, merge, exact Netlify production deployment and classroom field use remain separate pending evidence. No student service or real PIN was used in tests.

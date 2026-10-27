@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-JULY1914",
+  "course": "USH9",
+  "lessonCode": "JULY1914",
+  "title": "Thirty Seven Days",
+  "audience": "students",
+  "narrativeQuestion": "How did the Sarajevo assassination become a European war in thirty seven days?",
+  "chapters": [
+    {
+      "id": "01-alliances",
+      "title": "Two sides already drawn",
+      "claim": "Alliances differed in their obligations; Italy and Britain demonstrate that choices remained.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "02-empires",
+      "title": "Small countries, giant empires",
+      "claim": "Imperial rivalry and overseas possessions widened the stakes and reach of European war.",
+      "namedPeople": [
+        {
+          "name": "Bernhard von B\u00fclow",
+          "role": "Brief source quotation on imperial ambition",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "03-sarajevo",
+      "title": "A wrong turn on Franz Joseph Street",
+      "claim": "The murder of Franz Ferdinand and Sophie triggered a diplomatic crisis, not an automatic world war.",
+      "namedPeople": [
+        {
+          "name": "Gavrilo Princip",
+          "role": "Bosnian Serb assassin",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A02"
+        },
+        {
+          "name": "Franz Ferdinand and Sophie",
+          "role": "Victims of the assassination",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        },
+        {
+          "name": "Franz von Harrach",
+          "role": "Eyewitness quoted briefly",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01",
+        "A02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "04-crisis",
+      "title": "Step through the thirty seven days",
+      "claim": "From June 28 to August 4, leaders widened the crisis through backing, ultimatums, mobilization and declarations.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "05-front",
+      "title": "Six weeks to Paris",
+      "claim": "The planned rapid victory failed; by the end of 1914 the Western Front had become entrenched.",
+      "namedPeople": [
+        {
+          "name": "Alfred von Schlieffen",
+          "role": "Planner mentioned to explain the operational map",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Helmuth von Moltke",
+          "role": "Planner briefly identified in the operational explanation",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "06-main",
+      "title": "Four pressures behind the crisis",
+      "claim": "MAIN organizes long-term pressures; the assassination was an immediate trigger.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    },
+    {
+      "id": "07-exit",
+      "title": "Your explanation",
+      "claim": "An explanation connects a dated decision with a long-term cause.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I06"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Bosnia was occupied/administered by Austria-Hungary from 1878 and annexed in 1908.",
+    "Russia backed Serbia without a formal bilateral alliance. The Entente was not a single automatic-war treaty.",
+    "Italy remained neutral in 1914. Ottoman entry came in late October/early November.",
+    "Map colors indicate political alignment or war involvement, not occupied territory or war against every opponent.",
+    "Timeline has ten selected events, not one step for every calendar day. June 28 to August 4 is 37 elapsed days.",
+    "Imperial map groups political control; it does not erase Indigenous peoples or imply uniform administration. Area ratios are approximate polygon estimates, not economic or military strength."
+  ]
+}
