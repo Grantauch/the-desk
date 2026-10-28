@@ -45,6 +45,7 @@
   const TAGS = [
     ['globe', 'Follow the war around the globe', '#top'],
     ['days', 'Step through all 37 days', '#days'],
+    ['lusi3d', 'Live the Lusitania’s last 18 minutes', '#lusi-3d'],
     ['lusitania', 'Sort the Lusitania passengers', '#lusitania'],
     ['decoder', 'Decode the Zimmermann Telegram', '#decoder'],
     ['vote', 'Cast your vote in the House', '#vote'],
