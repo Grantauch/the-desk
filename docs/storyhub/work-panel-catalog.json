@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-10-27",
-  "catalogueCount": 49,
+  "catalogueCount": 50,
   "hubs": [
     {
       "hub": "hh-bytesize-glomar.html",
@@ -9,6 +9,11 @@
     },
     {
       "hub": "ush9-bytesize-thirty-seven-days.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-bytesize-marne.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     },

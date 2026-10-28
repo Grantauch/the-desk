@@ -393,6 +393,28 @@ export const storyHubs: StoryHub[] = [
     ],
   },
 
+  {
+    slug: 'ush9-bytesize-marne',
+    href: '/hubs/ush9-bytesize-marne.html',
+    title: 'thirty miles from paris',
+    course: 'us history 9',
+    unit: 'bytesize / front lines: world war i battles',
+    period: 'September 1914',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 21',
+    question: 'how did a german army thirty miles from paris end up retreating?',
+    blurb: 'The First Battle of the Marne on a 3D sand table. Watch the gap open between two German armies, load and drive a Paris taxi, guess how many soldiers the taxis really carried, read Joffre and Moltke side by side, and sort battle legends from the record.',
+    cover: '/storyhub/ush9/marne/assets/hero.webp',
+    coverAlt: 'Period photograph of French soldiers eating soup around a fire on the march in 1914',
+    topics: ['world war i', 'western front', 'schlieffen plan', 'trench warfare', 'primary sources'],
+    inside: [
+      'Step a 3D sand table through seven dates from Kluck’s turn to the first trenches.',
+      'Load a 1914 Renault taxi and predict how much the famous taxis mattered.',
+      'Compare Joffre’s order with Moltke’s letter and judge five battle legends.',
+      'Answer four questions and save or turn them in.',
+    ],
+  },
+
 
   {
     slug: 'bts-bytesize-zero-points',
