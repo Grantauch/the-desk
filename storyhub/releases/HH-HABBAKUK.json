@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HABBAKUK",
+  "title": "the aircraft carrier that needed a freezer",
+  "route": "/hubs/hh-bytesize-habbakuk.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/HABBAKUK/story.json",
+    "note": "Original sourced ByteSize lesson. Modern illustrations and silent recaps are labeled; historical records remain with their publishers."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-habbakuk.html",
+      "bytes": 28104,
+      "sha256": "67173c89e0db0293e2338634e418a6358f455b40a01e2994a623d0b786af75bd"
+    },
+    {
+      "path": "/storyhub/hh/habbakuk/assets/cover.webp",
+      "assetId": "A01",
+      "bytes": 179026,
+      "sha256": "c48fceaefee982409a84bfef45964e41fa827145997a27b06add616dddf51a7f",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/habbakuk/assets/recap.mp4",
+      "assetId": "A02",
+      "bytes": 237436,
+      "sha256": "5270094d37edab6941aebd6c3b413f1b21f0c000526132e3cab12e6ff1a40fd3"
+    },
+    {
+      "path": "/storyhub/hh/habbakuk/assets/recap.vtt",
+      "assetId": "A03",
+      "bytes": 422,
+      "sha256": "8a18eb4e5cbfe9c3ef4137e63dc834d14e38c41e0b3de7855643a83b6ee0ea27"
+    },
+    {
+      "path": "/storyhub/hh/habbakuk/assets/transcript.txt",
+      "assetId": "A04",
+      "bytes": 469,
+      "sha256": "449a59e851e6322287f8e2706a0375e3b778e00cebf478f3147851c45b96f823"
+    }
+  ],
+  "totalBytes": 445457,
+  "sealedAt": "2026-10-28"
+}

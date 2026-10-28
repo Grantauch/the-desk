@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-moon-hoax.html",
-      "bytes": 27064,
-      "sha256": "02a9fa57b520d64bd701d06d371a76e524bdca62692e0f71c0342bad0b0f67b8"
+      "bytes": 27249,
+      "sha256": "74c82095958f1f631a313362e7ae1e4b2b852b048fce254323bc7e8dfcd4d1d5"
     },
     {
       "path": "/storyhub/hh/moon-hoax/assets/cover.webp",
@@ -48,6 +48,6 @@
       "height": 702
     }
   ],
-  "totalBytes": 1015955,
+  "totalBytes": 1016140,
   "sealedAt": "2026-10-28"
 }

@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-sea-spray.html",
-      "bytes": 27216,
-      "sha256": "20022430595741f3f0e3cfd9b9b8afc8ff3cd781e9f69a65fbf92f1bae99b489"
+      "bytes": 27401,
+      "sha256": "9dc710959e7c5a27f017965ef486e3c3d047324236be93e34a8755659f89d54d"
     },
     {
       "path": "/storyhub/hh/sea-spray/assets/cover.webp",
@@ -40,6 +40,6 @@
       "assetId": "A04"
     }
   ],
-  "totalBytes": 294636,
+  "totalBytes": 294821,
   "sealedAt": "2026-10-28"
 }
