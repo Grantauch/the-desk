@@ -1,0 +1,26 @@
+const{test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{JSDOM,VirtualConsole}=require('jsdom');
+const ROOT=process.env.ART_TEST_ROOT||__dirname,KEY='checklings.first-trail.v1';
+function camp(t,{cached=false,bundle=false}={}){
+ const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));const html=fs.readFileSync(bundle?process.env.PIXEL_STANDALONE:path.join(ROOT,'index.html'),'utf8'),d=new JSDOM(html,{url:'https://sample.invalid/',runScripts:'outside-only',virtualConsole:vc}),w=d.window;
+ if(!bundle){const style=w.document.createElement('style');style.textContent=fs.readFileSync(path.join(ROOT,'game.css'),'utf8');w.document.head.append(style);}
+ w.structuredClone=structuredClone;w.matchMedia=()=>({matches:false,addEventListener(){}});w.Blob=Blob;w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=function(){};w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};
+ const image=w.document.getElementById('stump-art');assert.ok(image,'The stump must use a native image with observable loading/errors');let width=cached?2172:0,complete=cached;Object.defineProperty(image,'naturalWidth',{get:()=>width});Object.defineProperty(image,'complete',{get:()=>complete});
+ if(bundle){for(const s of w.document.querySelectorAll('script'))w.eval(s.textContent);}else for(const f of ['engine.js','camp-goals.js','game.js'])w.eval(fs.readFileSync(path.join(ROOT,f),'utf8'));
+ t.after(()=>{assert.deepEqual(errors,[]);w.close();});const $=id=>w.document.getElementById(id),click=sel=>{const e=w.document.querySelector(sel);assert.ok(e);assert.equal(e.disabled,false);e.click();};
+ return{w,$,image,click,save:()=>JSON.parse(w.localStorage.getItem(KEY)),error(){width=0;complete=true;image.dispatchEvent(new w.Event('error'));},loading(){width=0;complete=false;},load(){width=2172;complete=true;image.dispatchEvent(new w.Event('load'));}};
+}
+test('Practice art has a native eager image, low priority, correct atlas dimensions and loading feedback',t=>{
+ const c=camp(t);assert.equal(c.image.getAttribute('fetchpriority'),'low');assert.equal(c.image.getAttribute('loading'),null);assert.equal(c.image.getAttribute('width'),'2172');assert.equal(c.image.getAttribute('height'),'724');assert.equal(c.image.getAttribute('alt'),'');c.click('[data-view=practice]');c.click('#start-practice');assert.equal(c.$('stump-sprite').dataset.art,'loading');assert.match(c.$('stump-picture-message').textContent,/loading/);assert.equal(c.$('stump-picture-state').hidden,false);assert.equal(c.$('retry-stump-art').hidden,true);assert.equal(c.image.hidden,true);
+});
+test('A failed picture is explicit and retry preserves match health, saved camp and keyboard flow',t=>{
+ const c=camp(t),before=c.save();c.click('[data-view=practice]');c.click('#start-practice');c.error();assert.equal(c.$('stump-sprite').dataset.art,'error');assert.match(c.$('stump-picture-message').textContent,/didn’t load/);assert.equal(c.$('retry-stump-art').hidden,false);assert.equal(c.w.getComputedStyle(c.$('retry-stump-art')).pointerEvents,'auto','The visible retry must receive real pointer input');c.click('[data-move=strike]');const hp=c.$('enemy-hp-text').textContent;assert.equal(hp,'109/125');c.$('retry-stump-art').focus();c.loading();c.click('#retry-stump-art');assert.equal(c.w.document.activeElement.id,'stump-picture-state');assert.match(c.image.src,/art-retry=1/);c.load();assert.equal(c.$('stump-sprite').dataset.art,'ready');assert.equal(c.image.hidden,false);assert.equal(c.$('stump-picture-state').hidden,true);assert.equal(c.$('enemy-hp-text').textContent,hp);assert.equal(c.w.document.activeElement.dataset.move,'strike');assert.deepEqual(c.save(),before);
+});
+test('Retry is user-triggered, keeps the same image path and can recover after another failure',t=>{
+ const c=camp(t),original=new URL(c.image.src);c.error();assert.equal(new URL(c.image.src).search,'');c.loading();c.click('#retry-stump-art');const first=new URL(c.image.src);assert.equal(first.pathname,original.pathname);assert.equal(first.origin,original.origin);c.error();assert.equal(c.$('retry-stump-art').hidden,false);c.loading();c.click('#retry-stump-art');assert.equal(new URL(c.image.src).searchParams.get('art-retry'),'2');c.load();assert.equal(c.image.hidden,false);
+});
+test('Cached pictures are ready immediately and a later load does not steal focus from another screen',t=>{
+ const c=camp(t,{cached:true});assert.equal(c.$('stump-sprite').dataset.art,'ready');assert.equal(c.$('stump-picture-state').hidden,true);c.click('[data-view=journal]');c.w.document.querySelector('[data-view=journal]').focus();c.load();assert.equal(c.w.document.activeElement.dataset.view,'journal');
+});
+test('The actual offline file embeds the native atlas and keeps retry local',t=>{
+ assert.ok(process.env.PIXEL_STANDALONE);const c=camp(t,{bundle:true});assert.ok(c.image.src.startsWith('data:image/png;base64,'));const src=c.image.src;c.error();c.loading();c.click('#retry-stump-art');assert.equal(c.image.src,src);c.load();assert.equal(c.$('stump-sprite').dataset.art,'ready');
+});

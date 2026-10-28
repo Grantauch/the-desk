@@ -1,0 +1,185 @@
+{
+  "format": "checklings-first-trail",
+  "version": 1,
+  "selected": "ember",
+  "stop": 2,
+  "weather": "sun",
+  "quiet": false,
+  "decor": [
+    "planter",
+    "lantern",
+    "pennants"
+  ],
+  "equipped": "pennants",
+  "pets": {
+    "mochi": {
+      "nickname": "",
+      "food": 84,
+      "energy": 64,
+      "clean": 90,
+      "joy": 100,
+      "bond": 42,
+      "discoveries": [
+        0,
+        1,
+        2
+      ],
+      "memories": [
+        {
+          "id": "find-0",
+          "text": "At the seed gate, Mochi found a curled moonbean seed."
+        },
+        {
+          "id": "practice",
+          "text": "Completed a friendly practice against the training dummy. No injuries."
+        },
+        {
+          "id": "care-routine",
+          "text": "You played together, then made room for a quiet rest. Mochi liked that rhythm."
+        },
+        {
+          "id": "observe-0",
+          "text": "Mochi shared a quiet moment at the seed gate."
+        },
+        {
+          "id": "find-1",
+          "text": "At the old waterwheel, Mochi found a tiny garden spring."
+        },
+        {
+          "id": "find-2",
+          "text": "At the star pond, Mochi found a night-blooming water lily."
+        }
+      ],
+      "care": [
+        "feed",
+        "play",
+        "clean",
+        "rest",
+        "observe"
+      ],
+      "battles": 1
+    },
+    "bolt": {
+      "nickname": "",
+      "food": 66,
+      "energy": 46,
+      "clean": 85,
+      "joy": 100,
+      "bond": 39,
+      "discoveries": [
+        0,
+        1,
+        2
+      ],
+      "memories": [
+        {
+          "id": "observe-2",
+          "text": "Bolt shared a quiet moment at the star pond."
+        },
+        {
+          "id": "find-0",
+          "text": "At the seed gate, Bolt found a brass seed counter."
+        },
+        {
+          "id": "find-1",
+          "text": "At the old waterwheel, Bolt found a working waterwheel cog."
+        },
+        {
+          "id": "find-2",
+          "text": "At the star pond, Bolt found a little star-shaped dial."
+        }
+      ],
+      "care": [
+        "feed",
+        "play",
+        "clean",
+        "rest",
+        "observe"
+      ],
+      "battles": 0
+    },
+    "zee": {
+      "nickname": "",
+      "food": 66,
+      "energy": 46,
+      "clean": 85,
+      "joy": 100,
+      "bond": 39,
+      "discoveries": [
+        0,
+        1,
+        2
+      ],
+      "memories": [
+        {
+          "id": "observe-2",
+          "text": "Zee shared a quiet moment at the star pond."
+        },
+        {
+          "id": "find-0",
+          "text": "At the seed gate, Zee found a spiral in the seed heads."
+        },
+        {
+          "id": "find-1",
+          "text": "At the old waterwheel, Zee found a waterwheel shadow clock."
+        },
+        {
+          "id": "find-2",
+          "text": "At the star pond, Zee found a reflected constellation."
+        }
+      ],
+      "care": [
+        "feed",
+        "play",
+        "clean",
+        "rest",
+        "observe"
+      ],
+      "battles": 0
+    },
+    "ember": {
+      "nickname": "",
+      "food": 66,
+      "energy": 46,
+      "clean": 85,
+      "joy": 100,
+      "bond": 39,
+      "discoveries": [
+        0,
+        1,
+        2
+      ],
+      "memories": [
+        {
+          "id": "observe-2",
+          "text": "Ember shared a quiet moment at the star pond."
+        },
+        {
+          "id": "find-0",
+          "text": "At the seed gate, Ember found a fired-clay seed marker."
+        },
+        {
+          "id": "find-1",
+          "text": "At the old waterwheel, Ember found a mended clay water spout."
+        },
+        {
+          "id": "find-2",
+          "text": "At the star pond, Ember found a little lantern bowl."
+        },
+        {
+          "id": "practice",
+          "text": "Completed a friendly practice against the training dummy. No injuries."
+        }
+      ],
+      "care": [
+        "feed",
+        "play",
+        "clean",
+        "rest",
+        "observe"
+      ],
+      "battles": 1
+    }
+  },
+  "revision": 52
+}
