@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-mincemeat.html",
-      "bytes": 27339,
-      "sha256": "47ab172c829adeba81406310e377d7f4a276023ba344a694fbd039f611a0d683"
+      "bytes": 27524,
+      "sha256": "c71b65b9e6e91736b7017c1fa9c36256b540dc4b2696c9b85089847b3b4681fd"
     },
     {
       "path": "/storyhub/hh/mincemeat/assets/cover.webp",
@@ -40,6 +40,6 @@
       "assetId": "A04"
     }
   ],
-  "totalBytes": 349652,
+  "totalBytes": 349837,
   "sealedAt": "2026-10-28"
 }

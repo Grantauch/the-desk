@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-project-pigeon.html",
-      "bytes": 26694,
-      "sha256": "fefb9486853c26463119d4951c23eb25eb6c920aad19e4d41a519192310f5fab"
+      "bytes": 26879,
+      "sha256": "8d9c9b4c5d5837eb1ab304b2df3f93bf8dca91553b045387588e20562407a910"
     },
     {
       "path": "/storyhub/hh/project-pigeon/assets/cover.webp",
@@ -40,6 +40,6 @@
       "sha256": "6757a9092dc26f792379be1073349af81a53f03c0490873d706949b394a780ee"
     }
   ],
-  "totalBytes": 287132,
+  "totalBytes": 287317,
   "sealedAt": "2026-10-28"
 }

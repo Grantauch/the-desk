@@ -24,6 +24,60 @@ export interface StoryHub {
 
 export const storyHubs: StoryHub[] = [
 
+{
+  "slug": "hh-bytesize-habbakuk",
+  "href": "/hubs/hh-bytesize-habbakuk.html",
+  "title": "the aircraft carrier that needed a freezer",
+  "course": "hidden history",
+  "unit": "bytesize / extraordinary claims",
+  "period": "1942–1943",
+  "status": "ready to teach",
+  "bytesize": "bytesize no. 19",
+  "question": "Why did wartime planners seriously consider an aircraft carrier made of ice—and why did it stay a proposal?",
+  "blurb": "The ocean was full of submarines. The middle of the Atlantic was beyond many aircraft. One proposed answer was a runway made from frozen water and wood pulp. Six short bytes separate the documented record from the claim that outruns it.",
+  "cover": "/storyhub/hh/habbakuk/assets/cover.webp",
+  "coverAlt": "Modern generated illustration, not archival evidence: An imagined colossal pykrete airfield in the Atlantic, with small wartime propeller aircraft for scale; the full-size carrier was never built.",
+  "topics": [
+    "hidden history",
+    "evidence",
+    "conspiracy claims",
+    "habbakuk"
+  ],
+  "inside": [
+    "Build the requirements, not just the hull.",
+    "Two pictures, two different claims.",
+    "A 28-second captioned video recap with a complete written transcript.",
+    "Three short responses using linked sources, shared work controls and Turn In."
+  ]
+},
+
+{
+  "slug": "hh-bytesize-philadelphia-experiment",
+  "href": "/hubs/hh-bytesize-philadelphia-experiment.html",
+  "title": "the ship that never vanished",
+  "course": "hidden history",
+  "unit": "bytesize / extraordinary claims",
+  "period": "1943–1996",
+  "status": "ready to teach",
+  "bytesize": "bytesize no. 20",
+  "question": "Did the Navy make a ship disappear, or did a real technology acquire an impossible story?",
+  "blurb": "A destroyer escort. A letter written years later. One slippery word: invisible. The Philadelphia Experiment gets stranger as the story gets farther from the records. Six short bytes separate the documented record from the claim that outruns it.",
+  "cover": "/storyhub/hh/philadelphia-experiment/assets/cover.webp",
+  "coverAlt": "Modern generated illustration, not archival evidence: A modern conceptual destroyer-escort illustration in a New York harbor setting, with a symbolic drawn outline representing the legend, not an observed disappearance.",
+  "topics": [
+    "hidden history",
+    "evidence",
+    "conspiracy claims",
+    "philadelphia experiment"
+  ],
+  "inside": [
+    "Invisible to what.",
+    "Custody and confirmation.",
+    "A 28-second captioned video recap with a complete written transcript.",
+    "Three short responses using linked sources, shared work controls and Turn In."
+  ]
+},
+
   {
     slug: "hh-bytesize-project-pigeon",
     href: "/hubs/hh-bytesize-project-pigeon.html",

@@ -54,7 +54,17 @@ const cases=[
     "slug": "iceworm",
     "route": "/hubs/hh-bytesize-iceworm.html",
     "lab": "ice"
-  }
+  },
+{
+  "slug": "habbakuk",
+  "route": "/hubs/hh-bytesize-habbakuk.html",
+  "lab": "carrier"
+},
+{
+  "slug": "philadelphia-experiment",
+  "route": "/hubs/hh-bytesize-philadelphia-experiment.html",
+  "lab": "detector"
+}
 ];
 
 const requested = (process.env.BYTE_SIZE_CASES || '').split(',').filter(Boolean);
@@ -130,6 +140,20 @@ async function blockServices(context) {
           if (story.lab === 'press') {
             await choices.nth(2).click();
             assert.ok((await page.locator('#copy-count').innerText()).includes('11 copies / 1 claim'));
+          }
+          if (story.lab === 'ice') {
+            await choices.nth(1).click();
+            assert.ok((await page.locator('.ice-model').getAttribute('class')).includes('deformed'));
+            await choices.nth(0).click();
+            assert.equal(await page.locator('.ice-model').getAttribute('class'), 'ice-model');
+          }
+          if (story.lab === 'carrier' || story.lab === 'detector') {
+            const cards = page.locator(story.lab === 'carrier' ? '.requirement' : '.detector');
+            for (let index = 0; index < 3; index++) {
+              await choices.nth(index).click();
+              assert.equal(await cards.nth(index).getAttribute('class'), (story.lab === 'carrier' ? 'requirement' : 'detector') + ' active');
+              if (story.lab === 'detector') assert.ok(await page.locator('.model-ship').isVisible(), 'Ship remains visible for every detector');
+            }
           }
           await page.locator('#answer-1').fill('Synthetic test answer: a real record can contain an unverified claim.');
           await page.reload();
