@@ -1175,8 +1175,8 @@
   },
   "checkling-pond-integration-2026-10-21": {
     "status": "SOURCE_REPAIRED",
-    "verification_status": "PROTECTED_CI_PASSED",
-    "deployment_status": "SITE_DEPLOYED_APPS_SCRIPT_PENDING",
+    "verification_status": "PROTECTED_CI_AND_AUTHENTICATED_SMOKE_PASSED",
+    "deployment_status": "SITE_AND_APPS_SCRIPT_DEPLOYED",
     "field_status": "FIELD_PENDING",
     "summary": "Checkling integrated into the private Daily Check-In; Pond adapted to a static standalone sandbox linked from Games.",
     "evidence": [
@@ -1189,13 +1189,16 @@
       "GitHub write access connected. Publishing branch incorporates main 3e71b3d and retains its Dry County flight integration and test commands; protected CI and production releases pending.",
       "Production preflight 39715268796 passed: Version 39 five-file hashes exactly match main 3e71b3d, with stable URL, DOMAIN access, USER_DEPLOYING execution and no unpublished editor draft.",
       "Prior main CI 39712617542 timed out during browser acceptance after a ten-minute diagnostic audit. Each audit is now bounded to 60 seconds and unavailable responses cannot masquerade as clean reports; four focused diagnostic regressions run before the report. No release/browser tests or workflow deadline were changed.",
-      "Protected workflow 39717873895 passed all release/browser gates; PR #217 merged as deff07421a29e60db9fb5b79e7cb04765ac8514d. Netlify production 6ad98a531434a56a17d487f7 is ready on that exact commit. All 17 public Pond/art files match source SHA-256, and Games, Check-In and sitemap links are verified."
+      "Protected workflow 39717873895 passed all release/browser gates; PR #217 merged as deff07421a29e60db9fb5b79e7cb04765ac8514d. Netlify production 6ad98a531434a56a17d487f7 is ready on that exact commit. All 17 public Pond/art files match source SHA-256, and Games, Check-In and sitemap links are verified.",
+      "2026-10-22: guarded release workflow 39825119574 deployed Apps Script Version 40 from merged commit 716d1666dd099d85ddea99cd3e2e14961c186240. All five normalized source hashes read back from Google exactly match the tested repository files. Live Version 39 source matched both prior preflights before replacement; no unpublished draft was overwritten. Existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. No workbook migration. Authenticated synthetic release check, live mode review and classroom field use remain pending; the shared browser sign-in could not be reopened because browser security policy blocked access.",
+      "Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes.",
+      "Teacher-reported authenticated production release check passed on October 22, 2026: ok=true; request=STARTED; return=RETURNED_COUNTABLE; evidenceUsed=1; testPassVoided=true; testMembershipDeactivated=true; productionFactsUnchanged=true; syntheticOnly=true. Schema 2026-09-21-backend-b and client contract 2026-09-22-all-teacher-rpcs match the release. This is the teacher-supplied result, not an agent-observed browser execution. Live mode visual review and an actual classroom cycle remain pending."
     ]
   },
   "checkling-habitat-2026-10-21": {
     "status": "SOURCE_REPAIRED",
-    "verification_status": "FOCUSED_CHECKS_PASSED",
-    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "verification_status": "PROTECTED_CI_AND_AUTHENTICATED_SMOKE_PASSED",
+    "deployment_status": "SITE_AND_APPS_SCRIPT_DEPLOYED",
     "field_status": "FIELD_PENDING",
     "summary": "Checkling gains personal habitats, keepsakes, species personalities and two untimed memory games inside Daily Check-In.",
     "evidence": [
@@ -1206,20 +1209,27 @@
       "Protected CI and production release are pending; local full-site build was stopped by automatic approval review for unrelated news-feed access. Focused companion verification uses a static local server and blocks all external services.",
       "Virtual-clock shared-PIN browser checks pass: unattended ten-second handoff, active companion visit, unchanged two-minute inactivity reset, removal of stale handoff copy and no duplicated attendance/points.",
       "All seven focused browser journeys pass with the complete uninterrupted 18-character wide pet name wrapping without clipping at 320/390/1440.",
-      "2026-10-22: protected workflow 39721575066 passed every full-release and browser gate on 355cbb6. Refreshed preflight 39721202948 passed and exactly matches the previous live Version 39 source/configuration; no unpublished editor draft. Newer main golf/ByteSize changes are preserved before rerunning protected CI. Deployment and protected live smoke remain pending."
+      "2026-10-22: protected workflow 39721575066 passed every full-release and browser gate on 355cbb6. Refreshed preflight 39721202948 passed and exactly matches the previous live Version 39 source/configuration; no unpublished editor draft. Newer main golf/ByteSize changes are preserved before rerunning protected CI. Deployment and protected live smoke remain pending.",
+      "2026-10-22: protected workflow 39820930189 passed the full release and browser gates, including 440 classroom-service behaviors and all seven companion journeys. PR #218 merged as 716d1666dd099d85ddea99cd3e2e14961c186240. The completed existing-deployment release is recorded in the following evidence; protected live smoke and classroom use remain pending.",
+      "2026-10-22: guarded release workflow 39825119574 deployed Apps Script Version 40 from merged commit 716d1666dd099d85ddea99cd3e2e14961c186240. All five normalized source hashes read back from Google exactly match the tested repository files. Live Version 39 source matched both prior preflights before replacement; no unpublished draft was overwritten. Existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. No workbook migration. Authenticated synthetic release check, live mode review and classroom field use remain pending; the shared browser sign-in could not be reopened because browser security policy blocked access.",
+      "Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes.",
+      "Teacher-reported authenticated production release check passed on October 22, 2026: ok=true; request=STARTED; return=RETURNED_COUNTABLE; evidenceUsed=1; testPassVoided=true; testMembershipDeactivated=true; productionFactsUnchanged=true; syntheticOnly=true. Schema 2026-09-21-backend-b and client contract 2026-09-22-all-teacher-rpcs match the release. This is the teacher-supplied result, not an agent-observed browser execution. Live mode visual review and an actual classroom cycle remain pending."
     ]
   },
   "checkling-startup-2026-10-22": {
     "status": "SOURCE_REPAIRED",
-    "verification_status": "FULL_LOCAL_GATE_AND_BROWSER_PASSED",
-    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "verification_status": "PROTECTED_CI_AND_LIVE_SMOKE_PASSED",
+    "deployment_status": "DEPLOYED_VERSION_41",
     "field_status": "FIELD_PENDING",
     "summary": "Repair the shared client startup freeze caused by HtmlService truncating the Checkling artwork URL.",
     "evidence": [
       "Reproduced on the authenticated production teacher page: initial loading screen, unchanged mode label, and SyntaxError: Invalid or unexpected token. The served script truncates the artwork statement to an unterminated https: string before getBootstrap can run.",
       "Escape the artwork URL slashes in the existing Index.html. No server code, workbook schema, PIN contract, attendance logic, points, deployment URL or access policy change.",
       "Regression replays the observed Google-side URL truncation, parses all four entry modes and verifies the resulting artwork URL. Existing Hall Pass structural/handoff checks, all 440 service behaviors and 17 Checkling server scenarios pass.",
-      "All 11 offline Chromium browser journeys pass: student/kiosk/check-in/teacher startup after the observed rewrite, responsive companion activities and Pond, shared-device handoff/idle privacy, artwork and accessibility. Canonical npm run verify passed all 18 stages: 53 built routes, 135 HTML files, 4601 local references and 13 releases/117 sealed files. Protected CI, existing-deployment release and live UI readback remain pending."
+      "All 11 offline Chromium browser journeys pass: student/kiosk/check-in/teacher startup after the observed rewrite, responsive companion activities and Pond, shared-device handoff/idle privacy, artwork and accessibility. Canonical npm run verify passed all 18 stages: 53 built routes, 135 HTML files, 4601 local references and 13 releases/117 sealed files. Protected CI, existing-deployment release and live UI readback remain pending.",
+      "Owner-approved PR #221 merged as 7a6111d11e5df028a212fac0ad4597c0c5d8e7c1. Protected workflow 39833478519 and merged-main workflow 39840265487 passed. Guarded release 39845770698 deployed Apps Script Version 41 with the existing URL, DOMAIN access and USER_DEPLOYING execution preserved.",
+      "Live Chrome verification passed for teacher, student, kiosk and Daily Check-In. The teacher dashboard renders its controls; student modes render PIN forms. Public /check-in/ and /pass/ launch links were followed into the expected modes. Served artwork URL retains escaped slashes and the fresh Check-In page has no application console errors.",
+      "Authenticated Version 41 synthetic smoke passed: ok=true, request=STARTED, return=RETURNED_COUNTABLE, evidenceUsed=1, testPassVoided=true, testMembershipDeactivated=true, productionFactsUnchanged=true and syntheticOnly=true. Schema/client contract match the release. Private test workbook URL and real student details are omitted. Actual classroom use remains FIELD_PENDING."
     ]
   },
   "storyhub_work_controls_20261026": {
@@ -1251,5 +1261,18 @@
       "Full canonical verification, protected GitHub build, merge and exact Netlify production commit remain pending."
     ],
     "evidence": "storyhub/stories/USH9/JULY1914/verify.mjs"
+  },
+  "ready-pr-release-batch-2026-10-28": {
+    "status": "SOURCE_INTEGRATED",
+    "verification_status": "FULL_LOCAL_CANONICAL_GATE_PASSED",
+    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "field_status": "FIELD_PENDING",
+    "summary": "Integrate ready PRs #126, #220, #222, #248 and #252 while preserving current production authority and later work.",
+    "evidence": [
+      "Combined Hidden History twelve-case collection and Glomar assignment upgrade; reconciled historical Hall Pass/Checkling records without changing any Apps Script runtime.",
+      "Current issue #28 release authority, Pixel Camp integration and later repair records preserved; unfinished drafts excluded.",
+      "Exact protected checks, merge and Netlify production commit must be read independently.",
+      "Full canonical npm run verify passed: Astro zero errors/warnings; 54 generated routes; 155 HTML files and 5233 references validated; 27 releases and 193 sealed files verified. Protected browser/combined-source CI remains required."
+    ]
   }
 }

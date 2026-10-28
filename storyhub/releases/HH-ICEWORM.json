@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-iceworm.html",
-      "bytes": 28382,
-      "sha256": "82eaf753fba8aed7a47f46023efa4c28f8f51cb1fc81c035c9bbe1c974745938"
+      "bytes": 29508,
+      "sha256": "f3064728eaf2402af4affd4912686e1a8341e86a2d901eed36715eb573d5a235"
     },
     {
       "path": "/storyhub/hh/iceworm/assets/cover.webp",
@@ -48,6 +48,6 @@
       "height": 550
     }
   ],
-  "totalBytes": 402078,
+  "totalBytes": 403204,
   "sealedAt": "2026-10-28"
 }
