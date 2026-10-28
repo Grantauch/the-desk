@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PIGEON",
+  "title": "the pigeon in the nose cone",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "behavior lab and wartime eccentricity"
+    ],
+    "paletteIntent": "warm ivory, charcoal and signal violet",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "An alert pigeon beside a simple illuminated target display in a 1940s laboratory; no invented likeness of a scientist."
+    ],
+    "shapeLanguage": "Pigeon target chamber and small reward indicators",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Choose a target and compare rewarded behavior with mission success."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "A trained response is a narrower achievement than a successful weapon."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "warm ivory, charcoal and signal violet",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Choose a target and compare rewarded behavior with mission success.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

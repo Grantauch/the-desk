@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ICEWORM",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "ice",
+      "teaches": "A real base is not proof that its much larger proposed network existed.",
+      "studentAction": "Conceptual comparison, not an engineering simulation. The visual change illustrates deformation without assigning a real rate or date.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Compare a real research base with a proposed missile network, then test the assumption of stable ice.",
+      "status": "implemented"
+    }
+  ]
+}

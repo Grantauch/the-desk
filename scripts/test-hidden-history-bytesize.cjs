@@ -44,8 +44,22 @@ const cases=[
     "slug": "moon-hoax",
     "route": "/hubs/hh-bytesize-moon-hoax.html",
     "lab": "press"
+  },
+  {
+    "slug": "project-pigeon",
+    "route": "/hubs/hh-bytesize-project-pigeon.html",
+    "lab": "pigeon"
+  },
+  {
+    "slug": "iceworm",
+    "route": "/hubs/hh-bytesize-iceworm.html",
+    "lab": "ice"
   }
 ];
+
+const requested = (process.env.BYTE_SIZE_CASES || '').split(',').filter(Boolean);
+const selected = requested.length ? cases.filter(story => requested.includes(story.slug)) : cases;
+if (!selected.length) throw new Error('No matching ByteSize cases');
 
 const origin = 'http://127.0.0.1:4399';
 const output = path.resolve('browser-results/hidden-history-bytesize');
@@ -84,7 +98,7 @@ async function blockServices(context) {
     await new Promise(resolve => server.listen(4399, '127.0.0.1', resolve));
     browser = await chromium.launch({ headless: true });
     for (const width of [320, 390, 1440]) {
-      for (const story of cases) {
+      for (const story of selected) {
         const context = await browser.newContext({ viewport: { width, height: 950 } });
         await blockServices(context);
         const page = await context.newPage();
@@ -150,7 +164,7 @@ async function blockServices(context) {
         }
       }
     }
-    for (const story of cases) {
+    for (const story of selected) {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
       try {
         await blockServices(context);
@@ -161,7 +175,7 @@ async function blockServices(context) {
         await context.close();
       }
     }
-    console.log(`Hidden History ByteSize: ${results.filter(result => result.status === 'passed').length}/${results.length} browser cases; eight reduced-motion cases.`);
+    console.log(`Hidden History ByteSize: ${results.filter(result => result.status === 'passed').length}/${results.length} browser cases; ${selected.length} reduced-motion cases.`);
     if (results.some(result => result.status === 'failed')) process.exitCode = 1;
   } finally {
     fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(results, null, 2));

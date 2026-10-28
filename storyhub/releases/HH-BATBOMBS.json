@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-bat-bombs.html",
-      "bytes": 26486,
-      "sha256": "b57c9493bf7c7d34ccfed3e106a7d39182b5e2966f281ecd5aa3a113aeddf277"
+      "bytes": 26653,
+      "sha256": "ff427a51bdadd28f45e40f0cc94774c6df0a39d6838ef9588998cb6b59df449e"
     },
     {
       "path": "/storyhub/hh/bat-bombs/assets/cover.webp",
@@ -40,6 +40,6 @@
       "assetId": "A04"
     }
   ],
-  "totalBytes": 459188,
+  "totalBytes": 459355,
   "sealedAt": "2026-10-28"
 }

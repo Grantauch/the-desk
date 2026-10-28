@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ICEWORM",
+  "title": "the city that couldn’t hold still",
+  "route": "/hubs/hh-bytesize-iceworm.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/ICEWORM/story.json",
+    "note": "Original sourced ByteSize lesson. Illustrations and silent recaps are labeled; historical film remains with its publisher."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-iceworm.html",
+      "bytes": 28382,
+      "sha256": "82eaf753fba8aed7a47f46023efa4c28f8f51cb1fc81c035c9bbe1c974745938"
+    },
+    {
+      "path": "/storyhub/hh/iceworm/assets/cover.webp",
+      "assetId": "A01",
+      "bytes": 142326,
+      "sha256": "d16340f4a4bedcfb2282f84a0ea99d3ad5953075aaf277a83c353090cf80be2d",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/iceworm/assets/recap.mp4",
+      "assetId": "A02",
+      "bytes": 185884,
+      "sha256": "018053635a08b39b50c41bc416173095bcedc5f34af3a4b8dd3aca682b533c07"
+    },
+    {
+      "path": "/storyhub/hh/iceworm/assets/recap.vtt",
+      "assetId": "A03",
+      "bytes": 384,
+      "sha256": "12141a86c4f46019da356e52f6db193d844280b2612b27863cca4c8a3ba6a1b4"
+    },
+    {
+      "path": "/storyhub/hh/iceworm/assets/transcript.txt",
+      "assetId": "A04",
+      "bytes": 424,
+      "sha256": "b44725f91f7b234f277463cc8651fa29875f5ae3a8f0aa44dcf1824c923e2200"
+    },
+    {
+      "path": "/storyhub/hh/iceworm/assets/record.webp",
+      "assetId": "A05",
+      "bytes": 44678,
+      "sha256": "2b70b254ae3141ba6988241aa13cb35587a6600ffe2ea927aebb2d954f19e3b1",
+      "width": 720,
+      "height": 550
+    }
+  ],
+  "totalBytes": 402078,
+  "sealedAt": "2026-10-28"
+}
