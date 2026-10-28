@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HABBAKUK",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "Hero atmosphere and catalog cover",
+      "sourceMode": "original-generated-illustration",
+      "subject": "An imagined colossal pykrete airfield in the Atlantic, with small wartime propeller aircraft for scale; the full-size carrier was never built.",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Original ImageGen illustration created October 28, 2026; optimized to WebP. Recap uses the same clearly labeled illustration and original source-based captions. No archival footage is rehosted.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/habbakuk/assets/cover.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "video",
+      "role": "28-second silent captioned explanation",
+      "sourceMode": "original-authored-explainer",
+      "subject": "Why did wartime planners seriously consider an aircraft carrier made of ice—and why did it stay a proposal?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Original ImageGen illustration created October 28, 2026; optimized to WebP. Recap uses the same clearly labeled illustration and original source-based captions. No archival footage is rehosted.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/habbakuk/assets/recap.mp4"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "captions",
+      "role": "Accessible exact caption track",
+      "sourceMode": "original-authored-explainer",
+      "subject": "Why did wartime planners seriously consider an aircraft carrier made of ice—and why did it stay a proposal?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Original ImageGen illustration created October 28, 2026; optimized to WebP. Recap uses the same clearly labeled illustration and original source-based captions. No archival footage is rehosted.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/habbakuk/assets/recap.vtt"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "text",
+      "role": "Complete media transcript",
+      "sourceMode": "original-authored-explainer",
+      "subject": "Why did wartime planners seriously consider an aircraft carrier made of ice—and why did it stay a proposal?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Original ImageGen illustration created October 28, 2026; optimized to WebP. Recap uses the same clearly labeled illustration and original source-based captions. No archival footage is rehosted.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/habbakuk/assets/transcript.txt"
+    }
+  ]
+}

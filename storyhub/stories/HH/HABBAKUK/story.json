@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-HABBAKUK",
+  "course": "HH",
+  "lessonCode": "HABBAKUK",
+  "title": "the aircraft carrier that needed a freezer",
+  "audience": "students",
+  "narrativeQuestion": "Why did wartime planners seriously consider an aircraft carrier made of ice—and why did it stay a proposal?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A runway where there was no runway",
+      "claim": "During World War II, German submarines attacked the ships carrying supplies across the Atlantic. Convoys could receive air protection near land, but many aircraft could not cover the middle of the ocean. Planners considered an extraordinary answer: build a floating airfield so large that aircraft could use it far from shore. The proposed structure would be made largely from frozen material. The problem was serious even if the proposed answer sounds like a joke. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "The ice had an extra ingredient",
+      "claim": "Ordinary ice is brittle. Researchers investigated a tougher mixture of ice and wood pulp called pykrete. Reinforcement changed its behavior and made an enormous frozen structure more interesting to engineers. But the mixture was still a material that needed suitable conditions. A block surviving a demonstration would not by itself establish that an entire ship could be built, maintained, moved and operated. That gap between a material and a system is the center of this case. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "The Canadian lake was real",
+      "claim": "In 1943, a secret refrigerated test model took shape on Patricia Lake near Jasper, Alberta. The local museum describes an insulated wooden frame and an ice hull kept cold by equipment on board. This was more than a drawing, and less than a giant carrier serving in the Atlantic. Work on the model offered evidence about a specific experiment. It did not silently turn the full proposal into an operational fleet. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "Now pay for the cold",
+      "claim": "The conceptual requirements board above lets you add reinforced ice, cooling equipment and a full mission. No invented strength percentages or melting times are supplied. The actual project required insulation, refrigeration, steel, labor and money. A seemingly abundant raw material could still demand a complicated support system. Ask the whole engineering question: what must remain true for this object to keep doing its job? The answer includes far more than whether it initially floats. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "The problem changed while the solution grew",
+      "claim": "Wartime alternatives improved. Longer-range aircraft, escort ships, better radar and additional bases changed the original need for a huge frozen airfield. A proposal can become less useful even while researchers learn something valuable. The question was not simply “could anyone make this float?” It was also “would this be ready soon enough, at a useful cost, compared with other ways to protect shipping?” The giant carrier was never built for service. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "What sank was not a giant warship",
+      "claim": "The Patricia Lake test structure eventually lost its refrigeration and melted, leaving remains beneath the water. Those remains help document a real experiment. They are not the wreck of a secret, full-size carrier that fought an unrecorded battle. The strongest account is already remarkable: wartime governments investigated a frozen aircraft carrier, tested part of the idea and did not take the enormous final step. An abandoned proposal can be real history without a hidden operational ending. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "A real secret research project and a floating test model. The giant carrier never entered service.",
+    "A real test model does not put a giant carrier into service.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-habbakuk.html"
+  }
+}

@@ -346,12 +346,33 @@ Checkling layout follow-up: seven browser journeys also verify complete renderin
 
 Checkling release checkpoint — October 22: protected workflow `39721575066` passed the complete release and browser gates for head `355cbb6`. Refreshed Apps Script preflight `39721202948` passed; live Version 39, all five live source hashes, stable URL, domain-only access and deploying-owner execution match the earlier preflight exactly, with no unpublished draft. Main subsequently merged unrelated golf/ByteSize work; its changes are being preserved in this review branch before rerunning protected CI. Deployment and protected live smoke remain pending.
 
+Checkling merge checkpoint — October 22: protected workflow `39820930189` passed every release/browser gate, including all 440 classroom-service behaviors and seven companion journeys. PR #218 merged as `716d1666dd099d85ddea99cd3e2e14961c186240`. The guarded existing-deployment release is recorded below. Protected live smoke and actual classroom use remain pending.
+
+## Checkling production release — October 22, 2026
+
+2026-10-22: guarded release workflow 39825119574 deployed Apps Script Version 40 from merged commit 716d1666dd099d85ddea99cd3e2e14961c186240. All five normalized source hashes read back from Google exactly match the tested repository files. Live Version 39 source matched both prior preflights before replacement; no unpublished draft was overwritten. Existing deployment ID, stable URL, DOMAIN access and USER_DEPLOYING execution are preserved. No workbook migration. Authenticated synthetic release check, live mode review and classroom field use remain pending; the shared browser sign-in could not be reopened because browser security policy blocked access.
+
+Netlify production 6ada4b18137a124e6a72299b is ready on the same merge commit (published 2026-10-22T17:52:12.423Z); all 17 public Pond/art files match source SHA-256, totaling 1370757 bytes.
+
+## Checkling protected live verification — October 22, 2026
+
+Teacher-reported authenticated production release check passed on October 22, 2026: ok=true; request=STARTED; return=RETURNED_COUNTABLE; evidenceUsed=1; testPassVoided=true; testMembershipDeactivated=true; productionFactsUnchanged=true; syntheticOnly=true. Schema 2026-09-21-backend-b and client contract 2026-09-22-all-teacher-rpcs match the release. This is the teacher-supplied result, not an agent-observed browser execution. Live mode visual review and an actual classroom cycle remain pending.
+
 
 ## Checkling startup freeze — October 22, 2026
 
 Owner: Codex; isolated branch `codex/checkling-startup-fix`. The authenticated live teacher page reproduces the loading freeze and an invalid-token syntax error. Its served script contains an unterminated `https:` artwork string: HtmlService stripped the literal URL remainder as a comment. Because all entry modes share that script, student pass, check-in, kiosk and teacher startup are affected before bootstrap runs.
 
 The existing Index.html now escapes the URL slashes while preserving the exact artwork destination. Server code, workbook schema, PIN/attendance/point rules and deployment URL/access are unchanged. Regression coverage replays the observed truncation, parses all four modes and checks the artwork URL. Existing structural/handoff checks, all 440 service behaviors and 17 Checkling server scenarios pass. All 11 offline Chromium browser journeys pass, including the four entry-mode startups, responsive companion/Pond interactions, artwork, accessibility and shared-screen privacy. Canonical `npm run verify` passed all 18 stages (53 built routes, 135 HTML files, 4601 local references, 13 releases/117 sealed files). Protected CI, guarded production release and live page readback remain separate pending evidence.
+
+
+## Checkling startup fix live — October 22, 2026
+
+Owner: Codex. PR #221 merged as `7a6111d11e5df028a212fac0ad4597c0c5d8e7c1` after protected workflow `39833478519` passed. Merged-main workflow `39840265487` also passed. Guarded release [39845770698](https://github.com/Grantauch/the-desk/actions/runs/39845770698) deployed Apps Script **Version 41** on the existing URL, preserving DOMAIN access and USER_DEPLOYING execution.
+
+Live Chrome checks pass for teacher, student, kiosk and Daily Check-In: the teacher dashboard renders, student entry forms appear, and the website's `/check-in/` and `/pass/` launch links reach their expected modes. The served Checkling artwork URL retains its escaped slashes, and the fresh Check-In page reports no application script errors.
+
+The authenticated Version 41 synthetic release check passes: `ok=true`, request `STARTED`, return `RETURNED_COUNTABLE`, evidence used `1`, test pass voided, test membership deactivated, `productionFactsUnchanged=true` and `syntheticOnly=true`. Schema and client contract match the existing release contract. The private test workbook URL and real student information are omitted. This is live release verification; actual classroom use remains **FIELD_PENDING**.
 
 ## October 26 America's Most Hated — Load My Work
 
@@ -379,3 +400,10 @@ The canonical full gate is running. Protected GitHub build, merge, exact Netlify
 Owner: Codex; branch `codex/pixel-camp-school-integration`. School camp opens inside the existing private Daily Check-In after a verified PIN and class selection. The original Checkling, name and earned homes remain authoritative; official streak and attendance are read from the existing summary. Bounded game saves use a new private Checkling Camps tab with optimistic revisions, idempotent retry IDs and one previous camp snapshot. Game actions never create school points, attendance or pass events. PIN/session credentials and membership keys remain in the school host; the sandbox receives only game data and its own companion/official summary. No student camp is stored in localStorage. Explicit earlier browser-save import, undo and file export remain available.
 
 Focused server scenarios pass 29/29, including existing companion regressions. The classroom runtime passes 440 behaviors; existing companion/Pond browser acceptance passes 15/15. New school browser acceptance covers 320/390/1440, actual PIN RPCs against the synthetic Apps Script runtime, cross-session saves, failed and lost responses, import/undo, stale writes and shared-device privacy. Canonical verification passed locally; protected run `40708519822` passed every full-release and browser gate on `fc1cc605f0c4a1eaaaf2fa074c7b3617eebd7ebd`. The approved World War I hub from main `fb929c1` is preserved in the combined release. [PR #255](https://github.com/Grantauch/the-desk/pull/255) records final combined-source checks and merge; [release-control issue #28](https://github.com/Grantauch/the-desk/issues/28) records the actual guarded Apps Script version/deployment. These audit records, rather than a source commit alone, establish deployment. Authenticated synthetic live smoke and classroom use are separate field evidence. No live student credentials or records are used for verification.
+
+
+## October 28 — ready PR release batch
+
+Owner: Codex; branch `codex/pr-release-batch-20261028`. Integrates ready PRs #126, #220, #222, #248 and #252 on main `161630ccb804251cf9adf176725a43fe232d5ca6`. The visible release completes twelve Hidden History cases and adds Glomar questions, evidence sorting and Turn In. Historical Hall Pass/Checkling release records are reconciled while preserving the current release-control authority, school Pixel Camp integration and later repair entries. No Apps Script runtime or deployment is changed. Draft Schoolwide/Checklings work is excluded.
+
+Full canonical `npm run verify` passed on the combined source: Astro reported zero errors and warnings; the production build contains 54 generated routes, with 155 HTML files / 5,233 local references validated and 27 releases / 193 sealed files verified. Whitespace and historical audit checks pass. Protected combined-source checks, merge and exact Netlify deployment remain separate pending gates. Classroom use remains separate field evidence.

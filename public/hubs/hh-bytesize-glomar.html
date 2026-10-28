@@ -185,6 +185,66 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
 .tweet p { font-size: 1.15rem; margin: 6px 0 0; }
 .sources { font-size: 0.86rem; color: var(--muted); }
 .sources a { color: var(--muted); }
+
+/* byte nav */
+.bytenav { position: sticky; top: 0; z-index: 20; background: rgba(5,14,21,0.94); border-bottom: 1px solid var(--line); backdrop-filter: blur(6px); }
+.bytenav ol { list-style: none; margin: 0 auto; padding: 8px max(16px, env(safe-area-inset-left, 0px)); max-width: 1080px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: thin; }
+.bytenav a { display: block; white-space: nowrap; font-family: var(--font-type); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; color: var(--muted); padding: 6px 10px; border: 1px solid transparent; border-radius: 999px; }
+.bytenav a:hover { color: var(--ink); border-color: var(--line); }
+.bytenav a[aria-current="true"] { color: var(--abyss); background: var(--sonar); }
+.bytenav a:focus-visible { outline: 3px solid var(--sonar); outline-offset: 2px; }
+section[id] { scroll-margin-top: 56px; }
+.case-q { margin-top: 26px; border-left: 3px solid var(--sonar); padding: 4px 0 4px 16px; max-width: 34rem; }
+.case-q span { display: block; font-family: var(--font-type); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sonar); }
+.case-q p { margin: 4px 0 0; font-family: var(--font-display); font-size: 1.3rem; line-height: 1.25; }
+
+/* your move */
+.move { margin-top: 32px; background: var(--paper); color: var(--paper-ink); border-radius: 6px; padding: clamp(16px, 3vw, 26px); box-shadow: 0 14px 40px rgba(0,0,0,0.4); max-width: 760px; }
+.move .tag { display: inline-block; font-family: var(--font-type); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; background: var(--paper-ink); color: var(--paper); padding: 3px 9px; border-radius: 3px; margin-bottom: 10px; }
+.move label { display: block; font-size: 1.08rem; font-weight: 600; line-height: 1.45; margin-bottom: 10px; }
+.move textarea, .verdict textarea { display: block; width: 100%; min-height: 7.5em; resize: vertical; font: 1.02rem/1.55 var(--font-body); color: var(--paper-ink); background: #FFFDF7; border: 1px solid #B9AF9A; border-radius: 4px; padding: 12px 14px; }
+.move textarea:focus-visible, .verdict textarea:focus-visible { outline: 3px solid #1F6F68; outline-offset: 2px; }
+.move textarea::placeholder, .verdict textarea::placeholder { color: #6E675A; }
+.move .hint { font-size: 0.9rem; color: #4A453C; margin: 8px 0 0; }
+
+/* ship band */
+.shipband { margin-top: 36px; }
+.shipband img { display: block; width: 100%; height: auto; max-height: 520px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); filter: contrast(1.05); }
+
+/* evidence desk */
+.desk { display: grid; gap: 12px; margin-top: 22px; }
+.claim { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.claim > p { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.3; margin: 0 0 10px; max-width: none; }
+.claim .no { font-family: var(--font-type); font-size: 0.78rem; color: var(--sonar); letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+.sort { display: flex; flex-wrap: wrap; gap: 6px; }
+.sort button { appearance: none; background: var(--deep); border: 1px solid var(--line); color: var(--ink); border-radius: 6px; padding: 8px 11px; font: 600 0.88rem var(--font-body); cursor: pointer; }
+.sort button:hover { border-color: var(--muted); }
+.sort button:focus-visible { outline: 3px solid var(--sonar); outline-offset: 2px; }
+.sort button[aria-pressed="true"] { background: #12313F; border-color: var(--ink); }
+.claim .verdictline { margin: 10px 0 0; font-size: 0.98rem; max-width: none; }
+.claim .verdictline b { font-family: var(--font-type); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 6px; }
+.claim.right { border-color: var(--sonar); }
+.claim.right .verdictline b { color: var(--sonar); }
+.claim.wrong { border-color: var(--red); }
+.claim.wrong .verdictline b { color: var(--red); }
+.key { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+.key div { background: var(--deep); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; color: var(--muted); min-width: 0; }
+.key b { display: block; font-family: var(--font-type); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 2px; }
+@media (max-width: 760px) { .key { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 420px) { .key { grid-template-columns: 1fr; } }
+.tally { font-family: var(--font-type); font-size: 0.95rem; color: var(--sonar); margin: 16px 0 0; min-height: 1.6em; }
+
+/* verdict */
+.verdict { background: var(--paper); color: var(--paper-ink); border-radius: 6px; padding: clamp(18px, 3vw, 30px); box-shadow: 0 14px 40px rgba(0,0,0,0.45); margin-top: 22px; max-width: 820px; }
+.verdict .stamp { display: inline-block; font-family: var(--font-type); font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #A3271B; border: 2px solid #A3271B; padding: 4px 10px; transform: rotate(-2deg); margin-bottom: 14px; }
+.verdict fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+.verdict legend { font-size: 1.12rem; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+.verdict .opt { display: flex; gap: 10px; align-items: flex-start; background: #FFFDF7; border: 1px solid #CFC6B2; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font-size: 1rem; }
+.verdict .opt input { margin-top: 5px; accent-color: #1F6F68; width: 18px; height: 18px; flex: none; }
+.verdict .opt:has(input:checked) { border-color: var(--paper-ink); background: #F7F1E2; }
+.verdict .opt input:focus-visible { outline: 3px solid #1F6F68; outline-offset: 2px; }
+.verdict > label { display: block; font-size: 1.08rem; font-weight: 600; line-height: 1.45; margin-bottom: 10px; }
+.desk-turnin-slot { max-width: 820px; margin: 28px 0 0; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
@@ -196,6 +256,20 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     <span class="series">ByteSize <b>№ 08</b></span>
   </div>
 </header>
+<nav class="bytenav" aria-label="Bytes in this story" data-desk-skip>
+  <ol>
+    <li><a href="#b1">1 Sinking</a></li>
+    <li><a href="#b2">2 Pipe</a></li>
+    <li><a href="#b3">3 Hughes</a></li>
+    <li><a href="#b4">4 Radio</a></li>
+    <li><a href="#b5">5 Claw</a></li>
+    <li><a href="#b6">6 Sailors</a></li>
+    <li><a href="#b7">7 Leak</a></li>
+    <li><a href="#b8">8 Glomar</a></li>
+    <li><a href="#b9">9 Evidence</a></li>
+    <li><a href="#verdict">Verdict</a></li>
+  </ol>
+</nav>
 
 <main id="main-content" tabindex="-1">
   <section class="hero">
@@ -210,6 +284,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
           <div><b>619 ft</b><span>length of the Hughes Glomar Explorer</span></div>
           <div><b>2010</b><span>year the CIA released its own history, a third of it still blank</span></div>
         </div>
+        <div class="case-q"><span>The case question</span><p>How did the CIA try to steal a submarine from three miles down, and why will it still neither confirm nor deny what it found?</p></div>
       </div>
       <figure>
         <div class="paperframe"><img src="/storyhub/hh/glomar/assets/schematic.webp" alt="CIA drawing of the Hughes Glomar Explorer, a long ship with a tall drilling derrick in the middle, labeled MV Hughes Glomar Explorer" width="1100" height="887"></div>
@@ -218,7 +293,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     </div>
   </section>
 
-  <section class="d1">
+  <section id="b1" class="d1">
     <div class="wrap split">
       <div>
         <p class="byte">Byte 1</p>
@@ -235,7 +310,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     </div>
   </section>
 
-  <section class="d1">
+  <section id="b2" class="d1">
     <div class="wrap">
       <p class="byte">Byte 2</p>
       <p class="kicker">1969 to 1974</p>
@@ -266,10 +341,15 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
           <noscript><p class="muted">At 16,500 feet the claw hangs on 275 sixty foot pipe sections and the water presses on it at about 7,300 pounds per square inch, roughly 200 times the air pressure in a car tire.</p></noscript>
         </div>
       </div>
+      <div class="move">
+        <span class="tag">Your move 01</span>
+        <label for="q-depth">Pick one landmark the claw passed on its way to the wreck. Use it to explain to someone who has never seen this page why no one had ever tried a lift like this before.</label>
+        <textarea id="q-depth" name="Glomar: the depth" placeholder="By the time the claw passed the ___, it was ___ feet down. That matters because…"></textarea>
+      </div>
     </div>
   </section>
 
-  <section class="d2">
+  <section id="b3" class="d2">
     <div class="wrap">
       <div class="split">
         <div>
@@ -296,7 +376,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     </div>
   </section>
 
-  <section class="d2">
+  <section id="b4" class="d2">
     <div class="wrap">
       <p class="byte">Byte 4</p>
       <p class="kicker">July 18, 1974</p>
@@ -320,10 +400,19 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
         </div>
       </div>
       <p style="margin-top:28px">Chazhma left that night. Four days later a 155 foot Soviet salvage tug called SB-10 arrived and stayed for weeks. The Americans counted 43 people on its deck, including one woman, many in swim trunks, snapping photos. Once it came within 75 yards. The crew stacked crates on the helicopter deck so no Soviet helicopter could land.</p>
+      <figure class="shipband">
+        <img src="/storyhub/hh/glomar/assets/glomar-at-sea.webp" alt="The Hughes Glomar Explorer at sea, a long dark hull with a tall drilling derrick in the middle and a tall steel tower on each side" width="900" height="654" loading="lazy">
+        <figcaption>The Hughes Glomar Explorer at sea. The derrick in the middle handled the pipe. This is the ship the Soviets photographed for weeks. Photo via the National Security Archive.</figcaption>
+      </figure>
+      <div class="move">
+        <span class="tag">Your move 02</span>
+        <label for="q-cover">The crew never said anything a Soviet officer could easily prove false. Pick one real reply from the radio call and explain why it protected the mission better than a flat lie would have.</label>
+        <textarea id="q-cover" name="Glomar: the cover story" placeholder="When Chazhma asked “…,” the crew said “…” This worked because…"></textarea>
+      </div>
     </div>
   </section>
 
-  <section class="d3">
+  <section id="b5" class="d3">
     <div class="wrap">
       <p class="byte">Byte 5</p>
       <p class="kicker">August 1 to 9, 1974</p>
@@ -359,7 +448,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     </div>
   </section>
 
-  <section class="d3">
+  <section id="b6" class="d3">
     <div class="wrap split">
       <div>
         <p class="byte">Byte 6</p>
@@ -371,6 +460,11 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
           <i class="found"></i><i class="found"></i><i class="found"></i><i class="found"></i><i class="found"></i><i class="found"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
         <p class="muted">One dot for each man aboard K-129. Six were ever recovered.</p>
+        <div class="move" style="margin-top:24px">
+          <span class="tag">Your move 03</span>
+          <label for="q-burial">The CIA gave the six sailors a military funeral and filmed it. Then it kept the film secret for 18 years. Why would the agency do both of those things?</label>
+          <textarea id="q-burial" name="Glomar: the burial" placeholder="The CIA held the funeral because… It kept the film secret because…"></textarea>
+        </div>
       </div>
       <div>
         <div class="video" data-yt="TOypyBdVZhU" data-title="Burial at sea of Soviet submariners from the Hughes Glomar Explorer, September 4, 1974"></div>
@@ -379,7 +473,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     </div>
   </section>
 
-  <section class="d2">
+  <section id="b7" class="d2">
     <div class="wrap">
       <p class="byte">Byte 7</p>
       <p class="kicker">June 1974 to March 1975</p>
@@ -391,10 +485,15 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
         <li class="out"><time>March 1975</time><div>Columnist Jack Anderson breaks it on national radio and TV. The next day The New York Times runs Seymour Hersh's story on its front page.</div></li>
       </ol>
       <p style="margin-top:20px">With the cover blown, the White House canceled a second mission that would have gone back for the rest of the submarine.</p>
+      <div class="move">
+        <span class="tag">Your move 04</span>
+        <label for="q-press">William Colby asked editors to sit on a true story, and several of the biggest papers in the country agreed. Should a newspaper hold a true story because the government asks it to? Use one detail from this byte.</label>
+        <textarea id="q-press" name="Glomar: holding the story" placeholder="I think the papers were right / wrong to wait because… One detail that shows this is…"></textarea>
+      </div>
     </div>
   </section>
 
-  <section class="d1">
+  <section id="b8" class="d1">
     <div class="wrap split">
       <div>
         <p class="byte">Byte 8</p>
@@ -412,9 +511,55 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
     </div>
   </section>
 
+  <section id="b9" class="d2">
+    <div class="wrap">
+      <p class="byte">Byte 9</p>
+      <p class="kicker">The evidence desk</p>
+      <h2>What do we actually know?</h2>
+      <p class="lede">A Glomar response leaves a gap, and people fill gaps. Some claims about K-129 rest on records anyone can read. Some rest on a source nobody can check. Some sit behind a white box.</p>
+      <p>Sort each item on the desk. Every choice shows what the record says.</p>
+      <div class="key">
+        <div><b>Documented</b>Records or film anyone can examine back it up.</div>
+        <div><b>Proven false</b>The record shows it was not true.</div>
+        <div><b>Claimed, not proven</b>Someone says it, but no record anyone can see settles it.</div>
+        <div><b>Still classified</b>The answer exists, and the government still withholds it.</div>
+      </div>
+      <div class="desk" id="evidenceDesk"></div>
+      <p class="tally" id="tally" aria-live="polite"></p>
+      <div class="btns"><button type="button" class="btn" id="deskReset">Clear the desk</button></div>
+      <noscript><p>Documented: K-129 sank in March 1968 with 98 men aboard, and six sailors were buried at sea on September 4, 1974. Proven false: the Glomar Explorer was built to mine the seafloor. Claimed, not proven: a U.S. submarine rammed K-129, code machines were recovered, and burglars stole a memo describing the plan. Still classified: how the claw held the submarine, and what the CIA learned from the bow.</p></noscript>
+      <div class="move">
+        <span class="tag">Your move 05</span>
+        <label for="q-evidence">Choose one claim you sorted as claimed or classified. What exact record would you need to see to settle it, and who has it?</label>
+        <textarea id="q-evidence" name="Glomar: the evidence desk" placeholder="To settle the claim that…, I would need to see… That record is held by…"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section id="verdict" class="d1">
+    <div class="wrap">
+      <p class="kicker">Your verdict</p>
+      <h2>Fifty years later, still a white box</h2>
+      <p>The mission ended in 1974. The Soviet Union is gone. The CIA's own history of Project Azorian still has whole paragraphs blanked out, and agencies still answer requests the way the CIA answered Harriet Ann Phillippi.</p>
+      <div class="verdict">
+        <span class="stamp">Case file · your finding</span>
+        <fieldset>
+          <legend>Which comes closest to your view of the blanks that remain?</legend>
+          <label class="opt"><input type="radio" name="glomar-verdict" value="keep"> The blanks are fair. Methods used in 1974 could still help someone spy today.</label>
+          <label class="opt"><input type="radio" name="glomar-verdict" value="expired"> The blanks were fair in 1975, but the reason ran out decades ago.</label>
+          <label class="opt"><input type="radio" name="glomar-verdict" value="never"> The public paid for the mission and deserved the full story from the start.</label>
+          <label class="opt"><input type="radio" name="glomar-verdict" value="unsure"> I cannot decide without knowing what kind of thing is under the blanks.</label>
+        </fieldset>
+        <label for="q-verdict">Defend your choice with two details from this case. Say which byte or record each detail came from.</label>
+        <textarea id="q-verdict" name="Glomar: final verdict" style="min-height:10em" placeholder="My finding is… The first detail that supports it is… from… The second is… from…"></textarea>
+      </div>
+      <div data-desk-turnin class="desk-turnin-slot" aria-label="Student Turn In"></div>
+    </div>
+  </section>
+
   <section>
     <div class="wrap sources">
-      <p><strong>Sources.</strong> Central Intelligence Agency, <a href="https://nsarchive2.gwu.edu/nukevault/ebb305/" target="_blank" rel="noopener">"Project Azorian: The Story of the Hughes Glomar Explorer," declassified 2010, via the National Security Archive</a>. <a href="https://history.state.gov/historicaldocuments/frus1969-76v35/d196" target="_blank" rel="noopener">Foreign Relations of the United States, 1969 to 1976, Volume XXXV, Document 196</a>. Phillippi v. Central Intelligence Agency, 546 F.2d 1009 (D.C. Cir. 1976). Norman Polmar and Michael White, Project Azorian: The CIA and the Raising of the K-129 (Naval Institute Press, 2010). Videos are embedded from YouTube and not rehosted.</p>
+      <p><strong>Sources.</strong> Central Intelligence Agency, <a href="https://nsarchive2.gwu.edu/nukevault/ebb305/" target="_blank" rel="noopener">"Project Azorian: The Story of the Hughes Glomar Explorer," declassified 2010, via the National Security Archive</a>. <a href="https://history.state.gov/historicaldocuments/frus1969-76v35/d196" target="_blank" rel="noopener">Foreign Relations of the United States, 1969 to 1976, Volume XXXV, Document 196</a>. Phillippi v. Central Intelligence Agency, 546 F.2d 1009 (D.C. Cir. 1976). Norman Polmar and Michael White, Project Azorian: The CIA and the Raising of the K-129 (Naval Institute Press, 2010). <a href="https://en.wikipedia.org/wiki/USS_Swordfish_(SSN-579)" target="_blank" rel="noopener">"USS Swordfish (SSN-579)," Wikipedia</a>, for the March 17, 1968 Yokosuka repair and the Navy's account of ice damage. Videos are embedded from YouTube and not rehosted.</p>
     </div>
   </section>
 </main>
@@ -580,6 +725,82 @@ input[type=range]:focus-visible { outline: 3px solid var(--sonar); outline-offse
   }
   btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.zone); }); });
   document.querySelectorAll('.zone').forEach(function (g) { g.addEventListener('click', function () { show(g.dataset.zone); }); });
+
+  /* Byte 9: the evidence desk */
+  var CATS = [
+    { k: 'doc', t: 'Documented' },
+    { k: 'false', t: 'Proven false' },
+    { k: 'claim', t: 'Claimed, not proven' },
+    { k: 'secret', t: 'Still classified' }
+  ];
+  var claims = [
+    { c: 'K-129 sank in March 1968 with 98 men aboard.', a: 'doc', why: 'Soviet Navy records and the CIA history agree on the loss and the crew. What caused the sinking is a separate question, and it is still open.' },
+    { c: 'The Hughes Glomar Explorer was built to mine metal nodules from the ocean floor.', a: 'false', why: 'This was the cover story. The CIA history describes the mining venture as cover, and the government admitted the real project in 1977.' },
+    { c: 'A U.S. submarine rammed K-129 and sank it.', a: 'claim', why: 'Soviet officials pointed to USS Swordfish, which pulled into Yokosuka, Japan, on March 17, 1968 to repair a bent periscope. The U.S. Navy said Swordfish hit ice in the Sea of Japan and was about 2,000 miles away. No public record shows a collision.' },
+    { c: 'Six Soviet sailors from K-129 were buried at sea on September 4, 1974.', a: 'doc', why: 'The CIA filmed the burial, and Robert Gates handed that film to Boris Yeltsin in 1992. You can watch it in Byte 6.' },
+    { c: 'The CIA recovered Soviet code machines from the wreck.', a: 'claim', why: 'Writers have argued about this since 1975. The CIA has never said either way, so no record anyone can check settles it.' },
+    { c: 'The 1974 burglars stole a memo that described the submarine plan.', a: 'claim', why: 'The CIA feared it, and that fear shaped its response. No one has ever produced the memo or shown it was in the stolen files.' },
+    { c: 'How the claw gripped and lifted the submarine.', a: 'secret', why: 'The first page of the CIA history keeps the date and blanks out the method. The answer exists. The agency still withholds it.' },
+    { c: 'What American analysts learned from the recovered bow.', a: 'secret', why: 'The CIA confirms the bow came up but has never released what was found or learned from it.' }
+  ];
+  var deskEl = document.getElementById('evidenceDesk');
+  var tally = document.getElementById('tally');
+  var picks = {};
+  function renderTally() {
+    var n = Object.keys(picks).length, right = 0;
+    Object.keys(picks).forEach(function (i) { if (picks[i] === claims[i].a) right += 1; });
+    tally.textContent = n ? (right + ' of ' + n + ' sorted the way the record does' + (n === claims.length ? '. Every claim is on the desk.' : '. ' + (claims.length - n) + ' left.')) : '';
+  }
+  claims.forEach(function (cl, i) {
+    var box = document.createElement('div'); box.className = 'claim';
+    var no = document.createElement('span'); no.className = 'no'; no.textContent = 'No. ' + (i + 1);
+    var p = document.createElement('p'); p.textContent = cl.c;
+    var row = document.createElement('div'); row.className = 'sort'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'Sort item ' + (i + 1));
+    var out = document.createElement('p'); out.className = 'verdictline'; out.setAttribute('aria-live', 'polite');
+    CATS.forEach(function (cat) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = cat.t; b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () {
+        picks[i] = cat.k;
+        Array.prototype.forEach.call(row.children, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        var ok = cat.k === cl.a;
+        var best = CATS.filter(function (x) { return x.k === cl.a; })[0].t;
+        box.className = 'claim ' + (ok ? 'right' : 'wrong');
+        out.innerHTML = '';
+        var tag = document.createElement('b'); tag.textContent = ok ? 'The record agrees' : 'The record says ' + best;
+        out.appendChild(tag); out.appendChild(document.createTextNode(cl.why));
+        renderTally();
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(no); box.appendChild(p); box.appendChild(row); box.appendChild(out);
+    deskEl.appendChild(box);
+  });
+  document.getElementById('deskReset').addEventListener('click', function () {
+    picks = {};
+    Array.prototype.forEach.call(deskEl.children, function (box) {
+      box.className = 'claim';
+      box.querySelector('.verdictline').innerHTML = '';
+      Array.prototype.forEach.call(box.querySelectorAll('.sort button'), function (x) { x.setAttribute('aria-pressed', 'false'); });
+    });
+    renderTally();
+  });
+
+  /* byte nav follows the reader */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.bytenav a'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(function (a) {
+          var on = a.getAttribute('href') === '#' + e.target.id;
+          a.setAttribute('aria-current', on ? 'true' : 'false');
+          if (on) { var ol = a.closest('ol'); ol.scrollLeft = Math.max(0, a.parentNode.offsetLeft - 16); }
+        });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    navLinks.forEach(function (a) { var t = document.querySelector(a.getAttribute('href')); if (t) io.observe(t); });
+  }
 })();
 </script>
 <script src="/hubs/desk-save.js" defer></script>
