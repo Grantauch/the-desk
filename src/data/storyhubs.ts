@@ -71,7 +71,7 @@ export const storyHubs: StoryHub[] = [
       "iceworm"
     ],
     inside: [
-      "Choose the foundation. Test the assumption..",
+      "Choose the foundation. Test the assumption.",
       "Two different scales.",
       "A 28-second captioned video recap with a complete written transcript.",
       "Three short responses using linked sources, shared work controls and Turn In."
@@ -152,7 +152,7 @@ export const storyHubs: StoryHub[] = [
       "stargate"
     ],
     inside: [
-      "One description. Three possible “hits.”.",
+      "One description. Three possible “hits.”",
       "Separate three findings.",
       "A 28-second captioned video recap with a complete written transcript.",
       "Three short responses using linked sources, shared work controls and Turn In."
@@ -206,7 +206,7 @@ export const storyHubs: StoryHub[] = [
       "mincemeat"
     ],
     inside: [
-      "Build a believable person. Then inspect the leap..",
+      "Build a believable person. Then inspect the leap.",
       "One object, two claims.",
       "A 28-second captioned video recap with a complete written transcript.",
       "Three short responses using linked sources, shared work controls and Turn In."
