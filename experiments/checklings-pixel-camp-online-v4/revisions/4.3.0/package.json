@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test engine.test.cjs dom.test.cjs import-order.test.cjs online-regressions.test.cjs camp-goals.test.cjs camp-goals-fixture.test.cjs camp-goals-ui.test.cjs care-reachability.test.cjs art-loading.test.cjs founder-art.test.cjs",
+    "test:bundle": "node --test bundle.test.cjs",
+    "build:web": "node build-web.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.3"
+  }
+}
