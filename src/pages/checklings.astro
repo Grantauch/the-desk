@@ -1,30 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
-
-const campUrl = 'https://checklings-pixel-camp.netlify.app/';
+import passConfig from '../data/pass-config.json';
+const appUrl = passConfig.studentAppUrl.trim();
+const campUrl = `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=checkin`;
 ---
-
-<Base title="checklings" description="Play the four-founder Checklings Pixel Camp, or use the separate school Checkling in daily check-in.">
-  <div class="space-y-8">
-    <header>
-      <p class="font-mono text-xs font-bold uppercase tracking-widest text-accent">the desk // creature camp</p>
-      <h1 class="mt-3 font-display text-5xl font-bold lowercase tracking-tight sm:text-6xl">checklings<span class="text-accent">.</span></h1>
-      <p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">Pick a friend. Explore Willowbank. Take care of your camp, make discoveries, and practice against the training stump.</p>
-    </header>
-
-    <section class="pop rounded-xl border border-line bg-white p-6 sm:p-8" aria-labelledby="pixel-camp-title">
-      <p class="font-mono text-xs font-bold uppercase tracking-widest text-accent">play today · free sample camp</p>
-      <h2 id="pixel-camp-title" class="mt-3 font-display text-3xl font-bold lowercase">pixel camp.</h2>
-      <p class="mt-3 max-w-2xl leading-relaxed text-ink-soft">Play as Mochi, Bolt, Zee, and Ember. Care, explore, fill the field journal, and unlock camp decorations. Works on a Chromebook or phone; no school login needed.</p>
-      <a href={campUrl} class="mt-6 inline-flex min-h-12 items-center justify-center rounded-lg bg-accent px-6 py-3 font-mono text-sm font-bold text-white hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" target="_blank" rel="noopener noreferrer">open pixel camp ↗</a>
-      <p class="mt-4 text-sm leading-relaxed text-ink-soft"><strong>Keep your progress:</strong> this game saves in this browser, not your school account. Before switching Chromebooks, use the game's <strong>Export save</strong> option. On the new device, use <strong>Import save</strong>. Do not clear browser data until you have your save file.</p>
-    </section>
-
-    <section class="rounded-xl border border-line bg-white p-6 sm:p-8" aria-labelledby="school-title">
-      <p class="font-mono text-xs font-bold uppercase tracking-widest text-accent">school-day companion · separate progress</p>
-      <h2 id="school-title" class="mt-3 font-display text-2xl font-bold lowercase">your check-in checkling.</h2>
-      <p class="mt-3 max-w-2xl leading-relaxed text-ink-soft">The Checkling inside daily check-in is a different, private school companion. It uses your class check-in and school-day streak. Pixel Camp play does not record attendance, earn daily points, or transfer progress to that companion.</p>
-      <a href="/check-in/" class="mt-4 inline-flex min-h-11 items-center font-mono text-sm font-bold text-accent underline underline-offset-4">go to daily check-in →</a>
-    </section>
-  </div>
+<Base title="checklings" description="Your Pixel Camp, original Checkling and progress travel with your school PIN.">
+  <section class="mx-auto max-w-3xl py-8">
+    <p class="font-mono text-xs uppercase tracking-widest text-accent">your friend · your school camp</p>
+    <h1 class="mt-4 font-display text-5xl font-bold tracking-tight">checklings<span class="text-accent">.</span></h1>
+    <p class="mt-5 text-xl leading-relaxed">Take your Checkling to Pixel Camp. Care for your party, explore the trail, decorate camp and practice against the stump.</p>
+    <div class="mt-8 rounded-2xl border border-line bg-white p-6">
+      <h2 class="font-display text-2xl font-bold">one PIN. the same friend.</h2>
+      <p class="mt-3 leading-relaxed">Open Daily Check-In with your school account and enter your usual PIN. Choose your class, then open Pixel Camp below your Checkling. Your camp saves privately and follows that PIN and class across devices.</p>
+      <a class="mt-6 inline-flex rounded-lg bg-accent px-6 py-4 font-bold text-white" href={campUrl} target="_blank" rel="noopener">open my school camp ↗</a>
+      <p class="mt-4 text-sm leading-relaxed">Just visiting? Choose <strong>visit Checkling only</strong> on the PIN screen. It works outside class hours. For a first visit, hatch your Checkling before opening camp.</p>
+    </div>
+    <p class="mt-6 leading-relaxed">Your original friend, name and earned homes stay with you. Official attendance and streaks appear in camp; playing earns game discoveries and camp goals. Record attendance through the usual check-in.</p>
+    <p class="mt-4 leading-relaxed">Already played the earlier browser camp? Save a file from its Menu. In your school camp, choose Menu → Load a save file. Review it before loading. Your school companion’s identity and official school rewards are preserved.</p>
+    <p class="mt-4 text-sm leading-relaxed">Wait for “Saved to school” before closing. If a save fails, retry or use Menu → Save to file. On a shared Chromebook, close camp and choose Done or Different student when finished.</p>
+  </section>
 </Base>

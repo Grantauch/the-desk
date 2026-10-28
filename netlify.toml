@@ -58,6 +58,11 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 [[headers]]
+  for = "/hubs/checkling/camp/assets/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
   # hashed build assets never change — cache them forever
   for = "/_astro/*"
   [headers.values]

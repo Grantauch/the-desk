@@ -119,6 +119,15 @@ function releaseRunSyntheticSmoke(clientContract) {
     const visit = identifyChecklingWithPin(pin, 'synthetic-companion-visit');
     releaseAssert_(visit.checkling && visit.checkling.available && !visit.checkedIn && !visit.actionProof,
       'companion visit must verify the PIN without an attendance proof');
+    saveCheckling(visit.pinToken,'bolt','Synthetic camp');
+    const camp = getPixelCamp(visit.pinToken);
+    camp.camp.pets.bolt.discoveries = [0];
+    const savedCamp = savePixelCamp(visit.pinToken,camp.revision,'a'.repeat(32),camp.camp);
+    releaseAssert_(savedCamp.revision === camp.revision + 1 && getPixelCamp(visit.pinToken).camp.pets.bolt.discoveries.length === 1,
+      'school camp save/reload failed');
+    releaseAssert_(savePixelCamp(visit.pinToken,camp.revision,'a'.repeat(32),camp.camp).revision === savedCamp.revision,
+      'school camp retry was not idempotent');
+    PropertiesService.getScriptProperties().deleteProperty(GD_CHECKLING_PREFIX + visit.student.key);
     releaseAssertPreserved_(beforeVisit, book);
     const now = new Date();
     const clock = Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm').split(':').map(Number);
@@ -142,7 +151,7 @@ function releaseRunSyntheticSmoke(clientContract) {
     book.getSheetByName(GD_SHEETS.ROSTER).getRange(student.row,5).setValue(false);
     releaseAssertPreserved_(before,production);
     const result = { ok: true, schema: GD_SCHEMA_VERSION, clientContract: GD_TEACHER_CONTRACT,
-      syntheticOnly: true, companionVisit: 'PIN_VERIFIED_NO_ATTENDANCE', request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
+      syntheticOnly: true, pixelCamp: 'PIN_SCOPED_SAVE_RELOAD_NO_ATTENDANCE', companionVisit: 'PIN_VERIFIED_NO_ATTENDANCE', request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
       testPassVoided: true, testMembershipDeactivated: true, productionFactsUnchanged: true, workbookUrl: book.getUrl() };
     console.log(JSON.stringify(result)); return result;
   } finally { GD_SPREADSHEET = production; gdClearMemo_(); }
