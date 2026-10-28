@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-STARGATE",
+  "course": "HH",
+  "lessonCode": "STARGATE",
+  "title": "the spies who stared at mars",
+  "audience": "students",
+  "narrativeQuestion": "Why does an authentic government transcript about Mars not count as proof of ancient Martians?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "The government really investigated it",
+      "claim": "Remote viewing means trying to describe a distant target without visiting it or receiving ordinary sensory information about it. The CIA says it began research in 1972. Other defense agencies were involved over the program’s history, and STARGATE became its best-known name. The Cold War made an apparent new way to collect secrets attractive. A government paying to investigate a claim establishes an investigation. It does not establish that the claim worked. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "The envelope says Mars",
+      "claim": "A surviving record dated May 22, 1984 describes a session using a sealed target envelope and spoken coordinates. Its target sheet specifies Mars at roughly one million years B.C. The subject reports impressions of large structures and other scenes; the monitor asks follow-up questions. The file is real. Those statements are reports of impressions within an experiment. The transcript contains no physical Martian sample or independent observation confirming an ancient civilization. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "A true document can contain an unverified claim",
+      "claim": "Suppose a police report records that a witness saw a dragon. The report can be genuine while the dragon remains unverified. You must ask two questions: did somebody actually make the statement, and was the statement accurate? The Mars transcript answers the first kind of question. Treating its release stamp as a certificate for its contents is a reasoning error. Classification tells us how a record was handled, not whether every statement inside is true.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "Try a target before you see it",
+      "claim": "The invented target exercise below gives one broad description and three possible matches. See how readily the same words seem to fit different pictures. This does not reproduce the historical experiments or prove a theory about every result. It demonstrates why judges need clear rules, hidden targets and a scoring method chosen before the answer is revealed. Otherwise we may reward ourselves for finding a connection afterward.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "The 1995 review asked a harder question",
+      "claim": "The American Institutes for Research reviewed laboratory findings and intelligence usefulness separately. It noted statistical results beyond chance in the reviewed work, while finding that the cause was not clearly established as paranormal. Expert reviewers disagreed about the interpretation. For intelligence work, the report found descriptions too vague, inconsistent and dependent on interpretation to justify continuing operational use. Do not turn that nuanced conclusion into either “all tests were fake” or “psychic powers were proven.” [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "The useful secret is a distinction",
+      "claim": "The CIA decided not to restore the program after the review. We have evidence for a government research effort, a striking session transcript and a critical evaluation. We do not have verified evidence of ancient Martians from this transcript. Your task is to keep those findings together without letting the strangest sentence swallow the rest of the file. What independent observation would actually change your conclusion? [S1, S2, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "The remote-viewing program was real. Its Martian claims remain unverified.",
+    "Declassified means released. It does not mean verified.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-stargate.html"
+  }
+}

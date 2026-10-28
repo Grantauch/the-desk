@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MINCEMEAT",
+  "course": "HH",
+  "lessonCode": "MINCEMEAT",
+  "title": "the man who never was",
+  "audience": "students",
+  "narrativeQuestion": "Could ordinary pocket clutter make false invasion orders look genuine?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "The destination was Sicily",
+      "claim": "In 1943 the Allies were preparing to invade Sicily, the large island off southern Italy. Britain wanted German leaders to expect the main attack somewhere else. Rather than send an obvious false message directly, intelligence officers arranged for the enemy to discover apparently private evidence. A found secret can feel more believable than an announcement because the finder believes it was never intended for them. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "Invent an ordinary officer",
+      "claim": "British officers built a Royal Marine identity called Major William Martin around the body of a real man. Personal papers and a supposed romantic life helped make the identity look lived-in. The National Archives preserves the photograph used as “Pam,” the supposed girlfriend. The ordinary-looking details were part of the deception, not unrelated decoration. Our pocket exercise below asks what each sort of item might establish and what it could never prove. [S2, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "Let the evidence wash ashore",
+      "claim": "HMS Seraph delivered the body off Spain on April 30, 1943. The planted documents suggested Allied attacks on Greece and Sardinia, distracting from Sicily. Spain was officially neutral, but the planners expected German intelligence to obtain the papers through contacts there. This was an attempted chain of human decisions: discovery, examination, copying, forwarding and belief. The British could prepare the evidence without directly controlling every person who handled it. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "Why a love letter mattered",
+      "claim": "A romance did not prove a military plan. It made the carrier seem like a person whose official documents might be genuine. That is a powerful difference. A believable identity can lend credibility to a claim that still needs independent checking. Think of a convincing social-media profile: old pictures and personal details may tell you who appears to be speaking, while doing little to verify the link they just shared. [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "The con helped; it did not fight the campaign",
+      "claim": "German leaders accepted the deception, and forces were directed toward threatened areas outside Sicily. The Allies landed in Sicily in July. Museum histories treat Mincemeat as a successful deception. It would be a further leap to say one briefcase alone won the invasion or to invent a precise number of lives it saved. A campaign still depended on soldiers, logistics, other intelligence and many decisions. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "Give the real man his name back",
+      "claim": "The invented officer became famous as “the man who never was.” The real man was Glyndwr Michael, a Welshman whose identity was publicly recognized much later; his name was added to the Huelva grave in 1997. The operation’s cleverness should not erase the person whose body made it possible. We can study the successful deception while asking what dignity, consent and remembrance mean in a wartime secret. [S2]",
+      "namedPeople": [
+        {
+          "name": "Glyndwr Michael",
+          "role": "Real person behind the invented identity; lesson avoids inventing a likeness.",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Major William Martin",
+          "role": "Invented identity; there is no independent actual officer to portray.",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "A real wartime deception built around a man whose name was hidden.",
+    "Authentic-looking identity details can carry false information.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-mincemeat.html"
+  }
+}

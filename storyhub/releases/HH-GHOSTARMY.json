@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GHOSTARMY",
+  "title": "the army that wasn’t there",
+  "route": "/hubs/hh-bytesize-ghost-army.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/GHOSTARMY/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-ghost-army.html",
+      "bytes": 27969,
+      "sha256": "5ac62287208eec2d392f0604bc2b2b14625cfa9304fbd74f998571702498c7ad"
+    },
+    {
+      "path": "/storyhub/hh/ghost-army/assets/cover.webp",
+      "bytes": 292264,
+      "sha256": "9e666f6a0077a9c7ae5f41c1ad3e50de85c537b192bf89bfdf4cac6a24f52e06",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/ghost-army/assets/recap.mp4",
+      "bytes": 295126,
+      "sha256": "0e3c2dc809d1b3ee8aa7570fbd42ba8fdc97943ed206796e43cd6a8a04b0a2b1",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/ghost-army/assets/recap.vtt",
+      "bytes": 401,
+      "sha256": "16839eb85e13d9f6847514977cfa5a45f3c81d151b09de9ffa7c860d613263b8",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/ghost-army/assets/transcript.txt",
+      "bytes": 434,
+      "sha256": "305e5eb5f62e5a4438664283dc0608e55af7551b6a708e37f9e8dac1a8556c3f",
+      "assetId": "A04"
+    },
+    {
+      "path": "/storyhub/hh/ghost-army/assets/record.webp",
+      "assetId": "A05",
+      "bytes": 97088,
+      "sha256": "7f8cfe5a72b7c8bfdc7f446e26ac1d25206ad18fb89da1cf4e5c62a373d20312",
+      "width": 1024,
+      "height": 537
+    }
+  ],
+  "totalBytes": 713282,
+  "sealedAt": "2026-10-28"
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GHOSTARMY",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "ghost",
+      "teaches": "Three convincing signals can still come from one deception.",
+      "studentAction": "Simplified interpretation exercise. These combinations are not historical enemy assessments or measured confidence scores.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Switch between enemy reconnaissance and a ground view; combine visual, sonic and radio evidence.",
+      "status": "implemented"
+    }
+  ]
+}

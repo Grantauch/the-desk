@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-STARGATE",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "targets",
+      "teaches": "Declassified means released. It does not mean verified.",
+      "studentAction": "Invented demonstration: “A tall structure, open space, a strong edge, something moving nearby.” These are not historical test results. Pick a match, then inspect the alternatives.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Match one vague description to several targets; reveal the Mars prompt; compare laboratory evidence with operational usefulness.",
+      "status": "implemented"
+    }
+  ]
+}

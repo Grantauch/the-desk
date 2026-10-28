@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-SEASPRAY",
+  "title": "the fog was a field test",
+  "route": "/hubs/hh-bytesize-sea-spray.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/SEASPRAY/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-sea-spray.html",
+      "bytes": 27049,
+      "sha256": "69c96b402ad7109a297ff6fb2a6a0731411862484c7d893b81300997d62b6b88"
+    },
+    {
+      "path": "/storyhub/hh/sea-spray/assets/cover.webp",
+      "bytes": 95474,
+      "sha256": "39e5e6c31907a796358c0ceaeb94bf6aba741944331d5a6c213cdcc74c0dabff",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/sea-spray/assets/recap.mp4",
+      "bytes": 171011,
+      "sha256": "aab6287abe0fc6046cdfbc3d50bd881a1ab639f3692581e24a0c815fc87c568a",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/sea-spray/assets/recap.vtt",
+      "bytes": 453,
+      "sha256": "73a1212a13daf212dd03bbcd864f47b1d8bc76005dc67e1746b3fb86ec4052e3",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/sea-spray/assets/transcript.txt",
+      "bytes": 482,
+      "sha256": "b9009a2c64af02824dcff435e22a56edb68913a024bfb105daa0417f018932b0",
+      "assetId": "A04"
+    }
+  ],
+  "totalBytes": 294469,
+  "sealedAt": "2026-10-28"
+}

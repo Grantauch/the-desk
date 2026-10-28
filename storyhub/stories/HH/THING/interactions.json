@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-THING",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "beam",
+      "teaches": "A silent scan is evidence about a condition, not proof of an empty room.",
+      "studentAction": "Conceptual model. Sound is represented visually; no microphone is used and no audio is recorded. The beam must be on before the model returns a signal.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Turn the external beam on and off; compare a silent scan with a scan during activation.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MOONHOAX",
+  "title": "bat people on the moon",
+  "route": "/hubs/hh-bytesize-moon-hoax.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/MOONHOAX/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-moon-hoax.html",
+      "bytes": 26897,
+      "sha256": "8e5b89d9178da3b919337eace26de7796a6518de4f5b238b0531e4dec9923265"
+    },
+    {
+      "path": "/storyhub/hh/moon-hoax/assets/cover.webp",
+      "bytes": 408618,
+      "sha256": "d3f83903de6f17be968ac2677a8eba8f0dc90e155305798d02a47072e65440c0",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/moon-hoax/assets/recap.mp4",
+      "bytes": 408238,
+      "sha256": "d696c1be29bca88ab586d2ec9b3a2a9dc185750bca9e68793aa72def6d0155f9",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/moon-hoax/assets/recap.vtt",
+      "bytes": 403,
+      "sha256": "9d725d6877295b24b3017e5c01688864a415c58db64a63f696bf22cbf5777bf7",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/moon-hoax/assets/transcript.txt",
+      "bytes": 430,
+      "sha256": "0e4e7bbbf20c9a715267719ca06e170b0feb53950e738eba948460ab244fbde7",
+      "assetId": "A04"
+    },
+    {
+      "path": "/storyhub/hh/moon-hoax/assets/record.webp",
+      "assetId": "A05",
+      "bytes": 171202,
+      "sha256": "91fd670fb68b56cbb52f0d4501011f011d8b31fa1b1c4e10ed4020eaa3f1ff8f",
+      "width": 1024,
+      "height": 702
+    }
+  ],
+  "totalBytes": 1015788,
+  "sealedAt": "2026-10-28"
+}
