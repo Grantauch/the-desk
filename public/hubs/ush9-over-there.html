@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>over there | U.S. History 9 | the desk</title>
+<meta name="description" content="America in the Great War, 1914 to 1920. Follow the war across a 3D globe, decode the Zimmermann Telegram, watch the Western Front move, and decide whether the Senate should have signed the peace.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-over-there.html">
+<meta property="og:title" content="Over There">
+<meta property="og:description" content="America in the Great War, 1914 to 1920. Follow the war across a 3D globe, decode the Zimmermann Telegram, watch the Western Front move, and decide whether the Senate should have signed the peace.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-over-there.html">
+<meta property="og:image" content="https://grant-desk.com/hubs/ush9-over-there/img/trench-somme.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@400;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Special+Elite&display=swap">
+<style>
+/* Register: a field trench map. Cream map paper ruled in lettered squares, enemy lines
+   in red and Allied lines in blue, stencil type off a supply crate, typewriter for orders.
+   Night scenes (the globe, the front at 11 a.m.) are olive black lit by flare light. */
+:root{
+  --paper:#E9E2CF; --sheet:#F5F0E3; --ink:#1D1E19; --ink-soft:#54564B; --rule:rgba(29,30,25,.2);
+  --olive:#4E5A2C; --on-olive:#F5F0E3; --red:#A8231B; --blue:#2C4C7C; --khaki:#C8B88A; --gold:#B8901F;
+  --wash:rgba(184,144,31,.2); --ok:#2F6B3A; --ok-wash:rgba(47,107,58,.12); --no-wash:rgba(168,35,27,.1);
+  --grid:rgba(44,76,124,.09); --shadow:#1D1E19; --focus:#1D5FD0;
+  --night:#0F110D; --night-2:#181B14; --night-3:#22261C; --night-ink:#E9E3CE; --night-soft:#A4A48F; --night-rule:rgba(233,227,206,.15); --flare:#E9F7C5; --ember:#E0703A;
+  --font-display:"Stardos Stencil","Arial Narrow",Impact,sans-serif;
+  --font-body:"Literata",Georgia,"Times New Roman",serif;
+  --font-wire:"Special Elite","Courier New",Courier,monospace;
+  --nav-h:3.25rem;
+  --step-0:1.0625rem; --step-1:1.22rem; --step-3:clamp(2.2rem,5vw,3.3rem); --step-4:clamp(3.4rem,9.5vw,7.6rem);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12140F; --sheet:#1B1E17; --ink:#E9E3CE; --ink-soft:#AAA994; --rule:rgba(233,227,206,.17);
+    --olive:#9DAE63; --on-olive:#12140F; --red:#F06E5E; --blue:#86A8DE; --khaki:#C8B88A; --gold:#E2BC4C;
+    --wash:rgba(226,188,76,.14); --ok:#7DCB92; --ok-wash:rgba(125,203,146,.13); --no-wash:rgba(240,110,94,.12);
+    --grid:rgba(134,168,222,.07); --shadow:#3A3E33; --focus:#8DB6FF; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12140F; --sheet:#1B1E17; --ink:#E9E3CE; --ink-soft:#AAA994; --rule:rgba(233,227,206,.17);
+  --olive:#9DAE63; --on-olive:#12140F; --red:#F06E5E; --blue:#86A8DE; --khaki:#C8B88A; --gold:#E2BC4C;
+  --wash:rgba(226,188,76,.14); --ok:#7DCB92; --ok-wash:rgba(125,203,146,.13); --no-wash:rgba(240,110,94,.12);
+  --grid:rgba(134,168,222,.07); --shadow:#3A3E33; --focus:#8DB6FF; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--step-0);line-height:1.6;overflow-x:hidden;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:6rem 6rem}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:.18em}
+a:hover{color:var(--red)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4{text-wrap:balance;margin:0;font-weight:700}
+p,ul,ol,figure,blockquote{margin:0}
+img{display:block;max-width:100%;height:auto}
+.wire{font-family:var(--font-wire);font-size:.8rem;letter-spacing:.05em;text-transform:uppercase}
+.label{color:var(--red)}
+.wrap{max-width:76rem;margin-inline:auto;padding-inline:clamp(1rem,4vw,2.5rem)}
+.prose{display:grid;gap:1rem;max-width:38em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Buttons: stencil on crate board */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45em;font-family:var(--font-display);font-weight:700;font-size:1.1rem;letter-spacing:.08em;text-transform:uppercase;line-height:1;padding:.75em 1.05em .7em;border:2px solid var(--ink);background:var(--sheet);color:var(--ink);text-decoration:none;cursor:pointer;box-shadow:3px 3px 0 var(--shadow);transition:transform .12s,box-shadow .12s,background .15s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--shadow);color:var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+.btn:disabled{opacity:.35;cursor:default;transform:none;box-shadow:none}
+.btn.on{background:var(--ink);color:var(--paper)}
+.btn-olive{background:var(--olive);color:var(--on-olive);border-color:var(--olive)}
+.btn-olive:hover{color:var(--on-olive)}
+.btn-red{background:var(--red);color:#F5F0E3;border-color:var(--red)}
+.btn-red:hover{color:#F5F0E3}
+.scene .btn{background:transparent;color:var(--night-ink);border-color:var(--night-ink);box-shadow:3px 3px 0 #000}
+.scene .btn:hover{color:var(--night-ink)}
+.scene .btn-olive{background:var(--flare);color:#0F110D;border-color:var(--flare)}
+.text-btn{background:none;border:0;padding:.25rem 0;cursor:pointer;font-family:var(--font-wire);font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;text-decoration:underline;text-underline-offset:.2em}
+.text-btn:hover{color:var(--red)}
+
+/* Top nav and dog tags */
+.topnav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:1rem;height:calc(var(--nav-h) + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) clamp(.75rem,3vw,1.5rem) 0;background:var(--night);color:var(--night-ink);border-bottom:3px solid var(--khaki)}
+.brand{font-family:var(--font-display);font-weight:700;font-size:1.35rem;letter-spacing:.06em;text-decoration:none;color:var(--khaki);flex:none}
+.brand:hover{color:var(--khaki)}
+.chapters{display:flex;gap:.1rem;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.chapters::-webkit-scrollbar{display:none}
+.chapters a{flex:none;font-family:var(--font-wire);font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;padding:.4rem .6rem;color:var(--night-soft);border-bottom:2px solid transparent}
+.chapters a span{color:var(--khaki);margin-right:.25rem}
+.chapters a:hover{color:var(--night-ink)}
+.chapters a.active{color:var(--night-ink);border-bottom-color:var(--khaki)}
+.tags{position:relative;flex:none}
+.tags summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.45rem;font-family:var(--font-wire);font-size:.82rem;text-transform:uppercase;padding:.3rem .65rem .3rem .45rem;border:1.5px solid var(--khaki);border-radius:.9rem .3rem .3rem .9rem;color:var(--khaki);font-variant-numeric:tabular-nums}
+.tags summary::-webkit-details-marker{display:none}
+.tags summary::before{content:"";width:.55rem;height:.55rem;border-radius:50%;border:1.5px solid currentColor}
+.tags-panel{position:absolute;right:0;top:calc(100% + .6rem);width:min(21rem,calc(100vw - 2rem));background:var(--sheet);color:var(--ink);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--shadow);padding:1rem;display:grid;gap:.6rem}
+.tags-panel ul{list-style:none;padding:0;display:grid;gap:.3rem;font-size:.95rem}
+.tags-panel li{display:grid;grid-template-columns:1.3rem 1fr;gap:.4rem}
+.tags-panel li::before{content:"○";color:var(--ink-soft)}
+.tags-panel li.done::before{content:"●";color:var(--olive)}
+.tags-panel li a{text-decoration:none}
+.tags-panel li a:hover{text-decoration:underline}
+
+/* Night scenes */
+.scene{background:var(--night);color:var(--night-ink);color-scheme:dark}
+.scene .label{color:var(--khaki)}
+.scene a:hover{color:var(--flare)}
+
+/* Globe */
+.world{position:relative;display:grid;grid-template-columns:minmax(0,31rem) minmax(0,1fr);background:radial-gradient(ellipse at 68% 42%,#232a1b 0%,var(--night) 62%)}
+.world-stage{grid-column:2;grid-row:1;position:sticky;top:calc(var(--nav-h) + env(safe-area-inset-top,0px));height:calc(100vh - var(--nav-h) - env(safe-area-inset-top,0px));align-self:start;min-width:0}
+#globe{display:block;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+#globe:active{cursor:grabbing}
+.globe-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.glabel{position:absolute;left:0;top:0;font-family:var(--font-wire);font-size:.74rem;text-transform:uppercase;white-space:nowrap;color:var(--night-ink);background:rgba(15,17,13,.78);padding:.15rem .4rem;border:1px solid var(--night-rule);transition:opacity .3s}
+.glabel.hot{color:#0F110D;background:var(--flare);border-color:var(--flare)}
+.globe-key{position:absolute;left:1rem;bottom:1rem;display:flex;flex-wrap:wrap;gap:.35rem .9rem;pointer-events:none;color:var(--night-soft);font-family:var(--font-wire);font-size:.72rem;text-transform:uppercase}
+.globe-key span{display:inline-flex;align-items:center;gap:.35rem}
+.globe-key i{width:.65rem;height:.65rem;border-radius:50%;display:inline-block}
+.globe-hint{position:absolute;right:1rem;bottom:1rem;color:var(--night-soft);pointer-events:none}
+.globe-fallback{position:absolute;inset:8%;width:84%;height:auto;object-fit:contain;opacity:.8}
+.world-steps{grid-column:1;grid-row:1;position:relative;z-index:2;padding-inline:clamp(1rem,4vw,2.5rem) 0}
+.hero-copy{display:grid;gap:1.2rem;justify-items:start;padding-block:3rem 4rem;min-height:calc(100vh - var(--nav-h));align-content:center}
+.hero-tag{font-family:var(--font-wire);font-size:1rem;letter-spacing:.12em;text-transform:uppercase;color:var(--khaki);border:1.5px solid var(--khaki);padding:.25em .7em}
+.hero-copy h1{font-family:var(--font-display);font-size:var(--step-4);line-height:.86;text-transform:uppercase;letter-spacing:.01em}
+.hero-copy h1 em{font-style:normal;color:var(--flare);display:block}
+.deck{font-size:var(--step-1);line-height:1.45;max-width:30em}
+.bigq{border-top:1px solid var(--night-rule);padding-top:1rem;display:grid;gap:.4rem;max-width:30em}
+.bigq blockquote{font-style:italic;font-size:1.18rem;line-height:1.4}
+.bigq .cite{font-size:.88rem;color:var(--night-soft)}
+.scroll-cue{display:flex;align-items:center;gap:.6rem;color:var(--night-soft)}
+.scroll-cue::after{content:"";width:1px;height:2.5rem;background:linear-gradient(var(--khaki),transparent);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:scaleY(.4);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
+.gstep{min-height:88vh;display:flex;align-items:center;padding-block:2rem}
+.gcard{display:grid;gap:.6rem;max-width:28rem;padding:1.3rem 1.4rem;background:rgba(15,17,13,.86);border:1px solid var(--night-rule);border-left:4px solid var(--khaki);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .4s;opacity:.55}
+.gstep.active .gcard{opacity:1}
+.gcard h2{font-family:var(--font-display);font-size:2rem;line-height:1;text-transform:uppercase}
+.gcard p{line-height:1.5}
+.gcard .stat{display:flex;align-items:baseline;gap:.6rem;border-top:1px solid var(--night-rule);padding-top:.6rem;margin-top:.2rem}
+.gcard .stat b{font-family:var(--font-display);font-size:2.2rem;line-height:1;color:var(--flare);font-variant-numeric:tabular-nums}
+.gcard .stat span{font-size:.92rem;color:var(--night-soft);line-height:1.35}
+.world-end{padding-block:2rem 5rem}
+@media (max-width:899px){
+  .world{display:block}
+  .world-stage{height:52svh;z-index:1}
+  .world-steps{padding-inline:clamp(1rem,4vw,2.5rem)}
+  .hero-copy{min-height:auto;padding-block:2rem 3rem;background:linear-gradient(transparent,var(--night) 3rem)}
+  .gstep{min-height:75svh;align-items:flex-end}
+  .gcard{max-width:none;opacity:1}
+  .globe-key{bottom:.5rem;left:.75rem;right:5.5rem}
+  .globe-hint{bottom:.5rem;right:.75rem}
+}
+
+/* Chapters */
+.ch-open{position:relative;display:grid;align-items:end;min-height:min(78vh,44rem);color:#F2ECDA;background:var(--night);overflow:hidden;isolation:isolate}
+.ch-open > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) sepia(.25) contrast(1.08) brightness(.66);z-index:-2}
+.ch-open::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(15,17,13,.1) 0%,rgba(15,17,13,.35) 45%,rgba(15,17,13,.95) 100%)}
+.ch-open-text{display:grid;gap:.8rem;padding-block:3rem 3.25rem;width:100%}
+.ch-num{color:var(--khaki)}
+.ch-open h2{font-family:var(--font-display);font-size:clamp(3rem,8.5vw,6.6rem);line-height:.9;text-transform:uppercase;max-width:15ch}
+.ch-open .dek{font-size:var(--step-1);line-height:1.45;max-width:32em;color:#E4DDC8}
+.ch-open .credit{position:absolute;right:clamp(1rem,4vw,2.5rem);bottom:.8rem;font-size:.68rem;color:rgba(242,236,218,.62)}
+.ch-head{display:grid;gap:.6rem;padding-block:4rem 1.5rem}
+.ch-head h2{font-family:var(--font-display);font-size:clamp(2.8rem,7.5vw,5.6rem);line-height:.9;text-transform:uppercase}
+.ch-head .dek{font-size:var(--step-1);max-width:34em;line-height:1.45}
+.ch-body{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(3rem,6vw,5rem);padding-block:3rem 5rem}
+.ch-body > *,.panel > *,.kicker > *{min-width:0}
+
+.split{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start}
+@media (min-width:860px){.split{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}.split.flip > :first-child{order:2}}
+.kicker{display:grid;gap:.5rem}
+.kicker h3{font-family:var(--font-display);font-size:var(--step-3);line-height:.95;text-transform:uppercase}
+.photo{display:grid;gap:.55rem;margin:0}
+.photo .mat{background:var(--sheet);padding:.55rem;border:1px solid var(--rule);box-shadow:6px 8px 0 rgba(0,0,0,.08)}
+.photo img{width:100%;filter:grayscale(.2) contrast(1.03)}
+.photo figcaption{font-size:.9rem;line-height:1.4;color:var(--ink-soft)}
+.photo figcaption .wire{display:block;margin-top:.25rem;font-size:.68rem}
+.scene .photo .mat{background:var(--night-3);border-color:var(--night-rule)}
+.scene .photo figcaption{color:var(--night-soft)}
+.tilt-l .mat{transform:rotate(-1.1deg)}
+.tilt-r .mat{transform:rotate(1deg)}
+.pull{display:grid;gap:.5rem;padding:1.1rem 1.25rem;border-top:3px solid var(--ink);border-bottom:1px solid var(--rule)}
+.pull blockquote{font-size:1.3rem;font-style:italic;line-height:1.38}
+.pull .cite{font-size:.9rem;color:var(--ink-soft)}
+.scene .pull{border-top-color:var(--night-ink);border-bottom-color:var(--night-rule)}
+.scene .pull .cite{color:var(--night-soft)}
+.facts{display:grid;gap:1.2rem 1.5rem;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))}
+.fact{display:grid;gap:.3rem;border-top:3px solid var(--ink);padding-top:.6rem}
+.fact b{font-family:var(--font-display);font-size:clamp(2.4rem,5.5vw,3.4rem);line-height:.95;color:var(--red);font-variant-numeric:tabular-nums}
+.fact span{font-size:.95rem;line-height:1.4}
+.scene .fact{border-color:var(--night-ink)}
+.scene .fact b{color:var(--flare)}
+
+/* Panel shell: a map sheet */
+.panel{position:relative;display:grid;gap:1.25rem;padding:clamp(1.1rem,3vw,2rem);background:var(--sheet);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--shadow);min-width:0}
+.panel::before{content:"";position:absolute;inset:.35rem;border:1px solid var(--rule);pointer-events:none}
+.panel-head{display:grid;gap:.45rem}
+.panel-head h3{font-family:var(--font-display);font-size:clamp(1.9rem,4.4vw,2.9rem);line-height:.95;text-transform:uppercase}
+.panel-head p{max-width:44em}
+.sheet-no{justify-self:start;display:inline-flex;gap:.5rem;align-items:center;background:var(--ink);color:var(--paper);padding:.22rem .6rem .18rem}
+.sheet-no::before{content:"";width:.5rem;height:.5rem;background:var(--khaki)}
+.scene .panel,.panel.scene{background:var(--night-2);border-color:var(--night-ink);box-shadow:8px 8px 0 #000}
+.scene .panel::before,.panel.scene::before{border-color:var(--night-rule)}
+.scene .sheet-no{background:var(--khaki);color:#0F110D}
+.scene .sheet-no::before{background:#0F110D}
+.panel.scene .panel-head p{color:var(--night-ink)}
+.stamped{display:inline-flex;align-items:center;gap:.4rem;color:var(--red);font-family:var(--font-wire);font-size:.8rem;text-transform:uppercase;border:2px solid currentColor;padding:.15rem .45rem;transform:rotate(-3deg);animation:thunk .38s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes thunk{from{transform:scale(1.8) rotate(-12deg);opacity:0}to{transform:scale(1) rotate(-3deg);opacity:1}}
+.note{padding:.85rem 1rem;border-left:4px solid var(--khaki);background:var(--paper)}
+.scene .note{background:var(--night-3)}
+
+/* Europe map (37 days, 1919) */
+.emap{display:grid;gap:1.25rem}
+@media (min-width:1000px){.emap{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start}}
+.map-frame{position:relative;background:#DCD3BB;border:2px solid var(--ink);overflow:hidden}
+.map-frame svg{display:block;width:100%;height:auto}
+.map-frame .corner{position:absolute;left:.5rem;top:.4rem;font-family:var(--font-wire);font-size:.7rem;text-transform:uppercase;color:#3b3a30;background:rgba(232,224,203,.85);padding:.1rem .35rem}
+.map-info{display:grid;gap:.6rem;padding:1rem 1.1rem;background:var(--paper);border:2px solid var(--ink);min-height:12rem;align-content:start}
+.map-info h4{font-family:var(--font-display);font-size:1.7rem;line-height:1;text-transform:uppercase}
+.map-info .date{color:var(--red)}
+.daybar{display:flex;flex-wrap:wrap;gap:.35rem}
+.daybar button{border:2px solid var(--ink);background:var(--paper);padding:.4rem .55rem .32rem;font-family:var(--font-wire);font-size:.78rem;text-transform:uppercase;cursor:pointer;line-height:1.1}
+.daybar button.on{background:var(--ink);color:var(--paper)}
+.daybar button.seen:not(.on){background:var(--wash)}
+.legend{display:flex;flex-wrap:wrap;gap:.45rem 1rem;font-size:.88rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.legend i{width:.95rem;height:.95rem;display:inline-block;border:1px solid rgba(0,0,0,.35)}
+.map-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between}
+
+/* Lusitania dots */
+.lusi{display:grid;gap:1.5rem}
+@media (min-width:900px){.lusi{grid-template-columns:15rem minmax(0,1fr);align-items:start}}
+.notice{background:#F3EEDF;color:#1a1812;padding:.6rem;border:1px solid #cfc6ae;box-shadow:0 14px 30px rgba(0,0,0,.16);transform:rotate(-1deg)}
+.dotfield{display:grid;grid-template-columns:repeat(28,minmax(0,1fr));gap:3px;max-width:34rem}
+.dotfield i{aspect-ratio:1;border-radius:50%;background:var(--ink-soft);opacity:.85;transition:background .45s,opacity .45s,transform .45s}
+.dotfield.sorted i.d{background:var(--red)}
+.dotfield.sorted i.d.us{background:var(--blue);transform:scale(1.15)}
+.dotfield.sorted i.s{opacity:.35}
+.dot-key{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:.9rem}
+.dot-key i{width:.8rem;height:.8rem;border-radius:50%;display:inline-block;margin-right:.35rem;vertical-align:-.05em}
+
+/* Telegram decoder */
+.decoder{display:grid;gap:1.25rem}
+@media (min-width:980px){.decoder{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.wire-sheet{background:#F2EBD6;color:#1f1c14;border:1px solid #cdbf98;padding:1rem 1.15rem;box-shadow:0 12px 26px rgba(0,0,0,.14);font-family:var(--font-wire);display:grid;gap:.6rem}
+.wire-sheet .hd{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px dashed #a99a6e;padding-bottom:.45rem;font-size:.82rem;text-transform:uppercase}
+.cline{display:grid;gap:.25rem;padding:.45rem .55rem;border:1px dashed transparent;cursor:pointer;text-align:left;background:none;color:inherit;font:inherit;width:100%}
+.cline:hover{border-color:#a99a6e;background:rgba(184,144,31,.12)}
+.cline .nums{font-size:.95rem;letter-spacing:.06em;word-spacing:.35em;line-height:1.5}
+.cline .eng{display:none;font-family:var(--font-body);font-size:1.02rem;line-height:1.45;color:#1f1c14}
+.cline.open{cursor:default;background:rgba(184,144,31,.16);border-color:#a99a6e}
+.cline.open .nums{text-decoration:line-through;opacity:.45;font-size:.8rem}
+.cline.open .eng{display:block}
+.cline.key .eng mark{background:linear-gradient(transparent 55%,rgba(168,35,27,.35) 55%);color:inherit}
+.decode-meter{display:flex;justify-content:space-between;gap:1rem;font-family:var(--font-wire);font-size:.85rem;text-transform:uppercase}
+
+/* Congress vote */
+.vote{display:grid;gap:1.25rem}
+@media (min-width:900px){.vote{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.house{display:grid;grid-template-columns:repeat(36,minmax(0,1fr));gap:2px;max-width:32rem}
+.house i{aspect-ratio:1;background:var(--rule);transition:background .3s}
+.house.show i.y{background:var(--olive)}
+.house.show i.n{background:var(--red)}
+.house.show i.x{background:transparent;outline:1px dashed var(--rule)}
+.tally{display:flex;gap:1.5rem;align-items:baseline;flex-wrap:wrap}
+.tally b{font-family:var(--font-display);font-size:3rem;line-height:1;font-variant-numeric:tabular-nums}
+.tally .yea{color:var(--olive)}
+.tally .nay{color:var(--red)}
+
+/* Western Front */
+.front{display:grid;gap:1.25rem}
+@media (min-width:1020px){.front{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:start}}
+.front .map-frame{background:#DAD1B7}
+.pin{cursor:pointer}
+.pin circle.hit{fill:transparent}
+.pin:focus-visible{outline:none}
+.pin:focus-visible .ring{stroke:var(--focus);stroke-width:3}
+.yearbar{display:flex;flex-wrap:wrap;gap:.35rem}
+.yearbar button{border:2px solid var(--ink);background:var(--paper);padding:.45rem .6rem .38rem;font-family:var(--font-display);font-size:1rem;letter-spacing:.05em;cursor:pointer;line-height:1}
+.yearbar button.on{background:var(--ink);color:var(--paper)}
+.dossier{display:grid;gap:.6rem;padding:1rem 1.1rem;background:var(--paper);border:2px solid var(--ink);align-content:start;min-height:16rem}
+.dossier h4{font-family:var(--font-display);font-size:1.65rem;line-height:1;text-transform:uppercase}
+.dossier .when{color:var(--red)}
+.dossier .face{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:.8rem;align-items:start}
+.dossier .face img{width:5.5rem;height:6.8rem;object-fit:cover;object-position:50% 20%;filter:grayscale(1) contrast(1.08);border:2px solid var(--ink)}
+
+/* Trench */
+.trench{display:grid;gap:1.25rem}
+@media (min-width:1000px){.trench{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:start}}
+.trench-svg{background:#20231B;border:2px solid var(--night-ink);overflow:hidden}
+.trench-svg svg{display:block;width:100%;height:auto}
+@media (max-width:640px){.trench-svg,#front-map{overflow-x:auto}.trench-svg svg{min-width:620px}#front-map svg{min-width:560px}}
+.hot{cursor:pointer}
+.hot .dotm{fill:var(--flare);stroke:#0F110D;stroke-width:2}
+.hot.seen .dotm{fill:var(--khaki)}
+.hot:hover .dotm,.hot:focus-visible .dotm,.hot.on .dotm{fill:var(--ember)}
+.hot:focus-visible{outline:none}
+.trench-info{display:grid;gap:.55rem;padding:1rem 1.1rem;background:var(--night-3);border:1px solid var(--night-rule);min-height:13rem;align-content:start}
+.trench-info h4{font-family:var(--font-display);font-size:1.6rem;line-height:1;text-transform:uppercase;color:var(--flare)}
+.nml{display:grid;gap:.4rem}
+.nml input[type=range]{width:100%;accent-color:var(--khaki)}
+
+/* Video */
+.film{display:grid;gap:1rem}
+.film-box{position:relative;aspect-ratio:16/9;background:#050604;border:2px solid var(--night-ink);overflow:hidden}
+.film-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.film-face{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:1rem;text-align:center;padding:1.5rem;cursor:pointer;background:radial-gradient(circle at 50% 45%,#262b1e,#050604 70%);border:0;color:var(--night-ink);width:100%}
+.film-face .bigclock{font-family:var(--font-display);font-size:clamp(3rem,10vw,6.5rem);line-height:.9;color:var(--flare)}
+.film-face .play{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-size:1.2rem;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--night-ink);padding:.6em 1em .55em}
+.film-face .play::before{content:"";width:0;height:0;border-left:.75em solid currentColor;border-top:.45em solid transparent;border-bottom:.45em solid transparent}
+.film-face:hover .play{background:var(--night-ink);color:#050604}
+.wave{display:block;width:100%;height:4.5rem}
+
+/* Words game */
+.words{display:grid;gap:1.1rem;min-width:0}
+.wcard{display:grid;gap:.85rem;padding:1.15rem 1.25rem;background:var(--paper);border:2px solid var(--ink)}
+.wcard .who{display:grid;grid-template-columns:4rem minmax(0,1fr);gap:.8rem;align-items:center}
+.wcard .who img,.wcard .who .ini{width:4rem;height:4rem;border-radius:50%;object-fit:cover;object-position:50% 20%;filter:grayscale(1);border:2px solid var(--ink);display:grid;place-items:center;font-family:var(--font-display);font-size:1.5rem;background:var(--khaki);color:#1D1E19}
+.wcard blockquote{font-size:1.2rem;font-style:italic;line-height:1.42}
+.sentence{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem}
+@media (max-width:620px){.sentence{grid-template-columns:1fr 1fr}}
+.sentence button{padding:.75rem .5rem;border:2px solid var(--ink);background:var(--sheet);cursor:pointer;font-family:var(--font-display);font-size:1rem;letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
+.sentence button:hover{background:var(--wash)}
+.sentence button.pick{background:var(--ink);color:var(--paper)}
+.sentence button.right{background:var(--olive);color:var(--on-olive);border-color:var(--olive)}
+.verdict-line{font-weight:700}
+.verdict-line.ok{color:var(--ok)}
+.verdict-line.no{color:var(--red)}
+.wprog{display:flex;justify-content:space-between;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+/* Flu chart */
+.flu{display:grid;gap:1.25rem}
+@media (min-width:900px){.flu{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:start}}
+.bars{display:grid;gap:1rem}
+.barrow{display:grid;gap:.3rem}
+.barrow .lab{display:flex;justify-content:space-between;gap:1rem;font-size:.95rem}
+.barrow .lab b{font-family:var(--font-wire);font-variant-numeric:tabular-nums}
+.barrow .track{height:2.1rem;background:var(--rule);position:relative}
+.barrow .track i{position:absolute;inset:0 auto 0 0;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.barrow.b1 .track i{background:var(--red)}
+.barrow.b2 .track i{background:var(--olive)}
+.guess{display:flex;flex-wrap:wrap;gap:.6rem}
+
+/* Migration map */
+.mig{display:grid;gap:1.25rem}
+@media (min-width:1020px){.mig{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:start}}
+.mig .map-frame{background:#DED6BF}
+.toggle{display:inline-flex;border:2px solid var(--ink)}
+.toggle button{padding:.5rem .9rem;border:0;background:var(--sheet);font-family:var(--font-display);font-size:1.05rem;letter-spacing:.05em;cursor:pointer}
+.toggle button.on{background:var(--ink);color:var(--paper)}
+.citylist{display:grid;gap:.45rem;list-style:none;padding:0}
+.citylist li{display:grid;grid-template-columns:7.5rem minmax(0,1fr) 5rem;gap:.6rem;align-items:center;font-size:.95rem}
+.citylist li b{font-family:var(--font-wire);font-variant-numeric:tabular-nums;text-align:right}
+.citylist .mini{height:.7rem;background:var(--rule);position:relative}
+.citylist .mini i{position:absolute;inset:0 auto 0 0;background:var(--blue);transition:width .7s}
+.citylist li.mi{font-weight:700}
+.citylist li.mi .mini i{background:var(--red)}
+
+/* Fourteen points */
+.points{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fill,minmax(14.5rem,1fr))}
+.pt{display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:.6rem;align-items:start;text-align:left;padding:.75rem .8rem;border:2px solid var(--ink);background:var(--paper);cursor:pointer;line-height:1.3;font-size:.95rem;position:relative;min-height:5.2rem}
+.pt:hover{background:var(--wash)}
+.pt .n{font-family:var(--font-display);font-size:1.7rem;line-height:1}
+.pt .res{grid-column:1/-1;display:none;font-size:.9rem;border-top:1px dashed var(--rule);padding-top:.45rem}
+.pt.open .res{display:block}
+.pt{padding-right:4.4rem}
+#empire-map path:focus{outline:none}
+#empire-map path:focus-visible{stroke:var(--focus);stroke-width:3}
+.pt .tag{position:absolute;right:.5rem;top:.45rem;font-family:var(--font-wire);font-size:.68rem;text-transform:uppercase;border:2px solid currentColor;padding:.05rem .3rem;transform:rotate(-4deg)}
+.pt.kept .tag{color:var(--ok)}
+.pt.broke .tag{color:var(--red)}
+.pt.part .tag{color:var(--gold)}
+.scorebar{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;font-family:var(--font-wire);font-size:.9rem;text-transform:uppercase}
+.scorebar b{font-family:var(--font-display);font-size:1.5rem;vertical-align:-.1em}
+
+/* Verdict */
+.verdict{display:grid;gap:1.5rem}
+@media (min-width:900px){.verdict{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);align-items:start}}
+.scale{border:0;margin:0;padding:0;display:grid;gap:.5rem;min-width:0}
+.scale legend{padding:0;margin-bottom:.6rem}
+.scale label{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:2px solid var(--ink);background:var(--sheet);cursor:pointer;font-weight:600}
+.scale label:hover{background:var(--wash)}
+.scale input{accent-color:var(--olive);width:1.1rem;height:1.1rem;margin:0;flex:none}
+.scale label:has(input:checked){background:var(--olive);color:var(--on-olive);border-color:var(--olive)}
+.cer{display:grid;gap:.6rem;min-width:0}
+.cer label{font-weight:700}
+textarea{width:100%;min-height:13rem;resize:vertical;padding:.9rem 1rem;font:inherit;font-size:1.02rem;line-height:1.5;background:var(--sheet);color:var(--ink);border:2px solid var(--ink)}
+textarea::placeholder{color:var(--ink-soft);opacity:.9}
+.cer-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+.foot{border-top:3px double var(--ink);padding-block:2rem 3rem;display:grid;gap:1.5rem;color:var(--ink-soft);font-size:.95rem}
+@media (min-width:860px){.foot{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.foot h2{font-family:var(--font-display);font-size:1.3rem;text-transform:uppercase;color:var(--ink);margin-bottom:.4rem;line-height:1}
+.foot ul{padding-left:1.1rem;display:grid;gap:.3rem}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav" aria-label="Chapters">
+  <a class="brand" href="#top">1917</a>
+  <div class="chapters">
+    <a href="#ch1" data-ch="ch1"><span>I</span>37 Days</a>
+    <a href="#ch2" data-ch="ch2"><span>II</span>Neutral?</a>
+    <a href="#ch3" data-ch="ch3"><span>III</span>Over There</a>
+    <a href="#ch4" data-ch="ch4"><span>IV</span>Home Front</a>
+    <a href="#ch5" data-ch="ch5"><span>V</span>The Peace</a>
+    <a href="#ch6" data-ch="ch6"><span>VI</span>Verdict</a>
+  </div>
+  <details class="tags" id="tags">
+    <summary aria-label="Dog tags earned"><span id="tag-count">0</span>/<span id="tag-total">12</span></summary>
+    <div class="tags-panel">
+      <p class="wire label">Your dog tags</p>
+      <p>Earn a tag for each thing you try. Tags stay while this tab is open.</p>
+      <ul id="tag-list"></ul>
+    </div>
+  </details>
+</nav>
+
+<!-- ============ WORLD ============ -->
+<section class="world scene" id="top" aria-label="The Great War around the world">
+  <div class="world-stage">
+    <canvas id="globe" aria-label="3D globe of the places in World War I. Drag to spin it."></canvas>
+    <div class="globe-labels" id="globe-labels" aria-hidden="true"></div>
+    <div class="globe-key" aria-hidden="true"><span><i style="background:#C9B97A"></i>Allies</span><span><i style="background:#D2493A"></i>Central Powers</span><span><i style="background:#6E7062"></i>Neutral or colonies</span></div>
+    <p class="globe-hint wire">Drag to spin</p>
+    <img class="globe-fallback" id="globe-fallback" src="ush9-over-there/img/trench-somme.jpg" alt="British soldiers in a trench at the Somme, 1916" hidden>
+  </div>
+  <div class="world-steps">
+    <header class="hero-copy">
+      <p class="hero-tag">The Great War · 1914 to 1920</p>
+      <h1>Over <em>There</em></h1>
+      <p class="deck">For almost three years Americans watched the deadliest war in history from across an ocean. Then they sent two million soldiers to France. Follow the war from a street corner in Sarajevo to the Senate floor in Washington.</p>
+      <div class="bigq">
+        <p class="wire label">The big question</p>
+        <blockquote>“The world must be made safe for democracy.”</blockquote>
+        <p class="cite">President Woodrow Wilson, asking Congress to declare war on Germany, April 2, 1917</p>
+      </div>
+      <p class="scroll-cue wire">Scroll to follow the war</p>
+    </header>
+    <article class="gstep" data-step="1"><div class="gcard">
+      <p class="wire label">Sarajevo · June 28, 1914</p>
+      <h2>Two shots on a street corner</h2>
+      <p>Gavrilo Princip, a 19 year old Bosnian Serb, shoots Archduke Franz Ferdinand, heir to the throne of Austria-Hungary, and his wife Sophie. Princip belongs to a group that wants Bosnia free of Austrian rule.</p>
+      <p class="stat"><b>37</b><span>days until most of Europe is at war</span></p>
+    </div></article>
+    <article class="gstep" data-step="2"><div class="gcard">
+      <p class="wire label">Belgium and France · August to September 1914</p>
+      <h2>The war digs in</h2>
+      <p>Germany storms through neutral Belgium toward Paris. French and British troops stop it at the Marne River in September. Both armies dig trenches, and by winter the lines run all the way from the North Sea to Switzerland.</p>
+      <p class="stat"><b>440</b><span>miles of trenches on the Western Front</span></p>
+    </div></article>
+    <article class="gstep" data-step="3"><div class="gcard">
+      <p class="wire label">Off the coast of Ireland · May 7, 1915</p>
+      <h2>A liner goes down</h2>
+      <p>A German submarine, U-20, fires one torpedo into the British ocean liner <em>Lusitania</em>. The ship sinks in 18 minutes, eleven miles from the Irish coast. Americans are furious, but the United States stays out.</p>
+      <p class="stat"><b>128</b><span>Americans among the 1,198 dead</span></p>
+    </div></article>
+    <article class="gstep" data-step="4"><div class="gcard">
+      <p class="wire label">Berlin to Mexico City · January 1917</p>
+      <h2>A secret offer</h2>
+      <p>Germany’s foreign minister, Arthur Zimmermann, sends a coded telegram to Mexico. If the U.S. enters the war, Germany will help Mexico win back Texas, New Mexico, and Arizona. British codebreakers in London read every word.</p>
+      <p><a href="#decoder">Decode it yourself in Chapter II →</a></p>
+    </div></article>
+    <article class="gstep" data-step="5"><div class="gcard">
+      <p class="wire label">Washington · April 6, 1917</p>
+      <h2>America declares war</h2>
+      <p>German submarines are sinking American ships again. Four days after Wilson’s war message, the House votes for war. The Senate already has.</p>
+      <p class="stat"><b>373–50</b><span>the House vote for war</span></p>
+    </div></article>
+    <article class="gstep" data-step="6"><div class="gcard">
+      <p class="wire label">Hoboken to Brest · 1917 to 1918</p>
+      <h2>The Yanks are coming</h2>
+      <p>Troop ships sail in convoys from Hoboken, New Jersey, across the U-boat zone to French ports like Brest and Saint-Nazaire. By the summer of 1918, ten thousand Americans are landing in France every day.</p>
+      <p class="stat"><b>2M</b><span>American soldiers sent to France</span></p>
+    </div></article>
+    <article class="gstep" data-step="7"><div class="gcard">
+      <p class="wire label">The Meuse-Argonne · Sept. 26 to Nov. 11, 1918</p>
+      <h2>The biggest battle in U.S. history</h2>
+      <p>More than a million Americans attack through the hills and forests north of Verdun. They are still fighting at 10:59 a.m. on November 11, one minute before the armistice.</p>
+      <p class="stat"><b>26,277</b><span>Americans killed in 47 days</span></p>
+    </div></article>
+    <article class="gstep" data-step="8"><div class="gcard">
+      <p class="wire label">Archangel, Russia · 1918 to 1919</p>
+      <h2>Michigan’s forgotten war</h2>
+      <p>About 5,000 American soldiers, most of them from Michigan, are shipped to Russia’s Arctic coast. They fight the Red Army through a winter of 50 below, months after the war in France has ended. They call themselves the Polar Bears.</p>
+      <p class="stat"><b>200+</b><span>Polar Bears who never came home</span></p>
+    </div></article>
+    <article class="gstep" data-step="9"><div class="gcard">
+      <p class="wire label">Versailles, France · June 28, 1919</p>
+      <h2>Five years to the day</h2>
+      <p>The peace treaty is signed in the palace of Versailles, five years after the shots in Sarajevo. Four empires have fallen apart. Wilson comes home to sell the treaty to the Senate.</p>
+      <p><a href="#ch5">See what happened to the peace in Chapter V →</a></p>
+    </div></article>
+    <div class="world-end"><a class="btn btn-olive" href="#ch1">Start Chapter I</a></div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER I ============ -->
+<section class="chapter" id="ch1" aria-labelledby="ch1-h">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="wire ch-num label">Chapter I · June 28 to August 4, 1914</p>
+      <h2 id="ch1-h">Thirty-Seven Days</h2>
+      <p class="dek">Europe’s great powers had spent years building armies and signing alliances. One assassination set the whole system moving, one declaration at a time.</p>
+    </header>
+  </div>
+  <div class="wrap ch-body" style="padding-top:1rem">
+    <section class="panel" id="days" aria-labelledby="days-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Map sheet 1 · Europe, summer 1914</p>
+        <h3 id="days-h">Watch the Alliances Pull</h3>
+        <p>Step through the summer of 1914. Each date adds one decision. Watch how a fight between Austria-Hungary and Serbia becomes a war between empires.</p>
+      </div>
+      <div class="emap">
+        <div style="display:grid;gap:.75rem;min-width:0">
+          <div class="daybar" id="daybar" role="group" aria-label="Choose a date"></div>
+          <div class="map-frame" id="europe-map"><span class="corner">Today’s borders used as a guide to 1914</span></div>
+          <div class="legend" id="europe-legend"></div>
+        </div>
+        <div class="map-info" id="days-info" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <div class="split">
+      <div class="kicker">
+        <p class="wire label">Why it spread</p>
+        <h3>A chain, not a spark</h3>
+        <div class="prose">
+          <p>The assassination did not have to start a world war. It did because every big power had promised to fight for someone else. Russia had promised to protect Serbia. Germany had promised to back Austria-Hungary. France was tied to Russia. Britain had sworn to defend Belgium’s neutrality in a treaty from 1839.</p>
+          <p>The generals made it worse. Germany’s war plan, the Schlieffen Plan, said that if Russia mobilized its army, Germany had to knock out France first by marching through Belgium. Once Russia called up its soldiers on July 30, the plan left Germany almost no time to talk.</p>
+          <p>The German chancellor called the 1839 treaty “a scrap of paper.” Britain declared war anyway on August 4.</p>
+        </div>
+      </div>
+      <figure class="photo tilt-r">
+        <div class="mat"><img src="ush9-over-there/img/ff-sophie.jpg" alt="Archduke Franz Ferdinand in a plumed helmet and Sophie in a white dress and hat walk down the steps of Sarajevo's town hall toward an open car" loading="lazy"></div>
+        <figcaption>Franz Ferdinand and Sophie leave Sarajevo’s town hall on June 28, 1914. Minutes later their driver took a wrong turn and stopped a few feet from Gavrilo Princip.<span class="wire">Public domain</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER II ============ -->
+<section class="chapter" id="ch2" aria-labelledby="ch2-h">
+  <header class="ch-open">
+    <img src="ush9-over-there/img/wilson-congress.jpg" alt="President Wilson speaking to a joint session of Congress in the House chamber">
+    <div class="ch-open-text wrap">
+      <p class="wire ch-num">Chapter II · 1914 to April 1917</p>
+      <h2 id="ch2-h">Can America Stay Neutral?</h2>
+      <p class="dek">Wilson asked Americans to be “impartial in thought as well as in action.” He won reelection in 1916 on the slogan “He kept us out of war.” Five months later he asked Congress for one.</p>
+    </div>
+    <p class="credit wire">President Wilson addresses Congress · Library of Congress</p>
+  </header>
+
+  <div class="wrap ch-body">
+    <section class="panel" id="lusitania" aria-labelledby="lusi-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Data · May 7, 1915</p>
+        <h3 id="lusi-h">Who Was on the Lusitania?</h3>
+        <p>Germany had warned travelers. The notice on the left ran in New York newspapers on the morning the <em>Lusitania</em> sailed. Below, each dot stands for about ten of the people on board. Sort them to see who came home.</p>
+      </div>
+      <div class="lusi">
+        <figure class="photo" style="max-width:15rem">
+          <div class="notice"><img src="ush9-over-there/img/lusitania-warning.jpg" alt="Newspaper page with a Cunard ad for the Lusitania above a boxed notice from the Imperial German Embassy warning travelers" loading="lazy"></div>
+          <figcaption>The Cunard ad and the German warning, printed side by side, May 1, 1915.<span class="wire">Public domain</span></figcaption>
+        </figure>
+        <div style="display:grid;gap:1rem;min-width:0">
+          <div class="note"><p class="wire label">Read the notice</p><p>“Travellers sailing in the war zone on ships of Great Britain or her allies do so at their own risk.” <span class="wire">Imperial German Embassy, April 22, 1915</span></p></div>
+          <div class="dotfield" id="dotfield" aria-label="About 1,960 people aboard the Lusitania, shown as dots"></div>
+          <div class="dot-key" id="dot-key" hidden><span><i style="background:var(--red)"></i>Died, 1,198</span><span><i style="background:var(--blue)"></i>Americans who died, 128</span><span><i style="background:var(--ink-soft);opacity:.4"></i>Survived, about 760</span></div>
+          <div><button type="button" class="btn btn-red" id="sort-dots">Sort the passengers</button></div>
+          <div id="lusi-after" hidden class="prose">
+            <p>Germany said the ship was fair game. It was right that the <em>Lusitania</em> carried war supplies: about 4.2 million rifle cartridges were in its hold. Americans answered that no cargo made it right to drown women and children without warning.</p>
+            <p>Wilson sent Germany three angry letters but did not ask for war. In 1916, after another ship was torpedoed, Germany promised to stop sinking passenger ships without warning. That promise is called the Sussex Pledge. It lasted until February 1, 1917.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="decoder" aria-labelledby="dec-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Intercept · Room 40, London</p>
+        <h3 id="dec-h">Break the Zimmermann Telegram</h3>
+        <p>On January 16, 1917, Germany sent a coded message to its ambassador in Mexico. British codebreakers in a room at the Admiralty called Room 40 caught it. The numbers below are copied from the real telegram. Tap each line to decode the message sentence by sentence.</p>
+      </div>
+      <div class="decoder">
+        <div class="wire-sheet" id="wire-sheet">
+          <div class="hd"><span>Western Union · via Galveston</span><span>Jan. 19, 1917</span></div>
+          <p class="wire" style="font-size:.85rem">German Legation, Mexico City</p>
+          <div id="clines"></div>
+          <p class="decode-meter"><span>Decoded <b id="dec-count">0</b> of <b id="dec-total">6</b></span><span>Signed: Zimmermann</span></p>
+        </div>
+        <div style="display:grid;gap:1rem;min-width:0">
+          <figure class="photo tilt-r">
+            <div class="mat"><img src="ush9-over-there/img/zimmermann-code.jpg" alt="The coded Zimmermann Telegram on a Western Union form, rows of five digit numbers" loading="lazy"></div>
+            <figcaption>The coded telegram as the German ambassador in Washington sent it on to Mexico City.<span class="wire">National Archives · Public domain</span></figcaption>
+          </figure>
+          <div id="dec-after" hidden class="prose">
+            <p>Britain wanted to show Wilson the telegram without letting Germany know its codes were broken. So British agents got a second copy from the telegraph office in Mexico City and handed that one over on February 24.</p>
+            <p>Americans read it in their newspapers on March 1. Many thought it was a fake until Zimmermann himself admitted it was real two days later.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="vote" aria-labelledby="vote-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Roll call · April 6, 1917</p>
+        <h3 id="vote-h">You Have a Seat in the House</h3>
+        <p>It is 3 a.m. after a debate that lasted all night. The Senate has already voted for war, 82 to 6. The clerk calls your name.</p>
+      </div>
+      <div class="vote">
+        <div style="display:grid;gap:1rem;min-width:0">
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem" id="vote-btns">
+            <button type="button" class="btn btn-olive" data-v="y">Vote yes for war</button>
+            <button type="button" class="btn btn-red" data-v="n">Vote no</button>
+          </div>
+          <div class="house" id="house" aria-hidden="true"></div>
+          <div class="tally" id="tally" hidden><span><b class="yea">373</b> yes</span><span><b class="nay">50</b> no</span><span class="wire">9 not voting</span></div>
+          <p id="vote-you" class="verdict-line"></p>
+        </div>
+        <div class="split" style="grid-template-columns:7rem minmax(0,1fr);gap:1rem">
+          <figure class="photo"><div class="mat"><img src="ush9-over-there/img/rankin.jpg" alt="Jeannette Rankin" loading="lazy"></div></figure>
+          <div class="pull" id="rankin" hidden>
+            <blockquote>“I want to stand by my country, but I cannot vote for war. I vote no.”</blockquote>
+            <p class="cite">Jeannette Rankin of Montana, the first woman ever elected to Congress, on her first big vote. She lost her race for the Senate in 1918. In 1941 she was the only member of Congress to vote against war with Japan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============ CHAPTER III ============ -->
+<section class="chapter" id="ch3" aria-labelledby="ch3-h">
+  <header class="ch-open">
+    <img src="ush9-over-there/img/trench-somme.jpg" alt="Soldiers in a trench on the Western Front, 1916">
+    <div class="ch-open-text wrap">
+      <p class="wire ch-num">Chapter III · 1917 to November 11, 1918</p>
+      <h2 id="ch3-h">Over There</h2>
+      <p class="dek">The American Expeditionary Forces arrived under General John J. Pershing with almost no training and very few guns of their own. By the fall of 1918 they were holding a fifth of the front.</p>
+    </div>
+    <p class="credit wire">Cheshire Regiment trench, the Somme, 1916 · Public domain</p>
+  </header>
+
+  <div class="wrap ch-body">
+    <section class="panel" id="westfront" aria-labelledby="wf-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Map sheet 2 · The Western Front</p>
+        <h3 id="wf-h">The Line That Would Not Move</h3>
+        <p>Pick a year to see where the front line ran. Red marks the German side. Then tap the numbered pins to meet the Americans who fought there.</p>
+      </div>
+      <div class="front">
+        <div style="display:grid;gap:.75rem;min-width:0">
+          <div class="yearbar" id="yearbar" role="group" aria-label="Choose a moment"></div>
+          <div class="map-frame" id="front-map"><span class="corner">Simplified · lines approximate</span></div>
+          <div class="legend"><span><i style="background:#A8231B"></i>German held</span><span><i style="background:#2C4C7C"></i>Front line</span><span><i style="background:#B8901F;border-radius:50%"></i>American battles</span><span><i style="background:#1D1E19;border-radius:50%"></i>Great battles of 1914 to 1916</span></div>
+        </div>
+        <div class="dossier" id="dossier" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="panel scene" id="trench" aria-labelledby="tr-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Cross-section · a front line trench</p>
+        <h3 id="tr-h">Life in the Ditch</h3>
+        <p>Soldiers lived in trenches like this for days at a time, then rotated back. Tap each marker. Then drag the slider to see how close the enemy could be.</p>
+      </div>
+      <div class="trench">
+        <div class="trench-svg" id="trench-svg"></div>
+        <div style="display:grid;gap:1rem">
+          <div class="trench-info" id="trench-info" aria-live="polite"><p class="wire label">Tap a marker</p><p>Start with the fire step, where the sentries stood.</p></div>
+          <div class="nml">
+            <label for="nml" class="wire label">No man’s land: <span id="nml-yd">250</span> yards</label>
+            <input type="range" id="nml" min="30" max="400" step="10" value="250" data-desk-skip>
+            <p id="nml-note" style="font-size:.95rem"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="split">
+      <div class="kicker">
+        <p class="wire label">The ones who fought under another flag</p>
+        <h3>The Harlem Hellfighters</h3>
+        <div class="prose">
+          <p>The U.S. Army refused to let most Black soldiers fight beside white Americans. So Pershing lent the 369th Infantry, a Black regiment from New York, to the French Army. The French gave them French helmets and rifles and sent them into the line.</p>
+          <p>On the night of May 15, 1918, Private Henry Johnson and Private Needham Roberts were on guard when about two dozen German soldiers raided their post. Johnson was wounded 21 times. When his rifle jammed he fought on with its butt and a bolo knife until the Germans ran. France gave him its highest war medal, the Croix de Guerre. The United States gave him the Medal of Honor in 2015, 86 years after he died.</p>
+          <p>The regiment counted 191 days under fire. The Germans called them “Hellfighters.”</p>
+        </div>
+      </div>
+      <div style="display:grid;gap:1.25rem">
+      <figure class="photo">
+        <div class="mat"><img src="ush9-over-there/img/hellfighters-home.jpg" alt="Black soldiers of the 369th crowd the deck of a troop ship while the regimental band plays" loading="lazy"></div>
+        <figcaption>The 369th comes home to New York, February 1919. Its band, led by Lieutenant James Reese Europe, had played jazz for crowds all over France.<span class="wire">National Archives · Public domain</span></figcaption>
+      </figure>
+      <div class="pull">
+        <blockquote>“Make way for Democracy! We saved it in France, and by the Great Jehovah, we will save it in the United States of America, or know the reason why.”</blockquote>
+        <p class="cite">W. E. B. Du Bois, “Returning Soldiers,” <em>The Crisis</em>, May 1919</p>
+      </div>
+      </div>
+    </div>
+
+    <section class="panel scene film" id="eleven" aria-labelledby="film-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Film · November 11, 1918</p>
+        <h3 id="film-h">The Moment the Guns Fell Silent</h3>
+        <p>Armies used sound ranging machines to find enemy cannons by recording the sound of their blasts. One American machine near the Moselle River was running at 11 a.m. on the last day. This film turns that recording back into sound.</p>
+      </div>
+      <div class="film-box" id="film-box">
+        <button type="button" class="film-face" id="film-play">
+          <span class="bigclock">10:58 A.M.</span>
+          <span class="play">Play the film</span>
+          <span class="wire" style="color:var(--night-soft)">Opens a YouTube video on this page</span>
+        </button>
+      </div>
+      <svg class="wave" id="wave" viewBox="0 0 600 70" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <p style="color:var(--night-soft)">The armistice was signed just after 5 that morning in a railroad car in the forest near Compiègne. Generals let the fighting run until 11 o’clock. About 2,700 men on all sides died on that last morning.</p>
+    </section>
+  </div>
+</section>
+
+<!-- ============ CHAPTER IV ============ -->
+<section class="chapter" id="ch4" aria-labelledby="ch4-h">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="wire ch-num label">Chapter IV · The home front, 1917 to 1919</p>
+      <h2 id="ch4-h">The War at Home</h2>
+      <p class="dek">To fight in France, the government reached into every American town. It drafted the soldiers, sold the bonds, wrote the posters, and decided which words were a crime.</p>
+    </header>
+  </div>
+  <div class="wrap ch-body" style="padding-top:1rem">
+    <div class="split flip">
+      <div class="kicker">
+        <p class="wire label">Selling the war</p>
+        <h3>Uncle Sam wants you</h3>
+        <div class="prose">
+          <p>The Selective Service Act of May 1917 required men to register for the draft. About 24 million signed up and 2.8 million were drafted.</p>
+          <p>A new agency, the Committee on Public Information, was run by a journalist named George Creel. It printed posters, made movies, and trained 75,000 volunteer “Four Minute Men” to give short speeches in movie theaters between reels.</p>
+          <p>Anything German became suspect. Schools dropped German classes, sauerkraut was renamed “liberty cabbage,” and German Americans were forced to kiss the flag or buy bonds in front of crowds. In April 1918 a mob near St. Louis lynched Robert Prager, a German immigrant, on a rumor that he was disloyal.</p>
+        </div>
+      </div>
+      <figure class="photo tilt-l" style="max-width:24rem">
+        <div class="mat"><img src="ush9-over-there/img/i-want-you.jpg" alt="James Montgomery Flagg's poster of Uncle Sam pointing at the viewer above the words I Want You for U.S. Army" loading="lazy"></div>
+        <figcaption>James Montgomery Flagg drew his own face as Uncle Sam for this 1917 poster. More than four million copies were printed.<span class="wire">Library of Congress · Public domain</span></figcaption>
+      </figure>
+    </div>
+
+    <section class="panel" id="words" aria-labelledby="words-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Case files · Espionage Act, 1917 · Sedition Act, 1918</p>
+        <h3 id="words-h">Arrested for Words</h3>
+        <p>The Espionage Act made it a crime to interfere with the draft. The Sedition Act of 1918 went further and banned “disloyal, profane, scurrilous, or abusive language” about the government, the flag, or the armed forces. Read what each person said or did. Guess what happened to them.</p>
+      </div>
+      <div class="words" id="words-body" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="flu" aria-labelledby="flu-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Casualty report · U.S. Army and Navy</p>
+        <h3 id="flu-h">What Killed More American Soldiers?</h3>
+        <p>In March 1918 a cook at Camp Funston, Kansas, reported sick with the flu. By October a deadly strain was moving through every army camp and troop ship. Make your prediction first.</p>
+      </div>
+      <div class="flu">
+        <figure class="photo">
+          <div class="mat"><img src="ush9-over-there/img/flu-funston.jpg" alt="Rows of cots filled with sick soldiers in a huge emergency hospital ward at Camp Funston" loading="lazy"></div>
+          <figcaption>Emergency flu hospital at Camp Funston, Kansas, 1918.<span class="wire">National Museum of Health and Medicine · Public domain</span></figcaption>
+        </figure>
+        <div style="display:grid;gap:1rem;min-width:0">
+          <div class="guess" id="flu-guess">
+            <button type="button" class="btn" data-g="battle">Enemy fire</button>
+            <button type="button" class="btn" data-g="disease">Disease and accidents</button>
+          </div>
+          <div class="bars" id="flu-bars" hidden>
+            <div class="barrow b1"><div class="lab"><span>Killed in battle</span><b>53,402</b></div><div class="track"><i></i></div></div>
+            <div class="barrow b2"><div class="lab"><span>Died of disease, accidents, other causes</span><b>63,114</b></div><div class="track"><i></i></div></div>
+          </div>
+          <p id="flu-result" class="verdict-line"></p>
+          <div id="flu-after" hidden class="prose">
+            <p>Most of those deaths came from the flu and the pneumonia that followed it. At home, about 675,000 Americans died in the pandemic, more than all the Americans killed in battle in both world wars combined. October 1918 was the deadliest month in American history.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============ CHAPTER V ============ -->
+<section class="chapter" id="ch5" aria-labelledby="ch5-h">
+  <header class="ch-open">
+    <img src="ush9-over-there/img/big-four.jpg" alt="The Big Four leaders seated together at the Paris Peace Conference">
+    <div class="ch-open-text wrap">
+      <p class="wire ch-num">Chapter V · 1918 to 1920</p>
+      <h2 id="ch5-h">Winning the Peace</h2>
+      <p class="dek">The soldiers came home to a country that had changed while they were gone. Wilson came home with a treaty, a League of Nations, and a fight he could not win.</p>
+    </div>
+    <p class="credit wire">Lloyd George, Orlando, Clemenceau, and Wilson in Paris, 1919 · Public domain</p>
+  </header>
+
+  <div class="wrap ch-body">
+    <section class="panel" id="migration" aria-labelledby="mig-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Map sheet 3 · The United States</p>
+        <h3 id="mig-h">The Great Migration Begins</h3>
+        <p>The war cut off immigration from Europe just as factories needed more workers. Black families in the South heard about the jobs from letters, railroad recruiters, and newspapers like the <em>Chicago Defender</em>. Between 1916 and 1919 about half a million moved north. Switch between the 1910 and 1920 census to see where they went.</p>
+      </div>
+      <div class="mig">
+        <div style="display:grid;gap:.75rem;min-width:0">
+          <div class="toggle" role="group" aria-label="Choose a census year" id="mig-toggle">
+            <button type="button" data-y="1910">Census of 1910</button>
+            <button type="button" data-y="1920" class="on">Census of 1920</button>
+          </div>
+          <div class="map-frame" id="mig-map"><span class="corner">Black population of northern cities</span></div>
+        </div>
+        <div style="display:grid;gap:1rem;min-width:0">
+          <ul class="citylist" id="citylist"></ul>
+          <div class="note" id="mig-note"><p>Detroit grew fastest of all. Henry Ford had started paying five dollars a day in 1914, and by the middle of the 1920s his River Rouge plant was one of the largest employers of Black workers in the country.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="split">
+      <div class="kicker">
+        <p class="wire label">Michigan’s own</p>
+        <h3>The Polar Bears</h3>
+        <div class="prose">
+          <p>The 339th Infantry trained at Camp Custer near Battle Creek. Most of its men came from Detroit and the rest of Michigan. In the summer of 1918 they expected to go to France. Instead they landed at Archangel, Russia, on September 4, 1918.</p>
+          <p>Britain wanted them there to guard war supplies and fight the Bolsheviks, the communists who had taken over Russia and quit the war. Wilson agreed. The Polar Bears fought through a winter when temperatures fell to 50 below, long after the armistice in France. Families in Michigan wrote to Congress demanding to know why their sons were still fighting. The last of them sailed home in the summer of 1919.</p>
+          <p>A white bear statue marks their graves at White Chapel Cemetery in Troy, Michigan.</p>
+        </div>
+      </div>
+      <div style="display:grid;gap:1rem">
+        <div class="facts">
+          <div class="fact"><b>5,000</b><span>American soldiers sent to North Russia</span></div>
+          <div class="fact"><b>-50°</b><span>winter temperatures on the Dvina River front</span></div>
+          <div class="fact"><b>200+</b><span>who died there, in battle or from disease</span></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="panel" id="points" aria-labelledby="pts-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Scorecard · January 1918 to June 1919</p>
+        <h3 id="pts-h">Did the Fourteen Points Survive?</h3>
+        <p>In January 1918 Wilson told Congress his plan for a fair peace in fourteen points. In Paris, the leaders of Britain and France wanted Germany punished. Tap each point to see what made it into the Treaty of Versailles.</p>
+      </div>
+      <div class="scorebar" id="scorebar"><span>Kept <b id="sc-kept">0</b></span><span>Partly <b id="sc-part">0</b></span><span>Broken <b id="sc-broke">0</b></span><span>Checked <b id="sc-n">0</b>/14</span></div>
+      <div class="points" id="pointlist"></div>
+      <div class="note" id="pts-after" hidden><p>The treaty also forced Germany to accept the blame for the war in Article 231, and later set its payments, called reparations, at 132 billion gold marks. Many Germans called the treaty a <em>Diktat</em>, a dictated peace.</p></div>
+    </section>
+
+    <section class="panel" id="empires" aria-labelledby="emp-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Map sheet 4 · Europe, 1914 and 1920</p>
+        <h3 id="emp-h">Four Empires Fall</h3>
+        <p>The German, Austro-Hungarian, Russian, and Ottoman empires all collapsed. Switch the map to see the new countries drawn from their pieces. Tap any country for its story.</p>
+      </div>
+      <div class="emap">
+        <div style="display:grid;gap:.75rem;min-width:0">
+          <div class="toggle" role="group" aria-label="Choose a year" id="emp-toggle">
+            <button type="button" data-y="1914">Before: 1914</button>
+            <button type="button" data-y="1920" class="on">After: 1920</button>
+          </div>
+          <div class="map-frame" id="empire-map"><span class="corner">Today’s borders used as a guide</span></div>
+          <div class="legend" id="empire-legend"></div>
+        </div>
+        <div class="map-info" id="empire-info" aria-live="polite"><p class="wire label">Tap a country</p><p>Nine new countries appeared on the map of Europe between 1917 and 1920.</p></div>
+      </div>
+    </section>
+
+    <div class="split">
+      <figure class="photo">
+        <div class="mat"><img src="ush9-over-there/img/wilson.jpg" alt="Portrait of Woodrow Wilson, 1919" loading="lazy"></div>
+        <figcaption>Woodrow Wilson in 1919.<span class="wire">Harris &amp; Ewing · Library of Congress · Public domain</span></figcaption>
+      </figure>
+      <div class="kicker">
+        <p class="wire label">The Senate says no</p>
+        <h3>Article Ten</h3>
+        <div class="prose">
+          <p>A treaty needs two thirds of the Senate. Republican Senator Henry Cabot Lodge of Massachusetts led the opposition. His target was Article 10 of the League of Nations, which promised that members would protect each other’s borders. Lodge said that could drag American soldiers into wars Congress never voted for. A smaller group, the “Irreconcilables,” wanted no treaty at all.</p>
+          <p>Wilson refused to accept Lodge’s changes. He set out by train to win over voters directly and gave about 40 speeches in 22 days. On September 25, 1919, he collapsed in Pueblo, Colorado. A week later he suffered a stroke that left him partly paralyzed.</p>
+          <p>The Senate voted down the treaty in November 1919. On March 19, 1920, it failed again, 49 to 35, seven votes short. The United States never joined the League of Nations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER VI ============ -->
+<section class="chapter" id="ch6" aria-labelledby="ch6-h">
+  <div class="wrap">
+    <header class="ch-head">
+      <p class="wire ch-num label">Chapter VI · Your verdict</p>
+      <h2 id="ch6-h">Should the Senate Have Signed?</h2>
+      <p class="dek">Wilson believed the League of Nations was the only way to keep a second world war from coming. Lodge believed it would put American soldiers under the control of other countries. Twenty years later, a second world war came.</p>
+    </header>
+  </div>
+  <div class="wrap ch-body" style="padding-top:1rem">
+    <div data-desk-resume></div>
+    <section class="panel" id="verdict" aria-labelledby="verdict-h">
+      <div class="panel-head">
+        <p class="wire sheet-no">Your vote</p>
+        <h3 id="verdict-h" tabindex="-1">Should the Senate Have Ratified the Treaty of Versailles?</h3>
+        <p>Pick a side. Then explain it in about 150 words, using evidence from at least two chapters.</p>
+      </div>
+      <div class="verdict">
+        <fieldset class="scale">
+          <legend class="wire label">My vote</legend>
+          <label for="v1"><input type="radio" name="verdict" id="v1" value="Yes, ratify it as Wilson wrote it">Yes, as Wilson wrote it</label>
+          <label for="v2"><input type="radio" name="verdict" id="v2" value="Yes, but with Lodge's changes">Yes, with Lodge’s changes</label>
+          <label for="v3"><input type="radio" name="verdict" id="v3" value="No, stay out of the League">No, stay out of the League</label>
+        </fieldset>
+        <div class="cer">
+          <label for="verdict-text">Claim, evidence, reasoning</label>
+          <textarea id="verdict-text" placeholder="Claim: The Senate should / should not have ratified the treaty because…&#10;&#10;Evidence 1: In Chapter __, …&#10;&#10;Evidence 2: In Chapter __, …&#10;&#10;Reasoning: This shows that…"></textarea>
+          <div class="cer-foot"><span id="wc">0 words</span><span class="wire">Aim for about 150</span></div>
+        </div>
+      </div>
+    </section>
+    <div data-desk-turnin></div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="foot">
+    <div>
+      <h2>Sources</h2>
+      <ul>
+        <li>U.S. Department of Veterans Affairs, “America’s Wars” (service deaths)</li>
+        <li>American Battle Monuments Commission, Meuse-Argonne American Cemetery</li>
+        <li>National Archives, the Zimmermann Telegram (1917)</li>
+        <li>U.S. Senate Historical Office, the Senate and the League of Nations</li>
+        <li>Centers for Disease Control and Prevention, the 1918 pandemic</li>
+        <li>U.S. Census Bureau, Negro Population in the United States, 1790 to 1915, and the 1920 census</li>
+        <li>W. E. B. Du Bois, “Returning Soldiers,” <em>The Crisis</em>, May 1919</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Images and maps</h2>
+      <p>All photographs, posters, and documents are public domain, from the Library of Congress, the National Archives, the Imperial War Museum, and the National Museum of Health and Medicine, via Wikimedia Commons. Map data: Natural Earth and the U.S. Census Bureau. Front lines and 1914 borders are simplified.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="ush9-over-there/lib/three.min.js"></script>
+<script src="ush9-over-there/lib/d3.min.js"></script>
+<script src="ush9-over-there/lib/topojson-client.min.js"></script>
+<script src="ush9-over-there/js/core.js"></script>
+<script src="ush9-over-there/js/globe.js"></script>
+<script src="ush9-over-there/js/maps.js"></script>
+<script src="ush9-over-there/js/panels.js"></script>
+<script src="/hubs/desk-save.js" defer></script>
+</body>
+</html>
