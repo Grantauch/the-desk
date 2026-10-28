@@ -1,4 +1,18 @@
 {
+  "pixel-camp-school-2026-10-28": {
+    "status": "SOURCE_REPAIRED",
+    "owner": "Codex",
+    "scope": "Pixel Camp integrated with verified school PIN/class, official attendance summary and existing Checkling",
+    "verification_status": "FOCUSED_SERVER_AND_BROWSER_PASSED_CANONICAL_RUNNING",
+    "deployment_status": "PROTECTED_REVIEW_PENDING",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Preserves Pixel Camp 4.3.1 engine and founder assets from 8a949b2634d4755072559bfb44e4ed90b9ed289b. School play runs in a sandboxed child inside the existing private Check-In, with an isolated MessageChannel; PINs, tokens, roster keys and student email never enter the static game.",
+      "Private Checkling Camps sheet stores bounded membership-specific game saves, optimistic revisions, idempotent mutation IDs and one previous camp snapshot. Shared-device reset closes the port and removes the game; no student game state is kept in browser storage.",
+      "Original species, exact saved name and stored habitat survive import. Official streak/attendance and earned homes are read from the existing school summary. Game saves never create attendance, points or passes. Earlier browser camps can be explicitly imported with an in-tab undo.",
+      "29 focused server checks pass (20 existing companion and nine integration scenarios); all 440 classroom runtime behaviors and 15 existing companion/Pond browser journeys pass. New school browser journeys at 320/390/1440 cover PIN visits, cross-session recovery, failed and lost saves, import/undo, conflicts and shared-device isolation. Full canonical verification, protected CI and deployment are separate gates."
+    ]
+  },
   "bts-heel-load-work-2026-10-26": {
     "status": "LOCAL_VERIFIED_RELEASE_IN_PROGRESS",
     "owner": "Codex",
@@ -830,7 +844,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {

@@ -1328,6 +1328,10 @@ function getChecklingState_(student, summary, checkIn, todayKey) {
 }
 
 function saveCheckling(pinToken, species, petName, habitat) {
+  return withLock_(() => saveChecklingUnlocked_(pinToken,species,petName,habitat),1000,'checkling-save');
+}
+
+function saveChecklingUnlocked_(pinToken, species, petName, habitat) {
   const resolved = resolveStudent_(pinToken, true);
   if (!['mochi', 'bolt', 'zee', 'ember'].includes(species)) throw new Error('Choose one of the four Checklings.');
   if (typeof petName !== 'string') throw new Error('Give your Checkling a name.');
@@ -1339,9 +1343,104 @@ function saveCheckling(pinToken, species, petName, habitat) {
   const home = current.checkling.journey.find((entry) => entry.habitat === chosenHome);
   if (!home) throw new Error('Choose one of the five Checkling habitats.');
   if (!home.unlocked) throw new Error('That habitat opens at its official school-day streak milestone.');
+  const campFounder = pixelCampRow_(resolved.student.key,false);
+  if (campFounder.values && campFounder.values[2] !== species) throw new Error('Keep your original camp companion. Choose party friends inside Pixel Camp.');
   PropertiesService.getScriptProperties().setProperty(GD_CHECKLING_PREFIX + resolved.student.key,
     JSON.stringify({v:1, species, name, habitat:home.habitat}));
   return getCheckInState_(resolved.student, pinToken || '', resolved.method);
+}
+
+/* Pixel Camp: private, membership-scoped game saves. No attendance writes. */
+const GD_CAMP_HEADERS = ['Membership Key','Revision','Founder','Camp JSON','Previous Camp JSON','Mutation ID','Updated At'];
+function pixelCampRow_(studentKey, create) {
+  const book = getSpreadsheet_();
+  let sheet = book.getSheetByName('Checkling Camps');
+  if (!sheet && create) {
+    sheet = book.insertSheet('Checkling Camps');
+    sheet.getRange(1,1,1,GD_CAMP_HEADERS.length).setValues([GD_CAMP_HEADERS]);
+    sheet.setFrozenRows(1);
+  }
+  if (!sheet) return {sheet:null,row:0,values:null};
+  const headers = sheet.getRange(1,1,1,GD_CAMP_HEADERS.length).getValues()[0];
+  if (headers.some((value,index) => value !== GD_CAMP_HEADERS[index])) throw new Error('Camp storage needs teacher review. Your saved camp has not been replaced.');
+  const keys = sheet.getLastRow() > 1 ? sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues() : [];
+  const matches = keys.map((values,index) => ({key:values[0],row:index+2})).filter(entry => entry.key === studentKey);
+  if (matches.length > 1) throw new Error('Camp storage needs teacher review. Your saved camp has not been replaced.');
+  return {sheet,row:matches.length ? matches[0].row : 0,values:matches.length ? sheet.getRange(matches[0].row,1,1,GD_CAMP_HEADERS.length).getValues()[0] : null};
+}
+function pixelCampSnapshot_(student, token, found) {
+  const official = getCheckInState_(student,token,'pin');
+  if (!official.checkling.available) throw new Error('Your companion could not load. Try again before opening camp.');
+  const pet = official.checkling.pet;
+  if (!pet) throw new Error('Hatch your Checkling on the Check-In screen before opening camp.');
+  const raw = found.values ? JSON.parse(found.values[3]) : null;
+  const camp = raw ? sanitizePixelCamp_(raw) : initialPixelCamp_();
+  const founder = found.values ? found.values[2] : pet ? pet.species : camp.selected;
+  if (!['mochi','bolt','zee','ember'].includes(founder)) throw new Error('Camp founder needs teacher review.');
+  if (pet && pet.species !== founder) throw new Error('Your companion and camp need teacher review. Neither has been replaced.');
+  if (pet) camp.pets[founder].nickname = pet.name;
+  if (!found.values) camp.selected = founder;
+  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,
+    school:{companion:official.checkling,streak:official.streak,checkedIn:official.checkedIn}};
+}
+function getPixelCamp(pinToken) {
+  const resolved = resolveStudent_(pinToken,true);
+  return pixelCampSnapshot_(resolved.student,pinToken,pixelCampRow_(resolved.student.key,false));
+}
+function savePixelCamp(pinToken, expectedRevision, mutationId, rawCamp) {
+  // Bound input before taking the shared lock. All identity decisions repeat inside it.
+  const camp = sanitizePixelCamp_(rawCamp);
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 0 || !/^[a-f0-9]{32}$/.test(mutationId || '')) throw new Error('Refresh camp before saving.');
+  resolveStudent_(pinToken,true);
+  return withLock_(() => {
+    const resolved = resolveStudent_(pinToken,true);
+    const found = pixelCampRow_(resolved.student.key,false);
+    if (found.values && found.values[5] === mutationId) return pixelCampSnapshot_(resolved.student,pinToken,found);
+    const revision = found.values ? Number(found.values[1]) : 0;
+    if (revision !== expectedRevision) throw new Error('This camp changed on another screen. Save your file, then reopen camp to load the latest school save.');
+    const snapshot = pixelCampSnapshot_(resolved.student,pinToken,found);
+    const founder = snapshot.founder;
+    const previousPet = snapshot.school.companion.pet;
+    // Keep the existing Checkling's exact name and earned habitat authoritative.
+    // The game names its other party members; the original is edited in Check-In.
+    if (previousPet) camp.pets[founder].nickname = previousPet.name;
+    const target = found.sheet ? found : pixelCampRow_(resolved.student.key,true);
+    const row = target.row || target.sheet.getLastRow()+1;
+    if (row > target.sheet.getMaxRows()) target.sheet.insertRowsAfter(target.sheet.getMaxRows(),Math.max(100,row-target.sheet.getMaxRows()));
+    const values = [resolved.student.key,revision+1,founder,JSON.stringify(camp),found.values ? found.values[3] : '',mutationId,new Date().toISOString()];
+    target.sheet.getRange(row,1,1,GD_CAMP_HEADERS.length).setValues([values]);
+    SpreadsheetApp.flush();
+    return {revision:revision+1,camp,founder,school:snapshot.school};
+  },1000,'pixel-camp-save');
+}
+function initialPixelCamp_() {
+  const pets = {};
+  ['mochi','bolt','zee','ember'].forEach(id => { pets[id] = {nickname:'',food:70,energy:80,clean:75,joy:65,bond:0,discoveries:[],memories:[],care:[],battles:0}; });
+  return {format:'checklings-first-trail',version:1,selected:'mochi',stop:0,weather:'sun',quiet:false,decor:[],equipped:'',pets,revision:0};
+}
+function sanitizePixelCamp_(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || JSON.stringify(raw).length > 40000 || raw.format !== 'checklings-first-trail' || raw.version !== 1) throw new Error('Choose a valid Pixel Camp version 1 save.');
+  const s = initialPixelCamp_(), ids = ['mochi','bolt','zee','ember'];
+  const clean = (value,max) => typeof value === 'string' ? value.replace(/[\u0000-\u001f\u007f]/g,'').slice(0,max) : '';
+  const num = (v,def,min,max) => Number.isFinite(v) ? Math.max(min,Math.min(max,Math.round(v))) : def;
+  s.selected = ids.includes(raw.selected) ? raw.selected : 'mochi';
+  s.stop = num(raw.stop,0,0,2); s.weather = ['sun','rain','dusk'].includes(raw.weather) ? raw.weather : 'sun';
+  s.quiet = raw.quiet === true; s.revision = num(raw.revision,0,0,1000000);
+  ids.forEach(id => {
+    const p = raw.pets && raw.pets[id], q = s.pets[id];
+    if (!p || typeof p !== 'object' || Array.isArray(p)) throw new Error('The camp save is missing a founder.');
+    q.nickname = clean(p.nickname,24);
+    ['food','energy','clean','joy','bond'].forEach(key => { q[key] = num(p[key],q[key],0,100); });
+    q.battles = num(p.battles,0,0,1);
+    q.discoveries = Array.isArray(p.discoveries) ? [...new Set(p.discoveries.filter(x => Number.isInteger(x) && x >= 0 && x < 3))] : [];
+    q.care = Array.isArray(p.care) ? [...new Set(p.care.filter(x => ['feed','play','rest','clean','observe'].includes(x)))] : [];
+    q.memories = Array.isArray(p.memories) ? p.memories.filter(x => x && typeof x.id === 'string' && typeof x.text === 'string').slice(-24).map(x => ({id:clean(x.id,60),text:clean(x.text,200)})) : [];
+  });
+  const stamps = ids.reduce((n,id) => n+s.pets[id].discoveries.length+s.pets[id].battles,0);
+  const costs = {planter:3,lantern:6,pennants:9};
+  s.decor = Array.isArray(raw.decor) ? [...new Set(raw.decor.filter(id => Object.prototype.hasOwnProperty.call(costs,id) && stamps >= costs[id]))] : [];
+  s.equipped = s.decor.includes(raw.equipped) ? raw.equipped : '';
+  return s;
 }
 
 function checkInLogicalKey_(checkIn) {
