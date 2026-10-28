@@ -7,6 +7,13 @@
   const localStorage = school ? {getItem:key => ephemeral.get(key) || null,setItem:(key,value) => ephemeral.set(key,value)} : {getItem:key => window.localStorage.getItem(key),setItem:(key,value) => window.localStorage.setItem(key,value)};
   const E = globalThis.FirstTrail;
   const G = globalThis.CampGoals;
+  // A school that has not been updated yet only stores version 1 camps; new features wait for it.
+  const FULL = !schoolSession || (Array.isArray(schoolSession.formats) && schoolSession.formats.includes(2));
+  const VERSION = "5.0";
+  function today() {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
   const $ = (id) => document.getElementById(id);
   const KEY = "checklings.first-trail.v1",
     BACKUP = KEY + ".before-import";
@@ -78,7 +85,9 @@
     poseTimer,
     propTimer,
     nameFromMenu = false,
-    importTicket = 0;
+    importTicket = 0,
+    practiceTier = 1,
+    heartTimer;
   let welcome = "Pick a friend. Let’s play!";
   try {
     const saved = localStorage.getItem(KEY);
@@ -215,7 +224,7 @@
   function persist() {
     if (schoolSession) {
       state.pets[schoolSession.founder].nickname = schoolSession.school.companion.pet.name;
-      schoolQueued = E.hydrate(state);
+      schoolQueued = FULL ? E.hydrate(state) : E.toV1(state);
       if (!schoolFlight && !schoolFailed) flushSchoolSave();
       return;
     }
@@ -262,6 +271,7 @@
         dusk: "Lantern time. Look at those stars.",
       }[state.weather];
     if (action.type === "rename") return "Hey, " + name() + "!";
+    if (action.type === "forage") return result.message;
     if (action.type === "unlock")
       return E.DECOR.find((d) => d.id === action.id).name + " placed!";
     if (action.type === "quiet")
@@ -282,11 +292,15 @@
       ["feed", "play", "clean", "rest"].includes(action.type)
     )
       showCareProp(action.type);
+    if (result.bondUp) showBondUp(result.bondUp);
     return result;
   }
   function setView(next) {
     if (!["home", "trail", "practice", "journal"].includes(next)) return;
     view = next;
+    // A finished spar stays on screen only until you leave; coming back shows the ladder.
+    if (next === "practice" && battle && battle.result) { battle = null; clearTimeout(poseTimer); }
+    if (next === "practice" && !battle) practiceTier = highestTier();
     clearTimeout(propTimer);
     $("care-prop").hidden = true;
     render();
@@ -311,6 +325,8 @@
     // A finished spar has already awarded its badge. A new party choice readies a fresh lead.
     if (battle && battle.result) { battle = null; clearTimeout(poseTimer); }
     act({ type: "select", id });
+    practiceTier = highestTier(id);
+    if (view === "practice" && !battle) renderTiers();
   }
   function renderParty() {
     const sparring = view === "practice" && battle;
@@ -336,6 +352,8 @@
       );
     }).join("");
     $("pet-name").textContent = name(active);
+    const bond = state.pets[active].bond, level = E.bondLevel(bond), nextLevel = E.BOND_LEVELS[level + 1];
+    $("bond-level").innerHTML = item("heart") + "<span>" + E.BOND_LEVELS[level].name + "</span><small>" + (nextLevel ? nextLevel.at - bond + " bond to " + nextLevel.name.toLowerCase() : "Max friendship") + "</small>";
     $("pet-region").textContent = E.SPECIES[active].region.toUpperCase();
     const values = sparring
       ? [
@@ -423,9 +441,7 @@
     $("camp-decoration").hidden = !state.equipped || view !== "home";
     $("camp-decoration").className =
       "camp-decoration item i-" +
-      ({ planter: "planter", lantern: "lantern", pennants: "pennants" }[
-        state.equipped
-      ] || "planter");
+      (E.DECOR.some((d) => d.id === state.equipped) ? state.equipped : "planter");
   }
   function renderRoute() {
     $("route-stops").hidden = view !== "trail";
@@ -443,14 +459,21 @@
           label +
           "<small>" +
           (found.includes(index) ? "Found it!" : "Unexplored") +
-          "</small></span></button>",
+          "</small>" +
+          (FULL ? '<small class="forage-tag" data-ready="' + E.forageOpen(state, today(), index) + '">' + (E.forageOpen(state, today(), index) ? "Forage ready" : "Foraged today") + "</small>" : "") +
+          "</span></button>",
       )
       .join("");
     $("discover-label").textContent = trailActions[state.selected][state.stop];
+    const open = FULL && E.forageOpen(state, today());
+    $("forage").hidden = !FULL;
+    $("forage").setAttribute("aria-disabled", String(!open));
+    $("forage-label").textContent = open ? "Forage" : "Foraged";
+    $("forage-cost").textContent = open ? E.FORAGE_ENERGY + " energy" : "Tomorrow";
   }
   function renderDecor() {
     $("decor-stamps").textContent = E.stamps(state) + " trail stamps";
-    $("decor-items").innerHTML = E.DECOR.map((d) => {
+    $("decor-items").innerHTML = E.DECOR.filter((d, index) => FULL || index < 3).map((d) => {
       const can = E.stamps(state) >= d.cost,
         owned = state.decor.includes(d.id),
         placed = state.equipped === d.id;
@@ -474,48 +497,56 @@
     }).join("");
   }
   function goalNeedsRest(next) {
-    return !!next && ((next.kind === "care" && next.action === "play" && state.pets[next.pet].energy < 25) || (next.kind === "trail" && state.pets[next.pet].energy < 18));
+    return !!next && ((next.kind === "care" && next.action === "play" && state.pets[next.pet].energy < 25) || (next.kind === "trail" && state.pets[next.pet].energy < 18) || (next.kind === "forage" && state.pets[state.selected].energy < E.FORAGE_ENERGY));
   }
   function goalHint(next) {
     if (!next) return "All set!";
     if (goalNeedsRest(next)) return "Rest with " + name(next.pet) + (next.kind === "trail" ? " before exploring." : " before playing.");
     if (next.kind === "care") return ({ feed: "Feed ", play: "Play with ", clean: "Brush ", rest: "Rest with ", observe: "Hang out with " }[next.action]) + name(next.pet) + ".";
     if (next.kind === "trail") return "Explore " + ["Seed Gate", "Old Waterwheel", "Star Pond"][next.stop] + " with " + name(next.pet) + ".";
-    if (next.kind === "practice") return "Lead a practice with " + name(next.pet) + ".";
+    if (next.kind === "practice") return (next.tier > 1 ? "Take on the " + E.TIERS[next.tier - 1].name.toLowerCase() : "Lead a practice") + " with " + name(next.pet) + ".";
+    if (next.kind === "forage") return next.stop === null ? "Foraged everywhere today. New curios tomorrow." : "Forage at " + ["Seed Gate", "Old Waterwheel", "Star Pond"][next.stop] + " today.";
     return "Place the " + E.DECOR.find(d => d.id === next.id).name.toLowerCase() + ".";
   }
   function renderCampGoals() {
-    const goals = G.read(state);
-    $("camp-goals-summary").textContent = goals.complete ? "Camp goals complete. Willowbank feels like home!" : goals.completedTracks + " / 4 camp goals complete. Take it at your own pace.";
-    $("camp-goals-list").innerHTML = goals.tracks.map(track => '<div class="camp-goal-row" data-goal-row="' + track.id + '">' + item(track.icon) + '<div class="camp-goal-copy"><div class="camp-goal-heading"><h3>' + track.title + '</h3><strong>' + track.done + ' / ' + track.total + '</strong></div><p>' + escape(goalHint(track.next)) + '</p><progress value="' + track.done + '" max="' + track.total + '" aria-label="' + track.title + ' ' + track.done + ' out of ' + track.total + '">' + track.done + '/' + track.total + '</progress></div><button type="button" data-camp-goal="' + track.id + '" aria-label="' + track.title + (track.next ? ' next task' : ' complete') + '" ' + (track.next ? '' : 'disabled') + '>' + (track.next ? 'Next' : 'Done') + '</button></div>').join("");
+    const goals = G.read(state, { full: FULL, today: today() });
+    $("camp-goals-summary").textContent = goals.complete ? "Camp goals complete. Willowbank feels like home!" : goals.completedTracks + " / " + goals.tracks.length + " camp goals complete. Take it at your own pace.";
+    $("camp-goals-list").innerHTML = goals.tracks.map(track => '<div class="camp-goal-row" data-goal-row="' + track.id + '">' + item(track.icon) + '<div class="camp-goal-copy"><div class="camp-goal-heading"><h3>' + track.title + '</h3><strong>' + track.done + ' / ' + track.total + '</strong></div><p>' + escape(goalHint(track.next)) + '</p><progress value="' + track.done + '" max="' + track.total + '" aria-label="' + track.title + ' ' + track.done + ' out of ' + track.total + '">' + track.done + '/' + track.total + '</progress></div><button type="button" data-camp-goal="' + track.id + '" aria-label="' + track.title + (track.next ? ' next task' : ' complete') + '" ' + (track.next && !(track.next.kind === 'forage' && track.next.stop === null) ? '' : 'disabled') + '>' + (track.next ? track.next.kind === 'forage' && track.next.stop === null ? 'Tomorrow' : 'Next' : 'Done') + '</button></div>').join("");
   }
   function followCampGoal(id) {
-    const track = G.read(state).tracks.find(track => track.id === id), next = track && track.next;
+    const track = G.read(state, { full: FULL, today: today() }).tracks.find(track => track.id === id), next = track && track.next;
     if (!next) return;
     if (next.kind === "practice" && battle && !battle.result) {
       setView("practice"); say("Finish this spar first. Your next friend can go after.");
       (document.querySelector('[data-move="guard"]:not(:disabled)') || document.querySelector('.party-button:not(:disabled)')).focus(); return;
     }
     if (next.kind === "decor") { setView("home"); openDecor(); return; }
+    if (next.kind === "forage") {
+      if (next.stop === null) return;
+      act({ type: "stop", value: next.stop }); setView("trail"); say(goalHint(next));
+      (goalNeedsRest(next) ? document.querySelector('#trail-actions [data-care="rest"]') : $("forage")).focus(); return;
+    }
     if (next.kind === "practice") { battle = null; clearTimeout(poseTimer); }
     act({ type: "select", id: next.pet });
     if (next.kind === "care") { setView("home"); say(goalHint(next)); document.querySelector('#care-actions [data-care="' + (goalNeedsRest(next) ? 'rest' : next.action) + '"]').focus(); }
     if (next.kind === "trail") { act({ type: "stop", value: next.stop }); setView("trail"); say(goalHint(next)); (goalNeedsRest(next) ? document.querySelector('#trail-actions [data-care="rest"]') : $("discover")).focus(); }
-    if (next.kind === "practice") { setView("practice"); say(goalHint(next)); $("start-practice").focus(); }
+    if (next.kind === "practice") { practiceTier = next.tier || 1; setView("practice"); say(goalHint(next)); $("start-practice").focus(); }
   }
 
   function renderJournal() {
     const p = state.pets[state.selected];
-    const goalsPage = journalPage === "goals";
-    $("journal-notes").hidden = goalsPage; $("camp-goals").hidden = !goalsPage;
+    const goalsPage = journalPage === "goals", shelfPage = journalPage === "curios";
+    $("journal-notes").hidden = goalsPage || shelfPage; $("camp-goals").hidden = !goalsPage; $("curio-shelf").hidden = !shelfPage;
     for (const tab of document.querySelectorAll("[data-journal-page]")) tab.setAttribute("aria-pressed", String(tab.dataset.journalPage === journalPage));
-    $("journal-title").textContent = goalsPage ? "Camp goals" : name() + "’s notes";
+    $("journal-title").textContent = goalsPage ? "Camp goals" : shelfPage ? "Curio shelf" : name() + "’s notes";
     if (goalsPage) renderCampGoals();
+    if (shelfPage) renderShelf();
     $("journal-friend").textContent = name();
     $("journal-art").src = art(state.selected, true);
     $("journal-art").alt = name();
     $("journal-progress").textContent = p.discoveries.length + "/3 discoveries";
     $("practice-badge").hidden = !p.battles;
+    $("practice-badge").innerHTML = item("badge") + (FULL ? "Practice badges " + p.battles + "/3" : "Practice badge");
     $("journal-empty").hidden = p.memories.length > 0;
     $("journal-entries").innerHTML = p.memories
       .slice()
@@ -523,9 +554,9 @@
       .map(
         (m) =>
           '<li data-kind="' +
-          (m.id.startsWith("find") ? "find" : "memory") +
+          (m.id.startsWith("find") || m.id.startsWith("curio") ? "find" : m.id.startsWith("bond") ? "bond" : "memory") +
           '">' +
-          escape(m.id === "practice" ? "Practice with the stump. Everyone’s okay." : m.text) +
+          escape(m.id === "practice" ? "Practice with the sapling stump. Everyone’s okay." : m.text) +
           "</li>",
       )
       .join("");
@@ -533,7 +564,25 @@
   function defaultStumpPose() {
     if (!battle) return "0";
     if (battle.result) return battle.result === "win" ? "3" : "0";
-    return ["0", "2", "2", "1"][battle.turn % 4];
+    const intent = E.intentFor(battle);
+    if (intent.armor || (!intent.damage && !intent.drain && /cool/i.test(intent.name))) return "1";
+    if (intent.damage * (intent.hits || 1) >= 20 || /wind/i.test(intent.name)) return "2";
+    return "0";
+  }
+  function highestTier(id = state.selected) {
+    return FULL ? Math.min(3, state.pets[id].battles + 1) : 1;
+  }
+  function renderTiers() {
+    const top = highestTier();
+    if (practiceTier > top) practiceTier = top;
+    const tier = E.TIERS[practiceTier - 1];
+    $("tier-picker").hidden = !FULL || view !== "practice" || !!battle;
+    $("tier-picker").innerHTML = E.TIERS.map((t) => {
+      const locked = t.tier > top, cleared = state.pets[state.selected].battles >= t.tier;
+      return '<button type="button" data-tier="' + t.tier + '" aria-pressed="' + (t.tier === practiceTier) + '"' + (locked ? ' aria-disabled="true"' : "") + '><strong>' + t.name.replace(" Stump", "") + "</strong><small>" + (cleared ? "Badge earned" : locked ? "Locked" : t.hp + " HP") + "</small></button>";
+    }).join("");
+    $("practice-welcome").querySelector("h2").textContent = tier.name.toUpperCase();
+    $("practice-welcome").querySelector("p").innerHTML = ["Watch its next move.<br>Guard big hits. Find your opening.", "Roots drain stamina.<br>Guard the snare and the big swing.", "Bark armor, double swipes, a crushing blow.<br>Switch friends before you run out."][practiceTier - 1];
   }
   function renderBattle() {
     const inPractice = view === "practice";
@@ -544,6 +593,8 @@
     for (const button of document.querySelectorAll("[data-move]"))
       button.disabled = !battle || !!battle.result;
     $("signature-label").textContent = signatureNames[battle ? battle.active : state.selected];
+    if (inPractice && !battle) renderTiers();
+    else $("tier-picker").hidden = true;
     if (!battle) return;
     const p = battle.fighters[battle.active];
     $("battle-friend-name").textContent = name(battle.active);
@@ -554,11 +605,15 @@
     $("friend-hp-text").textContent = p.hp + "/65";
     $("friend-sp").value = p.stamina;
     $("friend-sp-text").textContent = p.stamina + "/10";
+    document.querySelector(".enemy-hud > strong").textContent = E.TIERS[battle.tier - 1].name.toUpperCase();
+    $("enemy-hp").max = battle.enemyMax;
     $("enemy-hp").value = battle.enemy;
-    $("enemy-hp-text").textContent = battle.enemy + "/125";
+    $("enemy-hp-text").textContent = battle.enemy + "/" + battle.enemyMax;
+    $("stump-sprite").dataset.tier = battle.tier;
     $("enemy-intent").textContent = battle.result
       ? "DONE"
-      : ["STRIKE · 12", "WIND-UP", "BIG HIT · 28", "REST"][battle.turn % 4];
+      : E.intentFor(battle).short;
+    $("enemy-intent").title = battle.result ? "" : E.intentFor(battle).detail;
     $("stump-sprite").dataset.pose = defaultStumpPose();
     for (const button of document.querySelectorAll("[data-move]"))
       button.disabled =
@@ -567,12 +622,13 @@
         (button.dataset.move === "strike" && p.stamina < 3) ||
         (button.dataset.move === "signature" && p.stamina < 5);
     $("practice-result").hidden = !battle.result;
+    $("next-stump").hidden = !(FULL && battle.result === "win" && battle.tier < 3 && highestTier(practiceFounder) > battle.tier);
     $("result-title").textContent =
       battle.result === "win" ? "PRACTICE CLEAR!" : "GOOD TRY!";
     $("result-copy").textContent =
       battle.result === "win"
-        ? name(practiceFounder) + " keeps the badge. Everyone’s okay!"
-        : "Everyone’s okay. Guard the big swing next time.";
+        ? name(practiceFounder) + " earned the " + E.TIERS[battle.tier - 1].name.toLowerCase() + " badge. Everyone’s okay!"
+        : "Everyone’s okay. Watch NEXT and guard the big ones.";
     $("battle-log").innerHTML = battle.log
       .map(
         (line) => "<li>" + escape(line.replaceAll("Dummy", "Stump")) + "</li>",
@@ -652,10 +708,11 @@
   }
   function startPractice() {
     practiceFounder = state.selected;
-    battle = E.startBattle(practiceFounder);
+    if (practiceTier > highestTier(practiceFounder)) practiceTier = highestTier(practiceFounder);
+    battle = E.startBattle(practiceFounder, practiceTier);
     clearTimeout(poseTimer);
     render();
-    say("The stump is going to strike. What’s your move?");
+    say(E.TIERS[battle.tier - 1].name + ": " + E.intentFor(battle).detail + " What’s your move?");
     document.querySelector('[data-move="strike"]').focus();
   }
   function move(type, id) {
@@ -666,7 +723,7 @@
     if (result.changed && battle.result === "win") {
       const selected = state.selected;
       state.selected = practiceFounder;
-      const reward = E.dispatch(state, { type: "battle-win" });
+      const reward = E.dispatch(state, { type: "battle-win", tier: battle.tier });
       state = reward.state;
       state.selected = selected;
       if (reward.changed) persist();
@@ -745,7 +802,13 @@
     const button = event.target.closest("button");
     if (!button) return;
     const focused = button === document.activeElement;
-    if (button.dataset.journalPage) { journalPage = button.dataset.journalPage === "goals" ? "goals" : "notes"; renderJournal(); return; }
+    if (button.dataset.journalPage) { journalPage = ["goals", "curios"].includes(button.dataset.journalPage) ? button.dataset.journalPage : "notes"; renderJournal(); return; }
+    if (button.dataset.tier) {
+      if (button.getAttribute("aria-disabled") === "true") { say("Clear the " + E.TIERS[button.dataset.tier - 2].name.toLowerCase() + " with " + name() + " first."); return; }
+      practiceTier = +button.dataset.tier; renderTiers(); say(E.TIERS[practiceTier - 1].name + " is ready.");
+      if (focused) document.querySelector('[data-tier="' + practiceTier + '"]').focus();
+      return;
+    }
     if (button.dataset.campGoal) { followCampGoal(button.dataset.campGoal); return; }
     if (button.dataset.view) {
       setView(button.dataset.view);
@@ -914,6 +977,65 @@
     } catch {
       $("import-message").textContent = "Safety copy won’t open. Your current camp is untouched.";
     }
+  };
+  function showBondUp(up) {
+    const level = E.BOND_LEVELS[up.level];
+    say(name(up.pet) + " is now your " + level.name.toLowerCase() + "! A new journal note.");
+    clearTimeout(heartTimer);
+    if (view !== "home") return;
+    const p = positions[up.pet];
+    $("bond-heart").style.left = p.x + 2 + "%";
+    $("bond-heart").style.top = p.y - 20 + "%";
+    $("bond-heart").hidden = false;
+    heartTimer = setTimeout(() => ($("bond-heart").hidden = true), effectiveQuiet() ? 1600 : 2400);
+  }
+  function renderShelf() {
+    const owned = new Set(state.curios), day = today();
+    $("curio-summary").textContent = owned.size + " / " + E.CURIOS.length + " curios. Each trail stop has one new curio a day.";
+    $("curio-today").innerHTML = E.STOPS.map((stop, index) => {
+      const open = E.forageOpen(state, day, index), c = E.curioFor(day, index);
+      return '<li><strong>' + ["Seed Gate", "Old Waterwheel", "Star Pond"][index] + ":</strong> " + (open ? "something is waiting. Go forage!" : "you found the " + escape(c.name.toLowerCase()) + " today.") + "</li>";
+    }).join("");
+    $("curio-grid").innerHTML = E.CURIOS.map((c) => {
+      const has = owned.has(c.id);
+      return '<li class="curio-card" data-owned="' + has + '" data-rarity="' + c.rarity + '"><span class="curio" style="background-position:' + (c.cell % 4) * 33.333333 + "% " + Math.floor(c.cell / 4) * 33.333333 + '%" aria-hidden="true"></span><strong>' + (has ? escape(c.name) : "???") + "</strong><small>" + ["Seed Gate", "Waterwheel", "Star Pond"][c.stop] + " · " + c.rarity + "</small>" + (has ? "<p>" + escape(c.note) + "</p>" : "") + "</li>";
+    }).join("");
+  }
+  (function buildFive() {
+    document.querySelector(".about-playtest p").textContent = "Pixel Camp " + VERSION;
+    const bond = document.createElement("p");
+    bond.id = "bond-level"; bond.className = "bond-level";
+    $("pet-region").after(bond);
+    const heart = document.createElement("div");
+    heart.id = "bond-heart"; heart.className = "care-prop item i-heart bond-heart"; heart.hidden = true; heart.setAttribute("aria-hidden", "true");
+    $("care-prop").after(heart);
+    const forage = document.createElement("button");
+    forage.type = "button"; forage.id = "forage";
+    forage.innerHTML = item("bag") + '<span id="forage-label">Forage</span><small id="forage-cost"></small>';
+    $("discover").after(forage);
+    const nextStump = document.createElement("button");
+    nextStump.type = "button"; nextStump.id = "next-stump"; nextStump.hidden = true; nextStump.textContent = "Next stump";
+    $("retry-practice").after(nextStump);
+    const tiers = document.createElement("div");
+    tiers.id = "tier-picker"; tiers.className = "tier-picker"; tiers.setAttribute("role", "group"); tiers.setAttribute("aria-label", "Choose a stump");
+    $("route-stops").after(tiers);
+    const shelfTab = document.createElement("button");
+    shelfTab.type = "button"; shelfTab.dataset.journalPage = "curios"; shelfTab.setAttribute("aria-pressed", "false"); shelfTab.hidden = !FULL;
+    shelfTab.innerHTML = item("shelf") + "Curio shelf";
+    document.querySelector(".journal-page-buttons").append(shelfTab);
+    const shelf = document.createElement("section");
+    shelf.id = "curio-shelf"; shelf.className = "curio-shelf"; shelf.hidden = true; shelf.setAttribute("aria-label", "Curio shelf");
+    shelf.innerHTML = '<p id="curio-summary" role="status" aria-atomic="true"></p><ul id="curio-today" class="curio-today"></ul><ul id="curio-grid" class="curio-grid"></ul><button type="button" data-go="trail">' + item("map") + "<span>Go forage</span></button>";
+    $("camp-goals").after(shelf);
+  })();
+  $("next-stump").onclick = () => {
+    practiceTier = Math.min(3, battle.tier + 1);
+    state = E.dispatch(state, { type: "select", id: practiceFounder }).state;
+    startPractice();
+  };
+  $("forage").onclick = () => {
+    if ($("forage").getAttribute("aria-disabled") === "true") { say("Already foraged at " + E.STOPS[state.stop].name.toLowerCase() + " today. Try another stop, or come back tomorrow."); return; }
+    act({ type: "forage", day: today() });
   };
   const nameMenu = document.createElement("button");
   nameMenu.type = "button";

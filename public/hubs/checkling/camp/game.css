@@ -2049,3 +2049,45 @@ input[type="file"]::file-selector-button {
 .demo-school-link {padding:12px;margin:0;background:#183a40;text-align:center;}
 .demo-school-link a {color:#fff5d6;}
 #school-save-retry {font-size:18px;padding:6px;}
+
+/* 5.0: decor atlas, friendship levels, foraging, the stump ladder and the curio shelf. */
+.item.i-shelf, .item.i-campfire, .item.i-chimes, .item.i-heart { background-image:url("assets/decor-atlas.png"); background-size:400% 100%; }
+.item.i-shelf { background-position:0 0; }
+.item.i-campfire { background-position:33.333333% 0; }
+.item.i-chimes { background-position:66.666667% 0; }
+.item.i-heart { background-position:100% 0; }
+.bond-level { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin:4px 0 6px; font-size:21px; color:#ffd7d7; }
+.bond-level .item { width:26px; height:26px; }
+.bond-level small { flex-basis:100%; font-size:16px; color:var(--muted); }
+.bond-heart { width:8%; z-index:6; }
+body:not(.quiet) .bond-heart:not([hidden]) { animation:bond-rise 2.4s ease-out forwards; }
+@keyframes bond-rise { from { transform:translateY(12px) scale(.6); opacity:0; } 20% { transform:translateY(0) scale(1.1); opacity:1; } to { transform:translateY(-26px) scale(1); opacity:0; } }
+.forage-tag { margin-top:2px; color:#d8d0ff !important; }
+.forage-tag[data-ready="true"] { color:#ffe39b !important; }
+#forage[aria-disabled="true"] { opacity:.62; }
+.trail-commands { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.tier-picker { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:12px 0; }
+.tier-picker[hidden] { display:none; }
+.tier-picker button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:6px 4px; min-height:68px; font-size:22px; line-height:1; }
+.tier-picker button strong { font-weight:400; color:#ffe39b; }
+.tier-picker button small { font-size:15px; color:#c2d9b8; }
+.tier-picker button[aria-disabled="true"] { opacity:.55; }
+.stump-sprite[data-tier="2"] .stump-atlas { filter:sepia(.45) saturate(1.35) brightness(.78) hue-rotate(-12deg); }
+.stump-sprite[data-tier="3"] .stump-atlas { filter:grayscale(.5) brightness(.78) contrast(1.2) hue-rotate(200deg) saturate(1.4); }
+.journal-pages li[data-kind="bond"] { color:#ffd7d7; }
+.curio { display:inline-block; background-image:url("assets/curio-atlas.png"); background-size:400% 400%; background-repeat:no-repeat; image-rendering:auto; }
+#curio-summary { color:var(--gold); margin:8px 0 10px; overflow-wrap:anywhere; }
+.curio-today { list-style:none; padding:0; margin:0 0 14px; display:grid; gap:4px; font-size:20px; color:var(--muted); }
+.curio-today strong { color:var(--ink); font-weight:400; }
+.curio-grid { list-style:none; padding:0; margin:0 0 14px; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.curio-card { display:flex; flex-direction:column; align-items:center; text-align:center; padding:10px 6px; border:3px solid #496e68; background:#143437; min-width:0; }
+.curio-card .curio { width:78px; height:78px; }
+.curio-card[data-owned="false"] .curio { filter:brightness(0) opacity(.32); }
+.curio-card strong { font-weight:400; font-size:21px; color:#ffe39b; overflow-wrap:anywhere; }
+.curio-card[data-owned="false"] strong { color:#8fa99b; }
+.curio-card small { font-size:15px; color:var(--muted); text-transform:uppercase; }
+.curio-card[data-rarity="rare"] { border-color:#c9a24f; }
+.curio-card p { margin:6px 0 0; font-size:17px; line-height:1.1; color:#d9e7cf; }
+.curio-shelf > button { display:flex; align-items:center; gap:8px; }
+.curio-shelf > button .item { width:37px; height:37px; }
+@media (max-width:550px) { .curio-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .curio-card .curio { width:60px; height:60px; } .tier-picker button { font-size:17px; } }

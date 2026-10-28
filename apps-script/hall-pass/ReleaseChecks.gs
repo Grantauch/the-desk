@@ -127,6 +127,15 @@ function releaseRunSyntheticSmoke(clientContract) {
       'school camp save/reload failed');
     releaseAssert_(savePixelCamp(visit.pinToken,camp.revision,'a'.repeat(32),camp.camp).revision === savedCamp.revision,
       'school camp retry was not idempotent');
+    // Pixel Camp 5 saves version 2: ladder badges, curios and the day's forage record must survive a reload.
+    const five = getPixelCamp(visit.pinToken);
+    releaseAssert_(Array.isArray(five.formats) && five.formats.indexOf(2) >= 0, 'school camp does not offer version 2');
+    const v2 = JSON.parse(JSON.stringify(five.camp));
+    v2.version = 2; v2.pets.bolt.battles = 2; v2.curios = ['frog']; v2.forage = {day:'2026-10-28',taken:[1]};
+    const savedFive = savePixelCamp(visit.pinToken,five.revision,'b'.repeat(32),v2);
+    const reloaded = getPixelCamp(visit.pinToken).camp;
+    releaseAssert_(savedFive.revision === five.revision + 1 && reloaded.version === 2 && reloaded.pets.bolt.battles === 2 &&
+      reloaded.curios.join() === 'frog' && reloaded.forage.taken.join() === '1', 'school camp version 2 save/reload failed');
     PropertiesService.getScriptProperties().deleteProperty(GD_CHECKLING_PREFIX + visit.student.key);
     releaseAssertPreserved_(beforeVisit, book);
     const now = new Date();
