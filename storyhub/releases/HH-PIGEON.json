@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PIGEON",
+  "title": "the pigeon in the nose cone",
+  "route": "/hubs/hh-bytesize-project-pigeon.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/PIGEON/story.json",
+    "note": "Original sourced ByteSize lesson. Illustrations and silent recaps are labeled; historical film remains with its publisher."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-project-pigeon.html",
+      "bytes": 26694,
+      "sha256": "fefb9486853c26463119d4951c23eb25eb6c920aad19e4d41a519192310f5fab"
+    },
+    {
+      "path": "/storyhub/hh/project-pigeon/assets/cover.webp",
+      "assetId": "A01",
+      "bytes": 99558,
+      "sha256": "e5f483e44e682db4235d145e4fde64018fb5459f3171167ba9e86c8fd2334330",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "path": "/storyhub/hh/project-pigeon/assets/recap.mp4",
+      "assetId": "A02",
+      "bytes": 160026,
+      "sha256": "6ca8b5371febf1beefb7f27cf82af6fbbee0c245766255198273fe19ca0e0649"
+    },
+    {
+      "path": "/storyhub/hh/project-pigeon/assets/recap.vtt",
+      "assetId": "A03",
+      "bytes": 411,
+      "sha256": "62fecba42936331542990909c67c883d9c29891cc809c1b64fb9c0d1ff49cd94"
+    },
+    {
+      "path": "/storyhub/hh/project-pigeon/assets/transcript.txt",
+      "assetId": "A04",
+      "bytes": 443,
+      "sha256": "6757a9092dc26f792379be1073349af81a53f03c0490873d706949b394a780ee"
+    }
+  ],
+  "totalBytes": 287132,
+  "sealedAt": "2026-10-28"
+}

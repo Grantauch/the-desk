@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-the-thing.html",
-      "bytes": 27213,
-      "sha256": "5d84d71ffb6f161c04462b720177508ce2841260dcd0cd78e6304f6c61839313"
+      "bytes": 27374,
+      "sha256": "3f63c4fd8dccad01bf780f4c87d0e1aca4e74d48e584cb2956da49dd9a890161"
     },
     {
       "path": "/storyhub/hh/the-thing/assets/cover.webp",
@@ -48,6 +48,6 @@
       "height": 322
     }
   ],
-  "totalBytes": 326491,
+  "totalBytes": 326652,
   "sealedAt": "2026-10-28"
 }

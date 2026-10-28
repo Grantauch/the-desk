@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ICEWORM",
+  "assets": [
+    {
+      "id": "A01",
+      "status": "shipped",
+      "type": "illustration",
+      "role": "Hero atmosphere and catalog cover",
+      "sourceMode": "original-generated-illustration",
+      "subject": "A modern cutaway illustration of lit corridors beneath Greenland snow, with an expansive ice surface above; no missiles are shown as installed.",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage. Final illustration corrected to one near-surface level using the 1966 Army photograph as an architectural reference; no stacked floors or installed missiles.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/iceworm/assets/cover.webp"
+    },
+    {
+      "id": "A02",
+      "status": "shipped",
+      "type": "video",
+      "role": "28-second silent captioned explanation",
+      "sourceMode": "original-authored-explainer",
+      "subject": "Why did the Army build a city inside Greenland\u2019s ice, and why didn\u2019t its missile plan follow?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/iceworm/assets/recap.mp4"
+    },
+    {
+      "id": "A03",
+      "status": "shipped",
+      "type": "captions",
+      "role": "Accessible exact caption track",
+      "sourceMode": "original-authored-explainer",
+      "subject": "Why did the Army build a city inside Greenland\u2019s ice, and why didn\u2019t its missile plan follow?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/iceworm/assets/recap.vtt"
+    },
+    {
+      "id": "A04",
+      "status": "shipped",
+      "type": "text",
+      "role": "Complete media transcript",
+      "sourceMode": "original-authored-explainer",
+      "subject": "Why did the Army build a city inside Greenland\u2019s ice, and why didn\u2019t its missile plan follow?",
+      "rightsStatus": "Original generated artwork and original educational composition; no third-party footage rehosted.",
+      "provenance": "Cover generated with built-in ImageGen on October 27, 2026; optimized to WebP. Recap composed from the same artwork and original sourced captions, not archival footage.",
+      "htmlSafeZone": "Title overlays the dark side of the illustration; narrative text sits in HTML.",
+      "responsiveCrop": "Hero crop may vary; no historical evidence is removed by cropping.",
+      "deployPath": "/storyhub/hh/iceworm/assets/transcript.txt"
+    },
+    {
+      "id": "A05",
+      "status": "shipped",
+      "type": "archival-image",
+      "role": "Primary photograph beside the conceptual model",
+      "sourceMode": "archival-source-first",
+      "subject": "Actual 1966 photograph of Camp Century, published by NASA. The historical base is evidence for construction under the ice, not for an installed Iceworm missile network.",
+      "sourceUrl": "https://science.nasa.gov/wp-content/uploads/2025/10/campcentury_photo_1966.jpg",
+      "rightsStatus": "U.S. Army government photograph published by NASA; public domain.",
+      "provenance": "Faithful optimized WebP derivative of the photo published in NASA\u2019s Camp Century article. No generated content.",
+      "htmlSafeZone": "The complete image is separate from HTML text.",
+      "responsiveCrop": "Uncropped at all widths, with original image link.",
+      "deployPath": "/storyhub/hh/iceworm/assets/record.webp"
+    }
+  ]
+}

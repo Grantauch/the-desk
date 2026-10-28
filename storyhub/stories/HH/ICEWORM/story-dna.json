@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ICEWORM",
+  "title": "the city that couldn’t hold still",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "ice engineering, white silence and cold-war scale"
+    ],
+    "paletteIntent": "ice white, deep arctic blue and construction orange",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "A modern cutaway illustration of lit corridors beneath Greenland snow, with an expansive ice surface above; no missiles are shown as installed."
+    ],
+    "shapeLanguage": "Snow cross sections, long corridors and a deforming framework",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Compare a real research base with a proposed missile network, then test the assumption of stable ice."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "The building was real. The ground underneath it was moving."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "ice white, deep arctic blue and construction orange",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Compare a real research base with a proposed missile network, then test the assumption of stable ice.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

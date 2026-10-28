@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-acoustic-kitty.html",
-      "bytes": 26878,
-      "sha256": "5226119573068e4bb992b03d54c05b8cb4f1b8d28c5bf9cacfd65114507e6912"
+      "bytes": 27039,
+      "sha256": "f8f4074f2cbdf9fbc19fb08a5e3a70260124a82a5e6e3369ec5d596e1cdd109d"
     },
     {
       "path": "/storyhub/hh/acoustic-kitty/assets/cover.webp",
@@ -48,6 +48,6 @@
       "height": 1354
     }
   ],
-  "totalBytes": 642305,
+  "totalBytes": 642466,
   "sealedAt": "2026-10-28"
 }

@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-ghost-army.html",
-      "bytes": 27969,
-      "sha256": "5ac62287208eec2d392f0604bc2b2b14625cfa9304fbd74f998571702498c7ad"
+      "bytes": 28130,
+      "sha256": "ba366446da4bb5bb0590bfe04cf6ef41e4279c01ffa970fe2be859b1fd561a92"
     },
     {
       "path": "/storyhub/hh/ghost-army/assets/cover.webp",
@@ -48,6 +48,6 @@
       "height": 537
     }
   ],
-  "totalBytes": 713282,
+  "totalBytes": 713443,
   "sealedAt": "2026-10-28"
 }

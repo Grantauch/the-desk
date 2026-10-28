@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-PIGEON",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "pigeon",
+      "teaches": "A bird can learn the task without understanding the mission.",
+      "studentAction": "Invented conceptual exercise. The feedback is explanatory; it does not measure how quickly a real pigeon learns.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Choose a target and compare rewarded behavior with mission success.",
+      "status": "implemented"
+    }
+  ]
+}

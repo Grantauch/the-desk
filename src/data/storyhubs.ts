@@ -25,6 +25,60 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: "hh-bytesize-project-pigeon",
+    href: "/hubs/hh-bytesize-project-pigeon.html",
+    title: "the pigeon in the nose cone",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1940s–1950s",
+    status: "ready to teach",
+    bytesize: "bytesize no. 17",
+    question: "Could a pigeon learn to guide a weapon—and what would a successful demonstration actually prove?",
+    blurb: "Before dependable electronic guidance, a psychologist proposed putting the pilot inside the nose cone. The pilot was a pigeon. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/project-pigeon/assets/cover.webp",
+    coverAlt: "Modern illustration of a pigeon facing an illuminated display in a 1940s laboratory.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "project pigeon"
+    ],
+    inside: [
+      "Teach one response. Inspect what it proves.",
+      "The task and the mission.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-iceworm",
+    href: "/hubs/hh-bytesize-iceworm.html",
+    title: "the city that couldn’t hold still",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1959–2024",
+    status: "ready to teach",
+    bytesize: "bytesize no. 18",
+    question: "Why did the Army build a city inside Greenland’s ice, and why didn’t its missile plan follow?",
+    blurb: "The base had rooms, tunnels and a nuclear power plant. The bigger plan depended on one bad assumption: that the ice would behave like land. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/iceworm/assets/cover.webp",
+    coverAlt: "Modern conceptual cutaway of rooms and corridors beneath Greenland snow.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "iceworm"
+    ],
+    inside: [
+      "Choose the foundation. Test the assumption.",
+      "Two different scales.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
     slug: "hh-bytesize-acoustic-kitty",
     href: "/hubs/hh-bytesize-acoustic-kitty.html",
     title: "the cat that wouldn’t spy",
@@ -98,7 +152,7 @@ export const storyHubs: StoryHub[] = [
       "stargate"
     ],
     inside: [
-      "One description. Three possible “hits.”.",
+      "One description. Three possible “hits.”",
       "Separate three findings.",
       "A 28-second captioned video recap with a complete written transcript.",
       "Three short responses using linked sources, shared work controls and Turn In."
@@ -152,7 +206,7 @@ export const storyHubs: StoryHub[] = [
       "mincemeat"
     ],
     inside: [
-      "Build a believable person. Then inspect the leap..",
+      "Build a believable person. Then inspect the leap.",
       "One object, two claims.",
       "A 28-second captioned video recap with a complete written transcript.",
       "Three short responses using linked sources, shared work controls and Turn In."

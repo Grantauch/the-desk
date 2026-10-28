@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-bytesize-stargate.html",
-      "bytes": 26737,
-      "sha256": "db326038da0d1a1581186d033bf7e2720923b2f6cb2deb103b43849c6650bb5e"
+      "bytes": 26898,
+      "sha256": "e5c5f9d35d92673a779026faa7632187ed8a5e546b9984d977f61da6fc9a66d9"
     },
     {
       "path": "/storyhub/hh/stargate/assets/cover.webp",
@@ -40,6 +40,6 @@
       "assetId": "A04"
     }
   ],
-  "totalBytes": 382979,
+  "totalBytes": 383140,
   "sealedAt": "2026-10-28"
 }
