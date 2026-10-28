@@ -129,6 +129,23 @@ try {
     }
     assert.deepEqual(errors,[]);checks++;await context.close();
   }
+  const demoContext=await browser.newContext({viewport:{width:390,height:950},acceptDownloads:true});
+  await demoContext.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new DOMException('Synthetic blocked storage','SecurityError');}}));
+  await demoContext.route('**/*',async route=>{
+    const url=new URL(route.request().url());
+    if(url.hostname!=='grant-desk.com'||!url.pathname.startsWith('/hubs/checkling/camp/')) return route.fulfill({body:''});
+    const body=await readFile(new URL('public'+url.pathname,root));
+    const ext=url.pathname.split('.').pop();
+    return route.fulfill({body,contentType:({html:'text/html',js:'application/javascript',css:'text/css',png:'image/png',gif:'image/gif',ttf:'font/ttf'})[ext]||'text/plain'});
+  });
+  const demo=await demoContext.newPage(), demoErrors=[];demo.on('pageerror',error=>demoErrors.push(error.message));
+  await demo.goto('https://grant-desk.com/hubs/checkling/camp/index.html');
+  await demo.getByText('Save to file',{exact:true}).first().waitFor();
+  assert.equal(await demo.locator('#party-list button').count(),4,'blocked storage keeps demo playable');
+  await demo.locator('[data-care=feed]').click();await demo.locator('#open-menu').click();
+  const downloadPromise=demo.waitForEvent('download');await demo.locator('#export-save').click();
+  const download=await downloadPromise;assert.match(download.suggestedFilename(),/^Checklings-Camp-.*\.json$/);
+  assert.deepEqual(demoErrors,[]);await demoContext.close();
   await writeFile(new URL('result.json',out),JSON.stringify({checks,status:'passed'},null,2));
   console.log(`Pixel Camp school browser journeys passed at ${checks} viewports, including cross-session recovery, failed/lost saves and shared-device isolation.`);
 } finally {await browser.close();}

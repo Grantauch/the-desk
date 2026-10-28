@@ -4,7 +4,7 @@
   const schoolSession = school ? await school.ready : null;
   // An isolated memory-only store prevents shared Chromebook account leakage.
   const ephemeral = new Map();
-  const localStorage = school ? {getItem:key => ephemeral.get(key) || null,setItem:(key,value) => ephemeral.set(key,value)} : window.localStorage;
+  const localStorage = school ? {getItem:key => ephemeral.get(key) || null,setItem:(key,value) => ephemeral.set(key,value)} : {getItem:key => window.localStorage.getItem(key),setItem:(key,value) => window.localStorage.setItem(key,value)};
   const E = globalThis.FirstTrail;
   const G = globalThis.CampGoals;
   const $ = (id) => document.getElementById(id);
