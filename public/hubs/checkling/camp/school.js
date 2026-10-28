@@ -3,6 +3,7 @@
   'use strict';
   if (parent === window) return;
   document.querySelector('.demo-school-link')?.remove();
+  document.querySelector('#save-status').textContent = 'Connecting to school…';
   let port, init, sequence = 0;
   const pending = new Map();
   const ready = new Promise(resolve => { init = resolve; });
