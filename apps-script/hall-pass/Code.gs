@@ -1380,7 +1380,7 @@ function pixelCampSnapshot_(student, token, found) {
   if (pet && pet.species !== founder) throw new Error('Your companion and camp need teacher review. Neither has been replaced.');
   if (pet) camp.pets[founder].nickname = pet.name;
   if (!found.values) camp.selected = founder;
-  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,
+  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,formats:[1,2],
     school:{companion:official.checkling,streak:official.streak,checkedIn:official.checkedIn}};
 }
 function getPixelCamp(pinToken) {
@@ -1418,9 +1418,14 @@ function initialPixelCamp_() {
   ['mochi','bolt','zee','ember'].forEach(id => { pets[id] = {nickname:'',food:70,energy:80,clean:75,joy:65,bond:0,discoveries:[],memories:[],care:[],battles:0}; });
   return {format:'checklings-first-trail',version:1,selected:'mochi',stop:0,weather:'sun',quiet:false,decor:[],equipped:'',pets,revision:0};
 }
+/* Pixel Camp 5 stores version 2: a three-badge stump ladder, curios and a daily forage record.
+   A camp keeps the version it was saved with, so a 4.x page never receives a camp it cannot open. */
+const GD_CAMP_CURIOS = ['acorn','pinecone','fern','mushroom','nest','clover','holeystone','frog','gear','quill','key','dragonfly','snailshell','firefly','geode','starbottle'];
 function sanitizePixelCamp_(raw) {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || JSON.stringify(raw).length > 40000 || raw.format !== 'checklings-first-trail' || raw.version !== 1) throw new Error('Choose a valid Pixel Camp version 1 save.');
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || JSON.stringify(raw).length > 40000 || raw.format !== 'checklings-first-trail' || (raw.version !== 1 && raw.version !== 2)) throw new Error('Choose a valid Pixel Camp save.');
+  const v2 = raw.version === 2;
   const s = initialPixelCamp_(), ids = ['mochi','bolt','zee','ember'];
+  if (v2) s.version = 2;
   const clean = (value,max) => typeof value === 'string' ? value.replace(/[\u0000-\u001f\u007f]/g,'').slice(0,max) : '';
   const num = (v,def,min,max) => Number.isFinite(v) ? Math.max(min,Math.min(max,Math.round(v))) : def;
   s.selected = ids.includes(raw.selected) ? raw.selected : 'mochi';
@@ -1431,15 +1436,21 @@ function sanitizePixelCamp_(raw) {
     if (!p || typeof p !== 'object' || Array.isArray(p)) throw new Error('The camp save is missing a founder.');
     q.nickname = clean(p.nickname,24);
     ['food','energy','clean','joy','bond'].forEach(key => { q[key] = num(p[key],q[key],0,100); });
-    q.battles = num(p.battles,0,0,1);
+    q.battles = num(p.battles,0,0,v2 ? 3 : 1);
     q.discoveries = Array.isArray(p.discoveries) ? [...new Set(p.discoveries.filter(x => Number.isInteger(x) && x >= 0 && x < 3))] : [];
     q.care = Array.isArray(p.care) ? [...new Set(p.care.filter(x => ['feed','play','rest','clean','observe'].includes(x)))] : [];
     q.memories = Array.isArray(p.memories) ? p.memories.filter(x => x && typeof x.id === 'string' && typeof x.text === 'string').slice(-24).map(x => ({id:clean(x.id,60),text:clean(x.text,200)})) : [];
   });
   const stamps = ids.reduce((n,id) => n+s.pets[id].discoveries.length+s.pets[id].battles,0);
-  const costs = {planter:3,lantern:6,pennants:9};
+  const costs = v2 ? {planter:3,lantern:6,pennants:9,shelf:12,campfire:16,chimes:20} : {planter:3,lantern:6,pennants:9};
   s.decor = Array.isArray(raw.decor) ? [...new Set(raw.decor.filter(id => Object.prototype.hasOwnProperty.call(costs,id) && stamps >= costs[id]))] : [];
   s.equipped = s.decor.includes(raw.equipped) ? raw.equipped : '';
+  if (v2) {
+    const day = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+    s.curios = Array.isArray(raw.curios) ? [...new Set(raw.curios.filter(id => GD_CAMP_CURIOS.includes(id)))] : [];
+    const f = raw.forage && typeof raw.forage === 'object' && !Array.isArray(raw.forage) ? raw.forage : {};
+    s.forage = {day:day(f.day) ? f.day : '',taken:day(f.day) && Array.isArray(f.taken) ? [...new Set(f.taken.filter(x => Number.isInteger(x) && x >= 0 && x < 3))] : []};
+  }
   return s;
 }
 

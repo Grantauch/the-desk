@@ -53,3 +53,43 @@ hashes, then use the guarded existing Apps Script deployment. Preserve its
 URL, DOMAIN access and USER_DEPLOYING identity. The original five-file source
 set is unchanged. The authenticated deployed smoke and classroom use remain
 separate evidence. A rollback retains the private camp tab and its records.
+
+## Pixel Camp 5.0 (October 28, 2026)
+
+Owner: Claude. Version 5.0 adds four things on top of 4.3.1, all game-only.
+Nothing here records attendance or points.
+
+- **Daily forage and the curio shelf.** Each trail stop offers one curio per
+  calendar day, picked from that stop's pool by a hash of the date, so every
+  camp sees the same curio that day. Foraging costs 12 energy and works once
+  per stop per day for the whole camp. Sixteen curios (common, uncommon, rare)
+  live on a new journal page. Art: `assets/curio-atlas.png` (4x4).
+- **Stump ladder.** Sapling (125 HP), Old Oak (165 HP, root snare drains
+  stamina) and Elder (185 HP, bark armor, double swipe, crushing blow). Each
+  founder unlocks tiers in order and each badge is one trail stamp, so stamps
+  now reach 24. `scripts/test-pixel-camp-five.cjs` checks that a player who
+  reads NEXT wins every tier with every lead, and that mashing loses to the
+  Elder.
+- **Friendship levels.** Bond 25/50/75/100 reaches Pal, Good friend, Best
+  friend and Forever friend, each with one founder-specific journal note.
+- **Three more decorations.** Curio shelf (12), campfire ring (16) and wind
+  chimes (20). Art: `assets/decor-atlas.png`, which also holds the heart.
+
+Saves are now version 2: `pets.*.battles` 0 to 3, `curios`, and
+`forage {day, taken}`. Version 1 saves still open and upgrade in memory.
+`sanitizePixelCamp_` accepts both and keeps the version it was given, so a
+4.x page never receives a camp it cannot open. `getPixelCamp` now returns
+`formats: [1, 2]`.
+
+The game only saves version 2 to school when the school says `formats`
+includes 2. Against the older Apps Script it saves `toV1(state)` and hides
+foraging, the ladder past the sapling, the shelf and the new decorations.
+That makes the release order safe either way: the website can go first and
+the school update can follow. The new controls are built by `game.js`, so the
+`#ck-camp-template` copy inside Index.html needs no new markup.
+
+Checks: `npm run checkling:test` (engine plus school rules, 44 tests),
+`npm run hall-pass:verify` (the release smoke now also saves and reloads a
+version 2 camp), and `node scripts/test-pixel-camp-five-browser.mjs` (open
+sample page at 320/390/1366, school camp on version 2, and the version 1
+fallback), now part of `npm run companion:browser`.
