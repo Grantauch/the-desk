@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MOONHOAX",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "press",
+      "teaches": "A famous name and five copies still do not make an observation.",
+      "studentAction": "Invented paraphrase, not a quotation from the Sun. Switch the prestigious labels off; then compare the evidence that remains.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Remove borrowed authority from a newspaper story; trace whether reprints are independent confirmation.",
+      "status": "implemented"
+    }
+  ]
+}

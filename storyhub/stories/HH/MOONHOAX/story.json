@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MOONHOAX",
+  "course": "HH",
+  "lessonCode": "MOONHOAX",
+  "title": "bat people on the moon",
+  "audience": "students",
+  "narrativeQuestion": "How did a real newspaper sell an imaginary Moon as a scientific discovery?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "Extraordinary news for a penny-paper world",
+      "claim": "In August 1835, New York’s Sun ran a six-part series announcing astonishing discoveries on the Moon. The articles borrowed the authority of the real astronomer John Herschel, who was observing the southern sky from the Cape of Good Hope. Readers were already interested in astronomy and new instruments. The invention arrived inside a world containing enough real science to make the next claim feel possible. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "An imaginary ecosystem",
+      "claim": "The series described lunar landscapes, unusual animals and winged humanlike creatures. These were fabricated discoveries, not observations confirmed by Herschel. The supposed reporting used scientific language and a claimed connection to the Edinburgh Journal of Science. Our illustration deliberately shows fantasy: it depicts what the story asked readers to imagine, not what the Moon looked like. The difference belongs in the caption, not hidden in a distant source list. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01",
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "Watch the authority travel",
+      "claim": "The mechanism is familiar: attach a real expert’s name to a report, invoke an impressive instrument, cite a publication, then add precise-sounding details. None of those moves substitutes for a traceable observation. Try removing the borrowed authority below. The evidence for the lunar creatures does not change when the prestigious labels disappear. What changes is how the sentence feels to a reader. That is an original demonstration of the story’s logic, not an experiment on 1835 readers.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "A reprint is another copy, not another telescope",
+      "claim": "Imagine five newspapers repeating one report. You may have five pages, but only one chain of information. Independent confirmation would require another observer using a separate route to the evidence. Our reprint counter makes the difference concrete. A rumor can become more visible without becoming better supported. That applies whether the copying happens through a printing press, a repost or a screenshot.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "The picture is real paper",
+      "claim": "A surviving illustration or newspaper can be an authentic historical object and still depict a false claim. Its value changes with the question. It is poor evidence that bat people lived on the Moon. It is excellent evidence for what a publisher circulated, how a fantastic discovery was pictured and what readers were asked to believe. A primary source is close to the event; that does not make every assertion inside it accurate. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "Do not invent a planet full of gullible readers",
+      "claim": "The supposed reporter, “Dr. Andrew Grant,” was fictitious; journalist Richard Adams Locke created the persona. The hoax spread, but “everyone believed it” is a stronger claim than the sources support. Readers differed, and satire, entertainment and belief can overlap. The enduring lesson is not that people in 1835 were foolish. It is that a false story can borrow real expertise and the normal appearance of news. Your job is to follow its claimed source until you reach an actual observation—or discover that the chain ends. [S1]",
+      "namedPeople": [
+        {
+          "name": "John Herschel",
+          "role": "Real astronomer whose authority was borrowed; the lesson shows an illustrative telescope, not a generated likeness.",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Dr. Andrew Grant",
+          "role": "Fictitious reporter; no genuine likeness exists for the invented persona.",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Richard Adams Locke",
+          "role": "Journalist identified briefly to resolve authorship, rather than a biographical focus.",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "A fabricated newspaper discovery dressed in the language of science.",
+    "A famous name and five copies still do not make an observation.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-moon-hoax.html"
+  }
+}

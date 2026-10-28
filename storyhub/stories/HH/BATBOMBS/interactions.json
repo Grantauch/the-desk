@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-BATBOMBS",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "byte-3",
+      "type": "chain",
+      "teaches": "Starting a fire and controlling a mission are different achievements.",
+      "studentAction": "Simplified reasoning board. Select a stage to see why one successful component would not establish the whole mission.",
+      "feedback": "Each choice supplies a distinct historical interpretation; beam and copy controls change a visible causal or source-count state.",
+      "staticFallback": "The six narrative bytes, source comparison and noscript explanation preserve every core conclusion.",
+      "identityFit": "Trace which link in a five-stage mission fails; separate a test outcome from a combat claim.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-BATBOMBS",
+  "title": "the bats that burned the wrong base",
+  "route": "/hubs/hh-bytesize-bat-bombs.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/BATBOMBS/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-bat-bombs.html",
+      "bytes": 26486,
+      "sha256": "b57c9493bf7c7d34ccfed3e106a7d39182b5e2966f281ecd5aa3a113aeddf277"
+    },
+    {
+      "path": "/storyhub/hh/bat-bombs/assets/cover.webp",
+      "bytes": 207966,
+      "sha256": "6a944f1d00d90152182f462ab7008573b7e3ea89878b0f86baf1cf2a9271e0cd",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/bat-bombs/assets/recap.mp4",
+      "bytes": 223908,
+      "sha256": "e6b97abd43353526becba4a1aba164480538e2a432660d554247bba34ce980f9",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/bat-bombs/assets/recap.vtt",
+      "bytes": 394,
+      "sha256": "bbd4effcec513f39ce509f8958e4aa89e6c550a2957b551443351b873a131a13",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/bat-bombs/assets/transcript.txt",
+      "bytes": 434,
+      "sha256": "4b5657cee12c395e0e7fbc074bc79a1f743ac936f7db13b54789672e00707f93",
+      "assetId": "A04"
+    }
+  ],
+  "totalBytes": 459188,
+  "sealedAt": "2026-10-28"
+}

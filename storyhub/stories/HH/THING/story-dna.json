@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-THING",
+  "title": "the gift that listened",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "polished diplomatic room with an invisible threat"
+    ],
+    "paletteIntent": "walnut, parchment and electric cyan",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "A carved Great Seal, a listening van and a simplified reflected radio signal."
+    ],
+    "shapeLanguage": "Scene-specific evidence surfaces, with open narrative space between them",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Turn the external beam on and off; compare a silent scan with a scan during activation."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "No battery did not mean no bug."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "walnut, parchment and electric cyan",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Turn the external beam on and off; compare a silent scan with a scan during activation.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

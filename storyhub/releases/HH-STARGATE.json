@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-STARGATE",
+  "title": "the spies who stared at mars",
+  "route": "/hubs/hh-bytesize-stargate.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/STARGATE/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-stargate.html",
+      "bytes": 26737,
+      "sha256": "db326038da0d1a1581186d033bf7e2720923b2f6cb2deb103b43849c6650bb5e"
+    },
+    {
+      "path": "/storyhub/hh/stargate/assets/cover.webp",
+      "bytes": 149638,
+      "sha256": "3cd08b4d5c5c498d0090f6c790e1710cd2742cea96f458523fe71f3ff3345d5f",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/stargate/assets/recap.mp4",
+      "bytes": 205773,
+      "sha256": "c217300ddf62799c9d1cf24366ecd007bbe89475f8d68f058930a426094008bf",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/stargate/assets/recap.vtt",
+      "bytes": 399,
+      "sha256": "3eaff4c7aca8ce8ccb36dafcd35426d14d6496340a1bef6dc7f2ca0f6acb8e99",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/stargate/assets/transcript.txt",
+      "bytes": 432,
+      "sha256": "9738f22ee57ed935bf60edb5299fc549e0a7d3ad3c3362e79e5d6f687d0be270",
+      "assetId": "A04"
+    }
+  ],
+  "totalBytes": 382979,
+  "sealedAt": "2026-10-28"
+}

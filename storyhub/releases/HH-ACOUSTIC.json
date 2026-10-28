@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ACOUSTIC",
+  "title": "the cat that wouldn’t spy",
+  "route": "/hubs/hh-bytesize-acoustic-kitty.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/ACOUSTIC/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-acoustic-kitty.html",
+      "bytes": 26878,
+      "sha256": "5226119573068e4bb992b03d54c05b8cb4f1b8d28c5bf9cacfd65114507e6912"
+    },
+    {
+      "path": "/storyhub/hh/acoustic-kitty/assets/cover.webp",
+      "bytes": 242954,
+      "sha256": "cbacf4a95f4496d238b3f4ab47f3ef8f0d4e6e334656211ed205344f84508345",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/acoustic-kitty/assets/recap.mp4",
+      "bytes": 264779,
+      "sha256": "6c455b4a80c1215cf6b78bfcf296ae52c798878fa603a89898a26f4b6dc80edb",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/acoustic-kitty/assets/recap.vtt",
+      "bytes": 379,
+      "sha256": "83803b6441c493e1b6e7708ed160abbc42172ddd2d1c844c5020fc0f7ba139e1",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/acoustic-kitty/assets/transcript.txt",
+      "bytes": 411,
+      "sha256": "fc71d63cc8e23d4c5179eb007dd52f2a5b43abb02b439be0b0b1f16f7aa92532",
+      "assetId": "A04"
+    },
+    {
+      "path": "/storyhub/hh/acoustic-kitty/assets/record.webp",
+      "assetId": "A05",
+      "bytes": 106904,
+      "sha256": "0c72d6c6a7d784f2ef4ff952b8845b25293df98a2e522b487337b4788904d0fc",
+      "width": 1049,
+      "height": 1354
+    }
+  ],
+  "totalBytes": 642305,
+  "sealedAt": "2026-10-28"
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-MINCEMEAT",
+  "title": "the man who never was",
+  "route": "/hubs/hh-bytesize-mincemeat.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/MINCEMEAT/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-mincemeat.html",
+      "bytes": 27178,
+      "sha256": "98093cb813c038d2390da930ae03cdef3d6de82166bf26ce5279d75335b9b33c"
+    },
+    {
+      "path": "/storyhub/hh/mincemeat/assets/cover.webp",
+      "bytes": 135600,
+      "sha256": "72dad18ef3cd4385450e50ac266f35f284bd767b7162de00d96d47d25466b22c",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/mincemeat/assets/recap.mp4",
+      "bytes": 185955,
+      "sha256": "42c30f3f7967bdebf5b4e230278eed5550da98ecb5b1a545288f7f3b230ecb50",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/mincemeat/assets/recap.vtt",
+      "bytes": 366,
+      "sha256": "59e5cc5a264adf15c539729ae02e93a7b710d5ce73df434c14329ba0cc9cf522",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/mincemeat/assets/transcript.txt",
+      "bytes": 392,
+      "sha256": "37c86efb395f72b85021d625577264f8220b279f29296b482bf94485a5bc9667",
+      "assetId": "A04"
+    }
+  ],
+  "totalBytes": 349491,
+  "sealedAt": "2026-10-28"
+}

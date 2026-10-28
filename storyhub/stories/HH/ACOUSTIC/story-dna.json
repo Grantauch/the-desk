@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ACOUSTIC",
+  "title": "the cat that wouldn’t spy",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "warm surveillance comedy"
+    ],
+    "paletteIntent": "charcoal, apricot and faded mint",
+    "typographyIntent": "Large editorial serif headlines, readable system sans narrative, monospace records",
+    "textureLanguage": [
+      "A cat on a park bench, eavesdropping geometry and the gap between an engineering demonstration and an operation."
+    ],
+    "shapeLanguage": "Scene-specific evidence surfaces, with open narrative space between them",
+    "motionGrammar": [
+      "Only user-triggered reveals; instant state changes with reduced motion"
+    ],
+    "interactionSignature": [
+      "Choose a listening position; compare a 1967 memo with the agency’s 2024 account."
+    ],
+    "densityRhythm": "Six short narrative bytes, two distinct evidence experiments, one source verdict and three short answers.",
+    "archivalBehavior": "Authentic sources are linked and dated; generated artwork is explicitly labeled an illustration, and all invented exercise material is labeled.",
+    "endingLanguage": "The cat is the uncontrollable part of an otherwise working listening system."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "charcoal, apricot and faded mint",
+    "edgeTreatment": "Boundaries follow the story objects: paper, field canvas, test panels or newspaper rules.",
+    "controlLanguage": "Choose a listening position; compare a 1967 memo with the agency’s 2024 account.",
+    "spacingLanguage": "Short reading blocks with full-width scene pauses and a compact evidence desk.",
+    "transitionLanguage": "Natural scrolling. A control changes the evidence state without moving the reader."
+  }
+}

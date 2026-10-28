@@ -25,6 +25,222 @@ export interface StoryHub {
 export const storyHubs: StoryHub[] = [
 
   {
+    slug: "hh-bytesize-acoustic-kitty",
+    href: "/hubs/hh-bytesize-acoustic-kitty.html",
+    title: "the cat that wouldn’t spy",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1964–1967",
+    status: "ready to teach",
+    bytesize: "bytesize no. 9",
+    question: "The CIA really wired a cat for sound. Why didn’t that make it a useful spy?",
+    blurb: "One microphone. One transmitter. One agent with absolutely no interest in the assignment. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/acoustic-kitty/assets/cover.webp",
+    coverAlt: "Modern illustration of a tabby cat on a park bench, with two men talking and a van in the background.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "acoustic kitty"
+    ],
+    inside: [
+      "You can choose the bench. Can you choose the cat?",
+      "Two sources, two jobs.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-bat-bombs",
+    href: "/hubs/hh-bytesize-bat-bombs.html",
+    title: "the bats that burned the wrong base",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1942–1944",
+    status: "ready to teach",
+    bytesize: "bytesize no. 10",
+    question: "The bat project was real. Did a fire at an American test base prove it could work in war?",
+    blurb: "The plan: burn enemy buildings. The test: burn the buildings on your own side. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/bat-bombs/assets/cover.webp",
+    coverAlt: "Modern illustration of bats over a desert airfield as an empty wooden building burns.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "bat bombs"
+    ],
+    inside: [
+      "Find the broken assumption.",
+      "What would the fire establish?",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-stargate",
+    href: "/hubs/hh-bytesize-stargate.html",
+    title: "the spies who stared at mars",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1972–1995",
+    status: "ready to teach",
+    bytesize: "bytesize no. 11",
+    question: "Why does an authentic government transcript about Mars not count as proof of ancient Martians?",
+    blurb: "A sealed envelope. A person describing another world. A real file that the internet often asks to prove too much. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/stargate/assets/cover.webp",
+    coverAlt: "Modern illustration of an empty chair and a sealed envelope beneath a large image of Mars.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "stargate"
+    ],
+    inside: [
+      "One description. Three possible “hits.”.",
+      "Separate three findings.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-ghost-army",
+    href: "/hubs/hh-bytesize-ghost-army.html",
+    title: "the army that wasn’t there",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1944–1945",
+    status: "ready to teach",
+    bytesize: "bytesize no. 12",
+    question: "How do you make the enemy discover an army that does not exist?",
+    blurb: "Rubber tanks. Recorded engines. Fake radio traffic. Real soldiers close enough to the front to be in danger. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/ghost-army/assets/cover.webp",
+    coverAlt: "Modern illustration of soldiers lifting an inflatable tank at a field camp.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "ghost army"
+    ],
+    inside: [
+      "Build the impression, then change the viewpoint.",
+      "Does more evidence mean more independence?",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-mincemeat",
+    href: "/hubs/hh-bytesize-mincemeat.html",
+    title: "the man who never was",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1943",
+    status: "ready to teach",
+    bytesize: "bytesize no. 13",
+    question: "Could ordinary pocket clutter make false invasion orders look genuine?",
+    blurb: "Britain gave a dead man an invented identity. His paperwork had to survive an enemy’s curiosity. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/mincemeat/assets/cover.webp",
+    coverAlt: "Modern illustration of a leather briefcase and papers on a wartime desk beside a coastal window.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "mincemeat"
+    ],
+    inside: [
+      "Build a believable person. Then inspect the leap..",
+      "One object, two claims.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-the-thing",
+    href: "/hubs/hh-bytesize-the-thing.html",
+    title: "the gift that listened",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1945–1960",
+    status: "ready to teach",
+    bytesize: "bytesize no. 14",
+    question: "How could a wooden gift listen for years without a battery inside it?",
+    blurb: "The embassy accepted the present. The hidden microphone waited for someone outside to switch it on. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/the-thing/assets/cover.webp",
+    coverAlt: "Modern illustration of a carved Great Seal in an office with a symbolic radio beam from a distant van.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "the thing"
+    ],
+    inside: [
+      "Make the silent room talk.",
+      "What did your scan actually test?",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-sea-spray",
+    href: "/hubs/hh-bytesize-sea-spray.html",
+    title: "the fog was a field test",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1950–1983",
+    status: "ready to teach",
+    bytesize: "bytesize no. 15",
+    question: "The military secretly released bacteria near San Francisco. What can we prove about the consequences?",
+    blurb: "A real release, an unwarned city and a court case that answered a narrower question than the headlines. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/sea-spray/assets/cover.webp",
+    coverAlt: "Modern illustration of a ship in foggy San Francisco Bay. The fog is atmosphere, not visible bacteria.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "sea spray"
+    ],
+    inside: [
+      "Climb only as high as the evidence allows.",
+      "The court’s ruling is not a laboratory result.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
+    slug: "hh-bytesize-moon-hoax",
+    href: "/hubs/hh-bytesize-moon-hoax.html",
+    title: "bat people on the moon",
+    course: "hidden history",
+    unit: "bytesize / extraordinary claims",
+    period: "1835",
+    status: "ready to teach",
+    bytesize: "bytesize no. 16",
+    question: "How did a real newspaper sell an imaginary Moon as a scientific discovery?",
+    blurb: "In 1835, a newspaper delivered lunar animals and winged people. The borrowed authority was easier to find than the evidence. Six short bytes separate the documented record from the claim that outruns it.",
+    cover: "/storyhub/hh/moon-hoax/assets/cover.webp",
+    coverAlt: "Modern illustration merging a telescope and printing press with the imaginary lunar creatures of the hoax.",
+    topics: [
+      "hidden history",
+      "evidence",
+      "conspiracy claims",
+      "moon hoax"
+    ],
+    inside: [
+      "Turn down the borrowed authority.",
+      "Count observations, not copies.",
+      "A 28-second captioned video recap with a complete written transcript.",
+      "Three short responses using linked sources, shared work controls and Turn In."
+    ]
+  },
+
+  {
     slug: 'hh-bytesize-glomar',
     href: '/hubs/hh-bytesize-glomar.html',
     title: 'the ship that wasn’t mining',

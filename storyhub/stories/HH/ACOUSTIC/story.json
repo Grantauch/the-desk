@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-ACOUSTIC",
+  "course": "HH",
+  "lessonCode": "ACOUSTIC",
+  "title": "the cat that wouldn’t spy",
+  "audience": "students",
+  "narrativeQuestion": "The CIA really wired a cat for sound. Why didn’t that make it a useful spy?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A very ordinary cover",
+      "claim": "Imagine two people talking on a bench. A stranger walking up with a microphone changes the conversation. A cat wandering over might not. During the Cold War, when the United States and Soviet Union competed for military and political advantage, the CIA investigated exactly that possibility. Its 2024 history dates the cat experiment to 1964. The ridiculous part of the story is real: the agency tried turning a living cat into a mobile listening device. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "The equipment was not the whole mission",
+      "claim": "According to the CIA, a microphone went into an ear, a transmitter under the skin, and an antenna into the fur. Keep the description at that level: this was an experiment on an animal, not a gadget to copy. The agency says the equipment worked. A useful operation required something more difficult: the cat had to approach the right conversation, remain unnoticed and stay there. Imagine a delivery app that works perfectly except the driver chooses every destination. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01",
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "Now give the cat orders",
+      "claim": "The agency says limited field tests exposed a control problem: the animal went where it wanted. That is different from proving cats cannot learn anything. The surviving 1967 memo acknowledges training achievements but rejects the technique as practical for the agency’s specialized needs. Laboratory success and a reliable mission are different tests. Try the listening-position exercise below, then think about who actually controls the route. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "The punch line gets its own fact check",
+      "claim": "You may have heard that a taxi killed the cat on its first mission. Later accounts disagree. Smithsonian reported both that story and a former CIA technical official’s rejection of it in 2013. In 2024 the CIA explicitly called it a myth and said the cat was unharmed. That later statement matters, but it is still an agency account. The careful conclusion is that the taxi story is disputed and should not be presented as a documented ending. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "Open the memo, not just the legend",
+      "claim": "A redaction is missing information. It does not authorize us to fill the blank with the wildest explanation. Document 27 gives us a contemporary judgment that the technique was impractical in a foreign operational setting. It does not settle every later anecdote about the animal. Compare the two source cards: one was written as the project ended; the other was published decades later for the public. Each can answer a different question. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "What actually survives",
+      "claim": "The program ended in 1967; the CIA says the cat was never used operationally. We can establish an unusual research project and a practical failure without pretending to know every detail. Calling the project real does not make every story attached to it real. Your strongest ending keeps the secret experiment, the unreliable delivery system and the disputed taxi anecdote in separate sentences. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "An actual CIA experiment; its most famous punch line is disputed.",
+    "A working microphone is not a controllable spy.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-acoustic-kitty.html"
+  }
+}

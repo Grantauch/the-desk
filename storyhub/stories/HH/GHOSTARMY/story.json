@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-GHOSTARMY",
+  "course": "HH",
+  "lessonCode": "GHOSTARMY",
+  "title": "the army that wasn’t there",
+  "audience": "students",
+  "narrativeQuestion": "How do you make the enemy discover an army that does not exist?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "An army made to be noticed",
+      "claim": "In 1944 the U.S. Army activated the 23rd Headquarters Special Troops for battlefield deception. Roughly 1,100 men helped create the appearance of much larger forces. Their job was not simply to hide American activity. Sometimes it was to attract attention to a place where the real attack was not happening. The name “Ghost Army” describes a manufactured impression, not supernatural soldiers. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "Rubber armor",
+      "claim": "Inflatable dummy tanks and other equipment could suggest a force when viewed from a distance. Up close, the illusion could collapse: a tank that several people can lift is not a working armored vehicle. Distance changes what an observer can resolve. That is why a photograph can be accurate about what the camera saw while supporting a mistaken conclusion about what stood there. The trick exploited the observer’s limited viewpoint. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01",
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "A tank should sound like a tank",
+      "claim": "A silent camp full of motionless tanks might invite suspicion. Specialized sonic units used recorded military sounds and powerful playback equipment to suggest vehicles, construction and troop movement. Sound supplied a second kind of cue. It mattered that the cues fit the visual story, rather than merely making impressive noise. Try adding the channels below and notice how your explanation changes when several signals agree. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "Then make it talk",
+      "claim": "Radio operators could imitate traffic associated with real units. Soldiers also used impersonation and other visible details to reinforce the story. An enemy analyst might see a camp, hear movement and intercept messages that seem to corroborate one another. But several channels can share one source: the same deception team. Multiple signals are not automatically independent evidence. That is the reasoning problem our board makes visible. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "The props were fake. The risk was real.",
+      "claim": "The 23rd worked near the front and could attract actual enemy attention. The Army museum records three members killed and dozens wounded during its wartime service. Those men were not safe merely because their tanks were inflatable. The 3133rd Signal Service Company carried out a separate sonic-deception mission in Italy; it should not be casually folded into every story about the 23rd. Precise unit names help keep the history straight. [S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "A secret can leave honest photographs",
+      "claim": "Postwar secrecy delayed broad recognition. The soldiers’ props, recordings and photographs now help document the deception. That creates a useful puzzle: the photograph of a fake tank is not necessarily a fake photograph. It may be genuine evidence that somebody constructed a decoy. Before dismissing or accepting an image, identify which claim you are asking it to prove. “A tank shape existed” and “an armored division was stationed there” demand different evidence. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "Real soldiers staged an army using rubber, sound and radio deception.",
+    "Three convincing signals can still come from one deception.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-ghost-army.html"
+  }
+}

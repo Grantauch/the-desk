@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-THING",
+  "course": "HH",
+  "lessonCode": "THING",
+  "title": "the gift that listened",
+  "audience": "students",
+  "narrativeQuestion": "How could a wooden gift listen for years without a battery inside it?",
+  "chapters": [
+    {
+      "id": "byte-1",
+      "title": "A gift with excellent placement",
+      "claim": "In August 1945 Soviet schoolchildren presented a carved wooden Great Seal of the United States to the American ambassador. The carving hung in the ambassador’s Moscow residential office. A national emblem in a diplomatic office seemed appropriate. That social setting helped place a covert device near private conversations. The gift was not merely camouflage; it supplied a reason for the object to remain in a valuable location. [S1]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-2",
+      "title": "No battery to find",
+      "claim": "Inside was a listening device later nicknamed “The Thing.” Unlike an ordinary self-powered radio transmitter, it had no internal battery. It used energy from a radio beam directed at it from outside. That made a search for familiar wiring or an always-broadcasting signal less useful. A failed search can tell you something about the search method as well as the room. [S1, S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01",
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-3",
+      "title": "The room changes the returning signal",
+      "claim": "The mechanism was a passive cavity resonator. In plain language, speech in the room vibrated a thin membrane. When the external beam illuminated the device, those vibrations altered the reflected radio signal. Receivers outside could recover the speech. Our beam switch below shows the dependency: no external illumination, no useful reflected audio in this simplified model. It is a conceptual explanation, not construction guidance. [S1, S3]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "byte-4",
+      "title": "Search while it is silent",
+      "claim": "The device was discovered in 1952 during the period when George Kennan was ambassador. Its intermittent activation made detection difficult. Toggle the beam and run both scans below. A quiet result while the beam is off does not demonstrate that the plaque is harmless. Equally, one real bug does not mean every gift is bugged. Both conclusions require evidence that fits the claim. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-5",
+      "title": "A secret becomes a prop",
+      "claim": "In May 1960, after the Soviet Union shot down an American U-2 reconnaissance plane, the United States displayed the Great Seal deception at the United Nations. The exhibit helped demonstrate that espionage ran in both directions. Revealing somebody else’s spying did not make the American flight disappear. The public display was evidence and an argument delivered at a politically useful moment. [S2]",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "byte-6",
+      "title": "What was actually heard?",
+      "claim": "The hidden device and its operating principle are documented. The CIA’s retrospective says exactly what information was compromised is difficult to determine. Avoid turning years of possible access into a claim that every conversation was recorded continuously. Also read museum captions: the NSA and International Spy Museum identify their displayed versions as replicas or reproductions. A replica can explain a mechanism while remaining a different object from the original. [S1, S2, S3]",
+      "namedPeople": [
+        {
+          "name": "George Kennan",
+          "role": "Ambassador named only to date discovery; mechanism, not biography, is the visual focus.",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    }
+  ],
+  "accuracyNotes": [
+    "The hidden Soviet microphone was real; the full intelligence haul is unknown.",
+    "A silent scan is evidence about a condition, not proof of an empty room.",
+    "No invented testimony, exact saved transcript quotation or archival photograph is supplied by image generation. Illustrative exercises never assert measured historical probabilities."
+  ],
+  "release": {
+    "route": "/hubs/hh-bytesize-the-thing.html"
+  }
+}

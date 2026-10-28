@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-THING",
+  "title": "the gift that listened",
+  "route": "/hubs/hh-bytesize-the-thing.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/THING/story.json",
+    "note": "Original sourced ByteSize lesson with explicitly interpretive illustration and authored captioned recap."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-bytesize-the-thing.html",
+      "bytes": 27213,
+      "sha256": "5d84d71ffb6f161c04462b720177508ce2841260dcd0cd78e6304f6c61839313"
+    },
+    {
+      "path": "/storyhub/hh/the-thing/assets/cover.webp",
+      "bytes": 109792,
+      "sha256": "897bc6408ae1cadde6bd7aea4f2f3b38c9ac228e62b397a70e4425c35da22cf1",
+      "width": 1600,
+      "height": 900,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/hh/the-thing/assets/recap.mp4",
+      "bytes": 156831,
+      "sha256": "a8067a3305519b2927a69d10fee75b9a24efd2be9c817f45234a47d1cea8df74",
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/hh/the-thing/assets/recap.vtt",
+      "bytes": 403,
+      "sha256": "347f06a32c955b22b4c746d2d09a414fe52f197482a300c37552442e551ca678",
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/hh/the-thing/assets/transcript.txt",
+      "bytes": 430,
+      "sha256": "2dc930d65e22c69e968ac3a4cc1ada15631bee1717312077b8e9280698af58be",
+      "assetId": "A04"
+    },
+    {
+      "path": "/storyhub/hh/the-thing/assets/record.webp",
+      "assetId": "A05",
+      "bytes": 31822,
+      "sha256": "4153d7292f7754999482f823d329125562c4b11ac0bd6945aa6a7c0a85d59a1e",
+      "width": 681,
+      "height": 322
+    }
+  ],
+  "totalBytes": 326491,
+  "sealedAt": "2026-10-28"
+}
