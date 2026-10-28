@@ -1,6 +1,14 @@
 # GrantDesk Classroom Log — one-time Google setup
 
-## Prepared Checkling integration — October 21, 2026 (not deployed)
+## Current school-camp release audit — October 28, 2026
+
+[Permanent release-control issue #28](https://github.com/Grantauch/the-desk/issues/28) is authoritative for the actual Apps Script deployment version. A source commit or merged website change alone does not deploy the school app. [PR #255](https://github.com/Grantauch/the-desk/pull/255) tracks the connected school Pixel Camp and its final combined-source checks. The existing deployment ID, URL, DOMAIN access, USER_DEPLOYING identity and five-file source set remain the release contract.
+
+[Preflight 40701012960](https://github.com/Grantauch/the-desk/actions/runs/40701012960) verified live Version 42 on October 28. Pixel Camp assets must be verified on the website before the guarded Apps Script update. The deployed `?mode=releasecheck` now verifies synthetic camp save/reload/idempotency as well as pass request/return and unchanged production facts. Authenticated live smoke and classroom use remain distinct from source/bridge evidence.
+
+The dated preparation and older version records below are historical.
+
+## Historical Checkling preparation — October 21, 2026 (not deployed)
 
 The current source adds the optional Checkling companion to Daily Check-In. See `docs/checkling-pond/README.md` for behavior and verification. Pet preferences use the existing private property store; the workbook schema and five-file source set are unchanged. The existing attendance, PIN, calendar, late-review and point rules remain authoritative.
 
@@ -8,7 +16,7 @@ Release `public/hubs/checkling/pets/` on the website first, then run the normal 
 
 The site prerequisite is complete: Netlify production `6ad98a531434a56a17d487f7` is ready on merged PR #217 commit `deff07421a29e60db9fb5b79e7cb04765ac8514d`. All 17 Pond/art files match source SHA-256 on the live domain. The expanded companion in PR #218 remains a separate pending Apps Script release.
 
-## Most recent production preflight — Version 39, October 21, 2026
+## Historical production preflight — Version 39, October 21, 2026
 
 [Preflight run 39715268796](https://github.com/Grantauch/the-desk/actions/runs/39715268796) verified Version 39 on the existing deployment. All five production file hashes exactly match site main `3e71b3dc67e9d394d5c7ed634090814dd979c34c`, with no unpublished editor draft. The stable URL, DOMAIN access and USER_DEPLOYING execution are unchanged. This is read-only production evidence; it does not deploy Checkling or replace the required protected synthetic smoke.
 

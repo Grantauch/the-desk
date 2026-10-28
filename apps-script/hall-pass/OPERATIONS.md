@@ -1,5 +1,9 @@
 # GrantDesk Hall Pass — steady-state operations
 
+Current release authority: [permanent release-control issue #28](https://github.com/Grantauch/the-desk/issues/28). It records the actual deployed Apps Script version and guarded readback. Connected Pixel Camp source/combined checks are tracked in [PR #255](https://github.com/Grantauch/the-desk/pull/255). Authenticated synthetic live smoke and classroom use are separate field evidence.
+
+## Historical September 22 operating record
+
 Issue #14 is closed. **Version 29 is deployed.** The production Apps Script source, canonical release gate, production preflight, in-place Apps Script deployment, and matching Netlify application deploy are recorded below. Protected `main` may contain later documentation-only commits without changing the deployed Apps Script version. This file is the current operating checklist; older version sections below are historical records. Classroom observation and the authenticated `?mode=releasecheck` synthetic protected-action smoke remain FIELD_PENDING.
 
 Production fingerprint as of 2026-09-22 (Version 29):
