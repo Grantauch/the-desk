@@ -108,6 +108,7 @@
     document.querySelector('.game-help').textContent = 'Saved privately with your school PIN and selected class. Playing adds no attendance or points. Close camp and choose Done when finished.';
     document.querySelector('.menu-note').textContent = 'Your camp follows your school PIN across devices. Save a file before importing an older browser camp.';
     document.querySelector('.about-playtest p:nth-of-type(2)').textContent = 'School camp: your original Checkling, name and earned home are preserved. Extra party friends, trail stamps and camp goals are game progress. Official school streaks remain separate.';
+    document.querySelector('.skip').addEventListener('click',event => {event.preventDefault();$('actions').focus();});
     document.querySelectorAll('.close-form button').forEach(button => button.addEventListener('click',event => {event.preventDefault();button.closest('dialog').close();}));
     const retry = document.createElement('button');
     retry.id = 'school-save-retry'; retry.type = 'button'; retry.textContent = 'Retry school save'; retry.hidden = true;
@@ -819,11 +820,17 @@
   };
   $("rename").onclick = () => openName();
   $("cancel-name").onclick = () => $("name-dialog").close();
-  $("name-form").onsubmit = (event) => {
+  const keepNickname = (event) => {
     event.preventDefault();
     act({ type: "rename", value: $("nickname").value });
     $("name-dialog").close();
   };
+  $("name-form").onsubmit = keepNickname;
+  if (schoolSession) {
+    // Native form submission is intentionally disabled in the school sandbox.
+    $("name-form").querySelector('[type="submit"]').onclick = keepNickname;
+    $("nickname").onkeydown = event => { if (event.key === 'Enter') keepNickname(event); };
+  }
   $("name-dialog").addEventListener("close", () => {
     if (nameFromMenu) $("open-menu").focus();
   });

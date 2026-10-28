@@ -63,6 +63,8 @@ try {
     await login();let frame=await open();
     assert.match(await frame.locator('.school-banner').innerText(),/Sprocket/);
     assert.equal(await frame.locator('#pet-name').textContent(),'Sprocket');
+    await frame.locator('.skip').focus();await frame.locator('.skip').press('Enter');
+    assert.equal(await frame.locator('#actions').evaluate(el=>el===document.activeElement),true,'skip link stays inside school camp');
     assert.ok(await frame.locator('html').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'camp fits phone: '+ await frame.locator('body').evaluate(()=>JSON.stringify([...document.querySelectorAll('*')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).slice(0,8).map(el=>[el.id,el.className,el.getBoundingClientRect().width,innerWidth]))));
     assert.ok(await page.locator('html').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'school host fits phone');
     await frame.locator('[data-view=trail]').click();await frame.locator('#discover').click();
@@ -108,6 +110,17 @@ try {
       assert.equal(await frame.locator('#pet-name').textContent(),'Other friend');
       assert.equal(await frame.locator('#discovery-count').textContent(),'0 / 12');
       assert.equal(await frame.locator('body').innerText().then(text=>text.includes('Sprocket')),false);
+    }
+    if(width===1440) {
+      await frame.locator('#party-list [data-pet=mochi]').click();
+      await frame.locator('#open-menu').click();await frame.locator('[data-menu-action=name]').click();await frame.locator('#nickname').fill('Cloud buddy');
+      await frame.locator('#nickname').press('Enter');
+      await frame.getByText('Saved to school',{exact:true}).waitFor();
+      assert.equal(await frame.locator('#pet-name').textContent(),'Cloud buddy','nickname Enter works in sandbox');
+      await frame.locator('#open-menu').click();await frame.locator('[data-menu-action=name]').click();await frame.locator('#nickname').fill('Moon buddy');
+      await frame.getByRole('button',{name:'Keep it!',exact:true}).click();
+      await frame.getByText('Saved to school',{exact:true}).waitFor();
+      assert.equal(await frame.locator('#pet-name').textContent(),'Moon buddy','nickname button works in sandbox');
     }
     if(width===390) {
       await page.clock.fastForward(121000);
