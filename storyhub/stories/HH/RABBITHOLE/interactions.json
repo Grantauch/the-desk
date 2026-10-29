@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "ch-cases",
+      "type": "verdict",
+      "teaches": "Credibility is not the same as plausibility. Four implausible histories occurred, one plausible story was invented.",
+      "studentAction": "Mark all five cases Real/Fake, then lock. Reveal remains hidden until five selections.",
+      "feedback": "Per-card historical/invented verdicts and aggregate score appear only once locked.",
+      "staticFallback": "The page includes all five cases and an explanation of the fake in the next section.",
+      "identityFit": "Five Wonderland playing cards. Reveal erupts in vivid yellow.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "ch-bias",
+      "type": "matching",
+      "teaches": "Different errors in judgment explain why different deceptions succeeded.",
+      "studentAction": "Choose A–D's matching cognitive bias.",
+      "feedback": "Per-case success marker plus written explanation, with option to show reasons.",
+      "staticFallback": "Each match and explanation is reproduced in prose.",
+      "identityFit": "Four cards dealt beside an evidence table.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "ch-triad",
+      "type": "scenario",
+      "teaches": "A behavior may illustrate a construct without proving a clinical diagnosis.",
+      "studentAction": "Choose the strongest construct for three fictional scenarios.",
+      "feedback": "Immediate explanatory feedback that does not diagnose.",
+      "staticFallback": "Character chapters define the traits in text.",
+      "identityFit": "Wonderland figures act as story guides, not clinical patients.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "ch-exit",
+      "type": "written-response",
+      "teaches": "Transfer a habit of critical judgment to a new claim.",
+      "studentAction": "Write three answers in labeled textareas.",
+      "feedback": "Shared desk-save.js provides account-based saved work, work controls and Turn In on the deployed site; this page does not maintain duplicate student data.",
+      "staticFallback": "Paper equivalent: answer three questions in writing, then discuss.",
+      "identityFit": "A final set of three paper verdict panels closes the story.",
+      "status": "implemented"
+    }
+  ]
+}

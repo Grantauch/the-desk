@@ -23,6 +23,34 @@ export interface StoryHub {
 }
 
 export const storyHubs: StoryHub[] = [
+{
+  "slug": "hh-down-the-rabbit-hole",
+  "href": "/hubs/hh-down-the-rabbit-hole.html",
+  "title": "down the rabbit hole",
+  "course": "hidden history",
+  "unit": "mind games · lesson 1",
+  "period": "1822–2013",
+  "status": "ready to teach",
+  "question": "Can you spot the lie when the true stories sound impossible?",
+  "blurb": "Five impossible stories; four real, one invented. Enter a Wonderland of confidence tricks, cognitive biases, the Dark Triad and the danger of diagnosing strangers.",
+  "cover": "/storyhub/hh/rabbit-hole/assets/eye.webp",
+  "coverAlt": "Original PowerPoint artwork of a red concentric hypnotic eye for the Down the Rabbit Hole Wonderland lesson.",
+  "topics": [
+    "hidden history",
+    "psychology",
+    "cognitive bias",
+    "confidence tricks",
+    "Wonderland"
+  ],
+  "inside": [
+    "Spot the Con: five cards, four historical cases and one invented story.",
+    "Lock your verdict, then match four biases to their cases.",
+    "Meet three Wonderland guides to the Dark Triad.",
+    "Investigate the 2013 everyday-sadism study and the Goldwater Rule.",
+    "Finish a three-question exit ticket using shared StoryHub work controls."
+  ]
+},
+
 
 {
   "slug": "hh-bytesize-habbakuk",
