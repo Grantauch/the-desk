@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/ush9-bytesize-the-line-that-wouldnt-move.html",
-      "bytes": 50895,
-      "sha256": "b43795274ce14b5d17687807ddd6fb6abefc0845230e1f351397c1f758dac13f"
+      "bytes": 50923,
+      "sha256": "8047ae49dab46eecbbc8a59c11750c90b15b9a99d5d2a0d34acaf64e5870abd0"
     },
     {
       "path": "/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg",
@@ -32,6 +32,6 @@
       "sha256": "d87cae6faf167b0ca194ce307de3911fc5da87fba385f3cff819eae28c290f16"
     }
   ],
-  "totalBytes": 1865440,
+  "totalBytes": 1865468,
   "sealedAt": "2026-10-29"
 }

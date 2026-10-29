@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-down-the-rabbit-hole.html",
-      "bytes": 47484,
-      "sha256": "11801098b4f443b9a77fdfc245b632d42078923913f5c841696cc1923493211c"
+      "bytes": 47512,
+      "sha256": "2ca118f102a52e85c3f0d1c8eff8d799b95e985e8067945603b064a8416f42f3"
     },
     {
       "path": "/storyhub/hh/rabbit-hole/assets/floor.webp",
@@ -126,6 +126,6 @@
       "height": 700
     }
   ],
-  "totalBytes": 425636,
+  "totalBytes": 425664,
   "sealedAt": "2026-10-29"
 }
