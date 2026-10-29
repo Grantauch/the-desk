@@ -5,6 +5,9 @@
  * of the page:  <script src="/hubs/desk-save.js" defer></script>
  *
  * What it does for a student:
+ *   0. The page opens behind a PIN gate. After the hall pass PIN and a name
+ *      check, account saving runs from the first answer and earlier work
+ *      loads. Teacher devices skip it with ?deskteacher=on (once per browser).
  *   1. Every answer box saves while they type and survives a refresh. The copy
  *      lives in this browser tab only, so the next student on a shared
  *      Chromebook opens a blank page.
@@ -61,6 +64,22 @@
     if (testHooks.snapshotMs) SNAPSHOT_MS = testHooks.snapshotMs;
   }
   var cloudOn = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(ENDPOINT) || Boolean(testHooks && ENDPOINT);
+
+  // Every answer page opens behind the hall pass PIN, so work saves to the
+  // student's account from the first answer. A teacher device (projector,
+  // preview) skips the gate after visiting any hub once with ?deskteacher=on,
+  // and ?deskteacher=off turns the gate back on for that browser.
+  var teacherDevice = false;
+  try {
+    var teacherParam = new URLSearchParams(location.search).get('deskteacher');
+    if (teacherParam === 'on') localStorage.setItem('desk-save:teacher', '1');
+    if (teacherParam === 'off') localStorage.removeItem('desk-save:teacher');
+    teacherDevice = localStorage.getItem('desk-save:teacher') === '1';
+  } catch (e) { /* storage blocked: the gate stays on */ }
+  var gateOn = cloudOn && !teacherDevice && !(testHooks && testHooks.gate === false);
+  // The PIN typed at the gate stays in this page's memory only, so Turn In
+  // does not ask for it again. It is never written to storage.
+  var heldPin = '';
 
   var hub = (location.pathname.replace(/\/+$/, '').split('/').pop() || 'hub').replace(/\.html?$/i, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'hub';
   var course = (hub.match(/^(ush9|hh|bts)(?=-|$)/) || [])[1] || '';
@@ -638,6 +657,7 @@
   }
 
   function resetPage() {
+    heldPin = '';
     generation++; clearTimeout(cloudTimer); cloudFirstPending = 0;
     applying = true;
     fields().forEach(function (el) { setValue(el, el.defaultValue); });
@@ -660,7 +680,7 @@
     return Promise.resolve(cloudPromise).then(function () {
       return post({ action: 'signin', pin: pin, hub: hub, course: course }, { attempts: 2 });
     }).then(function (result) {
-      if (!result || !result.ok) return { ok: false, message: result && result.error || 'That did not go through. Try again.' };
+      if (!result || !result.ok) return { ok: false, code: result && result.code || 'server', message: result && result.error || 'That did not go through. Try again.' };
       if (state !== beforeOwner || beforeHash !== hashOf(answers(false))) return { ok: false, message: 'Your answers changed while loading. They were kept. Choose Load My Work again when ready.' };
       var draft = result.draft && Array.isArray(result.draft.answers) ? result.draft : null;
       var switching = Boolean(state.token);
@@ -725,7 +745,7 @@
       return { ok: true, message: hello + (restored ? restored + ' answers brought back. ' : (!draft ? 'No account copy was found for this assignment. ' : 'Your account copy is loaded. ')) + 'Check your name before saving.' };
     }).catch(function () {
       applying = false;
-      return { ok: false, message: 'Could not reach the save system. Your visible answers were kept. Keep this tab open or download a backup.' };
+      return { ok: false, code: 'offline', message: 'Could not reach the save system. Your visible answers were kept. Keep this tab open or download a backup.' };
     }).finally(function () {
       transitioning = false;
       if (state.token && !state.conflict && hasWork() && hashOf(answers(false)) !== state.cloudHash) saveCloud();
@@ -917,6 +937,13 @@
     '.pop p{margin:0 0 12px}',
     '.pop .actions{margin-top:10px}',
     '.link{border:none;padding:6px 0;min-height:auto;text-decoration:underline;font-weight:600}',
+    '.gate{position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;background:color-mix(in srgb, var(--ds-bg) 90%, transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}',
+    '.gate[hidden]{display:none}',
+    '.gate .panel{margin:auto;width:100%;max-width:480px;border-color:var(--ds-line-strong);box-shadow:0 24px 70px rgba(0,0,0,.35)}',
+    '.kicker{margin:0 0 12px;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
+    '.who{margin:8px 0 2px;font-size:1.7rem;font-weight:700;line-height:1.15}',
+    '.gate .step[hidden]{display:none}',
+    '@media (max-width:520px){.gate .panel{margin:auto;padding:18px}.who{font-size:1.4rem}}',
     '@media (max-width:520px){.panel{margin:32px 12px;padding:18px}.chip{right:10px}}',
     '@media (prefers-reduced-motion:no-preference){.panel.floating,.pop{animation:rise .18s ease-out}@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}}'
   ].join('\n');
@@ -1031,6 +1058,163 @@
     chipHost.root.appendChild(chip);
     document.body.appendChild(chipHost.host);
 
+    /* PIN gate: the page stays covered until a student signs in. */
+    var gateHost = host('desk-save-gate');
+    var gate = make('div', { class: 'gate' });
+    gate.hidden = true;
+    var gateCard = make('section', { class: 'panel', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'ds-gate-title' });
+    var pageName = clean((document.querySelector('h1') || {}).textContent || document.title || '').slice(0, 120);
+    if (pageName) gateCard.appendChild(make('p', { class: 'kicker' }, pageName));
+    var gateStatus = make('p', { class: 'status', role: 'status', 'aria-live': 'polite' });
+
+    var stepPin = make('div', { class: 'step' });
+    stepPin.appendChild(make('h2', { id: 'ds-gate-title' }, 'Enter your PIN to start'));
+    stepPin.appendChild(make('p', { class: 'sub' }, 'Your answers save to your account while you work. Open this page on any Chromebook later and your work comes back.'));
+    var gateActions = make('div', { class: 'actions' });
+    var gatePinLabel = make('label', {}, 'Hall pass PIN');
+    var gatePin = make('input', { type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: '6', pattern: '[0-9]*' });
+    gatePinLabel.appendChild(gatePin);
+    var gateStart = make('button', { class: 'primary', type: 'button' }, 'Start');
+    gateActions.appendChild(gatePinLabel);
+    gateActions.appendChild(gateStart);
+    stepPin.appendChild(gateActions);
+    var gateOffline = make('button', { type: 'button', hidden: '' }, 'Start without saving to my account');
+    gateOffline.style.marginTop = '14px';
+    var gateHelp = make('p', { class: 'help' }, 'Forgot your PIN? Ask your teacher before you start.');
+
+    var stepWho = make('div', { class: 'step', hidden: '' });
+    var whoTitle = make('h2', { id: 'ds-gate-who-title' }, 'Is this you?');
+    var whoName = make('p', { class: 'who' });
+    var whoClass = make('p', { class: 'sub' });
+    var whoClasses = make('div', { class: 'classes', role: 'group', 'aria-label': 'Which class is this for?' });
+    var whoActions = make('div', { class: 'actions' });
+    var whoYes = make('button', { class: 'primary', type: 'button' }, 'Yes, that is me');
+    var whoNo = make('button', { type: 'button' }, 'Not me');
+    whoActions.appendChild(whoYes);
+    whoActions.appendChild(whoNo);
+    [whoTitle, whoName, whoClass, whoClasses, whoActions].forEach(function (n) { stepWho.appendChild(n); });
+
+    [stepPin, stepWho, gateStatus, gateOffline, gateHelp].forEach(function (n) { gateCard.appendChild(n); });
+    gate.appendChild(gateCard);
+    gateHost.root.appendChild(gate);
+    document.body.appendChild(gateHost.host);
+
+    var inerted = [];
+    function coverPage(on) {
+      if (on) {
+        Array.prototype.slice.call(document.body.children).forEach(function (el) {
+          if (el === gateHost.host || el.inert || el.tagName === 'SCRIPT') return;
+          el.inert = true; inerted.push(el);
+        });
+        document.documentElement.style.overflow = 'hidden';
+      } else {
+        inerted.forEach(function (el) { el.inert = false; });
+        inerted = [];
+        document.documentElement.style.overflow = '';
+      }
+    }
+
+    function showStep(step) {
+      stepPin.hidden = step !== 'pin';
+      stepWho.hidden = step !== 'who';
+      gateHelp.hidden = step !== 'pin';
+      if (step !== 'pin') gateOffline.hidden = true;
+      gateCard.setAttribute('aria-labelledby', step === 'pin' ? 'ds-gate-title' : 'ds-gate-who-title');
+    }
+
+    function openGate() {
+      if (!gateOn || state.token) return;
+      showStep('pin');
+      gatePin.value = '';
+      gateOffline.hidden = true;
+      busy(gateStart, false, 'Start');
+      setStatus(gateStatus, message, messageGood);
+      if (gate.hidden) { gate.hidden = false; coverPage(true); }
+      setTimeout(function () { gatePin.focus({ preventScroll: true }); }, 0);
+    }
+
+    function closeGate() {
+      if (gate.hidden) return;
+      gate.hidden = true;
+      coverPage(false);
+      setStatus(gateStatus, '', false);
+    }
+
+    function showWho() {
+      showStep('who');
+      setStatus(gateStatus, '', false);
+      var list = state.classes || [];
+      var needsClass = list.length > 1 && list.indexOf(state.classPeriod) === -1;
+      whoTitle.textContent = needsClass ? 'Which class is this for?' : 'Is this you?';
+      whoName.textContent = state.firstName || 'Your account';
+      whoClass.textContent = needsClass ? 'Pick your class to start.' : (state.classPeriod || '');
+      whoClass.hidden = !whoClass.textContent;
+      whoYes.hidden = needsClass;
+      whoClasses.textContent = '';
+      whoClasses.hidden = !needsClass;
+      if (needsClass) {
+        list.forEach(function (name) {
+          var b = make('button', { type: 'button' }, name);
+          b.addEventListener('click', function () {
+            state.classPeriod = name;
+            state.cloudHash = '';
+            persist();
+            scheduleCloud();
+            closeGate();
+            ui.refresh();
+          });
+          whoClasses.appendChild(b);
+        });
+      }
+      setTimeout(function () { (needsClass ? whoClasses.querySelector('button') : whoYes).focus({ preventScroll: true }); }, 0);
+    }
+
+    gatePin.addEventListener('input', function () { gatePin.value = digits(gatePin).slice(0, 6); });
+    gatePin.addEventListener('keydown', function (e) { if (e.key === 'Enter') gateStart.click(); });
+    gateStart.addEventListener('click', function () {
+      var code = digits(gatePin);
+      if (code.length !== 6) { setStatus(gateStatus, 'Enter your six digit hall pass PIN.', false); gatePin.focus(); return; }
+      busy(gateStart, true, 'Checking…');
+      setStatus(gateStatus, '', false);
+      signIn(code, { recover: true }).then(function (result) {
+        busy(gateStart, false, 'Start');
+        gatePin.value = '';
+        ui.refresh();
+        if (!result.ok || !state.token) {
+          setStatus(gateStatus, result.message, false);
+          // A wrong PIN never unlocks the page. A save system that cannot be
+          // reached should not keep a student from working.
+          gateOffline.hidden = result.code === 'bad_pin';
+          gatePin.focus();
+          return;
+        }
+        heldPin = code;
+        message = ''; messageGood = false;
+        ui.refresh();
+        showWho();
+      });
+    });
+    gateOffline.addEventListener('click', function () {
+      closeGate();
+      message = 'Your answers are saving in this tab only. Enter your PIN here when the connection is back.';
+      messageGood = false;
+      ui.refresh();
+      openPop(true);
+    });
+    whoYes.addEventListener('click', function () { closeGate(); ui.refresh(); });
+    whoNo.addEventListener('click', function () {
+      resetPage();
+      message = 'Signed out. Enter your own PIN.';
+      messageGood = false;
+      ui.refresh();
+      openGate();
+    });
+    // Signing out, being signed out after a quiet stretch, or "Not me" all
+    // bring the gate back. A switch between students keeps it closed.
+    window.addEventListener('desk-save:reset', function () {
+      setTimeout(function () { if (!state.token) openGate(); }, 0);
+    });
+
     var toolViews = [];
     var message = '';
     var messageGood = false;
@@ -1064,7 +1248,7 @@
       resumeSlot.appendChild(resumeHost.host);
       addTools(resumePanel, resumeStatus);
       var jumpFinish = make('button', { type: 'button' }, 'Go to Turn In');
-      jumpFinish.addEventListener('click', function () { panelHost.host.scrollIntoView({ block: 'center', behavior: 'auto' }); pin.focus({ preventScroll: true }); });
+      jumpFinish.addEventListener('click', function () { panelHost.host.scrollIntoView({ block: 'center', behavior: 'auto' }); (pinLabel.hidden ? turnBtn : pin).focus({ preventScroll: true }); });
       resumeActions.appendChild(jumpFinish);
       resumeOut = signOutBtn.cloneNode(true);
       resumeActions.appendChild(resumeOut);
@@ -1206,10 +1390,13 @@
       if (cloudOn) {
         if (state.turnedInAt && hash === state.turnedInHash) sub.textContent = 'Turned in at ' + clock(state.turnedInAt) + '. Change anything and you can turn in again.';
         else if (state.turnedInAt) sub.textContent = 'Your changes save as work in progress. Press Turn In when you finish this version.';
+        else if (state.token) sub.textContent = count + ' of ' + total + ' answered. Your progress saves to ' + (state.firstName ? state.firstName + '’s' : 'your') + ' account ' + cadenceText + '. Press Turn In when you finish.';
         else sub.textContent = count + ' of ' + total + ' answered. Enter your PIN to save progress ' + cadenceText + '. Press Turn In when you finish.';
       } else {
         sub.textContent = count + ' of ' + total + ' answered. Your answers stay while this tab is open. Copy them before you close it.';
       }
+      // Signed in at the gate in this page: Turn In already has the PIN.
+      pinLabel.hidden = Boolean(cloudOn && heldPin && state.token);
       renderClasses();
       toolViews.forEach(function (view) {
         view.undo.hidden = !state.undoValues;
@@ -1269,7 +1456,7 @@
       setTimeout(function () {
         var r = panel.getBoundingClientRect();
         if (r.bottom < 0 || r.top > innerHeight) panel.classList.add('floating');
-        (cloudOn ? pin : copyBtn).focus({ preventScroll: true });
+        (cloudOn ? (pinLabel.hidden ? turnBtn : pin) : copyBtn).focus({ preventScroll: true });
       }, 450);
     });
     closeBtn.addEventListener('click', function () { panel.classList.remove('floating'); });
@@ -1315,6 +1502,7 @@
 
     turnBtn.addEventListener('click', function () {
       var code = digits(pin);
+      if (!code && heldPin && state.token) code = heldPin;
       if (code.length !== 6) { setStatus(status, 'Enter your six digit hall pass PIN.', false); pin.focus(); return; }
       busy(turnBtn, true, 'Sending…');
       setStatus(status, '', false);
@@ -1371,6 +1559,8 @@
     addEventListener('resize', lift);
 
     ui.refresh();
+    if (gateOn && !state.token) openGate();
+    if (testHooks) window.__deskSave.gate = function () { return !gate.hidden; };
   }
 
   /* --------------------------------------------------------------- boot -- */

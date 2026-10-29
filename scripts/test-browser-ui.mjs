@@ -36,6 +36,9 @@ const runCase = async (name, viewport, check, reducedMotion = 'no-preference') =
     return url.origin !== origin || url.pathname.startsWith('/.netlify/')
       ? route.fulfill({ status: 503, body: 'Offline browser fixture' }) : route.continue();
   });
+  // Open answer hubs the way a teacher preview does. The PIN gate in front of
+  // them has its own suite in test-desk-save-browser.mjs.
+  await context.addInitScript(() => { try { localStorage.setItem('desk-save:teacher', '1'); } catch (e) {} });
   await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
   const page = await context.newPage();
   page.setDefaultTimeout(10_000);
