@@ -55,7 +55,7 @@ try {
     await page.goto('https://grant-desk.com/hubs/checkling/camp/');
     await page.locator('#bond-level').waitFor();
     assert.match(await page.locator('#bond-level').innerText(),/New friend/);
-    assert.equal(await page.locator('.about-playtest p').first().textContent(),'Pixel Camp 6.1');
+    assert.equal(await page.locator('.about-playtest p').first().textContent(),'Pixel Camp 6.2');
     await fits(page,'camp '+width);
     if(width===1366) await page.screenshot({path:shot('camp-home-'+width)});
     // Forage at all three stops.

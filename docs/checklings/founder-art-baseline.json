@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "purpose": "Preserved original founder artwork; review before changing this baseline. New candidate art does not replace these files.",
+  "baselineCommit": "bab6359d23c8e8b41c9b5110e7decfac66a0e035",
+  "species": [
+    "mochi",
+    "bolt",
+    "zee",
+    "ember"
+  ],
+  "files": [
+    {
+      "file": "public/hubs/checkling/camp/assets/mochi.png",
+      "bytes": 75883,
+      "sha256": "182a568ccb0125c9a994e1f1142c4f5d81fa8f0d9b3f84089e26ad042843c7d9"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/mochi.gif",
+      "bytes": 137027,
+      "sha256": "2336a8ca82f56b5c547a87c591146e43807933391f941472b503934eebc81b86"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/bolt.png",
+      "bytes": 49382,
+      "sha256": "339769a09d89b1dc06adc1e22e31c1f5781b04a5ea2a9459a129b284a5b087dd"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/bolt.gif",
+      "bytes": 94830,
+      "sha256": "ad6f8469730e36624273e3daad014aaac06434e39b27717ebef600055599fe9f"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/zee.png",
+      "bytes": 60146,
+      "sha256": "f2d94f5605d6db5f06d560e7fb3d7858239d695cadbab515a762771a1ce216f1"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/zee.gif",
+      "bytes": 116576,
+      "sha256": "b613bf5b8f2b77c4d1dbc12e838153e27c110ce5133d8bef2ed77c5f1b6fde36"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/ember.png",
+      "bytes": 95534,
+      "sha256": "ecc5b4c807889fa8d47fbb02c5dc0dae3f59ef70bcbbb1ef56ae727020175235"
+    },
+    {
+      "file": "public/hubs/checkling/camp/assets/ember.gif",
+      "bytes": 163443,
+      "sha256": "d2bb62f120f01564494ac1ef7a4b69a8d59474ef2880d0fb7cf14efbfc3e60b3"
+    }
+  ]
+}
