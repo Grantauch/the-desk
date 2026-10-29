@@ -16,7 +16,7 @@ const run = (s, actions) => actions.reduce((state, a) => E.dispatch(state, a).st
 
 test('a 4.x version 1 save opens unchanged and upgrades in memory', () => {
   const old = v1Camp(), s = E.hydrate(old);
-  assert.equal(s.version, 2);
+  assert.equal(s.version, 3);
   assert.deepEqual(s.pets.zee.discoveries, [0, 2]); assert.equal(s.pets.zee.battles, 1);
   assert.deepEqual(s.decor, ['planter']); assert.deepEqual(s.curios, []); assert.deepEqual(s.forage, {day:'', taken:[]});
   assert.equal(s.pets.mochi.memories.length, 1);

@@ -9,7 +9,8 @@
   const G = globalThis.CampGoals;
   // A school that has not been updated yet only stores version 1 camps; new features wait for it.
   const FULL = !schoolSession || (Array.isArray(schoolSession.formats) && schoolSession.formats.includes(2));
-  const VERSION = "5.0";
+  const ADVENTURES = !schoolSession || schoolSession.formats?.includes(3);
+  const VERSION = "6.0";
   function today() {
     const d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -224,7 +225,7 @@
   function persist() {
     if (schoolSession) {
       state.pets[schoolSession.founder].nickname = schoolSession.school.companion.pet.name;
-      schoolQueued = FULL ? E.hydrate(state) : E.toV1(state);
+      schoolQueued = ADVENTURES ? E.hydrate(state) : FULL ? E.toV2(state) : E.toV1(state);
       if (!schoolFlight && !schoolFailed) flushSchoolSave();
       return;
     }
@@ -502,6 +503,8 @@
   function goalHint(next) {
     if (!next) return "All set!";
     if (goalNeedsRest(next)) return "Rest with " + name(next.pet) + (next.kind === "trail" ? " before exploring." : " before playing.");
+    if (next.kind === "journeys") return "Follow a founder’s story, one chapter at a time.";
+    if (next.kind === "workshop") return "Gather supplies and build something for camp.";
     if (next.kind === "care") return ({ feed: "Feed ", play: "Play with ", clean: "Brush ", rest: "Rest with ", observe: "Hang out with " }[next.action]) + name(next.pet) + ".";
     if (next.kind === "trail") return "Explore " + ["Seed Gate", "Old Waterwheel", "Star Pond"][next.stop] + " with " + name(next.pet) + ".";
     if (next.kind === "practice") return (next.tier > 1 ? "Take on the " + E.TIERS[next.tier - 1].name.toLowerCase() : "Lead a practice") + " with " + name(next.pet) + ".";
@@ -509,13 +512,15 @@
     return "Place the " + E.DECOR.find(d => d.id === next.id).name.toLowerCase() + ".";
   }
   function renderCampGoals() {
-    const goals = G.read(state, { full: FULL, today: today() });
+    const goals = G.read(state, { full: FULL, adventures: ADVENTURES, today: today() });
     $("camp-goals-summary").textContent = goals.complete ? "Camp goals complete. Willowbank feels like home!" : goals.completedTracks + " / " + goals.tracks.length + " camp goals complete. Take it at your own pace.";
     $("camp-goals-list").innerHTML = goals.tracks.map(track => '<div class="camp-goal-row" data-goal-row="' + track.id + '">' + item(track.icon) + '<div class="camp-goal-copy"><div class="camp-goal-heading"><h3>' + track.title + '</h3><strong>' + track.done + ' / ' + track.total + '</strong></div><p>' + escape(goalHint(track.next)) + '</p><progress value="' + track.done + '" max="' + track.total + '" aria-label="' + track.title + ' ' + track.done + ' out of ' + track.total + '">' + track.done + '/' + track.total + '</progress></div><button type="button" data-camp-goal="' + track.id + '" aria-label="' + track.title + (track.next ? ' next task' : ' complete') + '" ' + (track.next && !(track.next.kind === 'forage' && track.next.stop === null) ? '' : 'disabled') + '>' + (track.next ? track.next.kind === 'forage' && track.next.stop === null ? 'Tomorrow' : 'Next' : 'Done') + '</button></div>').join("");
   }
   function followCampGoal(id) {
-    const track = G.read(state, { full: FULL, today: today() }).tracks.find(track => track.id === id), next = track && track.next;
+    const track = G.read(state, { full: FULL, adventures: ADVENTURES, today: today() }).tracks.find(track => track.id === id), next = track && track.next;
     if (!next) return;
+    if (next.kind === "journeys") { openJourneys(); return; }
+    if (next.kind === "workshop") { openWorkshop(); return; }
     if (next.kind === "practice" && battle && !battle.result) {
       setView("practice"); say("Finish this spar first. Your next friend can go after.");
       (document.querySelector('[data-move="guard"]:not(:disabled)') || document.querySelector('.party-button:not(:disabled)')).focus(); return;
@@ -535,10 +540,12 @@
 
   function renderJournal() {
     const p = state.pets[state.selected];
-    const goalsPage = journalPage === "goals", shelfPage = journalPage === "curios";
-    $("journal-notes").hidden = goalsPage || shelfPage; $("camp-goals").hidden = !goalsPage; $("curio-shelf").hidden = !shelfPage;
+    const goalsPage = journalPage === "goals", shelfPage = journalPage === "curios", journeyPage = journalPage === "journeys";
+    $("journey-book").hidden = !journeyPage;
+    if(journeyPage) renderJourneys();
+    $("journal-notes").hidden = goalsPage || shelfPage || journeyPage; $("camp-goals").hidden = !goalsPage; $("curio-shelf").hidden = !shelfPage;
     for (const tab of document.querySelectorAll("[data-journal-page]")) tab.setAttribute("aria-pressed", String(tab.dataset.journalPage === journalPage));
-    $("journal-title").textContent = goalsPage ? "Camp goals" : shelfPage ? "Curio shelf" : name() + "’s notes";
+    $("journal-title").textContent = journeyPage ? "Founder journeys" : goalsPage ? "Camp goals" : shelfPage ? "Curio shelf" : name() + "’s notes";
     if (goalsPage) renderCampGoals();
     if (shelfPage) renderShelf();
     $("journal-friend").textContent = name();
@@ -688,6 +695,7 @@
     renderRoute();
     renderDecor();
     renderBattle();
+    renderAdventure();
     if (view === "journal") renderJournal();
   }
   function showCareProp(type) {
@@ -802,7 +810,7 @@
     const button = event.target.closest("button");
     if (!button) return;
     const focused = button === document.activeElement;
-    if (button.dataset.journalPage) { journalPage = ["goals", "curios"].includes(button.dataset.journalPage) ? button.dataset.journalPage : "notes"; renderJournal(); return; }
+    if (button.dataset.journalPage) { journalPage = ["goals", "curios", "journeys"].includes(button.dataset.journalPage) ? button.dataset.journalPage : "notes"; renderJournal(); return; }
     if (button.dataset.tier) {
       if (button.getAttribute("aria-disabled") === "true") { say("Clear the " + E.TIERS[button.dataset.tier - 2].name.toLowerCase() + " with " + name() + " first."); return; }
       practiceTier = +button.dataset.tier; renderTiers(); say(E.TIERS[practiceTier - 1].name + " is ready.");
@@ -921,7 +929,13 @@
       return;
     }
     try {
-      const candidate = E.hydrate(JSON.parse(await file.text()));
+      const raw = JSON.parse(await file.text());
+      if (!ADVENTURES && raw.version === 3) {
+        if (ticket !== importTicket) return;
+        $('import-message').textContent = 'Your school camp is updating. Keep this journey save and try again after reopening camp. Your current camp is unchanged.';
+        return;
+      }
+      const candidate = E.hydrate(raw);
       if (ticket !== importTicket) return;
       pending = candidate;
       $("import-description").textContent =
@@ -1001,7 +1015,115 @@
       return '<li class="curio-card" data-owned="' + has + '" data-rarity="' + c.rarity + '"><span class="curio" style="background-position:' + (c.cell % 4) * 33.333333 + "% " + Math.floor(c.cell / 4) * 33.333333 + '%" aria-hidden="true"></span><strong>' + (has ? escape(c.name) : "???") + "</strong><small>" + ["Seed Gate", "Waterwheel", "Star Pond"][c.stop] + " · " + c.rarity + "</small>" + (has ? "<p>" + escape(c.note) + "</p>" : "") + "</li>";
     }).join("");
   }
+  function openJourneys() {
+    journalPage = 'journeys'; setView('journal'); $('journal-view').focus();
+  }
+  function openWorkshop() {
+    renderWorkshop(); $('workshop-dialog').showModal();
+  }
+  function costText(recipe) {
+    return Object.entries(recipe.cost).map(([id,n]) => n + ' ' + E.MATERIALS.find(m=>m.id===id).name.toLowerCase()).join(' · ');
+  }
+  function craftItem(recipe) {
+    const index=E.RECIPES.findIndex(r=>r.id===recipe.id);
+    return '<span class="craft-sprite" style="background-position:'+(index%4)*100/3+'% '+Math.floor(index/4)*100+'%" aria-hidden="true"></span>';
+  }
+  function journeyHint(id, status) {
+    const next=status.next;
+    if(status.complete)return 'Journey complete. Its special keepsake is waiting in the workshop.';
+    if(!next)return 'Choose how this chapter unfolds. 8 energy · 3 supplies · a new memory.';
+    if(next.kind==='trail')return 'First, explore ' + E.STOPS[next.stop].name.toLowerCase() + ' with ' + name(id) + '.';
+    if(next.kind==='craft')return 'Build the ' + E.RECIPES.find(r=>r.id===next.id).name.toLowerCase() + ' in the workshop.';
+    if(next.kind==='friendship')return 'Reach Pal friendship: ' + state.pets[id].bond + ' / 25 bond. Share care, a meal or a little play.';
+    if(next.kind==='rest')return name(id) + ' needs a free rest first.';
+    return 'Visit ' + E.STOPS[next.stop].name.toLowerCase() + ' with ' + name(id) + '.';
+  }
+  function followJourney(id) {
+    if(!ADVENTURES)return;
+    if(battle&&!battle.result){setView('practice');say('Finish this friendly spar or leave it before heading out.');$('leave-practice').focus();return;}
+    selectPet(id);
+    const status=E.journeyStatus(state,id),next=status.next;
+    if(status.complete){openWorkshop();return;}
+    if(next?.kind==='craft'){openWorkshop();return;}
+    if(next?.kind==='friendship'||next?.kind==='rest'){
+      setView('home');say(journeyHint(id,status));document.querySelector('#care-actions [data-care="'+(next.kind==='rest'?'rest':'play')+'"]').focus();return;
+    }
+    act({type:'stop',value:status.done});setView('trail');say(journeyHint(id,E.journeyStatus(state,id)));
+    if(next?.kind==='trail'){
+      (state.pets[id].energy<18?document.querySelector('#trail-actions [data-care=rest]'):$('discover')).focus();
+    }else $('journey-scene').focus();
+  }
+  function renderJourneys() {
+    $('journey-summary').textContent=E.IDS.reduce((n,id)=>n+state.journeys[id],0)+' / 12 chapters shared. No time limit. Both choices are good paths.';
+    $('journey-cards').innerHTML=E.IDS.map(id=>{
+      const story=E.JOURNEYS[id],status=E.journeyStatus(state,id);
+      return '<article class="journey-card" data-story="'+id+'"><img src="'+art(id,true)+'" alt="" width="80" height="80"><div><p class="section-label">'+escape(name(id))+' · '+status.done+'/3</p><h3>'+story.title+'</h3><p>'+escape(status.complete?'All three chapters are in your journal.':status.chapter.title)+'</p><progress max="3" value="'+status.done+'" aria-label="'+escape(name(id))+' journey '+status.done+' out of 3"></progress><p>'+escape(journeyHint(id,status))+'</p><button type="button" data-journey-go="'+id+'">'+(status.complete?'Build keepsake':'Next chapter')+'</button></div></article>';
+    }).join('');
+  }
+  function renderWorkshop() {
+    $('workshop-supplies').textContent=E.MATERIALS.map(m=>m.name+': '+state.materials[m.id]).join(' · ');
+    $('workshop-recipes').innerHTML=E.RECIPES.map(r=>{
+      const owned=state.crafted.includes(r.id),ready=E.canCraft(state,r.id),placed=state.equippedCraft===r.id,locked=r.founder&&state.journeys[r.founder]<3;
+      return '<article class="recipe-card" data-recipe="'+r.id+'">'+craftItem(r)+'<h3>'+r.name+'</h3><p>'+r.note+'</p><small>'+escape(owned?'Built! No supplies needed to place it again.':locked?'Finish '+E.SPECIES[r.founder].name+'’s journey first.':costText(r))+'</small><button type="button" data-craft="'+r.id+'" '+(!owned&&!ready?'disabled':'')+' aria-pressed="'+placed+'">'+(placed?'Placed':owned?'Place in camp':'Build')+'</button></article>';
+    }).join('');
+  }
+  function renderAdventure() {
+    $('adventure-doors').hidden=!ADVENTURES||view!=='home';
+    $('gather').hidden=!ADVENTURES;
+    $('journey-scene').hidden=!ADVENTURES||view!=='trail';
+    const placed=E.RECIPES.find(r=>r.id===state.equippedCraft);
+    $('crafted-keepsake').hidden=!ADVENTURES||view!=='home'||!placed;
+    if(placed){$('crafted-keepsake').innerHTML=craftItem(placed)+'<span>'+placed.name+'</span>';}
+    if(!ADVENTURES)return;
+    $('gather-label').textContent='Gather '+['wood','stones','reeds'][state.stop];
+    if(view==='trail'){
+      const story=E.JOURNEYS[state.selected],status=E.journeyStatus(state);
+      $('journey-scene-title').textContent=story.title;
+      $('journey-scene-copy').textContent=status.complete?'Your journey is complete. Visit the workshop to build its keepsake.':status.chapter.title+' · '+status.chapter.text;
+      $('journey-scene-hint').textContent=journeyHint(state.selected,status);
+      $('journey-choices').innerHTML=!status.complete&&status.ready?status.chapter.choices.map((c,i)=>'<button type="button" data-journey-choice="'+i+'" data-chapter="'+status.done+'">'+escape(c)+'</button>').join(''):'';
+      $('journey-next').hidden=status.ready===true;$('journey-next').textContent=status.complete?'Open workshop':'Next step';
+    }
+    if($('workshop-dialog').open)renderWorkshop();
+  }
+  function buildAdventures() {
+    const doors=document.createElement('div');doors.id='adventure-doors';doors.className='adventure-doors';doors.hidden=!ADVENTURES;
+    doors.innerHTML='<button type="button" id="open-journeys">'+item('book')+'<span>Founder journeys</span><small>Four stories to share</small></button><button type="button" id="open-workshop">'+item('bag')+'<span>Workshop</span><small>Gather · build · keep</small></button>';
+    $('actions').after(doors);
+    const gather=document.createElement('button');gather.type='button';gather.id='gather';gather.innerHTML=item('bag')+'<span id="gather-label">Gather supplies</span><small>15 energy · 3 supplies</small>';$('forage').after(gather);
+    const scene=document.createElement('section');scene.id='journey-scene';scene.className='journey-scene panel';scene.hidden=true;scene.tabIndex=-1;scene.setAttribute('aria-labelledby','journey-scene-title');
+    scene.innerHTML='<p class="section-label">A FOUNDER JOURNEY</p><h2 id="journey-scene-title"></h2><p id="journey-scene-copy"></p><p id="journey-scene-hint"></p><div id="journey-choices" class="journey-choices"></div><button type="button" id="journey-next">Next step</button>';
+    doors.after(scene);
+    const tab=document.createElement('button');tab.type='button';tab.dataset.journalPage='journeys';tab.hidden=!ADVENTURES;tab.setAttribute('aria-pressed','false');tab.innerHTML=item('book')+'Journeys';document.querySelector('.journal-page-buttons').append(tab);
+    const book=document.createElement('section');book.id='journey-book';book.hidden=true;book.innerHTML='<p id="journey-summary"></p><div id="journey-cards" class="journey-cards"></div>';$('camp-goals').after(book);
+    const workshop=document.createElement('dialog');workshop.id='workshop-dialog';workshop.className='panel workshop-dialog';workshop.setAttribute('aria-labelledby','workshop-title');
+    workshop.innerHTML='<button type="button" id="close-workshop" autofocus>Close workshop</button><p class="section-label">MAKE SOMETHING SMALL</p><h2 id="workshop-title">CAMP WORKSHOP</h2><p id="workshop-supplies" class="workshop-supplies"></p><p>Gather fallen wood at the seed gate, smooth stones at the waterwheel and reeds at the pond. Rest is free. Keepsakes decorate camp.</p><div class="supply-trips">'+E.MATERIALS.map((m,i)=>'<button type="button" data-supply-stop="'+i+'">Gather '+m.name.toLowerCase()+'</button>').join('')+'</div><p id="workshop-message" role="status" aria-atomic="true"></p><div id="workshop-recipes" class="workshop-recipes"></div>';
+    document.body.append(workshop);
+    const keepsake=document.createElement('div');keepsake.id='crafted-keepsake';keepsake.className='crafted-keepsake';keepsake.hidden=true;$('world').append(keepsake);
+    $('open-journeys').onclick=openJourneys;$('open-workshop').onclick=openWorkshop;$('close-workshop').onclick=()=>workshop.close();
+    $('journey-next').onclick=()=>followJourney(state.selected);
+    $('gather').onclick=()=>act({type:'gather'});
+    document.addEventListener('click',event=>{
+      const b=event.target.closest('button');if(!b||!ADVENTURES)return;
+      if(b.dataset.journeyGo)followJourney(b.dataset.journeyGo);
+      if(b.dataset.journeyChoice!==undefined){
+        const result=act({type:'journey',chapter:Number(b.dataset.chapter),choice:Number(b.dataset.journeyChoice)});
+        if(result.changed){$('journey-scene').focus();}
+      }
+      if(b.dataset.supplyStop!==undefined){
+        workshop.close();act({type:'stop',value:Number(b.dataset.supplyStop)});setView('trail');say('Gather supplies here. Rest any time.');
+        (state.pets[state.selected].energy<15?document.querySelector('#trail-actions [data-care=rest]'):$('gather')).focus();
+      }
+      if(b.dataset.craft){
+        const id=b.dataset.craft,result=act({type:state.crafted.includes(id)?'place-craft':'craft',id});
+        $('workshop-message').textContent=result.message;document.querySelector('[data-craft="'+id+'"]').focus();
+      }
+    });
+  }
+
   (function buildFive() {
+    document.querySelector('.playtest-tag').textContent = schoolSession ? 'PIXEL CAMP · SCHOOL CAMP' : 'PIXEL CAMP · OPEN CAMP';
+    document.querySelector('.about-playtest summary').textContent = 'About Pixel Camp';
     document.querySelector(".about-playtest p").textContent = "Pixel Camp " + VERSION;
     const bond = document.createElement("p");
     bond.id = "bond-level"; bond.className = "bond-level";
@@ -1028,6 +1150,7 @@
     shelf.innerHTML = '<p id="curio-summary" role="status" aria-atomic="true"></p><ul id="curio-today" class="curio-today"></ul><ul id="curio-grid" class="curio-grid"></ul><button type="button" data-go="trail">' + item("map") + "<span>Go forage</span></button>";
     $("camp-goals").after(shelf);
   })();
+  buildAdventures();
   $("next-stump").onclick = () => {
     practiceTier = Math.min(3, battle.tier + 1);
     state = E.dispatch(state, { type: "select", id: practiceFounder }).state;

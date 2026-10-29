@@ -136,6 +136,12 @@ function releaseRunSyntheticSmoke(clientContract) {
     const reloaded = getPixelCamp(visit.pinToken).camp;
     releaseAssert_(savedFive.revision === five.revision + 1 && reloaded.version === 2 && reloaded.pets.bolt.battles === 2 &&
       reloaded.curios.join() === 'frog' && reloaded.forage.taken.join() === '1', 'school camp version 2 save/reload failed');
+    // Journeys/workshop round-trip only within the isolated synthetic membership.
+    const six = getPixelCamp(visit.pinToken), v3 = JSON.parse(JSON.stringify(six.camp));
+    releaseAssert_(six.formats.indexOf(3) >= 0, 'school camp does not offer version 3');
+    v3.version=3;v3.journeys={mochi:0,bolt:3,zee:0,ember:0};v3.materials={wood:6,stone:3,fiber:0};v3.crafted=['toolkit','waterclock'];v3.equippedCraft='waterclock';
+    const savedSix=savePixelCamp(visit.pinToken,six.revision,'c'.repeat(32),v3), roundTrip=getPixelCamp(visit.pinToken).camp;
+    releaseAssert_(savedSix.revision===six.revision+1 && roundTrip.version===3 && roundTrip.journeys.bolt===3 && roundTrip.materials.wood===6 && roundTrip.crafted.join()==='toolkit,waterclock' && roundTrip.equippedCraft==='waterclock','school camp journey/workshop save/reload failed');
     PropertiesService.getScriptProperties().deleteProperty(GD_CHECKLING_PREFIX + visit.student.key);
     releaseAssertPreserved_(beforeVisit, book);
     const now = new Date();
