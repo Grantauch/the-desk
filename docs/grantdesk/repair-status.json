@@ -1,4 +1,19 @@
 {
+  "pixel-camp-workshop-2026-10-29": {
+    "status": "SOURCE_IMPLEMENTED",
+    "verification_status": "FULL_LOCAL_CANONICAL_AND_BROWSER_PASSED",
+    "owner": "Codex",
+    "scope": "In-memory build plans and exact material progress for existing eight keepsakes; completed story keepsake hints",
+    "deployment_status": "NOT_DEPLOYED_NEW_CHANGE",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Eight workshop browser journeys pass: actual gather-to-build, exact supply costs, duplicate/free placement, export/reload, partial/surplus stocks, free rest, plan changes/cancellation, correct recipe focus, locked/built story actions and unfinished-spar preservation.",
+      "Three public widths pass automated WCAG A/AA with zero violations. School formats1/2/3 preserve official identity, no extra save for read-only inspection, no attendance/pass writes and shared-device clearing. No saved field, private RPC, engine/art/species/dependency change.",
+      "Predecessor6.2 PR267/main51edfc4 is production verified on main/standalone with all48 camp file hashes, both CI checks40889584028/40894399886, unchanged school46 fingerprints and authenticated synthetic save/pause/retry smoke.",
+      "Full canonical verification passed all18stages:66focused,440HallPass,54routes,156HTML,5238references,27sealedreleases193assets. Complete companion browser suites and final8workshop journeys pass; protected CI, merge and new deployment remain pending."
+    ],
+    "evidence": "docs/checklings/workshop-plan.md"
+  },
   "pixel-camp-guide-2026-10-29": {
     "status": "IMPLEMENTED_LOCAL_VERIFIED",
     "owner": "Codex",
