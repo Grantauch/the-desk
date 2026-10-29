@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-MARNE",
+  "course": "USH9",
+  "lessonCode": "MARNE",
+  "title": "Thirty Miles From Paris",
+  "audience": "students",
+  "narrativeQuestion": "How did a German army thirty miles from Paris end up retreating?",
+  "chapters": [
+    {
+      "id": "01-front",
+      "title": "Thirty Miles From Paris",
+      "claim": "By September 2, 1914 German cavalry were about thirty miles from Paris and the French government left the city.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "02-plan",
+      "title": "Six weeks to beat France",
+      "claim": "Germany planned to beat France in about six weeks, and France's own offensive in red trousers cost about 27,000 dead on August 22.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "03-paris",
+      "title": "The government left. Gallieni stayed.",
+      "claim": "Gallieni, ordered to defend Paris, saw that the nearest German army was passing the city rather than attacking it.",
+      "namedPeople": [
+        {
+          "name": "Joseph Gallieni",
+          "role": "Military governor of Paris",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A05"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03",
+        "A04",
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "04-table",
+      "title": "Watch the gap open",
+      "claim": "Kluck's turns opened a gap of about thirty miles between the German 1st and 2nd Armies, and the British and French advanced into it.",
+      "namedPeople": [
+        {
+          "name": "Alexander von Kluck",
+          "role": "German 1st Army",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A08"
+        },
+        {
+          "name": "Karl von Bülow",
+          "role": "German 2nd Army",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        },
+        {
+          "name": "Michel Maunoury",
+          "role": "French 6th Army",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A10"
+        },
+        {
+          "name": "Sir John French",
+          "role": "British Expeditionary Force",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A11"
+        },
+        {
+          "name": "Ferdinand Foch",
+          "role": "French 9th Army",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A12"
+        },
+        {
+          "name": "Hans von Gronau",
+          "role": "German IV Reserve Corps, brief",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Max von Hausen",
+          "role": "German 3rd Army, brief",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Louis Franchet d'Espèrey",
+          "role": "French 5th Army, brief",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Louis Breguet",
+          "role": "French airman, one sentence",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08",
+        "A09",
+        "A10",
+        "A11",
+        "A12"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "05-taxis",
+      "title": "Six hundred taxis",
+      "claim": "About 600 taxis carried about 4,000 soldiers, a tiny share of the French force, yet became the battle's most famous story.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A06"
+      ],
+      "interactionIds": [
+        "I02",
+        "I03"
+      ]
+    },
+    {
+      "id": "06-hentsch",
+      "title": "The man in the car",
+      "claim": "With poor communications, Moltke sent Lieutenant Colonel Hentsch with spoken authority, and two German armies retreated on September 9.",
+      "namedPeople": [
+        {
+          "name": "Helmuth von Moltke",
+          "role": "Chief of the German General Staff",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A13"
+        },
+        {
+          "name": "Richard Hentsch",
+          "role": "Staff officer who carried the retreat order",
+          "anchorStatus": "not-available"
+        },
+        {
+          "name": "Joseph Joffre",
+          "role": "French commander in chief, quoted",
+          "anchorStatus": "not-needed"
+        },
+        {
+          "name": "Hermann von Kuhl",
+          "role": "Kluck's chief of staff, one sentence",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A13"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "07-legend",
+      "title": "Legend or record?",
+      "claim": "Some famous Marne stories are documented and some are later legends.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "08-after",
+      "title": "What the Marne made",
+      "claim": "The retreat to the Aisne began trench warfare and a line that ran about 440 miles by November 1914.",
+      "namedPeople": [
+        {
+          "name": "Erich von Falkenhayn",
+          "role": "Moltke's replacement, one sentence",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A07"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "09-questions",
+      "title": "Four questions",
+      "claim": "Students explain the turn, the taxis, the two documents and whether the battle was a win.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ]
+    }
+  ]
+}

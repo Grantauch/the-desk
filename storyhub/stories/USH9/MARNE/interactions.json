@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-MARNE",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "04-table",
+      "type": "3d-sand-table",
+      "teaches": "How Kluck's two turns opened a gap between the German 1st and 2nd Armies and how the Allied advance into it forced the retreat.",
+      "studentAction": "Step through seven dates, rotate and zoom the table, and tap an army to see its commander.",
+      "feedback": "Blocks move to dated positions, the gap bar and its width appear, taxi and staff car routes play on their dates, the date panel and commander card update.",
+      "staticFallback": "Every step is readable in an expandable text list. Without WebGL a flat map with the same positions redraws for each date.",
+      "identityFit": "A wooden sand table on a paper map, the way the general staffs actually planned.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "05-taxis",
+      "type": "3d-model-with-meter",
+      "teaches": "How small one taxi load was: five soldiers, about 50 km, and the real total bill of 70,012 francs.",
+      "studentAction": "Load five soldiers, then drive the cab to Nanteuil.",
+      "feedback": "Soldiers drop into the seats, the meter flag falls, distance counts to 50 km and the Treasury bill appears with the per cab average.",
+      "staticFallback": "The meter readout and buttons work without WebGL, and the paragraph above gives every number.",
+      "identityFit": "Taximeter brass on a night road.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "05-taxis",
+      "type": "predict-then-reveal",
+      "teaches": "The taxis carried about 4 of every 1,000 French soldiers in the battle.",
+      "studentAction": "Guess with a slider, then reveal.",
+      "feedback": "A grid of 1,000 dots shows the guess against the 4 taxi soldiers and the 135 train borne 6th Army soldiers, with an explanation of why the legend grew.",
+      "staticFallback": "The reveal text states the numbers in words.",
+      "identityFit": "A dark convoy palette with brass and madder dots.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "07-legend",
+      "type": "evidence-verdict-cards",
+      "teaches": "Separating documented events from later legends about a battle.",
+      "studentAction": "Call each of five claims record, legend or unproven.",
+      "feedback": "The verdict and the evidence behind it appear, along with whether the call matched.",
+      "staticFallback": "Verdict text is available after any choice and each claim is plain text.",
+      "identityFit": "Stamp style tags on newsprint cards.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "09-questions",
+      "type": "evidence-response",
+      "teaches": "Explain causation and evaluate an outcome with evidence from the page.",
+      "studentAction": "Write four short answers.",
+      "feedback": "Shared desk-save controls provide saving, recovery and Turn In status.",
+      "staticFallback": "Answers can be copied or written on paper.",
+      "identityFit": "The final question returns to the front page: was it a win.",
+      "status": "implemented"
+    }
+  ]
+}

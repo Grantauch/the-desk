@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-MARNE",
+  "title": "Thirty Miles From Paris",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "urgent",
+      "plainspoken",
+      "skeptical of legends"
+    ],
+    "paletteIntent": "Newsprint cream and ink by day, a blacked out convoy road by night. Madder red from French trousers as the accent, grey blue horizon for French forces, taximeter brass for the taxi story.",
+    "typographyIntent": "Bodoni Moda italic headlines in the manner of a 1914 Paris front page, Newsreader for reading, DM Mono for dispatches, dates and the meter.",
+    "textureLanguage": [
+      "newsprint",
+      "posted proclamation paper",
+      "paper map on a wooden sand table"
+    ],
+    "shapeLanguage": "Front page columns and double rules, square plates, wooden army blocks with a facing wedge.",
+    "motionGrammar": [
+      "Army blocks slide between dates on student input and the camera follows their center.",
+      "Taxis and a staff car loop along their routes only while their date is showing.",
+      "Reduced motion jumps straight to each state."
+    ],
+    "interactionSignature": [
+      "Step a sand table through seven dates and watch the gap open and close.",
+      "Load and drive one taxi, then predict how many soldiers all the taxis carried.",
+      "Judge battle stories as legend or record."
+    ],
+    "densityRhythm": "Short front page, one long story column, then a large table, then the night section, then documents and cards.",
+    "archivalBehavior": "Period Library of Congress photographs labeled by collection and date, never colorized or generated. The sand table and the taxi are labeled reconstructions.",
+    "endingLanguage": "Decide whether the Marne was a win for France, using one fact from the page.",
+    "seriesThread": "Front Lines strip under the nameplate, the ledger of costs, and the before and next handoff in the footer, shared with every WWI battle ByteSize."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Bain News Service glass negatives of Paris and French soldiers in 1914, plus the red of the 1914 French uniform.",
+    "edgeTreatment": "Hard rules and double rules from newspaper layout. Plates sit on panel paper with a thin border.",
+    "controlLanguage": "Date tabs like a dateline, a brass taximeter readout, and stamp style verdict tags.",
+    "spacingLanguage": "Columns for story text, wide stages for the 3D table and the taxi.",
+    "transitionLanguage": "Ordinary scrolling. The table and taxi change only when a student acts."
+  }
+}
