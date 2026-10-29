@@ -1,0 +1,70 @@
+
+/* Somme reconnaissance study: independent of WebGL renderer. */
+#somme-study{position:fixed;inset:0;z-index:10000;overflow:auto;background:#101611;color:#e8e2d3;font-family:Georgia,'Times New Roman',serif;user-select:text;touch-action:pan-y}
+#somme-study[hidden]{display:none!important}
+#somme-study *{box-sizing:border-box}
+#somme-study button,#somme-study a{font:inherit}
+#somme-study button{cursor:pointer}
+#somme-study :is(button,a):focus-visible,#somme-return:focus-visible{outline:3px solid #d6b878;outline-offset:3px}
+#somme-study .ss-head{position:sticky;top:0;z-index:15;background:#141b18ed;backdrop-filter:blur(13px);border-bottom:1px solid #556254;min-height:64px;padding:13px clamp(16px,3vw,45px);display:flex;align-items:center;justify-content:space-between;gap:15px}
+#somme-study .ss-kicker{font-family:ui-monospace,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.17em;color:#d4ba85}
+#somme-study .ss-head h1{font-size:20px;letter-spacing:.04em;margin:2px 0;font-weight:normal}
+#somme-study .ss-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#somme-study .ss-btn{display:inline-flex;align-items:center;justify-content:center;background:#ccb17c;color:#182019;border:1px solid #ccb17c;border-radius:3px;padding:10px 16px;min-height:42px;font-size:13px;line-height:1.1;text-decoration:none;font-family:ui-monospace,monospace;font-weight:700;white-space:normal}
+#somme-study .ss-btn.secondary{background:transparent;color:#ebdfc4;border-color:#6b786c}
+#somme-study .ss-btn[disabled]{opacity:.45;cursor:not-allowed}
+#somme-study .ss-layout{display:grid;grid-template-columns:minmax(240px,300px) minmax(330px,1fr) minmax(290px,355px);min-height:calc(100svh - 64px)}
+#somme-study .ss-rail{padding:27px 23px 30px;border-right:1px solid #3a493e;background:linear-gradient(180deg,#202b24,#161e1a)}
+#somme-study .ss-overline{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#cbb47c;font-family:ui-monospace,monospace}
+#somme-study .ss-rail h2{font-size:clamp(28px,3vw,39px);line-height:1.1;letter-spacing:-.025em;margin:14px 0 12px;font-weight:normal}
+#somme-study .ss-lede{font-size:14px;line-height:1.65;color:#c9cebf;margin:0 0 22px}
+#somme-study .ss-questions{display:grid;gap:9px;margin:18px 0}
+#somme-study .ss-question{background:#17211b;border:1px solid #4b5c4c;color:#efe9da;text-align:left;border-radius:3px;padding:14px 13px;line-height:1.35;font-size:16px;display:grid;gap:8px}
+#somme-study .ss-question small{font:10px ui-monospace,monospace;color:#b2bda9;letter-spacing:.1em;text-transform:uppercase}
+#somme-study .ss-question[aria-pressed=true]{border-color:#cbb47c;background:#384536;box-shadow:inset 3px 0 #cbb47c}
+#somme-study .ss-rail-foot{font:11px/1.65 ui-monospace,monospace;color:#aab5a5;border-top:1px solid #3b4d3d;padding-top:15px}
+#somme-study .ss-mapcol{position:relative;min-width:0;background:#353d2e;overflow:hidden;display:flex;flex-direction:column}
+#somme-study .ss-maphead{padding:16px 18px;border-bottom:1px solid #53604d;background:#202b24;display:flex;gap:10px;align-items:center;justify-content:space-between}
+#somme-study .ss-maphead p{margin:0;max-width:360px;font:11px/1.5 ui-monospace,monospace;color:#c2c9b8}
+#somme-study .ss-zoom{display:flex;gap:6px}
+#somme-study .ss-zoom button{width:42px;height:42px;border:1px solid #869078;background:#263326;color:#f1e9d7;border-radius:3px;font-size:20px}
+#somme-study .ss-viewport{position:relative;flex:1;min-height:clamp(430px,70vh,1000px);overflow:hidden;touch-action:none;cursor:grab;background:#5a6550}
+#somme-study .ss-viewport.dragging{cursor:grabbing}
+#somme-study .ss-field{position:absolute;width:100%;height:100%;min-height:430px;transform-origin:center;will-change:transform;transition:transform .55s ease}
+#somme-study .ss-viewport.dragging .ss-field{transition:none}
+#somme-study #ss-ground{position:absolute;inset:0;width:100%;height:100%;filter:saturate(.68) contrast(1.08)}
+#somme-study .ss-map-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#somme-study .ss-map-overlay path{fill:none;stroke-linejoin:round}
+#somme-study .ss-marker{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;transform:translate(-50%,-50%);border:0;background:transparent;color:#ffefcc;white-space:nowrap;font:11px ui-monospace,monospace;text-shadow:0 2px 4px #0b0c09,0 0 9px #050806;min-width:34px;padding:2px;user-select:none}
+#somme-study .ss-marker .dot{width:9px;height:9px;border:2px solid #f4e0b1;box-shadow:0 0 0 3px #24281ba0;background:#292e1b;border-radius:50%}
+#somme-study .ss-marker .nm{background:#142018e6;border:1px solid #788075a0;border-radius:2px;padding:3px 5px}
+#somme-study .ss-marker[aria-current=true] .dot{background:#f3c56c;box-shadow:0 0 0 5px #c5a76555}
+#somme-study .ss-marker[aria-current=true] .nm{background:#edcf8e;color:#19231b;text-shadow:none;border-color:#edcf8e;font-weight:bold}
+#somme-study .ss-mapfoot{padding:12px 20px;display:flex;justify-content:space-between;gap:16px;background:#1b2822;border-top:1px solid #53604d;font:10px/1.5 ui-monospace,monospace;color:#b4c4b7}
+#somme-study .ss-case{background:#ede6d6;color:#1d2822;padding:24px clamp(20px,2vw,34px);border-left:1px solid #c7c2af;display:flex;flex-direction:column;gap:14px}
+#somme-study .ss-case .ss-overline{color:#65573d}
+#somme-study .ss-case h2{font-size:clamp(27px,2.5vw,36px);line-height:1.09;letter-spacing:-.02em;font-weight:normal;margin:0}
+#somme-study .ss-date{font:11px/1.5 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:#5a624f}
+#somme-study .ss-case p{font-size:15px;line-height:1.6;margin:0}
+#somme-study .ss-evidence{padding:15px;border-left:3px solid #988352;background:#dad5c5}
+#somme-study .ss-evidence h3{font:11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.13em;margin:0 0 9px;color:#565d4c}
+#somme-study .ss-evidence p{font-size:14px;line-height:1.55}
+#somme-study .ss-case label{display:block;font:11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.14em;margin:0 0 7px;color:#4e594b}
+#somme-study #ss-reflection{min-height:88px;width:100%;padding:11px;resize:vertical;border:1px solid #a5a996;background:#fffaf0;color:#1a291d;font:14px/1.45 Georgia,serif}
+#somme-study .ss-case .ss-btn{align-self:flex-start}
+#somme-study .ss-source{color:#354f3c;text-decoration:underline;font-size:13px;line-height:1.5;word-break:break-word}
+#somme-study .ss-directory{margin:0;padding:0;display:flex;gap:6px;flex-wrap:wrap}
+#somme-study .ss-directory button{background:#e0d8c8;color:#203027;border:1px solid #b7b29d;border-radius:2px;padding:5px 8px;font:11px ui-monospace,monospace}
+#somme-study .ss-directory button[aria-current=true]{background:#293b2f;color:#fff3d7}
+#somme-return{position:fixed;bottom:22px;left:18px;z-index:9000;border:1px solid #a99670;background:#17231be8;color:#f6e5bb;font:700 13px ui-monospace,monospace;border-radius:4px;padding:13px 16px;box-shadow:0 3px 15px #0008;cursor:pointer}
+#somme-return[hidden]{display:none!important}
+body.ss-flight .intro{display:none!important}
+body.ss-flight .corner .map-frame{opacity:.66}
+body.ss-flight .gauges{display:none!important}
+body.ss-flight .reticle{opacity:.24}
+body.ss-flight .where{right:200px}
+body.ss-flight .where #blurb{font-size:13px;background:#18241bcc;border-left-color:#b3a16e}
+body.ss-flight .corner #btn-sound,body.ss-flight .corner #btn-wire{display:none}
+@media(max-width:1150px){#somme-study .ss-layout{grid-template-columns:minmax(220px,260px) minmax(380px,1fr)}#somme-study .ss-case{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:15px 25px}#somme-study .ss-case>*{min-width:0}#somme-study .ss-case .ss-directory{grid-column:1/-1}#somme-study .ss-case .ss-case-intro{grid-column:1/-1}#somme-study .ss-case .ss-notes{grid-column:2;grid-row:3/6} }
+@media(max-width:720px){#somme-study .ss-head{position:relative;flex-wrap:wrap}#somme-study .ss-head h1{font-size:19px}#somme-study .ss-layout{display:block}#somme-study .ss-rail{padding:21px}#somme-study .ss-rail h2{font-size:30px}#somme-study .ss-questions{grid-template-columns:repeat(3,minmax(0,1fr))}#somme-study .ss-question{font-size:12px;padding:10px}#somme-study .ss-question small{font-size:8px}#somme-study .ss-viewport{height:62svh;min-height:390px}#somme-study .ss-case{display:flex;padding:24px}#somme-study .ss-case .ss-notes{grid-row:auto}#somme-study .ss-marker .nm{font-size:9px}}
+@media(prefers-reduced-motion:reduce){#somme-study .ss-field{transition:none!important}}
