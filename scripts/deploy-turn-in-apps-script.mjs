@@ -63,8 +63,8 @@ async function main() {
 
   const head = await google(token, `/projects/${s}/content`);
   const live = await google(token, `/projects/${s}/content?versionNumber=${oldVersion}`);
-  const names = canon(head.files).map((f) => f.name).join(',');
-  if (names !== 'Code,appsscript') fail(`Unexpected Turn In file set: ${names}. Refusing to overwrite.`);
+  const names = canon(head.files).map((f) => f.name).sort().join(',');
+  if (names !== ['Code', 'appsscript'].sort().join(',')) fail(`Unexpected Turn In file set: ${names}. Refusing to overwrite.`);
   const newFiles = canon(head.files).map((f) => (f.name === 'Code' ? { ...f, source: code } : f));
   if (!same(head.files, live.files) && !same(head.files, newFiles)) fail('The Turn In editor has unpublished changes. Refusing to overwrite them.');
   console.log(`Preflight OK: ${deployment.deploymentConfig.description || ''} version ${oldVersion}, ${before.url}, access ${before.access}, execute as ${before.executeAs}.`);
