@@ -253,11 +253,13 @@ export class ZeroHour {
 
     // The guns: the final hour on the German front trench, then the lift.
     if (t < ZERO) {
-      const ramp = t < 30 ? 3 : 4.5;
+      const ramp = t < 30 ? 4 : 5.5;
       this.fx.barrage(dt, ramp, LINES.germanFront, 18);
+      this.fx.batteries(dt, ramp * 0.9);
       this.audio.setBarrage(0.6 + t / ZERO * 0.4);
     } else {
       this.fx.barrage(dt, 2.2, LINES.germanSupport - 10, 40);
+      this.fx.batteries(dt, 2);
       this.audio.setBarrage(0.55);
     }
     this.fx.drift(dt, t > ZERO ? 1.6 : 1.1);

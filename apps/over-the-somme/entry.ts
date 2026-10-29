@@ -211,15 +211,25 @@ function takeFlight() {
   lock();
 }
 
+let titleTimer = 0;
 function watchZero() {
   if (!api) return;
   startSound();
   zeroLive = true;
+  if (document.pointerLockElement) document.exitPointerLock?.();
+  const fade = $("fade");
+  fade.classList.add("black");
+  void fade.offsetWidth;
   api.startZeroHour();
   setMode("cinema");
+  requestAnimationFrame(() => fade.classList.remove("black"));
+  root.classList.add("titling");
+  clearTimeout(titleTimer);
+  titleTimer = window.setTimeout(() => root.classList.remove("titling"), 4200);
 }
 
 function takeControls() {
+  root.classList.remove("titling");
   api?.takeControls();
   setMode("fly");
   lock();
@@ -275,6 +285,7 @@ $("to-menu").addEventListener("click", () => {
   setMode("menu");
 });
 $("cap-take").addEventListener("click", takeControls);
+$("replay-zero").addEventListener("click", watchZero);
 $("cap-skip").addEventListener("click", () => {
   zeroLive = false;
   api?.stopZeroHour();
