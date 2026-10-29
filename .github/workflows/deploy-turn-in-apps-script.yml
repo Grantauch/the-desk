@@ -1,0 +1,54 @@
+name: Deploy Turn In Apps Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preflight checks access without changing anything. Deploy updates the existing Turn In deployment.
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - deploy
+
+permissions:
+  contents: read
+
+concurrency:
+  group: turn-in-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Turn In production release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: hall-pass-production
+    steps:
+      - name: Only from main
+        if: github.ref_name != 'main'
+        run: exit 1
+
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Turn In tests
+        run: npm run turn-in:test
+
+      - name: Update the existing Turn In deployment
+        env:
+          GAS_DEPLOY_MODE: ${{ inputs.mode }}
+          TURN_IN_SCRIPT_ID: 1xSWgu9uuwo0trIRkUXjTCu371c5i-Qd3-1e0OO1LnW6iornUcX9GQM3H
+          TURN_IN_DEPLOYMENT_ID: AKfycbzssPoF99g1UTOrsVnMHy-jQaPwII8-lyxHwjlpNK8oa89KVSq48G5MkjiwTOCrgaJP
+          GAS_OAUTH_JSON: ${{ secrets.GAS_OAUTH_JSON }}
+        run: node scripts/deploy-turn-in-apps-script.mjs

@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-26-turn-in-v10';
+const TI_VERSION = '2026-10-29-turn-in-v11';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -97,6 +97,7 @@ function doPost(e) {
 }
 
 function route_(request) {
+  Object.keys(TI_DRAFT_MEMO).forEach((key) => { delete TI_DRAFT_MEMO[key]; });
   const action = String(request.action || '');
   if (action === 'ping') return { ok: true, version: TI_VERSION };
   if (action === 'signin') return signIn_(request);
@@ -136,7 +137,7 @@ function saveDraft_(request) {
   const identity = session.test ? { email: session.email, name: 'Load Test ' + session.email.split('@')[0], classes: ['Load Test'], test: true } : identityByEmail_(session.email);
   const classPeriod = identity ? chooseClass_(identity.classes, request.classPeriod, request.course) : '';
   const record = { hub, answers, revision: Utilities.getUuid(), savedAt: savedAt.toISOString(), autoEligible: Boolean(classPeriod),
-    classPeriod, title: String(request.title || '').slice(0, 200), page: String(request.page || '').slice(0, 300) };
+    classPeriod, title: String(request.title || '').slice(0, 200), page: String(request.page || '').slice(0, 300), ...writerOf_(request) };
   const book = workbook_();
   if (session.test) {
     const testLock = LockService.getScriptLock();
@@ -201,7 +202,7 @@ function turnIn_(request) {
   const page = String(request.page || '').slice(0, 300);
   let turnedInAt = new Date();
   const record = { hub, answers, revision: Utilities.getUuid(), submissionId, savedAt: turnedInAt.toISOString(), turnedIn: true,
-    finishedAt: turnedInAt.toISOString(), classPeriod, title, page };
+    finishedAt: turnedInAt.toISOString(), classPeriod, title, page, ...writerOf_(request) };
 
   // Open the sheet before taking the lock so the lock is held only for the write itself.
   const book = workbook_();
@@ -227,13 +228,19 @@ function turnIn_(request) {
       if (existing[3] !== identity.email || existing[4] !== hub) throw refuse_('bad_request', 'That submission needs a new turn in. Press the button again.');
       const data = JSON.parse(existing[11]);
       if (String(existing[1]) !== classPeriod || JSON.stringify(data.answers) !== JSON.stringify(answers)) throw refuse_('bad_request', 'These answers changed. Press Turn In again to send the new version.');
-      updateProgress_(book, identity, { ...data, classPeriod, title, page }, true);
+      if (!data.stale) updateProgress_(book, identity, { ...data, classPeriod, title, page }, true);
       SpreadsheetApp.flush();
       const result = resultFor_(identity, String(existing[1]), new Date(data.savedAt), data.answers.filter((entry) => entry.a.trim()).length, data.answers.length, classroomUrl, submissionId, data.revision, answers);
       optionalCachePut_(submissionKey, JSON.stringify(result), TI_SUBMISSION_CACHE_SECONDS);
       return result;
     }
-    guardedDraft_(book, identity, hub, request, answers);
+    // A press is the student's own submission, so it is always recorded. When another
+    // tab or device holds a newer account version, that version stays the current
+    // progress and this row is marked stale so it is never mistaken for it.
+    let stale = false;
+    try { guardedDraft_(book, identity, hub, request, answers); }
+    catch (error) { if (error && error.code === 'conflict') stale = true; else throw error; }
+    if (stale) record.stale = true;
     turnedInAt = nextWriteTime_(book, identity, hub);
     record.savedAt = turnedInAt.toISOString(); record.finishedAt = record.savedAt;
     if (!identity.test) cache.remove(draftCacheKey_(identity.email, hub));
@@ -258,10 +265,10 @@ function turnIn_(request) {
           timeline.typed, timeline.pasted, timeline.largest, timeline.away, timeline.flags, timeline.data], true);
       } catch (error) { console.error(error && error.stack || error); }
     }
-    updateProgress_(book, identity, record, true);
+    if (!stale) updateProgress_(book, identity, record, true);
     SpreadsheetApp.flush();
     optionalCachePut_(submissionKey, JSON.stringify(resultFor_(identity, classPeriod, turnedInAt, answered, answers.length, classroomUrl, submissionId, record.revision, answers)), TI_SUBMISSION_CACHE_SECONDS);
-    if (!identity.test) optionalCachePut_(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
+    if (!identity.test && !stale) optionalCachePut_(draftCacheKey_(identity.email, hub), JSON.stringify(record), TI_DRAFT_CACHE_SECONDS);
   } finally {
     lock.releaseLock();
   }
@@ -383,7 +390,15 @@ function activateWorkProtection() {
   console.log('Checked writes required. Older open pages must copy their answers and reload.');
 }
 
+const TI_DRAFT_MEMO = {};
+
 function currentDraft_(book, identity, hub) {
+  const key = JSON.stringify([identity.email, hub]);
+  if (!Object.prototype.hasOwnProperty.call(TI_DRAFT_MEMO, key)) TI_DRAFT_MEMO[key] = lookupDraft_(book, identity, hub);
+  return TI_DRAFT_MEMO[key];
+}
+
+function lookupDraft_(book, identity, hub) {
   return identity.test
     ? newestMatch_(book.getSheetByName(TI_SHEETS.LOAD_TEST_PROGRESS), 4, 5, 12, identity.email, hub)
     : findDraft_(identity.email, hub);
@@ -402,10 +417,29 @@ function guardedDraft_(book, identity, hub, request, answers) {
   const current = currentDraft_(book, identity, hub);
   if (current && payloadSignature_(current.answers) === payloadSignature_(answers) && (!request.classPeriod || request.classPeriod === current.classPeriod)) return current;
   const revision = current && (current.revision || current.savedAt) || '';
-  if (typeof request.baseRevision !== 'string' || request.baseRevision !== revision) {
+  if (typeof request.baseRevision !== 'string' || (request.baseRevision !== revision && !sameWriter_(current, request))) {
     throw refuse_('conflict', 'Another account version exists. Download a backup, then choose Load My Work before saving or turning in.');
   }
   return null;
+}
+
+/** Which page tab wrote a record, and from which account version it started. */
+function writerOf_(request) {
+  const tab = String(request.tab || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64);
+  const device = String(request.device || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64);
+  return tab && device ? { writerTab: tab, writerDevice: device, writerBase: String(request.baseRevision || '') } : {};
+}
+
+/**
+ * Under load a save can land after the page stopped waiting for the answer. That
+ * tab then still holds the version it started from. If the newest account copy was
+ * written by this same tab from that same starting version, nothing newer came from
+ * anywhere else, so the tab may continue instead of being treated as a conflict.
+ */
+function sameWriter_(current, request) {
+  const writer = writerOf_(request);
+  return Boolean(current && writer.writerTab && current.writerTab === writer.writerTab
+    && current.writerDevice === writer.writerDevice && current.writerBase === writer.writerBase);
 }
 
 function turnInRow_(sheet, row, deferFlush) {
@@ -802,22 +836,19 @@ function newestMatch_(sheet, emailCol, hubCol, dataCol, email, hub) {
   if (!sheet) return null;
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return null;
-  const width = Math.max(emailCol, hubCol, dataCol);
+  const progress = sheet.getName() === TI_SHEETS.PROGRESS || sheet.getName() === TI_SHEETS.LOAD_TEST_PROGRESS;
+  // Saved answers are large. Read the narrow key columns, then only the data cells that match.
+  const left = Math.min(emailCol, hubCol);
+  const keys = sheet.getRange(2, left, lastRow - 1, Math.abs(hubCol - emailCol) + 1).getValues();
   let latest = null;
-  // Read in bounded batches, but never silently discard older retained work.
-  for (let end = lastRow; end >= 2;) {
-    const start = Math.max(2, end - TI_DRAFT_SCAN_ROWS + 1);
-    const rows = sheet.getRange(start, 1, end - start + 1, width).getValues();
-    for (let i = rows.length - 1; i >= 0; i -= 1) {
-      if (String(rows[i][emailCol - 1]).toLowerCase() !== email || String(rows[i][hubCol - 1]) !== hub) continue;
-      try {
-        const data = JSON.parse(rows[i][dataCol - 1]);
-        if (!data || !Array.isArray(data.answers) || !Number.isFinite(Date.parse(data.savedAt))) continue;
-        if (sheet.getName() !== TI_SHEETS.PROGRESS && sheet.getName() !== TI_SHEETS.LOAD_TEST_PROGRESS) return data;
-        if (!latest || Date.parse(data.savedAt) > Date.parse(latest.savedAt)) latest = data;
-      } catch (error) { /* continue to the previous readable durable record */ }
-    }
-    end = start - 1;
+  for (let i = keys.length - 1; i >= 0; i -= 1) {
+    if (String(keys[i][emailCol - left]).toLowerCase() !== email || String(keys[i][hubCol - left]) !== hub) continue;
+    try {
+      const data = JSON.parse(sheet.getRange(i + 2, dataCol).getValue());
+      if (!data || !Array.isArray(data.answers) || !Number.isFinite(Date.parse(data.savedAt)) || data.stale) continue;
+      if (!progress) return data;
+      if (!latest || Date.parse(data.savedAt) > Date.parse(latest.savedAt)) latest = data;
+    } catch (error) { /* continue to the previous readable durable record */ }
   }
   return latest;
 }
