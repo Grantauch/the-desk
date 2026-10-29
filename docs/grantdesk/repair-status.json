@@ -3,7 +3,7 @@
     "status": "IMPLEMENTED_LOCAL_BROWSER_VERIFIED",
     "owner": "Codex",
     "scope": "Pixel Camp 6: four three-chapter founder journeys, supply gathering, eight workshop keepsakes and two goal tracks",
-    "verification_status": "FOCUSED_RULES_AND_COMPANION_BROWSER_PASSED_CANONICAL_IN_PROGRESS",
+    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
     "deployment_status": "PENDING_REVIEW_CI_AND_GUARDED_RELEASE",
     "field_status": "CLASSROOM_PENDING",
     "evidence": [
