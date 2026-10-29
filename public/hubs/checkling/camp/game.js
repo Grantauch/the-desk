@@ -10,7 +10,7 @@
   // A school that has not been updated yet only stores version 1 camps; new features wait for it.
   const FULL = !schoolSession || (Array.isArray(schoolSession.formats) && schoolSession.formats.includes(2));
   const ADVENTURES = !schoolSession || schoolSession.formats?.includes(3);
-  const VERSION = "6.1";
+  const VERSION = "6.2";
   function today() {
     const d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -602,12 +602,14 @@
 
   function renderJournal() {
     const p = state.pets[state.selected];
-    const goalsPage = journalPage === "goals", shelfPage = journalPage === "curios", journeyPage = journalPage === "journeys";
+    const goalsPage = journalPage === "goals", shelfPage = journalPage === "curios", journeyPage = journalPage === "journeys", guidePage = journalPage === "guide";
     $("journey-book").hidden = !journeyPage;
     if(journeyPage) renderJourneys();
-    $("journal-notes").hidden = goalsPage || shelfPage || journeyPage; $("camp-goals").hidden = !goalsPage; $("curio-shelf").hidden = !shelfPage;
+    $("founder-guide").hidden = !guidePage;
+    if(guidePage) renderGuide();
+    $("journal-notes").hidden = goalsPage || shelfPage || journeyPage || guidePage; $("camp-goals").hidden = !goalsPage; $("curio-shelf").hidden = !shelfPage;
     for (const tab of document.querySelectorAll("[data-journal-page]")) tab.setAttribute("aria-pressed", String(tab.dataset.journalPage === journalPage));
-    $("journal-title").textContent = journeyPage ? "Founder journeys" : goalsPage ? "Camp goals" : shelfPage ? "Curio shelf" : name() + "’s notes";
+    $("journal-title").textContent = guidePage ? "Founder field guide" : journeyPage ? "Founder journeys" : goalsPage ? "Camp goals" : shelfPage ? "Curio shelf" : name() + "’s notes";
     if (goalsPage) renderCampGoals();
     if (shelfPage) renderShelf();
     $("journal-friend").textContent = name();
@@ -874,7 +876,8 @@
     const button = event.target.closest("button");
     if (!button) return;
     const focused = button === document.activeElement;
-    if (button.dataset.journalPage) { journalPage = ["goals", "curios", "journeys"].includes(button.dataset.journalPage) ? button.dataset.journalPage : "notes"; renderJournal(); return; }
+    if (button.dataset.journalPage) { journalPage = ["goals", "curios", "journeys", "guide"].includes(button.dataset.journalPage) ? button.dataset.journalPage : "notes"; renderJournal(); return; }
+    if (button.dataset.guideAction) { followGuide(button.dataset.guideFounder,button.dataset.guideAction); return; }
     if (button.dataset.tier) {
       if (button.getAttribute("aria-disabled") === "true") { say("Clear the " + E.TIERS[button.dataset.tier - 2].name.toLowerCase() + " with " + name() + " first."); return; }
       practiceTier = +button.dataset.tier; renderTiers(); say(E.TIERS[practiceTier - 1].name + " is ready.");
@@ -1214,7 +1217,43 @@
     shelf.innerHTML = '<p id="curio-summary" role="status" aria-atomic="true"></p><ul id="curio-today" class="curio-today"></ul><ul id="curio-grid" class="curio-grid"></ul><button type="button" data-go="trail">' + item("map") + "<span>Go forage</span></button>";
     $("camp-goals").after(shelf);
   })();
+  function renderGuide() {
+    $('founder-guide-cards').innerHTML = E.IDS.map(id => {
+      const s = E.SPECIES[id], p = state.pets[id], next = [0,1,2].find(stop => !p.discoveries.includes(stop));
+      const progress = '<div><dt>Trail discoveries</dt><dd>'+p.discoveries.length+' / 3</dd></div><div><dt>Practice badges</dt><dd>'+p.battles+' / '+(FULL ? 3 : 1)+'</dd></div>'+(ADVENTURES ? '<div><dt>Journey chapters</dt><dd>'+state.journeys[id]+' / 3</dd></div>' : '');
+      const nickname = p.nickname && p.nickname !== s.name ? '<p class="guide-camp-name">In your camp: '+escape(p.nickname)+'</p>' : '';
+      const keepsake = ADVENTURES ? E.RECIPES.find(recipe => recipe.founder === id) : null;
+      const keepsakeNote = keepsake ? '<p class="guide-keepsake"><strong>Journey keepsake:</strong> '+escape(keepsake.name)+' · '+(state.crafted.includes(keepsake.id) ? 'Built and yours to place.' : state.journeys[id] === 3 ? 'Ready to build in the workshop.' : 'Finish this founder’s journey to unlock it.')+'</p>' : '';
+      return '<article class="founder-guide-card" data-guide-entry="'+id+'" aria-labelledby="guide-name-'+id+'"><img src="'+art(id,true)+'" alt="" width="80" height="80" loading="lazy" decoding="async"><header><p class="guide-region">'+escape(s.region)+'</p><h3 id="guide-name-'+id+'">'+escape(s.name)+'</h3><p class="guide-title">'+escape(s.title)+'</p>'+nickname+'</header><div class="guide-copy"><p>'+escape(s.personality)+'</p><p><strong>Favorite routine:</strong> '+escape(s.preference)+'</p><dl class="guide-progress">'+progress+'</dl>'+keepsakeNote+'<details><summary>Practice tip for '+escape(s.name)+'</summary><p><strong>'+escape(s.signature)+'</strong> · Choose '+escape(signatureNames[id])+': '+escape(s.signatureHint)+'</p><button type="button" data-guide-action="practice" data-guide-founder="'+id+'">Practice with '+escape(s.name)+'</button></details></div><footer><button type="button" data-guide-action="trail" data-guide-founder="'+id+'">'+(next === undefined ? 'Revisit trail with ' : 'Explore with ')+escape(s.name)+'</button>'+(ADVENTURES ? '<button type="button" data-guide-action="story" data-guide-founder="'+id+'">'+escape(s.name)+'’s journey</button>' : '')+'</footer></article>';
+    }).join('');
+  }
+  function followGuide(id, action) {
+    if (schoolPaused || !E.IDS.includes(id)) return;
+    if (action === 'story') { if(ADVENTURES) followJourney(id); return; }
+    if (action === 'practice' && battle && !battle.result) {
+      setView('practice'); say('Finish this spar first. Your next friend can go after.');
+      (document.querySelector('[data-move="guard"]:not(:disabled)') || document.querySelector('.party-button:not(:disabled)')).focus();
+      return;
+    }
+    if (action !== 'trail' && action !== 'practice') return;
+    selectPet(id);
+    if (action === 'practice') { setView('practice'); $('start-practice').focus(); return; }
+    const stop = [0,1,2].find(index => !state.pets[id].discoveries.includes(index));
+    if(stop !== undefined) act({type:'stop',value:stop});
+    setView('trail');
+    const tired = goalNeedsRest({kind:'trail',pet:id});
+    if(tired) say(name(id)+' needs a rest before exploring. Rest is free.');
+    (tired ? document.querySelector('#trail-actions [data-care="rest"]') : $('discover')).focus();
+  }
+  function buildGuide() {
+    const tab = document.createElement('button'); tab.type='button'; tab.dataset.journalPage='guide'; tab.setAttribute('aria-pressed','false'); tab.innerHTML=item('book')+'Field guide';
+    document.querySelector('.journal-page-buttons').append(tab);
+    const guide = document.createElement('section'); guide.id='founder-guide'; guide.hidden=true; guide.setAttribute('aria-label','Guide to the four playable founders');
+    guide.innerHTML='<p class="guide-intro">Four founders. Four ways of seeing the world. These notes show the friends and progress in this camp. '+(ADVENTURES ? 'Explore, share a story, or try a friendly spar' : 'Explore or try a friendly spar')+' at your own pace.</p><div id="founder-guide-cards" class="founder-guide-cards"></div>';
+    $('camp-goals').after(guide);
+  }
   buildAdventures();
+  buildGuide();
   $("next-stump").onclick = () => {
     practiceTier = Math.min(3, battle.tier + 1);
     state = E.dispatch(state, { type: "select", id: practiceFounder }).state;

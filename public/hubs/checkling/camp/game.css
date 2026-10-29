@@ -2123,3 +2123,16 @@ body:not(.quiet) .bond-heart:not([hidden]) { animation:bond-rise 2.4s ease-out f
 .pause-actions button { min-height: 44px; }
 dialog:modal { overscroll-behavior: contain; }
 dialog::backdrop { overscroll-behavior: contain; overflow: hidden; }
+.guide-intro,.guide-copy,.guide-title,.guide-camp-name,.guide-region{font:16px/1.65 system-ui,sans-serif}
+.founder-guide-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.founder-guide-card{container-type:inline-size;display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px;border:2px solid #789286;background:#173c3d;padding:16px;min-width:0;align-content:start}
+.founder-guide-card>img{width:80px;height:80px;object-fit:contain;image-rendering:pixelated}
+.founder-guide-card h3{font-size:22px;line-height:1.4;margin:4px 0;color:#f5d994}
+.guide-region{color:#c9d8cb;margin:0;font-size:14px}.guide-title,.guide-camp-name{margin:4px 0}
+.guide-copy,.founder-guide-card>footer{grid-column:1/-1;min-width:0}
+.guide-copy>p{margin:0 0 12px}.guide-progress{margin:16px 0;padding:10px;border:1px solid #789286}
+.guide-progress>div{display:flex;justify-content:space-between;gap:12px}.guide-progress dd{margin:0;white-space:nowrap;color:#f5d994}
+.guide-copy summary{cursor:pointer;min-height:44px;padding:8px 0}.guide-copy details p{margin:8px 0 12px}
+.founder-guide-card>footer{display:flex;flex-wrap:wrap;gap:8px;align-self:end}.founder-guide-card button{min-height:44px;max-width:100%;line-height:1.5}
+@container(max-width:240px){.founder-guide-card>img{width:64px;height:64px}}
+@media(max-width:720px){.founder-guide-cards{grid-template-columns:1fr}.founder-guide-card{padding:12px;gap:8px}}

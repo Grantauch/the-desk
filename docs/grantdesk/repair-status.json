@@ -1,4 +1,20 @@
 {
+  "pixel-camp-guide-2026-10-29": {
+    "status": "IMPLEMENTED_LOCAL_VERIFIED",
+    "owner": "Codex",
+    "scope": "Current-four founder field guide with actual progress, source-backed play tips and frozen original artwork",
+    "verification_status": "CANONICAL_FULL_AND_ALL_COMPANION_BROWSER_PASSED_CI_PENDING",
+    "deployment_status": "PENDING_PROTECTED_RELEASE",
+    "field_status": "INDEPENDENT_REVIEW_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Field guide reads existing engine personalities, canonical identities, signatures and saved discoveries/badges/chapters/keepsakes; student nicknames stay separate. Native controls lead to existing trail/story/practice flows. Unfinished spar returns without free reset/switch/heal.",
+      "No saved fields, school RPC, new species or art replacement. Existing school formats1/3 pass save/identity/no-attendance/privacy journeys; school source remains verified46.",
+      "Original8founder PNG/GIF byte fingerprints and canonical roster checks pass. Three public guide widths pass automated WCAG A/AA, actual discovery/chapter/update, exact save download/reload, escaped nicknames and active-spar preservation.",
+      "Independent review of Gemini v1.1 first12 bundle reproduced short-PNG crashes, incomplete-header acceptance, opaqueGIF transparency misreport and non-strict CLI success. New-species art admission remains CHANGES_REQUESTED; current guide uses existing live source only.",
+      "Predecessor6.1 is production verified: PR266/06510a1, main+standalone24files, guarded school46 run40847184768 exactfivehashes and authenticated live pause/resume/replay/v3 smoke PASS. Source/fullCI/deployment/physicalclassroom remain distinct for the guide release.",
+      "Full canonical18 stages passed:54routes156HTML5238references27sealedreleases193assets. All66focused and completecompanionbrowser suites passed. The guide adds five journeys, including free rest, actual move labels, complete/ready/built keepsakes and unchanged active-spar state. ProtectedCI and actual website publication are separate pending gates."
+    ]
+  },
   "pixel-camp-pause-2026-10-29": {
     "status": "IMPLEMENTED_LOCAL_VERIFIED",
     "owner": "Codex",
