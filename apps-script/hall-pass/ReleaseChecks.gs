@@ -106,6 +106,7 @@ function releaseRunSyntheticSmoke(clientContract) {
   assertTeacherClient_(clientContract);
   const production = getSpreadsheet_();
   const before = releasePreservedState_(production);
+  const beforeCampSettings = JSON.stringify(releaseSheetValues_(production,GD_SHEETS.SETTINGS,3));
   const book = SpreadsheetApp.create('GrantDesk SYNTHETIC protected release smoke ' + new Date().toISOString());
   try {
     GD_SPREADSHEET = book; gdClearMemo_();
@@ -142,6 +143,17 @@ function releaseRunSyntheticSmoke(clientContract) {
     v3.version=3;v3.journeys={mochi:0,bolt:3,zee:0,ember:0};v3.materials={wood:6,stone:3,fiber:0};v3.crafted=['toolkit','waterclock'];v3.equippedCraft='waterclock';
     const savedSix=savePixelCamp(visit.pinToken,six.revision,'c'.repeat(32),v3), roundTrip=getPixelCamp(visit.pinToken).camp;
     releaseAssert_(savedSix.revision===six.revision+1 && roundTrip.version===3 && roundTrip.journeys.bolt===3 && roundTrip.materials.wood===6 && roundTrip.crafted.join()==='toolkit,waterclock' && roundTrip.equippedCraft==='waterclock','school camp journey/workshop save/reload failed');
+    // The control belongs to this isolated workbook, never a global script property.
+    try {
+      releaseAssert_(!teacherSetPixelCampOpen(false,GD_TEACHER_CONTRACT).open,'camp pause failed');
+      releaseAssert_(!getPixelCampAccess(visit.pinToken).open,'paused camp access was not advertised');
+      let openBlocked=false,saveBlocked=false;
+      try { getPixelCamp(visit.pinToken); } catch(error) { openBlocked=/teacher has paused/.test(error.message); }
+      try { savePixelCamp(visit.pinToken,savedSix.revision,'d'.repeat(32),v3); } catch(error) { saveBlocked=/teacher has paused/.test(error.message); }
+      releaseAssert_(openBlocked && saveBlocked,'paused camp accepted a new open or write');
+      releaseAssert_(savePixelCamp(visit.pinToken,six.revision,'c'.repeat(32),v3).revision===savedSix.revision,'pause broke a committed save retry');
+    } finally { teacherSetPixelCampOpen(true,GD_TEACHER_CONTRACT); }
+    releaseAssert_(getPixelCamp(visit.pinToken).revision===savedSix.revision,'pause changed saved camp');
     PropertiesService.getScriptProperties().deleteProperty(GD_CHECKLING_PREFIX + visit.student.key);
     releaseAssertPreserved_(beforeVisit, book);
     const now = new Date();
@@ -165,8 +177,9 @@ function releaseRunSyntheticSmoke(clientContract) {
     teacherVoidPass(evidence.passes[0].passId,'Synthetic release check completed',GD_TEACHER_CONTRACT);
     book.getSheetByName(GD_SHEETS.ROSTER).getRange(student.row,5).setValue(false);
     releaseAssertPreserved_(before,production);
+    releaseAssert_(beforeCampSettings===JSON.stringify(releaseSheetValues_(production,GD_SHEETS.SETTINGS,3)),'production camp/settings changed during synthetic smoke');
     const result = { ok: true, schema: GD_SCHEMA_VERSION, clientContract: GD_TEACHER_CONTRACT,
-      syntheticOnly: true, pixelCamp: 'PIN_SCOPED_SAVE_RELOAD_NO_ATTENDANCE', companionVisit: 'PIN_VERIFIED_NO_ATTENDANCE', request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
+      syntheticOnly: true, pixelCampAccess: 'PAUSE_RESUME_COMMITTED_RETRY', pixelCamp: 'PIN_SCOPED_SAVE_RELOAD_NO_ATTENDANCE', companionVisit: 'PIN_VERIFIED_NO_ATTENDANCE', request: 'STARTED', return: 'RETURNED_COUNTABLE', evidenceUsed: evidence.used,
       testPassVoided: true, testMembershipDeactivated: true, productionFactsUnchanged: true, workbookUrl: book.getUrl() };
     console.log(JSON.stringify(result)); return result;
   } finally { GD_SPREADSHEET = production; gdClearMemo_(); }

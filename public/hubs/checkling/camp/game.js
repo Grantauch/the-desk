@@ -10,7 +10,7 @@
   // A school that has not been updated yet only stores version 1 camps; new features wait for it.
   const FULL = !schoolSession || (Array.isArray(schoolSession.formats) && schoolSession.formats.includes(2));
   const ADVENTURES = !schoolSession || schoolSession.formats?.includes(3);
-  const VERSION = "6.0";
+  const VERSION = "6.1";
   function today() {
     const d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -101,6 +101,7 @@
 
   let schoolRevision = schoolSession?.revision || 0;
   let schoolQueued = null, schoolFlight = null, schoolFailed = null;
+  let schoolPaused = false, pauseDialog = null, pauseLeaveConfirmed = false;
   if (schoolSession) {
     state = E.hydrate(schoolSession.camp);
     practiceFounder = state.selected;
@@ -124,9 +125,67 @@
     retry.id = 'school-save-retry'; retry.type = 'button'; retry.textContent = 'Retry school save'; retry.hidden = true;
     $('save-status').after(retry);
     retry.onclick = () => { if (schoolFailed) { schoolFlight = schoolFailed; schoolFailed = null; flushSchoolSave(); } };
+    if (typeof schoolSession.access?.open === 'boolean') {
+      pauseDialog = document.createElement('dialog');
+      pauseDialog.id = 'school-pause-dialog';
+      pauseDialog.setAttribute('aria-labelledby','school-pause-title');
+      pauseDialog.setAttribute('aria-describedby','school-pause-copy');
+      pauseDialog.setAttribute('closedby','none');
+      pauseDialog.innerHTML = '<h2 id="school-pause-title">School camp is paused</h2><p id="school-pause-copy">Your teacher has paused play. Your current camp stays here while this school session is open. Save a file of unconfirmed progress before leaving. The usual shared-device timeout still applies.</p><p id="school-pause-status" role="status" aria-atomic="true"></p><div class="pause-actions"><button type="button" id="school-pause-export" autofocus>Save to file</button><button type="button" id="school-pause-check">Check again</button><button type="button" id="school-pause-leave">Return to Check-In</button></div>';
+      document.body.append(pauseDialog);
+      pauseDialog.addEventListener('cancel',event => {
+        event.preventDefault();
+        $('school-pause-status').textContent = 'Play is paused. Save your file, check again, or return to Check-In.';
+      });
+      $('school-pause-export').onclick = () => { exportSave(); $('school-pause-status').textContent = 'Save file ready. Check your downloads before leaving.'; };
+      $('school-pause-check').onclick = async event => {
+        event.currentTarget.disabled = true;
+        $('school-pause-status').textContent = 'Checking with school…';
+        try {
+          const access = await school.request('access');
+          setSchoolAccess(access);
+          if (schoolPaused) $('school-pause-status').textContent = 'School play is still paused. Your camp has been kept here.';
+        } catch { $('school-pause-status').textContent = 'School could not answer. Your camp is still here; save a file before leaving.'; }
+        finally { $('school-pause-check').disabled = false; }
+      };
+      $('school-pause-leave').onclick = () => {
+        if ((schoolQueued || schoolFlight || schoolFailed) && !pauseLeaveConfirmed) {
+          pauseLeaveConfirmed = true;
+          $('school-pause-status').textContent = 'Some progress is not confirmed at school. Save a file first, or choose Leave without unconfirmed progress.';
+          $('school-pause-leave').textContent = 'Leave without unconfirmed progress';
+          return;
+        }
+        school.close();
+      };
+      addEventListener('checkling-school-access',event => setSchoolAccess(event.detail));
+      document.addEventListener('click',event => {
+        if (schoolPaused && !pauseDialog.contains(event.target)) { event.preventDefault(); event.stopImmediatePropagation(); if (!pauseDialog.open) pauseDialog.showModal(); }
+      },true);
+    }
+  }
+  function setSchoolAccess(access) {
+    if (!pauseDialog || typeof access?.open !== 'boolean') return;
+    const wasPaused = schoolPaused;
+    schoolPaused = !access.open;
+    if (schoolPaused) {
+      if (!wasPaused) {
+        pauseLeaveConfirmed = false;
+        $('school-pause-leave').textContent = 'Return to Check-In';
+      }
+      // Close other dialogs before opening this one; the underlying camp stays in memory.
+      document.querySelectorAll('dialog[open]').forEach(dialog => { if (dialog !== pauseDialog) dialog.close(); });
+      if (!pauseDialog.open) pauseDialog.showModal();
+    } else if (wasPaused) {
+      pauseDialog.close();
+      $('actions').focus();
+      say('Your teacher reopened school camp. Continuing with your current progress.');
+      if (schoolFailed && !schoolFlight) { schoolFlight = schoolFailed; schoolFailed = null; flushSchoolSave(); }
+      else if (!schoolFlight && schoolQueued) flushSchoolSave();
+    }
   }
   const schoolMutation = () => Array.from(crypto.getRandomValues(new Uint8Array(16)),byte => byte.toString(16).padStart(2,'0')).join('');
   async function flushSchoolSave() {
+    if (schoolPaused) return;
     if (!schoolFlight && schoolQueued) { schoolFlight = {camp:schoolQueued,expectedRevision:schoolRevision,mutationId:schoolMutation()}; schoolQueued = null; }
     if (!schoolFlight) return;
     const flight = schoolFlight;
@@ -136,8 +195,10 @@
       const saved = await school.request('save',flight);
       schoolRevision = saved.revision;
       schoolFlight = null;
-      if (schoolQueued) return flushSchoolSave();
-      $('save-status').textContent = 'Saved to school';
+      // An older save acknowledgement cannot resume a newer observed pause.
+      if (saved.access?.open === false) setSchoolAccess(saved.access);
+      if (schoolQueued && !schoolPaused) return flushSchoolSave();
+      $('save-status').textContent = schoolQueued ? 'Not saved to school' : 'Saved to school';
     } catch (error) {
       schoolFailed = flight; schoolFlight = null;
       $('save-status').textContent = 'Not saved to school';
@@ -282,6 +343,7 @@
     return result.message;
   }
   function act(action) {
+    if (schoolPaused) return;
     const before = state,
       result = E.dispatch(state, action);
     state = result.state;
@@ -715,6 +777,7 @@
     );
   }
   function startPractice() {
+    if (schoolPaused) return;
     practiceFounder = state.selected;
     if (practiceTier > highestTier(practiceFounder)) practiceTier = highestTier(practiceFounder);
     battle = E.startBattle(practiceFounder, practiceTier);
@@ -724,6 +787,7 @@
     document.querySelector('[data-move="strike"]').focus();
   }
   function move(type, id) {
+    if (schoolPaused) return;
     if (!battle) return;
     const beforeEnemy = battle.enemy,
       result = E.battleMove(battle, type, id);
@@ -782,7 +846,7 @@
     link.href = url;
     link.download =
       "Checklings-Camp-" + new Date().toISOString().slice(0, 10) + ".json";
-    document.body.append(link);
+    (schoolPaused && pauseDialog ? pauseDialog : document.body).append(link);
     link.click();
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
@@ -1219,6 +1283,7 @@
   setStumpPictureState(stumpArt.complete ? stumpArt.naturalWidth > 0 ? "ready" : "error" : "loading");
 
   render();
+  setSchoolAccess(schoolSession?.access);
   if (storageOK) persist();
   else $("save-status").textContent = "Save to file";
   say(welcome);

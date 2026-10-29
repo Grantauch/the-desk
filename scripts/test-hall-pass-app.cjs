@@ -660,6 +660,7 @@ assert.equal(releaseTeacherContract[1], serverTeacherContract[1],
 [
   'teacherApplyUnmatchedEmail','teacherDismissUnmatched','teacherClearUnmatchedSignIns',
   'teacherSetPassRules','teacherResetStudentPassCounters','teacherAddStudentClass',
+  'teacherSetPixelCampOpen',
   'teacherRemoveStudentClass','teacherRemoveFromQueue','teacherVoidPass',
   'teacherMarkStudentAbsent','teacherClearStudentAbsent','teacherPinEmailStatus',
   'teacherGetCountablePasses','teacherSetStudentUnlimited','sendStudentPinEmails'

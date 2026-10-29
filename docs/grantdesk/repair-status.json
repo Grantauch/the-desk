@@ -1,4 +1,18 @@
 {
+  "pixel-camp-pause-2026-10-29": {
+    "status": "IMPLEMENTED_LOCAL_VERIFIED",
+    "owner": "Codex",
+    "scope": "Teacher-only school camp pause/resume with server enforcement, unsaved backup and retry",
+    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
+    "deployment_status": "PENDING_PROTECTED_RELEASE",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Workbook-scoped default-open setting, current-contract teacher authorization rechecked under lock, audited mutation with rollback on failure. New opens and writes reject while paused; committed retries remain acknowledged.",
+      "Open updated school camps retain current state and offer native paused dialog with file export, access check and explicit leave. Resume retries retained saves. No save schema, attendance, points, pass or original companion change.",
+      "Pixel Camp6 predecessor is production verified: PR263/0d34f49, main and standalone exact24files, guarded school45 run40811503146 exactfivehashes and authenticated live v3 synthetic smoke PASS. Physical classroom and12-species expansion gates remain.",
+      "57 focused companion/game/private-save cases and440 Hall Pass runtime behaviors passed. All companion browser suites passed; three school widths also verify exact paused backup/resume, periodic gate, delayed-ack race, teacher keyboard controls and zero automated WCAG A/AA violations in new controls/dialog. Canonical full18 stages passed:54 routes,156HTML,5238references,27sealedreleases/193assets."
+    ]
+  },
   "pixel-camp-six-2026-10-28": {
     "status": "IMPLEMENTED_LOCAL_BROWSER_VERIFIED",
     "owner": "Codex",
