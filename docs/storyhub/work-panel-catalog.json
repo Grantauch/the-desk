@@ -1,9 +1,79 @@
 {
-  "checkedAt": "2026-10-27",
-  "catalogueCount": 50,
+  "checkedAt": "2026-10-29",
+  "catalogueCount": 64,
   "hubs": [
     {
+      "hub": "hh-down-the-rabbit-hole.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-habbakuk.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-philadelphia-experiment.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-project-pigeon.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-iceworm.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-acoustic-kitty.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-bat-bombs.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-stargate.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-ghost-army.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-mincemeat.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-the-thing.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-sea-spray.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-bytesize-moon-hoax.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
       "hub": "hh-bytesize-glomar.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-bytesize-the-line-that-wouldnt-move.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     },
