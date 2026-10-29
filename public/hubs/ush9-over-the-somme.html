@@ -57,7 +57,8 @@ body[data-mode="menu"] .where{display:none}
 .map-frame .key i{display:inline-block;width:12px;height:3px;vertical-align:middle;margin-right:3px;border-radius:2px}
 .switches{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .sw{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:0 .8rem;border:1px solid var(--rule-strong);border-radius:6px;background:var(--panel);font-size:.85rem;backdrop-filter:blur(4px)}
-.sw[aria-pressed="true"]{border-color:var(--brass);color:var(--brass);background:var(--brass-wash)}
+.sw[aria-pressed="true"]{border-color:var(--brass);color:var(--brass);background:var(--panel-solid);box-shadow:inset 0 0 0 1px var(--brass)}
+#btn-sound[aria-pressed="true"]{box-shadow:none;border-color:var(--rule-strong);color:var(--ink)}
 .sw svg{width:18px;height:18px;flex:none}
 .sw .n{font-family:var(--font-wire);font-size:.8rem;color:var(--brass)}
 body[data-mode="menu"] #btn-log{display:none}
@@ -201,6 +202,8 @@ body[data-mode="end"] :is(.where,.dock,.reticle,#btn-log,.clock){display:none}
   .cap-text{font-size:.95rem}
   .cap-quote p{font-size:1.2rem}
   body[data-zero="on"][data-mode="fly"] .caption{bottom:calc(170px + env(safe-area-inset-bottom))}
+  body[data-zero="on"][data-mode="fly"] .cap-quote{display:none}
+  body[data-zero="on"][data-mode="fly"] .cap-text{font-size:.85rem;line-height:1.4}
   body[data-zero="on"][data-mode="fly"] .where{display:none}
 }
 @media (prefers-reduced-motion:reduce){.grain{animation:none}.caption.in{animation:none}}

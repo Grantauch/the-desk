@@ -8,7 +8,21 @@ The first version came out of Grok's app builder (Grantauch/atlas-plaza-tango-ve
 - `game/props.ts` and `game/models.ts` place the wire, sandbags, figures, tanks and balloon
 - `game/flight.ts` is the flight model
 - `game/mount.ts` runs the scene, night mode, wireframe and the glide used by the field notebook
-- `entry.ts` drives the page: intro, notebook, toasts, pause and touch controls
+- `game/zerohour.ts` is the zero hour film: the clock, captions, camera shots, the infantry waves and the German machine guns. Captions and casualty rates by sector are at the top of the file
+- `game/atmosphere.ts` holds the morning sun position, valley mist and the sky
+- `game/fx.ts` and `game/particles.ts` make shell bursts, the mine columns, drifting smoke and muzzle flashes
+- `game/plane.ts` is the Morane-Saulnier Type L Parasol
+- `game/audio.ts` builds every sound in the browser. No sound files are loaded
+- `entry.ts` drives the page: intro, zero hour captions, notebook, toasts, pause, graphics setting and touch controls
+
+## Graphics settings
+
+The page starts on Best (shadows, full smoke) on computers with a mouse and Balanced on touch screens. If frames run slow it steps down on its own, to Balanced and then Fast, which turns shadows off and thins the smoke. The pause screen has a manual setting.
+
+## Sources for the zero hour captions
+
+- Cecil Lewis, Sagittarius Rising (1936), quoted on the Lochnagar Crater Foundation's history panels, lochnagarcrater.org
+- First day casualty figures (57,470, including 19,240 killed) are the standard British official history totals
 
 The notebook remembers logged sites in the browser only. Nothing is sent anywhere.
 

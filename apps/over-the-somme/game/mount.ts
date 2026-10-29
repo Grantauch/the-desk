@@ -906,7 +906,12 @@ export function mountSomme(opts: MountOpts): SommeApi {
     getQuality: () => quality,
     getZeroTime: () => zh.t,
     setZeroTime: (t: number) => {
-      zh.t = t;
+      // Fast forward the simulation so soldiers and smoke are where they would be.
+      let guard = 0;
+      while (zh.t < t && zh.running && guard++ < 4000) {
+        zh.update(0.05);
+        fx.update(0.05);
+      }
     },
     setKeys: (codes: string[]) => {
       override = new Set(codes);
