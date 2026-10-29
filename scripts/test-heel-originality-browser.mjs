@@ -130,7 +130,7 @@ try {
   const makeDevice = async () => {
     const device = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     await device.addInitScript(() => {
-      window.__deskSaveTest = { endpoint: 'https://turnin.test/exec', debounceMs: 300, snapshotMs: 300 };
+      window.__deskSaveTest = { endpoint: 'https://turnin.test/exec', debounceMs: 300, snapshotMs: 300, gate: false };
     });
     await device.route('**/*', async route => {
       const request = route.request();

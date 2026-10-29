@@ -72,7 +72,9 @@ async function test(name, fn) {
  */
 async function chromebook(server, options = {}) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, ...(options.hooks || {}) };
+  // The PIN gate is off unless a test turns it on, so the older tests can keep
+  // driving the tab-only and optional sign in paths that still exist behind it.
+  const hooks = { endpoint: options.endpoint === false ? '' : ENDPOINT, debounceMs: 300, snapshotMs: 300, gate: false, ...(options.hooks || {}) };
   await context.addInitScript((h) => { window.__deskSaveTest = h; }, hooks);
   const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
   await context.route('**/*', async (route) => {
@@ -518,6 +520,208 @@ await test('a student in two classes picks one, then turns in', async () => {
   const done = await turnIn(page, s.pin(PEOPLE.alan));
   assert.match(done, /Turned in, Alan\. Period 5/);
   assert.equal(s.rows('Turn Ins').length, 1);
+  await cb.context.close();
+});
+
+/* ------------------------------------------------------------ PIN gate -- */
+
+const gate = (page) => page.locator('#desk-save-gate');
+const gateOpen = (page) => page.evaluate(() => window.__deskSave.gate());
+
+async function passGate(page, pin, { confirm = true } = {}) {
+  await gate(page).locator('input[type="password"]').fill(pin);
+  await gate(page).getByRole('button', { name: 'Start', exact: true }).click();
+  await waitFor(async () => !(await gate(page).locator('.step').nth(1).isHidden()) || (/\S/.test(await gate(page).locator('.status').textContent()) && await gate(page).getByRole('button', { name: 'Start', exact: true }).isEnabled()), 10000);
+  if (confirm && await gate(page).getByRole('button', { name: 'Yes, that is me' }).isVisible()) {
+    await gate(page).getByRole('button', { name: 'Yes, that is me' }).click();
+  }
+}
+
+await test('the gate covers an answer page until a PIN is entered, confirms the name, then saves from the first answer', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const page = await cb.open('bts-the-bargain.html');
+  assert.equal(await gateOpen(page), true, 'gate is up on load');
+  assert.equal(await page.evaluate(() => Boolean(document.querySelector('#q1').closest('[inert]'))), true, 'answer boxes cannot be reached behind the gate');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), 'hidden');
+  assert.deepEqual(cb.net.calls, [], 'nothing is sent before a PIN');
+
+  const wrong = s.pin(PEOPLE.ada) === '123456' ? '654321' : '123456';
+  await passGate(page, wrong);
+  assert.match(await gate(page).locator('.status').textContent(), /did not match/);
+  assert.equal(await gateOpen(page), true, 'a wrong PIN never unlocks');
+  assert.equal(await gate(page).getByRole('button', { name: 'Start without saving to my account' }).isHidden(), true);
+
+  await passGate(page, s.pin(PEOPLE.ada), { confirm: false });
+  assert.equal(await gate(page).locator('.who').textContent(), 'Ada');
+  assert.match(await gate(page).locator('.step').nth(1).innerText(), /Period 1/);
+  await gate(page).getByRole('button', { name: 'Yes, that is me' }).click();
+  assert.equal(await gateOpen(page), false);
+  assert.equal(await page.evaluate(() => Boolean(document.querySelector('#q1').closest('[inert]'))), false);
+
+  await typeInto(page, '#q1', 'Three years, no fighting back.');
+  await waitFor(() => s.rows('Progress').some((r) => /Three years, no fighting back/.test(r.Answers)));
+  assert.equal(s.rows('Progress')[0].Status, 'In progress');
+  await waitFor(async () => /Ada/.test(await chip(page).locator('.chip').textContent()));
+
+  assert.equal(await panel(page).locator('input[type="password"]').isHidden(), true, 'Turn In does not ask for the PIN again');
+  await panel(page).getByRole('button', { name: 'Turn In' }).click();
+  await waitFor(async () => /Turned in/.test(await panel(page).locator('.status').textContent()), 30000);
+  assert.match(await panel(page).locator('.status').textContent(), /^Turned in, Ada\. Period 1/);
+  assert.equal(s.rows('Progress')[0].Status, 'Finished');
+  assert.equal(s.rows('Turn Ins').length, 1);
+  assert.equal(await page.evaluate(() => Object.keys(sessionStorage).concat(Object.keys(localStorage)).map((k) => sessionStorage.getItem(k) || localStorage.getItem(k)).join(' ')).then((all) => all.includes(s.pin(PEOPLE.ada))), false, 'the PIN is never written to storage');
+  assert.deepEqual(page.deskErrors, []);
+  await cb.context.close();
+});
+
+await test('Not me signs the account out and the gate asks again', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const page = await cb.open('bts-the-bargain.html');
+  await passGate(page, s.pin(PEOPLE.ada), { confirm: false });
+  await gate(page).getByRole('button', { name: 'Not me' }).click();
+  assert.equal(await gateOpen(page), true);
+  assert.equal(await gate(page).locator('.step').first().isVisible(), true);
+  assert.match(await gate(page).locator('.status').textContent(), /Enter your own PIN/);
+  assert.equal(await page.evaluate(() => window.__deskSave.state().token), '');
+  await passGate(page, s.pin(PEOPLE.grace));
+  assert.equal(await gateOpen(page), false);
+  assert.equal(await page.evaluate(() => window.__deskSave.state().firstName), 'Grace');
+  await cb.context.close();
+});
+
+await test('a student in two classes picks the class at the gate and turns in without the PIN again', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const page = await cb.open('hh-room-1018a.html');
+  await passGate(page, s.pin(PEOPLE.alan), { confirm: false });
+  assert.match(await gate(page).locator('#ds-gate-who-title').textContent(), /Which class/);
+  assert.equal(await gate(page).getByRole('button', { name: 'Yes, that is me' }).isHidden(), true);
+  await gate(page).getByRole('button', { name: 'Period 5' }).click();
+  assert.equal(await gateOpen(page), false);
+  await typeInto(page, 'textarea', 'Room 1018A answer from the gate');
+  await waitFor(() => s.rows('Progress').some((r) => r['Class / Hour'] === 'Period 5' || /Period 5/.test(JSON.stringify(r))));
+  await panel(page).getByRole('button', { name: 'Turn In' }).click();
+  await waitFor(async () => /Turned in/.test(await panel(page).locator('.status').textContent()), 30000);
+  assert.match(await panel(page).locator('.status').textContent(), /Turned in, Alan\. Period 5/);
+  await cb.context.close();
+});
+
+await test('a refresh keeps the student signed in, and signing out leaves a covered, blank page for the next student', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const page = await cb.open('bts-the-bargain.html');
+  await passGate(page, s.pin(PEOPLE.ada));
+  await typeInto(page, '#q1', 'Survives a refresh');
+  await waitFor(() => s.rows('Progress').some((r) => /Survives a refresh/.test(r.Answers)));
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
+  assert.equal(await gateOpen(page), false, 'same tab, same student');
+  assert.equal(await page.locator('#q1').inputValue(), 'Survives a refresh');
+  assert.equal(await panel(page).locator('input[type="password"]').isVisible(), true, 'after a refresh Turn In asks for the PIN, since it is never stored');
+
+  await chip(page).locator('.chip').click();
+  await chip(page).getByRole('button', { name: 'Not you? Sign out' }).click();
+  await waitFor(() => gateOpen(page));
+  assert.equal(await page.locator('#q1').inputValue(), '');
+  assert.match(await gate(page).locator('.status').textContent(), /blank for the next person/);
+  await cb.context.close();
+});
+
+await test('a student who starts at school gets the work back at the gate on another Chromebook', async () => {
+  const s = world();
+  const school = await chromebook(s, { hooks: { gate: true } });
+  const first = await school.open('ush9-the-jungle.html');
+  await passGate(first, s.pin(PEOPLE.ada));
+  await typeInto(first, 'textarea', 'Packing house work started at school');
+  await waitFor(() => s.rows('Drafts').some((r) => /started at school/.test(r.Data)));
+  await school.context.close();
+
+  const home = await chromebook(s, { hooks: { gate: true } });
+  const again = await home.open('ush9-the-jungle.html');
+  assert.equal(await again.locator('textarea').first().inputValue(), '');
+  await passGate(again, s.pin(PEOPLE.ada));
+  assert.equal(await again.locator('textarea').first().inputValue(), 'Packing house work started at school');
+  await home.context.close();
+});
+
+await test('when the save system cannot be reached a student can still start in the tab, then save once it is back', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const page = await cb.open('bts-the-bargain.html');
+  cb.net.down = true;
+  await passGate(page, s.pin(PEOPLE.ada));
+  assert.match(await gate(page).locator('.status').textContent(), /Could not reach/);
+  await gate(page).getByRole('button', { name: 'Start without saving to my account' }).click();
+  assert.equal(await gateOpen(page), false);
+  await typeInto(page, '#q1', 'Written while the WiFi was out');
+  assert.match(await chip(page).locator('.chip').textContent(), /Save my work/);
+  cb.net.down = false;
+  await chip(page).locator('.chip').click();
+  await chip(page).locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
+  await chip(page).getByRole('button', { name: 'Save to my account' }).click();
+  await waitFor(() => s.rows('Progress').some((r) => /while the WiFi was out/.test(r.Answers)));
+  await cb.context.close();
+});
+
+await test('a quiet signed in tab saves, signs out and puts the gate back up', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true, idleMs: 2500 } });
+  const page = await cb.open('hh-burn-the-files.html');
+  await passGate(page, s.pin(PEOPLE.ada));
+  await typeInto(page, 'textarea', 'Burned files answer behind the gate');
+  await waitFor(() => gateOpen(page), 12000);
+  assert.ok(s.rows('Drafts').some((r) => /behind the gate/.test(r.Data)), 'saved before signing out');
+  assert.equal(await page.locator('textarea').first().inputValue(), '');
+  assert.match(await gate(page).locator('.status').textContent(), /Signed out after 20 quiet minutes/);
+  await cb.context.close();
+});
+
+await test('a teacher device skips the gate after one visit with deskteacher=on, and off turns it back on', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const on = await cb.open('bts-the-bargain.html?deskteacher=on');
+  assert.equal(await gateOpen(on), false);
+  const other = await cb.open('ush9-the-jungle.html');
+  assert.equal(await gateOpen(other), false, 'the setting carries to every hub on that browser');
+  const off = await cb.open('ush9-the-jungle.html?deskteacher=off');
+  assert.equal(await gateOpen(off), true);
+  assert.deepEqual(cb.net.calls, []);
+  await cb.context.close();
+});
+
+await test('reading pages and pages with no save address never show the gate', async () => {
+  const catalog = JSON.parse(await readFile(new URL('../docs/storyhub/work-panel-catalog.json', import.meta.url), 'utf8'));
+  const reader = catalog.hubs.find((h) => h.mode === 'reading');
+  const cb = await chromebook(world(), { hooks: { gate: true } });
+  const p = await cb.open(reader.hub);
+  assert.equal(await p.locator('#desk-save-gate').count(), 0);
+  await cb.context.close();
+  const offline = await chromebook(world(), { endpoint: false, hooks: { gate: true } });
+  const q = await offline.open('bts-the-bargain.html');
+  assert.equal(await gateOpen(q), false);
+  await offline.context.close();
+});
+
+await test('the gate fits 320, 390 and desktop widths and passes accessibility with reduced motion', async () => {
+  const s = world();
+  const cb = await chromebook(s, { hooks: { gate: true } });
+  const p = await cb.open('bts-americas-most-hated-research.html');
+  await mkdir('browser-results/pin-gate', { recursive: true });
+  await p.emulateMedia({ reducedMotion: 'reduce' });
+  for (const width of [320, 390, 1440]) {
+    await p.setViewportSize({ width, height: 800 });
+    const box = await gate(p).locator('.panel').boundingBox();
+    assert.ok(box.x >= 0 && box.x + box.width <= width + 1, `gate card fits at ${width}`);
+    const axe = await new AxeBuilder({ page: p }).include('#desk-save-gate').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    assert.deepEqual(axe.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })), []);
+    await p.screenshot({ path: `browser-results/pin-gate/gate-${width}.png` });
+  }
+  await passGate(p, s.pin(PEOPLE.ada), { confirm: false });
+  await p.screenshot({ path: 'browser-results/pin-gate/confirm-1440.png' });
+  const axe = await new AxeBuilder({ page: p }).include('#desk-save-gate').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  assert.deepEqual(axe.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })), []);
   await cb.context.close();
 });
 

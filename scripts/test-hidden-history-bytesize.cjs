@@ -110,6 +110,8 @@ async function blockServices(context) {
     for (const width of [320, 390, 1440]) {
       for (const story of selected) {
         const context = await browser.newContext({ viewport: { width, height: 950 } });
+        // Opened as a teacher preview. The PIN gate has its own suite in test-desk-save-browser.mjs.
+        await context.addInitScript(() => { try { localStorage.setItem('desk-save:teacher', '1'); } catch (e) {} });
         await blockServices(context);
         const page = await context.newPage();
         page.setDefaultTimeout(20_000);
@@ -190,6 +192,7 @@ async function blockServices(context) {
     }
     for (const story of selected) {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+      await context.addInitScript(() => { try { localStorage.setItem('desk-save:teacher', '1'); } catch (e) {} });
       try {
         await blockServices(context);
         const page = await context.newPage();
