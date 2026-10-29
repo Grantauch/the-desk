@@ -372,6 +372,28 @@ export const storyHubs: StoryHub[] = [
   },
 
   {
+    slug: 'ush9-bytesize-the-line-that-wouldnt-move',
+    href: '/hubs/ush9-bytesize-the-line-that-wouldnt-move.html',
+    title: "the line that wouldn't move",
+    course: 'us history 9',
+    unit: 'bytesize / world war i',
+    period: '1914–1916',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 8',
+    question: 'why did millions fight for years over ground measured in yards?',
+    blurb: 'The sequel to Thirty Seven Days. Explore a working trench system, switch between dawn, daylight and night routines, evaluate the tradeoffs of a hypothetical attack, and investigate the Somme and the first tanks.',
+    cover: '/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg',
+    coverAlt: 'Original illustrated cover depicting two opposing Western Front trench systems, cratered open ground, and the title The Line That Would Not Move.',
+    topics: ['world war i', 'western front', 'trench warfare', 'battle of the somme', 'military technology'],
+    inside: [
+      'Inspect five parts of a trench network in an interactive tactical map.',
+      'Experience dawn, daylight and night on a composite trench routine.',
+      'Make three offensive decisions and receive historically grounded tradeoff feedback.',
+      'Step through the Somme, classify four evidence claims, and turn in three explanations.',
+    ],
+  },
+
+  {
     slug: 'ush9-bytesize-thirty-seven-days',
     href: '/hubs/ush9-bytesize-thirty-seven-days.html',
     title: 'thirty seven days',
