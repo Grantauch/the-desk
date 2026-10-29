@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>over the somme | U.S. History 9 | the desk</title>
+<meta name="description" content="Fly a 3D reconstruction of the Somme battlefield as it stood in 1916. Read the trenches, the wire and the chalk from the air, and log twenty sites from Albert to Thiepval ridge.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/ush9-over-the-somme.html">
+<meta property="og:title" content="Over the Somme">
+<meta property="og:description" content="Fly a 3D reconstruction of the Somme battlefield as it stood in 1916 and log twenty sites from Albert to Thiepval ridge.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://grant-desk.com/hubs/ush9-over-the-somme.html">
+<meta property="og:image" content="https://grant-desk.com/hubs/ush9-over-there/img/trench-somme.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F110D">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@400;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Special+Elite&display=swap">
+<style>
+/* Register: an RFC observer's kit. Olive black instrument panel, khaki and brass type,
+   stencil headings off a supply crate, typewriter for the log. Companion to Over There. */
+:root{
+  --night:#0F110D; --panel:rgba(24,27,20,.9); --panel-solid:#181B14; --raise:#22261C;
+  --ink:#ECE5CF; --soft:#A9A890; --rule:rgba(236,229,207,.16); --rule-strong:rgba(236,229,207,.32);
+  --brass:#C9A55A; --brass-wash:rgba(201,165,90,.16); --red:#C4452F; --ok:#8DB06A;
+  --font-display:"Stardos Stencil","Arial Narrow",Impact,sans-serif;
+  --font-body:"Literata",Georgia,"Times New Roman",serif;
+  --font-wire:"Special Elite","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--night);color:var(--ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased}
+body{touch-action:none;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible,a:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+a{color:var(--brass)}
+#field{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(10,11,8,.5) 100%)}
+.wire{font-family:var(--font-wire);letter-spacing:.04em}
+.ui{position:fixed;inset:0;pointer-events:none}
+.ui > *{pointer-events:auto}
+
+/* Top left: where you are */
+.where{position:absolute;top:max(14px,env(safe-area-inset-top));left:16px;right:200px;pointer-events:none;text-shadow:0 1px 10px rgba(0,0,0,.65)}
+.where .date{margin:0;font-size:.78rem;color:var(--brass);text-transform:uppercase;display:flex;gap:.6rem;align-items:center}
+.where .date span:last-child{color:var(--ink);font-variant-numeric:tabular-nums}
+#place{margin:.15rem 0 0;font-family:var(--font-display);font-size:clamp(1.4rem,2.6vw,2rem);line-height:1.05;letter-spacing:.02em}
+#blurb{margin:.45rem 0 0;max-width:30rem;font-size:.95rem;line-height:1.5;color:var(--ink);background:rgba(15,17,13,.62);border-left:3px solid var(--brass);padding:.55rem .75rem;border-radius:0 6px 6px 0;text-shadow:none}
+body[data-mode="menu"] .where{display:none}
+
+/* Top right: map and switches */
+.corner{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.map-frame{position:relative;width:11rem;aspect-ratio:680/570;border:1px solid var(--rule-strong);border-radius:6px;overflow:hidden;background:var(--panel-solid);box-shadow:0 6px 24px rgba(0,0,0,.4)}
+.map-frame canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:auto}
+.map-frame .key{position:absolute;left:6px;bottom:4px;font-size:.62rem;display:flex;gap:.6rem;color:var(--ink);text-shadow:0 1px 3px #000}
+.map-frame .key i{display:inline-block;width:12px;height:3px;vertical-align:middle;margin-right:3px;border-radius:2px}
+.switches{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.sw{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:0 .8rem;border:1px solid var(--rule-strong);border-radius:6px;background:var(--panel);font-size:.85rem;backdrop-filter:blur(4px)}
+.sw[aria-pressed="true"]{border-color:var(--brass);color:var(--brass);background:var(--brass-wash)}
+.sw svg{width:18px;height:18px;flex:none}
+.sw .n{font-family:var(--font-wire);font-size:.8rem;color:var(--brass)}
+body[data-mode="menu"] #btn-log{display:none}
+
+/* Bottom: instruments and touch controls */
+.dock{position:absolute;left:0;right:0;bottom:0;padding:0 16px max(14px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;justify-content:space-between;gap:12px;pointer-events:none}
+.dock > *{pointer-events:auto}
+.gauges{display:flex;gap:1.1rem;padding:.55rem .9rem;border:1px solid var(--rule);border-radius:8px;background:var(--panel);backdrop-filter:blur(4px)}
+.gauges .k{font-size:.66rem;color:var(--soft);text-transform:uppercase}
+.gauges .v{font-family:var(--font-display);font-size:1.7rem;line-height:1;font-variant-numeric:tabular-nums}
+.gauges .v small{font-family:var(--font-body);font-size:.75rem;color:var(--soft);margin-left:.2rem}
+body[data-mode="menu"] .dock{display:none}
+.joy{position:relative;width:112px;height:112px;border-radius:50%;border:1px solid var(--rule-strong);background:rgba(24,27,20,.78);touch-action:none}
+.knob{position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:1px solid var(--brass);background:rgba(201,165,90,.32)}
+.lift{display:flex;flex-direction:column;gap:8px}
+.lift button{min-height:48px;min-width:72px;border:1px solid var(--rule-strong);border-radius:6px;background:var(--panel);font-size:.9rem;touch-action:none}
+.touch-only{display:none}
+@media (pointer:coarse){.touch-only{display:flex}.joy.touch-only{display:block}}
+body:not([data-mode="fly"]) .touch-only{visibility:hidden}
+
+.reticle{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;pointer-events:none}
+.reticle::before,.reticle::after{content:"";position:absolute;background:rgba(201,165,90,.85)}
+.reticle::before{top:50%;left:0;right:0;height:1px}
+.reticle::after{left:50%;top:0;bottom:0;width:1px}
+body:not([data-mode="fly"]) .reticle{display:none}
+
+/* Panels */
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;backdrop-filter:blur(6px);box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.intro{position:absolute;left:16px;bottom:max(16px,env(safe-area-inset-bottom));width:min(31rem,calc(100% - 32px));max-height:calc(100% - 140px);overflow:auto;padding:1.25rem 1.35rem;border-left:4px solid var(--brass)}
+body:not([data-mode="menu"]) .intro{display:none}
+.eyebrow{margin:0;font-size:.74rem;color:var(--brass);text-transform:uppercase}
+.intro h1{margin:.2rem 0 0;font-family:var(--font-display);font-weight:700;font-size:clamp(2.2rem,5vw,3.1rem);line-height:.95;letter-spacing:.01em}
+.intro p{margin:.75rem 0 0;font-size:.98rem;line-height:1.55}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:1rem 0 0}
+.stat{border-top:2px solid var(--brass);padding-top:.4rem}
+.stat b{display:block;font-family:var(--font-display);font-size:1.45rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{display:block;margin-top:.25rem;font-size:.76rem;line-height:1.35;color:var(--soft)}
+.keys{font-size:.86rem;line-height:1.9;color:var(--soft)}
+kbd{font-family:var(--font-wire);font-size:.78rem;color:var(--ink);border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:4px;padding:.05rem .38rem;background:var(--night)}
+.go{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:1.1rem}
+.primary{min-height:46px;padding:0 1.4rem;border:0;border-radius:6px;background:var(--brass);color:#16170F;font-weight:600;font-size:1rem}
+.primary:disabled{opacity:.55}
+.ghost{min-height:46px;padding:0 1.1rem;border:1px solid var(--rule-strong);border-radius:6px;background:transparent;font-size:.95rem}
+.back{font-size:.85rem}
+.err{color:#F0A08F !important}
+.credit{margin:.9rem 0 0;font-size:.7rem;color:var(--soft)}
+@media (pointer:coarse){.keys.fine{display:none}}
+@media (pointer:fine){.keys.coarse{display:none}}
+
+.modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,9,7,.45)}
+body[data-mode="pause"] #pause-panel{display:flex}
+.modal .card{width:min(26rem,100%);padding:1.3rem 1.4rem}
+.modal h2{margin:0;font-family:var(--font-display);font-size:2rem}
+.modal p{margin:.5rem 0 0;line-height:1.5;color:var(--soft)}
+.modal .go{margin-top:1rem}
+
+/* Field notebook */
+.log{position:absolute;top:0;right:0;bottom:0;width:min(27rem,100%);display:flex;flex-direction:column;background:var(--panel-solid);border-left:1px solid var(--rule-strong);box-shadow:-20px 0 60px rgba(0,0,0,.5);transform:translateX(102%);transition:transform .28s ease;visibility:hidden}
+body[data-mode="log"] .log{transform:none;visibility:visible}
+.log-head{padding:max(16px,env(safe-area-inset-top)) 18px 12px;border-bottom:1px solid var(--rule)}
+.log-head .row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.log-head h2{margin:.15rem 0 0;font-family:var(--font-display);font-size:1.8rem;line-height:1}
+.meter{margin-top:.75rem;height:6px;background:var(--raise);border-radius:3px;overflow:hidden}
+#log-bar{height:100%;width:0;background:var(--brass);transition:width .4s ease}
+.log-head .sub{margin:.45rem 0 0;font-size:.85rem;color:var(--soft)}
+.log-scroll{flex:1;overflow:auto;padding:6px 10px 18px;touch-action:pan-y;overscroll-behavior:contain}
+#log-list{list-style:none;margin:0;padding:0}
+.site{display:flex;gap:.75rem;width:100%;text-align:left;padding:.65rem .6rem;border:0;border-bottom:1px solid var(--rule);background:none;border-radius:4px}
+.site:hover{background:rgba(236,229,207,.05)}
+.site .num{font-family:var(--font-wire);font-size:.8rem;color:var(--soft);padding-top:.15rem;flex:none;width:1.6rem}
+.site .body{display:block}
+.site strong{display:block;font-weight:600;font-size:.98rem}
+.site .note{display:block;margin-top:.2rem;font-size:.85rem;line-height:1.45;color:var(--soft);font-style:italic}
+.site.got .num{color:var(--brass)}
+.site.got .num::after{content:" \2713"}
+.site.got .note{font-style:normal;color:var(--ink);opacity:.86}
+.qs{margin:1.2rem .4rem 0;padding:1rem 1rem 1.1rem;border:1px solid var(--rule);border-radius:8px;background:var(--raise)}
+.qs h3{margin:0;font-family:var(--font-display);font-size:1.2rem}
+.qs ol{margin:.6rem 0 0;padding-left:1.2rem}
+.qs li{margin-top:.6rem;font-size:.92rem;line-height:1.5}
+.log-foot{display:flex;justify-content:flex-end;padding:0 .4rem;margin-top:.8rem}
+.log-foot button{border:0;background:none;color:var(--soft);font-size:.8rem;text-decoration:underline;min-height:40px}
+
+.toast{position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,8px);opacity:0;padding:.6rem 1rem;border:1px solid var(--brass);border-radius:999px;background:rgba(15,17,13,.92);color:var(--ink);font-size:.9rem;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis;transition:opacity .25s ease,transform .25s ease;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:640px){
+  .where{right:150px}
+  .map-frame{width:8.4rem}
+  .toast{bottom:auto;top:calc(196px + env(safe-area-inset-top))}
+  .sw .t{display:none}
+  #blurb{position:fixed;left:16px;right:16px;bottom:calc(150px + env(safe-area-inset-bottom));max-width:none;font-size:.88rem}
+  body[data-mode="fly"] #blurb{bottom:calc(132px + env(safe-area-inset-bottom))}
+  .stats b{font-size:1.2rem}
+}
+@media (max-height:520px){.intro{max-height:calc(100% - 32px)}.where{display:none}}
+@media (prefers-reduced-motion:reduce){.log,.toast,#log-bar{transition:none}}
+</style>
+</head>
+<body data-mode="menu">
+<canvas id="field" aria-label="3D battlefield of the Somme, 1916. Drag or move the mouse to look around."></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<div class="ui">
+  <div class="where" aria-live="polite">
+    <p class="date wire"><span>1 July 1916</span><span aria-hidden="true">·</span><span id="hdg">N 000°</span></p>
+    <p id="place">Over the Somme</p>
+    <p id="blurb"></p>
+  </div>
+
+  <div class="corner">
+    <div class="map-frame" aria-hidden="true">
+      <canvas id="map"></canvas>
+      <canvas id="plot"></canvas>
+      <div class="key wire"><span><i style="background:#F4EAD8"></i>British</span><span><i style="background:#8a5f3c"></i>German</span></div>
+    </div>
+    <div class="switches">
+      <button class="sw" id="btn-log" type="button" aria-label="Open field notebook">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg>
+        <span class="n">0/20</span>
+      </button>
+      <button class="sw" id="btn-night" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+        <span class="t">Night</span>
+      </button>
+      <button class="sw" id="btn-wire" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/></svg>
+        <span class="t">Wire</span>
+      </button>
+      <button class="sw" id="btn-pause" type="button" aria-label="Pause" hidden>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1"/><rect x="13.9" y="5" width="3.6" height="14" rx="1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="dock">
+    <div class="gauges" aria-hidden="true">
+      <div><div class="k wire">Alt</div><div class="v"><span id="alt">0</span><small>m</small></div></div>
+      <div><div class="k wire">Speed</div><div class="v"><span id="spd">0</span><small>m/s</small></div></div>
+    </div>
+    <div class="joy touch-only" id="joy" aria-hidden="true"><div class="knob" id="knob"></div></div>
+    <div class="lift touch-only">
+      <button type="button" id="rise">Rise</button>
+      <button type="button" id="drop">Drop</button>
+    </div>
+  </div>
+
+  <div class="reticle" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <section class="intro card" aria-labelledby="intro-title">
+    <p class="eyebrow wire">Picardy, France · Western Front</p>
+    <h1 id="intro-title">Over the Somme</h1>
+    <p>For seven days British guns fired about 1.5 million shells at the German line. Commanders expected the infantry to walk across a dead front. At 7:30 on the morning of 1 July 1916 they climbed out of their trenches and found the wire uncut and the machine gunners alive in deep chalk dugouts.</p>
+    <div class="stats">
+      <div class="stat"><b>57,470</b><span>British casualties on the first day</span></div>
+      <div class="stat"><b>19,240</b><span>British soldiers killed that day</span></div>
+      <div class="stat"><b>141</b><span>days of fighting, to 18 November</span></div>
+    </div>
+    <p>Fly the battlefield the way an observer from the Royal Flying Corps saw it. Nothing here fires. Twenty sites are marked across the field, from the town of Albert to Thiepval ridge. Each one you cross goes into your field notebook.</p>
+    <p class="keys fine">Move the mouse to look. <kbd>W</kbd> <kbd>S</kbd> fly forward and back, <kbd>A</kbd> <kbd>D</kbd> slide, <kbd>Space</kbd> rise, <kbd>C</kbd> drop, <kbd>Shift</kbd> speed up. <kbd>L</kbd> opens the notebook, <kbd>N</kbd> switches to night, <kbd>R</kbd> returns to the line, <kbd>Esc</kbd> frees the mouse.</p>
+    <p class="keys coarse">Drag the field to look. The stick flies you forward, back and sideways. Rise and Drop are on the right.</p>
+    <p class="err" id="err" hidden></p>
+    <div class="go">
+      <button class="primary" id="take" type="button" disabled>Drawing the field…</button>
+      <a class="back" href="/hubs/ush9-over-there.html">Back to Over There</a>
+    </div>
+    <p class="credit wire">Ground, trenches and sites are a simplified reconstruction, not a survey map.</p>
+  </section>
+
+  <div class="modal" id="pause-panel">
+    <section class="card" aria-labelledby="pause-title">
+      <h2 id="pause-title">Holding</h2>
+      <p>The field stays where you left it. Night and wireframe can be changed from the corner.</p>
+      <div class="go">
+        <button class="primary" id="resume" type="button">Resume</button>
+        <button class="ghost" id="to-line" type="button">Back to the line</button>
+      </div>
+    </section>
+  </div>
+
+  <aside class="log" id="log" aria-labelledby="log-title">
+    <div class="log-head">
+      <div class="row">
+        <div>
+          <p class="eyebrow wire">Observer's field notebook</p>
+          <h2 id="log-title">Sites logged: <span id="log-count">0 of 20</span></h2>
+        </div>
+        <button class="sw" id="log-close" type="button" aria-label="Close notebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="meter"><div id="log-bar"></div></div>
+      <p class="sub">Fly over a site to log it. Tap any entry to glide there.</p>
+    </div>
+    <div class="log-scroll">
+      <ol id="log-list"></ol>
+      <div class="qs">
+        <h3>From the air</h3>
+        <ol>
+          <li>Fly low along the German front line. The week of shelling was supposed to destroy it. What about the ground there let so many defenders survive?</li>
+          <li>Find Lochnagar Crater and Hawthorn Ridge. The Hawthorn mine went off ten minutes before the attack. What did those ten minutes give the German defenders?</li>
+          <li>Climb to Thiepval ridge and turn to face the British line. What could a German machine gunner see from up here on the morning of 1 July?</li>
+        </ol>
+      </div>
+      <div class="log-foot"><button type="button" id="log-reset">Clear my notebook</button></div>
+    </div>
+  </aside>
+</div>
+
+<script src="ush9-over-the-somme/somme.js" defer></script>
+</body>
+</html>

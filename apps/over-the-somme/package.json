@@ -1,0 +1,12 @@
+{
+  "name": "over-the-somme",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild entry.ts --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=../../public/hubs/ush9-over-the-somme/somme.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "three": "0.186.1"
+  }
+}
