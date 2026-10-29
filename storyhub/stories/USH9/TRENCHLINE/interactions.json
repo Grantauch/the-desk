@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TRENCHLINE",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "network",
+      "type": "map",
+      "teaches": "A trench was part of a defensive network.",
+      "studentAction": "Choose a map zone.",
+      "feedback": "A report explains its role and limits.",
+      "staticFallback": "The page retains context, dated source notes and writing prompts without motion.",
+      "identityFit": "Field-file investigation rather than points or simulated kills.",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "routine",
+      "type": "tabs",
+      "teaches": "Danger and routine coexist.",
+      "studentAction": "Choose a time of day.",
+      "feedback": "The scene and historical report change together.",
+      "staticFallback": "The page retains context, dated source notes and writing prompts without motion.",
+      "identityFit": "Field-file investigation rather than points or simulated kills.",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "tactics",
+      "type": "decision-desk",
+      "teaches": "An attack depended on several connected constraints.",
+      "studentAction": "Select a tactic.",
+      "feedback": "Feedback explains tradeoffs without invented kill probabilities.",
+      "staticFallback": "The page retains context, dated source notes and writing prompts without motion.",
+      "identityFit": "Field-file investigation rather than points or simulated kills.",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "somme",
+      "type": "timeline",
+      "teaches": "The Somme was a series of events rather than one day.",
+      "studentAction": "Step through four phases.",
+      "feedback": "Dated reports distinguish the opening day and first tank use.",
+      "staticFallback": "The page retains context, dated source notes and writing prompts without motion.",
+      "identityFit": "Field-file investigation rather than points or simulated kills.",
+      "status": "implemented"
+    },
+    {
+      "id": "I05",
+      "chapterId": "evidence",
+      "type": "evidence-check",
+      "teaches": "Casualties and deaths are different totals.",
+      "studentAction": "Classify four claims and write three responses.",
+      "feedback": "Evidence feedback explains the claim; shared Work controls handle writing.",
+      "staticFallback": "The page retains context, dated source notes and writing prompts without motion.",
+      "identityFit": "Field-file investigation rather than points or simulated kills.",
+      "status": "implemented"
+    }
+  ]
+}

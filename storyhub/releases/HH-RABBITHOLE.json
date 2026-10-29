@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "title": "Down the Rabbit Hole",
+  "route": "/hubs/hh-down-the-rabbit-hole.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/HH/RABBITHOLE/story.json",
+    "note": "Additive publication integration; original author contributions remain in Git history."
+  },
+  "files": [
+    {
+      "path": "/hubs/hh-down-the-rabbit-hole.html",
+      "bytes": 47484,
+      "sha256": "11801098b4f443b9a77fdfc245b632d42078923913f5c841696cc1923493211c"
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/floor.webp",
+      "assetId": "A01",
+      "bytes": 60412,
+      "sha256": "a94e30264cb971ec945a10f3cfacbc0c6f0f3576379c74fcddf11835eae21393",
+      "width": 1600,
+      "height": 467
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/eye.webp",
+      "assetId": "A02",
+      "bytes": 66572,
+      "sha256": "9c9880360729a5fb655e24bf735ce217fd7af8d1bdcd29b673de3ec814c58fd5",
+      "width": 950,
+      "height": 950
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/card-a.webp",
+      "assetId": "A03",
+      "bytes": 13092,
+      "sha256": "0f44e8b4cbb23476acdd14578768f6be17e3cd75602b29343f93362563cb3bd3",
+      "width": 600,
+      "height": 840
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/card-b.webp",
+      "assetId": "A04",
+      "bytes": 13516,
+      "sha256": "19a71ca8555a96f4bfa33cf4613daa608a8381ad5a5defbefcbd67a66192321a",
+      "width": 600,
+      "height": 840
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/card-c.webp",
+      "assetId": "A05",
+      "bytes": 13640,
+      "sha256": "9b49c804a72f15a946fe92b0d7051004823973e56fce036ed2b132a7d6bdaa7f",
+      "width": 600,
+      "height": 840
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/card-d.webp",
+      "assetId": "A06",
+      "bytes": 13884,
+      "sha256": "1dd3293351866055c6a21829f876cbc1ab1bce92b194962b4f3849dcec526cf3",
+      "width": 600,
+      "height": 840
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/card-e.webp",
+      "assetId": "A07",
+      "bytes": 12942,
+      "sha256": "417344fee0168ef93c9595fda6316e5364525d1bb105c57d9a7e6b72aa8a97de",
+      "width": 600,
+      "height": 840
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/triad.webp",
+      "assetId": "A08",
+      "bytes": 39526,
+      "sha256": "a4ec046b988a98ccdec59a8d018611050b084a3c3c0e91b8f791d05860a4cc80",
+      "width": 900,
+      "height": 800
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/cheshire.webp",
+      "assetId": "A09",
+      "bytes": 42192,
+      "sha256": "4c320e3976d010ec9d4fd55b1058323501738875292a1a6b859eab97c2eeeb7f",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/queen.webp",
+      "assetId": "A10",
+      "bytes": 21554,
+      "sha256": "0eb3a3fdca878aaf1533a09537bf163da19d64ef41033de24eaf77ac4bfc0809",
+      "width": 800,
+      "height": 800
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/walrus.webp",
+      "assetId": "A11",
+      "bytes": 28082,
+      "sha256": "825c7d4bd6974216b2fe0747aa268138d5b189fdee6f28b0b2e771ee4c354c7b",
+      "width": 800,
+      "height": 800
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/bugs.webp",
+      "assetId": "A12",
+      "bytes": 30054,
+      "sha256": "f8712345705738b326be506844d923d087167b69232dc1a2e4a01f547f1e9663",
+      "width": 950,
+      "height": 364
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/goldwater.webp",
+      "assetId": "A13",
+      "bytes": 17910,
+      "sha256": "9a9c4bc6ddcb39f4feb7c7d4eb2e1715c77d6a58a8175e77ca6a20d2d171b2bf",
+      "width": 700,
+      "height": 700
+    },
+    {
+      "path": "/storyhub/hh/rabbit-hole/assets/keyhole.webp",
+      "assetId": "A14",
+      "bytes": 4776,
+      "sha256": "b7eba4bf2e0817b67b681cf769a4970e14e19a4d81b35cdad29d02c7d8a6ad3c",
+      "width": 500,
+      "height": 700
+    }
+  ],
+  "totalBytes": 425636,
+  "sealedAt": "2026-10-29"
+}

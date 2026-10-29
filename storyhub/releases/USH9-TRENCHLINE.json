@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TRENCHLINE",
+  "title": "The Line That Wouldn't Move",
+  "route": "/hubs/ush9-bytesize-the-line-that-wouldnt-move.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/USH9/TRENCHLINE/story.json",
+    "note": "Additive publication integration; original author contributions remain in Git history."
+  },
+  "files": [
+    {
+      "path": "/hubs/ush9-bytesize-the-line-that-wouldnt-move.html",
+      "bytes": 50895,
+      "sha256": "b43795274ce14b5d17687807ddd6fb6abefc0845230e1f351397c1f758dac13f"
+    },
+    {
+      "path": "/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg",
+      "assetId": "A01",
+      "bytes": 3224,
+      "sha256": "41ff065a46691572e279711c17f28af0f9b521b1ce80821d5ce0969c3059d14d"
+    },
+    {
+      "path": "/storyhub/ush9/the-line-that-wouldnt-move/assets/trench-rest-q4135.jpg",
+      "assetId": "A02",
+      "bytes": 1721122,
+      "sha256": "85581b10491a959232fc2b273edba0a98b40492c24e3fe6b56e435e4c3cca7fd"
+    },
+    {
+      "path": "/storyhub/ush9/the-line-that-wouldnt-move/assets/ginchy-q4338.jpg",
+      "assetId": "A03",
+      "bytes": 90199,
+      "sha256": "d87cae6faf167b0ca194ce307de3911fc5da87fba385f3cff819eae28c290f16"
+    }
+  ],
+  "totalBytes": 1865440,
+  "sealedAt": "2026-10-29"
+}

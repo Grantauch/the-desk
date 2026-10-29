@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TRENCHLINE",
+  "title": "The Line That Wouldn't Move",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "plainspoken",
+      "investigative",
+      "careful about casualty totals"
+    ],
+    "paletteIntent": "Dark green field paper, khaki signals, cream source cards and muted red casualty evidence.",
+    "typographyIntent": "Condensed field-file headings with clear sans serif reading and monospaced map labels.",
+    "textureLanguage": [
+      "schematic trench plan",
+      "field paper",
+      "period photographs"
+    ],
+    "shapeLanguage": "Angular trench lines, tabbed reports and plain evidence cards.",
+    "motionGrammar": [
+      "Student-selected map zones and daily routines update immediately. Reduced motion preserves every state."
+    ],
+    "interactionSignature": [
+      "Inspect five trench zones.",
+      "Compare dawn, daylight and night routines.",
+      "Weigh tactics against defense and supply constraints."
+    ],
+    "densityRhythm": "Context, map exploration, routine comparison, decision desk, Somme chronology, evidence test and response.",
+    "archivalBehavior": "John Warwick Brooke photographs from the Imperial War Museums via Wikimedia Commons, captioned by place, date and catalog number.",
+    "endingLanguage": "Use evidence to explain why a technology is not the same as a breakthrough."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Muted military field maps and the two 1916 Somme photographs.",
+    "edgeTreatment": "Hard rules and rectangular paper panels.",
+    "controlLanguage": "Named map zones, time tabs and chronology steps.",
+    "spacingLanguage": "Readable text columns beside full-width maps and reports.",
+    "transitionLanguage": "Natural scrolling; no scroll-jacking."
+  }
+}

@@ -23,3 +23,7 @@
 ## Art rights and representation
 
 The fourteen optimized WebP files are direct derivatives of the original PowerPoint's embedded classroom artwork. Cards, spiral eye, checkerboard and Cheshire Cat / Queen of Hearts / Walrus are interpretive illustrated objects; they are not archival photographs or historical likeness evidence. The lesson overlays prose/interaction in HTML, rather than flattening its artwork into screens.
+
+## Publication review, 2026-10-29
+
+The precise Poyais death count and Goering trade total have been removed from the student page because accounts differ. The primary Buckels/Jones/Paulhus paper confirms N=71 and the four task percentages. APA confirms the narrower professional Goldwater Rule. Museum Boijmans and King's College London document Van Meegeren; the student page links those checks. Fictional Card E stays explicitly identified at reveal.

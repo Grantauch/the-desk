@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-TRENCHLINE",
+  "course": "USH9",
+  "lessonCode": "TRENCHLINE",
+  "title": "The Line That Wouldn't Move",
+  "audience": "students",
+  "narrativeQuestion": "Why did the Western Front resist the rapid breakthrough commanders expected?",
+  "chapters": [
+    {
+      "id": "network",
+      "title": "A defensive system",
+      "claim": "Front lines, support lines, reserves and communication trenches formed a network.",
+      "visualAnchorIds": [
+        "A01"
+      ],
+      "interactionIds": [
+        "I01"
+      ],
+      "namedPeople": []
+    },
+    {
+      "id": "routine",
+      "title": "A day in the trench",
+      "claim": "Stand-to, work, waiting and supply changed through the day.",
+      "visualAnchorIds": [
+        "A02"
+      ],
+      "interactionIds": [
+        "I02"
+      ],
+      "namedPeople": []
+    },
+    {
+      "id": "tactics",
+      "title": "A weapon is not a win",
+      "claim": "Machine guns, artillery, wire and logistics changed offensive choices.",
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I03"
+      ],
+      "namedPeople": []
+    },
+    {
+      "id": "somme",
+      "title": "The Somme chronology",
+      "claim": "July 1 and September tank use are separate events. Casualties include deaths, wounded, missing and captured.",
+      "visualAnchorIds": [
+        "A02",
+        "A03"
+      ],
+      "interactionIds": [
+        "I04"
+      ],
+      "namedPeople": []
+    },
+    {
+      "id": "evidence",
+      "title": "Explain the evidence",
+      "claim": "Evidence supports some claims and exposes misleading generalizations.",
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I05"
+      ],
+      "namedPeople": []
+    }
+  ]
+}
