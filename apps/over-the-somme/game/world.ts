@@ -636,33 +636,78 @@ export function generateWorld(): WorldData {
       } else {
         const n = fbm(x * 0.028 + 3, z * 0.028);
         const nml = nmlMask(z);
-        r = lerp(0.37, 0.5, n);
-        g = lerp(0.42, 0.52, n);
-        b = lerp(0.23, 0.28, n);
-        const scorch = nml * smoothstep(0.55, 0.8, fbm(x * 0.017 + 5, z * 0.017));
-        r = lerp(r, 0.46, scorch);
-        g = lerp(g, 0.32, scorch);
-        b = lerp(b, 0.18, scorch);
+        // Summer farmland: long Picardy strip fields of wheat, barley, clover and fallow.
+        const fx = x * 0.96 + z * 0.28;
+        const fz = z * 0.96 - x * 0.28;
+        const cellA = Math.floor(fx / 22);
+        const cellB = Math.floor(fz / (64 + hash2(cellA, 3) * 40));
+        const crop = hash2(cellA, cellB);
+        let fr: number;
+        let fg: number;
+        let fb: number;
+        if (crop < 0.34) {
+          fr = 0.74; fg = 0.63; fb = 0.33; // ripening wheat
+        } else if (crop < 0.58) {
+          fr = 0.55; fg = 0.58; fb = 0.27; // green barley
+        } else if (crop < 0.78) {
+          fr = 0.4; fg = 0.5; fb = 0.24; // clover and pasture
+        } else {
+          fr = 0.6; fg = 0.52; fb = 0.36; // fallow
+        }
+        const tone = 0.9 + n * 0.2;
+        fr *= tone; fg *= tone; fb *= tone;
+        // Untouched country fades into ground already chewed by two years of war.
+        const farmS = smoothstep(96, 150, z);
+        const farmN = smoothstep(-150, -205, z) * 0.55;
+        const farm = clamp(farmS + farmN, 0, 1);
+        const worn = 1 - farm;
+        let wr = lerp(0.42, 0.5, n);
+        let wg = lerp(0.42, 0.47, n);
+        let wb = lerp(0.24, 0.27, n);
+        // No man's land: grey brown churned earth.
+        wr = lerp(wr, lerp(0.42, 0.5, n), nml);
+        wg = lerp(wg, lerp(0.36, 0.42, n), nml);
+        wb = lerp(wb, lerp(0.27, 0.31, n), nml);
+        r = lerp(wr, fr, farm);
+        g = lerp(wg, fg, farm);
+        b = lerp(wb, fb, farm);
+        // Poppies and cornflowers along field edges behind the lines.
+        const edge = Math.min(Math.abs(fx / 22 - Math.round(fx / 22)), 0.5);
+        const fleck = hash2(ix * 7 + 1, iz * 13 + 5);
+        if (farm > 0.5 && ((edge < 0.07 && fleck > 0.55) || fleck > 0.985)) {
+          if (fleck > 0.93) {
+            r = 0.78; g = 0.12; b = 0.08;
+          } else if (fleck > 0.9) {
+            r = 0.34; g = 0.42; b = 0.7;
+          } else {
+            r = lerp(r, 0.7, 0.5); g = lerp(g, 0.16, 0.5); b = lerp(b, 0.1, 0.5);
+          }
+        }
+        const scorch = (nml * 0.9 + worn * 0.25) * smoothstep(0.52, 0.78, fbm(x * 0.017 + 5, z * 0.017));
+        r = lerp(r, 0.4, scorch);
+        g = lerp(g, 0.31, scorch);
+        b = lerp(b, 0.21, scorch);
         if (trench > 0.12) {
-          r = lerp(r, 0.27, trench);
-          g = lerp(g, 0.19, trench);
-          b = lerp(b, 0.12, trench);
+          r = lerp(r, 0.36, trench);
+          g = lerp(g, 0.32, trench);
+          b = lerp(b, 0.26, trench);
         }
         if (h < 1.25 && river < 0.35) {
           const m = clamp((1.25 - h) / 1.25, 0, 1) * 0.65;
           r = lerp(r, 0.3, m);
-          g = lerp(g, 0.22, m);
-          b = lerp(b, 0.14, m);
+          g = lerp(g, 0.25, m);
+          b = lerp(b, 0.16, m);
         }
-        const chalk = clamp(spoil * 0.95 + rim * 0.8 + smoothstep(8.2, 13.5, h) * 0.9, 0, 1);
-        r = lerp(r, 0.88, chalk);
-        g = lerp(g, 0.81, chalk);
-        b = lerp(b, 0.66, chalk);
+        // Chalk: dug spoil, crater lips and the bare ridge top show white from the air.
+        const chalk = clamp(spoil * 1.25 + rim * 1.1 + smoothstep(8.2, 13.5, h) * 0.75 + (nml * smoothstep(0.7, 0.86, n)) * 0.5, 0, 1);
+        r = lerp(r, 0.95, chalk);
+        g = lerp(g, 0.92, chalk);
+        b = lerp(b, 0.83, chalk);
         const roadX = 8 + Math.sin(z * 0.016) * 16;
         if (Math.abs(x - roadX) < 2.5 && z < 268 && z > -190 && trench < 0.25 && river < 0.25 && h > 0.4) {
-          r = lerp(r, 0.64, 0.72);
-          g = lerp(g, 0.54, 0.72);
-          b = lerp(b, 0.38, 0.72);
+          r = lerp(r, 0.78, 0.72);
+          g = lerp(g, 0.72, 0.72);
+          b = lerp(b, 0.6, 0.72);
         }
         const ao = 0.8 + 0.2 * slope;
         r *= ao;

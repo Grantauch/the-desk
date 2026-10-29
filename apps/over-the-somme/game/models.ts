@@ -31,11 +31,11 @@ function place(geom: THREE.BufferGeometry, x: number, y: number, z: number, rx =
   return geom;
 }
 
-function box(w: number, h: number, d: number, hex: string, x: number, y: number, z: number, rx = 0, ry = 0, rz = 0) {
+export function box(w: number, h: number, d: number, hex: string, x: number, y: number, z: number, rx = 0, ry = 0, rz = 0) {
   return place(solid(new THREE.BoxGeometry(w, h, d), hex), x, y, z, rx, ry, rz);
 }
 
-function cyl(
+export function cyl(
   rt: number,
   rb: number,
   h: number,
@@ -51,11 +51,11 @@ function cyl(
   return place(solid(new THREE.CylinderGeometry(rt, rb, h, seg), hex), x, y, z, rx, ry, rz);
 }
 
-function sph(r: number, hex: string, x: number, y: number, z: number, sx = 1, sy = 1, sz = 1) {
+export function sph(r: number, hex: string, x: number, y: number, z: number, sx = 1, sy = 1, sz = 1) {
   return place(solid(new THREE.SphereGeometry(r, 6, 5), hex), x, y, z, 0, 0, 0, sx, sy, sz);
 }
 
-function merge(parts: THREE.BufferGeometry[]) {
+export function merge(parts: THREE.BufferGeometry[]) {
   // Mixed primitives arrive both indexed and non-indexed, with different extra
   // attributes. Flatten each to the same position, normal and color layout first.
   const flat = parts.map((p) => {
