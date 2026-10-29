@@ -60,5 +60,5 @@ None of these establish who wrote the words. The strongest next step is a two mi
 ## Release
 
 1. Merge the website pull request so `desk-save.js` v3 is live. A v9 service ignores the timeline, so order does not matter.
-2. Paste `apps-script/turn-in/Code.gs` into the existing Turn In project and edit the existing deployment to a new version. Health should report `2026-10-26-turn-in-v10`.
+2. Paste `apps-script/turn-in/Code.gs` into the existing Turn In project and edit the existing deployment to a new version. Health should report `2026-10-26-turn-in-v10 or later`.
 3. Optional: run `addWritingTimelineSheet` once to see the tab before the first Turn In creates it.

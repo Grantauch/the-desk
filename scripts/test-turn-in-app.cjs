@@ -564,10 +564,30 @@ test('stale checked Turn In preserves newer progress and creates no misleading f
   const login=w.post({action:'signin',pin,hub:'h'});
   const save=w.post({action:'save',token:login.token,hub:'h',classPeriod:'Period 1',answers:ONE});
   const result=w.post({action:'turnin',pin,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:'',submissionId:'old-tab',answers:answers(['k','Q','old'])});
-  assert.equal(result.code,'conflict'); assert.equal(w.rows('Turn Ins').length,0);
+  // The press is never lost, but it cannot replace the newer account version.
+  assert.equal(result.ok,true); assert.equal(w.rows('Turn Ins').length,1);
   assert.equal(w.rows('Progress')[0].Status,'In progress');
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin,hub:'h'}).draft.answers[0].a, ONE[0].a, 'a stale press never becomes the current draft');
   const ok=w.post({action:'turnin',pin,hub:'h',classPeriod:'Period 1',writeProtocol:1,baseRevision:save.revision,submissionId:'current-tab',answers:ONE});
   assert.equal(ok.ok,true); assert.equal(ok.submissionId,'current-tab'); assert.ok(ok.revision);
+});
+
+test('a tab whose save landed after it stopped waiting keeps saving instead of hitting a conflict', () => {
+  const w=world();
+  const login=w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'});
+  const base={action:'save',token:login.token,hub:'h',classPeriod:'Period 1',writeProtocol:1,device:'chromebook-1',tab:'tab-a'};
+  const first=w.post({...base,baseRevision:'',answers:ONE});
+  // The answer to this save never reached the page, so the page still holds first.revision.
+  w.post({...base,baseRevision:first.revision,answers:answers(['id:q1','Question','Lost acknowledgement'])});
+  const next=w.post({...base,baseRevision:first.revision,answers:answers(['id:q1','Question','Kept typing'])});
+  assert.equal(next.ok,true);
+  const other=w.post({...base,tab:'tab-b',baseRevision:first.revision,answers:ONE});
+  assert.equal(other.code,'conflict','a different tab is still protected');
+  const otherDevice=w.post({...base,device:'chromebook-2',baseRevision:first.revision,answers:ONE});
+  assert.equal(otherDevice.code,'conflict','a different Chromebook is still protected');
+  w.h.state.cache.clear();
+  assert.equal(w.post({action:'signin',pin:w.pin(PEOPLE.ada),hub:'h'}).draft.answers[0].a,'Kept typing');
 });
 
 test('cached Turn In IDs cannot acknowledge a different answer payload', () => {
