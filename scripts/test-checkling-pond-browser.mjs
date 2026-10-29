@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
-import { resolve, extname } from 'node:path';
+import { resolve, extname, sep } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 const require = createRequire(import.meta.url);
 const { classroom, PEOPLE, TEACHER } = require('./lib/hall-pass-fixtures.cjs');
@@ -23,7 +23,7 @@ const server = createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, origin).pathname);
     const path = resolve(publicRoot, '.' + pathname, pathname.endsWith('/') ? 'index.html' : '');
-    if (!path.startsWith(resolve(publicRoot, 'hubs/pond') + '/')) { response.writeHead(404).end(); return; }
+    if (!path.startsWith(resolve(publicRoot, 'hubs/pond') + sep)) { response.writeHead(404).end(); return; }
     const types = {'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.jpg':'image/jpeg','.json':'application/json'};
     const body = await readFile(path);
     response.writeHead(200, {'content-type':types[extname(path)] || 'application/octet-stream','cache-control':'no-store'}).end(body);

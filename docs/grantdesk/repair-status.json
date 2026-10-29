@@ -1,4 +1,19 @@
 {
+  "pixel-camp-six-2026-10-28": {
+    "status": "IMPLEMENTED_LOCAL_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Pixel Camp 6: four three-chapter founder journeys, supply gathering, eight workshop keepsakes and two goal tracks",
+    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
+    "deployment_status": "PENDING_REVIEW_CI_AND_GUARDED_RELEASE",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "32 focused save/gameplay checks pass, including ordinary-play completion of all twelve chapters and eight recipes without combat; existing v1/v2 saves retain progress and migrate without invented rewards.",
+      "All companion browser suites pass: 15 companion/Pond journeys, school recovery/privacy at three widths, five forage/ladder/legacy-school journeys and six new journeys/workshop/private-save journeys. New views at 320/390/1366 have no automated WCAG A/AA violations. Native modal Escape, save download/reload, lost acknowledgements/retry and shared-device clearing pass.",
+      "School save version 3 is bounded and uses the existing PIN/class save service. New controls wait for advertised format 3; a new save-file import into an older school is blocked without replacing progress. Original founder assets and attendance/point/pass rules are unchanged.",
+      "A native-path separator repair lets the existing offline Pond browser fixture run correctly on Windows. No Pond product code changed.",
+      "Full canonical verification, protected CI, exact production website assets and guarded in-place Apps Script deployment/readback remain separate release gates. Authenticated live synthetic smoke and a real classroom/device cycle are separate evidence."
+    ]
+  },
   "pixel-camp-school-2026-10-28": {
     "status": "SCHOOL_INTEGRATION_IMPLEMENTED",
     "owner": "Codex",

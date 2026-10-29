@@ -2091,3 +2091,29 @@ body:not(.quiet) .bond-heart:not([hidden]) { animation:bond-rise 2.4s ease-out f
 .curio-shelf > button { display:flex; align-items:center; gap:8px; }
 .curio-shelf > button .item { width:37px; height:37px; }
 @media (max-width:550px) { .curio-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .curio-card .curio { width:60px; height:60px; } .tier-picker button { font-size:17px; } }
+/* Founder journeys and the supply workshop share the camp's existing sprite atlas. */
+.adventure-doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.adventure-doors button{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;padding:12px;min-height:60px}
+.adventure-doors small{flex-basis:100%;font:14px/1.4 system-ui,sans-serif}
+.journey-scene{padding:20px;margin-top:12px;scroll-margin:16px}
+.journey-scene h2,.journey-card h3,.recipe-card h3{font-size:20px;line-height:1.5;margin:8px 0}
+.journey-scene p,.journey-card p,.workshop-dialog p,.recipe-card p{font:16px/1.65 system-ui,sans-serif}
+.journey-scene:focus,.journey-card button:focus-visible{outline:3px solid #f5d994;outline-offset:4px}
+.journey-choices{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.journey-choices button{flex:1 1 220px;min-height:52px;line-height:1.5}
+.journey-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.journey-card{display:flex;align-items:flex-start;gap:12px;border:2px solid #789286;background:#173c3d;padding:16px;min-width:0}
+.journey-card>div{min-width:0;flex:1}.journey-card img{width:64px;height:64px;object-fit:contain;image-rendering:pixelated}
+.journey-card progress{width:100%;accent-color:#f4d88b;height:12px}
+.journey-card button{min-height:44px}.journal-page-buttons{flex-wrap:wrap}
+.workshop-dialog{width:min(850px,calc(100vw - 28px));max-height:85dvh;overflow:auto;padding:24px;overscroll-behavior:contain}
+.workshop-dialog::backdrop{overscroll-behavior:contain;overflow:hidden}
+.workshop-supplies{border:2px solid #789286;padding:12px;color:#f6e3af;background:#143332}
+.supply-trips{display:flex;flex-wrap:wrap;gap:8px}.supply-trips button{min-height:44px}
+.workshop-recipes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.recipe-card{border:2px solid #789286;padding:16px;display:flex;flex-direction:column;align-items:flex-start;min-width:0;gap:8px;background:#173c3d}
+.recipe-card .item{width:40px;height:40px}.recipe-card small{font:14px/1.6 system-ui,sans-serif;color:#e3d3b4}.recipe-card button{margin-top:auto;min-height:44px}
+.crafted-keepsake{position:absolute;left:5%;bottom:9%;pointer-events:none;display:flex;align-items:center;gap:5px;max-width:45%;padding:5px;background:#143332e8;border:2px solid #d6c19a;color:#fff2cf;font:12px/1.4 system-ui,sans-serif}
+.crafted-keepsake .item{flex-shrink:0;width:40px;height:40px}
+@media(max-width:720px){.journey-cards{grid-template-columns:1fr}.journey-card{padding:12px}.journey-card img{width:48px;height:48px}.workshop-dialog{padding:14px}.workshop-recipes{grid-template-columns:1fr}.adventure-doors button{font-size:14px}.adventure-doors small{font-size:12px}.crafted-keepsake{font-size:10px;max-width:48%;bottom:4%}}
+.craft-sprite{display:inline-block;flex-shrink:0;width:72px;height:72px;background-image:url('assets/workshop-atlas-v1.png');background-size:400% 200%;background-repeat:no-repeat;image-rendering:pixelated}.crafted-keepsake .craft-sprite{width:56px;height:56px}

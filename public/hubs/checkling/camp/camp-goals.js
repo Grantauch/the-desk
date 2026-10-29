@@ -31,6 +31,11 @@
       const openStop=[0,1,2].find(stop=>E.forageOpen(state,options.today,stop));
       tracks.push({id:'curator',title:'Curio shelf',icon:'shelf',done:owned,total,next:owned<total?{kind:'forage',stop:openStop===undefined?null:openStop}:null});
     }
+    if(options.adventures===true&&E){
+      const journeys=IDS.reduce((n,id)=>n+(state.journeys?.[id]||0),0), crafted=E.RECIPES.filter(r=>(state.crafted||[]).includes(r.id)).length;
+      tracks.push({id:'storyteller',title:'Four little journeys',icon:'book',done:journeys,total:12,next:journeys<12?{kind:'journeys'}:null});
+      tracks.push({id:'maker',title:'Camp workshop',icon:'bag',done:crafted,total:E.RECIPES.length,next:crafted<E.RECIPES.length?{kind:'workshop'}:null});
+    }
     return{tracks,complete:tracks.every(t=>t.done===t.total),completedTracks:tracks.filter(t=>t.done===t.total).length,done:tracks.reduce((n,t)=>n+t.done,0),total:tracks.reduce((n,t)=>n+t.total,0)};
   }
   const api={read};root.CampGoals=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;

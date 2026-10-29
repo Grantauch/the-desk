@@ -88,7 +88,7 @@ test('unverified, forged, expired and inactive identities cannot read or save ca
 });
 test('invalid payloads and damaged storage cannot overwrite a valid camp', () => {
   const c=setup();const camp=c.load().camp;c.save(camp);
-  for(const invalid of [null,{}, {...camp,version:3}, {...camp,pets:{}}, {...camp,extra:'x'.repeat(40001)}]) assert.throws(()=>c.save(invalid,1,'b'.repeat(32)));
+  for(const invalid of [null,{}, {...camp,version:4}, {...camp,pets:{}}, {...camp,extra:'x'.repeat(40001)}]) assert.throws(()=>c.save(invalid,1,'b'.repeat(32)));
   assert.equal(c.load().revision,1);
   c.harness.sheet('Checkling Camps').getRange(1,2).setValue('Wrong header');
   assert.throws(()=>c.load(),/teacher review/);assert.throws(()=>c.save(camp,1,'b'.repeat(32)),/teacher review/);
@@ -105,15 +105,15 @@ function fiveCamp(base) {
   for (const stop of [0, 1, 2]) { s = E.dispatch(s, {type:'stop', value:stop}).state; s = E.dispatch(s, {type:'forage', day:'2026-09-10'}).state; s = E.dispatch(s, {type:'rest'}).state; }
   s.pets.bolt.battles = 0;
   s = E.dispatch(s, {type:'battle-win', tier:1}).state; s = E.dispatch(s, {type:'battle-win', tier:2}).state;
-  return s;
+  return E.toV2(s);
 }
 test('the school advertises version 2 and stores ladder badges, curios and the forage day', () => {
   const c=setup(); const first=c.load();
-  assert.deepEqual(plain(first.formats),[1,2]);
+  assert.deepEqual(plain(first.formats),[1,2,3]);
   const camp=fiveCamp(first.camp); assert.equal(camp.version,2);
   assert.equal(camp.pets.bolt.battles,2); assert.equal(camp.curios.length>0,true); assert.deepEqual(camp.forage,{day:'2026-09-10',taken:[0,1,2]});
   const saved=c.save(camp);
-  assert.deepEqual(plain(saved.camp),plain(E.hydrate(camp)));
+  assert.deepEqual(plain(saved.camp),plain(E.toV2(E.hydrate(camp))));
   const again=c.load(c.login().pinToken);
   assert.equal(again.camp.version,2); assert.equal(again.camp.pets.bolt.battles,2);
   assert.deepEqual(plain(again.camp.curios),camp.curios); assert.deepEqual(plain(again.camp.forage.taken),[0,1,2]);

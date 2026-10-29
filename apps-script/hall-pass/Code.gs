@@ -1380,7 +1380,7 @@ function pixelCampSnapshot_(student, token, found) {
   if (pet && pet.species !== founder) throw new Error('Your companion and camp need teacher review. Neither has been replaced.');
   if (pet) camp.pets[founder].nickname = pet.name;
   if (!found.values) camp.selected = founder;
-  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,formats:[1,2],
+  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,formats:[1,2,3],
     school:{companion:official.checkling,streak:official.streak,checkedIn:official.checkedIn}};
 }
 function getPixelCamp(pinToken) {
@@ -1418,14 +1418,14 @@ function initialPixelCamp_() {
   ['mochi','bolt','zee','ember'].forEach(id => { pets[id] = {nickname:'',food:70,energy:80,clean:75,joy:65,bond:0,discoveries:[],memories:[],care:[],battles:0}; });
   return {format:'checklings-first-trail',version:1,selected:'mochi',stop:0,weather:'sun',quiet:false,decor:[],equipped:'',pets,revision:0};
 }
-/* Pixel Camp 5 stores version 2: a three-badge stump ladder, curios and a daily forage record.
-   A camp keeps the version it was saved with, so a 4.x page never receives a camp it cannot open. */
+/* Pixel Camp 5 uses version 2; Pixel Camp 6 adds bounded journeys and workshop fields in version 3.
+   Preserve the submitted version. The current website gates newer controls on advertised formats. */
 const GD_CAMP_CURIOS = ['acorn','pinecone','fern','mushroom','nest','clover','holeystone','frog','gear','quill','key','dragonfly','snailshell','firefly','geode','starbottle'];
 function sanitizePixelCamp_(raw) {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || JSON.stringify(raw).length > 40000 || raw.format !== 'checklings-first-trail' || (raw.version !== 1 && raw.version !== 2)) throw new Error('Choose a valid Pixel Camp save.');
-  const v2 = raw.version === 2;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || JSON.stringify(raw).length > 40000 || raw.format !== 'checklings-first-trail' || (raw.version !== 1 && raw.version !== 2 && raw.version !== 3)) throw new Error('Choose a valid Pixel Camp save.');
+  const v2 = raw.version >= 2;
   const s = initialPixelCamp_(), ids = ['mochi','bolt','zee','ember'];
-  if (v2) s.version = 2;
+  s.version = raw.version;
   const clean = (value,max) => typeof value === 'string' ? value.replace(/[\u0000-\u001f\u007f]/g,'').slice(0,max) : '';
   const num = (v,def,min,max) => Number.isFinite(v) ? Math.max(min,Math.min(max,Math.round(v))) : def;
   s.selected = ids.includes(raw.selected) ? raw.selected : 'mochi';
@@ -1450,6 +1450,14 @@ function sanitizePixelCamp_(raw) {
     s.curios = Array.isArray(raw.curios) ? [...new Set(raw.curios.filter(id => GD_CAMP_CURIOS.includes(id)))] : [];
     const f = raw.forage && typeof raw.forage === 'object' && !Array.isArray(raw.forage) ? raw.forage : {};
     s.forage = {day:day(f.day) ? f.day : '',taken:day(f.day) && Array.isArray(f.taken) ? [...new Set(f.taken.filter(x => Number.isInteger(x) && x >= 0 && x < 3))] : []};
+  }
+  if (raw.version === 3) {
+    s.journeys = {}; s.materials = {};
+    ids.forEach(id => { s.journeys[id] = num(raw.journeys && raw.journeys[id],0,0,3); });
+    ['wood','stone','fiber'].forEach(id => { s.materials[id] = num(raw.materials && raw.materials[id],0,0,99); });
+    const recipes = {seedbox:'',toolkit:'',starchart:'',hearth:'',gardenbench:'mochi',waterclock:'bolt',observatory:'zee',teatable:'ember'};
+    s.crafted = Array.isArray(raw.crafted) ? [...new Set(raw.crafted.filter(id => Object.prototype.hasOwnProperty.call(recipes,id) && (!recipes[id] || s.journeys[recipes[id]] === 3)))] : [];
+    s.equippedCraft = s.crafted.includes(raw.equippedCraft) ? raw.equippedCraft : '';
   }
   return s;
 }

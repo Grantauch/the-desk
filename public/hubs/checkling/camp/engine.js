@@ -1,5 +1,5 @@
-/* Pixel Camp 5 engine: pure camp rules. No school-service contracts live here.
-   Version 1 saves (Pixel Camp 4.x) load unchanged and upgrade in memory to version 2. */
+/* Pixel Camp 6 engine: pure camp rules. No school-service contracts live here.
+   Version 1 saves (Pixel Camp 4.x) load unchanged and upgrade in memory to version 3. */
 (function(root){
  'use strict';
  const SPECIES={
@@ -68,16 +68,64 @@
   zee:['','Zee pointed out your star. It is a small one.','Zee hums when you sit close.','Zee named a constellation after you.','Zee says you are part of the sky now.'],
   ember:['','Ember lets you hold the warm bowl.','Ember curls a wing around you when it rains.','Ember stands guard while you rest.','Ember made dinner. It is mostly toast.']
  };
+
+ const MATERIALS=[{id:'wood',name:'Fallen wood',icon:'planter',stop:0},{id:'stone',name:'Smooth stones',icon:'wheel',stop:1},{id:'fiber',name:'Reed fiber',icon:'sprout',stop:2}];
+ const RECIPES=[
+  {id:'seedbox',name:'Seedling box',icon:'planter',cost:{wood:3,fiber:3},note:'A tiny garden for Mochi’s big idea.'},
+  {id:'toolkit',name:'Pocket toolkit',icon:'wheel',cost:{wood:3,stone:3},note:'Bolt insists every pebble needs a tool.'},
+  {id:'starchart',name:'Sky chart',icon:'star',cost:{fiber:3,stone:3},note:'A map with room for an undiscovered star.'},
+  {id:'hearth',name:'Warm hearth',icon:'lantern',cost:{wood:3,stone:3},note:'Ember’s safest place to make toast.'},
+  {id:'gardenbench',name:'Promise bench',icon:'bed',cost:{wood:6,fiber:3},founder:'mochi',note:'A place to wait for the first flower.'},
+  {id:'waterclock',name:'Waterwheel clock',icon:'wheel',cost:{wood:6,stone:3},founder:'bolt',note:'It measures time in tiny splashes.'},
+  {id:'observatory',name:'Pocket observatory',icon:'star',cost:{stone:6,fiber:3},founder:'zee',note:'The sky is a little closer from here.'},
+  {id:'teatable',name:'Lantern tea table',icon:'lantern',cost:{wood:3,stone:6},founder:'ember',note:'Four seats, four bowls, one warm clearing.'}
+ ];
+ const JOURNEYS={
+  mochi:{title:'The garden that waited',recipe:'seedbox',chapters:[
+   {title:'A forgotten promise',text:'Behind the seed gate, Mochi finds four empty planting spaces. Someone meant to come back.',choices:['Plant a hopeful seed','Make room for every seed'],replies:['Mochi pats the earth twice. One pat for the seed, one for the promise.','Four neat spaces. Mochi leaves the largest one for a seed nobody has found yet.']},
+   {title:'Water for the little ones',text:'The wheel is turning again. Your seedling box needs a steady trickle, and Mochi has a very small bucket.',choices:['Build a little channel','Take turns with the bucket'],replies:['Water finds its own path. Mochi follows it all the way home.','Back and forth together. The bucket is tiny; the company is excellent.']},
+   {title:'Under the same stars',text:'A flower opens by the pond. Mochi brings it home without picking it: a picture in the journal is enough.',choices:['Draw the flower together','Leave a seed for tomorrow'],replies:['The drawing is mostly circles. Mochi thinks it is perfect. The garden has a keeper now.','A seed, a promise, and a sunny spot saved for you. Mochi’s garden is home.']}
+  ]},
+  bolt:{title:'The machine that listened',recipe:'toolkit',chapters:[
+   {title:'A very important click',text:'Bolt hears a click under the seed gate. Three pebbles, one loose cog, and a question nobody asked yet.',choices:['Sort the useful bits','Follow the clicking sound'],replies:['Bolt labels the best pebble IMPORTANT. The others are also important.','The click is a seed counter. Bolt has found a project.']},
+   {title:'One turn at a time',text:'Toolkit ready, Bolt studies the old waterwheel. The loose cog fits, if you both hold still.',choices:['Let Bolt fit the cog','Steady the wheel together'],replies:['Click. Turn. Splash. Bolt checks it seven more times, just to be sure.','Four paws and one careful push. The wheel remembers how to turn.']},
+   {title:'Something worth measuring',text:'At the pond, Bolt’s little dial follows the ripples. It cannot measure friendship. Bolt keeps trying anyway.',choices:['Name the new machine','Sit and count ripples'],replies:['The Together-O-Meter records one very good afternoon. Bolt declares it accurate.','Bolt closes the notebook. Some things are better shared than measured.']}
+  ]},
+  zee:{title:'A constellation for two',recipe:'starchart',chapters:[
+   {title:'Patterns in the grass',text:'Zee sees a spiral in the seed heads. It looks almost like a constellation that has not reached the sky.',choices:['Sketch the spiral','Look from another angle'],replies:['A spiral, a dot, a question mark. Zee saves the question mark.','From the gate, it looks like a tiny boat. Zee has a destination now.']},
+   {title:'A clock made of shadows',text:'With your sky chart, Zee watches the waterwheel’s shadow. Every turn points somewhere new.',choices:['Trace the moving shadow','Compare it with the chart'],replies:['A circle in the journal. Zee says it is also a journey.','The shadow points toward the pond. Zee knew it would, but looks pleased anyway.']},
+   {title:'Your place in the sky',text:'At the star pond, the missing dot is finally visible. Zee waits for you to see it too.',choices:['Name a constellation together','Keep the quiet discovery'],replies:['Two stars and the space between them. Zee calls it Company.','You both know where to look now. Zee says that is enough.']}
+  ]},
+  ember:{title:'A light to come home to',recipe:'hearth',chapters:[
+   {title:'Cold clay, warm hands',text:'An old clay marker has cracked beside the gate. Ember warms it carefully, waiting for your signal.',choices:['Mend the old marker','Shape a new little bowl'],replies:['The crack becomes a golden seam. Ember looks impossibly proud.','A bowl just big enough for a warm snack. Ember has plans.']},
+   {title:'A gentler kind of fire',text:'Your hearth is ready. At the wheel, Ember tests how a warm clay spout can help the cold stream.',choices:['Warm the clay slowly','Make a shelter for the spout'],replies:['A little heat, a little patience. Ember learns that gentle can be brave.','A roof, a warm stone, a safe stream. Ember checks everyone is comfortable.']},
+   {title:'Four bowls at lantern hour',text:'The pond holds the last light. Ember has brought four bowls. Nobody has to stand guard tonight.',choices:['Set the table for everyone','Share the first warm bowl'],replies:['Four friends gather. Ember finally sits down, wing to wing with home.','Warmth travels from bowl to bowl. Ember kept the smallest one for you.']}
+  ]}
+ };
+ function journeyStatus(s,id=s.selected){
+  const done=s.journeys[id],story=JOURNEYS[id],p=s.pets[id];
+  if(done>=3)return {done,complete:true,next:null};
+  let next=null;
+  if(!p.discoveries.includes(done))next={kind:'trail',pet:id,stop:done};
+  else if(done===1&&!s.crafted.includes(story.recipe))next={kind:'craft',id:story.recipe};
+  else if(done===2&&p.bond<25)next={kind:'friendship',pet:id};
+  else if(p.energy<8)next={kind:'rest',pet:id};
+  else if(s.stop!==done||s.selected!==id)next={kind:'journey',pet:id,stop:done};
+  return {done,complete:false,next,ready:!next,chapter:story.chapters[done]};
+ }
+ function canCraft(s,id){const r=RECIPES.find(r=>r.id===id);return !!r&&!s.crafted.includes(id)&&(!r.founder||s.journeys[r.founder]===3)&&Object.entries(r.cost).every(([m,n])=>s.materials[m]>=n);}
+ function toV2(state){const s=hydrate(state);s.version=2;delete s.journeys;delete s.materials;delete s.crafted;delete s.equippedCraft;return s;}
  const clean=(s,n=160)=>typeof s==='string'?s.replace(/[\u0000-\u001f\u007f]/g,'').slice(0,n):'';
  const num=(v,def=0,min=0,max=100)=>Number.isFinite(v)?Math.max(min,Math.min(max,Math.round(v))):def;
  const isDay=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d);
- function initial(){const pets={};for(const id of IDS)pets[id]={nickname:'',food:70,energy:80,clean:75,joy:65,bond:0,discoveries:[],memories:[],care:[],battles:0};return {format:'checklings-first-trail',version:2,selected:'mochi',stop:0,weather:'sun',quiet:false,decor:[],equipped:'',pets,curios:[],forage:{day:'',taken:[]},revision:0};}
+ function initial(){const pets={};for(const id of IDS)pets[id]={nickname:'',food:70,energy:80,clean:75,joy:65,bond:0,discoveries:[],memories:[],care:[],battles:0};return {format:'checklings-first-trail',version:3,journeys:{mochi:0,bolt:0,zee:0,ember:0},materials:{wood:0,stone:0,fiber:0},crafted:[],equippedCraft:'',selected:'mochi',stop:0,weather:'sun',quiet:false,decor:[],equipped:'',pets,curios:[],forage:{day:'',taken:[]},revision:0};}
  function stamps(s){return IDS.reduce((n,id)=>n+s.pets[id].discoveries.length+s.pets[id].battles,0);}
  function hydrate(raw){
-  if(!raw||typeof raw!=='object'||Array.isArray(raw)||raw.format!=='checklings-first-trail'||(raw.version!==1&&raw.version!==2))throw Error('This is not a Pixel Camp save. Your current companions are unchanged.');
-  const v2=raw.version===2,s=initial();s.selected=IDS.includes(raw.selected)?raw.selected:'mochi';s.stop=num(raw.stop,0,0,2);s.weather=['sun','rain','dusk'].includes(raw.weather)?raw.weather:'sun';s.quiet=raw.quiet===true;s.revision=num(raw.revision,0,0,1000000);
+  if(!raw||typeof raw!=='object'||Array.isArray(raw)||raw.format!=='checklings-first-trail'||(raw.version!==1&&raw.version!==2&&raw.version!==3))throw Error('This is not a Pixel Camp save. Your current companions are unchanged.');
+  const v2=raw.version>=2,s=initial();s.selected=IDS.includes(raw.selected)?raw.selected:'mochi';s.stop=num(raw.stop,0,0,2);s.weather=['sun','rain','dusk'].includes(raw.weather)?raw.weather:'sun';s.quiet=raw.quiet===true;s.revision=num(raw.revision,0,0,1000000);
   for(const id of IDS){const p=raw.pets?.[id];if(!p||typeof p!=='object'||Array.isArray(p))throw Error('The save is missing a founder. Your current companions are unchanged.');const q=s.pets[id];q.nickname=clean(p.nickname,24);for(const key of ['food','energy','clean','joy','bond'])q[key]=num(p[key],q[key]);q.battles=num(p.battles,0,0,v2?3:1);q.discoveries=Array.isArray(p.discoveries)?[...new Set(p.discoveries.filter(x=>Number.isInteger(x)&&x>=0&&x<3))]:[];q.care=Array.isArray(p.care)?[...new Set(p.care.filter(x=>['feed','play','rest','clean','observe'].includes(x)))]:[];q.memories=Array.isArray(p.memories)?p.memories.filter(x=>x&&typeof x.id==='string'&&typeof x.text==='string').slice(-24).map(x=>({id:clean(x.id,60),text:clean(x.text,200)})):[];}
   if(v2){s.curios=Array.isArray(raw.curios)?[...new Set(raw.curios.filter(x=>CURIOS.some(c=>c.id===x)))]:[];const f=raw.forage&&typeof raw.forage==='object'&&!Array.isArray(raw.forage)?raw.forage:{};s.forage={day:isDay(f.day)?f.day:'',taken:isDay(f.day)&&Array.isArray(f.taken)?[...new Set(f.taken.filter(x=>Number.isInteger(x)&&x>=0&&x<3))]:[]};}
+  if(raw.version===3){for(const id of IDS)s.journeys[id]=num(raw.journeys?.[id],0,0,3);for(const m of MATERIALS)s.materials[m.id]=num(raw.materials?.[m.id],0,0,99);s.crafted=Array.isArray(raw.crafted)?[...new Set(raw.crafted.filter(id=>RECIPES.some(r=>r.id===id&&(!r.founder||s.journeys[r.founder]===3))))]:[];s.equippedCraft=s.crafted.includes(raw.equippedCraft)?raw.equippedCraft:'';}
   s.decor=Array.isArray(raw.decor)?[...new Set(raw.decor.filter(x=>DECOR.some(d=>d.id===x&&stamps(s)>=d.cost)))]:[];s.equipped=s.decor.includes(raw.equipped)?raw.equipped:'';return s;
  }
  /* A camp saved for a school that only knows version 1. Ladder, curios and new decor stay out. */
@@ -115,6 +163,10 @@
     if(s.curios.includes(c.id)){message=name(s)+' found another '+c.name.toLowerCase()+'. It is already on your shelf.';}
     else{s.curios.push(c.id);remember('curio-'+c.id,name(s)+' '+SPECIES[id].forage+': '+c.name.toLowerCase()+'. '+c.note);message=name(s)+' found a '+c.name.toLowerCase()+'! It goes on the curio shelf.';}
     changed=true;break;}
+   case 'gather':{const m=MATERIALS[s.stop];if(p.energy<15){message=name(s)+' needs a free rest before gathering.';break;}if(s.materials[m.id]>=99){message='Your '+m.name.toLowerCase()+' basket is full. Build something in the workshop.';break;}p.energy-=15;p.food=Math.max(0,p.food-4);const amount=Math.min(3,99-s.materials[m.id]);s.materials[m.id]+=amount;message=name(s)+' gathered '+amount+' '+m.name.toLowerCase()+'. Nothing growing was harmed.';changed=true;break;}
+   case 'craft':{const r=RECIPES.find(r=>r.id===action.id);if(!r)break;if(s.crafted.includes(r.id)){message=r.name+' is already yours. Place it in camp.';break;}if(!canCraft(s,r.id)){message=r.founder&&s.journeys[r.founder]<3?'Finish '+SPECIES[r.founder].name+'’s journey to build this keepsake.':'Gather the missing supplies on the trail. Rest is always free.';break;}for(const [m,n] of Object.entries(r.cost))s.materials[m]-=n;s.crafted.push(r.id);s.equippedCraft=r.id;message=r.name+' built and placed! Your other decorations stay with you.';changed=true;break;}
+   case 'place-craft':if(s.crafted.includes(action.id)&&s.equippedCraft!==action.id){s.equippedCraft=action.id;message=RECIPES.find(r=>r.id===action.id).name+' placed in camp.';changed=true;}break;
+   case 'journey':{const status=journeyStatus(s);if(status.complete){message='This journey is complete. Its memories are in the journal.';break;}if(!status.ready){message='Finish the next step on your journey card first.';break;}if(action.chapter!==status.done||!Number.isInteger(action.choice)||action.choice<0||action.choice>1){message='Choose one of this chapter’s two paths.';break;}p.energy-=8;p.bond=Math.min(100,p.bond+6);const m=MATERIALS[status.done].id;s.materials[m]=Math.min(99,s.materials[m]+3);s.journeys[id]++;message=status.chapter.replies[action.choice];remember('journey-'+status.done,message);if(s.journeys[id]===3)message+=' Journey complete! A special workshop keepsake is now available.';changed=true;break;}
    case 'unlock':{const d=DECOR.find(x=>x.id===action.id);if(!d)break;if(stamps(s)<d.cost){message='Collect '+d.cost+' trail stamps through discovery or practice. Stamps are milestones, so they are never spent.';break;}if(!s.decor.includes(d.id)){s.decor.push(d.id);changed=true;}if(s.equipped!==d.id){s.equipped=d.id;changed=true;}message=d.name+' is now in your clearing.';break;}
    case 'battle-win':{const tier=Number.isInteger(action.tier)&&action.tier>=1&&action.tier<=3?action.tier:1;if(tier>p.battles+1){message='Clear the '+TIERS[p.battles].name.toLowerCase()+' first.';break;}if(p.battles>=tier){message='A fine rematch. That badge is already in your journal.';break;}p.battles=tier;remember(tier===1?'practice':'practice-'+tier,tier===1?'Completed a friendly practice against the training dummy. No injuries.':name(s)+' beat the '+TIERS[tier-1].name.toLowerCase()+'. Everyone walked home fine.');message=name(s)+' earned the '+TIERS[tier-1].name.toLowerCase()+' badge and one trail stamp. Everyone returns healthy.';changed=true;break;}
    default:message='Choose an activity.';
@@ -158,5 +210,5 @@
   }
   b.turn++;b.round++;b.log.unshift(msg);b.log=b.log.slice(0,8);return {battle:b,message:msg,changed:true};
  }
- const api={SPECIES,IDS,STOPS,DECOR,CURIOS,TIERS,BOND_LEVELS,FORAGE_ENERGY,initial,hydrate,toV1,dispatch,name,stamps,bondLevel,curioFor,forageOpen,startBattle,battleMove,intentFor,tierInfo,intents};root.FirstTrail=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+ const api={MATERIALS,RECIPES,JOURNEYS,journeyStatus,canCraft,toV2,SPECIES,IDS,STOPS,DECOR,CURIOS,TIERS,BOND_LEVELS,FORAGE_ENERGY,initial,hydrate,toV1,dispatch,name,stamps,bondLevel,curioFor,forageOpen,startBattle,battleMove,intentFor,tierInfo,intents};root.FirstTrail=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(globalThis);

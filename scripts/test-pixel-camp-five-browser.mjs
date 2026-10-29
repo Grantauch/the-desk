@@ -55,7 +55,7 @@ try {
     await page.goto('https://grant-desk.com/hubs/checkling/camp/');
     await page.locator('#bond-level').waitFor();
     assert.match(await page.locator('#bond-level').innerText(),/New friend/);
-    assert.equal(await page.locator('.about-playtest p').first().textContent(),'Pixel Camp 5.0');
+    assert.equal(await page.locator('.about-playtest p').first().textContent(),'Pixel Camp 6.0');
     await fits(page,'camp '+width);
     if(width===1366) await page.screenshot({path:shot('camp-home-'+width)});
     // Forage at all three stops.
@@ -113,12 +113,12 @@ try {
     await page.screenshot({path:shot('decor-'+width)});
     await page.locator('#decor-dialog .close-form button').click();
     const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('checklings.first-trail.v1')));
-    assert.equal(saved.version,2); assert.equal(saved.curios.length,owned); assert.ok(saved.pets.mochi.battles>=1);
+    assert.equal(saved.version,3); assert.equal(saved.curios.length,owned); assert.ok(saved.pets.mochi.battles>=1);
     await page.reload(); await page.locator('#bond-level').waitFor();
     await page.locator('[data-view=journal]').click(); await page.locator('[data-journal-page=curios]').click();
     assert.equal(await page.locator('.curio-card[data-owned=true]').count(),owned);
     await page.locator('[data-journal-page=goals]').click();
-    assert.equal(await page.locator('.camp-goal-row').count(),5);
+    assert.equal(await page.locator('.camp-goal-row').count(),7);
     assert.match(await page.locator('[data-goal-row=curator]').innerText(),/Curio shelf/);
     assert.deepEqual(errors,[],'no page errors at '+width);
     await context.close(); checks++;
@@ -181,7 +181,7 @@ try {
       await frame.locator('#forage').click();
       await frame.getByText('Saved to school',{exact:true}).waitFor();
       const stored=JSON.parse(c.harness.sheet('Checkling Camps').records()[0]['Camp JSON']);
-      assert.equal(stored.version,2); assert.equal(stored.curios.length,1);
+      assert.equal(stored.version,3); assert.equal(stored.curios.length,1);
       assert.equal(c.checkIns().length,0,'foraging records no attendance');
       await page.screenshot({path:shot('school-forage-1366'),fullPage:true});
       frame=await open();
