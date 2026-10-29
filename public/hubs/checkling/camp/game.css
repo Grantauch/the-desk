@@ -2136,3 +2136,13 @@ dialog::backdrop { overscroll-behavior: contain; overflow: hidden; }
 .founder-guide-card>footer{display:flex;flex-wrap:wrap;gap:8px;align-self:end}.founder-guide-card button{min-height:44px;max-width:100%;line-height:1.5}
 @container(max-width:240px){.founder-guide-card>img{width:64px;height:64px}}
 @media(max-width:720px){.founder-guide-cards{grid-template-columns:1fr}.founder-guide-card{padding:12px;gap:8px}}
+.recipe-supplies{list-style:none;padding:0;margin:8px 0;width:100%;font:15px/1.6 system-ui,sans-serif}
+.recipe-supplies li{display:grid;grid-template-columns:minmax(0,1fr);gap:3px;margin-bottom:12px}
+.recipe-supplies strong{font-size:14px;color:#f5d994}.recipe-supplies small{color:#e3d3b4}
+.recipe-supplies progress{width:100%;accent-color:#f4d88b}
+.recipe-actions,.build-plan-actions{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.recipe-actions{margin-top:auto}.recipe-actions button{margin-top:0;max-width:100%;line-height:1.5}
+.build-plan{padding:16px;margin-top:16px}.build-plan h2{font-size:22px;line-height:1.5}
+.build-plan .recipe-supplies{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.build-plan-actions button{min-height:44px;max-width:100%;line-height:1.5}
+@media(max-width:480px){.build-plan .recipe-supplies{grid-template-columns:1fr;gap:0}.build-plan{padding:12px}}
