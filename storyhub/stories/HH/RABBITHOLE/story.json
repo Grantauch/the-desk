@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-RABBITHOLE",
+  "course": "HH",
+  "lessonCode": "RABBITHOLE",
+  "title": "Down the Rabbit Hole",
+  "audience": "students",
+  "narrativeQuestion": "How can the impossible be true while the ordinary-sounding story is invented?",
+  "chapters": [
+    {
+      "id": "ch-cases",
+      "title": "Five stories, one fake",
+      "claim": "A–D are historical cases from the presentation: Poyais, the Brooklyn Bridge sales, Van Meegeren's false Vermeers and Anna Anderson's survival claim. E is expressly invented, designed to sound most ordinary. The student must cast five real/fake verdicts before seeing the answer.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06"
+      ],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "ch-reveal",
+      "title": "The ordinary lie",
+      "claim": "The Detroit 1958 Mileage Plus/Raymond Kessler case is a classroom invention. The Poyais migration, George C. Parker bridge sales, Van Meegeren forgeries and Anna Anderson's false Anastasia claim did occur, though specific historical claims invite checking.",
+      "namedPeople": [],
+      "visualAnchorIds": "A07",
+      "interactionIds": []
+    },
+    {
+      "id": "ch-bias",
+      "title": "The traps in our thinking",
+      "claim": "The uploaded deck matches A with herd mentality, B overconfidence, C confirmation bias and D sunk cost. Students match each then see a concrete explanation of the bias in that case.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A02",
+        "A03",
+        "A04",
+        "A05"
+      ],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "ch-triad",
+      "title": "Your guides in Wonderland",
+      "claim": "Paulhus and Williams' 2002 Dark Triad clusters three overlapping traits: Machiavellianism, narcissism and psychopathy. Visual guides are the Cheshire Cat, Queen of Hearts and Walrus from the teacher artwork. These are metaphors, not psychiatric evaluations of historical people.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "ch-fourth",
+      "title": "The fourth trait",
+      "claim": "A 2013 Buckels–Jones–Paulhus study offered four job choices in a sample of 71; 26.8% selected the simulated bug-killing task. The paper reports no bugs were killed. This is an experimental result in one sample, not a percent of the population.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A12"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "ch-boundary",
+      "title": "The Goldwater Rule",
+      "claim": "The APA's 1973 Goldwater Rule cautions psychiatrists against offering professional opinions about public figures they have not examined and for whom consent has not been obtained. Students examine observed conduct but cannot diagnose classmates, historical figures or celebrities.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A13",
+        "A14"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "ch-exit",
+      "title": "Write a better question",
+      "claim": "Three written prompts assess evidence judgment, the difference between description and diagnosis, and an evidence-first defense against manipulation.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    }
+  ],
+  "accuracyNotes": [
+    "Preserves the source PowerPoint's narrative and exact A/B/C/D bias answers; E is fictional.",
+    "The deck's visuals are classroom-designed illustrations, not archival portraits or documentary photography.",
+    "Do not infer a psychiatric diagnosis from historical conduct or from an interactive answer.",
+    "The study's 26.8% is from one sample (N=71) and does not estimate prevalence in the population.",
+    "Historical claims in the teacher presentation (including specific victim counts) can vary between accounts and warrant verification."
+  ],
+  "release": {
+    "route": "/hubs/hh-down-the-rabbit-hole.html"
+  }
+}
