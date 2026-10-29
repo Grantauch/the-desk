@@ -530,8 +530,8 @@ const gateOpen = (page) => page.evaluate(() => window.__deskSave.gate());
 
 async function passGate(page, pin, { confirm = true } = {}) {
   await gate(page).locator('input[type="password"]').fill(pin);
-  await gate(page).getByRole('button', { name: 'Start' }).click();
-  await waitFor(async () => !(await gate(page).locator('.step').nth(1).isHidden()) || /\S/.test(await gate(page).locator('.status').textContent()), 10000);
+  await gate(page).getByRole('button', { name: 'Start', exact: true }).click();
+  await waitFor(async () => !(await gate(page).locator('.step').nth(1).isHidden()) || (/\S/.test(await gate(page).locator('.status').textContent()) && await gate(page).getByRole('button', { name: 'Start', exact: true }).isEnabled()), 10000);
   if (confirm && await gate(page).getByRole('button', { name: 'Yes, that is me' }).isVisible()) {
     await gate(page).getByRole('button', { name: 'Yes, that is me' }).click();
   }
@@ -562,7 +562,7 @@ await test('the gate covers an answer page until a PIN is entered, confirms the 
   await typeInto(page, '#q1', 'Three years, no fighting back.');
   await waitFor(() => s.rows('Progress').some((r) => /Three years, no fighting back/.test(r.Answers)));
   assert.equal(s.rows('Progress')[0].Status, 'In progress');
-  assert.match(await chip(page).locator('.chip').textContent(), /Ada/);
+  await waitFor(async () => /Ada/.test(await chip(page).locator('.chip').textContent()));
 
   assert.equal(await panel(page).locator('input[type="password"]').isHidden(), true, 'Turn In does not ask for the PIN again');
   await panel(page).getByRole('button', { name: 'Turn In' }).click();

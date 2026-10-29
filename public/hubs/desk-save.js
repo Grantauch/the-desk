@@ -1212,7 +1212,8 @@
     // Signing out, being signed out after a quiet stretch, or "Not me" all
     // bring the gate back. A switch between students keeps it closed.
     window.addEventListener('desk-save:reset', function () {
-      setTimeout(function () { if (!state.token) openGate(); }, 0);
+      // Never reset a gate that is already up: a student may be signing in.
+      setTimeout(function () { if (!state.token && gate.hidden) openGate(); }, 0);
     });
 
     var toolViews = [];
