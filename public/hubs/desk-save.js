@@ -101,6 +101,9 @@
 
   var device = readJson('localStorage', 'desk-save:device');
   if (!device) { device = randomId(); writeJson('localStorage', 'desk-save:device', device); }
+  // One id per open tab, so the server can tell this tab's own late save from another tab's work.
+  var tabId = readJson('sessionStorage', 'desk-save:tab');
+  if (!tabId) { tabId = randomId(); writeJson('sessionStorage', 'desk-save:tab', tabId); }
 
   var state = null;
   function blankState() {
@@ -298,6 +301,7 @@
     options = options || {};
     var attempts = options.attempts || 1;
     body.device = device;
+    body.tab = tabId;
     if (testHooks && testHooks.loadTestKey) body.test = testHooks.loadTestKey;
     function once() {
       var controller = window.AbortController ? new AbortController() : null;
@@ -729,7 +733,9 @@
   }
 
   function sendTurnIn(pin) {
-    if (transitioning || state.conflict) return Promise.resolve({ ok: false, message: 'Load My Work first to resolve the account version. Download a backup to keep your current answers.' });
+    // A version conflict pauses autosave, never Turn In. The server records the press and
+    // keeps the newer account copy as current progress.
+    if (transitioning) return Promise.resolve({ ok: false, message: 'Wait for the current request to finish.' });
     var list = answers(true);
     var hash = hashOf(list);
     if (!answeredCount(list)) return Promise.resolve({ ok: false, message: 'Write at least one answer first.' });

@@ -1,5 +1,7 @@
 # Update the existing Turn In service
 
+The v11 release (Oct 29 2026) makes draft lookups read only the email and hub columns, so a save no longer holds the lock while reading every saved answer; lets a tab keep saving after its own save landed late; and always records a Turn In press, keeping a newer account version as current progress. Deploy with the Deploy Turn In Apps Script workflow.
+
 The v10 release adds the private Writing Timeline sheet: each Turn In from the v3 website client carries the tab's writing timeline, summarized into counts and plain flags with replay data for `public/teacher/writing-replay.html`. A missing or malformed timeline never blocks a Turn In. Updating v9 to v10 needs no setup; the tab is created on the first Turn In, or run `addWritingTimelineSheet` once to see it now. Work protection stays on.
 
 The v9 release adds revision-checked writes, receipt validation and account-token/PIN matching. The v8 companion added private review membership and optional per-class Classroom
@@ -13,7 +15,7 @@ workbook, change Hall Pass properties, or replace the stable web app URL.
 2. Replace only `Code.gs` with `apps-script/turn-in/Code.gs` from this release.
 3. Save. Updating an already configured v8 project to v9 needs no setup or sheet migration. Use **Deploy → Manage deployments → Edit → New version → Deploy**.
 4. Open the existing `/exec` URL. It should report
-   `version: 2026-10-26-turn-in-v10`, `writeProtocol: 1`, and `ready: true`.
+   `version: 2026-10-29-turn-in-v11`, `writeProtocol: 1`, and `ready: true`.
 5. After the v2 website client is live, run `activateWorkProtection` in this existing project. The health response must then show `checkedWritesRequired: true`. Older open pages must copy/download their pending work and reload. Until activation, legacy writes remain compatible and unprotected by revisions.
 6. Run the synthetic load test described in `SETUP.md`. Count actual unique
    rows in **Load Test**, not just success responses. Turn the test off afterward.
