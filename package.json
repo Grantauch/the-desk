@@ -54,7 +54,7 @@
     "checkling:test": "node --test scripts/test-founder-assets.cjs scripts/test-checkling.cjs scripts/test-pixel-camp-school.cjs scripts/test-pixel-camp-five.cjs scripts/test-pixel-camp-six.cjs",
     "pond:test": "node --experimental-strip-types --test apps/pond/src/lib/pond/*.test.ts && node scripts/validate-pond-build.mjs",
     "pond:build": "npm --prefix apps/pond run build",
-    "companion:browser": "node scripts/test-checkling-pond-browser.mjs && node scripts/test-pixel-camp-school-browser.mjs && node scripts/test-pixel-camp-five-browser.mjs && node scripts/test-pixel-camp-six-browser.mjs && node scripts/test-pixel-camp-guide-browser.mjs"
+    "companion:browser": "node scripts/test-checkling-pond-browser.mjs && node scripts/test-pixel-camp-school-browser.mjs && node scripts/test-pixel-camp-five-browser.mjs && node scripts/test-pixel-camp-six-browser.mjs && node scripts/test-pixel-camp-guide-browser.mjs && node scripts/test-pixel-camp-workshop-browser.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

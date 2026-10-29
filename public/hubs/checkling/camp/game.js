@@ -10,7 +10,7 @@
   // A school that has not been updated yet only stores version 1 camps; new features wait for it.
   const FULL = !schoolSession || (Array.isArray(schoolSession.formats) && schoolSession.formats.includes(2));
   const ADVENTURES = !schoolSession || schoolSession.formats?.includes(3);
-  const VERSION = "6.2";
+  const VERSION = "6.3";
   function today() {
     const d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -78,6 +78,7 @@
   let state = E.initial(),
     view = "home",
     journalPage = "notes",
+    plannedRecipe = "",
     battle = null,
     practiceFounder = "mochi",
     pending = null,
@@ -1088,6 +1089,41 @@
   function openWorkshop() {
     renderWorkshop(); $('workshop-dialog').showModal();
   }
+  function showRecipe(id) {
+    openWorkshop(); const card=document.querySelector('[data-recipe="'+id+'"]');
+    (card.querySelector('[data-craft]:enabled')||card.querySelector('[data-build-plan]')||card.querySelector('[data-recipe-story]')).focus();
+  }
+  function recipeSupplies(recipe) {
+    return Object.entries(recipe.cost).map(([id,need])=>({ ...E.MATERIALS.find(m=>m.id===id),need,have:state.materials[id],missing:Math.max(0,need-state.materials[id]) }));
+  }
+  function supplyProgress(recipe) {
+    return '<ul class="recipe-supplies">'+recipeSupplies(recipe).map(m=>'<li data-material="'+m.id+'"><span>'+m.name+'</span><strong>Have '+m.have+' / Need '+m.need+'</strong><progress value="'+Math.min(m.have,m.need)+'" max="'+m.need+'" aria-label="'+recipe.name+': '+m.name+' '+Math.min(m.have,m.need)+' out of '+m.need+'"></progress><small>'+(m.missing?m.missing+' to find':'Enough for this build')+'</small></li>').join('')+'</ul>';
+  }
+  function followBuildPlan() {
+    const recipe=E.RECIPES.find(r=>r.id===plannedRecipe); if(schoolPaused||!ADVENTURES||!recipe)return;
+    if($('workshop-dialog').open)$('workshop-dialog').close();
+    if(battle&&!battle.result){setView('practice');say('Finish this friendly spar or leave it before following your build plan.');$('leave-practice').focus();return;}
+    if(recipe.founder&&state.journeys[recipe.founder]<3){plannedRecipe='';followJourney(recipe.founder);return;}
+    if(state.crafted.includes(recipe.id)){plannedRecipe='';setView('home');say(recipe.name+' is built. Your keepsake is ready at camp.');$('open-workshop').focus();return;}
+    const missing=recipeSupplies(recipe).find(m=>m.missing);
+    if(!missing){showRecipe(recipe.id);return;}
+    if(state.stop!==missing.stop)act({type:'stop',value:missing.stop});
+    setView('trail');
+    const tired=state.pets[state.selected].energy<15;
+    say(tired?'Take a free rest, then gather for your '+recipe.name.toLowerCase()+'.':'Gather '+missing.name.toLowerCase()+' for your '+recipe.name.toLowerCase()+'.');
+    (tired?document.querySelector('#trail-actions [data-care=rest]'):$('gather')).focus();
+  }
+  function renderBuildPlan() {
+    const recipe=E.RECIPES.find(r=>r.id===plannedRecipe),panel=$('build-plan');
+    if(recipe?.founder&&state.journeys[recipe.founder]<3)plannedRecipe='';
+    panel.hidden=!ADVENTURES||view!=='trail'||!recipe||!plannedRecipe; if(panel.hidden)return;
+    const built=state.crafted.includes(recipe.id),missing=recipeSupplies(recipe).find(m=>m.missing);
+    $('build-plan-title').textContent=recipe.name+' build plan';
+    $('build-plan-supplies').innerHTML=built?'<p>Built! Your supplies were used once. Place it again for free.</p>':supplyProgress(recipe);
+    $('build-plan-status').textContent=built?'Keepsake built.':!missing?'All supplies ready. Open the workshop to build.':state.pets[state.selected].energy<15?'A free rest will get you ready to gather.':missing.stop===state.stop?'Choose Gather '+['wood','stones','reeds'][state.stop]+', then follow the plan to the next supply.':'Next: '+missing.name.toLowerCase()+' at '+E.STOPS[missing.stop].name+'.';
+    $('build-plan-next').textContent=built?'See in camp':!missing?'Open workshop':state.pets[state.selected].energy<15?'Rest for free':'Find '+missing.name.toLowerCase();
+    $('build-plan-workshop').hidden=built||!missing;
+  }
   function costText(recipe) {
     return Object.entries(recipe.cost).map(([id,n]) => n + ' ' + E.MATERIALS.find(m=>m.id===id).name.toLowerCase()).join(' · ');
   }
@@ -1097,7 +1133,7 @@
   }
   function journeyHint(id, status) {
     const next=status.next;
-    if(status.complete)return 'Journey complete. Its special keepsake is waiting in the workshop.';
+    if(status.complete){const keepsake=E.RECIPES.find(r=>r.founder===id);return state.crafted.includes(keepsake.id)?keepsake.name+' is built. Place it in camp any time, for free.':'Journey complete. Its special keepsake is waiting in the workshop.';}
     if(!next)return 'Choose how this chapter unfolds. 8 energy · 3 supplies · a new memory.';
     if(next.kind==='trail')return 'First, explore ' + E.STOPS[next.stop].name.toLowerCase() + ' with ' + name(id) + '.';
     if(next.kind==='craft')return 'Build the ' + E.RECIPES.find(r=>r.id===next.id).name.toLowerCase() + ' in the workshop.';
@@ -1110,8 +1146,8 @@
     if(battle&&!battle.result){setView('practice');say('Finish this friendly spar or leave it before heading out.');$('leave-practice').focus();return;}
     selectPet(id);
     const status=E.journeyStatus(state,id),next=status.next;
-    if(status.complete){openWorkshop();return;}
-    if(next?.kind==='craft'){openWorkshop();return;}
+    if(status.complete){showRecipe(E.RECIPES.find(r=>r.founder===id).id);return;}
+    if(next?.kind==='craft'){showRecipe(next.id);return;}
     if(next?.kind==='friendship'||next?.kind==='rest'){
       setView('home');say(journeyHint(id,status));document.querySelector('#care-actions [data-care="'+(next.kind==='rest'?'rest':'play')+'"]').focus();return;
     }
@@ -1124,14 +1160,15 @@
     $('journey-summary').textContent=E.IDS.reduce((n,id)=>n+state.journeys[id],0)+' / 12 chapters shared. No time limit. Both choices are good paths.';
     $('journey-cards').innerHTML=E.IDS.map(id=>{
       const story=E.JOURNEYS[id],status=E.journeyStatus(state,id);
-      return '<article class="journey-card" data-story="'+id+'"><img src="'+art(id,true)+'" alt="" width="80" height="80"><div><p class="section-label">'+escape(name(id))+' · '+status.done+'/3</p><h3>'+story.title+'</h3><p>'+escape(status.complete?'All three chapters are in your journal.':status.chapter.title)+'</p><progress max="3" value="'+status.done+'" aria-label="'+escape(name(id))+' journey '+status.done+' out of 3"></progress><p>'+escape(journeyHint(id,status))+'</p><button type="button" data-journey-go="'+id+'">'+(status.complete?'Build keepsake':'Next chapter')+'</button></div></article>';
+      const built=state.crafted.includes(E.RECIPES.find(r=>r.founder===id).id);
+      return '<article class="journey-card" data-story="'+id+'"><img src="'+art(id,true)+'" alt="" width="80" height="80"><div><p class="section-label">'+escape(name(id))+' · '+status.done+'/3</p><h3>'+story.title+'</h3><p>'+escape(status.complete?'All three chapters are in your journal.':status.chapter.title)+'</p><progress max="3" value="'+status.done+'" aria-label="'+escape(name(id))+' journey '+status.done+' out of 3"></progress><p>'+escape(journeyHint(id,status))+'</p><button type="button" data-journey-go="'+id+'">'+(status.complete?built?'Place keepsake':'Build keepsake':'Next chapter')+'</button></div></article>';
     }).join('');
   }
   function renderWorkshop() {
     $('workshop-supplies').textContent=E.MATERIALS.map(m=>m.name+': '+state.materials[m.id]).join(' · ');
     $('workshop-recipes').innerHTML=E.RECIPES.map(r=>{
       const owned=state.crafted.includes(r.id),ready=E.canCraft(state,r.id),placed=state.equippedCraft===r.id,locked=r.founder&&state.journeys[r.founder]<3;
-      return '<article class="recipe-card" data-recipe="'+r.id+'">'+craftItem(r)+'<h3>'+r.name+'</h3><p>'+r.note+'</p><small>'+escape(owned?'Built! No supplies needed to place it again.':locked?'Finish '+E.SPECIES[r.founder].name+'’s journey first.':costText(r))+'</small><button type="button" data-craft="'+r.id+'" '+(!owned&&!ready?'disabled':'')+' aria-pressed="'+placed+'">'+(placed?'Placed':owned?'Place in camp':'Build')+'</button></article>';
+      return '<article class="recipe-card" data-recipe="'+r.id+'">'+craftItem(r)+'<h3>'+r.name+'</h3><p>'+r.note+'</p><small>'+escape(owned?'Built! No supplies needed to place it again.':locked?'Finish '+E.SPECIES[r.founder].name+'’s journey first.':costText(r))+'</small>'+(!owned?supplyProgress(r):'')+'<div class="recipe-actions"><button type="button" data-craft="'+r.id+'" '+(!owned&&!ready?'disabled':'')+' aria-pressed="'+placed+'">'+(placed?'Placed':owned?'Place in camp':'Build')+'</button>'+(!owned?(locked?'<button type="button" data-recipe-story="'+r.founder+'">Follow '+E.SPECIES[r.founder].name+'’s journey</button>':!ready?'<button type="button" data-build-plan="'+r.id+'" aria-label="Plan supplies for '+r.name+'">Plan supplies</button>':''):'')+'</div></article>';
     }).join('');
   }
   function renderAdventure() {
@@ -1141,12 +1178,13 @@
     const placed=E.RECIPES.find(r=>r.id===state.equippedCraft);
     $('crafted-keepsake').hidden=!ADVENTURES||view!=='home'||!placed;
     if(placed){$('crafted-keepsake').innerHTML=craftItem(placed)+'<span>'+placed.name+'</span>';}
+    renderBuildPlan();
     if(!ADVENTURES)return;
     $('gather-label').textContent='Gather '+['wood','stones','reeds'][state.stop];
     if(view==='trail'){
       const story=E.JOURNEYS[state.selected],status=E.journeyStatus(state);
       $('journey-scene-title').textContent=story.title;
-      $('journey-scene-copy').textContent=status.complete?'Your journey is complete. Visit the workshop to build its keepsake.':status.chapter.title+' · '+status.chapter.text;
+      $('journey-scene-copy').textContent=status.complete?journeyHint(state.selected,status):status.chapter.title+' · '+status.chapter.text;
       $('journey-scene-hint').textContent=journeyHint(state.selected,status);
       $('journey-choices').innerHTML=!status.complete&&status.ready?status.chapter.choices.map((c,i)=>'<button type="button" data-journey-choice="'+i+'" data-chapter="'+status.done+'">'+escape(c)+'</button>').join(''):'';
       $('journey-next').hidden=status.ready===true;$('journey-next').textContent=status.complete?'Open workshop':'Next step';
@@ -1161,6 +1199,9 @@
     const scene=document.createElement('section');scene.id='journey-scene';scene.className='journey-scene panel';scene.hidden=true;scene.tabIndex=-1;scene.setAttribute('aria-labelledby','journey-scene-title');
     scene.innerHTML='<p class="section-label">A FOUNDER JOURNEY</p><h2 id="journey-scene-title"></h2><p id="journey-scene-copy"></p><p id="journey-scene-hint"></p><div id="journey-choices" class="journey-choices"></div><button type="button" id="journey-next">Next step</button>';
     doors.after(scene);
+    const plan=document.createElement('section');plan.id='build-plan';plan.className='build-plan panel';plan.hidden=true;plan.setAttribute('aria-labelledby','build-plan-title');
+    plan.innerHTML='<p class="section-label">MAKE IT YOURS</p><h2 id="build-plan-title"></h2><div id="build-plan-supplies"></div><p id="build-plan-status" role="status" aria-atomic="true"></p><div class="build-plan-actions"><button type="button" id="build-plan-next">Next supply</button><button type="button" id="build-plan-workshop">Back to workshop</button><button type="button" id="build-plan-clear">Put plan away</button></div>';
+    scene.before(plan);
     const tab=document.createElement('button');tab.type='button';tab.dataset.journalPage='journeys';tab.hidden=!ADVENTURES;tab.setAttribute('aria-pressed','false');tab.innerHTML=item('book')+'Journeys';document.querySelector('.journal-page-buttons').append(tab);
     const book=document.createElement('section');book.id='journey-book';book.hidden=true;book.innerHTML='<p id="journey-summary"></p><div id="journey-cards" class="journey-cards"></div>';$('camp-goals').after(book);
     const workshop=document.createElement('dialog');workshop.id='workshop-dialog';workshop.className='panel workshop-dialog';workshop.setAttribute('aria-labelledby','workshop-title');
@@ -1170,8 +1211,13 @@
     $('open-journeys').onclick=openJourneys;$('open-workshop').onclick=openWorkshop;$('close-workshop').onclick=()=>workshop.close();
     $('journey-next').onclick=()=>followJourney(state.selected);
     $('gather').onclick=()=>act({type:'gather'});
+    $('build-plan-next').onclick=followBuildPlan;
+    $('build-plan-workshop').onclick=()=>showRecipe(plannedRecipe);
+    $('build-plan-clear').onclick=()=>{plannedRecipe='';renderBuildPlan();$('gather').focus();say('Build plan put away. Your supplies are unchanged.');};
     document.addEventListener('click',event=>{
       const b=event.target.closest('button');if(!b||!ADVENTURES)return;
+      if(b.dataset.buildPlan){plannedRecipe=b.dataset.buildPlan;followBuildPlan();}
+      if(b.dataset.recipeStory){workshop.close();followJourney(b.dataset.recipeStory);}
       if(b.dataset.journeyGo)followJourney(b.dataset.journeyGo);
       if(b.dataset.journeyChoice!==undefined){
         const result=act({type:'journey',chapter:Number(b.dataset.chapter),choice:Number(b.dataset.journeyChoice)});
