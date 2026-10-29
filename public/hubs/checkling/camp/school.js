@@ -12,6 +12,7 @@
     port = event.ports[0];
     port.onmessage = ({data}) => {
       if (data.type === 'init') { init(data.payload); return; }
+      if (data.type === 'access') { dispatchEvent(new CustomEvent('checkling-school-access',{detail:data.payload})); return; }
       const request = pending.get(data.id);
       if (!request) return;
       clearTimeout(request.timer); pending.delete(data.id);
@@ -32,5 +33,5 @@
   for (const type of ['pointerdown','keydown']) addEventListener(type, () => {
     if (port && Date.now() - lastActive > 1000) { lastActive = Date.now(); port.postMessage({type:'activity'}); }
   },true);
-  globalThis.ChecklingSchool = {ready,request};
+  globalThis.ChecklingSchool = {ready,request,close:() => port?.postMessage({type:'close'})};
 })();

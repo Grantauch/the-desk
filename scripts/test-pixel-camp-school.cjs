@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {classroom,PEOPLE} = require('./lib/hall-pass-fixtures.cjs');
+const {classroom,PEOPLE,TEACHER_CONTRACT} = require('./lib/hall-pass-fixtures.cjs');
 require('../public/hubs/checkling/camp/engine.js');
 const E = globalThis.FirstTrail;
 const plain = x => JSON.parse(JSON.stringify(x));
@@ -18,6 +18,65 @@ function setup(options) {
   c.save = (camp,rev=0,id='a'.repeat(32),token=c.token) => c.harness.call('savePixelCamp',token,rev,id,camp);
   return c;
 }
+
+function setOpen(c, open, contract=TEACHER_CONTRACT) {
+  c.harness.newRequest();c.harness.signInAs(c.teacher);
+  try { return c.harness.call('teacherSetPixelCampOpen',open,contract); }
+  finally { c.harness.newRequest();c.harness.signInAs(PEOPLE.ada.email); }
+}
+
+test('teacher pause blocks new school sessions and saves, then resumes the same camp without attendance', () => {
+  const c=setup(), first=c.load();
+  assert.equal(first.access.open,true);
+  const changed=E.dispatch(first.camp,{type:'discover'}).state;
+  assert.equal(setOpen(c,false).open,false);
+  assert.equal(c.harness.call('getPixelCampAccess',c.token).open,false);
+  assert.throws(()=>c.load(),/teacher has paused/);
+  assert.throws(()=>c.save(changed),/teacher has paused/);
+  assert.equal(c.harness.spreadsheet.getSheetByName('Checkling Camps'),null,'pause creates no camp save');
+  assert.equal(setOpen(c,true).open,true);
+  c.save(changed);assert.equal(c.load().camp.pets.bolt.discoveries.length,1);
+  assert.equal(c.checkIns().length,0);assert.equal(c.passLog().length,0);
+  assert.equal(c.harness.sheet('Teacher Actions').records().filter(x=>x.Action==='PIXEL_CAMP_ACCESS_CHANGED').length,2);
+});
+
+test('a committed save retry is acknowledged during pause while new writes preserve its revision', () => {
+  const c=setup(), camp=E.dispatch(c.load().camp,{type:'discover'}).state;
+  c.save(camp);setOpen(c,false);
+  const stored=JSON.stringify(c.harness.sheet('Checkling Camps').records());
+  const ack=c.save(camp);assert.equal(ack.revision,1);assert.equal(ack.access.open,false);
+  assert.throws(()=>c.save(E.dispatch(camp,{type:'play'}).state,1,'b'.repeat(32)),/paused/);
+  assert.equal(JSON.stringify(c.harness.sheet('Checkling Camps').records()),stored);
+  setOpen(c,true);assert.equal(c.save(E.dispatch(camp,{type:'play'}).state,1,'b'.repeat(32)).revision,2);
+});
+
+test('only a current teacher client with a literal boolean can change camp access', () => {
+  const c=setup();
+  for(const email of [PEOPLE.ada.email,'','other@example.test']) {
+    c.harness.newRequest();c.harness.signInAs(email);
+    assert.throws(()=>c.harness.call('teacherSetPixelCampOpen',false,TEACHER_CONTRACT),/teacher account/);
+  }
+  assert.throws(()=>setOpen(c,false,'old-contract'),/Refresh this teacher page/);
+  for(const invalid of ['FALSE','true',0,1,null,{},undefined]) assert.throws(()=>setOpen(c,invalid),/Choose pause or resume/);
+  c.harness.newRequest();assert.equal(c.load().access.open,true);
+  for(const token of ['', 'forged']) assert.throws(()=>c.harness.call('getPixelCampAccess',token));
+});
+
+test('a failed audit restores camp access, and an unchanged setting creates no duplicate audit', () => {
+  const c=setup(), audit=c.harness.sandbox.auditTeacherAction_;
+  c.harness.sandbox.auditTeacherAction_=()=>{throw Error('Synthetic audit write failed');};
+  assert.throws(()=>setOpen(c,false),/previous setting was restored/);
+  assert.equal(c.load().access.open,true);
+  c.harness.sandbox.auditTeacherAction_=audit;
+  setOpen(c,true);assert.equal(c.harness.sheet('Teacher Actions').records().length,0);
+});
+
+test('teacher authorization is checked again after acquiring the shared lock', () => {
+  const c=setup(), lock=c.harness.sandbox.withLock_;
+  c.harness.sandbox.withLock_=(callback,...args)=>lock(()=>{c.harness.signInAs(PEOPLE.ada.email);return callback();},...args);
+  assert.throws(()=>setOpen(c,false),/teacher account/);
+  assert.equal(c.load().access.open,true);
+});
 test('existing companion, exact name and official school progress enter the game without attendance', () => {
   const c=setup(); const saved=c.load();
   assert.equal(saved.founder,'bolt'); assert.equal(saved.camp.selected,'bolt');

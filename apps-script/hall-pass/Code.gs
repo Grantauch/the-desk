@@ -189,6 +189,7 @@ const GD_DEFAULT_SETTINGS = [
   ['RETENTION_DAYS', '180', 'Completed passes older than this move from the hot Pass Log into permanent Pass Audit'],
   ['DESTINATION', 'Restroom', 'Student-facing destination label'],
   ['APP_TITLE', 'Hall Pass', 'Name shown at the top of the pass app'],
+  ['PIXEL_CAMP_OPEN', 'TRUE', 'Teacher-controlled school Pixel Camp access; attendance and passes stay available'],
   ['CHECKIN_POINT_VALUE', '1', 'Extra-credit points recorded for one daily check-in'],
   ['STUDENT_EMAIL_DOMAIN', 'students.mtmorrisschools.org', 'Only roster addresses at this domain receive PIN emails'],
   ['PIN_EMAIL_SUBJECT', 'Your private GrantDesk PIN', 'Subject line for student PIN emails'],
@@ -1380,11 +1381,44 @@ function pixelCampSnapshot_(student, token, found) {
   if (pet && pet.species !== founder) throw new Error('Your companion and camp need teacher review. Neither has been replaced.');
   if (pet) camp.pets[founder].nickname = pet.name;
   if (!found.values) camp.selected = founder;
-  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,formats:[1,2,3],
+  return {revision:found.values ? Number(found.values[1]) : 0,camp,founder,formats:[1,2,3],access:pixelCampAccess_(),
     school:{companion:official.checkling,streak:official.streak,checkedIn:official.checkedIn}};
+}
+function pixelCampAccess_() {
+  // Missing in older workbooks means open. Any explicit FALSE pauses this workbook only.
+  return {open: String(getSettings_().PIXEL_CAMP_OPEN || '').toUpperCase() !== 'FALSE'};
+}
+function assertPixelCampOpen_() {
+  if (!pixelCampAccess_().open) throw new Error('Your teacher has paused Pixel Camp. Save a file of any unconfirmed progress, then return to Check-In.');
+}
+function getPixelCampAccess(pinToken) {
+  resolveStudent_(pinToken,true);
+  return pixelCampAccess_();
+}
+function teacherSetPixelCampOpen(open, clientContract) {
+  const teacher = getActiveEmail_();
+  assertTeacher_(teacher,getSettings_()); assertTeacherClient_(clientContract);
+  if (typeof open !== 'boolean') throw new Error('Choose pause or resume for Pixel Camp.');
+  return withLock_(() => {
+    gdForget_('settings');
+    assertTeacher_(getActiveEmail_(),getSettings_()); assertTeacherClient_(clientContract);
+    const before = pixelCampAccess_();
+    if (before.open === open) return before;
+    try {
+      setSettingValue_('PIXEL_CAMP_OPEN',open ? 'TRUE' : 'FALSE');
+      auditTeacherAction_(teacher,{email:'',name:'Pixel Camp',classPeriod:'All classes'},'PIXEL_CAMP_ACCESS_CHANGED',[],open ? 'School camp resumed' : 'School camp paused','');
+      SpreadsheetApp.flush();
+    } catch (error) {
+      setSettingValue_('PIXEL_CAMP_OPEN',before.open ? 'TRUE' : 'FALSE');
+      SpreadsheetApp.flush();
+      throw new Error('Camp access could not be confirmed. The previous setting was restored. Refresh before trying again.');
+    }
+    return pixelCampAccess_();
+  },1000,'pixel-camp-access');
 }
 function getPixelCamp(pinToken) {
   const resolved = resolveStudent_(pinToken,true);
+  assertPixelCampOpen_();
   return pixelCampSnapshot_(resolved.student,pinToken,pixelCampRow_(resolved.student.key,false));
 }
 function savePixelCamp(pinToken, expectedRevision, mutationId, rawCamp) {
@@ -1396,6 +1430,9 @@ function savePixelCamp(pinToken, expectedRevision, mutationId, rawCamp) {
     const resolved = resolveStudent_(pinToken,true);
     const found = pixelCampRow_(resolved.student.key,false);
     if (found.values && found.values[5] === mutationId) return pixelCampSnapshot_(resolved.student,pinToken,found);
+    // A committed retry above must still be acknowledged after the teacher pauses.
+    gdForget_('settings');
+    assertPixelCampOpen_();
     const revision = found.values ? Number(found.values[1]) : 0;
     if (revision !== expectedRevision) throw new Error('This camp changed on another screen. Save your file, then reopen camp to load the latest school save.');
     const snapshot = pixelCampSnapshot_(resolved.student,pinToken,found);
@@ -1410,7 +1447,7 @@ function savePixelCamp(pinToken, expectedRevision, mutationId, rawCamp) {
     const values = [resolved.student.key,revision+1,founder,JSON.stringify(camp),found.values ? found.values[3] : '',mutationId,new Date().toISOString()];
     target.sheet.getRange(row,1,1,GD_CAMP_HEADERS.length).setValues([values]);
     SpreadsheetApp.flush();
-    return {revision:revision+1,camp,founder,school:snapshot.school};
+    return {revision:revision+1,camp,founder,access:pixelCampAccess_(),school:snapshot.school};
   },1000,'pixel-camp-save');
 }
 function initialPixelCamp_() {
@@ -4337,6 +4374,7 @@ function getTeacherState_(options) {
     ok: true,
     mode: 'teacher',
     clientContract: GD_TEACHER_CONTRACT,
+    pixelCampAccess: pixelCampAccess_(),
     appTitle: settings.APP_TITLE,
     lateAfterMinutes: numberSetting_(settings, 'LATE_AFTER_MINUTES', 10),
     stalePassMinutes: numberSetting_(settings, 'STALE_PASS_MINUTES', 20),

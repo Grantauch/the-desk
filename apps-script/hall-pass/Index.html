@@ -1280,9 +1280,10 @@
          Nuzzles and snack taps are cosmetic; only the existing PIN action
          records attendance or awards points. No student data leaves this app. */
       // A fresh port belongs to this one PIN session; the child never receives it.
-      let campPort = null, campFrame = null, campHost = null, campGeneration = 0;
+      let campPort = null, campFrame = null, campHost = null, campGeneration = 0, campGateTimer = null;
       const closePixelCamp = () => {
         campGeneration++;
+        clearTimeout(campGateTimer); campGateTimer = null;
         if (campPort) campPort.close();
         if (campFrame) campFrame.remove();
         if (campHost) campHost.remove();
@@ -1308,16 +1309,45 @@
           const channel = new MessageChannel();
           campPort = channel.port1; campFrame = frame; campHost = host;
           const port = channel.port1;
+          // Only new hosts advertise this read-only gate. Old services keep their existing behavior.
+          const hasAccessGate = typeof snapshot.access?.open === 'boolean';
+          let gateFlight = null;
+          const checkAccess = () => {
+            if (!hasAccessGate || !current()) return Promise.resolve(null);
+            if (gateFlight) return gateFlight;
+            gateFlight = call('getPixelCampAccess',token).then(access => {
+              if (current()) port.postMessage({type:'access',payload:access});
+              return access;
+            }).finally(() => { gateFlight = null; });
+            return gateFlight;
+          };
+          const scheduleAccess = () => {
+            campGateTimer = setTimeout(async () => {
+              if (!current()) return;
+              if (document.visibilityState !== 'hidden') { try { await checkAccess(); } catch {} }
+              if (current()) scheduleAccess();
+            },32000 + Math.floor(Math.random()*6000));
+          };
+          if (hasAccessGate) scheduleAccess();
           port.onmessage = async ({data}) => {
             if (!current() || !data || typeof data !== 'object') return;
             if (data.type === 'ready') { port.postMessage({type:'init',payload:snapshot}); return; }
             if (data.type === 'activity') { noteInteraction(); return; }
+            if (data.type === 'close') { closePixelCamp(); document.querySelector('#ck-open-camp')?.focus(); return; }
+            if (data.type === 'access') {
+              try { const access = await checkAccess(); if (current()) port.postMessage({id:data.id,payload:access}); }
+              catch (error) { if (current()) port.postMessage({id:data.id,error:error.message}); }
+              return;
+            }
             if (data.type !== 'save') return;
             const request = data.payload;
             try {
               const saved = await call('savePixelCamp',token,request.expectedRevision,request.mutationId,request.camp);
               if (current()) port.postMessage({id:data.id,payload:saved});
-            } catch (error) { if (current()) port.postMessage({id:data.id,error:error.message || 'School save not confirmed.'}); }
+            } catch (error) {
+              if (current()) port.postMessage({id:data.id,error:error.message || 'School save not confirmed.'});
+              try { await checkAccess(); } catch {}
+            }
           };
           port.start();
           frame.onload = () => { if (current()) frame.contentWindow.postMessage({type:'checkling-camp-connect'},'*',[channel.port2]); };
@@ -2325,6 +2355,12 @@
           ${checkInInboxHtml}
           ${roomStatusHtml}
           ${rolloverHtml}
+          <section class="teacher-section" aria-labelledby="pixel-camp-control-title">
+            <h3 id="pixel-camp-control-title">school Pixel Camp.</h3>
+            <p id="pixel-camp-access-status">${state.pixelCampAccess?.open === false ? 'School play is paused.' : 'School play is open.'}</p>
+            <p class="message">Pause stops new camp sessions and saves. Open camps pause at their next save or access check, usually within 38 seconds while visible. Students can save a file of unconfirmed progress. Attendance, passes and the public demo stay available.</p>
+            <button type="button" class="secondary" id="toggle-pixel-camp">${state.pixelCampAccess?.open === false ? 'resume school camp' : 'pause school camp'}</button>
+          </section>
           <section class="teacher-section" id="attendance-section">
             <div class="teacher-section-head">
               <div><h3>daily check-ins.</h3><p>${state.checkInsToday.length} recorded today · ${lateCheckInsToday.length} late today · ${pendingLateCheckIns.length} unresolved late reviews · ${absentToday.length} marked absent today</p></div>
@@ -2601,6 +2637,11 @@
         const rosterFilter = document.querySelector('#roster-filter');
         if (rosterFilter) rosterFilter.addEventListener('input', () => filterRosterRows(rosterFilter.value));
 
+        document.querySelector('#toggle-pixel-camp').addEventListener('click', event => act(event.currentTarget, async () => {
+          state.pixelCampAccess = await call('teacherSetPixelCampOpen',state.pixelCampAccess?.open === false);
+          renderTeacher();
+          document.querySelector('#toggle-pixel-camp').focus();
+        }));
         document.querySelector('#save-checkin-window').addEventListener('click', async (event) => {
           const minutes = Number(document.querySelector('#checkin-window-minutes').value);
           act(event.currentTarget, async () => {

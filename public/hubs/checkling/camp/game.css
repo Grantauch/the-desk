@@ -2117,3 +2117,9 @@ body:not(.quiet) .bond-heart:not([hidden]) { animation:bond-rise 2.4s ease-out f
 .crafted-keepsake .item{flex-shrink:0;width:40px;height:40px}
 @media(max-width:720px){.journey-cards{grid-template-columns:1fr}.journey-card{padding:12px}.journey-card img{width:48px;height:48px}.workshop-dialog{padding:14px}.workshop-recipes{grid-template-columns:1fr}.adventure-doors button{font-size:14px}.adventure-doors small{font-size:12px}.crafted-keepsake{font-size:10px;max-width:48%;bottom:4%}}
 .craft-sprite{display:inline-block;flex-shrink:0;width:72px;height:72px;background-image:url('assets/workshop-atlas-v1.png');background-size:400% 200%;background-repeat:no-repeat;image-rendering:pixelated}.crafted-keepsake .craft-sprite{width:56px;height:56px}
+/* The paused camp keeps its current state and native keyboard focus handling. */
+#school-pause-dialog { width: min(34rem, calc(100vw - 2rem)); }
+.pause-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.pause-actions button { min-height: 44px; }
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop { overscroll-behavior: contain; overflow: hidden; }
