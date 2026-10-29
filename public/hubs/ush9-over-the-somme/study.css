@@ -68,3 +68,14 @@ body.ss-flight .corner #btn-sound,body.ss-flight .corner #btn-wire{display:none}
 @media(max-width:1150px){#somme-study .ss-layout{grid-template-columns:minmax(220px,260px) minmax(380px,1fr)}#somme-study .ss-case{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:15px 25px}#somme-study .ss-case>*{min-width:0}#somme-study .ss-case .ss-directory{grid-column:1/-1}#somme-study .ss-case .ss-case-intro{grid-column:1/-1}#somme-study .ss-case .ss-notes{grid-column:2;grid-row:3/6} }
 @media(max-width:720px){#somme-study .ss-head{position:relative;flex-wrap:wrap}#somme-study .ss-head h1{font-size:19px}#somme-study .ss-layout{display:block}#somme-study .ss-rail{padding:21px}#somme-study .ss-rail h2{font-size:30px}#somme-study .ss-questions{grid-template-columns:repeat(3,minmax(0,1fr))}#somme-study .ss-question{font-size:12px;padding:10px}#somme-study .ss-question small{font-size:8px}#somme-study .ss-viewport{height:62svh;min-height:390px}#somme-study .ss-case{display:flex;padding:24px}#somme-study .ss-case .ss-notes{grid-row:auto}#somme-study .ss-marker .nm{font-size:9px}}
 @media(prefers-reduced-motion:reduce){#somme-study .ss-field{transition:none!important}}
+
+/* A quiet archival map: dots are discoverable; labels reveal on focus, hover, selection. */
+#somme-study .ss-marker .nm{visibility:hidden;opacity:0;transition:opacity .15s ease}
+#somme-study .ss-marker:is(:hover,:focus-visible,[aria-current="true"]) .nm,
+#somme-study .ss-marker[data-marker="lochnagar"] .nm,
+#somme-study .ss-marker[data-marker="thiepval"] .nm,
+#somme-study .ss-marker[data-marker="brit"] .nm{visibility:visible;opacity:1}
+#somme-study .ss-marker:is(:hover,:focus-visible){z-index:9}
+#somme-study .ss-marker[aria-current="true"]{z-index:10}
+#somme-study .ss-marker .dot{width:13px;height:13px}
+#somme-study .ss-marker .nm{pointer-events:none}
