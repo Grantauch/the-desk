@@ -10,6 +10,9 @@ const SMOKE = new THREE.Color("#7d766a");
 const SMOKE_DARK = new THREE.Color("#3e3a33");
 const FIRE = new THREE.Color("#ffb45c");
 const FLASH = new THREE.Color("#fff0c8");
+/** British field battery positions, matching the guns placed in props.ts. */
+const BATTERIES = [-230, -130, -20, 90, 190, 270];
+const BATTERY_Z = 124;
 
 /** Shell bursts, mines, smoke and muzzle flashes, with the light and sound that go with them. */
 export class Effects {
@@ -19,6 +22,8 @@ export class Effects {
   private lightLife = 0;
   private lightPeak = 0;
   private ambientWait = 0;
+  private gunWait = 0;
+  private exhaustWait = 0;
   shake = 0;
   quality = 1;
 
@@ -142,6 +147,40 @@ export class Effects {
       const z = rowZ + (Math.random() - 0.5) * spread;
       this.shell(x, z, 0.7 + Math.random() * 0.8, true);
     }
+  }
+
+  /** The British field batteries behind the support line, firing over the infantry. */
+  batteries(dt: number, rate: number) {
+    this.gunWait -= dt;
+    let guard = 0;
+    while (this.gunWait <= 0 && guard++ < 4) {
+      this.gunWait += (0.3 + Math.random()) / Math.max(0.01, rate);
+      const gx = BATTERIES[Math.floor(Math.random() * BATTERIES.length)] + (Math.random() - 0.5) * 10;
+      const gz = BATTERY_Z + (Math.random() - 0.5) * 4;
+      const gy = this.sample(gx, gz) + 1.4;
+      this.glow.emit({ x: gx, y: gy, z: gz - 2.5, life: 0.12, size: 5, grow: 26, color: FLASH, alpha: 1, shape: 1 });
+      this.glow.emit({ x: gx, y: gy, z: gz - 3.5, life: 0.25, size: 3, grow: 8, color: FIRE, alpha: 0.7, shape: 1 });
+      for (let i = 0; i < Math.max(1, Math.round(3 * this.quality)); i++) {
+        this.smoke.emit({
+          x: gx + (Math.random() - 0.5) * 2, y: gy + 0.5, z: gz - 3 - Math.random() * 3,
+          vx: (Math.random() - 0.5) * 1.5, vy: 1 + Math.random() * 1.5, vz: -2 - Math.random() * 2,
+          life: 5 + Math.random() * 4, size: 2.5, grow: 2.4, color: SMOKE, alpha: 0.5, drag: 0.6, shape: 1,
+        });
+      }
+      this.audio.boom(0.32, this.dist(gx, gy, gz));
+    }
+  }
+
+  /** Castor oil smoke from the rotary engine, streaming back under the fuselage. */
+  exhaust(dt: number, x: number, y: number, z: number) {
+    if (this.quality < 0.5) return;
+    this.exhaustWait -= dt;
+    if (this.exhaustWait > 0) return;
+    this.exhaustWait = 0.06;
+    this.smoke.emit({
+      x, y, z, vy: -0.2,
+      life: 2.4, size: 0.5, grow: 1.6, color: SMOKE, alpha: 0.28, drag: 0.8, shape: 1,
+    });
   }
 
   /** Low drifting smoke over no man's land and the lines. */

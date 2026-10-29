@@ -10,7 +10,7 @@ import {
 } from "./flight";
 import { buildProps } from "./props";
 import { describeSpot, generateWorld, WATER_Y, X0, X1, Z0, Z1, MARK, LINES, type WorldData } from "./world";
-import { makeMistUniforms, makeSky, patchMist, SUN_DIR } from "./atmosphere";
+import { makeMistUniforms, makeSky, patchMist, softDot, SUN_DIR } from "./atmosphere";
 import { Effects } from "./fx";
 import { FieldAudio } from "./audio";
 import { makePlane } from "./plane";
@@ -302,6 +302,15 @@ export function mountSomme(opts: MountOpts): SommeApi {
   stars.visible = false;
   scene.add(stars);
 
+  const glareMat = new THREE.SpriteMaterial({ map: softDot(), color: "#ffd38a", transparent: true, depthWrite: false, depthTest: false, fog: false, blending: THREE.AdditiveBlending, opacity: 0 });
+  mats.push(glareMat);
+  const glare = new THREE.Sprite(glareMat);
+  glare.scale.setScalar(260);
+  glare.renderOrder = 9;
+  glare.frustumCulled = false;
+  scene.add(glare);
+  const camDir = new THREE.Vector3();
+
   const hemi = new THREE.HemisphereLight(DAY.hemiSky, DAY.hemiGround, DAY.hemi);
   const sunLight = new THREE.DirectionalLight(DAY.sun, DAY.sunI);
   sunLight.castShadow = true;
@@ -373,6 +382,7 @@ export function mountSomme(opts: MountOpts): SommeApi {
   let bank = 0;
   let prevYaw = state.yaw;
   let cinemaDrive = true;
+  const exhaustAt = new THREE.Vector3();
   const camPos = new THREE.Vector3();
   const camLook = new THREE.Vector3();
   const tmpV = new THREE.Vector3();
@@ -697,6 +707,7 @@ export function mountSomme(opts: MountOpts): SommeApi {
       const pz = -10 + Math.cos(pa) * 55;
       posePlane(px, 46, pz, pa + Math.PI / 2, 0, -0.32);
       fx.barrage(dt, 0.7, LINES.germanFront, 16);
+      fx.batteries(dt, 0.6);
       fx.drift(dt, 0.8);
       camInit = false;
     } else if (phase === "cinema" || (zh.running && !cinemaDrive && phase === "fly") || phase === "fly" || phase === "pause") {
@@ -719,6 +730,7 @@ export function mountSomme(opts: MountOpts): SommeApi {
         if (zh.running) zh.update(dt);
         else {
           fx.barrage(dt, 1.1, LINES.germanFront, 16);
+          fx.batteries(dt, 0.9);
           fx.drift(dt, 1);
         }
         if (glide) {
@@ -780,6 +792,11 @@ export function mountSomme(opts: MountOpts): SommeApi {
 
     plane.root.visible = showPlane;
     framing();
+    if (showPlane && phase !== "pause") {
+      exhaustAt.set(0, -0.55, -1.0);
+      plane.root.localToWorld(exhaustAt);
+      fx.exhaust(dt, exhaustAt.x, exhaustAt.y, exhaustAt.z);
+    }
     plane.prop.rotation.z += dt * 55;
 
     if (phase !== "pause") fx.update(dt);
@@ -812,6 +829,10 @@ export function mountSomme(opts: MountOpts): SommeApi {
     mist.uMist.value = night ? 0.4 : zh.running ? Math.max(0.12, 0.55 - zh.t * 0.004) : 0.32;
     water.position.y = WATER_Y + Math.sin(clock * 0.8) * 0.05;
     sky.mesh.position.copy(camera.position);
+    camera.getWorldDirection(camDir);
+    const facing = Math.max(0, camDir.dot(SUN_DIR));
+    glare.position.copy(camera.position).addScaledVector(SUN_DIR, 640);
+    glareMat.opacity = night || wire ? 0 : facing ** 10 * 0.55;
     stars.position.copy(camera.position);
     if (phase === "cinema" || zh.running) hooks.current.onClock(clockAt(zh.t), Math.min(1, zh.t / 150));
     audio.setEngine(phase === "fly" || phase === "cinema", flightSpeed(state));
@@ -913,6 +934,11 @@ export function mountSomme(opts: MountOpts): SommeApi {
         fx.update(0.05);
       }
     },
+    setPose: (x: number, y: number, z: number, yaw: number, pitch: number) => {
+      Object.assign(state, { x, y, z, yaw, pitch, vx: 0, vy: 0, vz: 0 });
+      prevYaw = yaw;
+      camInit = false;
+    },
     setKeys: (codes: string[]) => {
       override = new Set(codes);
     },
@@ -934,6 +960,7 @@ declare global {
       getQuality: () => number;
       getZeroTime: () => number;
       setZeroTime: (t: number) => void;
+      setPose: (x: number, y: number, z: number, yaw: number, pitch: number) => void;
       setKeys: (codes: string[]) => void;
       reset: () => void;
     };

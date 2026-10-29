@@ -172,7 +172,11 @@ body[data-zero="on"]:is([data-mode="cinema"],[data-mode="fly"],[data-mode="pause
 
 .caption{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(40rem,calc(100% - 32px));padding:1rem 1.2rem 1.05rem;border-left:4px solid var(--red);display:none}
 body[data-mode="cinema"] .caption{display:block}
-body[data-zero="on"][data-mode="fly"] .caption{display:block;bottom:calc(84px + env(safe-area-inset-bottom));width:min(34rem,calc(100% - 32px));padding:.75rem 1rem}
+body[data-zero="on"][data-mode="fly"] .caption{display:block;left:16px;transform:none;bottom:calc(96px + env(safe-area-inset-bottom));width:min(25rem,44%);padding:.6rem .9rem;background:rgba(24,27,20,.84);animation:none}
+body[data-zero="on"][data-mode="fly"] .cap-text{font-size:.9rem;line-height:1.45}
+body[data-zero="on"][data-mode="fly"] .cap-quote p{font-size:1.1rem}
+body[data-zero="on"][data-mode="fly"] #blurb{display:none}
+body[data-zero="on"][data-mode="fly"] .toast{bottom:auto;top:calc(96px + env(safe-area-inset-top))}
 body[data-zero="on"][data-mode="fly"] .cap-actions{display:none}
 .caption.in{animation:capIn .5s ease both}
 @keyframes capIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -201,18 +205,41 @@ body[data-mode="end"] :is(.where,.dock,.reticle,#btn-log,.clock){display:none}
   .clock b{font-size:1.25rem}
   .cap-text{font-size:.95rem}
   .cap-quote p{font-size:1.2rem}
-  body[data-zero="on"][data-mode="fly"] .caption{bottom:calc(170px + env(safe-area-inset-bottom))}
+  body[data-zero="on"][data-mode="fly"] .caption{width:calc(100% - 32px);bottom:calc(170px + env(safe-area-inset-bottom))}
   body[data-zero="on"][data-mode="fly"] .cap-quote{display:none}
   body[data-zero="on"][data-mode="fly"] .cap-text{font-size:.85rem;line-height:1.4}
   body[data-zero="on"][data-mode="fly"] .where{display:none}
 }
 @media (prefers-reduced-motion:reduce){.grain{animation:none}.caption.in{animation:none}}
+
+/* Film framing for zero hour */
+.bars{position:fixed;inset:0;pointer-events:none}
+.bars::before,.bars::after{content:"";position:absolute;left:0;right:0;height:0;background:#050504;transition:height .9s ease}
+.bars::before{top:0}
+.bars::after{bottom:0}
+body[data-mode="cinema"] .bars::before,body[data-mode="cinema"] .bars::after{height:6.5vh}
+.fade{position:fixed;inset:0;background:#050504;opacity:0;pointer-events:none;transition:opacity 1.8s ease}
+.fade.black{opacity:1;transition:none}
+.title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;text-align:center;pointer-events:none;opacity:0;transition:opacity 1s ease;text-shadow:0 2px 24px rgba(0,0,0,.7)}
+.title-card h2{margin:0;font-family:var(--font-display);font-size:clamp(3rem,10vw,6.5rem);line-height:.9;letter-spacing:.04em;color:var(--ink)}
+.title-card p{margin:0;font-size:clamp(.72rem,1.6vw,.95rem);color:var(--brass);text-transform:uppercase;letter-spacing:.12em}
+body.titling .title-card{opacity:1}
+body.titling :is(.caption,.clock,.corner){visibility:hidden}
+.caption,.clock{transition:opacity .8s ease}
+body[data-mode="cinema"] .corner .map-frame{opacity:.85}
+@media (max-width:640px){
+  .intro .go:not(.small){position:sticky;bottom:-1.25rem;margin:1rem -1.35rem -1.25rem;padding:.8rem 1.35rem 1rem;background:var(--panel-solid);border-top:1px solid var(--rule)}
+  body[data-mode="cinema"] .bars::before,body[data-mode="cinema"] .bars::after{height:4vh}
+}
+@media (prefers-reduced-motion:reduce){.fade,.title-card,.bars::before,.bars::after{transition:none}}
 </style>
 </head>
 <body data-mode="menu">
 <canvas id="field" aria-label="3D battlefield of the Somme, 1916. Drag or move the mouse to look around."></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
+<div class="bars" aria-hidden="true"></div>
+<div class="fade" id="fade" aria-hidden="true"></div>
 
 <div class="ui">
   <div class="where" aria-live="polite">
@@ -274,6 +301,12 @@ body[data-mode="end"] :is(.where,.dock,.reticle,#btn-log,.clock){display:none}
     <div class="clock-meter"><div id="clock-bar"></div></div>
   </div>
 
+  <div class="title-card" id="title-card" aria-hidden="true">
+    <p class="wire">Saturday, 1 July 1916 · La Boisselle</p>
+    <h2>Zero Hour</h2>
+    <p class="wire">No. 3 Squadron, Royal Flying Corps · contact patrol</p>
+  </div>
+
   <section class="caption card" id="caption" aria-live="polite" aria-label="Zero hour">
     <p class="cap-time wire" id="cap-time">7:15 a.m.</p>
     <p class="cap-text" id="cap-text"></p>
@@ -329,6 +362,7 @@ body[data-mode="end"] :is(.where,.dock,.reticle,#btn-log,.clock){display:none}
       <div class="go">
         <button class="primary" id="resume" type="button">Resume</button>
         <button class="ghost" id="to-line" type="button">Back to the line</button>
+        <button class="ghost" id="replay-zero" type="button">Watch zero hour</button>
         <button class="ghost" id="to-menu" type="button">Main menu</button>
       </div>
       <label class="gfx"><span class="wire">Graphics</span>

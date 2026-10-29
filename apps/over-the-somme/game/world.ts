@@ -674,13 +674,12 @@ export function generateWorld(): WorldData {
         // Poppies and cornflowers along field edges behind the lines.
         const edge = Math.min(Math.abs(fx / 22 - Math.round(fx / 22)), 0.5);
         const fleck = hash2(ix * 7 + 1, iz * 13 + 5);
-        if (farm > 0.5 && ((edge < 0.07 && fleck > 0.55) || fleck > 0.985)) {
-          if (fleck > 0.93) {
-            r = 0.78; g = 0.12; b = 0.08;
-          } else if (fleck > 0.9) {
-            r = 0.34; g = 0.42; b = 0.7;
+        // Kept sparse and soft: a hint of colour along the field margins, not solid patches.
+        if (farm > 0.6 && ((edge < 0.035 && fleck > 0.82) || fleck > 0.997)) {
+          if (fleck > 0.95) {
+            r = lerp(r, 0.4, 0.4); g = lerp(g, 0.46, 0.4); b = lerp(b, 0.66, 0.4);
           } else {
-            r = lerp(r, 0.7, 0.5); g = lerp(g, 0.16, 0.5); b = lerp(b, 0.1, 0.5);
+            r = lerp(r, 0.74, 0.38); g = lerp(g, 0.22, 0.38); b = lerp(b, 0.14, 0.38);
           }
         }
         const scorch = (nml * 0.9 + worn * 0.25) * smoothstep(0.52, 0.78, fbm(x * 0.017 + 5, z * 0.017));
