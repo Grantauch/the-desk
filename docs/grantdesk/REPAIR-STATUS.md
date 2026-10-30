@@ -8,6 +8,10 @@ Canonical full local verification passed, with zero Astro errors/warnings, 54 bu
 
 The protected run 40987037721 exposed title overflow at 320 pixels when The Bargain uses a wider fallback font. The title now scales to the available width, with the same fallback forced in its regression check on every platform. Catalogue-wide acceptance now exercises all 54 assignments through PIN, compact controls at 320/390/1440, autosave, exact selection recovery on another browser, refresh and final Turn In. The 10 reading-only hubs retain their honest reading controls. Final catalogue, canonical, protected and production rechecks are in progress.
 
+## October 29 Checklings candidate-art admission
+
+A separate read-only development tool decodes staged PNG/WebP stills and GIF inventory in offline Chromium. Strict versioned five-pose, hash, transparency, dimension and byte-budget rules fail closed; inventory success never means art admission. Sixteen real-decoder/CLI regression groups and complete companion browser acceptance pass; original founder hashes and modification metadata are preserved. The canonical full command exited0 as independently observed before native process exit; its PowerShell5 logging wrapper separately rejected a benign npm stderr warning. The interrupted earlier run remains incomplete. Required protected checks and new publication remain pending. New species artwork, saves, private school service and live gameplay are unchanged. Independent visual/originality/pose and physical-device gates stay open. See `docs/checklings/art-admission.md`.
+
 ## October 29 student content publication - release candidate
 
 Integrates PR259 (The Line That Wouldn't Move), PR260 (Claude's Thirty Miles From Paris), PR272 (Down the Rabbit Hole) and PR273 (Somme field study). Course pages now list all catalogued StoryHubs: 18 U.S. History, 32 Hidden History and 14 Beyond the Scoreboard lessons. Original author commits and curriculum baselines are retained.
