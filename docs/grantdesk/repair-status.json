@@ -3,7 +3,7 @@
     "status": "SOURCE_VERIFIED_PROTECTED_RELEASE_PENDING",
     "owner": "Codex",
     "scope": "Required PIN entry; automatic first-save and cursor recovery; compact work status and large final Turn In; Curiosity mysteries query repair.",
-    "verification_status": "FALLBACK_FONT_WIDTH_REGRESSION_PASSED_CATALOGUE_JOURNEYS_AND_RELEASE_RECHECK_IN_PROGRESS",
+    "verification_status": "TURN_IN_60_COMPLETE_BROWSER_54_CATALOGUE_64_PASSED_FINAL_CANONICAL_RECHECK_RUNNING",
     "deployment_status": "PENDING_PROTECTED_CI_WEBSITE_AND_GUARDED_TURN_IN_V12",
     "field_status": "CLASSROOM_PENDING",
     "evidence": [
@@ -12,7 +12,8 @@
       "Workbook, endpoint, roster and Hall Pass are preserved. Synthetic tests contact no student records.",
       "Required CI found fallback-font title overflow at 320 pixels. The Bargain now scales its title within the available width; the browser check forces the wider fallback on Windows as well as Linux.",
       "Catalogue-wide acceptance covers all 54 assignments with required PIN, compact controls at three widths, autosave, exact selection recovery on a second browser, refresh and final Turn In. The 10 reading-only hubs retain reading controls.",
-      "The Debt Didnt Move notes drawer exposes aria-controls for exact cursor recovery and no longer overwrites cloud-restored notes with stale tab text when opened. Golf uses its existing investigation-card setup; readonly activity evidence is preserved."
+      "The Debt Didnt Move notes drawer exposes aria-controls for exact cursor recovery and no longer overwrites cloud-restored notes with stale tab text when opened. Golf uses its existing investigation-card setup; readonly activity evidence is preserved.",
+      "Complete final assignment browser suite passes 54/54, including every one of 54 catalogue assignment journeys and 10 reading-only pages. Protected hosted checks and production readback remain release gates."
     ]
   },
   "checklings-art-admission-2026-10-29": {
