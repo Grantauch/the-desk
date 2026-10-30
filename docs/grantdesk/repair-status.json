@@ -1,4 +1,205 @@
 {
+  "heel-personal-report-2026-10-30": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Personal editorial report for all five heel research rounds, with read view, measured full screen slides and Letter PDF printing.",
+    "verification_status": "A_B_C_BROWSER_AND_ACCESSIBILITY_PASSED_CANONICAL_RUNNING",
+    "deployment_status": "PENDING_PROTECTED_CHECKS_MERGE_AND_NETLIFY_READBACK",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "24 written answers and 9 self-check choices retain their existing shared save keys. Report identity is separate, tab-scoped and excluded from all submission answers.",
+      "All three synthetic student journeys pass at 1366x768 and 1920x1080, with every read section and presentation slide captured and all PDFs saved.",
+      "Exact text preservation, HTML escaping, paragraphs, short answers, 400-plus words, missing steps, reload, edits, keyboard, mouse, touch and oversized sentence/token fallback passed with zero browser errors.",
+      "WCAG A/AA checks pass at 320, 390 and 1366 pixels. Printed output was rendered and visually reviewed. The final self-check stays together.",
+      "Project map and durable synthetic A/B screenshot sheets and PDFs are under docs/storyhub/HEEL-REPORT-MAP.md and docs/qa/heel-report/. Full frames are also retained in the browser acceptance artifact."
+    ]
+  },
+  "checkaverse-asset-versions-2026-10-30": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "Content-addressed student and teacher JS/CSS references prevent stale code on ordinary return/reload; existing test-plaza/core loop step4.",
+    "verification_status": "ISOLATED_OLD_CACHE_REPRODUCTION_ACTUAL_MODULE_FIX_AND_19_SERVER_CHECKPOINTS_PASS_CANONICAL_PENDING",
+    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_CHECKAVERSE_PUBLIC_VERIFICATION",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Public HTML is no-cache but JS/CSS max-age14400. Unversioned Chromium return and normal reload retained old code/styles; versioned actual-module fixture received new code/styles without disabling cache.",
+      "Served student/teacher references match current file bytes, unchanged files have stable versions, changed bytes change versions without restart, versioned routes preserve exact assets. Original art, movement, terrain, teacher authorization and school services unchanged."
+    ]
+  },
+  "checkaverse-terrain-comfort-2026-10-30": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "Muted grass, smaller warmer path texture and a low boundary-only curb in the existing test plaza; core loop step4.",
+    "verification_status": "LOCAL_BROWSER_EDGE_AND_SERVER_TESTED_COMBINED_CANONICAL_PENDING",
+    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_CHECKAVERSE_LIVE_READBACK",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Original sprites and collision maps preserved. Only the cached ground renderer changes; merged Claude movement, camera, outfits, signs and teacher controls retained.",
+      "Local Chromium1366x768 and all16 neighbor masks/64 edge samples passed; no internal path curb or water-edge curb. Existing server checks passed."
+    ]
+  },
+  "pin-assignment-flow-and-mysteries-2026-10-29": {
+    "status": "SOURCE_VERIFIED_PROTECTED_RELEASE_PENDING",
+    "owner": "Codex",
+    "scope": "Required PIN entry; automatic first-save and cursor recovery; compact work status and large final Turn In; Curiosity mysteries query repair.",
+    "verification_status": "TURN_IN_60_COMPLETE_BROWSER_54_CATALOGUE_64_PASSED_FINAL_CANONICAL_RECHECK_RUNNING",
+    "deployment_status": "PENDING_PROTECTED_CI_WEBSITE_AND_GUARDED_TURN_IN_V12",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Cursor metadata remains separate from answers; checked revisions, receipt idempotency and explicit finished snapshots are preserved.",
+      "Fresh LOC request reproduced zero results for the previous query; corrected function returns five usable records.",
+      "Workbook, endpoint, roster and Hall Pass are preserved. Synthetic tests contact no student records.",
+      "Required CI found fallback-font title overflow at 320 pixels. The Bargain now scales its title within the available width; the browser check forces the wider fallback on Windows as well as Linux.",
+      "Catalogue-wide acceptance covers all 54 assignments with required PIN, compact controls at three widths, autosave, exact selection recovery on a second browser, refresh and final Turn In. The 10 reading-only hubs retain reading controls.",
+      "The Debt Didnt Move notes drawer exposes aria-controls for exact cursor recovery and no longer overwrites cloud-restored notes with stale tab text when opened. Golf uses its existing investigation-card setup; readonly activity evidence is preserved.",
+      "Complete final assignment browser suite passes 54/54, including every one of 54 catalogue assignment journeys and 10 reading-only pages. Protected hosted checks and production readback remain release gates."
+    ]
+  },
+  "checklings-art-admission-2026-10-29": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "Read-only strict technical admission of staged five-pose pilot artwork; no student runtime or private service change",
+    "verification_status": "PRIOR_BASE_FULL_PASSED_CURRENT_MAIN_INTEGRATION_RECHECK_PENDING",
+    "deployment_status": "DEVELOPMENT_TOOL_ONLY_NOT_STUDENT_ART_ADMISSION",
+    "field_status": "VISUAL_PEER_AND_PHYSICAL_DEVICE_PENDING",
+    "verification": [
+      "Sixteen real-decoder regression groups pass complete PNG/WebP positive cases; every PNG truncated prefix; invalid pixels/CRC/trailer; opaque GIF87a transparency; missing/duplicate poses; exact hashes; independent pose/bundle budgets; empty/opaque images; dimensions/animation; limits; unsafe/redirected paths; actual CLI exit codes.",
+      "All eight protected founder PNG/GIF files decode in inventory and retain exact baseline bytes/hashes. No founder replacement, species/catalog/import, schema/RPC, attendance/pass or private school source change.",
+      "Inventory completion is explicit INVENTORY_ONLY/technicalPass:null; admission exits nonzero on failure and only reports TECHNICAL_CANDIDATE_ONLY on success. The versioned policy does not approve visual quality, originality, pose semantics or classroom/device performance.",
+      "Existing Playwright/Chromium only, no dependency or workflow changes; regression joins companion browser after CI Chromium installation. Complete companion suite and final16groups PASS. Full canonical npm verify native process26012 exited0 at21:27:23UTC; independent handle observer recorded actual exit. PowerShell5 wrapper separately returned1 for benign npm stderr NativeCommandError, not a test failure. First interrupted run retained as incomplete. Required protected CI/merge/deployment remain pending.",
+      "Approved main release PR274/d124c3b retained without changes. Both shared ledger conflicts resolved by adding only this owned entry before exact current-main bytes. Current merged-tree canonical recheck required before publication."
+    ],
+    "evidence": "docs/checklings/art-admission.md"
+  },
+  "student-content-publication-2026-10-29": {
+    "status": "PREPARED_FOR_PROTECTED_RELEASE",
+    "owner": "Codex",
+    "scope": "Integrate author contributions from PR259, PR260, PR272 and PR273; expose all 64 catalogued StoryHubs on their course pages.",
+    "verification_status": "MANIFEST_AND_INITIAL_BUILD_PASSED_FULL_AND_BROWSER_VALIDATION_IN_PROGRESS",
+    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Original author commits and curriculum baselines are preserved.",
+      "Rabbit Hole manifest, contrast and live Work guidance corrected; two unverified exact historical totals omitted.",
+      "Trench lesson layout repaired, public-domain IWM photographs served locally with provenance, new releases sealed.",
+      "Somme optional flight controls have accessible names; notes stay in the current tab for shared-device privacy.",
+      "The work-panel register now covers all64 StoryHubs. The existing Turn In guard checks both catalog entry formats; all57 server checks pass without weakening assertions.",
+      "Private inventories, teacher keys, restricted resources and unfinished service proposals remain outside this publication batch."
+    ]
+  },
+  "pixel-camp-workshop-2026-10-29": {
+    "status": "SOURCE_IMPLEMENTED",
+    "verification_status": "FULL_LOCAL_CANONICAL_AND_BROWSER_PASSED",
+    "owner": "Codex",
+    "scope": "In-memory build plans and exact material progress for existing eight keepsakes; completed story keepsake hints",
+    "deployment_status": "NOT_DEPLOYED_NEW_CHANGE",
+    "field_status": "FIELD_PENDING",
+    "verification": [
+      "Eight workshop browser journeys pass: actual gather-to-build, exact supply costs, duplicate/free placement, export/reload, partial/surplus stocks, free rest, plan changes/cancellation, correct recipe focus, locked/built story actions and unfinished-spar preservation.",
+      "Three public widths pass automated WCAG A/AA with zero violations. School formats1/2/3 preserve official identity, no extra save for read-only inspection, no attendance/pass writes and shared-device clearing. No saved field, private RPC, engine/art/species/dependency change.",
+      "Predecessor6.2 PR267/main51edfc4 is production verified on main/standalone with all48 camp file hashes, both CI checks40889584028/40894399886, unchanged school46 fingerprints and authenticated synthetic save/pause/retry smoke.",
+      "Full canonical verification passed all18stages:66focused,440HallPass,54routes,156HTML,5238references,27sealedreleases193assets. Complete companion browser suites and final8workshop journeys pass; protected CI, merge and new deployment remain pending."
+    ],
+    "evidence": "docs/checklings/workshop-plan.md"
+  },
+  "pixel-camp-guide-2026-10-29": {
+    "status": "IMPLEMENTED_LOCAL_VERIFIED",
+    "owner": "Codex",
+    "scope": "Current-four founder field guide with actual progress, source-backed play tips and frozen original artwork",
+    "verification_status": "CANONICAL_FULL_AND_ALL_COMPANION_BROWSER_PASSED_CI_PENDING",
+    "deployment_status": "PENDING_PROTECTED_RELEASE",
+    "field_status": "INDEPENDENT_REVIEW_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Field guide reads existing engine personalities, canonical identities, signatures and saved discoveries/badges/chapters/keepsakes; student nicknames stay separate. Native controls lead to existing trail/story/practice flows. Unfinished spar returns without free reset/switch/heal.",
+      "No saved fields, school RPC, new species or art replacement. Existing school formats1/3 pass save/identity/no-attendance/privacy journeys; school source remains verified46.",
+      "Original8founder PNG/GIF byte fingerprints and canonical roster checks pass. Three public guide widths pass automated WCAG A/AA, actual discovery/chapter/update, exact save download/reload, escaped nicknames and active-spar preservation.",
+      "Independent review of Gemini v1.1 first12 bundle reproduced short-PNG crashes, incomplete-header acceptance, opaqueGIF transparency misreport and non-strict CLI success. New-species art admission remains CHANGES_REQUESTED; current guide uses existing live source only.",
+      "Predecessor6.1 is production verified: PR266/06510a1, main+standalone24files, guarded school46 run40847184768 exactfivehashes and authenticated live pause/resume/replay/v3 smoke PASS. Source/fullCI/deployment/physicalclassroom remain distinct for the guide release.",
+      "Full canonical18 stages passed:54routes156HTML5238references27sealedreleases193assets. All66focused and completecompanionbrowser suites passed. The guide adds five journeys, including free rest, actual move labels, complete/ready/built keepsakes and unchanged active-spar state. ProtectedCI and actual website publication are separate pending gates."
+    ]
+  },
+  "pixel-camp-pause-2026-10-29": {
+    "status": "IMPLEMENTED_LOCAL_VERIFIED",
+    "owner": "Codex",
+    "scope": "Teacher-only school camp pause/resume with server enforcement, unsaved backup and retry",
+    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
+    "deployment_status": "PENDING_PROTECTED_RELEASE",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Workbook-scoped default-open setting, current-contract teacher authorization rechecked under lock, audited mutation with rollback on failure. New opens and writes reject while paused; committed retries remain acknowledged.",
+      "Open updated school camps retain current state and offer native paused dialog with file export, access check and explicit leave. Resume retries retained saves. No save schema, attendance, points, pass or original companion change.",
+      "Pixel Camp6 predecessor is production verified: PR263/0d34f49, main and standalone exact24files, guarded school45 run40811503146 exactfivehashes and authenticated live v3 synthetic smoke PASS. Physical classroom and12-species expansion gates remain.",
+      "57 focused companion/game/private-save cases and440 Hall Pass runtime behaviors passed. All companion browser suites passed; three school widths also verify exact paused backup/resume, periodic gate, delayed-ack race, teacher keyboard controls and zero automated WCAG A/AA violations in new controls/dialog. Canonical full18 stages passed:54 routes,156HTML,5238references,27sealedreleases/193assets."
+    ]
+  },
+  "pixel-camp-six-2026-10-28": {
+    "status": "IMPLEMENTED_LOCAL_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Pixel Camp 6: four three-chapter founder journeys, supply gathering, eight workshop keepsakes and two goal tracks",
+    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
+    "deployment_status": "PENDING_REVIEW_CI_AND_GUARDED_RELEASE",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "32 focused save/gameplay checks pass, including ordinary-play completion of all twelve chapters and eight recipes without combat; existing v1/v2 saves retain progress and migrate without invented rewards.",
+      "All companion browser suites pass: 15 companion/Pond journeys, school recovery/privacy at three widths, five forage/ladder/legacy-school journeys and six new journeys/workshop/private-save journeys. New views at 320/390/1366 have no automated WCAG A/AA violations. Native modal Escape, save download/reload, lost acknowledgements/retry and shared-device clearing pass.",
+      "School save version 3 is bounded and uses the existing PIN/class save service. New controls wait for advertised format 3; a new save-file import into an older school is blocked without replacing progress. Original founder assets and attendance/point/pass rules are unchanged.",
+      "A native-path separator repair lets the existing offline Pond browser fixture run correctly on Windows. No Pond product code changed.",
+      "Full canonical verification, protected CI, exact production website assets and guarded in-place Apps Script deployment/readback remain separate release gates. Authenticated live synthetic smoke and a real classroom/device cycle are separate evidence."
+    ]
+  },
+  "pixel-camp-school-2026-10-28": {
+    "status": "SCHOOL_INTEGRATION_IMPLEMENTED",
+    "owner": "Codex",
+    "scope": "Pixel Camp integrated with verified school PIN/class, official attendance summary and existing Checkling",
+    "verification_status": "PROTECTED_40708519822_PASSED",
+    "deployment_status": "RELEASE_CONTROL_ISSUE_28_AUTHORITATIVE",
+    "field_status": "AUTHENTICATED_SMOKE_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Preserves Pixel Camp 4.3.1 engine and founder assets from 8a949b2634d4755072559bfb44e4ed90b9ed289b. School play runs in a sandboxed child inside the existing private Check-In, with an isolated MessageChannel; PINs, tokens, roster keys and student email never enter the static game.",
+      "Private Checkling Camps sheet stores bounded membership-specific game saves, optimistic revisions, idempotent mutation IDs and one previous camp snapshot. Shared-device reset closes the port and removes the game; no student game state is kept in browser storage.",
+      "Original species, exact saved name and stored habitat survive import. Official streak/attendance and earned homes are read from the existing school summary. Game saves never create attendance, points or passes. Earlier browser camps can be explicitly imported with an in-tab undo.",
+      "29 focused server checks pass (20 existing companion and nine integration scenarios); all 440 classroom runtime behaviors and 15 existing companion/Pond browser journeys pass. New school browser journeys at 320/390/1440 cover PIN visits, cross-session recovery, failed and lost saves, import/undo, conflicts and shared-device isolation. Full canonical verification, protected CI and deployment are separate gates.",
+      "Protected run 40708519822 passed every full-release and browser gate on fc1cc605f0c4a1eaaaf2fa074c7b3617eebd7ebd. The branch then incorporates approved World War I hub main fb929c1 without removing either Games card. PR #255 tracks final combined-source checks and merge; permanent release-control issue #28 is authoritative for the actual Apps Script version and guarded deployment. Source publication and deployment evidence remain distinct."
+    ]
+  },
+  "bts-heel-load-work-2026-10-26": {
+    "status": "LOCAL_VERIFIED_RELEASE_IN_PROGRESS",
+    "owner": "Codex",
+    "scope": "Visible PIN recovery and Save now in the America's Most Hated research workspace; exact restoration of saved rubric choices",
+    "verification_status": "CANONICAL_FULL_PASSED_BROWSER_PENDING",
+    "deployment_status": "PENDING_PROTECTED_CI_AND_PRODUCTION_READBACK",
+    "field_status": "FIELD_PENDING",
+    "evidence": [
+      "Reuses desk-save.js, the existing research hub identifier and stable answer keys. No backend deployment, new student storage, roster change or per-project save implementation.",
+      "Adds a Load My Work link and PIN recovery panel near the top. Explicit recovery asks before replacing a different visible draft; saved radio choices are restored with the text answers. Other hubs retain the default recovery button label.",
+      "Focused Turn In service suite passed 39/39. Added browser acceptance scenarios cover PIN validation, Save now confirmation, offline preservation, cancelled and accepted recovery, five research rounds, rubric choices, PIN clearing and accessibility at 320/390/1366.",
+      "Local Chromium could not be installed because its download failed. Canonical npm run verify passed all 18 stages: zero Astro errors/warnings, 53 built routes, 136 HTML files, 4618 local references and 13 releases/117 sealed files. Feature code is in local commit 99820cd4943ecfafb15bfe6b9cc7b53a81bfcc6c. Source publication and production release are explicitly authorized. Protected CI must run the new browser scenarios before merge. Exact production deployment and field verification remain separate pending evidence."
+    ]
+  },
+  "checkling-visit-only-2026-10-22": {
+    "status": "REVIEW_TESTED",
+    "owner": "Codex",
+    "scope": "Checkling-only fresh-PIN visits outside class hours, with no attendance or pass action proof",
+    "evidence": [
+      "The existing reusable synthetic student is active in its own private demo class. Its generated PIN and identifying details remain outside this public repository.",
+      "Daily Check-In offers visit Checkling only from both PIN screens. The fresh-PIN endpoint retains school-account checks and throttling, supports own-class selection, and issues no attendance/pass action proof. Existing classroom time gates and fresh-action PIN requirements are preserved.",
+      "20 Checkling server scenarios and all 440 classroom-service behaviors pass. Fifteen offline Chromium journeys pass, including 320/390/1440 weekend visits to an unscheduled period, adoption/reload, normal Google and teacher PIN screens, class selection, accessibility, and existing shared-device privacy.",
+      "The isolated live synthetic release check now also verifies the companion PIN endpoint without recording attendance. Canonical npm run verify passed all stages (53 routes, 136 HTML files, 4618 local references, 13 sealed releases/117 files). Protected merge, guarded Apps Script deployment, and live readback are separate pending gates."
+    ]
+  },
+  "bts-heel-research-release-2026-10-22": {
+    "status": "REVIEW_TESTED",
+    "owner": "Codex",
+    "scope": "PR 219: additive America's Most Hated research workspace and transparent process receipt",
+    "evidence": [
+      "The original sealed bts-americas-most-hated.html is byte-identical to origin/main; its SHA-256 is 653f3dd2394bb3970a52e1668e21f08dd7e1d2603fc7983e906af80277bff6a7.",
+      "Fixed shared-device sign-out resetting all coach state and exceptions, PIN-restored receipt preservation, restored-field length baselines, source-defense question collection, missing hypothesis/defense draft checks, and source-link contrast while preserving action-link hover contrast. Added disclosure before writing begins. Passive counters no longer announce every typing update to screen readers; actionable feedback retains its live status.",
+      "Focused Chromium acceptance passed: real clipboard guard, citation exception, assistive/prior-work override, all five checkpoints, keyboard edits, date validation, rubric, rehearsal timer, offline save-service/reload, fresh-device PIN recovery, delayed server acknowledgement, and shared-device clearing through reload.",
+      "All five research rounds passed WCAG A/AA checks at 320, 390 and 1366 pixels, with keyboard and reduced-motion navigation. Browser service tests use isolated synthetic students and the actual Turn In server source.",
+      "Canonical npm run verify passed locally: 53 built routes, 136 HTML files, 4618 local references, 13 releases and 117 sealed files. Windows runner now invokes npm through Node. Full-page screenshot capture has its own 30-second bound for tall StoryHubs; interaction/assertion timeouts are unchanged. Full browser suite and protected CI remain separate release evidence.",
+      "The exact extensionless classroom redirect is forced so the sealed predecessor cannot shadow it. The normal Beyond the Scoreboard unit-materials link also targets the expanded workspace, with browser coverage following that student entry point. CI retains every gate with a 40-minute budget because run 39816669934 hit 30 minutes during its required five-real-minute town observation. Merge, exact production verification and actual classroom use remain pending."
+    ]
+  },
   "1": {
     "status": "VERIFIED",
     "depends_on": [
@@ -658,207 +859,6 @@
     ],
     "batch": "7"
   },
-  "heel-personal-report-2026-10-30": {
-    "status": "IMPLEMENTED_BROWSER_VERIFIED",
-    "owner": "Codex",
-    "scope": "Personal editorial report for all five heel research rounds, with read view, measured full screen slides and Letter PDF printing.",
-    "verification_status": "A_B_C_BROWSER_AND_ACCESSIBILITY_PASSED_CANONICAL_RUNNING",
-    "deployment_status": "PENDING_PROTECTED_CHECKS_MERGE_AND_NETLIFY_READBACK",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "24 written answers and 9 self-check choices retain their existing shared save keys. Report identity is separate, tab-scoped and excluded from all submission answers.",
-      "All three synthetic student journeys pass at 1366x768 and 1920x1080, with every read section and presentation slide captured and all PDFs saved.",
-      "Exact text preservation, HTML escaping, paragraphs, short answers, 400-plus words, missing steps, reload, edits, keyboard, mouse, touch and oversized sentence/token fallback passed with zero browser errors.",
-      "WCAG A/AA checks pass at 320, 390 and 1366 pixels. Printed output was rendered and visually reviewed. The final self-check stays together.",
-      "Project map and durable synthetic A/B screenshot sheets and PDFs are under docs/storyhub/HEEL-REPORT-MAP.md and docs/qa/heel-report/. Full frames are also retained in the browser acceptance artifact."
-    ]
-  },
-  "checkaverse-asset-versions-2026-10-30": {
-    "status": "IMPLEMENTED_LOCAL_TESTED",
-    "owner": "Codex",
-    "scope": "Content-addressed student and teacher JS/CSS references prevent stale code on ordinary return/reload; existing test-plaza/core loop step4.",
-    "verification_status": "ISOLATED_OLD_CACHE_REPRODUCTION_ACTUAL_MODULE_FIX_AND_19_SERVER_CHECKPOINTS_PASS_CANONICAL_PENDING",
-    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_CHECKAVERSE_PUBLIC_VERIFICATION",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "Public HTML is no-cache but JS/CSS max-age14400. Unversioned Chromium return and normal reload retained old code/styles; versioned actual-module fixture received new code/styles without disabling cache.",
-      "Served student/teacher references match current file bytes, unchanged files have stable versions, changed bytes change versions without restart, versioned routes preserve exact assets. Original art, movement, terrain, teacher authorization and school services unchanged."
-    ]
-  },
-  "checkaverse-terrain-comfort-2026-10-30": {
-    "status": "IMPLEMENTED_LOCAL_TESTED",
-    "owner": "Codex",
-    "scope": "Muted grass, smaller warmer path texture and a low boundary-only curb in the existing test plaza; core loop step4.",
-    "verification_status": "LOCAL_BROWSER_EDGE_AND_SERVER_TESTED_COMBINED_CANONICAL_PENDING",
-    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_CHECKAVERSE_LIVE_READBACK",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "Original sprites and collision maps preserved. Only the cached ground renderer changes; merged Claude movement, camera, outfits, signs and teacher controls retained.",
-      "Local Chromium1366x768 and all16 neighbor masks/64 edge samples passed; no internal path curb or water-edge curb. Existing server checks passed."
-    ]
-  },
-  "pin-assignment-flow-and-mysteries-2026-10-29": {
-    "status": "SOURCE_VERIFIED_PROTECTED_RELEASE_PENDING",
-    "owner": "Codex",
-    "scope": "Required PIN entry; automatic first-save and cursor recovery; compact work status and large final Turn In; Curiosity mysteries query repair.",
-    "verification_status": "TURN_IN_60_COMPLETE_BROWSER_54_CATALOGUE_64_PASSED_FINAL_CANONICAL_RECHECK_RUNNING",
-    "deployment_status": "PENDING_PROTECTED_CI_WEBSITE_AND_GUARDED_TURN_IN_V12",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "Cursor metadata remains separate from answers; checked revisions, receipt idempotency and explicit finished snapshots are preserved.",
-      "Fresh LOC request reproduced zero results for the previous query; corrected function returns five usable records.",
-      "Workbook, endpoint, roster and Hall Pass are preserved. Synthetic tests contact no student records.",
-      "Required CI found fallback-font title overflow at 320 pixels. The Bargain now scales its title within the available width; the browser check forces the wider fallback on Windows as well as Linux.",
-      "Catalogue-wide acceptance covers all 54 assignments with required PIN, compact controls at three widths, autosave, exact selection recovery on a second browser, refresh and final Turn In. The 10 reading-only hubs retain reading controls.",
-      "The Debt Didnt Move notes drawer exposes aria-controls for exact cursor recovery and no longer overwrites cloud-restored notes with stale tab text when opened. Golf uses its existing investigation-card setup; readonly activity evidence is preserved.",
-      "Complete final assignment browser suite passes 54/54, including every one of 54 catalogue assignment journeys and 10 reading-only pages. Protected hosted checks and production readback remain release gates."
-    ]
-  },
-  "checklings-art-admission-2026-10-29": {
-    "status": "IMPLEMENTED_LOCAL_TESTED",
-    "owner": "Codex",
-    "scope": "Read-only strict technical admission of staged five-pose pilot artwork; no student runtime or private service change",
-    "verification_status": "PRIOR_BASE_FULL_PASSED_CURRENT_MAIN_INTEGRATION_RECHECK_PENDING",
-    "deployment_status": "DEVELOPMENT_TOOL_ONLY_NOT_STUDENT_ART_ADMISSION",
-    "field_status": "VISUAL_PEER_AND_PHYSICAL_DEVICE_PENDING",
-    "verification": [
-      "Sixteen real-decoder regression groups pass complete PNG/WebP positive cases; every PNG truncated prefix; invalid pixels/CRC/trailer; opaque GIF87a transparency; missing/duplicate poses; exact hashes; independent pose/bundle budgets; empty/opaque images; dimensions/animation; limits; unsafe/redirected paths; actual CLI exit codes.",
-      "All eight protected founder PNG/GIF files decode in inventory and retain exact baseline bytes/hashes. No founder replacement, species/catalog/import, schema/RPC, attendance/pass or private school source change.",
-      "Inventory completion is explicit INVENTORY_ONLY/technicalPass:null; admission exits nonzero on failure and only reports TECHNICAL_CANDIDATE_ONLY on success. The versioned policy does not approve visual quality, originality, pose semantics or classroom/device performance.",
-      "Existing Playwright/Chromium only, no dependency or workflow changes; regression joins companion browser after CI Chromium installation. Complete companion suite and final16groups PASS. Full canonical npm verify native process26012 exited0 at21:27:23UTC; independent handle observer recorded actual exit. PowerShell5 wrapper separately returned1 for benign npm stderr NativeCommandError, not a test failure. First interrupted run retained as incomplete. Required protected CI/merge/deployment remain pending.",
-      "Approved main release PR274/d124c3b retained without changes. Both shared ledger conflicts resolved by adding only this owned entry before exact current-main bytes. Current merged-tree canonical recheck required before publication."
-    ],
-    "evidence": "docs/checklings/art-admission.md"
-  },
-  "student-content-publication-2026-10-29": {
-    "status": "PREPARED_FOR_PROTECTED_RELEASE",
-    "owner": "Codex",
-    "scope": "Integrate author contributions from PR259, PR260, PR272 and PR273; expose all 64 catalogued StoryHubs on their course pages.",
-    "verification_status": "MANIFEST_AND_INITIAL_BUILD_PASSED_FULL_AND_BROWSER_VALIDATION_IN_PROGRESS",
-    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "Original author commits and curriculum baselines are preserved.",
-      "Rabbit Hole manifest, contrast and live Work guidance corrected; two unverified exact historical totals omitted.",
-      "Trench lesson layout repaired, public-domain IWM photographs served locally with provenance, new releases sealed.",
-      "Somme optional flight controls have accessible names; notes stay in the current tab for shared-device privacy.",
-      "The work-panel register now covers all64 StoryHubs. The existing Turn In guard checks both catalog entry formats; all57 server checks pass without weakening assertions.",
-      "Private inventories, teacher keys, restricted resources and unfinished service proposals remain outside this publication batch."
-    ]
-  },
-  "pixel-camp-workshop-2026-10-29": {
-    "status": "SOURCE_IMPLEMENTED",
-    "verification_status": "FULL_LOCAL_CANONICAL_AND_BROWSER_PASSED",
-    "owner": "Codex",
-    "scope": "In-memory build plans and exact material progress for existing eight keepsakes; completed story keepsake hints",
-    "deployment_status": "NOT_DEPLOYED_NEW_CHANGE",
-    "field_status": "FIELD_PENDING",
-    "verification": [
-      "Eight workshop browser journeys pass: actual gather-to-build, exact supply costs, duplicate/free placement, export/reload, partial/surplus stocks, free rest, plan changes/cancellation, correct recipe focus, locked/built story actions and unfinished-spar preservation.",
-      "Three public widths pass automated WCAG A/AA with zero violations. School formats1/2/3 preserve official identity, no extra save for read-only inspection, no attendance/pass writes and shared-device clearing. No saved field, private RPC, engine/art/species/dependency change.",
-      "Predecessor6.2 PR267/main51edfc4 is production verified on main/standalone with all48 camp file hashes, both CI checks40889584028/40894399886, unchanged school46 fingerprints and authenticated synthetic save/pause/retry smoke.",
-      "Full canonical verification passed all18stages:66focused,440HallPass,54routes,156HTML,5238references,27sealedreleases193assets. Complete companion browser suites and final8workshop journeys pass; protected CI, merge and new deployment remain pending."
-    ],
-    "evidence": "docs/checklings/workshop-plan.md"
-  },
-  "pixel-camp-guide-2026-10-29": {
-    "status": "IMPLEMENTED_LOCAL_VERIFIED",
-    "owner": "Codex",
-    "scope": "Current-four founder field guide with actual progress, source-backed play tips and frozen original artwork",
-    "verification_status": "CANONICAL_FULL_AND_ALL_COMPANION_BROWSER_PASSED_CI_PENDING",
-    "deployment_status": "PENDING_PROTECTED_RELEASE",
-    "field_status": "INDEPENDENT_REVIEW_AND_CLASSROOM_PENDING",
-    "evidence": [
-      "Field guide reads existing engine personalities, canonical identities, signatures and saved discoveries/badges/chapters/keepsakes; student nicknames stay separate. Native controls lead to existing trail/story/practice flows. Unfinished spar returns without free reset/switch/heal.",
-      "No saved fields, school RPC, new species or art replacement. Existing school formats1/3 pass save/identity/no-attendance/privacy journeys; school source remains verified46.",
-      "Original8founder PNG/GIF byte fingerprints and canonical roster checks pass. Three public guide widths pass automated WCAG A/AA, actual discovery/chapter/update, exact save download/reload, escaped nicknames and active-spar preservation.",
-      "Independent review of Gemini v1.1 first12 bundle reproduced short-PNG crashes, incomplete-header acceptance, opaqueGIF transparency misreport and non-strict CLI success. New-species art admission remains CHANGES_REQUESTED; current guide uses existing live source only.",
-      "Predecessor6.1 is production verified: PR266/06510a1, main+standalone24files, guarded school46 run40847184768 exactfivehashes and authenticated live pause/resume/replay/v3 smoke PASS. Source/fullCI/deployment/physicalclassroom remain distinct for the guide release.",
-      "Full canonical18 stages passed:54routes156HTML5238references27sealedreleases193assets. All66focused and completecompanionbrowser suites passed. The guide adds five journeys, including free rest, actual move labels, complete/ready/built keepsakes and unchanged active-spar state. ProtectedCI and actual website publication are separate pending gates."
-    ]
-  },
-  "pixel-camp-pause-2026-10-29": {
-    "status": "IMPLEMENTED_LOCAL_VERIFIED",
-    "owner": "Codex",
-    "scope": "Teacher-only school camp pause/resume with server enforcement, unsaved backup and retry",
-    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
-    "deployment_status": "PENDING_PROTECTED_RELEASE",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "Workbook-scoped default-open setting, current-contract teacher authorization rechecked under lock, audited mutation with rollback on failure. New opens and writes reject while paused; committed retries remain acknowledged.",
-      "Open updated school camps retain current state and offer native paused dialog with file export, access check and explicit leave. Resume retries retained saves. No save schema, attendance, points, pass or original companion change.",
-      "Pixel Camp6 predecessor is production verified: PR263/0d34f49, main and standalone exact24files, guarded school45 run40811503146 exactfivehashes and authenticated live v3 synthetic smoke PASS. Physical classroom and12-species expansion gates remain.",
-      "57 focused companion/game/private-save cases and440 Hall Pass runtime behaviors passed. All companion browser suites passed; three school widths also verify exact paused backup/resume, periodic gate, delayed-ack race, teacher keyboard controls and zero automated WCAG A/AA violations in new controls/dialog. Canonical full18 stages passed:54 routes,156HTML,5238references,27sealedreleases/193assets."
-    ]
-  },
-  "pixel-camp-six-2026-10-28": {
-    "status": "IMPLEMENTED_LOCAL_BROWSER_VERIFIED",
-    "owner": "Codex",
-    "scope": "Pixel Camp 6: four three-chapter founder journeys, supply gathering, eight workshop keepsakes and two goal tracks",
-    "verification_status": "CANONICAL_FULL_AND_COMPANION_BROWSER_PASSED_CI_PENDING",
-    "deployment_status": "PENDING_REVIEW_CI_AND_GUARDED_RELEASE",
-    "field_status": "CLASSROOM_PENDING",
-    "evidence": [
-      "32 focused save/gameplay checks pass, including ordinary-play completion of all twelve chapters and eight recipes without combat; existing v1/v2 saves retain progress and migrate without invented rewards.",
-      "All companion browser suites pass: 15 companion/Pond journeys, school recovery/privacy at three widths, five forage/ladder/legacy-school journeys and six new journeys/workshop/private-save journeys. New views at 320/390/1366 have no automated WCAG A/AA violations. Native modal Escape, save download/reload, lost acknowledgements/retry and shared-device clearing pass.",
-      "School save version 3 is bounded and uses the existing PIN/class save service. New controls wait for advertised format 3; a new save-file import into an older school is blocked without replacing progress. Original founder assets and attendance/point/pass rules are unchanged.",
-      "A native-path separator repair lets the existing offline Pond browser fixture run correctly on Windows. No Pond product code changed.",
-      "Full canonical verification, protected CI, exact production website assets and guarded in-place Apps Script deployment/readback remain separate release gates. Authenticated live synthetic smoke and a real classroom/device cycle are separate evidence."
-    ]
-  },
-  "pixel-camp-school-2026-10-28": {
-    "status": "SCHOOL_INTEGRATION_IMPLEMENTED",
-    "owner": "Codex",
-    "scope": "Pixel Camp integrated with verified school PIN/class, official attendance summary and existing Checkling",
-    "verification_status": "PROTECTED_40708519822_PASSED",
-    "deployment_status": "RELEASE_CONTROL_ISSUE_28_AUTHORITATIVE",
-    "field_status": "AUTHENTICATED_SMOKE_AND_CLASSROOM_PENDING",
-    "evidence": [
-      "Preserves Pixel Camp 4.3.1 engine and founder assets from 8a949b2634d4755072559bfb44e4ed90b9ed289b. School play runs in a sandboxed child inside the existing private Check-In, with an isolated MessageChannel; PINs, tokens, roster keys and student email never enter the static game.",
-      "Private Checkling Camps sheet stores bounded membership-specific game saves, optimistic revisions, idempotent mutation IDs and one previous camp snapshot. Shared-device reset closes the port and removes the game; no student game state is kept in browser storage.",
-      "Original species, exact saved name and stored habitat survive import. Official streak/attendance and earned homes are read from the existing school summary. Game saves never create attendance, points or passes. Earlier browser camps can be explicitly imported with an in-tab undo.",
-      "29 focused server checks pass (20 existing companion and nine integration scenarios); all 440 classroom runtime behaviors and 15 existing companion/Pond browser journeys pass. New school browser journeys at 320/390/1440 cover PIN visits, cross-session recovery, failed and lost saves, import/undo, conflicts and shared-device isolation. Full canonical verification, protected CI and deployment are separate gates.",
-      "Protected run 40708519822 passed every full-release and browser gate on fc1cc605f0c4a1eaaaf2fa074c7b3617eebd7ebd. The branch then incorporates approved World War I hub main fb929c1 without removing either Games card. PR #255 tracks final combined-source checks and merge; permanent release-control issue #28 is authoritative for the actual Apps Script version and guarded deployment. Source publication and deployment evidence remain distinct."
-    ]
-  },
-  "bts-heel-load-work-2026-10-26": {
-    "status": "LOCAL_VERIFIED_RELEASE_IN_PROGRESS",
-    "owner": "Codex",
-    "scope": "Visible PIN recovery and Save now in the America's Most Hated research workspace; exact restoration of saved rubric choices",
-    "verification_status": "CANONICAL_FULL_PASSED_BROWSER_PENDING",
-    "deployment_status": "PENDING_PROTECTED_CI_AND_PRODUCTION_READBACK",
-    "field_status": "FIELD_PENDING",
-    "evidence": [
-      "Reuses desk-save.js, the existing research hub identifier and stable answer keys. No backend deployment, new student storage, roster change or per-project save implementation.",
-      "Adds a Load My Work link and PIN recovery panel near the top. Explicit recovery asks before replacing a different visible draft; saved radio choices are restored with the text answers. Other hubs retain the default recovery button label.",
-      "Focused Turn In service suite passed 39/39. Added browser acceptance scenarios cover PIN validation, Save now confirmation, offline preservation, cancelled and accepted recovery, five research rounds, rubric choices, PIN clearing and accessibility at 320/390/1366.",
-      "Local Chromium could not be installed because its download failed. Canonical npm run verify passed all 18 stages: zero Astro errors/warnings, 53 built routes, 136 HTML files, 4618 local references and 13 releases/117 sealed files. Feature code is in local commit 99820cd4943ecfafb15bfe6b9cc7b53a81bfcc6c. Source publication and production release are explicitly authorized. Protected CI must run the new browser scenarios before merge. Exact production deployment and field verification remain separate pending evidence."
-    ]
-  },
-  "checkling-visit-only-2026-10-22": {
-    "status": "REVIEW_TESTED",
-    "owner": "Codex",
-    "scope": "Checkling-only fresh-PIN visits outside class hours, with no attendance or pass action proof",
-    "evidence": [
-      "The existing reusable synthetic student is active in its own private demo class. Its generated PIN and identifying details remain outside this public repository.",
-      "Daily Check-In offers visit Checkling only from both PIN screens. The fresh-PIN endpoint retains school-account checks and throttling, supports own-class selection, and issues no attendance/pass action proof. Existing classroom time gates and fresh-action PIN requirements are preserved.",
-      "20 Checkling server scenarios and all 440 classroom-service behaviors pass. Fifteen offline Chromium journeys pass, including 320/390/1440 weekend visits to an unscheduled period, adoption/reload, normal Google and teacher PIN screens, class selection, accessibility, and existing shared-device privacy.",
-      "The isolated live synthetic release check now also verifies the companion PIN endpoint without recording attendance. Canonical npm run verify passed all stages (53 routes, 136 HTML files, 4618 local references, 13 sealed releases/117 files). Protected merge, guarded Apps Script deployment, and live readback are separate pending gates."
-    ]
-  },
-  "bts-heel-research-release-2026-10-22": {
-    "status": "REVIEW_TESTED",
-    "owner": "Codex",
-    "scope": "PR 219: additive America's Most Hated research workspace and transparent process receipt",
-    "evidence": [
-      "The original sealed bts-americas-most-hated.html is byte-identical to origin/main; its SHA-256 is 653f3dd2394bb3970a52e1668e21f08dd7e1d2603fc7983e906af80277bff6a7.",
-      "Fixed shared-device sign-out resetting all coach state and exceptions, PIN-restored receipt preservation, restored-field length baselines, source-defense question collection, missing hypothesis/defense draft checks, and source-link contrast while preserving action-link hover contrast. Added disclosure before writing begins. Passive counters no longer announce every typing update to screen readers; actionable feedback retains its live status.",
-      "Focused Chromium acceptance passed: real clipboard guard, citation exception, assistive/prior-work override, all five checkpoints, keyboard edits, date validation, rubric, rehearsal timer, offline save-service/reload, fresh-device PIN recovery, delayed server acknowledgement, and shared-device clearing through reload.",
-      "All five research rounds passed WCAG A/AA checks at 320, 390 and 1366 pixels, with keyboard and reduced-motion navigation. Browser service tests use isolated synthetic students and the actual Turn In server source.",
-      "Canonical npm run verify passed locally: 53 built routes, 136 HTML files, 4618 local references, 13 releases and 117 sealed files. Windows runner now invokes npm through Node. Full-page screenshot capture has its own 30-second bound for tall StoryHubs; interaction/assertion timeouts are unchanged. Full browser suite and protected CI remain separate release evidence.",
-      "The exact extensionless classroom redirect is forced so the sealed predecessor cannot shadow it. The normal Beyond the Scoreboard unit-materials link also targets the expanded workspace, with browser coverage following that student entry point. CI retains every gate with a 40-minute budget because run 39816669934 hit 30 minutes during its required five-real-minute town observation. Merge, exact production verification and actual classroom use remain pending."
-    ]
-  },
   "progressive-jeopardy-showtime-2026-10-19": {
     "status": "LOCAL_VERIFIED",
     "source_base": "0ef4f2d0a2b60a4c40e10f0ef025a7053df83d14",
@@ -993,7 +993,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
