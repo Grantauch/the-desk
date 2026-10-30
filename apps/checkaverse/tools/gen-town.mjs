@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'content');
-const W = 46, H = 28;
+const W = 64, H = 28;
 const g = Array.from({ length: H }, () => Array(W).fill('.'));
 const set = (x, y, c) => { if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
 const rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, c); };
@@ -17,7 +17,7 @@ const rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x 
 rect(0, 0, W - 1, 0, 'T'); rect(0, H - 1, W - 1, H - 1, 'T'); rect(0, 0, 0, H - 1, 'T'); rect(W - 1, 0, W - 1, H - 1, 'T');
 
 // The plaza on the west side.
-rect(2, 13, 44, 13, 'P');           // main street across the whole town
+rect(2, 13, W - 2, 13, 'P');        // main street across the whole town
 rect(12, 2, 12, 25, 'P');           // north south street through the plaza
 rect(3, 3, 8, 6, 'H');              // future arena
 rect(15, 3, 21, 6, 'H');            // future merchant row
@@ -46,18 +46,22 @@ for (const [x, y] of [[5, 22], [13, 15]]) prop('prop-bench', x, y, 2, 1, x, y + 
 for (const [x, y] of [[3, 9], [21, 9], [9, 25]]) prop('prop-rock', x, y, 1, 1, x, y + 1, 1, 'rock');
 for (const [x, y] of [[2, 24], [23, 2], [19, 22]]) prop('prop-bush', x, y, 1, 1, x, y + 1, 1, 'bush');
 
-// The Neighborhood on the east side: 12 plots, 5 by 4, in 4 rows of 3.
+// The Neighborhood on the east side: 24 plots, 5 by 4, in 4 rows of 6, enough for a full class hour.
+// Plots 1 to 12 are the three columns nearest the plaza and fill first; 13 to 24 are the far three.
 rect(26, 2, 26, 25, 'P');
 const plots = [];
 let id = 1;
-for (const r of [3, 9, 15, 21]) {
-  rect(26, r + 4, 44, r + 4, 'P');
-  for (const c of [27, 33, 39]) {
-    rect(c, r, c + 4, r + 3, 'L');
-    plots.push({ id: id++, x: c, y: r, w: 5, h: 4, door: { x: c + 2, y: r + 2 } });
+for (const r of [3, 9, 15, 21]) rect(26, r + 4, W - 2, r + 4, 'P');
+for (const cols of [[27, 33, 39], [45, 51, 57]]) {
+  for (const r of [3, 9, 15, 21]) {
+    for (const c of cols) {
+      rect(c, r, c + 4, r + 3, 'L');
+      plots.push({ id: id++, x: c, y: r, w: 5, h: 4, door: { x: c + 2, y: r + 2 } });
+    }
   }
 }
-for (const [x, y] of [[32, 4], [38, 10], [32, 16], [38, 22], [44, 5], [44, 17], [25, 8], [25, 20]]) set(x, y, 'F');
+for (const [x, y] of [[32, 4], [38, 10], [32, 16], [38, 22], [44, 5], [44, 17], [25, 8], [25, 20],
+  [50, 4], [56, 10], [50, 16], [56, 22], [62, 5], [62, 17]]) set(x, y, 'F');
 for (const [x, y] of [[24, 3], [24, 4], [24, 24], [24, 25]]) set(x, y, 'T');
 
 const town = {

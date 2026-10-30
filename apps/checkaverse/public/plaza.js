@@ -135,7 +135,13 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.textContent = text;
-      b.addEventListener('click', () => send({ t: 'say', p: i }));
+      b.addEventListener('click', () => {
+        send({ t: 'say', p: i });
+        // The server takes one phrase every two seconds; the buttons rest for the same time.
+        const all = [...phrasesEl.querySelectorAll('button')];
+        all.forEach((x) => { x.disabled = true; });
+        setTimeout(() => all.forEach((x) => { x.disabled = false; }), 2000);
+      });
       phrasesEl.appendChild(b);
     });
   }
@@ -563,8 +569,14 @@
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
     }
     const top = py + TILE - 50;
-    labels.push([p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.busy ? '#9fb59a' : '#f4f1e6']);
-    if (p.bubble && p.bubbleUntil > now) bubbles.push([p.bubble, px + 16, top - 16]);
+    // In a crowd, name tags show only for you, trainers within a few steps, and anyone talking.
+    const self = players.get(me);
+    const talking = p.bubble && p.bubbleUntil > now;
+    const near = self && Math.abs(p.dx - self.dx) + Math.abs(p.dy - self.dy) <= 4;
+    if (p.id === me || near || talking || players.size <= 8) {
+      labels.push([p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.id === me ? '#ffd166' : p.busy ? '#9fb59a' : '#f4f1e6', p.id === me ? 0 : 1]);
+    }
+    if (talking) bubbles.push([p.bubble, px + 16, top - 16]);
   }
 
   function label(text, cx, y, color) {
@@ -640,6 +652,7 @@
       // Name tags never sit on top of each other: a tag that would overlap one already placed moves up a row.
       ctx.font = '12px monospace';
       const placed = [];
+      labels.sort((a, b) => (a[4] ?? 1) - (b[4] ?? 1)); // your own tag claims its spot first
       for (const [text, x, y, color] of labels) {
         const w = ctx.measureText(text).width + 8;
         let ty = y;
@@ -647,7 +660,16 @@
         placed.push({ x, y: ty, w });
         label(text, x, ty, color);
       }
-      for (const b of bubbles) bubble(...b);
+      // Bubbles step up out of each other's way too.
+      ctx.font = '13px monospace';
+      const stacked = [];
+      for (const [text, x, y] of bubbles) {
+        const w = ctx.measureText(text).width + 24;
+        let ty = y;
+        for (let i = 0; i < 4 && stacked.some((q) => Math.abs(q.x - x) < (q.w + w) / 2 && Math.abs(q.y - ty) < 30); i++) ty -= 31;
+        stacked.push({ x, y: ty, w });
+        bubble(text, x, ty);
+      }
       ctx.restore();
     }
     challengeBtn.disabled = !neighbor() || busyEl.checked;

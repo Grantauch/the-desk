@@ -153,6 +153,18 @@ try {
   await c.next('plots', (m) => m.plots.find((p) => p.id === 1).owner === 0);
   step('when the owner leaves, visitors are walked out and the plot empties');
 
+  await b.send({ t: 'say', p: 0 }); await b.send({ t: 'say', p: 1 }); await b.send({ t: 'say', p: 2 });
+  await sleep(200);
+  assert.equal(b.inbox.filter((m) => m.t === 'say' && m.id === wb.you).length, 1, 'one phrase per two seconds');
+  step('phrase flooding is held back');
+
+  const crowd = [];
+  for (let i = 0; i < 14; i++) { const k = client(); await k.open; crowd.push(k); }
+  const spots = await Promise.all(crowd.map(async (k) => { const w = await k.next('welcome'); const me = w.players.find((p) => p.id === w.you); return `${me.x},${me.y}`; }));
+  assert.equal(new Set(spots).size, spots.length, 'a crowd arriving together gets its own tiles');
+  crowd.forEach((k) => k.ws.close());
+  step('a class arriving at once spreads out by the bus stop');
+
   const bad = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, { origin: 'https://evil.example' });
   assert.equal(await new Promise((r) => { bad.on('error', () => r(true)); bad.on('open', () => r(false)); }), true);
   step('unknown sites are refused');

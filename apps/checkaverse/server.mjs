@@ -12,7 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -29,6 +29,7 @@ const HOUSE = readContent('house.json');
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
 const SIGNS = readContent('signs.json');
+const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
@@ -104,9 +105,23 @@ function trainerName() {
 const testSpawns = (process.env.CHECKAVERSE_TEST_SPAWN || '').split(';').filter(Boolean).map((s) => s.split(',').map(Number));
 function arrivalPoint() {
   if (testSpawns.length) { const [x, y] = testSpawns.shift(); return { x, y }; }
-  const spots = TOWN.arrive.filter(([x, y]) => walkable('town', x, y));
-  const [x, y] = spots[Math.floor(Math.random() * spots.length)] || [14, 13];
-  return { x, y };
+  // A free arrival spot by the bus stop, so a class arriving at once does not pile onto a few tiles.
+  const taken = new Set(inRoom('town').map((o) => `${o.x},${o.y}`));
+  const spots = TOWN.arrive.filter(([x, y]) => walkable('town', x, y) && !taken.has(`${x},${y}`));
+  if (spots.length) { const [x, y] = spots[Math.floor(Math.random() * spots.length)]; return { x, y }; }
+  // All taken: the nearest open tile to the bus stop.
+  const [sx, sy] = TOWN.arrive[0];
+  const seen = new Set([`${sx},${sy}`]);
+  const queue = [[sx, sy]];
+  while (queue.length) {
+    const [x, y] = queue.shift();
+    if (walkable('town', x, y) && !taken.has(`${x},${y}`)) return { x, y };
+    for (const [dx, dy] of Object.values(DIRS)) {
+      const k = `${x + dx},${y + dy}`;
+      if (!seen.has(k) && walkable('town', x + dx, y + dy)) { seen.add(k); queue.push([x + dx, y + dy]); }
+    }
+  }
+  return { x: sx, y: sy };
 }
 
 const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
@@ -376,6 +391,8 @@ function handleMessage(p, msg, now) {
     case 'say': {
       const i = Number(msg.p);
       if (!Number.isInteger(i) || i < 0 || i >= PHRASES.length) return;
+      if (now - (p.lastSay || 0) < SAY_GAP_MS) return; // one phrase every two seconds, so nobody can flood the plaza
+      p.lastSay = now;
       p.stats.phrases++;
       return toRoom(p.room, { t: 'say', id: p.id, p: i });
     }
