@@ -1,4 +1,20 @@
 {
+  "checklings-art-admission-2026-10-29": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "Read-only strict technical admission of staged five-pose pilot artwork; no student runtime or private service change",
+    "verification_status": "PRIOR_BASE_FULL_PASSED_CURRENT_MAIN_INTEGRATION_RECHECK_PENDING",
+    "deployment_status": "DEVELOPMENT_TOOL_ONLY_NOT_STUDENT_ART_ADMISSION",
+    "field_status": "VISUAL_PEER_AND_PHYSICAL_DEVICE_PENDING",
+    "verification": [
+      "Sixteen real-decoder regression groups pass complete PNG/WebP positive cases; every PNG truncated prefix; invalid pixels/CRC/trailer; opaque GIF87a transparency; missing/duplicate poses; exact hashes; independent pose/bundle budgets; empty/opaque images; dimensions/animation; limits; unsafe/redirected paths; actual CLI exit codes.",
+      "All eight protected founder PNG/GIF files decode in inventory and retain exact baseline bytes/hashes. No founder replacement, species/catalog/import, schema/RPC, attendance/pass or private school source change.",
+      "Inventory completion is explicit INVENTORY_ONLY/technicalPass:null; admission exits nonzero on failure and only reports TECHNICAL_CANDIDATE_ONLY on success. The versioned policy does not approve visual quality, originality, pose semantics or classroom/device performance.",
+      "Existing Playwright/Chromium only, no dependency or workflow changes; regression joins companion browser after CI Chromium installation. Complete companion suite and final16groups PASS. Full canonical npm verify native process26012 exited0 at21:27:23UTC; independent handle observer recorded actual exit. PowerShell5 wrapper separately returned1 for benign npm stderr NativeCommandError, not a test failure. First interrupted run retained as incomplete. Required protected CI/merge/deployment remain pending.",
+      "Approved main release PR274/d124c3b retained without changes. Both shared ledger conflicts resolved by adding only this owned entry before exact current-main bytes. Current merged-tree canonical recheck required before publication."
+    ],
+    "evidence": "docs/checklings/art-admission.md"
+  },
   "student-content-publication-2026-10-29": {
     "status": "PREPARED_FOR_PROTECTED_RELEASE",
     "owner": "Codex",
