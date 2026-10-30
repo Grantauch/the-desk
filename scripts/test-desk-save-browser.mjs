@@ -45,7 +45,9 @@ const server = createServer(async (req, res) => {
   }
 });
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-const BASE = `http://127.0.0.1:${server.address().port}`;
+// A hosted run verifies the published HTML/runtime with isolated invented accounts.
+// Real student service calls remain intercepted by the same harness below.
+const BASE = (process.env.DESK_SAVE_ORIGIN || `http://127.0.0.1:${server.address().port}`).replace(/\/$/, '');
 
 /* ------------------------------------------------------------- the rig -- */
 
@@ -79,7 +81,7 @@ async function chromebook(server, options = {}) {
   const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());
-    if (url.hostname === '127.0.0.1') return route.continue();
+    if (url.origin === new URL(BASE).origin) return route.continue();
     if (url.hostname === 'turnin.test') {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors() });
       const body = route.request().postData() || '{}';
@@ -108,7 +110,9 @@ async function openHub(context, hub, page) {
   const errors = [];
   page.on('pageerror', (error) => { if (String(error.stack || '').includes('desk-save')) errors.push(error); });
   await page.goto(`${BASE}/hubs/${hub}`, { waitUntil: 'load' });
-  await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready, null, { timeout: 10000 });
+  try {
+    await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready, null, { timeout: 10000 });
+  } catch (error) { throw new Error(`${hub}: shared work runtime did not start (${errors.map(e => e.message).join('; ')})`, { cause: error }); }
   page.deskErrors = errors;
   return page;
 }
@@ -537,6 +541,68 @@ async function passGate(page, pin, { confirm = true } = {}) {
   }
 }
 
+await test('every catalogue assignment uses the PIN gate, compact controls, autosave, fresh-device resume and final Turn In', async () => {
+  const catalog = JSON.parse(await readFile(new URL('../docs/storyhub/work-panel-catalog.json', import.meta.url), 'utf8'));
+  const problems = [];
+  for (const item of catalog.hubs.filter(h => h.mode === 'assignment' && (!process.env.DESK_SAVE_HUB_FILTER || h.hub.includes(process.env.DESK_SAVE_HUB_FILTER)))) {
+    const s = world();
+    const school = await chromebook(s, { hooks: { gate: true } });
+    let home;
+    try {
+      const p = await school.open(item.hub);
+      p.setDefaultTimeout(10000);
+      assert.equal(await p.evaluate(() => window.__deskSave.mode), 'assignment');
+      assert.equal(await gateOpen(p), true, 'PIN required before entry');
+      assert.deepEqual(school.net.calls, [], 'no account access before PIN');
+      await passGate(p, s.pin(PEOPLE.ada));
+      assert.equal(await gateOpen(p), false);
+      assert.equal(await p.locator('#desk-save-panel').count(), 1);
+      assert.equal(await p.locator('#desk-save-resume').count(), 1);
+      const turn = panel(p).getByRole('button', { name: 'Turn In', exact: true });
+      for (const width of [320, 390, 1440]) {
+        await p.setViewportSize({ width, height: 900 });
+        assert.equal(await p.locator('#desk-save-resume details').evaluate(el => el.open), false);
+        assert.equal(await p.locator('#desk-save-resume input[type="password"]').isVisible(), false);
+        const box = await turn.boundingBox();
+        assert.ok(box && box.height >= 64 && box.x >= -1 && box.x + box.width <= width + 1, `Turn In fits ${width}px`);
+      }
+      if (item.hub === 'bts-golf-special-edition.html') await p.locator('#make-card').click();
+      if (item.hub === 'ush9-l018-the-debt-didnt-move.html') await p.locator('#notesBtn').click();
+      const field = p.locator('textarea:visible:not([data-desk-skip]):not([disabled]):not([readonly])').first();
+      const fieldIndex = await field.evaluate(el => [...document.querySelectorAll('textarea')].indexOf(el));
+      const text = `Catalogue recovery check for ${item.hub}`;
+      await field.fill(text);
+      await field.evaluate(el => { el.focus(); el.setSelectionRange(7, 12); el.dispatchEvent(new Event('select', { bubbles: true })); });
+      await waitFor(() => s.rows('Progress').some(r => r.Answers.includes(text)));
+      // Explicitly flush the bounded cursor bookmark, using the normal save path.
+      await p.evaluate(() => window.__deskSave.saveCloud());
+      assert.equal(s.rows('Turn Ins').length, 0, 'autosave does not finish work');
+      home = await chromebook(s, { hooks: { gate: true } });
+      const q = await home.open(item.hub);
+      await passGate(q, s.pin(PEOPLE.ada));
+      await q.waitForFunction(({ fieldIndex, text }) => {
+        const el = document.querySelectorAll('textarea')[fieldIndex];
+        return el && el.value === text && document.activeElement === el && el.selectionStart === 7 && el.selectionEnd === 12;
+      }, { fieldIndex, text }, { timeout: 10000 });
+      await q.reload({ waitUntil: 'load' });
+      await q.waitForFunction(() => window.__deskSave?.ready && !window.__deskSave.gate());
+      assert.equal(await q.locator('textarea').nth(fieldIndex).inputValue(), text);
+      if (item.hub === 'ush9-l018-the-debt-didnt-move.html') await q.locator('#closeNotes').click();
+      await panel(q).getByRole('button', { name: 'Turn In', exact: true }).click();
+      await waitFor(() => s.rows('Turn Ins').length === 1);
+      assert.ok(s.rows('Turn Ins')[0].Answers.includes(text));
+      console.log(`    ✓ ${item.hub}`);
+    } catch (error) {
+      problems.push(`${item.hub}: ${error.message}`);
+      console.log(`    FAILED ${item.hub}: ${error.message}`);
+    } finally {
+      await school.context.close();
+      if (home) await home.context.close();
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
 await test('the gate covers an answer page until a PIN is entered, confirms the name, then saves from the first answer', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { gate: true } });
@@ -619,23 +685,27 @@ await test('a refresh keeps the student signed in, and signing out leaves a cove
   await page.waitForFunction(() => window.__deskSave && window.__deskSave.ready);
   assert.equal(await gateOpen(page), false, 'same tab, same student');
   assert.equal(await page.locator('#q1').inputValue(), 'Survives a refresh');
-  assert.equal(await panel(page).locator('input[type="password"]').isVisible(), true, 'after a refresh Turn In asks for the PIN, since it is never stored');
+  assert.equal(await panel(page).locator('input[type="password"]').isHidden(), true, 'a verified session can finish after refresh without storing or retyping the PIN');
+  await panel(page).getByRole('button', { name: 'Turn In', exact: true }).click();
+  await waitFor(async () => /Turned in/.test(await panel(page).locator('.status').textContent()));
+  assert.equal(s.rows('Turn Ins').length, 1);
 
-  await chip(page).locator('.chip').click();
-  await chip(page).getByRole('button', { name: 'Not you? Sign out' }).click();
+  await page.locator('#desk-save-resume').getByRole('button', { name: 'Not you? Sign out' }).click();
   await waitFor(() => gateOpen(page));
   assert.equal(await page.locator('#q1').inputValue(), '');
   assert.match(await gate(page).locator('.status').textContent(), /blank for the next person/);
   await cb.context.close();
 });
 
-await test('a student who starts at school gets the work back at the gate on another Chromebook', async () => {
+await test('a student who starts at school gets the work and exact cursor back at the gate on another Chromebook', async () => {
   const s = world();
   const school = await chromebook(s, { hooks: { gate: true } });
   const first = await school.open('ush9-the-jungle.html');
   await passGate(first, s.pin(PEOPLE.ada));
   await typeInto(first, 'textarea', 'Packing house work started at school');
   await waitFor(() => s.rows('Drafts').some((r) => /started at school/.test(r.Data)));
+  await first.locator('textarea').first().evaluate(el => { el.focus(); el.setSelectionRange(9, 14, 'backward'); el.dispatchEvent(new Event('select', { bubbles: true })); });
+  await waitFor(() => s.rows('Drafts').some(r => JSON.parse(r.Data).position?.start === 9));
   await school.context.close();
 
   const home = await chromebook(s, { hooks: { gate: true } });
@@ -643,25 +713,103 @@ await test('a student who starts at school gets the work back at the gate on ano
   assert.equal(await again.locator('textarea').first().inputValue(), '');
   await passGate(again, s.pin(PEOPLE.ada));
   assert.equal(await again.locator('textarea').first().inputValue(), 'Packing house work started at school');
+  assert.deepEqual(await again.locator('textarea').first().evaluate(el => ({ focused: document.activeElement === el, start: el.selectionStart, end: el.selectionEnd, direction: el.selectionDirection })), { focused: true, start: 9, end: 14, direction: 'backward' });
+  assert.equal(await again.locator('#desk-save-resume details').evaluate(el => el.open), false);
+  assert.equal(await again.locator('#desk-save-resume').getByRole('button', { name: 'Load My Work', exact: true }).isVisible(), false);
+  assert.equal(await panel(again).getByRole('button', { name: 'Download backup', exact: true }).count(), 0);
   await home.context.close();
 });
 
-await test('when the save system cannot be reached a student can still start in the tab, then save once it is back', async () => {
+await test('PIN resume reopens the saved research round and focuses the exact saved cursor', async () => {
+  const s = world(), school = await chromebook(s, { hooks: { gate: true } });
+  const p = await school.open('bts-americas-most-hated-research.html');
+  await passGate(p, s.pin(PEOPLE.ada));
+  await p.locator('[data-lab-tab="4"]').click();
+  await typeInto(p, '#lab-source-one', 'Evidence started in round four.');
+  await p.locator('#lab-source-one').evaluate(el => { el.setSelectionRange(8, 8); el.dispatchEvent(new Event('select', { bubbles: true })); });
+  await waitFor(() => s.rows('Drafts').some(r => JSON.parse(r.Data).position?.start === 8));
+  await school.context.close();
+  const home = await chromebook(s, { hooks: { gate: true } }), again = await home.open('bts-americas-most-hated-research.html');
+  await passGate(again, s.pin(PEOPLE.ada));
+  assert.equal(await again.locator('#lab-round-4').isVisible(), true);
+  assert.equal(await again.locator('#lab-source-one').evaluate(el => document.activeElement === el && el.selectionStart === 8), true);
+  assert.equal(await again.locator('#lab-source-one').inputValue(), 'Evidence started in round four.');
+  await home.context.close();
+});
+
+await test('PIN assignments keep recovery tucked away and show one large Turn In at all three widths', async () => {
+  const s = world();
+  const active = await chromebook(s, { hooks: { gate: true } });
+  const page = await active.open('bts-the-bargain.html');
+  await passGate(page, s.pin(PEOPLE.ada));
+  // School devices and the Linux runner may not have Impact or the web font.
+  // Exercise the wider fallback explicitly, even on Windows with Impact installed.
+  await page.addStyleTag({ content: '.hero h1{font-family:Arial,sans-serif!important}' });
+  await mkdir('browser-results/pin-flow', { recursive: true });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const options = page.locator('#desk-save-resume details');
+    assert.equal(await options.evaluate(el => el.open), false);
+    assert.equal(await page.locator('#desk-save-resume input[type="password"]').isVisible(), false);
+    const button = panel(page).getByRole('button', { name: 'Turn In', exact: true });
+    const box = await button.boundingBox();
+    assert.ok(box.height >= 64 && box.width >= Math.min(250, width - 60));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `fallback-font page fits ${width}px`);
+    const axe = await new AxeBuilder({ page }).include('#desk-save-resume').include('#desk-save-panel').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    assert.deepEqual(axe.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target) })), []);
+    await button.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `browser-results/pin-flow/finish-${width}.png` });
+  }
+  await page.locator('#desk-save-resume summary').click();
+  assert.equal(await page.locator('#desk-save-resume').getByRole('button', { name: 'Download backup', exact: true }).isVisible(), true);
+  await active.context.close();
+});
+
+await test('an unreachable save service keeps the PIN gate closed until verification succeeds', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { gate: true } });
   const page = await cb.open('bts-the-bargain.html');
   cb.net.down = true;
   await passGate(page, s.pin(PEOPLE.ada));
   assert.match(await gate(page).locator('.status').textContent(), /Could not reach/);
-  await gate(page).getByRole('button', { name: 'Start without saving to my account' }).click();
-  assert.equal(await gateOpen(page), false);
-  await typeInto(page, '#q1', 'Written while the WiFi was out');
-  assert.match(await chip(page).locator('.chip').textContent(), /Save my work/);
+  assert.equal(await gateOpen(page), true);
+  assert.equal(await gate(page).getByRole('button', { name: 'Start without saving to my account' }).count(), 0);
+  assert.equal(await page.evaluate(() => Boolean(document.querySelector('#q1').closest('[inert]'))), true);
   cb.net.down = false;
-  await chip(page).locator('.chip').click();
-  await chip(page).locator('input[type="password"]').fill(s.pin(PEOPLE.ada));
-  await chip(page).getByRole('button', { name: 'Save to my account' }).click();
-  await waitFor(() => s.rows('Progress').some((r) => /while the WiFi was out/.test(r.Answers)));
+  await passGate(page, s.pin(PEOPLE.ada));
+  assert.equal(await gateOpen(page), false);
+  await cb.context.close();
+});
+
+await test('PIN assignments with only choice answers still get status, recovery options and final Turn In', async () => {
+  const s = world(), cb = await chromebook(s, { hooks: { gate: true } });
+  await cb.context.route('**/hubs/pin-radio-only.html', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="en"><head><title>Choice assignment</title></head><body><main><h1>Choice assignment</h1><fieldset><legend>What does the record support?</legend><label><input type="radio" name="claim" value="supported">Supported</label><label><input type="radio" name="claim" value="unproven">Unproven</label></fieldset></main><script src="/hubs/desk-save.js" defer></script></body></html>' }));
+  const p = await cb.open('pin-radio-only.html');
+  await passGate(p, s.pin(PEOPLE.ada));
+  assert.equal(await p.locator('#desk-save-resume summary').isVisible(), true);
+  await p.getByRole('radio', { name: 'Unproven', exact: true }).check();
+  await waitFor(() => s.rows('Progress').some(r => /Unproven/.test(r.Answers)));
+  await panel(p).getByRole('button', { name: 'Turn In', exact: true }).click();
+  await waitFor(() => s.rows('Turn Ins').length === 1);
+  assert.deepEqual(p.deskErrors, []);
+  await cb.context.close();
+});
+
+await test('PIN session renewal keeps unsaved edits and deletions while requiring verification again', async () => {
+  const s = world(), cb = await chromebook(s, { hooks: { gate: true } });
+  const p = await cb.open('bts-the-bargain.html');
+  await passGate(p, s.pin(PEOPLE.ada));
+  await typeInto(p, '#q1', 'Account version before expiry.');
+  await waitFor(() => s.rows('Progress').some(r => /before expiry/.test(r.Answers)));
+  s.clock.advanceMinutes(241);
+  await p.locator('#q1').fill('');
+  await waitFor(() => gateOpen(p));
+  assert.equal(await p.evaluate(() => Boolean(document.querySelector('#q1').closest('[inert]'))), true);
+  await passGate(p, s.pin(PEOPLE.ada));
+  assert.equal(await p.locator('#q1').inputValue(), '', 'renewing the session never replaces a deliberate deletion with the older account answer');
+  await waitFor(() => s.rows('Progress')[0].Answers.includes('(blank)') && !/before expiry/.test(s.rows('Progress')[0].Answers));
+  assert.equal(await gateOpen(p), false);
   await cb.context.close();
 });
 
