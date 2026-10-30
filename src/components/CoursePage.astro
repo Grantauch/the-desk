@@ -5,6 +5,7 @@ import { currentUnitFor } from '../data/classroom-state';
 import { learningCourses } from '../data/learningHubs';
 import resourceLibrary from '../data/resources.json';
 import unitMaterialAssignments from '../data/unit-materials.json';
+import { storyHubs } from '../data/storyhubs';
 
 interface Material {
   label: string;
@@ -84,6 +85,12 @@ const slugify = (value: string) =>
     .replace(/(^-|-$)/g, '');
 
 const catalog = resourceLibrary.resources as CatalogResource[];
+const storyCourse = {
+  'US History': 'us history 9',
+  'Hidden History': 'hidden history',
+  'Beyond the Scoreboard': 'beyond the scoreboard',
+}[libraryCourse];
+const courseStories = storyHubs.filter((hub) => hub.course === storyCourse);
 const catalogById = new Map(catalog.map((resource) => [resource.id, resource]));
 const courseAssignments = unitMaterialAssignments.courses[libraryCourse] as Record<string, string[]>;
 const learningCourse = learningCourses.find((course) => course.title === libraryCourse);
@@ -379,6 +386,32 @@ const groupMaterials = (materials: Material[]) =>
       }
     </ol>
     </section>
+
+    {courseStories.length > 0 && (
+      <section class="mt-14" aria-labelledby="course-stories-title">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="font-mono text-xs font-bold lowercase text-accent">{courseStories.length} stories for this class</p>
+            <h2 id="course-stories-title" class="mt-1 font-display text-3xl font-bold lowercase">storyhubs<span class="text-accent">.</span></h2>
+          </div>
+          <a href="/storyhubs/" class="surface-link text-sm font-semibold text-accent">explore stories from every class →</a>
+        </div>
+        <p class="mt-3 text-sm text-ink-soft">Open a story to investigate the evidence, try an activity, and write your response.</p>
+        <ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {courseStories.map((hub) => (
+            <li>
+              <article class="h-full rounded-xl border border-line bg-white p-4">
+                <p class="font-mono text-xs text-ink-soft">{hub.period}</p>
+                <h3 class="mt-1 font-display text-lg font-bold lowercase leading-snug">
+                  <a href={hub.href} class="surface-link inline-block py-2 text-accent">{hub.title} →</a>
+                </h3>
+                <p class="mt-2 text-sm text-ink-soft">{hub.question}</p>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
     {
       resources.length > 0 && (

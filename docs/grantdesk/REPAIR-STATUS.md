@@ -1,3 +1,11 @@
+## October 29 student content publication - release candidate
+
+Integrates PR259 (The Line That Wouldn't Move), PR260 (Claude's Thirty Miles From Paris), PR272 (Down the Rabbit Hole) and PR273 (Somme field study). Course pages now list all catalogued StoryHubs: 18 U.S. History, 32 Hidden History and 14 Beyond the Scoreboard lessons. Original author commits and curriculum baselines are retained.
+
+Publication repairs cover the Rabbit Hole manifest, a low-contrast label, two omitted unverified exact historical totals, and shared Work guidance. The trench lesson receives responsive layout fixes, locally served public-domain IWM photographs, provenance manifests and sealed assets. Somme receives accessible optional-flight controls and tab-only notes that do not carry into another student's new tab.
+
+At this preparation checkpoint, manifest and initial production build checks pass. Full canonical verification, responsive/accessibility checks, interaction and tab-isolation journeys, protected GitHub CI, merge and exact production readback remain in progress. This is a release-candidate record; classroom acceptance is pending. Private inventories, teacher keys, unreleased assessments and unfinished service proposals remain outside this batch.
+
 ## October 22 Checkling-only PIN visits — release review
 
 Owner: Codex, branch `codex/checkling-visit-without-attendance`. The reusable synthetic student already exists in a separate demo class, but normal check-in rejects an unscheduled period and outside-class hours before opening the pet. Daily Check-In now offers **visit Checkling only** on both PIN screens. It verifies the PIN with the existing school-account and throttling controls, permits only the same student's class choices, and returns the companion without issuing an attendance/pass action proof. Normal attendance windows, fresh-action PINs, points, and shared-screen clearing are preserved. Private demo credentials stay out of this repository.

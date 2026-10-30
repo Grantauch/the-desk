@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "storyId": "USH9-MARNE",
+  "title": "Thirty Miles From Paris",
+  "route": "/hubs/ush9-bytesize-marne.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/USH9/MARNE/story.json",
+    "note": "ByteSize no. 21, Front Lines battle 2. Rebuilt from scratch; a rough Gemini draft was used only as a checklist of facts to verify. Image rights in sources.md."
+  },
+  "files": [
+    {
+      "path": "/hubs/ush9-bytesize-marne.html",
+      "bytes": 40280,
+      "sha256": "de07929bc7448a2128b5476036e001f513fb862a4fdcdcd54a220e3bf024b25c"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/marne.js",
+      "bytes": 50169,
+      "sha256": "61d8d660f6f5d01758ce54a54741cb5e9a5ac130edd0776c84c600f62b6d86a7",
+      "assetId": "M01"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/hero.webp",
+      "bytes": 132304,
+      "sha256": "ce92f818aa9b3097c345d59b6072eea9749b79d03d994a6ade117bb566dc6447",
+      "width": 956,
+      "height": 643,
+      "assetId": "A01"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/infantry-1914.webp",
+      "bytes": 133146,
+      "sha256": "1901eb9227a10fdffbc06bdad593a41aa7abf2eacd6587d49afc64544a267599",
+      "width": 925,
+      "height": 636,
+      "assetId": "A02"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/gare-du-nord.webp",
+      "bytes": 93908,
+      "sha256": "f76ae502e6484ee2ff1d2719a47ad8a2171177b98faa7c2e7b2c57ee7c2af362",
+      "width": 661,
+      "height": 889,
+      "assetId": "A03"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/porte-maillot.webp",
+      "bytes": 191190,
+      "sha256": "fae274fb6ae2e69baf9b5cde813bbb0593e304d116105986628c830a433fec26",
+      "width": 954,
+      "height": 639,
+      "assetId": "A04"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/autos.webp",
+      "bytes": 87852,
+      "sha256": "7aad0b442c8daeb03e523eaaeabf207b15f537b0aaeaccc38281c01bef0cd875",
+      "width": 899,
+      "height": 671,
+      "assetId": "A06"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/trench-1914.webp",
+      "bytes": 91856,
+      "sha256": "0f2b129202e1b73d515179d67b2dee7765a164066cb40c5e7f769a1895ba521f",
+      "width": 904,
+      "height": 562,
+      "assetId": "A07"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/gallieni.webp",
+      "bytes": 25782,
+      "sha256": "5cc6a24ad84a433b604e2130ab9ae698f0428db1839669a7c30356c75a91c909",
+      "width": 400,
+      "height": 500,
+      "assetId": "A05"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/kluck.webp",
+      "bytes": 27864,
+      "sha256": "98e235e587544d101f58361335a07127771d53a78607ab3b2cc979f4a558f299",
+      "width": 400,
+      "height": 499,
+      "assetId": "A08"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/moltke.webp",
+      "bytes": 36858,
+      "sha256": "58c110186876386fad86a3376d77560a0b7fbe1ee0aeba7b0ff1ed1bb22c0f61",
+      "width": 400,
+      "height": 499,
+      "assetId": "A13"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/bulow.webp",
+      "bytes": 24456,
+      "sha256": "859e0de6c97dc87fd2c48d3593f360d73b71c500d4bf5b59a41b3607a7e02b2e",
+      "width": 400,
+      "height": 500,
+      "assetId": "A09"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/maunoury.webp",
+      "bytes": 22922,
+      "sha256": "3fe862fa027e49cd4d6920fadaed95a1016cc42ec78d9213e4af0e76c0c7f569",
+      "width": 400,
+      "height": 499,
+      "assetId": "A10"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/john-french.webp",
+      "bytes": 20140,
+      "sha256": "6dbd5f5a97632bf01c77e315e3abc65e2a4289f04c72f617efaaca137cf848f3",
+      "width": 400,
+      "height": 500,
+      "assetId": "A11"
+    },
+    {
+      "path": "/storyhub/ush9/marne/assets/foch.webp",
+      "bytes": 19350,
+      "sha256": "ddb5d06a034436b9cca496e1debc602065634eea4492b63e71a1dcf17b3440c7",
+      "width": 400,
+      "height": 500,
+      "assetId": "A12"
+    },
+    {
+      "path": "/storyhub/ush9/front-lines/assets/front-lines.css",
+      "bytes": 3746,
+      "sha256": "a50b08027d8584d4c0afec51fcd536a53fedac04f19ac429758c5a6395dffe71"
+    },
+    {
+      "path": "/storyhub/ush9/front-lines/assets/front-lines.js",
+      "bytes": 5232,
+      "sha256": "bfd5940e79782e7163282250505a46a3b189828d17ec7a491881c158f657cd53"
+    },
+    {
+      "path": "/storyhub/ush9/front-lines/assets/three.min.js",
+      "bytes": 603445,
+      "sha256": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
+    },
+    {
+      "path": "/storyhub/ush9/front-lines/assets/three-license.txt",
+      "bytes": 1081,
+      "sha256": "7dddf7c5b8fd10ee654db8857d75d104b5557889aa5a91fc4ca545ea7c07062f"
+    }
+  ],
+  "totalBytes": 1611581,
+  "sealedAt": "2026-10-28"
+}

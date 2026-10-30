@@ -613,7 +613,7 @@ test('a corrupt newest draft row does not hide the previous readable work', () =
 
 test('every catalogue StoryHub has common controls and answer drafts never use localStorage', () => {
   const catalog=fs.readFileSync(path.join(__dirname,'../src/data/storyhubs.ts'),'utf8');
-  const hrefs=[...catalog.matchAll(/href: '(\/hubs\/[^']+)'/g)].map(m=>m[1]);
+  const hrefs=[...catalog.matchAll(/(?:\bhref|["']href["'])\s*:\s*(["'])(\/hubs\/[^"']+)\1/g)].map(m=>m[2]);
   const panels=JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/storyhub/work-panel-catalog.json'),'utf8'));
   assert.equal(hrefs.length,panels.catalogueCount);
   assert.deepEqual(new Set(hrefs.map(href=>path.basename(href))),new Set(panels.hubs.map(item=>item.hub)));
