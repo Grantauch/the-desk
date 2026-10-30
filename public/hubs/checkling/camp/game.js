@@ -2,6 +2,14 @@
   "use strict";
   const school = globalThis.ChecklingSchool;
   const schoolSession = school ? await school.ready : null;
+  // Presentation data only. An unavailable registry keeps the original artwork.
+  let spriteBook = { species: {} };
+  if (typeof fetch === 'function') {
+    try {
+      const response = await fetch(new URL('assets/sprite-book.json', document.baseURI), { signal: AbortSignal.timeout(1500) });
+      if (response.ok) spriteBook = await response.json();
+    } catch { /* Original founder art remains available offline. */ }
+  }
   // An isolated memory-only store prevents shared Chromebook account leakage.
   const ephemeral = new Map();
   const localStorage = school ? {getItem:key => ephemeral.get(key) || null,setItem:(key,value) => ephemeral.set(key,value)} : {getItem:key => window.localStorage.getItem(key),setItem:(key,value) => window.localStorage.setItem(key,value)};
@@ -222,13 +230,15 @@
   }
   // Artwork recovery belongs to this page, never to the portable camp save.
   const failedMovingArt = new Set(), movingArtRetries = new Map();
-  function artSource(id, ext) {
+  function artSource(id, ext, face = 'front') {
+    const pose = spriteBook.species?.[id]?.[face];
+    if (pose) return 'assets/' + pose[ext === 'gif' ? 'moving' : 'still'];
     const file = id + "." + ext;
     return globalThis.PIXEL_CAMP_ART?.[file] || "assets/" + file;
   }
-  function art(id, still = false) {
-    if (still || effectiveQuiet() || failedMovingArt.has(id)) return artSource(id, "png");
-    let source = artSource(id, "gif");
+  function art(id, still = false, face = 'front') {
+    if (still || effectiveQuiet() || failedMovingArt.has(id)) return artSource(id, "png", face);
+    let source = artSource(id, "gif", face);
     const retries = movingArtRetries.get(id) || 0;
     if (retries && !source.startsWith("data:")) {
       const url = new URL(source, document.baseURI);
@@ -251,7 +261,8 @@
   document.addEventListener("error", (event) => {
     const image = event.target, id = movingArtOwner(image);
     if (!id || !image.complete || image.naturalWidth !== 0 || effectiveQuiet()) return;
-    const current = image.getAttribute("src"), original = artSource(id, "gif");
+    const face = image.id === 'battle-friend-art' ? 'back' : 'front';
+    const current = image.getAttribute("src"), original = artSource(id, "gif", face);
     if (!current) return;
     // Accept only the currently requested original animation, including our retry query.
     let expected = original;
@@ -262,7 +273,7 @@
     }
     if (image.src !== expected) return;
     failedMovingArt.add(id);
-    image.src = artSource(id, "png");
+    image.src = artSource(id, "png", face);
     updateFounderPictureHelp();
   }, true);
   $("retry-founder-art").onclick = () => {
@@ -272,7 +283,7 @@
     failedMovingArt.clear();
     for (const image of document.querySelectorAll(".actor img, #battle-friend-art")) {
       const id = movingArtOwner(image);
-      if (retry.has(id)) { image.removeAttribute("src"); image.src = art(id); }
+      if (retry.has(id)) { image.removeAttribute("src"); image.src = art(id, false, image.id === 'battle-friend-art' ? 'back' : 'front'); }
     }
     // Keep the dialog and its next keyboard action usable when this notice hides.
     if ($("founder-picture-help").contains(document.activeElement)) $("menu-dialog").querySelector(".close-form button").focus();
@@ -671,7 +682,7 @@
     const p = battle.fighters[battle.active];
     $("battle-friend-name").textContent = name(battle.active);
     $("battle-friend-art").dataset.pet = battle.active;
-    $("battle-friend-art").src = art(battle.active);
+    $("battle-friend-art").src = art(battle.active, false, 'back');
     $("battle-friend-art").alt = name(battle.active) + " practicing";
     $("friend-hp").value = p.hp;
     $("friend-hp-text").textContent = p.hp + "/65";

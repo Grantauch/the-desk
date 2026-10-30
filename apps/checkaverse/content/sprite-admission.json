@@ -1,0 +1,348 @@
+{
+  "tileSize": 32,
+  "key": "FF00FF",
+  "scaling": "NEAREST",
+  "interiorMethod": "Non-background area after border flood fill; enclosed keyed pockets count conservatively as interior.",
+  "files": [
+    {
+      "source": "house-cottage-v2.png",
+      "entry": "5.1",
+      "sha256": "25bea4ea83597aa8e1e04a3d49eb5c112b1a7690824ece1639b30038100a1aea",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        112
+      ],
+      "frames": 1
+    },
+    {
+      "source": "house-stump-v2.png",
+      "entry": "5.2",
+      "sha256": "c8441ea822252de25b91dbe2043a78adac8439d665b0bdd948866751d0d237b2",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        112
+      ],
+      "frames": 1
+    },
+    {
+      "source": "house-creek-v2.png",
+      "entry": "5.3",
+      "sha256": "648245d9cb1f3aa5b5eda9d1f457bc837dd1e187c63fde1b587061f779dac119",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        112
+      ],
+      "frames": 1
+    },
+    {
+      "source": "kc-store-v2.png",
+      "entry": "5.4",
+      "sha256": "a8c3c4024c2b431301ce60f73c463d987d61d4c61168de91f695b4755af52c8e",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        160,
+        128
+      ],
+      "frames": 1
+    },
+    {
+      "source": "kc-apothecary-v2.png",
+      "entry": "5.5",
+      "sha256": "ca99acf4255e66aadfcd3aac6d162b68696bbcaeb4aa39d2be7fe5fcae9b8f26",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        160,
+        128
+      ],
+      "frames": 1
+    },
+    {
+      "source": "kc-clinic-v2.png",
+      "entry": "5.6",
+      "sha256": "0367695df6e0ab280b4e4e51eeec163032ba3cab4b4e4dafeb7876b691e3a9b3",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        160,
+        128
+      ],
+      "frames": 1
+    },
+    {
+      "source": "kc-daycare-v2.png",
+      "entry": "5.7",
+      "sha256": "5cd0642cb807c6e688b17b1ead88108a5536dd516473c979fa5b2c6673cb02f7",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        160,
+        128
+      ],
+      "frames": 1
+    },
+    {
+      "source": "hood-plot-v2.png",
+      "entry": "5.8",
+      "sha256": "0b154fa28874d45f5ec3e4a4428e22419cf0d5f35f7bb712c0301f5fcb0750e5",
+      "borderExact": 1.0,
+      "interiorNear": 0.10066419819638041,
+      "status": "REJECTED",
+      "reasons": [
+        "10.0664% of enclosed sprite interior is near magenta; maximum 1%"
+      ]
+    },
+    {
+      "source": "market-stall-v2.png",
+      "entry": "5.9",
+      "sha256": "7fd468cdc462ed2ed989eac5c57748bc09db28d26bdabb03000efea5b18d54a8",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        96,
+        96
+      ],
+      "frames": 1
+    },
+    {
+      "source": "arena-v2.png",
+      "entry": "5.10",
+      "sha256": "70952db001812cd5be5bbd61c53242ea9b76bdc784d2009fdce6871f7a9f9923",
+      "borderExact": 1.0,
+      "interiorNear": 0.006796740058988221,
+      "status": "ACCEPTED",
+      "size": [
+        256,
+        192
+      ],
+      "frames": 1
+    },
+    {
+      "source": "prop-notice-board-v2.png",
+      "entry": "5.11",
+      "sha256": "dd25ee8a7912896f8b18a2aa06846917ea599ae3dd8d092d293661b94fb55fcb",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        64,
+        64
+      ],
+      "frames": 1
+    },
+    {
+      "source": "prop-bus-v2.png",
+      "entry": "5.12",
+      "sha256": "cec98c1008e4d138012dca865bf822529bb49eb805e79b72f97c9723272b4893",
+      "borderExact": 1.0,
+      "interiorNear": 0.0068312668537356515,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        64
+      ],
+      "frames": 1
+    },
+    {
+      "source": "mochi-sheet.png",
+      "entry": "6.1",
+      "sha256": "a4744badf63bab26d961c5209da8a3ed91cd036e3c9eef32d8d45c0e3fa358d3",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        32
+      ],
+      "frames": 4
+    },
+    {
+      "source": "bolt-sheet.png",
+      "entry": "6.2",
+      "sha256": "224f2efb38a18b4eef602c2518b2ee4f3a884bc1be5418a60b1283d2432e5a70",
+      "borderExact": 1.0,
+      "interiorNear": 0.0,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        32
+      ],
+      "frames": 4
+    },
+    {
+      "source": "zee-sheet.png",
+      "entry": "6.3",
+      "sha256": "b62da68dab655393527dfd748f0bf3c53fe0b9a75d7561163e684324873e6a55",
+      "borderExact": 1.0,
+      "interiorNear": 0.04659883492576683,
+      "status": "REJECTED",
+      "reasons": [
+        "4.6599% of enclosed sprite interior is near magenta; maximum 1%"
+      ]
+    },
+    {
+      "source": "ember-sheet.png",
+      "entry": "6.4",
+      "sha256": "e617288bbd32a5da070d410ef9db944dee55e7dc338d995e66271934eec7adee",
+      "borderExact": 1.0,
+      "interiorNear": 0.00019731252290234642,
+      "status": "ACCEPTED",
+      "size": [
+        128,
+        32
+      ],
+      "frames": 4
+    },
+    {
+      "source": "egg-hatch-sheet.png",
+      "entry": "7.1",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "egg-starters.png",
+      "entry": "7.2",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "egg-rare.png",
+      "entry": "7.3",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "fx-emblems.png",
+      "entry": "8.1",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "fx-grime.png",
+      "entry": "8.2",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "fx-knockout.png",
+      "entry": "8.3",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "items-potions.png",
+      "entry": "9.1",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "items-ingredients-a.png",
+      "entry": "9.2",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "items-ingredients-b.png",
+      "entry": "9.3",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "items-gear.png",
+      "entry": "9.4",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "items-gambles.png",
+      "entry": "9.5",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "tile-tall-grass.png",
+      "entry": "10.1",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "tile-flowers.png",
+      "entry": "10.2",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "prop-fence.png",
+      "entry": "10.3",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "prop-bridge.png",
+      "entry": "10.4",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "prop-waterwheel-sheet.png",
+      "entry": "10.5",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Source not downloaded"
+      ]
+    },
+    {
+      "source": "bg-battle-meadow.png",
+      "entry": "10.6",
+      "status": "UNAVAILABLE",
+      "reasons": [
+        "Missing source; In game is full battle screen, without numeric dimensions."
+      ]
+    }
+  ]
+}
