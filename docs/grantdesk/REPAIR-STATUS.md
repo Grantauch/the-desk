@@ -1,3 +1,7 @@
+## October 30 Checkaverse ground comfort
+
+Owner: Codex. Muted grass, smaller warm path stones and a low outer curb soften the existing test plaza. The cached renderer preserves all original sprites, collision maps and Claude's merged movement/camera/outfit work. Local browser edge/contrast checks and server checks passed; combined canonical checks, protected merge and separate Checkaverse publication remain pending. Actual classroom acceptance remains pending.
+
 ## October 29 PIN assignment flow and Curiosity mysteries
 
 Owner: Codex, branch `fix/pin-assignment-flow-20261029`. PIN verification is required before entry, including save-service outages. The default assignment view has a small account/save status, collapsed Work options and one large final Turn In button. Backup/import, undo, copy, print, receipts and writing support remain on demand; writing timeline disclosure stays visible. First edits save to the tab immediately and to the account after a 15-second pause or 30 seconds of continuous editing. Verified account sessions can finish after refresh without storing the PIN.
