@@ -10,6 +10,7 @@
       "24 written answers and 9 self-check choices retain their existing shared save keys. Report identity is separate, tab-scoped and excluded from all submission answers.",
       "All three synthetic student journeys pass at 1366x768 and 1920x1080, with every read section and presentation slide captured and all PDFs saved.",
       "Exact text preservation, HTML escaping, paragraphs, short answers, 400-plus words, missing steps, reload, edits, keyboard, mouse, touch and oversized sentence/token fallback passed with zero browser errors.",
+      "A selected claim sentence over 60 words moves intact to the opening section, keeping the cover to a single title page. The 520-word claim print fixture passes.",
       "WCAG A/AA checks pass at 320, 390 and 1366 pixels. Printed output was rendered and visually reviewed. The final self-check stays together.",
       "Project map and durable synthetic A/B screenshot sheets and PDFs are under docs/storyhub/HEEL-REPORT-MAP.md and docs/qa/heel-report/. Full frames are also retained in the browser acceptance artifact."
     ]

@@ -14,6 +14,8 @@ All six journeys pass with zero console or page errors. Assertions compare every
 
 Each read sheet contains the cover and all five sections. Each presentation sheet contains every slide at the named resolution. The PDFs use the actual print stylesheet and US Letter pages. Normal output has six pages. Long writing flows across additional pages. Empty sections and unfinished notes are omitted in print and presentation. PDF pages were rendered for visual review, including spacing, escaping, emoji, pagination and headings.
 
+A main claim with a first sentence longer than 60 words is preserved intact in an opening section instead of stretching the title card over several pages. A separate 520-word claim print fixture verifies this path.
+
 | Test | Read screenshots | Presentation screenshots | PDF |
 | --- | --- | --- | --- |
 | A | [1366](TestA-read-1366.webp) · [1920](TestA-read-1920.webp) | [1366](TestA-present-1366.webp) · [1920](TestA-present-1920.webp) | [Test A report](TestA-report.pdf) |

@@ -198,6 +198,15 @@ async function run() {
         await page.keyboard.press('Escape');
         await page.getByRole('button', { name: 'Back to project', exact: true }).click();
         await page.locator('#lab-character-clue').fill(answers['lab-character-clue']);
+        await page.locator('[data-lab-tab="3"]').click();
+        const longClaim = 'A claim needs evidence '.repeat(130).trim();
+        await page.locator('#lab-america').fill(longClaim);
+        await page.locator('.hr-access').click();
+        assert.equal(await page.locator('.hr-cover .hr-quote').count(), 0, 'A very long claim does not turn the title card into several cover pages');
+        assert.equal(await page.locator('.hr-opening .hr-quote').textContent(), longClaim, 'The full selected sentence appears in the opening section');
+        await page.pdf({ path: path.join(output, 'TestB', 'long-claim.pdf'), format: 'Letter', printBackground: true, preferCSSPageSize: true });
+        await page.getByRole('button', { name: 'Back to project', exact: true }).click();
+        await page.locator('#lab-america').fill(answers['lab-america']);
         await page.locator('.hr-access').click();
       }
       // Earlier edits, reload and metadata must be reflected immediately.

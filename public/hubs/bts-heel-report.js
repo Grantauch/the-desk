@@ -90,6 +90,7 @@
       }
       return sentence(text);
     }
+    function longQuote(text) { return (text.match(/\S+/g) || []).length > 60; }
     function read() {
       return chapters.map(function (chapter, index) {
         var fields = chapter.fields.map(function (field) {
@@ -129,7 +130,7 @@
       el.appendChild(title);
       if (value('lab-heel').trim()) el.appendChild(node('p', 'hr-subject', value('lab-heel')));
       var line = quote();
-      if (line) el.appendChild(node('blockquote', 'hr-quote', line));
+      if (line && !longQuote(line)) el.appendChild(node('blockquote', 'hr-quote', line));
       var byline = node('div', 'hr-byline');
       [meta.name.value.trim(), meta.hour.value.trim() ? 'Hour ' + meta.hour.value.trim() : '', dateText()].filter(Boolean).forEach(function (text) { byline.appendChild(node('span', '', text)); });
       if (byline.childElementCount) el.appendChild(byline);
@@ -138,6 +139,14 @@
     function render() {
       if (!dialog.open || presenting) return;
       report.replaceChildren(cover());
+      var line = quote();
+      if (line && longQuote(line)) {
+        var opening = node('section', 'hr-chapter hr-opening');
+        var openingHead = node('header', 'hr-chapter-head');
+        openingHead.append(node('span', 'hr-number', '“'), node('h2', '', 'The argument'));
+        opening.append(openingHead, node('blockquote', 'hr-quote', line));
+        report.appendChild(opening);
+      }
       read().forEach(function (chapter) {
         var section = node('section', 'hr-chapter');
         section.id = 'hr-chapter-' + chapter.number;

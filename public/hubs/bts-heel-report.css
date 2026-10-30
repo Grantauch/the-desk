@@ -23,6 +23,8 @@
 .hr-subject{font:600 clamp(1.25rem,3vw,2rem)/1.15 var(--label);letter-spacing:.06em;text-transform:uppercase;margin:1.6rem 0 0;padding-top:.8rem;border-top:4px solid #d7263d}
 .hr-quote{font:400 clamp(1.3rem,3vw,2rem)/1.38 var(--record);max-width:27em;margin:2.6rem 0 2rem;white-space:pre-wrap;overflow-wrap:anywhere}
 .hr-quote::before{content:'“';display:block;font:400 3.8rem/.7 var(--record);color:#e8a93b;margin-bottom:.5rem}
+.hr-opening .hr-quote{margin:0;max-width:none;orphans:3;widows:3}
+.hr-opening .hr-quote::before{display:none}
 .hr-byline{display:flex;flex-wrap:wrap;gap:.6rem 1.8rem;font:600 1rem/1.4 var(--label);letter-spacing:.04em;margin-top:auto;padding-top:2rem;color:#cfc4ae;border-top:1px solid #645342;width:100%}
 .hr-chapter{padding:clamp(2rem,6vw,4.5rem);border-top:1px solid #c6b79d;overflow-wrap:anywhere}
 .hr-chapter-head{display:grid;grid-template-columns:4.1rem minmax(0,1fr);gap:1.25rem;border-bottom:3px solid #9e1428;padding-bottom:1.6rem;margin-bottom:2.2rem}
@@ -78,6 +80,7 @@
   .hr-response{margin-bottom:.25in}.hr-response h3{font-size:10pt;break-after:avoid-page;margin-bottom:.08in}
   .hr-answer{font-size:12pt;line-height:1.55;orphans:3;widows:3}.hr-short .hr-answer{font-size:20pt;line-height:1.35}
   .hr-defense-question{font-size:11pt;break-after:avoid-page}
+  .hr-opening .hr-quote{font-size:16pt;line-height:1.45}
   .hr-response[data-field="lab-rubric"]{break-inside:avoid-page}
   .hr-response[data-field="lab-rubric"] .hr-answer{font-size:10pt;line-height:1.4;columns:2;column-gap:.25in;orphans:2;widows:2}
 }
