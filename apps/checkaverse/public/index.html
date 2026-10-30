@@ -13,6 +13,7 @@
       <p id="status" class="status" role="status">Connecting...</p>
     </header>
 
+    <div class="play">
     <div class="stage">
       <canvas id="town" width="1536" height="1024" aria-label="Town map"></canvas>
       <div id="toast" class="toast" role="status" hidden></div>
@@ -32,6 +33,7 @@
         <label class="busy"><input id="busy" type="checkbox"> Busy</label>
         <button id="challenge" type="button" disabled>Challenge</button>
         <button id="rename" type="button" class="ghost">New name</button>
+        <button id="outfit" type="button" class="ghost">Outfit</button>
       </div>
       <div class="home">
         <p id="home">Finding your plot...</p>
@@ -45,9 +47,9 @@
         <button data-d="d" type="button" aria-label="Down">&#9660;</button>
         <button data-d="r" type="button" aria-label="Right">&#9654;</button>
       </div>
+      <p class="help">Walk with the arrow keys or WASD, or tap where you want to go. Tap a landmark, or face it and press Space, to read it. Your house is in the Neighborhood to the east. Walk up into any open front door to look inside. Stand next to another trainer and press C to challenge them.</p>
     </section>
-
-    <p class="help">Walk with the arrow keys or WASD, or tap where you want to go. Tap a landmark, or face it and press Space, to read it. Your house is in the Neighborhood to the east. Walk up into any open front door to look inside. Stand next to another trainer and press C to challenge them.</p>
+    </div>
   </main>
   <script src="/plaza.js"></script>
 </body>
