@@ -1,3 +1,11 @@
+## October 29 PIN assignment flow and Curiosity mysteries
+
+Owner: Codex, branch `fix/pin-assignment-flow-20261029`. PIN verification is required before entry, including save-service outages. The default assignment view has a small account/save status, collapsed Work options and one large final Turn In button. Backup/import, undo, copy, print, receipts and writing support remain on demand; writing timeline disclosure stays visible. First edits save to the tab immediately and to the account after a 15-second pause or 30 seconds of continuous editing. Verified account sessions can finish after refresh without storing the PIN.
+
+Turn In v12 stores bounded field/selection bookmarks separately from answers, with revision checks and idempotent retries. Recovery restores the saved field, selection and scroll, following native details and aria-controls tab buttons when necessary. No workbook migration, roster edit or Hall Pass release is involved. A fresh real LOC request reproduced the empty four-word mysteries search; `unidentified people` returns usable images. The function and direct-browser fallback now agree, and empty responses are never cached.
+
+Source and focused synthetic service checks pass. Browser acceptance and canonical full verification are in progress. Protected CI, website production, guarded Turn In v12 deployment and real classroom use are separate pending evidence. Tests use invented students and isolated service code only.
+
 ## October 29 student content publication - release candidate
 
 Integrates PR259 (The Line That Wouldn't Move), PR260 (Claude's Thirty Miles From Paris), PR272 (Down the Rabbit Hole) and PR273 (Somme field study). Course pages now list all catalogued StoryHubs: 18 U.S. History, 32 Hidden History and 14 Beyond the Scoreboard lessons. Original author commits and curriculum baselines are retained.

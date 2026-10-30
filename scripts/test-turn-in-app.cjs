@@ -750,5 +750,56 @@ test('a retried Turn In does not duplicate its Writing Timeline row and load tes
   assert.equal(w.rows('Writing Timeline').length, 1);
 });
 
+test('cursor bookmarks survive account recovery, cursor-only saves and lost acknowledgements without changing completion', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const login = w.post({ action: 'signin', pin, hub: 'h' });
+  const position = { key: 'id:q1', start: 3, end: 7, direction: 'backward', scrollTop: 20 };
+  const body = { action: 'save', token: login.token, hub: 'h', classPeriod: 'Period 1', writeProtocol: 1, baseRevision: '', answers: ONE, position };
+  const first = w.post(body);
+  assert.equal(first.ok, true);
+  w.h.state.cache.clear();
+  assert.deepEqual(w.post({ action: 'signin', pin, hub: 'h' }).draft.position, position);
+  const secondBody = { ...body, baseRevision: first.revision, position: { ...position, start: 8, end: 8 } };
+  const second = w.post(secondBody);
+  assert.equal(second.ok, true);
+  assert.notEqual(second.revision, first.revision, 'moving the cursor updates the bookmark even when answers stay the same');
+  assert.equal(w.post(secondBody).revision, second.revision, 'an acknowledgement retry is idempotent');
+  assert.equal(w.post(body).code, 'conflict', 'an older device cannot replace the newer bookmark');
+  assert.equal(w.rows('Progress')[0].Status, 'In progress');
+  assert.equal(w.rows('Turn Ins').length, 0);
+  assert.deepEqual(w.post({ action: 'signin', pin, hub: 'h' }).draft.position, secondBody.position);
+});
+
+test('malformed cursor metadata is bounded or ignored without losing answers', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const login = w.post({ action: 'signin', pin, hub: 'h' });
+  const save = position => w.post({ action: 'save', token: login.token, hub: 'h', classPeriod: 'Period 1', answers: ONE, position });
+  for (const position of [{ key: 'unknown', start: 0, end: 0 }, { key: 'id:q1', start: -1, end: 2 }, { key: 'id:q1', start: 2, end: 1 }]) {
+    assert.equal(save(position).ok, true);
+    assert.equal(w.post({ action: 'signin', pin, hub: 'h' }).draft.position, null);
+  }
+  assert.equal(save({ key: 'id:q1', start: 999999, end: 999999, direction: 'invalid', scrollTop: 1e99 }).ok, true);
+  const draft = w.post({ action: 'signin', pin, hub: 'h' }).draft;
+  assert.equal(draft.position.end, ONE[0].a.length);
+  assert.equal(draft.position.scrollTop, 100000);
+  assert.equal(draft.position.direction, 'none');
+  assert.deepEqual(draft.answers, ONE);
+});
+
+test('Turn In accepts the verified account session after refresh and refuses expired, forged or inactive sessions', () => {
+  const w = world(), pin = w.pin(PEOPLE.ada);
+  const login = w.post({ action: 'signin', pin, hub: 'h' });
+  const body = { action: 'turnin', accountToken: login.token, hub: 'h', classPeriod: 'Period 1', submissionId: 'session-finish', answers: ONE };
+  assert.equal(w.post({ ...body, accountToken: 'forged' }).code, 'signed_out');
+  assert.equal(w.post({ ...body, accountToken: w.sandbox.makeToken_('inactive@example.invalid', false) }).code, 'signed_out');
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  assert.equal(w.post(body).ok, true);
+  assert.equal(w.rows('Turn Ins').length, 1);
+  w.clock.advanceMinutes(241);
+  assert.equal(w.post({ ...body, submissionId: 'expired' }).code, 'signed_out');
+  assert.equal(w.rows('Turn Ins').length, 1);
+});
+
 console.log(`${failures ? 'FAIL' : 'PASS'}  turn in web app  (${passed}/${passed + failures})`);
 if (failures) process.exit(1);
