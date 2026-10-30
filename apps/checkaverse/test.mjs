@@ -7,6 +7,8 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
+import { createHash } from 'node:crypto';
+import { versionHtmlAssets } from './asset-versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 18000 + Math.floor(Math.random() * 1000);
@@ -46,9 +48,39 @@ try {
   const health = await (await fetch(`http://127.0.0.1:${PORT}/health`)).json();
   assert.equal(health.ok, true);
   const page = await fetch(`http://127.0.0.1:${PORT}/`);
-  assert.equal(page.status, 200); assert.match(await page.text(), /Checkaverse/);
+  const pageHtml = await page.text();
+  assert.equal(page.status, 200); assert.match(pageHtml, /Checkaverse/);
   assert.equal((await fetch(`http://127.0.0.1:${PORT}/../server.mjs`)).status, 404);
   step('health, page and path safety');
+
+  // Test the actual served HTML, not just a hand-written version marker.
+  const teacherHtml = await (await fetch(`http://127.0.0.1:${PORT}/teacher`)).text();
+  for (const [html, name] of [[pageHtml, 'plaza.js'], [pageHtml, 'plaza.css'], [teacherHtml, 'teacher.js']]) {
+    const bytes = fs.readFileSync(path.join(HERE, 'public', name));
+    const revision = createHash('sha256').update(bytes).digest('hex').slice(0, 16);
+    const address = `/${name}?v=${revision}`;
+    assert.ok(html.includes(address), `${name} uses its current content address`);
+    const response = await fetch(`http://127.0.0.1:${PORT}${address}`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes, 'versioned route preserves exact asset bytes');
+  }
+  assert.equal(await (await fetch(`http://127.0.0.1:${PORT}/`)).text(), pageHtml, 'unchanged content has stable versions');
+  let current = Buffer.from('old code');
+  const template = '<script src="/plaza.js"></script><a href="/unknown.js">x</a><script src="https://example.invalid/x.js"></script>';
+  const load = async url => url === '/plaza.js' ? current : null;
+  const oldHtml = await versionHtmlAssets(template, load);
+  current = Buffer.from('new code');
+  const newHtml = await versionHtmlAssets(template, load);
+  assert.notEqual(oldHtml, newHtml, 'updated bytes change the HTML address without a restart');
+  assert.ok(newHtml.includes('href="/unknown.js"') && newHtml.includes('src="https://example.invalid/x.js"'), 'only registered local assets are versioned');
+  step('student and teacher assets have stable content versions that change with their bytes');
+  const arrivals = await Promise.all(Array.from({ length: 35 }, async () => {
+    const response = await fetch(`http://127.0.0.1:${PORT}/`);
+    assert.equal(response.status, 200);
+    assert.equal(await response.text(), pageHtml);
+  }));
+  assert.equal(arrivals.length, 35);
+  step('35 simultaneous page arrivals receive current asset versions');
 
   // Every picture the plaza asks for is served, and the art route cannot reach anything else.
   const wanted = [...fs.readFileSync(path.join(HERE, 'public', 'plaza.js'), 'utf8').matchAll(/'((?:tile|prop|ui|hood|house|market|merge|trainer)-[a-z-]+|arena)'/g)].map((m) => m[1]);

@@ -1,4 +1,16 @@
 {
+  "checkaverse-asset-versions-2026-10-30": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "Content-addressed student and teacher JS/CSS references prevent stale code on ordinary return/reload; existing test-plaza/core loop step4.",
+    "verification_status": "ISOLATED_OLD_CACHE_REPRODUCTION_ACTUAL_MODULE_FIX_AND_19_SERVER_CHECKPOINTS_PASS_CANONICAL_PENDING",
+    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_CHECKAVERSE_PUBLIC_VERIFICATION",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Public HTML is no-cache but JS/CSS max-age14400. Unversioned Chromium return and normal reload retained old code/styles; versioned actual-module fixture received new code/styles without disabling cache.",
+      "Served student/teacher references match current file bytes, unchanged files have stable versions, changed bytes change versions without restart, versioned routes preserve exact assets. Original art, movement, terrain, teacher authorization and school services unchanged."
+    ]
+  },
   "checkaverse-terrain-comfort-2026-10-30": {
     "status": "IMPLEMENTED_LOCAL_TESTED",
     "owner": "Codex",
