@@ -1,3 +1,11 @@
+## October 30 heel personal report
+
+Owner: Codex, branch `feat/heel-student-report`. The complete pre-implementation map is in `docs/storyhub/HEEL-REPORT-MAP.md`. The research route adds a persistent Report button and a final Finish and view report action. The personal report reads every current answer without altering the shared save runtime, answer keys, existing rounds or Turn In. Separate report name, hour and date remain in tab storage and are excluded from submission data.
+
+Synthetic tests A, B and C pass at 1366 by 768 and 1920 by 1080. Every read section and presentation slide is captured, every PDF is saved, and all original answer text is preserved across presentation pages. HTML, emoji, paragraphs, three-word answers, long writing, two empty rounds, earlier edits, reload, print activation, actual fullscreen, keyboard, click, tap, very long sentences and unbroken tokens pass with zero page or console errors. Report WCAG A/AA audits pass at 320, 390 and 1366 pixels. Print pages were rendered and visually checked, including the corrected final self-check pagination. Durable A/B evidence is in `docs/qa/heel-report/`; full frames also belong to the browser acceptance CI artifact.
+
+The canonical local gate is running. Protected hosted checks, merge, Netlify publication and actual classroom use remain separate pending evidence.
+
 ## October 30 Checkaverse ground comfort
 
 Owner: Codex. Muted grass, smaller warm path stones and a low outer curb soften the existing test plaza. The cached renderer preserves all original sprites, collision maps and Claude's merged movement/camera/outfit work. Local browser edge/contrast checks and server checks passed; combined canonical checks, protected merge and separate Checkaverse publication remain pending. Actual classroom acceptance remains pending.
