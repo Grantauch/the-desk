@@ -9,3 +9,5 @@
 - For Apps Script releases, read [DEPLOY.md](apps-script/hall-pass/DEPLOY.md) and the [snapshot index](apps-script/snapshots/hall-pass/README.md). Preserve the existing deployment and stable `/exec`; never roll bathroom service back to Versions 14–16 or test with a real student PIN. Field verification remains pending until an actual class cycle.
 
 - For shared assistant ownership and handoffs, read [AI_TEAM.md](AI_TEAM.md).
+
+- For any Checklings work (Pixel Camp, Willowbank, the Checkaverse server in apps/checkaverse), read [docs/checklings/DESIGN.md](docs/checklings/DESIGN.md) first. It outranks older Checklings docs, board rows and handoffs.

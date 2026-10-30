@@ -26,3 +26,7 @@ Draft, tested, merged, deployed, and classroom-verified are separate states. Do 
 - GitHub: the owner comments `@gemini ` followed by a task on an issue or PR, or runs Gemini Assistant manually in Actions. It reads a small explicit set of public files, returns a draft, and cannot execute commands or edit the repository.
 - Netlify: `/api/gemini` accepts bounded POST JSON with a private bearer token and a per-IP/domain request limit. It has no GitHub or Netlify management tools. Never put the token in a webpage.
 - API requests use their own quota. `GEMINI_MODEL` is configurable; default `gemini-flash-latest`. Errors are reported as errors.
+
+## Checklings
+
+Read [docs/checklings/DESIGN.md](docs/checklings/DESIGN.md) before any Checklings task. Claude is the lead AI on Checklings and the only assistant that edits the design bible. Other assistants propose changes on the board.

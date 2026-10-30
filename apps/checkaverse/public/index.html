@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkaverse</title>
+  <link rel="stylesheet" href="/plaza.css">
+</head>
+<body>
+  <main class="frame">
+    <header class="top">
+      <h1>Checkaverse <span id="place">Town</span></h1>
+      <p id="status" class="status" role="status">Connecting...</p>
+    </header>
+
+    <div class="stage">
+      <canvas id="town" width="1536" height="1024" aria-label="Town map"></canvas>
+      <div id="toast" class="toast" role="status" hidden></div>
+      <div id="ask" class="ask" hidden>
+        <p id="askText"></p>
+        <div class="ask-row">
+          <button id="askYes" type="button">Battle</button>
+          <button id="askNo" type="button" class="ghost">No thanks</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div class="you">
+        <p>You are <strong id="me">...</strong></p>
+        <label class="busy"><input id="busy" type="checkbox"> Busy</label>
+        <button id="challenge" type="button" disabled>Challenge</button>
+      </div>
+      <div class="home">
+        <p id="home">Finding your plot...</p>
+        <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
+      </div>
+      <div id="phrases" class="phrases" aria-label="Phrases"></div>
+      <div class="pad" aria-label="Walk">
+        <button data-d="u" type="button" aria-label="Up">&#9650;</button>
+        <button data-d="l" type="button" aria-label="Left">&#9664;</button>
+        <button data-d="d" type="button" aria-label="Down">&#9660;</button>
+        <button data-d="r" type="button" aria-label="Right">&#9654;</button>
+      </div>
+    </section>
+
+    <p class="help">Walk with the arrow keys or WASD. Your house is in the Neighborhood to the east. Walk up into any open front door to look inside. Stand next to another trainer and press C to challenge them.</p>
+  </main>
+  <script src="/plaza.js"></script>
+</body>
+</html>

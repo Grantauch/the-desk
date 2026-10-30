@@ -1,0 +1,329 @@
+{
+  "id": "checkaverse",
+  "rows": [
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T............................................T",
+    "T.F.........P.........FH..P..................T",
+    "T..HHHHHH...P..HHHHHHH..T.PLLLLL.LLLLL.LLLLL.T",
+    "T..HHHHHH...P..HHHHHHH..T.PLLLLLFLLLLL.LLLLL.T",
+    "T..HHHHHH...P..HHHHHHH....PLLLLL.LLLLL.LLLLLFT",
+    "T..HHHHHH...P..HHHHHHH...HPLLLLL.LLLLL.LLLLL.T",
+    "T...........P..PPPPPPP....PPPPPPPPPPPPPPPPPPPT",
+    "T...........P.....P......FP..................T",
+    "T..H..TT....P.....P..H.F..PLLLLL.LLLLL.LLLLL.T",
+    "T........F..P.HHHHP.......PLLLLL.LLLLLFLLLLL.T",
+    "T....F..HH..P.HHHHP.......PLLLLL.LLLLL.LLLLL.T",
+    "T.........H.PSH...P.H.....PLLLLL.LLLLL.LLLLL.T",
+    "T.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPT",
+    "T......H....P..........H..P..................T",
+    "T..PPPPPPPP.PHH...........PLLLLL.LLLLL.LLLLL.T",
+    "T..PPWWWWPP.P.......HH....PLLLLLFLLLLL.LLLLL.T",
+    "T..PWWWWWWP.P...TT..HH....PLLLLL.LLLLL.LLLLLFT",
+    "T..PWWWWWWP.P...TT.......HPLLLLL.LLLLL.LLLLL.T",
+    "T..PWWWWWWP.P.............PPPPPPPPPPPPPPPPPPPT",
+    "T..PPWWWWPP.P........TT..FP..................T",
+    "T..PPPPPPPP.P........TT...PLLLLL.LLLLL.LLLLL.T",
+    "T....HH.....P.F....H......PLLLLL.LLLLLFLLLLL.T",
+    "T...........P.............PLLLLL.LLLLL.LLLLL.T",
+    "T.H....F....P......F....T.PLLLLL.LLLLL.LLLLL.T",
+    "T........H..P...........T.PPPPPPPPPPPPPPPPPPPT",
+    "T............................................T",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "arrive": [
+    [
+      14,
+      13
+    ],
+    [
+      15,
+      13
+    ],
+    [
+      16,
+      13
+    ],
+    [
+      14,
+      14
+    ],
+    [
+      15,
+      12
+    ],
+    [
+      16,
+      14
+    ],
+    [
+      13,
+      13
+    ],
+    [
+      17,
+      13
+    ]
+  ],
+  "plots": [
+    {
+      "id": 1,
+      "x": 27,
+      "y": 3,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 29,
+        "y": 5
+      }
+    },
+    {
+      "id": 2,
+      "x": 33,
+      "y": 3,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 35,
+        "y": 5
+      }
+    },
+    {
+      "id": 3,
+      "x": 39,
+      "y": 3,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 41,
+        "y": 5
+      }
+    },
+    {
+      "id": 4,
+      "x": 27,
+      "y": 9,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 29,
+        "y": 11
+      }
+    },
+    {
+      "id": 5,
+      "x": 33,
+      "y": 9,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 35,
+        "y": 11
+      }
+    },
+    {
+      "id": 6,
+      "x": 39,
+      "y": 9,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 41,
+        "y": 11
+      }
+    },
+    {
+      "id": 7,
+      "x": 27,
+      "y": 15,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 29,
+        "y": 17
+      }
+    },
+    {
+      "id": 8,
+      "x": 33,
+      "y": 15,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 35,
+        "y": 17
+      }
+    },
+    {
+      "id": 9,
+      "x": 39,
+      "y": 15,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 41,
+        "y": 17
+      }
+    },
+    {
+      "id": 10,
+      "x": 27,
+      "y": 21,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 29,
+        "y": 23
+      }
+    },
+    {
+      "id": 11,
+      "x": 33,
+      "y": 21,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 35,
+        "y": 23
+      }
+    },
+    {
+      "id": 12,
+      "x": 39,
+      "y": 21,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 41,
+        "y": 23
+      }
+    }
+  ],
+  "props": [
+    {
+      "s": "arena",
+      "x": 2.5,
+      "b": 7,
+      "w": 7
+    },
+    {
+      "s": "market-stall",
+      "x": 15,
+      "b": 7,
+      "w": 3.4
+    },
+    {
+      "s": "market-stall",
+      "x": 18.6,
+      "b": 7,
+      "w": 3.4
+    },
+    {
+      "s": "prop-bus",
+      "x": 14,
+      "b": 12,
+      "w": 4
+    },
+    {
+      "s": "prop-bus-stop",
+      "x": 13,
+      "b": 13,
+      "w": 2
+    },
+    {
+      "s": "prop-notice-board",
+      "x": 7.8,
+      "b": 12,
+      "w": 2.4
+    },
+    {
+      "s": "merge-stone",
+      "x": 19.6,
+      "b": 18,
+      "w": 2.8
+    },
+    {
+      "s": "prop-lantern",
+      "x": 10.14,
+      "b": 13,
+      "w": 0.73
+    },
+    {
+      "s": "prop-lantern",
+      "x": 20.14,
+      "b": 13,
+      "w": 0.73
+    },
+    {
+      "s": "prop-lantern",
+      "x": 7.14,
+      "b": 15,
+      "w": 0.73
+    },
+    {
+      "s": "prop-lantern",
+      "x": 23.14,
+      "b": 15,
+      "w": 0.73
+    },
+    {
+      "s": "prop-lantern",
+      "x": 25.14,
+      "b": 7,
+      "w": 0.73
+    },
+    {
+      "s": "prop-lantern",
+      "x": 25.14,
+      "b": 19,
+      "w": 0.73
+    },
+    {
+      "s": "prop-bench",
+      "x": 5,
+      "b": 23,
+      "w": 2
+    },
+    {
+      "s": "prop-bench",
+      "x": 13,
+      "b": 16,
+      "w": 2
+    },
+    {
+      "s": "prop-rock",
+      "x": 3,
+      "b": 10,
+      "w": 1
+    },
+    {
+      "s": "prop-rock",
+      "x": 21,
+      "b": 10,
+      "w": 1
+    },
+    {
+      "s": "prop-rock",
+      "x": 9,
+      "b": 26,
+      "w": 1
+    },
+    {
+      "s": "prop-bush",
+      "x": 2,
+      "b": 25,
+      "w": 1
+    },
+    {
+      "s": "prop-bush",
+      "x": 23,
+      "b": 3,
+      "w": 1
+    },
+    {
+      "s": "prop-bush",
+      "x": 19,
+      "b": 23,
+      "w": 1
+    }
+  ]
+}
