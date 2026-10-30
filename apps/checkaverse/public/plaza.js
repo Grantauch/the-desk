@@ -12,8 +12,10 @@
   const busyEl = $('busy'), challengeBtn = $('challenge'), phrasesEl = $('phrases');
   const placeEl = $('place'), lockBtn = $('lock'), homeEl = $('home');
 
-  let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0;
-  let town = null, house = null, phrases = [], myPlot = 0;
+  let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false;
+  const pausedEl = document.getElementById('paused');
+  function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } }
+  let town = null, house = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
@@ -39,6 +41,8 @@
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
   }
   function homeLine() {
+    const goHome = document.getElementById('goHome');
+    goHome.hidden = !myPlot || roomKind !== 'town';
     if (!myPlot) { homeEl.textContent = 'No free plot right now'; lockBtn.hidden = true; return; }
     const mine = live(myPlot);
     homeEl.textContent = `Your house is on plot ${myPlot} in the Neighborhood`;
@@ -47,9 +51,12 @@
     lockBtn.setAttribute('aria-pressed', String(mine.locked));
   }
 
+  // dx, dy: where the trainer is drawn. q: tiles a remote trainer still has to walk through.
+  // seg: the step your own trainer is walking right now. stride: distance walked, for the leg animation.
+  const fresh = (p) => ({ ...p, dx: p.x, dy: p.y, q: [], seg: null, stride: 0, unacked: 0, bumped: '' });
   function setPlayers(list) {
     players.clear();
-    for (const p of list) players.set(p.id, { ...p, dx: p.x, dy: p.y });
+    for (const p of list) players.set(p.id, fresh(p));
   }
 
   function connect() {
@@ -58,9 +65,10 @@
     setStatus(retry ? 'Reconnecting...' : 'Connecting...');
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } handle(m); };
     ws.onopen = () => { retry = 0; };
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       players.clear();
       hideAsk();
+      if (removed || ev.code === 4001) return setStatus('The teacher removed you from the Checkaverse. Reload the page to come back.', true);
       const wait = Math.min(15000, 1000 * 2 ** retry++);
       setStatus(`The Checkaverse bus is not running right now. Trying again in ${Math.round(wait / 1000)}s.`, true);
       setTimeout(connect, wait);
@@ -71,6 +79,7 @@
     switch (m.t) {
       case 'welcome':
         me = m.you; town = m.town; house = m.house; phrases = m.phrases; myPlot = m.myPlot;
+        signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         room = 'town'; roomKind = 'town'; roomOwner = null;
         setPlayers(m.players);
         meEl.textContent = players.get(me)?.name || 'Trainer';
@@ -81,16 +90,25 @@
         break;
       case 'room':
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
+        stopWalk();
         setPlayers(m.players);
         hideAsk();
-        countLine(); placeLine();
+        countLine(); placeLine(); homeLine();
         snapCamera();
         if (roomKind === 'house') toast(roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
         break;
       case 'plots': plots = m.plots; homeLine(); break;
-      case 'join': players.set(m.p.id, { ...m.p, dx: m.p.x, dy: m.p.y }); countLine(); break;
+      case 'join': players.set(m.p.id, fresh(m.p)); countLine(); break;
       case 'leave': players.delete(m.id); if (pendingFrom === m.id) hideAsk(); countLine(); break;
-      case 'pos': { const p = players.get(m.id); if (p) { p.x = m.x; p.y = m.y; p.f = m.f; } break; }
+      case 'pos': {
+        const p = players.get(m.id);
+        if (!p) break;
+        if (m.id === me) { selfConfirmed(p, m); break; }
+        if (m.x === p.x && m.y === p.y) { if (p.q.length) p.q.push([m.x, m.y, m.f]); else p.f = m.f; }
+        else p.q.push([m.x, m.y, m.f]);
+        p.x = m.x; p.y = m.y;
+        break;
+      }
       case 'busy': { const p = players.get(m.id); if (p) p.busy = m.v; break; }
       case 'say': {
         const p = players.get(m.id);
@@ -106,6 +124,15 @@
         break;
       case 'challenge_result': toast(m.msg); break;
       case 'notice': toast(m.msg); break;
+      case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
+      case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
+      case 'removed': removed = true; break;
+      case 'name': {
+        const p = players.get(m.id);
+        if (p) p.name = m.name;
+        if (m.id === me) { meEl.textContent = m.name; rerolls = m.left ?? rerolls; renameLine(); toast(`You are now ${m.name}.`); }
+        break;
+      }
       default: break;
     }
   }
@@ -116,7 +143,13 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.textContent = text;
-      b.addEventListener('click', () => send({ t: 'say', p: i }));
+      b.addEventListener('click', () => {
+        send({ t: 'say', p: i });
+        // The server takes one phrase every two seconds; the buttons rest for the same time.
+        const all = [...phrasesEl.querySelectorAll('button')];
+        all.forEach((x) => { x.disabled = true; });
+        setTimeout(() => all.forEach((x) => { x.disabled = false; }), 2000);
+      });
       phrasesEl.appendChild(b);
     });
   }
@@ -127,6 +160,22 @@
   $('askNo').addEventListener('click', () => answer(false));
   busyEl.addEventListener('change', () => send({ t: 'busy', v: busyEl.checked }));
   lockBtn.addEventListener('click', () => send({ t: 'lock', v: !live(myPlot).locked }));
+  const renameBtn = $('rename');
+  function renameLine() {
+    renameBtn.textContent = rerolls ? `New name (${rerolls} left)` : 'No new names left';
+    renameBtn.disabled = !rerolls;
+  }
+  renameBtn.addEventListener('click', () => { if (rerolls) send({ t: 'reroll' }); });
+  // Walks you to your own front door and in. The town is wide, so this saves a long hunt.
+  document.getElementById('goHome').addEventListener('click', () => {
+    const geo = town?.plots.find((g) => g.id === myPlot);
+    if (geo && roomKind === 'town') walkTo([[geo.door.x, geo.door.y + 1]], 'u');
+  });
+  // After a mouse or tap click, hand the keyboard back to the game so Space does not press the same button again.
+  document.querySelector('.panel').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (b && e.detail) b.blur();
+  });
 
   // The trainer to challenge: the one straight ahead first, then anyone next to you.
   const AHEAD = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] };
@@ -153,30 +202,187 @@
   // Held keys repeat at the server's walking speed.
   const KEYS = { ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd', ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r' };
   const held = [];
-  let lastStep = 0;
+  let lastFrame = 0;
   window.addEventListener('keydown', (e) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement && e.code === 'Space') return;
     if (!askEl.hidden) return;
     const d = KEYS[e.code];
-    if (d) { e.preventDefault(); if (!held.includes(d)) held.push(d); return; }
+    if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } if (!held.includes(d)) held.push(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
+    if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) { e.preventDefault(); lookAhead(true); }
   });
   window.addEventListener('keyup', (e) => { const i = held.indexOf(KEYS[e.code]); if (i >= 0) held.splice(i, 1); });
   window.addEventListener('blur', () => { held.length = 0; });
   document.querySelectorAll('.pad button').forEach((b) => {
     const d = b.dataset.d;
-    const down = (e) => { e.preventDefault(); if (!held.includes(d)) held.push(d); };
+    const down = (e) => { e.preventDefault(); stopWalk(); const s0 = players.get(me); if (s0) s0.bumped = ''; if (!held.includes(d)) held.push(d); };
     const up = () => { const i = held.indexOf(d); if (i >= 0) held.splice(i, 1); };
     b.addEventListener('pointerdown', down);
     b.addEventListener('pointerup', up);
     b.addEventListener('pointerleave', up);
     b.addEventListener('pointercancel', up);
   });
+  // ---------- tap to walk and look ----------
+  // Tapping the map walks there one step at a time. The server still checks every step.
+  // Tapping a trainer challenges them, tapping a landmark walks up to it and reads its sign,
+  // and tapping a house walks in its front door.
+  const STEP = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] };
+  const TOWN_SOLID = new Set(['T', 'W', 'H', 'S']);
+  const HOUSE_SOLID = new Set(['X', 'B', 'K', 'N', 'D']);
+  let walk = null; // { goals: Set of 'x,y', then: 'u'|'d'|..., sign, sentAt, from }
+  function stopWalk() { walk = null; }
+  function open(x, y) {
+    const r = rows();
+    if (y < 0 || y >= r.length || x < 0 || x >= r[0].length) return false;
+    if (roomKind === 'house') return !HOUSE_SOLID.has(r[y][x]);
+    if (TOWN_SOLID.has(r[y][x])) return false;
+    return !plots.some((pl) => pl.owner && (() => { const g = town.plots.find((q) => q.id === pl.id); return g && x >= g.x && x < g.x + g.w && y >= g.y && y < g.y + g.h - 1; })());
+  }
+  // Breadth first search from where the server says we are. Returns the first direction to step, or '' if already there.
+  function firstStep(sx, sy, goals) {
+    if (goals.has(`${sx},${sy}`)) return '';
+    const seen = new Map([[`${sx},${sy}`, null]]);
+    const queue = [[sx, sy]];
+    while (queue.length) {
+      const [x, y] = queue.shift();
+      for (const [d, [ax, ay]] of Object.entries(STEP)) {
+        const nx = x + ax, ny = y + ay, k = `${nx},${ny}`;
+        if (seen.has(k) || !open(nx, ny)) continue;
+        seen.set(k, [x, y, d]);
+        if (goals.has(k)) {
+          let cur = k, dir = d;
+          while (true) { const [px, py, pd] = seen.get(cur); if (px === sx && py === sy) return pd; cur = `${px},${py}`; dir = pd; }
+        }
+        queue.push([nx, ny]);
+      }
+      if (seen.size > 4000) break;
+    }
+    return null;
+  }
+  function walkTo(goalList, then, sign) {
+    const goals = new Set(goalList.filter(([x, y]) => open(x, y)).map(([x, y]) => `${x},${y}`));
+    if (!goals.size) return toast('You cannot get there from here.');
+    walk = { goals, then, sign, sentAt: 0, from: '' };
+  }
+  function around(fx, fy, fw, fh) {
+    const out = [];
+    for (let x = fx; x < fx + fw; x++) { out.push([x, fy - 1, 'd'], [x, fy + fh, 'u']); }
+    for (let y = fy; y < fy + fh; y++) { out.push([fx - 1, y, 'r'], [fx + fw, y, 'l']); }
+    return out;
+  }
+  // Tap to walk: the next step from where your trainer is going to be, or '' once there.
+  function walkDir(self) {
+    if (!walk) return '';
+    const dir = firstStep(self.x, self.y, walk.goals);
+    if (dir === null) { stopWalk(); toast('You cannot get there from here.'); return ''; }
+    if (dir) return dir;
+    const w = walk; stopWalk();
+    const face = typeof w.then === 'function' ? w.then(self) : w.then;
+    if (w.sign) setTimeout(() => showSign(w.sign), 150);
+    return face || '';
+  }
+
+  // ---------- your own trainer ----------
+  // Your trainer moves the moment you press, at a steady pace, and the server checks each step behind it.
+  // If the server ever disagrees (a door locked a moment ago), the trainer glides to where the server says.
+  const STEP_MS = 180;
+  function selfConfirmed(p, m) {
+    p.unacked = Math.max(0, p.unacked - 1);
+    if (p.unacked || (m.x === p.x && m.y === p.y)) return;
+    p.seg = { fx: p.dx, fy: p.dy, tx: m.x, ty: m.y, start: performance.now(), dur: STEP_MS };
+    p.x = m.x; p.y = m.y; p.f = m.f;
+  }
+  function selfTick(now) {
+    const p = players.get(me);
+    if (!p) return;
+    let start = now;
+    if (p.seg) {
+      const k = Math.min(1, (now - p.seg.start) / p.seg.dur);
+      const nx = p.seg.fx + (p.seg.tx - p.seg.fx) * k, ny = p.seg.fy + (p.seg.ty - p.seg.fy) * k;
+      p.stride += Math.abs(nx - p.dx) + Math.abs(ny - p.dy);
+      p.dx = nx; p.dy = ny;
+      if (k < 1) return;
+      start = p.seg.start + p.seg.dur; // chain the next step with no gap
+      p.seg = null;
+      if (now - start > STEP_MS) start = now;
+    }
+    if (!askEl.hidden || paused) return;
+    const dir = held.length ? held[held.length - 1] : walkDir(p);
+    if (!dir) return;
+    const [ax, ay] = STEP[dir];
+    const nx = p.x + ax, ny = p.y + ay;
+    if (open(nx, ny)) {
+      p.f = dir; p.bumped = '';
+      send({ t: 'move', d: dir }); p.unacked++;
+      p.seg = { fx: p.x, fy: p.y, tx: nx, ty: ny, start, dur: STEP_MS };
+      p.x = nx; p.y = ny;
+      selfTick(now);
+      return;
+    }
+    // Blocked: turn to face it and tell the server once, which is also how doors open.
+    const bump = `${p.x},${p.y},${dir}`;
+    if (p.bumped === bump) return;
+    p.bumped = bump; p.f = dir;
+    send({ t: 'move', d: dir }); p.unacked++;
+  }
+
+  // ---------- everyone else ----------
+  // Remote trainers walk through the tiles the server reported at the same steady pace. A little slower when
+  // only one tile is waiting, so the next report usually arrives before they stop, and faster when they fall behind.
+  function remoteTick(p, dt) {
+    while (p.q.length) {
+      const [tx, ty, f] = p.q[0];
+      const ex = tx - p.dx, ey = ty - p.dy, d = Math.abs(ex) + Math.abs(ey);
+      if (d > 3) { p.dx = tx; p.dy = ty; p.f = f; p.q.shift(); continue; }
+      if (d > 0.001) p.f = f;
+      const pace = p.q.length === 1 ? 0.88 : p.q.length === 2 ? 1 : 1.5;
+      const go = (dt / STEP_MS) * pace;
+      if (go >= d) { p.dx = tx; p.dy = ty; p.stride += d; p.f = f; p.q.shift(); dt -= d > 0 ? (d * STEP_MS) / pace : 0; if (dt <= 0) break; continue; }
+      p.dx += (ex / d) * go; p.dy += (ey / d) * go; p.stride += go;
+      break;
+    }
+  }
+
+  function showSign(key) { if (signs[key]) toast(signs[key]); }
+  function propAt(x, y) {
+    return (town?.props || []).find((p) => p.sign && p.f && x >= p.f[0] && x < p.f[0] + p.f[2] && y >= p.f[1] && y < p.f[1] + p.f[3]);
+  }
+  // Space or Enter reads whatever is straight ahead.
+  function lookAhead(fromKey) {
+    const self = players.get(me);
+    if (!self || roomKind !== 'town') return false;
+    const [ax, ay] = STEP[self.f] || STEP.d;
+    const p = propAt(self.x + ax, self.y + ay);
+    if (p) { showSign(p.sign); return true; }
+    if (fromKey) toast('Walk up to a landmark and face it, then press Space to look.');
+    return false;
+  }
   canvas.addEventListener('click', (e) => {
     const r = canvas.getBoundingClientRect();
-    const tx = Math.floor((((e.clientX - r.left) / r.width) * VIEW_W / zoom() + cam.x) / TILE);
-    const ty = Math.floor((((e.clientY - r.top) / r.height) * VIEW_H / zoom() + cam.y) / TILE);
-    for (const p of players.values()) if (p.id !== me && p.x === tx && p.y === ty) return send({ t: 'challenge', to: p.id });
+    const wx = (((e.clientX - r.left) / r.width) * VIEW_W) / zoom() + cam.x;
+    const wy = (((e.clientY - r.top) / r.height) * VIEW_H) / zoom() + cam.y;
+    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
+    // Trainers stand a tile and a half tall, so a tap on the head counts too.
+    for (const p of players.values()) {
+      if (p.id !== me && p.x === tx && (p.y === ty || p.y === ty + 1)) { stopWalk(); return send({ t: 'challenge', to: p.id }); }
+    }
+    if (roomKind === 'house') {
+      const ex = house.exit;
+      if (tx === ex.x && ty === ex.y) return walkTo([[ex.x, ex.y - 1]], 'd');
+      return walkTo([[tx, ty]]);
+    }
+    for (const geo of town.plots) {
+      const st = live(geo.id);
+      if (st.owner && tx >= geo.x && tx < geo.x + geo.w && ty >= geo.y - 1 && ty < geo.y + geo.h - 1) {
+        return walkTo([[geo.door.x, geo.door.y + 1]], 'u');
+      }
+    }
+    const p = propAt(tx, ty);
+    if (p) {
+      const spots = around(...p.f);
+      return walkTo(spots.map(([x, y]) => [x, y]), (self) => (spots.find(([x, y]) => x === self.x && y === self.y) || [])[2], p.sign);
+    }
+    walkTo([[tx, ty]]);
   });
 
   // ---------- camera ----------
@@ -286,6 +492,30 @@
     return c;
   }
 
+  // The pond drifts slowly: the water texture is redrawn over the water tiles a few pixels further along each frame.
+  // The bank outline from the ground canvas is drawn back on top so the edge stays crisp.
+  let waterPattern = null;
+  function shimmer(now, x0, y0, x1, y1) {
+    if (!has('tile-water') || reduceMotion) return;
+    if (!waterPattern) waterPattern = ctx.createPattern(ART['tile-water'], 'repeat');
+    const r = town.rows;
+    const off = (now / 90) % 192;
+    const m = new DOMMatrix().scale(1 / SCALE).translate(off, off * 0.4);
+    waterPattern.setTransform(m);
+    ctx.fillStyle = waterPattern;
+    const at = (x, y) => (r[y] && r[y][x]) || 'T';
+    for (let y = Math.max(0, y0); y <= Math.min(r.length - 1, y1); y++) {
+      for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
+        if (r[y][x] !== 'W') continue;
+        // Keep the drawn bank: inset the redraw on any side that touches land.
+        const l = at(x - 1, y) !== 'W' ? 5 / SCALE : 0, t = at(x, y - 1) !== 'W' ? 6 / SCALE : 0;
+        const rr = at(x + 1, y) !== 'W' ? 5 / SCALE : 0, b = at(x, y + 1) !== 'W' ? 4 / SCALE : 0;
+        ctx.fillRect(x * TILE + l, y * TILE + t, TILE - l - rr, TILE - t - b);
+      }
+    }
+  }
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // Placeholder shapes, used only when the art cannot load.
   function townTile(g, ch, x, y) {
     const px = x * TILE, py = y * TILE;
@@ -358,11 +588,7 @@
   }
 
   function trainer(p, now) {
-    // Ease toward the server position so steps look smooth.
-    p.dx += (p.x - p.dx) * 0.35;
-    p.dy += (p.y - p.dy) * 0.35;
-    const moving = Math.abs(p.x - p.dx) + Math.abs(p.y - p.dy) > 0.04;
-    if (moving) p.walkUntil = now + 120;
+    const moving = Boolean(p.seg || p.q.length);
     const px = p.dx * TILE, py = p.dy * TILE;
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.beginPath(); ctx.ellipse(px + 16, py + 29, 10, 4, 0, 0, Math.PI * 2); ctx.fill();
@@ -372,15 +598,22 @@
     }
     const look = TRAINERS[p.id % TRAINERS.length];
     if (has(look)) {
-      const step = (p.walkUntil || 0) > now ? [1, 0, 1, 2][Math.floor(now / 140) % 4] : 1;
+      // Left foot, stand, right foot, stand: one foot forward per tile, like Red and Blue.
+      const step = moving ? [0, 1, 2, 1][Math.floor(p.stride * 2) % 4] : 1;
       ctx.drawImage(ART[look], step * 64, (FACE_ROW[p.f] ?? 0) * 96, 64, 96, px, py + TILE - 48, 32, 48);
     } else {
       ctx.fillStyle = p.c; ctx.fillRect(px + 8, py + 10, 16, 16);
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
     }
     const top = py + TILE - 50;
-    labels.push([p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.busy ? '#9fb59a' : '#f4f1e6']);
-    if (p.bubble && p.bubbleUntil > now) bubbles.push([p.bubble, px + 16, top - 16]);
+    // In a crowd, name tags show only for you, trainers within a few steps, and anyone talking.
+    const self = players.get(me);
+    const talking = p.bubble && p.bubbleUntil > now;
+    const near = self && Math.abs(p.dx - self.dx) + Math.abs(p.dy - self.dy) <= 4;
+    if (p.id === me || near || talking || players.size <= 8) {
+      labels.push([p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.id === me ? '#ffd166' : p.busy ? '#9fb59a' : '#f4f1e6', p.id === me ? 0 : 1]);
+    }
+    if (talking) bubbles.push([p.bubble, px + 16, top - 16]);
   }
 
   function label(text, cx, y, color) {
@@ -422,7 +655,10 @@
 
   const labels = [], bubbles = [];
   function frame(now) {
-    if (held.length && now - lastStep > 120) { send({ t: 'move', d: held[held.length - 1] }); lastStep = now; }
+    const dt = Math.min(100, now - (lastFrame || now));
+    lastFrame = now;
+    selfTick(now);
+    for (const p of players.values()) if (p.id !== me) remoteTick(p, dt);
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#0b1410';
@@ -432,14 +668,17 @@
       const key = `${room}:${artWaiting}`;
       if (!ground || groundKey !== key) { ground = buildGround(); groundKey = key; }
       const target = cameraTarget();
-      cam.x += (target.x - cam.x) * 0.2;
-      cam.y += (target.y - cam.y) * 0.2;
+      cam = target; // locked to your trainer, so the walk never wobbles
       const z = zoom(), vw = VIEW_W / z, vh = VIEW_H / z;
       const cx = Math.round(cam.x * SCALE * z) / (SCALE * z), cy = Math.round(cam.y * SCALE * z) / (SCALE * z);
       ctx.save();
       ctx.scale(z, z);
       ctx.translate(-cx, -cy);
-      ctx.drawImage(ground, 0, 0, ground.width / SCALE, ground.height / SCALE);
+      // Copy only the part of the ground that is on screen; the whole town is far bigger than the view.
+      const gx = Math.max(0, cx), gy = Math.max(0, cy);
+      const gw = Math.min(ground.width / SCALE - gx, vw - (gx - cx)), gh = Math.min(ground.height / SCALE - gy, vh - (gy - cy));
+      if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * SCALE, gy * SCALE, gw * SCALE, gh * SCALE, gx, gy, gw, gh);
+      if (roomKind === 'town') shimmer(now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
@@ -451,6 +690,7 @@
       // Name tags never sit on top of each other: a tag that would overlap one already placed moves up a row.
       ctx.font = '12px monospace';
       const placed = [];
+      labels.sort((a, b) => (a[4] ?? 1) - (b[4] ?? 1)); // your own tag claims its spot first
       for (const [text, x, y, color] of labels) {
         const w = ctx.measureText(text).width + 8;
         let ty = y;
@@ -458,13 +698,24 @@
         placed.push({ x, y: ty, w });
         label(text, x, ty, color);
       }
-      for (const b of bubbles) bubble(...b);
+      // Bubbles step up out of each other's way too.
+      ctx.font = '13px monospace';
+      const stacked = [];
+      for (const [text, x, y] of bubbles) {
+        const w = ctx.measureText(text).width + 24;
+        let ty = y;
+        for (let i = 0; i < 4 && stacked.some((q) => Math.abs(q.x - x) < (q.w + w) / 2 && Math.abs(q.y - ty) < 30); i++) ty -= 31;
+        stacked.push({ x, y: ty, w });
+        bubble(text, x, ty);
+      }
       ctx.restore();
     }
     challengeBtn.disabled = !neighbor() || busyEl.checked;
     requestAnimationFrame(frame);
   }
 
+  // ?debug lets the movement test read where trainers are drawn. It changes nothing.
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me };
   connect();
   requestAnimationFrame(frame);
 })();

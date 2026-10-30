@@ -6,13 +6,14 @@
 
 import http from 'node:http';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.3.0';
+const VERSION = '0.6.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -28,8 +29,22 @@ const TOWN = readContent('town.json');
 const HOUSE = readContent('house.json');
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
+const SIGNS = readContent('signs.json');
+const SAY_GAP_MS = 2000;
+const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
+
+// ---------- teacher key ----------
+// The teacher page needs this key. It lives only in the data folder (never in the repo) and is made on first start.
+const KEY_FILE = path.join(DATA_DIR, 'teacher-key.txt');
+if (!fs.existsSync(KEY_FILE)) fs.writeFileSync(KEY_FILE, crypto.randomBytes(9).toString('base64url') + '\n', { mode: 0o600 });
+const TEACHER_KEY = (process.env.CHECKAVERSE_TEACHER_KEY || fs.readFileSync(KEY_FILE, 'utf8')).trim();
+const keyOk = (k) => {
+  const a = Buffer.from(String(k || '')), b = Buffer.from(TEACHER_KEY);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+let paused = false;
 
 // ---------- logging ----------
 function log(...parts) {
@@ -61,6 +76,7 @@ db.exec(`
 db.prepare(`UPDATE sessions SET ended = ? WHERE ended IS NULL`).run(new Date().toISOString());
 const insertSession = db.prepare(`INSERT INTO sessions (trainer, started) VALUES (?, ?)`);
 const closeSession = db.prepare(`UPDATE sessions SET ended = ?, moves = ?, phrases = ?, challenges = ? WHERE id = ?`);
+const renameSession = db.prepare(`UPDATE sessions SET trainer = ? WHERE id = ?`);
 const setMeta = db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
 setMeta.run('last_start', new Date().toISOString());
 setMeta.run('version', VERSION);
@@ -101,9 +117,23 @@ function trainerName() {
 const testSpawns = (process.env.CHECKAVERSE_TEST_SPAWN || '').split(';').filter(Boolean).map((s) => s.split(',').map(Number));
 function arrivalPoint() {
   if (testSpawns.length) { const [x, y] = testSpawns.shift(); return { x, y }; }
-  const spots = TOWN.arrive.filter(([x, y]) => walkable('town', x, y));
-  const [x, y] = spots[Math.floor(Math.random() * spots.length)] || [14, 13];
-  return { x, y };
+  // A free arrival spot by the bus stop, so a class arriving at once does not pile onto a few tiles.
+  const taken = new Set(inRoom('town').map((o) => `${o.x},${o.y}`));
+  const spots = TOWN.arrive.filter(([x, y]) => walkable('town', x, y) && !taken.has(`${x},${y}`));
+  if (spots.length) { const [x, y] = spots[Math.floor(Math.random() * spots.length)]; return { x, y }; }
+  // All taken: the nearest open tile to the bus stop.
+  const [sx, sy] = TOWN.arrive[0];
+  const seen = new Set([`${sx},${sy}`]);
+  const queue = [[sx, sy]];
+  while (queue.length) {
+    const [x, y] = queue.shift();
+    if (walkable('town', x, y) && !taken.has(`${x},${y}`)) return { x, y };
+    for (const [dx, dy] of Object.values(DIRS)) {
+      const k = `${x + dx},${y + dy}`;
+      if (!seen.has(k) && walkable('town', x + dx, y + dy)) { seen.add(k); queue.push([x + dx, y + dy]); }
+    }
+  }
+  return { x: sx, y: sy };
 }
 
 const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
@@ -211,7 +241,7 @@ function handleAnswer(p, fromId, ok) {
     return send(p, { t: 'notice', msg: 'Challenge declined.' });
   }
   // Battles arrive with Phase 3. Today the handshake proves two Chromebooks can find each other live.
-  const msg = 'Challenge accepted! Live battles open when Phase 3 ships.';
+  const msg = 'Challenge accepted! Battles are not open yet, so tip your hat and say Good game.';
   send(challenger, { t: 'challenge_result', with: p.id, ok: true, msg });
   send(p, { t: 'challenge_result', with: challenger.id, ok: true, msg });
   log('challenge accepted', challenger.name, 'vs', p.name);
@@ -235,6 +265,8 @@ const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
+  '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
+  '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],
 };
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
@@ -253,6 +285,7 @@ const server = http.createServer((req, res) => {
       houses: plots.filter((pl) => pl.owner).length, startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
     }));
   }
+  if (url.pathname.startsWith('/api/teacher/')) return teacherApi(req, res, url.pathname.slice(13));
   // Sprite Book art: /art/<name>.png, plain lowercase names only, nothing outside public/art.
   const art = /^\/art\/([a-z0-9-]+\.png)$/.exec(url.pathname);
   const file = STATIC[url.pathname] || (art && [`art/${art[1]}`, 'image/png', 'public, max-age=3600']);
@@ -266,6 +299,48 @@ const server = http.createServer((req, res) => {
     res.end(req.method === 'HEAD' ? undefined : body);
   });
 });
+
+// ---------- teacher controls ----------
+// Pause the town, remove a trainer, and send a message to everyone. Every call needs the teacher key.
+function teacherApi(req, res, action) {
+  const reply = (code, body) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...SECURITY_HEADERS }); res.end(JSON.stringify(body)); };
+  if (!keyOk(req.headers['x-teacher-key'])) { log('teacher key refused', action); return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
+  if (action === 'state' && req.method === 'GET') {
+    return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
+      id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
+      busy: p.busy, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
+    })) });
+  }
+  if (req.method !== 'POST') return reply(405, { ok: false });
+  let raw = '';
+  req.on('data', (c) => { raw += c; if (raw.length > 2000) req.destroy(); });
+  req.on('end', () => {
+    let body = {};
+    try { body = raw ? JSON.parse(raw) : {}; } catch { return reply(400, { ok: false }); }
+    if (action === 'pause') {
+      paused = Boolean(body.v);
+      toAll({ t: 'paused', v: paused });
+      log('teacher', paused ? 'paused' : 'resumed');
+      return reply(200, { ok: true, paused });
+    }
+    if (action === 'remove') {
+      const p = players.get(Number(body.id));
+      if (!p) return reply(404, { ok: false, msg: 'That trainer already left.' });
+      log('teacher removed', p.id, p.name);
+      send(p, { t: 'removed' });
+      setTimeout(() => p.ws.close(4001, 'Removed by teacher'), 100);
+      return reply(200, { ok: true });
+    }
+    if (action === 'say') {
+      const msg = String(body.msg || '').replace(/\s+/g, ' ').trim().slice(0, 140);
+      if (!msg) return reply(400, { ok: false });
+      toAll({ t: 'teacher', msg });
+      log('teacher said', msg);
+      return reply(200, { ok: true });
+    }
+    return reply(404, { ok: false });
+  });
+}
 
 // ---------- websockets ----------
 const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
@@ -291,7 +366,7 @@ wss.on('connection', (ws) => {
   const p = {
     id: nextId++, ws, name: trainerName(), room: 'town', x: spot.x, y: spot.y, facing: 'd',
     color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
-    alive: true, lastMove: 0, budget: 20, lastRefill: Date.now(), strikes: 0,
+    rerolls: REROLLS, joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
@@ -300,7 +375,7 @@ wss.on('connection', (ws) => {
   log('join', p.id, p.name, plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
 
   send(p, {
-    t: 'welcome', you: p.id, version: VERSION, phrases: PHRASES,
+    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
     room: 'town', myPlot: plot ? plot.id : 0,
     players: inRoom('town').map(publicView),
@@ -357,15 +432,29 @@ function handleMove(p, d) {
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
 }
 
+const PAUSED_OK = new Set(['busy', 'lock', 'answer']);
 function handleMessage(p, msg, now) {
+  if (paused && !PAUSED_OK.has(msg.t)) {
+    if (msg.t === 'move') send(p, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+    return;
+  }
   switch (msg.t) {
-    case 'move':
-      if (!DIRS[msg.d] || now - p.lastMove < MOVE_GAP_MS) return;
+    case 'move': {
+      if (!DIRS[msg.d]) return;
+      // Walking speed limit with a little slack: up to three steps can arrive bunched together after a
+      // Wi-Fi hiccup, but the average can never beat one step per MOVE_GAP_MS. Every move gets an answer,
+      // even a refused one, so the walker's screen always knows where the server has them.
+      p.moveTokens = Math.min(3, p.moveTokens + (now - p.lastMove) / MOVE_GAP_MS);
       p.lastMove = now;
+      if (p.moveTokens < 1) return send(p, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+      p.moveTokens -= 1;
       return handleMove(p, msg.d);
+    }
     case 'say': {
       const i = Number(msg.p);
       if (!Number.isInteger(i) || i < 0 || i >= PHRASES.length) return;
+      if (now - (p.lastSay || 0) < SAY_GAP_MS) return; // one phrase every two seconds, so nobody can flood the plaza
+      p.lastSay = now;
       p.stats.phrases++;
       return toRoom(p.room, { t: 'say', id: p.id, p: i });
     }
@@ -378,6 +467,17 @@ function handleMessage(p, msg, now) {
       if (!plot) return;
       plot.locked = Boolean(msg.v);
       send(p, { t: 'notice', msg: plot.locked ? 'Your door is locked. Visitors inside can still leave.' : 'Your door is open for visitors.' });
+      return sendPlots();
+    }
+    case 'reroll': {
+      if (p.rerolls <= 0) return send(p, { t: 'notice', msg: 'That was your last new name for this visit.' });
+      p.rerolls--;
+      const old = p.name;
+      p.name = trainerName();
+      renameSession.run(p.name, p.sessionId);
+      log('rename', p.id, old, '->', p.name);
+      toRoom(p.room, { t: 'name', id: p.id, name: p.name, left: p.rerolls });
+      if (p.room !== 'town') toRoom('town', { t: 'name', id: p.id, name: p.name });
       return sendPlots();
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));

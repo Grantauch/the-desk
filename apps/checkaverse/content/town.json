@@ -1,34 +1,34 @@
 {
   "id": "checkaverse",
   "rows": [
-    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-    "T............................................T",
-    "T.F.........P.........FH..P..................T",
-    "T..HHHHHH...P..HHHHHHH..T.PLLLLL.LLLLL.LLLLL.T",
-    "T..HHHHHH...P..HHHHHHH..T.PLLLLLFLLLLL.LLLLL.T",
-    "T..HHHHHH...P..HHHHHHH....PLLLLL.LLLLL.LLLLLFT",
-    "T..HHHHHH...P..HHHHHHH...HPLLLLL.LLLLL.LLLLL.T",
-    "T...........P..PPPPPPP....PPPPPPPPPPPPPPPPPPPT",
-    "T...........P.....P......FP..................T",
-    "T..H..TT....P.....P..H.F..PLLLLL.LLLLL.LLLLL.T",
-    "T........F..P.HHHHP.......PLLLLL.LLLLLFLLLLL.T",
-    "T....F..HH..P.HHHHP.......PLLLLL.LLLLL.LLLLL.T",
-    "T.........H.PSH...P.H.....PLLLLL.LLLLL.LLLLL.T",
-    "T.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPT",
-    "T......H....P..........H..P..................T",
-    "T..PPPPPPPP.PHH...........PLLLLL.LLLLL.LLLLL.T",
-    "T..PPWWWWPP.P.......HH....PLLLLLFLLLLL.LLLLL.T",
-    "T..PWWWWWWP.P...TT..HH....PLLLLL.LLLLL.LLLLLFT",
-    "T..PWWWWWWP.P...TT.......HPLLLLL.LLLLL.LLLLL.T",
-    "T..PWWWWWWP.P.............PPPPPPPPPPPPPPPPPPPT",
-    "T..PPWWWWPP.P........TT..FP..................T",
-    "T..PPPPPPPP.P........TT...PLLLLL.LLLLL.LLLLL.T",
-    "T....HH.....P.F....H......PLLLLL.LLLLLFLLLLL.T",
-    "T...........P.............PLLLLL.LLLLL.LLLLL.T",
-    "T.H....F....P......F....T.PLLLLL.LLLLL.LLLLL.T",
-    "T........H..P...........T.PPPPPPPPPPPPPPPPPPPT",
-    "T............................................T",
-    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T..............................................................T",
+    "T.F.........P.........FH..P....................................T",
+    "T..HHHHHH...P..HHHHHHH..T.PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T..HHHHHH...P..HHHHHHH..T.PLLLLLFLLLLL.LLLLL.LLLLLFLLLLL.LLLLL.T",
+    "T..HHHHHH...P..HHHHHHH....PLLLLL.LLLLL.LLLLLFLLLLL.LLLLL.LLLLLFT",
+    "T..HHHHHH...P..HHHHHHH...HPLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T...........P..PPPPPPP....PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPT",
+    "T...........P.....P......FP....................................T",
+    "T..H..TT....P.....P..H.F..PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T........F..P.HHHHP.......PLLLLL.LLLLLFLLLLL.LLLLL.LLLLLFLLLLL.T",
+    "T....F..HH..P.HHHHP.......PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T.........H.PSH...P.H.....PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPT",
+    "T......H....P..........H..P....................................T",
+    "T..PPPPPPPP.PHH...........PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T..PPWWWWPP.P.......HH....PLLLLLFLLLLL.LLLLL.LLLLLFLLLLL.LLLLL.T",
+    "T..PWWWWWWP.P...TT..HH....PLLLLL.LLLLL.LLLLLFLLLLL.LLLLL.LLLLLFT",
+    "T..PWWWWWWP.P...TT.......HPLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T..PWWWWWWP.P.............PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPT",
+    "T..PPWWWWPP.P........TT..FP....................................T",
+    "T..PPPPPPPP.P........TT...PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T....HH.....P.F....H......PLLLLL.LLLLLFLLLLL.LLLLL.LLLLLFLLLLL.T",
+    "T...........P.............PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T.H....F....P......F....T.PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
+    "T........H..P...........T.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPT",
+    "T..............................................................T",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
   ],
   "arrive": [
     [
@@ -196,6 +196,138 @@
         "x": 41,
         "y": 23
       }
+    },
+    {
+      "id": 13,
+      "x": 45,
+      "y": 3,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 47,
+        "y": 5
+      }
+    },
+    {
+      "id": 14,
+      "x": 51,
+      "y": 3,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 53,
+        "y": 5
+      }
+    },
+    {
+      "id": 15,
+      "x": 57,
+      "y": 3,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 59,
+        "y": 5
+      }
+    },
+    {
+      "id": 16,
+      "x": 45,
+      "y": 9,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 47,
+        "y": 11
+      }
+    },
+    {
+      "id": 17,
+      "x": 51,
+      "y": 9,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 53,
+        "y": 11
+      }
+    },
+    {
+      "id": 18,
+      "x": 57,
+      "y": 9,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 59,
+        "y": 11
+      }
+    },
+    {
+      "id": 19,
+      "x": 45,
+      "y": 15,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 47,
+        "y": 17
+      }
+    },
+    {
+      "id": 20,
+      "x": 51,
+      "y": 15,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 53,
+        "y": 17
+      }
+    },
+    {
+      "id": 21,
+      "x": 57,
+      "y": 15,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 59,
+        "y": 17
+      }
+    },
+    {
+      "id": 22,
+      "x": 45,
+      "y": 21,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 47,
+        "y": 23
+      }
+    },
+    {
+      "id": 23,
+      "x": 51,
+      "y": 21,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 53,
+        "y": 23
+      }
+    },
+    {
+      "id": 24,
+      "x": 57,
+      "y": 21,
+      "w": 5,
+      "h": 4,
+      "door": {
+        "x": 59,
+        "y": 23
+      }
     }
   ],
   "props": [
@@ -203,127 +335,274 @@
       "s": "arena",
       "x": 2.5,
       "b": 7,
-      "w": 7
+      "w": 7,
+      "f": [
+        3,
+        3,
+        6,
+        4
+      ],
+      "sign": "arena"
     },
     {
       "s": "market-stall",
       "x": 15,
       "b": 7,
-      "w": 3.4
+      "w": 3.4,
+      "f": [
+        15,
+        3,
+        4,
+        4
+      ],
+      "sign": "market-stall"
     },
     {
       "s": "market-stall",
       "x": 18.6,
       "b": 7,
-      "w": 3.4
+      "w": 3.4,
+      "f": [
+        19,
+        3,
+        3,
+        4
+      ],
+      "sign": "market-stall"
     },
     {
       "s": "prop-bus",
       "x": 14,
       "b": 12,
-      "w": 4
+      "w": 4,
+      "f": [
+        14,
+        10,
+        4,
+        2
+      ],
+      "sign": "bus"
     },
     {
       "s": "prop-bus-stop",
       "x": 13,
       "b": 13,
-      "w": 2
+      "w": 2,
+      "f": [
+        14,
+        12,
+        1,
+        1
+      ],
+      "sign": "bus-stop"
     },
     {
       "s": "prop-notice-board",
       "x": 7.8,
       "b": 12,
-      "w": 2.4
+      "w": 2.4,
+      "f": [
+        8,
+        11,
+        2,
+        1
+      ],
+      "sign": "notice-board"
     },
     {
       "s": "merge-stone",
       "x": 19.6,
       "b": 18,
-      "w": 2.8
+      "w": 2.8,
+      "f": [
+        20,
+        16,
+        2,
+        2
+      ],
+      "sign": "merge-stone"
     },
     {
       "s": "prop-lantern",
       "x": 10.14,
       "b": 13,
-      "w": 0.73
+      "w": 0.73,
+      "f": [
+        10,
+        12,
+        1,
+        1
+      ],
+      "sign": "lantern"
     },
     {
       "s": "prop-lantern",
       "x": 20.14,
       "b": 13,
-      "w": 0.73
+      "w": 0.73,
+      "f": [
+        20,
+        12,
+        1,
+        1
+      ],
+      "sign": "lantern"
     },
     {
       "s": "prop-lantern",
       "x": 7.14,
       "b": 15,
-      "w": 0.73
+      "w": 0.73,
+      "f": [
+        7,
+        14,
+        1,
+        1
+      ],
+      "sign": "lantern"
     },
     {
       "s": "prop-lantern",
       "x": 23.14,
       "b": 15,
-      "w": 0.73
+      "w": 0.73,
+      "f": [
+        23,
+        14,
+        1,
+        1
+      ],
+      "sign": "lantern"
     },
     {
       "s": "prop-lantern",
       "x": 25.14,
       "b": 7,
-      "w": 0.73
+      "w": 0.73,
+      "f": [
+        25,
+        6,
+        1,
+        1
+      ],
+      "sign": "lantern"
     },
     {
       "s": "prop-lantern",
       "x": 25.14,
       "b": 19,
-      "w": 0.73
+      "w": 0.73,
+      "f": [
+        25,
+        18,
+        1,
+        1
+      ],
+      "sign": "lantern"
     },
     {
       "s": "prop-bench",
       "x": 5,
       "b": 23,
-      "w": 2
+      "w": 2,
+      "f": [
+        5,
+        22,
+        2,
+        1
+      ],
+      "sign": "bench"
     },
     {
       "s": "prop-bench",
       "x": 13,
       "b": 16,
-      "w": 2
+      "w": 2,
+      "f": [
+        13,
+        15,
+        2,
+        1
+      ],
+      "sign": "bench"
     },
     {
       "s": "prop-rock",
       "x": 3,
       "b": 10,
-      "w": 1
+      "w": 1,
+      "f": [
+        3,
+        9,
+        1,
+        1
+      ],
+      "sign": "rock"
     },
     {
       "s": "prop-rock",
       "x": 21,
       "b": 10,
-      "w": 1
+      "w": 1,
+      "f": [
+        21,
+        9,
+        1,
+        1
+      ],
+      "sign": "rock"
     },
     {
       "s": "prop-rock",
       "x": 9,
       "b": 26,
-      "w": 1
+      "w": 1,
+      "f": [
+        9,
+        25,
+        1,
+        1
+      ],
+      "sign": "rock"
     },
     {
       "s": "prop-bush",
       "x": 2,
       "b": 25,
-      "w": 1
+      "w": 1,
+      "f": [
+        2,
+        24,
+        1,
+        1
+      ],
+      "sign": "bush"
     },
     {
       "s": "prop-bush",
       "x": 23,
       "b": 3,
-      "w": 1
+      "w": 1,
+      "f": [
+        23,
+        2,
+        1,
+        1
+      ],
+      "sign": "bush"
     },
     {
       "s": "prop-bush",
       "x": 19,
       "b": 23,
-      "w": 1
+      "w": 1,
+      "f": [
+        19,
+        22,
+        1,
+        1
+      ],
+      "sign": "bush"
     }
   ]
 }

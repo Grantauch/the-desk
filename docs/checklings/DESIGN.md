@@ -287,9 +287,9 @@ otherwise: mood +20, hygiene -10, say mushroom_glow
 | Rules | The engine plus the content folders, shared by server and browser |
 | Authority | The server decides XP, coins, items, health, catches and battle results. The browser only displays them. |
 | Body clock | Runs once per school day using the calendar synced from Check-In |
-| Backups | Copied every night to Google Drive and to the D drive |
+| Backups | Copied every night to Google Drive and to a second drive |
 
-**Where the Checkaverse runs. Decided Oct 29, 2026.** The Checkaverse runs on Grant's home PC for now, in D:\Checklings, reached at game.grant-desk.com through a Cloudflare Tunnel so no router ports open and the home address stays hidden. It moves to a small rented server later. The server code reads every path and port from environment variables, so the move is copying the folder, pointing the same tunnel at the new machine and stopping it at home. Small always on servers in the $4 to $6 a month range exist (Hetzner, DigitalOcean, OVHcloud) if uptime becomes the problem. The first test is whether game.grant-desk.com loads on a school Chromebook, since the filter already blocks netlify.app addresses. Source for the server is in apps/checkaverse.
+**Where the Checkaverse runs. Decided Oct 29, 2026.** The Checkaverse runs on Grant's home PC for now, in C:\Checklings (moved from D:\Checklings on Oct 30 when the D drive failed), reached at game.grant-desk.com through a Cloudflare Tunnel so no router ports open and the home address stays hidden. It moves to a small rented server later. The server code reads every path and port from environment variables, so the move is copying the folder, pointing the same tunnel at the new machine and stopping it at home. Small always on servers in the $4 to $6 a month range exist (Hetzner, DigitalOcean, OVHcloud) if uptime becomes the problem. The first test is whether game.grant-desk.com loads on a school Chromebook, since the filter already blocks netlify.app addresses. Source for the server is in apps/checkaverse.
 
 **Outages.** When the Checkaverse is down, the bus is not running, Kettle Creek still works, and the body clock does not tick that day. An outage never hurts a Checkling.
 

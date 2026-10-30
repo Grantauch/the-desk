@@ -66,6 +66,13 @@ try {
   }
   step('sprite art is served and nothing else is');
 
+  // Trainer names have to survive a room of teenagers. No food, no body or size words, nothing that reads as an insult or a joke.
+  const NAMES = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'names.json'), 'utf8'));
+  const banned = /pickle|nugget|waffle|pretzel|biscuit|turnip|walrus|gopher|moose|dusty|rusty|tiny|chunky|fat|big|little|stinky|weird|nut|ball|wood|beaver|cock|stormy|blaz|weed|crusty|moist|thicc|sus/i;
+  for (const w of [...NAMES.first, ...NAMES.second]) assert.doesNotMatch(w, banned, `${w} is not a safe trainer name word`);
+  assert.ok(NAMES.first.length >= 20 && NAMES.second.length >= 20, 'enough words for unique names');
+  step('trainer name words are kid safe');
+
   const a = client(); await a.open; const wa = await a.next('welcome');
   const b = client(); await b.open; const wb = await b.next('welcome');
   assert.equal(wb.players.length, 2);
@@ -96,6 +103,19 @@ try {
   await a.next('busy');
   assert.match((await (async () => { await a.send({ t: 'challenge', to: wb.you }); return a.next('notice', (m) => /Busy/.test(m.msg)); })()).msg, /Busy/);
   step('Busy blocks challenges');
+
+  const before = wb.players.find((p) => p.id === wa.you)?.name;
+  for (let i = 0; i < 3; i++) await a.send({ t: 'reroll' });
+  const renames = [];
+  for (let i = 0; i < 3; i++) renames.push(await b.next('name', (m) => m.id === wa.you));
+  assert.equal(new Set([before, ...renames.map((m) => m.name)]).size >= 3, true, 'rerolls give new names');
+  assert.equal(renames[2].left, 0);
+  await a.send({ t: 'reroll' });
+  assert.match((await a.next('notice', (m) => /last new name/.test(m.msg))).msg, /last new name/);
+  const named = await b.next('plots', (m) => m.plots.find((p) => p.id === wa.myPlot).name === renames[2].name);
+  assert.ok(named, 'the house sign follows the new name');
+  assert.equal(typeof wa.signs['notice-board'], 'string');
+  step('a trainer can reroll their name three times');
 
   // C stands in front of A's house (plot 1, door at 29,5).
   const c = client(); await c.open; const wc = await c.next('welcome');
@@ -132,6 +152,45 @@ try {
   assert.match((await c.next('notice', (m) => /closed up/.test(m.msg))).msg, /closed up/);
   await c.next('plots', (m) => m.plots.find((p) => p.id === 1).owner === 0);
   step('when the owner leaves, visitors are walked out and the plot empties');
+
+  await b.send({ t: 'say', p: 0 }); await b.send({ t: 'say', p: 1 }); await b.send({ t: 'say', p: 2 });
+  await sleep(200);
+  assert.equal(b.inbox.filter((m) => m.t === 'say' && m.id === wb.you).length, 1, 'one phrase per two seconds');
+  step('phrase flooding is held back');
+
+  const crowd = [];
+  for (let i = 0; i < 14; i++) { const k = client(); await k.open; crowd.push(k); }
+  const spots = await Promise.all(crowd.map(async (k) => { const w = await k.next('welcome'); const me = w.players.find((p) => p.id === w.you); return `${me.x},${me.y}`; }));
+  assert.equal(new Set(spots).size, spots.length, 'a crowd arriving together gets its own tiles');
+  crowd.forEach((k) => k.ws.close());
+  step('a class arriving at once spreads out by the bus stop');
+
+  // Teacher controls: wrong key refused, pause stops walking and talking, messages reach everyone, remove closes.
+  const key = fs.readFileSync(path.join(DATA, 'teacher-key.txt'), 'utf8').trim();
+  const tapi = (p, body, k = key) => fetch(`http://127.0.0.1:${PORT}/api/teacher/${p}`, { method: body ? 'POST' : 'GET', headers: { 'X-Teacher-Key': k, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  assert.equal((await tapi('state', null, 'nope')).status, 403);
+  assert.equal((await tapi('state', null, '')).status, 403);
+  const st = await (await tapi('state')).json();
+  assert.ok(st.players.some((p) => p.id === wb.you));
+  assert.equal((await fetch(`http://127.0.0.1:${PORT}/teacher`)).status, 200);
+  const t1 = client(); await t1.open; const w1 = await t1.next('welcome');
+  await tapi('pause', { v: true });
+  await t1.next('paused', (m) => m.v === true);
+  const me1 = w1.players.find((p) => p.id === w1.you);
+  await t1.send({ t: 'move', d: 'r' });
+  const held1 = await t1.next('pos', (m) => m.id === w1.you);
+  assert.deepEqual([held1.x, held1.y], [me1.x, me1.y], 'nobody walks while paused');
+  await t1.send({ t: 'say', p: 0 }); await sleep(150);
+  assert.equal(t1.inbox.some((m) => m.t === 'say'), false, 'nobody talks while paused');
+  await tapi('pause', { v: false });
+  await t1.next('paused', (m) => m.v === false);
+  await tapi('say', { msg: 'Two minutes left.' });
+  assert.equal((await t1.next('teacher')).msg, 'Two minutes left.');
+  await tapi('remove', { id: w1.you });
+  await t1.next('removed');
+  const code = await new Promise((r) => t1.ws.on('close', (c) => r(c)));
+  assert.equal(code, 4001);
+  step('teacher can pause, message and remove, and nobody else can');
 
   const bad = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, { origin: 'https://evil.example' });
   assert.equal(await new Promise((r) => { bad.on('error', () => r(true)); bad.on('open', () => r(false)); }), true);
