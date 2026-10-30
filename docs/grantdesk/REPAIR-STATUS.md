@@ -1,3 +1,7 @@
+## October30 Checkaverse returning-player updates
+
+Owner: Codex. Isolated Chromium reproduced old JS/CSS after returning and normal reload under the observed four-hour asset cache policy. HTML now derives registered student/teacher asset addresses from current bytes; unchanged assets keep stable versions. The actual-module cached-return regression and all19 server checkpoints pass. Root canonical/protected checks, merge and separate town publication remain pending; physical classroom acceptance is separate. Original terrain, motion, art and school services are preserved.
+
 ## October 30 Checkaverse ground comfort
 
 Owner: Codex. Muted grass, smaller warm path stones and a low outer curb soften the existing test plaza. The cached renderer preserves all original sprites, collision maps and Claude's merged movement/camera/outfit work. Local browser edge/contrast checks and server checks passed; combined canonical checks, protected merge and separate Checkaverse publication remain pending. Actual classroom acceptance remains pending.

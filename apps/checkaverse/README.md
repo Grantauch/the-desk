@@ -14,6 +14,10 @@ The town is drawn with the Wave 1 Sprite Book art Gemini made (Checklings Sprite
 
 Grass uses a muted sage wash, path stones are smaller and warmer, and a low mossy curb runs along path edges. Connected paths have no internal curb. This is prepared in the cached ground canvas; original sprites, collision tiles, movement and camera behavior stay unchanged.
 
+## Loading updates
+
+Student and teacher pages include a content version in their script and stylesheet addresses. Returning players receive changed code or styles on an ordinary visit or reload, while unchanged files remain cacheable. Versions follow the current file bytes automatically, including client-only updates; no manual version bump or cache clearing is required.
+
 ## Teacher controls
 
 Open https://game.grant-desk.com/teacher and enter the teacher key from `C:\Checklings\storage\teacher-key.txt` on the PC (made on first start, never in the repo; delete the file and restart to get a new one). The page lists every trainer here now and where they are, pauses and resumes the whole town (nobody can walk, talk or challenge while paused), sends a short message that pops up on every screen, and removes a trainer, which closes their connection until they reload. Every call is logged.

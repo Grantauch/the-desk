@@ -11,9 +11,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
+import { versionHtmlAssets } from './asset-versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.7.0';
+const VERSION = '0.7.1';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -294,8 +295,19 @@ const server = http.createServer((req, res) => {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     return res.end('Not found');
   }
-  fs.readFile(path.join(HERE, 'public', file[0]), (err, body) => {
+  fs.readFile(path.join(HERE, 'public', file[0]), async (err, body) => {
     if (err) { res.writeHead(art ? 404 : 500); return res.end(art ? 'Not found' : 'Missing file'); }
+    if (file[1].startsWith('text/html')) {
+      try {
+        body = Buffer.from(await versionHtmlAssets(body.toString('utf8'), (assetUrl) => {
+          const asset = STATIC[assetUrl];
+          return asset ? fs.promises.readFile(path.join(HERE, 'public', asset[0])) : null;
+        }));
+      } catch {
+        res.writeHead(500, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store', ...SECURITY_HEADERS });
+        return res.end('Missing file');
+      }
+    }
     res.writeHead(200, { 'Content-Type': file[1], 'Cache-Control': file[2] || 'no-cache', ...SECURITY_HEADERS });
     res.end(req.method === 'HEAD' ? undefined : body);
   });
