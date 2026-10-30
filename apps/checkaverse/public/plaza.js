@@ -127,6 +127,7 @@
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
       case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
       case 'removed': removed = true; break;
+      case 'look': { const p = players.get(m.id); if (p) p.look = m.v; break; }
       case 'name': {
         const p = players.get(m.id);
         if (p) p.name = m.name;
@@ -166,6 +167,11 @@
     renameBtn.disabled = !rerolls;
   }
   renameBtn.addEventListener('click', () => { if (rerolls) send({ t: 'reroll' }); });
+  // Four trainer outfits from the Sprite Book. The button steps through them.
+  document.getElementById('outfit').addEventListener('click', () => {
+    const p = players.get(me);
+    if (p) send({ t: 'look', v: ((p.look ?? 0) + 1) % TRAINERS.length });
+  });
   // Walks you to your own front door and in. The town is wide, so this saves a long hunt.
   document.getElementById('goHome').addEventListener('click', () => {
     const geo = town?.plots.find((g) => g.id === myPlot);
@@ -596,7 +602,7 @@
       ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(px + 16, py + 29, 13, 5.5, 0, 0, Math.PI * 2); ctx.stroke();
     }
-    const look = TRAINERS[p.id % TRAINERS.length];
+    const look = TRAINERS[(p.look ?? p.id) % TRAINERS.length];
     if (has(look)) {
       // Left foot, stand, right foot, stand: one foot forward per tile, like Red and Blue.
       const step = moving ? [0, 1, 2, 1][Math.floor(p.stride * 2) % 4] : 1;

@@ -13,7 +13,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.6.1';
+const VERSION = '0.7.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -137,7 +137,8 @@ function arrivalPoint() {
 }
 
 const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
-const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy });
+const LOOKS = 4; // trainer-a to trainer-d in public/art
+const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy, look: p.look });
 const plotView = (pl) => ({ id: pl.id, owner: pl.owner, name: pl.owner ? players.get(pl.owner)?.name || '' : '', locked: pl.locked });
 const inRoom = (room) => [...players.values()].filter((p) => p.room === room);
 
@@ -366,7 +367,7 @@ wss.on('connection', (ws) => {
   const p = {
     id: nextId++, ws, name: trainerName(), room: 'town', x: spot.x, y: spot.y, facing: 'd',
     color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
-    rerolls: REROLLS, joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
+    rerolls: REROLLS, look: Math.floor(Math.random() * LOOKS), joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
@@ -479,6 +480,12 @@ function handleMessage(p, msg, now) {
       toRoom(p.room, { t: 'name', id: p.id, name: p.name, left: p.rerolls });
       if (p.room !== 'town') toRoom('town', { t: 'name', id: p.id, name: p.name });
       return sendPlots();
+    }
+    case 'look': {
+      const v = Number(msg.v);
+      if (!Number.isInteger(v) || v < 0 || v >= LOOKS || v === p.look) return;
+      p.look = v;
+      return toRoom(p.room, { t: 'look', id: p.id, v });
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));

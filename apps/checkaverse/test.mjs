@@ -117,6 +117,14 @@ try {
   assert.equal(typeof wa.signs['notice-board'], 'string');
   step('a trainer can reroll their name three times');
 
+  const lookA = wb.players.find((p) => p.id === wa.you).look;
+  assert.ok(Number.isInteger(lookA) && lookA >= 0 && lookA < 4);
+  await a.send({ t: 'look', v: (lookA + 1) % 4 });
+  assert.equal((await b.next('look', (m) => m.id === wa.you)).v, (lookA + 1) % 4);
+  await a.send({ t: 'look', v: 9 }); await sleep(100);
+  assert.equal(b.inbox.some((m) => m.t === 'look' && m.v === 9), false);
+  step('a trainer can change outfit and others see it');
+
   // C stands in front of A's house (plot 1, door at 29,5).
   const c = client(); await c.open; const wc = await c.next('welcome');
   assert.equal(wa.myPlot, 1);
