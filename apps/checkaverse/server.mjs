@@ -12,7 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.3.0';
+const VERSION = '0.4.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -28,6 +28,8 @@ const TOWN = readContent('town.json');
 const HOUSE = readContent('house.json');
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
+const SIGNS = readContent('signs.json');
+const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
 
@@ -61,6 +63,7 @@ db.exec(`
 db.prepare(`UPDATE sessions SET ended = ? WHERE ended IS NULL`).run(new Date().toISOString());
 const insertSession = db.prepare(`INSERT INTO sessions (trainer, started) VALUES (?, ?)`);
 const closeSession = db.prepare(`UPDATE sessions SET ended = ?, moves = ?, phrases = ?, challenges = ? WHERE id = ?`);
+const renameSession = db.prepare(`UPDATE sessions SET trainer = ? WHERE id = ?`);
 const setMeta = db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
 setMeta.run('last_start', new Date().toISOString());
 setMeta.run('version', VERSION);
@@ -291,7 +294,7 @@ wss.on('connection', (ws) => {
   const p = {
     id: nextId++, ws, name: trainerName(), room: 'town', x: spot.x, y: spot.y, facing: 'd',
     color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
-    alive: true, lastMove: 0, budget: 20, lastRefill: Date.now(), strikes: 0,
+    rerolls: REROLLS, alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
@@ -300,7 +303,7 @@ wss.on('connection', (ws) => {
   log('join', p.id, p.name, plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
 
   send(p, {
-    t: 'welcome', you: p.id, version: VERSION, phrases: PHRASES,
+    t: 'welcome', you: p.id, version: VERSION, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
     room: 'town', myPlot: plot ? plot.id : 0,
     players: inRoom('town').map(publicView),
@@ -359,10 +362,17 @@ function handleMove(p, d) {
 
 function handleMessage(p, msg, now) {
   switch (msg.t) {
-    case 'move':
-      if (!DIRS[msg.d] || now - p.lastMove < MOVE_GAP_MS) return;
+    case 'move': {
+      if (!DIRS[msg.d]) return;
+      // Walking speed limit with a little slack: up to three steps can arrive bunched together after a
+      // Wi-Fi hiccup, but the average can never beat one step per MOVE_GAP_MS. Every move gets an answer,
+      // even a refused one, so the walker's screen always knows where the server has them.
+      p.moveTokens = Math.min(3, p.moveTokens + (now - p.lastMove) / MOVE_GAP_MS);
       p.lastMove = now;
+      if (p.moveTokens < 1) return send(p, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+      p.moveTokens -= 1;
       return handleMove(p, msg.d);
+    }
     case 'say': {
       const i = Number(msg.p);
       if (!Number.isInteger(i) || i < 0 || i >= PHRASES.length) return;
@@ -378,6 +388,17 @@ function handleMessage(p, msg, now) {
       if (!plot) return;
       plot.locked = Boolean(msg.v);
       send(p, { t: 'notice', msg: plot.locked ? 'Your door is locked. Visitors inside can still leave.' : 'Your door is open for visitors.' });
+      return sendPlots();
+    }
+    case 'reroll': {
+      if (p.rerolls <= 0) return send(p, { t: 'notice', msg: 'That was your last new name for this visit.' });
+      p.rerolls--;
+      const old = p.name;
+      p.name = trainerName();
+      renameSession.run(p.name, p.sessionId);
+      log('rename', p.id, old, '->', p.name);
+      toRoom(p.room, { t: 'name', id: p.id, name: p.name, left: p.rerolls });
+      if (p.room !== 'town') toRoom('town', { t: 'name', id: p.id, name: p.name });
       return sendPlots();
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));

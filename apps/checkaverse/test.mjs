@@ -97,6 +97,19 @@ try {
   assert.match((await (async () => { await a.send({ t: 'challenge', to: wb.you }); return a.next('notice', (m) => /Busy/.test(m.msg)); })()).msg, /Busy/);
   step('Busy blocks challenges');
 
+  const before = wb.players.find((p) => p.id === wa.you)?.name;
+  for (let i = 0; i < 3; i++) await a.send({ t: 'reroll' });
+  const renames = [];
+  for (let i = 0; i < 3; i++) renames.push(await b.next('name', (m) => m.id === wa.you));
+  assert.equal(new Set([before, ...renames.map((m) => m.name)]).size >= 3, true, 'rerolls give new names');
+  assert.equal(renames[2].left, 0);
+  await a.send({ t: 'reroll' });
+  assert.match((await a.next('notice', (m) => /last new name/.test(m.msg))).msg, /last new name/);
+  const named = await b.next('plots', (m) => m.plots.find((p) => p.id === wa.myPlot).name === renames[2].name);
+  assert.ok(named, 'the house sign follows the new name');
+  assert.equal(typeof wa.signs['notice-board'], 'string');
+  step('a trainer can reroll their name three times');
+
   // C stands in front of A's house (plot 1, door at 29,5).
   const c = client(); await c.open; const wc = await c.next('welcome');
   assert.equal(wa.myPlot, 1);
