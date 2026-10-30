@@ -539,6 +539,65 @@ async function passGate(page, pin, { confirm = true } = {}) {
   }
 }
 
+await test('every catalogue assignment uses the PIN gate, compact controls, autosave, fresh-device resume and final Turn In', async () => {
+  const catalog = JSON.parse(await readFile(new URL('../docs/storyhub/work-panel-catalog.json', import.meta.url), 'utf8'));
+  const problems = [];
+  for (const item of catalog.hubs.filter(h => h.mode === 'assignment' && (!process.env.DESK_SAVE_HUB_FILTER || h.hub.includes(process.env.DESK_SAVE_HUB_FILTER)))) {
+    const s = world();
+    const school = await chromebook(s, { hooks: { gate: true } });
+    let home;
+    try {
+      const p = await school.open(item.hub);
+      assert.equal(await p.evaluate(() => window.__deskSave.mode), 'assignment');
+      assert.equal(await gateOpen(p), true, 'PIN required before entry');
+      assert.deepEqual(school.net.calls, [], 'no account access before PIN');
+      await passGate(p, s.pin(PEOPLE.ada));
+      assert.equal(await gateOpen(p), false);
+      assert.equal(await p.locator('#desk-save-panel').count(), 1);
+      assert.equal(await p.locator('#desk-save-resume').count(), 1);
+      const turn = panel(p).getByRole('button', { name: 'Turn In', exact: true });
+      for (const width of [320, 390, 1440]) {
+        await p.setViewportSize({ width, height: 900 });
+        assert.equal(await p.locator('#desk-save-resume details').evaluate(el => el.open), false);
+        assert.equal(await p.locator('#desk-save-resume input[type="password"]').isVisible(), false);
+        const box = await turn.boundingBox();
+        assert.ok(box && box.height >= 64 && box.x >= -1 && box.x + box.width <= width + 1, `Turn In fits ${width}px`);
+      }
+      const field = p.locator('textarea:visible:not([data-desk-skip]):not([disabled])').first();
+      const id = await field.getAttribute('id');
+      assert.ok(id, 'answer has a stable field ID');
+      const text = `Catalogue recovery check for ${item.hub}`;
+      await field.fill(text);
+      await field.evaluate(el => { el.focus(); el.setSelectionRange(7, 12); el.dispatchEvent(new Event('select', { bubbles: true })); });
+      await waitFor(() => s.rows('Progress').some(r => r.Answers.includes(text)));
+      // Explicitly flush the bounded cursor bookmark, using the normal save path.
+      await p.evaluate(() => window.__deskSave.saveCloud());
+      assert.equal(s.rows('Turn Ins').length, 0, 'autosave does not finish work');
+      home = await chromebook(s, { hooks: { gate: true } });
+      const q = await home.open(item.hub);
+      await passGate(q, s.pin(PEOPLE.ada));
+      await q.waitForFunction(({ id, text }) => {
+        const el = document.getElementById(id);
+        return el && el.value === text && document.activeElement === el && el.selectionStart === 7 && el.selectionEnd === 12;
+      }, { id, text }, { timeout: 10000 });
+      await q.reload({ waitUntil: 'load' });
+      await q.waitForFunction(() => window.__deskSave?.ready && !window.__deskSave.gate());
+      assert.equal(await q.locator(`[id="${id}"]`).inputValue(), text);
+      await panel(q).getByRole('button', { name: 'Turn In', exact: true }).click();
+      await waitFor(() => s.rows('Turn Ins').length === 1);
+      assert.ok(s.rows('Turn Ins')[0].Answers.includes(text));
+      console.log(`    ✓ ${item.hub}`);
+    } catch (error) {
+      problems.push(`${item.hub}: ${error.message}`);
+      console.log(`    FAILED ${item.hub}: ${error.message}`);
+    } finally {
+      await school.context.close();
+      if (home) await home.context.close();
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
 await test('the gate covers an answer page until a PIN is entered, confirms the name, then saves from the first answer', async () => {
   const s = world();
   const cb = await chromebook(s, { hooks: { gate: true } });
@@ -678,6 +737,9 @@ await test('PIN assignments keep recovery tucked away and show one large Turn In
   const active = await chromebook(s, { hooks: { gate: true } });
   const page = await active.open('bts-the-bargain.html');
   await passGate(page, s.pin(PEOPLE.ada));
+  // School devices and the Linux runner may not have Impact or the web font.
+  // Exercise the wider fallback explicitly, even on Windows with Impact installed.
+  await page.addStyleTag({ content: '.hero h1{font-family:Arial,sans-serif!important}' });
   await mkdir('browser-results/pin-flow', { recursive: true });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const width of [320, 390, 1440]) {
@@ -688,7 +750,7 @@ await test('PIN assignments keep recovery tucked away and show one large Turn In
     const button = panel(page).getByRole('button', { name: 'Turn In', exact: true });
     const box = await button.boundingBox();
     assert.ok(box.height >= 64 && box.width >= Math.min(250, width - 60));
-    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `fallback-font page fits ${width}px`);
     const axe = await new AxeBuilder({ page }).include('#desk-save-resume').include('#desk-save-panel').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     assert.deepEqual(axe.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target) })), []);
     await button.scrollIntoViewIfNeeded();

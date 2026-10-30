@@ -6,6 +6,8 @@ Turn In v12 stores bounded field/selection bookmarks separately from answers, wi
 
 Canonical full local verification passed, with zero Astro errors/warnings, 54 built routes, 159 HTML files / 5368 references and 30 sealed releases / 231 files. Turn In service tests pass 60/60; the final complete assignment browser run passes 52/52 and an additional choice-only assignment regression passes. A fresh final build validates the small choice-only guard. The assembled Roswell reader now reloads the shared runtime after document replacement; its original lesson parts are unchanged. Protected CI, website production, guarded Turn In v12 deployment and real classroom use are separate pending evidence. Tests use invented students and isolated service code only.
 
+The protected run 40987037721 exposed title overflow at 320 pixels when The Bargain uses a wider fallback font. The title now scales to the available width, with the same fallback forced in its regression check on every platform. Catalogue-wide acceptance now exercises all 54 assignments through PIN, compact controls at 320/390/1440, autosave, exact selection recovery on another browser, refresh and final Turn In. The 10 reading-only hubs retain their honest reading controls. Final catalogue, canonical, protected and production rechecks are in progress.
+
 ## October 29 student content publication - release candidate
 
 Integrates PR259 (The Line That Wouldn't Move), PR260 (Claude's Thirty Miles From Paris), PR272 (Down the Rabbit Hole) and PR273 (Somme field study). Course pages now list all catalogued StoryHubs: 18 U.S. History, 32 Hidden History and 14 Beyond the Scoreboard lessons. Original author commits and curriculum baselines are retained.

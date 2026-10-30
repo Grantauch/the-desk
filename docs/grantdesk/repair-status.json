@@ -3,13 +3,15 @@
     "status": "SOURCE_VERIFIED_PROTECTED_RELEASE_PENDING",
     "owner": "Codex",
     "scope": "Required PIN entry; automatic first-save and cursor recovery; compact work status and large final Turn In; Curiosity mysteries query repair.",
-    "verification_status": "CANONICAL_FULL_PASSED_TURN_IN_60_BROWSER_52_PLUS_CHOICE_REGRESSION_PASSED",
+    "verification_status": "FALLBACK_FONT_WIDTH_REGRESSION_PASSED_CATALOGUE_JOURNEYS_AND_RELEASE_RECHECK_IN_PROGRESS",
     "deployment_status": "PENDING_PROTECTED_CI_WEBSITE_AND_GUARDED_TURN_IN_V12",
     "field_status": "CLASSROOM_PENDING",
     "evidence": [
       "Cursor metadata remains separate from answers; checked revisions, receipt idempotency and explicit finished snapshots are preserved.",
       "Fresh LOC request reproduced zero results for the previous query; corrected function returns five usable records.",
-      "Workbook, endpoint, roster and Hall Pass are preserved. Synthetic tests contact no student records."
+      "Workbook, endpoint, roster and Hall Pass are preserved. Synthetic tests contact no student records.",
+      "Required CI found fallback-font title overflow at 320 pixels. The Bargain now scales its title within the available width; the browser check forces the wider fallback on Windows as well as Linux.",
+      "Catalogue-wide acceptance covers all 54 assignments with required PIN, compact controls at three widths, autosave, exact selection recovery on a second browser, refresh and final Turn In. The 10 reading-only hubs retain reading controls."
     ]
   },
   "student-content-publication-2026-10-29": {
@@ -934,7 +936,7 @@
       "Live load test Oct 5: version 1 used appendRow without the lock and kept only 5 of 35 simultaneous turn ins while answering ok to all 35. Version 2 added the script lock and flush, 33 of 35 landed and 2 answered busy with nothing written. Version 3 opens the sheet before taking the lock; 35 of 35 landed, 35 unique rows, median 11.7 s and slowest 20.6 s when all 35 press in the same instant. 35 simultaneous autosaves all succeeded, slowest 1.1 s. Load test mode switched off afterward."
     ],
     "deployment_status": "DEPLOYED: site merged in PR 179; Turn In web app version 3 live on its existing deployment",
-    "apps_script_status": "LIVE: the desk · Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
+    "apps_script_status": "LIVE: the desk \u00b7 Turn In, run as the teacher, open to anyone with the link, 126 students with PINs at setup",
     "field_status": "FIELD_PENDING: one real class cycle"
   },
   "blacktop-choice-art-v4-2026-10-04": {
