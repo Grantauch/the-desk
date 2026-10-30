@@ -4,7 +4,7 @@ Owner: Codex, branch `feat/heel-student-report`. The complete pre-implementation
 
 Synthetic tests A, B and C pass at 1366 by 768 and 1920 by 1080. Every read section and presentation slide is captured, every PDF is saved, and all original answer text is preserved across presentation pages. HTML, emoji, paragraphs, three-word answers, long writing, two empty rounds, earlier edits, reload, print activation, actual fullscreen, keyboard, click, tap, very long sentences and unbroken tokens pass with zero page or console errors. Report WCAG A/AA audits pass at 320, 390 and 1366 pixels. Print pages were rendered and visually checked, including the corrected final self-check pagination. Durable A/B evidence is in `docs/qa/heel-report/`; full frames also belong to the browser acceptance CI artifact.
 
-The canonical local gate is running. Protected hosted checks, merge, Netlify publication and actual classroom use remain separate pending evidence.
+The canonical local gate passed with zero Astro errors, 54 built pages, 159 HTML files and 5370 checked local references. Both the report suite and the existing heel save/recovery/submission/accessibility browser suite pass in full. The new Report control also fits the project header at 320 pixels. Protected hosted checks, merge, Netlify publication and actual classroom use remain separate pending evidence.
 
 ## October30 Checkaverse returning-player updates
 

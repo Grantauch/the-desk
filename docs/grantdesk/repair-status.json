@@ -3,7 +3,7 @@
     "status": "IMPLEMENTED_BROWSER_VERIFIED",
     "owner": "Codex",
     "scope": "Personal editorial report for all five heel research rounds, with read view, measured full screen slides and Letter PDF printing.",
-    "verification_status": "A_B_C_BROWSER_AND_ACCESSIBILITY_PASSED_CANONICAL_RUNNING",
+    "verification_status": "FULL_LOCAL_CANONICAL_AND_BOTH_HEEL_BROWSER_SUITES_PASSED_HOSTED_PENDING",
     "deployment_status": "PENDING_PROTECTED_CHECKS_MERGE_AND_NETLIFY_READBACK",
     "field_status": "CLASSROOM_PENDING",
     "evidence": [
@@ -11,6 +11,7 @@
       "All three synthetic student journeys pass at 1366x768 and 1920x1080, with every read section and presentation slide captured and all PDFs saved.",
       "Exact text preservation, HTML escaping, paragraphs, short answers, 400-plus words, missing steps, reload, edits, keyboard, mouse, touch and oversized sentence/token fallback passed with zero browser errors.",
       "A selected claim sentence over 60 words moves intact to the opening section, keeping the cover to a single title page. The 520-word claim print fixture passes.",
+      "The 320-pixel project header regression is fixed and now checked before opening the report. The unchanged existing heel save, recovery, submission and accessibility browser suite passes in full.",
       "WCAG A/AA checks pass at 320, 390 and 1366 pixels. Printed output was rendered and visually reviewed. The final self-check stays together.",
       "Project map and durable synthetic A/B screenshot sheets and PDFs are under docs/storyhub/HEEL-REPORT-MAP.md and docs/qa/heel-report/. Full frames are also retained in the browser acceptance artifact."
     ]

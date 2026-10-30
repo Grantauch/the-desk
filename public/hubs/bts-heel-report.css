@@ -1,6 +1,7 @@
 /* Scoped editorial report. Assignment styling is intentionally untouched. */
 .hr-open{overflow:hidden}
 .hr-access{flex:none;background:var(--gold);color:var(--ink);border:0;padding:.45rem .85rem;font:800 1rem var(--label);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+@media(max-width:600px){.bar__in:has(.hr-access){gap:.6rem}.bar__in:has(.hr-access) .bar__home{white-space:normal;min-width:0;line-height:1.2}}
 .hr-dialog{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;overflow:auto;background:#d5cbb9;color:var(--ink);font:400 1.125rem/1.6 var(--body);overscroll-behavior:contain}
 .hr-dialog::backdrop{background:var(--ink)}
 .hr-dialog *{box-sizing:border-box}

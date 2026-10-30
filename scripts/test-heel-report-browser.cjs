@@ -71,6 +71,14 @@ async function run() {
       await page.goto(origin + '/hubs/bts-americas-most-hated-research.html', { waitUntil: 'load' });
       await page.waitForFunction(() => window.__deskSave?.ready && document.querySelector('.hr-access'));
       await page.evaluate(() => document.fonts.ready);
+      if (test === 'A') {
+        for (const width of [320, 390, 1366]) {
+          await page.setViewportSize({ width, height: 768 });
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'Project header and Report button fit ' + width);
+          const reportButton = await page.locator('.hr-access').boundingBox();
+          assert.ok(reportButton.x >= 0 && reportButton.x + reportButton.width <= width);
+        }
+      }
       const answers = { ...normal };
       if (test === 'B') {
         answers['lab-history'] = long;
@@ -204,7 +212,9 @@ async function run() {
         await page.locator('.hr-access').click();
         assert.equal(await page.locator('.hr-cover .hr-quote').count(), 0, 'A very long claim does not turn the title card into several cover pages');
         assert.equal(await page.locator('.hr-opening .hr-quote').textContent(), longClaim, 'The full selected sentence appears in the opening section');
+        await page.emulateMedia({ media: 'print' });
         await page.pdf({ path: path.join(output, 'TestB', 'long-claim.pdf'), format: 'Letter', printBackground: true, preferCSSPageSize: true });
+        await page.emulateMedia({ media: 'screen' });
         await page.getByRole('button', { name: 'Back to project', exact: true }).click();
         await page.locator('#lab-america').fill(answers['lab-america']);
         await page.locator('.hr-access').click();
