@@ -460,8 +460,25 @@
       }
       return c;
     }
-    const texture = (name) => (has(name) ? g.createPattern(ART[name], 'repeat') : null);
-    const grass = texture('tile-grass'), path = texture('tile-path'), water = texture('tile-water');
+    // Calm the ground without changing the original art or tinting buildings and trainers.
+    // These small textures are prepared only when the cached map ground is rebuilt.
+    const texture = (name, wash, opacity = 0, size = 1) => {
+      if (!has(name)) return null;
+      if (!wash) return g.createPattern(ART[name], 'repeat');
+      const im = ART[name], tile = document.createElement('canvas');
+      tile.width = Math.max(1, Math.round(im.naturalWidth * size));
+      tile.height = Math.max(1, Math.round(im.naturalHeight * size));
+      const paint = tile.getContext('2d');
+      paint.imageSmoothingEnabled = false;
+      paint.drawImage(im, 0, 0, tile.width, tile.height);
+      paint.globalAlpha = opacity;
+      paint.fillStyle = wash;
+      paint.fillRect(0, 0, tile.width, tile.height);
+      return g.createPattern(tile, 'repeat');
+    };
+    const grass = texture('tile-grass', '#77875c', 0.34);
+    const path = texture('tile-path', '#b5aa8c', 0.52, 2 / 3);
+    const water = texture('tile-water');
     if (!grass || !path || !water) {
       g.setTransform(SCALE, 0, 0, SCALE, 0, 0);
       r.forEach((row, y) => [...row].forEach((ch, x) => townTile(g, ch, x, y)));
@@ -473,6 +490,26 @@
     r.forEach((row, y) => [...row].forEach((ch, x) => {
       if (ch === 'P') { g.fillStyle = path; g.fillRect(x * T, y * T, T, T); }
       if (ch === 'W') { g.fillStyle = water; g.fillRect(x * T, y * T, T, T); }
+    }));
+    // A low mossy curb belongs to the outside of a path, never between two path tiles.
+    // Drawing it in the ground cache keeps movement/camera work independent and costs
+    // no extra work per animation frame. It is visual only: walkable tiles stay the same.
+    const curb = () => {
+      g.fillStyle = '#829060'; g.fillRect(0, 0, T, 2);
+      g.fillStyle = '#aaa17d'; g.fillRect(0, 2, T, 4);
+      g.fillStyle = '#c1b38e'; g.fillRect(0, 2, T, 1);
+      g.fillStyle = '#8d896c'; g.fillRect(0, 6, T, 1);
+      g.fillStyle = '#96916f';
+      for (let joint = 16; joint < T; joint += 32) g.fillRect(joint, 3, 1, 3);
+    };
+    const land = (x, y) => at(x, y) !== 'P' && at(x, y) !== 'W';
+    r.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch !== 'P') return;
+      const px = x * T, py = y * T;
+      if (land(x, y - 1)) { g.save(); g.translate(px, py); curb(); g.restore(); }
+      if (land(x + 1, y)) { g.save(); g.transform(0, 1, -1, 0, px + T, py); curb(); g.restore(); }
+      if (land(x, y + 1)) { g.save(); g.transform(-1, 0, 0, -1, px + T, py + T); curb(); g.restore(); }
+      if (land(x - 1, y)) { g.save(); g.transform(0, -1, 1, 0, px, py + T); curb(); g.restore(); }
     }));
     // A thick dark bank where water meets land, the house outline style.
     r.forEach((row, y) => [...row].forEach((ch, x) => {

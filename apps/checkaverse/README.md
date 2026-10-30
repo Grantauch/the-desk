@@ -10,6 +10,10 @@ Maps, phrases and trainer name words are content in `content/`. Town props (the 
 
 The town is drawn with the Wave 1 Sprite Book art Gemini made (Checklings Sprite Book in Grant's Drive, PNGs in its Wave 1 Sprites folder). `public/art/` holds the cut out copies at 2x, 64 pixels a tile, and the server sends them at `/art/<name>.png`. The Kettle Creek buildings and headstones are cut too, ready for Kettle Creek. To redo the art after Gemini changes a picture, download the folder and run `python3 tools/cut-sprites.py <downloaded folder> public/art` (needs Pillow, NumPy and SciPy). It removes the magenta, trims, sizes each sprite to its tile size, splits the trainer sheets into 64 by 96 frames and makes the ground textures seamless. If a picture ever fails to load, the plaza draws the old placeholder shape in its place. Change the town layout in `tools/gen-town.mjs`, then run `node tools/gen-town.mjs` to rebuild `content/town.json` and `content/house.json`.
 
+## Ground comfort
+
+Grass uses a muted sage wash, path stones are smaller and warmer, and a low mossy curb runs along path edges. Connected paths have no internal curb. This is prepared in the cached ground canvas; original sprites, collision tiles, movement and camera behavior stay unchanged.
+
 ## Teacher controls
 
 Open https://game.grant-desk.com/teacher and enter the teacher key from `C:\Checklings\storage\teacher-key.txt` on the PC (made on first start, never in the repo; delete the file and restart to get a new one). The page lists every trainer here now and where they are, pauses and resumes the whole town (nobody can walk, talk or challenge while paused), sends a short message that pops up on every screen, and removes a trainer, which closes their connection until they reload. Every call is logged.
