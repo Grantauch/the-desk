@@ -19,7 +19,7 @@ A student checks in, finds out what happened to their Checkling overnight, takes
 1. **Check in.** The PIN check-in records attendance and pays the day's growth: XP toward the next level plus a daily coin allowance. This is the only reliable source of growth, so coming to class is how a Checkling gets stronger.
 2. **See the overnight report.** One short card shows what changed since the last visit. Hunger dropped. Weight went up. A sniffle started. A merchant restocked. The card makes the student want to act.
 3. **Care.** Feed, groom, clean, play, rest, give medicine. Every care action moves real stats, and doing too much of one thing has a cost.
-4. **Choose a path.** Ride the bus to the Checkaverse to find classmates and battle them, or stay in Willowbank to forage, catch, brew potions and decorate.
+4. **Choose a path.** Ride the bus to the Checkaverse to find classmates and battle them, or stay in Kettle Creek to forage, catch, brew potions and decorate.
 5. **Leave.** The body clock keeps running on school days. Tomorrow's report is already being written.
 
 Every feature added to Checklings must plug into one of these five steps. A feature that does not is cut or held for later.
@@ -110,8 +110,8 @@ Battles are turn based in the Red/Blue mold: pick a move, both sides act, speed 
 | --- | --- | --- |
 | Other players | Anywhere in the Checkaverse | Rank points, coins |
 | Wild Checklings | Tall grass | XP, ingredients, a chance to catch |
-| Training stumps | Willowbank practice yard | Badges, small XP |
-| Town trainers | Set spots in Willowbank and the Checkaverse | Coins, items |
+| Training stumps | Kettle Creek practice yard | Badges, small XP |
+| Town trainers | Set spots in Kettle Creek and the Checkaverse | Coins, items |
 | The Champion | The Checkaverse arena, a ladder of four trainers | A title and a rare egg once per semester |
 
 **Rankings.** Each class hour has a weekly battle ranking that resets every Monday, so a student who joins in March can still win a week. Nurturers get rankings too: longest living Checkling, best kept home and most species discovered.
@@ -156,13 +156,13 @@ The long term goal is 300 Checkling lines, released in waves of twelve. Collecti
 
 **The sprite target.** The goal is 600 forms, added as we go in waves of twelve lines. At about one wave a month during the school year, the full set takes two and a half to three years. It works only if every wave follows one locked art contract and is approved before the next wave starts.
 
-## Willowbank, the home town
+## Kettle Creek, the home town
 
-Willowbank is each student's own single player town, laid out like Pallet Town. The current one screen camp becomes the student's home yard inside it. Willowbank always works, even when the Checkaverse is unreachable.
+Kettle Creek is each student's own single player town, laid out like Pallet Town. The current one screen camp becomes the student's home yard inside it. Kettle Creek always works, even when the Checkaverse is unreachable.
 
-**Movement.** Top down and grid based, one tile per step, the same as Red/Blue. Arrow keys or WASD move the player, and clicking or tapping a spot walks there. Doors lead into small interior maps. Tall grass at the edge of town can start a wild encounter. Willowbank and the Checkaverse share this movement engine.
+**Movement.** Top down and grid based, one tile per step, the same as Red/Blue. Arrow keys or WASD move the player, and clicking or tapping a spot walks there. Doors lead into small interior maps. Tall grass at the edge of town can start a wild encounter. Kettle Creek and the Checkaverse share this movement engine.
 
-**What is in Willowbank.**
+**What is in Kettle Creek.**
 
 | Place | What happens there |
 | --- | --- |
@@ -177,7 +177,7 @@ Willowbank is each student's own single player town, laid out like Pallet Town. 
 | The Checkling Cemetery | A cartoon field on the hill with every headstone from the student's class |
 | The bus stop | The way to the Checkaverse |
 
-**The bus stop.** A student walks up to the bus stop and is asked whether they want to ride to the Checkaverse. Yes loads the shared world. If the Checkaverse cannot be reached, the sign says the bus is not running right now, and Willowbank keeps working as normal.
+**The bus stop.** A student walks up to the bus stop and is asked whether they want to ride to the Checkaverse. Yes loads the shared world. If the Checkaverse cannot be reached, the sign says the bus is not running right now, and Kettle Creek keeps working as normal.
 
 **Build rules.** Maps are made in Tiled, a free map editor, and saved as data files. Code never hand places tiles. Tiles are 32 by 32 pixels and match the founder art style. Everything runs on one canvas with no heavy effects, so it stays smooth on a school Chromebook.
 
@@ -195,9 +195,9 @@ The Checkaverse is a much bigger town that every student shares, and it is the c
 | Merchant row | Shops stocked with items other players sold |
 | Notice board | Discovered merge recipes, rankings, news |
 | The Merge Stone | Merging two Checklings |
-| The wilds | Bigger grass areas with species that never appear in Willowbank |
+| The wilds | Bigger grass areas with species that never appear in Kettle Creek |
 
-**The Neighborhood.** Every student owns a house, the same one they decorate back in Willowbank. When a student rides the bus in, their house drops into a free plot in the Neighborhood, and the plot empties again when they log off. While the owner is online, other players can walk in and look around at the decorations, the Den and any trophies on display. The owner can lock the door from inside or from the menu, and a locked house shows a closed sign on its door. Visitors can look but never take, move or change anything. A house never loads while its owner is offline, so nobody tours an empty home.
+**The Neighborhood.** Every student owns a house, the same one they decorate back in Kettle Creek. When a student rides the bus in, their house drops into a free plot in the Neighborhood, and the plot empties again when they log off. While the owner is online, other players can walk in and look around at the decorations, the Den and any trophies on display. The owner can lock the door from inside or from the menu, and a locked house shows a closed sign on its door. Visitors can look but never take, move or change anything. A house never loads while its owner is offline, so nobody tours an empty home.
 
 **Trainer names.** Players never type their own name. Each student gets a randomly generated trainer name built from approved word lists, like Brave Otter or Quiet Comet, and can reroll it a few times. The teacher's dashboard shows who is who. Real names stay off the shared map, and bad names cannot happen.
 
@@ -209,7 +209,7 @@ The Checkaverse is a much bigger town that every student shares, and it is the c
 
 **The merchant economy.** When a student sells an item to a merchant, it appears in that merchant's stock for everyone. The merchant pays the seller a base price and sells it to the next buyer at 50% more. Stock is first come, first served. Items nobody buys in five school days go back to the merchant's default goods. Players cannot hand coins or items to each other directly, which closes the easy routes for pressure or cheating.
 
-**Contagion.** A Checkling with a cold can pass it to Checklings standing nearby. Students learn to keep a sick Checkling home in Willowbank until it is treated.
+**Contagion.** A Checkling with a cold can pass it to Checklings standing nearby. Students learn to keep a sick Checkling home in Kettle Creek until it is treated.
 
 **Teacher controls.** The teacher can pause the Checkaverse, hide a player from it, see the merchant sales log and send any party to Day Care.
 
@@ -249,7 +249,7 @@ Pokémon Red and Blue are the only Pokémon influence. If a feature first appear
 
 **Do not soften the game.** Earlier builds drifted into a game with no stakes. The text said rest was always free, feeding was refused when full, and everyone always came home healthy. That direction is reversed. An AI that wants to make the game gentler must raise it with the owner first instead of quietly building it.
 
-**Keep the look.** The current founder art and the Willowbank camp scene set the visual standard. New art matches it.
+**Keep the look.** The current founder art and the Kettle Creek camp scene set the visual standard. New art matches it.
 
 ## Tech
 
@@ -275,7 +275,7 @@ otherwise: mood +20, hygiene -10, say mushroom_glow
 
 1. The student enters their PIN in Check-In, which records attendance as it does today.
 2. Check-In hands the game a short lived signed ticket carrying an anonymous player ID, the class hour, today's check-in status and the streak. It carries no name, PIN or email.
-3. Willowbank opens from grant-desk.com. Riding the bus connects to the Checkaverse at game.grant-desk.com.
+3. Kettle Creek opens from grant-desk.com. Riding the bus connects to the Checkaverse at game.grant-desk.com.
 4. The server checks the ticket, credits the day's XP once and opens the live connection.
 
 **The server.**
@@ -291,7 +291,7 @@ otherwise: mood +20, hygiene -10, say mushroom_glow
 
 **Where the Checkaverse runs. Decided Oct 29, 2026.** The Checkaverse runs on Grant's home PC for now, in D:\Checklings, reached at game.grant-desk.com through a Cloudflare Tunnel so no router ports open and the home address stays hidden. It moves to a small rented server later. The server code reads every path and port from environment variables, so the move is copying the folder, pointing the same tunnel at the new machine and stopping it at home. Small always on servers in the $4 to $6 a month range exist (Hetzner, DigitalOcean, OVHcloud) if uptime becomes the problem. The first test is whether game.grant-desk.com loads on a school Chromebook, since the filter already blocks netlify.app addresses. Source for the server is in apps/checkaverse.
 
-**Outages.** When the Checkaverse is down, the bus is not running, Willowbank still works, and the body clock does not tick that day. An outage never hurts a Checkling.
+**Outages.** When the Checkaverse is down, the bus is not running, Kettle Creek still works, and the body clock does not tick that day. An outage never hurts a Checkling.
 
 **Moving existing saves.** Pixel Camp saves in the Checkling Camps tab of the private workbook are imported once. The student's hatched Checkling, name and streak carry over as the partner.
 
