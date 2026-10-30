@@ -66,6 +66,13 @@ try {
   }
   step('sprite art is served and nothing else is');
 
+  // Trainer names have to survive a room of teenagers. No food, no body or size words, nothing that reads as an insult or a joke.
+  const NAMES = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'names.json'), 'utf8'));
+  const banned = /pickle|nugget|waffle|pretzel|biscuit|turnip|walrus|gopher|moose|dusty|rusty|tiny|chunky|fat|big|little|stinky|weird|nut|ball|wood|beaver|cock|stormy|blaz|weed|crusty|moist|thicc|sus/i;
+  for (const w of [...NAMES.first, ...NAMES.second]) assert.doesNotMatch(w, banned, `${w} is not a safe trainer name word`);
+  assert.ok(NAMES.first.length >= 20 && NAMES.second.length >= 20, 'enough words for unique names');
+  step('trainer name words are kid safe');
+
   const a = client(); await a.open; const wa = await a.next('welcome');
   const b = client(); await b.open; const wb = await b.next('welcome');
   assert.equal(wb.players.length, 2);

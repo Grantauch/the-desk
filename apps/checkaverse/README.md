@@ -2,7 +2,7 @@
 
 The live multiplayer town for Checklings. Read `docs/checklings/DESIGN.md` first.
 
-Players get a random trainer name and arrive at the bus stop in a scrolling town with a plaza on the west side and the Neighborhood on the east. Each player's house drops into a free plot when they arrive and leaves when they log off. Other players can walk in through the front door unless the owner locks it. Players walk with the keys or by tapping where they want to go, and tapping a landmark (or facing it and pressing Space) reads its sign from `content/signs.json`. Each player can reroll their trainer name three times a visit. Movement is predicted on screen: your trainer steps the moment you press, at a steady 180 ms a tile, and the server checks every step behind it and corrects the rare disagreement. Other trainers glide through the tiles the server reports at the same pace. Players talk with the starter phrases from the design bible, set themselves to Busy, and send and answer challenges. A turned down challenger waits three minutes before challenging that trainer again. Battles, tickets from Check-In and decorating come in Phase 3.
+Players get a random trainer name and arrive at the bus stop in a scrolling town with a plaza on the west side and the Neighborhood on the east. Each player's house drops into a free plot when they arrive and leaves when they log off. Other players can walk in through the front door unless the owner locks it. Players walk with the keys or by tapping where they want to go, and tapping a landmark (or facing it and pressing Space) reads its sign from `content/signs.json`. Each player can reroll their trainer name three times a visit. Trainer name words in `content/names.json` must hold up to a room of teenagers looking for something to mock: no food, no body or size words, nothing that is slang for an insult or innuendo in any pairing. `npm test` refuses a list of known bad words; read every new word with every partner before adding it. Movement is predicted on screen: your trainer steps the moment you press, at a steady 180 ms a tile, and the server checks every step behind it and corrects the rare disagreement. Other trainers glide through the tiles the server reports at the same pace. Players talk with the starter phrases from the design bible, set themselves to Busy, and send and answer challenges. A turned down challenger waits three minutes before challenging that trainer again. Battles, tickets from Check-In and decorating come in Phase 3.
 
 Maps, phrases and trainer name words are content in `content/`. Town props (the arena, market stalls, bus, Merge Stone, lanterns and the rest) are listed in `town.json` with their art and position, and their footprint tiles are solid.
 
@@ -12,14 +12,14 @@ The town is drawn with the Wave 1 Sprite Book art Gemini made (Checklings Sprite
 
 ## Where it runs
 
-The live copy is on Grant's PC in `D:\Checklings\checkaverse`, reached at https://game.grant-desk.com through a Cloudflare Tunnel. No router ports are open.
+The live copy is on Grant's PC in `C:\Checklings\checkaverse`, reached at https://game.grant-desk.com through a Cloudflare Tunnel. No router ports are open. It moved from the D drive to C on Oct 30, 2026, after the D drive (the 8 TB WD hard drive) started failing with disk errors and dropped off; the tunnel credentials stay in `C:\Users\Grant\.cloudflared`.
 
 | Folder | What is in it |
 | --- | --- |
-| `D:\Checklings\checkaverse` | This code, the copy that runs |
-| `D:\Checklings\storage` | `checkaverse.db` and the `logs` folder |
-| `D:\Checklings\recovery` | Nightly database copies, newest 30 kept |
-| `D:\Checklings\tunnel` | `cloudflared.exe`, `config.yml`, `run-tunnel.cmd` |
+| `C:\Checklings\checkaverse` | This code, the copy that runs |
+| `C:\Checklings\storage` | `checkaverse.db` and the `logs` folder |
+| `C:\Checklings\recovery` | Nightly database copies, newest 30 kept |
+| `C:\Checklings\tunnel` | `cloudflared.exe`, `config.yml`, `run-tunnel.cmd` |
 
 Two scheduled tasks in Windows Task Scheduler start everything when Grant signs in: **Checkaverse Server** runs `run-server.cmd`, **Checkaverse Tunnel** runs `run-tunnel.cmd`. Both loop, so a crash restarts in a few seconds. **Checkaverse Backup** runs `backup.mjs` nightly.
 
@@ -57,4 +57,4 @@ Health check: http://127.0.0.1:8787/health locally, https://game.grant-desk.com/
 
 ## Updating the live copy
 
-Change code here, run `npm test`, then copy the changed files into `D:\Checklings\checkaverse` and run `restart-server.ps1` there. It stops only the Checkaverse node process, and the loop starts it again with the new code within five seconds. Players see a restart notice and reconnect on their own. Never stop node processes by name alone, since other programs on the PC run files called server.mjs too.
+Change code here, run `npm test`, then copy the changed files into `C:\Checklings\checkaverse` and run `restart-server.ps1` there. It stops only the Checkaverse node process, and the loop starts it again with the new code within five seconds. Players see a restart notice and reconnect on their own. Never stop node processes by name alone, since other programs on the PC run files called server.mjs too.
