@@ -41,6 +41,8 @@
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
   }
   function homeLine() {
+    const goHome = document.getElementById('goHome');
+    goHome.hidden = !myPlot || roomKind !== 'town';
     if (!myPlot) { homeEl.textContent = 'No free plot right now'; lockBtn.hidden = true; return; }
     const mine = live(myPlot);
     homeEl.textContent = `Your house is on plot ${myPlot} in the Neighborhood`;
@@ -91,7 +93,7 @@
         stopWalk();
         setPlayers(m.players);
         hideAsk();
-        countLine(); placeLine();
+        countLine(); placeLine(); homeLine();
         snapCamera();
         if (roomKind === 'house') toast(roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
         break;
@@ -164,6 +166,11 @@
     renameBtn.disabled = !rerolls;
   }
   renameBtn.addEventListener('click', () => { if (rerolls) send({ t: 'reroll' }); });
+  // Walks you to your own front door and in. The town is wide, so this saves a long hunt.
+  document.getElementById('goHome').addEventListener('click', () => {
+    const geo = town?.plots.find((g) => g.id === myPlot);
+    if (geo && roomKind === 'town') walkTo([[geo.door.x, geo.door.y + 1]], 'u');
+  });
   // After a mouse or tap click, hand the keyboard back to the game so Space does not press the same button again.
   document.querySelector('.panel').addEventListener('click', (e) => {
     const b = e.target.closest('button');
@@ -485,6 +492,30 @@
     return c;
   }
 
+  // The pond drifts slowly: the water texture is redrawn over the water tiles a few pixels further along each frame.
+  // The bank outline from the ground canvas is drawn back on top so the edge stays crisp.
+  let waterPattern = null;
+  function shimmer(now, x0, y0, x1, y1) {
+    if (!has('tile-water') || reduceMotion) return;
+    if (!waterPattern) waterPattern = ctx.createPattern(ART['tile-water'], 'repeat');
+    const r = town.rows;
+    const off = (now / 90) % 192;
+    const m = new DOMMatrix().scale(1 / SCALE).translate(off, off * 0.4);
+    waterPattern.setTransform(m);
+    ctx.fillStyle = waterPattern;
+    const at = (x, y) => (r[y] && r[y][x]) || 'T';
+    for (let y = Math.max(0, y0); y <= Math.min(r.length - 1, y1); y++) {
+      for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
+        if (r[y][x] !== 'W') continue;
+        // Keep the drawn bank: inset the redraw on any side that touches land.
+        const l = at(x - 1, y) !== 'W' ? 5 / SCALE : 0, t = at(x, y - 1) !== 'W' ? 6 / SCALE : 0;
+        const rr = at(x + 1, y) !== 'W' ? 5 / SCALE : 0, b = at(x, y + 1) !== 'W' ? 4 / SCALE : 0;
+        ctx.fillRect(x * TILE + l, y * TILE + t, TILE - l - rr, TILE - t - b);
+      }
+    }
+  }
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // Placeholder shapes, used only when the art cannot load.
   function townTile(g, ch, x, y) {
     const px = x * TILE, py = y * TILE;
@@ -647,6 +678,7 @@
       const gx = Math.max(0, cx), gy = Math.max(0, cy);
       const gw = Math.min(ground.width / SCALE - gx, vw - (gx - cx)), gh = Math.min(ground.height / SCALE - gy, vh - (gy - cy));
       if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * SCALE, gy * SCALE, gw * SCALE, gh * SCALE, gx, gy, gw, gh);
+      if (roomKind === 'town') shimmer(now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
