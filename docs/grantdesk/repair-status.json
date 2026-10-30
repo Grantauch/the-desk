@@ -11,7 +11,8 @@
       "Fresh LOC request reproduced zero results for the previous query; corrected function returns five usable records.",
       "Workbook, endpoint, roster and Hall Pass are preserved. Synthetic tests contact no student records.",
       "Required CI found fallback-font title overflow at 320 pixels. The Bargain now scales its title within the available width; the browser check forces the wider fallback on Windows as well as Linux.",
-      "Catalogue-wide acceptance covers all 54 assignments with required PIN, compact controls at three widths, autosave, exact selection recovery on a second browser, refresh and final Turn In. The 10 reading-only hubs retain reading controls."
+      "Catalogue-wide acceptance covers all 54 assignments with required PIN, compact controls at three widths, autosave, exact selection recovery on a second browser, refresh and final Turn In. The 10 reading-only hubs retain reading controls.",
+      "The Debt Didnt Move notes drawer exposes aria-controls for exact cursor recovery and no longer overwrites cloud-restored notes with stale tab text when opened. Golf uses its existing investigation-card setup; readonly activity evidence is preserved."
     ]
   },
   "checklings-art-admission-2026-10-29": {

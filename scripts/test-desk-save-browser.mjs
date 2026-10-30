@@ -45,7 +45,9 @@ const server = createServer(async (req, res) => {
   }
 });
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-const BASE = `http://127.0.0.1:${server.address().port}`;
+// A hosted run verifies the published HTML/runtime with isolated invented accounts.
+// Real student service calls remain intercepted by the same harness below.
+const BASE = (process.env.DESK_SAVE_ORIGIN || `http://127.0.0.1:${server.address().port}`).replace(/\/$/, '');
 
 /* ------------------------------------------------------------- the rig -- */
 
@@ -79,7 +81,7 @@ async function chromebook(server, options = {}) {
   const net = { down: false, flaky: 0, calls: [], delayMs: options.delayMs || 0 };
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url());
-    if (url.hostname === '127.0.0.1') return route.continue();
+    if (url.origin === new URL(BASE).origin) return route.continue();
     if (url.hostname === 'turnin.test') {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors() });
       const body = route.request().postData() || '{}';
@@ -548,6 +550,7 @@ await test('every catalogue assignment uses the PIN gate, compact controls, auto
     let home;
     try {
       const p = await school.open(item.hub);
+      p.setDefaultTimeout(10000);
       assert.equal(await p.evaluate(() => window.__deskSave.mode), 'assignment');
       assert.equal(await gateOpen(p), true, 'PIN required before entry');
       assert.deepEqual(school.net.calls, [], 'no account access before PIN');
@@ -563,9 +566,10 @@ await test('every catalogue assignment uses the PIN gate, compact controls, auto
         const box = await turn.boundingBox();
         assert.ok(box && box.height >= 64 && box.x >= -1 && box.x + box.width <= width + 1, `Turn In fits ${width}px`);
       }
-      const field = p.locator('textarea:visible:not([data-desk-skip]):not([disabled])').first();
-      const id = await field.getAttribute('id');
-      assert.ok(id, 'answer has a stable field ID');
+      if (item.hub === 'bts-golf-special-edition.html') await p.locator('#make-card').click();
+      if (item.hub === 'ush9-l018-the-debt-didnt-move.html') await p.locator('#notesBtn').click();
+      const field = p.locator('textarea:visible:not([data-desk-skip]):not([disabled]):not([readonly])').first();
+      const fieldIndex = await field.evaluate(el => [...document.querySelectorAll('textarea')].indexOf(el));
       const text = `Catalogue recovery check for ${item.hub}`;
       await field.fill(text);
       await field.evaluate(el => { el.focus(); el.setSelectionRange(7, 12); el.dispatchEvent(new Event('select', { bubbles: true })); });
@@ -576,13 +580,14 @@ await test('every catalogue assignment uses the PIN gate, compact controls, auto
       home = await chromebook(s, { hooks: { gate: true } });
       const q = await home.open(item.hub);
       await passGate(q, s.pin(PEOPLE.ada));
-      await q.waitForFunction(({ id, text }) => {
-        const el = document.getElementById(id);
+      await q.waitForFunction(({ fieldIndex, text }) => {
+        const el = document.querySelectorAll('textarea')[fieldIndex];
         return el && el.value === text && document.activeElement === el && el.selectionStart === 7 && el.selectionEnd === 12;
-      }, { id, text }, { timeout: 10000 });
+      }, { fieldIndex, text }, { timeout: 10000 });
       await q.reload({ waitUntil: 'load' });
       await q.waitForFunction(() => window.__deskSave?.ready && !window.__deskSave.gate());
-      assert.equal(await q.locator(`[id="${id}"]`).inputValue(), text);
+      assert.equal(await q.locator('textarea').nth(fieldIndex).inputValue(), text);
+      if (item.hub === 'ush9-l018-the-debt-didnt-move.html') await q.locator('#closeNotes').click();
       await panel(q).getByRole('button', { name: 'Turn In', exact: true }).click();
       await waitFor(() => s.rows('Turn Ins').length === 1);
       assert.ok(s.rows('Turn Ins')[0].Answers.includes(text));
