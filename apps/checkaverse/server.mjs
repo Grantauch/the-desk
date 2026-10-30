@@ -6,6 +6,7 @@
 
 import http from 'node:http';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
@@ -33,6 +34,17 @@ const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
+
+// ---------- teacher key ----------
+// The teacher page needs this key. It lives only in the data folder (never in the repo) and is made on first start.
+const KEY_FILE = path.join(DATA_DIR, 'teacher-key.txt');
+if (!fs.existsSync(KEY_FILE)) fs.writeFileSync(KEY_FILE, crypto.randomBytes(9).toString('base64url') + '\n', { mode: 0o600 });
+const TEACHER_KEY = (process.env.CHECKAVERSE_TEACHER_KEY || fs.readFileSync(KEY_FILE, 'utf8')).trim();
+const keyOk = (k) => {
+  const a = Buffer.from(String(k || '')), b = Buffer.from(TEACHER_KEY);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+let paused = false;
 
 // ---------- logging ----------
 function log(...parts) {
@@ -253,6 +265,8 @@ const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
+  '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
+  '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],
 };
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
@@ -271,6 +285,7 @@ const server = http.createServer((req, res) => {
       houses: plots.filter((pl) => pl.owner).length, startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
     }));
   }
+  if (url.pathname.startsWith('/api/teacher/')) return teacherApi(req, res, url.pathname.slice(13));
   // Sprite Book art: /art/<name>.png, plain lowercase names only, nothing outside public/art.
   const art = /^\/art\/([a-z0-9-]+\.png)$/.exec(url.pathname);
   const file = STATIC[url.pathname] || (art && [`art/${art[1]}`, 'image/png', 'public, max-age=3600']);
@@ -284,6 +299,48 @@ const server = http.createServer((req, res) => {
     res.end(req.method === 'HEAD' ? undefined : body);
   });
 });
+
+// ---------- teacher controls ----------
+// Pause the town, remove a trainer, and send a message to everyone. Every call needs the teacher key.
+function teacherApi(req, res, action) {
+  const reply = (code, body) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...SECURITY_HEADERS }); res.end(JSON.stringify(body)); };
+  if (!keyOk(req.headers['x-teacher-key'])) { log('teacher key refused', action); return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
+  if (action === 'state' && req.method === 'GET') {
+    return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
+      id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
+      busy: p.busy, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
+    })) });
+  }
+  if (req.method !== 'POST') return reply(405, { ok: false });
+  let raw = '';
+  req.on('data', (c) => { raw += c; if (raw.length > 2000) req.destroy(); });
+  req.on('end', () => {
+    let body = {};
+    try { body = raw ? JSON.parse(raw) : {}; } catch { return reply(400, { ok: false }); }
+    if (action === 'pause') {
+      paused = Boolean(body.v);
+      toAll({ t: 'paused', v: paused });
+      log('teacher', paused ? 'paused' : 'resumed');
+      return reply(200, { ok: true, paused });
+    }
+    if (action === 'remove') {
+      const p = players.get(Number(body.id));
+      if (!p) return reply(404, { ok: false, msg: 'That trainer already left.' });
+      log('teacher removed', p.id, p.name);
+      send(p, { t: 'removed' });
+      setTimeout(() => p.ws.close(4001, 'Removed by teacher'), 100);
+      return reply(200, { ok: true });
+    }
+    if (action === 'say') {
+      const msg = String(body.msg || '').replace(/\s+/g, ' ').trim().slice(0, 140);
+      if (!msg) return reply(400, { ok: false });
+      toAll({ t: 'teacher', msg });
+      log('teacher said', msg);
+      return reply(200, { ok: true });
+    }
+    return reply(404, { ok: false });
+  });
+}
 
 // ---------- websockets ----------
 const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
@@ -309,7 +366,7 @@ wss.on('connection', (ws) => {
   const p = {
     id: nextId++, ws, name: trainerName(), room: 'town', x: spot.x, y: spot.y, facing: 'd',
     color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
-    rerolls: REROLLS, alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
+    rerolls: REROLLS, joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
@@ -318,7 +375,7 @@ wss.on('connection', (ws) => {
   log('join', p.id, p.name, plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
 
   send(p, {
-    t: 'welcome', you: p.id, version: VERSION, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
+    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
     room: 'town', myPlot: plot ? plot.id : 0,
     players: inRoom('town').map(publicView),
@@ -375,7 +432,12 @@ function handleMove(p, d) {
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
 }
 
+const PAUSED_OK = new Set(['busy', 'lock', 'answer']);
 function handleMessage(p, msg, now) {
+  if (paused && !PAUSED_OK.has(msg.t)) {
+    if (msg.t === 'move') send(p, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+    return;
+  }
   switch (msg.t) {
     case 'move': {
       if (!DIRS[msg.d]) return;

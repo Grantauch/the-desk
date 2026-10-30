@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Checkaverse teacher controls</title>
+  <link rel="stylesheet" href="/plaza.css">
+</head>
+<body>
+  <main class="frame teacher">
+    <header class="top">
+      <h1>Checkaverse <span>Teacher</span></h1>
+      <p id="status" class="status" role="status">Enter the teacher key.</p>
+    </header>
+
+    <form id="login" class="row">
+      <label for="key">Teacher key</label>
+      <input id="key" type="password" autocomplete="off" required>
+      <button type="submit">Open controls</button>
+    </form>
+
+    <section id="controls" hidden>
+      <div class="row">
+        <button id="pause" type="button">Pause the Checkaverse</button>
+        <span id="pauseState" class="status"></span>
+      </div>
+      <form id="say" class="row">
+        <label for="msg">Message to everyone</label>
+        <input id="msg" maxlength="140" autocomplete="off" placeholder="Two minutes left. Head back to your house.">
+        <button type="submit">Send</button>
+      </form>
+      <h2>Trainers here now</h2>
+      <table>
+        <thead><tr><th>Trainer</th><th>Where</th><th>Minutes</th><th>Phrases</th><th>Challenges</th><th></th></tr></thead>
+        <tbody id="list"></tbody>
+      </table>
+      <p class="help">Removing a trainer closes their connection. They can reload to come back with a new name. The key is in C:\Checklings\storage\teacher-key.txt on the PC.</p>
+    </section>
+  </main>
+  <script src="/teacher.js"></script>
+</body>
+</html>

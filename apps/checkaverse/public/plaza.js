@@ -12,7 +12,9 @@
   const busyEl = $('busy'), challengeBtn = $('challenge'), phrasesEl = $('phrases');
   const placeEl = $('place'), lockBtn = $('lock'), homeEl = $('home');
 
-  let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0;
+  let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false;
+  const pausedEl = document.getElementById('paused');
+  function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } }
   let town = null, house = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
@@ -61,9 +63,10 @@
     setStatus(retry ? 'Reconnecting...' : 'Connecting...');
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } handle(m); };
     ws.onopen = () => { retry = 0; };
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       players.clear();
       hideAsk();
+      if (removed || ev.code === 4001) return setStatus('The teacher removed you from the Checkaverse. Reload the page to come back.', true);
       const wait = Math.min(15000, 1000 * 2 ** retry++);
       setStatus(`The Checkaverse bus is not running right now. Trying again in ${Math.round(wait / 1000)}s.`, true);
       setTimeout(connect, wait);
@@ -74,7 +77,7 @@
     switch (m.t) {
       case 'welcome':
         me = m.you; town = m.town; house = m.house; phrases = m.phrases; myPlot = m.myPlot;
-        signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk();
+        signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         room = 'town'; roomKind = 'town'; roomOwner = null;
         setPlayers(m.players);
         meEl.textContent = players.get(me)?.name || 'Trainer';
@@ -119,6 +122,9 @@
         break;
       case 'challenge_result': toast(m.msg); break;
       case 'notice': toast(m.msg); break;
+      case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
+      case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
+      case 'removed': removed = true; break;
       case 'name': {
         const p = players.get(m.id);
         if (p) p.name = m.name;
@@ -293,7 +299,7 @@
       p.seg = null;
       if (now - start > STEP_MS) start = now;
     }
-    if (!askEl.hidden) return;
+    if (!askEl.hidden || paused) return;
     const dir = held.length ? held[held.length - 1] : walkDir(p);
     if (!dir) return;
     const [ax, ay] = STEP[dir];

@@ -34,3 +34,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid #a8c686; outline-
 .pad [data-d="d"] { grid-column: 2; grid-row: 2; }
 .pad [data-d="r"] { grid-column: 3; grid-row: 2; }
 .help { color: #9fb59a; font-size: 14px; margin-top: 14px; }
+.paused { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #0b1410e6; border: 2px solid #ff8f7a; color: #ffd8cf; padding: 6px 14px; border-radius: 4px; font-size: 15px; }
+.paused[hidden] { display: none; }
+.teacher .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 14px 0; }
+.teacher input { font: inherit; font-size: 15px; padding: 7px 9px; border-radius: 4px; border: 2px solid #2f4a3b; background: #0b1410; color: #f4f1e6; min-width: 260px; }
+.teacher h2 { font-size: 18px; color: #ffd166; margin: 22px 0 8px; }
+.teacher table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.teacher th, .teacher td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #2f4a3b; }
+.teacher [hidden] { display: none; }
