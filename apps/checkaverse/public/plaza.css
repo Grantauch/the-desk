@@ -42,3 +42,16 @@ button:focus-visible, input:focus-visible { outline: 3px solid #a8c686; outline-
 .teacher table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .teacher th, .teacher td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #2f4a3b; }
 .teacher [hidden] { display: none; }
+
+/* Chromebook and laptop screens: the map fills the height and the controls sit beside it, so nothing is below the fold. */
+@media (min-width: 980px) {
+  .frame:not(.teacher) { max-width: none; padding: 10px 16px; }
+  .play { display: grid; grid-template-columns: auto minmax(260px, 340px); gap: 16px; align-items: start; justify-content: center; }
+  .top { max-width: calc(min(100vw - 400px, (100vh - 76px) * 1.5) + 356px); margin: 0 auto; }
+  .stage { margin-top: 6px; width: min(calc(100vw - 400px), calc((100vh - 76px) * 1.5)); }
+  .panel { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+  .you, .home { gap: 8px 10px; }
+  .phrases button { font-size: 14px; padding: 7px 10px; }
+  .pad { align-self: center; }
+  .help { font-size: 13px; margin: 0; }
+}

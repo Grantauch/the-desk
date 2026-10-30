@@ -13,7 +13,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.6.0';
+const VERSION = '0.6.1';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
