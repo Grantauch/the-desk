@@ -12,7 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -253,14 +253,16 @@ const server = http.createServer((req, res) => {
       houses: plots.filter((pl) => pl.owner).length, startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
     }));
   }
-  const file = STATIC[url.pathname];
+  // Sprite Book art: /art/<name>.png, plain lowercase names only, nothing outside public/art.
+  const art = /^\/art\/([a-z0-9-]+\.png)$/.exec(url.pathname);
+  const file = STATIC[url.pathname] || (art && [`art/${art[1]}`, 'image/png', 'public, max-age=3600']);
   if (!file || (req.method !== 'GET' && req.method !== 'HEAD')) {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     return res.end('Not found');
   }
   fs.readFile(path.join(HERE, 'public', file[0]), (err, body) => {
-    if (err) { res.writeHead(500); return res.end('Missing file'); }
-    res.writeHead(200, { 'Content-Type': file[1], 'Cache-Control': 'no-cache', ...SECURITY_HEADERS });
+    if (err) { res.writeHead(art ? 404 : 500); return res.end(art ? 'Not found' : 'Missing file'); }
+    res.writeHead(200, { 'Content-Type': file[1], 'Cache-Control': file[2] || 'no-cache', ...SECURITY_HEADERS });
     res.end(req.method === 'HEAD' ? undefined : body);
   });
 });
@@ -299,7 +301,7 @@ wss.on('connection', (ws) => {
 
   send(p, {
     t: 'welcome', you: p.id, version: VERSION, phrases: PHRASES,
-    town: { rows: TOWN.rows, plots: TOWN.plots }, house: HOUSE,
+    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
     room: 'town', myPlot: plot ? plot.id : 0,
     players: inRoom('town').map(publicView),
   });

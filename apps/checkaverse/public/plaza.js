@@ -3,7 +3,10 @@
   const TILE = 32;
   const canvas = document.getElementById('town');
   const ctx = canvas.getContext('2d');
-  const VIEW_W = canvas.width, VIEW_H = canvas.height;
+  const SCALE = 2; // the canvas has two pixels for every map pixel so the 2x art stays sharp
+  const VIEW_W = canvas.width / SCALE, VIEW_H = canvas.height / SCALE;
+  // Rooms are small, so the camera moves in closer inside a house.
+  const zoom = () => (roomKind === 'house' ? 1.6 : 1);
   const $ = (id) => document.getElementById(id);
   const statusEl = $('status'), meEl = $('me'), toastEl = $('toast'), askEl = $('ask'), askText = $('askText');
   const busyEl = $('busy'), challengeBtn = $('challenge'), phrasesEl = $('phrases');
@@ -171,8 +174,8 @@
   });
   canvas.addEventListener('click', (e) => {
     const r = canvas.getBoundingClientRect();
-    const tx = Math.floor((((e.clientX - r.left) / r.width) * VIEW_W + cam.x) / TILE);
-    const ty = Math.floor((((e.clientY - r.top) / r.height) * VIEW_H + cam.y) / TILE);
+    const tx = Math.floor((((e.clientX - r.left) / r.width) * VIEW_W / zoom() + cam.x) / TILE);
+    const ty = Math.floor((((e.clientY - r.top) / r.height) * VIEW_H / zoom() + cam.y) / TILE);
     for (const p of players.values()) if (p.id !== me && p.x === tx && p.y === ty) return send({ t: 'challenge', to: p.id });
   });
 
@@ -185,59 +188,199 @@
     const cx = self ? self.dx * TILE + TILE / 2 : mapW / 2;
     const cy = self ? self.dy * TILE + TILE / 2 : mapH / 2;
     const clamp = (v, size, view) => (size <= view ? (size - view) / 2 : Math.max(0, Math.min(size - view, v - view / 2)));
-    return { x: clamp(cx, mapW, VIEW_W), y: clamp(cy, mapH, VIEW_H) };
+    return { x: clamp(cx, mapW, VIEW_W / zoom()), y: clamp(cy, mapH, VIEW_H / zoom()) };
   }
   function snapCamera() { cam = cameraTarget(); }
 
-  // ---------- drawing ----------
-  // Placeholder shapes until the sprite book art arrives.
-  function townTile(ch, x, y) {
-    const px = x * TILE, py = y * TILE;
-    ctx.fillStyle = (x + y) % 2 ? '#5c9e4a' : '#61a54e';
-    ctx.fillRect(px, py, TILE, TILE);
-    if (ch === 'P') { ctx.fillStyle = '#d9c08c'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#c9ad74'; ctx.fillRect(px + 6, py + 20, 4, 4); }
-    else if (ch === 'L') { ctx.fillStyle = '#a07a4f'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#8c6a43'; ctx.fillRect(px + 4, py + 8, 24, 2); ctx.fillRect(px + 4, py + 20, 24, 2); }
-    else if (ch === 'W') { ctx.fillStyle = '#3d7fc0'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#7fb6e6'; ctx.fillRect(px + 6, py + 10, 10, 2); ctx.fillRect(px + 16, py + 22, 8, 2); }
-    else if (ch === 'T') { ctx.fillStyle = '#6b4a2b'; ctx.fillRect(px + 13, py + 20, 6, 10); ctx.fillStyle = '#2f6b32'; ctx.beginPath(); ctx.arc(px + 16, py + 14, 12, 0, Math.PI * 2); ctx.fill(); }
-    else if (ch === 'F') { ctx.fillStyle = '#ff9ec7'; ctx.fillRect(px + 7, py + 8, 4, 4); ctx.fillStyle = '#fff3a0'; ctx.fillRect(px + 20, py + 18, 4, 4); }
-    else if (ch === 'H') { ctx.fillStyle = '#b5523b'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#8f3d2c'; ctx.fillRect(px, py + TILE - 4, TILE, 4); ctx.fillStyle = '#f2d98d'; ctx.fillRect(px + 10, py + 10, 12, 10); }
-    else if (ch === 'S') { ctx.fillStyle = '#d9c08c'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#555'; ctx.fillRect(px + 14, py + 8, 4, 24); ctx.fillStyle = '#ffd166'; ctx.fillRect(px + 6, py + 2, 20, 12); ctx.fillStyle = '#14211a'; ctx.font = '9px monospace'; ctx.fillText('BUS', px + 8, py + 11); }
+  // ---------- art ----------
+  // Sprite Book art is stored at 2x (64 pixels a tile). If a picture fails to load, the old shapes stand in for it.
+  const ART_NAMES = [
+    'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
+    'prop-bus-stop', 'prop-bus', 'prop-notice-board', 'ui-bubble', 'hood-plot', 'house-cottage', 'house-stump',
+    'house-creek', 'hood-locked', 'hood-mailbox', 'house-interior', 'market-stall', 'merge-stone', 'arena',
+    'trainer-a', 'trainer-b', 'trainer-c', 'trainer-d',
+  ];
+  const ART = {};
+  let artWaiting = ART_NAMES.length;
+  let ground = null, groundKey = '';
+  for (const name of ART_NAMES) {
+    const im = new Image();
+    im.onload = im.onerror = () => { artWaiting--; ground = null; };
+    im.src = `/art/${name}.png`;
+    ART[name] = im;
+  }
+  const has = (name) => ART[name] && ART[name].complete && ART[name].naturalWidth > 0;
+  const TRAINERS = ['trainer-a', 'trainer-b', 'trainer-c', 'trainer-d'];
+  const HOUSES = ['house-cottage', 'house-stump', 'house-creek'];
+  const FACE_ROW = { d: 0, u: 1, l: 2, r: 3 };
+  const OUTLINE = '#2b1a12';
+
+  // Draws a sprite scaled to a width in tiles, its bottom edge at b. Returns the top edge in pixels.
+  function sprite(name, x, b, w, flip) {
+    const im = ART[name];
+    const dw = w * TILE, dh = dw * im.naturalHeight / im.naturalWidth;
+    const px = x * TILE, py = b * TILE - dh;
+    if (flip) {
+      ctx.save(); ctx.translate(px + dw, py); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, dw, dh); ctx.restore();
+    } else ctx.drawImage(im, px, py, dw, dh);
+    return py;
+  }
+  const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; };
+
+  // ---------- ground, drawn once per map into its own canvas ----------
+  function buildGround() {
+    const r = rows();
+    const c = document.createElement('canvas');
+    c.width = r[0].length * TILE * SCALE;
+    c.height = r.length * TILE * SCALE;
+    const g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    const T = TILE * SCALE;
+    if (roomKind === 'house') {
+      g.fillStyle = '#3b2414';
+      g.fillRect(0, 0, c.width, c.height);
+      if (has('house-interior')) {
+        const a = house.art || { x: 0, y: 0, w: 10, h: 8 };
+        g.drawImage(ART['house-interior'], a.x * T, a.y * T, a.w * T, a.h * T);
+      } else {
+        g.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+        r.forEach((row, y) => [...row].forEach((ch, x) => houseTile(g, ch, x, y)));
+      }
+      return c;
+    }
+    const texture = (name) => (has(name) ? g.createPattern(ART[name], 'repeat') : null);
+    const grass = texture('tile-grass'), path = texture('tile-path'), water = texture('tile-water');
+    if (!grass || !path || !water) {
+      g.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+      r.forEach((row, y) => [...row].forEach((ch, x) => townTile(g, ch, x, y)));
+      return c;
+    }
+    g.fillStyle = grass;
+    g.fillRect(0, 0, c.width, c.height);
+    const at = (x, y) => (r[y] && r[y][x]) || 'T';
+    r.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === 'P') { g.fillStyle = path; g.fillRect(x * T, y * T, T, T); }
+      if (ch === 'W') { g.fillStyle = water; g.fillRect(x * T, y * T, T, T); }
+    }));
+    // A thick dark bank where water meets land, the house outline style.
+    r.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch !== 'W') return;
+      g.fillStyle = OUTLINE;
+      if (at(x, y - 1) !== 'W') g.fillRect(x * T, y * T, T, 6);
+      if (at(x, y + 1) !== 'W') g.fillRect(x * T, y * T + T - 4, T, 4);
+      if (at(x - 1, y) !== 'W') g.fillRect(x * T, y * T, 5, T);
+      if (at(x + 1, y) !== 'W') g.fillRect(x * T + T - 5, y * T, 5, T);
+    }));
+    // Flower patches: tiny clusters in the house accent colors, walkable like grass.
+    const petals = ['#ff9ec7', '#fff6e0', '#ffb347', '#ff6b6b'];
+    r.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch !== 'F') return;
+      for (let i = 0; i < 4; i++) {
+        const h = hash(x * 4 + i, y);
+        const fx = x * T + 8 + (h % 44), fy = y * T + 8 + ((h >>> 8) % 44);
+        g.fillStyle = OUTLINE; g.fillRect(fx - 2, fy - 2, 12, 12);
+        g.fillStyle = petals[(h >>> 16) % petals.length]; g.fillRect(fx, fy, 8, 8);
+        g.fillStyle = '#ffe066'; g.fillRect(fx + 3, fy + 3, 2, 2);
+      }
+    }));
+    return c;
   }
 
-  function houseTile(ch, x, y) {
+  // Placeholder shapes, used only when the art cannot load.
+  function townTile(g, ch, x, y) {
     const px = x * TILE, py = y * TILE;
-    ctx.fillStyle = (x % 2) ? '#c9935a' : '#c08b53';
-    ctx.fillRect(px, py, TILE, TILE);
-    ctx.fillStyle = '#a8763f'; ctx.fillRect(px, py + TILE - 2, TILE, 2);
-    if (ch === 'X') { ctx.fillStyle = '#6b4a2b'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#5a3d22'; ctx.fillRect(px, py + 10, TILE, 3); ctx.fillRect(px, py + 22, TILE, 3); }
-    else if (ch === 'R') { ctx.fillStyle = '#b8574a'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#e0a458'; ctx.fillRect(px + 4, py + 4, TILE - 8, TILE - 8); }
-    else if (ch === 'B') { ctx.fillStyle = '#e8e2d0'; ctx.fillRect(px + 2, py + 2, TILE - 4, TILE - 4); ctx.fillStyle = '#4f7cac'; ctx.fillRect(px + 2, py + 12, TILE - 4, TILE - 14); }
-    else if (ch === 'K') { ctx.fillStyle = '#7a5230'; ctx.fillRect(px + 2, py + 2, TILE - 4, TILE - 4); ctx.fillStyle = '#d35400'; ctx.fillRect(px + 6, py + 6, 5, 9); ctx.fillStyle = '#16a085'; ctx.fillRect(px + 13, py + 6, 5, 9); }
-    else if (ch === 'N') { ctx.fillStyle = '#8e44ad'; ctx.beginPath(); ctx.ellipse(px + 16, py + 18, 13, 9, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#c39bd3'; ctx.beginPath(); ctx.ellipse(px + 16, py + 18, 8, 5, 0, 0, Math.PI * 2); ctx.fill(); }
-    else if (ch === 'D') { ctx.fillStyle = '#4a3220'; ctx.fillRect(px, py, TILE, TILE); ctx.fillStyle = '#a8c686'; ctx.fillRect(px + 4, py + 4, TILE - 8, TILE - 10); }
+    g.fillStyle = (x + y) % 2 ? '#5c9e4a' : '#61a54e';
+    g.fillRect(px, py, TILE, TILE);
+    if (ch === 'P') { g.fillStyle = '#d9c08c'; g.fillRect(px, py, TILE, TILE); }
+    else if (ch === 'W') { g.fillStyle = '#3d7fc0'; g.fillRect(px, py, TILE, TILE); }
+    else if (ch === 'F') { g.fillStyle = '#ff9ec7'; g.fillRect(px + 7, py + 8, 4, 4); g.fillStyle = '#fff3a0'; g.fillRect(px + 20, py + 18, 4, 4); }
+    else if (ch === 'L') { g.fillStyle = '#a07a4f'; g.fillRect(px, py, TILE, TILE); }
+  }
+  function houseTile(g, ch, x, y) {
+    const px = x * TILE, py = y * TILE;
+    g.fillStyle = (x % 2) ? '#c9935a' : '#c08b53';
+    g.fillRect(px, py, TILE, TILE);
+    const fill = { X: '#6b4a2b', R: '#b8574a', B: '#4f7cac', K: '#7a5230', N: '#8e44ad', D: '#4a3220' }[ch];
+    if (fill) { g.fillStyle = fill; g.fillRect(px + 2, py + 2, TILE - 4, TILE - 4); }
+  }
+  function boxShape(x, b, w, h, color) {
+    ctx.fillStyle = OUTLINE; ctx.fillRect(x * TILE, (b - h) * TILE, w * TILE, h * TILE);
+    ctx.fillStyle = color; ctx.fillRect(x * TILE + 3, (b - h) * TILE + 3, w * TILE - 6, h * TILE - 6);
   }
 
-  function plotHouse(geo) {
-    const state = live(geo.id);
-    const px = geo.x * TILE, py = geo.y * TILE, w = geo.w * TILE;
-    if (!state.owner) {
-      ctx.strokeStyle = '#7a5230'; ctx.lineWidth = 3;
-      ctx.strokeRect(px + 2, py + 2, w - 4, geo.h * TILE - 4);
-      return;
+  // ---------- things that stand up, sorted by where they touch the ground ----------
+  function townThings(x0, y0, x1, y1, list) {
+    const r = town.rows;
+    for (let y = Math.max(0, y0 - 1); y <= Math.min(r.length - 1, y1 + 3); y++) {
+      for (let x = Math.max(0, x0 - 2); x <= Math.min(r[0].length - 1, x1 + 2); x++) {
+        const ch = r[y][x];
+        if (ch === 'T') {
+          const h = hash(x, y);
+          list.push({ b: y + 1, draw: () => (has('prop-tree')
+            ? sprite('prop-tree', x + 0.5 - 0.95 * (0.92 + (h % 13) / 100), y + 1.05, 1.9 * (0.92 + (h % 13) / 100), h & 1)
+            : boxShape(x + 0.1, y + 1, 0.8, 1, '#2f6b32')) });
+        } else if (ch === 'S' && !has('prop-bus-stop')) {
+          list.push({ b: y + 1, draw: () => boxShape(x + 0.3, y + 1, 0.4, 1.4, '#ffd166') });
+        }
+      }
     }
-    const mine = state.owner === me;
-    ctx.fillStyle = '#d9b48a'; ctx.fillRect(px + 4, py + 18, w - 8, TILE * 3 - 18);
-    ctx.fillStyle = mine ? '#c98b2b' : '#5e8c4a';
-    ctx.beginPath(); ctx.moveTo(px - 2, py + 22); ctx.lineTo(px + w / 2, py - 6); ctx.lineTo(px + w + 2, py + 22); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#f2d98d'; ctx.fillRect(px + 14, py + 36, 18, 16); ctx.fillRect(px + w - 32, py + 36, 18, 16);
-    const dx = geo.door.x * TILE, dy = geo.door.y * TILE;
-    ctx.fillStyle = '#5a3d22'; ctx.fillRect(dx + 6, dy + 4, TILE - 12, TILE - 4);
-    if (state.locked) {
-      ctx.fillStyle = '#fffbea'; ctx.fillRect(dx + 7, dy + 8, TILE - 14, 14);
-      ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(dx + 10, dy + 11); ctx.lineTo(dx + TILE - 10, dy + 19); ctx.moveTo(dx + TILE - 10, dy + 11); ctx.lineTo(dx + 10, dy + 19); ctx.stroke();
+    for (const p of town.props || []) {
+      if (p.x > x1 + 1 || p.x + p.w < x0 - 1 || p.b < y0 || p.b - 6 > y1) continue;
+      list.push({ b: p.b, draw: () => (has(p.s) ? sprite(p.s, p.x, p.b, p.w) : boxShape(p.x, p.b, p.w, Math.min(2, p.w), '#b5523b')) });
     }
-    label(mine ? 'Your house' : state.name, px + w / 2, py - 10, mine ? '#ffd166' : '#f4f1e6');
+    for (const geo of town.plots) {
+      const state = live(geo.id);
+      if (!state.owner) {
+        // An empty plot lies flat, so it goes under everything.
+        list.push({ b: -1, draw: () => (has('hood-plot') ? sprite('hood-plot', geo.x, geo.y + geo.h, geo.w)
+          : (ctx.strokeStyle = '#7a5230', ctx.lineWidth = 3, ctx.strokeRect(geo.x * TILE + 2, geo.y * TILE + 2, geo.w * TILE - 4, geo.h * TILE - 4))) });
+        continue;
+      }
+      const mine = state.owner === me;
+      const look = HOUSES[state.owner % HOUSES.length];
+      const d = geo.door;
+      // A doormat on the step in front of the door shows where to walk in.
+      list.push({ b: -1, draw: () => {
+        ctx.fillStyle = OUTLINE; ctx.fillRect(d.x * TILE + 5, (d.y + 1) * TILE + 1, TILE - 10, 12);
+        ctx.fillStyle = mine ? '#e9b949' : '#c46b3c'; ctx.fillRect(d.x * TILE + 7, (d.y + 1) * TILE + 3, TILE - 14, 8);
+      } });
+      list.push({ b: geo.y + geo.h - 1, draw: () => {
+        const top = has(look) ? sprite(look, geo.x, geo.y + geo.h - 1, geo.w)
+          : (boxShape(geo.x, geo.y + geo.h - 1, geo.w, 3, mine ? '#c98b2b' : '#5e8c4a'), (geo.y + geo.h - 4) * TILE);
+        if (state.locked) {
+          if (has('hood-locked')) sprite('hood-locked', d.x + 0.15, d.y + 0.95, 0.7);
+          else boxShape(d.x + 0.2, d.y + 0.9, 0.6, 0.5, '#c0392b');
+        }
+        labels.push([mine ? 'Your house' : state.name, (geo.x + geo.w / 2) * TILE, top + 4, mine ? '#ffd166' : '#f4f1e6']);
+      } });
+      if (has('hood-mailbox')) list.push({ b: geo.y + geo.h - 0.05, draw: () => sprite('hood-mailbox', geo.x + geo.w - 0.85, geo.y + geo.h - 0.05, 0.72) });
+    }
+  }
+
+  function trainer(p, now) {
+    // Ease toward the server position so steps look smooth.
+    p.dx += (p.x - p.dx) * 0.35;
+    p.dy += (p.y - p.dy) * 0.35;
+    const moving = Math.abs(p.x - p.dx) + Math.abs(p.y - p.dy) > 0.04;
+    if (moving) p.walkUntil = now + 120;
+    const px = p.dx * TILE, py = p.dy * TILE;
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.ellipse(px + 16, py + 29, 10, 4, 0, 0, Math.PI * 2); ctx.fill();
+    if (p.id === me) {
+      ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(px + 16, py + 29, 13, 5.5, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    const look = TRAINERS[p.id % TRAINERS.length];
+    if (has(look)) {
+      const step = (p.walkUntil || 0) > now ? [1, 0, 1, 2][Math.floor(now / 140) % 4] : 1;
+      ctx.drawImage(ART[look], step * 64, (FACE_ROW[p.f] ?? 0) * 96, 64, 96, px, py + TILE - 48, 32, 48);
+    } else {
+      ctx.fillStyle = p.c; ctx.fillRect(px + 8, py + 10, 16, 16);
+      ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
+    }
+    const top = py + TILE - 50;
+    labels.push([p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.busy ? '#9fb59a' : '#f4f1e6']);
+    if (p.bubble && p.bubbleUntil > now) bubbles.push([p.bubble, px + 16, top - 16]);
   }
 
   function label(text, cx, y, color) {
@@ -251,53 +394,71 @@
     ctx.textAlign = 'start';
   }
 
-  function trainer(p, now) {
-    // Ease toward the server position so steps look smooth.
-    p.dx += (p.x - p.dx) * 0.35;
-    p.dy += (p.y - p.dy) * 0.35;
-    const px = p.dx * TILE, py = p.dy * TILE;
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillRect(px + 7, py + 26, 18, 4);
-    ctx.fillStyle = p.c;
-    ctx.fillRect(px + 8, py + 10, 16, 16);
-    ctx.fillStyle = '#f2c9a0';
-    ctx.fillRect(px + 10, py + 2, 12, 10);
-    ctx.fillStyle = '#14211a';
-    if (p.f === 'd') { ctx.fillRect(px + 12, py + 6, 2, 2); ctx.fillRect(px + 18, py + 6, 2, 2); }
-    else if (p.f === 'l') ctx.fillRect(px + 11, py + 6, 2, 2);
-    else if (p.f === 'r') ctx.fillRect(px + 19, py + 6, 2, 2);
-    if (p.id === me) { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.strokeRect(px + 3, py, 26, 31); }
-    label(p.busy ? `${p.name} (Busy)` : p.name, px + 16, py - 5, p.busy ? '#9fb59a' : '#f4f1e6');
-    if (p.bubble && p.bubbleUntil > now) {
-      ctx.font = '14px monospace';
-      ctx.textAlign = 'center';
-      const bw = ctx.measureText(p.bubble).width + 14;
-      ctx.fillStyle = '#fffbea';
-      ctx.fillRect(px + 16 - bw / 2, py - 40, bw, 20);
-      ctx.fillStyle = '#14211a';
-      ctx.fillText(p.bubble, px + 16, py - 25);
+  // Speech bubble from the Sprite Book art: the rounded ends and the tail keep their shape, the plain parts stretch.
+  function bubble(text, cx, tipY) {
+    ctx.font = '13px monospace';
+    ctx.textAlign = 'center';
+    const tw = ctx.measureText(text).width;
+    if (!has('ui-bubble')) {
+      ctx.fillStyle = '#fffbea'; ctx.fillRect(cx - tw / 2 - 7, tipY - 22, tw + 14, 20);
+      ctx.fillStyle = '#14211a'; ctx.fillText(text, cx, tipY - 8);
       ctx.textAlign = 'start';
+      return;
     }
+    const im = ART['ui-bubble'];
+    const s = 30 / im.naturalHeight;            // 30 pixels tall on screen
+    const cap = 36, tail0 = 92, tail1 = 128, W = im.naturalWidth, H = im.naturalHeight;
+    const capW = cap * s, tailW = (tail1 - tail0) * s;
+    const w = Math.max(tw + 20, capW * 2 + tailW + 8);
+    const left = cx - w / 2, top = tipY - H * s;
+    const fill = (w - capW * 2 - tailW) / 2;
+    const parts = [[0, cap, capW], [cap, tail0 - cap, fill], [tail0, tail1 - tail0, tailW], [tail1, W - cap - tail1, fill], [W - cap, cap, capW]];
+    let x = left;
+    for (const [sx, sw, dw] of parts) { ctx.drawImage(im, sx, 0, sw, H, x, top, dw, H * s); x += dw; }
+    ctx.fillStyle = '#2b1a12';
+    ctx.fillText(text, cx, top + 111 * s / 2 + 5);
+    ctx.textAlign = 'start';
   }
 
+  const labels = [], bubbles = [];
   function frame(now) {
     if (held.length && now - lastStep > 120) { send({ t: 'move', d: held[held.length - 1] }); lastStep = now; }
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#0b1410';
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
     const r = rows();
     if (r.length) {
+      const key = `${room}:${artWaiting}`;
+      if (!ground || groundKey !== key) { ground = buildGround(); groundKey = key; }
       const target = cameraTarget();
       cam.x += (target.x - cam.x) * 0.2;
       cam.y += (target.y - cam.y) * 0.2;
+      const z = zoom(), vw = VIEW_W / z, vh = VIEW_H / z;
+      const cx = Math.round(cam.x * SCALE * z) / (SCALE * z), cy = Math.round(cam.y * SCALE * z) / (SCALE * z);
       ctx.save();
-      ctx.translate(-Math.round(cam.x), -Math.round(cam.y));
-      const x0 = Math.max(0, Math.floor(cam.x / TILE)), y0 = Math.max(0, Math.floor(cam.y / TILE));
-      const x1 = Math.min(r[0].length - 1, Math.ceil((cam.x + VIEW_W) / TILE)), y1 = Math.min(r.length - 1, Math.ceil((cam.y + VIEW_H) / TILE));
-      const draw = roomKind === 'town' ? townTile : houseTile;
-      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) draw(r[y][x], x, y);
-      if (roomKind === 'town') for (const geo of town.plots) plotHouse(geo);
-      const list = [...players.values()].sort((a, b) => a.dy - b.dy);
-      for (const p of list) trainer(p, now);
+      ctx.scale(z, z);
+      ctx.translate(-cx, -cy);
+      ctx.drawImage(ground, 0, 0, ground.width / SCALE, ground.height / SCALE);
+      const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
+      const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
+      const things = [];
+      if (roomKind === 'town') townThings(x0, y0, x1, y1, things);
+      for (const p of players.values()) things.push({ b: p.dy + 1, draw: () => trainer(p, now) });
+      things.sort((a, b) => a.b - b.b);
+      labels.length = 0; bubbles.length = 0;
+      for (const t of things) t.draw();
+      // Name tags never sit on top of each other: a tag that would overlap one already placed moves up a row.
+      ctx.font = '12px monospace';
+      const placed = [];
+      for (const [text, x, y, color] of labels) {
+        const w = ctx.measureText(text).width + 8;
+        let ty = y;
+        for (let i = 0; i < 4 && placed.some((q) => Math.abs(q.x - x) < (q.w + w) / 2 && Math.abs(q.y - ty) < 14); i++) ty -= 15;
+        placed.push({ x, y: ty, w });
+        label(text, x, ty, color);
+      }
+      for (const b of bubbles) bubble(...b);
       ctx.restore();
     }
     challengeBtn.disabled = !neighbor() || busyEl.checked;

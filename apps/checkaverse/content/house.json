@@ -1,13 +1,20 @@
 {
   "id": "house",
+  "art": {
+    "s": "house-interior",
+    "x": -0.5,
+    "y": 0,
+    "w": 10,
+    "h": 8
+  },
   "rows": [
     "XXXXXXXXXX",
-    "XKK....BBX",
-    "X.......BX",
-    "X..RRR...X",
-    "X..RRR..NX",
-    "X........X",
-    "X........X",
+    "XXXXXXXXXX",
+    "KBBK..KNNX",
+    ".BB.RRRNNX",
+    "KBB.RRR.KX",
+    "....RRR..X",
+    ".......KKX",
     "XXXXDXXXXX"
   ],
   "enter": [

@@ -4,7 +4,11 @@ The live multiplayer town for Checklings. Read `docs/checklings/DESIGN.md` first
 
 Players get a random trainer name and arrive at the bus stop in a scrolling town with a plaza on the west side and the Neighborhood on the east. Each player's house drops into a free plot when they arrive and leaves when they log off. Other players can walk in through the front door unless the owner locks it. Players talk with the starter phrases from the design bible, set themselves to Busy, and send and answer challenges. A turned down challenger waits three minutes before challenging that trainer again. Battles, tickets from Check-In and decorating come in Phase 3.
 
-Maps, phrases and trainer name words are content in `content/`. Change the town layout in `tools/gen-town.mjs`, then run `node tools/gen-town.mjs` to rebuild `content/town.json` and `content/house.json`.
+Maps, phrases and trainer name words are content in `content/`. Town props (the arena, market stalls, bus, Merge Stone, lanterns and the rest) are listed in `town.json` with their art and position, and their footprint tiles are solid.
+
+## Art
+
+The town is drawn with the Wave 1 Sprite Book art Gemini made (Checklings Sprite Book in Grant's Drive, PNGs in its Wave 1 Sprites folder). `public/art/` holds the cut out copies at 2x, 64 pixels a tile, and the server sends them at `/art/<name>.png`. The Kettle Creek buildings and headstones are cut too, ready for Kettle Creek. To redo the art after Gemini changes a picture, download the folder and run `python3 tools/cut-sprites.py <downloaded folder> public/art` (needs Pillow, NumPy and SciPy). It removes the magenta, trims, sizes each sprite to its tile size, splits the trainer sheets into 64 by 96 frames and makes the ground textures seamless. If a picture ever fails to load, the plaza draws the old placeholder shape in its place. Change the town layout in `tools/gen-town.mjs`, then run `node tools/gen-town.mjs` to rebuild `content/town.json` and `content/house.json`.
 
 ## Where it runs
 

@@ -50,6 +50,22 @@ try {
   assert.equal((await fetch(`http://127.0.0.1:${PORT}/../server.mjs`)).status, 404);
   step('health, page and path safety');
 
+  // Every picture the plaza asks for is served, and the art route cannot reach anything else.
+  const wanted = [...fs.readFileSync(path.join(HERE, 'public', 'plaza.js'), 'utf8').matchAll(/'((?:tile|prop|ui|hood|house|market|merge|trainer)-[a-z-]+|arena)'/g)].map((m) => m[1]);
+  const town = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'town.json'), 'utf8'));
+  const names = new Set([...wanted, ...town.props.map((p) => p.s)]);
+  assert.ok(names.size >= 20, 'the plaza uses the Sprite Book art');
+  for (const name of names) {
+    const res = await fetch(`http://127.0.0.1:${PORT}/art/${name}.png`);
+    assert.equal(res.status, 200, `${name}.png is served`);
+    assert.equal(res.headers.get('content-type'), 'image/png');
+    assert.deepEqual([...new Uint8Array(await res.arrayBuffer()).slice(1, 4)], [80, 78, 71], `${name}.png is a PNG`);
+  }
+  for (const bad of ['/art/../server.mjs', '/art/%2e%2e%2fserver.mjs', '/art/missing.png', '/art/Trainer-A.png', '/art/x.js']) {
+    assert.equal((await fetch(`http://127.0.0.1:${PORT}${bad}`)).status, 404, `${bad} is refused`);
+  }
+  step('sprite art is served and nothing else is');
+
   const a = client(); await a.open; const wa = await a.next('welcome');
   const b = client(); await b.open; const wb = await b.next('welcome');
   assert.equal(wb.players.length, 2);
