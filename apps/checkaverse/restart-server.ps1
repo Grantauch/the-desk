@@ -7,3 +7,10 @@ foreach ($loop in $loops) {
     "Stopped Checkaverse server $($_.ProcessId)"
   }
 }
+# If the loop itself is gone (it was closed, or never started after sign in), start it through its scheduled task.
+Start-Sleep -Seconds 7
+$still = Get-CimInstance Win32_Process -Filter "Name='cmd.exe'" | Where-Object { $_.CommandLine -like '*\Checklings\checkaverse\run-server.cmd*' }
+if (-not $still) {
+  Start-ScheduledTask -TaskName 'Checkaverse Server'
+  "The server loop was not running, so the Checkaverse Server task was started"
+}

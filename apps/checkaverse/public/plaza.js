@@ -625,7 +625,10 @@
       ctx.save();
       ctx.scale(z, z);
       ctx.translate(-cx, -cy);
-      ctx.drawImage(ground, 0, 0, ground.width / SCALE, ground.height / SCALE);
+      // Copy only the part of the ground that is on screen; the whole town is far bigger than the view.
+      const gx = Math.max(0, cx), gy = Math.max(0, cy);
+      const gw = Math.min(ground.width / SCALE - gx, vw - (gx - cx)), gh = Math.min(ground.height / SCALE - gy, vh - (gy - cy));
+      if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * SCALE, gy * SCALE, gw * SCALE, gh * SCALE, gx, gy, gw, gh);
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];

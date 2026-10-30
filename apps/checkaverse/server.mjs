@@ -214,7 +214,7 @@ function handleAnswer(p, fromId, ok) {
     return send(p, { t: 'notice', msg: 'Challenge declined.' });
   }
   // Battles arrive with Phase 3. Today the handshake proves two Chromebooks can find each other live.
-  const msg = 'Challenge accepted! Live battles open when Phase 3 ships.';
+  const msg = 'Challenge accepted! Battles are not open yet, so tip your hat and say Good game.';
   send(challenger, { t: 'challenge_result', with: p.id, ok: true, msg });
   send(p, { t: 'challenge_result', with: challenger.id, ok: true, msg });
   log('challenge accepted', challenger.name, 'vs', p.name);
