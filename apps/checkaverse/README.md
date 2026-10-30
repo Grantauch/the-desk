@@ -2,7 +2,9 @@
 
 The live multiplayer town for Checklings. Read `docs/checklings/DESIGN.md` first.
 
-This first release is a test plaza. Players get a random trainer name, walk a shared map, talk with preset phrases, set themselves to Busy, and send and answer challenges. Battles, tickets from Check-In, houses and the full town come in Phase 3.
+Players get a random trainer name and arrive at the bus stop in a scrolling town with a plaza on the west side and the Neighborhood on the east. Each player's house drops into a free plot when they arrive and leaves when they log off. Other players can walk in through the front door unless the owner locks it. Players talk with the starter phrases from the design bible, set themselves to Busy, and send and answer challenges. A turned down challenger waits three minutes before challenging that trainer again. Battles, tickets from Check-In and decorating come in Phase 3.
+
+Maps, phrases and trainer name words are content in `content/`. Change the town layout in `tools/gen-town.mjs`, then run `node tools/gen-town.mjs` to rebuild `content/town.json` and `content/house.json`.
 
 ## Where it runs
 
@@ -51,4 +53,4 @@ Health check: http://127.0.0.1:8787/health locally, https://game.grant-desk.com/
 
 ## Updating the live copy
 
-Change code here, run `npm test`, merge, then copy the changed files into `D:\Checklings\checkaverse` and end the **Checkaverse Server** task's node process. The loop restarts it with the new code. Players see a restart notice and reconnect on their own.
+Change code here, run `npm test`, then copy the changed files into `D:\Checklings\checkaverse` and run `restart-server.ps1` there. It stops only the Checkaverse node process, and the loop starts it again with the new code within five seconds. Players see a restart notice and reconnect on their own. Never stop node processes by name alone, since other programs on the PC run files called server.mjs too.

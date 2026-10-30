@@ -1,7 +1,8 @@
 // Checkaverse live server.
-// One process: serves the plaza page, runs the shared town over WebSockets, records sessions in SQLite.
-// The server is the authority. Browsers send intentions (move, say, challenge) and only draw what the server says.
-// Settings come from environment variables so the same folder runs on the home PC or a rented server.
+// One process: serves the town page, runs the shared town over WebSockets, records sessions in SQLite.
+// The server is the authority. Browsers send intentions (move, say, challenge, lock) and only draw what the server says.
+// Maps, phrases and names are content files in ./content. Settings come from environment variables
+// so the same folder runs on the home PC or a rented server.
 
 import http from 'node:http';
 import fs from 'node:fs';
@@ -11,7 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -21,6 +22,12 @@ const ALLOWED_ORIGINS = new Set(
     'https://game.grant-desk.com,https://grant-desk.com,https://www.grant-desk.com,http://localhost:8787,http://127.0.0.1:8787')
     .split(',').map((s) => s.trim()).filter(Boolean)
 );
+
+const readContent = (name) => JSON.parse(fs.readFileSync(path.join(HERE, 'content', name), 'utf8'));
+const TOWN = readContent('town.json');
+const HOUSE = readContent('house.json');
+const PHRASES = readContent('phrases.json').starter;
+const NAMES = readContent('names.json');
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
 
@@ -50,7 +57,7 @@ db.exec(`
   );
   CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 `);
-// Any session left open by a crash or power loss gets closed at the time the server comes back.
+// Any session left open by a crash or power loss is closed at the time the server comes back.
 db.prepare(`UPDATE sessions SET ended = ? WHERE ended IS NULL`).run(new Date().toISOString());
 const insertSession = db.prepare(`INSERT INTO sessions (trainer, started) VALUES (?, ?)`);
 const closeSession = db.prepare(`UPDATE sessions SET ended = ?, moves = ?, phrases = ?, challenges = ? WHERE id = ?`);
@@ -58,97 +65,129 @@ const setMeta = db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFL
 setMeta.run('last_start', new Date().toISOString());
 setMeta.run('version', VERSION);
 
-// ---------- the town ----------
-// Test plaza for the first live phase. T tree, W water, H building, S bus stop sign are solid.
-// P path and F flowers are walkable. The real Checkaverse map replaces this from the content folders later.
-const MAP = [
-  'TTTTTTTTTTTTTTTTTTTTTTTT',
-  'T......FF......HHHH....T',
-  'T..HHHH........HHHH....T',
-  'T..HHHH...F....HHHH..F.T',
-  'T..HHHH.......PPPPP....T',
-  'T....P........P........T',
-  'T....PPPPPPPPPPPPPPPP..T',
-  'T....P....F...P.....P..T',
-  'T..F.P...WWWW.P.....P..T',
-  'T....P..WWWWWWP..F..P..T',
-  'T....P...WWWW.P.....PS.T',
-  'T....PPPPPPPPPP.....P..T',
-  'T..........F..P..TT.P..T',
-  'T.FF..........P..TT.PP.T',
-  'T.............PPPPPPP..T',
-  'TTTTTTTTTTTTTTTTTTTTTTTT',
-];
-const MAP_W = MAP[0].length;
-const MAP_H = MAP.length;
-const SOLID = new Set(['T', 'W', 'H', 'S']);
-const walkable = (x, y) => x >= 0 && y >= 0 && x < MAP_W && y < MAP_H && !SOLID.has(MAP[y][x]);
-
-const PHRASES = [
-  'Hi!',
-  'Nice Checkling!',
-  'Want to battle?',
-  'Good game!',
-  'Watch this!',
-  'Not today.',
-  'See you tomorrow!',
-  'Wow!',
-];
-
-const NAME_A = ['Mossy', 'Rapid', 'Quiet', 'Lucky', 'Brave', 'Sunny', 'Misty', 'Copper', 'Velvet', 'Thunder', 'Pebble', 'Maple',
-  'Crimson', 'Frosty', 'Dusty', 'Clever', 'Wild', 'Golden', 'Shadow', 'Breezy', 'Tiny', 'Mighty', 'Cosmic', 'Rusty'];
-const NAME_B = ['Comet', 'Badger', 'Lantern', 'Otter', 'Falcon', 'Pickle', 'Biscuit', 'Rocket', 'Acorn', 'Moose', 'Sprout', 'Raven',
-  'Cobble', 'Waffle', 'Hornet', 'Turnip', 'Pretzel', 'Beacon', 'Thistle', 'Gopher', 'Nugget', 'Walrus', 'Cricket', 'Ember'];
-const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
-
+// ---------- the town and the houses ----------
+// Rooms: 'town' is the shared Checkaverse. 'h<plotId>' is the inside of the house on that plot.
+const TOWN_SOLID = new Set(['T', 'W', 'H', 'S']);
+const HOUSE_SOLID = new Set(['X', 'B', 'K', 'N']);
+const plots = TOWN.plots.map((p) => ({ ...p, owner: 0, locked: false }));
 const players = new Map(); // id -> player
 let nextId = 1;
 
+const tileAt = (rows, x, y) => (y >= 0 && y < rows.length && x >= 0 && x < rows[y].length ? rows[y][x] : null);
+const inHouse = (plot, x, y) => x >= plot.x && x < plot.x + plot.w && y >= plot.y && y < plot.y + plot.h - 1;
+const plotDoorAt = (x, y) => plots.find((pl) => pl.owner && pl.door.x === x && pl.door.y === y);
+const plotOfRoom = (room) => plots.find((pl) => `h${pl.id}` === room);
+
+function walkable(room, x, y) {
+  if (room === 'town') {
+    const t = tileAt(TOWN.rows, x, y);
+    if (t === null || TOWN_SOLID.has(t)) return false;
+    return !plots.some((pl) => pl.owner && inHouse(pl, x, y));
+  }
+  const t = tileAt(HOUSE.rows, x, y);
+  return t !== null && !HOUSE_SOLID.has(t) && t !== 'D';
+}
+
 function trainerName() {
+  const pick = (list) => list[Math.floor(Math.random() * list.length)];
   for (let i = 0; i < 20; i++) {
-    const name = `${NAME_A[Math.floor(Math.random() * NAME_A.length)]} ${NAME_B[Math.floor(Math.random() * NAME_B.length)]}`;
+    const name = `${pick(NAMES.first)} ${pick(NAMES.second)}`;
     if (![...players.values()].some((p) => p.name === name)) return name;
   }
   return `Trainer ${nextId}`;
 }
 
-// Tests pin spawn points with CHECKAVERSE_TEST_SPAWN="5,6;6,6" so two players start side by side.
+// Tests pin spawn points with CHECKAVERSE_TEST_SPAWN="14,13;15,13" so two players start side by side.
 const testSpawns = (process.env.CHECKAVERSE_TEST_SPAWN || '').split(';').filter(Boolean).map((s) => s.split(',').map(Number));
-function spawnPoint() {
+function arrivalPoint() {
   if (testSpawns.length) { const [x, y] = testSpawns.shift(); return { x, y }; }
-  for (let i = 0; i < 200; i++) {
-    const x = 1 + Math.floor(Math.random() * (MAP_W - 2));
-    const y = 1 + Math.floor(Math.random() * (MAP_H - 2));
-    if (walkable(x, y) && MAP[y][x] === 'P') return { x, y };
-  }
-  return { x: 14, y: 6 };
+  const spots = TOWN.arrive.filter(([x, y]) => walkable('town', x, y));
+  const [x, y] = spots[Math.floor(Math.random() * spots.length)] || [14, 13];
+  return { x, y };
 }
 
+const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
 const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy });
+const plotView = (pl) => ({ id: pl.id, owner: pl.owner, name: pl.owner ? players.get(pl.owner)?.name || '' : '', locked: pl.locked });
+const inRoom = (room) => [...players.values()].filter((p) => p.room === room);
 
 function send(p, msg) {
   if (p.ws.readyState === 1) p.ws.send(JSON.stringify(msg));
 }
-function broadcast(msg, exceptId = 0) {
+function toRoom(room, msg, exceptId = 0) {
   const raw = JSON.stringify(msg);
-  for (const p of players.values()) if (p.id !== exceptId && p.ws.readyState === 1) p.ws.send(raw);
+  for (const p of players.values()) if (p.room === room && p.id !== exceptId && p.ws.readyState === 1) p.ws.send(raw);
+}
+function toAll(msg) {
+  const raw = JSON.stringify(msg);
+  for (const p of players.values()) if (p.ws.readyState === 1) p.ws.send(raw);
+}
+const sendPlots = () => toAll({ t: 'plots', plots: plots.map(plotView) });
+
+function changeRoom(p, room, x, y, facing) {
+  pending.delete(p.id);
+  toRoom(p.room, { t: 'leave', id: p.id }, p.id);
+  p.room = room; p.x = x; p.y = y; p.facing = facing;
+  const plot = plotOfRoom(room);
+  send(p, {
+    t: 'room', room, kind: room === 'town' ? 'town' : 'house',
+    owner: plot ? plotView(plot) : null,
+    players: inRoom(room).map(publicView),
+  });
+  toRoom(room, { t: 'join', p: publicView(p) }, p.id);
+}
+
+// A house drops into the first free plot when its owner arrives.
+function giveHouse(p) {
+  const plot = plots.find((pl) => !pl.owner);
+  if (!plot) return null;
+  plot.owner = p.id;
+  plot.locked = false;
+  // Anyone standing where the walls go steps out into the front yard.
+  for (const other of inRoom('town')) {
+    if (inHouse(plot, other.x, other.y)) {
+      other.y = plot.y + plot.h - 1;
+      toRoom('town', { t: 'pos', id: other.id, x: other.x, y: other.y, f: other.facing });
+    }
+  }
+  return plot;
+}
+
+// When the owner leaves, visitors are walked out the front door and the plot empties.
+function removeHouse(p) {
+  const plot = plots.find((pl) => pl.owner === p.id);
+  if (!plot) return;
+  const room = `h${plot.id}`;
+  plot.owner = 0;
+  plot.locked = false;
+  for (const visitor of inRoom(room)) {
+    if (visitor.id === p.id) continue;
+    changeRoom(visitor, 'town', plot.door.x, plot.door.y + 1, 'd');
+    send(visitor, { t: 'notice', msg: 'The owner headed home, so their house closed up.' });
+  }
 }
 
 // ---------- challenges ----------
-// A challenge needs the two trainers standing next to each other. Saying no costs nothing.
+// A challenge needs the two trainers standing next to each other in the same place. Saying no is free.
+// A turned down challenger waits a few minutes before challenging that same trainer again.
 const CHALLENGE_TTL_MS = 20_000;
+const DECLINE_WAIT_MS = Number(process.env.CHECKAVERSE_DECLINE_WAIT_MS || 180_000);
 const pending = new Map(); // targetId -> { fromId, expires }
+const declined = new Map(); // "fromId>toId" -> time the wait ends
 
-function nextTo(a, b) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) <= 1;
-}
+const nextTo = (a, b) => a.room === b.room && Math.abs(a.x - b.x) + Math.abs(a.y - b.y) <= 1;
 
 function handleChallenge(p, toId) {
   const target = players.get(toId);
-  if (!target || target.id === p.id) return send(p, { t: 'notice', msg: 'That trainer left the plaza.' });
+  if (!target || target.id === p.id) return send(p, { t: 'notice', msg: 'That trainer left.' });
   if (!nextTo(p, target)) return send(p, { t: 'notice', msg: 'Walk up next to a trainer to challenge them.' });
   if (p.busy) return send(p, { t: 'notice', msg: 'Turn off Busy to send challenges.' });
   if (target.busy) return send(p, { t: 'notice', msg: `${target.name} is Busy right now.` });
+  const waitUntil = declined.get(`${p.id}>${target.id}`) || 0;
+  if (waitUntil > Date.now()) {
+    const mins = Math.ceil((waitUntil - Date.now()) / 60_000);
+    return send(p, { t: 'notice', msg: `${target.name} said no. Try them again in ${mins} minute${mins === 1 ? '' : 's'}.` });
+  }
   const existing = pending.get(target.id);
   if (existing && existing.expires > Date.now()) return send(p, { t: 'notice', msg: `${target.name} is answering another challenge.` });
   pending.set(target.id, { fromId: p.id, expires: Date.now() + CHALLENGE_TTL_MS });
@@ -165,12 +204,13 @@ function handleAnswer(p, fromId, ok) {
   }
   pending.delete(p.id);
   const challenger = players.get(fromId);
-  if (!challenger) return send(p, { t: 'notice', msg: 'That trainer left the plaza.' });
+  if (!challenger) return send(p, { t: 'notice', msg: 'That trainer left.' });
   if (!ok) {
+    declined.set(`${challenger.id}>${p.id}`, Date.now() + DECLINE_WAIT_MS);
     send(challenger, { t: 'challenge_result', with: p.id, ok: false, msg: `${p.name} said no thanks.` });
     return send(p, { t: 'notice', msg: 'Challenge declined.' });
   }
-  // Battles themselves arrive with Phase 3. Today the handshake proves two Chromebooks can find each other live.
+  // Battles arrive with Phase 3. Today the handshake proves two Chromebooks can find each other live.
   const msg = 'Challenge accepted! Live battles open when Phase 3 ships.';
   send(challenger, { t: 'challenge_result', with: p.id, ok: true, msg });
   send(p, { t: 'challenge_result', with: challenger.id, ok: true, msg });
@@ -186,6 +226,7 @@ setInterval(() => {
       if (from) send(from, { t: 'notice', msg: 'No answer. The challenge timed out.' });
     }
   }
+  for (const [key, until] of declined) if (until < now) declined.delete(key);
 }, 2_000).unref();
 
 // ---------- http ----------
@@ -209,7 +250,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(dbOk ? 200 : 503, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' });
     return res.end(JSON.stringify({
       ok: dbOk, service: 'checkaverse', version: VERSION, players: players.size,
-      startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
+      houses: plots.filter((pl) => pl.owner).length, startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
     }));
   }
   const file = STATIC[url.pathname];
@@ -244,22 +285,27 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 wss.on('connection', (ws) => {
-  const spot = spawnPoint();
+  const spot = arrivalPoint();
   const p = {
-    id: nextId++, ws, name: trainerName(), x: spot.x, y: spot.y, facing: 'd',
+    id: nextId++, ws, name: trainerName(), room: 'town', x: spot.x, y: spot.y, facing: 'd',
     color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
     alive: true, lastMove: 0, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
   players.set(p.id, p);
-  log('join', p.id, p.name, `(${players.size} here)`);
+  const plot = giveHouse(p);
+  log('join', p.id, p.name, plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
 
   send(p, {
-    t: 'welcome', you: p.id, version: VERSION, map: MAP, phrases: PHRASES,
-    players: [...players.values()].map(publicView),
+    t: 'welcome', you: p.id, version: VERSION, phrases: PHRASES,
+    town: { rows: TOWN.rows, plots: TOWN.plots }, house: HOUSE,
+    room: 'town', myPlot: plot ? plot.id : 0,
+    players: inRoom('town').map(publicView),
   });
-  broadcast({ t: 'join', p: publicView(p) }, p.id);
+  toRoom('town', { t: 'join', p: publicView(p) }, p.id);
+  sendPlots();
+  if (!plot) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
 
   ws.on('pong', () => { p.alive = true; });
   ws.on('message', (raw) => {
@@ -277,39 +323,60 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     players.delete(p.id);
     pending.delete(p.id);
+    removeHouse(p);
     closeSession.run(new Date().toISOString(), p.stats.moves, p.stats.phrases, p.stats.challenges, p.sessionId);
-    broadcast({ t: 'leave', id: p.id });
+    toRoom(p.room, { t: 'leave', id: p.id });
+    sendPlots();
     log('leave', p.id, p.name, `(${players.size} here)`);
   });
   ws.on('error', () => {});
 });
 
+function handleMove(p, d) {
+  const dir = DIRS[d];
+  p.facing = d;
+  const nx = p.x + dir[0];
+  const ny = p.y + dir[1];
+  if (p.room === 'town') {
+    const door = plotDoorAt(nx, ny);
+    if (door && d === 'u') {
+      if (door.locked && door.owner !== p.id) {
+        toRoom('town', { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+        return send(p, { t: 'notice', msg: `${players.get(door.owner)?.name || 'The owner'} locked the door.` });
+      }
+      return changeRoom(p, `h${door.id}`, HOUSE.enter[0], HOUSE.enter[1], 'u');
+    }
+  } else if (nx === HOUSE.exit.x && ny === HOUSE.exit.y) {
+    const plot = plotOfRoom(p.room);
+    return changeRoom(p, 'town', plot.door.x, plot.door.y + 1, 'd');
+  }
+  if (walkable(p.room, nx, ny)) { p.x = nx; p.y = ny; p.stats.moves++; }
+  // Facing changes even when the step is blocked, so everyone sees the turn.
+  toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+}
+
 function handleMessage(p, msg, now) {
   switch (msg.t) {
-    case 'move': {
-      const dir = DIRS[msg.d];
-      if (!dir || now - p.lastMove < MOVE_GAP_MS) return;
+    case 'move':
+      if (!DIRS[msg.d] || now - p.lastMove < MOVE_GAP_MS) return;
       p.lastMove = now;
-      p.facing = msg.d;
-      const nx = p.x + dir[0];
-      const ny = p.y + dir[1];
-      if (walkable(nx, ny)) { p.x = nx; p.y = ny; p.stats.moves++; }
-      // Facing changes even when the step is blocked, so everyone sees the turn.
-      broadcast({ t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
-      return;
-    }
+      return handleMove(p, msg.d);
     case 'say': {
       const i = Number(msg.p);
       if (!Number.isInteger(i) || i < 0 || i >= PHRASES.length) return;
       p.stats.phrases++;
-      broadcast({ t: 'say', id: p.id, p: i });
-      return;
+      return toRoom(p.room, { t: 'say', id: p.id, p: i });
     }
-    case 'busy': {
+    case 'busy':
       p.busy = Boolean(msg.v);
       if (p.busy) pending.delete(p.id);
-      broadcast({ t: 'busy', id: p.id, v: p.busy });
-      return;
+      return toRoom(p.room, { t: 'busy', id: p.id, v: p.busy });
+    case 'lock': {
+      const plot = plots.find((pl) => pl.owner === p.id);
+      if (!plot) return;
+      plot.locked = Boolean(msg.v);
+      send(p, { t: 'notice', msg: plot.locked ? 'Your door is locked. Visitors inside can still leave.' : 'Your door is open for visitors.' });
+      return sendPlots();
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));
@@ -317,7 +384,7 @@ function handleMessage(p, msg, now) {
   }
 }
 
-// Drop connections that stopped answering (closed lids, lost Wi-Fi) so ghosts do not stand in the plaza.
+// Drop connections that stopped answering (closed lids, lost Wi-Fi) so ghosts do not stand in the town.
 setInterval(() => {
   for (const p of players.values()) {
     if (!p.alive) { p.ws.terminate(); continue; }
@@ -331,7 +398,7 @@ server.listen(PORT, HOST, () => log(`Checkaverse ${VERSION} listening on http://
 
 function shutdown(signal) {
   log('shutting down on', signal);
-  broadcast({ t: 'notice', msg: 'The Checkaverse is restarting. You will reconnect in a moment.' });
+  toAll({ t: 'notice', msg: 'The Checkaverse is restarting. You will reconnect in a moment.' });
   for (const p of players.values()) {
     closeSession.run(new Date().toISOString(), p.stats.moves, p.stats.phrases, p.stats.challenges, p.sessionId);
     p.ws.close(1012, 'Restarting');

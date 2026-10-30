@@ -1,0 +1,21 @@
+{
+  "id": "house",
+  "rows": [
+    "XXXXXXXXXX",
+    "XKK....BBX",
+    "X.......BX",
+    "X..RRR...X",
+    "X..RRR..NX",
+    "X........X",
+    "X........X",
+    "XXXXDXXXXX"
+  ],
+  "enter": [
+    4,
+    6
+  ],
+  "exit": {
+    "x": 4,
+    "y": 7
+  }
+}

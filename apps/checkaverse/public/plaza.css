@@ -17,6 +17,9 @@ canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; 
 .you { grid-column: 1 / -1; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 .you p { margin: 0; font-size: 16px; }
 .you strong { color: #ffd166; }
+.home { grid-column: 1 / -1; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.home p { margin: 0; color: #cfe3c0; font-size: 15px; }
+.home button[hidden] { display: none; }
 .busy { display: flex; gap: 6px; align-items: center; cursor: pointer; }
 button { font: inherit; font-size: 15px; background: #ffd166; color: #14211a; border: 0; border-bottom: 3px solid #b8892a; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
 button:disabled { background: #4a5a50; color: #9aa89e; border-bottom-color: #2d3a32; cursor: default; }
