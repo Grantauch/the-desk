@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-29-turn-in-v11';
+const TI_VERSION = '2026-10-29-turn-in-v12';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -137,6 +137,7 @@ function saveDraft_(request) {
   const identity = session.test ? { email: session.email, name: 'Load Test ' + session.email.split('@')[0], classes: ['Load Test'], test: true } : identityByEmail_(session.email);
   const classPeriod = identity ? chooseClass_(identity.classes, request.classPeriod, request.course) : '';
   const record = { hub, answers, revision: Utilities.getUuid(), savedAt: savedAt.toISOString(), autoEligible: Boolean(classPeriod),
+    position: cleanPosition_(request.position, answers),
     classPeriod, title: String(request.title || '').slice(0, 200), page: String(request.page || '').slice(0, 300), ...writerOf_(request) };
   const book = workbook_();
   if (session.test) {
@@ -179,7 +180,7 @@ function turnIn_(request) {
   if (!/^[A-Za-z0-9-]{1,64}$/.test(submissionId)) throw refuse_('bad_request', 'That request could not be read.');
 
   const cache = CacheService.getScriptCache();
-  const identity = identify_(request);
+  const identity = turnInIdentity_(request);
   const submissionKey = `sub:${identity.email}:${hub}:${submissionId}`;
   const answers = cleanAnswers_(request.answers);
   // Authenticate and validate the complete body even when retrying a cached ID.
@@ -202,6 +203,7 @@ function turnIn_(request) {
   const page = String(request.page || '').slice(0, 300);
   let turnedInAt = new Date();
   const record = { hub, answers, revision: Utilities.getUuid(), submissionId, savedAt: turnedInAt.toISOString(), turnedIn: true,
+    position: cleanPosition_(request.position, answers),
     finishedAt: turnedInAt.toISOString(), classPeriod, title, page, ...writerOf_(request) };
 
   // Open the sheet before taking the lock so the lock is held only for the write itself.
@@ -415,7 +417,8 @@ function guardedDraft_(book, identity, hub, request, answers) {
     return null;
   }
   const current = currentDraft_(book, identity, hub);
-  if (current && payloadSignature_(current.answers) === payloadSignature_(answers) && (!request.classPeriod || request.classPeriod === current.classPeriod)) return current;
+  if (current && payloadSignature_(current.answers) === payloadSignature_(answers) && (!request.classPeriod || request.classPeriod === current.classPeriod)
+    && (request.position === undefined || JSON.stringify(current.position || null) === JSON.stringify(cleanPosition_(request.position, answers)))) return current;
   const revision = current && (current.revision || current.savedAt) || '';
   if (typeof request.baseRevision !== 'string' || (request.baseRevision !== revision && !sameWriter_(current, request))) {
     throw refuse_('conflict', 'Another account version exists. Download a backup, then choose Load My Work before saving or turning in.');
@@ -547,6 +550,17 @@ function identify_(request) {
   }
   if (match.emails.length !== 1) throw refuse_('bad_pin', 'That PIN needs to be fixed. Ask your teacher.');
   return { email: match.emails[0], name: match.name, classes: match.classes, test: false };
+}
+
+// A verified, unexpired account session also survives a page refresh. Never
+// store the PIN just to let the same student finish without typing it again.
+function turnInIdentity_(request) {
+  if (request.pin || !request.accountToken) return identify_(request);
+  const session = readToken_(request.accountToken);
+  if (session.test) return { email: session.email, name: 'Load Test ' + session.email.split('@')[0], classes: ['Load Test'], test: true };
+  const identity = identityByEmail_(session.email);
+  if (!identity) throw refuse_('signed_out', 'Enter your PIN again before turning in.');
+  return identity;
 }
 
 function rosterByHash_() {
@@ -881,6 +895,16 @@ function cleanAnswers_(value) {
   if (new Set(answers.map((entry) => entry.k)).size !== answers.length) throw refuse_('bad_request', 'Two answer boxes have the same name. Ask your teacher to check this page.');
   if (JSON.stringify(answers).length > TI_MAX_PAYLOAD_CHARS) throw refuse_('too_big', 'Your answers are too long to send in one piece. Use the copy button.');
   return answers;
+}
+
+// Small, bounded cursor metadata only. It is never an answer or a grade.
+function cleanPosition_(value, answers) {
+  if (!value || typeof value.key !== 'string') return null;
+  const answer = answers.find((entry) => entry.k === value.key && !entry.k.startsWith('r:'));
+  if (!answer || !Number.isInteger(value.start) || !Number.isInteger(value.end) || value.start < 0 || value.end < value.start) return null;
+  return { key: answer.k, start: Math.min(value.start, answer.a.length), end: Math.min(value.end, answer.a.length),
+    direction: ['forward', 'backward', 'none'].includes(value.direction) ? value.direction : 'none',
+    scrollTop: Number.isFinite(value.scrollTop) ? Math.max(0, Math.min(Math.round(value.scrollTop), 100000)) : 0 };
 }
 
 function readableAnswers_(answers) {

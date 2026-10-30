@@ -24,7 +24,7 @@ const COLLECTIONS = {
     relatedLabel: 'the games were never just games',
   },
   mysteries: {
-    query: 'unidentified mystery strange unusual',
+    query: 'unidentified people',
     category: 'mystery + evidence',
     question: 'What can this record establish—and what remains genuinely uncertain?',
     clue: 'Separate what the catalog states from what the image merely seems to suggest.',
@@ -134,7 +134,7 @@ export const handler = async (event) => {
       statusCode: items.length ? 200 : 502,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800',
+        'Cache-Control': items.length ? 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800' : 'no-store',
         'X-Content-Type-Options': 'nosniff',
       },
       body: JSON.stringify({ collection, items }),
