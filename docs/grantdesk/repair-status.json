@@ -3,16 +3,33 @@
     "status": "IMPLEMENTED_LOCAL_TESTED",
     "owner": "Codex",
     "scope": "Read-only strict technical admission of staged five-pose pilot artwork; no student runtime or private service change",
-    "verification_status": "FULL_CANONICAL_NATIVE_EXIT_ZERO_AND_ALL_COMPANION_BROWSER_PASSED",
+    "verification_status": "PRIOR_BASE_FULL_PASSED_CURRENT_MAIN_INTEGRATION_RECHECK_PENDING",
     "deployment_status": "DEVELOPMENT_TOOL_ONLY_NOT_STUDENT_ART_ADMISSION",
     "field_status": "VISUAL_PEER_AND_PHYSICAL_DEVICE_PENDING",
     "verification": [
       "Sixteen real-decoder regression groups pass complete PNG/WebP positive cases; every PNG truncated prefix; invalid pixels/CRC/trailer; opaque GIF87a transparency; missing/duplicate poses; exact hashes; independent pose/bundle budgets; empty/opaque images; dimensions/animation; limits; unsafe/redirected paths; actual CLI exit codes.",
       "All eight protected founder PNG/GIF files decode in inventory and retain exact baseline bytes/hashes. No founder replacement, species/catalog/import, schema/RPC, attendance/pass or private school source change.",
       "Inventory completion is explicit INVENTORY_ONLY/technicalPass:null; admission exits nonzero on failure and only reports TECHNICAL_CANDIDATE_ONLY on success. The versioned policy does not approve visual quality, originality, pose semantics or classroom/device performance.",
-      "Existing Playwright/Chromium only, no dependency or workflow changes; regression joins companion browser after CI Chromium installation. Complete companion suite and final16groups PASS. Full canonical npm verify native process26012 exited0 at21:27:23UTC; independent handle observer recorded actual exit. PowerShell5 wrapper separately returned1 for benign npm stderr NativeCommandError, not a test failure. First interrupted run retained as incomplete. Required protected CI/merge/deployment remain pending."
+      "Existing Playwright/Chromium only, no dependency or workflow changes; regression joins companion browser after CI Chromium installation. Complete companion suite and final16groups PASS. Full canonical npm verify native process26012 exited0 at21:27:23UTC; independent handle observer recorded actual exit. PowerShell5 wrapper separately returned1 for benign npm stderr NativeCommandError, not a test failure. First interrupted run retained as incomplete. Required protected CI/merge/deployment remain pending.",
+      "Approved main release PR274/d124c3b retained without changes. Both shared ledger conflicts resolved by adding only this owned entry before exact current-main bytes. Current merged-tree canonical recheck required before publication."
     ],
     "evidence": "docs/checklings/art-admission.md"
+  },
+  "student-content-publication-2026-10-29": {
+    "status": "PREPARED_FOR_PROTECTED_RELEASE",
+    "owner": "Codex",
+    "scope": "Integrate author contributions from PR259, PR260, PR272 and PR273; expose all 64 catalogued StoryHubs on their course pages.",
+    "verification_status": "MANIFEST_AND_INITIAL_BUILD_PASSED_FULL_AND_BROWSER_VALIDATION_IN_PROGRESS",
+    "deployment_status": "PENDING_PROTECTED_CI_MERGE_AND_PRODUCTION_READBACK",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Original author commits and curriculum baselines are preserved.",
+      "Rabbit Hole manifest, contrast and live Work guidance corrected; two unverified exact historical totals omitted.",
+      "Trench lesson layout repaired, public-domain IWM photographs served locally with provenance, new releases sealed.",
+      "Somme optional flight controls have accessible names; notes stay in the current tab for shared-device privacy.",
+      "The work-panel register now covers all64 StoryHubs. The existing Turn In guard checks both catalog entry formats; all57 server checks pass without weakening assertions.",
+      "Private inventories, teacher keys, restricted resources and unfinished service proposals remain outside this publication batch."
+    ]
   },
   "pixel-camp-workshop-2026-10-29": {
     "status": "SOURCE_IMPLEMENTED",

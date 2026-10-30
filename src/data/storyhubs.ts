@@ -23,6 +23,34 @@ export interface StoryHub {
 }
 
 export const storyHubs: StoryHub[] = [
+{
+  "slug": "hh-down-the-rabbit-hole",
+  "href": "/hubs/hh-down-the-rabbit-hole.html",
+  "title": "down the rabbit hole",
+  "course": "hidden history",
+  "unit": "mind games · lesson 1",
+  "period": "1822–2013",
+  "status": "ready to teach",
+  "question": "Can you spot the lie when the true stories sound impossible?",
+  "blurb": "Five impossible stories; four real, one invented. Enter a Wonderland of confidence tricks, cognitive biases, the Dark Triad and the danger of diagnosing strangers.",
+  "cover": "/storyhub/hh/rabbit-hole/assets/eye.webp",
+  "coverAlt": "Original PowerPoint artwork of a red concentric hypnotic eye for the Down the Rabbit Hole Wonderland lesson.",
+  "topics": [
+    "hidden history",
+    "psychology",
+    "cognitive bias",
+    "confidence tricks",
+    "Wonderland"
+  ],
+  "inside": [
+    "Spot the Con: five cards, four historical cases and one invented story.",
+    "Lock your verdict, then match four biases to their cases.",
+    "Meet three Wonderland guides to the Dark Triad.",
+    "Investigate the 2013 everyday-sadism study and the Goldwater Rule.",
+    "Finish a three-question exit ticket using shared StoryHub work controls."
+  ]
+},
+
 
 {
   "slug": "hh-bytesize-habbakuk",
@@ -372,6 +400,28 @@ export const storyHubs: StoryHub[] = [
   },
 
   {
+    slug: 'ush9-bytesize-the-line-that-wouldnt-move',
+    href: '/hubs/ush9-bytesize-the-line-that-wouldnt-move.html',
+    title: "the line that wouldn't move",
+    course: 'us history 9',
+    unit: 'bytesize / world war i',
+    period: '1914–1916',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 8',
+    question: 'why did millions fight for years over ground measured in yards?',
+    blurb: 'The sequel to Thirty Seven Days. Explore a working trench system, switch between dawn, daylight and night routines, evaluate the tradeoffs of a hypothetical attack, and investigate the Somme and the first tanks.',
+    cover: '/storyhub/ush9/the-line-that-wouldnt-move/assets/cover.svg',
+    coverAlt: 'Original illustrated cover depicting two opposing Western Front trench systems, cratered open ground, and the title The Line That Would Not Move.',
+    topics: ['world war i', 'western front', 'trench warfare', 'battle of the somme', 'military technology'],
+    inside: [
+      'Inspect five parts of a trench network in an interactive tactical map.',
+      'Experience dawn, daylight and night on a composite trench routine.',
+      'Make three offensive decisions and receive historically grounded tradeoff feedback.',
+      'Step through the Somme, classify four evidence claims, and turn in three explanations.',
+    ],
+  },
+
+  {
     slug: 'ush9-bytesize-thirty-seven-days',
     href: '/hubs/ush9-bytesize-thirty-seven-days.html',
     title: 'thirty seven days',
@@ -390,6 +440,28 @@ export const storyHubs: StoryHub[] = [
       'Compare European empires and their overseas reach.',
       'Step from Sarajevo to Britain’s declaration, then compare the plan with the Western Front.',
       'Classify eight MAIN examples and save or turn in three explanations.',
+    ],
+  },
+
+  {
+    slug: 'ush9-bytesize-marne',
+    href: '/hubs/ush9-bytesize-marne.html',
+    title: 'thirty miles from paris',
+    course: 'us history 9',
+    unit: 'bytesize / front lines: world war i battles',
+    period: 'September 1914',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 21',
+    question: 'how did a german army thirty miles from paris end up retreating?',
+    blurb: 'The First Battle of the Marne on a 3D sand table. Watch the gap open between two German armies, load and drive a Paris taxi, guess how many soldiers the taxis really carried, read Joffre and Moltke side by side, and sort battle legends from the record.',
+    cover: '/storyhub/ush9/marne/assets/hero.webp',
+    coverAlt: 'Period photograph of French soldiers eating soup around a fire on the march in 1914',
+    topics: ['world war i', 'western front', 'schlieffen plan', 'trench warfare', 'primary sources'],
+    inside: [
+      'Step a 3D sand table through seven dates from Kluck’s turn to the first trenches.',
+      'Load a 1914 Renault taxi and predict how much the famous taxis mattered.',
+      'Compare Joffre’s order with Moltke’s letter and judge five battle legends.',
+      'Answer four questions and save or turn them in.',
     ],
   },
 

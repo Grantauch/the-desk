@@ -2,8 +2,8 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>over the somme | U.S. History 9 | the desk</title>
-<meta name="description" content="Fly a 3D reconstruction of the Somme battlefield as it stood in 1916. Read the trenches, the wire and the chalk from the air, and log twenty sites from Albert to Thiepval ridge.">
+<title>Over the Somme | Student Field Study | The Desk</title>
+<meta name="description" content="Investigate the Somme battlefield through a visual map, historical evidence, student questions and optional 3D aerial exploration.">
 <meta name="robots" content="noindex, follow">
 <link rel="canonical" href="https://grant-desk.com/hubs/ush9-over-the-somme.html">
 <meta property="og:title" content="Over the Somme">
@@ -233,6 +233,7 @@ body[data-mode="cinema"] .corner .map-frame{opacity:.85}
 }
 @media (prefers-reduced-motion:reduce){.fade,.title-card,.bars::before,.bars::after{transition:none}}
 </style>
+<link rel="stylesheet" href="ush9-over-the-somme/study.css">
 </head>
 <body data-mode="menu">
 <canvas id="field" aria-label="3D battlefield of the Somme, 1916. Drag or move the mouse to look around."></canvas>
@@ -263,15 +264,15 @@ body[data-mode="cinema"] .corner .map-frame{opacity:.85}
         <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
         <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
       </button>
-      <button class="sw" id="btn-view" type="button" aria-pressed="false">
+      <button class="sw" id="btn-view" type="button" aria-label="Toggle cockpit view" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5h19"/><path d="M12 9.5v8"/><path d="M9 17.5h6"/><path d="M10.5 6.5h3"/></svg>
         <span class="t">Cockpit</span>
       </button>
-      <button class="sw" id="btn-night" type="button" aria-pressed="false">
+      <button class="sw" id="btn-night" type="button" aria-label="Toggle night lighting" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
         <span class="t">Night</span>
       </button>
-      <button class="sw" id="btn-wire" type="button" aria-pressed="false">
+      <button class="sw" id="btn-wire" type="button" aria-label="Toggle wireframe view" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/></svg>
         <span class="t">Wire</span>
       </button>
@@ -405,6 +406,7 @@ body[data-mode="cinema"] .corner .map-frame{opacity:.85}
   </aside>
 </div>
 
+<script src="ush9-over-the-somme/study.js" defer></script>
 <script src="ush9-over-the-somme/somme.js" defer></script>
 </body>
 </html>
