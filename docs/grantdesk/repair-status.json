@@ -1,9 +1,9 @@
 {
   "pin-assignment-flow-and-mysteries-2026-10-29": {
-    "status": "SOURCE_IMPLEMENTED_VERIFICATION_IN_PROGRESS",
+    "status": "SOURCE_VERIFIED_PROTECTED_RELEASE_PENDING",
     "owner": "Codex",
     "scope": "Required PIN entry; automatic first-save and cursor recovery; compact work status and large final Turn In; Curiosity mysteries query repair.",
-    "verification_status": "TURN_IN_60_OF_60_AND_CURIOSITY_REGRESSIONS_PASSED_BROWSER_AND_CANONICAL_RUNNING",
+    "verification_status": "CANONICAL_FULL_PASSED_TURN_IN_60_BROWSER_52_PLUS_CHOICE_REGRESSION_PASSED",
     "deployment_status": "PENDING_PROTECTED_CI_WEBSITE_AND_GUARDED_TURN_IN_V12",
     "field_status": "CLASSROOM_PENDING",
     "evidence": [

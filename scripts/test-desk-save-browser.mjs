@@ -715,6 +715,20 @@ await test('an unreachable save service keeps the PIN gate closed until verifica
   await cb.context.close();
 });
 
+await test('PIN assignments with only choice answers still get status, recovery options and final Turn In', async () => {
+  const s = world(), cb = await chromebook(s, { hooks: { gate: true } });
+  await cb.context.route('**/hubs/pin-radio-only.html', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="en"><head><title>Choice assignment</title></head><body><main><h1>Choice assignment</h1><fieldset><legend>What does the record support?</legend><label><input type="radio" name="claim" value="supported">Supported</label><label><input type="radio" name="claim" value="unproven">Unproven</label></fieldset></main><script src="/hubs/desk-save.js" defer></script></body></html>' }));
+  const p = await cb.open('pin-radio-only.html');
+  await passGate(p, s.pin(PEOPLE.ada));
+  assert.equal(await p.locator('#desk-save-resume summary').isVisible(), true);
+  await p.getByRole('radio', { name: 'Unproven', exact: true }).check();
+  await waitFor(() => s.rows('Progress').some(r => /Unproven/.test(r.Answers)));
+  await panel(p).getByRole('button', { name: 'Turn In', exact: true }).click();
+  await waitFor(() => s.rows('Turn Ins').length === 1);
+  assert.deepEqual(p.deskErrors, []);
+  await cb.context.close();
+});
+
 await test('PIN session renewal keeps unsaved edits and deletions while requiring verification again', async () => {
   const s = world(), cb = await chromebook(s, { hooks: { gate: true } });
   const p = await cb.open('bts-the-bargain.html');

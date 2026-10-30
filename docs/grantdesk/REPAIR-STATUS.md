@@ -4,7 +4,7 @@ Owner: Codex, branch `fix/pin-assignment-flow-20261029`. PIN verification is req
 
 Turn In v12 stores bounded field/selection bookmarks separately from answers, with revision checks and idempotent retries. Recovery restores the saved field, selection and scroll, following native details and aria-controls tab buttons when necessary. No workbook migration, roster edit or Hall Pass release is involved. A fresh real LOC request reproduced the empty four-word mysteries search; `unidentified people` returns usable images. The function and direct-browser fallback now agree, and empty responses are never cached.
 
-Source and focused synthetic service checks pass. Browser acceptance and canonical full verification are in progress. Protected CI, website production, guarded Turn In v12 deployment and real classroom use are separate pending evidence. Tests use invented students and isolated service code only.
+Canonical full local verification passed, with zero Astro errors/warnings, 54 built routes, 159 HTML files / 5368 references and 30 sealed releases / 231 files. Turn In service tests pass 60/60; the final complete assignment browser run passes 52/52 and an additional choice-only assignment regression passes. A fresh final build validates the small choice-only guard. The assembled Roswell reader now reloads the shared runtime after document replacement; its original lesson parts are unchanged. Protected CI, website production, guarded Turn In v12 deployment and real classroom use are separate pending evidence. Tests use invented students and isolated service code only.
 
 ## October 29 student content publication - release candidate
 

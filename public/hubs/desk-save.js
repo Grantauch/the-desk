@@ -1292,7 +1292,7 @@
     var resumeHost = null;
     var resumeText, resumeStatus, resumePin, resumeSign, resumeNow, resumeClasses, resumeOut;
     var resumeSlot = document.querySelector('[data-desk-resume]');
-    if (!resumeSlot && fields().length) {
+    if (!resumeSlot && (fields().length || radioGroups().length)) {
       resumeSlot = make('div', { 'data-desk-resume': '' });
       var main = document.querySelector('main') || document.body;
       main.insertBefore(resumeSlot, main.firstChild);
@@ -1483,7 +1483,7 @@
       // Signed in at the gate in this page: Turn In already has the PIN.
       pinLabel.hidden = Boolean(cloudOn && state.token && (heldPin || compactUi));
       renderClasses();
-      if (compactUi && state.token && state.classPeriod) classes.hidden = resumeClasses.hidden = true;
+      if (compactUi && state.token && state.classPeriod) { classes.hidden = true; if (resumeClasses) resumeClasses.hidden = true; }
       toolViews.forEach(function (view) {
         view.undo.hidden = !state.undoValues;
         view.receipt.hidden = !state.receipt;
