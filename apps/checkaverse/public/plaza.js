@@ -78,6 +78,7 @@
   function handle(m) {
     switch (m.t) {
       case 'welcome':
+        loadArt(m.sprites);
         me = m.you; town = m.town; house = m.house; phrases = m.phrases; myPlot = m.myPlot;
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         room = 'town'; roomKind = 'town'; roomOwner = null;
@@ -405,33 +406,33 @@
   function snapCamera() { cam = cameraTarget(); }
 
   // ---------- art ----------
-  // Sprite Book art is stored at 2x (64 pixels a tile). If a picture fails to load, the old shapes stand in for it.
-  const ART_NAMES = [
-    'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
-    'prop-bus-stop', 'prop-bus', 'prop-notice-board', 'ui-bubble', 'hood-plot', 'house-cottage', 'house-stump',
-    'house-creek', 'hood-locked', 'hood-mailbox', 'house-interior', 'market-stall', 'merge-stone', 'arena',
-    'trainer-a', 'trainer-b', 'trainer-c', 'trainer-d',
-  ];
+  // Files, frame layouts and Sprite Book display sizes come from content data.
   const ART = {};
-  let artWaiting = ART_NAMES.length;
+  let artWaiting = 0, spriteData = { assets: {} }, TRAINERS = [], HOUSES = [];
   let ground = null, groundKey = '';
-  for (const name of ART_NAMES) {
-    const im = new Image();
-    im.onload = im.onerror = () => { artWaiting--; ground = null; };
-    im.src = `/art/${name}.png`;
-    ART[name] = im;
+  function loadArt(data) {
+    if (!data || spriteData === data) return;
+    spriteData = data;
+    TRAINERS = data.trainers; HOUSES = data.houses;
+    artWaiting = Object.keys(data.assets).length;
+    ground = null;
+    for (const [name, entry] of Object.entries(data.assets)) {
+      const im = new Image();
+      im.onload = im.onerror = () => { if (spriteData === data) { artWaiting--; ground = null; } };
+      im.src = `/art/${entry.file}`;
+      ART[name] = im;
+    }
   }
   const has = (name) => ART[name] && ART[name].complete && ART[name].naturalWidth > 0;
-  const TRAINERS = ['trainer-a', 'trainer-b', 'trainer-c', 'trainer-d'];
-  const HOUSES = ['house-cottage', 'house-stump', 'house-creek'];
   const FACE_ROW = { d: 0, u: 1, l: 2, r: 3 };
   const OUTLINE = '#2b1a12';
 
   // Draws a sprite scaled to a width in tiles, its bottom edge at b. Returns the top edge in pixels.
   function sprite(name, x, b, w, flip) {
     const im = ART[name];
-    const dw = w * TILE, dh = dw * im.naturalHeight / im.naturalWidth;
-    const px = x * TILE, py = b * TILE - dh;
+    const size = spriteData.assets[name]?.displaySize;
+    const dw = size ? size[0] : w * TILE, dh = size ? size[1] : dw * im.naturalHeight / im.naturalWidth;
+    const px = Math.round(x * TILE + (w * TILE - dw) / 2), py = Math.round(b * TILE - dh);
     if (flip) {
       ctx.save(); ctx.translate(px + dw, py); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, dw, dh); ctx.restore();
     } else ctx.drawImage(im, px, py, dw, dh);
@@ -643,7 +644,8 @@
     if (has(look)) {
       // Left foot, stand, right foot, stand: one foot forward per tile, like Red and Blue.
       const step = moving ? [0, 1, 2, 1][Math.floor(p.stride * 2) % 4] : 1;
-      ctx.drawImage(ART[look], step * 64, (FACE_ROW[p.f] ?? 0) * 96, 64, 96, px, py + TILE - 48, 32, 48);
+      const [fw, fh] = spriteData.assets[look].frameSize;
+      ctx.drawImage(ART[look], step * fw, (FACE_ROW[p.f] ?? 0) * fh, fw, fh, px, py + TILE - 48, 32, 48);
     } else {
       ctx.fillStyle = p.c; ctx.fillRect(px + 8, py + 10, 16, 16);
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);

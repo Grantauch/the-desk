@@ -1,0 +1,471 @@
+{
+  "tileSize": 32,
+  "version": "wave2-20261030",
+  "entries": [
+    {
+      "id": "house-cottage",
+      "source": "house-cottage-v2.png",
+      "entry": "5.1",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        128,
+        112
+      ],
+      "replaces": "house-cottage.png"
+    },
+    {
+      "id": "house-stump",
+      "source": "house-stump-v2.png",
+      "entry": "5.2",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        128,
+        112
+      ],
+      "replaces": "house-stump.png"
+    },
+    {
+      "id": "house-creek",
+      "source": "house-creek-v2.png",
+      "entry": "5.3",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        128,
+        112
+      ],
+      "replaces": "house-creek.png"
+    },
+    {
+      "id": "kc-store",
+      "source": "kc-store-v2.png",
+      "entry": "5.4",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        160,
+        128
+      ],
+      "replaces": "kc-store.png"
+    },
+    {
+      "id": "kc-apothecary",
+      "source": "kc-apothecary-v2.png",
+      "entry": "5.5",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        160,
+        128
+      ],
+      "replaces": "kc-apothecary.png"
+    },
+    {
+      "id": "kc-clinic",
+      "source": "kc-clinic-v2.png",
+      "entry": "5.6",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        160,
+        128
+      ],
+      "replaces": "kc-clinic.png"
+    },
+    {
+      "id": "kc-daycare",
+      "source": "kc-daycare-v2.png",
+      "entry": "5.7",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        160,
+        128
+      ],
+      "replaces": "kc-daycare.png"
+    },
+    {
+      "id": "hood-plot",
+      "source": "hood-plot-v2.png",
+      "entry": "5.8",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        160,
+        128
+      ],
+      "replaces": "hood-plot.png"
+    },
+    {
+      "id": "market-stall",
+      "source": "market-stall-v2.png",
+      "entry": "5.9",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        96,
+        96
+      ],
+      "replaces": "market-stall.png"
+    },
+    {
+      "id": "arena",
+      "source": "arena-v2.png",
+      "entry": "5.10",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        256,
+        192
+      ],
+      "replaces": "arena.png"
+    },
+    {
+      "id": "prop-notice-board",
+      "source": "prop-notice-board-v2.png",
+      "entry": "5.11",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        64,
+        64
+      ],
+      "replaces": "prop-notice-board.png"
+    },
+    {
+      "id": "prop-bus",
+      "source": "prop-bus-v2.png",
+      "entry": "5.12",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        128,
+        64
+      ],
+      "replaces": "prop-bus.png"
+    },
+    {
+      "id": "mochi",
+      "source": "mochi-sheet.png",
+      "entry": "6.1",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ],
+      "poses": [
+        "front",
+        "front-idle",
+        "back",
+        "back-idle"
+      ],
+      "species": "mochi"
+    },
+    {
+      "id": "bolt",
+      "source": "bolt-sheet.png",
+      "entry": "6.2",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ],
+      "poses": [
+        "front",
+        "front-idle",
+        "back",
+        "back-idle"
+      ],
+      "species": "bolt"
+    },
+    {
+      "id": "zee",
+      "source": "zee-sheet.png",
+      "entry": "6.3",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ],
+      "poses": [
+        "front",
+        "front-idle",
+        "back",
+        "back-idle"
+      ],
+      "species": "zee"
+    },
+    {
+      "id": "ember",
+      "source": "ember-sheet.png",
+      "entry": "6.4",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ],
+      "poses": [
+        "front",
+        "front-idle",
+        "back",
+        "back-idle"
+      ],
+      "species": "ember"
+    },
+    {
+      "id": "egg-hatch-sheet",
+      "source": "egg-hatch-sheet.png",
+      "entry": "7.1",
+      "layout": [
+        6,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "egg-starters",
+      "source": "egg-starters.png",
+      "entry": "7.2",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "egg-rare",
+      "source": "egg-rare.png",
+      "entry": "7.3",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "fx-emblems",
+      "source": "fx-emblems.png",
+      "entry": "8.1",
+      "layout": [
+        5,
+        2
+      ],
+      "frameSize": [
+        16,
+        16
+      ]
+    },
+    {
+      "id": "fx-grime",
+      "source": "fx-grime.png",
+      "entry": "8.2",
+      "layout": [
+        5,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "fx-knockout",
+      "source": "fx-knockout.png",
+      "entry": "8.3",
+      "layout": [
+        2,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "items-potions",
+      "source": "items-potions.png",
+      "entry": "9.1",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "items-ingredients-a",
+      "source": "items-ingredients-a.png",
+      "entry": "9.2",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "items-ingredients-b",
+      "source": "items-ingredients-b.png",
+      "entry": "9.3",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "items-gear",
+      "source": "items-gear.png",
+      "entry": "9.4",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "items-gambles",
+      "source": "items-gambles.png",
+      "entry": "9.5",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "tile-tall-grass",
+      "source": "tile-tall-grass.png",
+      "entry": "10.1",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ],
+      "exempt": true
+    },
+    {
+      "id": "tile-flowers",
+      "source": "tile-flowers.png",
+      "entry": "10.2",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ],
+      "exempt": true
+    },
+    {
+      "id": "prop-fence",
+      "source": "prop-fence.png",
+      "entry": "10.3",
+      "layout": [
+        4,
+        1
+      ],
+      "frameSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "id": "prop-bridge",
+      "source": "prop-bridge.png",
+      "entry": "10.4",
+      "layout": [
+        1,
+        1
+      ],
+      "frameSize": [
+        64,
+        96
+      ]
+    },
+    {
+      "id": "prop-waterwheel-sheet",
+      "source": "prop-waterwheel-sheet.png",
+      "entry": "10.5",
+      "layout": [
+        2,
+        1
+      ],
+      "frameSize": [
+        96,
+        96
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "source": "bg-battle-meadow.png",
+      "entry": "10.6",
+      "reason": "Missing source; In game is full battle screen, without numeric dimensions."
+    }
+  ]
+}

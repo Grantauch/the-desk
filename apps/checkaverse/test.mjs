@@ -51,13 +51,15 @@ try {
   step('health, page and path safety');
 
   // Every picture the plaza asks for is served, and the art route cannot reach anything else.
-  const wanted = [...fs.readFileSync(path.join(HERE, 'public', 'plaza.js'), 'utf8').matchAll(/'((?:tile|prop|ui|hood|house|market|merge|trainer)-[a-z-]+|arena)'/g)].map((m) => m[1]);
+  const sprites = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'sprites.json'), 'utf8'));
   const town = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'town.json'), 'utf8'));
-  const names = new Set([...wanted, ...town.props.map((p) => p.s)]);
+  for (const p of town.props) assert.ok(sprites.assets[p.s], `${p.s} is registered in content`);
+  assert.equal(sprites.tileSize, 32);
+  const names = new Set(Object.values(sprites.assets).map(e => e.file));
   assert.ok(names.size >= 20, 'the plaza uses the Sprite Book art');
   for (const name of names) {
-    const res = await fetch(`http://127.0.0.1:${PORT}/art/${name}.png`);
-    assert.equal(res.status, 200, `${name}.png is served`);
+    const res = await fetch(`http://127.0.0.1:${PORT}/art/${name}`);
+    assert.equal(res.status, 200, `${name} is served`);
     assert.equal(res.headers.get('content-type'), 'image/png');
     assert.deepEqual([...new Uint8Array(await res.arrayBuffer()).slice(1, 4)], [80, 78, 71], `${name}.png is a PNG`);
   }
@@ -74,6 +76,7 @@ try {
   step('trainer name words are kid safe');
 
   const a = client(); await a.open; const wa = await a.next('welcome');
+  assert.deepEqual(wa.sprites, sprites, 'the browser receives the authoritative art registry');
   const b = client(); await b.open; const wb = await b.next('welcome');
   assert.equal(wb.players.length, 2);
   assert.ok(wa.myPlot && wb.myPlot && wa.myPlot !== wb.myPlot, 'each trainer gets their own plot');

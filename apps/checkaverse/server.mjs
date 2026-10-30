@@ -30,6 +30,7 @@ const HOUSE = readContent('house.json');
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
 const SIGNS = readContent('signs.json');
+const SPRITES = readContent('sprites.json');
 const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 
@@ -377,7 +378,7 @@ wss.on('connection', (ws) => {
 
   send(p, {
     t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
-    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
+    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE, sprites: SPRITES,
     room: 'town', myPlot: plot ? plot.id : 0,
     players: inRoom('town').map(publicView),
   });
