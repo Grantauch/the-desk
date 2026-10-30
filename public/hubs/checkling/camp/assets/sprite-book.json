@@ -1,0 +1,35 @@
+{
+  "version": "wave2-20261030",
+  "species": {
+    "mochi": {
+      "front": {
+        "still": "mochi-front.png",
+        "moving": "mochi-front-idle.png"
+      },
+      "back": {
+        "still": "mochi-back.png",
+        "moving": "mochi-back-idle.png"
+      }
+    },
+    "bolt": {
+      "front": {
+        "still": "bolt-front.png",
+        "moving": "bolt-front-idle.png"
+      },
+      "back": {
+        "still": "bolt-back.png",
+        "moving": "bolt-back-idle.png"
+      }
+    },
+    "ember": {
+      "front": {
+        "still": "ember-front.png",
+        "moving": "ember-front-idle.png"
+      },
+      "back": {
+        "still": "ember-back.png",
+        "moving": "ember-back-idle.png"
+      }
+    }
+  }
+}
