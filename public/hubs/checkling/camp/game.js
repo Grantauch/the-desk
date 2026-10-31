@@ -102,6 +102,8 @@
 
   let schoolRevision = schoolSession?.revision || 0;
   let schoolQueued = null, schoolFlight = null, schoolFailed = null;
+  const autoRetried = new WeakSet();
+  window.addEventListener('online', () => { const b = document.getElementById('school-save-retry'); if (b && !b.hidden) b.click(); });
   let schoolPaused = false, pauseDialog = null, pauseLeaveConfirmed = false;
   if (schoolSession) {
     state = E.hydrate(schoolSession.camp);
@@ -204,6 +206,8 @@
       schoolFailed = flight; schoolFlight = null;
       $('save-status').textContent = 'Not saved to school';
       $('school-save-retry').hidden = false;
+      // School Wi-Fi drops for a second all the time, so try once more on our own before asking the student.
+      if (!autoRetried.has(flight)) { autoRetried.add(flight); setTimeout(() => { if (schoolFailed === flight) $('school-save-retry').click(); }, 4000); }
       say(error.message + ' Menu → Save to file keeps your current camp.');
     }
   }
@@ -576,7 +580,7 @@
   }
   function renderCampGoals() {
     const goals = G.read(state, { full: FULL, adventures: ADVENTURES, today: today() });
-    $("camp-goals-summary").textContent = goals.complete ? "Camp goals complete. Willowbank feels like home!" : goals.completedTracks + " / " + goals.tracks.length + " camp goals complete. Take it at your own pace.";
+    $("camp-goals-summary").textContent = goals.complete ? "Camp goals complete. Kettle Creek feels like home!" : goals.completedTracks + " / " + goals.tracks.length + " camp goals complete. Take it at your own pace.";
     $("camp-goals-list").innerHTML = goals.tracks.map(track => '<div class="camp-goal-row" data-goal-row="' + track.id + '">' + item(track.icon) + '<div class="camp-goal-copy"><div class="camp-goal-heading"><h3>' + track.title + '</h3><strong>' + track.done + ' / ' + track.total + '</strong></div><p>' + escape(goalHint(track.next)) + '</p><progress value="' + track.done + '" max="' + track.total + '" aria-label="' + track.title + ' ' + track.done + ' out of ' + track.total + '">' + track.done + '/' + track.total + '</progress></div><button type="button" data-camp-goal="' + track.id + '" aria-label="' + track.title + (track.next ? ' next task' : ' complete') + '" ' + (track.next && !(track.next.kind === 'forage' && track.next.stop === null) ? '' : 'disabled') + '>' + (track.next ? track.next.kind === 'forage' && track.next.stop === null ? 'Tomorrow' : 'Next' : 'Done') + '</button></div>').join("");
   }
   function followCampGoal(id) {
@@ -726,7 +730,7 @@
         ? trailNames[state.stop]
         : view === "practice"
           ? "PRACTICE PATCH"
-          : "WILLOWBANK CAMP";
+          : "KETTLE CREEK";
     $("location-hint").textContent =
       view === "trail"
         ? state.pets[state.selected].discoveries.includes(state.stop)

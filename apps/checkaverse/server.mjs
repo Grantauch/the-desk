@@ -14,7 +14,7 @@ import { WebSocketServer } from 'ws';
 import { versionHtmlAssets } from './asset-versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.7.1';
+const VERSION = '0.7.2';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -111,6 +111,10 @@ function trainerName() {
     const name = `${pick(NAMES.first)} ${pick(NAMES.second)}`;
     if (![...players.values()].some((p) => p.name === name)) return name;
   }
+  // A crowded town can miss on random picks, so check every pair before falling back to a numbered name.
+  const taken = new Set([...players.values()].map((p) => p.name));
+  const open = NAMES.first.flatMap((a) => NAMES.second.map((b) => `${a} ${b}`)).filter((n) => !taken.has(n));
+  if (open.length) return pick(open);
   return `Trainer ${nextId}`;
 }
 
@@ -197,6 +201,13 @@ function removeHouse(p) {
     changeRoom(visitor, 'town', plot.door.x, plot.door.y + 1, 'd');
     send(visitor, { t: 'notice', msg: 'The owner headed home, so their house closed up.' });
   }
+  // A trainer who arrived when every plot was taken has been waiting. The longest waiting one moves in now.
+  const waiting = [...players.values()].filter((q) => q.id !== p.id && !plots.some((pl) => pl.owner === q.id)).sort((a, b) => a.joined - b.joined)[0];
+  const got = waiting && giveHouse(waiting);
+  if (got) {
+    send(waiting, { t: 'home', plot: got.id });
+    send(waiting, { t: 'notice', msg: 'A plot opened up in the Neighborhood. You have a house now.' });
+  }
 }
 
 // ---------- challenges ----------
@@ -237,6 +248,7 @@ function handleAnswer(p, fromId, ok) {
   pending.delete(p.id);
   const challenger = players.get(fromId);
   if (!challenger) return send(p, { t: 'notice', msg: 'That trainer left.' });
+  if (ok && !nextTo(p, challenger)) return send(p, { t: 'notice', msg: `${challenger.name} walked away before you answered.` });
   if (!ok) {
     declined.set(`${challenger.id}>${p.id}`, Date.now() + DECLINE_WAIT_MS);
     send(challenger, { t: 'challenge_result', with: p.id, ok: false, msg: `${p.name} said no thanks.` });
@@ -256,6 +268,8 @@ setInterval(() => {
       pending.delete(targetId);
       const from = players.get(req.fromId);
       if (from) send(from, { t: 'notice', msg: 'No answer. The challenge timed out.' });
+      // Ignoring counts as no, so nobody can be challenged again every 20 seconds.
+      declined.set(`${req.fromId}>${targetId}`, now + DECLINE_WAIT_MS);
     }
   }
   for (const [key, until] of declined) if (until < now) declined.delete(key);
@@ -315,9 +329,10 @@ const server = http.createServer((req, res) => {
 
 // ---------- teacher controls ----------
 // Pause the town, remove a trainer, and send a message to everyone. Every call needs the teacher key.
+let lastRefusalLog = 0; // a page hammering wrong keys gets one log line a minute, not a full disk
 function teacherApi(req, res, action) {
   const reply = (code, body) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...SECURITY_HEADERS }); res.end(JSON.stringify(body)); };
-  if (!keyOk(req.headers['x-teacher-key'])) { log('teacher key refused', action); return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
+  if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
     return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
       id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
@@ -368,8 +383,8 @@ server.on('upgrade', (req, socket, head) => {
     return socket.destroy();
   }
   if (players.size >= MAX_PLAYERS) {
-    socket.write('HTTP/1.1 503 Service Unavailable\r\n\r\n');
-    return socket.destroy();
+    // Finish the handshake so the page can say the town is full instead of saying the bus is broken.
+    return wss.handleUpgrade(req, socket, head, (ws) => ws.close(4003, 'Town full'));
   }
   wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws));
 });
@@ -463,6 +478,14 @@ function handleMessage(p, msg, now) {
       p.moveTokens -= 1;
       return handleMove(p, msg.d);
     }
+    case 'turn': {
+      // A quick tap faces a direction without stepping, so a trainer can face someone to talk or challenge.
+      if (!DIRS[msg.d] || p.facing === msg.d) return;
+      if (now - (p.lastTurn || 0) < 120) return; // spinning in place cannot flood the room
+      p.lastTurn = now;
+      p.facing = msg.d;
+      return toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+    }
     case 'say': {
       const i = Number(msg.p);
       if (!Number.isInteger(i) || i < 0 || i >= PHRASES.length) return;
@@ -472,6 +495,7 @@ function handleMessage(p, msg, now) {
       return toRoom(p.room, { t: 'say', id: p.id, p: i });
     }
     case 'busy':
+      if (p.busy === Boolean(msg.v)) return; // nothing changed, so nothing to tell the room
       p.busy = Boolean(msg.v);
       if (p.busy) pending.delete(p.id);
       return toRoom(p.room, { t: 'busy', id: p.id, v: p.busy });

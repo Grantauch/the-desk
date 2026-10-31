@@ -14,20 +14,30 @@
 
   let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false;
   const pausedEl = document.getElementById('paused');
-  function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } }
+  function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
   let town = null, house = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
   let cam = { x: 0, y: 0 };
 
+  // A teacher message stays on screen its full 8 seconds. A bump into a sign must not wipe "Two minutes left."
+  let teacherUntil = 0;
   function toast(msg) {
+    if (performance.now() < teacherUntil) return;
     toastEl.textContent = msg;
     toastEl.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { toastEl.hidden = true; }, 3500);
+    toastTimer = setTimeout(() => { toastEl.hidden = true; }, Math.max(3500, msg.length * 70)); // longer signs stay up long enough to read
   }
-  function setStatus(text, down) { statusEl.textContent = text; statusEl.classList.toggle('down', Boolean(down)); }
+  // The wait line counts down, so a student can see the page is still trying instead of frozen on "15s".
+  let countdown = 0;
+  function waitStatus(text, wait) {
+    const until = Date.now() + wait;
+    const show = () => { const s = Math.max(0, Math.ceil((until - Date.now()) / 1000)); setStatus(`${text} Trying again in ${s}s.`, true); if (!s) clearInterval(countdown); };
+    clearInterval(countdown); show(); countdown = setInterval(show, 1000);
+  }
+  function setStatus(text, down) { if (!down) clearInterval(countdown); statusEl.textContent = text; statusEl.classList.toggle('down', Boolean(down)); }
   function send(msg) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg)); }
   const live = (id) => plots.find((p) => p.id === id) || { owner: 0, name: '', locked: false };
   function countLine() {
@@ -62,22 +72,39 @@
   function connect() {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     ws = new WebSocket(`${proto}://${location.host}/ws`);
+    clearInterval(countdown);
     setStatus(retry ? 'Reconnecting...' : 'Connecting...');
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } handle(m); };
     ws.onopen = () => { retry = 0; };
     ws.onclose = (ev) => {
       players.clear();
       hideAsk();
+      // Nothing can be said or renamed while the bus is down. The welcome on reconnect turns these back on.
+      phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = true; });
+      renameBtn.disabled = true;
       if (removed || ev.code === 4001) return setStatus('The teacher removed you from the Checkaverse. Reload the page to come back.', true);
       const wait = Math.min(15000, 1000 * 2 ** retry++);
-      setStatus(`The Checkaverse bus is not running right now. Trying again in ${Math.round(wait / 1000)}s.`, true);
-      setTimeout(connect, wait);
+      waitStatus(ev.code === 4003 ? 'The Checkaverse is full right now.' : 'The Checkaverse bus is not running right now.', wait);
+      if (ev.code === 4003) { reconnectTimer = setTimeout(connect, wait); return; }
+      reconnectTimer = setTimeout(connect, wait);
     };
   }
+  // A student coming back to the tab or back onto Wi-Fi should not sit out the rest of a 15 second wait.
+  let reconnectTimer = 0;
+  function reconnectNow() {
+    if (removed || !ws || ws.readyState !== WebSocket.CLOSED || document.hidden) return;
+    clearTimeout(reconnectTimer); retry = 0; connect();
+  }
+  window.addEventListener('online', reconnectNow);
+  document.addEventListener('visibilitychange', reconnectNow);
 
+  let serverVersion = '';
   function handle(m) {
     switch (m.t) {
       case 'welcome':
+        // A tab left open across a server update reconnects to new rules with old code. Load the new code instead.
+        if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
+        serverVersion = m.version;
         me = m.you; town = m.town; house = m.house; phrases = m.phrases; myPlot = m.myPlot;
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         room = 'town'; roomKind = 'town'; roomOwner = null;
@@ -98,6 +125,7 @@
         if (roomKind === 'house') toast(roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
         break;
       case 'plots': plots = m.plots; homeLine(); break;
+      case 'home': myPlot = m.plot; homeLine(); break;
       case 'join': players.set(m.p.id, fresh(m.p)); countLine(); break;
       case 'leave': players.delete(m.id); if (pendingFrom === m.id) hideAsk(); countLine(); break;
       case 'pos': {
@@ -120,11 +148,13 @@
         askText.textContent = `${m.name} wants to battle!`;
         askEl.hidden = false;
         $('askYes').focus();
-        setTimeout(() => { if (pendingFrom === m.from) hideAsk(); }, m.ttl || 20000);
+        askShownAt = performance.now();
+        clearTimeout(askTimer);
+        askTimer = setTimeout(() => { if (pendingFrom === m.from) hideAsk(); }, m.ttl || 20000);
         break;
       case 'challenge_result': toast(m.msg); break;
       case 'notice': toast(m.msg); break;
-      case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
+      case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
       case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
       case 'removed': removed = true; break;
       case 'look': { const p = players.get(m.id); if (p) p.look = m.v; break; }
@@ -144,29 +174,38 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.textContent = text;
-      b.addEventListener('click', () => {
+      b.disabled = paused; // joining a paused town must not hand out live phrase buttons
+      b.addEventListener('click', (e) => {
+        // Hand the keyboard back to the map. A focused button would turn the next Space press into another "Hi!"
+        if (e.detail) b.blur();
         send({ t: 'say', p: i });
         // The server takes one phrase every two seconds; the buttons rest for the same time.
         const all = [...phrasesEl.querySelectorAll('button')];
         all.forEach((x) => { x.disabled = true; });
-        setTimeout(() => all.forEach((x) => { x.disabled = false; }), 2000);
+        setTimeout(() => all.forEach((x) => { x.disabled = paused; }), 2000);
       });
       phrasesEl.appendChild(b);
     });
   }
 
   function hideAsk() { askEl.hidden = true; pendingFrom = 0; }
-  function answer(ok) { if (pendingFrom) send({ t: 'answer', from: pendingFrom, ok }); hideAsk(); }
+  let askTimer = 0, askShownAt = 0;
+  // A Space press meant for a sign can land on Yes the instant a challenge pops up, so the first moment is ignored.
+  function answer(ok) { if (performance.now() - askShownAt < 400) return; if (pendingFrom) send({ t: 'answer', from: pendingFrom, ok }); hideAsk(); }
   $('askYes').addEventListener('click', () => answer(true));
   $('askNo').addEventListener('click', () => answer(false));
   busyEl.addEventListener('change', () => send({ t: 'busy', v: busyEl.checked }));
   lockBtn.addEventListener('click', () => send({ t: 'lock', v: !live(myPlot).locked }));
   const renameBtn = $('rename');
+  // After a mouse click, these controls hand the keyboard back to the map. Otherwise the next Space meant for a sign
+  // would flip Busy, turn the house key, or spend one of the three new names.
+  for (const el of [busyEl, lockBtn, renameBtn]) el.addEventListener('click', (e) => { if (e.detail) el.blur(); });
   function renameLine() {
     renameBtn.textContent = rerolls ? `New name (${rerolls} left)` : 'No new names left';
-    renameBtn.disabled = !rerolls;
+    renameBtn.disabled = !rerolls || paused;
   }
-  renameBtn.addEventListener('click', () => { if (rerolls) send({ t: 'reroll' }); });
+  // One request at a time, so a double click cannot spend two names. The server's answer turns it back on.
+  renameBtn.addEventListener('click', () => { if (rerolls && !paused) { renameBtn.disabled = true; send({ t: 'reroll' }); setTimeout(renameLine, 3000); } });
   // Four trainer outfits from the Sprite Book. The button steps through them.
   document.getElementById('outfit').addEventListener('click', () => {
     const p = players.get(me);
@@ -198,32 +237,46 @@
     }
     return best;
   }
+  let challengeRest = 0;
   function challenge() {
     const n = neighbor();
     if (!n) return toast('Walk up next to a trainer to challenge them.');
+    if (performance.now() < challengeRest) return;
+    challengeRest = performance.now() + 1500; // a double click would send a second challenge and a confusing notice
     send({ t: 'challenge', to: n.id });
   }
-  challengeBtn.addEventListener('click', challenge);
+  challengeBtn.addEventListener('click', (e) => { if (e.detail) challengeBtn.blur(); challenge(); });
 
   // Held keys repeat at the server's walking speed.
   const KEYS = { ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd', ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r' };
   const held = [];
   let lastFrame = 0;
+  // A tap shorter than TURN_MS on a new direction only turns the trainer. Holding it walks.
+  const TURN_MS = 90;
+  let pressAt = 0, pressTurn = false;
+  function press(d) {
+    if (!held.length) { const s0 = players.get(me); pressAt = performance.now(); pressTurn = Boolean(s0 && !s0.seg && s0.f !== d); }
+    if (!held.includes(d)) held.push(d);
+  }
   window.addEventListener('keydown', (e) => {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement && e.code === 'Space') return;
-    if (!askEl.hidden) return;
+    // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
+    if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
+    if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
     const d = KEYS[e.code];
-    if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } if (!held.includes(d)) held.push(d); return; }
+    if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
     if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) { e.preventDefault(); lookAhead(true); }
   });
   window.addEventListener('keyup', (e) => { const i = held.indexOf(KEYS[e.code]); if (i >= 0) held.splice(i, 1); });
   window.addEventListener('blur', () => { held.length = 0; });
+  // Closing a Chromebook lid mid walk can swallow the keyup, so a hidden tab lets go of every key.
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { held.length = 0; stopWalk(); } });
   document.querySelectorAll('.pad button').forEach((b) => {
     const d = b.dataset.d;
-    const down = (e) => { e.preventDefault(); stopWalk(); const s0 = players.get(me); if (s0) s0.bumped = ''; if (!held.includes(d)) held.push(d); };
+    const down = (e) => { e.preventDefault(); stopWalk(); const s0 = players.get(me); if (s0) s0.bumped = ''; press(d); };
     const up = () => { const i = held.indexOf(d); if (i >= 0) held.splice(i, 1); };
     b.addEventListener('pointerdown', down);
+    b.addEventListener('contextmenu', (e) => e.preventDefault());
     b.addEventListener('pointerup', up);
     b.addEventListener('pointerleave', up);
     b.addEventListener('pointercancel', up);
@@ -302,6 +355,7 @@
     const p = players.get(me);
     if (!p) return;
     let start = now;
+    const wasIdle = !p.seg;
     if (p.seg) {
       const k = Math.min(1, (now - p.seg.start) / p.seg.dur);
       const nx = p.seg.fx + (p.seg.tx - p.seg.fx) * k, ny = p.seg.fy + (p.seg.ty - p.seg.fy) * k;
@@ -315,6 +369,10 @@
     if (!askEl.hidden || paused) return;
     const dir = held.length ? held[held.length - 1] : walkDir(p);
     if (!dir) return;
+    if (held.length && wasIdle && pressTurn && now - pressAt < TURN_MS) {
+      if (p.f !== dir) { p.f = dir; send({ t: 'turn', d: dir }); }
+      return;
+    }
     const [ax, ay] = STEP[dir];
     const nx = p.x + ax, ny = p.y + ay;
     if (open(nx, ny)) {
@@ -753,7 +811,7 @@
       }
       ctx.restore();
     }
-    challengeBtn.disabled = !neighbor() || busyEl.checked;
+    challengeBtn.disabled = !neighbor() || busyEl.checked || paused || performance.now() < challengeRest;
     requestAnimationFrame(frame);
   }
 
