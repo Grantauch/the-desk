@@ -22,10 +22,11 @@
     paused = state.paused;
     $('pause').textContent = paused ? 'Resume the Checkaverse' : 'Pause the Checkaverse';
     $('pauseState').textContent = paused ? 'Paused. Nobody can walk, talk or challenge.' : 'Running.';
-    status(`Live · ${state.players.length} trainer${state.players.length === 1 ? '' : 's'} · server ${state.version}`);
+    if (Date.now() > holdStatus) status(`Live · ${state.players.length} trainer${state.players.length === 1 ? '' : 's'} · server ${state.version}`);
     const list = $('list');
     list.textContent = '';
-    for (const p of state.players) {
+    // Alphabetical, so the teacher can find a trainer fast in a class of thirty.
+    for (const p of [...state.players].sort((a, b) => a.name.localeCompare(b.name))) {
       const tr = document.createElement('tr');
       for (const v of [p.name + (p.busy ? ' (Busy)' : ''), p.room, p.minutes, p.phrases, p.challenges]) {
         const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
@@ -41,6 +42,7 @@
     }
   }
 
+  let holdStatus = 0; // keeps "Message sent." up past the 3 second refresh
   async function refresh() {
     try {
       render(await api('state'));
@@ -67,7 +69,7 @@
     e.preventDefault();
     const msg = $('msg').value.trim();
     if (!msg) return;
-    try { await api('say', { msg }); $('msg').value = ''; status('Message sent.'); } catch (err) { status(err.message, true); }
+    try { await api('say', { msg }); $('msg').value = ''; status('Message sent.'); holdStatus = Date.now() + 5000; } catch (err) { status(err.message, true); }
   });
   if (key) start();
 })();
