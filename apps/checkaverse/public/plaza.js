@@ -4,7 +4,16 @@
   const canvas = document.getElementById('town');
   const ctx = canvas.getContext('2d');
   const SCALE = 2; // the canvas has two pixels for every map pixel so the 2x art stays sharp
-  const VIEW_W = canvas.width / SCALE, VIEW_H = canvas.height / SCALE;
+  // The map fills the screen: always 16 tiles tall, as wide as the screen allows.
+  let VIEW_W = canvas.width / SCALE, VIEW_H = canvas.height / SCALE;
+  function fitCanvas() {
+    const aspect = Math.max(0.35, Math.min(2.6, window.innerWidth / Math.max(1, window.innerHeight)));
+    canvas.height = 1024;
+    canvas.width = Math.round(1024 * aspect);
+    VIEW_W = canvas.width / SCALE; VIEW_H = canvas.height / SCALE;
+  }
+  fitCanvas();
+  window.addEventListener('resize', fitCanvas);
   // Rooms are small, so the camera moves in closer inside a house.
   const zoom = () => (roomKind === 'house' ? 1.6 : 1);
   const $ = (id) => document.getElementById(id);
@@ -15,7 +24,9 @@
   let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false;
   const pausedEl = document.getElementById('paused');
   function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
-  let town = null, house = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
+  let town = null, house = null, wilds = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
+  // The outdoor map you are on right now: the town or the wilds. Houses use the house map.
+  const mapNow = () => (roomKind === 'wilds' ? wilds : town);
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
@@ -42,11 +53,13 @@
   const live = (id) => plots.find((p) => p.id === id) || { owner: 0, name: '', locked: false };
   function countLine() {
     const n = players.size;
-    const where = roomKind === 'town' ? 'here' : 'in this house';
+    const where = roomKind === 'house' ? 'in this house' : 'here';
     setStatus(`Live · ${n} trainer${n === 1 ? '' : 's'} ${where}`);
   }
+  let zoneName = '';
   function placeLine() {
     if (roomKind === 'town') placeEl.textContent = 'Town';
+    else if (roomKind === 'wilds') placeEl.textContent = zoneName ? `The wilds · ${zoneName}` : 'The wilds';
     else if (roomOwner && roomOwner.owner === me) placeEl.textContent = 'Your house';
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
   }
@@ -107,7 +120,8 @@
         // A tab left open across a server update reconnects to new rules with old code. Load the new code instead.
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
-        me = m.you; town = m.town; house = m.house; phrases = m.phrases; myPlot = m.myPlot;
+        me = m.you; town = m.town; house = m.house; wilds = m.wilds; phrases = m.phrases; myPlot = m.myPlot;
+        caught = []; charms = m.charms ?? 0; charmLine();
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         starters = m.starters || []; partner = m.partner; closeBattle(true); lastNear = null; watchLine();
         { const saved = savedPartner(); if (saved && saved !== partner && starters.some((x) => x.id === saved)) send({ t: 'partner', v: saved }); }
@@ -119,6 +133,7 @@
         busyEl.checked = false;
         countLine(); placeLine(); homeLine();
         snapCamera();
+        tipSoon('walk', 1200);
         break;
       case 'room':
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
@@ -127,7 +142,9 @@
         hideAsk();
         countLine(); placeLine(); homeLine();
         snapCamera();
+        zoneName = ''; placeLine(); charmLine();
         if (roomKind === 'house') toast(roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
+        if (roomKind === 'wilds') { toast('You walked out into the wilds.'); tipSoon('wilds', 900); }
         break;
       case 'plots': plots = m.plots; homeLine(); break;
       case 'home': myPlot = m.plot; homeLine(); break;
@@ -166,6 +183,7 @@
       case 'battling': { const p = players.get(m.id); if (p) p.inb = m.v; break; }
       case 'record': recordLine(m.record); break;
       case 'partner': partner = m.v; buildPartners(); break;
+      case 'party': { const more = (m.caught || []).length > caught.length; caught = m.caught || []; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon('caught', 4000); break; }
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
@@ -231,7 +249,7 @@
     if (geo && roomKind === 'town') walkTo([[geo.door.x, geo.door.y + 1]], 'u');
   });
   // After a mouse or tap click, hand the keyboard back to the game so Space does not press the same button again.
-  document.querySelector('.panel').addEventListener('click', (e) => {
+  document.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (b && e.detail) b.blur();
   });
@@ -277,6 +295,7 @@
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
     if (bt) { battleKey(e); return; }
+    if (e.code === 'Escape') { closePops(); if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
@@ -310,7 +329,7 @@
     if (y < 0 || y >= r.length || x < 0 || x >= r[0].length) return false;
     if (roomKind === 'house') return !HOUSE_SOLID.has(r[y][x]);
     if (TOWN_SOLID.has(r[y][x])) return false;
-    return !plots.some((pl) => pl.owner && (() => { const g = town.plots.find((q) => q.id === pl.id); return g && x >= g.x && x < g.x + g.w && y >= g.y && y < g.y + g.h - 1; })());
+    return roomKind !== 'town' || !plots.some((pl) => pl.owner && (() => { const g = town.plots.find((q) => q.id === pl.id); return g && x >= g.x && x < g.x + g.w && y >= g.y && y < g.y + g.h - 1; })());
   }
   // Breadth first search from where the server says we are. Returns the first direction to step, or '' if already there.
   function firstStep(sx, sy, goals) {
@@ -424,12 +443,12 @@
 
   function showSign(key) { if (signs[key]) toast(signs[key]); }
   function propAt(x, y) {
-    return (town?.props || []).find((p) => p.sign && p.f && x >= p.f[0] && x < p.f[0] + p.f[2] && y >= p.f[1] && y < p.f[1] + p.f[3]);
+    return (mapNow()?.props || []).find((p) => p.sign && p.f && x >= p.f[0] && x < p.f[0] + p.f[2] && y >= p.f[1] && y < p.f[1] + p.f[3]);
   }
   // Space or Enter reads whatever is straight ahead.
   function lookAhead(fromKey) {
     const self = players.get(me);
-    if (!self || roomKind !== 'town') return false;
+    if (!self || roomKind === 'house') return false;
     const [ax, ay] = STEP[self.f] || STEP.d;
     const p = propAt(self.x + ax, self.y + ay);
     if (p) { showSign(p.sign); return true; }
@@ -454,7 +473,7 @@
       if (tx === ex.x && ty === ex.y) return walkTo([[ex.x, ex.y - 1]], 'd');
       return walkTo([[tx, ty]]);
     }
-    for (const geo of town.plots) {
+    for (const geo of roomKind === 'town' ? town.plots : []) {
       const st = live(geo.id);
       if (st.owner && tx >= geo.x && tx < geo.x + geo.w && ty >= geo.y - 1 && ty < geo.y + geo.h - 1) {
         return walkTo([[geo.door.x, geo.door.y + 1]], 'u');
@@ -469,7 +488,7 @@
   });
 
   // ---------- camera ----------
-  const rows = () => (roomKind === 'town' ? town?.rows : house?.rows) || [];
+  const rows = () => (roomKind === 'house' ? house?.rows : mapNow()?.rows) || [];
   function cameraTarget() {
     const r = rows();
     const mapW = (r[0]?.length || 0) * TILE, mapH = r.length * TILE;
@@ -487,7 +506,7 @@
     'tile-grass', 'tile-path', 'tile-water', 'prop-tree', 'prop-bush', 'prop-rock', 'prop-lantern', 'prop-bench',
     'prop-bus-stop', 'prop-bus', 'prop-notice-board', 'ui-bubble', 'hood-plot', 'house-cottage', 'house-stump',
     'house-creek', 'hood-locked', 'hood-mailbox', 'house-interior', 'market-stall', 'merge-stone', 'arena',
-    'trainer-a', 'trainer-b', 'trainer-c', 'trainer-d',
+    'trainer-a', 'trainer-b', 'trainer-c', 'trainer-d', 'tile-tall-grass', 'tile-flowers', 'prop-route-sign', 'prop-bridge', 'prop-fence',
   ];
   const ART = {};
   let artWaiting = ART_NAMES.length;
@@ -564,9 +583,27 @@
     g.fillStyle = grass;
     g.fillRect(0, 0, c.width, c.height);
     const at = (x, y) => (r[y] && r[y][x]) || 'T';
+    // Wilds terrain. Tall grass and starflowers use their Sprite Book tiles. Rocky ground and scorched heath tint
+    // the path and grass art, so every zone reads as its own place without new pictures.
+    const tall = texture('tile-tall-grass', '#9ccf55', 0.2);
+    const flowers = texture('tile-flowers', '#d8c75a', 0.12);
+    const rocky = texture('tile-path', '#77736b', 0.62, 2 / 3);
+    const heath = texture('tile-grass', '#5a3a22', 0.62);
     r.forEach((row, y) => [...row].forEach((ch, x) => {
-      if (ch === 'P') { g.fillStyle = path; g.fillRect(x * T, y * T, T, T); }
-      if (ch === 'W') { g.fillStyle = water; g.fillRect(x * T, y * T, T, T); }
+      const fill = ch === 'P' || ch === 'E' ? path : ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
+      if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
+      const h = hash(x, y);
+      if (ch === 'R') {
+        // Loose stones.
+        for (let i = 0; i < 3; i++) { const k = hash(x * 3 + i, y * 7); g.fillStyle = OUTLINE; g.fillRect(x * T + 6 + (k % 46), y * T + 6 + ((k >>> 8) % 46), 10, 8); g.fillStyle = (k >>> 16) & 1 ? '#a39d90' : '#8c877c'; g.fillRect(x * T + 8 + (k % 46), y * T + 8 + ((k >>> 8) % 46), 6, 4); }
+      } else if (ch === 'A') {
+        // Glowing embers in the ash.
+        for (let i = 0; i < 2; i++) { const k = hash(x * 5 + i, y * 3 + 1); g.fillStyle = (k >>> 16) % 3 ? '#ff9a3c' : '#ffd166'; g.fillRect(x * T + 6 + (k % 50), y * T + 6 + ((k >>> 8) % 50), 4, 4); }
+      } else if (ch === 'C' && h % 4 === 0) {
+        // A starflower or two: tiny pale gold stars.
+        const sx = x * T + 10 + (h % 40), sy = y * T + 10 + ((h >>> 8) % 40);
+        g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
+      }
     }));
     // A low mossy curb belongs to the outside of a path, never between two path tiles.
     // Drawing it in the ground cache keeps movement/camera work independent and costs
@@ -579,9 +616,9 @@
       g.fillStyle = '#96916f';
       for (let joint = 16; joint < T; joint += 32) g.fillRect(joint, 3, 1, 3);
     };
-    const land = (x, y) => at(x, y) !== 'P' && at(x, y) !== 'W';
+    const land = (x, y) => !'PWE'.includes(at(x, y));
     r.forEach((row, y) => [...row].forEach((ch, x) => {
-      if (ch !== 'P') return;
+      if (ch !== 'P' && ch !== 'E') return;
       const px = x * T, py = y * T;
       if (land(x, y - 1)) { g.save(); g.translate(px, py); curb(); g.restore(); }
       if (land(x + 1, y)) { g.save(); g.transform(0, 1, -1, 0, px + T, py); curb(); g.restore(); }
@@ -618,7 +655,7 @@
   function shimmer(now, x0, y0, x1, y1) {
     if (!has('tile-water') || reduceMotion) return;
     if (!waterPattern) waterPattern = ctx.createPattern(ART['tile-water'], 'repeat');
-    const r = town.rows;
+    const r = rows();
     const off = (now / 90) % 192;
     const m = new DOMMatrix().scale(1 / SCALE).translate(off, off * 0.4);
     waterPattern.setTransform(m);
@@ -660,7 +697,8 @@
 
   // ---------- things that stand up, sorted by where they touch the ground ----------
   function townThings(x0, y0, x1, y1, list) {
-    const r = town.rows;
+    const map = mapNow();
+    const r = map.rows;
     for (let y = Math.max(0, y0 - 1); y <= Math.min(r.length - 1, y1 + 3); y++) {
       for (let x = Math.max(0, x0 - 2); x <= Math.min(r[0].length - 1, x1 + 2); x++) {
         const ch = r[y][x];
@@ -674,11 +712,11 @@
         }
       }
     }
-    for (const p of town.props || []) {
+    for (const p of map.props || []) {
       if (p.x > x1 + 1 || p.x + p.w < x0 - 1 || p.b < y0 || p.b - 6 > y1) continue;
-      list.push({ b: p.b, draw: () => (has(p.s) ? sprite(p.s, p.x, p.b, p.w) : boxShape(p.x, p.b, p.w, Math.min(2, p.w), '#b5523b')) });
+      list.push({ b: p.flat ? -0.5 : p.b, draw: () => (has(p.s) ? sprite(p.s, p.x, p.b, p.w) : boxShape(p.x, p.b, p.w, Math.min(2, p.w), '#b5523b')) });
     }
-    for (const geo of town.plots) {
+    for (const geo of roomKind === 'town' ? town.plots : []) {
       const state = live(geo.id);
       if (!state.owner) {
         // An empty plot lies flat, so it goes under everything.
@@ -724,6 +762,10 @@
     } else {
       ctx.fillStyle = p.c; ctx.fillRect(px + 8, py + 10, 16, 16);
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
+    }
+    // Standing in tall grass hides your feet, the Red and Blue way.
+    if (roomKind === 'wilds' && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
+      ctx.drawImage(ART['tile-tall-grass'], 0, 30, 64, 34, px, py + 15, 32, 17);
     }
     const top = py + TILE - 50;
     // In a crowd, name tags show only for you, trainers within a few steps, and anyone talking.
@@ -798,11 +840,11 @@
       const gx = Math.max(0, cx), gy = Math.max(0, cy);
       const gw = Math.min(ground.width / SCALE - gx, vw - (gx - cx)), gh = Math.min(ground.height / SCALE - gy, vh - (gy - cy));
       if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * SCALE, gy * SCALE, gw * SCALE, gh * SCALE, gx, gy, gw, gh);
-      if (roomKind === 'town') shimmer(now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
+      if (roomKind !== 'house') shimmer(now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
-      if (roomKind === 'town') townThings(x0, y0, x1, y1, things);
+      if (roomKind !== 'house') townThings(x0, y0, x1, y1, things);
       for (const p of players.values()) things.push({ b: p.dy + 1, draw: () => trainer(p, now) });
       things.sort((a, b) => a.b - b.b);
       labels.length = 0; bubbles.length = 0;
@@ -830,44 +872,154 @@
       }
       ctx.restore();
     }
-    challengeBtn.disabled = !neighbor() || busyEl.checked || paused || Boolean(bt) || performance.now() < challengeRest;
+    const nb = roomKind !== 'house' && neighbor();
+    challengeBtn.hidden = !nb || busyEl.checked || paused || Boolean(bt);
+    challengeBtn.disabled = performance.now() < challengeRest;
+    if (nb && !bt) tipSoon('challenge', 0);
+    zoneTick();
     if (lastNear && performance.now() > lastNear.until) { lastNear = null; watchLine(); }
     if (bt) clockTick();
     requestAnimationFrame(frame);
   }
 
 
+
+  // ---------- floating buttons and their pop-ups ----------
+  const pops = { partnerBtn: 'partnerPop', sayBtn: 'phrases', menuBtn: 'menu' };
+  function closePops(except) {
+    for (const [btn, pop] of Object.entries(pops)) {
+      if (btn === except) continue;
+      $(pop).hidden = true; $(btn).setAttribute('aria-expanded', 'false');
+    }
+  }
+  for (const [btn, pop] of Object.entries(pops)) {
+    $(btn).addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opening = $(pop).hidden;
+      closePops(btn);
+      $(pop).hidden = !opening;
+      $(btn).setAttribute('aria-expanded', String(opening));
+      if (btn === 'partnerBtn') buildPartners();
+    });
+    $(pop).addEventListener('click', (e) => e.stopPropagation());
+  }
+  // A tap on the map or anywhere else closes whatever is open.
+  document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.pop, .hud')) closePops(); });
+  // Saying a phrase closes the phrase list so the map is clear again.
+  phrasesEl.addEventListener('click', (e) => { if (e.target.closest('button')) setTimeout(() => closePops(), 0); });
+
+  // ---------- tutorial tips ----------
+  // Short tips pop up in the world the first time they matter, one at a time, instead of a wall of instructions.
+  // Each shows once per visit (per tab, so the next student on a shared Chromebook sees them too).
+  const TIPS = {
+    walk: 'Walk with the arrow keys or WASD, or tap where you want to go.',
+    partner: 'This is your battle partner. Tap it, bottom left, to switch Checklings.',
+    say: 'Tap Say to talk to other trainers with phrases.',
+    challenge: 'A trainer is right next to you! Press C or tap Challenge to battle them.',
+    sign: 'Face a sign or landmark and press Space (or tap it) to read it.',
+    gate: 'The trail north leads out of town into the wilds, where wild Checklings live.',
+    wilds: 'Wild Checklings hide in tall grass, starflowers, rocky ground and scorched heath. Walk through to find one.',
+    battle: 'Press 1 to 4 or tap a move. Both trainers pick, then the turn plays out.',
+    'wild-battle': 'Wear it down first, then press 5 to throw a charm. Weaker Checklings are easier to catch. Press 6 to run.',
+    caught: 'Your catch is in your partner list for this visit. Tap your partner button to battle with it.',
+  };
+  const FOLLOW = { walk: ['partner', 'say'] };
+  const tipEl = $('tip'), tipText = $('tipText');
+  let tipNow = '', tipTimer = 0;
+  const tipQueue = [];
+  const seenTips = (() => { try { return new Set(JSON.parse(sessionStorage.getItem('checkaverse-tips') || '[]')); } catch { return new Set(); } })();
+  function markSeen(k) { seenTips.add(k); try { sessionStorage.setItem('checkaverse-tips', JSON.stringify([...seenTips])); } catch { /* fine */ } }
+  function tipSoon(key, delay) {
+    if (!TIPS[key] || seenTips.has(key) || tipNow === key || tipQueue.includes(key)) return;
+    tipQueue.push(key);
+    setTimeout(showNextTip, delay || 0);
+  }
+  function showNextTip() {
+    if (tipNow || !tipQueue.length) return;
+    tipNow = tipQueue.shift();
+    markSeen(tipNow);
+    tipText.textContent = TIPS[tipNow];
+    tipEl.hidden = false;
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(hideTip, 12000);
+  }
+  function hideTip() {
+    const was = tipNow;
+    tipEl.hidden = true; tipNow = '';
+    for (const k of FOLLOW[was] || []) tipSoon(k, 4000 + 9000 * (FOLLOW[was].indexOf(k)));
+    setTimeout(showNextTip, 700);
+  }
+  $('tipOk').addEventListener('click', (e) => { if (e.detail) e.currentTarget.blur(); clearTimeout(tipTimer); hideTip(); });
+  $('tipsAgain').addEventListener('click', () => {
+    seenTips.clear(); try { sessionStorage.removeItem('checkaverse-tips'); } catch { /* fine */ }
+    closePops(); tipSoon('walk', 200);
+  });
+
+  // Where you are standing: the wilds zone name, the gate out of town, a sign close by.
+  let lastSpot = '';
+  function zoneTick() {
+    const self = players.get(me);
+    if (!self || roomKind === 'house') return;
+    const spot = `${room}:${self.x},${self.y}`;
+    if (spot === lastSpot) return;
+    lastSpot = spot;
+    if (roomKind === 'wilds') {
+      const z = wilds.zones?.[rows()[self.y]?.[self.x]] || '';
+      if (z !== zoneName) { zoneName = z; placeLine(); }
+    } else {
+      const gate = (town.exits || [])[0];
+      if (gate && Math.abs(gate.x - self.x) + Math.abs(gate.y - self.y) <= 4) tipSoon('gate', 0);
+    }
+    for (const [ax, ay] of Object.values(STEP)) if (propAt(self.x + ax, self.y + ay)) { tipSoon('sign', 300); break; }
+  }
+
   // ---------- battles ----------
   // The server runs the battle. This screen plays each turn's events in order, one line at a time, then hands
   // the move buttons back. Watchers see the same screen without the buttons.
-  let starters = [], partner = '', lastNear = null, bt = null;
+  let starters = [], partner = '', lastNear = null, bt = null, caught = [], charms = 0;
+  const bWild = $('bWild'), bCharm = $('bCharm'), bRun = $('bRun');
   const bEl = $('battle'), bMsg = $('bMsg'), bMoves = $('bMoves'), bDone = $('bDone'), bGiveUp = $('bGiveUp');
   const bClock = $('bClock'), bClockText = $('bClockText'), watchBtn = $('watch');
   const TYPE_NAMES = { meadow: 'Meadow', gear: 'Gear', cosmic: 'Cosmic', ember: 'Ember', tide: 'Tide', stone: 'Stone', storm: 'Storm', shade: 'Shade' };
   const typeImg = (t) => { const im = document.createElement('img'); im.src = `/art/type-${t}.png`; im.alt = TYPE_NAMES[t] || ''; return im; };
   function savedPartner() { try { return localStorage.getItem('checkaverse-partner'); } catch { return null; } }
+  // Partners: the four starters at level 10, then anything caught in the wilds this visit at its own level.
+  const nameOf = (sp) => starters.find((x) => x.id === sp)?.name || sp;
+  function partnerChoices() {
+    return [
+      ...starters.map((st) => ({ v: st.id, species: st.id, label: st.name, title: `${st.name}, ${TYPE_NAMES[st.type]} type, level 10` })),
+      ...caught.map((c, i) => ({ v: `c${i}`, species: c.species, label: `${nameOf(c.species)} Lv ${c.level}`, title: `The ${nameOf(c.species)} you caught, level ${c.level}`, caught: true })),
+    ];
+  }
   function buildPartners() {
     const box = $('partners');
     box.textContent = '';
-    for (const st of starters) {
+    for (const ch of partnerChoices()) {
       const b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('role', 'radio');
-      b.setAttribute('aria-checked', String(st.id === partner));
-      const im = document.createElement('img'); im.src = `/art/front-${st.id}.png`; im.alt = '';
-      b.append(im, st.name);
-      b.title = `${st.name}, ${TYPE_NAMES[st.type]} type`;
+      b.setAttribute('aria-checked', String(ch.v === partner));
+      const im = document.createElement('img'); im.src = `/art/front-${ch.species}.png`; im.alt = '';
+      b.append(im, ch.caught ? `${ch.label} ★` : ch.label);
+      b.title = ch.title;
       b.disabled = Boolean(bt);
       b.addEventListener('click', (e) => {
         if (e.detail) b.blur();
-        if (bt || st.id === partner) return;
-        try { localStorage.setItem('checkaverse-partner', st.id); } catch { /* storage can be off on school machines */ }
-        send({ t: 'partner', v: st.id });
+        if (bt || ch.v === partner) return;
+        if (!ch.caught) { try { localStorage.setItem('checkaverse-partner', ch.v); } catch { /* storage can be off on school machines */ } }
+        send({ t: 'partner', v: ch.v });
       });
       box.appendChild(b);
     }
+    const now = partnerChoices().find((x) => x.v === partner);
+    if (now) { $('partnerImg').src = `/art/front-${now.species}.png`; $('partnerName').textContent = now.label; }
   }
-  function recordLine(r) { $('record').textContent = r ? `This visit: ${r.w} won, ${r.l} lost${r.d ? `, ${r.d} tied` : ''}` : ''; }
+  function charmLine() {
+    const chip = $('charmChip');
+    chip.hidden = roomKind !== 'wilds' && !caught.length;
+    chip.textContent = `Charms ${charms}${caught.length ? ` · Caught ${caught.length}` : ''}`;
+  }
+  function recordLine(r) { $('record').textContent = r && (r.w || r.l || r.d) ? `${r.w}W ${r.l}L${r.d ? ` ${r.d}T` : ''}` : ''; }
   function watchLine() { watchBtn.hidden = !lastNear || Boolean(bt); }
   watchBtn.addEventListener('click', () => { if (lastNear) send({ t: 'watch', id: lastNear.id }); });
 
@@ -876,18 +1028,20 @@
   function openBattle(m) {
     held.length = 0; stopWalk(); hideAsk();
     bt = { id: m.id, you: m.you, view: m.view, queue: [], playing: false, picked: '', foePicked: false, done: false,
-      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null };
+      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null, wild: Boolean(m.wild), zone: m.zone || '' };
+    closePops();
     lastNear = null; watchLine();
     bEl.hidden = false;
     bDone.hidden = true; bMoves.hidden = bt.watching;
-    bGiveUp.hidden = bt.watching; bGiveUp.textContent = bt.watching ? 'Stop watching' : 'Give up'; bGiveUp.dataset.sure = '';
-    if (bt.watching) { bGiveUp.hidden = false; }
+    bGiveUp.hidden = bt.wild; bGiveUp.textContent = bt.watching ? 'Stop watching' : 'Give up'; bGiveUp.dataset.sure = '';
+    bWild.hidden = !bt.wild;
     for (const id of ['bFoeKo', 'bMeKo']) $(id).hidden = true;
-    for (const id of ['bFoeMon', 'bMeMon']) $(id).classList.remove('down', 'hit');
+    for (const id of ['bFoeMon', 'bMeMon']) $(id).classList.remove('down', 'hit', 'shake', 'caught');
     drawSides(m.view, true);
     const n = nearSide(), foe = m.view.sides[1 - n], mine = m.view.sides[n];
     if (bt.watching) say(`You are watching ${m.view.sides[0].name} and ${m.view.sides[1].name}.`);
-    else say(`${foe.name} sent out ${foe.speciesName}! ${m.intro || ''} Go, ${mine.speciesName}!`);
+    else if (bt.wild) { say(`A wild ${foe.speciesName} jumped out of the ${(bt.zone || 'grass').toLowerCase()}! Go, ${mine.speciesName}!`); tipSoon('wild-battle', 1600); }
+    else { say(`${foe.name} sent out ${foe.speciesName}! ${m.intro || ''} Go, ${mine.speciesName}!`); tipSoon('battle', 1600); }
     buildMoves(); buildPartners();
     if (!bt.watching) setTimeout(() => bMoves.querySelector('button:not(:disabled)')?.focus({ preventScroll: true }), 50);
   }
@@ -907,7 +1061,8 @@
     const nameWith = (el, f) => { el.textContent = f.speciesName; el.prepend(typeImg(f.type)); };
     nameWith($('bFoeName'), foe); nameWith($('bMeName'), mine);
     $('bFoeLv').textContent = `Lv ${foe.level}`; $('bMeLv').textContent = `Lv ${mine.level}`;
-    $('bFoeTrainer').textContent = foe.name;
+    $('bFoeTrainer').textContent = bt && bt.wild ? `Wild · ${bt.zone}` : foe.name;
+    if (bt && bt.wild) $('bFoeName').childNodes[1].textContent = `Wild ${foe.speciesName}`;
     bar($('bFoeHp'), foe.hp, foe.maxHp, true); bar($('bFoeSt'), foe.stamina, foe.maxStamina);
     bar($('bMeHp'), mine.hp, mine.maxHp, true); bar($('bMeSt'), mine.stamina, mine.maxStamina);
     $('bMeHpNum').textContent = `${bt && bt.watching ? `${mine.name} · ` : ''}HP ${mine.hp} / ${mine.maxHp}`;
@@ -945,7 +1100,27 @@
       b.disabled = paused || bt.playing || bt.done || Boolean(bt.picked) || !mv || !mv.ok;
       b.classList.toggle('picked', bt.picked === b.dataset.move);
     });
+    if (bt.wild) {
+      const busy = paused || bt.playing || bt.done || Boolean(bt.picked);
+      bCharm.textContent = `5. Throw charm (${charms} left)`;
+      bCharm.disabled = busy || charms <= 0;
+      bRun.disabled = busy;
+    }
   }
+  function throwCharm() {
+    if (!bt || !bt.wild || bt.playing || bt.picked || bt.done || paused || charms <= 0) return;
+    bt.picked = 'charm';
+    send({ t: 'charm' });
+    say('You threw a catching charm!');
+    movesLine();
+  }
+  function runAway() {
+    if (!bt || !bt.wild || bt.playing || bt.done || paused) return;
+    send({ t: 'run' });
+    bt.picked = 'run'; movesLine();
+  }
+  bCharm.addEventListener('click', (e) => { if (e.detail) bCharm.blur(); throwCharm(); });
+  bRun.addEventListener('click', (e) => { if (e.detail) bRun.blur(); runAway(); });
   function pick(id) {
     if (!bt || bt.watching || bt.playing || bt.picked || bt.done || paused) return;
     const mv = bt.view.sides[bt.you].moves.find((x) => x.id === id);
@@ -966,6 +1141,8 @@
   function battleKey(e) {
     const n = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Numpad1: 0, Numpad2: 1, Numpad3: 2, Numpad4: 3 }[e.code];
     if (n !== undefined && !e.repeat) { e.preventDefault(); const mv = bt.view.sides[bt.you ?? 0]?.moves[n]; if (mv && !bt.watching) pick(mv.id); return; }
+    if ((e.code === 'Digit5' || e.code === 'Numpad5') && !e.repeat) { e.preventDefault(); throwCharm(); return; }
+    if ((e.code === 'Digit6' || e.code === 'Numpad6') && !e.repeat) { e.preventDefault(); runAway(); return; }
     if (KEYS[e.code] || e.code === 'Space') { if (!(e.target instanceof HTMLButtonElement)) e.preventDefault(); }
     if (e.code === 'Escape' && bt.done) closeBattle();
   }
@@ -997,7 +1174,7 @@
   }
   async function playTurn(b, m) {
     const n = nearSide();
-    const who = (side) => { const f = b.view.sides[side]; return side === n && !b.watching ? f.speciesName : `${f.name}'s ${f.speciesName}`; };
+    const who = (side) => { const f = b.view.sides[side]; return side === n && !b.watching ? f.speciesName : b.wild ? `The wild ${f.speciesName}` : `${f.name}'s ${f.speciesName}`; };
     const monEl = (side) => (side === n ? $('bMeMon') : $('bFoeMon'));
     // Health and stamina move with each event, from a working copy of the view.
     const live = JSON.parse(JSON.stringify(b.view));
@@ -1032,6 +1209,15 @@
       } else if (e.k === 'say') {
         say(e.text);
         await wait(900);
+      } else if (e.k === 'charm') {
+        // The charm lands, the wild one wobbles once per shake, then it is caught or breaks free.
+        charms = e.left ?? charms; charmLine();
+        const el = $('bFoeMon');
+        say('You threw a catching charm!');
+        await wait(600);
+        for (let i = 0; i < e.shakes; i++) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); say(['Shake...', 'Shake... shake...', 'Shake... shake... shake...'][i]); await wait(650); }
+        if (e.ok) { el.classList.add('caught'); say(`Caught! The wild ${b.view.sides[1].speciesName} is yours for this visit.`); await wait(1100); }
+        else { el.classList.remove('shake'); say(['It broke free right away!', 'Argh! It wriggled loose.', 'So close! It broke free.'][e.shakes] || 'It broke free!'); await wait(900); }
       }
     }
     b.view = m.view;
@@ -1047,7 +1233,13 @@
     const n = nearSide();
     const why = { 'gave up': 'gave up', left: 'left the Checkaverse', timeout: 'ran out the clock' };
     let line;
-    if (m.winner === 'draw') line = m.reason === 'time' ? 'The match hit its turn limit with health even. It is a tie!' : m.reason === 'restart' ? 'The Checkaverse restarted, so the match ended without a winner.' : 'Both trainers stepped away. No winner this time.';
+    if (b.wild) {
+      const wildOne = m.view.sides[1], mine = m.view.sides[0];
+      if (m.reason === 'caught') line = `Caught! ${wildOne.speciesName} (Lv ${wildOne.level}) joins your partners for this visit. Pick it under the partner button any time.`;
+      else if (m.reason === 'ran') line = 'Got away safely.';
+      else if (m.winner === 0) line = `The wild ${wildOne.speciesName} is knocked out and scurries back home. ${mine.speciesName} looks proud.`;
+      else line = `${mine.speciesName} is knocked out, but it recovers fully after the match. The wild ${wildOne.speciesName} wanders off.`;
+    } else if (m.winner === 'draw') line = m.reason === 'time' ? 'The match hit its turn limit with health even. It is a tie!' : m.reason === 'restart' ? 'The Checkaverse restarted, so the match ended without a winner.' : 'Both trainers stepped away. No winner this time.';
     else {
       const w = m.view.sides[m.winner], l = m.view.sides[1 - m.winner];
       const how = why[m.reason] ? `${l.name} ${why[m.reason]}. ` : '';
@@ -1057,11 +1249,12 @@
     }
     say(line);
     bMoves.hidden = true;
+    bWild.hidden = true;
     bGiveUp.hidden = true;
     bDone.hidden = false;
-    $('bGg').hidden = b.watching;
-    $('bClose').textContent = b.watching ? 'Stop watching' : 'Back to town';
-    (b.watching ? $('bClose') : $('bGg')).focus({ preventScroll: true });
+    $('bGg').hidden = b.watching || b.wild;
+    $('bClose').textContent = b.watching ? 'Stop watching' : b.wild ? 'Keep exploring' : 'Back to town';
+    (b.watching || b.wild ? $('bClose') : $('bGg')).focus({ preventScroll: true });
     await wait(10);
   }
   $('bGg').addEventListener('click', (e) => { if (e.detail) e.currentTarget.blur(); const i = phrases.indexOf('Good game'); if (i >= 0) send({ t: 'say', p: i }); closeBattle(); });
@@ -1077,7 +1270,7 @@
   });
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
-  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt };
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]) };
   connect();
   requestAnimationFrame(frame);
 })();

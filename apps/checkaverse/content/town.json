@@ -1,8 +1,8 @@
 {
   "id": "checkaverse",
   "rows": [
-    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-    "T..............................................................T",
+    "TTTTTTTTTTTTETTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T...........PH.................................................T",
     "T.F.........P.........FH..P....................................T",
     "T..HHHHHH...P..HHHHHHH..T.PLLLLL.LLLLL.LLLLL.LLLLL.LLLLL.LLLLL.T",
     "T..HHHHHH...P..HHHHHHH..T.PLLLLLFLLLLL.LLLLL.LLLLLFLLLLL.LLLLL.T",
@@ -345,6 +345,19 @@
       "sign": "arena"
     },
     {
+      "s": "prop-route-sign",
+      "x": 12.9,
+      "b": 2,
+      "w": 1.6,
+      "f": [
+        13,
+        1,
+        1,
+        1
+      ],
+      "sign": "route-sign-town"
+    },
+    {
       "s": "market-stall",
       "x": 15,
       "b": 7,
@@ -603,6 +616,18 @@
         1
       ],
       "sign": "bush"
+    }
+  ],
+  "exits": [
+    {
+      "x": 12,
+      "y": 0,
+      "to": "wilds",
+      "at": [
+        28,
+        41
+      ],
+      "f": "u"
     }
   ]
 }

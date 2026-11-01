@@ -16,7 +16,7 @@ const ORIGIN = `http://localhost:${PORT}`;
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'checkaverse-test-'));
 const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], {
   env: { ...process.env, CHECKAVERSE_PORT: String(PORT), CHECKAVERSE_DATA: DATA, CHECKAVERSE_ORIGINS: ORIGIN,
-    CHECKAVERSE_TEST_SPAWN: '14,13;15,13;14,14;29,6', CHECKAVERSE_TURN_MS: '1200' },
+    CHECKAVERSE_TEST_SPAWN: '14,13;15,13;14,14;29,6', CHECKAVERSE_TURN_MS: '1200', CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_CATCH_CHANCE: '1' },
   stdio: 'pipe',
 });
 let serverLog = '';
@@ -283,6 +283,65 @@ try {
   const bad = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, { origin: 'https://evil.example' });
   assert.equal(await new Promise((r) => { bad.on('error', () => r(true)); bad.on('open', () => r(false)); }), true);
   step('unknown sites are refused');
+
+  // The wilds: out the town gate and back, then a wild Checkling in the tall grass, caught and used as a partner.
+  const x = client(); await x.open; const wx = await x.next('welcome');
+  assert.ok(wx.wilds && wx.wilds.rows.length > 20 && wx.town.exits.length === 1, 'the wilds map arrives with the welcome');
+  const solid = new Set(['T', 'W', 'H', 'S']);
+  const route = (rows, from, to) => {
+    const key = (p) => `${p[0]},${p[1]}`, prev = new Map([[key(from), null]]), q = [from];
+    while (q.length) {
+      const cur = q.shift();
+      if (key(cur) === key(to)) break;
+      for (const [d, dx, dy] of [['u', 0, -1], ['d', 0, 1], ['l', -1, 0], ['r', 1, 0]]) {
+        const nx = cur[0] + dx, ny = cur[1] + dy, ch = rows[ny]?.[nx];
+        if (!ch || solid.has(ch) || prev.has(`${nx},${ny}`)) continue;
+        prev.set(`${nx},${ny}`, [cur, d]); q.push([nx, ny]);
+      }
+    }
+    const steps = [];
+    for (let k = key(to); prev.get(k); k = key(prev.get(k)[0])) steps.unshift(prev.get(k)[1]);
+    return steps;
+  };
+  const meX = wx.players.find((q) => q.id === wx.you);
+  const toGate = route(wx.town.rows, [meX.x, meX.y], [12, 1]);
+  assert.ok(toGate.length > 0, 'there is a way from the bus stop to the gate');
+  for (const d of toGate) await x.send({ t: 'move', d });
+  await x.send({ t: 'move', d: 'u' });
+  const outside = await x.next('room', (m) => m.room === 'wilds');
+  assert.equal(outside.kind, 'wilds');
+  await x.send({ t: 'move', d: 'd' }); await x.send({ t: 'move', d: 'd' });
+  assert.equal((await x.next('room', (m) => m.room === 'town')).kind, 'town');
+  await x.send({ t: 'move', d: 'u' });
+  await x.next('room', (m) => m.room === 'wilds');
+  step('the town gate leads to the wilds and back');
+  // From the trail into the tall grass: a few free steps, then every step can rouse a wild one (rate 1 in tests).
+  for (const d of route(wx.wilds.rows, [28, 41], [17, 30])) await x.send({ t: 'move', d });
+  for (let i = 0; i < 8 && !x.inbox.some((m) => m.t === 'battle'); i++) await x.send({ t: 'move', d: 'l' });
+  const wb2 = await x.next('battle');
+  assert.equal(wb2.wild, true); assert.equal(wb2.zone, 'Tall grass');
+  assert.ok(wb2.view.sides[1].level >= 5 && wb2.view.sides[1].level <= 9);
+  assert.equal(wb2.charms, 5);
+  step('tall grass starts a wild battle with a Checkling from its table');
+  await x.send({ t: 'pick', m: 'strike' });
+  assert.ok((await x.next('battle_turn')).events.some((e) => e.k === 'use' && e.side === 1), 'the wild one moves right away');
+  await x.send({ t: 'charm' });
+  const thrown = await x.next('battle_turn');
+  assert.deepEqual(thrown.events[0], { k: 'charm', ok: true, shakes: 3, left: 4 });
+  assert.equal((await x.next('battle_end')).reason, 'caught');
+  const party = await x.next('party', (m) => m.caught.length === 1);
+  assert.equal(party.caught[0].species, wb2.view.sides[1].species);
+  await x.send({ t: 'partner', v: 'c0' });
+  assert.equal((await x.next('partner')).v, 'c0');
+  step('a weakened wild Checkling is caught and becomes a battle partner');
+  for (let i = 0; i < 12 && !x.inbox.some((m) => m.t === 'battle'); i++) await x.send({ t: 'move', d: i % 2 ? 'l' : 'r' });
+  const again = await x.next('battle');
+  assert.equal(again.view.sides[0].species, party.caught[0].species, 'the caught Checkling battles at its own level');
+  assert.equal(again.view.sides[0].level, party.caught[0].level);
+  await x.send({ t: 'run' });
+  assert.equal((await x.next('battle_end')).reason, 'ran');
+  step('running from a wild battle always works');
+  x.ws.close();
 
   b.ws.close(); c.ws.close();
   console.log('PASS checkaverse end to end');

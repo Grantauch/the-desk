@@ -6,6 +6,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const STATS = ['hp', 'power', 'stamina', 'speed'];
+// A side that spent its turn on something else, like throwing a catching charm, takes no move.
+export const PASS = 'pass';
+const NO_MOVE = { name: '', type: null, cost: 0 };
 const TRIGGERS = new Set(['blocked', 'recover']);
 const MOVE_KEYS = new Set(['name', 'type', 'cost', 'damage', 'guard', 'restore', 'shield', 'first', 'bonus', 'phases', 'detail']);
 
@@ -153,10 +156,10 @@ export function resolveTurn(rules, battle, choices) {
   battle.turn++;
   const events = [];
   const say = (text) => events.push({ k: 'say', text });
-  const picks = choices.map((mv, i) => (canUse(rules, battle, i, mv) ? mv : fallbackMove(rules, battle, i)));
+  const picks = choices.map((mv, i) => (mv === PASS || canUse(rules, battle, i, mv) ? mv : fallbackMove(rules, battle, i)));
   // What each side's move does this turn, phases chosen now.
   const acts = picks.map((mv, i) => {
-    const m = rules.moves[mv];
+    const m = mv === PASS ? NO_MOVE : rules.moves[mv];
     const f = battle.sides[i];
     let step = m;
     if (m.phases) { const n = f.phase[mv] || 0; step = { ...m, ...m.phases[n % m.phases.length] }; f.phase[mv] = (n + 1) % m.phases.length; }
@@ -188,7 +191,7 @@ export function resolveTurn(rules, battle, choices) {
   // Then attacks, in speed order. A knocked out Checkling does not get its move.
   for (const i of order) {
     const a = acts[i], me = battle.sides[i], foe = battle.sides[1 - i], foeAct = acts[1 - i];
-    if (me.hp <= 0) continue;
+    if (me.hp <= 0 || a.id === PASS) continue;
     if (!a.m.first) {
       me.stamina -= a.m.cost;
       events.push({ k: 'use', side: i, move: a.id, name: a.m.name, type: a.m.type, stamina: me.stamina });

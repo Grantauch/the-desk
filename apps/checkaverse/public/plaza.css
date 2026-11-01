@@ -1,70 +1,87 @@
 * { box-sizing: border-box; }
-html, body { margin: 0; background: #14211a; color: #f4f1e6; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
-.frame { max-width: 800px; margin: 0 auto; padding: 16px; }
-.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-h1 { margin: 0; font-size: 26px; letter-spacing: 1px; color: #ffd166; }
-h1 span { color: #a8c686; font-size: 18px; margin-left: 6px; }
-.status { margin: 0; font-size: 15px; color: #cfe3c0; }
-.status.down { color: #ff8f7a; }
-.stage { position: relative; margin-top: 10px; border: 4px solid #0b1410; border-radius: 6px; overflow: hidden; background: #0b1410; }
-canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
-.toast { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: #0b1410e6; border: 2px solid #ffd166; padding: 8px 14px; border-radius: 4px; font-size: 15px; max-width: 90%; text-align: center; }
-.ask { position: absolute; inset: 0; display: grid; place-content: center; background: #0b1410b3; text-align: center; }
-.ask[hidden], .toast[hidden] { display: none; }
-.ask p { background: #20352a; border: 3px solid #ffd166; padding: 16px 22px; margin: 0 0 12px; font-size: 18px; border-radius: 4px; }
-.ask-row { display: flex; gap: 10px; justify-content: center; }
-.panel { display: grid; grid-template-columns: 1fr auto; gap: 12px; margin-top: 12px; align-items: start; }
-.you { grid-column: 1 / -1; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-.you p { margin: 0; font-size: 16px; }
-.you strong { color: #ffd166; }
-.home { grid-column: 1 / -1; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.home p { margin: 0; color: #cfe3c0; font-size: 15px; }
-.home button[hidden] { display: none; }
-.busy { display: flex; gap: 6px; align-items: center; cursor: pointer; }
-button { font: inherit; font-size: 15px; background: #ffd166; color: #14211a; border: 0; border-bottom: 3px solid #b8892a; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1410; color: #f4f1e6; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+button { font: inherit; font-size: 15px; background: #ffd166; color: #14211a; border: 0; border-bottom: 3px solid #b8892a; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
 button:disabled { background: #4a5a50; color: #9aa89e; border-bottom-color: #2d3a32; cursor: default; }
 button.ghost { background: #2f4a3b; color: #f4f1e6; border-bottom-color: #1c2e24; }
-button:focus-visible, input:focus-visible { outline: 3px solid #a8c686; outline-offset: 2px; }
-.phrases { display: flex; flex-wrap: wrap; gap: 8px; }
-.phrases button { background: #2f4a3b; color: #f4f1e6; border-bottom-color: #1c2e24; }
-.pad { display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); gap: 4px; }
-.pad button { padding: 0; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #a8c686; outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+/* The map fills the screen. Everything else floats over it and stays out of the way. */
+.stage { position: fixed; inset: 0; overflow: hidden; background: #0b1410; }
+#town { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: manipulation; }
+
+.hud { position: absolute; display: flex; gap: 8px; align-items: center; z-index: 1; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud-top-left { top: 10px; left: 10px; flex-direction: column; align-items: flex-start; gap: 6px; }
+.hud-top-right { top: 10px; right: 10px; }
+.hud-bottom-left { bottom: 12px; left: 12px; }
+.hud-bottom-right { bottom: 12px; right: 12px; }
+.chip { margin: 0; background: #0b1410d9; border: 2px solid #2b1a12; border-radius: 999px; padding: 5px 12px; font-size: 14px; box-shadow: 0 2px 0 #0006; }
+.chip strong { color: #ffd166; }
+.place-chip span { color: #a8c686; }
+.status { color: #cfe3c0; font-size: 13px; padding: 3px 10px; }
+.status.down { color: #ff8f7a; border-color: #ff8f7a; }
+.record { color: #cfe3c0; margin-left: 6px; }
+.round { width: 42px; height: 42px; padding: 0; border-radius: 50%; font-size: 20px; background: #0b1410d9; color: #f4f1e6; border: 2px solid #2b1a12; border-bottom-width: 4px; }
+.chip-btn { background: #fbf5e3; color: #2b1a12; border: 2px solid #2b1a12; border-bottom-width: 4px; border-radius: 999px; padding: 6px 14px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+.partner-btn { padding: 3px 14px 3px 4px; }
+.partner-btn img { width: 34px; height: 34px; image-rendering: pixelated; }
+.charm-chip { color: #ffd166; }
+.action { font-weight: bold; font-size: 17px; padding: 10px 18px; border: 2px solid #2b1a12; border-bottom-width: 5px; border-radius: 999px; animation: nudge 1.4s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateY(-3px); } }
+
+/* Pop-ups that open from the floating buttons. */
+.pop { position: absolute; z-index: 3; background: #fbf5e3; color: #2b1a12; border: 3px solid #2b1a12; border-radius: 10px; padding: 12px; box-shadow: 4px 4px 0 #0008; max-width: min(420px, calc(100% - 24px)); }
+.pop-left { left: 12px; bottom: 66px; }
+.pop-right { right: 10px; top: 60px; display: flex; flex-direction: column; gap: 8px; min-width: 240px; }
+.pop-title { margin: 0 0 8px; font-weight: bold; }
+.pop-note { margin: 8px 0 0; font-size: 13px; color: #6b4a2b; }
+.menu .pop-note { margin: 0; }
+.busy { display: flex; gap: 8px; align-items: center; cursor: pointer; font-size: 15px; }
+.bus-home { color: #2b1a12; font-size: 14px; }
+.partners { display: flex; gap: 6px; flex-wrap: wrap; }
+.partners button { display: flex; align-items: center; gap: 4px; padding: 4px 10px 4px 4px; background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; font-size: 14px; }
+.partners button img { width: 30px; height: 30px; image-rendering: pixelated; }
+.partners button[aria-checked="true"] { background: #ffd166; border-bottom-color: #b8892a; outline: 2px solid #2b1a12; }
+.phrases { display: flex; flex-wrap: wrap; gap: 8px; width: 380px; }
+.phrases button { background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; }
+
+/* Touch screens get a walking pad. Keyboards and mice do not need one. */
+.pad { position: absolute; z-index: 1; right: 16px; bottom: 70px; display: none; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); gap: 4px; opacity: 0.85; }
+@media (pointer: coarse) { .pad { display: grid; } }
+.pad button { padding: 0; background: #fbf5e3cc; color: #2b1a12; border: 2px solid #2b1a12; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .pad [data-d="u"] { grid-column: 2; grid-row: 1; }
 .pad [data-d="l"] { grid-column: 1; grid-row: 2; }
 .pad [data-d="d"] { grid-column: 2; grid-row: 2; }
 .pad [data-d="r"] { grid-column: 3; grid-row: 2; }
-.help { color: #9fb59a; font-size: 14px; margin-top: 14px; }
-.paused { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #0b1410e6; border: 2px solid #ff8f7a; color: #ffd8cf; padding: 6px 14px; border-radius: 4px; font-size: 15px; }
-.paused[hidden] { display: none; }
+
+/* Tutorial tips pop up in the world when they are useful, one at a time. */
+.tip { position: absolute; z-index: 6; top: 64px; left: 50%; transform: translateX(-50%); width: max-content; display: flex; gap: 12px; align-items: center; background: #fbf5e3; color: #2b1a12; border: 3px solid #2b1a12; border-radius: 10px; padding: 10px 12px 10px 16px; box-shadow: 4px 4px 0 #0008; max-width: min(560px, calc(100vw - 24px)); animation: drop 260ms ease-out; }
+.tip p { margin: 0; font-size: 16px; line-height: 1.35; }
+.tip button { flex: none; }
+@keyframes drop { from { transform: translate(-50%, -14px); opacity: 0; } }
+
+.toast { position: absolute; z-index: 2; left: 50%; bottom: 70px; transform: translateX(-50%); background: #0b1410e6; border: 2px solid #ffd166; padding: 8px 14px; border-radius: 6px; font-size: 15px; max-width: 90%; text-align: center; }
+.paused { position: absolute; z-index: 4; top: 10px; left: 50%; transform: translateX(-50%); background: #0b1410e6; border: 2px solid #ff8f7a; color: #ffd8cf; padding: 6px 14px; border-radius: 4px; font-size: 15px; }
+.ask { position: absolute; z-index: 5; inset: 0; display: grid; place-content: center; background: #0b1410b3; text-align: center; }
+.ask p { background: #20352a; border: 3px solid #ffd166; padding: 16px 22px; margin: 0 0 12px; font-size: 18px; border-radius: 4px; }
+.ask-row { display: flex; gap: 10px; justify-content: center; }
+
+/* The teacher page still uses the plain layout. */
+.frame { max-width: 800px; margin: 0 auto; padding: 16px; }
+h1 { margin: 0; font-size: 26px; letter-spacing: 1px; color: #ffd166; }
+html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
+.teacher .status { margin: 0; font-size: 15px; color: #cfe3c0; }
+.teacher .help { color: #9fb59a; font-size: 14px; }
+.teacher .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .teacher .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 14px 0; }
 .teacher input { font: inherit; font-size: 15px; padding: 7px 9px; border-radius: 4px; border: 2px solid #2f4a3b; background: #0b1410; color: #f4f1e6; min-width: 260px; }
 .teacher h2 { font-size: 18px; color: #ffd166; margin: 22px 0 8px; }
 .teacher table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .teacher th, .teacher td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #2f4a3b; }
-.teacher [hidden] { display: none; }
-
-/* Chromebook and laptop screens: the map fills the height and the controls sit beside it, so nothing is below the fold. */
-@media (min-width: 980px) {
-  .frame:not(.teacher) { max-width: none; padding: 10px 16px; }
-  .play { display: grid; grid-template-columns: auto minmax(260px, 340px); gap: 16px; align-items: start; justify-content: center; }
-  .top { max-width: calc(min(100vw - 400px, (100vh - 76px) * 1.5) + 356px); margin: 0 auto; }
-  .stage { margin-top: 6px; width: min(calc(100vw - 400px), calc((100vh - 76px) * 1.5)); }
-  .panel { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
-  .you, .home { gap: 8px 10px; }
-  .phrases button { font-size: 14px; padding: 7px 10px; }
-  .pad { align-self: center; }
-  .help { font-size: 13px; margin: 0; }
-}
-
-/* Touchscreen Chromebooks: holding a pad button must not select text, open a menu or zoom the page. */
-.pad button { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-#town { touch-action: manipulation; }
-
-/* The bus back to Kettle Creek, the single player camp. */
-.bus-home { color: inherit; font-size: 0.9rem; opacity: 0.85; }
 
 /* ---------- battles ---------- */
-.battle { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: #0b1410; z-index: 2; }
+.battle { position: absolute; inset: 0; z-index: 4; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: #0b1410; z-index: 2; }
 .battle[hidden] { display: none; }
 .b-scene { position: relative; overflow: hidden; background: #6f9b45 url(/art/bg-battle-meadow.png) center / cover no-repeat; image-rendering: pixelated; }
 .b-mon { position: absolute; image-rendering: pixelated; transition: opacity 400ms, transform 400ms; }
@@ -102,7 +119,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid #a8c686; outline-
 .b-bar.b-st { height: 8px; }
 .b-bar.b-st span { background: #669bbc; }
 .b-num { font-size: 13px; text-align: right; }
-.b-bottom { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; padding: 10px; background: #20352a; border-top: 4px solid #2b1a12; }
+.b-bottom { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; padding: 10px; background: #20352a; border-top: 4px solid #2b1a12; }
 .b-talk { background: #fbf5e3; color: #2b1a12; border: 3px solid #2b1a12; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .b-msg { margin: 0; font-size: 17px; line-height: 1.35; min-height: 46px; }
 .b-clock { height: 8px; background: #d8ccae; border-radius: 4px; overflow: hidden; }
@@ -114,16 +131,18 @@ button:focus-visible, input:focus-visible { outline: 3px solid #a8c686; outline-
 .b-moves button .k { font-weight: bold; }
 .b-moves button small { font-size: 12px; opacity: 0.85; line-height: 1.25; }
 .b-moves button.picked { outline: 3px solid #fff6e0; outline-offset: -3px; }
-.b-done { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.b-right { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.b-wild { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.b-wild[hidden] { display: none; }
+.b-wild button { padding: 6px 9px; font-size: 15px; }
+.b-done { display: flex; flex-direction: column; gap: 10px; justify-content: center; flex: 1; }
 .b-done[hidden], .b-moves[hidden] { display: none; }
 .b-giveup { position: absolute; top: 8px; right: 8px; font-size: 13px; padding: 5px 9px; opacity: 0.85; }
 .b-giveup[hidden] { display: none; }
-.partner p { margin: 0; color: #cfe3c0; font-size: 15px; }
-.partners { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-.partners button { display: flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; background: #2f4a3b; color: #f4f1e6; border-bottom-color: #1c2e24; font-size: 14px; }
-.partners button img { width: 28px; height: 28px; image-rendering: pixelated; }
-.partners button[aria-checked="true"] { background: #ffd166; color: #14211a; border-bottom-color: #b8892a; }
-.record { margin-top: 6px !important; font-size: 14px !important; }
-.partner button[hidden] { display: none; }
-#watch { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .b-foe-mon, .b-ko { animation: none; } .b-mon.hit { animation: none; } }
+@keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+.b-mon.shake { animation: shake 420ms steps(4) 1; }
+.b-mon.caught { opacity: 0; transform: scale(0.2); }
+
+/* Phones: keep the top corners from crowding each other. */
+@media (max-width: 560px) { .me-chip { display: none; } .tip { top: 90px; } }
