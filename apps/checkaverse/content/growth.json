@@ -11,5 +11,6 @@
   "partyMax": 3,
   "denMax": 60,
   "charmsPerDay": 5,
-  "renamesPerDay": 3
+  "renamesPerDay": 3,
+  "ranks": { "note": "Weekly rank points per class hour. Only battles between two trainers who rode the bus count. pairLimit is how many results against the same classmate count each day. The board shows the top places plus your own.", "winPoints": 3, "tiePoints": 1, "pairLimit": 3, "show": 10 }
 }

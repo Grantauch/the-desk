@@ -16,6 +16,8 @@ The ticket is signed with HMAC SHA-256. It carries an anonymous player ID (a key
 
 **Growth** is content in `content/growth.json`. Every official check-in pays 100 XP to the battle partner at the next ride, so a student who checks in but skips the game for a week loses nothing. The level curve reaches 15 near 28 check-ins, 30 near the end of first semester and 50 near the end of the year. Battles pay a little XP to the Checkling that fought, up to 150 a day. Charms (5) and new names (3) are counted per day on the server, so a reload does not refill them. The party holds 3, always keeps at least one, and resting the partner hands the job to the next one. The Den holds 60.
 
+**Weekly rankings.** The notice board in the plaza (or This week's rankings in the menu) shows the battle ranking for the trainer's own class hour, counted from the `battles` table by `weeklyRanks` in `accounts.mjs`. Only battles between two saved trainers count: a win is 3 points and a tie 1, both walking away counts nothing, and only the first 3 results against the same classmate each day count, so friends cannot farm each other. Weeks start Monday in Michigan time. The board shows the top 10 plus your own place. Numbers are in the `ranks` block of `content/growth.json`. Player IDs never leave the server.
+
 **One screen per trainer.** Opening the town in a second tab closes the first (close code 4002), so nothing is counted twice.
 
 ## Screen and tips
