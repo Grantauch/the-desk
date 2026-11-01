@@ -22,6 +22,7 @@ export function loadGrowth(file) {
   for (const k of ['win', 'loss', 'draw', 'wildWin', 'caught']) if (!(g.battleXp?.[k] >= 0)) bad(`battleXp.${k} missing`);
   for (const k of ['dailyBattleXpCap', 'partyMax', 'denMax', 'charmsPerDay', 'renamesPerDay']) if (!(Number.isInteger(g[k]) && g[k] >= 0)) bad(`${k} missing`);
   if (g.partyMax < 1) bad('partyMax must be at least 1');
+  for (const k of ['winPoints', 'tiePoints', 'pairLimit', 'show']) if (!(Number.isInteger(g.ranks?.[k]) && g.ranks[k] >= 0)) bad(`ranks.${k} missing`);
   return g;
 }
 
@@ -95,6 +96,57 @@ export function verifyTicket(key, token, { now = Date.now(), species = [] } = {}
 // School days follow the PC's clock in Michigan, so the daily limits turn over at midnight there.
 const DAY_FMT = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Detroit', year: 'numeric', month: '2-digit', day: '2-digit' });
 export const todayKey = (d = new Date()) => DAY_FMT.format(d);
+// The Monday that starts the week a day belongs to. Weekly rankings reset there.
+export function weekOf(dayKey) {
+  const [y, m, d] = dayKey.split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d));
+  t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7));
+  return t.toISOString().slice(0, 10);
+}
+
+// Weekly rank points for one class hour, from the battles table. Only battles between two saved trainers count.
+// A win is worth winPoints and a tie tiePoints. Against the same classmate only the first pairLimit results each
+// day count, so two friends cannot farm points off each other. Ties break on wins, then fewer losses, then name.
+export function weeklyRanks(db, rules, hour, now = new Date()) {
+  const week = weekOf(todayKey(now));
+  const since = new Date(now.getTime() - 8 * 86_400_000).toISOString();
+  const rows = db.prepare(`SELECT ended, a_pid, b_pid, a_trainer, b_trainer, winner, reason FROM battles
+    WHERE ended >= ? AND a_pid IS NOT NULL AND b_pid IS NOT NULL ORDER BY ended`).all(since);
+  const hours = new Map(db.prepare('SELECT pid, name, hour FROM trainers').all().map((t) => [t.pid, t]));
+  const score = new Map();
+  const seen = new Map();
+  const add = (pid, r, opp, day) => {
+    const k = `${pid}|${opp}|${day}`;
+    const n = (seen.get(k) || 0) + 1;
+    seen.set(k, n);
+    if (n > rules.pairLimit) return;
+    const s = score.get(pid) || { pid, points: 0, w: 0, l: 0, d: 0 };
+    s[r]++;
+    s.points += r === 'w' ? rules.winPoints : r === 'd' ? rules.tiePoints : 0;
+    score.set(pid, s);
+  };
+  for (const b of rows) {
+    if (b.reason === 'restart' || b.a_pid === b.b_pid) continue;
+    const day = todayKey(new Date(b.ended));
+    if (weekOf(day) !== week) continue;
+    const ra = b.winner === 'draw' ? 'd' : b.winner === b.a_trainer ? 'w' : 'l';
+    const rb = ra === 'd' ? 'd' : ra === 'w' ? 'l' : 'w';
+    if (ra === 'd' && b.reason === 'timeout') continue; // both walked away
+    add(b.a_pid, ra, b.b_pid, day);
+    add(b.b_pid, rb, b.a_pid, day);
+  }
+  const list = [...score.values()]
+    .filter((s) => hours.get(s.pid)?.hour === hour)
+    .map((s) => ({ ...s, name: hours.get(s.pid).name }))
+    .sort((x, y) => y.points - x.points || y.w - x.w || x.l - y.l || x.name.localeCompare(y.name));
+  let rank = 0, last = null;
+  list.forEach((s, i) => {
+    const key = `${s.points}|${s.w}|${s.l}`;
+    if (key !== last) { rank = i + 1; last = key; }
+    s.rank = rank;
+  });
+  return { week, list };
+}
 
 export function openStore(db, g) {
   db.exec(`

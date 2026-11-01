@@ -198,6 +198,7 @@
       case 'partner': partner = m.v; buildPartners(); break;
       case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner || partner; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
       case 'elsewhere': elsewhere = true; break;
+      case 'ranks': showRanks(m); break;
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
@@ -309,7 +310,7 @@
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
     if (bt) { battleKey(e); return; }
-    if (e.code === 'Escape') { closePops(); if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
+    if (e.code === 'Escape') { closePops(); closeRanks(); if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
@@ -455,7 +456,53 @@
     }
   }
 
-  function showSign(key) { if (signs[key]) toast(signs[key]); }
+  function showSign(key) {
+    if (key === 'notice-board') return askRanks();
+    if (signs[key]) toast(signs[key]);
+  }
+  // ---------- weekly rankings ----------
+  // The notice board (or the menu) asks the town for this week's battle ranking in your class hour.
+  const ranksPop = $('ranksPop');
+  function askRanks() { send({ t: 'ranks' }); }
+  function closeRanks() { ranksPop.hidden = true; }
+  $('ranksClose').addEventListener('click', closeRanks);
+  $('ranksBtn').addEventListener('click', () => { closePops(); askRanks(); });
+  function weekLabel(day) {
+    const [y, m, d] = day.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' });
+  }
+  function showRanks(m) {
+    const list = $('ranksList'), note = $('ranksNote');
+    list.textContent = '';
+    if (!m.saved) {
+      $('ranksTitle').textContent = "This week's rankings";
+      note.textContent = 'Visitors are not ranked. Ride the bus from your Check-In page to battle for rank points.';
+    } else {
+      $('ranksTitle').textContent = `${m.hour} · week of ${weekLabel(m.week)}`;
+      const row = (x) => {
+        const li = document.createElement('li');
+        if (x.me) li.className = 'me';
+        const rank = document.createElement('span'); rank.textContent = `${x.rank}.`;
+        const name = document.createElement('span'); name.textContent = x.me ? `${x.name} (you)` : x.name;
+        const rec = document.createElement('span'); rec.className = 'rec'; rec.textContent = `${x.w}W ${x.l}L${x.d ? ` ${x.d}T` : ''}`;
+        name.appendChild(rec);
+        const pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = `${x.points} pts`;
+        li.append(rank, name, pts);
+        return li;
+      };
+      for (const x of m.top) list.appendChild(row(x));
+      if (m.mine && !m.top.some((x) => x.me)) {
+        const gap = document.createElement('li'); gap.className = 'gap'; gap.textContent = '...';
+        list.append(gap, row(m.mine));
+      }
+      note.textContent = m.top.length
+        ? `A win is 3 points and a tie is 1. Only your first 3 battles with the same classmate each day count. Resets Monday.${m.mine ? '' : ' Win a battle to get on the board.'}`
+        : 'No ranked battles in your class hour yet this week. Walk up to a classmate and challenge them to be first on the board.';
+    }
+    closePops();
+    ranksPop.hidden = false;
+    $('ranksClose').focus();
+  }
   function propAt(x, y) {
     return (mapNow()?.props || []).find((p) => p.sign && p.f && x >= p.f[0] && x < p.f[0] + p.f[2] && y >= p.f[1] && y < p.f[1] + p.f[3]);
   }
@@ -918,7 +965,7 @@
     $(pop).addEventListener('click', (e) => e.stopPropagation());
   }
   // A tap on the map or anywhere else closes whatever is open.
-  document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.pop, .hud')) closePops(); });
+  document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.pop, .hud')) { closePops(); closeRanks(); } });
   // Saying a phrase closes the phrase list so the map is clear again.
   phrasesEl.addEventListener('click', (e) => { if (e.target.closest('button')) setTimeout(() => closePops(), 0); });
 

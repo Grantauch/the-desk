@@ -34,6 +34,14 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .pop { position: absolute; z-index: 3; background: #fbf5e3; color: #2b1a12; border: 3px solid #2b1a12; border-radius: 10px; padding: 12px; box-shadow: 4px 4px 0 #0008; max-width: min(420px, calc(100% - 24px)); }
 .pop-left { left: 12px; bottom: 66px; }
 .pop-right { right: 10px; top: 60px; display: flex; flex-direction: column; gap: 8px; min-width: 240px; }
+/* Weekly rankings: the notice board, opened from the board itself or the menu. */
+.ranks-pop { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto; z-index: 4; }
+.ranks-list { list-style: none; margin: 0 0 8px; padding: 0; }
+.ranks-list li { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 8px; align-items: baseline; padding: 5px 6px; border-bottom: 1px dashed #c9b98f; font-size: 15px; }
+.ranks-list li.me { background: #ffd166; border-radius: 6px; font-weight: bold; }
+.ranks-list li.gap { border-bottom: none; text-align: center; display: block; color: #7a6a4f; }
+.ranks-list .pts { font-weight: bold; white-space: nowrap; }
+.ranks-list .rec { display: block; font-size: 12px; color: #6b5a3e; font-weight: normal; }
 .pop-title { margin: 0 0 8px; font-weight: bold; }
 .pop-note { margin: 8px 0 0; font-size: 13px; color: #6b4a2b; }
 .menu .pop-note { margin: 0; }

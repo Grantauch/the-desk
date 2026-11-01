@@ -16,7 +16,7 @@ import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.10.0';
+const VERSION = '0.11.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -952,6 +952,16 @@ function handleMessage(p, msg, now) {
       return;
     }
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));
+    case 'ranks': {
+      // This week's battle ranking for the trainer's own class hour. Player IDs never leave the server.
+      if (now - (p.lastRanks || 0) < 1500) return;
+      p.lastRanks = now;
+      if (!p.pid) return send(p, { t: 'ranks', saved: false });
+      const r = Accounts.weeklyRanks(db, GROWTH.ranks, p.hour);
+      const view = (x) => ({ rank: x.rank, name: x.name, points: x.points, w: x.w, l: x.l, d: x.d, me: x.pid === p.pid });
+      const mine = r.list.find((x) => x.pid === p.pid);
+      return send(p, { t: 'ranks', saved: true, hour: p.hour, week: r.week, count: r.list.length, top: r.list.slice(0, GROWTH.ranks.show).map(view), mine: mine ? view(mine) : null });
+    }
     default: return;
   }
 }

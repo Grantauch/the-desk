@@ -431,6 +431,10 @@ try {
   const s4 = client(ticket({ iat: Date.now() })); await s4.open; const ws4 = await s4.next('welcome');
   assert.equal(ws4.players.find((q) => q.id === ws4.you).name, renamed.name);
   assert.equal(ws4.rerolls, 2);
+  await s4.send({ t: 'ranks' });
+  const board = await s4.next('ranks');
+  assert.deepEqual([board.saved, board.hour, board.top.length, board.mine], [true, '2nd Hour', 0, null]);
+  assert.ok(!JSON.stringify(board).includes('Pq7xK2'), 'player IDs never reach a page');
   s4.ws.close();
   step('a new trainer name is kept and renames are counted per day');
 
@@ -450,7 +454,10 @@ try {
   }
   // A page that never says hello is let in as a visitor after a short wait.
   const quiet = client(null, false); await quiet.open; const wq = await quiet.next('welcome', () => true, 5000);
-  assert.equal(wq.saved, false); quiet.ws.close();
+  assert.equal(wq.saved, false);
+  await quiet.send({ t: 'ranks' });
+  assert.equal((await quiet.next('ranks')).saved, false, 'visitors are not ranked');
+  quiet.ws.close();
   step('expired, forged and tampered tickets visit without saving, and old pages still get in');
 
   b.ws.close(); c.ws.close();

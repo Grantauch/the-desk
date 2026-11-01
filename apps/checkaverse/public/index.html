@@ -56,8 +56,16 @@
       <p id="home" class="pop-note">Finding your plot...</p>
       <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
       <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
+      <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
       <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
       <a class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
+    </div>
+
+    <div id="ranksPop" class="pop ranks-pop" role="dialog" aria-labelledby="ranksTitle" hidden>
+      <p class="pop-title" id="ranksTitle">This week's rankings</p>
+      <ol id="ranksList" class="ranks-list"></ol>
+      <p id="ranksNote" class="pop-note"></p>
+      <button id="ranksClose" type="button" class="ghost">Close</button>
     </div>
 
     <div id="tip" class="tip" role="status" hidden>

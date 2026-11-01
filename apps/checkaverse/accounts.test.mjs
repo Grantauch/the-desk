@@ -43,4 +43,22 @@ assert.equal(A.verifyTicket(key, A.signTicket(key, { ...body, n: -1 }), { specie
 assert.equal(A.verifyTicket('', A.signTicket(key, body), { species: ['ember'] }).ok, false);
 assert.equal(A.verifyTicket(key, 'x'.repeat(3000), { species: ['ember'] }).ok, false);
 console.log('  ok tickets are checked');
+// Weekly ranks: wins 3, ties 1, the same pair counts 3 times a day, other hours and last week stay off.
+assert.equal(A.weekOf('2026-11-01'), '2026-10-26', 'Sunday belongs to the week that began Monday');
+assert.equal(A.weekOf('2026-11-02'), '2026-11-02');
+db.exec(`CREATE TABLE battles (id INTEGER PRIMARY KEY, started TEXT, ended TEXT, seed INTEGER, a_trainer TEXT, a_species TEXT, b_trainer TEXT, b_species TEXT, winner TEXT, reason TEXT, turns INTEGER, picks TEXT, a_pid TEXT, b_pid TEXT)`);
+const mk = (pid, name, hour) => store.link({ pid, hour, days: 0, partner: { species: 'zee', nick: '' } }, () => name, 0);
+mk('pidAAAAAAAAAAAAAAA', 'Iron Hawk', '2nd Hour'); mk('pidBBBBBBBBBBBBBBB', 'Bold Lynx', '2nd Hour'); mk('pidCCCCCCCCCCCCCCC', 'Nova Orca', '6th Hour');
+const fight = (when, a, b, an, bn, winner, reason = 'ko') => db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, 1, ?, 'zee', ?, 'zee', ?, ?, 3, '[]', ?, ?)`).run(when, when, an, bn, winner, reason, a, b);
+const now = new Date('2026-11-04T17:00:00Z'); // a Wednesday
+for (let i = 0; i < 5; i++) fight(`2026-11-04T15:0${i}:00Z`, 'pidAAAAAAAAAAAAAAA', 'pidBBBBBBBBBBBBBBB', 'Iron Hawk', 'Bold Lynx', 'Iron Hawk');
+fight('2026-11-03T15:00:00Z', 'pidBBBBBBBBBBBBBBB', 'pidAAAAAAAAAAAAAAA', 'Bold Lynx', 'Iron Hawk', 'draw', 'time');
+fight('2026-11-03T15:10:00Z', 'pidBBBBBBBBBBBBBBB', 'pidAAAAAAAAAAAAAAA', 'Bold Lynx', 'Iron Hawk', 'draw', 'timeout');
+fight('2026-10-30T15:00:00Z', 'pidBBBBBBBBBBBBBBB', 'pidAAAAAAAAAAAAAAA', 'Bold Lynx', 'Iron Hawk', 'Bold Lynx');
+fight('2026-11-04T16:00:00Z', 'pidCCCCCCCCCCCCCCC', 'pidBBBBBBBBBBBBBBB', 'Nova Orca', 'Bold Lynx', 'Nova Orca');
+const two = A.weeklyRanks(db, g.ranks, '2nd Hour', now);
+assert.equal(two.week, '2026-11-02');
+assert.deepEqual(two.list.map((x) => [x.rank, x.name, x.points, x.w, x.l, x.d]), [[1, 'Iron Hawk', 10, 3, 0, 1], [2, 'Bold Lynx', 1, 0, 4, 1]]);
+assert.deepEqual(A.weeklyRanks(db, g.ranks, '6th Hour', now).list.map((x) => [x.name, x.points]), [['Nova Orca', 3]]);
+console.log('  ok weekly ranks count fairly and stay in their class hour');
 console.log('PASS accounts');
