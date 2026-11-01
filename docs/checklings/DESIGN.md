@@ -154,6 +154,8 @@ The long term goal is 300 Checkling lines, released in waves of twelve. Collecti
 
 **Art rules.** Every form needs a front sprite, a back sprite for battle and a two frame idle. Conditions like obese or sick are drawn as shape tweaks and overlays on the base sprite, not as separate sprites for hundreds of forms. That keeps the art load possible. All species follow the founder art style already in the game.
 
+**Wave One.** The first twelve lines, their tables, battle entries and approved writing are in `docs/checklings/wave-one.md`.
+
 **The sprite target.** The goal is 600 forms, added as we go in waves of twelve lines. At about one wave a month during the school year, the full set takes two and a half to three years. It works only if every wave follows one locked art contract and is approved before the next wave starts.
 
 ## Kettle Creek, the home town
