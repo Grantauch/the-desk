@@ -43,6 +43,17 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .partners button { display: flex; align-items: center; gap: 4px; padding: 4px 10px 4px 4px; background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; font-size: 14px; }
 .partners button img { width: 30px; height: 30px; image-rendering: pixelated; }
 .partners button[aria-checked="true"] { background: #ffd166; border-bottom-color: #b8892a; outline: 2px solid #2b1a12; }
+/* A saved trainer's party: each Checkling with a Rest button, then the Den with Join buttons. */
+.team-row { display: flex; align-items: center; gap: 4px; }
+.partners .team-row { flex-basis: 100%; }
+.partners .team-row .pick { flex: 1; }
+.partners .den-btn, .den .den-btn { padding: 4px 10px; font-size: 13px; background: #fbf5e3; color: #2b1a12; border: 2px solid #2b1a12; border-bottom-width: 3px; border-radius: 8px; }
+.den-btn:disabled { opacity: 0.45; }
+.den { margin-top: 10px; max-height: 32vh; overflow-y: auto; }
+.den .pop-title { margin: 0 0 6px; }
+.den-row { padding: 2px 0; font-size: 14px; }
+.den-row img { width: 26px; height: 26px; image-rendering: pixelated; }
+.den-row span { flex: 1; }
 .phrases { display: flex; flex-wrap: wrap; gap: 8px; width: 380px; }
 .phrases button { background: #efe4c4; color: #2b1a12; border-bottom-color: #c9b98f; }
 

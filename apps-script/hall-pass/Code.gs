@@ -1351,6 +1351,67 @@ function saveChecklingUnlocked_(pinToken, species, petName, habitat) {
   return getCheckInState_(resolved.student, pinToken || '', resolved.method);
 }
 
+/* Checkaverse bus tickets. Riding the bus prints a short signed ticket the game server checks with the
+ * same key. The ticket names no student: an anonymous player ID, the class hour, today's check-in, how many
+ * official check-ins the student has, and the Checkling they hatched. No name, PIN or email leaves Check-In.
+ * Read only: a ticket never writes attendance and never takes the shared lock except to store the key once.
+ */
+const GD_CHECKAVERSE_KEY_PROPERTY = 'CHECKAVERSE_TICKET_KEY';
+const GD_CHECKAVERSE_TICKET_MS = 2 * 60 * 60 * 1000;
+const GD_CHECKAVERSE_URL = 'https://game.grant-desk.com/';
+const GD_CHECKAVERSE_KEY_PATTERN = /^[A-Za-z0-9_-]{32,128}$/;
+
+/** The key arrives once through the private Settings tab, moves into script properties, and leaves the sheet. */
+function checkaverseTicketKey_() {
+  const properties = PropertiesService.getScriptProperties();
+  const pasted = String(getSettings_().CHECKAVERSE_TICKET_KEY || '').trim();
+  if (GD_CHECKAVERSE_KEY_PATTERN.test(pasted)) {
+    withLock_(() => {
+      gdForget_('settings');
+      const again = String(getSettings_().CHECKAVERSE_TICKET_KEY || '').trim();
+      if (!GD_CHECKAVERSE_KEY_PATTERN.test(again)) return;
+      properties.setProperty(GD_CHECKAVERSE_KEY_PROPERTY, again);
+      setSettingValue_('CHECKAVERSE_TICKET_KEY', 'Stored privately');
+      SpreadsheetApp.flush();
+    }, 5000, 'checkaverse-key');
+  }
+  const key = String(properties.getProperty(GD_CHECKAVERSE_KEY_PROPERTY) || '');
+  if (!GD_CHECKAVERSE_KEY_PATTERN.test(key)) throw new Error('The bus to the Checkaverse is not running yet. Your teacher needs to connect it.');
+  return key;
+}
+
+/** The same student in the same class always gets the same anonymous ID, and nothing in it leads back to them. */
+function checkaversePlayerId_(studentKey) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature('checkaverse-player:' + studentKey, ensureSalt_(), Utilities.Charset.UTF_8))
+    .replace(/=+$/g, '').slice(0, 22);
+}
+
+function getCheckaverseTicket(pinToken) {
+  const resolved = resolveStudent_(pinToken, true);
+  const student = resolved.student;
+  const state = getCheckInState_(student, pinToken || '', resolved.method);
+  if (!state.checkling.available) throw new Error('Your Checkling could not load. Try again in a moment.');
+  const pet = state.checkling.pet;
+  if (!pet) throw new Error('Hatch your Checkling first. Then the bus can take you both.');
+  const key = checkaverseTicketKey_();
+  const days = {};
+  readCheckInsIncludingPending_().forEach((entry) => {
+    if (entry.studentKey === student.key && checkInStatusIsRecorded_(entry.status)) days[entry.dateKey] = true;
+  });
+  const now = Date.now();
+  const payload = {
+    v: 1, p: checkaversePlayerId_(student.key), h: String(student.classPeriod || '').slice(0, 40), d: state.dateKey,
+    c: Boolean(state.checkedIn), n: Object.keys(days).length,
+    s: Number(state.streak && state.streak.current) || 0, b: Number(state.streak && state.streak.best) || 0,
+    k: {s: pet.species, n: pet.name}, iat: now, exp: now + GD_CHECKAVERSE_TICKET_MS,
+    j: Utilities.getUuid().replace(/-/g, '').slice(0, 16),
+  };
+  const body = encodeTokenPart_(JSON.stringify(payload));
+  const signature = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(body, key, Utilities.Charset.UTF_8)).replace(/=+$/g, '');
+  const ticket = body + '.' + signature;
+  return {ok: true, url: GD_CHECKAVERSE_URL + '#t=' + ticket, expiresAt: new Date(payload.exp).toISOString()};
+}
+
 /* Pixel Camp: private, membership-scoped game saves. No attendance writes. */
 const GD_CAMP_HEADERS = ['Membership Key','Revision','Founder','Camp JSON','Previous Camp JSON','Mutation ID','Updated At'];
 function pixelCampRow_(studentKey, create) {

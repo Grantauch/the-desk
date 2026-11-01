@@ -13,9 +13,10 @@ import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 import { versionHtmlAssets } from './asset-versions.mjs';
 import * as Battle from './battle.mjs';
+import * as Accounts from './accounts.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.9.0';
+const VERSION = '0.10.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -39,6 +40,9 @@ const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 // Battle rules are content. A mistake in them stops the server here, before any student connects.
 const RULES = Battle.loadRules(path.join(HERE, 'content', 'battle'));
 const STARTERS = Object.keys(RULES.species.species);
+const SPECIES = RULES.species.species;
+// Growth is content too: XP per check-in, the level curve, battle XP and the daily limits.
+const GROWTH = Accounts.loadGrowth(path.join(HERE, 'content', 'growth.json'));
 const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
 // Wild encounter content is checked the same way: every zone is a real tile in the wilds and every species can battle.
 for (const [tile, z] of Object.entries(WILD.zones)) {
@@ -61,6 +65,9 @@ const keyOk = (k) => {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 };
 let paused = false;
+// Check-In signs bus tickets with this key. It is made on first start in the data folder and copied into Check-In once.
+const TICKET_KEY = Accounts.ticketKey(DATA_DIR);
+const HELLO_WAIT_MS = 2500; // a page that never says hello (old code) joins as a visitor after this
 
 // ---------- logging ----------
 function log(...parts) {
@@ -105,10 +112,13 @@ db.prepare(`UPDATE sessions SET ended = ? WHERE ended IS NULL`).run(new Date().t
 const insertSession = db.prepare(`INSERT INTO sessions (trainer, started) VALUES (?, ?)`);
 const closeSession = db.prepare(`UPDATE sessions SET ended = ?, moves = ?, phrases = ?, challenges = ? WHERE id = ?`);
 const renameSession = db.prepare(`UPDATE sessions SET trainer = ? WHERE id = ?`);
-const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 const setMeta = db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
 setMeta.run('last_start', new Date().toISOString());
 setMeta.run('version', VERSION);
+// Battles between ticketed trainers also keep the anonymous player IDs, for weekly rankings later.
+for (const col of ['a_pid', 'b_pid']) { try { db.exec(`ALTER TABLE battles ADD COLUMN ${col} TEXT`); } catch { /* already there */ } }
+const STORE = Accounts.openStore(db, GROWTH);
+const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
 // ---------- the town and the houses ----------
 // Rooms: 'town' is the shared Checkaverse. 'h<plotId>' is the inside of the house on that plot.
@@ -140,11 +150,12 @@ function trainerName() {
   const pick = (list) => list[Math.floor(Math.random() * list.length)];
   for (let i = 0; i < 20; i++) {
     const name = `${pick(NAMES.first)} ${pick(NAMES.second)}`;
-    if (![...players.values()].some((p) => p.name === name)) return name;
+    if (![...players.values()].some((p) => p.name === name) && !STORE.nameTaken(name)) return name;
   }
   // A crowded town can miss on random picks, so check every pair before falling back to a numbered name.
+  // Saved trainers keep their names even while offline, so nobody new is handed one.
   const taken = new Set([...players.values()].map((p) => p.name));
-  const open = NAMES.first.flatMap((a) => NAMES.second.map((b) => `${a} ${b}`)).filter((n) => !taken.has(n));
+  const open = NAMES.first.flatMap((a) => NAMES.second.map((b) => `${a} ${b}`)).filter((n) => !taken.has(n) && !STORE.nameTaken(n));
   if (open.length) return pick(open);
   return `Trainer ${nextId}`;
 }
@@ -174,7 +185,7 @@ function arrivalPoint() {
 
 const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
 const LOOKS = 4; // trainer-a to trainer-d in public/art
-const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy, look: p.look, pt: p.partner, inb: Boolean(p.battle) });
+const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy, look: p.look, pt: partnerSide(p).species, inb: Boolean(p.battle) });
 const plotView = (pl) => ({ id: pl.id, owner: pl.owner, name: pl.owner ? players.get(pl.owner)?.name || '' : '', locked: pl.locked });
 const inRoom = (room) => [...players.values()].filter((p) => p.room === room);
 
@@ -313,19 +324,58 @@ function setBattling(p, v) {
   toRoom(p.room, { t: 'battling', id: p.id, v });
 }
 
-// A trainer's battle partner: a starter at the visit level, or a Checkling they caught this visit at its own level.
+// A trainer's battle partner. A saved trainer (rode the bus from Check-In) battles with one of their own Checklings
+// at its real level. A visitor picks a starter at the visit level or something caught this visit.
 function partnerSide(p) {
+  if (p.pid) {
+    const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
+    return { name: p.name, species: row.species, level: row.level, cid: row.id };
+  }
   const c = /^c(\d)$/.exec(p.partner);
   const caught = c && p.caught[Number(c[1])];
   return caught ? { name: p.name, species: caught.species, level: caught.level } : { name: p.name, species: p.partner };
 }
-const partnerOk = (p, v) => STARTERS.includes(v) || (/^c\d$/.test(v) && Boolean(p.caught[Number(v.slice(1))]));
+function partnerOk(p, v) {
+  if (typeof v !== 'string') return false;
+  if (p.pid) { const row = /^k\d+$/.test(v) && STORE.get(p.pid, Number(v.slice(1))); return Boolean(row && row.party); }
+  return STARTERS.includes(v) || (/^c\d$/.test(v) && Boolean(p.caught[Number(v.slice(1))]));
+}
+
+// What the partner menu lists. Nicknames are typed by students, so they only ever go to their owner.
+function teamView(p) {
+  if (p.pid) {
+    return STORE.team(p.pid).map((r) => {
+      const floor = Accounts.xpFor(GROWTH, r.level), top = Accounts.xpFor(GROWTH, Math.min(50, r.level + 1));
+      return { v: `k${r.id}`, species: r.species, name: SPECIES[r.species].name, type: SPECIES[r.species].type, level: r.level, nick: r.nick,
+        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor) };
+    });
+  }
+  return [
+    ...STARTERS.map((id) => ({ v: id, species: id, name: SPECIES[id].name, type: SPECIES[id].type, level: RULES.species.visitLevel })),
+    ...p.caught.map((c, i) => ({ v: `c${i}`, species: c.species, name: SPECIES[c.species].name, type: SPECIES[c.species].type, level: c.level, caught: true })),
+  ];
+}
+function charmsOf(p) { return p.pid ? STORE.charmsLeft(p.pid) : p.charms; }
+function sendTeam(p) {
+  send(p, { t: 'team', team: teamView(p), partner: p.partner, charms: charmsOf(p), saved: Boolean(p.pid), partyMax: GROWTH.partyMax });
+}
+const label = (species, nick) => (nick ? `${nick} the ${SPECIES[species].name}` : SPECIES[species].name);
+// Battle XP for a saved trainer, with a line for the level up and one when the daily cap is reached.
+function payXp(p, cid, amount) {
+  if (!p?.pid || !cid || !amount) return;
+  const got = STORE.battleXp(p.pid, cid, amount);
+  if (!got) return;
+  const who = label(got.species, got.nick);
+  if (got.xp) send(p, { t: 'notice', msg: got.after > got.before ? `${who} earned ${got.xp} XP and grew to level ${got.after}!` : `${who} earned ${got.xp} XP.` });
+  if (got.capped) send(p, { t: 'notice', msg: "That is all the battle XP for today. Checking in tomorrow is the best way to grow." });
+}
 
 function startBattle(a, b) {
   const id = nextBattle++;
   const seed = crypto.randomInt(0, 2 ** 31);
-  const state = Battle.createBattle(RULES, [partnerSide(a), partnerSide(b)], seed);
-  const bt = { id, ids: [a.id, b.id], names: [a.name, b.name], state, picks: [null, null], log: [], timeouts: [0, 0],
+  const sides = [partnerSide(a), partnerSide(b)];
+  const state = Battle.createBattle(RULES, sides, seed);
+  const bt = { id, ids: [a.id, b.id], names: [a.name, b.name], cids: sides.map((x) => x.cid || 0), pids: [a.pid || '', b.pid || ''], state, picks: [null, null], log: [], timeouts: [0, 0],
     deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: a.room };
   battles.set(id, bt);
   for (const q of [a, b]) { stopWatching(q); q.battle = id; pending.delete(q.id); }
@@ -367,20 +417,33 @@ function finishBattle(b) {
   const st = b.state;
   battles.delete(b.id);
   const winner = st.winner === 'draw' ? 'draw' : b.names[st.winner];
-  battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b) });
+  battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b), kept: b.kept || (b.wild && !b.pids[0] ? 'visit' : '') });
   b.ids.forEach((id, i) => {
     const q = players.get(id);
     if (!q) return;
     q.battle = 0;
-    if (b.wild) { q.grace = WILD.graceSteps; setBattling(q, false); return; }
-    if (st.winner === i) q.record.w++; else if (st.winner === 'draw') q.record.d++; else q.record.l++;
+    if (b.wild) {
+      q.grace = WILD.graceSteps; setBattling(q, false);
+      if (st.reason === 'caught') payXp(q, b.cids[0], GROWTH.battleXp.caught);
+      else if (st.winner === 0) payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
+      if (q.pid) sendTeam(q);
+      return;
+    }
+    const r = st.winner === i ? 'w' : st.winner === 'draw' ? 'd' : 'l';
+    q.record[r]++;
+    if (q.pid && st.reason !== 'restart') {
+      STORE.result(q.pid, r);
+      // Two trainers who both walked away earn nothing.
+      if (!(r === 'd' && st.reason === 'timeout')) payXp(q, b.cids[i], GROWTH.battleXp[{ w: 'win', l: 'loss', d: 'draw' }[r]]);
+      sendTeam(q);
+    }
     send(q, { t: 'record', record: q.record });
     setBattling(q, false);
   });
   for (const w of b.watchers) { const q = players.get(w); if (q) q.watching = 0; }
   try {
     insertBattle.run(b.started, new Date().toISOString(), st.seed, b.names[0], st.sides[0].species, b.names[1], st.sides[1].species,
-      winner, st.reason, st.turn, JSON.stringify(b.log));
+      winner, st.reason, st.turn, JSON.stringify(b.log), b.pids[0] || null, b.pids[1] || null);
   } catch (err) { log('battle save failed', err.message); }
   log('battle end', b.id, b.names[0], 'vs', b.names[1], 'winner', winner, st.reason, `${st.turn} turns`);
 }
@@ -388,8 +451,8 @@ function finishBattle(b) {
 // ---------- wild Checklings ----------
 // Every step into a terrain zone in the wilds has a small chance to start a battle with a wild Checkling from that
 // zone's table. The wild one picks its move the moment the turn starts. Trainers can weaken it and throw a catching
-// charm, or run. Caught Checklings stay with the trainer for this visit and can be picked as a battle partner. They are
-// kept for good once Check-In sends the town a ticket for each student.
+// charm, or run. A trainer who rode the bus from Check-In keeps every catch: it joins the party, or the Den when the
+// party is full. A visitor keeps catches only for the visit.
 function wildPick(b) {
   const st = b.state, f = st.sides[1];
   const moves = RULES.species.species[f.species].moves.filter((m) => Battle.canUse(RULES, st, 1, m));
@@ -412,8 +475,9 @@ function startWild(p, tile) {
   const level = zone.levels[0] + Math.floor(Math.random() * (zone.levels[1] - zone.levels[0] + 1));
   const id = nextBattle++;
   const seed = crypto.randomInt(0, 2 ** 31);
-  const state = Battle.createBattle(RULES, [partnerSide(p), { name: 'Wild', species, level }], seed);
-  const bt = { id, wild: true, zone: zone.name, ids: [p.id, 0], names: [p.name, 'Wild'], state, picks: [null, null], log: [], timeouts: [0, 0],
+  const mine = partnerSide(p);
+  const state = Battle.createBattle(RULES, [mine, { name: 'Wild', species, level }], seed);
+  const bt = { id, wild: true, zone: zone.name, ids: [p.id, 0], names: [p.name, 'Wild'], cids: [mine.cid || 0, 0], pids: [p.pid || '', ''], state, picks: [null, null], log: [], timeouts: [0, 0],
     deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: p.room };
   bt.picks[1] = wildPick(bt);
   battles.set(id, bt);
@@ -434,17 +498,27 @@ function catchChance(f) {
 function handleCharm(p) {
   const b = battles.get(p.battle);
   if (!b || !b.wild || b.state.over) return;
-  if (p.charms <= 0) return send(p, { t: 'notice', msg: 'Out of catching charms for this visit.' });
   if (b.picks[0]) return; // already used this turn
-  p.charms--;
+  // Saved trainers get a few charms each day, kept on the server so a reload does not refill them.
+  if (p.pid) {
+    if (STORE.denFull(p.pid)) return send(p, { t: 'notice', msg: 'Your Den is full, so there is no room for another Checkling.' });
+    if (!STORE.useCharm(p.pid)) return send(p, { t: 'notice', msg: 'Out of catching charms for today. More tomorrow.' });
+  } else {
+    if (p.charms <= 0) return send(p, { t: 'notice', msg: 'Out of catching charms for this visit.' });
+    p.charms--;
+  }
+  const left = charmsOf(p);
   const wildOne = b.state.sides[1];
   const ok = Math.random() < catchChance(wildOne);
   const shakes = ok ? 3 : Math.floor(Math.random() * 3);
-  const events = [{ k: 'charm', ok, shakes, left: p.charms }];
+  const events = [{ k: 'charm', ok, shakes, left }];
   if (ok) {
     Object.assign(b.state, { over: true, winner: 0, reason: 'caught' });
-    if (p.caught.length < 6) p.caught.push({ species: wildOne.species, level: wildOne.level });
-    send(p, { t: 'party', caught: p.caught, charms: p.charms });
+    if (p.pid) {
+      const kept = STORE.addCatch(p.pid, wildOne.species, wildOne.level, b.zone);
+      b.kept = kept ? (kept.party ? 'party' : 'den') : '';
+    } else if (p.caught.length < 6) p.caught.push({ species: wildOne.species, level: wildOne.level });
+    sendTeam(p);
     b.log.push(['charm', 'caught']);
     b.deadline = Date.now() + TURN_MS;
     battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: TURN_MS });
@@ -457,7 +531,7 @@ function handleCharm(p) {
   b.picks = [null, null];
   if (!b.state.over) b.picks[1] = wildPick(b);
   b.deadline = Date.now() + TURN_MS;
-  send(p, { t: 'party', caught: p.caught, charms: p.charms });
+  sendTeam(p);
   battleSend(b, { t: 'battle_turn', id: b.id, events: events.concat(turn.events), view: battleView(b), left: TURN_MS });
   if (b.state.over) finishBattle(b);
 }
@@ -589,7 +663,7 @@ function teacherApi(req, res, action) {
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
     return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
-      id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
+      id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
   }
@@ -643,59 +717,111 @@ server.on('upgrade', (req, socket, head) => {
   wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws));
 });
 
+// A page says hello first, with its bus ticket if it has one. A good ticket loads the saved trainer.
+// No ticket, or one that fails, joins as a visitor whose catches and record end with the visit.
 wss.on('connection', (ws) => {
-  const spot = arrivalPoint();
-  const p = {
-    id: nextId++, ws, name: trainerName(), room: 'town', x: spot.x, y: spot.y, facing: 'd',
-    color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
-    rerolls: REROLLS, look: Math.floor(Math.random() * LOOKS), joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
-    stats: { moves: 0, phrases: 0, challenges: 0 },
-    partner: STARTERS[Math.floor(Math.random() * STARTERS.length)], battle: 0, watching: 0, record: { w: 0, l: 0, d: 0 },
-    caught: [], charms: WILD.charms, grace: 0,
-  };
-  p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
-  players.set(p.id, p);
-  const plot = giveHouse(p);
-  log('join', p.id, p.name, plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
-
-  send(p, {
-    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
-    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
-    wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
-    charms: WILD.charms,
-    room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, starters: STARTERS.map((id) => ({ id, name: RULES.species.species[id].name, type: RULES.species.species[id].type })),
-    players: inRoom('town').map(publicView),
-  });
-  toRoom('town', { t: 'join', p: publicView(p) }, p.id);
-  sendPlots();
-  if (!plot) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
-
-  ws.on('pong', () => { p.alive = true; });
+  let p = null;
+  const timer = setTimeout(() => { p = join(ws, null); }, HELLO_WAIT_MS);
+  ws.on('pong', () => { if (p) p.alive = true; });
   ws.on('message', (raw) => {
+    let msg;
+    try { msg = JSON.parse(raw.toString()); } catch { return; }
+    if (!p) {
+      if (msg && msg.t === 'hello') { clearTimeout(timer); p = join(ws, typeof msg.ticket === 'string' ? msg.ticket : null); }
+      return;
+    }
     // Simple message budget: 20 messages, refilled at 12 a second. Repeated flooding closes the connection.
     const now = Date.now();
     p.budget = Math.min(20, p.budget + ((now - p.lastRefill) / 1000) * 12);
     p.lastRefill = now;
     if (p.budget < 1) { if (++p.strikes > 50) ws.close(1008, 'Too many messages'); return; }
     p.budget -= 1;
-    let msg;
-    try { msg = JSON.parse(raw.toString()); } catch { return; }
     if (!msg || typeof msg.t !== 'string') return;
     handleMessage(p, msg, now);
   });
   ws.on('close', () => {
-    if (p.battle) forfeitBattle(p, 'left');
-    stopWatching(p);
-    players.delete(p.id);
-    pending.delete(p.id);
-    removeHouse(p);
-    closeSession.run(new Date().toISOString(), p.stats.moves, p.stats.phrases, p.stats.challenges, p.sessionId);
-    toRoom(p.room, { t: 'leave', id: p.id });
-    sendPlots();
-    log('leave', p.id, p.name, `(${players.size} here)`);
+    clearTimeout(timer);
+    if (p) leave(p);
   });
   ws.on('error', () => {});
 });
+
+const TICKET_TROUBLE = {
+  expired: 'Your bus ticket ran out. Ride the bus from Check-In again to keep what you catch. You are visiting for now.',
+  default: 'Your bus ticket did not work, so you are visiting for now. Ride the bus from Check-In again to keep what you catch.',
+};
+
+function join(ws, ticket) {
+  if (ws.readyState !== 1) return null;
+  const spot = arrivalPoint();
+  const p = {
+    id: nextId++, ws, name: '', room: 'town', x: spot.x, y: spot.y, facing: 'd',
+    color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false, pid: '', hour: '',
+    rerolls: REROLLS, look: Math.floor(Math.random() * LOOKS), joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
+    stats: { moves: 0, phrases: 0, challenges: 0 },
+    partner: STARTERS[Math.floor(Math.random() * STARTERS.length)], battle: 0, watching: 0, record: { w: 0, l: 0, d: 0 },
+    caught: [], charms: WILD.charms, grace: 0,
+  };
+  const notes = [];
+  if (ticket) {
+    const checked = Accounts.verifyTicket(TICKET_KEY, ticket, { species: STARTERS });
+    if (checked.ok) {
+      const t = checked.t;
+      // One trainer, one screen. Opening the town in a second tab closes the first, so nothing is counted twice.
+      for (const other of [...players.values()]) {
+        if (other.pid === t.pid) { send(other, { t: 'elsewhere' }); other.ws.close(4002, 'Opened elsewhere'); leave(other); }
+      }
+      const linked = STORE.link(t, trainerName, p.look);
+      const tr = linked.trainer;
+      Object.assign(p, { pid: t.pid, hour: t.hour, name: tr.name, look: tr.look % LOOKS, partner: `k${tr.partner}`,
+        record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid) });
+      const hatched = STORE.team(t.pid).find((r) => r.hatched);
+      if (linked.created) notes.push(`Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
+      const c = linked.credit;
+      if (c) {
+        const who = label(c.species, c.nick);
+        const times = c.days === 1 ? 'one check-in' : `${c.days} check-ins`;
+        notes.push(c.after > c.before ? `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP and grew to level ${c.after}!` : `${times[0].toUpperCase()}${times.slice(1)} since your last ride: ${who} earned ${c.xp} XP.`);
+      }
+    } else {
+      notes.push(TICKET_TROUBLE[checked.why] || TICKET_TROUBLE.default);
+      log('ticket refused', checked.why);
+    }
+  }
+  if (!p.name) p.name = trainerName();
+  p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
+  players.set(p.id, p);
+  const plot = giveHouse(p);
+  log('join', p.id, p.name, p.pid ? `saved ${p.pid.slice(0, 6)} ${p.hour}` : 'visitor', plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
+
+  send(p, {
+    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
+    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
+    wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
+    charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,
+    room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p),
+    players: inRoom('town').map(publicView),
+  });
+  toRoom('town', { t: 'join', p: publicView(p) }, p.id);
+  sendPlots();
+  if (!plot) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
+  // One card on arrival, so the welcome is not wiped by the growth line a moment later.
+  if (notes.length) send(p, { t: 'notice', msg: notes.join(' ') });
+  return p;
+}
+
+function leave(p) {
+  if (!players.has(p.id)) return;
+  if (p.battle) forfeitBattle(p, 'left');
+  stopWatching(p);
+  players.delete(p.id);
+  pending.delete(p.id);
+  removeHouse(p);
+  closeSession.run(new Date().toISOString(), p.stats.moves, p.stats.phrases, p.stats.challenges, p.sessionId);
+  toRoom(p.room, { t: 'leave', id: p.id });
+  sendPlots();
+  log('leave', p.id, p.name, `(${players.size} here)`);
+}
 
 function handleMove(p, d) {
   const dir = DIRS[d];
@@ -781,10 +907,11 @@ function handleMessage(p, msg, now) {
       return sendPlots();
     }
     case 'reroll': {
-      if (p.rerolls <= 0) return send(p, { t: 'notice', msg: 'That was your last new name for this visit.' });
-      p.rerolls--;
+      if (p.rerolls <= 0) return send(p, { t: 'notice', msg: p.pid ? 'That was your last new name for today.' : 'That was your last new name for this visit.' });
       const old = p.name;
-      p.name = trainerName();
+      const fresh = trainerName();
+      if (p.pid) { if (!STORE.rename(p.pid, fresh)) return; p.rerolls = STORE.renamesLeft(p.pid); } else p.rerolls--;
+      p.name = fresh;
       renameSession.run(p.name, p.sessionId);
       log('rename', p.id, old, '->', p.name);
       toRoom(p.room, { t: 'name', id: p.id, name: p.name, left: p.rerolls });
@@ -795,6 +922,7 @@ function handleMessage(p, msg, now) {
       const v = Number(msg.v);
       if (!Number.isInteger(v) || v < 0 || v >= LOOKS || v === p.look) return;
       p.look = v;
+      if (p.pid) STORE.setLook(p.pid, v);
       return toRoom(p.room, { t: 'look', id: p.id, v });
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));
@@ -805,10 +933,23 @@ function handleMessage(p, msg, now) {
     case 'watch': return handleWatch(p, Number(msg.id));
     case 'unwatch': return stopWatching(p);
     case 'partner': {
-      if (typeof msg.v !== 'string' || !partnerOk(p, msg.v) || p.battle || p.partner === msg.v) return;
+      if (!partnerOk(p, msg.v) || p.battle || p.partner === msg.v) return;
+      if (p.pid) STORE.setPartner(p.pid, Number(msg.v.slice(1)));
       p.partner = msg.v;
       send(p, { t: 'partner', v: p.partner });
-      return toRoom(p.room, { t: 'pt', id: p.id, v: p.partner }, p.id);
+      return toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+    }
+    case 'den': {
+      // Move a saved Checkling between the party and the Den. Not in the middle of a battle.
+      if (!p.pid || p.battle || typeof msg.v !== 'string' || !/^k\d+$/.test(msg.v)) return;
+      const moved = STORE.moveDen(p.pid, Number(msg.v.slice(1)), Boolean(msg.party));
+      if (moved.msg) send(p, { t: 'notice', msg: moved.msg });
+      if (!moved.ok) return;
+      const was = p.partner;
+      p.partner = `k${STORE.trainer(p.pid).partner}`;
+      sendTeam(p);
+      if (was !== p.partner) toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+      return;
     }
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));
     default: return;

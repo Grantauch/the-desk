@@ -28,7 +28,7 @@
     // Alphabetical, so the teacher can find a trainer fast in a class of thirty.
     for (const p of [...state.players].sort((a, b) => a.name.localeCompare(b.name))) {
       const tr = document.createElement('tr');
-      for (const v of [p.name + (p.busy ? ' (Busy)' : ''), p.room, p.minutes, p.phrases, p.challenges]) {
+      for (const v of [p.name + (p.busy ? ' (Busy)' : ''), p.hour || '', p.room, p.minutes, p.phrases, p.challenges]) {
         const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
       }
       const td = document.createElement('td');

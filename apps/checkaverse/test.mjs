@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { createHash } from 'node:crypto';
 import { versionHtmlAssets } from './asset-versions.mjs';
+import { signTicket, xpFor, loadGrowth } from './accounts.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 18000 + Math.floor(Math.random() * 1000);
@@ -24,9 +25,11 @@ child.stdout.on('data', (d) => { serverLog += d; });
 child.stderr.on('data', (d) => { serverLog += d; });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function client() {
+// Every page says hello first, with a bus ticket from Check-In or without one as a visitor.
+function client(ticket = null, hello = true) {
   const ws = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, { origin: ORIGIN });
   const inbox = [];
+  if (hello) ws.on('open', () => ws.send(JSON.stringify({ t: 'hello', ticket })));
   ws.on('message', (d) => inbox.push(JSON.parse(d.toString())));
   const next = async (t, test = () => true, ms = 3000) => {
     const end = Date.now() + ms;
@@ -329,19 +332,126 @@ try {
   const thrown = await x.next('battle_turn');
   assert.deepEqual(thrown.events[0], { k: 'charm', ok: true, shakes: 3, left: 4 });
   assert.equal((await x.next('battle_end')).reason, 'caught');
-  const party = await x.next('party', (m) => m.caught.length === 1);
-  assert.equal(party.caught[0].species, wb2.view.sides[1].species);
-  await x.send({ t: 'partner', v: 'c0' });
+  const party = await x.next('team', (m) => m.team.some((c) => c.caught));
+  const got = party.team.find((c) => c.caught);
+  assert.equal(got.species, wb2.view.sides[1].species);
+  assert.equal(party.saved, false, 'a visitor keeps catches only for the visit');
+  await x.send({ t: 'partner', v: got.v });
   assert.equal((await x.next('partner')).v, 'c0');
   step('a weakened wild Checkling is caught and becomes a battle partner');
   for (let i = 0; i < 12 && !x.inbox.some((m) => m.t === 'battle'); i++) await x.send({ t: 'move', d: i % 2 ? 'l' : 'r' });
   const again = await x.next('battle');
-  assert.equal(again.view.sides[0].species, party.caught[0].species, 'the caught Checkling battles at its own level');
-  assert.equal(again.view.sides[0].level, party.caught[0].level);
+  assert.equal(again.view.sides[0].species, got.species, 'the caught Checkling battles at its own level');
+  assert.equal(again.view.sides[0].level, got.level);
   await x.send({ t: 'run' });
   assert.equal((await x.next('battle_end')).reason, 'ran');
   step('running from a wild battle always works');
   x.ws.close();
+
+  // ---------- bus tickets from Check-In ----------
+  const GROWTH = loadGrowth(path.join(HERE, 'content', 'growth.json'));
+  const tkey = fs.readFileSync(path.join(DATA, 'ticket-key.txt'), 'utf8').trim();
+  assert.ok(tkey.length >= 40, 'the server made a ticket key on first start');
+  const now = Date.now();
+  const ticket = (over = {}, key = tkey) => signTicket(key, { v: 1, p: 'Pq7xK2mN9vR4tY8wZ3aB1c', h: '2nd Hour', d: '2026-11-02', c: true, n: 30, s: 4, b: 9,
+    k: { s: 'bolt', n: 'Sprocket' }, iat: now, exp: now + 7_200_000, j: 'abc', ...over });
+  const s1 = client(ticket()); await s1.open; const ws1 = await s1.next('welcome');
+  assert.equal(ws1.saved, true);
+  assert.equal(ws1.team.length, 1);
+  const hatched = ws1.team[0];
+  assert.deepEqual([hatched.species, hatched.nick, hatched.hatched, hatched.den], ['bolt', 'Sprocket', true, false]);
+  assert.equal(hatched.level, 15, '30 check-ins of XP puts the hatched Checkling at level 15');
+  assert.equal(ws1.partner, hatched.v);
+  const arrival = (await s1.next('notice', (m) => /rode the bus/.test(m.msg))).msg;
+  assert.match(arrival, /Sprocket the Bolt rode the bus with you\. 30 check-ins since your last ride: Sprocket the Bolt earned 3000 XP and grew to level 15/);
+  const savedName = ws1.players.find((q) => q.id === ws1.you).name;
+  assert.equal(ws1.players.find((q) => q.id === ws1.you).pt, 'bolt', 'others see the species, never the nickname');
+  assert.ok(!JSON.stringify(ws1.players).includes('Sprocket'));
+  step('a bus ticket loads a saved trainer with the hatched Checkling, grown by attendance');
+
+  // The same student opening a second tab closes the first one.
+  const s1closed = new Promise((r) => s1.ws.on('close', (c) => r(c)));
+  const s2 = client(ticket()); await s2.open; const ws2 = await s2.next('welcome');
+  assert.equal(await s1closed, 4002);
+  assert.ok(s1.inbox.some((m) => m.t === 'elsewhere'), 'the first tab is told why');
+  assert.equal(ws2.players.find((q) => q.id === ws2.you).name, savedName, 'the trainer name is kept');
+  assert.equal(s2.inbox.some((m) => m.t === 'notice' && /since your last ride/.test(m.msg)), false, 'the same check-ins are never paid twice');
+  step('one trainer, one screen, and check-ins are paid once');
+
+  // Out to the tall grass with a saved trainer: the catch is kept, and charms do not refill on a reload.
+  const meS = ws2.players.find((q) => q.id === ws2.you);
+  for (const d of route(ws2.town.rows, [meS.x, meS.y], [12, 1])) await s2.send({ t: 'move', d });
+  await s2.send({ t: 'move', d: 'u' });
+  await s2.next('room', (m) => m.room === 'wilds');
+  for (const d of route(ws2.wilds.rows, [28, 41], [17, 30])) await s2.send({ t: 'move', d });
+  for (let i = 0; i < 8 && !s2.inbox.some((m) => m.t === 'battle'); i++) await s2.send({ t: 'move', d: 'l' });
+  const wild2 = await s2.next('battle');
+  assert.equal(wild2.view.sides[0].level, 15, 'the saved partner battles at its own level');
+  assert.equal(wild2.charms, 5);
+  await s2.send({ t: 'charm' });
+  assert.equal((await s2.next('battle_turn')).events[0].left, 4);
+  const end2 = await s2.next('battle_end');
+  assert.deepEqual([end2.reason, end2.kept], ['caught', 'party']);
+  const team2 = await s2.next('team', (m) => m.team.length === 2);
+  assert.equal(team2.saved, true);
+  assert.match((await s2.next('notice', (m) => /XP/.test(m.msg))).msg, /Sprocket the Bolt earned 15 XP/);
+  s2.ws.close(); await sleep(200);
+  step('a saved trainer keeps a catch and the partner earns battle XP');
+
+  // Next ride: one more check-in. The catch is still there and today's charms stay spent.
+  const s3 = client(ticket({ n: 31, iat: Date.now() })); await s3.open; const ws3 = await s3.next('welcome');
+  assert.equal(ws3.team.length, 2);
+  assert.equal(ws3.charms, 4, 'charms are counted per day, not per visit');
+  assert.equal(ws3.team.find((c) => c.hatched).level, 15);
+  assert.equal(ws3.team.find((c) => c.hatched).xp, 3000 + 15 + 100 - xpFor(GROWTH, 15));
+  assert.match((await s3.next('notice', (m) => /since your last ride/.test(m.msg))).msg, /One check-in since your last ride: Sprocket the Bolt earned 100 XP\./);
+  const caughtOne = ws3.team.find((c) => !c.hatched);
+  await s3.send({ t: 'partner', v: caughtOne.v });
+  assert.equal((await s3.next('partner')).v, caughtOne.v);
+  step('the next ride keeps the catch, pays one new check-in and lets the catch be the partner');
+
+  // Party and Den: rest the current partner and the job passes on. The last one in the party stays.
+  await s3.send({ t: 'den', v: caughtOne.v, party: false });
+  const rested = await s3.next('team', (m) => m.team.find((c) => c.v === caughtOne.v).den);
+  assert.equal(rested.partner, hatched.v, 'resting the partner hands the job to the next in the party');
+  await s3.send({ t: 'den', v: hatched.v, party: false });
+  assert.match((await s3.next('notice', (m) => /at least one/.test(m.msg))).msg, /Keep at least one/);
+  await s3.send({ t: 'partner', v: caughtOne.v }); await sleep(150);
+  assert.equal(s3.inbox.some((m) => m.t === 'partner' && m.v === caughtOne.v), false, 'a Checkling in the Den cannot battle');
+  await s3.send({ t: 'den', v: caughtOne.v, party: true });
+  await s3.next('team', (m) => !m.team.find((c) => c.v === caughtOne.v).den);
+  await s3.send({ t: 'den', v: 'k999', party: true }); await sleep(100);
+  step('party and Den moves follow the rules');
+
+  // Renames are saved and limited per day.
+  await s3.send({ t: 'reroll' });
+  const renamed = await s3.next('name', (m) => m.id === ws3.you);
+  assert.equal(renamed.left, 2);
+  s3.ws.close(); await sleep(200);
+  const s4 = client(ticket({ iat: Date.now() })); await s4.open; const ws4 = await s4.next('welcome');
+  assert.equal(ws4.players.find((q) => q.id === ws4.you).name, renamed.name);
+  assert.equal(ws4.rerolls, 2);
+  s4.ws.close();
+  step('a new trainer name is kept and renames are counted per day');
+
+  // Bad tickets fall back to visiting: expired, forged, tampered, wrong partner.
+  const tries = [
+    [ticket({ iat: now - 7_300_000, exp: now - 100_000 }), /ran out/],
+    [ticket({}, 'not-the-real-key-not-the-real-key-000000'), /did not work/],
+    [ticket().replace(/^./, (ch) => (ch === 'e' ? 'f' : 'e')), /did not work/],
+    [ticket({ k: { s: 'dragon', n: 'X' } }), /did not work/],
+    [ticket({ exp: now + 9 * 3_600_000 }), /did not work/],
+  ];
+  for (const [tk, why] of tries) {
+    const g = client(tk); await g.open; const wg = await g.next('welcome');
+    assert.equal(wg.saved, false);
+    assert.match((await g.next('notice', (m) => /visiting/.test(m.msg))).msg, why);
+    g.ws.close();
+  }
+  // A page that never says hello is let in as a visitor after a short wait.
+  const quiet = client(null, false); await quiet.open; const wq = await quiet.next('welcome', () => true, 5000);
+  assert.equal(wq.saved, false); quiet.ws.close();
+  step('expired, forged and tampered tickets visit without saving, and old pages still get in');
 
   b.ws.close(); c.ws.close();
   console.log('PASS checkaverse end to end');
