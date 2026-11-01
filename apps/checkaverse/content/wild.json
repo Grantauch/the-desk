@@ -1,0 +1,12 @@
+{
+  "note": "Wild encounters by terrain. Each zone is a tile letter in content/wilds.json. rate is the chance a step into that terrain starts a battle. levels is the lowest and highest wild level. table weights which species appear. New species join a table only after their art passes the check. charms is how many catching charms each trainer gets per visit until the shop opens.",
+  "charms": 5,
+  "graceSteps": 4,
+  "catch": { "base": 0.1, "weak": 0.8, "curve": 1.5 },
+  "zones": {
+    "G": { "name": "Tall grass", "rate": 0.1, "levels": [5, 9], "table": { "mochi": 6, "zee": 2, "bolt": 1, "ember": 1 } },
+    "C": { "name": "Starflower clearing", "rate": 0.1, "levels": [7, 11], "table": { "zee": 6, "mochi": 2, "bolt": 1 } },
+    "R": { "name": "Rocky ridge", "rate": 0.1, "levels": [7, 11], "table": { "bolt": 6, "ember": 2, "zee": 1 } },
+    "A": { "name": "Scorched heath", "rate": 0.12, "levels": [8, 12], "table": { "ember": 6, "bolt": 2, "mochi": 1 } }
+  }
+}

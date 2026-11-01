@@ -7,91 +7,115 @@
   <link rel="stylesheet" href="/plaza.css">
 </head>
 <body>
-  <main class="frame">
-    <header class="top">
-      <h1>Checkaverse <span id="place">Town</span></h1>
-      <p id="status" class="status" role="status">Connecting...</p>
-      <a class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
-    </header>
+  <main class="stage" id="stage">
+    <canvas id="town" width="1536" height="1024" aria-label="Map"></canvas>
 
-    <div class="play">
-    <div class="stage">
-      <canvas id="town" width="1536" height="1024" aria-label="Town map"></canvas>
-      <div id="toast" class="toast" role="status" hidden></div>
-      <div id="paused" class="paused" role="status" hidden>The teacher paused the Checkaverse.</div>
-      <div id="battle" class="battle" role="region" aria-label="Battle" hidden>
-        <div class="b-scene">
-          <div class="b-card b-foe-card">
-            <p class="b-name"><span id="bFoeName"></span> <span class="b-lv" id="bFoeLv"></span></p>
-            <p class="b-trainer" id="bFoeTrainer"></p>
-            <div class="b-bar"><span class="b-hp" id="bFoeHp"></span></div>
-            <div class="b-bar b-st"><span id="bFoeSt"></span></div>
-          </div>
-          <img id="bFoeMon" class="b-mon b-foe-mon" alt="">
-          <img id="bMeMon" class="b-mon b-me-mon" alt="">
-          <img id="bFoeKo" class="b-ko b-foe-ko" src="/art/fx-knockout.png" alt="" hidden>
-          <img id="bMeKo" class="b-ko b-me-ko" src="/art/fx-knockout.png" alt="" hidden>
-          <span id="bFoePop" class="b-pop b-foe-pop" hidden></span>
-          <span id="bMePop" class="b-pop b-me-pop" hidden></span>
-          <div class="b-card b-me-card">
-            <p class="b-name"><span id="bMeName"></span> <span class="b-lv" id="bMeLv"></span></p>
-            <div class="b-bar"><span class="b-hp" id="bMeHp"></span></div>
-            <p class="b-num" id="bMeHpNum"></p>
-            <div class="b-bar b-st"><span id="bMeSt"></span></div>
-            <p class="b-num" id="bMeStNum"></p>
-          </div>
+    <div class="hud hud-top-left">
+      <p class="chip place-chip"><strong>Checkaverse</strong> <span id="place">Town</span></p>
+      <p id="status" class="chip status" role="status">Connecting...</p>
+    </div>
+
+    <div class="hud hud-top-right">
+      <p class="chip me-chip">You are <strong id="me">...</strong> <span id="record" class="record"></span></p>
+      <button id="menuBtn" type="button" class="round" aria-expanded="false" aria-controls="menu" title="Menu">&#9776;</button>
+    </div>
+
+    <div class="hud hud-bottom-left">
+      <button id="partnerBtn" type="button" class="chip-btn partner-btn" aria-expanded="false" aria-controls="partnerPop" title="Battle partner">
+        <img id="partnerImg" alt=""><span id="partnerName">Partner</span>
+      </button>
+      <button id="sayBtn" type="button" class="chip-btn" aria-expanded="false" aria-controls="phrases">Say</button>
+      <span id="charmChip" class="chip charm-chip" hidden></span>
+    </div>
+
+    <div class="hud hud-bottom-right">
+      <button id="watch" type="button" class="chip-btn" hidden>Watch battle</button>
+      <button id="challenge" type="button" class="action" hidden>Challenge (C)</button>
+    </div>
+
+    <div class="pad" aria-label="Walk">
+      <button data-d="u" type="button" aria-label="Up">&#9650;</button>
+      <button data-d="l" type="button" aria-label="Left">&#9664;</button>
+      <button data-d="d" type="button" aria-label="Down">&#9660;</button>
+      <button data-d="r" type="button" aria-label="Right">&#9654;</button>
+    </div>
+
+    <div id="partnerPop" class="pop pop-left" role="dialog" aria-label="Battle partner" hidden>
+      <p class="pop-title">Battle partner</p>
+      <div id="partners" class="partners" role="radiogroup" aria-label="Battle partner"></div>
+      <p class="pop-note" id="partnerNote">Starters battle at level 10. Checklings you catch in the wilds join this list for the visit.</p>
+    </div>
+
+    <div id="phrases" class="pop pop-left phrases" role="dialog" aria-label="Phrases" hidden></div>
+
+    <div id="menu" class="pop pop-right menu" role="dialog" aria-label="Menu" hidden>
+      <label class="busy"><input id="busy" type="checkbox"> Busy (no challenges)</label>
+      <button id="rename" type="button" class="ghost">New name</button>
+      <button id="outfit" type="button" class="ghost">Change outfit</button>
+      <p id="home" class="pop-note">Finding your plot...</p>
+      <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
+      <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
+      <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
+      <a class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
+    </div>
+
+    <div id="tip" class="tip" role="status" hidden>
+      <p id="tipText"></p>
+      <button id="tipOk" type="button">Got it</button>
+    </div>
+
+    <div id="toast" class="toast" role="status" hidden></div>
+    <div id="paused" class="paused" role="status" hidden>The teacher paused the Checkaverse.</div>
+
+    <div id="battle" class="battle" role="region" aria-label="Battle" hidden>
+      <div class="b-scene">
+        <div class="b-card b-foe-card">
+          <p class="b-name"><span id="bFoeName"></span> <span class="b-lv" id="bFoeLv"></span></p>
+          <p class="b-trainer" id="bFoeTrainer"></p>
+          <div class="b-bar"><span class="b-hp" id="bFoeHp"></span></div>
+          <div class="b-bar b-st"><span id="bFoeSt"></span></div>
         </div>
-        <div class="b-bottom">
-          <div class="b-talk">
-            <p id="bMsg" class="b-msg" aria-live="polite"></p>
-            <div class="b-clock"><span id="bClock"></span></div>
-            <p id="bClockText" class="b-clock-text"></p>
-          </div>
+        <img id="bFoeMon" class="b-mon b-foe-mon" alt="">
+        <img id="bMeMon" class="b-mon b-me-mon" alt="">
+        <img id="bFoeKo" class="b-ko b-foe-ko" src="/art/fx-knockout.png" alt="" hidden>
+        <img id="bMeKo" class="b-ko b-me-ko" src="/art/fx-knockout.png" alt="" hidden>
+        <span id="bFoePop" class="b-pop b-foe-pop" hidden></span>
+        <span id="bMePop" class="b-pop b-me-pop" hidden></span>
+        <div class="b-card b-me-card">
+          <p class="b-name"><span id="bMeName"></span> <span class="b-lv" id="bMeLv"></span></p>
+          <div class="b-bar"><span class="b-hp" id="bMeHp"></span></div>
+          <p class="b-num" id="bMeHpNum"></p>
+          <div class="b-bar b-st"><span id="bMeSt"></span></div>
+          <p class="b-num" id="bMeStNum"></p>
+        </div>
+      </div>
+      <div class="b-bottom">
+        <div class="b-talk">
+          <p id="bMsg" class="b-msg" aria-live="polite"></p>
+          <div class="b-clock"><span id="bClock"></span></div>
+          <p id="bClockText" class="b-clock-text"></p>
+        </div>
+        <div class="b-right">
           <div id="bMoves" class="b-moves"></div>
+          <div id="bWild" class="b-wild" hidden>
+            <button id="bCharm" type="button" class="ghost">5. Throw charm</button>
+            <button id="bRun" type="button" class="ghost">6. Run</button>
+          </div>
           <div id="bDone" class="b-done" hidden>
             <button id="bGg" type="button">Good game</button>
             <button id="bClose" type="button" class="ghost">Back to town</button>
           </div>
         </div>
-        <button id="bGiveUp" type="button" class="ghost b-giveup">Give up</button>
       </div>
-      <div id="ask" class="ask" role="alertdialog" aria-labelledby="askText" hidden>
-        <p id="askText"></p>
-        <div class="ask-row">
-          <button id="askYes" type="button">Battle</button>
-          <button id="askNo" type="button" class="ghost">No thanks</button>
-        </div>
-      </div>
+      <button id="bGiveUp" type="button" class="ghost b-giveup">Give up</button>
     </div>
 
-    <section class="panel">
-      <div class="you">
-        <p>You are <strong id="me">...</strong></p>
-        <label class="busy"><input id="busy" type="checkbox"> Busy</label>
-        <button id="challenge" type="button" disabled>Challenge</button>
-        <button id="rename" type="button" class="ghost">New name</button>
-        <button id="outfit" type="button" class="ghost">Outfit</button>
+    <div id="ask" class="ask" role="alertdialog" aria-labelledby="askText" hidden>
+      <p id="askText"></p>
+      <div class="ask-row">
+        <button id="askYes" type="button">Battle</button>
+        <button id="askNo" type="button" class="ghost">No thanks</button>
       </div>
-      <div class="partner">
-        <p>Battle partner</p>
-        <div id="partners" class="partners" role="radiogroup" aria-label="Battle partner"></div>
-        <p id="record" class="record"></p>
-        <button id="watch" type="button" class="ghost" hidden>Watch battle</button>
-      </div>
-      <div class="home">
-        <p id="home">Finding your plot...</p>
-        <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
-        <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
-      </div>
-      <div id="phrases" class="phrases" aria-label="Phrases"></div>
-      <div class="pad" aria-label="Walk">
-        <button data-d="u" type="button" aria-label="Up">&#9650;</button>
-        <button data-d="l" type="button" aria-label="Left">&#9664;</button>
-        <button data-d="d" type="button" aria-label="Down">&#9660;</button>
-        <button data-d="r" type="button" aria-label="Right">&#9654;</button>
-      </div>
-      <p class="help">Walk with the arrow keys or WASD, or tap where you want to go. Tap a landmark, or face it and press Space, to read it. Your house is in the Neighborhood to the east. Walk up into any open front door to look inside. Pick a battle partner, stand next to another trainer and press C to challenge them. In a battle, press 1 to 4 to pick a move. Trainers nearby can watch. A quick tap on an arrow turns you to face someone without stepping. Press Escape to turn down a challenge.</p>
-    </section>
     </div>
   </main>
   <script src="/plaza.js"></script>

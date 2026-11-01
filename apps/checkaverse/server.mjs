@@ -15,7 +15,7 @@ import { versionHtmlAssets } from './asset-versions.mjs';
 import * as Battle from './battle.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.8.0';
+const VERSION = '0.9.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -29,6 +29,8 @@ const ALLOWED_ORIGINS = new Set(
 const readContent = (name) => JSON.parse(fs.readFileSync(path.join(HERE, 'content', name), 'utf8'));
 const TOWN = readContent('town.json');
 const HOUSE = readContent('house.json');
+const WILDS = readContent('wilds.json');
+const WILD = readContent('wild.json');
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
 const SIGNS = readContent('signs.json');
@@ -38,6 +40,14 @@ const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
 const RULES = Battle.loadRules(path.join(HERE, 'content', 'battle'));
 const STARTERS = Object.keys(RULES.species.species);
 const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
+// Wild encounter content is checked the same way: every zone is a real tile in the wilds and every species can battle.
+for (const [tile, z] of Object.entries(WILD.zones)) {
+  if (!WILDS.rows.some((r) => r.includes(tile))) throw new Error(`wild.json: zone ${tile} has no tiles in wilds.json`);
+  if (!(z.rate > 0 && z.rate < 0.5) || !(z.levels[0] >= 1 && z.levels[0] <= z.levels[1] && z.levels[1] <= 50)) throw new Error(`wild.json: zone ${tile} rate or levels out of range`);
+  for (const sp of Object.keys(z.table)) if (!RULES.species.species[sp]) throw new Error(`wild.json: zone ${tile} lists unknown species ${sp}`);
+}
+// Tests can make every step in the wilds start a battle.
+const WILD_RATE = process.env.CHECKAVERSE_WILD_RATE ? Number(process.env.CHECKAVERSE_WILD_RATE) : null;
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
 
@@ -103,6 +113,9 @@ setMeta.run('version', VERSION);
 // ---------- the town and the houses ----------
 // Rooms: 'town' is the shared Checkaverse. 'h<plotId>' is the inside of the house on that plot.
 const TOWN_SOLID = new Set(['T', 'W', 'H', 'S']);
+// Outdoor maps share one tile set. 'town' is the Checkaverse, 'wilds' is the country north of the gate.
+const MAPS = { town: TOWN, wilds: WILDS };
+const roomKind = (room) => (MAPS[room] ? room : 'house');
 const HOUSE_SOLID = new Set(['X', 'B', 'K', 'N']);
 const plots = TOWN.plots.map((p) => ({ ...p, owner: 0, locked: false }));
 const players = new Map(); // id -> player
@@ -114,10 +127,10 @@ const plotDoorAt = (x, y) => plots.find((pl) => pl.owner && pl.door.x === x && p
 const plotOfRoom = (room) => plots.find((pl) => `h${pl.id}` === room);
 
 function walkable(room, x, y) {
-  if (room === 'town') {
-    const t = tileAt(TOWN.rows, x, y);
+  if (MAPS[room]) {
+    const t = tileAt(MAPS[room].rows, x, y);
     if (t === null || TOWN_SOLID.has(t)) return false;
-    return !plots.some((pl) => pl.owner && inHouse(pl, x, y));
+    return room !== 'town' || !plots.some((pl) => pl.owner && inHouse(pl, x, y));
   }
   const t = tileAt(HOUSE.rows, x, y);
   return t !== null && !HOUSE_SOLID.has(t) && t !== 'D';
@@ -185,11 +198,12 @@ function changeRoom(p, room, x, y, facing) {
   p.room = room; p.x = x; p.y = y; p.facing = facing;
   const plot = plotOfRoom(room);
   send(p, {
-    t: 'room', room, kind: room === 'town' ? 'town' : 'house',
+    t: 'room', room, kind: roomKind(room),
     owner: plot ? plotView(plot) : null,
     players: inRoom(room).map(publicView),
   });
   toRoom(room, { t: 'join', p: publicView(p) }, p.id);
+  if (room === 'wilds') p.grace = WILD.graceSteps;
 }
 
 // A house drops into the first free plot when its owner arrives.
@@ -299,12 +313,18 @@ function setBattling(p, v) {
   toRoom(p.room, { t: 'battling', id: p.id, v });
 }
 
+// A trainer's battle partner: a starter at the visit level, or a Checkling they caught this visit at its own level.
+function partnerSide(p) {
+  const c = /^c(\d)$/.exec(p.partner);
+  const caught = c && p.caught[Number(c[1])];
+  return caught ? { name: p.name, species: caught.species, level: caught.level } : { name: p.name, species: p.partner };
+}
+const partnerOk = (p, v) => STARTERS.includes(v) || (/^c\d$/.test(v) && Boolean(p.caught[Number(v.slice(1))]));
+
 function startBattle(a, b) {
   const id = nextBattle++;
   const seed = crypto.randomInt(0, 2 ** 31);
-  const state = Battle.createBattle(RULES, [
-    { name: a.name, species: a.partner }, { name: b.name, species: b.partner },
-  ], seed);
+  const state = Battle.createBattle(RULES, [partnerSide(a), partnerSide(b)], seed);
   const bt = { id, ids: [a.id, b.id], names: [a.name, b.name], state, picks: [null, null], log: [], timeouts: [0, 0],
     deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: a.room };
   battles.set(id, bt);
@@ -337,6 +357,7 @@ function playTurn(b) {
   const { picks, events } = Battle.resolveTurn(RULES, b.state, choices);
   b.log.push(picks);
   b.picks = [null, null];
+  if (b.wild && !b.state.over) b.picks[1] = wildPick(b);
   b.deadline = Date.now() + TURN_MS;
   battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: TURN_MS });
   if (b.state.over) finishBattle(b);
@@ -351,6 +372,7 @@ function finishBattle(b) {
     const q = players.get(id);
     if (!q) return;
     q.battle = 0;
+    if (b.wild) { q.grace = WILD.graceSteps; setBattling(q, false); return; }
     if (st.winner === i) q.record.w++; else if (st.winner === 'draw') q.record.d++; else q.record.l++;
     send(q, { t: 'record', record: q.record });
     setBattling(q, false);
@@ -361,6 +383,89 @@ function finishBattle(b) {
       winner, st.reason, st.turn, JSON.stringify(b.log));
   } catch (err) { log('battle save failed', err.message); }
   log('battle end', b.id, b.names[0], 'vs', b.names[1], 'winner', winner, st.reason, `${st.turn} turns`);
+}
+
+// ---------- wild Checklings ----------
+// Every step into a terrain zone in the wilds has a small chance to start a battle with a wild Checkling from that
+// zone's table. The wild one picks its move the moment the turn starts. Trainers can weaken it and throw a catching
+// charm, or run. Caught Checklings stay with the trainer for this visit and can be picked as a battle partner. They are
+// kept for good once Check-In sends the town a ticket for each student.
+function wildPick(b) {
+  const st = b.state, f = st.sides[1];
+  const moves = RULES.species.species[f.species].moves.filter((m) => Battle.canUse(RULES, st, 1, m));
+  const sig = moves.find((m) => !['strike', 'guard', 'recover'].includes(m));
+  const r = Math.random();
+  if (sig && r < 0.35) return sig;
+  if (moves.includes('strike') && r < 0.75) return 'strike';
+  if (f.stamina < 4 && moves.includes('recover')) return 'recover';
+  return moves.includes('guard') ? 'guard' : moves[0];
+}
+function rollSpecies(table) {
+  const total = Object.values(table).reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (const [sp, w] of Object.entries(table)) { r -= w; if (r < 0) return sp; }
+  return Object.keys(table)[0];
+}
+function startWild(p, tile) {
+  const zone = WILD.zones[tile];
+  const species = rollSpecies(zone.table);
+  const level = zone.levels[0] + Math.floor(Math.random() * (zone.levels[1] - zone.levels[0] + 1));
+  const id = nextBattle++;
+  const seed = crypto.randomInt(0, 2 ** 31);
+  const state = Battle.createBattle(RULES, [partnerSide(p), { name: 'Wild', species, level }], seed);
+  const bt = { id, wild: true, zone: zone.name, ids: [p.id, 0], names: [p.name, 'Wild'], state, picks: [null, null], log: [], timeouts: [0, 0],
+    deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: p.room };
+  bt.picks[1] = wildPick(bt);
+  battles.set(id, bt);
+  p.battle = id; pending.delete(p.id); held(p);
+  send(p, { t: 'battle', id, you: 0, wild: true, zone: zone.name, charms: p.charms, view: battleView(bt), turnMs: TURN_MS, left: TURN_MS });
+  setBattling(p, true);
+  log('wild battle', id, p.name, p.partner, 'vs', species, `lv${level}`, zone.name);
+}
+const held = (p) => { p.stats.wild = (p.stats.wild || 0) + 1; };
+
+const CATCH_OVERRIDE = process.env.CHECKAVERSE_CATCH_CHANCE ? Number(process.env.CHECKAVERSE_CATCH_CHANCE) : null; // tests only
+function catchChance(f) {
+  if (CATCH_OVERRIDE !== null) return CATCH_OVERRIDE;
+  const c = WILD.catch;
+  const hurt = 1 - f.hp / f.maxHp;
+  return Math.max(0.05, Math.min(0.95, c.base + c.weak * hurt ** c.curve - 0.02 * (f.level - 8)));
+}
+function handleCharm(p) {
+  const b = battles.get(p.battle);
+  if (!b || !b.wild || b.state.over) return;
+  if (p.charms <= 0) return send(p, { t: 'notice', msg: 'Out of catching charms for this visit.' });
+  if (b.picks[0]) return; // already used this turn
+  p.charms--;
+  const wildOne = b.state.sides[1];
+  const ok = Math.random() < catchChance(wildOne);
+  const shakes = ok ? 3 : Math.floor(Math.random() * 3);
+  const events = [{ k: 'charm', ok, shakes, left: p.charms }];
+  if (ok) {
+    Object.assign(b.state, { over: true, winner: 0, reason: 'caught' });
+    if (p.caught.length < 6) p.caught.push({ species: wildOne.species, level: wildOne.level });
+    send(p, { t: 'party', caught: p.caught, charms: p.charms });
+    b.log.push(['charm', 'caught']);
+    b.deadline = Date.now() + TURN_MS;
+    battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: TURN_MS });
+    log('caught', p.name, wildOne.species, `lv${wildOne.level}`);
+    return finishBattle(b);
+  }
+  // The charm missed, so the wild one gets its move against a trainer who spent the turn throwing.
+  const turn = Battle.resolveTurn(RULES, b.state, [Battle.PASS, b.picks[1]]);
+  b.log.push(['charm', turn.picks[1]]);
+  b.picks = [null, null];
+  if (!b.state.over) b.picks[1] = wildPick(b);
+  b.deadline = Date.now() + TURN_MS;
+  send(p, { t: 'party', caught: p.caught, charms: p.charms });
+  battleSend(b, { t: 'battle_turn', id: b.id, events: events.concat(turn.events), view: battleView(b), left: TURN_MS });
+  if (b.state.over) finishBattle(b);
+}
+function runFromWild(p) {
+  const b = battles.get(p.battle);
+  if (!b || !b.wild || b.state.over) return;
+  Object.assign(b.state, { over: true, winner: 'draw', reason: 'ran' });
+  finishBattle(b);
 }
 
 function forfeitBattle(p, reason) {
@@ -400,7 +505,8 @@ setInterval(() => {
     b.picks.forEach((m, i) => { if (!m) { b.timeouts[i]++; if (b.timeouts[i] >= RULES.settings.timeoutsToForfeit) gone.push(i); } });
     if (gone.length) {
       // Both trainers wandered off: nobody wins. One wandered off: the one still playing wins.
-      if (gone.length === 2) Object.assign(b.state, { over: true, winner: 'draw', reason: 'timeout' });
+      if (b.wild) Object.assign(b.state, { over: true, winner: 'draw', reason: 'ran' });
+      else if (gone.length === 2) Object.assign(b.state, { over: true, winner: 'draw', reason: 'timeout' });
       else Battle.forfeit(b.state, gone[0], 'timeout');
       finishBattle(b);
       continue;
@@ -483,7 +589,7 @@ function teacherApi(req, res, action) {
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
     return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
-      id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
+      id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
   }
@@ -545,6 +651,7 @@ wss.on('connection', (ws) => {
     rerolls: REROLLS, look: Math.floor(Math.random() * LOOKS), joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
     partner: STARTERS[Math.floor(Math.random() * STARTERS.length)], battle: 0, watching: 0, record: { w: 0, l: 0, d: 0 },
+    caught: [], charms: WILD.charms, grace: 0,
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
   players.set(p.id, p);
@@ -553,7 +660,9 @@ wss.on('connection', (ws) => {
 
   send(p, {
     t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
-    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
+    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
+    wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
+    charms: WILD.charms,
     room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, starters: STARTERS.map((id) => ({ id, name: RULES.species.species[id].name, type: RULES.species.species[id].type })),
     players: inRoom('town').map(publicView),
   });
@@ -593,6 +702,8 @@ function handleMove(p, d) {
   p.facing = d;
   const nx = p.x + dir[0];
   const ny = p.y + dir[1];
+  const exit = MAPS[p.room]?.exits?.find((e) => e.x === nx && e.y === ny);
+  if (exit) return changeRoom(p, exit.to, exit.at[0], exit.at[1], exit.f);
   if (p.room === 'town') {
     const door = plotDoorAt(nx, ny);
     if (door && d === 'u') {
@@ -606,9 +717,18 @@ function handleMove(p, d) {
     const plot = plotOfRoom(p.room);
     return changeRoom(p, 'town', plot.door.x, plot.door.y + 1, 'd');
   }
-  if (walkable(p.room, nx, ny)) { p.x = nx; p.y = ny; p.stats.moves++; }
+  const stepped = walkable(p.room, nx, ny);
+  if (stepped) { p.x = nx; p.y = ny; p.stats.moves++; }
   // Facing changes even when the step is blocked, so everyone sees the turn.
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+  // A step into terrain in the wilds can rouse a wild Checkling. Right after a battle there are a few free steps.
+  if (stepped && p.room === 'wilds' && !p.battle) {
+    const tile = tileAt(WILDS.rows, p.x, p.y);
+    const zone = WILD.zones[tile];
+    if (!zone) return;
+    if (p.grace > 0) { p.grace--; return; }
+    if (Math.random() < (WILD_RATE ?? zone.rate)) startWild(p, tile);
+  }
 }
 
 const PAUSED_OK = new Set(['busy', 'lock', 'answer']);
@@ -679,11 +799,13 @@ function handleMessage(p, msg, now) {
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));
     case 'pick': return handlePick(p, msg.m);
-    case 'forfeit': if (p.battle) forfeitBattle(p, 'gave up'); return;
+    case 'charm': return handleCharm(p);
+    case 'run': return runFromWild(p);
+    case 'forfeit': if (p.battle) { if (battles.get(p.battle)?.wild) return runFromWild(p); forfeitBattle(p, 'gave up'); } return;
     case 'watch': return handleWatch(p, Number(msg.id));
     case 'unwatch': return stopWatching(p);
     case 'partner': {
-      if (!STARTERS.includes(msg.v) || p.battle || p.partner === msg.v) return;
+      if (typeof msg.v !== 'string' || !partnerOk(p, msg.v) || p.battle || p.partner === msg.v) return;
       p.partner = msg.v;
       send(p, { t: 'partner', v: p.partner });
       return toRoom(p.room, { t: 'pt', id: p.id, v: p.partner }, p.id);
