@@ -62,3 +62,68 @@ button:focus-visible, input:focus-visible { outline: 3px solid #a8c686; outline-
 
 /* The bus back to Kettle Creek, the single player camp. */
 .bus-home { color: inherit; font-size: 0.9rem; opacity: 0.85; }
+
+/* ---------- battles ---------- */
+.battle { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: #0b1410; z-index: 2; }
+.battle[hidden] { display: none; }
+.b-scene { position: relative; overflow: hidden; background: #6f9b45 url(/art/bg-battle-meadow.png) center / cover no-repeat; image-rendering: pixelated; }
+.b-mon { position: absolute; image-rendering: pixelated; transition: opacity 400ms, transform 400ms; }
+.b-foe-mon { right: 13%; top: 10%; height: 38%; animation: bob 1.6s steps(2) infinite; }
+.b-me-mon { left: 11%; bottom: -4%; height: 56%; }
+.b-mon.down { opacity: 0; transform: translateY(30%); }
+.b-mon.hit { animation: hit 360ms steps(4); }
+.b-mon.lunge-foe { transform: translate(-6%, 6%); }
+.b-mon.lunge-me { transform: translate(6%, -6%); }
+@keyframes bob { 50% { transform: translateY(-3%); } }
+@keyframes hit { 0%, 50% { opacity: 0.2; transform: translateX(-4%); } 25%, 75% { opacity: 1; transform: translateX(4%); } 100% { opacity: 1; transform: none; } }
+.b-ko { position: absolute; width: 20%; image-rendering: pixelated; animation: spin 1.2s linear infinite; }
+.b-ko[hidden] { display: none; }
+.b-foe-ko { right: 16%; top: 6%; }
+.b-me-ko { left: 14%; bottom: 44%; }
+@keyframes spin { 50% { transform: scale(1.1, 0.9); } }
+.b-pop { position: absolute; font-size: 26px; font-weight: bold; color: #fff6e0; text-shadow: 2px 2px 0 #2b1a12, -2px -2px 0 #2b1a12, 2px -2px 0 #2b1a12, -2px 2px 0 #2b1a12; animation: pop 900ms ease-out forwards; pointer-events: none; }
+.b-pop[hidden] { display: none; }
+.b-pop.strong { color: #ffd166; }
+.b-foe-pop { right: 24%; top: 12%; }
+.b-me-pop { left: 24%; bottom: 40%; }
+@keyframes pop { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-40px); opacity: 0; } }
+.b-card { position: absolute; background: #fbf5e3; color: #2b1a12; border: 4px solid #2b1a12; border-radius: 6px; padding: 6px 10px 8px; min-width: 38%; box-shadow: 4px 4px 0 #2b1a1255; }
+.b-foe-card { left: 4%; top: 6%; }
+.b-me-card { right: 4%; bottom: 6%; }
+.b-card p { margin: 0; }
+.b-name { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+.b-name img { width: 22px; height: 22px; image-rendering: pixelated; }
+.b-lv { font-size: 14px; font-weight: normal; margin-left: auto; }
+.b-trainer { font-size: 13px; color: #6b4a2b; }
+.b-bar { position: relative; height: 12px; margin-top: 5px; background: #4a3a2a; border: 2px solid #2b1a12; border-radius: 6px; overflow: hidden; }
+.b-bar span { position: absolute; inset: 0 auto 0 0; width: 100%; background: #52b36a; transition: width 600ms steps(12), background-color 300ms; }
+.b-bar span.mid { background: #e9b949; }
+.b-bar span.low { background: #e4572e; }
+.b-bar.b-st { height: 8px; }
+.b-bar.b-st span { background: #669bbc; }
+.b-num { font-size: 13px; text-align: right; }
+.b-bottom { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; padding: 10px; background: #20352a; border-top: 4px solid #2b1a12; }
+.b-talk { background: #fbf5e3; color: #2b1a12; border: 3px solid #2b1a12; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.b-msg { margin: 0; font-size: 17px; line-height: 1.35; min-height: 46px; }
+.b-clock { height: 8px; background: #d8ccae; border-radius: 4px; overflow: hidden; }
+.b-clock span { display: block; height: 100%; width: 100%; background: #2f4a3b; }
+.b-clock-text { margin: 0; font-size: 13px; color: #6b4a2b; }
+.b-moves { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.b-moves button { min-width: 0; text-align: left; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; padding: 7px 9px; font-size: 16px; }
+.b-moves button .ic { grid-row: 1 / 3; width: 26px; height: 26px; image-rendering: pixelated; }
+.b-moves button .k { font-weight: bold; }
+.b-moves button small { font-size: 12px; opacity: 0.85; line-height: 1.25; }
+.b-moves button.picked { outline: 3px solid #fff6e0; outline-offset: -3px; }
+.b-done { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.b-done[hidden], .b-moves[hidden] { display: none; }
+.b-giveup { position: absolute; top: 8px; right: 8px; font-size: 13px; padding: 5px 9px; opacity: 0.85; }
+.b-giveup[hidden] { display: none; }
+.partner p { margin: 0; color: #cfe3c0; font-size: 15px; }
+.partners { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.partners button { display: flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; background: #2f4a3b; color: #f4f1e6; border-bottom-color: #1c2e24; font-size: 14px; }
+.partners button img { width: 28px; height: 28px; image-rendering: pixelated; }
+.partners button[aria-checked="true"] { background: #ffd166; color: #14211a; border-bottom-color: #b8892a; }
+.record { margin-top: 6px !important; font-size: 14px !important; }
+.partner button[hidden] { display: none; }
+#watch { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .b-foe-mon, .b-ko { animation: none; } .b-mon.hit { animation: none; } }

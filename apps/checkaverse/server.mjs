@@ -12,9 +12,10 @@ import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { WebSocketServer } from 'ws';
 import { versionHtmlAssets } from './asset-versions.mjs';
+import * as Battle from './battle.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.7.2';
+const VERSION = '0.8.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -33,6 +34,10 @@ const NAMES = readContent('names.json');
 const SIGNS = readContent('signs.json');
 const SAY_GAP_MS = 2000;
 const REROLLS = 3; // trainer name rerolls per visit, as the bible allows a few
+// Battle rules are content. A mistake in them stops the server here, before any student connects.
+const RULES = Battle.loadRules(path.join(HERE, 'content', 'battle'));
+const STARTERS = Object.keys(RULES.species.species);
+const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
 
 fs.mkdirSync(path.join(DATA_DIR, 'logs'), { recursive: true });
 
@@ -72,12 +77,25 @@ db.exec(`
     challenges INTEGER NOT NULL DEFAULT 0
   );
   CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
+  CREATE TABLE IF NOT EXISTS battles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    started TEXT NOT NULL,
+    ended TEXT NOT NULL,
+    seed INTEGER NOT NULL,
+    a_trainer TEXT NOT NULL, a_species TEXT NOT NULL,
+    b_trainer TEXT NOT NULL, b_species TEXT NOT NULL,
+    winner TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    turns INTEGER NOT NULL,
+    picks TEXT NOT NULL
+  );
 `);
 // Any session left open by a crash or power loss is closed at the time the server comes back.
 db.prepare(`UPDATE sessions SET ended = ? WHERE ended IS NULL`).run(new Date().toISOString());
 const insertSession = db.prepare(`INSERT INTO sessions (trainer, started) VALUES (?, ?)`);
 const closeSession = db.prepare(`UPDATE sessions SET ended = ?, moves = ?, phrases = ?, challenges = ? WHERE id = ?`);
 const renameSession = db.prepare(`UPDATE sessions SET trainer = ? WHERE id = ?`);
+const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 const setMeta = db.prepare(`INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
 setMeta.run('last_start', new Date().toISOString());
 setMeta.run('version', VERSION);
@@ -143,7 +161,7 @@ function arrivalPoint() {
 
 const COLORS = ['#e4572e', '#29335c', '#f3a712', '#669bbc', '#a8c686', '#8e44ad', '#d35400', '#16a085', '#c0392b', '#2c3e50'];
 const LOOKS = 4; // trainer-a to trainer-d in public/art
-const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy, look: p.look });
+const publicView = (p) => ({ id: p.id, name: p.name, x: p.x, y: p.y, f: p.facing, c: p.color, busy: p.busy, look: p.look, pt: p.partner, inb: Boolean(p.battle) });
 const plotView = (pl) => ({ id: pl.id, owner: pl.owner, name: pl.owner ? players.get(pl.owner)?.name || '' : '', locked: pl.locked });
 const inRoom = (room) => [...players.values()].filter((p) => p.room === room);
 
@@ -162,6 +180,7 @@ const sendPlots = () => toAll({ t: 'plots', plots: plots.map(plotView) });
 
 function changeRoom(p, room, x, y, facing) {
   pending.delete(p.id);
+  stopWatching(p);
   toRoom(p.room, { t: 'leave', id: p.id }, p.id);
   p.room = room; p.x = x; p.y = y; p.facing = facing;
   const plot = plotOfRoom(room);
@@ -225,6 +244,8 @@ function handleChallenge(p, toId) {
   if (!target || target.id === p.id) return send(p, { t: 'notice', msg: 'That trainer left.' });
   if (!nextTo(p, target)) return send(p, { t: 'notice', msg: 'Walk up next to a trainer to challenge them.' });
   if (p.busy) return send(p, { t: 'notice', msg: 'Turn off Busy to send challenges.' });
+  if (p.battle) return send(p, { t: 'notice', msg: 'Finish this battle first.' });
+  if (target.battle) return send(p, { t: 'notice', msg: `${target.name} is already in a battle.` });
   if (target.busy) return send(p, { t: 'notice', msg: `${target.name} is Busy right now.` });
   const waitUntil = declined.get(`${p.id}>${target.id}`) || 0;
   if (waitUntil > Date.now()) {
@@ -254,12 +275,139 @@ function handleAnswer(p, fromId, ok) {
     send(challenger, { t: 'challenge_result', with: p.id, ok: false, msg: `${p.name} said no thanks.` });
     return send(p, { t: 'notice', msg: 'Challenge declined.' });
   }
-  // Battles arrive with Phase 3. Today the handshake proves two Chromebooks can find each other live.
-  const msg = 'Challenge accepted! Battles are not open yet, so tip your hat and say Good game.';
-  send(challenger, { t: 'challenge_result', with: p.id, ok: true, msg });
-  send(p, { t: 'challenge_result', with: challenger.id, ok: true, msg });
-  log('challenge accepted', challenger.name, 'vs', p.name);
+  if (p.battle || challenger.battle) return send(p, { t: 'notice', msg: 'One of you is already in a battle.' });
+  send(challenger, { t: 'challenge_result', with: p.id, ok: true, msg: `${p.name} accepted!` });
+  send(p, { t: 'challenge_result', with: challenger.id, ok: true, msg: 'Battle on!' });
+  startBattle(challenger, p);
 }
+
+// ---------- live battles ----------
+// The server holds every battle. Each turn both trainers pick a move, then the engine plays it out and both
+// screens get the same events. A trainer who lets the clock run out Guards. Running out the clock three turns
+// in a row, leaving, or giving up forfeits. Knockouts never hurt a Checkling: everyone recovers after the match.
+// Trainers nearby can watch. The only thing at stake is the record, which becomes rank points once Check-In
+// sends the town a ticket with the student's real partner.
+const battles = new Map(); // id -> battle
+let nextBattle = 1;
+
+function battleView(b) { return Battle.view(RULES, b.state); }
+const sideOf = (b, p) => (b.ids[0] === p.id ? 0 : b.ids[1] === p.id ? 1 : -1);
+function battleSend(b, msg) {
+  for (const id of [...b.ids, ...b.watchers]) { const q = players.get(id); if (q) send(q, msg); }
+}
+function setBattling(p, v) {
+  toRoom(p.room, { t: 'battling', id: p.id, v });
+}
+
+function startBattle(a, b) {
+  const id = nextBattle++;
+  const seed = crypto.randomInt(0, 2 ** 31);
+  const state = Battle.createBattle(RULES, [
+    { name: a.name, species: a.partner }, { name: b.name, species: b.partner },
+  ], seed);
+  const bt = { id, ids: [a.id, b.id], names: [a.name, b.name], state, picks: [null, null], log: [], timeouts: [0, 0],
+    deadline: Date.now() + TURN_MS, watchers: new Set(), started: new Date().toISOString(), room: a.room };
+  battles.set(id, bt);
+  for (const q of [a, b]) { stopWatching(q); q.battle = id; pending.delete(q.id); }
+  [a, b].forEach((q, i) => send(q, { t: 'battle', id, you: i, view: battleView(bt), turnMs: TURN_MS, left: TURN_MS, intro: RULES.species.species[state.sides[1 - i].species].line }));
+  setBattling(a, true); setBattling(b, true);
+  // Trainers standing close by hear about it and can watch.
+  const near = inRoom(a.room).filter((q) => !q.battle && Math.min(dist(q, a), dist(q, b)) <= RULES.settings.watchDistance);
+  for (const q of near) send(q, { t: 'battle_near', id, names: [a.name, b.name] });
+  log('battle start', id, a.name, a.partner, 'vs', b.name, b.partner, 'seed', seed);
+}
+const dist = (p, q) => Math.abs(p.x - q.x) + Math.abs(p.y - q.y);
+
+function handlePick(p, move) {
+  const b = battles.get(p.battle);
+  if (!b || b.state.over) return;
+  const side = sideOf(b, p);
+  if (b.picks[side]) return; // one pick per turn, no take backs
+  if (typeof move !== 'string' || !Battle.canUse(RULES, b.state, side, move)) return send(p, { t: 'notice', msg: 'Not enough stamina for that. Guard or Recover.' });
+  b.picks[side] = move;
+  b.timeouts[side] = 0;
+  const other = players.get(b.ids[1 - side]);
+  if (other) send(other, { t: 'battle_wait', side });
+  for (const w of b.watchers) { const q = players.get(w); if (q) send(q, { t: 'battle_wait', side }); }
+  if (b.picks[0] && b.picks[1]) playTurn(b);
+}
+
+function playTurn(b) {
+  const choices = b.picks.map((m, i) => m || Battle.fallbackMove(RULES, b.state, i));
+  const { picks, events } = Battle.resolveTurn(RULES, b.state, choices);
+  b.log.push(picks);
+  b.picks = [null, null];
+  b.deadline = Date.now() + TURN_MS;
+  battleSend(b, { t: 'battle_turn', id: b.id, events, view: battleView(b), left: TURN_MS });
+  if (b.state.over) finishBattle(b);
+}
+
+function finishBattle(b) {
+  const st = b.state;
+  battles.delete(b.id);
+  const winner = st.winner === 'draw' ? 'draw' : b.names[st.winner];
+  battleSend(b, { t: 'battle_end', id: b.id, winner: st.winner, reason: st.reason, view: battleView(b) });
+  b.ids.forEach((id, i) => {
+    const q = players.get(id);
+    if (!q) return;
+    q.battle = 0;
+    if (st.winner === i) q.record.w++; else if (st.winner === 'draw') q.record.d++; else q.record.l++;
+    send(q, { t: 'record', record: q.record });
+    setBattling(q, false);
+  });
+  for (const w of b.watchers) { const q = players.get(w); if (q) q.watching = 0; }
+  try {
+    insertBattle.run(b.started, new Date().toISOString(), st.seed, b.names[0], st.sides[0].species, b.names[1], st.sides[1].species,
+      winner, st.reason, st.turn, JSON.stringify(b.log));
+  } catch (err) { log('battle save failed', err.message); }
+  log('battle end', b.id, b.names[0], 'vs', b.names[1], 'winner', winner, st.reason, `${st.turn} turns`);
+}
+
+function forfeitBattle(p, reason) {
+  const b = battles.get(p.battle);
+  if (!b) { p.battle = 0; return; }
+  Battle.forfeit(b.state, sideOf(b, p), reason);
+  finishBattle(b);
+}
+
+function handleWatch(p, battleId) {
+  const b = battles.get(battleId);
+  if (!b) return send(p, { t: 'notice', msg: 'That battle already ended.' });
+  if (p.battle) return;
+  const fighters = b.ids.map((id) => players.get(id)).filter(Boolean);
+  if (!fighters.some((f) => f.room === p.room && dist(f, p) <= RULES.settings.watchDistance + 2)) return send(p, { t: 'notice', msg: 'Walk closer to watch that battle.' });
+  if (p.watching) battles.get(p.watching)?.watchers.delete(p.id);
+  b.watchers.add(p.id);
+  p.watching = b.id;
+  send(p, { t: 'battle', id: b.id, you: null, view: battleView(b), turnMs: TURN_MS, left: Math.max(0, b.deadline - Date.now()) });
+}
+function stopWatching(p) {
+  if (!p.watching) return;
+  battles.get(p.watching)?.watchers.delete(p.id);
+  p.watching = 0;
+}
+
+// The turn clock. While the teacher has the town paused, every clock stands still.
+let lastTick = Date.now();
+setInterval(() => {
+  const now = Date.now();
+  const gap = now - lastTick;
+  lastTick = now;
+  for (const b of [...battles.values()]) {
+    if (paused) { b.deadline += gap; continue; }
+    if (now < b.deadline) continue;
+    const gone = [];
+    b.picks.forEach((m, i) => { if (!m) { b.timeouts[i]++; if (b.timeouts[i] >= RULES.settings.timeoutsToForfeit) gone.push(i); } });
+    if (gone.length) {
+      // Both trainers wandered off: nobody wins. One wandered off: the one still playing wins.
+      if (gone.length === 2) Object.assign(b.state, { over: true, winner: 'draw', reason: 'timeout' });
+      else Battle.forfeit(b.state, gone[0], 'timeout');
+      finishBattle(b);
+      continue;
+    }
+    playTurn(b);
+  }
+}, 250).unref();
 
 setInterval(() => {
   const now = Date.now();
@@ -298,7 +446,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(dbOk ? 200 : 503, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' });
     return res.end(JSON.stringify({
       ok: dbOk, service: 'checkaverse', version: VERSION, players: players.size,
-      houses: plots.filter((pl) => pl.owner).length, startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
+      houses: plots.filter((pl) => pl.owner).length, battles: battles.size, startedAt: STARTED.toISOString(), uptimeSec: Math.round(process.uptime()),
     }));
   }
   if (url.pathname.startsWith('/api/teacher/')) return teacherApi(req, res, url.pathname.slice(13));
@@ -336,7 +484,7 @@ function teacherApi(req, res, action) {
   if (action === 'state' && req.method === 'GET') {
     return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
       id: p.id, name: p.name, room: p.room === 'town' ? 'Town' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
-      busy: p.busy, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
+      busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
   }
   if (req.method !== 'POST') return reply(405, { ok: false });
@@ -396,6 +544,7 @@ wss.on('connection', (ws) => {
     color: COLORS[Math.floor(Math.random() * COLORS.length)], busy: false,
     rerolls: REROLLS, look: Math.floor(Math.random() * LOOKS), joined: Date.now(), alive: true, lastMove: 0, moveTokens: 3, budget: 20, lastRefill: Date.now(), strikes: 0,
     stats: { moves: 0, phrases: 0, challenges: 0 },
+    partner: STARTERS[Math.floor(Math.random() * STARTERS.length)], battle: 0, watching: 0, record: { w: 0, l: 0, d: 0 },
   };
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
   players.set(p.id, p);
@@ -405,7 +554,7 @@ wss.on('connection', (ws) => {
   send(p, {
     t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [] }, house: HOUSE,
-    room: 'town', myPlot: plot ? plot.id : 0,
+    room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, starters: STARTERS.map((id) => ({ id, name: RULES.species.species[id].name, type: RULES.species.species[id].type })),
     players: inRoom('town').map(publicView),
   });
   toRoom('town', { t: 'join', p: publicView(p) }, p.id);
@@ -426,6 +575,8 @@ wss.on('connection', (ws) => {
     handleMessage(p, msg, now);
   });
   ws.on('close', () => {
+    if (p.battle) forfeitBattle(p, 'left');
+    stopWatching(p);
     players.delete(p.id);
     pending.delete(p.id);
     removeHouse(p);
@@ -469,6 +620,9 @@ function handleMessage(p, msg, now) {
   switch (msg.t) {
     case 'move': {
       if (!DIRS[msg.d]) return;
+      // Nobody walks off in the middle of a battle. Watchers who walk away stop watching.
+      if (p.battle) return send(p, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
+      if (p.watching) stopWatching(p);
       // Walking speed limit with a little slack: up to three steps can arrive bunched together after a
       // Wi-Fi hiccup, but the average can never beat one step per MOVE_GAP_MS. Every move gets an answer,
       // even a refused one, so the walker's screen always knows where the server has them.
@@ -524,6 +678,16 @@ function handleMessage(p, msg, now) {
       return toRoom(p.room, { t: 'look', id: p.id, v });
     }
     case 'challenge': return handleChallenge(p, Number(msg.to));
+    case 'pick': return handlePick(p, msg.m);
+    case 'forfeit': if (p.battle) forfeitBattle(p, 'gave up'); return;
+    case 'watch': return handleWatch(p, Number(msg.id));
+    case 'unwatch': return stopWatching(p);
+    case 'partner': {
+      if (!STARTERS.includes(msg.v) || p.battle || p.partner === msg.v) return;
+      p.partner = msg.v;
+      send(p, { t: 'partner', v: p.partner });
+      return toRoom(p.room, { t: 'pt', id: p.id, v: p.partner }, p.id);
+    }
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));
     default: return;
   }
@@ -544,6 +708,7 @@ server.listen(PORT, HOST, () => log(`Checkaverse ${VERSION} listening on http://
 function shutdown(signal) {
   log('shutting down on', signal);
   toAll({ t: 'notice', msg: 'The Checkaverse is restarting. You will reconnect in a moment.' });
+  for (const b of [...battles.values()]) { b.state.over = true; b.state.winner = 'draw'; b.state.reason = 'restart'; finishBattle(b); }
   for (const p of players.values()) {
     closeSession.run(new Date().toISOString(), p.stats.moves, p.stats.phrases, p.stats.challenges, p.sessionId);
     p.ws.close(1012, 'Restarting');

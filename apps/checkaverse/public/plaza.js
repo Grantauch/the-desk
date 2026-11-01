@@ -14,7 +14,7 @@
 
   let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false;
   const pausedEl = document.getElementById('paused');
-  function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
+  function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
   let town = null, house = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
@@ -79,6 +79,8 @@
     ws.onclose = (ev) => {
       players.clear();
       hideAsk();
+      if (bt && !bt.done) toast('The connection dropped, so that battle ended.');
+      closeBattle(true);
       // Nothing can be said or renamed while the bus is down. The welcome on reconnect turns these back on.
       phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = true; });
       renameBtn.disabled = true;
@@ -107,6 +109,9 @@
         serverVersion = m.version;
         me = m.you; town = m.town; house = m.house; phrases = m.phrases; myPlot = m.myPlot;
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
+        starters = m.starters || []; partner = m.partner; closeBattle(true); lastNear = null; watchLine();
+        { const saved = savedPartner(); if (saved && saved !== partner && starters.some((x) => x.id === saved)) send({ t: 'partner', v: saved }); }
+        buildPartners();
         room = 'town'; roomKind = 'town'; roomOwner = null;
         setPlayers(m.players);
         meEl.textContent = players.get(me)?.name || 'Trainer';
@@ -153,6 +158,15 @@
         askTimer = setTimeout(() => { if (pendingFrom === m.from) hideAsk(); }, m.ttl || 20000);
         break;
       case 'challenge_result': toast(m.msg); break;
+      case 'battle': openBattle(m); break;
+      case 'battle_wait': battleWait(m.side); break;
+      case 'battle_turn': if (bt && m.id === bt.id) queueTurn(m); break;
+      case 'battle_end': if (bt && m.id === bt.id) queueEnd(m); break;
+      case 'battle_near': lastNear = { id: m.id, names: m.names, until: performance.now() + 90000 }; watchLine(); toast(`${m.names[0]} and ${m.names[1]} are battling nearby. Press Watch battle to see it.`); break;
+      case 'battling': { const p = players.get(m.id); if (p) p.inb = m.v; break; }
+      case 'record': recordLine(m.record); break;
+      case 'partner': partner = m.v; buildPartners(); break;
+      case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
       case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
@@ -262,6 +276,7 @@
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
+    if (bt) { battleKey(e); return; }
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
@@ -366,7 +381,7 @@
       p.seg = null;
       if (now - start > STEP_MS) start = now;
     }
-    if (!askEl.hidden || paused) return;
+    if (!askEl.hidden || paused || bt) return;
     const dir = held.length ? held[held.length - 1] : walkDir(p);
     if (!dir) return;
     if (held.length && wasIdle && pressTurn && now - pressAt < TURN_MS) {
@@ -428,7 +443,11 @@
     const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
     // Trainers stand a tile and a half tall, so a tap on the head counts too.
     for (const p of players.values()) {
-      if (p.id !== me && p.x === tx && (p.y === ty || p.y === ty + 1)) { stopWalk(); return send({ t: 'challenge', to: p.id }); }
+      if (p.id !== me && p.x === tx && (p.y === ty || p.y === ty + 1)) {
+        stopWalk();
+        if (p.inb && lastNear) return send({ t: 'watch', id: lastNear.id });
+        return send({ t: 'challenge', to: p.id });
+      }
     }
     if (roomKind === 'house') {
       const ex = house.exit;
@@ -712,7 +731,7 @@
     const talking = p.bubble && p.bubbleUntil > now;
     const near = self && Math.abs(p.dx - self.dx) + Math.abs(p.dy - self.dy) <= 4;
     if (p.id === me || near || talking || players.size <= 8) {
-      labels.push([p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.id === me ? '#ffd166' : p.busy ? '#9fb59a' : '#f4f1e6', p.id === me ? 0 : 1]);
+      labels.push([p.inb ? `${p.name} (Battling)` : p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.id === me ? '#ffd166' : p.busy ? '#9fb59a' : '#f4f1e6', p.id === me ? 0 : 1]);
     }
     if (talking) bubbles.push([p.bubble, px + 16, top - 16]);
   }
@@ -811,12 +830,254 @@
       }
       ctx.restore();
     }
-    challengeBtn.disabled = !neighbor() || busyEl.checked || paused || performance.now() < challengeRest;
+    challengeBtn.disabled = !neighbor() || busyEl.checked || paused || Boolean(bt) || performance.now() < challengeRest;
+    if (lastNear && performance.now() > lastNear.until) { lastNear = null; watchLine(); }
+    if (bt) clockTick();
     requestAnimationFrame(frame);
   }
 
+
+  // ---------- battles ----------
+  // The server runs the battle. This screen plays each turn's events in order, one line at a time, then hands
+  // the move buttons back. Watchers see the same screen without the buttons.
+  let starters = [], partner = '', lastNear = null, bt = null;
+  const bEl = $('battle'), bMsg = $('bMsg'), bMoves = $('bMoves'), bDone = $('bDone'), bGiveUp = $('bGiveUp');
+  const bClock = $('bClock'), bClockText = $('bClockText'), watchBtn = $('watch');
+  const TYPE_NAMES = { meadow: 'Meadow', gear: 'Gear', cosmic: 'Cosmic', ember: 'Ember', tide: 'Tide', stone: 'Stone', storm: 'Storm', shade: 'Shade' };
+  const typeImg = (t) => { const im = document.createElement('img'); im.src = `/art/type-${t}.png`; im.alt = TYPE_NAMES[t] || ''; return im; };
+  function savedPartner() { try { return localStorage.getItem('checkaverse-partner'); } catch { return null; } }
+  function buildPartners() {
+    const box = $('partners');
+    box.textContent = '';
+    for (const st of starters) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(st.id === partner));
+      const im = document.createElement('img'); im.src = `/art/front-${st.id}.png`; im.alt = '';
+      b.append(im, st.name);
+      b.title = `${st.name}, ${TYPE_NAMES[st.type]} type`;
+      b.disabled = Boolean(bt);
+      b.addEventListener('click', (e) => {
+        if (e.detail) b.blur();
+        if (bt || st.id === partner) return;
+        try { localStorage.setItem('checkaverse-partner', st.id); } catch { /* storage can be off on school machines */ }
+        send({ t: 'partner', v: st.id });
+      });
+      box.appendChild(b);
+    }
+  }
+  function recordLine(r) { $('record').textContent = r ? `This visit: ${r.w} won, ${r.l} lost${r.d ? `, ${r.d} tied` : ''}` : ''; }
+  function watchLine() { watchBtn.hidden = !lastNear || Boolean(bt); }
+  watchBtn.addEventListener('click', () => { if (lastNear) send({ t: 'watch', id: lastNear.id }); });
+
+  // Which side is drawn near (back sprite) and which far. Watchers see side 0 near.
+  const nearSide = () => (bt && bt.you === 1 ? 1 : 0);
+  function openBattle(m) {
+    held.length = 0; stopWalk(); hideAsk();
+    bt = { id: m.id, you: m.you, view: m.view, queue: [], playing: false, picked: '', foePicked: false, done: false,
+      turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null };
+    lastNear = null; watchLine();
+    bEl.hidden = false;
+    bDone.hidden = true; bMoves.hidden = bt.watching;
+    bGiveUp.hidden = bt.watching; bGiveUp.textContent = bt.watching ? 'Stop watching' : 'Give up'; bGiveUp.dataset.sure = '';
+    if (bt.watching) { bGiveUp.hidden = false; }
+    for (const id of ['bFoeKo', 'bMeKo']) $(id).hidden = true;
+    for (const id of ['bFoeMon', 'bMeMon']) $(id).classList.remove('down', 'hit');
+    drawSides(m.view, true);
+    const n = nearSide(), foe = m.view.sides[1 - n], mine = m.view.sides[n];
+    if (bt.watching) say(`You are watching ${m.view.sides[0].name} and ${m.view.sides[1].name}.`);
+    else say(`${foe.name} sent out ${foe.speciesName}! ${m.intro || ''} Go, ${mine.speciesName}!`);
+    buildMoves(); buildPartners();
+    if (!bt.watching) setTimeout(() => bMoves.querySelector('button:not(:disabled)')?.focus({ preventScroll: true }), 50);
+  }
+  function closeBattle(quiet) {
+    if (bt && bt.watching && !bt.done && !quiet) send({ t: 'unwatch' });
+    bt = null;
+    bEl.hidden = true;
+    buildPartners(); watchLine();
+  }
+  function bar(el, value, max, hp) {
+    const pct = Math.max(0, Math.min(100, (100 * value) / Math.max(1, max)));
+    el.style.width = `${pct}%`;
+    if (hp) { el.classList.toggle('mid', pct <= 50 && pct > 20); el.classList.toggle('low', pct <= 20); }
+  }
+  function drawSides(view, sprites) {
+    const n = nearSide(), mine = view.sides[n], foe = view.sides[1 - n];
+    const nameWith = (el, f) => { el.textContent = f.speciesName; el.prepend(typeImg(f.type)); };
+    nameWith($('bFoeName'), foe); nameWith($('bMeName'), mine);
+    $('bFoeLv').textContent = `Lv ${foe.level}`; $('bMeLv').textContent = `Lv ${mine.level}`;
+    $('bFoeTrainer').textContent = foe.name;
+    bar($('bFoeHp'), foe.hp, foe.maxHp, true); bar($('bFoeSt'), foe.stamina, foe.maxStamina);
+    bar($('bMeHp'), mine.hp, mine.maxHp, true); bar($('bMeSt'), mine.stamina, mine.maxStamina);
+    $('bMeHpNum').textContent = `${bt && bt.watching ? `${mine.name} · ` : ''}HP ${mine.hp} / ${mine.maxHp}`;
+    $('bMeStNum').textContent = `Stamina ${mine.stamina} / ${mine.maxStamina}`;
+    if (sprites) {
+      $('bFoeMon').src = `/art/front-${foe.species}.png`; $('bFoeMon').alt = `${foe.name}'s ${foe.speciesName}`;
+      $('bMeMon').src = `/art/back-${mine.species}.png`; $('bMeMon').alt = `${mine.name}'s ${mine.speciesName}, from behind`;
+    }
+  }
+  function say(text) { bMsg.textContent = text; }
+  function buildMoves() {
+    bMoves.textContent = '';
+    if (!bt || bt.watching) return;
+    const mine = bt.view.sides[bt.you];
+    mine.moves.forEach((mv, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.move = mv.id;
+      const icon = mv.type ? typeImg(mv.type) : document.createElement('span');
+      icon.classList.add('ic');
+      const name = document.createElement('span'); name.className = 'k'; name.textContent = `${i + 1}. ${mv.name}`;
+      const small = document.createElement('small');
+      small.textContent = (mv.cost ? `${mv.cost} stamina. ` : 'Free. ') + (mv.next ? `Next: ${mv.next} damage. ` : '') + mv.detail;
+      b.append(icon, name, small);
+      b.addEventListener('click', (e) => { if (e.detail) b.blur(); pick(mv.id); });
+      bMoves.appendChild(b);
+    });
+    movesLine();
+  }
+  function movesLine() {
+    if (!bt || bt.watching) return;
+    const mine = bt.view.sides[bt.you];
+    [...bMoves.querySelectorAll('button')].forEach((b) => {
+      const mv = mine.moves.find((x) => x.id === b.dataset.move);
+      b.disabled = paused || bt.playing || bt.done || Boolean(bt.picked) || !mv || !mv.ok;
+      b.classList.toggle('picked', bt.picked === b.dataset.move);
+    });
+  }
+  function pick(id) {
+    if (!bt || bt.watching || bt.playing || bt.picked || bt.done || paused) return;
+    const mv = bt.view.sides[bt.you].moves.find((x) => x.id === id);
+    if (!mv || !mv.ok) return toast('Not enough stamina for that. Guard or Recover.');
+    bt.picked = id;
+    send({ t: 'pick', m: id });
+    const foe = bt.view.sides[1 - bt.you];
+    say(bt.foePicked ? 'Both picked. Here it comes...' : `You picked ${mv.name}. Waiting for ${foe.name}...`);
+    movesLine();
+  }
+  function battleWait(side) {
+    if (!bt) return;
+    if (bt.watching) { say(`${bt.view.sides[side].name} has picked a move.`); return; }
+    if (side === bt.you) return;
+    bt.foePicked = true;
+    if (!bt.picked && !bt.playing) say(`${bt.view.sides[side].name} has picked a move. Your turn!`);
+  }
+  function battleKey(e) {
+    const n = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Numpad1: 0, Numpad2: 1, Numpad3: 2, Numpad4: 3 }[e.code];
+    if (n !== undefined && !e.repeat) { e.preventDefault(); const mv = bt.view.sides[bt.you ?? 0]?.moves[n]; if (mv && !bt.watching) pick(mv.id); return; }
+    if (KEYS[e.code] || e.code === 'Space') { if (!(e.target instanceof HTMLButtonElement)) e.preventDefault(); }
+    if (e.code === 'Escape' && bt.done) closeBattle();
+  }
+  function clockTick() {
+    if (!bt || bt.done) { bClock.style.width = '0%'; bClockText.textContent = ''; return; }
+    if (bt.playing) { bClockText.textContent = ''; return; }
+    const left = Math.max(0, bt.until - performance.now());
+    bClock.style.width = `${(100 * left) / bt.turnMs}%`;
+    const secs = Math.ceil(left / 1000);
+    bClockText.textContent = paused ? 'Paused by the teacher.' : bt.watching ? `${secs}s left this turn` : bt.picked ? `${secs}s left this turn` : `${secs}s to pick. If time runs out, your Checkling Guards.`;
+  }
+
+  // Each event gets its own beat on screen, Red and Blue style.
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 350) : ms));
+  function queueTurn(m) { bt.queue.push({ turn: m }); if (!bt.playing) playQueue(); }
+  function queueEnd(m) { bt.queue.push({ end: m }); if (!bt.playing) playQueue(); }
+  async function playQueue() {
+    const b = bt;
+    b.playing = true; movesLine();
+    while (bt === b && b.queue.length) {
+      const item = b.queue.shift();
+      if (item.turn) await playTurn(b, item.turn);
+      else await showEnd(b, item.end);
+    }
+    if (bt !== b) return;
+    b.playing = false;
+    movesLine();
+    if (!b.done && !b.watching) { say(`What will ${b.view.sides[b.you].speciesName} do?`); bMoves.querySelector('button:not(:disabled)')?.focus({ preventScroll: true }); }
+  }
+  async function playTurn(b, m) {
+    const n = nearSide();
+    const who = (side) => { const f = b.view.sides[side]; return side === n && !b.watching ? f.speciesName : `${f.name}'s ${f.speciesName}`; };
+    const monEl = (side) => (side === n ? $('bMeMon') : $('bFoeMon'));
+    // Health and stamina move with each event, from a working copy of the view.
+    const live = JSON.parse(JSON.stringify(b.view));
+    for (const e of m.events) {
+      if (bt !== b) return;
+      if (e.k === 'use') {
+        say(`${who(e.side)} used ${e.name}!`);
+        if (e.stamina !== undefined) live.sides[e.side].stamina = e.stamina;
+        const el = monEl(e.side);
+        el.classList.add(e.side === n ? 'lunge-me' : 'lunge-foe');
+        drawSides(live);
+        await wait(650);
+        el.classList.remove('lunge-me', 'lunge-foe');
+      } else if (e.k === 'stamina') {
+        live.sides[e.side].stamina = e.value; drawSides(live);
+        if (e.delta) { say(`${who(e.side)} got ${e.delta} stamina back.`); await wait(600); }
+      } else if (e.k === 'hit') {
+        live.sides[e.side].hp = e.hp;
+        const el = monEl(e.side);
+        el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit');
+        const pop = e.side === n ? $('bMePop') : $('bFoePop');
+        pop.hidden = true; void pop.offsetWidth;
+        pop.textContent = e.blocked ? `-${e.dmg} blocked` : `-${e.dmg}`;
+        pop.classList.toggle('strong', e.eff === 'strong');
+        pop.hidden = false;
+        drawSides(live);
+        await wait(700);
+      } else if (e.k === 'ko') {
+        monEl(e.side).classList.add('down');
+        (e.side === n ? $('bMeKo') : $('bFoeKo')).hidden = false;
+        await wait(500);
+      } else if (e.k === 'say') {
+        say(e.text);
+        await wait(900);
+      }
+    }
+    b.view = m.view;
+    b.picked = ''; b.foePicked = false;
+    b.until = performance.now() + (m.left ?? b.turnMs);
+    drawSides(m.view);
+    buildMoves();
+  }
+  async function showEnd(b, m) {
+    b.done = true;
+    b.view = m.view;
+    drawSides(m.view);
+    const n = nearSide();
+    const why = { 'gave up': 'gave up', left: 'left the Checkaverse', timeout: 'ran out the clock' };
+    let line;
+    if (m.winner === 'draw') line = m.reason === 'time' ? 'The match hit its turn limit with health even. It is a tie!' : m.reason === 'restart' ? 'The Checkaverse restarted, so the match ended without a winner.' : 'Both trainers stepped away. No winner this time.';
+    else {
+      const w = m.view.sides[m.winner], l = m.view.sides[1 - m.winner];
+      const how = why[m.reason] ? `${l.name} ${why[m.reason]}. ` : '';
+      if (b.watching) line = `${how}${w.name} and ${w.speciesName} win!`;
+      else if (m.winner === n) line = `${how}You won! ${w.speciesName} looks very pleased with itself.`;
+      else line = `${how}${w.name} won this one. ${l.speciesName} is knocked out, but it recovers fully after the match.`;
+    }
+    say(line);
+    bMoves.hidden = true;
+    bGiveUp.hidden = true;
+    bDone.hidden = false;
+    $('bGg').hidden = b.watching;
+    $('bClose').textContent = b.watching ? 'Stop watching' : 'Back to town';
+    (b.watching ? $('bClose') : $('bGg')).focus({ preventScroll: true });
+    await wait(10);
+  }
+  $('bGg').addEventListener('click', (e) => { if (e.detail) e.currentTarget.blur(); const i = phrases.indexOf('Good game'); if (i >= 0) send({ t: 'say', p: i }); closeBattle(); });
+  $('bClose').addEventListener('click', () => closeBattle());
+  // Giving up takes two presses, so a stray click cannot throw a match.
+  bGiveUp.addEventListener('click', (e) => {
+    if (e.detail) bGiveUp.blur();
+    if (!bt) return;
+    if (bt.watching) return closeBattle();
+    if (bGiveUp.dataset.sure) { send({ t: 'forfeit' }); bGiveUp.hidden = true; return; }
+    bGiveUp.dataset.sure = '1'; bGiveUp.textContent = 'Press again to give up';
+    setTimeout(() => { if (bt && !bt.done) { bGiveUp.dataset.sure = ''; bGiveUp.textContent = 'Give up'; } }, 3000);
+  });
+
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
-  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me };
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt };
   connect();
   requestAnimationFrame(frame);
 })();

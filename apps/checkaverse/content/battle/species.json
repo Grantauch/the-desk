@@ -1,0 +1,114 @@
+{
+  "note": "Battle stats for each species at level 1, plus growth per level. Until Check-In hands the town a ticket with the real partner, every trainer battles with a starter at visitLevel.",
+  "visitLevel": 10,
+  "species": {
+    "mochi": {
+      "name": "Mochi",
+      "type": "meadow",
+      "base": {
+        "hp": 50,
+        "power": 8,
+        "stamina": 9,
+        "speed": 6
+      },
+      "growth": {
+        "hp": 1.8,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "comfort_blanket"
+      ],
+      "traits": [],
+      "line": "Mochi digs in its heels and smiles at the other side."
+    },
+    "bolt": {
+      "name": "Bolt",
+      "type": "gear",
+      "base": {
+        "hp": 52,
+        "power": 8,
+        "stamina": 10,
+        "speed": 7
+      },
+      "growth": {
+        "hp": 1.6,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "salvage_charge"
+      ],
+      "traits": [
+        {
+          "on": "blocked",
+          "add": "charge",
+          "max": 2
+        }
+      ],
+      "line": "Bolt inspects the other Checkling very closely."
+    },
+    "zee": {
+      "name": "Zee",
+      "type": "cosmic",
+      "base": {
+        "hp": 48,
+        "power": 8,
+        "stamina": 9,
+        "speed": 8
+      },
+      "growth": {
+        "hp": 1.6,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "orbit"
+      ],
+      "traits": [],
+      "line": "Zee asks the other Checkling what its favorite moon is."
+    },
+    "ember": {
+      "name": "Ember",
+      "type": "ember",
+      "base": {
+        "hp": 46,
+        "power": 8,
+        "stamina": 8,
+        "speed": 9
+      },
+      "growth": {
+        "hp": 1.6,
+        "power": 0.2,
+        "stamina": 0.1,
+        "speed": 0.2
+      },
+      "moves": [
+        "strike",
+        "guard",
+        "recover",
+        "banked_heat"
+      ],
+      "traits": [
+        {
+          "on": "recover",
+          "add": "heat",
+          "max": 1
+        }
+      ],
+      "line": "Ember puffs up and smells faintly of toast."
+    }
+  }
+}
