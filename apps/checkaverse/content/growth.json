@@ -1,0 +1,15 @@
+{
+  "note": "How Checklings grow. dayXp is paid for every official check-in Check-In reports, to the trainer's battle partner at the time. levelCost is the XP each level costs, up to that level. Steady attendance reaches level 15 near 28 check-ins, level 30 near the end of first semester and level 50 near the end of the year. Battle XP goes to the Checkling that battled and stops at dailyBattleXpCap each day, so check-ins stay the main way to grow. Visitors without a bus ticket never earn or keep anything.",
+  "dayXp": 100,
+  "levelCost": [
+    { "upTo": 15, "xp": 200 },
+    { "upTo": 30, "xp": 370 },
+    { "upTo": 50, "xp": 500 }
+  ],
+  "battleXp": { "win": 40, "loss": 15, "draw": 20, "wildWin": 25, "caught": 15 },
+  "dailyBattleXpCap": 150,
+  "partyMax": 3,
+  "denMax": 60,
+  "charmsPerDay": 5,
+  "renamesPerDay": 3
+}

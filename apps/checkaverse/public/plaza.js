@@ -21,7 +21,15 @@
   const busyEl = $('busy'), challengeBtn = $('challenge'), phrasesEl = $('phrases');
   const placeEl = $('place'), lockBtn = $('lock'), homeEl = $('home');
 
-  let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false;
+  let ws = null, me = 0, retry = 0, pendingFrom = 0, toastTimer = 0, removed = false, paused = false, elsewhere = false;
+  // A bus ticket from Check-In arrives in the address after #t=. It is kept for this tab only, so a reload keeps the
+  // trainer, and it is taken out of the address bar so it cannot be copied off the screen.
+  let ticket = null;
+  {
+    const m = /[#&]t=([A-Za-z0-9_.-]{20,2000})/.exec(location.hash);
+    if (m) { ticket = m[1]; try { history.replaceState(null, '', location.pathname + location.search); } catch { /* fine */ } }
+    try { if (ticket) sessionStorage.setItem('checkaverse-ticket', ticket); else ticket = sessionStorage.getItem('checkaverse-ticket'); } catch { /* storage can be off on school machines */ }
+  }
   const pausedEl = document.getElementById('paused');
   function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
   let town = null, house = null, wilds = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
@@ -88,7 +96,7 @@
     clearInterval(countdown);
     setStatus(retry ? 'Reconnecting...' : 'Connecting...');
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } handle(m); };
-    ws.onopen = () => { retry = 0; };
+    ws.onopen = () => { retry = 0; send({ t: 'hello', ticket }); };
     ws.onclose = (ev) => {
       players.clear();
       hideAsk();
@@ -98,6 +106,7 @@
       phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = true; });
       renameBtn.disabled = true;
       if (removed || ev.code === 4001) return setStatus('The teacher removed you from the Checkaverse. Reload the page to come back.', true);
+      if (elsewhere || ev.code === 4002) return setStatus('You opened the Checkaverse in another tab, so this one closed.', true);
       const wait = Math.min(15000, 1000 * 2 ** retry++);
       waitStatus(ev.code === 4003 ? 'The Checkaverse is full right now.' : 'The Checkaverse bus is not running right now.', wait);
       if (ev.code === 4003) { reconnectTimer = setTimeout(connect, wait); return; }
@@ -121,11 +130,15 @@
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
         me = m.you; town = m.town; house = m.house; wilds = m.wilds; phrases = m.phrases; myPlot = m.myPlot;
-        caught = []; charms = m.charms ?? 0; charmLine();
+        team = m.team || []; saved = Boolean(m.saved); partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
-        starters = m.starters || []; partner = m.partner; closeBattle(true); lastNear = null; watchLine();
-        { const saved = savedPartner(); if (saved && saved !== partner && starters.some((x) => x.id === saved)) send({ t: 'partner', v: saved }); }
+        partner = m.partner; closeBattle(true); lastNear = null; watchLine();
+        // A ticket the town turned down is dropped, so a reload does not try it again.
+        if (!saved && ticket) { ticket = null; try { sessionStorage.removeItem('checkaverse-ticket'); } catch { /* fine */ } }
+        // A visitor's starter choice is remembered on this Chromebook. A saved trainer's partner is kept by the town.
+        if (!saved) { const pick = savedPartner(); if (pick && pick !== partner && team.some((x) => x.v === pick && !x.caught)) send({ t: 'partner', v: pick }); }
         buildPartners();
+        if (!saved) tipSoon('visitor', 2500);
         room = 'town'; roomKind = 'town'; roomOwner = null;
         setPlayers(m.players);
         meEl.textContent = players.get(me)?.name || 'Trainer';
@@ -183,7 +196,8 @@
       case 'battling': { const p = players.get(m.id); if (p) p.inb = m.v; break; }
       case 'record': recordLine(m.record); break;
       case 'partner': partner = m.v; buildPartners(); break;
-      case 'party': { const more = (m.caught || []).length > caught.length; caught = m.caught || []; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon('caught', 4000); break; }
+      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner || partner; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
+      case 'elsewhere': elsewhere = true; break;
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
@@ -921,7 +935,9 @@
     wilds: 'Wild Checklings hide in tall grass, starflowers, rocky ground and scorched heath. Walk through to find one.',
     battle: 'Press 1 to 4 or tap a move. Both trainers pick, then the turn plays out.',
     'wild-battle': 'Wear it down first, then press 5 to throw a charm. Weaker Checklings are easier to catch. Press 6 to run.',
-    caught: 'Your catch is in your partner list for this visit. Tap your partner button to battle with it.',
+    caught: 'Your catch is yours to keep. Tap your partner button to battle with it, or to move Checklings between your party and your Den.',
+    'caught-visit': 'Your catch is in your partner list for this visit. Tap your partner button to battle with it.',
+    visitor: 'You are visiting, so catches and wins are not saved. To keep them, ride the bus from your Check-In page.',
   };
   const FOLLOW = { walk: ['partner', 'say'] };
   const tipEl = $('tip'), tipText = $('tipText');
@@ -976,48 +992,79 @@
   // ---------- battles ----------
   // The server runs the battle. This screen plays each turn's events in order, one line at a time, then hands
   // the move buttons back. Watchers see the same screen without the buttons.
-  let starters = [], partner = '', lastNear = null, bt = null, caught = [], charms = 0;
+  let team = [], saved = false, partyMax = 3, partner = '', lastNear = null, bt = null, charms = 0;
   const bWild = $('bWild'), bCharm = $('bCharm'), bRun = $('bRun');
   const bEl = $('battle'), bMsg = $('bMsg'), bMoves = $('bMoves'), bDone = $('bDone'), bGiveUp = $('bGiveUp');
   const bClock = $('bClock'), bClockText = $('bClockText'), watchBtn = $('watch');
   const TYPE_NAMES = { meadow: 'Meadow', gear: 'Gear', cosmic: 'Cosmic', ember: 'Ember', tide: 'Tide', stone: 'Stone', storm: 'Storm', shade: 'Shade' };
   const typeImg = (t) => { const im = document.createElement('img'); im.src = `/art/type-${t}.png`; im.alt = TYPE_NAMES[t] || ''; return im; };
   function savedPartner() { try { return localStorage.getItem('checkaverse-partner'); } catch { return null; } }
-  // Partners: the four starters at level 10, then anything caught in the wilds this visit at its own level.
-  const nameOf = (sp) => starters.find((x) => x.id === sp)?.name || sp;
-  function partnerChoices() {
-    return [
-      ...starters.map((st) => ({ v: st.id, species: st.id, label: st.name, title: `${st.name}, ${TYPE_NAMES[st.type]} type, level 10` })),
-      ...caught.map((c, i) => ({ v: `c${i}`, species: c.species, label: `${nameOf(c.species)} Lv ${c.level}`, title: `The ${nameOf(c.species)} you caught, level ${c.level}`, caught: true })),
-    ];
+  // The partner list comes from the town. A saved trainer sees their party (up to three) and their Den.
+  // A visitor sees the four starters at level 10 and anything caught this visit.
+  const shortName = (c) => `${c.nick || c.name} Lv ${c.level}`;
+  function partnerButton(c) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pick';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', String(c.v === partner));
+    const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
+    b.append(im, c.caught ? `${shortName(c)} ★` : shortName(c));
+    const toNext = c.need ? `, ${c.xp} of ${c.need} XP to level ${c.level + 1}` : '';
+    b.title = `${c.nick ? `${c.nick}, a ` : ''}${c.name}, ${TYPE_NAMES[c.type] || ''} type, level ${c.level}${toNext}`;
+    b.disabled = Boolean(bt);
+    b.addEventListener('click', (e) => {
+      if (e.detail) b.blur();
+      if (bt || c.v === partner) return;
+      if (!saved && !c.caught) { try { localStorage.setItem('checkaverse-partner', c.v); } catch { /* storage can be off on school machines */ } }
+      send({ t: 'partner', v: c.v });
+    });
+    return b;
+  }
+  function denButton(c, toParty, can) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'den-btn';
+    b.textContent = toParty ? 'Join' : 'Rest';
+    b.title = toParty ? `Bring ${c.nick || c.name} into your party` : `Send ${c.nick || c.name} to rest in your Den`;
+    b.disabled = Boolean(bt) || !can;
+    b.addEventListener('click', (e) => { if (e.detail) b.blur(); send({ t: 'den', v: c.v, party: toParty }); });
+    return b;
   }
   function buildPartners() {
     const box = $('partners');
     box.textContent = '';
-    for (const ch of partnerChoices()) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.setAttribute('role', 'radio');
-      b.setAttribute('aria-checked', String(ch.v === partner));
-      const im = document.createElement('img'); im.src = `/art/front-${ch.species}.png`; im.alt = '';
-      b.append(im, ch.caught ? `${ch.label} ★` : ch.label);
-      b.title = ch.title;
-      b.disabled = Boolean(bt);
-      b.addEventListener('click', (e) => {
-        if (e.detail) b.blur();
-        if (bt || ch.v === partner) return;
-        if (!ch.caught) { try { localStorage.setItem('checkaverse-partner', ch.v); } catch { /* storage can be off on school machines */ } }
-        send({ t: 'partner', v: ch.v });
-      });
-      box.appendChild(b);
+    const party = team.filter((c) => !c.den), den = team.filter((c) => c.den);
+    for (const c of party) {
+      if (!saved) { box.appendChild(partnerButton(c)); continue; }
+      const row = document.createElement('div'); row.className = 'team-row';
+      row.append(partnerButton(c), denButton(c, false, party.length > 1));
+      box.appendChild(row);
     }
-    const now = partnerChoices().find((x) => x.v === partner);
-    if (now) { $('partnerImg').src = `/art/front-${now.species}.png`; $('partnerName').textContent = now.label; }
+    const denBox = $('den');
+    denBox.textContent = '';
+    denBox.hidden = !saved || !den.length;
+    if (saved && den.length) {
+      const h = document.createElement('p'); h.className = 'pop-title'; h.textContent = `Your Den (${den.length})`;
+      denBox.appendChild(h);
+      for (const c of den) {
+        const row = document.createElement('div'); row.className = 'team-row den-row';
+        const im = document.createElement('img'); im.src = `/art/front-${c.species}.png`; im.alt = '';
+        const name = document.createElement('span'); name.textContent = shortName(c);
+        row.append(im, name, denButton(c, true, party.length < partyMax));
+        denBox.appendChild(row);
+      }
+    }
+    $('partnerNote').textContent = saved
+      ? `Up to ${partyMax} Checklings travel with you. The others wait in your Den. Every check-in grows your partner.`
+      : 'You are visiting, so nothing here is saved. Ride the bus from your Check-In page to bring your own Checkling.';
+    const now = team.find((x) => x.v === partner);
+    if (now) { $('partnerImg').src = `/art/front-${now.species}.png`; $('partnerName').textContent = shortName(now); }
   }
   function charmLine() {
     const chip = $('charmChip');
-    chip.hidden = roomKind !== 'wilds' && !caught.length;
-    chip.textContent = `Charms ${charms}${caught.length ? ` · Caught ${caught.length}` : ''}`;
+    const visitCatches = saved ? 0 : team.filter((c) => c.caught).length;
+    chip.hidden = roomKind !== 'wilds' && !visitCatches;
+    chip.textContent = `Charms ${charms}${visitCatches ? ` · Caught ${visitCatches}` : ''}`;
   }
   function recordLine(r) { $('record').textContent = r && (r.w || r.l || r.d) ? `${r.w}W ${r.l}L${r.d ? ` ${r.d}T` : ''}` : ''; }
   function watchLine() { watchBtn.hidden = !lastNear || Boolean(bt); }
@@ -1216,7 +1263,7 @@
         say('You threw a catching charm!');
         await wait(600);
         for (let i = 0; i < e.shakes; i++) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); say(['Shake...', 'Shake... shake...', 'Shake... shake... shake...'][i]); await wait(650); }
-        if (e.ok) { el.classList.add('caught'); say(`Caught! The wild ${b.view.sides[1].speciesName} is yours for this visit.`); await wait(1100); }
+        if (e.ok) { el.classList.add('caught'); say(`Caught! The wild ${b.view.sides[1].speciesName} is yours.`); await wait(1100); }
         else { el.classList.remove('shake'); say(['It broke free right away!', 'Argh! It wriggled loose.', 'So close! It broke free.'][e.shakes] || 'It broke free!'); await wait(900); }
       }
     }
@@ -1235,7 +1282,9 @@
     let line;
     if (b.wild) {
       const wildOne = m.view.sides[1], mine = m.view.sides[0];
-      if (m.reason === 'caught') line = `Caught! ${wildOne.speciesName} (Lv ${wildOne.level}) joins your partners for this visit. Pick it under the partner button any time.`;
+      if (m.reason === 'caught') line = m.kept === 'party' ? `Caught! ${wildOne.speciesName} (Lv ${wildOne.level}) joins your party. Pick it under the partner button any time.`
+        : m.kept === 'den' ? `Caught! Your party is full, so ${wildOne.speciesName} (Lv ${wildOne.level}) went to rest in your Den.`
+        : `Caught! ${wildOne.speciesName} (Lv ${wildOne.level}) joins your partners for this visit. Pick it under the partner button any time.`;
       else if (m.reason === 'ran') line = 'Got away safely.';
       else if (m.winner === 0) line = `The wild ${wildOne.speciesName} is knocked out and scurries back home. ${mine.speciesName} looks proud.`;
       else line = `${mine.speciesName} is knocked out, but it recovers fully after the match. The wild ${wildOne.speciesName} wanders off.`;

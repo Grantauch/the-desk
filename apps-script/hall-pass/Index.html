@@ -445,6 +445,8 @@
       .is-earned .ck-keepsake { background:#deebbb; color:#29432d; }
       .ck-journey small { font-size:10px; }
       .ck-pocket .ck-note { font-size:12px; line-height:1.6; margin:0; }
+      .ck-bus-link { display:inline-block; margin:2px 8px 6px 0; padding:10px 18px; border-radius:12px; background:#173b31; color:#fff8e6; font-weight:800; font-size:15px; text-decoration:none; }
+      .ck-bus-link:hover, .ck-bus-link:focus-visible { background:#0f2a23; outline:3px solid #f2c14e; outline-offset:2px; }
       .ck-pocket :focus-visible { outline:3px solid #087458; outline-offset:3px; }
       .ck-world :focus-visible { outline-color:#d6f5b0; }
       .ck-pocket [hidden] { display:none!important; }
@@ -1407,6 +1409,7 @@
               <div class="ck-growth"><div><strong>${escapeHtml(companion.stage)}</strong><span>best streak · ${best}</span></div><progress value="${Math.min(best,goal)}" max="${goal}" aria-label="${companion.nextMilestone ? `${best} of ${goal} school days toward the next stage` : 'All Checkling stages unlocked'}"></progress><p>${companion.nextMilestone ? `${Math.max(0,goal-best)} more consecutive school ${goal-best === 1 ? 'day' : 'days'} to the next little adventure.` : 'Every home unlocked. There’s still a whole world to play in.'}</p></div>
               ${pet ? '<div class="ck-action-grid"><button type="button" class="secondary" id="ck-nuzzle">nuzzle</button><button type="button" class="secondary" id="ck-snacks">snacks</button><button type="button" class="secondary" id="ck-pairs">star pairs</button><button type="button" class="secondary" id="ck-echo">echo grove</button></div><div id="ck-play" class="ck-play" aria-label="Checkling play corner"></div>' : ''}
               ${pet ? '<button type="button" class="secondary" id="ck-open-camp">open Pixel Camp</button><p class="ck-note">Your school PIN, original friend, earned homes and private camp save travel together.</p>' : ''}
+              ${pet ? '<button type="button" class="secondary" id="ck-ride-bus">ride the bus to the Checkaverse</button><p id="ck-bus" class="ck-note" role="status">Battle your class and keep what you catch. Your ticket carries no name.</p>' : ''}
               <details ${pet ? '' : 'open'}><summary>${pet ? 'make it yours' : 'hatch a friend'}</summary><form id="ck-form">
                 <fieldset class="ck-friends"><legend>Choose a friend</legend>${friends.map(entry => `<label><input type="radio" name="ck-species" aria-label="${escapeHtml(entry.name + ", " + entry.kind)}" value="${entry.id}" ${entry.id === friend.id ? 'checked' : ''}><img src="${images}${entry.id}/idle-1.png" alt="" width="56" height="56" referrerpolicy="no-referrer"><span>${entry.name}</span></label>`).join('')}</fieldset>
                 <label class="ck-name">Their name<input name="ck-name" maxlength="18" required value="${escapeHtml(pet ? pet.name : friend.name)}" autocomplete="off"></label>
@@ -1419,6 +1422,28 @@
           </section>`;
         const campButton = slot.querySelector('#ck-open-camp');
         if (campButton) campButton.onclick = openPixelCamp;
+        // The bus prints a two hour ticket for the shared town. The student taps a second time to board, so no
+        // pop-up blocker can stop it and nothing opens on its own.
+        const busButton = slot.querySelector('#ck-ride-bus');
+        if (busButton) busButton.onclick = async () => {
+          const token = pinToken, line = slot.querySelector('#ck-bus');
+          busButton.disabled = true; noteInteraction();
+          line.textContent = 'Printing your bus ticket…';
+          try {
+            const ride = await call('getCheckaverseTicket', token);
+            if (token !== pinToken || !line.isConnected) return;
+            const link = document.createElement('a');
+            link.href = ride.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.className = 'ck-bus-link';
+            link.textContent = 'board the bus ↗';
+            line.textContent = '';
+            line.append(link, ' Your ticket works for two hours in the tab it opens.');
+            link.focus();
+          } catch (error) {
+            if (line.isConnected) line.textContent = error.message || 'The bus could not leave. Try again.';
+          } finally {
+            if (busButton.isConnected) busButton.disabled = false;
+          }
+        };
         const shell = slot.querySelector('.ck-pocket');
         // An active companion visit may outlast the brief transaction handoff.
         // The existing two-minute inactivity reset and explicit next-student
