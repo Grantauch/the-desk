@@ -14,9 +14,10 @@ import { WebSocketServer } from 'ws';
 import { versionHtmlAssets } from './asset-versions.mjs';
 import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
+import * as Care from './care.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.11.0';
+const VERSION = '0.12.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -43,6 +44,9 @@ const STARTERS = Object.keys(RULES.species.species);
 const SPECIES = RULES.species.species;
 // Growth is content too: XP per check-in, the level curve, battle XP and the daily limits.
 const GROWTH = Accounts.loadGrowth(path.join(HERE, 'content', 'growth.json'));
+// The Checkling body (care, conditions, diseases, death) is content, checked here before anyone connects.
+const CARE = Care.loadCare(path.join(HERE, 'content'));
+for (const id of Object.keys(CARE.epitaphs)) if (!CARE.diseases[id] && !CARE.rare[id]) throw new Error(`epitaphs.json: ${id} is not a cause of death`);
 const TURN_MS = Number(process.env.CHECKAVERSE_TURN_MS || RULES.settings.turnSeconds * 1000);
 // Wild encounter content is checked the same way: every zone is a real tile in the wilds and every species can battle.
 for (const [tile, z] of Object.entries(WILD.zones)) {
@@ -117,7 +121,16 @@ setMeta.run('last_start', new Date().toISOString());
 setMeta.run('version', VERSION);
 // Battles between ticketed trainers also keep the anonymous player IDs, for weekly rankings later.
 for (const col of ['a_pid', 'b_pid']) { try { db.exec(`ALTER TABLE battles ADD COLUMN ${col} TEXT`); } catch { /* already there */ } }
-const STORE = Accounts.openStore(db, GROWTH);
+// The body clock only ticks for school days the server was running, so an outage never hurts a Checkling.
+const getMeta = db.prepare('SELECT value FROM meta WHERE key = ?');
+const markUp = () => setMeta.run(`up:${Accounts.todayKey()}`, '1');
+markUp();
+setInterval(markUp, 20 * 60_000).unref();
+const STORE = Accounts.openStore(db, GROWTH, CARE, {
+  wasUp: (d) => Boolean(getMeta.get(`up:${d}`)),
+  noSchool: (d) => Boolean(getMeta.get(`noschool:${d}`)),
+  speciesName: (id) => SPECIES[id]?.name || id,
+});
 const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_trainer, a_species, b_trainer, b_species, winner, reason, turns, picks, a_pid, b_pid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
 // ---------- the town and the houses ----------
@@ -264,12 +277,15 @@ const declined = new Map(); // "fromId>toId" -> time the wait ends
 
 const nextTo = (a, b) => a.room === b.room && Math.abs(a.x - b.x) + Math.abs(a.y - b.y) <= 1;
 
+const NO_PARTNER = 'You have no Checkling to battle with. Your egg hatches after a few more check-ins.';
 function handleChallenge(p, toId) {
   const target = players.get(toId);
   if (!target || target.id === p.id) return send(p, { t: 'notice', msg: 'That trainer left.' });
   if (!nextTo(p, target)) return send(p, { t: 'notice', msg: 'Walk up next to a trainer to challenge them.' });
   if (p.busy) return send(p, { t: 'notice', msg: 'Turn off Busy to send challenges.' });
   if (p.battle) return send(p, { t: 'notice', msg: 'Finish this battle first.' });
+  if (partnerSide(p).none) return send(p, { t: 'notice', msg: NO_PARTNER });
+  if (partnerSide(target).none) return send(p, { t: 'notice', msg: `${target.name} has no Checkling to battle with right now.` });
   if (target.battle) return send(p, { t: 'notice', msg: `${target.name} is already in a battle.` });
   if (target.busy) return send(p, { t: 'notice', msg: `${target.name} is Busy right now.` });
   const waitUntil = declined.get(`${p.id}>${target.id}`) || 0;
@@ -294,6 +310,7 @@ function handleAnswer(p, fromId, ok) {
   pending.delete(p.id);
   const challenger = players.get(fromId);
   if (!challenger) return send(p, { t: 'notice', msg: 'That trainer left.' });
+  if (ok && (partnerSide(p).none || partnerSide(challenger).none)) return send(p, { t: 'notice', msg: NO_PARTNER });
   if (ok && !nextTo(p, challenger)) return send(p, { t: 'notice', msg: `${challenger.name} walked away before you answered.` });
   if (!ok) {
     declined.set(`${challenger.id}>${p.id}`, Date.now() + DECLINE_WAIT_MS);
@@ -329,7 +346,8 @@ function setBattling(p, v) {
 function partnerSide(p) {
   if (p.pid) {
     const row = STORE.get(p.pid, Number(String(p.partner).slice(1))) || STORE.team(p.pid).find((r) => r.party);
-    return { name: p.name, species: row.species, level: row.level, cid: row.id };
+    if (!row) return { name: p.name, species: '', none: true };
+    return { name: p.name, species: row.species, level: row.level, cid: row.id, mods: STORE.mods(p.pid, row.id) };
   }
   const c = /^c(\d)$/.exec(p.partner);
   const caught = c && p.caught[Number(c[1])];
@@ -347,7 +365,7 @@ function teamView(p) {
     return STORE.team(p.pid).map((r) => {
       const floor = Accounts.xpFor(GROWTH, r.level), top = Accounts.xpFor(GROWTH, Math.min(50, r.level + 1));
       return { v: `k${r.id}`, species: r.species, name: SPECIES[r.species].name, type: SPECIES[r.species].type, level: r.level, nick: r.nick,
-        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor) };
+        den: !r.party, hatched: Boolean(r.hatched), xp: r.xp - floor, need: Math.max(0, top - floor), flag: careFlag(p.pid, r) };
     });
   }
   return [
@@ -356,8 +374,21 @@ function teamView(p) {
   ];
 }
 function charmsOf(p) { return p.pid ? STORE.charmsLeft(p.pid) : p.charms; }
+// One word for the partner list: the worst thing going on with that Checkling's body, if anything.
+function careFlag(pid, r) {
+  if (!r.party) return '';
+  const v = STORE.body(pid, r.id);
+  if (!v) return '';
+  if (v.disease) return 'sick';
+  if (v.conditions.some((c) => ['obese', 'scrawny', 'grimy', 'bored', 'exhausted'].includes(c.id))) return 'needs care';
+  if (v.stats.fullness <= 35) return 'hungry';
+  return '';
+}
+function eggOf(p) { return p.pid ? STORE.egg(p.pid, p.attendance || 0) : null; }
 function sendTeam(p) {
-  send(p, { t: 'team', team: teamView(p), partner: p.partner, charms: charmsOf(p), saved: Boolean(p.pid), partyMax: GROWTH.partyMax });
+  const tr = p.pid && STORE.trainer(p.pid);
+  if (tr) p.partner = tr.partner ? `k${tr.partner}` : '';
+  send(p, { t: 'team', team: teamView(p), partner: p.partner, charms: charmsOf(p), saved: Boolean(p.pid), partyMax: GROWTH.partyMax, egg: eggOf(p) });
 }
 const label = (species, nick) => (nick ? `${nick} the ${SPECIES[species].name}` : SPECIES[species].name);
 // Battle XP for a saved trainer, with a line for the level up and one when the daily cap is reached.
@@ -424,8 +455,13 @@ function finishBattle(b) {
     q.battle = 0;
     if (b.wild) {
       q.grace = WILD.graceSteps; setBattling(q, false);
+      if (q.pid && b.cids[0]) STORE.noteBattle(q.pid, b.cids[0]);
       if (st.reason === 'caught') payXp(q, b.cids[0], GROWTH.battleXp.caught);
-      else if (st.winner === 0) payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
+      else if (st.winner === 0) {
+        payXp(q, b.cids[0], GROWTH.battleXp.wildWin);
+        const found = q.pid && STORE.find(q.pid);
+        if (found) send(q, { t: 'notice', msg: `You found a ${found} in the grass. It is in your Care panel. Feed it at your own risk.` });
+      }
       if (q.pid) sendTeam(q);
       return;
     }
@@ -433,6 +469,7 @@ function finishBattle(b) {
     q.record[r]++;
     if (q.pid && st.reason !== 'restart') {
       STORE.result(q.pid, r);
+      if (b.cids[i]) STORE.noteBattle(q.pid, b.cids[i]);
       // Two trainers who both walked away earn nothing.
       if (!(r === 'd' && st.reason === 'timeout')) payXp(q, b.cids[i], GROWTH.battleXp[{ w: 'win', l: 'loss', d: 'draw' }[r]]);
       sendTeam(q);
@@ -662,7 +699,7 @@ function teacherApi(req, res, action) {
   const reply = (code, body) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...SECURITY_HEADERS }); res.end(JSON.stringify(body)); };
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
-    return reply(200, { ok: true, paused, version: VERSION, players: [...players.values()].map((p) => ({
+    return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION, players: [...players.values()].map((p) => ({
       id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
@@ -686,6 +723,13 @@ function teacherApi(req, res, action) {
       send(p, { t: 'removed' });
       setTimeout(() => p.ws.close(4001, 'Removed by teacher'), 100);
       return reply(200, { ok: true });
+    }
+    if (action === 'noschool') {
+      // A snow day or other closing: the body clock skips today for everyone.
+      const day = Accounts.todayKey();
+      if (body.v) setMeta.run(`noschool:${day}`, '1'); else db.prepare('DELETE FROM meta WHERE key = ?').run(`noschool:${day}`);
+      log('teacher', body.v ? 'no school today' : 'school today after all');
+      return reply(200, { ok: true, noSchool: Boolean(body.v) });
     }
     if (action === 'say') {
       const msg = String(body.msg || '').replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -773,10 +817,11 @@ function join(ws, ticket) {
       }
       const linked = STORE.link(t, trainerName, p.look);
       const tr = linked.trainer;
-      Object.assign(p, { pid: t.pid, hour: t.hour, name: tr.name, look: tr.look % LOOKS, partner: `k${tr.partner}`,
-        record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid) });
+      Object.assign(p, { pid: t.pid, hour: t.hour, name: tr.name, look: tr.look % LOOKS, partner: tr.partner ? `k${tr.partner}` : '',
+        record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid), attendance: t.days });
+      p.arrival = { reports: linked.reports, deaths: linked.deaths };
       const hatched = STORE.team(t.pid).find((r) => r.hatched);
-      if (linked.created) notes.push(`Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
+      if (linked.created && hatched) notes.push(`Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
       const c = linked.credit;
       if (c) {
         const who = label(c.species, c.nick);
@@ -799,7 +844,7 @@ function join(ws, ticket) {
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
     wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
     charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,
-    room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p),
+    room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p), egg: eggOf(p),
     players: inRoom('town').map(publicView),
   });
   toRoom('town', { t: 'join', p: publicView(p) }, p.id);
@@ -807,6 +852,11 @@ function join(ws, ticket) {
   if (!plot) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
   // One card on arrival, so the welcome is not wiped by the growth line a moment later.
   if (notes.length) send(p, { t: 'notice', msg: notes.join(' ') });
+  // The overnight report: what changed while the student was gone, and any Checkling that did not make it.
+  if (p.arrival && (p.arrival.reports.some((r) => r.lines.length) || p.arrival.deaths.length)) {
+    send(p, { t: 'report', reports: p.arrival.reports.filter((r) => r.lines.length).map((r) => ({ ...r, name: label(r.species, r.nick) })),
+      deaths: p.arrival.deaths.map((d) => ({ ...d, name: label(d.species, d.nick) })), egg: eggOf(p) });
+  }
   return p;
 }
 
@@ -853,6 +903,7 @@ function handleMove(p, d) {
     const zone = WILD.zones[tile];
     if (!zone) return;
     if (p.grace > 0) { p.grace--; return; }
+    if (partnerSide(p).none) return;
     if (Math.random() < (WILD_RATE ?? zone.rate)) startWild(p, tile);
   }
 }
@@ -946,12 +997,54 @@ function handleMessage(p, msg, now) {
       if (moved.msg) send(p, { t: 'notice', msg: moved.msg });
       if (!moved.ok) return;
       const was = p.partner;
-      p.partner = `k${STORE.trainer(p.pid).partner}`;
+      { const pt = STORE.trainer(p.pid).partner; p.partner = pt ? `k${pt}` : ''; }
       sendTeam(p);
       if (was !== p.partner) toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
       return;
     }
     case 'answer': return handleAnswer(p, Number(msg.from), Boolean(msg.ok));
+    case 'body': {
+      // The Care panel for one Checkling in the party or Den.
+      if (!p.pid) return send(p, { t: 'body', saved: false });
+      const id = Number(String(msg.id || '').replace(/^k/, ''));
+      const row = STORE.get(p.pid, id);
+      if (!row) return send(p, { t: 'body', saved: true, gone: true });
+      return send(p, { t: 'body', saved: true, id: `k${id}`, species: row.species, name: label(row.species, row.nick), level: row.level, den: !row.party, body: STORE.body(p.pid, id) });
+    }
+    case 'care': {
+      if (!p.pid || p.battle) return;
+      if (now - (p.lastCare || 0) < 400) return;
+      p.lastCare = now;
+      const id = Number(String(msg.id || '').replace(/^k/, ''));
+      const row = STORE.get(p.pid, id);
+      if (!row || typeof msg.a !== 'string') return;
+      const r = STORE.care(p.pid, id, msg.a, row.nick || SPECIES[row.species].name);
+      if (r.death) {
+        log('death', p.pid.slice(0, 6), row.species, r.death.cause);
+        send(p, { t: 'death', name: label(row.species, row.nick), cause: r.death.cause, epitaph: r.death.epitaph, msg: r.msg, egg: eggOf(p) });
+        sendTeam(p);
+        return toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+      }
+      send(p, { t: 'cared', ok: r.ok, msg: r.msg, id: `k${id}`, body: STORE.body(p.pid, id) });
+      return sendTeam(p);
+    }
+    case 'hatch': {
+      if (!p.pid || !STARTERS.includes(msg.species)) return;
+      const got = STORE.hatchEgg(p.pid, msg.species, p.attendance || 0);
+      if (!got) return send(p, { t: 'notice', msg: 'Your egg is not ready yet.' });
+      send(p, { t: 'notice', msg: `Your egg hatched into a ${SPECIES[msg.species].name}!${got.den ? ' Your party is full, so it went to your Den.' : ''}` });
+      sendTeam(p);
+      return toRoom(p.room, { t: 'pt', id: p.id, v: partnerSide(p).species }, p.id);
+    }
+    case 'cemetery': {
+      // The class cemetery: headstones from the trainer's own class hour. Trainer names are already public.
+      if (now - (p.lastGraves || 0) < 1500) return;
+      p.lastGraves = now;
+      if (!p.pid) return send(p, { t: 'cemetery', saved: false, stones: [] });
+      return send(p, { t: 'cemetery', saved: true, hour: p.hour, stones: STORE.cemetery(p.hour).map((g) => ({
+        trainer: g.trainer, species: g.species, speciesName: SPECIES[g.species]?.name || g.species, level: g.level, days: g.days,
+        cause: Care.causeName(CARE, g.cause), epitaph: g.epitaph, died: g.died.slice(0, 10), mine: g.pid === p.pid })) });
+    }
     case 'ranks': {
       // This week's battle ranking for the trainer's own class hour. Player IDs never leave the server.
       if (now - (p.lastRanks || 0) < 1500) return;

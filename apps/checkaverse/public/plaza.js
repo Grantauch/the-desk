@@ -130,7 +130,7 @@
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
         me = m.you; town = m.town; house = m.house; wilds = m.wilds; phrases = m.phrases; myPlot = m.myPlot;
-        team = m.team || []; saved = Boolean(m.saved); partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
+        team = m.team || []; saved = Boolean(m.saved); egg = m.egg || null; partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         partner = m.partner; closeBattle(true); lastNear = null; watchLine();
         // A ticket the town turned down is dropped, so a reload does not try it again.
@@ -138,7 +138,7 @@
         // A visitor's starter choice is remembered on this Chromebook. A saved trainer's partner is kept by the town.
         if (!saved) { const pick = savedPartner(); if (pick && pick !== partner && team.some((x) => x.v === pick && !x.caught)) send({ t: 'partner', v: pick }); }
         buildPartners();
-        if (!saved) tipSoon('visitor', 2500);
+        if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
         room = 'town'; roomKind = 'town'; roomOwner = null;
         setPlayers(m.players);
         meEl.textContent = players.get(me)?.name || 'Trainer';
@@ -196,9 +196,14 @@
       case 'battling': { const p = players.get(m.id); if (p) p.inb = m.v; break; }
       case 'record': recordLine(m.record); break;
       case 'partner': partner = m.v; buildPartners(); break;
-      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner || partner; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
+      case 'team': { const more = (m.team || []).length > team.length; team = m.team || []; saved = Boolean(m.saved); partner = m.partner ?? partner; egg = m.egg || null; charms = m.charms ?? charms; buildPartners(); charmLine(); if (more) tipSoon(saved ? 'caught' : 'caught-visit', 4000); break; }
       case 'elsewhere': elsewhere = true; break;
       case 'ranks': showRanks(m); break;
+      case 'body': showBody(m); break;
+      case 'cared': $('careMsg').textContent = m.msg; if (m.body && careView) { careView.body = m.body; renderCare(); } break;
+      case 'report': showReport(m); break;
+      case 'death': showDeath(m); break;
+      case 'cemetery': showCemetery(m); break;
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
@@ -310,7 +315,7 @@
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
     if (bt) { battleKey(e); return; }
-    if (e.code === 'Escape') { closePops(); closeRanks(); if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
+    if (e.code === 'Escape') { closePops(); closeRanks(); closeCards(); if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
@@ -946,7 +951,7 @@
 
 
   // ---------- floating buttons and their pop-ups ----------
-  const pops = { partnerBtn: 'partnerPop', sayBtn: 'phrases', menuBtn: 'menu' };
+  const pops = { partnerBtn: 'partnerPop', careBtn: 'carePop', sayBtn: 'phrases', menuBtn: 'menu' };
   function closePops(except) {
     for (const [btn, pop] of Object.entries(pops)) {
       if (btn === except) continue;
@@ -961,11 +966,12 @@
       $(pop).hidden = !opening;
       $(btn).setAttribute('aria-expanded', String(opening));
       if (btn === 'partnerBtn') buildPartners();
+      if (btn === 'careBtn' && opening) askBody(partner || (team.find((x) => !x.den) || {}).v);
     });
     $(pop).addEventListener('click', (e) => e.stopPropagation());
   }
   // A tap on the map or anywhere else closes whatever is open.
-  document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.pop, .hud')) { closePops(); closeRanks(); } });
+  document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.pop, .hud')) { closePops(); closeRanks(); closeCards(true); } });
   // Saying a phrase closes the phrase list so the map is clear again.
   phrasesEl.addEventListener('click', (e) => { if (e.target.closest('button')) setTimeout(() => closePops(), 0); });
 
@@ -984,6 +990,7 @@
     'wild-battle': 'Wear it down first, then press 5 to throw a charm. Weaker Checklings are easier to catch. Press 6 to run.',
     caught: 'Your catch is yours to keep. Tap your partner button to battle with it, or to move Checklings between your party and your Den.',
     'caught-visit': 'Your catch is in your partner list for this visit. Tap your partner button to battle with it.',
+    care: 'Tap Care to feed, groom, play with and nap your Checkling. Too much or too little of anything has a cost.',
     visitor: 'You are visiting, so catches and wins are not saved. To keep them, ride the bus from your Check-In page.',
   };
   const FOLLOW = { walk: ['partner', 'say'] };
@@ -1077,6 +1084,178 @@
     b.addEventListener('click', (e) => { if (e.detail) b.blur(); send({ t: 'den', v: c.v, party: toParty }); });
     return b;
   }
+  // ---------- care ----------
+  // The Care panel shows one Checkling's body. The town decides every number; this only draws it and sends taps.
+  let egg = null, careView = null;
+  const careBtn = $('careBtn');
+  function careLine() {
+    careBtn.hidden = !saved || !team.some((x) => !x.den);
+    const worst = ['sick', 'needs care', 'hungry'].find((f) => team.some((x) => !x.den && x.flag === f));
+    $('careFlag').hidden = !worst;
+    $('careFlag').textContent = worst || '';
+  }
+  function askBody(v) { if (v) send({ t: 'body', id: v }); }
+  const BARS = [['fullness', 'Full'], ['hygiene', 'Clean'], ['mood', 'Mood'], ['health', 'Health']];
+  const weightWord = (w) => (w >= 80 ? 'Obese' : w >= 68 ? 'Chubby' : w <= 20 ? 'Scrawny' : w <= 32 ? 'Thin' : 'Healthy');
+  function showBody(m) {
+    if (!m.saved || m.gone) { closePops(); return; }
+    careView = m;
+    $('careMsg').textContent = '';
+    renderCare();
+    if ($('carePop').hidden) { closePops('careBtn'); $('carePop').hidden = false; careBtn.setAttribute('aria-expanded', 'true'); }
+  }
+  function renderCare() {
+    const m = careView, b = m.body;
+    $('careImg').src = `/art/front-${m.species}.png`;
+    $('careName').textContent = m.name;
+    $('careSub').textContent = `Level ${m.level}${m.den ? ' · resting in the Den, so its body clock is paused' : ''}`;
+    const sw = $('careSwitch');
+    sw.textContent = '';
+    for (const c of team) {
+      const t = document.createElement('button');
+      t.type = 'button'; t.setAttribute('role', 'tab'); t.setAttribute('aria-selected', String(c.v === m.id));
+      t.textContent = shortName(c) + (c.den ? ' (Den)' : '');
+      t.addEventListener('click', () => askBody(c.v));
+      sw.appendChild(t);
+    }
+    sw.hidden = team.length < 2;
+    const bars = $('careBars');
+    bars.textContent = '';
+    for (const [k, label] of BARS) {
+      const v = b.stats[k];
+      const name = document.createElement('span'); name.textContent = label;
+      const bar = document.createElement('span'); bar.className = `care-bar${v <= 25 ? ' low' : v <= 45 ? ' mid' : ''}`;
+      const fill = document.createElement('i'); fill.style.width = `${v}%`; bar.appendChild(fill);
+      bar.setAttribute('role', 'meter'); bar.setAttribute('aria-label', label); bar.setAttribute('aria-valuenow', String(v)); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100');
+      const num = document.createElement('span'); num.textContent = String(v);
+      bars.append(name, bar, num);
+    }
+    const wn = document.createElement('span'); wn.textContent = 'Build';
+    const wb = document.createElement('span'); wb.className = 'care-weight';
+    const mark = document.createElement('i'); mark.style.left = `${b.stats.weight}%`; wb.appendChild(mark);
+    wb.setAttribute('role', 'meter'); wb.setAttribute('aria-label', `Build: ${weightWord(b.stats.weight)}`); wb.setAttribute('aria-valuenow', String(b.stats.weight));
+    const ww = document.createElement('span'); ww.textContent = weightWord(b.stats.weight);
+    ww.style.fontSize = '12px';
+    bars.append(wn, wb, ww);
+    const tags = $('careTags');
+    tags.textContent = '';
+    if (b.disease) {
+      const d = document.createElement('div'); d.className = 'care-tag sick';
+      const h = document.createElement('b'); h.textContent = `Sick: ${b.disease.name}`;
+      d.append(h, `Give medicine once a day. ${b.disease.dosesLeft} more ${b.disease.dosesLeft === 1 ? 'dose' : 'doses'} to cure it.${b.disease.dosedToday ? ' Today\'s dose is done.' : ''} Left untreated it can kill.`);
+      tags.appendChild(d);
+    }
+    for (const c of b.conditions) {
+      const d = document.createElement('div'); d.className = 'care-tag';
+      const h = document.createElement('b'); h.textContent = c.name;
+      d.append(h, c.tip);
+      tags.appendChild(d);
+    }
+    const acts = $('careActions');
+    acts.textContent = '';
+    for (const a of b.actions) {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'ghost'; btn.disabled = a.left <= 0 || m.den;
+      btn.append(a.label);
+      const small = document.createElement('small'); small.textContent = a.left > 0 ? `${a.left} left today` : 'done for today';
+      btn.appendChild(small);
+      btn.addEventListener('click', () => send({ t: 'care', id: m.id, a: a.id }));
+      acts.appendChild(btn);
+    }
+    for (const x of b.rare || []) {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'ghost risky'; btn.disabled = m.den;
+      btn.append(`${x.label} (${x.count})`);
+      const small = document.createElement('small'); small.textContent = 'Some things in the wilds should never be eaten.';
+      btn.appendChild(small);
+      btn.addEventListener('click', () => send({ t: 'care', id: m.id, a: x.id }));
+      acts.appendChild(btn);
+    }
+  }
+  const capital = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+  function stoneEl(st) {
+    const el = document.createElement('div'); el.className = `stone${st.mine ? ' mine' : ''}`;
+    const im = document.createElement('img'); im.alt = 'Headstone';
+    im.src = `/art/kc-headstone-${1 + ((st.trainer || '').length + (st.days || 0)) % 4}.png`;
+    const txt = document.createElement('div');
+    const who = document.createElement('div'); who.className = 'who'; who.textContent = st.title;
+    const line = document.createElement('div'); line.className = 'line'; line.textContent = st.epitaph;
+    const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = st.meta;
+    txt.append(who, line, meta);
+    el.append(im, txt);
+    return el;
+  }
+  function eggNote(e) {
+    if (!e) return '';
+    if (e.owed) return 'A new egg comes at your next check-in.';
+    if (e.ready) return 'Your egg is ready to hatch!';
+    return `A new egg is waiting. It hatches after ${e.left} more check-in${e.left === 1 ? '' : 's'}.`;
+  }
+  function showReport(m) {
+    const box = $('reportBody');
+    box.textContent = '';
+    for (const d of m.deaths || []) {
+      box.appendChild(stoneEl({ title: `${d.name} died of ${d.cause.toLowerCase()}.`, epitaph: d.epitaph, meta: 'Its headstone is in your class cemetery.', days: 1, trainer: d.name }));
+    }
+    for (const r of m.reports || []) {
+      const it = document.createElement('div'); it.className = 'report-item';
+      const im = document.createElement('img'); im.alt = ''; im.src = `/art/front-${r.species}.png`;
+      const txt = document.createElement('div');
+      const h = document.createElement('b'); h.textContent = r.name;
+      const ul = document.createElement('ul');
+      for (const l of r.lines) { const li = document.createElement('li'); li.className = l.k; li.textContent = capital(l.text) + '.'; ul.appendChild(li); }
+      txt.append(h, ul);
+      it.append(im, txt);
+      box.appendChild(it);
+    }
+    if ((m.deaths || []).length) { const p = document.createElement('p'); p.className = 'pop-note'; p.textContent = eggNote(m.egg); box.appendChild(p); }
+    $('reportTitle').textContent = (m.deaths || []).length ? 'Bad news' : 'While you were gone';
+    closePops();
+    $('reportPop').hidden = false;
+    $('reportClose').focus();
+  }
+  function showDeath(m) {
+    showReport({ deaths: [{ name: m.name, cause: m.cause, epitaph: m.epitaph }], reports: [], egg: m.egg });
+    $('reportTitle').textContent = m.msg || 'Bad news';
+  }
+  function showCemetery(m) {
+    const box = $('stones');
+    box.textContent = '';
+    $('cemeteryTitle').textContent = m.saved ? `Class cemetery · ${m.hour}` : 'Class cemetery';
+    for (const st of m.stones) {
+      box.appendChild(stoneEl({ ...st, title: `${st.trainer}'s ${st.speciesName}${st.mine ? ' (yours)' : ''}`,
+        meta: `Level ${st.level} · lived ${st.days} day${st.days === 1 ? '' : 's'} · ${st.cause} · ${st.died}` }));
+    }
+    $('cemeteryNote').textContent = !m.saved ? 'Visitors do not have a class. Ride the bus from Check-In to see your class cemetery.'
+      : m.stones.length ? 'Every Checkling lost in your class hour rests here.' : 'Nobody in your class has lost a Checkling yet. Keep it that way.';
+    closePops();
+    $('cemeteryPop').hidden = false;
+    $('cemeteryClose').focus();
+  }
+  function openHatch() {
+    if (!$('hatchPop').hidden || !$('reportPop').hidden) return;
+    const box = $('hatchPick');
+    box.textContent = '';
+    for (const sp of ['mochi', 'bolt', 'zee', 'ember']) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'ghost';
+      const im = document.createElement('img'); im.alt = ''; im.src = `/art/front-${sp}.png`;
+      b.append(im, capital(sp));
+      b.addEventListener('click', () => { send({ t: 'hatch', species: sp }); $('hatchPop').hidden = true; });
+      box.appendChild(b);
+    }
+    closePops();
+    $('hatchPop').hidden = false;
+  }
+  function closeCards(soft) {
+    $('reportPop').hidden = true; $('cemeteryPop').hidden = true;
+    if (!soft) $('hatchPop').hidden = true;
+    if (saved && egg && egg.ready && !soft) setTimeout(openHatch, 300);
+  }
+  $('reportClose').addEventListener('click', () => { closeCards(); if (saved && egg && egg.ready) openHatch(); });
+  $('cemeteryClose').addEventListener('click', () => closeCards());
+  $('cemeteryBtn').addEventListener('click', () => { closePops(); send({ t: 'cemetery' }); });
+  for (const id of ['reportPop', 'cemeteryPop', 'hatchPop']) $(id).addEventListener('pointerdown', (e) => e.stopPropagation());
+
   function buildPartners() {
     const box = $('partners');
     box.textContent = '';
@@ -1105,7 +1284,10 @@
       ? `Up to ${partyMax} Checklings travel with you. The others wait in your Den. Every check-in grows your partner.`
       : 'You are visiting, so nothing here is saved. Ride the bus from your Check-In page to bring your own Checkling.';
     const now = team.find((x) => x.v === partner);
-    if (now) { $('partnerImg').src = `/art/front-${now.species}.png`; $('partnerName').textContent = shortName(now); }
+    if (now) { $('partnerImg').hidden = false; $('partnerImg').src = `/art/front-${now.species}.png`; $('partnerName').textContent = shortName(now); }
+    else if (saved) { $('partnerImg').hidden = true; $('partnerName').textContent = egg && egg.left ? `Egg: ${egg.left} more check-in${egg.left === 1 ? '' : 's'}` : egg ? 'Egg' : 'No partner'; }
+    careLine();
+    if (saved && egg && egg.ready) openHatch();
   }
   function charmLine() {
     const chip = $('charmChip');

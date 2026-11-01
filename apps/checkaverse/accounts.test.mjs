@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import * as A from './accounts.mjs';
+import { loadCare } from './care.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const g = A.loadGrowth(path.join(HERE, 'content', 'growth.json'));
@@ -22,7 +23,8 @@ console.log('  ok the level curve matches the bible');
 
 // Battle XP stops at the daily cap.
 const db = new DatabaseSync(':memory:');
-const store = A.openStore(db, g);
+const care = loadCare(path.join(HERE, 'content'));
+const store = A.openStore(db, g, care, { wasUp: () => true, speciesName: (x) => x });
 const t = { pid: 'abcdefghijklmnop', hour: '2nd Hour', days: 0, partner: { species: 'zee', nick: 'Quill' } };
 store.link(t, () => 'Swift Hawk', 0);
 const id = store.team(t.pid)[0].id;

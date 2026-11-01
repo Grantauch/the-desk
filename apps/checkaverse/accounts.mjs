@@ -7,6 +7,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import * as Care from './care.mjs';
 
 // ---------- growth ----------
 export function loadGrowth(file) {
@@ -148,7 +149,20 @@ export function weeklyRanks(db, rules, hour, now = new Date()) {
   return { week, list };
 }
 
-export function openStore(db, g) {
+// A repeatable random stream for one body event, so any death a student reports can be replayed.
+export function seeded(...parts) {
+  let t = crypto.createHash('sha256').update(parts.join('|')).digest().readUInt32LE(0);
+  return () => {
+    t += 0x6D2B79F5;
+    let x = t;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// care: the rules from care.mjs. clock.wasUp(day) says the server ran that day, clock.noSchool(day) adds snow days.
+export function openStore(db, g, care, clock = {}) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS trainers (
       pid TEXT PRIMARY KEY,
@@ -179,14 +193,40 @@ export function openStore(db, g) {
       born TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS checklings_pid ON checklings(pid);
+    CREATE TABLE IF NOT EXISTS graves (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      hour TEXT NOT NULL,
+      trainer TEXT NOT NULL,
+      species TEXT NOT NULL,
+      level INTEGER NOT NULL,
+      days INTEGER NOT NULL,
+      cause TEXT NOT NULL,
+      epitaph TEXT NOT NULL,
+      died TEXT NOT NULL,
+      pid TEXT NOT NULL,
+      cid INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS graves_hour ON graves(hour);
   `);
+  // Columns added after the first saves. Old rows get a fresh body the first time they are seen.
+  const cols = (t) => db.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name);
+  if (!cols('checklings').includes('body')) db.exec("ALTER TABLE checklings ADD COLUMN body TEXT NOT NULL DEFAULT ''");
+  if (!cols('checklings').includes('died')) db.exec("ALTER TABLE checklings ADD COLUMN died TEXT NOT NULL DEFAULT ''");
+  if (!cols('trainers').includes('egg')) db.exec('ALTER TABLE trainers ADD COLUMN egg INTEGER NOT NULL DEFAULT 0');
+  if (!cols('trainers').includes('items')) db.exec("ALTER TABLE trainers ADD COLUMN items TEXT NOT NULL DEFAULT '{}'");
   const q = {
     trainer: db.prepare('SELECT * FROM trainers WHERE pid = ?'),
     nameTaken: db.prepare('SELECT 1 FROM trainers WHERE name = ?'),
     addTrainer: db.prepare('INSERT INTO trainers (pid, name, look, hour, created, seen) VALUES (?, ?, ?, ?, ?, ?)'),
     seen: db.prepare('UPDATE trainers SET hour = ?, seen = ? WHERE pid = ?'),
-    team: db.prepare('SELECT * FROM checklings WHERE pid = ? ORDER BY party DESC, hatched DESC, id'),
-    one: db.prepare('SELECT * FROM checklings WHERE pid = ? AND id = ?'),
+    team: db.prepare("SELECT * FROM checklings WHERE pid = ? AND died = '' ORDER BY party DESC, hatched DESC, id"),
+    one: db.prepare("SELECT * FROM checklings WHERE pid = ? AND id = ? AND died = ''"),
+    setBody: db.prepare('UPDATE checklings SET body = ? WHERE id = ?'),
+    bury: db.prepare('UPDATE checklings SET died = ?, party = 0 WHERE id = ?'),
+    grave: db.prepare('INSERT INTO graves (hour, trainer, species, level, days, cause, epitaph, died, pid, cid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'),
+    graves: db.prepare('SELECT id, trainer, species, level, days, cause, epitaph, died, pid FROM graves WHERE hour = ? ORDER BY id DESC LIMIT ?'),
+    egg: db.prepare('UPDATE trainers SET egg = ? WHERE pid = ?'),
+    items: db.prepare('UPDATE trainers SET items = ? WHERE pid = ?'),
     hatched: db.prepare('SELECT * FROM checklings WHERE pid = ? AND hatched = 1'),
     addChk: db.prepare('INSERT INTO checklings (pid, species, nick, xp, party, hatched, origin, born) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'),
     syncHatched: db.prepare('UPDATE checklings SET species = ?, nick = ? WHERE id = ?'),
@@ -217,6 +257,70 @@ export function openStore(db, g) {
   const level = (row) => levelFor(g, row.xp);
   const view = (row) => ({ ...row, level: level(row) });
 
+  // ---------- the body ----------
+  const spName = (id) => (clock.speciesName ? clock.speciesName(id) : id);
+  const body = (row) => Care.readBody(care, row.body, todayKey());
+  const saveBody = (id, b) => q.setBody.run(JSON.stringify(b), id);
+  const itemsOf = (tr) => { try { return JSON.parse(tr?.items || '{}') || {}; } catch { return {}; } };
+  const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
+  // The partner is always a living Checkling in the party, or nobody when every Checkling is gone.
+  function repartner(pid) {
+    const tr = q.trainer.get(pid);
+    if (tr.partner && q.one.get(pid, tr.partner)?.party) return;
+    const team = q.team.all(pid);
+    let next = team.find((x) => x.party);
+    if (!next && team.length) { next = team[0]; q.setParty.run(1, next.id); }
+    q.setPartner.run(next ? next.id : 0, pid);
+  }
+  // A Checkling dies for good: a headstone for its class, the party carries on, and an egg is owed at the next check-in.
+  function kill(pid, row, cause, day) {
+    const tr = q.trainer.get(pid);
+    const sp = spName(row.species);
+    const line = Care.epitaph(care, cause, sp, seeded(pid, row.id, 'epitaph', day));
+    q.bury.run(cause, row.id);
+    q.grave.run(tr.hour, tr.name, row.species, level(row), Math.max(1, dayDiff(row.born.slice(0, 10), day)), cause, line, new Date().toISOString(), pid, row.id);
+    if (!tr.egg) q.egg.run(-1, pid);
+    repartner(pid);
+    return { id: row.id, species: row.species, nick: row.nick, cause: Care.causeName(care, cause), epitaph: line };
+  }
+  // Run every night still owed on the body clock for the party. presentCount is how many of those school days the
+  // student checked in; which ones is drawn from a seed, since the ticket only carries the count.
+  function catchUp(pid, presentCount) {
+    const day = todayKey();
+    const reports = [], deaths = [];
+    const rows = q.team.all(pid);
+    const owed = new Map();
+    for (const row of rows) {
+      const b = body(row);
+      // A body seen for the first time starts its clock today. The Den is paused, so its clock just keeps up.
+      if (!row.body || !row.party) { if (!row.party) b.clock = day; saveBody(row.id, b); continue; }
+      owed.set(row.id, { row, b, days: Care.owedDays(care, b.clock, day, clock.wasUp, clock.noSchool) });
+    }
+    const all = [...new Set([...owed.values()].flatMap((x) => x.days))].sort();
+    const pick = seeded(pid, 'present', day);
+    for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(pick() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+    const present = new Set(all.slice(0, Math.max(0, presentCount)));
+    for (const { row, b, days } of owed.values()) {
+      const lines = [];
+      const start = structuredClone(b);
+      for (const d of days) {
+        lines.push(...Care.tick(care, b, d, present.has(d), seeded(pid, row.id, 'night', d)));
+        if (b.dead) break;
+      }
+      if (!days.length) continue;
+      b.clock = days.at(-1) > b.clock ? days.at(-1) : b.clock;
+      saveBody(row.id, b);
+      if (b.dead) deaths.push(kill(pid, row, b.dead, day));
+      else {
+        const seen = new Set();
+        const all = [...lines, ...Care.summary(care, start, b, day)];
+        const uniq = all.filter((l) => !seen.has(l.text) && seen.add(l.text));
+        reports.push({ id: row.id, species: row.species, nick: row.nick, nights: days.length, lines: uniq.slice(0, 6) });
+      }
+    }
+    return { reports, deaths };
+  }
+
   return {
     nameTaken: (name) => Boolean(q.nameTaken.get(name)),
     trainer: fresh,
@@ -237,26 +341,107 @@ export function openStore(db, g) {
         let hatched = q.hatched.get(t.pid);
         if (!hatched) {
           const id = Number(q.addChk.run(t.pid, t.partner.species, t.partner.nick, 0, 1, 1, 'hatched', now()).lastInsertRowid);
+          saveBody(id, Care.newBody(care, todayKey()));
           q.setPartner.run(id, t.pid);
           hatched = q.one.get(t.pid, id);
-        } else if (hatched.species !== t.partner.species || hatched.nick !== t.partner.nick) {
+        } else if (!hatched.died && (hatched.species !== t.partner.species || hatched.nick !== t.partner.nick)) {
           q.syncHatched.run(t.partner.species, t.partner.nick, hatched.id);
         }
         tr = fresh(t.pid);
-        let partner = tr.partner && q.one.get(t.pid, tr.partner);
-        if (!partner || !partner.party) { partner = q.one.get(t.pid, hatched.id); q.setPartner.run(partner.id, t.pid); q.setParty.run(1, partner.id); }
         const gained = Math.max(0, t.days - tr.attendance);
+        // The body clock runs first, so XP goes to whoever is still standing this morning.
+        const body = created ? { reports: [], deaths: [] } : catchUp(t.pid, gained - (t.checkedIn ? 1 : 0));
+        repartner(t.pid);
+        tr = fresh(t.pid);
+        if (tr.egg === -1 && (gained > 0 || t.checkedIn)) { q.egg.run(t.days + care.egg.hatchAfter, t.pid); tr = fresh(t.pid); }
+        const partner = tr.partner ? q.one.get(t.pid, tr.partner) : null;
         let credit = null;
-        if (gained) {
+        if (gained && partner) {
           const before = level(partner);
           q.addXp.run(gained * g.dayXp, partner.id);
           const after = level(q.one.get(t.pid, partner.id));
           credit = { days: gained, xp: gained * g.dayXp, id: partner.id, species: partner.species, nick: partner.nick, before, after };
         }
         if (t.days !== tr.attendance) q.attendance.run(t.days, t.pid);
-        return { created, credit, trainer: fresh(t.pid) };
+        return { created, credit, trainer: fresh(t.pid), reports: body.reports, deaths: body.deaths };
       });
     },
+
+    // ---------- care ----------
+    egg(pid, attendance) {
+      const tr = q.trainer.get(pid);
+      if (!tr || !tr.egg) return null;
+      if (tr.egg === -1) return { owed: true };
+      return { left: Math.max(0, tr.egg - attendance), ready: attendance >= tr.egg };
+    },
+    hatchEgg(pid, species, attendance) {
+      return tx(() => {
+        const tr = q.trainer.get(pid);
+        if (!tr || !(tr.egg > 0) || attendance < tr.egg) return null;
+        const team = q.team.all(pid);
+        const party = team.filter((x) => x.party).length < g.partyMax ? 1 : 0;
+        const id = Number(q.addChk.run(pid, species, '', 0, party, 0, 'egg', now()).lastInsertRowid);
+        saveBody(id, Care.newBody(care, todayKey()));
+        q.egg.run(0, pid);
+        repartner(pid);
+        if (!party) return { id, den: true };
+        return { id };
+      });
+    },
+    body(pid, id) {
+      const row = q.one.get(pid, id);
+      if (!row) return null;
+      const v = Care.view(care, body(row), todayKey());
+      const items = itemsOf(q.trainer.get(pid));
+      v.rare = Object.entries(care.rare).filter(([k]) => items[k] > 0).map(([k, x]) => ({ id: k, label: x.label, count: items[k] }));
+      return v;
+    },
+    mods(pid, id) {
+      const row = q.one.get(pid, id);
+      return row ? Care.battleMods(care, body(row), todayKey()) : null;
+    },
+    care(pid, id, action, name) {
+      return tx(() => {
+        const row = q.one.get(pid, id);
+        if (!row) return { ok: false, msg: 'That Checkling is not here.' };
+        const day = todayKey();
+        const b = body(row);
+        const tr = q.trainer.get(pid);
+        const items = itemsOf(tr);
+        if (care.rare[action]) {
+          if (!(items[action] > 0)) return { ok: false, msg: 'You do not have one of those.' };
+          items[action] -= 1;
+          q.items.run(JSON.stringify(items), pid);
+        }
+        const done = Object.values(b.today.day === day ? b.today.n : {}).reduce((x, y) => x + y, 0);
+        const r = Care.act(care, b, action, day, seeded(pid, id, 'care', day, action, done), name);
+        saveBody(id, b);
+        if (b.dead) r.death = kill(pid, row, b.dead, day);
+        return r;
+      });
+    },
+    noteBattle(pid, id) {
+      const row = q.one.get(pid, id);
+      if (!row) return;
+      const b = body(row);
+      Care.noteBattle(b, todayKey());
+      saveBody(id, b);
+    },
+    // After a won wild battle a rare find can turn up. Returns its name, or null.
+    find(pid, rand = Math.random) {
+      const tr = q.trainer.get(pid);
+      if (!tr) return null;
+      const items = itemsOf(tr);
+      for (const [k, x] of Object.entries(care.rare)) {
+        if ((items[k] || 0) < x.max && rand() < x.foundAfterWildWin) {
+          items[k] = (items[k] || 0) + 1;
+          q.items.run(JSON.stringify(items), pid);
+          return x.name;
+        }
+      }
+      return null;
+    },
+    cemetery: (hour, n = 40) => q.graves.all(hour, n),
 
     setPartner(pid, id) {
       const r = q.one.get(pid, id);
@@ -295,6 +480,7 @@ export function openStore(db, g) {
         if (team.length >= g.partyMax + g.denMax) return null;
         const party = team.filter((x) => x.party).length < g.partyMax ? 1 : 0;
         const id = Number(q.addChk.run(pid, species, '', xpFor(g, lv), party, 0, `caught:${zone}`, now()).lastInsertRowid);
+        saveBody(id, Care.newBody(care, todayKey()));
         return { id, party: Boolean(party) };
       });
     },

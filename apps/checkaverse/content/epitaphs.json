@@ -1,0 +1,50 @@
+{
+  "note": "Headstone lines by cause of death. {name} is the species name. Jokes are about the Checkling and how it died, never the student, never body size. Several per cause so stones rarely repeat. More come in from the epitaph drafts after review.",
+  "causes": {
+    "heart_trouble": [
+      "Here lies {name}. Ate the whole thing. Then the other whole thing.",
+      "{name} always said yes to seconds. The heart said no.",
+      "Gone, but the snack drawer remembers."
+    ],
+    "malnutrition": [
+      "{name} waited by the bowl. The bowl waited too.",
+      "Here lies {name}, who really could have used a sandwich.",
+      "{name} believed lunch was coming. Faith is a lovely thing."
+    ],
+    "the_glooms": [
+      "{name} stared out the window one day too many.",
+      "Here lies {name}. Nobody ever threw the ball.",
+      "{name} sighed so long it became a lifestyle."
+    ],
+    "burnout": [
+      "{name} played until the playing played back.",
+      "Here lies {name}. Fetched one stick too many.",
+      "{name} had a lot of energy. Past tense."
+    ],
+    "couch_rot": [
+      "Finally got that nap.",
+      "Here lies {name}. Became one with the cushion.",
+      "{name} rested in peace long before it was official."
+    ],
+    "collapse": [
+      "{name} said it would sleep when it was dead. Fair enough.",
+      "Here lies {name}, who never once took the nap.",
+      "{name} stayed up for every single thing. Now it is up for nothing."
+    ],
+    "mange": [
+      "{name} never met a bath it liked. The feeling was mutual.",
+      "Here lies {name}. The smell lingers on.",
+      "{name} itched its way into legend."
+    ],
+    "torn_muscle": [
+      "{name} lifted with its back. Once.",
+      "Here lies {name}. Skipped stretching, every time.",
+      "{name} trained hard. The training trained harder."
+    ],
+    "glowing_mushroom": [
+      "Licked the glowing mushroom. Regrets nothing. Regrets everything.",
+      "{name} wanted to know what the glow tasted like. Now it knows.",
+      "Here lies {name}. The mushroom is doing fine."
+    ]
+  }
+}

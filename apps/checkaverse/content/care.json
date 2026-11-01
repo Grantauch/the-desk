@@ -1,0 +1,44 @@
+{
+  "note": "The Checkling body. Every number here is content, read by care.mjs. Stats run 0 to 100, and weight 50 is a healthy build. The body clock ticks once for each school day the server was running (content/calendar.json says which days are not school days). Only Checklings in the party tick, the Den is paused. A school day the student checked in is a present day: decay is full and the ladder (condition, disease, death) can climb. A day the student was absent only decays down to the floors and never starts a condition, a disease or a death, so absence stings but never wrecks a Checkling.",
+  "start": { "fullness": 70, "hygiene": 75, "mood": 65, "health": 100, "weight": 50 },
+  "daily": { "fullness": -30, "hygiene": -15, "mood": -10, "weightTowardHealthy": 2, "hungryBelow": 20, "hungryWeight": -6, "healthRecover": 10 },
+  "absentFloor": { "fullness": 30, "hygiene": 30, "mood": 30 },
+  "actions": {
+    "feed":     { "label": "Feed a meal", "perDay": 4, "effects": { "fullness": 35, "weight": 2 }, "overfed": { "ifAtLeast": { "fullness": 80 }, "effects": { "weight": 8 } }, "say": "{name} cleans the bowl." },
+    "treat":    { "label": "Give a treat", "perDay": 3, "effects": { "fullness": 10, "mood": 12, "weight": 4 }, "say": "{name} loves that." },
+    "groom":    { "label": "Groom", "perDay": 3, "effects": { "hygiene": 40, "mood": 3 }, "say": "{name} sparkles." },
+    "play":     { "label": "Play", "perDay": 6, "effects": { "mood": 22, "hygiene": -10, "fullness": -6, "weight": -2 }, "say": "{name} bounces around." },
+    "rest":     { "label": "Nap", "perDay": 4, "effects": { "mood": 4, "health": 5 }, "blockedBy": "wired", "say": "{name} curls up and snores." },
+    "medicine": { "label": "Give medicine", "perDay": 2, "effects": {}, "say": "{name} makes a face but swallows it." }
+  },
+  "conditions": {
+    "obese":       { "name": "Obese",        "when": { "stat": "weight", "atLeast": 80 },  "mods": { "power": 1.1, "stamina": 0.6 },   "leadsTo": "heart_trouble", "tip": "Too many full bowls. Skip the extra meals and play more." },
+    "scrawny":     { "name": "Scrawny",      "when": { "stat": "weight", "atMost": 20 },   "mods": { "speed": 1.1, "power": 0.7, "hp": 0.7 }, "leadsTo": "malnutrition", "tip": "Not enough food. Feed a meal every visit." },
+    "grimy":       { "name": "Grimy",        "when": { "stat": "hygiene", "atMost": 15 },  "mods": { "hp": 1.05 }, "leadsTo": "cold", "tip": "Filthy. A grooming fixes it." },
+    "bored":       { "name": "Bored",        "when": { "stat": "mood", "atMost": 15 },     "mods": { "hp": 1.05, "speed": 0.95 }, "leadsTo": "the_glooms", "extraDaily": { "mood": -8 }, "tip": "Nothing to do. Play with it." },
+    "wired":       { "name": "Wired",        "when": { "today": "play", "atLeast": 4 },    "mods": { "speed": 1.1 }, "leadsTo": "burnout", "tip": "Played too hard today. It cannot nap until tomorrow." },
+    "lazy":        { "name": "Lazy",         "when": { "today": "rest", "atLeast": 3 },    "mods": { "hp": 1.1, "speed": 0.6 }, "leadsTo": "couch_rot", "tip": "Too many naps. Get it moving." },
+    "exhausted":   { "name": "Exhausted",    "when": { "since": "rest", "atLeast": 5 },    "mods": { "power": 1.1, "stamina": 0.75 }, "leadsTo": "collapse", "tip": "No nap in days. Let it rest." },
+    "primped":     { "name": "Primped",      "when": { "today": "groom", "atLeast": 3 },   "mods": { "hp": 0.95 }, "dailyBonus": { "mood": 5 }, "leadsTo": "", "tip": "Groomed to a shine. Harmless, mostly vain." },
+    "overtrained": { "name": "Overtrained",  "when": { "today": "battle", "atLeast": 7 },  "mods": { "power": 1.1, "stamina": 0.7 }, "leadsTo": "torn_muscle", "tip": "Too many battles today. Give it a break." },
+    "out_of_shape":{ "name": "Out of shape", "when": { "since": "battle", "atLeast": 12 }, "mods": { "hp": 0.9, "power": 0.9, "speed": 0.9 }, "dailyBonus": { "mood": 3 }, "leadsTo": "", "tip": "Has not battled in ages. Comfy, but soft." }
+  },
+  "diseaseRisk": { "note": "Chance a condition turns into its disease on a present day: base plus perDay for every present day spent in it, up to cap. Slipping back into a condition counts its old days too, so bouncing in and out stays risky.", "base": 0.02, "perDay": 0.02, "cap": 0.3 },
+  "diseases": {
+    "heart_trouble": { "name": "Heart trouble",        "mods": { "stamina": 0.5, "speed": 0.8 },  "doses": 3, "death": { "base": 0.01, "perDay": 0.02, "cap": 0.3 } },
+    "malnutrition":  { "name": "Chronic malnutrition", "mods": { "hp": 0.6, "power": 0.7 },       "doses": 2, "needsFixed": "scrawny", "death": { "base": 0.02, "perDay": 0.02, "cap": 0.3 } },
+    "the_glooms":    { "name": "The Glooms",           "mods": { "hp": 0.85, "power": 0.85, "stamina": 0.85, "speed": 0.85 }, "doses": 2, "death": { "base": 0.005, "perDay": 0.015, "cap": 0.2 } },
+    "burnout":       { "name": "Burnout",              "mods": { "power": 0.7, "speed": 0.7 },    "doses": 2, "death": { "base": 0.005, "perDay": 0.015, "cap": 0.2 } },
+    "couch_rot":     { "name": "Couch rot",            "mods": { "speed": 0.5, "stamina": 0.8 },  "doses": 2, "death": { "base": 0.005, "perDay": 0.015, "cap": 0.2 } },
+    "collapse":      { "name": "Collapse",             "mods": { "stamina": 0.5, "hp": 0.8 },     "doses": 2, "death": { "base": 0.01, "perDay": 0.02, "cap": 0.3 } },
+    "mange":         { "name": "Mange",                "mods": { "hp": 0.7 }, "extraDaily": { "hygiene": -10 }, "doses": 2, "death": { "base": 0.005, "perDay": 0.015, "cap": 0.2 } },
+    "torn_muscle":   { "name": "Torn muscle",          "mods": { "power": 0.6 },                  "doses": 2, "death": { "base": 0.0, "perDay": 0.01, "cap": 0.15 } },
+    "cold":          { "name": "A cold",               "mods": { "power": 0.9, "speed": 0.9 },    "doses": 1, "worsensTo": "mange", "worsenAfter": 4, "death": { "base": 0, "perDay": 0, "cap": 0 } }
+  },
+  "overmedicated": { "effects": { "mood": -20, "fullness": -10, "health": -10 }, "say": "{name} was not sick. Now its tummy hurts." },
+  "illHealth": { "note": "Health lost each present day a disease goes untreated.", "perDay": -8 },
+  "rare": {
+    "glowing_mushroom": { "name": "glowing mushroom", "foundAfterWildWin": 0.08, "max": 2, "chance": 0.02, "otherwise": { "mood": 20, "hygiene": -10 }, "say": "{name} eats it. Its ears glow for a minute. It seems fine.", "label": "Feed the glowing mushroom" }
+  },
+  "egg": { "hatchAfter": 5, "note": "When a Checkling dies its trainer gets an egg at their next check-in. The egg hatches after hatchAfter more check-ins into one of the four starters, picked by the student." }
+}

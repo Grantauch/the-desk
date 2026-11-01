@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server.mjs",
     "backup": "node --disable-warning=ExperimentalWarning backup.mjs",
-    "test": "node battle.test.mjs && node --disable-warning=ExperimentalWarning accounts.test.mjs && node --disable-warning=ExperimentalWarning test.mjs"
+    "test": "node --disable-warning=ExperimentalWarning care.test.mjs && node battle.test.mjs && node --disable-warning=ExperimentalWarning accounts.test.mjs && node --disable-warning=ExperimentalWarning test.mjs"
   },
   "engines": {
     "node": ">=22.13.0"

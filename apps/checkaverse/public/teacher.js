@@ -3,7 +3,7 @@
   const $ = (id) => document.getElementById(id);
   let key = '';
   try { key = sessionStorage.getItem('checkaverse-teacher') || ''; } catch { /* private mode */ }
-  let paused = false, timer = 0;
+  let paused = false, noSchool = false, timer = 0;
 
   async function api(path, body) {
     const res = await fetch(`/api/teacher/${path}`, {
@@ -22,6 +22,9 @@
     paused = state.paused;
     $('pause').textContent = paused ? 'Resume the Checkaverse' : 'Pause the Checkaverse';
     $('pauseState').textContent = paused ? 'Paused. Nobody can walk, talk or challenge.' : 'Running.';
+    noSchool = Boolean(state.noSchool);
+    $('noSchool').textContent = noSchool ? 'Undo: there was school today' : 'No school today';
+    $('noSchoolState').textContent = noSchool ? 'Checkling body clocks skip today, like a snow day.' : 'Body clocks count today as a school day if the calendar does.';
     if (Date.now() > holdStatus) status(`Live · ${state.players.length} trainer${state.players.length === 1 ? '' : 's'} · server ${state.version}`);
     const list = $('list');
     list.textContent = '';
@@ -65,6 +68,7 @@
 
   $('login').addEventListener('submit', (e) => { e.preventDefault(); key = $('key').value.trim(); start(); });
   $('pause').addEventListener('click', async () => { try { await api('pause', { v: !paused }); refresh(); } catch (e) { status(e.message, true); } });
+  $('noSchool').addEventListener('click', async () => { try { await api('noschool', { v: !noSchool }); refresh(); } catch (e) { status(e.message, true); } });
   $('say').addEventListener('submit', async (e) => {
     e.preventDefault();
     const msg = $('msg').value.trim();

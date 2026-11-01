@@ -108,7 +108,7 @@ export function typeMultiplier(rules, moveType, defenderType) {
 }
 
 // ---------- a battle ----------
-// sides: [{ name, species, level }, { name, species, level }]
+// sides: [{ name, species, level, mods }, ...]. mods are optional stat multipliers from the Checkling's body.
 export function createBattle(rules, sides, seed) {
   return {
     seed: seed >>> 0,
@@ -121,6 +121,8 @@ export function createBattle(rules, sides, seed) {
       if (!sp) throw new Error(`unknown species ${s.species}`);
       const level = s.level || rules.species.visitLevel;
       const st = statsAt(rules, s.species, level);
+      // The body carries into the fight: an obese, scrawny or sick Checkling plays differently (content/care.json).
+      for (const k of STATS) st[k] = Math.max(1, Math.round(st[k] * (Number.isFinite(s.mods?.[k]) ? s.mods[k] : 1)));
       return {
         name: s.name, species: s.species, level, type: sp.type,
         hp: st.hp, maxHp: st.hp, stamina: st.stamina, maxStamina: st.stamina, power: st.power, speed: st.speed,
