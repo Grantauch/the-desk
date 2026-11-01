@@ -1,0 +1,75 @@
+{
+  "note": "Every move is an entry. cost is stamina. damage is scaled by the user's Power over 10 and by the type chart. guard is the share of each hit that still lands. restore is stamina back. shield blocks that much damage this turn. bonus adds per x a counter and spends it. phases cycle each use.",
+  "moves": {
+    "strike": {
+      "name": "Strike",
+      "type": null,
+      "cost": 3,
+      "damage": 14,
+      "detail": "14 damage."
+    },
+    "guard": {
+      "name": "Guard",
+      "type": null,
+      "cost": 0,
+      "guard": 0.25,
+      "restore": 2,
+      "first": true,
+      "detail": "Hits this turn land at a quarter. 2 stamina back."
+    },
+    "recover": {
+      "name": "Recover",
+      "type": null,
+      "cost": 0,
+      "restore": 5,
+      "first": true,
+      "detail": "5 stamina back. No attack."
+    },
+    "comfort_blanket": {
+      "name": "Comfort blanket",
+      "type": "meadow",
+      "cost": 5,
+      "damage": 8,
+      "shield": 12,
+      "first": true,
+      "detail": "8 damage and a 12 point shield this turn."
+    },
+    "salvage_charge": {
+      "name": "Salvage charge",
+      "type": "gear",
+      "cost": 5,
+      "damage": 13,
+      "bonus": {
+        "counter": "charge",
+        "per": 6
+      },
+      "detail": "13 damage, plus 6 for each stored charge. Blocking a hit stores a charge (up to 2)."
+    },
+    "orbit": {
+      "name": "Orbit",
+      "type": "cosmic",
+      "cost": 5,
+      "phases": [
+        {
+          "damage": 18
+        },
+        {
+          "damage": 12,
+          "shield": 8
+        }
+      ],
+      "detail": "Takes turns: 18 damage, then 12 damage with an 8 point shield."
+    },
+    "banked_heat": {
+      "name": "Banked heat",
+      "type": "ember",
+      "cost": 5,
+      "damage": 14,
+      "bonus": {
+        "counter": "heat",
+        "per": 12
+      },
+      "detail": "14 damage. After a Recover, the stored heat makes it 26."
+    }
+  }
+}

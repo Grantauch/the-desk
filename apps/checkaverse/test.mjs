@@ -16,7 +16,7 @@ const ORIGIN = `http://localhost:${PORT}`;
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'checkaverse-test-'));
 const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], {
   env: { ...process.env, CHECKAVERSE_PORT: String(PORT), CHECKAVERSE_DATA: DATA, CHECKAVERSE_ORIGINS: ORIGIN,
-    CHECKAVERSE_TEST_SPAWN: '14,13;15,13;29,6' },
+    CHECKAVERSE_TEST_SPAWN: '14,13;15,13;14,14;29,6', CHECKAVERSE_TURN_MS: '1200' },
   stdio: 'pipe',
 });
 let serverLog = '';
@@ -85,7 +85,10 @@ try {
   // Every picture the plaza asks for is served, and the art route cannot reach anything else.
   const wanted = [...fs.readFileSync(path.join(HERE, 'public', 'plaza.js'), 'utf8').matchAll(/'((?:tile|prop|ui|hood|house|market|merge|trainer)-[a-z-]+|arena)'/g)].map((m) => m[1]);
   const town = JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'town.json'), 'utf8'));
-  const names = new Set([...wanted, ...town.props.map((p) => p.s)]);
+  const species = Object.keys(JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'battle', 'species.json'), 'utf8')).species);
+  const types = Object.keys(JSON.parse(fs.readFileSync(path.join(HERE, 'content', 'battle', 'types.json'), 'utf8')).types);
+  const battleArt = ['bg-battle-meadow', 'fx-knockout', ...species.flatMap((sp) => [`front-${sp}`, `back-${sp}`]), ...types.map((t) => `type-${t}`)];
+  const names = new Set([...wanted, ...town.props.map((p) => p.s), ...battleArt]);
   assert.ok(names.size >= 20, 'the plaza uses the Sprite Book art');
   for (const name of names) {
     const res = await fetch(`http://127.0.0.1:${PORT}/art/${name}.png`);
@@ -107,6 +110,7 @@ try {
 
   const a = client(); await a.open; const wa = await a.next('welcome');
   const b = client(); await b.open; const wb = await b.next('welcome');
+  const v = client(); await v.open; const wv = await v.next('welcome');
   assert.equal(wb.players.length, 2);
   assert.ok(wa.myPlot && wb.myPlot && wa.myPlot !== wb.myPlot, 'each trainer gets their own plot');
   assert.deepEqual(wa.phrases, ['Hi!', 'Nice Checkling!', 'Want to battle?', 'Good game', 'Thanks!', 'See you tomorrow']);
@@ -121,6 +125,50 @@ try {
   assert.equal((await a.next('challenge_result')).ok, true);
   assert.equal((await b.next('challenge_result')).ok, true);
   step('walk up challenge accepted');
+
+  // Live battle: both screens open on the same state, picks resolve together, nobody walks off mid battle.
+  await a.send({ t: 'partner', v: 'ember' });
+  const ba = await a.next('battle'); const bb = await b.next('battle');
+  assert.equal(ba.you, 0); assert.equal(bb.you, 1); assert.equal(ba.id, bb.id);
+  assert.deepEqual(ba.view.sides.map((x) => x.name), bb.view.sides.map((x) => x.name));
+  assert.ok(['mochi', 'bolt', 'zee', 'ember'].includes(ba.view.sides[0].species));
+  assert.equal(ba.view.sides[0].moves.length, 4);
+  step('an accepted challenge opens the same battle on both screens');
+  const near = await v.next('battle_near');
+  await v.send({ t: 'watch', id: near.id });
+  const watched = await v.next('battle');
+  assert.equal(watched.you, null);
+  step('a trainer standing nearby can watch');
+  await a.send({ t: 'pick', m: 'strike' });
+  await b.next('battle_wait', (m) => m.side === 0);
+  await b.send({ t: 'pick', m: 'guard' });
+  const turnA = await a.next('battle_turn'); const turnB = await b.next('battle_turn'); const turnV = await v.next('battle_turn');
+  assert.deepEqual(turnA.events, turnB.events); assert.deepEqual(turnA.events, turnV.events);
+  assert.ok(turnA.events.some((e) => e.k === 'hit' && e.side === 1 && e.blocked));
+  step('a turn plays the same on every screen and Guard blocks');
+  const meA = wb.players.find((x) => x.id === wa.you);
+  await a.send({ t: 'move', d: 'l' });
+  const stay = await a.next('pos', (m) => m.id === wa.you);
+  assert.deepEqual([stay.x, stay.y], [meA.x, meA.y]);
+  await v.send({ t: 'challenge', to: wa.you });
+  assert.match((await v.next('notice', (m) => /battle/.test(m.msg))).msg, /already in a battle/);
+  step('trainers in a battle cannot walk off or be challenged');
+  await a.send({ t: 'forfeit' });
+  const endA = await a.next('battle_end'); await b.next('battle_end'); await v.next('battle_end');
+  assert.equal(endA.winner, 1); assert.equal(endA.reason, 'gave up');
+  assert.deepEqual((await b.next('record')).record, { w: 1, l: 0, d: 0 });
+  step('giving up ends the battle and the record counts it');
+
+  // Nobody picks: the clock Guards for them, and three missed turns in a row forfeits.
+  await b.send({ t: 'challenge', to: wa.you });
+  await a.next('challenged');
+  await a.send({ t: 'answer', from: wb.you, ok: true });
+  await a.next('battle'); await a.next('challenge_result');
+  for (let i = 0; i < 2; i++) assert.ok((await a.next('battle_turn', () => true, 4000)).events.some((e) => e.k === 'use' && e.name === 'Guard'));
+  const late = await a.next('battle_end', () => true, 4000);
+  assert.deepEqual([late.reason, late.winner], ['timeout', 'draw'], 'both trainers walked away, so nobody wins');
+  assert.deepEqual((await a.next('record', (m) => m.record.d === 1)).record, { w: 0, l: 1, d: 1 });
+  step('the turn clock Guards for a trainer who does not pick, and three misses forfeits');
 
   await a.send({ t: 'challenge', to: wb.you });
   await a.next('notice', (m) => /Challenge sent/.test(m.msg));
