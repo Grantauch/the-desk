@@ -15,9 +15,10 @@ import { versionHtmlAssets } from './asset-versions.mjs';
 import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
+import { validateWorld } from './public/world.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.13.0';
+const VERSION = '0.14.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -39,6 +40,11 @@ const KETTLE_FILE = process.env.CHECKAVERSE_KETTLE || path.join(HERE, 'content',
 const KETTLE = fs.existsSync(KETTLE_FILE) ? JSON.parse(fs.readFileSync(KETTLE_FILE, 'utf8')) : null;
 const PLACES = ['home', 'store', 'apothecary', 'clinic', 'daycare'];
 const PLACE_LINES = readContent('places.json');
+const worldMaps = { town: TOWN, wilds: WILDS };
+const authoredKettle = path.join(HERE, 'content', 'kettle.json');
+if (fs.existsSync(authoredKettle)) worldMaps.kettle = readContent('kettle.json');
+const worldContent = readContent('world.json');
+const WORLD = validateWorld({ ...worldContent, residents: worldContent.residents.filter(n => n.map !== 'kettle' || worldMaps.kettle) }, worldMaps);
 for (const k of PLACES) if (!PLACE_LINES[k]) throw new Error(`places.json: missing ${k}`);
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
@@ -695,6 +701,7 @@ const STARTED = new Date();
 const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/plaza.js': ['plaza.js', 'text/javascript; charset=utf-8'],
+  '/world.js': ['world.js', 'text/javascript; charset=utf-8'],
   '/plaza.css': ['plaza.css', 'text/css; charset=utf-8'],
   '/teacher': ['teacher.html', 'text/html; charset=utf-8'],
   '/teacher.js': ['teacher.js', 'text/javascript; charset=utf-8'],
@@ -893,7 +900,7 @@ function join(ws, ticket) {
   log('join', p.id, p.name, p.pid ? `saved ${p.pid.slice(0, 6)} ${p.hour}` : 'visitor', plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
 
   send(p, {
-    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls,
+    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls, world: WORLD,
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
     wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
     charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,

@@ -8,7 +8,7 @@
 </head>
 <body>
   <main class="stage" id="stage">
-    <canvas id="town" width="1536" height="1024" aria-label="Map"></canvas>
+    <canvas id="town" width="1536" height="1024" aria-label="Map. Walk with arrow keys or WASD. Use Talk to speak to nearby residents." tabindex="-1"></canvas>
 
     <div class="hud hud-top-left">
       <p class="chip place-chip"><strong>Checkaverse</strong> <span id="place">Town</span></p>
@@ -32,6 +32,7 @@
     <div class="hud hud-bottom-right">
       <button id="watch" type="button" class="chip-btn" hidden>Watch battle</button>
       <button id="challenge" type="button" class="action" hidden>Challenge (C)</button>
+      <button id="talkBtn" type="button" class="chip-btn" hidden>Talk (Space)</button>
     </div>
 
     <div class="pad" aria-label="Walk">
@@ -97,6 +98,8 @@
       <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
       <button id="cemeteryBtn" type="button" class="ghost">Class cemetery</button>
       <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
+      <button id="journalBtn" type="button" class="ghost">Around town · this visit</button>
+      <button id="motionBtn" type="button" class="ghost" aria-pressed="false">Scenery motion: on</button>
       <button id="busBtn" type="button" class="ghost" hidden>Ride the bus</button>
       <a id="busLink" class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
     </div>
@@ -113,6 +116,18 @@
       <button id="tipOk" type="button">Got it</button>
     </div>
 
+    <dialog id="residentDialog" class="resident-dialog" aria-labelledby="residentName" aria-describedby="residentText">
+      <div class="resident-heading"><img id="residentPortrait" alt=""><div><p class="resident-eyebrow" id="residentRole"></p><h2 id="residentName"></h2></div></div>
+      <p id="residentText" class="resident-text" aria-live="polite"></p>
+      <div id="residentChoices" class="resident-choices"></div>
+      <button id="residentClose" type="button" class="resident-close">Close (Esc)</button>
+    </dialog>
+    <dialog id="worldJournal" class="resident-dialog" aria-labelledby="journalTitle">
+      <p class="resident-eyebrow">Small stories</p><h2 id="journalTitle">Around town</h2>
+      <p class="journal-note">Little discoveries, loose ends, and neighbors you have helped. Your notes last for this visit.</p>
+      <div id="journalEntries"></div><button id="journalClose" type="button" class="ghost">Back to the map</button>
+    </dialog>
+    <div id="worldCue" class="world-cue" role="status" hidden></div>
     <div id="toast" class="toast" role="status" hidden></div>
     <div id="paused" class="paused" role="status" hidden>The teacher paused the Checkaverse.</div>
 
@@ -167,6 +182,7 @@
       </div>
     </div>
   </main>
-  <script src="/plaza.js"></script>
+  <script type="module" src="/world.js"></script>
+  <script type="module" src="/plaza.js"></script>
 </body>
 </html>

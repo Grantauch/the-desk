@@ -52,7 +52,15 @@ The town is drawn with the Wave 1 Sprite Book art Gemini made (Checklings Sprite
 
 ## Ground comfort
 
-Grass uses a muted sage wash, path stones are smaller and warmer, and a low mossy curb runs along path edges. Connected paths have no internal curb. This is prepared in the cached ground canvas; original sprites, collision tiles, movement and camera behavior stay unchanged.
+The cached ground canvas paints warm dirt paths with rounded ends, connected junctions, mossy borders and small gravel. Meadow tufts, flowers along the verges, soft ground variation and contact shadows break up the grass. Original art and collision tiles stay intact. Sideways walking corrects the source sheets' opposite-facing third frame, then mirrors that consistent gait for the other direction.
+
+## Residents and small stories (0.14.0)
+
+Twelve residents walk short routines: five in Kettle Creek, four in the Checkaverse and three in the wilds. Tap a resident to approach, or use Talk / Space nearby. Conversations have portraits and written choices. Three residents offer a little find-and-return story. **Around town** in the menu keeps the clues and completed stories for this visit; a new visit starts fresh. These are presentation encounters, with no item spending, currency, XP, body changes or new save fields. Multiplayer trainers, wild encounters, rankings and care remain server-authoritative.
+
+All names, routes, chatter, dialogue and story targets live in `content/world.json`, validated at server startup. Routes stay off doors, graves, occupied plots and encounter terrain; residents yield to trainers rather than blocking a route. The existing map generator and maps are unchanged. `public/world.js` handles the bounded presentation simulation and terrain paint. Its clock stops for teacher pause, hidden tabs, conversations and battles. Butterflies, creek rings and fish, chimney puffs, lantern glow, swaying foliage, gusts and terrain-specific footstep particles make the scenery respond. The menu's **Scenery motion** control and system reduced-motion preference stop ambient movement; residents and story targets remain usable.
+
+Run `npm test` for content, movement and existing server regressions, and `npm run test:browser` for a real local playthrough at 1366×768, 390×844 and 320×740. Tests use an isolated database and synthetic tickets. Screenshots go to `browser-results/checkaverse-world`. Real school Chromebook and classroom acceptance remain separate.
 
 ## Loading updates
 

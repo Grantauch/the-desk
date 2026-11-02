@@ -1,3 +1,11 @@
+## November 2 Checkaverse living world
+
+Owner: Codex, branch `codex/checkaverse-living-world-20261102`. Core loop step 4, polish to the existing phase 3 exploration. Corrects the opposite-facing third side-walk frame, paints connected dirt paths with rounded ends and meadow verges, and adds 12 residents, branching conversations, three visit-local find-and-return stories and an Around town journal. Butterflies, creek rings and fish, chimney puffs, lantern glow, foliage, gusts and footstep particles use a bounded presentation simulation. System reduced motion and the scenery switch retain usable static residents.
+
+Content validation, complete-route/story reachability, rejected broken content, walk directions, clock pause, quiet scenery and story lifecycle pass. All existing care, battle, accounts, multiplayer and Kettle Creek suites pass. Chromium at 1366x768, 390x844 and 320x740 passes real walking, resident approach, branching choices, focus/Escape, all three complete stories, journal, teacher pause, quiet scenery, all 16 path masks and town/wilds travel. New dialog WCAG A/AA audits pass at all three sizes with no browser errors. Canonical full verification is running. Protected checks, merge, separate Checkaverse deployment and exact public readback are pending. School Chromebook/classroom acceptance remains pending.
+
+No map geometry, artwork, species, database schema, school service, care rule or battle-reward changes. Stories are local to the visit and do not grant items or growth. Short notes and class checks: `docs/checklings/releases/2026-11-02-living-world.md`.
+
 ## October 30 heel personal report
 
 Owner: Codex, branch `feat/heel-student-report`. The complete pre-implementation map is in `docs/storyhub/HEEL-REPORT-MAP.md`. The research route adds a persistent Report button and a final Finish and view report action. The personal report reads every current answer without altering the shared save runtime, answer keys, existing rounds or Turn In. Separate report name, hour and date remain in tab storage and are excluded from submission data.
