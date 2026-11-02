@@ -32,9 +32,9 @@
   }
   const pausedEl = document.getElementById('paused');
   function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
-  let town = null, house = null, wilds = null, phrases = [], myPlot = 0, signs = {}, rerolls = 0;
-  // The outdoor map you are on right now: the town or the wilds. Houses use the house map.
-  const mapNow = () => (roomKind === 'wilds' ? wilds : town);
+  let town = null, house = null, wilds = null, kettle = null, stones = [], phrases = [], myPlot = 0, signs = {}, rerolls = 0;
+  // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
+  const mapNow = () => (roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
@@ -67,6 +67,7 @@
   let zoneName = '';
   function placeLine() {
     if (roomKind === 'town') placeEl.textContent = 'Town';
+    else if (roomKind === 'kettle') placeEl.textContent = 'Kettle Creek';
     else if (roomKind === 'wilds') placeEl.textContent = zoneName ? `The wilds · ${zoneName}` : 'The wilds';
     else if (roomOwner && roomOwner.owner === me) placeEl.textContent = 'Your house';
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
@@ -129,7 +130,7 @@
         // A tab left open across a server update reconnects to new rules with old code. Load the new code instead.
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
-        me = m.you; town = m.town; house = m.house; wilds = m.wilds; phrases = m.phrases; myPlot = m.myPlot;
+        me = m.you; town = m.town; house = m.house; wilds = m.wilds; kettle = m.kettle || null; stones = m.stones || []; phrases = m.phrases; myPlot = m.myPlot;
         team = m.team || []; saved = Boolean(m.saved); egg = m.egg || null; partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         partner = m.partner; closeBattle(true); lastNear = null; watchLine();
@@ -139,7 +140,9 @@
         if (!saved) { const pick = savedPartner(); if (pick && pick !== partner && team.some((x) => x.v === pick && !x.caught)) send({ t: 'partner', v: pick }); }
         buildPartners();
         if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
-        room = 'town'; roomKind = 'town'; roomOwner = null;
+        room = m.room || 'town'; roomKind = m.kind || 'town'; roomOwner = null;
+        busLine();
+        if (roomKind === 'kettle') tipSoon('kettle', 2000);
         setPlayers(m.players);
         meEl.textContent = players.get(me)?.name || 'Trainer';
         buildPhrases();
@@ -150,6 +153,8 @@
         break;
       case 'room':
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
+        if (roomKind === 'kettle') stones = m.stones || [];
+        busLine();
         stopWalk();
         setPlayers(m.players);
         hideAsk();
@@ -206,6 +211,7 @@
       case 'cemetery': showCemetery(m); break;
       case 'pt': { const p = players.get(m.id); if (p) p.pt = m.v; break; }
       case 'notice': toast(m.msg); break;
+      case 'home': myPlot = m.myPlot; homeLine(); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
       case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
       case 'removed': removed = true; break;
@@ -315,7 +321,7 @@
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
     if (bt) { battleKey(e); return; }
-    if (e.code === 'Escape') { closePops(); closeRanks(); closeCards(); if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
+    if (e.code === 'Escape') { closePops(); closeRanks(); closeCards(); $('busPop').hidden = true; if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
     const d = KEYS[e.code];
     if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
@@ -349,6 +355,7 @@
     if (y < 0 || y >= r.length || x < 0 || x >= r[0].length) return false;
     if (roomKind === 'house') return !HOUSE_SOLID.has(r[y][x]);
     if (TOWN_SOLID.has(r[y][x])) return false;
+    if (roomKind === 'kettle') return !stones.some((st) => st.x === x && st.y === y);
     return roomKind !== 'town' || !plots.some((pl) => pl.owner && (() => { const g = town.plots.find((q) => q.id === pl.id); return g && x >= g.x && x < g.x + g.w && y >= g.y && y < g.y + g.h - 1; })());
   }
   // Breadth first search from where the server says we are. Returns the first direction to step, or '' if already there.
@@ -463,8 +470,41 @@
 
   function showSign(key) {
     if (key === 'notice-board') return askRanks();
+    if (key.startsWith('place:')) return openPlace(key.slice(6));
+    if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return; }
+    if (key === 'bus-stop-kc' && saved) return askBus('town');
+    if (key === 'bus-stop' && saved && kettle) return askBus('kettle');
     if (signs[key]) toast(signs[key]);
   }
+  // ---------- Kettle Creek and the bus ----------
+  function openPlace(place) {
+    const line = kettle?.places?.[place];
+    if (place === 'home' || place === 'clinic') {
+      askBody(partner || (team.find((x) => !x.den) || {}).v);
+      if (line) toast(line);
+      return;
+    }
+    if (line) toast(line);
+  }
+  let busTo = '';
+  function askBus(to) {
+    busTo = to;
+    $('busTitle').textContent = to === 'town' ? 'Ride the bus to the Checkaverse?' : 'Ride the bus home to Kettle Creek?';
+    $('busNote').textContent = to === 'town' ? 'Classmates are there to battle, plus the wilds and your house in the Neighborhood.' : 'Your Care panel, the clinic and Route 1 are at home.';
+    closePops();
+    $('busPop').hidden = false;
+    $('busYes').focus();
+  }
+  $('busYes').addEventListener('click', () => { $('busPop').hidden = true; send({ t: 'bus', to: busTo }); });
+  $('busNo').addEventListener('click', () => { $('busPop').hidden = true; });
+  $('busPop').addEventListener('pointerdown', (e) => e.stopPropagation());
+  function busLine() {
+    const b = $('busBtn');
+    b.hidden = !saved || !kettle;
+    $('busLink').hidden = Boolean(saved && kettle);
+    b.textContent = roomKind === 'kettle' ? 'Ride the bus to the Checkaverse' : 'Ride the bus home to Kettle Creek';
+  }
+  $('busBtn').addEventListener('click', () => askBus(roomKind === 'kettle' ? 'town' : 'kettle'));
   // ---------- weekly rankings ----------
   // The notice board (or the menu) asks the town for this week's battle ranking in your class hour.
   const ranksPop = $('ranksPop');
@@ -516,6 +556,12 @@
     const self = players.get(me);
     if (!self || roomKind === 'house') return false;
     const [ax, ay] = STEP[self.f] || STEP.d;
+    if (roomKind === 'kettle') {
+      const door = (kettle.doors || []).find((d) => d.x === self.x && d.y === self.y);
+      if (door && self.f === 'u') { showSign(`place:${door.place}`); return true; }
+      const st = stones.find((q) => q.x === self.x + ax && q.y === self.y + ay);
+      if (st) { toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return true; }
+    }
     const p = propAt(self.x + ax, self.y + ay);
     if (p) { showSign(p.sign); return true; }
     if (fromKey) toast('Walk up to a landmark and face it, then press Space to look.');
@@ -545,7 +591,16 @@
         return walkTo([[geo.door.x, geo.door.y + 1]], 'u');
       }
     }
+    if (roomKind === 'kettle') {
+      const st = stones.find((q) => q.x === tx && (q.y === ty || q.y === ty + 1));
+      if (st) {
+        const spots = around(st.x, st.y, 1, 1);
+        return walkTo(spots.map(([x, y]) => [x, y]), (self) => (spots.find(([x, y]) => x === self.x && y === self.y) || [])[2], `stone:${st.x},${st.y}`);
+      }
+    }
     const p = propAt(tx, ty);
+    const door = p && roomKind === 'kettle' && (kettle.doors || []).find((d) => d.y === p.f[1] + p.f[3] && d.x >= p.f[0] && d.x < p.f[0] + p.f[2]);
+    if (door) return walkTo([[door.x, door.y]], 'u', `place:${door.place}`);
     if (p) {
       const spots = around(...p.f);
       return walkTo(spots.map(([x, y]) => [x, y]), (self) => (spots.find(([x, y]) => x === self.x && y === self.y) || [])[2], p.sign);
@@ -573,6 +628,8 @@
     'prop-bus-stop', 'prop-bus', 'prop-notice-board', 'ui-bubble', 'hood-plot', 'house-cottage', 'house-stump',
     'house-creek', 'hood-locked', 'hood-mailbox', 'house-interior', 'market-stall', 'merge-stone', 'arena',
     'trainer-a', 'trainer-b', 'trainer-c', 'trainer-d', 'tile-tall-grass', 'tile-flowers', 'prop-route-sign', 'prop-bridge', 'prop-fence',
+    'kc-store', 'kc-apothecary', 'kc-clinic', 'kc-daycare', 'kc-cemetery-gate', 'kc-town-sign',
+    'kc-headstone-1', 'kc-headstone-2', 'kc-headstone-3', 'kc-headstone-4',
   ];
   const ART = {};
   let artWaiting = ART_NAMES.length;
@@ -782,6 +839,13 @@
       if (p.x > x1 + 1 || p.x + p.w < x0 - 1 || p.b < y0 || p.b - 6 > y1) continue;
       list.push({ b: p.flat ? -0.5 : p.b, draw: () => (has(p.s) ? sprite(p.s, p.x, p.b, p.w) : boxShape(p.x, p.b, p.w, Math.min(2, p.w), '#b5523b')) });
     }
+    // Kettle Creek's cemetery hill: one headstone per Checkling lost in your class hour.
+    if (roomKind === 'kettle') {
+      for (const st of stones) {
+        const art = `kc-headstone-${1 + ((st.trainer || '').length + (st.days || 0)) % 4}`;
+        list.push({ b: st.y + 1, draw: () => (has(art) ? sprite(art, st.x + 0.1, st.y + 1, 0.8) : boxShape(st.x + 0.2, st.y + 1, 0.6, 0.8, '#9a9a9a')) });
+      }
+    }
     for (const geo of roomKind === 'town' ? town.plots : []) {
       const state = live(geo.id);
       if (!state.owner) {
@@ -830,7 +894,7 @@
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
     }
     // Standing in tall grass hides your feet, the Red and Blue way.
-    if (roomKind === 'wilds' && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
+    if ((roomKind === 'wilds' || roomKind === 'kettle') && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
       ctx.drawImage(ART['tile-tall-grass'], 0, 30, 64, 34, px, py + 15, 32, 17);
     }
     const top = py + TILE - 50;
@@ -990,6 +1054,7 @@
     'wild-battle': 'Wear it down first, then press 5 to throw a charm. Weaker Checklings are easier to catch. Press 6 to run.',
     caught: 'Your catch is yours to keep. Tap your partner button to battle with it, or to move Checklings between your party and your Den.',
     'caught-visit': 'Your catch is in your partner list for this visit. Tap your partner button to battle with it.',
+    kettle: 'This is Kettle Creek, your home town. Your house, the clinic and Route 1 are here. The bus stop takes you to the Checkaverse to battle classmates.',
     care: 'Tap Care to feed, groom, play with and nap your Checkling. Too much or too little of anything has a cost.',
     visitor: 'You are visiting, so catches and wins are not saved. To keep them, ride the bus from your Check-In page.',
   };
@@ -1142,7 +1207,7 @@
     if (b.disease) {
       const d = document.createElement('div'); d.className = 'care-tag sick';
       const h = document.createElement('b'); h.textContent = `Sick: ${b.disease.name}`;
-      d.append(h, `Give medicine once a day. ${b.disease.dosesLeft} more ${b.disease.dosesLeft === 1 ? 'dose' : 'doses'} to cure it.${b.disease.dosedToday ? ' Today\'s dose is done.' : ''} Left untreated it can kill.`);
+      d.append(h, `Give medicine once a day. ${b.disease.dosesLeft} more ${b.disease.dosesLeft === 1 ? 'dose' : 'doses'} to cure it.${b.disease.dosedToday ? ' Today\'s dose is done.' : ''} ${b.disease.warn || 'Left untreated it gets worse every school day and can kill.'}`);
       tags.appendChild(d);
     }
     for (const c of b.conditions) {
@@ -1151,6 +1216,9 @@
       d.append(h, c.tip);
       tags.appendChild(d);
     }
+    const nap = document.createElement('div'); nap.className = 'care-tag';
+    nap.textContent = b.sinceNap === 0 ? 'Napped today.' : b.sinceNap === 1 ? 'Last nap: 1 school day ago.' : `Last nap: ${b.sinceNap} school days ago.${b.sinceNap >= 3 ? ' A nap soon keeps it from getting exhausted.' : ''}`;
+    if (b.sinceNap >= 3) tags.appendChild(nap);
     const acts = $('careActions');
     acts.textContent = '';
     for (const a of b.actions) {

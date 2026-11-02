@@ -79,7 +79,7 @@ console.log(`  ok balance: good care is safe, overfeeding dies near school day $
   const sick = C.newBody(r, d);
   sick.disease = { id: 'heart_trouble', days: 2, doses: 0, dosed: '' };
   assert.match(C.act(r, sick, 'medicine', d, rng(1)).msg, /2 more days/);
-  assert.match(C.act(r, sick, 'medicine', d, rng(1)).msg, /already had today/);
+  assert.match(C.act(r, sick, 'medicine', d, rng(1)).msg, /enough of that today/, 'one dose a day, so the button cannot hurt');
   C.act(r, sick, 'medicine', '2026-11-04', rng(1));
   assert.match(C.act(r, sick, 'medicine', '2026-11-05', rng(1)).msg, /cured/);
   assert.equal(sick.disease, null);
@@ -162,4 +162,32 @@ console.log('  ok death leaves a headstone, an egg comes at the next check-in an
   assert.equal(again.reports.length, 0, 'a second ride the same day owes nothing');
 }
 console.log('  ok nights owed run on arrival, once');
+{
+  // The Den is a pause, not a hiding place: a Checkling active on a school day faces that night even if it was sent
+  // to the Den before logging off, and care taps on a Den Checkling are refused.
+  const db = new DatabaseSync(':memory:');
+  const gr = A.loadGrowth(path.join(HERE, 'content', 'growth.json'));
+  const store = A.openStore(db, gr, r, { wasUp: () => true, speciesName: (x) => x });
+  const pid = 'pidDDDDDDDDDDDDDDDD';
+  const t = (days) => ({ pid, hour: '2nd Hour', days, checkedIn: true, partner: { species: 'mochi', nick: '' } });
+  store.link(t(3), () => 'Brave Otter', 0);
+  const [mochi] = store.team(pid);
+  store.addCatch(pid, 'zee', 5, 'G');
+  const all = C.owedDays(r, A.todayKey(new Date(Date.now() - 20 * 86_400_000)), A.todayKey());
+  const active = all.at(-1);
+  if (active) {
+    const b = JSON.parse(db.prepare('SELECT body FROM checklings WHERE id = ?').get(mochi.id).body);
+    b.clock = active; b.today = { day: active, n: { feed: 1, play: 2 } };
+    db.prepare('UPDATE checklings SET body = ?, party = 0 WHERE id = ?').run(JSON.stringify(b), mochi.id);
+    const before = b.fullness;
+    store.link(t(5), () => 'x', 0);
+    const after = JSON.parse(db.prepare('SELECT body FROM checklings WHERE id = ?').get(mochi.id).body);
+    assert.ok(after.fullness < before, 'the active day still ticked in the Den');
+    assert.equal(after.clock, A.todayKey(), 'then the Den clock catches up and stays paused');
+    const again = store.link(t(5), () => 'x', 0);
+    assert.equal(again.reports.filter((x) => x.id === mochi.id).length, 0, 'it ticks once, not every ride');
+  }
+  assert.match(store.care(pid, mochi.id, 'feed', 'Mochi').msg, /out of the Den/);
+}
+console.log('  ok the Den pauses a Checkling but never hides an active day');
 console.log('PASS care');
