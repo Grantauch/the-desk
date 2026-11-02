@@ -52,7 +52,17 @@ The town is drawn with the Wave 1 Sprite Book art Gemini made (Checklings Sprite
 
 ## Ground comfort
 
-The cached ground canvas paints warm dirt paths with rounded ends, connected junctions, mossy borders and small gravel. Meadow tufts, flowers along the verges, soft ground variation and contact shadows break up the grass. Original art and collision tiles stay intact. Sideways walking corrects the source sheets' opposite-facing third frame, then mirrors that consistent gait for the other direction.
+Paths are autotiled at the art's own pixel size (`paintPaths` in `public/world.js`): each path tile is a lane core with an arm toward every path neighbour, broad areas fill their inside corners, and the edge wanders with smooth noise. Shading follows the Sprite Book light: a dark lip under the grass along the top edge, a warm lip along the bottom, grass tufts poking in, pebbles and two tones of dirt. Benches and the bus stop sit on a dirt pad. Flower patches are small pixel flowers (`paintFlower`) and never sit in the middle of a lane. Meadow tufts, soft ground variation and contact shadows break up the grass. Collision tiles are untouched by any of this paint. Sideways walking corrects the source sheets' opposite-facing third frame, then mirrors that consistent gait for the other direction.
+
+The canvas matches the screen's real pixels (capped at 1440 tall), so art is drawn once at the size it is seen: nearest pixels at full size or larger, smooth reduction on a small Chromebook.
+
+## Fences, gates, roofs and partners
+
+Fences are tile lists (`fences` in the map), drawn from the fence kit cut by `tools/make-fence-art.py` out of the approved `prop-fence.png`: a post on every fence tile and rails to each fence neighbour, so runs turn corners and north south sides read as fences seen from above. `gates` lists openings; their two leaves hang from the neighbouring posts and swing in whenever a trainer or resident walks up. Gate tiles are always walkable. Kettle Creek's practice yard has a gate and three practice stumps; the cemetery uses the same fence kit.
+
+Building roofs are solid in Kettle Creek and on the resident south lanes: `tools/gen-town.mjs` (and the south lane Tiled maps) block every grass tile a building's art covers above its footprint, so a trainer can never walk behind a roof and vanish. The old south border of trees between the original maps and the south lanes is now open meadow with a few loose trees.
+
+Every trainer's battle partner walks one tile behind them along the exact path they walked, with a small hop, its back art when walking up the screen. Other trainers see the species only. Residents always wear a name tag within nine tiles; their job shows up close. Kettle Creek's chip reads Kettle Creek and "Your home town · only you are here" instead of a live head count, since every student's Kettle Creek is private.
 
 ## Resident lives (0.15.0)
 
