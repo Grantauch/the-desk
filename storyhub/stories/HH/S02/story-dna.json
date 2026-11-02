@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-S02",
+  "title": "the first englishman",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "curator: precise, unhurried, interested in the object"
+    ],
+    "paletteIntent": "cabinet mahogany ground, specimen card cream, bone ivory, scale bar gray, one dichromate orange reserved for anything altered by a human hand",
+    "typographyIntent": "engraved plate small caps headers, a book serif for narrative, monospace for test results",
+    "textureLanguage": [
+      "wood grain of a specimen cabinet",
+      "matte specimen cards"
+    ],
+    "shapeLanguage": "the drawer, the tray, and the comparative plate",
+    "motionGrammar": [
+      "stain: color enters a surface and stays",
+      "section: pieces part along their breaks"
+    ],
+    "interactionSignature": [
+      "choose a standard before seeing the evidence",
+      "walk a rail of methods against the years"
+    ],
+    "densityRhythm": "Eleven drawers, one still list of what was built on the fake, one sunlit break for the real fossil.",
+    "archivalBehavior": "Specimen plates and period reconstructions run with credit and are labeled as reconstructions of their decade.",
+    "endingLanguage": "The record does not correct itself. People with instruments correct it."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Natural History Museum specimen drawers and the stained Piltdown pieces",
+    "edgeTreatment": "Instruments sit on cream specimen cards with an inner keyline",
+    "controlLanguage": "Small mono specimen buttons, a range rail, plain checkboxes",
+    "spacingLanguage": "Drawers separated by thin rules on alternating wood tones",
+    "transitionLanguage": "Natural scrolling, a sunlit section for 1925"
+  }
+}

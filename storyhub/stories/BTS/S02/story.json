@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-S02",
+  "course": "BTS",
+  "lessonCode": "S02",
+  "title": "the entry list",
+  "audience": "students",
+  "narrativeQuestion": "How was the fastest sprinter in the world kept out of races when no rule said he could not race?",
+  "chapters": [
+    {
+      "id": "h1",
+      "title": "The boom",
+      "claim": "The safety bicycle made riding possible for millions and the cycling lobby pushed for paved roads.",
+      "namedPeople": [
+        {
+          "name": "Marshall Taylor",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A01"
+        }
+      ],
+      "visualAnchorIds": [
+        "A03"
+      ],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "h2",
+      "title": "The sport",
+      "claim": "Board track racing was a major paid spectator sport tied to bicycle sales.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A04",
+        "A07"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "h3",
+      "title": "The membership clause",
+      "claim": "The 1894 League clause governed membership, and separate decisions by many actors kept Taylor out of races.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "h4",
+      "title": "On the track",
+      "claim": "Taylor was boxed in and assaulted, and his attacker at Taunton was fined fifty dollars.",
+      "namedPeople": [
+        {
+          "name": "W. E. Becker",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "h5",
+      "title": "World champion",
+      "claim": "Taylor won the world sprint title at Montreal in 1899, five years after the clause.",
+      "namedPeople": [
+        {
+          "name": "Louis Munger",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A05",
+        "A02"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "h6",
+      "title": "The Sunday problem",
+      "claim": "Taylor refused Sunday races, a cost he chose, which the standings cannot tell apart from refusals.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "h7",
+      "title": "Europe",
+      "claim": "The same rider met different decisions in Europe and won most of his match races.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A06"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "h8",
+      "title": "The boom broke",
+      "claim": "The industry consolidated and the sport lost its place.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "h9",
+      "title": "How it ended",
+      "claim": "Taylor died in 1932 in an unmarked grave and former riders marked it in 1948.",
+      "namedPeople": [
+        {
+          "name": "Frank Schwinn",
+          "anchorStatus": "not-needed"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08"
+      ],
+      "interactionIds": []
+    }
+  ]
+}

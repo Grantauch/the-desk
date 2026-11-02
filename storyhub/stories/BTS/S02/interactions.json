@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-S02",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "h3",
+      "type": "regroup",
+      "teaches": "No single decision barred him and together they narrowed the sport",
+      "studentAction": "Groups the composite season by who decided",
+      "feedback": "Group headers with counts and a line that every row narrows the sport",
+      "staticFallback": "Grouped and calendar tables are readable text in both states",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "h6",
+      "type": "sibling-toggles",
+      "teaches": "A chosen cost and an imposed cost can move the same numbers and still be different facts",
+      "studentAction": "Turns on either or both kinds of missing meets in a labeled model season",
+      "feedback": "Standings re-sort and a status line reports Taylor's place",
+      "staticFallback": "The default table and the explanation lines carry the point without toggling",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "h1",
+      "type": "3d-compare",
+      "teaches": "Why the safety bicycle opened riding to almost everyone",
+      "studentAction": "Switches between two machines and turns the model",
+      "feedback": "Saddle height line and a readout of wheel, drive, tire and rider",
+      "staticFallback": "The readout panel carries every comparison when WebGL is missing",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-S02",
+  "course": "HH",
+  "lessonCode": "S02",
+  "title": "the first englishman",
+  "audience": "students",
+  "narrativeQuestion": "How does a forgery fool the experts, and what does it break while it is believed?",
+  "chapters": [
+    {
+      "id": "d1",
+      "title": "The gravel pit",
+      "claim": "Dawson brought the find to Woodward, a credible amateur and a serious professional.",
+      "namedPeople": [
+        {
+          "name": "Charles Dawson",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A02"
+        },
+        {
+          "name": "Arthur Smith Woodward",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A03"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    },
+    {
+      "id": "d2",
+      "title": "The announcement",
+      "claim": "The scientific name and the press name did different jobs, and the connecting parts were missing.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A05"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "d3",
+      "title": "Why it was believed",
+      "claim": "Acceptance speed tracked fit with expectation.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I01"
+      ]
+    },
+    {
+      "id": "d4",
+      "title": "The people who said no",
+      "claim": "Correct objections were published early and lost.",
+      "namedPeople": [
+        {
+          "name": "Gerrit Smith Miller",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [
+        "A04"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "d5",
+      "title": "The second site",
+      "claim": "The confirming site failed every test of independence.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I02"
+      ]
+    },
+    {
+      "id": "d6",
+      "title": "What got built on it",
+      "claim": "Textbooks, displays, careers, and a monument rested on the fake.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A06"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "d7",
+      "title": "1949",
+      "claim": "Fluorine dating reopened the case thirty seven years later.",
+      "namedPeople": [
+        {
+          "name": "Kenneth Oakley",
+          "anchorStatus": "not-available"
+        }
+      ],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I03"
+      ]
+    },
+    {
+      "id": "d8",
+      "title": "1953",
+      "claim": "The manufacture was a human skull, an orangutan jaw, filing and stain.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": [
+        "I04"
+      ]
+    },
+    {
+      "id": "d9",
+      "title": "2016",
+      "claim": "One method across both sites points to one forger.",
+      "namedPeople": [],
+      "visualAnchorIds": [
+        "A07"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "d10",
+      "title": "The fossil that was real",
+      "claim": "The forgery made Dart's genuine Taung child look wrong for about two decades.",
+      "namedPeople": [
+        {
+          "name": "Raymond Dart",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        }
+      ],
+      "visualAnchorIds": [
+        "A08",
+        "A09"
+      ],
+      "interactionIds": []
+    },
+    {
+      "id": "d11",
+      "title": "What caught it",
+      "claim": "No confession. A measurement and a microscope.",
+      "namedPeople": [],
+      "visualAnchorIds": [],
+      "interactionIds": []
+    }
+  ]
+}

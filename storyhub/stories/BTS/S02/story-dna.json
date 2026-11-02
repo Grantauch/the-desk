@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-S02",
+  "title": "the entry list",
+  "referenceImplementation": false,
+  "identity": {
+    "tone": [
+      "race program: brisk, factual, specific about money"
+    ],
+    "paletteIntent": "poster mustard ochre ground, flat ink black, dusty rose, chalk white, one printer's teal reserved for a refused entry",
+    "typographyIntent": "heavy wide poster grotesque headers with a rose misregistration shadow, a book serif for narrative, monospace for records",
+    "textureLanguage": [
+      "flat spot color on rough poster stock",
+      "banked pine boards with chalk lines"
+    ],
+    "shapeLanguage": "hard keyline plates and the ruled row of an entry list",
+    "motionGrammar": [
+      "lap: one control changes and everything updates together",
+      "bell: hard switch with no easing"
+    ],
+    "interactionSignature": [
+      "regroup one season by who decided",
+      "two sibling controls that do the same arithmetic and mean different things"
+    ],
+    "densityRhythm": "Nine fast heats, one hard undecorated block about the track, ending on two dates.",
+    "archivalBehavior": "Period photographs run untouched with credits. Composite and model tables are labeled as such on the page.",
+    "endingLanguage": "Two dates and stop: 1932 unmarked, 1948 marked."
+  },
+  "assetToInterfaceTranslation": {
+    "paletteSource": "Chromolithograph race posters of the 1890s",
+    "edgeTreatment": "Hard black keylines with offset shadows like a printed bill",
+    "controlLanguage": "Square program buttons and checkbox toggles that read like entry forms",
+    "spacingLanguage": "Heats separated by heavy rules, alternating ochre and paper",
+    "transitionLanguage": "Natural scrolling, instant state changes"
+  }
+}

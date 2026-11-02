@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "storyId": "HH-S02",
+  "interactions": [
+    {
+      "id": "I01",
+      "chapterId": "d3",
+      "type": "expectation-board",
+      "teaches": "Bias shows only by comparing several finds against one expectation",
+      "studentAction": "Opens four real finds",
+      "feedback": "Fit and acceptance speed for each, then a line once three are open",
+      "staticFallback": "Both panels are text and the closing line states the pattern",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I02",
+      "chapterId": "d5",
+      "type": "two-stage-standard",
+      "teaches": "Name what independence requires before seeing the case",
+      "studentAction": "Marks conditions, then reveals Piltdown II",
+      "feedback": "Each condition shows its result and the page states every one failed",
+      "staticFallback": "Conditions and results stay readable as a table after reveal",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I03",
+      "chapterId": "d7",
+      "type": "method-rail",
+      "teaches": "The limit was access and expectation, not tools",
+      "studentAction": "Moves along seven methods",
+      "feedback": "Each stop reports what it shows, when it existed, and if it was used",
+      "staticFallback": "Every stop is reachable by keyboard and announced as text",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    },
+    {
+      "id": "I04",
+      "chapterId": "d8",
+      "type": "3d-specimen",
+      "teaches": "How the fake was made and why the missing joint mattered",
+      "studentAction": "Switches five views of one model and turns it",
+      "feedback": "Plaster, breaks, file marks, stain and plugs appear with a panel of findings",
+      "staticFallback": "The panel text carries every finding when WebGL is missing",
+      "identityFit": "Built in this hub's own visual language",
+      "status": "implemented"
+    }
+  ]
+}
