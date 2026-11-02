@@ -17,7 +17,7 @@ const ORIGIN = `http://localhost:${PORT}`;
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'checkaverse-test-'));
 const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', path.join(HERE, 'server.mjs')], {
   env: { ...process.env, CHECKAVERSE_PORT: String(PORT), CHECKAVERSE_DATA: DATA, CHECKAVERSE_ORIGINS: ORIGIN,
-    CHECKAVERSE_TEST_SPAWN: '14,13;15,13;14,14;29,6', CHECKAVERSE_TURN_MS: '1200', CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_CATCH_CHANCE: '1' },
+    CHECKAVERSE_TEST_SPAWN: '14,13;15,13;14,14;29,6', CHECKAVERSE_KETTLE: path.join(DATA, 'no-kettle.json'), CHECKAVERSE_TURN_MS: '1200', CHECKAVERSE_WILD_RATE: '1', CHECKAVERSE_CATCH_CHANCE: '1' },
   stdio: 'pipe',
 });
 let serverLog = '';

@@ -1,4 +1,4 @@
-// Generates content/town.json and content/house.json. Run after changing the layout: node tools/gen-town.mjs
+// Generates content/town.json, house.json, wilds.json and kettle.json. Run: node tools/gen-town.mjs
 // Tiles: . grass, P path, F flowers, L empty lot, T tree, W water, H building or prop, S bus stop, E exit to another map.
 // Wilds only: G tall grass, C starflower clearing, R rocky ground, A scorched heath. Each is an encounter zone in content/wild.json.
 // T W H S are solid. Plots are listed separately so the server can drop houses onto them.
@@ -9,6 +9,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'content');
+// Leave identical maps untouched, including their checkout's line endings.
+const writeMap = (name, map) => {
+  const file = path.join(OUT, name);
+  const text = JSON.stringify(map, null, 2) + '\n';
+  if (fs.existsSync(file) && fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') === text) return;
+  fs.writeFileSync(file, text);
+};
 const W = 64, H = 28;
 const g = Array.from({ length: H }, () => Array(W).fill('.'));
 const set = (x, y, c) => { if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
@@ -97,8 +104,8 @@ const house = {
 };
 
 fs.mkdirSync(OUT, { recursive: true });
-fs.writeFileSync(path.join(OUT, 'town.json'), JSON.stringify(town, null, 2) + '\n');
-fs.writeFileSync(path.join(OUT, 'house.json'), JSON.stringify(house, null, 2) + '\n');
+writeMap('town.json', town);
+writeMap('house.json', house);
 console.log('town', W, 'x', H, 'plots', plots.length);
 
 // ---------- the wilds, north of the town gate ----------
@@ -154,5 +161,130 @@ const wilds = {
   props: wprops,
   exits: [{ x: 28, y: WH - 1, to: 'town', at: [12, 1], f: 'd' }],
 };
-fs.writeFileSync(path.join(OUT, 'wilds.json'), JSON.stringify(wilds, null, 2) + '\n');
+writeMap('wilds.json', wilds);
 console.log('wilds', WW, 'x', WH);
+
+// ---------- Kettle Creek, the student's home town ----------
+const KW = 40, KH = 26;
+const k = Array.from({ length: KH }, () => Array(KW).fill('.'));
+const kset = (x, y, c) => { if (x >= 0 && y >= 0 && x < KW && y < KH) k[y][x] = c; };
+const krect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) kset(x, y, c); };
+const kprops = [];
+const kprop = (s, fx, fy, fw, fh, x, b, wd, sign) => {
+  krect(fx, fy, fx + fw - 1, fy + fh - 1, 'H');
+  kprops.push({ s, x, b, w: wd, f: [fx, fy, fw, fh], ...(sign ? { sign } : {}) });
+};
+krect(0, 0, KW - 1, 0, 'T'); krect(0, KH - 1, KW - 1, KH - 1, 'T');
+krect(0, 0, 0, KH - 1, 'T'); krect(KW - 1, 0, KW - 1, KH - 1, 'T');
+
+// A grassy northern route, a village loop and a quiet creek on the east bank.
+// Route 1 is a natural patch, not a rectangle, like the zones in the wilds.
+const kblob = (cx, cy, rx, ry, c, seed) => {
+  for (let y = Math.floor(cy - ry - 1); y <= cy + ry + 1; y++) for (let x = Math.floor(cx - rx - 1); x <= cx + rx + 1; x++) {
+    const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
+    if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 0.82 + 0.3 * (n - Math.floor(n))) kset(x, y, c);
+  }
+};
+kblob(8, 4.5, 6.2, 2.9, 'G', 11); kblob(13, 3.5, 2.2, 1.8, 'G', 12);
+krect(12, 11, 27, 11, 'P'); krect(12, 21, 27, 21, 'P');
+krect(12, 8, 12, 21, 'P'); krect(27, 9, 27, 21, 'P');
+krect(6, 13, 32, 13, 'P'); krect(32, 8, 32, 13, 'P');
+for (let y = 12; y <= 23; y++) {
+  const x = y < 17 ? 35 : 34;
+  krect(x, y, x + 1, y, 'W');
+}
+
+// Five tile wide art at its native 64 pixels per tile. Only the lower three
+// rows collide, leaving the roofs (including the tall apothecary roof) above.
+const doors = [];
+// off is the doorway's column inside the art, so the door tile sits right under the door students see.
+for (const [s, x, y, place, off] of [
+  ['house-cottage', 4, 10, 'home', 1],
+  ['kc-store', 16, 6, 'store', 3],
+  ['kc-apothecary', 22, 6, 'apothecary', 1],
+  ['kc-clinic', 16, 16, 'clinic', 1],
+  ['kc-daycare', 23, 16, 'daycare', 1],
+]) {
+  kprop(s, x, y, 5, 3, x, y + 3, 5, place);
+  const door = { x: x + off, y: y + 3, place };
+  doors.push(door);
+  krect(door.x, door.y, door.x, y < 10 ? 11 : door.y + 1, 'P');
+}
+krect(5, 14, 6, 15, 'P');
+krect(18, 20, 18, 21, 'P'); krect(25, 20, 25, 21, 'P');
+kprop('prop-route-sign', 11, 8, 1, 1, 11, 9, 102 / 64, 'route-1');
+
+// Fences use the same footprint pattern as town props. Short end pieces can
+// overlap visually; each sprite stays at its native two tile width.
+const fence = (x, y, fw = 2, drawX = x) => kprop('prop-fence', x, y, fw, 1, drawX, y + 1, 2);
+// Cemetery hill: 11 by 7, with alternating grave rows and clear walking lanes.
+for (let x = 27; x <= 35; x += 2) fence(x, 2);
+fence(37, 2, 1);
+for (let y = 3; y <= 7; y++) { fence(27, y, 1, 26); fence(37, y, 1); }
+fence(27, 8); fence(29, 8); fence(34, 8); fence(36, 8);
+// The arch has solid posts and an open middle. Its sign footprint is the west
+// post, not the walkable aperture; the east post is solid too.
+kprop('kc-cemetery-gate', 31, 8, 1, 1, 31, 9, 3, 'cemetery-gate');
+kset(33, 8, 'H');
+const graves = [];
+for (const y of [3, 5, 7]) for (const x of [28, 29, 30, 31, 33, 34, 35, 36]) graves.push([x, y]);
+
+// A small practice enclosure with a southern entrance off the home lane.
+for (const x of [3, 5, 7, 9]) fence(x, 18);
+for (let y = 19; y <= 22; y++) { fence(3, y, 1, 2); fence(10, y, 1); }
+fence(3, 23); fence(7, 23); fence(9, 23);
+krect(5, 23, 6, 23, 'P'); krect(6, 21, 6, 24, 'P');
+krect(6, 24, 12, 24, 'P'); krect(12, 21, 12, 24, 'P');
+kprop('prop-route-sign', 7, 22, 1, 1, 7, 23, 102 / 64, 'practice-yard');
+
+// The bus and welcome sign sit just below the southern stretch of the loop.
+kprop('prop-bus-stop', 17, 23, 2, 1, 17, 24, 2, 'bus-stop-kc');
+kprop('kc-town-sign', 21, 23, 2, 1, 21, 24, 2, 'town-sign-kc');
+krect(17, 22, 22, 22, 'P'); krect(20, 21, 20, 23, 'P');
+for (const [x, y] of [[11, 12], [28, 12], [13, 20], [30, 9]]) kprop('prop-lantern', x, y, 1, 1, x, y + 1, 47 / 64, 'lantern');
+for (const [x, y] of [[29, 17], [14, 23]]) kprop('prop-bench', x, y, 2, 1, x, y + 1, 2, 'bench');
+for (const [x, y] of [[2, 11], [30, 21]]) kprop('prop-rock', x, y, 1, 1, x, y + 1, 1, 'rock');
+for (const [x, y] of [[3, 14], [22, 20], [33, 11]]) kprop('prop-bush', x, y, 1, 1, x, y + 1, 1, 'bush');
+for (const [x, y] of [[2, 9], [10, 15], [29, 23], [37, 18]]) kprop('prop-tree', x, y, 1, 1, x, y + 1, 122 / 64);
+for (const [x, y] of [[3, 13], [9, 13], [15, 9], [21, 10], [28, 15], [31, 19], [16, 22], [23, 24]]) kset(x, y, 'F');
+
+const kettle = {
+  id: 'kettle',
+  rows: k.map((r) => r.join('')),
+  arrive: [[5, 14], [6, 14], [5, 15], [6, 15]],
+  props: kprops,
+  doors,
+  graves,
+  exits: [],
+};
+
+// Check both the empty map and a full cemetery: future headstones must never
+// cut off a walking lane or strand another headstone without an approach.
+const neighbours = (x, y) => [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]];
+const walkable = (x, y) => '.PFG'.includes(k[y]?.[x] ?? ' ');
+const checkKettle = (occupiedGraves) => {
+  const blocked = new Set(occupiedGraves ? graves.map(([x, y]) => `${x},${y}`) : []);
+  const seen = new Set();
+  const queue = [kettle.arrive[0]];
+  for (let i = 0; i < queue.length; i++) {
+    const [x, y] = queue[i], key = `${x},${y}`;
+    if (!walkable(x, y) || blocked.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    queue.push(...neighbours(x, y));
+  }
+  const reachable = (x, y) => seen.has(`${x},${y}`);
+  for (let y = 0; y < KH; y++) for (let x = 0; x < KW; x++) {
+    if (walkable(x, y) && !blocked.has(`${x},${y}`) && !reachable(x, y)) throw new Error(`Kettle unreachable tile ${x},${y}`);
+  }
+  for (const { x, y, place } of doors) {
+    if (k[y][x] !== 'P' || !reachable(x, y)) throw new Error(`Kettle unreachable door ${place}`);
+  }
+  for (const [x, y] of kettle.arrive) if (!reachable(x, y)) throw new Error(`Kettle unreachable arrival ${x},${y}`);
+  for (const [x, y] of graves) {
+    if (k[y][x] !== '.' || !neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible grave ${x},${y}`);
+  }
+};
+checkKettle(false);
+checkKettle(true);
+writeMap('kettle.json', kettle);
+console.log('kettle', KW, 'x', KH, 'doors', doors.length, 'graves', graves.length, 'reachability OK');

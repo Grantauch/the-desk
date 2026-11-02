@@ -17,7 +17,7 @@ import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.12.0';
+const VERSION = '0.13.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -33,6 +33,13 @@ const TOWN = readContent('town.json');
 const HOUSE = readContent('house.json');
 const WILDS = readContent('wilds.json');
 const WILD = readContent('wild.json');
+// Kettle Creek: each saved trainer's own home town (content/kettle.json, drawn by tools/gen-town.mjs). Every trainer
+// gets a private copy of it, room 'kc:<player id>'. Until the map file exists, trainers arrive in the Checkaverse as before.
+const KETTLE_FILE = process.env.CHECKAVERSE_KETTLE || path.join(HERE, 'content', 'kettle.json');
+const KETTLE = fs.existsSync(KETTLE_FILE) ? JSON.parse(fs.readFileSync(KETTLE_FILE, 'utf8')) : null;
+const PLACES = ['home', 'store', 'apothecary', 'clinic', 'daycare'];
+const PLACE_LINES = readContent('places.json');
+for (const k of PLACES) if (!PLACE_LINES[k]) throw new Error(`places.json: missing ${k}`);
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
 const SIGNS = readContent('signs.json');
@@ -53,6 +60,18 @@ for (const [tile, z] of Object.entries(WILD.zones)) {
   if (!WILDS.rows.some((r) => r.includes(tile))) throw new Error(`wild.json: zone ${tile} has no tiles in wilds.json`);
   if (!(z.rate > 0 && z.rate < 0.5) || !(z.levels[0] >= 1 && z.levels[0] <= z.levels[1] && z.levels[1] <= 50)) throw new Error(`wild.json: zone ${tile} rate or levels out of range`);
   for (const sp of Object.keys(z.table)) if (!RULES.species.species[sp]) throw new Error(`wild.json: zone ${tile} lists unknown species ${sp}`);
+}
+if (KETTLE) {
+  const bad = (m) => { throw new Error(`kettle.json: ${m}`); };
+  if (!Array.isArray(KETTLE.rows) || !KETTLE.rows.length || KETTLE.rows.some((r) => r.length !== KETTLE.rows[0].length)) bad('rows must be a rectangle');
+  for (const d of KETTLE.doors || []) if (!PLACES.includes(d.place)) bad(`door place ${d.place}`);
+  if (!(KETTLE.arrive || []).length) bad('needs arrive tiles');
+  if (!(KETTLE.props || []).some((p) => p.sign === 'bus-stop-kc')) bad('needs a bus stop (sign bus-stop-kc)');
+  const kz = WILD.kettle || {};
+  for (const [tile, z] of Object.entries(kz)) {
+    if (!(z.rate > 0 && z.rate < 0.5) || !(z.levels[0] >= 1 && z.levels[0] <= z.levels[1])) bad(`wild.json kettle zone ${tile} rate or levels`);
+    for (const sp of Object.keys(z.table)) if (!RULES.species.species[sp]) bad(`wild.json kettle zone ${tile} lists unknown species ${sp}`);
+  }
 }
 // Tests can make every step in the wilds start a battle.
 const WILD_RATE = process.env.CHECKAVERSE_WILD_RATE ? Number(process.env.CHECKAVERSE_WILD_RATE) : null;
@@ -138,7 +157,11 @@ const insertBattle = db.prepare(`INSERT INTO battles (started, ended, seed, a_tr
 const TOWN_SOLID = new Set(['T', 'W', 'H', 'S']);
 // Outdoor maps share one tile set. 'town' is the Checkaverse, 'wilds' is the country north of the gate.
 const MAPS = { town: TOWN, wilds: WILDS };
-const roomKind = (room) => (MAPS[room] ? room : 'house');
+const isKettle = (room) => typeof room === 'string' && room.startsWith('kc:');
+const mapOf = (room) => (isKettle(room) ? KETTLE : MAPS[room]);
+const roomKind = (room) => (isKettle(room) ? 'kettle' : MAPS[room] ? room : 'house');
+// Headstones from the class cemetery stand on Kettle Creek's grave slots, so those tiles are solid while taken.
+const kcStones = new Map(); // room -> Set of 'x,y'
 const HOUSE_SOLID = new Set(['X', 'B', 'K', 'N']);
 const plots = TOWN.plots.map((p) => ({ ...p, owner: 0, locked: false }));
 const players = new Map(); // id -> player
@@ -150,9 +173,11 @@ const plotDoorAt = (x, y) => plots.find((pl) => pl.owner && pl.door.x === x && p
 const plotOfRoom = (room) => plots.find((pl) => `h${pl.id}` === room);
 
 function walkable(room, x, y) {
-  if (MAPS[room]) {
-    const t = tileAt(MAPS[room].rows, x, y);
+  const map = mapOf(room);
+  if (map) {
+    const t = tileAt(map.rows, x, y);
     if (t === null || TOWN_SOLID.has(t)) return false;
+    if (isKettle(room)) return !kcStones.get(room)?.has(`${x},${y}`);
     return room !== 'town' || !plots.some((pl) => pl.owner && inHouse(pl, x, y));
   }
   const t = tileAt(HOUSE.rows, x, y);
@@ -219,15 +244,41 @@ function changeRoom(p, room, x, y, facing) {
   pending.delete(p.id);
   stopWatching(p);
   toRoom(p.room, { t: 'leave', id: p.id }, p.id);
+  if (isKettle(p.room) && p.room !== room) kcStones.delete(p.room);
   p.room = room; p.x = x; p.y = y; p.facing = facing;
   const plot = plotOfRoom(room);
   send(p, {
     t: 'room', room, kind: roomKind(room),
     owner: plot ? plotView(plot) : null,
     players: inRoom(room).map(publicView),
+    ...(isKettle(room) ? { stones: kettleStones(p) } : {}),
   });
   toRoom(room, { t: 'join', p: publicView(p) }, p.id);
   if (room === 'wilds') p.grace = WILD.graceSteps;
+}
+
+// The class cemetery's newest headstones, one per grave slot in this trainer's Kettle Creek.
+function kettleStones(p) {
+  const slots = KETTLE.graves || [];
+  const stones = p.pid ? STORE.cemetery(p.hour, slots.length) : [];
+  kcStones.set(p.room, new Set(stones.map((_, i) => `${slots[i][0]},${slots[i][1]}`)));
+  return stones.map((g, i) => ({ x: slots[i][0], y: slots[i][1], trainer: g.trainer, speciesName: SPECIES[g.species]?.name || g.species,
+    epitaph: g.epitaph, cause: Care.causeName(CARE, g.cause), level: g.level, days: g.days, mine: g.pid === p.pid }));
+}
+// The bus between Kettle Creek and the Checkaverse. Saved trainers only: visitors have no home town.
+function rideBus(p, to) {
+  if (!p.pid || !KETTLE || p.battle) return;
+  if (to === 'town' && isKettle(p.room)) {
+    const spot = arrivalPoint();
+    changeRoom(p, 'town', spot.x, spot.y, 'd');
+    if (!plots.some((pl) => pl.owner === p.id)) { const plot = giveHouse(p); sendPlots(); send(p, { t: 'home', myPlot: plot ? plot.id : 0 }); }
+    return send(p, { t: 'notice', msg: 'The bus pulls into the Checkaverse. Your house is in the Neighborhood while you are here.' });
+  }
+  if (to === 'kettle' && !isKettle(p.room)) {
+    const [x, y] = KETTLE.arrive[0];
+    changeRoom(p, `kc:${p.id}`, x, y, 'd');
+    return send(p, { t: 'notice', msg: 'Home to Kettle Creek.' });
+  }
 }
 
 // A house drops into the first free plot when its owner arrives.
@@ -506,8 +557,7 @@ function rollSpecies(table) {
   for (const [sp, w] of Object.entries(table)) { r -= w; if (r < 0) return sp; }
   return Object.keys(table)[0];
 }
-function startWild(p, tile) {
-  const zone = WILD.zones[tile];
+function startWild(p, zone) {
   const species = rollSpecies(zone.table);
   const level = zone.levels[0] + Math.floor(Math.random() * (zone.levels[1] - zone.levels[0] + 1));
   const id = nextBattle++;
@@ -700,7 +750,7 @@ function teacherApi(req, res, action) {
   if (!keyOk(req.headers['x-teacher-key'])) { if (Date.now() - lastRefusalLog > 60_000) { lastRefusalLog = Date.now(); log('teacher key refused', action, '(further refusals this minute not logged)'); } return reply(403, { ok: false, msg: 'Wrong teacher key.' }); }
   if (action === 'state' && req.method === 'GET') {
     return reply(200, { ok: true, paused, noSchool: Boolean(getMeta.get(`noschool:${Accounts.todayKey()}`)), version: VERSION, players: [...players.values()].map((p) => ({
-      id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
+      id: p.id, name: p.name, hour: p.pid ? p.hour : 'Visitor', room: p.room === 'town' ? 'Town' : p.room === 'wilds' ? 'The wilds' : isKettle(p.room) ? 'Kettle Creek' : `${players.get(plotOfRoom(p.room)?.owner)?.name || 'a'}'s house`,
       busy: p.busy, battling: Boolean(p.battle), record: p.record, minutes: Math.round((Date.now() - p.joined) / 60000), phrases: p.stats.phrases, challenges: p.stats.challenges,
     })) });
   }
@@ -836,7 +886,10 @@ function join(ws, ticket) {
   if (!p.name) p.name = trainerName();
   p.sessionId = Number(insertSession.run(p.name, new Date().toISOString()).lastInsertRowid);
   players.set(p.id, p);
-  const plot = giveHouse(p);
+  // Saved trainers start the day at home in Kettle Creek. Visitors, and everyone until the map exists, start in the town.
+  const home = Boolean(p.pid && KETTLE);
+  if (home) { p.room = `kc:${p.id}`; [p.x, p.y] = KETTLE.arrive[0]; p.facing = 'd'; }
+  const plot = home ? null : giveHouse(p);
   log('join', p.id, p.name, p.pid ? `saved ${p.pid.slice(0, 6)} ${p.hour}` : 'visitor', plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
 
   send(p, {
@@ -844,12 +897,14 @@ function join(ws, ticket) {
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
     wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
     charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,
-    room: 'town', myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p), egg: eggOf(p),
-    players: inRoom('town').map(publicView),
+    ...(KETTLE ? { kettle: { rows: KETTLE.rows, props: KETTLE.props || [], doors: KETTLE.doors || [], exits: KETTLE.exits || [], places: PLACE_LINES } } : {}),
+    room: p.room, kind: roomKind(p.room), myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p), egg: eggOf(p),
+    ...(home ? { stones: kettleStones(p) } : {}),
+    players: inRoom(p.room).map(publicView),
   });
-  toRoom('town', { t: 'join', p: publicView(p) }, p.id);
+  toRoom(p.room, { t: 'join', p: publicView(p) }, p.id);
   sendPlots();
-  if (!plot) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
+  if (!plot && !home) send(p, { t: 'notice', msg: 'Every plot in the Neighborhood is taken right now.' });
   // One card on arrival, so the welcome is not wiped by the growth line a moment later.
   if (notes.length) send(p, { t: 'notice', msg: notes.join(' ') });
   // The overnight report: what changed while the student was gone, and any Checkling that did not make it.
@@ -866,6 +921,7 @@ function leave(p) {
   stopWatching(p);
   players.delete(p.id);
   pending.delete(p.id);
+  kcStones.delete(p.room);
   removeHouse(p);
   closeSession.run(new Date().toISOString(), p.stats.moves, p.stats.phrases, p.stats.challenges, p.sessionId);
   toRoom(p.room, { t: 'leave', id: p.id });
@@ -878,7 +934,7 @@ function handleMove(p, d) {
   p.facing = d;
   const nx = p.x + dir[0];
   const ny = p.y + dir[1];
-  const exit = MAPS[p.room]?.exits?.find((e) => e.x === nx && e.y === ny);
+  const exit = mapOf(p.room)?.exits?.find((e) => e.x === nx && e.y === ny);
   if (exit) return changeRoom(p, exit.to, exit.at[0], exit.at[1], exit.f);
   if (p.room === 'town') {
     const door = plotDoorAt(nx, ny);
@@ -889,7 +945,7 @@ function handleMove(p, d) {
       }
       return changeRoom(p, `h${door.id}`, HOUSE.enter[0], HOUSE.enter[1], 'u');
     }
-  } else if (nx === HOUSE.exit.x && ny === HOUSE.exit.y) {
+  } else if (roomKind(p.room) === 'house' && nx === HOUSE.exit.x && ny === HOUSE.exit.y) {
     const plot = plotOfRoom(p.room);
     return changeRoom(p, 'town', plot.door.x, plot.door.y + 1, 'd');
   }
@@ -898,13 +954,14 @@ function handleMove(p, d) {
   // Facing changes even when the step is blocked, so everyone sees the turn.
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
   // A step into terrain in the wilds can rouse a wild Checkling. Right after a battle there are a few free steps.
-  if (stepped && p.room === 'wilds' && !p.battle) {
-    const tile = tileAt(WILDS.rows, p.x, p.y);
-    const zone = WILD.zones[tile];
+  // Kettle Creek's Route 1 has its own gentler zone (wild.json kettle).
+  if (stepped && (p.room === 'wilds' || isKettle(p.room)) && !p.battle) {
+    const tile = tileAt(mapOf(p.room).rows, p.x, p.y);
+    const zone = isKettle(p.room) ? WILD.kettle?.[tile] : WILD.zones[tile];
     if (!zone) return;
     if (p.grace > 0) { p.grace--; return; }
     if (partnerSide(p).none) return;
-    if (Math.random() < (WILD_RATE ?? zone.rate)) startWild(p, tile);
+    if (Math.random() < (WILD_RATE ?? zone.rate)) startWild(p, zone);
   }
 }
 
@@ -1028,6 +1085,7 @@ function handleMessage(p, msg, now) {
       send(p, { t: 'cared', ok: r.ok, msg: r.msg, id: `k${id}`, body: STORE.body(p.pid, id) });
       return sendTeam(p);
     }
+    case 'bus': return rideBus(p, msg.to);
     case 'hatch': {
       if (!p.pid || !STARTERS.includes(msg.species)) return;
       const got = STORE.hatchEgg(p.pid, msg.species, p.attendance || 0);

@@ -24,6 +24,8 @@ The body clock ticks once per school day (`content/calendar.json`, copied from t
 
 A death writes a headstone with an epitaph (`content/epitaphs.json`) to the class cemetery (menu, **Class cemetery**), shows the student a headstone card, and owes an egg at the next check-in. The egg hatches five check-ins later into the starter the student picks. There is no revive. Check-In's own card still shows the first hatched Checkling, and the town never brings a dead one back.
 
+**Kettle Creek (0.13.0).** Each saved trainer starts the day at home in their own private copy of Kettle Creek (`content/kettle.json`, drawn by `tools/gen-town.mjs`), room `kc:<player id>`, so nobody else is ever in it. Visitors still arrive in the town. Facing a building's door (`doors` in the map) opens it: home and the clinic open the Care panel, the store, apothecary and Day Care show their line from `content/places.json` until those shops exist. Route 1 is tall grass with its own gentler encounter zone (`kettle` in `content/wild.json`, levels 3 to 6). The cemetery hill shows the class cemetery's newest headstones on the map's `graves` slots, and facing one reads its epitaph. The bus stop (sign `bus-stop-kc`) asks whether to ride to the Checkaverse, and the town's bus stop or the menu rides home. A trainer's house drops into a Neighborhood plot the first time they ride into town. If `kettle.json` is missing, everyone arrives in the town as before. `kettle.test.mjs` checks all of this with a tiny map of its own.
+
 **One screen per trainer.** Opening the town in a second tab closes the first (close code 4002), so nothing is counted twice.
 
 ## Screen and tips

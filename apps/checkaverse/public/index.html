@@ -68,6 +68,12 @@
       <button id="reportClose" type="button" class="ghost">Got it</button>
     </div>
 
+    <div id="busPop" class="pop card-pop" role="dialog" aria-labelledby="busTitle" hidden>
+      <p class="pop-title" id="busTitle">Ride the bus?</p>
+      <p class="pop-note" id="busNote"></p>
+      <div class="bus-row"><button id="busYes" type="button" class="ghost">Yes, let's go</button><button id="busNo" type="button" class="ghost">Not yet</button></div>
+    </div>
+
     <div id="hatchPop" class="pop card-pop" role="dialog" aria-labelledby="hatchTitle" hidden>
       <p class="pop-title" id="hatchTitle">Your egg is hatching!</p>
       <p class="pop-note">Pick who comes out. This one is yours for good.</p>
@@ -91,7 +97,8 @@
       <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
       <button id="cemeteryBtn" type="button" class="ghost">Class cemetery</button>
       <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
-      <a class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
+      <button id="busBtn" type="button" class="ghost" hidden>Ride the bus</button>
+      <a id="busLink" class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
     </div>
 
     <div id="ranksPop" class="pop ranks-pop" role="dialog" aria-labelledby="ranksTitle" hidden>
