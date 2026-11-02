@@ -248,6 +248,18 @@ for (const [x, y] of [[3, 14], [22, 20], [33, 11]]) kprop('prop-bush', x, y, 1, 
 for (const [x, y] of [[2, 9], [10, 15], [29, 23], [37, 18]]) kprop('prop-tree', x, y, 1, 1, x, y + 1, 122 / 64);
 for (const [x, y] of [[3, 13], [9, 13], [15, 9], [21, 10], [28, 15], [31, 19], [16, 22], [23, 24]]) kset(x, y, 'F');
 
+// Forage coordinates name the solid footprint tile, with a walkable approach beside it.
+const forage = [];
+for (const [id, s, x, y] of [
+  ['berry-patch', 'prop-bush', 4, 7],
+  ['creek-bank', 'prop-rock', 34, 15],
+  ['herb-garden', 'prop-bush', 15, 18],
+  ['old-stump', 'prop-rock', 14, 6],
+]) {
+  kprop(s, x, y, 1, 1, x, y + 1, 1, `forage-${id}`);
+  forage.push({ id, x, y });
+}
+
 const kettle = {
   id: 'kettle',
   rows: k.map((r) => r.join('')),
@@ -255,11 +267,12 @@ const kettle = {
   props: kprops,
   doors,
   graves,
+  forage,
   exits: [],
 };
 
 // Check both the empty map and a full cemetery: future headstones must never
-// cut off a walking lane or strand another headstone without an approach.
+// cut off a walking lane or strand a headstone or forage spot without an approach.
 const neighbours = (x, y) => [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]];
 const walkable = (x, y) => '.PFG'.includes(k[y]?.[x] ?? ' ');
 const checkKettle = (occupiedGraves) => {
@@ -282,6 +295,9 @@ const checkKettle = (occupiedGraves) => {
   for (const [x, y] of kettle.arrive) if (!reachable(x, y)) throw new Error(`Kettle unreachable arrival ${x},${y}`);
   for (const [x, y] of graves) {
     if (k[y][x] !== '.' || !neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible grave ${x},${y}`);
+  }
+  for (const { id, x, y } of forage) {
+    if (!neighbours(x, y).some(([nx, ny]) => reachable(nx, ny))) throw new Error(`Kettle inaccessible forage ${id}`);
   }
 };
 checkKettle(false);
