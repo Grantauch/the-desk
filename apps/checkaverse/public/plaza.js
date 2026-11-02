@@ -3,6 +3,10 @@
   const TILE = 32;
   const canvas = document.getElementById('town');
   const ctx = canvas.getContext('2d');
+  const { createWorld, trainerFrame, paintPaths, paintMeadow } = window.CheckaverseWorld;
+  let world = null;
+  const residentDialog = document.getElementById('residentDialog'), worldJournal = document.getElementById('worldJournal');
+  const conversing = () => residentDialog.open || worldJournal.open;
   const SCALE = 2; // the canvas has two pixels for every map pixel so the 2x art stays sharp
   // The map fills the screen: always 16 tiles tall, as wide as the screen allows.
   let VIEW_W = canvas.width / SCALE, VIEW_H = canvas.height / SCALE;
@@ -99,6 +103,7 @@
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } handle(m); };
     ws.onopen = () => { retry = 0; send({ t: 'hello', ticket }); };
     ws.onclose = (ev) => {
+      closeConversation(); worldJournal.close();
       players.clear();
       hideAsk();
       if (bt && !bt.done) toast('The connection dropped, so that battle ended.');
@@ -131,6 +136,7 @@
         if (serverVersion && m.version && m.version !== serverVersion) { location.reload(); return; }
         serverVersion = m.version;
         me = m.you; town = m.town; house = m.house; wilds = m.wilds; kettle = m.kettle || null; stones = m.stones || []; phrases = m.phrases; myPlot = m.myPlot;
+        if (m.world && !world) world = createWorld(m.world);
         team = m.team || []; saved = Boolean(m.saved); egg = m.egg || null; partyMax = m.partyMax || 3; charms = m.charms ?? 0; charmLine(); recordLine(m.record);
         signs = m.signs || {}; rerolls = m.rerolls || 0; renameLine(); stopWalk(); setPaused(m.paused);
         partner = m.partner; closeBattle(true); lastNear = null; watchLine();
@@ -141,6 +147,7 @@
         buildPartners();
         if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
         room = m.room || 'town'; roomKind = m.kind || 'town'; roomOwner = null;
+        world?.reset(roomKind);
         busLine();
         if (roomKind === 'kettle') tipSoon('kettle', 2000);
         setPlayers(m.players);
@@ -152,7 +159,9 @@
         tipSoon('walk', 1200);
         break;
       case 'room':
+        closeConversation(); worldJournal.close();
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
+        world?.reset(roomKind);
         if (roomKind === 'kettle') stones = m.stones || [];
         busLine();
         stopWalk();
@@ -184,6 +193,7 @@
         break;
       }
       case 'challenged':
+        closeConversation(); worldJournal.close(); held.length = 0; stopWalk();
         pendingFrom = m.from;
         askText.textContent = `${m.name} wants to battle!`;
         askEl.hidden = false;
@@ -213,7 +223,7 @@
       case 'notice': toast(m.msg); break;
       case 'home': myPlot = m.myPlot; homeLine(); break;
       case 'teacher': toastTimer && clearTimeout(toastTimer); toastEl.textContent = `Teacher: ${m.msg}`; toastEl.hidden = false; teacherUntil = performance.now() + 8000; toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000); break;
-      case 'paused': setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
+      case 'paused': closeConversation(); worldJournal.close(); setPaused(m.v); if (!m.v) toast('The Checkaverse is running again.'); break;
       case 'removed': removed = true; break;
       case 'look': { const p = players.get(m.id); if (p) p.look = m.v; break; }
       case 'name': {
@@ -317,6 +327,7 @@
     if (!held.includes(d)) held.push(d);
   }
   window.addEventListener('keydown', (e) => {
+    if (conversing()) { if (e.code.startsWith('Arrow') || KEYS[e.code]) e.preventDefault(); return; }
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
@@ -349,7 +360,7 @@
   const TOWN_SOLID = new Set(['T', 'W', 'H', 'S']);
   const HOUSE_SOLID = new Set(['X', 'B', 'K', 'N', 'D']);
   let walk = null; // { goals: Set of 'x,y', then: 'u'|'d'|..., sign, sentAt, from }
-  function stopWalk() { walk = null; }
+  function stopWalk() { walk = null; world?.hold(residentDialog.open ? activeResident : ''); }
   function open(x, y) {
     const r = rows();
     if (y < 0 || y >= r.length || x < 0 || x >= r[0].length) return false;
@@ -427,7 +438,7 @@
       p.seg = null;
       if (now - start > STEP_MS) start = now;
     }
-    if (!askEl.hidden || paused || bt) return;
+    if (!askEl.hidden || paused || bt || conversing()) return;
     const dir = held.length ? held[held.length - 1] : walkDir(p);
     if (!dir) return;
     if (held.length && wasIdle && pressTurn && now - pressAt < TURN_MS) {
@@ -469,6 +480,7 @@
   }
 
   function showSign(key) {
+    if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
     if (key.startsWith('place:')) return openPlace(key.slice(6));
     if (key.startsWith('stone:')) { const [x, y] = key.slice(6).split(',').map(Number); const st = stones.find((q) => q.x === x && q.y === y); if (st) toast(`${st.trainer}'s ${st.speciesName}. ${st.epitaph}`); return; }
@@ -476,6 +488,70 @@
     if (key === 'bus-stop' && saved && kettle) return askBus('kettle');
     if (signs[key]) toast(signs[key]);
   }
+  // ---------- residents and small stories ----------
+  let activeResident = '', conversationFocus = null, cueTimer = 0;
+  const residentDistance = n => { const p = players.get(me); return p ? Math.abs(n.dx - p.dx) + Math.abs(n.dy - p.dy) : Infinity; };
+  function nearestResident() { return world?.active().filter(n => residentDistance(n) <= 2.2).sort((a,b) => residentDistance(a) - residentDistance(b))[0]; }
+  function closeConversation() { residentDialog.close(); activeResident = ''; world?.hold(''); }
+  function conversationNode(n, key) {
+    const node = n.dialogue[key];
+    $('residentText').textContent = node.text; $('residentChoices').replaceChildren();
+    for (const choice of node.choices) {
+      if (choice.next === 'errand' && world.status(n.id) === 'done') continue;
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = choice.label;
+      b.addEventListener('click', () => {
+        if (paused || bt) return closeConversation();
+        if (choice.action === 'errand') { world.start(n.id); closeConversation(); toast(`${n.errand.title} added to Around town in the menu.`); }
+        else if (choice.action === 'journal') { closeConversation(); showJournal(); }
+        else if (choice.next) { conversationNode(n, choice.next); $('residentChoices').querySelector('button')?.focus(); }
+        else closeConversation();
+      });
+      $('residentChoices').append(b);
+    }
+  }
+  function talkTo(id) {
+    const n = world?.find(id);
+    if (!n || paused || bt || !askEl.hidden) return;
+    if (residentDistance(n) > 2.5) return toast(`Walk a little closer to ${n.name}, then press Space or tap Talk.`);
+    conversationFocus = document.activeElement; held.length = 0; stopWalk(); closePops();
+    activeResident = id; world.hold(id);
+    if (performance.now() >= teacherUntil) { clearTimeout(toastTimer); toastEl.hidden = true; }
+    $('residentName').textContent = n.name; $('residentRole').textContent = n.role;
+    $('residentPortrait').src = `/art/trainer-${'abcd'[n.look]}.png`;
+    conversationNode(n, 'start');
+    if (world.finish(id)) {
+      $('worldCue').hidden = true; clearTimeout(cueTimer);
+      for (let i = world.discoveries.length - 1; i >= 0; i--) if (world.discoveries[i].id === id) world.discoveries.splice(i, 1);
+      $('residentText').textContent = n.errand.complete;
+      $('residentChoices').replaceChildren();
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Glad I could help.'; b.addEventListener('click', closeConversation); $('residentChoices').append(b);
+    } else if (world.status(id) === 'looking') $('residentText').textContent = `${n.dialogue.start.text} ${n.errand.request}`;
+    else if (world.status(id) === 'done') $('residentText').textContent = `Thanks again for helping with ${n.errand.title.toLowerCase()}. ${n.dialogue.start.text}`;
+    if (!residentDialog.open) residentDialog.showModal();
+    $('residentChoices').querySelector('button')?.focus();
+  }
+  residentDialog.addEventListener('close', () => {
+    activeResident = ''; world?.hold(''); held.length = 0;
+    if (conversationFocus?.isConnected && !conversationFocus.hidden) conversationFocus.focus({preventScroll:true});
+  });
+  $('residentClose').addEventListener('click', closeConversation);
+  $('talkBtn').addEventListener('click', () => { const n = nearestResident(); if (n) talkTo(n.id); });
+  function showJournal() {
+    if (paused || bt) return;
+    held.length = 0; stopWalk(); closePops(); $('journalEntries').replaceChildren();
+    const entries = world?.journal() || [];
+    for (const e of entries) {
+      const item = document.createElement('article'), title = document.createElement('h3'), line = document.createElement('p');
+      title.textContent = `${e.status === 'done' ? 'Complete' : e.status === 'found' ? 'Ready to return' : 'Exploring'} · ${e.title}`;
+      line.textContent = e.status === 'done' ? e.complete : e.status === 'found' ? `Bring your find back to ${e.name}.` : e.request;
+      item.append(title, line); $('journalEntries').append(item);
+    }
+    if (!entries.length) { const p = document.createElement('p'); p.textContent = 'Talk to residents with the little speech bubble above their heads. Some have a small story you can help with.'; $('journalEntries').append(p); }
+    worldJournal.showModal(); $('journalClose').focus();
+  }
+  $('journalBtn').addEventListener('click', showJournal);
+  $('journalClose').addEventListener('click', () => worldJournal.close());
+  worldJournal.addEventListener('close', () => { held.length = 0; canvas.focus({preventScroll:true}); });
   // ---------- Kettle Creek and the bus ----------
   function openPlace(place) {
     const line = kettle?.places?.[place];
@@ -555,7 +631,10 @@
   function lookAhead(fromKey) {
     const self = players.get(me);
     if (!self || roomKind === 'house') return false;
+    if (paused || bt || conversing()) return false;
     const [ax, ay] = STEP[self.f] || STEP.d;
+    const resident = world?.active().find(n => Math.abs(n.dx - self.dx) + Math.abs(n.dy - self.dy) <= 2 && (n.x === self.x + ax && n.y === self.y + ay));
+    if (resident) { talkTo(resident.id); return true; }
     if (roomKind === 'kettle') {
       const door = (kettle.doors || []).find((d) => d.x === self.x && d.y === self.y);
       if (door && self.f === 'u') { showSign(`place:${door.place}`); return true; }
@@ -564,14 +643,23 @@
     }
     const p = propAt(self.x + ax, self.y + ay);
     if (p) { showSign(p.sign); return true; }
+    const near = nearestResident();
+    if (near) { talkTo(near.id); return true; }
     if (fromKey) toast('Walk up to a landmark and face it, then press Space to look.');
     return false;
   }
   canvas.addEventListener('click', (e) => {
+    if (paused || bt || conversing()) return;
     const r = canvas.getBoundingClientRect();
     const wx = (((e.clientX - r.left) / r.width) * VIEW_W) / zoom() + cam.x;
     const wy = (((e.clientY - r.top) / r.height) * VIEW_H) / zoom() + cam.y;
     const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
+    const resident = world?.active().find(n => Math.abs(n.dx - tx) < .85 && (Math.abs(n.dy - ty) < .85 || Math.abs(n.dy - ty - 1) < .85));
+    if (resident) {
+      if (residentDistance(resident) <= 2.2) return talkTo(resident.id);
+      walkTo(around(resident.x, resident.y, 1, 1).map(([x,y]) => [x,y]), '', `resident:${resident.id}`);
+      world.hold(resident.id); return;
+    }
     // Trainers stand a tile and a half tall, so a tap on the head counts too.
     for (const p of players.values()) {
       if (p.id !== me && p.x === tx && (p.y === ty || p.y === ty + 1)) {
@@ -643,7 +731,6 @@
   const has = (name) => ART[name] && ART[name].complete && ART[name].naturalWidth > 0;
   const TRAINERS = ['trainer-a', 'trainer-b', 'trainer-c', 'trainer-d'];
   const HOUSES = ['house-cottage', 'house-stump', 'house-creek'];
-  const FACE_ROW = { d: 0, u: 1, l: 2, r: 3 };
   const OUTLINE = '#2b1a12';
 
   // Draws a sprite scaled to a width in tiles, its bottom edge at b. Returns the top edge in pixels.
@@ -651,9 +738,12 @@
     const im = ART[name];
     const dw = w * TILE, dh = dw * im.naturalHeight / im.naturalWidth;
     const px = x * TILE, py = b * TILE - dh;
+    const sway = !reduceMotion && world && (name === 'prop-tree' || name === 'prop-bush') ? Math.sin(world.clock() / 1300 + x * 2) * .009 : 0;
+    if (sway) { ctx.save(); ctx.translate(px + dw / 2, b * TILE); ctx.rotate(sway); ctx.translate(-px - dw / 2, -b * TILE); }
     if (flip) {
       ctx.save(); ctx.translate(px + dw, py); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, dw, dh); ctx.restore();
     } else ctx.drawImage(im, px, py, dw, dh);
+    if (sway) ctx.restore();
     return py;
   }
   const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; };
@@ -695,7 +785,7 @@
       paint.fillRect(0, 0, tile.width, tile.height);
       return g.createPattern(tile, 'repeat');
     };
-    const grass = texture('tile-grass', '#77875c', 0.34);
+    const grass = texture('tile-grass', '#829267', 0.66);
     const path = texture('tile-path', '#b5aa8c', 0.52, 2 / 3);
     const water = texture('tile-water');
     if (!grass || !path || !water) {
@@ -713,7 +803,7 @@
     const rocky = texture('tile-path', '#77736b', 0.62, 2 / 3);
     const heath = texture('tile-grass', '#5a3a22', 0.62);
     r.forEach((row, y) => [...row].forEach((ch, x) => {
-      const fill = ch === 'P' || ch === 'E' ? path : ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
+      const fill = ch === 'W' ? water : ch === 'G' ? tall : ch === 'C' ? flowers : ch === 'R' ? rocky : ch === 'A' ? heath : null;
       if (fill) { g.fillStyle = fill; g.fillRect(x * T, y * T, T, T); }
       const h = hash(x, y);
       if (ch === 'R') {
@@ -728,30 +818,12 @@
         g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
       }
     }));
-    // A low mossy curb belongs to the outside of a path, never between two path tiles.
-    // Drawing it in the ground cache keeps movement/camera work independent and costs
-    // no extra work per animation frame. It is visual only: walkable tiles stay the same.
-    const curb = () => {
-      g.fillStyle = '#829060'; g.fillRect(0, 0, T, 2);
-      g.fillStyle = '#aaa17d'; g.fillRect(0, 2, T, 4);
-      g.fillStyle = '#c1b38e'; g.fillRect(0, 2, T, 1);
-      g.fillStyle = '#8d896c'; g.fillRect(0, 6, T, 1);
-      g.fillStyle = '#96916f';
-      for (let joint = 16; joint < T; joint += 32) g.fillRect(joint, 3, 1, 3);
-    };
-    const land = (x, y) => !'PWE'.includes(at(x, y));
-    r.forEach((row, y) => [...row].forEach((ch, x) => {
-      if (ch !== 'P' && ch !== 'E') return;
-      const px = x * T, py = y * T;
-      if (land(x, y - 1)) { g.save(); g.translate(px, py); curb(); g.restore(); }
-      if (land(x + 1, y)) { g.save(); g.transform(0, 1, -1, 0, px + T, py); curb(); g.restore(); }
-      if (land(x, y + 1)) { g.save(); g.transform(-1, 0, 0, -1, px + T, py + T); curb(); g.restore(); }
-      if (land(x - 1, y)) { g.save(); g.transform(0, -1, 1, 0, px, py + T); curb(); g.restore(); }
-    }));
-    // A thick dark bank where water meets land, the house outline style.
+    paintPaths(g, r, T);
+    paintMeadow(g, mapNow(), T);
+    // A mossy water bank, kept below the residents and the animated ripples.
     r.forEach((row, y) => [...row].forEach((ch, x) => {
       if (ch !== 'W') return;
-      g.fillStyle = OUTLINE;
+      g.fillStyle = '#617c59';
       if (at(x, y - 1) !== 'W') g.fillRect(x * T, y * T, T, 6);
       if (at(x, y + 1) !== 'W') g.fillRect(x * T, y * T + T - 4, T, 4);
       if (at(x - 1, y) !== 'W') g.fillRect(x * T, y * T, 5, T);
@@ -794,7 +866,11 @@
       }
     }
   }
-  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let sceneryOff = false, reduceMotion = motionQuery.matches;
+  function motionLine() { reduceMotion = motionQuery.matches || sceneryOff; $('motionBtn').textContent = `Scenery motion: ${reduceMotion ? 'off' : 'on'}`; $('motionBtn').setAttribute('aria-pressed', String(reduceMotion)); }
+  motionQuery.addEventListener('change', motionLine);
+  $('motionBtn').addEventListener('click', () => { sceneryOff = !sceneryOff; motionLine(); }); motionLine();
 
   // Placeholder shapes, used only when the art cannot load.
   function townTile(g, ch, x, y) {
@@ -887,8 +963,11 @@
     const look = TRAINERS[(p.look ?? p.id) % TRAINERS.length];
     if (has(look)) {
       // Left foot, stand, right foot, stand: one foot forward per tile, like Red and Blue.
-      const step = moving ? [0, 1, 2, 1][Math.floor(p.stride * 2) % 4] : 1;
-      ctx.drawImage(ART[look], step * 64, (FACE_ROW[p.f] ?? 0) * 96, 64, 96, px, py + TILE - 48, 32, 48);
+      const cell = trainerFrame(p.f, p.stride, moving);
+      ctx.save();
+      if (cell.flip) { ctx.translate(px + 32, 0); ctx.scale(-1, 1); } else ctx.translate(px, 0);
+      ctx.drawImage(ART[look], cell.col * 64, cell.row * 96, 64, 96, 0, py + TILE - 48, 32, 48);
+      ctx.restore();
     } else {
       ctx.fillStyle = p.c; ctx.fillRect(px + 8, py + 10, 16, 16);
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
@@ -902,7 +981,13 @@
     const self = players.get(me);
     const talking = p.bubble && p.bubbleUntil > now;
     const near = self && Math.abs(p.dx - self.dx) + Math.abs(p.dy - self.dy) <= 4;
-    if (p.id === me || near || talking || players.size <= 8) {
+    if (p.npc) {
+      ctx.fillStyle = '#fff0bd'; ctx.strokeStyle = '#50452e'; ctx.lineWidth = .75;
+      ctx.beginPath(); ctx.roundRect(px+11,py-27,10,7,2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#fff0bd'; ctx.fillRect(px+13,py-21,2,3);
+      ctx.fillStyle = '#725c36'; for (let i=0;i<3;i++) ctx.fillRect(px+13+i*2.5,py-24,1,1);
+      if (near || p.id === activeResident) labels.push([`${p.name} · ${p.role}`, px + 16, top, '#fff0bd', 2]);
+    } else if (p.id === me || near || talking || players.size <= 8) {
       labels.push([p.inb ? `${p.name} (Battling)` : p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.id === me ? '#ffd166' : p.busy ? '#9fb59a' : '#f4f1e6', p.id === me ? 0 : 1]);
     }
     if (talking) bubbles.push([p.bubble, px + 16, top - 16]);
@@ -950,6 +1035,7 @@
     const dt = Math.min(100, now - (lastFrame || now));
     lastFrame = now;
     selfTick(now);
+    world?.tick(dt, mapNow(), players.get(me), reduceMotion, (x,y) => !open(x,y) || [...players.values()].some(p => p.x === x && p.y === y) || world.active().some(n => n.x === x && n.y === y), paused || Boolean(bt) || conversing() || document.hidden || !askEl.hidden);
     for (const p of players.values()) if (p.id !== me) remoteTick(p, dt);
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     ctx.imageSmoothingEnabled = false;
@@ -970,11 +1056,23 @@
       const gx = Math.max(0, cx), gy = Math.max(0, cy);
       const gw = Math.min(ground.width / SCALE - gx, vw - (gx - cx)), gh = Math.min(ground.height / SCALE - gy, vh - (gy - cy));
       if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * SCALE, gy * SCALE, gw * SCALE, gh * SCALE, gx, gy, gw, gh);
-      if (roomKind !== 'house') shimmer(now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
+      if (roomKind !== 'house') shimmer(world?.clock() ?? now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
       if (roomKind !== 'house') townThings(x0, y0, x1, y1, things);
+      if (roomKind !== 'house') {
+        world?.draw(ctx, mapNow(), [x0,y0,x1,y1], reduceMotion);
+        for (const n of world?.active() || []) {
+          if (n.dx < x0 - 1 || n.dx > x1 + 1 || n.dy < y0 - 1 || n.dy > y1 + 2) continue;
+          things.push({b: n.dy + 1, draw: () => {
+            const phase = Math.floor(world.clock() / 6500) + n.look * 3;
+            const nearby = residentDistance(n) < 5;
+            const chatting = !reduceMotion && !paused && !bt && !conversing() && nearby && Math.floor(world.clock() / 1000) % 13 < 3;
+            trainer({...n, bubble: chatting ? n.chatter[phase % n.chatter.length] : '', bubbleUntil: now + 1}, now);
+          }});
+        }
+      }
       for (const p of players.values()) things.push({ b: p.dy + 1, draw: () => trainer(p, now) });
       things.sort((a, b) => a.b - b.b);
       labels.length = 0; bubbles.length = 0;
@@ -1007,6 +1105,12 @@
     challengeBtn.disabled = performance.now() < challengeRest;
     if (nb && !bt) tipSoon('challenge', 0);
     zoneTick();
+    const nr = !paused && !bt && !conversing() && nearestResident();
+    $('talkBtn').hidden = !nr; if (nr) $('talkBtn').textContent = `Talk to ${nr.name} (Space)`;
+    if (world?.discoveries.length && !paused && !bt && !conversing() && askEl.hidden) {
+      const discovery = world.discoveries.shift(); $('worldCue').textContent = discovery.text; $('worldCue').hidden = false;
+      clearTimeout(cueTimer); cueTimer = setTimeout(() => { $('worldCue').hidden = true; }, 7000);
+    }
     if (lastNear && performance.now() > lastNear.until) { lastNear = null; watchLine(); }
     if (bt) clockTick();
     requestAnimationFrame(frame);
@@ -1370,6 +1474,7 @@
   // Which side is drawn near (back sprite) and which far. Watchers see side 0 near.
   const nearSide = () => (bt && bt.you === 1 ? 1 : 0);
   function openBattle(m) {
+    closeConversation(); worldJournal.close();
     held.length = 0; stopWalk(); hideAsk();
     bt = { id: m.id, you: m.you, view: m.view, queue: [], playing: false, picked: '', foePicked: false, done: false,
       turnMs: m.turnMs, until: performance.now() + (m.left ?? m.turnMs), watching: m.you === null, wild: Boolean(m.wild), zone: m.zone || '' };
@@ -1500,7 +1605,7 @@
   }
 
   // Each event gets its own beat on screen, Red and Blue style.
-  const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 350) : ms));
+  const wait = (ms) => new Promise((r) => setTimeout(r, motionQuery.matches ? Math.min(ms, 350) : ms));
   function queueTurn(m) { bt.queue.push({ turn: m }); if (!bt.playing) playQueue(); }
   function queueEnd(m) { bt.queue.push({ end: m }); if (!bt.playing) playQueue(); }
   async function playQueue() {
@@ -1616,7 +1721,7 @@
   });
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
-  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]) };
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), talk: talkTo };
   connect();
   requestAnimationFrame(frame);
 })();

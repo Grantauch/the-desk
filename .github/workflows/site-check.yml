@@ -122,6 +122,13 @@ jobs:
           STORYHUB_TEST_ROUTES: ${{ steps.lane.outputs.routes }}
         run: npm run storyhub:browser:test
 
+      - name: Check Checkaverse rules and living world in a real browser
+        if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
+        run: |
+          npm --prefix apps/checkaverse ci --no-audit --no-fund
+          npm --prefix apps/checkaverse test
+          npm --prefix apps/checkaverse run test:browser
+
       - name: Check key site pages in a real browser
         if: steps.browser.outputs.needed == 'true' && steps.lane.outputs.mode != 'storyhub'
         run: npm run browser:test

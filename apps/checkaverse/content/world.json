@@ -1,0 +1,1088 @@
+{
+  "version": 1,
+  "residents": [
+    {
+      "id": "rowan",
+      "map": "kettle",
+      "name": "Rowan",
+      "role": "Route keeper",
+      "look": 2,
+      "route": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          9
+        ]
+      ],
+      "chatter": [
+        "Checking the trail.",
+        "The grass is rustling."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "Morning, traveler. I keep Route 1 open. The Checklings keep trying to close it with leaves.",
+          "choices": [
+            {
+              "label": "What is up the trail?",
+              "next": "first"
+            },
+            {
+              "label": "Does anything happen here?",
+              "next": "second"
+            },
+            {
+              "label": "Need a hand?",
+              "next": "errand"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "Route 1 starts in the tall grass northwest of here. Wild Checklings are gentler there than out beyond the Checkaverse. Bring a catching charm if you want company.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "Watch the grass and the creek. Butterflies settle between gusts, and the little fish make rings in the water. There is usually somebody with a small problem to solve.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "errand": {
+          "text": "A gust carried my yellow trail ribbon toward the grass west of the Route 1 sign. Look near the little clearing at the edge, then come back to me.",
+          "choices": [
+            {
+              "label": "I'll have a look.",
+              "action": "errand"
+            },
+            {
+              "label": "Maybe later.",
+              "next": "start"
+            }
+          ]
+        }
+      },
+      "errand": {
+        "title": "The missing trail ribbon",
+        "offer": "Need a hand?",
+        "request": "A gust carried my yellow trail ribbon toward the grass west of the Route 1 sign. Look near the little clearing at the edge, then come back to me.",
+        "target": [
+          8,
+          9
+        ],
+        "found": "A yellow ribbon is caught in the grass. Bring it back to Rowan.",
+        "complete": "There it is! A trail marker is much more useful on a post than in a bush. I will get this tied back up.",
+        "art": "ribbon"
+      }
+    },
+    {
+      "id": "nell",
+      "map": "kettle",
+      "name": "Nell",
+      "role": "Clinic gardener",
+      "look": 1,
+      "route": [
+        [
+          15,
+          19
+        ],
+        [
+          15,
+          18
+        ],
+        [
+          14,
+          18
+        ],
+        [
+          14,
+          17
+        ],
+        [
+          14,
+          16
+        ],
+        [
+          14,
+          17
+        ],
+        [
+          14,
+          18
+        ],
+        [
+          14,
+          19
+        ]
+      ],
+      "chatter": [
+        "These need a little water.",
+        "Easy on the leaves."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "I grow the clinic herbs. The plants want attention, but not a bucket of water every five minutes. Sound familiar?",
+          "choices": [
+            {
+              "label": "How is my Checkling doing?",
+              "next": "first"
+            },
+            {
+              "label": "What are you planting?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "Open Care to see Full, Clean, Mood, Health and Build. Too much care can cause trouble too. The clinic door opens the same Care panel so you can check before you choose.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "Mint, mostly. It smells excellent. I am still waiting for the weeds to show the same commitment to being useful.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ivo",
+      "map": "kettle",
+      "name": "Ivo",
+      "role": "Creek watcher",
+      "look": 0,
+      "route": [
+        [
+          32,
+          15
+        ],
+        [
+          32,
+          16
+        ],
+        [
+          31,
+          16
+        ],
+        [
+          32,
+          16
+        ]
+      ],
+      "chatter": [
+        "There! Another ripple.",
+        "Quiet feet by the creek."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "Wait a moment. See that ring in the water? Something very small thinks it is a sea monster.",
+          "choices": [
+            {
+              "label": "What lives in the creek?",
+              "next": "first"
+            },
+            {
+              "label": "Where should I explore?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "Little fish and very determined reeds. I count ripples rather than fish. The fish refuse to hold still.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "The home town is yours to explore at your pace. Route 1 is northwest, the cemetery is on the northeast hill, and the bus stop is south of the clinic.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "pax",
+      "map": "kettle",
+      "name": "Pax",
+      "role": "Parcel runner",
+      "look": 3,
+      "route": [
+        [
+          14,
+          12
+        ],
+        [
+          15,
+          12
+        ],
+        [
+          16,
+          12
+        ],
+        [
+          17,
+          12
+        ],
+        [
+          18,
+          12
+        ],
+        [
+          19,
+          12
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          19,
+          12
+        ],
+        [
+          18,
+          12
+        ],
+        [
+          17,
+          12
+        ],
+        [
+          16,
+          12
+        ],
+        [
+          15,
+          12
+        ]
+      ],
+      "chatter": [
+        "One more delivery.",
+        "Mind the parcel corners!"
+      ],
+      "dialogue": {
+        "start": {
+          "text": "Three deliveries and only two arms. I should have brought a cart. Or fewer parcels.",
+          "choices": [
+            {
+              "label": "Where are you headed?",
+              "next": "first"
+            },
+            {
+              "label": "Can I buy something?",
+              "next": "second"
+            },
+            {
+              "label": "Lose something?",
+              "next": "errand"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "Store, clinic, Day Care, then back again. Everyone has something that needs carrying. At least the paths join up.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "The store and apothecary are still getting ready. Their doors tell you what is available. I can deliver boxes, but I cannot make a shop open faster.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "errand": {
+          "text": "A parcel label blew off by the benches near the bus stop. Look just north of the southern path, around the bench west of the bus. Bring it back so I can finish the delivery.",
+          "choices": [
+            {
+              "label": "I'll have a look.",
+              "action": "errand"
+            },
+            {
+              "label": "Maybe later.",
+              "next": "start"
+            }
+          ]
+        }
+      },
+      "errand": {
+        "title": "A wayward address label",
+        "offer": "Lose something?",
+        "request": "A parcel label blew off by the benches near the bus stop. Look just north of the southern path, around the bench west of the bus. Bring it back so I can finish the delivery.",
+        "target": [
+          15,
+          22
+        ],
+        "found": "An address label is tucked beside the bench. Bring it back to Pax.",
+        "complete": "Perfect. Now this parcel has a destination again. It was about to become a very expensive doorstop.",
+        "art": "label"
+      }
+    },
+    {
+      "id": "mara",
+      "map": "kettle",
+      "name": "Mara",
+      "role": "Hill caretaker",
+      "look": 2,
+      "route": [
+        [
+          30,
+          10
+        ],
+        [
+          31,
+          10
+        ],
+        [
+          32,
+          10
+        ],
+        [
+          31,
+          10
+        ]
+      ],
+      "chatter": [
+        "Keeping the hill tidy.",
+        "A quiet place to remember."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "I look after the path up the hill. People should be able to find the names they came to see.",
+          "choices": [
+            {
+              "label": "What is on the hill?",
+              "next": "first"
+            },
+            {
+              "label": "Can they come back?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "The class cemetery. Each stone remembers a Checkling that died. Face a stone and press Space to read it, or open Class cemetery from the menu.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "There is no revive. After a death, the next check-in brings a new egg. A new beginning does not erase the old name.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "orin",
+      "map": "town",
+      "name": "Orin",
+      "role": "Bus conductor",
+      "look": 0,
+      "route": [
+        [
+          15,
+          14
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          16,
+          15
+        ],
+        [
+          17,
+          15
+        ],
+        [
+          18,
+          15
+        ],
+        [
+          18,
+          14
+        ],
+        [
+          18,
+          13
+        ],
+        [
+          18,
+          14
+        ],
+        [
+          18,
+          15
+        ],
+        [
+          17,
+          15
+        ],
+        [
+          16,
+          15
+        ],
+        [
+          15,
+          15
+        ]
+      ],
+      "chatter": [
+        "Tickets tucked away?",
+        "Room for one more."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "Welcome to the Checkaverse. Take a look around. The town is better with footsteps in it.",
+          "choices": [
+            {
+              "label": "Where is everyone?",
+              "next": "first"
+            },
+            {
+              "label": "How do I go home?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "Other trainers arrive from Check-In. The Neighborhood is east, the arena is northwest, and the wilds are through the north gate. Residents like me keep the town company between visits.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "If you rode in from Check-In, the bus stop or the menu can take you home to Kettle Creek. Visitors can use Bus home in the menu.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tess",
+      "map": "town",
+      "name": "Tess",
+      "role": "Market hand",
+      "look": 1,
+      "route": [
+        [
+          17,
+          8
+        ],
+        [
+          18,
+          8
+        ],
+        [
+          19,
+          8
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          19,
+          8
+        ],
+        [
+          18,
+          8
+        ]
+      ],
+      "chatter": [
+        "Straightening the stalls.",
+        "No, that box goes here."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "The stalls are ready. I have rearranged the crates four times. They have not thanked me once.",
+          "choices": [
+            {
+              "label": "What is for sale?",
+              "next": "first"
+            },
+            {
+              "label": "Any town news?",
+              "next": "second"
+            },
+            {
+              "label": "Need help setting up?",
+              "next": "errand"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "The market is still getting ready for trading. There is no stock to buy yet. For now I make sure travelers can find the stalls without tripping over them.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "The notice board west of the bus shows this week's battle rankings for your class. Face it and press Space. A new week gives everyone a fresh start.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "errand": {
+          "text": "My wooden tally marker rolled toward the path by the pond. Look on the northeast corner of the pond path, then bring it back.",
+          "choices": [
+            {
+              "label": "I'll have a look.",
+              "action": "errand"
+            },
+            {
+              "label": "Maybe later.",
+              "next": "start"
+            }
+          ]
+        }
+      },
+      "errand": {
+        "title": "The market tally",
+        "offer": "Need help setting up?",
+        "request": "My wooden tally marker rolled toward the path by the pond. Look on the northeast corner of the pond path, then bring it back.",
+        "target": [
+          10,
+          15
+        ],
+        "found": "A wooden tally marker lies by the pond path. Take it back to Tess.",
+        "complete": "That is the one. Now I can count crates without starting over every time somebody says hello. Hello, by the way.",
+        "art": "marker"
+      }
+    },
+    {
+      "id": "bram",
+      "map": "town",
+      "name": "Bram",
+      "role": "Arena steward",
+      "look": 3,
+      "route": [
+        [
+          8,
+          8
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          9,
+          8
+        ]
+      ],
+      "chatter": [
+        "A clean ring, a fair match.",
+        "Warm up first."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "A good match starts before the first move. Check your partner, choose your moment, and let the other trainer say no.",
+          "choices": [
+            {
+              "label": "How do I battle?",
+              "next": "first"
+            },
+            {
+              "label": "What is at stake?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "Walk next to another trainer and use Challenge, or press C. Both of you choose moves each turn. Guard, Recover and your signature move all have their moment.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "Between trainers, the record and weekly rankings. A battle knockout does not kill a Checkling. Your partner's care still affects its battle stats.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ada",
+      "map": "town",
+      "name": "Ada",
+      "role": "Neighborhood walker",
+      "look": 2,
+      "route": [
+        [
+          26,
+          14
+        ],
+        [
+          27,
+          14
+        ],
+        [
+          28,
+          14
+        ],
+        [
+          29,
+          14
+        ],
+        [
+          30,
+          14
+        ],
+        [
+          31,
+          14
+        ],
+        [
+          32,
+          14
+        ],
+        [
+          31,
+          14
+        ],
+        [
+          30,
+          14
+        ],
+        [
+          29,
+          14
+        ],
+        [
+          28,
+          14
+        ],
+        [
+          27,
+          14
+        ]
+      ],
+      "chatter": [
+        "Nice day for a walk.",
+        "Another house on the lane."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "I like this road. Every time people arrive, the Neighborhood looks a little different.",
+          "choices": [
+            {
+              "label": "Which house is mine?",
+              "next": "first"
+            },
+            {
+              "label": "Can a visitor change my house?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "The menu tells you your plot and has Walk home. Your house takes a free plot while you are here. Other trainers can visit unless you lock the door.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "Visitors can look around. They cannot take or change your things. Lock my door in the menu gives you privacy when you want it.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fern",
+      "map": "wilds",
+      "name": "Fern",
+      "role": "Field naturalist",
+      "look": 1,
+      "route": [
+        [
+          26,
+          35
+        ],
+        [
+          27,
+          35
+        ],
+        [
+          27,
+          34
+        ],
+        [
+          27,
+          33
+        ],
+        [
+          27,
+          34
+        ],
+        [
+          27,
+          35
+        ]
+      ],
+      "chatter": [
+        "Taking field notes.",
+        "Something moved over there."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "I came out to write down what the grass was doing. Mostly it is hiding Checklings. Very consistent of it.",
+          "choices": [
+            {
+              "label": "Where do I find Checklings?",
+              "next": "first"
+            },
+            {
+              "label": "Any catching advice?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "The tall grass, starflowers, rocky ridge and scorched heath each have their own wild encounters. Stay on the path when you want a breather.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "Wear a wild Checkling down in battle before throwing a catching charm. Your charms are limited. Running from a wild battle always works.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "sol",
+      "map": "wilds",
+      "name": "Sol",
+      "role": "Bridge surveyor",
+      "look": 3,
+      "route": [
+        [
+          26,
+          20
+        ],
+        [
+          27,
+          20
+        ],
+        [
+          28,
+          20
+        ],
+        [
+          27,
+          20
+        ]
+      ],
+      "chatter": [
+        "The bridge is holding.",
+        "Do not drop the notebook."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "Solid bridge. Uncooperative creek. The creek keeps moving while I try to measure it.",
+          "choices": [
+            {
+              "label": "What is across the water?",
+              "next": "first"
+            },
+            {
+              "label": "What are you measuring?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "The starflowers and the rocky ridge are north of the creek. The tall grass and scorched heath are south. The bridge joins the trail through the middle.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "The bank, the current, and how many times I can say \"just one more measurement\" before lunch.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "wren",
+      "map": "wilds",
+      "name": "Wren",
+      "role": "Starflower observer",
+      "look": 2,
+      "route": [
+        [
+          20,
+          12
+        ],
+        [
+          21,
+          12
+        ],
+        [
+          22,
+          12
+        ],
+        [
+          21,
+          12
+        ]
+      ],
+      "chatter": [
+        "Petals on the breeze.",
+        "They look like little stars."
+      ],
+      "dialogue": {
+        "start": {
+          "text": "The starflowers are easiest to notice when you stop hurrying. Then you notice everything moving around them, too.",
+          "choices": [
+            {
+              "label": "Are there encounters here?",
+              "next": "first"
+            },
+            {
+              "label": "Anything worth watching?",
+              "next": "second"
+            },
+            {
+              "label": "See you around."
+            }
+          ]
+        },
+        "first": {
+          "text": "In the starflower clearing, yes. Wild Checklings use the flowers for cover. The path lets you pass without stepping into their patch.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        },
+        "second": {
+          "text": "Butterflies drift between the flowers. Gusts lift the loose leaves. Down at the creek you can watch the rings spread across the water.",
+          "choices": [
+            {
+              "label": "One more thing.",
+              "next": "start"
+            },
+            {
+              "label": "Thanks. See you!"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
