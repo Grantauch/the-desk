@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>the first englishman | Hidden History | the desk</title>
+<meta name="description" content="From 1912 to 1953 the most important human fossil in Britain was a forgery. Open the drawer, test the evidence, and find out what it cost.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://grant-desk.com/hubs/hh-s02-the-first-englishman.html">
+<meta property="og:title" content="The First Englishman">
+<meta property="og:description" content="Piltdown Man, 1912 to 1953. A fake that made a real discovery look false.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://grant-desk.com/storyhub/hh/the-first-englishman/assets/piltdown-gang.webp">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --wood:#2A1512; --wood-2:#3A1F1A; --wood-3:#4A2A22; --card:#EFE6D2; --bone:#E8DCC0; --gray:#8C8A85; --ink:#22140F;
+  --stain:#D9822B; --rule:rgba(239,230,210,.18); --focus:#9CC3FF;
+  --plate:"Cormorant SC","Cormorant Garamond",Georgia,serif;
+  --book:"Libre Caslon Text",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono","Courier New",monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:3.4rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--wood);color:var(--card);font-family:var(--book);font-size:1.03rem;line-height:1.7}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;z-index:0;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 1px,transparent 1px 9px),repeating-linear-gradient(90deg,rgba(255,220,180,.05) 0 2px,transparent 2px 23px)}
+header,main,footer,nav,section{position:relative;z-index:1}
+a{color:inherit;text-underline-offset:.2em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+img{display:block;max-width:100%;height:auto}
+h1,h2,h3,h4{margin:0;font-weight:500;text-wrap:balance}
+p{margin:0}
+.wrap{width:min(1100px,100% - 2.5rem);margin-inline:auto}
+.mono{font-family:var(--mono);font-size:.84rem;line-height:1.55}
+
+/* drawer index */
+.index{position:sticky;top:0;z-index:20;background:#1d0e0b;border-bottom:1px solid var(--rule)}
+.index .wrap{display:flex;gap:.25rem;align-items:center;min-height:3rem;overflow-x:auto;scrollbar-width:thin}
+.index a{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;text-decoration:none;padding:.3rem .55rem;color:var(--bone);white-space:nowrap;border-radius:2px}
+.index a:hover,.index a[aria-current="true"]{background:var(--card);color:var(--ink)}
+.index .home{font-family:var(--plate);font-size:1.05rem;letter-spacing:.02em;margin-right:.6rem}
+
+/* hero */
+.hero{padding:clamp(2.5rem,7vw,5.5rem) 0 3rem}
+.hero .wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:center}
+.kicker{font-family:var(--mono);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone)}
+.hero h1{font-family:var(--plate);font-size:clamp(3.2rem,9vw,6.8rem);line-height:.92;margin:.7rem 0 1rem;color:var(--card)}
+.hero .dek{font-size:clamp(1.15rem,2.2vw,1.4rem);line-height:1.5;max-width:34ch}
+.hero .q{margin-top:1.5rem;border-left:3px solid var(--card);padding:.2rem 0 .2rem 1rem;font-style:italic;max-width:40ch}
+.hero .time{margin-top:1.3rem;color:var(--bone)}
+.mount{background:var(--card);color:var(--ink);padding:.8rem .8rem .2rem;box-shadow:0 22px 50px rgba(0,0,0,.55)}
+.mount img{width:100%;filter:sepia(.25) contrast(1.05)}
+.mount figcaption{font-family:var(--mono);font-size:.72rem;line-height:1.45;padding:.6rem .1rem .6rem}
+
+/* drawers (sections) */
+.drawer{padding:clamp(2.6rem,7vw,5rem) 0;border-top:1px solid var(--rule)}
+.drawer.alt{background:var(--wood-2)}
+.tag{display:inline-flex;gap:.7rem;align-items:center;font-family:var(--mono);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bone);border:1px solid var(--rule);padding:.25rem .6rem;background:rgba(0,0,0,.18)}
+.tag b{font-weight:600;color:var(--card)}
+.drawer h2{font-family:var(--plate);font-size:clamp(2.2rem,5.5vw,3.8rem);line-height:1;margin:.9rem 0 1.4rem;max-width:22ch}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start}
+.read p{font-size:clamp(1.08rem,1.8vw,1.24rem);line-height:1.6;margin-bottom:.95rem;max-width:42ch}
+.read p.key{font-family:var(--plate);font-size:clamp(1.45rem,2.8vw,2rem);line-height:1.2;color:var(--bone)}
+details.more{margin-top:1.4rem;border:1px solid var(--rule);background:rgba(0,0,0,.18);max-width:64ch}
+details.more summary{font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;padding:.75rem 1rem;cursor:pointer;list-style:none;color:var(--bone)}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"+  "}
+details.more[open] summary::before{content:"\2212  "}
+details.more .body{padding:0 1.1rem 1.1rem}
+details.more .body p{margin-top:.8rem}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.person{display:grid;grid-template-columns:110px 1fr;gap:.9rem;align-items:start;background:rgba(0,0,0,.2);border:1px solid var(--rule);padding:.7rem}
+.person img{filter:grayscale(1) sepia(.2);border:4px solid var(--card)}
+.person b{font-family:var(--plate);font-size:1.35rem;font-weight:700;display:block;line-height:1.1}
+.person span{font-family:var(--mono);font-size:.76rem;line-height:1.45;display:block;margin-top:.3rem;color:var(--bone)}
+
+/* instruments sit on specimen cards */
+.card{margin-top:2.2rem;background:var(--card);color:var(--ink);padding:clamp(1rem,3vw,1.7rem);box-shadow:0 18px 40px rgba(0,0,0,.45);position:relative}
+.card::before{content:"";position:absolute;inset:6px;border:1px solid rgba(34,20,15,.18);pointer-events:none}
+.card h3{font-family:var(--plate);font-size:1.9rem;line-height:1;font-weight:700}
+.card .sub{font-family:var(--mono);font-size:.86rem;margin:.45rem 0 1.1rem}
+.card table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.82rem;line-height:1.45}
+.card th{text-align:left;font-weight:600;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid var(--ink);padding:.4rem .5rem;vertical-align:bottom}
+.card td{border-bottom:1px solid rgba(34,20,15,.18);padding:.55rem .5rem;vertical-align:top}
+.tw{overflow-x:auto}
+.btn{border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:.5rem .85rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.05em;text-transform:uppercase}
+.btn[aria-pressed="true"],.btn[aria-expanded="true"]{background:var(--ink);color:var(--card)}
+.btn:hover{background:rgba(34,20,15,.1)}
+.btn[aria-pressed="true"]:hover,.btn[aria-expanded="true"]:hover{background:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.always{font-family:var(--mono);font-size:.84rem;border-top:2px solid var(--ink);margin-top:1rem;padding-top:.8rem}
+.reveal-line{font-family:var(--plate);font-size:1.5rem;font-weight:700;margin-top:.7rem;line-height:1.2}
+.stain-line{position:relative;display:inline;background:linear-gradient(transparent 60%,rgba(217,130,43,.45) 60%)}
+
+/* expectation board */
+.board-top{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.3rem}
+.board-top div{border:1px solid rgba(34,20,15,.25);padding:.8rem}
+.board-top h4{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+.board-top ul{margin:0;padding-left:1.1rem;font-size:.95rem}
+.finds{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem}
+.find{border:1.5px solid var(--ink);background:#f7f1e3;text-align:left;padding:.7rem;font-family:var(--book);font-size:.95rem;line-height:1.35}
+.find small{display:block;font-family:var(--mono);font-size:.7rem;margin-top:.3rem}
+.find[aria-expanded="true"]{background:var(--ink);color:var(--card)}
+.find-detail{margin-top:1rem;border-left:4px solid var(--ink);padding:.3rem 0 .3rem 1rem;min-height:4rem}
+.find-detail dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.35rem 1rem;font-size:.95rem}
+.find-detail dt{font-family:var(--mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;padding-top:.2rem}
+.find-detail dd{margin:0}
+
+/* independence test */
+.cond td:last-child{width:40%}
+.cond .hiddenans{color:transparent;background:repeating-linear-gradient(45deg,rgba(34,20,15,.12) 0 6px,rgba(34,20,15,.05) 6px 12px);user-select:none}
+.cond label{display:flex;gap:.6rem;align-items:flex-start;cursor:pointer}
+.cond input{width:1.15rem;height:1.15rem;margin-top:.15rem;accent-color:var(--ink);flex:none}
+.cond .no{color:#8a3d0b;font-weight:600}
+.cond .no::before{content:"";display:inline-block;width:.65rem;height:.65rem;background:var(--stain);margin-right:.4rem;vertical-align:baseline}
+
+/* technique rail */
+.rail{margin:1rem 0 .5rem}
+.rail input[type=range]{width:100%;accent-color:var(--ink)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;margin-top:.2rem}
+.stop{margin-top:1rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+.stop div{border:1px solid rgba(34,20,15,.25);padding:.7rem}
+.stop h4{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem}
+.stop .big{font-family:var(--plate);font-size:1.45rem;font-weight:700;line-height:1.15}
+
+/* 3d specimen */
+.spec-box{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.2rem}
+#spec-stage{position:relative;min-height:380px;background:radial-gradient(ellipse at 40% 35%,#4c2b22,#1d0e0b 75%);overflow:hidden}
+#spec-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#spec-stage .hint{position:absolute;left:.6rem;bottom:.5rem;font-family:var(--mono);font-size:.7rem;color:var(--bone);background:rgba(0,0,0,.4);padding:.2rem .45rem}
+#spec-stage.no-3d{display:flex;align-items:center;justify-content:center;color:var(--bone);font-family:var(--mono);font-size:.84rem;text-align:center;padding:1rem}
+#spec-stage.no-3d::after{content:"The 3D specimen needs WebGL. The notes beside it carry every finding."}
+#spec-stage.no-3d .hint{display:none}
+#spec-panel h4{font-family:var(--plate);font-size:1.6rem;font-weight:700;line-height:1.1;margin-bottom:.5rem}
+#spec-panel p{margin-bottom:.7rem;font-size:.98rem}
+.legend{font-family:var(--mono);font-size:.74rem;margin-top:.6rem}
+.legend i{display:inline-block;width:.8rem;height:.8rem;background:var(--stain);vertical-align:middle;margin-right:.35rem}
+
+/* built list */
+.built{list-style:none;margin:0;padding:0;display:grid;gap:.55rem;max-width:56ch}
+.built li{font-size:1.15rem;padding:.6rem 0;border-bottom:1px solid var(--rule)}
+.built li.final{font-family:var(--plate);font-size:1.6rem;color:var(--bone)}
+.made{list-style:none;margin:0;padding:0}
+.made li{display:grid;grid-template-columns:2.2rem 1fr;gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--rule);font-size:1.12rem}
+.made li span{font-family:var(--mono);font-size:.78rem;color:var(--bone);padding-top:.3rem}
+.pairnums{display:flex;flex-wrap:wrap;gap:1rem 3rem;margin:1.6rem 0 0}
+.pairnums div{font-family:var(--plate);font-size:clamp(2.4rem,7vw,4.4rem);line-height:1;font-weight:700}
+.pairnums span{display:block;font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:400;margin-top:.4rem;color:var(--bone)}
+
+/* sunlit break for 1925 */
+.sun{background:#efe3c4!important;color:var(--ink)}
+.sun .tag{color:var(--ink);border-color:rgba(34,20,15,.3);background:rgba(255,255,255,.3)}
+.sun .tag b{color:var(--ink)}
+.sun .read p.key{color:#6a3a14}
+.sun details.more{background:rgba(255,255,255,.35);border-color:rgba(34,20,15,.25)}
+.sun details.more summary{color:var(--ink)}
+.sun .mount{box-shadow:0 14px 30px rgba(0,0,0,.25)}
+
+/* terms + repair */
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem;margin-top:1.3rem}
+.term{background:var(--card);color:var(--ink);padding:.9rem 1rem;font-size:.95rem;line-height:1.5}
+.term b{font-family:var(--plate);font-size:1.3rem;display:block;font-weight:700;line-height:1.1;margin-bottom:.3rem}
+.term .met{font-family:var(--mono);font-size:.74rem;border-top:1px solid rgba(34,20,15,.2);margin-top:.6rem;padding-top:.45rem}
+.repair{display:grid;gap:.7rem;margin-top:1.3rem}
+.rep{background:var(--card);color:var(--ink)}
+.rep button{width:100%;background:none;border:0;text-align:left;padding:.85rem 1rem;display:flex;justify-content:space-between;gap:1rem;font-family:var(--book);font-size:1.02rem}
+.rep button[aria-expanded="true"] .w{text-decoration:line-through;text-decoration-color:var(--stain);text-decoration-thickness:2px}
+.rep .lbl{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;white-space:nowrap}
+.rep .fix{padding:0 1rem 1rem;font-size:.98rem}
+.rep .fix small{display:block;font-family:var(--mono);font-size:.72rem;margin-top:.4rem}
+
+/* response + sources */
+.response{background:#1d0e0b;padding:clamp(2.6rem,7vw,5rem) 0;border-top:1px solid var(--rule)}
+.response h2{font-family:var(--plate);font-size:clamp(2.2rem,5vw,3.4rem);line-height:1;margin:.8rem 0 .8rem}
+.qblock{margin-top:1.4rem;max-width:760px}
+.qblock label{display:block;font-weight:700;line-height:1.5;margin-bottom:.5rem}
+.qblock textarea{width:100%;min-height:8.5rem;font:inherit;font-size:1rem;line-height:1.55;padding:.8rem;background:var(--card);color:var(--ink);border:0;resize:vertical}
+.sources{padding:3rem 0 4rem;border-top:1px solid var(--rule);font-size:.95rem}
+.sources h2{font-family:var(--plate);font-size:2rem}
+.sources ol{padding-left:1.2rem}
+.sources li{margin:.4rem 0}
+
+@media (max-width:860px){
+  .hero .wrap,.cols,.spec-box,.board-top,.pair{grid-template-columns:1fr}
+  .finds{grid-template-columns:1fr 1fr}
+  .stop{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<nav class="index" aria-label="Drawer index">
+  <div class="wrap">
+    <a class="home" href="/hidden-history/">the desk</a>
+    <a href="#d1">I · 1912</a><a href="#d2">II · announced</a><a href="#d3">III · believed</a><a href="#d4">IV · doubters</a><a href="#d5">V · second site</a><a href="#d6">VI · built on it</a><a href="#d7">VII · 1949</a><a href="#d8">VIII · 1953</a><a href="#d9">IX · 2016</a><a href="#d10">X · 1925</a><a href="#d11">XI · caught</a><a href="#terms">terms</a><a href="#repair">notes</a><a href="#your-turn">your turn</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <p class="kicker">Hidden History · Specimen file · 1912 to 1953</p>
+      <h1>The First Englishman</h1>
+      <p class="dek">For forty one years the most important human fossil in Britain sat in a museum drawer. It was a fake the whole time.</p>
+      <p class="q">How does a forgery fool the experts, and what does it break while it is believed?</p>
+      <p class="time mono">About 40 minutes. Eleven drawers, three tests, one specimen you can take apart, and three questions at the end.</p>
+    </div>
+    <figure class="mount">
+      <img src="/storyhub/hh/the-first-englishman/assets/piltdown-gang.webp" width="960" height="701" alt="A 1915 group portrait painting of a dozen scientists in suits gathered around a table examining the Piltdown skull, with a portrait of Charles Darwin on the wall behind them.">
+      <figcaption>John Cooke, <i>A Discussion on the Piltdown Skull</i>, 1915. Charles Dawson and Arthur Smith Woodward stand together at the right of the back row. Arthur Keith sits at the table with the skull. Public domain.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+<!-- I -->
+<section class="drawer" id="d1" aria-labelledby="d1-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer I</b> February 1912</p>
+    <h2 id="d1-t">The gravel pit</h2>
+    <div class="cols">
+      <div class="read">
+        <p>A country solicitor named Charles Dawson wrote to the Natural History Museum in London.</p>
+        <p>He said workmen digging gravel in Sussex had turned up pieces of a very old human skull, and that he had been collecting them.</p>
+        <p>The letter went to Arthur Smith Woodward, the Keeper of Geology, one of the most respected scientists in Britain.</p>
+        <p class="key">Woodward went down to Sussex and started digging with him.</p>
+      </div>
+      <div style="display:grid;gap:1rem">
+        <div class="person"><img src="/storyhub/hh/the-first-englishman/assets/dawson.webp" width="193" height="190" loading="lazy" decoding="async" alt="Portrait photograph of Charles Dawson, a man with a large mustache in a suit."><div><b>Charles Dawson</b><span>Solicitor and amateur antiquarian from Sussex. Fellow of the Geological Society. Known for real finds before this one.</span></div></div>
+        <div class="person"><img src="/storyhub/hh/the-first-englishman/assets/woodward.webp" width="300" height="444" loading="lazy" decoding="async" alt="Portrait photograph of Arthur Smith Woodward, a bearded man in a suit."><div><b>Arthur Smith Woodward</b><span>Keeper of Geology at the Natural History Museum. About as strong an institutional name as existed.</span></div></div>
+      </div>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Charles Dawson was a solicitor in Sussex and a well known amateur antiquarian. He had made real finds before, he corresponded with professionals, and he was a Fellow of the Geological Society. Amateur collectors mattered enormously in this period, because most fossils are found by people who are already outdoors for another reason.</p>
+      <p>In February 1912 he wrote to Woodward about skull fragments recovered from a gravel pit at Piltdown, in Sussex.</p>
+      <p>The two of them dug at the site together across that summer. They recovered further pieces of a braincase, a jawbone with two molars still in it, and some worked flints and animal bones that suggested a very early date.</p>
+      <p>The braincase was thick and large. The jaw was heavy and ape like. Taken together the pieces described a creature with a modern sized brain and a primitive jaw, which is exactly the order most scientists at the time expected.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- II -->
+<section class="drawer alt" id="d2" aria-labelledby="d2-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer II</b> December 18, 1912</p>
+    <h2 id="d2-t">The announcement</h2>
+    <div class="cols">
+      <div class="read">
+        <p>Woodward and Dawson presented the find to the Geological Society of London.</p>
+        <p>They said it was a human ancestor, perhaps five hundred thousand years old.</p>
+        <p>It was given a scientific name, <i>Eoanthropus dawsoni</i>, meaning Dawson's dawn man.</p>
+        <p class="key">The newspapers had a better name for it. The first Englishman.</p>
+      </div>
+      <figure class="mount">
+        <img src="/storyhub/hh/the-first-englishman/assets/mcgregor-1921.webp" width="700" height="829" loading="lazy" decoding="async" alt="Three views of the reconstructed Piltdown skull. Dark brown patches are the original fragments and everything else is white plaster.">
+        <figcaption>The Piltdown skull as reconstructed by J. H. McGregor, about 1921. The dark patches are the pieces that were found. Everything white is plaster. Public domain.</figcaption>
+      </figure>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>The presentation took place at a meeting of the Geological Society of London on December 18, 1912. The room was full.</p>
+      <p>Woodward described a creature combining a large modern braincase with a primitive jaw, and proposed that it represented an early stage of human evolution. Naming it for Dawson was ordinary practice.</p>
+      <p>Coverage in the British press was immediate and enormous. The framing was national. Britain now had its own ancestor, found in Sussex, and the phrase the first Englishman ran everywhere. Human origins in this period were a matter of national standing as well as science.</p>
+      <p>Not everyone in the room agreed. Objections were raised at the meeting itself, mostly about whether the jaw and the braincase belonged to the same individual, since they had been found separately and the parts that would connect them were missing. Woodward's reconstruction answered the objection by simply assuming the jaw and the braincase came from one creature.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- III -->
+<section class="drawer" id="d3" aria-labelledby="d3-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer III</b> Why it was believed</p>
+    <h2 id="d3-t">It answered the question they were asking</h2>
+    <div class="read">
+      <p>Scientists in 1912 expected the brain to have grown first, before the jaw and the teeth became human.</p>
+      <p>Piltdown had a large brain and an ape's jaw.</p>
+      <p class="key">They also expected their own country to have an ancestor, because the neighbors already did.</p>
+    </div>
+
+    <div class="card" id="expect">
+      <h3>The expectation in 1912</h3>
+      <p class="sub">Open a find and read how fast it was accepted.</p>
+      <div class="board-top">
+        <div><h4>What an ancestor was expected to look like</h4><ul><li><b>The brain came first.</b> Brain growth came before human jaws, teeth, and posture.</li><li><b>A mosaic.</b> A modern braincase carried on a primitive body.</li></ul></div>
+        <div><h4>What each country already had</h4><ul><li><b>Germany:</b> Neanderthal, 1856, and the Mauer jaw, 1907.</li><li><b>France:</b> Cro Magnon, 1868, and La Chapelle, 1908.</li><li><b>Britain:</b> nothing of comparable importance. Britain was overdue.</li></ul></div>
+      </div>
+      <div class="finds" role="group" aria-label="Four fossil finds">
+        <button type="button" class="find" data-find="0" aria-expanded="false" aria-controls="find-detail">Neanderthal<small>Germany, 1856</small></button>
+        <button type="button" class="find" data-find="1" aria-expanded="false" aria-controls="find-detail">Mauer jaw<small>Germany, 1907</small></button>
+        <button type="button" class="find" data-find="2" aria-expanded="false" aria-controls="find-detail">Piltdown<small>England, 1912</small></button>
+        <button type="button" class="find" data-find="3" aria-expanded="false" aria-controls="find-detail">Taung child<small>South Africa, 1925</small></button>
+      </div>
+      <div class="find-detail" id="find-detail" aria-live="polite"><p class="mono">Choose a find.</p></div>
+      <div class="btns" style="margin-top:1rem"><button type="button" class="btn" id="finds-close">Close the finds</button></div>
+      <p class="always">None of these finds was assessed by a different standard on paper. The standard was the same. What changed was how hard people looked.</p>
+      <p class="reveal-line" id="finds-line" hidden>The find that fit best was accepted fastest. The find that fit worst was correct.</p>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Two expectations were in the room. The first was anatomical. The leading view held that the defining human feature was the brain, and that brain growth came first, with the jaw, the teeth, and posture following. A fossil with a big braincase and a primitive jaw was the predicted in between creature. Piltdown was not a surprise. It was a confirmation.</p>
+      <p>The second was national. Fossil human remains had been turning up across Europe for half a century. Germany had the Neanderthal skeleton from 1856 and a very early jaw from Mauer in 1907. France had the Cro Magnon remains from 1868 and a well studied Neanderthal from La Chapelle in 1908. Britain, which considered itself at the front of the sciences, had nothing of comparable importance.</p>
+      <p>Neither expectation is shameful. The brain first idea was a reasonable reading of the evidence then available. National interest in a find is human and it is still with us. What they did together was lower the bar. A find that satisfied both was easier to accept than a find that satisfied neither, and nobody had to lie for that to happen.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- IV -->
+<section class="drawer alt" id="d4" aria-labelledby="d4-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer IV</b> The people who said no</p>
+    <h2 id="d4-t">It was not unanimous</h2>
+    <div class="cols">
+      <div class="read">
+        <p>In 1915 an American zoologist compared the jaw to an orangutan's and said it was an ape's.</p>
+        <p>A French authority on fossil humans said the same thing.</p>
+        <p>Others said the skull and the jaw simply could not be one animal.</p>
+        <p class="key">They were right, they published, and it did not matter.</p>
+      </div>
+      <figure class="mount">
+        <img src="/storyhub/hh/the-first-englishman/assets/mandibles-1918.webp" width="640" height="1225" loading="lazy" decoding="async" alt="A 1918 museum journal plate with three lower jaws stacked: a modern human at top, the broken Piltdown jaw in the middle, and a female orangutan at the bottom.">
+        <figcaption>Three jaws compared in the <i>American Museum Journal</i>, 1918. Top, a modern human. Middle, Piltdown. Bottom, a female orangutan. The comparison needed no lab. Public domain.</figcaption>
+      </figure>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Gerrit Smith Miller, a zoologist at the Smithsonian in Washington, examined casts of the Piltdown material and published in 1915. His conclusion was that the braincase was human and the jaw belonged to an ape, and he argued it directly from comparison with orangutan anatomy.</p>
+      <p>Marcellin Boule in France, the leading authority on fossil humans of his generation, reached a similar view. Franz Weidenreich, who later worked on the Chinese fossil material, said flatly that the jaw was an orangutan's and the skull a modern human's.</p>
+      <p>These objections did not disappear. They were published, cited, and available for four decades. But the objectors were outside Britain, the real specimens were rarely made available for direct study, most work was done from plaster casts, and the weight of the institution sat on one side.</p>
+      <p>A cast keeps the shape and loses almost everything a chemical or microscope test would need.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- V -->
+<section class="drawer" id="d5" aria-labelledby="d5-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer V</b> 1915 to 1917</p>
+    <h2 id="d5-t">The second site</h2>
+    <div class="read">
+      <p>Dawson told Woodward he had found more material at a second location a couple of miles away.</p>
+      <p>Dawson died in August 1916.</p>
+      <p>Woodward announced the second site in 1917, and it settled the argument.</p>
+      <p class="key">A find at one place can be a mistake. The same creature at two independent places is a fact.</p>
+    </div>
+
+    <div class="card" id="indep">
+      <h3>What makes a second find independent</h3>
+      <p class="sub">Mark the conditions you think are necessary. Then look.</p>
+      <p class="mono" style="margin-bottom:.8rem">Nothing here is graded. Nobody sees your marks.</p>
+      <div class="tw"><table class="cond" id="cond-table">
+        <thead><tr><th scope="col">The condition</th><th scope="col">Was it met at Piltdown II</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <div class="btns" style="margin-top:1rem">
+        <button type="button" class="btn" id="cond-show">Now show what happened at the second site</button>
+        <button type="button" class="btn" id="cond-clear">Clear my marks</button>
+      </div>
+      <div id="cond-out" aria-live="polite"></div>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Dawson reported to Woodward that he had recovered fragments at a second site, about two miles from the original pit. The material included pieces of a braincase and a molar tooth. Dawson died in August 1916. Woodward announced the second find in 1917.</p>
+      <p>The effect was decisive. The most serious objection to Piltdown had always been that the skull and the jaw might be two animals thrown together by chance in one gravel bed. A second occurrence of the same combination somewhere else made coincidence hard to believe. Doubt in Britain largely stopped.</p>
+      <p>Nobody except Dawson was ever shown the exact location of that second site, and no further material was recovered there by anyone else.</p>
+      <p>In 2016 a research team ran DNA analysis on the teeth from both sites. The canine from the first site and the molar from the second came from the same orangutan.</p>
+      <p>Two sites. One animal. One person who knew where both of them were.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- VI -->
+<section class="drawer alt" id="d6" aria-labelledby="d6-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer VI</b> Forty one years</p>
+    <h2 id="d6-t">What got built on it</h2>
+    <div class="cols">
+      <ul class="built">
+        <li>Reconstructions of the head, modeled and reprinted for decades.</li>
+        <li>A place in the family tree in textbook after textbook.</li>
+        <li>A museum display in London.</li>
+        <li>Research careers and papers about a creature that did not exist.</li>
+        <li class="final">A national monument at the gravel pit, declared in 1950. Three years before the exposure.</li>
+      </ul>
+      <figure class="mount">
+        <img src="/storyhub/hh/the-first-englishman/assets/reconstruction-1913.webp" width="700" height="956" loading="lazy" decoding="async" alt="A 1913 illustration imagining Piltdown Man as a stooped, hairy hunter carrying a stick through tall grass.">
+        <figcaption>An artist imagines "<i>Eoanthropus dawsoni</i>," <i>Popular Science Monthly</i>, 1913. A picture from that decade of something that never lived. Public domain.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- VII -->
+<section class="drawer" id="d7" aria-labelledby="d7-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer VII</b> 1949</p>
+    <h2 id="d7-t">A test that did not exist in 1912</h2>
+    <div class="read">
+      <p>Kenneth Oakley at the Natural History Museum was working on a chemical method for dating bone.</p>
+      <p>Bone buried in the ground absorbs fluorine from groundwater. The longer it sits, the more it holds.</p>
+      <p>He ran it on Piltdown.</p>
+      <p class="key">The result was in the region of fifty thousand years, not five hundred thousand.</p>
+    </div>
+
+    <div class="card" id="rail-card">
+      <h3>What could have caught it, and when</h3>
+      <p class="sub">Move along the rail.</p>
+      <div class="rail">
+        <label for="rail" class="mono">Position on the rail</label>
+        <input type="range" id="rail" min="0" max="6" step="1" value="0" data-desk-skip aria-describedby="rail-out">
+        <div class="ticks" aria-hidden="true"><span>1912</span><span>1912</span><span>1912</span><span>1949</span><span>1953</span><span>CT</span><span>DNA</span></div>
+      </div>
+      <div id="rail-out" class="stop" aria-live="polite"></div>
+      <div class="btns" style="margin-top:1rem"><button type="button" class="btn" id="rail-reset">Back to 1912</button></div>
+      <p class="always">The first entry on this rail needed no instrument and no laboratory.</p>
+      <p class="reveal-line" id="rail-line" hidden>Thirty seven years. The tool that finally reopened it was invented for a different purpose.</p>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Kenneth Oakley was a geologist at the Natural History Museum. He was developing the fluorine absorption method, which works because bone lying in the ground takes up fluorine from groundwater over time. Two bones from the same deposit that have been there the same length of time should carry similar fluorine levels.</p>
+      <p>In 1949 he applied it to the Piltdown material. The results showed the remains were far younger than claimed. That was not yet a charge of forgery. It meant Piltdown was not the ancient ancestor it had been presented as, which was already a serious problem for its place in the family tree.</p>
+      <p>The finding brought closer attention. Joseph Weiner at Oxford began working through the material with Wilfrid Le Gros Clark and with Oakley, and the question shifted from how old is it to what is it.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- VIII -->
+<section class="drawer alt" id="d8" aria-labelledby="d8-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer VIII</b> 1953</p>
+    <h2 id="d8-t">What it was made of</h2>
+    <div class="cols">
+      <ul class="made">
+        <li><span>01</span>Human braincase pieces, probably medieval, roughly six hundred years old.</li>
+        <li><span>02</span>The lower jaw of an orangutan.</li>
+        <li><span>03</span>The molars filed flat by hand, with parallel scratches visible under a microscope.</li>
+        <li><span>04</span>The canine tooth filed and painted.</li>
+        <li><span>05</span><span class="stain-line">Everything stained with chemicals to look as if it had been in the ground for half a million years.</span></li>
+      </ul>
+      <div>
+        <div class="pairnums"><div>500,000<span>years, as claimed</span></div><div>~600<span>years, the braincase</span></div></div>
+      </div>
+    </div>
+
+    <div class="card" id="specimen">
+      <h3>The specimen</h3>
+      <p class="sub">Five ways of looking at the same pieces. Drag or use the arrow keys to turn it.</p>
+      <div class="btns" role="group" aria-label="How to look at the specimen">
+        <button type="button" class="btn" data-spec="assembled" aria-pressed="true">As shown in 1912</button>
+        <button type="button" class="btn" data-spec="section" aria-pressed="false">Take it apart</button>
+        <button type="button" class="btn" data-spec="file" aria-pressed="false">Under the microscope</button>
+        <button type="button" class="btn" data-spec="stain" aria-pressed="false">The color</button>
+        <button type="button" class="btn" data-spec="inside" aria-pressed="false">Inside, 2016</button>
+      </div>
+      <div class="spec-box">
+        <div id="spec-stage"><canvas id="spec-canvas" tabindex="0" aria-label="3D model of the Piltdown pieces on a specimen card. Use the arrow keys to turn it."></canvas><span class="hint">drag to turn</span></div>
+        <div><div id="spec-panel" aria-live="polite"></div><p class="legend"><i></i>Orange marks only what a human hand altered.</p></div>
+      </div>
+      <p class="always">A stylized model for study, built from the published findings. It is not a scan of the real pieces.</p>
+    </div>
+
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Joseph Weiner worked through the problem with Wilfrid Le Gros Clark and with Kenneth Oakley. The results were published in 1953.</p>
+      <p>The braincase was human and it was not ancient. The jaw was an ape's, and the identification pointed to an orangutan.</p>
+      <p>The teeth had been filed. Under a microscope the wear surfaces carried straight parallel scratches, which is what a file leaves and not what chewing leaves. Chewing wear runs in the varied directions of real use.</p>
+      <p>The material had been stained. The color that made it look ancient had been applied rather than picked up from the ground. Some of the animal bones and worked flints at the site had been planted as well, and several had been treated the same way.</p>
+      <p>The announcement was made publicly in November 1953 and it was a considerable scandal.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- IX -->
+<section class="drawer" id="d9" aria-labelledby="d9-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer IX</b> 2016</p>
+    <h2 id="d9-t">One forger</h2>
+    <div class="cols">
+      <div class="read">
+        <p>A research team ran the whole collection again with modern methods.</p>
+        <p>The teeth from both sites came from a single orangutan.</p>
+        <p>At least two human specimens were used, possibly medieval.</p>
+        <p>The same putty appears throughout, holding gravel plugs in the cavities.</p>
+        <p class="key">One consistent method across every piece at both sites. One person had access to both.</p>
+      </div>
+      <figure class="mount">
+        <img src="/storyhub/hh/the-first-englishman/assets/ct-scan.webp" width="760" height="814" loading="lazy" decoding="async" alt="Three CT scan images of the Piltdown canine tooth showing its root and a filled cavity inside.">
+        <figcaption>CT scans of the Piltdown canine from the 2016 study. De Groote and colleagues, <i>Royal Society Open Science</i>, CC BY 4.0.</figcaption>
+      </figure>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>A study published in 2016, led by Isabelle De Groote at Liverpool John Moores University with Chris Stringer of the Natural History Museum among the authors, examined every piece again. The methods included precise measurement, three dimensional imaging, CT scanning, chemical analysis, and DNA.</p>
+      <p>A single orangutan supplied the jaw and the teeth, and DNA linked the canine from the first site and the molar from the second to the same animal. At least two human specimens supplied the skull pieces. Cavities had been packed with gravel from the Piltdown sites and plugged with small pebbles, and the same putty was used throughout.</p>
+      <p>That consistency is the finding. One recipe, applied the same way to every piece, across both locations.</p>
+      <p>Charles Dawson is the only person known to have been connected to both sites. The study concludes that a single forger is most likely and that Dawson is the most likely candidate. Many other people have been proposed over the years, including Woodward and the writer Arthur Conan Doyle, who lived nearby. None of those proposals rests on physical evidence of the kind the 2016 work produced.</p>
+      <p>Dawson's motive is not established. He was seeking membership in the Royal Society and had other finds that were later questioned. That is suggestive. It is not proof.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- X -->
+<section class="drawer sun" id="d10" aria-labelledby="d10-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer X</b> 1925</p>
+    <h2 id="d10-t">The fossil that was real</h2>
+    <div class="cols">
+      <div class="read">
+        <p>In South Africa, a young anatomist named Raymond Dart described a fossil skull of a child.</p>
+        <p>It had a small brain and human teeth, and the opening for the spinal cord sat where an upright walker's would.</p>
+        <p>It was genuine. It was the first of its kind ever found. It reversed the expected order, because the body had become human before the brain did.</p>
+        <p>Most of the field ignored it for about twenty years.</p>
+        <p class="key">Piltdown was a big part of why.</p>
+      </div>
+      <div style="display:grid;gap:1rem">
+        <figure class="mount"><img src="/storyhub/hh/the-first-englishman/assets/taung.webp" width="640" height="480" loading="lazy" decoding="async" alt="The Taung child fossil, a small skull and face, resting in a museum display case."><figcaption>The Taung child, described by Dart in 1925. Public domain.</figcaption></figure>
+        <div class="person" style="background:rgba(255,255,255,.35);border-color:rgba(34,20,15,.25)"><img src="/storyhub/hh/the-first-englishman/assets/dart.webp" width="300" height="427" loading="lazy" decoding="async" alt="Portrait of Raymond Dart as an older man in a suit and tie."><div><b>Raymond Dart</b><span style="color:var(--ink)">Anatomist in Johannesburg. He was thirty two when his paper appeared in the journal <i>Nature</i>, and lived to see the field agree with him. Pictured later in life. Smithsonian Institution Archives.</span></div></div>
+      </div>
+    </div>
+    <details class="more"><summary>Full story</summary><div class="body">
+      <p>Raymond Dart was an anatomist working in Johannesburg. In 1924 a fossil skull came to him from a limeworks at Taung. He described it in <i>Nature</i> in February 1925 and named it <i>Australopithecus africanus</i>.</p>
+      <p>The specimen was a child with a small braincase, teeth that were human rather than ape like, and a spinal opening placed as it is in creatures that walk upright. Every part of that contradicted the expectation from Drawer III. The brain was small, so the brain had not come first. And it was in Africa, which was not where most of the field was looking.</p>
+      <p>The reception was largely dismissive. Leading figures argued it was a young ape. Acceptance came slowly from the late 1940s as more fossils like it turned up, and then decisively after 1953.</p>
+      <p>Piltdown was not the only reason. Dart's paper was brief, a child's skull is genuinely harder to read, and attention was fixed on Europe and Asia. But a forged fossil had defined what a correct answer was supposed to look like, and so the correct answer looked wrong.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- XI -->
+<section class="drawer" id="d11" aria-labelledby="d11-t">
+  <div class="wrap">
+    <p class="tag"><b>Drawer XI</b> What caught it</p>
+    <h2 id="d11-t">Not a confession</h2>
+    <div class="read">
+      <p>Nobody admitted anything. No document turned up. No witness came forward.</p>
+      <p>It was caught by a scientist measuring fluorine for another reason, and then by a microscope pointed at a tooth.</p>
+      <p>Charles Dawson died in 1916 and was never questioned about any of it.</p>
+      <p class="key">The record does not correct itself. People with instruments correct it, and only when they look.</p>
+    </div>
+  </div>
+</section>
+
+<!-- terms -->
+<section class="drawer alt" id="terms" aria-labelledby="terms-t">
+  <div class="wrap">
+    <p class="tag"><b>Index</b> Terms</p>
+    <h2 id="terms-t">Ten words you already met</h2>
+    <p style="max-width:60ch">Every term below appeared in something you just read. Each one names a thing you already watched happen.</p>
+    <div class="terms">
+      <div class="term"><b>forgery</b>An object made or altered to deceive, as opposed to a mistaken identification.<p class="met">Met it: filed teeth, applied stain, gravel plugs, putty</p></div>
+      <div class="term"><b>provenance</b>Where an object came from and who has handled it since. It is evidence about the object.<p class="met">Met it: only one person knew where the second site was</p></div>
+      <div class="term"><b>confirmation bias</b>Looking less hard at evidence that agrees with what you already expect.<p class="met">Met it: the expectation board, Drawer III</p></div>
+      <div class="term"><b>independence</b>Two pieces of evidence back each other up only if each one could have turned out wrong on its own.<p class="met">Met it: the six conditions in Drawer V</p></div>
+      <div class="term"><b>replication</b>Someone other than the original finder getting the same result by doing the work again.<p class="met">Met it: nobody but Dawson ever found anything at the second site</p></div>
+      <div class="term"><b>cast</b>A plaster copy of a specimen. It keeps the shape and loses the surface.<p class="met">Met it: what most experts were actually examining</p></div>
+      <div class="term"><b>relative dating</b>Showing that one thing is older or younger than another without giving a calendar date.<p class="met">Met it: Oakley's fluorine test, 1949</p></div>
+      <div class="term"><b>load bearing evidence</b>A finding other conclusions are built on, so everything above it falls when it falls.<p class="met">Met it: textbooks, reconstructions, a national monument</p></div>
+      <div class="term"><b>peer review</b>Other qualified people judging a claim. It works when the reviewers can see the thing.<p class="met">Met it: Miller, Boule, Weidenreich</p></div>
+      <div class="term"><b>self correction</b>The idea that a field fixes its own errors over time. It happens when somebody looks, and not otherwise.<p class="met">Met it: forty one years</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- repair -->
+<section class="drawer" id="repair" aria-labelledby="repair-t">
+  <div class="wrap">
+    <p class="tag"><b>Index</b> Note repair</p>
+    <h2 id="repair-t">Check what you wrote down</h2>
+    <p style="max-width:60ch">Six statements. Each one is the version people usually leave with. Each one is wrong. Open each one and compare it with the record.</p>
+    <div class="repair" id="repair-list"></div>
+  </div>
+</section>
+</main>
+
+<section class="response" id="your-turn" aria-labelledby="yt-t">
+  <div class="wrap">
+    <p class="kicker">your turn</p>
+    <h2 id="yt-t">Write up the case file</h2>
+    <p class="mono">Answer in your own words with names, years, and evidence from the drawers. Your work saves as you type.</p>
+    <div class="qblock"><label for="answer-1">1. Gerrit Smith Miller said the jaw was an ape's in 1915. Why was being right not enough? Give two reasons from the page.</label><textarea id="answer-1" name="answer-1" data-desk-label="Gerrit Smith Miller said the jaw was an ape's in 1915. Why was being right not enough? Give two reasons from the page." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-2">2. The second site seemed to prove Piltdown was real. Using the independence test, explain why it was really the same claim made twice.</label><textarea id="answer-2" name="answer-2" data-desk-label="The second site seemed to prove Piltdown was real. Using the independence test, explain why it was really the same claim made twice." rows="5"></textarea></div>
+    <div class="qblock"><label for="answer-3">3. The page says a forgery can make a true discovery look false. Explain what happened to Raymond Dart's fossil, and say whether you think something like that could happen today.</label><textarea id="answer-3" name="answer-3" data-desk-label="The page says a forgery can make a true discovery look false. Explain what happened to Raymond Dart's fossil, and say whether you think something like that could happen today." rows="5"></textarea></div>
+    <div data-desk-turnin></div>
+  </div>
+</section>
+
+<footer class="sources" id="sources" aria-labelledby="src-t">
+  <div class="wrap">
+    <h2 id="src-t">Sources and limits</h2>
+    <ol>
+      <li>Proceedings of the Geological Society of London, meeting of December 18, 1912, on <i>Eoanthropus dawsoni</i>.</li>
+      <li>Gerrit Smith Miller, 1915, on the jaw as an ape's.</li>
+      <li>Raymond Dart, "<i>Australopithecus africanus</i>: The Man Ape of South Africa," <i>Nature</i>, February 1925.</li>
+      <li>J. S. Weiner, K. P. Oakley, and W. E. Le Gros Clark, "The Solution of the Piltdown Problem," <i>Bulletin of the British Museum (Natural History), Geology</i>, 1953.</li>
+      <li>Natural History Museum, London, Piltdown Man collection notes and chronology.</li>
+      <li>Isabelle De Groote and colleagues, "New genetic and morphological evidence suggests a single hoaxer created Piltdown man," <i>Royal Society Open Science</i>, 2016.</li>
+    </ol>
+    <p><b>Limits.</b> The braincase is given as probably medieval, about six hundred years old, and the 2016 study says possibly medieval. Oakley's 1949 result is given in the region of fifty thousand years because accounts state it differently, and the gap with the claimed five hundred thousand is the finding. Dawson is named as the most likely forger at the strength the 2016 evidence supports, which is a strong inference and not a confession. Piltdown was a major reason the Taung child was dismissed, and not the only one.</p>
+    <p class="mono" style="margin-top:1rem">Images: John Cooke, 1915. Dawson and Woodward portraits. 1913 illustration, <i>Popular Science Monthly</i>; jaw comparison, <i>American Museum Journal</i>, 1918; McGregor skull reconstruction, about 1921; Taung child; Raymond Dart, Smithsonian Institution Archives. Public domain via Wikimedia Commons, except the CT scans, De Groote et al. 2016, CC BY 4.0. The 3D specimen is a stylized study model.</p>
+  </div>
+</footer>
+
+<script src="/hubs/ush9-splendid-little-war/lib/three.min.js" defer></script>
+<script src="/storyhub/hh/the-first-englishman/assets/specimen.js" defer></script>
+<script>
+(function(){
+  'use strict';
+  /* expectation board */
+  var FINDS=[
+    {n:'Neanderthal, Germany, 1856',s:'A robust human skeleton with a large brain',f:'Partly. The brain was large, which fit. Some argued it was a diseased modern human.',a:'Argued over for decades, then accepted'},
+    {n:'Mauer jaw, Germany, 1907',s:'A very early heavy human jaw',f:'Yes, as an early European',a:'Accepted without serious dispute'},
+    {n:'Piltdown, England, 1912',s:'A large braincase with an ape like jaw',f:'Completely, and it filled the national gap as well',a:'Accepted almost immediately. Objections at the announcement were answered by the reconstruction.'},
+    {n:'Taung child, South Africa, 1925',s:'A small brained child with human like teeth and an upright posture',f:'No. It reversed the expected order, and it was on the wrong continent.',a:'Rejected or ignored by most of the field for about two decades'}
+  ];
+  var opened=new Set(),fd=document.getElementById('find-detail'),fBtns=[].slice.call(document.querySelectorAll('[data-find]')),fLine=document.getElementById('finds-line');
+  fBtns.forEach(function(b){b.addEventListener('click',function(){
+    var i=+b.dataset.find,F=FINDS[i];opened.add(i);
+    fBtns.forEach(function(x){x.setAttribute('aria-expanded',String(x===b));});
+    fd.innerHTML='<dl><dt>The find</dt><dd>'+F.n+'</dd><dt>What it showed</dt><dd>'+F.s+'</dd><dt>Did it fit the expectation</dt><dd>'+F.f+'</dd><dt>How fast it was accepted</dt><dd>'+F.a+'</dd></dl>';
+    if(opened.size>=3)fLine.hidden=false;
+  });});
+  document.getElementById('finds-close').addEventListener('click',function(){fBtns.forEach(function(x){x.setAttribute('aria-expanded','false');});fd.innerHTML='<p class="mono">Choose a find.</p>';});
+
+  /* independence test, two stages */
+  var COND=[
+    ['Someone other than the original finder located the site','No. The exact location was known only to Dawson.'],
+    ['Someone other than the original finder recovered material there','No.'],
+    ['The site was dug and recorded while others watched','No.'],
+    ['Other researchers recovered more material there later','No. Nothing further was ever found.'],
+    ['The material was shown to come from a different individual than the first find','No. In 2016 DNA showed the teeth from both sites came from the same orangutan.'],
+    ['The material was tested by methods that did not depend on the finder\'s word','Not at the time. It took until 1949.']
+  ];
+  var ct=document.querySelector('#cond-table tbody'),shown=false,out=document.getElementById('cond-out'),showBtn=document.getElementById('cond-show');
+  function drawCond(){
+    ct.innerHTML=COND.map(function(c,i){return '<tr><td><label><input type="checkbox" data-desk-skip id="cond-'+i+'"> <span>'+c[0]+'</span></label></td><td class="'+(shown?'no':'hiddenans')+'"'+(shown?'':' aria-hidden="true"')+'>'+(shown?c[1]:'hidden until you look')+'</td></tr>';}).join('');
+  }
+  showBtn.addEventListener('click',function(){
+    var marks=[].slice.call(ct.querySelectorAll('input')).map(function(x){return x.checked;});
+    shown=true;drawCond();
+    [].slice.call(ct.querySelectorAll('input')).forEach(function(x,i){x.checked=marks[i];});
+    showBtn.disabled=true;
+    var n=marks.filter(Boolean).length;
+    out.innerHTML='<p class="reveal-line">A confirmation from the same source is not a confirmation. It is the same claim, twice.</p>';
+    setTimeout(function(){out.insertAdjacentHTML('beforeend','<p class="always">You marked '+n+' of 6 as necessary. Every condition failed. None of them were checked in 1917.</p>');},window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:1400);
+  });
+  document.getElementById('cond-clear').addEventListener('click',function(){shown=false;showBtn.disabled=false;out.innerHTML='';drawCond();});
+  drawCond();
+
+  /* technique rail */
+  var RAIL=[
+    ['Direct comparison with an ape jaw','That the jaw matches an orangutan rather than a human','1912. It needed no equipment','Yes, by Miller in 1915. Published, and not acted on.'],
+    ['Looking at the real specimens instead of casts','Surface staining, tool marks, and file marks on the teeth','1912, for anyone granted access','Access was limited. Most researchers worked from casts.'],
+    ['Microscope on the tooth surfaces','Parallel scratches from filing, which chewing does not make','1912, with an ordinary microscope','Not until 1953'],
+    ['Fluorine absorption dating','That the bones had not been in the ground as long as claimed','1949','Yes, by Oakley in 1949. This is what reopened it.'],
+    ['Chemical analysis of the staining','That the color was applied rather than picked up from the ground','Possible in principle for decades','Not until 1953'],
+    ['X ray and later CT imaging','Inside structure, filled cavities, and gravel plugs','Later in the century','Applied in the 2016 study'],
+    ['DNA analysis','That teeth from two separate sites came from one orangutan','Around 2000','Applied in the 2016 study']
+  ];
+  var rail=document.getElementById('rail'),ro=document.getElementById('rail-out'),rl=document.getElementById('rail-line');
+  function drawRail(){var r=RAIL[+rail.value];
+    ro.innerHTML='<div><h4>The method</h4><p class="big">'+r[0]+'</p></div><div><h4>What it would show</h4><p>'+r[1]+'</p></div><div><h4>Available by</h4><p>'+r[2]+'</p></div><div><h4>Was it applied to Piltdown</h4><p>'+r[3]+'</p></div>';
+    rail.setAttribute('aria-valuetext',r[0]+', available by '+r[2]);
+    if(+rail.value>=3)rl.hidden=false;
+  }
+  rail.addEventListener('input',drawRail);
+  document.getElementById('rail-reset').addEventListener('click',function(){rail.value=0;drawRail();});
+  drawRail();
+
+  /* note repair */
+  var REP=[
+    ['Scientists were fooled because the science of 1912 was primitive.','The jaw could have been compared to an orangutan\'s with no equipment at all, and Gerrit Smith Miller published exactly that conclusion in 1915.','Drawers IV and VII'],
+    ['Nobody doubted it until 1953.','Miller, Boule, and Weidenreich all published objections, and objections were raised at the original announcement in 1912.','Drawers II and IV'],
+    ['The second site proved it was real.','The second site was known only to Dawson, produced nothing for anyone else, and in 2016 DNA showed its tooth came from the same orangutan as the first site\'s.','Drawer V'],
+    ['A whistleblower or a confession exposed it.','Kenneth Oakley caught it with a fluorine dating method he was developing for another purpose, in 1949.','Drawer VII'],
+    ['We know Dawson did it.','The 2016 evidence shows one forger using one method at both sites, and Dawson is the only person connected to both. It is a strong inference and it is not a confession, and his motive is not established.','Drawer IX'],
+    ['The hoax wasted forty one years and nothing more.','It also defined what a correct answer was supposed to look like, which is why Raymond Dart\'s genuine 1925 fossil was dismissed for about two decades.','Drawer X']
+  ];
+  var list=document.getElementById('repair-list');
+  list.innerHTML=REP.map(function(r,i){return '<div class="rep"><button type="button" aria-expanded="false" aria-controls="rf-'+i+'"><span class="w">'+r[0]+'</span><span class="lbl">check it</span></button><div class="fix" id="rf-'+i+'" hidden>'+r[1]+'<small>Check: '+r[2]+'</small></div></div>';}).join('');
+  list.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var o=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',String(!o));document.getElementById(b.getAttribute('aria-controls')).hidden=o;b.querySelector('.lbl').textContent=o?'check it':'the record';});
+
+  /* index highlight */
+  var links=[].slice.call(document.querySelectorAll('.index a[href^="#"]'));
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(a){if(a.hash==='#'+e.target.id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});});},{rootMargin:'-20% 0px -60% 0px'});
+    document.querySelectorAll('main section[id],#your-turn').forEach(function(s){io.observe(s);});}
+})();
+</script>
+<script src="/hubs/desk-save.js" defer></script>
+</body></html>

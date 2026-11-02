@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 64,
+  "catalogueCount": 67,
   "hubs": [
     {
       "hub": "hh-down-the-rabbit-hole.html",
@@ -319,6 +319,21 @@
     },
     {
       "hub": "bts-who-lost-when-robinson-won.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-s02-the-entry-list.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "hh-s02-the-first-englishman.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "ush9-s03-the-last-morning.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     }
