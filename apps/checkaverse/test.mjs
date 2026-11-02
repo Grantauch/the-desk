@@ -435,6 +435,18 @@ try {
   const board = await s4.next('ranks');
   assert.deepEqual([board.saved, board.hour, board.top.length, board.mine], [true, '2nd Hour', 0, null]);
   assert.ok(!JSON.stringify(board).includes('Pq7xK2'), 'player IDs never reach a page');
+  // Care: the panel, one meal, and the class cemetery.
+  await s4.send({ t: 'body', id: ws4.partner });
+  const bod = await s4.next('body');
+  assert.equal(bod.saved, true);
+  assert.ok(bod.body.stats.fullness > 0 && bod.body.actions.some((a) => a.id === 'feed'));
+  await s4.send({ t: 'care', id: ws4.partner, a: 'feed' });
+  const fed = await s4.next('cared');
+  assert.equal(fed.ok, true);
+  assert.ok(fed.body.stats.fullness > bod.body.stats.fullness, 'a meal fills the Checkling');
+  await s4.send({ t: 'cemetery' });
+  const yard = await s4.next('cemetery');
+  assert.deepEqual([yard.saved, yard.hour, yard.stones.length], [true, '2nd Hour', 0]);
   s4.ws.close();
   step('a new trainer name is kept and renames are counted per day');
 

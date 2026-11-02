@@ -24,6 +24,7 @@
       <button id="partnerBtn" type="button" class="chip-btn partner-btn" aria-expanded="false" aria-controls="partnerPop" title="Battle partner">
         <img id="partnerImg" alt=""><span id="partnerName">Partner</span>
       </button>
+      <button id="careBtn" type="button" class="chip-btn care-btn" aria-expanded="false" aria-controls="carePop" hidden>Care<span id="careFlag" class="care-flag" hidden></span></button>
       <button id="sayBtn" type="button" class="chip-btn" aria-expanded="false" aria-controls="phrases">Say</button>
       <span id="charmChip" class="chip charm-chip" hidden></span>
     </div>
@@ -49,6 +50,37 @@
 
     <div id="phrases" class="pop pop-left phrases" role="dialog" aria-label="Phrases" hidden></div>
 
+    <div id="carePop" class="pop pop-left care-pop" role="dialog" aria-labelledby="careName" hidden>
+      <div class="care-head">
+        <img id="careImg" alt="">
+        <div><p class="pop-title" id="careName">Care</p><p id="careSub" class="care-sub"></p></div>
+      </div>
+      <div id="careSwitch" class="care-switch" role="tablist" aria-label="Choose a Checkling"></div>
+      <div id="careBars" class="care-bars"></div>
+      <div id="careTags" class="care-tags"></div>
+      <div id="careActions" class="care-actions"></div>
+      <p id="careMsg" class="care-msg" role="status"></p>
+    </div>
+
+    <div id="reportPop" class="pop card-pop" role="dialog" aria-labelledby="reportTitle" hidden>
+      <p class="pop-title" id="reportTitle">While you were gone</p>
+      <div id="reportBody"></div>
+      <button id="reportClose" type="button" class="ghost">Got it</button>
+    </div>
+
+    <div id="hatchPop" class="pop card-pop" role="dialog" aria-labelledby="hatchTitle" hidden>
+      <p class="pop-title" id="hatchTitle">Your egg is hatching!</p>
+      <p class="pop-note">Pick who comes out. This one is yours for good.</p>
+      <div id="hatchPick" class="hatch-pick"></div>
+    </div>
+
+    <div id="cemeteryPop" class="pop card-pop cemetery-pop" role="dialog" aria-labelledby="cemeteryTitle" hidden>
+      <p class="pop-title" id="cemeteryTitle">Class cemetery</p>
+      <div id="stones" class="stones"></div>
+      <p id="cemeteryNote" class="pop-note"></p>
+      <button id="cemeteryClose" type="button" class="ghost">Close</button>
+    </div>
+
     <div id="menu" class="pop pop-right menu" role="dialog" aria-label="Menu" hidden>
       <label class="busy"><input id="busy" type="checkbox"> Busy (no challenges)</label>
       <button id="rename" type="button" class="ghost">New name</button>
@@ -57,6 +89,7 @@
       <button id="goHome" type="button" class="ghost" hidden>Walk home</button>
       <button id="lock" type="button" class="ghost" aria-pressed="false" hidden>Lock my door</button>
       <button id="ranksBtn" type="button" class="ghost">This week's rankings</button>
+      <button id="cemeteryBtn" type="button" class="ghost">Class cemetery</button>
       <button id="tipsAgain" type="button" class="ghost">Show tips again</button>
       <a class="bus-home" href="https://grant-desk.com/hubs/checkling/camp/">Bus home to Kettle Creek</a>
     </div>

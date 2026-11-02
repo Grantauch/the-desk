@@ -1,0 +1,66 @@
+{
+  "note": "Headstone lines by cause of death. {name} is the species name. Jokes are about the Checkling and how it died, never the student, never body size. Several per cause so stones rarely repeat. Lines added Nov 1 2026 were picked from Hermes's 80 drafts (in the PC's Codex\\\\checklings folder), which also has unused lines for an untested potion and old age.",
+  "causes": {
+    "heart_trouble": [
+      "Here lies {name}. Ate the whole thing. Then the other whole thing.",
+      "{name} always said yes to seconds. The heart said no.",
+      "Gone, but the snack drawer remembers.",
+      "The second slice came with a free headstone.",
+      "{name} found the end of the buffet. It was here.",
+      "{name}'s heartbeat declined the encore.",
+      "{name} asked for a new heart. The wizard backordered it."
+    ],
+    "malnutrition": [
+      "{name} waited by the bowl. The bowl waited too.",
+      "Here lies {name}, who really could have used a sandwich.",
+      "{name} believed lunch was coming. Faith is a lovely thing.",
+      "{name}'s pantry portal opened into another empty pantry.",
+      "{name} trusted fairy rations. The nutrition was imaginary."
+    ],
+    "the_glooms": [
+      "{name} stared out the window one day too many.",
+      "Here lies {name}. Nobody ever threw the ball.",
+      "{name} sighed so long it became a lifestyle.",
+      "The Glooms arrived by fog. {name} signed for them.",
+      "{name} challenged a cursed fog to a staring contest."
+    ],
+    "burnout": [
+      "{name} played until the playing played back.",
+      "Here lies {name}. Fetched one stick too many.",
+      "{name} had a lot of energy. Past tense.",
+      "{name} accepted one quest too many. Mostly filing.",
+      "{name}'s spark quit halfway through mandatory fun."
+    ],
+    "couch_rot": [
+      "Finally got that nap.",
+      "Here lies {name}. Became one with the cushion.",
+      "{name} rested in peace long before it was official."
+    ],
+    "collapse": [
+      "{name} said it would sleep when it was dead. Fair enough.",
+      "Here lies {name}, who never once took the nap.",
+      "{name} stayed up for every single thing. Now it is up for nothing.",
+      "{name} packed everything for the trip except a nap.",
+      "{name} carried the camping bed for miles. Never tried it."
+    ],
+    "mange": [
+      "{name} never met a bath it liked. The feeling was mutual.",
+      "Here lies {name}. The smell lingers on.",
+      "{name} itched its way into legend.",
+      "{name}'s anti-mite charm charmed the mites instead.",
+      "{name}'s eviction spell gave the mites permanent residency."
+    ],
+    "torn_muscle": [
+      "{name} lifted with its back. Once.",
+      "Here lies {name}. Skipped stretching, every time.",
+      "{name} trained hard. The training trained harder."
+    ],
+    "glowing_mushroom": [
+      "Licked the glowing mushroom. Regrets nothing. Regrets everything.",
+      "{name} wanted to know what the glow tasted like. Now it knows.",
+      "Here lies {name}. The mushroom is doing fine.",
+      "{name} assumed glowing meant ripe. The mushroom disagreed.",
+      "{name} ate a nightlight with roots. Close enough, apparently."
+    ]
+  }
+}

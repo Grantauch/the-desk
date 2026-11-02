@@ -1,0 +1,33 @@
+{
+  "note": "School days for the Checkling body clock. Copied from the verified 2026-27 district calendar in apps-script/hall-pass/Code.gs. Weekdays from start to end are school days unless listed in noSchool. Snow days: add the date to noSchool and restart the server, or press No school today on the teacher page.",
+  "start": "2026-08-25",
+  "end": "2027-06-08",
+  "noSchool": {
+    "2026-09-04": "No school K-12",
+    "2026-09-07": "Labor Day — no school K-12",
+    "2026-11-03": "No school K-12",
+    "2026-11-25": "No school K-12",
+    "2026-11-26": "Thanksgiving recess",
+    "2026-11-27": "Thanksgiving recess",
+    "2026-12-21": "Holiday break",
+    "2026-12-22": "Holiday break",
+    "2026-12-23": "Holiday break",
+    "2026-12-24": "Holiday break",
+    "2026-12-25": "Holiday break",
+    "2026-12-28": "Holiday break",
+    "2026-12-29": "Holiday break",
+    "2026-12-30": "Holiday break",
+    "2026-12-31": "Holiday break",
+    "2027-01-01": "Holiday break",
+    "2027-01-18": "No school K-12",
+    "2027-02-15": "No school K-12",
+    "2027-03-26": "Spring break",
+    "2027-03-29": "Spring break",
+    "2027-03-30": "Spring break",
+    "2027-03-31": "Spring break",
+    "2027-04-01": "Spring break",
+    "2027-04-02": "Spring break",
+    "2027-05-28": "No school K-12",
+    "2027-05-31": "Memorial Day — no school K-12"
+  }
+}
