@@ -225,6 +225,12 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 .resident-dialog button:focus-visible { outline-color: #8b5b1b; }
 .resident-close { margin-top: 16px; color: #574a35; border: 0; background: transparent; padding: 8px 0; text-decoration: underline; min-height: 44px; }
 .journal-note { font-size: 13px; color: #64543e; line-height: 1.55; }
+.resident-directory article { border-top: 1px solid #cbbc96; padding: 12px 0; }
+.resident-directory h4 { margin: 0 0 6px; font-size: 15px; }
+.resident-directory p { margin: 4px 0; font-size: 13px; line-height: 1.5; }
+.resident-memory { color: #67543b; }
+.resident-directory article > div { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.resident-directory button { min-height: 44px; font-size: 13px; }
 #journalEntries article { border-top: 1px solid #cbbc96; margin: 14px 0; padding-top: 10px; }
 #journalEntries h3 { font-size: 15px; margin: 0; }
 #journalEntries p { font-size: 14px; line-height: 1.6; }
