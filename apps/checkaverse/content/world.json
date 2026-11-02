@@ -106,7 +106,12 @@
         ],
         "found": "A yellow ribbon is caught in the grass. Bring it back to Rowan.",
         "complete": "There it is! A trail marker is much more useful on a post than in a bush. I will get this tied back up.",
-        "art": "ribbon"
+        "art": "ribbon",
+        "help": {
+          "memory": "My trail ribbon is back. I will tie it to the post on the next trail round.",
+          "next": "work",
+          "artifact": "ribbon"
+        }
       }
     },
     {
@@ -329,7 +334,7 @@
       ],
       "dialogue": {
         "start": {
-          "text": "Three deliveries and only two arms. I should have brought a cart. Or fewer parcels.",
+          "text": "The clinic parcels will not carry themselves. I have tried asking. No luck.",
           "choices": [
             {
               "label": "Where are you headed?",
@@ -349,7 +354,7 @@
           ]
         },
         "first": {
-          "text": "Store, clinic, Day Care, then back again. Everyone has something that needs carrying. At least the paths join up.",
+          "text": "I collect the clinic parcel at the store and carry it over. After that I stop by to see Nell, then head home to sort the next labels.",
           "choices": [
             {
               "label": "One more thing.",
@@ -395,8 +400,13 @@
           22
         ],
         "found": "An address label is tucked beside the bench. Bring it back to Pax.",
-        "complete": "Perfect. Now this parcel has a destination again. It was about to become a very expensive doorstop.",
-        "art": "label"
+        "complete": "That is the label I needed. I will put it to use on the clinic round. No more mystery mail.",
+        "art": "label",
+        "help": {
+          "memory": "A traveler brought the clinic label back. It is ready for my parcel round.",
+          "next": "collect",
+          "artifact": "label"
+        }
       }
     },
     {
@@ -611,7 +621,7 @@
       ],
       "dialogue": {
         "start": {
-          "text": "The stalls are ready. I have rearranged the crates four times. They have not thanked me once.",
+          "text": "I keep the market display in order. The crates have never once thanked me.",
           "choices": [
             {
               "label": "What is for sale?",
@@ -678,7 +688,12 @@
         ],
         "found": "A wooden tally marker lies by the pond path. Take it back to Tess.",
         "complete": "That is the one. Now I can count crates without starting over every time somebody says hello. Hello, by the way.",
-        "art": "marker"
+        "art": "marker",
+        "help": {
+          "memory": "A traveler found the market tally. I can use it on the next crate.",
+          "next": "collect",
+          "artifact": "marker"
+        }
       }
     },
     {
@@ -1000,7 +1015,7 @@
           ]
         },
         "second": {
-          "text": "The bank, the current, and how many times I can say \"just one more measurement\" before lunch.",
+          "text": "I inspect the bridge joints and write down what needs attention. The tool roll comes home with me when the round is done.",
           "choices": [
             {
               "label": "One more thing.",

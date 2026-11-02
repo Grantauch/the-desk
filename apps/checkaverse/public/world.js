@@ -101,25 +101,46 @@ export function paintMeadow(g, map, T) {
 export function createWorld(data) {
   const residents = data.residents.map((n, i) => ({ ...n, x: n.route[0][0], y: n.route[0][1], dx: n.route[0][0], dy: n.route[0][1], f: 'd', stride: 0, index: 0, wait: 800 + i * 377, q: [], seg: null, npc: true }));
   const errands = new Map(), particles = [], discoveries = [];
+  const authoritative=Boolean(data.authoritative);let marks=[],stepMs=400;
+  if(authoritative)for(const n of residents)n.visible=false;
   let kind = '', clock = 0, held = '', lastTile = '', gust = 0, wasQuiet = false;
-  const inMap = () => residents.filter(n => n.map === kind);
-  function reset(map) { kind = map; held = ''; particles.length = 0; lastTile = ''; }
+  const inMap = () => residents.filter(n => authoritative ? n.visible && n.room===kind : n.map === kind);
+  function reset(map,home='') { kind = home?`home:${home}`:map; held = ''; particles.length = 0; lastTile = ''; }
+  function sync(snapshot,instant=false){
+    if(!snapshot?.residents)return;marks=snapshot.marks||[];stepMs=snapshot.stepMs||400;
+    const present=new Set(snapshot.residents.map(n=>n.id));for(const n of residents)n.visible=present.has(n.id);
+    for(const update of snapshot.residents){const n=residents.find(n=>n.id===update.id);if(!n)continue;
+      const jump=instant||n.room!==update.room||n.lastSeq===undefined||update.seq-n.lastSeq>5;
+      if(jump){n.dx=update.x;n.dy=update.y;n.q=[];n.seg=null;}
+      else for(const s of update.steps||[])if(s.s>n.lastSeq&&s.room===update.room)n.q.push([s.x,s.y,s.f]);
+      Object.assign(n,update);n.lastSeq=update.seq;
+    }
+  }
   function active() { return inMap(); }
   function find(id) { return inMap().find(n => n.id === id); }
   function start(id) { const n = find(id); if (n?.errand && !errands.has(id)) errands.set(id, 'looking'); }
   function status(id) { return errands.get(id) || ''; }
+  function syncStories(stories){for(const n of residents){const next=stories?.[n.id],old=status(n.id);if(['looking','found','done'].includes(next)){errands.set(n.id,next);if(next==='found'&&old==='looking'){discoveries.push({id:n.id,text:n.errand.found});emit(n.errand.target[0],n.errand.target[1],'spark',8);}}else if(authoritative)errands.delete(n.id);}}
   function finish(id) { if (errands.get(id) === 'found') { errands.set(id, 'done'); return true; } return false; }
   function journal() { return residents.filter(n => errands.has(n.id)).map(n => ({ id: n.id, name: n.name, ...n.errand, status: status(n.id) })); }
   function emit(x, y, type, count = 5) {
     for (let i = 0; i < count && particles.length < 48; i++) particles.push({ x: x * 32 + 16, y: y * 32 + 26, age: 0, life: type === 'leaf' ? 1700 : 500, type, vx: Math.cos(i * 2.4) * .015, vy: -.016 - i * .002 });
   }
   function tick(dt, map, player, quiet, blocked, stop) {
-    if (stop || !player) return;
+    if (stop || !player) {if(authoritative)for(const n of residents){n.dx=n.x;n.dy=n.y;n.q=[];}return;}
     // This clock pauses with teacher pause, hidden tabs, conversations and battles.
     clock += dt;
     if (quiet && !wasQuiet) particles.length = 0;
     wasQuiet = quiet;
     for (const n of inMap()) {
+      if(authoritative){
+        let remaining=dt;
+        while(n.q.length){const [x,y,f]=n.q[0],dx=x-n.dx,dy=y-n.dy,d=Math.abs(dx)+Math.abs(dy),go=remaining/stepMs;
+          n.f=f;if(d>4){n.dx=x;n.dy=y;n.q.shift();continue;}
+          if(go>=d){n.dx=x;n.dy=y;n.stride+=d;n.q.shift();remaining-=d*stepMs;if(remaining<=0)break;}
+          else{n.dx+=dx/d*go;n.dy+=dy/d*go;n.stride+=go;break;}
+        }continue;
+      }
       if (quiet || held === n.id) { n.dx = n.x; n.dy = n.y; n.seg = null; continue; }
       if (n.seg) {
         n.seg.age += dt;
@@ -140,7 +161,7 @@ export function createWorld(data) {
       lastTile = tile;
       const [x, y] = tile.split(',').map(Number), ch = map?.rows[y]?.[x];
       if (!quiet && player.seg && 'PGCF'.includes(ch || '#')) emit(x, y, ch === 'P' ? 'dust' : 'grass', 4);
-      for (const n of inMap()) if (status(n.id) === 'looking' && Math.hypot(x - n.errand.target[0], y - n.errand.target[1]) <= 1.3) {
+      for (const n of residents.filter(n=>!authoritative&&n.map===kind)) if (status(n.id) === 'looking' && Math.hypot(x - n.errand.target[0], y - n.errand.target[1]) <= 1.3) {
         errands.set(n.id, 'found'); discoveries.push({ id: n.id, text: n.errand.found });
         if (!quiet) emit(x, y, 'spark', 8);
       }
@@ -182,7 +203,36 @@ export function createWorld(data) {
     }
     if (!quiet) for (const p of particles) { g.globalAlpha = 1 - p.age / p.life; g.fillStyle = { dust: '#e9d3a6', grass: '#9bbd65', leaf: '#cbbb65', spark: '#ffe8a1' }[p.type]; g.fillRect(p.x, p.y, p.type === 'leaf' ? 4 : 2, 2); }
     g.globalAlpha = 1;
-    for (const n of inMap()) if (status(n.id) === 'looking') {
+    for(const m of marks.filter(m=>m.room===kind)){
+      const x=m.x*32+5,y=m.y*32+24;
+      if(m.kind==='water'){
+        g.fillStyle='#79583f';g.fillRect(x-3,y-5,22,10);g.fillStyle=m.value>20?'#577340':'#a19957';
+        for(let i=0;i<3;i++){g.fillRect(x+i*6,y-8,2,7);g.fillRect(x-2+i*6,y-6,6,2);}if(m.value>20){g.fillStyle='#8bbdc0';g.fillRect(x-2,y+2,18,1);}
+      }else if(m.kind==='sweep'){
+        if(m.value<60){g.fillStyle='#b2a16b';for(let i=0;i<5;i++)g.fillRect(x+(i*7)%20,y-(i*3)%7,3,2);}
+        else{g.fillStyle='#e5d5b16b';g.fillRect(x,y,18,1);}
+        if(m.artifact==='ribbon'){g.fillStyle='#85683f';g.fillRect(x+20,y-12,2,15);g.fillStyle='#f2cc68';g.fillRect(x+18,y-9,8,2);g.fillRect(x+21,y-7,2,5);}
+      }else if(m.kind==='deliver'||m.kind==='stock'){
+        for(let i=0;i<Math.min(4,m.value);i++){const xx=x+i*5;g.fillStyle='#705037';g.fillRect(xx,y-6,6,7);g.fillStyle='#c39b64';g.fillRect(xx,y-6,6,5);g.fillStyle='#f0dab0';g.fillRect(xx+2,y-6,1,5);}
+        if(m.artifact==='label'&&m.value){g.fillStyle='#f9efd3';g.fillRect(x+1,y-5,4,3);}
+        if(m.artifact==='marker'){g.fillStyle='#765335';g.fillRect(x+22,y-4,8,3);g.fillStyle='#e2c28a';for(let i=0;i<3;i++)g.fillRect(x+23+i*2,y-4,1,2);}
+      }else if(m.kind==='visit'){if(m.value){g.fillStyle='#eadcb7';g.fillRect(x,y-5,10,7);g.strokeStyle='#ae9c77';g.lineWidth=.6;g.beginPath();g.moveTo(x,y-5);g.lineTo(x+5,y);g.lineTo(x+10,y-5);g.stroke();}}
+      else if(m.count){g.fillStyle='#c6b281';g.fillRect(x,y-4,9,6);g.fillStyle='#65765e';for(let i=0;i<Math.min(3,m.value);i++)g.fillRect(x+1+i*2,y-2,1,3);}
+    }
+    if(kind.startsWith('home:')){
+      const owner=residents.find(n=>n.id===kind.slice(5));
+      const object=owner?.home?.object||'book',x=69,y=95;
+      g.fillStyle='#3b2d2444';g.fillRect(x-1,y+2,13,2);
+      if(object==='can'){g.fillStyle='#476b79';g.fillRect(x+2,y-4,6,6);g.fillRect(x+8,y-3,3,2);g.fillStyle='#c1dddd';g.fillRect(x+3,y-3,4,1);}
+      else if(object==='parcel'){g.fillStyle='#755038';g.fillRect(x,y-4,10,6);g.fillStyle='#b68c59';g.fillRect(x+1,y-4,8,4);g.fillStyle='#efe1b9';g.fillRect(x+2,y-3,4,2);}
+      else if(object==='flowers'||object==='plant'){g.fillStyle='#835e43';g.fillRect(x+3,y-2,5,5);g.fillStyle='#6b884e';g.fillRect(x+5,y-8,1,7);g.fillRect(x+2,y-5,7,2);g.fillStyle=object==='flowers'?'#d5a6bb':'#94a66b';g.fillRect(x+4,y-9,3,3);}
+      else if(object==='cap'){g.fillStyle='#526c7d';g.fillRect(x+1,y-3,8,4);g.fillStyle='#334c59';g.fillRect(x+7,y,5,2);g.fillStyle='#d6bc70';g.fillRect(x+3,y-2,2,1);}
+      else if(object==='tally'){g.fillStyle='#765337';g.fillRect(x,y-2,12,4);g.fillStyle='#dfbd7c';for(let i=0;i<4;i++)g.fillRect(x+2+i*2,y-2,1,3);}
+      else if(object==='shoes'){g.fillStyle='#493a30';g.fillRect(x+1,y-2,4,4);g.fillRect(x+7,y-3,4,4);g.fillStyle='#ae976f';g.fillRect(x+2,y-1,2,1);g.fillRect(x+8,y-2,2,1);}
+      else if(object==='tools'){g.fillStyle='#6d7166';g.fillRect(x,y-2,12,4);g.fillStyle='#b7b6a4';for(let i=0;i<3;i++)g.fillRect(x+2+i*3,y-4,1,6);}
+      else{g.fillStyle=object==='map'?'#b59a6b':'#59664d';g.fillRect(x,y-4,11,7);g.fillStyle='#e8d5aa';g.fillRect(x+1,y-3,9,4);g.fillStyle='#7c7958';g.fillRect(x+4,y-3,1,4);g.fillRect(x+2,y-1,6,1);}
+    }
+    for (const n of residents.filter(n=>n.map===kind)) if (status(n.id) === 'looking') {
       const [x, y] = n.errand.target;
       const px = x*32+16, py = y*32+20;
       g.strokeStyle = '#fff0af88'; g.lineWidth = 1; g.beginPath(); g.ellipse(px, py+3, 7, 3, 0, 0, Math.PI*2); g.stroke();
@@ -200,7 +250,16 @@ export function createWorld(data) {
       g.fillStyle='#fff2c3';g.fillRect(px+6,py-8+Math.sin(t/400)*1.5,2,2);
     }
   }
-  return { active, find, start, status, finish, journal, reset, tick, draw, hold: id => { held = id; }, discoveries, clock: () => clock };
+  function drawResident(g,n,quiet){
+    if(!n.activity)return;const tool=n.carry||n.activity.tool;if(!tool||tool==='none')return;
+    const x=n.dx*32+(n.f==='l'?4:24),y=n.dy*32+17,t=quiet?0:clock;
+    if(tool==='parcel'||tool==='crate'){g.fillStyle='#735033';g.fillRect(x-5,y-6,11,10);g.fillStyle='#bf945b';g.fillRect(x-4,y-5,9,7);g.fillStyle='#eed6a0';g.fillRect(x,y-5,1,7);g.fillRect(x-4,y-2,9,1);}
+    else if(tool==='can'){g.fillStyle='#476b79';g.fillRect(x-3,y-5,8,7);g.fillRect(x+4,y-4,4,2);g.fillStyle='#b7dde0';g.fillRect(x-1,y-4,4,1);if(n.activity.action==='water'&&!quiet){g.fillStyle='#b9e5ea';for(let i=0;i<3;i++)g.fillRect(x+7+i*2,y+((t/130+i*3)%7),1,2);}}
+    else if(tool==='broom'||tool==='rake'){const swing=Math.sin(t/340)*2;g.strokeStyle='#795430';g.lineWidth=1.5;g.beginPath();g.moveTo(x,y-10);g.lineTo(x+3+swing,y+12);g.stroke();g.fillStyle=tool==='broom'?'#c6ae68':'#929d98';g.fillRect(x+swing,y+10,8,3);}
+    else if(tool==='tools'){g.fillStyle='#777b71';g.fillRect(x-4,y-3,10,5);g.fillStyle='#d1ccb5';g.fillRect(x-2,y-5,2,6);g.fillRect(x+2,y-4,2,6);}
+    else{g.fillStyle='#5b684e';g.fillRect(x-5,y-4,10,7);g.fillStyle='#f0e3b7';g.fillRect(x-4,y-3,8,4);g.fillStyle='#85704c';g.fillRect(x,y-3,1,4);}
+  }
+  return { active, all:()=>residents.filter(n=>n.visible!==false),find, start, status,syncStories, finish, journal, reset,sync,tick, draw,drawResident,work:()=>marks, hold: id => { held = id; }, discoveries, clock: () => clock };
 }
 
 if (typeof window !== 'undefined') window.CheckaverseWorld = { createWorld, trainerFrame, paintPaths, paintMeadow };

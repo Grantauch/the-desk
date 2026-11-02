@@ -38,7 +38,7 @@
   function setPaused(v) { paused = Boolean(v); pausedEl.hidden = !paused; if (paused) { held.length = 0; stopWalk(); } if (typeof movesLine === 'function') movesLine(); phrasesEl.querySelectorAll('button').forEach((x) => { x.disabled = paused; }); renameLine(); }
   let town = null, house = null, wilds = null, kettle = null, stones = [], phrases = [], myPlot = 0, signs = {}, rerolls = 0;
   // The outdoor map you are on right now: the town, the wilds or your own Kettle Creek. Houses use the house map.
-  const mapNow = () => (roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
+  const mapNow = () => (roomKind === 'house' ? house : roomKind === 'wilds' ? wilds : roomKind === 'kettle' ? kettle : town);
   let room = 'town', roomKind = 'town', roomOwner = null;
   let plots = []; // live state: {id, owner, name, locked}
   const players = new Map(); // id -> {id,name,x,y,f,c,busy, dx,dy, bubble, bubbleUntil}
@@ -147,7 +147,7 @@
         buildPartners();
         if (!saved) tipSoon('visitor', 2500); else tipSoon('care', 9000);
         room = m.room || 'town'; roomKind = m.kind || 'town'; roomOwner = null;
-        world?.reset(roomKind);
+        world?.reset(roomKind);world?.sync(m.life,true);world?.syncStories(m.stories);
         busLine();
         if (roomKind === 'kettle') tipSoon('kettle', 2000);
         setPlayers(m.players);
@@ -161,7 +161,7 @@
       case 'room':
         closeConversation(); worldJournal.close();
         room = m.room; roomKind = m.kind; roomOwner = m.owner;
-        world?.reset(roomKind);
+        world?.reset(roomKind,roomOwner?.resident);world?.sync(m.life,true);
         if (roomKind === 'kettle') stones = m.stones || [];
         busLine();
         stopWalk();
@@ -169,10 +169,18 @@
         hideAsk();
         countLine(); placeLine(); homeLine();
         snapCamera();
+        if(residentNav)setTimeout(()=>requestResidentPath(),260);
         zoneName = ''; placeLine(); charmLine();
-        if (roomKind === 'house') toast(roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
+        if (roomKind === 'house') toast(roomOwner?.resident?`${roomOwner.name}'s home. ${roomOwner.description}`:roomOwner && roomOwner.owner === me ? 'Welcome home.' : `You stepped into ${roomOwner?.name || 'a trainer'}'s house. Look, but do not touch.`);
         if (roomKind === 'wilds') { toast('You walked out into the wilds.'); tipSoon('wilds', 900); }
         break;
+      case 'residents':world?.sync(m,document.hidden||Boolean(bt));if(worldJournal.open)renderResidentDirectory();break;
+      case 'resident_stories':world?.syncStories(m.stories);break;
+      case 'resident_story_result':if(!m.ok)toast(m.msg);break;
+      case 'resident_path':
+        if(!residentNav||m.id!==residentNav.id)break;
+        if(m.arrived){const nav=residentNav;residentNav=null;if(!nav.home)talkTo(m.id);else releaseResident(m.id);break;}
+        walkTo([m.goal],m.then||'',m.last?`visit:${m.id}`:'');break;
       case 'plots': plots = m.plots; homeLine(); break;
       case 'home': myPlot = m.plot; homeLine(); break;
       case 'join': players.set(m.p.id, fresh(m.p)); countLine(); break;
@@ -327,24 +335,24 @@
     if (!held.includes(d)) held.push(d);
   }
   window.addEventListener('keydown', (e) => {
-    if (conversing()) { if (e.code.startsWith('Arrow') || KEYS[e.code]) e.preventDefault(); return; }
+    if (conversing()) return;
     // The Busy checkbox is an input too, but clicking it must not leave the arrow keys dead until the student clicks the map.
     if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox' || (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) && e.code === 'Space') return;
     if (!askEl.hidden) { if (e.code === 'Escape') { e.preventDefault(); answer(false); } return; }
     if (bt) { battleKey(e); return; }
     if (e.code === 'Escape') { closePops(); closeRanks(); closeCards(); $('busPop').hidden = true; if (tipNow) { clearTimeout(tipTimer); hideTip(); } return; }
     const d = KEYS[e.code];
-    if (d) { e.preventDefault(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
+    if (d) { e.preventDefault(); cancelResidentNav(); stopWalk(); if (!e.repeat) { const s0 = players.get(me); if (s0) s0.bumped = ''; } press(d); return; }
     if (e.code === 'KeyC' && !e.repeat) challenge();
     if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) { e.preventDefault(); lookAhead(true); }
   });
   window.addEventListener('keyup', (e) => { const i = held.indexOf(KEYS[e.code]); if (i >= 0) held.splice(i, 1); });
   window.addEventListener('blur', () => { held.length = 0; });
   // Closing a Chromebook lid mid walk can swallow the keyup, so a hidden tab lets go of every key.
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { held.length = 0; stopWalk(); } });
+  document.addEventListener('visibilitychange', () => { send({t:'resident_visibility',v:!document.hidden});if (document.hidden) { held.length = 0; cancelResidentNav();stopWalk(); } });
   document.querySelectorAll('.pad button').forEach((b) => {
     const d = b.dataset.d;
-    const down = (e) => { e.preventDefault(); stopWalk(); const s0 = players.get(me); if (s0) s0.bumped = ''; press(d); };
+    const down = (e) => { e.preventDefault(); cancelResidentNav();stopWalk(); const s0 = players.get(me); if (s0) s0.bumped = ''; press(d); };
     const up = () => { const i = held.indexOf(d); if (i >= 0) held.splice(i, 1); };
     b.addEventListener('pointerdown', down);
     b.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -480,6 +488,8 @@
   }
 
   function showSign(key) {
+    if(key.startsWith('visit:'))return requestResidentPath();
+    if(key.startsWith('resident-home:')){const h=mapNow()?.residentHomes?.find(h=>h.id===key.slice(14));if(h)return walkTo([h.approach],'u');return;}
     if (key.startsWith('resident:')) return talkTo(key.slice(9));
     if (key === 'notice-board') return askRanks();
     if (key.startsWith('place:')) return openPlace(key.slice(6));
@@ -489,19 +499,34 @@
     if (signs[key]) toast(signs[key]);
   }
   // ---------- residents and small stories ----------
-  let activeResident = '', conversationFocus = null, cueTimer = 0;
+  let activeResident = '', conversationFocus = null, cueTimer = 0,residentNav=null;
+  function releaseResident(id){if(id)send({t:'resident_release',id});}
+  function cancelResidentNav(){if(residentNav)releaseResident(residentNav.id);residentNav=null;}
+  function requestResidentPath(){if(residentNav)send({t:'resident_find',id:residentNav.id,home:residentNav.home});}
+  function visitResident(id,home=false){if(paused||bt)return;closeConversation();worldJournal.close();held.length=0;cancelResidentNav();stopWalk();residentNav={id,home};requestResidentPath();}
   const residentDistance = n => { const p = players.get(me); return p ? Math.abs(n.dx - p.dx) + Math.abs(n.dy - p.dy) : Infinity; };
+  const residentGreeting=n=>n.activity&&['walk','idle','rest','visit'].includes(n.activity.action)?n.activity.speech:n.dialogue.start.text;
   function nearestResident() { return world?.active().filter(n => residentDistance(n) <= 2.2).sort((a,b) => residentDistance(a) - residentDistance(b))[0]; }
-  function closeConversation() { residentDialog.close(); activeResident = ''; world?.hold(''); }
+  function closeConversation() { releaseResident(activeResident);residentDialog.close(); activeResident = ''; world?.hold(''); }
   function conversationNode(n, key) {
     const node = n.dialogue[key];
-    $('residentText').textContent = node.text; $('residentChoices').replaceChildren();
+    $('residentText').textContent = key==='start'?residentGreeting(n):node.text; $('residentChoices').replaceChildren();
+    if(key==='start'&&n.activity){
+      const context=(label,text,home=false)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>{
+        $('residentText').textContent=typeof text==='function'?text():text;$('residentChoices').replaceChildren();
+        const back=document.createElement('button');back.type='button';back.textContent='One more thing.';back.addEventListener('click',()=>{conversationNode(n,'start');$('residentChoices').querySelector('button')?.focus();});$('residentChoices').append(back);
+        if(home){const go=document.createElement('button');go.type='button';go.textContent='Walk to your home';go.addEventListener('click',()=>visitResident(n.id,true));$('residentChoices').append(go);}back.focus();
+      });$('residentChoices').append(b);};
+      context('What are you doing?',()=>`${n.activity.speech}${n.carry?` I am carrying ${n.carry==='parcel'?'the clinic parcel':n.carry==='crate'?'a market crate':'my equipment'}.`:''}`);
+      context('How has your round gone?',()=>`${n.lastCompleted||'I am just getting started.'} I have finished ${n.completed} stops so far.${n.deliveries?` Clinic parcels delivered: ${n.deliveries}.`:''}${n.received?` Clinic parcels received: ${n.received}.`:''}${n.visits?` Chats with neighbors: ${n.visits}.`:''}${n.helped?` Help from travelers: ${n.helped}.`:''}`);
+      context('Tell me about your home.',()=>`My home is on the south lane in ${n.home.map==='kettle'?'Kettle Creek':'the Checkaverse'}. ${n.home.description}`,true);
+    }
     for (const choice of node.choices) {
       if (choice.next === 'errand' && world.status(n.id) === 'done') continue;
       const b = document.createElement('button'); b.type = 'button'; b.textContent = choice.label;
       b.addEventListener('click', () => {
         if (paused || bt) return closeConversation();
-        if (choice.action === 'errand') { world.start(n.id); closeConversation(); toast(`${n.errand.title} added to Around town in the menu.`); }
+        if (choice.action === 'errand') { world.start(n.id);send({t:'resident_story',id:n.id,action:'accept'}); closeConversation(); toast(`${n.errand.title} added to Around town in the menu.`); }
         else if (choice.action === 'journal') { closeConversation(); showJournal(); }
         else if (choice.next) { conversationNode(n, choice.next); $('residentChoices').querySelector('button')?.focus(); }
         else closeConversation();
@@ -515,22 +540,25 @@
     if (residentDistance(n) > 2.5) return toast(`Walk a little closer to ${n.name}, then press Space or tap Talk.`);
     conversationFocus = document.activeElement; held.length = 0; stopWalk(); closePops();
     activeResident = id; world.hold(id);
+    residentNav=null;send({t:'resident_talk',id});
     if (performance.now() >= teacherUntil) { clearTimeout(toastTimer); toastEl.hidden = true; }
     $('residentName').textContent = n.name; $('residentRole').textContent = n.role;
     $('residentPortrait').src = `/art/trainer-${'abcd'[n.look]}.png`;
     conversationNode(n, 'start');
     if (world.finish(id)) {
+      send({t:'resident_story',id,action:'return'});
       $('worldCue').hidden = true; clearTimeout(cueTimer);
       for (let i = world.discoveries.length - 1; i >= 0; i--) if (world.discoveries[i].id === id) world.discoveries.splice(i, 1);
       $('residentText').textContent = n.errand.complete;
       $('residentChoices').replaceChildren();
       const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Glad I could help.'; b.addEventListener('click', closeConversation); $('residentChoices').append(b);
-    } else if (world.status(id) === 'looking') $('residentText').textContent = `${n.dialogue.start.text} ${n.errand.request}`;
-    else if (world.status(id) === 'done') $('residentText').textContent = `Thanks again for helping with ${n.errand.title.toLowerCase()}. ${n.dialogue.start.text}`;
+    } else if (world.status(id) === 'looking') $('residentText').textContent = `${residentGreeting(n)} ${n.errand.request}`;
+    else if (world.status(id) === 'done') $('residentText').textContent = `Thanks again for helping with ${n.errand.title.toLowerCase()}. ${residentGreeting(n)}`;
     if (!residentDialog.open) residentDialog.showModal();
     $('residentChoices').querySelector('button')?.focus();
   }
   residentDialog.addEventListener('close', () => {
+    releaseResident(activeResident);
     activeResident = ''; world?.hold(''); held.length = 0;
     if (conversationFocus?.isConnected && !conversationFocus.hidden) conversationFocus.focus({preventScroll:true});
   });
@@ -547,7 +575,21 @@
       item.append(title, line); $('journalEntries').append(item);
     }
     if (!entries.length) { const p = document.createElement('p'); p.textContent = 'Talk to residents with the little speech bubble above their heads. Some have a small story you can help with.'; $('journalEntries').append(p); }
+    renderResidentDirectory();
     worldJournal.showModal(); $('journalClose').focus();
+  }
+  function renderResidentDirectory(){
+    const list=$('residentDirectory');
+    const ids=new Set((world?.all()||[]).map(n=>n.id));for(const row of [...list.children])if(!ids.has(row.dataset.resident))row.remove();
+    for(const n of world?.all()||[]){
+      if(!n.activity)continue;let row=[...list.children].find(el=>el.dataset.resident===n.id);
+      if(!row){row=document.createElement('article');row.dataset.resident=n.id;const title=document.createElement('h4'),line=document.createElement('p'),memory=document.createElement('p'),actions=document.createElement('div');
+        title.textContent=`${n.name} · ${n.role}`;line.className='resident-where';memory.className='resident-memory';
+        for(const [text,home]of[['Find and talk',false],['Visit home',true]]){const b=document.createElement('button');b.type='button';b.textContent=text;b.addEventListener('click',()=>visitResident(n.id,home));actions.append(b);}row.append(title,line,memory,actions);list.append(row);
+      }
+      const place=n.room.startsWith('home:')?`${(world.all().find(p=>p.id===n.room.slice(5))||n).name}'s home`:n.room==='kettle'?'Kettle Creek':n.room==='wilds'?'The wilds':'Town';
+      row.querySelector('.resident-where').textContent=`${place} · ${n.activity.label}`;row.querySelector('.resident-memory').textContent=n.lastCompleted||'Starting a new round.';
+    }
   }
   $('journalBtn').addEventListener('click', showJournal);
   $('journalClose').addEventListener('click', () => worldJournal.close());
@@ -578,9 +620,9 @@
     const b = $('busBtn');
     b.hidden = !saved || !kettle;
     $('busLink').hidden = Boolean(saved && kettle);
-    b.textContent = roomKind === 'kettle' ? 'Ride the bus to the Checkaverse' : 'Ride the bus home to Kettle Creek';
+    b.textContent = roomKind === 'kettle'||roomOwner?.map==='kettle' ? 'Ride the bus to the Checkaverse' : 'Ride the bus home to Kettle Creek';
   }
-  $('busBtn').addEventListener('click', () => askBus(roomKind === 'kettle' ? 'town' : 'kettle'));
+  $('busBtn').addEventListener('click', () => askBus(roomKind === 'kettle'||roomOwner?.map==='kettle' ? 'town' : 'kettle'));
   // ---------- weekly rankings ----------
   // The notice board (or the menu) asks the town for this week's battle ranking in your class hour.
   const ranksPop = $('ranksPop');
@@ -630,11 +672,12 @@
   // Space or Enter reads whatever is straight ahead.
   function lookAhead(fromKey) {
     const self = players.get(me);
-    if (!self || roomKind === 'house') return false;
+    if (!self) return false;
     if (paused || bt || conversing()) return false;
     const [ax, ay] = STEP[self.f] || STEP.d;
     const resident = world?.active().find(n => Math.abs(n.dx - self.dx) + Math.abs(n.dy - self.dy) <= 2 && (n.x === self.x + ax && n.y === self.y + ay));
     if (resident) { talkTo(resident.id); return true; }
+    if(roomKind==='house'){const near=nearestResident();if(near){talkTo(near.id);return true;}return false;}
     if (roomKind === 'kettle') {
       const door = (kettle.doors || []).find((d) => d.x === self.x && d.y === self.y);
       if (door && self.f === 'u') { showSign(`place:${door.place}`); return true; }
@@ -650,6 +693,7 @@
   }
   canvas.addEventListener('click', (e) => {
     if (paused || bt || conversing()) return;
+    cancelResidentNav();
     const r = canvas.getBoundingClientRect();
     const wx = (((e.clientX - r.left) / r.width) * VIEW_W) / zoom() + cam.x;
     const wy = (((e.clientY - r.top) / r.height) * VIEW_H) / zoom() + cam.y;
@@ -657,8 +701,7 @@
     const resident = world?.active().find(n => Math.abs(n.dx - tx) < .85 && (Math.abs(n.dy - ty) < .85 || Math.abs(n.dy - ty - 1) < .85));
     if (resident) {
       if (residentDistance(resident) <= 2.2) return talkTo(resident.id);
-      walkTo(around(resident.x, resident.y, 1, 1).map(([x,y]) => [x,y]), '', `resident:${resident.id}`);
-      world.hold(resident.id); return;
+      return visitResident(resident.id);
     }
     // Trainers stand a tile and a half tall, so a tap on the head counts too.
     for (const p of players.values()) {
@@ -673,6 +716,8 @@
       if (tx === ex.x && ty === ex.y) return walkTo([[ex.x, ex.y - 1]], 'd');
       return walkTo([[tx, ty]]);
     }
+    const residentHome=mapNow()?.props?.find(p=>p.residentHome&&tx>=p.x&&tx<p.x+p.w&&ty>=p.b-5&&ty<p.b);
+    if(residentHome){const h=mapNow().residentHomes.find(h=>h.id===residentHome.residentHome);return walkTo([h.approach],'u');}
     for (const geo of roomKind === 'town' ? town.plots : []) {
       const st = live(geo.id);
       if (st.owner && tx >= geo.x && tx < geo.x + geo.w && ty >= geo.y - 1 && ty < geo.y + geo.h - 1) {
@@ -963,7 +1008,7 @@
     const look = TRAINERS[(p.look ?? p.id) % TRAINERS.length];
     if (has(look)) {
       // Left foot, stand, right foot, stand: one foot forward per tile, like Red and Blue.
-      const cell = trainerFrame(p.f, p.stride, moving);
+      const cell = trainerFrame(p.f, p.stride, moving && !(p.npc&&reduceMotion));
       ctx.save();
       if (cell.flip) { ctx.translate(px + 32, 0); ctx.scale(-1, 1); } else ctx.translate(px, 0);
       ctx.drawImage(ART[look], cell.col * 64, cell.row * 96, 64, 96, 0, py + TILE - 48, 32, 48);
@@ -972,6 +1017,7 @@
       ctx.fillStyle = p.c; ctx.fillRect(px + 8, py + 10, 16, 16);
       ctx.fillStyle = '#f2c9a0'; ctx.fillRect(px + 10, py + 2, 12, 10);
     }
+    if(p.npc)world?.drawResident(ctx,p,reduceMotion);
     // Standing in tall grass hides your feet, the Red and Blue way.
     if ((roomKind === 'wilds' || roomKind === 'kettle') && has('tile-tall-grass') && rows()[Math.round(p.dy)]?.[Math.round(p.dx)] === 'G') {
       ctx.drawImage(ART['tile-tall-grass'], 0, 30, 64, 34, px, py + 15, 32, 17);
@@ -1035,7 +1081,7 @@
     const dt = Math.min(100, now - (lastFrame || now));
     lastFrame = now;
     selfTick(now);
-    world?.tick(dt, mapNow(), players.get(me), reduceMotion, (x,y) => !open(x,y) || [...players.values()].some(p => p.x === x && p.y === y) || world.active().some(n => n.x === x && n.y === y), paused || Boolean(bt) || conversing() || document.hidden || !askEl.hidden);
+    world?.tick(dt, mapNow(), players.get(me), reduceMotion, (x,y) => !open(x,y) || [...players.values()].some(p => p.x === x && p.y === y) || world.active().some(n => n.x === x && n.y === y), paused || Boolean(bt) || document.hidden);
     for (const p of players.values()) if (p.id !== me) remoteTick(p, dt);
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     ctx.imageSmoothingEnabled = false;
@@ -1061,7 +1107,7 @@
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
       const things = [];
       if (roomKind !== 'house') townThings(x0, y0, x1, y1, things);
-      if (roomKind !== 'house') {
+      {
         world?.draw(ctx, mapNow(), [x0,y0,x1,y1], reduceMotion);
         for (const n of world?.active() || []) {
           if (n.dx < x0 - 1 || n.dx > x1 + 1 || n.dy < y0 - 1 || n.dy > y1 + 2) continue;
@@ -1069,7 +1115,7 @@
             const phase = Math.floor(world.clock() / 6500) + n.look * 3;
             const nearby = residentDistance(n) < 5;
             const chatting = !reduceMotion && !paused && !bt && !conversing() && nearby && Math.floor(world.clock() / 1000) % 13 < 3;
-            trainer({...n, bubble: chatting ? n.chatter[phase % n.chatter.length] : '', bubbleUntil: now + 1}, now);
+            trainer({...n, bubble: chatting ? (n.activity?(n.activity.action==='walk'?'On my way.':n.activity.label.slice(0,36)):n.chatter[phase % n.chatter.length]) : '', bubbleUntil: now + 1}, now);
           }});
         }
       }
@@ -1721,7 +1767,7 @@
   });
 
   // ?debug lets the movement test read where trainers are drawn. It changes nothing.
-  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), talk: talkTo };
+  if (/[?&]debug\b/.test(location.search)) window.__checkaverse = { players, me: () => me, battle: () => bt, room: () => room, walk: (x, y) => walkTo([[x, y]]), world: () => world, camera: () => ({...cam, width:VIEW_W,height:VIEW_H}), talk: talkTo,visit:visitResident,navigating:()=>residentNav };
   connect();
   requestAnimationFrame(frame);
 })();

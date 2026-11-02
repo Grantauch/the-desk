@@ -1,18 +1,43 @@
 {
-  "checkaverse-living-world-2026-11-02": {
+  "checkaverse-resident-lives-2026-11-02": {
     "status": "IMPLEMENTED_LOCAL_TESTED",
     "owner": "Codex",
-    "scope": "Core loop step 4, existing phase 3 exploration: consistent walking direction, connected dirt paths, meadow detail, 12 residents, branching conversations, three visit-local stories and bounded environmental effects.",
-    "verification_status": "CONTENT_SERVER_THREE_STORY_BROWSER_ACCESSIBILITY_AND_16_PATH_MASKS_PASSED_CANONICAL_RUNNING",
+    "scope": "User-authorized core loop step 4: all 12 NPCs have visitable homes, actual work/travel/rest/social actions, shared server state, persistent private Kettle histories and dialogue grounded in those activities.",
+    "verification_status": "ALL_LOCAL_CANONICAL_ENGINE_SERVER_RESTART_BOTH_BROWSER_ACCESSIBILITY_PASSED",
     "deployment_status": "PENDING_PROTECTED_CHECK_MERGE_AND_CHECKAVERSE_PUBLIC_READBACK",
+    "field_status": "SCHOOL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Tiled JSON south-lane extensions add 12 named cottages and interiors, preserve original map rows/buildings/doors/graves/forage locations and all 24 player plots, and reject attempts to overwrite the existing map.",
+      "Pax collects, carries and delivers clinic parcels; Nell receives them. Every delivery is conserved as received or waiting. Watering, sweeping, stock displays, inspections, observations, notes and social memories change real resident state. Work effects occur after the activity completes.",
+      "Two real WebSocket clients agree on shared positions/tasks/results. Private resident histories and interaction holds are isolated. Teacher pause freezes the clocks. Jobs/memories survive a real process restart and saved-account reconnect. Actual walking enters/exits named homes, and remote-entry messages cannot teleport.",
+      "Browser journeys enter Pax’s home, wait for his return, check dialogue against his completed delivery, follow current whereabouts through homes and the wilds gate, verify carried parcels and Nell’s receipts, and compare quiet/ordinary clients. Dialog WCAG A/AA and phone fit pass. Final frozen-source diagnostics, full server suite and both browser suites passed.",
+      "The canonical local verify command completed successfully: zero diagnostic errors/warnings, 54 built routes, 162 HTML files, 5423 local references and 30 releases/231 assets. Core school services, attendance, pet schemas/care/growth, battle rewards and merchant inventory remain unchanged. New data uses resident-only meta namespaces and anonymous scope keys."
+    ]
+  },
+  "checkaverse-living-world-2026-11-02": {
+    "status": "LIVE_VERIFIED",
+    "owner": "Codex",
+    "scope": "Core loop step 4, existing phase 3 exploration: consistent walking direction, connected dirt paths, meadow detail, 12 residents, branching conversations, three visit-local stories and bounded environmental effects.",
+    "verification_status": "ALL_LOCAL_STAGES_AFTER_WINDOWS_IMPORT_FIX_AND_PROTECTED_FULL_AND_BROWSER_PASSED",
+    "deployment_status": "CHECKAVERSE_0_14_0_PUBLIC_HEALTH_HASHES_AND_VISITOR_PLAYTHROUGH_VERIFIED",
     "field_status": "SCHOOL_CHROMEBOOK_AND_CLASSROOM_PENDING",
     "evidence": [
       "Source sheets contain an opposite-facing third frame in each left walk row; the renderer corrects that cell and mirrors the consistent gait for right. Original art is preserved.",
       "All 12 routes, dialogue links and three story targets validate and are reachable. Unsafe content is rejected at server startup.",
       "World clock and ambient movement stop for teacher pause, hidden tabs, battles and modal conversations. System reduced motion and a scenery switch retain static residents and usable story targets.",
       "Chromium playthrough at 1366x768, 390x844 and 320x740 covers walking, sprite approach, dialogue choices, focus, Escape, story return, journal, teacher pause, quiet scenery and town/wilds travel. All three complete stories, all 16 path connection masks and new dialog WCAG A/AA audits pass at all three sizes with no browser errors.",
-      "No map generator, map geometry, creature artwork, species, database schema, school service, care rule, item balance or battle reward changes. Stories remain local to the visit."
-    ]
+      "No map generator, map geometry, creature artwork, species, database schema, school service, care rule, item balance or battle reward changes. Stories remain local to the visit.",
+      "Protected run 41395928338 passed the full site gate, new Checkaverse server/browser suite and all existing browser suites. The merged tree equals the tested head. Public 0.14.0 health, exact versioned JS/CSS hashes and a visitor walking/Orin conversation passed with no browser errors.",
+      "The first local canonical run found an existing Windows drive-path ESM import in the ticket test. The pathToFileURL fix passes all 70 Checkling/ticket checks; all remaining canonical stages then passed, with zero diagnostic errors/warnings, 54 built routes and 162 HTML / 5423 local references. No earlier failed run is called a pass."
+    ],
+    "release": {
+      "pull_request": 298,
+      "tested_head": "8d45ca692691313eeb11cf35fd078e9805f41c15",
+      "protected_run": 41395928338,
+      "merge": "3a3d0114a9655e485ea588df30fef1875fd86449",
+      "public_origin": "https://game.grant-desk.com",
+      "verified_at": "2026-11-02T06:22:53.118Z"
+    }
   },
   "heel-personal-report-2026-10-30": {
     "status": "IMPLEMENTED_BROWSER_VERIFIED",

@@ -61,6 +61,7 @@ try {
   await walk(page,8,9);assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('rowan')),'found');
   await walk(page,11,10);await clickResident(page,'rowan');
   assert.match(await page.locator('#residentText').textContent(),/There it is/);
+  await page.waitForFunction(()=>window.__checkaverse.world().all().find(n=>n.id==='rowan').helped===1);
   await page.keyboard.press('Escape');assert.equal(await page.locator('#residentDialog').evaluate(e=>e.open),false);
   await page.locator('#menuBtn').click();await page.locator('#journalBtn').click();
   assert.match(await page.locator('#journalEntries').textContent(),/Complete/);
@@ -72,8 +73,8 @@ try {
   assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('pax')),'done');
   await page.screenshot({path:path.join(out,'kettle-desktop.png')});
   // Watch routines actually advance, then freeze the server's world with its teacher API.
-  const first=await page.evaluate(()=>window.__checkaverse.world().active().map(n=>[n.dx,n.dy]));await delay(1600);
-  assert.notDeepEqual(await page.evaluate(()=>window.__checkaverse.world().active().map(n=>[n.dx,n.dy])),first);
+  const first=await page.evaluate(()=>window.__checkaverse.world().all().map(n=>[n.id,n.completed,n.activity.progress]));await delay(1600);
+  assert.notDeepEqual(await page.evaluate(()=>window.__checkaverse.world().all().map(n=>[n.id,n.completed,n.activity.progress])),first);
   const key=fs.readFileSync(path.join(data,'teacher-key.txt'),'utf8').trim();
   const pause=async v=>{const r=await fetch(`${origin}/api/teacher/pause`,{method:'POST',headers:{'Content-Type':'application/json','x-teacher-key':key},body:JSON.stringify({v})});assert.equal(r.status,200);};
   await pause(true);await page.locator('#paused').waitFor({state:'visible'});
@@ -82,8 +83,9 @@ try {
   await pause(false);await page.locator('#paused').waitFor({state:'hidden'});
   console.log('  ok Chromebook: real walking and sprite tap, branching dialogue, keyboard focus, complete story and journal');
   await page.locator('#menuBtn').click();await page.locator('#motionBtn').click();await page.keyboard.press('Escape');
-  await delay(100);const quietFirst=await page.evaluate(()=>window.__checkaverse.world().active().map(n=>[n.dx,n.dy]));await delay(700);
-  assert.deepEqual(await page.evaluate(()=>window.__checkaverse.world().active().map(n=>[n.dx,n.dy])),quietFirst);
+  await delay(100);assert.equal(await page.locator('#motionBtn').getAttribute('aria-pressed'),'true');
+  const quietFirst=await page.evaluate(()=>window.__checkaverse.world().all().map(n=>[n.completed,n.activity.progress]));await delay(1100);
+  assert.notDeepEqual(await page.evaluate(()=>window.__checkaverse.world().all().map(n=>[n.completed,n.activity.progress])),quietFirst,'quiet rendering does not stop the shared resident simulation');
   await context.close();
   for(const [width,height] of [[390,844],[320,740]]){
     const mobile=await pageFor({width,height},`phone${width}`,true,true,true);

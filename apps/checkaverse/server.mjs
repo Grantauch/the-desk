@@ -16,9 +16,10 @@ import * as Battle from './battle.mjs';
 import * as Accounts from './accounts.mjs';
 import * as Care from './care.mjs';
 import { validateWorld } from './public/world.js';
+import { augmentResidentMap, combineResidentLayouts, validateLives, createResidentSimulation } from './resident-lives.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const VERSION = '0.14.0';
+const VERSION = '0.15.0';
 const PORT = Number(process.env.CHECKAVERSE_PORT || 8787);
 const HOST = process.env.CHECKAVERSE_HOST || '127.0.0.1';
 const DATA_DIR = process.env.CHECKAVERSE_DATA || path.resolve(HERE, '..', 'storage');
@@ -30,21 +31,25 @@ const ALLOWED_ORIGINS = new Set(
 );
 
 const readContent = (name) => JSON.parse(fs.readFileSync(path.join(HERE, 'content', name), 'utf8'));
-const TOWN = readContent('town.json');
+const RESIDENT_LAYOUT = combineResidentLayouts([readContent('resident-homes.tmj'),readContent('resident-homes-kettle.tmj')]);
+const TOWN = augmentResidentMap(readContent('town.json'), RESIDENT_LAYOUT, 'town');
 const HOUSE = readContent('house.json');
 const WILDS = readContent('wilds.json');
 const WILD = readContent('wild.json');
 // Kettle Creek: each saved trainer's own home town (content/kettle.json, drawn by tools/gen-town.mjs). Every trainer
 // gets a private copy of it, room 'kc:<player id>'. Until the map file exists, trainers arrive in the Checkaverse as before.
 const KETTLE_FILE = process.env.CHECKAVERSE_KETTLE || path.join(HERE, 'content', 'kettle.json');
-const KETTLE = fs.existsSync(KETTLE_FILE) ? JSON.parse(fs.readFileSync(KETTLE_FILE, 'utf8')) : null;
+const KETTLE = fs.existsSync(KETTLE_FILE) ? augmentResidentMap(JSON.parse(fs.readFileSync(KETTLE_FILE, 'utf8')), RESIDENT_LAYOUT, 'kettle') : null;
 const PLACES = ['home', 'store', 'apothecary', 'clinic', 'daycare'];
 const PLACE_LINES = readContent('places.json');
 const worldMaps = { town: TOWN, wilds: WILDS };
 const authoredKettle = path.join(HERE, 'content', 'kettle.json');
-if (fs.existsSync(authoredKettle)) worldMaps.kettle = readContent('kettle.json');
+if (fs.existsSync(authoredKettle)) worldMaps.kettle = augmentResidentMap(readContent('kettle.json'), RESIDENT_LAYOUT, 'kettle');
 const worldContent = readContent('world.json');
 const WORLD = validateWorld({ ...worldContent, residents: worldContent.residents.filter(n => n.map !== 'kettle' || worldMaps.kettle) }, worldMaps);
+const residentPlans = readContent('resident-lives.json');
+const LIVES = {...residentPlans,residents:residentPlans.residents.filter(n=>WORLD.residents.some(r=>r.id===n.id))};
+const LIFE_PLANNER = validateLives(LIVES, WORLD, worldMaps, HOUSE);
 for (const k of PLACES) if (!PLACE_LINES[k]) throw new Error(`places.json: missing ${k}`);
 const PHRASES = readContent('phrases.json').starter;
 const NAMES = readContent('names.json');
@@ -173,6 +178,75 @@ const plots = TOWN.plots.map((p) => ({ ...p, owner: 0, locked: false }));
 const players = new Map(); // id -> player
 let nextId = 1;
 
+// Shared residents live on the server. Private home-town copies use anonymous
+// account keys internally; keys and other students' resident state never leave it.
+const residentRoom = room => /^nr:(pub|private):([a-z][a-z0-9-]*)$/.exec(room) || /^nr:(private)-(\d+):([a-z][a-z0-9-]*)$/.exec(room);
+const residentIdIn = room => residentRoom(room)?.at(-1) || '';
+const privateResidence = room => /^nr:private-\d+:/.test(room);
+const residentScene = p => residentIdIn(p.room) ? `home:${residentIdIn(p.room)}` : isKettle(p.room) ? 'kettle' : p.room;
+const lifeKey = p => p.pid && (isKettle(p.room) || privateResidence(p.room)) ? `private:${p.pid}` : 'shared';
+const residentWorlds = new Map();
+const residentDoorsteps = new Set([...LIFE_PLANNER.homes.values()].map(h=>`${h.map}:${h.approach[0]},${h.approach[1]}`));
+let residentClock = Number(getMeta.get('resident-life-clock-v1')?.value) || 0;
+let residentWall = Date.now(), residentRemainder = 0, residentSendAt = 0;
+const residentRate = Math.max(.1,Math.min(60,Number(process.env.CHECKAVERSE_LIFE_RATE)||1));
+function lifeFor(p) {
+  const id=lifeKey(p),privateTown=id!=='shared';
+  if(privateTown&&!KETTLE?.residentHomes?.length)return null;
+  let entry=residentWorlds.get(id);
+  if(!entry){
+    let saved=null;try{saved=JSON.parse(getMeta.get(`resident-life-v1:${id}`)?.value||'null');}catch{/* discard only an invalid resident checkpoint */}
+    const sim=createResidentSimulation(LIVES,WORLD,LIFE_PLANNER,{privateTown,saved:saved?.state});
+    if(saved?.logical<=residentClock&&!paused)sim.tick(Math.min(LIVES.catchupSeconds*1000,residentClock-saved.logical));
+    entry={sim,logical:residentClock,lastSeen:Date.now()};residentWorlds.set(id,entry);
+  }
+  entry.lastSeen=Date.now();return entry;
+}
+function residentSnapshot(p){
+  const e=lifeFor(p);if(!e)return null;
+  return{residents:e.sim.view(),marks:[...e.sim.marks.values()],clock:e.sim.clock(),stepMs:LIVES.stepMs/residentRate};
+}
+function saveResidentWorlds(){
+  setMeta.run('resident-life-clock-v1',String(residentClock));
+  for(const [id,e]of residentWorlds){setMeta.run(`resident-life-v1:${id}`,JSON.stringify({logical:e.logical,state:e.sim.serialize()}));if(id!=='shared'&&Date.now()-e.lastSeen>60000)residentWorlds.delete(id);}
+}
+function releaseResidents(p,id){for(const e of residentWorlds.values())e.sim.release(p.id,id);}
+function residentStories(p){return p.residentStories||{};}
+function sendResidentStories(p){if(p.pid)setMeta.run(`resident-stories-v1:${p.pid}`,JSON.stringify(residentStories(p)));send(p,{t:'resident_stories',stories:residentStories(p)});}
+function checkResidentFinds(p){let changed=false;for(const n of WORLD.residents)if(p.residentStories?.[n.id]==='looking'&&residentScene(p)===n.map&&Math.hypot(p.x-n.errand.target[0],p.y-n.errand.target[1])<=1.3){p.residentStories[n.id]='found';changed=true;}if(changed)sendResidentStories(p);}
+function residentOwner(p,id){
+  const n=WORLD.residents.find(n=>n.id===id),d=LIVES.residents.find(n=>n.id===id);
+  return{resident:id,name:n.name,description:d.homeDescription,map:d.homeMap,home:true};
+}
+function residentDoorRoom(p,id){return lifeKey(p)==='shared'?`nr:pub:${id}`:`nr:private-${p.id}:${id}`;}
+function findResident(p,id,home=false){
+  const e=lifeFor(p),n=e?.sim.byId.get(id);if(!n)return;
+  if(roomKind(p.room)==='house'&&!residentIdIn(p.room))return send(p,{t:'resident_path',id,home,goal:[HOUSE.exit.x,HOUSE.exit.y-1],then:'d'});
+  const from={room:residentScene(p),x:p.x,y:p.y};
+  if(!home){e.sim.reserve(id,p.id);if(from.room===n.room&&Math.abs(from.x-n.x)+Math.abs(from.y-n.y)<=2)return send(p,{t:'resident_path',id,arrived:true});}
+  const target=home?{room:`home:${id}`,x:HOUSE.enter[0],y:HOUSE.enter[1]}:null;
+  const goals=target?[target]:[[0,1],[1,0],[0,-1],[-1,0]].map(([ax,ay])=>({room:n.room,x:n.x+ax,y:n.y+ay})).filter(g=>LIFE_PLANNER.open(g.room,g.x,g.y));
+  const routes=goals.map(g=>({g,path:LIFE_PLANNER.route(from,g)})).filter(r=>r.path).sort((a,b)=>a.path.length-b.path.length);
+  if(!routes.length)return send(p,{t:'notice',msg:'That walking route is unavailable right now.'});
+  const path=routes[0].path,cross=path.findIndex(node=>node.room!==from.room);
+  if(cross>=0){const before=cross?path[cross-1]:from,after=path[cross];return send(p,{t:'resident_path',id,home,goal:[before.x,before.y],then:from.room.startsWith('home:')?'d':after.room.startsWith('home:')?'u':''});}
+  if(!path.length)return send(p,{t:'resident_path',id,home,arrived:true});
+  const g=routes[0].g;send(p,{t:'resident_path',id,home,goal:[g.x,g.y],then:'',last:true});
+}
+setInterval(()=>{
+  const now=Date.now(),dt=Math.min(2000,Math.max(0,now-residentWall));residentWall=now;
+  if(!paused){residentRemainder+=dt*residentRate;const steps=Math.floor(residentRemainder/LIVES.stepMs)*LIVES.stepMs;residentRemainder-=steps;residentClock+=steps;
+    const active=new Map([['shared',lifeFor({pid:'',room:'town'})]]);
+    for(const p of players.values()){const e=lifeFor(p);if(e)active.set(lifeKey(p),e);}
+    const occupied=new Set([...players.values()].map(p=>`${lifeKey(p)}|${residentScene(p)}|${p.x},${p.y}`));
+    for(const [id,e]of active){if(!e)continue;const elapsed=Math.min(LIVES.catchupSeconds*1000,Math.max(0,residentClock-e.logical));
+      e.sim.tick(elapsed,{blocked:node=>!node.portal&&!residentDoorsteps.has(`${node.room}:${node.x},${node.y}`)&&!(node.room.startsWith('home:')&&node.x===HOUSE.enter[0]&&node.y===HOUSE.enter[1])&&occupied.has(`${id}|${node.room}|${node.x},${node.y}`)});e.logical=residentClock;
+    }
+  }
+  if(now-residentSendAt>=500){residentSendAt=now;for(const p of players.values())if(p.lifeVisible!==false)send(p,{t:'residents',...residentSnapshot(p)});}
+},200).unref();
+setInterval(saveResidentWorlds,10000).unref();
+
 const tileAt = (rows, x, y) => (y >= 0 && y < rows.length && x >= 0 && x < rows[y].length ? rows[y][x] : null);
 const inHouse = (plot, x, y) => x >= plot.x && x < plot.x + plot.w && y >= plot.y && y < plot.y + plot.h - 1;
 const plotDoorAt = (x, y) => plots.find((pl) => pl.owner && pl.door.x === x && pl.door.y === y);
@@ -251,11 +325,12 @@ function changeRoom(p, room, x, y, facing) {
   stopWatching(p);
   toRoom(p.room, { t: 'leave', id: p.id }, p.id);
   if (isKettle(p.room) && p.room !== room) kcStones.delete(p.room);
-  p.room = room; p.x = x; p.y = y; p.facing = facing;
+  const oldLife=lifeKey(p);p.room = room; p.x = x; p.y = y; p.facing = facing;if(lifeKey(p)!==oldLife)releaseResidents(p);
   const plot = plotOfRoom(room);
   send(p, {
     t: 'room', room, kind: roomKind(room),
-    owner: plot ? plotView(plot) : null,
+    owner: residentIdIn(room) ? residentOwner(p,residentIdIn(room)) : plot ? plotView(plot) : null,
+    life: residentSnapshot(p),
     players: inRoom(room).map(publicView),
     ...(isKettle(room) ? { stones: kettleStones(p) } : {}),
   });
@@ -274,7 +349,7 @@ function kettleStones(p) {
 // The bus between Kettle Creek and the Checkaverse. Saved trainers only: visitors have no home town.
 function rideBus(p, to) {
   if (!p.pid || !KETTLE || p.battle) return;
-  if (to === 'town' && isKettle(p.room)) {
+  if (to === 'town' && (isKettle(p.room)||privateResidence(p.room))) {
     const spot = arrivalPoint();
     changeRoom(p, 'town', spot.x, spot.y, 'd');
     if (!plots.some((pl) => pl.owner === p.id)) { const plot = giveHouse(p); sendPlots(); send(p, { t: 'home', myPlot: plot ? plot.id : 0 }); }
@@ -898,13 +973,14 @@ function join(ws, ticket) {
   if (home) { p.room = `kc:${p.id}`; [p.x, p.y] = KETTLE.arrive[0]; p.facing = 'd'; }
   const plot = home ? null : giveHouse(p);
   log('join', p.id, p.name, p.pid ? `saved ${p.pid.slice(0, 6)} ${p.hour}` : 'visitor', plot ? `plot ${plot.id}` : 'no free plot', `(${players.size} here)`);
+  p.residentStories={};if(p.pid){let old;try{old=JSON.parse(getMeta.get(`resident-stories-v1:${p.pid}`)?.value||'{}');}catch{old={};}for(const n of WORLD.residents)if(n.errand&&['looking','found','done'].includes(old[n.id]))p.residentStories[n.id]=old[n.id];}
 
   send(p, {
-    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls, world: WORLD,
-    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [] }, house: HOUSE,
+    t: 'welcome', you: p.id, version: VERSION, paused, phrases: PHRASES, signs: SIGNS, rerolls: p.rerolls, world: {...WORLD,authoritative:true}, life:residentSnapshot(p),stories:residentStories(p),
+    town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [], residentHomes:TOWN.residentHomes,baseHeight:TOWN.baseHeight }, house: HOUSE,
     wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
     charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,
-    ...(KETTLE ? { kettle: { rows: KETTLE.rows, props: KETTLE.props || [], doors: KETTLE.doors || [], exits: KETTLE.exits || [], places: PLACE_LINES } } : {}),
+    ...(KETTLE ? { kettle: { rows: KETTLE.rows, props: KETTLE.props || [], doors: KETTLE.doors || [], exits: KETTLE.exits || [], places: PLACE_LINES,residentHomes:KETTLE.residentHomes,baseHeight:KETTLE.baseHeight } } : {}),
     room: p.room, kind: roomKind(p.room), myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p), egg: eggOf(p),
     ...(home ? { stones: kettleStones(p) } : {}),
     players: inRoom(p.room).map(publicView),
@@ -924,6 +1000,7 @@ function join(ws, ticket) {
 
 function leave(p) {
   if (!players.has(p.id)) return;
+  releaseResidents(p);saveResidentWorlds();
   if (p.battle) forfeitBattle(p, 'left');
   stopWatching(p);
   players.delete(p.id);
@@ -943,6 +1020,9 @@ function handleMove(p, d) {
   const ny = p.y + dir[1];
   const exit = mapOf(p.room)?.exits?.find((e) => e.x === nx && e.y === ny);
   if (exit) return changeRoom(p, exit.to, exit.at[0], exit.at[1], exit.f);
+  const residentHome=mapOf(p.room)?.residentHomes?.find(h=>h.door.x===nx&&h.door.y===ny);
+  if(residentHome&&d==='u')return changeRoom(p,residentDoorRoom(p,residentHome.id),HOUSE.enter[0],HOUSE.enter[1],'u');
+  if(residentIdIn(p.room)&&nx===HOUSE.exit.x&&ny===HOUSE.exit.y){const h=LIFE_PLANNER.homes.get(residentIdIn(p.room));return changeRoom(p,h.map==='kettle'?`kc:${p.id}`:h.map,h.approach[0],h.approach[1],'d');}
   if (p.room === 'town') {
     const door = plotDoorAt(nx, ny);
     if (door && d === 'u') {
@@ -957,7 +1037,7 @@ function handleMove(p, d) {
     return changeRoom(p, 'town', plot.door.x, plot.door.y + 1, 'd');
   }
   const stepped = walkable(p.room, nx, ny);
-  if (stepped) { p.x = nx; p.y = ny; p.stats.moves++; }
+  if (stepped) { p.x = nx; p.y = ny; p.stats.moves++;checkResidentFinds(p); }
   // Facing changes even when the step is blocked, so everyone sees the turn.
   toRoom(p.room, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
   // A step into terrain in the wilds can rouse a wild Checkling. Right after a battle there are a few free steps.
@@ -972,13 +1052,24 @@ function handleMove(p, d) {
   }
 }
 
-const PAUSED_OK = new Set(['busy', 'lock', 'answer']);
+const PAUSED_OK = new Set(['busy', 'lock', 'answer','resident_visibility']);
 function handleMessage(p, msg, now) {
   if (paused && !PAUSED_OK.has(msg.t)) {
     if (msg.t === 'move') send(p, { t: 'pos', id: p.id, x: p.x, y: p.y, f: p.facing });
     return;
   }
   switch (msg.t) {
+    case 'resident_story':{
+      const e=lifeFor(p),n=e?.sim.byId.get(msg.id),auth=WORLD.residents.find(r=>r.id===msg.id),near=n&&residentScene(p)===n.room&&Math.abs(p.x-n.x)+Math.abs(p.y-n.y)<=4;
+      if(!auth?.errand||!near)return send(p,{t:'resident_story_result',id:msg.id,ok:false,msg:'Come a little closer and ask again.'});
+      if(msg.action==='accept'){if(!p.residentStories[msg.id])p.residentStories[msg.id]='looking';sendResidentStories(p);return;}
+      if(msg.action==='return'&&p.residentStories[msg.id]==='found'){e.sim.help(msg.id);p.residentStories[msg.id]='done';sendResidentStories(p);send(p,{t:'residents',...residentSnapshot(p)});return send(p,{t:'resident_story_result',id:msg.id,ok:true});}
+      sendResidentStories(p);return send(p,{t:'resident_story_result',id:msg.id,ok:false,msg:'Check the clue in Around town, then bring the find back.'});
+    }
+    case 'resident_find':if(typeof msg.id==='string'&&now-(p.lastResidentFind||0)>200){p.lastResidentFind=now;findResident(p,msg.id,Boolean(msg.home));}return;
+    case 'resident_talk':{const e=lifeFor(p),n=e?.sim.byId.get(msg.id);if(n&&residentScene(p)===n.room&&Math.abs(p.x-n.x)+Math.abs(p.y-n.y)<=3)e.sim.reserve(n.id,p.id,30);return;}
+    case 'resident_release':releaseResidents(p,typeof msg.id==='string'?msg.id:undefined);return;
+    case 'resident_visibility':if(typeof msg.v==='boolean'){p.lifeVisible=msg.v;if(msg.v)send(p,{t:'residents',...residentSnapshot(p)});}return;
     case 'move': {
       if (!DIRS[msg.d]) return;
       // Nobody walks off in the middle of a battle. Watchers who walk away stop watching.
@@ -1138,6 +1229,7 @@ server.listen(PORT, HOST, () => log(`Checkaverse ${VERSION} listening on http://
 
 function shutdown(signal) {
   log('shutting down on', signal);
+  saveResidentWorlds();
   toAll({ t: 'notice', msg: 'The Checkaverse is restarting. You will reconnect in a moment.' });
   for (const b of [...battles.values()]) { b.state.over = true; b.state.winner = 'draw'; b.state.reason = 'restart'; finishBattle(b); }
   for (const p of players.values()) {
