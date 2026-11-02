@@ -292,15 +292,24 @@ export function openStore(db, g, care, clock = {}) {
     const owed = new Map();
     for (const row of rows) {
       const b = body(row);
-      // A body seen for the first time starts its clock today. The Den is paused, so its clock just keeps up.
-      if (!row.body || !row.party) { if (!row.party) b.clock = day; saveBody(row.id, b); continue; }
+      // A body seen for the first time starts its clock today. The Den is paused, so its clock just keeps up, except
+      // for a day it was out and active: a Checkling cared for or battled with faces that night even if it was sent to
+      // the Den before the trainer logged off, so the Den is never a way to dodge the ladder.
+      if (!row.body) { saveBody(row.id, b); continue; }
+      if (!row.party) {
+        const active = b.today.day < day && Object.values(b.today.n).some((v) => v > 0) ? b.today.day : '';
+        const owe = active && Care.isSchoolDay(care, active, clock.noSchool) && (!clock.wasUp || clock.wasUp(active)) && b.clock <= active ? [active] : [];
+        if (!owe.length) { b.clock = day; saveBody(row.id, b); continue; }
+        owed.set(row.id, { row, b, days: owe, den: true });
+        continue;
+      }
       owed.set(row.id, { row, b, days: Care.owedDays(care, b.clock, day, clock.wasUp, clock.noSchool) });
     }
     const all = [...new Set([...owed.values()].flatMap((x) => x.days))].sort();
     const pick = seeded(pid, 'present', day);
     for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(pick() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
     const present = new Set(all.slice(0, Math.max(0, presentCount)));
-    for (const { row, b, days } of owed.values()) {
+    for (const { row, b, days, den } of owed.values()) {
       const lines = [];
       const start = structuredClone(b);
       for (const d of days) {
@@ -308,7 +317,7 @@ export function openStore(db, g, care, clock = {}) {
         if (b.dead) break;
       }
       if (!days.length) continue;
-      b.clock = days.at(-1) > b.clock ? days.at(-1) : b.clock;
+      b.clock = den ? day : days.at(-1) > b.clock ? days.at(-1) : b.clock;
       saveBody(row.id, b);
       if (b.dead) deaths.push(kill(pid, row, b.dead, day));
       else {
@@ -404,6 +413,7 @@ export function openStore(db, g, care, clock = {}) {
       return tx(() => {
         const row = q.one.get(pid, id);
         if (!row) return { ok: false, msg: 'That Checkling is not here.' };
+        if (!row.party) return { ok: false, msg: 'Bring it out of the Den first.' };
         const day = todayKey();
         const b = body(row);
         const tr = q.trainer.get(pid);

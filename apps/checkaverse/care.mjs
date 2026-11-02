@@ -244,7 +244,8 @@ export function view(r, b, day) {
   return {
     stats: { fullness: b.fullness, hygiene: b.hygiene, mood: b.mood, health: b.health, weight: b.weight },
     conditions: conditions(r, b, day).map((id) => ({ id, name: r.conditions[id].name, tip: r.conditions[id].tip })),
-    disease: b.disease ? { id: b.disease.id, name: r.diseases[b.disease.id].name, dosesLeft: r.diseases[b.disease.id].doses - b.disease.doses, dosedToday: b.disease.dosed === day } : null,
+    disease: b.disease ? { id: b.disease.id, name: r.diseases[b.disease.id].name, dosesLeft: r.diseases[b.disease.id].doses - b.disease.doses, dosedToday: b.disease.dosed === day, warn: r.diseases[b.disease.id].warn || '' } : null,
+    sinceNap: n.rest ? 0 : b.since.rest,
     actions: Object.entries(r.actions).map(([id, a]) => ({ id, label: a.label, left: a.perDay - (n[id] || 0) })),
     dead: b.dead,
   };

@@ -1207,7 +1207,7 @@
     if (b.disease) {
       const d = document.createElement('div'); d.className = 'care-tag sick';
       const h = document.createElement('b'); h.textContent = `Sick: ${b.disease.name}`;
-      d.append(h, `Give medicine once a day. ${b.disease.dosesLeft} more ${b.disease.dosesLeft === 1 ? 'dose' : 'doses'} to cure it.${b.disease.dosedToday ? ' Today\'s dose is done.' : ''} Left untreated it can kill.`);
+      d.append(h, `Give medicine once a day. ${b.disease.dosesLeft} more ${b.disease.dosesLeft === 1 ? 'dose' : 'doses'} to cure it.${b.disease.dosedToday ? ' Today\'s dose is done.' : ''} ${b.disease.warn || 'Left untreated it gets worse every school day and can kill.'}`);
       tags.appendChild(d);
     }
     for (const c of b.conditions) {
@@ -1216,6 +1216,9 @@
       d.append(h, c.tip);
       tags.appendChild(d);
     }
+    const nap = document.createElement('div'); nap.className = 'care-tag';
+    nap.textContent = b.sinceNap === 0 ? 'Napped today.' : b.sinceNap === 1 ? 'Last nap: 1 school day ago.' : `Last nap: ${b.sinceNap} school days ago.${b.sinceNap >= 3 ? ' A nap soon keeps it from getting exhausted.' : ''}`;
+    if (b.sinceNap >= 3) tags.appendChild(nap);
     const acts = $('careActions');
     acts.textContent = '';
     for (const a of b.actions) {
