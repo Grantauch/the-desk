@@ -3,11 +3,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const {pathToFileURL} = require('node:url');
 const {classroom, PEOPLE} = require('./lib/hall-pass-fixtures.cjs');
 
 const KEY = 'Zk3vQ9mT2xR7pL4wN8bC6dF1gH5jK0sYaEuIoP-_xyz';
 let accounts;
-test.before(async () => { accounts = await import(path.join(__dirname, '..', 'apps', 'checkaverse', 'accounts.mjs')); });
+test.before(async () => { accounts = await import(pathToFileURL(path.join(__dirname, '..', 'apps', 'checkaverse', 'accounts.mjs')).href); });
 
 function setup(options) {
   const c = classroom(options);
