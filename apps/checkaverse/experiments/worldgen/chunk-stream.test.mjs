@@ -146,6 +146,17 @@ test("nearby interest is defined by overlapping chunk windows, not a global broa
   assert.deepEqual(b.peers("gamma"),[]);
 });
 
+test("overlapping subscriptions never broadcast players outside the observer's chunk window",()=>{
+  const s=spec("verdant_crown","peers",512);
+  const broker=createTerrainPreview([s],{radius:1});
+  broker.subscribe("alpha",location(s,144,144)); // chunk 4,4 -> looks at 3..5
+  broker.subscribe("beta",location(s,200,144));  // chunk 6,4 -> windows overlap at chunk 5
+  broker.subscribe("gamma",location(s,175,144)); // chunk 5,4 -> in alpha's interest
+  assert.deepEqual(broker.peers("alpha").map(x=>x.actor),["gamma"]);
+  assert.ok(broker.peers("beta").some(x=>x.actor==="gamma"));
+  assert.ok(!broker.peers("alpha").some(x=>x.actor==="beta"));
+});
+
 test("invalid cache arguments and region definitions fail fast",()=>{
   const s=spec();
   assert.throws(()=>new TerrainChunkCache([]),TypeError);
