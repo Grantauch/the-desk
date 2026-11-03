@@ -131,6 +131,9 @@ export function buildPreviewHtml(options={}){
     " const d=document.createElement('div');const swatch=document.createElement('span');",
     " swatch.className='swatch';swatch.style.backgroundColor=palette[symbol];",
     " d.append(swatch,document.createTextNode(name));legend.append(d)}",
+    "const requestedRegion=new URLSearchParams(window.location.search).get('region');",
+    "if(requestedRegion){const index=data.regions.findIndex(r=>r.id===requestedRegion);",
+    " if(index>=0)picker.value=String(index);}",
     "window.addEventListener('resize',frame);selectRegion();"
   ].join("\n");
   return [
