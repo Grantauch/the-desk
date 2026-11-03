@@ -1,6 +1,6 @@
 # Bramblefen Basin — Wave Two character bible and attack design
 
-**Candidate writing and experimental combat only.** CK013–CK024 are **not** live, approved, originality-cleared or illustrated species. This expands `BRAMBLEFEN-WAVE2.md`. The names may change; the locked first twelve species, signatures and personalities in `wave-one.md` stay unchanged. Editable move prototypes are in `apps/checkaverse/experiments/worldgen/bramblefen-wave2.content.json`; do not import that file into the live content catalog.
+**Candidate writing and experimental combat only.** This version reflects the second provisional tuning pass; none of these numbers is approved for production. CK013–CK024 are **not** live, approved, originality-cleared or illustrated species. This expands `BRAMBLEFEN-WAVE2.md`. The names may change; the locked first twelve species, signatures and personalities in `wave-one.md` stay unchanged. Editable move prototypes are in `apps/checkaverse/experiments/worldgen/bramblefen-wave2.content.json`; do not import that file into the live content catalog.
 
 ## What makes the marsh worth remembering?
 
@@ -47,7 +47,7 @@ The oldest Kettle Creek residents say the water used to run straight through Bra
 **Care:** A quiet rest makes its paired fins move in perfect time.  
 **Field Guide:** Fishermen once followed a Finline through floodwater. It returned them to the same bank after a very scenic detour.  
 **Encounter flavor:** Two narrow fins cut the creek like the sides of a canoe.  
-**Signature — Reed Shelter:** Costs 5, 7 Tide damage, plus **10 shield** for that turn. Defensive style must be distinct from Thornlock's heavy shell.  
+**Signature — Reed Shelter:** Costs 5, 10 Tide damage, plus **10 shield** for that turn. Defensive style must be distinct from Thornlock's heavy shell.  
 **Counterplay and art:** Repeated shielding loses pressure. Show the fins as two long parallel blades.
 
 ### CK017 · Pollisk — Meadow, care-morph, attrition
@@ -57,7 +57,7 @@ The oldest Kettle Creek residents say the water used to run straight through Bra
 **Care:** Grooming lets light through its sail; too much debris weighs it down.  
 **Field Guide:** The pollen on a Pollisk's sail is old enough to tell where it has been. Pollisks consider this valuable navigation information.  
 **Encounter flavor:** A golden sail moves above the flowers, carried by something the size of a snail.  
-**Signature — Pollen Sail:** Costs 4, 9 Meadow damage, with incoming damage multiplied by **0.80** that turn. Lower-cost but weaker guard than Reed Pledge.  
+**Signature — Pollen Sail:** Costs 4, 12 Meadow damage, with incoming damage multiplied by **0.75** that turn. Lower-cost but weaker guard than Reed Pledge.  
 **Counterplay and art:** Repeated partial guarding is vulnerable to stronger offense. Design the single translucent sail large enough to read clearly.
 
 ### CK018 · Mosswhirl — Meadow, care-morph, tempo
@@ -77,7 +77,7 @@ The oldest Kettle Creek residents say the water used to run straight through Bra
 **Care:** Rest slows its twitchy movements; good grooming brings out a second transparent edge.  
 **Field Guide:** Glasprites gather where the water is so still that stars can be seen in daylight. The stars are usually bubbles.  
 **Encounter flavor:** A crescent hangs in the water with no creature visible behind it. Then it sneezes.  
-**Signature — Glass Halfmoon:** Costs 5, 8 Tide damage, creates **13 shield** for one turn.  
+**Signature — Glass Halfmoon:** Costs 5, 10 Tide damage, creates **11 shield** for one turn.  
 **Counterplay and art:** Wins through survivability rather than high damage. A single crescent-shaped top shell distinguishes it from generic shrimp.
 
 ### CK020 · Mudhorn — Tide, care-morph, artillery
@@ -97,7 +97,7 @@ The oldest Kettle Creek residents say the water used to run straight through Bra
 **Care:** Grooming removes the old leaves wedged between its interlocking shell plates.  
 **Field Guide:** When floods wash away a bank, Thornlocks hold the last twigs in place. They are not especially good at this, but nobody has told them.  
 **Encounter flavor:** Something in the reeds clicks shut. A turtle looks up, still holding its twig.  
-**Signature — Briar Buckle:** Costs 5, 7 Meadow damage plus **15 shield** for the turn. Tankiest shield among the proposal's wetland kits.  
+**Signature — Briar Buckle:** Costs 5, 10 Meadow damage plus **13 shield** for the turn. Tankiest shield among the proposal's wetland kits.  
 **Counterplay and art:** Must not also have dominant offense. Draw the shell as several interlocked angular briars.
 
 ### CK022 · Seedrift — Meadow, non-evolver, skirmisher
@@ -127,7 +127,7 @@ The oldest Kettle Creek residents say the water used to run straight through Bra
 **Care:** Grooming makes the dew beads glow; over-rest makes it almost motionless on reeds.  
 **Field Guide:** When dawn mist fills Bramblefen, Whisprills carry a little of the creek on their wings. The creek has never asked for it back.  
 **Encounter flavor:** Two teardrop wings appear through the mist, each holding one bead of water.  
-**Signature — Dew Return:** Costs 5, **8 Tide damage** and restores **3 stamina** to the user (normal net cost 2).  
+**Signature — Dew Return:** Costs 4, **12 Tide damage** and restores **2 stamina** to the user (normal net cost 2).  
 **Counterplay and art:** Long-term stamina efficiency, not a healing spell or team support; low raw damage keeps its niche different from Mudhorn.
 
 ## Attack-design review ledger
@@ -139,15 +139,15 @@ All twelve are **actual-engine-compatible proposals**: exactly four moves per cr
 | Reedawn | Reed Pledge | 5 | 10 | Incoming hits ×0.65 | defensive offense too efficient? |
 | Cattunnel | Peat Charge | 6 | 20 | None | burst versus founders |
 | Skidril | Puddle Waltz | 5 | 12 → 17 | Alternating phases | fast first strikes |
-| Finline | Reed Shelter | 5 | 7 | Shield 10 | low damage stalemate |
-| Pollisk | Pollen Sail | 4 | 9 | Incoming hits ×0.80 | partial guard too cheap? |
+| Finline | Reed Shelter | 5 | 10 | Shield 10 | low damage stalemate |
+| Pollisk | Pollen Sail | 4 | 12 | Incoming hits ×0.75 | partial guard too cheap? |
 | Mosswhirl | Moss Knot | 5 | 13 | Restore stamina 2 | sustained pressure |
-| Glasprite | Glass Halfmoon | 5 | 8 | Shield 13 | repeated shields |
+| Glasprite | Glass Halfmoon | 5 | 10 | Shield 11 | repeated shields |
 | Mudhorn | Hollow Bellow | 7 | 23 | None | burst versus low-HP starters |
-| Thornlock | Briar Buckle | 5 | 7 | Shield 15 | long PvP turns |
+| Thornlock | Briar Buckle | 5 | 10 | Shield 13 | long PvP turns |
 | Seedrift | Seed Dive | 5 | 16 → 7 | 8 shield in second phase | signature becomes unpredictable |
 | Rippletap | Circle Count | 5 | 9 → 13 → 17 | Three phases | damage sequence clarity |
-| Whisprill | Dew Return | 5 | 8 | Restore stamina 3 | infinite-stall risk |
+| Whisprill | Dew Return | 4 | 12 | Restore stamina 2 | infinite-stall risk |
 
 **Key mechanics gap:** The currently supported engine cannot actually delay an opponent's move, reduce an opponent's stamina, cause a persistent slow, or grant healing to another partner. A **disruptor** must currently mean visible tempo and stamina efficiency, not a hidden debuff. Better to label these candidates honestly than sneak in new battle verbs. If that gap compromises tactical diversity across 300 lines, Claude should propose a small reviewed move-system extension later.
 
