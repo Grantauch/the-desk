@@ -1,0 +1,815 @@
+{
+  "generated_for": "Checklings isolated baseline, not verified future species balance",
+  "reference_engine": "apps/checkaverse/battle.mjs",
+  "source_revision": "Grantauch/the-desk main as of 2026-11-02",
+  "baseline": {
+    "lab_version": "battle-baseline-v1",
+    "live_rules": {
+      "type_multiplier_strong": 1.3,
+      "type_multiplier_weak": 0.75,
+      "turn_limit": 40,
+      "timer_seconds": 30
+    },
+    "sample_seeds_per_seat": 24,
+    "levels": [
+      10,
+      30
+    ],
+    "policies": [
+      "pressure",
+      "conserve",
+      "defend"
+    ],
+    "roster": [
+      "mochi",
+      "bolt",
+      "zee",
+      "ember"
+    ],
+    "outcomes": [
+      {
+        "species_a": "mochi",
+        "species_b": "mochi",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.5,
+        "avg_turns": 40,
+        "time_limit_rate": 1
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "bolt",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 12,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 32,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 9.42,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "bolt",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.4583,
+        "avg_turns": 10,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 8.83,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.625,
+        "avg_turns": 11.42,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "ember",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.625,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "mochi",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.5,
+        "avg_turns": 40,
+        "time_limit_rate": 1
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "bolt",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 12,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 26,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 10,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "bolt",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.875,
+        "avg_turns": 10,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.125,
+        "avg_turns": 9.92,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.5,
+        "avg_turns": 10,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "ember",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.5833,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "mochi",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.5833,
+        "avg_turns": 10.17,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "bolt",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "bolt",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.4583,
+        "avg_turns": 11,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 8.92,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.7917,
+        "avg_turns": 8.79,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "zee",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.375,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.8333,
+        "avg_turns": 7,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "ember",
+        "species_b": "ember",
+        "level": 10,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.4583,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "mochi",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.5,
+        "avg_turns": 40,
+        "time_limit_rate": 1
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "bolt",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 14,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 24,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "bolt",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.5833,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 7,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.5833,
+        "avg_turns": 10.17,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "ember",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "pressure",
+        "samples": 48,
+        "a_win_share": 0.4167,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "mochi",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.5,
+        "avg_turns": 40,
+        "time_limit_rate": 1
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "bolt",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 14,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 24.08,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "bolt",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.5,
+        "avg_turns": 10,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 8.75,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.4583,
+        "avg_turns": 10.33,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "ember",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "conserve",
+        "samples": 48,
+        "a_win_share": 0.4583,
+        "avg_turns": 6,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "mochi",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.4583,
+        "avg_turns": 14,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "bolt",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 11,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.25,
+        "avg_turns": 11,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "mochi",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "bolt",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.6667,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 8.21,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "bolt",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "zee",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.2917,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "zee",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 1,
+        "avg_turns": 8,
+        "time_limit_rate": 0
+      },
+      {
+        "species_a": "ember",
+        "species_b": "ember",
+        "level": 30,
+        "policy": "defend",
+        "samples": 48,
+        "a_win_share": 0.4167,
+        "avg_turns": 9,
+        "time_limit_rate": 0
+      }
+    ]
+  },
+  "conditionImpact": {
+    "lab_version": "care-baseline-v1",
+    "levels": [
+      10,
+      30
+    ],
+    "roster": [
+      "mochi",
+      "bolt",
+      "zee",
+      "ember"
+    ],
+    "outcomes": [
+      {
+        "species": "mochi",
+        "condition": "obese",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "mochi",
+        "condition": "scrawny",
+        "samples": 96,
+        "conditioned_win_share": 0.25
+      },
+      {
+        "species": "mochi",
+        "condition": "exhausted",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "mochi",
+        "condition": "grimy",
+        "samples": 96,
+        "conditioned_win_share": 0.6667
+      },
+      {
+        "species": "mochi",
+        "condition": "lazy",
+        "samples": 96,
+        "conditioned_win_share": 0.75
+      },
+      {
+        "species": "mochi",
+        "condition": "overtrained",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "mochi",
+        "condition": "out_of_shape",
+        "samples": 96,
+        "conditioned_win_share": 0.25
+      },
+      {
+        "species": "bolt",
+        "condition": "obese",
+        "samples": 96,
+        "conditioned_win_share": 0.1146
+      },
+      {
+        "species": "bolt",
+        "condition": "scrawny",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "bolt",
+        "condition": "exhausted",
+        "samples": 96,
+        "conditioned_win_share": 0.4167
+      },
+      {
+        "species": "bolt",
+        "condition": "grimy",
+        "samples": 96,
+        "conditioned_win_share": 0.6354
+      },
+      {
+        "species": "bolt",
+        "condition": "lazy",
+        "samples": 96,
+        "conditioned_win_share": 0.7083
+      },
+      {
+        "species": "bolt",
+        "condition": "overtrained",
+        "samples": 96,
+        "conditioned_win_share": 0.4167
+      },
+      {
+        "species": "bolt",
+        "condition": "out_of_shape",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "zee",
+        "condition": "obese",
+        "samples": 96,
+        "conditioned_win_share": 0.1042
+      },
+      {
+        "species": "zee",
+        "condition": "scrawny",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "zee",
+        "condition": "exhausted",
+        "samples": 96,
+        "conditioned_win_share": 0.3125
+      },
+      {
+        "species": "zee",
+        "condition": "grimy",
+        "samples": 96,
+        "conditioned_win_share": 0.6458
+      },
+      {
+        "species": "zee",
+        "condition": "lazy",
+        "samples": 96,
+        "conditioned_win_share": 0.3125
+      },
+      {
+        "species": "zee",
+        "condition": "overtrained",
+        "samples": 96,
+        "conditioned_win_share": 0.3646
+      },
+      {
+        "species": "zee",
+        "condition": "out_of_shape",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "ember",
+        "condition": "obese",
+        "samples": 96,
+        "conditioned_win_share": 0.1875
+      },
+      {
+        "species": "ember",
+        "condition": "scrawny",
+        "samples": 96,
+        "conditioned_win_share": 0
+      },
+      {
+        "species": "ember",
+        "condition": "exhausted",
+        "samples": 96,
+        "conditioned_win_share": 0.4375
+      },
+      {
+        "species": "ember",
+        "condition": "grimy",
+        "samples": 96,
+        "conditioned_win_share": 0.5938
+      },
+      {
+        "species": "ember",
+        "condition": "lazy",
+        "samples": 96,
+        "conditioned_win_share": 0.5
+      },
+      {
+        "species": "ember",
+        "condition": "overtrained",
+        "samples": 96,
+        "conditioned_win_share": 0.1354
+      },
+      {
+        "species": "ember",
+        "condition": "out_of_shape",
+        "samples": 96,
+        "conditioned_win_share": 0
+      }
+    ]
+  }
+}
