@@ -44,9 +44,11 @@ The final immutable terrain payload now carries an explicit **organic route revi
 
 ### Standalone inspector instructions
 
-Run `node apps/checkaverse/experiments/worldgen/map-preview.mjs <local-output.html>` to write a single offline HTML file at a deliberate scratch path. Use `--512` to inspect an aspirational 512×512 world; the default is 256×256. Open the resulting file in a normal browser; biome selection, pan, zoom, tile inspection and landmark labeling require no server connection.
+Run `node apps/checkaverse/experiments/worldgen/map-preview.mjs <local-output.html>` to write a single offline HTML file at a deliberate scratch path. Use `--512` to inspect an aspirational 512×512 world; the default is 256×256. Open the resulting file in a normal browser; biome selection, pan, zoom, tile inspection and landmark labeling require no server connection. For a direct visual QA view, append `?region=verdant_crown` or `?region=frostglass_reach` to the local file URL; the inspector validates IDs against the embedded region catalog.
 
 **No student game state or production content is read or saved.** The file is a static preproduction planning artifact, not a page on grant-desk.com.
+
+**Additional visual check:** headless Chrome screenshots of `verdant_crown` and `frostglass_reach` confirmed that jungle and arctic palettes, surface patterns and landmark labels are genuinely distinguishable in this symbolic inspector. However, **both still use the same abstract nine-anchor route skeleton** with similar geographic proportions. They are not yet twelve truly unique exploration maps. Before any artistic or gameplay sign-off, region-specific macro grammars, unusual landmarks, path motifs and density must replace that shared geometry. The current screenshot demonstrates a *tool for reviewing* world design, not final world design.
 
 ## Proposed production protocol (not yet implemented)
 
