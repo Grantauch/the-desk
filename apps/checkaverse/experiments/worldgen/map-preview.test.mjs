@@ -64,6 +64,9 @@ test("offline HTML contains a parseable 12-biome dataset and browser controls",(
   const data=JSON.parse(payload);
   assert.equal(data.regions.length,12);
   assert.ok(html.includes("<canvas id='map'"));
+  assert.ok(html.includes("new URLSearchParams(window.location.search)"));
+  assert.ok(html.includes("requestedRegion"));
+  assert.ok(html.includes("picker.value=String(index)"));
   assert.ok(html.includes("PRIVATE")===false);
   assert.ok(html.includes("OFFLINE PREPRODUCTION"));
   assert.ok(!html.includes("https://"),"inspector should work offline with no external dependencies");
