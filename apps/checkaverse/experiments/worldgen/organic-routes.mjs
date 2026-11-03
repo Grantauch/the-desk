@@ -1,7 +1,7 @@
 // PREPRODUCTION route-shape experiment. Curved seeded footpaths replace the
 // parent lab's rigid L-shaped links while keeping permanent authored landmarks.
 // This is NOT navmesh/A*, a natural river simulator, or live map content.
-import { hashText, tileAt } from "./prototype.mjs";
+import { hashText, terrainWithoutDebugPaths } from "./prototype.mjs";
 import { makeLandmarkBlueprint } from "./landmark-network.mjs";
 
 const cell=(x,y)=>x+","+y;
@@ -67,8 +67,8 @@ export function makeOrganicBlueprint(spec, {width=2,bend=0.13}={}){
     if(!isInt(x)||!isInt(y)||x<0||y<0||x>=n||y>=n)throw new RangeError("Tile outside region");
     const k=cell(x,y);
     if(labels.has(k))return "L";
-    if(route.has(k))return tileAt(spec,x,y)==="W"?"B":"P";
-    return tileAt(spec,x,y);
+    if(route.has(k))return terrainWithoutDebugPaths(spec,x,y)==="W"?"B":"P";
+    return terrainWithoutDebugPaths(spec,x,y);
   };
   return {
     regionId:spec.regionId,generatorVersion:spec.version,
