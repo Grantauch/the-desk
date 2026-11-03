@@ -52,13 +52,13 @@ export function selectMove(rules, battle, side, policy) {
   throw new RangeError("Unknown policy: " + policy);
 }
 
-export function playOne(rules, attackerId, defenderId, level, seed, policy, conditionMods = {}) {
+export function playOne(rules, attackerId, defenderId, level, seed, policy, conditionMods = {}, defenderPolicy = policy) {
   const b = B.createBattle(rules, [
     { name: "A", species: attackerId, level, mods: conditionMods[attackerId] },
     { name: "B", species: defenderId, level, mods: conditionMods[defenderId] }
   ], seed);
   while (!b.over) {
-    const picks = [selectMove(rules, b, 0, policy), selectMove(rules, b, 1, policy)];
+    const picks = [selectMove(rules, b, 0, policy), selectMove(rules, b, 1, defenderPolicy)];
     B.resolveTurn(rules, b, picks);
     if (b.turn > rules.settings.maxTurns) throw new Error("Battle exceeded maxTurns");
   }
@@ -83,9 +83,11 @@ export function auditRules(rules, options = {}) {
       const outcomes = [], turns = [], reasons = [];
       for (let k = 0; k < seeds; k++) {
         const seed = hashText("baseline-v1|" + a + "|" + b + "|" + level + "|" + policy + "|" + k);
-        for (const [left, right] of [[a, b], [b, a]]) {
+        for (const [aSeat, [left, right]] of [[a, b], [b, a]].entries()) {
           const game = playOne(rules, left, right, level, seed, policy);
-          const aWins = game.winner === "draw" ? 0.5 : game.winner === (left === a ? 0 : 1) ? 1 : 0;
+          // For self-matches left===a on both mirrored trials; use the seat index,
+          // not a species comparison, or side-0 preference looks like a win-rate edge.
+          const aWins = game.winner === "draw" ? 0.5 : game.winner === aSeat ? 1 : 0;
           outcomes.push(aWins);
           turns.push(game.turns);
           reasons.push(game.reason);
