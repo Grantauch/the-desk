@@ -3,7 +3,8 @@
 // actor collision validation, dynamic state, resources, or database persistence.
 // Inputs are trusted SERVER-VALIDATED positions, never raw client coordinates.
 import { CHUNK_SIZE } from "./prototype.mjs";
-import { makeLandmarkBlueprint, generateLandmarkChunk } from "./landmark-network.mjs";
+import { generateLandmarkChunk } from "./landmark-network.mjs";
+import { makeOrganicBlueprint, ORGANIC_ROUTE_VERSION } from "./organic-routes.mjs";
 
 const actorPattern = /^[a-z][a-z0-9-]{0,31}$/;
 const validCoord = n => Number.isInteger(n) && n >= 0;
@@ -24,7 +25,7 @@ export class TerrainChunkCache {
       if(!spec || typeof spec.regionId !== "string" || this.specs.has(spec.regionId)) throw new Error("Invalid or duplicate region");
       if(spec.size % CHUNK_SIZE !== 0 || spec.version === undefined || spec.numericSeed === undefined) throw new Error("Bad region spec");
       this.specs.set(spec.regionId,spec);
-      this.blueprints.set(spec.regionId,makeLandmarkBlueprint(spec));
+      this.blueprints.set(spec.regionId,makeOrganicBlueprint(spec));
     }
   }
 
@@ -38,7 +39,7 @@ export class TerrainChunkCache {
     const spec=this.specFor(regionId);
     const max=spec.size/CHUNK_SIZE;
     if(!validCoord(cx) || !validCoord(cy) || cx>=max || cy>=max) throw new RangeError("Out-of-bounds chunk coordinate");
-    const key=regionId+":"+spec.version+":"+spec.numericSeed+":"+cx+":"+cy;
+    const key=regionId+":"+spec.version+":"+ORGANIC_ROUTE_VERSION+":"+spec.numericSeed+":"+cx+":"+cy;
     if(this.cache.has(key)){
       const out=this.cache.get(key);
       this.cache.delete(key);
@@ -48,7 +49,7 @@ export class TerrainChunkCache {
     }
     const raw=generateLandmarkChunk(spec,this.blueprints.get(regionId),cx,cy);
     const rows=Object.freeze([...raw.rows]);
-    const out=Object.freeze({regionId,cx,cy,version:spec.version,seed:spec.numericSeed,
+    const out=Object.freeze({regionId,cx,cy,version:spec.version,routeVersion:ORGANIC_ROUTE_VERSION,seed:spec.numericSeed,
       hash:raw.hash,rows});
     this.cache.set(key,out);
     this.generated++;
