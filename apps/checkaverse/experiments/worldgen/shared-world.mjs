@@ -50,6 +50,7 @@ export class SharedWorldPilot {
     const spec = this.region(regionId);
     const old = this.players.get(actor);
     if (old?.online) throw new Error("Already connected: one active session per actor");
+    if (old && old.regionId !== regionId) throw new Error("Region change requires a separate authorized map gate");
     const saved = old && old.regionId === regionId ? {x: old.x, y: old.y} : null;
     const p = {
       actor, regionId, x: saved?.x ?? spec.center, y: saved?.y ?? spec.center,
