@@ -1,7 +1,7 @@
 {
-  "generated_for": "Checklings isolated baseline, not verified future species balance",
-  "reference_engine": "apps/checkaverse/battle.mjs",
-  "source_revision": "Grantauch/the-desk main as of 2026-11-02",
+  "synthetic_only": true,
+  "experiment": "isolated Checklings actual-engine simulation",
+  "lab_source_commit": "502add25cb911ca24bb18f2f3d230df255aead9c",
   "baseline": {
     "lab_version": "battle-baseline-v1",
     "live_rules": {
@@ -73,7 +73,7 @@
         "level": 10,
         "policy": "pressure",
         "samples": 48,
-        "a_win_share": 0.4583,
+        "a_win_share": 0.5,
         "avg_turns": 10,
         "time_limit_rate": 0
       },
@@ -103,7 +103,7 @@
         "level": 10,
         "policy": "pressure",
         "samples": 48,
-        "a_win_share": 0.625,
+        "a_win_share": 0.5,
         "avg_turns": 11.42,
         "time_limit_rate": 0
       },
@@ -123,7 +123,7 @@
         "level": 10,
         "policy": "pressure",
         "samples": 48,
-        "a_win_share": 0.625,
+        "a_win_share": 0.5,
         "avg_turns": 6,
         "time_limit_rate": 0
       },
@@ -173,7 +173,7 @@
         "level": 10,
         "policy": "conserve",
         "samples": 48,
-        "a_win_share": 0.875,
+        "a_win_share": 0.5,
         "avg_turns": 10,
         "time_limit_rate": 0
       },
@@ -223,7 +223,7 @@
         "level": 10,
         "policy": "conserve",
         "samples": 48,
-        "a_win_share": 0.5833,
+        "a_win_share": 0.5,
         "avg_turns": 6,
         "time_limit_rate": 0
       },
@@ -233,7 +233,7 @@
         "level": 10,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.5833,
+        "a_win_share": 0.5,
         "avg_turns": 10.17,
         "time_limit_rate": 0
       },
@@ -273,7 +273,7 @@
         "level": 10,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.4583,
+        "a_win_share": 0.5,
         "avg_turns": 11,
         "time_limit_rate": 0
       },
@@ -303,7 +303,7 @@
         "level": 10,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.375,
+        "a_win_share": 0.5,
         "avg_turns": 8,
         "time_limit_rate": 0
       },
@@ -323,7 +323,7 @@
         "level": 10,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.4583,
+        "a_win_share": 0.5,
         "avg_turns": 8,
         "time_limit_rate": 0
       },
@@ -373,7 +373,7 @@
         "level": 30,
         "policy": "pressure",
         "samples": 48,
-        "a_win_share": 0.5833,
+        "a_win_share": 0.5,
         "avg_turns": 9,
         "time_limit_rate": 0
       },
@@ -403,7 +403,7 @@
         "level": 30,
         "policy": "pressure",
         "samples": 48,
-        "a_win_share": 0.5833,
+        "a_win_share": 0.5,
         "avg_turns": 10.17,
         "time_limit_rate": 0
       },
@@ -423,7 +423,7 @@
         "level": 30,
         "policy": "pressure",
         "samples": 48,
-        "a_win_share": 0.4167,
+        "a_win_share": 0.5,
         "avg_turns": 6,
         "time_limit_rate": 0
       },
@@ -503,7 +503,7 @@
         "level": 30,
         "policy": "conserve",
         "samples": 48,
-        "a_win_share": 0.4583,
+        "a_win_share": 0.5,
         "avg_turns": 10.33,
         "time_limit_rate": 0
       },
@@ -523,7 +523,7 @@
         "level": 30,
         "policy": "conserve",
         "samples": 48,
-        "a_win_share": 0.4583,
+        "a_win_share": 0.5,
         "avg_turns": 6,
         "time_limit_rate": 0
       },
@@ -533,7 +533,7 @@
         "level": 30,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.4583,
+        "a_win_share": 0.5,
         "avg_turns": 14,
         "time_limit_rate": 0
       },
@@ -573,7 +573,7 @@
         "level": 30,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.6667,
+        "a_win_share": 0.5,
         "avg_turns": 9,
         "time_limit_rate": 0
       },
@@ -603,7 +603,7 @@
         "level": 30,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.2917,
+        "a_win_share": 0.5,
         "avg_turns": 8,
         "time_limit_rate": 0
       },
@@ -623,7 +623,7 @@
         "level": 30,
         "policy": "defend",
         "samples": 48,
-        "a_win_share": 0.4167,
+        "a_win_share": 0.5,
         "avg_turns": 9,
         "time_limit_rate": 0
       }
