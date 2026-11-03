@@ -145,10 +145,50 @@ export function auditCareConditions(rules, care, options = {}) {
   return Object.freeze({ lab_version: "care-baseline-v1", levels, roster, outcomes: results });
 }
 
+// Cross-play tests a behavior policy against a DIFFERENT opposing policy. Unlike
+// mirrored-same-policy tests, this reveals simple guard/recovery counterstrategies.
+// Every pair is mirrored so the measured A side swaps physical player seats.
+export function auditCrossPolicies(rules, options = {}) {
+  B.checkRules(rules);
+  const roster = options.roster || Object.keys(rules.species.species);
+  const levels = options.levels || [10, 30];
+  const policies = options.policies || ["pressure", "conserve", "defend"];
+  const seeds = options.seeds ?? 8;
+  if (!Number.isInteger(seeds) || seeds < 1 || seeds > 500) throw new RangeError("1..500 seeds only");
+  const results = [];
+  for (const level of levels) for (let i = 0; i < roster.length; i++) {
+    for (let j = i; j < roster.length; j++) for (const policyA of policies) for (const policyB of policies) {
+      const a = roster[i], b = roster[j];
+      const wins = [], turns = [], reasons = [];
+      for (let k = 0; k < seeds; k++) {
+        const seed = hashText("policy-cross-v1|" + a + "|" + b + "|" + level + "|" + policyA + "|" + policyB + "|" + k);
+        const first = playOne(rules, a, b, level, seed, policyA, {}, policyB);
+        const second = playOne(rules, b, a, level, seed, policyB, {}, policyA);
+        wins.push(first.winner === "draw" ? 0.5 : first.winner === 0 ? 1 : 0);
+        wins.push(second.winner === "draw" ? 0.5 : second.winner === 1 ? 1 : 0);
+        turns.push(first.turns, second.turns);
+        reasons.push(first.reason, second.reason);
+      }
+      results.push({
+        species_a: a, species_b: b, level, policy_a: policyA, policy_b: policyB,
+        samples: wins.length, a_win_share: Number(mean(wins).toFixed(4)),
+        mean_turns: Number(mean(turns).toFixed(2)),
+        limit_rate: Number((reasons.filter(x => x === "time").length / reasons.length).toFixed(4))
+      });
+    }
+  }
+  return { lab_version: "cross-policy-v1", levels, roster, policies,
+    seeds_per_seat: seeds, outcomes: results };
+}
+
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const { rules, care } = loadCurrentContent();
-  const baseline = auditRules(rules);
-  const conditionImpact = auditCareConditions(rules, care);
-  process.stdout.write(JSON.stringify({ baseline, conditionImpact }, null, 2) + "\n");
+  if (process.argv.includes("--cross")) {
+    process.stdout.write(JSON.stringify(auditCrossPolicies(rules), null, 2) + "\n");
+  } else {
+    const baseline = auditRules(rules);
+    const conditionImpact = auditCareConditions(rules, care);
+    process.stdout.write(JSON.stringify({ baseline, conditionImpact }, null, 2) + "\n");
+  }
 }
