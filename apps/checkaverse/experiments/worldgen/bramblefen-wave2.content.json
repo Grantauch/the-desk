@@ -1,6 +1,6 @@
 {
-  "note": "UNAPPROVED EXPERIMENT. Only for offline simulations; NOT registered by production server. IDs and names are provisional.",
-  "contentVersion": "bramblefen-proposal-v1",
+  "note": "UNAPPROVED EXPERIMENT; v2 adjusts weak kits after synthetic 39,168-battle screening. Not for the live server.",
+  "contentVersion": "bramblefen-proposal-v2",
   "regionId": "bramblefen_basin",
   "source": "docs/checklings/preproduction/BRAMBLEFEN-WAVE2.md",
   "moves": {
@@ -38,19 +38,19 @@
       "name": "Reed Shelter",
       "type": "tide",
       "cost": 5,
-      "damage": 7,
+      "damage": 10,
       "shield": 10,
       "first": true,
-      "detail": "7 Tide damage and a 10 point shield this turn."
+      "detail": "10 Tide damage and a 10 point shield this turn."
     },
     "pollen_sail": {
       "name": "Pollen Sail",
       "type": "meadow",
       "cost": 4,
-      "damage": 9,
-      "guard": 0.8,
+      "damage": 12,
+      "guard": 0.75,
       "first": true,
-      "detail": "9 Meadow damage and reduce incoming hits to 80 percent this turn."
+      "detail": "12 Meadow damage and incoming hits land at 75 percent this turn."
     },
     "moss_knot": {
       "name": "Moss Knot",
@@ -64,10 +64,10 @@
       "name": "Glass Halfmoon",
       "type": "tide",
       "cost": 5,
-      "damage": 8,
-      "shield": 13,
+      "damage": 10,
+      "shield": 11,
       "first": true,
-      "detail": "8 Tide damage and a 13 point shield this turn."
+      "detail": "10 Tide damage and an 11 point shield this turn."
     },
     "hollow_bellow": {
       "name": "Hollow Bellow",
@@ -80,10 +80,10 @@
       "name": "Briar Buckle",
       "type": "meadow",
       "cost": 5,
-      "damage": 7,
-      "shield": 15,
+      "damage": 10,
+      "shield": 13,
       "first": true,
-      "detail": "7 Meadow damage and a 15 point shield this turn."
+      "detail": "10 Meadow damage and a 13 point shield this turn."
     },
     "seed_dive": {
       "name": "Seed Dive",
@@ -120,10 +120,10 @@
     "dew_return": {
       "name": "Dew Return",
       "type": "tide",
-      "cost": 5,
-      "damage": 8,
-      "restore": 3,
-      "detail": "8 Tide damage and restore 3 stamina after paying the cost."
+      "cost": 4,
+      "damage": 12,
+      "restore": 2,
+      "detail": "12 Tide damage and recover 2 stamina after paying the cost."
     }
   },
   "species": {
@@ -204,7 +204,7 @@
       "type": "tide",
       "base": {
         "hp": 51,
-        "power": 7,
+        "power": 8,
         "stamina": 11,
         "speed": 6
       },
@@ -228,13 +228,13 @@
       "type": "meadow",
       "base": {
         "hp": 52,
-        "power": 7,
+        "power": 8,
         "stamina": 10,
-        "speed": 4
+        "speed": 5
       },
       "growth": {
         "hp": 1.8,
-        "power": 0.1,
+        "power": 0.2,
         "stamina": 0.1,
         "speed": 0.1
       },
@@ -276,13 +276,13 @@
       "type": "tide",
       "base": {
         "hp": 48,
-        "power": 7,
+        "power": 8,
         "stamina": 11,
         "speed": 8
       },
       "growth": {
         "hp": 1.5,
-        "power": 0.1,
+        "power": 0.2,
         "stamina": 0.1,
         "speed": 0.2
       },
@@ -324,13 +324,13 @@
       "type": "meadow",
       "base": {
         "hp": 56,
-        "power": 7,
+        "power": 8,
         "stamina": 9,
         "speed": 4
       },
       "growth": {
         "hp": 1.8,
-        "power": 0.1,
+        "power": 0.2,
         "stamina": 0.1,
         "speed": 0.1
       },
@@ -395,14 +395,14 @@
       "name": "Whisprill",
       "type": "tide",
       "base": {
-        "hp": 46,
-        "power": 7,
+        "hp": 49,
+        "power": 8,
         "stamina": 11,
         "speed": 10
       },
       "growth": {
         "hp": 1.4,
-        "power": 0.1,
+        "power": 0.2,
         "stamina": 0.1,
         "speed": 0.2
       },
