@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildPreviewData, buildPreviewHtml } from "./map-preview.mjs";
-import { REGION_THEMES } from "./prototype.mjs";
+import { REGION_THEMES, createRegionSpec } from "./prototype.mjs";
+import { TerrainChunkCache } from "./chunk-stream.mjs";
+import { ORGANIC_ROUTE_VERSION } from "./organic-routes.mjs";
 
 test("all twelve 256-square worlds have complete rows and nine named landmarks",()=>{
   const data=buildPreviewData({size:256});
@@ -21,6 +23,23 @@ test("all twelve 256-square worlds have complete rows and nine named landmarks",
     }
   }
   assert.equal(names.size,48);
+});
+
+test("offline inspector and streaming broker serve identical seeded organic terrain",()=>{
+  const seed="shared-terrain-contract";
+  const data=buildPreviewData({seed,size:256,regions:["verdant_crown","frostglass_reach"]});
+  assert.equal(data.routeVersion,ORGANIC_ROUTE_VERSION);
+  const specs=data.regions.map(r=>createRegionSpec(r.id,seed,256));
+  const cache=new TerrainChunkCache(specs);
+  for(const row of data.regions){
+    for(const [cx,cy] of [[0,0],[3,3],[4,4],[7,7]]){
+      const chunk=cache.chunk(row.id,cx,cy);
+      assert.equal(chunk.routeVersion,ORGANIC_ROUTE_VERSION);
+      for(let dy=0;dy<32;dy++){
+        assert.equal(chunk.rows[dy],row.rows[cy*32+dy].slice(cx*32,cx*32+32));
+      }
+    }
+  }
 });
 
 test("same seed produces byte-identical immutable landmark maps",()=>{
