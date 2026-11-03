@@ -124,9 +124,12 @@ export class TerrainInterestBroker {
     const me=this.clients.get(actor);
     if(!me)throw new Error("Unknown actor session");
     const subscribed=new Set(me.keys);
+    // Interest is observer-relative. Two clients' 3x3 windows can overlap
+    // while both clients are still too far away to receive each other's
+    // presence; only the peer's actual occupied chunk matters here.
     return [...this.clients.entries()].filter(([other,p])=>
       other!==actor&&p.scope===me.scope&&p.regionId===me.regionId&&p.version===me.version&&
-      p.keys.some(key=>subscribed.has(key))
+      subscribed.has(chunkIdentity(p.regionId,Math.floor(p.x/CHUNK_SIZE),Math.floor(p.y/CHUNK_SIZE)))
     ).map(([other,p])=>Object.freeze({actor:other,x:p.x,y:p.y}));
   }
 
