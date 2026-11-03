@@ -5,7 +5,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CHUNK_SIZE, GENERATOR_VERSION, REGION_THEMES, createRegionSpec } from "./prototype.mjs";
-import { makeLandmarkBlueprint, generateLandmarkChunk } from "./landmark-network.mjs";
+import { generateLandmarkChunk } from "./landmark-network.mjs";
+import { makeOrganicBlueprint, ORGANIC_ROUTE_VERSION } from "./organic-routes.mjs";
 
 const regionNames=Object.freeze({
   bramblefen_basin:"Bramblefen Basin",cindergear_expanse:"Cindergear Expanse",
@@ -25,7 +26,7 @@ export function buildPreviewData({ seed="checklings-preview-v1", size=256, regio
   const records=[];
   for(const id of regions){
     const spec=createRegionSpec(id,seed,size);
-    const blueprint=makeLandmarkBlueprint(spec);
+    const blueprint=makeOrganicBlueprint(spec);
     const side=size/CHUNK_SIZE,rows=[];
     for(let cy=0;cy<side;cy++){
       const chunks=Array.from({length:side},(_,cx)=>generateLandmarkChunk(spec,blueprint,cx,cy));
@@ -37,7 +38,7 @@ export function buildPreviewData({ seed="checklings-preview-v1", size=256, regio
       landmarks:blueprint.landmarks.map(({id,name,x,y})=>({id,name,x,y})),rows});
   }
   return {title:"Checklings world planning preview",generatorVersion:GENERATOR_VERSION,
-    seed,size,regions:records,note:"OFFLINE PREPRODUCTION MAPS — not the live world or production art."};
+    seed,size,routeVersion:ORGANIC_ROUTE_VERSION,regions:records,note:"OFFLINE PREPRODUCTION MAPS — not the live world or production art."};
 }
 
 export function buildPreviewHtml(options={}){
