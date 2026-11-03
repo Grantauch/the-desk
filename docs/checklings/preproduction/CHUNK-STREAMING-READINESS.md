@@ -4,11 +4,13 @@
 
 ## What changed in the isolated test lab
 
-Two new modules live in `apps/checkaverse/experiments/worldgen/`:
+The following isolated tools live in `apps/checkaverse/experiments/worldgen/`:
 
 - **`chunk-stream.mjs`** provides a versioned **TerrainChunkCache** (shared, bounded LRU) and **TerrainInterestBroker** (per-player 3×3 nearby terrain subscriptions). It reuses the parent PR's immutable 32×32 tile generator and nine connected authored landmark paths.
+- **`organic-routes.mjs`** builds deterministic meandering, connected authored footpaths (including bridges) instead of the initial rigid debug-cross layout. It draws on the same base ecosystem terrain without erasing landmarks. This remains a simplified route painter, not finished world art or obstacle-aware pathfinding.
+- **`map-preview.mjs`** generates a standalone **offline HTML inspector** of all twelve biomes, with navigation, zoom, colored symbolic terrain, and nine labeled landmarks per biome; this was rendered and visually inspected with headless Chrome on TheAtlas, with no network or production page changes. It does not provide final creature/art assets.
 - **`chunk-stream-benchmark.mjs`** sizes synthetic raw JSON payloads and times terrain preparation on TheAtlas, with 35-player and 70-player scenarios. It has no sockets, timers, SQLite, school users or browser rendering.
-- Two dedicated test files verify deterministic chunk identities, border clipping, single-row chunk deltas after moving, 35-player reuse, LRU eviction, independent regions, private scope isolation, stale generator revision rejection and unnecessary multiplayer broadcasts.
+- Dedicated tests verify deterministic chunk identities, border clipping, single-row chunk deltas after moving, 35-player reuse, LRU eviction, independent regions, private scope isolation, stale generator revision rejection and unnecessary multiplayer broadcasts.
 
 This is **only immutable terrain streaming**. NPCs, movement, school tickets, catching, quests, battle outcomes, shared resource persistence and living world schedules are *not* wired to it.
 
@@ -18,19 +20,33 @@ Environment: **Node v24.15.0**, one process, synthetic positions, no actual netw
 
 | Players / placement | Region size | Initial chunks sent | New chunks sent after 1-tile move | Initial uncompressed JSON bytes | Generated chunk preparations | Cache evictions |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| 35 clustered at one gate | 256×256 | 315 | 105 | 403,620 | 12 | 0 |
-| 35 clustered at one gate | 512×512 | 315 | 105 | 403,620 | 12 | 0 |
-| 35 scattered across two biomes | 512×512 | 296 | 3 | 381,237 | 299 | 203 |
-| 70 scattered across two biomes | 512×512 | 596 | 5 | 767,646 | 599 | 503 |
+| 35 clustered at one gate | 256×256 | 315 | 105 | 418,040 | 12 | 0 |
+| 35 clustered at one gate | 512×512 | 315 | 105 | 418,110 | 12 | 0 |
+| 35 scattered across two biomes | 512×512 | 296 | 3 | 394,854 | 299 | 203 |
+| 70 scattered across two biomes | 512×512 | 596 | 5 | 795,064 | 599 | 503 |
 
 The cluster rows place trainers **one tile before a chunk boundary**; after the one-tile move, each sees exactly three new and three unloaded chunks, and six existing chunks remain subscribed. These rows intentionally represent a worst-case simultaneous boundary crossing; ordinary one-tile movement generally does not require new terrain data.
 
 **Important interpretation:**
 
 - **A huge region need not be loaded at once.** At a shared 512×512 landmark, the server generated just **12 unique 32×32 terrain chunks** for 35 clients' initial subscriptions and crossing updates, rather than eagerly producing all 256 chunks of that biome.
-- Static chunk generation is shared across players, but **full chunk payloads are still sent separately to each receiving client**. The grouped 35-client first-visit payload was roughly 404 KB of uncompressed JSON, not a single 11 KB broadcast shared by all students. In a real implementation account for framing, protocol overhead, compression, updated art state, resends and actual connection speed.
+- Static chunk generation is shared across players, but **full chunk payloads are still sent separately to each receiving client**. The grouped 35-client first-visit payload was roughly 418 KB of uncompressed JSON, not a single 11 KB broadcast shared by all students. In a real implementation account for framing, protocol overhead, compression, updated art state, resends and actual connection speed.
 - **A small global 96-chunk LRU thrashes when players are scattered.** In the 70-player synthetic case, 599 historical chunk generations occurred because older entries were evicted and later regenerated. Resident cache still stayed at 96. This is a **CPU-versus-memory tradeoff**, not a fatal barrier; measure realistic multi-region movement and use per-region warm-set budgets or on-demand compression only after observing live load.
 - Cache snapshots and synthetic performance should not be mistaken for actual server TPS, client FPS, long-run memory health, or WebSocket throughput. No Chromebook, school firewall, or student device was involved.
+
+## Visual QA and versioning findings
+
+The offline inspector produced a self-contained ~811 KB HTML file and displayed Bramblefen's seeded terrain in headless Chrome at 1440×900. Its first rendering exposed a leftover perfectly straight north/south/east/west debug road. The organic-routes pass removed that old test grid while keeping the nine authored destinations connected. A second screenshot confirmed meandering paths and the elimination of the debug cross.
+
+**Important:** A procedural preview with curved paths is still a planning diagram, not a professional game map. Rivers are simulated from simple seeded fields, scenery is a colored tile code rather than commissioned pixel art, paths may cross impassable-looking ground because this is not A* navigation, and there are no actual quests, buildings, resident routines, sprite collisions or captures in the inspector.
+
+The final immutable terrain payload now carries an explicit **organic route revision**, separate from the parent generator revision. Real migration will need both revisions in its cache/region compatibility contract before a released map changes shape. All archived output here was generated with this evolving **nonproduction** revision.
+
+### Standalone inspector instructions
+
+Run `node apps/checkaverse/experiments/worldgen/map-preview.mjs <local-output.html>` to write a single offline HTML file at a deliberate scratch path. Use `--512` to inspect an aspirational 512×512 world; the default is 256×256. Open the resulting file in a normal browser; biome selection, pan, zoom, tile inspection and landmark labeling require no server connection.
+
+**No student game state or production content is read or saved.** The file is a static preproduction planning artifact, not a page on grant-desk.com.
 
 ## Proposed production protocol (not yet implemented)
 
