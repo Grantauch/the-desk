@@ -48,7 +48,7 @@ test("world boundaries clamp subscriptions and never request nonexistent chunks"
   const s=spec("frostglass_reach"),server=createTerrainPreview([s]);
   const topLeft=server.subscribe("alpha",location(s,0,0));
   assert.equal(topLeft.added.length,4);
-  assert.deepEqual(topLeft.subscribedKeys.sort(),[
+  assert.deepEqual([...topLeft.subscribedKeys].sort(),[
     "frostglass_reach:0:0","frostglass_reach:0:1",
     "frostglass_reach:1:0","frostglass_reach:1:1"
   ]);
