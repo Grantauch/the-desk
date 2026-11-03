@@ -131,6 +131,55 @@ export class SharedWorldPilot {
     return {status:"claimed",...event};
   }
 
+  // Trusted server-side snapshot contract only. Real deployment would use
+  // SQLite transactions, replay protection, a backed-up checkpoint and migrations.
+  exportSnapshot() {
+    return {
+      schema: 1,
+      regions: [...this.regions.values()].map(s => ({
+        regionId: s.regionId, seed: s.numericSeed, version: s.version, size: s.size
+      })).sort((a,b)=>a.regionId.localeCompare(b.regionId)),
+      players: [...this.players.values()].map(p => ({
+        actor:p.actor,regionId:p.regionId,x:p.x,y:p.y,lastSeq:p.lastSeq,revision:p.revision
+      })).sort((a,b)=>a.actor.localeCompare(b.actor)),
+      events: this.events.map(e=>({...e}))
+    };
+  }
+
+  static restoreSnapshot(regionSpecs, resourceCatalog, snapshot) {
+    if(!snapshot||snapshot.schema!==1||!Array.isArray(snapshot.regions)||!Array.isArray(snapshot.players)||!Array.isArray(snapshot.events)){
+      throw new Error("Invalid shared-world snapshot schema");
+    }
+    const world=new SharedWorldPilot(regionSpecs,resourceCatalog);
+    const expected=world.exportSnapshot().regions;
+    if(JSON.stringify(snapshot.regions)!==JSON.stringify(expected)) {
+      throw new Error("World seed, size, or generator revision changed: migrate before restore");
+    }
+    for(const p of snapshot.players) {
+      if(!p || typeof p.actor!=="string" || !/^[a-z][a-z0-9-]{0,31}$/.test(p.actor))throw new Error("Invalid saved actor");
+      const spec=world.region(p.regionId);
+      if(p.revision!==spec.version||!Number.isInteger(p.x)||!Number.isInteger(p.y)||p.x<0||p.y<0||p.x>=spec.size||p.y>=spec.size||!WALKABLE.has(tileAt(spec,p.x,p.y))) {
+        throw new Error("Saved player location does not match the current world");
+      }
+      if(!Number.isInteger(p.lastSeq)||p.lastSeq<0||world.players.has(p.actor))throw new Error("Invalid saved player sequence");
+      world.players.set(p.actor,{...p,online:false});
+    }
+    for(const e of snapshot.events){
+      if(!e||!Number.isInteger(e.eventId)||e.eventId!==world.nextEventId||!world.players.has(e.actor)||!Number.isInteger(e.seq)||e.seq<=0) {
+        throw new Error("Invalid or reordered saved event");
+      }
+      const resource=world.resources.get(e.regionId+":"+e.resourceId);
+      if(!resource || resource.x!==e.x || resource.y!==e.y)throw new Error("Saved event does not match trusted resource catalog");
+      const key=e.regionId+":"+e.resourceId;
+      if(world.claims.has(key))throw new Error("Duplicate claim in saved event history");
+      const event={eventId:e.eventId,actor:e.actor,regionId:e.regionId,resourceId:e.resourceId,x:e.x,y:e.y,seq:e.seq};
+      world.claims.set(key,event);
+      world.events.push(event);
+      world.nextEventId++;
+    }
+    return world;
+  }
+
   committedSince(afterId=0) {
     if(!Number.isInteger(afterId)||afterId<0)throw new RangeError("Invalid event cursor");
     return this.events.filter(x=>x.eventId>afterId).map(x=>({...x}));
