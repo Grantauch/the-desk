@@ -150,6 +150,14 @@ test("snapshot restore rejects map migrations and forged or duplicate saved clai
   assert.throws(()=>SharedWorldPilot.restoreSnapshot(originals,resources,swappedObject),/trusted resource catalog/);
 });
 
+test("an ordinary reconnect cannot silently teleport between biomes", () => {
+  const world=makeIsolatedPilot();
+  world.enter("alice","verdant_crown");
+  world.leave("alice");
+  assert.throws(()=>world.enter("alice","frostglass_reach"),/authorized map gate/);
+  assert.equal(world.enter("alice","verdant_crown").regionId,"verdant_crown");
+});
+
 test("invalid catalog, unregistered actors and chunk indices are rejected", () => {
   assert.throws(()=>makeIsolatedPilot().enter("Bad Actor","verdant_crown"),TypeError);
   assert.throws(()=>makeIsolatedPilot().enter("alex","unknown"),RangeError);
