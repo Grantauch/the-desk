@@ -13,12 +13,25 @@ export function chunkKey(regionId, x, y) {
 }
 
 export class SharedWorldPilot {
-  constructor(regionSpecs) {
+  constructor(regionSpecs, resources = []) {
     if (!Array.isArray(regionSpecs) || regionSpecs.length < 1) throw new TypeError("Pass one or more region specs");
     this.regions = new Map();
     for (const spec of regionSpecs) {
       if (this.regions.has(spec.regionId)) throw new Error("Duplicate region ID");
       this.regions.set(spec.regionId, spec);
+    }
+    // Trusted resource catalog is supplied by the server at construction time;
+    // clients never invent resource IDs or authoritative coordinates.
+    this.resources = new Map();
+    for (const {regionId, id, x, y} of resources) {
+      const spec = this.region(regionId);
+      if (typeof id !== "string" || !/^[a-z][a-z0-9-]{0,31}$/.test(id)) throw new TypeError("Invalid authored resource ID");
+      if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= spec.size || y >= spec.size || !WALKABLE.has(tileAt(spec,x,y))) {
+        throw new RangeError("Invalid authored resource location");
+      }
+      const key=regionId+":"+id;
+      if (this.resources.has(key)) throw new Error("Duplicate resource ID");
+      this.resources.set(key, {regionId,id,x,y});
     }
     this.players = new Map(); // synthetic anonymous player tokens only
     this.claims = new Map(); // (region, resource id) -> single event
@@ -96,20 +109,22 @@ export class SharedWorldPilot {
     return {regionId:p.regionId,actor,chunkKeys:chunks,nearby};
   }
 
-  claim(actor, resourceId, x, y, seq) {
+  claim(actor, resourceId, seq) {
     const p=this.active(actor);
     const spec=this.region(p.regionId);
     if(typeof resourceId!=="string" || !/^[a-z][a-z0-9-]{0,31}$/.test(resourceId)) throw new TypeError("Invalid resource ID");
-    if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||y<0||x>=spec.size||y>=spec.size)throw new RangeError("Resource outside region");
     if(!Number.isInteger(seq)||seq<=0)throw new RangeError("Invalid claim nonce");
-    if(MANHATTAN(p,{x,y})>1)throw new Error("Resource not in reach");
-    const key=p.regionId+":"+resourceId; // stable across two clients in same region
+    const key=p.regionId+":"+resourceId; // server-owned, stable per shared region
+    const resource=this.resources.get(key);
+    if(!resource)throw new Error("Resource is not registered by server");
+    const {x,y}=resource;
+    if(MANHATTAN(p,resource)>1)throw new Error("Resource not in reach");
     const prior=this.claims.get(key);
     if(prior) {
       if(prior.actor===actor && prior.seq===seq)return {status:"already-committed",...prior};
       return {status:"already-claimed",eventId:prior.eventId};
     }
-    if(!WALKABLE.has(tileAt(spec,x,y)))throw new Error("No collectible at solid terrain");
+    // Catalog registration already validated this tile against server terrain.
     const event={eventId:this.nextEventId++,actor,regionId:p.regionId,resourceId,x,y,seq};
     this.claims.set(key,event);
     this.events.push(event);
@@ -126,5 +141,8 @@ export function makeIsolatedPilot(worldSeed="test-only-seed") {
   return new SharedWorldPilot([
     createRegionSpec("verdant_crown",worldSeed,256),
     createRegionSpec("frostglass_reach",worldSeed,256)
+  ], [
+    {regionId:"verdant_crown",id:"canopy-sample",x:128,y:128},
+    {regionId:"frostglass_reach",id:"ice-sample",x:128,y:128}
   ]);
 }
