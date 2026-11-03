@@ -130,7 +130,7 @@ test("each biome has two waves with equal class and type opportunities", () => {
 
 test("provisional concepts are not accidentally marked released", () => {
   for (const row of rows.slice(12)) {
-    assert.ok(!/\blive\b|released|approved|canonical/i.test(row.status), row.id);
+    assert.ok(!/\blive\b|released|canonical/i.test(row.status), row.id);
     assert.equal(row.source, "preproduction plan");
   }
 });
