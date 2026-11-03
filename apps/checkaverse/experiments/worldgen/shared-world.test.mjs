@@ -87,6 +87,69 @@ test("interest window changes with movement and never leaks trainers in distant 
   assert.equal(world.visibleFor("alice",1).nearby.length,0);
 });
 
+
+test("trusted snapshot replay preserves claims and reconnect locations after restart", () => {
+  const seed="long-lived-world";
+  const before=makeIsolatedPilot(seed);
+  before.enter("alice","verdant_crown");
+  before.enter("bob","frostglass_reach");
+  before.move("alice",129,128,1);
+  const first=before.claim("alice","canopy-sample",11);
+  const second=before.claim("bob","ice-sample",22);
+  assert.deepEqual([first.eventId,second.eventId],[1,2]);
+  const snapshot=before.exportSnapshot();
+  const specs=[
+    createRegionSpec("verdant_crown",seed,256),
+    createRegionSpec("frostglass_reach",seed,256)
+  ];
+  const catalog=[
+    {regionId:"verdant_crown",id:"canopy-sample",x:128,y:128},
+    {regionId:"frostglass_reach",id:"ice-sample",x:128,y:128}
+  ];
+  const restored=SharedWorldPilot.restoreSnapshot(specs,catalog,structuredClone(snapshot));
+  assert.throws(()=>restored.active("alice"),/not connected/);
+  assert.equal(restored.enter("alice","verdant_crown").x,129);
+  assert.equal(restored.enter("bob","frostglass_reach").x,128);
+  assert.equal(restored.claim("alice","canopy-sample",11).status,"already-committed");
+  assert.equal(restored.claim("bob","ice-sample",23).status,"already-claimed");
+  assert.deepEqual(restored.committedSince(),snapshot.events);
+  assert.equal(restored.events.length,2);
+  assert.throws(()=>restored.move("alice",130,128,1),/sequence/);
+
+  // Export copies are not live references that callers can mutate.
+  snapshot.players[0].x=50;
+  snapshot.events[0].actor="tamper";
+  assert.equal(before.publicView("alice").x,129);
+  assert.equal(before.committedSince()[0].actor,"alice");
+});
+
+test("snapshot restore rejects map migrations and forged or duplicate saved claims", () => {
+  const seed="gate-seed";
+  const world=makeIsolatedPilot(seed);
+  world.enter("alice","verdant_crown");
+  world.claim("alice","canopy-sample",7);
+  const originals=[
+    createRegionSpec("verdant_crown",seed,256),
+    createRegionSpec("frostglass_reach",seed,256)
+  ];
+  const resources=[
+    {regionId:"verdant_crown",id:"canopy-sample",x:128,y:128},
+    {regionId:"frostglass_reach",id:"ice-sample",x:128,y:128}
+  ];
+  const snap=world.exportSnapshot();
+  const stale=[createRegionSpec("verdant_crown","different-seed",256),originals[1]];
+  assert.throws(()=>SharedWorldPilot.restoreSnapshot(stale,resources,snap),/migrate/);
+  const duplicate=structuredClone(snap);
+  duplicate.events.push({...duplicate.events[0],eventId:2});
+  assert.throws(()=>SharedWorldPilot.restoreSnapshot(originals,resources,duplicate),/Duplicate claim/);
+  const invalidLocation=structuredClone(snap);
+  invalidLocation.players[0].x=256;
+  assert.throws(()=>SharedWorldPilot.restoreSnapshot(originals,resources,invalidLocation),/location/);
+  const swappedObject=structuredClone(snap);
+  swappedObject.events[0].x=129;
+  assert.throws(()=>SharedWorldPilot.restoreSnapshot(originals,resources,swappedObject),/trusted resource catalog/);
+});
+
 test("invalid catalog, unregistered actors and chunk indices are rejected", () => {
   assert.throws(()=>makeIsolatedPilot().enter("Bad Actor","verdant_crown"),TypeError);
   assert.throws(()=>makeIsolatedPilot().enter("alex","unknown"),RangeError);
