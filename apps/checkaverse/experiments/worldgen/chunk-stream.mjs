@@ -100,14 +100,18 @@ export class TerrainInterestBroker {
     if(scope.startsWith("private:") && scope!=="private:"+actor)throw new Error("Private instance is not owned by this actor");
     const previous=this.clients.get(actor);
     const prior=new Set(previous?.keys??[]);
-    // On version/instance/region changes we must not preserve old interest.
-    if(previous && (previous.regionId!==regionId||previous.scope!==scope||previous.version!==version))prior.clear();
+    // Changing instance/region/revision invalidates the prior subscription even
+    // if the same static coordinates happen to produce identical chunk keys.
+    const contextChanged=Boolean(previous && (
+      previous.regionId!==regionId||previous.scope!==scope||previous.version!==version));
+    if(contextChanged)prior.clear();
     const chunkCoords=surrounding(spec,x,y,this.radius);
     const keys=chunkCoords.map(([cx,cy])=>chunkIdentity(regionId,cx,cy));
     const wanted=new Set(keys);
     const added=chunkCoords.filter(([cx,cy])=>!prior.has(chunkIdentity(regionId,cx,cy)))
       .map(([cx,cy])=>this.cache.chunk(regionId,cx,cy));
-    const removed=(previous?.keys??[]).filter(key=>!wanted.has(key));
+    const removed=contextChanged?[...(previous?.keys??[])]:(
+      previous?.keys??[]).filter(key=>!wanted.has(key));
     const retained=keys.filter(key=>prior.has(key));
     this.clients.set(actor,{regionId,scope,version,x,y,keys});
     return Object.freeze({actor,regionId,scope,version,
