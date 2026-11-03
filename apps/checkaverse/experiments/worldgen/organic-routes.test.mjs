@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { REGION_THEMES, createRegionSpec } from "./prototype.mjs";
+import { REGION_THEMES, createRegionSpec, tileAt, terrainWithoutDebugPaths } from "./prototype.mjs";
 import { makeLandmarkBlueprint, generateLandmarkChunk, auditLandmarkReachability } from "./landmark-network.mjs";
 import { ORGANIC_ROUTE_VERSION, makeOrganicBlueprint } from "./organic-routes.mjs";
 
@@ -27,6 +27,20 @@ test("curved routes differ meaningfully from the old cardinal L-shaped network",
     const different=[...now.routeCoordinates].filter(k=>!old.routeCoordinates.has(k));
     assert.ok(different.length>100,id+" needs a visible non-grid route shape");
     assert.equal(auditLandmarkReachability(now).ok,true);
+  }
+});
+
+test("organic overlay removes early proof-of-concept grid except authored curved paths",()=>{
+  const s=createRegionSpec("bramblefen_basin","no-straight-grid",256);
+  const b=makeOrganicBlueprint(s);
+  assert.equal(tileAt(s,3,s.center),"P","parent base proof intentionally has a debug cross");
+  assert.notEqual(terrainWithoutDebugPaths(s,3,s.center),"P");
+  assert.notEqual(terrainWithoutDebugPaths(s,s.center,3),"P");
+  for(let x=0;x<256;x++){
+    const y=s.center;
+    if(!b.routeCoordinates.has(x+","+y)&&!b.markings.has(x+","+y)){
+      assert.notEqual(b.terrain(x,y),"P","unrelated horizontal debug path leaked");
+    }
   }
 });
 
