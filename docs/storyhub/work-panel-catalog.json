@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-10-29",
-  "catalogueCount": 67,
+  "catalogueCount": 69,
   "hubs": [
     {
       "hub": "hh-down-the-rabbit-hole.html",
@@ -64,6 +64,16 @@
     },
     {
       "hub": "hh-bytesize-moon-hoax.html",
+      "mode": "assignment",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-23-months.html",
+      "mode": "reading",
+      "legacyStorageMovedToTab": false
+    },
+    {
+      "hub": "bts-bytesize-who-let-him-back.html",
       "mode": "assignment",
       "legacyStorageMovedToTab": false
     },

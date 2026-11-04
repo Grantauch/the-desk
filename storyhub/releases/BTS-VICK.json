@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "storyId": "BTS-VICK",
+  "title": "23 Months",
+  "route": "/hubs/bts-23-months.html",
+  "derivedFrom": {
+    "source": "storyhub/stories/BTS/VICK/story.json",
+    "note": "Openly licensed and public domain images only. Footage plays through YouTube embeds."
+  },
+  "files": [
+    {
+      "path": "/hubs/bts-23-months.html",
+      "bytes": 68220,
+      "sha256": "1aa5cc0bed1e3ccfaf4bb6ece6f8d797005ddab772dff558d4a77d89dff7e555"
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/falcons-2006-run.webp",
+      "assetId": "A01",
+      "bytes": 104228,
+      "sha256": "a522607e2d255bc1eb3ef92db07fc52b7322b7137fff4e45d3b923ff4d09b03f",
+      "width": 1000,
+      "height": 1566
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/falcons-2006-pass.webp",
+      "assetId": "A02",
+      "bytes": 74622,
+      "sha256": "1bf9be0cf3821a4370f5a57134d3d493218b59de626fd58ad516aeb77fdf768f",
+      "width": 1000,
+      "height": 1233
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/eagles-2009-interview.webp",
+      "assetId": "A03",
+      "bytes": 112018,
+      "sha256": "a0886c211c060a01c11d3857fb02e4d94bf9821d67c3971e0f8268c07df71268",
+      "width": 900,
+      "height": 1500
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/eagles-2010.webp",
+      "assetId": "A04",
+      "bytes": 94644,
+      "sha256": "ef5e32d98e8c9a2f72493ede70267dedbca20aecca61edfc160a0999f0fbe870",
+      "width": 960,
+      "height": 766
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/norfolk-state-2025.webp",
+      "assetId": "A05",
+      "bytes": 124198,
+      "sha256": "57406a536de1a11a8ad368221a6eb4ded62ae61eed9ab2c1cb01d172a4cca49e",
+      "width": 1400,
+      "height": 933
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/leavenworth.webp",
+      "assetId": "A06",
+      "bytes": 104472,
+      "sha256": "6a1cabf166f7a68baeef33765e177923c8f4424f92dba47cb50f83ed2f825720",
+      "width": 1280,
+      "height": 601
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/surry-county.webp",
+      "assetId": "A07",
+      "bytes": 99068,
+      "sha256": "2c16692363df3c21b1129fe2e03ff59f295631eae09df52c8a6c0b16e224ccd6",
+      "width": 1400,
+      "height": 1050
+    },
+    {
+      "path": "/storyhub/bts/23-months/assets/newport-news-1994.webp",
+      "assetId": "A08",
+      "bytes": 258892,
+      "sha256": "ed05c68d088ab6fbcdeff51095f2b4f4ecf6e23432edafc59bc47c0e80d4a1a0",
+      "width": 1200,
+      "height": 789
+    }
+  ],
+  "totalBytes": 1040362,
+  "sealedAt": "2026-11-04"
+}

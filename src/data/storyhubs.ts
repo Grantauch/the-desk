@@ -23,6 +23,47 @@ export interface StoryHub {
 }
 
 export const storyHubs: StoryHub[] = [
+  {
+    slug: 'bts-23-months',
+    href: '/hubs/bts-23-months.html',
+    title: '23 months',
+    course: 'beyond the scoreboard',
+    unit: 'unit 06 / the modern arena',
+    period: '1999–2026',
+    status: 'ready to teach',
+    question: 'michael vick lost almost everything in 2007. who decided he could have it back?',
+    blurb: 'The first pick in the 2001 draft becomes the richest player in the NFL, then a federal prisoner after police search a house he owns on Moonlight Road. Step through the 2007 case file, open the nine doors that let him back, and see the two seasons missing from his career.',
+    cover: '/storyhub/bts/23-months/assets/falcons-2006-run.webp',
+    coverAlt: 'Michael Vick scrambling in a white Atlanta Falcons number 7 jersey, 2006',
+    topics: ['michael vick', 'dogfighting', 'second chances', 'nfl discipline', 'atlanta falcons', 'philadelphia eagles'],
+    inside: [
+      'Nine chapters that change color with each team, from Newport News to Norfolk State.',
+      'Step through nine 2007 filings comparing what Vick said in public with what the record showed.',
+      'Open nine doors on a timeline to see who let him back and when.',
+      'Switch a season by season chart between rushing and passing and find the gap.',
+    ],
+  },
+  {
+    slug: 'bts-bytesize-who-let-him-back',
+    href: '/hubs/bts-bytesize-who-let-him-back.html',
+    title: 'who let him back',
+    course: 'beyond the scoreboard',
+    unit: 'bytesize / second chances',
+    period: '2007–2026',
+    status: 'ready to teach',
+    bytesize: 'bytesize no. 22',
+    question: 'which second chances did michael vick deserve: a job, an honor, both or neither?',
+    blurb: 'The follow up to 23 Months in a riso printed zine: flip eight recap cards, follow the 66 dogs through the case, read two apologies side by side, and sit on a review board that shows where you draw the line.',
+    cover: '/storyhub/bts/23-months/assets/eagles-2010.webp',
+    coverAlt: 'Michael Vick in an Eagles uniform setting up to throw, 2010',
+    topics: ['michael vick', 'vicktory dogs', 'animal fighting law', 'apologies', 'endorsements', 'second chances'],
+    inside: [
+      'Flip eight trading cards that recap the story.',
+      'Follow 66 dogs from the raid to Best Friends in Utah.',
+      'Compare the 2007 and 2009 apologies and watch Vick explain himself years later.',
+      'Answer four questions and vote on seven real decisions, then turn it in.',
+    ],
+  },
 {
   "slug": "hh-down-the-rabbit-hole",
   "href": "/hubs/hh-down-the-rabbit-hole.html",
