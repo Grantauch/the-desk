@@ -25,7 +25,7 @@
         {
           "name": "Arthur Keith",
           "anchorStatus": "anchored",
-          "visualAnchorId": "A01"
+          "visualAnchorId": "A18"
         }
       ],
       "visualAnchorIds": [
@@ -86,7 +86,7 @@
         {
           "name": "Arthur Keith",
           "anchorStatus": "anchored",
-          "visualAnchorId": "A01"
+          "visualAnchorId": "A18"
         }
       ],
       "visualAnchorIds": [
@@ -101,7 +101,8 @@
       "namedPeople": [
         {
           "name": "Gerrit Smith Miller",
-          "anchorStatus": "not-available"
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A19"
         }
       ],
       "visualAnchorIds": [
