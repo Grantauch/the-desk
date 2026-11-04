@@ -27,3 +27,11 @@ The fourteen optimized WebP files are direct derivatives of the original PowerPo
 ## Publication review, 2026-10-29
 
 The precise Poyais death count and Goering trade total have been removed from the student page because accounts differ. The primary Buckels/Jones/Paulhus paper confirms N=71 and the four task percentages. APA confirms the narrower professional Goldwater Rule. Museum Boijmans and King's College London document Van Meegeren; the student page links those checks. Fictional Card E stays explicitly identified at reveal.
+
+## November 4, 2026 rebuild
+- Thomas Strangeways, Sketch of the Mosquito Shore, 1822, Internet Archive sketchmosquitos00conggoog.
+- Lewis Carroll with Tenniel engravings, 1900 edition, Internet Archive alicesadventures00carr_13.
+- Polygoon newsreel Proces van Meegeren, 1947, Wikimedia Commons.
+- Library of Congress: Brooklyn Bridge lithograph pga 03205, Grand Duchess Anastasia ggbain 38336, Goldwater portrait cph 3b45578.
+- Fact survey counts: Goldwater v. Ginzburg, 414 F.2d 324, 2d Cir. 1969, and the APA.
+- Poyais settler numbers: ship records of the Honduras Packet and Kennersley Castle.
