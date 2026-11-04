@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
 import { readFile, mkdir, stat } from 'node:fs/promises';
-import { resolve, extname } from 'node:path';
+import { resolve, extname, sep } from 'node:path';
 import assert from 'node:assert/strict';
 
 const root=resolve('public'), output=resolve('browser-results/wwi-museums');
@@ -11,7 +11,7 @@ await mkdir(output,{recursive:true});
 const server=createServer(async(req,res)=>{
   try {
     const p=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));
-    assert(p.startsWith(root+'/'));
+    assert(p.startsWith(root+sep));
     const data=await readFile(p);
     res.writeHead(200,{'Content-Type':extname(p)==='.glb'?'model/gltf-binary':extname(p)==='.html'?'text/html':'application/octet-stream'});res.end(data);
   }catch {res.writeHead(404);res.end('Not found');}
