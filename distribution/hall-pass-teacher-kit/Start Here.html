@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hall Pass | Teacher Setup Preview</title>
+<style>
+:root{font:16px system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f6f9;color:#182943}
+*{box-sizing:border-box}body{margin:0}header{background:#122338;color:#fff;padding:32px max(22px,calc((100vw - 850px)/2))}
+main{max-width:850px;margin:0 auto;padding:22px}h1{font-size:clamp(2rem,5vw,3.4rem);letter-spacing:-.05em;margin:6px 0}
+header p{color:#c9d6e5}section{background:white;border:1px solid #d8e0e9;border-radius:14px;margin:16px 0;padding:24px}
+h2{margin:0 0 12px;font-size:1.4rem}p,li{line-height:1.55}label{display:block;font-weight:700;margin-bottom:8px}
+a.button,button{display:inline-block;background:#1d496f;color:white;font-weight:700;text-decoration:none;border:0;border-radius:8px;padding:12px 16px;cursor:pointer}
+input{width:100%;padding:13px;font:inherit;border-radius:8px;border:1px solid #91a7c0}
+.warning{background:#fff3dc;border-left:5px solid #bb7635;padding:15px;border-radius:6px}
+.note{color:#576980;font-size:.93rem}output{display:block;margin:6px 0 12px;overflow-wrap:anywhere;font:13px Consolas,monospace}
+#results{display:none}#results.ready{display:block}.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:16px}
+.linkbox{padding:16px;background:#f5f8fc;border-radius:9px}#error{color:#b32b31;min-height:1.3em}
+</style></head><body>
+<header><small>HALL PASS / TEACHER INSTALLATION</small><h1>Your classroom. Your kiosk.</h1>
+<p>Set up a private Hall Pass app for a Chromebook by your door—without owning a website.</p></header>
+<main>
+<div class="warning"><strong>Development preview, not a production installer.</strong> Schoolwide inactive roster synchronization and automatic lunch-number PIN provisioning are not yet enabled. Do not use this preview to migrate real student credentials.</div>
+<section><h2>1. Make a private copy</h2><p>Sign into your school Google account. Make your own copy of the existing Hall Pass template.</p>
+<a class="button" href="https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0/copy" target="_blank" rel="noopener noreferrer">Copy Hall Pass template</a></section>
+<section><h2>2. Configure your classroom</h2><p>In your new spreadsheet select <strong>Hall Pass → Start setup</strong>. Enter your name, class schedule, school student-email domain and pass rules. Grant Google's requested permissions only from your school account.</p></section>
+<section><h2>3. Activate the web app</h2><p>Follow the built-in setup wizard. In Google's deploy screen choose <strong>Web app</strong>, <strong>Execute as Me</strong> and <strong>Who has access: Anyone within your school</strong>, if permitted. Copy the new <strong>/exec</strong> link, not <strong>/dev</strong>.</p><p class="note">A school administrator may need to approve Apps Script and Chromebook kiosk use.</p></section>
+<section><h2>4. Get your two links</h2><p>This page makes kiosk/teacher URLs locally and does not upload or save the address.</p>
+<form id="setup"><label for="url">Your new Google web app URL</label><input id="url" type="url" required placeholder="https://script.google.com/.../exec" autocomplete="off">
+<p id="error" role="alert"></p><button type="submit">Make my kiosk and teacher links</button></form>
+<div id="results" aria-live="polite"><div class="links">
+<div class="linkbox"><strong>Door Chromebook</strong><output id="kiosk"></output><a class="button" id="open-kiosk" rel="noopener noreferrer" target="_blank">Open kiosk</a></div>
+<div class="linkbox"><strong>Teacher dashboard</strong><output id="teacher"></output><a class="button" id="open-teacher" rel="noopener noreferrer" target="_blank">Open dashboard</a></div>
+</div></div></section>
+<section><h2>5. Check it with synthetic students</h2><p>On the dedicated Chromebook, open the kiosk link in fullscreen. Test a request and a return with synthetic data, then confirm the screen clears between students and the teacher dashboard remains protected.</p><p class="note">Do not sign a teacher account into the student Chromebook. District IT handles managed kiosk policy and screen-sleep settings.</p></section>
+<p class="note">This ZIP contains no school roster, lunch PINs, student data, Google credentials or tokens.</p>
+</main><script>
+(function(){
+'use strict';
+document.getElementById('setup').addEventListener('submit',function(e){
+e.preventDefault();var error=document.getElementById('error');error.textContent='';
+document.getElementById('results').className='';
+try{
+var u=new URL(document.getElementById('url').value.trim());
+if(u.protocol!=='https:'||u.hostname!=='script.google.com'||!/^\/(?:a\/)?macros\//.test(u.pathname)||!u.pathname.endsWith('/exec')||u.username||u.password)throw Error('Paste a Google Apps Script web app URL ending in /exec.');
+u.search='';u.hash='';var base=u.toString();
+['kiosk','teacher'].forEach(function(mode){
+var url=base+'?mode='+mode;
+document.getElementById(mode).textContent=url;
+document.getElementById('open-'+mode).href=url;
+});
+document.getElementById('results').className='ready';
+}catch(ex){error.textContent=ex.message||'Invalid web app address.';}
+});
+})();
+</script></body></html>

@@ -806,7 +806,7 @@
         if (!sharedDevice()) return;
         handoffMessage = message;
         showHandoffNote(message);
-        handoffHandle = setTimeout(() => resetToPin('Enter your six-digit PIN.'), delay);
+        handoffHandle = setTimeout(() => resetToPin('Enter your 5- or 6-digit PIN.'), delay);
       };
 
       /**
@@ -823,7 +823,7 @@
         if (screen === 'pin') return;
         const remaining = Math.max(0, IDLE_RESET_MS - (Date.now() - lastInteraction));
         idleHandle = setTimeout(() => {
-          if (sharedDevice() && screen !== 'pin') resetToPin('Enter your six-digit PIN.');
+          if (sharedDevice() && screen !== 'pin') resetToPin('Enter your 5- or 6-digit PIN.');
         }, remaining);
       };
 
@@ -847,7 +847,7 @@
         authorizedAction = '';
         state = null;
         clearError();
-        renderPin(message || 'Enter your six-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
+        renderPin(message || 'Enter your 5- or 6-digit PIN.', APP_MODE === 'checkin' ? 'checkin' : 'pass');
       };
 
       /* ------------------------------------------------------------ screens */
@@ -876,12 +876,12 @@
           <form class="pin-box" id="pin-form">
             <p class="eyebrow">${APP_MODE === 'kiosk' ? 'shared classroom kiosk' : 'your private classroom pass'}</p>
             <h2>you’re in the right place.</h2>
-            <p class="message">${escapeHtml(message || 'Use the six-digit PIN your teacher gave you.')}</p>
-            <label class="pin-label" for="pin">Your six-digit PIN</label>
-            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
+            <p class="message">${escapeHtml(message || 'Use the 5- or 6-digit PIN your teacher gave you.')}</p>
+            <label class="pin-label" for="pin">Your 5- or 6-digit PIN</label>
+            <input type="password" class="pin-input" id="pin" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off" aria-label="5- or 6-digit student PIN" required>
             <button class="primary" type="submit">${purpose === 'checkin' ? 'check in' : 'continue with PIN'} →</button>
             ${purpose === 'checkin' ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
-            <details class="pin-help"><summary>Need a hand?</summary><p>Use the six-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
+            <details class="pin-help"><summary>Need a hand?</summary><p>Use the 5- or 6-digit PIN from your teacher. The same PIN works across your classes. Enter it when you request a pass and again when you return.</p></details>
           </form>`;
         const input = document.querySelector('#pin');
         input.focus();
@@ -972,8 +972,8 @@
             <p class="message">${escapeHtml(message || (checkIn
               ? 'A fresh PIN records exactly one daily check-in.'
               : 'A fresh PIN either requests the bathroom or records your return.'))}</p>
-            <label class="pin-label" for="action-pin">Your six-digit PIN</label>
-            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" aria-label="Six-digit student PIN" required>
+            <label class="pin-label" for="action-pin">Your 5- or 6-digit PIN</label>
+            <input type="password" class="pin-input" id="action-pin" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" autocomplete="off" aria-label="5- or 6-digit student PIN" required>
             <button class="primary" type="submit">${checkIn ? 'check in now' : 'continue'}</button>
             ${checkIn ? '<button class="secondary" type="button" id="visit-checkling">visit Checkling only</button><p class="message">A pet visit works outside class hours and never records attendance or adds a point.</p>' : ''}
             ${canGoBack ? '<button class="secondary" id="cancel-action-pin" type="button">go back</button>' : ''}
@@ -1148,7 +1148,7 @@
         }));
 
         const switchButton = document.querySelector('#switch-student');
-        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN.'));
+        if (switchButton) switchButton.addEventListener('click', () => resetToPin('Enter your 5- or 6-digit PIN.'));
         const pinButton = document.querySelector('#use-pin');
         if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your PIN if this Chromebook is not signed into your own account.'));
         const evidenceDialog = document.querySelector('#allowance-evidence-dialog');
@@ -1270,7 +1270,7 @@
         }));
 
         const nextButton = document.querySelector('#checkin-next');
-        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your six-digit PIN to check in.'));
+        if (nextButton) nextButton.addEventListener('click', () => resetToPin('Enter your 5- or 6-digit PIN to check in.'));
 
         const pinButton = document.querySelector('#checkin-pin');
         if (pinButton) pinButton.addEventListener('click', () => resetToPin('Use your one six-digit student PIN. It works in all your classes.'));
@@ -1864,7 +1864,7 @@
       const openLunchPinDialog = () => {
         let previewed = '';
         teacherFormDialog(`<p class="eyebrow">STUDENT PINS</p><h2>use lunch numbers as PINs.</h2>
-          <p>Paste two columns from the school list: each student's school email and their 6-digit lunch number. Students who are not in your classes are ignored, so the whole school list is fine.</p>
+          <p>Paste two columns from the school list: each student's school email and their 5- or 6-digit lunch number. Students who are not in your classes are ignored, so the whole school list is fine.</p>
           <label>School list<textarea name="list" rows="8" placeholder="student@students.school.org&#9;412345"></textarea></label>
           <div class="lunch-preview" hidden></div>
           <label class="lunch-confirm" hidden>Type USE LUNCH NUMBERS to switch<input name="confirmation" autocomplete="off"></label>`,
@@ -2067,7 +2067,7 @@
           const lunch = document.createElement('section');
           lunch.className = 'subcard setup-card'; lunch.id = 'lunch-pin-card';
           lunch.innerHTML = `<h3>lunch-number PINs</h3>
-            <p class="message">When you have the school list, students can use their 6-digit lunch number as their PIN. Paste the list, check the preview, then confirm. Students not on the list keep their current PIN.</p>
+            <p class="message">When you have the school list, students can use their 5- or 6-digit lunch number as their PIN. Paste the list, check the preview, then confirm. Students not on the list keep their current PIN.</p>
             <div class="button-row"><button class="secondary" type="button" id="open-lunch-pins">switch PINs to lunch numbers</button></div>`;
           panels.settings.append(lunch);
           lunch.querySelector('#open-lunch-pins').addEventListener('click', () => openLunchPinDialog());
@@ -2321,7 +2321,7 @@
               <td class="action"><div class="table-actions"><button class="secondary compact" data-reset-pin-email="${escapeHtml(student.email)}" data-reset-pin-name="${escapeHtml(student.name)}">reset PIN</button><button class="secondary compact danger" data-remove-student="${escapeHtml(student.key)}" data-remove-name="${escapeHtml(student.name)}" data-remove-class="${escapeHtml(student.classPeriod)}">remove from class</button></div></td>
             </tr>`).join('') : '<tr><td colspan="4">No active students are on the roster.</td></tr>';
         const rosterResultHtml = teacherRosterResult ? `
-          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new six-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
+          <div class="notice success" style="margin-top:12px"><p><strong>${escapeHtml(teacherRosterResult.name)} ${teacherRosterResult.action === 'removed' ? 'was removed from' : teacherRosterResult.action === 'reactivated' ? 'was reactivated in' : 'was added to'} ${escapeHtml(teacherRosterResult.classPeriod)}.</strong>${teacherRosterResult.createdPin ? ' A new 5- or 6-digit PIN was generated and is ready in PIN delivery.' : ''}</p></div>` : '';
 
         const pinPreviewHtml = teacherPinPreview ? `
           <div class="notice warning email-preview"><p><strong>${escapeHtml(teacherPinPreview.readyRecipients)} student emails ready</strong> · ${escapeHtml(teacherPinPreview.remainingDailyQuota)} mail recipients available today</p><p>Subject: ${escapeHtml(teacherPinPreview.subject)}</p><p>${escapeHtml(teacherPinPreview.example)}</p></div>` : '';
@@ -2855,7 +2855,7 @@
         } catch (error) {
           if (/expired/i.test(error.message || '')) {
             studentRefreshFailures = 0;
-            resetToPin('Enter your six-digit PIN again.');
+            resetToPin('Enter your 5- or 6-digit PIN again.');
             return;
           }
           studentRefreshFailures += 1;
@@ -2872,7 +2872,7 @@
           adoptState(await call('getBootstrap', APP_MODE));
           setTitle(state.appTitle);
           if (APP_MODE === 'teacher') renderTeacher();
-          else if (APP_MODE === 'kiosk') resetToPin('Enter your six-digit PIN.');
+          else if (APP_MODE === 'kiosk') resetToPin('Enter your 5- or 6-digit PIN.');
           else if (!state.recognized) renderPin(state.message, APP_MODE === 'checkin' ? 'checkin' : 'pass');
           else renderResolvedState(APP_MODE === 'checkin' ? 'checkin' : 'pass');
 

@@ -628,7 +628,7 @@ function getBootstrap(mode, clientContract) {
   }
 
   const purpose = mode === 'checkin' ? 'checkin' : 'pass';
-  if (!activeEmail) return unrecognizedState_(settings, purpose, 'Enter your six-digit PIN to continue.');
+  if (!activeEmail) return unrecognizedState_(settings, purpose, 'Enter your 5- or 6-digit PIN to continue.');
 
   const students = getStudentsByEmail_(activeEmail);
   if (!students.length) {
@@ -823,7 +823,7 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
 function verifyStudentPin_(pin, activeEmail, attemptNonce) {
   assertPinAttemptAllowed_(activeEmail, attemptNonce);
   const cleaned = String(pin || '').replace(/\D/g, '');
-  if (!/^\d{6}$/.test(cleaned)) throw new Error('Enter your six-digit PIN.');
+  if (!/^\d{5,6}$/.test(cleaned)) throw new Error('Enter your 5- or 6-digit PIN.');
   const students = getStudentsByPinHash_(hashPin_(cleaned));
   if (!students.length) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
@@ -1187,11 +1187,11 @@ function resolveStudent_(pinToken, requireFreshPinIdentity) {
   const settings = getSettings_();
   const email = getActiveEmail_();
   assertSchoolAccount_(email, settings);
-  if (!email) throw new Error('Enter your six-digit PIN to continue.');
+  if (!email) throw new Error('Enter your 5- or 6-digit PIN to continue.');
   const students = getStudentsByEmail_(email);
   if (students.length !== 1) {
     throw new Error(students.length > 1
-      ? 'Use the six-digit PIN for this class.'
+      ? 'Use the 5- or 6-digit PIN for this class.'
       : 'Your school account is not on the active roster. Use your PIN or ask your teacher.');
   }
   return { student: students[0], method: 'google' };
@@ -2675,7 +2675,7 @@ function discoverIdentityReconciliations_() {
   const activeEmails = new Set(activeRoster.map((student) => student.email));
   const cardsByOldEmail = new Map();
   readPinCards_().forEach((card) => {
-    if (!/^\d{6}$/.test(card.pin) || activeEmails.has(card.studentEmail)) return;
+    if (!/^\d{5,6}$/.test(card.pin) || activeEmails.has(card.studentEmail)) return;
     if (!cardsByOldEmail.has(card.studentEmail)) cardsByOldEmail.set(card.studentEmail, []);
     cardsByOldEmail.get(card.studentEmail).push(card);
   });
@@ -3199,7 +3199,7 @@ function getRosterSyncSnapshot(bridgeContract) {
   const roster = activeRoster.map((student) => {
     const card = pinCardByKey.get(student.key) || null;
     const credentialReady = Boolean(
-      student.pinHash && card && /^\d{6}$/.test(card.pin) && hashPin_(card.pin) === student.pinHash
+      student.pinHash && card && /^\d{5,6}$/.test(card.pin) && hashPin_(card.pin) === student.pinHash
     );
     return {
       studentEmail: student.email,
@@ -3301,7 +3301,7 @@ function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
         }),
         nameActions: normalized.updateName.map((input) => ({ key: input.key, stage: 'PLANNED' })),
         missingPinEmails: [...new Set(normalized.add.map((input) => input.email))]
-          .filter((email) => !pinCards.some((card) => card.studentEmail === email && /^\d{6}$/.test(card.pin))),
+          .filter((email) => !pinCards.some((card) => card.studentEmail === email && /^\d{5,6}$/.test(card.pin))),
         missingPinCardKeys: normalized.add.map((input) => input.key)
           .filter((key) => !pinCards.some((card) => card.studentKey === key)),
       };
@@ -3498,7 +3498,7 @@ function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
     const finalCards = readPinCards_();
     const verifiedCredentialMemberships = normalized.add.filter((input) => {
       const membership = finalRosterRows.find((student) => student.key === input.key && student.active) || null;
-      const card = finalCards.find((entry) => entry.studentKey === input.key && /^\d{6}$/.test(entry.pin)) || null;
+      const card = finalCards.find((entry) => entry.studentKey === input.key && /^\d{5,6}$/.test(entry.pin)) || null;
       return Boolean(membership && membership.name === input.name && card && card.studentName === input.name &&
         membership.pinHash && membership.pinHash === hashPin_(card.pin));
     }).length;
@@ -3528,10 +3528,10 @@ function applyRosterSyncChanges(request, writeContract, recoveryDecision) {
     const addedCount = (plan.addActions || []).filter((entry) => entry.action === 'added').length;
     const reactivatedCount = (plan.addActions || []).filter((entry) => entry.action === 'reactivated').length;
     const createdPins = (plan.missingPinEmails || []).filter((email) => (
-      finalCards.some((card) => card.studentEmail === email && /^\d{6}$/.test(card.pin))
+      finalCards.some((card) => card.studentEmail === email && /^\d{5,6}$/.test(card.pin))
     )).length;
     const createdPinCards = (plan.missingPinCardKeys || []).filter((key) => (
-      finalCards.some((card) => card.studentKey === key && /^\d{6}$/.test(card.pin))
+      finalCards.some((card) => card.studentKey === key && /^\d{5,6}$/.test(card.pin))
     )).length;
 
     const newRevision = rosterSyncRevision_(getRoster_());
@@ -5231,7 +5231,7 @@ function ensureOnePinPerStudent_(options) {
       }
     });
     cards.forEach((card) => {
-      if (requestedEmails.has(card.studentEmail) || !/^\d{6}$/.test(card.pin)) return;
+      if (requestedEmails.has(card.studentEmail) || !/^\d{5,6}$/.test(card.pin)) return;
       const hash = hashPin_(card.pin);
       if (!usedHashes.has(hash)) usedHashes.set(hash, card.studentEmail);
     });
@@ -5241,7 +5241,7 @@ function ensureOnePinPerStudent_(options) {
   let createdCards = 0;
 
   [...rosterByEmail.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([email, memberships]) => {
-    const emailCards = (cardsByEmail.get(email) || []).filter((card) => /^\d{6}$/.test(card.pin));
+    const emailCards = (cardsByEmail.get(email) || []).filter((card) => /^\d{5,6}$/.test(card.pin));
     const existingHashes = [...new Set(memberships.map((student) => student.pinHash).filter(Boolean))];
     const sentCard = emailCards.find((card) => card.emailStatus === 'SENT');
     const hashMatchedCard = emailCards.find((card) => memberships.some((student) => student.pinHash === hashPin_(card.pin)));
@@ -5476,7 +5476,7 @@ function buildPinEmailGroups_() {
     const student = record.student;
     const memberships = (cardsByEmail.get(email) || [])
       .filter((card) => record.activeKeys.has(card.studentKey));
-    const pins = [...new Set(memberships.map((card) => card.pin).filter((pin) => /^\d{6}$/.test(pin)))];
+    const pins = [...new Set(memberships.map((card) => card.pin).filter((pin) => /^\d{5,6}$/.test(pin)))];
     if (pins.length !== 1) {
       missingRecipients += 1;
       return;
@@ -5576,29 +5576,29 @@ function teacherResetStudentPin(studentEmail,reason,clientContract){
 const GD_LUNCH_PIN_CONFIRMATION = 'USE LUNCH NUMBERS';
 
 /**
- * Read a pasted "school email + 6-digit lunch number" list against the active
+ * Read a pasted "school email + 5- or 6-digit lunch number" list against the active
  * roster. Students on the list who are not in this teacher's classes are
  * counted and ignored, so a schoolwide list can be pasted as-is. Anything
  * ambiguous is a problem and nothing is written.
  */
 function planLunchNumberPins_(text) {
   const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  if (!lines.length) throw new Error('Paste the list first: a school email and a 6-digit lunch number on each line.');
+  if (!lines.length) throw new Error('Paste the list first: a school email and a 5- or 6-digit lunch number on each line.');
   if (lines.length > 5000) throw new Error('Paste at most 5,000 lines at a time.');
   const problems = [];
   const numberByEmail = new Map();
   lines.forEach((line, index) => {
-    // Only the email and the 6-digit number matter, so split on any separator.
+    // Only the email and the 5- or 6-digit number matter, so split on any separator.
     const cells = line.split(/[\t,;\s]+/).map((cell) => cell.trim().replace(/^"|"$/g, '')).filter(Boolean);
     const email = normalizeEmail_(cells.find((cell) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cell)) || '');
-    const numbers = cells.filter((cell) => /^\d{6}$/.test(cell));
+    const numbers = cells.filter((cell) => /^\d{5,6}$/.test(cell));
     if (!email) {
       if (index === 0 && /mail|number|id/i.test(line)) return; // header row
       problems.push(`line ${index + 1}: no email address`);
       return;
     }
     if (numbers.length !== 1) {
-      problems.push(`line ${index + 1}: needs exactly one 6-digit number`);
+      problems.push(`line ${index + 1}: needs exactly one 5- or 6-digit number`);
       return;
     }
     const prior = numberByEmail.get(email);
@@ -6415,6 +6415,8 @@ function setupWorkbook_() {
   queueSheet.getRange('E:G').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   queueSheet.getRange('K:K').setNumberFormat('m/d/yyyy h:mm:ss am/pm');
   const pinSheet = spreadsheet.getSheetByName(GD_SHEETS.PINS);
+  // Cafeteria IDs can have five digits or a leading zero; treat every PIN as text.
+  pinSheet.getRange('D:D').setNumberFormat('@');
   pinSheet.getRange('E:E').setNumberFormat('m/d/yyyy h:mm am/pm');
   pinSheet.getRange('G:G').setNumberFormat('m/d/yyyy h:mm am/pm');
   spreadsheet.getSheetByName(GD_SHEETS.UNMATCHED).getRange('B:C').setNumberFormat('m/d/yyyy h:mm am/pm');

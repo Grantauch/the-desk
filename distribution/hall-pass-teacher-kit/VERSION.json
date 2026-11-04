@@ -1,0 +1,10 @@
+{
+  "name": "HallPass-Teacher-Installer",
+  "version": "0.1.0-preview",
+  "status": "NOT_PRODUCTION_READY",
+  "selfInstalling": false,
+  "studentDataIncluded": false,
+  "schoolwideDirectorySync": false,
+  "lunchPinReuseRequiresApproval": true,
+  "description": "Offline setup launcher for teacher-owned Google Apps Script classroom copy"
+}
