@@ -500,3 +500,5 @@ Eight focused browser journeys pass, including three widths with zero automated 
 ## WWI museum route recovery and Blender batch - November 4
 
 Owner: Codex, issue #306. Netlify production builds were skipped for account credit exhaustion. Published already-built merged PR #305 deploy 6aea7da4775e0c260094143d at 2026-11-04T01:43:30.298Z. Both museums, both URL forms and both existing Arsenal GLBs returned HTTP 200. No route code change was needed. Vickers, 18-pounder and Camel sources/exports are implemented. New-batch browser/protected checks and deployment remain pending. See assets/wwi-blender/README.md for asset budgets, references and limitations.
+
+Batch 1: full local npm run verify passed (165 HTML / 5429 references); four WebGL scenarios at 1440x900 and 1366x768 passed with five successful GLBs or five deliberate fallbacks and no uncaught errors. PR #307 protected checks pending. Batch 2 SBR/wire/Wex implemented; browser validation pending.
