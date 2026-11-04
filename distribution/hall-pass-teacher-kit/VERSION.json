@@ -1,0 +1,12 @@
+{
+  "name": "HallPass-Teacher-Installer",
+  "version": "1.0.0-rc.1",
+  "status": "RELEASE_CANDIDATE",
+  "selfInstalling": false,
+  "guidedWorkbookSetup": true,
+  "googleConsentAndDeploymentRequired": true,
+  "studentDataIncluded": false,
+  "schoolwideDirectorySync": true,
+  "fieldAcceptance": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
+  "description": "Guided teacher-owned Hall Pass setup with a shared private school directory"
+}

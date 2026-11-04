@@ -3352,6 +3352,17 @@ test('applying switches PINs: the lunch number works and the old PIN does not', 
   assert.equal(card['Email Status'], 'SENT', 'lunch numbers must not queue PIN emails');
 });
 
+test('5-digit lunch PIN and leading-zero 6-digit lunch PIN authorize exactly as issued', () => {
+  const c = classroom({ settings: { MAX_ACTIVE_PASSES: 2 } });
+  const originalAdaPin = c.pin(PEOPLE.ada);
+  setLunch(c, lunchList([[PEOPLE.ada, '41234'], [PEOPLE.alan, '012345']]), 'USE LUNCH NUMBERS');
+  assert.throws(() => signOutWith(c, PEOPLE.ada, originalAdaPin), /did not match/);
+  assert.equal(signOutWith(c, PEOPLE.ada, '41234').actionOutcome.kind, 'STARTED');
+  assert.equal(signOutWith(c, PEOPLE.alan, '012345').actionOutcome.kind, 'STARTED');
+  assert.equal(String(c.pinCards().find(row => String(row['Student Email']) === PEOPLE.alan.email).PIN), '012345');
+  assert.throws(() => signOutWith(c, PEOPLE.alan, '12345'), /did not match/);
+});
+
 test('a student not on the list keeps their current PIN', () => {
   const c = classroom();
   const gracePin = c.pin(PEOPLE.grace);
@@ -3368,9 +3379,9 @@ test('two students with the same number stop the switch with nothing changed', (
   assert.equal(c.rosterRows().map((row) => row['PIN Hash']).join(), before);
 });
 
-test('a bad line or a number that is not 6 digits stops the switch', () => {
+test('a bad line or a number shorter than five digits stops the switch', () => {
   const c = classroom();
-  assert.throws(() => setLunch(c, lunchList([[PEOPLE.ada, '41234']]), 'USE LUNCH NUMBERS'), /Nothing was changed/);
+  assert.throws(() => setLunch(c, lunchList([[PEOPLE.ada, '4123']]), 'USE LUNCH NUMBERS'), /Nothing was changed/);
   assert.throws(() => setLunch(c, `${PEOPLE.ada.email}\t412345\nno email here 412346`, 'USE LUNCH NUMBERS'), /Nothing was changed/);
 });
 

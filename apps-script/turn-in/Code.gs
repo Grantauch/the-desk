@@ -5,7 +5,7 @@
  * It is its own Apps Script project, separate from Hall Pass, so a rush of
  * turn ins at the bell can never slow down check ins or passes.
  *
- * Students identify themselves with the same six digit PIN they use for the
+ * Students identify themselves with the same five or six digit PIN they use for the
  * hall pass. This script reads the Hall Pass roster (read only) to match a PIN
  * to a student, then writes to its own private workbook:
  *
@@ -20,7 +20,7 @@
  * Nothing here edits the roster.
  */
 
-const TI_VERSION = '2026-10-29-turn-in-v12';
+const TI_VERSION = '2026-11-04-turn-in-v13';
 const TI_TURNIN_LOCK_MS = 25000;
 const TI_DRAFT_LOCK_MS = 6000;
 const TI_TOKEN_SECONDS = 4 * 60 * 60;
@@ -526,7 +526,7 @@ function refreshReviewRoster_(book) {
 function identify_(request) {
   const props = PropertiesService.getScriptProperties();
   const testKey = props.getProperty('LOAD_TEST_KEY');
-  const pin = String(request.pin || '').replace(/\D/g, '');
+  const pin = String(request.pin || '').trim();
 
   if (testKey && request.test && String(request.test) === testKey) {
     if (!/^9\d{5}$/.test(pin)) throw refuse_('bad_pin', 'Load test PINs start with 9.');
@@ -541,7 +541,7 @@ function identify_(request) {
 
   const device = String(request.device || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 64) || 'unknown';
   assertAttemptsAllowed_(device);
-  if (!/^\d{6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your six digit hall pass PIN.');
+  if (!/^\d{5,6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your five or six digit hall pass PIN.');
 
   const match = rosterByHash_()[hashPin_(pin)];
   if (!match) {
@@ -565,7 +565,8 @@ function turnInIdentity_(request) {
 
 function rosterByHash_() {
   const cache = CacheService.getScriptCache();
-  const cached = cache.get('roster:v1');
+  const directoryPins = schoolDirectoryPinsForTurnIn_();
+  const cached = directoryPins === null ? cache.get('roster:v1') : null;
   if (cached) { try { return JSON.parse(cached); } catch (error) { cache.remove('roster:v1'); } }
 
   const props = PropertiesService.getScriptProperties();
@@ -581,7 +582,7 @@ function rosterByHash_() {
       const email = String(row[0] || '').trim().toLowerCase();
       const name = String(row[1] || '').trim();
       const classPeriod = String(row[2] || '').trim();
-      const pinHash = String(row[3] || '').trim();
+      const pinHash = directoryPins === null ? String(row[3] || '').trim() : directoryPins[email] ? hashPin_(directoryPins[email]) : '';
       const active = isTruthyCell_(row[4], true);
       if (!email || !name || !pinHash || !active) return;
       const entry = map[pinHash] || (map[pinHash] = { name, emails: [], classes: [] });
@@ -590,11 +591,36 @@ function rosterByHash_() {
     });
   }
   try {
-    cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
+    if (directoryPins === null) cache.put('roster:v1', JSON.stringify(map), TI_ROSTER_CACHE_SECONDS);
   } catch (error) {
     // A very large roster can exceed the cache value limit. Reading the sheet each time still works.
   }
   return map;
+}
+
+/** Directory lookups are server-only and never grant classroom membership. */
+function schoolDirectoryPinsForTurnIn_() {
+  const rosterId = PropertiesService.getScriptProperties().getProperty('ROSTER_SPREADSHEET_ID');
+  if (!rosterId) return null;
+  const book = SpreadsheetApp.openById(rosterId), settings = book.getSheetByName('Settings');
+  if (!settings || settings.getLastRow() < 2) return null;
+  const pointer = settings.getRange(2, 1, settings.getLastRow() - 1, 2).getValues().find((row) => row[0] === 'SCHOOL_DIRECTORY_SOURCE_ID');
+  if (!pointer || !pointer[1]) return null;
+  try {
+    const sheet = SpreadsheetApp.openById(String(pointer[1])).getSheetByName('School Directory');
+    if (!sheet || sheet.getLastRow() < 1 || sheet.getLastRow() > 5001) throw new Error('Invalid directory');
+    const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
+    if (header.join('|') !== 'School Student ID|Student Name|School Email|Status') throw new Error('Invalid headings');
+    const pins = {}, ids = new Set(), emails = new Set();
+    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
+    rows.filter((row) => row.some((cell) => cell !== '')).forEach((row) => {
+      const email = String(row[2] || '').trim().toLowerCase(), status = String(row[3] || '').toUpperCase();
+      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0]) || ids.has(row[0]) || (email && emails.has(email)) || !['AVAILABLE','DISABLED'].includes(status)) throw new Error('Invalid directory');
+      ids.add(row[0]); if (email) emails.add(email);
+      if (email && status === 'AVAILABLE') pins[email] = row[0];
+    });
+    return pins;
+  } catch (error) { throw refuse_('not_ready', 'The school directory is unavailable. Ask your teacher before signing in.'); }
 }
 
 /** Mirrors hashPin_ in the Hall Pass project. Both must share the same PIN_SALT. */
@@ -765,8 +791,13 @@ function migrateProgress_(book) {
 
 /* ----------------------------------------------------------------- tokens -- */
 
+function turnInCredentialVersion_(email) {
+  const hashes = Object.entries(rosterByHash_()).filter(([, entry]) => entry.emails.length === 1 && entry.emails[0] === email).map(([hash]) => hash).sort();
+  return hashes.length ? sign_(hashes.join('|')) : '';
+}
+
 function makeToken_(email, test) {
-  const body = Utilities.base64EncodeWebSafe(JSON.stringify({ e: email, t: test ? 1 : 0, x: Math.floor(Date.now() / 1000) + TI_TOKEN_SECONDS }));
+  const body = Utilities.base64EncodeWebSafe(JSON.stringify({ e: email, t: test ? 1 : 0, c: test ? '' : turnInCredentialVersion_(email), x: Math.floor(Date.now() / 1000) + TI_TOKEN_SECONDS }));
   return `${body}.${sign_(body)}`;
 }
 
@@ -780,6 +811,7 @@ function readToken_(token) {
     throw refuse_('signed_out', 'Enter your PIN again to keep saving.');
   }
   if (!data || !data.e || Number(data.x) < Date.now() / 1000) throw refuse_('signed_out', 'Enter your PIN again to keep saving.');
+  if (data.t !== 1 && (data.c || schoolDirectoryPinsForTurnIn_() !== null) && data.c !== turnInCredentialVersion_(data.e)) throw refuse_('signed_out', 'Your school PIN changed. Enter it again to keep saving.');
   return { email: data.e, test: data.t === 1 };
 }
 

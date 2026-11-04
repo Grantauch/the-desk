@@ -21,7 +21,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
         <p class="pass-launch__number">01</p>
         <p class="pass-launch__eyebrow">school Chromebook + fresh PIN</p>
         <h2 id="pass-launch-title">recognized first. authorized each time.</h2>
-        <p>Your school Google account can find your roster row, but a fresh six-digit PIN is still required for each bathroom request and each return.</p>
+        <p>Your school Google account can find your roster row, but a fresh 5- or 6-digit PIN is still required for each bathroom request and each return.</p>
       </div>
       {passConfig.enabled && appUrl ? (
         <a href={appUrl} target="_blank" rel="noopener" class="pass-button">open hall pass <span aria-hidden="true">↗</span></a>
@@ -34,7 +34,7 @@ const kioskUrl = appUrl ? `${appUrl}${appUrl.includes('?') ? '&' : '?'}mode=kios
       <section class="pass-option">
         <p class="pass-option__number">02</p>
         <h2>PIN + kiosk.</h2>
-        <p>If your own account is not available, use your one six-digit student PIN at the classroom kiosk. The same PIN works in every Mr. Grant class; multi-class students choose the class after entering it.</p>
+        <p>If your own account is not available, use your one 5- or 6-digit student PIN at the classroom kiosk. The same PIN works in every Mr. Grant class; multi-class students choose the class after entering it.</p>
         {passConfig.enabled && kioskUrl && (
           <a href={kioskUrl} target="_blank" rel="noopener">open kiosk mode ↗</a>
         )}

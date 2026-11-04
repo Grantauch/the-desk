@@ -715,7 +715,7 @@ assert.match(html, /show the passes counted/);
 assert.match(html, /timeZone:\s*'America\/Detroit'/);
 assert.match(passPage, /fresh PIN/i);
 assert.match(passPage, /no second PIN/i);
-assert.match(checkInPage, /fresh six-digit PIN/i);
+assert.match(checkInPage, /fresh 5- or 6-digit PIN/i);
 assert.match(checkInPage, /official no-school days/i);
 assert.match(toolsPage, /automatic line/i);
 

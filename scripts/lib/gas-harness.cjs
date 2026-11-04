@@ -466,9 +466,9 @@ function createHarness(options = {}) {
     Date: HarnessDate,
 
     SpreadsheetApp: {
-      create: (name) => new FakeSpreadsheet(name),
+      create: (name) => { const book = new FakeSpreadsheet('synthetic-directory-' + String(++state.uuidCounter).padStart(12, '0')); if (options.workbooks) options.workbooks.set(book.getId(), book); return book; },
       getActiveSpreadsheet: () => spreadsheet,
-      openById: () => spreadsheet,
+      openById: (id) => { if (!options.workbooks) return spreadsheet; const book = id === spreadsheetId ? spreadsheet : options.workbooks.get(id); if (!book) throw new Error('Workbook unavailable'); return book; },
       getUi: () => {
         const ui = {
           ButtonSet: { OK: 'OK', OK_CANCEL: 'OK_CANCEL', YES_NO: 'YES_NO' },
@@ -501,7 +501,7 @@ function createHarness(options = {}) {
 
     LockService: {
       getScriptLock: () => scriptLock,
-      getUserLock: () => scriptLock,
+      getUserLock: () => ({ waitLock() {}, releaseLock() {} }),
       getDocumentLock: () => scriptLock,
     },
 

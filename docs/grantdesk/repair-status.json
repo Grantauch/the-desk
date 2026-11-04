@@ -1,4 +1,19 @@
 {
+  "hall-pass-school-directory-2026-11-04": {
+    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "owner": "Codex",
+    "scope": "Private shared school directory, exact five/six-digit lunch PINs, independent classroom enrollments, Chromebook kiosk and downloadable teacher kit.",
+    "verification_status": "441_EXISTING_BEHAVIORS_DIRECTORY_AND_TURNIN_PASS_CANONICAL_IN_PROGRESS",
+    "deployment_status": "PR_320_RELEASE_IN_PROGRESS",
+    "field_status": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Separate private directory imports create no classroom memberships. Email links use exact school numbers; connection refuses incomplete active-roster mappings.",
+      "Independent teacher workbooks derive credentials from the same directory; corrections and revocations invalidate identity sessions. Private pass histories remain isolated.",
+      "Server-derived persistent attempt budgets survive client nonce rotation. Kiosk clears PINs on submission and student details after completion.",
+      "Teacher kit includes complete source, launcher, version, recovery instructions and checksums. Google consent/deployment and real field acceptance remain required.",
+      "Turn In and shared work-panel gates accept exact five/six-digit PINs and use the same school directory. No live student credential cutover has been performed."
+    ]
+  },
   "checkaverse-resident-lives-2026-11-02": {
     "status": "IMPLEMENTED_LOCAL_TESTED",
     "owner": "Codex",
