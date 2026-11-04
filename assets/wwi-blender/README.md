@@ -74,3 +74,40 @@ References:
 - Australian War Memorial Wex discussion: https://www.awm.gov.au/wartime/102/assault-by-fire
 - National Army Museum wiring party, 1917: https://collection.nam.ac.uk/detail.php?acc=2002-02-589-3
 - Australian War Memorial screw picket: https://www.awm.gov.au/collection/C136923
+
+## November 4 reconstruction batch 3
+
+| Exhibit | Source / GLB stem | Triangles | Batches | GLB bytes |
+|---|---|---:|---:|---:|
+| Rigid Zeppelin airship, circa 1915 | zeppelin_1915 | 13,768 | 6 | 270,520 |
+| Ocean-going German U-boat, circa 1916 | uboat_1916 | 13,092 | 7 | 433,280 |
+
+Rebuild with `python build_airship_submarine.py`. The airship has a long fabric
+envelope with frame/longitudinal seams, four tail fins, suspended gondolas and
+engine cars. The U-boat has a narrow casing, modest bridge, twin periscopes, deck
+gun, flooding slots, hydroplanes, rudder and twin propellers. These represent
+WWI equipment families, not exact serial-numbered vessels. They omit interiors
+and ship-specific refits. They must not be described as WWII Type VII equipment
+or exact engineering replicas. All eight previously placeholder Arsenal exhibits
+now have Blender replacement assets, alongside the previously completed rifle/tank.
+
+References:
+- National Army Museum Zeppelin gondola, 1916: https://collection.nam.ac.uk/detail.php?acc=1972-08-67-1-65
+- IWM contemporary wreckage film, 1916: https://film.iwmcollections.org.uk/record/1686
+- RAF Museum first Zeppelin raids: https://www.rafmuseum.org.uk/blog/the-few-and-the-first-battle-of-britain/
+- U.S. Naval History and Heritage Command WWI U-boat exhibition panels: https://www.history.navy.mil/content/dam/nhhc/browse-by-topic/War%20and%20Conflict/world-war-i/panels_7-12.pdf
+- Canadian War Museum WWI deck gun: https://www.warmuseum.ca/cwm/exhibitions/navy/objects_photos_search-e.aspx@section=4-D&id=6&page=0.html
+
+## Over the Top: instanced sandbag reconstruction
+
+`trench_sandbag_1916.blend` is an editable, rounded hessian bag with uneven fill
+and a pinched fabric mouth; `trench_sandbag_1916_web.glb` is 1,924 bytes, 44 triangles
+and one material batch. Rebuild using `python build_sandbag.py`. It replaces the
+geometry in the existing two instanced sandbag meshes, preserving all instance
+transforms, movement, lessons, trench-parts interaction and adaptive quality. It
+does not create one scene object per bag. The original box geometry stays in use
+if the optional asset is unavailable or fails format/scale validation. The bag
+is an interpretive environment prop, not a scan of a specific surviving artifact.
+
+Reference context: Imperial War Museums trench construction guide:
+https://www.iwm.org.uk/sites/default/files/files/2023-10/first_world_war_large_print_guide.pdf

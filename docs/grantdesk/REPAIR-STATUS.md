@@ -502,3 +502,9 @@ Eight focused browser journeys pass, including three widths with zero automated 
 Owner: Codex, issue #306. Netlify production builds were skipped for account credit exhaustion. Published already-built merged PR #305 deploy 6aea7da4775e0c260094143d at 2026-11-04T01:43:30.298Z. Both museums, both URL forms and both existing Arsenal GLBs returned HTTP 200. No route code change was needed. Vickers, 18-pounder and Camel sources/exports are implemented. New-batch browser/protected checks and deployment remain pending. See assets/wwi-blender/README.md for asset budgets, references and limitations.
 
 Batch 1: full local npm run verify passed (165 HTML / 5429 references); four WebGL scenarios at 1440x900 and 1366x768 passed with five successful GLBs or five deliberate fallbacks and no uncaught errors. PR #307 protected checks pending. Batch 2 SBR/wire/Wex implemented; browser validation pending.
+
+Batch 2 initial four desktop/Chromebook scenarios passed with eight GLBs and eight synthetic fallbacks, no uncaught errors. Flame alignment corrected after visual inspection. Batch 3 Zeppelin and U-boat sources/exports implemented; all eight remaining Arsenal exhibits now have Blender assets. Protected checks and new batch production release remain separate and pending.
+
+Over the Top: rounded Blender sandbag source and 1924-byte GLB implemented, preserving the same two InstancedMeshes and original fallback geometry. New trench-model browser/protected checks and release pending.
+
+Initial trench browser journeys passed all seven stops, trench-part labels and synthetic model failure; reducing bag geometry from 252 to 44 triangles after software-renderer measurements. All ten Arsenal model requests and all ten fallback scenarios passed at both viewports before final hull correction; corrected-ship repeat pending.

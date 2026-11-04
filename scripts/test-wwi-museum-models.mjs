@@ -31,7 +31,7 @@ try{
       await page.goto(base+'/hubs/ush9-the-arsenal.html');
       await page.getByRole('button',{name:'I',exact:true}).waitFor();
       await page.getByRole('button',{name:'Enter the gallery',exact:true}).click();
-      for(const [label,title] of [['II','The Machine Gun'],['III','Artillery'],['VIII','The Aeroplane'],['IV','Gas'],['V','Wire'],['VI','Flamethrower']]){
+      for(const [label,title] of [['II','The Machine Gun'],['III','Artillery'],['VIII','The Aeroplane'],['IV','Gas'],['V','Wire'],['VI','Flamethrower'],['IX','Zeppelin'],['X','U-Boat']]){
         await page.getByRole('button',{name:label,exact:true}).click();
         await page.waitForTimeout(1800); // Camera animation, also exercises the render loop.
         await page.screenshot({path:resolve(output,`${viewport.width}-${label}-${fallback?'fallback':'blender'}.png`)});
@@ -42,10 +42,15 @@ try{
       const fire=page.getByRole('button',{name:/^fire/i});
       if(await fire.count()){await fire.first().click();await page.waitForTimeout(200);}
       assert.equal(errors.length,0,errors.join('\n'));
-      assert.equal(models.length,8,'Each configured model must be requested');
-      if(fallback)assert.equal(warnings.length,8,'Every missing GLB keeps its fallback');
+      assert.equal(models.length,10,'Each configured model must be requested');
+      if(fallback)assert.equal(warnings.length,10,'Every missing GLB keeps its fallback');
       else {assert.equal(warnings.length,0,warnings.join('\n'));assert(models.every(m=>m.status===200));}
-      results.push({viewport,fallback,models,errors,warnings:warnings.length});
+      const metrics=await page.evaluate(async()=>{
+        const samples=[];let last=performance.now();
+        for(let i=0;i<30;i++)await new Promise(r=>requestAnimationFrame(t=>{samples.push(t-last);last=t;r();}));
+        return {meanFrameMs:samples.slice(1).reduce((a,b)=>a+b,0)/29,heapBytes:performance.memory?.usedJSHeapSize??null};
+      });
+      results.push({viewport,fallback,models,errors,warnings:warnings.length,metrics});
       await page.close();
     }
   }
