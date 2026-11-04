@@ -1,4 +1,17 @@
 {
+  "wwi-trench-supply-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Replace three trench rifle sticks with M1903/M1905 Blender reconstructions and four plain cases with timber supply props; stack the overlapping entry cases.",
+    "verification_status": "CHROME_1366_AND_390_SIX_OPTIONAL_UPGRADES_ALL_STOPS_SCOPE_LADDER_AND_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Original editable Blender sources and repeatable generator; two no-texture GLBs total165148 bytes, with5 material batches each and5086 triangles across the two source models. Geometry/materials are shared across placed copies.",
+      "Both viewport journeys load all six optional asset classes with no uncaught errors/model warnings, traverse seven stops, use periscope/Escape, climb and return. Separate rifle/case HTTP404 cases preserve their own original fallback while all other replacements load.",
+      "Two previously coincident cases now stack; no collision, reading-text, save, camera or interaction code changes. The intro and asset record identify display reconstructions and period/source limitations."
+    ]
+  },
   "wwi-trench-observation-2026-11-04": {
     "status": "IMPLEMENTED_BROWSER_VERIFIED",
     "owner": "Codex",

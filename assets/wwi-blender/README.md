@@ -131,3 +131,22 @@ Museum reference records:
 - Smithsonian National Museum of American History, wooden/metal trench periscope, No.9 Mk II (1917), opposed mirrors, hinged panels and sliding shutter: https://americanhistory.si.edu/collections/object/nmah_1436492
 
 Focused browser acceptance: `node scripts/test-wwi-trench-observation.mjs`. Set `WWI_BASE_URL` for production readback. Local-only closeup instrumentation is injected by test routing and never shipped. Failure scenarios isolate each optional model; all other upgrades must still load.
+
+## November 4 trench supply props
+
+| Reconstruction | Source / GLB stem | Triangles | Material batches | GLB bytes |
+|---|---|---:|---:|---:|
+| US M1903 Springfield with M1905 bayonet | springfield_m1903_1918 | 2,598 | 5 | 83,232 |
+| Generic timber supply case | timber_supply_case_1916 | 2,488 | 5 | 81,916 |
+
+Run `build_trench_supply.py` using Blender Python 5.2. Three rifles and four cases share loaded geometry and materials. The original procedural props stay visible until their own GLB loads; a failed rifle or case never hides the other class. Two originally overlapping entry cases now sit in a stack. Existing controls, stops and interactions remain.
+
+The rifle is a simplified M1903 with the early straight walnut stock, barrel/receiver, bolt handle, folded rear leaf sight, front blade, floorplate, sling and long M1905 bayonet. No later M1903A3 rear aperture or later C-stock is modeled. Dimensions and fittings are approximate, with small details enlarged for display. Cases use generic planks, battens, lid boards, nails and rope handles. They deliberately carry no invented factory, ammunition quantity or caliber marks and are not attributed to a specific national pattern.
+
+Reference records:
+- US National Park Service, Springfield Armory, M1903 history: https://www.nps.gov/spar/learn/historyculture/the-1903-springfield-rifle.htm
+- Royal Armouries, First World War American rifles and M1905 bayonet: https://royalarmouries.org/objects-and-stories/stories/arms-of-the-first-world-war
+- Australian War Memorial, M1903: https://www.awm.gov.au/collection/C235820
+- Canadian War Museum, timber ammunition transport cases: https://www.warmuseum.ca/firstworldwar/objects-and-photos/equipment-and-vehicles/land-transportation/ammunition-box/
+
+Focused browser acceptance: `node scripts/test-wwi-trench-supply.mjs`, with optional `WWI_BASE_URL` for live verification. This exercises both new props plus the prior helmet, periscope and sandbag upgrades, the seven stops, scope/Escape and ladder/return at 1366 and 390 pixels, and separate unavailable-rifle/unavailable-case fallbacks.

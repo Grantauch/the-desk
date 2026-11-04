@@ -1,3 +1,9 @@
+## November 4 trench supply polish
+
+Owner: Codex. Three M1903 Springfield/M1905 bayonet reconstructions replace the rifle sticks, and four generic planked timber cases replace plain boxes. The overlapping entry cases are stacked. Each class shares geometry/materials and retains an independent original fallback. Editable .blend files, generator, compact GLBs and period/source limitations are recorded alongside the earlier models.
+
+Chrome at 1366x768 and 390x768 passes all six optional asset classes, seven stops, periscope/Escape and ladder/return with zero page errors or model warnings. Separate missing-rifle and missing-case scenarios retain only their original class while the remaining models load. Protected full checks and production readback are pending; physical Chromebook and classroom acceptance remain separate.
+
 ## November 4 trench observation polish
 
 Owner: Codex. Three Blender reconstructions replace the simple M1917 and Adrian helmet props and wooden periscope in Over the Top. Editable .blend sources, small texture-free GLBs, museum references and display-scale limitations are included. The five helmets share geometry/materials and each optional asset has an independent original-prop fallback.
