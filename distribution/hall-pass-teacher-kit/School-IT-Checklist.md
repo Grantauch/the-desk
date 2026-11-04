@@ -1,17 +1,15 @@
-# Hall Pass — school IT review checklist
+# School IT acceptance
 
-This document is for a **development preview**. Do not authorize real-student schoolwide deployment without a separate security review.
+- [ ] Apps Script and its school-domain web apps are permitted by Workspace policy.
+- [ ] Teachers approve Google permissions using their own school accounts.
+- [ ] Each classroom deployment uses DOMAIN access and USER_DEPLOYING execution.
+- [ ] The school directory is separate from every classroom's pass-history workbook. Only authorized staff have access; participating teachers receive Viewer access to the directory. No public/link sharing.
+- [ ] Numbers are exact five- or six-digit strings, stored as text. Verified email mappings come from authoritative school records.
+- [ ] Unassigned directory entries cannot start passes or check in. The same number works only in explicitly enrolled classrooms. Teacher dashboards remain isolated.
+- [ ] Shared Chromebook uses a school kiosk account with no teacher dashboard privileges. Screen reset, touchscreen buttons, fullscreen, Wi-Fi recovery and school-managed sleep/relaunch policy have been checked.
+- [ ] Synthetic pass/return and protected release checks pass on the exact installed version. An interrupted sign-out is checked in the dashboard before a retry.
+- [ ] Existing private workbook and Apps Script version are retained before cutover.
 
-- [ ] Google Apps Script is permitted for the school-owned template and each teacher's account.
-- [ ] Google Workspace administrators have approved the required OAuth scopes and Google Apps Script web-app deployment.
-- [ ] Production web apps are restricted to the school domain, with teacher access enforced by the server.
-- [ ] Dedicated Chromebook can open the `?mode=kiosk` web-app link and has a managed kiosk profile that does not expose a teacher's authenticated browser.
-- [ ] Idle/screen-lock/auto-relaunch behavior, Wi-Fi disconnections, and device recovery have been tested.
-- [ ] The device does not display or retain a student's entered lunch PIN after each action.
-- [ ] School has approved reuse of cafeteria-payment credentials for Hall Pass; the security review includes strong server-derived rate limits and detection of guessing.
-- [ ] Student directory source and verified email-to-ID mapping are approved by the school.
-- [ ] Unassigned students have zero pass/check-in rights; teachers see only their own classes.
-- [ ] Existing production deployment has a private backup, a tested cutover procedure, and a rollback plan.
-- [ ] Exact installed ZIP and both kiosk/teacher URLs pass end-to-end tests with synthetic students before first real use.
+The app uses existing lunch numbers as requested by the school coordinator. Keep these numbers private. Server-side attempt limits use a school-account or Google-derived identity, with a conservative shared fallback when Google supplies no stable identity. Browser nonces alone cannot reset that budget.
 
-**Never put a real roster, lunch number, student PIN, credential token, or exported activity log inside the ZIP or GitHub.**
+Never place student data or credentials in the ZIP, public template, website, GitHub, screenshots for distribution, or support logs.

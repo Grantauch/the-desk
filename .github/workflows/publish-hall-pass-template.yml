@@ -3,6 +3,8 @@ name: Publish Hall Pass classroom template
 # Copies the tested Hall Pass source into the blank template spreadsheet other
 # teachers copy. It never changes the production Hall Pass project or deployment.
 on:
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       template_sheet_id:
@@ -23,6 +25,10 @@ concurrency:
 
 jobs:
   publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' && github.actor == 'Grantauch' &&
+       github.event.issue.number == 28 && github.event.comment.body == '/publish-hall-pass-template')
     name: Publish classroom template
     runs-on: ubuntu-24.04
     timeout-minutes: 10

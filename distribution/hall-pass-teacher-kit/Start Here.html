@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hall Pass | Teacher Setup Preview</title>
+<title>Hall Pass | Teacher Setup</title>
 <style>
 :root{font:16px system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f6f9;color:#182943}
 *{box-sizing:border-box}body{margin:0}header{background:#122338;color:#fff;padding:32px max(22px,calc((100vw - 850px)/2))}
@@ -17,7 +17,7 @@ input{width:100%;padding:13px;font:inherit;border-radius:8px;border:1px solid #9
 <header><small>HALL PASS / TEACHER INSTALLATION</small><h1>Your classroom. Your kiosk.</h1>
 <p>Set up a private Hall Pass app for a Chromebook by your door—without owning a website.</p></header>
 <main>
-<div class="warning"><strong>Development preview, not a production installer.</strong> Schoolwide inactive roster synchronization and automatic lunch-number PIN provisioning are not yet enabled. Do not use this preview to migrate real student credentials.</div>
+<div class="warning"><strong>Teacher kiosk kit · 1.0.0-rc.1</strong> The setup window prepares your workbook. Google requires you to approve permissions and publish your web app. Test your school account and door Chromebook before student use.</div>
 <section><h2>1. Make a private copy</h2><p>Sign into your school Google account. Make your own copy of the existing Hall Pass template.</p>
 <a class="button" href="https://docs.google.com/spreadsheets/d/18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0/copy" target="_blank" rel="noopener noreferrer">Copy Hall Pass template</a></section>
 <section><h2>2. Configure your classroom</h2><p>In your new spreadsheet select <strong>Hall Pass → Start setup</strong>. Enter your name, class schedule, school student-email domain and pass rules. Grant Google's requested permissions only from your school account.</p></section>
@@ -29,7 +29,8 @@ input{width:100%;padding:13px;font:inherit;border-radius:8px;border:1px solid #9
 <div class="linkbox"><strong>Door Chromebook</strong><output id="kiosk"></output><a class="button" id="open-kiosk" rel="noopener noreferrer" target="_blank">Open kiosk</a></div>
 <div class="linkbox"><strong>Teacher dashboard</strong><output id="teacher"></output><a class="button" id="open-teacher" rel="noopener noreferrer" target="_blank">Open dashboard</a></div>
 </div></div></section>
-<section><h2>5. Check it with synthetic students</h2><p>On the dedicated Chromebook, open the kiosk link in fullscreen. Test a request and a return with synthetic data, then confirm the screen clears between students and the teacher dashboard remains protected.</p><p class="note">Do not sign a teacher account into the student Chromebook. District IT handles managed kiosk policy and screen-sleep settings.</p></section>
+<section><h2>5. Connect your school directory</h2><p>On your teacher dashboard open <strong>Settings → school directory / enroll by number</strong>. Connect the private directory link from your school coordinator, then enroll students by their school number and period. Unassigned students stay inactive. Use the same exact lunch number in every connected room. Test a synthetic request and return on the door Chromebook before first use.</p><p class="note">Do not sign a teacher account into the student Chromebook. District IT handles managed kiosk policy and screen-sleep settings.</p></section>
+<p class="note"><a href="README.md">Setup guide</a> · <a href="Recovery.md">Recovery and updates</a> · <a href="School-IT-Checklist.md">School IT checklist</a></p>
 <p class="note">This ZIP contains no school roster, lunch PINs, student data, Google credentials or tokens.</p>
 </main><script>
 (function(){

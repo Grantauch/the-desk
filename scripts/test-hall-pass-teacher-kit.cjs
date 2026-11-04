@@ -38,7 +38,37 @@ submit(event);
 assert.equal(elements.results.className,'');
 assert.match(elements.error.textContent,/exec/i);
 const version = JSON.parse(fs.readFileSync(path.join(kit,'VERSION.json'),'utf8'));
-assert.equal(version.selfInstalling,false,'Preview must not claim automatic schoolwide setup');
-assert.equal(version.schoolwideDirectorySync,false,'Preview must not claim cross-teacher sync');
+assert.equal(version.selfInstalling,false,'Google consent and deployment are still required');
+assert.equal(version.schoolwideDirectorySync,true,'Shared private directory is supported');
 assert.equal(version.studentDataIncluded,false);
-console.log('PASS: 14 offline teacher kit assertions: valid/invalid links, separate roles, preview and privacy state.');
+console.log('PASS: 14 offline teacher kit assertions: valid/invalid links, separate roles, Google setup requirements and privacy state.');
+
+// Verify the exact downloadable archive, including every source byte and checksum.
+const crypto = require('node:crypto');
+const zlib = require('node:zlib');
+const archive = fs.readFileSync(path.join(root, 'public/downloads/HallPass-Teacher-Installer-v' + version.version + '.zip'));
+const entries = new Map();
+let offset = 0;
+while (archive.readUInt32LE(offset) === 0x04034b50) {
+  const method = archive.readUInt16LE(offset + 8), size = archive.readUInt32LE(offset + 18);
+  const nameLength = archive.readUInt16LE(offset + 26), extraLength = archive.readUInt16LE(offset + 28);
+  const name = archive.subarray(offset + 30, offset + 30 + nameLength).toString();
+  assert.ok(!name.includes('..') && !name.startsWith('/'));
+  const start = offset + 30 + nameLength + extraLength;
+  const value = archive.subarray(start, start + size);
+  entries.set(name, method === 8 ? zlib.inflateRawSync(value) : value);
+  offset = start + size;
+}
+const sourcePaths = {
+  'Code.gs':'apps-script/hall-pass/Code.gs', 'Index.html':'apps-script/hall-pass/Index.html',
+  'ReleaseChecks.gs':'apps-script/hall-pass/ReleaseChecks.gs', 'ReleaseCheck.html':'apps-script/hall-pass/ReleaseCheck.html',
+  'appsscript.json':'apps-script/hall-pass/appsscript.json', 'Setup.gs':'apps-script/hall-pass-template/Setup.gs',
+  'SetupWizard.html':'apps-script/hall-pass-template/SetupWizard.html',
+};
+for (const [name, relative] of Object.entries(sourcePaths)) assert.deepEqual(entries.get('source/' + name), fs.readFileSync(path.join(root,relative)), 'Published ZIP source matches ' + name);
+for (const name of ['Start Here.html','README.md','Recovery.md','School-IT-Checklist.md','VERSION.json']) assert.deepEqual(entries.get(name),fs.readFileSync(path.join(kit,name)));
+for (const line of entries.get('MANIFEST.sha256').toString().trim().split('\n')) {
+ const [hash,name] = line.split('  '); assert.equal(crypto.createHash('sha256').update(entries.get(name)).digest('hex'), hash);
+}
+assert.equal(entries.size,13, 'Only the twelve allowed files plus checksum manifest ship');
+console.log('PASS: exact published ZIP source bytes, safe filenames, approved file set and SHA-256 checksums.');

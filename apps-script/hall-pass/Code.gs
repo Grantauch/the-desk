@@ -821,9 +821,14 @@ function authorizeStudentAction(pin, requestedAction, studentKey, attemptNonce) 
 }
 
 function verifyStudentPin_(pin, activeEmail, attemptNonce) {
+  if (schoolDirectorySourceId_()) readSchoolDirectory_(schoolDirectorySourceId_());
   assertPinAttemptAllowed_(activeEmail, attemptNonce);
-  const cleaned = String(pin || '').replace(/\D/g, '');
-  if (!/^\d{5,6}$/.test(cleaned)) throw new Error('Enter your 5- or 6-digit PIN.');
+  reserveServerPinAttempt_(activeEmail);
+  const cleaned = String(pin || '').trim();
+  if (!/^\d{5,6}$/.test(cleaned)) {
+    recordFailedPinAttempt_(activeEmail, attemptNonce);
+    throw new Error('Enter your 5- or 6-digit PIN.');
+  }
   const students = getStudentsByPinHash_(hashPin_(cleaned));
   if (!students.length) {
     recordFailedPinAttempt_(activeEmail, attemptNonce);
@@ -832,7 +837,40 @@ function verifyStudentPin_(pin, activeEmail, attemptNonce) {
   const emails = [...new Set(students.map((student) => student.email))];
   if (emails.length !== 1) throw new Error('That PIN is not unique. Ask your teacher to repair the PIN list.');
   clearPinAttempts_(activeEmail, attemptNonce);
+  clearServerPinAttempt_(activeEmail);
   return students;
+}
+
+/** A client cannot reset this budget by rotating its browser-supplied nonce. */
+function serverPinAttemptKey_(email) {
+  let temporaryKey = '';
+  try { temporaryKey = Session.getTemporaryActiveUserKey() || ''; } catch (error) { /* supported fallback below */ }
+  const identity = email ? normalizeEmail_(email) : temporaryKey || 'unidentified-school-kiosk';
+  return 'pin-budget:' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256, identity, Utilities.Charset.UTF_8)).slice(0, 32);
+}
+
+function withPinBudgetLock_(action) {
+  const lock = LockService.getUserLock();
+  lock.waitLock(GD_STUDENT_LOCK_WAIT_MS);
+  try { return action(); } finally { lock.releaseLock(); }
+}
+
+function reserveServerPinAttempt_(email) {
+  withPinBudgetLock_(() => {
+    const properties = PropertiesService.getScriptProperties(), key = serverPinAttemptKey_(email);
+    let budget;
+    try { budget = JSON.parse(properties.getProperty(key) || 'null'); } catch (error) { budget = null; }
+    const now = Date.now();
+    if (!budget || now - budget.start >= 900000) budget = { start: now, count: 0 };
+    if (budget.count >= (email ? 10 : 60)) throw new Error('Too many incorrect PIN attempts. Wait fifteen minutes or ask your teacher.');
+    budget.count += 1;
+    properties.setProperty(key, JSON.stringify(budget));
+  });
+}
+
+function clearServerPinAttempt_(email) {
+  withPinBudgetLock_(() => PropertiesService.getScriptProperties().deleteProperty(serverPinAttemptKey_(email)));
 }
 
 function normalizeStudentAction_(value) {
@@ -4656,7 +4694,7 @@ function readRosterRows_() {
         email,
         name: String(row[1] || '').trim(),
         classPeriod,
-        pinHash: String(row[3] || '').trim(),
+        pinHash: schoolDirectoryPinHash_(email, String(row[3] || '').trim()),
         active: isTruthyCell_(row[4], true),
         unlimited: isTruthyCell_(row[5], false),
         passAccess: String(row[6] || '').trim().toUpperCase(),
@@ -5102,7 +5140,7 @@ function readPinCards_() {
       studentName: String(row[1] || ''),
       classPeriod: String(row[2] || ''),
       studentKey: rosterKey_(row[0], row[2]),
-      pin: String(row[3] || '').replace(/\D/g, ''),
+      pin: schoolDirectoryRecoveryPin_(normalizeEmail_(row[0]), String(row[3] || '').replace(/\D/g, '')),
       generatedAt: toDateOrNull_(row[4]),
       emailStatus: String(row[5] || '').trim().toUpperCase(),
       emailedAt: toDateOrNull_(row[6]),
@@ -5193,6 +5231,9 @@ function generateMissingPins() {
 function ensureOnePinPerStudent_(options) {
   assertPinEmailBatchIdle_();
   const createMissing = Boolean(options && options.createMissing);
+  // A connected classroom never generates or repairs a second credential.
+  // The authoritative directory is read on each request, including session checks.
+  if (schoolDirectorySourceId_()) return synchronizeDirectoryPins_();
   const requestedEmails = Array.isArray(options && options.studentEmails)
     ? new Set(options.studentEmails.map((email) => normalizeEmail_(email)).filter(Boolean))
     : null;
@@ -5540,6 +5581,7 @@ function escapeHtmlForEmail_(value) {
 
 function teacherResetStudentPin(studentEmail,reason,clientContract){
   const teacher=getActiveEmail_(),settings=getSettings_(); assertTeacher_(teacher,settings); assertTeacherClient_(clientContract);
+  if (schoolDirectorySourceId_()) throw new Error('This classroom uses the school lunch number. Correct the school directory instead of generating a different PIN.');
   const email=normalizeEmail_(studentEmail),cleanReason=String(reason||'').trim().slice(0,300);
   if(!email) throw new Error('Choose a student whose PIN needs to be reset.');
   if(!cleanReason) throw new Error('Enter a short private reason for resetting this PIN.');
@@ -5569,6 +5611,231 @@ function teacherResetStudentPin(studentEmail,reason,clientContract){
   const state=getTeacherState_({includePinStatus:true});
   state.noticeMessage=`${studentName}'s PIN was reset. The new PIN is ready for private delivery and the old PIN no longer works.`;
   return state;
+}
+
+/* --------------------------------------- shared school identity directory ---- */
+
+const GD_HALL_PASS_VERSION = '1.0.0-rc.1';
+const GD_DIRECTORY_SHEET = 'School Directory';
+const GD_DIRECTORY_HEADERS = ['School Student ID', 'Student Name', 'School Email', 'Status'];
+const GD_DIRECTORY_SOURCE = 'SCHOOL_DIRECTORY_SOURCE_ID';
+const GD_DIRECTORY_OWNED = 'SCHOOL_DIRECTORY_OWNED_ID';
+
+function schoolDirectorySourceId_() {
+  const properties = PropertiesService.getScriptProperties();
+  // Protected release checks temporarily use an isolated synthetic workbook.
+  // They must never inherit the production directory or change its properties.
+  if (GD_SPREADSHEET && properties.getProperty('SPREADSHEET_ID') && GD_SPREADSHEET.getId() !== properties.getProperty('SPREADSHEET_ID')) return '';
+  return properties.getProperty(GD_DIRECTORY_SOURCE) || '';
+}
+
+function schoolDirectoryId_(value) {
+  const text = String(value || '').trim();
+  const match = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]{20,120})(?:\/[^?#]*)?(?:[?#].*)?$/.exec(text);
+  const id = match ? match[1] : text;
+  if (!/^[A-Za-z0-9_-]{20,120}$/.test(id)) throw new Error('Paste the private school directory spreadsheet link.');
+  return id;
+}
+
+/** No cross-request cache: corrections and revocations apply in every connected room. */
+function readSchoolDirectory_(id) {
+  if (!id) return [];
+  return gdMemo_(`directory:${id}`, () => {
+    let sheet;
+    try { sheet = SpreadsheetApp.openById(id).getSheetByName(GD_DIRECTORY_SHEET); }
+    catch (error) { throw new Error('The school directory is unavailable. Ask the directory owner to check this teacher’s access.'); }
+    if (!sheet || sheet.getLastRow() < 1) throw new Error('That spreadsheet does not contain a school directory.');
+    const header = sheet.getRange(1, 1, 1, 4).getValues()[0];
+    if (header.some((value, index) => value !== GD_DIRECTORY_HEADERS[index])) throw new Error('The school directory headings have changed. Ask its owner to repair them.');
+    if (sheet.getLastRow() > 5001) throw new Error('The school directory exceeds 5,000 students.');
+    const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues() : [];
+    const ids = new Set(), emails = new Set();
+    return rows.filter((row) => row.some((cell) => cell !== '')).map((row, index) => {
+      // Numeric cells may already have lost zeros. Require the original text.
+      if (typeof row[0] !== 'string' || !/^\d{5,6}$/.test(row[0])) throw new Error(`School directory row ${index + 2}: student number must be five or six digits stored as text.`);
+      const id = row[0], name = String(row[1] || '').trim(), email = normalizeEmail_(row[2]);
+      const status = String(row[3] || '').trim().toUpperCase();
+      if (!name || name.length > 120 || !['AVAILABLE', 'DISABLED'].includes(status)) throw new Error(`School directory row ${index + 2}: check the name and status.`);
+      assertPlainSheetText_(name, 'Student name');
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(`School directory row ${index + 2}: invalid school email.`);
+      if (ids.has(id) || (email && emails.has(email))) throw new Error(`School directory row ${index + 2}: duplicate student number or email.`);
+      ids.add(id); if (email) emails.add(email);
+      return { id, name, email, status };
+    });
+  });
+}
+
+function schoolDirectoryPin_(email, fallback) {
+  const source = schoolDirectorySourceId_();
+  if (!source) return fallback;
+  const entries = gdMemo_('directory-by-email', () => new Map(readSchoolDirectory_(source).filter((row) => row.email).map((row) => [row.email, row])));
+  const entry = entries.get(email);
+  return entry && entry.status === 'AVAILABLE' ? entry.id : '';
+}
+
+function schoolDirectoryRecoveryPin_(email, fallback) {
+  try { return schoolDirectoryPin_(email, fallback); } catch (error) { return ''; }
+}
+
+function schoolDirectoryPinHash_(email, fallback) {
+  if (!schoolDirectorySourceId_()) return fallback;
+  // A directory outage must never restore an old generated PIN. Teacher backup
+  // still has the roster; student authorization fails closed with an empty hash.
+  try { const pin = schoolDirectoryPin_(email, ''); return pin ? hashPin_(pin) : ''; }
+  catch (error) { return ''; }
+}
+
+function synchronizeDirectoryPins_() {
+  const roster = readRosterRows_(), sheet = getSpreadsheet_().getSheetByName(GD_SHEETS.ROSTER);
+  const pinSheet = getSpreadsheet_().getSheetByName(GD_SHEETS.PINS);
+  const cards = readPinCards_(), byKey = new Map(cards.map((card) => [card.studentKey, card]));
+  let normalizedMemberships = 0, createdCards = 0;
+  roster.forEach((student) => {
+    const pin = schoolDirectoryPin_(student.email, '');
+    if (!pin) return;
+    if (sheet.getRange(student.row, 4).getValue() !== student.pinHash) {
+      sheet.getRange(student.row, 4).setValue(student.pinHash); normalizedMemberships += 1;
+    }
+    if (!student.active) return;
+    const card = byKey.get(student.key);
+    const data = [pin, new Date(), 'SENT', '', 'Uses the existing school lunch number'];
+    if (card) pinSheet.getRange(card.row, 4, 1, 5).setNumberFormat('@').setValues([data]);
+    else { pinSheet.getRange(pinSheet.getLastRow() + 1, 1, 1, 8).setNumberFormat('@').setValues([[student.email, student.name, student.classPeriod, ...data]]); createdCards += 1; }
+  });
+  gdForget_('roster'); gdForget_('pincards');
+  return { createdPins: 0, normalizedMemberships, createdCards };
+}
+
+function schoolDirectoryRevision_(rows) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,
+    JSON.stringify(rows), Utilities.Charset.UTF_8));
+}
+
+/** Accept the exact alternating number/name list or tab-separated number/name/email. */
+function parseSchoolDirectoryInput_(text, mapping, settings) {
+  if (String(text || '').length > 750000 || String(mapping || '').length > 750000) throw new Error('Use a list of at most 5,000 students.');
+  const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const rows = [], ids = new Set(), emails = new Set();
+  for (let i = 0; i < lines.length; i += 1) {
+    if (i === 0 && /^School Student ID\t/i.test(lines[i])) continue;
+    let cells = lines[i].split('\t').map((cell) => cell.trim());
+    if (cells.length === 1 && /^\d{5,6}$/.test(cells[0])) cells = [cells[0], lines[++i] || ''];
+    if (cells.length < 2 || cells.length > 4 || !/^\d{5,6}$/.test(cells[0]) || !cells[1] || /^\d+$/.test(cells[1])) throw new Error(`Entry ${rows.length + 1}: use a student number followed by a name.`);
+    const row = { id: cells[0], name: cells[1], email: normalizeEmail_(cells[2]), status: cells[3] || 'AVAILABLE' };
+    if (row.name.length > 120 || !['AVAILABLE', 'DISABLED'].includes(row.status)) throw new Error(`Entry ${rows.length + 1}: check the name and status.`);
+    assertPlainSheetText_(row.name, 'Student name');
+    if (ids.has(row.id)) throw new Error(`Entry ${rows.length + 1}: duplicate student number.`);
+    ids.add(row.id); rows.push(row);
+  }
+  if (rows.length > 5000) throw new Error('Use a list of at most 5,000 students.');
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const mappings = String(mapping || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const mappedIds = new Set();
+  mappings.forEach((line, index) => {
+    if (index === 0 && /^(?:cafeteria_number|School Student ID)[,\t]/i.test(line)) return;
+    const cells = line.split(/[,\t]/).map((cell) => cell.trim());
+    if (cells.length !== 2 || !/^\d{5,6}$/.test(cells[0])) throw new Error(`Email mapping row ${index + 1}: use exact student number, then school email.`);
+    const row = byId.get(cells[0]);
+    if (!row || mappedIds.has(cells[0])) throw new Error(`Email mapping row ${index + 1}: unknown or repeated student number.`);
+    const email = normalizeEmail_(cells[1]);
+    if (row.email && row.email !== email) throw new Error(`Email mapping row ${index + 1}: conflicting email.`);
+    row.email = email; mappedIds.add(cells[0]);
+  });
+  rows.forEach((row, index) => {
+    if (!row.email) return;
+    const domain = String(settings.STUDENT_EMAIL_DOMAIN || '').toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email) || (domain && row.email.split('@').pop() !== domain)) throw new Error(`Entry ${index + 1}: use the verified school email domain.`);
+    if (emails.has(row.email)) throw new Error(`Entry ${index + 1}: the same email is assigned to two numbers.`);
+    emails.add(row.email);
+  });
+  return rows;
+}
+
+function teacherGetSchoolDirectoryState(clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
+  const properties = PropertiesService.getScriptProperties();
+  const ownedId = properties.getProperty(GD_DIRECTORY_OWNED) || '';
+  const sourceId = schoolDirectorySourceId_();
+  const rows = ownedId ? readSchoolDirectory_(ownedId) : [];
+  return { ok: true, version: GD_HALL_PASS_VERSION, ownedId, sourceId,
+    directoryUrl: ownedId ? `https://docs.google.com/spreadsheets/d/${ownedId}/edit` : '',
+    students: rows.length, withoutEmail: rows.filter((row) => !row.email).length };
+}
+
+/** Import is additive. It creates no class memberships and activates no credentials. */
+function teacherImportSchoolDirectory(text, mapping, confirmation, revision, clientContract) {
+  const settings = getSettings_(), teacher = getActiveEmail_();
+  assertTeacher_(teacher, settings); assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const properties = PropertiesService.getScriptProperties();
+    const ownedId = properties.getProperty(GD_DIRECTORY_OWNED) || '';
+    const existing = ownedId ? readSchoolDirectory_(ownedId) : [];
+    const importText = String(text || '').trim() || existing.map((row) => [row.id, row.name, row.email, row.status].join('\t')).join('\n');
+    const incoming = parseSchoolDirectoryInput_(importText, mapping, settings);
+    if (!incoming.length) throw new Error('Paste the school list first.');
+    const byId = new Map(existing.map((row) => [row.id, row]));
+    incoming.forEach((row) => {
+      const prior = byId.get(row.id);
+      byId.set(row.id, { ...row, status: prior && prior.status === 'DISABLED' ? 'DISABLED' : row.status, email: row.email || (prior && prior.email) || '' });
+    });
+    const merged = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
+    const seen = new Set();
+    merged.forEach((row) => { if (row.email && seen.has(row.email)) throw new Error('The merged directory would assign one email to two numbers. Correct the source first.'); if (row.email) seen.add(row.email); });
+    if (merged.length > 5000) throw new Error('The merged directory exceeds 5,000 students.');
+    const currentRevision = schoolDirectoryRevision_([existing, merged]);
+    const preview = { total: merged.length, added: merged.length - existing.length,
+      withoutEmail: merged.filter((row) => !row.email).length, membershipsCreated: 0, revision: currentRevision };
+    if (confirmation !== 'IMPORT SCHOOL DIRECTORY') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory changed. Preview the import again before applying.');
+    let book = ownedId ? SpreadsheetApp.openById(ownedId) : SpreadsheetApp.create('Hall Pass — Private School Directory');
+    let sheet = book.getSheetByName(GD_DIRECTORY_SHEET);
+    if (!sheet) sheet = book.insertSheet(GD_DIRECTORY_SHEET);
+    if (sheet.getMaxRows() < merged.length + 1) sheet.insertRowsAfter(sheet.getMaxRows(), merged.length + 1 - sheet.getMaxRows());
+    // Text formatting precedes the write. Neither IDs nor names are evaluated as formulas.
+    sheet.getRange(1, 1, merged.length + 1, 4).setNumberFormat('@').setValues([
+      GD_DIRECTORY_HEADERS, ...merged.map((row) => [row.id, row.name, row.email, row.status]),
+    ]);
+    sheet.setFrozenRows(1);
+    properties.setProperty(GD_DIRECTORY_OWNED, book.getId());
+    gdClearMemo_();
+    auditTeacherAction_(teacher, { email: '', name: 'School directory', classPeriod: 'Unassigned' },
+      'SCHOOL_DIRECTORY_IMPORTED', [], `${merged.length} directory entries; no memberships created`, '');
+    return { ok: true, applied: true, preview, directoryUrl: `https://docs.google.com/spreadsheets/d/${book.getId()}/edit` };
+  }, 30000, 'school directory import');
+}
+
+/** Connection is explicit, previewed, and refused if it would strand any active student. */
+function teacherConnectSchoolDirectory(value, confirmation, revision, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
+  return withLock_(() => {
+    const id = schoolDirectoryId_(value), rows = readSchoolDirectory_(id);
+    const byEmail = new Map(rows.filter((row) => row.email && row.status === 'AVAILABLE').map((row) => [row.email, row]));
+    const activeEmails = [...new Set(readRosterRows_().filter((row) => row.active).map((row) => row.email))];
+    const unmatched = activeEmails.filter((email) => !byEmail.has(email));
+    const currentRevision = schoolDirectoryRevision_([id, rows, activeEmails]);
+    const preview = { total: rows.length, matched: activeEmails.length - unmatched.length,
+      unmatched, revision: currentRevision, membershipsCreated: 0 };
+    if (confirmation !== 'USE SCHOOL DIRECTORY') return { ok: true, applied: false, preview };
+    if (revision !== currentRevision) throw new Error('The directory or class roster changed. Preview the connection again.');
+    if (unmatched.length) throw new Error('Some active students have no verified school number. Complete their email mappings before connecting.');
+    assertPinEmailBatchIdle_();
+    PropertiesService.getScriptProperties().setProperty(GD_DIRECTORY_SOURCE, id);
+    setSettingValue_('SCHOOL_DIRECTORY_SOURCE_ID', id);
+    gdClearMemo_();
+    synchronizeDirectoryPins_();
+    auditTeacherAction_(getActiveEmail_(), { email: '', name: 'School directory', classPeriod: 'All classes' },
+      'SCHOOL_DIRECTORY_CONNECTED', [], `${activeEmails.length} students use their exact school lunch number`, '');
+    return { ok: true, applied: true, preview };
+  }, 30000, 'school directory connection');
+}
+
+function teacherEnrollSchoolStudent(studentId, classPeriod, clientContract) {
+  assertTeacher_(getActiveEmail_(), getSettings_()); assertTeacherClient_(clientContract);
+  const source = schoolDirectorySourceId_();
+  if (!source) throw new Error('Connect this classroom to the school directory first.');
+  const row = readSchoolDirectory_(source).find((entry) => entry.id === String(studentId || '').trim());
+  if (!row || !row.email || row.status !== 'AVAILABLE') throw new Error('That school number needs an available, verified school email before enrollment.');
+  return teacherAddStudentClass(row.name, row.email, classPeriod, clientContract);
 }
 
 /* --------------------------------------------- lunch-number PIN switch ---- */
@@ -5647,6 +5914,7 @@ function teacherSetLunchNumberPins(text, confirmation, clientContract) {
   const settings = getSettings_();
   assertTeacher_(teacher, settings);
   assertTeacherClient_(clientContract);
+  if (schoolDirectorySourceId_()) throw new Error('This classroom reads lunch numbers from the shared school directory. Update that directory so every classroom stays consistent.');
   const preview = planLunchNumberPins_(text);
   const summary = (plan) => ({
     lines: plan.lines, matched: plan.matched, notInClasses: plan.notInClasses,

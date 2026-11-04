@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build a deterministic, PII-free Hall Pass teacher preview ZIP.
+"""Build a deterministic Hall Pass teacher setup ZIP with the complete program.
 
-The schoolwide credential installer is not yet implemented. This builder
-packages only the approved standalone setup launcher and documentation.
+Only explicitly listed public source files and teacher instructions are packaged.
+Private directory data, deployment credentials and runtime settings are excluded.
 """
 from __future__ import annotations
 import hashlib
@@ -13,8 +13,8 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "distribution" / "hall-pass-teacher-kit"
-WHITELIST = ("Start Here.html", "README.md", "School-IT-Checklist.md", "VERSION.json")
-VERSION = "0.1.0-preview"
+WHITELIST = ("Start Here.html", "README.md", "School-IT-Checklist.md", "VERSION.json", "Recovery.md")
+VERSION = "1.0.0-rc.1"
 DESTINATION = Path(tempfile.gettempdir()) / f"HallPass-Teacher-Installer-v{VERSION}.zip"
 
 def main() -> None:
@@ -24,9 +24,16 @@ def main() -> None:
     if actual != tuple(sorted(WHITELIST)):
         raise SystemExit(f"Refusing to package unknown files: {actual!r}")
     data = json.loads((PACKAGE / "VERSION.json").read_text(encoding="utf-8"))
-    if data.get("version") != VERSION or data.get("status") != "NOT_PRODUCTION_READY":
+    if data.get("version") != VERSION or data.get("status") != "RELEASE_CANDIDATE":
         raise SystemExit("Version metadata is not the expected preview release.")
     files = {name: (PACKAGE / name).read_bytes() for name in WHITELIST}
+    source_paths = {
+        "Code.gs": "apps-script/hall-pass/Code.gs", "Index.html": "apps-script/hall-pass/Index.html",
+        "ReleaseChecks.gs": "apps-script/hall-pass/ReleaseChecks.gs", "ReleaseCheck.html": "apps-script/hall-pass/ReleaseCheck.html",
+        "appsscript.json": "apps-script/hall-pass/appsscript.json", "Setup.gs": "apps-script/hall-pass-template/Setup.gs",
+        "SetupWizard.html": "apps-script/hall-pass-template/SetupWizard.html",
+    }
+    files.update({"source/" + name: (ROOT / relative).read_bytes() for name, relative in source_paths.items()})
     sha_lines = [f"{hashlib.sha256(value).hexdigest()}  {name}" for name, value in files.items()]
     files["MANIFEST.sha256"] = ("\n".join(sha_lines) + "\n").encode("utf-8")
     with ZipFile(DESTINATION, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
@@ -46,7 +53,7 @@ def main() -> None:
     print("BUILT: " + str(DESTINATION))
     print("FILES: " + ", ".join(files.keys()))
     print("SHA256: " + hashlib.sha256(DESTINATION.read_bytes()).hexdigest())
-    print("STATUS: NOT_PRODUCTION_READY")
+    print("STATUS: RELEASE_CANDIDATE")
 
 if __name__ == "__main__":
     main()

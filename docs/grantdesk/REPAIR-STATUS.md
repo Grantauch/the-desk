@@ -1,3 +1,9 @@
+## November 4 Hall Pass school directory and kiosk release
+
+Owner: Codex, PR #320. Adds a separate private school directory, exact-number email mapping, explicit classroom connection and enrollment, shared credential lookup and revocation, persistent server attempt budgets, touchscreen kiosk controls and immediate shared-screen clearing. Imports create no class memberships. An existing classroom cannot connect until all active students have verified mappings. The supplied school list has no school emails, so credential cutover remains pending that mapping.
+
+The teacher kit includes complete source, browser launcher, setup directions, recovery and checksums. Google permissions and web-app deployment remain owner steps. Existing Hall Pass 441 checks, 61 Turn In checks, independent-workbook directory tests, ZIP equality/checksum checks and kiosk browser request/return/idle/privacy journeys at 320/768/1366 pixels pass. Canonical verification, protected CI, live publishing and synthetic smoke remain in progress; second-teacher and managed Chromebook acceptance remains FIELD_PENDING.
+
 ## November 2 Checkaverse resident lives
 
 Owner: Codex, branch `codex/checkaverse-resident-lives-20261102`. User-authorized expansion of core loop step 4. Twelve named homes and interiors, real work/travel/rest/social actions, shared server simulation and private persistent Kettle Creek histories. Pax’s parcels reach the clinic and Nell receives them; gardening, sweeping, market displays, inspections, observations and notes leave actual results. Dialogue reports current activity and real history. Story returns enter the next relevant work round. Around town finds the current resident across maps and homes.

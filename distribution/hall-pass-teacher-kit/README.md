@@ -1,16 +1,26 @@
-# Hall Pass teacher setup — development preview
+# Hall Pass — teacher kiosk kit
 
-This preview is a **guided setup launcher**, not a completed one-click schoolwide installer.
+1. Extract the ZIP and open **Start Here.html** in Chrome.
+2. Make a copy of the blank Hall Pass template using your school account.
+3. Choose **Hall Pass → Start setup**. The setup window creates your private workbook and asks for your title, schedule, and pass rules.
+4. Follow the Google web app deployment steps. Google requires the owner to approve permissions and publish the web app. Choose **Execute as Me** and access **within your school**.
+5. Paste the /exec link into Start Here to get your kiosk and teacher links.
+6. In the teacher dashboard, open **Settings → school directory / enroll by number**. Connect the private school directory provided by the school coordinator. The owner must give your school account Viewer access to that directory only. Never share your pass-history workbook.
+7. Enroll each student by their exact school number and class period. A directory entry alone never grants access. Students use their existing lunch number, including five digits or a leading zero, in every connected classroom.
+8. On the door Chromebook use a school kiosk account, open the kiosk link, and select **fullscreen / keep awake**. District Chromebook settings may control these features. Keep the teacher dashboard on your own device.
 
-1. Extract the ZIP to a folder.
-2. Open **Start Here.html** in Chrome or Edge on the teacher's own computer.
-3. Sign in with a school Google account and click **Copy Hall Pass template**.
-4. In the newly created spreadsheet, select **Hall Pass → Start setup**, complete the configuration, and deploy the Google web app when prompted.
-5. Paste the resulting **/exec** URL into Start Here to generate the two links.
-6. Open the kiosk link on the Chromebook by the door and the teacher link on the teacher's private device. Test only with synthetic students during pilot review.
+Your copy starts without students. This ZIP contains no roster, lunch numbers, tokens, or deployment credentials. The source/ folder contains the full versioned application for school IT and recovery; teachers normally use the template rather than editing code.
 
-**Schoolwide identity synchronization is not included yet.** Separate teacher copies don't currently guarantee consistent cafeteria-number PINs without centralized provisioning. Do not add real schoolwide roster data or rotate existing student PINs using this preview.
+## School directory coordinator
 
-The final release must import each school-issued lunch number exactly (five or six digits, preserving leading zeros), keep unassigned students inactive, and synchronize the same credential across all participating teachers. It must protect the credential used for cafeteria purchases and meet district approval requirements.
+In your teacher dashboard, import the school list as alternating number/name lines, or tab-separated number/name/email. Optional verified email mappings use `number,school_email`. Verify identities from school records; do not infer emails from names. Preview and type the displayed confirmation before applying. Imports merge by exact student number and create no classroom memberships.
 
-This preview requires Google Apps Script availability and school administrator approval where applicable. The ZIP never contains student records, PINs, access tokens, or the current production workbook.
+The coordinator owns a separate private directory spreadsheet. Share only that spreadsheet with individually authorized participating teachers as Viewers. Keep public/link sharing off. Each teacher connects its link from their own dashboard. Connecting an existing classroom is refused until every active student has a verified email mapping, so incomplete imports cannot strand students. Read-only lookup keeps the exact lunch number consistent across rooms. Disabled directory entries lose access in connected rooms; teacher removal disables just that classroom membership. Pass/check-in history stays in each teacher's workbook.
+
+## Before students use it
+
+Run the protected release check at your app's `?mode=releasecheck` while signed in as the teacher. Use synthetic identities for pass/return tests. Check that the kiosk clears the PIN and student details, an unassigned number is refused, another school account cannot open teacher controls, and a Wi-Fi interruption does not leave an uncertain pass unreviewed. Use the teacher dashboard to check the result before retrying an interrupted sign-out.
+
+This is release candidate 1.0.0-rc.1. Automated tests cover independent classroom workbooks, exact number preservation, membership restrictions, corrections, revocation, and rate limits. A second real teacher account and managed school Chromebook still require field acceptance. Google permissions and deployment cannot be approved by extracting a ZIP.
+
+See Recovery.md and School-IT-Checklist.md.
