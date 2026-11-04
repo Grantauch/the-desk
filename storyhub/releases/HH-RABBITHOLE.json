@@ -10,8 +10,8 @@
   "files": [
     {
       "path": "/hubs/hh-down-the-rabbit-hole.html",
-      "bytes": 68314,
-      "sha256": "0011a0e8dd7b60455b9da40a2e6e2243fb7a0e783fc585f961f5857bacadda22"
+      "bytes": 68333,
+      "sha256": "351b4def169c9f1bec58a0cde9e47df5ce091b3a87b35ea611f826f37d3cf1ab"
     },
     {
       "path": "/storyhub/hh/rabbit-hole/assets/rh2-rabbit-light.webp",
@@ -136,6 +136,6 @@
       "sha256": "3bdfa6e2370b9c05af14553d5de4e7554009323346dbc38d9b2204093ab116bd"
     }
   ],
-  "totalBytes": 5580486,
+  "totalBytes": 5580505,
   "sealedAt": "2026-11-04"
 }

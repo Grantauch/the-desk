@@ -838,7 +838,7 @@ details.more .body p{margin-top:.8rem}
   el('line',{x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],'class':'link'});
   el('line',{x1:p1[0],y1:p1[1],x2:p3[0],y2:p3[1],'class':'link'});
   var lm=[(p1[0]+p2[0])/2,(p1[1]+p2[1])/2];el('text',{x:lm[0]+18,y:lm[1]+2}).textContent='about 2 mi';
-  var lm2=[(p1[0]+p3[0])/2,(p1[1]+p3[1])/2];el('text',{x:lm2[0]+14,y:lm2[1]+30}).textContent='about 4 mi';
+  var lm2=[(p1[0]+p3[0])/2,(p1[1]+p3[1])/2];el('text',{x:lm2[0]+16,y:lm2[1]+56}).textContent='about 4 mi';
   var siteEls={},list=$('#site-list'),out=$('#site-out');
   function pick(id){
     var s=SITES.filter(function(x){return x.id===id;})[0];
@@ -850,7 +850,7 @@ details.more .body p{margin-top:.8rem}
     var p=P(s.lat,s.lon),g=el('g',{'class':'site',tabindex:'-1'});
     if(s.fog)el('circle',{cx:p[0],cy:p[1],r:46,'class':'fog'},g);
     el('circle',{cx:p[0],cy:p[1],r:s.town?6:9,'class':'dot'},g);
-    var t=el('text',{x:p[0]+(s.id==='hh'?12:14),y:p[1]+(s.id==='p2'?-52:5),'class':s.town?'':'lbl'},g);t.textContent=s.n;
+    var t=el('text',{x:p[0]+(s.id==='uck'?-12:(s.id==='hh'?12:14)),y:p[1]+(s.id==='p2'?-52:5),'class':s.town?'':'lbl','text-anchor':s.id==='uck'?'end':'start'},g);t.textContent=s.n;
     if(s.fog){var t2=el('text',{x:p[0]-150,y:p[1]-8},g);t2.textContent='never recorded';}
     g.addEventListener('click',function(){pick(s.id);});
     siteEls[s.id]=g;
