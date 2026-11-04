@@ -1,4 +1,18 @@
 {
+  "website-credit-recovery-2026-11-04": {
+    "status": "LIVE_CONTENT_VERIFIED_MAIN_REDEPLOY_PENDING",
+    "owner": "Codex",
+    "scope": "Audit skipped website releases after Netlify credits were restored; preserve the museum and Michael Vick releases on protected main.",
+    "verification_status": "PRODUCTION_ROUTES_AND_RELEASE_ANCESTRY_VERIFIED",
+    "deployment_status": "PUBLISHED_PREVIEW_TREE_EQUALS_MAIN_PRODUCTION_REBUILD_PENDING",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Published deploy 6aeaa05ad8b5c5a8828b82b6 serves commit 692e657ea5d182dfb61ebda8a06b982164c2a2df. Its Git tree e6a785806234d28112e1f7d1af620a2b9ae209be exactly equals main merge 029a951c28097eb1cb828bf655fce013521c515b after PR311.",
+      "Main includes all 19 commits since the previous November 2 production baseline 3a3d0114a9655e485ea588df30fef1875fd86449 with no divergence. Superseded skipped builds do not need to be replayed.",
+      "Production GET checks returned HTTP200 for home, StoryHubs, US History, both Michael Vick pages, The Arsenal, Over the Top and Over the Somme. Prior production browser verification loaded all ten Arsenal GLBs and the Blender trench sandbags without page errors or model warnings.",
+      "The separate Checkaverse public health endpoint reports healthy version 0.15.0. This website release does not deploy that server, Apps Script or unfinished experimental pull requests."
+    ]
+  },
   "checkaverse-resident-lives-2026-11-02": {
     "status": "IMPLEMENTED_LOCAL_TESTED",
     "owner": "Codex",

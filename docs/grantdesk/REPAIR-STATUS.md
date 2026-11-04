@@ -1,3 +1,9 @@
+## November 4 website publication recovery
+
+Owner: Codex. The published Michael Vick release includes all merged website changes since the November 2 baseline, including the WWI week, all ten Arsenal Blender models, Over the Top sandbags and the Somme tank. PR #311 is now merged to preserve both Vick pages on main. Published commit `692e657ea5d182dfb61ebda8a06b982164c2a2df` and main merge `029a951c28097eb1cb828bf655fce013521c515b` have the identical Git tree `e6a785806234d28112e1f7d1af620a2b9ae209be`.
+
+Eight production route checks returned HTTP 200. Prior actual production browser checks loaded all ten Arsenal GLBs and Blender trench sandbags with no page errors or model warnings. Skipped older main builds are superseded, so replaying them would roll back newer work. Credits have been restored by Grant; a fresh protected-main production rebuild and readback are the next gate. Checkaverse separately reports healthy version 0.15.0; this does not claim a server or Apps Script deployment. Draft and preproduction work remains separate from classroom-ready publication.
+
 ## November 2 Checkaverse resident lives
 
 Owner: Codex, branch `codex/checkaverse-resident-lives-20261102`. User-authorized expansion of core loop step 4. Twelve named homes and interiors, real work/travel/rest/social actions, shared server simulation and private persistent Kettle Creek histories. Pax’s parcels reach the clinic and Nell receives them; gardening, sweeping, market displays, inspections, observations and notes leave actual results. Dialogue reports current activity and real history. Story returns enter the next relevant work round. Around town finds the current resident across maps and homes.
