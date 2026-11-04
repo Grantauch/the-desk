@@ -14,11 +14,11 @@ const results=[];
 try{
   for(const width of [1440,1366])for(const fallback of [false,true]){
     const page=await browser.newPage({viewport:{width,height:768}}),errors=[],warnings=[];
-    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='warning'&&m.text().includes('WWI Blender'))warnings.push(m.text());});
+    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='warning'&&m.text().includes('WWI Blender')){warnings.push(m.text());console.log(m.text());}});
     if(fallback)await page.route('**/trench_sandbag_1916_web.glb',r=>r.fulfill({status:404,body:'Synthetic asset failure'}));
     await page.goto(base+'/hubs/ush9-over-the-top.html');
     await page.getByRole('button',{name:'Move up to the line',exact:true}).click();
-    await page.waitForFunction(expected=>document.getElementById('c').dataset.sandbags===expected,fallback?'fallback':'blender');
+    await page.waitForFunction(expected=>document.getElementById('c').dataset.sandbags===expected,fallback?'fallback':'blender',{timeout:15000});
     await page.getByRole('button',{name:'Show trench parts',exact:true}).click();
     await page.waitForTimeout(500);await page.screenshot({path:resolve(out,`${width}-${fallback?'fallback':'blender'}.png`)});
     for(let stop=2;stop<=7;stop++){

@@ -7,8 +7,8 @@ def hull(name,sections,mat,sides=32):
         verts.extend((x,ry*math.sin(i*math.tau/sides),z+rz*math.cos(i*math.tau/sides)) for i in range(sides))
     faces=[]
     for j in range(len(sections)-1):
-        for i in range(sides):faces.append((j*sides+i,j*sides+(i+1)%sides,(j+1)*sides+(i+1)%sides,(j+1)*sides+i))
-    faces += [tuple(range(sides-1,-1,-1)),tuple((len(sections)-1)*sides+i for i in range(sides))]
+        for i in range(sides):faces.append((j*sides+i,(j+1)*sides+i,(j+1)*sides+(i+1)%sides,j*sides+(i+1)%sides))
+    faces += [tuple(range(sides)),tuple((len(sections)-1)*sides+i for i in range(sides-1,-1,-1))]
     mesh=bpy.data.meshes.new(name);mesh.from_pydata(verts,[],faces);mesh.update()
     for p in mesh.polygons:p.use_smooth=True
     o=bpy.data.objects.new(name,mesh);bpy.context.collection.objects.link(o);finish(o,name,mat)
@@ -80,7 +80,7 @@ def uboat():
         for j in range(35):
             x=-4.65+j*.27; y=side*(.20+.18*math.sin((x+4.65)/9.3*math.pi))
             box('Casing flood slot',(x,y,1.02),(.11,.018,.045),'Dark_Blued_Steel',.009)
-    ellipsoid('Conning tower',(0,0,1.55),(.55,.30,.59),'Submarine_Grey',32,12)
+    box('Conning tower',(0,0,1.62),(1.10,.60,.83),'Submarine_Grey',.16)
     ellipsoid('Open bridge well',(0,0,2.05),(.49,.25,.055),'Dark_Blued_Steel',28,8)
     for y in [-.27,.27]:tube('Bridge coaming',[(-.42,y,2.03),(-.42,y,2.18),(.40,y,2.18),(.48,y,2.03)],.028,'Submarine_Grey')
     for x,z in [(-.17,2.94),(.20,2.76)]:

@@ -80,7 +80,7 @@ References:
 | Exhibit | Source / GLB stem | Triangles | Batches | GLB bytes |
 |---|---|---:|---:|---:|
 | Rigid Zeppelin airship, circa 1915 | zeppelin_1915 | 13,768 | 6 | 270,520 |
-| Ocean-going German U-boat, circa 1916 | uboat_1916 | 13,688 | 7 | 441,516 |
+| Ocean-going German U-boat, circa 1916 | uboat_1916 | 13,092 | 7 | 433,280 |
 
 Rebuild with `python build_airship_submarine.py`. The airship has a long fabric
 envelope with frame/longitudinal seams, four tail fins, suspended gondolas and
@@ -101,7 +101,7 @@ References:
 ## Over the Top: instanced sandbag reconstruction
 
 `trench_sandbag_1916.blend` is an editable, rounded hessian bag with uneven fill
-and a perimeter seam; `trench_sandbag_1916_web.glb` is 7,360 bytes, 252 triangles
+and a pinched fabric mouth; `trench_sandbag_1916_web.glb` is 1,924 bytes, 44 triangles
 and one material batch. Rebuild using `python build_sandbag.py`. It replaces the
 geometry in the existing two instanced sandbag meshes, preserving all instance
 transforms, movement, lessons, trench-parts interaction and adaptive quality. It

@@ -1478,8 +1478,10 @@
       "PR #307: four WebGL scenarios passed at 1440x900 and 1366x768 with original-asset 404 fallbacks, zero uncaught errors, all five model requests accounted for; full local npm run verify passed (165 HTML / 5429 references).",
       "Batch 2 adds SBR, barbed wire and Wex with gas/flame effects retained; focused validation pending.",
       "Batch 2 four desktop/Chromebook WebGL scenarios passed: all eight model requests and all eight synthetic fallback loads, no uncaught errors. Visual inspection prompted alignment of the retained flame effect to the new lance.",
-      "Batch 3 adds Zeppelin and U-boat with editable Blender sources, 6/7 batches and 712036 combined GLB bytes; new-batch focused and protected validation pending.",
-      "Over the Top sandbag model is 7360 bytes / 252 triangles / one batch; geometry replaces the existing two InstancedMeshes and retains all instance transforms and original load-failure geometry. Trench model browser checks pending."
+      "Batch 3 adds Zeppelin and U-boat with editable Blender sources, 6/7 batches and 703800 combined GLB bytes; new-batch focused and protected validation pending.",
+      "Over the Top sandbag model is 1924 bytes / 44 triangles / one batch; geometry replaces the existing two InstancedMeshes and retains all instance transforms and original load-failure geometry. Trench model browser checks pending.",
+      "All ten Arsenal GLBs passed success/failure desktop and Chromebook-viewport scenarios with no uncaught errors before final ship winding correction; final corrected-ship rerun pending.",
+      "Trench model initial four scenarios passed all seven stops, trench-parts controls and original fallback. Software-renderer timing prompted reducing per-bag geometry from 252 to 44 triangles; final repeat pending."
     ]
   }
 }
