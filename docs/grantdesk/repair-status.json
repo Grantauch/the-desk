@@ -10,7 +10,7 @@
       "Tiled JSON south-lane extensions add 12 named cottages and interiors, preserve original map rows/buildings/doors/graves/forage locations and all 24 player plots, and reject attempts to overwrite the existing map.",
       "Pax collects, carries and delivers clinic parcels; Nell receives them. Every delivery is conserved as received or waiting. Watering, sweeping, stock displays, inspections, observations, notes and social memories change real resident state. Work effects occur after the activity completes.",
       "Two real WebSocket clients agree on shared positions/tasks/results. Private resident histories and interaction holds are isolated. Teacher pause freezes the clocks. Jobs/memories survive a real process restart and saved-account reconnect. Actual walking enters/exits named homes, and remote-entry messages cannot teleport.",
-      "Browser journeys enter Pax’s home, wait for his return, check dialogue against his completed delivery, follow current whereabouts through homes and the wilds gate, verify carried parcels and Nell’s receipts, and compare quiet/ordinary clients. Dialog WCAG A/AA and phone fit pass. Final frozen-source diagnostics, full server suite and both browser suites passed.",
+      "Browser journeys enter Pax\u2019s home, wait for his return, check dialogue against his completed delivery, follow current whereabouts through homes and the wilds gate, verify carried parcels and Nell\u2019s receipts, and compare quiet/ordinary clients. Dialog WCAG A/AA and phone fit pass. Final frozen-source diagnostics, full server suite and both browser suites passed.",
       "The canonical local verify command completed successfully: zero diagnostic errors/warnings, 54 built routes, 162 HTML files, 5423 local references and 30 releases/231 assets. Core school services, attendance, pet schemas/care/growth, battle rewards and merchant inventory remain unchanged. New data uses resident-only meta namespaces and anonymous scope keys."
     ]
   },
@@ -1463,6 +1463,18 @@
       "Current issue #28 release authority, Pixel Camp integration and later repair records preserved; unfinished drafts excluded.",
       "Exact protected checks, merge and Netlify production commit must be read independently.",
       "Full canonical npm run verify passed: Astro zero errors/warnings; 54 generated routes; 155 HTML files and 5233 references validated; 27 releases and 193 sealed files verified. Protected browser/combined-source CI remains required."
+    ]
+  },
+  "wwi-museums-2026-11-04": {
+    "status": "SOURCE_IMPLEMENTED",
+    "verification_status": "BROWSER_AND_PROTECTED_CHECKS_PENDING",
+    "deployment_status": "ROUTES_RESTORED_BATCH1_PENDING",
+    "field_status": "FIELD_PENDING",
+    "summary": "Restore missing WWI museum routes by publishing the already-built merged PR 305 release; add Blender Vickers, QF18 and Sopwith Camel reconstructions with original-object fallbacks.",
+    "evidence": [
+      "Netlify production builds 6ae9ee5171fb2bfc5513f80e and 6aea8bae11a3899574df700f were skipped for account credit exhaustion.",
+      "Published existing ready deploy 6aea7da4775e0c260094143d at 2026-11-04T01:43:30.298Z; both museum HTML and extensionless routes and both original Arsenal GLBs returned HTTP 200.",
+      "New Blender exports: Vickers 111012 bytes / 3908 triangles / 7 batches; QF18 130308 / 4812 / 6; Camel 197128 / 7776 / 10. New batch verification and deployment are separate from route recovery."
     ]
   }
 }
