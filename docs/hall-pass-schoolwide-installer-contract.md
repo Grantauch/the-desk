@@ -56,14 +56,19 @@ Whether additional local helper files are needed depends on the Google OAuth/ser
 - ZIP clean-install test from extracted archive (not local developer sources); verify version/checksums and no embedded credentials/PII.
 
 ## Existing code findings from November 4 audit
-- `apps-script/hall-pass/Code.gs`: `teacherSetLunchNumberPins` supports an email + exactly-six-digit-number paste, preview and confirmed update only for **active** students in this one workbook. It does not import the unassigned student directory.
-- `verifyStudentPin_` and several PIN card recovery paths assume exactly 6 digits. 5-digit codes need end-to-end support without guessing/padding.
-- `apps-script/hall-pass/Index.html`: PIN fields have maxlength 6 and pattern exactly 6, and associated help text assumes six digits.
-- The PIN Cards cell format needs explicit plain text to avoid losing leading zeros in cafeteria numbers.
+- `apps-script/hall-pass/Code.gs`: `teacherSetLunchNumberPins` now accepts an email + exact five- or six-digit cafeteria number in the draft branch; only **active** students in this one workbook are updated. It does not import the unassigned schoolwide directory.
+- Draft code now accepts five or six digits in `verifyStudentPin_` and PIN card recovery paths, including a test for leading zero preservation. Synthetic six-digit PIN generation is unchanged.
+- `apps-script/hall-pass/Index.html`: draft PIN fields accept five or six digits and retain a six-character maximum. Class-specific and teacher-only security controls remain enforced by the server.
+- Draft PIN Cards setup formats the PIN column as text, preserving newly entered leading-zero cafeteria numbers. Existing improperly converted records still require a verified source re-import.
 - `apps-script/hall-pass-template/Setup.gs` already provides distinct kiosk and teacher URLs, and `src/pages/pass-setup.astro` already has the copy/install walkthrough.
 - Separate Apps Script copies currently have no shared canonical student-credential lookup or synchronized rotations.
 - Existing schoolwide architecture issues #89 and #105 identify scalability/security blockers. Do not promote the existing isolated classroom app to a schoolwide shared backend without addressing those gates.
 - Current production workbook, student PINs and kiosk links must remain unchanged until a verified school-approved cutover.
+
+## Private schoolwide roster preflight (implemented in draft)
+- `scripts/validate-schoolwide-hall-pass-roster.py` checks the alternating cafeteria-number/name pairs without printing any student's name, number, or email. It rejects invalid 4-digit codes, duplicate IDs, malformed records and ambiguous mappings. It preserves five-digit codes and leading-zero six-digit codes.
+- Optional verified mapping CSV must contain `cafeteria_number,school_email` and is joined by **exact cafeteria-number string**, never fuzzy names. Missing mappings mean the roster is **not ready for authorized staging** and no accounts are enabled.
+- This preflight is **read-only** and does not import or activate students. Any input and verified mapping must be retained only in approved private school storage, never committed to GitHub or bundled in a ZIP. Synthetic-only tests run with `python scripts/test-schoolwide-hall-pass-roster.py`.
 
 ## Release acceptance
 The **single versioned ZIP** and its setup flow are tested from a clean teacher environment; both teacher kiosk and dashboard work; exact lunch-number credentials are shared across teachers; schoolwide unassigned students remain inactive; no private data appears in the ZIP/repo; source is verified; a backup and rollback plan exists. A prototype or documentation-only ZIP must be explicitly labelled *not production-ready*.
