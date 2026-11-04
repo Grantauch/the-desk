@@ -70,12 +70,12 @@ export const storyHubs: StoryHub[] = [
   "title": "down the rabbit hole",
   "course": "hidden history",
   "unit": "mind games · lesson 1",
-  "period": "1822–2013",
+  "period": "1822 to 2013",
   "status": "ready to teach",
-  "question": "Can you spot the lie when the true stories sound impossible?",
-  "blurb": "Five impossible stories; four real, one invented. Enter a Wonderland of confidence tricks, cognitive biases, the Dark Triad and the danger of diagnosing strangers.",
-  "cover": "/storyhub/hh/rabbit-hole/assets/eye.webp",
-  "coverAlt": "Original PowerPoint artwork of a red concentric hypnotic eye for the Down the Rabbit Hole Wonderland lesson.",
+  "question": "How does an impossible story start to feel true?",
+  "blurb": "Five cons, one invented. Turn the cards to see the real evidence, read MacGregor's 1822 guidebook to a country that never existed, watch the 1947 newsreel of the van Meegeren trial, then meet the Dark Triad through Tenniel's Wonderland and the Goldwater survey.",
+  "cover": "/storyhub/hh/rabbit-hole/assets/rh2-macgregor-1822.webp",
+  "coverAlt": "Engraved 1822 portrait of Gregor MacGregor, His Highness the Cazique of Poyais.",
   "topics": [
     "hidden history",
     "psychology",
@@ -84,11 +84,10 @@ export const storyHubs: StoryHub[] = [
     "Wonderland"
   ],
   "inside": [
-    "Spot the Con: five cards, four historical cases and one invented story.",
-    "Lock your verdict, then match four biases to their cases.",
-    "Meet three Wonderland guides to the Dark Triad.",
-    "Investigate the 2013 everyday-sadism study and the Goldwater Rule.",
-    "Finish a three-question exit ticket using shared StoryHub work controls."
+    "Five flip cards: four historical cons with real archival evidence and one invented story.",
+    "The Poyais guidebook, banknote and settler toll, plus a 1947 trial newsreel.",
+    "The Dark Triad through Tenniel engravings and the real Machiavelli and Narcissus.",
+    "The everyday sadism study, the Goldwater survey funnel, and a three question exit ticket."
   ]
 },
 

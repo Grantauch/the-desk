@@ -5,44 +5,54 @@
   "lessonCode": "RABBITHOLE",
   "title": "Down the Rabbit Hole",
   "audience": "students",
-  "narrativeQuestion": "How can the impossible be true while the ordinary-sounding story is invented?",
+  "narrativeQuestion": "How does an impossible story start to feel true?",
   "chapters": [
     {
       "id": "ch-cases",
       "title": "Five stories, one fake",
-      "claim": "A–D are historical cases from the presentation: Poyais, the Brooklyn Bridge sales, Van Meegeren's false Vermeers and Anna Anderson's survival claim. E is expressly invented, designed to sound most ordinary. The student must cast five real/fake verdicts before seeing the answer.",
-      "namedPeople": [],
+      "claim": "Four historical cons and one invented story. Students commit verdicts, then the cards turn over to show real evidence.",
+      "namedPeople": [
+        {
+          "name": "Gregor MacGregor",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A05"
+        },
+        {
+          "name": "Han van Meegeren",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A09"
+        }
+      ],
       "visualAnchorIds": [
-        "A01",
-        "A02",
-        "A03",
-        "A04",
         "A05",
-        "A06"
+        "A08",
+        "A09",
+        "A10"
       ],
       "interactionIds": [
         "I01"
       ]
     },
     {
-      "id": "ch-reveal",
-      "title": "The ordinary lie",
-      "claim": "The Detroit 1958 Mileage Plus/Raymond Kessler case is a classroom invention. The Poyais migration, George C. Parker bridge sales, Van Meegeren forgeries and Anna Anderson's false Anastasia claim did occur, though specific historical claims invite checking.",
+      "id": "ch-evidence",
+      "title": "The evidence room",
+      "claim": "The Poyais guidebook and banknote, the settler toll, and the 1947 trial newsreel.",
       "namedPeople": [],
-      "visualAnchorIds": ["A07"],
-      "interactionIds": []
+      "visualAnchorIds": [
+        "A06",
+        "A07",
+        "A14"
+      ],
+      "interactionIds": [
+        "I05"
+      ]
     },
     {
       "id": "ch-bias",
       "title": "The traps in our thinking",
-      "claim": "The uploaded deck matches A with herd mentality, B overconfidence, C confirmation bias and D sunk cost. Students match each then see a concrete explanation of the bias in that case.",
+      "claim": "Herd mentality, overconfidence, confirmation bias and sunk cost matched to the cases.",
       "namedPeople": [],
-      "visualAnchorIds": [
-        "A02",
-        "A03",
-        "A04",
-        "A05"
-      ],
+      "visualAnchorIds": [],
       "interactionIds": [
         "I02"
       ]
@@ -50,43 +60,56 @@
     {
       "id": "ch-triad",
       "title": "Your guides in Wonderland",
-      "claim": "Paulhus and Williams' 2002 Dark Triad clusters three overlapping traits: Machiavellianism, narcissism and psychopathy. Visual guides are the Cheshire Cat, Queen of Hearts and Walrus from the teacher artwork. These are metaphors, not psychiatric evaluations of historical people.",
-      "namedPeople": [],
+      "claim": "The Dark Triad with Tenniel guides and the real namesakes.",
+      "namedPeople": [
+        {
+          "name": "Niccol\u00f2 Machiavelli",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A12"
+        }
+      ],
       "visualAnchorIds": [
-        "A08",
-        "A09",
-        "A10",
-        "A11"
+        "A02",
+        "A03",
+        "A04",
+        "A12",
+        "A13"
       ],
       "interactionIds": [
-        "I03"
+        "I03",
+        "I06"
       ]
     },
     {
       "id": "ch-fourth",
       "title": "The fourth trait",
-      "claim": "A 2013 Buckels–Jones–Paulhus study offered four job choices in a sample of 71; 26.8% selected the simulated bug-killing task. The paper reports no bugs were killed. This is an experimental result in one sample, not a percent of the population.",
+      "claim": "The 2013 everyday sadism study, one sample of 71.",
       "namedPeople": [],
-      "visualAnchorIds": [
-        "A12"
-      ],
+      "visualAnchorIds": [],
       "interactionIds": []
     },
     {
-      "id": "ch-boundary",
+      "id": "ch-goldwater",
       "title": "The Goldwater Rule",
-      "claim": "The APA's 1973 Goldwater Rule cautions psychiatrists against offering professional opinions about public figures they have not examined and for whom consent has not been obtained. Students examine observed conduct but cannot diagnose classmates, historical figures or celebrities.",
-      "namedPeople": [],
-      "visualAnchorIds": [
-        "A13",
-        "A14"
+      "claim": "The 1964 Fact survey funnel and the 1973 ethics rule.",
+      "namedPeople": [
+        {
+          "name": "Barry Goldwater",
+          "anchorStatus": "anchored",
+          "visualAnchorId": "A11"
+        }
       ],
-      "interactionIds": []
+      "visualAnchorIds": [
+        "A11"
+      ],
+      "interactionIds": [
+        "I07"
+      ]
     },
     {
       "id": "ch-exit",
-      "title": "Write a better question",
-      "claim": "Three written prompts assess evidence judgment, the difference between description and diagnosis, and an evidence-first defense against manipulation.",
+      "title": "Climb out",
+      "claim": "Three written responses with Turn In.",
       "namedPeople": [],
       "visualAnchorIds": [],
       "interactionIds": [
