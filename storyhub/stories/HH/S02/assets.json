@@ -222,6 +222,32 @@
       "htmlSafeZone": "Shown as a captioned plate or inside an instrument card. No text sits on the image.",
       "responsiveCrop": "Shown uncropped at every width.",
       "deployPath": "/storyhub/hh/the-first-englishman/assets/film-1923.mp4"
+    },
+    {
+      "id": "A18",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Visual anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Arthur Keith",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 4, 2026 as a standard thumbnail and converted to WebP.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/hh/the-first-englishman/assets/keith.webp"
+    },
+    {
+      "id": "A19",
+      "status": "shipped",
+      "type": "photograph",
+      "role": "Visual anchor",
+      "sourceMode": "source-first-archival",
+      "subject": "Gerrit Smith Miller Jr., about 1897",
+      "rightsStatus": "Public domain in the United States; reproduced from Wikimedia Commons with credit on the page.",
+      "provenance": "Downloaded from Wikimedia Commons November 4, 2026 as a standard thumbnail and converted to WebP.",
+      "htmlSafeZone": "Shown as a captioned plate beside the text. No text sits on the image.",
+      "responsiveCrop": "Shown uncropped at every width.",
+      "deployPath": "/storyhub/hh/the-first-englishman/assets/miller.webp"
     }
   ]
 }
