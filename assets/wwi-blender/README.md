@@ -97,3 +97,17 @@ References:
 - RAF Museum first Zeppelin raids: https://www.rafmuseum.org.uk/blog/the-few-and-the-first-battle-of-britain/
 - U.S. Naval History and Heritage Command WWI U-boat exhibition panels: https://www.history.navy.mil/content/dam/nhhc/browse-by-topic/War%20and%20Conflict/world-war-i/panels_7-12.pdf
 - Canadian War Museum WWI deck gun: https://www.warmuseum.ca/cwm/exhibitions/navy/objects_photos_search-e.aspx@section=4-D&id=6&page=0.html
+
+## Over the Top: instanced sandbag reconstruction
+
+`trench_sandbag_1916.blend` is an editable, rounded hessian bag with uneven fill
+and a perimeter seam; `trench_sandbag_1916_web.glb` is 7,360 bytes, 252 triangles
+and one material batch. Rebuild using `python build_sandbag.py`. It replaces the
+geometry in the existing two instanced sandbag meshes, preserving all instance
+transforms, movement, lessons, trench-parts interaction and adaptive quality. It
+does not create one scene object per bag. The original box geometry stays in use
+if the optional asset is unavailable or fails format/scale validation. The bag
+is an interpretive environment prop, not a scan of a specific surviving artifact.
+
+Reference context: Imperial War Museums trench construction guide:
+https://www.iwm.org.uk/sites/default/files/files/2023-10/first_world_war_large_print_guide.pdf

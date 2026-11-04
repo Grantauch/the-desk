@@ -1466,7 +1466,7 @@
     ]
   },
   "wwi-museums-2026-11-04": {
-    "status": "ALL_ARSENAL_ASSETS_IMPLEMENTED",
+    "status": "ALL_ARSENAL_AND_TRENCH_SANDBAGS_IMPLEMENTED",
     "verification_status": "BATCH1_FULL_LOCAL_AND_WEBGL_PASSED_PROTECTED_PENDING",
     "deployment_status": "ROUTES_RESTORED_BATCH1_PENDING",
     "field_status": "FIELD_PENDING",
@@ -1478,7 +1478,8 @@
       "PR #307: four WebGL scenarios passed at 1440x900 and 1366x768 with original-asset 404 fallbacks, zero uncaught errors, all five model requests accounted for; full local npm run verify passed (165 HTML / 5429 references).",
       "Batch 2 adds SBR, barbed wire and Wex with gas/flame effects retained; focused validation pending.",
       "Batch 2 four desktop/Chromebook WebGL scenarios passed: all eight model requests and all eight synthetic fallback loads, no uncaught errors. Visual inspection prompted alignment of the retained flame effect to the new lance.",
-      "Batch 3 adds Zeppelin and U-boat with editable Blender sources, 6/7 batches and 712036 combined GLB bytes; new-batch focused and protected validation pending."
+      "Batch 3 adds Zeppelin and U-boat with editable Blender sources, 6/7 batches and 712036 combined GLB bytes; new-batch focused and protected validation pending.",
+      "Over the Top sandbag model is 7360 bytes / 252 triangles / one batch; geometry replaces the existing two InstancedMeshes and retains all instance transforms and original load-failure geometry. Trench model browser checks pending."
     ]
   }
 }

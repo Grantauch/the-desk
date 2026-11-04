@@ -504,3 +504,5 @@ Owner: Codex, issue #306. Netlify production builds were skipped for account cre
 Batch 1: full local npm run verify passed (165 HTML / 5429 references); four WebGL scenarios at 1440x900 and 1366x768 passed with five successful GLBs or five deliberate fallbacks and no uncaught errors. PR #307 protected checks pending. Batch 2 SBR/wire/Wex implemented; browser validation pending.
 
 Batch 2 initial four desktop/Chromebook scenarios passed with eight GLBs and eight synthetic fallbacks, no uncaught errors. Flame alignment corrected after visual inspection. Batch 3 Zeppelin and U-boat sources/exports implemented; all eight remaining Arsenal exhibits now have Blender assets. Protected checks and new batch production release remain separate and pending.
+
+Over the Top: rounded Blender sandbag source and 7360-byte GLB implemented, preserving the same two InstancedMeshes and original fallback geometry. New trench-model browser/protected checks and release pending.
