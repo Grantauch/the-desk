@@ -50,3 +50,27 @@ already-built PR #305 deploy `6aea7da4775e0c260094143d` was published through
 Netlify on November 3 local time, restoring both missing museums without a source
 routing change. HTTP 200 was read back from both extensionless routes, both HTML
 routes and both existing Arsenal GLBs. This is separate from new batch deployment.
+
+## November 4 reconstruction batch 2
+
+| Exhibit | Source / GLB stem | Triangles | Batches | GLB bytes |
+|---|---|---:|---:|---:|
+| Small-box respirator with gas cylinders | small_box_respirator_1916 | 11,008 | 8 | 233,128 |
+| Screw pickets, twisted barbed wire and coil | screw_picket_wire_1916 | 23,660 | 2 | 453,296 |
+| Wex M1917 flamethrower | wex_flamethrower_1917 | 3,184 | 7 | 77,556 |
+
+Rebuild with `python build_trench_equipment.py` using the same bpy environment.
+The gas scene deliberately distinguishes 1915 cylinder attacks from the improved
+1916 British small-box respirator; its mask is displayed on a neutral museum bust.
+The Wex has an annular fuel tank and central pressure vessel. These are external
+interpretive reconstructions. Valve internals and precise military paint/markings
+are omitted. Wire uses period barbs rather than modern razor tape. Existing gas
+particles and flame animation are transferred from the original exhibit at load
+success; the entire original remains the failure fallback.
+
+References:
+- Australian War Memorial SBR: https://www.awm.gov.au/collection/C1042620
+- Canadian War Museum SBR: https://www.warmuseum.ca/firstworldwar/objects-and-photos/equipment-and-vehicles/uniforms-and-personal-gear/small-box-respirator/
+- Australian War Memorial Wex discussion: https://www.awm.gov.au/wartime/102/assault-by-fire
+- National Army Museum wiring party, 1917: https://collection.nam.ac.uk/detail.php?acc=2002-02-589-3
+- Australian War Memorial screw picket: https://www.awm.gov.au/collection/C136923

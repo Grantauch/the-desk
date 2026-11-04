@@ -1466,15 +1466,17 @@
     ]
   },
   "wwi-museums-2026-11-04": {
-    "status": "SOURCE_IMPLEMENTED",
-    "verification_status": "BROWSER_AND_PROTECTED_CHECKS_PENDING",
+    "status": "BATCH1_LOCAL_VERIFIED_BATCH2_IMPLEMENTED",
+    "verification_status": "BATCH1_FULL_LOCAL_AND_WEBGL_PASSED_PROTECTED_PENDING",
     "deployment_status": "ROUTES_RESTORED_BATCH1_PENDING",
     "field_status": "FIELD_PENDING",
     "summary": "Restore missing WWI museum routes by publishing the already-built merged PR 305 release; add Blender Vickers, QF18 and Sopwith Camel reconstructions with original-object fallbacks.",
     "evidence": [
       "Netlify production builds 6ae9ee5171fb2bfc5513f80e and 6aea8bae11a3899574df700f were skipped for account credit exhaustion.",
       "Published existing ready deploy 6aea7da4775e0c260094143d at 2026-11-04T01:43:30.298Z; both museum HTML and extensionless routes and both original Arsenal GLBs returned HTTP 200.",
-      "New Blender exports: Vickers 111012 bytes / 3908 triangles / 7 batches; QF18 130308 / 4812 / 6; Camel 197128 / 7776 / 10. New batch verification and deployment are separate from route recovery."
+      "New Blender exports: Vickers 111012 bytes / 3908 triangles / 7 batches; QF18 130308 / 4812 / 6; Camel 197128 / 7776 / 10. New batch verification and deployment are separate from route recovery.",
+      "PR #307: four WebGL scenarios passed at 1440x900 and 1366x768 with original-asset 404 fallbacks, zero uncaught errors, all five model requests accounted for; full local npm run verify passed (165 HTML / 5429 references).",
+      "Batch 2 adds SBR, barbed wire and Wex with gas/flame effects retained; focused validation pending."
     ]
   }
 }
