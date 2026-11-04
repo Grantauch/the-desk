@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
   buildBalloon,
   buildBasilica,
@@ -515,6 +516,57 @@ export function buildProps(
   ];
   fill(tanks, tankItems);
   group.add(tanks);
+
+  // Keep the original low-poly tanks visible if the Blender model cannot load.
+  // Load once and clone the same shared geometry/materials for both historic sites.
+  // This keeps the flyover responsive while providing detailed close-up models.
+  new GLTFLoader().load(
+    "/hubs/ush9-over-the-somme/models/mark1_male_1916_web.glb",
+    (gltf) => {
+      if (group.userData.disposed) return;
+      const source = gltf.scene;
+      const studioHelpers: THREE.Object3D[] = [];
+      source.traverse((obj) => {
+        if ((obj as THREE.Light).isLight || (obj as THREE.Camera).isCamera) studioHelpers.push(obj);
+      });
+      for (const helper of studioHelpers) helper.parent?.remove(helper);
+
+      const loadedGeometries = new Set<THREE.BufferGeometry>();
+      const loadedMaterials = new Set<THREE.Material>();
+      source.traverse((obj) => {
+        const mesh = obj as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        loadedGeometries.add(mesh.geometry);
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        for (const material of materials) loadedMaterials.add(material);
+      });
+
+      // Blender exports Z-up scenes through a glTF Y-up conversion root;
+      // preserve gltf.scene rather than extracting/reorienting its individual meshes.
+      const axisY = new THREE.Vector3(0, 1, 0);
+      const axisX = new THREE.Vector3(1, 0, 0);
+      for (const item of tankItems) {
+        const model = source.clone(true);
+        model.position.set(item.x, item.y, item.z);
+        model.quaternion.setFromAxisAngle(axisY, item.yaw);
+        if (item.tilt) {
+          model.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(axisX, item.tilt));
+        }
+        model.scale.set(item.sx, item.sy, item.sz);
+        model.traverse((obj) => { obj.frustumCulled = false; });
+        group.add(model);
+      }
+      geos.push(...loadedGeometries);
+      mats.push(...loadedMaterials);
+      tanks.visible = false;
+    },
+    undefined,
+    (error) => {
+      console.warn("Mark I Blender model unavailable; displaying fallback tank.", error);
+    },
+  );
 
   const balloonGeo = buildBalloon();
   geos.push(balloonGeo);
