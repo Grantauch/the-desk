@@ -1,3 +1,9 @@
+## November 4 trench observation polish
+
+Owner: Codex. Three Blender reconstructions replace the simple M1917 and Adrian helmet props and wooden periscope in Over the Top. Editable .blend sources, small texture-free GLBs, museum references and display-scale limitations are included. The five helmets share geometry/materials and each optional asset has an independent original-prop fallback.
+
+Chrome journeys at 1366x768 and 390x768 load all models, traverse seven stops, enter/exit the periscope and complete the ladder/return flow with zero page errors or model warnings. Three separate HTTP404 scenarios retain only the failed asset's original while loading the other replacements. Source scene/camera, reading text, sandbag instances and performance controls remain intact. Protected full checks, production deployment/readback and physical Chromebook/classroom acceptance remain separate gates.
+
 ## November 4 website publication recovery
 
 Owner: Codex. The published Michael Vick release includes all merged website changes since the November 2 baseline, including the WWI week, all ten Arsenal Blender models, Over the Top sandbags and the Somme tank. PR #311 is now merged to preserve both Vick pages on main. Published commit `692e657ea5d182dfb61ebda8a06b982164c2a2df` and main merge `029a951c28097eb1cb828bf655fce013521c515b` have the identical Git tree `e6a785806234d28112e1f7d1af620a2b9ae209be`.

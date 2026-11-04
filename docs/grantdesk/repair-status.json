@@ -1,4 +1,18 @@
 {
+  "wwi-trench-observation-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "M1917 and Adrian helmets plus wooden WWI trench periscope in Over the Top, with editable Blender sources and independent load-failure fallbacks.",
+    "verification_status": "CHROME_1366_AND_390_ALL_STOPS_PERISCOPE_LADDER_AND_THREE_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Blender 5.2.3 exports total 6192 triangles across three assets: M1917 2280, Adrian 2076 and periscope 1836; GLBs total 177684 bytes with no textures.",
+      "Both viewport journeys loaded all four optional upgrades, traversed every stop, entered/exited the periscope, climbed the ladder and returned to the trench with no page errors or model warnings.",
+      "Each new model was separately forced to HTTP404. Its original prop remained while the other replacements loaded, and navigation still reached stop7.",
+      "Five placed helmets clone shared geometry/materials. Existing scene, stop text, camera and sandbag instancing are retained. Museum reference and reconstruction-scale limitations are recorded in assets/wwi-blender/README.md."
+    ]
+  },
   "website-credit-recovery-2026-11-04": {
     "status": "LIVE_CONTENT_VERIFIED_MAIN_REDEPLOY_PENDING",
     "owner": "Codex",
