@@ -62,6 +62,9 @@ jobs:
         env:
           GAS_OAUTH_JSON: ${{ secrets.GAS_OAUTH_JSON }}
           GAS_SCRIPT_ID: ${{ vars.GAS_SCRIPT_ID }}
-          TEMPLATE_SHEET_ID: ${{ inputs.template_sheet_id }}
-          TEMPLATE_SCRIPT_ID: ${{ inputs.template_script_id || vars.HALL_PASS_TEMPLATE_SCRIPT_ID }}
+          # Owner-only issue releases use the already published blank template
+          # if the optional environment variable has not been configured.
+          # Manual first-run inputs retain their existing creation behavior.
+          TEMPLATE_SHEET_ID: ${{ inputs.template_sheet_id || (github.event_name == 'issue_comment' && !vars.HALL_PASS_TEMPLATE_SCRIPT_ID && '18rWtvXq5DhKalWatT9KmoPWwhxqDk7RfVh_-pcQTjl0') || '' }}
+          TEMPLATE_SCRIPT_ID: ${{ inputs.template_script_id || vars.HALL_PASS_TEMPLATE_SCRIPT_ID || (github.event_name == 'issue_comment' && '1AgwPlQR7W_Ua_i-ntn7eZJdlb9mEefZTT1IKDV-O3HsLM8GPtslyLFIW') || '' }}
         run: node scripts/publish-hall-pass-template.mjs

@@ -1,17 +1,19 @@
 {
   "hall-pass-school-directory-2026-11-04": {
-    "status": "IMPLEMENTED_LOCAL_TESTED",
+    "status": "MERGED_RELEASE_IN_PROGRESS",
     "owner": "Codex",
     "scope": "Private shared school directory, exact five/six-digit lunch PINs, independent classroom enrollments, Chromebook kiosk and downloadable teacher kit.",
-    "verification_status": "441_EXISTING_BEHAVIORS_DIRECTORY_AND_TURNIN_PASS_CANONICAL_IN_PROGRESS",
-    "deployment_status": "PR_320_RELEASE_IN_PROGRESS",
+    "verification_status": "CANONICAL_AND_ALL_PROTECTED_BROWSER_GATES_PASS",
+    "deployment_status": "PR_320_MERGED_TURNIN_DEPLOYED_HALL_PASS_AND_SITE_IN_PROGRESS_TEMPLATE_TARGET_FIX_PENDING",
     "field_status": "SECOND_TEACHER_AND_MANAGED_CHROMEBOOK_PENDING",
     "evidence": [
       "Separate private directory imports create no classroom memberships. Email links use exact school numbers; connection refuses incomplete active-roster mappings.",
       "Independent teacher workbooks derive credentials from the same directory; corrections and revocations invalidate identity sessions. Private pass histories remain isolated.",
       "Server-derived persistent attempt budgets survive client nonce rotation. Kiosk clears PINs on submission and student details after completion.",
       "Teacher kit includes complete source, launcher, version, recovery instructions and checksums. Google consent/deployment and real field acceptance remain required.",
-      "Turn In and shared work-panel gates accept exact five/six-digit PINs and use the same school directory. No live student credential cutover has been performed."
+      "Turn In and shared work-panel gates accept exact five/six-digit PINs and use the same school directory. No live student credential cutover has been performed.",
+      "Protected run 41890821777 passed every gate on 0752f94724bb50cdeeec3bff4c4827d44e35130a; PR 320 merged as 22bd8c717fb51da475f9065dad986eb7a02b7e69. Turn In release 41895602732 succeeded. Other deployment and signed-in smoke evidence remain separate.",
+      "Template publication refused an empty target before mutation. Owner-only issue release now supplies the existing published blank template as fallback and verifies its spreadsheet binding. Corrective protected checks and actual template publication remain pending."
     ]
   },
   "checkaverse-resident-lives-2026-11-02": {
