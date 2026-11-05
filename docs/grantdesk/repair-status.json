@@ -1,9 +1,9 @@
 {
   "hall-pass-setup-recovery-2026-11-05": {
-    "status": "IMPLEMENTED_VERIFICATION_IN_PROGRESS",
+    "status": "IMPLEMENTED_FOCUSED_BROWSER_VERIFIED_PENDING_PROTECTED_CI",
     "owner": "Codex",
     "scope": "Stop the teacher setup wizard after a failed initial settings read, provide account recovery and explicit retry, and update setup guidance.",
-    "verification_status": "FOCUSED_HALL_PASS_AND_PACKAGE_PASS_LOCAL_CANONICAL_RUNNING_PROTECTED_BROWSER_PENDING",
+    "verification_status": "LOCAL_CANONICAL_AND_ISOLATED_HALL_PASS_BROWSER_PASS_VISITOR_TEST_FIX_PASS_NEW_PROTECTED_HEAD_PENDING",
     "deployment_status": "PROTECTED_SOURCE_TEMPLATE_AND_SITE_PROMOTION_PENDING",
     "field_status": "SECOND_TEACHER_PERMISSION_RECOVERY_AND_MANAGED_CHROMEBOOK_PENDING",
     "evidence": [
@@ -12,7 +12,11 @@
       "Google documents unsupported multi-account sign-in; school-only Chrome profile/one-account Incognito is a possible recovery, not a confirmed account diagnosis.",
       "Template fixes reach new copies; current copies need environmental recovery or their own source update. No policy weakening, guessed OAuth scopes, property clearing or tab deletion.",
       "The owner requested the setup repair. Finished installer field acceptance remains a separate gate. No private school data or credentials are present in this batch.",
-      "Focused Hall Pass verification passes: 441 runtime behaviors, structural/handoff checks, independent-room directory tests, actual setup handlers and deterministic package negative tests. Local Chrome startup is blocked by the execution environment; actual-HTML browser coverage remains required in protected CI."
+      "Focused Hall Pass verification passes: 441 runtime behaviors, structural/handoff checks, independent-room directory tests, actual setup handlers and deterministic package negative tests. Local Chrome startup is blocked by the execution environment; actual-HTML browser coverage remains required in protected CI.",
+      "Full local canonical npm run verify passed: zero diagnostic errors/warnings, 54 routes, 167 HTML files, 5464 local references and 32 sealed releases/244 assets. Tracked source remained unchanged.",
+      "Actual setup HTML passed isolated Chromium run 42104433254 at phone/dialog widths: denial/retry, malformed responses, blocked navigation, preserved save answers, step progress and WCAG A/AA. Recovery screenshot visually reviewed.",
+      "Protected run 42101937464 passed full verification twice but stopped before Hall Pass browser acceptance on the unchanged visitor/resident canvas-tap timeout. The fixture now waits for a current-room, visible, unobstructed, stationary resident before sampling coordinates, then still requires a real tap and the correct conversation. Phase 3 / core loop step 4; no game behavior changed.",
+      "Isolated run 42107816045 passed the updated visitor fixture and Hall Pass tests. New-head protected acceptance, template publication and exact site readback remain pending."
     ]
   },
   "hall-pass-clean-release-gate-2026-11-04": {
