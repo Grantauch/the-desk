@@ -13,6 +13,7 @@
       "Wizard shows the school account, supplies the owner-authorized Mt. Morris student-email ending, retains 1–5 pass capacity, and describes links ready separately from roster/access/device acceptance.",
       "Phone fit and accessible link labels, direct kiosk open, browser-first guide, optional Windows integration and older-copy collapsed-toolbar fallback are covered in the change. New browser execution is required before promotion.",
       "442 synthetic runtime checks and the source/package/tamper suites pass. Actual Google consent, drawing execution in a fresh school-account copy and second-teacher Chromebook acceptance are not certified.",
+      "Focused Chromium run 42124188205 passed the wrapper’s failure/retry, own-link discovery, direct app links, completion-state, phone/dialog fit and WCAG A/AA checks, plus the existing resident journey. Screenshots were visually inspected; the teacher dashboard was then moved above sharing links so the daily app is first. Final-head acceptance remains required.",
       "No production deployment, current student credentials, public RC1 ZIP or independent teacher copy changed. Distribution remains held at the owner’s request pending quality review."
     ]
   },

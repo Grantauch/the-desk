@@ -6,6 +6,8 @@ The wizard discovers its own deployment, rejects another copy’s link, shows th
 
 Focused source checks pass, including 442 synthetic runtime behaviors, exact school-directory isolation and package integrity negatives. Canonical verification and new-head browser acceptance are pending. The earlier recovery head passed protected run 42118092883, which does not cover this newer wrapper. Actual fresh-school-account image execution/consent, the copied teacher’s policy and the managed Chromebook still need field evidence. No production deployment, real credential or independent teacher copy was changed.
 
+Focused follow-up: Chromium run 42124188205 passed the wrapper screens at phone/dialog sizes, including discovery failure, verification retry, direct links, readiness language and WCAG A/AA, plus the resident journey. Screenshots were visually inspected. The teacher dashboard was then moved above sharing links so the everyday app is first; final-head acceptance remains required.
+
 ## November 5 Hall Pass setup startup recovery
 
 Owner: Codex, follow-up to PR #322. The other teacher's screenshot shows Google's storage PERMISSION_DENIED response. The wizard incorrectly continued to an empty form after its initial settings read failed. It now stops on a recovery screen, blocks Next/save navigation until a valid load, offers explicit retry, and retains save inputs after later failures. Public setup guidance and the review kit explain Google's documented single-account recovery and escalation if the school-account policy still blocks access. Existing independent copies do not automatically receive hosted template updates.
