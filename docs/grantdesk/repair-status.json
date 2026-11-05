@@ -1,4 +1,20 @@
 {
+  "hall-pass-clean-release-gate-2026-11-04": {
+    "status": "SOURCE_REVIEW_AUTHORIZED_FIELD_RELEASE_BLOCKED",
+    "owner": "Codex",
+    "scope": "Issue 319: package-only RC2 setup, offline preflight, exact-ZIP operator evidence, recovery and clean-environment gap assessment. Application source unchanged.",
+    "verification_status": "FULL_LOCAL_CANONICAL_AND_PACKAGE_PASS_FIELD_GATE_BLOCKED",
+    "deployment_status": "NONE_NO_PRODUCTION_TEMPLATE_PUBLIC_DOWNLOAD_OR_PIN_CHANGES",
+    "handoff_status": "OWNER_APPROVED_SOURCE_ONLY_GITHUB_BRANCH_AND_DRAFT_PR_PROTECTED_CI_PENDING",
+    "field_status": "CLEAN_LOCAL_EXTRACTION_SECOND_SCHOOL_ACCOUNT_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Built package 1.0.0-rc.2 containing unchanged application 1.0.0-rc.1. Builder refuses public output, unexpected/symlinked inputs and embedded deployment endpoints/common Google token forms; source manifest retains exact and editor-normalized hashes.",
+      "Full canonical npm run verify passed (exit 0): diagnostics 0 errors / 0 warnings; static validation 167 HTML files / 5464 local references; 32 StoryHub releases / 244 sealed assets. Hall Pass verification passes 441 runtime behaviors, independent-room shared-directory checks and package tests. Kit tests reject changed/missing/extra/duplicate files, archive path escape, stale field results, altered artifact evidence and forged approval flags. Five private roster-validator tests pass without reading actual school data.",
+      "Chrome HTTP preview renders setup/preflight and generates synthetic links. Actual native local-file flow is unverified: cloud browser file-protocol navigation is blocked by URL policy; no workaround attempted.",
+      "Release blockers: centrally managed software updates, explicit stable identity/version references and duplicate-name exception workflow, district credential-reuse authorization, exact-template verification and two-account managed-Chromebook acceptance. Existing RC1 public source artifact is unchanged and not certified by this work.",
+      "Candidate SHA-256 f4ee14cf915e12f667b16ccbfcec4da3de8a00510f6e63eb071a008d1946b1c8; no binary published. Readiness map: docs/hall-pass-release-readiness.md. Distribution and production cutover remain unapproved."
+    ]
+  },
   "hall-pass-school-directory-2026-11-04": {
     "status": "MERGED_RELEASE_IN_PROGRESS",
     "owner": "Codex",

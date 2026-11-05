@@ -1,26 +1,25 @@
-# Hall Pass — teacher kiosk kit
+# Hall Pass — teacher kiosk candidate
 
-1. Extract the ZIP and open **Start Here.html** in Chrome.
-2. Make a copy of the blank Hall Pass template using your school account.
-3. Choose **Hall Pass → Start setup**. The setup window creates your private workbook and asks for your title, schedule, and pass rules.
-4. Follow the Google web app deployment steps. Google requires the owner to approve permissions and publish the web app. Choose **Execute as Me** and access **within your school**.
-5. Paste the /exec link into Start Here to get your kiosk and teacher links.
-6. In the teacher dashboard, open **Settings → school directory / enroll by number**. Connect the private school directory provided by the school coordinator. The owner must give your school account Viewer access to that directory only. Never share your pass-history workbook.
-7. Enroll each student by their exact school number and class period. A directory entry alone never grants access. Students use their existing lunch number, including five digits or a leading zero, in every connected classroom.
-8. On the door Chromebook use a school kiosk account, open the kiosk link, and select **fullscreen / keep awake**. District Chromebook settings may control these features. Keep the teacher dashboard on your own device.
+**1.0.0-rc.2 · Review only.** Application source remains 1.0.0-rc.1. Keep production and real student PINs unchanged until a separately authorized cutover.
 
-Your copy starts without students. This ZIP contains no roster, lunch numbers, tokens, or deployment credentials. The source/ folder contains the full versioned application for school IT and recovery; teachers normally use the template rather than editing code.
+1. Extract the whole ZIP into a clean folder. Open Start Here.html in Chrome.
+2. Open package and staging checks; select that folder to verify files locally. Select the original ZIP to fingerprint the test record. Nothing is uploaded. Save evidence outside the kit folder.
+3. Use only the coordinator-approved blank template checked by IT against SOURCE-MANIFEST.json. Paste its link in Start Here and copy it under your school account. A mutable/older template may not match this ZIP.
+4. In the new staging spreadsheet choose Hall Pass → Start setup. The window creates the workbook and collects classroom title, student-email domain, pass rules and bell times. Google still requires account consent and web-app deployment.
+5. Follow Google's deploy steps: Execute as Me and within your school. Stop on policy blocks. Start Here creates separate kiosk, dashboard and protected-test links from the permanent /exec URL.
+6. Use Settings → school directory / enroll by number in the dashboard. Connect only the private staging directory for now; explicitly enroll synthetic identities. Imports create no memberships. Never share classroom history workbooks.
+7. Run Smoke-Test.md with two school-account teachers and the managed kiosk Chromebook. Record observed results in Preflight and save the private review record.
 
-## School directory coordinator
+After authorized cutover, students use the exact existing five- or six-digit lunch number in each explicitly enrolled room. Preserve leading zeros; never pad or generate substitutes. Authoritative school mappings are required; no name-only guesses.
 
-In your teacher dashboard, import the school list as alternating number/name lines, or tab-separated number/name/email. Optional verified email mappings use `number,school_email`. Verify identities from school records; do not infer emails from names. Preview and type the displayed confirmation before applying. Imports merge by exact student number and create no classroom memberships.
+## Included
 
-The coordinator owns a separate private directory spreadsheet. Share only that spreadsheet with individually authorized participating teachers as Viewers. Keep public/link sharing off. Each teacher connects its link from their own dashboard. Connecting an existing classroom is refused until every active student has a verified email mapping, so incomplete imports cannot strand students. Read-only lookup keeps the exact lunch number consistent across rooms. Disabled directory entries lose access in connected rooms; teacher removal disables just that classroom membership. Pass/check-in history stays in each teacher's workbook.
+Browser setup, offline file checks and operator test record, all seven program files, package/application metadata, source fingerprints and payload checksums, optional standard-library Python verifier for IT, smoke tests, IT checklist and recovery instructions. No real roster, lunch number, PIN, Google token, production deployment URL or credential is included. Public website asset references in source are not a classroom service connection.
 
-## Before students use it
+Checksums detect mismatch, not authorship: compare the ZIP hash with a separately trusted handoff. Operator observations do not authorize release. Google policy, template source and real Chromebook checks require IT or the actual environment.
 
-Run the protected release check at your app's `?mode=releasecheck` while signed in as the teacher. Use synthetic identities for pass/return tests. Check that the kiosk clears the PIN and student details, an unassigned number is refused, another school account cannot open teacher controls, and a Wi-Fi interruption does not leave an uncertain pass unreviewed. Use the teacher dashboard to check the result before retrying an interrupted sign-out.
+## Still blocked
 
-This is release candidate 1.0.0-rc.1. Automated tests cover independent classroom workbooks, exact number preservation, membership restrictions, corrections, revocation, and rate limits. A second real teacher account and managed school Chromebook still require field acceptance. Google permissions and deployment cannot be approved by extracting a ZIP.
+A source-matched blank template for this candidate; second-teacher/managed-Chromebook field acceptance; district authorization for payment-related credential reuse; and centrally managed software updates. Directory corrections synchronize, but independent applications still need per-copy software deployment updates. That final requirement is unmet.
 
-See Recovery.md and School-IT-Checklist.md.
+See School-IT-Checklist.md, Smoke-Test.md and Recovery.md. A candidate is not a production release.
