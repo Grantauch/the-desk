@@ -41,6 +41,7 @@ try {
     // Tap the actual visible canvas sprite. That freezes this resident while
     // pathfinding approaches it; talk only opens after the trainer gets there.
     const point=await page.evaluate(id=>{const d=window.__checkaverse,c=d.camera(),n=d.world().find(id),r=document.getElementById('town').getBoundingClientRect();return {x:r.left+((n.dx+.5)*32-c.x)/c.width*r.width,y:r.top+((n.dy+.1)*32-c.y)/c.height*r.height};},id);
+    if(id==='tess') { console.log('TESS DIAGNOSTIC',JSON.stringify(await page.evaluate(({id,point})=>{const d=window.__checkaverse,n=d.world().find(id),el=document.elementFromPoint(point.x,point.y);return {room:d.room(),resident:n,active:d.world().active().some(n=>n.id===id),point,canvas:document.getElementById('town').getBoundingClientRect().toJSON(),hit:el&&{tag:el.tagName,id:el.id},player:d.players.get(d.me())};},{id,point}))); await page.screenshot({path:path.join(out,'tess-before-click.png')}); }
     await page.mouse.click(point.x,point.y);
     await page.waitForFunction(()=>document.getElementById('residentDialog').open,null,{timeout:15000});
   }
