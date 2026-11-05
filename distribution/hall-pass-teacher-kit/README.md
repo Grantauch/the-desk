@@ -5,9 +5,9 @@
 1. Extract the whole ZIP into a clean folder. Open Start Here.html in Chrome.
 2. Open package and staging checks; select that folder to verify files locally. Select the original ZIP to fingerprint the test record. Nothing is uploaded. Save evidence outside the kit folder.
 3. Use only the coordinator-approved blank template checked by IT against SOURCE-MANIFEST.json. Paste its link in Start Here and copy it under your school account. A mutable/older template may not match this ZIP.
-4. In the new staging spreadsheet choose Hall Pass → Start setup. The window creates the workbook and collects classroom title, student-email domain, pass rules and bell times. Google still requires account consent and web-app deployment.
+4. On the new staging copy’s opening page click the large Start setup / show my links button; no Sheets menu is needed. After approving Google access, click that same button again. The opening page stays available after setup. The window creates the workbook and collects classroom title, student-email domain, pass rules and bell times. Google still requires account consent and web-app deployment.
 
-5. Follow Google's deploy steps: Execute as Me and within your school. Stop on policy blocks. Start Here creates separate kiosk, dashboard and protected-test links from the permanent /exec URL.
+5. Follow Google's deploy steps: Execute as Me and within your school. Stop on policy blocks. Return to the setup window and click Find my app link. It verifies the deployment belongs to this copy and saves the dashboard/kiosk links on the opening page. Bookmark the dashboard; daily use is in the app. Start Here also has an optional spare-shortcut form.
 6. Use Settings → school directory / enroll by number in the dashboard. Connect only the private staging directory for now; explicitly enroll synthetic identities. Imports create no memberships. Never share classroom history workbooks.
 7. Run Smoke-Test.md with two school-account teachers and the managed kiosk Chromebook. Record observed results in Preflight and save the private review record.
 

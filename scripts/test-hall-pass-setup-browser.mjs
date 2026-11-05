@@ -10,7 +10,7 @@ await mkdir(output, {recursive: true});
 const browser = await chromium.launch({headless: true,
   ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? {executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH} : {}),
   args: ['--no-sandbox', '--disable-dev-shm-usage']});
-const ready = {ok: true, appTitle: 'Test Hall Pass', ownerDomain: 'example.org',
+const ready = {ok: true, appTitle: 'Test Hall Pass', ownerDomain: 'example.org', ownerEmail: 'test.teacher@example.org',
   studentEmailDomain: 'students.example.org', periods: [{period: 1, start: '08:00', end: '08:55'}],
   scriptEditorUrl: 'https://script.google.com/d/synthetic/edit', links: null, bellsReady: false};
 try {
@@ -19,7 +19,8 @@ try {
     const page = await context.newPage();
     const errors = [], calls = [];
     let failure = 'We’re sorry, a server error occurred while reading from storage. Error code PERMISSION_DENIED.';
-    let malformed = false, saveFails = false;
+    let malformed = false, saveFails = false, published = false, linkFails = false;
+    const appLink = 'https://script.google.com/macros/s/SyntheticSetupDeployment0000000000/exec';
     page.on('pageerror', error => errors.push(error.message));
     await page.exposeFunction('__gas', async ({name}) => {
       calls.push(name);
@@ -31,7 +32,11 @@ try {
         if (saveFails) throw Error('Synthetic save failure');
         return ready;
       }
-      if (name === 'setupWizardFindLink') return {};
+      if (name === 'setupWizardFindLink') return published ? {link: appLink} : {};
+      if (name === 'setupWizardSaveLink') {
+        if (linkFails) throw Error('Synthetic verification failure');
+        return {...ready, studentCount: 0, links: {student: appLink, teacher: appLink + '?mode=teacher', kiosk: appLink + '?mode=kiosk', classroomShare: 'https://classroom.google.com/share'}};
+      }
       throw Error('Unexpected call: ' + name);
     });
     await page.addInitScript(() => {
@@ -91,6 +96,25 @@ try {
     await page.locator('#bells-save').click();
     await page.locator('#screen-turn-on').waitFor({state: 'visible'});
     assert.equal(await page.locator('#steps li.done').count(), 3);
+    assert.match(await page.locator('#school-account').textContent(), /test.teacher@example.org/);
+    await page.locator('#link-find').click();
+    await page.waitForFunction(() => document.getElementById('link-message').textContent.includes('not reported'));
+    assert.equal(await page.locator('#screen-done').isVisible(), false);
+    published = true; linkFails = true;
+    await page.locator('#link-find').click();
+    await page.waitForFunction(() => document.getElementById('link-message').textContent === 'Synthetic verification failure');
+    assert.equal(await page.locator('#screen-turn-on').isVisible(), true);
+    assert.equal(await page.locator('#link-find').isEnabled(), true);
+    linkFails = false;
+    await page.locator('#link-find').click();
+    await page.locator('#screen-done').waitFor({state: 'visible'});
+    assert.equal(await page.locator('#open-kiosk').getAttribute('href'), appLink + '?mode=kiosk');
+    assert.match(await page.locator('#students-next').textContent(), /No students/);
+    assert.match(await page.locator('#screen-done h1').textContent(), /links are ready/);
+    const doneAudit = await new AxeBuilder({page}).include('#screen-done').withTags(['wcag2a', 'wcag2aa']).analyze();
+    assert.deepEqual(doneAudit.violations, [], JSON.stringify(doneAudit.violations));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    await page.screenshot({path: new URL('links-' + width + '.png', output).pathname, fullPage: true});
     assert.deepEqual(errors, []);
     await context.close();
   }
