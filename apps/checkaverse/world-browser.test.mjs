@@ -40,9 +40,20 @@ try {
   async function clickResident(page,id){
     // Tap the actual visible canvas sprite. That freezes this resident while
     // pathfinding approaches it; talk only opens after the trainer gets there.
-    const point=await page.evaluate(id=>{const d=window.__checkaverse,c=d.camera(),n=d.world().find(id),r=document.getElementById('town').getBoundingClientRect();return {x:r.left+((n.dx+.5)*32-c.x)/c.width*r.width,y:r.top+((n.dy+.1)*32-c.y)/c.height*r.height,debug:{room:d.room(),n:{id:n.id,room:n.room,x:n.x,y:n.y,dx:n.dx,dy:n.dy,seg:n.seg,activity:n.activity},active:d.world().active().some(n=>n.id===id),camera:c}};},id);
+    // Phase 3 / loop step 4: living residents keep walking between rooms. Wait
+    // for an unobstructed stop before sampling a sprite's coordinates, so the
+    // next animation frame cannot move it out from under the queued mouse tap.
+    await page.waitForFunction(id=>{
+      const d=window.__checkaverse,n=d.world().active().find(n=>n.id===id);
+      if(!n||n.seg||n.q?.length||!n.activity||n.activity.action==='walk'||n.activity.progress>=.75)return false;
+      const c=d.camera(),canvas=document.getElementById('town'),r=canvas.getBoundingClientRect();
+      const x=r.left+((n.dx+.5)*32-c.x)/c.width*r.width,y=r.top+((n.dy+.1)*32-c.y)/c.height*r.height;
+      return x>r.left&&x<r.right&&y>r.top&&y<r.bottom&&document.elementFromPoint(x,y)===canvas;
+    },id,{timeout:60000});
+    const point=await page.evaluate(id=>{const d=window.__checkaverse,c=d.camera(),n=d.world().find(id),r=document.getElementById('town').getBoundingClientRect();return {x:r.left+((n.dx+.5)*32-c.x)/c.width*r.width,y:r.top+((n.dy+.1)*32-c.y)/c.height*r.height};},id);
     await page.mouse.click(point.x,point.y);
-    try { await page.waitForFunction(()=>document.getElementById('residentDialog').open,null,{timeout:15000}); } catch(error) {console.log('RESIDENT CLICK BEFORE',JSON.stringify(point));console.log('RESIDENT CLICK AFTER',JSON.stringify(await page.evaluate(id=>{const d=window.__checkaverse,n=d.world().find(id);return {room:d.room(),resident:n,active:d.world().active().some(n=>n.id===id),camera:d.camera(),player:d.players.get(d.me()),text:document.body.innerText};},id)));await page.screenshot({path:path.join(out,'resident-click-failure.png')});throw error;}
+    await page.waitForFunction(()=>document.getElementById('residentDialog').open,null,{timeout:15000});
+    assert.equal(await page.locator('#residentName').textContent(),await page.evaluate(id=>window.__checkaverse.world().find(id).name,id));
   }
   const {page,context}=await pageFor({width:1366,height:768},'desktop');
   await walk(page,11,10);await clickResident(page,'rowan');
