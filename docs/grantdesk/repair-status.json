@@ -1,4 +1,21 @@
 {
+  "hall-pass-visible-setup-wrapper-2026-11-05": {
+    "status": "IMPLEMENTED_FOCUSED_VERIFIED_FULL_RELEASE_CHECK_RUNNING",
+    "owner": "Codex",
+    "scope": "Visible setup entry and app-first daily use for teachers whose Sheets toolbar is collapsed.",
+    "verification_status": "442_RUNTIME_CHECKS_AND_PACKAGE_NEGATIVES_PASS_FULL_GATE_AND_NEW_BROWSER_ACCEPTANCE_PENDING",
+    "deployment_status": "NOT_YET_PUBLISHED",
+    "field_status": "CLEAN_SCHOOL_ACCOUNT_BUTTON_AUTHORIZATION_AND_MANAGED_DOOR_DEVICE_PENDING",
+    "evidence": [
+      "Opening page contains a local clickable image assigned to the setup function; no hidden-menu dependency or remote image request. Reopens do not stack buttons. Existing initialized workbooks without this owned front door are left alone.",
+      "Opening page survives initialization and holds this copy’s verified teacher-dashboard and door-kiosk links. Daily work stays in the existing app.",
+      "Find my app link replaces the required URL paste. Save rejects missing deployments and other-copy deployment IDs; school-domain and ordinary URL forms for the same deployment are accepted.",
+      "Wizard shows the school account, supplies the owner-authorized Mt. Morris student-email ending, retains 1–5 pass capacity, and describes links ready separately from roster/access/device acceptance.",
+      "Phone fit and accessible link labels, direct kiosk open, browser-first guide, optional Windows integration and older-copy collapsed-toolbar fallback are covered in the change. New browser execution is required before promotion.",
+      "442 synthetic runtime checks and the source/package/tamper suites pass. Actual Google consent, drawing execution in a fresh school-account copy and second-teacher Chromebook acceptance are not certified.",
+      "No production deployment, current student credentials, public RC1 ZIP or independent teacher copy changed. Distribution remains held at the owner’s request pending quality review."
+    ]
+  },
   "hall-pass-setup-recovery-2026-11-05": {
     "status": "IMPLEMENTED_FOCUSED_BROWSER_VERIFIED_PENDING_PROTECTED_CI",
     "owner": "Codex",

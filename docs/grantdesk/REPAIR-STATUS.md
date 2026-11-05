@@ -1,3 +1,11 @@
+## November 5 visible Hall Pass setup and app entry
+
+Owner: Codex. The teacher reported a collapsed Sheets toolbar prevented initialization. The template now keeps a visible opening page with a large local image button assigned to Start setup; initialization retains that page and saves verified dashboard/kiosk hyperlinks. Teachers use the existing web app for daily tasks. The menu remains a backup. Google authorization and publishing remain explicit one-time owner actions.
+
+The wizard discovers its own deployment, rejects another copy’s link, shows the school account, and distinguishes saved links from classroom readiness. Phone layout, link labels and 1–5 pass capacity are preserved. Browser-first instructions make Windows integration optional. The review ZIP keeps its publication hold and IT checks; the immutable public RC1 package is unchanged.
+
+Focused source checks pass, including 442 synthetic runtime behaviors, exact school-directory isolation and package integrity negatives. Canonical verification and new-head browser acceptance are pending. The earlier recovery head passed protected run 42118092883, which does not cover this newer wrapper. Actual fresh-school-account image execution/consent, the copied teacher’s policy and the managed Chromebook still need field evidence. No production deployment, real credential or independent teacher copy was changed.
+
 ## November 5 Hall Pass setup startup recovery
 
 Owner: Codex, follow-up to PR #322. The other teacher's screenshot shows Google's storage PERMISSION_DENIED response. The wizard incorrectly continued to an empty form after its initial settings read failed. It now stops on a recovery screen, blocks Next/save navigation until a valid load, offers explicit retry, and retains save inputs after later failures. Public setup guidance and the review kit explain Google's documented single-account recovery and escalation if the school-account policy still blocks access. Existing independent copies do not automatically receive hosted template updates.
