@@ -3437,7 +3437,10 @@ test('a new copy greets the teacher with a Start here note and a setup menu item
   h.call('onOpen');
   const names = h.spreadsheet.getSheets().map((sheet) => sheet.getName());
   assert.deepEqual(names, ['Start here']);
-  assert.match(String(h.sheet('Start here').readCell(3, 1)), /Hall Pass.*Start setup/);
+  assert.match(String(h.sheet('Start here').readCell(3, 1)), /Start setup.*No menu needed/);
+  assert.equal(h.sheet('Start here').images[0].script, 'hallPassStartSetup');
+  h.call('onOpen');
+  assert.equal(h.sheet('Start here').images.length, 1, 'reopening must not stack buttons');
 });
 
 test('the welcome note never touches a workbook that is already set up', () => {
@@ -3454,7 +3457,7 @@ test('the menu item opens the setup window', () => {
   assert.deepEqual(h.state.dialogs, ['Set up your Hall Pass']);
 });
 
-test('opening setup builds the workbook quietly and removes the Start here note', () => {
+test('opening setup builds the workbook quietly and keeps the app front door', () => {
   const h = freshCopy();
   h.call('onOpen');
   h.newRequest();
@@ -3466,7 +3469,7 @@ test('opening setup builds the workbook quietly and removes the Start here note'
   assert.equal(state.links, null);
   assert.equal(state.bellsReady, false);
   assert.equal(h.state.uiAlerts.length, 0, 'no alert may pop over the setup window');
-  assert.equal(h.spreadsheet.getSheetByName('Start here'), null);
+  assert.ok(h.spreadsheet.getSheetByName('Start here'));
   assert.ok(h.spreadsheet.getSheetByName('Settings'));
   assert.match(state.scriptEditorUrl, /^https:\/\/script\.google\.com\/d\/synthetic-script-id\/edit$/);
 });
@@ -3531,7 +3534,9 @@ test('the pasted Web app link is cleaned up, checked, and turned into links to s
   h.newRequest();
   h.call('setupWizardSave', riveraAnswers());
   h.newRequest();
+  h.state.serviceUrl = RIVERA_LINK;
   const state = h.call('setupWizardSaveLink', `  ${RIVERA_LINK}?mode=teacher#top `);
+  assert.match(h.sheet('Start here').readCell(14, 1), /Open teacher dashboard/);
   assert.equal(state.links.student, RIVERA_LINK);
   assert.equal(state.links.kiosk, `${RIVERA_LINK}?mode=kiosk`);
   assert.equal(state.links.teacher, `${RIVERA_LINK}?mode=teacher`);
@@ -3539,6 +3544,22 @@ test('the pasted Web app link is cleaned up, checked, and turned into links to s
   h.newRequest();
   assert.equal(h.call('webAppUrl_', 'kiosk'), `${RIVERA_LINK}?mode=kiosk`, 'PIN emails and the teacher page use the saved link');
   assert.equal(h.call('classroomSetupView_', h.call('getSettings_')).studentLink, RIVERA_LINK);
+});
+
+test('setup refuses another teacher’s deployment and does not offer inherited links', () => {
+  const h = freshCopy();
+  h.call('onOpen'); h.newRequest(); h.signInAs(RIVERA); h.call('setupWizardLoad');
+  assert.throws(() => h.call('setupWizardSaveLink', RIVERA_LINK), /not confirmed/);
+  h.state.serviceUrl = RIVERA_LINK;
+  const other = RIVERA_LINK.replace('SyntheticRivera', 'SyntheticOther');
+  assert.throws(() => h.call('setupWizardSaveLink', other), /different Hall Pass copy/);
+  assert.equal(h.properties.getProperty('WEB_APP_URL'), null);
+  h.properties.setProperty('WEB_APP_URL', other); h.newRequest();
+  assert.equal(h.call('setupWizardLoad').links, null);
+  assert.equal(h.sheet('Start here').readCell(14, 1), '');
+  const schoolForm = RIVERA_LINK.replace('/macros/s/', '/a/macros/lakeview.example.org/s/');
+  const result = h.call('setupWizardSaveLink', schoolForm);
+  assert.equal(result.links.student, RIVERA_LINK);
 });
 
 test('a test link, a spreadsheet link, or junk is refused with a plain explanation', () => {
@@ -3575,6 +3596,7 @@ test('reopening setup after it is done goes straight to the links', () => {
   h.newRequest();
   h.call('setupWizardSave', riveraAnswers());
   h.newRequest();
+  h.state.serviceUrl = RIVERA_LINK;
   h.call('setupWizardSaveLink', RIVERA_LINK);
   h.newRequest();
   const again = h.call('setupWizardLoad');
@@ -3591,6 +3613,7 @@ test('a finished copy lets its students sign out', () => {
   h.newRequest();
   h.call('setupWizardSave', riveraAnswers());
   h.newRequest();
+  h.state.serviceUrl = RIVERA_LINK;
   h.call('setupWizardSaveLink', RIVERA_LINK);
   h.newRequest();
   const added = h.call('teacherPasteStudents', 'Sam\tLee\tsam.lee@students.lakeview.example.org', 'Period 1', TEACHER_CONTRACT);

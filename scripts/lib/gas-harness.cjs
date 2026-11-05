@@ -128,6 +128,7 @@ class FakeSheet {
     this.maxRows = maxRows;
     this.hidden = false;
     this.frozenRows = 0;
+    this.images = [];
   }
 
   getName() { return this.name; }
@@ -233,6 +234,18 @@ class FakeSheet {
   autoResizeColumn() { return this; }
   autoResizeColumns() { return this; }
   setColumnWidth() { return this; }
+  setHiddenGridlines() { return this; }
+  setRowHeight() { return this; }
+  getImages() { return this.images; }
+  insertImage(blob, column, row) {
+    const image = {blob, column, row, title: '', script: '',
+      setAltTextTitle(value) { this.title = value; return this; },
+      getAltTextTitle() { return this.title; },
+      setAltTextDescription(value) { this.description = value; return this; },
+      assignScript(value) { this.script = value; return this; }};
+    this.images.push(image);
+    return image;
+  }
 
   /** Test-side convenience: every data row as an array, header excluded. */
   dataRows() {

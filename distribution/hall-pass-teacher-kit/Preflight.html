@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Hall Pass | Package and staging checks</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#182943;font:17px/1.6 system-ui,sans-serif}main{max-width:850px;margin:auto;padding:26px}section{background:white;border:1px solid #d8e0e9;border-radius:12px;padding:22px;margin:18px 0}h1{line-height:1.15}h2{font-size:1.3rem}label{display:block;margin:14px 0 6px;font-weight:600}select,input,button{font:inherit;max-width:100%}select,input{padding:8px}button{background:#1d496f;color:white;padding:12px 16px;border:0;border-radius:8px;cursor:pointer}button:disabled{background:#54647b;cursor:default}.warning{background:#fff3dc;padding:16px;border-left:5px solid #bb7635}#check-result{overflow-wrap:anywhere}.case{border-top:1px solid #d8e0e9;padding:10px 0}small{color:#465b73}a{color:#164f7a} :focus-visible{outline:3px solid #1d496f;outline-offset:3px}
+</style></head><body><main>
+<p><a href="Start%20Here.html">← Start Here</a></p><h1>Check the package.<br>Then test two classrooms.</h1>
+<p class="warning"><strong>1.0.0-rc.2 · Review candidate.</strong> These checks do not authorize distribution or a production cutover. Use fresh staging copies and synthetic identities. Leave current students, PINs and production untouched.</p>
+<section><h2>1. Check the extracted files</h2><p>Choose the extracted kit folder itself. Keep it free of additional files. Chrome may say “upload”; this page reads the files locally and cannot send them over the network.</p>
+<label for="folder">Extracted Hall Pass kit folder</label><input id="folder" type="file" webkitdirectory multiple>
+<p id="check-result" role="status">Not checked.</p>
+<p><small>Checksums detect damage or a mismatch. Compare the original ZIP’s SHA-256 with a trusted release record to establish its origin. Checksums in a ZIP cannot prove who made it.</small></p>
+<label for="zip">Original candidate ZIP (for the evidence fingerprint)</label><input id="zip" type="file" accept=".zip">
+<p id="zip-result" role="status">No ZIP selected. It must correspond to this extraction.</p></section>
+<section><h2>2. Run the clean-environment smoke test</h2><p>Follow <a href="Smoke-Test.md">Smoke-Test.md</a> with school IT, two school-account teachers and the managed door Chromebook. Record only observed results. “Passed” means that test was actually run.</p><div id="cases"></div></section>
+<section><h2>3. Save the review record</h2><p>This downloads only version, file fingerprints, time and the selected test results. It includes no names, school links, PINs or account information. It records your observations; it does not grant release approval.</p>
+<p id="summary" role="status">Package check required. All field tests begin as Not run.</p><button id="download" disabled>Save staging test record</button></section>
+<p>Do not paste private test output into GitHub. <a href="Recovery.md">Recovery instructions</a> · <a href="School-IT-Checklist.md">School IT checklist</a></p>
+</main><script src="preflight.js"></script><script>
+(function(){
+'use strict';
+var kit=HallPassKit,integrity=null,zipHash='',folderRun=0,zipRun=0;
+var $=function(id){return document.getElementById(id);};
+kit.cases.forEach(function(item){
+  var box=document.createElement('div');box.className='case';
+  var label=document.createElement('label');label.htmlFor='case-'+item[0];label.textContent=item[1];box.appendChild(label);
+  var select=document.createElement('select');select.id=label.htmlFor;
+  [['NOT_RUN','Not run'],['PASS','Passed'],['FAIL','Failed'],['BLOCKED','Blocked']].forEach(function(option){var el=document.createElement('option');el.value=option[0];el.textContent=option[1];select.appendChild(el);});
+  select.addEventListener('change',update);box.appendChild(select);$('cases').appendChild(box);
+});
+function statuses(){var values={};kit.cases.forEach(function(c){values[c[0]]=$('case-'+c[0]).value;});return values;}
+function resetCases(){kit.cases.forEach(function(c){$('case-'+c[0]).value='NOT_RUN';});}
+function update(){var values=statuses(),pending=kit.cases.filter(function(c){return values[c[0]]!=='PASS';}).length;
+  $('download').disabled=!integrity||!zipHash;
+  $('summary').textContent=(integrity?'Package integrity passed. ':'Package check required. ')+pending+' field checks need attention. Distribution and production cutover remain unapproved.';
+}
+$('folder').addEventListener('change',async function(){var run=++folderRun;integrity=null;zipHash='';++zipRun;$('zip').value='';$('zip-result').textContent='Select the original ZIP corresponding to this extraction.';resetCases();update();$('check-result').textContent='Checking locally…';
+  try{var checked=await kit.verifyFiles(Array.from(this.files));if(run!==folderRun)return;integrity=checked;$('check-result').textContent='PASS · '+checked.checkedFiles+' files verified. Manifest SHA-256: '+checked.manifestSha256;}
+  catch(e){if(run!==folderRun)return;$('check-result').textContent='FAILED · Package could not be verified. Re-extract the trusted ZIP in a clean folder. Use verify.py with school IT if browser hashing is unavailable.';}update();
+});
+$('zip').addEventListener('change',async function(){var run=++zipRun;zipHash='';resetCases();update();try{var file=this.files[0];if(!file)throw Error();var hash=await kit.digest(await file.arrayBuffer());if(run!==zipRun)return;zipHash=hash;$('zip-result').textContent='Original ZIP SHA-256: '+zipHash;}catch(e){if(run!==zipRun)return;$('zip-result').textContent='Could not read the ZIP. Select it again.';}update();});
+$('download').addEventListener('click',function(){var record=kit.report(integrity,statuses(),zipHash);var link=document.createElement('a');var url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)+'\n'],{type:'application/json'}));link.href=url;link.download='HallPass-v'+kit.version+'-staging-evidence.json';link.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);});
+update();
+})();
+</script></body></html>

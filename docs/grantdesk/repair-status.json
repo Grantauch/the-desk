@@ -1,4 +1,59 @@
 {
+  "hall-pass-visible-setup-wrapper-2026-11-05": {
+    "status": "IMPLEMENTED_FOCUSED_VERIFIED_FULL_RELEASE_CHECK_RUNNING",
+    "owner": "Codex",
+    "scope": "Visible setup entry and app-first daily use for teachers whose Sheets toolbar is collapsed.",
+    "verification_status": "442_RUNTIME_CHECKS_AND_PACKAGE_NEGATIVES_PASS_FULL_GATE_AND_NEW_BROWSER_ACCEPTANCE_PENDING",
+    "deployment_status": "NOT_YET_PUBLISHED",
+    "field_status": "CLEAN_SCHOOL_ACCOUNT_BUTTON_AUTHORIZATION_AND_MANAGED_DOOR_DEVICE_PENDING",
+    "evidence": [
+      "Opening page contains a local clickable image assigned to the setup function; no hidden-menu dependency or remote image request. Reopens do not stack buttons. Existing initialized workbooks without this owned front door are left alone.",
+      "Opening page survives initialization and holds this copy’s verified teacher-dashboard and door-kiosk links. Daily work stays in the existing app.",
+      "Find my app link replaces the required URL paste. Save rejects missing deployments and other-copy deployment IDs; school-domain and ordinary URL forms for the same deployment are accepted.",
+      "Wizard shows the school account, supplies the owner-authorized Mt. Morris student-email ending, retains 1–5 pass capacity, and describes links ready separately from roster/access/device acceptance.",
+      "Phone fit and accessible link labels, direct kiosk open, browser-first guide, optional Windows integration and older-copy collapsed-toolbar fallback are covered in the change. New browser execution is required before promotion.",
+      "442 synthetic runtime checks and the source/package/tamper suites pass. Actual Google consent, drawing execution in a fresh school-account copy and second-teacher Chromebook acceptance are not certified.",
+      "Focused Chromium run 42124188205 passed the wrapper’s failure/retry, own-link discovery, direct app links, completion-state, phone/dialog fit and WCAG A/AA checks, plus the existing resident journey. Screenshots were visually inspected; the teacher dashboard was then moved above sharing links so the daily app is first. Final-head acceptance remains required.",
+      "No production deployment, current student credentials, public RC1 ZIP or independent teacher copy changed. Distribution remains held at the owner’s request pending quality review."
+    ]
+  },
+  "hall-pass-setup-recovery-2026-11-05": {
+    "status": "IMPLEMENTED_FOCUSED_BROWSER_VERIFIED_PENDING_PROTECTED_CI",
+    "owner": "Codex",
+    "scope": "Stop the teacher setup wizard after a failed initial settings read, provide account recovery and explicit retry, and update setup guidance.",
+    "verification_status": "LOCAL_CANONICAL_AND_ISOLATED_SETUP_AND_NAMED_VISITOR_JOURNEY_PASS_PROTECTED_RECHECK_PENDING",
+    "deployment_status": "PROTECTED_SOURCE_TEMPLATE_AND_SITE_PROMOTION_PENDING",
+    "field_status": "SECOND_TEACHER_PERMISSION_RECOVERY_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Screenshot shows Google storage PERMISSION_DENIED; old failure handler opened an empty About form and enabled Next.",
+      "Recovery blocks setup navigation until valid settings load. Failed later saves preserve answers on the current screen.",
+      "Google documents unsupported multi-account sign-in; school-only Chrome profile/one-account Incognito is a possible recovery, not a confirmed account diagnosis.",
+      "Template fixes reach new copies; current copies need environmental recovery or their own source update. No policy weakening, guessed OAuth scopes, property clearing or tab deletion.",
+      "The owner requested the setup repair. Finished installer field acceptance remains a separate gate. No private school data or credentials are present in this batch.",
+      "Focused Hall Pass verification passes: 441 runtime behaviors, structural/handoff checks, independent-room directory tests, actual setup handlers and deterministic package negative tests. Local Chrome startup is blocked by the execution environment; actual-HTML browser coverage remains required in protected CI.",
+      "Full local canonical npm run verify passed: zero diagnostic errors/warnings, 54 routes, 167 HTML files, 5464 local references and 32 sealed releases/244 assets. Tracked source remained unchanged.",
+      "Actual setup HTML passed isolated Chromium run 42104433254 at phone/dialog widths: denial/retry, malformed responses, blocked navigation, preserved save answers, step progress and WCAG A/AA. Recovery screenshot visually reviewed.",
+      "Protected run 42101937464 passed full verification twice but stopped before Hall Pass browser acceptance on the unchanged visitor/resident canvas-tap timeout. The fixture now waits for a current-room, visible, unobstructed, stationary resident before sampling coordinates, then still requires a real tap and the correct conversation. Phase 3 / core loop step 4; no game behavior changed.",
+      "Isolated run 42107816045 passed the updated visitor fixture and Hall Pass tests. New-head protected acceptance, template publication and exact site readback remain pending.",
+      "Run 42108213097 exposed overlapping residents: a canvas tap opened Orin instead of Tess. Visitor story acceptance now uses the visible directory Find and talk control and verifies the intended name; it walks out of a resident home when necessary and retains found/done story, gate, wilds and direct canvas-tap coverage. Isolated run 42117676572 passed this journey and Hall Pass setup acceptance. No gameplay code changes."
+    ]
+  },
+  "hall-pass-clean-release-gate-2026-11-04": {
+    "status": "SOURCE_REVIEW_AUTHORIZED_FIELD_RELEASE_BLOCKED",
+    "owner": "Codex",
+    "scope": "Issue 319: package-only RC2 setup, offline preflight, exact-ZIP operator evidence, recovery and clean-environment gap assessment. Application source unchanged. Historical preparation record; November 5 template recovery follow-up is tracked separately.",
+    "verification_status": "FULL_LOCAL_CANONICAL_AND_PACKAGE_PASS_FIELD_GATE_BLOCKED",
+    "deployment_status": "NONE_NO_PRODUCTION_TEMPLATE_PUBLIC_DOWNLOAD_OR_PIN_CHANGES",
+    "handoff_status": "NOVEMBER_5_SETUP_REPAIR_PROMOTION_AUTHORIZED_FINISHED_KIT_FIELD_RELEASE_STILL_BLOCKED",
+    "field_status": "CLEAN_LOCAL_EXTRACTION_SECOND_SCHOOL_ACCOUNT_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Built package 1.0.0-rc.2 containing unchanged application 1.0.0-rc.1. Builder refuses public output, unexpected/symlinked inputs and embedded deployment endpoints/common Google token forms; source manifest retains exact and editor-normalized hashes.",
+      "Full canonical npm run verify passed (exit 0): diagnostics 0 errors / 0 warnings; static validation 167 HTML files / 5464 local references; 32 StoryHub releases / 244 sealed assets. Hall Pass verification passes 441 runtime behaviors, independent-room shared-directory checks and package tests. Kit tests reject changed/missing/extra/duplicate files, archive path escape, stale field results, altered artifact evidence and forged approval flags. Five private roster-validator tests pass without reading actual school data.",
+      "Chrome HTTP preview renders setup/preflight and generates synthetic links. Actual native local-file flow is unverified: cloud browser file-protocol navigation is blocked by URL policy; no workaround attempted.",
+      "Release blockers: centrally managed software updates, explicit stable identity/version references and duplicate-name exception workflow, district credential-reuse authorization, exact-template verification and two-account managed-Chromebook acceptance. Existing RC1 public source artifact is unchanged and not certified by this work.",
+      "Candidate SHA-256 f4ee14cf915e12f667b16ccbfcec4da3de8a00510f6e63eb071a008d1946b1c8; no binary published. Readiness map: docs/hall-pass-release-readiness.md. Distribution and production cutover remain unapproved."
+    ]
+  },
   "hall-pass-school-directory-2026-11-04": {
     "status": "MERGED_RELEASE_IN_PROGRESS",
     "owner": "Codex",

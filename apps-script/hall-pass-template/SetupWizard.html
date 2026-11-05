@@ -3,6 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
       --ink: #1c2230;
@@ -18,7 +19,7 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; font: 15px/1.5 "Google Sans", Roboto, Arial, sans-serif; color: var(--ink); background: #fff; }
-    .wrap { padding: 4px 6px 24px; }
+    .wrap { max-width: 680px; margin: auto; padding: 16px 12px 24px; }
     .steps { display: flex; gap: 6px; margin: 0 0 18px; padding: 0; list-style: none; }
     .steps li { flex: 1; height: 5px; border-radius: 5px; background: var(--line); }
     .steps li.done { background: var(--accent); }
@@ -64,9 +65,13 @@
     .link-card h2 { margin: 0; font-size: 15px; }
     .link-card p { margin: 2px 0 8px; color: var(--soft); font-size: 13px; }
     .link-card .copy-row { display: flex; gap: 8px; }
-    .link-card input { flex: 1; font-size: 13px; }
+    .link-card input { flex: 1; min-width: 0; font-size: 13px; }
     .link-card .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
     .spinner { width: 36px; height: 36px; margin: 60px auto 16px; border: 4px solid var(--accent-wash); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+    .account { color: var(--soft); font-size: 13px; overflow-wrap: anywhere; }
+    button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    @media(max-width: 420px) { .row { grid-template-columns: 1fr; } .actions { flex-wrap: wrap; } }
+    @media(prefers-reduced-motion: reduce) { .spinner { animation: none; } }
     @keyframes spin { to { transform: rotate(360deg); } }
     .center { text-align: center; }
     [hidden] { display: none !important; }
@@ -83,11 +88,28 @@
       <p class="lead">The first time takes about 20 seconds.</p>
     </section>
 
+    <section id="screen-recovery" hidden aria-labelledby="recovery-title">
+      <h1 id="recovery-title">Google couldn’t open your setup</h1>
+      <p class="lead" id="recovery-message" role="alert"></p>
+      <ol class="clicks">
+        <li>Open a Chrome profile signed in only to your <b>school account</b>, or an Incognito window with only that account signed in.</li>
+        <li>Open <b>your own copy</b> of the Hall Pass spreadsheet. Click the large <b>Start setup / show my links</b> button on the opening page. The Hall Pass menu is a backup. Approve Google’s permissions if asked, then open Start setup again.</li>
+        <li>If it still fails, ask school IT to check Apps Script access for your account. Give them the Google message below and your spreadsheet link privately.</li>
+      </ol>
+      <p class="hint">Keep your existing copy. You do not need to delete tabs or clear settings.</p>
+      <details><summary>Google’s message</summary><p id="recovery-details"></p></details>
+      <div class="actions">
+        <button type="button" class="quiet" id="recovery-close">Close</button>
+        <button type="button" id="recovery-retry">Try setup again</button>
+      </div>
+    </section>
+
     <!-- 1. About the pass -->
     <section id="screen-about" hidden>
       <p class="eyebrow">Step 1 of 4</p>
       <h1>About your pass</h1>
       <p class="lead">Just a few answers. You can change any of them later.</p>
+      <p class="account" id="school-account"></p>
 
       <label for="teacher-name">Your name, the way students say it</label>
       <input type="text" id="teacher-name" placeholder="Mrs. Smith" autocomplete="off">
@@ -103,6 +125,8 @@
         <option value="1">1 at a time (others wait in line)</option>
         <option value="2">2 at a time</option>
         <option value="3">3 at a time</option>
+        <option value="4">4 at a time</option>
+        <option value="5">5 at a time</option>
       </select>
 
       <label for="student-domain">Student emails end with</label>
@@ -117,7 +141,7 @@
       </div>
 
       <div class="message bad" id="about-message"></div>
-      <div class="actions"><span></span><button type="button" id="about-next">Next: bell times →</button></div>
+      <div class="actions"><span></span><button type="button" id="about-next" disabled>Next: bell times →</button></div>
     </section>
 
     <!-- 2. Bells -->
@@ -162,46 +186,56 @@
         <li>Top right, click the blue <span class="pill">Deploy</span>, then <span class="pill">New deployment</span>.</li>
         <li>Click the gear ⚙ next to “Select type” and choose <span class="pill">Web app</span>.</li>
         <li>Set <b>Execute as</b> to <span class="pill">Me</span> and <b>Who has access</b> to <span class="pill">Anyone within <span id="domain-name">your school</span></span>. Click <span class="pill">Deploy</span>.</li>
-        <li>If Google asks, click <span class="pill">Authorize access</span>, pick your school account, and click <span class="pill">Allow</span>. (If it says the app isn’t verified: <span class="pill">Advanced</span> → <span class="pill">Go to Hall Pass</span>. It is your own copy.)</li>
-        <li>Under <b>Web app</b>, click <span class="pill">Copy</span>. Come back to this tab and paste it here:</li>
+        <li>If Google asks, click <span class="pill">Authorize access</span>, pick your school account, and click <span class="pill">Allow</span>. Check that this is your own copy and your school account. If school policy blocks approval, ask school IT.</li>
+        <li>When Google says it is deployed, return to this window and click <b>Find my app link</b> below.</li>
       </ol>
-      <input type="url" id="web-app-link" placeholder="https://script.google.com/…/exec" autocomplete="off">
+      <button type="button" id="link-find">Find my app link →</button>
+      <p class="hint">We check that the link belongs to this copy. Finding a link does not test the school’s device or access policy.</p>
+      <details class="reduced"><summary>Paste a link instead</summary>
+        <label for="web-app-link">Web app link from this copy’s Deploy window</label>
+        <input type="url" id="web-app-link" placeholder="https://script.google.com/…/exec" autocomplete="off">
+        <button type="button" id="link-save">Check and save this link</button>
+      </details>
       <div class="message bad" id="link-message"></div>
       <div class="actions">
         <button type="button" class="quiet" id="turn-on-back">← Back</button>
-        <button type="button" id="link-save">Finish →</button>
+        <span></span>
       </div>
     </section>
 
     <!-- 4. Done -->
     <section id="screen-done" hidden>
       <p class="eyebrow">Step 4 of 4</p>
-      <h1>Your Hall Pass is on 🎉</h1>
-      <p class="lead" id="done-lead">Here are your links. Open Hall Pass → Start setup any time to see them again.</p>
+      <h1>Your app links are ready</h1>
+      <p class="lead" id="done-lead">Open your teacher dashboard below and bookmark it. Use that app for daily tasks. The large button on your workbook’s opening page brings you back here.</p>
+
+      <div class="link-card">
+        <h2>Your teacher page</h2>
+        <p>See who is out, add students, and print PIN cards. Bookmark it.</p>
+        <div class="copy-row"><input type="text" readonly aria-label="Teacher dashboard link" id="link-teacher"><button type="button" class="quiet" data-copy="link-teacher">Copy</button></div>
+        <div class="buttons"><a class="button" id="open-teacher" href="#" target="_blank" rel="noopener">Open my teacher page ↗</a></div>
+      </div>
 
       <div class="link-card" id="card-student">
         <h2>Student link</h2>
         <p>Students open this on their Chromebook and type their PIN.</p>
-        <div class="copy-row"><input type="text" readonly id="link-student"><button type="button" class="quiet" data-copy="link-student">Copy</button></div>
+        <div class="copy-row"><input type="text" readonly aria-label="Student app link" id="link-student"><button type="button" class="quiet" data-copy="link-student">Copy</button></div>
         <div class="buttons"><a class="button" id="share-classroom" href="#" target="_blank" rel="noopener">Post it in Google Classroom ↗</a></div>
       </div>
 
       <div class="link-card" id="card-kiosk">
         <h2>Door computer link</h2>
-        <p>Open this on the computer by your door and leave it open.</p>
-        <div class="copy-row"><input type="text" readonly id="link-kiosk"><button type="button" class="quiet" data-copy="link-kiosk">Copy</button></div>
+        <p>Open this on the computer by your door and leave it open. Keep your teacher account off the shared device.</p>
+        <a class="button" id="open-kiosk" href="#" target="_blank" rel="noopener">Open door kiosk ↗</a>
+        <div class="copy-row"><input type="text" readonly aria-label="Door kiosk link" id="link-kiosk"><button type="button" class="quiet" data-copy="link-kiosk">Copy</button></div>
       </div>
 
-      <div class="link-card">
-        <h2>Your teacher page</h2>
-        <p>See who is out, add students, and print PIN cards. Bookmark it.</p>
-        <div class="copy-row"><input type="text" readonly id="link-teacher"><button type="button" class="quiet" data-copy="link-teacher">Copy</button></div>
-        <div class="buttons"><a class="button" id="open-teacher" href="#" target="_blank" rel="noopener">Open my teacher page ↗</a></div>
-      </div>
 
       <div class="link-card">
-        <h2>Next: add your students</h2>
-        <p id="students-next">Using GoClassroom? Open it, click <b>Rosters &amp; Hall Pass</b>, paste your student link above, and it brings your Google Classroom students over. Not using it? On your teacher page, click <b>Add students</b> and paste names and emails.</p>
+        <h2>Before the first class</h2>
+        <p id="students-next"></p>
+        <ol><li>Open your teacher dashboard. Use <b>Settings → school directory / enroll by number</b> to connect your school’s private directory and enroll your own classes. For an independent roster, use <b>Add students</b>.</li><li>Open the door kiosk on the actual classroom device. Confirm sign-out and return using the protected test and your school’s test identity before student use.</li></ol>
+        <p>Roster, school access and classroom-device checks are still required. This page does not certify those checks.</p>
       </div>
 
       <div class="message good" id="done-message"></div>
@@ -215,17 +249,30 @@
   <script>
     (function () {
       var state = null;
-      // Until the teacher picks, show both the Chromebook and door-computer links.
+      // Both app links remain available, including when setup is reopened.
       var style = 'both';
       var $ = function (id) { return document.getElementById(id); };
-      var screens = ['loading', 'about', 'bells', 'turn-on', 'done'];
+      var screens = ['loading', 'recovery', 'about', 'bells', 'turn-on', 'done'];
+      var steps = ['about', 'bells', 'turn-on', 'done'];
 
       function show(name) {
+        if (!state && name !== 'loading' && name !== 'recovery') return;
         screens.forEach(function (screen) { $('screen-' + screen).hidden = screen !== name; });
-        var index = screens.indexOf(name);
-        $('steps').hidden = index < 1;
-        Array.prototype.forEach.call($('steps').children, function (bar, i) { bar.className = i < index ? 'done' : ''; });
+        var index = steps.indexOf(name);
+        $('steps').hidden = index < 0;
+        Array.prototype.forEach.call($('steps').children, function (bar, i) { bar.className = i <= index ? 'done' : ''; });
         window.scrollTo(0, 0);
+      }
+
+      function recover(error) {
+        state = null;
+        $('about-next').disabled = true;
+        var text = String((error && error.message) || error || 'Google did not return the setup settings.');
+        $('recovery-message').textContent = /PERMISSION_DENIED|reading from storage/i.test(text)
+          ? 'Google refused to read this copy’s settings. More than one signed-in Google account can cause this. Check the account before trying again.'
+          : 'Your setup settings could not be loaded. Check your school account and permissions before trying again.';
+        $('recovery-details').textContent = text;
+        show('recovery');
       }
 
       function say(id, text, good) {
@@ -242,7 +289,7 @@
           .withFailureHandler(function (error) {
             if (button) button.disabled = false;
             var text = String((error && error.message) || error || 'Something went wrong. Try again.');
-            if (messageId) say(messageId, text); else { show('about'); say('about-message', text); }
+            if (messageId) say(messageId, text); else recover(error);
           });
         runner[name].apply(runner, args || []);
       }
@@ -268,8 +315,8 @@
         periods.forEach(function (entry) {
           var row = document.createElement('tr');
           row.innerHTML = '<td>Period ' + entry.period + '</td>' +
-            '<td><input type="time" data-period="' + entry.period + '" data-edge="start"></td>' +
-            '<td><input type="time" data-period="' + entry.period + '" data-edge="end"></td>';
+            '<td><input type="time" aria-label="Period ' + entry.period + ' starts" data-period="' + entry.period + '" data-edge="start"></td>' +
+            '<td><input type="time" aria-label="Period ' + entry.period + ' ends" data-period="' + entry.period + '" data-edge="end"></td>';
           body.appendChild(row);
           row.querySelector('[data-edge=start]').value = entry.start || '';
           row.querySelector('[data-edge=end]').value = entry.end || '';
@@ -287,21 +334,23 @@
       }
 
       function fill(next) {
-        state = next;
+        $('school-account').textContent = next.ownerEmail ? 'School account: ' + next.ownerEmail : '';
         $('app-title').value = next.appTitle || 'Hall Pass';
         titleTouched = next.appTitle && next.appTitle !== 'Hall Pass';
         $('destination').value = next.destination || 'Restroom';
-        $('max-active').value = String(Math.min(3, Math.max(1, next.maxActivePasses || 1)));
+        $('max-active').value = String(Math.min(5, Math.max(1, next.maxActivePasses || 1)));
         $('student-domain').value = next.studentEmailDomain || '';
         if (!next.studentEmailDomain && next.ownerDomain) $('student-domain').placeholder = 'students.' + next.ownerDomain;
         fillBells(next.periods || []);
-        fillBells(next.reducedPeriods || next.periods.map(function (row) { return { period: row.period, start: '', end: '' }; }), 'reduced-rows');
+        fillBells(next.reducedPeriods || (next.periods || []).map(function (row) { return { period: row.period, start: '', end: '' }; }), 'reduced-rows');
         $('reduced-dates').value = (next.reducedDates || []).join('\n');
         $('reduced-box').open = (next.reducedDates || []).length > 0 || (next.reducedPeriods || []).some(function (row) { return row.start; });
         $('year-start').value = next.yearStart || '';
         $('year-end').value = next.yearEnd || '';
         $('open-editor').href = next.scriptEditorUrl;
         $('domain-name').textContent = next.ownerDomain ? 'your school (' + next.ownerDomain + ')' : 'your school';
+        state = next;
+        $('about-next').disabled = false;
       }
 
       function answers() {
@@ -326,12 +375,15 @@
         $('link-teacher').value = links.teacher;
         $('share-classroom').href = links.classroomShare;
         $('open-teacher').href = links.teacher;
+        $('open-kiosk').href = links.kiosk;
+        $('students-next').textContent = next.studentCount ? next.studentCount + ' student accounts in this copy. Check your class enrollments before use.' : 'No students have been added yet. Your links are saved; finish enrollment before class.';
         $('card-student').hidden = style === 'station';
         $('card-kiosk').hidden = style === 'own';
         show('done');
       }
 
       $('about-next').addEventListener('click', function () {
+        if (!state) return;
         if (!$('app-title').value.trim()) return say('about-message', 'Type your name or what the top of the pass should say.');
         if (!$('student-domain').value.trim()) return say('about-message', 'Type how student emails end, like students.yourschool.org.');
         say('about-message', '');
@@ -339,6 +391,7 @@
       });
       $('bells-back').addEventListener('click', function () { show('about'); });
       $('bells-save').addEventListener('click', function () {
+        if (!state) return;
         run('setupWizardSave', [answers()], function (next) {
           fill(next);
           if (next.links) return showDone(next);
@@ -352,8 +405,20 @@
         }, 'bells-message', $('bells-save'));
       });
       $('turn-on-back').addEventListener('click', function () { show('bells'); });
+      function saveLink(value, button) {
+        run('setupWizardSaveLink', [value], function (next) { fill(next); showDone(next); }, 'link-message', button);
+      }
+      $('link-find').addEventListener('click', function () {
+        if (!state) return;
+        run('setupWizardFindLink', [], function (found) {
+          if (!found || !found.link) return say('link-message', 'Google has not reported a published app for this copy yet. Finish the Deploy steps above, then try again.');
+          $('web-app-link').value = found.link;
+          saveLink(found.link, $('link-find'));
+        }, 'link-message', $('link-find'));
+      });
       $('link-save').addEventListener('click', function () {
-        run('setupWizardSaveLink', [$('web-app-link').value], function (next) { fill(next); showDone(next); }, 'link-message', $('link-save'));
+        if (!state) return;
+        saveLink($('web-app-link').value, $('link-save'));
       });
       $('done-edit').addEventListener('click', function () { show('about'); });
       $('done-close').addEventListener('click', function () { google.script.host.close(); });
@@ -367,11 +432,22 @@
         });
       });
 
-      run('setupWizardLoad', [], function (next) {
-        fill(next);
-        if (next.links && next.bellsReady) return showDone(next);
-        show('about');
-      });
+      function load() {
+        state = null;
+        $('about-next').disabled = true;
+        show('loading');
+        run('setupWizardLoad', [], function (next) {
+          if (!next || next.ok !== true || !Array.isArray(next.periods)) return recover('Google returned incomplete setup settings.');
+          try {
+            fill(next);
+            if (next.links && next.bellsReady) return showDone(next);
+            show('about');
+          } catch (error) { recover(error); }
+        });
+      }
+      $('recovery-retry').addEventListener('click', load);
+      $('recovery-close').addEventListener('click', function () { google.script.host.close(); });
+      load();
     })();
   </script>
 </body>
