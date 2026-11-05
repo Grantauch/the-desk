@@ -3,7 +3,7 @@
     "status": "IMPLEMENTED_FOCUSED_BROWSER_VERIFIED_PENDING_PROTECTED_CI",
     "owner": "Codex",
     "scope": "Stop the teacher setup wizard after a failed initial settings read, provide account recovery and explicit retry, and update setup guidance.",
-    "verification_status": "LOCAL_CANONICAL_AND_ISOLATED_HALL_PASS_BROWSER_PASS_VISITOR_TEST_FIX_PASS_NEW_PROTECTED_HEAD_PENDING",
+    "verification_status": "LOCAL_CANONICAL_AND_ISOLATED_SETUP_AND_NAMED_VISITOR_JOURNEY_PASS_PROTECTED_RECHECK_PENDING",
     "deployment_status": "PROTECTED_SOURCE_TEMPLATE_AND_SITE_PROMOTION_PENDING",
     "field_status": "SECOND_TEACHER_PERMISSION_RECOVERY_AND_MANAGED_CHROMEBOOK_PENDING",
     "evidence": [
@@ -16,7 +16,8 @@
       "Full local canonical npm run verify passed: zero diagnostic errors/warnings, 54 routes, 167 HTML files, 5464 local references and 32 sealed releases/244 assets. Tracked source remained unchanged.",
       "Actual setup HTML passed isolated Chromium run 42104433254 at phone/dialog widths: denial/retry, malformed responses, blocked navigation, preserved save answers, step progress and WCAG A/AA. Recovery screenshot visually reviewed.",
       "Protected run 42101937464 passed full verification twice but stopped before Hall Pass browser acceptance on the unchanged visitor/resident canvas-tap timeout. The fixture now waits for a current-room, visible, unobstructed, stationary resident before sampling coordinates, then still requires a real tap and the correct conversation. Phase 3 / core loop step 4; no game behavior changed.",
-      "Isolated run 42107816045 passed the updated visitor fixture and Hall Pass tests. New-head protected acceptance, template publication and exact site readback remain pending."
+      "Isolated run 42107816045 passed the updated visitor fixture and Hall Pass tests. New-head protected acceptance, template publication and exact site readback remain pending.",
+      "Run 42108213097 exposed overlapping residents: a canvas tap opened Orin instead of Tess. Visitor story acceptance now uses the visible directory Find and talk control and verifies the intended name; it walks out of a resident home when necessary and retains found/done story, gate, wilds and direct canvas-tap coverage. Isolated run 42117676572 passed this journey and Hall Pass setup acceptance. No gameplay code changes."
     ]
   },
   "hall-pass-clean-release-gate-2026-11-04": {

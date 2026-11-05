@@ -55,6 +55,23 @@ try {
     await page.waitForFunction(()=>document.getElementById('residentDialog').open,null,{timeout:15000});
     assert.equal(await page.locator('#residentName').textContent(),await page.evaluate(id=>window.__checkaverse.world().find(id).name,id));
   }
+  async function findResident(page,id){
+    // A resident visiting a neighbor can share the same canvas hit area. The
+    // visible directory selects the intended resident and follows their route.
+    await page.keyboard.press('Escape');await page.locator('#menuBtn').click();await page.locator('#journalBtn').click();
+    await page.locator(`#residentDirectory [data-resident="${id}"]`).getByRole('button',{name:'Find and talk',exact:true}).click();
+    await page.waitForFunction(()=>document.getElementById('residentDialog').open,null,{timeout:30000});
+    assert.equal(await page.locator('#residentName').textContent(),await page.evaluate(id=>window.__checkaverse.world().find(id).name,id));
+  }
+  async function returnToTown(page){
+    if((await page.evaluate(()=>window.__checkaverse.room())).startsWith('nr:')){
+      const house=JSON.parse(fs.readFileSync(path.join(HERE,'content/house.json'),'utf8'));
+      await walk(page,house.exit.x,house.exit.y-1);
+      await page.keyboard.down('ArrowDown');await delay(300);await page.keyboard.up('ArrowDown');
+      await page.waitForFunction(()=>window.__checkaverse.room()==='town');
+    }
+    assert.equal(await page.evaluate(()=>window.__checkaverse.room()),'town');
+  }
   const {page,context}=await pageFor({width:1366,height:768},'desktop');
   await walk(page,11,10);await clickResident(page,'rowan');
   assert.equal(await page.locator('#residentName').textContent(),'Rowan');
@@ -112,11 +129,13 @@ try {
   }
   console.log('  ok 390px and 320px: touch walking/talking, full conversation fit, no overflow, reduced motion');
   const visitor=await pageFor({width:1366,height:768},'visitor',false);
-  await walk(visitor.page,17,9);await clickResident(visitor.page,'tess');
+  await findResident(visitor.page,'tess');
   await visitor.page.getByRole('button',{name:'Need help setting up?',exact:true}).click();await visitor.page.getByRole('button',{name:"I'll have a look.",exact:true}).click();
+  await returnToTown(visitor.page);
   await walk(visitor.page,10,15);assert.equal(await visitor.page.evaluate(()=>window.__checkaverse.world().status('tess')),'found');
-  await walk(visitor.page,17,9);await clickResident(visitor.page,'tess');await visitor.page.keyboard.press('Escape');
+  await findResident(visitor.page,'tess');await visitor.page.keyboard.press('Escape');
   assert.equal(await visitor.page.evaluate(()=>window.__checkaverse.world().status('tess')),'done');
+  await returnToTown(visitor.page);
   await visitor.page.screenshot({path:path.join(out,'town-desktop.png')});
   await walk(visitor.page,12,1);await visitor.page.keyboard.down('ArrowUp');await delay(300);await visitor.page.keyboard.up('ArrowUp');
   await visitor.page.waitForFunction(()=>window.__checkaverse.room()==='wilds');
