@@ -1,0 +1,27 @@
+name: Hall Pass setup browser smoke
+on:
+  push:
+    branches: [work/hall-pass-setup-smoke]
+permissions:
+  contents: read
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-hall-pass-setup.cjs
+      - run: node scripts/test-hall-pass-setup-browser.mjs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: hall-pass-setup-browser
+          path: browser-results/hall-pass-setup/
+          retention-days: 7
+          if-no-files-found: ignore
