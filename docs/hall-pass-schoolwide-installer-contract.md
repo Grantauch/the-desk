@@ -2,7 +2,7 @@
 
 ## Current release-gate checkpoint — November 4
 
-Package `1.0.0-rc.2` adds offline integrity checks, operator field evidence, a source manifest, strict setup links and recovery/smoke materials. The application source remains `1.0.0-rc.1`. This candidate is held outside `public/`; no production or student PIN change is authorized. [Release readiness](hall-pass-release-readiness.md) maps complete/partial requirements and actual environment blockers. Central software updates, explicit identity/version references and browser duplicate-name exception review remain gaps. The RC1 description below records inherited implementation, not clean-environment release approval.
+Package `1.0.0-rc.2` adds offline integrity checks, operator field evidence, a source manifest, strict setup links and recovery/smoke materials. The classroom application remains `1.0.0-rc.1`; the November 5 follow-up corrects template setup recovery for failed settings reads. This candidate is held outside `public/`; no production or student PIN change is authorized. [Release readiness](hall-pass-release-readiness.md) maps complete/partial requirements and actual environment blockers. Central software updates, explicit identity/version references and browser duplicate-name exception review remain gaps. The RC1 description below records inherited implementation, not clean-environment release approval.
 
 ## Confirmed requirements
 

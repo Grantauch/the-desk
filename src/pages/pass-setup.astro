@@ -16,7 +16,7 @@ const steps = [
   {
     title: 'get your copy.',
     bullets: [
-      'Make sure you are signed in to your **school** Google account.',
+      'Use a Chrome profile signed in only to your **school** Google account, or an Incognito window with only that account signed in.',
       'Click the **get my hall pass** button below.',
       'Click the blue **Make a copy** button.',
       'Your own Hall Pass spreadsheet opens. It is yours, and it has no one else’s students.',
@@ -91,6 +91,12 @@ const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) 
         </li>
       ))}
     </ol>
+
+    <aside class="setup-note mt-6" id="setup-permission-help">
+      <h2 class="font-display text-2xl font-bold">setup says “PERMISSION_DENIED”?</h2>
+      <p>Google Apps Script can fail when several Google accounts are signed in. Open your existing Hall Pass spreadsheet in a Chrome profile or Incognito window signed into only your school account, then choose <strong>Hall Pass → Start setup</strong> again. Approve Google’s permissions if asked and reopen setup. Keep your existing copy and its tabs.</p>
+      <p>If it still fails, school IT needs to check Apps Script access for that teacher’s account. Give them the error and spreadsheet link privately. <a class="setup-link" href="https://developers.google.com/apps-script/guides/support/troubleshooting#issues_with_multiple_google_accounts" target="_blank" rel="noopener">Google’s account troubleshooting ↗</a></p>
+    </aside>
 
     <aside class="setup-note mt-6">
       <h2 class="font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] text-accent">using GoClassroom?</h2>

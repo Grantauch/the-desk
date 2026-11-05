@@ -1,11 +1,27 @@
 {
+  "hall-pass-setup-recovery-2026-11-05": {
+    "status": "IMPLEMENTED_VERIFICATION_IN_PROGRESS",
+    "owner": "Codex",
+    "scope": "Stop the teacher setup wizard after a failed initial settings read, provide account recovery and explicit retry, and update setup guidance.",
+    "verification_status": "FOCUSED_HALL_PASS_AND_PACKAGE_PASS_LOCAL_CANONICAL_RUNNING_PROTECTED_BROWSER_PENDING",
+    "deployment_status": "PROTECTED_SOURCE_TEMPLATE_AND_SITE_PROMOTION_PENDING",
+    "field_status": "SECOND_TEACHER_PERMISSION_RECOVERY_AND_MANAGED_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Screenshot shows Google storage PERMISSION_DENIED; old failure handler opened an empty About form and enabled Next.",
+      "Recovery blocks setup navigation until valid settings load. Failed later saves preserve answers on the current screen.",
+      "Google documents unsupported multi-account sign-in; school-only Chrome profile/one-account Incognito is a possible recovery, not a confirmed account diagnosis.",
+      "Template fixes reach new copies; current copies need environmental recovery or their own source update. No policy weakening, guessed OAuth scopes, property clearing or tab deletion.",
+      "The owner requested the setup repair. Finished installer field acceptance remains a separate gate. No private school data or credentials are present in this batch.",
+      "Focused Hall Pass verification passes: 441 runtime behaviors, structural/handoff checks, independent-room directory tests, actual setup handlers and deterministic package negative tests. Local Chrome startup is blocked by the execution environment; actual-HTML browser coverage remains required in protected CI."
+    ]
+  },
   "hall-pass-clean-release-gate-2026-11-04": {
     "status": "SOURCE_REVIEW_AUTHORIZED_FIELD_RELEASE_BLOCKED",
     "owner": "Codex",
-    "scope": "Issue 319: package-only RC2 setup, offline preflight, exact-ZIP operator evidence, recovery and clean-environment gap assessment. Application source unchanged.",
+    "scope": "Issue 319: package-only RC2 setup, offline preflight, exact-ZIP operator evidence, recovery and clean-environment gap assessment. Application source unchanged. Historical preparation record; November 5 template recovery follow-up is tracked separately.",
     "verification_status": "FULL_LOCAL_CANONICAL_AND_PACKAGE_PASS_FIELD_GATE_BLOCKED",
     "deployment_status": "NONE_NO_PRODUCTION_TEMPLATE_PUBLIC_DOWNLOAD_OR_PIN_CHANGES",
-    "handoff_status": "OWNER_APPROVED_SOURCE_ONLY_GITHUB_BRANCH_AND_DRAFT_PR_PROTECTED_CI_PENDING",
+    "handoff_status": "NOVEMBER_5_SETUP_REPAIR_PROMOTION_AUTHORIZED_FINISHED_KIT_FIELD_RELEASE_STILL_BLOCKED",
     "field_status": "CLEAN_LOCAL_EXTRACTION_SECOND_SCHOOL_ACCOUNT_AND_MANAGED_CHROMEBOOK_PENDING",
     "evidence": [
       "Built package 1.0.0-rc.2 containing unchanged application 1.0.0-rc.1. Builder refuses public output, unexpected/symlinked inputs and embedded deployment endpoints/common Google token forms; source manifest retains exact and editor-normalized hashes.",

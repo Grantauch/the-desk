@@ -1,14 +1,17 @@
 # Hall Pass — teacher kiosk candidate
 
-**1.0.0-rc.2 · Review only.** Application source remains 1.0.0-rc.1. Keep production and real student PINs unchanged until a separately authorized cutover.
+**1.0.0-rc.2 · Review only.** Classroom application 1.0.0-rc.1 with corrected setup recovery. This kit does not authorize changes to production or real student PINs.
 
 1. Extract the whole ZIP into a clean folder. Open Start Here.html in Chrome.
 2. Open package and staging checks; select that folder to verify files locally. Select the original ZIP to fingerprint the test record. Nothing is uploaded. Save evidence outside the kit folder.
 3. Use only the coordinator-approved blank template checked by IT against SOURCE-MANIFEST.json. Paste its link in Start Here and copy it under your school account. A mutable/older template may not match this ZIP.
 4. In the new staging spreadsheet choose Hall Pass → Start setup. The window creates the workbook and collects classroom title, student-email domain, pass rules and bell times. Google still requires account consent and web-app deployment.
+
 5. Follow Google's deploy steps: Execute as Me and within your school. Stop on policy blocks. Start Here creates separate kiosk, dashboard and protected-test links from the permanent /exec URL.
 6. Use Settings → school directory / enroll by number in the dashboard. Connect only the private staging directory for now; explicitly enroll synthetic identities. Imports create no memberships. Never share classroom history workbooks.
 7. Run Smoke-Test.md with two school-account teachers and the managed kiosk Chromebook. Record observed results in Preflight and save the private review record.
+
+Use a Chrome profile signed into only your school account, or an Incognito window with only that account. If setup reports “reading from storage / PERMISSION_DENIED”, reopen your existing copy there and run Start setup again. Keep its tabs. See Recovery.md if it persists; existing copies do not automatically receive template software fixes.
 
 After authorized cutover, students use the exact existing five- or six-digit lunch number in each explicitly enrolled room. Preserve leading zeros; never pad or generate substitutes. Authoritative school mappings are required; no name-only guesses.
 

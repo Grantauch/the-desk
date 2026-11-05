@@ -83,6 +83,22 @@
       <p class="lead">The first time takes about 20 seconds.</p>
     </section>
 
+    <section id="screen-recovery" hidden aria-labelledby="recovery-title">
+      <h1 id="recovery-title">Google couldn’t open your setup</h1>
+      <p class="lead" id="recovery-message" role="alert"></p>
+      <ol class="clicks">
+        <li>Open a Chrome profile signed in only to your <b>school account</b>, or an Incognito window with only that account signed in.</li>
+        <li>Open <b>your own copy</b> of the Hall Pass spreadsheet. Choose <b>Hall Pass → Start setup</b>. Approve Google’s permissions if asked, then open Start setup again.</li>
+        <li>If it still fails, ask school IT to check Apps Script access for your account. Give them the Google message below and your spreadsheet link privately.</li>
+      </ol>
+      <p class="hint">Keep your existing copy. You do not need to delete tabs or clear settings.</p>
+      <details><summary>Google’s message</summary><p id="recovery-details"></p></details>
+      <div class="actions">
+        <button type="button" class="quiet" id="recovery-close">Close</button>
+        <button type="button" id="recovery-retry">Try setup again</button>
+      </div>
+    </section>
+
     <!-- 1. About the pass -->
     <section id="screen-about" hidden>
       <p class="eyebrow">Step 1 of 4</p>
@@ -117,7 +133,7 @@
       </div>
 
       <div class="message bad" id="about-message"></div>
-      <div class="actions"><span></span><button type="button" id="about-next">Next: bell times →</button></div>
+      <div class="actions"><span></span><button type="button" id="about-next" disabled>Next: bell times →</button></div>
     </section>
 
     <!-- 2. Bells -->
@@ -218,14 +234,27 @@
       // Until the teacher picks, show both the Chromebook and door-computer links.
       var style = 'both';
       var $ = function (id) { return document.getElementById(id); };
-      var screens = ['loading', 'about', 'bells', 'turn-on', 'done'];
+      var screens = ['loading', 'recovery', 'about', 'bells', 'turn-on', 'done'];
+      var steps = ['about', 'bells', 'turn-on', 'done'];
 
       function show(name) {
+        if (!state && name !== 'loading' && name !== 'recovery') return;
         screens.forEach(function (screen) { $('screen-' + screen).hidden = screen !== name; });
-        var index = screens.indexOf(name);
-        $('steps').hidden = index < 1;
-        Array.prototype.forEach.call($('steps').children, function (bar, i) { bar.className = i < index ? 'done' : ''; });
+        var index = steps.indexOf(name);
+        $('steps').hidden = index < 0;
+        Array.prototype.forEach.call($('steps').children, function (bar, i) { bar.className = i <= index ? 'done' : ''; });
         window.scrollTo(0, 0);
+      }
+
+      function recover(error) {
+        state = null;
+        $('about-next').disabled = true;
+        var text = String((error && error.message) || error || 'Google did not return the setup settings.');
+        $('recovery-message').textContent = /PERMISSION_DENIED|reading from storage/i.test(text)
+          ? 'Google refused to read this copy’s settings. More than one signed-in Google account can cause this. Check the account before trying again.'
+          : 'Your setup settings could not be loaded. Check your school account and permissions before trying again.';
+        $('recovery-details').textContent = text;
+        show('recovery');
       }
 
       function say(id, text, good) {
@@ -242,7 +271,7 @@
           .withFailureHandler(function (error) {
             if (button) button.disabled = false;
             var text = String((error && error.message) || error || 'Something went wrong. Try again.');
-            if (messageId) say(messageId, text); else { show('about'); say('about-message', text); }
+            if (messageId) say(messageId, text); else recover(error);
           });
         runner[name].apply(runner, args || []);
       }
@@ -287,7 +316,6 @@
       }
 
       function fill(next) {
-        state = next;
         $('app-title').value = next.appTitle || 'Hall Pass';
         titleTouched = next.appTitle && next.appTitle !== 'Hall Pass';
         $('destination').value = next.destination || 'Restroom';
@@ -295,13 +323,15 @@
         $('student-domain').value = next.studentEmailDomain || '';
         if (!next.studentEmailDomain && next.ownerDomain) $('student-domain').placeholder = 'students.' + next.ownerDomain;
         fillBells(next.periods || []);
-        fillBells(next.reducedPeriods || next.periods.map(function (row) { return { period: row.period, start: '', end: '' }; }), 'reduced-rows');
+        fillBells(next.reducedPeriods || (next.periods || []).map(function (row) { return { period: row.period, start: '', end: '' }; }), 'reduced-rows');
         $('reduced-dates').value = (next.reducedDates || []).join('\n');
         $('reduced-box').open = (next.reducedDates || []).length > 0 || (next.reducedPeriods || []).some(function (row) { return row.start; });
         $('year-start').value = next.yearStart || '';
         $('year-end').value = next.yearEnd || '';
         $('open-editor').href = next.scriptEditorUrl;
         $('domain-name').textContent = next.ownerDomain ? 'your school (' + next.ownerDomain + ')' : 'your school';
+        state = next;
+        $('about-next').disabled = false;
       }
 
       function answers() {
@@ -332,6 +362,7 @@
       }
 
       $('about-next').addEventListener('click', function () {
+        if (!state) return;
         if (!$('app-title').value.trim()) return say('about-message', 'Type your name or what the top of the pass should say.');
         if (!$('student-domain').value.trim()) return say('about-message', 'Type how student emails end, like students.yourschool.org.');
         say('about-message', '');
@@ -339,6 +370,7 @@
       });
       $('bells-back').addEventListener('click', function () { show('about'); });
       $('bells-save').addEventListener('click', function () {
+        if (!state) return;
         run('setupWizardSave', [answers()], function (next) {
           fill(next);
           if (next.links) return showDone(next);
@@ -353,6 +385,7 @@
       });
       $('turn-on-back').addEventListener('click', function () { show('bells'); });
       $('link-save').addEventListener('click', function () {
+        if (!state) return;
         run('setupWizardSaveLink', [$('web-app-link').value], function (next) { fill(next); showDone(next); }, 'link-message', $('link-save'));
       });
       $('done-edit').addEventListener('click', function () { show('about'); });
@@ -367,11 +400,22 @@
         });
       });
 
-      run('setupWizardLoad', [], function (next) {
-        fill(next);
-        if (next.links && next.bellsReady) return showDone(next);
-        show('about');
-      });
+      function load() {
+        state = null;
+        $('about-next').disabled = true;
+        show('loading');
+        run('setupWizardLoad', [], function (next) {
+          if (!next || next.ok !== true || !Array.isArray(next.periods)) return recover('Google returned incomplete setup settings.');
+          try {
+            fill(next);
+            if (next.links && next.bellsReady) return showDone(next);
+            show('about');
+          } catch (error) { recover(error); }
+        });
+      }
+      $('recovery-retry').addEventListener('click', load);
+      $('recovery-close').addEventListener('click', function () { google.script.host.close(); });
+      load();
     })();
   </script>
 </body>

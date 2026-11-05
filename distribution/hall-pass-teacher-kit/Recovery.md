@@ -1,6 +1,6 @@
 # Recovery, updates and cutover
 
-Package 1.0.0-rc.2 contains unchanged application 1.0.0-rc.1. Staging review only; no production change or real credential cutover is authorized.
+Package 1.0.0-rc.2 contains classroom application 1.0.0-rc.1 and the corrected setup recovery screen. Staging review only; this package does not authorize a production change or real credential cutover.
 
 ## Before an authorized change
 
@@ -10,6 +10,10 @@ Package 1.0.0-rc.2 contains unchanged application 1.0.0-rc.1. Staging review onl
 - Rehearse restoration in synthetic staging. Never deploy historical Hall Pass Versions 14–16, which have a known protected-action failure. Use a tested compatible version; an arbitrary old version may not honor the directory or current schema.
 
 ## If setup fails
+
+For “reading from storage / PERMISSION_DENIED”, use a Chrome profile signed into only the teacher's school account, or an Incognito window with only that account. Open the existing teacher-owned copy, choose Hall Pass → Start setup, approve Google's permissions if asked, then reopen setup. Google documents multi-account problems with Apps Script: https://developers.google.com/apps-script/guides/support/troubleshooting#issues_with_multiple_google_accounts . This is a possible cause, not proof of the account's permissions. Keep the existing copy and tabs. If it persists, school IT must inspect that account's Apps Script access; provide the error and copy link privately. A source update cannot change school account policy, and existing copies do not automatically receive template updates.
+
+The corrected wizard stops at a recovery screen when its first settings read fails. The questions and Next button become available only after a successful settings load. Retry is explicit; failed saves keep the teacher's answers on their current screen.
 
 Stop in staging and leave production unchanged. Have IT resolve policy blocks; do not use personal accounts, public access or a shared teacher login. Re-extract a trusted ZIP after an integrity mismatch. Recheck mutable template source against the package before retrying.
 
