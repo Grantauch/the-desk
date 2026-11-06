@@ -151,9 +151,10 @@ try {
   // client roster with the actual server snapshot instead of a fixed headcount.
   let snapshotMatches=false;
   for(let attempt=0;attempt<20&&!snapshotMatches;attempt++){
-    const expected=(visitor.life()?.residents||[]).filter(n=>n.room==='wilds').map(n=>n.id).sort();
+    const snapshot=visitor.life();
+    const expected=(snapshot?.residents||[]).filter(n=>n.room==='wilds').map(n=>n.id).sort();
     const actual=await visitor.page.evaluate(()=>window.__checkaverse.world().active().map(n=>n.id).sort());
-    snapshotMatches=expected.length>0&&JSON.stringify(actual)===JSON.stringify(expected);
+    snapshotMatches=Boolean(snapshot?.residents?.length)&&JSON.stringify(actual)===JSON.stringify(expected);
     if(!snapshotMatches)await delay(100);
   }
   assert.ok(snapshotMatches,'Wilds residents must match the authoritative server roster');
