@@ -33,6 +33,12 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Test approval guards with fixtures only
+        run: npm run hall-pass:approval:test
+
+      - name: Refuse unapproved Hall Pass ZIP publication
+        run: npm run hall-pass:approval
+
       - name: Install locked dependencies
         run: npm ci --include=dev
 
