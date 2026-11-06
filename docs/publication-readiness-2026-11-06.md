@@ -14,6 +14,7 @@ Netlify production was independently read at commit 0987512a2715aa36bf5bcbb6edbd
 - Fixes the delayed dark overlay when returning from the trench finale, and asserts actual visibility in both museum browser suites.
 - Replaces a stale fixed wilds-resident headcount with an assertion against received authoritative server snapshots. Commuting residents make a fixed count invalid. Keeps the current real visitor/door/travel journeys.
 - Adds museum model and independent-fallback browser journeys to the protected full CI gate.
+- Repairs a Windows-only kiosk test screenshot path with fileURLToPath; all 320/768/1366 kiosk request/return/privacy journeys pass.
 
 ## Outstanding release boundaries
 
@@ -22,6 +23,7 @@ Netlify production was independently read at commit 0987512a2715aa36bf5bcbb6edbd
 | Website release | Canonical local verification, protected build, merge, Netlify production SHA and exact live content readback. |
 | Checkaverse graphics | Source verification and merge do not update the independent PC server. TheAtlas is offline in Remote Desktop Commander; runtime publication requires the connected host, preflight/backups, exact file copy and targeted restart. |
 | Hall Pass RC2 / lunch PIN schoolwide cutover | #319 and #323–#329 remain the governing batch gates. District permission, authoritative protected mappings, exact ZIP/second-account and managed-Chromebook acceptance, private backup and freeze-SHA authorization are outstanding. This release does not activate them. |
+| BTS Unit 2 catalog | Eight announced resources still have no public href. Matching lesson decks exist as private teacher-preparation copies; a sampled copy retains teacher directions and unresolved VERIFY flags. Student artifact/source QA and sharing acceptance remain unestablished. No private Drive identifiers were added to git. |
 | Field acceptance | Physical school Chromebook, school network and actual class cycles remain unperformed. Synthetic browser results do not replace them. |
 
 ## Open PR inventory at audit start

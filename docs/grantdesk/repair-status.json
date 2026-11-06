@@ -1,9 +1,9 @@
 {
   "publication-completion-2026-11-06": {
-    "status": "INTEGRATED_VERIFICATION_IN_PROGRESS",
+    "status": "INTEGRATED_LOCAL_VERIFIED_PROTECTED_CI_PENDING",
     "owner": "Codex",
     "scope": "Remaining WWI trench models, Kettle Creek graphics within the Design Bible, current assistant navigation and unpublished-work inventory.",
-    "verification_status": "PUBLIC_250_PAGE_HTTP_CRAWL_AND_SYNTHETIC_GAME_SUITE_PASSED_BROWSER_AND_CANONICAL_GATES_IN_PROGRESS",
+    "verification_status": "CANONICAL_PRECEDING_TREE_PASSED_FINAL_MUSEUM_GAME_KIOSK_JOURNEYS_PASSED_PROTECTED_CI_PENDING",
     "deployment_status": "REVIEW_BRANCH_ONLY_NETLIFY_AND_SEPARATE_GAME_RUNTIME_PENDING",
     "field_status": "SCHOOL_NETWORK_AND_PHYSICAL_CHROMEBOOK_PENDING",
     "evidence": [
