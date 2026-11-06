@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFile, mkdir} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -19,7 +20,7 @@ try {
     const page = await context.newPage();
     const errors = [], calls = [];
     let failure = 'We’re sorry, a server error occurred while reading from storage. Error code PERMISSION_DENIED.';
-    let malformed = false, saveFails = false, published = false, linkFails = false;
+    let malformed = false, saveFails = false, published = false, linkFails = false, fallbackVerified = false;
     const appLink = 'https://script.google.com/macros/s/SyntheticSetupDeployment0000000000/exec';
     page.on('pageerror', error => errors.push(error.message));
     await page.exposeFunction('__gas', async ({name}) => {
@@ -33,8 +34,9 @@ try {
         return ready;
       }
       if (name === 'setupWizardFindLink') return published ? {link: appLink} : {};
+      if (name === 'setupWizardPrepareLink') return {verifyUrl: appLink + '?mode=setup-link'};
       if (name === 'setupWizardSaveLink') {
-        if (linkFails) throw Error('Synthetic verification failure');
+        if (linkFails || (!published && !fallbackVerified)) throw Error('Synthetic verification failure');
         return {...ready, studentCount: 0, links: {student: appLink, teacher: appLink + '?mode=teacher', kiosk: appLink + '?mode=kiosk', classroomShare: 'https://classroom.google.com/share'}};
       }
       throw Error('Unexpected call: ' + name);
@@ -66,7 +68,7 @@ try {
     const audit = await new AxeBuilder({page}).include('#screen-recovery').withTags(['wcag2a', 'wcag2aa']).analyze();
     assert.deepEqual(audit.violations, [], JSON.stringify(audit.violations));
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
-    await page.screenshot({path: new URL('recovery-' + width + '.png', output).pathname, fullPage: true});
+    await page.screenshot({path: fileURLToPath(new URL('recovery-' + width + '.png', output)), fullPage: true});
 
     failure = 'Synthetic connection failure';
     await page.locator('#recovery-retry').click();
@@ -98,8 +100,30 @@ try {
     assert.equal(await page.locator('#steps li.done').count(), 3);
     assert.match(await page.locator('#school-account').textContent(), /test.teacher@example.org/);
     await page.locator('#link-find').click();
-    await page.waitForFunction(() => document.getElementById('link-message').textContent.includes('not reported'));
+    await page.waitForFunction(() => document.getElementById('link-message').textContent.includes('not verified'));
     assert.equal(await page.locator('#screen-done').isVisible(), false);
+    assert.equal(await page.locator('#manual-link').getAttribute('open'), '');
+    await page.locator('#web-app-link').fill(appLink);
+    await page.locator('#link-save').click();
+    await page.locator('#link-verification').waitFor({state: 'visible'});
+    assert.equal(await page.locator('#link-verify-open').getAttribute('href'), appLink + '?mode=setup-link');
+    await page.locator('#link-finish').click();
+    await page.waitForFunction(() => document.getElementById('link-message').textContent === 'Synthetic verification failure');
+    assert.equal(await page.locator('#screen-done').isVisible(), false);
+    await page.locator('#web-app-link').fill(appLink + '?changed');
+    assert.equal(await page.locator('#link-verification').isVisible(), false, 'changed input invalidates the prepared visit');
+    await page.locator('#web-app-link').fill(appLink);
+    await page.locator('#link-save').click();
+    await page.locator('#link-verification').waitFor({state: 'visible'});
+    const fallbackAudit = await new AxeBuilder({page}).include('#screen-turn-on').withTags(['wcag2a', 'wcag2aa']).analyze();
+    assert.deepEqual(fallbackAudit.violations, [], JSON.stringify(fallbackAudit.violations));
+    fallbackVerified = true;
+    await page.locator('#link-finish').click();
+    await page.locator('#screen-done').waitFor({state: 'visible'});
+    await page.locator('#done-edit').click();
+    await page.locator('#about-next').click();
+    await page.locator('#bells-save').click();
+    await page.locator('#screen-turn-on').waitFor({state: 'visible'});
     published = true; linkFails = true;
     await page.locator('#link-find').click();
     await page.waitForFunction(() => document.getElementById('link-message').textContent === 'Synthetic verification failure');
@@ -114,7 +138,7 @@ try {
     const doneAudit = await new AxeBuilder({page}).include('#screen-done').withTags(['wcag2a', 'wcag2aa']).analyze();
     assert.deepEqual(doneAudit.violations, [], JSON.stringify(doneAudit.violations));
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
-    await page.screenshot({path: new URL('links-' + width + '.png', output).pathname, fullPage: true});
+    await page.screenshot({path: fileURLToPath(new URL('links-' + width + '.png', output)), fullPage: true});
     assert.deepEqual(errors, []);
     await context.close();
   }

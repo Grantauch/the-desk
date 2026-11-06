@@ -586,6 +586,9 @@ function setupProject(options) {
 function doGet(e) {
   ensureWorkbookReady_();
   const requestedMode = String((e && e.parameter && e.parameter.mode) || 'student').toLowerCase();
+  if (requestedMode === 'setup-link' && typeof setupVerifyPublishedApp_ === 'function') {
+    return setupVerifyPublishedApp_();
+  }
   if (requestedMode === 'releasecheck') {
     assertTeacher_(getActiveEmail_(), getSettings_());
     return HtmlService.createHtmlOutputFromFile('ReleaseCheck').setTitle('GrantDesk private release check');

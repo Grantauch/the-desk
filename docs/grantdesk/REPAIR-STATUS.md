@@ -1,3 +1,11 @@
+## November 5 published-link recovery after actual blank-copy verification
+
+Owner: Codex. PR #322 was merged as 60eecb1e12f9890e951012f20617f40b766e8a0d; template publication 42132761794 read back seven exact files and Netlify 6aed16d3db9dfd32ea7525ea published that merge. A real school-account blank test copy loaded/saved the wizard and opened its empty teacher dashboard. The remaining link step failed because Google reported an enabled editor-only /dev address in an editor probe; the bound setup also returned an unusable /exec address in a legacy school URL shape. This is observed fresh-copy evidence, separate from the synthetic browser suite. No student records or classroom deployment were used.
+
+The follow-up adds an authenticated published-app visit as the discovery fallback. It records Google's own /exec URI with this script's identity; it never accepts an arbitrary pasted URI as proof. Finish setup separately matches the pasted deployment ID before saving the existing dashboard/kiosk links. Other-copy receipts, wrong-owner access, malformed and test links remain rejected. All three Google school URL forms are supported. No new scopes/services or permission weakening. The public guide makes Start my Hall Pass primary and the existing RC1 download optional; first setup needs a computer, daily dashboard use supports a phone.
+
+Local focused verification passes: 445 runtime behaviors and actual-HTML Chromium failure/retry, fallback refusal/completion, changed-input clearing, phone/dialog fit and WCAG A/AA. Canonical verification, protected CI, follow-up template publication and a fresh-copy completion remain pending at this source checkpoint. The blank master now retains exactly one existing setup button after reload, before first authorization. Existing teacher copies and managed-device/classroom acceptance remain separate. Graphics and game behavior are excluded.
+
 ## November 5 visible Hall Pass setup and app entry
 
 Owner: Codex. The teacher reported a collapsed Sheets toolbar prevented initialization. The template now keeps a visible opening page with a large local image button assigned to Start setup; initialization retains that page and saves verified dashboard/kiosk hyperlinks. Teachers use the existing web app for daily tasks. The menu remains a backup. Google authorization and publishing remain explicit one-time owner actions.
@@ -512,7 +520,7 @@ Four original three-chapter founder journeys, repeatable renewable supply gather
 32 focused rules/save checks and the complete companion browser suites pass. The six new journeys exercise all three Mochi chapters, actual crafting, download/reload, 320/390/1366 layouts, automated WCAG A/AA, native modal keyboard behavior, school formats 1/2/3, lost acknowledgement/retry and account clearing. A two-line native path-separator repair fixes the existing Windows Pond browser fixture. The full canonical gate passed all 18 stages from the recovered source: 54 routes, 156 HTML files, 5,238 local references and 27 sealed releases/193 assets. Protected CI, website deployment and guarded school deployment/readback remain pending at this source checkpoint. Authenticated live smoke and observed classroom/device use remain separate. See [the release behavior and verification notes](../checklings-pixel-camp-six.md).
 
 
-## October 29 School Pixel Camp pause — release review
+## October 29 School Pixel Camp pause ï¿½ release review
 
 Owner: Codex, branch `checklings/teacher-pause-20261029`. The private teacher dashboard can pause school play without changing attendance, passes, companion identity or save version3. Server enforcement rejects new camp opens and writes while still acknowledging already committed retries. A workbook setting, authenticated current teacher contract, shared-lock reauthorization and audit/rollback protect the control. Updated active camps retain unconfirmed progress, offer native file export/check again/explicit return, and retry retained saves on resume. Existing session privacy clearing stays authoritative. See [behavior and evidence boundaries](../checklings-teacher-pause.md).
 

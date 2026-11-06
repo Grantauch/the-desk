@@ -1,4 +1,19 @@
 {
+  "hall-pass-published-link-recovery-2026-11-05": {
+    "status": "FIXED_LOCALLY_PROTECTED_REVIEW_PENDING",
+    "owner": "Codex",
+    "scope": "Finish fresh teacher setup when Google reports an editor-only /dev URL after publication.",
+    "verification_status": "445_RUNTIME_CHECKS_AND_SETUP_BROWSER_PASS_CANONICAL_AND_PROTECTED_PENDING",
+    "deployment_status": "FOLLOWUP_NOT_YET_PUBLISHED",
+    "field_status": "FRESH_FOLLOWUP_COPY_AND_SECOND_TEACHER_CHROMEBOOK_PENDING",
+    "evidence": [
+      "PR 322 merged as 60eecb1e12f9890e951012f20617f40b766e8a0d with the identical protected-tested tree. Template publication 42132761794 read back all seven files; Netlify 6aed16d3db9dfd32ea7525ea published that merge.",
+      "Actual school-account blank-copy check loaded and saved the wizard and opened a zero-student dashboard. Google returned /dev in editor context and an unusable /exec address from setup; editor metadata cannot prove a usable deployment. No real student record or classroom deployment was used.",
+      "The fallback opens the pasted /exec in its own authenticated owner context. Only the published app can record its own Google-reported /exec URL, bound to its script identity. The wizard separately saves after matching deployment IDs. Another copy, unproved editor /exec metadata, /dev, malformed or inherited receipt cannot complete setup. Legacy school URLs normalize to the Deploy-dialog path.",
+      "No new Google service, OAuth scope, public access policy or finished kit publication. The existing classroom deployment is not updated by template publication. Graphics and game behavior remain separate.",
+      "445 runtime behaviors and focused actual-HTML Chromium checks pass, including fallback not-yet-verified refusal, changed-input reset, retry, WCAG A/AA and phone/dialog fit. Full canonical and protected checks remain required before merge."
+    ]
+  },
   "hall-pass-visible-setup-wrapper-2026-11-05": {
     "status": "IMPLEMENTED_FOCUSED_VERIFIED_FULL_RELEASE_CHECK_RUNNING",
     "owner": "Codex",
