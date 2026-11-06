@@ -1,3 +1,21 @@
+## November 4 trench supply polish
+
+Owner: Codex. Three M1903 Springfield/M1905 bayonet reconstructions replace the rifle sticks, and four generic planked timber cases replace plain boxes. The overlapping entry cases are stacked. Each class shares geometry/materials and retains an independent original fallback. Editable .blend files, generator, compact GLBs and period/source limitations are recorded alongside the earlier models.
+
+Chrome at 1366x768 and 390x768 passes all six optional asset classes, seven stops, periscope/Escape and ladder/return with zero page errors or model warnings. Separate missing-rifle and missing-case scenarios retain only their original class while the remaining models load. Protected full checks and production readback are pending; physical Chromebook and classroom acceptance remain separate.
+
+## November 4 trench observation polish
+
+Owner: Codex. Three Blender reconstructions replace the simple M1917 and Adrian helmet props and wooden periscope in Over the Top. Editable .blend sources, small texture-free GLBs, museum references and display-scale limitations are included. The five helmets share geometry/materials and each optional asset has an independent original-prop fallback.
+
+Chrome journeys at 1366x768 and 390x768 load all models, traverse seven stops, enter/exit the periscope and complete the ladder/return flow with zero page errors or model warnings. Three separate HTTP404 scenarios retain only the failed asset's original while loading the other replacements. Source scene/camera, reading text, sandbag instances and performance controls remain intact. Protected full checks, production deployment/readback and physical Chromebook/classroom acceptance remain separate gates.
+
+## November 4 website publication recovery
+
+Owner: Codex. The published Michael Vick release includes all merged website changes since the November 2 baseline, including the WWI week, all ten Arsenal Blender models, Over the Top sandbags and the Somme tank. PR #311 is now merged to preserve both Vick pages on main. Published commit `692e657ea5d182dfb61ebda8a06b982164c2a2df` and main merge `029a951c28097eb1cb828bf655fce013521c515b` have the identical Git tree `e6a785806234d28112e1f7d1af620a2b9ae209be`.
+
+Eight production route checks returned HTTP 200. Prior actual production browser checks loaded all ten Arsenal GLBs and Blender trench sandbags with no page errors or model warnings. Skipped older main builds are superseded, so replaying them would roll back newer work. Credits have been restored by Grant; a fresh protected-main production rebuild and readback are the next gate. Checkaverse separately reports healthy version 0.15.0; this does not claim a server or Apps Script deployment. Draft and preproduction work remains separate from classroom-ready publication.
+
 ## November 5 published-link recovery after actual blank-copy verification
 
 Owner: Codex. PR #322 was merged as 60eecb1e12f9890e951012f20617f40b766e8a0d; template publication 42132761794 read back seven exact files and Netlify 6aed16d3db9dfd32ea7525ea published that merge. A real school-account blank test copy loaded/saved the wizard and opened its empty teacher dashboard. The remaining link step failed because Google reported an enabled editor-only /dev address in an editor probe; the bound setup also returned an unusable /exec address in a legacy school URL shape. This is observed fresh-copy evidence, separate from the synthetic browser suite. No student records or classroom deployment were used.

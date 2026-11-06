@@ -1,4 +1,45 @@
 {
+  "wwi-trench-supply-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "Replace three trench rifle sticks with M1903/M1905 Blender reconstructions and four plain cases with timber supply props; stack the overlapping entry cases.",
+    "verification_status": "CHROME_1366_AND_390_SIX_OPTIONAL_UPGRADES_ALL_STOPS_SCOPE_LADDER_AND_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Original editable Blender sources and repeatable generator; two no-texture GLBs total165148 bytes, with5 material batches each and5086 triangles across the two source models. Geometry/materials are shared across placed copies.",
+      "Both viewport journeys load all six optional asset classes with no uncaught errors/model warnings, traverse seven stops, use periscope/Escape, climb and return. Separate rifle/case HTTP404 cases preserve their own original fallback while all other replacements load.",
+      "Two previously coincident cases now stack; no collision, reading-text, save, camera or interaction code changes. The intro and asset record identify display reconstructions and period/source limitations."
+    ]
+  },
+  "wwi-trench-observation-2026-11-04": {
+    "status": "IMPLEMENTED_BROWSER_VERIFIED",
+    "owner": "Codex",
+    "scope": "M1917 and Adrian helmets plus wooden WWI trench periscope in Over the Top, with editable Blender sources and independent load-failure fallbacks.",
+    "verification_status": "CHROME_1366_AND_390_ALL_STOPS_PERISCOPE_LADDER_AND_THREE_ISOLATED_FAILURES_PASSED",
+    "deployment_status": "PROTECTED_CHECKS_AND_PRODUCTION_READBACK_PENDING",
+    "field_status": "PHYSICAL_CHROMEBOOK_AND_CLASSROOM_PENDING",
+    "evidence": [
+      "Blender 5.2.3 exports total 6192 triangles across three assets: M1917 2280, Adrian 2076 and periscope 1836; GLBs total 177684 bytes with no textures.",
+      "Both viewport journeys loaded all four optional upgrades, traversed every stop, entered/exited the periscope, climbed the ladder and returned to the trench with no page errors or model warnings.",
+      "Each new model was separately forced to HTTP404. Its original prop remained while the other replacements loaded, and navigation still reached stop7.",
+      "Five placed helmets clone shared geometry/materials. Existing scene, stop text, camera and sandbag instancing are retained. Museum reference and reconstruction-scale limitations are recorded in assets/wwi-blender/README.md."
+    ]
+  },
+  "website-credit-recovery-2026-11-04": {
+    "status": "LIVE_CONTENT_VERIFIED_MAIN_REDEPLOY_PENDING",
+    "owner": "Codex",
+    "scope": "Audit skipped website releases after Netlify credits were restored; preserve the museum and Michael Vick releases on protected main.",
+    "verification_status": "PRODUCTION_ROUTES_AND_RELEASE_ANCESTRY_VERIFIED",
+    "deployment_status": "PUBLISHED_PREVIEW_TREE_EQUALS_MAIN_PRODUCTION_REBUILD_PENDING",
+    "field_status": "CLASSROOM_PENDING",
+    "evidence": [
+      "Published deploy 6aeaa05ad8b5c5a8828b82b6 serves commit 692e657ea5d182dfb61ebda8a06b982164c2a2df. Its Git tree e6a785806234d28112e1f7d1af620a2b9ae209be exactly equals main merge 029a951c28097eb1cb828bf655fce013521c515b after PR311.",
+      "Main includes all 19 commits since the previous November 2 production baseline 3a3d0114a9655e485ea588df30fef1875fd86449 with no divergence. Superseded skipped builds do not need to be replayed.",
+      "Production GET checks returned HTTP200 for home, StoryHubs, US History, both Michael Vick pages, The Arsenal, Over the Top and Over the Somme. Prior production browser verification loaded all ten Arsenal GLBs and the Blender trench sandbags without page errors or model warnings.",
+      "The separate Checkaverse public health endpoint reports healthy version 0.15.0. This website release does not deploy that server, Apps Script or unfinished experimental pull requests."
+    ]
+  },
   "hall-pass-published-link-recovery-2026-11-05": {
     "status": "FIXED_LOCALLY_PROTECTED_REVIEW_PENDING",
     "owner": "Codex",
