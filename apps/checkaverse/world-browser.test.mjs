@@ -86,7 +86,7 @@ try {
   assert.deepEqual(await page.evaluate(()=>{const d=window.__checkaverse,p=d.players.get(d.me());return [p.x,p.y];}),before);
   await page.getByRole('button',{name:'Need a hand?',exact:true}).click();
   await page.getByRole('button',{name:"I'll have a look.",exact:true}).click();
-  await walk(page,8,9);assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('rowan')),'found');
+  await walk(page,9,9);assert.equal(await page.evaluate(()=>window.__checkaverse.world().status('rowan')),'found');
   await walk(page,11,10);await clickResident(page,'rowan');
   assert.match(await page.locator('#residentText').textContent(),/There it is/);
   await page.waitForFunction(()=>window.__checkaverse.world().all().find(n=>n.id==='rowan').helped===1);
