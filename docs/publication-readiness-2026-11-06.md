@@ -4,7 +4,7 @@ Owner: Codex. Grant requested a complete unpublished/merged/live audit and publi
 
 ## Current public baseline
 
-Netlify production was independently read at commit 0987512a2715aa36bf5bcbb6edbdaeeaf3604771 (PR #330), deploy 6aed25f59cac79063a0b6f64. It exactly matched main; older credit-skipped builds have been superseded. A public crawl returned HTTP 200 for 250 unique site pages, including linked hub routes. One apparent URL was a JavaScript template literal, not a real rendered link. This establishes public HTTP availability, not every external Drive permission or school-network behavior. Checkaverse /health and its page returned HTTP 200, healthy version 0.15.0 with zero players at the check.
+Netlify production was independently read at commit 0987512a2715aa36bf5bcbb6edbdaeeaf3604771 (PR #330), deploy 6aed25f59cac79063a0b6f64. It exactly matched main; older credit-skipped builds have been superseded. A public crawl returned HTTP 200 for 250 distinct page URLs, including linked hub routes. One apparent URL was a JavaScript template literal, not a real rendered link. This establishes public HTTP availability, not every external Drive permission or school-network behavior. Checkaverse /health and its page returned HTTP 200, healthy version 0.15.0 with zero players at the check.
 
 ## This release
 
