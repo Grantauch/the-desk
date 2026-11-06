@@ -13,6 +13,10 @@ on:
         options:
           - preflight
           - deploy
+      confirmation:
+        description: For deploy only, type exactly DEPLOY TURN IN
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -24,8 +28,8 @@ concurrency:
 jobs:
   deploy:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issue_comment' && github.actor == 'Grantauch' &&
+      (github.event_name == 'workflow_dispatch' && github.actor == 'Grantauch' && github.triggering_actor == 'Grantauch') ||
+      (github.event_name == 'issue_comment' && github.actor == 'Grantauch' && github.triggering_actor == 'Grantauch' &&
        github.event.issue.number == 28 &&
        (github.event.comment.body == '/preflight-turn-in' || github.event.comment.body == '/deploy-turn-in'))
     name: Turn In production release

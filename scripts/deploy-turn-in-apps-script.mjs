@@ -4,6 +4,7 @@
 // Refuses if the editor holds unpublished changes or an unexpected file set.
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { assertProductionAuthorization } from './lib/hall-pass-approval.mjs';
 
 const API = 'https://script.googleapis.com/v1';
 
@@ -47,6 +48,7 @@ function webApp(deployment) {
 async function main() {
   const mode = String(process.env.GAS_DEPLOY_MODE || 'preflight').trim();
   if (!['preflight', 'deploy'].includes(mode)) fail(`Unsupported mode: ${mode}`);
+  await assertProductionAuthorization('turn-in', mode);
   const scriptId = required('TURN_IN_SCRIPT_ID');
   const deploymentId = required('TURN_IN_DEPLOYMENT_ID');
   const code = await readFile(path.join(process.cwd(), 'apps-script', 'turn-in', 'Code.gs'), 'utf8');
