@@ -187,16 +187,21 @@
         <li>Click the gear ⚙ next to “Select type” and choose <span class="pill">Web app</span>.</li>
         <li>Set <b>Execute as</b> to <span class="pill">Me</span> and <b>Who has access</b> to <span class="pill">Anyone within <span id="domain-name">your school</span></span>. Click <span class="pill">Deploy</span>.</li>
         <li>If Google asks, click <span class="pill">Authorize access</span>, pick your school account, and click <span class="pill">Allow</span>. Check that this is your own copy and your school account. If school policy blocks approval, ask school IT.</li>
-        <li>When Google says it is deployed, return to this window and click <b>Find my app link</b> below.</li>
+        <li>When Google says it is deployed, copy its <b>Web app URL</b>. Return here, paste it below, and click <b>Prepare link check</b>.</li>
       </ol>
-      <button type="button" id="link-find">Find my app link →</button>
-      <p class="hint">We check that the link belongs to this copy. Finding a link does not test the school’s device or access policy.</p>
-      <details class="reduced"><summary>Paste a link instead</summary>
+      <button type="button" class="quiet" id="link-find">Find my saved app link</button>
+      <p class="hint">A new app needs the link check below. Saved links do not certify the school’s device or access policy.</p>
+      <details class="reduced" id="manual-link" open><summary>Connect the published app link</summary>
         <label for="web-app-link">Web app link from this copy’s Deploy window</label>
-        <input type="url" id="web-app-link" placeholder="https://script.google.com/…/exec" autocomplete="off">
-        <button type="button" id="link-save">Check and save this link</button>
+        <input type="url" id="web-app-link" placeholder="https://script.google.com/…/exec" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" id="link-save">Prepare link check</button>
+        <div id="link-verification" hidden>
+          <p>Open the link-check page below. When it says your app link is verified, return here and finish setup.</p>
+          <p><a class="button quiet" id="link-verify-open" href="#" target="_blank" rel="noopener noreferrer">Open my published app to verify ↗</a></p>
+          <button type="button" id="link-finish">Finish setup</button>
+        </div>
       </details>
-      <div class="message bad" id="link-message"></div>
+      <div class="message bad" id="link-message" role="status" aria-live="polite"></div>
       <div class="actions">
         <button type="button" class="quiet" id="turn-on-back">← Back</button>
         <span></span>
@@ -411,14 +416,30 @@
       $('link-find').addEventListener('click', function () {
         if (!state) return;
         run('setupWizardFindLink', [], function (found) {
-          if (!found || !found.link) return say('link-message', 'Google has not reported a published app for this copy yet. Finish the Deploy steps above, then try again.');
+          if (!found || !found.link) {
+            $('manual-link').open = true;
+            return say('link-message', 'This copy has not verified a published app link yet. Copy the Web app URL from its Deploy window and use the link check below.');
+          }
           $('web-app-link').value = found.link;
           saveLink(found.link, $('link-find'));
         }, 'link-message', $('link-find'));
       });
       $('link-save').addEventListener('click', function () {
         if (!state) return;
-        saveLink($('web-app-link').value, $('link-save'));
+        $('link-verification').hidden = true;
+        run('setupWizardPrepareLink', [$('web-app-link').value], function (result) {
+          if (!result || !result.verifyUrl) return say('link-message', 'The link check could not be prepared. Try again.');
+          $('link-verify-open').href = result.verifyUrl;
+          $('link-verification').hidden = false;
+        }, 'link-message', $('link-save'));
+      });
+      $('web-app-link').addEventListener('input', function () {
+        $('link-verification').hidden = true;
+        $('link-verify-open').href = '#';
+      });
+      $('link-finish').addEventListener('click', function () {
+        if (!state || $('link-verification').hidden) return;
+        saveLink($('web-app-link').value, $('link-finish'));
       });
       $('done-edit').addEventListener('click', function () { show('about'); });
       $('done-close').addEventListener('click', function () { google.script.host.close(); });

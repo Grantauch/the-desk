@@ -583,6 +583,10 @@ function createHarness(options = {}) {
     },
 
     HtmlService: {
+      createHtmlOutput: (content) => {
+        const output = { content, setTitle: () => output };
+        return output;
+      },
       createTemplateFromFile: () => ({
         evaluate: () => ({
           setTitle: function setTitle() { return this; },

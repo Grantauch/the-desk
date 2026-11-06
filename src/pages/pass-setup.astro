@@ -37,7 +37,8 @@ const steps = [
     title: 'turn it on.',
     bullets: [
       'The setup window shows six numbered steps. Do them in order. They take about two minutes.',
-      'Return to the setup window and click **Find my app link**. It checks that the link belongs to your copy.',
+      'Copy the **Web app URL** from Google’s Deploy window. Return to setup, paste it under **Connect the published app link**, and click **Prepare link check**.',
+      'Open the link-check page. When it says your app link is verified, return to setup and click **Finish setup**.',
       'The setup window saves your teacher and door kiosk links on the opening page.',
     ],
   },
@@ -68,9 +69,12 @@ const parts = (text: string) => text.split(/\*\*(.+?)\*\*/g).map((chunk, index) 
 
     <aside class="setup-note mt-6">
       <h2 class="font-display text-2xl font-bold">start in your browser</h2>
-      <p>Make your own blank copy below and click the large setup button on its opening page. Google requires one-time school-account approval and publishing. No Windows installation or personal website is needed. The downloadable kit is an optional test and recovery package.</p>
-      <a class="setup-link" href={teacherKitUrl} download>download hall pass teacher kit ↓</a>
-      <p>Existing download: 1.0.0-rc.1 test package. The revised installer is still under review; do not redistribute it as a finished release.</p>
+      <p>First setup needs a computer web browser. Make your own blank copy and click the large setup button on its opening page. Google requires one-time school-account approval and publishing. After setup, your teacher dashboard works on a computer or phone. No Windows installation or personal website is needed.</p>
+      <a class="setup-link" href={templateCopyUrl} target="_blank" rel="noopener">Start my Hall Pass ↗</a>
+      <details><summary>Optional test and recovery download</summary>
+        <a class="setup-link" href={teacherKitUrl} download>download hall pass teacher kit ↓</a>
+        <p>Existing download: 1.0.0-rc.1 test package. The revised installer is still under review; do not redistribute it as a finished release.</p>
+      </details>
     </aside>
 
     <ol class="setup-steps mt-9">
