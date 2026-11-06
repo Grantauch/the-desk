@@ -51,8 +51,8 @@ body.scoping #nav{left:0}
 #scope:after{content:"PERISCOPE · DRAG TO SCAN · ESC TO LOWER";position:absolute;bottom:90px;left:0;right:0;text-align:center;font:700 12px 'Courier New',Courier,monospace;letter-spacing:.25em;color:#c9b98c}
 #scopeexit{position:fixed;top:16px;left:16px;z-index:7;display:none}
 body.scoping #scopeexit{display:block}
-#fade{position:fixed;inset:0;z-index:8;background:#0a0a08;opacity:0;pointer-events:none;transition:opacity 1.6s 4.4s}
-#fade.on{opacity:1}
+#fade{position:fixed;inset:0;z-index:8;background:#0a0a08;opacity:0;pointer-events:none;transition:opacity .35s}
+#fade.on{opacity:1;transition:opacity 1.6s 4.4s}
 #final{position:fixed;inset:0;z-index:9;display:none;overflow-y:auto;background:#0a0a08}
 #final.on{display:block}
 .finner{max-width:760px;margin:0 auto;padding:60px 24px 80px}

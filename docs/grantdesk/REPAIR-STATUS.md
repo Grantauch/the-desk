@@ -1,3 +1,9 @@
+## November 6 unpublished-work integration
+
+Owner: Codex. Grant requested publication of finished website work and an audit of all open PRs. The release combines the remaining WWI trench props (#312–#314), Kettle Creek graphics (#300, excluding companion following under the Design Bible), and current assistant-board navigation (#288), preserving the newer Hall Pass/StoryHub baseline. It fixes the delayed trench return fade and checks authoritative resident rosters instead of an invalid fixed commuter count. Both museum suites are added to protected browser acceptance.
+
+The initial public crawl returned HTTP 200 for 250 distinct site pages. Checkaverse publicly reports healthy 0.15.0; its source update still requires the separate PC runtime. TheAtlas is offline in Desktop Commander, so no game process or private storage was touched. Source, local verification, protected CI, Netlify publication and physical school acceptance remain separate evidence stages. Hall Pass distribution/cutover and the approval-guard draft remain outside this release. The complete [open-PR inventory](../publication-readiness-2026-11-06.md) explains which old drafts and prototypes are still held and why.
+
 ## November 4 trench supply polish
 
 Owner: Codex. Three M1903 Springfield/M1905 bayonet reconstructions replace the rifle sticks, and four generic planked timber cases replace plain boxes. The overlapping entry cases are stacked. Each class shares geometry/materials and retains an independent original fallback. Editable .blend files, generator, compact GLBs and period/source limitations are recorded alongside the earlier models.

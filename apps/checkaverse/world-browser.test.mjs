@@ -26,12 +26,19 @@ try {
   async function pageFor(size,id,saved=true,quiet=false,touch=false){
     const context=await browser.newContext({viewport:size,reducedMotion:quiet?'reduce':'no-preference',hasTouch:touch,isMobile:touch});
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+    let lastLife=null;
+    page.on('websocket', socket => socket.on('framereceived', ({payload}) => {
+      try { const message=JSON.parse(String(payload));
+        if(message.t==='residents')lastLife=message;
+        else if(message.life)lastLife=message.life;
+      } catch {}
+    }));
     // Quiet the already-tested introduction so it cannot cover the town controls.
     await page.addInitScript(()=>sessionStorage.setItem('checkaverse-tips',JSON.stringify(['walk','partner','say','visitor','care','kettle','sign','gate','challenge','wilds'])));
     await page.goto(`${origin}/?debug${saved?`#t=${ticket(id)}`:''}`);
     await page.waitForFunction(()=>window.__checkaverse?.players.size>0);
     await page.waitForFunction(()=>window.__checkaverse.world()?.active().length>0);
-    return {page,context};
+    return {page,context,life:()=>lastLife};
   }
   async function walk(page,x,y){
     await page.evaluate(([x,y])=>window.__checkaverse.walk(x,y),[x,y]);
@@ -140,7 +147,16 @@ try {
   await walk(visitor.page,12,1);await visitor.page.keyboard.down('ArrowUp');await delay(300);await visitor.page.keyboard.up('ArrowUp');
   await visitor.page.waitForFunction(()=>window.__checkaverse.room()==='wilds');
   await visitor.page.screenshot({path:path.join(out,'wilds-desktop.png')});
-  assert.equal(await visitor.page.evaluate(()=>window.__checkaverse.world().active().length),3);
+  // Residents commute through the gate and their homes. Compare the visible
+  // client roster with the actual server snapshot instead of a fixed headcount.
+  let snapshotMatches=false;
+  for(let attempt=0;attempt<20&&!snapshotMatches;attempt++){
+    const expected=(visitor.life()?.residents||[]).filter(n=>n.room==='wilds').map(n=>n.id).sort();
+    const actual=await visitor.page.evaluate(()=>window.__checkaverse.world().active().map(n=>n.id).sort());
+    snapshotMatches=expected.length>0&&JSON.stringify(actual)===JSON.stringify(expected);
+    if(!snapshotMatches)await delay(100);
+  }
+  assert.ok(snapshotMatches,'Wilds residents must match the authoritative server roster');
   // All sixteen path masks: full-width seams join, isolated caps remain rounded.
   assert.ok(await visitor.page.evaluate(()=>{
     const {paintPaths}=window.CheckaverseWorld;

@@ -1,4 +1,18 @@
 {
+  "publication-completion-2026-11-06": {
+    "status": "INTEGRATED_VERIFICATION_IN_PROGRESS",
+    "owner": "Codex",
+    "scope": "Remaining WWI trench models, Kettle Creek graphics within the Design Bible, current assistant navigation and unpublished-work inventory.",
+    "verification_status": "PUBLIC_250_PAGE_HTTP_CRAWL_AND_SYNTHETIC_GAME_SUITE_PASSED_BROWSER_AND_CANONICAL_GATES_IN_PROGRESS",
+    "deployment_status": "REVIEW_BRANCH_ONLY_NETLIFY_AND_SEPARATE_GAME_RUNTIME_PENDING",
+    "field_status": "SCHOOL_NETWORK_AND_PHYSICAL_CHROMEBOOK_PENDING",
+    "evidence": [
+      "Production baseline 0987512a2715aa36bf5bcbb6edbdaeeaf3604771 independently matched main before this release; older skipped builds were superseded.",
+      "Museum supply and fallback journeys passed at 1366 and390 pixels. Visual review exposed the delayed return fade; its fix has a direct visibility assertion.",
+      "The living-world browser suite now compares visible wilds residents against received authoritative snapshots, since residents commute through homes and maps.",
+      "TheAtlas is offline in Desktop Commander. No live game files/processes/private storage or Hall Pass Apps Script, PINs or directory were changed. See docs/publication-readiness-2026-11-06.md."
+    ]
+  },
   "wwi-trench-supply-2026-11-04": {
     "status": "IMPLEMENTED_BROWSER_VERIFIED",
     "owner": "Codex",
