@@ -1570,5 +1570,18 @@
       "All ten Arsenal GLBs passed success/failure desktop and Chromebook-viewport scenarios with no uncaught errors before final ship winding correction; final corrected-ship rerun pending.",
       "Trench model initial four scenarios passed all seven stops, trench-parts controls and original fallback. Software-renderer timing prompted reducing per-bag geometry from 252 to 44 triangles; final repeat pending."
     ]
+  },
+  "curiosity-archive-outage-2026-11-06": {
+    "status": "REPAIR_PREPARED",
+    "owner": "Codex",
+    "scope": "Keep the five Curiosity Desk collections usable during a live catalog outage.",
+    "verification_status": "LOCAL_CHROMIUM_OUTAGE_AND_RECOVERY_PASS",
+    "deployment_status": "PROTECTED_REVIEW_AND_PUBLICATION_PENDING",
+    "field_status": "SCHOOL_NETWORK_AND_EXTERNAL_CATALOG_ACCESS_PENDING",
+    "evidence": [
+      "Scheduled production health run 42278965733 failed on HTTP 502. Anonymous requests independently returned 502 and no records for power, entertainment, sports, mysteries, and Michigan.",
+      "Each collection has a selected archive artifact with a local optimized image, distinct source and status labels, an evidence prompt, and a link to the holding institution. Live records still load on demand.",
+      "Six Chromium cases at 320, 390 and 1440 pixels cover an outage, keyboard reveal, responsive layout, automated WCAG A/AA, and a delayed response that preserves open context. The production feed health check still reports upstream failures."
+    ]
   }
 }
