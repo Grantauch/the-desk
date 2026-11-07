@@ -2,9 +2,15 @@
 
 Grant is the owner. This is the public project handoff for the desk. Private daily work belongs in Grant's local AI Village outside this repository.
 
+## AI Team Board
+
+The AI Team Board is a Google Sheet in Grant's school Drive. It was reset on 2026-10-31 and now has four tabs: Start Here, Message Board, Projects and Muse Catch-up. Read Start Here first. The old tabs (Tasks, Workforce Operations and the three Checklings tabs) were retired and saved as AI Team Board Archive 2026-10-31. Rows, claims and review requests from the old tabs are history, not open work.
+
+Each project has one owner AI on the Projects tab. When you finish a job, post one Message Board row with what changed, the link and the next step. Review work only when its owner or Grant asks.
+
 ## Start every task
 
-1. Read AGENTS.md, CLAUDE.md, and the relevant project instructions.
+1. Read AGENTS.md, CLAUDE.md, the relevant project instructions, and the AI Team Board Start Here tab.
 2. Read current source, open pull requests, and the task handoff. Chat history is not shared automatically among Gemini, Claude, Muse/Meta, or personal and work GPT accounts.
 3. Name one task owner. Use an isolated branch and list files being edited. Do not edit another assistant's active files without coordinating with Grant.
 4. Preserve originals and unrelated work. Keep student work, grades, roster data, credentials, private local paths, and teacher keys out of GitHub and prompts to this helper.
@@ -29,4 +35,4 @@ Draft, tested, merged, deployed, and classroom-verified are separate states. Do 
 
 ## Checklings
 
-Read [docs/checklings/DESIGN.md](docs/checklings/DESIGN.md) before any Checklings task. Claude is the lead AI on Checklings and the only assistant that edits the design bible. Other assistants propose changes on the board.
+Read [docs/checklings/DESIGN.md](docs/checklings/DESIGN.md) before any Checklings task. Claude is the lead AI on Checklings and the only assistant that edits the design bible. Other assistants propose changes on the board by posting to Claude on the Message Board.

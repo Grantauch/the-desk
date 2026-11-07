@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile,mkdir} from 'node:fs/promises';
 import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 const require=createRequire(import.meta.url);
 const {classroom,PEOPLE,TEACHER_CONTRACT}=require('./lib/hall-pass-fixtures.cjs');
@@ -45,7 +46,7 @@ try {
   assert.ok(await page.locator('html').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'No horizontal overflow');
   await page.clock.install(); await page.locator('#pin').fill('123'); await page.clock.fastForward(31000);
   assert.equal(await page.locator('#pin').inputValue(),'','An abandoned entry clears');
-  await page.screenshot({path:new URL(`kiosk-${width}.png`,out).pathname,fullPage:true});
+  await page.screenshot({path:fileURLToPath(new URL(`kiosk-${width}.png`,out)),fullPage:true});
   assert.deepEqual(errors,[]);
   await context.close();
  }

@@ -1,7 +1,7 @@
 {
   "source": "the-desk-public-resource-catalog",
   "resourceCount": 136,
-  "linkedCount": 128,
+  "linkedCount": 127,
   "resources": [
     {
       "id": "002-cold-war-timeline-slides",
@@ -1153,7 +1153,8 @@
       "name": "Station Sheets & Claim Cards",
       "type": "Packet",
       "onWebsite": true,
-      "href": "https://docs.google.com/document/d/1-IBhlpcTMofvfwFthAYZelwl9H4FGULBCL9EQoqfclk/edit"
+      "href": null,
+      "status": "coming-soon"
     },
     {
       "id": "502-scoreboard-unit-2-lesson-07-belt-classroom-deck",

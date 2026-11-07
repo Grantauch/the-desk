@@ -236,3 +236,6 @@ html:has(.teacher), body:has(.teacher) { overflow: auto; height: auto; }
 #journalEntries p { font-size: 14px; line-height: 1.6; }
 .world-cue { position: absolute; z-index: 3; top: 78px; left: 50%; transform: translateX(-50%); width: max-content; max-width: min(500px, calc(100% - 28px)); padding: 12px 18px; background: #faf2da; color: #392d20; border: 2px solid #8b784e; border-radius: 8px; box-shadow: 0 4px 0 #372e2c55; font-size: 14px; line-height: 1.5; }
 @media (max-width: 560px) { #talkBtn { font-size: 12px; padding: 10px; } .resident-dialog { padding: 16px; } .resident-text { font-size: 15px; } .world-cue { top: 104px; } }
+/* The name chip never runs off the screen: long names shorten with an ellipsis, and narrower screens drop "You are". */
+.me-chip { max-width: min(46vw, 420px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 900px) { .me-label { display: none; } }

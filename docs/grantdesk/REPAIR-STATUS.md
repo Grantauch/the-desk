@@ -1,3 +1,35 @@
+## November 6 unpublished-work integration
+
+Owner: Codex. Grant requested publication of finished website work and an audit of all open PRs. The release combines the remaining WWI trench props (#312–#314), Kettle Creek graphics (#300, excluding companion following under the Design Bible), and current assistant-board navigation (#288), preserving the newer Hall Pass/StoryHub baseline. It fixes the delayed trench return fade and checks authoritative resident rosters instead of an invalid fixed commuter count. Both museum suites are added to protected browser acceptance.
+
+The initial public crawl returned HTTP 200 for 250 distinct page URLs. Checkaverse publicly reports healthy 0.15.0; its source update still requires the separate PC runtime. TheAtlas is offline in Desktop Commander, so no game process or private storage was touched. Source, local verification, protected CI, Netlify publication and physical school acceptance remain separate evidence stages. Hall Pass distribution/cutover and the approval-guard draft remain outside this release. The Windows kiosk screenshot path is repaired with fileURLToPath; real synthetic kiosk flows pass at320/768/1366. Canonical verification passed with zero errors/warnings,167 HTML files and5464 references on the preceding source tree; protected CI verifies the final tree separately. The catalog also retains eight BTS Unit2 coming-soon entries awaiting student-publication QA. The complete [open-PR inventory](../publication-readiness-2026-11-06.md) explains which old drafts and prototypes are still held and why.
+
+Protected run 42330229902 passed full verification, the Checkaverse and main browser suites, and museum observation, then timed out polling the settled supply-tour fade for two seconds. Both museum suites now assert that the finale state clears and the configured return transition is at most one second before waiting for a rendered transparent overlay. The product fade is unchanged at 350 ms; this separates animation timing from a slow software-rendered frame. Fresh protected browser verification is required.
+
+## November 6 resource access repair
+
+Owner: Codex. All 128 originally linked Drive resource IDs resolved. Twenty owner-only lessons and three named-account-only lessons now have school-domain viewer permission with link discovery disabled; independent permission readback confirmed all 23 and existing grants were preserved. One group-shared resource needs intended-student acceptance. No broad public sharing was applied.
+
+The explicitly unreviewed Station Sheets & Claim Cards draft stays private and is marked coming-soon rather than linking students to an access-request dead end. The public catalog now has 136 records, 127 links and nine coming-soon entries. Targeted catalog fixtures, the 54-route build and static validation pass (167 HTML files, 5464 local references, 32 releases/244 sealed assets). Full canonical verification then passed with zero diagnostic errors/warnings. The final Netlify preview served the corrected catalog and five exact model files. Protected promotion remains pending at this source checkpoint. No student identifiers or private permission-recipient IDs are recorded here.
+
+## November 4 trench supply polish
+
+Owner: Codex. Three M1903 Springfield/M1905 bayonet reconstructions replace the rifle sticks, and four generic planked timber cases replace plain boxes. The overlapping entry cases are stacked. Each class shares geometry/materials and retains an independent original fallback. Editable .blend files, generator, compact GLBs and period/source limitations are recorded alongside the earlier models.
+
+Chrome at 1366x768 and 390x768 passes all six optional asset classes, seven stops, periscope/Escape and ladder/return with zero page errors or model warnings. Separate missing-rifle and missing-case scenarios retain only their original class while the remaining models load. Protected full checks and production readback are pending; physical Chromebook and classroom acceptance remain separate.
+
+## November 4 trench observation polish
+
+Owner: Codex. Three Blender reconstructions replace the simple M1917 and Adrian helmet props and wooden periscope in Over the Top. Editable .blend sources, small texture-free GLBs, museum references and display-scale limitations are included. The five helmets share geometry/materials and each optional asset has an independent original-prop fallback.
+
+Chrome journeys at 1366x768 and 390x768 load all models, traverse seven stops, enter/exit the periscope and complete the ladder/return flow with zero page errors or model warnings. Three separate HTTP404 scenarios retain only the failed asset's original while loading the other replacements. Source scene/camera, reading text, sandbag instances and performance controls remain intact. Protected full checks, production deployment/readback and physical Chromebook/classroom acceptance remain separate gates.
+
+## November 4 website publication recovery
+
+Owner: Codex. The published Michael Vick release includes all merged website changes since the November 2 baseline, including the WWI week, all ten Arsenal Blender models, Over the Top sandbags and the Somme tank. PR #311 is now merged to preserve both Vick pages on main. Published commit `692e657ea5d182dfb61ebda8a06b982164c2a2df` and main merge `029a951c28097eb1cb828bf655fce013521c515b` have the identical Git tree `e6a785806234d28112e1f7d1af620a2b9ae209be`.
+
+Eight production route checks returned HTTP 200. Prior actual production browser checks loaded all ten Arsenal GLBs and Blender trench sandbags with no page errors or model warnings. Skipped older main builds are superseded, so replaying them would roll back newer work. Credits have been restored by Grant; a fresh protected-main production rebuild and readback are the next gate. Checkaverse separately reports healthy version 0.15.0; this does not claim a server or Apps Script deployment. Draft and preproduction work remains separate from classroom-ready publication.
+
 ## November 5 published-link recovery after actual blank-copy verification
 
 Owner: Codex. PR #322 was merged as 60eecb1e12f9890e951012f20617f40b766e8a0d; template publication 42132761794 read back seven exact files and Netlify 6aed16d3db9dfd32ea7525ea published that merge. A real school-account blank test copy loaded/saved the wizard and opened its empty teacher dashboard. The remaining link step failed because Google reported an enabled editor-only /dev address in an editor probe; the bound setup also returned an unusable /exec address in a legacy school URL shape. This is observed fresh-copy evidence, separate from the synthetic browser suite. No student records or classroom deployment were used.
