@@ -92,6 +92,10 @@ Protected run 41395928338 passed the full release and every browser gate on 8d45
 
 No map geometry, artwork, species, database schema, school service, care rule or battle-reward changes. Stories are local to the visit and do not grant items or growth. Short notes and class checks: `docs/checklings/releases/2026-11-02-living-world.md`.
 
+## November 6 Learning Hub contrast
+
+Owner: Codex. The expanded production axe scan flagged all six Beyond the Scoreboard and all six Hidden History units for low contrast. Interactive testing also found low-contrast labels on flipped vocabulary cards. The repair deepens the Beyond the Scoreboard green and uses the parent foreground color for small action labels, completion copy and the back of vocabulary cards. All 22 initial unit pages at 390 pixels and six completed or interactive cases at 320 and 1440 pixels pass the contrast rule. Protected review, production and assistive-technology acceptance are separate.
+
 ## October 30 heel personal report
 
 Owner: Codex, branch `feat/heel-student-report`. The complete pre-implementation map is in `docs/storyhub/HEEL-REPORT-MAP.md`. The research route adds a persistent Report button and a final Finish and view report action. The personal report reads every current answer without altering the shared save runtime, answer keys, existing rounds or Turn In. Separate report name, hour and date remain in tab storage and are excluded from submission data.
