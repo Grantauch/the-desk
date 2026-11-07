@@ -26,6 +26,12 @@ Netlify production was independently read at commit 0987512a2715aa36bf5bcbb6edbd
 | BTS Unit 2 catalog | Eight announced resources still have no public href. Matching lesson decks exist as private teacher-preparation copies; a sampled copy retains teacher directions and unresolved VERIFY flags. Student artifact/source QA and sharing acceptance remain unestablished. No private Drive identifiers were added to git. |
 | Field acceptance | Physical school Chromebook, school network and actual class cycles remain unperformed. Synthetic browser results do not replace them. |
 
+## Resource access follow-up
+
+All 128 originally linked Drive resource IDs resolved in the access audit. Twenty owner-only lessons and three lessons limited to named accounts now have school-domain viewer access with link discovery disabled. All 23 permission changes were independently read back; existing named grants were preserved. No broad public sharing was applied. One group-shared resource still needs acceptance by the intended student account.
+
+Station Sheets & Claim Cards explicitly identifies itself as a fact-corrected draft pending final review. It stays private and its catalog entry is now coming-soon instead of an access-request dead end. The catalog contains 136 records, 127 links and nine coming-soon entries, including the eight BTS Unit 2 placeholders. Private student and permission-recipient identifiers are excluded from this report and git.
+
 ## Open PR inventory at audit start
 
 51 open PRs were returned. Finished production work is integrated through one current release branch; prototypes remain separate.

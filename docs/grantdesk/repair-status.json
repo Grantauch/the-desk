@@ -1,4 +1,17 @@
 {
+  "resource-access-2026-11-06": {
+    "status": "REPAIRED_READBACK_VERIFIED",
+    "owner": "Codex",
+    "scope": "School-domain viewer access repaired for 23 linked lessons; held station-sheet draft truthfully marked coming-soon.",
+    "verification_status": "128_IDS_RESOLVED_23_PERMISSION_READBACKS_CONFIRMED_CATALOG_BUILD_STATIC_PASSED_FULL_RECHECK_RUNNING",
+    "deployment_status": "DRIVE_PERMISSIONS_SAVED_CATALOG_PROTECTED_PROMOTION_PENDING",
+    "field_status": "GROUP_SHARED_RESOURCE_INTENDED_STUDENT_ACCOUNT_ACCEPTANCE_PENDING",
+    "evidence": [
+      "Existing named grants preserved; link discovery disabled and no broad public sharing.",
+      "Catalog: 136 records, 127 links and nine coming-soon entries. Explicitly unreviewed draft stays private.",
+      "Private student and permission-recipient identifiers excluded from git."
+    ]
+  },
   "publication-completion-2026-11-06": {
     "status": "INTEGRATED_LOCAL_VERIFIED_PROTECTED_CI_PENDING",
     "owner": "Codex",

@@ -4,6 +4,12 @@ Owner: Codex. Grant requested publication of finished website work and an audit 
 
 The initial public crawl returned HTTP 200 for 250 distinct page URLs. Checkaverse publicly reports healthy 0.15.0; its source update still requires the separate PC runtime. TheAtlas is offline in Desktop Commander, so no game process or private storage was touched. Source, local verification, protected CI, Netlify publication and physical school acceptance remain separate evidence stages. Hall Pass distribution/cutover and the approval-guard draft remain outside this release. The Windows kiosk screenshot path is repaired with fileURLToPath; real synthetic kiosk flows pass at320/768/1366. Canonical verification passed with zero errors/warnings,167 HTML files and5464 references on the preceding source tree; protected CI verifies the final tree separately. The catalog also retains eight BTS Unit2 coming-soon entries awaiting student-publication QA. The complete [open-PR inventory](../publication-readiness-2026-11-06.md) explains which old drafts and prototypes are still held and why.
 
+## November 6 resource access repair
+
+Owner: Codex. All 128 originally linked Drive resource IDs resolved. Twenty owner-only lessons and three named-account-only lessons now have school-domain viewer permission with link discovery disabled; independent permission readback confirmed all 23 and existing grants were preserved. One group-shared resource needs intended-student acceptance. No broad public sharing was applied.
+
+The explicitly unreviewed Station Sheets & Claim Cards draft stays private and is marked coming-soon rather than linking students to an access-request dead end. The public catalog now has 136 records, 127 links and nine coming-soon entries. Targeted catalog fixtures, the 54-route build and static validation pass (167 HTML files, 5464 local references, 32 releases/244 sealed assets). Full canonical recheck is running; protected promotion remains pending at this source checkpoint. No student identifiers or private permission-recipient IDs are recorded here.
+
 ## November 4 trench supply polish
 
 Owner: Codex. Three M1903 Springfield/M1905 bayonet reconstructions replace the rifle sticks, and four generic planked timber cases replace plain boxes. The overlapping entry cases are stacked. Each class shares geometry/materials and retains an independent original fallback. Editable .blend files, generator, compact GLBs and period/source limitations are recorded alongside the earlier models.
