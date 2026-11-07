@@ -40,35 +40,104 @@ export function validateWorld(data, maps) {
 
 // Connected, rounded dirt lanes. Only cached paint changes; collision stays on
 // the original grid. All 16 connection masks have the same full-width joins.
+// A small pixel flower: four petals round a gold eye, a stem and one leaf, drawn
+// on the art's own pixel grid (u ground pixels a pixel) so it reads as a plant, not a square.
+const PETALS = [['#f7a8c4', '#d27b9b'], ['#fff6e0', '#d6cbb1'], ['#ffb347', '#d68a2e'], ['#ff8a80', '#c95a52'], ['#cdb8f0', '#9c86c6']];
+export function paintFlower(g, x, y, colour, u) {
+  const [light, dark] = PETALS[colour % PETALS.length];
+  x = Math.round(x / u) * u; y = Math.round(y / u) * u;
+  g.fillStyle = '#2f4a2c55'; g.fillRect(x - u, y + u * 2, u * 3, u);          // soft shadow on the grass
+  g.fillStyle = '#4f7a3c'; g.fillRect(x, y + u, u, u * 2);                     // stem
+  g.fillStyle = '#7aa451'; g.fillRect(x + u, y + u * 2, u, u);                 // leaf
+  g.fillStyle = light; g.fillRect(x, y - u, u, u); g.fillRect(x - u, y, u, u);
+  g.fillStyle = dark; g.fillRect(x + u, y, u, u); g.fillRect(x, y + u, u, u);
+  g.fillStyle = '#ffd95a'; g.fillRect(x, y, u, u);                             // eye
+}
+
+// Dirt lanes, autotiled at the art's own pixel size (32 art pixels a tile, drawn at 2x). Each path tile is a
+// lane core with an arm toward every path neighbour; broad areas fill their inside corners. The edge is
+// jittered by smooth noise so it wanders like trodden dirt, then shaded the way the Sprite Book art is lit:
+// a dark lip where the grass overhangs the top edge, a pale lip along the bottom, grass tufts poking in,
+// pebbles and two tones of dirt inside. Collision stays on the original grid; only cached paint changes.
+// All 16 neighbour masks join at full width across tile seams.
+const DIRT = { light: [226, 194, 138], mid: [210, 174, 118], dark: [190, 151, 98], shadow: [140, 106, 64], lip: [224, 192, 138],
+  pebble: [239, 226, 194], pebbleDark: [150, 124, 86], tuft: [104, 140, 74], tuftLight: [140, 172, 96], outline: [62, 88, 48] };
 export function paintPaths(g, rows, T) {
-  const base = (x,y) => 'PE'.includes(rows[y]?.[x] || '#');
-  // Flower scatter in the old map sometimes replaced the middle of a lane.
-  // Keep those flowers, but continue the dirt beneath a flower between paths.
-  const path = (x,y) => base(x,y) || rows[y]?.[x] === 'F' && (base(x-1,y) && base(x+1,y) || base(x,y-1) && base(x,y+1));
-  const lane = (x, y, inset, fill) => {
-    const px = x * T, py = y * T, mid = T / 2, width = T - inset * 2;
-    g.fillStyle = fill;
-    g.beginPath(); g.roundRect(px + inset, py + inset, width, width, T * .22); g.fill();
-    if (path(x, y - 1)) g.fillRect(px + inset, py, width, mid);
-    if (path(x + 1, y)) g.fillRect(px + mid, py + inset, mid, width);
-    if (path(x, y + 1)) g.fillRect(px + inset, py + mid, width, mid);
-    if (path(x - 1, y)) g.fillRect(px, py + inset, mid, width);
-    // Fill the inside of broad paths rather than leaving a grass pinhole.
-    for (const [dx, dy] of [[-1,-1],[1,-1],[-1,1],[1,1]]) if (path(x + dx, y) && path(x, y + dy) && path(x + dx, y + dy)) {
-      g.fillRect(px + (dx < 0 ? 0 : mid), py + (dy < 0 ? 0 : mid), mid, mid);
-    }
+  const A = 32, H = rows.length, W = rows[0]?.length || 0;
+  const base = (x, y) => 'PE'.includes(rows[y]?.[x] || '#');
+  // A flower tile that bridges a lane is painted as lane.
+  const path = (x, y) => base(x, y) || rows[y]?.[x] === 'F' && (base(x - 1, y) && base(x + 1, y) || base(x, y - 1) && base(x, y + 1));
+  const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  const smooth = (x, y, s) => { // value noise, cell size s art pixels, range -1..1
+    const fx = x / s, fy = y / s, ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+    const u = tx * tx * (3 - 2 * tx), v = ty * ty * (3 - 2 * ty);
+    const a = hash(ix, iy), b = hash(ix + 1, iy), c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1);
+    return (a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v) * 2 - 1;
   };
-  for (const [inset, fill] of [[1, '#718354'], [3, '#a3996c'], [5, '#c6b486'], [7, '#d8c69b']]) {
-    rows.forEach((row, y) => [...row].forEach((ch, x) => { if (path(x,y)) lane(x, y, inset * T / 64, fill); }));
-  }
-  rows.forEach((row, y) => [...row].forEach((ch, x) => {
-    if (!path(x,y)) return;
-    const h = ((x * 73856093) ^ (y * 19349663)) >>> 0;
-    for (let i = 0; i < 4; i++) {
-      const px = x * T + T * (.25 + ((h >>> (i * 3)) % 32) / 64), py = y * T + T * (.25 + ((h >>> (i * 4)) % 32) / 64);
-      g.fillStyle = i % 2 ? '#bfac80' : '#e5d5ae'; g.fillRect(px, py, T / 25, T / 40);
+  const HALF = 11.5, R = 7;
+  const inside = (px, py) => {
+    const tx = Math.floor(px / A), ty = Math.floor(py / A);
+    if (!path(tx, ty)) return false;
+    const lx = px - tx * A - A / 2, ly = py - ty * A - A / 2;
+    const n = path(tx, ty - 1), e = path(tx + 1, ty), s = path(tx, ty + 1), w = path(tx - 1, ty);
+    if (Math.abs(lx) <= HALF && (ly <= 0 && n || ly >= 0 && s)) return true;
+    if (Math.abs(ly) <= HALF && (lx >= 0 && e || lx <= 0 && w)) return true;
+    // Inside corners of broad paths.
+    if (lx >= 0 && ly <= 0 && n && e && path(tx + 1, ty - 1)) return true;
+    if (lx >= 0 && ly >= 0 && s && e && path(tx + 1, ty + 1)) return true;
+    if (lx <= 0 && ly >= 0 && s && w && path(tx - 1, ty + 1)) return true;
+    if (lx <= 0 && ly <= 0 && n && w && path(tx - 1, ty - 1)) return true;
+    // The rounded core.
+    const qx = Math.max(0, Math.abs(lx) - (HALF - R)), qy = Math.max(0, Math.abs(ly) - (HALF - R));
+    return qx * qx + qy * qy <= R * R;
+  };
+  const PW = W * A, PH = H * A, mask = new Uint8Array(PW * PH);
+  let any = false;
+  for (let ty = 0; ty < H; ty++) for (let tx = 0; tx < W; tx++) {
+    if (!path(tx, ty)) continue; any = true;
+    for (let y = Math.max(0, ty * A - 3); y < Math.min(PH, ty * A + A + 3); y++) for (let x = Math.max(0, tx * A - 3); x < Math.min(PW, tx * A + A + 3); x++) {
+      if (mask[y * PW + x]) continue;
+      const jx = smooth(x, y, 7) * 2.4 + smooth(x, y, 3) * 0.7, jy = smooth(x + 97, y + 31, 7) * 2.4 + smooth(x + 41, y + 9, 3) * 0.7;
+      if (inside(x + 0.5 + jx, y + 0.5 + jy)) mask[y * PW + x] = 1;
     }
-  }));
+  }
+  if (!any) return;
+  const c = document.createElement('canvas'); c.width = PW; c.height = PH;
+  const cg = c.getContext('2d'), img = cg.createImageData(PW, PH), px = img.data;
+  const m = (x, y) => x >= 0 && y >= 0 && x < PW && y < PH && mask[y * PW + x] === 1;
+  const put = (i, [r, gg, b], a = 255) => { px[i * 4] = r; px[i * 4 + 1] = gg; px[i * 4 + 2] = b; px[i * 4 + 3] = a; };
+  for (let y = 0; y < PH; y++) for (let x = 0; x < PW; x++) {
+    const i = y * PW + x, h = hash(x * 7 + 3, y * 13 + 5);
+    if (!mask[i]) {
+      // A soft dark line on the grass side defines the lane without a hard border.
+      if (m(x, y - 1) || m(x - 1, y) || m(x + 1, y)) put(i, DIRT.outline, 120);
+      else if (m(x, y + 1)) put(i, DIRT.outline, 165);
+      continue;
+    }
+    const up = !m(x, y - 1), down = !m(x, y + 1), side = !m(x - 1, y) || !m(x + 1, y);
+    const up2 = !m(x, y - 2), down2 = !m(x, y + 2);
+    if ((up || side || down) && h < 0.22) { put(i, h < 0.11 ? DIRT.tuft : DIRT.tuftLight); continue; } // grass poking in
+    if (up && !m(x, y - 1) && hash(x, y - 3) < 0.18 && !m(x, y - 2)) { put(i, DIRT.tuft); continue; }
+    if (up || (up2 && !side)) { put(i, up ? DIRT.shadow : DIRT.dark); continue; }
+    if (down) { put(i, DIRT.lip); continue; }
+    if (side) { put(i, DIRT.dark); continue; }
+    if (down2) { put(i, DIRT.mid); continue; }
+    const tone = smooth(x, y, 6) + (h - 0.5) * 0.5;
+    put(i, tone > 0.5 ? DIRT.light : tone < -0.72 ? DIRT.dark : DIRT.mid);
+  }
+  // Pebbles: a pale top pixel over a dark bottom pixel, never on the edge.
+  for (let ty = 0; ty < H; ty++) for (let tx = 0; tx < W; tx++) {
+    if (!path(tx, ty)) continue;
+    for (let k = 0; k < 3; k++) {
+      const x = tx * A + 6 + Math.floor(hash(tx * 3 + k, ty * 5) * 20), y = ty * A + 6 + Math.floor(hash(tx * 5, ty * 3 + k) * 20);
+      if (!m(x, y) || !m(x + 1, y + 1) || !m(x, y - 2) || !m(x, y + 2) || !m(x - 2, y) || !m(x + 2, y)) continue;
+      put(y * PW + x, DIRT.pebble); put(y * PW + x + 1, DIRT.pebble); put((y + 1) * PW + x, DIRT.pebbleDark); put((y + 1) * PW + x + 1, DIRT.pebbleDark);
+    }
+  }
+  cg.putImageData(img, 0, 0);
+  const was = g.imageSmoothingEnabled; g.imageSmoothingEnabled = false;
+  g.drawImage(c, 0, 0, PW, PH, 0, 0, W * T, H * T);
+  g.imageSmoothingEnabled = was;
 }
 
 export function paintMeadow(g, map, T) {
@@ -85,10 +154,8 @@ export function paintMeadow(g, map, T) {
       const k = ((h >>> (i * 3)) ^ (i * 733)) >>> 0, xx = px + (8 + k % 45) * T/64, yy = py + (12 + (k >>> 7) % 38) * T/64;
       g.fillStyle = '#6c8652'; g.fillRect(xx, yy, T/64, T/13); g.fillRect(xx - T/32, yy + T/64, T/64, T/18);
       g.fillStyle = '#aab979'; g.fillRect(xx + T/64, yy + T/32, T/64, T/22);
-      if (verge && k % 3 === 0 || ch === 'F') {
-        g.fillStyle = ['#eedca6','#e2b8af','#d8cfe0'][k%3]; g.fillRect(xx-T/40,yy-T/40,T/15,T/15);
-        g.fillStyle = '#b29d58'; g.fillRect(xx,yy,T/48,T/48);
-      }
+      // A few small flowers along the lanes; flower patches get their own clusters in the ground painter.
+      if (verge && k % 5 === 0) paintFlower(g, xx, yy - T / 16, k >>> 3, Math.max(2, Math.round(T / 22)));
     }
   }));
   for (const p of map.props || []) {
@@ -262,4 +329,4 @@ export function createWorld(data) {
   return { active, all:()=>residents.filter(n=>n.visible!==false),find, start, status,syncStories, finish, journal, reset,sync,tick, draw,drawResident,work:()=>marks, hold: id => { held = id; }, discoveries, clock: () => clock };
 }
 
-if (typeof window !== 'undefined') window.CheckaverseWorld = { createWorld, trainerFrame, paintPaths, paintMeadow };
+if (typeof window !== 'undefined') window.CheckaverseWorld = { createWorld, trainerFrame, paintPaths, paintMeadow, paintFlower };

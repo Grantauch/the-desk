@@ -3,17 +3,22 @@
   const TILE = 32;
   const canvas = document.getElementById('town');
   const ctx = canvas.getContext('2d');
-  const { createWorld, trainerFrame, paintPaths, paintMeadow } = window.CheckaverseWorld;
+  const { createWorld, trainerFrame, paintPaths, paintMeadow, paintFlower } = window.CheckaverseWorld;
   let world = null;
   const residentDialog = document.getElementById('residentDialog'), worldJournal = document.getElementById('worldJournal');
   const conversing = () => residentDialog.open || worldJournal.open;
-  const SCALE = 2; // the canvas has two pixels for every map pixel so the 2x art stays sharp
-  // The map fills the screen: always 16 tiles tall, as wide as the screen allows.
+  // The map is always 16 tiles (512 map pixels) tall. The canvas matches the screen's real pixels, so the art is
+  // drawn once at the size it is seen: crisp on a big screen, smoothly reduced on a small Chromebook, never
+  // stretched a second time by the browser. GROUND is the cached ground's own resolution, two pixels a map pixel.
+  const GROUND = 2, MAX_PIXELS = 1440;
+  let SCALE = 2;
   let VIEW_W = canvas.width / SCALE, VIEW_H = canvas.height / SCALE;
   function fitCanvas() {
     const aspect = Math.max(0.35, Math.min(2.6, window.innerWidth / Math.max(1, window.innerHeight)));
-    canvas.height = 1024;
-    canvas.width = Math.round(1024 * aspect);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.height = Math.max(256, Math.min(MAX_PIXELS, Math.round(window.innerHeight * dpr)));
+    canvas.width = Math.round(canvas.height * aspect);
+    SCALE = canvas.height / 512;
     VIEW_W = canvas.width / SCALE; VIEW_H = canvas.height / SCALE;
   }
   fitCanvas();
@@ -65,13 +70,19 @@
   const live = (id) => plots.find((p) => p.id === id) || { owner: 0, name: '', locked: false };
   function countLine() {
     const n = players.size;
+    // Kettle Creek is every student's own private copy, so a live head count would always read 1.
+    if (roomKind === 'kettle' || (roomKind === 'house' && roomOwner?.map === 'kettle')) return setStatus('Your home town · only you are here');
     const where = roomKind === 'house' ? 'in this house' : 'here';
     setStatus(`Live · ${n} trainer${n === 1 ? '' : 's'} ${where}`);
   }
   let zoneName = '';
   function placeLine() {
+    // The title names the world you are in: your own Kettle Creek, or the shared Checkaverse the bus goes to.
+    const home = roomKind === 'kettle' || (roomKind === 'house' && roomOwner?.map === 'kettle');
+    $('placeTitle').textContent = home ? 'Kettle Creek' : 'Checkaverse';
+    placeEl.hidden = roomKind === 'kettle';
     if (roomKind === 'town') placeEl.textContent = 'Town';
-    else if (roomKind === 'kettle') placeEl.textContent = 'Kettle Creek';
+    else if (roomKind === 'kettle') placeEl.textContent = '';
     else if (roomKind === 'wilds') placeEl.textContent = zoneName ? `The wilds · ${zoneName}` : 'The wilds';
     else if (roomOwner && roomOwner.owner === me) placeEl.textContent = 'Your house';
     else placeEl.textContent = `${roomOwner?.name || 'A trainer'}'s house`;
@@ -698,7 +709,10 @@
     const wx = (((e.clientX - r.left) / r.width) * VIEW_W) / zoom() + cam.x;
     const wy = (((e.clientY - r.top) / r.height) * VIEW_H) / zoom() + cam.y;
     const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
-    const resident = world?.active().find(n => Math.abs(n.dx - tx) < .85 && (Math.abs(n.dy - ty) < .85 || Math.abs(n.dy - ty - 1) < .85));
+    // When two residents stand close, the tap goes to the one whose body is nearest the finger.
+    const tapX = wx / TILE - 0.5, tapY = wy / TILE - 0.2;
+    const resident = world?.active().filter(n => Math.abs(n.dx - tx) < .85 && (Math.abs(n.dy - ty) < .85 || Math.abs(n.dy - ty - 1) < .85))
+      .sort((a, b) => Math.hypot(a.dx - tapX, a.dy - tapY) - Math.hypot(b.dx - tapX, b.dy - tapY))[0];
     if (resident) {
       if (residentDistance(resident) <= 2.2) return talkTo(resident.id);
       return visitResident(resident.id);
@@ -763,6 +777,8 @@
     'trainer-a', 'trainer-b', 'trainer-c', 'trainer-d', 'tile-tall-grass', 'tile-flowers', 'prop-route-sign', 'prop-bridge', 'prop-fence',
     'kc-store', 'kc-apothecary', 'kc-clinic', 'kc-daycare', 'kc-cemetery-gate', 'kc-town-sign',
     'kc-headstone-1', 'kc-headstone-2', 'kc-headstone-3', 'kc-headstone-4',
+    'fence-post', 'fence-post-short', 'fence-rails', 'fence-rail-v', 'gate-leaf', 'prop-stump',
+    'front-mochi', 'front-bolt', 'front-zee', 'front-ember', 'back-mochi', 'back-bolt', 'back-zee', 'back-ember',
   ];
   const ART = {};
   let artWaiting = ART_NAMES.length;
@@ -777,6 +793,8 @@
   const TRAINERS = ['trainer-a', 'trainer-b', 'trainer-c', 'trainer-d'];
   const HOUSES = ['house-cottage', 'house-stump', 'house-creek'];
   const OUTLINE = '#2b1a12';
+  // Name tags and bubbles on the map use the same type as the chips around it.
+  const UI_FONT = (px) => `${px}px ui-monospace, "Cascadia Mono", Consolas, monospace`;
 
   // Draws a sprite scaled to a width in tiles, its bottom edge at b. Returns the top edge in pixels.
   function sprite(name, x, b, w, flip) {
@@ -797,11 +815,11 @@
   function buildGround() {
     const r = rows();
     const c = document.createElement('canvas');
-    c.width = r[0].length * TILE * SCALE;
-    c.height = r.length * TILE * SCALE;
+    c.width = r[0].length * TILE * GROUND;
+    c.height = r.length * TILE * GROUND;
     const g = c.getContext('2d');
     g.imageSmoothingEnabled = false;
-    const T = TILE * SCALE;
+    const T = TILE * GROUND;
     if (roomKind === 'house') {
       g.fillStyle = '#3b2414';
       g.fillRect(0, 0, c.width, c.height);
@@ -809,7 +827,7 @@
         const a = house.art || { x: 0, y: 0, w: 10, h: 8 };
         g.drawImage(ART['house-interior'], a.x * T, a.y * T, a.w * T, a.h * T);
       } else {
-        g.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+        g.setTransform(GROUND, 0, 0, GROUND, 0, 0);
         r.forEach((row, y) => [...row].forEach((ch, x) => houseTile(g, ch, x, y)));
       }
       return c;
@@ -834,7 +852,7 @@
     const path = texture('tile-path', '#b5aa8c', 0.52, 2 / 3);
     const water = texture('tile-water');
     if (!grass || !path || !water) {
-      g.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+      g.setTransform(GROUND, 0, 0, GROUND, 0, 0);
       r.forEach((row, y) => [...row].forEach((ch, x) => townTile(g, ch, x, y)));
       return c;
     }
@@ -863,7 +881,13 @@
         g.fillStyle = '#fff6c2'; g.fillRect(sx, sy + 3, 10, 3); g.fillRect(sx + 3, sy, 3, 10);
       }
     }));
-    paintPaths(g, r, T);
+    // Benches and the bus stop sit on a packed dirt pad instead of bare grass.
+    const pads = r.map((row) => [...row]);
+    for (const p of mapNow()?.props || []) {
+      if (!['prop-bench', 'prop-bus-stop'].includes(p.s) || !p.f) continue;
+      for (let y = p.f[1]; y < p.f[1] + p.f[3]; y++) for (let x = p.f[0]; x < p.f[0] + p.f[2]; x++) if (pads[y]) pads[y][x] = 'P';
+    }
+    paintPaths(g, pads.map((row) => row.join('')), T);
     paintMeadow(g, mapNow(), T);
     // A mossy water bank, kept below the residents and the animated ripples.
     r.forEach((row, y) => [...row].forEach((ch, x) => {
@@ -874,16 +898,15 @@
       if (at(x - 1, y) !== 'W') g.fillRect(x * T, y * T, 5, T);
       if (at(x + 1, y) !== 'W') g.fillRect(x * T + T - 5, y * T, 5, T);
     }));
-    // Flower patches: tiny clusters in the house accent colors, walkable like grass.
-    const petals = ['#ff9ec7', '#fff6e0', '#ffb347', '#ff6b6b'];
+    // Flower patches: small clusters of real flowers, walkable like grass. A flower tile that bridges a lane
+    // is painted as lane.
+    const lane = (x, y) => 'PE'.includes(at(x, y));
     r.forEach((row, y) => [...row].forEach((ch, x) => {
-      if (ch !== 'F') return;
+      if (ch !== 'F' || (lane(x - 1, y) && lane(x + 1, y)) || (lane(x, y - 1) && lane(x, y + 1))) return;
+      const kind = hash(x, y) % 5;
       for (let i = 0; i < 4; i++) {
         const h = hash(x * 4 + i, y);
-        const fx = x * T + 8 + (h % 44), fy = y * T + 8 + ((h >>> 8) % 44);
-        g.fillStyle = OUTLINE; g.fillRect(fx - 2, fy - 2, 12, 12);
-        g.fillStyle = petals[(h >>> 16) % petals.length]; g.fillRect(fx, fy, 8, 8);
-        g.fillStyle = '#ffe066'; g.fillRect(fx + 3, fy + 3, 2, 2);
+        paintFlower(g, x * T + 10 + (h % 40), y * T + 8 + ((h >>> 8) % 38), kind + (i === 3 ? 1 : 0), 4);
       }
     }));
     return c;
@@ -897,7 +920,7 @@
     if (!waterPattern) waterPattern = ctx.createPattern(ART['tile-water'], 'repeat');
     const r = rows();
     const off = (now / 90) % 192;
-    const m = new DOMMatrix().scale(1 / SCALE).translate(off, off * 0.4);
+    const m = new DOMMatrix().scale(1 / GROUND).translate(off, off * 0.4);
     waterPattern.setTransform(m);
     ctx.fillStyle = waterPattern;
     const at = (x, y) => (r[y] && r[y][x]) || 'T';
@@ -905,8 +928,8 @@
       for (let x = Math.max(0, x0); x <= Math.min(r[0].length - 1, x1); x++) {
         if (r[y][x] !== 'W') continue;
         // Keep the drawn bank: inset the redraw on any side that touches land.
-        const l = at(x - 1, y) !== 'W' ? 5 / SCALE : 0, t = at(x, y - 1) !== 'W' ? 6 / SCALE : 0;
-        const rr = at(x + 1, y) !== 'W' ? 5 / SCALE : 0, b = at(x, y + 1) !== 'W' ? 4 / SCALE : 0;
+        const l = at(x - 1, y) !== 'W' ? 5 / GROUND : 0, t = at(x, y - 1) !== 'W' ? 6 / GROUND : 0;
+        const rr = at(x + 1, y) !== 'W' ? 5 / GROUND : 0, b = at(x, y + 1) !== 'W' ? 4 / GROUND : 0;
         ctx.fillRect(x * TILE + l, y * TILE + t, TILE - l - rr, TILE - t - b);
       }
     }
@@ -939,6 +962,64 @@
     ctx.fillStyle = color; ctx.fillRect(x * TILE + 3, (b - h) * TILE + 3, w * TILE - 6, h * TILE - 6);
   }
 
+  // ---------- fences and gates ----------
+  // A fence is a list of tiles. Each tile gets a post, with rails to every fence neighbour, so a run turns its
+  // corners and a north south side reads as a fence seen from above instead of a stack of sideways sections.
+  // Art pixels are half a map pixel (the kit is cut at 64 pixels a tile).
+  function fenceSet(map) {
+    if (!map._fences) map._fences = new Set((map.fences || []).map(([x, y]) => `${x},${y}`));
+    return map._fences;
+  }
+  function fenceThings(map, x0, y0, x1, y1, list) {
+    const F = fenceSet(map);
+    if (!F.size || !has('fence-post')) return;
+    const at = (x, y) => F.has(`${x},${y}`);
+    for (const [x, y] of map.fences) {
+      if (x < x0 - 1 || x > x1 + 1 || y < y0 - 1 || y > y1 + 2) continue;
+      const cx = (x + 0.5) * TILE, foot = (y + 1) * TILE - 1;
+      const east = at(x + 1, y), west = at(x - 1, y), north = at(x, y - 1), south = at(x, y + 1);
+      const side = !east && !west && (north || south); // a plain north south run gets the short post
+      const top = (yy) => (yy + 1) * TILE - 1 - (!at(x + 1, yy) && !at(x - 1, yy) && (at(x, yy - 1) || at(x, yy + 1)) ? 18 : 31.5);
+      list.push({ b: y + 1 - 0.002, draw: () => {
+        // The rail from the post to the north arrives end on, in front of that post and behind this one.
+        if (north && has('fence-rail-v')) { const t0 = top(y - 1) + 4, t1 = top(y) + 6; ctx.drawImage(ART['fence-rail-v'], cx - 3, t0, 6, t1 - t0); }
+        if (side && has('fence-post-short')) ctx.drawImage(ART['fence-post-short'], cx - 5, foot - 18, 10, 18);
+        else ctx.drawImage(ART['fence-post'], cx - 5, foot - 31.5, 10, 31.5);
+      } });
+      // Rails cross in front of the posts, the way the original fence art is painted.
+      if (east && has('fence-rails')) list.push({ b: y + 1 - 0.001, draw: () => ctx.drawImage(ART['fence-rails'], cx + 3, foot - 31.5 + 5, TILE - 6, 23) });
+    }
+    for (const gt of map.gates || []) {
+      if (gt.x > x1 + 2 || gt.x + gt.w < x0 - 2 || gt.y < y0 - 1 || gt.y > y1 + 2) continue;
+      list.push({ b: gt.y + 1 - 0.0005, draw: () => drawGate(gt) });
+    }
+  }
+  // Gate leaves hang from the posts either side of the opening and swing in, away from the lane, whenever
+  // a trainer or a resident walks up. They are scenery: the gate tiles are always walkable.
+  function gateTick(dt) {
+    const map = roomKind === 'house' ? null : mapNow();
+    for (const gt of map?.gates || []) {
+      const mid = gt.x + gt.w / 2, near = (q) => Math.abs(q.dx + 0.5 - mid) <= gt.w / 2 + 1.1 && Math.abs(q.dy - gt.y) <= 1.6;
+      const want = [...players.values()].some(near) || (world?.active() || []).some(near) ? 1 : 0;
+      gt.open = gt.open ?? want;
+      const step = dt / (reduceMotion ? 1 : 260);
+      gt.open = want > gt.open ? Math.min(want, gt.open + step) : Math.max(want, gt.open - step * 0.7);
+    }
+  }
+  function drawGate(gt) {
+    if (!has('gate-leaf')) return;
+    const ease = (t) => t * t * (3 - 2 * t), a = ease(gt.open || 0) * 1.38;
+    const left = gt.x * TILE - TILE / 2, right = (gt.x + gt.w) * TILE + TILE / 2, foot = (gt.y + 1) * TILE - 4;
+    const leafW = (right - left) / 2 - 3, leafH = 25;
+    for (const [hinge, dir] of [[left + 2, 1], [right - 2, -1]]) {
+      ctx.save();
+      ctx.translate(hinge, foot);
+      ctx.transform(dir * Math.cos(a), -Math.sin(a) * 0.5, 0, 1, 0, 0);
+      ctx.drawImage(ART['gate-leaf'], 0, -leafH, leafW, leafH);
+      ctx.restore();
+    }
+  }
+
   // ---------- things that stand up, sorted by where they touch the ground ----------
   function townThings(x0, y0, x1, y1, list) {
     const map = mapNow();
@@ -956,6 +1037,7 @@
         }
       }
     }
+    fenceThings(map, x0, y0, x1, y1, list);
     for (const p of map.props || []) {
       if (p.x > x1 + 1 || p.x + p.w < x0 - 1 || p.b < y0 || p.b - 6 > y1) continue;
       list.push({ b: p.flat ? -0.5 : p.b, draw: () => (has(p.s) ? sprite(p.s, p.x, p.b, p.w) : boxShape(p.x, p.b, p.w, Math.min(2, p.w), '#b5523b')) });
@@ -1032,7 +1114,10 @@
       ctx.beginPath(); ctx.roundRect(px+11,py-27,10,7,2); ctx.fill(); ctx.stroke();
       ctx.fillStyle = '#fff0bd'; ctx.fillRect(px+13,py-21,2,3);
       ctx.fillStyle = '#725c36'; for (let i=0;i<3;i++) ctx.fillRect(px+13+i*2.5,py-24,1,1);
+      // Residents always wear a name tag so nobody mistakes them for a classmate; the job shows up close.
+      const seen = self && Math.abs(p.dx - self.dx) + Math.abs(p.dy - self.dy) <= 9;
       if (near || p.id === activeResident) labels.push([`${p.name} · ${p.role}`, px + 16, top, '#fff0bd', 2]);
+      else if (seen) labels.push([p.name, px + 16, top, '#fff0bd', 3]);
     } else if (p.id === me || near || talking || players.size <= 8) {
       labels.push([p.inb ? `${p.name} (Battling)` : p.busy ? `${p.name} (Busy)` : p.name, px + 16, top, p.id === me ? '#ffd166' : p.busy ? '#9fb59a' : '#f4f1e6', p.id === me ? 0 : 1]);
     }
@@ -1040,7 +1125,7 @@
   }
 
   function label(text, cx, y, color) {
-    ctx.font = '12px monospace';
+    ctx.font = UI_FONT(12);
     ctx.textAlign = 'center';
     const w = ctx.measureText(text).width + 8;
     ctx.fillStyle = 'rgba(11,20,16,0.78)';
@@ -1052,7 +1137,7 @@
 
   // Speech bubble from the Sprite Book art: the rounded ends and the tail keep their shape, the plain parts stretch.
   function bubble(text, cx, tipY) {
-    ctx.font = '13px monospace';
+    ctx.font = UI_FONT(13);
     ctx.textAlign = 'center';
     const tw = ctx.measureText(text).width;
     if (!has('ui-bubble')) {
@@ -1083,8 +1168,12 @@
     selfTick(now);
     world?.tick(dt, mapNow(), players.get(me), reduceMotion, (x,y) => !open(x,y) || [...players.values()].some(p => p.x === x && p.y === y) || world.active().some(n => n.x === x && n.y === y), paused || Boolean(bt) || document.hidden);
     for (const p of players.values()) if (p.id !== me) remoteTick(p, dt);
+    gateTick(dt);
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
-    ctx.imageSmoothingEnabled = false;
+    // The art is stored at two pixels a map pixel. Reducing it needs smoothing to stay even; at full size or
+    // larger, nearest pixels keep every edge sharp.
+    ctx.imageSmoothingEnabled = SCALE < 1.99;
+    ctx.imageSmoothingQuality = 'high';
     ctx.fillStyle = '#0b1410';
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
     const r = rows();
@@ -1100,8 +1189,8 @@
       ctx.translate(-cx, -cy);
       // Copy only the part of the ground that is on screen; the whole town is far bigger than the view.
       const gx = Math.max(0, cx), gy = Math.max(0, cy);
-      const gw = Math.min(ground.width / SCALE - gx, vw - (gx - cx)), gh = Math.min(ground.height / SCALE - gy, vh - (gy - cy));
-      if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * SCALE, gy * SCALE, gw * SCALE, gh * SCALE, gx, gy, gw, gh);
+      const gw = Math.min(ground.width / GROUND - gx, vw - (gx - cx)), gh = Math.min(ground.height / GROUND - gy, vh - (gy - cy));
+      if (gw > 0 && gh > 0) ctx.drawImage(ground, gx * GROUND, gy * GROUND, gw * GROUND, gh * GROUND, gx, gy, gw, gh);
       if (roomKind !== 'house') shimmer(world?.clock() ?? now, Math.floor(cx / TILE), Math.floor(cy / TILE), Math.ceil((cx + vw) / TILE), Math.ceil((cy + vh) / TILE));
       const x0 = Math.floor(cx / TILE), y0 = Math.floor(cy / TILE);
       const x1 = Math.ceil((cx + vw) / TILE), y1 = Math.ceil((cy + vh) / TILE);
@@ -1124,7 +1213,7 @@
       labels.length = 0; bubbles.length = 0;
       for (const t of things) t.draw();
       // Name tags never sit on top of each other: a tag that would overlap one already placed moves up a row.
-      ctx.font = '12px monospace';
+      ctx.font = UI_FONT(12);
       const placed = [];
       labels.sort((a, b) => (a[4] ?? 1) - (b[4] ?? 1)); // your own tag claims its spot first
       for (const [text, x, y, color] of labels) {
@@ -1135,7 +1224,7 @@
         label(text, x, ty, color);
       }
       // Bubbles step up out of each other's way too.
-      ctx.font = '13px monospace';
+      ctx.font = UI_FONT(13);
       const stacked = [];
       for (const [text, x, y] of bubbles) {
         const w = ctx.measureText(text).width + 24;
