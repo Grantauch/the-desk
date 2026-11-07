@@ -3,7 +3,7 @@
     "status": "REPAIRED_READBACK_VERIFIED",
     "owner": "Codex",
     "scope": "School-domain viewer access repaired for 23 linked lessons; held station-sheet draft truthfully marked coming-soon.",
-    "verification_status": "128_IDS_RESOLVED_23_PERMISSION_READBACKS_CONFIRMED_CATALOG_BUILD_STATIC_PASSED_FULL_RECHECK_RUNNING",
+    "verification_status": "128_IDS_RESOLVED_23_PERMISSION_READBACKS_CONFIRMED_CATALOG_BUILD_STATIC_AND_FULL_CANONICAL_PASSED",
     "deployment_status": "DRIVE_PERMISSIONS_SAVED_CATALOG_PROTECTED_PROMOTION_PENDING",
     "field_status": "GROUP_SHARED_RESOURCE_INTENDED_STUDENT_ACCOUNT_ACCEPTANCE_PENDING",
     "evidence": [
@@ -16,12 +16,13 @@
     "status": "INTEGRATED_LOCAL_VERIFIED_PROTECTED_CI_PENDING",
     "owner": "Codex",
     "scope": "Remaining WWI trench models, Kettle Creek graphics within the Design Bible, current assistant navigation and unpublished-work inventory.",
-    "verification_status": "CANONICAL_PRECEDING_TREE_PASSED_FINAL_MUSEUM_GAME_KIOSK_JOURNEYS_PASSED_PROTECTED_CI_PENDING",
+    "verification_status": "FULL_CANONICAL_PASSED_PROTECTED_SUPPLY_FADE_POLL_TIMEOUT_RECHECK_PENDING",
     "deployment_status": "REVIEW_BRANCH_ONLY_NETLIFY_AND_SEPARATE_GAME_RUNTIME_PENDING",
     "field_status": "SCHOOL_NETWORK_AND_PHYSICAL_CHROMEBOOK_PENDING",
     "evidence": [
       "Production baseline 0987512a2715aa36bf5bcbb6edbdaeeaf3604771 independently matched main before this release; older skipped builds were superseded.",
       "Museum supply and fallback journeys passed at 1366 and390 pixels. Visual review exposed the delayed return fade; its fix has a direct visibility assertion.",
+      "Protected run 42330229902 passed full verification and earlier browser stages, then timed out polling the supply-tour return fade. Both museum tests now assert the cleared finale state and at-most-one-second configured return transition separately from settling to zero opacity; product behavior is unchanged.",
       "The living-world browser suite now compares visible wilds residents against received authoritative snapshots, since residents commute through homes and maps.",
       "TheAtlas is offline in Desktop Commander. No live game files/processes/private storage or Hall Pass Apps Script, PINs or directory were changed. See docs/publication-readiness-2026-11-06.md."
     ]
