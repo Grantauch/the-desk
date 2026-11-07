@@ -953,7 +953,7 @@ function join(ws, ticket) {
         record: { w: tr.wins, l: tr.losses, d: tr.draws }, rerolls: STORE.renamesLeft(t.pid), attendance: t.days });
       p.arrival = { reports: linked.reports, deaths: linked.deaths };
       const hatched = STORE.team(t.pid).find((r) => r.hatched);
-      if (linked.created && hatched) notes.push(`Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
+      if (linked.created && hatched) notes.push(KETTLE ? `Welcome to Kettle Creek, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus home with you.` : `Welcome to the Checkaverse, ${tr.name}. ${label(hatched.species, hatched.nick)} rode the bus with you.`);
       const c = linked.credit;
       if (c) {
         const who = label(c.species, c.nick);
@@ -980,7 +980,7 @@ function join(ws, ticket) {
     town: { rows: TOWN.rows, plots: TOWN.plots, props: TOWN.props || [], exits: TOWN.exits || [], residentHomes:TOWN.residentHomes,baseHeight:TOWN.baseHeight }, house: HOUSE,
     wilds: { rows: WILDS.rows, props: WILDS.props, exits: WILDS.exits, name: WILDS.name, zones: Object.fromEntries(Object.entries(WILD.zones).map(([k, z]) => [k, z.name])) },
     charms: charmsOf(p), saved: Boolean(p.pid), record: p.record, partyMax: GROWTH.partyMax,
-    ...(KETTLE ? { kettle: { rows: KETTLE.rows, props: KETTLE.props || [], doors: KETTLE.doors || [], exits: KETTLE.exits || [], places: PLACE_LINES,residentHomes:KETTLE.residentHomes,baseHeight:KETTLE.baseHeight } } : {}),
+    ...(KETTLE ? { kettle: { rows: KETTLE.rows, props: KETTLE.props || [], doors: KETTLE.doors || [], fences: KETTLE.fences || [], gates: KETTLE.gates || [], exits: KETTLE.exits || [], places: PLACE_LINES,residentHomes:KETTLE.residentHomes,baseHeight:KETTLE.baseHeight } } : {}),
     room: p.room, kind: roomKind(p.room), myPlot: plot ? plot.id : 0, partner: p.partner, team: teamView(p), egg: eggOf(p),
     ...(home ? { stones: kettleStones(p) } : {}),
     players: inRoom(p.room).map(publicView),

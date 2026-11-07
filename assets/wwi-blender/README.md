@@ -111,3 +111,42 @@ is an interpretive environment prop, not a scan of a specific surviving artifact
 
 Reference context: Imperial War Museums trench construction guide:
 https://www.iwm.org.uk/sites/default/files/files/2023-10/first_world_war_large_print_guide.pdf
+
+## November 4 trench observation props
+
+| Reconstruction | Source / GLB stem | Triangles | Material batches | GLB bytes |
+|---|---|---:|---:|---:|
+| American M1917 helmet | m1917_helmet_1917 | 2,280 | 3 | 60,428 |
+| French M1915 Adrian infantry helmet | adrian_helmet_1915 | 2,076 | 3 | 46,268 |
+| Wooden trench periscope | wooden_trench_periscope_1917 | 1,836 | 7 | 70,988 |
+
+Run `build_trench_observation.py` with the same Blender Python environment. Editable components are retained in each compressed .blend; browser exports join them by material. Five placed helmets share cloned geometry and materials. Each of the three replacements succeeds independently and retains the original hidden prop; a failed asset leaves that prop visible. The existing camera, seven stops, reading text, periscope mode, ladder journey, sandbag instances and performance controls are unchanged.
+
+These are original interpretive reconstructions, not scans. Helmet shells include an open interior, approximate leather fittings and characteristic shallow M1917 crown or Adrian crest and infantry grenade badge. Fine markings and liner details are simplified. Helmet scale is slightly enlarged for legibility; the periscope is intentionally elongated to match the existing scene prop. It draws on surviving wooden WWI examples, including opposed apertures, panel hinges and a lower shutter, and is not an exact-dimension No.9 replica. The introduction explicitly identifies the reconstruction and display scale.
+
+Museum reference records:
+- Smithsonian National Air and Space Museum, M1917 helmet, shallow dome/broad brim, olive drab finish and leather lining: https://airandspace.si.edu/collection-objects/helmet-type-m1917-united-states-army-air-service/nasm_A20181170000
+- Australian War Memorial, French infantry Adrian helmet, four-part shell/crest and grenade badge: https://www.awm.gov.au/collection/C109806
+- National Army Museum, French Adrian helmet c.1916: https://collection.nam.ac.uk/detail.php?acc=1995-04-295-1
+- Smithsonian National Museum of American History, wooden/metal trench periscope, No.9 Mk II (1917), opposed mirrors, hinged panels and sliding shutter: https://americanhistory.si.edu/collections/object/nmah_1436492
+
+Focused browser acceptance: `node scripts/test-wwi-trench-observation.mjs`. Set `WWI_BASE_URL` for production readback. Local-only closeup instrumentation is injected by test routing and never shipped. Failure scenarios isolate each optional model; all other upgrades must still load.
+
+## November 4 trench supply props
+
+| Reconstruction | Source / GLB stem | Triangles | Material batches | GLB bytes |
+|---|---|---:|---:|---:|
+| US M1903 Springfield with M1905 bayonet | springfield_m1903_1918 | 2,598 | 5 | 83,232 |
+| Generic timber supply case | timber_supply_case_1916 | 2,488 | 5 | 81,916 |
+
+Run `build_trench_supply.py` using Blender Python 5.2. Three rifles and four cases share loaded geometry and materials. The original procedural props stay visible until their own GLB loads; a failed rifle or case never hides the other class. Two originally overlapping entry cases now sit in a stack. Existing controls, stops and interactions remain.
+
+The rifle is a simplified M1903 with the early straight walnut stock, barrel/receiver, bolt handle, folded rear leaf sight, front blade, floorplate, sling and long M1905 bayonet. No later M1903A3 rear aperture or later C-stock is modeled. Dimensions and fittings are approximate, with small details enlarged for display. Cases use generic planks, battens, lid boards, nails and rope handles. They deliberately carry no invented factory, ammunition quantity or caliber marks and are not attributed to a specific national pattern.
+
+Reference records:
+- US National Park Service, Springfield Armory, M1903 history: https://www.nps.gov/spar/learn/historyculture/the-1903-springfield-rifle.htm
+- Royal Armouries, First World War American rifles and M1905 bayonet: https://royalarmouries.org/objects-and-stories/stories/arms-of-the-first-world-war
+- Australian War Memorial, M1903: https://www.awm.gov.au/collection/C235820
+- Canadian War Museum, timber ammunition transport cases: https://www.warmuseum.ca/firstworldwar/objects-and-photos/equipment-and-vehicles/land-transportation/ammunition-box/
+
+Focused browser acceptance: `node scripts/test-wwi-trench-supply.mjs`, with optional `WWI_BASE_URL` for live verification. This exercises both new props plus the prior helmet, periscope and sandbag upgrades, the seven stops, scope/Escape and ladder/return at 1366 and 390 pixels, and separate unavailable-rifle/unavailable-case fallbacks.
