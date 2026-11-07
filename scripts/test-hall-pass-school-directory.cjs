@@ -89,4 +89,22 @@ smoke.properties.setProperty('SCHOOL_DIRECTORY_SOURCE_ID', 'unavailable-director
 const beforeSmoke = smoke.properties.getProperty('SCHOOL_DIRECTORY_SOURCE_ID');
 assert.equal(smoke.call('releaseRunSyntheticSmoke', CONTRACT).ok, true);
 assert.equal(smoke.properties.getProperty('SCHOOL_DIRECTORY_SOURCE_ID'), beforeSmoke, 'Protected synthetic smoke preserves the production directory pointer');
-console.log('PASS: school directory import, exact text IDs, two independent rooms, inactive membership, corrections, revocation, privacy, stale previews and nonce-resistant persistent throttling.');
+// Speed: a connected room once read the property store several times per roster
+// row on every PIN entry (over a thousand reads for 150 students), which stalled
+// the whole class. Property reads per request must not grow with the roster.
+const big = room('synthetic-big-roster-workbook', 'teacher.big@mtmorrisschools.org');
+const bigList = [], bigMap = [];
+for (let i = 0; i < 400; i++) { const id = String(200000 + i); bigList.push(id, `Last${i}, First${i}`); bigMap.push(`${id},big${i}@students.mtmorrisschools.org`); }
+const bigPreview = big.call('teacherImportSchoolDirectory', bigList.join('\n'), bigMap.join('\n'), '', '', CONTRACT);
+big.call('teacherImportSchoolDirectory', bigList.join('\n'), bigMap.join('\n'), 'IMPORT SCHOOL DIRECTORY', bigPreview.preview.revision, CONTRACT);
+const bigDirectory = big.call('teacherGetSchoolDirectoryState', CONTRACT).ownedId;
+for (let i = 0; i < 400; i++) big.sheet('Roster').appendRow([`big${i}@students.mtmorrisschools.org`, `First${i} Last${i}`, `Period ${1 + (i % 6)}`, '', i < 150, false, '']);
+big.newRequest(); const bigConnect = big.call('teacherConnectSchoolDirectory', bigDirectory, '', '', CONTRACT);
+big.call('teacherConnectSchoolDirectory', bigDirectory, 'USE SCHOOL DIRECTORY', bigConnect.preview.revision, CONTRACT);
+let propertyReads = 0; const realGet = big.properties.getProperty;
+big.properties.getProperty = (key) => { propertyReads += 1; return realGet(key); };
+big.signOut(); big.newRequest();
+try { big.call('identifyWithPin', '200003', 'speed-device'); } catch (error) { assert.doesNotMatch(error.message, /did not match/, 'Directory PIN still matches'); }
+big.properties.getProperty = realGet;
+assert.ok(propertyReads <= 20, `One PIN entry read the property store ${propertyReads} times with 400 roster rows`);
+console.log('PASS: school directory import, exact text IDs, two independent rooms, inactive membership, corrections, revocation, privacy, stale previews, nonce-resistant persistent throttling and roster-independent request cost.');
