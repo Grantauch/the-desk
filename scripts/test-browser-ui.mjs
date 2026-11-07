@@ -66,6 +66,73 @@ try {
   server = await preview({ server: { host: '127.0.0.1', port: 4391 } });
   browser = await chromium.launch({ headless: true });
   for (const viewport of viewports) {
+    await runCase('curiosity archive during a catalog outage', viewport, async page => {
+      const requests = [];
+      await page.route('**/.netlify/functions/curiosity?*', route => {
+        const collection = new URL(route.request().url()).searchParams.get('collection');
+        requests.push(collection);
+        return route.fulfill({ status: 502, json: { collection, items: [] } });
+      });
+      await visit(page, '/curiosity-desk/');
+      const desk = page.locator('[data-curiosity-desk]');
+      const status = desk.locator('[data-curiosity-live-status]');
+      await status.filter({ hasText: 'live catalog unavailable' }).waitFor();
+      assert.deepEqual(requests, ['power'], 'Only the initial collection loads before a reader interacts');
+      for (const collection of ['power', 'entertainment', 'sports', 'mysteries', 'michigan']) {
+        await desk.locator(`[data-filter="${collection}"]`).click();
+        const image = desk.locator('[data-field="image"]');
+        await image.waitFor();
+        await page.waitForFunction(() => document.querySelector('[data-field="image"]').naturalWidth > 0);
+        assert.match(await image.getAttribute('src'), /^\/images\/curiosity\/.+\.webp$/);
+        assert.equal(await desk.locator('[data-field="mode"]').textContent(), 'selected archive record');
+        assert.match(await desk.locator('[data-link="record"]').first().getAttribute('href'), /^https:\/\//);
+        const reveal = desk.locator('[data-action="reveal"]');
+        await reveal.focus();
+        await page.keyboard.press('Enter');
+        assert.equal(await reveal.getAttribute('aria-expanded'), 'true');
+        assert.ok(await desk.locator('[data-field="context-panel"]').isVisible());
+      }
+      assert.ok(requests.includes('michigan'), 'Live collection requests follow the chosen filter');
+      const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      assert.deepEqual(audit.violations.map(violation => violation.id), []);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    }, 'reduce');
+
+    await runCase('curiosity live response preserves a revealed artifact', viewport, async page => {
+      let respond;
+      const pending = new Promise(resolve => { respond = resolve; });
+      await page.route('**/.netlify/functions/curiosity?*', async route => {
+        const collection = new URL(route.request().url()).searchParams.get('collection');
+        if (collection === 'power') await pending;
+        await route.fulfill({ json: { items: [{
+          alt: 'Live catalog fixture',
+          record: `https://www.loc.gov/item/${collection}-fixture/`,
+          image: 'https://tile.loc.gov/fixture.jpg',
+        }] } });
+      });
+      try {
+        await visit(page, '/curiosity-desk/');
+        const desk = page.locator('[data-curiosity-desk]');
+        const mode = desk.locator('[data-field="mode"]');
+        const panel = desk.locator('[data-field="context-panel"]');
+        await desk.locator('[data-action="reveal"]').click();
+        respond();
+        await desk.locator('[data-curiosity-live-status]').filter({ hasText: 'live catalog records available' }).waitFor();
+        assert.ok(await panel.isVisible(), 'Delayed response leaves open context in place');
+        assert.equal(await mode.textContent(), 'selected archive record');
+        await desk.locator('[data-action="next"]').click();
+        assert.equal(await mode.textContent(), 'live catalog record');
+        assert.ok(await panel.isHidden());
+        await desk.locator('[data-filter="michigan"]').click();
+        await desk.locator('[data-link="record"]').first().and(page.locator('[href="https://www.loc.gov/item/michigan-fixture/"]')).waitFor();
+        assert.equal(await mode.textContent(), 'live catalog record');
+        await desk.locator('[data-action="next"]').click();
+        assert.equal(await mode.textContent(), 'selected archive record', 'The selected artifact is still available with a working feed');
+      } finally {
+        respond();
+      }
+    });
+
     for (const route of routes) await runCase(`page ${route}`, viewport, async page => {
       await visit(page, route);
       assert.ok(await page.locator('h1').first().isVisible(), 'Visible page heading');
@@ -192,17 +259,6 @@ try {
     hiddenHistorySource.includes('the four verdicts — confirmed, debunked, misleading, unproven')
       && !hiddenHistorySource.includes('verdict: it’s complicated'),
     'Hidden History uses one Four Verdicts vocabulary',
-  );
-
-  const curiositySource = await readFile(new URL('../src/components/CuriosityDesk.astro', import.meta.url), 'utf8');
-  pass(
-    !curiositySource.includes('Promise.all(Object.keys(curiosityCollections).map(loadCollection))'),
-    'Curiosity Desk does not preload all five collections',
-  );
-  pass(
-    curiositySource.includes('loadCollection(initialCollection)')
-      && curiositySource.includes('await loadCollection(nextItem.collection)'),
-    'Curiosity Desk loads the first and next collections on demand',
   );
 
   const deskObjectSource = await readFile(new URL('../src/components/DeskObject.astro', import.meta.url), 'utf8');

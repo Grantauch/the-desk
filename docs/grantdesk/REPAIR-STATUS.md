@@ -584,3 +584,9 @@ Batch 2 initial four desktop/Chromebook scenarios passed with eight GLBs and eig
 Over the Top: rounded Blender sandbag source and 1924-byte GLB implemented, preserving the same two InstancedMeshes and original fallback geometry. New trench-model browser/protected checks and release pending.
 
 Initial trench browser journeys passed all seven stops, trench-part labels and synthetic model failure; reducing bag geometry from 252 to 44 triangles after software-renderer measurements. All ten Arsenal model requests and all ten fallback scenarios passed at both viewports before final hull correction; corrected-ship repeat pending.
+
+## November 6 Curiosity Desk catalog outage
+
+Owner: Codex. Production health run [42278965733](https://github.com/Grantauch/the-desk/actions/runs/42278965733) failed on the Curiosity feed. Anonymous requests reproduced HTTP 502 across all five collections. The repair gives each collection a selected archive artifact with a locally served WebP, source credit, primary-source question and original record link. The browser continues to request live records on demand and preserves an open context panel when the live response arrives. The scheduled feed check still measures the live service.
+
+Six Chromium cases at 320, 390 and 1440 pixels passed the outage and delayed-live-response journeys, including keyboard reveal and automated WCAG A/AA. Some external record pages refused requests from the audit environment. Protected review, Netlify publication and school-network acceptance are separate.
