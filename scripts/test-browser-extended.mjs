@@ -31,6 +31,16 @@ const viewports = [
   { name: 'phone-390', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 1000 },
 ];
+const reflowRoutes = [
+  'bts-robinson-review',
+  'constitution-day-2026-09-18',
+  'hh-follow-the-money',
+  'hh-mkultra-review',
+  'reconstruction-case-file',
+  'ush9-muckrakers-review',
+  'ush9-square-deal',
+  'ush9-the-jungle',
+];
 
 await mkdir(artifacts, { recursive: true });
 const results = [];
@@ -99,6 +109,27 @@ try {
       } catch (error) {
         results.push({ route, viewport: viewport.name, status: 'failed', error: error.stack });
         await page.screenshot({ path: artifact(`extended-${viewport.name}-${slug}-failed.png`), fullPage: true }).catch(() => {});
+        console.error(`FAIL ${viewport.name}: ${route}\n${error.message}`);
+      } finally {
+        await page.close();
+      }
+    }
+    for (const slug of reflowRoutes) {
+      const route = `/hubs/${slug}.html`;
+      const page = await context.newPage();
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      try {
+        const response = await page.goto(`${origin}${route}`, { waitUntil: 'load' });
+        assert.equal(response?.status(), 200);
+        await page.evaluate(() => document.fonts.ready);
+        const fits = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
+        assert.ok(fits, `${route} fits the viewport without horizontal page scrolling`);
+        assert.deepEqual(errors, [], `${route} has no uncaught browser errors`);
+        results.push({ route, viewport: viewport.name, status: 'passed' });
+        console.log(`PASS ${viewport.name}: ${route} reflow`);
+      } catch (error) {
+        results.push({ route, viewport: viewport.name, status: 'failed', error: error.stack });
         console.error(`FAIL ${viewport.name}: ${route}\n${error.message}`);
       } finally {
         await page.close();
