@@ -220,7 +220,8 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
   }
 
   .nav-menu {
-    max-height: calc(100dvh - 7.5rem);
+    /* Leave room for the two-row sticky header and the disclosure gap. */
+    max-height: calc(100dvh - 11.5rem);
     overflow-y: auto;
     overscroll-behavior: contain;
     box-shadow: 0 24px 55px -32px rgb(23 23 28 / 0.72);
@@ -228,7 +229,7 @@ const exploreIsActive = exploreLinks.some((link) => isActive(link.href));
 
   @media (min-width: 768px) {
     .nav-menu {
-      max-height: calc(100dvh - 5.5rem);
+      max-height: calc(100dvh - 6.5rem);
     }
   }
 

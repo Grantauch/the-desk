@@ -135,6 +135,29 @@ try {
         await page.close();
       }
     }
+    const navPage = await context.newPage();
+    try {
+      await navPage.goto(origin, { waitUntil: 'load' });
+      const summary = navPage.locator('nav details summary:visible');
+      await summary.focus();
+      await navPage.keyboard.press('Enter');
+      const menu = navPage.locator('nav details[open] .nav-menu:visible');
+      await menu.evaluate(element => { element.scrollTop = element.scrollHeight; });
+      const about = menu.getByRole('link', { name: 'about', exact: true });
+      assert.ok(await about.evaluate(element => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.top >= 0 && bounds.bottom <= innerHeight;
+      }), 'The last Explore link fits entirely in the viewport');
+      await about.click();
+      await navPage.waitForURL('**/about/');
+      results.push({ route: 'Explore menu', viewport: viewport.name, status: 'passed' });
+      console.log(`PASS ${viewport.name}: Explore menu reaches its last link`);
+    } catch (error) {
+      results.push({ route: 'Explore menu', viewport: viewport.name, status: 'failed', error: error.stack });
+      console.error(`FAIL ${viewport.name}: Explore menu\n${error.message}`);
+    } finally {
+      await navPage.close();
+    }
     await context.close();
   }
 

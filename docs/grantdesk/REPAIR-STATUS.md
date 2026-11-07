@@ -392,7 +392,7 @@ Implementation `adb14b472bf7d57eed1d1218558eda5e732acf5b` was pushed to main and
 
 ## November 6 mobile lesson reflow
 
-Owner: Codex. The production viewport sweep found horizontal scrolling in the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and the Robinson, MKUltra and Muckrakers review guides. The batch adjusts only layout sizing and preserves the lesson and game interactions. The extended Chromium suite now measures reflow on all eight routes at 320, 390 and 1440 pixels. The sealed USH9 L014 drawer needs a separate release review. Protected review, publication and managed Chromebook acceptance remain pending.
+Owner: Codex. The production viewport sweep found horizontal scrolling in the Reconstruction Case File, Constitution Day, The Jungle, The Square Deal, Follow the Money, and the Robinson, MKUltra and Muckrakers review guides. The phone Explore menu also extended beyond the bottom of the screen, cutting off the last link even when scrolled as far as it could go. The batch adjusts layout sizing and keeps the lesson and game interactions. The extended Chromium suite measures reflow on all eight routes and follows the last Explore link at 320, 390 and 1440 pixels. The sealed USH9 L014 drawer needs a separate release review. Protected review, publication and managed Chromebook acceptance remain pending.
 
 ## September 7 website design edition
 
