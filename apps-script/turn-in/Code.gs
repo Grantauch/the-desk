@@ -543,7 +543,11 @@ function identify_(request) {
   assertAttemptsAllowed_(device);
   if (!/^\d{5,6}$/.test(pin)) throw refuse_('bad_pin', 'Enter your five or six digit hall pass PIN.');
 
-  const match = rosterByHash_()[hashPin_(pin)];
+  // Lunch numbers lose a leading zero in some school exports (020772 vs 20772).
+  // Accept either spelling of the same number before calling it a wrong PIN.
+  const byHash = rosterByHash_();
+  const zeroTwin = /^0\d{5}$/.test(pin) ? pin.slice(1) : /^\d{5}$/.test(pin) ? `0${pin}` : '';
+  const match = byHash[hashPin_(pin)] || (zeroTwin ? byHash[hashPin_(zeroTwin)] : null);
   if (!match) {
     recordFailedAttempt_(device);
     throw refuse_('bad_pin', 'That PIN did not match. Try again or ask your teacher.');

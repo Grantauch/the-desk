@@ -47,7 +47,9 @@ assert.notEqual(a.properties.getProperty('PIN_SALT'), b.properties.getProperty('
 for (const h of [a,b]) {
  h.signOut(); h.newRequest();
  assert.equal(h.call('identifyWithPin', '012345', 'device1').student.key, h.call('getRoster_').find((row) => row.email === 'ada@students.mtmorrisschools.org').key);
- assert.throws(() => h.call('identifyWithPin', '12345', 'device1'), /did not match/);
+ // The same lunch number without its leading zero still reaches the same student.
+ assert.equal(h.call('identifyWithPin', '12345', 'device1').student.key, h.call('getRoster_').find((row) => row.email === 'ada@students.mtmorrisschools.org').key);
+ assert.throws(() => h.call('identifyWithPin', '112345', 'device1'), /did not match/, 'Only a leading zero is forgiven');
  assert.throws(() => h.call('identifyWithPin', '54321', 'device1'), /did not match/, 'Unassigned schoolwide student cannot enter');
  assert.throws(() => h.call('identifyWithPin', oldA, 'device1'), /did not match/);
 }
@@ -57,6 +59,8 @@ a.call('teacherEnrollSchoolStudent', '54321', 'Period 1', CONTRACT);
 assert.equal(a.call('getRoster_').length, 2); assert.equal(b.call('getRoster_').length, 1);
 a.signOut(); a.newRequest();
 assert.equal(a.call('identifyWithPin', '54321', 'device2').student.key, a.call('getRoster_').find((row) => row.email === 'alan@students.mtmorrisschools.org').key);
+// Stored without its zero, typed the way the lunch line shows it.
+a.newRequest(); assert.equal(a.call('identifyWithPin', '054321', 'device2b').student.key, a.call('getRoster_').find((row) => row.email === 'alan@students.mtmorrisschools.org').key);
 assert.throws(() => a.call('teacherGetSchoolDirectoryState', CONTRACT), /teacher|Only|authorized|staff/i);
 a.newRequest(); const signed = a.call('identifyWithPin', '012345', 'device3');
 // A directory correction must invalidate both rooms and previously issued proofs.

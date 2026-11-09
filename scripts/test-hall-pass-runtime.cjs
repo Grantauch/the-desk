@@ -3352,7 +3352,7 @@ test('applying switches PINs: the lunch number works and the old PIN does not', 
   assert.equal(card['Email Status'], 'SENT', 'lunch numbers must not queue PIN emails');
 });
 
-test('5-digit lunch PIN and leading-zero 6-digit lunch PIN authorize exactly as issued', () => {
+test('5-digit and leading-zero lunch PINs authorize as issued or with the zero added or dropped', () => {
   const c = classroom({ settings: { MAX_ACTIVE_PASSES: 2 } });
   const originalAdaPin = c.pin(PEOPLE.ada);
   setLunch(c, lunchList([[PEOPLE.ada, '41234'], [PEOPLE.alan, '012345']]), 'USE LUNCH NUMBERS');
@@ -3360,7 +3360,12 @@ test('5-digit lunch PIN and leading-zero 6-digit lunch PIN authorize exactly as 
   assert.equal(signOutWith(c, PEOPLE.ada, '41234').actionOutcome.kind, 'STARTED');
   assert.equal(signOutWith(c, PEOPLE.alan, '012345').actionOutcome.kind, 'STARTED');
   assert.equal(String(c.pinCards().find(row => String(row['Student Email']) === PEOPLE.alan.email).PIN), '012345');
-  assert.throws(() => signOutWith(c, PEOPLE.alan, '12345'), /did not match/);
+  // School exports drop leading zeros for some students, so both spellings must work.
+  const who = (pin, nonce) => { c.harness.newRequest(); return c.harness.call('identifyWithPin', pin, nonce).student.key; };
+  assert.equal(who('12345', 'zero-dropped'), who('012345', 'alan-as-issued'));
+  assert.equal(who('041234', 'zero-added'), who('41234', 'ada-as-issued'));
+  c.harness.newRequest();
+  assert.throws(() => c.harness.call('identifyWithPin', '112345', 'not-a-zero'), /did not match/);
 });
 
 test('a student not on the list keeps their current PIN', () => {
